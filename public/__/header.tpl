@@ -18,7 +18,8 @@
 
 	<style type="text/css">
 	label {cursor: default}
-	.errormsg,.mandatory {color: red}
+	.errormsg {color: red}
+	.mandatory {font-weight: bold}
 	</style>
 
 	{a$head}
