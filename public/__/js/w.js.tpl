@@ -397,32 +397,38 @@ w = function($rootAgent, $keys, $CIApID)
 
 	w.x = function($data)
 	{
-		var $block, $offset, $parent, $blockData, $parentLoop, $counter, $loop;
-		
-		function $next()
+		if (!$data[0]) return 0;
+
+		var $block, $offset, $parent, $blockData, $parentLoop, $counter,
+
+			$next = $data[1][0]
+
+				? function()
+				{
+					$blockData = $data[$block];
+					$offset += $j = $blockData[0];
+
+					if ($offset + $j >= $blockData.length) return t($data[++$block])
+						? ($offset = 0, $next())
+						: (v = v.$, $loopIterator = $parentLoop, 0);
+
+					v = {};
+					for ($i = 1; $i <= $j; ++$i) v[ $blockData[$i] ] = esc($blockData[$i + $offset]);
+					v.$ = $parent;
+					v.iteratorPosition = $counter++;
+
+					return v;
+				}
+
+				: function() {return 0};
+
+		function $loop()
 		{
-			$blockData = $data[$block];
-			$offset += $j = $blockData[0];
-
-			if ($offset + $j >= $blockData.length) return t($data[++$block])
-					? ($offset = 0, $next())
-					: (v = v.$, $loopIterator = $parentLoop, 0);
-
-			v = {};
-			for ($i = 1; $i <= $j; ++$i) v[ $blockData[$i] ] = esc($blockData[$i + $offset]);
-			v.$ = $parent;
-			v.iteratorPosition = $counter++;
-
-			return v;
+			return $parent = v,
+				$parentLoop = $loopIterator,
+				$counter = $offset = 0, $block = 1,
+				$loopIterator = $next;
 		}
-
-		$loop = $data[0] ? function()
-			{
-				return $parent = v,
-					$parentLoop = $loopIterator,
-					$counter = $offset = 0, $block = 1,
-					$loopIterator = $next;
-			} : 0;
 
 		<!-- IF g$__DEBUG__ -->
 		$loop.toString = function($a, $level)
