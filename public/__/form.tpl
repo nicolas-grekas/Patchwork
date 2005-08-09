@@ -1,0 +1,40 @@
+<!--*
+
+a$_mode_ : ('errormsg'|'close'|'')
+a$_enterControl_ : 0 to keep the browser's behaviour,
+                   1 to disable submit on enter key press,
+				   2 to enable submit on enter key press by simulating
+				     a click on the submit/image element positioned
+					 after the currently focused element.
+
+*-->
+{a$|import}<!--
+
+IF a$_mode_ == 'errormsg' --><!--
+
+	IF a$_errormsg
+		--><div class="errormsg"><!--
+		LOOP a$_errormsg -->{$VALUE}<br /><!-- END:LOOP
+		--></div><!--
+	END:IF --><!--
+
+ELSEIF a$_mode_ == 'close' --></form><!--
+
+ELSE
+
+	--><form accept-charset="UTF-8" {a$|htmlArgs} action="{g$__URI__}"><!--
+
+	IF !g$_FORM --><script src="js/v"></script><!-- END:IF
+
+	--><script><!--
+lF=document.forms[document.forms.length-1]<!-- IF a$_enterControl_ -->;FeC({a$_enterControl_})<!-- END:IF -->//--></script><!--
+
+	IF !g$_FORM && a$_upload --><script src="js/QJsrs"></script><script src="js/upload"></script><!-- END:IF --><!--
+
+	LOOP a$_hidden
+		--><input type="hidden" name="{$name}" value="{$value}" /><!--
+	END:LOOP --><!--
+
+	SET g$_FORM -->1<!-- END:SET --><!--
+
+END:IF -->

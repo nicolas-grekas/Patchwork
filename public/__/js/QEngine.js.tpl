@@ -1,0 +1,130 @@
+function QEngine($keyword)
+{
+	var $this = this,
+		
+		$word = [];
+
+	$this.maxResult = 500;
+	$this.minKwLen = 2;
+
+	$this.search = function($i, $pushResult)
+	{
+		var $wLen, $rLen = 0, $found = [], $union = [], $known = [], $word_i = 0, $matches,
+			$maxResult = $this.maxResult;
+
+		$setQuery($i);
+		$wLen = $word.length;
+		if (!$wLen) return $word;
+
+		for (; $word_i < $wLen; ++$word_i)
+		{
+			$matches = $getMatches($word[$word_i]);
+			for ($i = 0; $i<$matches.length; ++$i)
+			{
+				if ( $found[ $matches[$i] ] != 0 && !$known[ $matches[$i] ] )
+				{
+					$known[ $matches[$i] ] = 1;
+
+					if ( $found[ $matches[$i] ] ) ++$found[ $matches[$i] ];
+					else
+					{
+						if ($wLen==1)
+						{
+							$pushResult($matches[$i]);
+							if (++$rLen >= $maxResult) return $word;
+						}
+						$found[ $matches[$i] ] = 1;
+						$union[$union.length] = $matches[$i];
+					}
+				}
+			}
+			$known = [];
+		}
+
+		if ($wLen==1) return $word;
+
+		for ($i = 0; $i < $union.length; ++$i)
+		{
+			$word_i = $found[ $union[$i] ];
+			if ( $word_i == $wLen )
+			{
+				$pushResult($union[$i]);
+				if (++$rLen >= $maxResult) return $word;
+			}
+			else
+			{
+				--$word_i;
+				if ( !$known[$word_i] ) $known[$word_i] = [];
+				$known[$word_i][$known[$word_i].length] = $union[$i];
+			}
+		}
+
+		$word_i = $known.length;
+		$matches = $maxResult || -1;
+		while ($word_i > 0 && $matches) if ($known[--$word_i])
+			for ($i = 0; $i < $known[$word_i].length && $matches; ++$i, --$matches) $pushResult( $known[$word_i][$i] );
+
+		return $word;
+	}
+
+	function $setQuery($query)
+	{
+		var $i = 0;
+
+		$query = $getKeyword($query);
+		$query.sort(function($a, $b) {return $b.length - $a.length});
+
+		$word = [];
+		for (; $i<$query.length; ++$i)
+		{
+			while ( $i+1<$query.length && $query[$i+1]==$query[$i] ) ++$i;
+			$word[$word.length] = $query[$i];
+		}
+	}
+
+	function $getKeyword($a)
+	{
+		if ($a == '*') return [''];
+
+		var $i = 0, $minKwLen = $this.minKwLen;
+
+		$a = stripAccents($a, -1);
+		$a = $a.replace(/[^a-z0-9]+/g, '_'); /* using ' ' instead of '_' causes a bug in NN4 */
+		$a = '_'+$a+'_';
+
+		if ($minKwLen > 1) $a = $a.replace(new RegExp("_[^_]{1,"+($minKwLen-1)+"}_", 'g'), '_');
+
+		$a = $a.replace(/^_+/g,'').replace(/_+$/g,'');
+		return $a == '' ? [] : $a.split('_');
+	}
+
+	function $getMatches($w)
+	{
+		var $i = 0, $k = '', $match = '', $kwDb = $keyword;
+		$w = $w.toUpperCase();
+
+		for (; $i<$w.length; ++$i)
+		{
+			$k += $w.charAt($i);
+			if ($kwDb[$k]>='') {$kwDb = $kwDb[$k]; $k = '';}
+		}
+
+		if ($k=='') $match = $getChildId($kwDb);
+		else for ($i in $kwDb)
+		{
+			if ((''+$i).indexOf($k)==0) $match += $getChildId($kwDb[$i]);
+			else if ($match) break;
+		}
+
+		return $match ? $match.substr(1).split(',') : [];
+	}
+
+	function $getChildId($a)
+	{
+		var $b = '', $i;
+		if (typeof $a=='object' || typeof $a=='array') for ($i in $a) $b += $getChildId($a[$i]);
+		else $b += ',' + $a;
+
+		return $b;
+	}
+}
