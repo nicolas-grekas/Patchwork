@@ -1,0 +1,30 @@
+<html><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script>
+
+p = parent.loadQJsrs(this).p;
+
+if (p && p.length)
+{
+	d = document;
+	v = p[2];
+
+	f = '<form accept-charset="UTF-8" action="' + location + '" method="post">';
+	for (i in v) f += '<input>';
+	d.write(f + '<\/form>');
+
+	onload = function()
+	{
+		f = d.forms[0];
+		f.action = p[0];
+
+		i = p.length = 0;
+		for (i in v)
+			e = f[i],
+			e.name = i,
+			e.value = v[i],
+			++i;
+
+		f.submit();
+	}
+}
+
+</script></html>

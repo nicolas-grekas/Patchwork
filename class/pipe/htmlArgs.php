@@ -1,0 +1,41 @@
+<?php
+
+class pipe_htmlArgs
+{
+	static function php($pool)
+	{
+		if (!$pool) return '';
+
+		$except = func_get_args();
+		$except = array_slice($except, 1);
+
+		$result = '';
+		foreach ($pool as $k => $v)
+		{
+			if (mb_substr($k, 0, 1)!='_' && mb_strpos($k, '$')===false && !in_array($k, $except))
+			{
+				$result .= CIA::htmlescape($k) . '="' . CIA::htmlescape(CIA::string($v)) . '" ';
+			}
+		}
+
+		return $result;
+	}
+
+	static function js()
+	{
+		?>/*<script>*/
+
+root.P<?php echo substr(__CLASS__, 5)?> = function($pool)
+{
+	if (!$pool) return '';
+	var $result = '', $i = arguments.length, $except = [];
+
+	while (--$i) $except[$i] = arguments[$i];
+	$except = new RegExp('^(|'+$except.join('|')+')$');
+
+	for ($i in $pool) if ($i.substr(0,1)!='_' && $i.indexOf('$')<0 && $i.search($except)) $result += esc($i) + '="' + esc($pool[$i]) + '" ';
+	return $result;
+}
+
+<?php	}
+}
