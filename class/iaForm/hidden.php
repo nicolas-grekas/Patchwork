@@ -155,7 +155,9 @@ class iaForm_hidden extends loop_singleBlock
 		$i = 0;
 		while(isset($param[$i])) $this->valid_args[] =& $param[$i++];
 
-		$this->value = @$this->form->rawValues[$this->name];
+		if (isset($this->form->rawValues[$this->name])) $this->value = $this->form->rawValues[$this->name];
+		else if (isset($param['default'])) $this->value = $param['default'];
+		else $this->value = '';
 
 		if ($this->multiple)
 		{

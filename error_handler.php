@@ -1,5 +1,9 @@
 <?php
 
+self::$maxage  = 0;
+self::$expires = 1;
+self::$private = 1;
+
 if (self::$handlesOb) $context = '';
 else
 {

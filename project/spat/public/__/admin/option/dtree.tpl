@@ -2,25 +2,21 @@
 
 IF a$loop --><!--
 
-	LOOP a$option
-		-->{a$name}.add('o{$option_id}','c{$choice_id}',{$label|escape:'js'},'admin/option/{$option_id}','','',{'img/%s.gif'|printf:$type|escape:'js'},{'img/%s.gif'|printf:$type|escape:'js'});<!--
-		LOOP $choice
-			-->{a$name}.add('c{$choice_id}','o{$option_id}',{$label|escape:'js'},'admin/option/{$option_id}/{$choice_id}');<!--
-			AGENT 'admin/option/dtree' option=$option name=a$name loop=1 --><!--
-		END:LOOP --><!--
+	LOOP a$branching
+		-->{a$name}.add('{$node_id}','{$parent_node_id}',{$label|escape:'js'});<!--
+		AGENT 'admin/option/dtree' branching=$branching name=a$name loop=1 --><!--
 	END:LOOP --><!--
-
 
 ELSE --><!--
 
 	SET a$dtree --><!--
-		AGENT 'admin/option/dtree' option=$option name=a$name loop=1 --><!--
+		AGENT 'admin/option/dtree' branching=$branching name=a$name loop=1 --><!--
 	END:SET -->
 <script src="js/dtree"></script><script><!--
 
 {a$name} = new dTree('{a$name}');
 
-{a$name}.add('c0',-1,{"Liste des options d'inscription"|escape:'js'},{g$__AGENT__|escape:'js'});
+{a$name}.add('c0',-1,{"Branchement des options"|escape:'js'});
 {a$dtree}
 
 document.write({a$name});

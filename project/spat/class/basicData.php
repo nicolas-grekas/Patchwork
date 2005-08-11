@@ -2,17 +2,14 @@
 
 class basicData
 {
-	public static function getOptionType($currType = '')
+	public static function getOptionType()
 	{
 		return array(
 			'separator' => T('Séparateur'),
-			'select' => T('Liste'),
-			'check' => T('Boutons radio'),
-			'check-multiple' => T('Cases à cocher'),
-			'quantity' => T('Quantité'),
+			'select'    => T('Liste'),
+			'check'     => T('Case à cocher'),
+			'quantity'  => T('Quantité'),
 		);
-
-		return $types;
 	}
 
 	public static function getDic($table)
@@ -30,9 +27,17 @@ class basicData
 					ORDER BY position,label";
 
 			$result = DB()->query($sql);
-			while ($row = $result->fetchRow(DB_FETCHMODE_ASSOC)) $a[current($row)] = $row['label'];
+			while ($row = $result->fetchRow(DB_FETCHMODE_ASSOC)) $a[current($row)] = T($row['label']);
 		}
 
 		return $dic[$table];
+	}
+
+	public static function yesNo()
+	{
+		return array(
+			1 => T('Oui'),
+			0 => T('Non')
+		);
 	}
 }
