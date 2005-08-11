@@ -157,6 +157,23 @@ checkElementStatus = IcES = function($msgs, $form)
 
 		if (!$element) continue;
 
+		if (!$element.gS)
+		{
+			switch ($element.type || $element[0].type)
+			{
+				case 'radio':
+				case 'checkbox':
+					$element.gS = IgCS;
+					break;
+
+				case 'select':
+					$element.gS = IgSS;
+					break;
+
+				default: $element.gS = function() {return 1;}
+			}
+		}
+
 		$status = $element.gS();
 		if ($status) continue;
 
