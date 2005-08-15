@@ -6,6 +6,8 @@ class agent_admin_option_branching extends agent
 
 	public function render()
 	{
-		return (object) array();
+		return (object) array(
+			'branching' => new loop_dtree_branching
+		);
 	}
 }
