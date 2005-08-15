@@ -36,7 +36,6 @@ function dTree(objName) {
 		useCookies		: true,
 		useLines		: true,
 		useIcons		: true,
-		useStatusText	: false,
 		closeSameLevel	: false,
 		inOrder			: false
 	}
@@ -80,16 +79,7 @@ dTree.prototype.closeAll = function() {
 
 // Outputs the tree to the page
 dTree.prototype.toString = function() {
-	var str = '<style>' +
-		'.dtree {font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;font-size: 11px;color: #666;white-space: nowrap;}' +
-		'.dtree img {border: 0px;vertical-align: middle;}' +
-		'.dtree a {color: #333;text-decoration: none;}' +
-		'.dtree a.node, .dtree a.nodeSel {white-space: nowrap;padding: 1px 2px 1px 2px;}' +
-		'.dtree a.node:hover, .dtree a.nodeSel:hover {color: #333;text-decoration: underline;}' +
-		'.dtree a.nodeSel {background-color: #c0d2ec;}' +
-		'.dtree .clip {overflow: hidden;}' +
-		'</style>' +
-		'<div class="dtree">\n';
+	var str = '<div class="dtree">\n';
 
 	if (document.getElementById) {
 		if (this.config.useCookies) this.selectedNode = this.getSelected();
@@ -143,7 +133,6 @@ dTree.prototype.node = function(node, nodeId) {
 		str += '<a id="s' + this.obj + nodeId + '" class="' + ((this.config.useSelection) ? ((node._is ? 'nodeSel' : 'node')) : 'node') + '" href="' + node.url + '"';
 		if (node.title) str += ' title="' + node.title + '"';
 		if (node.target) str += ' target="' + node.target + '"';
-		if (this.config.useStatusText) str += ' onmouseover="window.status=\'' + node.name + '\';return true;" onmouseout="window.status=\'\';return true;" ';
 		if (this.config.useSelection && ((node._hc && this.config.folderLinks) || !node._hc))
 			str += ' onclick="return this.href==location?' + this.obj + '.o(' + nodeId + ')||false:' + this.obj + '.openTo(' + nodeId + ',1);"';
 		str += '>';
@@ -191,7 +180,7 @@ dTree.prototype.setCS = function(node) {
 
 // Returns the selected node
 dTree.prototype.getSelected = function() {
-	var sn = this.getCookie('cs' + this.obj);
+	var sn = _BOARD['cs' + this.obj]||'';
 	return (sn) ? sn : null;
 };
 
@@ -208,7 +197,7 @@ dTree.prototype.s = function(id) {
 		eNew = document.getElementById("s" + this.obj + id);
 		eNew.className = "nodeSel";
 		this.selectedNode = id;
-		if (this.config.useCookies) this.setCookie('cs' + this.obj, cn.id);
+		if (this.config.useCookies) setboard('cs' + this.obj, cn.id);
 	}
 };
 
@@ -289,23 +278,6 @@ dTree.prototype.nodeStatus = function(status, id, bottom) {
 	eDiv.style.display = (status) ? 'block': 'none';
 };
 
-
-// [Cookie] Clears a cookie
-dTree.prototype.clearCookie = function() {
-	this.setCookie('co'+this.obj, '');
-	this.setCookie('cs'+this.obj, '');
-};
-
-// [Cookie] Sets value in a cookie
-dTree.prototype.setCookie = function(cookieName, cookieValue) {
-	setboard(cookieName, cookieValue);
-};
-
-// [Cookie] Gets a value from a cookie
-dTree.prototype.getCookie = function(cookieName) {
-	return _BOARD[cookieName] || '';
-};
-
 // [Cookie] Returns ids of open nodes as a string
 dTree.prototype.updateCookie = function() {
 	var str = '';
@@ -315,13 +287,14 @@ dTree.prototype.updateCookie = function() {
 			str += this.aNodes[n].id;
 		}
 	}
-	this.setCookie('co' + this.obj, str);
+	setboard('co' + this.obj, str);
 };
 
 // [Cookie] Checks if a node id is in a cookie
 dTree.prototype.isOpen = function(id) {
-	var aOpen = this.getCookie('co' + this.obj).split('.');
+	var aOpen = (_BOARD['co' + this.obj]||'').split('.');
 	for (var n=0; n<aOpen.length; n++)
 		if (aOpen[n] == id) return true;
 	return false;
 };
+
