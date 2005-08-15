@@ -336,19 +336,16 @@ else
 	 * Both Firefox and IE send a "Cache-Control: no-cache" request header
 	 * only and only if the current page is reloaded with the JavaScript code :
 	 * "location.reload(true)". We use this behaviour to trigger a cache reset
-	 * when something stale is detected (or at develpment time).
+	 * on demand at developement time.
 	 */
 	if (
-		!CIA_PHP
+		DEBUG && !CIA_BINARY
 		&& 'no-cache' == @$_SERVER['HTTP_CACHE_CONTROL']
 		&& 0 === strpos(@$_SERVER['HTTP_USER_AGENT'], 'Mozilla') )
 	{
-		if (DEBUG)
-		{
-			$h = fopen('index.php', 'r+b', true);
-			fwrite($h, '<');
-			fclose($h);
-		}
+		$h = fopen('index.php', 'r+b', true);
+		fwrite($h, '<');
+		fclose($h);
 
 		CIA::delCache();
 	}
