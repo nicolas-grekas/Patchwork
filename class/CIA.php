@@ -252,7 +252,7 @@ class CIA
 
 		self::$agentClass = $agentClass = str_replace('_', '/', $agentClass);
 
-		return self::makeCacheDir($agentClass . '/_/', CIA_PHP ? 'php.php' : 'js.php', $cagent);
+		return self::makeCacheDir($agentClass . '/_/', CIA_SERVERSIDE ? 'php.php' : 'js.php', $cagent);
 	}
 
 	public static function delCache()

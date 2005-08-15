@@ -224,7 +224,7 @@ if (!extension_loaded('mbstring')) require 'mbstring.php';
 
 if (CIA_DIRECT)
 {
-	define('CIA_PHP', false);
+	define('CIA_SERVERSIDE', false);
 	define('CIA_BINARY', false);
 
 	CIA::header('Content-Type: text/javascript; charset=UTF-8');
@@ -324,12 +324,12 @@ else
 	if (CIA_POSTING || CIA_BINARY || isset($_GET['$bin']) || !@$_COOKIE['JS'])
 	{
 		class IA extends IA_php {};
-		define('CIA_PHP', true);
+		define('CIA_SERVERSIDE', true);
 	}
 	else
 	{
 		class IA extends IA_js {};
-		define('CIA_PHP', false);
+		define('CIA_SERVERSIDE', false);
 	}
 
 	/*

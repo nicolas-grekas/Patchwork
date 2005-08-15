@@ -100,15 +100,15 @@ abstract class iaCompiler
 		$source = @file_get_contents('public/' . CIA_LANG . "/$template", true);
 		if ($source === false) $source = file_get_contents("public/__/$template", true);
 
-		if (CIA_PHP)
+		if (CIA_SERVERSIDE)
 		{
-			$source = preg_replace("'<!--\s+JSONLY\s+-->.*?<!--\s+END:JSONLY\s+-->'su", '', $source);
-			$source = preg_replace("'<!--\s+(END:)?PHPONLY\s+-->'su", '', $source);
+			$source = preg_replace("'<!--\s+CLIENTSIDE\s+-->.*?<!--\s+END:CLIENTSIDE\s+-->'su", '', $source);
+			$source = preg_replace("'<!--\s+(END:)?SERVERSIDE\s+-->'su", '', $source);
 		}
 		else
 		{
-			$source = preg_replace("'<!--\s+PHPONLY\s+-->.*?<!--\s+END:PHPONLY\s+-->'su", '', $source);
-			$source = preg_replace("'<!--\s+(END:)?JSONLY\s+-->'su", '', $source);
+			$source = preg_replace("'<!--\s+SERVERSIDE\s+-->.*?<!--\s+END:SERVERSIDE\s+-->'su", '', $source);
+			$source = preg_replace("'<!--\s+(END:)?CLIENTSIDE\s+-->'su", '', $source);
 		}
 
 		if (preg_match("'<!--\s+PARENT\s+-->'su", $source))
@@ -470,7 +470,7 @@ abstract class iaCompiler
 			}
 
 			$a = implode($a);
-			return CIA_PHP ? "@($a)": $a;
+			return CIA_SERVERSIDE ? "@($a)": $a;
 		}
 
 		return $this->makeVar($a, $forceType);
