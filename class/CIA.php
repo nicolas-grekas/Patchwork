@@ -134,12 +134,16 @@ class CIA
 	 */
 	public static function touch($message)
 	{
-		$message = preg_split("'[\\\\/]+'u", $message, -1, PREG_SPLIT_NO_EMPTY);
-		$message = array_map('rawurlencode', $message);
-		$message = implode('/', $message);
-		$message = str_replace('.', '%2E', $message);
+		if (is_array($message)) foreach ($message as $message) self::touch($message);
+		else
+		{
+			$message = preg_split("'[\\\\/]+'u", $message, -1, PREG_SPLIT_NO_EMPTY);
+			$message = array_map('rawurlencode', $message);
+			$message = implode('/', $message);
+			$message = str_replace('.', '%2E', $message);
 
-		self::recursiveUnwatch('./tmp/cache/watch/' . $message . '/');
+			self::recursiveUnwatch('./tmp/cache/watch/' . $message . '/');
+		}
 	}
 
 	/**
