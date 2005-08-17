@@ -20,7 +20,7 @@ class IA_js
 			$a = array_map(array('self','formatJs'), $a['argv']);
 			$a = implode(',', $a);
 
-			echo $a = '<html><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script>a=[' . self::formatJs($agent) . ',[' . $a . ']]</script><script src="' . CIA::htmlescape(CIA_ROOT) . 'js/w"></script></html>';
+			echo $a = '<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script>a=[' . self::formatJs($agent) . ',[' . $a . ']]</script><script src="' . CIA::htmlescape(CIA_ROOT) . 'js/w"></script></head></html>';
 
 			CIA::writeFile($cagent, $a);
 		}
@@ -28,28 +28,35 @@ class IA_js
 
 	public static function render($agent)
 	{
-		if (!self::$html) CIA::header('Content-Type: text/javascript; charset=UTF-8');
+		CIA::header('Content-Type: text/javascript; charset=UTF-8');
 
 		echo 'CIApID=', CIA_PROJECT_ID, ';w({';
-
-		CIA::$headersDiff = array();
 
 		$agentClass = CIA::agentClass($agent);
 		$agent = class_exists($agentClass) ? new $agentClass($_GET) : new agentTemplate_(array('template' => $agent));
 
 		$cagent = CIA::agentCache($agentClass, $agent->argv);
-		if (!(CIA_POSTING && $agent->canPost) && file_exists($cagent) && filemtime($cagent)>CIA_TIME) return require $cagent;
+		if (file_exists($cagent) && filemtime($cagent)>CIA_TIME) return require $cagent;
 
+		//XXX RESET local header observer
+		CIA::$headersDiff = array();
 		CIA::$privateTrigger = false;
+
+		/* Get agent's data */
 		$data = $agent->render();
+
+		/*
 		list($maxage, $expires, $private, $template, $watch) = $agent->getMeta();
 		$expires = !('ontouch' == $expires && $watch);
 
 		if (CIA::$privateTrigger) $private = true;
 		CIA::setCacheControl($maxage, $private, $expires);
-		
-		if ($private = !$private && ($maxage || !$expires)) ob_start();
+		*/
 
+		/* Start ob for caching data */
+		ob_start();
+
+		/* Format agent's data in JavaScript */
 		$comma = '';
 		foreach ($data as $key => $value)
 		{
@@ -58,8 +65,15 @@ class IA_js
 			else echo self::formatJs($value);
 			$comma = ',';
 		}
-
 		echo '}';
+
+		/* Call agent's destructor */
+		unset($agent);
+		
+		/* Get Cache-Control directives */
+		$maxage = ;
+		$private = ;
+		$expires = ;
 
 		if ($maxage<0 && !$expires)
 		{
@@ -70,7 +84,7 @@ class IA_js
 				$compiler = new iaCompiler_js;
 				echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
 				CIA::writeFile($ctemplate, $template);
-				CIA::writeWatchTable(array('public/templates'), $ctemplate);
+				CIA::writeWatchTable('public/templates', $ctemplate);
 			}
 		}
 		else echo ',[1,"g.__ROOT__+', self::formatJs(self::formatJs("_?t=$template"), '"', false), '",0,0])';
@@ -83,8 +97,7 @@ class IA_js
 				. (CIA::$headersDiff ? "header('" . addslashes(implode("\n", CIA::$headersDiff)) . "');" : '');
 			CIA::writeFile($cagent, $data, $maxage>0 && $expires ? $maxage : CIA_MAXAGE);
 
-			if ($maxage<0 && !$expires) $watch[] = 'public/templates';
-			CIA::writeWatchTable($watch, $cagent);
+			if ($maxage<0 && !$expires) CIA::writeWatchTable('public/templates', $cagent);
 		}
 	}
 
