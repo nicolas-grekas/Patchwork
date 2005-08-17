@@ -327,7 +327,7 @@ class CIA
 	*/
 
 	public function __construct()
-	{		
+	{
 		self::header('Content-Type: text/html; charset=UTF-8');
 		set_error_handler(array($this, 'error_handler'));
 		ob_start(array($this, 'ob_handler'));
@@ -436,7 +436,6 @@ class agent
 {
 	public $argv = array();
 	public $binary = false;
-	public $canPost = false;
 
 	protected $maxage  = 0;
 	protected $expires = 'ontouch';
@@ -447,16 +446,9 @@ class agent
 
 	public function notCached() {}
 	public function render() {return (object) array();}
-	public function getMeta()
+	public function getTemplate()
 	{
-		return array(
-			$this->maxage,
-			$this->expires,
-			$this->private,
-
-			isset($this->template) ? $this->template : str_replace('_', '/', substr(get_class($this), 6)),
-			(array) $this->watch
-		);
+		return isset($this->template) ? $this->template : str_replace('_', '/', substr(get_class($this), 6));
 	}
 
 	final public function __construct($args)
@@ -469,6 +461,13 @@ class agent
 		foreach ($a as $key) $this->argv->$key = @$args[$key];
 
 		$this->notCached();
+	}
+
+	public function __destruct()
+	{
+		CIA::setCacheControl($this->maxage, $this->private, !('ontouch' == $this->expires && $this->watch));
+		$cagent = CIA::agentCache(get_class($this), $this->argv);
+		CIA::writeWatchTable($this->watch, $cagent);
 	}
 }
 

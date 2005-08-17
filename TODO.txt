@@ -8,3 +8,4 @@
 
 - intégrer une gestion de cache pour les loop ? un mécanisme de watch ? :
  mieux découper les différents temps d'exécution d'un agent, pour lui permettre de reprendre le contrôle après exécution des données, et en même temps, propager les parapmètres de cache-control à l'agent qui en hérite.
+
