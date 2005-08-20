@@ -35,28 +35,10 @@ class IA_js
 		$agentClass = CIA::agentClass($agent);
 		$agent = class_exists($agentClass) ? new $agentClass($_GET) : new agentTemplate_(array('template' => $agent));
 
-		$cagent = CIA::agentCache($agentClass, $agent->argv);
-		if (file_exists($cagent) && filemtime($cagent)>CIA_TIME) return require $cagent;
-
-		//XXX RESET local header observer
-		CIA::$headersDiff = array();
-		CIA::$privateTrigger = false;
-
 		/* Get agent's data */
 		$data = $agent->render();
 
-		/*
-		list($maxage, $expires, $private, $template, $watch) = $agent->getMeta();
-		$expires = !('ontouch' == $expires && $watch);
-
-		if (CIA::$privateTrigger) $private = true;
-		CIA::setCacheControl($maxage, $private, $expires);
-		*/
-
-		/* Start ob for caching data */
-		ob_start();
-
-		/* Format agent's data in JavaScript */
+		/* Output agent's data in JavaScript */
 		$comma = '';
 		foreach ($data as $key => $value)
 		{
@@ -66,15 +48,13 @@ class IA_js
 			$comma = ',';
 		}
 		echo '}';
-
-		/* Call agent's destructor */
-		unset($agent);
 		
 		/* Get Cache-Control directives */
 		$maxage = ;
-		$private = ;
 		$expires = ;
 
+		/* Append template data */
+		$template = $agent->getTemplate();
 		if ($maxage<0 && !$expires)
 		{
 			$ctemplate = CIA::makeCacheDir("templates/$template", 'txt');
@@ -84,21 +64,12 @@ class IA_js
 				$compiler = new iaCompiler_js;
 				echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
 				CIA::writeFile($ctemplate, $template);
-				CIA::writeWatchTable('public/templates', $ctemplate);
+				CIA::watch('public/templates', $ctemplate);
 			}
+
+			CIA::watch('public/templates', $cagent);
 		}
 		else echo ',[1,"g.__ROOT__+', self::formatJs(self::formatJs("_?t=$template"), '"', false), '",0,0])';
-
-		if ($private)
-		{
-			$cagent = CIA::agentCache($agentClass, $agent->argv);
-			$data = '<?php echo ' . var_export(ob_get_flush(), true)
-				. ';CIA::setCacheControl(' . (int) $maxage . ', 0, ' . (int) $expires . ');'
-				. (CIA::$headersDiff ? "header('" . addslashes(implode("\n", CIA::$headersDiff)) . "');" : '');
-			CIA::writeFile($cagent, $data, $maxage>0 && $expires ? $maxage : CIA_MAXAGE);
-
-			if ($maxage<0 && !$expires) CIA::writeWatchTable('public/templates', $cagent);
-		}
 	}
 
 	private static function writeAgent(&$loop)

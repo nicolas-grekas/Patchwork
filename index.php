@@ -38,6 +38,7 @@ init-connect="SET NAMES utf8"
 /* Copy/Paste the next block at the end of your php.ini
 
 log_errors = On
+;Change this to your needs
 error_log = c:/windows/temp/php.log
 
 magic_quotes_gpc = Off
@@ -246,7 +247,7 @@ if (CIA_DIRECT)
 				$compiler = new iaCompiler_js;
 				echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
 				CIA::writeFile($ctemplate, $template);
-				CIA::writeWatchTable(array('public/templates'), $ctemplate);
+				CIA::watch(array('public/templates'), $ctemplate);
 			}
 
 			CIA::setCacheControl(-1, false, false);
@@ -272,7 +273,7 @@ if (CIA_DIRECT)
 					echo $pipe = $jsquiz->get();
 					$pipe .= "\n";
 					CIA::writeFile($cpipe, $pipe);
-					CIA::writeWatchTable(array('pipe'), $cpipe);
+					CIA::watch(array('pipe'), $cpipe);
 				}
 			}
 

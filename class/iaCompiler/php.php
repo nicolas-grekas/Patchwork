@@ -116,11 +116,7 @@ class iaCompiler_php extends iaCompiler
 		switch ($type)
 		{
 			case "'":
-				$var = "'" . str_replace(
-					array('\\',   "'"),
-					array('\\\\', "\\'"),
-					$name
-				) . "'";
+				$var = var_export($name, true);
 				break;
 
 			case '$':
