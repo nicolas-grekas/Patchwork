@@ -59,7 +59,7 @@ if ($i < $len)
 		fclose($h1);
 	}
 
-	if ($h2) CIA::writeWatchTable('public/static', $path2);
+	if ($h2) CIA::watch('public/static', $path2);
 
 	CIA::setCacheControl(-1, false, true);
 	readfile($path1);

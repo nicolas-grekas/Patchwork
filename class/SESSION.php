@@ -102,7 +102,8 @@ abstract class SESSION
 
 	private static function start()
 	{
-		CIA::$privateTrigger = true;
+		CIA::setCacheControl(-1, true, false);
+
 		if (self::$started) return;
 
 		self::$started = true;

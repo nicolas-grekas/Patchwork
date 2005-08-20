@@ -2,9 +2,7 @@
 
 class CIA
 {
-	public static $agentClass;
-	public static $privateTrigger = false;
-	public static $headersDiff = array();
+	public static $pageId = '';
 	public static $handlesOb = false;
 
 	protected static $maxage = 0;
@@ -14,7 +12,6 @@ class CIA
 	protected static $cia;
 	protected static $redirectUrl = false;
 	protected static $watchTable = array();
-	protected static $agentClasses = '';
 	protected static $headers = array();
 
 	public static function start()
@@ -41,9 +38,6 @@ class CIA
 			if ($replace || !isset(self::$headers[$name])) self::$headers[$name] = $string;
 			else self::$headers[$name] .= "\n" . $string;
 
-			if ($replace || !isset(self::$headersDiff[$name])) self::$headersDiff[$name] = $string;
-			else self::$headersDiff[$name] .= "\n" . $string;
-
 			header($string, $replace);
 		}
 	}
@@ -60,21 +54,21 @@ class CIA
 	/**
 	 * Controls the Cache Control headers.
 	 */
-	public static function setCacheControl($maxage, $private, $expires)
+	public static function setCacheControl($maxage, $private, $expires, $watch = array())
 	{
 		static $firstCall = true;
 
-		self::$agentClasses .= '*' . self::$agentClass;
-
 		if ($maxage < 0) $maxage = CIA_MAXAGE;
 		else $maxage = min(CIA_MAXAGE, $maxage);
+
+		$expires = !('ontouch' == $expires && $watch);
 
 		if ($firstCall)
 		{
 			$firstCall = false;
 			self::$maxage = $maxage;
-			self::$private = $private ? 1 : 0;
-			self::$expires = $expires ? 1 : 0;
+			self::$private = (bool) $private;
+			self::$expires = (bool) $expires;
 		}
 		else
 		{
@@ -83,6 +77,15 @@ class CIA
 			if ($expires) self::$expires = 1;
 		}
 
+		foreach (array_unique((array) $watch) as $message)
+		{
+			$message = preg_split("'[\\\\/]+'u", $message, -1, PREG_SPLIT_NO_EMPTY);
+			$message = array_map('rawurlencode', $message);
+			$message = implode('/', $message);
+			$message = str_replace('.', '%2E', $message);
+
+			self::$watchTable[] = './tmp/cache/watch/' . $message . '/table.php';
+		}
 	}
 
 	/*
@@ -249,25 +252,15 @@ class CIA
 		return $agent == '' ? 'agent_index' : preg_replace("'[^a-zA-Z\d]+'u", '_', "agent_$agent");
 	}
 
-	public static function agentCache($agentClass, $keys)
-	{
-		$cagent = '_';
-		foreach ($keys as $key => $value) $cagent .= '&' . rawurlencode($key) . '=' . rawurlencode($value);
-
-		self::$agentClass = $agentClass = str_replace('_', '/', $agentClass);
-
-		return self::makeCacheDir($agentClass . '/_/', CIA_SERVERSIDE ? 'php.php' : 'js.php', $cagent);
-	}
-
 	public static function delCache()
 	{
 		self::touch('');
 		self::delDir(CIA_PROJECT_PATH . '/tmp/cache/', true);
 	}
 
-	public static function writeWatchTable($message, $file)
+	public static function watch($message, $file)
 	{
-		$file =  "@unlink('" . str_replace(array('\\',"'"), array('\\\\',"\\'"), $file) . "');\n";
+		$file =  "@unlink(" . var_export($file, true) . ");\n";
 
 		foreach (array_unique((array) $message) as $message)
 		{
@@ -374,7 +367,7 @@ class CIA
 
 			$is304 = @$_SERVER['HTTP_IF_NONE_MATCH'] == $ETag || @$_SERVER['HTTP_IF_MODIFIED_SINCE'] == $LastModified;
 
-			if (!self::$expires) $ETag = '/' . md5(self::$agentClasses . $buffer) . "-$ETag";
+			if (!self::$expires) $ETag = '/' . md5($buffer) . "-$ETag";
 
 			if (!$is304)
 			{
@@ -437,14 +430,13 @@ class agent
 	public $argv = array();
 	public $binary = false;
 
-	protected $maxage  = 0;
-	protected $expires = 'ontouch';
-	protected $private = false;
-
 	protected $template;
+	protected $maxage  = 0;
+	protected $private = false;
+	protected $expires = 'ontouch';
 	protected $watch = array();
 
-	public function notCached() {}
+	public function init() {}
 	public function render() {return (object) array();}
 	public function getTemplate()
 	{
@@ -460,14 +452,17 @@ class agent
 		$this->argv = (object) array();
 		foreach ($a as $key) $this->argv->$key = @$args[$key];
 
-		$this->notCached();
+		$this->init();
 	}
 
 	public function __destruct()
 	{
-		CIA::setCacheControl($this->maxage, $this->private, !('ontouch' == $this->expires && $this->watch));
-		$cagent = CIA::agentCache(get_class($this), $this->argv);
-		CIA::writeWatchTable($this->watch, $cagent);
+		CIA::setCacheControl(
+			$this->maxage,
+			$this->private,
+			$this->expires,
+			$this->watch
+		);
 	}
 }
 
@@ -476,20 +471,17 @@ class agentTemplate_ extends agent
 	public $argv = array('template');
 
 	protected $maxage = -1;
-	protected $expires = 'ontouch';
 	protected $private = false;
-
+	protected $expires = 'ontouch';
 	protected $watch = array('public/templates');
 
-	public function getMeta()
+	public function getTemplate()
 	{
-		$this->template = str_replace('../', '_', strtr(
+		return str_replace('../', '_', strtr(
 			$this->argv->template,
 			"\\:*?\"<>|\t\r\n",
 			'/__________'
 		));
-
-		return parent::getMeta();
 	}
 }
 
