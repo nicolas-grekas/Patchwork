@@ -2,10 +2,7 @@
 
 class agent_index extends agent
 {
-	public $canPost = true;
-
 	protected $maxage = -1;
-
 	protected $watch = array('forms/index');
 
 	public function render()

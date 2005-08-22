@@ -1,11 +1,10 @@
 - mode verrouillé pour QSelect + value
 - cache des données USER et AUTH dans SESSION, lever le problème avec les références
-- barre d'upload : annuler si la taille dépasse la limite définie ? => oui si on règle le pb de la taille supplémentaire ajoutée par les éléments autre que des fichiers, et le surplus lié à l'encodage
-- autorefresh du cache lorsque le CIApID change : deux techniques : le navigateur détecte et fait la requete de mise à jour, ou bien le serveur track les chgt
-- autoriser une syntax du type <!-- AGENT $var -->, où var est une loop, ce qui permet de définir d'un coup l'agent et ses paramètres
+? barre d'upload : annuler si la taille dépasse la limite définie ? => oui si on règle le pb de la taille supplémentaire ajoutée par les éléments autre que des fichiers, et le surplus lié à l'encodage
+- autorefresh du cache lorsque le CIApID change : deux techniques : le navigateur détecte et fait la requete de mise à jour, ou bien le serveur track les chgt, ou manuel ...
+? autoriser une syntax du type <!-- AGENT $var -->, où var est une loop, ce qui permet de définir d'un coup l'agent et ses paramètres
 - définir qqch de similaire à __AGENT__ pour les scripts PHP.
-- réfléchir au découplage entre ROOT et la position de LANG, pour mod_rewrite, et CIA
+? réfléchir au découplage entre ROOT et la position de LANG, pour mod_rewrite, et CIA
 
-- intégrer une gestion de cache pour les loop ? un mécanisme de watch ? :
- mieux découper les différents temps d'exécution d'un agent, pour lui permettre de reprendre le contrôle après exécution des données, et en même temps, propager les parapmètres de cache-control à l'agent qui en hérite.
+- séparer les meta infos générés par les agent+loop des templates+pipes
 

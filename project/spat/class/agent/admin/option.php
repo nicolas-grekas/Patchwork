@@ -3,7 +3,6 @@
 class agent_admin_option extends agent
 {
 	public $watch = array('option/all');
-	public $canPost = true;
 
 	public $previousId = 0;
 	public $previousPos = 0;

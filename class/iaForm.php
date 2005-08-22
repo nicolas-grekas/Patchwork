@@ -28,7 +28,11 @@ class iaForm extends loop_singleBlock
 		$this->eltnameSuffix = $eltnameSuffix;
 
 		$this->POST = (bool) $POST;
-		if ($this->POST) $this->rawValues =& $_POST;
+		if ($this->POST)
+		{
+			CIA::canPost();
+			$this->rawValues =& $_POST;
+		}
 		else $this->rawValues =& $_GET;
 
 		if ($sessionLink)

@@ -4,7 +4,6 @@ class agent_admin_option_edit extends agent
 {
 	public $argv = array('__1__');
 	public $watch = array('option/all');
-	public $canPost = true;
 
 	public $previousId = 0;
 	public $previousPos = 0;
