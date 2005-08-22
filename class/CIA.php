@@ -112,7 +112,7 @@ class CIA
 		if ($watch) self::$metaInfo[3] += (array) $watch;
 	}
 
-	public static function listenPost()
+	public static function canPost()
 	{
 		self::$metaInfo[5] = true;
 	}
@@ -471,13 +471,12 @@ class agent
 {
 	public $argv = array();
 	public $binary = false;
-	public $canPost = false;
-
-	protected $maxage  = 0;
-	protected $expires = 'ontouch';
-	protected $private = false;
 
 	protected $template;
+
+	protected $maxage  = 0;
+	protected $private = false;
+	protected $expires = 'ontouch';
 	protected $watch = array();
 
 	public function init() {}
@@ -512,9 +511,8 @@ class agentTemplate_ extends agent
 	public $argv = array('template');
 
 	protected $maxage = -1;
-	protected $expires = 'ontouch';
 	protected $private = false;
-
+	protected $expires = 'ontouch';
 	protected $watch = array('public/templates');
 
 	public function getTemplate()
