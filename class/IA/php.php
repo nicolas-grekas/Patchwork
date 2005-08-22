@@ -6,6 +6,8 @@ class IA_php
 	protected static $values;
 	protected static $get;
 
+	protected static $cache = array();
+
 	public static function loadAgent($agent, $args = false)
 	{
 		if ($args === false)
@@ -20,7 +22,7 @@ class IA_php
 			self::$get->__AGENT__ = CIA::htmlescape($agent) . ('' !== $agent ? '/' : '');
 			self::$get->__HOST__ = CIA::htmlescape('http' . (@$_SERVER['HTTPS']?'s':'') . '://' . @$_SERVER['HTTP_HOST']);
 
-			if (!CIA_BINARY) CIA::setCacheControl(-1, true, false);
+			if (!CIA_BINARY) CIA::setPrivate(true);
 		}
 
 		$a =& $_GET;
@@ -33,20 +35,42 @@ class IA_php
 
 	public static function render($agent)
 	{
+		CIA::openMeta();
+
 		$agentClass = CIA::agentClass($agent);
 		$agent = class_exists($agentClass) ? new $agentClass($_GET) : new agentTemplate_(array('template' => $agent));
 
-		/* Get agent's data */
-		$v = $agent->render();
+		$cagent = CIA::agentCache($agentClass, $agent->argv);
+		$rendered = false;
+		$cache = true;
 
-		/* Initialize template's variables */
+		if (isset(self::$cache[$cagent]))
+		{
+			$cache = false;
+			$cagent =& self::$cache[$cagent];
+			$v = clone $cagent[0];
+			$template = $cagent[1];
+		}
+		else
+		{
+			if (file_exists($cagent) && filemtime($cagent)>CIA_TIME) require $cagent;
+			else if (!CIA_POSTING && file_exists('POST'.$cagent) && filemtime('POST'.$cagent)>CIA_TIME) require 'POST'.$cagent;
+			else
+			{
+				$v = $agent->render();
+				$template = $agent->getTemplate();
+				$rendered = true;
+			}
+
+			$vClone = clone $v;
+		}
+
 		$a = self::$args = (object) $_GET;
 		$v->{'$'} = $v;
 		$g = self::$get;
 
 		self::$values = $v;
 
-		$template = $agent->getTemplate();
 		$ctemplate = './tmp/cache/' . CIA_LANG . "/templates/$template.php";
 		$ftemplate = 'template' . md5($ctemplate);
 
@@ -58,16 +82,81 @@ class IA_php
 				$compiler = new iaCompiler_php;
 				$template = '<?php function ' . $ftemplate . '(&$v, &$a, &$g){' . $compiler->compile($template . '.tpl') . '} ' . $ftemplate . '($v, $a, $g);';
 				CIA::writeFile($ctemplate,  $template);
-				CIA::watch(array('public/templates'), $ctemplate);
+				CIA::writeWatchTable(array('public/templates'), $ctemplate);
 			}
 
 			require $ctemplate;
 		}
+
+		$agent->postRender();
+		list($maxage, $private, $expires, $watch, $headers, $canPost) = CIA::closeMeta();
+
+		if (CIA_POSTING && $canPost) $cache = false;
+		else if ($rendered && !$private && ($maxage || !$expires))
+		{
+			$cagent = CIA::agentCache($agentClass, $agent->argv);
+			$fagent = $cagent . ($canPost ? '.php' : '');
+
+			CIA::makeDir($fagent);
+
+			$h = fopen($fagent, 'wb');
+
+			fwrite($h, '<?php $v=(object)');
+			self::writeAgent($h, $vClone);
+			fwrite(
+				$h,
+				';$template=' . var_export($template, true)
+					. ';CIA::setMaxage(' . (int) $maxage . ');'
+					. ($expires ? 'CIA::setExpires(true);' : '')
+					. ($headers ? "header('" . addslashes(implode("\n", $headers)) . "');" : '')
+			);
+
+			fclose($h);
+			touch($fagent, CIA_TIME + ($expires ? $maxage : CIA_MAXAGE));
+
+			CIA::writeWatchTable($watch, $fagent);
+		}
+
+		if ($cache) self::$cache[$cagent] = array($vClone, $template);
 	}
 
-	/**
-	 * Used internaly at template execution time, for counters.
-	 */
+	private static function writeAgent(&$h, &$data)
+	{
+		fwrite($h, 'array(');
+
+		$comma = '';
+		foreach ($data as $key => $value)
+		{
+			fwrite($h, $comma . "'" . str_replace(array('\\',"'"), array('\\\\',"\\'"), $key) . "'=>");
+			if ($value instanceof loop)
+			{
+				if (!CIA::string($value)) fwrite($h, "'0'");
+				else
+				{
+					fwrite($h, 'new L_(array(');
+
+					$comma2 = '';
+					while ($key = $value->render())
+					{
+						fwrite($h, $comma2);
+						self::writeAgent($h, $key);
+						$comma2 = ',';
+					}
+
+					fwrite($h, '))');
+				}
+
+			}
+			else fwrite($h, "'" . str_replace(array('\\',"'"), array('\\\\',"\\'"), $value) . "'");
+			$comma = ',';
+		}
+
+		fwrite($h, ')');
+	}
+
+	/*
+	* Used internaly at template execution time, for counters.
+	*/
 	public static function increment($var, $step, $pool)
 	{
 		if (!isset($pool->$var)) $pool->$var = 0;
