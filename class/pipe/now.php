@@ -4,7 +4,8 @@ class pipe_now
 {
 	static function php($string)
 	{
-		CIA::setCacheControl(1, false, true);
+		CIA::setMaxage(1);
+		CIA::setExpires(true);
 		return CIA_TIME;
 	}
 

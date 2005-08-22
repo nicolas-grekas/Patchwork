@@ -38,7 +38,6 @@ init-connect="SET NAMES utf8"
 /* Copy/Paste the next block at the end of your php.ini
 
 log_errors = On
-;Change this to your needs
 error_log = c:/windows/temp/php.log
 
 magic_quotes_gpc = Off
@@ -126,7 +125,6 @@ if (@$_SERVER['HTTP_IF_NONE_MATCH']{0} == '/' && DEBUG < 2 && preg_match("'^/[0-
 	{
 		header('HTTP/1.x 304 Not Modified');
 		header('Content-Length: 0');
-		header('X-toto: 0');
 		if ($cache)
 		{
 			$cache = explode("\n", $cache, 3);
@@ -247,10 +245,10 @@ if (CIA_DIRECT)
 				$compiler = new iaCompiler_js;
 				echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
 				CIA::writeFile($ctemplate, $template);
-				CIA::watch(array('public/templates'), $ctemplate);
+				CIA::writeWatchTable(array('public/templates'), $ctemplate);
 			}
 
-			CIA::setCacheControl(-1, false, false);
+			CIA::setMaxage(-1);
 			break;
 
 		case 'p':
@@ -273,13 +271,13 @@ if (CIA_DIRECT)
 					echo $pipe = $jsquiz->get();
 					$pipe .= "\n";
 					CIA::writeFile($cpipe, $pipe);
-					CIA::watch(array('pipe'), $cpipe);
+					CIA::writeWatchTable(array('pipe'), $cpipe);
 				}
 			}
 
 			echo 'CIApID=', CIA_PROJECT_ID, ';w(0,[])';
 
-			CIA::setCacheControl(-1, false, false);
+			CIA::setMaxage(-1);
 			break;
 
 		case '$':

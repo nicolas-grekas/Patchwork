@@ -6,7 +6,8 @@ class IA_js
 
 	public static function loadAgent($agent)
 	{
-		CIA::setCacheControl(-1, true, false);
+		CIA::setMaxage(-1);
+		CIA::setPrivate(true);
 
 		$a = CIA::agentClass($agent);
 		$cagent = CIA::makeCacheDir('controler/', 'txt', $a);
@@ -20,7 +21,7 @@ class IA_js
 			$a = array_map(array('self','formatJs'), $a['argv']);
 			$a = implode(',', $a);
 
-			echo $a = '<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script>a=[' . self::formatJs($agent) . ',[' . $a . ']]</script><script src="' . CIA::htmlescape(CIA_ROOT) . 'js/w"></script></head></html>';
+			echo $a = '<html><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script>a=[' . self::formatJs($agent) . ',[' . $a . ']]</script><script src="' . CIA::htmlescape(CIA_ROOT) . 'js/w"></script></html>';
 
 			CIA::writeFile($cagent, $a);
 		}
@@ -28,17 +29,28 @@ class IA_js
 
 	public static function render($agent)
 	{
-		CIA::header('Content-Type: text/javascript; charset=UTF-8');
+		if (!self::$html) CIA::header('Content-Type: text/javascript; charset=UTF-8');
 
 		echo 'CIApID=', CIA_PROJECT_ID, ';w({';
+
+		CIA::openMeta();
 
 		$agentClass = CIA::agentClass($agent);
 		$agent = class_exists($agentClass) ? new $agentClass($_GET) : new agentTemplate_(array('template' => $agent));
 
-		/* Get agent's data */
-		$data = $agent->render();
+		$cagent = CIA::agentCache($agentClass, $agent->argv);
+		if (file_exists($cagent) && filemtime($cagent)>CIA_TIME)
+		{
+			require $cagent;
+			CIA::closeMeta();
+			return;
+		}
 
-		/* Output agent's data in JavaScript */
+		$data = $agent->render();
+		$template = $agent->getTemplate();
+
+		ob_start();
+
 		$comma = '';
 		foreach ($data as $key => $value)
 		{
@@ -47,15 +59,13 @@ class IA_js
 			else echo self::formatJs($value);
 			$comma = ',';
 		}
-		echo '}';
-		
-		/* Get Cache-Control directives */
-		$maxage = ;
-		$expires = ;
 
-		/* Append template data */
-		$template = $agent->getTemplate();
-		if ($maxage<0 && !$expires)
+		echo '}';
+
+		$agent->postRender();
+		list($maxage, $private, $expires, $watch, $headers) = CIA::closeMeta();
+
+		if ($maxage==CIA_MAXAGE && !$expires)
 		{
 			$ctemplate = CIA::makeCacheDir("templates/$template", 'txt');
 			if (file_exists($ctemplate)) readfile($ctemplate);
@@ -64,12 +74,23 @@ class IA_js
 				$compiler = new iaCompiler_js;
 				echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
 				CIA::writeFile($ctemplate, $template);
-				CIA::watch('public/templates', $ctemplate);
+				CIA::writeWatchTable(array('public/templates'), $ctemplate);
 			}
-
-			CIA::watch('public/templates', $cagent);
 		}
 		else echo ',[1,"g.__ROOT__+', self::formatJs(self::formatJs("_?t=$template"), '"', false), '",0,0])';
+
+		if (!$private && ($maxage || !$expires))
+		{
+			$cagent = CIA::agentCache($agentClass, $agent->argv);
+			$data = '<?php echo ' . var_export(ob_get_flush(), true)
+				. ';CIA::setMaxage(' . (int) $maxage . ');'
+				. ($expires ? 'CIA::setExpires(true);' : '')
+				. ($headers ? "header('" . addslashes(implode("\n", $headers)) . "');" : '');
+			CIA::writeFile($cagent, $data, $expires ? $maxage : CIA_MAXAGE);
+
+			if ($maxage==CIA_MAXAGE && !$expires) $watch[] = 'public/templates';
+			CIA::writeWatchTable($watch, $cagent);
+		}
 	}
 
 	private static function writeAgent(&$loop)
