@@ -2,7 +2,7 @@
 
 $CONFIG += array(
 
-	'debug' => false,
+	'debug' => true,
 	'maxage' => 60,
 
 	'DSN' => 'mysqli://spat:spat@localhost/inscriptions',

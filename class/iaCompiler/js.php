@@ -63,7 +63,7 @@ class iaCompiler_js extends iaCompiler
 		$comma = '';
 		foreach ($args as $k => $v)
 		{
-			$a .= "$comma'$k':$v";
+			$a .= in_array($k, $this->jsreserved) ? "$comma'$k':$v" : "$comma$k:$v";
 			$comma = ',';
 		}
 		
