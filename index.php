@@ -1,7 +1,7 @@
 <?php @define('CIA', microtime(true)); isset($CONFIG) || $CONFIG = array();
 
 $CONFIG += array(
-	'debug' => 2,
+	'debug' => true,
 	'maxage' => 1036800,
 	'lang_list' => 'en|fr|de|es|pt|ru|it|gr',
 	'secret' => '',
