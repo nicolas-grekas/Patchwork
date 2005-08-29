@@ -16,21 +16,6 @@ class debug_CIA extends CIA
 
 	public function __construct()
 	{
-		/*
-		if (DEBUG > 1 && !CIA_DIRECT)
-		{
-			$i = 10;
-
-			@mkdir('./tmp/oldCache');
-
-			CIA::delDir('./tmp/oldCache/' . ($i-1), true);
-
-			while (--$i) @rename('./tmp/oldCache/' . ($i-1), './tmp/oldCache/' . $i);
-
-			@rename('./tmp/cache', './tmp/oldCache/0');
-		}
-		*/
-
 		$this->log('<a href="' . CIA::htmlescape($_SERVER['REQUEST_URI']) . '" target="_blank">' . CIA::htmlescape($_SERVER['REQUEST_URI']) . '</a>');
 		register_shutdown_function(array($this, 'log'), '', true);
 		parent::__construct();

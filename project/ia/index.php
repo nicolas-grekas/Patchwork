@@ -2,7 +2,7 @@
 
 $CONFIG += array(
 
-	'debug' => 1,
+	'debug' => true,
 	'maxage' => 60,
 
 );
