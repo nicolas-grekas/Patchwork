@@ -413,13 +413,7 @@ class CIA
 
 		if (!CIA_POSTING && $buffer !== '')
 		{
-			if (DEBUG > 1)
-			{
-				self::$maxage = 0;
-				self::$private = true;
-			}
-			else if (!self::$maxage) self::$maxage = 0;
-
+			if (!self::$maxage) self::$maxage = 0;
 
 			/* ETag / Last-Modified validation */
 

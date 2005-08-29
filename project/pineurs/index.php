@@ -2,7 +2,7 @@
 
 $CONFIG += array(
 
-	'debug' => 0,
+	'debug' => false,
 	'maxage' => 3600,
 
 	'DSN' => 'sqlite://./pineurs.sqlite',

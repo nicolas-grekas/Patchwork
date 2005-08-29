@@ -112,7 +112,7 @@ if (DEBUG && CIA_DIRECT && isset($_GET['d']))
 
 /* Validator */
 
-if (@$_SERVER['HTTP_IF_NONE_MATCH']{0} == '/' && DEBUG < 2 && preg_match("'^/[0-9a-f]{32}-([0-9]+)$'", $_SERVER['HTTP_IF_NONE_MATCH'], $match))
+if (@$_SERVER['HTTP_IF_NONE_MATCH']{0} == '/' && preg_match("'^/[0-9a-f]{32}-([0-9]+)$'", $_SERVER['HTTP_IF_NONE_MATCH'], $match))
 {
 	$_SERVER['HTTP_IF_NONE_MATCH'] = $match[1];
 
