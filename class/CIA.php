@@ -568,7 +568,8 @@ class loop
 	{
 		if (2 == $this->cache)
 		{
-			if (!( list(,$data) = each($this->cacheData) ))
+			if (list(,$data) = each($this->cacheData)) $data = clone $data;
+			else
 			{
 				$data = false;
 				reset($this->cacheData);
@@ -591,7 +592,10 @@ class loop
 					$len = count($this->renderer);
 					while ($i<$len) $data = (object) call_user_func($this->renderer[$i++], $data);
 
+					if (CIA_SERVERSIDE && !$this->cache) $this->cache = 1;
 					if ($this->cache) $this->cacheData[] = $data;
+
+					$data = clone $data;
 				}
 				else
 				{
@@ -608,15 +612,14 @@ class loop
 			CIA::$catchMeta = false;
 		}
 
-		return $data;
+		if ($data && $this->cache) return clone $data;
+		else return $data;
 	}
 
 	final public function addRenderer($renderer) {if ($renderer) $this->renderer[] = $renderer;}
 	
 	final public function __toString()
 	{
-		if (CIA_SERVERSIDE && !$this->cache) $this->cache = 1;
-
 		CIA::$catchMeta = true;
 
 		if ($this->length === false) $this->length = $this->prepare();
