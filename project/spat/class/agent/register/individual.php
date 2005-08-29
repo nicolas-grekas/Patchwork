@@ -29,8 +29,7 @@ class agent_register_individual extends agent
 
 		$submit = $form->add('submit', 'submit');
 
-		$data->option = $o = new loop_register_option($form, $submit);
-		while ($o->render());
+		$data->option = new loop_register_option($form, $submit)->loop();
 
 		if ($submit->isOn()) CIA::redirect('register/individual/summary/');
 

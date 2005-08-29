@@ -52,8 +52,7 @@ class agent_register_group_edit extends agent_register_group_member
 
 		$submit = $form->add('submit', 'submit');
 
-		$data->option = $o = new loop_register_option($form, $submit);
-		while ($o->render());
+		$data->option = new loop_register_option($form, $submit)->loop();
 
 		if ($submit->isOn())
 		{

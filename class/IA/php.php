@@ -42,11 +42,9 @@ class IA_php
 
 		$cagent = CIA::agentCache($agentClass, $agent->argv);
 		$rendered = false;
-		$cache = true;
 
 		if (isset(self::$cache[$cagent]))
 		{
-			$cache = false;
 			$cagent =& self::$cache[$cagent];
 			$v = clone $cagent[0];
 			$template = $cagent[1];
@@ -65,6 +63,8 @@ class IA_php
 			$vClone = clone $v;
 		}
 
+		CIA::$catchMeta = false;
+
 		$a = self::$args = (object) $_GET;
 		$v->{'$'} = $v;
 		$g = self::$get;
@@ -80,44 +80,49 @@ class IA_php
 			if (!file_exists($ctemplate))
 			{
 				$compiler = new iaCompiler_php;
-				$template = '<?php function ' . $ftemplate . '(&$v, &$a, &$g){' . $compiler->compile($template . '.tpl') . '} ' . $ftemplate . '($v, $a, $g);';
-				CIA::writeFile($ctemplate,  $template);
+				$ftemplate = '<?php function ' . $ftemplate . '(&$v, &$a, &$g){' . $compiler->compile($template . '.tpl') . '} ' . $ftemplate . '($v, $a, $g);';
+				CIA::writeFile($ctemplate,  $ftemplate);
 				CIA::writeWatchTable(array('public/templates'), $ctemplate);
 			}
 
 			require $ctemplate;
 		}
 
+		CIA::$catchMeta = true;
+
 		$agent->postRender();
 		list($maxage, $private, $expires, $watch, $headers, $canPost) = CIA::closeMeta();
 
-		if (CIA_POSTING && $canPost) $cache = false;
-		else if ($rendered && !$private && ($maxage || !$expires))
+		if ($rendered)
 		{
 			$cagent = CIA::agentCache($agentClass, $agent->argv);
-			$fagent = $cagent . ($canPost ? '.php' : '');
 
-			CIA::makeDir($fagent);
+			if (!CIA_POSTING && !$private && ($maxage || !$expires))
+			{
+				$fagent = $cagent . ($canPost ? '.php' : '');
 
-			$h = fopen($fagent, 'wb');
+				CIA::makeDir($fagent);
 
-			fwrite($h, '<?php $v=(object)');
-			self::writeAgent($h, $vClone);
-			fwrite(
-				$h,
-				';$template=' . var_export($template, true)
-					. ';CIA::setMaxage(' . (int) $maxage . ');'
-					. ($expires ? 'CIA::setExpires(true);' : '')
-					. ($headers ? "header('" . addslashes(implode("\n", $headers)) . "');" : '')
-			);
+				$h = fopen($fagent, 'wb');
 
-			fclose($h);
-			touch($fagent, CIA_TIME + ($expires ? $maxage : CIA_MAXAGE));
+				fwrite($h, '<?php $v=(object)');
+				self::writeAgent($h, $vClone);
+				fwrite(
+					$h,
+					';$template=' . var_export($template, true)
+						. ';CIA::setMaxage(' . (int) $maxage . ');'
+						. ($expires ? 'CIA::setExpires(true);' : '')
+						. ($headers ? "header('" . addslashes(implode("\n", $headers)) . "');" : '')
+				);
 
-			CIA::writeWatchTable($watch, $fagent);
+				fclose($h);
+				touch($fagent, CIA_TIME + ($expires ? $maxage : CIA_MAXAGE));
+
+				CIA::writeWatchTable($watch, $fagent);
+			}
 		}
 
-		if ($cache) self::$cache[$cagent] = array($vClone, $template);
+		if (isset($vClone)) self::$cache[$cagent] = array($vClone, $template);
 	}
 
 	private static function writeAgent(&$h, &$data)

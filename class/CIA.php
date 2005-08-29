@@ -3,9 +3,10 @@
 class CIA
 {
 	public static $agentClass;
+	public static $catchMeta = false;
 	public static $handlesOb = false;
 
-	protected static $metaInfo = array(false, false, false, array(), array(), false);
+	protected static $metaInfo;
 	protected static $metaPool = array();
 
 	protected static $maxage = false;
@@ -42,8 +43,11 @@ class CIA
 			if ($replace || !isset(self::$headers[$name])) self::$headers[$name] = $string;
 			else self::$headers[$name] .= "\n" . $string;
 
-			if ($replace || !isset(self::$metaInfo[4][$name])) self::$metaInfo[4][$name] = $string;
-			else self::$metaInfo[4][$name] .= "\n" . $string;
+			if (self::$catchMeta)
+			{
+				if ($replace || !isset(self::$metaInfo[4][$name])) self::$metaInfo[4][$name] = $string;
+				else self::$metaInfo[4][$name] .= "\n" . $string;
+			}
 
 			header($string, $replace);
 		}
@@ -61,7 +65,11 @@ class CIA
 	public static function openMeta()
 	{
 		self::$agentClasses .= '*' . self::$agentClass;
+
 		$default = array(false, false, false, array(), array(), false);
+
+		self::$catchMeta = true;
+
 		self::$metaPool[] =& $default;
 		self::$metaInfo =& $default;
 	}
@@ -89,8 +97,11 @@ class CIA
 		if (false === self::$maxage) self::$maxage = $maxage;
 		else self::$maxage = min(self::$maxage, $maxage);
 
-		if (false === self::$metaInfo[0]) self::$metaInfo[0] = $maxage;
-		else self::$metaInfo[0] = min(self::$metaInfo[0], $maxage);
+		if (self::$catchMeta)
+		{
+			if (false === self::$metaInfo[0]) self::$metaInfo[0] = $maxage;
+			else self::$metaInfo[0] = min(self::$metaInfo[0], $maxage);
+		}
 	}
 
 	/**
@@ -98,7 +109,11 @@ class CIA
 	 */
 	public static function setPrivate($private = true)
 	{
-		if ($private) self::$metaInfo[1] = self::$private = true;
+		if ($private)
+		{
+			self::$private = true;
+			if (self::$catchMeta) self::$metaInfo[1] = true;
+		}
 	}
 
 	/**
@@ -108,13 +123,18 @@ class CIA
 	{
 		$expires = !('ontouch' == $expires && $watch);
 
-		if ($expires) self::$metaInfo[2] = self::$expires = true;
-		if ($watch) self::$metaInfo[3] += (array) $watch;
+		if ($expires) self::$expires = true;
+
+		if (self::$catchMeta)
+		{
+			if ($expires) self::$metaInfo[2] = true;
+			if ($watch) self::$metaInfo[3] += (array) $watch;
+		}
 	}
 
 	public static function canPost()
 	{
-		self::$metaInfo[5] = true;
+		if (self::$catchMeta) self::$metaInfo[5] = true;
 	}
 
 	/*
@@ -303,7 +323,7 @@ class CIA
 
 		foreach (array_unique((array) $message) as $message)
 		{
-			self::$metaInfo[3][] = $message;
+			if (self::$catchMeta) self::$metaInfo[3][] = $message;
 
 			$message = preg_split("'[\\\\/]+'u", $message, -1, PREG_SPLIT_NO_EMPTY);
 			$message = array_map('rawurlencode', $message);
@@ -530,39 +550,79 @@ class loop
 	private $length = false;
 	private $renderer = array();
 
+	private $cache = 0;
+	private $cacheData = array();
+
 	protected function prepare() {}
 	protected function next() {}
 
+	public function loop()
+	{
+		$this->cache = 1;
+		while ($this->render());
+
+		return $this;
+	}
+
 	final public function &render()
 	{
-		if ($this->length === false) $this->length = $this->prepare();
-
-		if (!$this->length) return false;
-		else
+		if (2 == $this->cache)
 		{
-			$data = $this->next();
-			if ($data || is_array($data))
+			if (!( list(,$data) = each($this->cacheData) ))
 			{
-				$data = (object) $data;
-				$i = 0;
-				$len = count($this->renderer);
-				while ($i<$len) $data = (object) call_user_func($this->renderer[$i++], $data);
-
-				return $data;
-			}
-			else
-			{
-				$this->length = false;
-				return $data;
+				$data = false;
+				reset($this->cacheData);
 			}
 		}
+		else
+		{
+			CIA::$catchMeta = true;
+
+			if ($this->length === false) $this->length = (int) $this->prepare();
+
+			if (!$this->length) $data = false;
+			else
+			{
+				$data = $this->next();
+				if ($data || is_array($data))
+				{
+					$data = (object) $data;
+					$i = 0;
+					$len = count($this->renderer);
+					while ($i<$len) $data = (object) call_user_func($this->renderer[$i++], $data);
+
+					if ($this->cache) $this->cacheData[] = $data;
+				}
+				else
+				{
+					$this->length = false;
+
+					if ($this->cache)
+					{
+						$this->cache = 2;
+						reset($this->cacheData);
+					}
+				}
+			}
+
+			CIA::$catchMeta = false;
+		}
+
+		return $data;
 	}
 
 	final public function addRenderer($renderer) {if ($renderer) $this->renderer[] = $renderer;}
 	
 	final public function __toString()
 	{
+		if (CIA_SERVERSIDE && !$this->cache) $this->cache = 1;
+
+		CIA::$catchMeta = true;
+
 		if ($this->length === false) $this->length = $this->prepare();
+
+		CIA::$catchMeta = false;
+
 		return (string) $this->length;
 	}
 
