@@ -76,6 +76,8 @@ class CIA
 
 	public static function closeMeta()
 	{
+		self::$catchMeta = false;
+
 		$poped = array_pop(self::$metaPool);
 
 		$len = count(self::$metaPool);

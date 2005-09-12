@@ -4,7 +4,16 @@ class agent_QJsrs_upload extends agent_QJsrs
 {
 	public $argv = array('id');
 
-	public function getMeta()
+	public function render()
+	{
+			$this->data = $this->argv->id && is_callable('upload_progress_meter_get_info')
+			? (object) @upload_progress_meter_get_info($this->argv->id)
+			: (object) array();
+
+			return parent::render();
+	}
+
+	public function postRender()
 	{
 		if ($this->argv->id)
 		{
@@ -19,15 +28,6 @@ class agent_QJsrs_upload extends agent_QJsrs
 			$this->private = false;
 		}
 
-		return parent::getMeta();
-	}
-
-	public function render()
-	{
-			$this->data = $this->argv->id && is_callable('upload_progress_meter_get_info')
-			? (object) @upload_progress_meter_get_info($this->argv->id)
-			: (object) array();
-
-			return parent::render();
+		return parent::postRender();
 	}
 }
