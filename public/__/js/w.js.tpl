@@ -136,8 +136,12 @@ function setboard($name, $value)
 
 addOnload.p = [];
 
-root = window.top;
-while (root.opener) root = root.opener.top;
+root = window;
+try
+{
+	while ( ((w=root.parent) != root || (w=root.opener)) && w.name ) root = w;
+}
+catch (e) {};
 
 
 w = function($agent, $keys)
