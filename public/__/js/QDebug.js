@@ -1,6 +1,6 @@
 function E($v, $max_depth, $level)
 {
-	$max_depth = $max_depth>='' ? $max_depth : 5;
+	$max_depth = $max_depth>='' ? $max_depth : E.max_depth;
 	$level = $level || 0;
 
 	if ($level == 0)
@@ -51,6 +51,7 @@ function E($v, $max_depth, $level)
 	}
 }
 
+E.max_depth = 5;
 E.buffer = '';
 E.hide = function($key)
 {
