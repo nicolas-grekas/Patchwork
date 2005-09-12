@@ -49,8 +49,6 @@ class IA_js
 		$data = $agent->render();
 		$template = $agent->getTemplate();
 
-		CIA::$catchMeta = false;
-
 		ob_start();
 
 		$comma = '';
@@ -63,8 +61,6 @@ class IA_js
 		}
 
 		echo '}';
-
-		CIA::$catchMeta = true;
 
 		$agent->postRender();
 		list($maxage, $private, $expires, $watch, $headers) = CIA::closeMeta();
