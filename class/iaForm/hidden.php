@@ -214,7 +214,7 @@ class iaForm_hidden extends loop_callAgent
 		$this->keys = array();
 
 		$a = (object) array(
-			'type' => $this->type,
+			'_type' => $this->type,
 			'name' => $this->name . ($this->multiple ? '[]' : ''),
 		);
 

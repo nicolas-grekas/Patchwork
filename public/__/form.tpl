@@ -7,8 +7,7 @@ a$_enterControl_ : 0 to keep the browser's behaviour,
 				     a click on the submit/image element positioned
 					 after the currently focused element.
 
-*-->
-{a$|import}<!--
+*--><!--
 
 IF a$_mode_ == 'errormsg' --><!--
 

@@ -3,14 +3,14 @@
 
 <fieldset><legend>{"Modifier l'option"}</legend>
 <table>
-<!-- AGENT 'input' _argv_=$edit_label       _caption_="Intitulé" -->
-<!-- AGENT 'input' _argv_=$edit_min_default _caption_="Min" -->
-<!-- AGENT 'input' _argv_=$edit_max_default _caption_="Max" -->
-<!-- AGENT 'input' _argv_=$edit_tax_id      _caption_="TVA" -->
-<!-- AGENT 'input' _argv_=$edit_admin_only  _caption_="Privé" -->
+<!-- AGENT $edit_label       _caption_="Intitulé" -->
+<!-- AGENT $edit_min_default _caption_="Min" -->
+<!-- AGENT $edit_max_default _caption_="Max" -->
+<!-- AGENT $edit_tax_id      _caption_="TVA" -->
+<!-- AGENT $edit_admin_only  _caption_="Privé" -->
 <tr>
 	<td></td>
-	<td><!-- AGENT 'input' _argv_=$edit_submit _format_='%1' value="Enregistrer" --></td>
+	<td><!-- AGENT $edit_submit _format_='%1' value="Enregistrer" --></td>
 </tr>
 </table>
 </fieldset>
@@ -41,22 +41,22 @@
 </table>
 
 {"Pour la sélection"}{"&nbsp;:"}
-	<!-- AGENT 'input' _argv_=$f_up _format_='%1' value="Monter" -->
-	<!-- AGENT 'input' _argv_=$f_down _format_='%1' value="Descendre" -->
-	<!-- AGENT 'input' _argv_=$f_del _format_='%1' value="Supprimer" -->
+	<!-- AGENT $f_up _format_='%1' value="Monter" -->
+	<!-- AGENT $f_down _format_='%1' value="Descendre" -->
+	<!-- AGENT $f_del _format_='%1' value="Supprimer" -->
 </fieldset>
 <!-- END:IF -->
 
 <fieldset><legend>{"Ajouter un choix"}</legend>
 <table>
-<!-- AGENT 'input' _argv_=$new_label               _caption_="Intitulé" -->
-<!-- AGENT 'input' _argv_=$new_price_default       _caption_="PU HT par défaut" -->
-<!-- AGENT 'input' _argv_=$new_upper_price_default _caption_="PU HT majoré par défaut" -->
-<!-- AGENT 'input' _argv_=$new_quota_max           _caption_="Quota" -->
-<!-- AGENT 'input' _argv_=$new_admin_only          _caption_="Privé" -->
+<!-- AGENT $new_label               _caption_="Intitulé" -->
+<!-- AGENT $new_price_default       _caption_="PU HT par défaut" -->
+<!-- AGENT $new_upper_price_default _caption_="PU HT majoré par défaut" -->
+<!-- AGENT $new_quota_max           _caption_="Quota" -->
+<!-- AGENT $new_admin_only          _caption_="Privé" -->
 <tr>
 	<td></td>
-	<td><!-- AGENT 'input' _argv_=$new_submit _format_='%1' value="Ajouter" --></td>
+	<td><!-- AGENT $new_submit _format_='%1' value="Ajouter" --></td>
 </tr>
 </table>
 </fieldset>

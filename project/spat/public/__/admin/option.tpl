@@ -25,21 +25,21 @@
 </table>
 
 {"Pour la sélection"}{"&nbsp;:"}
-	<!-- AGENT 'input' _argv_=$f_up _format_='%1' value="Monter" -->
-	<!-- AGENT 'input' _argv_=$f_down _format_='%1' value="Descendre" -->
-	<!-- AGENT 'input' _argv_=$f_clone _format_='%1' value="Cloner" -->
-	<!-- AGENT 'input' _argv_=$f_del _format_='%1' value="Supprimer" -->
+	<!-- AGENT $f_up _format_='%1' value="Monter" -->
+	<!-- AGENT $f_down _format_='%1' value="Descendre" -->
+	<!-- AGENT $f_clone _format_='%1' value="Cloner" -->
+	<!-- AGENT $f_del _format_='%1' value="Supprimer" -->
 <!-- END:IF -->
 
 <fieldset><legend>{"Ajouter une nouvelle option"}</legend>
 <table>
-<!-- AGENT 'input' _argv_=$f_type       _caption_="Type" -->
-<!-- AGENT 'input' _argv_=$f_label      _caption_="Intitulé" -->
-<!-- AGENT 'input' _argv_=$f_tax_id     _caption_="TVA (si applicable)" -->
-<!-- AGENT 'input' _argv_=$f_admin_only _caption_="Privé" -->
+<!-- AGENT $f_type       _caption_="Type" -->
+<!-- AGENT $f_label      _caption_="Intitulé" -->
+<!-- AGENT $f_tax_id     _caption_="TVA (si applicable)" -->
+<!-- AGENT $f_admin_only _caption_="Privé" -->
 <tr>
 	<td></td>
-	<td><!-- AGENT 'input' _argv_=$f_submit _format_='%1' value="Ajouter" --></td>
+	<td><!-- AGENT $f_submit _format_='%1' value="Ajouter" --></td>
 </tr>
 </table>
 </fieldset>

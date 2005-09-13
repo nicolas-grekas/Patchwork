@@ -36,7 +36,7 @@
 	city = $f_fact_city
 	country = $f_fact_country
 -->
-<!-- AGENT 'input' _caption_="VAT Number" _argv_=$f_fact_vat -->
+<!-- AGENT $f_fact_vat _caption_="VAT Number" -->
 </table>
 </fieldset>
 

@@ -20,11 +20,7 @@ Question : should I add a label attribute to every <option> tag ?
 
 *--><!--
 
-SET a$_type -->{a$type}<!-- END:SET
-
--->{a$|import:}<!--
-
-IF a$_type --><!-- SET a$type -->{a$_type}<!-- END:SET --><!-- END:IF --><!--
+IF !a$type --><!-- SET a$type -->{a$_type}<!-- END:SET --><!-- END:IF --><!--
 
 IF a$type == 'check' --><!--
 	SET a$_check -->1<!-- END:SET --><!--
