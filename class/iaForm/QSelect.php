@@ -13,6 +13,10 @@ class iaForm_QSelect extends iaForm_text
 	protected function get()
 	{
 		$a = parent::get();
+
+		$this->agent = 'QSelect/input';
+		$this->keys = array();
+
 		if (isset($this->src)) $a->_src_ = $this->src;
 		return $a;
 	}

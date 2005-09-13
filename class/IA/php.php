@@ -25,6 +25,17 @@ class IA_php
 			if (!CIA_BINARY) CIA::setPrivate(true);
 		}
 
+		if ($agent instanceof loop && CIA::string($agent))
+		{
+			while ($i =& $agent->render()) $data =& $i;
+
+			$agent = $data->{'*a'};
+			unset($data->{'*a'});
+
+			IA::escape($data);
+			foreach ($data as $k => $v) $args[$k] = $v;
+		}
+
 		$a =& $_GET;
 		$_GET =& $args;
 

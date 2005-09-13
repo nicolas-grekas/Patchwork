@@ -1,6 +1,6 @@
 <?php
 
-class iaForm_hidden extends loop_singleBlock
+class iaForm_hidden extends loop_callAgent
 {
 	protected $name = '';
 	protected $value = '';
@@ -210,6 +210,9 @@ class iaForm_hidden extends loop_singleBlock
 
 	protected function get()
 	{
+		$this->agent = 'input';
+		$this->keys = array();
+
 		$a = (object) array(
 			'type' => $this->type,
 			'name' => $this->name . ($this->multiple ? '[]' : ''),

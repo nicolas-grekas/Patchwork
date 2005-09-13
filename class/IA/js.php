@@ -77,7 +77,7 @@ class IA_js
 				CIA::writeWatchTable(array('public/templates'), $ctemplate);
 			}
 		}
-		else echo ',[1,"g.__ROOT__+', self::formatJs(self::formatJs("_?t=$template"), '"', false), '",0,0])';
+		else echo ',[1,"g.__ROOT__+', self::formatJs(self::formatJs("_?t=$template"), '"', false), '",0,0,0])';
 
 		if (!$private && ($maxage || !$expires))
 		{
@@ -129,7 +129,7 @@ class IA_js
 		echo ']])';
 	}
 
-	private static function formatJs($a, $delim = "'", $addDelim = true)
+	public static function formatJs($a, $delim = "'", $addDelim = true)
 	{
 		if ((string) $a === (string) ($a-0)) return $a;
 
