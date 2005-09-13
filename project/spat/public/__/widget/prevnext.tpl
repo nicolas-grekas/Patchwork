@@ -3,7 +3,7 @@
 <!-- IF !a$prev --><!-- SET a$prev -->{"< Précédent"}<!-- END:SET --><!-- END:IF -->
 <!-- IF !a$next --><!-- SET a$next -->{"Suivant >"}<!-- END:SET --><!-- END:IF -->
 
-<!-- AGENT 'input' value=a$next style='float:right' _argv_=a$submit -->
+<!-- AGENT a$submit value=a$next style='float:right' -->
 <input type="button" value="{a$prev|escape}" style="float:left" onclick="location={a$prevurl|escape:'jsh'}" />
 
 <!-- SET g$inputFormat -->{a$inputFormat}<!-- END:SET -->

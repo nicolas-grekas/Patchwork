@@ -37,9 +37,9 @@ function clickDrop($id)
 <!-- END:LOOP -->
 </table>
 {"Pour la sélection"}{"&nbsp;:"}
-<!-- AGENT 'input' value="Modifier les options" _argv_=$f_edit -->
-<!-- AGENT 'input' value="Supprimer" _argv_=$f_del onclick="return confirm({\"Voulez-vous vraiement supprimer la sélection ?\"|escape:'js'})" -->
-<!-- AGENT 'input' _format_='%2' _argv_=$f_check -->
+<!-- AGENT $f_edit value="Modifier les options" -->
+<!-- AGENT $f_del  value="Supprimer" onclick="return confirm({\"Voulez-vous vraiement supprimer la sélection ?\"|escape:'js'})" -->
+<!-- AGENT $f_check _format_='%2' -->
 
 <!-- END:IF -->
 
@@ -47,8 +47,8 @@ function clickDrop($id)
 <fieldset><legend>{"Ajouter des membres"}</legend>
 <div class="legend">{"Un membre par ligne, au format <b>Nom,Prénom,email</b>. L'email permettra à chaque membre de recevoir une notification et de souscrire des options supplémentaires à titre personnel."}</div>
 <table width="80%" align="center">
-<tr><td><!-- AGENT 'input' _argv_=$f_member style='height:100px' --></td></tr>
-<!-- IF $member --><tr><td><!-- AGENT 'input' value="Ajouter" style='float:right' _argv_=$f_add --></td></tr><!-- END:IF -->
+<tr><td><!-- AGENT $f_member style='height:100px' --></td></tr>
+<!-- IF $member --><tr><td><!-- AGENT $f_add value="Ajouter" style='float:right' --></td></tr><!-- END:IF -->
 </table>
 </fieldset>
 

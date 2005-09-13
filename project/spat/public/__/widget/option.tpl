@@ -5,7 +5,7 @@
 	<!-- IF $type=='separator' -->
 	<tr><th colspan="2">{$label|escape:'unhtml'}</th></tr>
 	<!-- ELSE -->
-	<!-- AGENT 'input' _caption_=$label _argv_=$f_option onchange="this.form.submitIfValid()" -->
+	<!-- AGENT $f_option _caption_=$label onchange="this.form.submitIfValid()" -->
 	<!-- END:IF -->
 <!-- END:LOOP -->
 

@@ -3,8 +3,7 @@
 This template displays a QSelect control.
 It has the same parameters as input.tpl
 
-*-->
-{a$|import:}<!--
+*--><!--
 
 SET a$id -->{a$name}<!-- END:SET --><!--
 SET a$class -->{a$class|default:a$type}<!-- END:SET --><!--

@@ -37,4 +37,4 @@ textarea
 <!-- SET g$currency -->€<!-- END:SET -->
 <!-- SET g$inputFormat --><tr><td nowrap="nowrap">%0{"&nbsp;:"}</td><td width="100%">%1%2</td></tr><!-- END:SET -->
 <!-- PARENT -->
-<!-- IF a$form --><!-- AGENT 'form' _argv_=a$form --><!-- END:IF -->
+<!-- IF a$form --><!-- AGENT a$form --><!-- END:IF -->

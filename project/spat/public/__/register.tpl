@@ -15,8 +15,8 @@
 		{"Vous êtes déjà inscrit ?"}
 	</legend>
 <table width="80%" align="center">
-	<!-- AGENT 'input' _caption_="Email" _argv_=$email -->
-	<!-- AGENT 'input' _caption_="N° d'inscription" _argv_=$ref -->
+	<!-- AGENT $email _caption_="Email" -->
+	<!-- AGENT $ref   _caption_="N° d'inscription" -->
 </table>
 </fieldset>
 
