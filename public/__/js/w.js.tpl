@@ -144,7 +144,7 @@ try
 catch (e) {};
 
 
-w = function($agent, $keys)
+w = function($rootAgent, $keys)
 {
 	var $document = document,
 		$CIApID = CIApID,
@@ -211,7 +211,32 @@ w = function($agent, $keys)
 					break;
 
 				case 1: // agent
-					return $include($evalNext(), $evalNext(), $code[$pointer++]);
+					var $agent = $evalNext(),
+						$args = $evalNext(),
+						$isAgent = $code[$pointer++],
+						$keys = $code[$pointer++],
+						$data;
+
+					if ($agent && $agent.a && $agent/1)
+					{
+						$agent = $agent.a();
+						while ($j = $agent()) $data = $j;
+
+						$agent = $data['*a'];
+						eval('$keys='+$data['*k']);
+						delete $data['*a'];
+						delete $data['*k'];
+
+						for ($i in $data) if ($i!='$') $args[$i] = $data[$i];
+					}
+
+					return $include(
+						$isAgent
+							? g.__ROOT__ + '_?$=' + eUC(($agent||$rootAgent).replace(/\\/g, '/'))
+							: $agent,
+						$args,
+						$keys
+					);
 
 				case 2: // echo
 					$echo( $code[$pointer++] );
@@ -396,21 +421,16 @@ w = function($agent, $keys)
 	g.__URI__ = esc($j.href);
 	g.__ROOT__ = esc({g$__ROOT__|escape:'js'});
 	g.__LANG__ = esc({g$__LANG__|escape:'js'});
-	g.__AGENT__ = esc($agent) + ($agent.length ? '/' : '');
+	g.__AGENT__ = esc($rootAgent) + ($rootAgent.length ? '/' : '');
 	g.__HOST__ = esc($j.protocol+'//'+$j.hostname);
 
-	$j = $j.pathname.substr({g$__ROOT__|length}+$agent.length).split('/');
+	$j = $j.pathname.substr({g$__ROOT__|length}+$rootAgent.length).split('/');
 	for ($i=0; $i<$j.length; ++$i) if ($j[$i]) $loopIterator[$loopIterator.length] = g['__'+($loopIterator.length+1)+'__'] = esc($j[$i]);
 	g.__0__ = $loopIterator.join('/');
 
 	_GET = g;
 
-	w.a = function($a)
-	{
-		return g.__ROOT__ + '_?$=' + eUC(($a>=''?$a:$agent).replace(/\\/g, '/'));
-	}
-
-	if ($keys) w(0, [1, 'w.a()', 'g', $keys]);
+	if ($keys) w(0, [1, '0', 'g', 1, $keys]);
 }
 
 if (window.ScriptEngine) addOnload(function()

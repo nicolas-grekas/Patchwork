@@ -2,7 +2,7 @@
 
 class_exists('iaForm_hidden');
 
-class iaForm extends loop_singleBlock
+class iaForm extends loop_callAgent
 {
 	public $rawValues;
 	public $errormsg = array();
@@ -104,6 +104,9 @@ class iaForm extends loop_singleBlock
 
 	protected function get()
 	{
+		$this->agent = 'form';
+		$this->keys = array();
+
 		$a = (object) array(
 			'_hidden' => new iaForm_hiddenLoop__($this->hidden),
 			'_errormsg' => new loop_array($this->errormsg)
