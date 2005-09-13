@@ -5,7 +5,6 @@ This template merges all standard HTML form elements (<input type="*">, <textare
 You can pass it every HTML attribute you need (class, on*, ...), they will be used to define the element.
 
 You can control it with the additional arguments:
-- a$_argv_											: a loop defined by an iaForm element
 - a$_caption_										: the caption of the element, with class="mandatory" if needed
 - a$_checkboxGlue_	|default:g$checkboxGlue			: for radio|checkbox elements : string to put to glue a list of radio|checkbox
 - a$_beforeError_	|default:g$inputBeforeError		: HTML code put at the beginning of an error message
