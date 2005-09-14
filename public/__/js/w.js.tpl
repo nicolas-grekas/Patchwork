@@ -76,6 +76,7 @@ function addOnload($function)
 	$p[$p.length] = $function;
 }
 
+
 /*
 * Set a cookie, same as PHP's setcookie
 */
@@ -135,13 +136,9 @@ function setboard($name, $value)
 
 
 addOnload.p = [];
-
-root = window;
-try
-{
-	while ( ((w=root.parent) != root || (w=root.opener)) && w.name ) root = w;
-}
-catch (e) {};
+if ((root = window).encodeURI)
+	// This eval avoids a parse error with browsers not supporting exceptions.
+	eval('try{while(((w=root.parent)!=root||(w=root.opener))&&w.name)root=w}catch(e){}');
 
 
 w = function($rootAgent, $keys)
