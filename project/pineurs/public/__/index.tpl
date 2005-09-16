@@ -1,6 +1,6 @@
 <!-- AGENT 'header' title = 'Annuaire des pineurs 2005' -->
 
-<!-- SET a$blank -->&nbsp;&nbsp;&nbsp;&nbsp;<!-- END:SET -->
+<!-- SET a$blank --><!-- END:SET -->
 
 <script src="js/QJsrs"></script>
 
@@ -80,6 +80,11 @@ function editMe(link, id, key)
 			/&lt;/g, '<').replace(
 			/&amp;/g, '&');
 
+	txt.onkeydown = function(e)
+	{
+		if (27 == (e || event).keyCode) this.value = oldValue, this.blur();
+	}
+
 	txt.onblur = function()
 	{
 		if (oldValue != this.value) (new QJsrs('QJsrs/save', true)).pushCall({ID:id,KEY:key,DATA:this.value}, function(){});
@@ -100,7 +105,7 @@ function editMe(link, id, key)
 	txt.focus();
 }
 //--></script>
-<form accept-charset="UTF-8" onsubmit="return false"><div id="editDiv"><textarea name="editTxt" cols="40" rows="2" accept-charset="UTF-8"></textarea></div>
+<form accept-charset="UTF-8" onsubmit="return false"><div id="editDiv"><textarea name="editTxt" cols="40" rows="2"></textarea></div>
 &nbsp;<i style="color: red">Double-Cliques au milieu d'une case pour la modifier.</i>
 <table border=0 cellspacing=1 cellpadding=2>
 <tr>
@@ -117,16 +122,16 @@ function editMe(link, id, key)
 </tr>
 <!-- LOOP $PINEURS -->
 <tr>
-	<td><a href="javascript:;" ondblclick="editMe(this,{$id|default:0},'nom');return false">{$nom|replace:'\n':'<br>'|default:a$blank}</a></td>
-	<td><a href="javascript:;" ondblclick="editMe(this,{$id|default:0},'prenom');return false">{$prenom|replace:'\n':'<br>'|default:a$blank}</a></td>
-	<td><a href="javascript:;" ondblclick="editMe(this,{$id|default:0},'email');return false">{$email|replace:'\n':'<br>'|default:a$blank}</a></td>
-	<td><a href="javascript:;" ondblclick="editMe(this,{$id|default:0},'tel_port');return false">{$tel_port|replace:'\n':'<br>'|default:a$blank}</a></td>
-	<td><a href="javascript:;" ondblclick="editMe(this,{$id|default:0},'tel_fixe');return false">{$tel_fixe|replace:'\n':'<br>'|default:a$blank}</a></td>
-	<td><a href="javascript:;" ondblclick="editMe(this,{$id|default:0},'tel_parent');return false">{$tel_parent|replace:'\n':'<br>'|default:a$blank}</a></td>
-	<td><a href="javascript:;" ondblclick="editMe(this,{$id|default:0},'adresse');return false">{$adresse|replace:'\n':'<br>'|default:a$blank}</a></td>
-	<td><a href="javascript:;" ondblclick="editMe(this,{$id|default:0},'adr_parent');return false">{$adr_parent|replace:'\n':'<br>'|default:a$blank}</a></td>
-	<td><a href="javascript:;" ondblclick="editMe(this,{$id|default:0},'birthday');return false">{$birthday|replace:'\n':'<br>'|default:a$blank}</a></td>
-	<td><a href="javascript:;" ondblclick="editMe(this,{$id|default:0},'autre');return false">{$autre|replace:'\n':'<br>'|default:a$blank}</a></td>
+	<td ondblclick="editMe(this,{$id|default:0},'nom')">{$nom|replace:'\n':'<br>'|default:a$blank}</td>
+	<td ondblclick="editMe(this,{$id|default:0},'prenom')">{$prenom|replace:'\n':'<br>'|default:a$blank}</td>
+	<td ondblclick="editMe(this,{$id|default:0},'email')">{$email|replace:'\n':'<br>'|default:a$blank}</td>
+	<td ondblclick="editMe(this,{$id|default:0},'tel_port')">{$tel_port|replace:'\n':'<br>'|default:a$blank}</td>
+	<td ondblclick="editMe(this,{$id|default:0},'tel_fixe')">{$tel_fixe|replace:'\n':'<br>'|default:a$blank}</td>
+	<td ondblclick="editMe(this,{$id|default:0},'tel_parent')">{$tel_parent|replace:'\n':'<br>'|default:a$blank}</td>
+	<td ondblclick="editMe(this,{$id|default:0},'adresse')">{$adresse|replace:'\n':'<br>'|default:a$blank}</td>
+	<td ondblclick="editMe(this,{$id|default:0},'adr_parent')">{$adr_parent|replace:'\n':'<br>'|default:a$blank}</td>
+	<td ondblclick="editMe(this,{$id|default:0},'birthday')">{$birthday|replace:'\n':'<br>'|default:a$blank}</td>
+	<td ondblclick="editMe(this,{$id|default:0},'autre')">{$autre|replace:'\n':'<br>'|default:a$blank}</td>
 </tr>
 <!-- END:LOOP -->
 <tr>
