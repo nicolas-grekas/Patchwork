@@ -21,6 +21,8 @@ class agent_QJsrs_save extends agent_QJsrs
 				case 'adresse':
 				case 'adr_parent':
 				case 'birthday':
+				case 'activite':
+				case 'actu':
 				case 'autre':
 
 					$db->autoExecute(

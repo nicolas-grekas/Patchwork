@@ -109,42 +109,88 @@ function editMe(link, id, key)
 &nbsp;<i style="color: red">Double-Cliques au milieu d'une case pour la modifier.</i>
 <table border=0 cellspacing=1 cellpadding=2>
 <tr>
-	<th>Nom</th>
-	<th>Prénom</th>
-	<th>Email</th>
-	<th>Portable</th>
-	<th>Tél. fixe</th>
-	<th>Tél. parent</th>
-	<th>Adresse</th>
-	<th>Adr. parent</th>
-	<th>Date de naissance</th>
-	<th>Autre</th>
-</tr>
+<!-- SET a$counter -->0<!-- END:SET -->
 <!-- LOOP $PINEURS -->
-<tr>
+	<!-- IF !(a+1$counter % 10) --><th>Nom</th><!-- END:IF -->
 	<td ondblclick="editMe(this,{$id|default:0},'nom')">{$nom|replace:'\n':'<br>'|default:a$blank}</td>
-	<td ondblclick="editMe(this,{$id|default:0},'prenom')">{$prenom|replace:'\n':'<br>'|default:a$blank}</td>
-	<td ondblclick="editMe(this,{$id|default:0},'email')">{$email|replace:'\n':'<br>'|default:a$blank}</td>
-	<td ondblclick="editMe(this,{$id|default:0},'tel_port')">{$tel_port|replace:'\n':'<br>'|default:a$blank}</td>
-	<td ondblclick="editMe(this,{$id|default:0},'tel_fixe')">{$tel_fixe|replace:'\n':'<br>'|default:a$blank}</td>
-	<td ondblclick="editMe(this,{$id|default:0},'tel_parent')">{$tel_parent|replace:'\n':'<br>'|default:a$blank}</td>
-	<td ondblclick="editMe(this,{$id|default:0},'adresse')">{$adresse|replace:'\n':'<br>'|default:a$blank}</td>
-	<td ondblclick="editMe(this,{$id|default:0},'adr_parent')">{$adr_parent|replace:'\n':'<br>'|default:a$blank}</td>
-	<td ondblclick="editMe(this,{$id|default:0},'birthday')">{$birthday|replace:'\n':'<br>'|default:a$blank}</td>
-	<td ondblclick="editMe(this,{$id|default:0},'autre')">{$autre|replace:'\n':'<br>'|default:a$blank}</td>
-</tr>
 <!-- END:LOOP -->
+</tr>
 <tr>
-	<th>Nom</th>
-	<th>Prénom</th>
-	<th>Email</th>
-	<th>Portable</th>
-	<th>Tél. fixe</th>
-	<th>Tél. parent</th>
-	<th>Adresse</th>
-	<th>Adr. parent</th>
-	<th>Date de naissance</th>
-	<th>Autre</th>
+<!-- SET a$counter -->0<!-- END:SET -->
+<!-- LOOP $PINEURS -->
+	<!-- IF !(a+1$counter % 10) --><th>Prénom</th><!-- END:IF -->
+	<td ondblclick="editMe(this,{$id|default:0},'prenom')">{$prenom|replace:'\n':'<br>'|default:a$blank}</td>
+<!-- END:LOOP -->
+</tr>
+<tr>
+<!-- SET a$counter -->0<!-- END:SET -->
+<!-- LOOP $PINEURS -->
+	<!-- IF !(a+1$counter % 10) --><th>Email</th><!-- END:IF -->
+	<td ondblclick="editMe(this,{$id|default:0},'email')">{$email|replace:'\n':'<br>'|default:a$blank}</td>
+<!-- END:LOOP -->
+</tr>
+<tr>
+<!-- SET a$counter -->0<!-- END:SET -->
+<!-- LOOP $PINEURS -->
+	<!-- IF !(a+1$counter % 10) --><th>Portable</th><!-- END:IF -->
+	<td ondblclick="editMe(this,{$id|default:0},'tel_port')">{$tel_port|replace:'\n':'<br>'|default:a$blank}</td>
+<!-- END:LOOP -->
+</tr>
+<tr>
+<!-- SET a$counter -->0<!-- END:SET -->
+<!-- LOOP $PINEURS -->
+	<!-- IF !(a+1$counter % 10) --><th>Tél. fixe</th><!-- END:IF -->
+	<td ondblclick="editMe(this,{$id|default:0},'tel_fixe')">{$tel_fixe|replace:'\n':'<br>'|default:a$blank}</td>
+<!-- END:LOOP -->
+</tr>
+<tr>
+<!-- SET a$counter -->0<!-- END:SET -->
+<!-- LOOP $PINEURS -->
+	<!-- IF !(a+1$counter % 10) --><th>Tél. parent</th><!-- END:IF -->
+	<td ondblclick="editMe(this,{$id|default:0},'tel_parent')">{$tel_parent|replace:'\n':'<br>'|default:a$blank}</td>
+<!-- END:LOOP -->
+</tr>
+<tr>
+<!-- SET a$counter -->0<!-- END:SET -->
+<!-- LOOP $PINEURS -->
+	<!-- IF !(a+1$counter % 10) --><th>Adresse</th><!-- END:IF -->
+	<td ondblclick="editMe(this,{$id|default:0},'adresse')">{$adresse|replace:'\n':'<br>'|default:a$blank}</td>
+<!-- END:LOOP -->
+</tr>
+<tr>
+<!-- SET a$counter -->0<!-- END:SET -->
+<!-- LOOP $PINEURS -->
+	<!-- IF !(a+1$counter % 10) --><th>Adr. parent</th><!-- END:IF -->
+	<td ondblclick="editMe(this,{$id|default:0},'adr_parent')">{$adr_parent|replace:'\n':'<br>'|default:a$blank}</td>
+<!-- END:LOOP -->
+</tr>
+<tr>
+<!-- SET a$counter -->0<!-- END:SET -->
+<!-- LOOP $PINEURS -->
+	<!-- IF !(a+1$counter % 10) --><th>Date de naissance</th><!-- END:IF -->
+	<td ondblclick="editMe(this,{$id|default:0},'birthday')">{$birthday|replace:'\n':'<br>'|default:a$blank}</td>
+<!-- END:LOOP -->
+</tr>
+<tr>
+<!-- SET a$counter -->0<!-- END:SET -->
+<!-- LOOP $PINEURS -->
+	<!-- IF !(a+1$counter % 10) --><th>Activité professionnelle</th><!-- END:IF -->
+	<td ondblclick="editMe(this,{$id|default:0},'activite')">{$activite|replace:'\n':'<br>'|default:a$blank}</td>
+<!-- END:LOOP -->
+</tr>
+<tr>
+<!-- SET a$counter -->0<!-- END:SET -->
+<!-- LOOP $PINEURS -->
+	<!-- IF !(a+1$counter % 10) --><th>Actualité personnelle</th><!-- END:IF -->
+	<td ondblclick="editMe(this,{$id|default:0},'actu')">{$actu|replace:'\n':'<br>'|default:a$blank}</td>
+<!-- END:LOOP -->
+</tr>
+<tr>
+<!-- SET a$counter -->0<!-- END:SET -->
+<!-- LOOP $PINEURS -->
+	<!-- IF !(a+1$counter % 10) --><th>Autre</th><!-- END:IF -->
+	<td ondblclick="editMe(this,{$id|default:0},'autre')">{$autre|replace:'\n':'<br>'|default:a$blank}</td>
+<!-- END:LOOP -->
 </tr>
 </table>
 </form>
