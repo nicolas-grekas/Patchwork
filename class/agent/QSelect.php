@@ -1,9 +1,7 @@
 <?php
 
-class agent_QSelect extends agent
+class agent_QSelect extends agent_bin
 {
-	public $binary = true;
-
 	protected $template = 'QSelect/table.js';
 
 	public function render()

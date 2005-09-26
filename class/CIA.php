@@ -18,11 +18,18 @@ class CIA
 	protected static $cia;
 	protected static $redirectUrl = false;
 	protected static $agentClasses = '';
+	protected static $cancelled = false;
 
 	public static function start()
 	{
 		if (DEBUG) self::$cia = new debug_CIA;
 		else self::$cia = new CIA;
+	}
+
+	public static function cancel()
+	{
+		self::$cancelled = true;
+		ob_end_flush();
 	}
 
 	/**
@@ -413,6 +420,14 @@ class CIA
 			}
 		}
 
+
+		if (self::$cancelled)
+		{
+			self::$handlesOb = false;
+			return $buffer;
+		}
+
+
 		if (!CIA_POSTING && $buffer !== '')
 		{
 			if (!self::$maxage) self::$maxage = 0;
@@ -502,7 +517,7 @@ class agent
 		return isset($this->template) ? $this->template : str_replace('_', '/', substr(get_class($this), 6));
 	}
 
-	final public function __construct($args)
+	final public function __construct($args = array())
 	{
 		$args = (array) $args;
 

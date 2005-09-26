@@ -47,9 +47,10 @@ function $QJsrsContext($name)
 			$container = $XMLHttp - 1 ? new XMLHttpRequest : new ActiveXObject('Microsoft.XMLHTTP');
 			$container.onreadystatechange = function()
 			{
-				if ($html = $container.readyState==4 && $container.responseText)
-					eval('$html=' + $html.substring(30, $html.length-10)),
+				if ($container.readyState==4)
 					delete $container.onreadystatechange,
+					$html = $container.responseText.replace(/\s+$/, '') || '{}',
+					eval('$html=' + $html.substring(30, $html.length-10)),
 					$container = $this.$busy = 0,
 					$this.$callback($html);
 			}
@@ -71,8 +72,8 @@ function $QJsrsContext($name)
 	$this.$abort = function()
 	{
 		if ($container)
-			$container.abort(),
 			delete $container.onreadystatechange,
+			$container.abort(),
 			$container = $this.$busy = 0;
 		$this.$callback = $this.$abort;
 	}
@@ -107,6 +108,8 @@ return function($URL, $POST)
 
 	$this.pushCall = function($vararray, $function)
 	{
+		$function = $function || function(){};
+
 		$url = '';
 		for ($i in $vararray) $url += '&' + eUC($i) + '=' + eUC($vararray[$i]); // Be aware that Konqueror's for(..in..) loop does not preserve the order of declaration
 		$url = [$URL, $url, $vararray];
@@ -118,7 +121,9 @@ return function($URL, $POST)
 			for ($i = 0; $i < $context; ++$i) if ( !$masterPool[$i].$busy && ($masterPool[$i].p&&1)==$POST ) break;
 			if ($i == $context) $masterPool[$i] = new $QJsrsContext('_' + $i), // The '_' prefix prevents confusion of frames['0'] and frames[0] for some browsers
 
+			'' + $function; // Dummy line, but if missing, both IE and Mozilla bug !?
 			$callback = $function;
+
 			$context = $masterPool[$i];
 			$context.p = $POST;
 			$context.$load($url, $release);

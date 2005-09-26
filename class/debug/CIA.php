@@ -64,11 +64,11 @@ class debug_CIA extends CIA
 <html><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script>
 _____ = new Date;
 onload = function() {
-window.debugWin = open('$debugWin','debugWin','dependent=yes,toolbar=no,status=yes,resizable=yes,scrollbars,width=600,height=400');
+window.debugWin = open('$debugWin','debugWin','dependent=yes,toolbar=no,status=yes,resizable=yes,scrollbars,width=320,height=240,left=' + parseInt(screen.availWidth - 340) + ',top=' + parseInt(screen.availHeight - 290));
 if (!debugWin) alert('Disable anti-popup to use the Debug Window');
 else E('Rendering time: ' + (new Date - _____) + ' ms');
 };
-</script><div style="position:absolute;top:0px;left:0px;z-index:255;"><a href="javascript:;" onclick="window.debugWin&&debugWin.focus()" style="font-family:arial;font-size:9px;background-color:$bgcolor;color:white;text-decoration:none;border:0px;" id="debugLink">Debug</a>&nbsp<a href="javascript:;" onclick="location.reload(1)" style="font-family:arial;font-size:9px;background-color:$bgcolor;color:white;text-decoration:none;border:0px;">Reload</a><script src="$QDebug"></script></div>
+</script><div style="font-family:arial;font-size:9px;top:0px;left:0px;z-index:255;float:right"><a href="javascript:;" onclick="window.debugWin&&debugWin.focus()" style="background-color:$bgcolor;color:white;text-decoration:none;border:0px;" id="debugLink">Debug</a>&nbsp<a href="javascript:;" onclick="location.reload(1)" style="background-color:$bgcolor;color:white;text-decoration:none;border:0px;">Reload</a><script src="$QDebug"></script></div>
 
 DEBUG_INFO;
 		else if ($type=='w' && $this->has_error) return "L=document.getElementById('debugLink'); L && (L.style.backgroundColor='$bgcolor');";
