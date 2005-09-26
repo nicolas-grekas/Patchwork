@@ -3,6 +3,9 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>{a$title}</title>
 <base href="{g$__HOST__}{g$__ROOT__}" />
+<!-- IF a$css -->
+<link rel="stylesheet" type="text/css" href="{a$css}" />
+<!-- END:IF -->
 <!-- SERVERSIDE -->
 <script><!--
 a=[{g$__AGENT__|escape:'js'},0]//--></script>

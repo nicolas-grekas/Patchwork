@@ -1,13 +1,11 @@
 <?php
 
-class agent_js extends agent
+class agent_js extends agent_bin
 {
 	public $argv = array('__0__');
-	public $binary = true;
 
 	protected $maxage = -1;
 
-	protected $template = 'bin';
 	protected $watch = array('public/js');
 
 	protected $a = array();

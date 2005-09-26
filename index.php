@@ -165,7 +165,7 @@ function DB()
 
 		global $CONFIG;
 
-		$db = DB::connect($CONFIG['DSN'], array('persistent' => true));
+		$db = DB::connect($CONFIG['DSN'], array('persistent' => !DEBUG));
 
 		if(DB::isError( $db ))
 		{
@@ -214,6 +214,7 @@ switch ($path)
 	case '.gif':
 	case '.jpg':
 
+	// TODO : envoyer une entete avec le bon type mime
 	require 'controler.php';
 }
 
