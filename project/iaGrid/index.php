@@ -5,7 +5,7 @@ $CONFIG += array(
 	'debug' => true,
 	'maxage' => 3600,
 
-	'DSN' => 'mysqli://iaCalc@localhost/iaCalc',
+	'DSN' => 'mysql://iaGrid@localhost/iaGrid',
 );
 
 $path = dirname(__FILE__);

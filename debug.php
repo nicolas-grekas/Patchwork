@@ -35,7 +35,10 @@ $period = 5;	// (s)
 
 apache_setenv('no-gzip', '1');
 ignore_user_abort(false);
-set_time_limit(0);
+set_time_limit(600);
+
+header('Content-Type: text/html; charset=UTF-8');
+header('Cache-Control: max-age=0,private,must-revalidate');
 
 $error_log = ini_get('error_log');
 echo str_repeat(' ', 512), // special MSIE

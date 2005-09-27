@@ -14,10 +14,10 @@ class agent_lock extends agent_bin
 
 		$db = DB();
 
-		$sql = "SELECT lockId FROM data WHERE tabId={$tabId} AND row={$row} AND col={$col}";
-		if ($a = $db->getRow($sql))
+		$sql = "SELECT data, lockId FROM data WHERE tabId={$tabId} AND row={$row} AND col={$col}";
+		if ($data = $db->getRow($sql))
 		{
-			if (!$a->lockId)
+			if (!$data->lockId)
 			{
 				$lockId = $db->nextId('lockId');
 				$a = $db->autoExecute(
@@ -31,6 +31,8 @@ class agent_lock extends agent_bin
 
 				if (!($a && $db->affectedRows())) $lockId = 0;
 			}
+
+			$data = $data->data;
 		}
 		else
 		{
@@ -49,6 +51,8 @@ class agent_lock extends agent_bin
 			);
 
 			if (!$a) $lockId = 0;
+
+			$data = '';
 		}
 
 		if ($lockId)
@@ -56,21 +60,30 @@ class agent_lock extends agent_bin
 			CIA::cancel();
 
 			$sleep = 500;	// (ms)
+			$repeated = str_repeat("\n", 4*4096);
 	
 			apache_setenv('no-gzip', '1');
 			ignore_user_abort(false);
-			set_time_limit(0);
+			set_time_limit(600);
+
+			header('Content-Type: text/html; charset=UTF-8');
+			header('Cache-Control: max-age=0,private,must-revalidate');
 
 			register_shutdown_function(array($this, 'release'), $tabId, $row, $col);
 
-			echo "<script>parent.openEdit({$lockId})</script>\n";
-			echo str_repeat("\n", 512);
+			echo "<script>parent.openEdit({$lockId},'",
+				str_replace(
+					array("\r\n", "\r", '\\'  , "\n", "'"),
+					array("\n"  , "\n", '\\\\', '\n', "\\'"),
+					$data
+				),
+				"')</script>";
 
 			while (1)
 			{
-				echo "\n";
+				echo $repeated;
 				flush();
-				usleep($sleep);
+				usleep(1000*$sleep);
 			}
 		}
 
