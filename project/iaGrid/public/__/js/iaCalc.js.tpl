@@ -100,14 +100,13 @@ function multiReleaseEdit($result)
 	if (!$result.completed) alert("Une des cellules à modifier est en cours d'utilisation");
 }
 
-function openEdit($lock)
+function openEdit($lock, $oldValue)
 {
 	var $cell = editedCell[0],
 		$row = editedCell[1],
 		$col = editedCell[2],
 		$X = getXY($cell),
-		$Y = $X[1],
-		$oldValue;
+		$Y = $X[1];
 
 	$X = $X[0];
 	$X = Math.min($X, (window.innerWidth || document.body.offsetWidth) - editDiv.offsetWidth - 25);
@@ -117,7 +116,7 @@ function openEdit($lock)
 	editDiv.style.top = $Y + 'px';
 	editDiv.style.visibility = 'visible';
 	
-	$oldValue = editTxt.value = $cell.innerHTML;
+	editTxt.value = $oldValue;
 	editTxt.select();
 
 	editTxt.onkeydown = function($e)
@@ -176,12 +175,12 @@ function openEdit($lock)
 	{
 		$e = $e || event;
 
-		if (($e.keyCode == 86 || $e.keyCode == 118) && $e.ctrlKey && !$e.shiftKey && !$e.altKey) this.blur();
+		if (($e.keyCode == 86 || $e.keyCode == 118) && $e.ctrlKey && !$e.shiftKey && !$e.altKey && (this.value.indexOf('\t')>=0 || this.value.indexOf('\n')>=0)) this.blur();
 	}
 
 	editTxt.onpaste = function()
 	{
-		this.blur();
+		if (this.value.indexOf('\t')>=0 || this.value.indexOf('\n')>=0) this.blur();
 	}
 
 	editTxt.onblur = function()

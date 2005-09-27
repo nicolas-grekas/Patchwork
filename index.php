@@ -173,7 +173,7 @@ function DB()
 			exit;
 		}
 
-		$db->setOption('seqname_format', 'seq_%s');
+		$db->setOption('seqname_format', 'zeq_%s');
 		$db->setErrorHandling(PEAR_ERROR_CALLBACK, 'E');
 		$db->setFetchMode(DB_FETCHMODE_OBJECT);
 	}
@@ -339,10 +339,11 @@ else
 	 * on demand at developement time.
 	 */
 	if (
-		DEBUG && !CIA_BINARY
+		!CIA_BINARY
 		&& 'no-cache' == @$_SERVER['HTTP_CACHE_CONTROL']
 		&& 0 === strpos(@$_SERVER['HTTP_USER_AGENT'], 'Mozilla') )
 	{
+		/* Equivalent to a touch but works with include_path */
 		$h = fopen('index.php', 'r+b', true);
 		fwrite($h, '<');
 		fclose($h);

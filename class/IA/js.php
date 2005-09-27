@@ -134,7 +134,7 @@ class IA_js
 		if ((string) $a === (string) ($a-0)) return $a;
 
 		$a = str_replace(
-			array("\r\n", "\r", '\\',   "\n", $delim),
+			array("\r\n", "\r", '\\'  , "\n", $delim),
 			array("\n"  , "\n", '\\\\', '\n', '\\' . $delim),
 			$a
 		);
