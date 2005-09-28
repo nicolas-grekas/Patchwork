@@ -199,7 +199,7 @@ function openEdit($lock, $oldValue)
 				$value = $value.replace(/\t/g, ' \t ').replace(/\n/g, ' \n ');
 
 				$value = $value.split('\n');
-				if ($value[$value.length-1] == '') --$value.length;
+				if ($value[$value.length-1] == ' ') --$value.length;
 				
 				$X = 0;
 				$Y = $value.length;
