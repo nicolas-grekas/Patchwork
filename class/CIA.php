@@ -11,7 +11,7 @@ class CIA
 
 	protected static $maxage = false;
 	protected static $private = false;
-	protected static $expires = false;
+	protected static $expires = 'ontouch';
 	protected static $watchTable = array();
 	protected static $headers = array();
 
@@ -130,13 +130,11 @@ class CIA
 	 */
 	public static function setExpires($expires, $watch = false)
 	{
-		$expires = !('ontouch' == $expires && $watch);
-
-		if ($expires) self::$expires = true;
+		self::$expires = $expires;
 
 		if (self::$catchMeta)
 		{
-			if ($expires) self::$metaInfo[2] = true;
+			self::$metaInfo[2] = $expires;
 			if ($watch) self::$metaInfo[3] += (array) $watch;
 		}
 	}
@@ -440,7 +438,7 @@ class CIA
 
 			$is304 = @$_SERVER['HTTP_IF_NONE_MATCH'] == $ETag || @$_SERVER['HTTP_IF_MODIFIED_SINCE'] == $LastModified;
 
-			if (!self::$expires) $ETag = '/' . md5(self::$agentClasses .'_'. $buffer) . "-$ETag";
+			if ('ontouch' == self::$expires && self::$watchTable) $ETag = '/' . md5(self::$agentClasses .'_'. $buffer) . "-$ETag";
 
 			if (!$is304)
 			{
@@ -454,7 +452,7 @@ class CIA
 
 			/* Write watch table */
 
-			if (!self::$expires)
+			if ('ontouch' == self::$expires && self::$watchTable)
 			{
 				$ETag{6} = $ETag{3} = '/';
 				$ETag = './tmp/cache/validator/' . CIA_PROJECT_ID . $ETag . '.txt';

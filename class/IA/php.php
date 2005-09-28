@@ -108,7 +108,7 @@ class IA_php
 		{
 			$cagent = CIA::agentCache($agentClass, $agent->argv);
 
-			if (!CIA_POSTING && !$private && ($maxage || !$expires))
+			if (!CIA_POSTING && !$private && ($maxage || ('ontouch' == $expires && $watch)))
 			{
 				$fagent = $cagent . ($canPost ? '.php' : '');
 
@@ -122,12 +122,12 @@ class IA_php
 					$h,
 					';$template=' . var_export($template, true)
 						. ';CIA::setMaxage(' . (int) $maxage . ');'
-						. ($expires ? 'CIA::setExpires(true);' : '')
+						. ('ontouch' != $expires ? 'CIA::setExpires("onmaxage");' : '')
 						. ($headers ? "header('" . addslashes(implode("\n", $headers)) . "');" : '')
 				);
 
 				fclose($h);
-				touch($fagent, CIA_TIME + ($expires ? $maxage : CIA_MAXAGE));
+				touch($fagent, CIA_TIME + ('ontouch' == $expires && $watch ? CIA_MAXAGE : $maxage));
 
 				CIA::writeWatchTable($watch, $fagent);
 			}

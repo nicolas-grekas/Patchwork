@@ -2,6 +2,8 @@
 
 class agent_index extends agent
 {
+	protected $watch = array('sql/table/annuaire');
+
 	public function render()
 	{
 		$a = (object) array(

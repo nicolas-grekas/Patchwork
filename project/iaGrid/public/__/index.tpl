@@ -1,4 +1,4 @@
-<!-- AGENT 'header' title = 'iaCalc' css = 'iaCalc.css' -->
+<!-- AGENT 'header' title = 'iaGrid' css = 'iaGrid.css' -->
 
 <!-- LOOP $doc -->
 <a href="grid/{$docId}">{$label}</a><br />

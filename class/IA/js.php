@@ -62,10 +62,12 @@ class IA_js
 
 		echo '}';
 
+		CIA::$catchMeta = true;
+
 		$agent->postRender();
 		list($maxage, $private, $expires, $watch, $headers) = CIA::closeMeta();
 
-		if ($maxage==CIA_MAXAGE && !$expires)
+		if ($maxage==CIA_MAXAGE)
 		{
 			$ctemplate = CIA::makeCacheDir("templates/$template", 'txt');
 			if (file_exists($ctemplate)) readfile($ctemplate);
@@ -79,16 +81,16 @@ class IA_js
 		}
 		else echo ',[1,"g.__ROOT__+', self::formatJs(self::formatJs("_?t=$template"), '"', false), '",0,0,0])';
 
-		if (!$private && ($maxage || !$expires))
+		if (!$private && ($maxage || ('ontouch' == $expires && $watch)))
 		{
 			$cagent = CIA::agentCache($agentClass, $agent->argv);
 			$data = '<?php echo ' . var_export(ob_get_flush(), true)
 				. ';CIA::setMaxage(' . (int) $maxage . ');'
-				. ($expires ? 'CIA::setExpires(true);' : '')
+				. ('ontouch' != $expires ? 'CIA::setExpires("onmaxage");' : '')
 				. ($headers ? "header('" . addslashes(implode("\n", $headers)) . "');" : '');
-			CIA::writeFile($cagent, $data, $expires ? $maxage : CIA_MAXAGE);
+			CIA::writeFile($cagent, $data, 'ontouch' == $expires && $watch ? CIA_MAXAGE : $maxage);
 
-			if ($maxage==CIA_MAXAGE && !$expires) $watch[] = 'public/templates';
+			if ($maxage==CIA_MAXAGE) $watch[] = 'public/templates';
 			CIA::writeWatchTable($watch, $cagent);
 		}
 	}
