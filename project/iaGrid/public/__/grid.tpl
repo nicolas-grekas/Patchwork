@@ -1,4 +1,4 @@
-<!-- AGENT 'header' title = 'iaCalc' css = 'iaCalc.css' -->
+<!-- AGENT 'header' title = 'iaGrid' css = 'iaGrid.css' -->
 
 <a href="javascript:;" class="docLabel">{$label}</a> :
 <!-- LOOP $tab -->
@@ -19,7 +19,7 @@
 <iframe name="HlockFrame" src="img/blank.gif" width=0 height=0 frameborder=0></iframe>
 
 <script src="js/QJsrs"></script>
-<script src="js/iaCalc"></script>
+<script src="js/iaGrid"></script>
 <script>
 
 version = 0;

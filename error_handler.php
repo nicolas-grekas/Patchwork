@@ -1,8 +1,8 @@
 <?php
 
-self::$maxage  = 0;
-self::$expires = 1;
-self::$private = 1;
+CIA::setMaxage(0);
+CIA::setPrivate();
+CIA::setExpires('onmaxage');
 
 if (self::$handlesOb) $context = '';
 else

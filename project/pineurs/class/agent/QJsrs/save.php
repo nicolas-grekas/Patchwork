@@ -25,6 +25,8 @@ class agent_QJsrs_save extends agent_QJsrs
 				case 'actu':
 				case 'autre':
 
+					CIA::touch('sql/table/annuaire');
+
 					$db->autoExecute(
 							'annuaire',
 							array($key => trim(@$_POST['DATA'])),
