@@ -17,6 +17,12 @@ class loop_sql_pearDB extends loop
 		$this->addRenderer($renderer);
 	}
 
+	public function setLimit($from, $count)
+	{
+		$this->from = $from;
+		$this->count = $count;
+	}
+
 	protected function prepare()
 	{
 		if ($this->count > 0) $this->result = $this->db->limitQuery($this->sql, $this->from, $this->count);

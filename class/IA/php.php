@@ -15,6 +15,7 @@ class IA_php
 			$args =& $_GET;
 
 			self::$get = (object) array_map(array('CIA', 'htmlescape'), $_GET);
+			self::$get->__QUERY__ = '?' . CIA::htmlescape($_SERVER['QUERY_STRING']);
 			self::$get->__SCRIPT__ = CIA::htmlescape($_SERVER['SCRIPT_NAME']);
 			self::$get->__URI__ = CIA::htmlescape($_SERVER['REQUEST_URI']);
 			self::$get->__ROOT__ = CIA::htmlescape(CIA_ROOT);

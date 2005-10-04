@@ -8,10 +8,10 @@ class loop_callAgent extends loop
 	private $data;
 	private $firstCall = true;
 
-	public function __construct($agent = '', $keys = array())
+	public function __construct($agent, $keys = false)
 	{
-		if ($agent) $this->agent = $agent;
-		if ($keys) $this->keys = $keys;
+		$this->agent = $agent;
+		if (false !== $keys) $this->keys = $keys;
 	}
 
 	final protected function prepare() {return 1;}
