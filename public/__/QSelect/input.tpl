@@ -49,10 +49,17 @@ SET $INPUT --><!--
 		><select name="_s{$id}" size="7"></select
 
 	></div
-	><input autocomplete="off" {a$|htmlArgs}
+
+	><link rel="stylesheet" type="text/css" href="QSelect/style.css"
+	><span class="QSelect"
+		><input autocomplete="off" {a$|htmlArgs}
+		><img src="QSelect/b.gif" id="_i3{$id}" onmouseover="this.src='QSelect/bh.gif'" onmouseout="this.src='QSelect/b.gif'" onmousedown="this.src='QSelect/bp.gif'" onmouseup="this.onmouseover()"
+	></span
+
 	><script><!--
 
 	lE=gLE({a$name|escape:'js'});
+	lE.lock={a$_lock_|escape:'js'};
 
 	lE.gS=function(){return valid(this<!-- LOOP a$_valid -->,{$VALUE|escape:'js'}<!-- END:LOOP -->)};
 

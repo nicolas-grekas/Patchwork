@@ -12,14 +12,18 @@ function $get($elt)
 
 function $setTimeout($function, $timeout)
 {
-	goQSelect[++$goSelectId] = $function;
-	return setTimeout('goQSelect['+$goSelectId+']();delete goQSelect['+$goSelectId+']', $timeout);
+	if ($function)
+	{
+		goQSelect[++$goSelectId] = $function;
+		return setTimeout('goQSelect['+$goSelectId+']();delete goQSelect['+$goSelectId+']', $timeout);
+	}
 }
 
 function $onfocus()
 {
 	this.$focus = 1;
 	this.form.$QSelectId = this.$QSelectId;
+	this.form.precheck = $precheck;
 	$get(this).$lastFocused = this;
 }
 
@@ -31,10 +35,7 @@ function $onblur()
 
 	$this.$lastFocused = 0;
 
-	$setTimeout(function()
-	{
-		if (!$this.$lastFocused) $this.$hide();
-	}, 1);
+	$setTimeout(function(){$this.$input.form.precheck()}, 1);
 }
 
 function $onchange()
@@ -121,17 +122,30 @@ function $onkeydown($e)
 
 function $precheck()
 {
-	var $this = $get(this);
+	var $this = $get(this),
+		$input = $this.$input,
+		$firstOption = $this.$select,
+		$selectedText = $firstOption[$firstOption.selectedIndex];
 
-	if ($this.$lastFocused)
+	$firstOption = $firstOption[0];
+
+//XXX : lancer une recherche sur la valeur du champ !
+	if ($input.lock && $input.value != '' && !(($firstOption && $input.value == $firstOption.text) || ($selectedText && $input.value == $selectedText.text)))
 	{
-		$this.$hide();
-		$this.$lastFocused.focus();
+		$input.select();
+		$input.focus();
+		return false;
 	}
 
-	this.precheck = 0;
 
-	return false;
+	if (!$this.$lastFocused && $this.$div.style.visibility=='visible')
+	{
+		$this.$hide();
+		$input.focus();
+		return false;
+	}
+
+	return true;
 }
 
 return function($input, $callback, $autohide)
@@ -147,6 +161,7 @@ return function($input, $callback, $autohide)
 		$div = $getById('_d1'+$id),
 		$imgH = $getById('_i1'+$id),
 		$imgW = $getById('_i2'+$id),
+		$imgB = $getById('_i3'+$id),
 		$divH = $getById('_d2'+$id),
 		$divW = $getById('_d3'+$id),
 
@@ -154,7 +169,6 @@ return function($input, $callback, $autohide)
 
 		$options = $select.options,
 		$length = 0;
-
 
 	$this.$callback = $callback;
 	$this.$value = $input.value;
@@ -165,11 +179,13 @@ return function($input, $callback, $autohide)
 		$select.selectedIndex = -1;
 		$length = 0;
 
-		var $query = new RegExp('^' + RegExp.quote($input.value), 'gi'),
+		var $query = new RegExp('^' + RegExp.quote($input.value, $input.lock), 'gi'),
 			$firstMatch = '',
 			$start = $input.value.length,
 			$end, $range, $i;
-		
+
+		if ($input.value != '' && $input.lock && !$result.length) return;
+
 		for ($i in $result)
 		{
 			$i = $result[$i];
@@ -203,8 +219,6 @@ return function($input, $callback, $autohide)
 	$this.$input = $input;
 	
 	$QSelect[$id] = $this;
-
-	$this.$autoReset = false;
 
 	$select.$QSelectId = $input.$QSelectId = $id;
 	$select.$isSelect = 1;
@@ -251,8 +265,6 @@ return function($input, $callback, $autohide)
 
 			$imgH.height = $select.offsetHeight - 10;
 			$divW.style.top = $select.offsetHeight + 'px';
-
-			$form.precheck = $precheck;
 		}
 		else $this.$hide();
 	}
@@ -268,8 +280,6 @@ return function($input, $callback, $autohide)
 		$select.selectedIndex = -1;
 		$divStyle.visibility = 'hidden';
 		$divStyle.display = 'none';
-
-		$form.precheck = 0;
 	}
 
 	$this.$setValue = function($idx)
@@ -278,6 +288,21 @@ return function($input, $callback, $autohide)
 		$input.select();
 		$input.focus();
 	}
+
+	$imgB.$onmousedown = $imgB.onmousedown;
+	$imgB.onmousedown = function()
+	{
+		this.$QSelectVisible = $div.style.visibility == 'visible';
+		this.$onmousedown();
+	}
+	
+	$imgB.onclick = function()
+	{
+		$input.select();
+		$input.focus();
+
+		this.$QSelectVisible ? $this.$hide() : $this.$show();
+	}
 }
 })();
 
@@ -285,16 +310,12 @@ function QSelectSearch($data)
 {
 	this.search = function($query, $pushResult)
 	{
-		var $i = ACCENT.length - 1,
+		var $i = 1,
 			$qLen = $query.length;
 
-		$query = RegExp.quote($query);
-
-		do $query = $query.replace(ACCENT_RX[$i], '['+ACCENT[$i]+']');
-		while (--$i);
-
+		$query = RegExp.quote($query, 1);
 		$query = new RegExp(($qLen>1 ? '(^|[^0-9a-z'+ACCENT.join('')+'])' : '^') + $query, 'gi');
 
-		for ($i = 1; $i < $data.length; ++$i) if ($data[$i].search($query)>=0) $pushResult($data[$i]);
+		for (; $i < $data.length; ++$i) if ($data[$i].search($query)>=0) $pushResult($data[$i]);
 	}
 }

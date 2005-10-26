@@ -1,0 +1,27 @@
+.QSelect
+{
+	white-space:nowrap;
+}
+
+.QSelect input, .QSelect img
+{
+	position:relative;
+	vertical-align:text-bottom;
+	top:2px;
+}
+
+.QSelect input
+{
+	border:1px solid #769CCB;
+	height:22px;
+	padding-top:2px;
+	padding-left:2px;
+	padding-right:18px;
+	_top:0px;
+}
+
+.QSelect img
+{
+	left: -17px;
+	_top:-1px;
+}

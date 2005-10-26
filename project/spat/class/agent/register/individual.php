@@ -16,7 +16,7 @@ class agent_register_individual extends agent
 		$form->add('textarea', 'adress');
 		$form->add('text', 'zipcode');
 		$form->add('text', 'city');
-		$form->add('QSelect', 'country', array('src' => 'QSelect/countries'));
+		$form->add('QSelect', 'country', array('src' => 'QSelect/countries', 'lock' => 0));
 		$form->add('text', 'phone');
 		$form->add('text', 'fax');
 
