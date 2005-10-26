@@ -214,7 +214,7 @@ switch ($path)
 	case '.gif':
 	case '.jpg':
 
-	// TODO : envoyer une entete avec le bon type mime
+	// TODO? : envoyer une entete avec le bon type mime
 	require 'controler.php';
 }
 
@@ -336,7 +336,7 @@ else
 	 * Both Firefox and IE send a "Cache-Control: no-cache" request header
 	 * only and only if the current page is reloaded with the JavaScript code :
 	 * "location.reload(true)". We use this behaviour to trigger a cache reset
-	 * on demand at developement time.
+	 * when the cache is detected stale by the browser.
 	 */
 	if (
 		!CIA_BINARY

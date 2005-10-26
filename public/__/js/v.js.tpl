@@ -90,9 +90,19 @@ ACCENT_RX = [];
 $i = ACCENT.length;
 while ($i--) ACCENT_RX[$i] = new RegExp('['+ACCENT[$i]+']', 'g');
 
-RegExp.quote = function($str)
+RegExp.quote = function($str, $accent)
 {
-	return $str.replace(/([\.\\\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:])/g, '\\$1');
+	var $i = ACCENT.length - 1;
+
+	$str = $str.replace(/([\.\\\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:])/g, '\\$1');
+
+	if ($accent)
+	{
+		do $str = $str.replace(ACCENT_RX[$i], '['+ACCENT[$i]+']');
+		while (--$i);
+	}
+
+	return $str;
 }
 
 function stripAccents($str, $case)
