@@ -253,7 +253,7 @@ class iaForm_text extends iaForm_hidden
 
 	protected function addJsValidation($a)
 	{
-		$a->_valid = new loop_array(array($this->valid) + $this->valid_args);
+		$a->_valid = new loop_array(array_merge(array($this->valid), $this->valid_args));
 		return $a;
 	}
 }
@@ -261,6 +261,12 @@ class iaForm_text extends iaForm_hidden
 class iaForm_password extends iaForm_text
 {
 	protected $type = 'password';
+
+	protected function get()
+	{
+		$this->value = '';
+		return parent::get();		
+	}
 }
 
 class iaForm_textarea extends iaForm_text

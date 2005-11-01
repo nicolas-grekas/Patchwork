@@ -138,7 +138,7 @@ function setboard($name, $value)
 addOnload.p = [];
 if ((root = window).Error)
 	// This eval avoids a parse error with browsers not supporting exceptions.
-	eval('try{while(((w=root.parent)!=root||(w=root.opener))&&w.name>="")root=w}catch(w){}');
+	eval('try{while(((w=root.parent)!=root||(w=root.opener))&&w.w>="")root=w}catch(w){}');
 
 
 w = function($rootAgent, $keys)
@@ -214,18 +214,22 @@ w = function($rootAgent, $keys)
 						$keys = $code[$pointer++],
 						$data;
 
-					if ($agent && $agent.a && $agent/1)
+					if ($agent)
 					{
-						$agent = $agent.a();
-						while ($j = $agent()) $data = $j;
+						if ($agent.a && $agent/1)
+						{
+							$agent = $agent.a();
+							while ($j = $agent()) $data = $j;
 
-						$agent = $data['*a'];
-						eval('$keys='+$data['*k']);
-						delete $data['*a'];
-						delete $data['*k'];
+							$agent = $data['*a'];
+							eval('$keys='+$data['*k']);
+							delete $data['*a'];
+							delete $data['*k'];
 
-						for ($i in $data) if ($i!='$') $args[$i] = $data[$i];
+							for ($i in $data) if ($i!='$') $args[$i] = $data[$i];
+						}
 					}
+					else if ($isAgent) break;
 
 					return $include(
 						$isAgent

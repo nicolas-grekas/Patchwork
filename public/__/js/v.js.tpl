@@ -35,7 +35,7 @@ valid_string = function($value, $args)
 {
 	if ($args[0])
 	{
-		$args[0] = e$value($args[0]);
+		$args[0] = eval($args[0]);
 		if ($value.search($args[0])==-1) return false;
 	}
 	return true;
