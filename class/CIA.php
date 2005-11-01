@@ -63,9 +63,10 @@ class CIA
 	/**
 	 * Redirect the web browser to an other GET request
 	 */
-	public static function redirect($url = '', $external = false, $exit = true)
+	public static function redirect($url = -1, $exit = true)
 	{
-		self::$redirectUrl = $url=='' ? $_SERVER['REQUEST_URI'] : (($external ? '' : CIA_ROOT) . $url);
+		self::$redirectUrl = $url == -1 ? '' : (preg_match("'^([^:/]+:/|\.+)?/'i", $url) ? $url : (CIA_ROOT . $url) );
+
 		if ($exit) exit;
 	}
 

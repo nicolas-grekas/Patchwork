@@ -61,7 +61,7 @@ mbstring.http_output = pass
 mbstring.substitute_character = none
 
 ;String's functions overloading prevents binary use of a string, so use mb_* functions instead
-mbstring.func_overload = 0
+mbstring.func_overload = 1
 
 */
 
@@ -161,7 +161,7 @@ function DB()
 
 	if (!$db)
 	{
-		require 'DB.php';
+		require_once 'DB.php';
 
 		global $CONFIG;
 
