@@ -65,7 +65,7 @@ class LIB
 			for ($i = 0; $i < $len; ++$i)
 			{
 				$v = self::$ACCENT[$i];
-				self::$ACCENT_FROM[] = '/' . substr($v, 1) . '/u';
+				self::$ACCENT_FROM[] = '/[' . substr($v, 1) . ']/u';
 				self::$ACCENT_TO[]   = $v{0};
 			}
 		}

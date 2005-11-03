@@ -229,7 +229,7 @@ w = function($rootAgent, $keys)
 							for ($i in $data) if ($i!='$') $args[$i] = $data[$i];
 						}
 					}
-					else if ($isAgent) break;
+					//else if ($isAgent) break;
 
 					return $include(
 						$isAgent
