@@ -64,7 +64,7 @@ function editMe(link, id, key)
 		parent = parent.offsetParent;
 	}
 
-	left = Math.min(left, (window.innerWidth || document.body.offsetWidth) - div.offsetWidth - 25);
+	left = Math.min(left, Math.max(window.innerWidth, document.body.offsetWidth, document.document.getElementById('mainTable').offsetWidth) - div.offsetWidth - 25);
 	left = Math.max(0, left);
 
 	div.style.left = left + 'px';
@@ -102,12 +102,11 @@ function editMe(link, id, key)
 		if (link.innerHTML == '') link.innerHTML = '{a$blank}';
 	}
 
-	txt.focus();
+	setTimeout("document.getElementById('editDiv').focus()", 100);
 }
 //--></script>
-<form accept-charset="UTF-8" onsubmit="return false"><div id="editDiv"><textarea name="editTxt" cols="40" rows="2"></textarea></div>
 &nbsp;<i style="color: red">Double-Cliques au milieu d'une case pour la modifier.</i>
-<table border=0 cellspacing=1 cellpadding=2>
+<table border=0 cellspacing=1 cellpadding=2 id="mainTable">
 <tr>
 	<th>Nom</th>
 	<th>Prénom</th>
@@ -139,5 +138,5 @@ function editMe(link, id, key)
 </tr>
 <!-- END:LOOP -->
 </table>
-</form>
+<form accept-charset="UTF-8" onsubmit="return false"><div id="editDiv"><textarea id="editTxt" name="editTxt" cols="40" rows="2"></textarea></div></form>
 <!-- AGENT 'footer' -->
