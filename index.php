@@ -173,6 +173,9 @@ function DB()
 			exit;
 		}
 
+		$db->query('SET NAMES utf8');
+		$db->query("SET collation_connection='utf8_general_ci'");
+
 		$db->setOption('seqname_format', 'zeq_%s');
 		$db->setErrorHandling(PEAR_ERROR_CALLBACK, 'E');
 		$db->setFetchMode(DB_FETCHMODE_OBJECT);

@@ -11,7 +11,7 @@ class pipe_test
 	{
 		?>/*<script>*/
 
-root.P<?php echo substr(__CLASS__, 5)?> = function($test, $ifData, $elseData)
+P<?php echo substr(__CLASS__, 5)?> = function($test, $ifData, $elseData)
 {
 	return num(str($test)) ? $ifData : $elseData;
 }

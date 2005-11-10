@@ -12,8 +12,7 @@ onload=function()
 	onload=null
 }
 
-document.cookie="JS=1; path=/"
-document.cookie="JS=1; expires=Sun, 17-Jan-2038 19:14:07 GMT; path=/"
+if(window.Error)document.cookie='JS=1; path=/',document.cookie='JS=1; expires=Sun, 17-Jan-2038 19:14:07 GMT; path=/'
 //--></script>
 <!-- END:SERVERSIDE -->
 </body>

@@ -25,7 +25,7 @@ class pipe_htmlArgs
 	{
 		?>/*<script>*/
 
-root.P<?php echo substr(__CLASS__, 5)?> = function($pool)
+P<?php echo substr(__CLASS__, 5)?> = function($pool)
 {
 	if (!$pool) return '';
 	var $result = '', $i = arguments.length, $except = [];

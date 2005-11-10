@@ -38,8 +38,7 @@ function HTTP_Best_Language($supported)
 $lang = HTTP_Best_Language(explode('|', CIA_LANG_LIST));
 
 ?><html><head><script><!--
-document.cookie='JS=1; path=/'
-document.cookie='JS=1; expires=Sun, 17-Jan-2038 19:14:07 GMT; path=/'
+if(window.Error)document.cookie='JS=1; path=/',document.cookie='JS=1; expires=Sun, 17-Jan-2038 19:14:07 GMT; path=/'
 top.location='<?php echo $lang?>/'
 //--></script><meta http-equiv="refresh" content="0; URL=<?php echo $lang?>/" /></head><body>Choose a language :<ul><?php
 

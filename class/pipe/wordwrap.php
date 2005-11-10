@@ -11,7 +11,7 @@ class pipe_wordwrap
 	{
 		?>/*<script>*/
 
-root.P<?php echo substr(__CLASS__, 5)?> = function($string, $length, $break, $cut)
+P<?php echo substr(__CLASS__, 5)?> = function($string, $length, $break, $cut)
 {
 	$cut = str($cut);
 	$break = str($break, "\n");

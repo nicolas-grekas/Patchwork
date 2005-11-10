@@ -23,7 +23,7 @@ class pipe_cycle
 	{
 		?>/*<script>*/
 
-root.P<?php echo substr(__CLASS__, 5)?> = function($name)
+P<?php echo substr(__CLASS__, 5)?> = function($name)
 {
 	$name = str($name);
 	var $args = arguments,

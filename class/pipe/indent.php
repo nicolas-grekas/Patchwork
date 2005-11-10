@@ -11,7 +11,7 @@ class pipe_indent
 	{
 		?>/*<script>*/
 
-root.P<?php echo substr(__CLASS__, 5)?> = function($string, $chars, $char)
+P<?php echo substr(__CLASS__, 5)?> = function($string, $chars, $char)
 {
 	$string = str($string);
 	$chars = str($chars, 4);
