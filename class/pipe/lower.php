@@ -11,7 +11,7 @@ class pipe_lower
 	{
 		?>/*<script>*/
 
-root.P<?php echo substr(__CLASS__, 5)?> = function($string)
+P<?php echo substr(__CLASS__, 5)?> = function($string)
 {
 	return str($string).toLowerCase();
 }

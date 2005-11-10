@@ -11,7 +11,7 @@ class pipe_empty
 	{
 		?>/*<script>*/
 
-root.P<?php echo substr(__CLASS__, 5)?> = function()
+P<?php echo substr(__CLASS__, 5)?> = function()
 {
 	return '';
 }

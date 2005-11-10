@@ -138,7 +138,7 @@ function setboard($name, $value)
 addOnload.p = [];
 if ((root = window).Error)
 	// This eval avoids a parse error with browsers not supporting exceptions.
-	eval('try{while(((w=root.parent)!=root||(w=root.opener))&&w.w>="")root=w}catch(w){}');
+	eval('try{while(((w=root.parent)!=root)&&w.name>="")root=w}catch(w){}');
 
 
 w = function($rootAgent, $keys)
