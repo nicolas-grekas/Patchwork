@@ -158,7 +158,6 @@ w = function($rootAgent, $keys)
 		$i, $j, $loopIterator = [],
 		
 		a, v, g,
-		r = root,
 
 		$lastInclude = '',
 		$includeCache = {};

@@ -38,7 +38,7 @@ P<?php echo substr(__CLASS__, 5)?> = function($name)
 	return str($args[$pool[$name]]);
 }
 
-root.cyclePool = [];
+cyclePool = [];
 
 <?php	}
 }
