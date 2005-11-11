@@ -63,9 +63,11 @@ class CIA
 	/**
 	 * Redirect the web browser to an other GET request
 	 */
-	public static function redirect($url = -1, $exit = true)
+	public static function redirect($url = '', $exit = true)
 	{
-		self::$redirectUrl = $url == -1 ? -1 : (preg_match("'^([^:/]+:/|\.+)?/'i", $url) ? $url : (CIA_ROOT . $url) );
+		$url = (string) $url;
+
+		self::$redirectUrl = $url === '' ? '' : (preg_match("'^([^:/]+:/|\.+)?/'i", $url) ? $url : (CIA_ROOT . $url) );
 
 		if ($exit) exit;
 	}
@@ -408,12 +410,12 @@ class CIA
 		{
 			if (CIA_DIRECT)
 			{
-				$buffer = 'location.replace(' . (self::$redirectUrl !== -1 ? "'" . addslashes(self::$redirectUrl) . "'" : 'location') . ')';
+				$buffer = 'location.replace(' . (self::$redirectUrl !== '' ? "'" . addslashes(self::$redirectUrl) . "'" : 'location') . ')';
 			}
 			else
 			{
 				header('HTTP/1.x 302 Found');
-				header('Location: ' . (self::$redirectUrl !== -1 ? self::$redirectUrl : $_SERVER['REQUEST_URI']));
+				header('Location: ' . (self::$redirectUrl !== '' ? self::$redirectUrl : $_SERVER['REQUEST_URI']));
 				self::$handlesOb = false;
 				return '';
 			}
