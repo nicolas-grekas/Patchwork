@@ -256,7 +256,7 @@ class CIA
 			{
 				$file = "$dir/$file";
 				if(is_dir($file)) self::delDir($file, $rmdir);
-				else unlink($file);
+				else @unlink($file);
 			}
 		}
 
@@ -559,7 +559,7 @@ class agentTemplate_ extends agent
 
 class loop
 {
-	private $length = false;
+	private $loopLength = false;
 	private $renderer = array();
 
 	private $cache = 0;
@@ -591,9 +591,9 @@ class loop
 		{
 			CIA::$catchMeta = true;
 
-			if ($this->length === false) $this->length = (int) $this->prepare();
+			if ($this->loopLength === false) $this->loopLength = (int) $this->prepare();
 
-			if (!$this->length) $data = false;
+			if (!$this->loopLength) $data = false;
 			else
 			{
 				$data = $this->next();
@@ -611,7 +611,7 @@ class loop
 				}
 				else
 				{
-					$this->length = false;
+					$this->loopLength = false;
 
 					if ($this->cache)
 					{
@@ -634,11 +634,11 @@ class loop
 	{
 		CIA::$catchMeta = true;
 
-		if ($this->length === false) $this->length = $this->prepare();
+		if ($this->loopLength === false) $this->loopLength = $this->prepare();
 
 		CIA::$catchMeta = false;
 
-		return (string) $this->length;
+		return (string) $this->loopLength;
 	}
 
 	final public function getLength()
