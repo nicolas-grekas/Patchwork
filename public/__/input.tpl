@@ -9,6 +9,7 @@ You can control it with the additional arguments:
 - a$_glue_			|default:g$checkboxGlue			: for radio|checkbox elements : string to put to glue a list of radio|checkbox
 - a$_beforeError_	|default:g$inputBeforeError		: HTML code put at the beginning of an error message
 - a$_afterError_	|default:g$inputAfterError		: HTML code put at the end of an error message
+- a$_focus_											: set the focus on this element
 - a$_format_		|default:g$inputFormat			: a string to format the output where ("=>" means "is replaced by"):
 														  %0 => the caption,
 														  %1 => the control,
@@ -127,7 +128,7 @@ SET $INPUT --><!--
 
 	END:IF
 
-	-->lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|escape:'js'},{$onempty|escape:'js'},{$onerror|escape:'js'}<!-- END:LOOP -->],this.form)}{a$_JsEnd}<!--
+	-->lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|escape:'js'},{$onempty|escape:'js'},{$onerror|escape:'js'}<!-- END:LOOP -->],this.form)};<!-- IF a$_focus_ -->lE.focus();<!-- END:IF -->{a$_JsEnd}<!--
 
 	IF a$_mandatory --></span><!-- END:IF --><!--
 
