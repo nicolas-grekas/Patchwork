@@ -22,10 +22,17 @@ class iaForm extends loop_callAgent
 	protected $enterControl = false;
 	protected $firstName = -1;
 
+	protected $contextPool = array();
 
-	public function __construct($sessionLink = '', $eltnameSuffix = '', $POST = true)
+
+	public function __construct($agentData, $sessionLink = '', $POST = true, $formVarname = 'form')
 	{
-		$this->eltnameSuffix = $eltnameSuffix;
+		if ($agentData)
+		{
+			if ($formVarname) $agentData->$formVarname = $this;
+			$this->agentData = $agentData;
+		}
+		else $this->agentData = false;
 
 		$this->POST = (bool) $POST;
 		if ($this->POST)
@@ -42,26 +49,43 @@ class iaForm extends loop_callAgent
 		}
 	}
 
-	public function autoPopulate($agentData, $formVarname = 'form', $prefix = false)
-	{
-		if ($agentData)
-		{
-			if ($prefix !== false) $this->agentPrefix = $prefix;
-			if ($formVarname) $agentData->$formVarname = $this;
-			$this->agentData = $agentData;
-		}
-		else $this->agentData = false;
-	}
-
 	public function setPrefix($prefix)
 	{
 		$this->agentPrefix = $prefix;
 	}
 
+	public function setContext($agentData, $eltnameSuffix = '')
+	{
+		if ($agentData)
+		{
+			$this->agentData = $agentData;
+			$this->eltnameSuffix = $eltnameSuffix;
+		}
+		else $this->agentData = false;
+	}
+
+	public function backupContext()
+	{
+		$this->contextPool[] = array(
+			$this->agentData,
+			$this->agentPrefix,
+			$this->eltnameSuffix
+		);
+	}
+
+	public function restoreCOntext()
+	{
+		list(
+			$this->agentData,
+			$this->agentPrefix,
+			$this->eltnameSuffix
+		) = array_pop($this->contextPool);
+	}
+
 	public function add($type, $name, $param = array(), $autoPopulate = true)
 	{
 		$type = 'iaForm_' . preg_replace("'[^a-zA-Z\d]+'u", '_', $type);
-		$elt = $this->elt[$name] = new $type($this, $this->agentPrefix . $name . $this->eltnameSuffix, $param, $this->sessionLink);
+		$elt = $this->elt[$name . $this->eltnameSuffix] = new $type($this, $this->agentPrefix . $name . $this->eltnameSuffix, $param, $this->sessionLink);
 
 		if ($type=='iaForm_hidden') $this->hidden[] = $elt;
 		else if ($autoPopulate && $this->agentData) $this->agentData->{$this->agentPrefix . $name} = $elt;
@@ -71,7 +95,7 @@ class iaForm extends loop_callAgent
 
 	public function getElement($name)
 	{
-		return $this->elt[$name];
+		return $this->elt[$name . $this->eltnameSuffix];
 	}
 
 	public function setFile($isfile)

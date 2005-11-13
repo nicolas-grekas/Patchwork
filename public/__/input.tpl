@@ -19,16 +19,16 @@ Question : should I add a label attribute to every <option> tag ?
 
 *--><!--
 
-IF !a$type --><!-- SET a$type -->{a$_type}<!-- END:SET --><!-- END:IF --><!--
-
-IF a$type == 'check' --><!--
+IF a$_type == 'check' --><!--
 	SET a$_check -->1<!-- END:SET --><!--
-	SET a$type --><!--
+	SET a$_type --><!--
 		IF a$multiple || a$_option == 1 -->checkbox<!-- ELSE -->radio<!-- END:IF --><!--
 	END:SET --><!--
 END:IF --><!--
 
-SET a$id -->{a$name}<!-- END:SET --><!--
+IF !a$type --><!-- SET a$type -->{a$_type}<!-- END:SET --><!-- END:IF --><!--
+
+SET a$id -->FiD{g+1$GLOBID}<!-- END:SET --><!--
 SET a$class -->{a$class|default:a$type}<!-- END:SET --><!--
 
 IF !a$title --><!--
@@ -64,10 +64,6 @@ SET $INPUT --><!--
 	IF a$_mandatory --><span class="mandatory"><!-- END:IF --><!--
 
 	IF a$_check --><!--
-
-		SET a$type --><!--
-			IF a$multiple || a$_option == 1 -->checkbox<!-- ELSE -->radio<!-- END:IF --><!--
-		END:SET --><!--
 
 		LOOP a$_option --><!--
 			IF $_groupOn --><!--
