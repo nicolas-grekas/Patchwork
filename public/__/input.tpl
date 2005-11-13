@@ -33,7 +33,7 @@ SET a$class -->{a$class|default:a$type}<!-- END:SET --><!--
 
 IF !a$title --><!--
 	SET a$title
-		-->{a$_caption_}<!--
+		-->{a$_caption_|replace:'<[^>]*>':''}<!--
 	END:SET --><!--
 END:IF --><!--
 
