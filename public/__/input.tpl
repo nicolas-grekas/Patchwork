@@ -6,7 +6,7 @@ You can pass it every HTML attribute you need (class, on*, ...), they will be us
 
 You can control it with the additional arguments:
 - a$_caption_										: the caption of the element, with class="mandatory" if needed
-- a$_checkboxGlue_	|default:g$checkboxGlue			: for radio|checkbox elements : string to put to glue a list of radio|checkbox
+- a$_glue_			|default:g$checkboxGlue			: for radio|checkbox elements : string to put to glue a list of radio|checkbox
 - a$_beforeError_	|default:g$inputBeforeError		: HTML code put at the beginning of an error message
 - a$_afterError_	|default:g$inputAfterError		: HTML code put at the end of an error message
 - a$_format_		|default:g$inputFormat			: a string to format the output where ("=>" means "is replaced by"):
@@ -76,7 +76,7 @@ SET $INPUT --><!--
 			ELSEIF $_groupOff
 				--></fieldset><!--
 			ELSE --><!--
-				IF a+1$_i -->{a$_checkboxGlue_|default:g$checkboxGlue|default:'<br />'}<!-- END:IF --><!--
+				IF a+1$_i -->{a$_glue_|default:g$checkboxGlue|default:'<br />'}<!-- END:IF --><!--
 
 				SET $class -->{$class|default:a$class}<!-- END:SET --><!--
 

@@ -1,10 +1,10 @@
 /*
 
-Usefull functions, existing in recent browsers, but missing before IE5.0
+Usefull functions, existing in recent browsers, but missing in IE<=5.0
 
 */
 
-document.getElementsById = document.getElementsById || function($id) {return document.all[$id];}
+document.getElementById = document.getElementById || function($id) {return document.all[$id];}
 document.getElementsByName = document.getElementsByName || function($id) {return document.all[$id];}
 document.getElementsByTagName = document.getElementsByTagName || function($tagName)
 {
