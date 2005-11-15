@@ -1,17 +1,17 @@
 <p>
 IntellAgence Technologies<br>
-37 rue des Mathurins<br>
-75008 Paris
+53 rue de Vaugirard<br>
+75006 Paris
 </p>
 
 <p>
-Tél : 01 39 67 90 50
+Tél : 01 45 44 02 66
 </p>
 
 <p>
-Fax : 01 46 65 91 10
+Fax : 08 72 14 56 70
 </p>
 
 <p>
-Email : {'contact@intellagence.eu.com'|escape:'mail'}
+Email : {'contact@intellagence.eu.com'|escape:'mailto'}
 </p>

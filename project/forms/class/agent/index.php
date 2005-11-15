@@ -21,8 +21,7 @@ class agent_index extends agent
 			)
 		);
 
-		$form = new iaForm;
-		$form->autoPopulate($a, 'form', '');
+		$form = new iaForm($a);
 
 		$form->add('submit', 'TESTSUBMIT');
 
@@ -32,10 +31,15 @@ class agent_index extends agent
 		));
 
 		$form->add('QSelect', 'QSelect1', array(
-			'src' => 'QSelect/namesDb'
+			'src' => 'pays.js'
 		));
 
-		$form->add('text', 'TEXT', array(
+		$form->add('QSelect', 'QSelect2', array(
+			'src' => 'pays.js',
+			'lock' => true
+		));
+
+/*		$form->add('text', 'TEXT', array(
 			'maxlength' => 16,
 			'valid' => 'int'
 		));
@@ -80,16 +84,16 @@ class agent_index extends agent
 			'item' => $colors
 		));
 
-		$a->TESTSUBMIT->add(
+		$a->f_TESTSUBMIT->add(
 			'TEXT', 'Empty text', 'not valid text',
 			'SELECT', 'Select empty', 'Select error'
 		);
 
-		if ($a->TESTSUBMIT->isOn())
+		if ($a->f_TESTSUBMIT->isOn())
 		{
 			E('ON');
 		}
-
+*/
 		return $a;
 	}
 }

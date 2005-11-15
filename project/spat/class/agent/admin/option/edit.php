@@ -29,8 +29,7 @@ class agent_admin_option_edit extends agent
 			array($this, 'renderChoice')
 		);
 
-		$form = new iaForm;
-		$form->autoPopulate($data);
+		$form = new iaForm($data);
 
 
 		$form->setPrefix('edit_');

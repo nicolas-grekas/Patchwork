@@ -30,9 +30,8 @@ class agent_register_group_edit extends agent_register_group_member
 			$member = array(0);
 		}
 
-		$form = new iaForm;
+		$form = new iaForm($data);
 		$form->sessionLink =& $member;
-		$form->autoPopulate($data);
 
 		if ($editList) $data->member = new loop_array($editList, array($this, 'renderMember'));
 		else

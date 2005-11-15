@@ -11,8 +11,7 @@ class agent_register_group_member extends agent
 		$this->member =& SESSION::get('groupMember');
 		if (!$this->member) $this->member = array();
 
-		$form = new iaForm;
-		$form->autoPopulate($data);
+		$form = new iaForm($data);
 
 		$form->add('textarea', 'member');
 		$form->add('check', 'check', array(

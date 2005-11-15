@@ -8,8 +8,7 @@ class agent_index extends agent
 			'doc' => new loop_sql('SELECT * FROM doc ORDER BY label')
 		);
 
-		$form = new iaForm;
-		$form->autoPopulate($data, 'form');
+		$form = new iaForm($data);
 
 		$form->add('text', 'label');
 		$submit = $form->add('submit', 'submit');

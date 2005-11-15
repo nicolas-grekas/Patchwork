@@ -32,7 +32,12 @@ class pipe_escape
 						'</' => '<\/')
 					) . "'");
 
-			case 'mail': return str_replace('@', '<span style="display:none">!NOSPAM!</span>&#64;', CIA::htmlescape($string));
+			case 'mailto':
+				$string = CIA::htmlescape($string);
+				return '<a href="mailto:'
+					. str_replace('@', '[&#97;t]', $string) . '">'
+					. str_replace('@', '<span style="display:none">@</span>&#64;', $string)
+					. '</a>';
 
 			case 'html': return CIA::htmlescape($string, true);
 
@@ -74,6 +79,10 @@ P<?php echo substr(__CLASS__, 5)?> = function($string, $type)
 					/\n/g , '\\n').replace(
 					/<\//g, '<\/'
 				) + "'");
+
+		case 'mailto':
+			$string = esc($string);
+			return '<a href="mailto:' + $string + '">' + $string + '</a>';
 
 		case 'html': return esc($string, 1);
 

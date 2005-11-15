@@ -6,8 +6,7 @@ class agent_register_group extends agent
 	{
 		$data = (object) array();
 
-		$form = new iaForm('group');
-		$form->autoPopulate($data);
+		$form = new iaForm($data, 'group');
 
 		$form->add('text', 'company');
 		$form->add('textarea', 'adress');

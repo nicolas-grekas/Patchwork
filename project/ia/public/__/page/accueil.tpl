@@ -1,24 +1,11 @@
 <p>
-Bienvenue sur le site d'IntellAgence Technologies.
+IntellAgence propose une plate-forme hébergée dédiée au monde de
+l'événementiel.
 </p>
 
 <p>
-IntellAgence participe au progrès en aidant toutes les communautées savantes. Pour nous, celà signifie :
-<ul>
-	<li>Valoriser l'intelligence des hommes qui les composent</li>
-	<li>Optimiser leurs processus de gestion et d'organisation</li>
-</ul>
-</p>
-
-<p>
-Aujourd'hui, IntellAgence a souhaité apporter son expertise dans le domaine de l'organisation des congrès, colloques, symposium et autres manifestations centrées sur la connaissance.<br>
-Pour en savoir davantage, consultez ce site et contactez-nous !
-</p>
-
-<p>
-Bonne navigation,
-</p>
-
-<p>
-L'équipe IntellAgence.
+Depuis l'appel à candidatures, jusqu'à la génération automatique des actes,
+en passant par la gestion des inscriptions, c'est tout un espace Internet
+sécurisé d'organisation et d'échanges qui s'offre à vous : organisateurs,
+comité scientifique, participants, auteurs…
 </p>

@@ -35,7 +35,10 @@ function $onblur()
 
 	$this.$lastFocused = 0;
 
-	$setTimeout(function(){$this.$input.form.precheck()}, 1);
+	$setTimeout(function()
+	{
+		if (!$this.$lastFocused) $this.$hide();
+	}, 1);
 }
 
 function $onchange()
@@ -123,6 +126,10 @@ function $onkeydown($e)
 function $precheck()
 {
 	var $this = $get(this),
+		$input = $this.$input;
+
+/*
+	var $this = $get(this),
 		$input = $this.$input,
 		$firstOption = $this.$select,
 		$selectedText = $firstOption[$firstOption.selectedIndex];
@@ -136,7 +143,7 @@ function $precheck()
 		$input.focus();
 		return false;
 	}
-
+*/
 
 	if (!$this.$lastFocused && $this.$div.style.visibility=='visible')
 	{
@@ -253,18 +260,25 @@ return function($input, $callback, $autohide)
 
 			$divStyle.left = $left + 'px';
 			$divStyle.top = ($top+$height) + 'px';
-			$divStyle.width = $divH.style.left = $width + 'px';
-
-			$imgW.width = $width - 10;
 
 			$select.size = $length < 7 ? ($length > 2 ? $length : 2) : 7;
-			$select.style.width = $width + 'px';
+			$select.style.width = 'auto';
 
 			$divStyle.visibility = 'visible';
 			$divStyle.display = '';
 
-			$imgH.height = $select.offsetHeight - 10;
-			$divW.style.top = $select.offsetHeight + 'px';
+			$setTimeout(function()
+			{
+				$imgW.width = $width = Math.max($width, $select.offsetWidth) - 10;
+				$imgH.height = $height = $select.offsetHeight - 10;
+
+				$imgW.style.width = $width + 'px';
+				$imgH.style.height = $height + 'px';
+
+				$select.style.width = $divH.style.left = $divStyle.width= $width + 10 + 'px';
+				$divW.style.top = $height + 10 + 'px';
+
+			}, 0);
 		}
 		else $this.$hide();
 	}
@@ -301,21 +315,33 @@ return function($input, $callback, $autohide)
 		$input.select();
 		$input.focus();
 
-		this.$QSelectVisible ? $this.$hide() : $this.$show();
+		this.$QSelectVisible ? $this.$hide() : ($input.value ? $this.$show() : $this.$callback('*', $this.$onkeyup));
 	}
+
+	$imgB = 0;
 }
 })();
 
 function QSelectSearch($data)
 {
-	this.search = function($query, $pushResult)
+	$data.length--;
+
+	return function($query, $pushBack)
 	{
-		var $i = 1,
+		if ('*' == $query) return $pushBack($data);
+
+		var $result = [],
+			$i = 0,
 			$qLen = $query.length;
 
-		$query = RegExp.quote($query, 1);
-		$query = new RegExp(($qLen>1 ? '(^|[^0-9a-z'+ACCENT.join('')+'])' : '^') + $query, 'gi');
+		if ($query)
+		{
+			$query = RegExp.quote($query, 1);
+			$query = new RegExp(($qLen>1 ? '(^|[^0-9a-z'+ACCENT.join('')+'])' : '^') + $query, 'gi');
 
-		for (; $i < $data.length; ++$i) if ($data[$i].search($query)>=0) $pushResult($data[$i]);
+			for (; $i < $data.length; ++$i) if ($data[$i].search($query)>=0) $result[$result.length] = $data[$i];
+		}
+
+		return $pushBack($result);
 	}
 }
