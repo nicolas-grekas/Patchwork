@@ -1,3 +1,30 @@
+function QSelectPrint($id, $attribute)
+{
+	document.write(
+		'<div id="_d1' + $id + '" style="position:absolute;visibility:hidden;z-index:9">'
+			+'<div id="_d2' + $id + '" style="position:absolute">'
+				+'<img src="QSelect/tr.png" width="5" height="10"><br>'
+				+'<img src="QSelect/r.png" width="5" height="5" id="_i1' + $id + '"><br>'
+				+'<img src="QSelect/br.png" width="5" height="5">'
+			+'</div>'
+			+'<div id="_d3' + $id + '" style="position:absolute">'
+				+'<img src="QSelect/bl.png" width="10" height="5">'
+				+'<img src="QSelect/b.png" width="5" height="5" id="_i2' + $id + '">'
+			+'</div>'
+			+'<select name="_s' + $id + '" size="7"></select>'
+		+'</div>'
+		+'<link rel="stylesheet" type="text/css" href="QSelect/style.css">'
+		+'<span class="QSstyle">'
+			+'<input autocomplete="off" ' + $attribute + '>'
+			+'<img src="QSelect/b.gif" id="_i3' + $id + '" '
+				+'onmouseover="this.src=\'QSelect/bh.gif\'" '
+				+'onmouseout="this.src=\'QSelect/b.gif\'" '
+				+'onmousedown="this.src=\'QSelect/bp.gif\'" '
+				+'onmouseup="this.onmouseover()">'
+		+'</span>'
+	);
+}
+
 QSelect = window.QSelect || (function()
 {
 goQSelect = [];
@@ -200,7 +227,7 @@ return function($input, $callback, $autohide)
 			if (!$firstMatch && $i.search($query)>=0) $firstMatch = $i;
 		}
 
-		$options.length = $length;
+		while ($options.length > $length) $options[--$options.length] = null;
 
 		if ($selectRange && $length && $firstMatch)
 		{
