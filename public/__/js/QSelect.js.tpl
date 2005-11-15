@@ -287,25 +287,20 @@ return function($input, $callback, $autohide)
 
 			$divStyle.left = $left + 'px';
 			$divStyle.top = ($top+$height) + 'px';
+			$divStyle.width = $divH.style.left = $width + 'px';
 
 			$select.size = $length < 7 ? ($length > 2 ? $length : 2) : 7;
-			$select.style.width = 'auto';
+			$select.style.width = $width + 'px';
 
 			$divStyle.visibility = 'visible';
 			$divStyle.display = '';
 
-			$setTimeout(function()
-			{
-				$imgW.width = $width = Math.max($width, $select.offsetWidth) - 10;
-				$imgH.height = $height = $select.offsetHeight - 10;
-
-				$imgW.style.width = $width + 'px';
-				$imgH.style.height = $height + 'px';
-
-				$select.style.width = $divH.style.left = $divStyle.width= $width + 10 + 'px';
-				$divW.style.top = $height + 10 + 'px';
-
-			}, 0);
+			$height = $select.offsetHeight;
+			$imgW.width = $width - 10;
+			$imgW.style.width = $width - 10 + 'px';
+			$imgH.height = $height - 10;
+			$imgH.style.height = $height - 10 + 'px';
+			$divW.style.top = $height + 'px';
 		}
 		else $this.$hide();
 	}
