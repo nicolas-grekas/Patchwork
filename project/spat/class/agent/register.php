@@ -6,8 +6,7 @@ class agent_register extends agent
 	{
 		$data = (object) array();
 
-		$form = new iaForm;
-		$form->autoPopulate($data);
+		$form = new iaForm($data);
 		$form->setPrefix('');
 
 		$form->add('text', 'email');

@@ -20,17 +20,18 @@ span.errormsg
 <!-- SET g$inputFormat --><tr><td>%0 :</td><td>%1%2</td></tr><!-- END:SET -->
 
 <table border="0">
-<!-- AGENT $QSelect1       _caption_='QSelect' -->
-<!-- AGENT $TEXT           _caption_='TEXT' -->
-<!-- AGENT $FILE           _caption_='FILE' -->
-<!-- AGENT $TEXTAREA       _caption_='TEXTAREA' -->
-<!-- AGENT $PASS           _caption_='PASS' -->
-<!-- AGENT $SELECTMULTIPLE _caption_='SELECTMULTIPLE' -->
-<!-- AGENT $SELECT         _caption_='SELECT' -->
-<!-- AGENT $RADIO          _caption_='RADIO' -->
-<!-- AGENT $CHECKONE       _caption_='CHECKONE' -->
-<!-- AGENT $CHECKMULTIPLE  _caption_='CHECKMULTIPLE' -->
-<!-- AGENT $TESTSUBMIT     _caption_='TESTSUBMIT' value='Click!' -->
+<!-- AGENT $f_QSelect1       _caption_='QSelect' -->
+<!-- AGENT $f_QSelect2       _caption_='QSelect' -->
+<!--* AGENT $f_TEXT           _caption_='TEXT' -->
+<!-- AGENT $f_FILE           _caption_='FILE' -->
+<!-- AGENT $f_TEXTAREA       _caption_='TEXTAREA' -->
+<!-- AGENT $f_PASS           _caption_='PASS' -->
+<!-- AGENT $f_SELECTMULTIPLE _caption_='SELECTMULTIPLE' -->
+<!-- AGENT $f_SELECT         _caption_='SELECT' -->
+<!-- AGENT $f_RADIO          _caption_='RADIO' -->
+<!-- AGENT $f_CHECKONE       _caption_='CHECKONE' -->
+<!-- AGENT $f_CHECKMULTIPLE  _caption_='CHECKMULTIPLE' -->
+<!-- AGENT $f_TESTSUBMIT     _caption_='TESTSUBMIT' value='Click!' *-->
 </table>
 
 <!-- AGENT $form _mode_='close' -->

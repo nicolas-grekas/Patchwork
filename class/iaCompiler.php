@@ -92,6 +92,8 @@ abstract class iaCompiler
 			);
 		}
 
+		if (substr($source, -1) == "\n") $source = substr($source, 0, -1);
+
 		return preg_replace("'<!--\*.*?\*-->'su", '', $source);
 }
 

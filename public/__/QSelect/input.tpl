@@ -29,7 +29,7 @@ END:SET --><!--
 SET $INPUT --><!--
 
 	IF a$_mandatory --><span class="mandatory"><!-- END:IF --><!--	
-	IF !a$class --><!-- SET a$class -->text<!-- END:SET --><!-- END:IF --><!--
+	IF !a$class --><!-- SET a$class -->QSelect<!-- END:SET --><!-- END:IF --><!--
 
 	SET $id -->{a$name}<!-- END:SET
 
@@ -51,7 +51,7 @@ SET $INPUT --><!--
 	></div
 
 	><link rel="stylesheet" type="text/css" href="QSelect/style.css"
-	><span class="QSelect"
+	><span class="QSstyle"
 		><input autocomplete="off" {a$|htmlArgs}
 		><img src="QSelect/b.gif" id="_i3{$id}" onmouseover="this.src='QSelect/bh.gif'" onmouseout="this.src='QSelect/b.gif'" onmousedown="this.src='QSelect/bp.gif'" onmouseup="this.onmouseover()"
 	></span

@@ -1,16 +1,16 @@
-.QSelect
+.QSstyle
 {
 	white-space:nowrap;
 }
 
-.QSelect input, .QSelect img
+.QSstyle input, .QSstyle img
 {
 	position:relative;
 	vertical-align:text-bottom;
 	top:2px;
 }
 
-.QSelect input
+.QSstyle input
 {
 	border:1px solid #769CCB;
 	height:22px;
@@ -20,8 +20,8 @@
 	_top:0px;
 }
 
-.QSelect img
+.QSstyle img
 {
-	left: -17px;
+	margin-left: -17px;
 	_top:-1px;
 }

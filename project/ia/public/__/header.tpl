@@ -1,20 +1,21 @@
 <!-- SET a$title -->IntellAgence::{a$title}<!-- END:SET -->
 <!-- SET a$HEAD -->
 	
-	<!-- SET a$bgcolor -->#F3F5F9<!-- END:SET -->
-	<!-- SET a$linecolor -->#948AC0<!-- END:SET -->
+	<!-- SET a$bgcolor -->#FFFDF5<!-- END:SET -->
+	<!-- SET a$linecolor -->#5A4D42<!-- END:SET -->
 
 <style type="text/css"><!--
 
 body
 {
 	margin: 0px;
-	background: {a$bgcolor};
+	background: {a$bgcolor} url(/cia/ia/fr/img/fond.jpg) no-repeat 100px top;
 }
 
 body, li, td
 {
-	font: 13px Verdana, Sans-serif;
+	color: {a$linecolor};
+	font: 13px Arial, Sans-serif;
 }
 
 a
@@ -30,10 +31,9 @@ a:hover
 
 #content
 {
-	background-color: white;
-	margin: 1px auto;
-	margin-top: 30px;
-	width: 750px;
+	margin-left: 200px;
+	margin-top: 100px;
+	width: 650px;
 	text-align: left;
 }
 
@@ -53,15 +53,16 @@ a:hover
 {
 	margin: 0px;
 	padding-left: 5px;
-	font-weight: bold;
+	font-size: 15px;
 	list-style : none;
-	border-left: 3px solid {a$linecolor};
+	border-left: 3px solid white;
 	border-bottom: 2px solid white;
 }
 
 #menu li.selected
 {
 	background-color: {a$bgcolor};
+	border-left: 3px solid {a$linecolor};
 	border-bottom: 2px solid {a$linecolor};
 }
 
@@ -89,12 +90,12 @@ a:hover
 
 #header
 {
-	border-top: 3px solid {a$linecolor};
-	border-bottom: 2px solid {a$linecolor};
+	margin-left: 50px;
 }
 
 #footer
 {
+	margin-left: 50px;
 	text-align: center;
 	border-top: 2px solid {a$linecolor};
 	border-bottom: 3px solid {a$linecolor};
@@ -106,8 +107,5 @@ a:hover
 
 <!-- PARENT -->
 
-<table border="0" width="100%" cellpadding="0" cellspacing="0">
-<tr>
-	<td align="center">
 <div id="content">
-<div id="header"><a href="./"><img src="img/ia.gif" border="0" /></a></div>
+<div id="header"><a href="./"><img src="img/ia1.gif" border="0" /></a></div>

@@ -6,8 +6,7 @@ class agent_register_individual_summary extends agent
 	{
 		$data = (object) SESSION::get('indiv');
 
-		$form = new iaForm;
-		$form->autoPopulate($data);
+		$form = new iaForm($data);
 
 		$submit = $form->add('submit', 'submit');
 

@@ -6,8 +6,7 @@ class agent_register_individual extends agent
 	{
 		$data = (object) array();
 
-		$form = new iaForm('indiv');
-		$form->autoPopulate($data);
+		$form = new iaForm($data, 'indiv');
 
 		$form->add('text', 'firstname');
 		$form->add('text', 'lastname');

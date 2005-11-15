@@ -21,8 +21,7 @@ class agent_admin_option extends agent
 			array($this, 'renderOption')
 		);
 
-		$form = new iaForm;
-		$form->autoPopulate($data);
+		$form = new iaForm($data);
 
 		$form->add('text', 'option', array('valid' => 'int', 1), false);
 
