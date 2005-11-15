@@ -31,39 +31,27 @@ SET $INPUT --><!--
 	IF a$_mandatory --><span class="mandatory"><!-- END:IF --><!--	
 	IF !a$class --><!-- SET a$class -->QSelect<!-- END:SET --><!-- END:IF --><!--
 
-	SET $id -->{a$name}<!-- END:SET
+	SET $id -->{a$name}<!-- END:SET --><!--
+	
+	IF !g$_QSELECT --><!--
+		SET g$_QSELECT -->1<!-- END:SET
+		--><script src="js/QSelect"></script><!--
+	END:IF
+	
+	--><script><!--
 
-	--><script src="js/QSelect"></script><div id="_d1{$id}" style="position:absolute;visibility:hidden;z-index:9"
+	QSelectPrint({$id|escape:'js'}, {a$|htmlArgs|escape:'js'})//--></script><script><!--
 
-		><div id="_d2{$id}" style="position:absolute"
-			><img src="QSelect/tr.png" width="5" height="10"><br
-			><img src="QSelect/r.png"  width="5" height="5" id="_i1{$id}"><br
-			><img src="QSelect/br.png" width="5" height="5"
-		></div
+	lE=gLE({a$name|escape:'js'})
+	lE.lock={a$_lock_|escape:'js'}
 
-		><div id="_d3{$id}" style="position:absolute"
-			><img src="QSelect/bl.png" width="10" height="5"
-			><img src="QSelect/b.png"  width="5"  height="5" id="_i2{$id}"
-		></div
+	lE.gS=function(){return valid(this<!-- LOOP a$_valid -->,{$VALUE|escape:'js'}<!-- END:LOOP -->)}
 
-		><select name="_s{$id}" size="7"></select
-
-	></div
-
-	><link rel="stylesheet" type="text/css" href="QSelect/style.css"
-	><span class="QSstyle"
-		><input autocomplete="off" {a$|htmlArgs}
-		><img src="QSelect/b.gif" id="_i3{$id}" onmouseover="this.src='QSelect/bh.gif'" onmouseout="this.src='QSelect/b.gif'" onmousedown="this.src='QSelect/bp.gif'" onmouseup="this.onmouseover()"
-	></span
-
-	><script><!--
-
-	lE=gLE({a$name|escape:'js'});
-	lE.lock={a$_lock_|escape:'js'};
-
-	lE.gS=function(){return valid(this<!-- LOOP a$_valid -->,{$VALUE|escape:'js'}<!-- END:LOOP -->)};
-
-	lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|escape:'js'},{$onempty|escape:'js'},{$onerror|escape:'js'}<!-- END:LOOP -->],this.form)};//--></script><script src="{a$_src_}"></script><!--
+	lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|escape:'js'},{$onempty|escape:'js'},{$onerror|escape:'js'}<!-- END:LOOP -->],this.form)};<!-- IF a$_focus_ -->lE.focus()<!-- END:IF -->//--></script><script src="{a$_src_}"></script><!--
+	
+	SERVERSIDE
+		--><noscript><input {a$|htmlArgs}></noscript><!--
+	END:SERVERSIDE --><!--
 
 	IF a$_mandatory --></span><!-- END:IF --><!--
 

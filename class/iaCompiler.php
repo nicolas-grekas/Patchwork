@@ -11,7 +11,7 @@ abstract class iaCompiler
 	private $Xvar = '(?:(?:[ag][-+]\d+|\\$*|[ag])?\\$)';
 	private $XpureVar = '[a-zA-Z_][a-zA-Z_\d]*';
 
-	private $Xblock = '[A-Z]+';
+	private $Xblock = '[A-Z]+\b';
 	private $XblockEnd = 'END:';
 
 	private $Xstring = '"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"|\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'';
