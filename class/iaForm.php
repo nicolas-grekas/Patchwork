@@ -128,7 +128,7 @@ class iaForm extends loop_callAgent
 
 	protected function get()
 	{
-		$this->agent = 'form';
+		$this->agent = 'form/form';
 		$this->keys = array();
 
 		$a = (object) array(

@@ -6,7 +6,7 @@ class pipe_replace
 	{
 		$search = CIA::string($search);
 		$caseInsensitive = CIA::string($caseInsensitive) ? 'i' : '';
-		return preg_replace("/$search/u$caseInsensitive", CIA::string($replace), CIA::string($string));
+		return preg_replace("/$search/su$caseInsensitive", CIA::string($replace), CIA::string($string));
 	}
 
 	static function js()

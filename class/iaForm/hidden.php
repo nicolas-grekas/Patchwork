@@ -210,7 +210,7 @@ class iaForm_hidden extends loop_callAgent
 
 	protected function get()
 	{
-		$this->agent = 'input';
+		$this->agent = 'form/input';
 		$this->keys = array();
 
 		$a = (object) array(
@@ -311,7 +311,7 @@ class iaForm_select extends iaForm_hidden
 			while ($row =& $result->fetchRow())
 			{
 				if (isset($param['renderer'])) $row = call_user_func_array($param['renderer'], array(&$row));
-				if (@$row->G)
+				if ('' !== (string) @$row->G)
 				{
 					if (isset($this->item[ $row->G ])) $this->item[ $row->G ][ $row->K ] =& $row->V;
 					else
@@ -368,6 +368,8 @@ class iaForm_select extends iaForm_hidden
 			$a->_option = new loop_iaForm_selectOption__($this->item, $this->value, $this->length);
 		}
 
+		unset($a->value);
+
 		return $a;
 	}
 }
@@ -375,6 +377,61 @@ class iaForm_select extends iaForm_hidden
 class iaForm_check extends iaForm_select
 {
 	protected $type = 'check';
+}
+
+class iaForm_QSelect extends iaForm_text
+{
+	protected $src;
+
+	protected function init(&$param)
+	{
+		parent::init($param);
+		if (isset($param['src'])) $this->src = $param['src'];
+		if (isset($param['lock']) && $param['lock']) $this->lock = 1;
+	}
+
+	protected function get()
+	{
+		$a = parent::get();
+
+		$this->agent = 'QSelect/input';
+
+		if (isset($this->src)) $a->_src_ = $this->src;
+		if (isset($this->lock)) $a->_lock_ = $this->lock;
+
+		return $a;
+	}
+}
+
+class iaForm_jsSelect extends iaForm_select
+{
+	protected $src;
+
+	protected function init(&$param)
+	{
+		unset($param['item']);
+		unset($param['sql']);
+		if (!isset($param['valid'])) $param['valid'] = 'string';
+
+		parent::init($param);
+
+		if (isset($param['src'])) $this->src = $param['src'];
+	}
+
+	protected function get()
+	{
+		$a = parent::get();
+
+		$this->agent = 'form/jsSelect';
+
+		if (isset($this->src)) $a->_src_ = $this->src;
+
+		if ($this->status) $a->_value = new loop_array((array) $this->value, false);
+
+		unset($a->_type);
+
+		return $a;
+	}
 }
 
 class iaForm_file extends iaForm_text
