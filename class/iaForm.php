@@ -12,7 +12,7 @@ class iaForm extends loop_callAgent
 	protected $hidden = array();
 
 	protected $POST;
-	protected $eltnameSuffix;
+	protected $eltnameSuffix = '';
 
 	protected $agentData = false;
 	protected $agentPrefix = 'f_';
@@ -54,26 +54,23 @@ class iaForm extends loop_callAgent
 		$this->agentPrefix = $prefix;
 	}
 
-	public function setContext($agentData, $eltnameSuffix = '')
-	{
-		if ($agentData)
-		{
-			$this->agentData = $agentData;
-			$this->eltnameSuffix = $eltnameSuffix;
-		}
-		else $this->agentData = false;
-	}
-
-	public function backupContext()
+	public function pushContext($agentData, $eltnameSuffix = '')
 	{
 		$this->contextPool[] = array(
 			$this->agentData,
 			$this->agentPrefix,
 			$this->eltnameSuffix
 		);
+
+		if ($agentData)
+		{
+			$this->agentData = $agentData;
+			$this->eltnameSuffix .= '_' . $eltnameSuffix;
+		}
+		else $this->agentData = false;
 	}
 
-	public function restoreCOntext()
+	public function pullCOntext()
 	{
 		list(
 			$this->agentData,

@@ -13,7 +13,6 @@ function QSelectPrint($id, $attribute)
 			+'</div>'
 			+'<select name="_s' + $id + '" size="7"></select>'
 		+'</div>'
-		+'<link rel="stylesheet" type="text/css" href="QSelect/style.css">'
 		+'<span class="QSstyle">'
 			+'<input autocomplete="off" ' + $attribute + '>'
 			+'<img src="QSelect/b.gif" id="_i3' + $id + '" '

@@ -34,7 +34,7 @@ SET $INPUT --><!--
 	
 	IF !g$_QSELECT --><!--
 		SET g$_QSELECT -->1<!-- END:SET
-		--><script src="js/QSelect"></script><!--
+		--><link rel="stylesheet" type="text/css" href="QSelect/style.css"><script src="js/QSelect"></script><!--
 	END:IF
 	
 	--><script><!--
