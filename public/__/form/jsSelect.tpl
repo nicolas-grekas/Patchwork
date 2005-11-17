@@ -1,12 +1,12 @@
 <!--*
 
-This template displays a QSelect control.
+This template displays a jsSelect control.
 It has the same parameters as input.tpl
 
 *--><!--
 
 SET a$id -->{a$name}<!-- END:SET --><!--
-SET a$class -->{a$class|default:'QSelect'}<!-- END:SET --><!--
+SET a$class -->{a$class|default:'jsSelect'}<!-- END:SET --><!--
 
 IF !a$title --><!--
 	SET a$title
@@ -30,23 +30,16 @@ SET $INPUT --><!--
 
 	IF a$_mandatory --><span class="mandatory"><!-- END:IF --><!--
 
-	SET $id -->{a$name}<!-- END:SET --><!--
+	SET $id -->{a$name}<!-- END:SET
 	
-	IF !g$_QSELECT --><!--
-		SET g$_QSELECT -->1<!-- END:SET
-		--><script src="js/QSelect"></script><!--
-	END:IF
-	
-	--><script><!--
+	--><script src="{a$_src_}"></script><script><!--
 
-	QSelectPrint({$id|escape:'js'}, {a$|htmlArgs|escape:'js'})//--></script><script><!--
+	jsSelectPrint({a$|htmlArgs|escape:'js'},{a$multiple|escape:'js'},{a$_firstItem|escape:'js'},{a$_firstCaption|escape:'js'},[<!-- LOOP a$_value -->{$VALUE|escape:'js'},<!-- END:LOOP -->0])//--></script><script><!--
 
 	lE=gLE({a$name|escape:'js'})
-	lE.lock={a$_lock_|escape:'js'}
-
-	lE.gS=function(){return valid(this<!-- LOOP a$_valid -->,{$VALUE|escape:'js'}<!-- END:LOOP -->)}
-
-	lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|escape:'js'},{$onempty|escape:'js'},{$onerror|escape:'js'}<!-- END:LOOP -->],this.form)};<!-- IF a$_focus_ -->lE.focus()<!-- END:IF -->//--></script><script src="{a$_src_}"></script><!--
+	jsSelectInit(lE,[<!-- LOOP a$_value -->{$VALUE|escape:'js'},<!-- END:LOOP -->0])
+	lE.gS=IgSS;
+	lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|escape:'js'},{$onempty|escape:'js'},{$onerror|escape:'js'}<!-- END:LOOP -->],this.form)};<!-- IF a$_focus_ -->lE.focus()<!-- END:IF -->//--></script><!--
 	
 	SERVERSIDE
 		--><noscript><input {a$|htmlArgs}></noscript><!--

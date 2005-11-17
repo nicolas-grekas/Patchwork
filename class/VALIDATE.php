@@ -73,7 +73,7 @@ class VALIDATE
 
 		$result = (string) $value;
 		if (!isset($args[1]) || $args[1]) $result = trim($result);
-		if (isset($args[0]) && $args[0] && !preg_match($args[0].'u', $result, $args[2])) return false;
+		if (isset($args[0]) && $args[0] && !preg_match($args[0].'su', $result, $args[2])) return false;
 
 		return $result;
 	}

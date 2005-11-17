@@ -31,7 +31,7 @@ class loop_callAgent extends loop
 					{
 						$a = CIA::agentClass($this->agent);
 						$a = get_class_vars($a);
-						$a = $a['argv'];
+						$a = (array) $a['argv'];
 					}
 					else $a = $this->keys;
 
