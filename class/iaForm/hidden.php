@@ -23,7 +23,7 @@ class iaForm_hidden extends loop_callAgent
 	protected $elt = array();
 	protected $eltToCheck = array();
 
-	public function __construct($form, $name, $param, &$sessionLink)
+	public function __construct($form, $name, $param, &$sessionLink = false)
 	{
 		$this->form = $form;
 		$this->sessionLink =& $sessionLink;
@@ -489,6 +489,7 @@ class iaForm_time extends iaForm_text
 		return $this->status ? 60*(60*$this->value + ($this->minute->status ? $this->minute->value : 0)) : 0;
 	}
 }
+*/
 
 class iaForm_date extends iaForm_text
 {
@@ -500,20 +501,36 @@ class iaForm_date extends iaForm_text
 		parent::init($param);
 	}
 	
-	protected function get($option=false)
+	protected function get()
 	{
 		$a = parent::get();
 		$a->onchange = 'this.value=valid_date(this.value)';
 		return $a;
 	}
 	
-	public function getValue()
+	public function getTimestamp()
 	{
-		$v = explode('-', $this->value);
-		return count($v)==3 ? mktime(0,0,0, $v[1], $v[0], $v[2]) : 0;
+		if ($v = $this->getValue())
+		{
+			$v = explode('-', $this->value);
+			$v = count($v)==3 ? mktime(0,0,0, $v[1], $v[0], $v[2]) : 0;
+		}
+
+		return (int) $v;
+	}
+
+	public function getMysqlDate()
+	{
+		if ($v = $this->getValue())
+		{
+			$v = explode('-', $v);
+			$v = $v[2] . '-' . $v[1] . '-' . $v[0];
+		}
+
+		return (string) $v;
 	}
 }
-*/
+
 class iaForm_submit extends iaForm_hidden
 {
 	protected $type = 'submit';
