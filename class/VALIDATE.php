@@ -94,25 +94,67 @@ class VALIDATE
 	}
 
 	# no args
+	private static function get_phone(&$value, &$args)
+	{
+		if (!is_scalar($value)) return false;
+
+		$r = preg_replace("'[^+0-9]+'u", '', $value);
+		$r = preg_replace("'^00'u", '+', $r);
+
+		if (!preg_match("'^\+?[0-9]{4,}$'u", $r)) return false;
+
+		return $r;
+	}
+
+	# no args
 	private static function get_date(&$value, &$args)
 	{
 		if (!is_scalar($value)) return false;
 
 		$r = trim($value);
 
+		if ('0000-00-00' == $r) return $value = '';
+
+		$r = preg_replace("'^(\d{4})-(\d{2})-(\d{2})$'u", '$3-$2-$1', $r);
+		
 		$Y = date('Y');
 		$r = preg_replace("'^[^0-9]+'u", '', $r);
 		$r = preg_replace("'[^0-9]+$'u", '', $r);
 		$r = preg_split("'[^0-9]+'u", $r);
-		if (count($r) == 2) $r[2] = $Y;
-		if (count($r) != 3) return false;
+
+		if (2 == count($r)) $r[2] = $Y;
+		else if (1 == count($r))
+		{
+			$r = $r[0];
+			switch (strlen($r))
+			{
+				case 4:
+				case 6:
+				case 8:
+					$r = array(
+						substr($r, 0, 2),
+						substr($r, 2, 2),
+						substr($r, 4)
+					);
+
+					if (!$r[2]) $r[2] = $Y;
+
+					break;
+
+				default: return false;
+			}
+		}
+
+		if (3 != count($r)) return false;
 		if ($r[2]<100)
 		{
 			$r[2] += 1900;
 			if ($Y - $r[2] > 50) $r[2] += 100;
 		}
 
-		return date("d-M-Y", mktime (0, 0, 0, $r[1], $r[0], $r[2]));
+		if (31 < $r[0] || 12 < $r[1]) return false;
+
+		return date("d-m-Y", mktime (0, 0, 0, $r[1], $r[0], $r[2]));
 	}
 
 	# size (octet), regexp

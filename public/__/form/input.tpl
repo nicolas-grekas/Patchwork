@@ -75,7 +75,7 @@ SET $INPUT --><!--
 			ELSE --><!--
 				IF a+1$_i -->{a$_glue_|default:g$checkboxGlue|default:'<br />'}<!-- END:IF --><!--
 
-				SET $class -->{$class|default:a$class}<!-- END:SET --><!--
+				SET $class -->{$class|default:a$class}<!-- END:SET
 
 				--><input {$|htmlArgs:'caption':'selected'} {a$|htmlArgs:'class'} /><!--
 

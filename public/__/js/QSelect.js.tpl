@@ -363,6 +363,6 @@ function QSelectSearch($data)
 			for (; $i < $data.length; ++$i) if ($data[$i].search($query)>=0) $result[$result.length] = $data[$i];
 		}
 
-		return $pushBack($result);
+		$pushBack($result);
 	}
 }

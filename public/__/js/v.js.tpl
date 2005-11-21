@@ -52,12 +52,18 @@ valid_file = function($value, $args)
 {
 	if (typeof $args[1]=='array' || typeof $args[1]=='object')
 	{
-		if ($value.search(new RegExp('\.('+$args[1].join('|')+')$', 'i'))==-1) return false;
+		if (-1==$value.search(new RegExp('\.('+$args[1].join('|')+')$', 'i'))) return false;
 	}
 	return true;
 }
 
 valid_image = valid_file;
+
+valid_phone = function($value, $args)
+{
+	$value = $value.replace(/[^+0-9]+/, '').replace(/^00/, '+');
+	return -1 != $value.search(/^\+?[0-9]{4,}$/);
+}
 
 valid_date = function($value, $args)
 {
@@ -68,6 +74,19 @@ valid_date = function($value, $args)
 	$value = $value.replace(/[^0-9]+$/, '');
 	$value = $value.split(/[^0-9]+/);
 	if ($value.length==2) $value[2] = Y;
+	else if (1 == $value.length)
+	{
+		$value = $value[0];
+		if (4 == $value.length || 6 == $value.length || 8 == $value.length)
+		{
+			$value = [
+				$value.substr(0, 2),
+				$value.substr(2, 2),
+				($value.substr(4)-0) || Y
+			];
+		}
+		else $value = '';
+	}
 	if ($value.length!=3) return '';
 	$value[2] -= 0;
 	if ($value[2]<100)
