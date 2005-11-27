@@ -11,7 +11,7 @@ if (window.lF)
 		if ($i < $len) open(
 			_GET.__ROOT__ + 'upload',
 			'',
-			'scrollbars=no,resizable=no,dependent=yes,height=100,width=350,left=' + parseInt(screen.availWidth/2 - 200) + ',top=' + parseInt(screen.availHeight/2 - 100)
+			'status=no,scrollbars=no,resizable=no,dependent=yes,height=100,width=350,left=' + parseInt(screen.availWidth/2 - 200) + ',top=' + parseInt(screen.availHeight/2 - 100)
 		);
 	}
 
@@ -63,7 +63,7 @@ else
 		if (a.bytes_total)
 		{
 			for (; $i < $maxWidth && $i/$maxWidth <= a.bytes_uploaded/a.bytes_total; $i += $unitWidth) $html += $unitHtml;
-			$progress.innerHTML = $html;
+			$progress.innerHTML = $html || $unitHtml;
 
 			a.est_min = Math.round(a.est_sec / 60);
 			a.est_sec %= 60;
