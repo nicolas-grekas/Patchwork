@@ -281,7 +281,7 @@ class iaForm_textarea extends iaForm_text
 
 		if ($this->maxlength)
 		{
-			$a->onkeyup = 'if(this.value.length>'.$this->maxlength.')this.value=substr(0,'.$this->maxlength.')';
+			$a->onkeyup = 'if(this.value.length>'.$this->maxlength.')this.value=this.value.substr(0,'.$this->maxlength.')';
 		}
 
 		return $a;

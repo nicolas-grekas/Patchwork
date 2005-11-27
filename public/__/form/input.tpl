@@ -106,7 +106,7 @@ SET $INPUT --><!--
 
 	ELSE --><!--
 
-		IF a$type == 'file'
+		IF a$type == 'file' && a$maxlength
 			--><input type="hidden" name="MAX_FILE_SIZE" value="{a$maxlength}" /><input {a$|htmlArgs} /><!--
 
 		ELSEIF a$type == 'textarea'
