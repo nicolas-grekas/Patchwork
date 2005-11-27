@@ -247,7 +247,7 @@ class iaForm_text extends iaForm_hidden
 	protected function get()
 	{
 		$a = parent::get();
-		$a->maxlength = $this->maxlength;
+		if ($this->maxlength) $a->maxlength = $this->maxlength;
 		return $a;
 	}
 
