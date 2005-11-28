@@ -4,8 +4,9 @@ CIA::setMaxage(0);
 CIA::setPrivate();
 CIA::setExpires('onmaxage');
 
-if (self::$handlesOb) $context = '';
-else
+$context = '';
+
+if (!self::$handlesOb) 
 {
 	$msg = debug_backtrace();
 
