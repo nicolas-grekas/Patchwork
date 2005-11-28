@@ -116,7 +116,7 @@ class VALIDATE
 		if ('0000-00-00' == $r) return $value = '';
 
 		$r = preg_replace("'^(\d{4})-(\d{2})-(\d{2})$'u", '$3-$2-$1', $r);
-		
+
 		$Y = date('Y');
 		$r = preg_replace("'^[^0-9]+'u", '', $r);
 		$r = preg_replace("'[^0-9]+$'u", '', $r);
