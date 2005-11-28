@@ -512,8 +512,11 @@ class iaForm_date extends iaForm_text
 	{
 		if ($v = $this->getValue())
 		{
-			$v = explode('-', $this->value);
-			$v = count($v)==3 ? mktime(0,0,0, $v[1], $v[0], $v[2]) : 0;
+			if (preg_match("'^(\d{2})-(\d{2})-(\d{4})$'", $v, $v))
+			{
+				$v = mktime(0,0,0, $v[2], $v[1], $v[3]);
+			}
+			else $v = 0;
 		}
 
 		return (int) $v;
@@ -523,8 +526,11 @@ class iaForm_date extends iaForm_text
 	{
 		if ($v = $this->getValue())
 		{
-			$v = explode('-', $v);
-			$v = $v[2] . '-' . $v[1] . '-' . $v[0];
+			if (preg_match("'^(\d{2})-(\d{2})-(\d{4})$'", $v, $v))
+			{
+				$v = $v[3] . '-' . $v[2] . '-' . $v[1];
+			}
+			else $v = '';
 		}
 
 		return (string) $v;

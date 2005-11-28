@@ -76,13 +76,13 @@ class iaForm extends loop_callAgent
 			$this->agentData,
 			$this->agentPrefix,
 			$this->eltnameSuffix
-		) = array_pop($this->contextPool);
+		) = $a = array_pop($this->contextPool);
 	}
 
 	public function add($type, $name, $param = array(), $autoPopulate = true)
 	{
 		$type = 'iaForm_' . preg_replace("'[^a-zA-Z\d]+'u", '_', $type);
-		$elt = $this->elt[$name . $this->eltnameSuffix] = new $type($this, $this->agentPrefix . $name . $this->eltnameSuffix, $param, $this->sessionLink);
+		$elt = $this->elt[$this->agentPrefix . $name . $this->eltnameSuffix] = new $type($this, $this->agentPrefix . $name . $this->eltnameSuffix, $param, $this->sessionLink);
 
 		if ($type=='iaForm_hidden') $this->hidden[] = $elt;
 		else if ($autoPopulate && $this->agentData) $this->agentData->{$this->agentPrefix . $name} = $elt;
@@ -92,7 +92,7 @@ class iaForm extends loop_callAgent
 
 	public function getElement($name)
 	{
-		return $this->elt[$name . $this->eltnameSuffix];
+		return $this->elt[$this->agentPrefix . $name . $this->eltnameSuffix];
 	}
 
 	public function setFile($isfile)
