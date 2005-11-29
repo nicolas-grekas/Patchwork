@@ -405,6 +405,7 @@ class CIA
 		if (class_exists('USER', false)) USER::end();
 		if (class_exists('AUTH', false)) AUTH::end();
 		if (class_exists('SESSION', false)) SESSION::end();
+		if (class_exists('DB', false)) @DB()->commit();
 
 		if (self::$redirectUrl !== false)
 		{
