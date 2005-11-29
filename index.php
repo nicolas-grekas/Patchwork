@@ -179,6 +179,8 @@ function DB()
 		$db->setOption('seqname_format', 'zeq_%s');
 		$db->setErrorHandling(PEAR_ERROR_CALLBACK, 'E');
 		$db->setFetchMode(DB_FETCHMODE_OBJECT);
+
+		$db->autoCommit(false);
 	}
 
 	return $db;
