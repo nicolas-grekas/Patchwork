@@ -6,7 +6,7 @@ CIA::setExpires('onmaxage');
 
 $context = '';
 
-if (!self::$handlesOb) 
+if (0 && !self::$handlesOb) 
 {
 	$msg = debug_backtrace();
 
