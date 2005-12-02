@@ -87,7 +87,7 @@ function $onmouseup($e)
 		$this = $get($select),
 
 	$e = $e || event;
-	if (!$e.srcElement && $e.target && $e.target.tagName=='SELECT') return;
+	if (!$e.srcElement && $e.target && 'SELECT'==$e.target.tagName) return;
 	$setTimeout(function()
 	{
 		if ($select.selectedIndex!=-1)
@@ -151,24 +151,26 @@ function $onkeydown($e)
 
 	$e = ($e || event).keyCode;
 
-	if ($e==13 || $e==9)
+	if (13==$e || 9==$e)
 	{
-		if ($this.$div.style.visibility=='visible')
+		if ('visible'==$this.$div.style.visibility)
 		{
 			if ( $select.selectedIndex!=-1 ) $this.$setValue( $select.selectedIndex );
 			$this.$hide();
 		}
-		else $this.$value = $this.$input.value = $this.$listedValue;
+
+		$this.$value = $this.$input.value = $this.$listedValue;
+		if (13==$e) return false;
 	}
-	else if ($e==27 || ($e==8 && $this.$value=='')) $this.$hide();
-	else if ($e==38 || $e==57373 || $e==40 || $e==57374 || $e==33 || $e==57371 || $e==34 || $e==57372)
+	else if (27==$e || (8==$e && ''==$this.$value)) $this.$hide();
+	else if (38==$e || 57373==$e || 40==$e || 57374==$e || 33==$e || 57371==$e || 34==$e || 57372==$e)
 	{
 		$this.$show();
 
-		if ($this.$div.style.visibility=='visible')
+		if ('visible'==$this.$div.style.visibility)
 		{
 			$select.focus();
-			if ($select.selectedIndex==-1) $setTimeout(function(){$select.selectedIndex = 0}, 1);
+			if (-1==$select.selectedIndex) $setTimeout(function(){$select.selectedIndex = 0}, 1);
 		}
 	}
 }
@@ -325,7 +327,7 @@ return function($input, $callback, $autohide)
 
 		var $divStyle = $div.style;
 
-		if ($divStyle.visibility == 'hidden') return;
+		if ('hidden'==$divStyle.visibility) return;
 
 		$select.selectedIndex = -1;
 		$divStyle.visibility = 'hidden';
@@ -342,7 +344,7 @@ return function($input, $callback, $autohide)
 	$imgB.$onmousedown = $imgB.onmousedown;
 	$imgB.onmousedown = function()
 	{
-		this.$QSelectVisible = $div.style.visibility == 'visible';
+		this.$QSelectVisible = 'visible'==$div.style.visibility;
 		this.$onmousedown();
 	}
 	
