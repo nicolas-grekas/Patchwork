@@ -36,12 +36,13 @@ function $get($elt)
 	return $QSelect[$elt.$QSelectId];
 }
 
-function $setTimeout($function, $timeout)
+function $setTimeout($function, $timeout, $i)
 {
 	if ($function)
 	{
-		goQSelect[++$goSelectId] = $function;
-		return setTimeout('goQSelect['+$goSelectId+']();delete goQSelect['+$goSelectId+']', $timeout);
+		$i = ++$goSelectId;
+		goQSelect[$i] = $function;
+		return setTimeout('goQSelect['+$i+']();delete goQSelect['+$i+']', $timeout);
 	}
 }
 
@@ -64,6 +65,7 @@ function $onblur()
 	$setTimeout(function()
 	{
 		if (!$this.$lastFocused) $this.$hide();
+		if ($this.$listedValue || $this.$input.lock) $this.$value = $this.$input.value = $this.$listedValue;
 	}, 1);
 }
 
@@ -127,6 +129,7 @@ function $onkeyup($e)
 	if ($this.$value == this.value) return;
 
 	$this.$value = this.value;
+	$this.$listedValue = '';
 
 	$setTimeout(function()
 	{
@@ -153,8 +156,9 @@ function $onkeydown($e)
 		if ($this.$div.style.visibility=='visible')
 		{
 			if ( $select.selectedIndex!=-1 ) $this.$setValue( $select.selectedIndex );
-			if ($e==9) $this.$hide();
+			$this.$hide();
 		}
+		else $this.$value = $this.$input.value = $this.$listedValue;
 	}
 	else if ($e==27 || ($e==8 && $this.$value=='')) $this.$hide();
 	else if ($e==38 || $e==57373 || $e==40 || $e==57374 || $e==33 || $e==57371 || $e==34 || $e==57372)
@@ -171,34 +175,17 @@ function $onkeydown($e)
 
 function $precheck()
 {
-	var $this = $get(this),
-		$input = $this.$input;
+	var $this = $get(this);
 
-/*
-	var $this = $get(this),
-		$input = $this.$input,
-		$firstOption = $this.$select,
-		$selectedText = $firstOption[$firstOption.selectedIndex];
-
-	$firstOption = $firstOption[0];
-
-//XXX : lancer une recherche sur la valeur du champ !
-	if ($input.lock && $input.value != '' && !(($firstOption && $input.value == $firstOption.text) || ($selectedText && $input.value == $selectedText.text)))
-	{
-		$input.select();
-		$input.focus();
-		return false;
-	}
-*/
-
-	if (!$this.$lastFocused && $this.$div.style.visibility=='visible')
+	if ($this.$lastFocused)
 	{
 		$this.$hide();
-		$input.focus();
-		return false;
+		$this.$lastFocused.focus();
 	}
 
-	return true;
+	this.precheck = 0;
+
+	return false;
 }
 
 return function($input, $callback, $autohide)
@@ -225,6 +212,7 @@ return function($input, $callback, $autohide)
 
 	$this.$callback = $callback;
 	$this.$value = $input.value;
+	$this.$listedValue = $input.value;
 	$this.$div = $div;
 	$this.$lastKeyupid = 0;
 	$this.$onkeyup = function($result, $firstMatch, $start, $end)
@@ -232,10 +220,7 @@ return function($input, $callback, $autohide)
 		$select.selectedIndex = -1;
 		$length = 0;
 
-		var $i, $query = new RegExp('^' + RegExp.quote($input.value, $input.lock), 'gi');
-
-/*		if ($input.value != '' && $input.lock && !$result.length) return;
-*/
+		var $i, $query = new RegExp('^' + RegExp.quote($input.value, 1), 'gi');
 
 		for ($i in $result)
 		{
@@ -248,8 +233,15 @@ return function($input, $callback, $autohide)
 
 		if ($selectRange && $firstMatch)
 		{
-			$start = $start>='' ? $start : $input.value.length;
-			$end = $end>='' ? $end : $firstMatch.length,
+			$this.$listedValue = $firstMatch;
+
+			if (!($start>=''))
+			{
+				$start = $input.value.length;
+				$end = $firstMatch.length,
+				$firstMatch = $input.value.substr(0, $start) + $firstMatch.substr($start);
+			}
+
 			$this.$value = $input.value = $firstMatch;
 
 			if ($input.setSelectionRange) $input.setSelectionRange($start, $end);
@@ -261,7 +253,11 @@ return function($input, $callback, $autohide)
 				$i.moveStart('character', $start);
 				$i.select();
 			}
-			else $this.$value = $input.value = $firstMatch.substr(0, $start);
+			else
+			{
+				$this.$value = $input.value = $firstMatch.substr(0, $start);
+				if ($this.$value != $firstMatch) $this.$listedValue = '';
+			}
 		}
 
 		$this.$show();
@@ -338,7 +334,7 @@ return function($input, $callback, $autohide)
 
 	$this.$setValue = function($idx)
 	{
-		$input.value = $this.$value = $options[$idx].text;
+		$input.value = $this.$value = $this.$listedValue = $options[$idx].text;
 		$input.select();
 		$input.focus();
 	}
