@@ -1,6 +1,4 @@
-- mode verrouillé pour QSelect + value
 - cache des données USER et AUTH dans SESSION, lever le problème avec les références
-? barre d'upload : annuler si la taille dépasse la limite définie ? => oui si on règle le pb de la taille supplémentaire ajoutée par les éléments autre que des fichiers, et le surplus lié à l'encodage
 - autorefresh du cache lorsque le CIApID change : trois techniques : le navigateur détecte et fait la requete de mise à jour, ou bien le serveur track les chgt, ou manuel ...
 - définir qqch de similaire à __AGENT__ pour les scripts PHP.
 ? réfléchir au découplage entre ROOT et la position de LANG, pour mod_rewrite, et CIA
