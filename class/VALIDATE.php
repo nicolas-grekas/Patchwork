@@ -159,7 +159,9 @@ class VALIDATE
 
 	# size (octet), regexp
 	private static function get_file(&$value, &$args)
-	{	
+	{
+		$result = $value;
+
 		if (isset($args[1]) && $args[1])
 		{
 			$result = array($args[1], false);
@@ -198,7 +200,7 @@ class VALIDATE
 			if ($min_height && $size[1]<$min_height) return false;
 
 			if ($type && !in_array(self::$IMAGETYPE[$size[2]], (array) $type)) return false;
-		
+
 			$args[7] =& $size;
 			return $result;
 		}
@@ -232,6 +234,11 @@ class VALIDATE
 
 		if ( false === self::get_image($value['tmp_name'], $args) ) return false;
 		if ( false === self::get_file($value['name'], $a) ) return false;
+
+		$type =& $args[7][2];
+		$type = self::$IMAGETYPE[$type];
+
+		$value['info'] = $args[7];
 
 		return $value;
 	}
