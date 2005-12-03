@@ -207,8 +207,6 @@ return function($input, $callback, $autohide)
 		$divH = $getById('_d2'+$id),
 		$divW = $getById('_d3'+$id),
 
-		$k,
-
 		$options = $select.options,
 		$length = 0;
 
@@ -217,48 +215,61 @@ return function($input, $callback, $autohide)
 	$this.$listedValue = $input.value;
 	$this.$div = $div;
 	$this.$lastKeyupid = 0;
-	$this.$onkeyup = function($result, $firstMatch, $start, $end)
+	$this.$onkeyup = function($result, $listedValue, $selectionStart, $selectionLength, $displayedValue)
 	{
 		$select.selectedIndex = -1;
 		$length = 0;
 
-		var $i, $query = new RegExp('^' + RegExp.quote($input.value, 1), 'gi');
+		var $j = '[^' + ACCENT_ALPHANUM + ']',
+			$i = ACCENT.length - 1,
+			$query = $input.value;
+
+		$query = $query.replace(new RegExp($j, 'g'), '#');
+
+		do $query = $query.replace(ACCENT_RX[$i], '['+ACCENT[$i]+']');
+		while (--$i);
+
+		$query = new RegExp('^' + $query.replace(/#/g, $j + '+'), 'i');
 
 		for ($i in $result)
 		{
 			$i = $result[$i];
 			$options[$length++] = new Option($i, $i);
-			if (!$firstMatch && $i.search($query)>=0) $firstMatch = $i;
+
+			if (!$listedValue && ($j = $i.match($query)))
+			{
+				$listedValue = $i;
+				$j = $j[0].length;
+				$selectionStart = $input.value;
+				$displayedValue = $selectionStart + $i.substr($j);
+				$selectionStart = $selectionStart.length;
+			}
 		}
 
 		while ($options.length > $length) $options[--$options.length] = null;
 
-		if ($selectRange && $firstMatch)
+		if ($listedValue>='') $this.$listedValue = $listedValue;
+		if (!($displayedValue>='')) $displayedValue = $listedValue;
+
+		if ($selectRange && $displayedValue)
 		{
-			$this.$listedValue = $firstMatch;
+			$selectionLength = $selectionLength>='' ? $selectionStart + $selectionLength : $displayedValue.length;
 
-			if (!($start>=''))
-			{
-				$start = $input.value.length;
-				$end = $firstMatch.length,
-				$firstMatch = $input.value.substr(0, $start) + $firstMatch.substr($start);
-			}
+			$this.$value = $input.value = $displayedValue;
 
-			$this.$value = $input.value = $firstMatch;
-
-			if ($input.setSelectionRange) $input.setSelectionRange($start, $end);
+			if ($input.setSelectionRange) $input.setSelectionRange($selectionStart, $selectionLength);
 			else if ($input.createTextRange)
 			{
 				$i = $input.createTextRange();
 				$i.collapse(true);
-				$i.moveEnd('character', $end);
-				$i.moveStart('character', $start);
+				$i.moveEnd('character', $selectionLength);
+				$i.moveStart('character', $selectionStart);
 				$i.select();
 			}
 			else
 			{
-				$this.$value = $input.value = $firstMatch.substr(0, $start);
-				if ($this.$value != $firstMatch) $this.$listedValue = '';
+				$this.$value = $input.value = $displayedValue.substr(0, $selectionStart);
+				if ($this.$value != $this.$listedValue) $this.$listedValue = '';
 			}
 		}
 

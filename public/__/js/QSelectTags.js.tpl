@@ -2,21 +2,21 @@ function QSelectTags($data)
 {
 	$data.length--;
 
-	return function($query, $pushBack, $caretPos)
+	return function($query, $pushBack, $selectionStart)
 	{
 		if ('*' == $query) return $pushBack($data);
 		
 		var $result = [],
 			$i = 0,
 			$qBegin, $qEnd,
-			$caretEnd = 0;
+			$selectionLength = 0;
 
-		$caretPos = $caretPos || $query.length;
+		$selectionStart = $selectionStart || $query.length;
 
-		$qBegin = stripAccents($query.substr(0, $caretPos), -1).replace(/[^a-z0-9]+/g, ' ').replace(/^ /, '');
-		$qEnd = stripAccents($query.substr($caretPos), -1).replace(/[^a-z0-9]+/g, ' ');
+		$qBegin = stripAccents($query.substr(0, $selectionStart), -1).replace(/[^a-z0-9]+/g, ' ').replace(/^ /, '');
+		$qEnd = stripAccents($query.substr($selectionStart), -1).replace(/[^a-z0-9]+/g, ' ');
 
-		$caretPos = $qBegin.length;
+		$selectionStart = $qBegin.length;
 
 		$qBegin = $qBegin.split(' ');
 		$qEnd = $qEnd.split(' ');
@@ -27,7 +27,7 @@ function QSelectTags($data)
 
 		if ($result[0])
 		{
-			$caretEnd = $result[0].length - $query.length;
+			$selectionLength = $result[0].length - $query.length;
 			$qEnd.shift();
 			$query = $result[0] + ' ';
 
@@ -36,6 +36,6 @@ function QSelectTags($data)
 
 		$qBegin.push($query)
 
-		$pushBack($result, $qBegin.join(' ') + $qEnd.join(' '), $caretPos, $caretPos + $caretEnd);
+		$pushBack($result, $qBegin.join(' ') + $qEnd.join(' '), $selectionStart, $selectionLength);
 	}
 }

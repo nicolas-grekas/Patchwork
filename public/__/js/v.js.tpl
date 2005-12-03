@@ -48,17 +48,6 @@ valid_email = function ($value, $args)
 	return valid_string($value, [/^\s*[-a-z0-9_\.\+]+@([-a-z0-9]+(\.[-a-z0-9]+)+)\s*$/i]) ? $value : false;
 }
 
-valid_file = function($value, $args)
-{
-	if (typeof $args[1]=='array' || typeof $args[1]=='object')
-	{
-		if (-1==$value.search(new RegExp('\.('+$args[1].join('|')+')$', 'i'))) return false;
-	}
-	return true;
-}
-
-valid_image = valid_file;
-
 valid_phone = function($value, $args)
 {
 	$value = $value.replace(/[^+0-9]+/, '').replace(/^00/, '+');
@@ -103,11 +92,13 @@ valid_date = function($value, $args)
 
 ACCENT = navigator.userAgent.indexOf('Safari')<0 /* Without this test, the next while line makes Safari <= 2.0 crash */
 	? ['AÀÁÂÃÄÅĀĂĄǺ','aàáâãäåāăąǻ','CĆĈÇĊČ','cćĉçċč','DĐĎ','dđď','EÈÉÊËĒĔĘĖĚ','eèéêëēĕęėě','GĜĢĞĠ','gĝģğġ','HĤĦ','hĥħ','IÌÍÎĨÏĪĬĮİ','iìíîĩïīĭįı','JĴ','jĵ','KĶ','kķ','LĹĻŁĿĽ','lĺļłŀľ','NŃÑŅŇ','nńñņň','OÒÓŐÔÕÖØŌŎǾ','oòóőôõöøōŏǿ','RŔŖŘ','rŕŗř','SŚŜŞŠ','sśŝşš','TŢŦŤ','tţŧť','UÙÚŰÛŨÜŮŪŬŲ','uùúűûũüůūŭų','WẀẂŴẄ','wẁẃŵẅ','YỲÝŶŸ','yỳýŷÿ','ZŹŻŽ','zźżž']
-	: ['A','a'];
+	: ['AÀÁÂÃÄÅ','aàáâãäå','CÇ','cç','EÈÉÊË','eèéêë','IÌÍÎĨÏ','iìíîĩï','NÑ','nñ','OÒÓŐÔÕÖ','oòóőôõö','UÙÚÛŨÜ','uùúûũü','YỲÝŶŸ','yỳýŷÿ'];
 
 ACCENT_RX = [];
 $i = ACCENT.length;
 while ($i--) ACCENT_RX[$i] = new RegExp('['+ACCENT[$i]+']', 'g');
+
+ACCENT_ALPHANUM = '0-9a-zA-Z' + ACCENT.join('')
 
 RegExp.quote = function($str, $accent)
 {
