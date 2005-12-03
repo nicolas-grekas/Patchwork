@@ -50,7 +50,6 @@ function $onfocus()
 {
 	this.$focus = 1;
 	this.form.$QSelectId = this.$QSelectId;
-	this.form.precheck = $precheck;
 	$get(this).$lastFocused = this;
 }
 
@@ -328,6 +327,8 @@ return function($input, $callback, $autohide)
 			$imgH.height = $height - 10;
 			$imgH.style.height = $height - 10 + 'px';
 			$divW.style.top = $height + 'px';
+
+			$form.precheck = $precheck;
 		}
 		else $this.$hide();
 	}
@@ -343,6 +344,8 @@ return function($input, $callback, $autohide)
 		$select.selectedIndex = -1;
 		$divStyle.visibility = 'hidden';
 		$divStyle.display = 'none';
+
+		$form.precheck = 0;
 	}
 
 	$this.$setValue = function($idx)
