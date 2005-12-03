@@ -153,14 +153,14 @@ function $onkeydown($e)
 
 	if (13==$e || 9==$e)
 	{
+		$this.$value = $this.$input.value = $this.$listedValue;
+
 		if ('visible'==$this.$div.style.visibility)
 		{
 			if ( $select.selectedIndex!=-1 ) $this.$setValue( $select.selectedIndex );
 			$this.$hide();
+			if (13==$e) return false;
 		}
-
-		$this.$value = $this.$input.value = $this.$listedValue;
-		if (13==$e) return false;
 	}
 	else if (27==$e || (8==$e && ''==$this.$value)) $this.$hide();
 	else if (38==$e || 57373==$e || 40==$e || 57374==$e || 33==$e || 57371==$e || 34==$e || 57372==$e)
