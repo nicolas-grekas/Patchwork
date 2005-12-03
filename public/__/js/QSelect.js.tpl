@@ -225,10 +225,14 @@ return function($input, $callback, $autohide)
 
 		$query = $query.replace(new RegExp($j, 'g'), '#');
 
-		do $query = $query.replace(ACCENT_RX[$i], '['+ACCENT[$i]+']');
-		while (--$i);
+		if ('#' == $query || '' == $query) $query = /^$/g;
+		else
+		{
+			do $query = $query.replace(ACCENT_RX[$i], '['+ACCENT[$i]+']');
+			while (--$i);
 
-		$query = new RegExp('^' + $query.replace(/#/g, $j + '+'), 'i');
+			$query = new RegExp('^' + $query.replace(/#/g, $j + '+'), 'i');
+		}
 
 		for ($i in $result)
 		{
