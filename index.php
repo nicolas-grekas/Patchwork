@@ -70,6 +70,10 @@ mbstring.func_overload = 1
 
 /* Config initialisation */
 
+# This need more though ...
+putenv('LC_ALL=fr_FR.UTF-8');
+setlocale(LC_ALL, 'fr_FR.UTF-8');
+
 define('DEBUG',			$CONFIG['debug']);
 define('CIA_MAXAGE',	$CONFIG['maxage']);
 define('CIA_LANG_LIST',	$CONFIG['lang_list']);
