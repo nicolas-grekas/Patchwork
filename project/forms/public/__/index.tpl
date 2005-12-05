@@ -13,6 +13,8 @@ span.errormsg
 
 --></style>
 
+{$test}
+
 <!-- AGENT $form _mode_='errormsg' -->
 
 <!-- AGENT $form -->

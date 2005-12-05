@@ -37,7 +37,7 @@ function updateGrid($data)
 			if ($j)
 			{
 				$lockArray[$i] = $i;
-				if (lockArray[$i]>='') delete lockArray[$i];
+				if (t(lockArray[$i])) delete lockArray[$i];
 				else $j.style.backgroundColor = '#FFD3D3';
 			}
 		}

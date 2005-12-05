@@ -9,6 +9,8 @@ class agent_index extends agent
 	{
 		$a = (object) array();
 
+		$a->test = -72.34;
+
 		$colors = array(
 			'Les couleurs' => array(
 				(object) array(

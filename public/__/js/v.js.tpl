@@ -16,8 +16,8 @@ valid_int = function($value, $args)
 	if ((''+$value).search(/^\s*[+-]?[0-9]+\s*$/) == -1) return false;
 
 	$value -= 0;
-	if ($args[0]>='' && $value<$args[0]) return false;
-	if ($args[1]>='' && $value>$args[1]) return false;
+	if (t($args[0]) && $value<$args[0]) return false;
+	if (t($args[1]) && $value>$args[1]) return false;
 	return true;
 }
 
@@ -26,8 +26,8 @@ valid_float = function($value, $args)
 	$value = parseFloat($value);
 
 	if (isNaN($value)) return false;
-	if ($args[0]>='' && $value<$args[0]) return false;
-	if ($args[1]>='' && $value>$args[1]) return false;
+	if (t($args[0]) && $value<$args[0]) return false;
+	if (t($args[1]) && $value>$args[1]) return false;
 	return true;
 }
 
@@ -98,7 +98,7 @@ ACCENT_RX = [];
 $i = ACCENT.length;
 while ($i--) ACCENT_RX[$i] = new RegExp('['+ACCENT[$i]+']', 'g');
 
-ACCENT_ALPHANUM = '0-9a-zA-Z' + ACCENT.join('')
+ACCENT_ALPHANUM = '0-9a-zA-Z' + ACCENT.join('');
 
 RegExp.quote = function($str, $accent)
 {
@@ -283,7 +283,7 @@ function gLE($name, $multiple)
 
 		if ($name)
 		{
-			if (lF[$name]>='') $lastElement = lF[$name];
+			if (t(lF[$name])) $lastElement = lF[$name];
 			else
 			{
 				$lastElement = document.getElementsByName($name);
@@ -329,7 +329,7 @@ addOnload(function()
 {
 	var $i = 0, $forms = document.forms, $form, $j, $elt;
 
-	if (_BOARD.lastL == ''+location) _BOARD.lastX>='' && scrollTo(_BOARD.lastX, _BOARD.lastY);
+	if (_BOARD.lastL == ''+location) t(_BOARD.lastX) && scrollTo(_BOARD.lastX, _BOARD.lastY);
 	else setboard('lastL', location);
 
 	for (; $i<$forms.length; ++$i)

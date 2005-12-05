@@ -29,7 +29,7 @@ P<?php echo substr(__CLASS__, 5)?> = function($name)
 	var $args = arguments,
 		$pool = cyclePool;
 
-	if ($pool[$name]>='')
+	if (t($pool[$name]))
 	{
 		if (++$pool[$name] >= $args.length) $pool[$name] = 1;
 	}
