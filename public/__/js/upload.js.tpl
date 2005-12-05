@@ -89,7 +89,7 @@ else
 			$progress.innerHTML = $html;
 
 			$remaining.innerHTML = '';
-			$detail.innerHTML = $bytes($bytes_total) + ' / ' + $bytes($bytes_total) + ' (100%)';
+			$detail.innerHTML = '100%';
 
 			setTimeout('close()', 3000);
 		}
