@@ -34,7 +34,7 @@ function QSelectTags($data)
 			if (1 == $result.length) $result = [];
 		}
 
-		$qBegin.push($query)
+		$qBegin.push($query);
 
 		$pushBack($result, $qBegin.join(' ') + $qEnd.join(' '), $selectionStart, $selectionLength);
 	}

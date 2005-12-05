@@ -24,10 +24,10 @@ class pipe_date
 
 P<?php echo substr(__CLASS__, 5)?> = function($time, $format)
 {
-	if ($format>='')
+	if (t($format))
 	{
 		$format = str($format);
-		$time = $time>='' ? $time : null;
+		$time = t($time) ? $time : null;
 	}
 	else
 	{

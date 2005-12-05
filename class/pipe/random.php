@@ -18,7 +18,7 @@ class pipe_random
 
 P<?php echo substr(__CLASS__, 5)?> = function($min, $max)
 {
-	if (!($max>='')) $max = 32767;
+	if (!t($max))) $max = 32767;
 
 	$min = ($min-0) || 0;
 	$max -= 0;

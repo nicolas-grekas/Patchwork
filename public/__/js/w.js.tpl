@@ -15,10 +15,14 @@
 * _COOKIE
 */
 
+function t($v)
+{
+	return typeof $v != 'undefined';
+}
 
 function str($var, $default)
 {
-	return $var>='' ? ''+$var : ($default>='' ? ''+$default : '');
+	return t($var) ? ''+$var : (t($default) ? ''+$default : '');
 }
 
 function num($str, $weak)
@@ -138,7 +142,7 @@ function setboard($name, $value)
 addOnload.p = [];
 if ((root = window).Error)
 	// This eval avoids a parse error with browsers not supporting exceptions.
-	eval('try{while(((w=root.parent)!=root)&&w.name>="")root=w}catch(w){}');
+	eval('try{while(((w=root.parent)!=root)&&t(w.name))root=w}catch(w){}');
 
 
 w = function($rootAgent, $keys)
@@ -175,7 +179,7 @@ w = function($rootAgent, $keys)
 	w = function($context, $code)
 	{
 		if (CIApID != $CIApID) location.reload(1);
-		if (!($context>='')) return;
+		if (!t($context)) return;
 
 		$includeCache[$lastInclude] = $includeCache[$lastInclude] || [$context, $code];
 
@@ -194,12 +198,12 @@ w = function($rootAgent, $keys)
 			a = $arguments;
 			v = $context;
 
-			while ($code[$pointer]>='') switch ($code[$pointer++])
+			while (t($code[$pointer])) switch ($code[$pointer++])
 			{
 				case 0: // pipe
 					$i = $code[$pointer++].split('.');
 					$j = $i.length;
-					while ($j--) $i[$j] = window['P'+$i[$j]]>='' ? '' : ('.'+$i[$j]);
+					while ($j--) $i[$j] = t(window['P'+$i[$j]]) ? '' : ('.'+$i[$j]);
 
 					$i = $i.join('');
 
@@ -295,7 +299,7 @@ w = function($rootAgent, $keys)
 
 		function $echo($a)
 		{
-			if ($a>='')
+			if (t($a))
 			{
 				if ($WobLast) $WobStack[$WobLast] += $a;
 				else $buffer += $a;
@@ -304,7 +308,7 @@ w = function($rootAgent, $keys)
 
 		function $include($inc, $args, $keys)
 		{
-			if ($inc>='')
+			if (t($inc))
 			{
 				if ($args)
 				{
@@ -315,7 +319,7 @@ w = function($rootAgent, $keys)
 					if ($keys)
 					{
 						for ($i=0; $i<$keys.length; ++$i)
-							if (($j = $keys[$i]) && $args[$j]>='')
+							if (($j = $keys[$i]) && t($args[$j]))
 								$inc += '&' + eUC($j) + '=' + eUC($args[$j]);
 					}
 					else
@@ -329,7 +333,7 @@ w = function($rootAgent, $keys)
 				{
 					$lastInclude = $inc;
 
-					if ($includeCache[$inc]>='') w($includeCache[$inc][0], $includeCache[$inc][1]);
+					if (t($includeCache[$inc])) w($includeCache[$inc][0], $includeCache[$inc][1]);
 					else
 						$buffer += '<script src="' + esc($inc) + '"></script >',
 						w.f();
@@ -380,7 +384,7 @@ w = function($rootAgent, $keys)
 			$blockData = $data[$block];
 			$offset += $j = $blockData[0];
 
-			if (!($blockData[$offset + $j]>='')) return $data[++$block]>=''
+			if (!t($blockData[$offset + $j])) return t($data[++$block])
 					? ($offset = 0, $next())
 					: (v = v.$, $loopIterator = $parentLoop, 0);
 
@@ -407,7 +411,7 @@ w = function($rootAgent, $keys)
 	{
 		$j = $global ? g : a;
 
-		if (!($j[$a]>='')) $j[$a] = 0;
+		if (!t($j[$a])) $j[$a] = 0;
 		$i = $j[$a]/1 || 0;
 		$j[$a] += $b;
 

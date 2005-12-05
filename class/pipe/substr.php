@@ -16,7 +16,7 @@ class pipe_substr
 P<?php echo substr(__CLASS__, 5)?> = function($string, $start, $length)
 {
 	$string = str($string);
-	return $length>=''
+	return t($length)
 		? $string.substr($start, $length)
 		: $string.substr($start);
 }

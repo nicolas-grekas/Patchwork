@@ -106,7 +106,7 @@ function QEngine($keyword)
 		for (; $i<$w.length; ++$i)
 		{
 			$k += $w.charAt($i);
-			if ($kwDb[$k]>='') {$kwDb = $kwDb[$k]; $k = '';}
+			if (t($kwDb[$k])) {$kwDb = $kwDb[$k]; $k = '';}
 		}
 
 		if ($k=='') $match = $getChildId($kwDb);

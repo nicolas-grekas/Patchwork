@@ -251,12 +251,12 @@ return function($input, $callback, $autohide)
 
 		while ($options.length > $length) $options[--$options.length] = null;
 
-		if ($listedValue>='') $this.$listedValue = $listedValue;
-		if (!($displayedValue>='')) $displayedValue = $listedValue;
+		if (t($listedValue)) $this.$listedValue = $listedValue;
+		if (!t($displayedValue)) $displayedValue = $listedValue;
 
 		if ($selectRange && $displayedValue)
 		{
-			$selectionLength = $selectionLength>='' ? $selectionStart + $selectionLength : $displayedValue.length;
+			$selectionLength = t($selectionLength) ? $selectionStart + $selectionLength : $displayedValue.length;
 
 			$this.$value = $input.value = $displayedValue;
 
