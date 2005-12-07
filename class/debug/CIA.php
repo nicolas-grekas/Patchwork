@@ -16,7 +16,7 @@ class debug_CIA extends CIA
 
 	public function __construct()
 	{
-		$this->log('<a href="' . CIA::htmlescape($_SERVER['REQUEST_URI']) . '" target="_blank">' . CIA::htmlescape($_SERVER['REQUEST_URI']) . '</a>');
+		$this->log('<a href="' . htmlspecialchars($_SERVER['REQUEST_URI']) . '" target="_blank">' . htmlspecialchars($_SERVER['REQUEST_URI']) . '</a>');
 		register_shutdown_function(array($this, 'log'), '', true);
 		parent::__construct();
 	}
@@ -45,7 +45,7 @@ class debug_CIA extends CIA
 		else if (self::$handlesOb) $a = sprintf('%.02f ms: ', $a) . (string) $message . "\n";
 		else $a = sprintf('%.02f ms: ', $a) . print_r($message, true) . "\n";
 
-		if (!$html) $a = CIA::htmlescape($a);
+		if (!$html) $a = htmlspecialchars($a);
 
 		$b = fopen(ini_get('error_log'), 'ab');
 		fwrite($b, $a);
@@ -58,7 +58,7 @@ class debug_CIA extends CIA
 	{
 		$bgcolor = $this->has_error ? 'red' : 'blue';
 		$debugWin = CIA_ROOT . '_?d&stop&' . mt_rand();
-		$QDebug = CIA::htmlescape(CIA_ROOT . 'js/QDebug.js');
+		$QDebug = htmlspecialchars(CIA_ROOT . 'js/QDebug.js');
 
 		if ($type=='<') return <<<DEBUG_INFO
 <html><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script>

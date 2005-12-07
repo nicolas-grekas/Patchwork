@@ -14,7 +14,7 @@ class pipe_htmlArgs
 		{
 			if (mb_substr($k, 0, 1)!='_' && mb_strpos($k, '$')===false && !in_array($k, $except))
 			{
-				$result .= CIA::htmlescape($k) . '="' . CIA::htmlescape(CIA::string($v)) . '" ';
+				$result .= htmlspecialchars($k) . '="' . htmlspecialchars(CIA::string($v)) . '" ';
 			}
 		}
 

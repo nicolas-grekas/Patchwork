@@ -147,20 +147,6 @@ class CIA
 		if (self::$catchMeta) self::$metaInfo[5] = true;
 	}
 
-	/*
-	* Replacement for PHP's htmlspecialchars() function, with some differencies
-	*/
-	public static function htmlescape($string, $amps = false)
-	{
-		if ($amps) $string = str_replace('&', '&amp;', $string);
-
-		return str_replace(
-			array('<'   , '>'   , '"'     , "'"     ),
-			array('&lt;', '&gt;', '&quot;', '&#039;'),
-			$string
-		);
-	}
-
 	public static function string($a)
 	{
 		return is_object($a) ? $a->__toString() : (string) $a;

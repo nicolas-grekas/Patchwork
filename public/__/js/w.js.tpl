@@ -30,17 +30,15 @@ function num($str, $weak)
 	return $weak ? (typeof $str=='string' && ''+$str/1==$str ? $str/1 : $str) : (parseFloat($str) || 0);
 }
 
-function esc($str, $amps)
+function esc($str)
 {
 	if (typeof $str == 'string')
 	{
-		if ($amps) $str = $str.replace(/&/g, '&amp;');
-
 		$str = $str.replace(
+			/&/g, '&amp;').replace(
 			/</g, '&lt;').replace(
 			/>/g, '&gt;').replace(
-			/"/g, '&quot;').replace(
-			/'/g, '&#039;');
+			/"/g, '&quot;');
 	}
 
 	return $str;
