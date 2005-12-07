@@ -14,14 +14,14 @@ class IA_php
 		{
 			$args =& $_GET;
 
-			self::$get = (object) array_map(array('CIA', 'htmlescape'), $_GET);
-			self::$get->__QUERY__ = '?' . CIA::htmlescape($_SERVER['QUERY_STRING']);
-			self::$get->__SCRIPT__ = CIA::htmlescape($_SERVER['SCRIPT_NAME']);
-			self::$get->__URI__ = CIA::htmlescape($_SERVER['REQUEST_URI']);
-			self::$get->__ROOT__ = CIA::htmlescape(CIA_ROOT);
-			self::$get->__LANG__ = CIA::htmlescape(CIA_LANG);
-			self::$get->__AGENT__ = CIA::htmlescape($agent) . ('' !== $agent ? '/' : '');
-			self::$get->__HOST__ = CIA::htmlescape('http' . (@$_SERVER['HTTPS']?'s':'') . '://' . @$_SERVER['HTTP_HOST']);
+			self::$get = (object) array_map('htmlspecialchars', $_GET);
+			self::$get->__QUERY__ = '?' . htmlspecialchars($_SERVER['QUERY_STRING']);
+			self::$get->__SCRIPT__ = htmlspecialchars($_SERVER['SCRIPT_NAME']);
+			self::$get->__URI__ = htmlspecialchars($_SERVER['REQUEST_URI']);
+			self::$get->__ROOT__ = htmlspecialchars(CIA_ROOT);
+			self::$get->__LANG__ = htmlspecialchars(CIA_LANG);
+			self::$get->__AGENT__ = htmlspecialchars($agent) . ('' !== $agent ? '/' : '');
+			self::$get->__HOST__ = htmlspecialchars('http' . (@$_SERVER['HTTPS']?'s':'') . '://' . @$_SERVER['HTTP_HOST']);
 
 			if (!CIA_BINARY) CIA::setPrivate(true);
 		}

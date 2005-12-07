@@ -33,15 +33,13 @@ class pipe_escape
 					) . "'");
 
 			case 'mailto':
-				$string = CIA::htmlescape($string);
+				$string = htmlspecialchars($string);
 				return '<a href="mailto:'
 					. str_replace('@', '[&#97;t]', $string) . '">'
 					. str_replace('@', '<span style="display:none">@</span>&#64;', $string)
 					. '</a>';
 
-			case 'html': return CIA::htmlescape($string, true);
-
-			default: return CIA::htmlescape($string);
+			default: return htmlspecialchars($string);
 		}
 	}
 
@@ -83,8 +81,6 @@ P<?php echo substr(__CLASS__, 5)?> = function($string, $type)
 		case 'mailto':
 			$string = esc($string);
 			return '<a href="mailto:' + $string + '">' + $string + '</a>';
-
-		case 'html': return esc($string, 1);
 
 		default: return esc($string);
 	}

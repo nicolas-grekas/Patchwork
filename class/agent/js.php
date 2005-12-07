@@ -30,12 +30,12 @@ class agent_js extends agent_bin
 		$a = (object) $this->a;
 		$v = (object) $this->v;
 		$g = (object) $this->g;
-		$g->__SCRIPT__ = CIA::htmlescape($_SERVER['SCRIPT_NAME']);
-		$g->__URI__ = CIA::htmlescape($_SERVER['REQUEST_URI']);
-		$g->__ROOT__ = CIA::htmlescape(CIA_ROOT);
-		$g->__LANG__ = CIA::htmlescape(CIA_LANG);
+		$g->__SCRIPT__ = htmlspecialchars($_SERVER['SCRIPT_NAME']);
+		$g->__URI__ = htmlspecialchars($_SERVER['REQUEST_URI']);
+		$g->__ROOT__ = htmlspecialchars(CIA_ROOT);
+		$g->__LANG__ = htmlspecialchars(CIA_LANG);
 		$g->__AGENT__ = str_replace('_', '/', substr(get_class($this), 6)) . '/';
-		$g->__HOST__ = CIA::htmlescape('http' . (@$_SERVER['HTTPS']?'s':'') . '://' . @$_SERVER['HTTP_HOST']);
+		$g->__HOST__ = htmlspecialchars('http' . (@$_SERVER['HTTPS']?'s':'') . '://' . @$_SERVER['HTTP_HOST']);
 
 		$parser = new iaCompiler_php;
 		ob_start();

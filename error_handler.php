@@ -25,7 +25,7 @@ if (0 && !self::$handlesOb)
 		$context[$i++] = $a;
 	}
 
-	$context = CIA::htmlescape( print_r($context, true) );
+	$context = htmlspecialchars( print_r($context, true) );
 }
 
 $msg = '';
