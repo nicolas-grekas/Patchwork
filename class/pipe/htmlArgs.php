@@ -14,7 +14,7 @@ class pipe_htmlArgs
 		{
 			if (mb_substr($k, 0, 1)!='_' && mb_strpos($k, '$')===false && !in_array($k, $except))
 			{
-				$result .= htmlspecialchars($k) . '="' . htmlspecialchars(CIA::string($v)) . '" ';
+				$result .= $k . '="' . CIA::string($v) . '" ';
 			}
 		}
 
@@ -33,7 +33,7 @@ P<?php echo substr(__CLASS__, 5)?> = function($pool)
 	while (--$i) $except[$i] = arguments[$i];
 	$except = new RegExp('^(|'+$except.join('|')+')$');
 
-	for ($i in $pool) if ($i.substr(0,1)!='_' && $i.indexOf('$')<0 && $i.search($except)) $result += esc($i) + '="' + esc($pool[$i]) + '" ';
+	for ($i in $pool) if ($i.substr(0,1)!='_' && $i.indexOf('$')<0 && $i.search($except)) $result += $i + '="' + $pool[$i] + '" ';
 	return $result;
 }
 
