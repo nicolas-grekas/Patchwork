@@ -5,7 +5,7 @@ foreach (array_keys($GLOBALS) as $k) switch ($k)
 	# For $_ENV use getenv(), $_REQUEST is banned and the native $_SESSION mecanism is disabled
 	case 'k':       case 'CONFIG': case 'GLOBALS':
 	case '_SERVER': case '_GET':   case '_POST':
-	case '_COOKIE': case '_FILES': break;
+	case '_COOKIE': case '_FILES': case '_ENV': break;
 	default: unset($GLOBALS[$k]);
 }
 
