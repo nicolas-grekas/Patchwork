@@ -87,7 +87,7 @@ class LIB
 
 		$str = '' === $delimiter ? preg_quote($str) : preg_quote($str, $delimiter);
 
-		$str = preg_replace("/['’]/u", "['’]", $str);
+		$str = preg_replace("/['’ʿ]/u", "['’ʿ]", $str);
 		$str = preg_replace("'[- _]'u", '[- _]', $str);
 		$str = preg_replace(self::$ACCENT_FROM, self::$ACCENT_TO, $str);
 

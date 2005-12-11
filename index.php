@@ -43,8 +43,11 @@ error_log = c:/windows/temp/php.log
 magic_quotes_gpc = Off
 magic_quotes_runtime = Off
 
-variables_order = "SGPC"
+variables_order = "ESCPG"
+register_globals = Off
+register_long_arrays = Off
 register_argc_argv = Off
+auto_globals_jit = On
 
 session.auto_start = 0
 zlib.output_compression = Off
@@ -61,7 +64,7 @@ mbstring.http_output = pass
 mbstring.substitute_character = none
 
 ;String's functions overloading prevents binary use of a string, so use mb_* functions instead
-mbstring.func_overload = 1
+mbstring.func_overload = 0
 
 */
 

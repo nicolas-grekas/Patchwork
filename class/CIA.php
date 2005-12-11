@@ -589,7 +589,7 @@ class loop
 					$data = (object) $data;
 					$i = 0;
 					$len = count($this->renderer);
-					while ($i<$len) $data = (object) call_user_func($this->renderer[$i++], $data);
+					while ($i<$len) $data = (object) call_user_func($this->renderer[$i++], $data, $this);
 
 					if (CIA_SERVERSIDE && !$this->cache) $this->cache = 1;
 					if ($this->cache) $this->cacheData[] = $data;
