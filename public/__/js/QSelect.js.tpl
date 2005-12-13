@@ -1,7 +1,7 @@
 function QSelectPrint($id, $attribute)
 {
 	document.write(
-		'<div id="_d1' + $id + '" style="position:absolute;visibility:hidden;z-index:9">'
+		'<div id="_d1' + $id + '" style="position:absolute;display:none;visibility:hidden;z-index:9">'
 			+'<div id="_d2' + $id + '" style="position:absolute">'
 				+'<img src="QSelect/tr.png" width="5" height="10"><br>'
 				+'<img src="QSelect/r.png" width="5" height="5" id="_i1' + $id + '"><br>'
@@ -202,7 +202,7 @@ return function($input, $callback, $autohide)
 		$div = $getById('_d1'+$id),
 		$imgH = $getById('_i1'+$id),
 		$imgW = $getById('_i2'+$id),
-		$imgB = $getById('_i3'+$id),
+		$imgB = $getById('_i3'+$id) || {},
 		$divH = $getById('_d2'+$id),
 		$divW = $getById('_d3'+$id),
 
