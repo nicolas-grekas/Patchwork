@@ -46,6 +46,31 @@ function $setTimeout($function, $timeout, $i)
 	}
 }
 
+function $getCaretPos($input)
+{
+	var $i, $caretPos = $input.selectionStart;
+
+	if (document.selection)
+	{
+		$caretPos = document.selection.createRange();
+		try
+		{
+			$i = $caretPos.duplicate();
+			$i.moveToElementText($input);
+		}
+		catch ($i)
+		{
+			$i = $input.createTextRange();
+		}
+
+		$i.setEndPoint('EndToStart', $caretPos);
+
+		$caretPos = $i.text.length;
+	}
+
+	return $caretPos;
+}
+
 function $onfocus()
 {
 	this.$focus = 1;
@@ -83,7 +108,7 @@ function $onchange2()
 function $onmouseup($e)
 {
 	var $select = this,
-		$this = $get($select),
+		$this = $get($select);
 
 	$e = $e || event;
 	if (!$e.srcElement && $e.target && 'SELECT'==$e.target.tagName) return;
@@ -101,25 +126,7 @@ function $onkeyup($e)
 {
 	var $this = $get(this),
 		$keyupid = $this.$lastKeyupid, $i,
-		$caretPos = this.selectionStart;
-
-	if (document.selection)
-	{
-		$caretPos = document.selection.createRange();
-		try
-		{
-			$i = $caretPos.duplicate();
-			$i.moveToElementText(this);
-		}
-		catch ($i)
-		{
-			$i = this.createTextRange();
-		}
-
-		$i.setEndPoint('EndToStart', $caretPos);
-
-		$caretPos = $i.text.length;
-	}
+		$caretPos = $getCaretPos(this);
 
 	$e = ($e || event).keyCode;
 
