@@ -71,6 +71,22 @@ function $getCaretPos($input)
 	return $caretPos;
 }
 
+function $setSelection($input, $selectionStart, $selectionEnd)
+{
+	if ($input.setSelectionRange) $input.setSelectionRange($selectionStart, $selectionEnd);
+	else if ($input.createTextRange)
+	{
+		$input = $input.createTextRange();
+		$input.collapse(true);
+		$input.moveEnd('character', $selectionEnd);
+		$input.moveStart('character', $selectionStart);
+		$input.select();
+	}
+	else return 0;
+
+	return 1;
+}
+
 function $onfocus()
 {
 	this.$focus = 1;
@@ -102,7 +118,7 @@ function $onchange()
 
 function $onchange2()
 {
-	$get(this).$setValue(this.selectedIndex)
+	$get(this).$setValue()
 }
 
 function $onmouseup($e)
@@ -114,11 +130,7 @@ function $onmouseup($e)
 	if (!$e.srcElement && $e.target && 'SELECT'==$e.target.tagName) return;
 	$setTimeout(function()
 	{
-		if ($select.selectedIndex!=-1)
-		{
-			$this.$setValue($select.selectedIndex);
-			$this.$hide();
-		}
+		if ($this.$setValue()) $this.$hide();
 	}, 1);
 }
 
@@ -163,7 +175,7 @@ function $onkeydown($e)
 
 		if ('visible'==$this.$div.style.visibility)
 		{
-			if ( $select.selectedIndex!=-1 ) $this.$setValue( $select.selectedIndex );
+			$this.$setValue();
 			$this.$hide();
 			if (13==$e) return false;
 		}
@@ -267,16 +279,7 @@ return function($input, $callback, $autohide)
 
 			$this.$value = $input.value = $displayedValue;
 
-			if ($input.setSelectionRange) $input.setSelectionRange($selectionStart, $selectionLength);
-			else if ($input.createTextRange)
-			{
-				$i = $input.createTextRange();
-				$i.collapse(true);
-				$i.moveEnd('character', $selectionLength);
-				$i.moveStart('character', $selectionStart);
-				$i.select();
-			}
-			else
+			if (!$setSelection($input, $selectionStart, $selectionLength))
 			{
 				$this.$value = $input.value = $displayedValue.substr(0, $selectionStart);
 				if ($this.$value != $this.$listedValue) $this.$listedValue = '';
@@ -359,11 +362,20 @@ return function($input, $callback, $autohide)
 		$form.precheck = 0;
 	}
 
-	$this.$setValue = function($idx)
+	$this.$setValue = function()
 	{
-		$input.value = $this.$value = $this.$listedValue = $options[$idx].text;
-		$input.select();
-		$input.focus();
+		var $idx = $select.selectedIndex;
+
+		if ($idx>=0)
+		{
+			$input.value = $this.$value = $this.$listedValue = $options[$idx].text;
+			$input.select();
+			$input.focus();
+
+			return 1;
+		}
+
+		return 0;
 	}
 
 	$imgB.$onmousedown = $imgB.onmousedown;
