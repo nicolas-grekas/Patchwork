@@ -65,6 +65,11 @@ class CIA
 	 */
 	public static function redirect($url = '', $exit = true)
 	{
+		if ($url instanceof agent)
+		{
+			$url = 'dispatch?src=' . substr(get_class($url), 6);
+		}
+
 		$url = (string) $url;
 
 		self::$redirectUrl = $url === '' ? '' : (preg_match("'^([^:/]+:/|\.+)?/'i", $url) ? $url : (CIA_ROOT . $url) );
