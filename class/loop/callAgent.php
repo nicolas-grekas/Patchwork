@@ -41,7 +41,8 @@ class loop_callAgent extends loop
 					$this->data->{'*k'} = "[$a]";
 				}
 			}
-			return $this->data;
+
+			return clone $this->data;
 		}
 		else
 		{
