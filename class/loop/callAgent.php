@@ -42,7 +42,7 @@ class loop_callAgent extends loop
 				}
 			}
 
-			return clone $this->data;
+			return $this->data;
 		}
 		else
 		{

@@ -31,7 +31,6 @@ class IA_php
 			while ($i =& $agent->render()) $data =& $i;
 
 			$agent = $data->{'*a'};
-			unset($data->{'*a'});
 
 			IA::escape($data);
 			foreach ($data as $k => $v) $args[$k] = $v;
