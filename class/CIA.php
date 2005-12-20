@@ -554,70 +554,32 @@ class loop
 	private $loopLength = false;
 	private $renderer = array();
 
-	private $cache = 0;
-	private $cacheData = array();
-
 	protected function prepare() {}
 	protected function next() {}
 
-	public function loop()
-	{
-		$this->cache = 1;
-		while ($this->render());
-
-		return $this;
-	}
-
 	final public function &render()
 	{
-		if (2 == $this->cache)
-		{
-			if (list(,$data) = each($this->cacheData)) $data = clone $data;
-			else
-			{
-				$data = false;
-				reset($this->cacheData);
-			}
-		}
+		CIA::$catchMeta = true;
+
+		if ($this->loopLength === false) $this->loopLength = (int) $this->prepare();
+
+		if (!$this->loopLength) $data = false;
 		else
 		{
-			CIA::$catchMeta = true;
-
-			if ($this->loopLength === false) $this->loopLength = (int) $this->prepare();
-
-			if (!$this->loopLength) $data = false;
-			else
+			$data = $this->next();
+			if ($data || is_array($data))
 			{
-				$data = $this->next();
-				if ($data || is_array($data))
-				{
-					$data = (object) $data;
-					$i = 0;
-					$len = count($this->renderer);
-					while ($i<$len) $data = (object) call_user_func($this->renderer[$i++], $data, $this);
-
-					if (CIA_SERVERSIDE && !$this->cache) $this->cache = 1;
-					if ($this->cache) $this->cacheData[] = $data;
-
-					$data = clone $data;
-				}
-				else
-				{
-					$this->loopLength = false;
-
-					if ($this->cache)
-					{
-						$this->cache = 2;
-						reset($this->cacheData);
-					}
-				}
+				$data = (object) $data;
+				$i = 0;
+				$len = count($this->renderer);
+				while ($i<$len) $data = (object) call_user_func($this->renderer[$i++], $data, $this);
 			}
+			else $this->loopLength = false;
 
 			CIA::$catchMeta = false;
 		}
 
-		if ($data && $this->cache) return clone $data;
-		else return $data;
+		return $data;
 	}
 
 	final public function addRenderer($renderer) {if ($renderer) $this->renderer[] = $renderer;}
