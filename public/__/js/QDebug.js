@@ -1,6 +1,6 @@
 function E($v, $max_depth, $level)
 {
-	$max_depth = t($max_depth) ? $max_depth : E.max_depth;
+	$max_depth = typeof $max_depth != 'undefined' ? $max_depth : E.max_depth;
 	$level = $level || 0;
 
 	function o($str, $r)
