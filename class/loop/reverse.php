@@ -15,8 +15,6 @@ class loop_reverse extends loop_array
 
 		while ($a = $loop->render())
 		{
-			$a = clone $a;
-
 			foreach ($a as $k => $v) if ($v instanceof loop) $a->$k = new loop_array($this->getArray($v), 'render_rawArray');
 
 			$unshift ? array_unshift($array, $a) : ($array[] = $a);
