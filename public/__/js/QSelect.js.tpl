@@ -171,7 +171,7 @@ function $onkeydown($e)
 
 	if (13==$e || 9==$e)
 	{
-		$this.$value = $this.$input.value = $this.$listedValue;
+		if ($this.$listedValue || $this.$input.lock) $this.$value = $this.$input.value = $this.$listedValue;
 
 		if ('visible'==$this.$div.style.visibility)
 		{
