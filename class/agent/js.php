@@ -37,7 +37,7 @@ class agent_js extends agent_bin
 		$g->__AGENT__ = str_replace('_', '/', substr(get_class($this), 6)) . '/';
 		$g->__HOST__ = htmlspecialchars('http' . (@$_SERVER['HTTPS']?'s':'') . '://' . @$_SERVER['HTTP_HOST']);
 
-		$parser = new iaCompiler_php;
+		$parser = new iaCompiler_php(true);
 		ob_start();
 		eval($parser->compile($js . '.tpl'));
 

@@ -6,6 +6,8 @@ class CIA
 	public static $catchMeta = false;
 	public static $handlesOb = false;
 
+	public static $binaryMode = false;
+
 	protected static $metaInfo;
 	protected static $metaPool = array();
 
@@ -302,14 +304,14 @@ class CIA
 		return $agent == '' ? 'agent_index' : preg_replace("'[^a-zA-Z\d]+'u", '_', "agent_$agent");
 	}
 
-	public static function agentCache($agentClass, $keys)
+	public static function agentCache($agentClass, $keys, $type)
 	{
 		$cagent = '_';
 		foreach ($keys as $key => $value) $cagent .= '&' . rawurlencode($key) . '=' . rawurlencode($value);
 
 		self::$agentClass = $agentClass = str_replace('_', '/', $agentClass);
 
-		return self::makeCacheDir($agentClass . '/_/', CIA_SERVERSIDE ? 'php.php' : 'js.php', $cagent);
+		return self::makeCacheDir($agentClass . '/_/', $type . '.php', $cagent);
 	}
 
 	public static function delCache()

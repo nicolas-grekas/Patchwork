@@ -23,7 +23,7 @@ class IA_php
 			self::$get->__AGENT__ = htmlspecialchars($agent) . ('' !== $agent ? '/' : '');
 			self::$get->__HOST__ = htmlspecialchars('http' . (@$_SERVER['HTTPS']?'s':'') . '://' . @$_SERVER['HTTP_HOST']);
 
-			if (!CIA_BINARY) CIA::setPrivate(true);
+			if (!CIA::$binaryMode) CIA::setPrivate(true);
 		}
 
 		if ($agent instanceof loop && CIA::string($agent))
@@ -51,7 +51,7 @@ class IA_php
 		$agentClass = CIA::agentClass($agent);
 		$agent = class_exists($agentClass) ? new $agentClass($_GET) : new agentTemplate_(array('template' => $agent));
 
-		$cagent = CIA::agentCache($agentClass, $agent->argv);
+		$cagent = CIA::agentCache($agentClass, $agent->argv, 'php');
 		$rendered = false;
 
 		if (isset(self::$cache[$cagent]))
@@ -90,7 +90,7 @@ class IA_php
 		{
 			if (!file_exists($ctemplate))
 			{
-				$compiler = new iaCompiler_php;
+				$compiler = new iaCompiler_php($agent->binary);
 				$ftemplate = '<?php function ' . $ftemplate . '(&$v, &$a, &$g){' . $compiler->compile($template . '.tpl') . '} ' . $ftemplate . '($v, $a, $g);';
 				CIA::writeFile($ctemplate,  $ftemplate);
 				CIA::writeWatchTable(array('public/templates'), $ctemplate);
@@ -106,7 +106,7 @@ class IA_php
 
 		if ($rendered)
 		{
-			$cagent = CIA::agentCache($agentClass, $agent->argv);
+			$cagent = CIA::agentCache($agentClass, $agent->argv, 'php');
 
 			if (!CIA_POSTING && !$private && ($maxage || ('ontouch' == $expires && $watch)))
 			{
@@ -187,7 +187,7 @@ class IA_php
 
 	public static function escape(&$object)
 	{
-		if (!CIA_BINARY) foreach ($object as $k => $v) if (is_string($v)) $object->$k = htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
+		foreach ($object as $k => $v) if (is_string($v)) $object->$k = htmlspecialchars($v);
 	}
 }
 

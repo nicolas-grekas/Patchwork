@@ -2,6 +2,7 @@
 
 class iaCompiler_php extends iaCompiler
 {
+	protected $serverMode = true;
 	protected $setStack = array();
 
 	protected function makeCode(&$code)
@@ -14,7 +15,7 @@ class iaCompiler_php extends iaCompiler
 			implode($a, $code)
 		);
 
-		return 'IA_php::escape($v);' . $code;
+		return ( $this->binaryMode ? '' : 'IA_php::escape($v);' ) . $code;
 	}
 
 
@@ -72,7 +73,9 @@ class iaCompiler_php extends iaCompiler
 		{
 			$this->pushCode(
 				 'unset($p);if('.$var.' instanceof loop&&CIA::string($v->{"p$"}=&'.substr($var, 1).')&&($p=(object)array("$"=>&$v))&&$v=&$p)'
-				 .'while(($p=&$v->{"$"}&&$v=$p->{"p$"}->render())||($v=&$p&&0)){IA_php::escape($v);$v->{"$"}=&$p;'
+				 .'while(($p=&$v->{"$"}&&$v=$p->{"p$"}->render())||($v=&$p&&0)){'
+				 .( $this->binaryMode ? '' : 'IA_php::escape($v);' )
+				 .'$v->{"$"}=&$p;'
 			);
 		}
 

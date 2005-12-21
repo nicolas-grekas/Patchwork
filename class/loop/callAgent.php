@@ -25,21 +25,16 @@ class loop_callAgent extends loop
 				$this->data = $this->get();
 				$this->data->{'*a'} = $this->agent;
 
-				if (!CIA_SERVERSIDE)
+				if (!isset($this->keys))
 				{
-					if (!isset($this->keys))
-					{
-						$a = CIA::agentClass($this->agent);
-						$a = get_class_vars($a);
-						$a = (array) $a['argv'];
-					}
-					else $a = $this->keys;
-
+					$a = CIA::agentClass($this->agent);
+					$a = get_class_vars($a);
+					$a = (array) $a['argv'];
 					$a = array_map(array('IA','formatJs'), $a);
-					$a = implode(',', $a);
 
-					$this->data->{'*k'} = "[$a]";
+					$this->data->{'*k'} = '[' . implode(',', $a) . ']';
 				}
+				else $this->data->{'*k'} = $this->keys;
 			}
 
 			return $this->data;

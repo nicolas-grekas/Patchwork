@@ -34,9 +34,12 @@ abstract class iaCompiler
 	private $blockStack = array();
 
 	protected $mode = 'echo';
+	protected $binaryMode = true;
+	protected $serverMode = true;
 
-	public function __construct()
+	public function __construct($binaryMode)
 	{
+		$this->binaryMode = $binaryMode;
 		$this->Xvar .= $this->XpureVar;
 
 		$dnum = '(?:(?:\d*\.\d+)|(?:\d+\.\d*))';
@@ -75,7 +78,7 @@ abstract class iaCompiler
 
 	protected function preprocessing($source)
 	{
-		if (CIA_BINARY)
+		if ($this->binaryMode)
 		{
 			$source = str_replace(
 				array("-->\r", "-->\n"),
@@ -102,7 +105,7 @@ abstract class iaCompiler
 		$source = @file_get_contents('public/' . CIA_LANG . "/$template", true);
 		if ($source === false) $source = file_get_contents("public/__/$template", true);
 
-		if (CIA_SERVERSIDE)
+		if ($this->serverMode)
 		{
 			$source = preg_replace("'<!--\s+CLIENTSIDE\s+-->.*?<!--\s+END:CLIENTSIDE\s+-->'su", '', $source);
 			$source = preg_replace("'<!--\s+(END:)?SERVERSIDE\s+-->'su", '', $source);
@@ -183,7 +186,7 @@ abstract class iaCompiler
 
 	private function filter($a)
 	{
-		return CIA_BINARY ? $a : preg_replace("/\s{2,}/seu", 'mb_strpos(\'$0\', "\n")===false ? " " : "\n"', $a);
+		return $this->binaryMode ? $a : preg_replace("/\s{2,}/seu", 'mb_strpos(\'$0\', "\n")===false ? " " : "\n"', $a);
 	}
 
 	private function makeBlocks($a)
@@ -472,7 +475,7 @@ abstract class iaCompiler
 			}
 
 			$a = implode($a);
-			return CIA_SERVERSIDE ? "@($a)": $a;
+			return $this->serverMode ? "@($a)": $a;
 		}
 
 		return $this->makeVar($a, $forceType);

@@ -24,7 +24,7 @@ class debug_CIA extends CIA
 	public function &ob_handler(&$buffer)
 	{
 		CIA::$handlesOb = true;
-		if (!CIA_BINARY) $buffer = $this->error_end(substr(trim($buffer), 0, 1)) . $buffer;
+		if (!CIA::$binaryMode) $buffer = $this->error_end(substr(trim($buffer), 0, 1)) . $buffer;
 		return parent::ob_handler($buffer);
 	}
 
