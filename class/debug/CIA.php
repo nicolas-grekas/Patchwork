@@ -23,8 +23,8 @@ class debug_CIA extends CIA
 
 	public function &ob_handler(&$buffer)
 	{
-		CIA::$handlesOb = true;
-		if (!CIA::$binaryMode) $buffer = $this->error_end(substr(trim($buffer), 0, 1)) . $buffer;
+		self::$handlesOb = true;
+		if (!self::$binaryMode) $buffer = $this->error_end(substr(trim($buffer), 0, 1)) . $buffer;
 		return parent::ob_handler($buffer);
 	}
 
@@ -39,7 +39,6 @@ class debug_CIA extends CIA
 	{
 		static $prev_time = CIA;
 		$this->total_time += $a = 1000*(microtime(true) - $prev_time);
-
 
 		if ($is_end) $a = sprintf('Total: %.02f ms</pre><pre>', $this->total_time);
 		else if (self::$handlesOb) $a = sprintf('%.02f ms: ', $a) . (string) $message . "\n";

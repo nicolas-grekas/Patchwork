@@ -328,11 +328,13 @@ else
 	$a = CIA::agentClass($agent);
 	$a = get_class_vars($a);
 
-	CIA::$binaryMode = $binaryMode = (bool) $a['binary'];
+	$binaryMode = (bool) $a['binary'];
+	CIA::setBinaryMode($binaryMode);
 
 	if (CIA_POSTING || $binaryMode || isset($_GET['$bin']) || !@$_COOKIE['JS'])
 	{
 		class IA extends IA_php {};
+		if (!$binaryMode) CIA::setPrivate(true);
 	}
 	else
 	{
