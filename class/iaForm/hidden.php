@@ -211,7 +211,7 @@ class iaForm_hidden extends loop_callAgent
 	protected function get()
 	{
 		$this->agent = 'form/input';
-		$this->keys = array();
+		$this->keys = '[]';
 
 		$a = (object) array(
 			'_type' => $this->type,

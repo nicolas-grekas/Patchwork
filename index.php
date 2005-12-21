@@ -236,9 +236,6 @@ if (!extension_loaded('mbstring')) require 'mbstring.php';
 
 if (CIA_DIRECT)
 {
-	define('CIA_SERVERSIDE', false);
-	define('CIA_BINARY', false);
-
 	CIA::header('Content-Type: text/javascript; charset=UTF-8');
 
 	switch(key($_GET))
@@ -255,7 +252,7 @@ if (CIA_DIRECT)
 			if (file_exists($ctemplate)) readfile($ctemplate);
 			else
 			{
-				$compiler = new iaCompiler_js;
+				$compiler = new iaCompiler_js(false);
 				echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
 				CIA::writeFile($ctemplate, $template);
 				CIA::writeWatchTable(array('public/templates'), $ctemplate);
@@ -331,17 +328,15 @@ else
 	$a = CIA::agentClass($agent);
 	$a = get_class_vars($a);
 
-	define('CIA_BINARY', $a['binary'] ? 1 : 0);
+	CIA::$binaryMode = $binaryMode = (bool) $a['binary'];
 
-	if (CIA_POSTING || CIA_BINARY || isset($_GET['$bin']) || !@$_COOKIE['JS'])
+	if (CIA_POSTING || $binaryMode || isset($_GET['$bin']) || !@$_COOKIE['JS'])
 	{
 		class IA extends IA_php {};
-		define('CIA_SERVERSIDE', true);
 	}
 	else
 	{
 		class IA extends IA_js {};
-		define('CIA_SERVERSIDE', false);
 	}
 
 	/*
@@ -351,7 +346,7 @@ else
 	 * when the cache is detected stale by the browser.
 	 */
 	if (
-		!CIA_BINARY
+		!$binaryMode
 		&& 'no-cache' == @$_SERVER['HTTP_CACHE_CONTROL']
 		&& 0 === strpos(@$_SERVER['HTTP_USER_AGENT'], 'Mozilla') )
 	{

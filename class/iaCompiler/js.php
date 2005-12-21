@@ -13,6 +13,7 @@ define('pC_NEXT',	'9');
 
 class iaCompiler_js extends iaCompiler
 {
+	protected $serverMode = false;
 	protected $setStack = array();
 	protected $stack = array();
 

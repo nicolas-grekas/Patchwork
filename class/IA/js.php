@@ -38,7 +38,7 @@ class IA_js
 		$agentClass = CIA::agentClass($agent);
 		$agent = class_exists($agentClass) ? new $agentClass($_GET) : new agentTemplate_(array('template' => $agent));
 
-		$cagent = CIA::agentCache($agentClass, $agent->argv);
+		$cagent = CIA::agentCache($agentClass, $agent->argv, 'js');
 		if (file_exists($cagent) && filemtime($cagent)>CIA_TIME)
 		{
 			require $cagent;
@@ -73,7 +73,7 @@ class IA_js
 			if (file_exists($ctemplate)) readfile($ctemplate);
 			else
 			{
-				$compiler = new iaCompiler_js;
+				$compiler = new iaCompiler_js($agent->binary);
 				echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
 				CIA::writeFile($ctemplate, $template);
 				CIA::writeWatchTable(array('public/templates'), $ctemplate);
@@ -83,7 +83,7 @@ class IA_js
 
 		if (!$private && ($maxage || ('ontouch' == $expires && $watch)))
 		{
-			$cagent = CIA::agentCache($agentClass, $agent->argv);
+			$cagent = CIA::agentCache($agentClass, $agent->argv, 'js');
 			$data = '<?php echo ' . var_export(ob_get_flush(), true)
 				. ';CIA::setMaxage(' . (int) $maxage . ');'
 				. ('ontouch' != $expires ? 'CIA::setExpires("onmaxage");' : '')

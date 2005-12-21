@@ -1,8 +1,5 @@
 <?php
 
-define('CIA_BINARY', 1);
-define('CIA_SERVERSIDE', 1);
-
 $path1 = explode(PATH_SEPARATOR, get_include_path());
 $len = count($path1);
 
