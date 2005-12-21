@@ -4,10 +4,9 @@ class CIA
 {
 	public static $agentClass;
 	public static $catchMeta = false;
-	public static $handlesOb = false;
 
-	public static $binaryMode = false;
-
+	protected static $handlesOb = false;
+	protected static $binaryMode = false;
 	protected static $metaInfo;
 	protected static $metaPool = array();
 
@@ -103,6 +102,11 @@ class CIA
 		else self::$metaInfo = null;
 
 		return $poped;
+	}
+
+	public static function setBinaryMode($binaryMode)
+	{
+		self::$binaryMode = $binaryMode;
 	}
 
 	/**

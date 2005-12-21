@@ -22,8 +22,6 @@ class IA_php
 			self::$get->__LANG__ = htmlspecialchars(CIA_LANG);
 			self::$get->__AGENT__ = htmlspecialchars($agent) . ('' !== $agent ? '/' : '');
 			self::$get->__HOST__ = htmlspecialchars('http' . (@$_SERVER['HTTPS']?'s':'') . '://' . @$_SERVER['HTTP_HOST']);
-
-			if (!CIA::$binaryMode) CIA::setPrivate(true);
 		}
 
 		if ($agent instanceof loop && CIA::string($agent))
