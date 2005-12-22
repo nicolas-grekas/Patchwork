@@ -8,7 +8,7 @@ class IA_php
 
 	protected static $cache = array();
 
-	public static function loadAgent($agent, $args = false)
+	public static function loadAgent($agent, $args)
 	{
 		if ($args === false)
 		{

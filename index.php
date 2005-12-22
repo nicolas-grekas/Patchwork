@@ -360,7 +360,7 @@ else
 		CIA::delCache();
 	}
 	
-	IA::loadAgent($agent);
+	IA::loadAgent($agent, false);
 }
 
 exit;
