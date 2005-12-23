@@ -93,7 +93,7 @@ class VALIDATE
 		return $result;
 	}
 
-	# no args
+	# (bool) international
 	private static function get_phone(&$value, &$args)
 	{
 		if (!is_scalar($value)) return false;
@@ -102,6 +102,7 @@ class VALIDATE
 		$r = preg_replace("'^00'u", '+', $r);
 
 		if (!preg_match("'^\+?[0-9]{4,}$'u", $r)) return false;
+		if (@$args[0] && strpos($r, '+')!==0) return false;
 
 		return $r;
 	}
