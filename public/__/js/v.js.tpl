@@ -50,8 +50,8 @@ valid_email = function ($value, $args)
 
 valid_phone = function($value, $args)
 {
-	$value = $value.replace(/[^+0-9]+/, '').replace(/^00/, '+');
-	return -1 != $value.search(/^\+?[0-9]{4,}$/);
+	$value = $value.replace(/[^+0-9]+/g, '').replace(/^00/, '+');
+	return -1 != $value.search(/^\+?[0-9]{4,}$/) && (!$args[0] || $value.indexOf('+')==0);
 }
 
 valid_date = function($value, $args)
