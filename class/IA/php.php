@@ -80,7 +80,7 @@ class IA_php
 
 		self::$values = $v;
 
-		$ctemplate = './tmp/cache/' . CIA_LANG . "/templates/$template" . ($agent->binary ? '.bin' : '') . '.php';
+		$ctemplate = './tmp/cache/' . CIA_LANG . "/templates/$template" . ($agent->binary ? '.bin' : '.html') . '.php';
 		$ftemplate = 'template' . md5($ctemplate);
 
 		if (function_exists($ftemplate)) $ftemplate($v, $a, $g);
