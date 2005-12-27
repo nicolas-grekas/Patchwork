@@ -6,7 +6,7 @@ $CONFIG += array(
 	'lang_list' => 'en|fr|de|es|pt|ru|it|gr',
 	'secret' => '',
 	'pear_path' => 'C:/Program Files/Wamp/php/PEAR',
-//	'pear_path' => '/usr/local/lib/php',
+//	'pear_path' => '/usr/share/php',
 	'DSN' => '',
 
 	'translate_driver' => 'default_',
@@ -132,6 +132,7 @@ if (@$_SERVER['HTTP_IF_NONE_MATCH']{0} == '/' && preg_match("'^/[0-9a-f]{32}-([0
 	{
 		header('HTTP/1.x 304 Not Modified');
 		header('Content-Length: 0');
+		header('Content-Type:');
 		if ($cache)
 		{
 			$cache = explode("\n", $cache, 3);
@@ -139,6 +140,7 @@ if (@$_SERVER['HTTP_IF_NONE_MATCH']{0} == '/' && preg_match("'^/[0-9a-f]{32}-([0
 			header('Cache-Control: max-age=' . $cache[0] . ((int) $cache[1] ? ',private,must' : ',public,proxy') . '-revalidate');
 			if (@$cache[2]) header($cache[2]);
 		}
+
 		exit;
 	}
 }
