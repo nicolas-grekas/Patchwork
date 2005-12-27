@@ -478,6 +478,8 @@ class CIA
 			if ($is304)
 			{
 				header('HTTP/1.x 304 Not Modified');
+				header('Content-Type:');
+
 				$buffer = '';
 			}
 		}
@@ -565,6 +567,7 @@ class loop
 
 	final public function &render()
 	{
+		$catchMeta = CIA::$catchMeta;
 		CIA::$catchMeta = true;
 
 		if ($this->loopLength === false) $this->loopLength = (int) $this->prepare();
@@ -581,9 +584,9 @@ class loop
 				while ($i<$len) $data = (object) call_user_func($this->renderer[$i++], $data, $this);
 			}
 			else $this->loopLength = false;
-
-			CIA::$catchMeta = false;
 		}
+
+		CIA::$catchMeta = $catchMeta;
 
 		return $data;
 	}
@@ -592,11 +595,12 @@ class loop
 	
 	final public function __toString()
 	{
+		$catchMeta = CIA::$catchMeta;
 		CIA::$catchMeta = true;
 
 		if ($this->loopLength === false) $this->loopLength = $this->prepare();
 
-		CIA::$catchMeta = false;
+		CIA::$catchMeta = $catchMeta;
 
 		return (string) $this->loopLength;
 	}
