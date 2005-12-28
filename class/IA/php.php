@@ -8,11 +8,11 @@ class IA_php
 
 	protected static $cache = array();
 
-	public static function loadAgent($agent, $args)
+	public static function loadAgent($agent, $args = array())
 	{
-		if ($args === false)
+		if (!isset(self::$args))
 		{
-			$args =& $_GET;
+			if (false===$args) $args =& $_GET;
 
 			self::$get = (object) array_map('htmlspecialchars', $_GET);
 			self::$get->__QUERY__ = '?' . htmlspecialchars($_SERVER['QUERY_STRING']);
