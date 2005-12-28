@@ -73,7 +73,7 @@ class CIA
 
 		$url = (string) $url;
 
-		self::$redirectUrl = $url === '' ? '' : (preg_match("'^([^:/]+:/|\.+)?/'i", $url) ? $url : (CIA_ROOT . $url) );
+		self::$redirectUrl = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'i", $url) ? $url : (CIA_ROOT . ('index' == $url ? '' : $url)));
 
 		if ($exit) exit;
 	}
