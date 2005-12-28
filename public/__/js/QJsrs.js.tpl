@@ -111,7 +111,7 @@ return function($URL, $POST)
 		$function = $function || function(){};
 
 		$url = '';
-		for ($i in $vararray) $url += '&' + eUC($i) + '=' + eUC($vararray[$i]); // Be aware that Konqueror's for(..in..) loop does not preserve the order of declaration
+		for ($i in $vararray) $url += '&' + eUC($i) + '=' + eUC($vararray[$i]); // Be aware that Konquerors for(..in..) loop does not preserve the order of declaration
 		$url = [$URL, $url, $vararray];
 
 		if ($context) $pool[$poolLen++] = [$url, $function];
