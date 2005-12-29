@@ -499,7 +499,7 @@ class CIA
 	}
 }
 
-class agent
+class agent_
 {
 	public $argv = array();
 	public $binary = false;
@@ -538,7 +538,7 @@ class agent
 	}
 }
 
-class agentTemplate_ extends agent
+class agentTemplate_ extends agent_
 {
 	public $argv = array('template');
 
