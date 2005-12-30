@@ -43,7 +43,7 @@ error_log = c:/windows/temp/php.log
 magic_quotes_gpc = Off
 magic_quotes_runtime = Off
 
-variables_order = "ESCPG"
+variables_order = "GPCES"
 register_globals = Off
 register_long_arrays = Off
 register_argc_argv = Off
