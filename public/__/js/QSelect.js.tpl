@@ -27,6 +27,7 @@ function QSelectPrint($id, $attribute)
 QSelect = window.QSelect || (function()
 {
 goQSelect = [];
+
 var $QSelect = {},
 	$goSelectId = 0,
 	$selectRange;
@@ -46,79 +47,29 @@ function $setTimeout($function, $timeout, $i)
 	}
 }
 
-function $getCaretPos($input)
-{
-	var $i, $caretPos = $input.selectionStart;
-
-	if (document.selection)
-	{
-		$caretPos = document.selection.createRange();
-		try
-		{
-			$i = $caretPos.duplicate();
-			$i.moveToElementText($input);
-		}
-		catch ($i)
-		{
-			$i = $input.createTextRange();
-		}
-
-		$i.setEndPoint('EndToStart', $caretPos);
-
-		$caretPos = $i.text.length;
-	}
-
-	return $caretPos;
-}
-
-function $setSelection($input, $selectionStart, $selectionEnd)
-{
-	if ($input.setSelectionRange) $input.setSelectionRange($selectionStart, $selectionEnd);
-	else if ($input.createTextRange)
-	{
-		$input = $input.createTextRange();
-		$input.collapse(true);
-		$input.moveEnd('character', $selectionEnd);
-		$input.moveStart('character', $selectionStart);
-		$input.select();
-	}
-	else return 0;
-
-	return 1;
-}
-
-function $onfocus()
+function $onfocus($this)
 {
 	this.$focus = 1;
 	this.form.$QSelectId = this.$QSelectId;
-	$get(this).$lastFocused = this;
+
+	$this = $get(this);
+	$this.$lastFocused = this;
+	$this.$select.onchange = $this.$onchange;
 }
 
-function $onblur()
+function $onblur($this)
 {
 	this.$focus = 0;
 
-	var $this = $get(this);
-
+	$this = $get(this);
 	$this.$lastFocused = 0;
+	$this.$select.onchange = null;
 
 	$setTimeout(function()
 	{
 		if (!$this.$lastFocused) $this.$hide();
-		if ($this.$listedValue || $this.$input.lock) $this.$value = $this.$input.value = $this.$listedValue;
+		$this.sync($this.$listedValue, 1);
 	}, 1);
-}
-
-function $onchange()
-{
-	var $input = $get(this).$input;
-	$input.select();
-	$input.focus();
-}
-
-function $onchange2()
-{
-	$get(this).$setValue()
 }
 
 function $onmouseup($e)
@@ -138,7 +89,7 @@ function $onkeyup($e)
 {
 	var $this = $get(this),
 		$keyupid = $this.$lastKeyupid, $i,
-		$caretPos = $getCaretPos(this);
+		$caretPos = getCaret(this);
 
 	$e = ($e || event).keyCode;
 
@@ -153,7 +104,7 @@ function $onkeyup($e)
 	{
 		if ($this.$lastKeyupid!=$keyupid) return;
 
-		$this.$callback($this.$value, $this.$onkeyup, $caretPos);
+		$this.$search($this.$value, $this.$onkeyup, $caretPos);
 	}, 200);
 }
 
@@ -171,13 +122,13 @@ function $onkeydown($e)
 
 	if (13==$e || 9==$e)
 	{
-		if ($this.$listedValue || $this.$input.lock) $this.$value = $this.$input.value = $this.$listedValue;
+		$this.sync($this.$listedValue, 1);
 
 		if ('visible'==$this.$div.style.visibility)
 		{
 			$this.$setValue();
 			$this.$hide();
-			if (13==$e) return false;
+			if (13==$e || $this.$fixTab) return false;
 		}
 	}
 	else if (27==$e || (8==$e && ''==$this.$value)) $this.$hide();
@@ -208,7 +159,7 @@ function $precheck()
 	return false;
 }
 
-return function($input, $callback, $autohide)
+return function($input, $driver)
 {
 	var $this = {},
 		$form = $input.form,
@@ -226,9 +177,13 @@ return function($input, $callback, $autohide)
 		$divW = $getById('_d3'+$id),
 
 		$options = $select.options,
-		$length = 0;
+		$length = 0,
+		
+		$driver = $driver($this, $input, $select, $options);
 
-	$this.$callback = $callback;
+	$this.$search = $driver.search;
+	$this.$setValue = $driver.setValue;
+	$this.$fixTab = $driver.fixTab;
 	$this.$value = $input.value;
 	$this.$listedValue = $input.value;
 	$this.$div = $div;
@@ -238,7 +193,7 @@ return function($input, $callback, $autohide)
 		$select.selectedIndex = -1;
 		$length = 0;
 
-		var $j = '[^' + ACCENT_ALPHANUM + ']',
+		var $j = '[^' + ACCENT_ALPHANUM + ']+',
 			$i = ACCENT.length - 1,
 			$query = $input.value;
 
@@ -250,7 +205,7 @@ return function($input, $callback, $autohide)
 			do $query = $query.replace(ACCENT_RX[$i], '['+ACCENT[$i]+']');
 			while (--$i);
 
-			$query = new RegExp('^' + $query.replace(/#/g, $j + '+'), 'i');
+			$query = new RegExp('^' + $query.replace(/#/g, $j), 'i');
 		}
 
 		for ($i in $result)
@@ -279,7 +234,7 @@ return function($input, $callback, $autohide)
 
 			$this.$value = $input.value = $displayedValue;
 
-			if (!$setSelection($input, $selectionStart, $selectionLength))
+			if (!setSel($input, $selectionStart, $selectionLength))
 			{
 				$this.$value = $input.value = $displayedValue.substr(0, $selectionStart);
 				if ($this.$value != $this.$listedValue) $this.$listedValue = '';
@@ -291,15 +246,14 @@ return function($input, $callback, $autohide)
 
 	$this.$select = $select;
 	$this.$input = $input;
+	$this.$onchange = $driver.onchange;
 	
 	$QSelect[$id] = $this;
 
 	$select.$QSelectId = $input.$QSelectId = $id;
 	$select.$isSelect = 1;
-
 	$select.onfocus = $input.onfocus = $onfocus;
 	$select.onblur = $input.onblur = $onblur;
-	$select.onchange = $autohide ? $onchange : $onchange2;
 	$select.onmouseup = $onmouseup;
 	$input.onkeyup = $onkeyup;
 	$input.onkeydown = $onkeydown;
@@ -307,7 +261,7 @@ return function($input, $callback, $autohide)
 
 	$this.$show = function()
 	{
-		if (!$autohide) return;
+		if ($driver.nohide) return;
 
 		if ($length>0)
 		{
@@ -349,7 +303,7 @@ return function($input, $callback, $autohide)
 
 	$this.$hide = function()
 	{
-		if (!$autohide) return;
+		if ($driver.nohide) return;
 
 		var $divStyle = $div.style;
 
@@ -360,22 +314,6 @@ return function($input, $callback, $autohide)
 		$divStyle.display = 'none';
 
 		$form.precheck = 0;
-	}
-
-	$this.$setValue = function()
-	{
-		var $idx = $select.selectedIndex;
-
-		if ($idx>=0)
-		{
-			$input.value = $this.$value = $this.$listedValue = $options[$idx].text;
-			$input.select();
-			$input.focus();
-
-			return 1;
-		}
-
-		return 0;
 	}
 
 	$imgB.$onmousedown = $imgB.onmousedown;
@@ -390,33 +328,67 @@ return function($input, $callback, $autohide)
 		$input.select();
 		$input.focus();
 
-		this.$QSelectVisible ? $this.$hide() : ($input.value ? $this.$show() : $this.$callback('*', $this.$onkeyup));
+		this.$QSelectVisible ? $this.$hide() : ($input.value ? $this.$show() : $this.$search('*', $this.$onkeyup));
 	}
 
 	$imgB = 0;
+
+	$this.sync = function($value, $onlock)
+	{
+		if (!$onlock || ($this.$listedValue || $input.lock))
+			$input.value = $this.$value = $this.$listedValue = $value;
+	}
 }
 })();
 
-function QSelectSearch($data)
+function QSelectSearch($data, $nohide)
 {
-	$data.length--;
+	if ($data && 0 == $data[$data.length-1] - 0) $data.length--;
 
-	return function($query, $pushBack)
+	return function($this, $input, $select, $options)
 	{
-		if ('*' == $query) return $pushBack($data);
+		return {
+			fixTab: 0,
+			nohide: $nohide,
 
-		var $result = [],
-			$i = 0,
-			$qLen = $query.length;
+			search: function($query, $pushBack)
+			{
+				if ('*' == $query) return $pushBack($data);
 
-		if ($query)
-		{
-			$query = RegExp.quote($query, 1);
-			$query = new RegExp(($qLen>1 ? '(^|[^0-9a-z'+ACCENT.join('')+'])' : '^') + $query, 'gi');
+				var $result = [],
+					$i = 0,
+					$qLen = $query.length;
 
-			for (; $i < $data.length; ++$i) if ($data[$i].search($query)>=0) $result[$result.length] = $data[$i];
-		}
+				if ($query)
+				{
+					$query = RegExp.quote($query, 1);
+					$query = new RegExp(($qLen>1 ? '(^|[^0-9a-z'+ACCENT.join('')+'])' : '^') + $query, 'gi');
 
-		$pushBack($result);
+					for (; $i < $data.length; ++$i) if ($data[$i].search($query)>=0) $result[$result.length] = $data[$i];
+				}
+
+				$pushBack($result);
+			},
+
+			onchange: $nohide
+				? function() {$this.$setValue()}
+				: function() {$input.select(); $input.focus()},
+			
+			setValue: function()
+			{
+				var $idx = $select.selectedIndex;
+
+				if ($idx>=0)
+				{
+					$this.sync($options[$idx].text);
+					$input.select();
+					$input.focus();
+
+					return 1;
+				}
+
+				return 0;
+			}
+		};
 	}
 }

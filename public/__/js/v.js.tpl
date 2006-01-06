@@ -122,6 +122,7 @@ function stripAccents($str, $case)
 	while ($i--) $str = $str.replace(ACCENT_RX[$i], ACCENT[$i].charAt(0));
 
 	$str = $str.replace(
+		/[\uCCA8\uCCB1]/g, '').replace(
 		/[ÆǼ]/g, 'AE').replace(
 		/[æǽ]/g, 'ae').replace(
 		/ß/g, 'ss').replace(
@@ -130,6 +131,52 @@ function stripAccents($str, $case)
 	);
 
 	return $case>0 ? $str.toUpperCase() : $case<0 ? $str.toLowerCase() : $str;
+}
+
+
+/*
+* Form's caret manipulation
+*/
+
+function getCaret($input)
+{
+	var $i, $caretPos = $input.selectionStart;
+
+	if (document.selection)
+	{
+		$caretPos = document.selection.createRange();
+		try
+		{
+			$i = $caretPos.duplicate();
+			$i.moveToElementText($input);
+		}
+		catch ($i)
+		{
+			$i = $input.createTextRange();
+		}
+
+		$i.setEndPoint('EndToStart', $caretPos);
+
+		$caretPos = $i.text.length;
+	}
+
+	return $caretPos;
+}
+
+function setSel($input, $selectionStart, $selectionEnd)
+{
+	if ($input.setSelectionRange) $input.setSelectionRange($selectionStart, $selectionEnd);
+	else if ($input.createTextRange)
+	{
+		$input = $input.createTextRange();
+		$input.collapse(true);
+		$input.moveEnd('character', $selectionEnd);
+		$input.moveStart('character', $selectionStart);
+		$input.select();
+	}
+	else return 0;
+
+	return 1;
 }
 
 

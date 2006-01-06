@@ -1,5 +1,18 @@
 <?php
 
+$contentType = array(
+	'.html' => 'text/html; charset=UTF-8',
+	'.htm' => 'text/html; charset=UTF-8',
+	'.css' => 'text/css; charset=UTF-8',
+	'.js' => 'text/javascript; charset=UTF-8',
+
+	'.png' => 'image/png',
+	'.gif' => 'image/gif',
+	'.jpg' => 'image/jpeg',
+);
+
+$contentType = $contentType[$path];
+
 $path1 = explode(PATH_SEPARATOR, get_include_path());
 $len = count($path1);
 
@@ -33,34 +46,10 @@ if ($i == $len)
 
 if ($i < $len)
 {
-	$path1 = $path1[$i];
-	$path2 = dirname($_SERVER['SCRIPT_FILENAME']) . $lang . $agent;
-
-	$h1 = fopen($path1, 'rb');
-
-	if ($h1)
-	{
-		$h2 = @fopen($path2, 'wb');
-		if (!$h2)
-		{
-			CIA::makeDir($path2);
-			$h2 = fopen($path2, 'wb');
-		}
-
-		if ($h2)
-		{
-			while (!feof($h1)) fwrite($h2, fread($h1, 8192), 8192);
-			fclose($h2);
-		}
-
-		fclose($h1);
-	}
-
-	if ($h2) CIA::writeWatchTable('public/static', $path2);
-
+	CIA::header('Content-Type: ' . $contentType);
 	CIA::setMaxage(-1);
 	CIA::setExpires(true);
-	readfile($path1);
+	readfile($path1[$i]);
 }
 
 exit;
