@@ -4,7 +4,6 @@
 ? réfléchir au découplage entre ROOT et la position de LANG, pour mod_rewrite, et CIA
 ? Pb de scalabilité avec CIApID ?
 - Code de debug/test possible dans les JS et les PHP, executé SSI DEBUG
-- controler.php : ajouter un tag/fichier pour accélérer les réponses 304
 - mode debug : E_STRICT pour les fichiers dans CIA, non strict pour les autres (PEAR, ...)
 - autoscroll des formulaires : essayer de voir si on ne peut pas le faire
   avant "onload", au moment où la page a atteind une hauteur suffisante ?
