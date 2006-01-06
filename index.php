@@ -3,7 +3,7 @@
 $CONFIG += array(
 	'debug' => true,
 	'maxage' => 1036800,
-	'lang_list' => 'en|fr|de|es|pt|ru|it|gr',
+	'lang_list' => 'fr',
 	'secret' => '',
 	'pear_path' => 'C:/Program Files/Wamp/php/PEAR',
 //	'pear_path' => '/usr/share/php',
@@ -228,7 +228,6 @@ switch ($path)
 	case '.gif':
 	case '.jpg':
 
-	// TODO? : envoyer une entete avec le bon type mime
 	require 'controler.php';
 }
 

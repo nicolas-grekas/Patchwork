@@ -54,8 +54,8 @@ class LIB
 
 	protected static function initAccents()
 	{
-		self::$ACCENT_FROM = array('/[ÆǼ]/u', '/[æǽ]/u', '/ß/u', '/Œ/u', '/œ/u');
-		self::$ACCENT_TO   = array('AE'     , 'ae'     , 'ss'  , 'OE'  , 'oe'  );
+		self::$ACCENT_FROM = array("/[\xcc\xa8\xcc\xb1]/u", '/[ÆǼ]/u', '/[æǽ]/u', '/ß/u', '/Œ/u', '/œ/u');
+		self::$ACCENT_TO   = array(''   , 'AE'     , 'ae'     , 'ss'  , 'OE'  , 'oe'  );
 
 		$len = self::$ACCENT_LENGTH = count(self::$ACCENT);
 		for ($i = 0; $i < $len; ++$i)

@@ -2,7 +2,7 @@
 
 class agent_QSelect extends agent_bin
 {
-	protected $template = 'QSelect/table.js';
+	protected $template = 'QSelect/Search.js';
 
 	public function render()
 	{
