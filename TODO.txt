@@ -1,7 +1,6 @@
 - cache des données USER et AUTH dans SESSION, lever le problème avec les références
 - autorefresh du cache lorsque le CIApID change : trois techniques : le navigateur détecte et fait la requete de mise à jour, ou bien le serveur track les chgt, ou manuel ...
 - définir qqch de similaire à __AGENT__ pour les scripts PHP ?.
-? réfléchir au découplage entre ROOT et la position de LANG, pour mod_rewrite, et CIA
 ? Pb de scalabilité avec CIApID ?
 - Code de debug/test possible dans les JS et les PHP, executé SSI DEBUG
 - mode debug : E_STRICT pour les fichiers dans CIA, non strict pour les autres (PEAR, ...)

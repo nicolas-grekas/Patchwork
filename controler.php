@@ -56,8 +56,10 @@ if ($i < $len)
 	$i = stat($path);
 	echo $i[1], '-', $i[7], '-', $i[9];
 	ob_end_clean();
-	
-	readfile($path[$i]);
+
+	header('Content-Length: ' . $i[7]);
+
+	readfile($path);
 }
 
 exit;

@@ -35,7 +35,9 @@ function HTTP_Best_Language($supported)
 	return $lang;
 }
 
-$lang = HTTP_Best_Language(explode('|', CIA_LANG_LIST));
+$lang = @$_SERVER['CIA_ROOT'];
+$lang .= HTTP_Best_Language(explode('|', CIA_LANG_LIST));
+$lang = str_replace('%2F', '/', rawurlencode($lang));
 
 ?><html><head><script><!--
 if(window.Error)document.cookie='JS=1; path=/',document.cookie='JS=1; expires=Sun, 17-Jan-2038 19:14:07 GMT; path=/'
