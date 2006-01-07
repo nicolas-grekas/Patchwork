@@ -16,7 +16,6 @@ class IA_php
 
 			self::$get = (object) array_map('htmlspecialchars', $_GET);
 			self::$get->__QUERY__ = '?' . htmlspecialchars($_SERVER['QUERY_STRING']);
-			self::$get->__SCRIPT__ = htmlspecialchars($_SERVER['SCRIPT_NAME']);
 			self::$get->__URI__ = htmlspecialchars($_SERVER['REQUEST_URI']);
 			self::$get->__ROOT__ = htmlspecialchars(CIA_ROOT);
 			self::$get->__LANG__ = htmlspecialchars(CIA_LANG);

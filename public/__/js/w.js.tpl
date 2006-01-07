@@ -420,7 +420,6 @@ w = function($rootAgent, $keys)
 
 	g = parseurl($j.search.replace(/\+/g,'%20').substring(1), '&', /^amp;/);
 	g.__QUERY__ = esc($j.search) || '?';
-	g.__SCRIPT__ = esc($j.pathname);
 	g.__URI__ = esc($j.href);
 	g.__ROOT__ = esc({g$__ROOT__|escape:'js'});
 	g.__LANG__ = esc({g$__LANG__|escape:'js'});
