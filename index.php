@@ -96,7 +96,7 @@ set_include_path($include_path . $CONFIG['pear_path']);
 
 /* Global Initialisation */
 
-if (!isset($_SERVER['CIA_ROOT']))
+if (!isset($_SERVER['CIA_REQUEST']))
 {
 	require 'language.php';
 	exit;
