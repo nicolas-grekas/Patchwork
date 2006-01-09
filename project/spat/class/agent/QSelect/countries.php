@@ -1,4 +1,4 @@
-<?
+<?php
 
 class agent_QSelect_countries extends agent_QSelect
 {
