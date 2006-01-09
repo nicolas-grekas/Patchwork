@@ -1,4 +1,4 @@
-﻿function QSelectSuggest($data, $separator, $synonyms)
+function QSelectSuggest($data, $separator, $synonyms)
 {
 	if ($separator)
 	{

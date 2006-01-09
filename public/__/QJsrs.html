@@ -16,9 +16,9 @@ if (p && p.length)
 		f = d.forms[0];
 		f.action = p[0];
 
-		i = p.length = 0;
+		d = p.length = 0;
 		for (i in v)
-			e = f[i],
+			e = f[d++],
 			e.name = i,
 			e.value = v[i],
 			++i;
