@@ -391,7 +391,16 @@ class CIA
 	{		
 		self::header('Content-Type: text/html; charset=UTF-8');
 		set_error_handler(array($this, 'error_handler'));
+		register_shutdown_function(array($this, 'shutdown'));		
 		ob_start(array($this, 'ob_handler'));
+	}
+
+	public function shutdown()
+	{
+		if (class_exists('USER', false)) USER::end();
+		if (class_exists('AUTH', false)) AUTH::end();
+		if (class_exists('SESSION', false)) SESSION::end();
+		if (class_exists('DB', false)) DB()->commit();
 	}
 
 	public function &ob_handler(&$buffer)
