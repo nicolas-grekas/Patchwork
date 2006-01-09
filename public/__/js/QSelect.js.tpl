@@ -328,7 +328,7 @@ return function($input, $driver)
 		$input.select();
 		$input.focus();
 
-		this.$QSelectVisible ? $this.$hide() : ($input.value ? $this.$show() : $this.$search('*', $this.$onkeyup));
+		this.$QSelectVisible ? $this.$hide() : $this.$search('*', $this.$onkeyup);
 	}
 
 	$imgB = 0;
