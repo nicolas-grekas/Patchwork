@@ -19,6 +19,8 @@
 
 		$driver.search = function($query, $pushBack, $selectionStart)
 		{
+			if ('*' == $query) return $pushBack($data.slice(0, 15));
+
 			var $result = [],
 				$i = 0,
 				$q;
