@@ -419,7 +419,10 @@ class CIA
 				header('HTTP/1.x 302 Found');
 				header('Location: ' . (self::$redirectUrl !== '' ? self::$redirectUrl : $_SERVER['REQUEST_URI']));
 				self::$handlesOb = false;
-				return $buffer = '';
+
+				$buffer = '';
+
+				return $buffer;
 			}
 		}
 

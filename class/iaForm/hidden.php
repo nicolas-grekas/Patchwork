@@ -49,8 +49,10 @@ class iaForm_hidden extends loop_callAgent
 
 	final public function &getValue($checkStatus = true, $checkIsData = false)
 	{
-		if ($checkStatus && $this->status===false) return $v = null;
-		if ($checkIsData && !$this->isdata) return $v = null;
+		$v = null;
+
+		if ($checkStatus && $this->status===false) return $v;
+		if ($checkIsData && !$this->isdata) return $v;
 
 		return $this->value;
 	}
