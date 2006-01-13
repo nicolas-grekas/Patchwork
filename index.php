@@ -17,13 +17,13 @@ $CONFIG += array(
 );
 
 
-/* CONFIG: the next section should be commented after proper configuration * /
+/* CONFIG: the next section should be commented after proper configuration */
 
 if (get_magic_quotes_gpc())
 {
 	if (ini_get('magic_quotes_sybase')) { function _q_(&$a) {is_array($a) ? array_walk($a, '_q_') : $a = str_replace("''", "'", $a);} }
 	else { function _q_(&$a) {is_array($a) ? array_walk($a, '_q_') : $a = stripslashes($a);} }
-	foreach (array_keys($GLOBALS) as $k) if ($k!='k' && $k!='GLOBALS') _q_($GLOBALS[$k]);
+	_q_($_GET);_q_($_POST);_q_($_COOKIE);
 }
 
 set_magic_quotes_runtime(0);
