@@ -46,7 +46,7 @@ SET $INPUT --><!--
 
 	lE.gS=function(){return valid(this<!-- LOOP a$_valid -->,{$VALUE|escape:'js'}<!-- END:LOOP -->)}
 
-	lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|escape:'js'},{$onempty|escape:'js'},{$onerror|escape:'js'}<!-- END:LOOP -->],this.form)};<!-- IF a$_focus_ -->lE.focus()<!-- END:IF -->//--></script><script src="{a$_src_}"></script><!--
+	lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|escape:'js'},{$onempty|escape:'js'},{$onerror|escape:'js'}<!-- END:LOOP -->],this.form)};<!-- IF a$_focus_ -->lE.focus()<!-- END:IF -->//--></Script><script src="{a$_src_}"></script><!--
 	
 	SERVERSIDE
 		--><noscript><input {a$|htmlArgs}></noscript><!--

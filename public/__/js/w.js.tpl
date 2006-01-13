@@ -333,7 +333,7 @@ w = function($rootAgent, $keys)
 
 					if (t($includeCache[$inc])) w($includeCache[$inc][0], $includeCache[$inc][1]);
 					else
-						$buffer += '<script src="' + esc($inc) + '"></script >',
+						$buffer += '<script src="' + esc($inc) + '"></Script>',
 						w.f();
 				}
 			}
@@ -346,7 +346,7 @@ w = function($rootAgent, $keys)
 	{
 		var $content;
 
-		$i = $buffer.search(/<\/script>/i);
+		$i = $buffer.search(/<\/script>/);
 		if ($i<0)
 			$content = $buffer,
 			$buffer = '';
