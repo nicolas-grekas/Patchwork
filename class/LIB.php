@@ -54,8 +54,14 @@ class LIB
 
 	protected static function initAccents()
 	{
-		self::$ACCENT_FROM = array("/[\xcc\xa8\xcc\xb1]/u", '/[ÆǼ]/u', '/[æǽ]/u', '/ß/u', '/Œ/u', '/œ/u');
-		self::$ACCENT_TO   = array(''   , 'AE'     , 'ae'     , 'ss'  , 'OE'  , 'oe'  );
+		self::$ACCENT_FROM = array(
+			"/[\xcc\xa8\xcc\xb1]/u", '/[ÆǼǢ]/u', '/[æǽǣ]/u', '/ß/u', '/Œ/u', '/œ/u', '/ʤʣʥ/u', '/ﬀ/u',
+			'/ﬃ/u', '/ﬄ/u', '/ﬁ/u', '/ﬂ/u', '/ƕ/u', '/Ƣ/u', '/ƣ/u', '/ﬆﬅ/u', '/ʨ/u', '/ʦ/u', '/ƻ/u'
+		);
+		self::$ACCENT_TO   = array(
+			''                     , 'AE'      , 'ae'      , 'ss'  , 'OE'  , 'oe'  , 'dz'    , 'ff'  ,
+			'ffi' , 'ffl' , 'fi'  , 'fl'  , 'hv'  , 'OI'  , 'oi'  , 'st'   , 'tc'  , 'ts'  , '2'
+		);
 
 		$len = self::$ACCENT_LENGTH = count(self::$ACCENT);
 		for ($i = 0; $i < $len; ++$i)
@@ -87,8 +93,9 @@ class LIB
 
 		$str = '' === $delimiter ? preg_quote($str) : preg_quote($str, $delimiter);
 
-		$str = preg_replace("/['’ʿ]/u", "['’ʿ]", $str);
-		$str = preg_replace("'[- _]'u", '[- _]', $str);
+		$str = preg_replace('/["«»“”″]/u', '["«»“”″]', $str);
+		$str = preg_replace("/['‘’′ʿ]/u" , "['‘’′ʿ]" , $str);
+		$str = preg_replace("/[- _]/u"   , '[- _]'   , $str);
 		$str = preg_replace(self::$ACCENT_FROM, self::$ACCENT_TO, $str);
 
 		$len = self::$ACCENT_LENGTH;
@@ -106,6 +113,6 @@ class LIB
 	 */
 	public static function getAlphaRx()
 	{
-		return 'a-zA-ZÆǼæǽßŒœ' . implode('', self::$ACCENT);
+		return "a-zA-Z\xcc\xa8\xcc\xb1ÆǼǢæǽǣßŒœʤʣʥﬀﬃﬄﬁﬂƕƢƣﬆﬅʨʦƻ" . implode('', self::$ACCENT);
 	}
 }
