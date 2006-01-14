@@ -1,5 +1,5 @@
 <!-- SERVERSIDE -->
-<script><!--
+<script type="text/javascript"><!--
 w=addOnload
 w.o=window.onload
 

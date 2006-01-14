@@ -67,8 +67,8 @@ ELSE --><!--
 {
 	overflow: hidden;
 }
-//--></style><script src="js/dtree"></script><!--
-	END:IF --><script><!--
+//--></style><script type="text/javascript" src="js/dtree"></script><!--
+	END:IF --><script type="text/javascript"><!--
 
 {a$name} = new dTree('{a$name}');
 

@@ -7,9 +7,9 @@
 <link rel="stylesheet" type="text/css" href="{a$css}" />
 <!-- END:IF -->
 <!-- SERVERSIDE -->
-<script><!--
+<script type="text/javascript"><!--
 a=[{g$__AGENT__|escape:'js'},0]//--></script>
-<script src="js/w"></script>
+<script type="text/javascript" src="js/w"></script>
 <!-- END:SERVERSIDE -->
 <style><!--
 label {cursor: default}

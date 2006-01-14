@@ -32,14 +32,14 @@ SET $INPUT --><!--
 
 	SET $id -->{a$name}<!-- END:SET
 	
-	--><script><!--
+	--><script type="text/javascript"><!--
 
 	a={a$|htmlArgs|escape:'js'};
 	m={a$multiple|escape:'js'};
 	i={a$_firstItem|escape:'js'};
 	c={a$_firstCaption|escape:'js'};
 	
-	//--></Script><script src="{a$_src_}"></script><script><!--
+	//--></script ><script type="text/javascript" src="{a$_src_}"></script><script type="text/javascript"><!--
 
 	lE=gLE({a$name|escape:'js'})
 	jsSelectInit(lE,[<!-- LOOP a$_value -->{$VALUE|escape:'js'},<!-- END:LOOP -->0])
