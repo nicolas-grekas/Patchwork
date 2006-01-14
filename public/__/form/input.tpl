@@ -53,7 +53,7 @@ END:SET --><!--
 SET $INPUT --><!--
 
 	SET a$_JsStart
-		--><script><!--
+		--><script type="text/javascript"><!--
 		lE=gLE({a$name|escape:'js'}<!-- IF a$multiple -->,1<!-- END:IF -->)
 		if(lE){<!--
 	END:SET --><!--

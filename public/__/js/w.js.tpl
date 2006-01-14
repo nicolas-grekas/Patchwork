@@ -333,7 +333,7 @@ w = function($rootAgent, $keys)
 
 					if (t($includeCache[$inc])) w($includeCache[$inc][0], $includeCache[$inc][1]);
 					else
-						$buffer += '<script src="' + esc($inc) + '"></Script>',
+						$buffer += '<script type="text/javascript" src="' + esc($inc) + '"></script >',
 						w.f();
 				}
 			}
@@ -346,13 +346,13 @@ w = function($rootAgent, $keys)
 	{
 		var $content;
 
-		$i = $buffer.search(/<\/script>/);
+		$i = $buffer.search(/<\/script>/i);
 		if ($i<0)
 			$content = $buffer,
 			$buffer = '';
 		else
 			$i += 9,
-			$content = $buffer.substring(0, $i) + '<script src="js/x"></script>', // Any optimization to save some request here will break IE ...
+			$content = $buffer.substring(0, $i) + '<script type="text/javascript" src="js/x"></script>', // Any optimization to save some request here will break IE ...
 			$buffer = $buffer.substr($i);
 
 		$document.write($content);
@@ -456,7 +456,7 @@ function loadW()
 		_COOKIE = parseurl(document.cookie, '&', /^amp;/);
 		w(a[0], a[1]);
 	}
-	else document.write('<script src="js/compat"></script>');
+	else document.write('<script type="text/javascript" src="js/compat"></script>');
 }
 
 loadW();

@@ -23,12 +23,12 @@ ELSE
 
 	--><form accept-charset="UTF-8" {a$|htmlArgs} action="{g$__URI__}"><!--
 
-	IF !g$_FORM --><script src="js/v"></script><!-- END:IF
+	IF !g$_FORM --><script type="text/javascript" src="js/v"></script><!-- END:IF
 
-	--><script><!--
+	--><script type="text/javascript"><!--
 lF=document.forms[document.forms.length-1]<!-- IF a$_enterControl_ -->;FeC({a$_enterControl_})<!-- END:IF -->//--></script><!--
 
-	IF !g$_FORM && a$_upload --><script src="js/QJsrs"></script><script src="js/upload"></script><!-- END:IF --><!--
+	IF !g$_FORM && a$_upload --><script type="text/javascript" src="js/QJsrs"></script><script type="text/javascript" src="js/upload"></script><!-- END:IF --><!--
 
 	LOOP a$_hidden
 		--><input type="hidden" name="{$name}" value="{$value}" /><!--
