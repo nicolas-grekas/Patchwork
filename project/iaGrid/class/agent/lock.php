@@ -71,7 +71,7 @@ class agent_lock extends agent_bin
 
 			register_shutdown_function(array($this, 'release'), $tabId, $row, $col);
 
-			echo "<script>parent.openEdit({$lockId},'",
+			echo "<script type=\"text/javascript\">parent.openEdit({$lockId},'",
 				str_replace(
 					array("\r\n", "\r", '\\'  , "\n", "'"),
 					array("\n"  , "\n", '\\\\', '\n', "\\'"),
@@ -87,7 +87,7 @@ class agent_lock extends agent_bin
 			}
 		}
 
-		return (object) array('DATA' => "<script>parent.releaseEdit(1)</script>\n");
+		return (object) array('DATA' => "<script type=\"text/javascript\">parent.releaseEdit(1)</script>\n");
 	}
 
 	public function release($tabId, $row, $col)

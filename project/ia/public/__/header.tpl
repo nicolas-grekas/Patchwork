@@ -9,7 +9,7 @@
 body
 {
 	margin: 0px;
-	background: {a$bgcolor} url(/cia/ia/fr/img/fond.jpg) no-repeat 100px top;
+	background: {a$bgcolor} url({g$__ROOT__}img/fond.jpg) no-repeat 100px top;
 }
 
 body, li, td

@@ -18,9 +18,9 @@
 
 <iframe name="HlockFrame" src="img/blank.gif" width=0 height=0 frameborder=0></iframe>
 
-<script src="js/QJsrs"></script>
-<script src="js/iaGrid"></script>
-<script>
+<script type="text/javascript" src="js/QJsrs"></script>
+<script type="text/javascript" src="js/iaGrid"></script>
+<script type="text/javascript">
 
 version = 0;
 dataGrid = document.getElementById('HdataGrid');

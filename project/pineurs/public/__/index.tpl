@@ -2,7 +2,7 @@
 
 <!-- SET a$blank --><!-- END:SET -->
 
-<script src="js/QJsrs"></script>
+<script type="text/javascript" src="js/QJsrs"></script>
 
 <style>
 a
@@ -45,7 +45,7 @@ body
 }
 </style>
 
-<script><!--
+<script type="text/javascript"><!--
 function editMe(link, id, key)
 {
 	var div = document.getElementById('editDiv'),

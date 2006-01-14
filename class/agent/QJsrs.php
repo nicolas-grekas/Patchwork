@@ -8,7 +8,7 @@ class agent_QJsrs extends agent_bin
 	
 	public function render()
 	{
-		return (object) array('DATA' => '<script>parent.loadQJsrs(this,' . $this->getJs($this->data) . ')</script>');
+		return (object) array('DATA' => '<script type="text/javascript">parent.loadQJsrs(this,' . $this->getJs($this->data) . ')</script>');
 	}
 
 	protected function getJs(&$data)
