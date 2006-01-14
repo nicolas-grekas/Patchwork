@@ -1,7 +1,7 @@
 <!-- AGENT 'header' title = "Inscription groupée" form = $form -->
 <!-- SET g$inputFormat -->%1<!-- END:SET -->
 
-<script><!--
+<script type="text/javascript"><!--
 function clickDrop($id)
 {
 	--$id;

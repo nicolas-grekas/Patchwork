@@ -21,7 +21,7 @@ class IA_js
 			$a = array_map(array('self','formatJs'), $a['argv']);
 			$a = implode(',', $a);
 
-			echo $a = '<html><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script>a=[' . self::formatJs($agent) . ',[' . $a . ']]</script><script src="' . htmlspecialchars(CIA_ROOT) . 'js/w"></script></html>';
+			echo $a = '<html><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script type="text/javascript">a=[' . self::formatJs($agent) . ',[' . $a . ']]</script><script type="text/javascript" src="' . htmlspecialchars(CIA_ROOT) . 'js/w"></script></html>';
 
 			CIA::writeFile($cagent, $a);
 		}
