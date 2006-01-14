@@ -1,71 +1,24 @@
-function QSelectPrint($id, $attribute)
-{
-	document.write(
-		'<div id="_d1' + $id + '" style="position:absolute;display:none;visibility:hidden;z-index:9">'
-			+'<div id="_d2' + $id + '" style="position:absolute">'
-				+'<img src="QSelect/tr.png" width="5" height="10"><br>'
-				+'<img src="QSelect/r.png" width="5" height="5" id="_i1' + $id + '"><br>'
-				+'<img src="QSelect/br.png" width="5" height="5">'
-			+'</div>'
-			+'<div id="_d3' + $id + '" style="position:absolute">'
-				+'<img src="QSelect/bl.png" width="10" height="5">'
-				+'<img src="QSelect/b.png" width="5" height="5" id="_i2' + $id + '">'
-			+'</div>'
-			+'<select name="_s' + $id + '" size="7"></select>'
-		+'</div>'
-		+'<span class="QSstyle">'
-			+'<input autocomplete="off" ' + $attribute + '>'
-			+'<img src="QSelect/b.gif" id="_i3' + $id + '" '
-				+'onmouseover="this.src=\'QSelect/bh.gif\'" '
-				+'onmouseout="this.src=\'QSelect/b.gif\'" '
-				+'onmousedown="this.src=\'QSelect/bp.gif\'" '
-				+'onmouseup="this.onmouseover()">'
-		+'</span>'
-	);
-}
-
-QSelect = window.QSelect || (function()
-{
-goQSelect = [];
-
-var $QSelect = {},
-	$goSelectId = 0,
-	$selectRange;
-
-function $get($elt)
-{
-	return $QSelect[$elt.$QSelectId];
-}
-
-function $setTimeout($function, $timeout, $i)
-{
-	if ($function)
-	{
-		$i = ++$goSelectId;
-		goQSelect[$i] = $function;
-		return setTimeout('goQSelect['+$i+']();delete goQSelect['+$i+']', $timeout);
-	}
-}
+$getById = document.getElementById ? function($id) {return document.getElementById($id)} : function($id) {return document.all[$id]};
 
 function $onfocus($this)
 {
 	this.$focus = 1;
-	this.form.$QSelectId = this.$QSelectId;
 
-	$this = $get(this);
-	$this.$lastFocused = this;
+	$this = QSelect.$get(this);
+	$this.$select.$QSelectId = this.form.$QSelectId = this.$QSelectId;
 	$this.$select.onchange = $this.$onchange;
+	$this.$lastFocused = this;
 }
 
 function $onblur($this)
 {
 	this.$focus = 0;
 
-	$this = $get(this);
+	$this = QSelect.$get(this);
 	$this.$lastFocused = 0;
 	$this.$select.onchange = null;
 
-	$setTimeout(function()
+	QSelect.$setTimeout(function()
 	{
 		if (!$this.$lastFocused) $this.$hide();
 		$this.sync($this.$listedValue, 1);
@@ -75,11 +28,11 @@ function $onblur($this)
 function $onmouseup($e)
 {
 	var $select = this,
-		$this = $get($select);
+		$this = QSelect.$get($select);
 
 	$e = $e || event;
 	if (!$e.srcElement && $e.target && 'SELECT'==$e.target.tagName) return;
-	$setTimeout(function()
+	QSelect.$setTimeout(function()
 	{
 		if ($this.$setValue()) $this.$hide();
 	}, 1);
@@ -87,7 +40,7 @@ function $onmouseup($e)
 
 function $onkeyup($e)
 {
-	var $this = $get(this),
+	var $this = QSelect.$get(this),
 		$keyupid = $this.$lastKeyupid, $i,
 		$caretPos = getCaret(this);
 
@@ -100,7 +53,7 @@ function $onkeyup($e)
 	$this.$value = this.value;
 	$this.$listedValue = '';
 
-	$setTimeout(function()
+	QSelect.$setTimeout(function()
 	{
 		if ($this.$lastKeyupid!=$keyupid) return;
 
@@ -111,7 +64,7 @@ function $onkeyup($e)
 function $onkeydown($e)
 {
 
-	var $this = $get(this),
+	var $this = QSelect.$get(this),
 		$select = $this.$select;
 
 	++$this.$lastKeyupid;
@@ -139,14 +92,14 @@ function $onkeydown($e)
 		if ('visible'==$this.$div.style.visibility)
 		{
 			$select.focus();
-			if (-1==$select.selectedIndex) $setTimeout(function(){$select.selectedIndex = 0}, 1);
+			if (-1==$select.selectedIndex) QSelect.$setTimeout(function(){$select.selectedIndex = 0}, 1);
 		}
 	}
 }
 
 function $precheck()
 {
-	var $this = $get(this);
+	var $this = QSelect.$get(this);
 
 	if ($this.$lastFocused)
 	{
@@ -159,27 +112,44 @@ function $precheck()
 	return false;
 }
 
+QSelect = window.QSelect || (function()
+{
+
+var $selectRange,
+
+	$win = window,
+	$getById = $win.$getById,
+	$onfocus = $win.$onfocus,
+	$onblur = $win.$onblur,
+	$onmouseup = $win.$onmouseup,
+	$onkeyup = $win.$onkeyup,
+	$onkeydown = $win.$onkeydown,
+	$precheck = $win.$precheck,
+
+	$select = $getById('_QSs'),
+	$options = $select.options,
+	$div = $getById('_QSd1'),
+	$imgH = $getById('_QSi1'),
+	$imgW = $getById('_QSi2'),
+	$divH = $getById('_QSd2'),
+	$divW = $getById('_QSd3');
+
+$select.onfocus = $onfocus;
+$select.onblur = $onblur;
+$select.onmouseup = $onmouseup;
+
 return function($input, $driver)
 {
 	var $this = {},
 		$form = $input.form,
-		$getById = function($id)
-		{
-			return document.getElementById ? document.getElementById($id) : document.all[$id];
-		},
 		$id = $input.name,
-		$select = $form['_s'+$id],
-		$div = $getById('_d1'+$id),
-		$imgH = $getById('_i1'+$id),
-		$imgW = $getById('_i2'+$id),
-		$imgB = $getById('_i3'+$id) || {},
-		$divH = $getById('_d2'+$id),
-		$divW = $getById('_d3'+$id),
+		$imgB = $getById('_QSb' + $id) || {},
 
-		$options = $select.options,
 		$length = 0,
 		
 		$driver = $driver($this, $input, $select, $options);
+
+	QSelect.$QSelect[$id] = $this;
 
 	$this.$search = $driver.search;
 	$this.$setValue = $driver.setValue;
@@ -188,6 +158,17 @@ return function($input, $driver)
 	$this.$listedValue = $input.value;
 	$this.$div = $div;
 	$this.$lastKeyupid = 0;
+
+	$this.$select = $select;
+	$this.$onchange = $driver.onchange;
+
+	$input.$QSelectId = $id;
+	$input.onfocus = $onfocus;
+	$input.onblur = $onblur;
+	$input.onkeyup = $onkeyup;
+	$input.onkeydown = $onkeydown;
+	$input.onkeypress = $onkeydown;
+
 	$this.$onkeyup = function($result, $listedValue, $selectionStart, $selectionLength, $displayedValue)
 	{
 		$select.selectedIndex = -1;
@@ -244,25 +225,8 @@ return function($input, $driver)
 		$this.$show();
 	}
 
-	$this.$select = $select;
-	$this.$input = $input;
-	$this.$onchange = $driver.onchange;
-	
-	$QSelect[$id] = $this;
-
-	$select.$QSelectId = $input.$QSelectId = $id;
-	$select.$isSelect = 1;
-	$select.onfocus = $input.onfocus = $onfocus;
-	$select.onblur = $input.onblur = $onblur;
-	$select.onmouseup = $onmouseup;
-	$input.onkeyup = $onkeyup;
-	$input.onkeydown = $onkeydown;
-	$input.onkeypress = $onkeydown;
-
 	$this.$show = function()
 	{
-		if ($driver.nohide) return;
-
 		if ($length>0)
 		{
 			var $left = $input.offsetLeft,
@@ -303,8 +267,6 @@ return function($input, $driver)
 
 	$this.$hide = function()
 	{
-		if ($driver.nohide) return;
-
 		var $divStyle = $div.style;
 
 		if ('hidden'==$divStyle.visibility) return;
@@ -341,7 +303,22 @@ return function($input, $driver)
 }
 })();
 
-function QSelectSearch($data, $nohide)
+QSelect.$QSelect = {};
+QSelect.$get = function($elt) {return QSelect.$QSelect[$elt.$QSelectId]}
+
+QSelect.$setTimeoutId = 0;
+QSelect.$setTimeoutPool = [];
+QSelect.$setTimeout = function($function, $timeout, $i)
+{
+	if ($function)
+	{
+		$i = ++QSelect.$setTimeoutId;
+		QSelect.$setTimeoutPool[$i] = $function;
+		return setTimeout('QSelect.$setTimeoutPool['+$i+']();delete QSelect.$setTimeoutPool['+$i+']', $timeout);
+	}
+}
+
+function QSelectSearch($data)
 {
 	if ($data && 0 == $data[$data.length-1] - 0) $data.length--;
 
@@ -349,7 +326,6 @@ function QSelectSearch($data, $nohide)
 	{
 		return {
 			fixTab: 0,
-			nohide: $nohide,
 
 			search: function($query, $pushBack)
 			{
@@ -370,9 +346,7 @@ function QSelectSearch($data, $nohide)
 				$pushBack($result);
 			},
 
-			onchange: $nohide
-				? function() {$this.$setValue()}
-				: function() {$input.select(); $input.focus()},
+			onchange: function() {$input.select(); $input.focus()},
 			
 			setValue: function()
 			{

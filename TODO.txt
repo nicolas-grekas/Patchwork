@@ -7,3 +7,4 @@
 - autoscroll des formulaires : essayer de voir si on ne peut pas le faire
   avant "onload", au moment où la page a atteind une hauteur suffisante ?
 - Tester avec Safari
+- <!-- IMPORT $agent --> ?
