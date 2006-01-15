@@ -50,7 +50,7 @@ function $QJsrsContext($name)
 				if ($container.readyState==4)
 					delete $container.onreadystatechange,
 					$html = $container.responseText.replace(/\s+$/, '') || '{}',
-					eval('$html=' + $html.substring(30, $html.length-10)),
+					eval('$html=' + $html.substring(53, $html.length-10)),
 					$container = $this.$busy = 0,
 					$this.$callback($html);
 			}
