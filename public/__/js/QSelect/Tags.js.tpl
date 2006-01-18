@@ -4,6 +4,7 @@ function QSelectTags($data)
 	{
 		var $driver = QSelectSearch($data)($this, $input, $select, $options);
 
+		$driver.fixTab = 1;
 		$driver.search = function($query, $pushBack, $selectionStart)
 		{
 			if ('*' == $query) return $pushBack($data);
@@ -32,8 +33,6 @@ function QSelectTags($data)
 				$selectionLength = $result[0].length - $query.length;
 				$qEnd.shift();
 				$query = $result[0] + ' ';
-
-				if (1 == $result.length) $result = [];
 			}
 
 			$qBegin.push($query);
