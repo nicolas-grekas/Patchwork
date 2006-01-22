@@ -33,7 +33,6 @@ class loop_sql_pearDB extends loop
 
 	protected function next()
 	{
-		if ($row = $this->result->fetchRow()) return $row;
-		else $this->result->free();
+		return $this->result->fetchRow();
 	}
 }

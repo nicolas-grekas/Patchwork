@@ -35,7 +35,6 @@ class loop_sql_mysqli extends loop
 
 	protected function next()
 	{
-		if ($row = $this->result->fetch_object()) return $row;
-		else $this->result->free();
+		return $this->result->fetch_object();
 	}
 }

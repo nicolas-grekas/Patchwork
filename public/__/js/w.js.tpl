@@ -452,7 +452,7 @@ function loadW()
 		eUC = encodeURIComponent;
 		_BOARD = parseurl(dUC(root.name.replace(/_/g, '%')), '&', /^$/);
 		_COOKIE = parseurl(document.cookie, '&', /^amp;/);
-		w(a[0], a[1], a[2]);
+		window.a && w(a[0], a[1], a[2]);
 	}
 	else document.write('<script type="text/javascript" src="js/compat"></script>');
 }
