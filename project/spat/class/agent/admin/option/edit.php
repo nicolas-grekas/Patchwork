@@ -30,14 +30,14 @@ class agent_admin_option_edit extends agent
 		);
 
 		$form = new iaForm($data);
-
+		$form->setDefaults($data);
 
 		$form->setPrefix('edit_');
-		$form->add('text'  , 'label', array('default' => $data->label));
-		$form->add('text'  , 'min_default', array('valid' => 'int', 0, 'default' => $data->min_default));
-		$form->add('text'  , 'max_default', array('valid' => 'int', 0, 'default' => $data->max_default));
-		$form->add('select', 'tax_id', array('item' => basicData::getDic('def_tax'), 'default' => $data->tax_id));
-		$form->add('check' , 'admin_only', array('item' => basicData::yesNo(), 'default' => $data->admin_only));
+		$form->add('text'  , 'label');
+		$form->add('text'  , 'min_default', array('valid' => 'int', 0));
+		$form->add('text'  , 'max_default', array('valid' => 'int', 0));
+		$form->add('select', 'tax_id', array('item' => basicData::getDic('def_tax')));
+		$form->add('check' , 'admin_only', array('item' => basicData::yesNo()));
 		$submit = $form->add('submit', 'submit');
 
 		$submit->add(
