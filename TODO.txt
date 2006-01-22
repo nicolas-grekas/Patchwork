@@ -1,10 +1,10 @@
 - cache des données USER et AUTH dans SESSION, lever le problème avec les références
-- autorefresh du cache lorsque le CIApID change : trois techniques : le navigateur détecte et fait la requete de mise à jour, ou bien le serveur track les chgt, ou manuel ...
 - définir qqch de similaire à __AGENT__ pour les scripts PHP ?.
 ? Pb de scalabilité avec CIApID ?
 - Code de debug/test possible dans les JS et les PHP, executé SSI DEBUG
-- mode debug : E_STRICT pour les fichiers dans CIA, non strict pour les autres (PEAR, ...)
+= mode debug : E_STRICT pour les fichiers dans CIA, non strict pour les autres (PEAR, ...) => impossible, E_STRICT est déclanché à la compilation des scripts
 - autoscroll des formulaires : essayer de voir si on ne peut pas le faire
   avant "onload", au moment où la page a atteind une hauteur suffisante ?
 - Tester avec Safari
 - <!-- IMPORT $agent --> ?
+- ne faire qu'une unique watch table pour tous les projets dérivés, et ajouter un paramètre de config "watchPrefix"

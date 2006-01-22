@@ -21,7 +21,9 @@ class IA_js
 			$a = array_map(array('self','formatJs'), $a['argv']);
 			$a = implode(',', $a);
 
-			echo $a = '<html><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script type="text/javascript">a=[' . self::formatJs($agent) . ',[' . $a . ']]</script><script type="text/javascript" src="' . htmlspecialchars(CIA_ROOT) . 'js/w"></script></html>';
+			echo $a = '<html><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script type="text/javascript">a=['
+				. self::formatJs($agent) . ',[' . $a . '],' . CIA_PROJECT_ID . ']</script><script type="text/javascript" src="'
+				. htmlspecialchars(CIA_ROOT) . 'js/w"></script></html>';
 
 			CIA::writeFile($cagent, $a);
 		}
@@ -31,7 +33,7 @@ class IA_js
 	{
 		if (!self::$html) CIA::header('Content-Type: text/javascript; charset=UTF-8');
 
-		echo 'CIApID=', CIA_PROJECT_ID, ';w({';
+		echo 'w({';
 
 		CIA::openMeta();
 

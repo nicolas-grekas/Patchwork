@@ -463,7 +463,7 @@ class CIA
 			if ('ontouch' == self::$expires && self::$watchTable)
 			{
 				$ETag{6} = $ETag{3} = '/';
-				$ETag = './tmp/cache/validator/' . CIA_PROJECT_ID . $ETag . '.txt';
+				$ETag = './tmp/cache/validator/' . $ETag . '.txt';
 
 				if (!file_exists($ETag))
 				{
