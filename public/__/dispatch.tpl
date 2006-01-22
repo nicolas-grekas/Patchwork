@@ -1,5 +1,12 @@
-<!-- AGENT 'header' -->
+<!-- AGENT 'header' title=a$title -->
 
-{$src}
+{a$message}
+
+<!-- IF a$time > 0 -->
+<script type="text/javascript"><!--//
+R = {a$redirect|escape:'js'};
+setTimeout("location.replace(R)", {a$time*1000})
+//--></script><meta http-equiv="refresh" content="{a$time}; URL={a$redirect}" />
+<!-- END:IF -->
 
 <!-- AGENT 'footer' -->

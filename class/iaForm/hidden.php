@@ -47,6 +47,11 @@ class iaForm_hidden extends loop_callAgent
 		$this->value = $value;
 	}
 
+	public function &getDbValue()
+	{
+		return $this->getValue(true, true);
+	}
+
 	final public function &getValue($checkStatus = true, $checkIsData = false)
 	{
 		$v = null;
@@ -137,7 +142,7 @@ class iaForm_hidden extends loop_callAgent
 
 		foreach ($this->elt as $name => $elt)
 		{
-			if (($elt = $elt[0]->getValue(true, true)) !== null) $data[$name] = $elt;
+			if (($elt = $elt[0]->getDbValue()) !== null) $data[$name] = $elt;
 		}
 
 		return $data;
@@ -542,6 +547,11 @@ class iaForm_date extends iaForm_text
 		}
 
 		return (string) $v;
+	}
+
+	public function getDbValue()
+	{
+		return $this->getMysqlDate();
 	}
 }
 
