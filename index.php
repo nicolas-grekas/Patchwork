@@ -5,8 +5,8 @@ $CONFIG += array(
 	'maxage' => 1036800,
 	'lang_list' => 'fr',
 	'secret' => '',
-//	'pear_path' => 'C:/Program Files/Wamp/php/PEAR',
-	'pear_path' => '/usr/share/php',
+	'pear_path' => 'C:/Program Files/Wamp/php/PEAR',
+//	'pear_path' => '/usr/share/php',
 	'DSN' => '',
 
 	'translate_driver' => 'default_',
