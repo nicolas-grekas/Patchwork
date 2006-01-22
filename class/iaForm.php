@@ -23,6 +23,7 @@ class iaForm extends loop_callAgent
 	protected $firstName = -1;
 
 	protected $contextPool = array();
+	protected $defaults = array();
 
 
 	public function __construct($agentData, $sessionLink = '', $POST = true, $formVarname = 'form')
@@ -59,7 +60,8 @@ class iaForm extends loop_callAgent
 		$this->contextPool[] = array(
 			$this->agentData,
 			$this->agentPrefix,
-			$this->eltnameSuffix
+			$this->eltnameSuffix,
+			$this->defaults
 		);
 
 		if ($agentData)
@@ -75,12 +77,20 @@ class iaForm extends loop_callAgent
 		list(
 			$this->agentData,
 			$this->agentPrefix,
-			$this->eltnameSuffix
+			$this->eltnameSuffix,
+			$this->defaults
 		) = $a = array_pop($this->contextPool);
+	}
+
+	public function setDefaults($data)
+	{
+		$this->defaults = (array) $data;
 	}
 
 	public function add($type, $name, $param = array(), $autoPopulate = true)
 	{
+		if (!isset($param['default']) && isset($this->defaults[$name])) $param['default'] = $this->defaults[$name];
+
 		$type = 'iaForm_' . preg_replace("'[^a-zA-Z\d]+'u", '_', $type);
 		$elt = $this->elt[$this->agentPrefix . $name . $this->eltnameSuffix] = new $type($this, $this->agentPrefix . $name . $this->eltnameSuffix, $param, $this->sessionLink);
 
