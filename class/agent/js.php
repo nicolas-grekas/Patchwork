@@ -43,6 +43,6 @@ class agent_js extends agent_bin
 		$parser = new jsquiz;
 		$parser->addJs(ob_get_clean());
 
-		return (object) array('DATA' => 'CIApID=' . CIA_PROJECT_ID . ';window.w&&w();' . $parser->get());
+		return (object) array('DATA' => $parser->get());
 	}
 }

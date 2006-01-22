@@ -16,7 +16,11 @@ class debug_CIA extends CIA
 
 	public function __construct()
 	{
-		$this->log('<a href="' . htmlspecialchars($_SERVER['REQUEST_URI']) . '" target="_blank">' . htmlspecialchars($_SERVER['REQUEST_URI']) . '</a>');
+		$this->log(
+			'<a href="' . htmlspecialchars($_SERVER['REQUEST_URI']) . '" target="_blank">'
+			. htmlspecialchars(preg_replace("'&\\\$v=[^&]*'", '', $_SERVER['REQUEST_URI']))
+			. '</a>'
+		);
 		register_shutdown_function(array($this, 'log'), '', true);
 		parent::__construct();
 	}

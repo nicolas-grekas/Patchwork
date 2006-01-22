@@ -8,7 +8,7 @@
 <!-- END:IF -->
 <!-- SERVERSIDE -->
 <script type="text/javascript"><!--
-a=[{g$__AGENT__|escape:'js'},0]//--></script>
+a=[{g$__AGENT__|escape:'js'},0,0]//--></script>
 <script type="text/javascript" src="js/w"></script>
 <!-- END:SERVERSIDE -->
 <style><!--

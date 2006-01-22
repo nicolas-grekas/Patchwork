@@ -143,10 +143,9 @@ if ((root = window).Error)
 	eval('try{while(((w=root.parent)!=root)&&t(w.name))root=w}catch(w){}');
 
 
-w = function($rootAgent, $keys)
+w = function($rootAgent, $keys, $CIApID)
 {
 	var $document = document,
-		$CIApID = CIApID,
 
 		$buffer = '',
 		$closeDoc = 0,
@@ -176,7 +175,6 @@ w = function($rootAgent, $keys)
 
 	w = function($context, $code)
 	{
-		if (CIApID != $CIApID) location.reload(1);
 		if (!t($context)) return;
 
 		$includeCache[$lastInclude] = $includeCache[$lastInclude] || [$context, $code];
@@ -333,7 +331,7 @@ w = function($rootAgent, $keys)
 
 					if (t($includeCache[$inc])) w($includeCache[$inc][0], $includeCache[$inc][1]);
 					else
-						$buffer += '<script type="text/javascript" src="' + esc($inc) + '"></script >',
+						$buffer += '<script type="text/javascript" src="' + esc($inc + '&$v=' + $CIApID) + '"></script >',
 						w.f();
 				}
 			}
@@ -454,7 +452,7 @@ function loadW()
 		eUC = encodeURIComponent;
 		_BOARD = parseurl(dUC(root.name.replace(/_/g, '%')), '&', /^$/);
 		_COOKIE = parseurl(document.cookie, '&', /^amp;/);
-		w(a[0], a[1]);
+		w(a[0], a[1], a[2]);
 	}
 	else document.write('<script type="text/javascript" src="js/compat"></script>');
 }

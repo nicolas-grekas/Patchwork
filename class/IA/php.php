@@ -29,7 +29,7 @@ class IA_php
 
 			$agent = $data->{'*a'};
 
-			IA::escape($data);
+			self::escape($data);
 			foreach ($data as $k => $v) $args[$k] = $v;
 		}
 

@@ -5,8 +5,8 @@ $CONFIG += array(
 	'maxage' => 1036800,
 	'lang_list' => 'fr',
 	'secret' => '',
-	'pear_path' => 'C:/Program Files/Wamp/php/PEAR',
-//	'pear_path' => '/usr/share/php',
+//	'pear_path' => 'C:/Program Files/Wamp/php/PEAR',
+	'pear_path' => '/usr/share/php',
 	'DSN' => '',
 
 	'translate_driver' => 'default_',
@@ -125,7 +125,7 @@ if (@$_SERVER['HTTP_IF_NONE_MATCH']{0} == '/' && preg_match("'^/[0-9a-f]{32}-([0
 
 	$file = $match[0];
 	$file{6} = $file{3} = '/';
-	$file = './tmp/cache/validator/' . CIA_PROJECT_ID . $file . '.txt';
+	$file = './tmp/cache/validator/' . $file . '.txt';
 
 	$cache = @file_get_contents($file);
 	if ($cache !== false)
@@ -149,7 +149,7 @@ if (@$_SERVER['HTTP_IF_NONE_MATCH']{0} == '/' && preg_match("'^/[0-9a-f]{32}-([0
 /* Small Usefull Functions */
 
 if (DEBUG) {function E($msg) {CIA::ciaLog($msg, false, false);}}
-else {function E($msg) {trigger_error((string) $msg);}}
+else {function E($msg) {trigger_error(serialize($msg));}}
 
 function G($name, $type) {$a = func_get_args(); return VALIDATE::get(    $_GET[$name]   , $type, array_slice($a, 2));}
 function P($name, $type) {$a = func_get_args(); return VALIDATE::get(    $_POST[$name]  , $type, array_slice($a, 2));}
@@ -247,7 +247,7 @@ if (CIA_DIRECT)
 			$template = str_replace('../', '/', $template);
 			CIA::$agentClass = 'agent__template/' . $template;
 
-			echo 'CIApID=', CIA_PROJECT_ID, ';w(0';
+			echo 'w(0';
 
 			$ctemplate = CIA::makeCacheDir("templates/$template", 'txt');
 			if (file_exists($ctemplate)) readfile($ctemplate);
@@ -286,7 +286,7 @@ if (CIA_DIRECT)
 				}
 			}
 
-			echo 'CIApID=', CIA_PROJECT_ID, ';w(0,[])';
+			echo 'w(0,[])';
 
 			CIA::setMaxage(-1);
 			break;
@@ -332,16 +332,6 @@ else
 	$binaryMode = (bool) $a['binary'];
 	CIA::setBinaryMode($binaryMode);
 
-	if (CIA_POSTING || $binaryMode || isset($_GET['$bin']) || !@$_COOKIE['JS'])
-	{
-		class IA extends IA_php {};
-		if (!$binaryMode) CIA::setPrivate(true);
-	}
-	else
-	{
-		class IA extends IA_js {};
-	}
-
 	/*
 	 * Both Firefox and IE send a "Cache-Control: no-cache" request header
 	 * only and only if the current page is reloaded with the JavaScript code :
@@ -349,7 +339,7 @@ else
 	 * when the cache is detected stale by the browser.
 	 */
 	if (
-		!$binaryMode
+		DEBUG && !$binaryMode
 		&& 'no-cache' == @$_SERVER['HTTP_CACHE_CONTROL']
 		&& 0 === strpos(@$_SERVER['HTTP_USER_AGENT'], 'Mozilla') )
 	{
@@ -359,9 +349,19 @@ else
 		fclose($h);
 
 		CIA::delCache();
+		echo "<script>location.reload()</script>";
+		exit;
 	}
-	
-	IA::loadAgent($agent, false);
+
+	if (CIA_POSTING || $binaryMode || isset($_GET['$bin']) || !@$_COOKIE['JS'])
+	{
+		if (!$binaryMode) CIA::setPrivate(true);
+		IA_php::loadAgent($agent, false);
+	}
+	else
+	{
+		IA_js::loadAgent($agent, false);
+	}
 }
 
 exit;
