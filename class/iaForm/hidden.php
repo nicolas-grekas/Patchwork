@@ -511,6 +511,8 @@ class iaForm_date extends iaForm_text
 	protected function init(&$param)
 	{
 		if (!isset($param['valid'])) $param['valid'] = 'date';
+		if (isset($param['default']) && '0000-00-00' == $param['default']) unset($param['default']);
+
 		parent::init($param);
 	}
 	
