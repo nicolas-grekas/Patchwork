@@ -4,7 +4,7 @@ class loop_sql_mysqli extends loop
 {
 	protected $db;
 	protected $sql;
-	protected $result;
+	protected $result = false;
 	protected $from = 0;
 	protected $count = 0;
 
@@ -25,16 +25,22 @@ class loop_sql_mysqli extends loop
 
 	protected function prepare()
 	{
-		$sql = $this->sql;
-		if ($this->count > 0) $sql .= " LIMIT {$this->from},{$this->count}";
+		if (!$this->result)
+		{
+			$sql = $this->sql;
+			if ($this->count > 0) $sql .= " LIMIT {$this->from},{$this->count}";
 
-		$this->result = $this->db->query($sql);
+			$this->result = $this->db->query($sql);
+		}
 
 		return $this->result ? $this->result->num_rows : false;
 	}
 
 	protected function next()
 	{
-		return $this->result->fetch_object();
+		$a = $this->result->fetch_object();
+
+		if ($a) return $a;
+		else $this->result->data_seek(0);
 	}
 }
