@@ -45,7 +45,7 @@ class debug_CIA extends CIA
 		$this->total_time += $a = 1000*(microtime(true) - $prev_time);
 
 		if ($is_end) $a = sprintf('Total: %.02f ms</pre><pre>', $this->total_time);
-		else if (self::$handlesOb) $a = sprintf('%.02f ms: ', $a) . (string) $message . "\n";
+		else if (self::$handlesOb) $a = sprintf('%.02f ms: ', $a) . serialize($message) . "\n";
 		else $a = sprintf('%.02f ms: ', $a) . print_r($message, true) . "\n";
 
 		if (!$html) $a = htmlspecialchars($a);

@@ -360,6 +360,7 @@ else
 	}
 	else
 	{
+		if (!isset($_COOKIE['JS'])) setcookie('JS', '0', 2147364847, '/');
 		IA_js::loadAgent($agent, false);
 	}
 }

@@ -331,7 +331,7 @@ w = function($rootAgent, $keys, $CIApID)
 
 					if (t($includeCache[$inc])) w($includeCache[$inc][0], $includeCache[$inc][1]);
 					else
-						$buffer += '<script type="text/javascript" src="' + esc($inc + '&$v=' + $CIApID) + '"></script >',
+						$buffer += '<script type="text/javascript" src="' + esc($inc + '&$' + 'v=' + $CIApID) + '"></script >',
 						w.f();
 				}
 			}
