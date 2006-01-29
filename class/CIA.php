@@ -456,6 +456,11 @@ class CIA
 
 			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', CIA_TIME + self::$maxage));
 			header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');
+			if (self::$private)
+			{
+				header('Vary: Cookie');
+				apache_setenv('varyCookie', '1');
+			}
 
 
 			/* Write watch table */
