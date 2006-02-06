@@ -60,6 +60,6 @@ if ($i < $len)
 	header('Content-Length: ' . $i[7]);
 
 	readfile($path);
-}
 
-exit;
+	exit;
+}
