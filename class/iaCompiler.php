@@ -315,7 +315,7 @@ abstract class iaCompiler
 				}
 
 				$block = preg_split(
-					"/({$this->XvarNconst})/su",
+					"/({$this->Xvar})/su",
 					$block, -1, PREG_SPLIT_DELIM_CAPTURE
 				);
 				$testCode = preg_replace("'\s+'u", '', $block[0]);
@@ -331,8 +331,8 @@ abstract class iaCompiler
 
 				$testCode = preg_replace('/\s+/su', ' ', $testCode);
 				$testCode = str_replace(
-					array('#', '&&' , '||' , '.', '[', ']', '{', '}', '+', '-', '*', '/', '^', '~', '?', ':', '&', '|', ',', '<>'),
-					array(';', '#a#', '#o#', ';', ';', ';', ';', ';', ';', ';', ';', ';', ';', ';', ';', ';', ';', ';', ';', ';' ),
+					array('#', '&&' , '||' , '[', ']', '{', '}', '^', '~', '?', ':', '&', '|', ',', '<>'),
+					array(';', '#a#', '#o#', ';', ';', ';', ';', ';', ';', ';', ';', ';', ';', ';', ';' ),
 					$testCode
 				);
 				$testCode = preg_replace(
