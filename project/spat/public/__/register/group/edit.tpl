@@ -5,7 +5,7 @@
 <!-- IF $member --><!--
 
 LOOP $member --><!--
-	IF a+1$memberCount -->, <!-- END:IF
+	IF $iteratorPosition -->, <!-- END:IF
 	-->{$lastname} {$firstname}<!--
 END:LOOP -->.
 
