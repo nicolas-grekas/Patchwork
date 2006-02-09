@@ -47,7 +47,7 @@ abstract class iaCompiler
 		$this->XvarNconst = "(?<!\d)(?:{$this->Xstring}|{$this->Xnumber}|{$this->Xvar}|[ag]\\$|\\$+)";
 
 		$this->Xmath = "\(*(?:{$this->Xnumber}|{$this->Xvar})\)*";
-		$this->Xmath = "(?:{$this->Xmath}[-+*\/%])*{$this->Xmath}";
+		$this->Xmath = "(?:{$this->Xmath}\s*[-+*\/%]\s*)*{$this->Xmath}";
 		$this->Xexpression = "(?<!\d)(?:{$this->Xstring}|(?:{$this->Xmath})|[ag]\\$|\\$+)";
 
 		$this->Xmodifier = $this->XpureVar;
@@ -285,7 +285,13 @@ abstract class iaCompiler
 				break;
 
 			case 'LOOP':
-				$block = preg_match("/^\\$?{$this->Xvar}$/su", $block, $block) ? $this->evalVar($block[0]) : '';
+
+				$block = preg_match("/^{$this->Xexpression}$/su", $block, $block)
+					? preg_replace("/{$this->XvarNconst}/sue", '$this->evalVar(\'$0\')', $block[0])
+					: '';
+
+				$block = preg_replace("/\s+/su", '', $block);
+
 				if (!$this->addLOOP($blockend, $block)) $this->pushText($a);
 				else if ($blockend)
 				{

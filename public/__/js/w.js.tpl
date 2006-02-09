@@ -169,7 +169,8 @@ w = function($rootAgent, $keys, $CIApID)
 *		v.$ : parent
 *		g : get
 
-*		w.x() : loop construtor
+*		w.x() : loop construtor for data arrays
+*		y() : loop construtor for numbers
 *		z() : counter initialization and incrementation
 */
 
@@ -207,6 +208,9 @@ w = function($rootAgent, $keys, $CIApID)
 					break;
 
 				case 1: // agent
+
+					/* We have a bug here, when an agent doesn't exists, and (at least) the name of this agent is given by a variable */
+
 					var $agent = $evalNext(),
 						$args = $evalNext(),
 						$isAgent = $code[$pointer++],
@@ -228,7 +232,6 @@ w = function($rootAgent, $keys, $CIApID)
 							for ($i in $data) if ($i!='$') $args[$i] = $data[$i];
 						}
 					}
-					//else if ($isAgent) break;
 
 					return $include(
 						$isAgent
@@ -274,7 +277,7 @@ w = function($rootAgent, $keys, $CIApID)
 
 				case 8: // loop
 					$i = $evalNext();
-					($i && $i.a && $i.a()() && ++$pointer) || ($pointer += $code[$pointer]);
+					($i && ($i.a || ($i = y($i-0))) && $i.a()() && ++$pointer) || ($pointer += $code[$pointer]);
 					$context = v;
 					break;
 
@@ -373,20 +376,21 @@ w = function($rootAgent, $keys, $CIApID)
 
 	w.x = function($data)
 	{
-		var $block, $offset, $parent, $blockData, $parentLoop;
+		var $block, $offset, $parent, $blockData, $parentLoop, $counter;
 		
 		function $next()
 		{
 			$blockData = $data[$block];
 			$offset += $j = $blockData[0];
 
-			if (!t($blockData[$offset + $j])) return t($data[++$block])
+			if ($offset + $j >= $blockData.length) return t($data[++$block])
 					? ($offset = 0, $next())
 					: (v = v.$, $loopIterator = $parentLoop, 0);
 
 			v = {};
-			for ($i = 1; $i <= $j; $i++) v[ $blockData[$i] ] = esc($blockData[$i + $offset]);
+			for ($i = 1; $i <= $j; ++$i) v[ $blockData[$i] ] = esc($blockData[$i + $offset]);
 			v.$ = $parent;
+			v.iteratorPosition = $counter++;
 
 			return v;
 		}
@@ -396,11 +400,24 @@ w = function($rootAgent, $keys, $CIApID)
 			{
 				return $parent = v,
 					$parentLoop = $loopIterator,
-					$offset = 0, $block = 1,
+					$counter = $offset = 0, $block = 1,
 					$loopIterator = $next;
 			},
 			toString:function() {return ''+$data[0]}
 		} : 0;
+	}
+
+	function y($length)
+	{
+		$length = parseInt($length);
+		if (!($length > 0)) return 0;
+
+		var $data = new Array($length + 2);
+
+		$data[0] = $data[1] = 1;
+		$data = [$length, $data];
+
+		return w.x($data);
 	}
 
 	function z($a, $b, $global)

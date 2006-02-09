@@ -573,6 +573,7 @@ class loop
 {
 	private $loopLength = false;
 	private $renderer = array();
+	private $iteratorPosition;
 
 	protected function prepare() {}
 	protected function next() {}
@@ -582,7 +583,11 @@ class loop
 		$catchMeta = CIA::$catchMeta;
 		CIA::$catchMeta = true;
 
-		if ($this->loopLength === false) $this->loopLength = (int) $this->prepare();
+		if ($this->loopLength === false)
+		{
+			$this->iteratorPosition = 0;
+			$this->loopLength = (int) $this->prepare();
+		}
 
 		if (!$this->loopLength) $data = false;
 		else
@@ -594,6 +599,8 @@ class loop
 				$i = 0;
 				$len = count($this->renderer);
 				while ($i<$len) $data = (object) call_user_func($this->renderer[$i++], $data, $this);
+
+				$data->iteratorPosition = $this->iteratorPosition++;
 			}
 			else $this->loopLength = false;
 		}
@@ -610,7 +617,11 @@ class loop
 		$catchMeta = CIA::$catchMeta;
 		CIA::$catchMeta = true;
 
-		if ($this->loopLength === false) $this->loopLength = $this->prepare();
+		if ($this->loopLength === false)
+		{
+			$this->iteratorPosition = 0;
+			$this->loopLength = (int) $this->prepare();
+		}
 
 		CIA::$catchMeta = $catchMeta;
 
