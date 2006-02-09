@@ -186,6 +186,12 @@ class IA_php
 	{
 		foreach ($object as $k => $v) if (is_string($v)) $object->$k = htmlspecialchars($v);
 	}
+
+	public static function makeLoopByLength(&$length)
+	{
+		$length = new loop_length_($length);
+		return true;
+	}
 }
 
 class L_ extends loop
@@ -208,5 +214,27 @@ class L_ extends loop
 	{
 		if ($this->i < $this->len) return (object) $this->array[$this->i++];
 		else $this->i = 0;
+	}
+}
+
+class loop_length_ extends loop
+{
+	protected $length;
+	protected $counter;
+
+	public function __construct($length)
+	{
+		$this->length = $length;
+	}
+
+	protected function prepare()
+	{
+		$this->counter = 0;
+		return $this->length;
+	}
+
+	protected function next()
+	{
+		if ($this->counter++ < $this->length) return (object) array();
 	}
 }
