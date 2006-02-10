@@ -15,8 +15,8 @@ body
 }
 pre
 {
-	font-family: Lucida Console;
-	font-size: 9px;
+	font-family: Arial;
+	font-size: 10px;
 	border-top: 1px solid;
 	margin: 0px;
 	padding: 5px;
