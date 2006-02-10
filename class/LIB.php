@@ -8,7 +8,7 @@ class LIB
 	/**
 	 * Sorts an array of array/objects according to a list of keys/properties.
 	 */
-	public static function sort(&$array, $keys, $associative = false)
+	static function sort(&$array, $keys, $associative = false)
 	{
 		self::$sort_keys = preg_split("'\s*,\s*'u", $keys);
 		self::$sort_length = count(self::$sort_keys);
@@ -75,7 +75,7 @@ class LIB
 	/**
 	 * Removes all accents from an UTF-8 string, and optionnaly change it's case.
 	 */
-	public static function stripAccents($str, $case = 0)
+	static function stripAccents($str, $case = 0)
 	{
 		if (!self::$ACCENT_FROM) self::initAccents();
 
@@ -87,7 +87,7 @@ class LIB
 	/**
 	 * Transform a string to a RegExp that is not sentive to accents
 	 */
-	public static function getRxQuoteInsensitive($str, $delimiter = '')
+	static function getRxQuoteInsensitive($str, $delimiter = '')
 	{
 		if (!self::$ACCENT_FROM) self::initAccents();
 
@@ -111,8 +111,32 @@ class LIB
 	/**
 	 * Return an alphabetic RexExp class, with accents support
 	 */
-	public static function getAlphaRx()
+	static function getAlphaRx()
 	{
 		return "a-zA-Z\xcc\xa8\xcc\xb1ÆǼǢæǽǣßŒœʤʣʥﬀﬃﬄﬁﬂƕƢƣﬆﬅʨʦƻ" . implode('', self::$ACCENT);
+	}
+
+	/**
+	 * Clean an string to make it suitable for a search
+	 */
+	static function getKeywords($kw, $stripParasites = false)
+	{
+		$a = "[ʿ’[:punct:][:cntrl:][:space:]]";
+
+		$kw = ' ' . $kw . ' ';
+
+		// Initials (Sigle)
+		$kw = preg_replace("'{$a}([A-Z](?:\.[A-Z]){2,}){$a}'ue", "str_replace('.','',' $1 ')", $kw);
+
+		// Ponctuation
+		$kw = preg_replace("'{$a}+'u", ' ', $kw);
+
+		// Accents
+		$kw = self::stripAccents($kw);
+
+		// Parasites words
+		if ($stripParasites) $kw = preg_replace("'({$a}(..?|the|and|for|from|with|des|les|une|sur|aux|par|avec|dans|pour|https?)?)*{$a}'su", ' ', $kw);
+
+		return trim($kw);
 	}
 }
