@@ -19,9 +19,11 @@ IF a$_mode_ == 'errormsg' --><!--
 
 ELSEIF a$_mode_ == 'close' --></form><!--
 
-ELSE
+ELSE --><!--
 
-	--><form accept-charset="UTF-8" {a$|htmlArgs} action="{g$__URI__}"><!--
+	IF !a$action --><!-- SET a$action -->{g$__URI__}<!-- END:SET --><!-- END:IF
+	
+	--><form accept-charset="UTF-8" {a$|htmlArgs}><!--
 
 	IF !g$_FORM --><script type="text/javascript" src="js/v"></script><!-- END:IF
 

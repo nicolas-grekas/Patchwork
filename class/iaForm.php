@@ -7,6 +7,7 @@ class iaForm extends loop_callAgent
 	public $rawValues;
 	public $errormsg = array();
 	public $sessionLink = false;
+	public $action = false;
 
 	protected $elt = array();
 	protected $hidden = array();
@@ -24,7 +25,6 @@ class iaForm extends loop_callAgent
 
 	protected $contextPool = array();
 	protected $defaults = array();
-
 
 	public function __construct($agentData, $sessionLink = '', $POST = true, $formVarname = 'form')
 	{
@@ -144,6 +144,7 @@ class iaForm extends loop_callAgent
 		);
 
 		if ($this->POST) $a->method = 'POST';
+		if ($this->action) $a->action = $this->action;
 		if ($this->enterControl) $a->_enterControl_ = 1;
 		if ($this->hasfile)
 		{
