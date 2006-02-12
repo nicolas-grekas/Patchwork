@@ -31,6 +31,8 @@ class loop_sql_mysqli extends loop
 			if ($this->count > 0) $sql .= " LIMIT {$this->from},{$this->count}";
 
 			$this->result = $this->db->query($sql);
+
+			if (!$this->result) E("MySQL Error ({$sql}) : {$this->db->error}");
 		}
 
 		return $this->result ? $this->result->num_rows : false;
