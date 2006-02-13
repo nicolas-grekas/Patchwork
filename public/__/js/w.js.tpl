@@ -80,7 +80,7 @@ function addOnload($function)
 
 
 /*
-* Set a cookie, same as PHP's setcookie
+* Set a cookie, similar to PHP's setcookie
 */
 function setcookie($name, $value, $expires, $path, $domain, $secure)
 {
@@ -200,7 +200,7 @@ w = function($rootAgent, $keys, $CIApID)
 				case 0: // pipe
 					$i = $code[$pointer++].split('.');
 					$j = $i.length;
-					while ($j--) $i[$j] = t(window['P'+$i[$j]]) ? '' : ('.'+$i[$j]);
+					while ($j--) $i[$j] = t(root['P$'+$i[$j]]) ? '' : ('.'+$i[$j]);
 
 					$i = $i.join('');
 

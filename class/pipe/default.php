@@ -11,7 +11,7 @@ class pipe_default
 	{
 		?>/*<script>*/
 
-P<?php echo substr(__CLASS__, 5)?> = function($string, $default)
+root.P$<?php echo substr(__CLASS__, 5)?> = function($string, $default)
 {
 	return $string>'' ? $string : $default;
 }

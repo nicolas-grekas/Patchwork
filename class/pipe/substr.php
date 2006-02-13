@@ -13,7 +13,7 @@ class pipe_substr
 	{
 		?>/*<script>*/
 
-P<?php echo substr(__CLASS__, 5)?> = function($string, $start, $length)
+root.P$<?php echo substr(__CLASS__, 5)?> = function($string, $start, $length)
 {
 	$string = str($string);
 	return t($length)

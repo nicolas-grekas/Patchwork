@@ -16,7 +16,7 @@ class pipe_random
 	{
 		?>/*<script>*/
 
-P<?php echo substr(__CLASS__, 5)?> = function($min, $max)
+root.P$<?php echo substr(__CLASS__, 5)?> = function($min, $max)
 {
 	if (!t($max))) $max = 32767;
 
