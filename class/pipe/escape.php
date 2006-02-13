@@ -47,7 +47,7 @@ class pipe_escape
 	{
 		?>/*<script>*/
 
-P<?php echo substr(__CLASS__, 5)?> = function($string, $type)
+root.P$<?php echo substr(__CLASS__, 5)?> = function($string, $type)
 {
 	$string = str($string);
 	switch (str($type))
@@ -65,12 +65,12 @@ P<?php echo substr(__CLASS__, 5)?> = function($string, $type)
 
 		case 'url': return eUC($string);
 
-		case 'jsh': return P<?php echo substr(__CLASS__, 5)?>(P<?php echo substr(__CLASS__, 5)?>($string, 'js'));
+		case 'jsh': return root.P$<?php echo substr(__CLASS__, 5)?>(root.P$<?php echo substr(__CLASS__, 5)?>($string, 'js'));
 
 		case 'js':
 			return (''+$string/1==$string)
 				? $string/1
-				: ("'" + P<?php echo substr(__CLASS__, 5)?>($string, 'unhtml').replace(
+				: ("'" + root.P$<?php echo substr(__CLASS__, 5)?>($string, 'unhtml').replace(
 					/\\/g , '\\\\').replace(
 					/'/g  , "\\'").replace(
 					/\r/g , '\\r').replace(

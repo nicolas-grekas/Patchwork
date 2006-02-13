@@ -23,7 +23,7 @@ class pipe_bytes
 	{
 		?>/*<script>*/
 
-P<?php echo substr(__CLASS__, 5)?> = function($byte)
+root.P$<?php echo substr(__CLASS__, 5)?> = function($byte)
 {
 	$byte = str($byte);
 	var $suffix = ' Ko', $div;
