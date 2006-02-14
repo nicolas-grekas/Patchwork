@@ -42,7 +42,7 @@ class pipe_urlize
 	{
 		?>/*<script>*/
 
-root.P$<?php echo substr(__CLASS__, 5)?> = function($string)
+P$<?php echo substr(__CLASS__, 5)?> = function($string)
 {
 	return (' ' + str($string)).replace(
 		<?php echo self::$mailrx?>g, '$1<a href="mailto:$2@$3">$2@$3</a>'

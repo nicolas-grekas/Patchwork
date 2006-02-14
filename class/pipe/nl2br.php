@@ -11,7 +11,7 @@ class pipe_nl2br
 	{
 		?>/*<script>*/
 
-root.P$<?php echo substr(__CLASS__, 5)?> = function($string)
+P$<?php echo substr(__CLASS__, 5)?> = function($string)
 {
 	return str($string).replace(/\n/g, '\n<br />');
 }

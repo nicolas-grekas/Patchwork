@@ -13,7 +13,7 @@ class pipe_now
 	{
 		?>/*<script>*/
 
-root.P$<?php echo substr(__CLASS__, 5)?> = function()
+P$<?php echo substr(__CLASS__, 5)?> = function()
 {
 	return parseInt(new Date/1000);
 }
