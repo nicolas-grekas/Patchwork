@@ -51,7 +51,7 @@ class iaCompiler_js extends iaCompiler
 	protected function makeModifier($name)
 	{
 		$this->modifiers[] = $name;
-		return 'root.P$' . $name;
+		return 'P$' . $name;
 	}
 	
 	protected function addAGENT($end, $inc, &$args)
