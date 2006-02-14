@@ -22,7 +22,7 @@ class pipe_date
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($time, $format)
+root.P$<?php echo substr(__CLASS__, 5)?> = function($time, $format)
 {
 	if (t($format))
 	{

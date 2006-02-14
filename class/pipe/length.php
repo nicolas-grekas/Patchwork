@@ -11,7 +11,7 @@ class pipe_length
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($string)
+root.P$<?php echo substr(__CLASS__, 5)?> = function($string)
 {
 	return str($string).length;
 }
