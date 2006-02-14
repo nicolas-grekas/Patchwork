@@ -239,7 +239,7 @@ if (CIA_DIRECT)
 {
 	CIA::header('Content-Type: text/javascript; charset=UTF-8');
 
-	switch(key($_GET))
+	switch ( key($_GET) )
 	{
 		case 't':
 			$template = array_shift($_GET);
