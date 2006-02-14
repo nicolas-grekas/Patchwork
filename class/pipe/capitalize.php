@@ -11,7 +11,7 @@ class pipe_capitalize
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($string)
+root.P$<?php echo substr(__CLASS__, 5)?> = function($string)
 {
 	return str($string).replace(/\b./g, function($a) {return $a.toUpperCase()});
 }
