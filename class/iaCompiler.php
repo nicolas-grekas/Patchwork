@@ -474,9 +474,17 @@ abstract class iaCompiler
 		{
 			$a = preg_split("/({$this->Xvar}|{$this->Xnumber})/su", $a, -1, PREG_SPLIT_DELIM_CAPTURE);
 			$i = 1;
+
 			while ($i<count($a))
 			{
+				$a[$i-1] = trim($a[$i-1]);
+
+				$b = $i > 1 && $a[$i]{0} == '-' && '' === $a[$i-1];
+
 				$a[$i] = $this->evalVar($a[$i], false, 'number');
+
+				if ($b && '0' === $a[$i]) $a[$i-1] = '-';
+
 				$i += 2;
 			}
 
