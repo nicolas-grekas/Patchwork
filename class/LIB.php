@@ -126,7 +126,7 @@ class LIB
 		$kw = ' ' . $kw . ' ';
 
 		// Initials (Sigle)
-		$kw = preg_replace("'{$a}([A-Z](?:\.[A-Z]){2,}){$a}'ue", "str_replace('.','',' $1 ')", $kw);
+		$kw = preg_replace("'{$a}([A-Z](?:\.[A-Z])+){$a}'ue", "str_replace('.','',' $1 ')", $kw);
 
 		// Ponctuation
 		$kw = preg_replace("'{$a}+'u", ' ', $kw);
