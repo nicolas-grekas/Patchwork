@@ -2,7 +2,7 @@
 
 function QSelectQJsrs($QJsrs)
 {
-	$QJsrs = new QJsrs($QJsrs, 1);
+	$QJsrs = new QJsrs($QJsrs);
 
 	return function($this, $input, $select, $options)
 	{
