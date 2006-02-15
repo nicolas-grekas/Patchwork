@@ -112,7 +112,6 @@ class IA_js
 		while ($data = $loop->render())
 		{
 			$data = (array) $data;
-			unset($data['iteratorPosition']);
 
 			$keyList = array_keys($data);
 			$keyList = array_map(array('self','formatJs'), $keyList);

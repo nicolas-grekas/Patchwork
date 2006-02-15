@@ -72,10 +72,19 @@ class iaCompiler_php extends iaCompiler
 		else
 		{
 			$this->pushCode(
-				 'unset($p);$p='.$var.';if(($p instanceof loop||(0<($p=(int)$p)&&IA_php::makeLoopByLength($p)))&&CIA::string($v->{"p$"}=$p)&&($p=(object)array("$"=>&$v))&&$v=&$p)'
-				 .'while(($p=&$v->{"$"}&&$v=$p->{"p$"}->render())||($v=&$p&&0)){'
-				 .( $this->binaryMode ? '' : 'IA_php::escape($v);' )
-				 .'$v->{"$"}=&$p;'
+				'unset($p);$p=' . $var . ';if('
+					. '($p instanceof loop||(0<($p=(int)$p)&&IA_php::makeLoopByLength($p)))'
+					. '&&CIA::string($v->{"p$"}=$p)'
+					. '&&($v->{"iteratorPosition$"}=-1)'
+					. '&&($p=(object)array("$"=>&$v))'
+					. '&&$v=&$p'
+				. ')while('
+					. '($p=&$v->{"$"}&&$v=$p->{"p$"}->render())'
+					. '||($v=&$p&&0)'
+				. '){'
+				.( $this->binaryMode ? '' : 'IA_php::escape($v);' )
+				. '$v->{"$"}=&$p;'
+				. '$v->iteratorPosition=++$p->{"iteratorPosition$"};'
 			);
 		}
 
