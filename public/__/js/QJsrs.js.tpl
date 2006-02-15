@@ -19,7 +19,13 @@
 * Cancel the callback pool with varname.abort()
 */
 
-QJsrs = window.QJsrs || (function()
+QJsrs = window.QJsrs || ((  // The 5 next lines preload the XMLHttp object and speed up its first real use
+	QJsrs = self.XMLHttpRequest
+		? new XMLHttpRequest && 3
+		: self.ActiveXObject
+			? new ActiveXObject('Microsoft.XMLHTTP') && 2
+			: 1
+	) && function()
 {
 var $masterPool = [];
 
@@ -29,7 +35,7 @@ function $QJsrsContext($name)
 		$window = window,
 		$document = document,
 		$body = $document.getElementById ? $document.getElementById('divQJsrs') : $document.all['divQJsrs'],
-		$XMLHttp = $window.XMLHttpRequest ? 2 : $window.ActiveXObject ? 1 : 0,
+		$XMLHttp = QJsrs - 1,
 		$container, $html;
 
 	$this.$load = function($url, $callback)
