@@ -96,7 +96,7 @@ loadQJsrs = function($context, $result, $callback)
 		$context.$busy = $callback($result); 
 	}
 
-	if (t($result)) setTimeout('goQJsrs()', 0); // Workaround for a bug with relative directories
+	if ($result>='') setTimeout('goQJsrs()', 0); // Workaround for a bug with relative directories
 
 	return $context;
 }

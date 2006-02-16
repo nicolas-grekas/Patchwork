@@ -13,7 +13,7 @@ class pipe_printf
 	{
 		?>/*<script>*/
 
-root.P$<?php echo substr(__CLASS__, 5)?> = function($format)
+P$<?php echo substr(__CLASS__, 5)?> = function($format)
 {
 	$format = str($format);
 

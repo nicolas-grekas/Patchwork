@@ -11,7 +11,7 @@ class pipe_trim
 	{
 		?>/*<script>*/
 
-root.P$<?php echo substr(__CLASS__, 5)?> = function($a)
+P$<?php echo substr(__CLASS__, 5)?> = function($a)
 {
 	return str($a).replace(/^\s+/, '').replace(/\s+$/, '');
 }
