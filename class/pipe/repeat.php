@@ -11,7 +11,7 @@ class pipe_repeat
 	{
 		?>/*<script>*/
 
-root.P$<?php echo substr(__CLASS__, 5)?> = function($string, $num)
+P$<?php echo substr(__CLASS__, 5)?> = function($string, $num)
 {
 	var $str = '';
 	$string = str($string);

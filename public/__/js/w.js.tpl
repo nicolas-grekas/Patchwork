@@ -94,11 +94,13 @@ function setcookie($name, $value, $expires, $path, $domain, $secure)
 /*
 * Set a board variable
 */
-function setboard($name, $value)
+function setboard($name, $value, $window)
 {
 	if (typeof $name == 'object') for ($value in $name) setboard($value, $name[$value]);
 	else
 	{
+		$window = $window || root;
+
 		function $escape($str)
 		{
 			return eUC(
@@ -122,17 +124,16 @@ function setboard($name, $value)
 
 		$name = '_26' + $escape($name) + '_3D';
 
-		var $root = root,
-			$varIdx = $root.name.indexOf($name),
+		var $varIdx = $window.name.indexOf($name),
 			$varEndIdx;
 
 		if ($varIdx>=0)
 		{
-			$varEndIdx = $root.name.indexOf('_26', $varIdx + $name.length);
-			$root.name = $root.name.substring(0, $varIdx) + ( $varEndIdx>=0 ? $root.name.substring($varEndIdx) : '' );
+			$varEndIdx = $window.name.indexOf('_26', $varIdx + $name.length);
+			$window.name = $window.name.substring(0, $varIdx) + ( $varEndIdx>=0 ? $window.name.substring($varEndIdx) : '' );
 		}
 
-		$root.name += $name + $escape($value);
+		$window.name += $name + $escape($value);
 	}
 }
 
@@ -200,7 +201,7 @@ w = function($rootAgent, $keys, $CIApID)
 				case 0: // pipe
 					$i = $code[$pointer++].split('.');
 					$j = $i.length;
-					while ($j--) $i[$j] = t(root['P$'+$i[$j]]) ? '' : ('.'+$i[$j]);
+					while ($j--) $i[$j] = t(window['P$'+$i[$j]]) ? '' : ('.'+$i[$j]);
 
 					$i = $i.join('');
 
