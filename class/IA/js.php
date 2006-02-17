@@ -17,8 +17,8 @@ class IA_js
 		{
 			self::$html = true;
 
-			$a = get_class_vars($a);
-			$a = array_map(array('self','formatJs'), $a['argv']);
+			$a = CIA::agentArgv($a);
+			array_walk($a, array('self', 'formatJs'));
 			$a = implode(',', $a);
 
 			echo $a = '<html><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script type="text/javascript">a=['
@@ -56,7 +56,7 @@ class IA_js
 		$comma = '';
 		foreach ($data as $key => $value)
 		{
-			echo $comma, "'", self::formatJs($key, "'", false), "'", ':';
+			echo $comma, "'", self::formatJs($key, false, "'", false), "'", ':';
 			if ($value instanceof loop) self::writeAgent($value);
 			else echo self::formatJs($value);
 			$comma = ',';
@@ -81,7 +81,7 @@ class IA_js
 				CIA::writeWatchTable(array('public/templates'), $ctemplate);
 			}
 		}
-		else echo ',[1,"g.__ROOT__+', self::formatJs(self::formatJs("_?t=$template"), '"', false), '",0,0,0])';
+		else echo ',[1,"g.__ROOT__+', self::formatJs(self::formatJs($template = '_?t=' . $template), false, '"', false), '",0,0,0])';
 
 		if (!$private && ($maxage || ('ontouch' == $expires && $watch)))
 		{
@@ -114,7 +114,7 @@ class IA_js
 			$data = (array) $data;
 
 			$keyList = array_keys($data);
-			$keyList = array_map(array('self','formatJs'), $keyList);
+			array_walk($keyList, array('self', 'formatJs'));
 			$keyList = implode(',', $keyList);
 
 			if ($keyList != $prevKeyList)
@@ -134,7 +134,7 @@ class IA_js
 		echo ']])';
 	}
 
-	public static function formatJs($a, $delim = "'", $addDelim = true)
+	public static function formatJs(&$a, $key = false, $delim = "'", $addDelim = true)
 	{
 		if ((string) $a === (string) ($a-0)) return $a;
 
@@ -146,6 +146,8 @@ class IA_js
 
 		if (self::$html) $a = preg_replace("#<(/?script)#iu", '<\\\\$1', $a);
 
-		return $addDelim ? $delim . $a . $delim : $a;
+		if ($addDelim) $a = $delim . $a . $delim;
+
+		return $a;
 	}
 }

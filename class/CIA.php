@@ -308,6 +308,22 @@ class CIA
 		return $agent == '' ? 'agent_index' : preg_replace("'[^a-zA-Z\d]+'u", '_', "agent_$agent");
 	}
 
+	public static function agentArgv($agent)
+	{
+		$agent = get_class_vars($agent);
+		$agent = (array) $agent['argv'];
+
+		array_walk($agent, array('self', 'stripArgv'));
+
+		return $agent;
+	}
+
+	protected static function stripArgv(&$a)
+	{
+		$b = strpos($a, ':');
+		if (false !== $b) $a = substr($a, 0, $b);
+	}
+	
 	public static function agentCache($agentClass, $keys, $type)
 	{
 		$cagent = '_';
@@ -532,12 +548,11 @@ class agent_
 
 	final public function __construct($args = array())
 	{
-		$args = (array) $args;
-
-		$a = $this->argv;
+		$a = (array) $this->argv;
 
 		$this->argv = (object) array();
-		foreach ($a as $key) $this->argv->$key = @$args[$key];
+
+		array_walk($a, array($this, 'populateArgv'), (object) $args);
 
 		$this->init();
 	}
@@ -547,6 +562,30 @@ class agent_
 		CIA::setMaxage($this->maxage);
 		CIA::setPrivate($this->private);
 		CIA::setExpires($this->expires, $this->watch);
+	}
+
+	private function populateArgv(&$a, $key, $args)
+	{
+		if (is_string($key))
+		{
+			$default = $a;
+			$a = $key;
+		}
+		else $default = false;
+
+		$a = explode(':', $a);
+		$key = array_shift($a);
+
+		$args = @$args->$key;
+
+		if ($a)
+		{
+			$a = array_map('rawurldecode', $a);
+			$args = VALIDATE::get($args, array_shift($a), $a);
+			if (false === $args) $args = $default;
+		}
+
+		$this->argv->$key = $args;
 	}
 }
 
