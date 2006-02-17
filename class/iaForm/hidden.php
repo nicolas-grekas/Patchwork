@@ -138,7 +138,7 @@ class iaForm_hidden extends loop_callAgent
 					'name' => $this->name,
 					'value' => $this->value,
 					'valid' => $this->valid, $this->valid_args
-				), true);
+				), true));
 			}
 			return true;
 		}
