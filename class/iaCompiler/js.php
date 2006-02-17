@@ -73,9 +73,10 @@ class iaCompiler_js extends iaCompiler
 		{
 			eval("\$keys=$inc;");
 			$keys = CIA::agentClass($keys);
-			if ($keys = get_class_vars($keys))
+			$keys = CIA::agentArgv($keys);
+			if ($keys)
 			{
-				$keys = array_map(array($this,'quote'), $keys['argv']);
+				array_walk($keys, array($this, 'quote'));
 				$keys = implode(',', $keys);
 			}
 			else $keys = '';

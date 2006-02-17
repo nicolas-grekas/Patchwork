@@ -28,9 +28,8 @@ class loop_callAgent extends loop
 				if (!isset($this->keys))
 				{
 					$a = CIA::agentClass($this->agent);
-					$a = get_class_vars($a);
-					$a = (array) $a['argv'];
-					$a = array_map(array('IA','formatJs'), $a);
+					$a = CIA::agentArgv($a);
+					array_walk($a, array('IA', 'formatJs'));
 
 					$this->data->{'*k'} = '[' . implode(',', $a) . ']';
 				}
