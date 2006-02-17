@@ -82,7 +82,7 @@ class iaCompiler_js extends iaCompiler
 			else $keys = '';
 		}
 
-		array_push($this->code, pC_AGENT, $this->quote($inc), $this->quote('{' . $a . '}'), 1, $keys===false ? 0 : "[$keys]");
+		array_push($this->code, pC_AGENT, $this->quote($inc), $this->quote($a = '{' . $a . '}'), 1, $keys===false ? 0 : "[$keys]");
 
 		return true;
 	}
@@ -254,16 +254,16 @@ class iaCompiler_js extends iaCompiler
 		return strlen($name) ? ( in_array($name, $this->jsreserved) ? "['$name']" : ".$name" ) : '';
 	}
 
-	protected function quote($a)
+	protected function quote(&$a)
 	{
-		if ((string) $a === (string) ($a-0)) return $a;
+		if ((string) $a === (string) ($a-0)) return $a = $a - 0;
 
-		$a = str_replace(
+		$a = '"' . str_replace(
 			array("\r\n", "\r", '\\',   "\n", '"'),
 			array("\n"  , "\n", '\\\\', '\n', '\\"'),
 			$a
-		);
+		) . '"';
 
-		return '"' . $a . '"';
+		return $a;
 	}
 }

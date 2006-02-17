@@ -196,7 +196,7 @@ w = function($rootAgent, $keys, $CIApID)
 			a = $arguments;
 			v = $context;
 
-			while (t($code[$pointer])) switch ($code[$pointer++])
+			while ($code[$pointer]>='') switch ($code[$pointer++])
 			{
 				case 0: // pipe
 					$i = $code[$pointer++].split('.');
@@ -209,34 +209,34 @@ w = function($rootAgent, $keys, $CIApID)
 					break;
 
 				case 1: // agent
-
-					/* We have a bug here, when an agent doesn't exists, and (at least) the name of this agent is given by a variable */
-
 					var $agent = $evalNext(),
 						$args = $evalNext(),
 						$isAgent = $code[$pointer++],
 						$keys = $code[$pointer++],
 						$data;
 
-					if ($agent)
+					if (!$agent)
 					{
-						if ($agent.a && $agent/1)
-						{
-							$agent = $agent.a();
-							while ($j = $agent()) $data = $j;
+						window.E && E('AGENT is undefined: ' + $code[$pointer-4]);
+						break;
+					}
+					
+					if ($agent.a && $agent/1)
+					{
+						$agent = $agent.a();
+						while ($j = $agent()) $data = $j;
 
-							$agent = $data['*a'];
-							eval('$keys='+$data['*k']);
-							delete $data['*a'];
-							delete $data['*k'];
+						$agent = $data['*a'];
+						eval('$keys='+$data['*k']);
+						delete $data['*a'];
+						delete $data['*k'];
 
-							for ($i in $data) if ($i!='$') $args[$i] = $data[$i];
-						}
+						for ($i in $data) if ($i!='$') $args[$i] = $data[$i];
 					}
 
 					return $include(
 						$isAgent
-							? g.__ROOT__ + '_?$=' + eUC(($agent||$rootAgent).replace(/\\/g, '/'))
+							? g.__ROOT__ + '_?$=' + eUC($agent.replace(/\\/g, '/'))
 							: $agent,
 						$args,
 						$keys
@@ -448,7 +448,7 @@ w = function($rootAgent, $keys, $CIApID)
 
 	_GET = g;
 
-	if ($keys) w(0, [1, '0', 'g', 1, $keys]);
+	if ($keys) w(0, [1, "'" + $rootAgent.replace(/'/g, "\\'") + "'", 'g', 1, $keys]);
 }
 
 if (window.ScriptEngine) addOnload(function()
