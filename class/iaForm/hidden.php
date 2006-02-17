@@ -130,7 +130,18 @@ class iaForm_hidden extends loop_callAgent
 	{
 		if ($onempty && $this->status==='') return $this->errormsg = $onempty;
 		else if ($onerror && $this->status===false) return $this->errormsg = $onerror;
-		else if ($this->status===false) return true;
+		else if ($this->status===false)
+		{
+			if (DEBUG)
+			{
+				E('Input validation error in ' . get_class($this) . ' element: ' . print_r(array(
+					'name' => $this->name,
+					'value' => $this->value,
+					'valid' => $this->valid, $this->valid_args
+				), true);
+			}
+			return true;
+		}
 		else if ($this->status==='') $this->value = '';
 
 		return false;
