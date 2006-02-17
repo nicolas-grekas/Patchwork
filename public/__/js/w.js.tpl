@@ -215,12 +215,12 @@ w = function($rootAgent, $keys, $CIApID)
 						$keys = $code[$pointer++],
 						$data;
 
-					if (!$agent)
+					if (!($agent>=''))
 					{
 						window.E && E('AGENT is undefined: ' + $code[$pointer-4]);
 						break;
 					}
-					
+
 					if ($agent.a && $agent/1)
 					{
 						$agent = $agent.a();
@@ -236,7 +236,7 @@ w = function($rootAgent, $keys, $CIApID)
 
 					return $include(
 						$isAgent
-							? g.__ROOT__ + '_?$=' + eUC($agent.replace(/\\/g, '/'))
+							? g.__ROOT__ + '_?$=' + eUC(($agent||$rootAgent).replace(/\\/g, '/'))
 							: $agent,
 						$args,
 						$keys
@@ -448,7 +448,7 @@ w = function($rootAgent, $keys, $CIApID)
 
 	_GET = g;
 
-	if ($keys) w(0, [1, "'" + $rootAgent.replace(/'/g, "\\'") + "'", 'g', 1, $keys]);
+	if ($keys) w(0, [1, '0', 'g', 1, $keys]);
 }
 
 if (window.ScriptEngine) addOnload(function()
