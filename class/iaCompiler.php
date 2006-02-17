@@ -7,6 +7,7 @@ abstract class iaCompiler
 
 	private $Xlblock = '<!--\s+';
 	private $Xrblock = '\s+-->';
+	private $Xcomment = '<!--\*.*?\*-->';
 
 	private $Xvar = '(?:(?:[ag][-+]\d+|\\$*|[ag])?\\$)';
 	private $XpureVar = '[a-zA-Z_][a-zA-Z_\d]*';
@@ -97,7 +98,7 @@ abstract class iaCompiler
 
 		if (substr($source, -1) == "\n") $source = substr($source, 0, -1);
 
-		return preg_replace("'<!--\*.*?\*-->'su", '', $source);
+		return preg_replace("'" . $this->Xcomment . "'su", '', $source);
 }
 
 	private function load($template)
@@ -107,21 +108,21 @@ abstract class iaCompiler
 
 		if ($this->serverMode)
 		{
-			$source = preg_replace("'<!--\s+CLIENTSIDE\s+-->.*?<!--\s+END:CLIENTSIDE\s+-->'su", '', $source);
-			$source = preg_replace("'<!--\s+(END:)?SERVERSIDE\s+-->'su", '', $source);
+			$source = preg_replace("'{$this->Xlblock}CLIENTSIDE{$this->Xrblock}.*?{$this->Xlblock}END:CLIENTSIDE{$this->Xrblock}'su", '', $source);
+			$source = preg_replace("'{$this->Xlblock}(END:)?SERVERSIDE{$this->Xrblock}'su", '', $source);
 		}
 		else
 		{
-			$source = preg_replace("'<!--\s+SERVERSIDE\s+-->.*?<!--\s+END:SERVERSIDE\s+-->'su", '', $source);
-			$source = preg_replace("'<!--\s+(END:)?CLIENTSIDE\s+-->'su", '', $source);
+			$source = preg_replace("'{$this->Xlblock}SERVERSIDE{$this->Xrblock}.*?{$this->Xlblock}END:SERVERSIDE{$this->Xrblock}'su", '', $source);
+			$source = preg_replace("'{$this->Xlblock}(END:)?CLIENTSIDE{$this->Xrblock}'su", '', $source);
 		}
 
-		if (preg_match("'<!--\s+PARENT\s+-->'su", $source))
+		if (preg_match("'{$this->Xlblock}PARENT{$this->Xrblock}'su", $source))
 		{
 			$include_path = get_include_path();
 			set_include_path(substr(strstr($include_path, PATH_SEPARATOR), 1));
 
-			$source = preg_replace("'<!--\s+PARENT\s+-->'su", $this->load($template), $source);
+			$source = preg_replace("'{$this->Xlblock}PARENT{$this->Xrblock}'su", $this->load($template), $source);
 
 			set_include_path($include_path);
 		}
@@ -241,23 +242,27 @@ abstract class iaCompiler
 			switch ($blockname)
 			{
 			case 'AGENT':
-				if (preg_match("/^({$this->XvarNconst})(?:\s+{$this->XpureVar}\s*=\s*(?:{$this->XvarNconst}))*$/su", $block, $block))
+				if (preg_match("/^({$this->Xstring}|{$this->Xvar})(?:\s+{$this->XpureVar}\s*=\s*(?:{$this->XvarNconst}))*$/su", $block, $block))
 				{
 					$inc = $this->evalVar($block[1]);
 
-					$args = array();
-					if (preg_match_all("/\s+({$this->XpureVar})\s*=\s*({$this->XvarNconst})/su", $block[0], $block))
+					if ("''" != $inc)
 					{
-						$i = 0;
-						$len = count($block[0]);
-						while ($i < $len)
+						$args = array();
+						if (preg_match_all("/\s+({$this->XpureVar})\s*=\s*({$this->XvarNconst})/su", $block[0], $block))
 						{
-							$args[ $block[1][$i] ] = $this->evalVar($block[2][$i]);
-							$i++;
+							$i = 0;
+							$len = count($block[0]);
+							while ($i < $len)
+							{
+								$args[ $block[1][$i] ] = $this->evalVar($block[2][$i]);
+								$i++;
+							}
 						}
-					}
 					
-					if (!$this->addAGENT($blockend, $inc, $args)) $this->pushText($a);
+						if (!$this->addAGENT($blockend, $inc, $args)) $this->pushText($a);
+					}
+					else $this->pushText($a);
 				}
 				else $this->pushText($a);
 				break;

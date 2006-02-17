@@ -22,18 +22,20 @@ class loop_callAgent extends loop
 			$this->firstCall = false;
 			if (!isset($this->data))
 			{
-				$this->data = $this->get();
-				$this->data->{'*a'} = $this->agent;
+				$data = $this->get();
+				$data->{'*a'} = $this->agent;
 
 				if (!isset($this->keys))
 				{
 					$a = CIA::agentClass($this->agent);
 					$a = CIA::agentArgv($a);
-					array_walk($a, array('IA', 'formatJs'));
+					array_walk($a, array('IA_js', 'formatJs'));
 
-					$this->data->{'*k'} = '[' . implode(',', $a) . ']';
+					$data->{'*k'} = '[' . implode(',', $a) . ']';
 				}
-				else $this->data->{'*k'} = $this->keys;
+				else $data->{'*k'} = $this->keys;
+
+				$this->data = $data;
 			}
 
 			return $this->data;
