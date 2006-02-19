@@ -136,7 +136,7 @@ class iaForm_hidden extends loop_callAgent
 				), true));
 			}
 
-			return true;
+			return "Input validation error in field {$this->name}";
 		}
 		else if ($this->status==='') $this->value = '';
 
