@@ -368,8 +368,21 @@ function enterControl($form)
 	return false;
 }
 
+if (t(_BOARD.lastX)) (scrollCntrl = function()
+{
+	var $body = document.body,
+		$left = Math.min(_BOARD.lastX, $body.scrollWidth),
+		$top = Math.min(_BOARD.lastY, $body.scrollHeight);
+		
+	$body && scrollTo($left, $top);
+
+	if ($left != $body.scrollLeft || $top != $body.scrollTop) setTimeout('scrollCntrl&&scrollCntrl()', 100);
+})();
+
 addOnload(function()
 {
+	scrollCntrl = 0;
+
 	var $i = 0, $forms = document.forms, $form, $j, $elt;
 
 	if (_BOARD.lastL == ''+location) t(_BOARD.lastX) && scrollTo(_BOARD.lastX, _BOARD.lastY);
@@ -394,8 +407,8 @@ addOnload(function()
 			if (!$event && 'false' == ''+$event) return false;
 
 			setboard({
-				lastX: window.pageXOffset||document.body.scrollLeft,
-				lastY: window.pageYOffset||document.body.scrollTop
+				lastX: document.body.scrollLeft,
+				lastY: document.body.scrollTop
 			});
 
 			if ($this.UPLOAD_IDENTIFIER && window.loadUpload) loadUpload($this);
