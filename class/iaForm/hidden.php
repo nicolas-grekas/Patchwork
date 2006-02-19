@@ -102,7 +102,7 @@ class iaForm_hidden extends loop_callAgent
 	{
 		if (!$this->form->checkIsOn($this->name, $this->status)) return false;
 		
-		$error = array();
+		$error =& $this->form->errormsg;
 
 		foreach ($this->elt as $name => $elt)
 		{
@@ -112,14 +112,8 @@ class iaForm_hidden extends loop_callAgent
 
 			$elt = $elt->checkError($onempty, $onerror);
 
-			if ($elt)
-			{
-				if ($elt === true) return false;
-				$error[] = $elt;
-			}
+			if ($elt && $elt !== true) $error[] = $elt;
 		}
-
-		$this->form->errormsg =& $error;
 
 		if ($this->sessionLink && $error) unset($this->sessionLink[$this->name]);
 
@@ -128,7 +122,8 @@ class iaForm_hidden extends loop_callAgent
 
 	public function checkError($onempty, $onerror)
 	{
-		if ($onempty && $this->status==='') return $this->errormsg = $onempty;
+		if ($this->errormsg) return true;
+		else if ($onempty && $this->status==='') return $this->errormsg = $onempty;
 		else if ($onerror && $this->status===false) return $this->errormsg = $onerror;
 		else if ($this->status===false)
 		{
@@ -140,11 +135,18 @@ class iaForm_hidden extends loop_callAgent
 					'valid' => $this->valid, $this->valid_args
 				), true));
 			}
+
 			return true;
 		}
 		else if ($this->status==='') $this->value = '';
 
 		return false;
+	}
+
+	public function setError($message)
+	{
+		$this->status = false;
+		$this->form->errormsg[] = $this->errormsg = $message;
 	}
 
 	public function &getData()

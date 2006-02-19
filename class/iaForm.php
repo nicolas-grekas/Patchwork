@@ -100,6 +100,11 @@ class iaForm extends loop_callAgent
 		return $elt;
 	}
 
+	public function setError($eltname, $message)
+	{
+		$this->getElement($eltname)->setError($message);
+	}
+
 	public function getElement($name)
 	{
 		return $this->elt[$this->agentPrefix . $name . $this->eltnameSuffix];
