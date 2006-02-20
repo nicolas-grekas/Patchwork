@@ -157,7 +157,7 @@ function getCaret($input)
 		$caretPos = $i.text.length;
 	}
 
-	return $caretPos;
+	return $caretPos >= '' ? $caretPos : $input.value.length;
 }
 
 function setSel($input, $selectionStart, $selectionEnd)
