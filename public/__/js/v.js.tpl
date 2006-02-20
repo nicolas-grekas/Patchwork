@@ -35,7 +35,8 @@ valid_string = function($value, $args)
 {
 	if ($args[0])
 	{
-		$args[0] = eval($args[0]);
+		if (!t($args[2]) || $args[2]) $value = $value.replace(/^\s+/, '').replace(/\s+$/, '');
+		$args[0] = new RegExp($args[0], $args[1] ? 'i' : '');
 		if ($value.search($args[0])==-1) return false;
 	}
 	return true;
@@ -45,7 +46,7 @@ valid_email = function ($value, $args)
 {
 	if ($value.search(/^\s*$/)==0) return true;
 	$value = $value.toLowerCase();
-	return valid_string($value, [/^\s*[-a-z0-9_\.\+]+@([-a-z0-9]+(\.[-a-z0-9]+)+)\s*$/i]) ? $value : false;
+	return valid_string($value, [/^\s*[-a-z0-9_\.\+=]+@([-a-z0-9]+(\.[-a-z0-9]+)+)\s*$/i]) ? $value : false;
 }
 
 valid_phone = function($value, $args)

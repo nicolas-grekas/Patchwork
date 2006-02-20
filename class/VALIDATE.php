@@ -66,14 +66,19 @@ class VALIDATE
 		return in_array($value, $args[0]) ? $value : false;
 	}
 
-	# regexp, trim
+	# regexp, case insensitive, trim
 	private static function get_string(&$value, &$args)
 	{
 		if (!is_scalar($value)) return false;
 
 		$result = (string) $value;
-		if (!isset($args[1]) || $args[1]) $result = trim($result);
-		if (isset($args[0]) && $args[0] && !preg_match($args[0].'su', $result, $args[2])) return false;
+		if (!isset($args[2]) || $args[2]) $result = trim($result);
+		if (isset($args[0]) && $args[0])
+		{
+			$rx = '@' . str_replace('@', '\\@', $args[0]) . '@';
+			if (@$args[1]) $rx .= 'i';
+			&& !preg_match($args[0].'su', $result, $args[2])) return false;
+		}
 
 		return $result;
 	}
@@ -85,7 +90,7 @@ class VALIDATE
 
 		$result = trim($value);
 
-		$rx = '[-+_a-zA-Z0-9]+';
+		$rx = '[-+=_a-zA-Z0-9]+';
 		$rx = "$rx(?:\\.$rx)*";
 
 		if ( !preg_match("'^$rx@($rx)$'u", $result, $domain) ) return false;
