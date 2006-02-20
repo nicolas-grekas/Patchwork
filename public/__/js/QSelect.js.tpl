@@ -250,7 +250,6 @@ return function($input, $driver)
 			$select.size = $length < 7 ? ($length > 2 ? $length : 2) : 7;
 			$select.style.width = $width + 'px';
 
-			$divStyle.visibility = 'visible';
 			$divStyle.display = '';
 
 			$height = $select.offsetHeight;
@@ -261,6 +260,13 @@ return function($input, $driver)
 			$divW.style.top = $height + 'px';
 
 			$form.precheck = $precheck;
+
+			$parent = document.body.scrollTop;
+			$height = $parent + window.innerHeight - $height - $top;
+
+			if ($height < $select.offsetHeight && $height < $top - $parent) $divStyle.top = ($top - $select.offsetHeight) + 'px';
+
+			$divStyle.visibility = 'visible';
 		}
 		else $this.$hide();
 	}
