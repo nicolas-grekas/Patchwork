@@ -1,5 +1,7 @@
 <?php
 
+/* Both version (PHP & JS) of this pipe are bugged */
+
 class pipe_echo
 {
 	static function php($format = '')
