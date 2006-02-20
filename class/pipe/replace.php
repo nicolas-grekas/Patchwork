@@ -4,9 +4,9 @@ class pipe_replace
 {
 	static function php($string, $search, $replace, $caseInsensitive = false)
 	{
-		$search = CIA::string($search);
+		$search = str_replace('@', '\\@', CIA::string($search));
 		$caseInsensitive = CIA::string($caseInsensitive) ? 'i' : '';
-		return preg_replace("/$search/su$caseInsensitive", CIA::string($replace), CIA::string($string));
+		return preg_replace("@{$search}@su{$caseInsensitive}", CIA::string($replace), CIA::string($string));
 	}
 
 	static function js()
