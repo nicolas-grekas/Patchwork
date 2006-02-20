@@ -1,14 +1,9 @@
-function QSelectSuggest($data, $separator, $synonyms)
+function QSelectSuggest($data, $separator, $separatorRx)
 {
-	if ($separator)
+	if (!($separator && $separatorRx))
 	{
-		$synonyms = $synonyms || RegExp.quote($separator);
-		$synonyms = new RegExp('[' + $synonyms + ']', 'g');
-	}
-	else
-	{
-		$separator = ',';
-		$synonyms = /[,;]/g;
+		$separator = ' ';
+		$separatorRx = '[\s,;]+';
 	}
 
 	return function($this, $input, $select, $options)
@@ -27,15 +22,19 @@ function QSelectSuggest($data, $separator, $synonyms)
 
 			$selectionStart = $selectionStart || $query.length;
 
-			$q = $query.substr(0, $selectionStart).split($synonyms);
-			$q = $q.pop().replace(new RegExp('^[^0-9a-z' + ACCENT.join('') + ']+', 'i'), '');
+			$q = $query.substr($selectionStart).split(new RegExp($separatorRx + '.*$'));
 
-			if ($q)
+			if ('' == $q[0])
 			{
-				$q = RegExp.quote($q, 1);
-				$q = new RegExp('(^|[^0-9a-z' + ACCENT.join('') + '])' + $q, 'i');
+				$q = $query.substr(0, $selectionStart).replace(new RegExp('^.*' + $separatorRx), '').replace(new RegExp('^[^0-9a-z' + ACCENT.join('') + ']+', 'i'), '');
 
-				for (; $i < $data.length; ++$i) if ($data[$i].search($q)>=0) $result[$result.length] = $data[$i];
+				if ($q)
+				{
+					$q = RegExp.quote($q, 1);
+					$q = new RegExp('(^|[^0-9a-z' + ACCENT.join('') + '])' + $q, 'i');
+
+					for (; $i < $data.length; ++$i) if ($data[$i].search($q)>=0) $result[$result.length] = $data[$i];
+				}
 			}
 
 			$pushBack($result, $query, $selectionStart, 0);
@@ -46,21 +45,21 @@ function QSelectSuggest($data, $separator, $synonyms)
 		$driver.setValue = function()
 		{
 			var $idx = $select.selectedIndex,
-				$caretPos = getCaret($input),
-				$vBegin, $vEnd = $input.value;
+				$vBegin, $vEnd = $input.value,
+				$caretPos = getCaret($input);
 
 			$idx = $idx>0 ? $idx : 0;
 
-			$vBegin = $vEnd.substr(0, $caretPos).split($synonyms);
-			$vEnd = $vEnd.substr($caretPos).split($synonyms);
+			$vBegin = $vEnd.substr(0, $caretPos);
+			$vEnd = $vEnd.substr($caretPos);
 
-			$vBegin[$vBegin.length - 1] = $options[$idx].text;
-			$vEnd[0] = ' ';
+			$vBegin = $vBegin.match(new RegExp('^(.*' + $separatorRx + ')'));
+			$vBegin = $vBegin ? $vBegin[1] : '';
 
-			$vBegin = $vBegin.join($separator);
-			$vEnd = $vBegin + $separator + $vEnd.join($separator);
-			$vBegin = $vBegin.length + $separator.length + 1;
-		
+			$vBegin += $options[$idx].text + $separator;
+			$vEnd = $vBegin + $vEnd;
+			$vBegin = $vBegin.length;
+
 			$this.sync($vEnd);
 
 			setSel($input, $vBegin, $vBegin);
