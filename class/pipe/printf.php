@@ -18,7 +18,7 @@ P$<?php echo substr(__CLASS__, 5)?> = function($format)
 	$format = str($format);
 
 	var $rx = /^([^%]*)%((%%)*)((\d+)\$)?(-)?('.|0|\x20)?(-)?(\d*)(\.(\d*))?([%bcdeufFosxX]?)(.*)$/,
-		    //  1       2       5        6   7           8   9       11     12             13
+		    //  1       2       5        6   7           8   9       11     12               13
 		$str = '',
 		$idCounter = 0,
 		$match, $type, $Math = Math;

@@ -77,7 +77,7 @@ class VALIDATE
 		{
 			$rx = '@' . str_replace('@', '\\@', $args[0]) . '@';
 			if (@$args[1]) $rx .= 'i';
-			&& !preg_match($args[0].'su', $result, $args[2])) return false;
+			if (!preg_match($args[0].'su', $result, $args[3])) return false;
 		}
 
 		return $result;
