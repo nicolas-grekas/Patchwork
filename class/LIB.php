@@ -131,11 +131,11 @@ class LIB
 		// Ponctuation
 		$kw = preg_replace("'{$a}+'u", ' ', $kw);
 
-		// Accents
+		// Accents and case
 		$kw = self::stripAccents($kw, -1);
 
 		// Parasites words
-		if ($stripParasites) $kw = preg_replace("'({$a}(..?|the|and|for|from|with|des|les|une|sur|aux|par|avec|dans|pour|https?)?)*{$a}'su", ' ', $kw);
+		if ($stripParasites) $kw = preg_replace("'( (..?|the|and|for|from|with|des|les|une|sur|aux|par|avec|dans|pour|https?)?)* 'su", ' ', $kw);
 
 		return trim($kw);
 	}
