@@ -318,8 +318,9 @@ class CIA
 		return $agent;
 	}
 
-	protected static function stripArgv(&$a)
+	protected static function stripArgv(&$a, $k)
 	{
+		if (is_string($k)) $a = $k;
 		$b = strpos($a, ':');
 		if (false !== $b) $a = substr($a, 0, $b);
 	}
