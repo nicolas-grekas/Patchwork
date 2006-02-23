@@ -333,13 +333,14 @@ else
 	CIA::setBinaryMode($binaryMode);
 
 	/*
-	 * Both Firefox and IE send a "Cache-Control: no-cache" request header
+	 * Both Firefox and IE send a "Cache-Control: no-cache" header with a GET request
 	 * only and only if the current page is reloaded with the JavaScript code :
 	 * "location.reload(true)". We use this behaviour to trigger a cache reset
 	 * when the cache is detected stale by the browser.
 	 */
 	if (
 		DEBUG && !$binaryMode
+		&& 'GET' == @$_SERVER['REQUEST_METHOD']
 		&& 'no-cache' == @$_SERVER['HTTP_CACHE_CONTROL']
 		&& 0 === strpos(@$_SERVER['HTTP_USER_AGENT'], 'Mozilla') )
 	{
@@ -349,7 +350,7 @@ else
 		fclose($h);
 
 		CIA::delCache();
-		echo "<script>location.reload()</script>";
+		echo '<script type="text/javascript">location.replace(location)</script>';
 		exit;
 	}
 
