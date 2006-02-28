@@ -174,7 +174,18 @@ w = function($rootAgent, $keys, $CIApID)
 	{
 		if (!t($context)) return;
 
-		$includeCache[$lastInclude] = $includeCache[$lastInclude] || [$context, $code];
+		<!--
+		
+		IF $DEBUG
+			-->if ($context && !$includeCache[$lastInclude])
+			{
+				$j = 0; for ($i in $context) ++$j;
+				if ($j) E($lastInclude), E($context);
+			}<!--
+		ELSE -->$includeCache[$lastInclude] = $includeCache[$lastInclude] || [$context, $code];<!--
+		END:IF
+		
+		-->
 
 		var $pointer = 0, $arguments = a;
 
