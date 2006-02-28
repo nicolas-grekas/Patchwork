@@ -9,7 +9,7 @@
 * addOnload
 * setcookie
 * setboard
-* root
+* topwin
 * _GET
 * _BOARD
 * _COOKIE
@@ -99,16 +99,11 @@ function setboard($name, $value, $window)
 	if (typeof $name == 'object') for ($value in $name) setboard($value, $name[$value]);
 	else
 	{
-		$window = $window || root;
+		$window = $window || topwin;
 
 		function $escape($str)
 		{
-			return eUC(
-				(''+$str).replace(
-					/&/g, '%26').replace(
-					/=/g, '%3D'
-				)
-			).replace(
+			return eUC(''+$str).replace(
 				/_/g, '_5F').replace(
 				/!/g, '_21').replace(
 				/'/g, '_27').replace(
@@ -122,14 +117,14 @@ function setboard($name, $value, $window)
 			);
 		}
 
-		$name = '_26' + $escape($name) + '_3D';
+		$name = '_K' + $escape($name) + '_V';
 
 		var $varIdx = $window.name.indexOf($name),
 			$varEndIdx;
 
 		if ($varIdx>=0)
 		{
-			$varEndIdx = $window.name.indexOf('_26', $varIdx + $name.length);
+			$varEndIdx = $window.name.indexOf('_K', $varIdx + $name.length);
 			$window.name = $window.name.substring(0, $varIdx) + ( $varEndIdx>=0 ? $window.name.substring($varEndIdx) : '' );
 		}
 
@@ -139,9 +134,9 @@ function setboard($name, $value, $window)
 
 
 addOnload.p = [];
-if ((root = window).Error)
+if ((topwin = window).Error)
 	// This eval avoids a parse error with browsers not supporting exceptions.
-	eval('try{while(((w=root.parent)!=root)&&t(w.name))root=w}catch(w){}');
+	eval('try{while(((w=topwin.parent)!=topwin)&&t(w.name))topwin=w}catch(w){}');
 
 
 w = function($rootAgent, $keys, $CIApID)
@@ -464,13 +459,23 @@ if (window.ScriptEngine) addOnload(function()
 
 function loadW()
 {
-	if (window.encodeURI) with (window)
+	var $window = window, $boardidx = topwin.name.indexOf('_K');
+
+	if ($window.encodeURI)
 	{
-		dUC = decodeURIComponent;
-		eUC = encodeURIComponent;
-		_BOARD = parseurl(dUC(root.name.replace(/_/g, '%')), '&', /^$/);
-		_COOKIE = parseurl(document.cookie, '&', /^amp;/);
-		window.a && w(a[0], a[1], a[2]);
+		$window.dUC = decodeURIComponent;
+		$window.eUC = encodeURIComponent;
+		$window._BOARD = $boardidx >= 0
+			? parseurl(
+				topwin.name.substr($boardidx).replace(
+					/_K/g, '&').replace(
+					/_V/g, '=').replace(
+					/_/g , '%')
+				, '&'
+				, /^$/
+			) : {};
+		$window._COOKIE = parseurl(document.cookie, '&', /^amp;/);
+		$window.a && w(a[0], a[1], a[2]);
 	}
 	else document.write('<script type="text/javascript" src="js/compat"></script>');
 }

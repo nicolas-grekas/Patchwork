@@ -536,21 +536,7 @@ class iaForm_date extends iaForm_text
 		return $a;
 	}
 	
-	public function getTimestamp()
-	{
-		if ($v = $this->getValue())
-		{
-			if (preg_match("'^(\d{2})-(\d{2})-(\d{4})$'", $v, $v))
-			{
-				$v = mktime(0,0,0, $v[2], $v[1], $v[3]);
-			}
-			else $v = 0;
-		}
-
-		return (int) $v;
-	}
-
-	public function getMysqlDate()
+	public function getDbValue()
 	{
 		if ($v = $this->getValue())
 		{
@@ -562,11 +548,6 @@ class iaForm_date extends iaForm_text
 		}
 
 		return (string) $v;
-	}
-
-	public function getDbValue()
-	{
-		return $this->getMysqlDate();
 	}
 }
 

@@ -1,11 +1,11 @@
-    *  cache des données USER et AUTH dans SESSION, lever le problème avec les références
+    * cache des données USER et AUTH dans SESSION, lever le problème avec les références
     * définir qqch de similaire à __AGENT__ pour les scripts PHP ?.
     * Code de debug/test possible dans les JS et les PHP, executé SSI DEBUG
     * autoscroll des formulaires : essayer de voir si on ne peut pas le faire avant "onload", au moment où la page a atteind une hauteur suffisante ?
     * Tester avec Safari
     * CIA::execAgent(...)
     * {r$...} indispensable pour un compilateur de templates base agents
-    * Donner au designer la possibilité d'importer les donner d'un agent via
+    * Donner au designer la possibilité d'importer les donner d'un agent via <!-- IMPORT $agent --> ?
     * QSelect locké : <TAB> avant première recherche => search(value) => value = 1er résultat
     * Dossier tmp devrait varier avec CIA_ROOT
     * Faire une watchTable unique, ajouter une directive de configuration $watchPrefix pour les projets
