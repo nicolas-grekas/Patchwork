@@ -177,7 +177,7 @@ w = function($rootAgent, $keys, $CIApID)
 		<!--
 		
 		IF $DEBUG
-			-->if ($context && !$includeCache[$lastInclude])
+			-->if (window.E && $context && !$includeCache[$lastInclude])
 			{
 				$j = 0; for ($i in $context) ++$j;
 				if ($j) E($lastInclude), E($context);
