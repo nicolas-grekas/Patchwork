@@ -13,7 +13,7 @@ class pipe_htmlArgs
 		foreach ($pool as $k => $v)
 		{
 			$pool = substr($k, 0, 1);
-			if ('_' != $pool && '*' != $pool && mb_strpos($k, '$')===false && !in_array($k, $except))
+			if ('_'!=$pool && '*'!=$pool && 'iteratorPosition'!=$k && mb_strpos($k, '$')===false && !in_array($k, $except))
 			{
 				$result .= $k . '="' . CIA::string($v) . '" ';
 			}
@@ -34,7 +34,7 @@ P$<?php echo substr(__CLASS__, 5)?> = function($pool)
 	while (--$i) $except[$i] = arguments[$i];
 	$except = new RegExp('^(|'+$except.join('|')+')$');
 
-	for ($i in $pool) if ($i.substr(0,1)!='_' && $i.substr(0,1)!='*' && $i.indexOf('$')<0 && $i.search($except)) $result += $i + '="' + $pool[$i] + '" ';
+	for ($i in $pool) if ($i.substr(0,1)!='_' && $i.substr(0,1)!='*' && 'iteratorPosition'!=$i && $i.indexOf('$')<0 && $i.search($except)) $result += $i + '="' + $pool[$i] + '" ';
 	return $result;
 }
 

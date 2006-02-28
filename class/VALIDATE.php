@@ -91,7 +91,7 @@ class VALIDATE
 
 		$result = trim($value);
 
-		$rx = '[-+=_a-zA-Z0-9]+';
+		$rx = '[-+=_a-zA-Z0-9%]+';
 		$rx = "$rx(?:\\.$rx)*";
 
 		if ( !preg_match("'^$rx@($rx)$'u", $result, $domain) ) return false;
@@ -161,7 +161,7 @@ class VALIDATE
 
 		if (31 < $r[0] || 12 < $r[1]) return false;
 
-		return date("d-m-Y", mktime (0, 0, 0, $r[1], $r[0], $r[2]));
+		return sprintf('%02d-%02d-%04d', $r[0], $r[1], $r[2]);
 	}
 
 	# size (octet), regexp

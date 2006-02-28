@@ -66,11 +66,6 @@ class CIA
 	 */
 	public static function redirect($url = '', $exit = true)
 	{
-		if ($url instanceof agent)
-		{
-			$url = 'dispatch?src=' . substr(get_class($url), 6);
-		}
-
 		$url = (string) $url;
 
 		self::$redirectUrl = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'i", $url) ? $url : (CIA_ROOT . ('index' == $url ? '' : $url)));
@@ -321,6 +316,7 @@ class CIA
 	protected static function stripArgv(&$a, $k)
 	{
 		if (is_string($k)) $a = $k;
+
 		$b = strpos($a, ':');
 		if (false !== $b) $a = substr($a, 0, $b);
 	}
