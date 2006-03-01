@@ -119,7 +119,7 @@ class LIB
 	/**
 	 * Clean an string to make it suitable for a search
 	 */
-	static function getKeywords($kw, $stripParasites = false)
+	static function getKeywords($kw)
 	{
 		$a = "[ʿ’[:punct:][:cntrl:][:space:]]";
 
@@ -133,9 +133,6 @@ class LIB
 
 		// Accents and case
 		$kw = self::stripAccents($kw, -1);
-
-		// Parasites words
-		if ($stripParasites) $kw = preg_replace("'( (..?|the|and|for|from|with|des|les|une|sur|aux|par|avec|dans|pour|https?)?)* 'su", ' ', $kw);
 
 		return trim($kw);
 	}
