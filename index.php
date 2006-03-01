@@ -148,8 +148,8 @@ if (@$_SERVER['HTTP_IF_NONE_MATCH']{0} == '/' && preg_match("'^/[0-9a-f]{32}-([0
 
 /* Small Usefull Functions */
 
-if (DEBUG) {function E($msg) {CIA::ciaLog($msg, false, false);}}
-else {function E($msg) {trigger_error(serialize($msg));}}
+if (DEBUG) {function E($msg = '__getDeltaMicrotime') {return CIA::ciaLog($msg, false, false);}}
+else {function E($msg = '__getDeltaMicrotime') {trigger_error(serialize($msg));}}
 
 function G($name, $type) {$a = func_get_args(); return VALIDATE::get(    $_GET[$name]   , $type, array_slice($a, 2));}
 function P($name, $type) {$a = func_get_args(); return VALIDATE::get(    $_POST[$name]  , $type, array_slice($a, 2));}

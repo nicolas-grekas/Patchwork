@@ -44,17 +44,22 @@ class debug_CIA extends CIA
 		static $prev_time = CIA;
 		$this->total_time += $a = 1000*(microtime(true) - $prev_time);
 
-		if ($is_end) $a = sprintf('Total: %.02f ms</pre><pre>', $this->total_time);
-		else if (self::$handlesOb) $a = sprintf('%.02f ms: ', $a) . serialize($message) . "\n";
-		else $a = sprintf('%.02f ms: ', $a) . print_r($message, true) . "\n";
+		if ('__getDeltaMicrotime' !== $message)
+		{
+			if ($is_end) $a = sprintf('Total: %.02f ms</pre><pre>', $this->total_time);
+			else if (self::$handlesOb) $a = sprintf('%.02f ms: ', $a) . serialize($message) . "\n";
+			else $a = sprintf('%.02f ms: ', $a) . print_r($message, true) . "\n";
 
-		if (!$html) $a = htmlspecialchars($a);
+			if (!$html) $a = htmlspecialchars($a);
 
-		$b = fopen(ini_get('error_log'), 'ab');
-		fwrite($b, $a);
-		fclose($b);
+			$b = fopen(ini_get('error_log'), 'ab');
+			fwrite($b, $a);
+			fclose($b);
+		}
 
 		$prev_time = microtime(true);
+
+		return $a;
 	}
 
 	private function error_end($type)
