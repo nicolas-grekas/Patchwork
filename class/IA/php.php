@@ -88,7 +88,7 @@ class IA_php
 			if (!file_exists($ctemplate))
 			{
 				$compiler = new iaCompiler_php($agent->binary);
-				$ftemplate = '<?php function ' . $ftemplate . '(&$v, &$a, &$g){' . $compiler->compile($template . '.tpl') . '} ' . $ftemplate . '($v, $a, $g);';
+				$ftemplate = '<?php function ' . $ftemplate . '(&$v, &$a, &$g){$d=$v;' . $compiler->compile($template . '.tpl') . '} ' . $ftemplate . '($v, $a, $g);';
 				CIA::writeFile($ctemplate,  $ftemplate);
 				CIA::writeWatchTable(array('public/templates'), $ctemplate);
 			}
