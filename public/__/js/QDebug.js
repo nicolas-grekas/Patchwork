@@ -1,7 +1,8 @@
-function E($v, $max_depth, $level)
+function E($v, $max_depth, $level, $expand)
 {
 	$max_depth = typeof $max_depth != 'undefined' ? $max_depth : E.max_depth;
 	$level = $level || 0;
+	$expand = $expand || 0;
 
 	function o($str, $r)
 	{
@@ -15,7 +16,7 @@ function E($v, $max_depth, $level)
 
 	function p($str)
 	{
-		return typeof $str=='string' ? $str.replace(/</g, '&lt;').replace(/>/g, '&gt;') : $str;
+		return $str.toString(10, $level).replace(/</g, '&lt;').replace(/>/g, '&gt;');
 	}
 
 	if ($level == 0)
@@ -32,18 +33,21 @@ function E($v, $max_depth, $level)
 			o('### Max Depth Reached ###\n');
 			return $v;
 		}
-		
+
+		if ($level) o('<a href="#" onclick="return opener.QDebug_toggle(document, ' + (++E.counter) + ')">');
 		o(typeof $v=='object' ? 'Object\n' : 'Array\n');
+		if ($level) o('</a><span id="QDebugId' + E.counter + '" style="display:'+($expand && !--$expand ? '' : 'none')+'">');
 		o(' ', 8*$level);
 		o('(\n');
-		for (var $key in $v) if (typeof $v[$key]!='function' && !E.hiddenList[$key])
+		for (var $key in $v) if (!E.hiddenList[$key])
 		{
 			o(' ',  8*$level);
 			o('    ['+p($key)+'] => ');
-			E($v[$key], $max_depth, $level+1);
+			E($v[$key], $max_depth, $level+1, $expand);
 		}
 		o(' ', 8*$level);
 		o(')\n\n');
+		if ($level) o('</span>');
 	}
 	else o(p($v)+'\n');
 	
@@ -73,3 +77,10 @@ E.hiddenList = {
 	'document' : true
 };
 E.lastTime = _____;
+E.counter = 0;
+QDebug_toggle = function($d, $e)
+{
+	$e = $d.getElementById('QDebugId' + $e).style;
+	$e.display = 'none' == $e.display ? '' : 'none';
+	return false;
+}

@@ -175,18 +175,15 @@ w = function($rootAgent, $keys, $CIApID)
 	{
 		if (!t($context)) return;
 
-		<!--
-		
-		IF $DEBUG
-			-->if (window.E && $context && !$includeCache[$lastInclude])
-			{
-				$j = 0; for ($i in $context) ++$j;
-				if ($j) E($lastInclude), E($context);
-			}<!--
-		ELSE -->$includeCache[$lastInclude] = $includeCache[$lastInclude] || [$context, $code];<!--
-		END:IF
-		
-		-->
+		<!-- IF $DEBUG -->
+		if (window.E && $context && !$includeCache[$lastInclude])
+		{
+			$j = 0; for ($i in $context) ++$j;
+			if ($j) E($lastInclude), E($context);
+		}
+		<!-- END:IF -->
+
+		$includeCache[$lastInclude] = $includeCache[$lastInclude] || [$context, $code];
 
 		var $pointer = 0, $arguments = a;
 
@@ -222,15 +219,15 @@ w = function($rootAgent, $keys, $CIApID)
 						$keys = $code[$pointer++],
 						$data;
 
-					if (!($agent>=''))
+					if (!t($agent))
 					{
 						window.E && E('AGENT is undefined: ' + $code[$pointer-4]);
 						break;
 					}
 
-					if ($agent.a && $agent/1)
+					if (typeof $agent == 'function')
 					{
-						$agent = $agent.a();
+						$agent = $agent();
 						while ($j = $agent()) $data = $j;
 
 						$agent = $data['*a'];
@@ -285,7 +282,7 @@ w = function($rootAgent, $keys, $CIApID)
 
 				case 8: // loop
 					$i = $evalNext();
-					($i && ($i.a || ($i = y($i-0))) && $i.a()() && ++$pointer) || ($pointer += $code[$pointer]);
+					($i && (typeof $i == 'function' || ($i = y($i-0))) && $i()() && ++$pointer) || ($pointer += $code[$pointer]);
 					$context = v;
 					break;
 
@@ -384,7 +381,7 @@ w = function($rootAgent, $keys, $CIApID)
 
 	w.x = function($data)
 	{
-		var $block, $offset, $parent, $blockData, $parentLoop, $counter;
+		var $block, $offset, $parent, $blockData, $parentLoop, $counter, $loop;
 		
 		function $next()
 		{
@@ -403,16 +400,35 @@ w = function($rootAgent, $keys, $CIApID)
 			return v;
 		}
 
-		return $data[0] ? {
-			a:function()
+		$loop = $data[0] ? function()
 			{
 				return $parent = v,
 					$parentLoop = $loopIterator,
 					$counter = $offset = 0, $block = 1,
 					$loopIterator = $next;
-			},
-			toString:function() {return ''+$data[0]}
-		} : 0;
+			} : 0;
+
+		<!-- IF $DEBUG -->
+		$loop.toString = function($a, $level)
+		{
+			var $data = new Array();
+
+			$a = $loop();
+			while ($a())
+			{
+				delete v.$;
+				delete v.iteratorPosition;
+				$data.push(v);
+			}
+
+			E($data, 0, $level, 2);
+			return '';
+		}
+		<!-- ELSE -->
+		$loop.toString = function() {return ''+$data[0]};
+		<!-- END:IF -->
+
+		return $loop;
 	}
 
 	function y($length)
