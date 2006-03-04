@@ -49,7 +49,7 @@ class iaCompiler_php extends iaCompiler
 			$type = array_pop($this->setStack);
 			$name = $type[0];
 			$type = $type[1];
-			if ($type != 'a' && $type != 'g')
+			if ($type != 'd' && $type != 'a' && $type != 'g')
 			{
 				$type = 'v';
 				$i = strlen($type);
@@ -135,6 +135,7 @@ class iaCompiler_php extends iaCompiler
 				$var = '@$v' . str_repeat('->{"$"}', substr_count($prefix, '$')) . "->$name" ;
 				break;
 
+			case 'd':
 			case 'a':
 			case 'g':
 				$var = ''!==(string) $prefix ? "IA_php::increment('$name',$prefix, \$$type)" : "@\${$type}->$name";

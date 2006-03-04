@@ -9,7 +9,7 @@ abstract class iaCompiler
 	private $Xrblock = '\s+-->';
 	private $Xcomment = '<!--\*.*?\*-->';
 
-	private $Xvar = '(?:(?:[ag][-+]\d+|\\$*|[ag])?\\$)';
+	private $Xvar = '(?:(?:[dag][-+]\d+|\\$*|[dag])?\\$)';
 	private $XpureVar = '[a-zA-Z_][a-zA-Z_\d]*';
 
 	private $Xblock = '[A-Z]+\b';
@@ -45,11 +45,11 @@ abstract class iaCompiler
 
 		$dnum = '(?:(?:\d*\.\d+)|(?:\d+\.\d*))';
 		$this->Xnumber = "-?(?:(?:\d+|$dnum)[eE][+-]?\d+|$dnum|[1-9]\d*|0[xX][\da-fA-F]+|0[0-7]*)(?!\d)";
-		$this->XvarNconst = "(?<!\d)(?:{$this->Xstring}|{$this->Xnumber}|{$this->Xvar}|[ag]\\$|\\$+)";
+		$this->XvarNconst = "(?<!\d)(?:{$this->Xstring}|{$this->Xnumber}|{$this->Xvar}|[dag]\\$|\\$+)";
 
 		$this->Xmath = "\(*(?:{$this->Xnumber}|{$this->Xvar})\)*";
 		$this->Xmath = "(?:{$this->Xmath}\s*[-+*\/%]\s*)*{$this->Xmath}";
-		$this->Xexpression = "(?<!\d)(?:{$this->Xstring}|(?:{$this->Xmath})|[ag]\\$|\\$+)";
+		$this->Xexpression = "(?<!\d)(?:{$this->Xstring}|(?:{$this->Xmath})|[dag]\\$|\\$+)";
 
 		$this->Xmodifier = $this->XpureVar;
 		$this->XmodifierPipe = "\\|{$this->Xmodifier}(?::(?:{$this->Xexpression})?)*";
@@ -268,7 +268,7 @@ abstract class iaCompiler
 				break;
 
 			case 'SET':
-				if (preg_match("/^([ag]|\\$*)\\$({$this->XpureVar})$/su", $block, $block))
+				if (preg_match("/^([dag]|\\$*)\\$({$this->XpureVar})$/su", $block, $block))
 				{
 					$type = $block[1];
 					$block = $block[2];
@@ -475,7 +475,7 @@ abstract class iaCompiler
 			$a = "'" . $a;
 		}
 		else if (preg_match("/^{$this->Xnumber}$/su", $a)) $a = eval("return \"'\" . $a;");
-		else if ($a!=='' && !preg_match("/^(?:{$this->Xvar}|[ag]\\$|\\$+)$/su", $a))
+		else if ($a!=='' && !preg_match("/^(?:{$this->Xvar}|[dag]\\$|\\$+)$/su", $a))
 		{
 			$a = preg_split("/({$this->Xvar}|{$this->Xnumber})/su", $a, -1, PREG_SPLIT_DELIM_CAPTURE);
 			$i = 1;

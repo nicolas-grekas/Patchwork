@@ -155,15 +155,16 @@ w = function($rootAgent, $keys, $CIApID)
 
 		$i, $j, $loopIterator = [],
 		
-		a, v, g,
+		a, d, v, g,
 
 		$lastInclude = '',
 		$includeCache = {};
 
-/* 
+/*
 *		a : arguments
-*		v : local
-*		v.$ : parent
+*		d : data, root
+*		v : data, local
+*		v.$ : data, parent
 *		g : get
 
 *		w.x() : loop construtor for data arrays
@@ -176,22 +177,22 @@ w = function($rootAgent, $keys, $CIApID)
 		if (!t($context)) return;
 
 		<!-- IF $DEBUG -->
-		if (window.E && $context && !$includeCache[$lastInclude])
+		if ($context && !$includeCache[$lastInclude])
 		{
 			$j = 0; for ($i in $context) ++$j;
 			if ($j) E($lastInclude), E($context);
 		}
 		<!-- END:IF -->
 
-		$includeCache[$lastInclude] = $includeCache[$lastInclude] || [$context, $code];
-
 		var $pointer = 0, $arguments = a;
 
-		if ($context)
+		if (!$includeCache[$lastInclude])
 		{
-			for ($i in $context) $context[$i] = esc($context[$i]);
-			$context.$ = v = $context;
+			$includeCache[$lastInclude] = [$context, $code];
+			if ($context) for ($i in $context) $context[$i] = esc($context[$i]);
 		}
+
+		if ($context) d = $context.$ = v = $context;
 		else $context = v;
 
 		function $execute()
@@ -457,7 +458,7 @@ w = function($rootAgent, $keys, $CIApID)
 
 	$j = location;
 
-	g = parseurl($j.search.replace(/\+/g,'%20').substring(1), '&', /^amp;/);
+	g = parseurl($j.search.replace(/\+/g, '%20').substring(1), '&', /^amp;/);
 	g.__QUERY__ = esc($j.search) || '?';
 	g.__URI__ = esc($j.href);
 	g.__ROOT__ = esc({g$__ROOT__|escape:'js'});

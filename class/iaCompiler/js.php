@@ -230,6 +230,7 @@ class iaCompiler_js extends iaCompiler
 				$result = 'v' . str_repeat('.$', substr_count($prefix, '$')) . $this->getJsAccess($name);
 				break;
 
+			case 'd':
 			case 'a':
 			case 'g':
 				$result = ''!==(string) $prefix ? "z('$name',$prefix" .( $type=='g' ? ',1' : '' ). ')' : ($type . $this->getJsAccess($name));

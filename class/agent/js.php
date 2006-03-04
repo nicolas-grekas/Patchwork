@@ -28,7 +28,7 @@ class agent_js extends agent_bin
 		}
 		
 		$a = (object) $this->a;
-		$v = (object) $this->v;
+		$d = $v = (object) $this->v;
 		$g = (object) $this->g;
 		$g->__URI__ = htmlspecialchars($_SERVER['REQUEST_URI']);
 		$g->__ROOT__ = htmlspecialchars(CIA_ROOT);
