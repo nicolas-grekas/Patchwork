@@ -121,7 +121,7 @@ class LIB
 	 */
 	static function getKeywords($kw)
 	{
-		$a = "[ʿ’[:punct:][:cntrl:][:space:]]";
+		$a = "[«»“”″‘’′ʿ◊[:punct:][:cntrl:][:space:]]";
 
 		$kw = ' ' . $kw . ' ';
 
