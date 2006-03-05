@@ -13,17 +13,7 @@ document.getElementsByTagName = document.getElementsByTagName || function($tagNa
 
 decodeURI = window.decodeURI || function($string)
 {
-	return decodeURIComponent($string).replace(
-		/\,/g, '%2C').replace(
-		/\//g, '%2F').replace(
-		/\?/g, '%3F').replace(
-		/\:/g, '%3A').replace(
-		/\@/g, '%40').replace(
-		/\&/g, '%26').replace(
-		/\=/g, '%3D').replace(
-		/\+/g, '%2B').replace(
-		/\$/g, '%24'
-	);
+	return decodeURIComponent($string.replace(/%(2[46BCF]|3[ADF]|40)/gi, '%25$1'));
 }
 
 decodeURIComponent = window.decodeURIComponent || function($string)
