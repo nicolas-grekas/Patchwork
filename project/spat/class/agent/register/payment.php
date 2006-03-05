@@ -2,7 +2,7 @@
 
 class agent_register_payment extends agent
 {
-	public function render()
+	public function compose()
 	{
 		$data = (object) array();
 

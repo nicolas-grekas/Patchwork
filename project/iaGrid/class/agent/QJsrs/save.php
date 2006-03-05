@@ -4,7 +4,7 @@ class agent_QJsrs_save extends agent_QJsrs
 {
 	public $argv = array('tabId');
 
-	public function render()
+	public function compose()
 	{
 		$tabId = (int) $this->argv->tabId;
 
@@ -24,6 +24,6 @@ class agent_QJsrs_save extends agent_QJsrs
 			"tabId={$tabId} AND row={$row} AND col={$col}"
 		);
 
-		return parent::render();
+		return parent::compose();
 	}
 }

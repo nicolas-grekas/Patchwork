@@ -31,7 +31,7 @@ class loop_register_option extends loop_sql
 	{
 		if ($this->pool)
 		{
-			$data = $this->pool[0]->render();
+			$data = $this->pool[0]->compose();
 			if ($data)
 			{
 				return $data;
@@ -137,7 +137,7 @@ class loop_register_option_int extends loop
 	{
 		if ($this->subon)
 		{
-			$data = $this->suboption->render();
+			$data = $this->suboption->compose();
 			if ($data) return $data;
 
 			$this->subon = false;

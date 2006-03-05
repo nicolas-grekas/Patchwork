@@ -14,4 +14,4 @@
           o le donner à w3m pour créer une version texte,
           o ajouter à un pool d'envoi et faire requête de vidange de pool
           o faire un gestion des bounces et des reply + stockage des mails envoyés via une mailbox standard 
-    * réussir à fonctionner en mode CGI => ur type "annuaire.php?fr/atlas?q=espci" supprimer la notion de <base href> et introduire un raccourcis pour {g$__ROOT__} 
+    * réussir à fonctionner en mode CGI => ur type "annuaire.php?fr/atlas?q=espci" supprimer la notion de <base href> et introduire un raccourcis pour {g$__ROOT__}

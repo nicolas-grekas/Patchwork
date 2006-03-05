@@ -12,13 +12,13 @@ class agent_admin_option extends agent
 	public $delOption = false;
 	public $cloneOption = false;
 
-	public function render()
+	public function compose()
 	{
 		$data = (object) array();
 
 		$data->option = new loop_sql(
 			"SELECT * FROM def_option ORDER BY position",
-			array($this, 'renderOption')
+			array($this, 'filterOption')
 		);
 
 		$form = new iaForm($data);
@@ -61,7 +61,7 @@ class agent_admin_option extends agent
 		return $data;
 	}
 
-	public function renderOption($data)
+	public function filterOption($data)
 	{
 		if ($this->moveDown == $data->option_id)
 		{

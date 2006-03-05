@@ -536,8 +536,8 @@ class agent_
 	protected $expires = 'ontouch';
 	protected $watch = array();
 
-	public function init() {}
-	public function render() {return (object) array();}
+	public function control() {}
+	public function compose() {return (object) array();}
 	public function getTemplate()
 	{
 		return isset($this->template) ? $this->template : str_replace('_', '/', substr(get_class($this), 6));
@@ -551,10 +551,10 @@ class agent_
 
 		array_walk($a, array($this, 'populateArgv'), (object) $args);
 
-		$this->init();
+		$this->control();
 	}
 
-	public function postRender()
+	public function metaCompose()
 	{
 		CIA::setMaxage($this->maxage);
 		CIA::setPrivate($this->private);
@@ -608,12 +608,12 @@ class agentTemplate_ extends agent_
 class loop
 {
 	private $loopLength = false;
-	private $renderer = array();
+	private $filter = array();
 
 	protected function prepare() {}
 	protected function next() {}
 
-	final public function &render()
+	final public function &compose()
 	{
 		$catchMeta = CIA::$catchMeta;
 		CIA::$catchMeta = true;
@@ -628,8 +628,8 @@ class loop
 			{
 				$data = (object) $data;
 				$i = 0;
-				$len = count($this->renderer);
-				while ($i<$len) $data = (object) call_user_func($this->renderer[$i++], $data, $this);
+				$len = count($this->filter);
+				while ($i<$len) $data = (object) call_user_func($this->filter[$i++], $data, $this);
 			}
 			else $this->loopLength = false;
 		}
@@ -639,7 +639,7 @@ class loop
 		return $data;
 	}
 
-	final public function addRenderer($renderer) {if ($renderer) $this->renderer[] = $renderer;}
+	final public function addFilter($filter) {if ($filter) $this->filter[] = $filter;}
 	
 	final public function __toString()
 	{

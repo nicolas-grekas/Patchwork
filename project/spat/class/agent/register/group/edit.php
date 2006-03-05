@@ -4,7 +4,7 @@ class agent_register_group_edit extends agent_register_group_member
 {
 	public $argv = array('__0__');
 
-	public function render()
+	public function compose()
 	{
 		$this->member =& SESSION::get('groupMember');
 		$editList = false;
@@ -33,7 +33,7 @@ class agent_register_group_edit extends agent_register_group_member
 		$form = new iaForm($data);
 		$form->sessionLink =& $member;
 
-		if ($editList) $data->member = new loop_array($editList, array($this, 'renderMember'));
+		if ($editList) $data->member = new loop_array($editList, array($this, 'filterMember'));
 		else
 		{
 			$form->add('text', 'firstname');
@@ -76,10 +76,10 @@ class agent_register_group_edit extends agent_register_group_member
 		return $data;
 	}
 
-	public function renderMember($data)
+	public function filterMember($data)
 	{
 		$data = (object) array('VALUE' => $this->member[$data->VALUE - 1]);
 		
-		return parent::renderMember($data);
+		return parent::filterMember($data);
 	}
 }

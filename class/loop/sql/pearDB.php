@@ -8,13 +8,13 @@ class loop_sql_pearDB extends loop
 	protected $from = 0;
 	protected $count = 0;
 
-	public function __construct($sql, $renderer = '', $from = 0, $count = 0)
+	public function __construct($sql, $filter = '', $from = 0, $count = 0)
 	{
 		$this->db = DB();
 		$this->sql = $sql;
 		$this->from = $from;
 		$this->count = $count;
-		$this->addRenderer($renderer);
+		$this->addFilter($filter);
 	}
 
 	public function setLimit($from, $count)

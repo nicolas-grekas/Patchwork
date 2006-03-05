@@ -35,7 +35,7 @@ class loop_register_option_int extends loop
 	{
 		if ($this->subon)
 		{
-			$data = $this->suboption->render();
+			$data = $this->suboption->compose();
 			if ($data) return $data;
 
 			$this->subon = false;

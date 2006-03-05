@@ -4,7 +4,7 @@ class agent_index extends agent
 {
 	protected $maxage = -1;
 
-	public function render()
+	public function compose()
 	{
 		$a = (object) array(
 			'menu' => new loop_array(array(
@@ -34,7 +34,7 @@ class agent_index extends agent
 					'VALUE' => 'Nous contacter',
 				)),
 			
-				'render_rawArray'
+				'filter_rawArray'
 			)
 		);
 

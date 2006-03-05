@@ -14,7 +14,7 @@ class agent_admin_option_edit extends agent
 
 	protected $option_id;
 
-	public function render()
+	public function compose()
 	{
 		if (!is_numeric($this->argv->__1__)) CIA::redirect('admin/option');
 
@@ -26,7 +26,7 @@ class agent_admin_option_edit extends agent
 
 		$data->choice = new loop_sql(
 			"SELECT * FROM def_choice WHERE parent_option_id={$this->option_id} ORDER BY position",
-			array($this, 'renderChoice')
+			array($this, 'filterChoice')
 		);
 
 		$form = new iaForm($data);
@@ -91,7 +91,7 @@ class agent_admin_option_edit extends agent
 		return $data;
 	}
 
-	public function renderChoice($data)
+	public function filterChoice($data)
 	{
 		if ($this->moveDown == $data->choice_id)
 		{

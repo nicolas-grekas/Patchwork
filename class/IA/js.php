@@ -29,7 +29,7 @@ class IA_js
 		}
 	}
 
-	public static function render($agent)
+	public static function compose($agent)
 	{
 		if (!self::$html) CIA::header('Content-Type: text/javascript; charset=UTF-8');
 
@@ -48,7 +48,7 @@ class IA_js
 			return;
 		}
 
-		$data = $agent->render();
+		$data = $agent->compose();
 		$template = $agent->getTemplate();
 
 		ob_start();
@@ -66,7 +66,7 @@ class IA_js
 
 		CIA::$catchMeta = true;
 
-		$agent->postRender();
+		$agent->metaCompose();
 		list($maxage, $private, $expires, $watch, $headers) = CIA::closeMeta();
 
 		if ($maxage==CIA_MAXAGE)
@@ -109,7 +109,7 @@ class IA_js
 
 		$prevKeyList = '';
 
-		while ($data = $loop->render())
+		while ($data = $loop->compose())
 		{
 			$data = (array) $data;
 

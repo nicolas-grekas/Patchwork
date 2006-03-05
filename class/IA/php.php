@@ -25,7 +25,7 @@ class IA_php
 
 		if ($agent instanceof loop && CIA::string($agent))
 		{
-			while ($i =& $agent->render()) $data =& $i;
+			while ($i =& $agent->compose()) $data =& $i;
 
 			$agent = $data->{'*a'};
 
@@ -36,12 +36,12 @@ class IA_php
 		$a =& $_GET;
 		$_GET =& $args;
 
-		self::render($agent);
+		self::compose($agent);
 
 		$_GET =& $a;
 	}
 
-	public static function render($agent)
+	public static function compose($agent)
 	{
 		CIA::openMeta();
 
@@ -49,7 +49,7 @@ class IA_php
 		$agent = class_exists($agentClass) ? new $agentClass($_GET) : new agentTemplate_(array('template' => $agent));
 
 		$cagent = CIA::agentCache($agentClass, $agent->argv, 'php');
-		$rendered = false;
+		$filter = false;
 
 		if (isset(self::$cache[$cagent]))
 		{
@@ -63,9 +63,9 @@ class IA_php
 			else if (!CIA_POSTING && file_exists('POST'.$cagent) && filemtime('POST'.$cagent)>CIA_TIME) require 'POST'.$cagent;
 			else
 			{
-				$v = $agent->render();
+				$v = $agent->compose();
 				$template = $agent->getTemplate();
-				$rendered = true;
+				$filter = true;
 			}
 
 			$vClone = clone $v;
@@ -98,10 +98,10 @@ class IA_php
 
 		CIA::$catchMeta = true;
 
-		$agent->postRender();
+		$agent->metaCompose();
 		list($maxage, $private, $expires, $watch, $headers, $canPost) = CIA::closeMeta();
 
-		if ($rendered)
+		if ($filter)
 		{
 			$cagent = CIA::agentCache($agentClass, $agent->argv, 'php');
 
@@ -149,7 +149,7 @@ class IA_php
 					fwrite($h, 'new L_(array(');
 
 					$comma2 = '';
-					while ($key = $value->render())
+					while ($key = $value->compose())
 					{
 						fwrite($h, $comma2);
 						self::writeAgent($h, $key);
