@@ -70,11 +70,11 @@ class debug_CIA extends CIA
 
 		if ($type=='<') return <<<DEBUG_INFO
 <html><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script type="text/javascript">
-_____ = new Date;
+_____ = new Date/1;
 onload = function() {
 window.debugWin = open('$debugWin','debugWin','dependent=yes,toolbar=no,status=yes,resizable=yes,scrollbars,width=320,height=240,left=' + parseInt(screen.availWidth - 340) + ',top=' + parseInt(screen.availHeight - 290));
 if (!debugWin) alert('Disable anti-popup to use the Debug Window');
-else E('Rendering time: ' + (new Date - _____) + ' ms');
+else E('Rendering time: ' + (new Date/1 - _____) + ' ms');
 };
 </script><div style="font-family:arial;font-size:9px;top:0px;left:0px;z-index:255;float:right"><a href="javascript:;" onclick="window.debugWin&&debugWin.focus()" style="background-color:$bgcolor;color:white;text-decoration:none;border:0px;" id="debugLink">Debug</a>&nbsp<a href="javascript:;" onclick="location.reload(1)" style="background-color:$bgcolor;color:white;text-decoration:none;border:0px;">Reload</a><script type="text/javascript" src="$QDebug"></script></div>
 
