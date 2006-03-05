@@ -292,8 +292,7 @@ if (CIA_DIRECT)
 			break;
 
 		case '$':
-			class IA extends IA_js {};
-			IA::render(array_shift($_GET)); break;
+			IA_js::compose(array_shift($_GET)); break;
 	}
 }
 else

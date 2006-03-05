@@ -2,7 +2,7 @@
 
 class agent_index extends agent
 {
-	public function render()
+	public function compose()
 	{
 		$data = (object) array(
 			'doc' => new loop_sql('SELECT * FROM doc ORDER BY label')

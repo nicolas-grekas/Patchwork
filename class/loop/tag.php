@@ -45,7 +45,7 @@ class loop_tag extends loop
 				$min = -1;
 				$max = 0;
 
-				while ($a = $loop->render())
+				while ($a = $loop->compose())
 				{
 					@++$histo[ $a->{$this->freqKey} ];
 					$min = $min < 0 ? $a->{$this->freqKey} : min($min, $a->{$this->freqKey});
@@ -77,7 +77,7 @@ class loop_tag extends loop
 
 	protected function next()
 	{
-		$a = $this->loop->render();
+		$a = $this->loop->compose();
 
 		if ($a)
 		{

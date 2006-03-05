@@ -5,11 +5,11 @@ class loop_array extends loop
 	protected $array;
 	protected $isAssociative = true;
 
-	public function __construct($array, $renderer = '', $isAssociative = null)
+	public function __construct($array, $filter = '', $isAssociative = null)
 	{
 		$this->array =& $array;
-		if ($renderer) $this->addRenderer($renderer);
-		$this->isAssociative = $isAssociative!==null ? $isAssociative : $renderer!==false;
+		if ($filter) $this->addFilter($filter);
+		$this->isAssociative = $isAssociative!==null ? $isAssociative : $filter!==false;
 	}
 
 	protected function prepare() {return count($this->array);}
@@ -27,7 +27,7 @@ class loop_array extends loop
 	}
 }
 
-function render_rawArray($data)
+function filter_rawArray($data)
 {
 	return $data->VALUE;
 }

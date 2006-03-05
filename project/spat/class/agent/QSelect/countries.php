@@ -4,7 +4,7 @@ class agent_QSelect_countries extends agent_QSelect
 {
 	protected $maxage = -1;
 
-	public function render()
+	public function compose()
 	{
 		return (object) array(
 			'DATA' => new loop_sql(

@@ -4,7 +4,7 @@ class agent_QJsrs_update extends agent_QJsrs
 {
 	public $argv = array('tabId');
 
-	public function render()
+	public function compose()
 	{
 		$tabId = (int) $this->argv->tabId;
 
@@ -18,6 +18,6 @@ class agent_QJsrs_update extends agent_QJsrs
 			'locked' => $db->getAll("SELECT row AS R, col AS C FROM data WHERE tabId={$tabId} AND lockId!=0 ORDER BY row, col"),
 		);
 
-		return parent::render();
+		return parent::compose();
 	}
 }

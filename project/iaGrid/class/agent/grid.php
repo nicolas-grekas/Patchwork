@@ -4,7 +4,7 @@ class agent_grid extends agent
 {
 	public $argv = array('__1__');
 
-	public function render()
+	public function compose()
 	{
 		$db = DB();
 

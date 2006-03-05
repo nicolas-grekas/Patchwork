@@ -4,7 +4,7 @@ class agent_QJsrs_multiSave extends agent_QJsrs
 {
 	public $argv = array('tabId');
 
-	public function render()
+	public function compose()
 	{
 		$tabId = (int) $this->argv->tabId;
 
@@ -63,7 +63,7 @@ class agent_QJsrs_multiSave extends agent_QJsrs
 			if (!$lockId)
 			{
 				$db->query('ROLLBACK');
-				return parent::render();
+				return parent::compose();
 			}
 		}
 
@@ -71,6 +71,6 @@ class agent_QJsrs_multiSave extends agent_QJsrs
 
 		$this->data['completed'] = 1;
 
-		return parent::render();
+		return parent::compose();
 	}
 }

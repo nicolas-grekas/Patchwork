@@ -2,7 +2,7 @@
 
 class agent_register_group_summary extends agent
 {
-	public function render()
+	public function compose()
 	{
 		$data = (object) SESSION::get('group');
 

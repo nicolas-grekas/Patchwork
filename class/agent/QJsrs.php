@@ -6,7 +6,7 @@ class agent_QJsrs extends agent_bin
 	protected $from = array("\r", "\n", "'"  , '</'  );
 	protected $to   = array('\r', '\n', "\\'", '<\\/');
 	
-	public function render()
+	public function compose()
 	{
 		return (object) array('DATA' => '<script type="text/javascript">parent.loadQJsrs(this,' . $this->getJs($this->data) . ')</script>');
 	}

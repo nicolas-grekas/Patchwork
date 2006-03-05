@@ -7,7 +7,7 @@ class agent_jsSelect extends agent_bin
 
 	protected $param = array();
 
-	public function render()
+	public function compose()
 	{
 		CIA::header('Content-Type: text/javascript; charset=UTF-8');
 

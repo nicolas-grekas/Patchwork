@@ -5,7 +5,7 @@ class agent_QJsrs_save extends agent_QJsrs
 	protected $maxage = 0;
 	protected $private = true;
 
-	public function render()
+	public function compose()
 	{
 		$db = DB();
 
@@ -35,6 +35,6 @@ class agent_QJsrs_save extends agent_QJsrs
 					);
 		}
 
-		return parent::render();
+		return parent::compose();
 	}
 }

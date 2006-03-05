@@ -5,7 +5,7 @@ class agent_index extends agent
 	protected $maxage = -1;
 	protected $watch = array('forms/index');
 
-	public function render()
+	public function compose()
 	{
 		$a = (object) array();
 

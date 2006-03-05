@@ -171,8 +171,8 @@ class iaForm_hiddenLoop__ extends loop
 	{
 		if (list(, $value) = each($this->array))
 		{
-			$result = $value->render();
-			$value->render();
+			$result = $value->compose();
+			$value->compose();
 			return $result;
 		}
 		else

@@ -4,7 +4,7 @@ class agent_register_group_member extends agent
 {
 	protected $member = array();
 
-	public function render()
+	public function compose()
 	{
 		$data = (object) array();
 
@@ -51,12 +51,12 @@ class agent_register_group_member extends agent
 			CIA::redirect('register/group/edit/');
 		}
 
-		$data->member = new loop_array($this->member, array($this, 'renderMember'));
+		$data->member = new loop_array($this->member, array($this, 'filterMember'));
 
 		return $data;
 	}
 
-	public function renderMember($data)
+	public function filterMember($data)
 	{
 		$data2 = (object) array(
 			'lastname' => $data->VALUE['f_lastname'],

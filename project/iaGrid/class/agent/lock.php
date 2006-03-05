@@ -4,7 +4,7 @@ class agent_lock extends agent_bin
 {
 	public $argv = array('tabId', 'R', 'C');
 
-	public function render()
+	public function compose()
 	{
 		$tabId = (int) $this->argv->tabId;
 

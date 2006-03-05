@@ -12,7 +12,7 @@ class agent_js extends agent_bin
 	protected $v = array();
 	protected $g = array();
 
-	public function render()
+	public function compose()
 	{
 		CIA::header('Content-Type: text/javascript; charset=UTF-8');
 
