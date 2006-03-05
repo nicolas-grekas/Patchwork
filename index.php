@@ -303,10 +303,12 @@ else
 	if ($agent == '/') $agent = '';
 	else
 	{
-		preg_match("'^((?:/[a-zA-Z\d]+)*)((?:/[^/]+)*)'u", $agent, $agent);
+		preg_match("'(/(?:[a-zA-Z\d]+(?:/|$))*)(.*?)'u", $agent, $agent);
 
 		$param = $agent[2];
 		$agent = $agent[1];
+		if ('/' == substr($agent, -1)) $agent = substr($agent, 0, -1);
+
 		$agentClass = 'agent' . str_replace('/', '_', $agent);
 
 		while ($agent !== '' && !class_exists($agentClass))
