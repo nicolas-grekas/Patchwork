@@ -180,7 +180,10 @@ w = function($rootAgent, $keys, $CIApID)
 		if ($context && !$includeCache[$lastInclude])
 		{
 			$j = 0; for ($i in $context) ++$j;
-			if ($j) E($lastInclude), E($context);
+			if ($j)
+				E($lastInclude),
+				E('Arguments:'), E(a),
+				E('Data:'), E($context);
 		}
 		<!-- END:IF -->
 
@@ -412,17 +415,19 @@ w = function($rootAgent, $keys, $CIApID)
 		<!-- IF $DEBUG -->
 		$loop.toString = function($a, $level)
 		{
-			var $data = new Array();
+			if (!$level) return ''+$data[0];
+
+			var $d = [];
 
 			$a = $loop();
 			while ($a())
 			{
 				delete v.$;
 				delete v.iteratorPosition;
-				$data.push(v);
+				$d.push(v);
 			}
 
-			E($data, 0, $level, 2);
+			E($d, 0, $level, 2);
 			return '';
 		}
 		<!-- ELSE -->
