@@ -468,7 +468,7 @@ w = function($rootAgent, $keys, $CIApID)
 	g.__AGENT__ = esc($rootAgent) + ($rootAgent.length ? '/' : '');
 	g.__HOST__ = esc($j.protocol+'//'+$j.hostname);
 
-	$j = $j.pathname.substr({g$__ROOT__|length}+$rootAgent.length).split('/');
+	$j = dUC($j.pathname.substr({g$__ROOT__|length}+$rootAgent.length)).split('/');
 	for ($i=0; $i<$j.length; ++$i) if ($j[$i]) $loopIterator[$loopIterator.length] = g['__'+($loopIterator.length+1)+'__'] = esc($j[$i]);
 	g.__0__ = $loopIterator.join('/');
 
