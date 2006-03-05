@@ -176,23 +176,20 @@ w = function($rootAgent, $keys, $CIApID)
 	{
 		if (!t($context)) return;
 
-		<!-- IF $DEBUG -->
-		if ($context && !$includeCache[$lastInclude])
-		{
-			$j = 0; for ($i in $context) ++$j;
-			if ($j)
-				E($lastInclude),
-				E('Arguments:'), E(a),
-				E('Data:'), E($context);
-		}
-		<!-- END:IF -->
-
 		var $pointer = 0, $arguments = a;
 
-		if (!$includeCache[$lastInclude])
+		if ($lastInclude && !$includeCache[$lastInclude])
 		{
 			$includeCache[$lastInclude] = [$context, $code];
 			if ($context) for ($i in $context) $context[$i] = esc($context[$i]);
+
+			<!-- IF $DEBUG -->
+			E({
+				'Agent': dUC(('['+$lastInclude.substr(_GET.__ROOT__.length + 2)).replace(/&/g, ', [').replace(/=/g, '] = ')),
+				'Arguments': a,
+				'Data': $context
+			});
+			<!-- END:IF -->
 		}
 
 		if ($context) d = $context.$ = v = $context;
@@ -213,7 +210,7 @@ w = function($rootAgent, $keys, $CIApID)
 
 					$i = $i.join('');
 
-					if ($i) return $include(g.__ROOT__ + '_?p=' + $i.substr(1), 0, 0);
+					if ($i) return $include(g.__ROOT__ + '_?p=' + $i.substr(1), 0, 0, 1);
 					break;
 
 				case 1: // agent
@@ -314,7 +311,7 @@ w = function($rootAgent, $keys, $CIApID)
 			}
 		}
 
-		function $include($inc, $args, $keys)
+		function $include($inc, $args, $keys, $cacheOff)
 		{
 			if (t($inc))
 			{
@@ -339,7 +336,7 @@ w = function($rootAgent, $keys, $CIApID)
 				}
 				else
 				{
-					$lastInclude = $inc;
+					$lastInclude = $cacheOff ? '' : $inc;
 
 					if (t($includeCache[$inc])) w($includeCache[$inc][0], $includeCache[$inc][1]);
 					else
