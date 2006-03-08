@@ -291,7 +291,6 @@ class CIA
 			$prefixKey = @md5(
 				$_SERVER['HTTPS'] . '-' .
 				$_SERVER['HTTP_HOST'] . '-' .
-				$_SERVER['SERVER_PORT'] . '-' .
 				CIA_ROOT . '-' .
 				DEBUG
 			);
