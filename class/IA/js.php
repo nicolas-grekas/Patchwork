@@ -89,7 +89,7 @@ class IA_js
 			$data = '<?php echo ' . var_export(ob_get_flush(), true)
 				. ';CIA::setMaxage(' . (int) $maxage . ');'
 				. ('ontouch' != $expires ? 'CIA::setExpires("onmaxage");' : '')
-				. ($headers ? "header('" . addslashes(implode("\n", $headers)) . "');" : '');
+				. ($headers ? "header('" . addslashes(implode("\n", $headers)) . "');" : ''); //XXX Multiline header() calls doesn't work with Hardened PHP
 			CIA::writeFile($cagent, $data, 'ontouch' == $expires && $watch ? CIA_MAXAGE : $maxage);
 
 			if ($maxage==CIA_MAXAGE) $watch[] = 'public/templates';
