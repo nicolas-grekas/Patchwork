@@ -35,11 +35,7 @@ class agent_js extends agent_bin
 		$g->__ROOT__ = htmlspecialchars(CIA_ROOT);
 		$g->__LANG__ = htmlspecialchars(CIA_LANG);
 		$g->__AGENT__ = str_replace('_', '/', substr(get_class($this), 6)) . '/';
-
-		$port = $_SERVER['SERVER_PORT'];
-		$ssl = @$_SERVER['HTTPS'] ? 's' : '';
-
-		$g->__HOST__ = "http{$ssl}://" . htmlspecialchars(@$_SERVER['HTTP_HOST']) . ((($ssl ? 443 : 80) - $port) ? ':' . $port : '');
+		$g->__HOST__ = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . htmlspecialchars(@$_SERVER['HTTP_HOST']);
 
 		$parser = new iaCompiler_php(true);
 		ob_start();

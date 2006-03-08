@@ -21,11 +21,7 @@ class IA_php
 			self::$get->__ROOT__ = htmlspecialchars(CIA_ROOT);
 			self::$get->__LANG__ = htmlspecialchars(CIA_LANG);
 			self::$get->__AGENT__ = htmlspecialchars($agent) . ('' !== $agent ? '/' : '');
-
-			$port = $_SERVER['SERVER_PORT'];
-			$ssl = @$_SERVER['HTTPS'] ? 's' : '';
-
-			self::$get->__HOST__ = "http{$ssl}://" . htmlspecialchars(@$_SERVER['HTTP_HOST']) . ((($ssl ? 443 : 80) - $port) ? ':' . $port : '');
+			self::$get->__HOST__ = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . htmlspecialchars(@$_SERVER['HTTP_HOST']);
 		}
 
 		if ($agent instanceof loop && CIA::string($agent))
