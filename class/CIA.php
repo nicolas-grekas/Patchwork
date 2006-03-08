@@ -282,15 +282,30 @@ class CIA
 	 * The following methods are used internally, mainly by the IA class
 	 */
 
-	public static function makeCacheDir($prefix, $extension = '', $key = '', $lang = true)
+	public static function makeCacheDir($prefix, $extension = '', $key = '')
 	{
+		static $prefixKey = false;
+
+		if (!$prefixKey)
+		{
+			$prefixKey = @md5(
+				$_SERVER['HTTPS'] . '-' .
+				$_SERVER['HTTP_HOST'] . '-' .
+				$_SERVER['SERVER_PORT'] . '-' .
+				CIA_ROOT . '-' .
+				DEBUG
+			);
+
+			$prefixKey = substr($prefixKey, -8);
+		}
+
 		if ($key!=='')
 		{
 			$key = md5($key);
 			$key{5} = $key{2} = '/';
 		}
 
-		return './tmp/cache/' . ($lang ? CIA_LANG . '/' : '') . $prefix . $key . ($extension!=='' ? '.' . $extension : '');
+		return './tmp/cache/' . $prefixKey . '/' . $prefix . $key . ($extension!=='' ? '.' . $extension : '');
 	}
 
 	public static function ciaLog($message, $is_end = false, $html = true)

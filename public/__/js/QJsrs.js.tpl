@@ -19,12 +19,12 @@
 * Cancel the callback pool with varname.abort()
 */
 
-QJsrs = window.QJsrs || ((  // The 5 next lines preload the XMLHttp object and speed up its first real use
+QJsrs = self.QJsrs || ((  // The 5 next lines preload the XMLHttp object and speed up its first real use
 	QJsrs = self.XMLHttpRequest
 		? new XMLHttpRequest && 3
 		: self.ActiveXObject
 			? new ActiveXObject('Microsoft.XMLHTTP') && 2
-			: 1
+			: document.write('<div id="divQJsrs" style="position:absolute;visibility:hidden"></div>') && 1
 	) && function()
 {
 var $masterPool = [];
@@ -32,9 +32,8 @@ var $masterPool = [];
 function $QJsrsContext($name)
 {
 	var $this = this,
-		$window = window,
 		$document = document,
-		$body = $document.getElementById ? $document.getElementById('divQJsrs') : $document.all['divQJsrs'],
+		$document = $document.getElementById ? $document.getElementById('divQJsrs') : $document.all['divQJsrs'],
 		$XMLHttp = QJsrs - 1,
 		$container, $html;
 
@@ -45,7 +44,7 @@ function $QJsrsContext($name)
 
 		if ($this.p)
 			$this.p = $url,
-			$url = {g$__ROOT__|escape:'js'}+'QJsrs.html';
+			$url = _GET.__ROOT__+'QJsrs.html';
 		else $url = $url[0] + $url[1];
 
 		if ($XMLHttp)
@@ -71,7 +70,7 @@ function $QJsrsContext($name)
 		}
 		else if ($html) frames[$name].location.replace($url);
 		else
-			$body.innerHTML += '<iframe name='+ $name +' src="'+ $url.replace(/"/g, '&quot;') +'" width=0 height=0 frameborder=0></iframe>',
+			$document.innerHTML += '<iframe name='+ $name +' src="'+ $url.replace(/"/g, '&quot;') +'" width=0 height=0 frameborder=0></iframe>',
 			$html = 1;
 	}
 	
@@ -163,5 +162,3 @@ return function($URL, $POST)
 	}
 }
 })();
-
-document.write('<div id="divQJsrs" style="position:absolute;visibility:hidden"></div>');

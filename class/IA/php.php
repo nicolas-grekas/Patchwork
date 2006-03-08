@@ -15,12 +15,17 @@ class IA_php
 			if (false===$args) $args =& $_GET;
 
 			self::$get = (object) array_map('htmlspecialchars', $_GET);
+			self::$get->__DEBUG__ = DEBUG ? 1 : 0;
 			self::$get->__QUERY__ = '?' . htmlspecialchars($_SERVER['QUERY_STRING']);
 			self::$get->__URI__ = htmlspecialchars($_SERVER['REQUEST_URI']);
 			self::$get->__ROOT__ = htmlspecialchars(CIA_ROOT);
 			self::$get->__LANG__ = htmlspecialchars(CIA_LANG);
 			self::$get->__AGENT__ = htmlspecialchars($agent) . ('' !== $agent ? '/' : '');
-			self::$get->__HOST__ = htmlspecialchars('http' . (@$_SERVER['HTTPS']?'s':'') . '://' . @$_SERVER['HTTP_HOST']);
+
+			$port = $_SERVER['SERVER_PORT'];
+			$ssl = @$_SERVER['HTTPS'] ? 's' : '';
+
+			self::$get->__HOST__ = "http{$ssl}://" . htmlspecialchars(@$_SERVER['HTTP_HOST']) . ((($ssl ? 443 : 80) - $port) ? ':' . $port : '');
 		}
 
 		if ($agent instanceof loop && CIA::string($agent))
@@ -120,7 +125,7 @@ class IA_php
 					';$template=' . var_export($template, true)
 						. ';CIA::setMaxage(' . (int) $maxage . ');'
 						. ('ontouch' != $expires ? 'CIA::setExpires("onmaxage");' : '')
-						. ($headers ? "header('" . addslashes(implode("\n", $headers)) . "');" : '')
+						. ($headers ? "header('" . addslashes(implode("\n", $headers)) . "');" : '') //XXX Multiline header() calls doesn't work with Hardened PHP
 				);
 
 				fclose($h);

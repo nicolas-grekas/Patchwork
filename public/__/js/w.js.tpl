@@ -183,7 +183,7 @@ w = function($rootAgent, $keys, $CIApID)
 			$includeCache[$lastInclude] = [$context, $code];
 			if ($context) for ($i in $context) $context[$i] = esc($context[$i]);
 
-			<!-- IF $DEBUG -->
+			<!-- IF g$__DEBUG__ -->
 			E({
 				'Agent': dUC(('['+$lastInclude.substr(_GET.__ROOT__.length + 2)).replace(/&/g, ', [').replace(/=/g, '] = ')),
 				'Arguments': a,
@@ -409,7 +409,7 @@ w = function($rootAgent, $keys, $CIApID)
 					$loopIterator = $next;
 			} : 0;
 
-		<!-- IF $DEBUG -->
+		<!-- IF g$__DEBUG__ -->
 		$loop.toString = function($a, $level)
 		{
 			if (!$level) return ''+$data[0];
@@ -461,6 +461,7 @@ w = function($rootAgent, $keys, $CIApID)
 	$j = location;
 
 	g = parseurl($j.search.replace(/\+/g, '%20').substring(1), '&', /^amp;/);
+	g.__DEBUG__ = {g$__DEBUG__|escape:'js'} ? 1 : 0;
 	g.__QUERY__ = esc($j.search) || '?';
 	g.__URI__ = esc($j.href);
 	g.__ROOT__ = esc({g$__ROOT__|escape:'js'});
