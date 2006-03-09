@@ -10,11 +10,11 @@ class IA_php
 
 	public static function loadAgent($agent, $args = array())
 	{
-		if (!isset(self::$args))
-		{
-			if (false===$args) $args =& $_GET;
+		$a =& $_GET;
 
-			self::$get = (object) array_map('htmlspecialchars', $_GET);
+		if (!isset(self::$get))
+		{
+			self::$get = (object) array_map('htmlspecialchars', $a);
 			self::$get->__DEBUG__ = DEBUG ? 1 : 0;
 			self::$get->__QUERY__ = '?' . htmlspecialchars($_SERVER['QUERY_STRING']);
 			self::$get->__URI__ = htmlspecialchars($_SERVER['REQUEST_URI']);
@@ -23,6 +23,9 @@ class IA_php
 			self::$get->__AGENT__ = htmlspecialchars($agent) . ('' !== $agent ? '/' : '');
 			self::$get->__HOST__ = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . htmlspecialchars(@$_SERVER['HTTP_HOST']);
 		}
+
+		if (false===$args) $args = self::$get;
+		else $_GET =& $args;
 
 		if ($agent instanceof loop && CIA::string($agent))
 		{
@@ -34,9 +37,6 @@ class IA_php
 			foreach ($data as $k => $v) $args[$k] = $v;
 		}
 
-		$a =& $_GET;
-		$_GET =& $args;
-
 		self::compose($agent);
 
 		$_GET =& $a;
@@ -45,6 +45,9 @@ class IA_php
 	public static function compose($agent)
 	{
 		CIA::openMeta();
+
+		$a = self::$args = (object) $_GET;
+		$g = self::$get;
 
 		$agentClass = CIA::agentClass($agent);
 		$agent = class_exists($agentClass) ? new $agentClass($_GET) : new agentTemplate_(array('template' => $agent));
@@ -74,11 +77,7 @@ class IA_php
 
 		CIA::$catchMeta = false;
 
-		$a = self::$args = (object) $_GET;
-		$v->{'$'} = $v;
-		$g = self::$get;
-
-		self::$values = $v;
+		self::$values = $v->{'$'} = $v;
 
 		$ctemplate = './tmp/cache/' . CIA_LANG . "/templates/$template" . ($agent->binary ? '.bin' : '.html') . '.php';
 		$ftemplate = 'template' . md5($ctemplate);

@@ -562,6 +562,7 @@ class agent_
 		$a = (array) $this->argv;
 
 		$this->argv = (object) array();
+		$_GET = array();
 
 		array_walk($a, array($this, 'populateArgv'), (object) $args);
 
@@ -596,7 +597,7 @@ class agent_
 			if (false === $args) $args = $default;
 		}
 
-		$this->argv->$key = $args;
+		$_GET[$key] = $this->argv->$key = $args;
 	}
 }
 
