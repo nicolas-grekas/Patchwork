@@ -15,9 +15,9 @@
 * _COOKIE
 */
 
-function t($v)
+function t($v, $type)
 {
-	return typeof $v != 'undefined';
+	return $type ? (typeof $v == $type) : (typeof $v != 'undefined');
 }
 
 function str($var, $default)
@@ -27,12 +27,20 @@ function str($var, $default)
 
 function num($str, $weak)
 {
-	return $weak ? (typeof $str=='string' && ''+$str/1==$str ? $str/1 : $str) : (parseFloat($str) || 0);
+	return $weak
+		? (
+			t($str)
+			? (
+				t($str, 'string') && ''+$str/1==$str
+				? $str/1
+				: $str
+			) : 0
+		) : (parseFloat($str) || 0);
 }
 
 function esc($str)
 {
-	if (typeof $str == 'string')
+	if (t($str, 'string'))
 	{
 		$str = $str.replace(
 			/&/g, '&amp;').replace(
@@ -97,7 +105,7 @@ function setcookie($name, $value, $expires, $path, $domain, $secure)
 */
 function setboard($name, $value, $window)
 {
-	if (typeof $name == 'object') for ($value in $name) setboard($value, $name[$value]);
+	if (t($name, 'object')) for ($value in $name) setboard($value, $name[$value]);
 	else
 	{
 		$window = $window || topwin;
@@ -226,7 +234,7 @@ w = function($rootAgent, $keys, $CIApID)
 						break;
 					}
 
-					if (typeof $agent == 'function')
+					if (t($agent, 'function'))
 					{
 						$agent = $agent();
 						while ($j = $agent()) $data = $j;
@@ -283,7 +291,7 @@ w = function($rootAgent, $keys, $CIApID)
 
 				case 8: // loop
 					$i = $evalNext();
-					($i && (typeof $i == 'function' || ($i = y($i-0))) && $i()() && ++$pointer) || ($pointer += $code[$pointer]);
+					($i && (t($i, 'function') || ($i = y($i-0))) && $i()() && ++$pointer) || ($pointer += $code[$pointer]);
 					$context = v;
 					break;
 

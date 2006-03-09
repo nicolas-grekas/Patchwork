@@ -122,7 +122,7 @@ function QEngine($keyword)
 	function $getChildId($a)
 	{
 		var $b = '', $i;
-		if (typeof $a=='object' || typeof $a=='array') for ($i in $a) $b += $getChildId($a[$i]);
+		if (t($a, 'object') || t($a, 'array')) for ($i in $a) $b += $getChildId($a[$i]);
 		else $b += ',' + $a;
 
 		return $b;
