@@ -473,7 +473,7 @@ w = function($rootAgent, $keys, $CIApID)
 	for ($i=0; $i<$j.length; ++$i) if ($j[$i]) $loopIterator[$loopIterator.length] = g['__'+($loopIterator.length+1)+'__'] = esc($j[$i]);
 	g.__0__ = $loopIterator.join('/');
 
-	_GET = g;
+	self._GET = g;
 
 	if ($keys) w(0, [1, '0', 'g', 1, $keys]);
 }
