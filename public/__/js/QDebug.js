@@ -4,7 +4,7 @@ function E($v, $max_depth, $level, $expand)
 		$deltaTime = $startTime - E.lastTime,
 		$key;
 
-	$max_depth = typeof $max_depth != 'undefined' ? $max_depth : E.max_depth;
+	$max_depth = t($max_depth) ? $max_depth : E.max_depth;
 	$level = $level || 0;
 	$expand = $expand || 0;
 
@@ -12,7 +12,7 @@ function E($v, $max_depth, $level, $expand)
 	{
 		function o($str, $r)
 		{
-			if (typeof $r=='undefined' || $r>0)
+			if (!t($r) || $r>0)
 			{
 				E.buffer += $str;
 				$r = $r || 0;
@@ -27,12 +27,12 @@ function E($v, $max_depth, $level, $expand)
 
 		if (0 == $level) o('<pre>' + $deltaTime + ' ms : ');
 
-		if (typeof $v=='object' || typeof $v=='array')
+		if (t($v, 'object') || t($v, 'array'))
 		{
 			if ($max_depth && $level>=$max_depth) return o('### Max Depth Reached ###\n');
 
 			if ($level) o('<a href="#" onclick="return opener.QDebug_toggle(document, ' + (++E.counter) + ')">');
-			o(typeof $v=='object' ? 'Object\n' : 'Array\n');
+			o(t($v, 'object') ? 'Object\n' : 'Array\n');
 			if ($level) o('</a><span id="QDebugId' + E.counter + '" style="display:'+($expand && !--$expand ? '' : 'none')+'">');
 			o(' ', 8*$level);
 			o('(\n');
@@ -63,7 +63,7 @@ E.max_depth = 5;
 E.buffer = '';
 E.hide = function($key)
 {
-	if (typeof $key!='string') for (var $i in $key) E.hiddenList[$key[$i]] = true;
+	if (!t($key, 'string')) for (var $i in $key) E.hiddenList[$key[$i]] = true;
 	else E.hiddenList[$key] = true;
 }
 
