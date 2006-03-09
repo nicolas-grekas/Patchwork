@@ -279,7 +279,7 @@ class CIA
 
 
 	/*
-	 * The following methods are used internally, mainly by the IA class
+	 * The following methods are used internally, mainly by the IA_* class
 	 */
 
 	public static function makeCacheDir($prefix, $extension = '', $key = '')
