@@ -53,13 +53,13 @@ END:SET --><!--
 SET $INPUT --><!--
 
 	SET a$_JsStart
-		--><script type="text/javascript"><!--
+		--><script type="text/javascript">//<![CDATA[
 		lE=gLE({a$name|escape:'js'}<!-- IF a$multiple -->,1<!-- END:IF -->)
 		if(lE){<!--
 	END:SET --><!--
 
 	SET a$_JsEnd
-		-->}//--></script><!--
+		-->}//]]></script><!--
 	END:SET --><!--
 
 	IF a$_mandatory --><span class="mandatory"><!-- END:IF --><!--
@@ -128,7 +128,7 @@ SET $INPUT --><!--
 
 	END:IF
 
-	-->lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|escape:'js'},{$onempty|escape:'js'},{$onerror|escape:'js'}<!-- END:LOOP -->],this.form)};<!-- IF a$_focus_ -->lE.focus();<!-- END:IF -->{a$_JsEnd}<!--
+	-->lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|escape:'js'},{$onempty|escape:'js'},{$onerror|escape:'js'}<!-- END:LOOP -->],this.form)};<!-- IF a$_focus_ -->lEF=lE;setTimeout('lEF.focus()',100);<!-- END:IF -->{a$_JsEnd}<!--
 
 	IF a$_mandatory --></span><!-- END:IF --><!--
 
