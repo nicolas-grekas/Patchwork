@@ -7,7 +7,7 @@ header('Cache-Control: max-age=0,private,must-revalidate');
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>Debug Window</title>
-<style>
+<style type="text/css">
 body
 {
 	margin: 0px;

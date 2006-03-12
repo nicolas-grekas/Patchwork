@@ -1,5 +1,5 @@
-<!-- SET a$HEAD -->
-<style>
+<!-- SET a$head -->
+<style type="text/css">
 
 body, th, td, input, select, textarea
 {
