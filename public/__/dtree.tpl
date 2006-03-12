@@ -25,7 +25,7 @@ ELSE --><!--
 	
 	IF !g$_DTREE --><!--
 		SET g$_DTREE -->1<!-- END:SET
-		--><style><!--
+		--><style type="text/css">
 .dtree
 {
 	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
@@ -67,7 +67,7 @@ ELSE --><!--
 {
 	overflow: hidden;
 }
-//--></style><script type="text/javascript" src="js/dtree"></script><!--
+</style><script type="text/javascript" src="js/dtree"></script><!--
 	END:IF --><script type="text/javascript"><!--
 
 {a$name} = new dTree('{a$name}');

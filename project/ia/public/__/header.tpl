@@ -1,10 +1,10 @@
 <!-- SET a$title -->IntellAgence::{a$title}<!-- END:SET -->
-<!-- SET a$HEAD -->
+<!-- SET a$head -->
 	
 	<!-- SET a$bgcolor -->#FFFDF5<!-- END:SET -->
 	<!-- SET a$linecolor -->#5A4D42<!-- END:SET -->
 
-<style type="text/css"><!--
+<style type="text/css">
 
 body
 {
@@ -102,7 +102,7 @@ a:hover
 	font-size: 80%;
 }
 
---></style>
+</style>
 <!-- END:SET -->
 
 <!-- PARENT -->

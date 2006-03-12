@@ -1,4 +1,4 @@
-<!-- AGENT 'header' title = 'Form: test' --><style type="text/css"><!--
+<!-- AGENT 'header' title = 'Form: test' --><style type="text/css">
 
 .errormsg
 {
@@ -11,7 +11,7 @@ span.errormsg
 	position: absolute;
 }
 
---></style>
+</style>
 
 {$test}
 

@@ -4,7 +4,7 @@
 
 <script type="text/javascript" src="js/QJsrs"></script>
 
-<style>
+<style type="text/css">
 a
 {
 	color: black;
