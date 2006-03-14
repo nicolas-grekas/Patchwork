@@ -143,7 +143,7 @@ function setboard($name, $value, $window)
 
 
 addOnload.p = [];
-if ((topwin = window).Error)
+if ((topwin = self).Error)
 	// This eval avoids a parse error with browsers not supporting exceptions.
 	eval('try{while(((w=topwin.parent)!=topwin)&&t(w.name))topwin=w}catch(w){}');
 
@@ -192,7 +192,7 @@ w = function($rootAgent, $keys, $CIApID)
 			if ($context) for ($i in $context) $context[$i] = esc($context[$i]);
 
 			<!-- IF g$__DEBUG__ -->
-			E({
+			if (!self.ScriptEngine) E({
 				'Agent': dUC(('['+$lastInclude.substr(_GET.__ROOT__.length + 2)).replace(/&/g, ', [').replace(/=/g, '] = ')),
 				'Arguments': a,
 				'Data': $context
@@ -214,7 +214,7 @@ w = function($rootAgent, $keys, $CIApID)
 				case 0: // pipe
 					$i = $code[$pointer++].split('.');
 					$j = $i.length;
-					while ($j--) $i[$j] = t(window['P$'+$i[$j]]) ? '' : ('.'+$i[$j]);
+					while ($j--) $i[$j] = t(self['P$'+$i[$j]]) ? '' : ('.'+$i[$j]);
 
 					$i = $i.join('');
 
@@ -230,7 +230,7 @@ w = function($rootAgent, $keys, $CIApID)
 
 					if (!t($agent))
 					{
-						window.E && E('AGENT is undefined: ' + $code[$pointer-4]);
+						self.E && E('AGENT is undefined: ' + $code[$pointer-4]);
 						break;
 					}
 
@@ -375,7 +375,7 @@ w = function($rootAgent, $keys, $CIApID)
 		if ($i<0 && $closeDoc)
 
 			w = addOnload,
-			w.$onload = window.onload,
+			w.$onload = self.onload,
 
 			onload = function()
 			{
@@ -486,7 +486,7 @@ w = function($rootAgent, $keys, $CIApID)
 	if ($keys) w(0, [1, '0', 'g', 1, $keys]);
 }
 
-if (window.ScriptEngine) addOnload(function()
+if (self.ScriptEngine) addOnload(function()
 {
 	var $i = 0, $images = document.images, $len = $images.length;
 	for (; $i < $len; ++$i)
@@ -499,7 +499,7 @@ if (window.ScriptEngine) addOnload(function()
 
 function loadW()
 {
-	var $window = window, $boardidx = topwin.name.indexOf('_K');
+	var $window = self, $boardidx = topwin.name.indexOf('_K');
 
 	if ($window.encodeURI)
 	{
