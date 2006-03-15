@@ -24,17 +24,17 @@ QJsrs = self.QJsrs || ((  // The 5 next lines preload the XMLHttp object and spe
 		? new XMLHttpRequest && 3
 		: self.ActiveXObject
 			? new ActiveXObject('Microsoft.XMLHTTP') && 2
-			: document.write('<div id="divQJsrs" style="position:absolute;visibility:hidden"></div>') && 1
+			: (document.write('<div id="divQJsrs" style="position:absolute;visibility:hidden"></div>') && 1)
 	) && function()
 {
-var $masterPool = [];
+var $masterPool = [],
+	$document = document,
+	$document = $document.getElementById ? $document.getElementById('divQJsrs') : $document.all['divQJsrs'],
+	$XMLHttp = QJsrs - 1;
 
 function $QJsrsContext($name)
 {
 	var $this = this,
-		$document = document,
-		$document = $document.getElementById ? $document.getElementById('divQJsrs') : $document.all['divQJsrs'],
-		$XMLHttp = QJsrs - 1,
 		$container, $html;
 
 	$this.$load = function($url, $callback)
