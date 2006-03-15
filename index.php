@@ -351,7 +351,8 @@ else
 		fclose($h);
 
 		CIA::delCache();
-		echo '<script type="text/javascript">location.replace(location)</script>';
+
+		echo '<script type="text/javascript">self.ScriptEngine ? location.replace(location) : location.reload()</script>';
 		exit;
 	}
 
