@@ -245,7 +245,6 @@ class iaCompiler_js extends iaCompiler
 		}
 
 		if ($forceType == 'number') $result = "num($result)";
-		else if ($forceType == 'string') $result = "num($result,1)";
 		else if ($this->mode == 'concat' && $result{0} != "'") $result = "str($result)";
 
 		return $result;
