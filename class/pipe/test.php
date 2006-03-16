@@ -13,7 +13,7 @@ class pipe_test
 
 P$<?php echo substr(__CLASS__, 5)?> = function($test, $ifData, $elseData)
 {
-	return num(str($test)) ? $ifData : $elseData;
+	return num(str($test), 1) ? $ifData : $elseData;
 }
 
 <?php	}
