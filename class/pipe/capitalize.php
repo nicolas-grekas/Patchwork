@@ -13,7 +13,12 @@ class pipe_capitalize
 
 P$<?php echo substr(__CLASS__, 5)?> = function($string)
 {
-	return str($string).replace(/\b./g, function($a) {return $a.toUpperCase()});
+	$string = str($string).split(/\b/g);
+
+	var $i = $string.length;
+	while ($i--) $string[$i] = $string[$i].substr(0,1).toUpperCase() + $string[$i].substr(1);
+
+	return $string.join('');
 }
 <?php 	}
 }
