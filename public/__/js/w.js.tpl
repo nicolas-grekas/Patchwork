@@ -186,22 +186,28 @@ w = function($rootAgent, $keys, $CIApID)
 
 		var $pointer = 0, $arguments = a;
 
+		<!-- IF g$__DEBUG__ -->var DEBUG = $i = 0;<!-- END:IF -->
+
 		if ($lastInclude && !$includeCache[$lastInclude])
 		{
 			$includeCache[$lastInclude] = [$context, $code];
 			if ($context) for ($i in $context) $context[$i] = esc($context[$i]);
 
 			<!-- IF g$__DEBUG__ -->
-			if (!self.ScriptEngine) E({
-				'Agent': dUC(('['+$lastInclude.substr(_GET.__ROOT__.length + 2)).replace(/&/g, ', [').replace(/=/g, '] = ')),
-				'Arguments': a,
-				'Data': $context
-			});
+			DEBUG = self.ScriptEngine ? 0 : ($i ? 2 : 1);
 			<!-- END:IF -->
 		}
 
 		if ($context) d = $context.$ = v = $context;
 		else $context = v;
+
+		<!-- IF g$__DEBUG__ -->
+		if (DEBUG) E({
+			'Agent': dUC(('['+$lastInclude.substr(_GET.__ROOT__.length + 2)).replace(/&/g, ', [').replace(/=/g, '] = ')),
+			'Arguments': a,
+			'Data': DEBUG-1 ? $context : ''
+		});
+		<!-- END:IF -->
 
 		function $execute()
 		{
