@@ -17,11 +17,11 @@ class IA_php
 			self::$get = (object) array_map('htmlspecialchars', $a);
 			self::$get->__DEBUG__ = DEBUG ? 1 : 0;
 			self::$get->__QUERY__ = '?' . htmlspecialchars($_SERVER['QUERY_STRING']);
-			self::$get->__URI__ = htmlspecialchars($_SERVER['REQUEST_URI']);
 			self::$get->__ROOT__ = htmlspecialchars(CIA_ROOT);
 			self::$get->__LANG__ = htmlspecialchars(CIA_LANG);
 			self::$get->__AGENT__ = htmlspecialchars($agent) . ('' !== $agent ? '/' : '');
 			self::$get->__HOST__ = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . htmlspecialchars(@$_SERVER['HTTP_HOST']);
+			self::$get->__URI__ = htmlspecialchars($_SERVER['REQUEST_URI']);
 		}
 
 		if (false===$args) $args = self::$get;
