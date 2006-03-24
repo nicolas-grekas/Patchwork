@@ -477,11 +477,11 @@ w = function($rootAgent, $keys, $CIApID)
 	g = parseurl($j.search.replace(/\+/g, '%20').substring(1), '&', /^amp;/);
 	g.__DEBUG__ = {g$__DEBUG__|escape:'js'} ? 1 : 0;
 	g.__QUERY__ = esc($j.search) || '?';
-	g.__URI__ = esc($j.href.replace(/#.*$/, ''));
 	g.__ROOT__ = esc({g$__ROOT__|escape:'js'});
 	g.__LANG__ = esc({g$__LANG__|escape:'js'});
 	g.__AGENT__ = esc($rootAgent) + ($rootAgent.length ? '/' : '');
 	g.__HOST__ = esc($j.protocol+'//'+$j.hostname);
+	g.__URI__ = esc($j.pathname + $j.search);
 
 	$j = dUC($j.pathname.substr({g$__ROOT__|length}+$rootAgent.length)).split('/');
 	for ($i=0; $i<$j.length; ++$i) if ($j[$i]) $loopIterator[$loopIterator.length] = g['__'+($loopIterator.length+1)+'__'] = esc($j[$i]);
