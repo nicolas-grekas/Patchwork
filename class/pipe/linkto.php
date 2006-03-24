@@ -39,7 +39,7 @@ P$<?php echo substr(__CLASS__, 5)?> = function($text, $url, $attributes)
 
 	return $url == _GET.__URI__.substr(_GET.__ROOT__.length)
 			? ('<b class="linkloop">' + $text + '</b>')
-			: ('<a href="' + $url + $hash + '" ' + str($attributes) + '>' . $text . '</a>');
+			: ('<a href="' + $url + $hash + '" ' + str($attributes) + '>' + $text + '</a>');
 }
 
 <?php	}
