@@ -29,7 +29,7 @@ class iaForm_hidden extends loop_callAgent
 		$this->sessionLink =& $sessionLink;
 		$this->name =& $name;
 
-		$this->control($param);
+		$this->init($param);
 
 		if ($sessionLink)
 		{
@@ -161,7 +161,7 @@ class iaForm_hidden extends loop_callAgent
 		return $data;
 	}
 
-	protected function control(&$param)
+	protected function init(&$param)
 	{
 		$this->valid = isset($param['valid']) ? $param['valid'] : 'string';
 
@@ -257,9 +257,9 @@ class iaForm_text extends iaForm_hidden
 	protected $type = 'text';
 	protected $maxlength = 255;
 
-	protected function control(&$param)
+	protected function init(&$param)
 	{
-		parent::control($param);
+		parent::init($param);
 		if (@$param['maxlength'] > 0) $this->maxlength = (int) $param['maxlength'];
 		if (mb_strlen($this->value) > $this->maxlength) $this->value = mb_substr($this->value, 0, $this->maxlength);
 	}
@@ -315,7 +315,7 @@ class iaForm_select extends iaForm_hidden
 	protected $firstItem = false;
 	protected $length = -1;
 	
-	protected function control(&$param)
+	protected function init(&$param)
 	{
 		if (isset($param['firstItem'])) $this->firstItem = $param['firstItem'];
 
@@ -368,7 +368,7 @@ class iaForm_select extends iaForm_hidden
 			}
 		}
 
-		parent::control($param);
+		parent::init($param);
 	}
 	
 	protected function get()
@@ -403,9 +403,9 @@ class iaForm_QSelect extends iaForm_text
 {
 	protected $src;
 
-	protected function control(&$param)
+	protected function init(&$param)
 	{
-		parent::control($param);
+		parent::init($param);
 		if (isset($param['src'])) $this->src = $param['src'];
 		if (isset($param['lock']) && $param['lock']) $this->lock = 1;
 	}
@@ -427,13 +427,13 @@ class iaForm_jsSelect extends iaForm_select
 {
 	protected $src;
 
-	protected function control(&$param)
+	protected function init(&$param)
 	{
 		unset($param['item']);
 		unset($param['sql']);
 		if (!isset($param['valid'])) $param['valid'] = 'string';
 
-		parent::control($param);
+		parent::init($param);
 
 		if (isset($param['src'])) $this->src = $param['src'];
 	}
@@ -460,7 +460,7 @@ class iaForm_file extends iaForm_text
 	public $isfile = true;
 	public $isdata = false;
 
-	protected function control(&$param)
+	protected function init(&$param)
 	{
 		$this->valid_args[] = $this->maxlength = (int) @$param['maxlength'];
 
@@ -501,11 +501,11 @@ class iaForm_time extends iaForm_text
 	protected $maxint = 23;
 	protected $minute;
 
-	protected function control(&$param)
+	protected function init(&$param)
 	{
 		$param['valid'] = 'int';
 		$param[0] = 0; $param[1] = 23;
-		parent::control($param);
+		parent::init($param);
 		
 		$this->minute = $form->add('minute', $name.'_minute', array('valid'=>'int', 0, 59));
 	}
@@ -521,12 +521,12 @@ class iaForm_date extends iaForm_text
 {
 	protected $maxlength = 10;
 	
-	protected function control(&$param)
+	protected function init(&$param)
 	{
 		if (!isset($param['valid'])) $param['valid'] = 'date';
 		if (isset($param['default']) && '0000-00-00' == $param['default']) unset($param['default']);
 
-		parent::control($param);
+		parent::init($param);
 	}
 	
 	protected function get()
@@ -556,7 +556,7 @@ class iaForm_submit extends iaForm_hidden
 	protected $type = 'submit';
 	public $isdata = false;
 
-	protected function control(&$param)
+	protected function init(&$param)
 	{
 		if (isset($this->form->rawValues[$this->name])) $this->status = true;
 		else if (isset($this->form->rawValues[$this->name.'_x']) && isset($this->form->rawValues[$this->name.'_y']))
@@ -589,10 +589,10 @@ class iaForm_image extends iaForm_submit
 {
 	protected $type = 'image';
 
-	protected function control(&$param)
+	protected function init(&$param)
 	{
 		unset($this->form->rawValues[$this->name]);
-		parent::control($param);
+		parent::init($param);
 	}
 }
 

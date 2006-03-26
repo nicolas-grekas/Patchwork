@@ -341,7 +341,7 @@ else
 	 */
 	if (
 		DEBUG && !$binaryMode
-		&& 'GET' == @$_SERVER['REQUEST_METHOD']
+		&& !CIA_POSTING
 		&& 'no-cache' == @$_SERVER['HTTP_CACHE_CONTROL']
 		&& 0 === strpos(@$_SERVER['HTTP_USER_AGENT'], 'Mozilla') )
 	{
