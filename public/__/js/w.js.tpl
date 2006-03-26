@@ -68,9 +68,10 @@ function parseurl($param, $delim, $rx, $array)
 	return $array;
 }
 
-function loadPng()
+function loadPng($this)
 {
-	var $this = this, $src = $this.src, $width = $this.width, $height = $this.height;
+	$this = $this || this;
+	var $src = $this.src, $width = $this.width, $height = $this.height;
 	if ($src.search(/\.png$/i)>=0)
 	{
 		$this.style.width = $this.offsetWidth + 'px';
