@@ -389,6 +389,8 @@ addOnload(function()
 	if (_BOARD.lastL == ''+location) t(_BOARD.lastX) && scrollTo(_BOARD.lastX, _BOARD.lastY);
 	else setboard('lastL', location);
 
+	setboard({lastX: 0, lastY: 0});
+
 	for (; $i<$forms.length; ++$i)
 	{
 		$form = $forms[$i];
