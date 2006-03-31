@@ -4,15 +4,15 @@ IF a$loop --><!--
 
 	LOOP a$tree
 		-->{a$name}.add(
-			{$id|escape:'js'},
-			{$pid|escape:'js'},
-			{$label|escape:'js'},
-			{$url|escape:'js'},
-			{$title|escape:'js'},
-			{$target|escape:'js'},
-			{$icon|escape:'js'},
-			{$iconOpen|escape:'js'},
-			{$open|escape:'js'}
+			{$id|js},
+			{$pid|js},
+			{$label|js},
+			{$url|js},
+			{$title|js},
+			{$target|js},
+			{$icon|js},
+			{$iconOpen|js},
+			{$open|js}
 		);<!--
 		AGENT 'dtree' tree=$tree name=a$name loop=1 --><!--
 	END:LOOP --><!--
@@ -73,15 +73,15 @@ ELSE --><!--
 {a$name} = new dTree('{a$name}');
 
 {a$name}.add(
-	{a$rootId|escape:'js'},
+	{a$rootId|js},
 	-1,
-	{a$rootLabel|escape:'js'},
-	{a$rootUrl|escape:'js'},
-	{a$rootTitle|escape:'js'},
-	{$rootTrget|escape:'js'},
-	{$rootIcon|escape:'js'},
-	{$rootIconOpen|escape:'js'},
-	{$rootOpen|escape:'js'}
+	{a$rootLabel|js},
+	{a$rootUrl|js},
+	{a$rootTitle|js},
+	{$rootTrget|js},
+	{$rootIcon|js},
+	{$rootIconOpen|js},
+	{$rootOpen|js}
 	);
 {a$dtree}
 

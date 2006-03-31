@@ -34,17 +34,17 @@ SET $INPUT --><!--
 	
 	--><script type="text/javascript"><!--
 
-	a={a$|htmlArgs|escape:'js'};
-	m={a$multiple|escape:'js'};
-	i={a$_firstItem|escape:'js'};
-	c={a$_firstCaption|escape:'js'};
+	a={a$|htmlArgs|js};
+	m={a$multiple|js};
+	i={a$_firstItem|js};
+	c={a$_firstCaption|js};
 	
 	//--></script ><script type="text/javascript" src="{a$_src_}"></script><script type="text/javascript"><!--
 
-	lE=gLE({a$name|escape:'js'})
-	jsSelectInit(lE,[<!-- LOOP a$_value -->{$VALUE|escape:'js'},<!-- END:LOOP -->0])
+	lE=gLE({a$name|js})
+	jsSelectInit(lE,[<!-- LOOP a$_value -->{$VALUE|js},<!-- END:LOOP -->0])
 	lE.gS=IgSS;
-	lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|escape:'js'},{$onempty|escape:'js'},{$onerror|escape:'js'}<!-- END:LOOP -->],this.form)};<!-- IF a$_focus_ -->lE.focus()<!-- END:IF -->//--></script><!--
+	lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form)};<!-- IF a$_focus_ -->lE.focus()<!-- END:IF -->//--></script><!--
 	
 	SERVERSIDE
 		--><noscript><input {a$|htmlArgs}></noscript><!--

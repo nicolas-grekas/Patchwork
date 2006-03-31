@@ -1,2 +1,2 @@
 <!-- AGENT 'js' __0__='QSelect/Suggest' -->
-QSelect(lE,QSelectSuggest([<!-- LOOP $DATA -->{$VALUE|escape:'js'},<!-- END:LOOP -->0],{$separator|escape:'js'},{$separatorRx|escape:'js'}),1)
+QSelect(lE,QSelectSuggest([<!-- LOOP $DATA -->{$VALUE|js},<!-- END:LOOP -->0],{$separator|js},{$separatorRx|js}),1)

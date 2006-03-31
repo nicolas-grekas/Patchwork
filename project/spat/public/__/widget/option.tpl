@@ -3,7 +3,7 @@
 
 <!-- LOOP a$option -->
 	<!-- IF $type=='separator' -->
-	<tr><th colspan="2">{$label|escape:'unhtml'}</th></tr>
+	<tr><th colspan="2">{$label|allowhtml}</th></tr>
 	<!-- ELSE -->
 	<!-- AGENT $f_option _caption_=$label onchange="this.form.submitIfValid()" -->
 	<!-- END:IF -->

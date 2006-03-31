@@ -38,7 +38,7 @@ function clickDrop($id)
 </table>
 {"Pour la sélection"}{"&nbsp;:"}
 <!-- AGENT $f_edit value="Modifier les options" -->
-<!-- AGENT $f_del  value="Supprimer" onclick="return confirm({\"Voulez-vous vraiement supprimer la sélection ?\"|escape:'js'})" -->
+<!-- AGENT $f_del  value="Supprimer" onclick="return confirm({\"Voulez-vous vraiement supprimer la sélection ?\"|js})" -->
 <!-- AGENT $f_check _format_='%2' -->
 
 <!-- END:IF -->
