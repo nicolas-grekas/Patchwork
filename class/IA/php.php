@@ -14,6 +14,8 @@ class IA_php
 
 		if (!isset(self::$get))
 		{
+			$reset_get = true;
+
 			self::$get = (object) array_map('htmlspecialchars', $a);
 			self::$get->__DEBUG__ = DEBUG ? 1 : 0;
 			self::$get->__QUERY__ = '?' . htmlspecialchars($_SERVER['QUERY_STRING']);
@@ -23,6 +25,7 @@ class IA_php
 			self::$get->__HOST__ = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . htmlspecialchars(@$_SERVER['HTTP_HOST']);
 			self::$get->__URI__ = htmlspecialchars($_SERVER['REQUEST_URI']);
 		}
+		else $reset_get = false;
 
 		if (false===$args) $args = self::$get;
 		else $_GET =& $args;
@@ -40,6 +43,8 @@ class IA_php
 		self::compose($agent);
 
 		$_GET =& $a;
+
+		if ($reset_get) unset(self::$get);
 	}
 
 	public static function compose($agent)
