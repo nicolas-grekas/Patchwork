@@ -482,10 +482,10 @@ w = function($rootAgent, $keys, $CIApID)
 	$j = location;
 
 	g = parseurl($j.search.replace(/\+/g, '%20').substring(1), '&', /^amp;/);
-	g.__DEBUG__ = {g$__DEBUG__|escape:'js'} ? 1 : 0;
+	g.__DEBUG__ = {g$__DEBUG__|js} ? 1 : 0;
 	g.__QUERY__ = esc($j.search) || '?';
-	g.__ROOT__ = esc({g$__ROOT__|escape:'js'});
-	g.__LANG__ = esc({g$__LANG__|escape:'js'});
+	g.__ROOT__ = esc({g$__ROOT__|js});
+	g.__LANG__ = esc({g$__LANG__|js});
 	g.__AGENT__ = esc($rootAgent) + ($rootAgent.length ? '/' : '');
 	g.__HOST__ = esc($j.protocol+'//'+$j.hostname);
 	g.__URI__ = esc($j.pathname + $j.search);

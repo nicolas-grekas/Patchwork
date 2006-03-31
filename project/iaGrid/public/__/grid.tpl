@@ -33,7 +33,7 @@ lockArray = [];
 rowEnd = 0;
 colEnd = 0;
 
-setTabId({$tabId|escape:'js'});
+setTabId({$tabId|js});
 
 window.onblur = function()
 {

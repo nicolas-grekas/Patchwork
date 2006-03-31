@@ -4,6 +4,6 @@
 <!-- IF !a$next --><!-- SET a$next -->{"Suivant >"}<!-- END:SET --><!-- END:IF -->
 
 <!-- AGENT a$submit value=a$next style='float:right' -->
-<input type="button" value="{a$prev|escape}" style="float:left" onclick="location={a$prevurl|escape:'jsh'}" />
+<input type="button" value="{a$prev|escape}" style="float:left" onclick="location={a$prevurl|js|denyhtml}" />
 
 <!-- SET g$inputFormat -->{a$inputFormat}<!-- END:SET -->

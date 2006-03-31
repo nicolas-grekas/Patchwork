@@ -30,14 +30,14 @@ else
 {
 	var $sending, $progress, $remaining, $detail, $unitWidth, $maxWidth, $unitHtml, $QJsrs, $bytes_total;
 
-	$Done = {"Téléchargement terminé"|escape:'js'} + ' !';
-	$Minutes = {"minutes"|escape:'js'};
-	$Minute = {"minute"|escape:'js'};
-	$Secondes = {"secondes"|escape:'js'};
-	$Seconde = {"seconde"|escape:'js'};
-	$Remainings = {"restantes"|escape:'js'};
-	$Remaining = {"restante"|escape:'js'};
-	$At = {"à"|escape:'js'};
+	$Done = {"Téléchargement terminé"|js} + ' !';
+	$Minutes = {"minutes"|js};
+	$Minute = {"minute"|js};
+	$Secondes = {"secondes"|js};
+	$Seconde = {"seconde"|js};
+	$Remainings = {"restantes"|js};
+	$Remaining = {"restante"|js};
+	$At = {"à"|js};
 
 	UPID = opener && opener.UPID;
 

@@ -22,6 +22,7 @@ class iaForm_hidden extends loop_callAgent
 
 	protected $elt = array();
 	protected $eltToCheck = array();
+	protected $isOn;
 
 	public function __construct($form, $name, $param, &$sessionLink = false)
 	{
@@ -100,8 +101,9 @@ class iaForm_hidden extends loop_callAgent
 
 	public function isOn()
 	{
-		if (!$this->form->checkIsOn($this->name, $this->status)) return false;
-		
+		if (isset($this->isOn)) return $this->isOn;
+		if ($this->status === '') return $this->isOn = false;
+
 		$error =& $this->form->errormsg;
 
 		foreach ($this->elt as $name => $elt)
@@ -117,7 +119,7 @@ class iaForm_hidden extends loop_callAgent
 
 		if ($this->sessionLink && $error) unset($this->sessionLink[$this->name]);
 
-		return empty($error);
+		return $this->isOn = empty($error);
 	}
 
 	public function checkError($onempty, $onerror)
@@ -570,6 +572,8 @@ class iaForm_submit extends iaForm_hidden
 			$this->value = $this->status ? array($x, $y) : array();
 		}
 		else $this->status = '';
+
+		$this->form->setEnterControl($this->name);
 	}
 
 	protected function get()

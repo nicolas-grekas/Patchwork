@@ -54,7 +54,7 @@ SET $INPUT --><!--
 
 	SET a$_JsStart
 		--><script type="text/javascript">//<![CDATA[
-		lE=gLE({a$name|escape:'js'}<!-- IF a$multiple -->,1<!-- END:IF -->)
+		lE=gLE({a$name|js}<!-- IF a$multiple -->,1<!-- END:IF -->)
 		if(lE){<!--
 	END:SET --><!--
 
@@ -122,13 +122,13 @@ SET $INPUT --><!--
 			lE.onclick=function(e){var f=this.form;return(f.precheck?f.precheck():1)&&(this.cS()?(this.oc?this.oc(e):true):false)};<!--
 
 		ELSE
-			-->lE.gS=function(){return valid(this<!-- LOOP a$_valid -->,{$VALUE|escape:'js'}<!-- END:LOOP -->)};<!--
+			-->lE.gS=function(){return valid(this<!-- LOOP a$_valid -->,{$VALUE|js}<!-- END:LOOP -->)};<!--
 
 		END:IF --><!--
 
 	END:IF
 
-	-->lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|escape:'js'},{$onempty|escape:'js'},{$onerror|escape:'js'}<!-- END:LOOP -->],this.form)};<!-- IF a$_focus_ -->lEF=lE;setTimeout('lEF.focus()',100);<!-- END:IF -->{a$_JsEnd}<!--
+	-->lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form)};<!-- IF a$_focus_ -->lEF=lE;setTimeout('lEF.focus()',100);<!-- END:IF -->{a$_JsEnd}<!--
 
 	IF a$_mandatory --></span><!-- END:IF --><!--
 

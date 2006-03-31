@@ -13,5 +13,5 @@ Fax : 08 72 14 56 70
 </p>
 
 <p>
-Email : {'contact@intellagence.eu.com'|escape:'mailto'}
+Email : {'contact@intellagence.eu.com'|mailto}
 </p>

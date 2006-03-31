@@ -19,7 +19,6 @@ class iaForm extends loop_callAgent
 	protected $agentPrefix = 'f_';
 
 	protected $hasfile = false;
-	protected $isOnChecked = false;
 	protected $enterControl = false;
 	protected $firstName = -1;
 
@@ -125,17 +124,10 @@ class iaForm extends loop_callAgent
 		}
 	}
 
-	public function checkIsOn($name, $status)
+	public function setEnterControl($name)
 	{
 		if ($this->firstName === -1) $this->firstName = $name;
 		else if ($name != $this->firstName) $this->enterControl = true;
-
-		if ($this->isOnChecked) return false;
-		if ($status === '') return false;
-
-		$this->isOnChecked = true;
-
-		return true;
 	}
 
 	protected function get()
