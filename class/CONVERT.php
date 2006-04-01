@@ -20,7 +20,7 @@ abstract class CONVERT
 
 	protected static getDriver($from, $to)
 	{
-		$class = 'driver_convert_' . $from . '_' . $to;
+		$class = 'driver_convertTo_' . $from . '_' . $to;
 		if (preg_match("'[^a-zA-Z0-9_]'u", $class))
 		{
 			E('Disallowed classname: ' . $class);
