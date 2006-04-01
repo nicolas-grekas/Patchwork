@@ -15,7 +15,7 @@ class pipe_linkto
 		}
 		else $hash = '';
 
-		return $url == substr($_SERVER['REQUEST_URI'], strlen(CIA_ROOT))
+		return $url == substr($_SERVER['REQUEST_URI'], strlen(CIA::__ROOT__()))
 			? ('<b class="linkloop">' . $text . '</b>')
 			: ('<a href="' . $url . $hash . '" ' . CIA::string($attributes) . '>' . $text . '</a>');
 	}

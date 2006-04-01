@@ -103,7 +103,7 @@ abstract class iaCompiler
 
 	private function load($template)
 	{
-		$source = @file_get_contents('public/' . CIA_LANG . "/$template", true);
+		$source = @file_get_contents('public/' . CIA::__LANG__() . "/$template", true);
 		if ($source === false) $source = file_get_contents("public/__/$template", true);
 
 		if ($this->serverMode)

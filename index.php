@@ -79,8 +79,16 @@ setlocale(LC_ALL, 'en_US.UTF-8');
 
 define('DEBUG',			$CONFIG['debug']);
 define('CIA_MAXAGE',	$CONFIG['maxage']);
-define('CIA_LANG_LIST',	$CONFIG['lang_list']);
-define('CIA_SECRET',	$CONFIG['secret']);
+define('CIA_TIME', time());
+define('CIA_PROJECT_ID', $version_id % 1000);
+define('CIA_POSTING', $_SERVER['REQUEST_METHOD']=='POST');
+define('CIA_DIRECT', !CIA_POSTING && $_SERVER['CIA_REQUEST'] == '_');
+
+if (DEBUG && CIA_DIRECT && isset($_GET['d']))
+{
+	require 'debug.php';
+	exit;
+}
 
 
 /* Include Path Initialisation */
@@ -99,20 +107,6 @@ set_include_path($include_path . $CONFIG['pear_path']);
 if (!isset($_SERVER['CIA_REQUEST']))
 {
 	require 'language.php';
-	exit;
-}
-
-define('CIA_TIME', time());
-define('CIA_PROJECT_ID', $version_id % 1000);
-define('CIA_LANG', isset($_SERVER['CIA_LANG']) ? $_SERVER['CIA_LANG'] : substr($CONFIG['lang_list'], 0, 2));
-define('CIA_ROOT', $_SERVER['CIA_ROOT'] . CIA_LANG . '/');
-
-define('CIA_POSTING', $_SERVER['REQUEST_METHOD']=='POST');
-define('CIA_DIRECT', !CIA_POSTING && $_SERVER['CIA_REQUEST'] == '_');
-
-if (DEBUG && CIA_DIRECT && isset($_GET['d']))
-{
-	require 'debug.php';
 	exit;
 }
 

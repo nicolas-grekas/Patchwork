@@ -6,7 +6,8 @@ class IA_php
 	protected static $values;
 	protected static $get = false;
 
-	protected static $cache = array();
+	protected static $masterCache = array();
+	protected static $cache;
 
 	public static function loadAgent($agent, $args = array())
 	{
@@ -15,15 +16,20 @@ class IA_php
 		if (!self::$get)
 		{
 			$reset_get = true;
+			$cache = '';
 
 			self::$get = (object) array_map('htmlspecialchars', $a);
 			self::$get->__DEBUG__ = DEBUG ? 1 : 0;
 			self::$get->__QUERY__ = '?' . htmlspecialchars($_SERVER['QUERY_STRING']);
-			self::$get->__ROOT__ = htmlspecialchars(CIA_ROOT);
-			self::$get->__LANG__ = htmlspecialchars(CIA_LANG);
+			$cache .= self::$get->__ROOT__ = htmlspecialchars(CIA::__ROOT__());
+			$cache .= self::$get->__LANG__ = htmlspecialchars(CIA::__LANG__());
 			self::$get->__AGENT__ = htmlspecialchars($agent) . ('' !== $agent ? '/' : '');
-			self::$get->__HOST__ = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . htmlspecialchars(@$_SERVER['HTTP_HOST']);
+			$cache .= self::$get->__HOST__ = htmlspecialchars(CIA::__HOST__());
 			self::$get->__URI__ = htmlspecialchars($_SERVER['REQUEST_URI']);
+
+			if (!isset(self::$masterCache[$cache])) self::$masterCache[$cache] = array();
+
+			self::$cache =& self::$masterCache[$cache];
 		}
 		else $reset_get = false;
 

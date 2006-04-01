@@ -32,10 +32,10 @@ class agent_css extends agent_bin
 		$g = (object) $this->g;
 		$g->__DEBUG__ = DEBUG ? 1 : 0;
 		$g->__URI__ = htmlspecialchars($_SERVER['REQUEST_URI']);
-		$g->__ROOT__ = htmlspecialchars(CIA_ROOT);
-		$g->__LANG__ = htmlspecialchars(CIA_LANG);
+		$g->__ROOT__ = htmlspecialchars(CIA::__ROOT__());
+		$g->__LANG__ = htmlspecialchars(CIA::__LANG__());
 		$g->__AGENT__ = str_replace('_', '/', substr(get_class($this), 6)) . '/';
-		$g->__HOST__ = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . htmlspecialchars(@$_SERVER['HTTP_HOST']);
+		$g->__HOST__ = htmlspecialchars(CIA::__HOST__());
 
 		$parser = new iaCompiler_php(true);
 		ob_start();
