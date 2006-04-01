@@ -250,7 +250,7 @@ if (CIA_DIRECT)
 				$compiler = new iaCompiler_js(false);
 				echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
 				CIA::writeFile($ctemplate, $template);
-				CIA::writeWatchTable(array('public/templates'), $ctemplate);
+				CIA::writeWatchTable('public/templates', $ctemplate);
 			}
 
 			CIA::setMaxage(-1);
