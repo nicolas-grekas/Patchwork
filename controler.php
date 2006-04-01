@@ -35,13 +35,9 @@ for ($i = 0; $i < $len; ++$i)
 		$path[$i] .= $lang . $agent;
 		break;
 	}
-	else $path[$i] .= "/__/{$agent}";
-}
 
-if ($i == $len)
-{
-	$lang = '/__/';
-	for ($i = 0; $i < $len; ++$i) if (file_exists($path[$i])) break;
+	$path[$i] .= "/__/{$agent}";
+	if (file_exists($path[$i])) break;
 }
 
 if ($i < $len)

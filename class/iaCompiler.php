@@ -101,10 +101,33 @@ abstract class iaCompiler
 		return preg_replace("'" . $this->Xcomment . "'su", '', $source);
 }
 
-	private function load($template)
+	private function load($template, $first = true)
 	{
-		$source = @file_get_contents('public/' . CIA::__LANG__() . "/$template", true);
-		if ($source === false) $source = file_get_contents("public/__/$template", true);
+		static $path_pool;
+		static $path_len;
+		static $path_idx;
+
+		if ($first)
+		{
+			$path_pool = explode(PATH_SEPARATOR, get_include_path());
+			$path_len = count($path_pool);
+			$path_idx = 0;
+		}
+		else ++$path_idx;
+
+		if ($path_idx >= $path_len) return '';
+
+		switch (substr($path_pool[$path_idx], -1))
+		{
+			case '':
+			case '\\':
+			case '/': break;
+			default: $path_pool[$path_idx] .= DIRECTORY_SEPARATOR;
+		}
+
+		$source = @file_get_contents($path_pool[$path_idx] . 'public/' . CIA::__LANG__() . "/$template");
+		if ($source === false) $source = @file_get_contents($path_pool[$path_idx] . "public/__/$template");
+		if ($source === false) return $this->load($template, false);
 
 		if ($this->serverMode)
 		{
@@ -119,12 +142,7 @@ abstract class iaCompiler
 
 		if (preg_match("'{$this->Xlblock}PARENT{$this->Xrblock}'su", $source))
 		{
-			$include_path = get_include_path();
-			set_include_path(substr(strstr($include_path, PATH_SEPARATOR), 1));
-
-			$source = preg_replace("'{$this->Xlblock}PARENT{$this->Xrblock}'su", $this->load($template), $source);
-
-			set_include_path($include_path);
+			$source = preg_replace("'{$this->Xlblock}PARENT{$this->Xrblock}'su", $this->load($template, false), $source);
 		}
 
 		return $source;

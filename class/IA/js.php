@@ -78,7 +78,7 @@ class IA_js
 				$compiler = new iaCompiler_js($agent->binary);
 				echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
 				CIA::writeFile($ctemplate, $template);
-				CIA::writeWatchTable(array('public/templates'), $ctemplate);
+				CIA::writeWatchTable('public/templates', $ctemplate);
 			}
 		}
 		else echo ',[1,"g.__ROOT__+', self::formatJs(self::formatJs($template = '_?t=' . $template), false, '"', false), '",0,0,0])';

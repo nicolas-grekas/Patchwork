@@ -101,7 +101,7 @@ class IA_php
 				$compiler = new iaCompiler_php($agent->binary);
 				$ftemplate = '<?php function ' . $ftemplate . '(&$v, &$a, &$g){$d=$v;' . $compiler->compile($template . '.tpl') . '} ' . $ftemplate . '($v, $a, $g);';
 				CIA::writeFile($ctemplate,  $ftemplate);
-				CIA::writeWatchTable(array('public/templates'), $ctemplate);
+				CIA::writeWatchTable('public/templates', $ctemplate);
 			}
 
 			require $ctemplate;
