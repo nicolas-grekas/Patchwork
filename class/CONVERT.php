@@ -7,7 +7,7 @@ abstract class CONVERT
 		$driver = self::getDriver($from, $to);
 		if (!$driver) return false;
 
-		return $driver::file($file);
+		return $driver->file($file);
 	}
 
 	static function data($data, $from, $to)
@@ -15,19 +15,19 @@ abstract class CONVERT
 		$driver = self::getDriver($from, $to);
 		if (!$driver) return false;
 
-		return $driver::data($data);
+		return $driver->data($data);
 	}
 
-	protected static getDriver($from, $to)
+	protected static function getDriver($from, $to)
 	{
-		$class = 'driver_convertTo_' . $from . '_' . $to;
+		$class = 'driver_convertTo_' . $to . '_' . $from;
 		if (preg_match("'[^a-zA-Z0-9_]'u", $class))
 		{
 			E('Disallowed classname: ' . $class);
 			return false;
 		}
 
-		if (class_exists($class)) return true;
+		if (class_exists($class)) return new $class;
 
 		E('No defined driver for this convertion: ' . $class);
 

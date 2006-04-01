@@ -29,31 +29,22 @@ class iaMail extends Mail_mime
 	}
 
 
-	function setTXTBody($data, $isfile = false, $append = false)
+	function __construct()
 	{
-		$this->convert_text_encoding = true;
-		parent::setTXTBody($data, $isfile, $append);
-	}
+		parent::__construct();
 
-	function setHTMLBody($data, $isfile = false)
-	{
-		$this->convert_html_encoding = true;
-		parent::setHTMLBody($data, $isfile);
+		$this->_build_params['html_charset'] = 'UTF-8';
+		$this->_build_params['text_charset'] = 'UTF-8';
+		$this->_build_params['head_charset'] = 'UTF-8';
 	}
 
 	function doSend($build_params = null)
 	{
-		if ($this->convert_text_encoding) $this->_txtbody = mb_convert_encoding($this->_txtbody, $this->_build_params['text_charset']);
-		if ($this->convert_html_encoding) $this->_htmlbody = mb_convert_encoding($this->_htmlbody, $this->_build_params['html_charset']);
-
-		$headers = array();
-		foreach ($this->_headers as $k => $v) $headers[$k] = mb_convert_encoding($v, $this->_build_params['head_charset']);
+		$body =& $this->get($build_params);
+		$headers =& $this->headers();
 
 		$to = DEBUG ? 'webmaster' : $headers['To'];
 		unset($headers['To']);
-
-		$body =& $this->get($build_params);
-		$headers =& $this->headers($headers);
 
 		$mail = Mail::factory('mail', isset($headers['Return-Path']) ? '-f ' . escapeshellarg($headers['Return-Path']) : '' );
 		$mail->send($to, $headers, $body);

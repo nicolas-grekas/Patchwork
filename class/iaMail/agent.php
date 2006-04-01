@@ -14,7 +14,7 @@ class iaMail_agent extends iaMail
 		$this->argv = $argv;
 		$this->lang = 'default' == $lang ? CIA::__LANG__() : $lang;
 
-		parent::construct();
+		parent::__construct();
 	}
 
 	function doSend()
@@ -27,7 +27,7 @@ class iaMail_agent extends iaMail
 
 		CIA::__LANG__($lang);
 
-		$html = preg_replace_callback('/(\s)(src|background)\s*(=)\s*(["\'])?((?(4)[^\4]*|[^\s>]*)\.(jpe?g|png|gif))(?(4)\4)/iu', array($this, 'addRawImage'), $html);
+		$html = preg_replace_callback('/(\s)(src|background)\s*(=)\s*(["\'])?((?(4)[^(?:\4)]*|[^\s>]*)\.(jpe?g|png|gif))(?(4)\4)/iu', array($this, 'addRawImage'), $html);
 
 		// Limited support for http://www.w3.org/TR/REC-CSS2/syndata.html#uri
 		$html = preg_replace_callback("/([\s:])(url)(\()\s*([\"'])?([^\n\r]*\.(jpe?g|png|gif))(?(4)\4)\s*(\))/iu", array($this, 'addRawImage'), $html);

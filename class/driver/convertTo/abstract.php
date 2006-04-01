@@ -2,15 +2,15 @@
 
 abstract class driver_convertTo_abstract
 {
-	abstract static function file($file);
+	abstract function file($file);
 
-	static function data($data)
+	function data($data)
 	{
 		$file = tempnam('./tmp', 'convert');
 
 		file_put_contents($file, $data);
 
-		$data = self::file($file);
+		$data = $this->file($file);
 
 		unlink($file);
 
