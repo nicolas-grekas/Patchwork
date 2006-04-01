@@ -55,12 +55,12 @@ class LIB
 	protected static function initAccents()
 	{
 		self::$ACCENT_FROM = array(
-			"/[\xcc\xa8\xcc\xb1]/u", '/[ÆǼǢ]/u', '/[æǽǣ]/u', '/ß/u', '/Œ/u', '/œ/u', '/ʤʣʥ/u', '/ﬀ/u',
-			'/ﬃ/u', '/ﬄ/u', '/ﬁ/u', '/ﬂ/u', '/ƕ/u', '/Ƣ/u', '/ƣ/u', '/ﬆﬅ/u', '/ʨ/u', '/ʦ/u', '/ƻ/u'
+			"/[\p{Mn}\p{Lm}]/u", '/[ÆǼǢ]/u', '/[æǽǣ]/u', '/ß/u', '/Œ/u', '/œ/u', '/[ʤʣʥ]/u', '/ﬀ/u',
+			'/ﬃ/u', '/ﬄ/u', '/ﬁ/u', '/ﬂ/u', '/ƕ/u', '/Ƣ/u', '/ƣ/u', '/[ﬆﬅ]/u', '/ʨ/u', '/ʦ/u', '/ƻ/u'
 		);
 		self::$ACCENT_TO   = array(
-			''                     , 'AE'      , 'ae'      , 'ss'  , 'OE'  , 'oe'  , 'dz'    , 'ff'  ,
-			'ffi' , 'ffl' , 'fi'  , 'fl'  , 'hv'  , 'OI'  , 'oi'  , 'st'   , 'tc'  , 'ts'  , '2'
+			''                 , 'AE'      , 'ae'      , 'ss'  , 'OE'  , 'oe'  , 'dz'      , 'ff'  ,
+			'ffi' , 'ffl' , 'fi'  , 'fl'  , 'hv'  , 'OI'  , 'oi'  , 'st'     , 'tc'  , 'ts'  , '2'
 		);
 
 		$len = self::$ACCENT_LENGTH = count(self::$ACCENT);
@@ -85,7 +85,7 @@ class LIB
 	}
 
 	/**
-	 * Transform a string to a RegExp that is not sentive to accents
+	 * Transform a string to a RegExp that is not sentive to accents and punctuation
 	 */
 	static function getRxQuoteInsensitive($str, $delimiter = '')
 	{
@@ -111,9 +111,9 @@ class LIB
 	/**
 	 * Return an alphabetic RexExp class, with accents support
 	 */
-	static function getAlphaRx()
+	static function getAlphaRx($number = false)
 	{
-		return "a-zA-Z\xcc\xa8\xcc\xb1ÆǼǢæǽǣßŒœʤʣʥﬀﬃﬄﬁﬂƕƢƣﬆﬅʨʦƻ" . implode('', self::$ACCENT);
+		return '\pL\p{Mn}' . ($number ? '\pN' : '');
 	}
 
 	/**
@@ -121,12 +121,13 @@ class LIB
 	 */
 	static function getKeywords($kw)
 	{
-		$a = "[«»“”″‘’′ʿ◊[:punct:][:cntrl:][:space:]]";
+		$a = '[^' . self::getAlphaRx(true) . ']';
+		$b = '[\p{Lt}\p{Lu}]';
 
 		$kw = ' ' . $kw . ' ';
 
 		// Initials (Sigle)
-		$kw = preg_replace("'{$a}([A-Z](?:\.[A-Z])+){$a}'ue", "str_replace('.','',' $1 ')", $kw);
+		$kw = preg_replace("'{$a}({$b}(?:\.{$b})+){$a}'ue", "str_replace('.','',' $1 ')", $kw);
 
 		// Ponctuation
 		$kw = preg_replace("'{$a}+'u", ' ', $kw);

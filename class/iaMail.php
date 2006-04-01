@@ -28,9 +28,9 @@ class iaMail
 		$mail->doSend();
 	}
 
-	static function sendAgent($headers, $agent, $argv = array())
+	static function sendAgent($headers, $agent, $argv = array(), $lang = 'CIA_LANG')
 	{
-		$mail = new iaMail_agent($agent, $argv);
+		$mail = new iaMail_agent($agent, $argv, $lang);
 		$mail->setHead($headers);
 		$mail->doSend();
 	}
