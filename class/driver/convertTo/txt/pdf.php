@@ -1,6 +1,6 @@
 <?php
 
-class driver_convert_pdf_txt extends driver_convert_abstract
+class driver_convertTo_txt_pdf extends driver_convertTo_abstract
 {
 	static function file($file)
 	{
