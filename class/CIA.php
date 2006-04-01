@@ -5,6 +5,10 @@ class CIA
 	public static $agentClass;
 	public static $catchMeta = false;
 
+	protected static $lang;
+	protected static $root;
+	protected static $host;
+
 	protected static $handlesOb = false;
 	protected static $binaryMode = false;
 	protected static $metaInfo;
@@ -25,12 +29,43 @@ class CIA
 	{
 		if (DEBUG) self::$cia = new debug_CIA;
 		else self::$cia = new CIA;
+
+		self::$lang = isset($_SERVER['CIA_LANG']) ? $_SERVER['CIA_LANG'] : substr($CONFIG['lang_list'], 0, 2);
+		self::$root = $_SERVER['CIA_ROOT'];
+		self::$host = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . @$_SERVER['HTTP_HOST'];
 	}
 
 	public static function cancel()
 	{
 		self::$cancelled = true;
 		ob_end_flush();
+	}
+
+	public static function __LANG__($new_lang = null)
+	{
+		$lang = self::$lang;
+		if (null !== $new_lang) self::$lang = $new_lang;
+		return $lang;
+	}
+
+	public static function __ROOT__($new_root = null)
+	{
+		$root = self::$root;
+
+		if (null !== $new_root)
+		{
+			self::$root = $new_root;
+			return $root;
+		}
+
+		return $root . self::$lang . '/';
+	}
+
+	public static function __HOST__($new_host = null)
+	{
+		$host = self::$host;
+		if (null !== $new_host) self::$host = $new_host;
+		return $host;
 	}
 
 	/**
@@ -68,7 +103,7 @@ class CIA
 	{
 		$url = (string) $url;
 
-		self::$redirectUrl = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'i", $url) ? $url : (CIA_ROOT . ('index' == $url ? '' : $url)));
+		self::$redirectUrl = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'i", $url) ? $url : (self::__ROOT__() . ('index' == $url ? '' : $url)));
 
 		if ($exit) exit;
 	}
@@ -159,7 +194,7 @@ class CIA
 	}
 
 	public static function uniqid() {return md5( uniqid(mt_rand(), true) );}
-	public static function hash($str) {return md5( $str . CIA_SECRET );}
+	public static function hash($str) {return md5( $str . $CONFIG['secret'] );}
 
 	/**
 	 *  Returns the hash of $pwd if this hash match $crypted_pwd or if $crypted_pwd is not supplied. Else returns false. 
@@ -289,9 +324,8 @@ class CIA
 		if (!$prefixKey)
 		{
 			$prefixKey = @md5(
-				$_SERVER['HTTPS'] . '-' .
-				$_SERVER['HTTP_HOST'] . '-' .
-				CIA_ROOT . '-' .
+				self::__ROOT__() . '-' .
+				self::$host . '-' .
 				DEBUG
 			);
 

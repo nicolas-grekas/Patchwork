@@ -14,7 +14,7 @@ class driver_translate_pearDb extends TRANSLATE
 	{
 		$quoted_string = $this->db->quote($string);
 
-		$sql = 'SELECT ' . TRANSLATE::$lang . " FROM {$this->table} WHERE " . TRANSLATE::$defaultLang . "={$quoted_string}";
+		$sql = 'SELECT ' . CIA::__LANG__() . " FROM {$this->table} WHERE " . TRANSLATE::$defaultLang . "={$quoted_string}";
 		$result = $this->db->query($sql);
 		if ($row = $result->fetchRow())
 		{

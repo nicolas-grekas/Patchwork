@@ -37,7 +37,7 @@ function HTTP_Best_Language($supported)
 }
 
 $lang = @$_SERVER['CIA_ROOT'];
-$lang .= HTTP_Best_Language(explode('|', CIA_LANG_LIST));
+$lang .= HTTP_Best_Language(explode('|', $CONFIG['lang_list']));
 $lang = str_replace('%2F', '/', rawurlencode($lang));
 
 ?><html><head><script><!--
@@ -45,7 +45,7 @@ if(window.Error&&navigator.userAgent.indexOf('Safari')<0)document.cookie='JS=1; 
 location.replace('<?php echo $lang?>/')
 //--></script><meta http-equiv="refresh" content="0; URL=<?php echo $lang?>/" /></head><body>Choose a language :<ul><?php
 
-foreach (explode('|', CIA_LANG_LIST) as $l)
+foreach (explode('|', $CONFIG['lang_list']) as $l)
 {
 	echo $l == $lang
 		? "<li><a href='$l/'><b>$l</b></a></li>\n"

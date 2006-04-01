@@ -8,7 +8,7 @@ class agent_QSelect_countries extends agent_QSelect
 	{
 		return (object) array(
 			'DATA' => new loop_sql(
-				'SELECT t.' . CIA_LANG . ' AS VALUE
+				'SELECT t.' . CIA::__LANG__() . ' AS VALUE
 				FROM sys_translate t, dic_country c
 				WHERE t.__=c.label AND c.position
 				ORDER BY VALUE'

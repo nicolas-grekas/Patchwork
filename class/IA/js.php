@@ -23,7 +23,7 @@ class IA_js
 
 			echo $a = '<html><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script type="text/javascript">a=['
 				. self::formatJs($agent) . ',[' . $a . '],' . CIA_PROJECT_ID . ']</script><script type="text/javascript" src="'
-				. htmlspecialchars(CIA_ROOT) . 'js/w"></script></html>';
+				. htmlspecialchars(CIA::__ROOT__()) . 'js/w"></script></html>';
 
 			CIA::writeFile($cagent, $a);
 		}

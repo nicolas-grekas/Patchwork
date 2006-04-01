@@ -65,8 +65,8 @@ class debug_CIA extends CIA
 	private function error_end($type)
 	{
 		$bgcolor = $this->has_error ? 'red' : 'blue';
-		$debugWin = CIA_ROOT . '_?d&stop&' . mt_rand();
-		$QDebug = htmlspecialchars(CIA_ROOT . 'js/QDebug.js');
+		$debugWin = self::__ROOT__() . '_?d&stop&' . mt_rand();
+		$QDebug = htmlspecialchars(self::__ROOT__() . 'js/QDebug.js');
 
 		if ($type=='<') return <<<DEBUG_INFO
 <html><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script type="text/javascript">

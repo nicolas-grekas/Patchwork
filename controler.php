@@ -16,7 +16,7 @@ $contentType = $contentType[$path];
 $path = explode(PATH_SEPARATOR, get_include_path());
 $len = count($path);
 
-$lang = '/' . CIA_LANG . '/';
+$lang = '/' . CIA::__LANG__() . '/';
 
 for ($i = 0; $i < $len; ++$i)
 {

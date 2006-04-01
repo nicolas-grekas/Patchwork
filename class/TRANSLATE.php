@@ -4,7 +4,6 @@ abstract class TRANSLATE
 {
 	public static $driverClass;
 	public static $defaultLang = '__';
-	public static $lang;
 
 	private static $started = false;
 
@@ -15,7 +14,7 @@ abstract class TRANSLATE
 	{
 		self::start();
 
-		if (self::$lang == self::$defaultLang) return $string;
+		if (CIA::__LANG__() == self::$defaultLang) return $string;
 		
 		$hash = sprintf('%u', crc32($string));
 		$cache = '';
@@ -74,7 +73,6 @@ abstract class TRANSLATE
 		self::$driver = new $driver($CONFIG['translate_params']);
 		self::$driver->open();
 
-		if (!isset(self::$lang)) self::$lang = CIA_LANG;
 		register_shutdown_function(array('TRANSLATE', 'syncCache'));
 	}
 
