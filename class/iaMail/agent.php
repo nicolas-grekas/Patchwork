@@ -4,13 +4,15 @@ class iaMail_agent extends iaMail
 {
 	protected $agent;
 	protected $argv;
+	protected $lang;
 
 	static protected $imageCache = array();
 
-	function __construct($agent, $argv = array())
+	function __construct($agent, $argv = array(), $lang = 'CIA_LANG')
 	{
 		$this->agent = $agent;
 		$this->argv = $argv;
+		$this->lang = 'CIA_LANG' == $lang ? CIA_LANG : $lang;
 
 		parent::construct();
 	}
@@ -21,7 +23,7 @@ class iaMail_agent extends iaMail
 		IA_php::loadAgent($this->agent, $this->argv);
 		$html = ob_get_contents();
 
-		$html = preg_replace_callback('/(\s)(src|background)\s*=\s*(["\'])?((?(3)[^\3]*|[^\s]*)\.(jpe?g|png|gif))\3/i', array($this, 'addImage'), $html);
+		$html = preg_replace_callback('/(\s)(src|background)\s*=\s*(["\'])?((?(3)[^\3]*|[^\s>]*)\.(jpe?g|png|gif))(?(3)\3)/iu', array($this, 'addImage'), $html);
 		// TODO? manage images in CSS. See http://www.w3.org/TR/REC-CSS2/syndata.html#uri
 
 		$this->html_body = $html;
@@ -32,16 +34,14 @@ class iaMail_agent extends iaMail
 
 	protected function addImage($match)
 	{
-		E($match);
-
 		$url = $match[4];
 
 		if (isset(self::$imageCache[$url])) $data =& self::$imageCache[$url];
 		else
 		{
-			if (!preg_match("'^(ftp|https?)://'i", $url)) 
+			if (!preg_match("'^(ftp|https?)://'iu", $url)) 
 			{
-				if (!isset($_SERVER['HTTP_HOST'])) return $match[0]; // TODO: make this work in CLI mode, ie implement CIA::resolvePublicPath($public_object)
+				if (!isset($_SERVER['HTTP_HOST'])) return $match[0]; // XXX: because of this, the mailer doesn't work in CLI mode
 
 				if ('/' != substr($url, 0, 1)) $url = CIA_ROOT . $url;
 
