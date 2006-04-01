@@ -4,7 +4,7 @@ class IA_php
 {
 	protected static $args;
 	protected static $values;
-	protected static $get;
+	protected static $get = false;
 
 	protected static $cache = array();
 
@@ -12,7 +12,7 @@ class IA_php
 	{
 		$a =& $_GET;
 
-		if (!isset(self::$get))
+		if (!self::$get)
 		{
 			$reset_get = true;
 
@@ -44,7 +44,7 @@ class IA_php
 
 		$_GET =& $a;
 
-		if ($reset_get) unset(self::$get);
+		if ($reset_get) self::$get = false;
 	}
 
 	public static function compose($agent)
