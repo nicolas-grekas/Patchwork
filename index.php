@@ -117,22 +117,26 @@ if (@$_SERVER['HTTP_IF_NONE_MATCH']{0} == '/' && preg_match("'^/[0-9a-f]{32}-([0
 {
 	$_SERVER['HTTP_IF_NONE_MATCH'] = $match[1];
 
-	$file = $match[0];
-	$file{6} = $file{3} = '/';
-	$file = './tmp/cache/validator/' . $file . '.txt';
+	$match = $match[0];
+	$match{6} = $match{3} = '/';
+	$match = './tmp/cache/validator/' . $match . '.txt';
 
-	$cache = @file_get_contents($file);
-	if ($cache !== false)
+	$headers = @file_get_contents($match);
+	if ($headers !== false)
 	{
 		header('HTTP/1.x 304 Not Modified');
 		header('Content-Length: 0');
-		header('Content-Type:');
-		if ($cache)
+		header('Content-Type:'); // This prevents PHP from sending wrong Content-Type: text/html
+		if ($headers)
 		{
-			$cache = explode("\n", $cache, 3);
-			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', CIA_TIME + $cache[0]));
-			header('Cache-Control: max-age=' . $cache[0] . ((int) $cache[1] ? ',private,must' : ',public,proxy') . '-revalidate');
-			if (@$cache[2]) header($cache[2]);
+			$headers = explode("\n", $headers, 3);
+
+			$match = $headers[0];
+
+			$headers[0] = 'Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', CIA_TIME + $match);
+			$headers[1] = 'Cache-Control: max-age=' . $match . ((int) $headers[1] ? ',private,must' : ',public,proxy') . '-revalidate';
+
+			array_map('header', $headers);
 		}
 
 		exit;
@@ -313,7 +317,8 @@ else
 			$agentClass = 'agent' . str_replace('/', '_', $agent);
 		}
 
-		$param = explode('/', $_GET['__0__'] = substr($param, 1));
+		$_GET['__0__'] = substr($param, 1);
+		$param = explode('/', $_GET['__0__']);
 		
 		$i = 0;
 		foreach ($param as $param) $_GET['__' . ++$i . '__'] = $param;

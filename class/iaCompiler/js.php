@@ -82,7 +82,9 @@ class iaCompiler_js extends iaCompiler
 			else $keys = '';
 		}
 
-		array_push($this->code, pC_AGENT, $this->quote($inc), $this->quote($a = '{' . $a . '}'), 1, $keys===false ? 0 : "[$keys]");
+		$a = '{' . $a . '}';
+
+		array_push($this->code, pC_AGENT, $this->quote($inc), $this->quote($a), 1, $keys===false ? 0 : "[$keys]");
 
 		return true;
 	}

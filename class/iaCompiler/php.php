@@ -138,7 +138,7 @@ class iaCompiler_php extends iaCompiler
 			case 'd':
 			case 'a':
 			case 'g':
-				$var = ''!==(string) $prefix ? "IA_php::increment('$name',$prefix, \$$type)" : "@\${$type}->$name";
+				$var = ''!==(string) $prefix ? "IA_php::increment('$name',$prefix,\$$type)" : "@\${$type}->$name";
 				break;
 
 			case '':
