@@ -57,7 +57,7 @@ class iaMail extends Mail_mime
 		{
 			if (preg_match('/[\x80-\xFF]/', $hdr_value))
 			{
-				$hdr_value = preg_replace('/[=_\x80-\xFF]/e', '"=".strtoupper(dechex(ord("\0")))', $hdr_value);
+				$hdr_value = preg_replace('/[=_\?\x00-\x1F\x80-\xFF]/e', '"=".strtoupper(dechex(ord("\0")))', $hdr_value);
 				$hdr_value = str_replace(' ', '_', $hdr_value);
 
 				$input[$hdr_name] = '=?' . $this->_build_params['head_charset'] . '?Q?' . $hdr_value . '?=';
