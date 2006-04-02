@@ -68,6 +68,18 @@ class CIA
 		return $host;
 	}
 
+	public static function getUri($url)
+	{
+		if (!preg_match("'^https?://'iu", $url)) 
+		{
+			if ('/' != substr($url, 0, 1)) $url = self::__ROOT__() . $url;
+
+			$url = self::__HOST__() . $url;
+		}
+
+		return $url;
+	}
+
 	/**
 	 * Replacement for PHP's header() function
 	 */

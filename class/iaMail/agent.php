@@ -10,13 +10,13 @@ class iaMail_agent extends iaMail
 
 	static protected $imageCache = array();
 
-	function __construct($agent, $argv = array(), $lang = 'default')
+	function __construct($agent, $argv = array(), $options = null)
 	{
 		$this->agent = $agent;
 		$this->argv = $argv;
-		$this->lang = 'default' == $lang ? CIA::__LANG__() : $lang;
+		$this->lang = isset($options['lang']) ? $options['lang'] : CIA::__LANG__();
 
-		parent::__construct();
+		parent::__construct($options);
 	}
 
 	function doSend()
@@ -39,14 +39,7 @@ class iaMail_agent extends iaMail
 
 	protected function addRawImage($match)
 	{
-		$url = $match[4];
-
-		if (!preg_match("'^(ftp|https?)://'iu", $url)) 
-		{
-			if ('/' != substr($url, 0, 1)) $url = CIA::__ROOT__() . $url;
-
-			$url = CIA::__HOST__() . $url;
-		}
+		$url = CIA::getUri($match[4]);
 
 		if (isset(self::$imageCache[$url])) $data =& self::$imageCache[$url];
 		else
