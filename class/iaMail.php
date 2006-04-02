@@ -49,4 +49,21 @@ class iaMail extends Mail_mime
 		$mail = Mail::factory('mail', isset($headers['Return-Path']) ? '-f ' . escapeshellarg($headers['Return-Path']) : '' );
 		$mail->send($to, $headers, $body);
 	}
+
+	// The original _encodeHeaders of Mail_mime is bugged !
+	function _encodeHeaders($input)
+	{
+		foreach ($input as $hdr_name => $hdr_value)
+		{
+			if (preg_match('/[\x80-\xFF]/', $hdr_value))
+			{
+				$hdr_value = preg_replace('/[=_\x80-\xFF]/e', '"=".strtoupper(dechex(ord("\0")))', $hdr_value);
+				$hdr_value = str_replace(' ', '_', $hdr_value);
+
+				$input[$hdr_name] = '=?' . $this->_build_params['head_charset'] . '?Q?' . $hdr_value . '?=';
+			}
+		}
+
+		return $input;
+	}
 }
