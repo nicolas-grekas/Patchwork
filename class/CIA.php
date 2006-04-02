@@ -83,7 +83,7 @@ class CIA
 	/**
 	 * Replacement for PHP's header() function
 	 */
-	public static function header($string, $replace = true)
+	public static function header($string)
 	{
 		if (0===stripos($string, 'http/'));
 		else if (0===stripos($string, 'etag'));
@@ -93,18 +93,15 @@ class CIA
 		else if (0===stripos($string, 'content-length'));
 		else
 		{
+			$string = preg_replace("'[\r\n].*'", '', $string);
+
 			$name = strtolower(substr($string, 0, strpos($string, ':')));
 
-			if ($replace || !isset(self::$headers[$name])) self::$headers[$name] = $string;
-			else self::$headers[$name] .= "\n" . $string;
+			self::$headers[$name] = $string;
 
-			if (self::$catchMeta)
-			{
-				if ($replace || !isset(self::$metaInfo[4][$name])) self::$metaInfo[4][$name] = $string;
-				else self::$metaInfo[4][$name] .= "\n" . $string;
-			}
+			if (self::$catchMeta) self::$metaInfo[4][$name] = $string;
 
-			header($string, $replace);
+			header($string);
 		}
 	}
 
@@ -530,11 +527,6 @@ class CIA
 
 			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', CIA_TIME + self::$maxage));
 			header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');
-			if (self::$private)
-			{
-				header('Vary: Cookie');
-				apache_setenv('varyCookie', '1');
-			}
 
 
 			/* Write watch table */
@@ -564,7 +556,7 @@ class CIA
 			if ($is304)
 			{
 				header('HTTP/1.x 304 Not Modified');
-				header('Content-Type:');
+				header('Content-Type:'); // This prevents PHP from sending wrong Content-Type: text/html
 
 				$buffer = '';
 			}

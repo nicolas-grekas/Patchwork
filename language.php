@@ -2,7 +2,7 @@
 
 header('Expires: ' . gmdate('D, d M Y H:i:s', time() + CIA_MAXAGE) . ' GMT');
 header('Cache-Control: max-age=' . CIA_MAXAGE .',public');
-header('Vary: Accept-Language');
+header('Vary: Accept-Language', false);
 setcookie('JS', '0', 2147364847, '/');
 
 function HTTP_Best_Language($supported)

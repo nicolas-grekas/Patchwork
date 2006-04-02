@@ -125,15 +125,20 @@ class IA_php
 				$h = fopen($fagent, 'wb');
 
 				fwrite($h, '<?php $v=(object)');
-				self::writeAgent($h, $vClone);
-				fwrite(
-					$h,
-					';$template=' . var_export($template, true)
-						. ';CIA::setMaxage(' . (int) $maxage . ');'
-						. ('ontouch' != $expires ? 'CIA::setExpires("onmaxage");' : '')
-						. ($headers ? "header('" . addslashes(implode("\n", $headers)) . "');" : '') //XXX Multiline header() calls doesn't work with Hardened PHP
-				);
 
+				self::writeAgent($h, $vClone);
+
+				$data = ';$template=' . var_export($template, true)
+					. ';CIA::setMaxage(' . (int) $maxage . ');'
+					. ('ontouch' != $expires ? 'CIA::setExpires("onmaxage");' : '');
+
+				if ($headers)
+				{
+					$headers = array_map('addslashes', $headers);
+					$data .= "header('" . implode("');header('", $headers) . "');";
+				}
+
+				fwrite($h, $data);
 				fclose($h);
 				touch($fagent, CIA_TIME + ('ontouch' == $expires && $watch ? CIA_MAXAGE : $maxage));
 
