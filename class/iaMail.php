@@ -1,7 +1,7 @@
 <?php
 
-include('Mail.php');
-include('Mail/mime.php');
+require_once 'Mail.php';
+require_once 'Mail/mime.php';
 
 // $error_reporting = error_reporting(0);
 // error_reporting($error_reporting);

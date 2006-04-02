@@ -1,5 +1,7 @@
 <?php
 
+require_once 'HTTP/Request.php';
+
 class iaMail_agent extends iaMail
 {
 	protected $agent;
@@ -49,7 +51,9 @@ class iaMail_agent extends iaMail
 		if (isset(self::$imageCache[$url])) $data =& self::$imageCache[$url];
 		else
 		{
-			$data = file_get_contents($url);
+			$data = new HTTP_Request($url);
+			$data->sendRequest();
+			$data = $data->getResponseBody();
 			self::$imageCache[$url] =& $data;
 		}
 
