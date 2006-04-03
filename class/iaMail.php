@@ -8,12 +8,6 @@ require_once 'Mail/mime.php';
 
 class iaMail extends Mail_mime
 {
-	protected $reply_email;
-	protected $reply_url;
-
-	protected $bounce_email;
-	protected $bounce_url;
-
 	protected $options;
 
 	static function send($headers, $body, $options = null)
@@ -38,23 +32,9 @@ class iaMail extends Mail_mime
 	{
 		parent::__construct();
 
-
-		if (isset($options['reply_email'])) $this->reply_email = $options['reply_email'];
-		else if (isset($GLOBALS['CONFIG']['reply_email'])) $this->reply_email = $GLOBALS['CONFIG']['reply_email'];
-
-		if (isset($options['reply_url'])) $this->reply_url = $options['reply_url'];
-		else if (isset($GLOBALS['CONFIG']['reply_url'])) $this->reply_url = $GLOBALS['CONFIG']['reply_url'];
-
-
-		if (isset($options['bounce_email'])) $this->bounce_email = $options['bounce_email'];
-		else if (isset($GLOBALS['CONFIG']['bounce_email'])) $this->bounce_email = $GLOBALS['CONFIG']['bounce_email'];
-
-		if (isset($options['bounce_url'])) $this->bounce_url = $options['bounce_url'];
-		else if (isset($GLOBALS['CONFIG']['bounce_url'])) $this->bounce_url = $GLOBALS['CONFIG']['bounce_url'];
-
-
 		$this->options = $options;
 
+		$this->_build_params['text_encoding'] = '8bit';
 		$this->_build_params['html_charset'] = 'UTF-8';
 		$this->_build_params['text_charset'] = 'UTF-8';
 		$this->_build_params['head_charset'] = 'UTF-8';
@@ -62,59 +42,12 @@ class iaMail extends Mail_mime
 
 	function doSend()
 	{
-		$headers =& $this->_headers;
-
 		$message_id = CIA::uniqid();
 
-		$headers['Message-Id'] = "<{$message_id}@iaMail>";
+		$this->_headers['Message-Id'] = "<{$message_id}@iaMail>";
 
-		if (isset($this->options['onreply']))
-		{
-			if (!isset($this->reply_email)) E('No reply_email has been configured !');
-			else if (!isset($this->reply_url)) E('No reply_url has been configured !');
-			else
-			{
-				// Add Reply-To to the mail headers
-				$reply_email = sprintf($this->reply_email, 'R' . $message_id);
-
-				if (isset($headers['Reply-To'])) $headers['Reply-To'] .= ', ' . $reply_email;
-				else $headers['Reply-To'] = $reply_email;
-
-
-				// Notify $this->reply_url that a new reply should be observed
-				require_once 'HTTP/Request.php';
-
-				$r = new HTTP_Request( CIA::getUri($this->reply_url) );
-				$r->setMethod(HTTP_REQUEST_METHOD_POST);
-				$r->addPostData('message_id', $message_id);
-				$r->addPostData('reply_onreply', CIA::getUri($this->options['onreply']));
-				$r->sendRequest();
-			}
-		}
-
-		if (isset($this->options['onbounce']))
-		{
-			if (!isset($this->bounce_email)) E('No bounce_email has been configured !');
-			else if (!isset($this->bounce_url)) E('No bounce_url has been configured !');
-			else
-			{
-				// Add Return-Path to the mail headers
-				$bounce_email = sprintf($this->bounce_email, 'B' . $message_id);
-
-				if (isset($headers['Return-Path'])) $headers['Return-Path'] .= ', ' . $bounce_email;
-				else $headers['Return-Path'] = $bounce_email;
-
-
-				// Notify $this->bounce_url that a new bounce should be observed
-				require_once 'HTTP/Request.php';
-
-				$r = new HTTP_Request( CIA::getUri($this->bounce_url) );
-				$r->setMethod(HTTP_REQUEST_METHOD_POST);
-				$r->addPostData('message_id', $message_id);
-				$r->addPostData('bounce_onbounce', CIA::getUri($this->options['onbounce']));
-				$r->sendRequest();
-			}
-		}
+		$this->setObserver('reply', 'Reply-To', $message_id);
+		$this->setObserver('bounce', 'Return-Path', $message_id);
 
 		$body =& $this->get($this->options);
 		$headers =& $this->headers();
@@ -141,5 +74,35 @@ class iaMail extends Mail_mime
 		}
 
 		return $input;
+	}
+
+	function setObserver($event, $header, $message_id)
+	{
+		if (!isset($this->options['on' . $event])) return;
+
+		if (isset($this->options[$event . '_email'])) $email = $this->options[$event . '_email'];
+		else if (isset($GLOBALS['CONFIG'][$event . '_email'])) $email = $GLOBALS['CONFIG'][$event . '_email'];
+
+		if (isset($this->options[$event . '_url'])) $url = $this->options['reply_url'];
+		else if (isset($GLOBALS['CONFIG'][$event . '_url'])) $url = $GLOBALS['CONFIG'][$event . '_url'];
+		
+		if (!isset($email)) E("{$event}_email has not been configured.");
+		else if (!isset($url)) E("{$event}_url has not been configured.");
+		else
+		{
+			$email = sprintf($email, $message_id);
+
+			if (isset($this->headers[$header])) $this->headers[$header] .= ', ' . $email;
+			else $this->headers[$header] = $email;
+
+
+			require_once 'HTTP/Request.php';
+
+			$r = new HTTP_Request( CIA::getUri($url) );
+			$r->setMethod(HTTP_REQUEST_METHOD_POST);
+			$r->addPostData('message_id', $message_id);
+			$r->addPostData("{$event}_on{$event}", CIA::getUri($this->options['on' . $event]));
+			$r->sendRequest();
+		}
 	}
 }
