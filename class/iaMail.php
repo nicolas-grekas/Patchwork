@@ -62,18 +62,37 @@ class iaMail extends Mail_mime
 	// The original _encodeHeaders of Mail_mime is bugged !
 	function _encodeHeaders($input)
 	{
+		$ns = "[^\(\)<>@,;:\"\/\[\]\r\n]*";
+
 		foreach ($input as $hdr_name => $hdr_value)
 		{
-			if (preg_match('/[\x80-\xFF]/', $hdr_value))
-			{
-				$hdr_value = preg_replace('/[=_\?\x00-\x1F\x80-\xFF]/e', '"=".strtoupper(dechex(ord("\0")))', $hdr_value);
-				$hdr_value = str_replace(' ', '_', $hdr_value);
-
-				$input[$hdr_name] = '=?' . $this->_build_params['head_charset'] . '?Q?' . $hdr_value . '?=';
-			}
+			$input[$hdr_name] = preg_replace_callback("/{$ns}(?:[\\x80-\\xFF]{$ns})+/", array($this, '_encodeHeaderWord'), $hdr_value);
 		}
 
 		return $input;
+	}
+
+	function _encodeHeaderWord($word)
+	{
+		$word = preg_replace('/[=_\?\x00-\x1F\x80-\xFF]/e', '"=".strtoupper(dechex(ord("\0")))', $word[0]);
+
+		preg_match('/^( *)(.*?)( *)$/', $word, $w);
+
+		$word =& $w[2];
+		$word = str_replace(' ', '_', $word);
+
+		$start = '=?' . $this->_build_params['head_charset'] . '?Q?';
+		$offsetLen = strlen($start) + 2;
+
+		$w[1] .= $start;
+
+		while ($offsetLen + strlen($word) > 75)
+		{
+			$w[1] .= substr($word, 0, 75 - $offsetLen) . "?={$this->_eol} {$start}";
+			$word = substr($word, 75 - $offsetLen);
+		}
+
+		return $w[1] . $word . '?=' . $w[3];
 	}
 
 	function setObserver($event, $header, $message_id)
