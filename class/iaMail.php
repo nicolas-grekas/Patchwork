@@ -88,8 +88,16 @@ class iaMail extends Mail_mime
 
 		while ($offsetLen + strlen($word) > 75)
 		{
-			$w[1] .= substr($word, 0, 75 - $offsetLen) . "?={$this->_eol} {$start}";
-			$word = substr($word, 75 - $offsetLen);
+			$splitPos = 75 - $offsetLen;
+
+			switch ('=')
+			{
+				case substr($word, $splitPos - 2, 1): --$splitPos;
+				case substr($word, $splitPos - 1, 1): --$splitPos;
+			}
+
+			$w[1] .= substr($word, 0, $splitPos) . "?={$this->_eol} {$start}";
+			$word = substr($word, $splitPos);
 		}
 
 		return $w[1] . $word . '?=' . $w[3];
