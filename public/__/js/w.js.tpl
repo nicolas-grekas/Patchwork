@@ -435,13 +435,22 @@ w = function($rootAgent, $keys, $CIApID)
 		{
 			if (!$level) return ''+$data[0];
 
-			var $d = [];
+			var $d = [], $i = 10;
 
 			$a = $loop();
 			while ($a())
 			{
+				if (!--$i)
+				{
+					v = v.$;
+					$loopIterator = $parentLoop;
+					$d.push('[...]');
+					break;
+				}
+
 				delete v.$;
 				delete v.iteratorPosition;
+
 				$d.push(v);
 			}
 
