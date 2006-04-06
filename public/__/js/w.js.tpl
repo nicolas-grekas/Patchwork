@@ -435,7 +435,7 @@ w = function($rootAgent, $keys, $CIApID)
 		{
 			if (!$level) return ''+$data[0];
 
-			var $d = [], $i = 10;
+			var $d = [], $i = 5;
 
 			$a = $loop();
 			while ($a())
