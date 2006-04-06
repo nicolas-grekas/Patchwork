@@ -290,7 +290,14 @@ if (CIA_DIRECT)
 			break;
 
 		case '$':
-			IA_js::compose(array_shift($_GET)); break;
+			if (CIA_PROJECT_ID != $_GET['$v'])
+			{
+				CIA::header('Content-Type: text/javascript; charset=UTF-8');
+				echo 'location.reload(true)';
+			}
+			else IA_js::compose(array_shift($_GET));
+
+			break;
 	}
 }
 else
