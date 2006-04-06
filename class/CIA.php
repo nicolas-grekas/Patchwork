@@ -332,7 +332,8 @@ class CIA
 
 		if (!$prefixKey)
 		{
-			$prefixKey = @md5(
+			$prefixKey = md5(
+				CIA_PROJECT_ID . '-' .
 				self::__ROOT__() . '-' .
 				self::$host . '-' .
 				DEBUG
