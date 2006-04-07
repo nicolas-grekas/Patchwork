@@ -29,9 +29,9 @@ class pipe_htmlArgs
 P$<?php echo substr(__CLASS__, 5)?> = function($pool)
 {
 	if (!$pool) return '';
-	var $result = '', $i = arguments.length, $except = [];
+	var $result = '', $argv = P$<?php echo substr(__CLASS__, 5)?>.arguments, $i = $argv.length, $except = [];
 
-	while (--$i) $except[$i] = arguments[$i];
+	while (--$i) $except[$i] = $argv[$i];
 	$except = new RegExp('^(|'+$except.join('|')+')$');
 
 	for ($i in $pool) if ($i.substr(0,1)!='_' && $i.substr(0,1)!='*' && 'iteratorPosition'!=$i && $i.indexOf('$')<0 && $i.search($except)) $result += $i + '="' + $pool[$i] + '" ';

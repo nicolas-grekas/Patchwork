@@ -22,7 +22,7 @@ P$<?php echo substr(__CLASS__, 5)?> = function($format)
 {
 	$format = str($format);
 
-	var $args = arguments, $i = 1, $firstChar;
+	var $args = P$<?php echo substr(__CLASS__, 5)?>.arguments, $i = 1, $firstChar;
 
 	if ($format != '')
 	{

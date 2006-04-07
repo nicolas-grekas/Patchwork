@@ -26,7 +26,7 @@ class pipe_cycle
 P$<?php echo substr(__CLASS__, 5)?> = function($name)
 {
 	$name = str($name);
-	var $args = arguments,
+	var $args = P$<?php echo substr(__CLASS__, 5)?>.arguments,
 		$pool = cyclePool;
 
 	if (t($pool[$name]))
