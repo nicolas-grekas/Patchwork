@@ -19,7 +19,7 @@ class IA_php
 			$cache = '';
 
 			self::$get = (object) array_map('htmlspecialchars', $a);
-			self::$get->__DEBUG__ = DEBUG ? 1 : 0;
+			self::$get->__DEBUG__ = DEBUG ? DEBUG : 0;
 			self::$get->__QUERY__ = '?' . htmlspecialchars($_SERVER['QUERY_STRING']);
 			$cache .= self::$get->__ROOT__ = htmlspecialchars(CIA::__ROOT__());
 			$cache .= self::$get->__LANG__ = htmlspecialchars(CIA::__LANG__());
@@ -75,7 +75,7 @@ class IA_php
 		else
 		{
 			if (file_exists($cagent) && filemtime($cagent)>CIA_TIME) require $cagent;
-			else if (!CIA_POSTING && file_exists('POST'.$cagent) && filemtime('POST'.$cagent)>CIA_TIME) require 'POST'.$cagent;
+			else if (!CIA_POSTING && file_exists($cagent . '.php') && filemtime($cagent . '.php')>CIA_TIME) require $cagent . '.php';
 			else
 			{
 				$v = $agent->compose();
