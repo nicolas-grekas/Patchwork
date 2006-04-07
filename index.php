@@ -37,6 +37,8 @@ init-connect="SET NAMES utf8"
 /* Copy/Paste the next block at the end of your php.ini
 
 log_errors = On
+
+; Replace this to your needs
 error_log = c:/windows/temp/php.log
 
 magic_quotes_gpc = Off
@@ -62,12 +64,25 @@ mbstring.http_output = pass
 
 mbstring.substitute_character = none
 
-;String's functions overloading prevents binary use of a string, so use mb_* functions instead
+; String's functions overloading prevents binary use of a string, so use mb_* functions instead
 mbstring.func_overload = 0
 
 */
 
 /* END:CONFIG */
+
+
+if (!isset($_SERVER['CIA_LANG'])
+{
+	$_SERVER['CIA_ROOT'] = $_SERVER['SCRIPT_NAME'] . '/';
+	$_SERVER['CIA_LANG'] = $_SERVER['CIA_REQUEST'] = '';
+
+	if (preg_match("'^/(__|fr)/?(.*)$'", @$_SERVER['PATH_INFO'], $a))
+	{
+		$_SERVER['CIA_LANG']    = $a[1];
+		$_SERVER['CIA_REQUEST'] = $a[2];
+	}
+}
 
 
 /* Config initialisation */
