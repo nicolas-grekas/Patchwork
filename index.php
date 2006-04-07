@@ -72,7 +72,7 @@ mbstring.func_overload = 0
 /* END:CONFIG */
 
 
-if (!isset($_SERVER['CIA_LANG']))
+if (!isset($_SERVER['CIA']))
 {
 	$_SERVER['CIA_ROOT'] = $_SERVER['SCRIPT_NAME'] . '/';
 	$_SERVER['CIA_LANG'] = $_SERVER['CIA_REQUEST'] = '';
