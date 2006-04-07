@@ -30,7 +30,7 @@ class agent_css extends agent_bin
 		$a = (object) $this->a;
 		$d = $v = (object) $this->v;
 		$g = (object) $this->g;
-		$g->__DEBUG__ = DEBUG ? 1 : 0;
+		$g->__DEBUG__ = DEBUG ? DEBUG : 0;
 		$g->__URI__ = htmlspecialchars($_SERVER['REQUEST_URI']);
 		$g->__ROOT__ = htmlspecialchars(CIA::__ROOT__());
 		$g->__LANG__ = htmlspecialchars(CIA::__LANG__());

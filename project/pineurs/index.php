@@ -1,15 +1,10 @@
-<?php @define('CIA', microtime(true)); isset($CONFIG) || $CONFIG = array();
+<?php defined('CIA') || define('CIA', microtime(true)) && $CONFIG = array();
 
 $CONFIG += array(
-
-	'debug' => true,
-	'maxage' => 3600,
-
 	'DSN' => 'sqlite://./pineurs.sqlite',
 );
 
-$path = dirname(__FILE__);
-@define('CIA_PROJECT_PATH', $path);
-@$include_path .= $path . PATH_SEPARATOR;
-@$version_id += filemtime(__FILE__);
-require "$path/../../index.php";
+$p = dirname(__FILE__);
+defined('CIA_PROJECT_PATH') || define('CIA_PROJECT_PATH', $p) && ($cia_paths = array()) || ($version_id = 0);
+$version_id += filemtime(__FILE__);
+require ($cia_paths[] = $p) . '/../../index.php';

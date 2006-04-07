@@ -101,33 +101,38 @@ abstract class iaCompiler
 		return preg_replace("'" . $this->Xcomment . "'su", '', $source);
 }
 
-	private function load($template, $first = true)
+	private function load($template, $path_idx = 0)
 	{
-		static $path_pool;
-		static $path_len;
-		static $path_idx;
+		if ($path_idx >= count($GLOBALS['cia_paths'])) return '';
 
-		if ($first)
+		$path = $GLOBALS['cia_paths'][$path_idx] . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR;
+		$lang = CIA::__LANG__() . DIRECTORY_SEPARATOR;
+		$l_ng = '__' . DIRECTORY_SEPARATOR;
+
+		switch (DEBUG)
 		{
-			$path_pool = explode(PATH_SEPARATOR, get_include_path());
-			$path_len = count($path_pool);
-			$path_idx = 0;
+			case 5 : if (file_exists($path . $lang . $template . ".5")) {$source = $path . $lang . $template . ".5"; break;}
+				else if (file_exists($path . $l_ng . $template . ".5")) {$source = $path . $l_ng . $template . ".5"; break;}
+
+			case 4 : if (file_exists($path . $lang . $template . ".4")) {$source = $path . $lang . $template . ".4"; break;}
+				else if (file_exists($path . $l_ng . $template . ".4")) {$source = $path . $l_ng . $template . ".4"; break;}
+
+			case 3 : if (file_exists($path . $lang . $template . ".3")) {$source = $path . $lang . $template . ".3"; break;}
+				else if (file_exists($path . $l_ng . $template . ".3")) {$source = $path . $l_ng . $template . ".3"; break;}
+
+			case 2 : if (file_exists($path . $lang . $template . ".2")) {$source = $path . $lang . $template . ".2"; break;}
+				else if (file_exists($path . $l_ng . $template . ".2")) {$source = $path . $l_ng . $template . ".2"; break;}
+
+			case 1 : if (file_exists($path . $lang . $template . ".1")) {$source = $path . $lang . $template . ".1"; break;}
+				else if (file_exists($path . $l_ng . $template . ".1")) {$source = $path . $l_ng . $template . ".1"; break;}
+
+			default: if (file_exists($path . $lang . $template))        {$source = $path . $lang . $template; break;}
+				else if (file_exists($path . $l_ng . $template))        {$source = $path . $l_ng . $template; break;}
 		}
-		else ++$path_idx;
 
-		if ($path_idx >= $path_len) return '';
+		if (!isset($source)) return $this->load($template, $path_idx + 1);
 
-		switch (substr($path_pool[$path_idx], -1))
-		{
-			case '':
-			case '\\':
-			case '/': break;
-			default: $path_pool[$path_idx] .= DIRECTORY_SEPARATOR;
-		}
-
-		$source = @file_get_contents($path_pool[$path_idx] . 'public/' . CIA::__LANG__() . "/$template");
-		if ($source === false) $source = @file_get_contents($path_pool[$path_idx] . "public/__/$template");
-		if ($source === false) return $this->load($template, false);
+		$source = @file_get_contents($source);
 
 		if ($this->serverMode)
 		{
@@ -142,7 +147,7 @@ abstract class iaCompiler
 
 		if (preg_match("'{$this->Xlblock}PARENT{$this->Xrblock}'su", $source))
 		{
-			$source = preg_replace("'{$this->Xlblock}PARENT{$this->Xrblock}'su", $this->load($template, false), $source);
+			$source = preg_replace("'{$this->Xlblock}PARENT{$this->Xrblock}'su", $this->load($template, $path_idx + 1), $source);
 		}
 
 		return $source;

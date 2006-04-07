@@ -30,7 +30,7 @@ class CIA
 		if (DEBUG) self::$cia = new debug_CIA;
 		else self::$cia = new CIA;
 
-		self::$lang = isset($_SERVER['CIA_LANG']) ? $_SERVER['CIA_LANG'] : substr($CONFIG['lang_list'], 0, 2);
+		self::$lang = $_SERVER['CIA_LANG'] ? $_SERVER['CIA_LANG'] : substr($GLOBALS['CONFIG']['lang_list'], 0, 2);
 		self::$root = $_SERVER['CIA_ROOT'];
 		self::$host = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . @$_SERVER['HTTP_HOST'];
 	}
@@ -574,7 +574,7 @@ class CIA
 	public function error_handler($code, $message, $file, $line, $context)
 	{
 		if ($code == E_STRICT || !error_reporting()) return;
-		require 'error_handler.php';
+		require resolvePath('error_handler.php');
 	}
 }
 

@@ -1,13 +1,12 @@
-<?php @define('CIA', microtime(true)); isset($CONFIG) || $CONFIG = array();
+<?php defined('CIA') || define('CIA', microtime(true)) && $CONFIG = array();
 
 $CONFIG += array(
-	'debug' => true,
-	'maxage' => 1036800,
+	'maxage' => 3600,
 	'lang_list' => 'fr',
 	'secret' => '',
-	'pear_path' => 'C:/Program Files/Wamp/php/PEAR',
-//	'pear_path' => '/usr/share/php',
 	'DSN' => '',
+
+	'deny_debug' => false,
 
 	'translate_driver' => 'default_',
 	'translate_params' => array(),
@@ -77,36 +76,29 @@ mbstring.func_overload = 0
 putenv('LC_ALL=en_US.UTF-8');
 setlocale(LC_ALL, 'en_US.UTF-8');
 
-define('DEBUG',			$CONFIG['debug']);
+define('DEBUG',			$CONFIG['deny_debug'] ? 0 : (int) @$_COOKIE['DEBUG']);
 define('CIA_MAXAGE',	$CONFIG['maxage']);
 define('CIA_TIME', time());
 define('CIA_PROJECT_ID', $version_id % 1000);
 define('CIA_POSTING', $_SERVER['REQUEST_METHOD']=='POST');
 define('CIA_DIRECT', !CIA_POSTING && $_SERVER['CIA_REQUEST'] == '_');
 
-if (DEBUG && CIA_DIRECT && isset($_GET['d']))
-{
-	require 'debug.php';
-	exit;
-}
-
 
 /* Include Path Initialisation */
 
-$path = dirname(__FILE__);
-@define('CIA_PROJECT_PATH', $path);
-@$include_path .= $path . PATH_SEPARATOR;
-@$version_id += filemtime(__FILE__);
+$p = dirname(__FILE__);
+defined('CIA_PROJECT_PATH') || define('CIA_PROJECT_PATH', $p) && ($cia_paths = array()) || ($version_id = 0);
+$version_id += filemtime(__FILE__);
+$cia_paths[] = $p;
 
 chdir(CIA_PROJECT_PATH);
-set_include_path($include_path . $CONFIG['pear_path']);
 
 
 /* Global Initialisation */
 
-if (!isset($_SERVER['CIA_REQUEST']))
+if (!$_SERVER['CIA_LANG'])
 {
-	require 'language.php';
+	require resolvePath('language.php');
 	exit;
 }
 
@@ -146,7 +138,7 @@ if (@$_SERVER['HTTP_IF_NONE_MATCH']{0} == '/' && preg_match("'^/[0-9a-f]{32}-([0
 
 /* Small Usefull Functions */
 
-if (DEBUG) {function E($msg = '__getDeltaMicrotime') {return CIA::ciaLog($msg, false, false);}}
+if (DEBUG) {function E($msg = '__getDeltaMicrotime') {if (class_exists('debug_CIA', false)) return CIA::ciaLog($msg, false, false);}}
 else {function E($msg = '__getDeltaMicrotime') {trigger_error(serialize($msg));}}
 
 function G($name, $type) {$a = func_get_args(); return VALIDATE::get(    $_GET[$name]   , $type, array_slice($a, 2));}
@@ -193,17 +185,56 @@ function DB()
 	return $db;
 }
 
-function __autoload($classname)
+function resolvePath($filename)
 {
-	$file = 'class/' . str_replace('_', '/', $classname) . '.php';
+	$paths =& $GLOBALS['cia_paths'];
 
-	if ($fp = @fopen($file, 'r', true))
+	$i = 0;
+	$len = count($paths);
+	do
 	{
-		fclose($fp);
-		include $file;
+		$path = $paths[$i++] . DIRECTORY_SEPARATOR;
+
+		switch (DEBUG)
+		{
+			case 5 : if (file_exists($path . $filename . '.5')) return $path . $filename . '.5';
+			case 4 : if (file_exists($path . $filename . '.4')) return $path . $filename . '.4';
+			case 3 : if (file_exists($path . $filename . '.3')) return $path . $filename . '.3';
+			case 2 : if (file_exists($path . $filename . '.2')) return $path . $filename . '.2';
+			case 1 : if (file_exists($path . $filename . '.1')) return $path . $filename . '.1';
+
+			default: if (file_exists($path . $filename       )) return $path . $filename;
+		}
 	}
+	while (--$len);
+
+	return $filename;
 }
 
+function __autoload($class)
+{
+	$class = 'class' . DIRECTORY_SEPARATOR . str_replace('_', DIRECTORY_SEPARATOR, $class) . '.php';
+	$file = resolvePath($class);
+
+	if ($file == $class)
+	{
+		if ($class = @fopen($file, 'r', true))
+		{
+			fclose($class);
+			include $file;
+		}
+	}
+	else include $file;
+}
+
+
+/* Output debug window */
+
+if (DEBUG && CIA_DIRECT && isset($_GET['d']))
+{
+	require resolvePath('debug.php');
+	exit;
+}
 
 
 /* Start the "kernel" */
@@ -226,11 +257,11 @@ switch ($path)
 	case '.gif':
 	case '.jpg':
 
-	require 'controler.php';
+	require resolvePath('controler.php');
 }
 
 
-if (!extension_loaded('mbstring')) require 'mbstring.php';
+if (!extension_loaded('mbstring')) require resolvePath('mbstring.php');
 
 
 if (CIA_DIRECT)
@@ -351,10 +382,7 @@ else
 		&& 'no-cache' == @$_SERVER['HTTP_CACHE_CONTROL']
 		&& 0 === strpos(@$_SERVER['HTTP_USER_AGENT'], 'Mozilla') )
 	{
-		/* Equivalent to a touch but works with include_path */
-		$h = fopen('index.php', 'r+b', true);
-		fwrite($h, '<');
-		fclose($h);
+		$h = touch('./index.php');
 
 		CIA::delCache();
 
