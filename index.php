@@ -217,8 +217,7 @@ function resolvePath($filename)
 			case 3 : if (file_exists($path . $filename . '.3')) return $path . $filename . '.3';
 			case 2 : if (file_exists($path . $filename . '.2')) return $path . $filename . '.2';
 			case 1 : if (file_exists($path . $filename . '.1')) return $path . $filename . '.1';
-
-			default: if (file_exists($path . $filename       )) return $path . $filename;
+			default: if (file_exists($path . $filename       )) return $path . $filename       ;
 		}
 	}
 	while (--$len);
