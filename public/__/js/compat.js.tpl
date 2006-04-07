@@ -101,8 +101,8 @@ encodeURIComponent = window.encodeURIComponent || function($string, $encodeURI)
 /* push */
 if (!Array.prototype.push || !([].push(0))) Array.prototype.push = function()
 {
-	var $this = this, $i = 0;
-	for (; $i < arguments.length ; ++$i) $this[$this.length] = arguments[$i];
+	var $this = this, $argv = $this.push.arguments, $i = 0;
+	for (; $i < $argv.length ; ++$i) $this[$this.length] = $argv[$i];
 	return $this.length;
 }
 
@@ -135,11 +135,12 @@ Array.prototype.shift = Array.prototype.shift || function()
 Array.prototype.unshift = Array.prototype.unshift || function()
 {
 	var $this = this,
-		$i = arguments.length,
+		$argv = $this.unshift.arguments,
+		$i = $argv.length,
 		$len = $this.length;
 
 	$this.reverse();
-	while (--$i>=0) $this[$this.length] = arguments[$i];
+	while (--$i>=0) $this[$this.length] = $argv[$i];
 	$this.reverse();
 
 	return $len;
@@ -148,20 +149,20 @@ Array.prototype.unshift = Array.prototype.unshift || function()
 /* splice */
 if(!Array.prototype.splice || ![0].splice(0)) Array.prototype.splice = function($index, $count)
 {
-	var $this = this, $i, $removeArray, $endArray;
+	var $this = this, $argv = $this.splice.arguments, $i, $removeArray, $endArray;
 
-	if (arguments.length == 0) return $index;
+	if ($argv.length == 0) return $index;
 
 	$index = $index/1 || 0;
 
 	if ($index < 0) $index = Math.max(0, $this.length + $index);
 	if ($index > $this.length)
 	{
-		if (arguments.length > 2) $index = $this.length;
+		if ($argv.length > 2) $index = $this.length;
 		else return [];
 	}
 
-	if (arguments.length < 2) $count = $this.length - $index;
+	if ($argv.length < 2) $count = $this.length - $index;
 
 	$count = Math.max(0, $count/1 || 0);
 
@@ -170,7 +171,7 @@ if(!Array.prototype.splice || ![0].splice(0)) Array.prototype.splice = function(
 
 	$this.length = $index;
 
-	for ($i = 2; $i < arguments.length; ++$i) $this[$this.length] = arguments[$i];
+	for ($i = 2; $i < $argv.length; ++$i) $this[$this.length] = $argv[$i];
 	for ($i = 0; $i < $endArray.length; ++$i) $this[$this.length] = $endArray[$i];
 
 	return $removeArray;

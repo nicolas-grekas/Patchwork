@@ -34,7 +34,7 @@ P$<?php echo substr(__CLASS__, 5)?> = function($format)
 		else if ($type)
 		{
 			var $base = 0,
-				$param = arguments[ $match[4] ? $match[5]-0 : ++$idCounter ],
+				$param = P$<?php echo substr(__CLASS__, 5)?>.arguments[ $match[4] ? $match[5]-0 : ++$idCounter ],
 				$iParam = parseInt($param) || 0;
 
 			switch ($type)

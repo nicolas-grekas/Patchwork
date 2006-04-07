@@ -7,7 +7,7 @@ function valid($element, $type, $args)
 	if ($element.value == '') return '';
 
 	$args = [$args];
-	for (var i=3; i<arguments.length; i++) $args[$args.length] = arguments[i];
+	for (var i=3, $argv = valid.arguments; i<$argv.length; i++) $args[$args.length] = $argv[i];
 	return window['valid_'+$type] ? window['valid_'+$type]($element.value, $args) : 1;
 }
 

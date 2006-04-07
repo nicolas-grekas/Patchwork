@@ -79,7 +79,7 @@ SET $INPUT --><!--
 
 				--><input {$|htmlArgs:'caption':'selected'} {a$|htmlArgs:'class'} /><!--
 
-				IF $caption --><label for="{a$id}" class="{$class}" onclick="return IcbC(arguments[0],this)">&nbsp;{$caption}</label><!-- END:IF --><!--
+				IF $caption --><label for="{a$id}" class="{$class}" onclick="return IcbC(event,this)">&nbsp;{$caption}</label><!-- END:IF --><!--
 				SET a$id -->FiD{g+1$GLOBID}<!-- END:SET --><!--
 			END:IF --><!--
 		END:LOOP
