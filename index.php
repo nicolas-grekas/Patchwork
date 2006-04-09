@@ -335,7 +335,7 @@ if (CIA_DIRECT)
 			break;
 
 		case '$':
-			if (CIA_PROJECT_ID != $_GET['$v'])
+			if (isset($_GET['$v']) && CIA_PROJECT_ID != $_GET['$v'])
 			{
 				CIA::header('Content-Type: text/javascript; charset=UTF-8');
 				echo 'location.reload(true)';
