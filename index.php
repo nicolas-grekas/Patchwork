@@ -371,7 +371,7 @@ else
 
 		$_GET['__0__'] = substr($param, 1);
 		$param = explode('/', $_GET['__0__']);
-		
+
 		$i = 0;
 		foreach ($param as $param) $_GET['__' . ++$i . '__'] = $param;
 
