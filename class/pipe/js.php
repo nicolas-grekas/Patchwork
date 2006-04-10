@@ -10,7 +10,7 @@ class pipe_js
 			? $string
 			: ("'" . str_replace(
 					array('&#039;', '&quot;', '&gt;', '&lt;', '&amp;', '\\'  , "'"  , "\r" , "\n" , '</' ),
-					array("'"     , '"'     , '>'   , '<'   , '&'    , '\\\\', "\\'", '\\r', '\\n', '<\/'),
+					array("'"     , '"'     , '>'   , '<'   , '&'    , '\\\\', "\\'", '\\r', '\\n', '<\\/'),
 					$string
 				) . "'"
 			);
@@ -36,7 +36,7 @@ P$<?php echo substr(__CLASS__, 5)?> = function($string)
 				/'/g  , "\\'").replace(
 				/\r/g , '\\r').replace(
 				/\n/g , '\\n').replace(
-				/<\//g, '<\/'
+				/<\//g, '<\\/'
 			) + "'"
 		);
 }
