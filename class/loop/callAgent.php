@@ -27,11 +27,11 @@ class loop_callAgent extends loop
 
 				if (!isset($this->keys))
 				{
-					$a = CIA::agentClass($this->agent);
-					$a = CIA::agentArgv($a);
-					array_walk($a, array('IA_js', 'formatJs'));
+					list(, $a) = CIA::resolveAgentClass($this->agent);
 
-					$data->{'*k'} = '[' . implode(',', $a) . ']';
+					array_walk($a['argv'], array('IA_js', 'formatJs'));
+
+					$data->{'*k'} = '[' . implode(',', $a['argv']) . ']';
 				}
 				else $data->{'*k'} = $this->keys;
 

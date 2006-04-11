@@ -356,19 +356,76 @@ class CIA
 		return self::$cia->log($message, $is_end, $html);
 	}
 
-	public static function agentClass($agent)
+	public static function resolveAgentClass($agent, $fallback = '')
 	{
-		return $agent == '' ? 'agent_index' : preg_replace("'[^a-zA-Z\d]+'u", '_', "agent_$agent");
-	}
+		$agent = preg_replace("'/(\.?/)+'", '/', '/' . $agent . '/');
 
-	public static function agentArgv($agent)
-	{
-		$agent = get_class_vars($agent);
-		$agent = (array) $agent['argv'];
+		do $agent = preg_replace("'[^/]+/\.\./'", '/', $a = $agent);
+		while ($a != $agent);
 
-		array_walk($agent, array('self', 'stripArgv'));
+		$agent = substr($agent, 1, -1);
+		$agent = preg_replace("'^(\.\.?/)+'", '', $agent);
 
-		return $agent;
+		preg_match("'^((?:[\w\d]+(?:/|$))*)(.*?)$'u", $agent, $agent);
+
+		$param = '' !== $agent[2] ? explode('/', $agent[2]) : array();
+		$agent = $agent[1];
+
+		if ('/' == substr($agent, -1)) $agent = substr($agent, 0, -1);
+
+		$agent = 'agent_' . ('' !== $agent ? str_replace('/', '_', $agent) : $fallback);
+		$found = false;
+
+		while (1)
+		{
+			if (class_exists($agent))
+			{
+				$agent_vars = get_class_vars($agent);
+				$argv =& $agent_vars['argv'];
+
+				if (is_array($argv)) array_walk($argv, array('self', 'stripArgv'));
+				else $argv = array();
+
+				$found = !$param || in_array('__0__', $argv) || in_array('__' . count($param) . '__', $argv);
+
+				if ($found) break;
+			}
+
+			if ('agent_' . $fallback == $agent) break;
+
+			$a = (int) strrpos($agent, '_');
+
+			array_unshift($param, substr($agent, $a + 1));
+
+			if (5 == $a)
+			{
+				if ($fallback) $agent = 'agent_' . $fallback;
+				else break;
+			}
+			else $agent = substr($agent, 0, $a);
+		}
+
+		if ($found)
+		{
+			if ($param)
+			{
+				$_GET['__0__'] = implode('/', $param);
+
+				$i = 0;
+				foreach ($param as $param) $_GET['__' . ++$i . '__'] = $param;
+			}
+		}
+		else
+		{
+			//XXX Should we be more sophisticated here ? We can have the same template resolution mechanism as for agents.
+
+			$agent = 'agentTemplate_';
+			$agent_vars = get_class_vars($agent);
+			if (!is_array($agent_vars['argv'])) $agent_vars['argv'] = array();
+			$_GET['template'] = implode('/', $param);
+		}
+
+		return array($agent, $agent_vars);
 	}
 
 	protected static function stripArgv(&$a, $k)
@@ -378,7 +435,7 @@ class CIA
 		$b = strpos($a, ':');
 		if (false !== $b) $a = substr($a, 0, $b);
 	}
-	
+
 	public static function agentCache($agentClass, $keys, $type)
 	{
 		$cagent = '_';

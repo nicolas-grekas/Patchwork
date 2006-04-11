@@ -9,20 +9,20 @@ class IA_js
 		CIA::setMaxage(-1);
 		CIA::setPrivate(true);
 
-		$a = CIA::agentClass($agent);
-		$cagent = CIA::makeCacheDir('controler/', 'txt', $a);
+		list($agent, $a) = CIA::resolveAgentClass($agent);
+		$cagent = CIA::makeCacheDir('controler/', 'txt', $agent);
 
 		if (file_exists($cagent)) readfile($cagent);
 		else
 		{
 			self::$html = true;
 
-			$a = CIA::agentArgv($a);
+			$a = $a['argv'];
 			array_walk($a, array('self', 'formatJs'));
 			$a = implode(',', $a);
 
 			echo $a = '<html><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script type="text/javascript">a=['
-				. self::formatJs($agent) . ',[' . $a . '],' . CIA_PROJECT_ID . ']</script><script type="text/javascript" src="'
+				. self::formatJs(str_replace('_', '/', substr($agent, 6))) . ',[' . $a . '],' . CIA_PROJECT_ID . ']</script><script type="text/javascript" src="'
 				. htmlspecialchars(CIA::__ROOT__()) . 'js/w"></script></html>';
 
 			CIA::writeFile($cagent, $a);
@@ -37,8 +37,8 @@ class IA_js
 
 		CIA::openMeta();
 
-		$agentClass = CIA::agentClass($agent);
-		$agent = class_exists($agentClass) ? new $agentClass($_GET) : new agentTemplate_(array('template' => $agent));
+		list($agentClass) = CIA::resolveAgentClass($agent);
+		$agent = new $agentClass($_GET);
 
 		$cagent = CIA::agentCache($agentClass, $agent->argv, 'js');
 		if (file_exists($cagent) && filemtime($cagent)>CIA_TIME)
