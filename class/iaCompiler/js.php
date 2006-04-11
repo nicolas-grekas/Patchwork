@@ -59,21 +59,16 @@ class iaCompiler_js extends iaCompiler
 		if ($end) return false;
 
 		$this->pushCode('');
-		
-		$a = '';
-		$comma = '';
-		foreach ($args as $k => $v)
-		{
-			$a .= in_array($k, $this->jsreserved) ? "$comma'$k':$v" : "$comma$k:$v";
-			$comma = ',';
-		}
-		
+
 		$keys = false;
-		if ($inc{0}=="'")
+		if ("'" == substr($inc, 0, 1))
 		{
 			eval("\$keys=$inc;");
-			$keys = CIA::agentClass($keys);
-			$keys = CIA::agentArgv($keys);
+
+			list(, $keys) = CIA::resolveAgentClass($keys);
+
+			$keys = $keys['argv'];
+
 			if ($keys)
 			{
 				array_walk($keys, array($this, 'quote'));
@@ -82,6 +77,13 @@ class iaCompiler_js extends iaCompiler
 			else $keys = '';
 		}
 
+		$a = '';
+		$comma = '';
+		foreach ($args as $k => $v)
+		{
+			$a .= in_array($k, $this->jsreserved) ? "$comma'$k':$v" : "$comma$k:$v";
+			$comma = ',';
+		}
 		$a = '{' . $a . '}';
 
 		array_push($this->code, pC_AGENT, $this->quote($inc), $this->quote($a), 1, $keys===false ? 0 : "[$keys]");

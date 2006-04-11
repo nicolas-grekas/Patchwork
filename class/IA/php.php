@@ -60,8 +60,8 @@ class IA_php
 		$a = self::$args = (object) $_GET;
 		$g = self::$get;
 
-		$agentClass = CIA::agentClass($agent);
-		$agent = class_exists($agentClass) ? new $agentClass($_GET) : new agentTemplate_(array('template' => $agent));
+		list($agentClass) = CIA::resolveAgentClass($agent);
+		$agent = new $agentClass($_GET);
 
 		$cagent = CIA::agentCache($agentClass, $agent->argv, 'php');
 		$filter = false;

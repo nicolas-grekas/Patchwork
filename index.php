@@ -347,46 +347,12 @@ if (CIA_DIRECT)
 }
 else
 {
-	$agent = '/' . $_SERVER['CIA_REQUEST'];
-
-	if ('/' == $agent) $agent = '';
-	else
-	{
-		preg_match("'^(/(?:[a-zA-Z\d]+(?:/|$))*)(.*?)$'u", $agent, $agent);
-
-		$param = $agent[2];
-		$agent = $agent[1];
-		if ('/' == substr($agent, -1))
-		{
-			$param = '/' . $param;
-			$agent = substr($agent, 0, -1);
-		}
-
-		$agentClass = 'agent' . str_replace('/', '_', $agent);
-
-		while ($agent !== '' && !class_exists($agentClass))
-		{
-			$pos = (int) strrpos($agent, '/');
-
-			$param = substr($agent, $pos) . $param;
-			$agent = substr($agent, 0, $pos);
-			$agentClass = 'agent' . str_replace('/', '_', $agent);
-		}
-
-		$_GET['__0__'] = substr($param, 1);
-		$param = explode('/', $_GET['__0__']);
-
-		$i = 0;
-		foreach ($param as $param) $_GET['__' . ++$i . '__'] = $param;
-
-		$agent = $agent === '' ? '' : substr($agent, 1);
-	}
-
-	$a = CIA::agentClass($agent);
-	$a = get_class_vars($a);
+	list($agent, $a) = CIA::resolveAgentClass($_SERVER['CIA_REQUEST'], 'index');
 
 	$binaryMode = (bool) $a['binary'];
 	CIA::setBinaryMode($binaryMode);
+
+	$agent = str_replace('_', '/', substr($agent, 6));
 
 	/*
 	 * Both Firefox and IE send a "Cache-Control: no-cache" request header
