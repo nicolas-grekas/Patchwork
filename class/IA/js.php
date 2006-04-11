@@ -21,7 +21,7 @@ class IA_js
 			array_walk($a, array('self', 'formatJs'));
 			$a = implode(',', $a);
 
-			echo $a = '<html><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script type="text/javascript">a=['
+			echo $a = '<html><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><script type="text/javascript">a=['
 				. self::formatJs(str_replace('_', '/', substr($agent, 6))) . ',[' . $a . '],' . CIA_PROJECT_ID . ']</script><script type="text/javascript" src="'
 				. htmlspecialchars(CIA::__ROOT__()) . 'js/w"></script></html>';
 

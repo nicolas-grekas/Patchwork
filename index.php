@@ -347,7 +347,7 @@ if (CIA_DIRECT)
 }
 else
 {
-	list($agent, $a) = CIA::resolveAgentClass($_SERVER['CIA_REQUEST'], 'index');
+	list($agent, $a) = CIA::resolveAgentClass($_SERVER['CIA_REQUEST'], isset($_GET['$i']) ? '' : 'index');
 
 	$binaryMode = (bool) $a['binary'];
 	CIA::setBinaryMode($binaryMode);

@@ -5,7 +5,7 @@ This template is called automatically when a form with a file element is submitt
 *-->
 <html lang="{g$__LANG__}">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<title>{"Envoi en cours"} ...</title>
 <base href="{g$__HOST__}{g$__ROOT__}" />
 
