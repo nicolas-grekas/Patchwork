@@ -1,6 +1,6 @@
 <html lang="{g$__LANG__}">
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
 	<title>{a$title}</title>
 
@@ -17,6 +17,7 @@
 <!-- END:SERVERSIDE -->
 
 	<style type="text/css">
+	html,body {height: 100%}
 	label {cursor: default}
 	.errormsg {color: red}
 	.mandatory {font-weight: bold}

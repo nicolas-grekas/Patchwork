@@ -71,7 +71,7 @@ class debug_CIA extends CIA
 		$QDebug = htmlspecialchars(self::__ROOT__() . 'js/QDebug.js');
 
 		if ($type=='<') return <<<DEBUG_INFO
-<html><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script type="text/javascript">
+<html><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><script type="text/javascript" />
 _____ = new Date/1;
 onload = function() {
 window.debugWin = open('$debugWin','debugWin','dependent=yes,toolbar=no,status=yes,resizable=yes,scrollbars,width=320,height=240,left=' + parseInt(screen.availWidth - 340) + ',top=' + parseInt(screen.availHeight - 290));
