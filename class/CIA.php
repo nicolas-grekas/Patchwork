@@ -207,7 +207,6 @@ class CIA
 	}
 
 	public static function uniqid() {return md5( uniqid(mt_rand(), true) );}
-	public static function hash($str) {return md5( $str . $CONFIG['secret'] );}
 
 	/**
 	 *  Returns the hash of $pwd if this hash match $crypted_pwd or if $crypted_pwd is not supplied. Else returns false. 
@@ -219,7 +218,7 @@ class CIA
 		if ($crypted_pwd !== false)
 		{
 			$salt = substr($crypted_pwd, 0, $saltLen);
-			if ($salt . CIA::hash($pwd . $salt) != $crypted_pwd) return false;
+			if ($salt . md5($pwd . $salt) != $crypted_pwd) return false;
 		}
 
 		$a = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
@@ -228,7 +227,7 @@ class CIA
 		$salt = '';
 		do $salt .= $a{ mt_rand(0, $b) }; while (--$saltLen);
 
-		return $salt . CIA::hash($pwd . $salt);
+		return $salt . md5($pwd . $salt);
 	}
 
 	/**
