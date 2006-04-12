@@ -23,7 +23,7 @@ class IA_php
 			self::$get->__QUERY__ = '?' . htmlspecialchars($_SERVER['QUERY_STRING']);
 			$cache .= self::$get->__ROOT__ = htmlspecialchars(CIA::__ROOT__());
 			$cache .= self::$get->__LANG__ = htmlspecialchars(CIA::__LANG__());
-			self::$get->__AGENT__ = htmlspecialchars($agent) . ('' !== $agent ? '/' : '');
+			self::$get->__AGENT__ = 'index' != $agent ? htmlspecialchars($agent) . '/' : '';
 			$cache .= self::$get->__HOST__ = htmlspecialchars(CIA::__HOST__());
 			self::$get->__URI__ = htmlspecialchars($_SERVER['REQUEST_URI']);
 

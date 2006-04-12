@@ -1,8 +1,8 @@
 <p>
 Ils nous font confiance :<br>
-<img src="img/jouve.gif" align="middle" />
-<img src="img/blank.gif" width="100" align="middle" />
-<img src="img/sfa.gif" align="middle" />
+<img src="{/}img/jouve.gif" align="middle" />
+<img src="{/}img/blank.gif" width="100" align="middle" />
+<img src="{/}img/sfa.gif" align="middle" />
 </p>
 
 

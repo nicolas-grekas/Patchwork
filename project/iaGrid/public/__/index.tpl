@@ -1,7 +1,7 @@
 <!-- AGENT 'header' title = 'iaGrid' css = 'iaGrid.css' -->
 
 <!-- LOOP $doc -->
-<a href="grid/{$docId}">{$label}</a><br />
+<a href="{/}grid/{$docId}">{$label}</a><br />
 <!-- END:LOOP -->
 
 <!-- AGENT $form -->

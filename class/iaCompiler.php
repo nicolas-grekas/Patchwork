@@ -49,7 +49,7 @@ abstract class iaCompiler
 
 		$this->Xmath = "\(*(?:{$this->Xnumber}|{$this->Xvar})\)*";
 		$this->Xmath = "(?:{$this->Xmath}\s*[-+*\/%]\s*)*{$this->Xmath}";
-		$this->Xexpression = "(?<!\d)(?:{$this->Xstring}|(?:{$this->Xmath})|[dag]\\$|\\$+)";
+		$this->Xexpression = "(?<!\d)(?:{$this->Xstring}|(?:{$this->Xmath})|[dag]\\$|\\$+|\/)";
 
 		$this->Xmodifier = $this->XpureVar;
 		$this->XmodifierPipe = "\\|{$this->Xmodifier}(?::(?:{$this->Xexpression})?)*";
@@ -209,7 +209,7 @@ abstract class iaCompiler
 
 	private function filter($a)
 	{
-		return $this->binaryMode ? $a : preg_replace("/\s{2,}/seu", 'mb_strpos(\'$0\', "\n")===false ? " " : "\n"', $a);
+		return $this->binaryMode ? $a : preg_replace("/\s{2,}/seu", 'strpos(\'$0\', "\n")===false ? " " : "\n"', $a);
 	}
 
 	private function makeBlocks($a)
@@ -459,6 +459,7 @@ abstract class iaCompiler
 	private function evalVar($a, $translate = false, $forceType = false)
 	{
 		if ($a === '') return "''";
+		if ('/' == $a) $a = 'g$__ROOT__';
 
 		if ($a{0}=='"' || $a{0}=="'")
 		{
@@ -497,7 +498,7 @@ abstract class iaCompiler
 			$a = "'" . $a;
 		}
 		else if (preg_match("/^{$this->Xnumber}$/su", $a)) $a = eval("return \"'\" . $a;");
-		else if ($a!=='' && !preg_match("/^(?:{$this->Xvar}|[dag]\\$|\\$+)$/su", $a))
+		else if (!preg_match("/^(?:{$this->Xvar}|[dag]\\$|\\$+)$/su", $a))
 		{
 			$a = preg_split("/({$this->Xvar}|{$this->Xnumber})/su", $a, -1, PREG_SPLIT_DELIM_CAPTURE);
 			$i = 1;

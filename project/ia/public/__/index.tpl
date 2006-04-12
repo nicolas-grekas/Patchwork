@@ -8,7 +8,7 @@ SET a$MENU --><!--
 			SET a$TITLE -->{$VALUE}<!-- END:SET --><!--
 			SET a$CONTENT -->page/{$KEY}<!-- END:SET
 
-			--><li class="selected"><a href="{$KEY}/">{$VALUE}</a><!--
+			--><li class="selected"><a href="{/}{$KEY}/">{$VALUE}</a><!--
 
 			IF $submenu
 
@@ -23,7 +23,7 @@ SET a$MENU --><!--
 						--><li class="selected"><a href="{$$KEY}/{$KEY}/">{$VALUE}</a><!--
 	
 					ELSE
-						--><li><a href="{$$KEY}/{$KEY}/">{$VALUE}</a></li><!--
+						--><li><a href="{/}{$$KEY}/{$KEY}/">{$VALUE}</a></li><!--
 					END:IF --><!--
 				END:LOOP
 
@@ -31,7 +31,7 @@ SET a$MENU --><!--
 			END:IF
 			--></li><!--
 		ELSE
-			--><li><a href="{$KEY}/">{$VALUE}</a><!--
+			--><li><a href="{/}{$KEY}/">{$VALUE}</a><!--
 		END:IF --><!--
 	END:LOOP --><!--
 END:SET --><!--

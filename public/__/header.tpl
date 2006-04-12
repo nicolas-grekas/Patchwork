@@ -4,16 +4,14 @@
 
 	<title>{a$title}</title>
 
-	<base href="{g$__HOST__}{g$__ROOT__}" />
-
 <!-- IF a$css -->
-	<link rel="stylesheet" type="text/css" href="{a$css}" />
+	<link rel="stylesheet" type="text/css" href="{a$css|root}" />
 <!-- END:IF -->
 
 <!-- SERVERSIDE -->
 	<script type="text/javascript">//<![CDATA[
 	a=[{g$__AGENT__|js},0,0]//]]></script>
-	<script type="text/javascript" src="js/w"></script>
+	<script type="text/javascript" src="{/}js/w"></script>
 <!-- END:SERVERSIDE -->
 
 	<style type="text/css">
