@@ -340,6 +340,7 @@ class CIA
 				CIA_PROJECT_ID . '-' .
 				self::__ROOT__() . '-' .
 				self::$host . '-' .
+				self::$lang . '-' .
 				DEBUG
 			);
 
