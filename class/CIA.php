@@ -61,11 +61,15 @@ class CIA
 		return $root . self::$lang . '/';
 	}
 
+	public static function root($string)
+	{
+		return preg_match("'^([\\\\\\/]|[^/]+:)'", $string)
+			? $string
+			: (htmlspecialchars(self::__ROOT__()) . $string);
+	}
+
 	public static function __HOST__($new_host = null)
 	{
-		$host = self::$host;
-		if (null !== $new_host) self::$host = $new_host;
-		return $host;
 	}
 
 	public static function getUri($url)
@@ -419,7 +423,7 @@ class CIA
 		{
 			//XXX Should we be more sophisticated here ? We can have the same template resolution mechanism as for agents.
 
-			$agent = 'agentTemplate_';
+			$agent = 'agent_template_';
 			$agent_vars = get_class_vars($agent);
 			if (!is_array($agent_vars['argv'])) $agent_vars['argv'] = array();
 			$_GET['template'] = implode('/', $param);
@@ -698,7 +702,7 @@ class agent_
 	}
 }
 
-class agentTemplate_ extends agent_
+class agent_template_ extends agent_
 {
 	public $argv = array('template');
 

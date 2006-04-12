@@ -52,6 +52,13 @@ function esc($str)
 	return $str;
 }
 
+function root($str)
+{
+	return /^([\\\\\\/]|[^/]+:)/.test($str)
+		? $str
+		: (_GET.__ROOT__ + $str);
+}
+
 function parseurl($param, $delim, $rx, $array)
 {
 	var $i, $j;
@@ -494,7 +501,7 @@ w = function($rootAgent, $keys, $CIApID)
 	g.__QUERY__ = esc($j.search) || '?';
 	g.__ROOT__ = esc({g$__ROOT__|js});
 	g.__LANG__ = esc({g$__LANG__|js});
-	g.__AGENT__ = esc($rootAgent) + ($rootAgent.length ? '/' : '');
+	g.__AGENT__ = 'index' != $rootAgent ? esc($rootAgent) + '/' : '';
 	g.__HOST__ = esc($j.protocol+'//'+$j.hostname);
 	g.__URI__ = esc($j.pathname + $j.search);
 

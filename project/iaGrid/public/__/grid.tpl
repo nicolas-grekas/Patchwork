@@ -16,10 +16,10 @@
 <div id="HeditDiv"><textarea name="HeditTxt" cols="40" rows="1"></textarea></div>
 </form>
 
-<iframe name="HlockFrame" src="img/blank.gif" width=0 height=0 frameborder=0></iframe>
+<iframe name="HlockFrame" src="{/}img/blank.gif" width=0 height=0 frameborder=0></iframe>
 
-<script type="text/javascript" src="js/QJsrs"></script>
-<script type="text/javascript" src="js/iaGrid"></script>
+<script type="text/javascript" src="{/}js/QJsrs"></script>
+<script type="text/javascript" src="{/}js/iaGrid"></script>
 <script type="text/javascript">
 
 version = 0;

@@ -17,7 +17,7 @@ class pipe_linkto
 
 		return $url == substr($_SERVER['REQUEST_URI'], strlen(CIA::__ROOT__()))
 			? ('<b class="linkloop">' . $text . '</b>')
-			: ('<a href="' . $url . $hash . '" ' . CIA::string($attributes) . '>' . $text . '</a>');
+			: ('<a href="' . CIA::root($url) . $hash . '" ' . CIA::string($attributes) . '>' . $text . '</a>');
 	}
 
 	static function js()
@@ -39,7 +39,7 @@ P$<?php echo substr(__CLASS__, 5)?> = function($text, $url, $attributes)
 
 	return $url == _GET.__URI__.substr(_GET.__ROOT__.length)
 			? ('<b class="linkloop">' + $text + '</b>')
-			: ('<a href="' + $url + $hash + '" ' + str($attributes) + '>' + $text + '</a>');
+			: ('<a href="' + root($url) + $hash + '" ' + str($attributes) + '>' + $text + '</a>');
 }
 
 <?php	}

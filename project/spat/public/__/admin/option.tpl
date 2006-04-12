@@ -5,7 +5,7 @@
 <!-- LOOP $option -->
 <tr>
 	<td><input type="radio" name="f_option" value="{$option_id}"></td>
-	<td><a href="{g$__AGENT__}edit/{$option_id}">{$label}</a></td>
+	<td><a href="{/}{g$__AGENT__}edit/{$option_id}">{$label}</a></td>
 </tr>
 <!-- IF $choice -->
 <tr>
