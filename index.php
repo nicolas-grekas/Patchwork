@@ -3,7 +3,6 @@
 $CONFIG += array(
 	'maxage' => 3600,
 	'lang_list' => 'fr',
-	'secret' => '',
 	'DSN' => '',
 
 	'deny_debug' => false,

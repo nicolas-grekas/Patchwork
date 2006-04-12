@@ -153,7 +153,7 @@ abstract class SESSION
 
 			if (self::$sslid)
 			{
-				self::$sslid = CIA::hash(@$_SERVER['SSL_SESSION_ID']);
+				self::$sslid = md5(@$_SERVER['SSL_SESSION_ID']);
 
 				if (!$i[3]) self::renew();
 				else if ($i[3]!=self::$sslid) self::renew(true, true);
@@ -161,7 +161,7 @@ abstract class SESSION
 		}
 		else
 		{
-			if (self::$sslid) self::$sslid = CIA::hash(@$_SERVER['SSL_SESSION_ID']);
+			if (self::$sslid) self::$sslid = md5(@$_SERVER['SSL_SESSION_ID']);
 			self::renew(false, true);
 		}
 	}
@@ -189,7 +189,7 @@ abstract class SESSION
 			'-' . $_SERVER['HTTP_ACCEPT_CHARSET']
 		);
 
-		self::$SID = CIA::hash(self::$SID);
+		self::$SID = md5(self::$SID);
 	}
 
 
