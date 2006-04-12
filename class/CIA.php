@@ -213,7 +213,7 @@ class CIA
 	 */
 	public static function pwd($pwd, $crypted_pwd = false)
 	{
-		static $saltLen = 8;
+		static $saltLen = 4;
 
 		if ($crypted_pwd !== false)
 		{
