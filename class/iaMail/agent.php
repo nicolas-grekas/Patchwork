@@ -13,7 +13,7 @@ class iaMail_agent extends iaMail
 	function __construct($agent, $argv = array(), $options = null)
 	{
 		$this->agent = $agent;
-		$this->argv = $argv;
+		$this->argv = (array) $argv;
 		$this->lang = isset($options['lang']) ? $options['lang'] : CIA::__LANG__();
 
 		parent::__construct($options);
@@ -21,14 +21,7 @@ class iaMail_agent extends iaMail
 
 	function doSend()
 	{
-		$lang = CIA::__LANG__($this->lang);
-
-		ob_start();
-		IA_php::loadAgent($this->agent, $this->argv);
-		$html = ob_get_contents();
-
-		CIA::__LANG__($lang);
-
+		$html = IA_php::returnAgent($this->agent, $this->argv, $this->lang);
 		$html = preg_replace_callback('/(\s)(src|background)\s*=\s*(["\'])?((?(3)[^(?:\3)]*|[^\s>]*)\.(jpe?g|png|gif))(?(3)\3)/iu', array($this, 'addRawImage'), $html);
 
 		$this->setHTMLBody($html);

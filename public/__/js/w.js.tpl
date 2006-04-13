@@ -501,7 +501,7 @@ w = function($rootAgent, $keys, $CIApID)
 	g.__QUERY__ = esc($j.search) || '?';
 	g.__ROOT__ = esc({g$__ROOT__|js});
 	g.__LANG__ = esc({g$__LANG__|js});
-	g.__AGENT__ = 'index' != $rootAgent ? esc($rootAgent) + '/' : '';
+	g.__AGENT__ = $rootAgent.length ? esc($rootAgent) + '/' : '';
 	g.__HOST__ = esc($j.protocol+'//'+$j.hostname);
 	g.__URI__ = esc($j.pathname + $j.search);
 
