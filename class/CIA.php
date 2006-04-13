@@ -74,7 +74,7 @@ class CIA
 
 	public static function getUri($url)
 	{
-		if (!preg_match("'^https?://'iu", $url)) 
+		if (!preg_match("'^https?://'iu", $url))
 		{
 			if ('/' != substr($url, 0, 1)) $url = self::__ROOT__() . $url;
 
@@ -209,7 +209,7 @@ class CIA
 	public static function uniqid() {return md5( uniqid(mt_rand(), true) );}
 
 	/**
-	 *  Returns the hash of $pwd if this hash match $crypted_pwd or if $crypted_pwd is not supplied. Else returns false. 
+	 *  Returns the hash of $pwd if this hash match $crypted_pwd or if $crypted_pwd is not supplied. Else returns false.
 	 */
 	public static function pwd($pwd, $crypted_pwd = false)
 	{
@@ -360,8 +360,10 @@ class CIA
 		return self::$cia->log($message, $is_end, $html);
 	}
 
-	public static function resolveAgentClass($agent, $fallback = '')
+	public static function resolveAgentClass($agent)
 	{
+		static $resolvedCache = array();
+
 		$agent = preg_replace("'/(\.?/)+'", '/', '/' . $agent . '/');
 
 		do $agent = preg_replace("'[^/]+/\.\./'", '/', $a = $agent);
@@ -377,59 +379,79 @@ class CIA
 
 		if ('/' == substr($agent, -1)) $agent = substr($agent, 0, -1);
 
-		$agent = 'agent_' . ('' !== $agent ? str_replace('/', '_', $agent) : $fallback);
-		$found = false;
+		$agent = '' !== $agent ? $agent : 'index';
+
+		$lang = self::__LANG__();
+		$createTemplate = true;
 
 		while (1)
 		{
-			if (class_exists($agent))
+			if (isset($resolvedCache[$agent]))
 			{
-				$agent_vars = get_class_vars($agent);
-				$argv =& $agent_vars['argv'];
-
-				if (is_array($argv)) array_walk($argv, array('self', 'stripArgv'));
-				else $argv = array();
-
-				$found = !$param || in_array('__0__', $argv) || in_array('__' . count($param) . '__', $argv);
-
-				if ($found) break;
+				$createTemplate = false;
+				break;
 			}
 
-			if ('agent_' . $fallback == $agent) break;
-
-			$a = (int) strrpos($agent, '_');
-
-			array_unshift($param, substr($agent, $a + 1));
-
-			if (5 == $a)
+			$path = "class/agent/{$agent}.php";
+			$p_th = resolvePath($path);
+			if ($path != $p_th)
 			{
-				if ($fallback) $agent = 'agent_' . $fallback;
-				else break;
+				require $p_th;
+				$createTemplate = false;
+				break;
 			}
-			else $agent = substr($agent, 0, $a);
+
+
+			$path = "public/{$lang}/{$agent}.tpl";
+			if ($path != resolvePath($path)) break;
+
+			$path = "public/__/{$agent}.tpl";
+			if ($path != resolvePath($path)) break;
+
+
+			if ('index' == $agent) break;
+
+
+			$a = strrpos($agent, '/');
+
+			if ($a)
+			{
+				array_unshift($param, substr($agent, $a + 1));
+				$agent = substr($agent, 0, $a);
+			}
+			else
+			{
+				array_unshift($param, $agent);
+				$agent = 'index';
+			}
 		}
 
-		if ($found)
+		if ($param)
 		{
-			if ($param)
-			{
-				$_GET['__0__'] = implode('/', $param);
+			$_GET['__0__'] = implode('/', $param);
 
-				$i = 0;
-				foreach ($param as $param) $_GET['__' . ++$i . '__'] = $param;
-			}
-		}
-		else
-		{
-			//XXX Should we be more sophisticated here ? We can have the same template resolution mechanism as for agents.
-
-			$agent = 'agent_template_';
-			$agent_vars = get_class_vars($agent);
-			if (!is_array($agent_vars['argv'])) $agent_vars['argv'] = array();
-			$_GET['template'] = implode('/', $param);
+			$i = 0;
+			foreach ($param as $param) $_GET['__' . ++$i . '__'] = $param;
 		}
 
-		return array($agent, $agent_vars);
+		$resolvedCache[$agent] = true;
+
+		$agent = 'agent_' . str_replace('/', '_', $agent);
+
+		if ($createTemplate) eval('class ' . $agent . ' extends agent {protected $maxage =-1;protected $watch=array(\'public/templates\');}');
+
+		return $agent;
+	}
+
+	public static function agentArgv($agent)
+	{
+		$agent = get_class_vars($agent);
+		$agent =& $agent['argv'];
+
+		if (is_array($agent)) array_walk($agent, array('self', 'stripArgv'));
+		else $agent = array();
+
+		return $agent;
 	}
 
 	protected static function stripArgv(&$a, $k)
@@ -487,7 +509,7 @@ class CIA
 				{
 					$path = './tmp/cache/watch/' . implode('/', $message) . '/table.php';
 					if (file_exists($path)) break;
-					
+
 					$h = "<?php\n";
 					CIA::writeFile($path, $h);
 				}
@@ -520,10 +542,10 @@ class CIA
 	*/
 
 	public function __construct()
-	{		
+	{
 		self::header('Content-Type: text/html; charset=UTF-8');
 		set_error_handler(array($this, 'error_handler'));
-		register_shutdown_function(array($this, 'shutdown'));		
+		register_shutdown_function(array($this, 'shutdown'));
 		ob_start(array($this, 'ob_handler'));
 	}
 
@@ -702,25 +724,6 @@ class agent_
 	}
 }
 
-class agent_template_ extends agent_
-{
-	public $argv = array('template');
-
-	protected $maxage = -1;
-	protected $private = false;
-	protected $expires = 'ontouch';
-	protected $watch = array('public/templates');
-
-	public function getTemplate()
-	{
-		return str_replace('../', '_', strtr(
-			$this->argv->template,
-			"\\:*?\"<>|\t\r\n",
-			'/__________'
-		));
-	}
-}
-
 class loop
 {
 	private $loopLength = false;
@@ -756,7 +759,7 @@ class loop
 	}
 
 	final public function addFilter($filter) {if ($filter) $this->filter[] = $filter;}
-	
+
 	final public function __toString()
 	{
 		$catchMeta = CIA::$catchMeta;

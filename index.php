@@ -346,12 +346,11 @@ if (CIA_DIRECT)
 }
 else
 {
-	list($agent, $a) = CIA::resolveAgentClass($_SERVER['CIA_REQUEST'], isset($_GET['$i']) ? '' : 'index');
+	$agent = CIA::resolveAgentClass($_SERVER['CIA_REQUEST']);
+	$a = get_class_vars($agent);
 
 	$binaryMode = (bool) $a['binary'];
 	CIA::setBinaryMode($binaryMode);
-
-	$agent = str_replace('_', '/', substr($agent, 6));
 
 	/*
 	 * Both Firefox and IE send a "Cache-Control: no-cache" request header
@@ -376,12 +375,12 @@ else
 	if (CIA_POSTING || $binaryMode || isset($_GET['$bin']) || !@$_COOKIE['JS'])
 	{
 		if (!$binaryMode) CIA::setPrivate(true);
-		IA_php::loadAgent($agent, false);
+		IA_php::loadAgent($agent);
 	}
 	else
 	{
 		if (!isset($_COOKIE['JS'])) setcookie('JS', '0', 2147364847, '/');
-		IA_js::loadAgent($agent, false);
+		IA_js::loadAgent($agent);
 	}
 }
 

@@ -4,16 +4,40 @@ class IA_php
 {
 	protected static $args;
 	protected static $values;
-	protected static $get = false;
+	protected static $get;
 
 	protected static $masterCache = array();
 	protected static $cache;
 
-	public static function loadAgent($agent, $args = array())
+	public static function returnAgent($agent, $args, $lang = null)
+	{
+		$lang = CIA::__LANG__($lang);
+
+		$false = false;
+
+		$a =& $_GET;
+		$g =& self::$get;
+
+		$_GET =& $args;
+		self::$get =& $f;
+
+		ob_start();
+		IA_php::loadAgent(CIA::resolveAgentClass($agent), $false);
+		$agent = ob_get_contents();
+
+		$_GET =& $a;
+		self::$get =& $g;
+
+		CIA::__LANG__($lang);
+
+		return $agent;
+	}
+
+	public static function loadAgent($agent, $args = false)
 	{
 		$a =& $_GET;
 
-		if (!self::$get)
+		if (false === $args)
 		{
 			$reset_get = true;
 			$cache = '';
@@ -23,7 +47,7 @@ class IA_php
 			self::$get->__QUERY__ = '?' . htmlspecialchars($_SERVER['QUERY_STRING']);
 			$cache .= self::$get->__ROOT__ = htmlspecialchars(CIA::__ROOT__());
 			$cache .= self::$get->__LANG__ = htmlspecialchars(CIA::__LANG__());
-			self::$get->__AGENT__ = 'index' != $agent ? htmlspecialchars($agent) . '/' : '';
+			self::$get->__AGENT__ = 'agent_index' == $agent ? '' : htmlspecialchars(str_replace('_', '/', substr($agent, 6)));
 			$cache .= self::$get->__HOST__ = htmlspecialchars(CIA::__HOST__());
 			self::$get->__URI__ = htmlspecialchars($_SERVER['REQUEST_URI']);
 
@@ -31,19 +55,22 @@ class IA_php
 
 			self::$cache =& self::$masterCache[$cache];
 		}
-		else $reset_get = false;
-
-		if (false===$args) $args = self::$get;
-		else $_GET =& $args;
-
-		if ($agent instanceof loop && CIA::string($agent))
+		else
 		{
-			while ($i =& $agent->compose()) $data =& $i;
+			$reset_get = false;
+			$_GET =& $args;
 
-			$agent = $data->{'*a'};
+			if ($agent instanceof loop && CIA::string($agent))
+			{
+				while ($i =& $agent->compose()) $data =& $i;
 
-			self::escape($data);
-			foreach ($data as $k => $v) $args[$k] = $v;
+				$agent = $data->{'*a'};
+
+				self::escape($data);
+				foreach ($data as $k => $v) $args[$k] = $v;
+			}
+
+			$agent = CIA::resolveAgentClass($agent);
 		}
 
 		self::compose($agent);
@@ -53,14 +80,13 @@ class IA_php
 		if ($reset_get) self::$get = false;
 	}
 
-	public static function compose($agent)
+	protected static function compose($agentClass)
 	{
 		CIA::openMeta();
 
 		$a = self::$args = (object) $_GET;
 		$g = self::$get;
 
-		list($agentClass) = CIA::resolveAgentClass($agent);
 		$agent = new $agentClass($_GET);
 
 		$cagent = CIA::agentCache($agentClass, $agent->argv, 'php');
