@@ -1,7 +1,7 @@
 <!-- AGENT 'header' title = "Inscription groupée" form = $form -->
 <!-- SET g$inputFormat -->%1<!-- END:SET -->
 
-<script type="text/javascript"><!--
+<script type="text/javascript">/*<![CDATA[*/
 function clickDrop($id)
 {
 	--$id;
@@ -9,7 +9,7 @@ function clickDrop($id)
 	for (; $i < $check.length; ++$i) $check[$i].checked = $i==$id;
 	lF.f_del.click();
 }
-//--></script>
+/*]]>*/</script>
 
 <div id="formDiv">
 

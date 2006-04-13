@@ -369,7 +369,7 @@ else
 
 		CIA::delCache();
 
-		echo '<script type="text/javascript">self.ScriptEngine ? location.replace(location) : location.reload()</script>';
+		echo '<script type="text/javascript">/*<![CDATA[*/self.ScriptEngine ? location.replace(location) : location.reload()/*]]>*/</script>';
 		exit;
 	}
 

@@ -20,7 +20,7 @@
 
 <script type="text/javascript" src="{/}js/QJsrs"></script>
 <script type="text/javascript" src="{/}js/iaGrid"></script>
-<script type="text/javascript">
+<script type="text/javascript">/*<![CDATA[*/
 
 version = 0;
 dataGrid = document.getElementById('HdataGrid');
@@ -45,6 +45,6 @@ onfocus = function()
 	updatePeriod = 1000;
 }
 
-</script>
+/*]]>*/</script>
 
 <!-- AGENT 'footer' -->
