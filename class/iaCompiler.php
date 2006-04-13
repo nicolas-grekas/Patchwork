@@ -342,7 +342,7 @@ abstract class iaCompiler
 				}
 
 				$block = preg_split(
-					"/({$this->Xvar})/su",
+					"/({$this->XvarNconst})/su",
 					$block, -1, PREG_SPLIT_DELIM_CAPTURE
 				);
 				$testCode = preg_replace("'\s+'u", '', $block[0]);
