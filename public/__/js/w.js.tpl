@@ -381,7 +381,7 @@ w = function($rootAgent, $keys, $CIApID)
 			$buffer = '';
 		else
 			$i += 9,
-			$content = $buffer.substring(0, $i) + '<script type="text/javascript" src="js/x"></script>', // Any optimization to save some request here will break IE ...
+			$content = $buffer.substring(0, $i) + '<script type="text/javascript" src="' + g.__ROOT__ + 'js/x"></script>', // Any optimization to save some request here will break IE ...
 			$buffer = $buffer.substr($i);
 
 		$document.write($content);

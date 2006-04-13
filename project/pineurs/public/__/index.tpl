@@ -45,7 +45,7 @@ body
 }
 </style>
 
-<script type="text/javascript"><!--
+<script type="text/javascript">/*<![CDATA[*/
 function editMe(link, id, key)
 {
 	var div = document.getElementById('editDiv'),
@@ -104,7 +104,7 @@ function editMe(link, id, key)
 
 	setTimeout("document.getElementById('editDiv').focus()", 100);
 }
-//--></script>
+/*]]>*/</script>
 &nbsp;<i style="color: red">Double-Cliques au milieu d'une case pour la modifier.</i>
 <table border=0 cellspacing=1 cellpadding=2 id="mainTable">
 <tr>

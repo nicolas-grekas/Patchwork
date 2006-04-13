@@ -53,13 +53,13 @@ END:SET --><!--
 SET $INPUT --><!--
 
 	SET a$_JsStart
-		--><script type="text/javascript">//<![CDATA[
+		--><script type="text/javascript">/*<![CDATA[*/
 		lE=gLE({a$name|js}<!-- IF a$multiple -->,1<!-- END:IF -->)
 		if(lE){<!--
 	END:SET --><!--
 
 	SET a$_JsEnd
-		-->}//]]></script><!--
+		-->}/*]]>*/</script><!--
 	END:SET --><!--
 
 	IF a$_mandatory --><span class="mandatory"><!-- END:IF --><!--
