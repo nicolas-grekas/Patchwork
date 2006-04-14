@@ -124,7 +124,7 @@ class iaForm extends loop_callAgent
 		}
 	}
 
-	public function setEnterControl($name)
+	public function setEnterControl($name = '')
 	{
 		if ($this->firstName === -1) $this->firstName = $name;
 		else if ($name != $this->firstName) $this->enterControl = true;

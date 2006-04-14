@@ -70,6 +70,15 @@ class CIA
 
 	public static function __HOST__($new_host = null)
 	{
+		$host = self::$host;
+
+		if (null !== $new_host)
+		{
+			self::$host = $new_host;
+			return $host;
+		}
+
+		return self::$host;
 	}
 
 	public static function getUri($url)
