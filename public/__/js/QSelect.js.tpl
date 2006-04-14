@@ -146,7 +146,7 @@ return function($input, $driver)
 		$imgB = $getById('_QSb' + $id) || {},
 
 		$length = 0,
-		
+
 		$driver = $driver($this, $input, $select, $options);
 
 	QSelect.$QSelect[$id] = $this;
@@ -290,7 +290,7 @@ return function($input, $driver)
 		this.$QSelectVisible = 'visible'==$div.style.visibility;
 		this.$onmousedown();
 	}
-	
+
 	$imgB.onclick = function()
 	{
 		$input.select();
@@ -353,7 +353,7 @@ function QSelectSearch($data)
 			},
 
 			onchange: function() {$input.select(); $input.focus()},
-			
+
 			setValue: function()
 			{
 				var $idx = $select.selectedIndex;

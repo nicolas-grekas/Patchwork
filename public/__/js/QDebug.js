@@ -47,7 +47,7 @@ function E($v, $max_depth, $level, $expand)
 			if ($level) o('</span>');
 		}
 		else o(p($v)+'\n');
-	
+
 		if (0 == $level) o('</pre>');
 	}
 

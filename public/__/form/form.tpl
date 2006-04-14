@@ -22,7 +22,7 @@ ELSEIF a$_mode_ == 'close' --></form><!--
 ELSE --><!--
 
 	SET a$action --><!-- IF !a$action -->{g$__URI__}<!-- ELSE -->{a$action|root}<!-- END:IF --><!-- END:SET
-	
+
 	--><form accept-charset="UTF-8" {a$|htmlArgs}><!--
 
 	IF !g$_FORM --><script type="text/javascript" src="{/}js/v"></script><!-- END:IF

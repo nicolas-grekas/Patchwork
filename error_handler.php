@@ -6,7 +6,7 @@ CIA::setExpires('onmaxage');
 
 $context = '';
 
-if (0 && !self::$handlesOb) 
+if (0 && !self::$handlesOb)
 {
 	$msg = debug_backtrace();
 
@@ -44,7 +44,7 @@ if (!$msg) switch ($code)
 {
 	case E_NOTICE: $msg = '<b>Notice</b>'; break;
 	case E_USER_NOTICE: $msg = '<b>User Notice</b>'; break;
-	case E_STRICT: $msg = '<b>Strict Notice</b>'; break;				
+	case E_STRICT: $msg = '<b>Strict Notice</b>'; break;
 	default: $msg = '<b>Unknown Error ('.$code.')</b>';
 }
 

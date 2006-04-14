@@ -88,10 +88,10 @@ class dao_option
 
 	/**
 	 * Delete an option
-	 * 
+	 *
 	 * An option can not be deleted when one of its choice has been selected one time or more.
 	 * However, it is disabled in the option tree.
-	 * 
+	 *
 	 */
 	public function deleteOption($option_id)
 	{
@@ -193,10 +193,10 @@ class dao_option
 
 	/**
 	 * Delete a choice
-	 * 
+	 *
 	 * A choice can not be deleted when it has been selected one time or more.
 	 * However, it is disabled in the option tree.
-	 * 
+	 *
 	 */
 	public function deleteChoice($choice_id)
 	{

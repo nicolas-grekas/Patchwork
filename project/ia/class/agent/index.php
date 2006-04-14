@@ -33,7 +33,7 @@ class agent_index extends agent
 					'KEY' => 'contact',
 					'VALUE' => 'Nous contacter',
 				)),
-			
+
 				'filter_rawArray'
 			)
 		);

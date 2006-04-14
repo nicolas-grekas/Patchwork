@@ -1,7 +1,7 @@
 function QEngine($keyword)
 {
 	var $this = this,
-		
+
 		$word = [];
 
 	$this.maxResult = 500;

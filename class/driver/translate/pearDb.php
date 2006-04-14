@@ -10,21 +10,19 @@ class driver_translate_pearDb extends TRANSLATE
 		$this->db = DB();
 	}
 
-	public function translate($string)
+	public function translate($string, $lang)
 	{
-		$quoted_string = $this->db->quote($string);
-
-		$sql = 'SELECT ' . CIA::__LANG__() . " FROM {$this->table} WHERE " . TRANSLATE::$defaultLang . "={$quoted_string}";
-		$result = $this->db->query($sql);
+		$sql = "SELECT {$lang} FROM {$this->table} WHERE __=?";
+		$result = $this->db->query($sql, array($string));
 		if ($row = $result->fetchRow())
 		{
-			return $row->{TRANSLATE::$lang};
+			return $row->$lang;
 		}
 		else
 		{
-			$sql = "INSERT INTO {$this->table} (" . TRANSLATE::$defaultLang . ") VALUES ({$quoted_string})";
-			$this->db->query($sql);
-			return false;
+			$sql = "INSERT INTO {$this->table} (__) VALUES (?)";
+			$this->db->query($sql, array($string));
+			return '';
 		}
 	}
 }

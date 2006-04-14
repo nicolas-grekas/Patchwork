@@ -26,7 +26,7 @@ class agent_css extends agent_bin
 				"css/$css.css"
 			);
 		}
-		
+
 		$a = (object) $this->a;
 		$d = $v = (object) $this->v;
 		$g = (object) $this->g;

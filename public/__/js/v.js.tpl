@@ -1,4 +1,4 @@
-if (!window.lF) 
+if (!window.lF)
 {
 
 function valid($element, $type, $args)
@@ -59,7 +59,7 @@ valid_date = function($value, $args)
 {
 	var Y = new Date();
 	Y = Y.getFullYear();
-	
+
 	$value = $value.replace(/^[^0-9]+/, '');
 	$value = $value.replace(/[^0-9]+$/, '');
 	$value = $value.split(/[^0-9]+/);
@@ -86,7 +86,7 @@ valid_date = function($value, $args)
 	}
 	$args = new Date($value[2], $value[1]-1, $value[0]);
 	$value[2] = $args.getFullYear();
-	$value[1] = $args.getMonth()+1; if ($value[1]<10) $value[1] = '0'+$value[1]; 
+	$value[1] = $args.getMonth()+1; if ($value[1]<10) $value[1] = '0'+$value[1];
 	$value[0] = $args.getDate(); if ($value[0]<10) $value[0] = '0'+$value[0];
 	return $value.join('-');
 }
@@ -265,7 +265,7 @@ checkElementStatus = IcES = function($msgs, $form)
 labelClick = IlC = function($elt)
 {
 	$elt = $elt.form[$elt.htmlFor];
-	
+
 	if (!$elt.type && $elt[0])
 	{
 		var $i = 0;
@@ -374,7 +374,7 @@ if (t(_BOARD.lastX)) (scrollCntrl = function()
 	var $body = document.body,
 		$left = Math.min(_BOARD.lastX, $body.scrollWidth),
 		$top = Math.min(_BOARD.lastY, $body.scrollHeight);
-		
+
 	$body && scrollTo($left, $top);
 
 	if ($left != $body.scrollLeft || $top != $body.scrollTop) setTimeout('scrollCntrl&&scrollCntrl()', 100);
@@ -400,7 +400,7 @@ addOnload(function()
 			$a = this.onsubmit();
 			if ($a || 'false' != ''+$a) this.submit();
 		}
-		
+
 		$form.$onsubmit = $form.onsubmit;
 		$form.onsubmit = function($event)
 		{
@@ -436,7 +436,7 @@ addOnload(function()
 		}
 	}
 
-	$forms = $form = $elt = 0;	
+	$forms = $form = $elt = 0;
 });
 
 }

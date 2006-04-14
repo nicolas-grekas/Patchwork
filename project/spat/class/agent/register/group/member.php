@@ -18,7 +18,7 @@ class agent_register_group_member extends agent
 			'valid' => 'int', 1, count($this->member),
 			'multiple' => true,
 		));
-		
+
 		$edit = $form->add('submit', 'edit');
 		$edit->add('check', T("Aucun membre sélectionné"), '');
 		if ($edit->isOn())

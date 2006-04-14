@@ -51,7 +51,7 @@ class loop_dtree_branching extends loop_sql
 					'icon' => 'img/dtree/page.gif',
 					'iconOpen' => 'img/dtree/page.gif',
 				);
-					
+
 				if ($this->previousOption != $row->option_id)
 				{
 					$this->nextData = $data;

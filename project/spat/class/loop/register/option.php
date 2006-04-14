@@ -77,7 +77,7 @@ class loop_register_option extends loop_sql
 
 				case 'int':
 					$f_option = $form->add('text', $name, array('valid' => 'int', 0));
-					
+
 					if ($v = $f_option->getValue())
 					{
 						array_unshift(

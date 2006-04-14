@@ -23,7 +23,7 @@ if (window.lF)
 		'img/upload/r.png',
 		'img/upload/t.gif'
 	];
-	
+
 	setTimeout('for(i in pLuL)j=pLuL[i],pLuL[i]=new Image,pLuL[i].src=j', 2000);
 }
 else

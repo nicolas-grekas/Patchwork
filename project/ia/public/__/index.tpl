@@ -13,7 +13,7 @@ SET a$MENU --><!--
 			IF $submenu
 
 				--><ul><!--
-	
+
 				LOOP $submenu
 				--><!--
 					IF $KEY==g$__2__ || !($iteratorPosition || g$__2__)  --><!--
@@ -21,7 +21,7 @@ SET a$MENU --><!--
 						SET a$TITLE -->{a$TITLE} - {$VALUE}<!-- END:SET --><!--
 						SET a$CONTENT -->page/{$$KEY}/{$KEY}<!-- END:SET
 						--><li class="selected"><a href="{$$KEY}/{$KEY}/">{$VALUE}</a><!--
-	
+
 					ELSE
 						--><li><a href="{/}{$$KEY}/{$KEY}/">{$VALUE}</a></li><!--
 					END:IF --><!--
@@ -35,7 +35,7 @@ SET a$MENU --><!--
 		END:IF --><!--
 	END:LOOP --><!--
 END:SET --><!--
-	
+
 AGENT 'header' title = a$TITLE
 
 -->

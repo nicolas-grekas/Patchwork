@@ -115,7 +115,7 @@ function openEdit($lock, $oldValue)
 	editDiv.style.left = $X + 'px';
 	editDiv.style.top = $Y + 'px';
 	editDiv.style.visibility = 'visible';
-	
+
 	editTxt.value = $oldValue;
 	editTxt.select();
 
@@ -186,7 +186,7 @@ function openEdit($lock, $oldValue)
 	editTxt.onblur = function()
 	{
 		var $i, $j, $value = this.value;
-		
+
 		$value = $value.replace(
 			/\r\n/g, '\n').replace(
 			/\r/g  , '\n'
@@ -200,7 +200,7 @@ function openEdit($lock, $oldValue)
 
 				$value = $value.split('\n');
 				if ($value[$value.length-1] == ' ') --$value.length;
-				
+
 				$X = 0;
 				$Y = $value.length;
 
