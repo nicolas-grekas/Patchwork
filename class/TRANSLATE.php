@@ -35,7 +35,7 @@ abstract class TRANSLATE
 			else self::$cache[$id][0] = true;
 		}
 
-		$cache = self::$driver->translate($string, $lang);
+		$cache = self::$driver->search($string, $lang);
 
 		if ('' === (string) $cache) $cache = $string;
 
@@ -76,7 +76,7 @@ abstract class TRANSLATE
 	/* Driver interface */
 
 	public function open() {}
-	public function translate($string, $lang) {return $string; /*return "<span class='i18n {$lang}'>{$string}</span>";*/}
+	public function search($string, $lang) {return $string; /*return "<span class='i18n {$lang}'>{$string}</span>";*/}
 	public function close() {}
 }
 

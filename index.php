@@ -164,8 +164,7 @@ function V($var , $type) {$a = func_get_args(); return VALIDATE::get(     $var  
 
 function T($string, $usecache = true)
 {
-//	return TRANSLATE::get($string, $usecache);
-	return TRANSLATE::get($string, false);
+	return TRANSLATE::get($string, $usecache);
 }
 
 function DB()
