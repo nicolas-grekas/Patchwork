@@ -2,31 +2,30 @@
 
 class pipe_js
 {
-	static function php($string)
+	static function php($string, $forceString = false)
 	{
 		$string = CIA::string($string);
 
-		return (string) $string === (string) ($string-0)
-			? $string
-			: ("'" . str_replace(
+		return $forceString || (string) $string !== (string) ($string-0)
+			? ("'" . str_replace(
 					array('&#039;', '&quot;', '&gt;', '&lt;', '&amp;', '\\'  , "'"  , "\r" , "\n" , '</' ),
 					array("'"     , '"'     , '>'   , '<'   , '&'    , '\\\\', "\\'", '\\r', '\\n', '<\\/'),
 					$string
 				) . "'"
-			);
+			)
+			: $string;
 	}
 
 	static function js()
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($string)
+P$<?php echo substr(__CLASS__, 5)?> = function($string, $forceString)
 {
 	$string = str($string);
 
-	return (''+$string/1 == $string)
-		? $string/1
-		: ("'" + $string.replace(
+	return $forceString || (''+$string/1 != $string)
+		? ("'" + $string.replace(
 				/&#039;/g, "'").replace(
 				/&quot;/g, '"').replace(
 				/&gt;/g  , '>').replace(
@@ -38,7 +37,8 @@ P$<?php echo substr(__CLASS__, 5)?> = function($string)
 				/\n/g , '\\n').replace(
 				/<\//g, '<\\/'
 			) + "'"
-		);
+		)
+		: $string/1;
 }
 
 <?php	}

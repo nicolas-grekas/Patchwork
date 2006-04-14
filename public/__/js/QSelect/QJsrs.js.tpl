@@ -1,4 +1,4 @@
-<!-- AGENT 'js' __0__='QJsrs' -->
+<!-- AGENT 'js/QJsrs' -->
 
 function QSelectQJsrs($QJsrs)
 {
