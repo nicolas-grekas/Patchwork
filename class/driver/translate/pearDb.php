@@ -10,7 +10,7 @@ class driver_translate_pearDb extends TRANSLATE
 		$this->db = DB();
 	}
 
-	public function translate($string, $lang)
+	public function search($string, $lang)
 	{
 		$sql = "SELECT {$lang} FROM {$this->table} WHERE __=?";
 		$result = $this->db->query($sql, array($string));
