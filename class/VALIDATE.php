@@ -10,7 +10,7 @@ class VALIDATE
 	public static function get(&$value, $type, $args = array())
 	{
 		$type = "get_$type";
-		return $value !== null ? self::$type($value, $args) : '';
+		return self::$type($value, $args);
 	}
 
 	public static function getFile(&$value, $type, $args = array())
