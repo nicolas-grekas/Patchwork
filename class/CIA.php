@@ -724,7 +724,7 @@ class agent_
 			$default = $a;
 			$a = $key;
 		}
-		else $default = false;
+		else $default = '';
 
 		$a = explode(':', $a);
 		$key = array_shift($a);
