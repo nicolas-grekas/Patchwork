@@ -364,6 +364,10 @@ class CIA
 	{
 		static $resolvedCache = array();
 
+
+		if (isset($resolvedCache[$agent])) return 'agent_' . str_replace('/', '_', $agent);
+
+		
 		$agent = preg_replace("'/(\.?/)+'", '/', '/' . $agent . '/');
 
 		do $agent = preg_replace("'[^/]+/\.\./'", '/', $a = $agent);
@@ -438,6 +442,11 @@ class CIA
 
 		$agent = 'agent_' . str_replace('/', '_', $agent);
 
+		/*
+		* eval() is known to be slow.
+		* Instead, we could write once this PHP code in a file, and include it on subsequent calls.
+		* But is it faster ? Maybe with both an opcode cache and a memory filesystem. Else, I doubt ... 
+		*/
 		if ($createTemplate) eval('class ' . $agent . ' extends agent {protected $maxage =-1;protected $watch=array(\'public/templates\');}');
 
 		return $agent;
