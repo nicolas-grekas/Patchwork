@@ -12,12 +12,12 @@ class driver_session_pearDb extends SESSION
 	{
 		$this->db = DB();
 	}
-	
+
 	public function open($path, $name) {}
 	public function close() {}
 
 	public function read($sid)
-	{		
+	{
 		$sql = "SELECT {$this->data_field}
 				FROM {$this->table}
 				WHERE {$this->id_field}='{$sid}'";

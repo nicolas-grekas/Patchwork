@@ -259,7 +259,7 @@ dTree.prototype.closeAllChildren = function(node) {
 		if (this.aNodes[n].pid == node.id && this.aNodes[n]._hc) {
 			if (this.aNodes[n]._io) this.nodeStatus(false, n, this.aNodes[n]._ls);
 			this.aNodes[n]._io = false;
-			this.closeAllChildren(this.aNodes[n]);		
+			this.closeAllChildren(this.aNodes[n]);
 		}
 	}
 }

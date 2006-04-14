@@ -28,7 +28,7 @@ class iaCompiler_php extends iaCompiler
 	{
 		if ($end) return false;
 
-		
+
 		$a = '';
 		$comma = '';
 		foreach ($args as $k => $v)
@@ -36,7 +36,7 @@ class iaCompiler_php extends iaCompiler
 			$a .= "$comma'$k'=>" . $v;
 			$comma = ',';
 		}
-		
+
 		$this->pushCode("IA_php::loadAgent($inc,array($a));");
 
 		return true;

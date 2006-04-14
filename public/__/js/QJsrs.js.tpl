@@ -73,7 +73,7 @@ function $QJsrsContext($name)
 			$document.innerHTML += '<iframe name='+ $name +' src="'+ $url.replace(/"/g, '&quot;') +'" width=0 height=0 frameborder=0></iframe>',
 			$html = 1;
 	}
-	
+
 	$this.$abort = function()
 	{
 		if ($container)
@@ -92,7 +92,7 @@ loadQJsrs = function($context, $result, $callback)
 	{
 		$callback = $context.$callback;
 		$context.$abort();
-		$context.$busy = $callback($result); 
+		$context.$busy = $callback($result);
 	}
 
 	if ($result>='') setTimeout('goQJsrs()', 0); // Workaround for a bug with relative directories
@@ -104,7 +104,7 @@ return function($URL, $POST)
 {
 	var $this = this,
 		$pool = [],
-		$poolLen = 0, 
+		$poolLen = 0,
 		$context, $callback, $url, $i = '?';
 
 	if ($URL.indexOf($i)<0) $URL += $i;

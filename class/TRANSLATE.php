@@ -2,43 +2,43 @@
 
 abstract class TRANSLATE
 {
-	public static $driverClass;
-	public static $defaultLang = '__';
+	protected static $started = false;
 
-	private static $started = false;
-
-	private static $driver;
-	private static $cache = array();
+	protected static $driver;
+	protected static $cache = array();
 
 	public static function get($string, $usecache = true)
 	{
-		self::start();
+		if ('' === $string) return '';
 
-		if (CIA::__LANG__() == self::$defaultLang) return $string;
-		
-		$hash = sprintf('%u', crc32($string));
+		if (!self::$started) self::start();
+
+		$lang = CIA::__LANG__();
+		if ('__' == $lang) return $string;
+
+		$hash = (int) sprintf('%u', crc32($string));
 		$cache = '';
-		
-		if ($id = CIA::$agentClass)
+
+		if ($usecache && $id = CIA::$agentClass)
 		{
-			$id = substr($id, 6);
+			$id = CIA::makeCacheDir('lang/' . substr($id, 6), 'php');
 			if (!isset(self::$cache[$id]))
 			{
-				if ($usecache) $cache = @include './tmp/cache/lang/' . $id . '.php';
-				self::$cache[$id] = is_array($cache) ? $cache : array();
+				$cache = @include $id;
+
+				self::$cache[$id] = $cache ? array(false, false, &$cache) : array(false, true, array());
 			}
 
-			if ($usecache)
-			{
-				$cache =& self::$cache[$id][$hash];
-				if ('' === (string) $cache) return $cache;
-			}
+			$cache =& self::$cache[$id][$hash];
+
+			if ('' !== (string) $cache) return $cache;
+			else self::$cache[$id][0] = true;
 		}
 
-		$cache = self::$driver->translate($string);
+		$cache = self::$driver->translate($string, $lang);
 
 		if ('' === (string) $cache) $cache = $string;
-		
+
 		return $cache;
 	}
 
@@ -46,16 +46,12 @@ abstract class TRANSLATE
 	{
 		self::$driver->close();
 
-		foreach (self::$cache as $id => $cacheArray)
+		foreach (self::$cache as $file => $cache) if ($cache[0])
 		{
-			if ($cacheArray)
-			{
-				$file = CIA::makeCacheDir('lang/' . $id, 'php');
-				$data = '<?php return ' . var_export($cacheArray, true) . ';';
-		
-				CIA::writeFile($file, $data);
-				CIA::watch(array('translate'), $file);
-			}		
+			$data = '<?php return ' . var_export($cache[2], true) . ';';
+
+			CIA::writeFile($file, $data);
+			if ($cache[1]) CIA::watch(array('translate'), $file);
 		}
 	}
 
@@ -69,7 +65,7 @@ abstract class TRANSLATE
 		self::$started = true;
 
 		global $CONFIG;
-		self::$driverClass = $driver = 'driver_translate_' . $CONFIG['translate_driver'];
+		$driver = 'driver_translate_' . $CONFIG['translate_driver'];
 		self::$driver = new $driver($CONFIG['translate_params']);
 		self::$driver->open();
 
@@ -80,7 +76,7 @@ abstract class TRANSLATE
 	/* Driver interface */
 
 	public function open() {}
-	public function translate($string) {return $string;"<span class='i18n'>$string</span>";}
+	public function translate($string, $lang) {return $string; /*return "<span class='i18n {$lang}'>{$string}</span>";*/}
 	public function close() {}
 }
 

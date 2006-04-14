@@ -32,7 +32,7 @@ class LIB
 				$cmp = -1;
 			}
 			else $cmp = 1;
-			
+
 			if ($a[$key] < $b[$key]) return -$cmp;
 			else if ($a[$key] > $b[$key]) return $cmp;
 		}

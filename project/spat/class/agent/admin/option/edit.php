@@ -47,7 +47,7 @@ class agent_admin_option_edit extends agent
 			'tax_id', '', '',
 			'admin_only', '', ''
 		);
-		
+
 		if ($submit->isOn()) $this->updateOption($submit->getData());
 
 
@@ -85,7 +85,7 @@ class agent_admin_option_edit extends agent
 			'quota_max', '', '',
 			'admin_only', '', ''
 		);
-		
+
 		if ($submit->isOn()) $this->createChoice($submit->getData());
 
 		return $data;

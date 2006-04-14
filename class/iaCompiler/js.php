@@ -53,7 +53,7 @@ class iaCompiler_js extends iaCompiler
 		$this->modifiers[] = $name;
 		return 'P$' . $name;
 	}
-	
+
 	protected function addAGENT($end, $inc, &$args)
 	{
 		if ($end) return false;
@@ -100,7 +100,7 @@ class iaCompiler_js extends iaCompiler
 			if ($type == 'g') $type = 1;
 			else if ($type == 'a') $type = 0;
 			else $type = strlen($type) + 2;
-			
+
 			array_push($this->code, pC_ENDSET, $type, "'" . $name . "'");
 		}
 		else

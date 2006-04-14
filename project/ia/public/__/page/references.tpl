@@ -10,7 +10,7 @@ Ils nous font confiance :<br>
 Depuis ses débuts, le projet IntellAgence est suivi et soutenu par le groupe <a href="http://www.jouve.fr/" target="_blank">Jouve</a>. Jouve est le leader français du traitement de l'information. Il est prescripteur de la solution IntellAgence auprès de ses propres clients.
 </p>
 
-<p>Le service IntellAgence a mûrit au plus près des besoins des organisateurs de congrès. Il a déjà assuré 
+<p>Le service IntellAgence a mûrit au plus près des besoins des organisateurs de congrès. Il a déjà assuré
 le succès de <a href="/refs.html">nombreuses manifestations nationales et internationales</a>.
 <!--
 <ul>

@@ -55,7 +55,7 @@ class agent_QEngine extends agent
 			if ($KLen == 1) return $result . $this->S($K0, $I0);
 
 			list($K1, $I1) = each($kw);
-			
+
 			if ($KLen == 2)
 			{
 				if (strpos($K1, $K0) === 0) $result .= $this->P($K0, $I0) . $this->S(substr($K1, $K0Len), $I1) . '}';

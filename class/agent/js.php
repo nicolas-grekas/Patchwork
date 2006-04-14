@@ -26,7 +26,7 @@ class agent_js extends agent_bin
 				"js/$js.js"
 			);
 		}
-		
+
 		$a = (object) $this->a;
 		$d = $v = (object) $this->v;
 		$g = (object) $this->g;

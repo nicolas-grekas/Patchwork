@@ -61,7 +61,7 @@ class agent_lock extends agent_bin
 
 			$sleep = 500;	// (ms)
 			$repeated = str_repeat("\n", 4*4096);
-	
+
 			apache_setenv('no-gzip', '1');
 			ignore_user_abort(false);
 			set_time_limit(600);

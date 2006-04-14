@@ -42,7 +42,7 @@ END:IF --><!--
 SET $CAPTION --><!--
 	IF a$_caption_
 		--><label for="{a$id}" class="{a$class}" onclick="return IlC(this)"><!--
-		IF a$_mandatory --><span class="mandatory"><!-- END:IF 
+		IF a$_mandatory --><span class="mandatory"><!-- END:IF
 		-->{a$_caption_}<!--
 		IF a$_mandatory --></span><!-- END:IF
 		--></label><!--

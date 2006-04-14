@@ -79,7 +79,7 @@ class agent_register_group_edit extends agent_register_group_member
 	public function filterMember($data)
 	{
 		$data = (object) array('VALUE' => $this->member[$data->VALUE - 1]);
-		
+
 		return parent::filterMember($data);
 	}
 }

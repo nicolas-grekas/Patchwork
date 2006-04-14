@@ -5,7 +5,7 @@ class agent_QJsrs extends agent_bin
 	protected $data = array();
 	protected $from = array("\r", "\n", "'"  , '</'  );
 	protected $to   = array('\r', '\n', "\\'", '<\\/');
-	
+
 	public function compose()
 	{
 		return (object) array('DATA' => '<script type="text/javascript">parent.loadQJsrs(this,' . $this->getJs($this->data) . ')</script>');
@@ -16,9 +16,9 @@ class agent_QJsrs extends agent_bin
 		if (is_object($data) || is_array($data))
 		{
 			$a = '{';
-			
+
 			foreach ($data as $k => $v) $a .= "'" . str_replace($this->from, $this->to, $k) . "':" . $this->getJs($v) . ',';
-			
+
 			$v = strlen($a);
 			if ($v > 1) $a{strlen($a)-1} = '}';
 			else $a = '{}';

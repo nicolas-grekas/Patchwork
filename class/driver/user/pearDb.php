@@ -40,7 +40,7 @@ class driver_user_pearDb extends USER
 			$sql = "ALTER TABLE {$this->table} ADD {$prefName} varchar(255)";
 			$this->db->query($sql);
 		}
-		
+
 		$sql = "UPDATE {$this->table} SET {$prefName}='' WHERE {$this->userIdField}={$user_id}";
 		$this->db->query($sql);
 	}

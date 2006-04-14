@@ -57,7 +57,7 @@ abstract class iaCompiler
 		$this->XfullVar = "({$this->Xexpression}|{$this->Xmodifier}(?::(?:{$this->Xexpression})?)+)((?:{$this->XmodifierPipe})*)";
 
 	}
-	
+
 	final public function compile($template)
 	{
 		$this->template = $template;
@@ -162,7 +162,7 @@ abstract class iaCompiler
 	abstract protected function getConcat($array);
 	abstract protected function getVar($name, $type, $prefix, $forceType);
 	abstract protected function makeModifier($name);
-	
+
 	final protected function makeVar($name, $forceType = false)
 	{
 		$type = $prefix = '';
@@ -231,7 +231,7 @@ abstract class iaCompiler
 	private function makeVars(&$a)
 	{
 		$a = preg_split("/{$this->Xlvar}{$this->XfullVar}{$this->Xrvar}/su", $a, -1, PREG_SPLIT_DELIM_CAPTURE);
-	
+
 		$this->pushText($a[0]);
 
 		$i = 1;
@@ -281,7 +281,7 @@ abstract class iaCompiler
 								$i++;
 							}
 						}
-					
+
 						if (!$this->addAGENT($blockend, $inc, $args)) $this->pushText($a);
 					}
 					else $this->pushText($a);
@@ -330,7 +330,7 @@ abstract class iaCompiler
 
 			case 'IF':
 			case 'ELSEIF':
-				if ($blockend) 
+				if ($blockend)
 				{
 					if (!$this->addIF(true, $blockname=='ELSEIF', $block)) $this->pushText($a);
 					else
@@ -408,7 +408,7 @@ abstract class iaCompiler
 		$detail = array();
 
 		preg_match_all("/({$this->Xexpression}|{$this->Xmodifier}|(?<=:)(?:{$this->Xexpression})?)/su", $var, $match);
-		$detail[] = $match[1];				
+		$detail[] = $match[1];
 
 		preg_match_all("/{$this->XmodifierPipe}/su", $pipe, $match);
 		foreach ($match[0] as $match)
@@ -482,12 +482,12 @@ abstract class iaCompiler
 					$this->makeVars($a);
 
 					if ($this->concatLast == 0) $this->concat[0] = T($this->concat[0], false);
-					
+
 					for ($i = 0; $i<=$this->concatLast; $i+=2)
 					{
 						if ($this->concat[$i] !== '') $this->concat[$i] = $this->makeVar("'" . $this->concat[$i]);
 						else unset($this->concat[$i]);
-						
+
 					}
 
 					$this->mode = 'echo';

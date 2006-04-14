@@ -170,7 +170,7 @@ w = function($rootAgent, $keys, $CIApID)
 		$WobLast = 0,
 
 		$i, $j, $loopIterator = [],
-		
+
 		a, d, v, g,
 
 		$lastInclude = '',

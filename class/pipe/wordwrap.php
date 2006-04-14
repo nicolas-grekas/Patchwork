@@ -20,7 +20,7 @@ P$<?php echo substr(__CLASS__, 5)?> = function($string, $length, $break, $cut)
 
 	var $i = 0,
 		$j, $line, $a, $b;
-	
+
 	for (; $i<$string.length; ++$i)
 	{
 		$line = '';
@@ -47,7 +47,7 @@ P$<?php echo substr(__CLASS__, 5)?> = function($string, $length, $break, $cut)
 
 		$string[$i] = $line;
 	}
-	
+
 	return $string.join($break);
 }
 

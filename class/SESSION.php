@@ -61,12 +61,12 @@ abstract class SESSION
 
 		if ($destroy) self::$driver->destroy(self::$SID);
 		if ($initSession) self::$DATA = (object) array();
-	
+
 		self::$renew = true;
 		self::setSID($destroy = CIA::uniqid());
 		self::$lastseen = CIA_TIME;
 		self::$birthtime = CIA_TIME;
-		
+
 		header(
 			'Set-Cookie: SID=' . $destroy .
 			( self::$cookiePath ? '; path=' . rawurlencode(self::$cookiePath) : '; path=/' ) .
@@ -179,7 +179,7 @@ abstract class SESSION
 			$IPs = implode(',', $IPs[0]);
 		}
 		else $IPs = '';
-		
+
 		self::$SID = @(
 			$SID .
 			'-' . $IPs .

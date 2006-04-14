@@ -10,7 +10,7 @@ class iaForm_hidden extends loop_callAgent
 	protected $isdata = true;
 	protected $mandatory = false;
 	protected $errormsg = '';
-	
+
 	protected $form;
 	protected $sessionLink = false;
 
@@ -287,7 +287,7 @@ class iaForm_password extends iaForm_text
 	protected function get()
 	{
 		$this->value = '';
-		return parent::get();		
+		return parent::get();
 	}
 }
 
@@ -316,7 +316,7 @@ class iaForm_select extends iaForm_hidden
 	protected $item = array();
 	protected $firstItem = false;
 	protected $length = -1;
-	
+
 	protected function init(&$param)
 	{
 		if (isset($param['firstItem'])) $this->firstItem = $param['firstItem'];
@@ -372,11 +372,11 @@ class iaForm_select extends iaForm_hidden
 
 		parent::init($param);
 	}
-	
+
 	protected function get()
 	{
 		$a = parent::get();
-		
+
 		if ($this->multiple) $a->multiple = 'multiple';
 
 		if ($this->item || $this->firstItem !== false)
@@ -475,7 +475,7 @@ class iaForm_file extends iaForm_text
 		$this->status = VALIDATE::getFile($_FILES[$this->name], $this->valid, $this->valid_args);
 		$this->value = $this->status;
 	}
-	
+
 	protected function addJsValidation($a)
 	{
 		$a->_valid = new loop_array(array('string', @$this->valid_args[0]));
@@ -487,7 +487,7 @@ class iaForm_minute extends iaForm_text
 {
 	protected $maxlength = 2;
 	protected $maxint = 59;
-	
+
 	protected function get()
 	{
 		$a = parent::get();
@@ -508,7 +508,7 @@ class iaForm_time extends iaForm_text
 		$param['valid'] = 'int';
 		$param[0] = 0; $param[1] = 23;
 		parent::init($param);
-		
+
 		$this->minute = $form->add('minute', $name.'_minute', array('valid'=>'int', 0, 59));
 	}
 
@@ -522,7 +522,7 @@ class iaForm_time extends iaForm_text
 class iaForm_date extends iaForm_text
 {
 	protected $maxlength = 10;
-	
+
 	protected function init(&$param)
 	{
 		if (!isset($param['valid'])) $param['valid'] = 'date';
@@ -530,14 +530,14 @@ class iaForm_date extends iaForm_text
 
 		parent::init($param);
 	}
-	
+
 	protected function get()
 	{
 		$a = parent::get();
 		$a->onchange = 'this.value=valid_date(this.value)';
 		return $a;
 	}
-	
+
 	public function getDbValue()
 	{
 		if ($v = $this->getValue())
@@ -619,7 +619,7 @@ class loop_iaForm_selectOption__ extends loop
 		reset($this->item);
 
 		if ($this->length >= 0) return $this->length;
-		
+
 		$this->length = 0;
 		foreach ($this->item as $k => $v)
 		{

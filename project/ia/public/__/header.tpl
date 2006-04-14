@@ -1,6 +1,6 @@
 <!-- SET a$title -->IntellAgence::{a$title}<!-- END:SET -->
 <!-- SET a$head -->
-	
+
 	<!-- SET a$bgcolor -->#FFFDF5<!-- END:SET -->
 	<!-- SET a$linecolor -->#5A4D42<!-- END:SET -->
 

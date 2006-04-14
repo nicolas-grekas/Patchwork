@@ -55,7 +55,7 @@ class agent_admin_option extends agent
 			'tax_id', '', '',
 			'admin_only', '', ''
 		);
-		
+
 		if ($submit->isOn()) $this->createOption($submit->getData());
 
 		return $data;
