@@ -2,7 +2,7 @@
 
 class pipe_root
 {
-	static function php($string)
+	static function php($string = '')
 	{
 		return CIA::root( CIA::string($string) );
 	}
