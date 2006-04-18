@@ -472,7 +472,7 @@ abstract class iaCompiler
 
 			if ($b && trim($a)!=='')
 			{
-				if ($translate) $a = T($a, false);
+				if ($translate) $a = TRANSLATE::get($a, CIA::__LANG__(), false);
 				else
 				{
 					$this->mode = 'concat';
@@ -481,7 +481,7 @@ abstract class iaCompiler
 
 					$this->makeVars($a);
 
-					if ($this->concatLast == 0) $this->concat[0] = T($this->concat[0], false);
+					if ($this->concatLast == 0) $this->concat[0] = TRANSLATE::get($this->concat[0], CIA::__LANG__(), false);
 
 					for ($i = 0; $i<=$this->concatLast; $i+=2)
 					{

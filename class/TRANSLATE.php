@@ -7,14 +7,10 @@ abstract class TRANSLATE
 	protected static $driver;
 	protected static $cache = array();
 
-	public static function get($string, $usecache = true)
+	public static function get($string, $lang, $usecache)
 	{
-		if ('' === $string) return '';
-
+		if ('' === $string || '__' == $lang) return $string;
 		if (!self::$started) self::start();
-
-		$lang = CIA::__LANG__();
-		if ('__' == $lang) return $string;
 
 		$hash = (int) sprintf('%u', crc32($string));
 		$cache = '';
