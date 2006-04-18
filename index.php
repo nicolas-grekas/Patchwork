@@ -162,9 +162,10 @@ function F($name, $type) {$a = func_get_args(); return VALIDATE::getFile($_FILES
 
 function V($var , $type) {$a = func_get_args(); return VALIDATE::get(     $var          , $type, array_slice($a, 2));}
 
-function T($string, $usecache = true)
+function T($string, $lang = false)
 {
-	return TRANSLATE::get($string, $usecache);
+	if (!$lang) $lang = CIA::__LANG__();
+	return TRANSLATE::get($string, $lang, true);
 }
 
 function DB()
