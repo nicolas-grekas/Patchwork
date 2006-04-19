@@ -54,7 +54,7 @@ function esc($str)
 
 function root($str)
 {
-	return /^([\\\\\\/]|[^/]+:)/.test($str)
+	return /^([\\\/]|[^\/\?]+:)/.test($str)
 		? $str
 		: (_GET.__ROOT__ + $str);
 }

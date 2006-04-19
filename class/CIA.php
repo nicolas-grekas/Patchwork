@@ -63,7 +63,7 @@ class CIA
 
 	public static function root($string)
 	{
-		return preg_match("'^([\\\\\\/]|[^/]+:)'", $string)
+		return preg_match("'^([\\\\\\/]|[^/\?]+:)'", $string)
 			? $string
 			: (htmlspecialchars(self::__ROOT__()) . $string);
 	}
