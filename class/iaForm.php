@@ -71,14 +71,14 @@ class iaForm extends loop_callAgent
 		else $this->agentData = false;
 	}
 
-	public function pullCOntext()
+	public function pullContext()
 	{
 		list(
 			$this->agentData,
 			$this->agentPrefix,
 			$this->eltnameSuffix,
 			$this->defaults
-		) = $a = array_pop($this->contextPool);
+		) = array_pop($this->contextPool);
 	}
 
 	public function setDefaults($data)
