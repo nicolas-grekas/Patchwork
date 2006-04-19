@@ -50,7 +50,16 @@ class iaForm_hidden extends loop_callAgent
 
 	public function &getDbValue()
 	{
-		return $this->getValue(true, true);
+		$a = $this->getValue(true, true);
+
+		if ($this->isdata && is_array($a))
+		{
+			$b = '';
+			foreach ($a as $a) $b .= ',' . str_replace(array('%', ','), array('%25', '%2C'), $a);
+			$a = substr($b, 1);
+		}
+
+		return $a;
 	}
 
 	final public function &getValue($checkStatus = true, $checkIsData = false)
@@ -167,18 +176,28 @@ class iaForm_hidden extends loop_callAgent
 	{
 		$this->valid = isset($param['valid']) ? $param['valid'] : 'string';
 
-		if (isset($param['isdata'])) $this->isdata = (bool) $param['isdata'];
 		if (@$param['multiple'])
 		{
 			$this->isdata = false;
 			$this->multiple = true;
 		}
 
+		if (isset($param['isdata'])) $this->isdata = (bool) $param['isdata'];
+
 		$i = 0;
 		while(isset($param[$i])) $this->valid_args[] =& $param[$i++];
 
 		if (isset($this->form->rawValues[$this->name])) $this->value = $this->form->rawValues[$this->name];
-		else if (isset($param['default'])) $this->value = $param['default'];
+		else if (isset($param['default']))
+		{
+			$this->value = $param['default'];
+
+			if ($this->multiple && !is_array($this->value))
+			{
+				$this->value = explode(',', $this->value);
+				$this->value = array_map('rawurldecode', $this->value);
+			}
+		}
 		else $this->value = '';
 
 		if ($this->multiple)
