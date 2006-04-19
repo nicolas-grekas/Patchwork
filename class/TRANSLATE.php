@@ -47,7 +47,7 @@ abstract class TRANSLATE
 			$data = '<?php return ' . var_export($cache[2], true) . ';';
 
 			CIA::writeFile($file, $data);
-			if ($cache[1]) CIA::watch(array('translate'), $file);
+			if ($cache[1]) CIA::writeWatchTable(array('translate'), $file);
 		}
 	}
 

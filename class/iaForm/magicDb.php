@@ -2,7 +2,7 @@
 
 class iaForm_magicDb
 {
-	public static function do($table, $form, $save = false, $fields = false)
+	public static function populate($table, $form, $save = false, $fields = false)
 	{
 		$db = DB();
 
@@ -23,7 +23,7 @@ class iaForm_magicDb
 			}
 
 			$type = strpos($row->Type, '(');
-			$type = false === $field ? $row->Type : substr($row->Type, 0, $type);
+			$type = false === $type ? $row->Type : substr($row->Type, 0, $type);
 
 			$param = array();
 
@@ -76,13 +76,13 @@ class iaForm_magicDb
 					$i = eval('return array' . substr($row->Type, strlen($type)) . ';');
 					$param['item'] = array_combine($i, $i);
 
-					if ('set' == $type) $param['multiple'] = true;
+					if ('set' == $type) $param['isdata'] = $param['multiple'] = true;
 
 					$type = 'check';
 					break;
 
 				default:
-					if ($fields) E("iaForm_magicDb::do() : this field type is not managed ({$row->Type})");
+					if ($fields) E("iaForm_magicDb::populate() : this field type is not managed ({$row->Type})");
 					continue;
 			}
 
