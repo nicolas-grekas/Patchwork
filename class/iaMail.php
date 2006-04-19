@@ -42,9 +42,9 @@ class iaMail extends Mail_mime
 
 	function doSend()
 	{
-		$message_id = CIA::uniqid();
+		$message_id = 'iaM' . CIA::uniqid();
 
-		$this->_headers['Message-Id'] = "<{$message_id}@iaMail>";
+		$this->_headers['Message-Id'] = '<' . $message_id . '@' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'iaMail') . '>';
 
 		$this->setObserver('reply', 'Reply-To', $message_id);
 		$this->setObserver('bounce', 'Return-Path', $message_id);
