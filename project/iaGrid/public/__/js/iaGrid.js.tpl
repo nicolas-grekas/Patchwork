@@ -55,7 +55,7 @@ function updateGrid($data)
 		if (window.updateThread) clearTimeout(updateThread);
 		updateThread = setTimeout('updateGrid()', updatePeriod);
 	}
-	else updateQJsrs.pushCall({L:version},updateGrid);
+	else updateQJsrs.push({L:version}, updateGrid);
 }
 
 function getXY($elt)
@@ -97,7 +97,7 @@ function releaseEdit($noLock)
 
 function multiReleaseEdit($result)
 {
-	if (!$result.completed) alert("Une des cellules à modifier est en cours d'utilisation");
+	if ($result && !$result.completed) alert("Une des cellules à modifier est en cours d'utilisation");
 }
 
 function openEdit($lock, $oldValue)
@@ -220,12 +220,12 @@ function openEdit($lock, $oldValue)
 					}
 				}
 
-				multiSaveQJsrs.pushCall({'D':$lock}, multiReleaseEdit);
+				multiSaveQJsrs.push({'D':$lock}, multiReleaseEdit);
 			}
 			else
 			{
 				$value = $value.replace(/^\s+/, '').replace(/\s+$/, '');
-				saveQJsrs.pushCall({L:$lock, R:$row, C:$col,D:$value});
+				saveQJsrs.push({L:$lock, R:$row, C:$col,D:$value});
 
 				setCell($row, $col, $value);
 			}

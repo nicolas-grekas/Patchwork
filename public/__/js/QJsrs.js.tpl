@@ -5,16 +5,15 @@
 * to be made to the server.
 *
 * Then call this server script _asynchronously_
-* with varname.pushCall($vararray, $function)
-* Multiple .pushCall() calls are executed sequentialy : the last call is executed
+* with varname.push($vararray, $function)
+* Multiple .push() calls are executed sequentialy : the last call is executed
 * only when the previous one is finished.
+*
+* use varname.replace($vararray, $function) to empty the call sequence and then do the request
 *
 * $vararray is an associative array, which is going to be passed to the server script.
 *
 * $function(result) is called when the result is loaded.
-*
-* Use varname.pushFunc($vararray, $function) to trigger $function($vararray)
-* when the previously pushed callbacks are done.
 *
 * Cancel the callback pool with varname.abort()
 */
@@ -34,6 +33,7 @@ QJsrs = (function()
 
 var $contextPool = [],
 	$loadCounter = 0,
+	$masterTimer = 0,
 	$document = document,
 	$document = $document.getElementById ? $document.getElementById('divQJsrs') : $document.all['divQJsrs'],
 	$XMLHttp = QJsrs - 1;
@@ -95,14 +95,12 @@ self.loadQJsrs = function($context, $result, $callback)
 {
 	$context = $contextPool[ parseInt($context.name.substr(1)) ];
 
-	self.goQJsrs = function()
+	if ($result>='') QJsrs.$setTimeout(function()
 	{
 		$callback = $context.$callback;
 		$context.$abort();
 		$context.$busy = $callback($result);
-	}
-
-	if ($result>='') setTimeout('goQJsrs()', 0); // Workaround for a bug with relative directories
+	}, 0); // Workaround for a bug with relative directories
 
 	return $context;
 }
@@ -112,16 +110,30 @@ function $QJsrs($URL, $POST)
 	var $this = this,
 		$pool = [],
 		$poolLen = 0,
+		$localTimer = 0,
 		$context, $callback, $url, $i = '?';
 
 	if ($URL.indexOf($i)<0) $URL += $i;
 
 	$POST = $POST ? 1 : 0;
 
-	$this.pushCall = function($vararray, $function)
+	$this.replace = function($vararray, $function)
 	{
-		$countLoad(1);
-		$function = $function || function(){};
+		$this.abort();
+		$this.push($vararray, $function);
+	}
+
+	$this.push = function($vararray, $function)
+	{
+		if (!$loadCounter)
+		{
+			if ($masterTimer) $masterTimer = clearTimeout($masterTimer);
+			else $QJsrs.onloading();
+		}
+
+		++$loadCounter;
+
+		$function = $function || $QJsrs.$emptyFunction;
 
 		$url = '';
 		for ($i in $vararray) $url += '&' + eUC($i) + '=' + eUC($vararray[$i]); // Be aware that Konquerors for(..in..) loop does not preserve the order of declaration
@@ -130,6 +142,9 @@ function $QJsrs($URL, $POST)
 		if ($context) $pool[$poolLen++] = [$url, $function];
 		else
 		{
+			if ($localTimer) $localTimer = clearTimeout($localTimer);
+			else $this.onloading();
+
 			$context = $contextPool.length;
 			for ($i = 0; $i < $context; ++$i) if ( !$contextPool[$i].$busy && ($contextPool[$i].p&&1)==$POST ) break;
 			if ($i == $context) $contextPool[$i] = new $QJsrsContext('_' + $i), // The '_' prefix prevents confusion of frames['0'] and frames[0] for some browsers
@@ -143,45 +158,53 @@ function $QJsrs($URL, $POST)
 		}
 	}
 
-	$this.pushFunc = function($vararray, $function)
-	{
-		$context ? ($countLoad(1), $pool[$poolLen++] = [$vararray, $function, 1]) : $function($vararray);
-	}
-
 	$this.abort = function()
 	{
-		$pool = [];
 		if ($context) $context.$abort();
-		$countLoad(-$poolLen);
-		$context = $poolLen = 0;
+		$callback && $release(false, 1);
 	}
 
-	function $release($a)
+	function $release($a, $abort)
 	{
 		$callback($a);
-		$countLoad(-1);
+
+		--$loadCounter;
 
 		if ($poolLen)
-			return $a = $pool[0],
-				$pool = $pool.slice(1),
-				$poolLen--,
-				$callback = $a[1],
-				$a[2] ? $release($a[0]) : !$context.$load($a[0], $release);
+		{
+			$a = $pool[0];
+			$pool = $pool.slice(1);
+			$poolLen--;
+			$callback = $a[1];
 
-		$context = 0;
+			return $abort ? $release(false, 1) : !$context.$load($a[0], $release);
+		}
+
+		$callback = $context = 0;
+
+		$localTimer = $QJsrs.$setTimeout($QJsrs.onloaded, 10);
+		if (!$loadCounter) $masterTimer = $QJsrs.$setTimeout($this.onloaded, 10);
 	}
+
+	$this.onloading = $this.onloaded = $QJsrs.$emptyFunction;
 }
 
-function $countLoad($add)
-{
-	$loadCounter || $QJsrs.onloading();
-	$loadCounter += $add;
-	$loadCounter || $QJsrs.onloaded();
-}
+$QJsrs.$setTimeoutId = 0;
+$QJsrs.$setTimeoutPool = [];
 
 return $QJsrs;
 
 })();
+
+QJsrs.$setTimeout = function($function, $timeout, $i)
+{
+	if ($function)
+	{
+		$i = ++QJsrs.$setTimeoutId;
+		QJsrs.$setTimeoutPool[$i] = $function;
+		return setTimeout('QJsrs.$setTimeoutPool['+$i+']();QJsrs.$setTimeoutPool['+$i+']=null', $timeout);
+	}
+}
 
 QJsrs.onloading = QJsrs.onloaded = QJsrs.$emptyFunction = function() {};
 

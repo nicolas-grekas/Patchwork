@@ -10,8 +10,10 @@ function QSelectQJsrs($QJsrs)
 
 		$driver.search = function($query, $pushBack)
 		{
-			$QJsrs.abort();
-			$QJsrs.pushCall({q: $query}, $pushBack);
+			$QJsrs.replace(
+				{q: $query},
+				function($result) {$result && $pushBack($result);}
+			);
 		}
 
 		return $driver;

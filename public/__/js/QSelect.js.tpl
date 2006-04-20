@@ -1,3 +1,6 @@
+if (!self.QSelect)
+{
+
 $getById = document.getElementById ? function($id) {return document.getElementById($id)} : function($id) {return document.all[$id]};
 
 function $onfocus($this)
@@ -112,12 +115,12 @@ function $precheck()
 	return false;
 }
 
-QSelect = window.QSelect || (function()
+QSelect = (function()
 {
 
 var $selectRange,
 
-	$win = window,
+	$win = self,
 	$getById = $win.$getById,
 	$onfocus = $win.$onfocus,
 	$onblur = $win.$onblur,
@@ -262,7 +265,7 @@ return function($input, $driver)
 			$form.precheck = $precheck;
 
 			$parent = document.body.scrollTop;
-			$height = $parent + window.innerHeight - $height - $top;
+			$height = $parent + self.innerHeight - $height - $top;
 
 			if ($height < $select.offsetHeight && $height < $top - $parent) $divStyle.top = ($top - $select.offsetHeight) + 'px';
 
@@ -320,7 +323,7 @@ QSelect.$setTimeout = function($function, $timeout, $i)
 	{
 		$i = ++QSelect.$setTimeoutId;
 		QSelect.$setTimeoutPool[$i] = $function;
-		return setTimeout('QSelect.$setTimeoutPool['+$i+']();delete QSelect.$setTimeoutPool['+$i+']', $timeout);
+		return setTimeout('QSelect.$setTimeoutPool['+$i+']();QSelect.$setTimeoutPool['+$i+']=null', $timeout);
 	}
 }
 
@@ -371,4 +374,6 @@ function QSelectSearch($data)
 			}
 		};
 	}
+}
+
 }

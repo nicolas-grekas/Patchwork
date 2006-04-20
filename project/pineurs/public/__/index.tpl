@@ -87,7 +87,7 @@ function editMe(link, id, key)
 
 	txt.onblur = function()
 	{
-		if (oldValue != this.value) (new QJsrs('QJsrs/save', true)).pushCall({ID:id,KEY:key,DATA:this.value}, function(){});
+		if (oldValue != this.value) (new QJsrs('QJsrs/save', true)).push({ID:id,KEY:key,DATA:this.value});
 		div.style.visibility = 'hidden';
 		link.innerHTML = this.value.replace(
 			/^\s+/, '').replace(
