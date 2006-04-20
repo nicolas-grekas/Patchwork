@@ -2,7 +2,7 @@
 
 class iaForm_magicDb
 {
-	public static function populate($table, $form, $save = false, $fields = false)
+	public static function populate($table, $form, $save = false, $rxFilter = false)
 	{
 		$db = DB();
 
@@ -14,31 +14,16 @@ class iaForm_magicDb
 
 		while ($row = $result->fetchRow())
 		{
-			if ($fields)
-			{
-				if (false === ($i = array_search($row->Field, $fields))) continue;
-
-				$onempty = $fields[$i + 1];
-				$onerror = $fields[$i + 2];
-			}
+			if ($rxFilter && !preg_match($rxFilter, $row->Field)) continue;
 
 			$type = strpos($row->Type, '(');
 			$type = false === $type ? $row->Type : substr($row->Type, 0, $type);
 
+			$continue = false;
 			$param = array();
 
 			switch ($type)
 			{
-				case 'int':
-				case 'smallint':
-				case 'mediumint':
-				case 'bigint':
-					if (!$fields) continue;
-
-					$type = 'text';
-					$param['valid'] = 'int';
-					break;
-
 				case 'char':
 				case 'varchar':
 					$type = 'text';
@@ -81,10 +66,10 @@ class iaForm_magicDb
 					$type = 'check';
 					break;
 
-				default:
-					if ($fields) E("iaForm_magicDb::populate() : this field type is not managed ({$row->Type})");
-					continue;
+				default: $continue = true; break;
 			}
+
+			if ($continue) continue;
 
 			$form->add($type, $row->Field, $param);
 			if ($save) $save->add($row->Field, $onempty, $onerror);
