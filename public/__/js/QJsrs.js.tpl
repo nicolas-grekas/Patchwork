@@ -19,15 +19,21 @@
 * Cancel the callback pool with varname.abort()
 */
 
-QJsrs = self.QJsrs || ((  // The 5 next lines preload the XMLHttp object and speed up its first real use
-	QJsrs = self.XMLHttpRequest
-		? new XMLHttpRequest && 3
-		: self.ActiveXObject
-			? new ActiveXObject('Microsoft.XMLHTTP') && 2
-			: (document.write('<div id="divQJsrs" style="position:absolute;visibility:hidden"></div>') && 1)
-	) && function()
+if (!self.QJsrs)
 {
-var $masterPool = [],
+
+// First preload the XMLHttp object and speed up its first real use
+QJsrs = self.XMLHttpRequest
+	? new XMLHttpRequest && 3
+	: self.ActiveXObject
+		? new ActiveXObject('Microsoft.XMLHTTP') && 2
+		: (document.write('<div id="divQJsrs" style="position:absolute;visibility:hidden"></div>') && 1);
+
+QJsrs = (function()
+{
+
+var $contextPool = [],
+	$loadCounter = 0,
 	$document = document,
 	$document = $document.getElementById ? $document.getElementById('divQJsrs') : $document.all['divQJsrs'],
 	$XMLHttp = QJsrs - 1;
@@ -35,7 +41,8 @@ var $masterPool = [],
 function $QJsrsContext($name)
 {
 	var $this = this,
-		$container, $html;
+		$container,
+		$html;
 
 	$this.$load = function($url, $callback)
 	{
@@ -53,7 +60,7 @@ function $QJsrsContext($name)
 			$container.onreadystatechange = function()
 			{
 				if ($container.readyState==4)
-					delete $container.onreadystatechange,
+					$container.onreadystatechange = $QJsrs.$emptyFunction,
 					$html = $container.responseText.replace(/\s+$/, '') || '{}',
 					eval('$html=' + $html.substring(53, $html.length-10)),
 					$container = $this.$busy = 0,
@@ -77,18 +84,18 @@ function $QJsrsContext($name)
 	$this.$abort = function()
 	{
 		if ($container)
-			delete $container.onreadystatechange,
+			$container.onreadystatechange = $QJsrs.$emptyFunction,
 			$container.abort(),
 			$container = $this.$busy = 0;
 		$this.$callback = $this.$abort;
 	}
 }
 
-loadQJsrs = function($context, $result, $callback)
+self.loadQJsrs = function($context, $result, $callback)
 {
-	$context = $masterPool[ parseInt($context.name.substr(1)) ];
+	$context = $contextPool[ parseInt($context.name.substr(1)) ];
 
-	goQJsrs = function()
+	self.goQJsrs = function()
 	{
 		$callback = $context.$callback;
 		$context.$abort();
@@ -100,7 +107,7 @@ loadQJsrs = function($context, $result, $callback)
 	return $context;
 }
 
-return function($URL, $POST)
+function $QJsrs($URL, $POST)
 {
 	var $this = this,
 		$pool = [],
@@ -113,6 +120,7 @@ return function($URL, $POST)
 
 	$this.pushCall = function($vararray, $function)
 	{
+		$countLoad(1);
 		$function = $function || function(){};
 
 		$url = '';
@@ -122,14 +130,14 @@ return function($URL, $POST)
 		if ($context) $pool[$poolLen++] = [$url, $function];
 		else
 		{
-			$context = $masterPool.length;
-			for ($i = 0; $i < $context; ++$i) if ( !$masterPool[$i].$busy && ($masterPool[$i].p&&1)==$POST ) break;
-			if ($i == $context) $masterPool[$i] = new $QJsrsContext('_' + $i), // The '_' prefix prevents confusion of frames['0'] and frames[0] for some browsers
+			$context = $contextPool.length;
+			for ($i = 0; $i < $context; ++$i) if ( !$contextPool[$i].$busy && ($contextPool[$i].p&&1)==$POST ) break;
+			if ($i == $context) $contextPool[$i] = new $QJsrsContext('_' + $i), // The '_' prefix prevents confusion of frames['0'] and frames[0] for some browsers
 
 			'' + $function; // Dummy line, but if missing, both IE and Mozilla bug !?
 			$callback = $function;
 
-			$context = $masterPool[$i];
+			$context = $contextPool[$i];
 			$context.p = $POST;
 			$context.$load($url, $release);
 		}
@@ -137,28 +145,44 @@ return function($URL, $POST)
 
 	$this.pushFunc = function($vararray, $function)
 	{
-		$context ? $pool[$poolLen++] = [$vararray, $function, 1] : $function($vararray);
+		$context ? ($countLoad(1), $pool[$poolLen++] = [$vararray, $function, 1]) : $function($vararray);
 	}
 
 	$this.abort = function()
 	{
 		$pool = [];
 		if ($context) $context.$abort();
+		$countLoad(-$poolLen);
 		$context = $poolLen = 0;
 	}
 
 	function $release($a)
 	{
 		$callback($a);
+		$countLoad(-1);
 
 		if ($poolLen)
 			return $a = $pool[0],
-			$pool = $pool.slice(1),
-			$poolLen--,
-			$callback = $a[1],
-			$a[2] ? $release($a[0]) : !$context.$load($a[0], $release);
+				$pool = $pool.slice(1),
+				$poolLen--,
+				$callback = $a[1],
+				$a[2] ? $release($a[0]) : !$context.$load($a[0], $release);
 
 		$context = 0;
 	}
 }
+
+function $countLoad($add)
+{
+	$loadCounter || $QJsrs.onloading();
+	$loadCounter += $add;
+	$loadCounter || $QJsrs.onloaded();
+}
+
+return $QJsrs;
+
 })();
+
+QJsrs.onloading = QJsrs.onloaded = QJsrs.$emptyFunction = function() {};
+
+}
