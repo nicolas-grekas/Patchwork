@@ -60,7 +60,7 @@ else
 	{
 		var $html = '', $i = $unitWidth;
 
-		if (a.bytes_total)
+		if (a && a.bytes_total)
 		{
 			for (; $i < $maxWidth && $i/$maxWidth <= a.bytes_uploaded/a.bytes_total; $i += $unitWidth) $html += $unitHtml;
 			$progress.innerHTML = $html || $unitHtml;
@@ -80,7 +80,7 @@ else
 			$detail.innerHTML = $bytes(a.bytes_uploaded) + ' / ' + $bytes(a.bytes_total) + ' (' + Math.round(100*a.bytes_uploaded/a.bytes_total) + '%)';
 
 			if (!$bytes_total) $bytes_total = a.bytes_total;
-			setTimeout("$QJsrs.pushCall({id:UPID}, $showProgress)", 700);
+			setTimeout("$QJsrs.push({id:UPID}, $showProgress)", 700);
 		}
 		else
 		{
@@ -111,6 +111,6 @@ else
 
 		if (window.ScriptEngine) document.getElementById('b').background = '';
 
-		setTimeout("$QJsrs.pushCall({id:UPID}, $showProgress)", 1400);
+		setTimeout("$QJsrs.push({id:UPID}, $showProgress)", 1400);
 	});
 }
