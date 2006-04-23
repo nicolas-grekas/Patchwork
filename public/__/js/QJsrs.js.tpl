@@ -95,7 +95,7 @@ self.loadQJsrs = function($context, $result, $callback)
 {
 	$context = $contextPool[ parseInt($context.name.substr(1)) ];
 
-	if ($result>='') QJsrs.$setTimeout(function()
+	if ($result>='' || $result < 0) QJsrs.$setTimeout(function()
 	{
 		$callback = $context.$callback;
 		$context.$abort();
