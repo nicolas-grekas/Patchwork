@@ -14,9 +14,9 @@ function setTabId($tabId)
 	}
 
 	with (window)
-		saveQJsrs = new QJsrs(_GET.__ROOT__ + 'QJsrs/save?tabId=' + tabId, true),
-		updateQJsrs = new QJsrs(_GET.__ROOT__ + 'QJsrs/update?tabId=' + tabId, true),
-		multiSaveQJsrs = new QJsrs(_GET.__ROOT__ + 'QJsrs/multiSave?tabId=' + tabId, true);
+		saveQJsrs = new QJsrs('QJsrs/save?tabId=' + tabId, true),
+		updateQJsrs = new QJsrs('QJsrs/update?tabId=' + tabId, true),
+		multiSaveQJsrs = new QJsrs('QJsrs/multiSave?tabId=' + tabId, true);
 
 	updateGrid();
 }
