@@ -21,12 +21,15 @@
 if (!self.QJsrs)
 {
 
+function $emptyFunction() {};
+document.write('<div id="divQJsrs" style="position:absolute;visibility:hidden"></div>');
+
 // First preload the XMLHttp object and speed up its first real use
 QJsrs = self.XMLHttpRequest
 	? new XMLHttpRequest && 3
 	: self.ActiveXObject
 		? new ActiveXObject('Microsoft.XMLHTTP') && 2
-		: (document.write('<div id="divQJsrs" style="position:absolute;visibility:hidden"></div>') && 1);
+		: 1;
 
 QJsrs = (function()
 {
@@ -34,8 +37,8 @@ QJsrs = (function()
 var $contextPool = [],
 	$loadCounter = 0,
 	$masterTimer = 0,
-	$document = document,
-	$document = $document.getElementById ? $document.getElementById('divQJsrs') : $document.all['divQJsrs'],
+	$document = 0,
+	$emptyFunction = self.$emptyFunction,
 	$XMLHttp = QJsrs - 1;
 
 function $QJsrsContext($name)
@@ -44,47 +47,54 @@ function $QJsrsContext($name)
 		$container,
 		$html;
 
-	$this.$load = function($url, $callback)
+	$this.$load = function($url, $callback, $post, $local)
 	{
 		$this.$busy = 1;
 		$this.$callback = $callback;
 
-		if ($this.p)
-			$this.p = $url,
-			$url = _GET.__ROOT__+'QJsrs.html';
+		if ($post || !$local)
+			$url[3] = $post,
+			$url[4] = $local,
+			$this.q = $url,
+			$url = _GET.__ROOT__ + 'QJsrs.html';
 		else $url = $url[0] + $url[1];
 
-		if ($XMLHttp)
+		if ($local && $XMLHttp)
 		{
 			$container = $XMLHttp - 1 ? new XMLHttpRequest : new ActiveXObject('Microsoft.XMLHTTP');
 			$container.onreadystatechange = function()
 			{
 				if ($container.readyState==4)
-					$container.onreadystatechange = $QJsrs.$emptyFunction,
-					$html = $container.responseText.replace(/\s+$/, '') || '{}',
-					eval('$html=' + $html.substring(53, $html.length-10)),
+					$container.onreadystatechange = $emptyFunction,
+					$html = $container.responseText.replace(/<\/.*/, '').substr(33),
+					eval('$html=' + $html),
+					eval('$html=' + $html),
 					$container = $this.$busy = 0,
 					$this.$callback($html);
 			}
 
-			if ($this.p)
-				$container.open('POST', $this.p[0], 1),
+			if ($post)
+				$container.open('POST', $this.q[0], 1),
 				$container.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded'),
-				$container.send($this.p[1]);
+				$container.send($this.q[1]);
 			else
 				$container.open('GET', $url, 1),
 				$container.send('');
 		}
 		else if ($html) frames[$name].location.replace($url);
 		else
+		{
+			if (!$document) $document = document, $document = $document.getElementById ? $document.getElementById('divQJsrs') : $document.all['divQJsrs'];
+
 			$document.innerHTML += '<iframe name='+ $name +' src="'+ $url.replace(/"/g, '&quot;') +'" width=0 height=0 frameborder=0></iframe>',
 			$html = 1;
+		}
 	}
 
 	$this.$abort = function()
 	{
 		if ($container)
-			$container.onreadystatechange = $QJsrs.$emptyFunction,
+			$container.onreadystatechange = $emptyFunction,
 			$container.abort(),
 			$container = $this.$busy = 0;
 		$this.$callback = $this.$abort;
@@ -95,7 +105,7 @@ self.loadQJsrs = function($context, $result, $callback)
 {
 	$context = $contextPool[ parseInt($context.name.substr(1)) ];
 
-	if ($result>='' || $result < 0) QJsrs.$setTimeout(function()
+	if ($result>='' || $result < 0) $QJsrs.$setTimeout(function()
 	{
 		$callback = $context.$callback;
 		$context.$abort();
@@ -115,6 +125,8 @@ function $QJsrs($URL, $POST)
 
 	if ($URL.indexOf($i)<0) $URL += $i;
 
+	$LOCAL = !(/^[^\/\?]+:/.test($URL));
+	$URL = $LOCAL && /^[^\\\/]/.test($URL) ? _GET.__ROOT__ + $URL : $URL;
 	$POST = $POST ? 1 : 0;
 
 	$this.replace = function($vararray, $function)
@@ -133,7 +145,7 @@ function $QJsrs($URL, $POST)
 
 		++$loadCounter;
 
-		$function = $function || $QJsrs.$emptyFunction;
+		$function = $function || $emptyFunction;
 
 		$url = '';
 		for ($i in $vararray) $url += '&' + eUC($i) + '=' + eUC($vararray[$i]); // Be aware that Konquerors for(..in..) loop does not preserve the order of declaration
@@ -146,15 +158,14 @@ function $QJsrs($URL, $POST)
 			else $this.onloading();
 
 			$context = $contextPool.length;
-			for ($i = 0; $i < $context; ++$i) if ( !$contextPool[$i].$busy && ($contextPool[$i].p&&1)==$POST ) break;
+			for ($i = 0; $i < $context; ++$i) if (!$contextPool[$i].$busy) break;
 			if ($i == $context) $contextPool[$i] = new $QJsrsContext('_' + $i), // The '_' prefix prevents confusion of frames['0'] and frames[0] for some browsers
 
 			'' + $function; // Dummy line, but if missing, both IE and Mozilla bug !?
 			$callback = $function;
 
 			$context = $contextPool[$i];
-			$context.p = $POST;
-			$context.$load($url, $release);
+			$context.$load($url, $release, $POST, $LOCAL);
 		}
 	}
 
@@ -177,7 +188,7 @@ function $QJsrs($URL, $POST)
 			$poolLen--;
 			$callback = $a[1];
 
-			return $abort ? $release(false, 1) : !$context.$load($a[0], $release);
+			return $abort ? $release(false, 1) : !$context.$load($a[0], $release, $POST, $LOCAL);
 		}
 
 		$callback = $context = 0;
@@ -186,11 +197,12 @@ function $QJsrs($URL, $POST)
 		if (!$loadCounter) $masterTimer = $QJsrs.$setTimeout($this.onloaded, 10);
 	}
 
-	$this.onloading = $this.onloaded = $QJsrs.$emptyFunction;
+	$this.onloading = $this.onloaded = $emptyFunction;
 }
 
 $QJsrs.$setTimeoutId = 0;
 $QJsrs.$setTimeoutPool = [];
+$QJsrs.onloading = $QJsrs.onloaded = $emptyFunction;
 
 return $QJsrs;
 
@@ -198,14 +210,9 @@ return $QJsrs;
 
 QJsrs.$setTimeout = function($function, $timeout, $i)
 {
-	if ($function)
-	{
-		$i = ++QJsrs.$setTimeoutId;
-		QJsrs.$setTimeoutPool[$i] = $function;
-		return setTimeout('QJsrs.$setTimeoutPool['+$i+']();QJsrs.$setTimeoutPool['+$i+']=null', $timeout);
-	}
+	$i = ++QJsrs.$setTimeoutId;
+	QJsrs.$setTimeoutPool[$i] = $function;
+	return setTimeout('QJsrs.$setTimeoutPool['+$i+']();QJsrs.$setTimeoutPool['+$i+']=null', $timeout);
 }
-
-QJsrs.onloading = QJsrs.onloaded = QJsrs.$emptyFunction = function() {};
 
 }
