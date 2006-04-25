@@ -3,12 +3,17 @@
 class agent_QJsrs extends agent_bin
 {
 	protected $data = array();
-	protected $from = array("\r", "\n", "'"  , '</'  );
-	protected $to   = array('\r', '\n', "\\'", '<\\/');
+	protected $from = array('\\'  , "\r", "\n", "'"  , '</'  );
+	protected $to   = array('\\\\', '\r', '\n', "\\'", '<\\/');
 
 	public function compose()
 	{
-		return (object) array('DATA' => '<script type="text/javascript">parent.loadQJsrs(this,' . $this->getJs($this->data) . ')</script>');
+		return (object) array(
+			'DATA' => '<script type="text/javascript">q="'
+				. str_replace(array('\\', '"'), array('\\\\', '\\"'), $this->getJs($this->data))
+				. '"</script>'
+				. '<script type="text/javascript" src="' . htmlspecialchars(CIA::__ROOT__()) . 'js/QJsrsHandler"></script>'
+		);
 	}
 
 	protected function getJs(&$data)
