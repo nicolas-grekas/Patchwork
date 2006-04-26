@@ -369,7 +369,7 @@ class CIA
 		return self::$cia->log($message, $is_end, $html);
 	}
 
-	public static function resolveAgentClass($agent)
+	public static function resolveAgentClass($agent, &$keys = false)
 	{
 		static $resolvedCache = array();
 
@@ -439,12 +439,12 @@ class CIA
 			}
 		}
 
-		if ($param)
+		if ($param && is_array($keys))
 		{
-			$_GET['__0__'] = implode('/', $param);
+			$keys['__0__'] = implode('/', $param);
 
 			$i = 0;
-			foreach ($param as $param) $_GET['__' . ++$i . '__'] = $param;
+			foreach ($param as $param) $keys['__' . ++$i . '__'] = $param;
 		}
 
 		$resolvedCache[$agent] = true;

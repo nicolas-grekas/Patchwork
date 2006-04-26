@@ -346,15 +346,39 @@ if (CIA_DIRECT)
 }
 else
 {
-	$agent = CIA::resolveAgentClass($_SERVER['CIA_REQUEST']);
-	$a = get_class_vars($agent);
+	$agent = CIA::resolveAgentClass($_SERVER['CIA_REQUEST'], $_GET);
 
+	if (isset($_GET['$k']))
+	{
+		function q($a)
+		{
+			return "'" . str_replace(
+				array("\r\n", "\r", '\\',   "\n", "'"),
+				array("\n"  , "\n", '\\\\', '\n', "\\'"),
+				$a
+			) . "'";
+		}
+
+		CIA::header('Content-Type: text/javascript; charset=UTF-8');
+
+		echo 'w.k(',
+				q( CIA::__HOST__() . CIA::__ROOT__() ), ',',
+				q( 'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)) ), ',',
+				q( @$_GET['__0__'] ), ',',
+				'[', implode(',', array_map('q', CIA::agentArgv($agent))), ']',
+			')';
+
+		CIA::setMaxage(-1);
+		exit;
+	}
+
+	$a = get_class_vars($agent);
 	$binaryMode = (bool) $a['binary'];
 	CIA::setBinaryMode($binaryMode);
 
 	/*
 	 * Both Firefox and IE send a "Cache-Control: no-cache" request header
-	 * only and only if the current page is reloaded with the JavaScript code :
+	 * only and only if the current page is reloaded with CTRL+F5 or the JS code :
 	 * "location.reload(true)". We use this behaviour to trigger a cache reset
 	 * when the cache is detected stale by the browser.
 	 */
