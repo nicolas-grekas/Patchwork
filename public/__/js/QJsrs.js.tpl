@@ -18,18 +18,18 @@
 * Cancel the callback pool with varname.abort()
 */
 
-if (!self.QJsrs)
+$win = self;
+
+if (!$win.QJsrs)
 {
 
 function $emptyFunction() {};
 document.write('<div id="divQJsrs" style="position:absolute;visibility:hidden"></div>');
 
-// First preload the XMLHttp object and speed up its first real use
-QJsrs = self.XMLHttpRequest
-	? new XMLHttpRequest && 3
-	: self.ActiveXObject
-		? new ActiveXObject('Microsoft.XMLHTTP') && 2
-		: 1;
+// Preload the XMLHttp object and detects browser capabilities.
+QJsrs = $win.ScriptEngineMajorVersion;
+if (QJsrs && QJsrs() >= 5) eval('try{QJsrs=new ActiveXObject("Microsoft.XMLHTTP")&&2}catch(QJsrs){QJsrs=1}');
+else QJsrs = $win.XMLHttpRequest ? new XMLHttpRequest && 3 : 1;
 
 QJsrs = (function()
 {
@@ -38,7 +38,7 @@ var $contextPool = [],
 	$loadCounter = 0,
 	$masterTimer = 0,
 	$document = 0,
-	$emptyFunction = self.$emptyFunction,
+	$emptyFunction = $win.$emptyFunction,
 	$XMLHttp = QJsrs - 1;
 
 function $QJsrsContext($name)
@@ -101,7 +101,7 @@ function $QJsrsContext($name)
 	}
 }
 
-self.loadQJsrs = function($context, $result, $callback)
+$win.loadQJsrs = function($context, $result, $callback)
 {
 	$context = $contextPool[ parseInt($context.name.substr(1)) ];
 
