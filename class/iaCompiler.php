@@ -2,6 +2,8 @@
 
 abstract class iaCompiler
 {
+	protected $watch;
+
 	private $Xlvar = '\\{';
 	private $Xrvar = '\\}';
 
@@ -40,6 +42,8 @@ abstract class iaCompiler
 
 	public function __construct($binaryMode)
 	{
+		CIA::watch($this->watch);
+
 		$this->binaryMode = $binaryMode;
 		$this->Xvar .= $this->XpureVar;
 
@@ -55,7 +59,6 @@ abstract class iaCompiler
 		$this->XmodifierPipe = "\\|{$this->Xmodifier}(?::(?:{$this->Xexpression})?)*";
 
 		$this->XfullVar = "({$this->Xexpression}|{$this->Xmodifier}(?::(?:{$this->Xexpression})?)+)((?:{$this->XmodifierPipe})*)";
-
 	}
 
 	final public function compile($template)

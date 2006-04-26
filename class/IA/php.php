@@ -82,7 +82,7 @@ class IA_php
 
 	protected static function compose($agentClass)
 	{
-		CIA::openMeta();
+		CIA::openMeta($agentClass);
 
 		$a = self::$args = (object) $_GET;
 		$g = self::$get;
@@ -124,10 +124,12 @@ class IA_php
 		{
 			if (!file_exists($ctemplate))
 			{
+				CIA::openMeta('agent__template/' . $template, false);
 				$compiler = new iaCompiler_php($agent->binary);
 				$ftemplate = '<?php function ' . $ftemplate . '(&$v, &$a, &$g){$d=$v;' . $compiler->compile($template . '.tpl') . '} ' . $ftemplate . '($v, $a, $g);';
 				CIA::writeFile($ctemplate,  $ftemplate);
-				CIA::writeWatchTable('public/templates/php', $ctemplate);
+				list(,,, $watch) = CIA::closeMeta();
+				CIA::writeWatchTable($watch, $ctemplate);
 			}
 
 			require $ctemplate;

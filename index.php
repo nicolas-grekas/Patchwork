@@ -289,7 +289,6 @@ if (CIA_DIRECT)
 			$template = array_shift($_GET);
 			$template = str_replace('\\', '/', $template);
 			$template = str_replace('../', '/', $template);
-			CIA::$agentClass = 'agent__template/' . $template;
 
 			echo 'w(0';
 
@@ -297,10 +296,12 @@ if (CIA_DIRECT)
 			if (file_exists($ctemplate)) readfile($ctemplate);
 			else
 			{
+				CIA::openMeta('agent__template/' . $template, false);
 				$compiler = new iaCompiler_js(false);
 				echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
 				CIA::writeFile($ctemplate, $template);
-				CIA::writeWatchTable('public/templates/js', $ctemplate);
+				list(,,, $watch) = CIA::closeMeta();
+				CIA::writeWatchTable($watch, $ctemplate);
 			}
 
 			CIA::setMaxage(-1);
