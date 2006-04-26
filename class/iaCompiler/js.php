@@ -13,6 +13,8 @@ define('pC_NEXT',	'9');
 
 class iaCompiler_js extends iaCompiler
 {
+	protected $watch = 'public/templates/js';
+
 	protected $serverMode = false;
 	protected $setStack = array();
 	protected $stack = array();

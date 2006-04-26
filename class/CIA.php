@@ -130,11 +130,12 @@ class CIA
 		if ($exit) exit;
 	}
 
-	public static function openMeta()
+	public static function openMeta($agentClass, $is_trace = true)
 	{
-		self::$agentClasses .= '*' . self::$agentClass;
+		self::$agentClass = $agentClass = str_replace('_', '/', $agentClass);
+		if ($is_trace) self::$agentClasses .= '*' . self::$agentClass;
 
-		$default = array(false, false, false, array(), array(), false);
+		$default = array(false, false, false, array(), array(), false, self::$agentClass);
 
 		self::$catchMeta = true;
 
@@ -150,8 +151,12 @@ class CIA
 
 		$len = count(self::$metaPool);
 
-		if ($len) self::$metaInfo =& self::$metaPool[$len-1];
-		else self::$metaInfo = null;
+		if ($len)
+		{
+			self::$metaInfo =& self::$metaPool[$len-1];
+			self::$agentClass = self::$metaInfo[6];
+		}
+		else self::$agentClass = self::$metaInfo = null;
 
 		return $poped;
 	}
@@ -485,8 +490,6 @@ class CIA
 	{
 		$cagent = '_';
 		foreach ($keys as $key => $value) $cagent .= '&' . rawurlencode($key) . '=' . rawurlencode($value);
-
-		self::$agentClass = $agentClass = str_replace('_', '/', $agentClass);
 
 		return self::makeCacheDir($agentClass . '/_/', $type . '.php', $cagent);
 	}
