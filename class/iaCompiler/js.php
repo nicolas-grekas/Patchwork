@@ -234,6 +234,7 @@ class iaCompiler_js extends iaCompiler
 			case 'a':
 			case 'g':
 				$result = ''!==(string) $prefix ? "z('$name',$prefix" .( $type=='g' ? ',1' : '' ). ')' : ($type . $this->getJsAccess($name));
+				if ('g.__ROOT__' == $result) $result = 'r';
 				break;
 
 			case '':

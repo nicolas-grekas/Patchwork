@@ -173,6 +173,8 @@ w = function($rootAgent, $keys, $CIApID)
 
 		a, d, v, g,
 
+		r = {toString: function() {return g.__ROOT__}},
+
 		$lastInclude = '',
 		$includeCache = {};
 
@@ -211,7 +213,7 @@ w = function($rootAgent, $keys, $CIApID)
 
 		<!-- IF g$__DEBUG__ -->
 		if (DEBUG) E({
-			'Agent': dUC(('['+$lastInclude.substr(_GET.__ROOT__.length + 2)).replace(/&/g, ', [').replace(/=/g, '] = ')),
+			'Agent': dUC(('['+$lastInclude.substr(g.__ROOT__.length + 2)).replace(/&/g, ', [').replace(/=/g, '] = ')),
 			'Arguments': a,
 			'Data': DEBUG-1 ? $context : ''
 		});
@@ -321,6 +323,7 @@ w = function($rootAgent, $keys, $CIApID)
 
 		function $evalNext()
 		{
+			var r = r;
 			return eval('$i=' + $code[$pointer++]);
 		}
 
