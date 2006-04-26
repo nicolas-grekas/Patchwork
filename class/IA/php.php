@@ -22,7 +22,7 @@ class IA_php
 		self::$get =& $f;
 
 		ob_start();
-		IA_php::loadAgent(CIA::resolveAgentClass($agent), $false);
+		IA_php::loadAgent(CIA::resolveAgentClass($agent, $_GET), $false);
 		$agent = ob_get_contents();
 
 		$_GET =& $a;
@@ -70,7 +70,7 @@ class IA_php
 				foreach ($data as $k => $v) $args[$k] = $v;
 			}
 
-			$agent = CIA::resolveAgentClass($agent);
+			$agent = CIA::resolveAgentClass($agent, $_GET);
 		}
 
 		self::compose($agent);
