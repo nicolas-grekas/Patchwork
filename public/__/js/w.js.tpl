@@ -323,7 +323,6 @@ w = function($rootAgent, $keys, $CIApID)
 
 		function $evalNext()
 		{
-			var r = r;
 			return eval('$i=' + $code[$pointer++]);
 		}
 
