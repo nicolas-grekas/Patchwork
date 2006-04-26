@@ -34,7 +34,7 @@ class iaMail extends Mail_mime
 
 		$this->options = $options;
 
-		$this->_build_params['text_encoding'] = '8bit';
+		$this->_build_params['text_encoding'] = 'quoted-printable';
 		$this->_build_params['html_charset'] = 'UTF-8';
 		$this->_build_params['text_charset'] = 'UTF-8';
 		$this->_build_params['head_charset'] = 'UTF-8';

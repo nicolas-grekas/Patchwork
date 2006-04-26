@@ -132,8 +132,8 @@ else
 				$document = document;
 				$value = q[2];
 
-				$form = '<form accept-charset="UTF-8" action="" method="post">';
-				for ($i in $value) $form += '<input>';
+				$form = '<form accept-charset="UTF-8" method="post">';
+				for ($i in $value) $form += '<input />';
 				$document.write($form + '</form>');
 
 				onload = function()
