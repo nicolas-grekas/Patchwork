@@ -79,7 +79,7 @@ class IA_js
 				$compiler = new iaCompiler_js($agent->binary);
 				echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
 				CIA::writeFile($ctemplate, $template);
-				CIA::writeWatchTable('public/templates', $ctemplate);
+				CIA::writeWatchTable('public/templates/js', $ctemplate);
 			}
 		}
 		else echo ',[1,"g.__ROOT__+', self::formatJs(self::formatJs($template = '_?t=' . $template), false, '"', false), '",0,0,0])';
@@ -99,7 +99,7 @@ class IA_js
 
 			CIA::writeFile($cagent, $data, 'ontouch' == $expires && $watch ? CIA_MAXAGE : $maxage);
 
-			if ($maxage==CIA_MAXAGE) $watch[] = 'public/templates';
+			if ($maxage==CIA_MAXAGE) $watch[] = 'public/templates/js';
 			CIA::writeWatchTable($watch, $cagent);
 		}
 	}

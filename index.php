@@ -5,7 +5,7 @@ $CONFIG += array(
 	'lang_list' => 'fr',
 	'DSN' => '',
 
-	'deny_debug' => false,
+	'allow_debug' => false,
 
 	'translate_driver' => 'default_',
 	'translate_params' => array(),
@@ -86,22 +86,24 @@ if (!isset($_SERVER['CIA']))
 
 /* Config initialisation */
 
-# This need more though ...
+# This may need more though ...
 putenv('LC_ALL=en_US.UTF-8');
 setlocale(LC_ALL, 'en_US.UTF-8');
 
-define('DEBUG',			$CONFIG['deny_debug'] ? 0 : (int) @$_COOKIE['DEBUG']);
+define('DEBUG',			$CONFIG['allow_debug'] ? (int) @$_COOKIE['DEBUG'] : 0);
 define('CIA_MAXAGE',	$CONFIG['maxage']);
 define('CIA_TIME', time());
 define('CIA_PROJECT_ID', $version_id % 1000);
 define('CIA_POSTING', $_SERVER['REQUEST_METHOD']=='POST');
 define('CIA_DIRECT', !CIA_POSTING && $_SERVER['CIA_REQUEST'] == '_');
 
+isset($_SERVER['REQUEST_TIME']) || $_SERVER['REQUEST_TIME'] = CIA_TIME;
+
 
 /* Include Path Initialisation */
 
 $p = dirname(__FILE__);
-defined('CIA_PROJECT_PATH') || define('CIA_PROJECT_PATH', $p) && ($cia_paths = array()) || ($version_id = 0);
+defined('CIA_PROJECT_PATH') || define('CIA_PROJECT_PATH', $p) && $cia_paths = array() || $version_id = 0;
 $version_id += filemtime(__FILE__);
 $cia_paths[] = $p;
 
@@ -298,7 +300,7 @@ if (CIA_DIRECT)
 				$compiler = new iaCompiler_js(false);
 				echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
 				CIA::writeFile($ctemplate, $template);
-				CIA::writeWatchTable('public/templates', $ctemplate);
+				CIA::writeWatchTable('public/templates/js', $ctemplate);
 			}
 
 			CIA::setMaxage(-1);
@@ -362,6 +364,7 @@ else
 		CIA::header('Content-Type: text/javascript; charset=UTF-8');
 
 		echo 'w.k(',
+				CIA_PROJECT_ID, ',',
 				q( CIA::__HOST__() . CIA::__ROOT__() ), ',',
 				q( 'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)) ), ',',
 				q( @$_GET['__0__'] ), ',',
@@ -383,16 +386,20 @@ else
 	 * when the cache is detected stale by the browser.
 	 */
 	if (
-		DEBUG && !$binaryMode
+		( (DEBUG && !$binaryMode) || (isset($_COOKIE['cache_reset_id']) && setcookie('cache_reset_id')) )
 		&& !CIA_POSTING
-		&& 'no-cache' == @$_SERVER['HTTP_CACHE_CONTROL']
-		&& 0 === strpos(@$_SERVER['HTTP_USER_AGENT'], 'Mozilla') )
+		&& 'no-cache' == @$_SERVER['HTTP_CACHE_CONTROL'] )
 	{
-		$h = touch('./index.php');
+		if (DEBUG && !$binaryMode)
+		{
+			touch('./index.php');
 
-		CIA::delCache();
+			CIA::delCache();
+		}
+		else if ($_COOKIE['cache_reset_id'] == CIA_PROJECT_ID) CIA::touch('foreignTrace');
 
 		echo '<script type="text/javascript">/*<![CDATA[*/self.ScriptEngine ? location.replace(location) : location.reload()/*]]>*/</script>';
+
 		exit;
 	}
 

@@ -194,15 +194,16 @@ class CIA
 	/**
 	 * Controls the Cache Control headers.
 	 */
-	public static function setExpires($expires, $watch = false)
+	public static function setExpires($expires)
 	{
 		self::$expires = $expires;
 
-		if (self::$catchMeta)
-		{
-			self::$metaInfo[2] = $expires;
-			if ($watch) self::$metaInfo[3] += (array) $watch;
-		}
+		if (self::$catchMeta) self::$metaInfo[2] = $expires;
+	}
+
+	public static function watch($watch)
+	{
+		if (self::$catchMeta) self::$metaInfo[3] += (array) $watch;
 	}
 
 	public static function canPost()
@@ -714,7 +715,8 @@ class agent_
 	{
 		CIA::setMaxage($this->maxage);
 		CIA::setPrivate($this->private);
-		CIA::setExpires($this->expires, $this->watch);
+		CIA::setExpires($this->expires);
+		CIA::watch($this->watch);
 	}
 
 	private function populateArgv(&$a, $key, $args)
