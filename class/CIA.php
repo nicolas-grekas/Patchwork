@@ -348,18 +348,7 @@ class CIA
 	{
 		static $prefixKey = false;
 
-		if (!$prefixKey)
-		{
-			$prefixKey = md5(
-				CIA_PROJECT_ID . '-' .
-				self::__ROOT__() . '-' .
-				self::$host . '-' .
-				self::$lang . '-' .
-				DEBUG
-			);
-
-			$prefixKey = substr($prefixKey, -8);
-		}
+		if (!$prefixKey) $prefixKey = substr(md5(self::$host .'-'. self::$lang .'-'. self::__ROOT__() .'-'. DEBUG), -8);
 
 		if ($key!=='')
 		{
@@ -491,7 +480,7 @@ class CIA
 		$cagent = '_';
 		foreach ($keys as $key => $value) $cagent .= '&' . rawurlencode($key) . '=' . rawurlencode($value);
 
-		return self::makeCacheDir($agentClass . '/_/', $type . '.php', $cagent);
+		return self::makeCacheDir(str_replace('_', '/', $agentClass) . '/_/', $type . '.php', $cagent);
 	}
 
 	public static function delCache()
@@ -662,7 +651,6 @@ class CIA
 			if ($is304)
 			{
 				header('HTTP/1.x 304 Not Modified');
-				header('Content-Type:'); // This prevents PHP from sending wrong Content-Type: text/html
 
 				$buffer = '';
 			}

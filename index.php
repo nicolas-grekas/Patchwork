@@ -134,7 +134,6 @@ if (@$_SERVER['HTTP_IF_NONE_MATCH']{0} == '/' && preg_match("'^/[0-9a-f]{32}-([0
 	{
 		header('HTTP/1.x 304 Not Modified');
 		header('Content-Length: 0');
-		header('Content-Type:'); // This prevents PHP from sending wrong Content-Type: text/html
 		if ($headers)
 		{
 			$headers = explode("\n", $headers, 3);
@@ -394,10 +393,13 @@ else
 		if (DEBUG && !$binaryMode)
 		{
 			touch('./index.php');
-
 			CIA::delCache();
 		}
-		else if ($_COOKIE['cache_reset_id'] == CIA_PROJECT_ID) CIA::touch('foreignTrace');
+		else if ($_COOKIE['cache_reset_id'] == CIA_PROJECT_ID)
+		{
+			touch('./index.php');
+			CIA::touch('foreignTrace');
+		}
 
 		echo '<script type="text/javascript">/*<![CDATA[*/self.ScriptEngine ? location.replace(location) : location.reload()/*]]>*/</script>';
 
