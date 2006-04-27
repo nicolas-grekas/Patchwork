@@ -83,7 +83,7 @@ class IA_js
 				$watch += $template;
 			}
 		}
-		else echo ',[1,"g.__ROOT__+', self::formatJs(self::formatJs($template = '_?t=' . $template), false, '"', false), '",0,0,0])';
+		else echo ',[1,"', self::formatJs(self::formatJs($template), false, '"', false), '",0,0,1])';
 
 		if (!$private && ($maxage || ('ontouch' == $expires && $watch)))
 		{

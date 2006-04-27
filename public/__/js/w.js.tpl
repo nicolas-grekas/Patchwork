@@ -158,6 +158,8 @@ if ((topwin = self).Error)
 
 w = function($rootAgent, $keys, $CIApID)
 {
+	$CIApID /= 1;
+
 	var $document = document,
 
 		$buffer = '',
@@ -234,14 +236,14 @@ w = function($rootAgent, $keys, $CIApID)
 
 					$i = $i.join('');
 
-					if ($i) return $include(g.__ROOT__ + '_?p=' + $i.substr(1), 0, 0, 1);
+					if ($i) return $include(g.__ROOT__ + '_?p=' + esc($i.substr(1)), 0, 0, 1);
 					break;
 
 				case 1: // agent
 					var $agent = $evalNext(),
 						$args = $evalNext(),
-						$isAgent = $code[$pointer++],
 						$keys = $code[$pointer++],
+						$meta = $code[$pointer++],
 						$data;
 
 					if (!t($agent))
@@ -257,19 +259,13 @@ w = function($rootAgent, $keys, $CIApID)
 
 						$agent = $data['*a'];
 						eval('$keys='+$data['*k']);
-						delete $data['*a'];
-						delete $data['*k'];
 
-						for ($i in $data) if ($i!='$') $args[$i] = $data[$i];
+						for ($i in $data) if (/^[^\$\*]/.test($i)) $args[$i] = $data[$i];
 					}
 
-					return $include(
-						$isAgent
-							? g.__ROOT__ + '_?$=' + eUC(($agent||$rootAgent).replace(/\\/g, '/'))
-							: $agent,
-						$args,
-						$keys
-					);
+					$agent = g.__ROOT__ + ($meta ? '_?t=' : '_?$=') + esc($agent || $rootAgent);
+
+					return $include($agent, $args, $keys);
 
 				case 2: // echo
 					$echo( $code[$pointer++] );
@@ -349,14 +345,14 @@ w = function($rootAgent, $keys, $CIApID)
 					{
 						for ($i=0; $i<$keys.length; ++$i)
 							if (($j = $keys[$i]) && t($args[$j]))
-								$inc += '&' + eUC($j) + '=' + eUC($args[$j]);
+								$inc += '&amp;' + eUC($j) + '=' + eUC($args[$j]);
 					}
 					else
 						for ($i in $args)
-							$inc += '&' + eUC($i) + '=' + eUC($args[$i]);
+							$inc += '&amp;' + eUC($i) + '=' + eUC($args[$i]);
 
 					a = $args;
-					$include($inc);
+					$include($inc + '&amp;$' + 'v=' + $CIApID);
 				}
 				else
 				{
@@ -364,7 +360,7 @@ w = function($rootAgent, $keys, $CIApID)
 
 					if (t($includeCache[$inc])) w($includeCache[$inc][0], $includeCache[$inc][1]);
 					else
-						$buffer += '<script type="text/javascript" src="' + esc($inc + '&$' + 'v=' + $CIApID) + '"></script >',
+						$buffer += '<script type="text/javascript" src="' + $inc + '"></script >',
 						w.f();
 				}
 			}
@@ -402,6 +398,10 @@ w = function($rootAgent, $keys, $CIApID)
 			},
 
 			$document.close();
+	}
+
+	w.k = function($id, $root, $agent, $__0__, $keys)
+	{
 	}
 
 	w.x = function($data)
@@ -513,7 +513,7 @@ w = function($rootAgent, $keys, $CIApID)
 
 	self._GET = g;
 
-	if ($keys) w(0, [1, '0', 'g', 1, $keys]);
+	if ($keys) w(0, [1, '0', 'g', $keys, 0]);
 }
 
 if (self.ScriptEngine) addOnload(function()
