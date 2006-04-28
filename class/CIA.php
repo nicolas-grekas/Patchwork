@@ -719,14 +719,13 @@ class agent_
 		}
 		else $default = '';
 
-		$a = explode(':', $a);
+		$a = explode(':', $a, 3);
 		$key = array_shift($a);
 
 		$args = @$args->$key;
 
 		if ($a)
 		{
-			$a = array_map('rawurldecode', $a);
 			$args = VALIDATE::get($args, array_shift($a), $a);
 			if (false === $args) $args = $default;
 		}
