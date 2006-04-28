@@ -63,16 +63,24 @@ class iaCompiler_js extends iaCompiler
 		$this->pushCode('');
 
 		$keys = false;
+		$meta = 0;
+
 		if ("'" == substr($inc, 0, 1))
 		{
-			eval("\$keys=$inc;");
+			eval("\$inc=$inc;");
 
-			if ($keys = CIA::agentArgv( CIA::resolveAgentClass($keys, $args) ))
+			list($CIApID, $root, $inc, $keys) = CIA::resolveAgentTrace($inc, $args);
+
+			$this->quote($inc);
+
+			array_walk($keys, array($this, 'quote'));
+			$keys = implode(',', $keys);
+
+			if (false !== $root)
 			{
-				array_walk($keys, array($this, 'quote'));
-				$keys = implode(',', $keys);
+				$meta = array($CIApID, $this->quote($root));
+				$meta = '[' . implode(',', $meta) . ']';
 			}
-			else $keys = '';
 		}
 
 		$a = '';
@@ -84,7 +92,7 @@ class iaCompiler_js extends iaCompiler
 		}
 		$a = '{' . $a . '}';
 
-		array_push($this->code, pC_AGENT, $this->quote($inc), $this->quote($a), $keys===false ? 0 : "[$keys]", 0);
+		array_push($this->code, pC_AGENT, $this->quote($inc), $this->quote($a), $keys===false ? 0 : "[$keys]", $meta);
 
 		return true;
 	}

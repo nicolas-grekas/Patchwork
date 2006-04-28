@@ -178,7 +178,9 @@ w = function($rootAgent, $keys, $CIApID)
 		r = {toString: function() {return g.__ROOT__}},
 
 		$lastInclude = '',
-		$includeCache = {};
+		$includeCache = {},
+		
+		$tierDepth = 0;
 
 /*
 *		a : arguments
@@ -196,7 +198,7 @@ w = function($rootAgent, $keys, $CIApID)
 	{
 		if (!t($context)) return;
 
-		var $pointer = 0, $arguments = a;
+		var $pointer = 0, $arguments = a, $localCIApID = $CIApID, $CIApID_backup, $ROOT_backup;
 
 		<!-- IF g$__DEBUG__ -->var DEBUG = $i = 0;<!-- END:IF -->
 
@@ -215,7 +217,7 @@ w = function($rootAgent, $keys, $CIApID)
 
 		<!-- IF g$__DEBUG__ -->
 		if (DEBUG) E({
-			'Agent': dUC(('['+$lastInclude.substr(g.__ROOT__.length + 2)).replace(/&/g, ', [').replace(/=/g, '] = ')),
+			'Agent': dUC(('['+$lastInclude.substr(g.__ROOT__.length + 2)).replace(/&(amp;)?/g, ', [').replace(/=/g, '] = ')),
 			'Arguments': a,
 			'Data': DEBUG-1 ? $context : ''
 		});
@@ -226,6 +228,14 @@ w = function($rootAgent, $keys, $CIApID)
 			$pointer || ($WexecStack[++$WexecLast] = $execute);
 			a = $arguments;
 			v = $context;
+
+			if ($ROOT_backup)
+			{
+				$localCIApID = $CIApID_backup;
+				g.__ROOT__ = $ROOT_backup;
+				$ROOT_backup = 0;
+				--$tierDepth;
+			}
 
 			while ($code[$pointer]>='') switch ($code[$pointer++])
 			{
@@ -261,9 +271,25 @@ w = function($rootAgent, $keys, $CIApID)
 						eval('$keys='+$data['*k']);
 
 						for ($i in $data) if (/^[^\$\*]/.test($i)) $args[$i] = $data[$i];
+
+						if ($data['*r']) $meta = [$data['*v'], $data['*r']];
 					}
 
-					$agent = g.__ROOT__ + ($meta ? '_?t=' : '_?$=') + esc($agent || $rootAgent);
+					if (1 == $meta) $agent = g.__ROOT__ + '_?t=' + esc($agent);
+					else
+					{
+						if ($meta)
+						{
+							++$tierDepth;
+							$CIApID_backup = $localCIApID;
+							$ROOT_backup = g.__ROOT__;
+
+							$localCIApID = $meta[0]/1;
+							g.__ROOT__ = esc($meta[1]);
+						}
+
+						$agent = g.__ROOT__ + '_?$=' + esc($agent);
+					}
 
 					return $include($agent, $args, $keys);
 
@@ -352,7 +378,7 @@ w = function($rootAgent, $keys, $CIApID)
 							$inc += '&amp;' + eUC($i) + '=' + eUC($args[$i]);
 
 					a = $args;
-					$include($inc + '&amp;$' + 'v=' + $CIApID);
+					$include($inc + '&amp;$' + 'v=' + $localCIApID);
 				}
 				else
 				{
@@ -402,6 +428,12 @@ w = function($rootAgent, $keys, $CIApID)
 
 	w.k = function($id, $root, $agent, $__0__, $keys)
 	{
+	}
+
+	w.r = function()
+	{
+		if ($tierDepth) setcookie('cache_reset_id', $CIApID);
+		location.reload(true);
 	}
 
 	w.x = function($data)
@@ -513,7 +545,7 @@ w = function($rootAgent, $keys, $CIApID)
 
 	self._GET = g;
 
-	if ($keys) w(0, [1, '0', 'g', $keys, 0]);
+	if ($keys) w(0, [1, '$rootAgent', 'g', $keys, 0]);
 }
 
 if (self.ScriptEngine) addOnload(function()

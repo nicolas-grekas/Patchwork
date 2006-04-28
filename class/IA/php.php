@@ -62,15 +62,36 @@ class IA_php
 
 			if ($agent instanceof loop && CIA::string($agent))
 			{
+				$agent->autoResolve = false;
+
 				while ($i =& $agent->compose()) $data =& $i;
 
 				$agent = $data->{'*a'};
 
-				self::escape($data);
-				foreach ($data as $k => $v) $args[$k] = $v;
+				foreach ($data as $k => $v) $args[$k] = is_string($v) ? htmlspecialchars($v) : $v;
 			}
 
-			$agent = CIA::resolveAgentClass($agent, $_GET);
+			$k = CIA::__HOST__();
+			$ROOT = $k . CIA::__ROOT__();
+
+			if ('/' == substr($agent, 0, 1)) $agent = $k . $agent;
+
+			if (0 === strpos($agent, $ROOT)) $agent = substr($agent, strlen($ROOT));
+			else if (preg_match("'^https?://'", $agent))
+			{
+				require_once 'HTTP/Request.php';
+				$agent = new HTTP_Request($agent);
+				foreach ($args as $k => $v) $agent->addQueryString($k, str_replace(array('&gt;', '&lt;', '&quot;', '&amp;'), array('>', '<', '"', '&'), CIA::string($v)));
+
+				$agent->sendRequest();
+
+				echo $agent->getResponseBody();
+
+				$_GET =& $a;
+				return;
+			}
+
+			$agent = CIA::resolveAgentClass($agent, $args);
 		}
 
 		self::compose($agent);

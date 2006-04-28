@@ -83,7 +83,7 @@ class CIA
 
 	public static function getUri($url)
 	{
-		if (!preg_match("'^https?://'iu", $url))
+		if (!preg_match("'^https?://'", $url))
 		{
 			if ('/' != substr($url, 0, 1)) $url = self::__ROOT__() . $url;
 
@@ -364,7 +364,7 @@ class CIA
 		return self::$cia->log($message, $is_end, $html);
 	}
 
-	public static function resolveAgentClass($agent, &$keys = false)
+	public static function resolveAgentClass($agent, &$args)
 	{
 		static $resolvedCache = array();
 
@@ -434,12 +434,12 @@ class CIA
 			}
 		}
 
-		if ($param && is_array($keys))
+		if ($param)
 		{
-			$keys['__0__'] = implode('/', $param);
+			$args['__0__'] = implode('/', $param);
 
 			$i = 0;
-			foreach ($param as $param) $keys['__' . ++$i . '__'] = $param;
+			foreach ($param as $param) $args['__' . ++$i . '__'] = $param;
 		}
 
 		$resolvedCache[$agent] = true;
@@ -465,6 +465,47 @@ class CIA
 		else $agent = array();
 
 		return $agent;
+	}
+
+	public static function resolveAgentTrace($agent, &$args)
+	{
+		$a = self::__HOST__();
+		$ROOT = $root = $a . self::__ROOT__();
+
+		if ('/' == substr($agent, 0, 1)) $agent = $a . $agent;
+
+		if (0 === strpos($agent, $ROOT)) $agent = substr($agent, strlen($ROOT));
+		else if (preg_match("'^https?://'", $agent))
+		{
+			require_once 'HTTP/Request.php';
+			$keys = new HTTP_Request($agent . (false !== strpos($agent, '?') ? '&' : '?') . '$k');
+			$keys->sendRequest();
+			$keys = $keys->getResponseBody();
+			$keys = explode("\n", $keys);
+			$keys = array_map('rawurldecode', $keys);
+
+			$CIApID = array_shift($keys);
+			$root = array_shift($keys);
+			$agent = array_shift($keys);
+			$a = array_shift($keys);
+
+			if ('' !== $a)
+			{
+				$args['__0__'] = $a;
+
+				$i = 0;
+				foreach (explode('/', $a) as $a) $args['__' . ++$i . '__'] = $a;
+			}
+		}
+
+		if ($root == $ROOT)
+		{
+			return array(false, false, $agent,  self::agentArgv(self::resolveAgentClass($agent, $args)) );
+		}
+		else
+		{
+			return array((int) $CIApID, $root, $agent, $keys);
+		}
 	}
 
 	protected static function stripArgv(&$a, $k)
