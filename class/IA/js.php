@@ -36,9 +36,11 @@ class IA_js
 
 		echo 'w({';
 
-		CIA::openMeta($agentClass);
 
 		$agentClass = CIA::resolveAgentClass($agent, $_GET);
+
+		CIA::openMeta($agentClass);
+
 		$agent = new $agentClass($_GET);
 
 		$cagent = CIA::agentCache($agentClass, $agent->argv, 'js');

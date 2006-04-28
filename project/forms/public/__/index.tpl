@@ -15,6 +15,8 @@ span.errormsg
 
 {$test}
 
+<!-- AGENT 'http://localhost/cia/annuaire.php/fr/widget/checklist' -->
+
 <!-- AGENT $form _mode_='errormsg' -->
 
 <!-- AGENT $form -->

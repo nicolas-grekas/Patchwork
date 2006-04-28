@@ -2,6 +2,8 @@
 
 class loop_callAgent extends loop
 {
+	public $autoResolve = true;
+
 	protected $agent;
 	protected $keys;
 
@@ -25,20 +27,29 @@ class loop_callAgent extends loop
 				$data = $this->get();
 				$data->{'*a'} = $this->agent;
 
-				if (!isset($this->keys))
+				if ($this->autoResolve)
 				{
-					$a = CIA::agentArgv( CIA::resolveAgentClass($this->agent) );
+					if (!isset($this->keys) || preg_match("'^(/|https?://)'", $this->agent))
+					{
+						list($CIApID, $root, $data->{'*a'}, $a) = CIA::resolveAgentTrace($this->agent, $data);
 
-					array_walk($a, array('IA_js', 'formatJs'));
+						array_walk($a, array('IA_js', 'formatJs'));
 
-					$data->{'*k'} = '[' . implode(',', $a) . ']';
+						$data->{'*k'} = '[' . implode(',', $a) . ']';
+					
+						if (false !== $root)
+						{
+							$data->{'*v'} = $CIApID;
+							$data->{'*r'} = $root;						
+						}
+					}
+					else $data->{'*k'} = $this->keys;
 				}
-				else $data->{'*k'} = $this->keys;
 
 				$this->data = $data;
 			}
 
-			return $this->data;
+			return clone $this->data;
 		}
 		else
 		{

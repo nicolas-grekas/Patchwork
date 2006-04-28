@@ -5,7 +5,7 @@ $CONFIG += array(
 	'lang_list' => 'fr',
 	'DSN' => '',
 
-	'allow_debug' => false,
+	'allow_debug' => true,
 
 	'translate_driver' => 'default_',
 	'translate_params' => array(),
@@ -339,7 +339,7 @@ if (CIA_DIRECT)
 			if (isset($_GET['$v']) && CIA_PROJECT_ID != $_GET['$v'])
 			{
 				CIA::header('Content-Type: text/javascript; charset=UTF-8');
-				echo 'location.reload(true)';
+				echo 'w.r()';
 			}
 			else IA_js::compose(array_shift($_GET));
 
@@ -352,26 +352,21 @@ else
 
 	if (isset($_GET['$k']))
 	{
-		function q($a)
-		{
-			return "'" . str_replace(
-				array("\r\n", "\r", '\\',   "\n", "'"),
-				array("\n"  , "\n", '\\\\', '\n', "\\'"),
-				$a
-			) . "'";
-		}
-
-		CIA::header('Content-Type: text/javascript; charset=UTF-8');
-
-		echo 'w.k(',
-				CIA_PROJECT_ID, ',',
-				q( CIA::__HOST__() . CIA::__ROOT__() ), ',',
-				q( 'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)) ), ',',
-				q( @$_GET['__0__'] ), ',',
-				'[', implode(',', array_map('q', CIA::agentArgv($agent))), ']',
-			')';
-
+		CIA::header('Content-Type: text/plain; charset=UTF-8');
 		CIA::setMaxage(-1);
+
+		$data = array(
+			CIA_PROJECT_ID,
+			CIA::__HOST__() . CIA::__ROOT__(),
+			'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)),
+			@$_GET['__0__']
+		);
+
+		$data += CIA::agentArgv($agent);
+
+		function q($a) {return str_replace(array('%', "\n"), array('%25', '%0A'), $a);}
+		echo implode("\n", array_map('q', $data));
+
 		exit;
 	}
 
