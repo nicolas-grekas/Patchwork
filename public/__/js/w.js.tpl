@@ -285,7 +285,7 @@ w = function($rootAgent, $keys, $CIApID)
 							$ROOT_backup = g.__ROOT__;
 
 							$localCIApID = $meta[0]/1;
-							g.__ROOT__ = esc($meta[1]);
+							g.__ROOT__ = esc($meta[1]).replace(/__/, g.__LANG__);
 						}
 
 						$agent = g.__ROOT__ + '_?$=' + esc($agent);

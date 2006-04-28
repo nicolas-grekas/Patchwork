@@ -80,6 +80,7 @@ class IA_php
 			else if (preg_match("'^https?://'", $agent))
 			{
 				require_once 'HTTP/Request.php';
+				$agent = preg_replace("'__'", CIA::__LANG__(), $agent, 1);
 				$agent = new HTTP_Request($agent);
 				foreach ($args as $k => $v) $agent->addQueryString($k, str_replace(array('&gt;', '&lt;', '&quot;', '&amp;'), array('>', '<', '"', '&'), CIA::string($v)));
 
