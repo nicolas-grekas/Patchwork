@@ -198,7 +198,7 @@ w = function($rootAgent, $keys, $CIApID)
 	{
 		if (!t($context)) return;
 
-		var $pointer = 0, $arguments = a, $localCIApID = $CIApID, $CIApID_backup, $ROOT_backup;
+		var $pointer = 0, $arguments = a, $localCIApID = $CIApID, $CIApID_backup = $rootAgent, $ROOT_backup;
 
 		<!-- IF g$__DEBUG__ -->var DEBUG = $i = 0;<!-- END:IF -->
 
