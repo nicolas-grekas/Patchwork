@@ -51,6 +51,8 @@ class IA_php
 			$cache .= self::$get->__HOST__ = htmlspecialchars(CIA::__HOST__());
 			self::$get->__URI__ = htmlspecialchars($_SERVER['REQUEST_URI']);
 
+			self::$args = self::$get;
+
 			if (!isset(self::$masterCache[$cache])) self::$masterCache[$cache] = array();
 
 			self::$cache =& self::$masterCache[$cache];
@@ -93,6 +95,7 @@ class IA_php
 			}
 
 			$agent = CIA::resolveAgentClass($agent, $args);
+			self::$args = (object) $args;
 		}
 
 		self::compose($agent);
@@ -106,7 +109,7 @@ class IA_php
 	{
 		CIA::openMeta($agentClass);
 
-		$a = self::$args = (object) $_GET;
+		$a = self::$args;
 		$g = self::$get;
 
 		$agent = new $agentClass($_GET);
