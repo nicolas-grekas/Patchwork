@@ -34,10 +34,10 @@ SET $INPUT --><!--
 
 	IF !g$_QSELECT --><!--
 		SET g$_QSELECT -->1<!-- END:SET
-		--><div id="_QSd1" style="position:absolute;display:none;visibility:hidden;z-index:9"><div id="_QSd2" style="position:absolute"><img src="{/}QSelect/tr.png" width="5" height="10" /><br /><img src="{/}QSelect/r.png" width="5" height="5" id="_QSi1" /><br /><img src="{/}QSelect/br.png" width="5" height="5" /></div><div id="_QSd3" style="position:absolute"><img src="{/}QSelect/bl.png" width="10" height="5" /><img src="{/}QSelect/b.png" width="5" height="5" id="_QSi2" /></div><select id="_QSs" size="7"></select></div><script type="text/javascript" src="{/}js/QSelect"></script ><!--
+		--><div id="_QSd1" style="position:absolute;display:none;visibility:hidden;z-index:9"><div id="_QSd2" style="position:absolute"><img src="{~}QSelect/tr.png" width="5" height="10" /><br /><img src="{~}QSelect/r.png" width="5" height="5" id="_QSi1" /><br /><img src="{~}QSelect/br.png" width="5" height="5" /></div><div id="_QSd3" style="position:absolute"><img src="{~}QSelect/bl.png" width="10" height="5" /><img src="{~}QSelect/b.png" width="5" height="5" id="_QSi2" /></div><select id="_QSs" size="7"></select></div><script type="text/javascript" src="{~}js/QSelect"></script ><!--
 	END:IF
 
-	--><span class="QSstyle"><input autocomplete="off" {a$|htmlArgs} /><img src="{/}QSelect/b.gif" id="_QSb{$id}" onmouseover="this.src=_GET.__ROOT__+'QSelect/bh.gif'" onmouseout="this.src=_GET.__ROOT__+'QSelect/b.gif'" onmousedown="this.src=_GET.__ROOT__+'QSelect/bp.gif'" onmouseup="this.onmouseover()" alt=" " /></span><script type="text/javascript">/*<![CDATA[*/
+	--><span class="QSstyle"><input autocomplete="off" {a$|htmlArgs} /><img src="{~}QSelect/b.gif" id="_QSb{$id}" onmouseover="this.src=_GET.__ROOT__+'QSelect/bh.gif'" onmouseout="this.src=_GET.__ROOT__+'QSelect/b.gif'" onmousedown="this.src=_GET.__ROOT__+'QSelect/bp.gif'" onmouseup="this.onmouseover()" alt=" " /></span><script type="text/javascript">/*<![CDATA[*/
 
 	lE=gLE({a$name|js})
 	lE.lock={a$_lock_|js}

@@ -1,8 +1,8 @@
 <p>
 Ils nous font confiance :<br>
-<img src="{/}img/jouve.gif" align="middle" />
-<img src="{/}img/blank.gif" width="100" align="middle" />
-<img src="{/}img/sfa.gif" align="middle" />
+<img src="{~}img/jouve.gif" align="middle" />
+<img src="{~}img/blank.gif" width="100" align="middle" />
+<img src="{~}img/sfa.gif" align="middle" />
 </p>
 
 
@@ -11,7 +11,7 @@ Depuis ses débuts, le projet IntellAgence est suivi et soutenu par le groupe <a
 </p>
 
 <p>Le service IntellAgence a mûrit au plus près des besoins des organisateurs de congrès. Il a déjà assuré
-le succès de <a href="/refs.html">nombreuses manifestations nationales et internationales</a>.
+le succès de <a href="{/}refs.html">nombreuses manifestations nationales et internationales</a>.
 <!--
 <ul>
 	<li>Congrès InterNoise (août 2000, Nice)</li>

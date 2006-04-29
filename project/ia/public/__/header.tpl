@@ -108,4 +108,4 @@ a:hover
 <!-- PARENT -->
 
 <div id="content">
-<div id="header"><a href="{/}"><img src="{/}img/ia1.gif" border="0" /></a></div>
+<div id="header"><a href="{~}"><img src="{~}img/ia1.gif" border="0" /></a></div>

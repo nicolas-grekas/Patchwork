@@ -8,4 +8,4 @@ Sa mission :
 	<li>Valoriser l'information</li>
 </ul>
 
-<center><img src="{/}img/schema.gif" /></center>
+<center><img src="{~}img/schema.gif" /></center>

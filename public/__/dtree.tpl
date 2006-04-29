@@ -67,7 +67,7 @@ ELSE --><!--
 {
 	overflow: hidden;
 }
-</style><script type="text/javascript" src="{/}js/dtree"></script><!--
+</style><script type="text/javascript" src="{~}js/dtree"></script><!--
 	END:IF --><script type="text/javascript">/*<![CDATA[*/
 
 {a$name} = new dTree('{a$name}');

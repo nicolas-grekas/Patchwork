@@ -11,7 +11,7 @@ class IA_php
 
 	public static function returnAgent($agent, $args, $lang = null)
 	{
-		$lang = CIA::__LANG__($lang);
+		$lang = CIA::setLang($lang);
 
 		$false = false;
 
@@ -28,7 +28,7 @@ class IA_php
 		$_GET =& $a;
 		self::$get =& $g;
 
-		CIA::__LANG__($lang);
+		CIA::setLang($lang);
 
 		return $agent;
 	}
@@ -42,14 +42,19 @@ class IA_php
 			$reset_get = true;
 			$cache = '';
 
-			self::$get = (object) array_map('htmlspecialchars', $a);
+			if (isset($_GET['$s']))
+			{
+				ob_start('htmlspecialchars');
+				self::$get = (object) $a;
+			}
+			else self::$get = (object) array_map('htmlspecialchars', $a);
+
 			self::$get->__DEBUG__ = DEBUG ? DEBUG : 0;
-			self::$get->__QUERY__ = '?' . htmlspecialchars($_SERVER['QUERY_STRING']);
-			$cache .= self::$get->__ROOT__ = htmlspecialchars(CIA::__ROOT__());
-			$cache .= self::$get->__LANG__ = htmlspecialchars(CIA::__LANG__());
-			self::$get->__AGENT__ = 'agent_index' == $agent ? '' : htmlspecialchars(str_replace('_', '/', substr($agent, 6)));
-			$cache .= self::$get->__HOST__ = htmlspecialchars(CIA::__HOST__());
-			self::$get->__URI__ = htmlspecialchars($_SERVER['REQUEST_URI']);
+			self::$get->__HOST__ = CIA::__HOST__();
+			$cache .= self::$get->__LANG__ = CIA::__LANG__();
+			$cache .= self::$get->__ROOT__ = CIA::__ROOT__();
+			self::$get->__AGENT__ = 'agent_index' == $agent ? '' : (str_replace('_', '/', substr($agent, 6)) . '/');
+			self::$get->__URI__ = htmlspecialchars(CIA::__URI__());
 
 			self::$args = self::$get;
 
@@ -73,22 +78,21 @@ class IA_php
 				foreach ($data as $k => $v) $args[$k] = is_string($v) ? htmlspecialchars($v) : $v;
 			}
 
-			$k = CIA::__HOST__();
-			$ROOT = $k . CIA::__ROOT__();
-
-			if ('/' == substr($agent, 0, 1)) $agent = $k . $agent;
+			$ROOT = CIA::__ROOT__();
+			$agent = CIA::root($agent);
 
 			if (0 === strpos($agent, $ROOT)) $agent = substr($agent, strlen($ROOT));
-			else if (preg_match("'^https?://'", $agent))
+			else
 			{
 				require_once 'HTTP/Request.php';
 				$agent = preg_replace("'__'", CIA::__LANG__(), $agent, 1);
 				$agent = new HTTP_Request($agent);
+				$agent->addQueryString('$s', '');
 				foreach ($args as $k => $v) $agent->addQueryString($k, str_replace(array('&gt;', '&lt;', '&quot;', '&amp;'), array('>', '<', '"', '&'), CIA::string($v)));
 
 				$agent->sendRequest();
 
-				echo $agent->getResponseBody();
+				echo str_replace(array('&gt;', '&lt;', '&quot;', '&amp;'), array('>', '<', '"', '&'), $agent->getResponseBody());
 
 				$_GET =& $a;
 				return;

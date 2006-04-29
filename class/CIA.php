@@ -5,9 +5,10 @@ class CIA
 	public static $agentClass;
 	public static $catchMeta = false;
 
-	protected static $lang;
-	protected static $root;
 	protected static $host;
+	protected static $lang = '__';
+	protected static $root;
+	protected static $uri;
 
 	protected static $handlesOb = false;
 	protected static $binaryMode = false;
@@ -30,9 +31,14 @@ class CIA
 		if (DEBUG) self::$cia = new debug_CIA;
 		else self::$cia = new CIA;
 
-		self::$lang = $_SERVER['CIA_LANG'] ? $_SERVER['CIA_LANG'] : substr($GLOBALS['CONFIG']['lang_list'], 0, 2);
 		self::$root = $_SERVER['CIA_ROOT'];
-		self::$host = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . @$_SERVER['HTTP_HOST'];
+		self::setLang($_SERVER['CIA_LANG'] ? $_SERVER['CIA_LANG'] : substr($GLOBALS['CONFIG']['lang_list'], 0, 2));
+
+		if (htmlspecialchars(self::$root) != self::$root)
+		{
+			E('Fatal error: illegal character found in CIA::$root');
+			exit;
+		}
 	}
 
 	public static function cancel()
@@ -41,53 +47,31 @@ class CIA
 		ob_end_flush();
 	}
 
-	public static function __LANG__($new_lang = null)
+	public static function setLang($new_lang)
 	{
 		$lang = self::$lang;
-		if (null !== $new_lang) self::$lang = $new_lang;
+		self::$lang = $new_lang;
+
+		self::$root = explode($lang, self::$root, 2);
+		self::$root = implode($new_lang, self::$root);
+
+		self::$host = substr(self::$root, 0, strpos(self::$root, '/', 8));
+		self::$uri = self::$host . $_SERVER['REQUEST_URI'];
+
 		return $lang;
 	}
 
-	public static function __ROOT__($new_root = null)
-	{
-		$root = self::$root;
+	public static function __HOST__() {return self::$host;}
+	public static function __LANG__() {return self::$lang;}
+	public static function __ROOT__() {return self::$root;}
+	public static function __URI__()  {return self::$uri ;}
 
-		if (null !== $new_root)
-		{
-			self::$root = $new_root;
-			return $root;
-		}
-
-		return $root . self::$lang . '/';
-	}
-
-	public static function root($string)
-	{
-		return preg_match("'^([\\\\\\/]|[^/\?]+:)'", $string)
-			? $string
-			: (htmlspecialchars(self::__ROOT__()) . $string);
-	}
-
-	public static function __HOST__($new_host = null)
-	{
-		$host = self::$host;
-
-		if (null !== $new_host)
-		{
-			self::$host = $new_host;
-			return $host;
-		}
-
-		return self::$host;
-	}
-
-	public static function getUri($url)
+	public static function root($url)
 	{
 		if (!preg_match("'^https?://'", $url))
 		{
-			if ('/' != substr($url, 0, 1)) $url = self::__ROOT__() . $url;
-
-			$url = self::__HOST__() . $url;
+			if ('/' != substr($url, 0, 1)) $url = self::$root . $url;
+			else $url = self::$host . $url;
 		}
 
 		return $url;
@@ -125,7 +109,7 @@ class CIA
 	{
 		$url = (string) $url;
 
-		self::$redirectUrl = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'i", $url) ? $url : (self::__ROOT__() . ('index' == $url ? '' : $url)));
+		self::$redirectUrl = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'i", $url) ? $url : (self::$root . ('index' == $url ? '' : $url)));
 
 		if ($exit) exit;
 	}
@@ -348,7 +332,7 @@ class CIA
 	{
 		static $prefixKey = false;
 
-		if (!$prefixKey) $prefixKey = substr(md5(self::$host .'-'. self::$lang .'-'. self::__ROOT__() .'-'. DEBUG), -8);
+		if (!$prefixKey) $prefixKey = substr(md5(self::$root .'-'. self::$lang .'-'. DEBUG), -8);
 
 		if ($key!=='')
 		{
@@ -389,7 +373,7 @@ class CIA
 
 		$agent = '' !== $agent ? $agent : 'index';
 
-		$lang = self::__LANG__();
+		$lang = self::$lang;
 		$createTemplate = true;
 
 		while (1)
@@ -469,16 +453,16 @@ class CIA
 
 	public static function resolveAgentTrace($agent, &$args)
 	{
-		$a = self::__HOST__();
-		$ROOT = $root = $a . self::__ROOT__();
-
-		if ('/' == substr($agent, 0, 1)) $agent = $a . $agent;
+		$ROOT = $root = CIA::__ROOT__();
+		$agent = self::root($agent);
 
 		if (0 === strpos($agent, $ROOT)) $agent = substr($agent, strlen($ROOT));
-		else if (preg_match("'^https?://'", $agent))
+		else
 		{
 			require_once 'HTTP/Request.php';
-			$keys = new HTTP_Request($agent . (false !== strpos($agent, '?') ? '&' : '?') . '$k');
+			$agent = preg_replace("'__'", CIA::__LANG__(), $agent, 1);
+			$keys = new HTTP_Request($agent);
+			$keys->addQueryString('$k', '');
 			$keys->sendRequest();
 			$keys = $keys->getResponseBody();
 			$keys = explode("\n", $keys);
@@ -699,7 +683,7 @@ class CIA
 
 		header('Content-Length: ' . strlen($buffer));
 
-		if ($_SERVER['REQUEST_METHOD']=='HEAD') $buffer = '';
+		if ('HEAD' == $_SERVER['REQUEST_METHOD']) $buffer = '';
 
 		self::$handlesOb = false;
 		return $buffer;

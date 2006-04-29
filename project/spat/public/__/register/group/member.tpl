@@ -28,8 +28,8 @@ function clickDrop($id)
 <!-- IF !($iteratorPosition%30) -->{a$head}<!-- END:IF -->
 <tr bgcolor="{'member_cycle'|cycle:'silver':''}">
 	<td><input type="checkbox" name="f_check[]" value="{$iteratorPosition}" /></td>
-	<td><a href="{/}register/group/edit/{$iteratorPosition}"><img src="{/}img/edit.gif" border="0" title="Modifier" /></a></td>
-	<td><a href="javascript:;" onclick="clickDrop({$iteratorPosition})"><img src="{/}img/drop.gif" border="0" title="Supprimer" /></a></td>
+	<td><a href="{~}register/group/edit/{$iteratorPosition}"><img src="{~}img/edit.gif" border="0" title="Modifier" /></a></td>
+	<td><a href="javascript:;" onclick="clickDrop({$iteratorPosition})"><img src="{~}img/drop.gif" border="0" title="Supprimer" /></a></td>
 	<td>{$lastname}</td>
 	<td>{$firstname}</td>
 	<td>{$email}</td>

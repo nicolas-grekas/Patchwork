@@ -2,7 +2,7 @@
 
 <!-- SET a$blank --><!-- END:SET -->
 
-<script type="text/javascript" src="{/}js/QJsrs"></script>
+<script type="text/javascript" src="{~}js/QJsrs"></script>
 
 <style type="text/css">
 a

@@ -125,10 +125,10 @@ class iaMail extends Mail_mime
 
 			require_once 'HTTP/Request.php';
 
-			$r = new HTTP_Request( CIA::getUri($url) );
+			$r = new HTTP_Request( CIA::root($url) );
 			$r->setMethod(HTTP_REQUEST_METHOD_POST);
 			$r->addPostData('message_id', $message_id);
-			$r->addPostData("{$event}_on{$event}", CIA::getUri($this->options['on' . $event]));
+			$r->addPostData("{$event}_on{$event}", CIA::root($this->options['on' . $event]));
 			$r->sendRequest();
 		}
 	}
