@@ -1,3 +1,8 @@
+function t($v, $type)
+{
+	return $type ? (typeof $v == $type) : (typeof $v != 'undefined');
+}
+
 function E($v, $max_depth, $level, $expand)
 {
 	var $startTime = new Date/1,

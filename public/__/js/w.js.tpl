@@ -489,8 +489,7 @@ w = function($rootAgent, $keys, $CIApID)
 					break;
 				}
 
-				delete v.$;
-				delete v.iteratorPosition;
+				v.$ = v.iteratorPosition = 0;
 				$d.push(v);
 			}
 
