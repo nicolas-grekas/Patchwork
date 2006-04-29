@@ -32,7 +32,7 @@ class iaMail_agent extends iaMail
 
 	protected function addRawImage($match)
 	{
-		$url = CIA::getUri($match[4]);
+		$url = CIA::root($match[4]);
 
 		if (isset(self::$imageCache[$url])) $data =& self::$imageCache[$url];
 		else

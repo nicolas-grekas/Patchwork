@@ -73,10 +73,10 @@ mbstring.func_overload = 0
 
 if (!isset($_SERVER['CIA']))
 {
-	$_SERVER['CIA_ROOT'] = $_SERVER['SCRIPT_NAME'] . '/';
+	$_SERVER['CIA_ROOT'] = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'] . '/__/';
 	$_SERVER['CIA_LANG'] = $_SERVER['CIA_REQUEST'] = '';
 
-	if (preg_match("'^/(__|fr)/?(.*)$'", @$_SERVER['PATH_INFO'], $a))
+	if (preg_match("'^/([a-z]{2}(?:-[A-Z]{2})?)/?(.*)$'", @$_SERVER['PATH_INFO'], $a))
 	{
 		$_SERVER['CIA_LANG']    = $a[1];
 		$_SERVER['CIA_REQUEST'] = $a[2];
@@ -86,7 +86,6 @@ if (!isset($_SERVER['CIA']))
 
 /* Config initialisation */
 
-# This may need more though ...
 putenv('LC_ALL=en_US.UTF-8');
 setlocale(LC_ALL, 'en_US.UTF-8');
 
@@ -357,7 +356,7 @@ else
 
 		$data = array(
 			CIA_PROJECT_ID,
-			CIA::__HOST__() . CIA::__ROOT__(),
+			CIA::__ROOT__(),
 			'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)),
 			@$_GET['__0__']
 		);

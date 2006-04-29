@@ -36,22 +36,13 @@ function HTTP_Best_Language($supported)
 	return $lang;
 }
 
-$lang = @$_SERVER['CIA_ROOT'];
-$lang .= HTTP_Best_Language(explode('|', $CONFIG['lang_list']));
-$lang = str_replace('%2F', '/', rawurlencode($lang));
+$lang = explode('__', $_SERVER['CIA_ROOT'], 2);
+$lang = implode(HTTP_Best_Language(explode('|', $CONFIG['lang_list'])), $lang);
+$lang = htmlspecialchars($lang);
 
-?><html><head><script type="text/javascript">/*<![CDATA[*/
+?><html><head><title>...</title><script type="text/javascript">/*<![CDATA[*/
 if(window.Error&&navigator.userAgent.indexOf('Safari')<0)document.cookie='JS=1; path=/',document.cookie='JS=1; expires=Sun, 17-Jan-2038 19:14:07 GMT; path=/'
-location.replace('<?php echo $lang?>/')
-/*]]>*/</script><meta http-equiv="refresh" content="0; URL=<?php echo $lang?>/" /></head><body>Choose a language :<ul><?php
-
-foreach (explode('|', $CONFIG['lang_list']) as $l)
-{
-	echo $l == $lang
-		? "<li><a href='$l/'><b>$l</b></a></li>\n"
-		: "<li><a href='$l/'>$l</a></li>\n";
-}
-
-?></ul></body></html><?php
+location.replace("<?php echo $lang?>")
+/*]]>*/</script><meta http-equiv="refresh" content="0; URL=<?php echo $lang?>" /></head><body><a href="<?php echo $lang?>"><?php echo $lang?></a></body></html><?php
 
 exit;

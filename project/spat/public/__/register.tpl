@@ -4,8 +4,8 @@
 
 <fieldset><legend>{"Vous n'êtes pas inscrit ?"}</legend>
 <ul>
-	<li><a href="{/}register/individual/">{"Individuelle"}</a></li>
-	<li><a href="{/}register/group/">{"Groupée"}</a></li>
+	<li><a href="{~}register/individual/">{"Individuelle"}</a></li>
+	<li><a href="{~}register/group/">{"Groupée"}</a></li>
 </ul>
 </fieldset>
 

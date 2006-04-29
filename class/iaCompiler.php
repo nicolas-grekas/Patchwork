@@ -53,7 +53,7 @@ abstract class iaCompiler
 
 		$this->Xmath = "\(*(?:{$this->Xnumber}|{$this->Xvar})\)*";
 		$this->Xmath = "(?:{$this->Xmath}\s*[-+*\/%]\s*)*{$this->Xmath}";
-		$this->Xexpression = "(?<!\d)(?:{$this->Xstring}|(?:{$this->Xmath})|[dag]\\$|\\$+|\/)";
+		$this->Xexpression = "(?<!\d)(?:{$this->Xstring}|(?:{$this->Xmath})|[dag]\\$|\\$+|[\/~])";
 
 		$this->Xmodifier = $this->XpureVar;
 		$this->XmodifierPipe = "\\|{$this->Xmodifier}(?::(?:{$this->Xexpression})?)*";
@@ -462,7 +462,8 @@ abstract class iaCompiler
 	private function evalVar($a, $translate = false, $forceType = false)
 	{
 		if ($a === '') return "''";
-		if ('/' == $a) $a = 'g$__ROOT__';
+		if ('~' == $a) $a = 'g$__ROOT__';
+		if ('/' == $a) $a = 'g$__HOST__';
 
 		if ($a{0}=='"' || $a{0}=="'")
 		{

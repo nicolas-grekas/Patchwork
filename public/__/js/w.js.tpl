@@ -52,11 +52,19 @@ function esc($str)
 	return $str;
 }
 
-function root($str)
+function root($str, $g)
 {
-	return /^([\\\/]|[^\/\?]+:)/.test($str)
-		? $str
-		: (_GET.__ROOT__ + $str);
+	$g = _GET;
+
+	return (
+		/^https?:\/\//.test($str)
+		? ''
+		: (
+			0 == $str.indexOf('/')
+			? $g.__HOST__
+			: $g.__ROOT__
+		)
+	) + $str;
 }
 
 function parseurl($param, $delim, $rx, $array)
@@ -198,7 +206,7 @@ w = function($rootAgent, $keys, $CIApID)
 	{
 		if (!t($context)) return;
 
-		var $pointer = 0, $arguments = a, $localCIApID = $CIApID, $CIApID_backup = $rootAgent, $ROOT_backup;
+		var $pointer = 0, $arguments = a, $localCIApID = $CIApID, $CIApID_backup = $rootAgent, $g_backup;
 
 		<!-- IF g$__DEBUG__ -->var DEBUG = $i = 0;<!-- END:IF -->
 
@@ -229,11 +237,11 @@ w = function($rootAgent, $keys, $CIApID)
 			a = $arguments;
 			v = $context;
 
-			if ($ROOT_backup)
+			if ($g_backup)
 			{
 				$localCIApID = $CIApID_backup;
-				g.__ROOT__ = $ROOT_backup;
-				$ROOT_backup = 0;
+				_GET = g = $g_backup;
+				$g_backup = 0;
 				--$tierDepth;
 			}
 
@@ -282,10 +290,16 @@ w = function($rootAgent, $keys, $CIApID)
 						{
 							++$tierDepth;
 							$CIApID_backup = $localCIApID;
-							$ROOT_backup = g.__ROOT__;
+							$g_backup = g;
 
 							$localCIApID = $meta[0]/1;
+							_GET = g = $args;
+							g.__DEBUG__ = $g_backup.__DEBUG__;
+							g.__LANG__ = $g_backup.__LANG__;
 							g.__ROOT__ = esc($meta[1]).replace(/__/, g.__LANG__);
+							g.__HOST__ = g.__ROOT__.substr(0, g.__ROOT__.indexOf('/', 8));
+							g.__AGENT__ = $agent ? esc($agent) + '/' : '';
+							g.__URI__ = esc(g.__ROOT__ + $agent);
 						}
 
 						$agent = g.__ROOT__ + '_?$=' + esc($agent);
@@ -357,13 +371,14 @@ w = function($rootAgent, $keys, $CIApID)
 			}
 		}
 
-		function $include($inc, $args, $keys, $cacheOff)
+		function $include($inc, $args, $keys, $c)
 		{
 			if (t($inc))
 			{
 				if ($args)
 				{
 					if ($inc.indexOf('?')==-1) $inc += '?';
+					$c = '';
 
 					for ($i in $args) $args[$i] = num($args[$i], 1);
 
@@ -371,18 +386,19 @@ w = function($rootAgent, $keys, $CIApID)
 					{
 						for ($i=0; $i<$keys.length; ++$i)
 							if (($j = $keys[$i]) && t($args[$j]))
-								$inc += '&amp;' + eUC($j) + '=' + eUC($args[$j]);
+								$c += '&amp;' + eUC($j) + '=' + eUC($args[$j]);
 					}
 					else
 						for ($i in $args)
-							$inc += '&amp;' + eUC($i) + '=' + eUC($args[$i]);
+							$c += '&amp;' + eUC($i) + '=' + eUC($args[$i]);
 
 					a = $args;
-					$include($inc + '&amp;$' + 'v=' + $localCIApID);
+					if (a.__URI__) a.__URI__ += '?' + $c.substr(5);
+					$include($inc + $c + '&amp;$' + 'v=' + $localCIApID);
 				}
 				else
 				{
-					$lastInclude = $cacheOff ? '' : $inc;
+					$lastInclude = $c ? '' : $inc;
 
 					if (t($includeCache[$inc])) w($includeCache[$inc][0], $includeCache[$inc][1]);
 					else
@@ -530,15 +546,14 @@ w = function($rootAgent, $keys, $CIApID)
 	$j = location;
 
 	g = parseurl($j.search.replace(/\+/g, '%20').substring(1), '&', /^amp;/);
-	g.__DEBUG__ = {g$__DEBUG__|js} ? 1 : 0;
-	g.__QUERY__ = esc($j.search) || '?';
-	g.__ROOT__ = esc({g$__ROOT__|js});
+	g.__DEBUG__ = esc({g$__DEBUG__|js});
+	g.__HOST__ = esc({g$__HOST__|js});
 	g.__LANG__ = esc({g$__LANG__|js});
-	g.__AGENT__ = $rootAgent.length ? esc($rootAgent) + '/' : '';
-	g.__HOST__ = esc($j.protocol+'//'+$j.hostname);
-	g.__URI__ = esc($j.pathname + $j.search);
+	g.__ROOT__ = esc({g$__ROOT__|js});
+	g.__AGENT__ = $rootAgent ? esc($rootAgent) + '/' : '';
+	g.__URI__ = esc(''+$j);
 
-	$j = dUC($j.pathname.substr({g$__ROOT__|length}+$rootAgent.length)).split('/');
+	$j = dUC((''+$j).substr({g$__ROOT__|length}+$rootAgent.length)).split('/');
 	for ($i=0; $i<$j.length; ++$i) if ($j[$i]) $loopIterator[$loopIterator.length] = g['__'+($loopIterator.length+1)+'__'] = esc($j[$i]);
 	g.__0__ = $loopIterator.join('/');
 

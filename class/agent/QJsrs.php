@@ -12,7 +12,7 @@ class agent_QJsrs extends agent_bin
 			'DATA' => '<script type="text/javascript">q="'
 				. str_replace(array('\\', '"'), array('\\\\', '\\"'), $this->getJs($this->data))
 				. '"</script>'
-				. '<script type="text/javascript" src="' . htmlspecialchars(CIA::__ROOT__()) . 'js/QJsrsHandler"></script>'
+				. '<script type="text/javascript" src="' . CIA::__ROOT__() . 'js/QJsrsHandler"></script>'
 		);
 	}
 

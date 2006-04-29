@@ -31,11 +31,11 @@ class agent_js extends agent_bin
 		$d = $v = (object) $this->v;
 		$g = (object) $this->g;
 		$g->__DEBUG__ = DEBUG ? DEBUG : 0;
-		$g->__URI__ = htmlspecialchars($_SERVER['REQUEST_URI']);
-		$g->__ROOT__ = htmlspecialchars(CIA::__ROOT__());
-		$g->__LANG__ = htmlspecialchars(CIA::__LANG__());
+		$g->__HOST__ = CIA::__HOST__();
+		$g->__LANG__ = CIA::__LANG__();
+		$g->__ROOT__ = CIA::__ROOT__();
 		$g->__AGENT__ = str_replace('_', '/', substr(get_class($this), 6)) . '/';
-		$g->__HOST__ = htmlspecialchars(CIA::__HOST__());
+		$g->__URI__ = htmlspecialchars(CIA::__URI__());
 
 		$parser = new iaCompiler_php(true);
 		ob_start();
