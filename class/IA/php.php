@@ -13,8 +13,6 @@ class IA_php
 	{
 		$lang = CIA::setLang($lang);
 
-		$false = false;
-
 		$a =& $_GET;
 		$g =& self::$get;
 
@@ -22,7 +20,7 @@ class IA_php
 		self::$get =& $f;
 
 		ob_start();
-		IA_php::loadAgent(CIA::resolveAgentClass($agent, $_GET), $false);
+		IA_php::loadAgent(CIA::resolveAgentClass($agent, $_GET), false, false);
 		$agent = ob_get_contents();
 
 		$_GET =& $a;
@@ -33,7 +31,7 @@ class IA_php
 		return $agent;
 	}
 
-	public static function loadAgent($agent, $args = false)
+	public static function loadAgent($agent, $args, $is_exo)
 	{
 		$a =& $_GET;
 
@@ -81,22 +79,36 @@ class IA_php
 			$ROOT = CIA::__ROOT__();
 			$agent = CIA::root($agent);
 
-			if (0 === strpos($agent, $ROOT)) $agent = substr($agent, strlen($ROOT));
+			if (0 === strpos($agent, $ROOT))
+			{
+				$agent = substr($agent, strlen($ROOT));
+
+				if ($is_exo)
+				{
+					E("CIA Security Restriction Error: an AGENT ({$agent}) is called with EXOAGENT");
+					$_GET =& $a;
+					return;
+				}
+			}
 			else
 			{
-				require_once 'HTTP/Request.php';
-				$agent = preg_replace("'__'", CIA::__LANG__(), $agent, 1);
-				$agent = new HTTP_Request($agent);
-				$agent->addQueryString('$s', '');
-				foreach ($args as $k => $v) $agent->addQueryString($k, CIA::string($v));
+				if ($is_exo)
+				{
+					require_once 'HTTP/Request.php';
+					$agent = preg_replace("'__'", CIA::__LANG__(), $agent, 1);
+					$agent = new HTTP_Request($agent);
+					$agent->addQueryString('$s', '');
+					foreach ($args as $k => $v) $agent->addQueryString($k, CIA::string($v));
 
-				$agent->sendRequest();
+					$agent->sendRequest();
 
-				echo str_replace(
-					array('&gt;', '&lt;', '&quot;', '&#039;', '&amp;'),
-					array('>'   , '<'   , '"'     , "'"     , '&'    ),
-					$agent->getResponseBody()
-				);
+					echo str_replace(
+						array('&gt;', '&lt;', '&quot;', '&#039;', '&amp;'),
+						array('>'   , '<'   , '"'     , "'"     , '&'    ),
+						$agent->getResponseBody()
+					);
+				}
+				else E("CIA Security Restriction Error: an EXOAGENT ({$agent}) is called with AGENT");
 
 				$_GET =& $a;
 				return;

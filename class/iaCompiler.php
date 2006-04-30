@@ -80,6 +80,11 @@ abstract class iaCompiler
 		return $this->makeCode($this->code);
 	}
 
+	final protected function getLine()
+	{
+		return substr_count(substr($this->source, 0, $this->offset), "\n") + 1;
+	}
+
 	protected function preprocessing($source)
 	{
 		if ($this->binaryMode)
@@ -156,7 +161,7 @@ abstract class iaCompiler
 	}
 
 	abstract protected function makeCode(&$code);
-	abstract protected function addAGENT($end, $inc, &$args);
+	abstract protected function addAGENT($end, $inc, &$args, $is_exo);
 	abstract protected function addSET($end, $name, $type);
 	abstract protected function addLOOP($end, $var);
 	abstract protected function addIF($end, $elseif, $expression);
@@ -266,7 +271,10 @@ abstract class iaCompiler
 		{
 			switch ($blockname)
 			{
+			case 'EXOAGENT':
 			case 'AGENT':
+				$is_exo = 'EXOAGENT' == $blockname;
+
 				if (preg_match("/^({$this->Xstring}|{$this->Xvar})(?:\s+{$this->XpureVar}\s*=\s*(?:{$this->XvarNconst}))*$/su", $block, $block))
 				{
 					$inc = $this->evalVar($block[1]);
@@ -285,7 +293,7 @@ abstract class iaCompiler
 							}
 						}
 
-						if (!$this->addAGENT($blockend, $inc, $args)) $this->pushText($a);
+						if (!$this->addAGENT($blockend, $inc, $args, $is_exo)) $this->pushText($a);
 					}
 					else $this->pushText($a);
 				}
@@ -529,6 +537,6 @@ abstract class iaCompiler
 
 	private function endError($unexpected, $expected)
 	{
-		E("Template Parse Error: Unexpected END:$unexpected" . ($expected ? ", expecting END:$expected" : '') . " line " . (mb_substr_count(substr($this->source, 0, $this->offset), "\n") + 1));
+		E("Template Parse Error: Unexpected END:$unexpected" . ($expected ? ", expecting END:$expected" : '') . " line " . $this->getLine());
 	}
 }
