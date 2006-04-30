@@ -88,11 +88,15 @@ class IA_php
 				$agent = preg_replace("'__'", CIA::__LANG__(), $agent, 1);
 				$agent = new HTTP_Request($agent);
 				$agent->addQueryString('$s', '');
-				foreach ($args as $k => $v) $agent->addQueryString($k, str_replace(array('&gt;', '&lt;', '&quot;', '&amp;'), array('>', '<', '"', '&'), CIA::string($v)));
+				foreach ($args as $k => $v) $agent->addQueryString($k, CIA::string($v));
 
 				$agent->sendRequest();
 
-				echo str_replace(array('&gt;', '&lt;', '&quot;', '&amp;'), array('>', '<', '"', '&'), $agent->getResponseBody());
+				echo str_replace(
+					array('&gt;', '&lt;', '&quot;', '&#039;', '&amp;'),
+					array('>'   , '<'   , '"'     , "'"     , '&'    ),
+					$agent->getResponseBody()
+				);
 
 				$_GET =& $a;
 				return;

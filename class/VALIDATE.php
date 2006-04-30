@@ -28,7 +28,7 @@ class VALIDATE
 	# no args
 	private static function get_bool(&$value, &$args)
 	{
-		return $value ? 1 : 0;
+		return (string) (bool) $value;
 	}
 
 	# min, max

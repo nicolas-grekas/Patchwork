@@ -744,7 +744,7 @@ class agent_
 		}
 		else $default = '';
 
-		$a = explode(':', $a, 3);
+		$a = explode(':', $a);
 		$key = array_shift($a);
 
 		$args = @$args->$key;

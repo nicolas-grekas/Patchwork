@@ -125,8 +125,8 @@ function $QJsrs($URL, $POST)
 
 	if ($URL.indexOf($i)<0) $URL += $i;
 
-	$LOCAL = !(/^[^\/\?]+:/.test($URL));
-	$URL = $LOCAL && /^[^\\\/]/.test($URL) ? _GET.__ROOT__ + $URL : $URL;
+	$URL = root($URL);
+	$LOCAL = 0 == $URL.indexOf(_GET.__HOST__);
 	$POST = $POST ? 1 : 0;
 
 	$this.replace = function($vararray, $function)
