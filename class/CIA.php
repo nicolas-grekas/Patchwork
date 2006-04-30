@@ -332,7 +332,7 @@ class CIA
 	{
 		static $prefixKey = false;
 
-		if (!$prefixKey) $prefixKey = substr(md5(self::$root .'-'. self::$lang .'-'. DEBUG), -8);
+		if (!$prefixKey) $prefixKey = substr(md5(self::$root .'-'. self::$lang), -8) . '.' . DEBUG;
 
 		if ($key!=='')
 		{
@@ -654,7 +654,7 @@ class CIA
 			if ('ontouch' == self::$expires && self::$watchTable)
 			{
 				$ETag{6} = $ETag{3} = '/';
-				$ETag = './tmp/cache/validator/' . $ETag . '.txt';
+				$ETag = './tmp/cache/validator.' . DEBUG . '/' . $ETag . '.txt';
 
 				if (!file_exists($ETag))
 				{
