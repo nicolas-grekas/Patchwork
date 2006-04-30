@@ -279,10 +279,21 @@ w = function($rootAgent, $keys, $masterCIApID)
 						if ($data['*r']) $meta = [$data['*v'], $data['*r']];
 					}
 
-					if (1 == $meta) $agent = g.__ROOT__ + '_?t=' + esc($agent);
+					$agent = esc($agent);
+
+					if (!$meta) $agent = g.__ROOT__ + '_?t=' + $agent;
 					else
 					{
-						if ($meta)
+						if (3 == $meta); //TODO EXOAGENT expected
+						else if (2 == $meta)
+						{
+							if (/^(\/|https?:\/\/)/.test($agent))
+							{
+								self.E && E('EXOAGENT (' + $agent + ') called with AGENT');
+								break;
+							}
+						}
+						else if (1 != $meta)
 						{
 							$CIApID = $meta[0]/1;
 
@@ -290,13 +301,13 @@ w = function($rootAgent, $keys, $masterCIApID)
 							$args.__LANG__ = g.__LANG__;
 							$args.__ROOT__ = esc($meta[1]).replace(/__/, $args.__LANG__);
 							$args.__HOST__ = $args.__ROOT__.substr(0, $args.__ROOT__.indexOf('/', 8));
-							$args.__AGENT__ = $agent ? esc($agent) + '/' : '';
-							$args.__URI__ = esc($args.__ROOT__ + $agent);
+							$args.__AGENT__ = $agent ? $agent + '/' : '';
+							$args.__URI__ = $args.__ROOT__ + $agent;
 
 							_GET = g = $args;
 						}
 
-						$agent = g.__ROOT__ + '_?$=' + esc($agent);
+						$agent = g.__ROOT__ + '_?$=' + $agent;
 					}
 
 					return $include($agent, $args, $keys);
@@ -553,7 +564,7 @@ w = function($rootAgent, $keys, $masterCIApID)
 
 	self._GET = g;
 
-	if ($keys) w(0, [1, '$rootAgent', 'g', $keys, 0]);
+	if ($keys) w(0, [1, '$rootAgent', 'g', $keys, 1]);
 }
 
 if (self.ScriptEngine) addOnload(function()

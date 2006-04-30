@@ -26,10 +26,31 @@ class iaCompiler_php extends iaCompiler
 		return 'pipe_' . $name . '::php';
 	}
 
-	protected function addAGENT($end, $inc, &$args)
+	protected function addAGENT($end, $inc, &$args, $is_exo)
 	{
 		if ($end) return false;
 
+		if (preg_match('/^\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'$/su', $inc))
+		{
+			$end = array();
+			eval("\$root=$inc;");
+
+			list(, $root, $end) = CIA::resolveAgentTrace($root, $end);
+
+			if (false !== $root)
+			{
+				if (!$is_exo)
+				{
+					E("Template Security Restriction Error: an EXOAGENT ({$root}{$end}) is called with AGENT on line " . $this->getLine());
+					exit;
+				}
+			}
+			else if ($is_exo)
+			{
+				E("Template Security Restriction Error: an AGENT ({$end}) is called with EXOAGENT on line " . $this->getLine());
+				exit;
+			}
+		}
 
 		$a = '';
 		$comma = '';
@@ -39,7 +60,7 @@ class iaCompiler_php extends iaCompiler
 			$comma = ',';
 		}
 
-		$this->pushCode("IA_php::loadAgent($inc,array($a));");
+		$this->pushCode("IA_php::loadAgent($inc,array($a)," .( $is_exo ? 1 : 0 ). ");");
 
 		return true;
 	}

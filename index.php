@@ -403,7 +403,7 @@ else
 	if (CIA_POSTING || $binaryMode || isset($_GET['$bin']) || !@$_COOKIE['JS'])
 	{
 		if (!$binaryMode) CIA::setPrivate(true);
-		IA_php::loadAgent($agent);
+		IA_php::loadAgent($agent, false, false);
 	}
 	else
 	{

@@ -56,31 +56,43 @@ class iaCompiler_js extends iaCompiler
 		return 'P$' . $name;
 	}
 
-	protected function addAGENT($end, $inc, &$args)
+	protected function addAGENT($end, $inc, &$args, $is_exo)
 	{
 		if ($end) return false;
 
 		$this->pushCode('');
 
 		$keys = false;
-		$meta = 0;
+		$meta = $is_exo ? 3 : 2;
 
-		if ("'" == substr($inc, 0, 1))
+		if (preg_match('/^\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'$/su', $inc))
 		{
 			eval("\$inc=$inc;");
 
 			list($CIApID, $root, $inc, $keys) = CIA::resolveAgentTrace($inc, $args);
 
-			$this->quote($inc);
+			if (false !== $root)
+			{
+				if (!$is_exo)
+				{
+					E("Template Security Restriction Error: an EXOAGENT ({$root}{$inc}) is called with AGENT on line " . $this->getLine());
+					exit;
+				}
+
+				$meta = array($CIApID, $this->quote($root));
+				$meta = '[' . implode(',', $meta) . ']';
+			}
+			else if ($is_exo)
+			{
+				E("Template Security Restriction Error: an AGENT ({$inc}) is called with EXOAGENT on line " . $this->getLine());
+				exit;
+			}
+			else $meta = 1;
 
 			array_walk($keys, array($this, 'quote'));
 			$keys = implode(',', $keys);
 
-			if (false !== $root)
-			{
-				$meta = array($CIApID, $this->quote($root));
-				$meta = '[' . implode(',', $meta) . ']';
-			}
+			$this->quote($inc);
 		}
 
 		$a = '';
