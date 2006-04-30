@@ -126,7 +126,7 @@ if (@$_SERVER['HTTP_IF_NONE_MATCH']{0} == '/' && preg_match("'^/[0-9a-f]{32}-([0
 
 	$match = $match[0];
 	$match{6} = $match{3} = '/';
-	$match = './tmp/cache/validator/' . $match . '.txt';
+	$match = './tmp/cache/validator.' . DEBUG . '/' . $match . '.txt';
 
 	$headers = @file_get_contents($match);
 	if ($headers !== false)
