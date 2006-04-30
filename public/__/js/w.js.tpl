@@ -164,7 +164,7 @@ if ((topwin = self).Error)
 	eval('try{while(((w=topwin.parent)!=topwin)&&t(w.name))topwin=w}catch(w){}');
 
 
-w = function($rootAgent, $keys, $CIApID)
+w = function($rootAgent, $keys, $masterCIApID)
 {
 	$CIApID /= 1;
 
@@ -182,13 +182,14 @@ w = function($rootAgent, $keys, $CIApID)
 		$i, $j, $loopIterator = [],
 
 		a, d, v, g,
+		$CIApID = $masterCIApID,
 
 		r = {toString: function() {return g.__ROOT__}},
 
 		$lastInclude = '',
 		$includeCache = {},
 		
-		$tierDepth = 0;
+		$masterRoot = esc({g$__ROOT__|js});
 
 /*
 *		a : arguments
@@ -206,7 +207,7 @@ w = function($rootAgent, $keys, $CIApID)
 	{
 		if (!t($context)) return;
 
-		var $pointer = 0, $arguments = a, $localCIApID = $CIApID, $CIApID_backup = $rootAgent, $g_backup;
+		var $pointer = 0, $arguments = a, $localCIApID = $CIApID, $localG = g;
 
 		<!-- IF g$__DEBUG__ -->var DEBUG = $i = 0;<!-- END:IF -->
 
@@ -237,13 +238,8 @@ w = function($rootAgent, $keys, $CIApID)
 			a = $arguments;
 			v = $context;
 
-			if ($g_backup)
-			{
-				$localCIApID = $CIApID_backup;
-				_GET = g = $g_backup;
-				$g_backup = 0;
-				--$tierDepth;
-			}
+			$CIApID = $localCIApID;
+			_GET = g = $localG;
 
 			while ($code[$pointer]>='') switch ($code[$pointer++])
 			{
@@ -288,18 +284,16 @@ w = function($rootAgent, $keys, $CIApID)
 					{
 						if ($meta)
 						{
-							++$tierDepth;
-							$CIApID_backup = $localCIApID;
-							$g_backup = g;
+							$CIApID = $meta[0]/1;
 
-							$localCIApID = $meta[0]/1;
+							$args.__DEBUG__ = g.__DEBUG__;
+							$args.__LANG__ = g.__LANG__;
+							$args.__ROOT__ = esc($meta[1]).replace(/__/, $args.__LANG__);
+							$args.__HOST__ = $args.__ROOT__.substr(0, $args.__ROOT__.indexOf('/', 8));
+							$args.__AGENT__ = $agent ? esc($agent) + '/' : '';
+							$args.__URI__ = esc($args.__ROOT__ + $agent);
+
 							_GET = g = $args;
-							g.__DEBUG__ = $g_backup.__DEBUG__;
-							g.__LANG__ = $g_backup.__LANG__;
-							g.__ROOT__ = esc($meta[1]).replace(/__/, g.__LANG__);
-							g.__HOST__ = g.__ROOT__.substr(0, g.__ROOT__.indexOf('/', 8));
-							g.__AGENT__ = $agent ? esc($agent) + '/' : '';
-							g.__URI__ = esc(g.__ROOT__ + $agent);
 						}
 
 						$agent = g.__ROOT__ + '_?$=' + esc($agent);
@@ -394,7 +388,7 @@ w = function($rootAgent, $keys, $CIApID)
 
 					a = $args;
 					if (a.__URI__) a.__URI__ += '?' + $c.substr(5);
-					$include($inc + $c + '&amp;$' + 'v=' + $localCIApID);
+					$include($inc + $c + '&amp;$' + 'v=' + $CIApID);
 				}
 				else
 				{
@@ -448,7 +442,7 @@ w = function($rootAgent, $keys, $CIApID)
 
 	w.r = function()
 	{
-		if ($tierDepth) setcookie('cache_reset_id', $CIApID);
+		if ($masterRoot != g.__ROOT__) setcookie('cache_reset_id', $masterCIApID);
 		location.reload(true);
 	}
 
@@ -549,7 +543,7 @@ w = function($rootAgent, $keys, $CIApID)
 	g.__DEBUG__ = esc({g$__DEBUG__|js});
 	g.__HOST__ = esc({g$__HOST__|js});
 	g.__LANG__ = esc({g$__LANG__|js});
-	g.__ROOT__ = esc({g$__ROOT__|js});
+	g.__ROOT__ = $masterRoot;
 	g.__AGENT__ = $rootAgent ? esc($rootAgent) + '/' : '';
 	g.__URI__ = esc(''+$j);
 
