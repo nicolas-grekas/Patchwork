@@ -1,30 +1,33 @@
-if (window.lF)
+if (self.lF)
 {
-	function loadUpload($form)
+	if (!self.pLuL)
 	{
-		window.UPID = $form.UPLOAD_IDENTIFIER.value;
+		function loadUpload($form)
+		{
+			window.UPID = $form.UPLOAD_IDENTIFIER.value;
 
-		var $i = 0, $len = $form.length;
+			var $i = 0, $len = $form.length;
 
-		for (; $i < $len; ++$i) if ($form[$i].type == 'file' && $form[$i].value) break;
+			for (; $i < $len; ++$i) if ($form[$i].type == 'file' && $form[$i].value) break;
 
-		if ($i < $len) open(
-			{root:'upload'|js},
-			'',
-			'status=no,scrollbars=no,resizable=no,dependent=yes,height=100,width=350,left=' + parseInt(screen.availWidth/2 - 200) + ',top=' + parseInt(screen.availHeight/2 - 100)
-		);
+			if ($i < $len) open(
+				{root:'upload'|js},
+				'',
+				'status=no,scrollbars=no,resizable=no,dependent=yes,height=100,width=350,left=' + parseInt(screen.availWidth/2 - 200) + ',top=' + parseInt(screen.availHeight/2 - 100)
+			);
+		}
+
+		pLuL=[
+			'img/blank.gif',
+			'img/upload/b.png',
+			'img/upload/i.gif',
+			'img/upload/l.png',
+			'img/upload/r.png',
+			'img/upload/t.gif'
+		];
+
+		setTimeout('for(i in pLuL)j=pLuL[i],pLuL[i]=new Image,pLuL[i].src=root(j)', 2000);
 	}
-
-	pLuL=[
-		'img/blank.gif',
-		'img/upload/b.png',
-		'img/upload/i.gif',
-		'img/upload/l.png',
-		'img/upload/r.png',
-		'img/upload/t.gif'
-	];
-
-	setTimeout('for(i in pLuL)j=pLuL[i],pLuL[i]=new Image,pLuL[i].src=j', 2000);
 }
 else
 {

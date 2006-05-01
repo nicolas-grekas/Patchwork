@@ -58,7 +58,7 @@ table
 	<td width="100%"><div id="detail"></div><div id="progress"><img src="{~}img/upload/i.gif" id="unit" width="8" height="20" /></div></td>
 </tr>
 <tr>
-	<td id="b" background="img/upload/b.png" style="filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='img/upload/b.png',sizingMethod='scale')"><img src="{~}img/blank.gif" width="1" height="6" /></td>
+	<td id="b" background="{~}img/upload/b.png" style="filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src={root:'img/upload/b.png'|js},sizingMethod='scale')"><img src="{~}img/blank.gif" width="1" height="6" /></td>
 </tr>
 </table>
 
