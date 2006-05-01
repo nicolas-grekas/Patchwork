@@ -471,7 +471,7 @@ w = function($rootAgent, $keys, $masterCIApID)
 			$buffer = '';
 		else
 			$i += 9,
-			$content = $buffer.substring(0, $i) + '<script type="text/javascript" src="' + g.__ROOT__ + 'js/x"></script>', // Any optimization to save some request here is likely to break IE ...
+			$content = $buffer.substring(0, $i) + '<script type="text/javascript" src="' + $masterRoot + 'js/x"></script>', // Any optimization to save some request here is likely to break IE ...
 			$buffer = $buffer.substr($i);
 
 		$document.write($content);
