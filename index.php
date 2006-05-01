@@ -281,6 +281,12 @@ if (CIA_DIRECT)
 {
 	CIA::header('Content-Type: text/javascript; charset=UTF-8');
 
+	if (isset($_GET['$v']) && CIA_PROJECT_ID != $_GET['$v'])
+	{
+		echo 'w.r()';
+		exit;
+	}
+
 	switch ( key($_GET) )
 	{
 		case 't':
@@ -335,13 +341,7 @@ if (CIA_DIRECT)
 			break;
 
 		case '$':
-			if (isset($_GET['$v']) && CIA_PROJECT_ID != $_GET['$v'])
-			{
-				CIA::header('Content-Type: text/javascript; charset=UTF-8');
-				echo 'w.r()';
-			}
-			else IA_js::compose(array_shift($_GET));
-
+			IA_js::compose(array_shift($_GET));
 			break;
 	}
 }
@@ -351,20 +351,25 @@ else
 
 	if (isset($_GET['$k']))
 	{
-		CIA::header('Content-Type: text/plain; charset=UTF-8');
+		CIA::header('Content-Type: text/javascript; charset=UTF-8');
 		CIA::setMaxage(-1);
 
-		$data = array(
-			CIA_PROJECT_ID,
-			CIA::__ROOT__(),
-			'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)),
-			@$_GET['__0__']
-		);
+		function q($a)
+		{
+			return "'" . str_replace(
+				array("\r\n", "\r", '\\',   "\n", "'"),
+				array("\n"  , "\n", '\\\\', '\n', "\\'"),
+				$a
+			) . "'";
+		}
 
-		$data += CIA::agentArgv($agent);
-
-		function q($a) {return str_replace(array('%', "\n"), array('%25', '%0A'), $a);}
-		echo implode("\n", array_map('q', $data));
+		echo 'w.k(',
+				CIA_PROJECT_ID, ',',
+				q( $_SERVER['CIA_ROOT'] ), ',',
+				q( 'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)) ), ',',
+				q( @$_GET['__0__'] ), ',',
+				'[', implode(',', array_map('q', CIA::agentArgv($agent))), ']',
+			')';
 
 		exit;
 	}

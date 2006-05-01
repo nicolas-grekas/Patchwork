@@ -31,12 +31,14 @@ class loop_callAgent extends loop
 				{
 					if (!isset($this->keys) || preg_match("'^(/|https?://)'", $this->agent))
 					{
-						list($CIApID, $root, $data->{'*a'}, $a) = CIA::resolveAgentTrace($this->agent, $data);
+						list($CIApID, $root, $data->{'*a'}, $a, $k) = CIA::resolveAgentTrace($this->agent);
+
+						foreach ($k as $k => $v) $data->$k = $v;
 
 						array_walk($a, array('IA_js', 'formatJs'));
 
 						$data->{'*k'} = '[' . implode(',', $a) . ']';
-					
+
 						if (false !== $root)
 						{
 							$data->{'*v'} = $CIApID;

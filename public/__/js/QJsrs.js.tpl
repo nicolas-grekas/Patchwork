@@ -56,7 +56,7 @@ function $QJsrsContext($name)
 			$url[3] = $post,
 			$url[4] = $local,
 			$this.q = $url,
-			$url = _GET.__ROOT__ + 'QJsrs.html';
+			$url = root('QJsrs.html', 1);
 		else $url = $url[0] + $url[1];
 
 		if ($local && $XMLHttp)
@@ -126,7 +126,8 @@ function $QJsrs($URL, $POST)
 	if ($URL.indexOf($i)<0) $URL += $i;
 
 	$URL = root($URL);
-	$LOCAL = 0 == $URL.indexOf(_GET.__HOST__);
+	$LOCAL = location;
+	$LOCAL = 0 == $URL.indexOf($LOCAL.protocol+'//'+$LOCAL.hostname);
 	$POST = $POST ? 1 : 0;
 
 	$this.replace = function($vararray, $function)

@@ -16,7 +16,7 @@ span.errormsg
 {$test}
 
 <!-- EXOAGENT '/cia/annuaire.php/__/widget/checklist' -->
-<!-- EXOAGENT '/cia/annuaire.php/__/widget/top' type='random' -->
+<!-- EXOAGENT 'http://127.0.0.1/cia/annuaire.php/__/edit' -->
 
 <!-- AGENT $form _mode_='errormsg' -->
 

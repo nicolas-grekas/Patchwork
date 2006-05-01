@@ -344,7 +344,7 @@ function gLE($name, $multiple)
 function FeC($mode)
 {
 	document.write(
-		'<input type="image" border="0" width="1" height="1" src="' + _GET.__ROOT__ + 'img/blank.gif" alt="&nbsp;" style="position:absolute" onclick="return '
+		'<input type="image" border="0" width="1" height="1" src="' + root('img/blank.gif', 1) + '" alt="&nbsp;" style="position:absolute" onclick="return '
 		+ ($mode == 2 ? 'enterControl(this.form)' : 'false') + '" />'
 	);
 }

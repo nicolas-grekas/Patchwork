@@ -31,7 +31,6 @@ class CIA
 		if (DEBUG) self::$cia = new debug_CIA;
 		else self::$cia = new CIA;
 
-		self::$root = $_SERVER['CIA_ROOT'];
 		self::setLang($_SERVER['CIA_LANG'] ? $_SERVER['CIA_LANG'] : substr($GLOBALS['CONFIG']['lang_list'], 0, 2));
 
 		if (htmlspecialchars(self::$root) != self::$root)
@@ -52,7 +51,7 @@ class CIA
 		$lang = self::$lang;
 		self::$lang = $new_lang;
 
-		self::$root = explode($lang, self::$root, 2);
+		self::$root = explode('__', $_SERVER['CIA_ROOT'], 2);
 		self::$root = implode($new_lang, self::$root);
 
 		self::$host = substr(self::$root, 0, strpos(self::$root, '/', 8));
@@ -451,8 +450,9 @@ class CIA
 		return $agent;
 	}
 
-	public static function resolveAgentTrace($agent, &$args)
+	public static function resolveAgentTrace($agent)
 	{
+		$args = array();
 		$ROOT = $root = CIA::__ROOT__();
 		$agent = self::root($agent);
 
@@ -465,13 +465,21 @@ class CIA
 			$keys->addQueryString('$k', '');
 			$keys->sendRequest();
 			$keys = $keys->getResponseBody();
-			$keys = explode("\n", $keys);
-			$keys = array_map('rawurldecode', $keys);
 
-			$CIApID = array_shift($keys);
-			$root = array_shift($keys);
-			$agent = array_shift($keys);
-			$a = array_shift($keys);
+			$s = '\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'';
+
+			if (!preg_match("/w\.k\((-?[0-9]+),($s),($s),($s),\[((?:$s(?:,$s)*)?)\]\)/su", $keys, $keys))
+			{
+				E('Error while getting meta info data for ' . htmlspecialchars($agent));
+				exit;
+			}
+
+			$CIApID = (int) $keys[1];
+			$root = stripcslashes(substr($keys[2], 1, -1));
+			$root = preg_replace("'__'", CIA::__LANG__(), $root, 1);
+			$agent = stripcslashes(substr($keys[3], 1, -1));
+			$a = stripcslashes(substr($keys[4], 1, -1));
+			$keys = eval('return array(' . $keys[5] . ');');
 
 			if ('' !== $a)
 			{
@@ -484,11 +492,11 @@ class CIA
 
 		if ($root == $ROOT)
 		{
-			return array(false, false, $agent,  self::agentArgv(self::resolveAgentClass($agent, $args)) );
+			return array(false, false, $agent,  self::agentArgv(self::resolveAgentClass($agent, $args)), $args);
 		}
 		else
 		{
-			return array((int) $CIApID, $root, $agent, $keys);
+			return array((int) $CIApID, $root, $agent, $keys, $args);
 		}
 	}
 
@@ -602,7 +610,9 @@ class CIA
 		{
 			if (CIA_DIRECT)
 			{
-				$buffer = 'location.replace(' . (self::$redirectUrl !== '' ? "'" . addslashes(self::$redirectUrl) . "'" : 'location') . ')';
+				$buffer = 'location.replace(' . (self::$redirectUrl !== ''
+					? "'" . addslashes(self::$redirectUrl) . "'"
+					: 'location') . ')';
 			}
 			else
 			{

@@ -10,7 +10,6 @@
 * setcookie
 * setboard
 * topwin
-* _GET
 * _BOARD
 * _COOKIE
 */
@@ -52,21 +51,6 @@ function esc($str)
 	return $str;
 }
 
-function root($str, $g)
-{
-	$g = _GET;
-
-	return (
-		/^https?:\/\//.test($str)
-		? ''
-		: (
-			0 == $str.indexOf('/')
-			? $g.__HOST__
-			: $g.__ROOT__
-		)
-	) + $str;
-}
-
 function parseurl($param, $delim, $rx, $array)
 {
 	var $i, $j;
@@ -92,7 +76,7 @@ function loadPng($this)
 		$this.style.width = $this.offsetWidth + 'px';
 		$this.style.height = $this.offsetHeight + 'px';
 
-		$this.src = _GET.__ROOT__+'img/blank.gif';
+		$this.src = root('img/blank.gif', 1);
 		$this.style.filter = 'progid:DXImageTransform.Microsoft.AlphaImageLoader(src="'+$src+'",sizingMethod="scale")';
 	}
 }
@@ -191,6 +175,21 @@ w = function($rootAgent, $keys, $masterCIApID)
 		
 		$masterRoot = esc({g$__ROOT__|js});
 
+		self.root = function($str, $master)
+		{
+			$master = $master ? $masterRoot : g.__ROOT__;
+
+			return (
+				/^https?:\/\//.test($str)
+				? ''
+				: (
+					0 == $str.indexOf('/')
+					? $master.substr(0, $master.indexOf('/', 8))
+					: $master
+				)
+			) + $str;
+	}
+
 /*
 *		a : arguments
 *		d : data, root
@@ -239,7 +238,7 @@ w = function($rootAgent, $keys, $masterCIApID)
 			v = $context;
 
 			$CIApID = $localCIApID;
-			_GET = g = $localG;
+			g = $localG;
 
 			while ($code[$pointer]>='') switch ($code[$pointer++])
 			{
@@ -260,11 +259,15 @@ w = function($rootAgent, $keys, $masterCIApID)
 						$meta = $code[$pointer++],
 						$data;
 
+					<!-- IF g$__DEBUG__ -->
 					if (!t($agent))
 					{
-						self.E && E('AGENT is undefined: ' + $code[$pointer-4]);
+						E('AGENT is undefined: ' + $code[$pointer-4]);
 						break;
 					}
+					<!-- ELSE -->
+					if (!t($agent)) break;
+					<!-- END:IF -->
 
 					if (t($agent, 'function'))
 					{
@@ -284,14 +287,32 @@ w = function($rootAgent, $keys, $masterCIApID)
 					if (!$meta) $agent = g.__ROOT__ + '_?t=' + $agent;
 					else
 					{
-						if (3 == $meta); //TODO EXOAGENT expected
-						else if (2 == $meta)
+						if ($meta > 1)
 						{
+						<!-- IF g$__DEBUG__ -->
 							if (/^(\/|https?:\/\/)/.test($agent))
 							{
-								self.E && E('EXOAGENT (' + $agent + ') called with AGENT');
+								if (2 == $meta)
+								{
+									E('EXOAGENT (' + $agent + ') called with AGENT');
+									break;
+								}
+
+								$keys = 0;
+							}
+							else if (3 == $meta)
+							{
+								E('AGENT (' + $agent + ') called with EXOAGENT');
 								break;
 							}
+						<!-- ELSE -->
+							if (/^(\/|https?:\/\/)/.test($agent))
+							{
+								if (2 == $meta) break;
+
+								$keys = 0;
+							}
+						<!-- END:IF -->
 						}
 						else if (1 != $meta)
 						{
@@ -304,10 +325,10 @@ w = function($rootAgent, $keys, $masterCIApID)
 							$args.__AGENT__ = $agent ? $agent + '/' : '';
 							$args.__URI__ = $args.__ROOT__ + $agent;
 
-							_GET = g = $args;
+							g = $args;
 						}
 
-						$agent = g.__ROOT__ + '_?$=' + $agent;
+						$agent = $keys ? g.__ROOT__ + '_?$=' + $agent : root($agent);
 					}
 
 					return $include($agent, $args, $keys);
@@ -378,38 +399,62 @@ w = function($rootAgent, $keys, $masterCIApID)
 
 		function $include($inc, $args, $keys, $c)
 		{
-			if (t($inc))
+			if ($args)
 			{
-				if ($args)
+				if ($inc.indexOf('?')==-1) $inc += '?';
+				$c = '';
+
+				for ($i in $args) $args[$i] = num($args[$i], 1);
+
+				if ($keys)
 				{
-					if ($inc.indexOf('?')==-1) $inc += '?';
-					$c = '';
-
-					for ($i in $args) $args[$i] = num($args[$i], 1);
-
-					if ($keys)
-					{
-						for ($i=0; $i<$keys.length; ++$i)
-							if (($j = $keys[$i]) && t($args[$j]))
-								$c += '&amp;' + eUC($j) + '=' + eUC($args[$j]);
-					}
-					else
-						for ($i in $args)
-							$c += '&amp;' + eUC($i) + '=' + eUC($args[$i]);
+					for ($i=0; $i<$keys.length; ++$i)
+						if (($j = $keys[$i]) && t($args[$j]))
+							$c += '&amp;' + eUC($j) + '=' + eUC($args[$j]);
 
 					a = $args;
 					if (a.__URI__) a.__URI__ += '?' + $c.substr(5);
-					$include($inc + $c + '&amp;$' + 'v=' + $CIApID);
+					$include($inc + $c + '&amp;$v=' + $CIApID);
 				}
 				else
 				{
-					$lastInclude = $c ? '' : $inc;
+					w.k = function($id, $root, $agent, $__0__, $keys)
+					{
+						$root = esc($root).replace(/__/, g.__LANG__);
+						$agent = esc($agent);
 
-					if (t($includeCache[$inc])) w($includeCache[$inc][0], $includeCache[$inc][1]);
-					else
-						$buffer += '<script type="text/javascript" src="' + $inc + '"></script >',
-						w.f();
+						$args.__0__ = $__0__;
+						$__0__ = $__0__.split('/');
+						for ($i = 0; $i < $__0__.length; ++$i) $args['__' + ($i+1) + '__'] = $__0__[$i];
+
+						if ($root != g.__ROOT__)
+						{
+							$CIApID = $id/1;
+
+							$args.__DEBUG__ = g.__DEBUG__;
+							$args.__LANG__ = g.__LANG__;
+							$args.__ROOT__ = $root;
+							$args.__HOST__ = $root.substr(0, $root.indexOf('/', 8));
+							$args.__AGENT__ = $agent ? $agent + '/' : '';
+							$args.__URI__ = $root + $agent;
+
+							g = $args;
+						}
+
+						$include($root + '_?$=' + $agent, $args, $keys)
+					}
+
+					$include($inc + '&amp;$k=', 0, 0, 1);
 				}
+			}
+			else
+			{
+				$lastInclude = $c ? '' : $inc;
+
+				if (t($includeCache[$inc])) w($includeCache[$inc][0], $includeCache[$inc][1]);
+				else
+					$buffer += '<script type="text/javascript" src="' + $inc + '"></script >',
+					w.f();
 			}
 		}
 
@@ -445,10 +490,6 @@ w = function($rootAgent, $keys, $masterCIApID)
 			},
 
 			$document.close();
-	}
-
-	w.k = function($id, $root, $agent, $__0__, $keys)
-	{
 	}
 
 	w.r = function()
@@ -562,8 +603,6 @@ w = function($rootAgent, $keys, $masterCIApID)
 	for ($i=0; $i<$j.length; ++$i) if ($j[$i]) $loopIterator[$loopIterator.length] = g['__'+($loopIterator.length+1)+'__'] = esc($j[$i]);
 	g.__0__ = $loopIterator.join('/');
 
-	self._GET = g;
-
 	if ($keys) w(0, [1, '$rootAgent', 'g', $keys, 1]);
 }
 
@@ -599,6 +638,11 @@ function loadW()
 		$window.a && w(a[0], a[1], a[2]);
 	}
 	else document.write('<script type="text/javascript" src="js/compat"></script>');
+}
+
+function P$root($string)
+{
+	return root( str($string) );
 }
 
 loadW();
