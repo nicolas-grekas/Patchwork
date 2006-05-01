@@ -205,7 +205,7 @@ w = function($rootAgent, $keys, $masterCIApID)
 
 	w = function($context, $code)
 	{
-		if (!t($context)) return;
+		if (!t($context)) return $rootAgent; //"$rootAgent" is only here for jsquiz to work well
 
 		var $pointer = 0, $arguments = a, $localCIApID = $CIApID, $localG = g;
 
