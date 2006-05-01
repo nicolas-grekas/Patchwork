@@ -73,8 +73,8 @@ function loadPng($this)
 	var $src = $this.src, $width = $this.width, $height = $this.height;
 	if ($src.search(/\.png$/i)>=0)
 	{
-		$this.style.width = $this.offsetWidth + 'px';
-		$this.style.height = $this.offsetHeight + 'px';
+		$this.style.width  = ($this.offsetWidth  || $this.width ) + 'px';
+		$this.style.height = ($this.offsetHeight || $this.height) + 'px';
 
 		$this.src = root('img/blank.gif', 1);
 		$this.style.filter = 'progid:DXImageTransform.Microsoft.AlphaImageLoader(src="'+$src+'",sizingMethod="scale")';
