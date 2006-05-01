@@ -69,7 +69,9 @@ class iaCompiler_js extends iaCompiler
 		{
 			eval("\$inc=$inc;");
 
-			list($CIApID, $root, $inc, $keys) = CIA::resolveAgentTrace($inc, $args);
+			list($CIApID, $root, $inc, $keys, $k) = CIA::resolveAgentTrace($inc);
+
+			foreach ($k as $k => $v) $args[$k] = $this->quote($v);
 
 			if (false !== $root)
 			{

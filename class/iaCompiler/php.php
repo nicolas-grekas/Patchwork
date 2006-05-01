@@ -32,10 +32,9 @@ class iaCompiler_php extends iaCompiler
 
 		if (preg_match('/^\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'$/su', $inc))
 		{
-			$end = array();
 			eval("\$root=$inc;");
 
-			list(, $root, $end) = CIA::resolveAgentTrace($root, $end);
+			list(, $root, $end) = CIA::resolveAgentTrace($root);
 
 			if (false !== $root)
 			{

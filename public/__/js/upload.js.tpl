@@ -9,7 +9,7 @@ if (window.lF)
 		for (; $i < $len; ++$i) if ($form[$i].type == 'file' && $form[$i].value) break;
 
 		if ($i < $len) open(
-			_GET.__ROOT__ + 'upload',
+			{root:'upload'|js},
 			'',
 			'status=no,scrollbars=no,resizable=no,dependent=yes,height=100,width=350,left=' + parseInt(screen.availWidth/2 - 200) + ',top=' + parseInt(screen.availHeight/2 - 100)
 		);

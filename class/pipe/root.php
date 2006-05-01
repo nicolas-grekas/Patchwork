@@ -1,5 +1,7 @@
 <?php
 
+// This pipe is duplicated in js/w
+
 class pipe_root
 {
 	static function php($string = '')
