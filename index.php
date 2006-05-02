@@ -89,7 +89,7 @@ if (!isset($_SERVER['CIA']))
 putenv('LC_ALL=en_US.UTF-8');
 setlocale(LC_ALL, 'en_US.UTF-8');
 
-define('DEBUG',			1);//$CONFIG['allow_debug'] ? (int) @$_COOKIE['DEBUG'] : 0);
+define('DEBUG',			$CONFIG['allow_debug'] ? (int) @$_COOKIE['DEBUG'] : 0);
 define('CIA_MAXAGE',	$CONFIG['maxage']);
 define('CIA_TIME', time());
 define('CIA_PROJECT_ID', $version_id % 1000);
