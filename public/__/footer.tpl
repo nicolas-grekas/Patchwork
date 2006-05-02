@@ -1,5 +1,8 @@
-<!-- SERVERSIDE -->
 <script type="text/javascript">/*<![CDATA[*/
+document.write(w.appendToBody);
+w.appendToBody = '';
+<!-- SERVERSIDE -->
+
 w=addOnload
 w.o=window.onload
 
@@ -13,7 +16,7 @@ onload=function()
 }
 
 if(window.Error&&navigator.userAgent.indexOf('Safari')<0)document.cookie='JS=1; path=/',document.cookie='JS=1; expires=Sun, 17-Jan-2038 19:14:07 GMT; path=/'
-/*]]>*/</script>
 <!-- END:SERVERSIDE -->
+/*]]>*/</script>
 </body>
 </html>

@@ -8,7 +8,7 @@ function $onfocus($this)
 	this.$focus = 1;
 
 	$this = QSelect.$get(this);
-	$this.$select.$QSelectId = this.form.$QSelectId = this.$QSelectId;
+	$this.$select.$QSelectId = $this.$form.$QSelectId = this.$QSelectId;
 	$this.$select.onchange = $this.$onchange;
 	$this.$lastFocused = this;
 }
@@ -130,20 +130,25 @@ var $selectRange,
 	$onkeydown = $win.$onkeydown,
 	$precheck = $win.$precheck,
 
-	$select = $getById($root + 's'),
-	$options = $select.options,
-	$div = $getById($root + 'd1'),
-	$imgH = $getById($root + 'i1'),
-	$imgW = $getById($root + 'i2'),
-	$divH = $getById($root + 'd2'),
-	$divW = $getById($root + 'd3');
-
-$select.onfocus = $onfocus;
-$select.onblur = $onblur;
-$select.onmouseup = $onmouseup;
+	$select, $options, $div, $imgH, $imgW, $divH, $divW;
 
 return function($input, $driver)
 {
+	if (!$select)
+	{
+		$select = $getById($root + 's');
+		$options = $select.options;
+		$div = $getById($root + 'd1');
+		$imgH = $getById($root + 'i1');
+		$imgW = $getById($root + 'i2');
+		$divH = $getById($root + 'd2');
+		$divW = $getById($root + 'd3');
+
+		$select.onfocus = $onfocus;
+		$select.onblur  = $onblur;
+		$select.onmouseup = $onmouseup;
+	}
+
 	var $this = {},
 		$form = $input.form,
 		$id = $input.name,
@@ -164,11 +169,12 @@ return function($input, $driver)
 	$this.$lastKeyupid = 0;
 
 	$this.$select = $select;
+	$this.$form = $form;
 	$this.$onchange = $driver.onchange;
 
 	$input.$QSelectId = $id;
 	$input.onfocus = $onfocus;
-	$input.onblur = $onblur;
+	$input.onblur  = $onblur;
 	$input.onkeyup = $onkeyup;
 	$input.onkeydown = $onkeydown;
 	$input.onkeypress = $onkeydown;
