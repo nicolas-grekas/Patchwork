@@ -1,2 +1,2 @@
 <!-- AGENT 'js/QSelect/QJsrs' -->
-QSelectInit(lE,QSelectQJsrs({$src|js}))
+addOnload((function(e){return function(){QSelect(e,QSelectQJsrs({$src|js}))}})(lE))
