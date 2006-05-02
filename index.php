@@ -82,6 +82,7 @@ if (!isset($_SERVER['CIA']))
 		$_SERVER['CIA_REQUEST'] = $a[2];
 	}
 }
+else if ('/' == substr($_SERVER['CIA_HOME'], 0, 1)) $_SERVER['CIA_HOME'] = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['CIA_HOME'];
 
 
 /* Config initialisation */
