@@ -461,7 +461,7 @@ w = function($rootAgent, $keys, $masterCIApID)
 		$execute();
 	}
 
-	w.appendToBody = '';
+	w.finalHTML = '';
 
 	w.f = function()
 	{
@@ -480,9 +480,9 @@ w = function($rootAgent, $keys, $masterCIApID)
 
 		if ($i<0 && $closeDoc)
 		{
-			if (w.appendToBody)
-				$buffer = w.appendToBody,
-				w.appendToBody = '',
+			if (w.finalHTML)
+				$buffer = w.finalHTML,
+				w.finalHTML = '',
 				w.f();
 
 			else
@@ -649,9 +649,9 @@ function loadW()
 	else document.write('<script type="text/javascript" src="js/compat"></script>');
 }
 
-function P$root($string)
+function P$root($string, $master)
 {
-	return root( str($string) );
+	return root( str($string), num($master) );
 }
 
 loadW();

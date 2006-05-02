@@ -121,7 +121,6 @@ QSelect = (function()
 var $selectRange,
 
 	$win = self,
-	$root = {root:'_QS'|urlencode|js},
 	$getById = $win.$getById,
 	$onfocus = $win.$onfocus,
 	$onblur = $win.$onblur,
@@ -130,29 +129,25 @@ var $selectRange,
 	$onkeydown = $win.$onkeydown,
 	$precheck = $win.$precheck,
 
-	$select, $options, $div, $imgH, $imgW, $divH, $divW;
+	$select = $getById('_QSs'),
+	$options = $select.options,
+	$div  = $getById('_QSd1'),
+	$imgH = $getById('_QSi1'),
+	$imgW = $getById('_QSi2'),
+	$divH = $getById('_QSd2'),
+	$divW = $getById('_QSd3');
+
+$select.onfocus = $onfocus;
+$select.onblur = $onblur;
+$select.onmouseup = $onmouseup;
+
 
 return function($input, $driver)
 {
-	if (!$select)
-	{
-		$select = $getById($root + 's');
-		$options = $select.options;
-		$div = $getById($root + 'd1');
-		$imgH = $getById($root + 'i1');
-		$imgW = $getById($root + 'i2');
-		$divH = $getById($root + 'd2');
-		$divW = $getById($root + 'd3');
-
-		$select.onfocus = $onfocus;
-		$select.onblur  = $onblur;
-		$select.onmouseup = $onmouseup;
-	}
-
 	var $this = {},
 		$form = $input.form,
 		$id = $input.name,
-		$imgB = $getById($root + 'b' + $id) || {},
+		$imgB = $getById($input.tag + '_QSb' + $id) || {},
 
 		$length = 0,
 
