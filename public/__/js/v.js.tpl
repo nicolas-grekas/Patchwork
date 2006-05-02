@@ -139,7 +139,7 @@ function getCaret($input)
 {
 	var $i, $caretPos = $input.selectionStart;
 
-	if (document.selection)
+	if (!$caretPos && document.selection)
 	{
 		$caretPos = document.selection.createRange();
 		try
