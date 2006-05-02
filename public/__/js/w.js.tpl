@@ -321,9 +321,10 @@ w = function($homeAgent, $keys, $masterCIApID)
 							$args.__DEBUG__ = g.__DEBUG__;
 							$args.__LANG__ = g.__LANG__;
 							$args.__HOME__ = esc($meta[1]).replace(/__/, $args.__LANG__);
-							$args.__HOST__ = $args.__HOME__.substr(0, $args.__HOME__.indexOf('/', 8));
+							$args.__HOST__ = $args.__HOME__.substr(0, $args.__HOME__.indexOf('/', 8)+1);
 							$args.__AGENT__ = $agent ? $agent + '/' : '';
 							$args.__URI__ = $args.__HOME__ + $agent;
+							$args['*'] = 1;
 
 							g = $args;
 						}
@@ -406,14 +407,14 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 				if ($keys)
 				{
-					if ($args.__URI__) for ($i in $args) $args[$i] = num(str($args[$i]), 1);
+					if ($args['*']) for ($i in $args) $args[$i] = num(str($args[$i]), 1);
 					else               for ($i in $args) $args[$i] = num(    $args[$i] , 1);
 
 					for ($i=0; $i<$keys.length; ++$i)
 						if (($j = $keys[$i]) && t($args[$j]))
 							$c += '&amp;' + eUC($j) + '=' + eUC($args[$j]);
 
-					if ($args.__URI__) $args.__URI__ += '?' + $c.substr(5);
+					if ($args['*']) $args.__URI__ += '?' + $c.substr(5);
 					a = $args;
 					$include($inc + $c + '&amp;$v=' + $CIApID);
 				}
@@ -435,9 +436,10 @@ w = function($homeAgent, $keys, $masterCIApID)
 							$args.__DEBUG__ = g.__DEBUG__;
 							$args.__LANG__ = g.__LANG__;
 							$args.__HOME__ = $home;
-							$args.__HOST__ = $home.substr(0, $home.indexOf('/', 8));
+							$args.__HOST__ = $home.substr(0, $home.indexOf('/', 8)+1);
 							$args.__AGENT__ = $agent ? $agent + '/' : '';
 							$args.__URI__ = $home + $agent;
+							$args['*'] = 1;
 
 							g = $args;
 						}
