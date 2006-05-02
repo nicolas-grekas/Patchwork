@@ -2,11 +2,11 @@
 
 // This pipe is duplicated in js/w
 
-class pipe_root
+class pipe_home
 {
 	static function php($string = '')
 	{
-		return CIA::root( CIA::string($string) );
+		return CIA::home( CIA::string($string) );
 	}
 
 	static function js()
@@ -15,7 +15,7 @@ class pipe_root
 
 P$<?php echo substr(__CLASS__, 5)?> = function($string)
 {
-	return root( str($string) );
+	return home( str($string) );
 }
 
 <?php	}

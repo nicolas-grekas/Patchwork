@@ -32,15 +32,15 @@ class iaCompiler_php extends iaCompiler
 
 		if (preg_match('/^\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'$/su', $inc))
 		{
-			eval("\$root=$inc;");
+			eval("\$home=$inc;");
 
-			list(, $root, $end) = CIA::resolveAgentTrace($root);
+			list(, $home, $end) = CIA::resolveAgentTrace($home);
 
-			if (false !== $root)
+			if (false !== $home)
 			{
 				if (!$is_exo)
 				{
-					E("Template Security Restriction Error: an EXOAGENT ({$root}{$end}) is called with AGENT on line " . $this->getLine());
+					E("Template Security Restriction Error: an EXOAGENT ({$home}{$end}) is called with AGENT on line " . $this->getLine());
 					exit;
 				}
 			}

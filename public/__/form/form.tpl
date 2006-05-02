@@ -21,7 +21,7 @@ ELSEIF a$_mode_ == 'close' --></form><!--
 
 ELSE --><!--
 
-	SET a$action --><!-- IF !a$action -->{g$__URI__}<!-- ELSE -->{root:a$action}<!-- END:IF --><!-- END:SET
+	SET a$action --><!-- IF !a$action -->{g$__URI__}<!-- ELSE -->{home:a$action}<!-- END:IF --><!-- END:SET
 
 	--><form accept-charset="UTF-8" {a$|htmlArgs}><!--
 

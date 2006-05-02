@@ -73,15 +73,15 @@ ELSE --><!--
 {a$name} = new dTree('{a$name}');
 
 {a$name}.add(
-	{a$rootId|js},
+	{a$homeId|js},
 	-1,
-	{a$rootLabel|js},
-	{a$rootUrl|js},
-	{a$rootTitle|js},
-	{$rootTrget|js},
-	{$rootIcon|js},
-	{$rootIconOpen|js},
-	{$rootOpen|js}
+	{a$homeLabel|js},
+	{a$homeUrl|js},
+	{a$homeTitle|js},
+	{$homeTrget|js},
+	{$homeIcon|js},
+	{$homeIconOpen|js},
+	{$homeOpen|js}
 	);
 {a$dtree}
 

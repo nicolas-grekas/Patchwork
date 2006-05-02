@@ -28,10 +28,10 @@ END:SET --><!--
 
 SET $INPUT --><!--
 
-	SET $INPUT -->{root:|urlencode}<!-- END:SET --><!--
+	SET $INPUT -->{home:|urlencode}<!-- END:SET --><!--
 	IF a$_mandatory --><span class="mandatory"><!-- END:IF
 
-	--><span class="QSstyle"><input autocomplete="off" {a$|htmlArgs} /><img src="{~}QSelect/b.gif" id="_QSb{$INPUT}{a$name}" onmouseover="this.src={root:'QSelect/bh.gif'|js}" onmouseout="this.src={root:'QSelect/b.gif'|js}" onmousedown="this.src={root:'QSelect/bp.gif'|js}" onmouseup="this.onmouseover()" alt=" " title="" /></span><script type="text/javascript">/*<![CDATA[*/<!--
+	--><span class="QSstyle"><input autocomplete="off" {a$|htmlArgs} /><img src="{~}QSelect/b.gif" id="_QSb{$INPUT}{a$name}" onmouseover="this.src={home:'QSelect/bh.gif'|js}" onmouseout="this.src={home:'QSelect/b.gif'|js}" onmousedown="this.src={home:'QSelect/bp.gif'|js}" onmouseup="this.onmouseover()" alt=" " title="" /></span><script type="text/javascript">/*<![CDATA[*/<!--
 
 	IF !g$_QS --><!--
 		SET g$_QS
@@ -46,7 +46,7 @@ SET $INPUT --><!--
 
 	lE.gS=function(){return valid(this<!-- LOOP a$_valid -->,{$VALUE|js}<!-- END:LOOP -->)}
 
-	lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form)};<!-- IF a$_focus_ -->lE.focus()<!-- END:IF -->/*]]>*/</script ><script type="text/javascript" src="{root:a$_src_}"></script><!--
+	lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form)};<!-- IF a$_focus_ -->lE.focus()<!-- END:IF -->/*]]>*/</script ><script type="text/javascript" src="{home:a$_src_}"></script><!--
 
 	IF a$_mandatory --></span><!-- END:IF --><!--
 

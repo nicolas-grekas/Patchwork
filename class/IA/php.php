@@ -50,7 +50,7 @@ class IA_php
 			self::$get->__DEBUG__ = DEBUG ? DEBUG : 0;
 			self::$get->__HOST__ = CIA::__HOST__();
 			$cache .= self::$get->__LANG__ = CIA::__LANG__();
-			$cache .= self::$get->__ROOT__ = CIA::__ROOT__();
+			$cache .= self::$get->__HOME__ = CIA::__HOME__();
 			self::$get->__AGENT__ = 'agent_index' == $agent ? '' : (str_replace('_', '/', substr($agent, 6)) . '/');
 			self::$get->__URI__ = htmlspecialchars(CIA::__URI__());
 
@@ -76,12 +76,12 @@ class IA_php
 				foreach ($data as $k => $v) $args[$k] = is_string($v) ? htmlspecialchars($v) : $v;
 			}
 
-			$ROOT = CIA::__ROOT__();
-			$agent = CIA::root($agent);
+			$HOME = CIA::__HOME__();
+			$agent = CIA::home($agent);
 
-			if (0 === strpos($agent, $ROOT))
+			if (0 === strpos($agent, $HOME))
 			{
-				$agent = substr($agent, strlen($ROOT));
+				$agent = substr($agent, strlen($HOME));
 
 				if ($is_exo)
 				{

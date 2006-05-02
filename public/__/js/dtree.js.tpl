@@ -40,7 +40,7 @@ function dTree(objName) {
 		inOrder			: false
 	}
 	this.icon = {
-		root		: 'img/dtree/base.gif',
+		home		: 'img/dtree/base.gif',
 		folder		: 'img/dtree/folder.gif',
 		folderOpen	: 'img/dtree/folderopen.gif',
 		node		: 'img/dtree/page.gif',
@@ -58,7 +58,7 @@ function dTree(objName) {
 	this.obj = objName;
 	this.aNodes = [];
 	this.aIndent = [];
-	this.root = new dTreeNode(-1);
+	this.home = new dTreeNode(-1);
 	this.selectedNode = null;
 	this.selectedFound = false;
 	this.completed = false;
@@ -83,7 +83,7 @@ dTree.prototype.toString = function() {
 
 	if (document.getElementById) {
 		if (this.config.useCookies) this.selectedNode = this.getSelected();
-		str += this.addNode(this.root);
+		str += this.addNode(this.home);
 	} else str += 'Browser not supported.';
 	str += '</div>';
 	if (!this.selectedFound) this.selectedNode = null;
@@ -121,11 +121,11 @@ dTree.prototype.addNode = function(pNode) {
 dTree.prototype.node = function(node, nodeId) {
 	var str = '<div class="dTreeNode">' + this.indent(node, nodeId);
 	if (this.config.useIcons) {
-		if (!node.icon) node.icon = (this.root.id == node.pid) ? this.icon.root : ((node._hc) ? this.icon.folder : this.icon.node);
+		if (!node.icon) node.icon = (this.home.id == node.pid) ? this.icon.home : ((node._hc) ? this.icon.folder : this.icon.node);
 		if (!node.iconOpen) node.iconOpen = (node._hc) ? this.icon.folderOpen : this.icon.node;
-		if (this.root.id == node.pid) {
-			node.icon = this.icon.root;
-			node.iconOpen = this.icon.root;
+		if (this.home.id == node.pid) {
+			node.icon = this.icon.home;
+			node.iconOpen = this.icon.home;
 		}
 		str += '<img id="i' + this.obj + nodeId + '" src="' + ((node._io) ? node.iconOpen : node.icon) + '" alt="" />';
 	}
@@ -137,13 +137,13 @@ dTree.prototype.node = function(node, nodeId) {
 			str += ' onclick="return this.href==location?' + this.obj + '.o(' + nodeId + ')||false:' + this.obj + '.openTo(' + nodeId + ',1);"';
 		str += '>';
 	}
-	else if ((!this.config.folderLinks || !node.url) && node._hc && node.pid != this.root.id)
+	else if ((!this.config.folderLinks || !node.url) && node._hc && node.pid != this.home.id)
 		str += '<a href="javascript: ' + this.obj + '.o(' + nodeId + ');" class="node">';
 	str += node.name;
 	if (node.url || ((!this.config.folderLinks || !node.url) && node._hc)) str += '</a>';
 	str += '</div>';
 	if (node._hc) {
-		str += '<div id="d' + this.obj + nodeId + '" class="clip" style="display:' + ((this.root.id == node.pid || node._io) ? 'block' : 'none') + ';">';
+		str += '<div id="d' + this.obj + nodeId + '" class="clip" style="display:' + ((this.home.id == node.pid || node._io) ? 'block' : 'none') + ';">';
 		str += this.addNode(node);
 		str += '</div>';
 	}
@@ -154,7 +154,7 @@ dTree.prototype.node = function(node, nodeId) {
 // Adds the empty and line icons
 dTree.prototype.indent = function(node, nodeId) {
 	var str = '';
-	if (this.root.id != node.pid) {
+	if (this.home.id != node.pid) {
 		for (var n=0; n<this.aIndent.length; n++)
 			str += '<img src="' + ( (this.aIndent[n] == 1 && this.config.useLines) ? this.icon.line : this.icon.empty ) + '" alt="" />';
 		(node._ls) ? this.aIndent.push(0) : this.aIndent.push(1);
@@ -213,7 +213,7 @@ dTree.prototype.o = function(id) {
 // Open or close all nodes
 dTree.prototype.oAll = function(status) {
 	for (var n=0; n<this.aNodes.length; n++) {
-		if (this.aNodes[n]._hc && this.aNodes[n].pid != this.root.id) {
+		if (this.aNodes[n]._hc && this.aNodes[n].pid != this.home.id) {
 			this.nodeStatus(status, n, this.aNodes[n]._ls);
 			this.aNodes[n]._io = status;
 		}
@@ -233,7 +233,7 @@ dTree.prototype.openTo = function(nId, bSelect, bFirst) {
 	}
 	var cn=this.aNodes[nId];
 	bSelect = this.config.useSelection && bSelect;
-	if (cn.pid==this.root.id || !cn._p) return this.updateCookie();
+	if (cn.pid==this.home.id || !cn._p) return this.updateCookie();
 	cn._io = true;
 	cn._is = bSelect;
 	if (this.completed && cn._hc) this.nodeStatus(true, cn._ai, cn._ls);
@@ -282,7 +282,7 @@ dTree.prototype.nodeStatus = function(status, id, bottom) {
 dTree.prototype.updateCookie = function() {
 	var str = '';
 	for (var n=0; n<this.aNodes.length; n++) {
-		if (this.aNodes[n]._io && this.aNodes[n].pid != this.root.id) {
+		if (this.aNodes[n]._io && this.aNodes[n].pid != this.home.id) {
 			if (str) str += '.';
 			str += this.aNodes[n].id;
 		}
