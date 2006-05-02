@@ -28,15 +28,17 @@ END:SET --><!--
 
 SET $INPUT --><!--
 
+	SET $INPUT -->{root:'_QS'|urlencode}<!-- END:SET --><!--
 	IF a$_mandatory --><span class="mandatory"><!-- END:IF --><!--
+	IF !g$_QS --><script type="text/javascript" src="{~}js/QSelect"></script ><!-- END:IF
+
+	--><span class="QSstyle"><input autocomplete="off" {a$|htmlArgs} /><img src="{~}QSelect/b.gif" id="{$INPUT}b{a$name}" onmouseover="this.src={root:'QSelect/bh.gif'|js}" onmouseout="this.src={root:'QSelect/b.gif'|js}" onmousedown="this.src={root:'QSelect/bp.gif'|js}" onmouseup="this.onmouseover()" alt=" " title="" /></span><script type="text/javascript">/*<![CDATA[*/<!--
 
 	IF !g$_QS --><!--
-		SET g$_QS -->{root:'_QS'|urlencode}<!-- END:SET
-		--><div id="{g$_QS}d1" style="position:absolute;visibility:hidden;z-index:9"><div id="{g$_QS}d2" style="position:absolute"><img src="{~}QSelect/tr.png" width="5" height="10" /><br /><img src="{~}QSelect/r.png" width="5" height="5" id="{g$_QS}i1" /><br /><img src="{~}QSelect/br.png" width="5" height="5" /></div><div id="{g$_QS}d3" style="position:absolute"><img src="{~}QSelect/bl.png" width="10" height="5" /><img src="{~}QSelect/b.png" width="5" height="5" id="{g$_QS}i2" /></div><select id="{g$_QS}s" size="7"></select></div><script type="text/javascript" src="{~}js/QSelect"></script ><!--
-	END:IF
-
-	--><span class="QSstyle"><input autocomplete="off" {a$|htmlArgs} /><img src="{~}QSelect/b.gif" id="{g$_QS}b{a$name}" onmouseover="this.src={root:'QSelect/bh.gif'|js}" onmouseout="this.src={root:'QSelect/b.gif'|js}" onmousedown="this.src={root:'QSelect/bp.gif'|js}" onmouseup="this.onmouseover()" alt=" " title="" /></span><script type="text/javascript">/*<![CDATA[*/
-
+		SET g$_QS
+			--><div id="{$INPUT}d1" style="position:absolute;visibility:hidden;z-index:9"><form action=""><div id="{$INPUT}d2" style="position:absolute"><img src="{~}QSelect/tr.png" width="5" height="10" /><br /><img src="{~}QSelect/r.png" width="5" height="5" id="{$INPUT}i1" /><br /><img src="{~}QSelect/br.png" width="5" height="5" /></div><div id="{$INPUT}d3" style="position:absolute"><img src="{~}QSelect/bl.png" width="10" height="5" /><img src="{~}QSelect/b.png" width="5" height="5" id="{$INPUT}i2" /></div><select id="{$INPUT}s" size="7"></select></form></div><!--
+		END:SET -->w.appendToBody+={g$_QS|js};<!--
+	END:IF -->
 	lE=gLE({a$name|js})
 	lE.lock={a$_lock_|js}
 

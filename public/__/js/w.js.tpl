@@ -461,6 +461,8 @@ w = function($rootAgent, $keys, $masterCIApID)
 		$execute();
 	}
 
+	w.appendToBody = '';
+
 	w.f = function()
 	{
 		var $content;
@@ -477,19 +479,26 @@ w = function($rootAgent, $keys, $masterCIApID)
 		$document.write($content);
 
 		if ($i<0 && $closeDoc)
+		{
+			if (w.appendToBody)
+				$buffer = w.appendToBody,
+				w.appendToBody = '',
+				w.f();
 
-			w = addOnload,
-			w.$onload = self.onload,
+			else
+				w = addOnload,
+				w.$onload = self.onload,
 
-			onload = function()
-			{
-				if (w.$onload) $i = w.$onload, w.$onload = null, $i();
-				for ($i = 0; $i < w.p.length; ++$i) w.p[$i]();
-				w.p.length = 0;
-				onload = null;
-			},
+				onload = function()
+				{
+					if (w.$onload) $i = w.$onload, w.$onload = null, $i();
+					for ($i = 0; $i < w.p.length; ++$i) w.p[$i]();
+					w.p.length = 0;
+					onload = null;
+				},
 
-			$document.close();
+				$document.close();
+		}
 	}
 
 	w.r = function()
