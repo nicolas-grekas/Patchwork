@@ -1,6 +1,6 @@
 <script type="text/javascript">/*<![CDATA[*/
-document.write(w.appendToBody);
-w.appendToBody = '';
+document.write(w.finalHTML);
+w.finalHTML = '';
 <!-- SERVERSIDE -->
 
 w=addOnload
