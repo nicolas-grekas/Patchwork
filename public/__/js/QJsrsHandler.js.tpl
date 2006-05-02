@@ -1,4 +1,4 @@
-$win = self;
+$win = window;
 
 $decodeURIComponent = $win.decodeURIComponent || function($string)
 {

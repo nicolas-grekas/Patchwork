@@ -385,7 +385,7 @@ else
 	 * when the cache is detected stale by the browser.
 	 */
 	if (
-		( (DEBUG && !$binaryMode) || (isset($_COOKIE['cache_reset_id']) && setcookie('cache_reset_id')) )
+		( (DEBUG && !$binaryMode) || (isset($_COOKIE['cache_reset_id']) && setcookie('cache_reset_id', '', 0, '/')) )
 		&& !CIA_POSTING
 		&& 'no-cache' == @$_SERVER['HTTP_CACHE_CONTROL'] )
 	{
@@ -399,10 +399,6 @@ else
 			touch('./index.php');
 			CIA::touch('foreignTrace');
 		}
-
-		echo '<script type="text/javascript">/*<![CDATA[*/self.ScriptEngine ? location.replace(location) : location.reload()/*]]>*/</script>';
-
-		exit;
 	}
 
 	if (CIA_POSTING || $binaryMode || isset($_GET['$bin']) || !@$_COOKIE['JS'])
