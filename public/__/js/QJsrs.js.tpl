@@ -18,7 +18,7 @@
 * Cancel the callback pool with varname.abort()
 */
 
-$win = self;
+$win = window;
 
 if (!$win.QJsrs)
 {

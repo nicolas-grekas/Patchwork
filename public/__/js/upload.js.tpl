@@ -1,6 +1,6 @@
-if (self.lF)
+if (window.lF)
 {
-	if (!self.pLuL)
+	if (!window.pLuL)
 	{
 		function loadUpload($form)
 		{

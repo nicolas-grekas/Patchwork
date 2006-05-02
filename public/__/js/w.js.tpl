@@ -143,7 +143,7 @@ function setboard($name, $value, $window)
 
 
 addOnload.p = [];
-if ((topwin = self).Error)
+if ((topwin = window).Error)
 	// This eval avoids a parse error with browsers not supporting exceptions.
 	eval('try{while(((w=topwin.parent)!=topwin)&&t(w.name))topwin=w}catch(w){}');
 
@@ -175,7 +175,7 @@ w = function($rootAgent, $keys, $masterCIApID)
 		
 		$masterRoot = esc({g$__ROOT__|js});
 
-		self.root = function($str, $master)
+		window.root = function($str, $master)
 		{
 			$master = $master ? $masterRoot : g.__ROOT__;
 
@@ -188,7 +188,7 @@ w = function($rootAgent, $keys, $masterCIApID)
 					: $master
 				)
 			) + $str;
-	}
+		}
 
 /*
 *		a : arguments
@@ -216,7 +216,7 @@ w = function($rootAgent, $keys, $masterCIApID)
 			if ($context) for ($i in $context) $context[$i] = esc($context[$i]);
 
 			<!-- IF g$__DEBUG__ -->
-			DEBUG = self.ScriptEngine ? 0 : ($i ? 2 : 1);
+			DEBUG = window.ScriptEngine ? 0 : ($i ? 2 : 1);
 			<!-- END:IF -->
 		}
 
@@ -245,7 +245,7 @@ w = function($rootAgent, $keys, $masterCIApID)
 				case 0: // pipe
 					$i = $code[$pointer++].split('.');
 					$j = $i.length;
-					while ($j--) $i[$j] = t(self['P$'+$i[$j]]) ? '' : ('.'+$i[$j]);
+					while ($j--) $i[$j] = t(window['P$'+$i[$j]]) ? '' : ('.'+$i[$j]);
 
 					$i = $i.join('');
 
@@ -476,34 +476,30 @@ w = function($rootAgent, $keys, $masterCIApID)
 			$content = $buffer.substring(0, $i) + '<script type="text/javascript" src="' + $masterRoot + 'js/x"></script>', // Any optimization to save some request here is likely to break IE ...
 			$buffer = $buffer.substr($i);
 
+		if ($i<0 && $closeDoc)
+			$content += w.finalHTML,
+			w.finalHTML = '';
+
 		$document.write($content);
 
 		if ($i<0 && $closeDoc)
-		{
-			if (w.finalHTML)
-				$buffer = w.finalHTML,
-				w.finalHTML = '',
-				w.f();
+			w = addOnload,
+			w.$onload = window.onload,
 
-			else
-				w = addOnload,
-				w.$onload = self.onload,
+			window.onload = function()
+			{
+				if (w.$onload) $i = w.$onload, w.$onload = null, $i();
+				for ($i = 0; $i < w.p.length; ++$i) w.p[$i]();
+				w.p.length = 0;
+				window.onload = null;
+			},
 
-				onload = function()
-				{
-					if (w.$onload) $i = w.$onload, w.$onload = null, $i();
-					for ($i = 0; $i < w.p.length; ++$i) w.p[$i]();
-					w.p.length = 0;
-					onload = null;
-				},
-
-				$document.close();
-		}
+			$document.close();
 	}
 
 	w.r = function()
 	{
-		if ($masterRoot != g.__ROOT__) setcookie('cache_reset_id', $masterCIApID);
+		if ($masterRoot != g.__ROOT__) setcookie('cache_reset_id', $masterCIApID, 0, '/');
 		location.reload(true);
 	}
 
@@ -615,7 +611,7 @@ w = function($rootAgent, $keys, $masterCIApID)
 	if ($keys) w(0, [1, '$rootAgent', 'g', $keys, 1]);
 }
 
-if (self.ScriptEngine) addOnload(function()
+if (window.ScriptEngine) addOnload(function()
 {
 	var $i = 0, $images = document.images, $len = $images.length;
 	for (; $i < $len; ++$i)
@@ -628,7 +624,7 @@ if (self.ScriptEngine) addOnload(function()
 
 function loadW()
 {
-	var $window = self, $boardidx = topwin.name.indexOf('_K');
+	var $window = window, $boardidx = topwin.name.indexOf('_K');
 
 	if ($window.encodeURI)
 	{

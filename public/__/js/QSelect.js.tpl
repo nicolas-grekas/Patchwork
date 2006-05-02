@@ -1,4 +1,4 @@
-if (!self.QSelect)
+if (!window.QSelect)
 {
 
 $getById = document.getElementById ? function($id) {return document.getElementById($id)} : function($id) {return document.all[$id]};
@@ -115,12 +115,14 @@ function $precheck()
 	return false;
 }
 
+QSelectInit = window.QSelectInit || function ($input, $driver) {QSelect($input, $driver);}
+
 QSelect = (function()
 {
 
 var $selectRange,
 
-	$win = self,
+	$win = window,
 	$getById = $win.$getById,
 	$onfocus = $win.$onfocus,
 	$onblur = $win.$onblur,
@@ -129,25 +131,29 @@ var $selectRange,
 	$onkeydown = $win.$onkeydown,
 	$precheck = $win.$precheck,
 
-	$select = $getById('_QSs'),
-	$options = $select.options,
-	$div  = $getById('_QSd1'),
-	$imgH = $getById('_QSi1'),
-	$imgW = $getById('_QSi2'),
-	$divH = $getById('_QSd2'),
-	$divW = $getById('_QSd3');
-
-$select.onfocus = $onfocus;
-$select.onblur = $onblur;
-$select.onmouseup = $onmouseup;
-
+	$select, $options, $div, $imgH, $imgW, $divH, $divW;
 
 return function($input, $driver)
 {
+	if (!$select)
+	{
+		$select = $getById('_QSs');
+		$options = $select.options;
+		$div = $getById('_QSd1');
+		$imgH = $getById('_QSi1');
+		$imgW = $getById('_QSi2');
+		$divH = $getById('_QSd2');
+		$divW = $getById('_QSd3');
+
+		$select.onfocus = $onfocus;
+		$select.onblur  = $onblur;
+		$select.onmouseup = $onmouseup;
+	}
+
 	var $this = {},
 		$form = $input.form,
-		$id = $input.name,
-		$imgB = $getById($input.tag + '_QSb' + $id) || {},
+		$id = $input.tag + $input.name,
+		$imgB = $getById('_QSb' + $id) || {},
 
 		$length = 0,
 
@@ -267,11 +273,11 @@ return function($input, $driver)
 			$form.precheck = $precheck;
 
 			$parent = document.body.scrollTop;
-			$height = $parent + self.innerHeight - $height - $top;
+			$height = $parent + $win.innerHeight - $height - $top;
 
 			if ($height < $select.offsetHeight && $height < $top - $parent) $divStyle.top = ($top - $select.offsetHeight) + 'px';
 
-			$divStyle.visibility = 'visible';
+			QSelect.$setTimeout(function(){$divStyle.visibility = 'visible';}, 0)
 		}
 		else $this.$hide();
 	}
