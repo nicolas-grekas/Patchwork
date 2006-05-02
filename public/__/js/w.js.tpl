@@ -404,16 +404,17 @@ w = function($rootAgent, $keys, $masterCIApID)
 				if ($inc.indexOf('?')==-1) $inc += '?';
 				$c = '';
 
-				for ($i in $args) $args[$i] = num($args[$i], 1);
-
 				if ($keys)
 				{
+					if ($args.__URI__) for ($i in $args) $args[$i] = num(str($args[$i]), 1);
+					else               for ($i in $args) $args[$i] = num(    $args[$i] , 1);
+
 					for ($i=0; $i<$keys.length; ++$i)
 						if (($j = $keys[$i]) && t($args[$j]))
 							$c += '&amp;' + eUC($j) + '=' + eUC($args[$j]);
 
+					if ($args.__URI__) $args.__URI__ += '?' + $c.substr(5);
 					a = $args;
-					if (a.__URI__) a.__URI__ += '?' + $c.substr(5);
 					$include($inc + $c + '&amp;$v=' + $CIApID);
 				}
 				else
@@ -645,9 +646,9 @@ function loadW()
 	else document.write('<script type="text/javascript" src="js/compat"></script>');
 }
 
-function P$root($string, $master)
+function P$root($string)
 {
-	return root( str($string), num($master) );
+	return root( str($string) );
 }
 
 loadW();
