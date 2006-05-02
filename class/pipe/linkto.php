@@ -15,9 +15,9 @@ class pipe_linkto
 		}
 		else $hash = '';
 
-		return $url == htmlspecialchars(substr(CIA::__URI__(), strlen(CIA::__ROOT__())))
+		return $url == htmlspecialchars(substr(CIA::__URI__(), strlen(CIA::__HOME__())))
 			? ('<b class="linkloop">' . $text . '</b>')
-			: ('<a href="' . CIA::root($url) . $hash . '" ' . CIA::string($attributes) . '>' . $text . '</a>');
+			: ('<a href="' . CIA::home($url) . $hash . '" ' . CIA::string($attributes) . '>' . $text . '</a>');
 	}
 
 	static function js()
@@ -37,9 +37,9 @@ P$<?php echo substr(__CLASS__, 5)?> = function($text, $url, $attributes)
 	}
 	else $hash = '';
 
-	return $url == esc(''+location).substr(root('',1).length)
+	return $url == esc(''+location).substr(home('',1).length)
 			? ('<b class="linkloop">' + $text + '</b>')
-			: ('<a href="' + root($url) + $hash + '" ' + str($attributes) + '>' + $text + '</a>');
+			: ('<a href="' + home($url) + $hash + '" ' + str($attributes) + '>' + $text + '</a>');
 }
 
 <?php	}

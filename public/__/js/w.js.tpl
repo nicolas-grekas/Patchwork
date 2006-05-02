@@ -76,7 +76,7 @@ function loadPng($this)
 		$this.style.width  = ($this.offsetWidth  || $this.width ) + 'px';
 		$this.style.height = ($this.offsetHeight || $this.height) + 'px';
 
-		$this.src = root('img/blank.gif', 1);
+		$this.src = home('img/blank.gif', 1);
 		$this.style.filter = 'progid:DXImageTransform.Microsoft.AlphaImageLoader(src="'+$src+'",sizingMethod="scale")';
 	}
 }
@@ -148,7 +148,7 @@ if ((topwin = window).Error)
 	eval('try{while(((w=topwin.parent)!=topwin)&&t(w.name))topwin=w}catch(w){}');
 
 
-w = function($rootAgent, $keys, $masterCIApID)
+w = function($homeAgent, $keys, $masterCIApID)
 {
 	$CIApID /= 1;
 
@@ -168,16 +168,16 @@ w = function($rootAgent, $keys, $masterCIApID)
 		a, d, v, g,
 		$CIApID = $masterCIApID,
 
-		r = {toString: function() {return g.__ROOT__}},
+		r = {toString: function() {return g.__HOME__}},
 
 		$lastInclude = '',
 		$includeCache = {},
 		
-		$masterRoot = esc({g$__ROOT__|js});
+		$masterHome = esc({g$__HOME__|js});
 
-		window.root = function($str, $master)
+		window.home = function($str, $master)
 		{
-			$master = $master ? $masterRoot : g.__ROOT__;
+			$master = $master ? $masterHome : g.__HOME__;
 
 			return (
 				/^https?:\/\//.test($str)
@@ -192,7 +192,7 @@ w = function($rootAgent, $keys, $masterCIApID)
 
 /*
 *		a : arguments
-*		d : data, root
+*		d : data, home
 *		v : data, local
 *		v.$ : data, parent
 *		g : get
@@ -204,7 +204,7 @@ w = function($rootAgent, $keys, $masterCIApID)
 
 	w = function($context, $code)
 	{
-		if (!t($context)) return $rootAgent; //"$rootAgent" is only here for jsquiz to work well
+		if (!t($context)) return $homeAgent; //"$homeAgent" is only here for jsquiz to work well
 
 		var $pointer = 0, $arguments = a, $localCIApID = $CIApID, $localG = g;
 
@@ -225,7 +225,7 @@ w = function($rootAgent, $keys, $masterCIApID)
 
 		<!-- IF g$__DEBUG__ -->
 		if (DEBUG) E({
-			'Agent': dUC(('['+$lastInclude.substr(g.__ROOT__.length + 2)).replace(/&(amp;)?/g, ', [').replace(/=/g, '] = ')),
+			'Agent': dUC(('['+$lastInclude.substr(g.__HOME__.length + 2)).replace(/&(amp;)?/g, ', [').replace(/=/g, '] = ')),
 			'Arguments': a,
 			'Data': DEBUG-1 ? $context : ''
 		});
@@ -249,7 +249,7 @@ w = function($rootAgent, $keys, $masterCIApID)
 
 					$i = $i.join('');
 
-					if ($i) return $include(g.__ROOT__ + '_?p=' + esc($i.substr(1)), 0, 0, 1);
+					if ($i) return $include(g.__HOME__ + '_?p=' + esc($i.substr(1)), 0, 0, 1);
 					break;
 
 				case 1: // agent
@@ -284,7 +284,7 @@ w = function($rootAgent, $keys, $masterCIApID)
 
 					$agent = esc($agent);
 
-					if (!$meta) $agent = g.__ROOT__ + '_?t=' + $agent;
+					if (!$meta) $agent = g.__HOME__ + '_?t=' + $agent;
 					else
 					{
 						if ($meta > 1)
@@ -320,15 +320,15 @@ w = function($rootAgent, $keys, $masterCIApID)
 
 							$args.__DEBUG__ = g.__DEBUG__;
 							$args.__LANG__ = g.__LANG__;
-							$args.__ROOT__ = esc($meta[1]).replace(/__/, $args.__LANG__);
-							$args.__HOST__ = $args.__ROOT__.substr(0, $args.__ROOT__.indexOf('/', 8));
+							$args.__HOME__ = esc($meta[1]).replace(/__/, $args.__LANG__);
+							$args.__HOST__ = $args.__HOME__.substr(0, $args.__HOME__.indexOf('/', 8));
 							$args.__AGENT__ = $agent ? $agent + '/' : '';
-							$args.__URI__ = $args.__ROOT__ + $agent;
+							$args.__URI__ = $args.__HOME__ + $agent;
 
 							g = $args;
 						}
 
-						$agent = $keys ? g.__ROOT__ + '_?$=' + $agent : root($agent);
+						$agent = $keys ? g.__HOME__ + '_?$=' + $agent : home($agent);
 					}
 
 					return $include($agent, $args, $keys);
@@ -419,30 +419,30 @@ w = function($rootAgent, $keys, $masterCIApID)
 				}
 				else
 				{
-					w.k = function($id, $root, $agent, $__0__, $keys)
+					w.k = function($id, $home, $agent, $__0__, $keys)
 					{
-						$root = esc($root).replace(/__/, g.__LANG__);
+						$home = esc($home).replace(/__/, g.__LANG__);
 						$agent = esc($agent);
 
 						$args.__0__ = $__0__;
 						$__0__ = $__0__.split('/');
 						for ($i = 0; $i < $__0__.length; ++$i) $args['__' + ($i+1) + '__'] = $__0__[$i];
 
-						if ($root != g.__ROOT__)
+						if ($home != g.__HOME__)
 						{
 							$CIApID = $id/1;
 
 							$args.__DEBUG__ = g.__DEBUG__;
 							$args.__LANG__ = g.__LANG__;
-							$args.__ROOT__ = $root;
-							$args.__HOST__ = $root.substr(0, $root.indexOf('/', 8));
+							$args.__HOME__ = $home;
+							$args.__HOST__ = $home.substr(0, $home.indexOf('/', 8));
 							$args.__AGENT__ = $agent ? $agent + '/' : '';
-							$args.__URI__ = $root + $agent;
+							$args.__URI__ = $home + $agent;
 
 							g = $args;
 						}
 
-						$include($root + '_?$=' + $agent, $args, $keys)
+						$include($home + '_?$=' + $agent, $args, $keys)
 					}
 
 					$include($inc + '&amp;$k=', 0, 0, 1);
@@ -474,7 +474,7 @@ w = function($rootAgent, $keys, $masterCIApID)
 			$buffer = '';
 		else
 			$i += 9,
-			$content = $buffer.substring(0, $i) + '<script type="text/javascript" src="' + $masterRoot + 'js/x"></script>', // Any optimization to save some request here is likely to break IE ...
+			$content = $buffer.substring(0, $i) + '<script type="text/javascript" src="' + $masterHome + 'js/x"></script>', // Any optimization to save some request here is likely to break IE ...
 			$buffer = $buffer.substr($i);
 
 		if ($i<0 && $closeDoc)
@@ -500,7 +500,7 @@ w = function($rootAgent, $keys, $masterCIApID)
 
 	w.r = function()
 	{
-		if ($masterRoot != g.__ROOT__) setcookie('cache_reset_id', $masterCIApID, 0, '/');
+		if ($masterHome != g.__HOME__) setcookie('cache_reset_id', $masterCIApID, 0, '/');
 		location.reload(true);
 	}
 
@@ -601,15 +601,15 @@ w = function($rootAgent, $keys, $masterCIApID)
 	g.__DEBUG__ = esc({g$__DEBUG__|js});
 	g.__HOST__ = esc({g$__HOST__|js});
 	g.__LANG__ = esc({g$__LANG__|js});
-	g.__ROOT__ = $masterRoot;
-	g.__AGENT__ = $rootAgent ? esc($rootAgent) + '/' : '';
+	g.__HOME__ = $masterHome;
+	g.__AGENT__ = $homeAgent ? esc($homeAgent) + '/' : '';
 	g.__URI__ = esc(''+$j);
 
-	$j = dUC((''+$j).substr({g$__ROOT__|length}+$rootAgent.length)).split('/');
+	$j = dUC((''+$j).substr({g$__HOME__|length}+$homeAgent.length)).split('/');
 	for ($i=0; $i<$j.length; ++$i) if ($j[$i]) $loopIterator[$loopIterator.length] = g['__'+($loopIterator.length+1)+'__'] = esc($j[$i]);
 	g.__0__ = $loopIterator.join('/');
 
-	if ($keys) w(0, [1, '$rootAgent', 'g', $keys, 1]);
+	if ($keys) w(0, [1, '$homeAgent', 'g', $keys, 1]);
 }
 
 if (window.ScriptEngine) addOnload(function()
@@ -646,9 +646,9 @@ function loadW()
 	else document.write('<script type="text/javascript" src="js/compat"></script>');
 }
 
-function P$root($string)
+function P$home($string)
 {
-	return root( str($string) );
+	return home( str($string) );
 }
 
 loadW();

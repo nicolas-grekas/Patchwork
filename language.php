@@ -36,7 +36,7 @@ function HTTP_Best_Language($supported)
 	return $lang;
 }
 
-$lang = explode('__', $_SERVER['CIA_ROOT'], 2);
+$lang = explode('__', $_SERVER['CIA_HOME'], 2);
 $lang = implode(HTTP_Best_Language(explode('|', $CONFIG['lang_list'])), $lang);
 $lang = htmlspecialchars($lang);
 

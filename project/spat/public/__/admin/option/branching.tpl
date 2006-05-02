@@ -5,9 +5,9 @@
 	name='d'
 	tree=$branching
 
-	rootId='c0'
-	rootLabel="Branchement des options"
-	rootUrl='admin/option/branching/connect/0'
+	homeId='c0'
+	homeLabel="Branchement des options"
+	homeUrl='admin/option/branching/connect/0'
 
 -->
 

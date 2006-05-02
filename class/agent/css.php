@@ -33,7 +33,7 @@ class agent_css extends agent_bin
 		$g->__DEBUG__ = DEBUG ? DEBUG : 0;
 		$g->__HOST__ = CIA::__HOST__();
 		$g->__LANG__ = CIA::__LANG__();
-		$g->__ROOT__ = CIA::__ROOT__();
+		$g->__HOME__ = CIA::__HOME__();
 		$g->__AGENT__ = str_replace('_', '/', substr(get_class($this), 6)) . '/';
 		$g->__URI__ = htmlspecialchars(CIA::__URI__());
 

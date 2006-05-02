@@ -86,13 +86,13 @@ function editMe($cell)
 
 	window.editedCell = [$cell, $coo[0]/1, $coo[1]/1];
 
-	lockFrame.location.replace({root:'lock?tabId='|js} + tabId +'&R='+ $coo[0] +'&C='+ $coo[1]);
+	lockFrame.location.replace({home:'lock?tabId='|js} + tabId +'&R='+ $coo[0] +'&C='+ $coo[1]);
 }
 
 function releaseEdit($noLock)
 {
 	if ($noLock) alert("Cette cellule est en cours d'utilisation"), updateGrid();
-	else lockFrame.location.replace(root('img/blank.gif', 1));
+	else lockFrame.location.replace(home('img/blank.gif', 1));
 }
 
 function multiReleaseEdit($result)

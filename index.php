@@ -73,7 +73,7 @@ mbstring.func_overload = 0
 
 if (!isset($_SERVER['CIA']))
 {
-	$_SERVER['CIA_ROOT'] = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'] . '/__/';
+	$_SERVER['CIA_HOME'] = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'] . '/__/';
 	$_SERVER['CIA_LANG'] = $_SERVER['CIA_REQUEST'] = '';
 
 	if (preg_match("'^/([a-z]{2}(?:-[A-Z]{2})?)/?(.*)$'", @$_SERVER['PATH_INFO'], $a))
@@ -89,7 +89,7 @@ if (!isset($_SERVER['CIA']))
 putenv('LC_ALL=en_US.UTF-8');
 setlocale(LC_ALL, 'en_US.UTF-8');
 
-define('DEBUG',			$CONFIG['allow_debug'] ? (int) @$_COOKIE['DEBUG'] : 0);
+define('DEBUG',			1);//$CONFIG['allow_debug'] ? (int) @$_COOKIE['DEBUG'] : 0);
 define('CIA_MAXAGE',	$CONFIG['maxage']);
 define('CIA_TIME', time());
 define('CIA_PROJECT_ID', $version_id % 1000);
@@ -178,7 +178,7 @@ function DB()
 
 		global $CONFIG;
 
-		$db = DB::connect($CONFIG['DSN'], array('persistent' => !DEBUG));
+		$db = DB::connect($CONFIG['DSN']);
 
 		if(DB::isError( $db ))
 		{
@@ -365,7 +365,7 @@ else
 
 		echo 'w.k(',
 				CIA_PROJECT_ID, ',',
-				q( $_SERVER['CIA_ROOT'] ), ',',
+				q( $_SERVER['CIA_HOME'] ), ',',
 				q( 'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)) ), ',',
 				q( @$_GET['__0__'] ), ',',
 				'[', implode(',', array_map('q', CIA::agentArgv($agent))), ']',

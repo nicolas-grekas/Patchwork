@@ -7,7 +7,7 @@ class CIA
 
 	protected static $host;
 	protected static $lang = '__';
-	protected static $root;
+	protected static $home;
 	protected static $uri;
 
 	protected static $handlesOb = false;
@@ -33,9 +33,9 @@ class CIA
 
 		self::setLang($_SERVER['CIA_LANG'] ? $_SERVER['CIA_LANG'] : substr($GLOBALS['CONFIG']['lang_list'], 0, 2));
 
-		if (htmlspecialchars(self::$root) != self::$root)
+		if (htmlspecialchars(self::$home) != self::$home)
 		{
-			E('Fatal error: illegal character found in CIA::$root');
+			E('Fatal error: illegal character found in CIA::$home');
 			exit;
 		}
 	}
@@ -51,10 +51,10 @@ class CIA
 		$lang = self::$lang;
 		self::$lang = $new_lang;
 
-		self::$root = explode('__', $_SERVER['CIA_ROOT'], 2);
-		self::$root = implode($new_lang, self::$root);
+		self::$home = explode('__', $_SERVER['CIA_HOME'], 2);
+		self::$home = implode($new_lang, self::$home);
 
-		self::$host = substr(self::$root, 0, strpos(self::$root, '/', 8));
+		self::$host = substr(self::$home, 0, strpos(self::$home, '/', 8));
 		self::$uri = self::$host . $_SERVER['REQUEST_URI'];
 
 		return $lang;
@@ -62,14 +62,14 @@ class CIA
 
 	public static function __HOST__() {return self::$host;}
 	public static function __LANG__() {return self::$lang;}
-	public static function __ROOT__() {return self::$root;}
+	public static function __HOME__() {return self::$home;}
 	public static function __URI__()  {return self::$uri ;}
 
-	public static function root($url)
+	public static function home($url)
 	{
 		if (!preg_match("'^https?://'", $url))
 		{
-			if ('/' != substr($url, 0, 1)) $url = self::$root . $url;
+			if ('/' != substr($url, 0, 1)) $url = self::$home . $url;
 			else $url = self::$host . $url;
 		}
 
@@ -108,7 +108,7 @@ class CIA
 	{
 		$url = (string) $url;
 
-		self::$redirectUrl = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'i", $url) ? $url : (self::$root . ('index' == $url ? '' : $url)));
+		self::$redirectUrl = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'i", $url) ? $url : (self::$home . ('index' == $url ? '' : $url)));
 
 		if ($exit) exit;
 	}
@@ -331,7 +331,7 @@ class CIA
 	{
 		static $prefixKey = false;
 
-		if (!$prefixKey) $prefixKey = substr(md5(self::$root .'-'. self::$lang), -8) . '.' . DEBUG;
+		if (!$prefixKey) $prefixKey = substr(md5(self::$home .'-'. self::$lang), -8) . '.' . DEBUG;
 
 		if ($key!=='')
 		{
@@ -453,10 +453,10 @@ class CIA
 	public static function resolveAgentTrace($agent)
 	{
 		$args = array();
-		$ROOT = $root = CIA::__ROOT__();
-		$agent = self::root($agent);
+		$HOME = $home = CIA::__HOME__();
+		$agent = self::home($agent);
 
-		if (0 === strpos($agent, $ROOT)) $agent = substr($agent, strlen($ROOT));
+		if (0 === strpos($agent, $HOME)) $agent = substr($agent, strlen($HOME));
 		else
 		{
 			require_once 'HTTP/Request.php';
@@ -475,8 +475,8 @@ class CIA
 			}
 
 			$CIApID = (int) $keys[1];
-			$root = stripcslashes(substr($keys[2], 1, -1));
-			$root = preg_replace("'__'", CIA::__LANG__(), $root, 1);
+			$home = stripcslashes(substr($keys[2], 1, -1));
+			$home = preg_replace("'__'", CIA::__LANG__(), $home, 1);
 			$agent = stripcslashes(substr($keys[3], 1, -1));
 			$a = stripcslashes(substr($keys[4], 1, -1));
 			$keys = eval('return array(' . $keys[5] . ');');
@@ -490,13 +490,13 @@ class CIA
 			}
 		}
 
-		if ($root == $ROOT)
+		if ($home == $HOME)
 		{
 			return array(false, false, $agent,  self::agentArgv(self::resolveAgentClass($agent, $args)), $args);
 		}
 		else
 		{
-			return array((int) $CIApID, $root, $agent, $keys, $args);
+			return array((int) $CIApID, $home, $agent, $keys, $args);
 		}
 	}
 

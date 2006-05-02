@@ -5,7 +5,7 @@
 	<title>{a$title}</title>
 
 <!-- IF a$css -->
-	<link rel="stylesheet" type="text/css" href="{root:a$css}" />
+	<link rel="stylesheet" type="text/css" href="{home:a$css}" />
 <!-- END:IF -->
 
 <!-- SERVERSIDE -->
