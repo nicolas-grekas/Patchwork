@@ -82,7 +82,7 @@ class IA_js
 				CIA::writeFile($ctemplate, $template);
 				list(,,, $template) = CIA::closeMeta();
 				CIA::writeWatchTable($template, $ctemplate);
-				$watch += $template;
+				$watch = array_merge($watch, $template);
 			}
 		}
 		else echo ',[1,"', self::formatJs(self::formatJs($template), false, '"', false), '",0,0,0])';

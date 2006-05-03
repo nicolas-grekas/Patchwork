@@ -15,8 +15,7 @@ span.errormsg
 
 {$test}
 
-<!-- EXOAGENT '/cia/annuaire.php/__/widget/checklist' -->
-<!--- EXOAGENT 'http://127.0.0.1/cia/annuaire.php/__/edit' -->
+<!-- EXOAGENT 'http://espci.org/__/auth/login' -->
 
 <!-- AGENT $form _mode_='errormsg' -->
 

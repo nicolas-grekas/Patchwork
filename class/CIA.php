@@ -191,7 +191,7 @@ class CIA
 
 	public static function watch($watch)
 	{
-		if (self::$catchMeta) self::$metaInfo[3] += (array) $watch;
+		if (self::$catchMeta) self::$metaInfo[3] = array_merge(self::$metaInfo[3], (array) $watch);
 	}
 
 	public static function canPost()
@@ -459,8 +459,6 @@ class CIA
 		if (0 === strpos($agent, $HOME)) $agent = substr($agent, strlen($HOME));
 		else
 		{
-			self::watch('foreignTrace');
-
 			require_once 'HTTP/Request.php';
 			$agent = preg_replace("'__'", CIA::__LANG__(), $agent, 1);
 			$keys = new HTTP_Request($agent);
@@ -475,6 +473,8 @@ class CIA
 				E('Error while getting meta info data for ' . htmlspecialchars($agent));
 				exit;
 			}
+
+			self::watch('foreignTrace');
 
 			$CIApID = (int) $keys[1];
 			$home = stripcslashes(substr($keys[2], 1, -1));
@@ -526,7 +526,7 @@ class CIA
 
 	public static function writeWatchTable($message, $file)
 	{
-		$file =  "@unlink('" . str_replace(array('\\',"'"), array('\\\\',"\\'"), $file) . "');\n";
+		$file =  "unlink('" . str_replace(array('\\',"'"), array('\\\\',"\\'"), $file) . "');\n";
 
 		foreach (array_unique((array) $message) as $message)
 		{
@@ -567,7 +567,7 @@ class CIA
 	{
 		if (file_exists($dirname . 'table.php'))
 		{
-			include $dirname . 'table.php';
+			@include $dirname . 'table.php';
 
 			unlink($dirname . 'table.php');
 
@@ -679,7 +679,7 @@ class CIA
 					foreach (array_unique(self::$watchTable) as $path)
 					{
 						$h = fopen($path, 'ab');
-						fwrite($h, "@unlink('$ETag');\n");
+						fwrite($h, "unlink('$ETag');\n");
 						fclose($h);
 					}
 				}
