@@ -71,7 +71,7 @@ mbstring.func_overload = 0
 /* END:CONFIG */
 
 
-if (!isset($_SERVER['CIA']))
+if (!isset($_SERVER['CIA_HOME']))
 {
 	$_SERVER['CIA_HOME'] = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'] . '/__/';
 	$_SERVER['CIA_LANG'] = $_SERVER['CIA_REQUEST'] = '';
