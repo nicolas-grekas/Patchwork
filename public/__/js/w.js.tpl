@@ -607,8 +607,8 @@ w = function($homeAgent, $keys, $masterCIApID)
 	g.__AGENT__ = $homeAgent ? esc($homeAgent) + '/' : '';
 	g.__URI__ = esc(''+$j);
 
-	$j = dUC((''+$j).substr({g$__HOME__|length}+$homeAgent.length)).split('/');
-	for ($i=0; $i<$j.length; ++$i) if ($j[$i]) $loopIterator[$loopIterator.length] = g['__'+($loopIterator.length+1)+'__'] = esc($j[$i]);
+	$j = dUC(esc(''+$j).substr({g$__HOME__|length}+$homeAgent.length).split('?', 1)[0]).split('/');
+	for ($i=0; $i<$j.length; ++$i) if ($j[$i]) $loopIterator[$loopIterator.length] = g['__'+($loopIterator.length+1)+'__'] = $j[$i];
 	g.__0__ = $loopIterator.join('/');
 
 	if ($keys) w(0, [1, '$homeAgent', 'g', $keys, 1]);
