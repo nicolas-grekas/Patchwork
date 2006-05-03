@@ -459,6 +459,8 @@ class CIA
 		if (0 === strpos($agent, $HOME)) $agent = substr($agent, strlen($HOME));
 		else
 		{
+			self::watch('foreignTrace');
+
 			require_once 'HTTP/Request.php';
 			$agent = preg_replace("'__'", CIA::__LANG__(), $agent, 1);
 			$keys = new HTTP_Request($agent);
