@@ -400,6 +400,9 @@ else
 			touch('./index.php');
 			CIA::touch('foreignTrace');
 		}
+
+		echo '<script type="text/javascript">/*<![CDATA[*/self.ScriptEngine ? location.replace(location) : location.reload()/*]]>*/</script>';
+		exit;
 	}
 
 	if (CIA_POSTING || $binaryMode || isset($_GET['$bin']) || !@$_COOKIE['JS'])
