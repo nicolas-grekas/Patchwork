@@ -401,7 +401,7 @@ else
 			CIA::touch('foreignTrace');
 		}
 
-		echo '<script type="text/javascript">/*<![CDATA[*/self.ScriptEngine ? location.replace(location) : location.reload()/*]]>*/</script>';
+		echo '<script type="text/javascript">/*<![CDATA[*/location.reload()/*]]>*/</script>';
 		exit;
 	}
 
