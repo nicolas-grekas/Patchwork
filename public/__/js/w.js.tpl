@@ -313,6 +313,18 @@ w = function($homeAgent, $keys, $masterCIApID)
 								$keys = 0;
 							}
 						<!-- END:IF -->
+							else if (2 == $meta && !$keys)
+							{
+								$i = 1;
+
+								for ($i in $args)
+								{
+									$i = 0;
+									break;
+								}
+
+								if ($i) $keys = [];
+							}
 						}
 						else if (1 != $meta)
 						{
@@ -416,7 +428,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 					if ($args['*']) $args.__URI__ += '?' + $c.substr(5);
 					a = $args;
-					$include($inc + $c + '&amp;$v=' + $CIApID);
+					$include($inc + $c + '&amp;$'+'v=' + $CIApID);
 				}
 				else
 				{
@@ -447,7 +459,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 						$include($home + '_?$=' + $agent, $args, $keys)
 					}
 
-					$include($inc + '&amp;$k=', 0, 0, 1);
+					$include($inc + '&amp;$'+'k=', 0, 0, 1);
 				}
 			}
 			else
