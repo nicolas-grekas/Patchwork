@@ -55,7 +55,7 @@ class CIA
 		self::$home = implode($new_lang, self::$home);
 
 		self::$host = substr(self::$home, 0, strpos(self::$home, '/', 8)+1);
-		self::$uri = self::$host . $_SERVER['REQUEST_URI'];
+		self::$uri = self::$host . substr($_SERVER['REQUEST_URI'], 1);
 
 		return $lang;
 	}
