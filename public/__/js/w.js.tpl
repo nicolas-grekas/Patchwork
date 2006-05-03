@@ -313,18 +313,6 @@ w = function($homeAgent, $keys, $masterCIApID)
 								$keys = 0;
 							}
 						<!-- END:IF -->
-							else if (2 == $meta && !$keys)
-							{
-								$i = 1;
-
-								for ($i in $args)
-								{
-									$i = 0;
-									break;
-								}
-
-								if ($i) $keys = [];
-							}
 						}
 						else if (1 != $meta)
 						{
