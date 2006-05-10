@@ -22,7 +22,7 @@ class iaMail_agent extends iaMail
 	function doSend()
 	{
 		$html = IA_php::returnAgent($this->agent, $this->argv, $this->lang);
-		$html = preg_replace_callback('/(\s)(src|background)\s*=\s*(["\'])?((?(3)[^(?:\3)]*|[^\s>]*)\.(jpe?g|png|gif))(?(3)\3)/iu', array($this, 'addRawImage'), $html);
+		$html = preg_replace_callback('/(\s)(src|background)\s*=\s*(["\'])?((?(3)(?:[^\3]*)|[^\s>]*)\.(jpe?g|png|gif))(?(3)\3)/iu', array($this, 'addRawImage'), $html);
 
 		$this->setHTMLBody($html);
 		$this->setTXTBody( CONVERT::data($html, 'html', 'txt') );
