@@ -70,7 +70,7 @@ class CIA
 		if (!preg_match("'^https?://'", $url))
 		{
 			if ('/' != substr($url, 0, 1)) $url = self::$home . $url;
-			else $url = self::$host . $url;
+			else $url = self::$host . substr($url, 1);
 		}
 
 		return $url;
