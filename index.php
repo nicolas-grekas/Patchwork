@@ -89,6 +89,12 @@ else if ('/' == substr($_SERVER['CIA_HOME'], 0, 1)) $_SERVER['CIA_HOME'] = 'http
 
 putenv('LC_ALL=en_US.UTF-8');
 setlocale(LC_ALL, 'en_US.UTF-8');
+if (function_exists('iconv_set_encoding'))
+{
+	iconv_set_encoding('input_encoding', 'UTF-8');
+	iconv_set_encoding('internal_encoding', 'UTF-8');
+	iconv_set_encoding('output_encoding', 'UTF-8');
+}
 
 define('DEBUG',			$CONFIG['allow_debug'] ? (int) @$_COOKIE['DEBUG'] : 0);
 define('CIA_MAXAGE',	$CONFIG['maxage']);
