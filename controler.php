@@ -55,7 +55,6 @@ if ($source)
 {
 	CIA::header('Content-Type: ' . $contentType);
 	CIA::setMaxage(-1);
-	CIA::setExpires(true);
 	CIA::writeWatchTable('public/static', 'tmp/');
 
 	$i = stat($source);
