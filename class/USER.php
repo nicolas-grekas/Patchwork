@@ -16,7 +16,7 @@ abstract class USER
 		return self::$DATA->$name;
 	}
 
-	public static function set($name, $value = null)
+	public static function set($name, $value = '')
 	{
 		self::start();
 		if (is_array($name)) foreach(array_keys($name) as $k)

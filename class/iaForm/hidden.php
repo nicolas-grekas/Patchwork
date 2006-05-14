@@ -48,9 +48,9 @@ class iaForm_hidden extends loop_callAgent
 		$this->value = $value;
 	}
 
-	public function &getDbValue()
+	public function getDbValue()
 	{
-		$a = $this->getValue(true, true);
+		$a = $this->value;
 
 		if ($this->isdata && is_array($a))
 		{
@@ -62,13 +62,16 @@ class iaForm_hidden extends loop_callAgent
 		return $a;
 	}
 
-	final public function &getValue($checkStatus = true, $checkIsData = false)
+	final public function isValidData($checkStatus = true, $checkIsData = true)
 	{
-		$v = null;
+		if ($checkStatus && $this->status===false) return false;
+		if ($checkIsData && !$this->isdata) return false;
 
-		if ($checkStatus && $this->status===false) return $v;
-		if ($checkIsData && !$this->isdata) return $v;
+		return true;
+	}
 
+	final public function getValue()
+	{
 		return $this->value;
 	}
 
@@ -164,10 +167,7 @@ class iaForm_hidden extends loop_callAgent
 	{
 		$data  = array();
 
-		foreach ($this->elt as $name => $elt)
-		{
-			if (($elt = $elt[0]->getDbValue()) !== null) $data[$name] = $elt;
-		}
+		foreach ($this->elt as $name => $elt) if ($elt[0]->isValidData()) $data[$name] = $elt[0]->getDbValue();
 
 		return $data;
 	}
