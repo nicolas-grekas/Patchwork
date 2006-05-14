@@ -9,9 +9,9 @@ class IA_php
 	protected static $masterCache = array();
 	protected static $cache;
 
-	public static function returnAgent($agent, $args, $lang = null)
+	public static function returnAgent($agent, $args, $lang = false)
 	{
-		$lang = CIA::setLang($lang);
+		if ($lang) $lang = CIA::setLang($lang);
 
 		$a =& $_GET;
 		$g =& self::$get;
@@ -26,7 +26,7 @@ class IA_php
 		$_GET =& $a;
 		self::$get =& $g;
 
-		CIA::setLang($lang);
+		if ($lang) CIA::setLang($lang);
 
 		return $agent;
 	}
