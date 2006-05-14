@@ -13,12 +13,12 @@ $contentType = array(
 
 $contentType = $contentType[$path];
 
-unset($source);
-
 $i = 0;
 $len = count($cia_paths);
 $lang = CIA::__LANG__() . DIRECTORY_SEPARATOR;
 $l_ng = '__' . DIRECTORY_SEPARATOR;
+
+$source = false;
 
 do
 {
@@ -34,7 +34,10 @@ do
 		default: if (file_exists($path . $lang . $agent       )) {$source = $path . $lang . $agent       ; break;}
 	}
 
-	if (!isset($source)) switch (DEBUG)
+	if ($source) break;
+
+
+	switch (DEBUG)
 	{
 		case 5 : if (file_exists($path . $l_ng . $agent . ".5")) {$source = $path . $l_ng . $agent . ".5"; break;}
 		case 4 : if (file_exists($path . $l_ng . $agent . ".4")) {$source = $path . $l_ng . $agent . ".4"; break;}
@@ -44,11 +47,11 @@ do
 		default: if (file_exists($path . $l_ng . $agent       )) {$source = $path . $l_ng . $agent       ; break;}
 	}
 
-	if (isset($source)) break;
+	if ($source) break;
 }
 while (--$len);
 
-if (isset($source))
+if ($source)
 {
 	CIA::header('Content-Type: ' . $contentType);
 	CIA::setMaxage(-1);
