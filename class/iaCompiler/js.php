@@ -40,11 +40,11 @@ class iaCompiler_js extends iaCompiler
 
 	protected function makeCode(&$code)
 	{
-		$this->modifiers = array_unique($this->modifiers);
-		if ($this->modifiers)
+		if ($m = array_unique($this->modifiers))
 		{
-			sort($this->modifiers);
-			array_unshift($this->code, pC_PIPE, $this->quote(implode('.', $this->modifiers)));
+			sort($m);
+			$m = implode('.', $m);
+			array_unshift($this->code, pC_PIPE, $this->quote($m));
 		}
 
 		return implode(',', $this->code);
@@ -280,7 +280,7 @@ class iaCompiler_js extends iaCompiler
 		return strlen($name) ? ( in_array($name, $this->jsreserved) ? "['$name']" : ".$name" ) : '';
 	}
 
-	protected function quote(&$a)
+	protected function &quote(&$a)
 	{
 		if ((string) $a === (string) ($a-0)) return $a = $a - 0;
 

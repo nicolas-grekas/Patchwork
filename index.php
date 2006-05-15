@@ -1,6 +1,8 @@
 <?php defined('CIA') || define('CIA', microtime(true)) && $CONFIG = array();
 
 $CONFIG += array(
+	'timezone' => 'Europe/Paris',
+
 	'maxage' => 3600,
 	'lang_list' => 'fr',
 	'DSN' => '',
@@ -96,6 +98,9 @@ if (function_exists('iconv_set_encoding'))
 	iconv_set_encoding('output_encoding', 'UTF-8');
 }
 
+date_default_timezone_set($CONFIG['timezone']);
+
+
 define('DEBUG',			$CONFIG['allow_debug'] ? (int) @$_COOKIE['DEBUG'] : 0);
 define('CIA_MAXAGE',	$CONFIG['maxage']);
 define('CIA_TIME', time());
@@ -185,9 +190,9 @@ function DB()
 
 		global $CONFIG;
 
-		$db = DB::connect($CONFIG['DSN']);
+		$db = @DB::connect($CONFIG['DSN']);
 
-		if(DB::isError( $db ))
+		if(@DB::isError( $db ))
 		{
 			trigger_error($db->message, E_USER_ERROR);
 			exit;

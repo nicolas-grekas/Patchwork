@@ -3,9 +3,6 @@
 require_once 'Mail.php';
 require_once 'Mail/mime.php';
 
-// $error_reporting = error_reporting(0);
-// error_reporting($error_reporting);
-
 class iaMail extends Mail_mime
 {
 	protected $options;
@@ -72,7 +69,7 @@ class iaMail extends Mail_mime
 		return $input;
 	}
 
-	function _encodeHeaderWord($word)
+	protected function _encodeHeaderWord($word)
 	{
 		$word = preg_replace('/[=_\?\x00-\x1F\x80-\xFF]/e', '"=".strtoupper(dechex(ord("\0")))', $word[0]);
 
@@ -103,7 +100,7 @@ class iaMail extends Mail_mime
 		return $w[1] . $word . '?=' . $w[3];
 	}
 
-	function setObserver($event, $header, $message_id)
+	protected function setObserver($event, $header, $message_id)
 	{
 		if (!isset($this->options['on' . $event])) return;
 
