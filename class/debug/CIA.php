@@ -13,7 +13,6 @@ foreach (array_keys($GLOBALS) as $k) switch ($k)
 class debug_CIA extends CIA
 {
 	private $total_time = 0;
-	private $has_error = false;
 
 	public function __construct()
 	{
@@ -31,13 +30,6 @@ class debug_CIA extends CIA
 		self::$handlesOb = true;
 		if (!self::$binaryMode) $buffer = $this->error_end(substr(trim($buffer), 0, 1)) . $buffer;
 		return parent::ob_handler($buffer);
-	}
-
-	public function error_handler($code, $message, $file, $line, $context)
-	{
-		if ($code == E_STRICT || !error_reporting()) return;
-		$this->has_error = true;
-		parent::error_handler($code, $message, $file, $line, $context);
 	}
 
 	public function log($message, $is_end = false, $html = true)

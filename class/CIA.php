@@ -587,6 +587,8 @@ class CIA
 	* CIA object
 	*/
 
+	protected $has_error = false;
+
 	public function __construct()
 	{
 		self::header('Content-Type: text/html; charset=UTF-8');
@@ -703,7 +705,8 @@ class CIA
 
 	public function error_handler($code, $message, $file, $line, $context)
 	{
-		if ($code == E_STRICT || !error_reporting()) return;
+		if (!error_reporting() || (E_STRICT == $code && 0!==strpos($file, end($GLOBALS['cia_paths'])))) return;
+		$this->has_error = true;
 		require resolvePath('error_handler.php');
 	}
 }
