@@ -85,7 +85,11 @@ class IA_js
 				$watch = array_merge($watch, $template);
 			}
 		}
-		else echo ',[1,"', self::formatJs(self::formatJs($template), false, '"', false), '",0,0,0])';
+		else
+		{
+			self::formatJs($template);
+			echo ',[1,"', self::formatJs($template, false, '"', false), '",0,0,0])';
+		}
 
 		if (!$private && ($maxage || ('ontouch' == $expires && $watch)))
 		{
@@ -143,7 +147,7 @@ class IA_js
 		echo ']])';
 	}
 
-	public static function &formatJs(&$a, $key = false, $delim = "'", $addDelim = true)
+	public static function formatJs(&$a, $key = false, $delim = "'", $addDelim = true)
 	{
 		if ((string) $a === (string) ($a-0)) return $a;
 
