@@ -52,7 +52,7 @@ class iaMail extends Mail_mime
 		$to = DEBUG ? 'webmaster' : $headers['To'];
 		unset($headers['To']);
 
-		$mail = Mail::factory('mail', isset($headers['Return-Path']) ? '-f ' . escapeshellarg($headers['Return-Path']) : '' );
+		$mail = @Mail::factory('mail', isset($headers['Return-Path']) ? '-f ' . escapeshellarg($headers['Return-Path']) : '' );
 		$mail->send($to, $headers, $body);
 	}
 

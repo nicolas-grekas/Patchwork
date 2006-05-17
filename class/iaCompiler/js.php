@@ -280,7 +280,7 @@ class iaCompiler_js extends iaCompiler
 		return strlen($name) ? ( in_array($name, $this->jsreserved) ? "['$name']" : ".$name" ) : '';
 	}
 
-	protected function &quote(&$a)
+	protected function quote(&$a)
 	{
 		if ((string) $a === (string) ($a-0)) return $a = $a - 0;
 

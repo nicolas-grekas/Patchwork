@@ -705,7 +705,7 @@ class CIA
 
 	public function error_handler($code, $message, $file, $line, $context)
 	{
-		if (!error_reporting() || (E_STRICT == $code && 0!==strpos($file, end($GLOBALS['cia_paths'])))) return;
+		if (!error_reporting() || ((E_NOTICE == $code || E_STRICT == $code) && 0!==strpos($file, end($GLOBALS['cia_paths'])))) return;
 		$this->has_error = true;
 		require resolvePath('error_handler.php');
 	}

@@ -408,7 +408,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 				if ($keys)
 				{
 					if ($args['*']) for ($i in $args) $args[$i] = num(str($args[$i]), 1);
-					else               for ($i in $args) $args[$i] = num(    $args[$i] , 1);
+					else            for ($i in $args) $args[$i] = num(    $args[$i] , 1);
 
 					for ($i=0; $i<$keys.length; ++$i)
 						if (($j = $keys[$i]) && t($args[$j]))
