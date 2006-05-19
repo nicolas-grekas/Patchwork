@@ -241,7 +241,7 @@ class CIA
 			$message = implode('/', $message);
 			$message = str_replace('.', '%2E', $message);
 
-			self::recursiveUnwatch('./tmp/cache/watch/' . $message . '/');
+			@include self::getCachePath('watch/' . $message, 'php');
 		}
 	}
 
@@ -282,7 +282,7 @@ class CIA
 	/**
 	 * Sort of recursive version of rmdir()
 	 */
-	public static function delDir($dir, $rmdir = false)
+	public static function delDir($dir, $rmdir)
 	{
 		$d = @opendir($dir);
 		if (!$d) return;
@@ -327,19 +327,25 @@ class CIA
 	 * The following methods are used internally, mainly by the IA_* class
 	 */
 
-	public static function makeCacheDir($prefix, $extension = '', $key = '')
+	public static function getCachePath($filename, $extension, $key = '')
 	{
-		static $prefixKey = false;
+		if (''!==(string)$extension) $extension = '.' . $extension;
 
-		if (!$prefixKey) $prefixKey = substr(md5(self::$home .'-'. self::$lang), -8) . '.' . DEBUG;
+		$hash = md5($filename . $extension . '.'. $key);
+		$hash = $hash[0] . '/' . $hash[1] . '/' . substr($hash, 2);
 
-		if ($key!=='')
-		{
-			$key = md5($key);
-			$key{5} = $key{2} = '/';
-		}
+		$filename = rawurlencode(str_replace('/', '.', $filename));
+		$filename = substr($filename, 0, 224 - strlen($extension));
 
-		return './tmp/cache/' . $prefixKey . '/' . $prefix . $key . ($extension!=='' ? '.' . $extension : '');
+		return './zcache/' . $hash . '.' . $filename . $extension;
+	}
+
+	public static function makeCacheDir($filename, $extension, $key = '')
+	{
+		static $contextKey = false;
+		if (!$contextKey) $contextKey = self::$home .'-'. self::$lang .'-'. DEBUG .'-'. CIA_PROJECT_PATH .'-';
+
+		return self::getCachePath($filename, $extension, $contextKey . $key);
 	}
 
 	public static function ciaLog($message, $is_end = false, $html = true)
@@ -521,7 +527,7 @@ class CIA
 	public static function delCache()
 	{
 		self::touch('');
-		self::delDir(CIA_PROJECT_PATH . '/tmp/cache/', true);
+		self::delDir(CIA_PROJECT_PATH . '/zcache/', false);
 	}
 
 	public static function writeWatchTable($message, $file)
@@ -537,7 +543,7 @@ class CIA
 			$message = implode('/', $message);
 			$message = str_replace('.', '%2E', $message);
 
-			self::$watchTable[] = $path = './tmp/cache/watch/' . $message . '/table.php';
+			self::$watchTable[] = $path = self::getCachePath('watch/' . $message, 'php');
 
 			if (file_exists($path))
 			{
@@ -547,38 +553,28 @@ class CIA
 			}
 			else
 			{
-				$h = "<?php\n" . $file;
+				$h = "<?php unlink(__FILE__);\n" . $file;
 				self::writeFile($path, $h);
 
 				$message = explode('/', $message);
 				while (array_pop($message) !== null)
 				{
-					$path = './tmp/cache/watch/' . implode('/', $message) . '/table.php';
-					if (file_exists($path)) break;
+					$file = "include '" . str_replace(array('\\',"'"), array('\\\\',"\\'"), $path) . "';\n";
 
-					$h = "<?php\n";
+					$path = self::getCachePath('watch/' . implode('/', $message), 'php');
+					if (file_exists($path))
+					{
+						$h = fopen($path, 'ab');
+						fwrite($h, $file, strlen($file));
+						fclose($h);
+
+						break;
+					}
+
+					$h = "<?php unlink(__FILE__);\n" . $file;
 					CIA::writeFile($path, $h);
 				}
 			}
-		}
-	}
-
-	private static function recursiveUnwatch($dirname)
-	{
-		if (file_exists($dirname . 'table.php'))
-		{
-			@include $dirname . 'table.php';
-
-			unlink($dirname . 'table.php');
-
-			$dir = opendir($dirname);
-
-			while (($file = readdir($dir)) !== false)
-			{
-				if ($file != '.' && $file != '..' && is_dir($dirname . $file)) self::recursiveUnwatch($dirname . $file . '/');
-			}
-
-			closedir($dir);
 		}
 	}
 
@@ -651,7 +647,7 @@ class CIA
 
 			$is304 = @$_SERVER['HTTP_IF_NONE_MATCH'] == $ETag || @$_SERVER['HTTP_IF_MODIFIED_SINCE'] == $LastModified;
 
-			if ('ontouch' == self::$expires && self::$watchTable) $ETag = '/' . md5(self::$agentClasses .'_'. $buffer) . "-$ETag";
+			if ('ontouch' == self::$expires && self::$watchTable) $ETag = '/' . md5(self::$agentClasses .'_'. $buffer) . '-' . $ETag;
 
 			if (!$is304)
 			{
@@ -667,8 +663,8 @@ class CIA
 
 			if ('ontouch' == self::$expires && self::$watchTable)
 			{
-				$ETag{6} = $ETag{3} = '/';
-				$ETag = './tmp/cache/validator.' . DEBUG . '/' . $ETag . '.txt';
+				$ETag = $ETag[1] . '/' . $ETag[2] . '/' . substr($ETag, 3) . '.validator.';
+				$ETag = './zcache/' . $ETag . DEBUG . '.txt';
 
 				if (!file_exists($ETag))
 				{

@@ -2,7 +2,7 @@
 
 class driver_session_file extends SESSION
 {
-	private static $path = './tmp/session/';
+	private static $path = './zcache/session/';
 
 	public function open($path, $name) {}
 	public function close() {}

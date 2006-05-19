@@ -55,7 +55,7 @@ if ($source)
 {
 	CIA::header('Content-Type: ' . $contentType);
 	CIA::setMaxage(-1);
-	CIA::writeWatchTable('public/static', 'tmp/');
+	CIA::writeWatchTable('public/static', 'zcache/');
 
 	$i = stat($source);
 	echo $i[1], '-', $i[7], '-', $i[9];

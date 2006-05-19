@@ -146,12 +146,17 @@ class IA_php
 		else
 		{
 			if (file_exists($cagent) && filemtime($cagent)>CIA_TIME) require $cagent;
-			else if (!CIA_POSTING && file_exists($cagent . '.php') && filemtime($cagent . '.php')>CIA_TIME) require $cagent . '.php';
 			else
 			{
-				$v = $agent->compose();
-				$template = $agent->getTemplate();
-				$filter = true;
+				$v = substr($cagent, 0, -7) . 'post' . substr($cagent, -4);
+
+				if (!CIA_POSTING && file_exists($v) && filemtime($v)>CIA_TIME) require $v;
+				else
+				{
+					$v = $agent->compose();
+					$template = $agent->getTemplate();
+					$filter = true;
+				}
 			}
 
 			$vClone = clone $v;
@@ -161,7 +166,7 @@ class IA_php
 
 		self::$values = $v->{'$'} = $v;
 
-		$ctemplate = CIA::makeCacheDir('templates/' . $template . ($agent->binary ? '.bin' : '.html') . '.php');
+		$ctemplate = CIA::makeCacheDir('templates/' . $template, ($agent->binary ? 'bin' : 'html') . '.php');
 		$ftemplate = 'template' . md5($ctemplate);
 
 		if (function_exists($ftemplate)) $ftemplate($v, $a, $g);
@@ -191,7 +196,8 @@ class IA_php
 
 			if (!CIA_POSTING && !$private && ($maxage || ('ontouch' == $expires && $watch)))
 			{
-				$fagent = $cagent . ($canPost ? '.php' : '');
+				$fagent = $cagent;
+				if ($canPost) $fagent = substr($cagent, 0, -7) . 'post' . substr($cagent, -4);
 
 				CIA::makeDir($fagent);
 
