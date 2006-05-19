@@ -43,7 +43,7 @@ ignore_user_abort(false);
 set_time_limit(0);
 
 $error_log = ini_get('error_log');
-$error_log = $error_log ? $error_log : './tmp/error.log';
+$error_log = $error_log ? $error_log : './zcache/error.log';
 echo str_repeat(' ', 512), // special MSIE
 	'<pre>';
 flush();
