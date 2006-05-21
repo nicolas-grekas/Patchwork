@@ -393,15 +393,13 @@ else
 	/*
 	 * Both Firefox and IE send a "Cache-Control: no-cache" request header
 	 * only and only if the current page is reloaded with CTRL+F5 or the JS code :
-	 * "location.reload(true)". We use this behaviour to trigger a cache reset
-	 * when the cache is detected stale by the browser.
+	 * "location.reload(true)". We use this behaviour to trigger a cache reset in DEBUG mode.
 	 */
-	if (
-		( (DEBUG && !$binaryMode) || (isset($_COOKIE['cache_reset_id']) && setcookie('cache_reset_id', '', 0, '/')) )
-		&& !CIA_POSTING
-		&& 'no-cache' == @$_SERVER['HTTP_CACHE_CONTROL'] )
+
+	if (($a = !CIA_POSTING && DEBUG && !$binaryMode && 'no-cache' == @$_SERVER['HTTP_CACHE_CONTROL'])
+		|| (isset($_COOKIE['cache_reset_id']) && setcookie('cache_reset_id', '', 0, '/')))
 	{
-		if (DEBUG && !$binaryMode)
+		if ($a)
 		{
 			touch('./index.php');
 			CIA::delCache();
@@ -412,7 +410,7 @@ else
 			CIA::touch('foreignTrace');
 		}
 
-		echo '<script type="text/javascript">/*<![CDATA[*/location.reload()/*]]>*/</script>';
+		echo '<html><head><script type="text/javascript">location.reload()</script></head></html>';
 		exit;
 	}
 
