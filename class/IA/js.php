@@ -21,10 +21,19 @@ class IA_js
 			$a = implode(',', $a);
 
 			$agent = 'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6));
+			$agent = self::formatJs($agent);
 
-			echo $a = '<html><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><script type="text/javascript">/*<![CDATA[*/a=['
-				. self::formatJs($agent) . ',[' . $a . '],' . CIA_PROJECT_ID . ']/*]]>*/</script><script type="text/javascript" src="'
-				. CIA::__HOME__() . 'js/w"></script></html>';
+			$lang = CIA::__LANG__();
+			$CIApID = CIA_PROJECT_ID;
+			$home = CIA::__HOME__();
+
+			echo $a =<<<EOHTML
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html lang="{$lang}">
+<script type="text/javascript">/*<![CDATA[*/a=[{$agent},[{$a}],{$CIApID}]/*]]>*/</script>
+<script type="text/javascript" src="{$home}js/w"></script>
+</html>
+EOHTML;
 
 			CIA::writeFile($cagent, $a);
 		}

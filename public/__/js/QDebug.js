@@ -38,7 +38,7 @@ function E($v, $max_depth, $level, $expand)
 
 			if ($level) o('<a href="#" onclick="return opener.QDebug_toggle(document, ' + (++E.counter) + ')">');
 			o(t($v, 'object') ? 'Object\n' : 'Array\n');
-			if ($level) o('</a><span id="QDebugId' + E.counter + '" style="display:'+($expand && !--$expand ? '' : 'none')+'">');
+			if ($level) o('</a><span id="QDebugId' + E.counter + '"'+($expand && !--$expand ? '' : ' style="display: none;"')+'>');
 			o(' ', 8*$level);
 			o('(\n');
 			for ($key in $v) if (!E.hiddenList[$key])
