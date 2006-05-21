@@ -342,10 +342,7 @@ class CIA
 
 	public static function makeCacheDir($filename, $extension, $key = '')
 	{
-		static $contextKey = false;
-		if (!$contextKey) $contextKey = self::$home .'-'. self::$lang .'-'. DEBUG .'-'. CIA_PROJECT_PATH .'-';
-
-		return self::getCachePath($filename, $extension, $contextKey . $key);
+		return self::getCachePath($filename, $extension, self::$home .'-'. self::$lang .'-'. DEBUG .'-'. CIA_PROJECT_PATH .'-'. $key);
 	}
 
 	public static function ciaLog($message, $is_end = false, $html = true)

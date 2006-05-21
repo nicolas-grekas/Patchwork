@@ -503,7 +503,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 	w.r = function()
 	{
 		if ($masterHome != g.__HOME__) setcookie('cache_reset_id', $masterCIApID, 0, '/');
-		location.reload(true);
+		location.reload();
 	}
 
 	w.x = function($data)

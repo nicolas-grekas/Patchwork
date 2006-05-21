@@ -9,7 +9,7 @@ class IA_js
 		CIA::setMaxage(-1);
 		CIA::setPrivate(true);
 
-		$cagent = CIA::makeCacheDir('controler/', 'txt', $agent);
+		$cagent = CIA::makeCacheDir('controler/' . $agent, 'txt', CIA_PROJECT_ID);
 
 		if (file_exists($cagent)) readfile($cagent);
 		else
