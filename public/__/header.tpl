@@ -1,5 +1,5 @@
 <!-- SERVERSIDE -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="{g$__LANG__}">
 <!-- END:SERVERSIDE -->
 <head>
@@ -18,7 +18,6 @@
 	<style type="text/css">
 	html,body {height: 100%}
 	label {cursor: default}
-	img {display: block}
 	.errormsg {color: red}
 	.mandatory {font-weight: bold}
 	</style>
