@@ -371,7 +371,7 @@ function enterControl($form)
 
 if (t(_BOARD.lastX)) (scrollCntrl = function()
 {
-	var $body = document.body,
+	var $body = document.documentElement || document.body,
 		$left = Math.min(_BOARD.lastX, $body.scrollWidth),
 		$top = Math.min(_BOARD.lastY, $body.scrollHeight);
 
@@ -404,14 +404,15 @@ addOnload(function()
 		$form.$onsubmit = $form.onsubmit;
 		$form.onsubmit = function($event)
 		{
-			var $this = this;
+			var $this = this,
+				$body = document.documentElement || document.body;
 			if ($this.precheck && !$this.precheck($event)) return false;
 			$event = $this.$onsubmit && $this.$onsubmit($event);
 			if (!$event && 'false' == ''+$event) return false;
 
 			setboard({
-				lastX: document.body.scrollLeft,
-				lastY: document.body.scrollTop
+				lastX: $body.scrollLeft,
+				lastY: $body.scrollTop
 			});
 
 			if ($this.UPLOAD_IDENTIFIER && window.loadUpload) loadUpload($this);

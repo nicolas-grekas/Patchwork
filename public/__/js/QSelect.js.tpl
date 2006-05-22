@@ -268,7 +268,8 @@ return function($input, $driver)
 
 			$form.precheck = $precheck;
 
-			$parent = document.body.scrollTop;
+			$parent = document;
+			$parent = ($parent.documentElement || $parent.body).scrollTop;
 			$height = $parent + $win.innerHeight - $height - $top;
 
 			if ($height < $select.offsetHeight && $height < $top - $parent) $divStyle.top = ($top - $select.offsetHeight) + 'px';
