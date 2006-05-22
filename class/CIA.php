@@ -332,7 +332,7 @@ class CIA
 		if (''!==(string)$extension) $extension = '.' . $extension;
 
 		$hash = md5($filename . $extension . '.'. $key);
-		$hash = $hash[0] . '/' . $hash[1] . '/' . substr($hash, 2);
+		$hash = $hash{0} . '/' . $hash{1} . '/' . substr($hash, 2);
 
 		$filename = rawurlencode(str_replace('/', '.', $filename));
 		$filename = substr($filename, 0, 224 - strlen($extension));

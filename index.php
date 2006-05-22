@@ -157,7 +157,7 @@ if (!$_SERVER['CIA_LANG'])
 
 /* Validator */
 
-if (@$_SERVER['HTTP_IF_NONE_MATCH']{0} == '/' && preg_match("'^/[0-9a-f]{32}-([0-9]+)$'", $_SERVER['HTTP_IF_NONE_MATCH'], $match))
+if (CIA_DIRECT && '/' == @$_SERVER['HTTP_IF_NONE_MATCH']{0} && preg_match("'^/[0-9a-f]{32}-([0-9]+)$'", $_SERVER['HTTP_IF_NONE_MATCH'], $match))
 {
 	$_SERVER['HTTP_IF_NONE_MATCH'] = $match[1];
 
@@ -409,6 +409,9 @@ else
 			touch('./index.php');
 			CIA::touch('foreignTrace');
 		}
+
+		CIA::setMaxage(0);
+		CIA::setPrivate(true);
 
 		echo '<html><head><script type="text/javascript">location.reload()</script></head></html>';
 		exit;
