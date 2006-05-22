@@ -29,7 +29,7 @@ pre:hover
 <script type="text/javascript">/*<![CDATA[*/
 function Z()
 {
-	scrollTo(0, window.innerHeight||document.body.scrollHeight);
+	scrollTo(0, window.innerHeight||(document.documentElement||document.body).scrollHeight);
 }
 /*]]>*/</script>
 </head>
