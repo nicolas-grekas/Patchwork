@@ -36,6 +36,7 @@ class IA_js
 EOHTML;
 
 			CIA::writeFile($cagent, $a);
+			CIA::writeWatchTable('foreignTrace', $cagent);
 		}
 	}
 
