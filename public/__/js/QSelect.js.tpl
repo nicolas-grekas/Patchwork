@@ -268,11 +268,21 @@ return function($input, $driver)
 
 			$form.precheck = $precheck;
 
-			$parent = document;
-			$parent = ($parent.documentElement || $parent.body).scrollTop;
-			$height = $parent + $win.innerHeight - $height - $top;
+			$parent = document.documentElement;
+			if ($parent)
+			{
+				$left = $parent.offsetHeight;
+				$parent = $parent.scrollTop;
+			}
+			else
+			{
+				$left = $win.innerHeight;
+				$parent = document.body.scrollTop;
+			}
 
-			if ($height < $select.offsetHeight && $height < $top - $parent) $divStyle.top = ($top - $select.offsetHeight) + 'px';
+			$left += $parent - $input.offsetHeight - $top;
+
+			if ($left < $height && $left < $top - $parent) $divStyle.top = ($top - $height) + 'px';
 
 			QSelect.$setTimeout(function(){$divStyle.visibility = 'visible';}, 0)
 		}
