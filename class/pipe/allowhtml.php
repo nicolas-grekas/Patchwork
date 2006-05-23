@@ -24,13 +24,7 @@ P$<?php echo substr(__CLASS__, 5)?> = function($string)
 	$string = str($string);
 	return (''+$string/1==$string)
 		? $string/1
-		: $string.replace(
-			/&#039;/g, "'").replace(
-			/&quot;/g, '"').replace(
-			/&gt;/g  , '>').replace(
-			/&lt;/g  , '<').replace(
-			/&amp;/g , '&'
-		);
+		: unesc($string);
 }
 
 <?php	}
