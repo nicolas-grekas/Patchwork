@@ -4,6 +4,7 @@
 * str
 * num
 * esc
+* unesc
 * parseurl
 * loadPng
 * addOnload
@@ -39,16 +40,25 @@ function num($str, $weak)
 
 function esc($str)
 {
-	if (t($str, 'string'))
-	{
-		$str = $str.replace(
+	return t($str, 'string')
+		? $str.replace(
 			/&/g, '&amp;').replace(
 			/</g, '&lt;').replace(
 			/>/g, '&gt;').replace(
-			/"/g, '&quot;');
-	}
+			/"/g, '&quot;'
+		) : $str;
+}
 
-	return $str;
+function unesc($str)
+{
+	return t($str, 'string')
+		? $str.replace(
+			/&#039;/g, "'").replace(
+			/&quot;/g, '"').replace(
+			/&gt;/g  , '>').replace(
+			/&lt;/g  , '<').replace(
+			/&amp;/g , '&'
+		) : $str;
 }
 
 function parseurl($param, $delim, $rx, $array)
@@ -173,7 +183,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 		$lastInclude = '',
 		$includeCache = {},
 		
-		$masterHome = esc({g$__HOME__|js});
+		$masterHome = {g$__HOME__|js};
 
 		window.home = function($str, $master)
 		{
@@ -412,7 +422,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 					for ($i=0; $i<$keys.length; ++$i)
 						if (($j = $keys[$i]) && t($args[$j]))
-							$c += '&amp;' + eUC($j) + '=' + eUC($args[$j]);
+							$c += '&amp;' + eUC($j) + '=' + eUC(unesc($args[$j]));
 
 					if ($args['*']) $args.__URI__ += '?' + $c.substr(5);
 					a = $args;
@@ -600,9 +610,9 @@ w = function($homeAgent, $keys, $masterCIApID)
 	$j = location;
 
 	g = parseurl($j.search.replace(/\+/g, '%20').substring(1), '&', /^amp;/);
-	g.__DEBUG__ = esc({g$__DEBUG__|js});
-	g.__HOST__ = esc({g$__HOST__|js});
-	g.__LANG__ = esc({g$__LANG__|js});
+	g.__DEBUG__ = {g$__DEBUG__|js};
+	g.__HOST__ = {g$__HOST__|js};
+	g.__LANG__ = {g$__LANG__|js};
 	g.__HOME__ = $masterHome;
 	g.__AGENT__ = $homeAgent ? esc($homeAgent) + '/' : '';
 	g.__URI__ = esc(''+$j);
