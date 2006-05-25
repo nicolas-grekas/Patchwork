@@ -17,7 +17,7 @@ class CIA
 
 	protected static $maxage = false;
 	protected static $private = false;
-	protected static $expires = 'ontouch';
+	protected static $expires = 'auto';
 	protected static $watchTable = array();
 	protected static $headers = array();
 
@@ -184,7 +184,7 @@ class CIA
 	 */
 	public static function setExpires($expires)
 	{
-		self::$expires = $expires;
+		if ('auto' == self::$expires || 'ontouch' == self::$expires) self::$expires = $expires;
 
 		if (self::$catchMeta) self::$metaInfo[2] = $expires;
 	}
@@ -644,7 +644,11 @@ class CIA
 
 			$is304 = @$_SERVER['HTTP_IF_NONE_MATCH'] == $ETag || @$_SERVER['HTTP_IF_MODIFIED_SINCE'] == $LastModified;
 
-			if ('ontouch' == self::$expires && self::$watchTable) $ETag = '/' . md5(self::$agentClasses .'_'. $buffer) . '-' . $ETag;
+			if ('ontouch' == self::$expires || ('auto' == self::$expires && self::$watchTable))
+			{
+				self::$expires = 'auto';
+				$ETag = '/' . md5(self::$agentClasses .'_'. $buffer) . '-' . $ETag;
+			}
 
 			if (!$is304)
 			{
@@ -658,7 +662,7 @@ class CIA
 
 			/* Write watch table */
 
-			if ('ontouch' == self::$expires && self::$watchTable)
+			if ('auto' == self::$expires && self::$watchTable)
 			{
 				$ETag = $ETag[1] . '/' . $ETag[2] . '/' . substr($ETag, 3) . '.validator.';
 				$ETag = './zcache/' . $ETag . DEBUG . '.txt';
@@ -713,7 +717,7 @@ class agent_
 
 	protected $maxage  = 0;
 	protected $private = false;
-	protected $expires = 'ontouch';
+	protected $expires = 'auto';
 	protected $watch = array();
 
 	public function control() {}
