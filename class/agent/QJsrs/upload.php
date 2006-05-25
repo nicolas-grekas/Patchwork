@@ -24,7 +24,7 @@ class agent_QJsrs_upload extends agent_QJsrs
 		else
 		{
 			$this->maxage = CIA_MAXAGE;
-			$this->expires = 'ontouch';
+			$this->expires = 'auto';
 			$this->private = false;
 		}
 
