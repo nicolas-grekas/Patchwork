@@ -5,7 +5,7 @@ class pipe_now
 	static function php($string)
 	{
 		CIA::setMaxage(1);
-		CIA::setExpires(true);
+		CIA::setExpires('onmaxage');
 		return CIA_TIME;
 	}
 
