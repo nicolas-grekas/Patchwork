@@ -8,7 +8,7 @@ abstract class driver_convertTo_abstract
 	{
 		$file = tempnam('./tmp', 'convert');
 
-		file_put_contents($file, $data);
+		CIA::writeFile($file, $data);
 
 		$data = $this->file($file);
 
