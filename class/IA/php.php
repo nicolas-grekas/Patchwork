@@ -211,7 +211,7 @@ class IA_php
 				self::writeAgent($h, $vClone);
 
 				$data = ';$template=' . var_export($template, true)
-					. '<?php CIA::setMaxage(' . (int) $maxage
+					. ';CIA::setMaxage(' . (int) $maxage
 					. ");CIA::setExpires('$expires');";
 
 				if ($headers)
