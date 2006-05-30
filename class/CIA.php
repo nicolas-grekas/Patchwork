@@ -306,16 +306,21 @@ class CIA
 	 */
 	public static function writeFile($filename, &$data, $Dmtime = 0)
 	{
-		$a = @file_put_contents($filename, $data);
+		$a = @fopen($filename, 'wb');
 
 		if (!$a)
 		{
 			self::makeDir($filename);
-			$a = file_put_contents($filename, $data);
+			$a = @fopen($filename, 'wb');
 		}
 
 		if ($a)
 		{
+			@flock($a, LOCK_EX);
+			@fwrite($a, $data, strlen($data));
+			@flock($a, LOCK_UN);
+			@fclose($a);
+
 			if ($Dmtime) touch($filename, CIA_TIME + $Dmtime);
 			return true;
 		}
