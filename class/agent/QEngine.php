@@ -23,7 +23,7 @@ class agent_QEngine extends agent
 
 		ksort($K);
 
-		return '{' . $this->prefixCompress($K) . '}';
+		return '{' . $this->getPrefixTree($K) . '}';
 	}
 
 	public function getKeywords($kw)
@@ -39,7 +39,7 @@ class agent_QEngine extends agent
 		return $kw;
 	}
 
-	protected function prefixCompress(&$kw)
+	protected function getPrefixTree(&$kw)
 	{
 		$result = '';
 		$KLen = count($kw);
@@ -93,7 +93,7 @@ class agent_QEngine extends agent
 
 				while ($bestremain && strpos(key($bestremain), $K0) === 0) $subs[ substr(key($bestremain), $K0Len) ] = array_shift($bestremain);
 
-				$bestresult = $this->P($K0, $I0) . $this->prefixCompress($subs) . '}';
+				$bestresult = $this->P($K0, $I0) . $this->getPrefixTree($subs) . '}';
 				$bestsave = count($subs)*$K0Len - 1;
 
 				if (count($bestremain)) ++$bestsave;
@@ -120,7 +120,7 @@ class agent_QEngine extends agent
 					if ($count) do $subs[ substr(key($bestremain), $K0Len) ] = array_shift($bestremain);
 					while (--$count);
 
-					$bestresult = $this->P($K1) . $this->prefixCompress($subs) . '}';
+					$bestresult = $this->P($K1) . $this->getPrefixTree($subs) . '}';
 				}
 			}
 
