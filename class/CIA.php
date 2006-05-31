@@ -81,24 +81,24 @@ class CIA
 	 */
 	public static function header($string)
 	{
-		if (0===stripos($string, 'http/'));
-		else if (0===stripos($string, 'etag'));
-		else if (0===stripos($string, 'last-modified'));
-		else if (0===stripos($string, 'expires'));
-		else if (0===stripos($string, 'cache-control'));
-		else if (0===stripos($string, 'content-length'));
-		else
-		{
-			$string = preg_replace("'[\r\n].*'", '', $string);
+		if (!self::$cancelled && (
+			   0===stripos($string, 'http/')
+			|| 0===stripos($string, 'etag')
+			|| 0===stripos($string, 'last-modified')
+			|| 0===stripos($string, 'expires')
+			|| 0===stripos($string, 'cache-control')
+			|| 0===stripos($string, 'content-length')
+		)) return;
 
-			$name = strtolower(substr($string, 0, strpos($string, ':')));
+		$string = preg_replace("'[\r\n].*'s", '', $string);
 
-			self::$headers[$name] = $string;
+		$name = strtolower(substr($string, 0, strpos($string, ':')));
 
-			if (self::$catchMeta) self::$metaInfo[4][$name] = $string;
+		self::$headers[$name] = $string;
 
-			header($string);
-		}
+		if (self::$catchMeta) self::$metaInfo[4][$name] = $string;
+
+		header($string);
 	}
 
 	/**
@@ -118,7 +118,7 @@ class CIA
 		self::$agentClass = $agentClass = str_replace('_', '/', $agentClass);
 		if ($is_trace) self::$agentClasses .= '*' . self::$agentClass;
 
-		$default = array(false, false, false, array(), array(), false, self::$agentClass);
+		$default = array(false, array(), false, array(), array(), false, self::$agentClass);
 
 		self::$catchMeta = true;
 
@@ -150,7 +150,7 @@ class CIA
 	}
 
 	/**
-	 * Controls the Cache Control headers.
+	 * Controls the Cache's max age.
 	 */
 	public static function setMaxage($maxage)
 	{
@@ -168,19 +168,35 @@ class CIA
 	}
 
 	/**
-	 * Controls the Cache Control headers.
+	 * Controls the Cache's groups.
 	 */
-	public static function setPrivate($private = true)
+	public static function setGroup($group)
 	{
-		if ($private)
+		if ('public' == $group) return;
+
+		$group = array_diff((array) $group, array('public'));
+
+		if (!$group) return;
+
+		self::$private = true;
+
+		if (self::$catchMeta)
 		{
-			self::$private = true;
-			if (self::$catchMeta) self::$metaInfo[1] = true;
+			$a =& self::$metaInfo[1];
+
+			if (count($a) == 1 && 'private' == $a[0]) return;
+
+			if (in_array('private', $group)) $a = array('private');
+			else
+			{
+				$a = array_unique( array_merge($a, $group) );
+				sort($a);
+			}
 		}
 	}
 
 	/**
-	 * Controls the Cache Control headers.
+	 * Controls the Cache's expiration mechanism.
 	 */
 	public static function setExpires($expires)
 	{
@@ -306,20 +322,19 @@ class CIA
 	 */
 	public static function writeFile($filename, &$data, $Dmtime = 0)
 	{
-		$a = @fopen($filename, 'wb');
+		$h = @fopen($filename, 'wb');
 
-		if (!$a)
+		if (!$h)
 		{
 			self::makeDir($filename);
-			$a = @fopen($filename, 'wb');
+			$h = @fopen($filename, 'wb');
 		}
 
-		if ($a)
+		if ($h)
 		{
-			@flock($a, LOCK_EX);
-			@fwrite($a, $data, strlen($data));
-			@flock($a, LOCK_UN);
-			@fclose($a);
+			flock($h, LOCK_EX);
+			fwrite($h, $data, strlen($data));
+			fclose($h);
 
 			if ($Dmtime) touch($filename, CIA_TIME + $Dmtime);
 			return true;
@@ -520,10 +535,9 @@ class CIA
 
 	public static function agentCache($agentClass, $keys, $type)
 	{
-		$cagent = '_';
-		foreach ($keys as $key => $value) $cagent .= '&' . rawurlencode($key) . '=' . rawurlencode($value);
+		$keys = serialize(array($keys, @self::$metaInfo[1]));
 
-		return self::makeCacheDir(str_replace('_', '/', $agentClass) . '/_/', $type . '.php', $cagent);
+		return self::makeCacheDir(str_replace('_', '/', $agentClass) . '/_/', $type . '.php', $keys);
 	}
 
 	public static function delCache()
@@ -550,6 +564,8 @@ class CIA
 			if (file_exists($path))
 			{
 				$h = fopen($path, 'ab');
+				flock($h, LOCK_EX);
+				fseek($h, 0, SEEK_END);
 				fwrite($h, $file, strlen($file));
 				fclose($h);
 			}
@@ -567,6 +583,8 @@ class CIA
 					if (file_exists($path))
 					{
 						$h = fopen($path, 'ab');
+						flock($h, LOCK_EX);
+						fseek($h, 0, SEEK_END);
 						fwrite($h, $file, strlen($file));
 						fclose($h);
 
@@ -683,7 +701,10 @@ class CIA
 					foreach (array_unique(self::$watchTable) as $path)
 					{
 						$h = fopen($path, 'ab');
-						fwrite($h, "unlink('$ETag');\n");
+						flock($h, LOCK_EX);
+						fseek($h, 0, SEEK_END);
+						$path = "unlink('$ETag');\n";
+						fwrite($h, $path, strlen($path));
 						fclose($h);
 					}
 				}
@@ -721,7 +742,7 @@ class agent_
 	protected $template;
 
 	protected $maxage  = 0;
-	protected $private = false;
+	protected $group = 'public';
 	protected $expires = 'auto';
 	protected $watch = array();
 
@@ -747,7 +768,7 @@ class agent_
 	public function metaCompose()
 	{
 		CIA::setMaxage($this->maxage);
-		CIA::setPrivate($this->private);
+		CIA::setGroup($this->group);
 		CIA::setExpires($this->expires);
 		CIA::watch($this->watch);
 	}

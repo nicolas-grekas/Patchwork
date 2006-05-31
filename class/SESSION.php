@@ -102,7 +102,7 @@ abstract class SESSION
 
 	private static function start()
 	{
-		CIA::setPrivate();
+		CIA::setGroup('private');
 
 		if (self::$started) return;
 

@@ -7,7 +7,7 @@ class IA_js
 	public static function loadAgent($agent)
 	{
 		CIA::setMaxage(-1);
-		CIA::setPrivate(true);
+		CIA::setGroup('private');
 		CIA::setExpires('onmaxage');
 
 		$cagent = CIA::makeCacheDir('controler/' . $agent, 'txt', CIA_PROJECT_ID);
@@ -62,10 +62,10 @@ EOHTML;
 			return;
 		}
 
+		ob_start();
+
 		$data = $agent->compose();
 		$template = $agent->getTemplate();
-
-		ob_start();
 
 		$comma = '';
 		foreach ($data as $key => $value)
@@ -79,7 +79,7 @@ EOHTML;
 		echo '}';
 
 		$agent->metaCompose();
-		list($maxage, $private, $expires, $watch, $headers) = CIA::closeMeta();
+		list($maxage, $group, $expires, $watch, $headers) = CIA::closeMeta();
 
 		if ($maxage==CIA_MAXAGE)
 		{
@@ -105,7 +105,7 @@ EOHTML;
 		if ('ontouch' == $expires && !$watch) $expires = 'auto';
 		$expires = 'auto' == $expires && $watch ? 'ontouch' : 'onmaxage';
 
-		if (!$private && ($maxage || 'ontouch' == $expires))
+		if (!in_array('private', $group) && ($maxage || 'ontouch' == $expires))
 		{
 			$cagent = CIA::agentCache($agentClass, $agent->argv, 'js');
 			$data = str_replace('<?', "<?php echo'<?'?>", ob_get_flush())

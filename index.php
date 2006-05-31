@@ -411,7 +411,7 @@ else
 		}
 
 		CIA::setMaxage(0);
-		CIA::setPrivate(true);
+		CIA::setGroup('private');
 
 		echo '<html><head><script type="text/javascript">location.reload()</script></head></html>';
 		exit;
@@ -419,7 +419,7 @@ else
 
 	if (CIA_POSTING || $binaryMode || isset($_GET['$bin']) || !@$_COOKIE['JS'])
 	{
-		if (!$binaryMode) CIA::setPrivate(true);
+		if (!$binaryMode) CIA::setGroup('private');
 		IA_php::loadAgent($agent, false, false);
 	}
 	else

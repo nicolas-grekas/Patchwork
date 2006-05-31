@@ -153,9 +153,11 @@ class IA_php
 				if (!CIA_POSTING && file_exists($v) && filemtime($v)>CIA_TIME) require $v;
 				else
 				{
+					ob_start();
 					$v = $agent->compose();
 					$template = $agent->getTemplate();
 					$filter = true;
+					$rawdata = ob_get_flush();
 				}
 			}
 
@@ -188,7 +190,7 @@ class IA_php
 		CIA::$catchMeta = true;
 
 		$agent->metaCompose();
-		list($maxage, $private, $expires, $watch, $headers, $canPost) = CIA::closeMeta();
+		list($maxage, $group, $expires, $watch, $headers, $canPost) = CIA::closeMeta();
 
 		if ($filter)
 		{
@@ -197,7 +199,7 @@ class IA_php
 			if ('ontouch' == $expires && !$watch) $expires = 'auto';
 			$expires = 'auto' == $expires && $watch ? 'ontouch' : 'onmaxage';
 
-			if (!CIA_POSTING && !$private && ($maxage || 'ontouch' == $expires))
+			if (!CIA_POSTING && !in_array('private', $group) && ($maxage || 'ontouch' == $expires))
 			{
 				$fagent = $cagent;
 				if ($canPost) $fagent = substr($cagent, 0, -7) . 'post' . substr($cagent, -4);
@@ -205,8 +207,10 @@ class IA_php
 				CIA::makeDir($fagent);
 
 				$h = fopen($fagent, 'wb');
+				flock($h, LOCK_EX);
 
-				fwrite($h, '<?php $v=(object)');
+				$rawdata = str_replace('<?', "<?php echo'<?'?>", $rawdata) . '<?php $v=(object)';
+				fwrite($h, $rawdata, strlen($rawdata));
 
 				self::writeAgent($h, $vClone);
 
@@ -220,7 +224,7 @@ class IA_php
 					$data .= "header('" . implode("');header('", $headers) . "');";
 				}
 
-				fwrite($h, $data);
+				fwrite($h, $data, strlen($data));
 				fclose($h);
 				touch($fagent, CIA_TIME + ('ontouch' == $expires ? CIA_MAXAGE : $maxage));
 
@@ -233,36 +237,43 @@ class IA_php
 
 	private static function writeAgent(&$h, &$data)
 	{
-		fwrite($h, 'array(');
+		fwrite($h, 'array(', 6);
 
 		$comma = '';
 		foreach ($data as $key => $value)
 		{
-			fwrite($h, $comma . "'" . str_replace(array('\\',"'"), array('\\\\',"\\'"), $key) . "'=>");
+			$comma .= "'" . str_replace(array('\\',"'"), array('\\\\',"\\'"), $key) . "'=>";
+			fwrite($h, $comma, strlen($comma));
+
 			if ($value instanceof loop)
 			{
-				if (!CIA::string($value)) fwrite($h, "'0'");
+				if (!CIA::string($value)) fwrite($h, "'0'", 3);
 				else
 				{
-					fwrite($h, 'new L_(array(');
+					fwrite($h, 'new L_(array(', 13);
 
 					$comma2 = '';
 					while ($key = $value->compose())
 					{
-						fwrite($h, $comma2);
+						fwrite($h, $comma2, strlen($comma2));
 						self::writeAgent($h, $key);
 						$comma2 = ',';
 					}
 
-					fwrite($h, '))');
+					fwrite($h, '))', 2);
 				}
 
 			}
-			else fwrite($h, "'" . str_replace(array('\\',"'"), array('\\\\',"\\'"), $value) . "'");
+			else
+			{
+				$comma = "'" . str_replace(array('\\',"'"), array('\\\\',"\\'"), $value) . "'";
+				fwrite($h, $comma, strlen($comma));
+			}
+
 			$comma = ',';
 		}
 
-		fwrite($h, ')');
+		fwrite($h, ')', 1);
 	}
 
 	/*
