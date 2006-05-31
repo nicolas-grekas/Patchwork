@@ -1,7 +1,7 @@
 <?php
 
 CIA::setMaxage(0);
-CIA::setPrivate();
+CIA::setGroup('private');
 CIA::setExpires('onmaxage');
 
 $context = '';
@@ -51,6 +51,8 @@ if (!$msg) switch ($code)
 $cid = CIA::uniqid();
 $i = ini_get('error_log');
 $i = fopen($i ? $i : './zcache/error.log', 'ab');
+flock($i, LOCK_EX);
+fseek($i, 0, SEEK_END);
 fwrite($i, "<a href=\"javascript:;\" onclick=\"var a=document.getElementById('{$cid}');a.style.display=a.style.display?'':'none';\">$msg</a> in <b>$file</b> line <b>$line</b>:\n$message<blockquote id=\"{$cid}\" style=\"display:none\">Context : $context</blockquote><br><br>");
 fclose($i);
 
