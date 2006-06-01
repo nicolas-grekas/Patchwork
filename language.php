@@ -1,5 +1,6 @@
 <?php
 
+header('Content-Type: text/html; charset=UTF-8');
 header('Expires: ' . gmdate('D, d M Y H:i:s', CIA_TIME + CIA_MAXAGE) . ' GMT');
 header('Cache-Control: max-age=' . CIA_MAXAGE .',public');
 header('Vary: Accept-Language', false);
