@@ -194,7 +194,7 @@ class IA_php
 
 		if ($filter)
 		{
-			$cagent = CIA::agentCache($agentClass, $agent->argv, 'php');
+			$cagent = CIA::agentCache($agentClass, $agent->argv, 'php', $group);
 
 			if ('ontouch' == $expires && !$watch) $expires = 'auto';
 			$expires = 'auto' == $expires && $watch ? 'ontouch' : 'onmaxage';

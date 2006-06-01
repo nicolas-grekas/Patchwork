@@ -533,9 +533,10 @@ class CIA
 		if (false !== $b) $a = substr($a, 0, $b);
 	}
 
-	public static function agentCache($agentClass, $keys, $type)
+	public static function agentCache($agentClass, $keys, $type, $group = false)
 	{
-		$keys = serialize(array($keys, @self::$metaInfo[1]));
+		if (false === $group) $group = self::$metaInfo[1];
+		$keys = serialize(array($keys, $group));
 
 		return self::makeCacheDir(str_replace('_', '/', $agentClass) . '/_/', $type . '.php', $keys);
 	}
