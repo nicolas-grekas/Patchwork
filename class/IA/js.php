@@ -107,7 +107,8 @@ EOHTML;
 
 		if (!in_array('private', $group) && ($maxage || 'ontouch' == $expires))
 		{
-			$cagent = CIA::agentCache($agentClass, $agent->argv, 'js');
+			$cagent = CIA::agentCache($agentClass, $agent->argv, 'js', $group);
+
 			$data = str_replace('<?', "<?php echo'<?'?>", ob_get_flush())
 				. '<?php CIA::setMaxage(' . (int) $maxage
 				. ");CIA::setExpires('$expires');";
