@@ -27,7 +27,7 @@ class iaMail extends Mail_mime
 
 	function __construct($options = null)
 	{
-		parent::__construct();
+		parent::__construct("\n");
 
 		$this->options = $options;
 

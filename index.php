@@ -75,13 +75,67 @@ mbstring.func_overload = 0
 
 if (!isset($_SERVER['CIA_HOME']))
 {
-	$_SERVER['CIA_HOME'] = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'] . '/__/';
+	$_SERVER['CIA_HOME'] = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'];
 	$_SERVER['CIA_LANG'] = $_SERVER['CIA_REQUEST'] = '';
 
-	if (preg_match("'^/([a-z]{2}(?:-[A-Z]{2})?)/?(.*)$'", @$_SERVER['PATH_INFO'], $a))
+	$use_path_info = true;
+
+	// This switch tries to detect sapi compatibility with $_SERVER['PATH_INFO']
+	if (!isset($_SERVER['PATH_INFO'])) switch (php_sapi_name())
 	{
-		$_SERVER['CIA_LANG']    = $a[1];
-		$_SERVER['CIA_REQUEST'] = $a[2];
+		case 'cgi-fcgi':
+		case 'cgi':
+		case 'cli':
+			$use_path_info = false;
+			break;
+
+		case 'aolserver':
+		case 'apache':
+		case 'apache2handler':
+		case 'apache2filter':
+		case 'activescript':
+		case 'caudium':
+		case 'embed':
+		case 'isapi':
+		case 'java_servlet':
+		case 'milter':
+		case 'nsapi':
+		case 'phttpd':
+		case 'pi3web':
+		case 'roxen':
+		case 'thttpd':
+		case 'tux':
+		case 'webjames':
+		default:
+			break;
+	}
+
+	if ($use_path_info)
+	{
+		$_SERVER['CIA_HOME'] .= '/__/';
+
+		if (preg_match("'^/([a-z]{2}(?:-[A-Z]{2})?)/?(.*)$'", @$_SERVER['PATH_INFO'], $a))
+		{
+			$_SERVER['CIA_LANG']    = $a[1];
+			$_SERVER['CIA_REQUEST'] = $a[2];
+		}
+	}
+	else
+	{
+		$_SERVER['CIA_HOME'] .= '?__/';
+
+		if (preg_match("'^([a-z]{2}(?:-[A-Z]{2})?)/?([^\?]*)(\??)'", rawurldecode(@$_SERVER['QUERY_STRING']), $a))
+		{
+			$_SERVER['CIA_LANG']    = $a[1];
+			$_SERVER['CIA_REQUEST'] = $a[2];
+
+			if ($a[3])
+			{
+				$_GET = array();
+				parse_str( preg_replace("'^.*?(\?|%3F)'i", '', $_SERVER['QUERY_STRING']), $_GET);
+			}
+			else unset($_GET[ key($_GET) ]);
+		}
 	}
 }
 else if ('/' == substr($_SERVER['CIA_HOME'], 0, 1)) $_SERVER['CIA_HOME'] = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['CIA_HOME'];
@@ -98,7 +152,7 @@ if (function_exists('iconv_set_encoding'))
 	iconv_set_encoding('output_encoding', 'UTF-8');
 }
 
-date_default_timezone_set($CONFIG['timezone']);
+if (function_exists('date_default_timezone_set')) date_default_timezone_set($CONFIG['timezone']);
 
 
 define('DEBUG',			$CONFIG['allow_debug'] ? (int) @$_COOKIE['DEBUG'] : 0);
