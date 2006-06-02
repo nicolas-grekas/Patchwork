@@ -80,6 +80,8 @@ if (!isset($_SERVER['CIA_HOME']))
 
 	$use_path_info = true;
 
+	if (isset($_SERVER['ORIG_PATH_INFO'])) $_SERVER['PATH_INFO'] = $_SERVER['ORIG_PATH_INFO'];
+
 	// This switch tries to detect sapi compatibility with $_SERVER['PATH_INFO']
 	if (!isset($_SERVER['PATH_INFO'])) switch (php_sapi_name())
 	{
