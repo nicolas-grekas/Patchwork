@@ -121,12 +121,14 @@ function $QJsrs($URL, $POST)
 		$pool = [],
 		$poolLen = 0,
 		$localTimer = 0,
-		$context, $callback, $url, $i = '?';
+		$context, $callback, $url = home(''), $i = '?',
+		$LOCAL = location;
 
+	if (!$URL.indexOf($url)) $URL = $URL.substr($url.length);
 	if ($URL.indexOf($i)<0) $URL += $i;
 
 	$URL = home($URL);
-	$LOCAL = location;
+	
 	$LOCAL = 0 == $URL.indexOf($LOCAL.protocol+'//'+$LOCAL.hostname);
 	$POST = $POST ? 1 : 0;
 
