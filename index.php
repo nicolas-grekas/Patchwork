@@ -143,7 +143,7 @@ else if ('/' == substr($_SERVER['CIA_HOME'], 0, 1)) $_SERVER['CIA_HOME'] = 'http
 
 /* Config initialisation */
 
-putenv('LC_ALL=en_US.UTF-8');
+@putenv('LC_ALL=en_US.UTF-8');
 setlocale(LC_ALL, 'en_US.UTF-8');
 if (function_exists('iconv_set_encoding'))
 {
