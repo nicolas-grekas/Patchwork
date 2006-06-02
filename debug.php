@@ -40,7 +40,7 @@ $period = 5;	// (s)
 
 if (!isset($_GET['stop'])) apache_setenv('no-gzip', '1');
 ignore_user_abort(false);
-set_time_limit(0);
+@set_time_limit(0);
 
 $error_log = ini_get('error_log');
 $error_log = $error_log ? $error_log : './zcache/error.log';
