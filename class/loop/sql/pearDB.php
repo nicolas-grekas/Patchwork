@@ -28,7 +28,7 @@ class loop_sql_pearDB extends loop
 		if ($this->count > 0) $this->result = $this->db->limitQuery($this->sql, $this->from, $this->count);
 		else $this->result = $this->db->query($this->sql);
 
-		return PEAR::isError($this->result) ? false : $this->result->numRows();
+		return @PEAR::isError($this->result) ? false : $this->result->numRows();
 	}
 
 	protected function next()
