@@ -59,14 +59,20 @@ function $QJsrsContext($name)
 			$url = home('QJsrs.html', 1);
 		else $url = $url[0] + $url[1];
 
-		if ($local && $XMLHttp)
+		if (!$local && !$post && ('Gecko' == navigator.product || 'object' == typeof document.onreadystatechange))
+			$QJsrs.$withScript($this.q[0] + $this.q[1], function($html)
+			{
+				eval('$html=' + window.q);
+				$this.$callback($html);
+			});
+		else if ($local && $XMLHttp)
 		{
 			$container = $XMLHttp - 1 ? new XMLHttpRequest : new ActiveXObject('Microsoft.XMLHTTP');
 			$container.onreadystatechange = function()
 			{
 				if ($container.readyState==4)
 					$container.onreadystatechange = $emptyFunction,
-					$html = $container.responseText.replace(/<\/.*/, '').substr(33),
+					$html = $container.responseText.replace(/<\/.*/, '').substr(39),
 					eval('$html=' + $html),
 					eval('$html=' + $html),
 					$container = $this.$busy = 0,
@@ -216,6 +222,34 @@ QJsrs.$setTimeout = function($function, $timeout, $i)
 	$i = ++QJsrs.$setTimeoutId;
 	QJsrs.$setTimeoutPool[$i] = $function;
 	return setTimeout('QJsrs.$setTimeoutPool['+$i+']();QJsrs.$setTimeoutPool['+$i+']=null', $timeout);
+}
+
+QJsrs.$withScript = function($url, $callback)
+{
+	var $script = document.createElement('script');
+
+	$script.type = 'text/javascript';
+	$script.src = $url;
+	$script.onload = $script.onreadystatechange = function($event)
+	{
+		if (
+			!(
+				   ($event = $event || window.event)
+				&& ($event = $event.target || $event.srcElement)
+				&& ('undefined' != typeof $event.readyState)
+			)
+			|| 'loaded'   == $event.readyState
+			|| 'complete' == $event.readyState
+		){
+			$event = $script.parentNode;
+			$event.removeChild($script);
+			$script = 0;
+
+			if ($callback) $callback();
+		}
+	}
+
+	document.getElementsByTagName('head')[0].appendChild($script);
 }
 
 }
