@@ -18,18 +18,18 @@
 * Cancel the callback pool with varname.abort()
 */
 
-$win = window;
+$window = window;
 
-if (!$win.QJsrs)
+if (!$window.QJsrs)
 {
 
 function $emptyFunction() {};
 document.write('<div id="divQJsrs" style="position:absolute;visibility:hidden"></div>');
 
 // Preload the XMLHttp object and detects browser capabilities.
-QJsrs = $win.ScriptEngineMajorVersion;
+QJsrs = $window.ScriptEngineMajorVersion;
 if (QJsrs && QJsrs() >= 5) eval('try{QJsrs=new ActiveXObject("Microsoft.XMLHTTP")&&2}catch(QJsrs){QJsrs=1}');
-else QJsrs = $win.XMLHttpRequest ? new XMLHttpRequest && 3 : 1;
+else QJsrs = $window.XMLHttpRequest ? new XMLHttpRequest && 3 : 1;
 
 QJsrs = (function()
 {
@@ -38,7 +38,8 @@ var $contextPool = [],
 	$loadCounter = 0,
 	$masterTimer = 0,
 	$document = 0,
-	$emptyFunction = $win.$emptyFunction,
+	$emptyFunction = $window.$emptyFunction,
+	$win = $window,
 	$XMLHttp = QJsrs - 1;
 
 function $QJsrsContext($name)
@@ -87,12 +88,21 @@ function $QJsrsContext($name)
 				$container.open('GET', $url, 1),
 				$container.send('');
 		}
-		else if ($html) frames[$name].location.replace($url);
+		else if ($html) $win.frames[$name].location.replace($url);
 		else
 		{
 			if (!$document) $document = document, $document = $document.getElementById ? $document.getElementById('divQJsrs') : $document.all['divQJsrs'];
 
-			$document.innerHTML += '<iframe name='+ $name +' src="'+ $url.replace(/"/g, '&quot;') +'" width=0 height=0 frameborder=0></iframe>',
+			if ($document.appendChild && (!$win.ScriptEngine || 5.5 <= ScriptEngineMajorVersion() + ScriptEngineMinorVersion() / 10))
+			{
+				$html = document.createElement('iframe');
+				$html.name = $name;
+				$html.src = $url;
+				$html.width = $html.height = $html.frameBorder = 0;
+				$document.appendChild($html);
+			}
+			else $document.innerHTML += '<iframe name='+ $name +' src="'+ $url.replace(/"/g, '&quot;') +'" width=0 height=0 frameborder=0></iframe>',
+
 			$html = 1;
 		}
 	}
@@ -107,7 +117,7 @@ function $QJsrsContext($name)
 	}
 }
 
-$win.loadQJsrs = function($context, $result, $callback)
+$window.loadQJsrs = function($context, $result, $callback)
 {
 	$context = $contextPool[ parseInt($context.name.substr(1)) ];
 
