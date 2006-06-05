@@ -24,7 +24,6 @@ if (!$window.QJsrs)
 {
 
 function $emptyFunction() {};
-document.write('<div id="divQJsrs" style="position:absolute;visibility:hidden"></div>');
 
 // Preload the XMLHttp object and detects browser capabilities.
 QJsrs = $window.ScriptEngineMajorVersion;
@@ -37,10 +36,13 @@ QJsrs = (function()
 var $contextPool = [],
 	$loadCounter = 0,
 	$masterTimer = 0,
-	$document = 0,
+	$document = document,
+	$div = 0,
 	$emptyFunction = $window.$emptyFunction,
 	$win = $window,
 	$XMLHttp = QJsrs - 1;
+
+$document.write('<div id="divQJsrs" style="position:absolute;visibility:hidden"></div>');
 
 function $QJsrsContext($name)
 {
@@ -82,7 +84,7 @@ function $QJsrsContext($name)
 				$container.open('GET', $url, 1),
 				$container.send('');
 		}
-		else if (!$post && ('Gecko' == navigator.product || 'object' == typeof document.onreadystatechange) && document.createElement)
+		else if (!$post && ('Gecko' == navigator.product || 'object' == typeof $document.onreadystatechange) && $document.createElement)
 			$QJsrs.$withScript($this.q[0] + $this.q[1], function($html)
 			{
 				eval('$html=' + window.q);
@@ -91,17 +93,17 @@ function $QJsrsContext($name)
 		else if ($html) $win.frames[$name].location.replace($url);
 		else
 		{
-			if (!$document) $document = document, $document = $document.getElementById ? $document.getElementById('divQJsrs') : $document.all['divQJsrs'];
+			if (!$div) $div = $document.getElementById ? $document.getElementById('divQJsrs') : $document.all['divQJsrs'];
 
-			if ($document.appendChild && (!$win.ScriptEngine || 5.5 <= ScriptEngineMajorVersion() + ScriptEngineMinorVersion() / 10))
+			if ($div.appendChild && (!$win.ScriptEngine || 5.5 <= ScriptEngineMajorVersion() + ScriptEngineMinorVersion() / 10))
 			{
-				$html = document.createElement('iframe');
+				$html = $document.createElement('iframe');
 				$html.name = $name;
 				$html.src = $url;
 				$html.width = $html.height = $html.frameBorder = 0;
-				$document.appendChild($html);
+				$div.appendChild($html);
 			}
-			else $document.innerHTML += '<iframe name='+ $name +' src="'+ $url.replace(/"/g, '&quot;') +'" width=0 height=0 frameborder=0></iframe>',
+			else $div.innerHTML += '<iframe name='+ $name +' src="'+ $url.replace(/"/g, '&quot;') +'" width=0 height=0 frameborder=0></iframe>',
 
 			$html = 1;
 		}
