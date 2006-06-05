@@ -52,6 +52,8 @@ class CIA
 
 			if (false===strpos(@$_SERVER['HTTP_USER_AGENT'], 'MSIE'))
 			{
+				// It could be cool if every browser could manage this header... poor IE
+				// It adds security and cache correctness for the client !
 				header('Vary: Cookie', false);
 			}
 		}
