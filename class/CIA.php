@@ -43,19 +43,12 @@ class CIA
 
 	public static function loadSession($private = true)
 	{
-		if ($private && !self::$private) self::setGroup('private');
+		if ($private) self::setGroup('private');
 
 		if (!self::$sessionStarted)
 		{
 			self::$sessionStarted = true;
 			@session_start();
-
-			if (false===strpos(@$_SERVER['HTTP_USER_AGENT'], 'MSIE'))
-			{
-				// It could be cool if every browser could manage this header... poor IE
-				// It adds security and cache correctness for the client !
-				header('Vary: Cookie', false);
-			}
 		}
 	}
 
