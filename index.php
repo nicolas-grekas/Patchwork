@@ -156,6 +156,39 @@ if (function_exists('iconv_set_encoding'))
 
 if (function_exists('date_default_timezone_set')) date_default_timezone_set($CONFIG['timezone']);
 
+if (!function_exists('DB'))
+{
+	function DB()
+	{
+		static $db = false;
+
+		if (!$db)
+		{
+			require_once 'DB.php';
+
+			global $CONFIG;
+
+			$db = @DB::connect($CONFIG['DSN']);
+
+			if(@DB::isError( $db ))
+			{
+				trigger_error($db->message, E_USER_ERROR);
+				exit;
+			}
+
+			$db->query('SET NAMES utf8');
+			$db->query("SET collation_connection='utf8_general_ci'");
+
+			$db->setOption('seqname_format', 'zeq_%s');
+			$db->setErrorHandling(PEAR_ERROR_CALLBACK, 'E');
+			$db->setFetchMode(DB_FETCHMODE_OBJECT);
+
+			$db->autoCommit(false);
+		}
+
+		return $db;
+	}
+}
 
 define('DEBUG',			$CONFIG['allow_debug'] ? (int) @$_COOKIE['DEBUG'] : 0);
 define('CIA_MAXAGE',	$CONFIG['maxage']);
@@ -259,37 +292,6 @@ function T($string, $lang = false)
 {
 	if (!$lang) $lang = CIA::__LANG__();
 	return TRANSLATE::get($string, $lang, true);
-}
-
-function DB()
-{
-	static $db = false;
-
-	if (!$db)
-	{
-		require_once 'DB.php';
-
-		global $CONFIG;
-
-		$db = @DB::connect($CONFIG['DSN']);
-
-		if(@DB::isError( $db ))
-		{
-			trigger_error($db->message, E_USER_ERROR);
-			exit;
-		}
-
-		$db->query('SET NAMES utf8');
-		$db->query("SET collation_connection='utf8_general_ci'");
-
-		$db->setOption('seqname_format', 'zeq_%s');
-		$db->setErrorHandling(PEAR_ERROR_CALLBACK, 'E');
-		$db->setFetchMode(DB_FETCHMODE_OBJECT);
-
-		$db->autoCommit(false);
-	}
-
-	return $db;
 }
 
 function __autoload($class)
@@ -457,12 +459,10 @@ else
 	{
 		if ($a)
 		{
-			touch('./index.php');
 			CIA::delCache();
 		}
 		else if ($_COOKIE['cache_reset_id'] == CIA_PROJECT_ID)
 		{
-			touch('./index.php');
 			CIA::touch('foreignTrace');
 		}
 
