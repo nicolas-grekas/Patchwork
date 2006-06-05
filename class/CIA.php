@@ -24,6 +24,7 @@ class CIA
 	protected static $cia;
 	protected static $redirectUrl = false;
 	protected static $agentClasses = '';
+	protected static $sessionStarted = false;
 	protected static $cancelled = false;
 
 	public static function start()
@@ -37,6 +38,22 @@ class CIA
 		{
 			E('Fatal error: illegal character found in CIA::$home');
 			exit;
+		}
+	}
+
+	public static function loadSession($private = true)
+	{
+		if ($private && !self::$private) self::setGroup('private');
+
+		if (!self::$sessionStarted)
+		{
+			self::$sessionStarted = true;
+			@session_start();
+
+			if (false===strpos(@$_SERVER['HTTP_USER_AGENT'], 'MSIE'))
+			{
+				header('Vary: Cookie', false);
+			}
 		}
 	}
 
@@ -457,7 +474,7 @@ class CIA
 		* Instead, we could write once this PHP code in a file, and include it on subsequent calls.
 		* But is it faster ? Maybe with both an opcode cache and a memory filesystem. Else, I doubt ...
 		*/
-		if ($createTemplate) eval('class ' . $agent . ' extends agent {protected $maxage =-1;protected $watch=array(\'public/templates\');}');
+		if ($createTemplate) eval('class ' . $agent . ' extends agent {protected $maxage=-1;protected $watch=array(\'public/templates\');}');
 
 		return $agent;
 	}
@@ -616,10 +633,8 @@ class CIA
 
 	public function shutdown()
 	{
-		if (class_exists('USER', false)) USER::end();
-		if (class_exists('AUTH', false)) AUTH::end();
-		if (class_exists('SESSION', false)) SESSION::end();
-		if (class_exists('DB', false)) DB()->commit();
+		if (self::$sessionStarted) session_write_close();
+		DB(true);
 	}
 
 	public function &ob_handler(&$buffer)
@@ -666,7 +681,7 @@ class CIA
 			$LastModified = $ETag - 2147483647 * (int) ($ETag / 2147483647);
 			$LastModified = gmdate('D, d M Y H:i:s \G\M\T', $LastModified);
 
-			$is304 = @$_SERVER['HTTP_IF_NONE_MATCH'] == $ETag || @$_SERVER['HTTP_IF_MODIFIED_SINCE'] == $LastModified;
+			$is304 = @$_SERVER['HTTP_IF_NONE_MATCH'] == $ETag || 0===strpos(@$_SERVER['HTTP_IF_MODIFIED_SINCE'], $LastModified);
 
 			if ('ontouch' == self::$expires || ('auto' == self::$expires && self::$watchTable))
 			{
@@ -719,9 +734,25 @@ class CIA
 			}
 		}
 
-		header('Content-Length: ' . strlen($buffer));
 
 		if ('HEAD' == $_SERVER['REQUEST_METHOD']) $buffer = '';
+
+
+		if (function_exists('apache_setenv')) apache_setenv('no-gzip', '1'); // This disables mod_deflate
+
+		switch (substr(self::$headers['content-type'], 14))
+		{
+			case 'image/png':
+			case 'image/gif':
+			case 'image/jpeg':
+				header('Content-Length: ' . strlen($buffer));
+				@ini_set('zlib.output_compression', false);
+				break;
+
+			default:
+				if (!ini_get('zlib.output_compression')) $buffer = ob_gzhandler($buffer, 5);
+				break;
+		}
 
 		self::$handlesOb = false;
 		return $buffer;

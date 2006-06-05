@@ -9,6 +9,7 @@ $contentType = array(
 	'.png' => 'image/png',
 	'.gif' => 'image/gif',
 	'.jpg' => 'image/jpeg',
+	'.jpeg' => 'image/jpeg',
 );
 
 $contentType = $contentType[$path];
@@ -56,12 +57,6 @@ if ($source)
 	CIA::header('Content-Type: ' . $contentType);
 	CIA::setMaxage(-1);
 	CIA::writeWatchTable('public/static', 'zcache/');
-
-	$i = stat($source);
-	echo $i[1], '-', $i[7], '-', $i[9];
-	ob_end_clean();
-
-	header('Content-Length: ' . $i[7]);
 
 	readfile($source);
 

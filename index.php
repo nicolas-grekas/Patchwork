@@ -11,9 +11,6 @@ $CONFIG += array(
 
 	'translate_driver' => 'default_',
 	'translate_params' => array(),
-
-	'session_driver' => 'file',
-	'session_params' => array(),
 );
 
 
@@ -52,7 +49,7 @@ register_argc_argv = Off
 auto_globals_jit = On
 
 session.auto_start = 0
-zlib.output_compression = Off
+session.use_only_cookies = 1
 
 mbstring.language = neutral
 mbstring.script_encoding = UTF-8
@@ -158,11 +155,15 @@ if (function_exists('date_default_timezone_set')) date_default_timezone_set($CON
 
 if (!function_exists('DB'))
 {
-	function DB()
+	function DB($close = false)
 	{
 		static $db = false;
 
-		if (!$db)
+		if ($close)
+		{
+			if ($db) $db->commit();
+		}
+		else if (!$db)
 		{
 			require_once 'DB.php';
 
@@ -190,10 +191,18 @@ if (!function_exists('DB'))
 	}
 }
 
+if (!function_exists('DB_close'))
+{
+	function DB_close()
+	{
+		
+	}
+}
+
 define('DEBUG',			$CONFIG['allow_debug'] ? (int) @$_COOKIE['DEBUG'] : 0);
 define('CIA_MAXAGE',	$CONFIG['maxage']);
 define('CIA_TIME', time());
-define('CIA_PROJECT_ID', $version_id % 1000);
+define('CIA_PROJECT_ID', abs($version_id % 10000));
 define('CIA_POSTING', $_SERVER['REQUEST_METHOD']=='POST');
 define('CIA_DIRECT', !CIA_POSTING && $_SERVER['CIA_REQUEST'] == '_');
 
@@ -339,6 +348,7 @@ switch ($path)
 	case '.png':
 	case '.gif':
 	case '.jpg':
+	case '.jpeg':
 
 	require resolvePath('controler.php');
 }
