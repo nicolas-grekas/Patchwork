@@ -21,7 +21,7 @@ class IA_php
 
 		ob_start();
 		IA_php::loadAgent(CIA::resolveAgentClass($agent, $_GET), false, false);
-		$agent = ob_get_contents();
+		$agent = ob_get_clean();
 
 		$_GET =& $a;
 		self::$get =& $g;
@@ -187,13 +187,12 @@ class IA_php
 			require $ctemplate;
 		}
 
-		CIA::$catchMeta = true;
-
-		$agent->metaCompose();
-		list($maxage, $group, $expires, $watch, $headers, $canPost) = CIA::closeMeta();
-
 		if ($filter)
 		{
+			CIA::$catchMeta = true;
+			$agent->metaCompose();
+			list($maxage, $group, $expires, $watch, $headers, $canPost) = CIA::closeMeta();
+
 			$cagent = CIA::agentCache($agentClass, $agent->argv, 'php', $group);
 
 			if ('ontouch' == $expires && !$watch) $expires = 'auto';
@@ -231,6 +230,7 @@ class IA_php
 				CIA::writeWatchTable($watch, $fagent);
 			}
 		}
+		else CIA::closeMeta();
 
 		if (isset($vClone)) self::$cache[$cagent] = array($vClone, $template);
 	}
