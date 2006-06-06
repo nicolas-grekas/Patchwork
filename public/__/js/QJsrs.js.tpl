@@ -54,15 +54,21 @@ function $QJsrsContext($name)
 	{
 		$this.$busy = 1;
 		$this.$callback = $callback;
+		$this.q = $url;
 
 		if ($post || !$local)
 			$url[3] = $post,
 			$url[4] = $local,
-			$this.q = $url,
 			$url = home('QJsrs.html', 1);
 		else $url = $url[0] + $url[1];
 
-		if ($local && $XMLHttp)
+		if (!$post && ('Gecko' == navigator.product || 'object' == typeof $document.onreadystatechange) && $document.createElement)
+			$QJsrs.$withScript($this.q[0] + $this.q[1], function($html)
+			{
+				eval('$html=' + window.q);
+				$this.$callback($html);
+			});
+		else if ($local && $XMLHttp)
 		{
 			$container = $XMLHttp - 1 ? new XMLHttpRequest : new ActiveXObject('Microsoft.XMLHTTP');
 			$container.onreadystatechange = function()
@@ -84,12 +90,6 @@ function $QJsrsContext($name)
 				$container.open('GET', $url, 1),
 				$container.send('');
 		}
-		else if (!$post && ('Gecko' == navigator.product || 'object' == typeof $document.onreadystatechange) && $document.createElement)
-			$QJsrs.$withScript($this.q[0] + $this.q[1], function($html)
-			{
-				eval('$html=' + window.q);
-				$this.$callback($html);
-			});
 		else if ($html) $win.frames[$name].location.replace($url);
 		else
 		{
