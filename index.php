@@ -478,11 +478,7 @@ else
 		if (!$binaryMode) CIA::setGroup('private');
 		IA_php::loadAgent($agent, false, false);
 	}
-	else
-	{
-		if (!isset($_COOKIE['JS'])) setcookie('JS', '0', 2147364847, '/');
-		IA_js::loadAgent($agent);
-	}
+	else IA_js::loadAgent($agent);
 }
 
 exit;
