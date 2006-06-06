@@ -154,7 +154,7 @@ class IA_php
 				else
 				{
 					ob_start();
-					$v = $agent->compose();
+					$v = (object) $agent->compose();
 					$template = $agent->getTemplate();
 					$filter = true;
 					$rawdata = ob_get_flush();

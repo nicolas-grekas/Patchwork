@@ -5,7 +5,6 @@ $CONFIG += array(
 
 	'maxage' => 3600,
 	'lang_list' => 'fr',
-	'DSN' => '',
 
 	'allow_debug' => true,
 
@@ -161,19 +160,19 @@ if (!function_exists('DB'))
 
 		if ($close)
 		{
-			if ($db) $db->commit();
+//			if ($db) $db->commit();
 		}
 		else if (!$db)
 		{
-			require_once 'DB.php';
+			require_once 'MDB2.php';
 
 			global $CONFIG;
 
-			$db = @DB::connect($CONFIG['DSN']);
+			$db = @MDB2::connect($CONFIG['DSN']);
 
-			if(@DB::isError( $db ))
+			if(@PEAR::isError($db))
 			{
-				trigger_error($db->message, E_USER_ERROR);
+				trigger_error($db->getMessage(), E_USER_ERROR);
 				exit;
 			}
 
@@ -182,20 +181,12 @@ if (!function_exists('DB'))
 
 			$db->setOption('seqname_format', 'zeq_%s');
 			$db->setErrorHandling(PEAR_ERROR_CALLBACK, 'E');
-			$db->setFetchMode(DB_FETCHMODE_OBJECT);
+			$db->setFetchMode(MDB2_FETCHMODE_OBJECT);
 
-			$db->autoCommit(false);
+//			$db->beginTransaction();
 		}
 
 		return $db;
-	}
-}
-
-if (!function_exists('DB_close'))
-{
-	function DB_close()
-	{
-		
 	}
 }
 
