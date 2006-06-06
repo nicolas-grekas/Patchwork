@@ -168,7 +168,7 @@ class IA_php
 
 		self::$values = $v->{'$'} = $v;
 
-		$ctemplate = CIA::makeCacheDir('templates/' . $template, ($agent->binary ? 'bin' : 'html') . '.php');
+		$ctemplate = CIA::makeCacheDir('templates/' . $template, (constant("$agentClass::binary") ? 'bin' : 'html') . '.php');
 		$ftemplate = 'template' . md5($ctemplate);
 
 		if (function_exists($ftemplate)) $ftemplate($v, $a, $g);
@@ -177,7 +177,7 @@ class IA_php
 			if (!file_exists($ctemplate))
 			{
 				CIA::openMeta('agent__template/' . $template, false);
-				$compiler = new iaCompiler_php($agent->binary);
+				$compiler = new iaCompiler_php(constant("$agentClass::binary"));
 				$ftemplate = '<?php function ' . $ftemplate . '(&$v, &$a, &$g){$d=$v;' . $compiler->compile($template . '.tpl') . '} ' . $ftemplate . '($v, $a, $g);';
 				CIA::writeFile($ctemplate,  $ftemplate);
 				list(,,, $watch) = CIA::closeMeta();

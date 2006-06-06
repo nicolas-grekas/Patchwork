@@ -2,7 +2,7 @@
 
 class agent_bin extends agent
 {
-	public $binary = true;
+	const binary = true;
 
 	protected $template = 'bin';
 }
