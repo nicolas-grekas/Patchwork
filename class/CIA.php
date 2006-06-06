@@ -766,8 +766,8 @@ class CIA
 
 class agent_
 {
+	const binary = false;
 	public $argv = array();
-	public $binary = false;
 
 	protected $template;
 

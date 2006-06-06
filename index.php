@@ -445,8 +445,7 @@ else
 		exit;
 	}
 
-	$a = get_class_vars($agent);
-	$binaryMode = (bool) $a['binary'];
+	$binaryMode = (bool) constant("$agent::binary");
 	CIA::setBinaryMode($binaryMode);
 
 	/*

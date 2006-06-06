@@ -89,7 +89,7 @@ EOHTML;
 			else
 			{
 				CIA::openMeta('agent__template/' . $template, false);
-				$compiler = new iaCompiler_js($agent->binary);
+				$compiler = new iaCompiler_js(constant("$agentClass::binary"));
 				echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
 				CIA::writeFile($ctemplate, $template);
 				list(,,, $template) = CIA::closeMeta();
