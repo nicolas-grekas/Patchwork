@@ -37,7 +37,7 @@ SET $INPUT --><!--
 		SET g$_QS
 			--><div id="_QSd1" style="position:absolute;visibility:hidden;z-index:9"><form action=""><div id="_QSd2" style="position:absolute"><img src="{~}QSelect/tr.png" width="5" height="10" /><br /><img src="{~}QSelect/r.png" width="5" height="5" id="_QSi1" /><br /><img src="{~}QSelect/br.png" width="5" height="5" /></div><div id="_QSd3" style="position:absolute"><img src="{~}QSelect/bl.png" width="10" height="5" /><img src="{~}QSelect/b.png" width="5" height="5" id="_QSi2" /></div><select id="_QSs" size="7"></select></form></div><script type="text/javascript" src="{~}js/QSelect"></script ><!--
 		END:SET
-		-->window.__QSd||(window.__QSd=1,w.finalHTML+={g$_QS|js});<!--
+		-->window.__QSd||(window.__QSd=1,footerHtml+={g$_QS|js});<!--
 		SET g$_QS -->1<!-- END:SET --><!--
 	END:IF -->
 	lE=gLE({a$name|js})

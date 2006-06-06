@@ -15,6 +15,8 @@
 * _COOKIE
 */
 
+footerHtml = '';
+
 function t($v, $type)
 {
 	return $type ? (typeof $v == $type) : (typeof $v != 'undefined');
@@ -466,15 +468,13 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 				if (t($includeCache[$inc])) w($includeCache[$inc][0], $includeCache[$inc][1]);
 				else
-					$buffer += '<script type="text/javascript" src="' + $inc + '"></script >',
+					$buffer += '<script type="text/javascript" class="w" src="' + $inc + '"></script >',
 					w.f();
 			}
 		}
 
 		$execute();
 	}
-
-	w.finalHTML = '';
 
 	w.f = function()
 	{
@@ -486,28 +486,12 @@ w = function($homeAgent, $keys, $masterCIApID)
 			$buffer = '';
 		else
 			$i += 9,
-			$content = $buffer.substring(0, $i) + '<script type="text/javascript" src="' + $masterHome + 'js/x"></script>', // Any optimization to save some request here is likely to break IE ...
+			$content = $buffer.substring(0, $i) + '<script type="text/javascript" class="w" src="' + $masterHome + 'js/x"></script>', // Any optimization to save some request here is likely to break IE ...
 			$buffer = $buffer.substr($i);
-
-		if ($i<0 && $closeDoc)
-			$content += w.finalHTML,
-			w.finalHTML = '';
 
 		$document.write($content);
 
-		if ($i<0 && $closeDoc)
-			w = addOnload,
-			w.$onload = window.onload,
-
-			window.onload = function()
-			{
-				if (w.$onload) $i = w.$onload, w.$onload = null, $i();
-				for ($i = 0; $i < w.p.length; ++$i) w.p[$i]();
-				w.p.length = 0;
-				window.onload = null;
-			},
-
-			$document.close();
+		if ($i<0 && $closeDoc) $document.close();
 	}
 
 	w.r = function()
@@ -621,7 +605,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 	for ($i=0; $i<$j.length; ++$i) if ($j[$i]) $loopIterator[$loopIterator.length] = g['__'+($loopIterator.length+1)+'__'] = $j[$i];
 	g.__0__ = $loopIterator.join('/');
 
-	if ($keys) w(0, [1, '$homeAgent', 'g', $keys, 1]);
+	w(0, [1, '$homeAgent', 'g', $keys, 1]);
 }
 
 if (window.ScriptEngine) addOnload(function()
