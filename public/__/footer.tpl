@@ -1,9 +1,4 @@
-<script type="text/javascript">/*<![CDATA[*/
-d=document
-d.write(footerHtml);
-footerHtml='';
-/*]]>*/</script><script type="text/javascript">/*<![CDATA[*/
-
+<script type="text/javascript">/*<![CDATA[*/''!=footerHtml&&document.write(footerHtml)/*]]>*/</script><script type="text/javascript">/*<![CDATA[*/
 d=document
 w=addOnload
 w.o=window.onload
