@@ -5,8 +5,6 @@
 <head>
 	<!-- SERVERSIDE -->
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<script type="text/javascript">/*<![CDATA[*/
-	a=[{g$__AGENT__|substr:0:-1|js},0,0]/*]]>*/</script>
 	<script type="text/javascript" src="{~}js/w"></script>
 	<!-- END:SERVERSIDE -->
 
