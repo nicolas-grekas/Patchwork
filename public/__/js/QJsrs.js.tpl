@@ -253,10 +253,8 @@ QJsrs.$withScript = function($url, $callback)
 			|| 'loaded'   == $event.readyState
 			|| 'complete' == $event.readyState
 		){
-			$event = $script.parentNode;
-			$event.removeChild($script);
+			$script.parentNode.removeChild($script);
 			$script = 0;
-
 			if ($callback) $callback();
 		}
 	}
