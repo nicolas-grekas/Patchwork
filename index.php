@@ -10,6 +10,8 @@ $CONFIG += array(
 
 	'translate_driver' => 'default_',
 	'translate_params' => array(),
+
+	'session_name' => 'SID',
 );
 
 
@@ -237,6 +239,18 @@ function resolvePath($filename)
 
 /* Global Initialisation */
 
+// Anti-Cross-Site-Request-Forgery token
+if (!isset($_COOKIE['T']) || !$_COOKIE['T'])
+{
+	unset($_COOKIE['T']);
+	define('CIA_TOKEN', md5(uniqid(mt_rand(), true)));
+	$k = dirname($_SERVER['SCRIPT_NAME'] . @$_SERVER['PATH_INFO'] . ' ');
+	setcookie('T', CIA_TOKEN, 0, '/' != $k ? $k .'/' : $k);
+}
+else define('CIA_TOKEN', $_COOKIE['T']);
+
+
+// Language controler
 if (!$_SERVER['CIA_LANG'])
 {
 	require resolvePath('language.php');
