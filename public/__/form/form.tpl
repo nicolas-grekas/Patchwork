@@ -25,16 +25,18 @@ ELSE --><!--
 
 	--><form accept-charset="UTF-8" {a$|htmlArgs}><!--
 
-	IF !g$_FORM --><script type="text/javascript" src="{~}js/v"></script><!-- END:IF
-
-	--><script type="text/javascript">/*<![CDATA[*/
-lF=document.forms[document.forms.length-1]<!-- IF a$_enterControl_ -->;FeC({a$_enterControl_})<!-- END:IF -->/*]]>*/</script><!--
-
-	IF !g$_FORM && a$_upload --><script type="text/javascript" src="{~}js/upload"></script><!-- END:IF --><!--
-
 	LOOP a$_hidden
 		--><input type="hidden" name="{$name}" value="{$value}" /><!--
 	END:LOOP --><!--
+
+	IF !g$_FORM --><script type="text/javascript" src="{~}js/v"></script><!-- END:IF
+
+	--><script type="text/javascript">/*<![CDATA[*/
+lF=document.forms[document.forms.length-1];<!--
+IF a$_enterControl_ -->FeC({a$_enterControl_});<!-- END:IF -->
+if('post'==lF.method)lF[0].value=antiXSRFtoken/*]]>*/</script><!--
+
+	IF !g$_FORM && a$_upload --><script type="text/javascript" src="{~}js/upload"></script><!-- END:IF --><!--
 
 	SET g$_FORM -->1<!-- END:SET --><!--
 

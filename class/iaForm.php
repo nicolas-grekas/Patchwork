@@ -39,6 +39,15 @@ class iaForm extends loop_callAgent
 		{
 			CIA::canPost();
 			$this->rawValues =& $_POST;
+
+			if ('POST' == $_SERVER['REQUEST_METHOD'] && isset($_COOKIE['T']) && $_COOKIE['T'] != @$_POST['T'])
+			{
+				E('ALERT : Cross Site Request Forgery detection. Referer is : ' . $_SERVER['HTTP_REFERER']);
+				$_POST = array();
+			}
+
+			$elt = $this->elt['T'] = $this->hidden[] = new iaForm_hidden($this, 'T', array(), $this->sessionLink);
+			$elt->setValue(CIA_DIRECT ? '' : CIA_TOKEN); // This check for CIA_DIRECT prevents a XSRF security hole
 		}
 		else $this->rawValues =& $_GET;
 

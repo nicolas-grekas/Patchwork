@@ -8,7 +8,6 @@
 * parseurl
 * loadPng
 * addOnload
-* setcookie
 * setboard
 * topwin
 * _BOARD
@@ -16,6 +15,7 @@
 */
 
 footerHtml = '';
+antiXSRFtoken = '';
 
 function t($v, $type)
 {
@@ -71,7 +71,7 @@ function parseurl($param, $delim, $rx, $array)
 	$param = $param.split($delim);
 	for ($i in $param)
 	{
-		$param[$i] = $param[$i].replace($rx, '');
+		if ($rx) $param[$i] = $param[$i].replace($rx, '');
 		$delim = $param[$i].indexOf('=');
 		if ( $delim>0 ) $array[ dUC( $param[$i].substring(0, $delim) ) ] = num(esc(dUC( $param[$i].substring($delim+1) )), 1);
 	}
@@ -99,18 +99,6 @@ function addOnload($function)
 	$p[$p.length] = $function;
 }
 
-
-/*
-* Set a cookie, similar to PHP's setcookie
-*/
-function setcookie($name, $value, $expires, $path, $domain, $secure)
-{
-	document.cookie = eUC($name) + '=' + eUC($value || '') +
-		($expires ? '; expires=' + $expires.toGMTString() : '') +
-		($path ? '; path=' + eUC($path) : '') +
-		($domain ? '; domain=' + eUC($domain) : '') +
-		($secure ? '; secure' : '');
-}
 
 /*
 * Set a board variable
@@ -216,7 +204,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 	w = function($context, $code)
 	{
-		if (!t($context)) return $homeAgent; //"$homeAgent" is only here for jsquiz to work well
+		if (!t($context)) return $homeAgent; //"$homeAgent" is here for jsquiz to work well
 
 		var $pointer = 0, $arguments = a, $localCIApID = $CIApID, $localG = g;
 
@@ -224,6 +212,13 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 		if ($lastInclude && !$includeCache[$lastInclude])
 		{
+			if (!antiXSRFtoken && ($i = $document.cookie.match(/(^|; )T=([0-9A-Z]+)/i)))
+			{
+				antiXSRFtoken = $i[2];
+				$i = $document.getElementsByTagName('input');
+				for ($j in $i) if ('T'==$i[$j].name) $i[$j].value = antiXSRFtoken;
+			}
+
 			$includeCache[$lastInclude] = [$context, $code];
 			if ($context) for ($i in $context) $context[$i] = esc($context[$i]);
 
@@ -496,7 +491,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 	w.r = function()
 	{
-		if ($masterHome != g.__HOME__) setcookie('cache_reset_id', $masterCIApID, 0, '/');
+		if ($masterHome != g.__HOME__) $document.cookie = 'cache_reset_id=' + $masterCIApID + '; path=/';
 		location.reload();
 	}
 
@@ -634,9 +629,7 @@ function loadW()
 					/_V/g, '=').replace(
 					/_/g , '%')
 				, '&'
-				, /^$/
 			) : {};
-		$window._COOKIE = parseurl(document.cookie, '&', /^amp;/);
 		$window.a && w(a[0], a[1], a[2]);
 	}
 	else document.write('<script type="text/javascript" src="js/compat"></script>');
