@@ -17,16 +17,10 @@ class agent_QJsrs_upload extends agent_QJsrs
 	{
 		if ($this->argv->id)
 		{
-			$this->maxage = 0;
 			$this->expires = 'onmaxage';
-			$this->group = 'private';
+			CIA::setGroup('private');
 		}
-		else
-		{
-			$this->maxage = CIA_MAXAGE;
-			$this->expires = 'auto';
-			$this->group = 'public';
-		}
+		else $this->maxage = CIA_MAXAGE;
 
 		return parent::metaCompose();
 	}

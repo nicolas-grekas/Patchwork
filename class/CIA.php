@@ -767,13 +767,15 @@ class CIA
 class agent_
 {
 	const binary = false;
+	const sessionProtection = 'auto';
+
 	public $argv = array();
 
 	protected $template;
 
 	protected $maxage  = 0;
-	protected $group = 'public';
 	protected $expires = 'auto';
+	protected $canPost = false;
 	protected $watch = array();
 
 	public function control() {}
@@ -798,9 +800,9 @@ class agent_
 	public function metaCompose()
 	{
 		CIA::setMaxage($this->maxage);
-		CIA::setGroup($this->group);
 		CIA::setExpires($this->expires);
 		CIA::watch($this->watch);
+		if ($this->canPost) CIA::canPost();
 	}
 
 	private function populateArgv(&$a, $key, $args)
