@@ -1,4 +1,4 @@
-<!--*
+{stripAccents:}<!--*
 
 This template displays a QSelect control.
 It has the same parameters as input.tpl
