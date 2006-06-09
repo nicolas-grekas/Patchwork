@@ -1,3 +1,5 @@
+<!-- AGENT 'js/accents' -->
+
 function QEngine($keyword)
 {
 	var $this = this,
