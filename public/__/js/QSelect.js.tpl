@@ -1,6 +1,8 @@
 if (!window.QSelect)
 {
 
+<!-- AGENT 'js/accents' -->
+
 $getById = document.getElementById ? function($id) {return document.getElementById($id)} : function($id) {return document.all[$id]};
 
 function $onfocus($this)
