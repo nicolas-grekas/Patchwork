@@ -182,6 +182,7 @@ if (!function_exists('DB'))
 			$db->query("SET collation_connection='utf8_general_ci'");
 
 			$db->setOption('seqname_format', 'zeq_%s');
+			$db->setOption('portability', MDB2_PORTABILITY_ALL ^ MDB2_PORTABILITY_EMPTY_TO_NULL ^ MDB2_PORTABILITY_FIX_CASE);
 			$db->setErrorHandling(PEAR_ERROR_CALLBACK, 'E');
 			$db->setFetchMode(MDB2_FETCHMODE_OBJECT);
 
@@ -211,28 +212,41 @@ $cia_paths[] = $p;
 
 chdir(CIA_PROJECT_PATH);
 
-
 function resolvePath($filename)
 {
 	$paths =& $GLOBALS['cia_paths'];
 
 	$i = 0;
 	$len = count($paths);
-	do
-	{
-		$path = $paths[$i++] . DIRECTORY_SEPARATOR;
 
-		switch (DEBUG)
+	if ('/' == substr($filename, -1))
+	{
+		do
 		{
-			case 5 : if (file_exists($path . $filename . '.5')) return $path . $filename . '.5';
-			case 4 : if (file_exists($path . $filename . '.4')) return $path . $filename . '.4';
-			case 3 : if (file_exists($path . $filename . '.3')) return $path . $filename . '.3';
-			case 2 : if (file_exists($path . $filename . '.2')) return $path . $filename . '.2';
-			case 1 : if (file_exists($path . $filename . '.1')) return $path . $filename . '.1';
-			default: if (file_exists($path . $filename       )) return $path . $filename       ;
+			$path = $paths[$i++] . DIRECTORY_SEPARATOR;
+
+			if (is_dir($path . $filename)) return $path . $filename;
 		}
+		while (--$len);
 	}
-	while (--$len);
+	else
+	{
+		do
+		{
+			$path = $paths[$i++] . DIRECTORY_SEPARATOR;
+
+			switch (DEBUG)
+			{
+				case 5 : if (file_exists($path . $filename . '.5')) return $path . $filename . '.5';
+				case 4 : if (file_exists($path . $filename . '.4')) return $path . $filename . '.4';
+				case 3 : if (file_exists($path . $filename . '.3')) return $path . $filename . '.3';
+				case 2 : if (file_exists($path . $filename . '.2')) return $path . $filename . '.2';
+				case 1 : if (file_exists($path . $filename . '.1')) return $path . $filename . '.1';
+				default: if (file_exists($path . $filename       )) return $path . $filename       ;
+			}
+		}
+		while (--$len);
+	}
 
 	return $filename;
 }
@@ -266,7 +280,7 @@ if ('/' == @$_SERVER['HTTP_IF_NONE_MATCH']{0} && preg_match("'^/[0-9a-f]{32}-([0
 
 	$match = $match[0];
 	$match = $match[1] . '/' . $match[2] . '/' . substr($match, 3) . '.validator.';
-	$match = './zcache/' . $match . DEBUG . '.txt';
+	$match = resolvePath('zcache/') . $match . DEBUG . '.txt';
 
 	$headers = @file_get_contents($match);
 	if ($headers !== false)
@@ -473,7 +487,8 @@ else
 	{
 		if ($a)
 		{
-			CIA::delCache();
+			CIA::touch('');
+			CIA::delDir(CIA::$cachePath, false);
 		}
 		else if ($_COOKIE['cache_reset_id'] == CIA_PROJECT_ID)
 		{

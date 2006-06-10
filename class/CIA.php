@@ -2,6 +2,7 @@
 
 class CIA
 {
+	public static $cachePath = 'zcache/';
 	public static $agentClass;
 	public static $catchMeta = false;
 
@@ -29,6 +30,9 @@ class CIA
 
 	public static function start()
 	{
+		$cachePath = resolvePath(self::$cachePath);
+		self::$cachePath = $cachePath == self::$cachePath ? $GLOBALS['cia_paths'][count($GLOBALS['cia_paths']) - 2] . '/zcache/' : $cachePath;
+
 		if (DEBUG) self::$cia = new debug_CIA;
 		else self::$cia = new CIA;
 
@@ -369,7 +373,7 @@ class CIA
 		$filename = rawurlencode(str_replace('/', '.', $filename));
 		$filename = substr($filename, 0, 224 - strlen($extension));
 
-		return './zcache/' . $hash . '.' . $filename . $extension;
+		return self::$cachePath . $hash . '.' . $filename . $extension;
 	}
 
 	public static function makeCacheDir($filename, $extension, $key = '')
@@ -556,7 +560,7 @@ class CIA
 	public static function delCache()
 	{
 		self::touch('');
-		self::delDir(CIA_PROJECT_PATH . '/zcache/', false);
+		self::delDir(self::$cachePath, false);
 	}
 
 	public static function writeWatchTable($message, $file)
@@ -699,7 +703,7 @@ class CIA
 			if ('auto' == self::$expires && self::$watchTable)
 			{
 				$ETag = $ETag[1] . '/' . $ETag[2] . '/' . substr($ETag, 3) . '.validator.';
-				$ETag = './zcache/' . $ETag . DEBUG . '.txt';
+				$ETag = self::$cachePath . $ETag . DEBUG . '.txt';
 
 				if (!file_exists($ETag))
 				{

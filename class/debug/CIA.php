@@ -46,7 +46,7 @@ class debug_CIA extends CIA
 			if (!$html) $a = htmlspecialchars($a);
 
 			$b = ini_get('error_log');
-			$b = fopen($b ? $b : './zcache/error.log', 'ab');
+			$b = fopen($b ? $b : './error.log', 'ab');
 			flock($b, LOCK_EX);
 			fseek($b, 0, SEEK_END);
 			fwrite($b, $a);
