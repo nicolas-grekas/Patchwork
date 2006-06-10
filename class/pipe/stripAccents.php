@@ -21,7 +21,7 @@ class pipe_stripAccents
 		$ACCENT_LIGTO   = [''               ,'AE'    ,'ae'    ,'ss','OE','oe','dz'  ,'ff','ffi','ffl','fi','fl','hv','OI','oi','st' ,'tc','ts','2' ],
 		$i = $ACCENT.length;
 
-	while ($i--) $str = $str.replace(ACCENT_RX[$i], ACCENT[$i].charAt(0));
+	while ($i--) $str = $str.replace($ACCENT_RX[$i], $ACCENT[$i].charAt(0));
 
 	for ($i in $ACCENT_LIGFROM) $str = $str.replace($ACCENT_LIGFROM[$i], $ACCENT_LIGTO[$i]);
 
