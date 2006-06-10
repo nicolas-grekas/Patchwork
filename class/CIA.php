@@ -31,7 +31,7 @@ class CIA
 	public static function start()
 	{
 		$cachePath = resolvePath(self::$cachePath);
-		self::$cachePath = $cachePath == self::$cachePath ? $GLOBALS['cia_paths'][count($GLOBALS['cia_paths']) - 2] . '/zcache/' : $cachePath;
+		self::$cachePath = ($cachePath == self::$cachePath ? $GLOBALS['cia_paths'][count($GLOBALS['cia_paths']) - 2] . DIRECTORY_SEPARATOR : '') . $cachePath;
 
 		if (DEBUG) self::$cia = new debug_CIA;
 		else self::$cia = new CIA;
