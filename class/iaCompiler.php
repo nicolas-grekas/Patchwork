@@ -31,6 +31,8 @@ abstract class iaCompiler
 	private $concat;
 	private $concatLast;
 	private $source;
+
+	private $path_idx;
 	private $template;
 
 	private $offset = 0;
@@ -63,7 +65,6 @@ abstract class iaCompiler
 
 	final public function compile($template)
 	{
-		$this->template = $template;
 		$this->source = $this->load($template);
 		$this->source = $this->preprocessing($this->source);
 
@@ -152,6 +153,9 @@ abstract class iaCompiler
 			$source = preg_replace("'{$this->Xlblock}(END:)?CLIENTSIDE{$this->Xrblock}'su", '', $source);
 		}
 
+
+		$this->template = $template;
+		$this->path_idx = $path_idx;
 		$source = preg_replace_callback("'{$this->Xlblock}PARENT(?:\s+(-?\d+)\s*)?{$this->Xrblock}'su", array($this, 'PARENTcallback'), $source);
 
 		return $source;
@@ -162,7 +166,7 @@ abstract class iaCompiler
 		$path_count = count($GLOBALS['cia_paths']);
 
 		$a = '' !== (string) @$m[1] ? $m[1] : -1;
-		$a = $a < 0 ? $path_idx - $a : ($path_count - $a - 1);
+		$a = $a < 0 ? $this->path_idx - $a : ($path_count - $a - 1);
 
 		if ($a < 0)
 		{

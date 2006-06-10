@@ -162,7 +162,7 @@ if (!function_exists('DB'))
 
 		if ($close)
 		{
-//			if ($db) $db->commit();
+			if ($db) $db->commit();
 		}
 		else if (!$db)
 		{
@@ -170,7 +170,15 @@ if (!function_exists('DB'))
 
 			global $CONFIG;
 
-			$db = @MDB2::connect($CONFIG['DSN']);
+			$db = @MDB2::factory($CONFIG['DSN']);
+			$db->loadModule('Extended');
+			$db->setErrorHandling(PEAR_ERROR_CALLBACK, 'E');
+			$db->setFetchMode(MDB2_FETCHMODE_OBJECT);
+			$db->setOption('default_table_type', 'InnoDB');
+			$db->setOption('seqname_format', 'zeq_%s');
+			$db->setOption('portability', MDB2_PORTABILITY_ALL ^ MDB2_PORTABILITY_EMPTY_TO_NULL ^ MDB2_PORTABILITY_FIX_CASE);
+
+			$db->connect();
 
 			if(@PEAR::isError($db))
 			{
@@ -178,15 +186,10 @@ if (!function_exists('DB'))
 				exit;
 			}
 
+			$db->beginTransaction();
+
 			$db->query('SET NAMES utf8');
 			$db->query("SET collation_connection='utf8_general_ci'");
-
-			$db->setOption('seqname_format', 'zeq_%s');
-			$db->setOption('portability', MDB2_PORTABILITY_ALL ^ MDB2_PORTABILITY_EMPTY_TO_NULL ^ MDB2_PORTABILITY_FIX_CASE);
-			$db->setErrorHandling(PEAR_ERROR_CALLBACK, 'E');
-			$db->setFetchMode(MDB2_FETCHMODE_OBJECT);
-
-//			$db->beginTransaction();
 		}
 
 		return $db;
