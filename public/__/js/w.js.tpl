@@ -150,7 +150,7 @@ if ((topwin = window).Error)
 
 w = function($homeAgent, $keys, $masterCIApID)
 {
-	$CIApID /= 1;
+	$masterCIApID /= 1;
 
 	var $document = document,
 
@@ -192,7 +192,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 /*
 *		a : arguments
-*		d : data, home
+*		d : data, local root
 *		v : data, local
 *		v.$ : data, parent
 *		g : get
@@ -596,11 +596,14 @@ w = function($homeAgent, $keys, $masterCIApID)
 	g.__AGENT__ = $homeAgent ? esc($homeAgent) + '/' : '';
 	g.__URI__ = esc(''+$j);
 
-	$j = dUC(esc(''+$j).substr({g$__HOME__|length}+$homeAgent.length).split('?', 1)[0]).split('/');
-	for ($i=0; $i<$j.length; ++$i) if ($j[$i]) $loopIterator[$loopIterator.length] = g['__'+($loopIterator.length+1)+'__'] = $j[$i];
-	g.__0__ = $loopIterator.join('/');
+	if (t($homeAgent))
+	{
+		$j = dUC(esc(''+$j).substr({g$__HOME__|length}+$homeAgent.length).split('?', 1)[0]).split('/');
+		for ($i=0; $i<$j.length; ++$i) if ($j[$i]) $loopIterator[$loopIterator.length] = g['__'+($loopIterator.length+1)+'__'] = $j[$i];
+		g.__0__ = $loopIterator.join('/');
 
-	w(0, [1, '$homeAgent', 'g', $keys, 1]);
+		w(0, [1, '$homeAgent', 'g', $keys, 1]);
+	}
 }
 
 if (window.ScriptEngine) addOnload(function()
@@ -630,7 +633,7 @@ function loadW()
 					/_/g , '%')
 				, '&'
 			) : {};
-		$window.a && w(a[0], a[1], a[2]);
+		$window.a ? w(a[0], a[1], a[2]) : w();
 	}
 	else document.write('<script type="text/javascript" src="js/compat"></script>');
 }
