@@ -152,12 +152,28 @@ abstract class iaCompiler
 			$source = preg_replace("'{$this->Xlblock}(END:)?CLIENTSIDE{$this->Xrblock}'su", '', $source);
 		}
 
-		if (preg_match("'{$this->Xlblock}PARENT{$this->Xrblock}'su", $source))
-		{
-			$source = preg_replace("'{$this->Xlblock}PARENT{$this->Xrblock}'su", $this->load($template, $path_idx + 1), $source);
-		}
+		$source = preg_replace_callback("'{$this->Xlblock}PARENT(?:\s+(-?\d+)\s*)?{$this->Xrblock}'su", array($this, 'PARENTcallback'), $source);
 
 		return $source;
+	}
+
+	protected function PARENTcallback($m)
+	{
+		$path_count = count($GLOBALS['cia_paths']);
+
+		$a = '' !== (string) @$m[1] ? $m[1] : -1;
+		$a = $a < 0 ? $path_idx - $a : ($path_count - $a - 1);
+
+		if ($a < 0)
+		{
+			E("Template error: Invalid level (resolved to $a) in <!-- PARENT --> block");
+			return $m[0];
+		}
+		else
+		{
+			if ($a >= $path_count) $a = $path_count - 1;
+			return $this->load($this->template, $a);
+		}
 	}
 
 	abstract protected function makeCode(&$code);
