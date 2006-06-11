@@ -150,7 +150,7 @@ class iaForm extends loop_callAgent
 			'_errormsg' => new loop_array($this->errormsg)
 		);
 
-		if ($this->POST) $a->method = 'POST';
+		if ($this->POST) $a->method = 'post';
 		if ($this->action) $a->action = $this->action;
 		if ($this->enterControl) $a->_enterControl_ = 1;
 		if ($this->hasfile)
