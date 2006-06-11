@@ -105,7 +105,7 @@ function addOnload($function)
 */
 function setboard($name, $value, $window)
 {
-	if (t($name, 'object')) for ($value in $name) setboard($value, $name[$value]);
+	if (t($name, 'object')) for ($value in $name) setboard($value, $name[$value], $window);
 	else
 	{
 		$window = $window || topwin;
@@ -619,20 +619,31 @@ if (window.ScriptEngine) addOnload(function()
 
 function loadW()
 {
-	var $window = window, $boardidx = topwin.name.indexOf('_K');
+	var $window = window, $board = topwin.name.indexOf('_K'), $a = location;
 
 	if ($window.encodeURI)
 	{
 		$window.dUC = decodeURIComponent;
 		$window.eUC = encodeURIComponent;
-		$window._BOARD = $boardidx >= 0
-			? parseurl(
-				topwin.name.substr($boardidx).replace(
+
+		$window._BOARD = {};
+
+		if (0 <= $board)
+		{
+			$board = parseurl(
+				topwin.name.substr($board).replace(
 					/_K/g, '&').replace(
 					/_V/g, '=').replace(
 					/_/g , '%')
 				, '&'
-			) : {};
+			);
+
+			$a = $a.protocol + ':' + $a.hostname;
+			
+			if ($board['$'] != $a) topwin.name = '', setboard('$', $a);
+			else $window._BOARD = $board;
+		}
+
 		$window.a ? w(a[0], a[1], a[2]) : w();
 	}
 	else document.write('<script type="text/javascript" src="js/compat"></script>');
