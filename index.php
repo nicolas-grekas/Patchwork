@@ -382,6 +382,7 @@ if (!extension_loaded('mbstring')) require resolvePath('mbstring.php');
 if (CIA_DIRECT)
 {
 	CIA::header('Content-Type: text/javascript; charset=UTF-8');
+	if (!isset($_COOKIE['JS'])) setcookie('JS', 1, 2147364847, '/');
 
 	if (isset($_GET['v$']) && CIA_PROJECT_ID != $_GET['v$'])
 	{
