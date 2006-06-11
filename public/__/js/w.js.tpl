@@ -15,7 +15,8 @@
 */
 
 footerHtml = '';
-antiXSRFtoken = '';
+
+if (antiXSRFtoken = $document.cookie.match(/(^|; )T=([0-9A-Z]+)/i)) antiXSRFtoken = antiXSRFtoken[2];
 
 function t($v, $type)
 {
