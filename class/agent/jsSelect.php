@@ -7,10 +7,13 @@ class agent_jsSelect extends agent_bin
 
 	protected $param = array();
 
-	public function compose()
+	public function control()
 	{
 		CIA::header('Content-Type: text/javascript; charset=UTF-8');
+	}
 
+	public function compose()
+	{
 		unset($this->param['valid']);
 		unset($this->param['firstItem']);
 		unset($this->param['multiple']);

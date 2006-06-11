@@ -16,7 +16,7 @@
 
 footerHtml = '';
 
-if (antiXSRFtoken = $document.cookie.match(/(^|; )T=([0-9A-Z]+)/i)) antiXSRFtoken = antiXSRFtoken[2];
+if (antiXSJ = document.cookie.match(/(^|; )T\$=([0-9A-Z]+)/i)) antiXSJ = antiXSJ[2];
 
 function t($v, $type)
 {
@@ -213,11 +213,11 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 		if ($lastInclude && !$includeCache[$lastInclude])
 		{
-			if (!antiXSRFtoken && ($i = $document.cookie.match(/(^|; )T=([0-9A-Z]+)/i)))
+			if (!antiXSJ && ($i = $document.cookie.match(/(^|; )T\$=([0-9A-Z]+)/i)))
 			{
-				antiXSRFtoken = $i[2];
+				antiXSJ = $i[2];
 				$i = $document.getElementsByTagName('input');
-				for ($j in $i) if ('T'==$i[$j].name) $i[$j].value = antiXSRFtoken;
+				for ($j in $i) if ('T$'==$i[$j].name) $i[$j].value = antiXSJ;
 			}
 
 			$includeCache[$lastInclude] = [$context, $code];
@@ -424,7 +424,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 					if ($args['*']) $args.__URI__ += '?' + $c.substr(5);
 					a = $args;
-					$include($inc + $c + '&amp;$'+'v=' + $CIApID);
+					$include($inc + $c + '&amp;v$=' + $CIApID);
 				}
 				else
 				{
@@ -455,7 +455,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 						$include($home + '_?$=' + $agent, $args, $keys)
 					}
 
-					$include($inc + '&amp;$'+'k=', 0, 0, 1);
+					$include($inc + '&amp;k$=', 0, 0, 1);
 				}
 			}
 			else
