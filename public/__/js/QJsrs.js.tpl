@@ -1,8 +1,10 @@
 /*
 * Init this JavaScript Remote Scripting object with
-* varname = new QJsrs($url, $POST), where $url is a server script aimed at
-* generating the result. Set $POST to true if you want a POST request
+* varname = new QJsrs($url, $POST, $antiXSJ), where $url is a server script aimed at
+* generating the result.
+* Set $POST to true if you want a POST request
 * to be made to the server.
+* Set $antiXSJ to true if the server needs an anti-cross-site-javascript token
 *
 * Then call this server script _asynchronously_
 * with varname.push($vararray, $function)

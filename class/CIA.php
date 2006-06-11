@@ -338,21 +338,26 @@ class CIA
 	 */
 	public static function writeFile($filename, &$data, $Dmtime = 0)
 	{
-		$h = @fopen($filename, 'wb');
+		$tmpname = dirname($filename) . '/' . self::uniqid();
+
+		$h = @fopen($tmpname, 'wb');
 
 		if (!$h)
 		{
-			self::makeDir($filename);
-			$h = @fopen($filename, 'wb');
+			self::makeDir($tmpname);
+			$h = @fopen($tmpname, 'wb');
 		}
 
 		if ($h)
 		{
-			flock($h, LOCK_EX);
 			fwrite($h, $data, strlen($data));
 			fclose($h);
 
+			if ('WIN' == substr(PHP_OS, 0, 3)) @unlink($filename);
+			rename($tmpname, $filename);
+
 			if ($Dmtime) touch($filename, CIA_TIME + $Dmtime);
+
 			return true;
 		}
 		else return false;
@@ -713,13 +718,14 @@ class CIA
 
 					self::writeFile($ETag, $h);
 
+					$ETag = "unlink('$ETag');\n";
+
 					foreach (array_unique(self::$watchTable) as $path)
 					{
 						$h = fopen($path, 'ab');
 						flock($h, LOCK_EX);
 						fseek($h, 0, SEEK_END);
-						$path = "unlink('$ETag');\n";
-						fwrite($h, $path, strlen($path));
+						fwrite($h, $ETag, strlen($ETag));
 						fclose($h);
 					}
 				}

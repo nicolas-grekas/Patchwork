@@ -49,11 +49,13 @@ if (!$msg) switch ($code)
 }
 
 $cid = CIA::uniqid();
+$cid = "<a href=\"javascript:;\" onclick=\"var a=document.getElementById('{$cid}');a.style.display=a.style.display?'':'none';\">$msg</a> in <b>$file</b> line <b>$line</b>:\n$message<blockquote id=\"{$cid}\" style=\"display:none\">Context : $context</blockquote><br><br>";
+
 $i = ini_get('error_log');
 $i = fopen($i ? $i : './error.log', 'ab');
 flock($i, LOCK_EX);
 fseek($i, 0, SEEK_END);
-fwrite($i, "<a href=\"javascript:;\" onclick=\"var a=document.getElementById('{$cid}');a.style.display=a.style.display?'':'none';\">$msg</a> in <b>$file</b> line <b>$line</b>:\n$message<blockquote id=\"{$cid}\" style=\"display:none\">Context : $context</blockquote><br><br>");
+fwrite($i, $cid, strlen($cid));
 fclose($i);
 
 if ($exit) exit;
