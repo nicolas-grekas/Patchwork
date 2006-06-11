@@ -1,0 +1,2 @@
+- afficher le prix des options au moment de leur sélection
+- rendre les sous option/choix modifiables
