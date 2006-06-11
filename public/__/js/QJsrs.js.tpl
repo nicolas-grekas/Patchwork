@@ -133,7 +133,7 @@ $window.loadQJsrs = function($context, $result, $callback)
 	return $context;
 }
 
-function $QJsrs($URL, $POST)
+function $QJsrs($URL, $POST, $antiXSJ)
 {
 	var $this = this,
 		$pool = [],
@@ -167,6 +167,8 @@ function $QJsrs($URL, $POST)
 		++$loadCounter;
 
 		$function = $function || $emptyFunction;
+
+		if ($antiXSJ && !$vararray['T$']) $vararray['T$'] = antiXSJ;
 
 		$url = '';
 		for ($i in $vararray) $url += '&' + eUC($i) + '=' + eUC($vararray[$i]); // Be aware that Konquerors for(..in..) loop does not preserve the order of declaration
