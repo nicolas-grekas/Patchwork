@@ -23,7 +23,7 @@ class debug_CIA extends CIA
 	{
 		$this->log(
 			'<a href="' . htmlspecialchars($_SERVER['REQUEST_URI']) . '" target="_blank">'
-			. htmlspecialchars(preg_replace("'&\\\$v=[^&]*'", '', $_SERVER['REQUEST_URI']))
+			. htmlspecialchars(preg_replace("'&v\\\$=[^&]*'", '', $_SERVER['REQUEST_URI']))
 			. '</a>'
 		);
 		register_shutdown_function(array($this, 'log'), '', true);
@@ -54,7 +54,7 @@ class debug_CIA extends CIA
 			$b = fopen($b ? $b : './error.log', 'ab');
 			flock($b, LOCK_EX);
 			fseek($b, 0, SEEK_END);
-			fwrite($b, $a);
+			fwrite($b, $a, strlen($a));
 			fclose($b);
 		}
 

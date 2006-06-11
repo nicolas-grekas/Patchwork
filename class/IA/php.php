@@ -205,8 +205,9 @@ class IA_php
 
 				CIA::makeDir($fagent);
 
-				$h = fopen($fagent, 'wb');
-				flock($h, LOCK_EX);
+				$tmpname = dirname($fagent) . '/' . CIA::uniqid();
+
+				$h = fopen($tmpname, 'wb');
 
 				$rawdata = str_replace('<?', "<?php echo'<?'?>", $rawdata) . '<?php $v=(object)';
 				fwrite($h, $rawdata, strlen($rawdata));
@@ -225,6 +226,10 @@ class IA_php
 
 				fwrite($h, $data, strlen($data));
 				fclose($h);
+
+				if ('WIN' == substr(PHP_OS, 0, 3)) @unlink($fagent);
+				@rename($tmpname, $fagent);
+
 				touch($fagent, CIA_TIME + ('ontouch' == $expires ? CIA_MAXAGE : $maxage));
 
 				CIA::writeWatchTable($watch, $fagent);
