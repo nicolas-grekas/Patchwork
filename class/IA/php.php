@@ -71,7 +71,7 @@ class IA_php
 
 				while ($i =& $agent->compose()) $data =& $i;
 
-				$agent = $data->{'*a'};
+				$agent = $data->{'a$'};
 
 				foreach ($data as $k => $v) $args[$k] = is_string($v) ? htmlspecialchars($v) : $v;
 			}

@@ -63,7 +63,7 @@ function $onkeyup($e)
 		if ($this.$lastKeyupid!=$keyupid) return;
 
 		$this.$search($this.$value, $this.$onkeyup, $caretPos);
-	}, 200);
+	}, 50);
 }
 
 function $onkeydown($e)

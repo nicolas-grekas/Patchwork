@@ -478,7 +478,6 @@ else
 	}
 
 	$binaryMode = (bool) constant("$agent::binary");
-	CIA::setBinaryMode($binaryMode);
 
 	/*
 	 * Both Firefox and IE send a "Cache-Control: no-cache" request header
@@ -491,11 +490,13 @@ else
 	{
 		if ($a)
 		{
+			touch('index.php');
 			CIA::touch('');
 			CIA::delDir(CIA::$cachePath, false);
 		}
 		else if ($_COOKIE['cache_reset_id'] == CIA_PROJECT_ID)
 		{
+			touch('index.php');
 			CIA::touch('foreignTrace');
 		}
 

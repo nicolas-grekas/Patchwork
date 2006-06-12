@@ -25,27 +25,27 @@ class loop_callAgent extends loop
 			if (!isset($this->data))
 			{
 				$data = $this->get();
-				$data->{'*a'} = $this->agent;
+				$data->{'a$'} = $this->agent;
 
 				if ($this->autoResolve)
 				{
 					if (!isset($this->keys) || preg_match("'^(/|https?://)'", $this->agent))
 					{
-						list($CIApID, $home, $data->{'*a'}, $a, $k) = CIA::resolveAgentTrace($this->agent);
+						list($CIApID, $home, $data->{'a$'}, $a, $k) = CIA::resolveAgentTrace($this->agent);
 
 						foreach ($k as $k => $v) $data->$k = $v;
 
 						array_walk($a, array('IA_js', 'formatJs'));
 
-						$data->{'*k'} = '[' . implode(',', $a) . ']';
+						$data->{'k$'} = '[' . implode(',', $a) . ']';
 
 						if (false !== $home)
 						{
-							$data->{'*v'} = $CIApID;
-							$data->{'*r'} = $home;						
+							$data->{'v$'} = $CIApID;
+							$data->{'r$'} = $home;						
 						}
 					}
-					else $data->{'*k'} = $this->keys;
+					else $data->{'k$'} = $this->keys;
 				}
 
 				$this->data = $data;
