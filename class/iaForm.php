@@ -42,7 +42,9 @@ class iaForm extends loop_callAgent
 
 			if ('POST' == $_SERVER['REQUEST_METHOD'] && isset($_COOKIE['T$']) && $_COOKIE['T$'] != @$_POST['T$'])
 			{
-				E('ALERT : Cross Site Request Forgery detection. Referer is : ' . $_SERVER['HTTP_REFERER']);
+				E('Potential Cross Site Request Forgery. Stopping !');
+				E($_SERVER); E($_POST); E($_COOKIE);
+
 				$_POST = array();
 			}
 
