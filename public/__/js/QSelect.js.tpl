@@ -259,14 +259,8 @@ return function($input, $driver)
 			$select.size = $length < 7 ? ($length > 2 ? $length : 2) : 7;
 			$select.style.width = $width + 'px';
 
-			$divStyle.display = '';
-
-			$height = $select.offsetHeight;
 			$imgW.width = $width - 10;
 			$imgW.style.width = $width - 10 + 'px';
-			$imgH.height = $height - 10;
-			$imgH.style.height = $height - 10 + 'px';
-			$divW.style.top = $height + 'px';
 
 			$form.precheck = $precheck;
 
@@ -284,9 +278,16 @@ return function($input, $driver)
 
 			$left += $parent - $input.offsetHeight - $top;
 
-			if ($left < $height && $left < $top - $parent) $divStyle.top = ($top - $height) + 'px';
+			$divStyle.visibility = 'hidden';
+			$divStyle.display = '';
 
-			QSelect.$setTimeout(function(){$divStyle.visibility = 'visible';}, 0)
+			$height = $select.offsetHeight;
+			if ($left < $height && $left < $top - $parent) $divStyle.top = ($top - $height) + 'px';
+			$divStyle.visibility = 'visible';
+
+			$imgH.height = $height - 10;
+			$imgH.style.height = $height - 10 + 'px';
+			$divW.style.top = $height + 'px';
 		}
 		else $this.$hide();
 	}
