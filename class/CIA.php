@@ -27,6 +27,7 @@ class CIA
 	protected static $sessionStarted = false;
 	protected static $cancelled = false;
 	protected static $privateDetectionMode = false;
+	protected static $detectXSJ = false;
 
 	public static function start()
 	{
@@ -114,9 +115,22 @@ class CIA
 
 		if (!self::$privateDetectionMode)
 		{
+			if ('content-type' == $name && false !== strpos(strtolower($string), 'javascript'))
+			{
+				if (self::$private && !CIA_TOKEN_MATCH)
+				{
+					E('Potential Cross Site JavaScript. Stopping !');
+					E($_SERVER); E($_POST); E($_COOKIE);
+
+					exit;
+				}
+
+				self::$detectXSJ = true;
+			}
+
 			self::$headers[$name] = $string;
 			header($string);
-		}	
+		}
 	}
 
 	/**
@@ -202,6 +216,13 @@ class CIA
 		if (!$group) return;
 
 		if (self::$privateDetectionMode) throw new PrivateDetection;
+		else if (self::$detectXSJ && !CIA_TOKEN_MATCH)
+		{
+			E('Potential Cross Site JavaScript. Stopping !');
+			E($_SERVER); E($_POST); E($_COOKIE);
+
+			exit;
+		}
 
 		self::$private = true;
 
@@ -520,7 +541,7 @@ class CIA
 				$agent->getTemplate();
 
 				self::executeLoops($d);
-				
+
 				$agent->metaCompose();
 			}
 			catch (PrivateDetection $d)
@@ -552,50 +573,40 @@ class CIA
 		$HOME = $home = CIA::__HOME__();
 		$agent = self::home($agent);
 
-		if (0 === strpos($agent, $HOME)) $agent = substr($agent, strlen($HOME));
-		else
+		require_once 'HTTP/Request.php';
+		$agent = preg_replace("'__'", CIA::__LANG__(), $agent, 1);
+		$keys = new HTTP_Request($agent);
+		$keys->addQueryString('k$', '');
+		$keys->sendRequest();
+		$keys = $keys->getResponseBody();
+
+		$s = '\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'';
+
+		if (!preg_match("/w\.k\((-?[0-9]+),($s),($s),($s),\[((?:$s(?:,$s)*)?)\]\)/su", $keys, $keys))
 		{
-			require_once 'HTTP/Request.php';
-			$agent = preg_replace("'__'", CIA::__LANG__(), $agent, 1);
-			$keys = new HTTP_Request($agent);
-			$keys->addQueryString('$k', '');
-			$keys->sendRequest();
-			$keys = $keys->getResponseBody();
-
-			$s = '\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'';
-
-			if (!preg_match("/w\.k\((-?[0-9]+),($s),($s),($s),\[((?:$s(?:,$s)*)?)\]\)/su", $keys, $keys))
-			{
-				E('Error while getting meta info data for ' . htmlspecialchars($agent));
-				exit;
-			}
-
-			self::watch('foreignTrace');
-
-			$CIApID = (int) $keys[1];
-			$home = stripcslashes(substr($keys[2], 1, -1));
-			$home = preg_replace("'__'", CIA::__LANG__(), $home, 1);
-			$agent = stripcslashes(substr($keys[3], 1, -1));
-			$a = stripcslashes(substr($keys[4], 1, -1));
-			$keys = eval('return array(' . $keys[5] . ');');
-
-			if ('' !== $a)
-			{
-				$args['__0__'] = $a;
-
-				$i = 0;
-				foreach (explode('/', $a) as $a) $args['__' . ++$i . '__'] = $a;
-			}
+			E('Error while getting meta info data for ' . htmlspecialchars($agent));
+			exit;
 		}
 
-		if ($home == $HOME)
+		$CIApID = (int) $keys[1];
+		$home = stripcslashes(substr($keys[2], 1, -1));
+		$home = preg_replace("'__'", CIA::__LANG__(), $home, 1);
+		$agent = stripcslashes(substr($keys[3], 1, -1));
+		$a = stripcslashes(substr($keys[4], 1, -1));
+		$keys = eval('return array(' . $keys[5] . ');');
+
+		if ('' !== $a)
 		{
-			return array(false, false, $agent,  self::agentArgv(self::resolveAgentClass($agent, $args)), $args);
+			$args['__0__'] = $a;
+
+			$i = 0;
+			foreach (explode('/', $a) as $a) $args['__' . ++$i . '__'] = $a;
 		}
-		else
-		{
-			return array((int) $CIApID, $home, $agent, $keys, $args);
-		}
+
+		if ($home == $HOME) $CIApID = $home = false;
+		else self::watch('foreignTrace');
+
+		return array($CIApID, $home, $agent, $keys, $args);
 	}
 
 	protected static function stripArgv(&$a, $k)

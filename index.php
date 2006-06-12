@@ -256,7 +256,7 @@ function resolvePath($filename)
 
 /* Global Initialisation */
 
-// Anti-Cross-Site-Request-Forgery token
+// Anti Cross-Site-(Request-Forgery|Javascript) token
 if (!isset($_COOKIE['T$']) || !$_COOKIE['T$'])
 {
 	unset($_COOKIE['T$']);
@@ -266,6 +266,7 @@ if (!isset($_COOKIE['T$']) || !$_COOKIE['T$'])
 }
 else define('CIA_TOKEN', $_COOKIE['T$']);
 
+define('CIA_TOKEN_MATCH', isset($_GET['T$']) && CIA_TOKEN == $_GET['T$']);
 
 // Language controler
 if (!$_SERVER['CIA_LANG'])

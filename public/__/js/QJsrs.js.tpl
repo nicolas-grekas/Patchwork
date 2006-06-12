@@ -170,7 +170,7 @@ function $QJsrs($URL, $POST, $antiXSJ)
 
 		$function = $function || $emptyFunction;
 
-		if ($antiXSJ && !$vararray['T$']) $vararray['T$'] = antiXSJ;
+		if ($antiXSJ && !$vararray.T$) $vararray.T$ = antiXSJ;
 
 		$url = '';
 		for ($i in $vararray) $url += '&' + eUC($i) + '=' + eUC($vararray[$i]); // Be aware that Konquerors for(..in..) loop does not preserve the order of declaration
