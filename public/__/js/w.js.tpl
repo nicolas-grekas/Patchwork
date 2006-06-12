@@ -285,7 +285,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 						$agent = $data.a$;
 						eval('$keys='+$data.k$);
 
-						for ($i in $data) $args[$i] = $data[$i];
+						for ($i in $data) if (!/\$/.test($i)) $args[$i] = $data[$i];
 
 						if ($data.r$) $meta = [$data.v$, $data.r$];
 					}
@@ -332,7 +332,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 							$args.__HOST__ = $args.__HOME__.substr(0, $args.__HOME__.indexOf('/', 8)+1);
 							$args.__AGENT__ = $agent ? $agent + '/' : '';
 							$args.__URI__ = $args.__HOME__ + $agent;
-							$args.$ = 1;
+							$args.e$ = 1;
 
 							g = $args;
 						}
@@ -417,14 +417,14 @@ w = function($homeAgent, $keys, $masterCIApID)
 				{
 					$args.T$ = antiXSJ;
 
-					if ($args.$) for ($i in $args) $args[$i] = num(str($args[$i]), 1);
+					if ($args.e$) for ($i in $args) $args[$i] = num(str($args[$i]), 1);
 					else            for ($i in $args) $args[$i] = num(    $args[$i] , 1);
 
 					for ($i=0; $i<$keys.length; ++$i)
 						if (($j = $keys[$i]) && t($args[$j]))
 							$c += '&amp;' + eUC($j) + '=' + eUC(unesc($args[$j]));
 
-					if ($args.$) $args.__URI__ += '?' + $c.substr(5);
+					if ($args.e$) $args.__URI__ += '?' + $c.substr(5);
 					a = $args;
 					$include($inc + $c + '&amp;v$=' + $CIApID);
 				}
@@ -449,7 +449,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 							$args.__HOST__ = $home.substr(0, $home.indexOf('/', 8)+1);
 							$args.__AGENT__ = $agent ? $agent + '/' : '';
 							$args.__URI__ = $home + $agent;
-							$args.$ = 1;
+							$args.e$ = 1;
 
 							g = $args;
 						}
