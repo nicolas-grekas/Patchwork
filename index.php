@@ -10,8 +10,6 @@ $CONFIG += array(
 
 	'translate_driver' => 'default_',
 	'translate_params' => array(),
-
-	'session_name' => 'SID',
 );
 
 
