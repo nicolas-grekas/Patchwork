@@ -13,7 +13,7 @@ class pipe_htmlArgs
 		foreach ($pool as $k => $v)
 		{
 			$pool = substr($k, 0, 1);
-			if ('_'!=$pool && '*'!=$pool && 'iteratorPosition'!=$k && mb_strpos($k, '$')===false && !in_array($k, $except))
+			if ('_'!=$pool && '*'!=$pool && 'iteratorPosition'!=$k && strpos($k, '$')===false && !in_array($k, $except))
 			{
 				$result .= $k . '="' . CIA::string($v) . '" ';
 			}

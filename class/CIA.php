@@ -12,7 +12,6 @@ class CIA
 	protected static $uri;
 
 	protected static $handlesOb = false;
-	protected static $binaryMode = false;
 	protected static $metaInfo;
 	protected static $metaPool = array();
 
@@ -27,6 +26,7 @@ class CIA
 	protected static $agentClasses = '';
 	protected static $sessionStarted = false;
 	protected static $cancelled = false;
+	protected static $privateDetectionMode = false;
 
 	public static function start()
 	{
@@ -110,11 +110,13 @@ class CIA
 
 		$name = strtolower(substr($string, 0, strpos($string, ':')));
 
-		self::$headers[$name] = $string;
-
 		if (self::$catchMeta) self::$metaInfo[4][$name] = $string;
 
-		header($string);
+		if (!self::$privateDetectionMode)
+		{
+			self::$headers[$name] = $string;
+			header($string);
+		}	
 	}
 
 	/**
@@ -122,6 +124,13 @@ class CIA
 	 */
 	public static function redirect($url = '', $exit = true)
 	{
+		if (self::$privateDetectionMode)
+		{
+			if ($exit) throw new Exception;
+
+			return;
+		}
+
 		$url = (string) $url;
 
 		self::$redirectUrl = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'i", $url) ? $url : (self::$home . ('index' == $url ? '' : $url)));
@@ -160,11 +169,6 @@ class CIA
 		return $poped;
 	}
 
-	public static function setBinaryMode($binaryMode)
-	{
-		self::$binaryMode = $binaryMode;
-	}
-
 	/**
 	 * Controls the Cache's max age.
 	 */
@@ -173,8 +177,11 @@ class CIA
 		if ($maxage < 0) $maxage = CIA_MAXAGE;
 		else $maxage = min(CIA_MAXAGE, $maxage);
 
-		if (false === self::$maxage) self::$maxage = $maxage;
-		else self::$maxage = min(self::$maxage, $maxage);
+		if (!self::$privateDetectionMode)
+		{
+			if (false === self::$maxage) self::$maxage = $maxage;
+			else self::$maxage = min(self::$maxage, $maxage);
+		}
 
 		if (self::$catchMeta)
 		{
@@ -193,6 +200,8 @@ class CIA
 		$group = array_diff((array) $group, array('public'));
 
 		if (!$group) return;
+
+		if (self::$privateDetectionMode) throw new PrivateDetection;
 
 		self::$private = true;
 
@@ -216,7 +225,7 @@ class CIA
 	 */
 	public static function setExpires($expires)
 	{
-		if ('auto' == self::$expires || 'ontouch' == self::$expires) self::$expires = $expires;
+		if (!self::$privateDetectionMode) if ('auto' == self::$expires || 'ontouch' == self::$expires) self::$expires = $expires;
 
 		if (self::$catchMeta) self::$metaInfo[2] = $expires;
 	}
@@ -485,13 +494,56 @@ class CIA
 
 	public static function agentArgv($agent)
 	{
-		$agent = get_class_vars($agent);
-		$agent =& $agent['argv'];
+		// get declared arguments in $agent::$argv public property
+		$args = get_class_vars($agent);
+		$args =& $args['argv'];
 
-		if (is_array($agent)) array_walk($agent, array('self', 'stripArgv'));
-		else $agent = array();
+		if (is_array($args)) array_walk($args, array('self', 'stripArgv'));
+		else $args = array();
 
-		return $agent;
+		// autodetect private data for antiXSJ
+		$cache = self::makeCacheDir('antiXSJ.' . $agent, 'txt');
+		if (file_exists($cache))
+		{
+			if (filesize($cache)) $args[] = 'T$';
+		}
+		else
+		{
+			$private = '';
+
+			self::$privateDetectionMode = true;
+
+			try
+			{
+				$agent = new $agent;
+				$d = (object) $agent->compose();
+				$agent->getTemplate();
+
+				self::executeLoops($d);
+				
+				$agent->metaCompose();
+			}
+			catch (PrivateDetection $d)
+			{
+				$private = 1;
+			}
+			catch (Exception $d)
+			{
+			}
+
+			self::$privateDetectionMode = false;
+
+			self::writeFile($cache, $private);
+
+			if ($private) $args[] = 'T$';
+		}
+
+		return $args;
+	}
+
+	protected static function executeLoops($d)
+	{
+		foreach ($d as $k => $v) if ($v instanceof loop) while ($k = $v->compose()) self::executeLoops($k);
 	}
 
 	public static function resolveAgentTrace($agent)
@@ -777,7 +829,6 @@ class CIA
 class agent_
 {
 	const binary = false;
-	const sessionProtection = 'auto';
 
 	public $argv = array();
 
@@ -892,3 +943,5 @@ class loop
 		return (int) $this->__toString();
 	}
 }
+
+class PrivateDetection extends Exception {}

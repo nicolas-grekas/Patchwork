@@ -2,7 +2,7 @@
 
 foreach (array_keys($GLOBALS) as $k) switch ($k)
 {
-	# For $_ENV use getenv(), $_REQUEST is banned
+	# $_REQUEST is banned
 	case 'cia_paths': case 'k':
 	case '_SESSION': case 'CONFIG': case 'GLOBALS':
 	case '_SERVER':  case '_GET':   case '_POST':
@@ -33,7 +33,7 @@ class debug_CIA extends CIA
 	public function &ob_handler(&$buffer)
 	{
 		self::$handlesOb = true;
-		if (!self::$binaryMode) $buffer = $this->error_end(substr(trim($buffer), 0, 1)) . $buffer;
+		if (false !== stripos(self::$headers['content-type'], 'text/html')) $buffer = $this->error_end(substr(trim($buffer), 0, 1)) . $buffer;
 		return parent::ob_handler($buffer);
 	}
 
