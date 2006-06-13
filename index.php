@@ -194,9 +194,11 @@ if (!function_exists('DB'))
 	}
 }
 
+if (!isset($_SERVER['REQUEST_TIME'])) $_SERVER['REQUEST_TIME'] = time();
+
 define('DEBUG',			$CONFIG['allow_debug'] ? (int) @$_COOKIE['DEBUG'] : 0);
 define('CIA_MAXAGE',	$CONFIG['maxage']);
-define('CIA_TIME', time());
+define('CIA_TIME', $_SERVER['REQUEST_TIME']);
 define('CIA_PROJECT_ID', abs($version_id % 10000));
 define('CIA_POSTING', $_SERVER['REQUEST_METHOD']=='POST');
 define('CIA_DIRECT', !CIA_POSTING && $_SERVER['CIA_REQUEST'] == '_');
