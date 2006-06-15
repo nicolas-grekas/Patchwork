@@ -685,14 +685,15 @@ class CIA
 				$cache = self::makeCacheDir('antiXSJ.' . self::$agentClass, 'txt');
 				if (!file_exists($cache) || !filesize($cache))
 				{
-					touch('index.php');
 					CIA::touch('CIApID');
-					CIA::touch('public/templates');
+					CIA::touch('public/templates/js');
 
 					$a = 1;
 					self::writeFile($cache, $a);
 
 					echo 'location.reload(' . (DEBUG ? '' : 'true') . ')';
+
+					touch('index.php');
 					exit;
 				}
 			}
