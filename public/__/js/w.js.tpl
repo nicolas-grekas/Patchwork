@@ -16,7 +16,7 @@
 
 footerHtml = '';
 
-if (antiXSJ = document.cookie.match(/(^|; )T\$=([0-9A-Z]+)/i)) antiXSJ = antiXSJ[2];
+if (antiXSJ = document.cookie.match(/^(.*; )?T\$=([0-9A-Z]+)/i)) antiXSJ = antiXSJ[2];
 
 function t($v, $type)
 {
@@ -213,7 +213,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 		if ($lastInclude && !$includeCache[$lastInclude])
 		{
-			if (!antiXSJ && ($i = $document.cookie.match(/(^|; )T\$=([0-9A-Z]+)/i)))
+			if (!antiXSJ && ($i = $document.cookie.match(/^(.*; )?T\$=([0-9A-Z]+)/i)))
 			{
 				antiXSJ = $i[2];
 				$i = $document.getElementsByTagName('input');
