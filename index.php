@@ -491,15 +491,15 @@ else
 	{
 		if ($a)
 		{
-			touch('index.php');
 			CIA::touch('');
 			CIA::delDir(CIA::$cachePath, false);
+			touch('index.php');
 		}
 		else if ($_COOKIE['cache_reset_id'] == CIA_PROJECT_ID)
 		{
-			touch('index.php');
 			CIA::touch('CIApID');
 			CIA::touch('foreignTrace');
+			touch('index.php');
 		}
 
 		CIA::setMaxage(0);
