@@ -498,6 +498,7 @@ else
 		else if ($_COOKIE['cache_reset_id'] == CIA_PROJECT_ID)
 		{
 			touch('index.php');
+			CIA::touch('CIApID');
 			CIA::touch('foreignTrace');
 		}
 

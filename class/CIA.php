@@ -117,13 +117,7 @@ class CIA
 		{
 			if ('content-type' == $name && false !== strpos(strtolower($string), 'javascript'))
 			{
-				if (self::$private && !CIA_TOKEN_MATCH)
-				{
-					E('Potential Cross Site JavaScript. Stopping !');
-					E($_SERVER); E($_POST); E($_COOKIE);
-
-					exit;
-				}
+				if (self::$private) self::preventXSJ();
 
 				self::$detectXSJ = true;
 			}
@@ -154,7 +148,7 @@ class CIA
 
 	public static function openMeta($agentClass, $is_trace = true)
 	{
-		self::$agentClass = $agentClass = str_replace('_', '/', $agentClass);
+		self::$agentClass = $agentClass;
 		if ($is_trace) self::$agentClasses .= '*' . self::$agentClass;
 
 		$default = array(false, array(), false, array(), array(), false, self::$agentClass);
@@ -216,13 +210,7 @@ class CIA
 		if (!$group) return;
 
 		if (self::$privateDetectionMode) throw new PrivateDetection;
-		else if (self::$detectXSJ && !CIA_TOKEN_MATCH)
-		{
-			E('Potential Cross Site JavaScript. Stopping !');
-			E($_SERVER); E($_POST); E($_COOKIE);
-
-			exit;
-		}
+		else if (self::$detectXSJ) self::preventXSJ();
 
 		self::$private = true;
 
@@ -569,6 +557,11 @@ class CIA
 
 	public static function resolveAgentTrace($agent)
 	{
+		static $cache = array();
+
+		if (isset($cache[$agent])) return $cache[$agent];
+		else $cache[$agent] =& $trace;
+
 		$args = array();
 		$HOME = $home = CIA::__HOME__();
 		$agent = self::home($agent);
@@ -606,7 +599,7 @@ class CIA
 		if ($home == $HOME) $CIApID = $home = false;
 		else self::watch('foreignTrace');
 
-		return array($CIApID, $home, $agent, $keys, $args);
+		return $trace = array($CIApID, $home, $agent, $keys, $args);
 	}
 
 	protected static function stripArgv(&$a, $k)
@@ -622,7 +615,7 @@ class CIA
 		if (false === $group) $group = self::$metaInfo[1];
 		$keys = serialize(array($keys, $group));
 
-		return self::makeCacheDir(str_replace('_', '/', $agentClass) . '/_/', $type . '.php', $keys);
+		return self::makeCacheDir($agentClass, $type . '.php', $keys);
 	}
 
 	public static function delCache()
@@ -680,6 +673,34 @@ class CIA
 					CIA::writeFile($path, $h);
 				}
 			}
+		}
+	}
+
+	protected static function preventXSJ()
+	{
+		if (!CIA_TOKEN_MATCH)
+		{
+			if (CIA_DIRECT)
+			{
+				$cache = self::makeCacheDir('antiXSJ.' . self::$agentClass, 'txt');
+				if (!file_exists($cache) || !filesize($cache))
+				{
+					touch('index.php');
+					CIA::touch('CIApID');
+					CIA::touch('public/templates');
+
+					$a = 1;
+					self::writeFile($cache, $a);
+
+					echo 'location.reload(' . (DEBUG ? '' : 'true') . ')';
+					exit;
+				}
+			}
+
+			E('Potential Cross Site JavaScript. Stopping !');
+			E($_SERVER); E($_POST); E($_COOKIE);
+
+			exit;
 		}
 	}
 
@@ -781,16 +802,18 @@ class CIA
 
 					self::writeFile($ETag, $h);
 
-					$ETag = "unlink('$ETag');\n";
+					$a = "unlink('$ETag');\n";
 
 					foreach (array_unique(self::$watchTable) as $path)
 					{
 						$h = fopen($path, 'ab');
 						flock($h, LOCK_EX);
 						fseek($h, 0, SEEK_END);
-						fwrite($h, $ETag, strlen($ETag));
+						fwrite($h, $a, strlen($a));
 						fclose($h);
 					}
+
+					self::writeWatchTable('CIApID', $ETag);
 				}
 			}
 
