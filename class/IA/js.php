@@ -38,15 +38,13 @@ class IA_js
 EOHTML;
 
 			CIA::writeFile($cagent, $a);
-			CIA::writeWatchTable('foreignTrace', $cagent);
+			CIA::writeWatchTable('CIApID', $cagent);
 		}
 	}
 
 	public static function compose($agent)
 	{
 		if (!self::$html) CIA::header('Content-Type: text/javascript; charset=UTF-8');
-
-		echo 'w({';
 
 
 		$agentClass = CIA::resolveAgentClass($agent, $_GET);
@@ -67,6 +65,8 @@ EOHTML;
 
 		$data = (object) $agent->compose();
 		$template = $agent->getTemplate();
+
+		echo 'w({';
 
 		$comma = '';
 		foreach ($data as $key => $value)
