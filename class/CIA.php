@@ -680,6 +680,8 @@ class CIA
 	{
 		if (!CIA_TOKEN_MATCH)
 		{
+			self::setMaxage(0);
+
 			if (CIA_DIRECT)
 			{
 				$cache = self::makeCacheDir('antiXSJ.' . self::$agentClass, 'txt');

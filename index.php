@@ -256,24 +256,31 @@ function resolvePath($filename)
 
 /* Global Initialisation */
 
-// Anti Cross-Site-(Request-Forgery|Javascript) token
-if (!isset($_COOKIE['T$']) || !$_COOKIE['T$'])
-{
-	unset($_COOKIE['T$']);
-	define('CIA_TOKEN', md5(uniqid(mt_rand(), true)));
-	$k = dirname($_SERVER['SCRIPT_NAME'] . @$_SERVER['PATH_INFO'] . ' ');
-	setcookie('T$', CIA_TOKEN, 0, '/' != $k ? $k .'/' : $k);
-}
-else define('CIA_TOKEN', $_COOKIE['T$']);
-
-define('CIA_TOKEN_MATCH', isset($_GET['T$']) && CIA_TOKEN == $_GET['T$']);
-
 // Language controler
 if (!$_SERVER['CIA_LANG'])
 {
 	require resolvePath('language.php');
 	exit;
 }
+
+// Anti Cross-Site-(Request-Forgery|Javascript) token
+if (!isset($_COOKIE['T$']) || !$_COOKIE['T$'])
+{
+	unset($_COOKIE['T$']);
+	define('CIA_TOKEN', md5(uniqid(mt_rand(), true)));
+
+	$k = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_HOME'], 2));
+	$k = preg_replace("'\?.*$'", '', $k);
+	$k = preg_replace("'https?://[^/]*'i", '', $k);
+	$k = dirname($k . ' ');
+	if (1 == strlen($k)) $k = '';
+
+	setcookie('T$', CIA_TOKEN, 0, $k .'/');
+}
+else define('CIA_TOKEN', $_COOKIE['T$']);
+
+define('CIA_TOKEN_MATCH', isset($_GET['T$']) && CIA_TOKEN == $_GET['T$']);
+
 
 
 /* Validator */
