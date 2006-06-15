@@ -415,10 +415,22 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 				if ($keys)
 				{
-					$args.T$ = antiXSJ;
+					if (!antiXSJ)
+					{
+						$i = (''+Math.random()).substr(2);
+						$j = $masterHome.replace(
+							/\?.*$/              , '' ).replace(
+							/^https?:\/\/[^\/]*/i, '' ).replace(
+							/\/[^\/]+$/          , '/'
+						);
+
+						$document.cookie = 'T$=' + $i + '; path=' + encodeURI($j);
+					}
+
+					$args.T$ = antiXSJ || $i;
 
 					if ($args.e$) for ($i in $args) $args[$i] = num(str($args[$i]), 1);
-					else            for ($i in $args) $args[$i] = num(    $args[$i] , 1);
+					else          for ($i in $args) $args[$i] = num(    $args[$i] , 1);
 
 					for ($i=0; $i<$keys.length; ++$i)
 						if (($j = $keys[$i]) && t($args[$j]))

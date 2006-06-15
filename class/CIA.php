@@ -44,6 +44,8 @@ class CIA
 			E('Fatal error: illegal character found in CIA::$home');
 			exit;
 		}
+
+		if (isset($_GET['T$'])) self::$private = true;
 	}
 
 	public static function loadSession($private = true)
