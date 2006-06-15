@@ -1,6 +1,6 @@
 <?php
 
-class loop_sql_pearDB extends loop
+class loop_sql_MDB2 extends loop
 {
 	protected $db;
 	protected $sql;
@@ -25,8 +25,9 @@ class loop_sql_pearDB extends loop
 
 	protected function prepare()
 	{
-		if ($this->count > 0) $this->result = $this->db->limitQuery($this->sql, $this->from, $this->count);
-		else $this->result = $this->db->query($this->sql);
+		if ($this->count > 0) $this->db->setLimit($this->count, $this->from);
+
+		$this->result = $this->db->query($this->sql);
 
 		return @PEAR::isError($this->result) ? false : $this->result->numRows();
 	}

@@ -6,5 +6,5 @@ if (function_exists('mysqli_connect'))
 }
 else
 {
-	class loop_sql extends loop_sql_pearDB {}
+	class loop_sql extends loop_sql_MDB2 {}
 }

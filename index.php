@@ -271,7 +271,7 @@ if (!isset($_COOKIE['T$']) || !$_COOKIE['T$'])
 
 	$k = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_HOME'], 2));
 	$k = preg_replace("'\?.*$'", '', $k);
-	$k = preg_replace("'https?://[^/]*'i", '', $k);
+	$k = preg_replace("'^https?://[^/]*'i", '', $k);
 	$k = dirname($k . ' ');
 	if (1 == strlen($k)) $k = '';
 
