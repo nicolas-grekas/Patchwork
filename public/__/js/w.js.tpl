@@ -18,6 +18,9 @@ footerHtml = '';
 
 if (antiXSJ = document.cookie.match(/^(.*; )?T\$=([0-9A-Z]+)/i)) antiXSJ = antiXSJ[2];
 
+if (window.Error && navigator.userAgent.indexOf('Safari') < 0)
+	document.cookie = 'JS=1; expires=Sun, 17-Jan-2038 19:14:07 GMT; path=/';
+
 function t($v, $type)
 {
 	return $type ? (typeof $v == $type) : (typeof $v != 'undefined');
