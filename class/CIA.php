@@ -1,5 +1,9 @@
 <?php
 
+// This disables mod_deflate, which is bugged : it overwrites any custom Vary: header
+// We replace it with native PHP output compression
+if (function_exists('apache_setenv')) apache_setenv('no-gzip', '1');
+
 class CIA
 {
 	public static $cachePath = 'zcache/';
@@ -751,6 +755,9 @@ class CIA
 				$buffer = '';
 			}
 
+			header('Content-Length: ' . strlen($buffer));
+			@ini_set('zlib.output_compression', false);
+
 			self::$handlesOb = false;
 
 			return $buffer;
@@ -833,8 +840,6 @@ class CIA
 
 		if ('HEAD' == $_SERVER['REQUEST_METHOD']) $buffer = '';
 
-
-		if (function_exists('apache_setenv')) apache_setenv('no-gzip', '1'); // This disables mod_deflate
 
 		switch (substr(self::$headers['content-type'], 14))
 		{
