@@ -2,8 +2,6 @@
 
 class IA_js
 {
-	private static $html = false;
-
 	public static function loadAgent($agent)
 	{
 		CIA::setMaxage(-1);
@@ -15,14 +13,11 @@ class IA_js
 		if (file_exists($cagent)) readfile($cagent);
 		else
 		{
-			self::$html = true;
-
 			$a = CIA::agentArgv($agent);
-			array_walk($a, array('self', 'formatJs'));
+			array_walk($a, 'jsquoteRef');
 			$a = implode(',', $a);
 
-			$agent = 'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6));
-			$agent = self::formatJs($agent);
+			$agent = jsquote('agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)));
 
 			$lang = CIA::__LANG__();
 			$CIApID = CIA_PROJECT_ID;
@@ -44,9 +39,6 @@ EOHTML;
 
 	public static function compose($agent)
 	{
-		if (!self::$html) CIA::header('Content-Type: text/javascript; charset=UTF-8');
-
-
 		$agentClass = CIA::resolveAgentClass($agent, $_GET);
 
 		CIA::openMeta($agentClass);
@@ -71,9 +63,9 @@ EOHTML;
 		$comma = '';
 		foreach ($data as $key => $value)
 		{
-			echo $comma, "'", self::formatJs($key, false, "'", false), "'", ':';
+			echo $comma, "'", jsquote($key, false), "':";
 			if ($value instanceof loop) self::writeAgent($value);
-			else echo self::formatJs($value);
+			else echo jsquote($value);
 			$comma = ',';
 		}
 
@@ -97,11 +89,7 @@ EOHTML;
 				$watch = array_merge($watch, $template);
 			}
 		}
-		else
-		{
-			self::formatJs($template);
-			echo ',[1,"', self::formatJs($template, false, '"', false), '",0,0,0])';
-		}
+		else echo ',[1,"', jsquote(jsquote($template), false, '"'), '",0,0,0])';
 
 		if ('ontouch' == $expires && !$watch) $expires = 'auto';
 		$expires = 'auto' == $expires && $watch ? 'ontouch' : 'onmaxage';
@@ -143,7 +131,7 @@ EOHTML;
 			$data = (array) $data;
 
 			$keyList = array_keys($data);
-			array_walk($keyList, array('self', 'formatJs'));
+			array_walk($keyList, 'jsquoteRef');
 			$keyList = implode(',', $keyList);
 
 			if ($keyList != $prevKeyList)
@@ -156,27 +144,10 @@ EOHTML;
 			{
 				echo ',';
 				if ($value instanceof loop) self::writeAgent($value);
-				else echo self::formatJs($value);
+				else echo jsquote($value);
 			}
 		}
 
 		echo ']])';
-	}
-
-	public static function formatJs(&$a, $key = false, $delim = "'", $addDelim = true)
-	{
-		if ((string) $a === (string) ($a-0)) return $a;
-
-		$a = str_replace(
-			array("\r\n", "\r", '\\'  , "\n", $delim),
-			array("\n"  , "\n", '\\\\', '\n', '\\' . $delim),
-			$a
-		);
-
-		if (self::$html) $a = preg_replace("#<(/?script)#iu", '<\\\\$1', $a);
-
-		if ($addDelim) $a = $delim . $a . $delim;
-
-		return $a;
 	}
 }

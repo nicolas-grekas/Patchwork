@@ -35,7 +35,7 @@ class loop_callAgent extends loop
 
 						foreach ($k as $k => $v) $data->$k = $v;
 
-						array_walk($a, array('IA_js', 'formatJs'));
+						array_walk($a, 'jsquoteRef');
 
 						$data->{'k$'} = '[' . implode(',', $a) . ']';
 

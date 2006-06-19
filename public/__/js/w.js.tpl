@@ -219,8 +219,8 @@ w = function($homeAgent, $keys, $masterCIApID)
 			if (!antiXSJ && ($i = $document.cookie.match(/^(.*; )?T\$=([0-9A-Z]+)/i)))
 			{
 				antiXSJ = $i[2];
-				$i = $document.getElementsByTagName('input');
-				for ($j in $i) if ('T$'==$i[$j].name) $i[$j].value = antiXSJ;
+				$i = $document.getElementsByName('T$');
+				for ($j in $i) $i[$j].value = antiXSJ;
 			}
 
 			$includeCache[$lastInclude] = [$context, $code];

@@ -243,11 +243,7 @@ class iaCompiler_js extends iaCompiler
 		switch ($type)
 		{
 			case "'":
-				$result = "'" . str_replace(
-					array("\r\n", "\r", '\\',   "\n", "'"),
-					array("\n"  , "\n", '\\\\', '\n', "\\'"),
-					$name
-				) . "'";
+				$result = "'" . jsquote($name, false) . "'";
 				break;
 
 			case '$':
@@ -282,14 +278,6 @@ class iaCompiler_js extends iaCompiler
 
 	protected function quote(&$a)
 	{
-		if ((string) $a === (string) ($a-0)) return $a = $a - 0;
-
-		$a = '"' . str_replace(
-			array("\r\n", "\r", '\\',   "\n", '"'),
-			array("\n"  , "\n", '\\\\', '\n', '\\"'),
-			$a
-		) . '"';
-
-		return $a;
+		return $a = jsquote($a, true, '"');
 	}
 }

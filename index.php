@@ -254,6 +254,7 @@ function resolvePath($filename)
 	return $filename;
 }
 
+
 /* Global Initialisation */
 
 // Language controler
@@ -280,7 +281,6 @@ if (!isset($_COOKIE['T$']) || !$_COOKIE['T$'])
 else define('CIA_TOKEN', $_COOKIE['T$']);
 
 define('CIA_TOKEN_MATCH', isset($_GET['T$']) && CIA_TOKEN == $_GET['T$']);
-
 
 
 /* Validator */
@@ -464,21 +464,12 @@ else
 		CIA::header('Content-Type: text/javascript; charset=UTF-8');
 		CIA::setMaxage(-1);
 
-		function q($a)
-		{
-			return "'" . str_replace(
-				array("\r\n", "\r", '\\',   "\n", "'"),
-				array("\n"  , "\n", '\\\\', '\n', "\\'"),
-				$a
-			) . "'";
-		}
-
 		echo 'w.k(',
 				CIA_PROJECT_ID, ',',
-				q( $_SERVER['CIA_HOME'] ), ',',
-				q( 'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)) ), ',',
-				q( @$_GET['__0__'] ), ',',
-				'[', implode(',', array_map('q', CIA::agentArgv($agent))), ']',
+				jsquote( $_SERVER['CIA_HOME'] ), ',',
+				jsquote( 'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)) ), ',',
+				jsquote( @$_GET['__0__'] ), ',',
+				'[', implode(',', array_map('jsquote', CIA::agentArgv($agent))), ']',
 			')';
 
 		exit;
