@@ -4,6 +4,23 @@
 // We replace it with native PHP output compression
 if (function_exists('apache_setenv')) apache_setenv('no-gzip', '1');
 
+function jsquote($a, $addDelim = true, $delim = "'")
+{
+	if ((string) $a === (string) ($a-0)) return $a-0;
+
+	$a = str_replace(
+		array("\r\n", "\r", '\\'  , "\n", '<'    ,        $delim),
+		array("\n"  , "\n", '\\\\', '\n', '\\x3c', '\\' . $delim),
+		$a
+	);
+
+	if ($addDelim) $a = $delim . $a . $delim;
+
+	return $a;
+}
+
+function jsquoteRef(&$a) {$a = jsquote($a);}
+
 class CIA
 {
 	public static $cachePath = 'zcache/';

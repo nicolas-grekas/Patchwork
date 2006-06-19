@@ -6,14 +6,11 @@ class pipe_js
 	{
 		$string = CIA::string($string);
 
-		return $forceString || (string) $string !== (string) ($string-0)
-			? ("'" . str_replace(
-					array('&#039;', '&quot;', '&gt;', '&lt;', '&amp;', '\\'  , "'"  , "\r" , "\n" , '</' ),
-					array("'"     , '"'     , '>'   , '<'   , '&'    , '\\\\', "\\'", '\\r', '\\n', '<\\/'),
-					$string
-				) . "'"
-			)
-			: $string;
+		return jsquote(str_replace(
+			array('&#039;', '&quot;', '&gt;', '&lt;', '&amp;'),
+			array("'"     , '"'     , '>'   , '<'   , '&'    ),
+			$string
+		));
 	}
 
 	static function js()
@@ -29,13 +26,13 @@ P$<?php echo substr(__CLASS__, 5)?> = function($string, $forceString)
 				/&#039;/g, "'").replace(
 				/&quot;/g, '"').replace(
 				/&gt;/g  , '>').replace(
-				/&lt;/g  , '<').replace(
+				/&lt;/g  , '\\x3x').replace(
 				/&amp;/g , '&').replace(
 				/\\/g , '\\\\').replace(
 				/'/g  , "\\'").replace(
 				/\r/g , '\\r').replace(
 				/\n/g , '\\n').replace(
-				/<\//g, '<\\/'
+				/</g,   '\\x3c'
 			) + "'"
 		)
 		: $string/1;
