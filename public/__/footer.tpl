@@ -1,4 +1,4 @@
-<script type="text/javascript">/*<![CDATA[*/''!=footerHtml&&document.write(footerHtml)/*]]>*/</script><script type="text/javascript">/*<![CDATA[*/
+<script type="text/javascript">/*<![CDATA[*/''!=footerHtml&&document.write(footerHtml)/*]]></script><script type="text/javascript">/*<![CDATA[*/
 d=document
 w=addOnload
 w.o=window.onload
@@ -19,6 +19,6 @@ onload=null
 <!-- SERVERSIDE -->
 if(window.Error&&navigator.userAgent.indexOf('Safari')<0)d.cookie='JS=1; path=/',d.cookie='JS=1; expires=Sun, 17-Jan-2038 19:14:07 GMT; path=/'
 <!-- END:SERVERSIDE -->
-/*]]>*/</script >
+/*]]></script >
 </body>
 </html>

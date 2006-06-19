@@ -87,6 +87,6 @@ ELSE --><!--
 
 document.write({a$name});
 
-/*]]>*/</script><!--
+/*]]></script><!--
 
 END:IF -->

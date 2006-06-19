@@ -9,8 +9,8 @@ function jsquote($a, $addDelim = true, $delim = "'")
 	if ((string) $a === (string) ($a-0)) return $a-0;
 
 	$a = str_replace(
-		array("\r\n", "\r", '\\'  , "\n", '<'    ,        $delim),
-		array("\n"  , "\n", '\\\\', '\n', '\\x3c', '\\' . $delim),
+		array("\r\n", "\r", '\\'  , "\n", '</' ,        $delim),
+		array("\n"  , "\n", '\\\\', '\n', '<\\/', '\\' . $delim),
 		$a
 	);
 
