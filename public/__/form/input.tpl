@@ -59,7 +59,7 @@ SET $INPUT --><!--
 	END:SET --><!--
 
 	SET a$_JsEnd
-		-->}/*]]>*/</script><!--
+		-->}/*]]></script><!--
 	END:SET --><!--
 
 	IF a$_mandatory --><span class="mandatory"><!-- END:IF --><!--

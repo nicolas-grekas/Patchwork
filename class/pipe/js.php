@@ -26,13 +26,13 @@ P$<?php echo substr(__CLASS__, 5)?> = function($string, $forceString)
 				/&#039;/g, "'").replace(
 				/&quot;/g, '"').replace(
 				/&gt;/g  , '>').replace(
-				/&lt;/g  , '\\x3x').replace(
+				/&lt;/g  , '<').replace(
 				/&amp;/g , '&').replace(
 				/\\/g , '\\\\').replace(
 				/'/g  , "\\'").replace(
 				/\r/g , '\\r').replace(
 				/\n/g , '\\n').replace(
-				/</g,   '\\x3c'
+				/<\//g, '<\\\/'
 			) + "'"
 		)
 		: $string/1;
