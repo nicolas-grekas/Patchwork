@@ -404,15 +404,13 @@ if (CIA_DIRECT)
 			$template = str_replace('\\', '/', $template);
 			$template = str_replace('../', '/', $template);
 
-			echo 'w(0';
-
 			$ctemplate = CIA::makeCacheDir("templates/$template", 'txt');
 			if (file_exists($ctemplate)) readfile($ctemplate);
 			else
 			{
 				CIA::openMeta('agent__template/' . $template, false);
 				$compiler = new iaCompiler_js(false);
-				echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
+				echo $template = 'w(0,[' . $compiler->compile($template . '.tpl') . '])';
 				CIA::writeFile($ctemplate, $template);
 				list(,,, $watch) = CIA::closeMeta();
 				CIA::writeWatchTable($watch, $ctemplate);

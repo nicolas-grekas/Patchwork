@@ -8,7 +8,7 @@ class agent_QJsrs extends agent_bin
 	{
 		echo '/*<script type="text/javascript">/**/q="',
 			str_replace(array('\\', '"'), array('\\\\', '\\"'), $this->getJs($this->data)),
-			'"/*</script>',
+			'"//</script>',
 			'<script type="text/javascript" src="' . CIA::__HOME__() . 'js/QJsrsHandler"></script>';
 	}
 

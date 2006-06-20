@@ -43,4 +43,4 @@ $lang = explode('__', $_SERVER['CIA_HOME'], 2);
 $lang = implode(HTTP_Best_Language(explode('|', $CONFIG['lang_list'])), $lang);
 $lang = htmlspecialchars($lang);
 
-?><html><head><title>Loading ...</title><script type="text/javascript">/*<![CDATA[*/if(window.Error&&navigator.userAgent.indexOf('Safari')<0)document.cookie='JS=1; expires=Sun, 17-Jan-2038 19:14:07 GMT; path=/'/*]]></script><meta http-equiv="refresh" content="0; URL=<?php echo $lang?>" /></head><body onload="location.replace('<?php echo $lang?>')"><i>Loading <a href="<?php echo $lang?>"><?php echo $lang?></a> ...</i></body></html>
+?><html><head><title>Loading ...</title><script type="text/javascript">/*<![CDATA[*/if(window.Error&&navigator.userAgent.indexOf('Safari')<0)document.cookie='JS=1; expires=Sun, 17-Jan-2038 19:14:07 GMT; path=/'//]]></script><meta http-equiv="refresh" content="0; URL=<?php echo $lang?>" /></head><body onload="location.replace('<?php echo $lang?>')"><i>Loading <a href="<?php echo $lang?>"><?php echo $lang?></a> ...</i></body></html>
