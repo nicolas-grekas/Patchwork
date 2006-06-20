@@ -23,7 +23,7 @@ Question : should I add a label attribute to every <option> tag ?
 IF a$_type == 'check' --><!--
 	SET a$_check -->1<!-- END:SET --><!--
 	SET a$_type --><!--
-		IF a$multiple || a$_option == 1 -->checkbox<!-- ELSE -->radio<!-- END:IF --><!--
+		IF a$multiple -->checkbox<!-- ELSE -->radio<!-- END:IF --><!--
 	END:SET --><!--
 END:IF --><!--
 
@@ -40,7 +40,7 @@ END:IF --><!--
 
 
 SET $CAPTION --><!--
-	IF a$_caption_
+	IF a$_caption_ && !a$_check || 1 < a$_option
 		--><label for="{a$id}" class="{a$class}" onclick="return IlC(this)"><!--
 		IF a$_mandatory --><span class="mandatory"><!-- END:IF
 		-->{a$_caption_}<!--
@@ -59,7 +59,7 @@ SET $INPUT --><!--
 	END:SET --><!--
 
 	SET a$_JsEnd
-		-->}/*]]></script><!--
+		-->}//]]></script><!--
 	END:SET --><!--
 
 	IF a$_mandatory --><span class="mandatory"><!-- END:IF --><!--
@@ -79,7 +79,7 @@ SET $INPUT --><!--
 
 				--><input {$|htmlArgs:'caption':'selected'} {a$|htmlArgs:'class'} /><!--
 
-				IF $caption --><label for="{a$id}" class="{$class}" onclick="return IcbC(event,this)">&nbsp;{$caption}</label><!-- END:IF --><!--
+				IF $caption || a$_caption_ --><label for="{a$id}" class="{$class|default:a$class}" onclick="return IcbC(event,this)">&nbsp;{$caption|default:a$_caption_}</label><!-- END:IF --><!--
 				SET a$id -->FiD{g+1$GLOBID}<!-- END:SET --><!--
 			END:IF --><!--
 		END:LOOP

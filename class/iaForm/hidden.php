@@ -646,6 +646,8 @@ class loop_iaForm_selectOption__ extends loop
 			$this->length += 1;
 		}
 
+		reset($this->item);
+
 		return $this->length;
 	}
 

@@ -50,12 +50,14 @@ function $QJsrsContext($name)
 {
 	var $this = this,
 		$container,
+		$callback,
 		$html;
 
-	$this.$load = function($url, $callback, $post, $local)
+	$this.$load = function($url, $contextCallback, $post, $local)
 	{
+		$callback = $contextCallback;
+
 		$this.$busy = 1;
-		$this.$callback = $callback;
 		$this.q = $url;
 
 		if ($post || !$local)
@@ -64,11 +66,13 @@ function $QJsrsContext($name)
 			$url = home('QJsrs.html', 1);
 		else $url = $url[0] + $url[1];
 
+		// For GET requests, we prefer direct <script> tag creation rather than XMLHttpRequest :
+		// this prevents a caching bug in Firefox < 1.5 and works in IE even when ActiveX is disabled
 		if (!$post && ('Gecko' == navigator.product || 'object' == typeof $document.onreadystatechange) && $document.createElement)
 			$QJsrs.$withScript($this.q[0] + $this.q[1], function($html)
 			{
 				eval('$html=' + window.q);
-				$this.$callback($html);
+				$this.$release($html);
 			});
 		else if ($local && $XMLHttp)
 		{
@@ -76,12 +80,10 @@ function $QJsrsContext($name)
 			$container.onreadystatechange = function()
 			{
 				if ($container.readyState==4)
-					$container.onreadystatechange = $emptyFunction,
 					$html = $container.responseText.replace(/<\/.*/, '').substr(39),
 					eval('$html=' + $html),
 					eval('$html=' + $html),
-					$container = $this.$busy = 0,
-					$this.$callback($html);
+					$this.$release($html);
 			}
 
 			if ($post)
@@ -111,26 +113,23 @@ function $QJsrsContext($name)
 		}
 	}
 
-	$this.$abort = function()
+	$this.$release = function($result)
 	{
 		if ($container)
 			$container.onreadystatechange = $emptyFunction,
-			$container.abort(),
-			$container = $this.$busy = 0;
-		$this.$callback = $this.$abort;
+			$container.abort();
+
+		$container = $this.$busy = 0;
+		if ($callback && $result>='' || $result < 0) $callback($result);
+		$callback = 0;
 	}
 }
 
-$window.loadQJsrs = function($context, $result, $callback)
+$window.loadQJsrs = function($context, $result)
 {
-	$context = $contextPool[ parseInt($context.name.substr(1)) ];
+	$context = $contextPool[ parseInt($context.name ? $context.name.substr(1) : $context) ];
 
-	if ($result>='' || $result < 0) $QJsrs.$setTimeout(function()
-	{
-		$callback = $context.$callback;
-		$context.$abort();
-		$context.$busy = $callback($result);
-	}, 0); // Workaround for a bug with relative directories
+	$QJsrs.$setTimeout(function() {$context.$release($result);}, 0); // The timeout is a workaround for a bug with relative directories
 
 	return $context;
 }
@@ -196,7 +195,7 @@ function $QJsrs($URL, $POST, $antiXSJ)
 
 	$this.abort = function()
 	{
-		if ($context) $context.$abort();
+		if ($context) $context.$release();
 		$callback && $release(false, 1);
 	}
 

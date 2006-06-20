@@ -31,7 +31,7 @@ function Z()
 {
 	scrollTo(0, window.innerHeight||(document.documentElement||document.body).scrollHeight);
 }
-/*]]></script>
+//]]></script>
 </head>
 <body><?php
 
@@ -60,7 +60,7 @@ while (1)
 		flush();
 
 		readfile($error_log);
-		echo '<script type="text/javascript">/*<![CDATA[*/Z()/*]]></script>';
+		echo '<script type="text/javascript">/*<![CDATA[*/Z()//]]></script>';
 		flush();
 
 		unlink($error_log);
@@ -74,7 +74,7 @@ while (1)
 
 	if (isset($_GET['stop']))
 	{
-		echo '<script type="text/javascript">/*<![CDATA[*/scrollTo(0,0);if(window.opener&&opener.E&&opener.E.buffer)document.write(opener.E.buffer),opener.E.buffer=""/*]]></script>';
+		echo '<script type="text/javascript">/*<![CDATA[*/scrollTo(0,0);if(window.opener&&opener.E&&opener.E.buffer)document.write(opener.E.buffer),opener.E.buffer=""//]]></script>';
 		break;
 	}
 
