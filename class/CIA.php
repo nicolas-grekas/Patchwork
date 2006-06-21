@@ -409,7 +409,7 @@ class CIA
 	 * The following methods are used internally, mainly by the IA_* class
 	 */
 
-	public static function getCachePath($filename, $extension, $key = '')
+	protected static function getCachePath($filename, $extension, $key = '')
 	{
 		if (''!==(string)$extension) $extension = '.' . $extension;
 
