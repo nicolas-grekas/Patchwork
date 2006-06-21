@@ -69,7 +69,7 @@ function $QJsrsContext($name)
 		// For GET requests, we prefer direct <script> tag creation rather than XMLHttpRequest :
 		// this prevents a caching bug in Firefox < 1.5 and works in IE even when ActiveX is disabled
 		if (!$post && ('Gecko' == navigator.product || 'object' == typeof $document.onreadystatechange) && $document.createElement)
-			$QJsrs.$withScript($this.q[0] + $this.q[1], function() {$driver($this.$release);});
+			$container = $QJsrs.$withScript($this.q[0] + $this.q[1], function() {$driver($this.$release);});
 		else if ($local && $XMLHttp)
 		{
 			$container = $XMLHttp - 1 ? new XMLHttpRequest : new ActiveXObject('Microsoft.XMLHTTP');
@@ -108,7 +108,7 @@ function $QJsrsContext($name)
 	$this.$release = function($result)
 	{
 		if ($container)
-			$container.onreadystatechange = $emptyFunction,
+			$container.onload = $container.onreadystatechange = $emptyFunction,
 			$container.abort();
 
 		$container = $this.$busy = 0;
@@ -242,6 +242,12 @@ QJsrs.$setTimeout = function($function, $timeout, $i)
 QJsrs.$withScript = function($url, $callback)
 {
 	var $script = document.createElement('script');
+	
+	$script.abort = function()
+	{
+		$script.parentNode.removeChild($script);
+		$script = 0;
+	}
 
 	$script.type = 'text/javascript';
 	$script.src = $url;
@@ -255,14 +261,12 @@ QJsrs.$withScript = function($url, $callback)
 			)
 			|| 'loaded'   == $event.readyState
 			|| 'complete' == $event.readyState
-		){
-			$script.parentNode.removeChild($script);
-			$script = 0;
-			if ($callback) $callback();
-		}
+		) $callback();
 	}
 
 	document.getElementsByTagName('head')[0].appendChild($script);
+
+	return $script;
 }
 
 }
