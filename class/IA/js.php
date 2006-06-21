@@ -45,7 +45,9 @@ EOHTML;
 
 		$agent = new $agentClass($_GET);
 
-		$cagent = CIA::agentCache($agentClass, $agent->argv, 'js');
+		echo 'w(';
+
+		$cagent = CIA::agentCache($agentClass, $agent->argv, 'js.php');
 		if (file_exists($cagent) && filemtime($cagent)>CIA_TIME)
 		{
 			require $cagent;
@@ -58,7 +60,7 @@ EOHTML;
 		$data = (object) $agent->compose();
 		$template = $agent->getTemplate();
 
-		echo 'w({';
+		echo '{';
 
 		$comma = '';
 		foreach ($data as $key => $value)
@@ -73,6 +75,10 @@ EOHTML;
 
 		$agent->metaCompose();
 		list($maxage, $group, $expires, $watch, $headers) = CIA::closeMeta();
+
+		$data = ob_get_flush();
+
+		ob_start();
 
 		if ($maxage==CIA_MAXAGE)
 		{
@@ -96,20 +102,25 @@ EOHTML;
 
 		if (!in_array('private', $group) && ($maxage || 'ontouch' == $expires))
 		{
-			$cagent = CIA::agentCache($agentClass, $agent->argv, 'js', $group);
+			$cagent = CIA::agentCache($agentClass, $agent->argv, 'js.php', $group);
+			$dagent = CIA::makeCacheDir('jsdata.' . $agentClass, 'js.php', $cagent);
 
-			$data = str_replace('<?', "<?php echo'<?'?>", ob_get_flush())
-				. '<?php CIA::setMaxage(' . (int) $maxage
-				. ");CIA::setExpires('$expires');";
+			$template = '<?php CIA::setMaxage(' . (int) $maxage . ");CIA::setExpires('$expires');";
 
 			if ($headers)
 			{
 				$headers = array_map('addslashes', $headers);
-				$data .= "header('" . implode("');header('", $headers) . "');";
+				$template .= "header('" . implode("');header('", $headers) . "');";
 			}
 
-			CIA::writeFile($cagent, $data, 'ontouch' == $expires ? CIA_MAXAGE : $maxage);
+			$expires = 'ontouch' == $expires ? CIA_MAXAGE : $maxage;
 
+			$template .= '?>' . str_replace('<?', "<<?php echo'?'?>", $data);
+			CIA::writeFile($dagent, $template, $expires);
+			CIA::writeWatchTable($watch, $dagent);
+
+			$template .= str_replace('<?', "<<?php echo'?'?>", ob_get_flush());
+			CIA::writeFile($cagent, $template, $expires);
 			CIA::writeWatchTable($watch, $cagent);
 		}
 	}
