@@ -134,7 +134,13 @@ class IA_php
 
 		$agent = new $agentClass($_GET);
 
-		$cagent = CIA::agentCache($agentClass, $agent->argv, 'php');
+		$group = CIA::closeGroupStage();
+
+		if ($is_cacheable = !in_array('private', $group))
+		{
+			$cagent = CIA::agentCache($agentClass, $agent->argv, 'php', $group);
+		}
+
 		$filter = false;
 
 		if (isset(self::$cache[$cagent]))
@@ -145,7 +151,7 @@ class IA_php
 		}
 		else
 		{
-			if (file_exists($cagent) && filemtime($cagent)>CIA_TIME) require $cagent;
+			if ($is_cacheable && file_exists($cagent) && filemtime($cagent)>CIA_TIME) require $cagent;
 			else
 			{
 				$v = substr($cagent, 0, -7) . 'post' . substr($cagent, -4);
@@ -193,12 +199,10 @@ class IA_php
 			$agent->metaCompose();
 			list($maxage, $group, $expires, $watch, $headers, $canPost) = CIA::closeMeta();
 
-			$cagent = CIA::agentCache($agentClass, $agent->argv, 'php', $group);
-
 			if ('ontouch' == $expires && !$watch) $expires = 'auto';
 			$expires = 'auto' == $expires && $watch ? 'ontouch' : 'onmaxage';
 
-			if (!CIA_POSTING && !in_array('private', $group) && ($maxage || 'ontouch' == $expires))
+			if ($is_cacheable && !CIA_POSTING && !in_array('private', $group) && ($maxage || 'ontouch' == $expires))
 			{
 				$fagent = $cagent;
 				if ($canPost) $fagent = substr($cagent, 0, -7) . 'post' . substr($cagent, -4);
