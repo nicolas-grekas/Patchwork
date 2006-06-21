@@ -55,7 +55,7 @@ class iaForm extends loop_callAgent
 
 		if ($sessionLink)
 		{
-			CIA::loadSession();
+			CIA::sessionStart();
 			$this->sessionLink =& $_SESSION[$sessionLink];
 			if (!$this->sessionLink) $this->sessionLink = array(0);
 		}

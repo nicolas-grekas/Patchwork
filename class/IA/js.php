@@ -37,91 +37,155 @@ EOHTML;
 		}
 	}
 
-	public static function compose($agent)
+	public static function compose($agent, $liveAgent)
 	{
+		if ($liveAgent)
+		{
+			// The output is both html and js, but iframe transport layer needs html
+			CIA::header('Content-Type: text/html; charset=UTF-8');
+
+			echo '/*<script type="text/javascript">/**/q="';
+		}
+		else echo 'w(';
+
 		$agentClass = CIA::resolveAgentClass($agent, $_GET);
 
 		CIA::openMeta($agentClass);
 
 		$agent = new $agentClass($_GET);
 
-		echo 'w(';
-
-		$cagent = CIA::agentCache($agentClass, $agent->argv, 'js.php');
-		if (file_exists($cagent) && filemtime($cagent)>CIA_TIME)
-		{
-			require $cagent;
-			CIA::closeMeta();
-			return;
-		}
-
-		ob_start();
-
-		$data = (object) $agent->compose();
-		$template = $agent->getTemplate();
-
-		echo '{';
-
-		$comma = '';
-		foreach ($data as $key => $value)
-		{
-			echo $comma, "'", jsquote($key, false), "':";
-			if ($value instanceof loop) self::writeAgent($value);
-			else echo jsquote($value);
-			$comma = ',';
-		}
-
-		echo '}';
-
-		$agent->metaCompose();
-		list($maxage, $group, $expires, $watch, $headers) = CIA::closeMeta();
-
-		$data = ob_get_flush();
-
-		ob_start();
-
-		if ($maxage==CIA_MAXAGE)
-		{
-			$ctemplate = CIA::makeCacheDir("templates/$template", 'txt');
-			if (file_exists($ctemplate)) readfile($ctemplate);
-			else
-			{
-				CIA::openMeta('agent__template/' . $template, false);
-				$compiler = new iaCompiler_js(constant("$agentClass::binary"));
-				echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
-				CIA::writeFile($ctemplate, $template);
-				list(,,, $template) = CIA::closeMeta();
-				CIA::writeWatchTable($template, $ctemplate);
-				$watch = array_merge($watch, $template);
-			}
-		}
-		else echo ',[1,"', jsquote(jsquote($template), false, '"'), '",0,0,0])';
-
-		if ('ontouch' == $expires && !$watch) $expires = 'auto';
-		$expires = 'auto' == $expires && $watch ? 'ontouch' : 'onmaxage';
-
-		if (!in_array('private', $group) && ($maxage || 'ontouch' == $expires))
+		$group = CIA::closeGroupStage();
+		
+		if ($is_cacheable = !in_array('private', $group))
 		{
 			$cagent = CIA::agentCache($agentClass, $agent->argv, 'js.php', $group);
 			$dagent = CIA::makeCacheDir('jsdata.' . $agentClass, 'js.php', $cagent);
+		}
 
-			$template = '<?php CIA::setMaxage(' . (int) $maxage . ");CIA::setExpires('$expires');";
-
-			if ($headers)
+		if ($liveAgent)
+		{
+			if ($is_cacheable && file_exists($dagent) && filemtime($dagent)>CIA_TIME)
 			{
-				$headers = array_map('addslashes', $headers);
-				$template .= "header('" . implode("');header('", $headers) . "');";
+				require $dagent;
+				CIA::closeMeta();
+
+				echo '"//</script><script type="text/javascript" src="' . CIA::__HOME__() . 'js/QJsrsHandler"></script>';
+				return;
+			}
+		}
+		else
+		{
+			if ($is_cacheable && file_exists($cagent) && filemtime($cagent)>CIA_TIME)
+			{
+				require $cagent;
+				CIA::closeMeta();
+				return;
+			}
+		}
+
+		try
+		{
+			ob_start();
+
+			$data = (object) $agent->compose();
+			$template = $agent->getTemplate();
+
+			echo '{';
+
+			$comma = '';
+			foreach ($data as $key => $value)
+			{
+				echo $comma, "'", jsquote($key, false), "':";
+				if ($value instanceof loop) self::writeAgent($value);
+				else echo jsquote($value);
+				$comma = ',';
 			}
 
-			$expires = 'ontouch' == $expires ? CIA_MAXAGE : $maxage;
+			echo '}';
 
-			$template .= '?>' . str_replace('<?', "<<?php echo'?'?>", $data);
-			CIA::writeFile($dagent, $template, $expires);
-			CIA::writeWatchTable($watch, $dagent);
+			$agent->metaCompose();
+			list($maxage, $group, $expires, $watch, $headers) = CIA::closeMeta();
+		}
+		catch (PrivateDetection $data)
+		{
+			ob_clean();
 
-			$template .= str_replace('<?', "<<?php echo'?'?>", ob_get_flush());
-			CIA::writeFile($cagent, $template, $expires);
-			CIA::writeWatchTable($watch, $cagent);
+			if ($liveAgent)
+			{
+				echo '";(window.E||alert)("You must provide an auth token to get this liveAgent:\\n' . addcslashes($_SERVER['REQUEST_URI']) . '")';
+				echo '//</script><script type="text/javascript" src="' . CIA::__HOME__() . 'js/QJsrsHandler"></script>';
+			}
+			else if ($data->getMessage())
+			{
+				echo 'location.reload(' . (DEBUG ? '' : 'true') . '))';
+			}
+			else
+			{
+				echo '{},[]);window.E&&E("You must provide an auth token to get this liveAgent:\\n' . addcslashes($_SERVER['REQUEST_URI']) . '")';
+			}
+
+			exit;
+		}
+
+		if ($liveAgent)
+		{
+			$data = ob_get_clean();
+			echo str_replace(array('\\', '"'), array('\\\\', '\\"'), $data),
+				'"//</script><script type="text/javascript" src="' . CIA::__HOME__() . 'js/QJsrsHandler"></script>';
+		}
+		else $data = ob_get_flush();
+
+		$data = str_replace('<?', "<<?php echo'?'?>", $data);
+
+		if ('ontouch' == $expires && !($watch || CIA_MAXAGE == $maxage)) $expires = 'auto';
+		$expires = 'auto' == $expires && ($watch || CIA_MAXAGE == $maxage) ? 'ontouch' : 'onmaxage';
+
+		$is_cacheable = $is_cacheable && !in_array('private', $group) && ($maxage || 'ontouch' == $expires);
+
+		if (!$liveAgent || $is_cacheable)
+		{
+			if ($is_cacheable) ob_start();
+
+			if (CIA_MAXAGE == $maxage)
+			{
+				$ctemplate = CIA::makeCacheDir("templates/$template", 'txt');
+				if (file_exists($ctemplate)) readfile($ctemplate);
+				else
+				{
+					CIA::openMeta('agent__template/' . $template, false);
+					$compiler = new iaCompiler_js(constant("$agentClass::binary"));
+					echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
+					CIA::writeFile($ctemplate, $template);
+					list(,,, $template) = CIA::closeMeta();
+					CIA::writeWatchTable($template, $ctemplate);
+				}
+
+				$watch[] = 'public/templates/js';
+			}
+			else echo ',[1,"', jsquote(jsquote($template), false, '"'), '",0,0,0])';
+
+			if ($is_cacheable)
+			{
+				$template = '<?php CIA::setMaxage(' . (int) $maxage . ");CIA::setExpires('$expires');";
+
+				if ($headers)
+				{
+					$headers = array_map('addslashes', $headers);
+					$template .= "header('" . implode("');header('", $headers) . "');";
+				}
+
+				$expires = 'ontouch' == $expires ? CIA_MAXAGE : $maxage;
+
+				$template .= '?>';
+
+				$maxage = $template . str_replace(array('\\', '"'), array('\\\\', '\\"'), $data);
+				CIA::writeFile($dagent, $maxage, $expires);
+				CIA::writeWatchTable($watch, $dagent);
+
+				$maxage = $template . $data . str_replace('<?', "<<?php echo'?'?>", $liveAgent ? ob_get_clean() : ob_get_flush());
+				CIA::writeFile($cagent, $maxage, $expires);
+				CIA::writeWatchTable($watch, $cagent);
+			}
 		}
 	}
 

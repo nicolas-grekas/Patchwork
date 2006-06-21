@@ -35,6 +35,7 @@ class CIA
 	protected static $handlesOb = false;
 	protected static $metaInfo;
 	protected static $metaPool = array();
+	protected static $isGroupStage = true;
 
 	protected static $maxage = false;
 	protected static $private = false;
@@ -69,7 +70,7 @@ class CIA
 		if (isset($_GET['T$'])) self::$private = true;
 	}
 
-	public static function loadSession($private = true)
+	public static function sessionStart($private = true)
 	{
 		if ($private) self::setGroup('private');
 
@@ -171,6 +172,8 @@ class CIA
 
 	public static function openMeta($agentClass, $is_trace = true)
 	{
+		self::$isGroupStage = true;
+
 		self::$agentClass = $agentClass;
 		if ($is_trace) self::$agentClasses .= '*' . self::$agentClass;
 
@@ -180,6 +183,13 @@ class CIA
 
 		self::$metaPool[] =& $default;
 		self::$metaInfo =& $default;
+	}
+
+	public static function closeGroupStage()
+	{
+		self::$isGroupStage = false;
+
+		return self::$metaInfo[1];
 	}
 
 	public static function closeMeta()
@@ -246,8 +256,17 @@ class CIA
 			if (in_array('private', $group)) $a = array('private');
 			else
 			{
+				$b = $a;
+
 				$a = array_unique( array_merge($a, $group) );
 				sort($a);
+
+				if ($b != $a && !self::$isGroupStage)
+				{
+					if (DEBUG) E('Miss-conception: CIA::setGroup() is called in ' . self::$agentClass . '->compose() rather than in ' . self::$agentClass . '->control(). Cache is now disabled for this agent.');
+
+					$a = array('private');
+				}
 			}
 		}
 	}
@@ -704,23 +723,25 @@ class CIA
 		if (!CIA_TOKEN_MATCH)
 		{
 			self::setMaxage(0);
+			if (self::$catchMeta) self::$metaInfo[1] = array('private');
 
 			if (CIA_DIRECT)
 			{
+				$a = '0';
+
 				$cache = self::makeCacheDir('antiXSJ.' . self::$agentClass, 'txt');
 				if (!file_exists($cache) || !filesize($cache))
 				{
 					CIA::touch('CIApID');
 					CIA::touch('public/templates/js');
 
-					$a = 1;
+					$a = '1';
 					self::writeFile($cache, $a);
 
-					echo 'location.reload(' . (DEBUG ? '' : 'true') . ')';
-
 					touch('index.php');
-					exit;
 				}
+
+				throw new PrivateDetection($a);
 			}
 
 			E('Potential Cross Site JavaScript. Stopping !');

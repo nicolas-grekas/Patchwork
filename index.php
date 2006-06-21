@@ -391,7 +391,7 @@ if (CIA_DIRECT)
 {
 	CIA::header('Content-Type: text/javascript; charset=UTF-8');
 
-	if (isset($_GET['v$']) && CIA_PROJECT_ID != $_GET['v$'])
+	if (isset($_GET['v$']) && CIA_PROJECT_ID != $_GET['v$'] && 'x$' != key($_GET))
 	{
 		echo 'w.r()';
 		exit;
@@ -399,7 +399,7 @@ if (CIA_DIRECT)
 
 	switch ( key($_GET) )
 	{
-		case 't':
+		case 't$':
 			$template = array_shift($_GET);
 			$template = str_replace('\\', '/', $template);
 			$template = str_replace('../', '/', $template);
@@ -421,7 +421,7 @@ if (CIA_DIRECT)
 			CIA::setMaxage(-1);
 			break;
 
-		case 'p':
+		case 'p$':
 			$pipe = array_shift($_GET);
 			preg_match_all("/[a-zA-Z_][a-zA-Z_\d]*/u", $pipe, $pipe);
 			CIA::$agentClass = 'agent__pipe/' . implode('_', $pipe[0]);
@@ -450,8 +450,12 @@ if (CIA_DIRECT)
 			CIA::setMaxage(-1);
 			break;
 
-		case '$':
-			IA_js::compose(array_shift($_GET));
+		case 'a$':
+			IA_js::compose(array_shift($_GET), false);
+			break;
+
+		case 'x$':
+			IA_js::compose(array_shift($_GET), true);
 			break;
 	}
 }

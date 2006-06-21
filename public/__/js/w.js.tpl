@@ -260,7 +260,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 					$i = $i.join('');
 
-					if ($i) return $include(g.__HOME__ + '_?p=' + esc($i.substr(1)), 0, 0, 1);
+					if ($i) return $include(g.__HOME__ + '_?p$=' + esc($i.substr(1)), 0, 0, 1);
 					break;
 
 				case 1: // agent
@@ -295,7 +295,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 					$agent = esc($agent);
 
-					if (!$meta) $agent = g.__HOME__ + '_?t=' + $agent;
+					if (!$meta) $agent = g.__HOME__ + '_?t$=' + $agent;
 					else
 					{
 						if ($meta > 1)
@@ -340,7 +340,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 							g = $args;
 						}
 
-						$agent = $keys ? g.__HOME__ + '_?$=' + $agent : home($agent);
+						$agent = $keys ? g.__HOME__ + '_?a$=' + $agent : home($agent);
 					}
 
 					return $include($agent, $args, $keys);
@@ -469,7 +469,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 							g = $args;
 						}
 
-						$include($home + '_?$=' + $agent, $args, $keys)
+						$include($home + '_?a$=' + $agent, $args, $keys)
 					}
 
 					$include($inc + '&amp;k$=', 0, 0, 1);
