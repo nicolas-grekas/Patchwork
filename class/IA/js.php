@@ -112,7 +112,7 @@ EOHTML;
 
 			if ($liveAgent)
 			{
-				echo '";(window.E||alert)("You must provide an auth token to get this liveAgent:\\n' . addcslashes($_SERVER['REQUEST_URI']) . '")';
+				echo '";(window.E||alert)("You must provide an auth token to get this liveAgent:\\n' . jsquote($_SERVER['REQUEST_URI'], false, '"') . '")';
 				echo '//</script><script type="text/javascript" src="' . CIA::__HOME__() . 'js/QJsrsHandler"></script>';
 			}
 			else if ($data->getMessage())
@@ -121,7 +121,7 @@ EOHTML;
 			}
 			else
 			{
-				echo '{},[]);window.E&&E("You must provide an auth token to get this liveAgent:\\n' . addcslashes($_SERVER['REQUEST_URI']) . '")';
+				echo '{},[]);window.E&&E("You must provide an auth token to get this liveAgent:\\n' . jsquote($_SERVER['REQUEST_URI'], false, '"') . '")';
 			}
 
 			exit;
