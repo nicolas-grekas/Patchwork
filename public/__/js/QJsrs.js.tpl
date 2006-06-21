@@ -53,7 +53,7 @@ function $QJsrsContext($name)
 		$callback,
 		$html;
 
-	$this.$load = function($url, $contextCallback, $post, $local)
+	$this.$load = function($url, $contextCallback, $post, $local, $driver)
 	{
 		$callback = $contextCallback;
 
@@ -69,21 +69,13 @@ function $QJsrsContext($name)
 		// For GET requests, we prefer direct <script> tag creation rather than XMLHttpRequest :
 		// this prevents a caching bug in Firefox < 1.5 and works in IE even when ActiveX is disabled
 		if (!$post && ('Gecko' == navigator.product || 'object' == typeof $document.onreadystatechange) && $document.createElement)
-			$QJsrs.$withScript($this.q[0] + $this.q[1], function($html)
-			{
-				eval('$html=' + window.q);
-				$this.$release($html);
-			});
+			$QJsrs.$withScript($this.q[0] + $this.q[1], function() {$driver($this.$release);});
 		else if ($local && $XMLHttp)
 		{
 			$container = $XMLHttp - 1 ? new XMLHttpRequest : new ActiveXObject('Microsoft.XMLHTTP');
 			$container.onreadystatechange = function()
 			{
-				if ($container.readyState==4)
-					$html = $container.responseText.replace(/<\/.*/, '').substr(39),
-					eval('$html=' + $html),
-					eval('$html=' + $html),
-					$this.$release($html);
+				4 == $container.readyState && $driver($this.$release, $container.responseText);
 			}
 
 			if ($post)
@@ -151,6 +143,14 @@ function $QJsrs($URL, $POST, $antiXSJ)
 	$LOCAL = 0 == $URL.indexOf($LOCAL.protocol+'//'+$LOCAL.hostname);
 	$POST = $POST ? 1 : 0;
 
+	$this.driver = function($callback, $text)
+	{
+		if ($text>='') eval('$text=' + $text.replace(/<\/.*/, '').substr(39));
+		else $text = window.q;
+
+		$callback( eval('$text=' + $text) );
+	}
+
 	$this.replace = function($vararray, $function)
 	{
 		$this.abort();
@@ -189,7 +189,7 @@ function $QJsrs($URL, $POST, $antiXSJ)
 			$callback = $function;
 
 			$context = $contextPool[$i];
-			$context.$load($url, $release, $POST, $LOCAL);
+			$context.$load($url, $release, $POST, $LOCAL, $this.driver);
 		}
 	}
 
@@ -212,7 +212,7 @@ function $QJsrs($URL, $POST, $antiXSJ)
 			$poolLen--;
 			$callback = $a[1];
 
-			return $abort ? $release(false, 1) : !$context.$load($a[0], $release, $POST, $LOCAL);
+			return $abort ? $release(false, 1) : !$context.$load($a[0], $release, $POST, $LOCAL, $this.driver);
 		}
 
 		$callback = $context = 0;
