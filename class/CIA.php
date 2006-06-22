@@ -32,7 +32,7 @@ class CIA
 	protected static $home;
 	protected static $uri;
 
-	protected static $handlesOb = false;
+	protected static $handlesOb;
 	protected static $metaInfo;
 	protected static $metaPool = array();
 	protected static $isGroupStage = true;
@@ -41,7 +41,7 @@ class CIA
 	protected static $private = false;
 	protected static $expires = 'auto';
 	protected static $watchTable = array();
-	protected static $headers = array();
+	protected static $headers;
 
 	protected static $cia;
 	protected static $redirectUrl = false;
@@ -53,6 +53,12 @@ class CIA
 
 	public static function start()
 	{
+		// Stupid Zend engine with PHP 5.0.x ...
+		// Protected static vars assigned in the class signature are in fact private.
+		// To get them really protected, you have to assign them at run time...
+		self::$handlesOb = false;
+		self::$headers = array();
+
 		$cachePath = resolvePath(self::$cachePath);
 		self::$cachePath = ($cachePath == self::$cachePath ? $GLOBALS['cia_paths'][count($GLOBALS['cia_paths']) - 2] . DIRECTORY_SEPARATOR : '') . $cachePath;
 
