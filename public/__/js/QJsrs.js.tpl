@@ -66,43 +66,46 @@ function $QJsrsContext($name)
 			$url = home('QJsrs.html', 1);
 		else $url = $url[0] + $url[1];
 
-		// For GET requests, we prefer direct <script> tag creation rather than XMLHttpRequest :
-		// this prevents a caching bug in Firefox < 1.5 and works in IE even when ActiveX is disabled
-		if (!$post && ('Gecko' == navigator.product || 'object' == typeof $document.onreadystatechange) && $document.createElement)
-			$container = $QJsrs.$withScript($this.q[0] + $this.q[1], function() {$driver($this.$release);});
-		else if ($local && $XMLHttp)
+		addOnload(function()
 		{
-			$container = $XMLHttp - 1 ? new XMLHttpRequest : new ActiveXObject('Microsoft.XMLHTTP');
-			$container.onreadystatechange = function()
+			// For GET requests, we prefer direct <script> tag creation rather than XMLHttpRequest :
+			// this prevents a caching bug in Firefox < 1.5 and works in IE even when ActiveX is disabled
+			if (!$post && ('Gecko' == navigator.product || 'object' == typeof $document.onreadystatechange) && $document.createElement)
+				$container = $QJsrs.$withScript($this.q[0] + $this.q[1], function() {$driver($this.$release);});
+			else if ($local && $XMLHttp)
 			{
-				4 == $container.readyState && $driver($this.$release, $container.responseText);
-			}
+				$container = $XMLHttp - 1 ? new XMLHttpRequest : new ActiveXObject('Microsoft.XMLHTTP');
+				$container.onreadystatechange = function()
+				{
+					4 == $container.readyState && $driver($this.$release, $container.responseText);
+				}
 
-			if ($post)
-				$container.open('POST', $this.q[0], 1),
-				$container.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded'),
-				$container.send($this.q[1]);
+				if ($post)
+					$container.open('POST', $this.q[0], 1),
+					$container.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded'),
+					$container.send($this.q[1]);
+				else
+					$container.open('GET', $url, 1),
+					$container.send('');
+			}
+			else if ($html) $win.frames[$name].location.replace($url);
 			else
-				$container.open('GET', $url, 1),
-				$container.send('');
-		}
-		else if ($html) $win.frames[$name].location.replace($url);
-		else
-		{
-			if (!$div) $div = $document.getElementById ? $document.getElementById('divQJsrs') : $document.all['divQJsrs'];
-
-			if ($div.appendChild && (!$win.ScriptEngine || 5.5 <= ScriptEngineMajorVersion() + ScriptEngineMinorVersion() / 10))
 			{
-				$html = $document.createElement('iframe');
-				$html.name = $name;
-				$html.src = $url;
-				$html.width = $html.height = $html.frameBorder = 0;
-				$div.appendChild($html);
-			}
-			else $div.innerHTML += '<iframe name='+ $name +' src="'+ $url.replace(/"/g, '&quot;') +'" width=0 height=0 frameborder=0></iframe>',
+				if (!$div) $div = $document.getElementById ? $document.getElementById('divQJsrs') : $document.all['divQJsrs'];
 
-			$html = 1;
-		}
+				if ($div.appendChild && (!$win.ScriptEngine || 5.5 <= ScriptEngineMajorVersion() + ScriptEngineMinorVersion() / 10))
+				{
+					$html = $document.createElement('iframe');
+					$html.name = $name;
+					$html.src = $url;
+					$html.width = $html.height = $html.frameBorder = 0;
+					$div.appendChild($html);
+				}
+				else $div.innerHTML += '<iframe name='+ $name +' src="'+ $url.replace(/"/g, '&quot;') +'" width=0 height=0 frameborder=0></iframe>',
+
+				$html = 1;
+			}
+		});
 	}
 
 	$this.$release = function($result)
@@ -169,7 +172,7 @@ function $QJsrs($URL, $POST, $antiXSJ)
 
 		$function = $function || $emptyFunction;
 
-		if ($antiXSJ && !$vararray.T$) $vararray.T$ = antiXSJ;
+		if (($antiXSJ || $POST) && !$vararray.T$) $vararray.T$ = antiXSJ;
 
 		$url = '';
 		for ($i in $vararray) $url += '&' + eUC($i) + '=' + eUC($vararray[$i]); // Be aware that Konquerors for(..in..) loop does not preserve the order of declaration
