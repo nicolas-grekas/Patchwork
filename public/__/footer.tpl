@@ -4,16 +4,18 @@ w=addOnload
 w.o=window.onload
 
 onload=function(){
-if (d.removeChild){
-S=d.getElementsByTagName('script')
-i=S.length
-while(i--)if('w'==(s=S[i]).className)s.parentNode.removeChild(s)
-S=s=0
+var i,p,s;
+if(d.removeChild){
+p=d.getElementsByTagName('script')
+i=p.length
+while(i--)if('w'==(s=p[i]).className)s.parentNode.removeChild(s)
+s=0
 }
 if(w.o)i=w.o,w.o=null,i()
-for(i=0;i<w.p.length;++i)w.p[i]()
-w.p.length=0
-onload=null
+p=w.p
+for(i=0;i<p.length;++i)p[i]()
+w=p.length=0
+addOnload=function(f){f()}
 }
 
 <!-- SERVERSIDE -->
