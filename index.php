@@ -2,6 +2,8 @@
 
 $CONFIG += array(
 	'timezone' => 'Europe/Paris',
+	'php' => 'c:/progra~1/wamp/php/php.exe', // Path to your php executable.
+	'shell_gets_trace' => false,
 
 	'maxage' => 3600,
 	'lang_list' => 'fr',
@@ -202,8 +204,6 @@ define('CIA_TIME', $_SERVER['REQUEST_TIME']);
 define('CIA_PROJECT_ID', abs($version_id % 10000));
 define('CIA_POSTING', $_SERVER['REQUEST_METHOD']=='POST');
 define('CIA_DIRECT', !CIA_POSTING && $_SERVER['CIA_REQUEST'] == '_');
-
-isset($_SERVER['REQUEST_TIME']) || $_SERVER['REQUEST_TIME'] = CIA_TIME;
 
 
 /* Include Path Initialisation */

@@ -53,7 +53,7 @@ class CIA
 
 	public static function start()
 	{
-		// Stupid Zend engine with PHP 5.0.x ...
+		// Stupid Zend Engine with PHP 5.0.x ...
 		// Protected static vars assigned in the class signature are in fact private.
 		// To get them really protected, you have to assign them at run time...
 		self::$handlesOb = false;
@@ -613,20 +613,40 @@ class CIA
 		$args = array();
 		$HOME = $home = CIA::__HOME__();
 		$agent = self::home($agent);
-
-		require_once 'HTTP/Request.php';
-		$agent = preg_replace("'__'", CIA::__LANG__(), $agent, 1);
-		$keys = new HTTP_Request($agent);
-		$keys->addQueryString('k$', '');
-		$keys->sendRequest();
-		$keys = $keys->getResponseBody();
-
+		$keys = false;
 		$s = '\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'';
+		$s = "/w\.k\((-?[0-9]+),($s),($s),($s),\[((?:$s(?:,$s)*)?)\]\)/su";
 
-		if (!preg_match("/w\.k\((-?[0-9]+),($s),($s),($s),\[((?:$s(?:,$s)*)?)\]\)/su", $keys, $keys))
+		if (0 === strpos($agent, $HOME) && is_callable('exec') && @$GLOBALS['CONFIG']['shell_gets_trace'] && $keys = @$GLOBALS['CONFIG']['php'])
 		{
-			E('Error while getting meta info data for ' . htmlspecialchars($agent));
-			exit;
+			$keys = $keys . ' -q ' . implode(' ', array_map('escapeshellarg', array(
+				resolvePath('getTrace.php'),
+				resolvePath('index.php'),
+				$_SERVER['CIA_HOME'],
+				CIA::__LANG__(),
+				substr($agent, strlen($HOME)),
+				(int) @$_SERVER['HTTPS']
+			)));
+
+			$keys = exec($keys);
+
+			if (!preg_match($s, $keys, $keys)) $keys = false;
+		}
+
+		if (!$keys)
+		{
+			require_once 'HTTP/Request.php';
+			$agent = implode(CIA::__LANG__(), explode('__', $agent, 2));
+			$keys = new HTTP_Request($agent);
+			$keys->addQueryString('k$', '');
+			$keys->sendRequest();
+			$keys = $keys->getResponseBody();
+
+			if (!preg_match($s, $keys, $keys))
+			{
+				E('Error while getting meta info data for ' . htmlspecialchars($agent));
+				exit;
+			}
 		}
 
 		$CIApID = (int) $keys[1];
