@@ -3,7 +3,6 @@
 $CONFIG += array(
 	'timezone' => 'Europe/Paris',
 	'php' => 'c:/progra~1/wamp/php/php.exe', // Path to your php executable.
-	'shell_gets_trace' => false,
 
 	'maxage' => 3600,
 	'lang_list' => 'fr',

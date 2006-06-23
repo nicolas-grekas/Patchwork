@@ -38,7 +38,7 @@ class CIA
 	protected static $isGroupStage = true;
 
 	protected static $maxage = false;
-	protected static $private = false;
+	protected static $private;
 	protected static $expires = 'auto';
 	protected static $watchTable = array();
 	protected static $headers;
@@ -57,6 +57,7 @@ class CIA
 		// Protected static vars assigned in the class signature are in fact private.
 		// To get them really protected, you have to assign them at run time...
 		self::$handlesOb = false;
+		self::$private = false;
 		self::$headers = array();
 
 		$cachePath = resolvePath(self::$cachePath);
@@ -617,7 +618,12 @@ class CIA
 		$s = '\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'';
 		$s = "/w\.k\((-?[0-9]+),($s),($s),($s),\[((?:$s(?:,$s)*)?)\]\)/su";
 
-		if (0 === strpos($agent, $HOME) && is_callable('exec') && @$GLOBALS['CONFIG']['shell_gets_trace'] && $keys = @$GLOBALS['CONFIG']['php'])
+		if (
+			   0 === strpos($agent, $HOME)
+			&& is_callable('exec')
+			&& (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? !extension_loaded('openssl') : false)
+			&& $keys = @$GLOBALS['CONFIG']['php']
+		)
 		{
 			$keys = $keys . ' -q ' . implode(' ', array_map('escapeshellarg', array(
 				resolvePath('getTrace.php'),

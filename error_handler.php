@@ -1,7 +1,7 @@
 <?php
 
 CIA::setMaxage(0);
-CIA::setGroup('private');
+self::$private = true;
 CIA::setExpires('onmaxage');
 
 $context = '';
