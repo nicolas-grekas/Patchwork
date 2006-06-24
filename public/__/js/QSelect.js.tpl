@@ -200,7 +200,7 @@ return function($input, $driver)
 
 		for ($i in $result)
 		{
-			$i = $result[$i];
+			$i = ''+$result[$i];
 			$options[$length++] = new Option($i, $i);
 
 			if (!$listedValue && ($j = $i.match($query)))
@@ -367,7 +367,7 @@ function QSelectSearch($data)
 					$query = RegExp.quote($query, 1);
 					$query = new RegExp(($qLen>1 ? '(^|[^0-9a-z'+ACCENT.join('')+'])' : '^') + $query, 'gi');
 
-					for (; $i < $data.length; ++$i) if ($data[$i].search($query)>=0) $result[$result.length] = $data[$i];
+					for (; $i < $data.length; ++$i) if ($query.test($data[$i])) $result[$result.length] = $data[$i];
 				}
 
 				$pushBack($result);

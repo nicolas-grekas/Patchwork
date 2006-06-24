@@ -114,11 +114,7 @@ else
 		q = $decode($name[3]);
 	}
 
-	if (typeof $win.q != 'undefined')
-	{
-		eval('q=' + q);
-		parent.loadQJsrs($win, q);
-	}
+	if (typeof $win.q != 'undefined') parent.loadQJsrs($win, q);
 	else
 	{
 		q = parent.loadQJsrs($win).q;

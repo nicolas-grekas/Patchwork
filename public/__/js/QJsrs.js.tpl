@@ -53,11 +53,10 @@ function $QJsrsContext($name)
 		$callback,
 		$html;
 
-	$this.$load = function($url, $contextCallback, $post, $local, $driver)
+	$this.$load = function($url, $contextCallback, $post, $local)
 	{
 		$callback = $contextCallback;
 
-		$this.$busy = 1;
 		$this.q = $url;
 
 		if ($post || !$local)
@@ -69,13 +68,13 @@ function $QJsrsContext($name)
 		// For GET requests, we prefer direct <script> tag creation rather than XMLHttpRequest :
 		// this prevents a caching bug in Firefox < 1.5 and works in IE even when ActiveX is disabled
 		if (!$post && ('Gecko' == navigator.product || 'object' == typeof $document.onreadystatechange) && $document.createElement)
-			$container = $QJsrs.$withScript($this.q[0] + $this.q[1], function() {$driver($this.$release);});
+			$container = $QJsrs.$withScript($this.q[0] + $this.q[1], function() {$this.$driver($this.$release);});
 		else if ($local && $XMLHttp)
 		{
 			$container = $XMLHttp - 1 ? new XMLHttpRequest : new ActiveXObject('Microsoft.XMLHTTP');
 			$container.onreadystatechange = function()
 			{
-				4 == $container.readyState && $driver($this.$release, $container.responseText);
+				4 == $container.readyState && $this.$driver($this.$release, $container.responseText, 1);
 			}
 
 			if ($post)
@@ -111,9 +110,9 @@ function $QJsrsContext($name)
 			$container.onload = $container.onreadystatechange = $emptyFunction,
 			$container.abort();
 
-		$container = $this.$busy = 0;
 		if ($callback && $result>='' || $result < 0) $callback($result);
-		$callback = 0;
+
+		$container = $callback = 0;
 	}
 }
 
@@ -121,7 +120,7 @@ $window.loadQJsrs = function($context, $result)
 {
 	$context = $contextPool[ parseInt($context.name ? $context.name.substr(1) : $context) ];
 
-	$QJsrs.$setTimeout(function() {$context.$release($result);}, 0); // The timeout is a workaround for a bug with relative directories
+	if ($result >= '') $QJsrs.$setTimeout(function() {$context.$driver($context.$release, $result);}, 0); // The timeout is a workaround for a bug with relative directories
 
 	return $context;
 }
@@ -143,9 +142,12 @@ function $QJsrs($URL, $POST, $antiXSJ)
 	$LOCAL = 0 == $URL.indexOf($LOCAL.protocol+'//'+$LOCAL.hostname);
 	$POST = $POST ? 1 : 0;
 
-	$this.driver = function($callback, $text)
+	$this.driver = function($callback, $text, $raw)
 	{
-		if ($text>='') eval('$text=' + $text.replace(/<\/.*/, '').substr(39));
+		if ($text>='')
+		{
+			if ($raw) eval('$text=' + $text.replace(/<\/.*/, '').substr(39));
+		}
 		else $text = window.q;
 
 		$callback( eval('$text=' + $text) );
@@ -182,21 +184,21 @@ function $QJsrs($URL, $POST, $antiXSJ)
 			else $this.onloading();
 
 			$context = $contextPool.length;
-			for ($i = 0; $i < $context; ++$i) if (!$contextPool[$i].$busy) break;
+			for ($i = 0; $i < $context; ++$i) if (!$contextPool[$i].$driver) break;
 			if ($i == $context) $contextPool[$i] = new $QJsrsContext('_' + $i), // The '_' prefix prevents confusion of frames['0'] and frames[0] for some browsers
 
 			'' + $function; // Dummy line, but if missing, both IE and Mozilla bug !?
 			$callback = $function;
 
 			$context = $contextPool[$i];
-			$context.$load($url, $release, $POST, $LOCAL, $this.driver);
+			$context.$driver = $this.driver,
+			$context.$load($url, $release, $POST, $LOCAL);
 		}
 	}
 
 	$this.abort = function()
 	{
-		if ($context) $context.$release();
-		$callback && $release(false, 1);
+		if ($context) $context.$release(), $release(false, 1);
 	}
 
 	function $release($a, $abort)
@@ -212,10 +214,10 @@ function $QJsrs($URL, $POST, $antiXSJ)
 			$poolLen--;
 			$callback = $a[1];
 
-			return $abort ? $release(false, 1) : !$context.$load($a[0], $release, $POST, $LOCAL, $this.driver);
+			return $abort ? $release(false, 1) : !$context.$load($a[0], $release, $POST, $LOCAL);
 		}
 
-		$callback = $context = 0;
+		$callback = $context = $context.$driver = 0;
 
 		$localTimer = $QJsrs.$setTimeout($QJsrs.onloaded, 10);
 		if (!$loadCounter) $masterTimer = $QJsrs.$setTimeout($this.onloaded, 10);

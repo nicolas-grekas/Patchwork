@@ -33,7 +33,7 @@ function QSelectSuggest($data, $separator, $separatorRx)
 					$q = RegExp.quote($q, 1);
 					$q = new RegExp('(^|[^0-9a-z' + ACCENT.join('') + '])' + $q, 'i');
 
-					for (; $i < $data.length; ++$i) if ($data[$i].search($q)>=0) $result[$result.length] = $data[$i];
+					for (; $i < $data.length; ++$i) if ($q.test($data[$i])) $result[$result.length] = $data[$i];
 				}
 			}
 

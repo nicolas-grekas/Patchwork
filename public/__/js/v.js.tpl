@@ -13,7 +13,7 @@ function valid($element, $type, $args)
 
 valid_int = function($value, $args)
 {
-	if ((''+$value).search(/^\s*[+-]?[0-9]+\s*$/) == -1) return false;
+	if (!/^\s*[+-]?[0-9]+\s*$/.test($value)) return false;
 
 	$value -= 0;
 	if (t($args[0]) && $value<$args[0]) return false;
@@ -37,14 +37,14 @@ valid_string = function($value, $args)
 	{
 		if (!t($args[2]) || $args[2]) $value = $value.replace(/^\s+/, '').replace(/\s+$/, '');
 		$args[0] = new RegExp($args[0], $args[1] ? 'i' : '');
-		if ($value.search($args[0])==-1) return false;
+		if (!$args[0].test($value)) return false;
 	}
 	return true;
 }
 
 valid_email = function ($value, $args)
 {
-	if ($value.search(/^\s*$/)==0) return true;
+	if (/^\s*$/.test($value)) return true;
 	$value = $value.toLowerCase();
 	return valid_string($value, ['^\s*[-a-z0-9_\.\+=%]+@([-a-z0-9]+(\.[-a-z0-9]+)+)\s*$']) ? $value : false;
 }
@@ -52,7 +52,7 @@ valid_email = function ($value, $args)
 valid_phone = function($value, $args)
 {
 	$value = $value.replace(/[^+0-9]+/g, '').replace(/^00/, '+');
-	return -1 != $value.search(/^\+?[0-9]{4,}$/) && (!$args[0] || $value.indexOf('+')==0);
+	return /^\+?[0-9]{4,}$/.test($value) && (!$args[0] || $value.indexOf('+')==0);
 }
 
 valid_date = function($value, $args)
@@ -320,7 +320,7 @@ function enterControl($form)
 	while (++$i < $len)
 	{
 		$elt = $all[$i];
-		if ($elt.form == $form && !$elt.type.search(/^(submit|image)$/))
+		if ($elt.form == $form && /^(submit|image)$/.test($elt.type))
 		{
 			$elt.click();
 			break;

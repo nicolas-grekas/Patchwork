@@ -1,6 +1,3 @@
-if (!window.liveAgent)
-{
-
 <!-- AGENT 'js/QJsrs' -->
 
 function liveAgent($AGENT, $POST, $antiXSJ, $HOME)
@@ -36,17 +33,15 @@ function liveAgent($AGENT, $POST, $antiXSJ, $HOME)
 			}
 		};
 
-	$QJsrs.driver = function($callback, $text)
+	$QJsrs.driver = function($callback, $text, $raw)
 	{
 		var $originalW = window.w;
 		window.w = w;
 
-		$originalDriver($callback, $text);
+		$originalDriver($callback, $text, $raw);
 
 		window.w = $originalW;
 	}
 
 	return $QJsrs;
-}
-
 }
