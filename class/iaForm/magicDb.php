@@ -4,10 +4,8 @@ class iaForm_magicDb
 {
 	public static function populate($table, $form, $save = false, $rxFilter = false)
 	{
-		$db = DB();
-
 		$sql = 'SHOW COLUMNS FROM ' . $table;
-		$result = $db->query($sql);
+		$result = DB()->query($sql);
 
 		$onempty = '';
 		$onerror = T('Input validation failed');
