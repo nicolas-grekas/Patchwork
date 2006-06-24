@@ -87,7 +87,7 @@ function loadPng($this)
 {
 	$this = $this || this;
 	var $src = $this.src, $width = $this.width, $height = $this.height;
-	if ($src.search(/\.png$/i)>=0)
+	if (/\.png$/i.test($src))
 	{
 		$this.style.width  = ($this.offsetWidth  || $this.width ) + 'px';
 		$this.style.height = ($this.offsetHeight || $this.height) + 'px';
