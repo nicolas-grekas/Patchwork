@@ -136,10 +136,9 @@ class IA_php
 
 		$group = CIA::closeGroupStage();
 
-		if ($is_cacheable = !in_array('private', $group))
-		{
-			$cagent = CIA::agentCache($agentClass, $agent->argv, 'php', $group);
-		}
+		$is_cacheable = !in_array('private', $group);
+
+		$cagent = CIA::agentCache($agentClass, $agent->argv, 'php', $group);
 
 		$filter = false;
 
@@ -156,7 +155,7 @@ class IA_php
 			{
 				$v = substr($cagent, 0, -7) . 'post' . substr($cagent, -4);
 
-				if (!CIA_POSTING && file_exists($v) && filemtime($v)>CIA_TIME) require $v;
+				if ($is_cacheable && !CIA_POSTING && file_exists($v) && filemtime($v)>CIA_TIME) require $v;
 				else
 				{
 					ob_start();
