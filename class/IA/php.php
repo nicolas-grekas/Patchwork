@@ -33,6 +33,8 @@ class IA_php
 
 	public static function loadAgent($agent, $args, $is_exo)
 	{
+		if (null === $agent) return;
+
 		$a =& $_GET;
 
 		if (false === $args)
