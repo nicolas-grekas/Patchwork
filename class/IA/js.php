@@ -52,39 +52,41 @@ EOHTML;
 
 		CIA::openMeta($agentClass);
 
-		$agent = new $agentClass($_GET);
-
-		$group = CIA::closeGroupStage();
-		
-		if ($is_cacheable = !in_array('private', $group))
-		{
-			$cagent = CIA::agentCache($agentClass, $agent->argv, 'js.php', $group);
-			$dagent = CIA::makeCacheDir('jsdata.' . $agentClass, 'js.php', $cagent);
-		}
-
-		if ($liveAgent)
-		{
-			if ($is_cacheable && file_exists($dagent) && filemtime($dagent)>CIA_TIME)
-			{
-				require $dagent;
-				CIA::closeMeta();
-
-				echo '"//</script><script type="text/javascript" src="' . CIA::__HOME__() . 'js/QJsrsHandler"></script>';
-				return;
-			}
-		}
-		else
-		{
-			if ($is_cacheable && file_exists($cagent) && filemtime($cagent)>CIA_TIME)
-			{
-				require $cagent;
-				CIA::closeMeta();
-				return;
-			}
-		}
+		$agent = false;
 
 		try
 		{
+			$agent = new $agentClass($_GET);
+
+			$group = CIA::closeGroupStage();
+		
+			if ($is_cacheable = !in_array('private', $group))
+			{
+				$cagent = CIA::agentCache($agentClass, $agent->argv, 'js.php', $group);
+				$dagent = CIA::makeCacheDir('jsdata.' . $agentClass, 'js.php', $cagent);
+			}
+
+			if ($liveAgent)
+			{
+				if ($is_cacheable && file_exists($dagent) && filemtime($dagent)>CIA_TIME)
+					{
+					require $dagent;
+					CIA::closeMeta();
+
+					echo '"//</script><script type="text/javascript" src="' . CIA::__HOME__() . 'js/QJsrsHandler"></script>';
+					return;
+				}
+			}
+			else
+			{
+				if ($is_cacheable && file_exists($cagent) && filemtime($cagent)>CIA_TIME)
+				{
+					require $cagent;
+					CIA::closeMeta();
+					return;
+				}
+			}
+
 			ob_start();
 
 			$data = (object) $agent->compose();
@@ -108,7 +110,7 @@ EOHTML;
 		}
 		catch (PrivateDetection $data)
 		{
-			ob_clean();
+			if ($agent) ob_clean();
 
 			if ($liveAgent)
 			{
