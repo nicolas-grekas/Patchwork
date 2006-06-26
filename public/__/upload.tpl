@@ -65,7 +65,7 @@ table
 
 <div id="remaining">{"Estimation du temps restant"} ...</div>
 
-<script type="text/javascript" src="{~}js/QJsrs"></script>
+<script type="text/javascript" src="{~}js/liveAgent"></script>
 <script type="text/javascript" src="{~}js/upload"></script>
 
 </body>

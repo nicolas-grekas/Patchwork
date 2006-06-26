@@ -31,7 +31,7 @@ if (window.lF)
 }
 else
 {
-	var $sending, $progress, $remaining, $detail, $unitWidth, $maxWidth, $unitHtml, $QJsrs, $bytes_total;
+	var $sending, $progress, $remaining, $detail, $unitWidth, $maxWidth, $unitHtml, $liveAgent, $bytes_total;
 
 	$Done = {"Téléchargement terminé"|js} + ' !';
 	$Minutes = {"minutes"|js};
@@ -83,7 +83,7 @@ else
 			$detail.innerHTML = $bytes(a.bytes_uploaded) + ' / ' + $bytes(a.bytes_total) + ' (' + Math.round(100*a.bytes_uploaded/a.bytes_total) + '%)';
 
 			if (!$bytes_total) $bytes_total = a.bytes_total;
-			setTimeout("$QJsrs.push({id:UPID}, $showProgress)", 700);
+			setTimeout("$liveAgent.push({id:UPID}, $showProgress)", 700);
 		}
 		else
 		{
@@ -107,10 +107,10 @@ else
 	$maxWidth  = $progress.offsetWidth;
 	$unitHtml = $progress.innerHTML;
 
-	$QJsrs = new QJsrs('QJsrs/upload', 0, 0, 1);
+	$liveAgent = new liveAgent('upload', 0, 1, 0, 1);
 	$bytes_total = 0;
 
 	if (window.ScriptEngine) document.getElementById('b').background = '';
 
-	setTimeout("$QJsrs.push({id:UPID}, $showProgress)", 1400);
+	setTimeout("$liveAgent.push({id:UPID}, $showProgress)", 1400);
 }
