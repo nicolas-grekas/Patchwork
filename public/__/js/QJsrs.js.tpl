@@ -107,8 +107,11 @@ function $QJsrsContext($name)
 	$this.$release = function($result)
 	{
 		if ($container)
-			$container.onload = $container.onreadystatechange = $emptyFunction,
+		{
+			if ($container.onload) $container.onload = $emptyFunction;
+			$container.onreadystatechange = $emptyFunction;
 			$container.abort();
+		}
 
 		if ($callback && $result>='' || $result < 0) $callback($result);
 
