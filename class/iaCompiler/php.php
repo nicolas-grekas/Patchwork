@@ -59,7 +59,8 @@ class iaCompiler_php extends iaCompiler
 			$comma = ',';
 		}
 
-		$this->pushCode("IA_php::loadAgent($inc,array($a)," .( $is_exo ? 1 : 0 ). ");");
+		if (DEBUG && "'" != $inc[0]) $this->pushCode("null===$inc?E('AGENT is undefined: $inc'):IA_php::loadAgent($inc,array($a)," .( $is_exo ? 1 : 0 ). ");");
+		else $this->pushCode("IA_php::loadAgent($inc,array($a)," .( $is_exo ? 1 : 0 ). ");");
 
 		return true;
 	}
