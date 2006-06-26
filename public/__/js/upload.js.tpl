@@ -98,22 +98,19 @@ else
 		}
 	}
 
-	addOnload(function()
-	{
-		$sending = document.getElementById('sending');
-		$progress = document.getElementById('progress');
-		$remaining = document.getElementById('remaining');
-		$detail = document.getElementById('detail');
+	$sending = document.getElementById('sending');
+	$progress = document.getElementById('progress');
+	$remaining = document.getElementById('remaining');
+	$detail = document.getElementById('detail');
 
-		$unitWidth = document.getElementById('unit').offsetWidth;
-		$maxWidth  = $progress.offsetWidth;
-		$unitHtml = $progress.innerHTML;
+	$unitWidth = document.getElementById('unit').offsetWidth;
+	$maxWidth  = $progress.offsetWidth;
+	$unitHtml = $progress.innerHTML;
 
-		$QJsrs = new QJsrs('QJsrs/upload');
-		$bytes_total = 0;
+	$QJsrs = new QJsrs('QJsrs/upload', 0, 0, 1);
+	$bytes_total = 0;
 
-		if (window.ScriptEngine) document.getElementById('b').background = '';
+	if (window.ScriptEngine) document.getElementById('b').background = '';
 
-		setTimeout("$QJsrs.push({id:UPID}, $showProgress)", 1400);
-	});
+	setTimeout("$QJsrs.push({id:UPID}, $showProgress)", 1400);
 }

@@ -53,7 +53,7 @@ function $QJsrsContext($name)
 		$callback,
 		$html;
 
-	$this.$load = function($url, $contextCallback, $post, $local)
+	$this.$load = function($url, $contextCallback, $post, $local, $XMLHttpPreferred)
 	{
 		$callback = $contextCallback;
 
@@ -67,7 +67,7 @@ function $QJsrsContext($name)
 
 		// For GET requests, we prefer direct <script> tag creation rather than XMLHttpRequest :
 		// this prevents a caching bug in Firefox < 1.5 and works in IE even when ActiveX is disabled
-		if (!$post && ('Gecko' == navigator.product || 'object' == typeof $document.onreadystatechange) && $document.createElement)
+		if (!($XMLHttpPreferred && $local && $XMLHttp) && !$post && ('Gecko' == navigator.product || 'object' == typeof $document.onreadystatechange) && $document.createElement)
 			$container = $QJsrs.$withScript($this.q[0] + $this.q[1], function() {$this.$driver($this.$release);});
 		else if ($local && $XMLHttp)
 		{
@@ -125,7 +125,7 @@ $window.loadQJsrs = function($context, $result)
 	return $context;
 }
 
-function $QJsrs($URL, $POST, $antiXSJ)
+function $QJsrs($URL, $POST, $antiXSJ, $XMLHttpPreferred)
 {
 	var $this = this,
 		$pool = [],
@@ -192,7 +192,7 @@ function $QJsrs($URL, $POST, $antiXSJ)
 
 			$context = $contextPool[$i];
 			$context.$driver = $this.driver,
-			$context.$load($url, $release, $POST, $LOCAL);
+			$context.$load($url, $release, $POST, $LOCAL, $XMLHttpPreferred);
 		}
 	}
 
@@ -214,7 +214,7 @@ function $QJsrs($URL, $POST, $antiXSJ)
 			$poolLen--;
 			$callback = $a[1];
 
-			return $abort ? $release(false, 1) : !$context.$load($a[0], $release, $POST, $LOCAL);
+			return $abort ? $release(false, 1) : !$context.$load($a[0], $release, $POST, $LOCAL, $XMLHttpPreferred);
 		}
 
 		$callback = $context = $context.$driver = 0;
