@@ -1,20 +1,6 @@
-<?php defined('CIA') || define('CIA', microtime(true)) && $CONFIG = array();
+<?php chdir(CIA_PROJECT_PATH);
 
-$CONFIG += array(
-	'timezone' => 'Europe/Paris',
-	'php' => 'c:/progra~1/wamp/php/php.exe', // Path to your php executable.
-
-	'maxage' => 3600,
-	'lang_list' => 'fr',
-
-	'allow_debug' => true,
-
-	'translate_driver' => 'default_',
-	'translate_params' => array(),
-);
-
-
-/* CONFIG: the next section should be commented after proper configuration */
+/* CONFIG: this section can be commented after proper configuration */
 
 if (get_magic_quotes_gpc())
 {
@@ -140,18 +126,7 @@ if (!isset($_SERVER['CIA_HOME']))
 else if ('/' == substr($_SERVER['CIA_HOME'], 0, 1)) $_SERVER['CIA_HOME'] = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['CIA_HOME'];
 
 
-/* Config initialisation */
-
-@putenv('LC_ALL=en_US.UTF-8');
-setlocale(LC_ALL, 'en_US.UTF-8');
-if (function_exists('iconv_set_encoding'))
-{
-	iconv_set_encoding('input_encoding', 'UTF-8');
-	iconv_set_encoding('internal_encoding', 'UTF-8');
-	iconv_set_encoding('output_encoding', 'UTF-8');
-}
-
-if (function_exists('date_default_timezone_set')) date_default_timezone_set($CONFIG['timezone']);
+if (function_exists('date_default_timezone_set') && isset($CONFIG['timezone'])) date_default_timezone_set($CONFIG['timezone']);
 
 if (!function_exists('DB'))
 {
@@ -204,15 +179,6 @@ define('CIA_PROJECT_ID', abs($version_id % 10000));
 define('CIA_POSTING', $_SERVER['REQUEST_METHOD']=='POST');
 define('CIA_DIRECT', !CIA_POSTING && $_SERVER['CIA_REQUEST'] == '_');
 
-
-/* Include Path Initialisation */
-
-$p = dirname(__FILE__);
-defined('CIA_PROJECT_PATH') || define('CIA_PROJECT_PATH', $p) && $cia_paths = array() || $version_id = 0;
-$version_id += filemtime(__FILE__);
-$cia_paths[] = $p;
-
-chdir(CIA_PROJECT_PATH);
 
 function resolvePath($filename)
 {
@@ -493,13 +459,13 @@ else
 		{
 			CIA::touch('');
 			CIA::delDir(CIA::$cachePath, false);
-			touch('index.php');
+			touch('config.php');
 		}
 		else if ($_COOKIE['cache_reset_id'] == CIA_PROJECT_ID)
 		{
 			CIA::touch('CIApID');
 			CIA::touch('foreignTrace');
-			touch('index.php');
+			touch('config.php');
 		}
 
 		CIA::setMaxage(0);

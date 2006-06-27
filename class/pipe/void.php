@@ -1,6 +1,6 @@
 <?php
 
-class pipe_empty
+class pipe_void
 {
 	static function php()
 	{
