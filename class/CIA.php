@@ -627,7 +627,7 @@ class CIA
 		{
 			$keys = $keys . ' -q ' . implode(' ', array_map('escapeshellarg', array(
 				resolvePath('getTrace.php'),
-				resolvePath('index.php'),
+				resolvePath('config.php'),
 				$_SERVER['CIA_HOME'],
 				CIA::__LANG__(),
 				substr($agent, strlen($HOME)),
@@ -770,7 +770,7 @@ class CIA
 					$a = '1';
 					self::writeFile($cache, $a);
 
-					touch('index.php');
+					touch('config.php');
 				}
 
 				throw new PrivateDetection($a);
