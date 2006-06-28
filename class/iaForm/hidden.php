@@ -55,7 +55,7 @@ class iaForm_hidden extends loop_callAgent
 		if ($this->isdata && is_array($a))
 		{
 			$b = '';
-			foreach ($a as $a) $b .= ',' . str_replace(array('%', ','), array('%25', '%2C'), $a);
+			foreach ($a as &$v) $b .= ',' . str_replace(array('%', ','), array('%25', '%2C'), $v);
 			$a = substr($b, 1);
 		}
 
@@ -118,11 +118,11 @@ class iaForm_hidden extends loop_callAgent
 
 		$error =& $this->form->errormsg;
 
-		foreach ($this->elt as $name => $elt)
+		foreach ($this->elt as &$elt_info)
 		{
-			$onempty = $elt[1];
-			$onerror = $elt[2];
-			$elt = $elt[0];
+			$onempty = $elt_info[1];
+			$onerror = $elt_info[2];
+			$elt = $elt_info[0];
 
 			$elt = $elt->checkError($onempty, $onerror);
 
@@ -167,7 +167,7 @@ class iaForm_hidden extends loop_callAgent
 	{
 		$data  = array();
 
-		foreach ($this->elt as $name => $elt) if ($elt[0]->isValidData()) $data[$name] = $elt[0]->getDbValue();
+		foreach ($this->elt as $name => &$elt) if ($elt[0]->isValidData()) $data[$name] = $elt[0]->getDbValue();
 
 		return $data;
 	}
@@ -213,14 +213,14 @@ class iaForm_hidden extends loop_callAgent
 					{
 						$status = true;
 
-						foreach ($this->value as $key => $value)
+						foreach ($this->value as &$value)
 						{
-							$value = VALIDATE::get($value, $this->valid, $this->valid_args);
+							$v = VALIDATE::get($value, $this->valid, $this->valid_args);
 
-							if ($value===false) $status = false;
+							if ($v===false) $status = false;
 							else
 							{
-								$this->value[$key] = $value;
+								$value = $v;
 								$status = true && $status;
 							}
 						}
@@ -376,7 +376,7 @@ class iaForm_select extends iaForm_hidden
 
 			$this->length = 0;
 
-			foreach ($this->item as $k => $v)
+			foreach ($this->item as $k => &$v)
 			{
 				if (is_array($v))
 				{
@@ -640,7 +640,7 @@ class loop_iaForm_selectOption__ extends loop
 		if ($this->length >= 0) return $this->length;
 
 		$this->length = 0;
-		foreach ($this->item as $k => $v)
+		foreach ($this->item as &$v)
 		{
 			if (is_array($v)) $this->length += count($v) - 1;
 			$this->length += 1;

@@ -12,12 +12,12 @@ class agent_QEngine extends agent
 	{
 		$K = array();
 
-		foreach ($keyword as $i => $keyword)
+		foreach ($keyword as $i => &$k)
 		{
-			foreach ($this->getKeywords($keyword) as $kw)
+			foreach ($this->getKeywords($k) as $k)
 			{
-				if (isset($K[$kw])) $K[$kw] .= ",$i";
-				else $K[$kw] = $i;
+				if (isset($K[$k])) $K[$k] .= ",$i";
+				else $K[$k] = $i;
 			}
 		}
 
@@ -34,7 +34,7 @@ class agent_QEngine extends agent
 		$kw = preg_replace("' ((" . $this->EXCLUDED_KEYWORD . ") )+'u", ' ', ' '.$kw.' ');
 		$kw = explode(' ', $kw);
 
-		foreach ($kw as $i => $v) if (strlen($v)<$this->minKwLen) unset($kw[$i]);
+		foreach ($kw as $i => &$v) if (strlen($v)<$this->minKwLen) unset($kw[$i]);
 
 		return $kw;
 	}

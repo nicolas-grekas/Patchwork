@@ -18,10 +18,10 @@ class agent_QJsrs extends agent_bin
 		{
 			$a = '{';
 
-			foreach ($data as $k => $v) $a .= "'" . jsquote($k, false) . "':" . $this->getJs($v) . ',';
+			foreach ($data as $k => &$v) $a .= "'" . jsquote($k, false) . "':" . $this->getJs($v) . ',';
 
-			$v = strlen($a);
-			if ($v > 1) $a{strlen($a)-1} = '}';
+			$k = strlen($a);
+			if ($k > 1) $a{strlen($a)-1} = '}';
 			else $a = '{}';
 		}
 		else $a = jsquote((string) $data);

@@ -442,10 +442,11 @@ abstract class iaCompiler
 		$detail[] = $match[1];
 
 		preg_match_all("/{$this->XmodifierPipe}/su", $pipe, $match);
-		foreach ($match[0] as $match)
+		foreach ($match[0] as &$match)
 		{
 			preg_match_all("/(?:^\\|{$this->Xmodifier}|:(?:{$this->Xexpression})?)/su", $match, $match);
-			foreach ($match[0] as $i => $j) $match[0][$i] = $j == ':' ? "''" : substr($j, 1);
+			foreach ($match[0] as &$j) $j = $j == ':' ? "''" : substr($j, 1);
+			unset($j);
 			$detail[] = $match[0];
 		}
 

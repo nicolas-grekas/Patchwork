@@ -332,7 +332,7 @@ class CIA
 	 */
 	public static function touch($message)
 	{
-		if (is_array($message)) foreach ($message as $message) self::touch($message);
+		if (is_array($message)) foreach ($message as &$message) self::touch($message);
 		else
 		{
 			$message = preg_split("'[\\\\/]+'u", $message, -1, PREG_SPLIT_NO_EMPTY);
@@ -533,7 +533,7 @@ class CIA
 			$args['__0__'] = implode('/', $param);
 
 			$i = 0;
-			foreach ($param as $param) $args['__' . ++$i . '__'] = $param;
+			foreach ($param as &$param) $args['__' . ++$i . '__'] = $param;
 		}
 
 		$resolvedCache[$agent] = true;
@@ -601,7 +601,7 @@ class CIA
 
 	protected static function executeLoops($d)
 	{
-		foreach ($d as $k => $v) if ($v instanceof loop) while ($k = $v->compose()) self::executeLoops($k);
+		foreach ($d as $k => &$v) if ($v instanceof loop) while ($k = $v->compose()) self::executeLoops($k);
 	}
 
 	public static function resolveAgentTrace($agent)

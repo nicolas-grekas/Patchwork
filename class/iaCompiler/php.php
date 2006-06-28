@@ -53,7 +53,7 @@ class iaCompiler_php extends iaCompiler
 
 		$a = '';
 		$comma = '';
-		foreach ($args as $k => $v)
+		foreach ($args as $k => &$v)
 		{
 			$a .= "$comma'$k'=>" . $v;
 			$comma = ',';

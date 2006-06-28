@@ -69,9 +69,9 @@ class iaCompiler_js extends iaCompiler
 		{
 			eval("\$inc=$inc;");
 
-			list($CIApID, $home, $inc, $keys, $k) = CIA::resolveAgentTrace($inc);
+			list($CIApID, $home, $inc, $keys, $a) = CIA::resolveAgentTrace($inc);
 
-			foreach ($k as $k => $v) $args[$k] = $this->quote($v);
+			foreach ($a as $k => &$v) $args[$k] = $this->quote($v);
 
 			if (false !== $home)
 			{
@@ -99,7 +99,7 @@ class iaCompiler_js extends iaCompiler
 
 		$a = '';
 		$comma = '';
-		foreach ($args as $k => $v)
+		foreach ($args as $k => &$v)
 		{
 			$a .= in_array($k, $this->jsreserved) ? "$comma'$k':$v" : "$comma$k:$v";
 			$comma = ',';

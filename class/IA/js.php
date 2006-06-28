@@ -95,7 +95,7 @@ EOHTML;
 			echo '{';
 
 			$comma = '';
-			foreach ($data as $key => $value)
+			foreach ($data as $key => &$value)
 			{
 				echo $comma, "'", jsquote($key, false), "':";
 				if ($value instanceof loop) self::writeAgent($value);
@@ -217,7 +217,7 @@ EOHTML;
 				$prevKeyList = $keyList;
 			}
 
-			foreach ($data as $value)
+			foreach ($data as &$value)
 			{
 				echo ',';
 				if ($value instanceof loop) self::writeAgent($value);

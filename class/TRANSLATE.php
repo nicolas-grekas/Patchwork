@@ -42,7 +42,7 @@ abstract class TRANSLATE
 	{
 		self::$driver->close();
 
-		foreach (self::$cache as $file => $cache) if ($cache[0])
+		foreach (self::$cache as $file => &$cache) if ($cache[0])
 		{
 			$data = '<?php return ' . var_export($cache[2], true) . ';';
 

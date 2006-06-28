@@ -75,7 +75,7 @@ class IA_php
 
 				$agent = $data->{'a$'};
 
-				foreach ($data as $k => $v) $args[$k] = is_string($v) ? htmlspecialchars($v) : $v;
+				foreach ($data as $k => &$v) $args[$k] = is_string($v) ? htmlspecialchars($v) : $v;
 			}
 
 			$HOME = CIA::__HOME__();
@@ -100,7 +100,7 @@ class IA_php
 					$agent = preg_replace("'__'", CIA::__LANG__(), $agent, 1);
 					$agent = new HTTP_Request($agent);
 					$agent->addQueryString('$s', '');
-					foreach ($args as $k => $v) $agent->addQueryString($k, CIA::string($v));
+					foreach ($args as $k => &$v) $agent->addQueryString($k, CIA::string($v));
 
 					$agent->sendRequest();
 
@@ -250,7 +250,7 @@ class IA_php
 		fwrite($h, 'array(', 6);
 
 		$comma = '';
-		foreach ($data as $key => $value)
+		foreach ($data as $key => &$value)
 		{
 			$comma .= "'" . str_replace(array('\\',"'"), array('\\\\',"\\'"), $key) . "'=>";
 			fwrite($h, $comma, strlen($comma));
@@ -303,7 +303,7 @@ class IA_php
 
 	public static function escape(&$object)
 	{
-		foreach ($object as $k => $v) if (is_string($v)) $object->$k = htmlspecialchars($v);
+		foreach ($object as &$v) if (is_string($v)) $v = htmlspecialchars($v);
 	}
 
 	public static function makeLoopByLength(&$length)

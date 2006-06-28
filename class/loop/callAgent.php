@@ -31,13 +31,13 @@ class loop_callAgent extends loop
 				{
 					if (!isset($this->keys) || preg_match("'^(/|https?://)'", $this->agent))
 					{
-						list($CIApID, $home, $data->{'a$'}, $a, $k) = CIA::resolveAgentTrace($this->agent);
+						list($CIApID, $home, $data->{'a$'}, $keys, $a) = CIA::resolveAgentTrace($this->agent);
 
-						foreach ($k as $k => $v) $data->$k = $v;
+						foreach ($a as $k => &$v) $data->$k =& $v;
 
-						array_walk($a, 'jsquoteRef');
+						array_walk($keys, 'jsquoteRef');
 
-						$data->{'k$'} = '[' . implode(',', $a) . ']';
+						$data->{'k$'} = '[' . implode(',', $keys) . ']';
 
 						if (false !== $home)
 						{

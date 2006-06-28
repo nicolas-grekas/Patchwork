@@ -15,7 +15,7 @@ class loop_reverse extends loop_array
 
 		while ($a = $loop->compose())
 		{
-			foreach ($a as $k => $v) if ($v instanceof loop) $a->$k = new loop_array($this->getArray($v), 'filter_rawArray');
+			foreach ($a as &$v) if ($v instanceof loop) $v = new loop_array($this->getArray($v), 'filter_rawArray');
 
 			$unshift ? array_unshift($array, $a) : ($array[] = $a);
 		}
