@@ -391,7 +391,7 @@ if (CIA_DIRECT)
 			preg_match_all("/[a-zA-Z_][a-zA-Z_\d]*/u", $pipe, $pipe);
 			CIA::$agentClass = 'agent__pipe/' . implode('_', $pipe[0]);
 
-			foreach ($pipe[0] as $pipe)
+			foreach ($pipe[0] as &$pipe)
 			{
 				$cpipe = CIA::makeCacheDir('pipe/' . $pipe, 'js');
 				if (file_exists($cpipe)) readfile($cpipe);

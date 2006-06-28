@@ -61,9 +61,9 @@ class iaMail extends Mail_mime
 	{
 		$ns = "[^\(\)<>@,;:\"\/\[\]\r\n]*";
 
-		foreach ($input as $hdr_name => $hdr_value)
+		foreach ($input as &$hdr_value)
 		{
-			$input[$hdr_name] = preg_replace_callback("/{$ns}(?:[\\x80-\\xFF]{$ns})+/", array($this, '_encodeHeaderWord'), $hdr_value);
+			$hdr_value = preg_replace_callback("/{$ns}(?:[\\x80-\\xFF]{$ns})+/", array($this, '_encodeHeaderWord'), $hdr_value);
 		}
 
 		return $input;

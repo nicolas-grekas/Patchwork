@@ -10,7 +10,7 @@ class pipe_htmlArgs
 		$except = array_slice($except, 1);
 
 		$result = '';
-		foreach ($pool as $k => $v)
+		foreach ($pool as $k => &$v)
 		{
 			if ('_'!=substr($k, 0, 1) && 'iteratorPosition'!=$k && strpos($k, '$')===false && !in_array($k, $except))
 			{

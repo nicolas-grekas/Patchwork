@@ -33,11 +33,11 @@ while (!feof(STDIN))
 $send_email = false;
 $notify_urls = array();
 
-if (preg_match_all("'\n(references|to|in-reply-to):(.*?)\n[-a-z]+:'si", $header, $m)) foreach ($m as $m)
+if (preg_match_all("'\n(references|to|in-reply-to):(.*?)\n[-a-z]+:'si", $header, $m)) foreach ($m as &$m)
 {
 	$a = strtolower($m[1]);
 
-	if (preg_match_all("'iaM[a-f0-9]{32,}'", $m[2], $m)) foreach ($m as $m)
+	if (preg_match_all("'iaM[a-f0-9]{32,}'", $m[2], $m)) foreach ($m as &$m)
 	{
 		if (strlen($m[0]) != 32) continue;
 
@@ -84,7 +84,7 @@ if ($send_email)
 	while (!feof(STDIN)) $send_mail .= str_replace(array("\r\n", "\r"), array("\n", "\n"), fread(STDIN, 8192));
 }
 
-foreach ($notify_urls as $a)
+foreach ($notify_urls as &$a)
 {
 	$r = new HTTP_Request( $a['notify_url'] );
 	$r->setMethod(HTTP_REQUEST_METHOD_POST);

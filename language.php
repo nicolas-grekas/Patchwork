@@ -21,7 +21,7 @@ function HTTP_Best_Language($supported)
 	$lang = $supported[0];
 	$qMax = 0;
 
-	foreach ($candidates as $l => $q) if (
+	foreach ($candidates as $l => &$q) if (
 		$q > $qMax
 		&& (
 			in_array($l, $supported)
