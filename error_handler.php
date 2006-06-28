@@ -4,9 +4,27 @@ CIA::setMaxage(0);
 self::$private = true;
 CIA::setExpires('onmaxage');
 
+function filterErrorArgs($a, $first = true)
+{
+	if (is_object($a)) $b = '(object) ' . get_class($a);
+	else if (is_array($a))
+	{
+		if ($first)
+		{
+			$b = array();
+
+			foreach ($a as $k => $v) $b[$k] = filterErrorArgs($v, false);
+		}
+		else $b = 'array(...)';
+	}
+	else $b =& $a;
+
+	return $b;
+}
+
 $context = '';
 
-if (0 && !self::$handlesOb)
+if (!self::$handlesOb)
 {
 	$msg = debug_backtrace();
 
@@ -20,7 +38,13 @@ if (0 && !self::$handlesOb)
 			' call ' => @ (isset($msg[$i]['class']) ? $msg[$i]['class'].$msg[$i]['type'] : '') . $msg[$i]['function'] . '()'
 		);
 
-		if (isset($msg[$i]['args'])) $a[' args '] = $msg[$i]['args'];
+		if (in_array($a[' call '], array(
+			'CIA->error_handler()',
+			'require()', 'require_once()',
+			'include()', 'include_once()',
+		) && ++$i) continue;
+
+		if (isset($msg[$i]['args']) && $msg[$i]['args']) $a[' args '] = array_map('filterErrorArgs', $msg[$i]['args']);
 
 		$context[$i++] = $a;
 	}
