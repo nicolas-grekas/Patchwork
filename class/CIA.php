@@ -1,9 +1,5 @@
 <?php
 
-// This disables mod_deflate, which is bugged : it overwrites any custom Vary: header
-// We replace it with native PHP output compression
-if (function_exists('apache_setenv')) apache_setenv('no-gzip', '1');
-
 function jsquote($a, $addDelim = true, $delim = "'")
 {
 	if ((string) $a === (string) ($a-0)) return $a-0;
@@ -340,7 +336,11 @@ class CIA
 			$message = implode('/', $message);
 			$message = str_replace('.', '%2E', $message);
 
+			$i = 0;
+
 			@include self::getCachePath('watch/' . $message, 'php');
+
+			if (DEBUG) E("CIA::touch('$message'): $i file(s) deleted.");
 		}
 	}
 
@@ -700,7 +700,7 @@ class CIA
 
 	public static function writeWatchTable($message, $file)
 	{
-		$file =  "unlink('" . str_replace(array('\\',"'"), array('\\\\',"\\'"), $file) . "');\n";
+		$file =  "++\$i;unlink('" . str_replace(array('\\',"'"), array('\\\\',"\\'"), $file) . "');\n";
 
 		foreach (array_unique((array) $message) as $message)
 		{
@@ -840,51 +840,42 @@ class CIA
 			return $buffer;
 		}
 
+		$is304 = false;
 
 		if (!CIA_POSTING && $buffer !== '')
 		{
 			if (!self::$maxage) self::$maxage = 0;
 
+
 			/* ETag / Last-Modified validation */
 
-			$ETag = sprintf('%u', crc32($buffer .'_'. self::$maxage .'_'. self::$private .'_'. self::$expires));
+			$h = self::$maxage . "\n"
+				. self::$private . "\n"
+				. implode("\n", self::$headers);
+
+			$ETag = sprintf('%010u', crc32($buffer .'_'. self::$expires .'_'. $h));
 			$LastModified = $ETag - 2147483647 * (int) ($ETag / 2147483647);
 			$LastModified = gmdate('D, d M Y H:i:s \G\M\T', $LastModified);
-
-			$is304 = @$_SERVER['HTTP_IF_NONE_MATCH'] == $ETag || 0===strpos(@$_SERVER['HTTP_IF_MODIFIED_SINCE'], $LastModified);
 
 			if ('ontouch' == self::$expires || ('auto' == self::$expires && self::$watchTable))
 			{
 				self::$expires = 'auto';
-				$ETag = '/' . md5(self::$agentClasses .'_'. $buffer) . '-' . $ETag;
+				$ETag = '/' . md5($buffer .'_'. self::$expires .'_'. $h) . '-' . $ETag;
 			}
-
-			if (!$is304)
-			{
-				header('ETag: ' . $ETag);
-				header('Last-Modified: ' . $LastModified);
-			}
-
-			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', CIA_TIME + self::$maxage));
-			header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');
 
 
 			/* Write watch table */
 
 			if ('auto' == self::$expires && self::$watchTable)
 			{
-				$ETag = $ETag[1] . '/' . $ETag[2] . '/' . substr($ETag, 3) . '.validator.';
-				$ETag = self::$cachePath . $ETag . DEBUG . '.txt';
+				$validator = $ETag[1] . '/' . $ETag[2] . '/' . substr($ETag, 3) . '.validator.';
+				$validator = self::$cachePath . $validator . DEBUG . '.txt';
 
-				if (!file_exists($ETag))
+				if (!file_exists($validator))
 				{
-					$h = self::$maxage . "\n"
-						. self::$private . "\n"
-						. implode("\n", self::$headers);
+					self::writeFile($validator, $h);
 
-					self::writeFile($ETag, $h);
-
-					$a = "unlink('$ETag');\n";
+					$a = "++\$i;unlink('$validator');\n";
 
 					foreach (array_unique(self::$watchTable) as $path)
 					{
@@ -895,23 +886,37 @@ class CIA
 						fclose($h);
 					}
 
-					self::writeWatchTable('CIApID', $ETag);
+					self::writeWatchTable('CIApID', $validator);
 				}
 			}
 
+
+			// Check for conditional cache
+
+			$is304 = @$_SERVER['HTTP_IF_NONE_MATCH'] == $ETag || 0===strpos(@$_SERVER['HTTP_IF_MODIFIED_SINCE'], $LastModified);
 			if ($is304)
 			{
-				header('HTTP/1.x 304 Not Modified');
-
 				$buffer = '';
+				@ini_set('zlib.output_compression', false);
+				header('HTTP/1.x 304 Not Modified');
 			}
+			else
+			{
+				header('ETag: ' . $ETag);
+				header('Last-Modified: ' . $LastModified);
+			}
+
+			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', CIA_TIME + self::$maxage));
+			header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');
 		}
 
 
 		if ('HEAD' == $_SERVER['REQUEST_METHOD']) $buffer = '';
 
 
-		switch (substr(self::$headers['content-type'], 14))
+		// Setup gzip compression
+
+		if (!$is304) switch (substr(self::$headers['content-type'], 14))
 		{
 			case 'image/png':
 			case 'image/gif':

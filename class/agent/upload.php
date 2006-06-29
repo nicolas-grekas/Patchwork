@@ -23,4 +23,3 @@ class agent_upload extends agent
 		return $a;
 	}
 }
-

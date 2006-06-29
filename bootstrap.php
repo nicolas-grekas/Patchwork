@@ -222,6 +222,11 @@ function resolvePath($filename)
 
 /* Global Initialisation */
 
+
+// Disables bugged mod_deflate: it overwrites any custom Vary: header and appends a body to 304 responses.
+// We replace it with native PHP output compression.
+if (function_exists('apache_setenv')) apache_setenv('no-gzip', '1');
+
 // Language controler
 if (!$_SERVER['CIA_LANG'])
 {
@@ -262,7 +267,6 @@ if ('/' == @$_SERVER['HTTP_IF_NONE_MATCH']{0} && preg_match("'^/[0-9a-f]{32}-([0
 	if ($headers !== false)
 	{
 		header('HTTP/1.x 304 Not Modified');
-		header('Content-Length: 0');
 		if ($headers)
 		{
 			$headers = explode("\n", $headers, 3);
