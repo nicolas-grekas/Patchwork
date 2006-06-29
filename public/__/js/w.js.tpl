@@ -504,7 +504,9 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 		$document.write($content);
 
-		if ($i<0 && $closeDoc) $document.close();
+		if ($i<0 && $closeDoc)
+			$document.close(),
+			w = $document = window.home = r = y = z = w.k = w.f = w.r = w.x = 0;
 	}
 
 	w.r = function()
