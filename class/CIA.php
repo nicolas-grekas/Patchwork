@@ -972,9 +972,28 @@ class agent_
 		$this->argv = (object) array();
 		$_GET = array();
 
-		$args = (object) $args;
+		foreach ($a as $key => &$a)
+		{
+			if (is_string($key))
+			{
+				$default = $a;
+				$a = $key;
+			}
+			else $default = '';
 
-		foreach ($a as $k => &$a) $this->populateArgv($a, $k, $args);
+			$a = explode(':', $a);
+			$key = array_shift($a);
+
+			$b = (string) @$args[$key];
+
+			if ($a)
+			{
+				$b = VALIDATE::get($b, array_shift($a), $a);
+				if (false === $b) $b = $default;
+			}
+
+			$_GET[$key] = $this->argv->$key = $b;
+		}
 
 		$this->control();
 	}
@@ -985,29 +1004,6 @@ class agent_
 		CIA::setExpires($this->expires);
 		CIA::watch($this->watch);
 		if ($this->canPost) CIA::canPost();
-	}
-
-	private function populateArgv(&$a, $key, $args)
-	{
-		if (is_string($key))
-		{
-			$default = $a;
-			$a = $key;
-		}
-		else $default = '';
-
-		$a = explode(':', $a);
-		$key = array_shift($a);
-
-		$args = (string) @$args->$key;
-
-		if ($a)
-		{
-			$args = VALIDATE::get($args, array_shift($a), $a);
-			if (false === $args) $args = $default;
-		}
-
-		$_GET[$key] = $this->argv->$key = $args;
 	}
 }
 
