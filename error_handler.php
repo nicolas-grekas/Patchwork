@@ -4,29 +4,32 @@ CIA::setMaxage(0);
 self::$private = true;
 CIA::setExpires('onmaxage');
 
-function filterErrorArgs($a, $k = true)
+if (!function_exists('filterErrorArgs'))
 {
-	switch (gettype($a))
+	function filterErrorArgs($a, $k = true)
 	{
-		case 'object': return '(object) ' . get_class($a);
-
-		case 'array':
-			if ($k)
+		switch (gettype($a))
 			{
-				$b = array();
+			case 'object': return '(object) ' . get_class($a);
 
-				foreach ($a as $k => &$v) $b[$k] = filterErrorArgs($v, false);
-			}
-			else $b = 'array(...)';
+			case 'array':
+				if ($k)
+				{
+					$b = array();
+	
+					foreach ($a as $k => &$v) $b[$k] = filterErrorArgs($v, false);
+				}
+				else $b = 'array(...)';
 
-			return $b;
-		
-		case 'string': return '(string) ' . $a;
+				return $b;
+	
+			case 'string': return '(string) ' . $a;
 
-		case 'boolean': return $a ? 'true' : 'false';
+			case 'boolean': return $a ? 'true' : 'false';
+		}
+
+		return $a;
 	}
-
-	return $a;
 }
 
 $context = '';
