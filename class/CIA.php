@@ -972,7 +972,9 @@ class agent_
 		$this->argv = (object) array();
 		$_GET = array();
 
-		array_walk($a, array($this, 'populateArgv'), (object) $args);
+		$args = (object) $args;
+
+		foreach ($a as $k => &$a) $this->populateArgv($a, $k, $args);
 
 		$this->control();
 	}
@@ -997,7 +999,7 @@ class agent_
 		$a = explode(':', $a);
 		$key = array_shift($a);
 
-		$args = @$args->$key;
+		$args = (string) @$args->$key;
 
 		if ($a)
 		{
