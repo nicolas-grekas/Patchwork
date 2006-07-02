@@ -18,6 +18,8 @@ footerHtml = '';
 
 if (antiXSJ = document.cookie.match(/^(.*; )?T\$=([0-9A-Z]+)/i)) antiXSJ = antiXSJ[2];
 
+document.cookie = 'JS=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+
 if (window.Error && navigator.userAgent.indexOf('Safari') < 0)
 	document.cookie = 'JS=1; expires=Sun, 17-Jan-2038 19:14:07 GMT; path=/';
 
