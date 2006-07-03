@@ -105,6 +105,42 @@ function addOnload($function)
 	$p[$p.length] = $function;
 }
 
+addOnload.p = [];
+
+addOnload.run = function()
+{
+	addOnload.o = window.onload;
+
+	onload = function()
+	{
+		var $document = document, $i, $pool, $script, $addOnload = addOnload;
+
+		if ($document.removeChild)
+		{
+			$pool = $document.getElementsByTagName('script');
+			$i = $pool.length;
+			while ($i--) if ('w' == ($script = $pool[$i]).className) $script.parentNode.removeChild($script);
+			$script = 0;
+		}
+
+		if (!antiXSJ && ($i = $document.cookie.match(/^(.*; )?T\$=([0-9A-Z]+)/i)))
+		{
+			antiXSJ = $i[2];
+			$i = $document.getElementsByName('T$');
+			for ($s in $i) $i[$s].value = antiXSJ;
+		}
+
+		if ($addOnload.o) $i = $addOnload.o, $addOnload.o = null, $i();
+
+		$pool = $addOnload.p;
+		for ($i = 0; $i < $pool.length; ++$i) $pool[$i](), $pool[$i]=0;
+
+		$document = $addOnload = $pool = 0;
+
+		addOnload = function($function) {$function()};
+	}
+}
+
 
 /*
 * Set a board variable
@@ -148,7 +184,6 @@ function setboard($name, $value, $window)
 }
 
 
-addOnload.p = [];
 if ((topwin = window).Error)
 	// This eval avoids a parse error with browsers not supporting exceptions.
 	eval('try{while(((w=topwin.parent)!=topwin)&&t(w.name))topwin=w}catch(w){}');
