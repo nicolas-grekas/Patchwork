@@ -474,27 +474,31 @@ class CIA
 		$agent = substr($agent, 1, -1);
 		$agent = preg_replace("'^(\.\.?/)+'", '', $agent);
 
-		preg_match("'^((?:[\w\d]+(?:/|$))*)(.*?)$'u", $agent, $agent);
+		preg_match("'^((?:[\w\d]+(?:[-_][\w\d]+)*(?:/|$))*)(.*?)$'u", $agent, $agent);
 
 		$param = '' !== $agent[2] ? explode('/', $agent[2]) : array();
 		$agent = $agent[1];
 
 		if ('/' == substr($agent, -1)) $agent = substr($agent, 0, -1);
 
-		$agent = '' !== $agent ? $agent : 'index';
+		if ('' !== $agent)
+		{
+			$potentialAgent = preg_replace("'[-_](.)'e", "strtoupper('$1')", $agent);
+		}
+		else $potentialAgent = $agent = 'index';
 
 		$lang = self::$lang;
 		$createTemplate = true;
 
 		while (1)
 		{
-			if (isset($resolvedCache[$agent]))
+			if (isset($resolvedCache[$potentialAgent]))
 			{
 				$createTemplate = false;
 				break;
 			}
 
-			$path = "class/agent/{$agent}.php";
+			$path = "class/agent/{$potentialAgent}.php";
 			$p_th = resolvePath($path);
 			if ($path != $p_th)
 			{
@@ -504,14 +508,14 @@ class CIA
 			}
 
 
-			$path = "public/{$lang}/{$agent}.tpl";
+			$path = "public/{$lang}/{$potentialAgent}.tpl";
 			if ($path != resolvePath($path)) break;
 
-			$path = "public/__/{$agent}.tpl";
+			$path = "public/__/{$potentialAgent}.tpl";
 			if ($path != resolvePath($path)) break;
 
 
-			if ('index' == $agent) break;
+			if ('index' == $potentialAgent) break;
 
 
 			$a = strrpos($agent, '/');
@@ -520,11 +524,12 @@ class CIA
 			{
 				array_unshift($param, substr($agent, $a + 1));
 				$agent = substr($agent, 0, $a);
+				$potentialAgent = substr($potentialAgent, 0, strrpos($potentialAgent, '/'));
 			}
 			else
 			{
 				array_unshift($param, $agent);
-				$agent = 'index';
+				$potentialAgent = $agent = 'index';
 			}
 		}
 
@@ -536,9 +541,9 @@ class CIA
 			foreach ($param as &$param) $args['__' . ++$i . '__'] = $param;
 		}
 
-		$resolvedCache[$agent] = true;
+		$resolvedCache[$potentialAgent] = true;
 
-		$agent = 'agent_' . str_replace('/', '_', $agent);
+		$agent = 'agent_' . str_replace('/', '_', $potentialAgent);
 
 		/*
 		* eval() is known to be slow.
