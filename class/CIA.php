@@ -865,6 +865,10 @@ class CIA
 			$LastModified = gmdate('D, d M Y H:i:s \G\M\T', $ETag);
 			$ETag = dechex($ETag);
 
+
+			$is304 = @$_SERVER['HTTP_IF_NONE_MATCH'] == $ETag || 0===strpos(@$_SERVER['HTTP_IF_MODIFIED_SINCE'], $LastModified);
+
+
 			if ('ontouch' == self::$expires || ('auto' == self::$expires && self::$watchTable))
 			{
 				self::$expires = 'auto';
@@ -899,9 +903,6 @@ class CIA
 			}
 
 
-			// Check for conditional cache
-
-			$is304 = @$_SERVER['HTTP_IF_NONE_MATCH'] == $ETag || 0===strpos(@$_SERVER['HTTP_IF_MODIFIED_SINCE'], $LastModified);
 			if ($is304)
 			{
 				$buffer = '';
