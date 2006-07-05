@@ -12,7 +12,7 @@ abstract class TRANSLATE
 		if ('' === $string || '__' == $lang) return $string;
 		if (!self::$started) self::start();
 
-		$hash = (int) sprintf('%u', crc32($string));
+		$hash = md5($string);
 		$cache = '';
 
 		if ($usecache && $id = CIA::$agentClass)

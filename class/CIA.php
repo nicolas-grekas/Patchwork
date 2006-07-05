@@ -858,14 +858,17 @@ class CIA
 				. self::$private . "\n"
 				. implode("\n", self::$headers);
 
-			$ETag = sprintf('%010u', crc32($buffer .'_'. self::$expires .'_'. $h));
-			$LastModified = $ETag - 2147483647 * (int) ($ETag / 2147483647);
-			$LastModified = gmdate('D, d M Y H:i:s \G\M\T', $LastModified);
+			$ETag = substr(md5($buffer .'-'. self::$expires .'-'. $h), 0, 8);
+			$ETag = hexdec($ETag);
+			if ($ETag > 2147483647) $ETag -= 2147483648;
+
+			$LastModified = gmdate('D, d M Y H:i:s \G\M\T', $ETag);
+			$ETag = dechex($ETag);
 
 			if ('ontouch' == self::$expires || ('auto' == self::$expires && self::$watchTable))
 			{
 				self::$expires = 'auto';
-				$ETag = '/' . md5($buffer .'_'. self::$expires .'_'. $h) . '-' . $ETag;
+				$ETag = '-' . $ETag;
 			}
 
 
@@ -873,8 +876,8 @@ class CIA
 
 			if ('auto' == self::$expires && self::$watchTable)
 			{
-				$validator = $ETag[1] . '/' . $ETag[2] . '/' . substr($ETag, 3) . '.validator.';
-				$validator = self::$cachePath . $validator . DEBUG . '.txt';
+				$validator = self::$cachePath . $ETag[1] .'/'. $ETag[2] .'/'. substr($ETag, 3) .'.validator.'. DEBUG .'.';
+				$validator .= md5($_SERVER['CIA_HOME'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
 
 				if (!file_exists($validator))
 				{

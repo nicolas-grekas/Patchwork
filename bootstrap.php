@@ -255,13 +255,17 @@ define('CIA_TOKEN_MATCH', isset($_GET['T$']) && CIA_TOKEN == $_GET['T$']);
 
 /* Validator */
 
-if ('/' == @$_SERVER['HTTP_IF_NONE_MATCH']{0} && preg_match("'^/[0-9a-f]{32}-([0-9]+)$'", $_SERVER['HTTP_IF_NONE_MATCH'], $match))
+if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && !isset($_SERVER['HTTP_IF_NONE_MATCH'])) // Special behaviour thanks to IE
 {
-	$_SERVER['HTTP_IF_NONE_MATCH'] = $match[1];
+	$match = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE'], 2);
+	$_SERVER['HTTP_IF_NONE_MATCH'] = '-' . dechex(strtotime($match[0]));
+}
 
+if ('-' == @$_SERVER['HTTP_IF_NONE_MATCH'][0] && preg_match("'^-[0-9a-f]{8}$'", $_SERVER['HTTP_IF_NONE_MATCH'], $match))
+{
 	$match = $match[0];
-	$match = $match[1] . '/' . $match[2] . '/' . substr($match, 3) . '.validator.';
-	$match = resolvePath('zcache/') . $match . DEBUG . '.txt';
+	$match = resolvePath('zcache/') . $match[1] .'/'. $match[2] .'/'. substr($match, 3) .'.validator.'. DEBUG .'.';
+	$match .= md5($_SERVER['CIA_HOME'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
 
 	$headers = @file_get_contents($match);
 	if ($headers !== false)
