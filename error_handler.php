@@ -9,20 +9,20 @@ if (!function_exists('filterErrorArgs'))
 	function filterErrorArgs($a, $k = true)
 	{
 		switch (gettype($a))
-			{
+		{
 			case 'object': return '(object) ' . get_class($a);
 
 			case 'array':
 				if ($k)
 				{
 					$b = array();
-	
+
 					foreach ($a as $k => &$v) $b[$k] = filterErrorArgs($v, false);
 				}
 				else $b = 'array(...)';
 
 				return $b;
-	
+
 			case 'string': return '(string) ' . $a;
 
 			case 'boolean': return $a ? 'true' : 'false';

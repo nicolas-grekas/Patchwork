@@ -19,6 +19,5 @@ P$<?php echo substr(__CLASS__, 5)?> = function($g, $lang)
 	return $g.__URI__.replace(new RegExp('/' + $g.__LANG__ + '/'), '/' + $lang + '/');
 }
 
-<?php   }
+<?php	}
 }
-
