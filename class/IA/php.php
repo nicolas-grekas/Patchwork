@@ -214,7 +214,7 @@ class IA_php
 
 				$h = fopen($tmpname, 'wb');
 
-				$rawdata = str_replace('<?', "<?php echo'<?'?>", $rawdata) . '<?php $v=(object)';
+				$rawdata = str_replace('<?', "<<?php?>?", $rawdata) . '<?php $v=(object)';
 				fwrite($h, $rawdata, strlen($rawdata));
 
 				self::writeAgent($h, $vClone);
