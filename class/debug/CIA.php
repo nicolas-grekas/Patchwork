@@ -19,7 +19,7 @@ class debug_CIA extends CIA
 {
 	private $total_time = 0;
 
-	public function __construct()
+	function __construct()
 	{
 		$this->log(
 			'<a href="' . htmlspecialchars($_SERVER['REQUEST_URI']) . '" target="_blank">'
@@ -30,14 +30,14 @@ class debug_CIA extends CIA
 		parent::__construct();
 	}
 
-	public function &ob_handler(&$buffer)
+	function &ob_handler(&$buffer)
 	{
 		self::$handlesOb = true;
 		if (false !== stripos(self::$headers['content-type'], 'text/html')) $buffer = $this->error_end(substr(trim($buffer), 0, 1)) . $buffer;
 		return parent::ob_handler($buffer);
 	}
 
-	public function log($message, $is_end = false, $html = true)
+	function log($message, $is_end = false, $html = true)
 	{
 		static $prev_time = CIA;
 		$this->total_time += $a = 1000*(microtime(true) - $prev_time);

@@ -102,7 +102,7 @@ class iaCompiler_php extends iaCompiler
 					. '&&($p=(object)array("$"=>&$v))'
 					. '&&$v=&$p'
 				. ')while('
-					. '($p=&$v->{"$"}&&$v=$p->{"p$"}->compose())'
+					. '($p=&$v->{"$"}&&$v=$p->{"p$"}->loop())'
 					. '||($v=&$p&&0)'
 				. '){'
 				.( $this->binaryMode ? '' : 'IA_php::escape($v);' )

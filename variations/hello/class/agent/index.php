@@ -2,16 +2,10 @@
 
 class agent_index extends agent
 {
-	public $argv = array();
-
-	protected $maxage = 0;
-
-	function compose()
+	function compose($o)
 	{
-		$a = (object) array();
+		$o->hello = 'Hello World !';
 
-		$a->hello = 'Hello World !';
-
-		return $a;
+		return $o;
 	}
 }

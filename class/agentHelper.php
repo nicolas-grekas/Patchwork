@@ -4,22 +4,22 @@ class agentHelper
 {
 	public $data;
 
-	public function __construct($data = false)
+	function __construct($data = false)
 	{
 		$this->data = $data ? $data : (object) array();
 	}
 
-	public function setVar($varname, $value)
+	function setVar($varname, $value)
 	{
 		$this->data->$varname =& $value;
 	}
 
-	public function setVars($vararray)
+	function setVars($vararray)
 	{
 		while (list($key) = each($vararray)) $this->data->$key =& $vararray[$key];
 	}
 
-	public function setBlock($blockname, $vararray)
+	function setBlock($blockname, $vararray)
 	{
 		$blocks = explode('.', $blockname);
 		$blockcount = count($blocks)-1;
@@ -41,7 +41,7 @@ class agentHelper_blockContainer__ extends loop
 {
 	public $array;
 
-	public function __construct($data) {$this->array = array($data);}
+	function __construct($data) {$this->array = array($data);}
 	protected function prepare() {return count($this->array);}
 	protected function next()
 	{

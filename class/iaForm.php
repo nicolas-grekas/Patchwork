@@ -25,7 +25,7 @@ class iaForm extends loop_callAgent
 	protected $contextPool = array();
 	protected $defaults = array();
 
-	public function __construct($agentData, $sessionLink = '', $POST = true, $formVarname = 'form')
+	function __construct($agentData, $sessionLink = '', $POST = true, $formVarname = 'form')
 	{
 		if ($agentData)
 		{
@@ -61,12 +61,12 @@ class iaForm extends loop_callAgent
 		}
 	}
 
-	public function setPrefix($prefix)
+	function setPrefix($prefix)
 	{
 		$this->agentPrefix = $prefix;
 	}
 
-	public function pushContext($agentData, $eltnameSuffix = '')
+	function pushContext($agentData, $eltnameSuffix = '')
 	{
 		$this->contextPool[] = array(
 			$this->agentData,
@@ -83,7 +83,7 @@ class iaForm extends loop_callAgent
 		else $this->agentData = false;
 	}
 
-	public function pullContext()
+	function pullContext()
 	{
 		list(
 			$this->agentData,
@@ -93,12 +93,12 @@ class iaForm extends loop_callAgent
 		) = array_pop($this->contextPool);
 	}
 
-	public function setDefaults($data)
+	function setDefaults($data)
 	{
 		$this->defaults = (array) $data;
 	}
 
-	public function add($type, $name, $param = array(), $autoPopulate = true)
+	function add($type, $name, $param = array(), $autoPopulate = true)
 	{
 		if (!isset($param['default']) && isset($this->defaults[$name])) $param['default'] = $this->defaults[$name];
 
@@ -111,17 +111,17 @@ class iaForm extends loop_callAgent
 		return $elt;
 	}
 
-	public function setError($eltname, $message)
+	function setError($eltname, $message)
 	{
 		$this->getElement($eltname)->setError($message);
 	}
 
-	public function getElement($name)
+	function getElement($name)
 	{
 		return $this->elt[$this->agentPrefix . $name . $this->eltnameSuffix];
 	}
 
-	public function setFile($isfile)
+	function setFile($isfile)
 	{
 		if ($isfile && !$this->hasfile)
 		{
@@ -136,7 +136,7 @@ class iaForm extends loop_callAgent
 		}
 	}
 
-	public function setEnterControl($name = '')
+	function setEnterControl($name = '')
 	{
 		if ($this->firstName === -1) $this->firstName = $name;
 		else if ($name != $this->firstName) $this->enterControl = true;
@@ -169,14 +169,14 @@ class iaForm_hiddenLoop__ extends loop
 {
 	protected $array;
 
-	public function __construct(&$array) {$this->array =& $array;}
+	function __construct(&$array) {$this->array =& $array;}
 	protected function prepare() {return count($this->array);}
 	protected function next()
 	{
 		if (list(, $value) = each($this->array))
 		{
-			$result = $value->compose();
-			$value->compose();
+			$result = $value->loop();
+			$value->loop();
 			return $result;
 		}
 		else

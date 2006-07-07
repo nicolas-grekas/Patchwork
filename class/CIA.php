@@ -266,7 +266,7 @@ class CIA
 
 				if ($b != $a && !self::$isGroupStage)
 				{
-					if (DEBUG) E('Miss-conception: CIA::setGroup() is called in ' . self::$agentClass . '->compose() rather than in ' . self::$agentClass . '->control(). Cache is now disabled for this agent.');
+					if (DEBUG) E('Miss-conception: CIA::setGroup() is called in ' . self::$agentClass . '->compose( ) rather than in ' . self::$agentClass . '->control(). Cache is now disabled for this agent.');
 
 					$a = array('private');
 				}
@@ -579,7 +579,7 @@ class CIA
 			try
 			{
 				$agent = new $agent;
-				$d = (object) $agent->compose();
+				$d = (object) $agent->compose((object) array());
 				$agent->getTemplate();
 
 				self::executeLoops($d);
@@ -606,7 +606,7 @@ class CIA
 
 	protected static function executeLoops($d)
 	{
-		foreach ($d as $k => &$v) if ($v instanceof loop) while ($k = $v->compose()) self::executeLoops($k);
+		foreach ($d as $k => &$v) if ($v instanceof loop) while ($k = $v->loop()) self::executeLoops($k);
 	}
 
 	public static function resolveAgentTrace($agent)
@@ -795,7 +795,7 @@ class CIA
 
 	protected $has_error = false;
 
-	public function __construct()
+	function __construct()
 	{
 		self::header('Content-Type: text/html; charset=UTF-8');
 		set_error_handler(array($this, 'error_handler'));
@@ -803,13 +803,13 @@ class CIA
 		ob_start(array($this, 'ob_handler'));
 	}
 
-	public function shutdown()
+	function shutdown()
 	{
 		if (self::$sessionStarted) session_write_close();
 		DB(true);
 	}
 
-	public function &ob_handler(&$buffer)
+	function &ob_handler(&$buffer)
 	{
 		self::$handlesOb = true;
 		chdir(CIA_PROJECT_PATH);
@@ -943,7 +943,7 @@ class CIA
 		return $buffer;
 	}
 
-	public function error_handler($code, $message, $file, $line, $context)
+	function error_handler($code, $message, $file, $line, $context)
 	{
 		if (!error_reporting()
 			|| ((E_NOTICE == $code || E_STRICT == $code) && 0!==strpos($file, end($GLOBALS['cia_paths'])))
@@ -967,9 +967,9 @@ class agent_
 	protected $canPost = false;
 	protected $watch = array();
 
-	public function control() {}
-	public function compose() {return (object) array();}
-	public function getTemplate()
+	function control() {}
+	function compose($o) {return $o;}
+	function getTemplate()
 	{
 		return isset($this->template) ? $this->template : str_replace('_', '/', substr(get_class($this), 6));
 	}
@@ -1007,7 +1007,7 @@ class agent_
 		$this->control();
 	}
 
-	public function metaCompose()
+	function metaCompose()
 	{
 		CIA::setMaxage($this->maxage);
 		CIA::setExpires($this->expires);
@@ -1016,7 +1016,7 @@ class agent_
 	}
 }
 
-class loop
+class loop_
 {
 	private $loopLength = false;
 	private $filter = array();
@@ -1024,7 +1024,7 @@ class loop
 	protected function prepare() {}
 	protected function next() {}
 
-	final public function &compose()
+	final public function &loop()
 	{
 		$catchMeta = CIA::$catchMeta;
 		CIA::$catchMeta = true;
@@ -1070,4 +1070,5 @@ class loop
 	}
 }
 
+class loop extends loop_ {}
 class PrivateDetection extends Exception {}

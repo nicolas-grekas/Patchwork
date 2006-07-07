@@ -42,7 +42,7 @@ abstract class iaCompiler
 	protected $binaryMode = true;
 	protected $serverMode = true;
 
-	public function __construct($binaryMode)
+	function __construct($binaryMode)
 	{
 		CIA::watch($this->watch);
 

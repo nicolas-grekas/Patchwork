@@ -24,7 +24,7 @@ class iaForm_hidden extends loop_callAgent
 	protected $eltToCheck = array();
 	protected $isOn;
 
-	public function __construct($form, $name, $param, &$sessionLink = false)
+	function __construct($form, $name, $param, &$sessionLink = false)
 	{
 		$this->form = $form;
 		$this->sessionLink =& $sessionLink;
@@ -48,7 +48,7 @@ class iaForm_hidden extends loop_callAgent
 		$this->value = $value;
 	}
 
-	public function getDbValue()
+	function getDbValue()
 	{
 		$a = $this->value;
 
@@ -75,12 +75,12 @@ class iaForm_hidden extends loop_callAgent
 		return $this->value;
 	}
 
-	public function getStatus()
+	function getStatus()
 	{
 		return $this->status;
 	}
 
-	public function add()
+	function add()
 	{
 		$a = func_get_args();
 
@@ -111,7 +111,7 @@ class iaForm_hidden extends loop_callAgent
 		}
 	}
 
-	public function isOn()
+	function isOn()
 	{
 		if (isset($this->isOn)) return $this->isOn;
 		if ($this->status === '') return $this->isOn = false;
@@ -134,7 +134,7 @@ class iaForm_hidden extends loop_callAgent
 		return $this->isOn = empty($error);
 	}
 
-	public function checkError($onempty, $onerror)
+	function checkError($onempty, $onerror)
 	{
 		if ($this->errormsg) return true;
 		else if ($onempty && $this->status==='') return $this->errormsg = $onempty;
@@ -157,13 +157,13 @@ class iaForm_hidden extends loop_callAgent
 		return false;
 	}
 
-	public function setError($message)
+	function setError($message)
 	{
 		$this->status = false;
 		$this->form->errormsg[] = $this->errormsg = $message;
 	}
 
-	public function &getData()
+	function &getData()
 	{
 		$data  = array();
 
@@ -531,7 +531,7 @@ class iaForm_time extends iaForm_text
 		$this->minute = $form->add('minute', $name.'_minute', array('valid'=>'int', 0, 59));
 	}
 
-	public function getValue()
+	function getValue()
 	{
 		return $this->status ? 60*(60*$this->value + ($this->minute->status ? $this->minute->value : 0)) : 0;
 	}
@@ -557,7 +557,7 @@ class iaForm_date extends iaForm_text
 		return $a;
 	}
 
-	public function getDbValue()
+	function getDbValue()
 	{
 		if ($v = $this->getValue())
 		{
@@ -626,7 +626,7 @@ class loop_iaForm_selectOption__ extends loop
 	protected $length;
 	protected $group = false;
 
-	public function __construct(&$item, &$value, $length)
+	function __construct(&$item, &$value, $length)
 	{
 		$this->item =& $item;
 		$this->value = array_flip((array) $value);

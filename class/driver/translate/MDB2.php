@@ -5,12 +5,12 @@ class driver_translate_MDB2 extends TRANSLATE
 	protected $db;
 	protected $table = 's_translate';
 
-	public function __construct()
+	function __construct()
 	{
 		$this->db = DB();
 	}
 
-	public function search($string, $lang)
+	function search($string, $lang)
 	{
 		$string = $this->db->quote($string);
 

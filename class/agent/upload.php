@@ -4,10 +4,8 @@ class agent_upload extends agent
 {
 	public $argv = array('id');
 
-	public function compose()
+	function compose($o)
 	{
-		$a = (object) array();
-
 		if ($this->argv->id)
 		{
 			$this->expires = 'onmaxage';
@@ -15,11 +13,11 @@ class agent_upload extends agent
 
 			if (is_callable('upload_progress_meter_get_info'))
 			{
-				$a = (object) @upload_progress_meter_get_info($this->argv->id);
+				$o = (object) @upload_progress_meter_get_info($this->argv->id);
 			}
 		}
 		else $this->maxage = -1;
 
-		return $a;
+		return $o;
 	}
 }

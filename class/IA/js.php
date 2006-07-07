@@ -37,7 +37,7 @@ EOHTML;
 		}
 	}
 
-	public static function compose($agent, $liveAgent)
+	public static function render($agent, $liveAgent)
 	{
 		if ($liveAgent)
 		{
@@ -89,7 +89,7 @@ EOHTML;
 
 			ob_start();
 
-			$data = (object) $agent->compose();
+			$data = (object) $agent->compose((object) array());
 			$template = $agent->getTemplate();
 
 			echo '{';
@@ -203,7 +203,7 @@ EOHTML;
 
 		$prevKeyList = '';
 
-		while ($data = $loop->compose())
+		while ($data = $loop->loop())
 		{
 			$data = (array) $data;
 
