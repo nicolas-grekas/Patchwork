@@ -361,20 +361,22 @@ class CIA
 		}
 		else if (!(substr(PHP_OS, 0, 3) == 'WIN' && substr($dir[0], -1) == ':')) $dir[0] = './' . $dir[0];
 
-		$a = '';
-		$b = array_shift($dir) . '/';
-		while (is_dir($b))
+		$new = array();
+
+		while ($dir && !is_dir( implode(DIRECTORY_SEPARATOR, $dir)))
 		{
-			$a = array_shift($dir);
-			if ($a===null) break;
-			$b .= $a . '/';
+			$new[] = array_pop($dir);
 		}
 
-		if ($a!==null) while (mkdir($b))
+		if ($new)
 		{
-			$a = array_shift($dir);
-			if ($a===null) break;
-			$b .= $a . '/';
+			$dir = implode(DIRECTORY_SEPARATOR, $dir);
+
+			while ($new)
+			{
+				$dir .= DIRECTORY_SEPARATOR . array_pop($new);
+				mkdir($dir);
+			}
 		}
 	}
 
