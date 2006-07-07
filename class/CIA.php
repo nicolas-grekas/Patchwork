@@ -650,8 +650,7 @@ class CIA
 		{
 			require_once 'HTTP/Request.php';
 			$agent = implode(CIA::__LANG__(), explode('__', $agent, 2));
-			$keys = new HTTP_Request($agent);
-			$keys->addQueryString('k$', '');
+			$keys = new HTTP_Request($agent . '?k$=');
 			$keys->sendRequest();
 			$keys = $keys->getResponseBody();
 
