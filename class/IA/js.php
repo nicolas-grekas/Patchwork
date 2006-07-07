@@ -137,7 +137,7 @@ EOHTML;
 		}
 		else $data = ob_get_flush();
 
-		$data = str_replace('<?', "<<?php?>?", $data);
+		$data = str_replace('<?', "<<?php ?>?", $data);
 
 		if ('ontouch' == $expires && !($watch || CIA_MAXAGE == $maxage)) $expires = 'auto';
 		$expires = 'auto' == $expires && ($watch || CIA_MAXAGE == $maxage) ? 'ontouch' : 'onmaxage';
@@ -184,7 +184,7 @@ EOHTML;
 				CIA::writeFile($dagent, $maxage, $expires);
 				CIA::writeWatchTable($watch, $dagent);
 
-				$maxage = $template . $data . str_replace('<?', "<<?php?>?", $liveAgent ? ob_get_clean() : ob_get_flush());
+				$maxage = $template . $data . str_replace('<?', "<<?php ?>?", $liveAgent ? ob_get_clean() : ob_get_flush());
 				CIA::writeFile($cagent, $maxage, $expires);
 				CIA::writeWatchTable($watch, $cagent);
 			}
