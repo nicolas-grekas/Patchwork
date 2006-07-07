@@ -68,12 +68,12 @@ if (!isset($_SERVER['CIA_HOME']))
 	// This switch tries to detect sapi compatibility with $_SERVER['PATH_INFO']
 	if (!isset($_SERVER['PATH_INFO'])) switch (php_sapi_name())
 	{
-		case 'cgi-fcgi':
 		case 'cgi':
 		case 'cli':
 			$use_path_info = false;
 			break;
 
+		case 'cgi-fcgi': // cgi-fcgi seams to works on free.fr
 		case 'aolserver':
 		case 'apache':
 		case 'apache2handler':
