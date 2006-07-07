@@ -25,9 +25,15 @@ class loop_sql_MDB2 extends loop
 
 	protected function prepare()
 	{
-		if ($this->count > 0) $this->db->setLimit($this->count, $this->from);
+		$sql = $this->sql;
 
-		$this->result = $this->db->query($this->sql);
+		if ($this->count > 0)
+		{
+			if ('mysql' == $this->db->phptype) $sql .= " LIMIT {$this->from},{$this->count}";
+			else $this->db->setLimit($this->count, $this->from);
+		}
+
+		$this->result = $this->db->query($sql);
 
 		return @PEAR::isError($this->result) ? false : $this->result->numRows();
 	}
