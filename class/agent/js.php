@@ -8,7 +8,7 @@ class agent_js extends agent_bin
 
 	protected $watch = array('public/js');
 
-	public function control()
+	function control()
 	{
 		CIA::header('Content-Type: text/javascript; charset=UTF-8');
 
@@ -29,7 +29,7 @@ class agent_js extends agent_bin
 		}
 	}
 
-	public function compose()
+	function compose($o)
 	{
 		if (!DEBUG && !$this->argv->source)
 		{
@@ -43,6 +43,6 @@ class agent_js extends agent_bin
 			echo $parser->get();
 		}
 
-		return (object) array();
+		return $o;
 	}
 }

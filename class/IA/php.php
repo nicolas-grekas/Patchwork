@@ -71,7 +71,7 @@ class IA_php
 			{
 				$agent->autoResolve = false;
 
-				while ($i =& $agent->compose()) $data =& $i;
+				while ($i =& $agent->loop()) $data =& $i;
 
 				$agent = $data->{'a$'};
 
@@ -120,14 +120,14 @@ class IA_php
 			self::$args = (object) $args;
 		}
 
-		self::compose($agent);
+		self::render($agent);
 
 		$_GET =& $a;
 
 		if ($reset_get) self::$get = false;
 	}
 
-	protected static function compose($agentClass)
+	protected static function render($agentClass)
 	{
 		CIA::openMeta($agentClass);
 
@@ -161,7 +161,7 @@ class IA_php
 				else
 				{
 					ob_start();
-					$v = (object) $agent->compose();
+					$v = (object) $agent->compose((object) array());
 					$template = $agent->getTemplate();
 					$filter = true;
 					$rawdata = ob_get_flush();
@@ -263,7 +263,7 @@ class IA_php
 					fwrite($h, 'new L_(array(', 13);
 
 					$comma2 = '';
-					while ($key = $value->compose())
+					while ($key = $value->loop())
 					{
 						fwrite($h, $comma2, strlen($comma2));
 						self::writeAgent($h, $key);
@@ -319,7 +319,7 @@ class L_ extends loop
 	protected $len;
 	protected $i = 0;
 
-	public function __construct($array)
+	function __construct($array)
 	{
 		$this->array =& $array;
 	}
@@ -341,7 +341,7 @@ class loop_length_ extends loop
 	protected $length;
 	protected $counter;
 
-	public function __construct($length)
+	function __construct($length)
 	{
 		$this->length = $length;
 	}

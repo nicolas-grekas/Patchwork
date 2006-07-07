@@ -8,7 +8,7 @@ class loop_sql_mysqli extends loop
 	protected $from = 0;
 	protected $count = 0;
 
-	public function __construct($sql, $filter = '', $from = 0, $count = 0)
+	function __construct($sql, $filter = '', $from = 0, $count = 0)
 	{
 		$this->db = DB()->connection;
 		$this->sql = $sql;
@@ -17,7 +17,7 @@ class loop_sql_mysqli extends loop
 		$this->addFilter($filter);
 	}
 
-	public function setLimit($from, $count)
+	function setLimit($from, $count)
 	{
 		$this->from  = (int) $from;
 		$this->count = (int) $count;

@@ -2,7 +2,7 @@
 
 class loop_reverse extends loop_array
 {
-	public function __construct($loop)
+	function __construct($loop)
 	{
 		$array = $this->getArray($loop, true);
 
@@ -13,7 +13,7 @@ class loop_reverse extends loop_array
 	{
 		$array = array();
 
-		while ($a = $loop->compose())
+		while ($a = $loop->loop())
 		{
 			foreach ($a as &$v) if ($v instanceof loop) $v = new loop_array($this->getArray($v), 'filter_rawArray');
 

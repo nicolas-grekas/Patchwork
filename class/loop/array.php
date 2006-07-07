@@ -5,7 +5,7 @@ class loop_array extends loop
 	protected $array;
 	protected $isAssociative = true;
 
-	public function __construct($array, $filter = '', $isAssociative = null)
+	function __construct($array, $filter = '', $isAssociative = null)
 	{
 		$this->array =& $array;
 		if ($filter) $this->addFilter($filter);

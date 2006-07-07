@@ -4,7 +4,7 @@ class agent_QJsrs extends agent_bin
 {
 	protected $data = array();
 
-	public function compose()
+	function compose($o)
 	{
 		echo '/*<script type="text/javascript">/**/q="',
 			str_replace(array('\\', '"'), array('\\\\', '\\"'), $this->getJs($this->data)),

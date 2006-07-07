@@ -426,11 +426,11 @@ if (CIA_DIRECT)
 			break;
 
 		case 'a$':
-			IA_js::compose(array_shift($_GET), false);
+			IA_js::render(array_shift($_GET), false);
 			break;
 
 		case 'x$':
-			IA_js::compose(array_shift($_GET), true);
+			IA_js::render(array_shift($_GET), true);
 			break;
 	}
 }

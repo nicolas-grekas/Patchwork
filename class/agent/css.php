@@ -8,7 +8,7 @@ class agent_css extends agent_bin
 
 	protected $watch = array('public/css');
 
-	public function control()
+	function control()
 	{
 		CIA::header('Content-Type: text/css; charset=UTF-8');
 

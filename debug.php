@@ -38,7 +38,6 @@ function Z()
 $sleep = 500;	// (ms)
 $period = 5;	// (s)
 
-if (!isset($_GET['stop'])) apache_setenv('no-gzip', '1');
 ignore_user_abort(false);
 @set_time_limit(0);
 
