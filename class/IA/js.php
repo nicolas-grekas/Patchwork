@@ -59,7 +59,7 @@ EOHTML;
 			$agent = new $agentClass($_GET);
 
 			$group = CIA::closeGroupStage();
-		
+
 			if ($is_cacheable = !in_array('private', $group))
 			{
 				$cagent = CIA::agentCache($agentClass, $agent->argv, 'js.php', $group);
