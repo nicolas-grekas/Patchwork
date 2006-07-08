@@ -513,7 +513,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 					break;
 
 				case 9: // next
-					($loopIterator() && ($pointer -= $code[$pointer])) || ($loopIterator = ++$pointer);
+					($loopIterator() && ($pointer -= $code[$pointer])) || ++$pointer;
 					$context = v;
 					break;
 			}
@@ -527,22 +527,22 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 	w.f = function()
 	{
-		var $content;
+		var $content = $buffer;
 
-		$i = $buffer.search(/<\/script>/i);
-		if ($i<0)
-			$content = $buffer,
-			$buffer = '';
-		else
+		$buffer = '';
+
+		$i = $content.search(/<\/script>/i);
+
+		if ($i>=0)
 			$i += 9,
-			$content = $buffer.substring(0, $i) + '<script type="text/javascript" class="w" src="' + $masterHome + 'js/x"></script>', // Any optimization to save some request here is likely to break IE ...
-			$buffer = $buffer.substr($i);
+			$buffer = $content.substr($i),
+			$content = $content.substring(0, $i) + '<script type="text/javascript" class="w" src="' + $masterHome + 'js/x"></script>'; // Any optimization to save some request here is likely to break IE ...
 
 		$document.write($content);
 
 		if ($i<0 && $closeDoc)
 			$document.close(),
-			w = $document = r = y = z = w.k = w.f = w.r = w.x = 0;
+			w = $document = r = y = z = w.k = w.f = w.r = w.x = $loopIterator = 0;
 	}
 
 	w.r = function()
@@ -658,7 +658,13 @@ w = function($homeAgent, $keys, $masterCIApID)
 		for ($i=0; $i<$j.length; ++$i) if ($j[$i]) $loopIterator[$loopIterator.length] = g['__'+($loopIterator.length+1)+'__'] = $j[$i];
 		g.__0__ = $loopIterator.join('/');
 
+		/* Block load, 2 steps : generating, then displaying. * /
+		w(0, [4, 1, '$homeAgent', 'g', $keys, 1, 5, 1, 'b', 3, 'g.b']);
+		/**/
+
+		/* Dynamic load, 1 step : generating and displaying at the same time. */
 		w(0, [1, '$homeAgent', 'g', $keys, 1]);
+		/**/
 	}
 }
 
