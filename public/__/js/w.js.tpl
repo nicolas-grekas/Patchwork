@@ -279,9 +279,99 @@ w = function($homeAgent, $keys, $masterCIApID)
 		});
 		<!-- END:IF -->
 
-		function $execute()
+		function $evalNext()
 		{
-			$pointer || ($WexecStack[++$WexecLast] = $execute);
+			return eval('$i=' + $code[$pointer++]);
+		}
+
+		function $echo($a)
+		{
+			if (t($a))
+			{
+				if ($WobLast) $WobStack[$WobLast] += $a;
+				else $buffer += $a;
+			}
+		}
+
+		function $include($inc, $args, $keys, $c)
+		{
+			if ($args)
+			{
+				if ($inc.indexOf('?')==-1) $inc += '?';
+				$c = '';
+
+				if ($keys)
+				{
+					if (!antiXSJ)
+					{
+						$i = (''+Math.random()).substr(2);
+						$j = $masterHome.replace(
+							/\?.*$/              , '' ).replace(
+							/^https?:\/\/[^\/]*/i, '' ).replace(
+							/\/[^\/]+$/          , '/'
+						);
+
+						$document.cookie = 'T$=' + $i + '; path=' + encodeURI($j);
+					}
+
+					$args.T$ = antiXSJ || $i;
+
+					if ($args.e$) for ($i in $args) $args[$i] = num(str($args[$i]), 1);
+					else          for ($i in $args) $args[$i] = num(    $args[$i] , 1);
+
+					for ($i=0; $i<$keys.length; ++$i)
+						if (($j = $keys[$i]) && t($args[$j]))
+							$c += '&amp;' + eUC($j) + '=' + eUC(unesc($args[$j]));
+
+					if ($args.e$) $args.__URI__ += '?' + $c.substr(5);
+					a = $args;
+					$include($inc + $c + '&amp;v$=' + $CIApID);
+				}
+				else
+				{
+					w.k = function($id, $home, $agent, $__0__, $keys)
+					{
+						$home = esc($home).replace(/__/, g.__LANG__);
+						$agent = esc($agent);
+
+						$args.__0__ = $__0__;
+						$__0__ = $__0__.split('/');
+						for ($i = 0; $i < $__0__.length; ++$i) $args['__' + ($i+1) + '__'] = $__0__[$i];
+
+						if ($home != g.__HOME__)
+						{
+							$CIApID = $id/1;
+
+							$args.__DEBUG__ = g.__DEBUG__;
+							$args.__LANG__ = g.__LANG__;
+							$args.__HOME__ = $home;
+							$args.__HOST__ = $home.substr(0, $home.indexOf('/', 8)+1);
+							$args.__AGENT__ = $agent ? $agent + '/' : '';
+							$args.__URI__ = $home + $agent;
+							$args.e$ = 1;
+
+							g = $args;
+						}
+
+						$include($home + '_?a$=' + $agent, $args, $keys)
+					}
+
+					$include($inc + '&amp;k$=', 0, 0, 1);
+				}
+			}
+			else
+			{
+				$lastInclude = $c ? '' : $inc;
+
+				if (t($includeCache[$inc])) w($includeCache[$inc][0], $includeCache[$inc][1]);
+				else
+					$buffer += '<script type="text/javascript" class="w" src="' + $inc + '"></script >',
+					w.f();
+			}
+		}
+
+		($WexecStack[++$WexecLast] = function()
+		{
 			a = $arguments;
 			v = $context;
 
@@ -423,107 +513,16 @@ w = function($homeAgent, $keys, $masterCIApID)
 					break;
 
 				case 9: // next
-					($loopIterator() && ($pointer -= $code[$pointer])) || ++$pointer;
+					($loopIterator() && ($pointer -= $code[$pointer])) || ($loopIterator = ++$pointer);
 					$context = v;
 					break;
 			}
 
+			$WexecStack[$WexecLast] = 0;
+
 			if (--$WexecLast) $WexecStack[$WexecLast]();
 			else $closeDoc = 1, w.f();
-		}
-
-		function $evalNext()
-		{
-			return eval('$i=' + $code[$pointer++]);
-		}
-
-		function $echo($a)
-		{
-			if (t($a))
-			{
-				if ($WobLast) $WobStack[$WobLast] += $a;
-				else $buffer += $a;
-			}
-		}
-
-		function $include($inc, $args, $keys, $c)
-		{
-			if ($args)
-			{
-				if ($inc.indexOf('?')==-1) $inc += '?';
-				$c = '';
-
-				if ($keys)
-				{
-					if (!antiXSJ)
-					{
-						$i = (''+Math.random()).substr(2);
-						$j = $masterHome.replace(
-							/\?.*$/              , '' ).replace(
-							/^https?:\/\/[^\/]*/i, '' ).replace(
-							/\/[^\/]+$/          , '/'
-						);
-
-						$document.cookie = 'T$=' + $i + '; path=' + encodeURI($j);
-					}
-
-					$args.T$ = antiXSJ || $i;
-
-					if ($args.e$) for ($i in $args) $args[$i] = num(str($args[$i]), 1);
-					else          for ($i in $args) $args[$i] = num(    $args[$i] , 1);
-
-					for ($i=0; $i<$keys.length; ++$i)
-						if (($j = $keys[$i]) && t($args[$j]))
-							$c += '&amp;' + eUC($j) + '=' + eUC(unesc($args[$j]));
-
-					if ($args.e$) $args.__URI__ += '?' + $c.substr(5);
-					a = $args;
-					$include($inc + $c + '&amp;v$=' + $CIApID);
-				}
-				else
-				{
-					w.k = function($id, $home, $agent, $__0__, $keys)
-					{
-						$home = esc($home).replace(/__/, g.__LANG__);
-						$agent = esc($agent);
-
-						$args.__0__ = $__0__;
-						$__0__ = $__0__.split('/');
-						for ($i = 0; $i < $__0__.length; ++$i) $args['__' + ($i+1) + '__'] = $__0__[$i];
-
-						if ($home != g.__HOME__)
-						{
-							$CIApID = $id/1;
-
-							$args.__DEBUG__ = g.__DEBUG__;
-							$args.__LANG__ = g.__LANG__;
-							$args.__HOME__ = $home;
-							$args.__HOST__ = $home.substr(0, $home.indexOf('/', 8)+1);
-							$args.__AGENT__ = $agent ? $agent + '/' : '';
-							$args.__URI__ = $home + $agent;
-							$args.e$ = 1;
-
-							g = $args;
-						}
-
-						$include($home + '_?a$=' + $agent, $args, $keys)
-					}
-
-					$include($inc + '&amp;k$=', 0, 0, 1);
-				}
-			}
-			else
-			{
-				$lastInclude = $c ? '' : $inc;
-
-				if (t($includeCache[$inc])) w($includeCache[$inc][0], $includeCache[$inc][1]);
-				else
-					$buffer += '<script type="text/javascript" class="w" src="' + $inc + '"></script >',
-					w.f();
-			}
-		}
-
-		$execute();
+		})();
 	}
 
 	w.f = function()
