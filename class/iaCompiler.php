@@ -118,27 +118,10 @@ abstract class iaCompiler
 		$lang = CIA::__LANG__() . DIRECTORY_SEPARATOR;
 		$l_ng = '__' . DIRECTORY_SEPARATOR;
 
-		switch (DEBUG)
-		{
-			case 5 : if (file_exists($path . $lang . $template . ".5")) {$source = $path . $lang . $template . ".5"; break;}
-			case 4 : if (file_exists($path . $lang . $template . ".4")) {$source = $path . $lang . $template . ".4"; break;}
-			case 3 : if (file_exists($path . $lang . $template . ".3")) {$source = $path . $lang . $template . ".3"; break;}
-			case 2 : if (file_exists($path . $lang . $template . ".2")) {$source = $path . $lang . $template . ".2"; break;}
-			case 1 : if (file_exists($path . $lang . $template . ".1")) {$source = $path . $lang . $template . ".1"; break;}
-			default: if (file_exists($path . $lang . $template       )) {$source = $path . $lang . $template       ; break;}
-		}
-
-		if (!isset($source)) switch (DEBUG)
-		{
-			case 5 : if (file_exists($path . $l_ng . $template . ".5")) {$source = $path . $l_ng . $template . ".5"; break;}
-			case 4 : if (file_exists($path . $l_ng . $template . ".4")) {$source = $path . $l_ng . $template . ".4"; break;}
-			case 3 : if (file_exists($path . $l_ng . $template . ".3")) {$source = $path . $l_ng . $template . ".3"; break;}
-			case 2 : if (file_exists($path . $l_ng . $template . ".2")) {$source = $path . $l_ng . $template . ".2"; break;}
-			case 1 : if (file_exists($path . $l_ng . $template . ".1")) {$source = $path . $l_ng . $template . ".1"; break;}
-			default: if (file_exists($path . $l_ng . $template       )) {$source = $path . $l_ng . $template       ; break;}
-		}
-
-		if (!isset($source)) return $this->load($template, $path_idx + 1);
+		if (
+			   !file_exists($source = $path . $lang . $template)
+			&& !file_exists($source = $path . $l_ng . $template)
+		) return $this->load($template, $path_idx + 1);
 
 		$source = @file_get_contents($source);
 

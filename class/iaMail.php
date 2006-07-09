@@ -49,7 +49,7 @@ class iaMail extends Mail_mime
 		$body =& $this->get($this->options);
 		$headers =& $this->headers();
 
-		$to = DEBUG ? 'webmaster' : $headers['To'];
+		$to = DEBUG ? $GLOBALS['CONFIG']['debug_email'] : $headers['To'];
 		unset($headers['To']);
 
 		$mail = @Mail::factory('mail', isset($headers['Return-Path']) ? '-f ' . escapeshellarg($headers['Return-Path']) : '' );
