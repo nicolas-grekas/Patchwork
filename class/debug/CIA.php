@@ -1,15 +1,5 @@
 <?php
 
-foreach (array_keys($GLOBALS) as $k) switch ($k)
-{
-	# $_REQUEST is banned
-	case 'cia_paths': case 'k':
-	case '_SESSION': case 'CONFIG': case 'GLOBALS':
-	case '_SERVER':  case '_GET':   case '_POST':
-	case '_COOKIE':  case '_FILES': case '_ENV': break;
-	default: unset($GLOBALS[$k]);
-}
-
 if (isset($_SERVER['PHP_AUTH_USER']))
 {
 	$_SERVER['PHP_AUTH_USER'] = $_SERVER['PHP_AUTH_PW'] = "Don't use me, it would be a security hole (cross site javascript).";
@@ -66,7 +56,7 @@ class debug_CIA extends CIA
 	private function error_end($type)
 	{
 		$bgcolor = $this->has_error ? 'red' : 'blue';
-		$debugWin = self::$home . '_?d&stop&' . mt_rand();
+		$debugWin = self::$home . '_?d$&stop&' . mt_rand();
 		$QDebug = self::$home . 'js/QDebug.js';
 		$lang = CIA::__LANG__();
 

@@ -425,7 +425,7 @@ class CIA
 			if ('WIN' == substr(PHP_OS, 0, 3)) @unlink($filename);
 			rename($tmpname, $filename);
 
-			if ($Dmtime) touch($filename, CIA_TIME + $Dmtime);
+			if ($Dmtime) touch($filename, $_SERVER['REQUEST_TIME'] + $Dmtime);
 
 			return true;
 		}
@@ -457,7 +457,8 @@ class CIA
 
 	public static function ciaLog($message, $is_end = false, $html = true)
 	{
-		return self::$cia->log($message, $is_end, $html);
+		if (isset(self::$cia)) return self::$cia->log($message, $is_end, $html);
+		else trigger_error(serialize($message));
 	}
 
 	public static function resolveAgentClass($agent, &$args)
@@ -476,7 +477,7 @@ class CIA
 		$agent = substr($agent, 1, -1);
 		$agent = preg_replace("'^(\.\.?/)+'", '', $agent);
 
-		preg_match("'^((?:[\w\d]+(?:[-_][\w\d]+)*(?:/|$))*)(.*?)$'u", $agent, $agent);
+		preg_match("'^((?:[a-z0-9]+(?:[-_][a-z0-9]+)*(?:/|$))*)(.*?)$'iu", $agent, $agent);
 
 		$param = '' !== $agent[2] ? explode('/', $agent[2]) : array();
 		$agent = $agent[1];
@@ -916,7 +917,7 @@ class CIA
 				header('Last-Modified: ' . $LastModified);
 			}
 
-			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', CIA_TIME + self::$maxage));
+			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', $_SERVER['REQUEST_TIME'] + self::$maxage));
 			header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');
 		}
 
@@ -955,7 +956,7 @@ class CIA
 	}
 }
 
-class agent_
+class agent
 {
 	const binary = false;
 
