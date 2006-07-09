@@ -112,7 +112,15 @@ function CIA($file, $parent = '../../config.php')
 }
 // }}}
 
-// {{{ function resolvePath(): cia-specific-include_path-like mechanism
+// {{{ function create_class()
+create_class($classname, $parentclass = '', $code = '')
+{
+	if ($parentclass) $classname .= ' extends ' . $parentclass;
+	eval('class ' . $classname . '{' . $code . '}');
+}
+// }}}
+
+// {{{ function resolvePath(): cia-specific include_path-like mechanism
 function resolvePath($filename)
 {
 	$paths =& $GLOBALS['cia_paths'];
