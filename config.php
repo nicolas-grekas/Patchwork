@@ -6,6 +6,7 @@ $CONFIG += array(		// Config parameters
 
 	'timezone' => 'Europe/Paris',
 	'php' => 'c:/progra~1/wamp/php/php.exe', // Path to your php executable.
+	'debug_email' => 'webmaster',
 
 	'maxage' => 3600,
 	'lang_list' => 'fr',

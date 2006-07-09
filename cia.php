@@ -133,7 +133,6 @@ function resolvePath($filename)
 		do
 		{
 			$path = $paths[$i++] . DIRECTORY_SEPARATOR;
-
 			if (is_dir($path . $filename)) return $path . $filename;
 		}
 		while (--$len);
@@ -143,16 +142,7 @@ function resolvePath($filename)
 		do
 		{
 			$path = $paths[$i++] . DIRECTORY_SEPARATOR;
-
-			switch (DEBUG)
-			{
-				case 5 : if (file_exists($path . $filename . '.5')) return $path . $filename . '.5';
-				case 4 : if (file_exists($path . $filename . '.4')) return $path . $filename . '.4';
-				case 3 : if (file_exists($path . $filename . '.3')) return $path . $filename . '.3';
-				case 2 : if (file_exists($path . $filename . '.2')) return $path . $filename . '.2';
-				case 1 : if (file_exists($path . $filename . '.1')) return $path . $filename . '.1';
-				default: if (file_exists($path . $filename       )) return $path . $filename       ;
-			}
+			if (file_exists($path . $filename)) return $path . $filename;
 		}
 		while (--$len);
 	}
