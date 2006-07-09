@@ -152,12 +152,12 @@ class IA_php
 		}
 		else
 		{
-			if ($is_cacheable && file_exists($cagent) && filemtime($cagent)>CIA_TIME) require $cagent;
+			if ($is_cacheable && file_exists($cagent) && filemtime($cagent)>$_SERVER['REQUEST_TIME']) require $cagent;
 			else
 			{
 				$v = substr($cagent, 0, -7) . 'post' . substr($cagent, -4);
 
-				if ($is_cacheable && !CIA_POSTING && file_exists($v) && filemtime($v)>CIA_TIME) require $v;
+				if ($is_cacheable && !CIA_POSTING && file_exists($v) && filemtime($v)>$_SERVER['REQUEST_TIME']) require $v;
 				else
 				{
 					ob_start();
@@ -235,7 +235,7 @@ class IA_php
 				if ('WIN' == substr(PHP_OS, 0, 3)) @unlink($fagent);
 				@rename($tmpname, $fagent);
 
-				touch($fagent, CIA_TIME + ('ontouch' == $expires ? CIA_MAXAGE : $maxage));
+				touch($fagent, $_SERVER['REQUEST_TIME'] + ('ontouch' == $expires ? CIA_MAXAGE : $maxage));
 
 				CIA::writeWatchTable($watch, $fagent);
 			}

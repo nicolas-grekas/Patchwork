@@ -1,3 +1,5 @@
 Deny from all
-#Add "php 1" to enable PHP5 on free.fr
 #php_admin_flag safe_mode off
+
+# Uncomment to enable PHP5 on free.fr
+#php 1

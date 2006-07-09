@@ -6,7 +6,7 @@ class pipe_now
 	{
 		CIA::setMaxage(1);
 		CIA::setExpires('onmaxage');
-		return CIA_TIME;
+		return $_SERVER['REQUEST_TIME'];
 	}
 
 	static function js()

@@ -2,7 +2,7 @@
 
 if (!ini_get('zlib.output_compression')) ob_start('ob_gzhandler');
 
-header('Expires: ' . gmdate('D, d M Y H:i:s', CIA_TIME + CIA_MAXAGE) . ' GMT');
+header('Expires: ' . gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + CIA_MAXAGE) . ' GMT');
 header('Cache-Control: max-age=' . CIA_MAXAGE .',public');
 header('Content-Type: text/html; charset=UTF-8');
 header('Vary: Accept-Language', false);

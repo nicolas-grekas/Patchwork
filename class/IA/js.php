@@ -68,7 +68,7 @@ EOHTML;
 
 			if ($liveAgent)
 			{
-				if ($is_cacheable && file_exists($dagent) && filemtime($dagent)>CIA_TIME)
+				if ($is_cacheable && file_exists($dagent) && filemtime($dagent)>$_SERVER['REQUEST_TIME'])
 					{
 					require $dagent;
 					CIA::closeMeta();
@@ -79,7 +79,7 @@ EOHTML;
 			}
 			else
 			{
-				if ($is_cacheable && file_exists($cagent) && filemtime($cagent)>CIA_TIME)
+				if ($is_cacheable && file_exists($cagent) && filemtime($cagent)>$_SERVER['REQUEST_TIME'])
 				{
 					require $cagent;
 					CIA::closeMeta();

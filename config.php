@@ -1,6 +1,9 @@
-<?php defined('CIA') || define('CIA', microtime(true)) && $CONFIG = array();
+<?php
 
-$CONFIG += array(
+$CONFIG += array(		// Config parameters
+
+	'DEBUG_KEYS' => array('1' => 1),	// password => debug_level hash
+
 	'timezone' => 'Europe/Paris',
 	'php' => 'c:/progra~1/wamp/php/php.exe', // Path to your php executable.
 
@@ -11,21 +14,9 @@ $CONFIG += array(
 
 	'translate_driver' => 'default_',
 	'translate_params' => array(),
+
 );
 
+if (!isset($CONFIG['DEBUG'])) $CONFIG['DEBUG'] = isset($_COOKIE['DEBUG']) ? (int) @$CONFIG['DEBUG_KEYS'][$_COOKIE['DEBUG']] : 0;
 
-/* Config initialisation */
-
-@putenv('LC_ALL=en_US.UTF-8');
-setlocale(LC_ALL, 'en_US.UTF-8');
-if (function_exists('iconv_set_encoding'))
-{
-	iconv_set_encoding('input_encoding', 'UTF-8');
-	iconv_set_encoding('internal_encoding', 'UTF-8');
-	iconv_set_encoding('output_encoding', 'UTF-8');
-}
-
-$p = dirname(__FILE__);
-defined('CIA_PROJECT_PATH') || define('CIA_PROJECT_PATH', $p) && $cia_paths = array() || $version_id = 0;
-$version_id += filemtime(__FILE__);
-require ($cia_paths[] = $p) . '/bootstrap.php';
+CIA_GO(__FILE__, true); // 2nd parameter: true if your server supports PATH_INFO, else false 
