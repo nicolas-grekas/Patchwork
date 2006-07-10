@@ -8,10 +8,9 @@ class IA_js
 		CIA::setGroup('private');
 		CIA::setExpires('onmaxage');
 
-		$cagent = CIA::makeCacheDir('controler/' . $agent, 'txt', CIA_PROJECT_ID);
+		$cagent = CIA::getContextualCachePath('controler/' . $agent, 'txt', CIA_PROJECT_ID);
 
-		if (file_exists($cagent)) readfile($cagent);
-		else
+		if ($h = CIA::fopenX($cagent))
 		{
 			$a = CIA::agentArgv($agent);
 			array_walk($a, 'jsquoteRef');
@@ -32,9 +31,11 @@ class IA_js
 </html>
 EOHTML;
 
-			CIA::writeFile($cagent, $a);
+			fwrite($h, $a, strlen($a));
+			fclose($h);
 			CIA::writeWatchTable('CIApID', $cagent);
 		}
+		else readfile($cagent);
 	}
 
 	public static function render($agent, $liveAgent)
@@ -63,27 +64,35 @@ EOHTML;
 			if ($is_cacheable = !in_array('private', $group))
 			{
 				$cagent = CIA::agentCache($agentClass, $agent->argv, 'js.php', $group);
-				$dagent = CIA::makeCacheDir('jsdata.' . $agentClass, 'js.php', $cagent);
-			}
+				$dagent = CIA::getContextualCachePath('jsdata.' . $agentClass, 'js.php', $cagent);
 
-			if ($liveAgent)
-			{
-				if ($is_cacheable && file_exists($dagent) && filemtime($dagent)>$_SERVER['REQUEST_TIME'])
-					{
-					require $dagent;
-					CIA::closeMeta();
-
-					echo '"//</script><script type="text/javascript" src="' . CIA::__HOME__() . 'js/QJsrsHandler"></script>';
-					return;
-				}
-			}
-			else
-			{
-				if ($is_cacheable && file_exists($cagent) && filemtime($cagent)>$_SERVER['REQUEST_TIME'])
+				if ($liveAgent)
 				{
-					require $cagent;
-					CIA::closeMeta();
-					return;
+					if (file_exists($dagent))
+					{
+						if (filemtime($dagent)>$_SERVER['REQUEST_TIME'])
+						{
+							require $dagent;
+							CIA::closeMeta();
+
+							echo '"//</script><script type="text/javascript" src="' . CIA::__HOME__() . 'js/QJsrsHandler"></script>';
+							return;
+						}
+						else unlink($dagent);
+					}
+				}
+				else
+				{
+					if (file_exists($cagent))
+					{
+						if (filemtime($cagent)>$_SERVER['REQUEST_TIME'])
+						{
+							require $cagent;
+							CIA::closeMeta();
+							return;
+						}
+						else unlink($cagent);
+					}
 				}
 			}
 
@@ -150,17 +159,18 @@ EOHTML;
 
 			if (CIA_MAXAGE == $maxage)
 			{
-				$ctemplate = CIA::makeCacheDir("templates/$template", 'txt');
-				if (file_exists($ctemplate)) readfile($ctemplate);
-				else
+				$ctemplate = CIA::getContextualCachePath("templates/$template", 'txt');
+				if ($h = CIA::fopenX($ctemplate))
 				{
 					CIA::openMeta('agent__template/' . $template, false);
 					$compiler = new iaCompiler_js(constant("$agentClass::binary"));
 					echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
-					CIA::writeFile($ctemplate, $template);
+					fwrite($h, $template, strlen($template));
+					fclose($h);
 					list(,,, $template) = CIA::closeMeta();
 					CIA::writeWatchTable($template, $ctemplate);
 				}
+				else readfile($ctemplate);
 
 				$watch[] = 'public/templates/js';
 			}
@@ -168,25 +178,45 @@ EOHTML;
 
 			if ($is_cacheable)
 			{
-				$template = '<?php CIA::setMaxage(' . (int) $maxage . ");CIA::setExpires('$expires');";
+				$ob = true;
 
-				if ($headers)
+				if ($h = CIA::fopenX($dagent))
 				{
-					$headers = array_map('addslashes', $headers);
-					$template .= "header('" . implode("');header('", $headers) . "');";
+					$template = '<?php CIA::setMaxage(' . (int) $maxage . ");CIA::setExpires('$expires');";
+
+					if ($headers)
+					{
+						$headers = array_map('addslashes', $headers);
+						$template .= "header('" . implode("');header('", $headers) . "');";
+					}
+
+					$expires = 'ontouch' == $expires ? CIA_MAXAGE : $maxage;
+
+					$template .= '?>';
+
+					$maxage = $template . str_replace(array('\\', '"'), array('\\\\', '\\"'), $data);
+
+					fwrite($h, $maxage, strlen($maxage));
+					fclose($h);
+
+					touch($dagent, $_SERVER['REQUEST_TIME'] + $expires);
+
+					if ($h = CIA::fopenX($cagent))
+					{
+						$ob = false;
+						$maxage = $template . $data . str_replace('<?', "<<?php ?>?", $liveAgent ? ob_get_clean() : ob_get_flush());
+
+						fwrite($h, $maxage, strlen($maxage));
+						fclose($h);
+
+						touch($dagent, $_SERVER['REQUEST_TIME'] + $expires);
+
+						CIA::writeWatchTable($watch, $dagent);
+						CIA::writeWatchTable($watch, $cagent);
+					}
 				}
 
-				$expires = 'ontouch' == $expires ? CIA_MAXAGE : $maxage;
-
-				$template .= '?>';
-
-				$maxage = $template . str_replace(array('\\', '"'), array('\\\\', '\\"'), $data);
-				CIA::writeFile($dagent, $maxage, $expires);
-				CIA::writeWatchTable($watch, $dagent);
-
-				$maxage = $template . $data . str_replace('<?', "<<?php ?>?", $liveAgent ? ob_get_clean() : ob_get_flush());
-				CIA::writeFile($cagent, $maxage, $expires);
-				CIA::writeWatchTable($watch, $cagent);
+				if ($ob) $liveAgent ? ob_clean() : ob_flush();
 			}
 		}
 	}

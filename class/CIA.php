@@ -349,7 +349,11 @@ class CIA
 	 */
 	public static function makeDir($dir)
 	{
-		$dir = preg_split("'[/\\\\]+'u", dirname("$dir "));
+		$dir = dirname($dir . ' ');
+
+		if (is_dir($dir)) return;
+
+		$dir = preg_split("'[/\\\\]+'u", $dir);
 
 		if (!$dir) return;
 
@@ -402,6 +406,21 @@ class CIA
 		if ($rmdir) @rmdir($dir); // Time consuming
 	}
 
+	public static function fopenX($file)
+	{
+		self::makeDir($file);
+
+		if ($h = @fopen($file, 'x'))
+		{
+			flock($h, LOCK_EX+LOCK_NB, $w);
+
+			if ($w) fclose($h);
+			else return $h;
+		}
+
+		return false;
+	}
+
 	/**
 	 * Creates the full directory path to $filename, then writes $data into this file
 	 */
@@ -450,7 +469,7 @@ class CIA
 		return self::$cachePath . $hash . '.' . $filename . $extension;
 	}
 
-	public static function makeCacheDir($filename, $extension, $key = '')
+	public static function getContextualCachePath($filename, $extension, $key = '')
 	{
 		return self::getCachePath($filename, $extension, self::$home .'-'. self::$lang .'-'. DEBUG .'-'. CIA_PROJECT_PATH .'-'. $key);
 	}
@@ -563,12 +582,9 @@ class CIA
 		else $args = array();
 
 		// autodetect private data for antiXSJ
-		$cache = self::makeCacheDir('antiXSJ.' . $agent, 'txt');
-		if (file_exists($cache))
-		{
-			if (filesize($cache)) $args[] = 'T$';
-		}
-		else
+		$cache = self::getContextualCachePath('antiXSJ.' . $agent, 'txt');
+
+		if ($h = self::fopenX($cache))
 		{
 			$private = '';
 
@@ -586,18 +602,20 @@ class CIA
 			}
 			catch (PrivateDetection $d)
 			{
-				$private = 1;
+				$private = '1';
 			}
 			catch (Exception $d)
 			{
 			}
 
-			self::$privateDetectionMode = false;
+			fwrite($h, $private, strlen($private));
+			fclose($h);
 
-			self::writeFile($cache, $private);
+			self::$privateDetectionMode = false;
 
 			if ($private) $args[] = 'T$';
 		}
+		else if (filesize($cache)) $args[] = 'T$';
 
 		return $args;
 	}
@@ -691,7 +709,7 @@ class CIA
 		if (false === $group) $group = self::$metaInfo[1];
 		$keys = serialize(array($keys, $group));
 
-		return self::makeCacheDir($agentClass, $type . '.php', $keys);
+		return self::getContextualCachePath($agentClass, $type . '.php', $keys);
 	}
 
 	public static function delCache()
@@ -715,38 +733,34 @@ class CIA
 
 			self::$watchTable[] = $path = self::getCachePath('watch/' . $message, 'php');
 
-			if (file_exists($path))
-			{
-				$h = fopen($path, 'ab');
-				flock($h, LOCK_EX);
-				fseek($h, 0, SEEK_END);
-				fwrite($h, $file, strlen($file));
-				fclose($h);
-			}
-			else
-			{
-				$h = "<?php unlink(__FILE__);\n" . $file;
-				self::writeFile($path, $h);
+			self::makeDir($path);
 
+			$h = fopen($path, 'a+b');
+			flock($h, LOCK_EX);
+			fseek($h, 0, SEEK_END);
+			if ($file_isnew = !ftell($h)) $file = "<?php ++\$i;unlink(__FILE__);\n" . $file;
+			fwrite($h, $file, strlen($file));
+			fclose($h);
+
+			if ($file_isnew)
+			{
 				$message = explode('/', $message);
 				while (array_pop($message) !== null)
 				{
 					$file = "include '" . str_replace(array('\\',"'"), array('\\\\',"\\'"), $path) . "';\n";
 
 					$path = self::getCachePath('watch/' . implode('/', $message), 'php');
-					if (file_exists($path))
-					{
-						$h = fopen($path, 'ab');
-						flock($h, LOCK_EX);
-						fseek($h, 0, SEEK_END);
-						fwrite($h, $file, strlen($file));
-						fclose($h);
 
-						break;
-					}
+					self::makeDir($path);
 
-					$h = "<?php unlink(__FILE__);\n" . $file;
-					CIA::writeFile($path, $h);
+					$h = fopen($path, 'a+b');
+					flock($h, LOCK_EX);
+					fseek($h, 0, SEEK_END);
+					if ($file_isnew = !ftell($h)) $file = "<?php ++\$i;unlink(__FILE__);\n" . $file;
+					fwrite($h, $file, strlen($file));
+					fclose($h);
+
+					if (!$file_isnew) break;
 				}
 			}
 		}
@@ -763,17 +777,22 @@ class CIA
 			{
 				$a = '0';
 
-				$cache = self::makeCacheDir('antiXSJ.' . self::$agentClass, 'txt');
-				if (!file_exists($cache) || !filesize($cache))
+				$cache = self::getContextualCachePath('antiXSJ.' . self::$agentClass, 'txt');
+
+				self::makeDir($cache);
+
+				$h = fopen($cache, 'a+b');
+				flock($h, LOCK_EX);
+				fseek($h, 0, SEEK_END);
+				if (!ftell($h))
 				{
 					CIA::touch('CIApID');
 					CIA::touch('public/templates/js');
 
-					$a = '1';
-					self::writeFile($cache, $a);
-
+					fwrite($h, '1', 1);
 					touch('config.php');
 				}
+				fclose($h);
 
 				throw new PrivateDetection($a);
 			}
@@ -851,11 +870,11 @@ class CIA
 
 			/* ETag / Last-Modified validation */
 
-			$h = self::$maxage . "\n"
+			$meta = self::$maxage . "\n"
 				. self::$private . "\n"
 				. implode("\n", self::$headers);
 
-			$ETag = substr(md5($buffer .'-'. self::$expires .'-'. $h), 0, 8);
+			$ETag = substr(md5($buffer .'-'. self::$expires .'-'. $meta), 0, 8);
 			$ETag = hexdec($ETag);
 			if ($ETag > 2147483647) $ETag -= 2147483648;
 
@@ -880,15 +899,16 @@ class CIA
 				$validator = self::$cachePath . $ETag[1] .'/'. $ETag[2] .'/'. substr($ETag, 3) .'.validator.'. DEBUG .'.';
 				$validator .= md5($_SERVER['CIA_HOME'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
 
-				if (!file_exists($validator))
+				if ($h = self::fopenX($validator))
 				{
-					self::writeFile($validator, $h);
+					fwrite($h, $meta, strlen($meta));
+					fclose($h);
 
 					$a = "++\$i;unlink('$validator');\n";
 
 					foreach (array_unique(self::$watchTable) as $path)
 					{
-						$h = fopen($path, 'ab');
+						$h = fopen($path, 'a+b');
 						flock($h, LOCK_EX);
 						fseek($h, 0, SEEK_END);
 						fwrite($h, $a, strlen($a));

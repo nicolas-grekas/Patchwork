@@ -17,7 +17,7 @@ abstract class TRANSLATE
 
 		if ($usecache && $id = CIA::$agentClass)
 		{
-			$id = CIA::makeCacheDir('lang/' . substr($id, 6), 'php');
+			$id = CIA::getContextualCachePath('lang/' . substr($id, 6), 'php');
 			if (!isset(self::$cache[$id]))
 			{
 				$cache = @include $id;
