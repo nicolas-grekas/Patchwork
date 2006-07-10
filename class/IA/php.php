@@ -152,7 +152,7 @@ class IA_php
 		}
 		else
 		{
-			if (!($is_cacheable && $v = self::getFromCache($cagent)))
+			if (!($is_cacheable && list($v, $template) = self::getFromCache($cagent)))
 			{
 				ob_start();
 				$v = (object) $agent->compose((object) array());
@@ -281,7 +281,7 @@ class IA_php
 			if (filemtime($cagent)>$_SERVER['REQUEST_TIME'])
 			{
 				require $cagent;
-				return $v;
+				return array($v, $template);
 			}
 			else unlink($cagent);
 
@@ -295,7 +295,7 @@ class IA_php
 			if (filemtime($cagent)>$_SERVER['REQUEST_TIME'])
 			{
 				require $cagent;
-				return $v;
+				return array($v, $template);
 			}
 			else unlink($cagent);
 		}
