@@ -410,7 +410,7 @@ class CIA
 	{
 		self::makeDir($file);
 
-		if ($h = @fopen($file, 'x'))
+		if ($h = @fopen($file, 'x+b'))
 		{
 			flock($h, LOCK_EX+LOCK_NB, $w);
 
@@ -908,9 +908,8 @@ class CIA
 
 					foreach (array_unique(self::$watchTable) as $path)
 					{
-						$h = fopen($path, 'a+b');
+						$h = fopen($path, 'ab');
 						flock($h, LOCK_EX);
-						fseek($h, 0, SEEK_END);
 						fwrite($h, $a, strlen($a));
 						fclose($h);
 					}
