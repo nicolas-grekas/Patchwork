@@ -113,7 +113,7 @@ function CIA($file, $parent = '../../config.php')
 // }}}
 
 // {{{ function create_class()
-create_class($classname, $parentclass = '', $code = '')
+function create_class($classname, $parentclass = '', $code = '')
 {
 	if ($parentclass) $classname .= ' extends ' . $parentclass;
 	eval('class ' . $classname . '{' . $code . '}');
@@ -121,12 +121,12 @@ create_class($classname, $parentclass = '', $code = '')
 // }}}
 
 // {{{ function resolvePath(): cia-specific include_path-like mechanism
-function resolvePath($filename)
+function resolvePath($filename, &$level = 0)
 {
 	$paths =& $GLOBALS['cia_paths'];
 
 	$i = 0;
-	$len = count($paths);
+	$level = count($paths);
 
 	if ('/' == substr($filename, -1))
 	{
@@ -135,7 +135,7 @@ function resolvePath($filename)
 			$path = $paths[$i++] . DIRECTORY_SEPARATOR;
 			if (is_dir($path . $filename)) return $path . $filename;
 		}
-		while (--$len);
+		while (--$level);
 	}
 	else
 	{
@@ -144,7 +144,7 @@ function resolvePath($filename)
 			$path = $paths[$i++] . DIRECTORY_SEPARATOR;
 			if (file_exists($path . $filename)) return $path . $filename;
 		}
-		while (--$len);
+		while (--$level);
 	}
 
 	return $filename;
@@ -411,17 +411,18 @@ function CIA_GO($file, $use_path_info)
 
 				echo 'w(0';
 
-				$ctemplate = CIA::makeCacheDir("templates/$template", 'txt');
-				if (file_exists($ctemplate)) readfile($ctemplate);
-				else
+				$ctemplate = CIA::getContextualCachePath("templates/$template", 'txt');
+				if ($h = CIA::fopenX($ctemplate))
 				{
 					CIA::openMeta('agent__template/' . $template, false);
 					$compiler = new iaCompiler_js(false);
 					echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
-					CIA::writeFile($ctemplate, $template);
+					fwrite($h, $template, strlen($template));
+					fclose($h);
 					list(,,, $watch) = CIA::closeMeta();
 					CIA::writeWatchTable($watch, $ctemplate);
 				}
+				else readfile($ctemplate);
 
 				CIA::setMaxage(-1);
 				break;
@@ -433,9 +434,8 @@ function CIA_GO($file, $use_path_info)
 
 				foreach ($pipe[0] as &$pipe)
 				{
-					$cpipe = CIA::makeCacheDir('pipe/' . $pipe, 'js');
-					if (file_exists($cpipe)) readfile($cpipe);
-					else
+					$cpipe = CIA::getContextualCachePath('pipe/' . $pipe, 'js');
+					if ($h = CIA::fopenX($cpipe))
 					{
 						ob_start();
 						call_user_func(array('pipe_' . $pipe, 'js'));
@@ -445,9 +445,11 @@ function CIA_GO($file, $use_path_info)
 						$jsquiz->addJs($pipe);
 						echo $pipe = $jsquiz->get();
 						$pipe .= "\n";
-						CIA::writeFile($cpipe, $pipe);
+						fwrite($h, $pipe, strlen($pipe));
+						fclose($h);
 						CIA::writeWatchTable(array('pipe'), $cpipe);
 					}
+					else readfile($cpipe);
 				}
 
 				echo 'w(0,[])';

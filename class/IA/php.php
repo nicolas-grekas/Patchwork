@@ -152,20 +152,13 @@ class IA_php
 		}
 		else
 		{
-			if ($is_cacheable && file_exists($cagent) && filemtime($cagent)>$_SERVER['REQUEST_TIME']) require $cagent;
-			else
+			if (!($is_cacheable && $v = self::getFromCache($cagent)))
 			{
-				$v = substr($cagent, 0, -7) . 'post' . substr($cagent, -4);
-
-				if ($is_cacheable && !CIA_POSTING && file_exists($v) && filemtime($v)>$_SERVER['REQUEST_TIME']) require $v;
-				else
-				{
-					ob_start();
-					$v = (object) $agent->compose((object) array());
-					$template = $agent->getTemplate();
-					$filter = true;
-					$rawdata = ob_get_flush();
-				}
+				ob_start();
+				$v = (object) $agent->compose((object) array());
+				$template = $agent->getTemplate();
+				$filter = true;
+				$rawdata = ob_get_flush();
 			}
 
 			$vClone = clone $v;
@@ -175,18 +168,19 @@ class IA_php
 
 		self::$values = $v->{'$'} = $v;
 
-		$ctemplate = CIA::makeCacheDir('templates/' . $template, (constant("$agentClass::binary") ? 'bin' : 'html') . '.php');
+		$ctemplate = CIA::getContextualCachePath('templates/' . $template, (constant("$agentClass::binary") ? 'bin' : 'html') . '.php');
 		$ftemplate = 'template' . md5($ctemplate);
 
 		if (function_exists($ftemplate)) $ftemplate($v, $a, $g);
 		else
 		{
-			if (!file_exists($ctemplate))
+			if ($h = CIA::fopenX($ctemplate))
 			{
 				CIA::openMeta('agent__template/' . $template, false);
 				$compiler = new iaCompiler_php(constant("$agentClass::binary"));
 				$ftemplate = '<?php function ' . $ftemplate . '(&$v, &$a, &$g){$d=$v;' . $compiler->compile($template . '.tpl') . '} ' . $ftemplate . '($v, $a, $g);';
-				CIA::writeFile($ctemplate,  $ftemplate);
+				fwrite($h, $ftemplate, strlen($ftemplate));
+				fclose($h);
 				list(,,, $watch) = CIA::closeMeta();
 				CIA::writeWatchTable($watch, $ctemplate);
 			}
@@ -208,36 +202,30 @@ class IA_php
 				$fagent = $cagent;
 				if ($canPost) $fagent = substr($cagent, 0, -7) . 'post' . substr($cagent, -4);
 
-				CIA::makeDir($fagent);
-
-				$tmpname = dirname($fagent) . '/' . CIA::uniqid();
-
-				$h = fopen($tmpname, 'wb');
-
-				$rawdata = str_replace('<?', "<<?php ?>?", $rawdata) . '<?php $v=(object)';
-				fwrite($h, $rawdata, strlen($rawdata));
-
-				self::writeAgent($h, $vClone);
-
-				$data = ';$template=' . var_export($template, true)
-					. ';CIA::setMaxage(' . (int) $maxage
-					. ");CIA::setExpires('$expires');";
-
-				if ($headers)
+				if ($h = CIA::fopenX($fagent))
 				{
-					$headers = array_map('addslashes', $headers);
-					$data .= "header('" . implode("');header('", $headers) . "');";
+					$rawdata = str_replace('<?', "<<?php ?>?", $rawdata) . '<?php $v=(object)';
+					fwrite($h, $rawdata, strlen($rawdata));
+
+					self::writeAgent($h, $vClone);
+
+					$data = ';$template=' . var_export($template, true)
+						. ';CIA::setMaxage(' . (int) $maxage
+						. ");CIA::setExpires('$expires');";
+
+					if ($headers)
+					{
+						$headers = array_map('addslashes', $headers);
+						$data .= "header('" . implode("');header('", $headers) . "');";
+					}
+
+					fwrite($h, $data, strlen($data));
+					fclose($h);
+
+					touch($fagent, $_SERVER['REQUEST_TIME'] + ('ontouch' == $expires ? CIA_MAXAGE : $maxage));
+
+					CIA::writeWatchTable($watch, $fagent);
 				}
-
-				fwrite($h, $data, strlen($data));
-				fclose($h);
-
-				if ('WIN' == substr(PHP_OS, 0, 3)) @unlink($fagent);
-				@rename($tmpname, $fagent);
-
-				touch($fagent, $_SERVER['REQUEST_TIME'] + ('ontouch' == $expires ? CIA_MAXAGE : $maxage));
-
-				CIA::writeWatchTable($watch, $fagent);
 			}
 		}
 		else CIA::closeMeta();
@@ -284,6 +272,35 @@ class IA_php
 		}
 
 		fwrite($h, ')', 1);
+	}
+
+	private static function getFromCache($cagent)
+	{
+		if (file_exists($cagent))
+		{
+			if (filemtime($cagent)>$_SERVER['REQUEST_TIME'])
+			{
+				require $cagent;
+				return $v;
+			}
+			else unlink($cagent);
+
+			return false;
+		}
+
+		$cagent = substr($cagent, 0, -7) . 'post' . substr($cagent, -4);
+
+		if (!CIA_POSTING && file_exists($cagent))
+		{
+			if (filemtime($cagent)>$_SERVER['REQUEST_TIME'])
+			{
+				require $cagent;
+				return $v;
+			}
+			else unlink($cagent);
+		}
+
+		return false;
 	}
 
 	/*
