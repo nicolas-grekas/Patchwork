@@ -112,21 +112,14 @@ function CIA($file, $parent = '../../config.php')
 }
 // }}}
 
-// {{{ function create_class()
-function create_class($classname, $parentclass = '', $code = '')
-{
-	if ($parentclass) $classname .= ' extends ' . $parentclass;
-	eval('class ' . $classname . '{' . $code . '}');
-}
-// }}}
-
 // {{{ function resolvePath(): cia-specific include_path-like mechanism
 function resolvePath($filename, &$level = 0)
 {
 	$paths =& $GLOBALS['cia_paths'];
 
-	$i = 0;
-	$level = count($paths);
+	$i = count($paths);
+	if (!$level) $level = $i;
+	$i -= $level;
 
 	if ('/' == substr($filename, -1))
 	{
@@ -152,20 +145,85 @@ function resolvePath($filename, &$level = 0)
 // }}}
 
 // {{{ function __autoload()
-function __autoload($classname)
+function __autoload($searched_class)
 {
-	$class = 'class' . DIRECTORY_SEPARATOR . str_replace('_', DIRECTORY_SEPARATOR, $classname) . '.php';
-	$file = resolvePath($class);
-
-	if ($file == $class)
+	if (preg_match("'^(.+)__([0-9]+)$'", $searched_class, $class_level)) // Namespace renammed class
 	{
-		if ($class = @fopen($file, 'r', true))
-		{
-			fclose($class);
-			include $file;
-		}
+		$class = $class_level[1];
+		$class_level = (int) $class_level[2];
 	}
-	else include $file;
+	else
+	{
+		$class = $searched_class;
+		$class_level = -1;
+	}
+
+	$level = $class_level>=0 ? $class_level : count($GLOBALS['cia_paths']);
+
+	if ('_' == substr($class, -1) || '_' == substr($class, 0, 1) || false !== strpos($class, '__')) // Out of the path class: search for an existing parent
+	{
+		do
+		{
+			$parent = $class . '__' . --$level;
+
+			if (class_exists($parent, false))
+			{
+				$searched_class .= ' extends ' . $parent;
+				$abstract = new ReflectionClass($parent);
+				$abstract = $abstract->isAbstract();
+				break;
+			}
+		}
+		while ($level);
+	}
+	else // Conventional class: search its definition on disk
+	{
+		$file = 'class' . DIRECTORY_SEPARATOR . str_replace('_', DIRECTORY_SEPARATOR, $class) . '.';
+
+		$i = $class_level>=0 ? count($GLOBALS['cia_paths']) - $class_level - 1 : 0;
+
+		$paths =& $GLOBALS['cia_paths'];
+
+		do
+		{
+			$parent = $class . '__' . --$level;
+
+			$path = $paths[$i++] . DIRECTORY_SEPARATOR;
+
+			if (class_exists($parent, false))
+			{
+				$searched_class .= ' extends ' . $parent;
+				$abstract = new ReflectionClass($parent);
+				$abstract = $abstract->isAbstract();
+				break;
+			}
+
+			if (file_exists($path . $file . 'php'))
+			{
+				$searched_class .= ' extends ' . $parent;
+
+				$file = $path . $file;
+				$abstract = false;
+				$final = false;
+
+				     if (file_exists($file_rewritten = $file . 'c.r.php')) ;
+				else if (file_exists($file_rewritten = $file . 'a.r.php')) $abstract = true;
+				else if (file_exists($file_rewritten = $file . 'f.r.php')) $final = true;
+				else $file_rewritten = false;
+
+				if (!$file_rewritten || (DEBUG && filemtime($file . 'php') > filemtime($file_rewritten))) require resolvePath('classRewriter.php');
+
+				require $file_rewritten;
+
+				if ($level+1 == $class_level || $final) return;
+
+				break;
+			}
+		}
+		while ($level);
+	}
+
+	eval(($abstract ? 'abstract ' : '') . 'class ' . $searched_class . '{}');
 }
 // }}}
 
@@ -290,8 +348,12 @@ function CIA_GO($file, $use_path_info)
 	define('CIA_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
 	define('CIA_DIRECT', !CIA_POSTING && '_' == $_SERVER['CIA_REQUEST']);
 
-	if (DEBUG) {function E($msg = '__getDeltaMicrotime') {if (class_exists('debug_CIA', false)) return CIA::ciaLog($msg, false, false);}}
-	else {function E($msg = '__getDeltaMicrotime') {trigger_error(serialize($msg));}}
+	function E($msg = '__getDeltaMicrotime')
+	{
+		if (class_exists('debug_CIA', false)) return CIA::ciaLog($msg, false, false);
+
+		trigger_error(serialize($msg));
+	}
 
 	if (function_exists('date_default_timezone_set') && isset($CONFIG['timezone'])) date_default_timezone_set($CONFIG['timezone']);
 	// }}}

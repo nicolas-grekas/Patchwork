@@ -5,7 +5,7 @@ if (isset($_SERVER['PHP_AUTH_USER']))
 	$_SERVER['PHP_AUTH_USER'] = $_SERVER['PHP_AUTH_PW'] = "Don't use me, it would be a security hole (cross site javascript).";
 }
 
-class debug_CIA extends CIA
+class extends CIA
 {
 	private $total_time = 0;
 

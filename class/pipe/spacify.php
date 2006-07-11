@@ -1,6 +1,6 @@
 <?php
 
-class pipe_spacify
+class
 {
 	static function php($string, $spacify_char = ' ')
 	{
@@ -13,7 +13,7 @@ class pipe_spacify
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($string, $spacify_char)
+P$spacify = function($string, $spacify_char)
 {
 	return str($string).split('').join(str($spacify_char, ' '));
 }

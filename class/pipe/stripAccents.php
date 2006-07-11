@@ -1,6 +1,6 @@
 <?php
 
-class pipe_stripAccents
+class
 {
 	static function php($str, $case = 0)
 	{
@@ -9,7 +9,7 @@ class pipe_stripAccents
 
 	static function js()
 	{
-		$p = 'P$' . substr(__CLASS__, 5);
+		$p = 'P$stripAccents';
 
 		?>/*<script>*/
 

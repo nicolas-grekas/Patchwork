@@ -1,6 +1,6 @@
 <?php
 
-class pipe_test
+class
 {
 	static function php($test, $ifData, $elseData = '')
 	{
@@ -11,7 +11,7 @@ class pipe_test
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($test, $ifData, $elseData)
+P$test = function($test, $ifData, $elseData)
 {
 	return num(str($test), 1) ? $ifData : $elseData;
 }

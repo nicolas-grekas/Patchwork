@@ -1,6 +1,6 @@
 <?php
 
-class pipe_now
+class
 {
 	static function php($string)
 	{
@@ -13,7 +13,7 @@ class pipe_now
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function()
+P$now = function()
 {
 	return parseInt(new Date/1000);
 }

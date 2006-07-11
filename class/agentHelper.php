@@ -1,6 +1,6 @@
 <?php
 
-class agentHelper
+class
 {
 	public $data;
 

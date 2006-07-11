@@ -1,6 +1,6 @@
 <?php
 
-class agent_js extends agent_bin
+class extends agent_bin
 {
 	public $argv = array('__0__', 'source:bool');
 

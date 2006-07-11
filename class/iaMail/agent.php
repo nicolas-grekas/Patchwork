@@ -2,7 +2,7 @@
 
 require_once 'HTTP/Request.php';
 
-class iaMail_agent extends iaMail
+class extends iaMail
 {
 	protected $agent;
 	protected $argv;

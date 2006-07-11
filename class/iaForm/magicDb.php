@@ -1,6 +1,6 @@
 <?php
 
-class iaForm_magicDb
+class
 {
 	public static function populate($table, $form, $save = false, $rxFilter = false)
 	{

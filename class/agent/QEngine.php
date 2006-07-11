@@ -1,6 +1,6 @@
 <?php
 
-class agent_QEngine extends agent
+class extends agent
 {
 	protected $EXCLUDED_KEYWORD = '';
 	protected $minKwLen = 2;

@@ -1,6 +1,6 @@
 <?php
 
-class pipe_urlize
+class
 {
 	static $mailrx = '/(\s)([-a-z0-9_\.\+=]+)@([-a-z0-9]+(\.[-a-z0-9]+)+)/i';
 	static $phonerx = '/(\s)(\+|00)([-0-9. ()]+[0-9])/';
@@ -42,7 +42,7 @@ class pipe_urlize
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($string)
+P$urlize = function($string)
 {
 	return (' ' + str($string)).replace(
 		<?php echo self::$mailrx?>g, '$1<a href="mailto:$2@$3">$2@$3</a>'

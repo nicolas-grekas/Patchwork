@@ -1,6 +1,6 @@
 <?php
 
-class pipe_urlencode
+class
 {
 	static function php($str)
 	{
@@ -11,7 +11,7 @@ class pipe_urlencode
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($str)
+P$urlencode = function($str)
 {
 	return eUC(str($str));
 }

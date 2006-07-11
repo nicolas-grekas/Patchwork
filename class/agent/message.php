@@ -1,6 +1,6 @@
 <?php
 
-class agent_message extends agent
+class extends agent
 {
 	protected $maxage = -1;
 }

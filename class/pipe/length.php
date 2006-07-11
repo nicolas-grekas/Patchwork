@@ -1,6 +1,6 @@
 <?php
 
-class pipe_length
+class
 {
 	static function php($string)
 	{
@@ -11,7 +11,7 @@ class pipe_length
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($string)
+P$length = function($string)
 {
 	return str($string).length;
 }

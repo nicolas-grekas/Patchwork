@@ -1,6 +1,6 @@
 <?php
 
-abstract class CONVERT
+abstract class
 {
 	static function file($file, $from, $to)
 	{

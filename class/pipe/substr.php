@@ -1,6 +1,6 @@
 <?php
 
-class pipe_substr
+class
 {
 	static function php($string, $start, $length = false)
 	{
@@ -13,7 +13,7 @@ class pipe_substr
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($string, $start, $length)
+P$substr = function($string, $start, $length)
 {
 	$string = str($string);
 	return t($length)

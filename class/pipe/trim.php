@@ -1,6 +1,6 @@
 <?php
 
-class pipe_trim
+class
 {
 	static function php($a)
 	{
@@ -11,7 +11,7 @@ class pipe_trim
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($a)
+P$trim = function($a)
 {
 	return str($a).replace(/^\s+/, '').replace(/\s+$/, '');
 }

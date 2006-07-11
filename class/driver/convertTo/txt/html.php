@@ -1,6 +1,6 @@
 <?php
 
-class driver_convertTo_txt_html extends driver_convertTo_abstract
+class extends driver_convertTo_abstract
 {
 	function file($file)
 	{

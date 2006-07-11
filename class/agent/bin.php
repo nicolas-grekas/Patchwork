@@ -1,6 +1,6 @@
 <?php
 
-class agent_bin extends agent
+class extends agent
 {
 	const binary = true;
 

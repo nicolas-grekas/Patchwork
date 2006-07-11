@@ -1,6 +1,6 @@
 <?php
 
-class pipe_capitalize
+class
 {
 	static function php($string)
 	{
@@ -11,7 +11,7 @@ class pipe_capitalize
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($string)
+P$capitalize = function($string)
 {
 	$string = str($string).split(/\b/g);
 

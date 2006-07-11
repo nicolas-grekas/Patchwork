@@ -1,6 +1,6 @@
 <?php
 
-class pipe_nl2br
+class
 {
 	static function php($string)
 	{
@@ -11,7 +11,7 @@ class pipe_nl2br
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($string)
+P$nl2br = function($string)
 {
 	return str($string).replace(/\n/g, '\n<br />');
 }

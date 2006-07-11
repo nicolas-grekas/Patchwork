@@ -1,8 +1,6 @@
 <?php
 
-class_exists('iaForm_hidden');
-
-class iaForm extends loop_callAgent
+class extends loop_callAgent
 {
 	public $rawValues;
 	public $errormsg = array();

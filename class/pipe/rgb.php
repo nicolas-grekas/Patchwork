@@ -1,6 +1,6 @@
 <?php
 
-class pipe_rgb
+class
 {
 	static function php($r, $g, $b)
 	{
@@ -15,7 +15,7 @@ class pipe_rgb
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($r, $g, $b)
+P$rgb = function($r, $g, $b)
 {
 	$r = ($r/1 || 0).toString(16);
 	$g = ($g/1 || 0).toString(16);

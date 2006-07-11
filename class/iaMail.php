@@ -3,7 +3,7 @@
 require_once 'Mail.php';
 require_once 'Mail/mime.php';
 
-class iaMail extends Mail_mime
+class extends Mail_mime
 {
 	protected $options;
 
