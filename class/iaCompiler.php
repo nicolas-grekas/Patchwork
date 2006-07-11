@@ -1,6 +1,6 @@
 <?php
 
-abstract class iaCompiler
+abstract class
 {
 	protected $watch;
 

@@ -1,6 +1,6 @@
 <?php
 
-class pipe_truncate
+class
 {
 	static function php($string, $length = 80, $etc = '...', $break_words = false)
 	{
@@ -26,7 +26,7 @@ class pipe_truncate
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($string, $length, $etc, $break_words)
+P$truncate = function($string, $length, $etc, $break_words)
 {
 	$string = str($string);
 	$length = str($length, 80);

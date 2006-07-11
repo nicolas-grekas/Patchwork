@@ -1,6 +1,6 @@
 <?php
 
-class loop_sql_MDB2 extends loop
+class extends loop
 {
 	protected $db;
 	protected $sql;

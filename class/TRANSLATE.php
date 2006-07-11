@@ -1,6 +1,6 @@
 <?php
 
-abstract class TRANSLATE
+abstract class
 {
 	protected static $started = false;
 
@@ -76,4 +76,4 @@ abstract class TRANSLATE
 	function close() {}
 }
 
-class driver_translate_default_ extends TRANSLATE {}
+class driver_translate_default_ extends parent {}

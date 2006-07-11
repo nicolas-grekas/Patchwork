@@ -1,6 +1,6 @@
 <?php
 
-class IA_php
+class
 {
 	protected static $args;
 	protected static $values;

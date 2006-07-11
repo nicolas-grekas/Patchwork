@@ -1,6 +1,6 @@
 <?php
 
-class loop_sql_mysqli extends loop
+class extends loop
 {
 	protected $db;
 	protected $sql;

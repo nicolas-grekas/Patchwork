@@ -1,6 +1,6 @@
 <?php
 
-class pipe_mailto
+class
 {
 	static function php($string)
 	{
@@ -16,7 +16,7 @@ class pipe_mailto
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($string)
+P$mailto = function($string)
 {
 	$string = esc( str($string) );
 

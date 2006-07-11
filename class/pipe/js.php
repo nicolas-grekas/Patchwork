@@ -1,6 +1,6 @@
 <?php
 
-class pipe_js
+class
 {
 	static function php($string, $forceString = false)
 	{
@@ -17,7 +17,7 @@ class pipe_js
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($string, $forceString)
+P$js = function($string, $forceString)
 {
 	$string = str($string);
 

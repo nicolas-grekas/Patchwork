@@ -1,6 +1,6 @@
 <?php
 
-class pipe_printf
+class
 {
 	static function php($format)
 	{
@@ -13,7 +13,7 @@ class pipe_printf
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($format)
+P$printf = function($format)
 {
 	$format = str($format);
 
@@ -34,7 +34,7 @@ P$<?php echo substr(__CLASS__, 5)?> = function($format)
 		else if ($type)
 		{
 			var $base = 0,
-				$param = P$<?php echo substr(__CLASS__, 5)?>.arguments[ $match[4] ? $match[5]-0 : ++$idCounter ],
+				$param = P$printf.arguments[ $match[4] ? $match[5]-0 : ++$idCounter ],
 				$iParam = parseInt($param) || 0;
 
 			switch ($type)

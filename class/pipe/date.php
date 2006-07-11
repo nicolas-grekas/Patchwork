@@ -1,6 +1,6 @@
 <?php
 
-class pipe_date
+class
 {
 	static function php($time, $format = false)
 	{
@@ -22,7 +22,7 @@ class pipe_date
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($time, $format)
+P$date = function($time, $format)
 {
 	if (t($format))
 	{

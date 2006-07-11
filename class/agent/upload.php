@@ -1,6 +1,6 @@
 <?php
 
-class agent_upload extends agent
+class extends agent
 {
 	public $argv = array('id');
 

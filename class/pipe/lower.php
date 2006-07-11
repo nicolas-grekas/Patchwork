@@ -1,6 +1,6 @@
 <?php
 
-class pipe_lower
+class
 {
 	static function php($string)
 	{
@@ -11,7 +11,7 @@ class pipe_lower
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($string)
+P$lower = function($string)
 {
 	return str($string).toLowerCase();
 }

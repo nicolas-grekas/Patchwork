@@ -1,6 +1,6 @@
 <?php
 
-class LIB
+class
 {
 	protected static $sort_keys;
 	protected static $sort_length;

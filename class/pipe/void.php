@@ -1,6 +1,6 @@
 <?php
 
-class pipe_void
+class
 {
 	static function php()
 	{
@@ -11,7 +11,7 @@ class pipe_void
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function()
+P$void = function()
 {
 	return '';
 }

@@ -1,6 +1,6 @@
 <?php
 
-class agent_QJsrs extends agent_bin
+class extends agent_bin
 {
 	protected $data = array();
 

@@ -1,6 +1,6 @@
 <?php
 
-class pipe_htmlArgs
+class
 {
 	static function php($pool)
 	{
@@ -25,10 +25,10 @@ class pipe_htmlArgs
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($pool)
+P$htmlArgs = function($pool)
 {
 	if (!$pool) return '';
-	var $result = '', $argv = P$<?php echo substr(__CLASS__, 5)?>.arguments, $i = $argv.length, $except = [];
+	var $result = '', $argv = P$htmlArgs.arguments, $i = $argv.length, $except = [];
 
 	while (--$i) $except[$i] = $argv[$i];
 	$except = new RegExp('^(|'+$except.join('|')+')$');

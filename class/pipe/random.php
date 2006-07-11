@@ -1,6 +1,6 @@
 <?php
 
-class pipe_random
+class
 {
 	static function php($min = '', $max = '')
 	{
@@ -16,7 +16,7 @@ class pipe_random
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($min, $max)
+P$random = function($min, $max)
 {
 	if (!t($max))) $max = 32767;
 

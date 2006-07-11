@@ -2,7 +2,7 @@
 
 /* Both version (PHP & JS) of this pipe are bugged */
 
-class pipe_echo
+class
 {
 	static function php($format = '')
 	{
@@ -18,11 +18,11 @@ class pipe_echo
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($format)
+P$echo = function($format)
 {
 	$format = str($format);
 
-	var $args = P$<?php echo substr(__CLASS__, 5)?>.arguments, $i = 1, $firstChar;
+	var $args = P$echo.arguments, $i = 1, $firstChar;
 
 	if ($format != '')
 	{

@@ -1,6 +1,6 @@
 <?php
 
-class pipe_linkto
+class
 {
 	static function php($text, $url, $attributes = '')
 	{
@@ -24,7 +24,7 @@ class pipe_linkto
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($text, $url, $attributes)
+P$linkto = function($text, $url, $attributes)
 {
 	$text = str($text);
 	$url = str($url);

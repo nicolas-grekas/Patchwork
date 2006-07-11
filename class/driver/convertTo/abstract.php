@@ -1,6 +1,6 @@
 <?php
 
-abstract class driver_convertTo_abstract
+abstract class
 {
 	abstract function file($file);
 

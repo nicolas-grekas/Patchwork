@@ -2,7 +2,7 @@
 
 // This pipe is duplicated in js/w
 
-class pipe_home
+class
 {
 	static function php($string = '')
 	{
@@ -13,7 +13,7 @@ class pipe_home
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($string)
+P$home = function($string)
 {
 	return home( str($string) );
 }

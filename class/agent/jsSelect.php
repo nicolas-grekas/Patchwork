@@ -1,6 +1,6 @@
 <?php
 
-class agent_jsSelect extends agent_bin
+class extends agent_bin
 {
 	protected $maxage = -1;
 	protected $template = 'form/jsSelect.js';

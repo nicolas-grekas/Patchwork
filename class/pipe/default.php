@@ -1,6 +1,6 @@
 <?php
 
-class pipe_default
+class
 {
 	static function php($string, $default = '')
 	{
@@ -11,7 +11,7 @@ class pipe_default
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($string, $default)
+P$default = function($string, $default)
 {
 	return $string>'' ? $string : $default;
 }

@@ -1,6 +1,6 @@
 <?php
 
-class pipe_indent
+class
 {
 	static function php($string, $chars = 4, $char = ' ')
 	{
@@ -11,7 +11,7 @@ class pipe_indent
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($string, $chars, $char)
+P$indent = function($string, $chars, $char)
 {
 	$string = str($string);
 	$chars = str($chars, 4);

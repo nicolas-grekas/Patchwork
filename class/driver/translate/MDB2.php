@@ -1,6 +1,6 @@
 <?php
 
-class driver_translate_MDB2 extends TRANSLATE
+class extends TRANSLATE
 {
 	protected $db;
 	protected $table = 's_translate';

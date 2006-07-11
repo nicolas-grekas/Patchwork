@@ -1,6 +1,6 @@
 <?php
 
-class pipe_wordwrap
+class
 {
 	static function php($string, $length = 80, $break = "\n", $cut = false)
 	{
@@ -11,7 +11,7 @@ class pipe_wordwrap
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($string, $length, $break, $cut)
+P$wordwrap = function($string, $length, $break, $cut)
 {
 	$cut = str($cut);
 	$break = str($break, "\n");

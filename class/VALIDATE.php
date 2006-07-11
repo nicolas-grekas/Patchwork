@@ -1,6 +1,6 @@
 <?php
 
-class VALIDATE
+class
 {
 	public static $IMAGETYPE = array(
 		1 => 'gif', 'jpg', 'png',

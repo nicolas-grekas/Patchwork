@@ -1,6 +1,6 @@
 <?php
 
-class pipe_replace
+class
 {
 	static function php($string, $search, $replace, $caseInsensitive = false)
 	{
@@ -13,7 +13,7 @@ class pipe_replace
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($string, $search, $replace, $caseInsensitive)
+P$replace = function($string, $search, $replace, $caseInsensitive)
 {
 	$search = new RegExp(str($search), 'g' + (str($caseInsensitive) ? 'i' : ''));
 	return str($string).replace($search, str($replace));

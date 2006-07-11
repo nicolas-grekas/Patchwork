@@ -17,7 +17,7 @@ function jsquote($a, $addDelim = true, $delim = "'")
 
 function jsquoteRef(&$a) {$a = jsquote($a);}
 
-class CIA
+class
 {
 	public static $cachePath = 'zcache/';
 	public static $agentClass;
@@ -524,7 +524,6 @@ class CIA
 			$p_th = resolvePath($path);
 			if ($path != $p_th)
 			{
-				require $p_th;
 				$createTemplate = false;
 				break;
 			}
@@ -775,7 +774,7 @@ class CIA
 
 			if (CIA_DIRECT)
 			{
-				$a = '0';
+				$a = '';
 
 				$cache = self::getContextualCachePath('antiXSJ.' . self::$agentClass, 'txt');
 
@@ -789,7 +788,7 @@ class CIA
 					CIA::touch('CIApID');
 					CIA::touch('public/templates/js');
 
-					fwrite($h, '1', 1);
+					fwrite($h, $a = '1', 1);
 					touch('config.php');
 				}
 				fclose($h);

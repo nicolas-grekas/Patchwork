@@ -1,6 +1,6 @@
 <?php
 
-class pipe_switchLang
+class
 {
 	static function php($g, $lang)
 	{
@@ -14,7 +14,7 @@ class pipe_switchLang
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($g, $lang)
+P$switchLang = function($g, $lang)
 {
 	return $g.__URI__.replace(new RegExp('/' + $g.__LANG__ + '/'), '/' + $lang + '/');
 }

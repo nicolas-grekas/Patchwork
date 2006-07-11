@@ -1,6 +1,6 @@
 <?php
 
-class loop_array extends loop
+class extends loop
 {
 	protected $array;
 	protected $isAssociative = true;

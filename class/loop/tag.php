@@ -1,6 +1,6 @@
 <?php
 
-class loop_tag extends loop
+class extends loop
 {
 	protected $loop;
 	protected $freqKey;

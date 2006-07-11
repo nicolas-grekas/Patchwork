@@ -1,6 +1,6 @@
 <?php
 
-class pipe_repeat
+class
 {
 	static function php($string, $num)
 	{
@@ -11,7 +11,7 @@ class pipe_repeat
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($string, $num)
+P$repeat = function($string, $num)
 {
 	var $str = '';
 	$string = str($string);

@@ -1,6 +1,6 @@
 <?php
 
-class agent_index extends agent
+class extends agent
 {
 	function compose($o)
 	{

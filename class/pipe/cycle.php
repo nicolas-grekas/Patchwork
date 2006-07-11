@@ -1,6 +1,6 @@
 <?php
 
-class pipe_cycle
+class
 {
 	static $pool = array();
 
@@ -23,10 +23,10 @@ class pipe_cycle
 	{
 		?>/*<script>*/
 
-P$<?php echo substr(__CLASS__, 5)?> = function($name)
+P$cycle = function($name)
 {
 	$name = str($name);
-	var $args = P$<?php echo substr(__CLASS__, 5)?>.arguments,
+	var $args = P$cycle.arguments,
 		$pool = cyclePool;
 
 	if (t($pool[$name]))

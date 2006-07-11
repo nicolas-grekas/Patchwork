@@ -2,9 +2,9 @@
 
 if (function_exists('mysqli_connect'))
 {
-	class loop_sql extends loop_sql_mysqli {}
+	class extends loop_sql_mysqli {}
 }
 else
 {
-	class loop_sql extends loop_sql_MDB2 {}
+	class extends loop_sql_MDB2 {}
 }

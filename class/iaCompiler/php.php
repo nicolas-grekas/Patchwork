@@ -1,6 +1,6 @@
 <?php
 
-class iaCompiler_php extends iaCompiler
+class extends iaCompiler
 {
 	protected $watch = 'public/templates/php';
 

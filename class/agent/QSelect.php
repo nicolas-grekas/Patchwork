@@ -1,6 +1,6 @@
 <?php
 
-class agent_QSelect extends agent_bin
+class extends agent_bin
 {
 	protected $template = 'QSelect/Search.js';
 

@@ -1,6 +1,6 @@
 <?php
 
-class loop_reverse extends loop_array
+class extends loop_array
 {
 	function __construct($loop)
 	{

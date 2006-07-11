@@ -1,6 +1,6 @@
 <?php
 
-class loop_callAgent extends loop
+class extends loop
 {
 	public $autoResolve = true;
 
