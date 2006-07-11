@@ -63,7 +63,7 @@ fclose($h);
 $file_rewritten = $file . ($abstract ? 'a' : ($final ? 'f' : 'c')) . '.r.php';
 
 if ('WIN' == substr(PHP_OS, 0, 3)) @unlink($file_rewritten);
-rename($tmpname, $file_rewritten);
+rename($tmp, $file_rewritten);
 
 if ($abstract || $final) @unlink($file . 'c.r.php');
 if (!$abstract) @unlink($file . 'a.r.php');
