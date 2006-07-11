@@ -567,7 +567,7 @@ class CIA
 
 		$agent = 'agent_' . str_replace('/', '_', $potentialAgent);
 
-		if ($createTemplate) create_class($agent, 'agent', 'protected $maxage=-1;protected $watch=array(\'public/templates\');');
+		if ($createTemplate) eval('class ' . $agent . ' extends agent{protected $maxage=-1;protected $watch=array(\'public/templates\');}');
 
 		return $agent;
 	}
