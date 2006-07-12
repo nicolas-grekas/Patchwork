@@ -114,9 +114,9 @@ abstract class
 	{
 		if ($path_idx >= count($GLOBALS['cia_paths'])) return '';
 
-		$path = $GLOBALS['cia_paths'][$path_idx] . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR;
-		$lang = CIA::__LANG__() . DIRECTORY_SEPARATOR;
-		$l_ng = '__' . DIRECTORY_SEPARATOR;
+		$path = $GLOBALS['cia_paths'][$path_idx] . '/public/';
+		$lang = CIA::__LANG__() . '/';
+		$l_ng = '__/';
 
 		if (
 			   !file_exists($source = $path . $lang . $template)

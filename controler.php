@@ -16,14 +16,14 @@ $contentType = $contentType[$path];
 
 $i = 0;
 $len = count($cia_paths);
-$lang = CIA::__LANG__() . DIRECTORY_SEPARATOR;
-$l_ng = '__' . DIRECTORY_SEPARATOR;
+$lang = CIA::__LANG__() . '/';
+$l_ng = '__/';
 
 $source = false;
 
 do
 {
-	$path = $cia_paths[$i++] . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR;
+	$path = $cia_paths[$i++] . '/public/';
 
 	if (file_exists($source = $path . $lang . $agent)) break;
 	if (file_exists($source = $path . $l_ng . $agent)) break;

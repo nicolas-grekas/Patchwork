@@ -3,10 +3,18 @@
 $abstract = false;
 $final = false;
 
-$tmp = dirname($file) .'/'. md5(uniqid(mt_rand(), true) . '.r.php');
+$tmp = dirname($path);
+if (file_exists($tmp) || mkdir($tmp) && 'WIN' == substr(PHP_OS, 0, 3))
+{
+	$h = new COM('Scripting.FileSystemObject');
+	$h->GetFolder($tmp)->Attributes |= 2;
+}
+
+$tmp .= '/' . md5(uniqid(mt_rand(), true) . '.php');
+
 $h = fopen($tmp, 'wb');
 
-$tokens = token_get_all(file_get_contents($file . 'php'));
+$tokens = token_get_all(file_get_contents($file));
 $tokensLen = count($tokens);
 
 for ($i = 0; $i < $tokensLen; ++$i)
@@ -60,11 +68,11 @@ for ($i = 0; $i < $tokensLen; ++$i)
 
 fclose($h);
 
-$file_rewritten = $file . ($abstract ? 'a' : ($final ? 'f' : 'c')) . '.r.php';
+$filesource = $path . ($abstract ? 'a' : ($final ? 'f' : 'c')) . '.php';
 
-if ('WIN' == substr(PHP_OS, 0, 3)) @unlink($file_rewritten);
-rename($tmp, $file_rewritten);
+if ('WIN' == substr(PHP_OS, 0, 3)) @unlink($filesource);
+rename($tmp, $filesource);
 
-if ($abstract || $final) @unlink($file . 'c.r.php');
-if (!$abstract) @unlink($file . 'a.r.php');
-if (!$final) @unlink($file . 'f.r.php');
+if ($abstract || $final) @unlink($path . 'c.php');
+if (!$abstract) @unlink($path . 'a.php');
+if (!$final) @unlink($path . 'f.php');
