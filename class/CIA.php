@@ -363,7 +363,7 @@ class
 			if (!$dir) return;
 			$dir[0] = '/' . $dir[0];
 		}
-		else if (!(substr(PHP_OS, 0, 3) == 'WIN' && substr($dir[0], -1) == ':')) $dir[0] = './' . $dir[0];
+		else if (!('WIN' == substr(PHP_OS, 0, 3) && substr($dir[0], -1) == ':')) $dir[0] = './' . $dir[0];
 
 		$new = array();
 
