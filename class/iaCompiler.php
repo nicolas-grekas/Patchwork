@@ -136,30 +136,34 @@ abstract class
 			$source = preg_replace("'{$this->Xlblock}(END:)?CLIENTSIDE{$this->Xrblock}'su", '', $source);
 		}
 
+		$rx = '[-_a-zA-Z\d][-_a-zA-Z\d\.]*';
 
-		$this->template = $template;
+		$this->template = 'WIN' == substr(PHP_OS, 0, 3) ? strtolower($template) : $template;
 		$this->path_idx = $path_idx;
-		$source = preg_replace_callback("'{$this->Xlblock}PARENT(?:\s+(-?\d+)\s*)?{$this->Xrblock}'su", array($this, 'PARENTcallback'), $source);
+		$source = preg_replace_callback("'{$this->Xlblock}INCLUDE\s+($rx(?:[\\/]$rx)*)(:-?\d+)?\s*{$this->Xrblock}'su", array($this, 'INCLUDEcallback'), $source);
 
 		return $source;
 	}
 
-	protected function PARENTcallback($m)
+	protected function INCLUDEcallback($m)
 	{
 		$path_count = count($GLOBALS['cia_paths']);
 
-		$a = '' !== (string) @$m[1] ? $m[1] : -1;
+		$template = ('WIN' == substr(PHP_OS, 0, 3) ? strtolower($m[1]) : $m[1]) . '.tpl';
+
+		$a = str_replace('\\', '/', $template) == preg_replace("'[\\/]+'", '/', $this->template);
+		$a = @$m[2] ? substr($m[2], 1) : ($a ? -1 : $path_count - $this->path_idx - 1);
 		$a = $a < 0 ? $this->path_idx - $a : ($path_count - $a - 1);
 
 		if ($a < 0)
 		{
-			E("Template error: Invalid level (resolved to $a) in <!-- PARENT --> block");
+			E("Template error: Invalid level (resolved to $a) in \"{$m[0]}\"");
 			return $m[0];
 		}
 		else
 		{
 			if ($a >= $path_count) $a = $path_count - 1;
-			return $this->load($this->template, $a);
+			return $this->load($template, $a);
 		}
 	}
 
