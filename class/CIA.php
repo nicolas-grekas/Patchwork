@@ -1031,7 +1031,7 @@ class agent
 	}
 }
 
-class loop_
+class loop
 {
 	private $loopLength = false;
 	private $filter = array();
@@ -1085,5 +1085,4 @@ class loop_
 	}
 }
 
-class loop extends loop_ {}
 class PrivateDetection extends Exception {}
