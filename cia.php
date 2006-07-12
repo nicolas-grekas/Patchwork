@@ -113,32 +113,19 @@ function CIA($file, $parent = '../../config.php')
 // }}}
 
 // {{{ function resolvePath(): cia-specific include_path-like mechanism
-function resolvePath($filename, &$level = 0)
+function resolvePath($filename)
 {
 	$paths =& $GLOBALS['cia_paths'];
 
-	$i = count($paths);
-	if (!$level) $level = $i;
-	$i -= $level;
+	$i = -1;
+	$level = count($paths);
 
-	if ('/' == substr($filename, -1))
+	do
 	{
-		do
-		{
-			$path = $paths[$i++] . DIRECTORY_SEPARATOR;
-			if (is_dir($path . $filename)) return $path . $filename;
-		}
-		while (--$level);
+		$path = $paths[++$i] . DIRECTORY_SEPARATOR;
+		if (file_exists($path . $filename)) return $path . $filename;
 	}
-	else
-	{
-		do
-		{
-			$path = $paths[$i++] . DIRECTORY_SEPARATOR;
-			if (file_exists($path . $filename)) return $path . $filename;
-		}
-		while (--$level);
-	}
+	while (--$level);
 
 	return $filename;
 }
