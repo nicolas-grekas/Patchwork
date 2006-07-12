@@ -122,7 +122,7 @@ function resolvePath($filename)
 
 	do
 	{
-		$path = $paths[++$i] . DIRECTORY_SEPARATOR;
+		$path = $paths[++$i] . '/';
 		if (file_exists($path . $filename)) return $path . $filename;
 	}
 	while (--$level);
@@ -165,7 +165,7 @@ function __autoload($searched_class)
 	}
 	else // Conventional class: search its definition on disk
 	{
-		$file = 'class' . DIRECTORY_SEPARATOR . str_replace('_', DIRECTORY_SEPARATOR, $class) . '.';
+		$file = 'class/' . str_replace('_', '/', $class) . '.php';
 
 		$i = $class_level>=0 ? count($GLOBALS['cia_paths']) - $class_level - 1 : 0;
 
@@ -175,7 +175,7 @@ function __autoload($searched_class)
 		{
 			$parent = $class . '__' . --$level;
 
-			$path = $paths[$i++] . DIRECTORY_SEPARATOR;
+			$path = $paths[$i++] . '/';
 
 			if (class_exists($parent, false))
 			{
@@ -185,24 +185,26 @@ function __autoload($searched_class)
 				break;
 			}
 
-			if (file_exists($path . $file . 'php'))
+			if (file_exists($path . $file))
 			{
 				$searched_class .= ' extends ' . $parent;
 
 				$file = $path . $file;
+				$path .= '.class/' . $class . '.';
+
 				$abstract = false;
 				$final = false;
 
-				     if (file_exists($file_rewritten = $file . 'c.r.php')) ;
-				else if (file_exists($file_rewritten = $file . 'a.r.php')) $abstract = true;
-				else if (file_exists($file_rewritten = $file . 'f.r.php')) $final = true;
-				else $file_rewritten = false;
+				     if (file_exists($filesource = $path . 'c.php')) ;
+				else if (file_exists($filesource = $path . 'a.php')) $abstract = true;
+				else if (file_exists($filesource = $path . 'f.php')) $final = true;
+				else $filesource = false;
 
-				if (!$file_rewritten || (DEBUG && filemtime($file . 'php') > filemtime($file_rewritten))) require resolvePath('classRewriter.php');
+				if (!$filesource || (DEBUG && filemtime($file) > filemtime($filesource))) require resolvePath('classRewriter.php');
 
-				require $file_rewritten;
+				require $filesource;
 
-				if ($level+1 == $class_level || $final) return;
+				if ($final) return;
 
 				break;
 			}

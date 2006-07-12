@@ -57,7 +57,7 @@ class
 		self::$headers = array();
 
 		$cachePath = resolvePath(self::$cachePath);
-		self::$cachePath = ($cachePath == self::$cachePath ? $GLOBALS['cia_paths'][count($GLOBALS['cia_paths']) - 2] . DIRECTORY_SEPARATOR : '') . $cachePath;
+		self::$cachePath = ($cachePath == self::$cachePath ? $GLOBALS['cia_paths'][count($GLOBALS['cia_paths']) - 2] . '/' : '') . $cachePath;
 
 		if (DEBUG) self::$cia = new debug_CIA;
 		else self::$cia = new CIA;
@@ -367,18 +367,18 @@ class
 
 		$new = array();
 
-		while ($dir && !is_dir( implode(DIRECTORY_SEPARATOR, $dir)))
+		while ($dir && !is_dir( implode('/', $dir)))
 		{
 			$new[] = array_pop($dir);
 		}
 
 		if ($new)
 		{
-			$dir = implode(DIRECTORY_SEPARATOR, $dir);
+			$dir = implode('/', $dir);
 
 			while ($new)
 			{
-				$dir .= DIRECTORY_SEPARATOR . array_pop($new);
+				$dir .= '/' . array_pop($new);
 				mkdir($dir);
 			}
 		}
