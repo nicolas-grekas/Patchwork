@@ -58,18 +58,176 @@ class
 		$cachePath = resolvePath(self::$cachePath);
 		self::$cachePath = ($cachePath == self::$cachePath ? $GLOBALS['cia_paths'][count($GLOBALS['cia_paths']) - 2] . '/' : '') . $cachePath;
 
-		if (DEBUG) self::$cia = new debug_CIA;
+		if (DEBUG) self::$cia = new CIA_debug;
 		else self::$cia = new CIA;
 
 		self::setLang($_SERVER['CIA_LANG'] ? $_SERVER['CIA_LANG'] : substr($GLOBALS['CONFIG']['lang_list'], 0, 2));
 
 		if (htmlspecialchars(self::$home) != self::$home)
 		{
-			E('Fatal error: illegal character found in CIA::$home');
+			E('Fatal error: illegal character found in self::$home');
 			exit;
 		}
 
 		if (isset($_GET['T$'])) self::$private = true;
+
+		// {{{ Static controler
+		$agent = $_SERVER['CIA_REQUEST'];
+		$path = strtolower(strrchr($agent, '.'));
+		switch ($path)
+		{
+			case '.html':
+			case '.htm':
+			case '.css':
+			case '.js':
+
+			case '.png':
+			case '.gif':
+			case '.jpg':
+			case '.jpeg':
+
+			require resolvePath('controler.php');
+		}
+		// }}}
+
+		if (!extension_loaded('mbstring')) require resolvePath('mbstring.php');
+
+		if (CIA_DIRECT)
+		{
+			// {{{ Client side rendering controler
+			self::header('Content-Type: text/javascript; charset=UTF-8');
+
+			if (isset($_GET['v$']) && CIA_PROJECT_ID != $_GET['v$'] && 'x$' != key($_GET))
+			{
+				echo 'w.r()';
+				exit;
+			}
+
+			switch ( key($_GET) )
+			{
+				case 't$':
+					$template = array_shift($_GET);
+					$template = str_replace('\\', '/', $template);
+					$template = str_replace('../', '/', $template);
+
+					echo 'w(0';
+
+					$ctemplate = self::getContextualCachePath("templates/$template", 'txt');
+					if ($h = self::fopenX($ctemplate))
+					{
+						self::openMeta('agent__template/' . $template, false);
+						$compiler = new iaCompiler_js(false);
+						echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
+						fwrite($h, $template, strlen($template));
+						fclose($h);
+						list(,,, $watch) = self::closeMeta();
+						self::writeWatchTable($watch, $ctemplate);
+					}
+					else readfile($ctemplate);
+
+					self::setMaxage(-1);
+					break;
+
+				case 'p$':
+					$pipe = array_shift($_GET);
+					preg_match_all("/[a-zA-Z_][a-zA-Z_\d]*/u", $pipe, $pipe);
+					self::$agentClass = 'agent__pipe/' . implode('_', $pipe[0]);
+
+					foreach ($pipe[0] as &$pipe)
+					{
+						$cpipe = self::getContextualCachePath('pipe/' . $pipe, 'js');
+						if ($h = self::fopenX($cpipe))
+						{
+							ob_start();
+							call_user_func(array('pipe_' . $pipe, 'js'));
+							$pipe = ob_get_clean();
+
+							$jsquiz = new jsquiz;
+							$jsquiz->addJs($pipe);
+							echo $pipe = $jsquiz->get();
+							$pipe .= "\n";
+							fwrite($h, $pipe, strlen($pipe));
+							fclose($h);
+							self::writeWatchTable(array('pipe'), $cpipe);
+						}
+						else readfile($cpipe);
+					}
+
+					echo 'w(0,[])';
+
+					self::setMaxage(-1);
+					break;
+
+				case 'a$':
+					CIA_clientside::render(array_shift($_GET), false);
+					break;
+
+				case 'x$':
+					CIA_clientside::render(array_shift($_GET), true);
+					break;
+			}
+			// }}}
+		}
+		else
+		{
+			// {{{ Server side rendering controler
+			$agent = self::resolveAgentClass($_SERVER['CIA_REQUEST'], $_GET);
+
+			if (isset($_GET['k$']))
+			{
+				self::header('Content-Type: text/javascript; charset=UTF-8');
+				self::setMaxage(-1);
+
+				echo 'w.k(',
+						CIA_PROJECT_ID, ',',
+						jsquote( $_SERVER['CIA_HOME'] ), ',',
+						jsquote( 'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)) ), ',',
+						jsquote( @$_GET['__0__'] ), ',',
+						'[', implode(',', array_map('jsquote', self::agentArgv($agent))), ']',
+					')';
+
+				exit;
+			}
+
+			$binaryMode = (bool) constant("$agent::binary");
+
+			/*
+			 * Both Firefox and IE send a "Cache-Control: no-cache" request header
+			 * only and only if the current page is reloaded with CTRL+F5 or the JS code :
+			 * "location.reload(true)". We use this behaviour to trigger a cache reset in DEBUG mode.
+			 */
+
+			if (($a = !CIA_POSTING && DEBUG && !$binaryMode && 'no-cache' == @$_SERVER['HTTP_CACHE_CONTROL'])
+				|| (isset($_COOKIE['cache_reset_id']) && setcookie('cache_reset_id', '', 0, '/')))
+			{
+				if ($a)
+				{
+					self::touch('');
+					self::delDir(self::$cachePath, false);
+					touch('config.php');
+				}
+				else if ($_COOKIE['cache_reset_id'] == CIA_PROJECT_ID)
+				{
+					self::touch('CIApID');
+					self::touch('foreignTrace');
+					touch('config.php');
+				}
+
+				self::setMaxage(0);
+				self::setGroup('private');
+
+				echo '<html><head><script type="text/javascript">location.reload()</script></head></html>';
+				exit;
+			}
+
+			if (CIA_POSTING || $binaryMode || isset($_GET['$bin']) || !@$_COOKIE['JS'])
+			{
+				if (!$binaryMode) self::setGroup('private');
+				CIA_serverside::loadAgent($agent, false, false);
+			}
+			else CIA_clientside::loadAgent($agent);
+			// }}}
+		}
 	}
 
 	public static function sessionStart($private = true)
@@ -172,7 +330,7 @@ class
 		if ($exit) exit;
 	}
 
-	public static function openMeta($agentClass, $is_trace = true)
+	protected static function openMeta($agentClass, $is_trace = true)
 	{
 		self::$isGroupStage = true;
 
@@ -187,14 +345,14 @@ class
 		self::$metaInfo =& $default;
 	}
 
-	public static function closeGroupStage()
+	protected static function closeGroupStage()
 	{
 		self::$isGroupStage = false;
 
 		return self::$metaInfo[1];
 	}
 
-	public static function closeMeta()
+	protected static function closeMeta()
 	{
 		self::$catchMeta = false;
 
@@ -265,7 +423,7 @@ class
 
 				if ($b != $a && !self::$isGroupStage)
 				{
-					if (DEBUG) E('Miss-conception: CIA::setGroup() is called in ' . self::$agentClass . '->compose( ) rather than in ' . self::$agentClass . '->control(). Cache is now disabled for this agent.');
+					if (DEBUG) E('Miss-conception: self::setGroup() is called in ' . self::$agentClass . '->compose( ) rather than in ' . self::$agentClass . '->control(). Cache is now disabled for this agent.');
 
 					$a = array('private');
 				}
@@ -451,10 +609,6 @@ class
 	}
 
 
-	/*
-	 * The following methods are used internally, mainly by the IA_* class
-	 */
-
 	protected static function getCachePath($filename, $extension, $key = '')
 	{
 		if (''!==(string)$extension) $extension = '.' . $extension;
@@ -479,7 +633,7 @@ class
 		else trigger_error(serialize($message));
 	}
 
-	public static function resolveAgentClass($agent, &$args)
+	protected static function resolveAgentClass($agent, &$args)
 	{
 		static $resolvedCache = array();
 
@@ -570,7 +724,7 @@ class
 		return $agent;
 	}
 
-	public static function agentArgv($agent)
+	protected static function agentArgv($agent)
 	{
 		// get declared arguments in $agent::$argv public property
 		$args = get_class_vars($agent);
@@ -631,7 +785,7 @@ class
 		else $cache[$agent] =& $trace;
 
 		$args = array();
-		$HOME = $home = CIA::__HOME__();
+		$HOME = $home = self::__HOME__();
 		$agent = self::home($agent);
 		$keys = false;
 		$s = '\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'';
@@ -648,7 +802,7 @@ class
 				resolvePath('getTrace.php'),
 				resolvePath('config.php'),
 				$_SERVER['CIA_HOME'],
-				CIA::__LANG__(),
+				self::__LANG__(),
 				substr($agent, strlen($HOME)),
 				(int) @$_SERVER['HTTPS']
 			)));
@@ -661,7 +815,7 @@ class
 		if (!$keys)
 		{
 			require_once 'HTTP/Request.php';
-			$agent = implode(CIA::__LANG__(), explode('__', $agent, 2));
+			$agent = implode(self::__LANG__(), explode('__', $agent, 2));
 			$keys = new HTTP_Request($agent . '?k$=');
 			$keys->sendRequest();
 			$keys = $keys->getResponseBody();
@@ -675,7 +829,7 @@ class
 
 		$CIApID = (int) $keys[1];
 		$home = stripcslashes(substr($keys[2], 1, -1));
-		$home = preg_replace("'__'", CIA::__LANG__(), $home, 1);
+		$home = preg_replace("'__'", self::__LANG__(), $home, 1);
 		$agent = stripcslashes(substr($keys[3], 1, -1));
 		$a = stripcslashes(substr($keys[4], 1, -1));
 		$keys = eval('return array(' . $keys[5] . ');');
@@ -702,7 +856,7 @@ class
 		if (false !== $b) $a = substr($a, 0, $b);
 	}
 
-	public static function agentCache($agentClass, $keys, $type, $group = false)
+	protected static function agentCache($agentClass, $keys, $type, $group = false)
 	{
 		if (false === $group) $group = self::$metaInfo[1];
 		$keys = serialize(array($keys, $group));
@@ -784,8 +938,8 @@ class
 				fseek($h, 0, SEEK_END);
 				if (!ftell($h))
 				{
-					CIA::touch('CIApID');
-					CIA::touch('public/templates/js');
+					self::touch('CIApID');
+					self::touch('public/templates/js');
 
 					fwrite($h, $a = '1', 1);
 					touch('config.php');

@@ -4,7 +4,7 @@ $abstract = false;
 $final = false;
 
 $tmp = dirname($path);
-if (!file_exists($tmp)))
+if (!file_exists($tmp))
 {
 	mkdir($tmp);
 

@@ -36,7 +36,7 @@ class extends agent_bin
 			$source = (array) $this->argv;
 			$source['source'] = 1;
 
-			$source = IA_php::returnAgent(substr(get_class($this), 6), $source);
+			$source = CIA_serverside::returnAgent(substr(get_class($this), 6), $source);
 
 			$parser = new jsquiz;
 			$parser->addJs($source);

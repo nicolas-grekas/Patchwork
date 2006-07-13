@@ -1,26 +1,26 @@
 <?php
 
-class
+class extends CIA
 {
 	public static function loadAgent($agent)
 	{
-		CIA::setMaxage(-1);
-		CIA::setGroup('private');
-		CIA::setExpires('onmaxage');
+		self::setMaxage(-1);
+		self::setGroup('private');
+		self::setExpires('onmaxage');
 
-		$cagent = CIA::getContextualCachePath('controler/' . $agent, 'txt', CIA_PROJECT_ID);
+		$cagent = self::getContextualCachePath('controler/' . $agent, 'txt', CIA_PROJECT_ID);
 
-		if ($h = CIA::fopenX($cagent))
+		if ($h = self::fopenX($cagent))
 		{
-			$a = CIA::agentArgv($agent);
+			$a = self::agentArgv($agent);
 			array_walk($a, 'jsquoteRef');
 			$a = implode(',', $a);
 
 			$agent = jsquote('agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)));
 
-			$lang = CIA::__LANG__();
+			$lang = self::__LANG__();
 			$CIApID = CIA_PROJECT_ID;
-			$home = CIA::__HOME__();
+			$home = self::__HOME__();
 
 			echo $a =<<<EOHTML
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -33,7 +33,7 @@ EOHTML;
 
 			fwrite($h, $a, strlen($a));
 			fclose($h);
-			CIA::writeWatchTable('CIApID', $cagent);
+			self::writeWatchTable('CIApID', $cagent);
 		}
 		else readfile($cagent);
 	}
@@ -43,15 +43,15 @@ EOHTML;
 		if ($liveAgent)
 		{
 			// The output is both html and js, but iframe transport layer needs html
-			CIA::header('Content-Type: text/html; charset=UTF-8');
+			self::header('Content-Type: text/html; charset=UTF-8');
 
 			echo '/*<script type="text/javascript">/**/q="';
 		}
 		else echo 'w(';
 
-		$agentClass = CIA::resolveAgentClass($agent, $_GET);
+		$agentClass = self::resolveAgentClass($agent, $_GET);
 
-		CIA::openMeta($agentClass);
+		self::openMeta($agentClass);
 
 		$agent = false;
 
@@ -59,12 +59,12 @@ EOHTML;
 		{
 			$agent = new $agentClass($_GET);
 
-			$group = CIA::closeGroupStage();
+			$group = self::closeGroupStage();
 
 			if ($is_cacheable = !in_array('private', $group))
 			{
-				$cagent = CIA::agentCache($agentClass, $agent->argv, 'js.php', $group);
-				$dagent = CIA::getContextualCachePath('jsdata.' . $agentClass, 'js.php', $cagent);
+				$cagent = self::agentCache($agentClass, $agent->argv, 'js.php', $group);
+				$dagent = self::getContextualCachePath('jsdata.' . $agentClass, 'js.php', $cagent);
 
 				if ($liveAgent)
 				{
@@ -73,9 +73,9 @@ EOHTML;
 						if (filemtime($dagent)>$_SERVER['REQUEST_TIME'])
 						{
 							require $dagent;
-							CIA::closeMeta();
+							self::closeMeta();
 
-							echo '"//</script><script type="text/javascript" src="' . CIA::__HOME__() . 'js/QJsrsHandler"></script>';
+							echo '"//</script><script type="text/javascript" src="' . self::__HOME__() . 'js/QJsrsHandler"></script>';
 							return;
 						}
 						else unlink($dagent);
@@ -88,7 +88,7 @@ EOHTML;
 						if (filemtime($cagent)>$_SERVER['REQUEST_TIME'])
 						{
 							require $cagent;
-							CIA::closeMeta();
+							self::closeMeta();
 							return;
 						}
 						else unlink($cagent);
@@ -115,7 +115,7 @@ EOHTML;
 			echo '}';
 
 			$agent->metaCompose();
-			list($maxage, $group, $expires, $watch, $headers) = CIA::closeMeta();
+			list($maxage, $group, $expires, $watch, $headers) = self::closeMeta();
 		}
 		catch (PrivateDetection $data)
 		{
@@ -124,7 +124,7 @@ EOHTML;
 			if ($liveAgent)
 			{
 				echo 'false";(window.E||alert)("You must provide an auth token to get this liveAgent:\\n' . jsquote($_SERVER['REQUEST_URI'], false, '"') . '")';
-				echo '//</script><script type="text/javascript" src="' . CIA::__HOME__() . 'js/QJsrsHandler"></script>';
+				echo '//</script><script type="text/javascript" src="' . self::__HOME__() . 'js/QJsrsHandler"></script>';
 			}
 			else if ($data->getMessage())
 			{
@@ -142,7 +142,7 @@ EOHTML;
 		{
 			$data = ob_get_clean();
 			echo str_replace(array('\\', '"'), array('\\\\', '\\"'), $data),
-				'"//</script><script type="text/javascript" src="' . CIA::__HOME__() . 'js/QJsrsHandler"></script>';
+				'"//</script><script type="text/javascript" src="' . self::__HOME__() . 'js/QJsrsHandler"></script>';
 		}
 		else $data = ob_get_flush();
 
@@ -159,16 +159,16 @@ EOHTML;
 
 			if (CIA_MAXAGE == $maxage)
 			{
-				$ctemplate = CIA::getContextualCachePath("templates/$template", 'txt');
-				if ($h = CIA::fopenX($ctemplate))
+				$ctemplate = self::getContextualCachePath("templates/$template", 'txt');
+				if ($h = self::fopenX($ctemplate))
 				{
-					CIA::openMeta('agent__template/' . $template, false);
+					self::openMeta('agent__template/' . $template, false);
 					$compiler = new iaCompiler_js(constant("$agentClass::binary"));
 					echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
 					fwrite($h, $template, strlen($template));
 					fclose($h);
-					list(,,, $template) = CIA::closeMeta();
-					CIA::writeWatchTable($template, $ctemplate);
+					list(,,, $template) = self::closeMeta();
+					self::writeWatchTable($template, $ctemplate);
 				}
 				else readfile($ctemplate);
 
@@ -180,9 +180,9 @@ EOHTML;
 			{
 				$ob = true;
 
-				if ($h = CIA::fopenX($dagent))
+				if ($h = self::fopenX($dagent))
 				{
-					$template = '<?php CIA::setMaxage(' . (int) $maxage . ");CIA::setExpires('$expires');";
+					$template = '<?php self::setMaxage(' . (int) $maxage . ");self::setExpires('$expires');";
 
 					if ($headers)
 					{
@@ -201,7 +201,7 @@ EOHTML;
 
 					touch($dagent, $_SERVER['REQUEST_TIME'] + $expires);
 
-					if ($h = CIA::fopenX($cagent))
+					if ($h = self::fopenX($cagent))
 					{
 						$ob = false;
 						$maxage = $template . $data . str_replace('<?', "<<?php ?>?", $liveAgent ? ob_get_clean() : ob_get_flush());
@@ -211,8 +211,8 @@ EOHTML;
 
 						touch($dagent, $_SERVER['REQUEST_TIME'] + $expires);
 
-						CIA::writeWatchTable($watch, $dagent);
-						CIA::writeWatchTable($watch, $cagent);
+						self::writeWatchTable($watch, $dagent);
+						self::writeWatchTable($watch, $cagent);
 					}
 				}
 
@@ -223,7 +223,7 @@ EOHTML;
 
 	private static function writeAgent(&$loop)
 	{
-		if (!CIA::string($loop))
+		if (!self::string($loop))
 		{
 			echo 0;
 			return;
