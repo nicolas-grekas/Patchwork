@@ -1,5 +1,8 @@
 <?php // vim: set noet ts=4 sw=4 fdm=marker:
 
+extension_loaded('tokenizer') || die('Extension "tokenizer" is needed and not loaded.');
+extension_loaded('Reflection') || die('Extension "Reflection" is needed and not loaded.');
+
 $abstract = false;
 $final = false;
 
@@ -14,9 +17,6 @@ if (!file_exists($tmp))
 		$h->GetFolder($tmp)->Attributes |= 2;
 	}
 }
-
-extension_loaded('tokenizer') || die('Extension "tokenizer" is needed and not loaded.');
-extension_loaded('Reflection') || die('Extension "Reflection" is needed and not loaded.');
 
 $tmp .= '/' . md5(uniqid(mt_rand(), true) . '.php');
 
