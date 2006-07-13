@@ -4,10 +4,15 @@ $abstract = false;
 $final = false;
 
 $tmp = dirname($path);
-if (file_exists($tmp) || mkdir($tmp) && 'WIN' == substr(PHP_OS, 0, 3))
+if (!file_exists($tmp)))
 {
-	$h = new COM('Scripting.FileSystemObject');
-	$h->GetFolder($tmp)->Attributes |= 2;
+	mkdir($tmp);
+
+	if ('WIN' == substr(PHP_OS, 0, 3))
+	{
+		$h = new COM('Scripting.FileSystemObject');
+		$h->GetFolder($tmp)->Attributes |= 2;
+	}
 }
 
 $tmp .= '/' . md5(uniqid(mt_rand(), true) . '.php');
