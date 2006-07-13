@@ -15,15 +15,15 @@ $contentType = array(
 $contentType = $contentType[$path];
 
 $i = 0;
-$len = count($cia_paths);
-$lang = CIA::__LANG__() . '/';
+$len = count($GLOBALS['cia_paths']);
+$lang = self::__LANG__() . '/';
 $l_ng = '__/';
 
 $source = false;
 
 do
 {
-	$path = $cia_paths[$i++] . '/public/';
+	$path = $GLOBALS['cia_paths'][$i++] . '/public/';
 
 	if (file_exists($source = $path . $lang . $agent)) break;
 	if (file_exists($source = $path . $l_ng . $agent)) break;
@@ -32,9 +32,9 @@ while (--$len);
 
 if ($source)
 {
-	CIA::header('Content-Type: ' . $contentType);
-	CIA::setMaxage(-1);
-	CIA::writeWatchTable('public/static', 'zcache/');
+	self::header('Content-Type: ' . $contentType);
+	self::setMaxage(-1);
+	self::writeWatchTable('public/static', 'zcache/');
 
 	readfile($source);
 

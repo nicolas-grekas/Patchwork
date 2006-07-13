@@ -17,7 +17,7 @@ class extends iaCompiler
 			implode($a, $code)
 		);
 
-		return ( $this->binaryMode ? '' : 'IA_php::escape($v);' ) . $code;
+		return ( $this->binaryMode ? '' : 'CIA_serverside::escape($v);' ) . $code;
 	}
 
 
@@ -59,8 +59,8 @@ class extends iaCompiler
 			$comma = ',';
 		}
 
-		if (DEBUG && "'" != $inc[0]) $this->pushCode("null===$inc?E('AGENT is undefined: $inc'):IA_php::loadAgent($inc,array($a)," .( $is_exo ? 1 : 0 ). ");");
-		else $this->pushCode("IA_php::loadAgent($inc,array($a)," .( $is_exo ? 1 : 0 ). ");");
+		if (DEBUG && "'" != $inc[0]) $this->pushCode("null===$inc?E('AGENT is undefined: $inc'):CIA_serverside::loadAgent($inc,array($a)," .( $is_exo ? 1 : 0 ). ");");
+		else $this->pushCode("CIA_serverside::loadAgent($inc,array($a)," .( $is_exo ? 1 : 0 ). ");");
 
 		return true;
 	}
@@ -96,7 +96,7 @@ class extends iaCompiler
 		{
 			$this->pushCode(
 				'unset($p);$p=' . $var . ';if('
-					. '($p instanceof loop||(0<($p=(int)$p)&&IA_php::makeLoopByLength($p)))'
+					. '($p instanceof loop||(0<($p=(int)$p)&&CIA_serverside::makeLoopByLength($p)))'
 					. '&&CIA::string($v->{"p$"}=$p)'
 					. '&&($v->{"iteratorPosition$"}=-1)'
 					. '&&($p=(object)array("$"=>&$v))'
@@ -105,7 +105,7 @@ class extends iaCompiler
 					. '($p=&$v->{"$"}&&$v=$p->{"p$"}->loop())'
 					. '||($v=&$p&&0)'
 				. '){'
-				.( $this->binaryMode ? '' : 'IA_php::escape($v);' )
+				.( $this->binaryMode ? '' : 'CIA_serverside::escape($v);' )
 				. '$v->{"$"}=&$p;'
 				. '$v->iteratorPosition=++$p->{"iteratorPosition$"};'
 			);
@@ -161,7 +161,7 @@ class extends iaCompiler
 			case 'd':
 			case 'a':
 			case 'g':
-				$var = ''!==(string) $prefix ? "IA_php::increment('$name',$prefix,\$$type)" : "@\${$type}->$name";
+				$var = ''!==(string) $prefix ? "CIA_serverside::increment('$name',$prefix,\$$type)" : "@\${$type}->$name";
 				break;
 
 			case '':

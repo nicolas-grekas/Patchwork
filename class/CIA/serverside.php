@@ -1,6 +1,6 @@
 <?php
 
-class
+class extends CIA
 {
 	protected static $args;
 	protected static $values;
@@ -11,7 +11,7 @@ class
 
 	public static function returnAgent($agent, $args, $lang = false)
 	{
-		if ($lang) $lang = CIA::setLang($lang);
+		if ($lang) $lang = self::setLang($lang);
 
 		$a =& $_GET;
 		$g =& self::$get;
@@ -20,13 +20,13 @@ class
 		self::$get =& $f;
 
 		ob_start();
-		IA_php::loadAgent(CIA::resolveAgentClass($agent, $_GET), false, false);
+		self::loadAgent(self::resolveAgentClass($agent, $_GET), false, false);
 		$agent = ob_get_clean();
 
 		$_GET =& $a;
 		self::$get =& $g;
 
-		if ($lang) CIA::setLang($lang);
+		if ($lang) self::setLang($lang);
 
 		return $agent;
 	}
@@ -50,11 +50,11 @@ class
 			else self::$get = (object) array_map('htmlspecialchars', $a);
 
 			self::$get->__DEBUG__ = DEBUG ? DEBUG : 0;
-			self::$get->__HOST__ = CIA::__HOST__();
-			$cache .= self::$get->__LANG__ = CIA::__LANG__();
-			$cache .= self::$get->__HOME__ = CIA::__HOME__();
+			self::$get->__HOST__ = self::__HOST__();
+			$cache .= self::$get->__LANG__ = self::__LANG__();
+			$cache .= self::$get->__HOME__ = self::__HOME__();
 			self::$get->__AGENT__ = 'agent_index' == $agent ? '' : (str_replace('_', '/', substr($agent, 6)) . '/');
-			self::$get->__URI__ = htmlspecialchars(CIA::__URI__());
+			self::$get->__URI__ = htmlspecialchars(self::__URI__());
 
 			self::$args = self::$get;
 
@@ -67,7 +67,7 @@ class
 			$reset_get = false;
 			$_GET =& $args;
 
-			if ($agent instanceof loop && CIA::string($agent))
+			if ($agent instanceof loop && self::string($agent))
 			{
 				$agent->autoResolve = false;
 
@@ -78,8 +78,8 @@ class
 				foreach ($data as $k => &$v) $args[$k] = is_string($v) ? htmlspecialchars($v) : $v;
 			}
 
-			$HOME = CIA::__HOME__();
-			$agent = CIA::home($agent);
+			$HOME = self::__HOME__();
+			$agent = self::home($agent);
 
 			if (0 === strpos($agent, $HOME))
 			{
@@ -97,10 +97,10 @@ class
 				if ($is_exo)
 				{
 					require_once 'HTTP/Request.php';
-					$agent = preg_replace("'__'", CIA::__LANG__(), $agent, 1);
+					$agent = preg_replace("'__'", self::__LANG__(), $agent, 1);
 					$agent = new HTTP_Request($agent);
 					$agent->addQueryString('$s', '');
-					foreach ($args as $k => &$v) $agent->addQueryString($k, CIA::string($v));
+					foreach ($args as $k => &$v) $agent->addQueryString($k, self::string($v));
 
 					$agent->sendRequest();
 
@@ -116,7 +116,7 @@ class
 				return;
 			}
 
-			$agent = CIA::resolveAgentClass($agent, $args);
+			$agent = self::resolveAgentClass($agent, $args);
 			self::$args = (object) $args;
 		}
 
@@ -129,18 +129,18 @@ class
 
 	protected static function render($agentClass)
 	{
-		CIA::openMeta($agentClass);
+		self::openMeta($agentClass);
 
 		$a = self::$args;
 		$g = self::$get;
 
 		$agent = new $agentClass($_GET);
 
-		$group = CIA::closeGroupStage();
+		$group = self::closeGroupStage();
 
 		$is_cacheable = !in_array('private', $group);
 
-		$cagent = CIA::agentCache($agentClass, $agent->argv, 'php', $group);
+		$cagent = self::agentCache($agentClass, $agent->argv, 'php', $group);
 
 		$filter = false;
 
@@ -164,25 +164,25 @@ class
 			$vClone = clone $v;
 		}
 
-		CIA::$catchMeta = false;
+		self::$catchMeta = false;
 
 		self::$values = $v->{'$'} = $v;
 
-		$ctemplate = CIA::getContextualCachePath('templates/' . $template, (constant("$agentClass::binary") ? 'bin' : 'html') . '.php');
+		$ctemplate = self::getContextualCachePath('templates/' . $template, (constant("$agentClass::binary") ? 'bin' : 'html') . '.php');
 		$ftemplate = 'template' . md5($ctemplate);
 
 		if (function_exists($ftemplate)) $ftemplate($v, $a, $g);
 		else
 		{
-			if ($h = CIA::fopenX($ctemplate))
+			if ($h = self::fopenX($ctemplate))
 			{
-				CIA::openMeta('agent__template/' . $template, false);
+				self::openMeta('agent__template/' . $template, false);
 				$compiler = new iaCompiler_php(constant("$agentClass::binary"));
 				$ftemplate = '<?php function ' . $ftemplate . '(&$v, &$a, &$g){$d=$v;' . $compiler->compile($template . '.tpl') . '} ' . $ftemplate . '($v, $a, $g);';
 				fwrite($h, $ftemplate, strlen($ftemplate));
 				fclose($h);
-				list(,,, $watch) = CIA::closeMeta();
-				CIA::writeWatchTable($watch, $ctemplate);
+				list(,,, $watch) = self::closeMeta();
+				self::writeWatchTable($watch, $ctemplate);
 			}
 
 			require $ctemplate;
@@ -190,9 +190,9 @@ class
 
 		if ($filter)
 		{
-			CIA::$catchMeta = true;
+			self::$catchMeta = true;
 			$agent->metaCompose();
-			list($maxage, $group, $expires, $watch, $headers, $canPost) = CIA::closeMeta();
+			list($maxage, $group, $expires, $watch, $headers, $canPost) = self::closeMeta();
 
 			if ('ontouch' == $expires && !$watch) $expires = 'auto';
 			$expires = 'auto' == $expires && $watch ? 'ontouch' : 'onmaxage';
@@ -202,7 +202,7 @@ class
 				$fagent = $cagent;
 				if ($canPost) $fagent = substr($cagent, 0, -7) . 'post' . substr($cagent, -4);
 
-				if ($h = CIA::fopenX($fagent))
+				if ($h = self::fopenX($fagent))
 				{
 					$rawdata = str_replace('<?', "<<?php ?>?", $rawdata) . '<?php $v=(object)';
 					fwrite($h, $rawdata, strlen($rawdata));
@@ -210,8 +210,8 @@ class
 					self::writeAgent($h, $vClone);
 
 					$data = ';$template=' . var_export($template, true)
-						. ';CIA::setMaxage(' . (int) $maxage
-						. ");CIA::setExpires('$expires');";
+						. ';self::setMaxage(' . (int) $maxage
+						. ");self::setExpires('$expires');";
 
 					if ($headers)
 					{
@@ -224,11 +224,11 @@ class
 
 					touch($fagent, $_SERVER['REQUEST_TIME'] + ('ontouch' == $expires ? CIA_MAXAGE : $maxage));
 
-					CIA::writeWatchTable($watch, $fagent);
+					self::writeWatchTable($watch, $fagent);
 				}
 			}
 		}
-		else CIA::closeMeta();
+		else self::closeMeta();
 
 		if (isset($vClone)) self::$cache[$cagent] = array($vClone, $template);
 	}
@@ -245,7 +245,7 @@ class
 
 			if ($value instanceof loop)
 			{
-				if (!CIA::string($value)) fwrite($h, "'0'", 3);
+				if (!self::string($value)) fwrite($h, "'0'", 3);
 				else
 				{
 					fwrite($h, 'new L_(array(', 13);
