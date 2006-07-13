@@ -34,7 +34,7 @@ class
 	protected static $isGroupStage = true;
 
 	protected static $maxage = false;
-	protected static $private;
+	protected static $private = false;
 	protected static $expires = 'auto';
 	protected static $watchTable = array();
 	protected static $headers;
@@ -50,10 +50,9 @@ class
 	public static function start()
 	{
 		// Stupid Zend Engine with PHP 5.0.x ...
-		// Protected static vars assigned in the class signature are in fact private.
-		// To get them really protected, you have to assign them at run time...
+		// Static vars assigned in the class declaration are not accessible from an instance of a derived class.
+		// The workaround is to assign them at run time...
 		self::$handlesOb = false;
-		self::$private = false;
 		self::$headers = array();
 
 		$cachePath = resolvePath(self::$cachePath);

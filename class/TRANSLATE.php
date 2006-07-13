@@ -2,15 +2,15 @@
 
 abstract class
 {
-	protected static $started = false;
+	protected static $started;
 
 	protected static $driver;
-	protected static $cache = array();
+	protected static $cache;
 
 	public static function get($string, $lang, $usecache)
 	{
 		if ('' === $string || '__' == $lang) return $string;
-		if (!self::$started) self::start();
+		isset(self::$started) || self::start();
 
 		$hash = md5($string);
 		$cache = '';
@@ -56,11 +56,12 @@ abstract class
 
 	private static function start()
 	{
-		if (self::$started) return;
+		if (isset(self::$started)) return;
 
 		self::$started = true;
+		self::$cache = array();
 
-		global $CONFIG;
+ 		global $CONFIG;
 		$driver = 'driver_translate_' . $CONFIG['translate_driver'];
 		self::$driver = new $driver($CONFIG['translate_params']);
 		self::$driver->open();
