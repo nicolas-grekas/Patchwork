@@ -15,6 +15,9 @@ if (!file_exists($tmp))
 	}
 }
 
+extension_loaded('tokenizer') || die('Extension "tokenizer" is needed and not loaded.');
+extension_loaded('Reflection') || die('Extension "Reflection" is needed and not loaded.');
+
 $tmp .= '/' . md5(uniqid(mt_rand(), true) . '.php');
 
 $h = fopen($tmp, 'wb');
