@@ -26,13 +26,13 @@ class
 
 
 	# no args
-	private static function get_bool(&$value, &$args)
+	protected static function get_bool(&$value, &$args)
 	{
 		return (string) (bool) $value;
 	}
 
 	# min, max
-	private static function get_int(&$value, &$args)
+	protected static function get_int(&$value, &$args)
 	{
 		if (!is_scalar($value)) return false;
 
@@ -45,7 +45,7 @@ class
 	}
 
 	# min, max
-	private static function get_float(&$value, &$args)
+	protected static function get_float(&$value, &$args)
 	{
 		if (!is_scalar($value)) return false;
 
@@ -61,13 +61,13 @@ class
 	}
 
 	# array
-	private static function get_in_array(&$value, &$args)
+	protected static function get_in_array(&$value, &$args)
 	{
 		return in_array($value, $args[0]) ? $value : false;
 	}
 
 	# regexp, case insensitive, trim
-	private static function get_string(&$value, &$args)
+	protected static function get_string(&$value, &$args)
 	{
 		if (!is_scalar($value)) return false;
 
@@ -85,7 +85,7 @@ class
 	}
 
 	# no args
-	private static function get_email(&$value, &$args)
+	protected static function get_email(&$value, &$args)
 	{
 		if (!is_scalar($value)) return false;
 
@@ -100,7 +100,7 @@ class
 	}
 
 	# (bool) international
-	private static function get_phone(&$value, &$args)
+	protected static function get_phone(&$value, &$args)
 	{
 		if (!is_scalar($value)) return false;
 
@@ -114,7 +114,7 @@ class
 	}
 
 	# no args
-	private static function get_date(&$value, &$args)
+	protected static function get_date(&$value, &$args)
 	{
 		if (!is_scalar($value)) return false;
 
@@ -165,7 +165,7 @@ class
 	}
 
 	# size (octet), regexp
-	private static function get_file(&$value, &$args)
+	protected static function get_file(&$value, &$args)
 	{
 		$result = $value;
 
@@ -186,7 +186,7 @@ class
 	}
 
 	# size (octet), regexp, type, max_width, max_height, min_width, min_height
-	private static function get_image(&$value, &$args)
+	protected static function get_image(&$value, &$args)
 	{
 		$type = @$args[2];
 		$max_width = @$args[3];
@@ -216,7 +216,7 @@ class
 
 
 	# size (octet), regexp
-	private static function getFile_file(&$value, &$args)
+	protected static function getFile_file(&$value, &$args)
 	{
 		if (isset($args[0]) && $args[0])
 		{
@@ -234,7 +234,7 @@ class
 	}
 
 	# size (octet), regexp, type, max_width, max_height, min_width, min_height
-	private static function getFile_image(&$value, &$args)
+	protected static function getFile_image(&$value, &$args)
 	{
 		$a = array(0, @$args[1]);
 		$args[1] = false;
