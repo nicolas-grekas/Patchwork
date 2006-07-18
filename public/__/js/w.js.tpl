@@ -247,7 +247,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 	{
 		if (!t($context)) return $homeAgent; //"$homeAgent" is here for jsquiz to work well
 
-		var $pointer = 0, $arguments = a, $localCIApID = $CIApID, $localG = g;
+		var $pointer = 0, $arguments = a, $localCIApID = $CIApID, $localG = g, $maxRlevel = 190, $Rlevel = $maxRlevel;
 
 		<!-- IF g$__DEBUG__ -->var DEBUG = $i = 0;<!-- END:IF -->
 
@@ -363,8 +363,9 @@ w = function($homeAgent, $keys, $masterCIApID)
 			{
 				$lastInclude = $c ? '' : $inc;
 
-				if (t($includeCache[$inc])) w($includeCache[$inc][0], $includeCache[$inc][1]);
+				if (t($includeCache[$inc]) && --$Rlevel) w($includeCache[$inc][0], $includeCache[$inc][1]);
 				else
+					$Rlevel = $maxRlevel,
 					$buffer += '<script type="text/javascript" class="w" src="' + $inc + '"></script >',
 					w.f();
 			}
@@ -381,7 +382,13 @@ w = function($homeAgent, $keys, $masterCIApID)
 			while ($code[$pointer]>='') switch ($code[$pointer++])
 			{
 				case 0: // pipe
-					$i = $code[$pointer++].split('.');
+					$i = $code[$pointer++];
+
+					if (!$i) break;
+
+					$code[$pointer-1] = 0;
+
+					$i = $i.split('.');
 					$j = $i.length;
 					while ($j--) $i[$j] = t(window['P$'+$i[$j]]) ? '' : ('.'+$i[$j]);
 
