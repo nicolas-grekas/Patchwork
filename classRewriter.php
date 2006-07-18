@@ -1,24 +1,33 @@
 <?php // vim: set noet ts=4 sw=4 fdm=marker:
 
-extension_loaded('tokenizer') || die('Extension "tokenizer" is needed and not loaded.');
-extension_loaded('Reflection') || die('Extension "Reflection" is needed and not loaded.');
-
-$abstract = false;
-$final = false;
-
-$tmp = dirname($path);
-if (!file_exists($tmp))
+if (!function_exists('stripPHPWhiteSpaceNComments'))
 {
-	mkdir($tmp);
-
-	if ('WIN' == substr(PHP_OS, 0, 3))
+	function stripPHPWhiteSpaceNComments($a)
 	{
-		$h = new COM('Scripting.FileSystemObject');
-		$h->GetFolder($tmp)->Attributes |= 2;
+		$a = preg_replace(
+			array("'[^\r\n]+'", "' +([\r\n])'", "'([\r\n]) +'"),
+			array(' '         , '$1'          , '$1'          ),
+			$a
+		);
+
+		return $a;
+	}
+
+	function fetchPHPWhiteSpaceNComments(&$tokens, &$i)
+	{
+		$token = '';
+
+		while (($t = @$tokens[++$i][0]) && (T_COMMENT == $t || T_WHITESPACE == $t || T_DOC_COMMENT == $t)) $token .= stripPHPWhiteSpaceNComments($tokens[$i][1]);
+
+		return $token;
 	}
 }
 
-$tmp .= '/' . md5(uniqid(mt_rand(), true) . '.php');
+extension_loaded('tokenizer') || die('Extension "tokenizer" is needed and not loaded.');
+extension_loaded('Reflection') || die('Extension "Reflection" is needed and not loaded.');
+
+
+$tmp = dirname($path) . '/.' . md5(uniqid(mt_rand(), true) . '.php');
 
 $h = fopen($tmp, 'wb');
 
@@ -33,42 +42,56 @@ for ($i = 0; $i < $tokensLen; ++$i)
 	{
 		if (T_CLASS == $token[0])
 		{
-			$a = T_ABSTRACT == @$tokens[$i-2][0];
-			$f = T_FINAL == @$tokens[$i-2][0];
+			// Look backward for the "final" keyword
+			$j = 0;
+			do $t = @$tokens[$i - (++$j)][0];
+			while (T_COMMENT == $t || T_WHITESPACE == $t);
+
+			$final = T_FINAL == @$tokens[$i-$j][0];
+
 
 			$c = '';
 			$token = $token[1];
 
-			if (T_STRING == @$tokens[$i+2][0])
+			// Look forward
+			$j = 0;
+			do $t = @$tokens[$i + (++$j)][0];
+			while (T_COMMENT == $t || T_WHITESPACE == $t);
+
+			if (T_STRING == @$tokens[$i+$j][0])
 			{
-				$token .= $tokens[++$i][1];
-				$c = preg_replace("'__[0-9]+$'", '', $tokens[++$i][1]);
-				$token .= $c . '__' . $level;
-				if (T_WHITESPACE == @$tokens[$i+1][0]) $token .= $tokens[++$i][1];
+				$token .= fetchPHPWhiteSpaceNComments($tokens, $i);
+
+				$c = $tokens[$i][1];
+
+				if ($final) $token .= $c;
+				else
+				{
+					$c = preg_replace("'__[0-9]+$'", '', $c);
+					$token .= $c . '__' . $level;
+				}
+
+				$token .= fetchPHPWhiteSpaceNComments($tokens, $i);
 			}
 
 			if (!$c)
 			{
 				$c = $class;
-				$token .= ' ' . $c . '__' . $level . $tokens[++$i][1];
+				$token .= ' ' . $c . (!$final ? '__' . $level : '');
+				$token .= fetchPHPWhiteSpaceNComments($tokens, $i);
 			}
 
-			if ($c == $class)
+			if (T_EXTENDS == @$tokens[$i][0])
 			{
-				if ($a) $abstract = true;
-				else if ($f) $final = true;
-			}
-
-			if (T_EXTENDS == @$tokens[$i+1][0])
-			{
-				$token .= $tokens[++$i][1] . $tokens[++$i][1];
-
-				++$i;
-
+				$token .= $tokens[$i][1];
+				$token .= fetchPHPWhiteSpaceNComments($tokens, $i);
 				$token .= 'parent' == @$tokens[$i][1] ? $class . '__' . ($level && $c == $class ? $level-1 : $level) : $tokens[$i][1];
 			}
+			else --$i;
 		}
-		else $token = $token[1];
+		else $token = (T_COMMENT == $token[0] || T_WHITESPACE == $token[0] || T_DOC_COMMENT == $token[0])
+			? stripPHPWhiteSpaceNComments($token[1])
+			: $token[1];
 	}
 
 	fwrite($h, $token);
@@ -76,11 +99,12 @@ for ($i = 0; $i < $tokensLen; ++$i)
 
 fclose($h);
 
-$filesource = $path . ($abstract ? 'a' : ($final ? 'f' : 'c')) . '.php';
 
-if ('WIN' == substr(PHP_OS, 0, 3)) @unlink($filesource);
-rename($tmp, $filesource);
+if ('WIN' == substr(PHP_OS, 0, 3))
+{
+	$h = new COM('Scripting.FileSystemObject');
+	$h->GetFile($tmp)->Attributes |= 2;
+	$h = @unlink($path);
+}
 
-if ($abstract || $final) @unlink($path . 'c.php');
-if (!$abstract) @unlink($path . 'a.php');
-if (!$final) @unlink($path . 'f.php');
+rename($tmp, $path);
