@@ -134,7 +134,7 @@ function resolvePath($filename)
 // {{{ function __autoload()
 function __autoload($searched_class)
 {
-	if (preg_match("'^(.+)__([0-9]+)$'", $searched_class, $class_level)) // Namespace renammed class
+	if (preg_match("'^(.+)__(0|[1-9][0-9]*)$'", $searched_class, $class_level)) // Namespace renammed class
 	{
 		$class = $class_level[1];
 		$class_level = (int) $class_level[2];
@@ -145,74 +145,50 @@ function __autoload($searched_class)
 		$class_level = -1;
 	}
 
-	$level = $class_level>=0 ? $class_level : count($GLOBALS['cia_paths']);
+	$level = $class_level>=0 ? $class_level + 1 : count($GLOBALS['cia_paths']);
 
 	if ('_' == substr($class, -1) || '_' == substr($class, 0, 1) || false !== strpos($class, '__')) // Out of the path class: search for an existing parent
 	{
-		do
-		{
-			$parent = $class . '__' . --$level;
+		if ($class_level >= 0) --$level;
 
-			if (class_exists($parent, false))
-			{
-				$searched_class .= ' extends ' . $parent;
-				$abstract = new ReflectionClass($parent);
-				$abstract = $abstract->isAbstract();
-				break;
-			}
-		}
-		while ($level);
+		do $parent_class = $class . '__' . --$level;
+		while ($level && !class_exists($parent_class, false));
 	}
 	else // Conventional class: search its definition on disk
 	{
 		$file = 'class/' . str_replace('_', '/', $class) . '.php';
-
-		$i = $class_level>=0 ? count($GLOBALS['cia_paths']) - $class_level - 1 : 0;
-
+		$i = $class_level>=0 ? count($GLOBALS['cia_paths']) - $class_level - 2 : -1;
 		$paths =& $GLOBALS['cia_paths'];
+		$parent_class = false;
 
 		do
 		{
-			$parent = $class . '__' . --$level;
-
-			$path = $paths[$i++] . '/';
-
-			if (class_exists($parent, false))
-			{
-				$searched_class .= ' extends ' . $parent;
-				$abstract = new ReflectionClass($parent);
-				$abstract = $abstract->isAbstract();
-				break;
-			}
+			$parent_class = $class . '__' . --$level;
+			$path = $paths[++$i] . '/';
 
 			if (file_exists($path . $file))
 			{
-				$searched_class .= ' extends ' . $parent;
-
 				$file = $path . $file;
-				$path .= '.class/' . $class . '.';
+				$path .= 'class/.' . $class . '.php';
 
-				$abstract = false;
-				$final = false;
+				if (!file_exists($path) || (DEBUG && filemtime($file) > filemtime($path))) require resolvePath('classRewriter.php');
 
-				     if (file_exists($filesource = $path . 'c.php')) ;
-				else if (file_exists($filesource = $path . 'a.php')) $abstract = true;
-				else if (file_exists($filesource = $path . 'f.php')) $final = true;
-				else $filesource = false;
+				require $path;
 
-				if (!$filesource || (DEBUG && filemtime($file) > filemtime($filesource))) require resolvePath('classRewriter.php');
-
-				require $filesource;
-
-				if ($final) return;
+				if (class_exists($searched_class, false)) return;
 
 				break;
 			}
 		}
-		while ($level);
+		while ($level && !class_exists($parent_class, false));
 	}
 
-	eval(($abstract ? 'abstract ' : '') . 'class ' . $searched_class . '{}');
+	if (class_exists($parent_class, true))
+	{
+		$class = new ReflectionClass($parent_class);
+
+		eval(($class->isAbstract() ? 'abstract ' : '') . 'class ' . $searched_class . ' extends ' . $parent_class . '{}');
+	}
 }
 // }}}
 
