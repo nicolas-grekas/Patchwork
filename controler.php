@@ -30,7 +30,7 @@ do
 }
 while (--$len);
 
-if ($source)
+if ($len)
 {
 	self::header('Content-Type: ' . $contentType);
 	self::setMaxage(-1);
