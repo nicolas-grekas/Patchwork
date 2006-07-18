@@ -164,6 +164,9 @@ function __autoload($searched_class)
 		do
 		{
 			$parent_class = $class . '__' . --$level;
+
+			if (class_exists($parent_class, false)) break;
+
 			$path = $paths[++$i] . '/';
 
 			if (file_exists($path . $file))
@@ -180,7 +183,7 @@ function __autoload($searched_class)
 				break;
 			}
 		}
-		while ($level && !class_exists($parent_class, false));
+		while ($level);
 	}
 
 	if (class_exists($parent_class, true))
