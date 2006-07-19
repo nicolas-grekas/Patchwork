@@ -119,7 +119,7 @@ EOHTML;
 		}
 		catch (PrivateDetection $data)
 		{
-			if ($agent) ob_clean();
+			if ($agent) @ob_clean();
 
 			if ($liveAgent)
 			{
@@ -140,11 +140,11 @@ EOHTML;
 
 		if ($liveAgent)
 		{
-			$data = ob_get_clean();
+			$data = @ob_get_clean();
 			echo str_replace(array('\\', '"'), array('\\\\', '\\"'), $data),
 				'"//</script><script type="text/javascript" src="' . self::__HOME__() . 'js/QJsrsHandler"></script>';
 		}
-		else $data = ob_get_flush();
+		else $data = @ob_get_flush();
 
 		$data = str_replace('<?', "<<?php ?>?", $data);
 
@@ -204,7 +204,7 @@ EOHTML;
 					if ($h = self::fopenX($cagent))
 					{
 						$ob = false;
-						$maxage = $template . $data . str_replace('<?', "<<?php ?>?", $liveAgent ? ob_get_clean() : ob_get_flush());
+						$maxage = $template . $data . str_replace('<?', "<<?php ?>?", $liveAgent ? @ob_get_clean() : @ob_get_flush());
 
 						fwrite($h, $maxage, strlen($maxage));
 						fclose($h);
@@ -216,7 +216,7 @@ EOHTML;
 					}
 				}
 
-				if ($ob) $liveAgent ? ob_clean() : ob_flush();
+				if ($ob) $liveAgent ? @ob_clean() : @ob_flush();
 			}
 		}
 	}
