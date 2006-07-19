@@ -78,7 +78,7 @@ class extends iaCompiler
 				$i = strlen($type);
 				while (--$i) $type .= '->{"$"}';
 			}
-			$this->pushCode("\${$type}->{$name}=ob_get_clean();");
+			$this->pushCode("\${$type}->{$name}=@ob_get_clean();");
 		}
 		else
 		{

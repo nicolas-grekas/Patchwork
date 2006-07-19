@@ -158,7 +158,7 @@ class extends CIA
 				$v = (object) $agent->compose((object) array());
 				$template = $agent->getTemplate();
 				$filter = true;
-				$rawdata = ob_get_flush();
+				$rawdata = @ob_get_flush();
 			}
 
 			$vClone = clone $v;

@@ -244,7 +244,7 @@ class
 	public static function cancel()
 	{
 		self::$cancelled = true;
-		ob_end_flush();
+		while (@ob_end_clean());
 	}
 
 	public static function setLang($new_lang)
