@@ -201,14 +201,14 @@ function $QJsrs($URL, $POST, $antiXSJ, $XMLHttpPreferred)
 
 	$this.abort = function()
 	{
-		if ($context) $context.$release(), $release(false, 1);
+		if ($context) $context.$release(), $release(0, 1);
 	}
 
 	function $release($a, $abort)
 	{
-		$callback($a);
-
-		--$loadCounter;
+		$abort
+			? $loadCounter = $poolLen = $pool.length = 0
+			: $callback($a), --$loadCounter;
 
 		if ($poolLen)
 		{
@@ -217,7 +217,7 @@ function $QJsrs($URL, $POST, $antiXSJ, $XMLHttpPreferred)
 			$poolLen--;
 			$callback = $a[1];
 
-			return $abort ? $release(false, 1) : !$context.$load($a[0], $release, $POST, $LOCAL, $XMLHttpPreferred);
+			return $context.$load($a[0], $release, $POST, $LOCAL, $XMLHttpPreferred);
 		}
 
 		$callback = $context = $context.$driver = 0;

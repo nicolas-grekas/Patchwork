@@ -1128,7 +1128,7 @@ class agent
 
 	public $argv = array();
 
-	protected $template;
+	protected $template = '';
 
 	protected $maxage  = 0;
 	protected $expires = 'auto';
@@ -1139,7 +1139,7 @@ class agent
 	function compose($o) {return $o;}
 	function getTemplate()
 	{
-		return isset($this->template) ? $this->template : str_replace('_', '/', substr(get_class($this), 6));
+		return $this->template ? $this->template : str_replace('_', '/', substr(get_class($this), 6));
 	}
 
 	final public function __construct($args = array())
