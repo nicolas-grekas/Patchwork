@@ -22,6 +22,12 @@ class extends iaMail
 	function doSend()
 	{
 		$html = CIA_serverside::returnAgent($this->agent, $this->argv, $this->lang);
+
+		if (!isset($this->_headers['Subject']) && preg_match("'<title[^>]*>(.*?)</title[^>]*>'isu", $html, $title))
+		{
+			$this->headers(array('Subject' => trim(html_entity_decode($title[1], ENT_QUOTES, 'UTF-8'))));
+		}
+
 		$html = preg_replace_callback('/(\s)(src|background)\s*=\s*(["\'])?((?(3)(?:[^\3]*)|[^\s>]*)\.(jpe?g|png|gif))(?(3)\3)/iu', array($this, 'addRawImage'), $html);
 
 		$this->setHTMLBody($html);
