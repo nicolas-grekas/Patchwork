@@ -1,4 +1,4 @@
-<?php
+<?php // vim: set enc=utf-8 ai noet ts=4 sw=4 fdm=marker:
 
 if (isset($_SERVER['PHP_AUTH_USER']))
 {

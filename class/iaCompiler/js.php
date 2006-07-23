@@ -1,4 +1,4 @@
-<?php
+<?php // vim: set enc=utf-8 ai noet ts=4 sw=4 fdm=marker:
 
 define('pC_PIPE',	'0');
 define('pC_AGENT',	'1');
