@@ -1,4 +1,4 @@
-<?php
+<?php // vim: set enc=utf-8 ai noet ts=4 sw=4 fdm=marker:
 
 $contentType = array(
 	'.html' => 'text/html; charset=UTF-8',

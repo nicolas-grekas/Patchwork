@@ -1,4 +1,4 @@
-<?php
+<?php // vim: set enc=utf-8 ai noet ts=4 sw=4 fdm=marker:
 
 require_once 'Mail.php';
 require_once 'Mail/mime.php';
