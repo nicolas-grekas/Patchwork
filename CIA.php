@@ -314,7 +314,7 @@ function CIA_GO($file, $use_path_info)
 	define('CIA_MAXAGE',	$CONFIG['maxage']);
 	define('CIA_PROJECT_ID', abs($version_id % 10000));
 	define('CIA_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
-	define('CIA_DIRECT', !CIA_POSTING && '_' == $_SERVER['CIA_REQUEST']);
+	define('CIA_DIRECT', '_' == $_SERVER['CIA_REQUEST']);
 
 	function E($msg = '__getDeltaMicrotime')
 	{

@@ -38,7 +38,7 @@ class extends loop_callAgent
 			CIA::canPost();
 			$this->rawValues =& $_POST;
 
-			if ('POST' == $_SERVER['REQUEST_METHOD'] && isset($_COOKIE['T$']) && $_COOKIE['T$'] != @$_POST['T$'])
+			if (CIA_POSTING && isset($_COOKIE['T$']) && $_COOKIE['T$'] != @$_POST['T$'])
 			{
 				E('Potential Cross Site Request Forgery. Stopping !');
 				E($_SERVER); E($_POST); E($_COOKIE);
