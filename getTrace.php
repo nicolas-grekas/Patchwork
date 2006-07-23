@@ -1,4 +1,4 @@
-<?php // vim: set enc=utf-8 ai noet ts=4 sw=4 fdm=marker:
+<?php
 
 // Shell script to get one agent's trace
 // Setup the context needed to simulate a keys query

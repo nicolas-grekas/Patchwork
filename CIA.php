@@ -1,4 +1,4 @@
-<?php // vim: set enc=utf-8 ai noet ts=4 sw=4 fdm=marker:
+<?php
 
 define('CIA', microtime(true)); isset($_SERVER['REQUEST_TIME']) || $_SERVER['REQUEST_TIME'] = time();
 
