@@ -61,7 +61,7 @@ EOHTML;
 
 			$group = self::closeGroupStage();
 
-			if ($is_cacheable = !in_array('private', $group))
+			if ($is_cacheable = !(CIA_POSTING || in_array('private', $group)))
 			{
 				$cagent = self::agentCache($agentClass, $agent->argv, 'js.php', $group);
 				$dagent = self::getContextualCachePath('jsdata.' . $agentClass, 'js.php', $cagent);
