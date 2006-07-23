@@ -1,4 +1,4 @@
-<?php // vim: set enc=utf-8 ai noet ts=4 sw=4 fdm=marker:
+<?php
 
 header('Content-Type: text/html; charset=UTF-8');
 header('Cache-Control: max-age=0,private,must-revalidate');
