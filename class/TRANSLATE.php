@@ -77,4 +77,4 @@ abstract class
 	function close() {}
 }
 
-class driver_translate_default_ extends parent {}
+class driver_translate_default_ extends self {}
