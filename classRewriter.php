@@ -34,13 +34,21 @@ $h = fopen($tmp, 'wb');
 $tokens = token_get_all(file_get_contents($file));
 $tokensLen = count($tokens);
 
+$curly_level = 0;
+$class_pool = array();
+
 for ($i = 0; $i < $tokensLen; ++$i)
 {
 	$token = $tokens[$i];
 
 	if (is_array($token))
 	{
-		if (T_CLASS == $token[0])
+		if (T_CURLY_OPEN == $token[0] || T_DOLLAR_OPEN_CURLY_BRACES == $token[0])
+		{
+			$token = $token[1];
+			++$curly_level;
+		}
+		else if (T_CLASS == $token[0])
 		{
 			// Look backward for the "final" keyword
 			$j = 0;
@@ -81,18 +89,29 @@ for ($i = 0; $i < $tokensLen; ++$i)
 				$token .= fetchPHPWhiteSpaceNComments($tokens, $i);
 			}
 
+			$class_pool[$curly_level] = $c;
+
 			if (T_EXTENDS == @$tokens[$i][0])
 			{
 				$token .= $tokens[$i][1];
 				$token .= fetchPHPWhiteSpaceNComments($tokens, $i);
-				$token .= 'parent' == @$tokens[$i][1] ? $class . '__' . ($level && $c == $class ? $level-1 : $level) : $tokens[$i][1];
+				$token .= 'self' == @$tokens[$i][1] ? $class . '__' . ($level && $c == $class ? $level-1 : $level) : $tokens[$i][1];
 			}
 			else --$i;
+		}
+		else if (T_STRING == $token[0] && 'self' == $token[1])
+		{
+			$token = fetchPHPWhiteSpaceNComments($tokens, $i);
+			$token = (T_DOUBLE_COLON == $tokens[$i][0] ? end($class_pool) : 'self') . $token;
+
+			--$i;
 		}
 		else $token = (T_COMMENT == $token[0] || T_WHITESPACE == $token[0] || T_DOC_COMMENT == $token[0])
 			? stripPHPWhiteSpaceNComments($token[1])
 			: $token[1];
 	}
+	else if ('{' == $token) ++$curly_level;
+	else if ('}' == $token) unset($class_pool[$curly_level--]);
 
 	fwrite($h, $token);
 }

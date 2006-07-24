@@ -14,10 +14,11 @@ var $FILTER = "progid:" + $ALPHA_IMAGE_LOADER + "(src='%1',sizingMethod='scale')
 
 // ** IE7 VARIABLE
 // e.g. only apply the hack to files ending in ".png"
-IE7_PNG_SUFFIX = "\\.png";
+// IE7_PNG_SUFFIX = ".png";
 
 // regular expression version of the above
-var _pngTest = new RegExp((window.IE7_PNG_SUFFIX || "-trans\\.png") + "$", "i");
+// var _pngTest = new RegExp((window.IE7_PNG_SUFFIX || "-trans.png") + "$", "i");
+var _pngTest = /\.png$/i;
 var _filtered = [];
 
 // apply a filter
