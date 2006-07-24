@@ -80,6 +80,7 @@ class
 			case '.htm':
 			case '.css':
 			case '.js':
+			case '.htc':
 
 			case '.png':
 			case '.gif':

@@ -99,7 +99,7 @@ encodeURIComponent = window.encodeURIComponent || function($string, $encodeURI)
 }
 
 /* push */
-if (!Array.prototype.push || !([].push(0))) Array.prototype.push = function()
+if (!([].push && [].push(0))) Array.prototype.push = function()
 {
 	var $this = this, $argv = $this.push.arguments, $i = 0;
 	for (; $i < $argv.length ; ++$i) $this[$this.length] = $argv[$i];

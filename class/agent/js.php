@@ -18,10 +18,12 @@ class extends agent_bin
 
 			if ($tpl !== '')
 			{
+				if ('.js' != strtolower(substr($tpl, -3))) $tpl .= '.js';
+
 				$tpl = str_replace(
 					array('\\', '../'),
 					array('/' , '/'),
-					"js/$tpl.js"
+					'js/' . $tpl
 				);
 			}
 
