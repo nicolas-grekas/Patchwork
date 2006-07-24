@@ -180,7 +180,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 	var $document = document,
 
-		$buffer = '',
+		$buffer = [],
 		$closeDoc = 0,
 
 		$WexecStack = [],
@@ -249,7 +249,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 			if ($context) for ($i in $context) $context[$i] = esc($context[$i]);
 
 			<!-- IF g$__DEBUG__ -->
-			DEBUG = window.ScriptEngine ? 0 : ($i ? 2 : 1); // IE is too slow. Disables debugWin output for it.
+			DEBUG = /*window.ScriptEngine ? 0 :*/ ($i ? 2 : 1); // Uncomment if IE is too slow in DEBUG.
 			<!-- END:IF -->
 		}
 
@@ -271,11 +271,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 		function $echo($a)
 		{
-			if (t($a))
-			{
-				if ($WobLast) $WobStack[$WobLast] += $a;
-				else $buffer += $a;
-			}
+			t($a) && ($WobLast ? $WobStack[$WobLast] : $buffer).push($a);
 		}
 
 		function $include($inc, $args, $keys, $c)
@@ -351,7 +347,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 				if (t($includeCache[$inc]) && --$Rlevel) w($includeCache[$inc][0], $includeCache[$inc][1]);
 				else
 					$Rlevel = $maxRlevel,
-					$buffer += '<script type="text/javascript" class="w" src="' + $inc + '"></script >',
+					$buffer.push('<script type="text/javascript" class="w" src="' + $inc + '"></script >'),
 					w.f();
 			}
 		}
@@ -473,7 +469,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 					break;
 
 				case 4: // set
-					$WobStack[++$WobLast] = '';
+					$WobStack[++$WobLast] = [];
 					break;
 
 				case 5: // endset
@@ -487,7 +483,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 						while (--$j) $i = $i.$;
 					}
 
-					$i[$code[$pointer++]] = num($WobStack[$WobLast--], 1);
+					$i[$code[$pointer++]] = num($WobStack[$WobLast--].join(''), 1);
 					break;
 
 				case 6: // jump
@@ -519,15 +515,15 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 	w.f = function()
 	{
-		var $content = $buffer;
+		var $content = $buffer.join('');
 
-		$buffer = '';
+		$buffer = [];
 
 		$i = $content.search(/<\/script>/i);
 
 		if ($i>=0)
 			$i += 9,
-			$buffer = $content.substr($i),
+			$buffer = [$content.substr($i)],
 			$content = $content.substring(0, $i) + '<script type="text/javascript" class="w" src="' + $masterHome + 'js/x"></script>'; // Any optimization to save some request here is likely to break IE ...
 
 		$document.write($content);

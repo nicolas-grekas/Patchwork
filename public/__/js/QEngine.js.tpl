@@ -102,7 +102,7 @@ function QEngine($keyword)
 
 	function $getMatches($w)
 	{
-		var $i = 0, $k = '', $match = '', $kwDb = $keyword;
+		var $i = 0, $k = '', $match = [], $kwDb = $keyword;
 		$w = $w.toUpperCase();
 
 		for (; $i<$w.length; ++$i)
@@ -111,22 +111,28 @@ function QEngine($keyword)
 			if (t($kwDb[$k])) {$kwDb = $kwDb[$k]; $k = '';}
 		}
 
-		if ($k=='') $match = $getChildId($kwDb);
+		if ($k=='') $match = [$getChildId($kwDb)];
 		else for ($i in $kwDb)
 		{
-			if ((''+$i).indexOf($k)==0) $match += $getChildId($kwDb[$i]);
-			else if ($match) break;
+			if ((''+$i).indexOf($k)==0) $match.push($getChildId($kwDb[$i]));
+			else if ($match.length) break;
 		}
 
-		return $match ? $match.substr(1).split(',') : [];
+		if ($match.length)
+		{
+			$match[0] = $match[0].substr(1);
+			$match = $match.join('').split(',');
+		}
+
+		return $match;
 	}
 
 	function $getChildId($a)
 	{
-		var $b = '', $i;
-		if (t($a, 'object') || t($a, 'array')) for ($i in $a) $b += $getChildId($a[$i]);
-		else $b += ',' + $a;
+		var $b = [], $i;
+		if (t($a, 'object') || t($a, 'array')) for ($i in $a) $b.push($getChildId($a[$i]));
+		else $b.push(',' + $a);
 
-		return $b;
+		return $b.join('');
 	}
 }

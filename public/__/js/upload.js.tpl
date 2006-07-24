@@ -61,12 +61,12 @@ else
 
 	function $showProgress(a)
 	{
-		var $html = '', $i = $unitWidth;
+		var $html = [], $i = $unitWidth;
 
 		if (a && a.bytes_total)
 		{
-			for (; $i < $maxWidth && $i/$maxWidth <= a.bytes_uploaded/a.bytes_total; $i += $unitWidth) $html += $unitHtml;
-			$progress.innerHTML = $html || $unitHtml;
+			for (; $i < $maxWidth && $i/$maxWidth <= a.bytes_uploaded/a.bytes_total; $i += $unitWidth) $html.push($unitHtml);
+			$progress.innerHTML = $html.join('') || $unitHtml;
 
 			a.est_min = Math.round(a.est_sec / 60);
 			a.est_sec %= 60;
@@ -88,8 +88,8 @@ else
 		else
 		{
 			$sending.innerHTML = $Done;
-			for (; $i < $maxWidth; $i += $unitWidth) $html += $unitHtml;
-			$progress.innerHTML = $html;
+			for (; $i < $maxWidth; $i += $unitWidth) $html.push($unitHtml);
+			$progress.innerHTML = $html.join('');
 
 			$remaining.innerHTML = '';
 			$detail.innerHTML = '100%';
