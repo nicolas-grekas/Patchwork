@@ -103,7 +103,7 @@ if (ie7HTML) {
 
 	// fix [type=image/*]
 	var $IMAGE = /^image/i;
-	var _objectPath = makePath("modules/object.htc", path);
+	var _objectPath = makePath("ie7-object.htc", path);
 	ie7HTML.addRecalc("object", function($element) {
 		if ($IMAGE.test($element.type)) {
 		 	var $object = document.createElement("<object type=text/x-scriptlet>");
