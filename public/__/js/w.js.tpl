@@ -6,7 +6,6 @@
 * esc
 * unesc
 * parseurl
-* loadPng
 * addOnload
 * setboard
 * topwin
@@ -83,20 +82,6 @@ function parseurl($param, $delim, $rx, $array)
 	}
 
 	return $array;
-}
-
-function loadPng($this)
-{
-	$this = $this || this;
-	var $src = $this.src, $width = $this.width, $height = $this.height;
-	if (/\.png$/i.test($src))
-	{
-		$this.style.width  = ($this.offsetWidth  || $this.width ) + 'px';
-		$this.style.height = ($this.offsetHeight || $this.height) + 'px';
-
-		$this.src = home('img/blank.gif', 1);
-		$this.style.filter = 'progid:DXImageTransform.Microsoft.AlphaImageLoader(src="'+$src+'",sizingMethod="scale")';
-	}
 }
 
 function addOnload($function)
@@ -264,7 +249,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 			if ($context) for ($i in $context) $context[$i] = esc($context[$i]);
 
 			<!-- IF g$__DEBUG__ -->
-			DEBUG = window.ScriptEngine ? 0 : ($i ? 2 : 1);
+			DEBUG = window.ScriptEngine ? 0 : ($i ? 2 : 1); // IE is too slow. Disables debugWin output for it.
 			<!-- END:IF -->
 		}
 
@@ -674,17 +659,6 @@ w = function($homeAgent, $keys, $masterCIApID)
 		/**/
 	}
 }
-
-if (window.ScriptEngine) addOnload(function()
-{
-	var $i = 0, $images = document.images, $len = $images.length;
-	for (; $i < $len; ++$i)
-	{
-		$img = $images[$i];
-		$img.onload = loadPng;
-		$img.onload();
-	}
-});
 
 function loadW()
 {
