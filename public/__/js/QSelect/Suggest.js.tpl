@@ -3,7 +3,7 @@ function QSelectSuggest($data, $separator, $separatorRx)
 	if (!($separator && $separatorRx))
 	{
 		$separator = ' ';
-		$separatorRx = '[\s,;]+';
+		$separatorRx = '[\\s,;]+';
 	}
 
 	return function($this, $input, $select, $options)
