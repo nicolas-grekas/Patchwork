@@ -19,9 +19,9 @@ function E($v, $max_depth, $level, $expand)
 		{
 			if (!t($r) || $r>0)
 			{
-				E.buffer += $str;
+				E.buffer.push($str);
 				$r = $r || 0;
-				for (var $i=0; $i<$r; $i++) E.buffer += $str;
+				for (var $i=0; $i<$r; ++$i) E.buffer.push($str);
 			}
 		}
 
@@ -65,7 +65,7 @@ function E($v, $max_depth, $level, $expand)
 }
 
 E.max_depth = 5;
-E.buffer = '';
+E.buffer = [];
 E.hide = function($key)
 {
 	if (!t($key, 'string')) for (var $i in $key) E.hiddenList[$key[$i]] = true;

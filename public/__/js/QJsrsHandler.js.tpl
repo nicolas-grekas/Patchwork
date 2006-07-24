@@ -1,8 +1,16 @@
 $win = window;
 
+/* push */
+if (!([].push && [].push(0))) Array.prototype.push = function()
+{
+	var $this = this, $argv = $this.push.arguments, $i = 0;
+	for (; $i < $argv.length ; ++$i) $this[$this.length] = $argv[$i];
+	return $this.length;
+}
+
 $decodeURIComponent = $win.decodeURIComponent || function($string)
 {
-	var $dec = '',
+	var $dec = [],
 		$len = $string.length,
 		$i = 0,
 		$c,
@@ -12,12 +20,12 @@ $decodeURIComponent = $win.decodeURIComponent || function($string)
 
 	while ($i < $len)
 	{
-		if ($string.charAt($i) != '%') $dec += $string.charAt($i++);
+		if ($string.charAt($i) != '%') $dec.push($string.charAt($i++));
 		else
 		{
 			$c = $nextCode();
 
-			$dec += $s( $c < 0
+			$dec.push($s( $c < 0
 				? $c + 128
 				: (
 					$c < 96
@@ -28,16 +36,16 @@ $decodeURIComponent = $win.decodeURIComponent || function($string)
 						: ((($c-112<<6) + $nextCode()<<6) + $nextCode()<<6) + $nextCode()
 					)
 				)
-			);
+			));
 		}
 	}
 
-	return $dec;
+	return $dec.join('');
 }
 
 $encodeURIComponent = $win.encodeURIComponent || function($string)
 {
-	var c, s, i = 0, $enc = '', $preserved = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.!~*'()";
+	var c, s, i = 0, $enc = [], $preserved = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.!~*'()";
 
 	while (i<$string.length)
 	{
@@ -54,7 +62,7 @@ $encodeURIComponent = $win.encodeURIComponent || function($string)
 		}
 
 		s = String.fromCharCode;
-		$enc += c<128
+		$enc.push(c<128
 			? s(c)
 			: (
 				c<2048
@@ -64,17 +72,18 @@ $encodeURIComponent = $win.encodeURIComponent || function($string)
 					? s(224+(c>>12),128+(c>>6&63),128+(c&63))
 					: s(240+(c>>18),128+(c>>12&63),128+(c>>6&63),128+(c&63))
 				)
-			);
+			));
 	}
 
-	$string = '';
+	$enc = $enc.join('');
+	$string = [];
 
 	for (i = 0; i<$enc.length; ++i)
-		$string += $preserved.indexOf($enc.charAt(i))==-1
+		$string.push($preserved.indexOf($enc.charAt(i))==-1
 			? '%'+$enc.charCodeAt(i).toString(16).toUpperCase()
-			: $enc.charAt(i);
+			: $enc.charAt(i));
 
-	return $string;
+	return $string.join('');
 }
 
 function $encode($str)
@@ -128,9 +137,9 @@ else
 				$document = document;
 				$value = q[2];
 
-				$form = '<form accept-charset="UTF-8" method="post">';
-				for ($i in $value) $form += '<input />';
-				$document.write($form + '</form>');
+				$form = ['<form accept-charset="UTF-8" method="post">'];
+				for ($i in $value) $form.push('<input />');
+				$document.write($form.join('') + '</form>');
 
 				onload = function()
 				{

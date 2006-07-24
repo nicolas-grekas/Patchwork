@@ -18,7 +18,7 @@ decodeURI = window.decodeURI || function($string)
 
 decodeURIComponent = window.decodeURIComponent || function($string)
 {
-	var $dec = '',
+	var $dec = [],
 		$len = $string.length,
 		$i = 0,
 		$c,
@@ -28,12 +28,12 @@ decodeURIComponent = window.decodeURIComponent || function($string)
 
 	while ($i < $len)
 	{
-		if ($string.charAt($i) != '%') $dec += $string.charAt($i++);
+		if ($string.charAt($i) != '%') $dec.push($string.charAt($i++));
 		else
 		{
 			$c = $nextCode();
 
-			$dec += $s( $c < 0
+			$dec.push($s( $c < 0
 				? $c + 128
 				: (
 					$c < 96
@@ -44,11 +44,11 @@ decodeURIComponent = window.decodeURIComponent || function($string)
 						: ((($c-112<<6) + $nextCode()<<6) + $nextCode()<<6) + $nextCode()
 					)
 				)
-			);
+			));
 		}
 	}
 
-	return $dec;
+	return $dec.join('');
 }
 
 encodeURI = window.encodeURI || function($string)
@@ -58,7 +58,7 @@ encodeURI = window.encodeURI || function($string)
 
 encodeURIComponent = window.encodeURIComponent || function($string, $encodeURI)
 {
-	var c, s, i = 0, $enc = '', $preserved = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.!~*'()" + ($encodeURI ? ',/?:@&=+$' : '');
+	var c, s, i = 0, $enc = [], $preserved = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.!~*'()" + ($encodeURI ? ',/?:@&=+$' : '');
 
 	while (i<$string.length)
 	{
@@ -75,7 +75,7 @@ encodeURIComponent = window.encodeURIComponent || function($string, $encodeURI)
 		}
 
 		s = String.fromCharCode;
-		$enc += c<128
+		$enc.push(c<128
 			? s(c)
 			: (
 				c<2048
@@ -85,17 +85,18 @@ encodeURIComponent = window.encodeURIComponent || function($string, $encodeURI)
 					? s(224+(c>>12),128+(c>>6&63),128+(c&63))
 					: s(240+(c>>18),128+(c>>12&63),128+(c>>6&63),128+(c&63))
 				)
-			);
+			));
 	}
 
-	$string = '';
+	$enc = $enc.join('');
+	$string = [];
 
 	for (i = 0; i<$enc.length; ++i)
-		$string += $preserved.indexOf($enc.charAt(i))==-1
+		$string.push($preserved.indexOf($enc.charAt(i))==-1
 			? '%'+$enc.charCodeAt(i).toString(16).toUpperCase()
-			: $enc.charAt(i);
+			: $enc.charAt(i));
 
-	return $string;
+	return $string.join('');
 }
 
 /* push */

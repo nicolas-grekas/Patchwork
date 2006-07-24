@@ -73,7 +73,7 @@ while (1)
 
 	if (isset($_GET['stop']))
 	{
-		echo '<script type="text/javascript">/*<![CDATA[*/scrollTo(0,0);if(window.opener&&opener.E&&opener.E.buffer)document.write(opener.E.buffer),opener.E.buffer=""//]]></script>';
+		echo '<script type="text/javascript">/*<![CDATA[*/scrollTo(0,0);if(window.opener&&opener.E&&opener.E.buffer.length)document.write(opener.E.buffer.join("")),opener.E.buffer=[]//]]></script>';
 		break;
 	}
 
