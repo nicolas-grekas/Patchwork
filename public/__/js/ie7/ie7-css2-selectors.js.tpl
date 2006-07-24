@@ -351,7 +351,7 @@ var $MAP = {
 	after1: "beforeEnd"
 };
 
-var _contentPath = makePath("modules/content.htc", path) + "?";
+var _contentPath = makePath("ie7-content.htc", path) + "?";
 
 // CSS text required by the "content" property
 HEADER += ".ie7_anon{display:none}";

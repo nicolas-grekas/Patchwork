@@ -38,7 +38,7 @@
 // namespaced attribute selectors
 // base64 encoded images
 // support style switching
-// simplified the XMLHttpRequest wrapper in modules/xml-extras.js
+// simplified the XMLHttpRequest wrapper in ie7-xml-extras.js
 // event handlers now refreshed on document.recalc
 // document.recalc(true) reloads style sheets
 // bug fix: min/max-width in quirks mode
@@ -274,7 +274,7 @@ var Fix = Common.specialize({
 /* FAVELET */
 
 // load an external module to patch IE5.0 and override the functions above
-if (appVersion < 5.5) eval(loadFile("modules/ie5.js", path));
+if (appVersion < 5.5) eval(loadFile("ie7-ie5.js", path));
 
 // -----------------------------------------------------------------------
 // initialisation
@@ -1196,11 +1196,11 @@ function addTimer($object, $cssText, $url) {
 
 // -------- >>      insert modules here for packaging       << -------- \\
 
-<!-- AGENT 'js/ie7/modules/html4.js' -->
-<!-- AGENT 'js/ie7/modules/layout.js' -->
-<!-- AGENT 'js/ie7/modules/graphics.js' -->
-<!-- AGENT 'js/ie7/modules/fixed.js' -->
-<!-- AGENT 'js/ie7/modules/css2-selectors.js' -->
+<!-- AGENT 'js/ie7/ie7-html4.js' -->
+<!-- AGENT 'js/ie7/ie7-layout.js' -->
+<!-- AGENT 'js/ie7/ie7-graphics.js' -->
+<!-- AGENT 'js/ie7/ie7-fixed.js' -->
+<!-- AGENT 'js/ie7/ie7-css2-selectors.js' -->
 
 loaded = true;
 
@@ -1211,7 +1211,7 @@ loaded = true;
 /* FAVELET */
 
 // load an external module to patch IE in quirks mode and override the functions above
-if (quirksMode) eval(loadFile("modules/quirks.js", path));
+if (quirksMode) eval(loadFile("ie7-quirks.js", path));
 
 // -----------------------------------------------------------------------
 //  initialise
@@ -1224,7 +1224,7 @@ if (isHTML && ie7HTML) ie7HTML.init();
 if (complete) IE7.init();
 else {
 	// if we can load behaviors then use ondocumentready
-	documentElement.addBehavior(makePath("modules/load.htc", path));
+	documentElement.addBehavior(makePath("ie7-load.htc", path));
 	// otherwise this will kick in
 	addEventHandler(document, "onreadystatechange", function() {
 		// if we are going to wait this long then wem may as well let

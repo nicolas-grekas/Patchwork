@@ -257,9 +257,14 @@ function CIA_GO($file, $use_path_info)
 				if ($a[3])
 				{
 					$_GET = array();
-					parse_str( preg_replace("'^.*?(\?|%3F)'i", '', $_SERVER['QUERY_STRING']), $_GET);
+					$_SERVER['QUERY_STRING'] = preg_replace("'^.*?(\?|%3F)'i", '', $_SERVER['QUERY_STRING']);
+					parse_str($_SERVER['QUERY_STRING'], $_GET);
 				}
-				else unset($_GET[ key($_GET) ]);
+				else
+				{
+					$_SERVER['QUERY_STRING'] = null;
+					unset($_GET[ key($_GET) ]);
+				}
 			}
 		}
 	}
