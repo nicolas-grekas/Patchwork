@@ -26,7 +26,7 @@ class extends CIA
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="{$lang}">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<!--[if lt IE 7]><script src="{$home}js/ie7/ie7.js" type="text/javascript"></script><![endif]-->
+<!--[if lt IE 7]><script src="{$home}ie7/ie7-standard-p.js" type="text/javascript"></script><![endif]-->
 <script type="text/javascript" class="w">/*<![CDATA[*/a=[{$agent},[{$a}],{$CIApID}]//]]></script>
 <script type="text/javascript" src="{$home}js/w"></script>
 </html>

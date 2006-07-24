@@ -91,7 +91,7 @@ class
 		}
 
 		// IE7 integration
-		if ('js/ie7/ie7-base64.php' == $agent)
+		if ('ie7/ie7-base64.php' == $agent)
 		{
 			if (false !== strpos(@$_SERVER['QUERY_STRING'], ';'))
 			{
