@@ -89,19 +89,6 @@ class
 
 			require resolvePath('controler.php');
 		}
-
-		// IE7 integration
-		if ('ie7/ie7-base64.php' == $agent)
-		{
-			if (false !== strpos(@$_SERVER['QUERY_STRING'], ';'))
-			{
-				CIA::cancel();
-				$_SERVER['REDIRECT_QUERY_STRING'] = $_SERVER['QUERY_STRING'];
-				require resolvePath('public/__/' . $agent);
-			}
-
-			exit;
-		}
 		// }}}
 
 		if (!extension_loaded('mbstring')) require resolvePath('mbstring.php');

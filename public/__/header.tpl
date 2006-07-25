@@ -5,7 +5,6 @@
 <head>
 	<!-- SERVERSIDE -->
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<!--[if lt IE 7]><script src="{~}ie7/ie7-standard-p.js" type="text/javascript"></script ><![endif]-->
 	<script type="text/javascript" src="{~}js/w"></script>
 	<!-- END:SERVERSIDE -->
 
