@@ -1,10 +1,5 @@
 <?php
 
-/*
- * Add the following in your HTML to enable Dean Edwards IE7:
- * <!--[if lt IE 7]><script src="{$home}js/ie7/ie7.js" type="text/javascript"></script ><![endif]-->
- */
-
 class extends agent_bin
 {
 	function compose($o)
