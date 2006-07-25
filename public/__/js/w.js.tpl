@@ -87,6 +87,8 @@ function parseurl($param, $delim, $rx, $array)
 
 function loadPng($this)
 {
+	if (!/MSIE [56]/.test(navigator.appVersion)) return;
+
 	$this = $this || this;
 	var $src = $this.src, $width = $this.width, $height = $this.height;
 	if (/\.png$/i.test($src))
@@ -671,7 +673,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 	}
 }
 
-/MSIE [56]/.test(navigator.appVersion) && addOnload(function()
+if (/MSIE [56]/.test(navigator.appVersion)) addOnload(function()
 {
 	var $i = 0, $images = document.images, $len = $images.length;
 	for (; $i < $len; ++$i)
