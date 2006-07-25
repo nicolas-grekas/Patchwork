@@ -330,11 +330,11 @@ function enterControl($form)
 	return false;
 }
 
-if (t(_BOARD.lastX)) (scrollCntrl = function()
+if (t(BOARD.lastX)) (scrollCntrl = function()
 {
 	var $body = document.documentElement || document.body,
-		$left = Math.min(_BOARD.lastX, $body.scrollWidth),
-		$top = Math.min(_BOARD.lastY, $body.scrollHeight);
+		$left = Math.min(BOARD.lastX, $body.scrollWidth),
+		$top = Math.min(BOARD.lastY, $body.scrollHeight);
 
 	$body && scrollTo($left, $top);
 
@@ -347,7 +347,7 @@ addOnload(function()
 
 	var $i = 0, $forms = document.forms, $form, $j, $elt;
 
-	if (_BOARD.lastL == ''+location) t(_BOARD.lastX) && scrollTo(_BOARD.lastX, _BOARD.lastY);
+	if (BOARD.lastL == ''+location) t(BOARD.lastX) && scrollTo(BOARD.lastX, BOARD.lastY);
 	else setboard('lastL', location);
 
 	setboard({lastX: 0, lastY: 0});

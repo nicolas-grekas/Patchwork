@@ -10,8 +10,7 @@
 * addOnload
 * setboard
 * topwin
-* _BOARD
-* _COOKIE
+* BOARD
 */
 
 footerHtml = '';
@@ -693,7 +692,7 @@ function loadW()
 		$window.dUC = decodeURIComponent;
 		$window.eUC = encodeURIComponent;
 
-		$window._BOARD = {};
+		$window.BOARD = {};
 
 		if (0 <= $board)
 		{
@@ -708,7 +707,7 @@ function loadW()
 			$a = $a.protocol + ':' + $a.hostname;
 			
 			if ($board.$ != $a) topwin.name = '', setboard('$', $a);
-			else $window._BOARD = $board;
+			else $window.BOARD = $board;
 		}
 
 		$window.a ? w(a[0], a[1], a[2]) : w();
