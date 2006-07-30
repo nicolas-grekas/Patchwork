@@ -341,6 +341,87 @@ if (t(BOARD.lastX)) (scrollCntrl = function()
 	if ($left != $body.scrollLeft || $top != $body.scrollTop) setTimeout('scrollCntrl&&scrollCntrl()', 100);
 })();
 
+function maxlengthTextarea()
+{
+	var $this = this, $maxlength = $this.getAttribute('maxlength'), $valueLength = $this.value, $rx = /\stoomuch(\s|$)/;
+
+	if ($maxlength)
+	{
+		$valueLength = $valueLength.replace(/\r\n?/g, '\n').length;
+
+		if ($rx.test($this.className)) $valueLength > $maxlength || ($this.className = $this.className.replace($rx, '$1'));
+		else if ($valueLength > $maxlength) $this.className += ' toomuch';
+	}
+}
+
+function autofitTextarea()
+{
+	var $this = this, $valueLength;
+
+	$this.checkMaxlength();
+
+	if (!window.ScriptEngine)
+	{
+		$valueLength = $this.value.length;
+
+		if ($valueLength < $this.$valueLength)
+		{
+			if ($this.rows > 0)
+			{
+				do --$this.rows;
+				while ($this.rows && $this.offsetHeight >= $this.$offsetHeight && $this.scrollHeight == $this.clientHeight);
+
+				++$this.rows;
+			}
+
+			if ($this.cols > 0)
+			{
+				do --$this.cols;
+				while ($this.cols && $this.offsetWidth >= $this.$offsetWidth && $this.scrollWidth == $this.clientWidth);
+
+				++$this.cols;
+			}
+		}
+		else if ($valueLength > $this.$valueLength)
+		{
+			while ($this.scrollHeight > $this.clientHeight) ++$this.rows;
+			while ($this.scrollWidth > $this.clientWidth) ++$this.cols;
+		}
+
+	    $this.scrollTop = $this.scrollLeft = 0;
+		$this.$valueLength = $valueLength;
+	}
+}
+	
+addOnload(function()
+{
+	var $i = 0, $t, $T = document.getElementsByTagName('textarea');
+
+	for (; $i < $T.length; ++$i)
+	{
+		$t = $T[$i];
+
+		$t.checkMaxlength = maxlengthTextarea;
+		$t.autofit = autofitTextarea;
+
+		if (!$t.onkeyup)
+		{
+			if ($t.getAttribute('maxlength')) $t.onkeyup = $t.checkMaxlength;
+
+			if (!window.ScriptEngine && window.getComputedStyle && 'visible' == document.defaultView.getComputedStyle($t, null).getPropertyValue('overflow'))
+			{
+				$t.style.overflow = 'hidden';
+				$t.$valueLength = $t.value.length - 1;
+				$t.$offsetHeight = $t.offsetHeight;
+				$t.$offsetWidth = $t.offsetWidth;
+				$t.onkeyup = $t.autofit;
+			}
+
+			$t.onkeyup && $t.onkeyup();
+		}
+	}
+});
+
 addOnload(function()
 {
 	scrollCntrl = 0;

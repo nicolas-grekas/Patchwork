@@ -17,6 +17,8 @@
 	<style type="text/css">
 	html,body {height: 100%}
 	label {cursor: default}
+	textarea {overflow: visible}
+	textarea.toomuch {background-color: #FFD2D2}
 	.errormsg {color: red}
 	.mandatory {font-weight: bold}
 	</style>
