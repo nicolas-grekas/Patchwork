@@ -74,9 +74,9 @@ class extends iaCompiler
 			$type = $type[1];
 			if ($type != 'd' && $type != 'a' && $type != 'g')
 			{
-				$type = 'v';
 				$i = strlen($type);
-				while (--$i) $type .= '->{"$"}';
+				$type = 'v';
+				if ($i) do $type .= '->{"$"}'; while (--$i);
 			}
 			$this->pushCode("\${$type}->{$name}=@ob_get_clean();");
 		}
