@@ -356,7 +356,7 @@ function maxlengthTextarea()
 
 function autofitTextarea()
 {
-	var $this = this, $valueLength;
+	var $this = this, $style = $this.style, $valueLength;
 
 	$this.checkMaxlength();
 
@@ -366,29 +366,13 @@ function autofitTextarea()
 
 		if ($valueLength < $this.$valueLength)
 		{
-			if ($this.rows > 0)
-			{
-				do --$this.rows;
-				while ($this.rows && $this.offsetHeight >= $this.$offsetHeight && $this.scrollHeight == $this.clientHeight);
-
-				++$this.rows;
-			}
-
-			if ($this.cols > 0)
-			{
-				do --$this.cols;
-				while ($this.cols && $this.offsetWidth >= $this.$offsetWidth && $this.scrollWidth == $this.clientWidth);
-
-				++$this.cols;
-			}
-		}
-		else if ($valueLength > $this.$valueLength)
-		{
-			while ($this.scrollHeight > $this.clientHeight) ++$this.rows;
-			while ($this.scrollWidth > $this.clientWidth) ++$this.cols;
+			$style.height = $this.$offsetHeight + 'px';
+			$style.width = $this.$offsetWidth + 'px';
 		}
 
-	    $this.scrollTop = $this.scrollLeft = 0;
+		$style.height = $this.scrollHeight + 'px';
+		$style.width = $this.scrollWidth + 'px';
+
 		$this.$valueLength = $valueLength;
 	}
 }
