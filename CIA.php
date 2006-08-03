@@ -3,7 +3,7 @@
 define('CIA', microtime(true)); isset($_SERVER['REQUEST_TIME']) || $_SERVER['REQUEST_TIME'] = time();
 
 // {{{ Server configuration helper
-/* Comment this section if your server's ocnfig is ok */
+/* Comment this section if your server's config is ok */
 
 if (get_magic_quotes_gpc())
 {
