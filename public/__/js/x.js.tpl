@@ -1,1 +1,1 @@
-w.f()
+w.c() // "c" for "continue"

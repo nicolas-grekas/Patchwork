@@ -215,22 +215,24 @@ w = function($homeAgent, $keys, $masterCIApID)
 		$lastInclude = '',
 		$includeCache = {},
 		
-		$masterHome = {g$__HOME__|js};
+		$masterHome = {g$__HOME__|js},
 
-		window.home = function($str, $master)
-		{
-			$master = $master ? $masterHome : g.__HOME__;
+		$startTime = new Date;
 
-			return (
-				/^https?:\/\//.test($str)
-				? ''
-				: (
-					0 == $str.indexOf('/')
-					? $master.substr(0, $master.indexOf('/', 8))
-					: $master
-				)
-			) + $str;
-		}
+	window.home = function($str, $master)
+	{
+		$master = $master ? $masterHome : g.__HOME__;
+
+		return (
+			/^https?:\/\//.test($str)
+			? ''
+			: (
+				0 == $str.indexOf('/')
+				? $master.substr(0, $master.indexOf('/', 8))
+				: $master
+			)
+		) + $str;
+	}
 
 /*
 *		a : arguments
@@ -246,9 +248,12 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 	w = function($context, $code)
 	{
-		if (!t($context)) return $homeAgent; //"$homeAgent" is here for jsquiz to work well
+		$homeAgent; //This is here for jsquiz to work well
+		$code = $code || [];
 
-		var $pointer = 0, $arguments = a, $localCIApID = $CIApID, $localG = g, $maxRlevel = 190, $Rlevel = $maxRlevel;
+		$startTime = new Date;
+
+		var $pointer = 0, $arguments = a, $localCIApID = $CIApID, $localG = g, $maxRlevel = 100, $Rlevel = $maxRlevel;
 
 		<!-- IF g$__DEBUG__ -->var DEBUG = $i = 0;<!-- END:IF -->
 
@@ -519,6 +524,9 @@ w = function($homeAgent, $keys, $masterCIApID)
 				case 9: // next
 					($loopIterator() && ($pointer -= $code[$pointer])) || ++$pointer;
 					$context = v;
+
+					if (new Date - $startTime > 500) return w.c = w, $include($masterHome + 'js/x', 0, 0, 1);
+
 					break;
 			}
 
@@ -539,6 +547,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 		if ($i>=0)
 			$i += 9,
+			w.c = w.f,
 			$buffer = [$content.substr($i)],
 			$content = $content.substring(0, $i) + '<script type="text/javascript" class="w" src="' + $masterHome + 'js/x"></script>'; // Any optimization to save some request here is likely to break IE ...
 
