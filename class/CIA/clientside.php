@@ -132,7 +132,7 @@ EOHTML;
 			}
 			else
 			{
-				echo '{},[]);window.E&&E("You must provide an auth token to get this agent:\\n' . jsquote($_SERVER['REQUEST_URI'], false, '"') . '")';
+				echo ');window.E&&E("You must provide an auth token to get this agent:\\n' . jsquote($_SERVER['REQUEST_URI'], false, '"') . '")';
 			}
 
 			exit;
