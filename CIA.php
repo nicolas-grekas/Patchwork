@@ -173,9 +173,9 @@ function __autoload($searched_class)
 			if (file_exists($path . $file))
 			{
 				$file = $path . $file;
-				$path .= 'class/.' . $class . '.php';
+				$path = '.' . $i . $class . '.c.php';
 
-				if (!file_exists($path) || (DEBUG && filemtime($file) > filemtime($path))) require resolvePath('classRewriter.php');
+				if (!file_exists($path)) require resolvePath('classRewriter.php');
 
 				require $path;
 
