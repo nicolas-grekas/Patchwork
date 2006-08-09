@@ -114,7 +114,7 @@ function CIA($file, $parent = '../../config.php')
 // }}}
 
 // {{{ function resolvePath(): cia-specific include_path-like mechanism
-function resolvePath($filename)
+function resolvePath($file)
 {
 	$paths =& $GLOBALS['cia_paths'];
 
@@ -124,11 +124,36 @@ function resolvePath($filename)
 	do
 	{
 		$path = $paths[++$i] . '/';
-		if (file_exists($path . $filename)) return $path . $filename;
+		if (file_exists($path . $file)) return $path . $file;
 	}
 	while (--$level);
 
-	return $filename;
+	return $file;
+}
+// }}}
+
+// {{{ function processPath(): resolvePath + macro preprocessor
+function processPath($file)
+{
+	$paths =& $GLOBALS['cia_paths'];
+
+	$i = -1;
+	$level = count($paths);
+
+	do
+	{
+		$source = $paths[++$i] . '/' . $file;
+		$cache = '.zcache' . $i . rawurlencode($file);
+		
+		if (file_exists($cache));
+		else if (file_exists($source)) require resolvePath('preprocessor.php');
+		else $cache = false;
+
+		if ($cache) return $cache;
+	}
+	while (--$level);
+
+	return $file;
 }
 // }}}
 
@@ -168,16 +193,16 @@ function __autoload($searched_class)
 
 			if (class_exists($parent_class, false)) break;
 
-			$path = $paths[++$i] . '/';
+			$source = $paths[++$i] . '/' . $file;
+			$cache = '.zcacheC' . $i . $class . '.php';
 
-			if (file_exists($path . $file))
+			if (file_exists($cache));
+			else if (file_exists($source)) require processPath('classRewriter.php');
+			else $cache = false;
+
+			if ($cache)
 			{
-				$file = $path . $file;
-				$path = '.' . $i . $class . '.c.php';
-
-				if (!file_exists($path)) require resolvePath('classRewriter.php');
-
-				require $path;
+				require $cache;
 
 				if (class_exists($searched_class, false)) return;
 
@@ -335,7 +360,7 @@ function CIA_GO($file, $use_path_info)
 	// {{{ Language controler
 	if (!$_SERVER['CIA_LANG'])
 	{
-		require resolvePath('language.php');
+		require processPath('language.php');
 		exit;
 	}
 	// }}}
@@ -379,7 +404,7 @@ function CIA_GO($file, $use_path_info)
 	// {{{ Output debug window
 	if (DEBUG && CIA_DIRECT && isset($_GET['d$']))
 	{
-		require resolvePath('debug.php');
+		require processPath('debug.php');
 		exit;
 	}
 	// }}}

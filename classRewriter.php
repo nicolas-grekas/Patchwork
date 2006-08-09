@@ -27,11 +27,13 @@ extension_loaded('tokenizer') || die('Extension "tokenizer" is needed and not lo
 extension_loaded('Reflection') || die('Extension "Reflection" is needed and not loaded.');
 
 
-$tmp = md5(uniqid(mt_rand(), true) . '.php');
+$source = processPath($source);
+
+$tmp = md5(uniqid(mt_rand(), true));
 
 $h = fopen($tmp, 'wb');
 
-$tokens = token_get_all(file_get_contents($file));
+$tokens = token_get_all(file_get_contents($source));
 $tokensLen = count($tokens);
 
 $curly_level = 0;
@@ -118,12 +120,11 @@ for ($i = 0; $i < $tokensLen; ++$i)
 
 fclose($h);
 
-
-if ('WIN' == substr(PHP_OS, 0, 3))
+if ('WIN' == substr(PHP_OS, 0, 3)) 
 {
 	$h = new COM('Scripting.FileSystemObject');
 	$h->GetFile($paths[0] . '/' . $tmp)->Attributes |= 2;
-	$h = @unlink($path);
+	$h = @unlink($cache);
 }
 
-rename($tmp, $path);
+rename($tmp, $cache);
