@@ -27,7 +27,7 @@ extension_loaded('tokenizer') || die('Extension "tokenizer" is needed and not lo
 extension_loaded('Reflection') || die('Extension "Reflection" is needed and not loaded.');
 
 
-$tmp = dirname($path) . '/.' . md5(uniqid(mt_rand(), true) . '.php');
+$tmp = md5(uniqid(mt_rand(), true) . '.php');
 
 $h = fopen($tmp, 'wb');
 
@@ -122,7 +122,7 @@ fclose($h);
 if ('WIN' == substr(PHP_OS, 0, 3))
 {
 	$h = new COM('Scripting.FileSystemObject');
-	$h->GetFile($tmp)->Attributes |= 2;
+	$h->GetFile($paths[0] . '/' . $tmp)->Attributes |= 2;
 	$h = @unlink($path);
 }
 

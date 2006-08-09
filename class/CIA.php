@@ -203,6 +203,7 @@ class
 			{
 				if ($a)
 				{
+					foreach (glob('.*.c.php', GLOB_NOSORT) as $a) @unlink($a);
 					self::touch('');
 					self::delDir(self::$cachePath, false);
 					touch('config.php');
