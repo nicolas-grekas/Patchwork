@@ -87,11 +87,11 @@ class
 			case '.jpg':
 			case '.jpeg':
 
-			require resolvePath('controler.php');
+			require processPath('controler.php');
 		}
 		// }}}
 
-		if (!extension_loaded('mbstring')) require resolvePath('mbstring.php');
+		if (!extension_loaded('mbstring')) require processPath('mbstring.php');
 
 		if (CIA_DIRECT)
 		{
@@ -203,7 +203,7 @@ class
 			{
 				if ($a)
 				{
-					foreach (glob('.*.c.php', GLOB_NOSORT) as $a) @unlink($a);
+					foreach (glob('.zcache*', GLOB_NOSORT) as $a) @unlink($a);
 					self::touch('');
 					self::delDir(self::$cachePath, false);
 					touch('config.php');
@@ -676,7 +676,7 @@ class
 			}
 
 			$path = "class/agent/{$potentialAgent}.php";
-			$p_th = resolvePath($path);
+			$p_th = processPath($path);
 			if ($path != $p_th)
 			{
 				$createTemplate = false;
@@ -801,7 +801,7 @@ class
 		)
 		{
 			$keys = $keys . ' -q ' . implode(' ', array_map('escapeshellarg', array(
-				resolvePath('getTrace.php'),
+				processPath('getTrace.php'),
 				resolvePath('config.php'),
 				$_SERVER['CIA_HOME'],
 				self::__LANG__(),
@@ -1120,7 +1120,7 @@ class
 			|| (E_WARNING == $code && false !== stripos($message, 'safe mode'))
 		) return;
 		$this->has_error = true;
-		require resolvePath('error_handler.php');
+		require processPath('error_handler.php');
 	}
 }
 
