@@ -13,11 +13,11 @@ if (!function_exists('stripPHPWhiteSpaceNComments'))
 		return $a;
 	}
 
-	function fetchPHPWhiteSpaceNComments(&$tokens, &$i)
+	function fetchPHPWhiteSpaceNComments(&$source, &$i)
 	{
 		$token = '';
 
-		while (($t = @$tokens[++$i][0]) && (T_COMMENT == $t || T_WHITESPACE == $t || T_DOC_COMMENT == $t)) $token .= stripPHPWhiteSpaceNComments($tokens[$i][1]);
+		while (($t = @$source[++$i][0]) && (T_COMMENT == $t || T_WHITESPACE == $t || T_DOC_COMMENT == $t)) $token .= stripPHPWhiteSpaceNComments($source[$i][1]);
 
 		return $token;
 	}
@@ -27,21 +27,21 @@ extension_loaded('tokenizer') || die('Extension "tokenizer" is needed and not lo
 extension_loaded('Reflection') || die('Extension "Reflection" is needed and not loaded.');
 
 
-$source = processPath($source);
+$source = processPath($file);
 
 $tmp = md5(uniqid(mt_rand(), true));
 
 $h = fopen($tmp, 'wb');
 
-$tokens = token_get_all(file_get_contents($source));
-$tokensLen = count($tokens);
+$source = token_get_all(file_get_contents($source));
+$sourceLen = count($source);
 
 $curly_level = 0;
 $class_pool = array();
 
-for ($i = 0; $i < $tokensLen; ++$i)
+for ($i = 0; $i < $sourceLen; ++$i)
 {
-	$token = $tokens[$i];
+	$token = $source[$i];
 
 	if (is_array($token))
 	{
@@ -54,10 +54,10 @@ for ($i = 0; $i < $tokensLen; ++$i)
 		{
 			// Look backward for the "final" keyword
 			$j = 0;
-			do $t = @$tokens[$i - (++$j)][0];
+			do $t = @$source[$i - (++$j)][0];
 			while (T_COMMENT == $t || T_WHITESPACE == $t);
 
-			$final = T_FINAL == @$tokens[$i-$j][0];
+			$final = T_FINAL == @$source[$i-$j][0];
 
 
 			$c = '';
@@ -65,14 +65,14 @@ for ($i = 0; $i < $tokensLen; ++$i)
 
 			// Look forward
 			$j = 0;
-			do $t = @$tokens[$i + (++$j)][0];
+			do $t = @$source[$i + (++$j)][0];
 			while (T_COMMENT == $t || T_WHITESPACE == $t);
 
-			if (T_STRING == @$tokens[$i+$j][0])
+			if (T_STRING == @$source[$i+$j][0])
 			{
-				$token .= fetchPHPWhiteSpaceNComments($tokens, $i);
+				$token .= fetchPHPWhiteSpaceNComments($source, $i);
 
-				$c = $tokens[$i][1];
+				$c = $source[$i][1];
 
 				if ($final) $token .= $c;
 				else
@@ -81,30 +81,30 @@ for ($i = 0; $i < $tokensLen; ++$i)
 					$token .= $c . '__' . $level;
 				}
 
-				$token .= fetchPHPWhiteSpaceNComments($tokens, $i);
+				$token .= fetchPHPWhiteSpaceNComments($source, $i);
 			}
 
 			if (!$c)
 			{
 				$c = $class;
 				$token .= ' ' . $c . (!$final ? '__' . $level : '');
-				$token .= fetchPHPWhiteSpaceNComments($tokens, $i);
+				$token .= fetchPHPWhiteSpaceNComments($source, $i);
 			}
 
 			$class_pool[$curly_level] = $c;
 
-			if (T_EXTENDS == @$tokens[$i][0])
+			if (T_EXTENDS == @$source[$i][0])
 			{
-				$token .= $tokens[$i][1];
-				$token .= fetchPHPWhiteSpaceNComments($tokens, $i);
-				$token .= 'self' == @$tokens[$i][1] ? $class . '__' . ($level && $c == $class ? $level-1 : $level) : $tokens[$i][1];
+				$token .= $source[$i][1];
+				$token .= fetchPHPWhiteSpaceNComments($source, $i);
+				$token .= 'self' == @$source[$i][1] ? $class . '__' . ($level && $c == $class ? $level-1 : $level) : $source[$i][1];
 			}
 			else --$i;
 		}
 		else if (T_STRING == $token[0] && 'self' == $token[1])
 		{
-			$token = fetchPHPWhiteSpaceNComments($tokens, $i);
-			$token = (T_DOUBLE_COLON == $tokens[$i][0] ? end($class_pool) : 'self') . $token;
+			$token = fetchPHPWhiteSpaceNComments($source, $i);
+			$token = (T_DOUBLE_COLON == $source[$i][0] ? end($class_pool) : 'self') . $token;
 
 			--$i;
 		}

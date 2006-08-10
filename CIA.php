@@ -143,8 +143,8 @@ function processPath($file)
 	do
 	{
 		$source = $paths[++$i] . '/' . $file;
-		$cache = '.zcache' . $i . rawurlencode($file);
-		
+		$cache = '.'. str_replace(array('_', '/', '\\'), array('__', '_', '_'), $file) .'.'. DEBUG .'b'. $i .'.zcache.php';
+
 		if (file_exists($cache));
 		else if (file_exists($source)) require resolvePath('preprocessor.php');
 		else $cache = false;
@@ -194,7 +194,7 @@ function __autoload($searched_class)
 			if (class_exists($parent_class, false)) break;
 
 			$source = $paths[++$i] . '/' . $file;
-			$cache = '.zcacheC' . $i . $class . '.php';
+			$cache = '.'. $class .'.'. DEBUG .'b'. $i .'.zcache.php';
 
 			if (file_exists($cache));
 			else if (file_exists($source)) require processPath('classRewriter.php');
@@ -341,7 +341,7 @@ function CIA_GO($file, $use_path_info)
 	// }}}
 
 	// {{{ Global Initialisation
-	define('DEBUG',			$CONFIG['DEBUG']);
+	define('DEBUG',			(int) $CONFIG['DEBUG']);
 	define('CIA_MAXAGE',	$CONFIG['maxage']);
 	define('CIA_PROJECT_ID', abs($version_id % 10000));
 	define('CIA_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
