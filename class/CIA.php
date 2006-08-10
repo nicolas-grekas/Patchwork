@@ -172,6 +172,11 @@ class
 		else
 		{
 			// {{{ Server side rendering controler
+
+			$reset = !CIA_POSTING && DEBUG && 'no-cache' == @$_SERVER['HTTP_CACHE_CONTROL'];
+			if ($reset) foreach (glob('.*.zcache.php', GLOB_NOSORT) as $agent) @unlink($agent);
+
+
 			$agent = self::resolveAgentClass($_SERVER['CIA_REQUEST'], $_GET);
 
 			if (isset($_GET['k$']))
@@ -198,12 +203,11 @@ class
 			 * "location.reload(true)". We use this behaviour to trigger a cache reset in DEBUG mode.
 			 */
 
-			if (($a = !CIA_POSTING && DEBUG && !$binaryMode && 'no-cache' == @$_SERVER['HTTP_CACHE_CONTROL'])
+			if (($reset = $reset && !$binaryMode)
 				|| (isset($_COOKIE['cache_reset_id']) && setcookie('cache_reset_id', '', 0, '/')))
 			{
-				if ($a)
+				if ($reset)
 				{
-					foreach (glob('.zcache*', GLOB_NOSORT) as $a) @unlink($a);
 					self::touch('');
 					self::delDir(self::$cachePath, false);
 					touch('config.php');
