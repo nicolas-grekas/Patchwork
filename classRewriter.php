@@ -27,13 +27,18 @@ extension_loaded('tokenizer') || die('Extension "tokenizer" is needed and not lo
 extension_loaded('Reflection') || die('Extension "Reflection" is needed and not loaded.');
 
 
-$source = processPath($file);
+$cacheBackup = $cache;
+$cache = md5(uniqid(mt_rand(), true));
 
-$tmp = md5(uniqid(mt_rand(), true));
+require resolvePath('preprocessor.php');
+
+$source = file_get_contents($cache);
+unlink($cache);
+$cache = $cacheBackup;
 
 $h = fopen($tmp, 'wb');
 
-$source = token_get_all(file_get_contents($source));
+$source = token_get_all($source);
 $sourceLen = count($source);
 
 $curly_level = 0;

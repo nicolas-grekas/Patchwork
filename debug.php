@@ -58,7 +58,17 @@ while (1)
 		echo '<b></b>'; // Test the connexion for "ignore_user_abort(false)"
 		flush();
 
-		readfile($error_log);
+		$h = @fopen($error_log, 'r');
+		while (!feof($h))
+		{
+			echo preg_replace(
+				"'in .*[\\\\/]\.(.*)\.[0-9]+([ab])([0-9]+)\.zcache\.php'e",
+				'"in ".$cia_paths[$3].("b"=="$2"?DIRECTORY_SEPARATOR."class":"").str_replace("_",DIRECTORY_SEPARATOR,"_$1").("b"=="$2"?".php":"")',
+				fgets($h)
+			);
+		}
+		fclose($h);
+
 		echo '<script type="text/javascript">/*<![CDATA[*/Z()//]]></script>';
 		flush();
 
