@@ -143,7 +143,7 @@ function processPath($file)
 	do
 	{
 		$source = $paths[++$i] . '/' . $file;
-		$cache = '.'. str_replace(array('_', '/', '\\'), array('__', '_', '_'), $file) .'.'. DEBUG .'b'. $i .'.zcache.php';
+		$cache = '.'. str_replace(array('_', '/', '\\'), array('__', '_', '_'), $file) .'.'. (int)(bool)DEBUG .'b'. $i .'.zcache.php';
 
 		if (file_exists($cache));
 		else if (file_exists($source)) require resolvePath('preprocessor.php');
@@ -194,7 +194,7 @@ function __autoload($searched_class)
 			if (class_exists($parent_class, false)) break;
 
 			$source = $paths[++$i] . '/' . $file;
-			$cache = '.'. $class .'.'. DEBUG .'b'. $i .'.zcache.php';
+			$cache = '.'. $class .'.'. (int)(bool)DEBUG .'b'. $i .'.zcache.php';
 
 			if (file_exists($cache));
 			else if (file_exists($source)) require processPath('classRewriter.php');
