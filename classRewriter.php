@@ -27,13 +27,18 @@ extension_loaded('tokenizer') || die('Extension "tokenizer" is needed and not lo
 extension_loaded('Reflection') || die('Extension "Reflection" is needed and not loaded.');
 
 
-$source = processPath($file);
+$cacheBackup = $cache;
+$cache = md5(uniqid(mt_rand(), true));
 
-$tmp = md5(uniqid(mt_rand(), true));
+require resolvePath('preprocessor.php');
+
+$source = file_get_contents($cache);
+unlink($cache);
+$cache = $cacheBackup;
 
 $h = fopen($tmp, 'wb');
 
-$source = token_get_all(file_get_contents($source));
+$source = token_get_all($source);
 $sourceLen = count($source);
 
 $curly_level = 0;
@@ -108,9 +113,12 @@ for ($i = 0; $i < $sourceLen; ++$i)
 
 			--$i;
 		}
-		else $token = (T_COMMENT == $token[0] || T_WHITESPACE == $token[0] || T_DOC_COMMENT == $token[0])
-			? stripPHPWhiteSpaceNComments($token[1])
-			: $token[1];
+		else
+		{
+			$token = T_COMMENT == $token[0] || T_WHITESPACE == $token[0] || T_DOC_COMMENT == $token[0]
+				? stripPHPWhiteSpaceNComments($token[1])
+				: $token[1];
+		}
 	}
 	else if ('{' == $token) ++$curly_level;
 	else if ('}' == $token) unset($class_pool[$curly_level--]);
