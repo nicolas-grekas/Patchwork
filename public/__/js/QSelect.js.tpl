@@ -133,13 +133,13 @@ var $selectRange,
 	$onkeydown = $win.$onkeydown,
 	$precheck = $win.$precheck,
 
-	$select = $getById('_QSs'),
+	$select = $getById('__QSs'),
 	$options = $select.options,
-	$div  = $getById('_QSd1'),
-	$imgH = $getById('_QSi1'),
-	$imgW = $getById('_QSi2'),
-	$divH = $getById('_QSd2'),
-	$divW = $getById('_QSd3');
+	$div  = $getById('__QSd1'),
+	$imgH = $getById('__QSi1'),
+	$imgW = $getById('__QSi2'),
+	$divH = $getById('__QSd2'),
+	$divW = $getById('__QSd3');
 
 $select.onfocus = $onfocus;
 $select.onblur = $onblur;
@@ -150,8 +150,8 @@ return function($input, $driver)
 {
 	var $this = {},
 		$form = $input.form,
-		$id = ($input._QSt||'') + $input.name,
-		$imgB = $getById('_QSb' + $id) || {},
+		$id = ($input.__QSt||'') + $input.name,
+		$imgB = $getById('__QSb' + $id) || {},
 
 		$length = 0,
 

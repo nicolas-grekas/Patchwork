@@ -114,35 +114,55 @@ function CIA($file, $parent = '../../config.php')
 // }}}
 
 // {{{ function resolvePath(): cia-specific include_path-like mechanism
-function resolvePath($file)
+function resolvePath($file, $level = false)
 {
 	$paths =& $GLOBALS['cia_paths'];
 
-	$i = -1;
-	$level = count($paths);
+	$i = 0;
+	$len = count($paths);
+
+	if (false !== $level)
+	{
+		$i = -$level;
+
+		if (0 <= $level) $i += $len - 1;
+
+		if (0 > $i) $i = 0;
+		else if ($i >= $len) $i = $len - 1;
+	}
 
 	do
 	{
-		$path = $paths[++$i] . '/';
+		$path = $paths[$i] . '/';
 		if (file_exists($path . $file)) return $path . $file;
 	}
-	while (--$level);
+	while (++$i < $len);
 
 	return $file;
 }
 // }}}
 
 // {{{ function processPath(): resolvePath + macro preprocessor
-function processPath($file)
+function processPath($file, $level = false)
 {
 	$paths =& $GLOBALS['cia_paths'];
 
-	$i = -1;
-	$level = count($paths);
+	$i = 0;
+	$len = count($paths);
+
+	if (false !== $level)
+	{
+		$i = -$level;
+
+		if (0 <= $level) $i += $len - 1;
+
+		if (0 > $i) $i = 0;
+		else if ($i >= $len) $i = $len - 1;
+	}
 
 	do
 	{
-		$source = $paths[++$i] . '/' . $file;
+		$source = $paths[$i] . '/' . $file;
 		$cache = '.'. str_replace(array('_', '/', '\\'), array('__', '_', '_'), $file) .'.'. (int)(bool)DEBUG .'b'. $i .'.zcache.php';
 
 		if (file_exists($cache));
@@ -151,7 +171,7 @@ function processPath($file)
 
 		if ($cache) return $cache;
 	}
-	while (--$level);
+	while (++$i < $len);
 
 	return $file;
 }
