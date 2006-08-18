@@ -39,6 +39,9 @@ class extends agent
 		return $kw;
 	}
 
+
+	// Original version of this function: http://cvs.php.net/viewvc.cgi/phpdoc/scripts/quickref/prefixcompress.php
+
 	protected function getPrefixTree(&$kw)
 	{
 		$result = '';
