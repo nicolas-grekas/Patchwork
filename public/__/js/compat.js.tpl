@@ -11,6 +11,9 @@ document.getElementsByTagName = document.getElementsByTagName || function($tagNa
 	return '*' == $tagName ? document.all : document.all.tags($tagName);
 }
 
+
+// Original version for these URI things: http://worldtimzone.com/res/encode/
+
 decodeURI = window.decodeURI || function($string)
 {
 	return decodeURIComponent($string.replace(/%(2[46BCF]|3[ADF]|40)/gi, '%25$1'));
