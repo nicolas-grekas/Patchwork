@@ -182,7 +182,7 @@ EOHTML;
 
 				if ($h = self::fopenX($dagent))
 				{
-					$template = '<?php self::setMaxage(' . (int) $maxage . ");self::setExpires('$expires');";
+					$template = '<?php CIA::setMaxage(' . (int) $maxage . ");CIA::setExpires('$expires');";
 
 					if ($headers)
 					{

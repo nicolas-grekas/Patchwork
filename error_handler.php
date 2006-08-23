@@ -1,8 +1,8 @@
 <?php
 
-self::setMaxage(0);
+CIA::setMaxage(0);
+CIA::setExpires('onmaxage');
 self::$private = true;
-self::setExpires('onmaxage');
 
 if (!function_exists('filterErrorArgs'))
 {
@@ -91,7 +91,7 @@ if (!$msg) switch ($code)
 	default: $msg = '<b>Unknown Error ('.$code.')</b>';
 }
 
-$cid = self::uniqid();
+$cid = CIA::uniqid();
 $cid = "<a href=\"javascript:;\" onclick=\"var a=document.getElementById('{$cid}');a.style.display=a.style.display?'':'none';\">$msg</a> in <b>$file</b> line <b>$line</b>:\n$message<blockquote id=\"{$cid}\" style=\"display:none\">Context : $context</blockquote><br><br>";
 
 $i = ini_get('error_log');
