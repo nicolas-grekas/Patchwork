@@ -113,9 +113,12 @@ for ($i = 0; $i < $sourceLen; ++$i)
 
 			--$i;
 		}
-		else $token = (T_COMMENT == $token[0] || T_WHITESPACE == $token[0] || T_DOC_COMMENT == $token[0])
-			? stripPHPWhiteSpaceNComments($token[1])
-			: $token[1];
+		else
+		{
+			$token = T_COMMENT == $token[0] || T_WHITESPACE == $token[0] || T_DOC_COMMENT == $token[0]
+				? stripPHPWhiteSpaceNComments($token[1])
+				: $token[1];
+		}
 	}
 	else if ('{' == $token) ++$curly_level;
 	else if ('}' == $token) unset($class_pool[$curly_level--]);

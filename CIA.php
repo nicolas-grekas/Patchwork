@@ -114,12 +114,21 @@ function CIA($file, $parent = '../../config.php')
 // }}}
 
 // {{{ function resolvePath(): cia-specific include_path-like mechanism
-function resolvePath($file, $level = false)
+function resolvePath($file, $level = false, $base = false)
 {
 	$paths =& $GLOBALS['cia_paths'];
-
 	$len = count($paths);
-	$i = false !== $level && $level < $len ? $len - $level - 1 : 0;
+	$i = 0;
+
+	if (false !== $level)
+	{
+		if (0 <= $level) $base = 0;
+
+		$i = $len - $level - $base - 1;
+
+		if (0 > $i) $i = 0;
+		else if ($i >= $len) $i = $len - 1;
+	}
 
 	do
 	{
@@ -133,12 +142,21 @@ function resolvePath($file, $level = false)
 // }}}
 
 // {{{ function processPath(): resolvePath + macro preprocessor
-function processPath($file, $level = false)
+function processPath($file, $level = false, $base = false)
 {
 	$paths =& $GLOBALS['cia_paths'];
-
 	$len = count($paths);
-	$i = false !== $level && $level < $len ? $len - $level - 1 : 0;
+	$i = 0;
+
+	if (false !== $level)
+	{
+		if (0 <= $level) $base = 0;
+
+		$i = $len - $level - $base - 1;
+
+		if (0 > $i) $i = 0;
+		else if ($i >= $len) $i = $len - 1;
+	}
 
 	if (DEBUG) $depth =& $i;
 	else $depth = $i;
