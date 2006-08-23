@@ -169,7 +169,12 @@ function processPath($file, $level = false, $base = false)
 		$cache = $c . $depth .'.zcache.php';
 
 		if (file_exists($cache));
-		else if (file_exists($source)) require resolvePath('preprocessor.php');
+		else if (file_exists($source))
+		{
+			function_exists('runPreprocessor') || require resolvePath('preprocessor.php');
+
+			runPreprocessor($source, $cache, $len - $i - 1);
+		}
 		else $cache = false;
 
 		if ($cache) return $cache;
@@ -222,7 +227,12 @@ function __autoload($searched_class)
 			$cache = $c . $i .'.zcache.php';
 
 			if (file_exists($cache));
-			else if (file_exists($source)) require processPath('classRewriter.php');
+			else if (file_exists($source))
+			{
+				function_exists('runPreprocessor') || require resolvePath('preprocessor.php');
+
+				runPreprocessor($source, $cache, $level, $class);
+			}
 			else $cache = false;
 
 			if ($cache)

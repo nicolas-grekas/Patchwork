@@ -210,8 +210,8 @@ class extends CIA
 					self::writeAgent($h, $vClone);
 
 					$data = ';$template=' . var_export($template, true)
-						. ';self::setMaxage(' . (int) $maxage
-						. ");self::setExpires('$expires');";
+						. ';CIA::setMaxage(' . (int) $maxage
+						. ");CIA::setExpires('$expires');";
 
 					if ($headers)
 					{

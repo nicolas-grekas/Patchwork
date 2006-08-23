@@ -17,7 +17,7 @@ $contentType = $contentType[$path];
 
 $i = 0;
 $len = count($GLOBALS['cia_paths']);
-$lang = self::__LANG__() . '/';
+$lang = CIA::__LANG__() . '/';
 $l_ng = '__/';
 
 $source = false;
@@ -33,9 +33,9 @@ while (--$len);
 
 if ($len)
 {
-	self::header('Content-Type: ' . $contentType);
-	self::setMaxage(-1);
-	self::writeWatchTable('public/static', 'zcache/');
+	CIA::header('Content-Type: ' . $contentType);
+	CIA::setMaxage(-1);
+	CIA::writeWatchTable('public/static', 'zcache/');
 
 	readfile($source);
 
