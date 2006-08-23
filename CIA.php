@@ -118,18 +118,8 @@ function resolvePath($file, $level = false)
 {
 	$paths =& $GLOBALS['cia_paths'];
 
-	$i = 0;
 	$len = count($paths);
-
-	if (false !== $level)
-	{
-		$i = -$level;
-
-		if (0 <= $level) $i += $len - 1;
-
-		if (0 > $i) $i = 0;
-		else if ($i >= $len) $i = $len - 1;
-	}
+	$i = false !== $level && $level < $len ? $len - $level - 1 : 0;
 
 	do
 	{
@@ -147,23 +137,18 @@ function processPath($file, $level = false)
 {
 	$paths =& $GLOBALS['cia_paths'];
 
-	$i = 0;
 	$len = count($paths);
+	$i = false !== $level && $level < $len ? $len - $level - 1 : 0;
 
-	if (false !== $level)
-	{
-		$i = -$level;
+	if (DEBUG) $depth =& $i;
+	else $depth = $i;
 
-		if (0 <= $level) $i += $len - 1;
-
-		if (0 > $i) $i = 0;
-		else if ($i >= $len) $i = $len - 1;
-	}
+	$c = '.'. str_replace(array('_', '/', '\\'), array('__', '_', '_'), $file) .'.'. (int)(bool)DEBUG .'a';
 
 	do
 	{
 		$source = $paths[$i] . '/' . $file;
-		$cache = '.'. str_replace(array('_', '/', '\\'), array('__', '_', '_'), $file) .'.'. (int)(bool)DEBUG .'b'. $i .'.zcache.php';
+		$cache = $c . $depth .'.zcache.php';
 
 		if (file_exists($cache));
 		else if (file_exists($source)) require resolvePath('preprocessor.php');
@@ -207,6 +192,8 @@ function __autoload($searched_class)
 		$paths =& $GLOBALS['cia_paths'];
 		$parent_class = false;
 
+		$c = '.'. $class .'.'. (int)(bool)DEBUG .'b';
+
 		do
 		{
 			$parent_class = $class . '__' . --$level;
@@ -214,7 +201,7 @@ function __autoload($searched_class)
 			if (class_exists($parent_class, false)) break;
 
 			$source = $paths[++$i] . '/' . $file;
-			$cache = '.'. $class .'.'. (int)(bool)DEBUG .'b'. $i .'.zcache.php';
+			$cache = $c . $i .'.zcache.php';
 
 			if (file_exists($cache));
 			else if (file_exists($source)) require processPath('classRewriter.php');
