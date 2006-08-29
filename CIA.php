@@ -185,6 +185,8 @@ function processPath($file, $level = false, $base = false)
 }
 // }}}
 
+$GLOBALS['__autoload_static_pool'] = false;
+
 // {{{ function __autoload()
 function __autoload($searched_class)
 {
@@ -200,6 +202,7 @@ function __autoload($searched_class)
 	}
 
 	$level = $class_level>=0 ? $class_level + 1 : count($GLOBALS['cia_paths']);
+	$cache = false;
 
 	if ('_' == substr($class, -1) || '_' == substr($class, 0, 1) || false !== strpos($class, '__')) // Out of the path class: search for an existing parent
 	{
@@ -226,7 +229,7 @@ function __autoload($searched_class)
 			$source = $paths[++$i] . '/' . $file;
 			$cache = $c . $i .'.zcache.php';
 
-			if (file_exists($cache));
+			if (file_exists($cache)) ;
 			else if (file_exists($source))
 			{
 				function_exists('runPreprocessor') || require resolvePath('preprocessor.php');
@@ -237,9 +240,15 @@ function __autoload($searched_class)
 
 			if ($cache)
 			{
+				$current_pool = array();
+				$parent_pool =& $GLOBALS['__autoload_static_pool'];
+				$GLOBALS['__autoload_static_pool'] =& $current_pool;
+
 				require $cache;
 
-				if (class_exists($searched_class, false)) return;
+				if (class_exists($searched_class, false)) $parent_class = false;
+
+				if (false !== $parent_pool) $parent_pool[$parent_class ? $parent_class : $searched_class] = file_get_contents($cache);
 
 				break;
 			}
@@ -247,11 +256,53 @@ function __autoload($searched_class)
 		while ($level);
 	}
 
-	if (class_exists($parent_class, true))
+	if ($parent_class && class_exists($parent_class, true))
 	{
 		$class = new ReflectionClass($parent_class);
+		$class = ($class->isAbstract() ? 'abstract ' : '') . 'class ' . $searched_class . ' extends ' . $parent_class . '{}';
 
-		eval(($class->isAbstract() ? 'abstract ' : '') . 'class ' . $searched_class . ' extends ' . $parent_class . '{}');
+		eval($class);
+	}
+	else $class = '';
+
+	if ($cache)
+	{
+		if (false !== $parent_pool && $class) $parent_pool[$searched_class] = '<?php ' . $class . '?>';
+
+		$GLOBALS['__autoload_static_pool'] =& $parent_pool;
+
+
+		if ($current_pool) // Writes parent's source code in child's source file
+		{
+			$code = '<?php ?>';
+			$tmp = file_get_contents($cache);
+
+			if ('<?php ' != strtr(substr($tmp, 0, 6), "\t\r\n", '   ')) $tmp = '<?php ?>' . $tmp;
+
+			foreach ($current_pool as $class => &$c)
+			{
+				if ('<?php ' != strtr(substr($c, 0, 6), "\t\r\n", '   ')) $c = '<?php ?>' . $c;
+				if ('?>' != substr($c, -2)) $c .= '<?php ?>';
+
+				$code = substr($code, 0, -2) . "if(!class_exists('$class',0)){" . substr($c, 6, -2) . '}?>';
+			}
+
+			$code = substr($code, 0, -2) . substr($tmp, 6);
+
+
+			$tmp = md5(uniqid(mt_rand(), true));
+
+			file_put_contents($tmp, $code);
+
+			if ('WIN' == substr(PHP_OS, 0, 3)) 
+			{
+				$code = new COM('Scripting.FileSystemObject');
+				$code->GetFile($GLOBALS['cia_paths'][0] . '/' . $tmp)->Attributes |= 2;
+				file_exists($cache) && unlink($cache);
+			}
+
+			rename($tmp, $cache);
+		}
 	}
 }
 // }}}

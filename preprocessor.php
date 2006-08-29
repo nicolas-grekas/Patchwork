@@ -28,6 +28,8 @@ function runPreprocessor($source, $cache, $level, $class = false)
 {
 	$source = file_get_contents($source);
 
+	$source = str_replace(array("\r\n", "\r"), array("\n", "\n"), $source);
+
 	if (DEBUG)
 	{
 		$source = preg_replace("'^#>([^>].*)$'m", '$1', $source);
@@ -171,8 +173,12 @@ function runPreprocessor($source, $cache, $level, $class = false)
 		else if ('{' == $token) ++$curly_level;
 		else if ('}' == $token) unset($class_pool[$curly_level--]);
 
-		fwrite($h, $token);
+		fwrite($h, $token, strlen($token));
 	}
+
+	$token =& $source[$sourceLen - 1];
+
+	if (!is_array($token) || (T_CLOSE_TAG != $token[0] && T_INLINE_HTML != $token[0])) fwrite($h, '?>', 2);
 
 	fclose($h);
 
@@ -180,7 +186,7 @@ function runPreprocessor($source, $cache, $level, $class = false)
 	{
 		$h = new COM('Scripting.FileSystemObject');
 		$h->GetFile($GLOBALS['cia_paths'][0] . '/' . $tmp)->Attributes |= 2;
-		$h = @unlink($cache);
+		file_exists($cache) && unlink($cache);
 	}
 
 	rename($tmp, $cache);
