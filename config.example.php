@@ -2,7 +2,7 @@
 
 $CONFIG += array(		// Config parameters
 
-	'DEBUG_KEYS' => array('1' => 1),	// password => debug_level hash
+	'DEBUG_KEYS' => array('' => 1),	// password => debug_level hash
 
 	'timezone' => 'Europe/Paris',
 	'php' => 'c:/progra~1/wamp/php/php.exe', // Path to your php executable.
@@ -18,6 +18,6 @@ $CONFIG += array(		// Config parameters
 
 );
 
-if (!isset($CONFIG['DEBUG'])) $CONFIG['DEBUG'] = isset($_COOKIE['DEBUG']) ? (int) @$CONFIG['DEBUG_KEYS'][$_COOKIE['DEBUG']] : 0;
+if (!isset($CONFIG['DEBUG'])) $CONFIG['DEBUG'] = (int) @$CONFIG['DEBUG_KEYS'][(string)$_COOKIE['DEBUG']];
 
 CIA_GO(__FILE__, true); // 2nd parameter: true if your server supports PATH_INFO, else false 

@@ -63,7 +63,7 @@ while (1)
 		{
 			echo preg_replace(
 				"'in .*[\\\\/]\.(.*)\.[0-9]+([ab])([0-9]+)\.zcache\.php'e",
-				'"in ".("b"=="$2"?DIRECTORY_SEPARATOR."class":"").str_replace("_",DIRECTORY_SEPARATOR,"_$1").("b"=="$2"?".php":"")." [{$cia_paths[0]}:".(count($cia_paths)-$3-1)."]"',
+				'"in ".("b"=="$2"?"/class":"").str_replace("_","/","_$1").("b"=="$2"?".php":"")." [{$cia_paths[0]}:".(count($cia_paths)-$3-1)."]"',
 				fgets($h)
 			);
 		}
