@@ -1,5 +1,61 @@
 <?php
 
+// {{{ Shortcut functions for applications developpers
+function G($name, $type) {$a = func_get_args(); return VALIDATE::get(    $_GET[$name]   , $type, array_slice($a, 2));}
+function P($name, $type) {$a = func_get_args(); return VALIDATE::get(    $_POST[$name]  , $type, array_slice($a, 2));}
+function C($name, $type) {$a = func_get_args(); return VALIDATE::get(    $_COOKIE[$name], $type, array_slice($a, 2));}
+function F($name, $type) {$a = func_get_args(); return VALIDATE::getFile($_FILES[$name] , $type, array_slice($a, 2));}
+
+function V($var , $type) {$a = func_get_args(); return VALIDATE::get(     $var          , $type, array_slice($a, 2));}
+
+function T($string, $lang = false)
+{
+	if (!$lang) $lang = CIA::__LANG__();
+	return TRANSLATE::get($string, $lang, true);
+}
+// }}}
+
+// {{{ Default database support with MDB2
+function DB($close = false)
+{
+	static $db = false;
+
+	if ($close)
+	{
+		if ($db) $db->commit();
+	}
+	else if (!$db)
+	{
+		require_once 'MDB2.php';
+
+		global $CONFIG;
+
+		$db = @MDB2::factory($CONFIG['DSN']);
+		$db->loadModule('Extended');
+		$db->setErrorHandling(PEAR_ERROR_CALLBACK, 'E');
+		$db->setFetchMode(MDB2_FETCHMODE_OBJECT);
+		$db->setOption('default_table_type', 'InnoDB');
+		$db->setOption('seqname_format', 'zeq_%s');
+		$db->setOption('portability', MDB2_PORTABILITY_ALL ^ MDB2_PORTABILITY_EMPTY_TO_NULL ^ MDB2_PORTABILITY_FIX_CASE);
+
+		$db->connect();
+
+		if(@PEAR::isError($db))
+		{
+			trigger_error($db->getMessage(), E_USER_ERROR);
+			exit;
+		}
+
+		$db->beginTransaction();
+
+		$db->query('SET NAMES utf8');
+		$db->query("SET collation_connection='utf8_general_ci'");
+	}
+
+	return $db;
+}
+// }}}
+
 function jsquote($a, $addDelim = true, $delim = "'")
 {
 	if ((string) $a === (string) ($a-0)) return $a-0;
