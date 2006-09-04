@@ -185,11 +185,19 @@ function processPath($file, $level = false, $base = false)
 }
 // }}}
 
+// {{{ function __autoload()
 $GLOBALS['__autoload_static_pool'] = false;
 
-// {{{ function __autoload()
 function __autoload($searched_class)
 {
+	static $optimization = -1;
+
+	if (-1 == $optimization)
+	{
+		$optimization = @$GLOBALS['CONFIG']['inheritance_optimization'];
+		$optimization = 'inline' == $optimization ? 2 : ('include' == $optimization ? 1 : 0);
+	}
+
 	if (preg_match("'^(.+)__(0|[1-9][0-9]*)$'", $searched_class, $class_level)) // Namespace renammed class
 	{
 		$class = $class_level[1];
@@ -242,13 +250,13 @@ function __autoload($searched_class)
 			{
 				$current_pool = array();
 				$parent_pool =& $GLOBALS['__autoload_static_pool'];
-				$GLOBALS['__autoload_static_pool'] =& $current_pool;
+				if ($optimization) $GLOBALS['__autoload_static_pool'] =& $current_pool;
 
 				require $cache;
 
 				if (class_exists($searched_class, false)) $parent_class = false;
 
-				if (false !== $parent_pool) $parent_pool[$parent_class ? $parent_class : $searched_class] = file_get_contents($cache);
+				if (false !== $parent_pool) $parent_pool[$parent_class ? $parent_class : $searched_class] = array($cache, file_get_contents($cache));
 
 				break;
 			}
@@ -267,7 +275,7 @@ function __autoload($searched_class)
 
 	if ($cache)
 	{
-		if (false !== $parent_pool && $class) $parent_pool[$searched_class] = '<?php ' . $class . '?>';
+		if (false !== $parent_pool && $class) $parent_pool[$searched_class] = array('', '<?php ' . $class . '?>');
 
 		$GLOBALS['__autoload_static_pool'] =& $parent_pool;
 
@@ -281,10 +289,16 @@ function __autoload($searched_class)
 
 			foreach ($current_pool as $class => &$c)
 			{
-				if ('<?php ' != strtr(substr($c, 0, 6), "\t\r\n", '   ')) $c = '<?php ?>' . $c;
-				if ('?>' != substr($c, -2)) $c .= '<?php ?>';
+				if (!$c[0] || 2 == $optimization)
+				{
+					$c =& $c[1];
 
-				$code = substr($code, 0, -2) . "if(!class_exists('$class',0)){" . substr($c, 6, -2) . '}?>';
+					if ('<?php ' != strtr(substr($c, 0, 6), "\t\r\n", '   ')) $c = '<?php ?>' . $c;
+					if ('?>' != substr($c, -2)) $c .= '<?php ?>';
+
+					$code = substr($code, 0, -2) . "if(!class_exists('$class',0)){" . substr($c, 6, -2) . '}?>';
+				}
+				else $code = substr($code, 0, -2) . "require_once '" . addslashes($c[0]) . "';?>";
 			}
 
 			$code = substr($code, 0, -2) . substr($tmp, 6);
@@ -304,21 +318,6 @@ function __autoload($searched_class)
 			rename($tmp, $cache);
 		}
 	}
-}
-// }}}
-
-// {{{ Shortcut functions for applications developpers
-function G($name, $type) {$a = func_get_args(); return VALIDATE::get(    $_GET[$name]   , $type, array_slice($a, 2));}
-function P($name, $type) {$a = func_get_args(); return VALIDATE::get(    $_POST[$name]  , $type, array_slice($a, 2));}
-function C($name, $type) {$a = func_get_args(); return VALIDATE::get(    $_COOKIE[$name], $type, array_slice($a, 2));}
-function F($name, $type) {$a = func_get_args(); return VALIDATE::getFile($_FILES[$name] , $type, array_slice($a, 2));}
-
-function V($var , $type) {$a = func_get_args(); return VALIDATE::get(     $var          , $type, array_slice($a, 2));}
-
-function T($string, $lang = false)
-{
-	if (!$lang) $lang = CIA::__LANG__();
-	return TRANSLATE::get($string, $lang, true);
 }
 // }}}
 
@@ -380,50 +379,6 @@ function CIA_GO($file, $use_path_info)
 		}
 	}
 	else if ('/' == substr($_SERVER['CIA_HOME'], 0, 1)) $_SERVER['CIA_HOME'] = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['CIA_HOME'];
-	// }}}
-
-	// {{{ Default database support with MDB2
-	if (!function_exists('DB'))
-	{
-		function DB($close = false)
-		{
-			static $db = false;
-
-			if ($close)
-			{
-				if ($db) $db->commit();
-			}
-			else if (!$db)
-			{
-				require_once 'MDB2.php';
-
-				global $CONFIG;
-
-				$db = @MDB2::factory($CONFIG['DSN']);
-				$db->loadModule('Extended');
-				$db->setErrorHandling(PEAR_ERROR_CALLBACK, 'E');
-				$db->setFetchMode(MDB2_FETCHMODE_OBJECT);
-				$db->setOption('default_table_type', 'InnoDB');
-				$db->setOption('seqname_format', 'zeq_%s');
-				$db->setOption('portability', MDB2_PORTABILITY_ALL ^ MDB2_PORTABILITY_EMPTY_TO_NULL ^ MDB2_PORTABILITY_FIX_CASE);
-
-				$db->connect();
-
-				if(@PEAR::isError($db))
-				{
-					trigger_error($db->getMessage(), E_USER_ERROR);
-					exit;
-				}
-
-				$db->beginTransaction();
-
-				$db->query('SET NAMES utf8');
-				$db->query("SET collation_connection='utf8_general_ci'");
-			}
-
-			return $db;
-		}
-	}
 	// }}}
 
 	// {{{ Global Initialisation

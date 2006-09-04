@@ -4,6 +4,7 @@ $CONFIG += array(		// Config parameters
 
 	'DEBUG_KEYS' => array('' => 1),	// password => debug_level hash
 
+	'inheritance_optimization' => 'inline', // 'inline', 'include' or false
 	'timezone' => 'Europe/Paris',
 	'php' => 'c:/progra~1/wamp/php/php.exe', // Path to your php executable.
 	'debug_email' => 'webmaster',
