@@ -82,7 +82,7 @@ valid_date = function($value, $args)
 	if ($value[2]<100)
 	{
 		$value[2] += 1900;
-		if (Y-$value[2]>50) $value[2] += 100;
+		if (Y-$value[2]>80) $value[2] += 100;
 	}
 	$args = new Date($value[2], $value[1]-1, $value[0]);
 	$value[2] = $args.getFullYear();
