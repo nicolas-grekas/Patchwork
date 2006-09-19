@@ -63,7 +63,11 @@ class extends Mail_mime
 
 		foreach ($input as &$hdr_value)
 		{
-			$hdr_value = preg_replace_callback("/{$ns}(?:[\\x80-\\xFF]{$ns})+/", array($this, '_encodeHeaderWord'), $hdr_value);
+			$hdr_value = preg_replace_callback(
+				"/{$ns}(?:[\\x80-\\xFF]{$ns})+/",
+				array($this, '_encodeHeaderWord'),
+				$hdr_value
+			);
 		}
 
 		return $input;
@@ -128,5 +132,33 @@ class extends Mail_mime
 			$r->addPostData("{$event}_on{$event}", CIA::home($this->options['on' . $event]));
 			$r->sendRequest();
 		}
+	}
+
+	// Add line feeds correction
+	function setTXTBody($data, $isfile = false, $append = false)
+	{
+		if ($isfile)
+		{
+			$data =& $this->_file2str($data);
+			if (PEAR::isError($data)) return $data;
+		}
+
+		$data = str_replace(array("\r\n", "\r", "\n"), array("\n", "\n", $this->_eol), $data);
+
+		return parent::setTXTBody($data, false, $append);
+	}
+
+	// Add line feed correction
+	function setHTMLBody($data, $isfile = false)
+	{
+		if ($isfile)
+		{
+			$data =& $this->_file2str($data);
+			if (PEAR::isError($data)) return $data;
+		}
+
+		$data = str_replace(array("\r\n", "\r", "\n"), array("\n", "\n", $this->_eol), $data);
+
+		return parent::setHTMLBody($data, false);
 	}
 }
