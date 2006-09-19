@@ -136,7 +136,7 @@ addOnload.run = function()
 		$pool = $addOnload.p;
 		for ($i = 0; $i < $pool.length; ++$i) $pool[$i](), $pool[$i]=0;
 
-		$document = $addOnload = $pool = 0;
+		$document = $addOnload = $pool = onload = null;
 
 		addOnload = function($function) {$function()};
 	}
@@ -197,7 +197,9 @@ w = function($homeAgent, $keys, $masterCIApID)
 	var $document = document,
 
 		$buffer = [],
-		$closeDoc = 0,
+		$inlineJs = 0,
+		$continue = '',
+		$includeSrc = '',
 
 		$WexecStack = [],
 		$WexecLast = 0,
@@ -368,8 +370,8 @@ w = function($homeAgent, $keys, $masterCIApID)
 				if (t($includeCache[$inc]) && --$Rlevel) w($includeCache[$inc][0], $includeCache[$inc][1]);
 				else
 					$Rlevel = $maxRlevel,
-					$buffer.push('<script type="text/javascript" class="w" src="' + $inc + '"></script >'),
-					w.f();
+					$includeSrc = $inc,
+					w.w();
 			}
 		}
 
@@ -525,7 +527,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 					($loopIterator() && ($pointer -= $code[$pointer])) || ++$pointer;
 					$context = v;
 
-					if (new Date - $startTime > 500) return w.c = w, $include($masterHome + 'js/x', 0, 0, 1);
+					if (new Date - $startTime > 500) return $continue = w, $include($masterHome + 'js/x', 0, 0, 1);
 
 					break;
 			}
@@ -533,29 +535,57 @@ w = function($homeAgent, $keys, $masterCIApID)
 			$WexecStack[$WexecLast] = 0;
 
 			if (--$WexecLast) $WexecStack[$WexecLast]();
-			else $closeDoc = 1, w.f();
+			else w.w();
 		})();
 	}
 
-	w.f = function()
+	w.w = function()
 	{
-		var $content = $buffer.join('');
+		// Any optimization to save some request here is likely to break IE ...
 
+		var $src = $includeSrc, $content = $buffer.join(''), $offset = 0;
+
+		$includeSrc = '';
+		w.c = $continue;
 		$buffer = [];
 
-		$i = $content.search(/<\/script>/i);
+		$i = $content.search(/<\/script\b/i);
+
+		while ($i>=0)
+		{
+			$inlineJs = 0;
+
+			if ('>' == $content.charAt($offset + $i + 8) && $offset + $i != $content.length - 9)
+			{
+				$i += 9;
+				$includeSrc = $src;
+				w.c = w.w;
+				$src = $masterHome + 'js/x';
+				break;
+			}
+
+			$offset += $i + 8;
+			$i = $content.substr($offset).search(/<\/script\b/i);
+		}
+
+		if ($i>=0) ;
+		else if ($inlineJs) $i = 0;
+		else
+		{
+			$i = $content.substr($offset).search(/<script\b/i);
+			if ($i>=0) $inlineJs = 1;
+		}
 
 		if ($i>=0)
-			$i += 9,
-			w.c = w.f,
+			$i += $offset,
 			$buffer = [$content.substr($i)],
-			$content = $content.substring(0, $i) + '<script type="text/javascript" class="w" src="' + $masterHome + 'js/x"></script>'; // Any optimization to save some request here is likely to break IE ...
+			$content = $content.substring(0, $i);
 
-		$document.write($content);
+		$document.write($content + ($src && '<script type="text/javascript" class="w" src="' + $src + '"></script>'));
 
-		if ($i<0 && $closeDoc)
+		if (!$src)
 			$document.close(),
-			w = $document = r = y = z = w.k = w.f = w.r = w.x = $loopIterator = 0;
+			w = $document = r = y = z = w.k = w.w = w.r = w.x = $loopIterator = 0; // Memory leaks prevention
 	}
 
 	w.r = function()
