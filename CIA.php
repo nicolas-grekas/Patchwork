@@ -168,7 +168,7 @@ function processPath($file, $level = false, $base = false)
 		$source = $paths[$i] . '/' . $file;
 		$cache = $c . $depth .'.zcache.php';
 
-		if (file_exists($cache));
+		if (file_exists($cache) && (!CIA_CHECK_SOURCE || (file_exists($source) && filemtime($cache) > filemtime($source)))) ;
 		else if (file_exists($source))
 		{
 			function_exists('runPreprocessor') || require resolvePath('preprocessor.php');
@@ -237,7 +237,7 @@ function __autoload($searched_class)
 			$source = $paths[++$i] . '/' . $file;
 			$cache = $c . $i .'.zcache.php';
 
-			if (file_exists($cache)) ;
+			if (file_exists($cache) && (!defined('CIA_CHECK_SOURCE') || (file_exists($source) && filemtime($cache) > filemtime($source)))) ;
 			else if (file_exists($source))
 			{
 				function_exists('runPreprocessor') || require resolvePath('preprocessor.php');
@@ -387,6 +387,7 @@ function CIA_GO($file, $use_path_info)
 	define('CIA_PROJECT_ID', abs($version_id % 10000));
 	define('CIA_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
 	define('CIA_DIRECT', '_' == $_SERVER['CIA_REQUEST']);
+	define('CIA_CHECK_SOURCE', !CIA_POSTING && DEBUG && 'no-cache' == @$_SERVER['HTTP_CACHE_CONTROL']);
 
 	function E($msg = '__getDeltaMicrotime')
 	{
