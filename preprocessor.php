@@ -26,8 +26,10 @@ function fetchPHPWhiteSpaceNComments(&$source, &$i)
 
 function runPreprocessor($source, $cache, $level, $class = false)
 {
-	$source = file_get_contents($source);
+	$file = $GLOBALS['cia_paths'];
+	$file = substr($source, strlen($file[count($file) - $level - 1]) + 1);
 
+	$source = file_get_contents($source);
 	$source = str_replace(array("\r\n", "\r"), array("\n", "\n"), $source);
 
 	if (DEBUG)
@@ -124,6 +126,10 @@ function runPreprocessor($source, $cache, $level, $class = false)
 			else if (T_STRING == $token[0] && '__CIA_LEVEL__' == $token[1])
 			{
 				$token = $level;
+			}
+			else if (T_STRING == $token[0] && '__CIA_FILE__' == $token[1])
+			{
+				$token = "'" . str_replace(array('\\', "'"), array('\\\\', "\\'"), $file) . "'";
 			}
 			else if (T_STRING == $token[0] && ('resolvePath' == $token[1] || 'processPath' == $token[1]))
 			{
