@@ -855,7 +855,8 @@ class
 
 		if (
 			   0 === strpos($agent, $HOME)
-			&& is_callable('exec')
+			&& !ini_get('safe_mode')
+			&& is_callable('shell_exec')
 			&& (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? !extension_loaded('openssl') : false)
 			&& $keys = @$GLOBALS['CONFIG']['php']
 		)
@@ -869,7 +870,7 @@ class
 				(int) @$_SERVER['HTTPS']
 			)));
 
-			$keys = exec($keys);
+			$keys = shell_exec($keys);
 
 			if (!preg_match($s, $keys, $keys)) $keys = false;
 		}
