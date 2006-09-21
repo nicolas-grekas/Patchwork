@@ -24,7 +24,7 @@ function fetchPHPWhiteSpaceNComments(&$source, &$i)
 	return $token;
 }
 
-function runPreprocessor($source, $cache, $level, $class = false)
+function runPreprocessor($file, $source, $cache, $level, $class = false)
 {
 	$source = file_get_contents($source);
 
@@ -124,6 +124,10 @@ function runPreprocessor($source, $cache, $level, $class = false)
 			else if (T_STRING == $token[0] && '__CIA_LEVEL__' == $token[1])
 			{
 				$token = $level;
+			}
+			else if (T_STRING == $token[0] && '__CIA_FILE__' == $token[1])
+			{
+				$token = "'" . str_replace(array('\\', "'"), array('\\\\', "\\'"), $file) . "'";
 			}
 			else if (T_STRING == $token[0] && ('resolvePath' == $token[1] || 'processPath' == $token[1]))
 			{
