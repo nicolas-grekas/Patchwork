@@ -24,10 +24,12 @@ function fetchPHPWhiteSpaceNComments(&$source, &$i)
 	return $token;
 }
 
-function runPreprocessor($file, $source, $cache, $level, $class = false)
+function runPreprocessor($source, $cache, $level, $class = false)
 {
-	$source = file_get_contents($source);
+	$file = $GLOBALS['cia_paths'];
+	$file = substr($source, strlen($file[count($file) - $level - 1]) + 1);
 
+	$source = file_get_contents($source);
 	$source = str_replace(array("\r\n", "\r"), array("\n", "\n"), $source);
 
 	if (DEBUG)

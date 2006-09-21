@@ -173,7 +173,7 @@ function processPath($file, $level = false, $base = false)
 		{
 			function_exists('runPreprocessor') || require resolvePath('preprocessor.php');
 
-			runPreprocessor($file, $source, $cache, $len - $i - 1);
+			runPreprocessor($source, $cache, $len - $i - 1);
 		}
 		else $cache = false;
 
@@ -242,7 +242,7 @@ function __autoload($searched_class)
 			{
 				function_exists('runPreprocessor') || require resolvePath('preprocessor.php');
 
-				runPreprocessor($file, $source, $cache, $level, $class);
+				runPreprocessor($source, $cache, $level, $class);
 			}
 			else $cache = false;
 
