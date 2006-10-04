@@ -16,4 +16,4 @@ $_SERVER['QUERY_STRING'] = 'k$=';
 
 $_GET = array('k$' => '');
 
-include $_SERVER['argv'][1];
+require $_SERVER['argv'][1];

@@ -62,11 +62,6 @@ mbstring.func_overload = 0
 // $_REQUEST is an open door to security problems
 unset($_REQUEST);
 
-// Globals vars initialization
-$CONFIG = array();
-$cia_paths = array();
-$version_id = 0;
-
 // Disables mod_deflate who overwrites any custom Vary: header and appends a body to 304 responses.
 // Replaced with native PHP output compression.
 if (function_exists('apache_setenv')) apache_setenv('no-gzip', '1');
@@ -83,35 +78,209 @@ if (function_exists('iconv_set_encoding'))
 
 // }}}
 
-// {{{ function CIA(): bootstrap
-function CIA($file, $parent = '../../config.php')
+
+// C3 Method Resolution Order (like in Python 2.3) for application multi-inheritance
+function C3MRO($appRealpath)
 {
-	global $CONFIG, $cia_paths, $version_id;
+	$resultSeq =& $GLOBALS['appInheritSeq'][$appRealpath];
 
-	$version_id += filemtime($file);
+	// If result is cached, return it
+	if (null !== $resultSeq) return $resultSeq;
 
-	$file = dirname($file);
+	// Include application config file
+	$GLOBALS['version_id'] += filemtime($appRealpath);
+	$CONFIG = array();
 
-	if (!defined('CIA_PROJECT_PATH'))
+	require $appRealpath;
+
+	// Get parent application(s)
+	if (isset($CONFIG['extends'])) $parent =& $CONFIG['extends'];
+	else $parent = '../../config.php';
+
+	unset($CONFIG['extends']);
+
+	// Store application's $CONFIG parameters
+	$GLOBALS['appInheritConfig'][$appRealpath] =& $CONFIG;
+
+	// If no parent app, return empty array
+	if (!$parent) return array($appRealpath);
+
+	if (is_array($parent)) $resultSeq = count($parent);
+	else
 	{
-		define('CIA_PROJECT_PATH', $file);
-		chdir($file);
+		$parent = array($parent);
+		$resultSeq = 1;
 	}
 
-	$cia_paths[] = $file;
 
-	if (false !== $parent)
+	// Parent's config file path is relative to the current application's directory
+	$seqs = dirname($appRealpath);
+	$k = 0;
+	while ($k < $resultSeq)
 	{
-		if (
-			    '/' != $parent[0]
-			&& '\\' != $parent[0]
-			&&  ':' != $parent[1]
-		) $parent = $file . '/' . $parent;
+		$seq =& $parent[$k];
 
-		require $parent;
+		if ('/' != $seq[0] && '\\' != $seq[0] &&  ':' != $seq[1]) $seq = $seqs . '/' . $seq;
+
+		$seq = realpath($seq);
+
+		++$k;
+	}
+
+	// Compute C3 MRO
+	// See http://python.org/2.3/mro.html
+	$seqs = array_merge(
+		array(array($appRealpath)),
+		array_map('C3MRO', $parent),
+		array($parent)
+	);
+	$resultSeq = array();
+	$parent = false;
+
+	while (1)
+	{
+		if (!$seqs) return $resultSeq;
+
+		foreach ($seqs as &$seq)
+		{
+			$parent = reset($seq);
+
+			unset($seq);
+
+			foreach ($seqs as $seq)
+			{
+				unset($seq[key($seq)]);
+
+				if (in_array($parent, $seq))
+				{
+					$parent = false;
+					break;
+				}
+			}
+
+			if ($parent) break;
+		}
+
+		if (false == $parent) throw new Exception('Inconsistent application hierarchy');
+
+		$resultSeq[] = $parent;
+
+		foreach ($seqs as $k => &$seq)
+		{
+			if ($parent == current($seq)) unset($seq[key($seq)]);
+			if (!$seq) unset($seqs[$k]);
+		}
 	}
 }
+
+
+$CIA = realpath($CIA);
+$appInheritConfig = array();
+$appInheritSeq = array();
+
+define('CIA_PROJECT_PATH', dirname($CIA));
+
+$version_id = 0;
+
+// Linearize application inheritance graph
+$CIA = C3MRO($CIA);
+
+$CONFIG = array();
+$cia_paths = array();
+
+foreach ($CIA as &$CIA)
+{
+	$CONFIG += $appInheritConfig[$CIA];
+	$cia_paths[] = dirname($CIA);
+}
+
+chdir(CIA_PROJECT_PATH);
+
+unset($CIA);
+unset($appInheritConfig);
+unset($appInheritSeq);
+
+
+if (!isset($CONFIG['DEBUG'])) $CONFIG['DEBUG'] = (int) @$CONFIG['DEBUG_KEYS'][ (string) $_COOKIE['DEBUG'] ];
+
+// {{{ CIA's environment context
+/**
+* Setup needed environment variables if they don't exists :
+*   $_SERVER['CIA_HOME']: application's home part of the url. Lang independant (ex. /cia/myapp/__/)
+*   $_SERVER['CIA_LANG']: lang (ex. en)
+*   $_SERVER['CIA_REQUEST']: request part of the url (ex. myagent/mysubagent/...)
+*
+* You can also define these vars with mod_rewrite, to get cleaner urls
+*/
+if (!isset($_SERVER['CIA_HOME']))
+{
+	$_SERVER['CIA_HOME'] = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'];
+	$_SERVER['CIA_LANG'] = $_SERVER['CIA_REQUEST'] = '';
+
+	$lang_rx = '([a-z]{2}(?:-[A-Z]{2})?)';
+
+	if ($CONFIG['use_path_info'])
+	{
+		if (isset($_SERVER['ORIG_PATH_INFO'])) $_SERVER['PATH_INFO'] = $_SERVER['ORIG_PATH_INFO'];
+
+		$_SERVER['CIA_HOME'] .= '/__/';
+
+		if (preg_match("'^/{$lang_rx}/?(.*)$'", @$_SERVER['PATH_INFO'], $a))
+		{
+			$_SERVER['CIA_LANG']    = $a[1];
+			$_SERVER['CIA_REQUEST'] = $a[2];
+		}
+	}
+	else
+	{
+		$_SERVER['CIA_HOME'] .= '?__/';
+
+		if (preg_match("'^{$lang_rx}/?([^\?]*)(\??)'", rawurldecode(@$_SERVER['QUERY_STRING']), $a))
+		{
+			$_SERVER['CIA_LANG']    = $a[1];
+			$_SERVER['CIA_REQUEST'] = $a[2];
+
+			if ($a[3])
+			{
+				$_GET = array();
+				$_SERVER['QUERY_STRING'] = preg_replace("'^.*?(\?|%3F)'i", '', $_SERVER['QUERY_STRING']);
+				parse_str($_SERVER['QUERY_STRING'], $_GET);
+			}
+			else
+			{
+				$_SERVER['QUERY_STRING'] = null;
+				unset($_GET[ key($_GET) ]);
+			}
+		}
+	}
+
+	unset($lang_rx);
+	unset($a);
+}
+else if ('/' == substr($_SERVER['CIA_HOME'], 0, 1)) $_SERVER['CIA_HOME'] = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['CIA_HOME'];
 // }}}
+
+// {{{ Global Initialisation
+define('DEBUG',			(int) $CONFIG['DEBUG']);
+define('CIA_MAXAGE',	$CONFIG['maxage']);
+define('CIA_PROJECT_ID', abs($version_id % 10000));
+define('CIA_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
+define('CIA_DIRECT', '_' == $_SERVER['CIA_REQUEST']);
+define('CIA_CHECK_SOURCE', !CIA_POSTING && DEBUG && 'no-cache' == @$_SERVER['HTTP_CACHE_CONTROL']);
+
+function E($msg = '__getDeltaMicrotime')
+{
+	if (class_exists('CIA_debug', false)) return CIA::ciaLog($msg, false, false);
+
+	trigger_error(serialize($msg));
+}
+
+if (function_exists('date_default_timezone_set') && isset($CONFIG['timezone'])) date_default_timezone_set($CONFIG['timezone']);
+// }}}
+
+
+if (1) // Hack to enable the 3 functions below only when execution reaches this point
+{
 
 // {{{ function resolvePath(): cia-specific include_path-like mechanism
 function resolvePath($file, $level = false, $base = false)
@@ -161,7 +330,7 @@ function processPath($file, $level = false, $base = false)
 	if (DEBUG) $depth =& $i;
 	else $depth = $i;
 
-	$c = '.'. str_replace(array('_', '/', '\\'), array('__', '_', '_'), $file) .'.'. (int)(bool)DEBUG .'a';
+	$c = './.'. str_replace(array('_', '/', '\\'), array('__', '_', '_'), $file) .'.'. (int)(bool)DEBUG .'a';
 
 	do
 	{
@@ -186,7 +355,7 @@ function processPath($file, $level = false, $base = false)
 // }}}
 
 // {{{ function __autoload()
-$GLOBALS['__autoload_static_pool'] = false;
+$__autoload_static_pool = false;
 
 function __autoload($searched_class)
 {
@@ -226,7 +395,7 @@ function __autoload($searched_class)
 		$paths =& $GLOBALS['cia_paths'];
 		$parent_class = false;
 
-		$c = '.'. $class .'.'. (int)(bool)DEBUG .'b';
+		$c = './.'. $class .'.'. (int)(bool)DEBUG .'b';
 
 		do
 		{
@@ -237,7 +406,7 @@ function __autoload($searched_class)
 			$source = $paths[++$i] . '/' . $file;
 			$cache = $c . $i .'.zcache.php';
 
-			if (file_exists($cache) && (!defined('CIA_CHECK_SOURCE') || (file_exists($source) && filemtime($cache) > filemtime($source)))) ;
+			if (file_exists($cache) && (!CIA_CHECK_SOURCE || (file_exists($source) && filemtime($cache) > filemtime($source)))) ;
 			else if (file_exists($source))
 			{
 				function_exists('runPreprocessor') || require resolvePath('preprocessor.php');
@@ -298,7 +467,7 @@ function __autoload($searched_class)
 
 					$code = substr($code, 0, -2) . "if(!class_exists('$class',0)){" . substr($c, 6, -2) . '}?>';
 				}
-				else $code = substr($code, 0, -2) . "require_once '" . addslashes($c[0]) . "';?>";
+				else $code = substr($code, 0, -2) . "class_exists('{$class}',0)||require '{$c[0]}';?>";
 			}
 
 			$code = substr($code, 0, -2) . substr($tmp, 6);
@@ -321,157 +490,85 @@ function __autoload($searched_class)
 }
 // }}}
 
-// {{{ function CIA_GO()
-function CIA_GO($file, $use_path_info)
+}
+
+// {{{ Language controler
+if (!$_SERVER['CIA_LANG'])
 {
-	CIA($file, false);
-	global $CONFIG, $cia_paths, $version_id;
-
-	// {{{ CIA's environment context
-	/**
-	* Setup needed environment variables if they don't exists :
-	*   $_SERVER['CIA_HOME']: application's home part of the url. Lang independant (ex. /cia/myapp/__/)
-	*   $_SERVER['CIA_LANG']: lang (ex. en)
-	*   $_SERVER['CIA_REQUEST']: request part of the url (ex. myagent/mysubagent/...)
-	*
-	* You can also define these vars with mod_rewrite, to get cleaner urls
-	*/
-	if (!isset($_SERVER['CIA_HOME']))
-	{
-		$_SERVER['CIA_HOME'] = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'];
-		$_SERVER['CIA_LANG'] = $_SERVER['CIA_REQUEST'] = '';
-
-		$lang_rx = '([a-z]{2}(?:-[A-Z]{2})?)';
-
-		if ($use_path_info)
-		{
-			if (isset($_SERVER['ORIG_PATH_INFO'])) $_SERVER['PATH_INFO'] = $_SERVER['ORIG_PATH_INFO'];
-
-			$_SERVER['CIA_HOME'] .= '/__/';
-
-			if (preg_match("'^/{$lang_rx}/?(.*)$'", @$_SERVER['PATH_INFO'], $a))
-			{
-				$_SERVER['CIA_LANG']    = $a[1];
-				$_SERVER['CIA_REQUEST'] = $a[2];
-			}
-		}
-		else
-		{
-			$_SERVER['CIA_HOME'] .= '?__/';
-
-			if (preg_match("'^{$lang_rx}/?([^\?]*)(\??)'", rawurldecode(@$_SERVER['QUERY_STRING']), $a))
-			{
-				$_SERVER['CIA_LANG']    = $a[1];
-				$_SERVER['CIA_REQUEST'] = $a[2];
-
-				if ($a[3])
-				{
-					$_GET = array();
-					$_SERVER['QUERY_STRING'] = preg_replace("'^.*?(\?|%3F)'i", '', $_SERVER['QUERY_STRING']);
-					parse_str($_SERVER['QUERY_STRING'], $_GET);
-				}
-				else
-				{
-					$_SERVER['QUERY_STRING'] = null;
-					unset($_GET[ key($_GET) ]);
-				}
-			}
-		}
-	}
-	else if ('/' == substr($_SERVER['CIA_HOME'], 0, 1)) $_SERVER['CIA_HOME'] = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['CIA_HOME'];
-	// }}}
-
-	// {{{ Global Initialisation
-	define('DEBUG',			(int) $CONFIG['DEBUG']);
-	define('CIA_MAXAGE',	$CONFIG['maxage']);
-	define('CIA_PROJECT_ID', abs($version_id % 10000));
-	define('CIA_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
-	define('CIA_DIRECT', '_' == $_SERVER['CIA_REQUEST']);
-	define('CIA_CHECK_SOURCE', !CIA_POSTING && DEBUG && 'no-cache' == @$_SERVER['HTTP_CACHE_CONTROL']);
-
-	function E($msg = '__getDeltaMicrotime')
-	{
-		if (class_exists('CIA_debug', false)) return CIA::ciaLog($msg, false, false);
-
-		trigger_error(serialize($msg));
-	}
-
-	if (function_exists('date_default_timezone_set') && isset($CONFIG['timezone'])) date_default_timezone_set($CONFIG['timezone']);
-	// }}}
-
-	// {{{ Language controler
-	if (!$_SERVER['CIA_LANG'])
-	{
-		require processPath('language.php');
-		exit;
-	}
-	// }}}
-
-	// {{{ Validator
-	if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && !isset($_SERVER['HTTP_IF_NONE_MATCH'])) // Special behaviour thanks to IE
-	{
-		$match = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE'], 2);
-		$_SERVER['HTTP_IF_NONE_MATCH'] = '-' . dechex(strtotime($match[0]));
-	}
-
-	if ('-' == @$_SERVER['HTTP_IF_NONE_MATCH'][0] && preg_match("'^-[0-9a-f]{8}$'", $_SERVER['HTTP_IF_NONE_MATCH'], $match))
-	{
-		$_SERVER['HTTP_IF_NONE_MATCH'] = substr($_SERVER['HTTP_IF_NONE_MATCH'], 1);
-
-		$match = $match[0];
-		$match = resolvePath('zcache/') . $match[1] .'/'. $match[2] .'/'. substr($match, 3) .'.validator.'. DEBUG .'.';
-		$match .= md5($_SERVER['CIA_HOME'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
-
-		$headers = @file_get_contents($match);
-		if ($headers !== false)
-		{
-			header('HTTP/1.x 304 Not Modified');
-			if ($headers)
-			{
-				$headers = explode("\n", $headers, 3);
-
-				$match = $headers[0];
-
-				$headers[0] = 'Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', $_SERVER['REQUEST_TIME'] + $match);
-				$headers[1] = 'Cache-Control: max-age=' . $match . ((int) $headers[1] ? ',private,must' : ',public,proxy') . '-revalidate';
-
-				array_map('header', $headers);
-			}
-
-			exit;
-		}
-	}
-	// }}}
-
-	// {{{ Output debug window
-	if (DEBUG && CIA_DIRECT && isset($_GET['d$']))
-	{
-		require processPath('debug.php');
-		exit;
-	}
-	// }}}
-
-	/// {{{ Anti Cross-Site-(Request-Forgery|Javascript) token
-	if (!isset($_COOKIE['T$']) || !$_COOKIE['T$'])
-	{
-		unset($_COOKIE['T$']);
-		define('CIA_TOKEN', md5(uniqid(mt_rand(), true)));
-
-		$k = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_HOME'], 2));
-		$k = preg_replace("'\?.*$'", '', $k);
-		$k = preg_replace("'^https?://[^/]*'i", '', $k);
-		$k = dirname($k . ' ');
-		if (1 == strlen($k)) $k = '';
-
-		setcookie('T$', CIA_TOKEN, 0, $k .'/');
-	}
-	else define('CIA_TOKEN', $_COOKIE['T$']);
-
-	define('CIA_TOKEN_MATCH', isset($_GET['T$']) && CIA_TOKEN == $_GET['T$']);
-	// }}}
-
-	/* Let's go */
-	CIA::start();
+	require processPath('language.php');
 	exit;
 }
 // }}}
+
+// {{{ Validator
+if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && !isset($_SERVER['HTTP_IF_NONE_MATCH'])) // Special behaviour thanks to IE
+{
+	$match = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE'], 2);
+	$_SERVER['HTTP_IF_NONE_MATCH'] = '-' . dechex(strtotime($match[0]));
+
+	unset($match);
+}
+
+if ('-' == @$_SERVER['HTTP_IF_NONE_MATCH'][0] && preg_match("'^-[0-9a-f]{8}$'", $_SERVER['HTTP_IF_NONE_MATCH'], $match))
+{
+	$_SERVER['HTTP_IF_NONE_MATCH'] = substr($_SERVER['HTTP_IF_NONE_MATCH'], 1);
+
+	$match = $match[0];
+	$match = resolvePath('zcache/') . $match[1] .'/'. $match[2] .'/'. substr($match, 3) .'.validator.'. DEBUG .'.';
+	$match .= md5($_SERVER['CIA_HOME'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
+
+	$headers = @file_get_contents($match);
+	if ($headers !== false)
+	{
+		header('HTTP/1.x 304 Not Modified');
+		if ($headers)
+		{
+			$headers = explode("\n", $headers, 3);
+
+			$match = $headers[0];
+
+			$headers[0] = 'Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', $_SERVER['REQUEST_TIME'] + $match);
+			$headers[1] = 'Cache-Control: max-age=' . $match . ((int) $headers[1] ? ',private,must' : ',public,proxy') . '-revalidate';
+
+			array_map('header', $headers);
+		}
+
+		exit;
+	}
+
+	unset($match);
+	unset($headers);
+}
+// }}}
+
+// {{{ Output debug window
+if (DEBUG && CIA_DIRECT && isset($_GET['d$']))
+{
+	require processPath('debug.php');
+	exit;
+}
+// }}}
+
+/// {{{ Anti Cross-Site-(Request-Forgery|Javascript) token
+if (!isset($_COOKIE['T$']) || !$_COOKIE['T$'])
+{
+	unset($_COOKIE['T$']);
+	define('CIA_TOKEN', md5(uniqid(mt_rand(), true)));
+
+	$k = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_HOME'], 2));
+	$k = preg_replace("'\?.*$'", '', $k);
+	$k = preg_replace("'^https?://[^/]*'i", '', $k);
+	$k = dirname($k . ' ');
+	if (1 == strlen($k)) $k = '';
+
+	setcookie('T$', CIA_TOKEN, 0, $k .'/');
+
+	unset($k);
+}
+else define('CIA_TOKEN', $_COOKIE['T$']);
+
+define('CIA_TOKEN_MATCH', isset($_GET['T$']) && CIA_TOKEN == $_GET['T$']);
+// }}}
+
+/* Let's go */
+CIA::start();
