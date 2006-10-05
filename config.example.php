@@ -2,10 +2,12 @@
 
 $CONFIG = array(
 
-	// For multiple inheritance, put an array in $CONFIG['extends'].
-	// If not set, defaults to "../../config.php"
+	// Parent's directory :
+	//   string for single inheritance,
+	//   array for multiple inheritance
+	// If not set, defaults to "../../"
 	// Uses C3 Method Resolution Order, like in Python 2.3.
-	'extends' => false,
+	//'extends' => /*string|array*/,
 
 	'DEBUG_KEYS' => array('' => 1),	// password => debug_level hash
 

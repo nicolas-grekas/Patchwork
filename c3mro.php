@@ -53,7 +53,7 @@ function C3MRO($appRealpath)
 
 	// Get parent application(s)
 	if (isset($CONFIG['extends'])) $parent =& $CONFIG['extends'];
-	else $parent = '../../';
+	else $parent = __CIA__ == $appRealpath . '/' ? false : '../../';
 
 	unset($CONFIG['extends']);
 
