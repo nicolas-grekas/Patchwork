@@ -18,7 +18,7 @@ if (!isset($CONFIG['DEBUG'])) $CONFIG['DEBUG'] = (int) @$CONFIG['DEBUG_KEYS'][ (
 
 $appInheritConfig = $cia_paths[0] . '/.config.zcache.php';
 
-unlink($appInheritConfig);
+@unlink($appInheritConfig);
 
 file_put_contents(
 	$appInheritConfig,
