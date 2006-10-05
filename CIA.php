@@ -81,9 +81,11 @@ if (function_exists('iconv_set_encoding'))
 // {{{ Load configuration
 $version_id = $CIA . '/.config.zcache.php';
 
+define('__CIA__', dirname(__FILE__) . '/');
+
 require 'no-cache' != @$_SERVER['HTTP_CACHE_CONTROL'] && file_exists($version_id)
 	? $version_id
-	: (dirname(__FILE__) . '/c3mro.php');
+	: (__CIA__ . 'c3mro.php');
 
 unset($CIA);
 
