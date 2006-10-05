@@ -82,8 +82,9 @@ if (function_exists('iconv_set_encoding'))
 $version_id = $CIA . '/.config.zcache.php';
 
 define('__CIA__', dirname(__FILE__) . '/');
+define('CIA_CHECK_SOURCE', 'no-cache' == @$_SERVER['HTTP_CACHE_CONTROL']);
 
-require 'no-cache' != @$_SERVER['HTTP_CACHE_CONTROL'] && file_exists($version_id)
+require !CIA_CHECK_SOURCE && file_exists($version_id)
 	? $version_id
 	: (__CIA__ . 'c3mro.php');
 
@@ -156,7 +157,6 @@ define('CIA_MAXAGE',	$CONFIG['maxage']);
 define('CIA_PROJECT_ID', abs($version_id % 10000));
 define('CIA_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
 define('CIA_DIRECT', '_' == $_SERVER['CIA_REQUEST']);
-define('CIA_CHECK_SOURCE', !CIA_POSTING && DEBUG && 'no-cache' == @$_SERVER['HTTP_CACHE_CONTROL']);
 
 function E($msg = '__getDeltaMicrotime')
 {
