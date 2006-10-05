@@ -572,3 +572,5 @@ define('CIA_TOKEN_MATCH', isset($_GET['T$']) && CIA_TOKEN == $_GET['T$']);
 
 /* Let's go */
 CIA::start();
+
+exit;
