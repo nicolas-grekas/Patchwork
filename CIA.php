@@ -78,130 +78,16 @@ if (function_exists('iconv_set_encoding'))
 
 // }}}
 
+$version_id = dirname($CIA) . '/.config.zcache.php';
 
-// C3 Method Resolution Order (like in Python 2.3) for application multi-inheritance
-function C3MRO($appRealpath)
-{
-	$resultSeq =& $GLOBALS['appInheritSeq'][$appRealpath];
-
-	// If result is cached, return it
-	if (null !== $resultSeq) return $resultSeq;
-
-	// Include application config file
-	$GLOBALS['version_id'] += filemtime($appRealpath);
-	$CONFIG = array();
-
-	require $appRealpath;
-
-	// Get parent application(s)
-	if (isset($CONFIG['extends'])) $parent =& $CONFIG['extends'];
-	else $parent = '../../config.php';
-
-	unset($CONFIG['extends']);
-
-	// Store application's $CONFIG parameters
-	$GLOBALS['appInheritConfig'][$appRealpath] =& $CONFIG;
-
-	// If no parent app, return empty array
-	if (!$parent) return array($appRealpath);
-
-	if (is_array($parent)) $resultSeq = count($parent);
-	else
-	{
-		$parent = array($parent);
-		$resultSeq = 1;
-	}
-
-
-	// Parent's config file path is relative to the current application's directory
-	$seqs = dirname($appRealpath);
-	$k = 0;
-	while ($k < $resultSeq)
-	{
-		$seq =& $parent[$k];
-
-		if ('/' != $seq[0] && '\\' != $seq[0] &&  ':' != $seq[1]) $seq = $seqs . '/' . $seq;
-
-		$seq = realpath($seq);
-
-		++$k;
-	}
-
-	// Compute C3 MRO
-	// See http://python.org/2.3/mro.html
-	$seqs = array_merge(
-		array(array($appRealpath)),
-		array_map('C3MRO', $parent),
-		array($parent)
-	);
-	$resultSeq = array();
-	$parent = false;
-
-	while (1)
-	{
-		if (!$seqs) return $resultSeq;
-
-		foreach ($seqs as &$seq)
-		{
-			$parent = reset($seq);
-
-			unset($seq);
-
-			foreach ($seqs as $seq)
-			{
-				unset($seq[key($seq)]);
-
-				if (in_array($parent, $seq))
-				{
-					$parent = false;
-					break;
-				}
-			}
-
-			if ($parent) break;
-		}
-
-		if (false == $parent) throw new Exception('Inconsistent application hierarchy');
-
-		$resultSeq[] = $parent;
-
-		foreach ($seqs as $k => &$seq)
-		{
-			if ($parent == current($seq)) unset($seq[key($seq)]);
-			if (!$seq) unset($seqs[$k]);
-		}
-	}
-}
-
-
-$CIA = realpath($CIA);
-$appInheritConfig = array();
-$appInheritSeq = array();
-
-define('CIA_PROJECT_PATH', dirname($CIA));
-
-$version_id = 0;
-
-// Linearize application inheritance graph
-$CIA = C3MRO($CIA);
-
-$CONFIG = array();
-$cia_paths = array();
-
-foreach ($CIA as &$CIA)
-{
-	$CONFIG += $appInheritConfig[$CIA];
-	$cia_paths[] = dirname($CIA);
-}
-
-chdir(CIA_PROJECT_PATH);
+require 'no-cache' != @$_SERVER['HTTP_CACHE_CONTROL'] && file_exists($version_id)
+	? $version_id
+	: (dirname(__FILE__) . '/c3mro.php');
 
 unset($CIA);
-unset($appInheritConfig);
-unset($appInheritSeq);
 
-
-if (!isset($CONFIG['DEBUG'])) $CONFIG['DEBUG'] = (int) @$CONFIG['DEBUG_KEYS'][ (string) $_COOKIE['DEBUG'] ];
+define('CIA_PROJECT_PATH', $cia_paths[0]);
+chdir(CIA_PROJECT_PATH);
 
 // {{{ CIA's environment context
 /**
