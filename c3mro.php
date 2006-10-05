@@ -10,13 +10,9 @@ $version_id = 0;
 $CIA = C3MRO($CIA);
 
 $CONFIG = array();
-$cia_paths = array();
+$cia_paths =& $CIA;
 
-foreach ($CIA as &$CIA)
-{
-	$CONFIG += $appInheritConfig[$CIA];
-	$cia_paths[] = dirname($CIA);
-}
+foreach ($CIA as &$CIA) $CONFIG += $appInheritConfig[$CIA];
 
 if (!isset($CONFIG['DEBUG'])) $CONFIG['DEBUG'] = (int) @$CONFIG['DEBUG_KEYS'][ (string) $_COOKIE['DEBUG'] ];
 
@@ -53,11 +49,11 @@ function C3MRO($appRealpath)
 	$GLOBALS['version_id'] += filemtime($appRealpath);
 	$CONFIG = array();
 
-	require $appRealpath;
+	file_exists($appRealpath . '/config.php') && require $appRealpath . '/config.php';
 
 	// Get parent application(s)
 	if (isset($CONFIG['extends'])) $parent =& $CONFIG['extends'];
-	else $parent = '../../config.php';
+	else $parent = '../../';
 
 	unset($CONFIG['extends']);
 
@@ -76,13 +72,12 @@ function C3MRO($appRealpath)
 
 
 	// Parent's config file path is relative to the current application's directory
-	$seqs = dirname($appRealpath);
 	$k = 0;
 	while ($k < $resultSeq)
 	{
 		$seq =& $parent[$k];
 
-		if ('/' != $seq[0] && '\\' != $seq[0] &&  ':' != $seq[1]) $seq = $seqs . '/' . $seq;
+		if ('/' != $seq[0] && '\\' != $seq[0] &&  ':' != $seq[1]) $seq = $appRealpath . '/' . $seq;
 
 		$seq = realpath($seq);
 

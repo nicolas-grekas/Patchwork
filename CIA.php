@@ -78,7 +78,8 @@ if (function_exists('iconv_set_encoding'))
 
 // }}}
 
-$version_id = dirname($CIA) . '/.config.zcache.php';
+// {{{ Load configuration
+$version_id = $CIA . '/.config.zcache.php';
 
 require 'no-cache' != @$_SERVER['HTTP_CACHE_CONTROL'] && file_exists($version_id)
 	? $version_id
@@ -88,6 +89,7 @@ unset($CIA);
 
 define('CIA_PROJECT_PATH', $cia_paths[0]);
 chdir(CIA_PROJECT_PATH);
+// }}}
 
 // {{{ CIA's environment context
 /**
