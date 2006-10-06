@@ -38,6 +38,7 @@ unset($appInheritConfig);
 unset($appInheritSeq);
 
 // C3 Method Resolution Order (like in Python 2.3) for application multi-inheritance
+// See http://python.org/2.3/mro.html
 function C3MRO($appRealpath)
 {
 	$resultSeq =& $GLOBALS['appInheritSeq'][$appRealpath];
@@ -60,7 +61,7 @@ function C3MRO($appRealpath)
 	// Store application's $CONFIG parameters
 	$GLOBALS['appInheritConfig'][$appRealpath] =& $CONFIG;
 
-	// If no parent app, return empty array
+	// If no parent app, result is trival
 	if (!$parent) return array($appRealpath);
 
 	if (is_array($parent)) $resultSeq = count($parent);
@@ -69,7 +70,6 @@ function C3MRO($appRealpath)
 		$parent = array($parent);
 		$resultSeq = 1;
 	}
-
 
 	// Parent's config file path is relative to the current application's directory
 	$k = 0;
@@ -85,7 +85,6 @@ function C3MRO($appRealpath)
 	}
 
 	// Compute C3 MRO
-	// See http://python.org/2.3/mro.html
 	$seqs = array_merge(
 		array(array($appRealpath)),
 		array_map('C3MRO', $parent),
