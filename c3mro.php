@@ -117,7 +117,7 @@ function C3MRO($appRealpath)
 			if ($parent) break;
 		}
 
-		if (false == $parent) throw new Exception('Inconsistent application hierarchy');
+		if (!$parent) throw new Exception('Inconsistent application hierarchy');
 
 		$resultSeq[] = $parent;
 
