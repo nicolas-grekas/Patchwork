@@ -154,7 +154,6 @@ else if ('/' == substr($_SERVER['CIA_HOME'], 0, 1)) $_SERVER['CIA_HOME'] = 'http
 // {{{ Global Initialisation
 define('DEBUG',			(int) $CONFIG['DEBUG']);
 define('CIA_MAXAGE',	$CONFIG['maxage']);
-define('CIA_PROJECT_ID', abs($version_id % 10000));
 define('CIA_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
 define('CIA_DIRECT', '_' == $_SERVER['CIA_REQUEST']);
 

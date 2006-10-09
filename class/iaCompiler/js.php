@@ -94,7 +94,7 @@ class extends iaCompiler
 			array_walk($keys, array($this, 'quote'));
 			$keys = implode(',', $keys);
 
-			$this->quote($inc);
+			$inc = jsquote($inc);
 		}
 
 		$a = '';
@@ -243,7 +243,7 @@ class extends iaCompiler
 		switch ($type)
 		{
 			case "'":
-				$result = "'" . jsquote($name, false) . "'";
+				$result = jsquote($name);
 				break;
 
 			case '$':

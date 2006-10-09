@@ -47,10 +47,10 @@ function C3MRO($appRealpath)
 	if (null !== $resultSeq) return $resultSeq;
 
 	// Include application config file
-	$GLOBALS['version_id'] += filemtime($appRealpath);
+	$GLOBALS['version_id'] += filemtime($appRealpath . '/config.php');
 	$CONFIG = array();
 
-	file_exists($appRealpath . '/config.php') && require $appRealpath . '/config.php';
+	require $appRealpath . '/config.php';
 
 	// Get parent application(s)
 	if (isset($CONFIG['extends'])) $parent =& $CONFIG['extends'];
