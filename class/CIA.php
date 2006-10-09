@@ -249,27 +249,12 @@ class
 
 			$binaryMode = (bool) constant("$agent::binary");
 
-			/*
-			 * Both Firefox and IE send a "Cache-Control: no-cache" request header
-			 * only and only if the current page is reloaded with CTRL+F5 or the JS code :
-			 * "location.reload(true)". We use this behaviour to trigger a cache reset in DEBUG mode.
-			 */
-
-			if (($reset = CIA_CHECK_SOURCE && DEBUG && !CIA_POSTING && !$binaryMode)
-				|| (isset($_COOKIE['cache_reset_id']) && setcookie('cache_reset_id', '', 0, '/')))
+			// Synch exoagents on browser request
+			if (CIA_PROJECT_ID == @$_COOKIE['cache_reset_id'] && setcookie('cache_reset_id', '', 0, '/'))
 			{
-				if ($reset)
-				{
-					self::touch('');
-					self::delDir(self::$cachePath, false);
-					touch('config.php');
-				}
-				else if ($_COOKIE['cache_reset_id'] == CIA_PROJECT_ID)
-				{
-					self::touch('CIApID');
-					self::touch('foreignTrace');
-					touch('config.php');
-				}
+				self::touch('CIApID');
+				self::touch('foreignTrace');
+				touch('config.php');
 
 				self::setMaxage(0);
 				self::setGroup('private');
@@ -278,6 +263,20 @@ class
 				exit;
 			}
 
+			/*
+			 * Both Firefox and IE send a "Cache-Control: no-cache" request header
+			 * only and only if the current page is reloaded with CTRL+F5 or the JS code :
+			 * "location.reload(true)". We use this behaviour to trigger a cache reset in DEBUG mode.
+			 */
+
+			if (CIA_CHECK_SOURCE && DEBUG && !CIA_POSTING && !$binaryMode)
+			{
+				self::touch('');
+				array_map('unlink', glob(self::$cachePath . '?/?/*'));
+				touch('config.php');
+			}
+
+			// load agent
 			if (CIA_POSTING || $binaryMode || isset($_GET['$bin']) || !@$_COOKIE['JS'])
 			{
 				if (!$binaryMode) self::setGroup('private');
@@ -597,28 +596,6 @@ class
 				mkdir($dir);
 			}
 		}
-	}
-
-	/**
-	 * Sort of recursive version of rmdir()
-	 */
-	public static function delDir($dir, $rmdir)
-	{
-		$d = @opendir($dir);
-		if (!$d) return;
-
-		while (false !== ($file = readdir($d)))
-		{
-			if ($file!='.' && $file!='..')
-			{
-				$file = "$dir/$file";
-				if(is_dir($file)) self::delDir($file, $rmdir);
-				else @unlink($file);
-			}
-		}
-
-		closedir($d);
-		if ($rmdir) @rmdir($dir); // Time consuming
 	}
 
 	public static function fopenX($file)

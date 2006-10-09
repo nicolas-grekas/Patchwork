@@ -227,8 +227,16 @@ function processPath($file, $level = false, $base = false)
 		$source = $paths[$i] . '/' . $file;
 		$cache = $c . $depth .'.zcache.php';
 
-		if (file_exists($cache) && (!CIA_CHECK_SOURCE || (file_exists($source) && filemtime($cache) > filemtime($source)))) ;
-		else if (file_exists($source))
+		if (file_exists($cache))
+		{
+			if (CIA_CHECK_SOURCE && (!file_exists($source) || filemtime($cache) < filemtime($source)))
+			{
+				unlink($cache);
+			}
+			else return $cache;
+		}
+
+		if (file_exists($source))
 		{
 			function_exists('runPreprocessor') || require resolvePath('preprocessor.php');
 
@@ -296,7 +304,16 @@ function __autoload($searched_class)
 			$source = $paths[++$i] . '/' . $file;
 			$cache = $c . $i .'.zcache.php';
 
-			if (file_exists($cache) && (!CIA_CHECK_SOURCE || (file_exists($source) && filemtime($cache) > filemtime($source)))) ;
+			if (file_exists($cache))
+			{
+				if (CIA_CHECK_SOURCE && (!file_exists($source) || filemtime($cache) < filemtime($source)))
+				{
+					unlink($cache);
+				}
+				else $source = false;
+			}
+
+			if (!$source) ;
 			else if (file_exists($source))
 			{
 				function_exists('runPreprocessor') || require resolvePath('preprocessor.php');
