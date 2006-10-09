@@ -8,7 +8,7 @@ class extends CIA
 		self::setGroup('private');
 		self::setExpires('onmaxage');
 
-		$cagent = self::getContextualCachePath('controler/' . $agent, 'txt', CIA_PROJECT_ID);
+		$cagent = self::getContextualCachePath('controler/' . $agent, 'txt', self::$versionId);
 
 		if ($h = self::fopenX($cagent))
 		{
@@ -19,7 +19,7 @@ class extends CIA
 			$agent = jsquote('agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)));
 
 			$lang = self::__LANG__();
-			$CIApID = CIA_PROJECT_ID;
+			$CIApID = self::$versionId;
 			$home = self::__HOME__();
 
 			echo $a =<<<EOHTML

@@ -84,6 +84,8 @@ class
 	protected static $home;
 	protected static $uri;
 
+	protected static $versionId;
+	protected static $fullVersionId;
 	protected static $handlesOb;
 	protected static $metaInfo;
 	protected static $metaPool = array();
@@ -108,6 +110,8 @@ class
 		// Stupid Zend Engine with PHP 5.0.x ...
 		// Static vars assigned in the class declaration are not accessible from an instance of a derived class.
 		// The workaround is to assign them at run time...
+		self::$fullVersionId = $GLOBALS['version_id'];
+		self::$versionId = abs(self::$fullVersionId % 10000);
 		self::$handlesOb = false;
 		self::$headers = array();
 
@@ -154,7 +158,7 @@ class
 			// {{{ Client side rendering controler
 			self::header('Content-Type: text/javascript; charset=UTF-8');
 
-			if (isset($_GET['v$']) && CIA_PROJECT_ID != $_GET['v$'] && 'x$' != key($_GET))
+			if (isset($_GET['v$']) && self::$versionId != $_GET['v$'] && 'x$' != key($_GET))
 			{
 				echo 'w.r()';
 				exit;
@@ -237,7 +241,7 @@ class
 				self::setMaxage(-1);
 
 				echo 'w.k(',
-						CIA_PROJECT_ID, ',',
+						self::$versionId, ',',
 						jsquote( $_SERVER['CIA_HOME'] ), ',',
 						jsquote( 'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)) ), ',',
 						jsquote( @$_GET['__0__'] ), ',',
@@ -250,11 +254,11 @@ class
 			$binaryMode = (bool) constant("$agent::binary");
 
 			// Synch exoagents on browser request
-			if (CIA_PROJECT_ID == @$_COOKIE['cache_reset_id'] && setcookie('cache_reset_id', '', 0, '/'))
+			if (self::$versionId == @$_COOKIE['cache_reset_id'] && setcookie('cache_reset_id', '', 0, '/'))
 			{
 				self::touch('CIApID');
 				self::touch('foreignTrace');
-				touch('config.php');
+				touch('./config.php');
 
 				self::setMaxage(0);
 				self::setGroup('private');
@@ -273,7 +277,13 @@ class
 			{
 				self::touch('');
 				array_map('unlink', glob(self::$cachePath . '?/?/*', GLOB_NOSORT));
-				touch('config.php');
+
+				self::$fullVersionId -= filemtime('./config.php');
+
+				touch('./config.php', $_SERVER['REQUEST_TIME']);
+
+				self::$fullVersionId += $_SERVER['REQUEST_TIME'];
+				self::$versionId = abs(self::$fullVersionId % 10000);
 			}
 
 			// load agent
@@ -898,12 +908,6 @@ class
 		$keys = serialize(array($keys, $group));
 
 		return self::getContextualCachePath($agentClass, $type . '.php', $keys);
-	}
-
-	public static function delCache()
-	{
-		self::touch('');
-		self::delDir(self::$cachePath, false);
 	}
 
 	public static function writeWatchTable($message, $file)
