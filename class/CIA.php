@@ -129,8 +129,6 @@ class
 			exit;
 		}
 
-		if (isset($_GET['T$'])) self::$private = true;
-
 		// {{{ Static controler
 		$agent = $_SERVER['CIA_REQUEST'];
 		$path = strtolower(strrchr($agent, '.'));
@@ -366,7 +364,7 @@ class
 
 		if (!self::$privateDetectionMode)
 		{
-			if ('content-type' == $name && false !== strpos(strtolower($string), 'javascript'))
+			if ('content-type' == $name && false !== strpos(strtolower($string), 'script'))
 			{
 				if (self::$private) self::preventXSJ();
 
