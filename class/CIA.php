@@ -272,7 +272,7 @@ class
 			if (CIA_CHECK_SOURCE && DEBUG && !CIA_POSTING && !$binaryMode)
 			{
 				self::touch('');
-				array_map('unlink', glob(self::$cachePath . '?/?/*'));
+				array_map('unlink', glob(self::$cachePath . '?/?/*', GLOB_NOSORT));
 				touch('config.php');
 			}
 
