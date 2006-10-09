@@ -57,6 +57,8 @@ EOHTML;
 
 		try
 		{
+			if (isset($_GET['T$']) && !CIA_TOKEN_MATCH) throw new PrivateDetection;
+
 			$agent = new $agentClass($_GET);
 
 			$group = self::closeGroupStage();
