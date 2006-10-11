@@ -1,4 +1,5 @@
-<!--*
+<!--
+{*
 
 a$_mode_ : ('errormsg'|'close'|'')
 a$_enterControl_ : 0 to keep the browser's behaviour,
@@ -7,19 +8,19 @@ a$_enterControl_ : 0 to keep the browser's behaviour,
 				     a click on the submit/image element positioned
 					 after the currently focused element.
 
-*--><!--
+*}
 
-IF a$_mode_ == 'errormsg' --><!--
+IF a$_mode_ == 'errormsg'
 
 	IF a$_errormsg
 		--><div class="errormsg"><!--
 		LOOP a$_errormsg -->{$VALUE}<br /><!-- END:LOOP
 		--></div><!--
-	END:IF --><!--
+	END:IF
 
 ELSEIF a$_mode_ == 'close' --></form><!--
 
-ELSE --><!--
+ELSE
 
 	SET a$action --><!-- IF !a$action -->{g$__URI__}<!-- ELSE -->{home:a$action}<!-- END:IF --><!-- END:SET
 
@@ -27,15 +28,15 @@ ELSE --><!--
 
 	LOOP a$_hidden
 		--><input type="hidden" name="{$name}" value="{$value}" /><!--
-	END:LOOP --><!--
+	END:LOOP
 
 	IF !g$_FORM --><!-- SET g$_FORM -->1<!-- END:SET --><script type="text/javascript" src="{~}js/v"></script><!-- END:IF
 
 	--><script type="text/javascript">/*<![CDATA[*/
 lF=document.forms[document.forms.length-1];<!--
-IF a$_enterControl_ -->FeC({a$_enterControl_});<!-- END:IF --><!--
+IF a$_enterControl_ -->FeC({a$_enterControl_});<!-- END:IF
 IF 'post' == a$method -->lF.T$.value=antiXSJ;<!-- END:IF -->//]]></script><!--
 
-	IF !g$_UPLOAD && a$_upload --><!-- SET g$_UPLOAD -->1<!-- END:SET --><script type="text/javascript" src="{~}js/upload"></script><!-- END:IF --><!--
+	IF !g$_UPLOAD && a$_upload --><!-- SET g$_UPLOAD -->1<!-- END:SET --><script type="text/javascript" src="{~}js/upload"></script><!-- END:IF
 
 END:IF -->

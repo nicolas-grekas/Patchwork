@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?><!--*
+<?xml version="1.0" encoding="utf-8"?>{*
 
 See http://www.atomenabled.org/developers/syndication/atom-format-spec.php
 
-*--><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="{g$__LANG__}"><!--
+*}<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="{g$__LANG__}"><!--
 
 AGENT 'feed/atom1/common' mandatory=1
 	title=$title title_type=$title_type
@@ -12,12 +12,12 @@ AGENT 'feed/atom1/common' mandatory=1
 	author=$author
 	contributor=$contributor
 	category=$category
-	link=$link --><!--
+	link=$link
 
-AGENT 'feed/atom1/tag/generator' value=$generator uri=$generator_uri version=$generator_version --><!--
-AGENT 'feed/atom1/tag/icon'      value=$icon --><!--
-AGENT 'feed/atom1/tag/logo'      value=$logo --><!--
-AGENT 'feed/atom1/tag/subtitle'  value=$subtitle type=$subtitle_type --><!--
+AGENT 'feed/atom1/tag/generator' value=$generator uri=$generator_uri version=$generator_version
+AGENT 'feed/atom1/tag/icon'      value=$icon
+AGENT 'feed/atom1/tag/logo'      value=$logo
+AGENT 'feed/atom1/tag/subtitle'  value=$subtitle type=$subtitle_type
 
 LOOP $entry
 --><entry><!--
@@ -30,7 +30,7 @@ LOOP $entry
 		author=$author
 		contributor=$contributor
 		category=$category
-		link=$link --><!--
+		link=$link
 
 	SET $source -->{$source}<!--
 		AGENT 'feed/atom1/common' mandatory=0
@@ -41,18 +41,18 @@ LOOP $entry
 			author=$source_author
 			contributor=$source_contributor
 			category=$source_category
-			link=$source_link --><!--
+			link=$source_link
 
-		AGENT 'feed/atom1/tag/generator' value=$source_generator uri=$source_generator_uri version=$source_generator_version --><!--
-		AGENT 'feed/atom1/tag/icon'      value=$source_icon --><!--
-		AGENT 'feed/atom1/tag/logo'      value=$source_logo --><!--
-		AGENT 'feed/atom1/tag/subtitle'  value=$source_subtitle type=$source_subtitle_type --><!--
-	END:SET --><!--
+		AGENT 'feed/atom1/tag/generator' value=$source_generator uri=$source_generator_uri version=$source_generator_version
+		AGENT 'feed/atom1/tag/icon'      value=$source_icon
+		AGENT 'feed/atom1/tag/logo'      value=$source_logo
+		AGENT 'feed/atom1/tag/subtitle'  value=$source_subtitle type=$source_subtitle_type
+	END:SET
 
-	AGENT 'feed/atom1/tag/source'    value=$source --><!--
-	AGENT 'feed/atom1/tag/published' value=$published --><!--
-	AGENT 'feed/atom1/tag/summary'   value=$summary type=$summary_type --><!--
-	AGENT 'feed/atom1/tag/content'   value=$content type=$content_type $src=$content_src --><!--
+	AGENT 'feed/atom1/tag/source'    value=$source
+	AGENT 'feed/atom1/tag/published' value=$published
+	AGENT 'feed/atom1/tag/summary'   value=$summary type=$summary_type
+	AGENT 'feed/atom1/tag/content'   value=$content type=$content_type $src=$content_src
 
 --></entry><!--
 END:LOOP

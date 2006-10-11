@@ -1,10 +1,12 @@
-<!-- IF a$mandatory || a$value --><!--
+<!--
 
-	SET a$a --><!--
-		IF a$type    --> type="{a$type}"<!--       END:IF --><!--
-		IF a$src     --> src="{a$src}"<!--         END:IF --><!--* Only for content *--><!--
-		IF a$uri     --> uri="{a$uri}"<!--         END:IF --><!--* Only for generator *--><!--
-		IF a$version --> version="{a$version}"<!-- END:IF --><!--* Only for generator *--><!--
+IF a$mandatory || a$value
+
+	SET a$a
+		IF a$type    --> type="{a$type}"<!--       END:IF
+		IF a$src     --> src="{a$src}"<!--         END:IF {* Only for content *}
+		IF a$uri     --> uri="{a$uri}"<!--         END:IF {* Only for generator *}
+		IF a$version --> version="{a$version}"<!-- END:IF {* Only for generator *}
 	END:SET
 
 	--><{a$__1__}{a$a}><!--
@@ -15,4 +17,6 @@
 
 	--></{a$__1__}><!--
 
-END:IF -->
+END:IF
+
+-->

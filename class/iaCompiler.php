@@ -7,9 +7,9 @@ abstract class
 	private $Xlvar = '\\{';
 	private $Xrvar = '\\}';
 
-	private $Xlblock = '<!--\s+';
-	private $Xrblock = '\s+-->';
-	private $Xcomment = '<!--\*.*?\*-->';
+	private $Xlblock = '<!--\s*';
+	private $Xrblock = '\s*-->';
+	private $Xcomment = '\\{\*.*?\*\\}';
 
 	private $Xvar = '(?:(?:[dag][-+]\d+|\\$*|[dag])?\\$)';
 	private $XpureVar = '[a-zA-Z_][a-zA-Z_\d]*';
@@ -66,7 +66,6 @@ abstract class
 	final public function compile($template)
 	{
 		$this->source = $this->load($template);
-		$this->source = $this->preprocessing($this->source);
 
 		$this->code = array('');
 		$this->codeLast = 0;
@@ -86,30 +85,6 @@ abstract class
 		return substr_count(substr($this->source, 0, $this->offset), "\n") + 1;
 	}
 
-	protected function preprocessing($source)
-	{
-		if ($this->binaryMode)
-		{
-			$source = str_replace(
-				array("-->\r", "-->\n"),
-				array("-->"  , "-->"),
-				$source
-			);
-		}
-		else
-		{
-			$source = str_replace(
-				array("\r\n", "\r", "-->\n"),
-				array("\n"  , "\n", "-->"),
-				$source
-			);
-		}
-
-		if (substr($source, -1) == "\n") $source = substr($source, 0, -1);
-
-		return preg_replace("'" . $this->Xcomment . "'su", '', $source);
-}
-
 	private function load($template, $path_idx = 0)
 	{
 		if ($path_idx >= count($GLOBALS['cia_paths'])) return '';
@@ -125,15 +100,43 @@ abstract class
 
 		$source = @file_get_contents($source);
 
+		$source = rtrim($source);
+		$source = str_replace(array("\r\n", "\r"), array("\n" , "\n"), $source);
+		$source = preg_replace_callback("'" . $this->Xcomment . "\n?'su", array($this, 'preserveLF'), $source);
+		$source = preg_replace("'({$this->Xrblock})\n'", "\n$1", $source);
+		$source = preg_replace_callback(
+			"/({$this->Xlblock}(?:{$this->XblockEnd})?{$this->Xblock})((?>{$this->Xstring}|.)*?)({$this->Xrblock})/su",
+			array($this, 'autoSplitBlocks'),
+			$source
+		);
+
 		if ($this->serverMode)
 		{
-			$source = preg_replace("'{$this->Xlblock}CLIENTSIDE{$this->Xrblock}.*?{$this->Xlblock}END:CLIENTSIDE{$this->Xrblock}'su", '', $source);
-			$source = preg_replace("'{$this->Xlblock}(END:)?SERVERSIDE{$this->Xrblock}'su", '', $source);
+			$source = preg_replace_callback(
+				"'{$this->Xlblock}CLIENTSIDE{$this->Xrblock}.*?{$this->Xlblock}{$this->XblockEnd}CLIENTSIDE{$this->Xrblock}'su",
+				array($this, 'preserveLF'),
+				$source
+			);
+
+			$source = preg_replace_callback(
+				"'{$this->Xlblock}({$this->XblockEnd})?SERVERSIDE{$this->Xrblock}'su",
+				array($this, 'preserveLF'),
+				$source
+			);
 		}
 		else
 		{
-			$source = preg_replace("'{$this->Xlblock}SERVERSIDE{$this->Xrblock}.*?{$this->Xlblock}END:SERVERSIDE{$this->Xrblock}'su", '', $source);
-			$source = preg_replace("'{$this->Xlblock}(END:)?CLIENTSIDE{$this->Xrblock}'su", '', $source);
+			$source = preg_replace_callback(
+				"'{$this->Xlblock}SERVERSIDE{$this->Xrblock}.*?{$this->Xlblock}{$this->XblockEnd}SERVERSIDE{$this->Xrblock}'su",
+				array($this, 'preserveLF'),
+				$source
+			);
+
+			$source = preg_replace_callback(
+				"'{$this->Xlblock}({$this->XblockEnd})?CLIENTSIDE{$this->Xrblock}'su",
+				array($this, 'preserveLF'),
+				$source
+			);
 		}
 
 		$rx = '[-_a-zA-Z\d][-_a-zA-Z\d\.]*';
@@ -143,6 +146,27 @@ abstract class
 		$source = preg_replace_callback("'{$this->Xlblock}INCLUDE\s+($rx(?:[\\/]$rx)*)(:-?\d+)?\s*{$this->Xrblock}'su", array($this, 'INCLUDEcallback'), $source);
 
 		return $source;
+	}
+
+	protected function preserveLF($m)
+	{
+		return str_repeat("\n", substr_count($m[0], "\n"));
+	}
+
+	protected function autoSplitBlocks($m)
+	{
+		$a =& $m[2];
+		$a = preg_split("/({$this->Xstring})/su", $a, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+		$i = 0;
+		$len = count($a);
+		while ($i<$len)
+		{
+			$a[$i] = preg_replace("'\n\s*(?:{$this->XblockEnd})?{$this->Xblock}(?!\s*=)'su", '--><!--$0', $a[$i]);
+			$i += 2;
+		}
+
+		return $m[1] . implode($a) . $m[3];
 	}
 
 	protected function INCLUDEcallback($m)

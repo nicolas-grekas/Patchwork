@@ -1,34 +1,35 @@
-<!--*
+<!--
+{*
 
 This template displays a jsSelect control.
 It has the same parameters as input.tpl
 
-*--><!--
+*}
 
-SET a$id -->{a$name}<!-- END:SET --><!--
-SET a$class -->{a$class|default:'jsSelect'}<!-- END:SET --><!--
+SET a$id -->{a$name}<!-- END:SET
+SET a$class -->{a$class|default:'jsSelect'}<!-- END:SET
 
-IF !a$title --><!--
+IF !a$title
 	SET a$title
 		-->{a$_caption_}<!--
-	END:SET --><!--
-END:IF --><!--
+	END:SET
+END:IF
 
 
-SET $CAPTION --><!--
+SET $CAPTION
 	IF a$_caption_
 		--><label for="{a$id}" class="{a$class}" onclick="return IlC(this)"><!--
 		IF a$_mandatory --><span class="mandatory"><!-- END:IF
 		-->{a$_caption_}<!--
 		IF a$_mandatory --></span><!-- END:IF
 		--></label><!--
-	END:IF --><!--
-END:SET --><!--
+	END:IF
+END:SET
 
 
-SET $INPUT --><!--
+SET $INPUT
 
-	IF a$_mandatory --><span class="mandatory"><!-- END:IF --><!--
+	IF a$_mandatory --><span class="mandatory"><!-- END:IF
 
 	SET $id -->{a$name}<!-- END:SET
 
@@ -48,15 +49,15 @@ SET $INPUT --><!--
 
 	SERVERSIDE
 		--><noscript><input {a$|htmlArgs}></noscript><!--
-	END:SERVERSIDE --><!--
+	END:SERVERSIDE
 
-	IF a$_mandatory --></span><!-- END:IF --><!--
+	IF a$_mandatory --></span><!-- END:IF
 
-END:SET --><!--
+END:SET
 
 
-SET $ERROR --><!--
-	IF a$_errormsg -->{a$_beforeError_|default:g$inputBeforeError}<span class="errormsg">{a$_errormsg}</span>{a$_afterError_|default:g$inputAfterError}<!-- END:IF --><!--
+SET $ERROR
+	IF a$_errormsg -->{a$_beforeError_|default:g$inputBeforeError}<span class="errormsg">{a$_errormsg}</span>{a$_afterError_|default:g$inputAfterError}<!-- END:IF
 END:SET
 
 
