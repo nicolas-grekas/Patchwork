@@ -1,4 +1,5 @@
-<!--*
+<!--
+{*
 
 This template merges all standard HTML form elements (<input type="*">, <textarea> and <select>) into one single agent.
 
@@ -18,70 +19,70 @@ You can control it with the additional arguments:
 
 Question : should I add a label attribute to every <option> tag ?
 
-*--><!--
+*}
 
-IF a$_type == 'check' --><!--
-	SET a$_check -->1<!-- END:SET --><!--
-	SET a$_type --><!--
-		IF a$multiple -->checkbox<!-- ELSE -->radio<!-- END:IF --><!--
-	END:SET --><!--
-END:IF --><!--
+IF a$_type == 'check'
+	SET a$_check -->1<!-- END:SET
+	SET a$_type
+		IF a$multiple -->checkbox<!-- ELSE -->radio<!-- END:IF
+	END:SET
+END:IF
 
-IF !a$type --><!-- SET a$type -->{a$_type}<!-- END:SET --><!-- END:IF --><!--
+IF !a$type --><!-- SET a$type -->{a$_type}<!-- END:SET --><!-- END:IF
 
-SET a$id -->FiD{g+1$GLOBID}<!-- END:SET --><!--
-SET a$class -->{a$class|default:a$type}<!-- END:SET --><!--
+SET a$id -->FiD{g+1$GLOBID}<!-- END:SET
+SET a$class -->{a$class|default:a$type}<!-- END:SET
 
-IF !a$title --><!--
+IF !a$title
 	SET a$title
 		-->{a$_caption_|replace:'<[^>]*>':''}<!--
-	END:SET --><!--
-END:IF --><!--
+	END:SET
+END:IF
 
 
-SET $CAPTION --><!--
+SET $CAPTION
 	IF a$_caption_ && !a$_check || 1 < a$_option
 		--><label for="{a$id}" class="{a$class}" onclick="return IlC(this)"><!--
 		IF a$_mandatory --><span class="mandatory"><!-- END:IF
 		-->{a$_caption_}<!--
 		IF a$_mandatory --></span><!-- END:IF
 		--></label><!--
-	END:IF --><!--
-END:SET --><!--
+	END:IF
+END:SET
 
 
-SET $INPUT --><!--
+SET $INPUT
 
 	SET a$_JsStart
 		--><script type="text/javascript">/*<![CDATA[*/
 		lE=gLE({a$name|js}<!-- IF a$multiple -->,1<!-- END:IF -->)
 		if(lE){<!--
-	END:SET --><!--
+	END:SET 
 
 	SET a$_JsEnd
 		-->}//]]></script><!--
-	END:SET --><!--
+	END:SET 
 
-	IF a$_mandatory --><span class="mandatory"><!-- END:IF --><!--
+	IF a$_mandatory --><span class="mandatory"><!-- END:IF 
 
-	IF a$_check --><!--
+	IF a$_check 
 
-		LOOP a$_option --><!--
-			IF $_groupOn --><!--
+		LOOP a$_option 
+			IF $_groupOn 
 				SET a$_i -->0<!-- END:SET
 				--><fieldset class="{a$class}"><legend class="{a$class}">{$label}</legend><!--
 			ELSEIF $_groupOff
 				--></fieldset><!--
-			ELSE --><!--
-				IF a+1$_i -->{a$_glue_|default:g$checkboxGlue|default:'<br />'}<!-- END:IF --><!--
+			ELSE 
+				IF a+1$_i -->{a$_glue_|default:g$checkboxGlue|default:'<br />'}<!-- END:IF 
 
 				SET $class -->{$class|default:a$class}<!-- END:SET
 
 				--><input {$|htmlArgs:'caption':'selected'} {a$|htmlArgs:'class'} /><!--
 
-				IF $caption || a$_caption_ --><label for="{a$id}" class="{$class|default:a$class}" onclick="return IcbC(event,this)">&nbsp;{$caption|default:a$_caption_}</label><!-- END:IF --><!--
-				SET a$id -->FiD{g+1$GLOBID}<!-- END:SET --><!--
-			END:IF --><!--
+				IF $caption || a$_caption_ --><label for="{a$id}" class="{$class|default:a$class}" onclick="return IcbC(event,this)">&nbsp;{$caption|default:a$_caption_}</label><!-- END:IF 
+				SET a$id -->FiD{g+1$GLOBID}<!-- END:SET 
+			END:IF 
 		END:LOOP
 
 		-->{a$_JsStart}lE.gS=IgCS;<!--
@@ -90,21 +91,21 @@ SET $INPUT --><!--
 
 		--><select {a$|htmlArgs:'type'}><!--
 
-		IF a$_firstItem && !a$multiple --><option value="">{a$_firstCaption}</option><!-- END:IF --><!--
+		IF a$_firstItem && !a$multiple --><option value="">{a$_firstCaption}</option><!-- END:IF 
 
-		LOOP a$_option --><!--
+		LOOP a$_option 
 			IF $_groupOn
 				--><optgroup {$|htmlArgs}><!--
 			ELSEIF $_groupOff
 				--></optgroup><!--
 			ELSE
 				--><option {$|htmlArgs:'caption':'checked'}>{$caption}</option><!--
-			END:IF --><!--
+			END:IF 
 		END:LOOP
 
 		--></select>{a$_JsStart}lE.gS=IgSS;<!--
 
-	ELSE --><!--
+	ELSE 
 
 		IF a$type == 'file' && a$maxlength
 			--><input type="hidden" name="MAX_FILE_SIZE" value="{a$maxlength}" /><input {a$|htmlArgs} /><!--
@@ -124,19 +125,19 @@ SET $INPUT --><!--
 		ELSE
 			-->lE.gS=function(){return valid(this<!-- LOOP a$_valid -->,{$VALUE|js}<!-- END:LOOP -->)};<!--
 
-		END:IF --><!--
+		END:IF 
 
 	END:IF
 
 	-->lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form)};<!-- IF a$_focus_ -->lEF=lE;setTimeout('lEF.focus()',100);<!-- END:IF -->{a$_JsEnd}<!--
 
-	IF a$_mandatory --></span><!-- END:IF --><!--
+	IF a$_mandatory --></span><!-- END:IF 
 
-END:SET --><!--
+END:SET 
 
 
-SET $ERROR --><!--
-	IF a$_errormsg -->{a$_beforeError_|default:g$inputBeforeError}<span class="errormsg">{a$_errormsg}</span>{a$_afterError_|default:g$inputAfterError}<!-- END:IF --><!--
+SET $ERROR 
+	IF a$_errormsg -->{a$_beforeError_|default:g$inputBeforeError}<span class="errormsg">{a$_errormsg}</span>{a$_afterError_|default:g$inputAfterError}<!-- END:IF 
 END:SET
 
 

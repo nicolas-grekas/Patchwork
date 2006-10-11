@@ -1,8 +1,8 @@
-<!--*
+{*
 
 This template is called automatically when a form with a file element is submitted
 
-*-->
+*}
 <html lang="{g$__LANG__}">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
