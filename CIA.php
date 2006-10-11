@@ -79,16 +79,20 @@ if (function_exists('iconv_set_encoding'))
 // }}}
 
 // {{{ Load configuration
+$CONFIG = array();
 $version_id = $CIA . '/.config.zcache.php';
 
-define('__CIA__', dirname(__FILE__) . '/');
+define('__CIA__', dirname(__FILE__));
 define('CIA_CHECK_SOURCE', 'no-cache' == @$_SERVER['HTTP_CACHE_CONTROL']);
 
 require !CIA_CHECK_SOURCE && file_exists($version_id)
 	? $version_id
-	: (__CIA__ . 'c3mro.php');
+	: (__CIA__ . '/c3mro.php');
 
 unset($CIA);
+
+if (!isset($CONFIG['DEBUG'])) $CONFIG['DEBUG'] = (int) @$CONFIG['DEBUG_KEYS'][ (string) $_COOKIE['DEBUG'] ];
+if (isset($CONFIG['clientside']) && !$CONFIG['clientside']) $_GET['$bin'] = true;
 
 define('CIA_PROJECT_PATH', $cia_paths[0]);
 chdir(CIA_PROJECT_PATH);
@@ -360,7 +364,7 @@ function __autoload($searched_class)
 			$code = '<?php ?>';
 			$tmp = file_get_contents($cache);
 
-			if ('<?php ' != strtr(substr($tmp, 0, 6), "\t\r\n", '   ')) $tmp = '<?php ?>' . $tmp;
+			if ('<?php ' != substr($tmp, 0, 6)) $tmp = '<?php ?>' . $tmp;
 
 			foreach ($current_pool as $class => &$c)
 			{
@@ -368,7 +372,7 @@ function __autoload($searched_class)
 				{
 					$c =& $c[1];
 
-					if ('<?php ' != strtr(substr($c, 0, 6), "\t\r\n", '   ')) $c = '<?php ?>' . $c;
+					if ('<?php ' != substr($c, 0, 6)) $c = '<?php ?>' . $c;
 					if ('?>' != substr($c, -2)) $c .= '<?php ?>';
 
 					$code = substr($code, 0, -2) . "if(!class_exists('$class',0)){" . substr($c, 6, -2) . '}?>';
@@ -376,7 +380,7 @@ function __autoload($searched_class)
 				else $code = substr($code, 0, -2) . "class_exists('{$class}',0)||require '{$c[0]}';?>";
 			}
 
-			$code = substr($code, 0, -2) . substr($tmp, 6);
+			$code = substr($code, 0, -2) . ';' . substr($tmp, 6);
 
 
 			$tmp = md5(uniqid(mt_rand(), true));
