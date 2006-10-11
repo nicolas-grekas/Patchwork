@@ -62,13 +62,13 @@ function C3MRO($appRealpath)
 	{
 		$parent = preg_replace("'^<\?(?:php)?\s'i", '', $parent, 1, $k);
 		$parent = trim($parent);
-		if ('?>' == substr($parent, -2)) $parent = substr($parent, 0, -2);
+		if ('?>' == substr($parent, -2)) $parent = substr($parent, 0, -2) . ';';
 	}
 	else
 	{
 		$parent = preg_replace("#^<script\s+language\s*=\s*(|[\"'])php\1\s*>#i", '', $parent, 1, $k);
 		$parent = trim($parent);
-		$parent = preg_replace("'</script\s*>$'i", '', $parent);
+		$parent = preg_replace("'</script\s*>$'i", ';', $parent);
 	}
 
 	if (!$k) throw new Exception('Failed to detect PHP open tag (<?php) at the beginning of ' . htmlspecialchars($appRealpath) . '/config.php');
