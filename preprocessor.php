@@ -54,15 +54,27 @@ function runPreprocessor($source, $cache, $level, $class = false)
 	{
 		$token = $source[$i];
 
-		if (is_array($token))
+		if (is_array($token)) switch ($token[0])
 		{
-			if (T_CURLY_OPEN == $token[0] || T_DOLLAR_OPEN_CURLY_BRACES == $token[0])
-			{
+			case T_OPEN_TAG:
+				$token = '<?php ' . str_repeat("\n", substr_count($token[1], "\n"));
+				break;
+
+			case T_OPEN_TAG_WITH_ECHO == $token[0]:
+				$token = '<?php echo ' . str_repeat("\n", substr_count($token[1], "\n"));
+				break;
+
+			case T_CLOSE_TAG:
+				$token = str_repeat("\n", substr_count($token[1], "\n")) . '?>';
+				break;
+
+			case T_CURLY_OPEN:
+			case T_DOLLAR_OPEN_CURLY_BRACES:
 				$token = $token[1];
 				++$curly_level;
-			}
-			else if (T_CLASS == $token[0])
-			{
+				break;
+
+			case T_CLASS:
 				// Look backward for the "final" keyword
 				$j = 0;
 				do $t = @$source[$i - (++$j)][0];
@@ -115,66 +127,87 @@ function runPreprocessor($source, $cache, $level, $class = false)
 					$token .= 'self' == @$source[$i][1] ? $class . '__' . ($level && $c == $class ? $level-1 : $level) : $source[$i][1];
 				}
 				else --$i;
-			}
-			else if (T_STRING == $token[0] && 'self' == $token[1] && $class_pool)
-			{
-				$token = fetchPHPWhiteSpaceNComments($source, $i);
-				$token = (T_DOUBLE_COLON == $source[$i][0] ? end($class_pool) : 'self') . $token;
 
-				--$i;
-			}
-			else if (T_STRING == $token[0] && '__CIA_LEVEL__' == $token[1])
-			{
-				$token = $level;
-			}
-			else if (T_STRING == $token[0] && '__CIA_FILE__' == $token[1])
-			{
-				$token = "'" . str_replace(array('\\', "'"), array('\\\\', "\\'"), $file) . "'";
-			}
-			else if (T_STRING == $token[0] && ('resolvePath' == $token[1] || 'processPath' == $token[1]))
-			{
-				$token = $token[1] . fetchPHPWhiteSpaceNComments($source, $i);
+				break;
 
-				if ('(' == $source[$i])
+			case T_STRING:
+				switch ($token[1])
 				{
-					$token .= '(';
-					$bracket_level = 1;
-					$param_position = 0;
+					case '__CIA_LEVEL__':
+						$token = $level;
+						break;
 
-					do
-					{
-						$token .= fetchPHPWhiteSpaceNComments($source, $i);
+					case '__CIA_FILE__':
+						$token = "'" . str_replace(array('\\', "'"), array('\\\\', "\\'"), $file) . "'";
+						break;
 
-						if (is_array($source[$i])) $token .= $source[$i][1];
-						else
+					case 'resolvePath':
+					case 'processPath':
+						$token = $token[1] . fetchPHPWhiteSpaceNComments($source, $i);
+
+						if ('(' == $source[$i])
 						{
-							$token .= $source[$i];
+							$token .= '(';
+							$bracket_level = 1;
+							$param_position = 0;
 
-							if (1 == $bracket_level && ',' == $source[$i]) ++$param_position;
-							else if ('(' == $source[$i]) ++$bracket_level;
-							else if (')' == $source[$i])
+							do
 							{
-								--$bracket_level;
+								$token .= fetchPHPWhiteSpaceNComments($source, $i);
 
-								if (!$bracket_level)
+								if (is_array($source[$i])) $token .= $source[$i][1];
+								else
 								{
-									if (1 == $param_position) $token = substr($token, 0, -1) . ',' . $level . ')';
+									$token .= $source[$i];
 
-									break;
+									if (1 == $bracket_level && ',' == $source[$i]) ++$param_position;
+									else if ('(' == $source[$i]) ++$bracket_level;
+									else if (')' == $source[$i])
+									{
+										--$bracket_level;
+
+										if (!$bracket_level)
+										{
+											if (1 == $param_position) $token = substr($token, 0, -1) . ',' . $level . ')';
+
+											break;
+										}
+									}
 								}
 							}
+							while (1);
 						}
-					}
-					while (1);
+						else --$i;
+
+						break;
+
+					case 'self':
+						if ($class_pool)
+						{
+							$token = fetchPHPWhiteSpaceNComments($source, $i);
+							$token = (T_DOUBLE_COLON == $source[$i][0] ? end($class_pool) : 'self') . $token;
+
+							--$i;
+
+							break;
+						}
+
+					default:
+						$token = $token[1];
+						break;
 				}
-				else --$i;
-			}
-			else
-			{
-				$token = T_COMMENT == $token[0] || T_WHITESPACE == $token[0] || T_DOC_COMMENT == $token[0]
-					? stripPHPWhiteSpaceNComments($token[1])
-					: $token[1];
-			}
+
+				break;
+
+			case T_COMMENT:
+			case T_WHITESPACE:
+			case T_DOC_COMMENT:
+				$token = stripPHPWhiteSpaceNComments($token[1]);
+				break;
+
+			default:
+				$token = $token[1];
+				break;
 		}
 		else if ('{' == $token) ++$curly_level;
 		else if ('}' == $token) unset($class_pool[$curly_level--]);

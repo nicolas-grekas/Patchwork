@@ -1,43 +1,39 @@
 <?php
 
 $CIA = realpath($CIA);
-$appInheritConfig = array();
+$appConfigSource = array();
 $appInheritSeq = array();
 
 $version_id = 0;
 
 // Linearize application inheritance graph
-$CIA = C3MRO($CIA);
+$cia_paths = C3MRO($CIA);
 
-$CONFIG = array();
-$cia_paths =& $CIA;
+$appInheritSeq = array('<?php');
 
-foreach ($CIA as &$CIA) $CONFIG += $appInheritConfig[$CIA];
+foreach ($cia_paths as $CIA) $appInheritSeq[] = $appConfigSource[$CIA];
 
-if (!isset($CONFIG['DEBUG'])) $CONFIG['DEBUG'] = (int) @$CONFIG['DEBUG_KEYS'][ (string) $_COOKIE['DEBUG'] ];
+$appConfigSource = $cia_paths[0] . '/.config.zcache.php';
 
-$appInheritConfig = $cia_paths[0] . '/.config.zcache.php';
-
-@unlink($appInheritConfig);
+@unlink($appConfigSource);
 
 file_put_contents(
-	$appInheritConfig,
-	'<?php
+	$appConfigSource,
+	implode("\n", $appInheritSeq) . '
 $version_id=' . $version_id . ';
-$cia_paths=' . var_export($cia_paths, true) . ';
-$CONFIG=' . var_export($CONFIG, true) . ';'
+$cia_paths=' . var_export($cia_paths, true) . ';'
 );
 
-if ('WIN' == substr(PHP_OS, 0, 3)) 
+if ('WIN' == substr(PHP_OS, 0, 3))
 {
 	$appInheritSeq = new COM('Scripting.FileSystemObject');
-	$appInheritSeq->GetFile($appInheritConfig)->Attributes |= 2;
+	$appInheritSeq->GetFile($appConfigSource)->Attributes |= 2;
 }
 
-unset($appInheritConfig);
+unset($appConfigSource);
 unset($appInheritSeq);
 
-// C3 Method Resolution Order (like in Python 2.3) for application multi-inheritance
+// C3 Method Resolution Order (like in Python 2.3) for multiple application inheritance
 // See http://python.org/2.3/mro.html
 function C3MRO($appRealpath)
 {
@@ -46,36 +42,63 @@ function C3MRO($appRealpath)
 	// If result is cached, return it
 	if (null !== $resultSeq) return $resultSeq;
 
-	// Include application config file
-	$GLOBALS['version_id'] += filemtime($appRealpath . '/config.php');
-	$CONFIG = array();
+	if (file_exists($appRealpath . '/config.php'))
+	{
+		// Include application config file
+		$GLOBALS['version_id'] += filemtime($appRealpath . '/config.php');
+		$CONFIG =& $GLOBALS['CONFIG'];
 
-	require $appRealpath . '/config.php';
+		require $appRealpath . '/config.php';
+	}
+	else throw new Exception('Missing config.php in ' . htmlspecialchars($appRealpath));
+
+	// Get config's source and clean it
+	$parent = file_get_contents($appRealpath . '/config.php');
+	$parent = str_replace(array("\r\n", "\r"), array("\n", "\n"), $parent);
+
+	$k = 0;
+
+	if ('<?' == substr($parent, 0, 2))
+	{
+		$parent = preg_replace("'^<\?(?:php)?\s'i", '', $parent, 1, $k);
+		$parent = trim($parent);
+		if ('?>' == substr($parent, -2)) $parent = substr($parent, 0, -2);
+	}
+	else
+	{
+		$parent = preg_replace("#^<script\s+language\s*=\s*(|[\"'])php\1\s*>#i", '', $parent, 1, $k);
+		$parent = trim($parent);
+		$parent = preg_replace("'</script\s*>$'i", '', $parent);
+	}
+
+	if (!$k) throw new Exception('Failed to detect PHP open tag (<?php) at the beginning of ' . htmlspecialchars($appRealpath) . '/config.php');
+
+	$GLOBALS['appConfigSource'][$appRealpath] = $parent;
 
 	// Get parent application(s)
-	if (isset($CONFIG['extends'])) $parent =& $CONFIG['extends'];
-	else $parent = __CIA__ == $appRealpath . '/' ? false : '../../';
+	if (preg_match("'^#extends[ \t].+(?:\n#.+)*'i", $parent, $parent))
+	{
+		$parent = '#' . substr($parent[0], 9);
+		preg_match_all("'^#(.+?)$'m", $parent, $parent);
+		$parent = $parent[1];
+	}
+	else $parent = false;
 
-	unset($CONFIG['extends']);
-
-	// Store application's $CONFIG parameters
-	$GLOBALS['appInheritConfig'][$appRealpath] =& $CONFIG;
+	if (__CIA__ == $appRealpath && $parent) throw new Exception('#extends clause is forbidden in root config file: ' . htmlspecialchars(__CIA__) . '/config.php');
 
 	// If no parent app, result is trival
 	if (!$parent) return array($appRealpath);
 
-	if (is_array($parent)) $resultSeq = count($parent);
-	else
-	{
-		$parent = array($parent);
-		$resultSeq = 1;
-	}
+	$resultSeq = count($parent);
 
 	// Parent's config file path is relative to the current application's directory
 	$k = 0;
 	while ($k < $resultSeq)
 	{
 		$seq =& $parent[$k];
+
+		$seq = trim($seq);
+		if ('__CIA__' == substr($seq, 0, 7)) $seq = __CIA__ . substr($seq, 7);
 
 		if ('/' != $seq[0] && '\\' != $seq[0] &&  ':' != $seq[1]) $seq = $appRealpath . '/' . $seq;
 
