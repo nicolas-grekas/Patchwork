@@ -8,21 +8,28 @@ $version_id = 0;
 
 // Linearize application inheritance graph
 $cia_paths = C3MRO($CIA);
+$cia_paths_token = substr(md5(serialize($cia_paths)), 0, 4);
 
-$appInheritSeq = array('<?php');
+$appInheritSeq = array(
+	'<?php',
+	'$version_id=' . $version_id . ';',
+	'$cia_paths=' . var_export($cia_paths, true) . ';',
+	'$cia_paths_token=\'' . $cia_paths_token . '\';',
+);
 
-foreach ($cia_paths as $CIA) $appInheritSeq[] = $appConfigSource[$CIA];
+glob($cia_paths[0] . '/.' . $cia_paths_token . '*.zcache.php') || array_map('unlink', glob($cia_paths[0] . '/.*.zcache.php'));
+
+foreach ($cia_paths as $CIA)
+{
+	require $CIA . '/config.php';
+	$appInheritSeq[] = $appConfigSource[$CIA];
+}
 
 $appConfigSource = $cia_paths[0] . '/.config.zcache.php';
 
 @unlink($appConfigSource);
 
-file_put_contents(
-	$appConfigSource,
-	implode("\n", $appInheritSeq) . '
-$version_id=' . $version_id . ';
-$cia_paths=' . var_export($cia_paths, true) . ';'
-);
+file_put_contents($appConfigSource, implode("\n", $appInheritSeq));
 
 if ('WIN' == substr(PHP_OS, 0, 3))
 {
@@ -33,6 +40,7 @@ if ('WIN' == substr(PHP_OS, 0, 3))
 unset($appConfigSource);
 unset($appInheritSeq);
 
+
 // C3 Method Resolution Order (like in Python 2.3) for multiple application inheritance
 // See http://python.org/2.3/mro.html
 function C3MRO($appRealpath)
@@ -42,15 +50,9 @@ function C3MRO($appRealpath)
 	// If result is cached, return it
 	if (null !== $resultSeq) return $resultSeq;
 
-	if (file_exists($appRealpath . '/config.php'))
-	{
-		// Include application config file
-		$GLOBALS['version_id'] += filemtime($appRealpath . '/config.php');
-		$CONFIG =& $GLOBALS['CONFIG'];
+	if (!file_exists($appRealpath . '/config.php')) throw new Exception('Missing config.php in ' . htmlspecialchars($appRealpath));
 
-		require $appRealpath . '/config.php';
-	}
-	else throw new Exception('Missing config.php in ' . htmlspecialchars($appRealpath));
+	$GLOBALS['version_id'] += filemtime($appRealpath . '/config.php');
 
 	// Get config's source and clean it
 	$parent = file_get_contents($appRealpath . '/config.php');

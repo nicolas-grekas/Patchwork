@@ -91,6 +91,7 @@ require !CIA_CHECK_SOURCE && file_exists($version_id)
 
 unset($CIA);
 
+if (!isset($CONFIG['inheritance_optimization'])) $CONFIG['inheritance_optimization'] = 'include';
 if (!isset($CONFIG['DEBUG'])) $CONFIG['DEBUG'] = (int) @$CONFIG['DEBUG_KEYS'][ (string) $_COOKIE['DEBUG'] ];
 if (isset($CONFIG['clientside']) && !$CONFIG['clientside']) $_GET['$bin'] = true;
 
@@ -220,10 +221,10 @@ function processPath($file, $level = false, $base = false)
 		else if ($i >= $len) $i = $len - 1;
 	}
 
-	if (DEBUG) $depth =& $i;
+	if (DEBUG || CIA_CHECK_SOURCE) $depth =& $i;
 	else $depth = $i;
 
-	$c = './.'. str_replace(array('_', '/', '\\'), array('__', '_', '_'), $file) .'.'. (int)(bool)DEBUG .'a';
+	$c = './.'. $GLOBALS['cia_paths_token'] . str_replace(array('_', '/', '\\'), array('__', '_', '_'), $file) .'.'. (int)(bool)DEBUG .'a';
 
 	do
 	{
@@ -264,7 +265,7 @@ function __autoload($searched_class)
 
 	if (-1 == $optimization)
 	{
-		$optimization = @$GLOBALS['CONFIG']['inheritance_optimization'];
+		$optimization = $GLOBALS['CONFIG']['inheritance_optimization'];
 		$optimization = 'inline' == $optimization ? 2 : ('include' == $optimization ? 1 : 0);
 	}
 
@@ -296,7 +297,7 @@ function __autoload($searched_class)
 		$paths =& $GLOBALS['cia_paths'];
 		$parent_class = false;
 
-		$c = './.'. $class .'.'. (int)(bool)DEBUG .'b';
+		$c = './.'. $GLOBALS['cia_paths_token'] . $class .'.'. (int)(bool)DEBUG .'b';
 
 		do
 		{
@@ -354,7 +355,7 @@ function __autoload($searched_class)
 
 	if ($cache)
 	{
-		if (false !== $parent_pool && $class) $parent_pool[$searched_class] = array('', '<?php ' . $class . '?>');
+		if ($parent_pool && $class) $parent_pool[$searched_class] = array('', '<?php ' . $class . '?>');
 
 		$GLOBALS['__autoload_static_pool'] =& $parent_pool;
 
