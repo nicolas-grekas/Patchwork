@@ -271,7 +271,7 @@ class
 			 * "location.reload(true)". We use this behaviour to trigger a cache reset in DEBUG mode.
 			 */
 
-			if (CIA_CHECK_SOURCE && DEBUG && !CIA_POSTING && !$binaryMode)
+			if (DEBUG && CIA_CHECK_SOURCE && !CIA_POSTING && !$binaryMode)
 			{
 				self::touch('');
 				array_map('unlink', glob(self::$cachePath . '?/?/*', GLOB_NOSORT));
@@ -787,13 +787,7 @@ class
 
 			try
 			{
-				$agent = new $agent;
-				$d = (object) $agent->compose((object) array());
-				$agent->getTemplate();
-
-				self::executeLoops($d);
-
-				$agent->metaCompose();
+				new $agent;
 			}
 			catch (PrivateDetection $d)
 			{
@@ -813,11 +807,6 @@ class
 		else if (filesize($cache)) $args[] = 'T$';
 
 		return $args;
-	}
-
-	protected static function executeLoops($d)
-	{
-		foreach ($d as $k => &$v) if ($v instanceof loop) while ($k = $v->loop()) self::executeLoops($k);
 	}
 
 	public static function resolveAgentTrace($agent)
