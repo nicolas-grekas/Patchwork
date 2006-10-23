@@ -41,7 +41,7 @@ function runPreprocessor($source, $cache, $level, $class = false)
 		$source = preg_replace("'^#>>>\s*^.*^#<<<\s*$'mse", 'preg_replace("/[^\r\n]+/", "", "$0")', $source);
 	}
 
-	$tmp = md5(uniqid(mt_rand(), true));
+	$tmp = './' . md5(uniqid(mt_rand(), true));
 	$h = fopen($tmp, 'wb');
 
 	$source = token_get_all($source);
