@@ -61,9 +61,8 @@ abstract class
 		self::$started = true;
 		self::$cache = array();
 
- 		global $CONFIG;
-		$driver = 'driver_translate_' . $CONFIG['translate_driver'];
-		self::$driver = new $driver($CONFIG['translate_params']);
+		$driver = 'driver_translate_' . $GLOBALS['CONFIG']['translate_driver'];
+		self::$driver = new $driver($GLOBALS['CONFIG']['translate_params']);
 		self::$driver->open();
 
 		register_shutdown_function(array('TRANSLATE', 'syncCache'));
