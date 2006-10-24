@@ -19,7 +19,7 @@ class extends iaCompiler
 	protected $setStack = array();
 	protected $stack = array();
 
-	protected $code = array();
+	protected $jscode = array();
 	protected $modifiers = array();
 	protected $jsreserved = array(
 		'abstract','boolean','break','byte',
@@ -44,10 +44,10 @@ class extends iaCompiler
 		{
 			sort($m);
 			$m = implode('.', $m);
-			array_unshift($this->code, pC_PIPE, $this->quote($m));
+			array_unshift($this->jscode, pC_PIPE, $this->quote($m));
 		}
 
-		return implode(',', $this->code);
+		return implode(',', $this->jscode);
 	}
 
 	protected function makeModifier($name)
@@ -106,7 +106,7 @@ class extends iaCompiler
 		}
 		$a = '{' . $a . '}';
 
-		array_push($this->code, pC_AGENT, $this->quote($inc), $this->quote($a), $keys===false ? 0 : "[$keys]", $meta);
+		array_push($this->jscode, pC_AGENT, $this->quote($inc), $this->quote($a), false === $keys ? 0 : "[$keys]", $meta);
 
 		return true;
 	}
@@ -125,12 +125,12 @@ class extends iaCompiler
 			else if ($type == 'a') $type = 0;
 			else $type = strlen($type) + 2;
 
-			array_push($this->code, pC_ENDSET, $type, "'" . $name . "'");
+			array_push($this->jscode, pC_ENDSET, $type, "'" . $name . "'");
 		}
 		else
 		{
 			array_push($this->setStack, array($name, $type));
-			array_push($this->code, pC_SET);
+			array_push($this->jscode, pC_SET);
 		}
 
 		return true;
@@ -143,18 +143,18 @@ class extends iaCompiler
 		if ($end)
 		{
 			$a = array_pop($this->stack);
-			$b = count($this->code) - $a;
-			if ($this->code[$a]==-1)
+			$b = count($this->jscode) - $a;
+			if (-1 == $this->jscode[$a])
 			{
-				array_push($this->code, pC_NEXT, $b);
-				$this->code[$a] = $b + 2;
+				array_push($this->jscode, pC_NEXT, $b);
+				$this->jscode[$a] = $b + 2;
 			}
-			else $this->code[$a] = $b;
+			else $this->jscode[$a] = $b;
 		}
 		else
 		{
-			array_push($this->stack, count($this->code) + 2);
-			array_push($this->code, pC_LOOP, $this->quote($var), -1);
+			array_push($this->stack, count($this->jscode) + 2);
+			array_push($this->jscode, pC_LOOP, $this->quote($var), -1);
 		}
 
 		return true;
@@ -169,24 +169,24 @@ class extends iaCompiler
 		if ($end)
 		{
 			$a = array_pop($this->stack);
-			$b = count($this->code) - $a;
-			if ($this->code[$a]==-3) do
+			$b = count($this->jscode) - $a;
+			if (-3 == $this->jscode[$a]) do
 			{
-				$this->code[$a] = $b;
+				$this->jscode[$a] = $b;
 				$b += $a;
 				$a = array_pop($this->stack);
 				$b -= $a;
 			}
-			while ($this->code[$a]==-3);
+			while (-3 == $this->jscode[$a]);
 
-			$this->code[$a] = $b;
+			$this->jscode[$a] = $b;
 		}
 		else
 		{
 			if ($elseif) $this->addELSE(false);
 
-			array_push($this->stack, count($this->code) + 2);
-			array_push($this->code, pC_IF, $this->quote($expression), $elseif ? -3 : -2);
+			array_push($this->stack, count($this->jscode) + 2);
+			array_push($this->jscode, pC_IF, $this->quote($expression), $elseif ? -3 : -2);
 		}
 
 		return true;
@@ -199,18 +199,18 @@ class extends iaCompiler
 		$this->pushCode('');
 
 		$a = array_pop($this->stack);
-		$b = count($this->code) - $a;
-		if ($this->code[$a]==-1)
+		$b = count($this->jscode) - $a;
+		if (-1 == $this->jscode[$a])
 		{
 			array_push($this->stack, $a + $b + 3);
-			array_push($this->code, pC_NEXT, $b, pC_JUMP, -2);
-			$this->code[$a] = $b + 4;
+			array_push($this->jscode, pC_NEXT, $b, pC_JUMP, -2);
+			$this->jscode[$a] = $b + 4;
 		}
 		else
 		{
 			array_push($this->stack, $a + $b + 1);
-			array_push($this->code, pC_JUMP, $this->code[$a]);
-			$this->code[$a] = $b + 2;
+			array_push($this->jscode, pC_JUMP, $this->jscode[$a]);
+			$this->jscode[$a] = $b + 2;
 		}
 
 		return true;
@@ -218,14 +218,14 @@ class extends iaCompiler
 
 	protected function getEcho($str)
 	{
-		if ($str{0}=="'" || (string) $str === (string) ($str-0))
+		if ("'" == $str[0] || (string) $str === (string) ($str-0))
 		{
-			if ($str!="''") array_push($this->code, pC_ECHO, $str);
+			if ("''" != $str) array_push($this->jscode, pC_ECHO, $str);
 		}
 		else
 		{
 			$this->pushCode('');
-			array_push($this->code, pC_EVALECHO, $this->quote($str));
+			array_push($this->jscode, pC_EVALECHO, $this->quote($str));
 		}
 
 		return '';
@@ -265,8 +265,8 @@ class extends iaCompiler
 				$result = $type . $this->getJsAccess($name);
 		}
 
-		if ($forceType == 'number') $result = "num($result)";
-		else if ($this->mode == 'concat' && $result{0} != "'") $result = "str($result)";
+		if ('number' == $forceType) $result = "num($result)";
+		else if ('concat' == $this->mode && "'" != $result[0]) $result = "str($result)";
 
 		return $result;
 	}

@@ -65,7 +65,7 @@ class extends CIA
 <script type="text/javascript">/*<![CDATA[*/
 _____ = new Date/1;
 onload = function() {
-window.debugWin = open('$debugWin','debugWin','dependent=yes,toolbar=no,status=yes,resizable=yes,scrollbars,width=320,height=240,left=' + parseInt(screen.availWidth - 340) + ',top=' + parseInt(screen.availHeight - 290));
+window.debugWin = open('$debugWin','debugWin','toolbar=no,status=yes,resizable=yes,scrollbars,width=320,height=240,left=' + parseInt(screen.availWidth - 340) + ',top=' + parseInt(screen.availHeight - 290));
 if (!debugWin) alert('Disable anti-popup to use the Debug Window');
 else E('Rendering time: ' + (new Date/1 - _____) + ' ms');
 };

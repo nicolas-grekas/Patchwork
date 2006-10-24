@@ -72,7 +72,7 @@ class extends iaCompiler
 			$type = array_pop($this->setStack);
 			$name = $type[0];
 			$type = $type[1];
-			if ($type != 'd' && $type != 'a' && $type != 'g')
+			if ('d' != $type && 'a' != $type && 'g' != $type)
 			{
 				$i = strlen($type);
 				$type = 'v';
@@ -134,8 +134,8 @@ class extends iaCompiler
 
 	protected function getEcho($str)
 	{
-		$str = substr($str, 0, 2)=="''" ? '' : "\"'\"' $str;";
-		if (substr($str, -2, 1)==')') $str .= ';';
+		$str = "''" == substr($str, 0, 2) ? '' : "\"'\"' $str;";
+		if (')' == substr($str, -2, 1)) $str .= ';';
 		return $str;
 	}
 
@@ -172,7 +172,7 @@ class extends iaCompiler
 				$var = "@\${$type}->$name";
 		}
 
-		if ($type != "'")
+		if ("'" != $type)
 		{
 			if (!strlen($name)) $var = substr($var, 0, -2);
 			if ($forceType) $var = "CIA::string($var)";
