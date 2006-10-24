@@ -1,7 +1,7 @@
 <?php
 
-extension_loaded('tokenizer') || die('Extension "tokenizer" is needed and not loaded.');
-extension_loaded('Reflection') || die('Extension "Reflection" is needed and not loaded.');
+function_exists('token_get_all') || die('Extension "tokenizer" is needed and not loaded.');
+class_exists('Reflection', 0) || die('Extension "Reflection" is needed and not loaded.');
 
 
 function stripPHPWhiteSpaceNComments($a)
