@@ -103,7 +103,7 @@ abstract class
 		$source = rtrim($source);
 		$source = str_replace(array("\r\n", "\r"), array("\n" , "\n"), $source);
 		$source = preg_replace_callback("'" . $this->Xcomment . "\n?'su", array($this, 'preserveLF'), $source);
-		$source = preg_replace("'({$this->Xrblock})\n'", "\n$1", $source);
+		$source = preg_replace("'({$this->Xrblock})\n'su", "\n$1", $source);
 		$source = preg_replace_callback(
 			"/({$this->Xlblock}(?:{$this->XblockEnd})?{$this->Xblock})((?>{$this->Xstring}|.)*?)({$this->Xrblock})/su",
 			array($this, 'autoSplitBlocks'),
@@ -162,7 +162,7 @@ abstract class
 		$len = count($a);
 		while ($i<$len)
 		{
-			$a[$i] = preg_replace("'\n\s*(?:{$this->XblockEnd})?{$this->Xblock}(?!\s*=)'su", '--><!--$0', $a[$i]);
+			$a[$i] = preg_replace("'\n\s*(?:{$this->XblockEnd})?{$this->Xblock}(?!\s*=)'su", ' --><!-- $0', $a[$i]);
 			$i += 2;
 		}
 
@@ -205,14 +205,14 @@ abstract class
 	final protected function makeVar($name, $forceType = false)
 	{
 		$type = $prefix = '';
-		if ($name{0}=="'" )
+		if ("'" == $name[0])
 		{
 			$type = "'";
 			$name = $this->filter(substr($name, 1));
 		}
 		else if (($pos = strrpos($name, '$'))!==false)
 		{
-			$type = $name{0};
+			$type = $name[0];
 			$prefix = substr($name, 1, $type=='$' ? $pos : $pos-1);
 			$name = substr($name, $pos+1);
 		}
