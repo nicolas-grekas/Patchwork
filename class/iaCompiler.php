@@ -160,7 +160,7 @@ abstract class
 
 		$i = 0;
 		$len = count($a);
-		while ($i<$len)
+		while ($i < $len)
 		{
 			$a[$i] = preg_replace("'\n\s*(?:{$this->XblockEnd})?{$this->Xblock}(?!\s*=)'su", ' --><!-- $0', $a[$i]);
 			$i += 2;
@@ -223,21 +223,21 @@ abstract class
 
 	final protected function pushText($a)
 	{
-		if ($this->mode == 'concat')
+		if ('concat' == $this->mode)
 		{
-			if ($this->concatLast%2) $this->concat[++$this->concatLast] = $a;
+			if ($this->concatLast % 2) $this->concat[++$this->concatLast] = $a;
 			else $this->concat[$this->concatLast] .= $a;
 		}
 		else
 		{
-			if ($this->codeLast%2) $this->code[++$this->codeLast] = $a;
+			if ($this->codeLast % 2) $this->code[++$this->codeLast] = $a;
 			else $this->code[$this->codeLast] .= $a;
 		}
 	}
 
 	final protected function pushCode($a)
 	{
-		if ($this->codeLast%2) $this->code[$this->codeLast] .= $a;
+		if ($this->codeLast % 2) $this->code[$this->codeLast] .= $a;
 		else
 		{
 			$this->code[$this->codeLast] = $this->getEcho( $this->makeVar("'" . $this->code[$this->codeLast]) );
@@ -259,7 +259,7 @@ abstract class
 
 		$i = 1;
 		$len = count($a);
-		while ($i<$len)
+		while ($i < $len)
 		{
 			$this->offset = $a[$i][1];
 			$this->compileBlock($a[$i++][0]);
@@ -275,7 +275,7 @@ abstract class
 
 		$i = 1;
 		$len = count($a);
-		while ($i<$len)
+		while ($i < $len)
 		{
 			$this->compileVar($a[$i++], $a[$i++]);
 			$this->pushText($a[$i++]);
@@ -392,7 +392,7 @@ abstract class
 
 				$i = $j = 1;
 				$len = count($block);
-				while ($i<$len)
+				while ($i < $len)
 				{
 					$var['$a' . $j . 'b'] = $block[$i++];
 					$testCode .= '$a' . $j++ . 'b ' . preg_replace("'\s+'u", '', $block[$i++]);
@@ -426,7 +426,7 @@ abstract class
 
 					$i = 1;
 					$len = count($block);
-					while ($i<$len)
+					while ($i < $len)
 					{
 						$expression .= $this->evalVar($var[ $block[$i++] ], false, 'string');
 						$expression .= $block[$i++];
@@ -481,12 +481,12 @@ abstract class
 			$j = count($detail[0]);
 			while (--$j) $Eend = ',' . $this->evalVar($detail[0][$j], true) . $Eend;
 
-			$Eend{0} = '(';
+			$Eend[0] = '(';
 			$Estart .= $this->makeModifier($detail[0][0]);
 		}
 		else $Estart .= $this->evalVar($detail[0][0], true);
 
-		if ($Estart{0}=="'")
+		if ("'" == $Estart[0])
 		{
 			$Estart = $this->getConcat(array($Estart));
 			eval("\$Estart=$Estart;");
@@ -505,9 +505,9 @@ abstract class
 		if ('~' == $a) $a = 'g$__HOME__';
 		if ('/' == $a) $a = 'g$__HOST__';
 
-		if ($a{0}=='"' || $a{0}=="'")
+		if ('"' == $a[0] || "'" == $a[0])
 		{
-			$b = $a{0}=='"';
+			$b = '"' == $a[0];
 
 			if (!$b) $a = '"' . substr(preg_replace('/([^\\\\](?:\\\\\\\\)*)"/su', '$1\\\\"', $a), 1, -1) . '"';
 			$a = preg_replace("/([^\\\\])\\\\((?:\\\\\\\\)*)'/su", '$1$2\'', $a);
@@ -545,13 +545,14 @@ abstract class
 		else if (!preg_match("/^(?:{$this->Xvar}|[dag]\\$|\\$+)$/su", $a))
 		{
 			$a = preg_split("/({$this->Xvar}|{$this->Xnumber})/su", $a, -1, PREG_SPLIT_DELIM_CAPTURE);
-			$i = 1;
 
-			while ($i<count($a))
+			$i = 1;
+			$len = count($a);
+			while ($i < $len)
 			{
 				$a[$i-1] = trim($a[$i-1]);
 
-				$b = $i > 1 && $a[$i]{0} == '-' && '' === $a[$i-1];
+				$b = $i > 1 && $a[$i][0] == '-' && '' === $a[$i-1];
 
 				$a[$i] = $this->evalVar($a[$i], false, 'number');
 
