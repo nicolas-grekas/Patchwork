@@ -60,18 +60,20 @@ function C3MRO($appRealpath)
 	$parent = file_get_contents($appRealpath . '/config.php');
 	$parent = str_replace(array("\r\n", "\r"), array("\n", "\n"), $parent);
 
-	$k = 0;
+	$k = false;
 
 	if ('<?' == substr($parent, 0, 2))
 	{
-		$parent = preg_replace("'^<\?(?:php)?\s'i", '', $parent, 1, $k);
-		$parent = trim($parent);
+		$seq = preg_replace("'^<\?(?:php)?\s'i", '', $parent);
+		$k = $seq != $parent;
+		$parent = trim($seq);
 		if ('?>' == substr($parent, -2)) $parent = substr($parent, 0, -2) . ';';
 	}
 	else
 	{
-		$parent = preg_replace("#^<script\s+language\s*=\s*(|[\"'])php\1\s*>#i", '', $parent, 1, $k);
-		$parent = trim($parent);
+		$seq = preg_replace("#^<script\s+language\s*=\s*(|[\"'])php\1\s*>#i", '', $parent);
+		$k = $seq != $parent;
+		$parent = trim($seq);
 		$parent = preg_replace("'</script\s*>$'i", ';', $parent);
 	}
 
