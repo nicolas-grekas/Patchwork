@@ -1,9 +1,12 @@
 <?php
 
-$CIA = realpath($CIA);
+$version_id = realpath($CIA);
+$version_id || die('Error: $CIA\'s path is unreachable (' . htmlspecialchars($CIA) . ').');
+
 $appConfigSource = array();
 $appInheritSeq = array();
 
+$CIA = $version_id;
 $version_id = 0;
 
 // Linearize application inheritance graph
