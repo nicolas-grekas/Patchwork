@@ -9,8 +9,8 @@ function $onfocus($this)
 {
 	this.$focus = 1;
 
-	$this = QSelect.$get(this);
-	$this.$select.$QSelectId = $this.$form.$QSelectId = this.$QSelectId;
+	$this = this.$QSelect;
+	$this.$select.$QSelect = $this.$form.$QSelect = this.$QSelect;
 	$this.$select.onchange = $this.$onchange;
 	$this.$lastFocused = this;
 }
@@ -19,7 +19,7 @@ function $onblur($this)
 {
 	this.$focus = 0;
 
-	$this = QSelect.$get(this);
+	$this = this.$QSelect;
 	$this.$lastFocused = 0;
 	$this.$select.onchange = null;
 
@@ -32,8 +32,7 @@ function $onblur($this)
 
 function $onmouseup($e)
 {
-	var $select = this,
-		$this = QSelect.$get($select);
+	var $this = this.$QSelect;
 
 	$e = $e || event;
 	if (!$e.srcElement && $e.target && 'SELECT'==$e.target.tagName) return;
@@ -45,7 +44,7 @@ function $onmouseup($e)
 
 function $onkeyup($e)
 {
-	var $this = QSelect.$get(this),
+	var $this = this.$QSelect,
 		$keyupid = $this.$lastKeyupid, $i,
 		$caretPos = getCaret(this);
 
@@ -68,8 +67,7 @@ function $onkeyup($e)
 
 function $onkeydown($e)
 {
-
-	var $this = QSelect.$get(this),
+	var $this = this.$QSelect,
 		$select = $this.$select;
 
 	++$this.$lastKeyupid;
@@ -104,7 +102,7 @@ function $onkeydown($e)
 
 function $precheck()
 {
-	var $this = QSelect.$get(this);
+	var $this = this.$QSelect;
 
 	if ($this.$lastFocused)
 	{
@@ -157,8 +155,6 @@ return function($input, $driver)
 
 		$driver = $driver($this, $input, $select, $options);
 
-	QSelect.$QSelect[$id] = $this;
-
 	$this.$search = $driver.search;
 	$this.$setValue = $driver.setValue;
 	$this.$fixTab = $driver.fixTab;
@@ -171,7 +167,7 @@ return function($input, $driver)
 	$this.$form = $form;
 	$this.$onchange = $driver.onchange;
 
-	$input.$QSelectId = $id;
+	$input.$QSelect = $this;
 	$input.onfocus = $onfocus;
 	$input.onblur  = $onblur;
 	$input.onkeyup = $onkeyup;
@@ -329,9 +325,6 @@ return function($input, $driver)
 	}
 }
 })();
-
-QSelect.$QSelect = {};
-QSelect.$get = function($elt) {return QSelect.$QSelect[$elt.$QSelectId]}
 
 QSelect.$setTimeoutId = 0;
 QSelect.$setTimeoutPool = [];
