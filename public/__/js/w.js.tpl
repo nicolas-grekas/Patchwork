@@ -26,8 +26,7 @@
 */
 
 footerHtml = '';
-
-if (antiXSJ = document.cookie.match(/(^|; )T\$=([0-9A-Z]+)/i)) antiXSJ = antiXSJ[2];
+antiXSJ = '';
 
 document.cookie = 'JS=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
 
@@ -134,13 +133,6 @@ addOnload.run = function()
 			$i = $pool.length;
 			while ($i--) if ('w' == ($script = $pool[$i]).className) $script.parentNode.removeChild($script);
 			$script = 0;
-		}
-
-		if (!antiXSJ && ($i = $document.cookie.match(/(^|; )T\$=([0-9A-Z]+)/i)))
-		{
-			antiXSJ = $i[2];
-			$i = $document.getElementsByName('T$');
-			for ($s in $i) $i[$s].value = antiXSJ;
 		}
 
 		if ($addOnload.o) $i = $addOnload.o, $addOnload.o = null, $i();
@@ -273,13 +265,6 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 		if ($lastInclude && !$includeCache[$lastInclude])
 		{
-			if (!antiXSJ && ($i = $document.cookie.match(/(^|; )T\$=([0-9A-Z]+)/i)))
-			{
-				antiXSJ = $i[2];
-				$i = $document.getElementsByName('T$');
-				for ($j in $i) $i[$j].value = antiXSJ;
-			}
-
 			$includeCache[$lastInclude] = [$context, $code];
 			if ($context) for ($i in $context) $context[$i] = esc($context[$i]);
 
@@ -318,19 +303,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 				if ($keys)
 				{
-					if (!antiXSJ)
-					{
-						$i = (''+Math.random()).substr(2);
-						$j = $masterHome.replace(
-							/\?.*$/              , '' ).replace(
-							/^https?:\/\/[^\/]*/i, '' ).replace(
-							/\/[^\/]+$/          , '/'
-						);
-
-						$document.cookie = 'T$=' + $i + '; path=' + encodeURI($j);
-					}
-
-					$args.T$ = antiXSJ || $i;
+					$args.T$ = antiXSJ;
 
 					if ($args.e$) for ($i in $args) $args[$i] = num(str($args[$i]), 1);
 					else          for ($i in $args) $args[$i] = num(    $args[$i] , 1);
@@ -696,6 +669,21 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 		return $i;
 	}
+
+	if ($i = $document.cookie.match(/(^|; )T\$=([0-9A-Z]+)/i)) $i = $i[2];
+	else
+	{
+		$i = (''+Math.random()).substr(2);
+		$j = $masterHome.replace(
+			/\?.*$/              , '' ).replace(
+			/^https?:\/\/[^\/]*/i, '' ).replace(
+			/\/[^\/]+$/          , '/'
+		);
+
+		$document.cookie = 'T$=' + $i + '; path=' + encodeURI($j);
+	}
+
+	antiXSJ = $i;
 
 	$j = location;
 

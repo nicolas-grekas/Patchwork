@@ -423,7 +423,7 @@ addOnload(function()
 {
 	scrollCntrl = 0;
 
-	var $i = 0, $forms = document.forms, $form, $j, $elt;
+	var $i = 0, $document = document, $forms = $document.forms, $form, $j, $elt;
 
 	if (BOARD.lastL == ''+location) t(BOARD.lastX) && scrollTo(BOARD.lastX, BOARD.lastY);
 	else setboard('lastL', location);
@@ -434,19 +434,16 @@ addOnload(function()
 	{
 		$form = $forms[$i];
 
-		$form.submitIfValid = function($a)
-		{
-			$a = this.onsubmit();
-			if ($a || 'false' != ''+$a) this.submit();
-		}
-
 		$form.$onsubmit = $form.onsubmit;
 		$form.onsubmit = function($event)
 		{
 			var $this = this,
-				$body = document.documentElement || document.body;
+				$body = $document.documentElement || $document.body;
+
 			if ($this.precheck && !$this.precheck($event)) return false;
+
 			$event = $this.$onsubmit && $this.$onsubmit($event);
+
 			if (!$event && 'false' == ''+$event) return false;
 
 			setboard({
@@ -455,6 +452,11 @@ addOnload(function()
 			});
 
 			if ($this.UPLOAD_IDENTIFIER && window.loadUpload) loadUpload($this);
+
+			$body = $document.getElementsByName('T$');
+			for ($i in $body) $body[$i].value = antiXSJ;
+
+			$document = 0;
 		}
 
 		for ($j = 0; $j < $form.length; ++$j)
