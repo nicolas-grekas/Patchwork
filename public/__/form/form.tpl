@@ -46,7 +46,8 @@ ELSE
 
 	--><script type="text/javascript">/*<![CDATA[*/
 lF=document.forms[document.forms.length-1];<!--
-IF a$_enterControl_ -->FeC({a$_enterControl_});<!-- END:IF -->//]]></script><!--
+IF a$_enterControl_ -->FeC({a$_enterControl_});<!-- END:IF
+IF 'post' == a$method -->lF.T$.value=antiXSJ;<!-- END:IF -->//]]></script><!--
 
 	IF !g$_UPLOAD && a$_upload --><!-- SET g$_UPLOAD -->1<!-- END:SET --><script type="text/javascript" src="{~}js/upload"></script><!-- END:IF
 
