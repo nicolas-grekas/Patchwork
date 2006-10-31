@@ -94,7 +94,9 @@ abstract class
 
 	final protected function getLine()
 	{
-		return substr_count(substr($this->source, 0, $this->offset), "\n") + 1;
+		$a = substr($this->source, 0, $this->offset);
+
+		return substr_count($a, "\n") + substr_count($a, "\r") + 1;
 	}
 
 	private function load($template, $path_idx = 0)
@@ -162,7 +164,7 @@ abstract class
 
 	protected function preserveLF($m)
 	{
-		return str_repeat("\n", substr_count($m[0], "\n"));
+		return str_repeat("\r", substr_count($m[0], "\n"));
 	}
 
 	protected function autoSplitBlocks($m)
@@ -260,6 +262,8 @@ abstract class
 
 	private function filter($a)
 	{
+		$a = str_replace("\r", '', $a);
+
 		return $this->binaryMode ? $a : preg_replace("/\s{2,}/seu", 'strpos(\'$0\', "\n")===false ? " " : "\n"', $a);
 	}
 
