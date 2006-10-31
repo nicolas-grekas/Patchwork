@@ -27,7 +27,7 @@
 
 footerHtml = '';
 
-if (antiXSJ = document.cookie.match(/^(.*; )?T\$=([0-9A-Z]+)/i)) antiXSJ = antiXSJ[2];
+if (antiXSJ = document.cookie.match(/(^|; )T\$=([0-9A-Z]+)/i)) antiXSJ = antiXSJ[2];
 
 document.cookie = 'JS=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
 
@@ -136,7 +136,7 @@ addOnload.run = function()
 			$script = 0;
 		}
 
-		if (!antiXSJ && ($i = $document.cookie.match(/^(.*; )?T\$=([0-9A-Z]+)/i)))
+		if (!antiXSJ && ($i = $document.cookie.match(/(^|; )T\$=([0-9A-Z]+)/i)))
 		{
 			antiXSJ = $i[2];
 			$i = $document.getElementsByName('T$');
@@ -273,7 +273,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 		if ($lastInclude && !$includeCache[$lastInclude])
 		{
-			if (!antiXSJ && ($i = $document.cookie.match(/^(.*; )?T\$=([0-9A-Z]+)/i)))
+			if (!antiXSJ && ($i = $document.cookie.match(/(^|; )T\$=([0-9A-Z]+)/i)))
 			{
 				antiXSJ = $i[2];
 				$i = $document.getElementsByName('T$');
