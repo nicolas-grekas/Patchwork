@@ -31,7 +31,10 @@ function fetchPHPWhiteSpaceNComments(&$source, &$i)
 {
 	$token = '';
 
-	while (($t = @$source[++$i][0]) && (T_COMMENT == $t || T_WHITESPACE == $t || T_DOC_COMMENT == $t)) $token .= stripPHPWhiteSpaceNComments($source[$i][1]);
+	while (
+		isset($source[++$i]) && is_array($source[$i]) && ($t = $source[$i][0])
+		&& (T_COMMENT == $t || T_WHITESPACE == $t || T_DOC_COMMENT == $t)
+	) $token .= stripPHPWhiteSpaceNComments($source[$i][1]);
 
 	return $token;
 }
@@ -42,7 +45,7 @@ function runPreprocessor($source, $cache, $level, $class = false)
 	$file = substr($source, strlen($file[count($file) - $level - 1]) + 1);
 
 	$source = file_get_contents($source);
-	$source = str_replace(array("\r\n", "\r"), array("\n", "\n"), $source);
+	if (false !== strpos($source, "\r")) $source = str_replace(array("\r\n", "\r"), array("\n", "\n"), $source);
 
 	if (DEBUG)
 	{
@@ -89,10 +92,10 @@ function runPreprocessor($source, $cache, $level, $class = false)
 			case T_CLASS:
 				// Look backward for the "final" keyword
 				$j = 0;
-				do $t = @$source[$i - (++$j)][0];
+				do $t = isset($source[$i - (++$j)]) && is_array($source[$i-$j]) ? $source[$i-$j][0] : false;
 				while (T_COMMENT == $t || T_WHITESPACE == $t);
 
-				$final = T_FINAL == @$source[$i-$j][0];
+				$final = isset($source[$i-$j]) && is_array($source[$i-$j]) && T_FINAL == $source[$i-$j][0];
 
 
 				$c = '';
@@ -100,10 +103,10 @@ function runPreprocessor($source, $cache, $level, $class = false)
 
 				// Look forward
 				$j = 0;
-				do $t = @$source[$i + (++$j)][0];
+				do $t = isset($source[$i + (++$j)]) && is_array($source[$i+$j]) ? $source[$i+$j][0] : false;
 				while (T_COMMENT == $t || T_WHITESPACE == $t);
 
-				if (T_STRING == @$source[$i+$j][0])
+				if (isset($source[$i+$j]) && is_array($source[$i+$j]) && T_STRING == $source[$i+$j][0])
 				{
 					$token .= fetchPHPWhiteSpaceNComments($source, $i);
 
@@ -132,11 +135,11 @@ function runPreprocessor($source, $cache, $level, $class = false)
 
 				$class_pool[$curly_level] = $c;
 
-				if ($c && T_EXTENDS == @$source[$i][0])
+				if ($c && isset($source[$i]) && is_array($source[$i]) && T_EXTENDS == $source[$i][0])
 				{
 					$token .= $source[$i][1];
 					$token .= fetchPHPWhiteSpaceNComments($source, $i);
-					$token .= 'self' == @$source[$i][1] ? $class . '__' . ($level && $c == $class ? $level-1 : $level) : $source[$i][1];
+					$token .= isset($source[$i]) && is_array($source[$i]) && 'self' == $source[$i][1] ? $class . '__' . ($level && $c == $class ? $level-1 : $level) : $source[$i][1];
 				}
 				else --$i;
 
@@ -233,7 +236,7 @@ function runPreprocessor($source, $cache, $level, $class = false)
 
 	fclose($h);
 
-	if ('WIN' == substr(PHP_OS, 0, 3)) 
+	if (CIA_WINDOWS)
 	{
 		$h = new COM('Scripting.FileSystemObject');
 		$h->GetFile($GLOBALS['cia_paths'][0] . '/' . $tmp)->Attributes |= 2;
