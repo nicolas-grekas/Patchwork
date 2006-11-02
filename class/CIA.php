@@ -50,7 +50,7 @@ function DB($close = false)
 
 		$db->connect();
 
-		if(@PEAR::isError($db))
+		if(PEAR::isError($db))
 		{
 			trigger_error($db->getMessage(), E_USER_ERROR);
 			exit;
@@ -70,11 +70,11 @@ function jsquote($a, $addDelim = true, $delim = "'")
 {
 	if ((string) $a === (string) ($a-0)) return $a-0;
 
-	$a = str_replace(
-		array("\r\n", "\r", '\\'  , "\n", '</' ,        $delim),
-		array("\n"  , "\n", '\\\\', '\n', '<\\/', '\\' . $delim),
-		$a
-	);
+	false !== strpos($a, "\r") && ($a = str_replace(array("\r\n", "\r"), array("\n", "\n"), $a));
+	false !== strpos($a, '\\') && ($a = str_replace('\\', '\\\\', $a));
+	false !== strpos($a, "\n") && ($a = str_replace("\n", '\n', $a));
+	false !== strpos($a, '</') && ($a = str_replace('</', '<\\/', $a));
+	false !== strpos($a, $delim) && ($a = str_replace($delim, '\\' . $delim, $a));
 
 	if ($addDelim) $a = $delim . $a . $delim;
 
@@ -252,7 +252,7 @@ class
 						self::$versionId, ',',
 						jsquote( $_SERVER['CIA_HOME'] ), ',',
 						jsquote( 'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)) ), ',',
-						jsquote( @$_GET['__0__'] ), ',',
+						jsquote( isset($_GET['__0__']) ? $_GET['__0__'] : '' ), ',',
 						'[', implode(',', array_map('jsquote', self::agentArgv($agent))), ']',
 					')';
 
@@ -262,7 +262,7 @@ class
 			$binaryMode = (bool) constant("$agent::binary");
 
 			// Synch exoagents on browser request
-			if (self::$versionId == @$_COOKIE['cache_reset_id'] && setcookie('cache_reset_id', '', 0, '/'))
+			if (isset($_COOKIE['cache_reset_id']) && self::$versionId == $_COOKIE['cache_reset_id'] && setcookie('cache_reset_id', '', 0, '/'))
 			{
 				self::touch('CIApID');
 				self::touch('foreignTrace');
@@ -295,7 +295,7 @@ class
 			}
 
 			// load agent
-			if (CIA_POSTING || $binaryMode || isset($_GET['$bin']) || !@$_COOKIE['JS'])
+			if (CIA_POSTING || $binaryMode || isset($_GET['$bin']) || !isset($_COOKIE['JS']) || !$_COOKIE['JS'])
 			{
 				if (!$binaryMode) self::setGroup('private');
 				CIA_serverside::loadAgent($agent, false, false);
@@ -345,7 +345,7 @@ class
 	{
 		if (!preg_match("'^https?://'", $url))
 		{
-			if ('/' != substr($url, 0, 1)) $url = self::$home . $url;
+			if (strncmp('/', $url, 1)) $url = self::$home . $url;
 			else $url = self::$host . substr($url, 1);
 		}
 
@@ -595,7 +595,7 @@ class
 			if (!$dir) return;
 			$dir[0] = '/' . $dir[0];
 		}
-		else if (!('WIN' == substr(PHP_OS, 0, 3) && substr($dir[0], -1) == ':')) $dir[0] = './' . $dir[0];
+		else if (!(CIA_WINDOWS && ':' == substr($dir[0], -1))) $dir[0] = './' . $dir[0];
 
 		$new = array();
 
@@ -651,7 +651,7 @@ class
 			fwrite($h, $data, strlen($data));
 			fclose($h);
 
-			if ('WIN' == substr(PHP_OS, 0, 3)) @unlink($filename);
+			CIA_WINDOWS && @unlink($filename);
 			rename($tmpname, $filename);
 
 			if ($Dmtime) touch($filename, $_SERVER['REQUEST_TIME'] + $Dmtime);
@@ -838,7 +838,7 @@ class
 			&& !ini_get('safe_mode')
 			&& is_callable('shell_exec')
 			&& (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? !extension_loaded('openssl') : false)
-			&& $keys = @$GLOBALS['CONFIG']['php']
+			&& $keys = $GLOBALS['CONFIG']['php']
 		)
 		{
 			$keys = $keys . ' -q ' . implode(' ', array_map('escapeshellarg', array(
@@ -847,7 +847,7 @@ class
 				$_SERVER['CIA_HOME'],
 				self::__LANG__(),
 				substr($agent, strlen($HOME)),
-				(int) @$_SERVER['HTTPS']
+				isset($_SERVER['HTTPS']) ? (bool) $_SERVER['HTTPS'] : false
 			)));
 
 			$keys = shell_exec($keys);
@@ -936,7 +936,7 @@ class
 				$message = explode('/', $message);
 				while (array_pop($message) !== null)
 				{
-					$file = "include '" . str_replace(array('\\',"'"), array('\\\\',"\\'"), $path) . "';\n";
+					$file = "include '" . str_replace(array('\\', "'"), array('\\\\', "\\'"), $path) . "';\n";
 
 					$path = self::getCachePath('watch/' . implode('/', $message), 'php');
 
@@ -1071,7 +1071,8 @@ class
 			$ETag = dechex($ETag);
 
 
-			$is304 = @$_SERVER['HTTP_IF_NONE_MATCH'] == $ETag || 0===strpos(@$_SERVER['HTTP_IF_MODIFIED_SINCE'], $LastModified);
+			$is304 = (isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] == $ETag)
+				|| (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && 0===strpos($_SERVER['HTTP_IF_MODIFIED_SINCE'], $LastModified));
 
 
 			if ('ontouch' == self::$expires || ('auto' == self::$expires && self::$watchTable))
@@ -1198,7 +1199,7 @@ class agent
 			$a = explode(':', $a);
 			$key = array_shift($a);
 
-			$b = (string) @$args[$key];
+			$b = isset($args[$key]) ? (string) $args[$key] : '';
 
 			if ($a)
 			{

@@ -188,7 +188,7 @@ class extends loop_callAgent
 	{
 		$this->valid = isset($param['valid']) ? $param['valid'] : 'string';
 
-		if (@$param['multiple'])
+		if (isset($param['multiple']) && $param['multiple'])
 		{
 			$this->isdata = false;
 			$this->multiple = true;

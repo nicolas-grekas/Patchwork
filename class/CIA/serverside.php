@@ -216,7 +216,8 @@ class extends CIA
 
 				if ($h = self::fopenX($fagent))
 				{
-					$rawdata = str_replace('<?', "<<?php ?>?", $rawdata) . '<?php $v=(object)';
+					if (false !== strpos($rawdata, "\r")) $rawdata = str_replace('<?', "<<?php ?>?", $rawdata);
+					$rawdata .= '<?php $v=(object)';
 					fwrite($h, $rawdata, strlen($rawdata));
 
 					self::writeAgent($h, $vClone);
@@ -252,7 +253,7 @@ class extends CIA
 		$comma = '';
 		foreach ($data as $key => &$value)
 		{
-			$comma .= "'" . str_replace(array('\\',"'"), array('\\\\',"\\'"), $key) . "'=>";
+			$comma .= "'" . str_replace(array('\\', "'"), array('\\\\', "\\'"), $key) . "'=>";
 			fwrite($h, $comma, strlen($comma));
 
 			if ($value instanceof loop)
@@ -276,7 +277,7 @@ class extends CIA
 			}
 			else
 			{
-				$comma = "'" . str_replace(array('\\',"'"), array('\\\\',"\\'"), $value) . "'";
+				$comma = "'" . str_replace(array('\\', "'"), array('\\\\', "\\'"), $value) . "'";
 				fwrite($h, $comma, strlen($comma));
 			}
 

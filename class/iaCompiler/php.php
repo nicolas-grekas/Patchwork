@@ -90,7 +90,7 @@ class extends iaCompiler
 				$type = 'v';
 				if ($i) do $type .= '->{"$"}'; while (--$i);
 			}
-			$this->pushCode("\${$type}->{$name}=@ob_get_clean();");
+			$this->pushCode("\${$type}->{$name}=ob_get_clean();");
 		}
 		else
 		{
@@ -186,8 +186,18 @@ class extends iaCompiler
 
 		if ("'" != $type)
 		{
-			if (!strlen($name)) $var = substr($var, 0, -2);
-			if ($forceType) $var = "CIA::string($var)";
+			if (!strlen($name))
+			{
+				$var = substr($var, 0, -2);
+				if ($forceType) $var = "CIA::string($var)";
+			}
+			else if ('@' == $var[0])
+			{
+				$var = substr($var, 1);
+				$var = "(isset($var)?" .($forceType ? "CIA::string($var)" : $var). ":'')";
+			}
+
+			
 		}
 
 		$var .= "\"'\"'o";

@@ -47,7 +47,7 @@ class extends loop
 
 		$this->result = $this->db->query($sql);
 
-		return @PEAR::isError($this->result) ? false : $this->result->numRows();
+		return PEAR::isError($this->result) ? false : $this->result->numRows();
 	}
 
 	protected function next()

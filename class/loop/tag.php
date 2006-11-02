@@ -59,9 +59,13 @@ class extends loop
 
 				while ($a = $loop->loop())
 				{
-					@++$histo[ $a->{$this->freqKey} ];
-					$min = $min < 0 ? $a->{$this->freqKey} : min($min, $a->{$this->freqKey});
-					$max = max($max, $a->{$this->freqKey});
+					$a = $a->{$this->freqKey};
+
+					if (isset($histo[$a])) ++$histo[$a];
+					else $histo[$a] = 1;
+
+					$min = $min < 0 ? $a : min($min, $a);
+					$max = max($max, $a);
 				}
 			}
 
@@ -72,7 +76,7 @@ class extends loop
 			{
 				$histo[$min] = 0;
 
-				do $histoCumule[$min] = $histoCumule[$min - 1] + @$histo[$min];
+				do $histoCumule[$min] = $histoCumule[$min - 1] + (isset($histo[$min]) ? $histo[$min] : 0);
 				while (++$min <= $max);
 
 				$this->dynamic = 1 / ($histoCumule[$max - 1] + $histoCumule[$max] + 1);

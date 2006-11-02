@@ -13,7 +13,7 @@
 
 
 $version_id = realpath($CIA);
-$version_id || die('Error: $CIA\'s path is unreachable (' . htmlspecialchars($CIA) . ').');
+$version_id || die('Error: path $CIA is unreachable (' . htmlspecialchars($CIA) . ').');
 
 $appConfigSource = array();
 $appInheritSeq = array();
@@ -48,7 +48,7 @@ $appConfigSource = $cia_paths[0] . '/.config.zcache.php';
 
 file_put_contents($appConfigSource, implode("\n", $appInheritSeq));
 
-if ('WIN' == substr(PHP_OS, 0, 3))
+if (CIA_WINDOWS)
 {
 	$appInheritSeq = new COM('Scripting.FileSystemObject');
 	$appInheritSeq->GetFile($appConfigSource)->Attributes |= 2;
@@ -67,13 +67,13 @@ function C3MRO($appRealpath)
 	// If result is cached, return it
 	if (null !== $resultSeq) return $resultSeq;
 
-	if (!file_exists($appRealpath . '/config.php')) throw new Exception('Missing config.php in ' . htmlspecialchars($appRealpath));
+	if (!file_exists($appRealpath . '/config.php')) die('Missing file config.php in ' . htmlspecialchars($appRealpath));
 
 	$GLOBALS['version_id'] += filemtime($appRealpath . '/config.php');
 
 	// Get config's source and clean it
 	$parent = file_get_contents($appRealpath . '/config.php');
-	$parent = str_replace(array("\r\n", "\r"), array("\n", "\n"), $parent);
+	if (false !== strpos($parent, "\r")) $parent = str_replace(array("\r\n", "\r"), array("\n", "\n"), $parent);
 
 	$k = false;
 
@@ -92,7 +92,7 @@ function C3MRO($appRealpath)
 		$parent = preg_replace("'</script\s*>$'i", ';', $parent);
 	}
 
-	if (!$k) throw new Exception('Failed to detect PHP open tag (<?php) at the beginning of ' . htmlspecialchars($appRealpath) . '/config.php');
+	if (!$k) die('Failed to detect PHP open tag (<?php) at the beginning of ' . htmlspecialchars($appRealpath) . '/config.php');
 
 	$GLOBALS['appConfigSource'][$appRealpath] = $parent;
 
@@ -105,7 +105,7 @@ function C3MRO($appRealpath)
 	}
 	else $parent = false;
 
-	if (__CIA__ == $appRealpath && $parent) throw new Exception('#extends clause is forbidden in root config file: ' . htmlspecialchars(__CIA__) . '/config.php');
+	if (__CIA__ == $appRealpath && $parent) die('#extends clause is forbidden in root config file: ' . htmlspecialchars(__CIA__) . '/config.php');
 
 	// If no parent app, result is trival
 	if (!$parent) return array($appRealpath);
@@ -161,7 +161,7 @@ function C3MRO($appRealpath)
 			if ($parent) break;
 		}
 
-		if (!$parent) throw new Exception('Inconsistent application hierarchy');
+		if (!$parent) die('Inconsistent application hierarchy');
 
 		$resultSeq[] = $parent;
 

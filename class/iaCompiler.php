@@ -112,10 +112,10 @@ abstract class
 			&& !file_exists($source = $path . $l_ng . $template)
 		) return $this->load($template, $path_idx + 1);
 
-		$source = @file_get_contents($source);
+		$source = file_get_contents($source);
 
 		$source = rtrim($source);
-		$source = str_replace(array("\r\n", "\r"), array("\n" , "\n"), $source);
+		if (false !== strpos($source, "\r")) $source = str_replace(array("\r\n", "\r"), array("\n" , "\n"), $source);
 		$source = preg_replace_callback("'" . $this->Xcomment . "\n?'su", array($this, 'preserveLF'), $source);
 		$source = preg_replace("'({$this->Xrblock})\n'su", "\n$1", $source);
 		$source = preg_replace_callback(
@@ -155,7 +155,7 @@ abstract class
 
 		$rx = '[-_a-zA-Z\d][-_a-zA-Z\d\.]*';
 
-		$this->template = 'WIN' == substr(PHP_OS, 0, 3) ? strtolower($template) : $template;
+		$this->template = CIA_WINDOWS ? strtolower($template) : $template;
 		$this->path_idx = $path_idx;
 		$source = preg_replace_callback("'{$this->Xlblock}INCLUDE\s+($rx(?:[\\/]$rx)*)(:-?\d+)?\s*{$this->Xrblock}'su", array($this, 'INCLUDEcallback'), $source);
 
@@ -187,10 +187,10 @@ abstract class
 	{
 		$path_count = count($GLOBALS['cia_paths']);
 
-		$template = ('WIN' == substr(PHP_OS, 0, 3) ? strtolower($m[1]) : $m[1]) . '.tpl';
+		$template = (CIA_WINDOWS ? strtolower($m[1]) : $m[1]) . '.tpl';
 
 		$a = str_replace('\\', '/', $template) == preg_replace("'[\\/]+'", '/', $this->template);
-		$a = @$m[2] ? substr($m[2], 1) : ($a ? -1 : $path_count - $this->path_idx - 1);
+		$a = isset($m[2]) ? substr($m[2], 1) : ($a ? -1 : $path_count - $this->path_idx - 1);
 		$a = $a < 0 ? $this->path_idx - $a : ($path_count - $a - 1);
 
 		if ($a < 0)
@@ -262,7 +262,7 @@ abstract class
 
 	private function filter($a)
 	{
-		$a = str_replace("\r", '', $a);
+		if (false !== strpos($a, "\r")) $a = str_replace("\r", '', $a);
 
 		return $this->binaryMode ? $a : preg_replace("/\s{2,}/seu", 'strpos(\'$0\', "\n")===false ? " " : "\n"', $a);
 	}
@@ -415,9 +415,10 @@ abstract class
 				}
 
 				$testCode = preg_replace('/\s+/su', ' ', $testCode);
+				$testCode = strtr($testCode, '#[]{}^~?:,', ';;;;;;;;;;');
 				$testCode = str_replace(
-					array('#', '&&' , '||' , '[', ']', '{', '}', '^', '~', '?', ':', '&', '|', ',', '<>'),
-					array(';', '#a#', '#o#', ';', ';', ';', ';', ';', ';', ';', ';', ';', ';', ';', ';' ),
+					array('&&' , '||' , '&', '|', '<>'),
+					array('#a#', '#o#', ';', ';', ';' ),
 					$testCode
 				);
 				$testCode = preg_replace(
@@ -578,7 +579,7 @@ abstract class
 			}
 
 			$a = implode($a);
-			return $this->serverMode ? "@($a)": $a;
+			return $a;
 		}
 
 		return $this->makeVar($a, $forceType);

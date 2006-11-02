@@ -35,7 +35,7 @@ class extends iaForm_hidden
 			while ($row =& $result->fetchRow())
 			{
 				if (isset($param['filter'])) $row = call_user_func_array($param['filter'], array(&$row));
-				if ('' !== (string) @$row->G)
+				if (isset($row->G) && '' !== (string) $row->G)
 				{
 					if (isset($this->item[ $row->G ])) $this->item[ $row->G ][ $row->K ] =& $row->V;
 					else

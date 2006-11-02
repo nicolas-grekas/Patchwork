@@ -20,7 +20,7 @@ class extends iaForm_hidden
 	protected function init(&$param)
 	{
 		parent::init($param);
-		if (@$param['maxlength'] > 0) $this->maxlength = (int) $param['maxlength'];
+		if (isset($param['maxlength']) && $param['maxlength'] > 0) $this->maxlength = (int) $param['maxlength'];
 
 		$this->value = str_replace(
 			array("\r\n", "\r"),
