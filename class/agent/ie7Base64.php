@@ -16,7 +16,7 @@ class extends agent_bin
 {
 	function compose($o)
 	{
-		if (false !== strpos(@$_SERVER['QUERY_STRING'], ';'))
+		if (!isset($_SERVER['QUERY_STRING']) || false !== strpos($_SERVER['QUERY_STRING'], ';'))
 		{
 			$data = explode(';', $_SERVER['QUERY_STRING']);
 			CIA::header('Content-Type: ' . $data[0]);

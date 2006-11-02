@@ -22,12 +22,19 @@ class extends iaForm_hidden
 		if (isset($this->form->rawValues[$this->name])) $this->status = true;
 		else if (isset($this->form->rawValues[$this->name.'_x']) && isset($this->form->rawValues[$this->name.'_y']))
 		{
-			$this->value = array(@$this->form->rawValues[$this->name.'_x'], @$this->form->rawValues[$this->name.'_y']);
+			$x =& $this->form->rawValues;
 
-			$x = VALIDATE::get($this->value[0], 'int');
-			$y = VALIDATE::get($this->value[1], 'int');
+			$this->value = array(
+				isset($x[$this->name.'_x']) ? (int) $x[$this->name.'_x'] : 0, 
+				isset($x[$this->name.'_y']) ? (int) $x[$this->name.'_y'] : 0, 
+			);
 
-			$this->status = $x!==false && $y!==false;
+			unset($x);
+
+			$x = $this->value[0];
+			$y = $this->value[1];
+
+			$this->status = false!=$x && false!=$y;
 			$this->value = $this->status ? array($x, $y) : array();
 		}
 		else $this->status = '';

@@ -21,16 +21,20 @@ function get_notify_url($event, $message_id)
 
 require_once 'HTTP/Request.php';
 
-$event = @$_SERVER['argv'][1];
+if (!isset($_SERVER['argv'][1])) die("No event specified as first parameter. Needed value is \"reply\" or \"bounce\".\n");
 
-if ('reply' != $event && 'bounce' != $event) die("No event or bad event specified in the first parameter. Needed value is \"reply\" or \"bounce\".\n");
+$event = $_SERVER['argv'][1];
+
+if ('reply' != $event && 'bounce' != $event) die("Bad event specified as first parameter. Needed value is \"reply\" or \"bounce\".\n");
 
 $body = '';
 $header = '';
 
 while (!feof(STDIN))
 {
-	$header .= str_replace(array("\r\n", "\r"), array("\n", "\n"), fread(STDIN, 8192));
+	$a = fread(STDIN, 8192);
+	if (false !== strpos($a, "\r")) str_replace(array("\r\n", "\r"), array("\n", "\n"), $a)
+	$header .= $a;
 
 	$a = strpos($header, "\n\n");
 	if (false !== $a)
@@ -92,7 +96,12 @@ if ($send_email)
 	$send_mail =& $header;
 	$send_mail .= $body;
 
-	while (!feof(STDIN)) $send_mail .= str_replace(array("\r\n", "\r"), array("\n", "\n"), fread(STDIN, 8192));
+	while (!feof(STDIN))
+	{
+		$a = fread(STDIN, 8192);
+		if (false !== strpos($a, "\r")) str_replace(array("\r\n", "\r"), array("\n", "\n"), $a)
+		$send_mail .= $a;
+	}
 }
 
 foreach ($notify_urls as &$a)

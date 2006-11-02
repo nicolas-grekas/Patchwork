@@ -32,7 +32,7 @@ abstract class
 			$id = CIA::getContextualCachePath('lang/' . substr($id, 6), 'php');
 			if (!isset(self::$cache[$id]))
 			{
-				$cache = @include $id;
+				if (file_exists($id)) $cache = include $id;
 
 				self::$cache[$id] = $cache ? array(false, false, &$cache) : array(false, true, array());
 			}

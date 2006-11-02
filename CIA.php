@@ -95,7 +95,7 @@ $CONFIG = array();
 $version_id = $CIA . '/.config.zcache.php';
 
 define('__CIA__', dirname(__FILE__));
-define('CIA_CHECK_SOURCE', 'no-cache' == @$_SERVER['HTTP_CACHE_CONTROL']);
+define('CIA_CHECK_SOURCE', isset($_SERVER['HTTP_CACHE_CONTROL']) && 'no-cache' == $_SERVER['HTTP_CACHE_CONTROL']);
 
 require !CIA_CHECK_SOURCE && file_exists($version_id)
 	? $version_id
@@ -122,7 +122,7 @@ chdir(CIA_PROJECT_PATH);
 */
 if (!isset($_SERVER['CIA_HOME']))
 {
-	$_SERVER['CIA_HOME'] = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'];
+	$_SERVER['CIA_HOME'] = 'http' . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'];
 	$_SERVER['CIA_LANG'] = $_SERVER['CIA_REQUEST'] = '';
 
 	$lang_rx = '([a-z]{2}(?:-[A-Z]{2})?)';
@@ -133,7 +133,7 @@ if (!isset($_SERVER['CIA_HOME']))
 
 		$_SERVER['CIA_HOME'] .= '/__/';
 
-		if (preg_match("'^/{$lang_rx}/?(.*)$'", @$_SERVER['PATH_INFO'], $a))
+		if (isset($_SERVER['PATH_INFO']) && preg_match("'^/{$lang_rx}/?(.*)$'", $_SERVER['PATH_INFO'], $a))
 		{
 			$_SERVER['CIA_LANG']    = $a[1];
 			$_SERVER['CIA_REQUEST'] = $a[2];
@@ -143,7 +143,7 @@ if (!isset($_SERVER['CIA_HOME']))
 	{
 		$_SERVER['CIA_HOME'] .= '?__/';
 
-		if (preg_match("'^{$lang_rx}/?([^\?]*)(\??)'", rawurldecode(@$_SERVER['QUERY_STRING']), $a))
+		if (isset($_SERVER['QUERY_STRING']) && preg_match("'^{$lang_rx}/?([^\?]*)(\??)'", rawurldecode($_SERVER['QUERY_STRING']), $a))
 		{
 			$_SERVER['CIA_LANG']    = $a[1];
 			$_SERVER['CIA_REQUEST'] = $a[2];
@@ -165,7 +165,7 @@ if (!isset($_SERVER['CIA_HOME']))
 	unset($lang_rx);
 	unset($a);
 }
-else if ('/' == substr($_SERVER['CIA_HOME'], 0, 1)) $_SERVER['CIA_HOME'] = 'http' . (@$_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['CIA_HOME'];
+else if (!strncmp('/', $_SERVER['CIA_HOME'], 1)) $_SERVER['CIA_HOME'] = 'http' . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['CIA_HOME'];
 // }}}
 
 // {{{ Global Initialisation
@@ -173,6 +173,7 @@ define('DEBUG',			(int) $CONFIG['DEBUG']);
 define('CIA_MAXAGE',	$CONFIG['maxage']);
 define('CIA_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
 define('CIA_DIRECT', '_' == $_SERVER['CIA_REQUEST']);
+define('CIA_WINDOWS', '\\' == DIRECTORY_SEPARATOR);
 
 function E($msg = '__getDeltaMicrotime')
 {
@@ -295,7 +296,7 @@ function __autoload($searched_class)
 	$level = $class_level>=0 ? $class_level + 1 : count($GLOBALS['cia_paths']);
 	$cache = false;
 
-	if ('_' == substr($class, -1) || '_' == substr($class, 0, 1) || false !== strpos($class, '__')) // Out of the path class: search for an existing parent
+	if ('_' == substr($class, -1) || !strncmp('_', $class, 1) || false !== strpos($class, '__')) // Out of the path class: search for an existing parent
 	{
 		if ($class_level >= 0) --$level;
 
@@ -400,7 +401,7 @@ function __autoload($searched_class)
 
 			file_put_contents($tmp, $code);
 
-			if ('WIN' == substr(PHP_OS, 0, 3)) 
+			if (CIA_WINDOWS)
 			{
 				$code = new COM('Scripting.FileSystemObject');
 				$code->GetFile($GLOBALS['cia_paths'][0] . '/' . $tmp)->Attributes |= 2;
@@ -432,7 +433,7 @@ if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && !isset($_SERVER['HTTP_IF_NONE_M
 	unset($match);
 }
 
-if ('-' == @$_SERVER['HTTP_IF_NONE_MATCH'][0] && preg_match("'^-[0-9a-f]{8}$'", $_SERVER['HTTP_IF_NONE_MATCH'], $match))
+if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && !strncmp($_SERVER['HTTP_IF_NONE_MATCH'], '-', 1) && preg_match("'^-[0-9a-f]{8}$'", $_SERVER['HTTP_IF_NONE_MATCH'], $match))
 {
 	$_SERVER['HTTP_IF_NONE_MATCH'] = substr($_SERVER['HTTP_IF_NONE_MATCH'], 1);
 
@@ -440,8 +441,8 @@ if ('-' == @$_SERVER['HTTP_IF_NONE_MATCH'][0] && preg_match("'^-[0-9a-f]{8}$'", 
 	$match = resolvePath('zcache/') . $match[1] .'/'. $match[2] .'/'. substr($match, 3) .'.validator.'. DEBUG .'.';
 	$match .= md5($_SERVER['CIA_HOME'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
 
-	$headers = @file_get_contents($match);
-	if ($headers !== false)
+	$headers = file_exists($match) && file_get_contents($match);
+	if (false !== $headers)
 	{
 		header('HTTP/1.x 304 Not Modified');
 		if ($headers)

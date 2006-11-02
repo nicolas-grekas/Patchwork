@@ -23,7 +23,7 @@ function HTTP_Best_Language($supported)
 {
 	$candidates = array();
 
-	foreach (explode(',', @$_SERVER['HTTP_ACCEPT_LANGUAGE']) as $item)
+	if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) foreach (explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']) as $item)
 	{
 		$item = explode(';q=', $item);
 		if ($item[0] = trim($item[0])) $candidates[ $item[0] ] = isset($item[1]) ? (double) trim($item[1]) : 1;

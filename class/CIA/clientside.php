@@ -160,7 +160,7 @@ EOHTML;
 		}
 		else $data = @ob_get_flush();
 
-		$data = str_replace('<?', "<<?php ?>?", $data);
+		if (false !== strpos($data, '<?')) $data = str_replace('<?', "<<?php ?>?", $data);
 
 		if ('ontouch' == $expires && !($watch || CIA_MAXAGE == $maxage)) $expires = 'auto';
 		$expires = 'auto' == $expires && ($watch || CIA_MAXAGE == $maxage) ? 'ontouch' : 'onmaxage';
@@ -218,7 +218,9 @@ EOHTML;
 					if ($h = self::fopenX($cagent))
 					{
 						$ob = false;
-						$maxage = $template . $data . str_replace('<?', "<<?php ?>?", $liveAgent ? @ob_get_clean() : @ob_get_flush());
+						$maxage = @($liveAgent ? ob_get_clean() : ob_get_flush());
+						if (false !== strpos($maxage, "\r")) $maxage = str_replace('<?', "<<?php ?>?", $maxage);
+						$maxage = $template . $data . $maxage;
 
 						fwrite($h, $maxage, strlen($maxage));
 						fclose($h);

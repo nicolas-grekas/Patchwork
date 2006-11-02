@@ -20,9 +20,9 @@ class extends iaForm_text
 
 	protected function init(&$param)
 	{
-		$this->valid_args[] = $this->maxlength = (int) @$param['maxlength'];
+		$this->valid_args[] = $this->maxlength = isset($param['maxlength']) ? (int) $param['maxlength'] : 0;
 
-		$this->valid = @$param['valid'];
+		$this->valid = isset($param['valid']) ? $param['valid'] : '';
 		if (!$this->valid) $this->valid = 'file';
 
 		$i = 0;
@@ -34,7 +34,7 @@ class extends iaForm_text
 
 	protected function addJsValidation($a)
 	{
-		$a->_valid = new loop_array(array('string', @$this->valid_args[0]));
+		$a->_valid = new loop_array(array('string', isset($this->valid_args[0]) ? $this->valid_args[0] : ''));
 		return $a;
 	}
 }
