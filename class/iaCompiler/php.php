@@ -71,7 +71,11 @@ class extends iaCompiler
 			$comma = ',';
 		}
 
-		if (DEBUG && "'" != $inc[0]) $this->pushCode("null===$inc?E('AGENT is undefined: $inc'):CIA_serverside::loadAgent($inc,array($a)," .( $is_exo ? 1 : 0 ). ");");
+		if (DEBUG && !strncmp($inc, '(isset(', 7))
+		{
+			$inc = substr($inc, 7, strpos($inc, ')', 7) - 7);
+			$this->pushCode("isset($inc)?CIA_serverside::loadAgent($inc,array($a)," .( $is_exo ? 1 : 0 ). "):E('AGENT is undefined: $inc');");
+		}
 		else $this->pushCode("CIA_serverside::loadAgent($inc,array($a)," .( $is_exo ? 1 : 0 ). ");");
 
 		return true;

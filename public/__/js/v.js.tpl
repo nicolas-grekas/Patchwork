@@ -369,24 +369,17 @@ function maxlengthTextarea()
 
 function autofitTextarea()
 {
-	var $this = this, $style = $this.style, $valueLength;
+	var $this = this, $style = $this.style;
 
 	$this.checkMaxlength();
 
 	if (!window.ScriptEngine)
 	{
-		$valueLength = $this.value.length;
+		$style.height = $this.$offsetHeight + 'px';
+		$style.width  = $this.$offsetWidth  + 'px';
 
-		if ($valueLength < $this.$valueLength)
-		{
-			$style.height = $this.$offsetHeight + 'px';
-			$style.width = $this.$offsetWidth + 'px';
-		}
-
-		$style.height = $this.scrollHeight + 'px';
-		$style.width = $this.scrollWidth + 'px';
-
-		$this.$valueLength = $valueLength;
+		if ($this.offsetHeight < $this.scrollHeight) $style.height = $this.scrollHeight + 'px';
+		if ($this.offsetWidth  < $this.scrollWidth ) $style.width  = $this.scrollWidth  + 'px';
 	}
 }
 	
@@ -408,7 +401,6 @@ addOnload(function()
 			if (!window.ScriptEngine && window.getComputedStyle && 'visible' == document.defaultView.getComputedStyle($t, null).getPropertyValue('overflow'))
 			{
 				$t.style.overflow = 'hidden';
-				$t.$valueLength = $t.value.length - 1;
 				$t.$offsetHeight = $t.offsetHeight;
 				$t.$offsetWidth = $t.offsetWidth;
 				$t.onkeyup = $t.autofit;
