@@ -23,9 +23,10 @@ $contentType = array(
 	'.gif' => 'image/gif',
 	'.jpg' => 'image/jpeg',
 	'.jpeg' => 'image/jpeg',
-);
 
-$contentType = $contentType[$path];
+	'.pdf' => 'application/pdf',
+
+);
 
 $i = 0;
 $len = count($GLOBALS['cia_paths']);
@@ -45,7 +46,11 @@ while (--$len);
 
 if ($len)
 {
-	CIA::header('Content-Type: ' . $contentType);
+	$mime = strtolower($mime[0]);
+	$mime = isset($contentType[$mime]) ? $contentType[$mime] : false;
+
+	if ($mime) CIA::header('Content-Type: ' . $contentType[$mime]);
+
 	CIA::setMaxage(-1);
 	CIA::writeWatchTable('public/static', 'zcache/');
 

@@ -50,7 +50,7 @@ function DB($close = false)
 
 		$db->connect();
 
-		if(PEAR::isError($db))
+		if (@PEAR::isError($db))
 		{
 			trigger_error($db->getMessage(), E_USER_ERROR);
 			exit;
@@ -141,22 +141,7 @@ class
 
 		// {{{ Static controler
 		$agent = $_SERVER['CIA_REQUEST'];
-		$path = strtolower(strrchr($agent, '.'));
-		switch ($path)
-		{
-			case '.html':
-			case '.htm':
-			case '.css':
-			case '.js':
-			case '.htc':
-
-			case '.png':
-			case '.gif':
-			case '.jpg':
-			case '.jpeg':
-
-			require processPath('controler.php');
-		}
+		if (preg_match("'\.[a-z0-9]{1,4}$'i", $agent, $mime)) require processPath('controler.php');
 		// }}}
 
 		if (!extension_loaded('mbstring')) require processPath('mbstring.php');

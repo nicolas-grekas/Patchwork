@@ -152,7 +152,7 @@ class extends Mail_mime
 		if ($isfile)
 		{
 			$data =& $this->_file2str($data);
-			if (PEAR::isError($data)) return $data;
+			if (@PEAR::isError($data)) return $data;
 		}
 
 		$data = str_replace(array("\r\n", "\r", "\n"), array("\n", "\n", $this->_eol), $data);
@@ -166,7 +166,7 @@ class extends Mail_mime
 		if ($isfile)
 		{
 			$data =& $this->_file2str($data);
-			if (PEAR::isError($data)) return $data;
+			if (@PEAR::isError($data)) return $data;
 		}
 
 		$data = str_replace(array("\r\n", "\r", "\n"), array("\n", "\n", $this->_eol), $data);

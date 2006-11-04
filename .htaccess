@@ -1,4 +1,5 @@
 Deny from all
+#AcceptPathInfo On
 #php_admin_flag safe_mode off
 
 # Uncomment to enable PHP5 on free.fr

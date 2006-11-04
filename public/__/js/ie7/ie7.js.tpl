@@ -1163,11 +1163,11 @@ function addTimer($object, $cssText, $url) {
 
 // -------- >>      insert modules here for packaging       << -------- \\
 
-<!-- AGENT 'js/ie7/ie7-html4.js' -->
-<!-- AGENT 'js/ie7/ie7-layout.js' -->
-<!-- AGENT 'js/ie7/ie7-graphics.js' -->
-<!-- AGENT 'js/ie7/ie7-fixed.js' -->
-<!-- AGENT 'js/ie7/ie7-css2-selectors.js' -->
+<!-- AGENT 'js/ie7/ie7-html4.js' --> 
+<!-- AGENT 'js/ie7/ie7-layout.js' --> 
+<!-- AGENT 'js/ie7/ie7-graphics.js' --> 
+<!-- AGENT 'js/ie7/ie7-fixed.js' --> 
+<!-- AGENT 'js/ie7/ie7-css2-selectors.js' --> 
 
 loaded = true;
 

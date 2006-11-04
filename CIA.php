@@ -186,8 +186,8 @@ if (function_exists('date_default_timezone_set') && isset($CONFIG['timezone'])) 
 // }}}
 
 
-if (1) // Hack to enable the 3 functions below only when execution reaches this point
-{
+
+{ // Hack to enable the 3 functions below only when execution reaches this point
 
 // {{{ function resolvePath(): cia-specific include_path-like mechanism
 function resolvePath($file, $level = false, $base = false)
