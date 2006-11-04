@@ -95,6 +95,7 @@ $CONFIG = array();
 $version_id = $CIA . '/.config.zcache.php';
 
 define('__CIA__', dirname(__FILE__));
+define('CIA_WINDOWS', '\\' == DIRECTORY_SEPARATOR);
 define('CIA_CHECK_SOURCE', isset($_SERVER['HTTP_CACHE_CONTROL']) && 'no-cache' == $_SERVER['HTTP_CACHE_CONTROL']);
 
 require !CIA_CHECK_SOURCE && file_exists($version_id)
@@ -173,7 +174,6 @@ define('DEBUG',			(int) $CONFIG['DEBUG']);
 define('CIA_MAXAGE',	$CONFIG['maxage']);
 define('CIA_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
 define('CIA_DIRECT', '_' == $_SERVER['CIA_REQUEST']);
-define('CIA_WINDOWS', '\\' == DIRECTORY_SEPARATOR);
 
 function E($msg = '__getDeltaMicrotime')
 {
