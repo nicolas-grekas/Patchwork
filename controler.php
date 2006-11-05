@@ -62,7 +62,7 @@ if ($len)
 		$mime = mime_content_type($source);
 	}
 
-	if ($mime) CIA::header('Content-Type: ' . $contentType[$mime]);
+	if ($mime) CIA::header('Content-Type: ' . $mime);
 
 	CIA::setMaxage(-1);
 	CIA::writeWatchTable('public/static', 'zcache/');
