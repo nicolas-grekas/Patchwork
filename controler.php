@@ -25,7 +25,6 @@ $contentType = array(
 	'.jpeg' => 'image/jpeg',
 
 	'.pdf' => 'application/pdf',
-
 );
 
 $i = 0;
@@ -48,6 +47,20 @@ if ($len)
 {
 	$mime = strtolower($mime[0]);
 	$mime = isset($contentType[$mime]) ? $contentType[$mime] : false;
+
+	if (!$mime && extension_loaded('fileinfo'))
+	{
+		if ($i = finfo_open(FILEINFO_SYMLINK|FILEINFO_MIME))
+		{
+			$mime = finfo_file($i, $source);
+			finfo_close($i);
+		}
+	}
+
+	if (!$mime && function_exists('mime_content_type'))
+	{
+		$mime = mime_content_type($source);
+	}
 
 	if ($mime) CIA::header('Content-Type: ' . $contentType[$mime]);
 
