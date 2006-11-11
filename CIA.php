@@ -71,8 +71,9 @@ mbstring.func_overload = 0
 
 // {{{ Global context setup
 
-// $_REQUEST is an open door to security problems
+// $_REQUEST is an open door to security problems.
 unset($_REQUEST);
+unset($_REQUEST); // Double unset against a PHP security hole
 
 // Disables mod_deflate who overwrites any custom Vary: header and appends a body to 304 responses.
 // Replaced with native PHP output compression.
@@ -101,8 +102,6 @@ define('CIA_CHECK_SOURCE', isset($_SERVER['HTTP_CACHE_CONTROL']) && 'no-cache' =
 require !CIA_CHECK_SOURCE && file_exists($version_id)
 	? $version_id
 	: (__CIA__ . '/c3mro.php');
-
-unset($CIA);
 
 if (!isset($CONFIG['inheritance_optimization'])) $CONFIG['inheritance_optimization'] = 'include';
 if (!isset($CONFIG['DEBUG'])) $CONFIG['DEBUG'] = (int) @$CONFIG['DEBUG_KEYS'][ (string) $_COOKIE['DEBUG'] ];
@@ -159,12 +158,10 @@ if (!isset($_SERVER['CIA_HOME']))
 			{
 				$_SERVER['QUERY_STRING'] = null;
 				unset($_GET[ key($_GET) ]);
+				unset($_GET[ key($_GET) ]); // Double unset against a PHP security hole
 			}
 		}
 	}
-
-	unset($lang_rx);
-	unset($a);
 }
 else if (!strncmp('/', $_SERVER['CIA_HOME'], 1)) $_SERVER['CIA_HOME'] = 'http' . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['CIA_HOME'];
 // }}}
@@ -429,8 +426,6 @@ if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && !isset($_SERVER['HTTP_IF_NONE_M
 {
 	$match = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE'], 2);
 	$_SERVER['HTTP_IF_NONE_MATCH'] = '-' . dechex(strtotime($match[0]));
-
-	unset($match);
 }
 
 if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && !strncmp($_SERVER['HTTP_IF_NONE_MATCH'], '-', 1) && preg_match("'^-[0-9a-f]{8}$'", $_SERVER['HTTP_IF_NONE_MATCH'], $match))
@@ -459,9 +454,6 @@ if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && !strncmp($_SERVER['HTTP_IF_NONE_MAT
 
 		exit;
 	}
-
-	unset($match);
-	unset($headers);
 }
 // }}}
 
@@ -477,6 +469,7 @@ if (DEBUG && CIA_DIRECT && isset($_GET['d$']))
 if (!isset($_COOKIE['T$']) || !$_COOKIE['T$'])
 {
 	unset($_COOKIE['T$']);
+	unset($_COOKIE['T$']); // Double unset against a PHP security hole
 	define('CIA_TOKEN', md5(uniqid(mt_rand(), true)));
 
 	$k = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_HOME'], 2));
@@ -486,8 +479,6 @@ if (!isset($_COOKIE['T$']) || !$_COOKIE['T$'])
 	if (1 == strlen($k)) $k = '';
 
 	setcookie('T$', CIA_TOKEN, 0, $k .'/');
-
-	unset($k);
 }
 else define('CIA_TOKEN', $_COOKIE['T$']);
 
