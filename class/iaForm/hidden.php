@@ -199,7 +199,11 @@ class extends loop_callAgent
 		$i = 0;
 		while(isset($param[$i])) $this->valid_args[] =& $param[$i++];
 
-		if (isset($this->form->rawValues[$this->name])) $this->value = $this->form->rawValues[$this->name];
+		if (isset($this->form->rawValues[$this->name]))
+		{
+			$this->value = $this->form->rawValues[$this->name];
+			if (is_string($this->value) && false !== strpos($this->value, "\0")) $this->value = str_replace("\0", '', $this->value);
+		}
 		else if (isset($param['default']))
 		{
 			$this->value = $param['default'];
