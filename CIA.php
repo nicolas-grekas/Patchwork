@@ -109,6 +109,10 @@ if (isset($CONFIG['clientside']) && !$CONFIG['clientside']) $_GET['$bin'] = true
 
 define('CIA_PROJECT_PATH', $cia_paths[0]);
 chdir(CIA_PROJECT_PATH);
+
+// Restore the current dir in shutdown context.
+register_shutdown_function('chdir', CIA_PROJECT_PATH);
+
 // }}}
 
 // {{{ CIA's environment context
