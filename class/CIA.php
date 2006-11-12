@@ -1185,6 +1185,7 @@ class agent
 			$key = array_shift($a);
 
 			$b = isset($args[$key]) ? (string) $args[$key] : '';
+			if (false !== strpos($b, "\0")) $b = str_replace("\0", "", $b);
 
 			if ($a)
 			{
