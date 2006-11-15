@@ -1029,6 +1029,20 @@ class
 		}
 
 
+		/* Anti-XSRF token */
+		if (stripos(self::$headers['content-type'], 'html') && ($meta = stripos($buffer, '</form')))
+		{
+			self::$private = true;
+			self::$maxage = 1;
+
+			$buffer = str_ireplace(
+				'</form',
+				'<input type="hidden" name="T$" value="' . CIA_TOKEN . '" /><script type="text/javascript">/*<![CDATA[*/syncXSJ()//]]></script></form',
+				$buffer
+			);
+		}
+
+
 		if (self::$cancelled)
 		{
 			self::$handlesOb = false;
@@ -1106,7 +1120,7 @@ class
 				header('Last-Modified: ' . $LastModified);
 			}
 
-			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', $_SERVER['REQUEST_TIME'] + self::$maxage));
+			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + self::$maxage));
 			header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');
 		}
 

@@ -119,6 +119,28 @@ function addOnload($function)
 
 addOnload.p = [];
 
+function syncXSJ($form)
+{
+	if (!$form)
+	{
+		$form = document.forms;
+		$form = $form[$form.length - 1];
+	}
+
+	if ($form['T$']) $form['T$'].value = antiXSJ;
+	else if ($form.appendChild)
+	{
+		var $a = document.createElement('input');
+
+		$a.type = 'hidden';
+		$a.name = 'T$';
+		$a.value = antiXSJ;
+
+		$form.appendChild($a);
+	}
+	else $form.innerHTML += '<input type="hidden" name="T$" value="' + antiXSJ + '" />';
+}
+
 addOnload.run = function()
 {
 	addOnload.o = window.onload;
@@ -129,6 +151,11 @@ addOnload.run = function()
 
 		if ($document.removeChild)
 		{
+
+			$pool = $document.getElementsByTagName('form');
+			$i = $pool.length;
+			while ($i--) syncXSJ($pool[$i]);
+
 			$pool = $document.getElementsByTagName('script');
 			$i = $pool.length;
 			while ($i--) if ('w' == ($script = $pool[$i]).className) $script.parentNode.removeChild($script);
