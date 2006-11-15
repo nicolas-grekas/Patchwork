@@ -18,9 +18,6 @@ function get_notify_url($event, $message_id)
 }
 
 
-
-require_once 'HTTP/Request.php';
-
 if (!isset($_SERVER['argv'][1])) die("No event specified as first parameter. Needed value is \"reply\" or \"bounce\".\n");
 
 $event = $_SERVER['argv'][1];
@@ -106,11 +103,15 @@ if ($send_email)
 
 foreach ($notify_urls as &$a)
 {
-	$r = new HTTP_Request( $a['notify_url'] );
-	$r->setMethod(HTTP_REQUEST_METHOD_POST);
-	$r->addPostData('event', $event);
-	$r->addPostData('inside-to', $a['inside-to']);
-	$r->addPostData('inside-references', $a['inside-references']);
-	$r->addPostData('email-body', $send_email);
-	$r->sendRequest();
+	$context = stream_context_create(array('http' => array(
+		'method' => 'POST',
+		'content' => http_build_query(array(
+			'event' => $event,
+			'inside-to' => $a['inside-to'],
+			'inside-references' => $a['inside-references'],
+			'email-body' => $send_email,
+		))
+	)));
+
+	file_get_contents($a['notify_url'], false, $context);
 }
