@@ -103,7 +103,6 @@ require !CIA_CHECK_SOURCE && file_exists($version_id)
 	? $version_id
 	: (__CIA__ . '/c3mro.php');
 
-if (!isset($CONFIG['inheritance_optimization'])) $CONFIG['inheritance_optimization'] = 'include';
 if (!isset($CONFIG['DEBUG'])) $CONFIG['DEBUG'] = (int) @$CONFIG['DEBUG_KEYS'][ (string) $_COOKIE['DEBUG'] ];
 if (isset($CONFIG['clientside']) && !$CONFIG['clientside']) $_GET['$bin'] = true;
 
@@ -275,14 +274,6 @@ $__autoload_static_pool = false;
 
 function __autoload($searched_class)
 {
-	static $optimization = -1;
-
-	if (-1 == $optimization)
-	{
-		$optimization = $GLOBALS['CONFIG']['inheritance_optimization'];
-		$optimization = 'inline' == $optimization ? 2 : ('include' == $optimization ? 1 : 0);
-	}
-
 	if (preg_match("'^(.+)__(0|[1-9][0-9]*)$'", $searched_class, $class_level)) // Namespace renammed class
 	{
 		$class = $class_level[1];
@@ -344,13 +335,13 @@ function __autoload($searched_class)
 			{
 				$current_pool = array();
 				$parent_pool =& $GLOBALS['__autoload_static_pool'];
-				if ($optimization) $GLOBALS['__autoload_static_pool'] =& $current_pool;
+				$GLOBALS['__autoload_static_pool'] =& $current_pool;
 
 				require $cache;
 
 				if (class_exists($searched_class, false)) $parent_class = false;
 
-				if (false !== $parent_pool) $parent_pool[$parent_class ? $parent_class : $searched_class] = array($cache, file_get_contents($cache));
+				if (false !== $parent_pool) $parent_pool[$parent_class ? $parent_class : $searched_class] = array(0, $cache);
 
 				break;
 			}
@@ -369,7 +360,7 @@ function __autoload($searched_class)
 
 	if ($cache)
 	{
-		if ($parent_pool && $class) $parent_pool[$searched_class] = array('', '<?php ' . $class . '?>');
+		if ($parent_pool && $class) $parent_pool[$searched_class] = array(1, '<?php ' . $class . '?>');
 
 		$GLOBALS['__autoload_static_pool'] =& $parent_pool;
 
@@ -383,7 +374,7 @@ function __autoload($searched_class)
 
 			foreach ($current_pool as $class => &$c)
 			{
-				if (!$c[0] || 2 == $optimization)
+				if ($c[0])
 				{
 					$c =& $c[1];
 
@@ -392,7 +383,7 @@ function __autoload($searched_class)
 
 					$code = substr($code, 0, -2) . "if(!class_exists('$class',0)){" . substr($c, 6, -2) . '}?>';
 				}
-				else $code = substr($code, 0, -2) . "class_exists('{$class}',0)||require '{$c[0]}';?>";
+				else $code = substr($code, 0, -2) . "class_exists('{$class}',0)||require '{$c[1]}';?>";
 			}
 
 			$code = substr($code, 0, -2) . ';' . substr($tmp, 6);
