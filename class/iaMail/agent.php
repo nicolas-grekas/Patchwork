@@ -55,9 +55,8 @@ class extends iaMail
 		if (isset(self::$imageCache[$url])) $data =& self::$imageCache[$url];
 		else
 		{
-			$data = new HTTP_Request($url);
-			$data->sendRequest();
-			$data = $data->getResponseBody();
+			$data = stream_context_create(array('http' => array('method' => 'GET')));
+			$data = file_get_contents($url, false, $data);
 			self::$imageCache[$url] =& $data;
 		}
 

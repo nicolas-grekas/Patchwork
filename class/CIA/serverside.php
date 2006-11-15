@@ -108,18 +108,16 @@ class extends CIA
 			{
 				if ($is_exo)
 				{
-					require_once 'HTTP/Request.php';
-					$agent = preg_replace("'__'", self::__LANG__(), $agent, 1);
-					$agent = new HTTP_Request($agent);
-					$agent->addQueryString('$s', '');
-					foreach ($args as $k => &$v) $agent->addQueryString($k, self::string($v));
+					$agent = preg_replace("'__'", self::__LANG__(), $agent, 1) . '?$s=';
 
-					$agent->sendRequest();
+					foreach ($args as $k => &$v) $agent .= '&' . urlencode($k) . '=' . urlencode(self::string($v));
+
+					$agent = file_get_contents($agent, false, stream_context_create(array('http' => array('method' => 'GET'))));
 
 					echo str_replace(
 						array('&gt;', '&lt;', '&quot;', '&#039;', '&amp;'),
 						array('>'   , '<'   , '"'     , "'"     , '&'    ),
-						$agent->getResponseBody()
+						$agent
 					);
 				}
 				else E("CIA Security Restriction Error: an EXOAGENT ({$agent}) is called with AGENT");

@@ -842,11 +842,9 @@ class
 
 		if (!$keys)
 		{
-			require_once 'HTTP/Request.php';
 			$agent = implode(self::__LANG__(), explode('__', $agent, 2));
-			$keys = new HTTP_Request($agent . '?k$=');
-			$keys->sendRequest();
-			$keys = $keys->getResponseBody();
+
+			$keys = file_get_contents($agent . '?k$=', false, stream_context_create(array('http' => array('method' => 'GET'))));
 
 			if (!preg_match($s, $keys, $keys))
 			{
