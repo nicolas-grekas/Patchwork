@@ -18,7 +18,6 @@ $CONFIG += array(
 
 	'clientside' => true,
 	'use_path_info' => true,
-	'inheritance_optimization' => 'inline', // 'inline', 'include' or false
 
 	'maxage' => 3600,
 	'lang_list' => 'fr',
