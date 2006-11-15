@@ -475,9 +475,21 @@ if (!isset($_COOKIE['T$']) || !$_COOKIE['T$'])
 
 	setcookie('T$', CIA_TOKEN, 0, $k .'/');
 }
-else define('CIA_TOKEN', $_COOKIE['T$']);
+else
+{
+	define('CIA_TOKEN', $_COOKIE['T$']);
+
+	if (CIA_POSTING && (!isset($_POST['T$']) || $_COOKIE['T$'] != $_POST['T$']))
+	{
+		E('Potential Cross Site Request Forgery. $_POST is not reliable. Erasing it !');
+		E($_SERVER); E($_POST); E($_COOKIE);
+
+		$_POST = array();
+	}
+}
 
 define('CIA_TOKEN_MATCH', isset($_GET['T$']) && CIA_TOKEN == $_GET['T$']);
+
 // }}}
 
 /* Let's go */
