@@ -100,17 +100,18 @@ function $QJsrsContext($name)
 		else if ($html) $win.frames[$name].location.replace($url);
 		else
 		{
-			if (!$div) $div = $document.getElementById ? $document.getElementById('divQJsrs') : $document.all['divQJsrs'];
-
-			$html = '<iframe name='+ $name +' src="'+ $url.replace(/"/g, '&quot;') +'" width="0" height="0" frameborder="0">';
+			if (!$div) $div = $document.getElementById ? $document.getElementById('divQJsrs') : $document.all.divQJsrs;
 
 			if ($div.appendChild && (!$win.ScriptEngine || 5.5 <= ScriptEngineMajorVersion() + ScriptEngineMinorVersion() / 10))
 			{
-				$html = $document.createElement($html);
+				$html = $document.createElement('iframe');
+				$html.name = $name;
+				$html.src = $url;
+				$html.width = $html.height = $html.frameBorder = 0;
 				$html.tabIndex = -1;
 				$div.appendChild($html);
 			}
-			else $div.innerHTML += $html + '</iframe>',
+			else $div.innerHTML += '<iframe name='+ $name +' src="'+ $url.replace(/"/g, '&quot;') +'" width="0" height="0" frameborder="0" tabindex="-1"></iframe>',
 
 			$html = 1;
 		}
