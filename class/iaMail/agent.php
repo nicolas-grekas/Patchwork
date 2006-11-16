@@ -12,8 +12,6 @@
  ***************************************************************************/
 
 
-require_once 'HTTP/Request.php';
-
 class extends iaMail
 {
 	protected $agent;
@@ -55,8 +53,20 @@ class extends iaMail
 		if (isset(self::$imageCache[$url])) $data =& self::$imageCache[$url];
 		else
 		{
-			$data = stream_context_create(array('http' => array('method' => 'GET')));
-			$data = file_get_contents($url, false, $data);
+			if (ini_get('allow_url_fopen'))
+			{
+				$data = stream_context_create(array('http' => array('method' => 'GET')));
+				$data = file_get_contents($url, false, $data);
+			}
+			else
+			{
+				require_once 'HTTP/Request.php';
+
+				$data = new HTTP_Request($url);
+				$data->sendRequest();
+				$data = $data->getResponseBody();
+			}
+
 			self::$imageCache[$url] =& $data;
 		}
 

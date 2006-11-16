@@ -101,17 +101,35 @@ if ($send_email)
 	}
 }
 
-foreach ($notify_urls as &$a)
+if (ini_get('allow_url_fopen'))
 {
-	$context = stream_context_create(array('http' => array(
-		'method' => 'POST',
-		'content' => http_build_query(array(
-			'event' => $event,
-			'inside-to' => $a['inside-to'],
-			'inside-references' => $a['inside-references'],
-			'email-body' => $send_email,
-		))
-	)));
+	foreach ($notify_urls as &$a)
+	{
+		$context = stream_context_create(array('http' => array(
+			'method' => 'POST',
+			'content' => http_build_query(array(
+				'event' => $event,
+				'inside-to' => $a['inside-to'],
+				'inside-references' => $a['inside-references'],
+				'email-body' => $send_email,
+			))
+		)));
 
-	file_get_contents($a['notify_url'], false, $context);
+		file_get_contents($a['notify_url'], false, $context);
+	}
+}
+else
+{
+	require_once 'HTTP/Request.php';
+
+	foreach ($notify_urls as &$a)
+	{
+		$r = new HTTP_Request( $a['notify_url'] );
+		$r->setMethod(HTTP_REQUEST_METHOD_POST);
+		$r->addPostData('event', $event);
+		$r->addPostData('inside-to', $a['inside-to']);
+		$r->addPostData('inside-references', $a['inside-references']);
+		$r->addPostData('email-body', $send_email);
+		$r->sendRequest();
+	}
 }

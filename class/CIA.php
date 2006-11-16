@@ -315,7 +315,8 @@ class
 		self::$home = explode('__', $_SERVER['CIA_HOME'], 2);
 		self::$home = implode($new_lang, self::$home);
 
-		self::$host = substr(self::$home, 0, strpos(self::$home, '/', 8)+1);
+		self::$host = strtr(self::$home, '#?', '//');
+		self::$host = substr(self::$home, 0, strpos(self::$host, '/', 8)+1);
 		self::$uri = self::$host . substr($_SERVER['REQUEST_URI'], 1);
 
 		return $lang;
@@ -844,7 +845,18 @@ class
 		{
 			$agent = implode(self::__LANG__(), explode('__', $agent, 2));
 
-			$keys = file_get_contents($agent . '?k$=', false, stream_context_create(array('http' => array('method' => 'GET'))));
+			if (ini_get('allow_url_fopen'))
+			{
+				$keys = file_get_contents($agent . '?k$=', false, stream_context_create(array('http' => array('method' => 'GET'))));
+			}
+			else
+			{
+				require_once 'HTTP/Request.php';
+
+				$keys = new HTTP_Request($agent . '?k$=');
+				$keys->sendRequest();
+				$keys = $keys->getResponseBody();
+			}
 
 			if (!preg_match($s, $keys, $keys))
 			{
