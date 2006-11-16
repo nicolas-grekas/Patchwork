@@ -112,7 +112,18 @@ class extends CIA
 
 					foreach ($args as $k => &$v) $agent .= '&' . urlencode($k) . '=' . urlencode(self::string($v));
 
-					$agent = file_get_contents($agent, false, stream_context_create(array('http' => array('method' => 'GET'))));
+					if (ini_get('allow_url_fopen'))
+					{
+						$agent = file_get_contents($agent, false, stream_context_create(array('http' => array('method' => 'GET'))));
+					}
+					else
+					{
+						require_once 'HTTP/Request.php';
+
+						$agent = new HTTP_Request($agent);
+						$agent->sendRequest();
+						$agent = $agent->getResponseBody();
+					}
 
 					echo str_replace(
 						array('&gt;', '&lt;', '&quot;', '&#039;', '&amp;'),
