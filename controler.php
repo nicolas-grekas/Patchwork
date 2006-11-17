@@ -24,6 +24,7 @@ $contentType = array(
 	'.jpg' => 'image/jpeg',
 	'.jpeg' => 'image/jpeg',
 
+	'.doc' => 'application/msword',
 	'.pdf' => 'application/pdf',
 );
 
@@ -48,22 +49,19 @@ if ($len)
 	$mime = strtolower($mime[0]);
 	$mime = isset($contentType[$mime]) ? $contentType[$mime] : false;
 
-	if (!$mime && extension_loaded('fileinfo'))
+	if (extension_loaded('fileinfo') && ($i = finfo_open(FILEINFO_SYMLINK|FILEINFO_MIME)))
 	{
-		if ($i = finfo_open(FILEINFO_SYMLINK|FILEINFO_MIME))
-		{
-			$mime = finfo_file($i, $source);
-			finfo_close($i);
-		}
+		$mime = finfo_file($i, $source);
+		finfo_close($i);
 	}
-
-	if (!$mime && function_exists('mime_content_type'))
+	else if (function_exists('mime_content_type'))
 	{
 		$mime = mime_content_type($source);
 	}
 
-	if ($mime) CIA::header('Content-Type: ' . $mime);
+	if (!$mime) $mime = 'application/octet-stream';
 
+	CIA::header('Content-Type: ' . $mime);
 	CIA::setMaxage(-1);
 	CIA::writeWatchTable('public/static', 'zcache/');
 
