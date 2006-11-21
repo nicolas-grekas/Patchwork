@@ -127,18 +127,21 @@ function syncXSJ($form)
 		$form = $form[$form.length - 1];
 	}
 
-	if ($form['T$']) $form['T$'].value = antiXSJ;
-	else if ($form.appendChild)
+	if ('post' == $form.method)
 	{
-		var $a = document.createElement('input');
+		if ($form['T$']) $form['T$'].value = antiXSJ;
+		else if ($form.appendChild)
+		{
+			var $a = document.createElement('input');
 
-		$a.type = 'hidden';
-		$a.name = 'T$';
-		$a.value = antiXSJ;
+			$a.type = 'hidden';
+			$a.name = 'T$';
+			$a.value = antiXSJ;
 
-		$form.appendChild($a);
+			$form.appendChild($a);
+		}
+		else $form.innerHTML += '<input type="hidden" name="T$" value="' + antiXSJ + '" />';
 	}
-	else $form.innerHTML += '<input type="hidden" name="T$" value="' + antiXSJ + '" />';
 }
 
 addOnload.run = function()

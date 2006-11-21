@@ -1040,16 +1040,22 @@ class
 
 
 		/* Anti-XSRF token */
-		if (stripos(self::$headers['content-type'], 'html') && ($meta = stripos($buffer, '</form')))
+		if (stripos(self::$headers['content-type'], 'html') && ($meta = stripos($buffer, '<form')))
 		{
-			self::$private = true;
-			self::$maxage = 1;
-
-			$buffer = str_ireplace(
-				'</form',
-				'<input type="hidden" name="T$" value="' . CIA_TOKEN . '" /><script type="text/javascript">/*<![CDATA[*/syncXSJ()//]]></script></form',
+			$meta = preg_replace(
+				'#<form\s[^>]*method\s*=\s*(["\']?)post\1[^>]*>#iu', // XXX How has a better regexp ?
+				'$0<input type="hidden" name="T$" value="' . CIA_TOKEN . '" /><script type="text/javascript">/*<![CDATA[*/syncXSJ()//]]></script></form',
 				$buffer
 			);
+
+			if ($meta != $buffer)
+			{
+				self::$private = true;
+				self::$maxage = 1;
+				$buffer = $meta;
+			}
+
+			unset($meta);
 		}
 
 
