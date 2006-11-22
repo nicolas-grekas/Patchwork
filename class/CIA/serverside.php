@@ -195,7 +195,9 @@ class extends CIA
 		if (function_exists($ftemplate)) $ftemplate($v, $a, $g);
 		else
 		{
-			if ($h = self::fopenX($ctemplate))
+			$readHandle = true;
+
+			if ($h = self::fopenX($ctemplate, $readHandle))
 			{
 				self::openMeta('agent__template/' . $template, false);
 				$compiler = new iaCompiler_php(constant("$agentClass::binary"));
@@ -205,6 +207,7 @@ class extends CIA
 				list(,,, $watch) = self::closeMeta();
 				self::writeWatchTable($watch, $ctemplate);
 			}
+			else fclose($readHandle);
 
 			require $ctemplate;
 		}

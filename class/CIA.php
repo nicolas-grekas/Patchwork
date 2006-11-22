@@ -167,7 +167,8 @@ class
 					echo 'w(0';
 
 					$ctemplate = self::getContextualCachePath("templates/$template", 'txt');
-					if ($h = self::fopenX($ctemplate))
+					$readHandle = true;
+					if ($h = self::fopenX($ctemplate, $readHandle))
 					{
 						self::openMeta('agent__template/' . $template, false);
 						$compiler = new iaCompiler_js(false);
@@ -177,7 +178,11 @@ class
 						list(,,, $watch) = self::closeMeta();
 						self::writeWatchTable($watch, $ctemplate);
 					}
-					else readfile($ctemplate);
+					else
+					{
+						echo stream_get_contents($readHandle);
+						fclose($readHandle);
+					}
 
 					self::setMaxage(-1);
 					break;
@@ -190,7 +195,8 @@ class
 					foreach ($pipe[0] as &$pipe)
 					{
 						$cpipe = self::getContextualCachePath('pipe/' . $pipe, 'js');
-						if ($h = self::fopenX($cpipe))
+						$readHandle = true;
+						if ($h = self::fopenX($cpipe, $readHandle))
 						{
 							ob_start();
 							call_user_func(array('pipe_' . $pipe, 'js'));
@@ -204,7 +210,11 @@ class
 							fclose($h);
 							self::writeWatchTable(array('pipe'), $cpipe);
 						}
-						else readfile($cpipe);
+						else
+						{
+							echo stream_get_contents($readHandle);
+							fclose($readHandle);
+						}
 					}
 
 					echo 'w(0,[])';
@@ -602,7 +612,7 @@ class
 		}
 	}
 
-	public static function fopenX($file)
+	public static function fopenX($file, &$readHandle = false)
 	{
 		self::makeDir($file);
 
@@ -612,6 +622,12 @@ class
 
 			if ($w) fclose($h);
 			else return $h;
+		}
+
+		if ($readHandle)
+		{
+			$readHandle = fopen($file, 'rb');
+			flock($readHandle, LOCK_SH);
 		}
 
 		return false;
@@ -774,8 +790,8 @@ class
 
 		// autodetect private data for antiXSJ
 		$cache = self::getContextualCachePath('antiXSJ.' . $agent, 'txt');
-
-		if ($h = self::fopenX($cache))
+		$readHandle = true;
+		if ($h = self::fopenX($cache, $readHandle))
 		{
 			$private = '';
 
@@ -800,7 +816,12 @@ class
 
 			if ($private) $args[] = 'T$';
 		}
-		else if (filesize($cache)) $args[] = 'T$';
+		else
+		{
+			$cache = fstat($readHandle);
+			fclose($readHandle);
+			if ($cache['size']) $args[] = 'T$';
+		}
 
 		return $args;
 	}
