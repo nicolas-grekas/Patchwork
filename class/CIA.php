@@ -110,7 +110,6 @@ class
 	protected static $cia;
 	protected static $redirectUrl = false;
 	protected static $agentClasses = '';
-	protected static $sessionStarted = false;
 	protected static $cancelled = false;
 	protected static $privateDetectionMode = false;
 	protected static $detectXSJ = false;
@@ -297,17 +296,6 @@ class
 			}
 			else CIA_clientside::loadAgent($agent);
 			// }}}
-		}
-	}
-
-	public static function sessionStart($private = true)
-	{
-		if ($private) self::setGroup('private');
-
-		if (!self::$sessionStarted)
-		{
-			self::$sessionStarted = true;
-			@session_start();
 		}
 	}
 
@@ -1026,7 +1014,7 @@ class
 
 	function shutdown()
 	{
-		if (self::$sessionStarted) session_write_close();
+		if (class_exists('SESSION', false)) SESSION::close();
 		DB(true);
 	}
 
