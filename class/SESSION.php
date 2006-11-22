@@ -28,6 +28,7 @@ class driver_session_default
 	/* Protected properties */
 
 	protected static $started = false;
+	protected static $private = false;
 
 	protected static $DATA;
 	protected static $driver;
@@ -40,72 +41,19 @@ class driver_session_default
 
 	/* Public methods */
 
-	static function start($private = true)
-	{
-		if ($private) CIA::setGroup('private');
-
-		if (self::$started) return;
-
-		self::$started = true;
-
-		self::$class = 'driver_session_' . $GLOBALS['CONFIG']['session_driver'];
-
-		if (self::$maxIdleTime<1 && $maxLifeTime<1) trigger_error('At least one of the SESSION::$max*Time variables must be strictly positive.');
-
-		self::$sslid = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? md5($_SERVER['SSL_SESSION_ID']) : false;
-
-		$i = self::$gcProbabilityNumerator + 1;
-		$j = self::$gcProbabilityDenominator - 1;
-		while (--$i && mt_rand(0, $j));
-		if ($i)
-		{
-			$driver = new self::$class('0lastGC');
-			$i = self::$driver->read();
-			$j = max(self::$maxIdleTime, self::$maxLifeTime);
-			if ($j && $_SERVER['REQUEST_TIME'] - $i > $j)
-			{
-				self::$driver->write($_SERVER['REQUEST_TIME']);
-				self::gc($j);
-			}
-			unset($driver);
-		}
-
-		self::setSID(isset($_COOKIE[self::$cookieName]) ? $_COOKIE[self::$cookieName] : '');
-
-		self::$driver = new self::$class(self::$SID);
-
-		if ($i = self::$driver->read())
-		{
-			$i = unserialize($i);
-			self::$lastseen =  $i[0];
-			self::$birthtime = $i[1];
-			if ((self::$maxIdleTime && $_SERVER['REQUEST_TIME'] - self::$lastseen > self::$maxIdleTime))
-			{
-				// Session hax expired
-				self::regenerateId(true);
-			}
-			else if ((self::$maxLifeTime && $_SERVER['REQUEST_TIME'] - self::$birthtime > self::$maxLifeTime))
-			{
-				// Session has idled
-				self::regenerateId(true);
-			}
-			else self::$DATA = (object) $i[2];
-
-			if (self::$sslid)
-			{
-				if (!$i[3]) self::regenerateId();
-				else if ($i[3]!=self::$sslid) self::regenerateId(true);
-			}
-		}
-		else self::regenerateId(true);
-	}
-
 	static function getSID() {return self::$SID;}
 	static function getLastseen() {return self::$lastseen;}
 
-	static function &get($name)
+	static function &get($name, $private = true)
 	{
 		self::$started || self::start();
+
+		if ($private && !self::$private)
+		{
+			CIA::setGroup('private');
+			self::$private = true;
+		}
+
 		if (!isset(self::$DATA->$name)) self::$DATA->$name = '';
 		return self::$DATA->$name;
 	}
@@ -166,6 +114,64 @@ class driver_session_default
 
 
 	/* Protected methods */
+
+	protected static function start()
+	{
+		if (self::$started) return;
+
+		self::$started = true;
+
+		self::$class = 'driver_session_' . $GLOBALS['CONFIG']['session_driver'];
+
+		if (self::$maxIdleTime<1 && $maxLifeTime<1) trigger_error('At least one of the SESSION::$max*Time variables must be strictly positive.');
+
+		self::$sslid = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? md5($_SERVER['SSL_SESSION_ID']) : false;
+
+		$i = self::$gcProbabilityNumerator + 1;
+		$j = self::$gcProbabilityDenominator - 1;
+		while (--$i && mt_rand(0, $j));
+		if ($i)
+		{
+			$driver = new self::$class('0lastGC');
+			$i = self::$driver->read();
+			$j = max(self::$maxIdleTime, self::$maxLifeTime);
+			if ($j && $_SERVER['REQUEST_TIME'] - $i > $j)
+			{
+				self::$driver->write($_SERVER['REQUEST_TIME']);
+				self::gc($j);
+			}
+			unset($driver);
+		}
+
+		self::setSID(isset($_COOKIE[self::$cookieName]) ? $_COOKIE[self::$cookieName] : '');
+
+		self::$driver = new self::$class(self::$SID);
+
+		if ($i = self::$driver->read())
+		{
+			$i = unserialize($i);
+			self::$lastseen =  $i[0];
+			self::$birthtime = $i[1];
+			if ((self::$maxIdleTime && $_SERVER['REQUEST_TIME'] - self::$lastseen > self::$maxIdleTime))
+			{
+				// Session hax expired
+				self::regenerateId(true);
+			}
+			else if ((self::$maxLifeTime && $_SERVER['REQUEST_TIME'] - self::$birthtime > self::$maxLifeTime))
+			{
+				// Session has idled
+				self::regenerateId(true);
+			}
+			else self::$DATA = (object) $i[2];
+
+			if (self::$sslid)
+			{
+				if (!$i[3]) self::regenerateId();
+				else if ($i[3]!=self::$sslid) self::regenerateId(true);
+			}
+		}
+		else self::regenerateId(true);
+	}
 
 	protected static function setSID($SID)
 	{
