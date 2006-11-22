@@ -27,40 +27,113 @@ function T($string, $lang = false)
 }
 // }}}
 
+// {{{ hunter : a user function is triggered when a hunter object is destroyed
+class hunter
+{
+	protected $function;
+	protected $param_arr;
+
+	function __construct($function, $param_arr)
+	{
+		$this->function =& $function;
+		$this->param_arr =& $param_arr;
+	}
+
+	function __destruct()
+	{
+		call_user_func_array($this->function, $this->param_arr);
+	}
+}
+// }}}
+
+// {{{ PHP session mechanism overloading
+class sessionHandler
+{
+	static $id;
+
+	static function close()   {return true;}
+	static function gc($life) {return true;}
+
+	static function open($path, $name)
+	{
+		session_cache_limiter('');
+		ini_set('session.use_cookies', false);
+		ini_set('session.use_trans_sid', false);
+		return true;
+	}
+
+	static function read($id)
+	{
+		$_SESSION =& SESSION::get();
+		self::$id = $id;
+		return '';
+	}
+
+	static function write($id, $data)
+	{
+		if (self::$id != $id) SESSION::regenerateId();
+		return true;
+	}
+
+	static function destroy($id)
+	{
+		SESSION::regenerateId(true);
+		return true;
+	}
+}
+
+session_set_save_handler(
+	array($k = 'sessionHandler', 'open'),
+	array($k, 'close'),
+	array($k, 'read'),
+	array($k, 'write'),
+	array($k, 'destroy'),
+	array($k, 'gc')
+);
+
+// }}}
+
 // {{{ Default database support with MDB2
 function DB($close = false)
 {
+	static $hunter;
 	static $db = false;
 
-	if ($close)
+	if ($db || $close)
 	{
-		if ($db) $db->commit();
-	}
-	else if (!$db)
-	{
-		require_once 'MDB2.php';
-
-		$db = @MDB2::factory($GLOBALS['CONFIG']['DSN']);
-		$db->loadModule('Extended');
-		$db->setErrorHandling(PEAR_ERROR_CALLBACK, 'E');
-		$db->setFetchMode(MDB2_FETCHMODE_OBJECT);
-		$db->setOption('default_table_type', 'InnoDB');
-		$db->setOption('seqname_format', 'zeq_%s');
-		$db->setOption('portability', MDB2_PORTABILITY_ALL ^ MDB2_PORTABILITY_EMPTY_TO_NULL ^ MDB2_PORTABILITY_FIX_CASE);
-
-		$db->connect();
-
-		if (@PEAR::isError($db))
+		if ($close && $db)
 		{
-			trigger_error($db->getMessage(), E_USER_ERROR);
-			exit;
+			$db->commit();
+			$db = false;
 		}
 
-		$db->beginTransaction();
-
-		$db->query('SET NAMES utf8');
-		$db->query("SET collation_connection='utf8_general_ci'");
+		return $db;
 	}
+
+	$hunter = new hunter('DB', array(true));
+
+	require_once 'MDB2.php';
+
+	$db = @MDB2::factory($GLOBALS['CONFIG']['DSN']);
+	$db->loadModule('Extended');
+	$db->setErrorHandling(PEAR_ERROR_CALLBACK, 'E');
+	$db->setFetchMode(MDB2_FETCHMODE_OBJECT);
+	$db->setOption('default_table_type', 'InnoDB');
+	$db->setOption('seqname_format', 'zeq_%s');
+	$db->setOption('portability', MDB2_PORTABILITY_ALL ^ MDB2_PORTABILITY_EMPTY_TO_NULL ^ MDB2_PORTABILITY_FIX_CASE);
+
+	$db->connect();
+
+	if (@PEAR::isError($db))
+	{
+		trigger_error($db->getMessage(), E_USER_ERROR);
+		exit;
+	}
+
+	$db->beginTransaction();
+
+	$db->query('SET NAMES utf8');
+	$db->query("SET collation_connection='utf8_general_ci'");
 
 	return $db;
 }
@@ -1008,14 +1081,7 @@ class
 	{
 		self::header('Content-Type: text/html; charset=UTF-8');
 		set_error_handler(array($this, 'error_handler'));
-		register_shutdown_function(array($this, 'shutdown'));
 		ob_start(array($this, 'ob_handler'));
-	}
-
-	function shutdown()
-	{
-		if (class_exists('SESSION', false)) SESSION::close();
-		DB(true);
 	}
 
 	function &ob_handler(&$buffer)

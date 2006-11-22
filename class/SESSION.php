@@ -44,7 +44,7 @@ class driver_session_default
 	static function getSID() {return self::$SID;}
 	static function getLastseen() {return self::$lastseen;}
 
-	static function &get($name, $private = true)
+	static function &get($name = false, $private = true)
 	{
 		self::$started || self::start();
 
@@ -54,17 +54,19 @@ class driver_session_default
 			self::$private = true;
 		}
 
-		if (!isset(self::$DATA->$name)) self::$DATA->$name = '';
-		return self::$DATA->$name;
+		if (false === $name) return self::$DATA;
+
+		if (!isset(self::$DATA[$name])) self::$DATA[$name] = '';
+		return self::$DATA[$name];
 	}
 
 	static function set($name, $value = '')
 	{
 		self::$started || self::start();
 
-		if ('' === $value) unset(self::$DATA->$name);
-		else if (is_array($name)) foreach(array_keys($name) as $k) self::$DATA->$k =& $name[$k];
-		else self::$DATA->$name =& $value;
+		if ('' === $value) unset(self::$DATA[$name]);
+		else if (is_array($name)) foreach(array_keys($name) as $k) self::$DATA[$k] =& $name[$k];
+		else self::$DATA[$name] =& $value;
 	}
 
 	static function regenerateId($initSession = false)
@@ -74,7 +76,7 @@ class driver_session_default
 		self::$driver->destroy();
 		self::$driver = false;
 
-		if ($initSession) self::$DATA = (object) array();
+		if ($initSession) self::$DATA = array();
 
 		$sid = CIA::uniqid();
 		self::setSID($sid);
@@ -101,15 +103,7 @@ class driver_session_default
 	{
 		if (!self::$started) return;
 
-		self::$driver->write(serialize(array(
-			$_SERVER['REQUEST_TIME'],
-			self::$birthtime,
-			(array) self::$DATA,
-			self::$sslid
-		)));
-
 		self::$driver = false;
-		self::$started = false;
 	}
 
 
@@ -118,8 +112,6 @@ class driver_session_default
 	protected static function start()
 	{
 		if (self::$started) return;
-
-		self::$started = true;
 
 		self::$class = 'driver_session_' . $GLOBALS['CONFIG']['session_driver'];
 
@@ -143,6 +135,8 @@ class driver_session_default
 			unset($driver);
 		}
 
+		self::$started = true;
+
 		self::setSID(isset($_COOKIE[self::$cookieName]) ? $_COOKIE[self::$cookieName] : '');
 
 		self::$driver = new self::$class(self::$SID);
@@ -162,7 +156,7 @@ class driver_session_default
 				// Session has idled
 				self::regenerateId(true);
 			}
-			else self::$DATA = (object) $i[2];
+			else self::$DATA =& $i[2];
 
 			if (self::$sslid)
 			{
@@ -215,7 +209,22 @@ class driver_session_default
 
 	function __destruct()
 	{
-		if ($this->handle) fclose($this->handle);
+		if ($this->handle)
+		{
+			if (self::$started)
+			{
+				self::$driver->write(serialize(array(
+					$_SERVER['REQUEST_TIME'],
+					self::$birthtime,
+					self::$DATA,
+					self::$sslid
+				)));
+
+				self::$started = false;
+			}
+
+			fclose($this->handle);
+		}
 	}
 
 	protected function read()
