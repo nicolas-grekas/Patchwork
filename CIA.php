@@ -51,6 +51,8 @@ auto_globals_jit = On
 
 session.auto_start = 0
 session.use_only_cookies = 1
+session.use_cookies = 0
+session.use_trans_sid = 0
 
 mbstring.language = neutral
 mbstring.script_encoding = UTF-8
