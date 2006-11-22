@@ -53,7 +53,7 @@ class driver_session_default
 
 		if (self::$maxIdleTime<1 && $maxLifeTime<1) trigger_error('At least one of the SESSION::$max*Time variables must be strictly positive.');
 
-		self::$sslid = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'];
+		self::$sslid = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? md5($_SERVER['SSL_SESSION_ID']) : false;
 
 		$i = self::$gcProbabilityNumerator + 1;
 		$j = self::$gcProbabilityDenominator - 1;
@@ -92,17 +92,11 @@ class driver_session_default
 
 			if (self::$sslid)
 			{
-				self::$sslid = md5($_SERVER['SSL_SESSION_ID']);
-
 				if (!$i[3]) self::regenerateId();
 				else if ($i[3]!=self::$sslid) self::regenerateId(true, true);
 			}
 		}
-		else
-		{
-			if (self::$sslid) self::$sslid = md5($_SERVER['SSL_SESSION_ID']);
-			self::regenerateId(false, true);
-		}
+		else self::regenerateId(false, true);
 	}
 
 	static function getSID() {return self::$SID;}
