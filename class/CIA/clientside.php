@@ -21,8 +21,8 @@ class extends CIA
 		self::setExpires('onmaxage');
 
 		$cagent = self::getContextualCachePath('controler/' . $agent, 'txt', self::$versionId);
-
-		if ($h = self::fopenX($cagent))
+		$readHandle = true;
+		if ($h = self::fopenX($cagent, $readHandle))
 		{
 			$a = self::agentArgv($agent);
 			array_walk($a, 'jsquoteRef');
@@ -47,7 +47,11 @@ EOHTML;
 			fclose($h);
 			self::writeWatchTable('CIApID', $cagent);
 		}
-		else readfile($cagent);
+		else
+		{
+			echo stream_get_contents($readHandle);
+			fclose($readHandle);
+		}
 	}
 
 	public static function render($agent, $liveAgent)
@@ -174,7 +178,8 @@ EOHTML;
 			if (CIA_MAXAGE == $maxage)
 			{
 				$ctemplate = self::getContextualCachePath("templates/$template", 'txt');
-				if ($h = self::fopenX($ctemplate))
+				$readHandle = true;
+				if ($h = self::fopenX($ctemplate, $readHandle))
 				{
 					self::openMeta('agent__template/' . $template, false);
 					$compiler = new iaCompiler_js(constant("$agentClass::binary"));
@@ -184,7 +189,11 @@ EOHTML;
 					list(,,, $template) = self::closeMeta();
 					self::writeWatchTable($template, $ctemplate);
 				}
-				else readfile($ctemplate);
+				else
+				{
+					echo stream_get_contents($readHandle);
+					fclose($readHandle);
+				}
 
 				$watch[] = 'public/templates/js';
 			}
