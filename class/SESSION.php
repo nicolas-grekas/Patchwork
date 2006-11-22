@@ -49,7 +49,6 @@ class driver_session_default
 		self::$started = true;
 
 		self::$class = 'driver_session_' . $GLOBALS['CONFIG']['session_driver'];
-		self::$driver = new self::$class(self::$SID);
 
 		if (self::$maxIdleTime<1 && $maxLifeTime<1) trigger_error('At least one of the SESSION::$max*Time variables must be strictly positive.');
 
@@ -73,6 +72,8 @@ class driver_session_default
 
 		self::setSID(isset($_COOKIE[self::$cookieName]) ? $_COOKIE[self::$cookieName] : '');
 
+		self::$driver = new self::$class(self::$SID);
+
 		if ($i = self::$driver->read())
 		{
 			$i = unserialize($i);
@@ -81,22 +82,22 @@ class driver_session_default
 			if ((self::$maxIdleTime && $_SERVER['REQUEST_TIME'] - self::$lastseen > self::$maxIdleTime))
 			{
 				// Session hax expired
-				self::regenerateId(true, true);
+				self::regenerateId(true);
 			}
 			else if ((self::$maxLifeTime && $_SERVER['REQUEST_TIME'] - self::$birthtime > self::$maxLifeTime))
 			{
 				// Session has idled
-				self::regenerateId(true, true);
+				self::regenerateId(true);
 			}
 			else self::$DATA = (object) $i[2];
 
 			if (self::$sslid)
 			{
 				if (!$i[3]) self::regenerateId();
-				else if ($i[3]!=self::$sslid) self::regenerateId(true, true);
+				else if ($i[3]!=self::$sslid) self::regenerateId(true);
 			}
 		}
-		else self::regenerateId(false, true);
+		else self::regenerateId(true);
 	}
 
 	static function getSID() {return self::$SID;}
@@ -118,19 +119,17 @@ class driver_session_default
 		else self::$DATA->$name =& $value;
 	}
 
-	static function regenerateId($destroy = true, $initSession = false)
+	static function regenerateId($initSession = false)
 	{
 		self::$started || self::start();
 
-		if ($destroy)
-		{
-			self::$driver->destroy();
-			unset(self::$driver);
-		}
+		self::$driver->destroy();
+		self::$driver = false;
 
 		if ($initSession) self::$DATA = (object) array();
 
-		self::setSID($destroy = CIA::uniqid());
+		$sid = CIA::uniqid();
+		self::setSID($sid);
 
 		self::$driver = new self::$class(self::$SID);
 
@@ -138,32 +137,31 @@ class driver_session_default
 		self::$birthtime = $_SERVER['REQUEST_TIME'];
 
 		header(
-			'Set-Cookie: ' . urlencode(self::$cookieName) . '=' . $destroy .
+			'Set-Cookie: ' . urlencode(self::$cookieName) . '=' . $sid .
 			( self::$cookiePath ? '; path=' . urlencode(self::$cookiePath) : '; path=/' ) .
 			( self::$cookieDomain ? '; domain=' . urlencode(self::$cookieDomain) : '' ) .
 			( self::$cookieSecure ? '; secure' : '' ) .
 			( self::$cookieHttpOnly ? '; HttpOnly' : '' )
 		);
+
+		// 304 Not Modified response code does not allow Set-Cookie headers, so we remove any header that could trigger a 304
+		unset($_SERVER['HTTP_IF_NONE_MATCH']);
+		unset($_SERVER['HTTP_IF_MODIFIED_SINCE']);
 	}
 
 	static function close()
 	{
-		self::$started || self::start();
+		if (!self::$started) return;
 
-		static $firstCall = true;
-		if ($firstCall)
-		{
-			$firstCall = false;
+		self::$driver->write(serialize(array(
+			$_SERVER['REQUEST_TIME'],
+			self::$birthtime,
+			(array) self::$DATA,
+			self::$sslid
+		)));
 
-			self::$driver->write(serialize(array(
-				$_SERVER['REQUEST_TIME'],
-				self::$birthtime,
-				(array) self::$DATA,
-				self::$sslid
-			)));
-
-			unset(self::$driver);
-		}
+		self::$driver = false;
+		self::$started = false;
 	}
 
 
@@ -202,12 +200,14 @@ class driver_session_default
 	protected function __construct($sid)
 	{
 		$this->path = CIA::$cachePath . '0/'. $sid[0] .'/session.'. substr($sid, 1) .'.txt';
-		$h = fopen(self::getPath($sid), 'r+b');
-		flock($h, LOCK_EX);
-		$this->handle = $h;
+
+		CIA::makeDir($this->path);
+
+		$this->handle = fopen($this->path, 'a+b');
+		flock($this->handle, LOCK_EX);
 	}
 
-	protected function __destruct()
+	function __destruct()
 	{
 		if ($this->handle) fclose($this->handle);
 	}
@@ -219,17 +219,17 @@ class driver_session_default
 
 	protected function write($value)
 	{
+		ftruncate($this->handle, 0);
 		rewind($this->handle);
 		fwrite($this->handle, $value, strlen($value));
-		ftruncate($this->handle, strlen($value));
 	}
 
-	protected function destroy($sid)
+	protected function destroy()
 	{
-		fclose($this->hanlde);
+		fclose($this->handle);
 		$this->handle = false;
 
-		unlink(self::$path);
+		unlink($this->path);
 	}
 
 	protected static function gc($lifetime)

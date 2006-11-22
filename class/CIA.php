@@ -1052,8 +1052,8 @@ class
 		if (stripos(self::$headers['content-type'], 'html') && ($meta = stripos($buffer, '<form')))
 		{
 			$meta = preg_replace(
-				'#<form\s[^>]*method\s*=\s*(["\']?)post\1[^>]*>#iu', // XXX How has a better regexp ?
-				'$0<input type="hidden" name="T$" value="' . CIA_TOKEN . '" /><script type="text/javascript">/*<![CDATA[*/syncXSJ()//]]></script></form',
+				'#<form\s[^>]*method\s*=\s*(["\']?)post\1[^>]*>#iu', // XXX Who has a better regexp ?
+				'$0<input type="hidden" name="T$" value="' . CIA_TOKEN . '" /><script type="text/javascript">/*<![CDATA[*/syncXSJ()//]]></script>',
 				$buffer
 			);
 
