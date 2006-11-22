@@ -434,7 +434,8 @@ if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && !strncmp($_SERVER['HTTP_IF_NONE_MAT
 	$match = resolvePath('zcache/') . $match[1] .'/'. $match[2] .'/'. substr($match, 3) .'.validator.'. DEBUG .'.';
 	$match .= md5($_SERVER['CIA_HOME'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
 
-	$headers = file_exists($match) && file_get_contents($match);
+	$headers = false;
+	if (file_exists($match)) $headers = file_get_contents($match);
 	if (false !== $headers)
 	{
 		header('HTTP/1.x 304 Not Modified');
