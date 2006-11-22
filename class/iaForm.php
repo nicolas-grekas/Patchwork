@@ -54,8 +54,7 @@ class extends loop_callAgent
 
 		if ($sessionLink)
 		{
-			CIA::sessionStart();
-			$this->sessionLink =& $_SESSION[$sessionLink];
+			$this->sessionLink =& SESSION::get($sessionLink);
 			if (!$this->sessionLink) $this->sessionLink = array(0);
 		}
 	}
