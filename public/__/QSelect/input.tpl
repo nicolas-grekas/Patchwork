@@ -41,6 +41,7 @@ END:SET
 
 SET $INPUT
 
+	IF !g$__QS --><link rel="stylesheet" type="text/css" href="{~}QSelect/style.css" /><!-- END:IF
 	SET $INPUT -->{home:|urlencode}<!-- END:SET
 	IF a$_mandatory --><span class="mandatory"><!-- END:IF
 

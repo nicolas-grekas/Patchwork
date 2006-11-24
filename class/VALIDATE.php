@@ -14,18 +14,21 @@
 
 class
 {
-	public static $IMAGETYPE = array(
+	// This RegExp must work in most JavaScript implementation too
+	const email_rx = '[-+=_a-zA-Z0-9%]+(\\.[-+=_a-zA-Z0-9%]+)*@([-+=_a-zA-Z0-9%]+(\\.[-+=_a-zA-Z0-9%]+)*)';
+
+	static $IMAGETYPE = array(
 		1 => 'gif', 'jpg', 'png',
 		5 => 'psd', 'bmp', 'tif', 'tif', 'jpc', 'jp2', 'jpx', 'jb2', 'swc', 'iff'
 	);
 
-	public static function get(&$value, $type, $args = array())
+	static function get(&$value, $type, $args = array())
 	{
 		$type = "get_$type";
 		return self::$type($value, $args);
 	}
 
-	public static function getFile(&$value, $type, $args = array())
+	static function getFile(&$value, $type, $args = array())
 	{
 		if (!is_array($value)) return '';
 
@@ -103,10 +106,7 @@ class
 
 		$result = trim($value);
 
-		$rx = '[-+=_a-zA-Z0-9%]+';
-		$rx = "$rx(?:\\.$rx)*";
-
-		if ( !preg_match("'^$rx@($rx)$'u", $result, $domain) ) return false;
+		if ( !preg_match("'^" . self::email_rx . "$'u", $result, $domain) ) return false;
 		if ( function_exists('checkdnsrr') && !checkdnsrr($domain[1]) ) return false;
 		return $result;
 	}
