@@ -984,7 +984,7 @@ class
 		return self::getContextualCachePath($agentClass, $type . '.php', $keys);
 	}
 
-	public static function writeWatchTable($message, $file)
+	public static function writeWatchTable($message, $file, $exclusive = true)
 	{
 		$file =  "++\$i;unlink('" . str_replace(array('\\',"'"), array('\\\\',"\\'"), $file) . "');\n";
 
@@ -997,7 +997,8 @@ class
 			$message = implode('/', $message);
 			$message = str_replace('.', '%2E', $message);
 
-			self::$watchTable[] = $path = self::getCachePath('watch/' . $message, 'php');
+			$path = self::getCachePath('watch/' . $message, 'php');
+			if ($exclusive) self::$watchTable[] = $path;
 
 			self::makeDir($path);
 
