@@ -47,8 +47,13 @@ class hunter
 // }}}
 
 // {{{ PHP session mechanism overloading
-class sessionHandler
+class sessionHandler implements ArrayAccess
 {
+	function offsetGet($k)     {$_SESSION =& SESSION::get(); return $_SESSION[$k];}
+	function offsetSet($k, $v) {$_SESSION =& SESSION::get(); $_SESSION[$k] =& $v;}
+	function offsetExists($k)  {$_SESSION =& SESSION::get(); return isset($_SESSION[$k]);}
+	function offsetUnset($k)   {$_SESSION =& SESSION::get(); unset($_SESSION[$k]);}
+
 	static $id;
 
 	static function close()   {return true;}
@@ -90,6 +95,8 @@ session_set_save_handler(
 	array($k, 'destroy'),
 	array($k, 'gc')
 );
+
+$_SESSION = new sessionHandler;
 
 // }}}
 
