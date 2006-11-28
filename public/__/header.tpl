@@ -26,15 +26,6 @@
 	<link rel="stylesheet" type="text/css" href="{home:a$css}" />
 	<!-- END:IF -->
 
-	<style type="text/css">
-	html,body {height: 100%}
-	label {cursor: default}
-	textarea {overflow: visible}
-	textarea.toomuch {background-color: #FFD2D2}
-	.errormsg {color: red}
-	.mandatory {font-weight: bold}
-	</style>
-
 	{a$head}
 </head>
 <body class="{a$class}">

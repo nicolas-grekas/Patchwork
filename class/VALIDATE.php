@@ -107,7 +107,7 @@ class
 		$result = trim($value);
 
 		if ( !preg_match("'^" . self::email_rx . "$'u", $result, $domain) ) return false;
-		if ( function_exists('checkdnsrr') && !checkdnsrr($domain[1]) ) return false;
+		if ( function_exists('checkdnsrr') && !checkdnsrr($domain[2]) ) return false;
 		return $result;
 	}
 

@@ -42,7 +42,16 @@ ELSE
 		--><input type="hidden" name="{$name}" value="{$value}" /><!--
 	END:LOOP
 
-	IF !g$_FORM --><!-- SET g$_FORM -->1<!-- END:SET --><script type="text/javascript" src="{~}js/v"></script><!-- END:IF
+	IF !g$_FORM
+		SET g$_FORM -->1<!-- END:SET
+		--><style type="text/css">
+		label {cursor: default}
+		textarea {overflow: visible}
+		textarea.toomuch {background-color: #FFD2D2}
+		.errormsg {color: red}
+		.mandatory {font-weight: bold}
+		</style><script type="text/javascript" src="{~}js/v"></script><!--
+	END:IF
 
 	--><script type="text/javascript">/*<![CDATA[*/
 lF=document.forms[document.forms.length-1];<!--
