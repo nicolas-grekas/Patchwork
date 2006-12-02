@@ -51,16 +51,16 @@ SET $INPUT
 		SET g$__QS
 			--><div id="__QSd1" style="position:absolute;visibility:hidden;z-index:9;top:0px"><form action=""><div id="__QSd2" style="position:absolute"><img src="{~}QSelect/tr.png" width="5" height="10" /><br /><img src="{~}QSelect/r.png" width="5" height="5" id="__QSi1" /><br /><img src="{~}QSelect/br.png" width="5" height="5" /></div><div id="__QSd3" style="position:absolute"><img src="{~}QSelect/bl.png" width="10" height="5" /><img src="{~}QSelect/b.png" width="5" height="5" id="__QSi2" /></div><select id="__QSs" size="7"></select></form></div><script type="text/javascript" src="{~}js/QSelect"></script ><!--
 		END:SET
-		-->window.__QSd||(window.__QSd=1,footerHtml+={g$__QS|js});<!--
+		-->window.__QSd||(window.__QSd=1,footerHtml.push({g$__QS|js}));<!--
 		SET g$__QS -->1<!-- END:SET
 	END:IF -->
-	lE=gLE({a$name|js})
+	lE=gLE({a$name|js},0,1)
 	lE.__QSt={$INPUT|js}
 	lE.lock={a$_lock_|js}
 
 	lE.gS=function(){return valid(this<!-- LOOP a$_valid -->,{$VALUE|js}<!-- END:LOOP -->)}
 
-	lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form)};<!-- IF a$_focus_ -->lE.focus()<!-- END:IF -->//]]></script ><script type="text/javascript" src="{home:a$_src_}"></script><!--
+	lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form)};<!-- IF a$_focus_ -->lE.focus()<!-- END:IF -->//]]></script ><script type="text/javascript" src="{home:a$_src_}"></script ><!--
 
 	IF a$_mandatory --></span><!-- END:IF
 

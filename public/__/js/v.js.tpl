@@ -295,7 +295,9 @@ checkboxClick = IcbC = function($event, $elt)
 	if ($elt) return false;
 }
 
-function gLE($name, $multiple)
+formStack = [];
+
+function gLE($name, $multiple, $stack)
 {
 		var $lastElement;
 
@@ -310,6 +312,7 @@ function gLE($name, $multiple)
 			}
 
 			if ($multiple) lF[$name.substr(0, $name.length-2)] = $lastElement;
+			if ($stack) formStack.push($lastElement);
 		}
 
 		return $lastElement || false;

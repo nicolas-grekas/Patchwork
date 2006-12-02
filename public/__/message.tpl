@@ -16,9 +16,9 @@
 
 <!-- IF a$time > 0 -->
 <script type="text/javascript">/*<![CDATA[*/
-R={home:a$redirect|js}
-setTimeout('location.replace(R)',{a$time*1000})
-//]]></script><meta http-equiv="refresh" content="{a$time}; URL={a$redirect}" />
+<!-- SET a$a -->location.replace({home:a$redirect|js})<!-- END:SET -->
+setTimeout({a$a|js},{a$time*1000})
+//]]></script ><meta http-equiv="refresh" content="{a$time}; URL={a$redirect}" />
 <!-- END:IF -->
 
 <!-- AGENT 'footer' -->
