@@ -16,9 +16,9 @@
 a$_mode_ : ('errormsg'|'close'|'')
 a$_enterControl_ : 0 to keep the browser's behaviour,
                    1 to disable submit on enter key press,
-				   2 to enable submit on enter key press by simulating
-				     a click on the submit/image element positioned
-					 after the currently focused element.
+                   2 to enable submit on enter key press by simulating
+                     a click on the submit/image element positioned
+                     after the currently focused element.
 
 *}
 
@@ -35,6 +35,7 @@ ELSEIF a$_mode_ == 'close' --></form><!--
 ELSE
 
 	SET a$action --><!-- IF !a$action -->{g$__URI__}<!-- ELSE -->{home:a$action}<!-- END:IF --><!-- END:SET
+	IF !a$id --><!-- SET a$id -->FiD{g+1$GLOBID}<!-- END:SET --><!-- END:IF
 
 	--><form accept-charset="UTF-8" {a$|htmlArgs}><!--
 
@@ -54,9 +55,9 @@ ELSE
 	END:IF
 
 	--><script type="text/javascript">/*<![CDATA[*/
-lF=document.forms[document.forms.length-1];<!--
-IF a$_enterControl_ -->FeC({a$_enterControl_});<!-- END:IF -->//]]></script><!--
+lF=document.getElementById({a$id|js});<!--
+IF a$_enterControl_ -->FeC({a$_enterControl_});<!-- END:IF -->//]]></script ><!--
 
-	IF !g$_UPLOAD && a$_upload --><!-- SET g$_UPLOAD -->1<!-- END:SET --><script type="text/javascript" src="{~}js/upload"></script><!-- END:IF
+	IF !g$_UPLOAD && a$_upload --><!-- SET g$_UPLOAD -->1<!-- END:SET --><script type="text/javascript" src="{~}js/upload"></script ><!-- END:IF
 
 END:IF -->

@@ -25,7 +25,7 @@
 * BOARD
 */
 
-footerHtml = '';
+footerHtml = [];
 antiXSJ = '';
 
 document.cookie = 'JS=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';

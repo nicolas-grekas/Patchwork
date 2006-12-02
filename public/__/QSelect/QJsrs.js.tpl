@@ -11,4 +11,4 @@
  *
  **************************************************************************/*}
 <!-- AGENT 'js/QSelect/QJsrs' -->
-addOnload((function(e){return function(){QSelect(e,QSelectQJsrs({home:$src|js}))}})(lE))
+addOnload((function(e){return function(){QSelect(e,QSelectQJsrs({home:$src|js}))}})(formStack.shift()))
