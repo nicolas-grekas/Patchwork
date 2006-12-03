@@ -207,7 +207,7 @@ return function($input, $driver)
 			$query = new RegExp('^' + $query.replace(/#/g, $j), 'i');
 		}
 
-		for ($i in $result)
+		for ($i in $result) if ('function' != typeof $result[$i])
 		{
 			$i = ''+$result[$i];
 			$options[$length++] = new Option($i, $i);

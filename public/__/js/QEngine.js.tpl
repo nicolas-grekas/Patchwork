@@ -143,8 +143,8 @@ function QEngine($keyword)
 	function $getChildId($a)
 	{
 		var $b = [], $i;
-		if (t($a, 'object') || t($a, 'array')) for ($i in $a) $b.push($getChildId($a[$i]));
-		else $b.push(',' + $a);
+		if (t($a, 'object')) for ($i in $a) $b.push($getChildId($a[$i]));
+		else if (!t($a, 'function')) $b.push(',' + $a);
 
 		return $b.join('');
 	}

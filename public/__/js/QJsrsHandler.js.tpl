@@ -151,7 +151,7 @@ else
 				$value = q[2];
 
 				$form = ['<form accept-charset="UTF-8" method="post">'];
-				for ($i in $value) $form.push('<input />');
+				for ($i in $value) if ('function' != typeof $value[$i]) $form.push('<input />');
 				$document.write($form.join('') + '</form>');
 
 				onload = function()
@@ -160,7 +160,7 @@ else
 					$form.action = q[0];
 
 					$document = q.length = 0;
-					for ($i in $value)
+					for ($i in $value) if ('function' != typeof $value[$i])
 						$elt = $form[$document++],
 						$elt.name = $i,
 						$elt.value = $value[$i],

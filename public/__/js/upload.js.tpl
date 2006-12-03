@@ -39,7 +39,7 @@ if (window.lF)
 			'img/upload/t.gif'
 		];
 
-		setTimeout('for(i in pLuL)j=pLuL[i],pLuL[i]=new Image,pLuL[i].src=home(j)', 2000);
+		setTimeout('i=pLuL.length;while(i--)j=pLuL[i],pLuL[i]=new Image,pLuL[i].src=home(j)', 2000);
 	}
 }
 else
