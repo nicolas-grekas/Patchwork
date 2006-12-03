@@ -45,7 +45,8 @@ function stripAccents($str, $case)
 
 	while ($i--) $str = $str.replace(ACCENT_RX[$i], ACCENT[$i].charAt(0));
 
-	for ($i in ACCENT_LIGFROM) $str = $str.replace(ACCENT_LIGFROM[$i], ACCENT_LIGTO[$i]);
+	$i = ACCENT_LIGFROM;
+	while ($i--) $str = $str.replace(ACCENT_LIGFROM[$i], ACCENT_LIGTO[$i]);
 
 	return $case>0 ? $str.toUpperCase() : $case<0 ? $str.toLowerCase() : $str;
 }

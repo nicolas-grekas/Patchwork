@@ -81,15 +81,16 @@ function unesc($str)
 
 function parseurl($param, $delim, $rx, $array)
 {
-	var $i, $j;
+	var $i;
 	$array = $array || {};
 
 	$param = $param.split($delim);
-	for ($i in $param)
+	while ($param.length)
 	{
-		if ($rx) $param[$i] = $param[$i].replace($rx, '');
-		$delim = $param[$i].indexOf('=');
-		if ( $delim>0 ) $array[ dUC( $param[$i].substring(0, $delim) ) ] = num(esc(dUC( $param[$i].substring($delim+1) )), 1);
+		$i = $param.shift();
+		if ($rx) $i = $i.replace($rx, '');
+		$delim = $i.indexOf('=');
+		if ( $delim>0 ) $array[ dUC( $i.substring(0, $delim) ) ] = num(esc(dUC( $i.substring($delim+1) )), 1);
 	}
 
 	return $array;

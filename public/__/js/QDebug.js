@@ -81,7 +81,7 @@ E.max_depth = 5;
 E.buffer = [];
 E.hide = function($key)
 {
-	if (!t($key, 'string')) for (var $i in $key) E.hiddenList[$key[$i]] = true;
+	if (!t($key, 'string')) for (var $i in $key) if (t($key[$i], 'string')) E.hiddenList[$key[$i]] = true;
 	else E.hiddenList[$key] = true;
 }
 

@@ -190,7 +190,7 @@ function $QJsrs($URL, $POST, $antiXSJ, $XMLHttpPreferred)
 		if (($antiXSJ || $POST) && !$vararray.T$) $vararray.T$ = antiXSJ;
 
 		$url = [];
-		for ($i in $vararray) $url.push('&' + eUC($i) + '=' + eUC($vararray[$i])); // Be aware that Konquerors for(..in..) loop does not preserve the order of declaration
+		for ($i in $vararray) if ('function' != typeof $vararray[$i]) $url.push('&' + eUC($i) + '=' + eUC($vararray[$i])); // Be aware that Konquerors for(..in..) loop does not preserve the order of declaration
 		$url = [$URL, $url.join(''), $vararray];
 
 		if ($context) $pool[$poolLen++] = [$url, $function];
