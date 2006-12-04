@@ -247,7 +247,6 @@ class driver_session_default
 	protected function write($value)
 	{
 		ftruncate($this->handle, 0);
-		rewind($this->handle);
 		fwrite($this->handle, $value, strlen($value));
 	}
 

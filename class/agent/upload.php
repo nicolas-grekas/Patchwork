@@ -23,9 +23,13 @@ class extends agent
 			$this->expires = 'onmaxage';
 			CIA::setGroup('private');
 
-			if (is_callable('upload_progress_meter_get_info'))
+			if (function_exists('upload_progress_meter_get_info'))
 			{
 				$o = (object) @upload_progress_meter_get_info($this->argv->id);
+			}
+			else if (function_exists('uploadprogress_get_info'))
+			{
+				$o = (object) @uploadprogress_get_info($this->argv->id);
 			}
 		}
 		else $this->maxage = -1;
