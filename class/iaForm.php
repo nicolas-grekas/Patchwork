@@ -125,7 +125,7 @@ class extends loop_callAgent
 		{
 			$this->hasfile = true;
 
-			if (is_callable('upload_progress_meter_get_info'))
+			if (function_exists('upload_progress_meter_get_info') || function_exists('uploadprogress_get_info'))
 			{
 				$elt = $this->elt['UPLOAD_IDENTIFIER'] = new iaForm_hidden($this, 'UPLOAD_IDENTIFIER', array(), $this->sessionLink);
 				$elt->setValue(CIA::uniqid());
