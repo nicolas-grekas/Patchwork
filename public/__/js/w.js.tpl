@@ -725,6 +725,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 	g.__HOME__ = $masterHome;
 	g.__AGENT__ = $homeAgent ? esc($homeAgent) + '/' : '';
 	g.__URI__ = esc(''+$j);
+	g.__REFERER__ = esc($document.referrer);
 
 	if (t($homeAgent))
 	{
