@@ -250,8 +250,8 @@ function processPath($file, $level = false, $base = false)
 		$cache = $c . $depth .'.zcache.php';
 
 		if (
-			file_exists($cache) && !CIA_CHECK_SOURCE
-			|| file_exists($source) && filemtime($cache) >= filemtime($source)
+			file_exists($cache) && (!CIA_CHECK_SOURCE
+			|| (file_exists($source) && filemtime($cache) >= filemtime($source)))
 		) ;
 		else if (file_exists($source))
 		{
@@ -314,8 +314,8 @@ function __autoload($searched_class)
 			$cache = $c . $i .'.zcache.php';
 
 			if (
-				file_exists($cache) && !CIA_CHECK_SOURCE
-				|| file_exists($source) && filemtime($cache) >= filemtime($source)
+				file_exists($cache) && (!CIA_CHECK_SOURCE
+				|| (file_exists($source) && filemtime($cache) >= filemtime($source)))
 			) ;
 			else if (file_exists($source))
 			{
