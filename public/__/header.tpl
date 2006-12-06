@@ -20,7 +20,7 @@
 	<script type="text/javascript" src="{~}js/w"></script>
 	<!-- END:SERVERSIDE -->
 
-	<title>{a$title}</title>
+	<title>{a$title|replace:'<[^>]*':''|replace:'>':''}</title>
 
 	<!-- IF a$css -->
 	<link rel="stylesheet" type="text/css" href="{home:a$css}" />
