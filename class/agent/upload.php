@@ -16,6 +16,8 @@ class extends agent
 {
 	public $argv = array('id');
 
+	function control() {}
+
 	function compose($o)
 	{
 		if ($this->argv->id)

@@ -76,8 +76,8 @@ class driver_session_default
 	{
 		self::$started || self::start();
 
-		if ('' === $value) unset(self::$DATA[$name]);
-		else if (is_array($name)) foreach(array_keys($name) as $k) self::$DATA[$k] =& $name[$k];
+		if (is_array($name) || is_object($name)) foreach($name as $k => &$value) self::$DATA[$k] =& $value;
+		else if ('' === $value) unset(self::$DATA[$name]);
 		else self::$DATA[$name] =& $value;
 	}
 
@@ -137,11 +137,11 @@ class driver_session_default
 		if ($i)
 		{
 			$driver = new self::$class('0lastGC');
-			$i = self::$driver->read();
+			$i = $driver->read();
 			$j = max(self::$maxIdleTime, self::$maxLifeTime);
 			if ($j && $_SERVER['REQUEST_TIME'] - $i > $j)
 			{
-				self::$driver->write($_SERVER['REQUEST_TIME']);
+				$driver->write($_SERVER['REQUEST_TIME']);
 				self::gc($j);
 			}
 			unset($driver);

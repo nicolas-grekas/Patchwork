@@ -20,6 +20,8 @@ class extends agent
 
 	protected $maxage = -1;
 
+	function control() {}
+
 	function compose($o)
 	{
 		$sql = $this->argv->q;

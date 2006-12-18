@@ -14,7 +14,7 @@
 
 class
 {
-	static function php($text, $url, $attributes = '')
+	static function php($text, $url = '', $attributes = '')
 	{
 		$text = CIA::string($text);
 		$url = CIA::string($url);
@@ -27,7 +27,7 @@ class
 		}
 		else $hash = '';
 
-		return $url == htmlspecialchars(substr(CIA::__URI__(), strlen(CIA::__HOME__())))
+		return $url == htmlspecialchars(substr(CIA::__HOST__() . substr($_SERVER['REQUEST_URI'], 1), strlen(CIA::__HOME__())))
 			? ('<b class="linkloop">' . $text . '</b>')
 			: ('<a href="' . CIA::home($url) . $hash . '" ' . CIA::string($attributes) . '>' . $text . '</a>');
 	}

@@ -172,7 +172,6 @@ class
 	protected static $host;
 	protected static $lang = '__';
 	protected static $home;
-	protected static $uri;
 
 	protected static $versionId;
 	protected static $fullVersionId;
@@ -395,7 +394,6 @@ class
 
 		self::$host = strtr(self::$home, '#?', '//');
 		self::$host = substr(self::$home, 0, strpos(self::$host, '/', 8)+1);
-		self::$uri = self::$host . substr($_SERVER['REQUEST_URI'], 1);
 
 		return $lang;
 	}
@@ -403,7 +401,6 @@ class
 	public static function __HOST__() {return self::$host;}
 	public static function __LANG__() {return self::$lang;}
 	public static function __HOME__() {return self::$home;}
-	public static function __URI__()  {return self::$uri ;}
 
 	public static function home($url)
 	{
@@ -600,7 +597,7 @@ class
 	/**
 	 *  Returns the hash of $pwd if this hash match $crypted_pwd or if $crypted_pwd is not supplied. Else returns false.
 	 */
-	public static function pwd($pwd, $crypted_pwd = false)
+	public static function password($pwd, $crypted_pwd = false)
 	{
 		static $saltLen = 4;
 
@@ -842,7 +839,7 @@ class
 
 		$agent = 'agent_' . str_replace('/', '_', $potentialAgent);
 
-		if ($createTemplate) eval('class ' . $agent . ' extends agent{protected $maxage=-1;protected $watch=array(\'public/templates\');}');
+		if ($createTemplate) eval('class ' . $agent . ' extends agent{protected $maxage=-1;protected $watch=array(\'public/templates\');function control(){}}');
 
 		return $agent;
 	}
