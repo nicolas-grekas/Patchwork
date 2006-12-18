@@ -14,6 +14,8 @@
 
 class extends agent_bin
 {
+	function control() {}
+
 	function compose($o)
 	{
 		if (!isset($_SERVER['QUERY_STRING']) || false !== strpos($_SERVER['QUERY_STRING'], ';'))

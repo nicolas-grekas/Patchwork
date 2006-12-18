@@ -17,6 +17,8 @@ class extends agent_QSelect
 	protected $maxage = -1;
 	protected $template = 'QSelect/liveAgent.js';
 
+	function control() {}
+
 	function compose($o)
 	{
 		$o->src = 'live/city';
