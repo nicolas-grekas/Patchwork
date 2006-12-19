@@ -599,7 +599,7 @@ class
 	 */
 	public static function password($pwd, $crypted_pwd = false)
 	{
-		static $saltLen = 4;
+		$saltLen = 4;
 
 		if ($crypted_pwd !== false)
 		{
