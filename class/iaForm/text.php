@@ -22,11 +22,7 @@ class extends iaForm_hidden
 		parent::init($param);
 		if (isset($param['maxlength']) && $param['maxlength'] > 0) $this->maxlength = (int) $param['maxlength'];
 
-		$this->value = str_replace(
-			array("\r\n", "\r"),
-			array("\n"  , "\n"),
-			$this->value
-		);
+		if (false !== strpos($this->value, "\r")) $this->value = str_replace(array("\r\n", "\r"), array("\n"  , "\n"), $this->value);
 
 		if (mb_strlen($this->value) > $this->maxlength) $this->value = mb_substr($this->value, 0, $this->maxlength);
 	}

@@ -15,6 +15,7 @@
 class extends iaForm_text
 {
 	protected $src;
+	protected $lock;
 
 	protected function init(&$param)
 	{
@@ -29,8 +30,8 @@ class extends iaForm_text
 
 		$this->agent = 'QSelect/input';
 
-		if (isset($this->src)) $a->_src_ = $this->src;
-		if (isset($this->lock)) $a->_lock_ = $this->lock;
+		if (isset($this->src)) $a->_src = $this->src;
+		if (isset($this->lock)) $a->_lock = $this->lock;
 
 		return $a;
 	}
