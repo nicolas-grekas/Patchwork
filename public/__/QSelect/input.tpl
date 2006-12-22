@@ -56,11 +56,11 @@ SET $INPUT
 	END:IF -->
 	lE=gLE({a$name|js},0,1)
 	lE.__QSt={$INPUT|js}
-	lE.lock={a$_lock_|js}
+	lE.lock={a$_lock|js}
 
 	lE.gS=function(){return valid(this<!-- LOOP a$_valid -->,{$VALUE|js}<!-- END:LOOP -->)}
 
-	lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form)};<!-- IF a$_focus_ -->lE.focus()<!-- END:IF -->//]]></script ><script type="text/javascript" src="{home:a$_src_}"></script ><!--
+	lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form)};<!-- IF a$_focus_ -->lE.focus()<!-- END:IF -->//]]></script ><script type="text/javascript" src="{home:a$_src}"></script ><!--
 
 	IF a$_mandatory --></span><!-- END:IF
 
