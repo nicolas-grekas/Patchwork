@@ -126,11 +126,13 @@ function syncXSJ($form)
 	{
 		$form = document.forms;
 		$form = $form[$form.length - 1];
+		$form.T$.value = antiXSJ;
 	}
-
-	if ('post' == $form.method)
+	else if ('post' == $form.method)
 	{
-		if ($form['T$']) $form['T$'].value = antiXSJ;
+		if ($form.action.indexOf({g$__HOME__|js})) return;
+
+		if ($form.T$) $form.T$.value = antiXSJ;
 		else if ($form.appendChild)
 		{
 			var $a = document.createElement('input');
@@ -701,7 +703,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 		return $i;
 	}
 
-	if ($i = $document.cookie.match(/(^|; )T\$=([0-9A-Z]+)/i)) $i = $i[2];
+	if ($i = $document.cookie.match(/(^|; )T\$=([0-9a-zA-Z]+)/)) $i = $i[2];
 	else
 	{
 		$i = (''+Math.random()).substr(2);

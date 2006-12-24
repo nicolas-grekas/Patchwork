@@ -57,7 +57,7 @@ SET $INPUT
 
 	IF !g$_FCKEDITOR
 		SET g$_FCKEDITOR -->1<!-- END:SET
-		--><script type="text/javascript" src="{a$_basePath}fckeditor.js"></script><!--
+		--><script type="text/javascript" src="{~}fckeditor/fckeditor.js"></script><!--
 	END:IF
 
 	--><textarea {a$|htmlArgs:'type':'value'}>{a$value}</textarea><script type="text/javascript">/*<![CDATA[*/
@@ -66,7 +66,7 @@ if(lE){
 lE.gS=function(){return valid(this<!-- LOOP a$_valid -->,{$VALUE|js}<!-- END:LOOP -->)}
 lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form)}
 lE=new FCKeditor({a$id|js},(''+lE.style.width).indexOf('%')>0?lE.style.width:lE.offsetWidth,(''+lE.style.height).indexOf('%')>0?lE.style.height:lE.offsetHeight,{a$_toolbarSet|js},lE.value)
-lE.BasePath={a$_basePath|js}
+lE.BasePath={~|js}+'fckeditor/'
 lE.Config.AutoDetectLanguage=false
 lE.Config.DefaultLanguage={g$__LANG__|js}
 <!-- LOOP a$_config -->

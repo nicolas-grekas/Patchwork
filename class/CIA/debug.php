@@ -35,7 +35,7 @@ class extends CIA
 	function &ob_handler(&$buffer)
 	{
 		self::$handlesOb = true;
-		if (false !== stripos(self::$headers['content-type'], 'text/html')) $buffer = $this->error_end(substr(trim($buffer), 0, 1)) . $buffer;
+		if (self::$isHtml) $buffer = $this->error_end(substr(trim($buffer), 0, 1)) . $buffer;
 		return parent::ob_handler($buffer);
 	}
 
