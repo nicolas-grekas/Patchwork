@@ -14,7 +14,6 @@
 
 class extends iaForm_textarea
 {
-	protected $basePath = '/FCKeditor/';
 	protected $toolbarSet;
 	protected $config;
 
@@ -31,6 +30,7 @@ class extends iaForm_textarea
 			require_once 'HTML/Safe.php';
 
 			$parser = new HTML_Safe;
+			$parser->deleteTags[] = 'form';
 			$value = $parser->parse($value);
 		}
 
@@ -45,8 +45,6 @@ class extends iaForm_textarea
 		$a = parent::get();
 
 		$this->agent = 'form/fckeditor';
-
-		$a->_basePath = $this->basePath;
 
 		if (isset($this->toolbarSet)) $a->_toolbarSet = $this->toolbarSet;
 		if (isset($this->config)) $a->_config = $this->config;

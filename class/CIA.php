@@ -168,6 +168,7 @@ class
 	public static $cachePath = 'zcache/';
 	public static $agentClass;
 	public static $catchMeta = false;
+	public static $isHtml;
 
 	protected static $host;
 	protected static $lang = '__';
@@ -202,6 +203,7 @@ class
 		self::$versionId = abs(self::$fullVersionId % 10000);
 		self::$handlesOb = false;
 		self::$headers = array();
+		self::$isHtml = false;
 
 		$cachePath = resolvePath(self::$cachePath);
 		self::$cachePath = ($cachePath == self::$cachePath ? $GLOBALS['cia_paths'][count($GLOBALS['cia_paths']) - 2] . '/' : '') . $cachePath;
@@ -432,6 +434,8 @@ class
 		$name = strtolower(substr($string, 0, strpos($string, ':')));
 
 		if (self::$catchMeta) self::$metaInfo[4][$name] = $string;
+
+		if ('content-type' == $name) self::$isHtml = false !== strpos(strtolower($string), 'html');
 
 		if (!self::$privateDetectionMode)
 		{
@@ -1122,16 +1126,16 @@ class
 		/* Anti-XSRF token */
 		if (stripos(self::$headers['content-type'], 'html') && ($meta = stripos($buffer, '<form')))
 		{
-			$meta = preg_replace(
+			$meta = preg_replace_callback(
 				'#<form\s[^>]*method\s*=\s*(["\']?)post\1[^>]*>#iu', // XXX Who has a better regexp ?
-				'$0<input type="hidden" name="T$" value="' . CIA_TOKEN . '" /><script type="text/javascript">/*<![CDATA[*/syncXSJ()//]]></script>',
+				array($this, 'appendAntiXSJ'),
 				$buffer
 			);
 
 			if ($meta != $buffer)
 			{
 				self::$private = true;
-				self::$maxage = 1;
+				if (!(isset($_COOKIE['JS']) && $_COOKIE['JS'])) self::$maxage = 10;
 				$buffer = $meta;
 			}
 
@@ -1252,6 +1256,130 @@ class
 		) return;
 		$this->has_error = true;
 		require processPath('error_handler.php');
+	}
+
+	function appendAntiXSJ($f)
+	{
+		$f = $f[0];
+
+		// AntiXSJ token is appended only to local application's form
+
+		// Extract the action attribute
+		if (1 < preg_match_all('#\saction\s*=\s*(["\']?)(.*?)\1([^>]*)>#iu', $f, $a, PREG_SET_ORDER)) return $f;
+
+		if ($a)
+		{
+			$a = $a[0];
+			$a = trim($a[1] ? $a[2] : ($a[2] . $a[3]));
+
+			if (0 !== strpos($a, self::$home))
+			{
+				// Decode html encoded chars
+				if (false !== strpos($a, '&'))
+				{
+					static $entitiesRx = "'&(nbsp|iexcl|cent|pound|curren|yen|brvbar|sect|uml|copy|ordf|laquo|not|shy|reg|macr|deg|plusmn|sup2|sup3|acute|micro|para|middot|cedil|sup1|ordm|raquo|frac14|frac12|frac34|iquest|Agrave|Aacute|Acirc|Atilde|Auml|Aring|AElig|Ccedil|Egrave|Eacute|Ecirc|Euml|Igrave|Iacute|Icirc|Iuml|ETH|Ntilde|Ograve|Oacute|Ocirc|Otilde|Ouml|times|Oslash|Ugrave|Uacute|Ucirc|Uuml|Yacute|THORN|szlig|agrave|aacute|acirc|atilde|auml|aring|aelig|ccedil|egrave|eacute|ecirc|euml|igrave|iacute|icirc|iuml|eth|ntilde|ograve|oacute|ocirc|otilde|ouml|divide|oslash|ugrave|uacute|ucirc|uuml|yacute|thorn|yuml|quot|lt|gt|amp|[xX][0-9a-fA-F]+|[0-9]+);'";
+
+					$a = preg_replace_callback($entitiesRx, array($this, 'translateHtmlEntity'), $a);
+				}
+
+				// Build absolute URI
+				if (preg_match("'^[^:/]*://[^/]*'", $a, $host))
+				{
+					$host = $host[0];
+					$a = substr($a, strlen($host));
+				}
+				else
+				{
+					$host = substr(self::$host, 0, -1);
+
+					if ('/' != substr($a, 0, 1))
+					{
+						static $uri = false;
+
+						if (!$uri)
+						{
+							$uri = $_SERVER['REQUEST_URI'];
+
+							if (false !== ($b = strpos($uri, '?'))) $uri = substr($uri, 0, $b);
+
+							$uri = dirname($uri . ' ');
+
+							if (
+								   ''  === $uri
+								|| '/'  == $uri
+								|| '\\' == $uri
+							)    $uri  = '/';
+							else $uri .= '/';
+						}
+
+						$a = $uri . $a;
+					}
+				}
+
+				if (false !== ($b = strpos($a, '?'))) $a = substr($a, 0, $b);
+				if (false !== ($b = strpos($a, '#'))) $a = substr($a, 0, $b);
+
+				$a .= '/';
+
+				// Resolve relative paths
+				if (false !== strpos($a, './') || false !== strpos($a, '//'))
+				{
+					$b = $a;
+
+					do
+					{
+						$a = $b;
+						$b = str_replace('/./', '/', $b);
+						$b = str_replace('//', '/', $b);
+						$b = preg_replace("'/[^/]*[^/\.][^/]*/\.\./'", '/', $b);
+					}
+					while ($b != $a);
+				}
+
+				// Compare action to application's home
+				if (0 !== strpos($host . $a, self::$home)) return $f;
+			}
+		}
+
+		static $appendedHtml = false;
+
+		if (!$appendedHtml)
+		{
+			$appendedHtml = self::$isHtml ? 'syncXSJ()' : 'd=document;f=d.forms;f=f[f.length-1].T$.value=d.cookie.match(/(^|; )T\\$=([0-9a-zA-Z]+)/)[2]';
+			$appendedHtml = '<input type="hidden" name="T$" value="' . (isset($_COOKIE['JS']) && $_COOKIE['JS'] ? CIA_TOKEN : '') . '" /><script type="text/javascript">' . "<!--\n{$appendedHtml}//--></script>";
+		}
+
+		return $f . $appendedHtml;
+	}
+
+	function translateHtmlEntity($c)
+	{
+		static $table = false;
+
+		if (!$table) $table = array_flip(get_html_translation_table(HTML_ENTITIES));
+
+		if (isset($table[$c[0]])) return utf8_encode($table[$c[0]]);
+
+		$c = strtolower($c[1]);
+
+		if ('x' == $c[0]) $c = hexdec(substr($c, 1));
+
+		$c = sprinf('%08x', (int) $c);
+
+		if (strlen($c) > 8) return '';
+
+		$r = '';
+
+		do
+		{
+			$a = substr($c, 0, 2);
+			$c = substr($c, 2);
+
+			if ('00' != $a) $r .= chr(hexdec($a));
+		}
+		while ($c);
+
+		return $r;
 	}
 }
 

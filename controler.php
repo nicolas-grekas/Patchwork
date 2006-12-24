@@ -18,6 +18,7 @@ $contentType = array(
 	'.css' => 'text/css; charset=UTF-8',
 	'.js' => 'text/javascript; charset=UTF-8',
 	'.htc' => 'text/x-component; charset=UTF-8',
+	'.xml' => 'application/xml',
 
 	'.png' => 'image/png',
 	'.gif' => 'image/gif',
@@ -62,6 +63,7 @@ if ($len)
 	if (!$mime) $mime = 'application/octet-stream';
 
 	CIA::header('Content-Type: ' . $mime);
+	CIA::$isHtml = false;
 	CIA::setMaxage(-1);
 	CIA::writeWatchTable('public/static', 'zcache/');
 
