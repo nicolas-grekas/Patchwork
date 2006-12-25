@@ -124,15 +124,17 @@ class extends agent
 
 	protected function createFolder($o)
 	{
-		$o->number = 0;
-		$o->originalDescription = '';
+		$o = (object) array(
+			'number' => 0,
+			'originalDescription' => ''
+		);
 
 		if ($newFolderName = $this->argv->NewFolderName)
 		{
 			if (false !== strpos($newFolderName, '..')) $o->number = 102;
 			else
 			{
-				$newFolderName = $this->path . $o->resourceType . $o->currentFolder . $newFolderName;
+				$newFolderName = $this->path . $o->resourceType . $o->currentFolder . $newFolderName . '/';
 
 				@CIA::makeDir($newFolderName);
 

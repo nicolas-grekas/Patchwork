@@ -107,15 +107,13 @@ FCKConfig.ToolbarSets["Basic"] = [
 ] ;
 
 FCKConfig.ToolbarSets["basicBody"] = [
-	['FitWindow'],
 	['Bold','Italic','Underline','-','Subscript','Superscript'],
 	['OrderedList','UnorderedList','-','Outdent','Indent'],
 	['JustifyLeft','JustifyCenter','JustifyRight','JustifyFull'],
-	['Link','Unlink'],
 	'/',
-	['RemoveFormat','FontName','FontSize'],
-	['TextColor','BGColor'],
-	['Image','Table','Rule']
+	['FitWindow','RemoveFormat'],
+	['TextColor','BGColor','-','Image','Table','Rule','Link','Unlink'],
+	['FontSize']
 ] ;
 
 FCKConfig.ToolbarSets["basicTitle"] = [
