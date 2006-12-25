@@ -21,7 +21,7 @@ class extends agent_fckeditor_browser
 		$this->argv->Command = 'FileUpload';
 		$this->argv->CurrentFolder = '/';
 
-		$o = $this->compose($o);
+		$o = parent::compose($o);
 
 		if (isset($o->currentUrl)) $o->url = $o->currentUrl . $o->filename;
 
