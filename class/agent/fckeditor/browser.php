@@ -17,8 +17,8 @@ class extends agent
 	const binary = true;
 
 	public $argv = array(
-		'Command:string:FileUpload|GetFolders|GetFoldersAndFiles|CreateFolder',
-		'Type:string:File|Image|Flash|Media',
+		'Command:string:^FileUpload|GetFolders|GetFoldersAndFiles|CreateFolder$',
+		'Type:string:^File|Image|Flash|Media$',
 		'CurrentFolder',
 		'NewFolderName'
 	);
