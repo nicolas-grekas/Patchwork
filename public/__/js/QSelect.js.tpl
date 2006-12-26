@@ -277,7 +277,7 @@ return function($input, $driver)
 			$left = $left.documentElement || $left.body;
 
 			$parent = $left.scrollTop;
-			$left = $parent + Math.max($left.offsetHeight, $parent + $left.scrollHeight) - $input.offsetHeight - $top;
+			$left = $parent + $parent + ($win.innerHeight || $left.clientHeight) - $input.offsetHeight - $top;
 
 			$divStyle.visibility = 'hidden';
 			$divStyle.display = '';
