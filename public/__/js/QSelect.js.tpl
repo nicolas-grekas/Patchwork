@@ -273,19 +273,11 @@ return function($input, $driver)
 
 			$form.precheck = $precheck;
 
-			$parent = document.documentElement;
-			if ($parent)
-			{
-				$left = $parent.offsetHeight;
-				$parent = $parent.scrollTop;
-			}
-			else
-			{
-				$left = $win.innerHeight;
-				$parent = document.body.scrollTop;
-			}
+			$left = document;
+			$left = $left.documentElement || $left.body;
 
-			$left += $parent - $input.offsetHeight - $top;
+			$parent = $left.scrollTop;
+			$left = $parent + Math.max($left.offsetHeight, $parent + $left.scrollHeight) - $input.offsetHeight - $top;
 
 			$divStyle.visibility = 'hidden';
 			$divStyle.display = '';

@@ -14,7 +14,7 @@
 
 class extends agent_fckeditor_browser
 {
-	public $argv = array('Type');
+	public $argv = array('Type:string:^File|Image|Flash|Media$');
 
 	function compose($o)
 	{
