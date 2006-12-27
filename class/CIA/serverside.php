@@ -94,7 +94,7 @@ class extends CIA
 			}
 
 			$HOME = self::__HOME__();
-			$agent = self::home($agent);
+			$agent = self::home($agent, true);
 
 			if (0 === strpos($agent, $HOME))
 			{
