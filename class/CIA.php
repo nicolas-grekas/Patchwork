@@ -173,6 +173,7 @@ class
 	protected static $host;
 	protected static $lang = '__';
 	protected static $home;
+	protected static $uri;
 
 	protected static $versionId;
 	protected static $fullVersionId;
@@ -403,6 +404,7 @@ class
 	public static function __HOST__() {return self::$host;}
 	public static function __LANG__() {return self::$lang;}
 	public static function __HOME__() {return self::$home;}
+	public static function __URI__() {return self::$uri;}
 
 	public static function home($url, $noId = false)
 	{

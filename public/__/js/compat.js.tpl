@@ -74,7 +74,7 @@ encodeURI = window.encodeURI || function($string)
 
 encodeURIComponent = window.encodeURIComponent || function($string, $encodeURI)
 {
-	var c, s, i = 0, $enc = [], $preserved = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.!~*'()" + ($encodeURI ? ',/?:@&=+$' : '');
+	var c, s, i = 0, $enc = [], $preserved = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.!~*'()" + ($encodeURI ? ',/?:@&=+$#;' : '');
 
 	while (i<$string.length)
 	{
