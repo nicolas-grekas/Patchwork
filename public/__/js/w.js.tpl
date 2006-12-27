@@ -254,11 +254,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 		$startTime = new Date;
 
-	if (window.Error && navigator.userAgent.indexOf('Safari') < 0)
-	{
-		if (!/(^|; )JS=[12](; |$)/.test($document.cookie)) $document.cookie = 'JS=1; path=/';
-	}
-	else $document.cookie = 'JS=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+	if (window.Error && navigator.userAgent.indexOf('Safari') < 0 && !/(^|; )JS=[12](; |$)/.test($document.cookie)) $document.cookie = 'JS=1; path=/';
 
 	window.home = function($str, $master, $noId)
 	{
