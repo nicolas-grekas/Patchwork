@@ -57,7 +57,7 @@ SET $INPUT
 
 	IF !g$_FCKEDITOR
 		SET g$_FCKEDITOR -->1<!-- END:SET
-		--><script type="text/javascript" src="{~}fckeditor/fckeditor.js"></script><!--
+		--><script type="text/javascript" src="{home:'fckeditor/fckeditor.js'}"></script><!--
 	END:IF
 
 	--><textarea {a$|htmlArgs:'type':'value'}>{a$value}</textarea><script type="text/javascript">/*<![CDATA[*/

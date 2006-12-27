@@ -18,7 +18,7 @@
 <head>
 	<!-- SERVERSIDE -->
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<script type="text/javascript" src="{~}js/w"></script>
+	<script type="text/javascript" src="{home:'js/w'}"></script>
 	<!-- END:SERVERSIDE -->
 
 	<title>{a$title|replace:'<[^>]*':''|replace:'>':''}</title>

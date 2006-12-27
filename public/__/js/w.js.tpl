@@ -258,19 +258,22 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 		$startTime = new Date;
 
-	window.home = function($str, $master)
+	window.home = function($str, $master, $noId)
 	{
-		$master = $master ? $masterHome : g.__HOME__;
+		if (!/^https?:\/\//.test($str))
+		{
+				$master = $master ? $masterHome : g.__HOME__;
 
-		return (
-			/^https?:\/\//.test($str)
-			? ''
-			: (
-				0 == $str.indexOf('/')
-				? $master.substr(0, $master.indexOf('/', 8))
-				: $master
-			)
-		) + $str;
+				$str = (
+					0 == $str.indexOf('/')
+					? $master.substr(0, $master.indexOf('/', 8))
+					: $master
+				) + $str;
+
+			if (!$noId) $str += (-1 == $str.indexOf('?') ? '?' : '&amp;') + $masterCIApID;
+		}
+
+		return $str;
 	}
 
 /*

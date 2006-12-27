@@ -404,12 +404,14 @@ class
 	public static function __LANG__() {return self::$lang;}
 	public static function __HOME__() {return self::$home;}
 
-	public static function home($url)
+	public static function home($url, $noId = false)
 	{
 		if (!preg_match("'^https?://'", $url))
 		{
 			if (strncmp('/', $url, 1)) $url = self::$home . $url;
 			else $url = self::$host . substr($url, 1);
+
+			if (!$noId) $url .= (false === strpos($url, '?') ? '?' : '&amp;') . self::$versionId;
 		}
 
 		return $url;
@@ -937,13 +939,13 @@ class
 
 			if (ini_get('allow_url_fopen'))
 			{
-				$keys = file_get_contents($agent . '?k$=', false, stream_context_create(array('http' => array('method' => 'GET'))));
+				$keys = file_get_contents($agent . '&k$', false, stream_context_create(array('http' => array('method' => 'GET'))));
 			}
 			else
 			{
 				require_once 'HTTP/Request.php';
 
-				$keys = new HTTP_Request($agent . '?k$=');
+				$keys = new HTTP_Request($agent . '&k$');
 				$keys->sendRequest();
 				$keys = $keys->getResponseBody();
 			}

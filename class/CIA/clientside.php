@@ -39,7 +39,7 @@ class extends CIA
 <html lang="{$lang}">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <script type="text/javascript" class="w">/*<![CDATA[*/a=[{$agent},[{$a}],{$CIApID}]//]]></script>
-<script type="text/javascript" src="{$home}js/w"></script>
+<script type="text/javascript" src="{$home}js/w?{$CIApID}"></script>
 </html>
 EOHTML;
 

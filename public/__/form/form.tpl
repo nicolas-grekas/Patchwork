@@ -51,13 +51,13 @@ ELSE
 		textarea.toomuch {background-color: #FFD2D2}
 		.errormsg {color: red}
 		.mandatory {font-weight: bold}
-		</style><script type="text/javascript" src="{~}js/v"></script><!--
+		</style><script type="text/javascript" src="{home:'js/v'}"></script><!--
 	END:IF
 
 	--><script type="text/javascript">/*<![CDATA[*/
 lF=document.getElementById({a$id|js});<!--
 IF a$_enterControl_ -->FeC({a$_enterControl_});<!-- END:IF -->//]]></script ><!--
 
-	IF !g$_UPLOAD && a$_upload --><!-- SET g$_UPLOAD -->1<!-- END:SET --><script type="text/javascript" src="{~}js/upload"></script ><!-- END:IF
+	IF !g$_UPLOAD && a$_upload --><!-- SET g$_UPLOAD -->1<!-- END:SET --><script type="text/javascript" src="{home:'js/upload'}"></script ><!-- END:IF
 
 END:IF -->
