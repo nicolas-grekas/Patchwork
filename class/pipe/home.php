@@ -16,18 +16,18 @@
 
 class
 {
-	static function php($string = '')
+	static function php($string = '', $noId = false)
 	{
-		return CIA::home( CIA::string($string) );
+		return CIA::home(CIA::string($string), $noId);
 	}
 
 	static function js()
 	{
 		?>/*<script>*/
 
-P$home = function($string)
+P$home = function($string, $noId)
 {
-	return home( str($string) );
+	return home(str($string), 0, $noId);
 }
 
 <?php	}
