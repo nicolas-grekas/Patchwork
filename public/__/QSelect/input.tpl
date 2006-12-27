@@ -41,15 +41,15 @@ END:SET
 
 SET $INPUT
 
-	IF !g$__QS --><link rel="stylesheet" type="text/css" href="{~}QSelect/style.css" /><!-- END:IF
+	IF !g$__QS --><link rel="stylesheet" type="text/css" href="{home:'QSelect/style.css'}" /><!-- END:IF
 	SET $INPUT -->{home:|urlencode}<!-- END:SET
 	IF a$_mandatory --><span class="mandatory"><!-- END:IF
 
-	--><span class="QSstyle"><input autocomplete="off" {a$|htmlArgs} /><img src="{~}QSelect/b.gif" id="__QSb{$INPUT}{a$name}" onmouseover="this.src={home:'QSelect/bh.gif'|js}" onmouseout="this.src={home:'QSelect/b.gif'|js}" onmousedown="this.src={home:'QSelect/bp.gif'|js}" onmouseup="this.onmouseover()" alt=" " title="" /></span><script type="text/javascript">/*<![CDATA[*/<!--
+	--><span class="QSstyle"><input autocomplete="off" {a$|htmlArgs} /><img src="{home:'QSelect/b.gif'}" id="__QSb{$INPUT}{a$name}" onmouseover="this.src={home:'QSelect/bh.gif'|js}" onmouseout="this.src={home:'QSelect/b.gif'|js}" onmousedown="this.src={home:'QSelect/bp.gif'|js}" onmouseup="this.onmouseover()" alt=" " title="" /></span><script type="text/javascript">/*<![CDATA[*/<!--
 
 	IF !g$__QS
 		SET g$__QS
-			--><div id="__QSd1" style="position:absolute;visibility:hidden;z-index:9;top:0px"><form action=""><div id="__QSd2" style="position:absolute"><img src="{~}QSelect/tr.png" width="5" height="10" /><br /><img src="{~}QSelect/r.png" width="5" height="5" id="__QSi1" /><br /><img src="{~}QSelect/br.png" width="5" height="5" /></div><div id="__QSd3" style="position:absolute"><img src="{~}QSelect/bl.png" width="10" height="5" /><img src="{~}QSelect/b.png" width="5" height="5" id="__QSi2" /></div><select id="__QSs" size="7"></select></form></div><script type="text/javascript" src="{~}js/QSelect"></script ><!--
+			--><div id="__QSd1" style="position:absolute;visibility:hidden;z-index:9;top:0px"><form action=""><div id="__QSd2" style="position:absolute"><img src="{home:'QSelect/tr.png'}" width="5" height="10" /><br /><img src="{home:'QSelect/r.png'}" width="5" height="5" id="__QSi1" /><br /><img src="{home:'QSelect/br.png'}" width="5" height="5" /></div><div id="__QSd3" style="position:absolute"><img src="{home:'QSelect/bl.png'}" width="10" height="5" /><img src="{home:'QSelect/b.png'}" width="5" height="5" id="__QSi2" /></div><select id="__QSs" size="7"></select></form></div><script type="text/javascript" src="{home:'js/QSelect'}"></script ><!--
 		END:SET
 		-->window.__QSd||(window.__QSd=1,footerHtml.push({g$__QS|js}));<!--
 		SET g$__QS -->1<!-- END:SET
