@@ -28,11 +28,6 @@
 footerHtml = [];
 antiXSJ = '';
 
-document.cookie = 'JS=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
-
-if (window.Error && navigator.userAgent.indexOf('Safari') < 0)
-	document.cookie = 'JS=1; expires=Sun, 17-Jan-2038 19:14:07 GMT; path=/';
-
 function t($v, $type)
 {
 	return $type ? (typeof $v == $type) : (typeof $v != 'undefined');
@@ -237,6 +232,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 		$inlineJs = 0,
 		$continue = '',
 		$includeSrc = '',
+		$trustReferer = 0,
 
 		$WexecStack = [],
 		$WexecLast = 0,
@@ -257,6 +253,12 @@ w = function($homeAgent, $keys, $masterCIApID)
 		$masterHome = {g$__HOME__|js},
 
 		$startTime = new Date;
+
+	if (window.Error && navigator.userAgent.indexOf('Safari') < 0)
+	{
+		if (!/(^|; )JS=[12](; |$)/.test($document.cookie)) $document.cookie = 'JS=1; expires=Sun, 17-Jan-2038 19:14:07 GMT; path=/';
+	}
+	else $document.cookie = 'JS=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
 
 	window.home = function($str, $master, $noId)
 	{
@@ -602,7 +604,16 @@ w = function($homeAgent, $keys, $masterCIApID)
 			$buffer = [$content.substr($i)],
 			$content = $content.substring(0, $i);
 
-		$document.write($content + ($src && '<script type="text/javascript" class="w" src="' + $src + '"></script>'));
+		if ($src)
+		{
+			$src = '<script type="text/javascript" class="w" src="' + $src + '"></script>';
+
+			if ($trustReferer || /(^|; )JS=2(; |$)/.test($document.cookie)) $trustReferer = 1;
+			else $src = '<script type="text/javascript" class="w">document.cookie="R$="+eUC((""+location).replace(/#.*$/,""))+"; path=/"</script>' + $src;
+		}
+		else $src = '';
+
+		$document.write($content + $src);
 
 		if (!$src)
 			$document.close(),
@@ -716,7 +727,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 			/\/[^\/]+$/          , '/'
 		);
 
-		$document.cookie = 'T$=' + $i + '; path=' + encodeURI($j);
+		$document.cookie = 'T$=' + $i + '; path=' + eUC($j);
 	}
 
 	antiXSJ = $i;

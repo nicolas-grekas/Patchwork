@@ -54,19 +54,21 @@ class extends CIA
 			$reset_get = true;
 			$cache = '';
 
-			if (isset($_GET['$s']))
+			if (isset($_GET['s$']))
 			{
 				ob_start('htmlspecialchars');
 				self::$get = (object) $a;
 			}
 			else self::$get = (object) array_map('htmlspecialchars', $a);
 
+			self::$uri = self::$host . substr($_SERVER['REQUEST_URI'], 1);
+
 			self::$get->__DEBUG__ = DEBUG ? DEBUG : 0;
-			self::$get->__HOST__ = self::__HOST__();
+			self::$get->__HOST__ = self::$host;
 			$cache .= self::$get->__LANG__ = self::__LANG__();
 			$cache .= self::$get->__HOME__ = self::__HOME__();
 			self::$get->__AGENT__ = 'agent_index' == $agent ? '' : (str_replace('_', '/', substr($agent, 6)) . '/');
-			self::$get->__URI__ = htmlspecialchars(self::$get->__HOST__ . substr($_SERVER['REQUEST_URI'], 1));
+			self::$get->__URI__ = htmlspecialchars(self::$uri);
 			self::$get->__REFERER__ = isset($_SERVER['HTTP_REFERER']) ? htmlspecialchars($_SERVER['HTTP_REFERER']) : '';
 
 			self::$args = self::$get;
@@ -109,7 +111,7 @@ class extends CIA
 			{
 				if ($is_exo)
 				{
-					$agent = preg_replace("'__'", self::__LANG__(), $agent, 1) . '?$s=';
+					$agent = preg_replace("'__'", self::__LANG__(), $agent, 1) . '?s$';
 
 					foreach ($args as $k => &$v) $agent .= '&' . urlencode($k) . '=' . urlencode(self::string($v));
 

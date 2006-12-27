@@ -56,6 +56,28 @@ EOHTML;
 
 	public static function render($agent, $liveAgent)
 	{
+		// Get the calling URI
+		if (isset($_COOKIE['R$']))
+		{
+			self::$uri = $_COOKIE['R$'];
+
+			setcookie('R$', false, 0, '/');
+	
+			// Check the Referer header
+			// JS equals 1 when the Referer's confidence is unknown
+			//           2 when it is trusted
+			if (isset($_COOKIE['JS']) && isset($_SERVER['HTTP_REFERER']) && $_COOKIE['R$'] == $_SERVER['HTTP_REFERER']) setcookie('JS', 2, 2147368447, '/');
+		}
+		else if (isset($_COOKIE['JS']) && 2 == $_COOKIE['JS'])
+		{
+			if (isset($_SERVER['HTTP_REFERER'])) self::$uri = $_SERVER['HTTP_REFERER'];
+			else // Should never append...
+			{
+				self::$uri = self::$home;
+				setcookie('JS', 1, 2147368447, '/');
+			}
+		}
+
 		if ($liveAgent)
 		{
 			// The output is both html and js, but iframe transport layer needs html
