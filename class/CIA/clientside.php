@@ -66,7 +66,7 @@ EOHTML;
 			// Check the Referer header
 			// JS equals 1 when the Referer's confidence is unknown
 			//           2 when it is trusted
-			if (isset($_COOKIE['JS']) && isset($_SERVER['HTTP_REFERER']) && $_COOKIE['R$'] == $_SERVER['HTTP_REFERER']) setcookie('JS', 2, 2147368447, '/');
+			if (isset($_COOKIE['JS']) && isset($_SERVER['HTTP_REFERER']) && $_COOKIE['R$'] == $_SERVER['HTTP_REFERER']) setcookie('JS', 2, 0, '/');
 		}
 		else if (isset($_COOKIE['JS']) && 2 == $_COOKIE['JS'])
 		{
@@ -74,7 +74,7 @@ EOHTML;
 			else // Should never append...
 			{
 				self::$uri = self::$home;
-				setcookie('JS', 1, 2147368447, '/');
+				setcookie('JS', 1, 0, '/');
 			}
 		}
 
