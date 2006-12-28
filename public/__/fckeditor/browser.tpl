@@ -22,7 +22,7 @@ ELSE
 
 	IF $command
 		--><Connector command="{$command}" resourceType="{$resourceType}">
-<CurrentFolder path="{$currentFolder}" url="{home:$currentUrl}" /><!--
+<CurrentFolder path="{$currentFolder}" url="{home:$currentUrl:1}" /><!--
 
 		IF $FOLDERS
 			--><Folders><!--
