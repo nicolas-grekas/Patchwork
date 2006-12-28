@@ -57,10 +57,18 @@ SET $INPUT
 
 	IF !g$_FCKEDITOR
 		SET g$_FCKEDITOR -->1<!-- END:SET
-		--><script type="text/javascript" src="{home:'fckeditor/fckeditor.js'}"></script><!--
+
+		CLIENTSIDE
+			SET $js --><!-- INCLUDE fckeditor/js --><!-- END:SET
+		END:CLIENTSIDE
+
+		SERVERSIDE
+			--><script type="text/javascript" src="{home:'fckeditor/js'}"></script><!--
+		END:SERVERSIDE
 	END:IF
 
 	--><textarea {a$|htmlArgs:'type':'value'}>{a$value}</textarea><script type="text/javascript">/*<![CDATA[*/
+{$js|allowhtml}
 lE=gLE({a$name|js}<!-- IF a$multiple -->,1<!-- END:IF -->)
 if(lE){
 lE.gS=function(){return valid(this<!-- LOOP a$_valid -->,{$VALUE|js}<!-- END:LOOP -->)}

@@ -222,7 +222,7 @@ class
 
 		// {{{ Static controler
 		$agent = $_SERVER['CIA_REQUEST'];
-		if (preg_match("'\.[a-z0-9]{1,4}$'i", $agent, $mime)) require processPath('controler.php');
+		if (preg_match("'\.[a-z0-9]{1,4}$'i", $agent, $mime) && strcasecmp('.tpl', $mime[0])) require processPath('controler.php');
 		// }}}
 
 		if (!extension_loaded('mbstring')) require processPath('mbstring.php');
