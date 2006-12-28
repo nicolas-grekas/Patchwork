@@ -24,7 +24,7 @@ class extends agent_bin
 			CIA::header('Content-Type: ' . $data[0]);
 
 			$data = explode(',', $data[1]),
-			echo base64_decode($data[1]);
+			$o->DATA = base64_decode($data[1]);
 		}
 
 		return $o;

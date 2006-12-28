@@ -45,16 +45,26 @@ ELSE
 
 	IF !g$_FORM
 		SET g$_FORM -->1<!-- END:SET
+
 		--><style type="text/css">
 		label {cursor: default}
 		textarea {overflow: visible}
 		textarea.toomuch {background-color: #FFD2D2}
 		.errormsg {color: red}
 		.mandatory {font-weight: bold}
-		</style><script type="text/javascript" src="{home:'js/v'}"></script><!--
+		</style><!--
+
+		CLIENTSIDE
+			SET $js --><!-- AGENT 'js/v' --><!-- END:SET
+		END:CLIENTSIDE
+
+		SERVERSIDE
+			--><script type="text/javascript" src="{home:'js/v'}"></script><!--
+		END:SERVERSIDE
 	END:IF
 
-	--><script type="text/javascript">/*<![CDATA[*/
+	--><script type="text/javascript">/*<![CDATA[*/<!--
+{$js|allowhtml}
 lF=document.getElementById({a$id|js});<!--
 IF a$_enterControl_ -->FeC({a$_enterControl_});<!-- END:IF -->//]]></script ><!--
 

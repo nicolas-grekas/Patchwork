@@ -23,6 +23,8 @@ class extends agent
 		'NewFolderName'
 	);
 
+	protected $watch = array('public/files');
+
 	protected $path = false;
 
 	protected $allowFile = array('pdf', 'doc', 'odt');
@@ -139,6 +141,8 @@ class extends agent
 				@CIA::makeDir($newFolderName);
 
 				if (!is_dir($newFolderName)) return array('number' => 102, 'originalDescription' => 'Failed creating new directory. Please check folder permissions.');
+
+				CIA::touch('public/files');
 			}
 		}
 		else $o->number = 102;
@@ -195,6 +199,8 @@ class extends agent
 							chmod($filepath, 0777);
 							umask($i);
 						}
+
+						CIA::touch('public/files');
 
 						break;
 					}
