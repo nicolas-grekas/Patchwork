@@ -15,7 +15,7 @@
 
 function liveAgent($AGENT, $POST, $antiXSJ, $HOME, $XMLHttpPreferred)
 {
-	$HOME = $HOME || home('');
+	$HOME = $HOME || home('', 0, 1);
 	$AGENT = $HOME + '_?x$=' + eUC($AGENT);
 
 	var $QJsrs = new QJsrs($AGENT, $POST, $antiXSJ, $XMLHttpPreferred),

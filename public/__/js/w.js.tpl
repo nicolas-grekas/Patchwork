@@ -480,7 +480,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 							g = $args;
 						}
 
-						$agent = $keys ? g.__HOME__ + '_?a$=' + $agent : home($agent);
+						$agent = $keys ? g.__HOME__ + '_?a$=' + $agent : home($agent, 0, 1);
 					}
 
 					return $include($agent, $args, $keys);
@@ -770,9 +770,9 @@ function loadW()
 	else document.write('<script type="text/javascript" src="js/compat"></script>');
 }
 
-function P$home($string)
+function P$home($string, $noId)
 {
-	return home( str($string) );
+	return home(str($string), 0, $noId);
 }
 
 loadW();
