@@ -63,7 +63,7 @@ ELSE
 		END:SERVERSIDE
 	END:IF
 
-	--><script type="text/javascript">/*<![CDATA[*/<!--
+	--><script type="text/javascript">/*<![CDATA[*/
 {$js|allowhtml}
 lF=document.getElementById({a$id|js});<!--
 IF a$_enterControl_ -->FeC({a$_enterControl_});<!-- END:IF -->//]]></script ><!--
