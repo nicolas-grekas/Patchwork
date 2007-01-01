@@ -19,16 +19,14 @@ if (isset($_SERVER['PHP_AUTH_USER']))
 
 class extends CIA
 {
-	private $total_time = 0;
-
 	function __construct()
 	{
-		$this->log(
+		self::log(
 			'<a href="' . htmlspecialchars($_SERVER['REQUEST_URI']) . '" target="_blank">'
 			. htmlspecialchars(preg_replace("'&v\\\$=[^&]*'", '', $_SERVER['REQUEST_URI']))
 			. '</a>'
 		);
-		register_shutdown_function(array($this, 'log'), '', true);
+		register_shutdown_function(array('CIA', 'log'), '', true);
 		parent::__construct();
 	}
 
@@ -37,31 +35,6 @@ class extends CIA
 		self::$handlesOb = true;
 		if (self::$isHtml) $buffer = $this->error_end(substr(trim($buffer), 0, 1)) . $buffer;
 		return parent::ob_handler($buffer);
-	}
-
-	function log($message, $is_end = false, $html = true)
-	{
-		static $prev_time = CIA;
-		$this->total_time += $a = 1000*(microtime(true) - $prev_time);
-
-		if ('__getDeltaMicrotime' !== $message)
-		{
-			if ($is_end) $a = sprintf('Total: %.02f ms</pre><pre>', $this->total_time);
-			else if (self::$handlesOb) $a = sprintf('%.02f ms: ', $a) . serialize($message) . "\n";
-			else $a = sprintf('%.02f ms: ', $a) . print_r($message, true) . "\n";
-
-			if (!$html) $a = htmlspecialchars($a);
-
-			$b = ini_get('error_log');
-			$b = fopen($b ? $b : './error.log', 'ab');
-			flock($b, LOCK_EX);
-			fwrite($b, $a, strlen($a));
-			fclose($b);
-		}
-
-		$prev_time = microtime(true);
-
-		return $a;
 	}
 
 	private function error_end($type)
