@@ -94,6 +94,10 @@ if (function_exists('iconv_set_encoding'))
 // }}}
 
 // {{{ Load configuration
+
+ini_set('display_errors', false);
+ini_set('error_log', $CIA . '/error.log');
+
 $CONFIG = array();
 $version_id = $CIA . '/.config.zcache.php';
 
@@ -111,7 +115,6 @@ if (isset($CONFIG['clientside']) && !$CONFIG['clientside']) $_GET['$bin'] = true
 define('CIA_PROJECT_PATH', $cia_paths[0]);
 chdir(CIA_PROJECT_PATH);
 
-ini_set('display_errors', false);
 ini_set('error_log', CIA_PROJECT_PATH . '/error.log');
 
 // Restore the current dir in shutdown context.
