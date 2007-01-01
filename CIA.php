@@ -182,9 +182,7 @@ define('CIA_DIRECT', '_' == $_SERVER['CIA_REQUEST']);
 
 function E($msg = '__getDeltaMicrotime')
 {
-	if (class_exists('CIA_debug', false)) return CIA::ciaLog($msg, false, false);
-
-	trigger_error(htmlspecialchars(serialize($msg)));
+	return CIA::log($msg, false, false);
 }
 
 if (function_exists('date_default_timezone_set') && isset($CONFIG['timezone'])) date_default_timezone_set($CONFIG['timezone']);

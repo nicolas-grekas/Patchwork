@@ -194,6 +194,7 @@ class
 	protected static $cancelled = false;
 	protected static $privateDetectionMode = false;
 	protected static $detectXSJ = false;
+	protected static $total_time = 0;
 
 	public static function start()
 	{
@@ -755,10 +756,33 @@ class
 		return self::getCachePath($filename, $extension, self::$home .'-'. self::$lang .'-'. DEBUG .'-'. CIA_PROJECT_PATH .'-'. $key);
 	}
 
-	public static function ciaLog($message, $is_end = false, $html = true)
+	public static function log($message, $is_end = false, $raw_html = true)
 	{
-		if (isset(self::$cia)) return self::$cia->log($message, $is_end, $html);
-		else trigger_error(serialize($message));
+		static $prev_time = CIA;
+		self::$total_time += $a = 1000*(microtime(true) - $prev_time);
+
+		if ('__getDeltaMicrotime' !== $message)
+		{
+			if ($is_end) $a = sprintf('Total: %.02f ms</pre><pre>', self::$total_time);
+			else
+			{
+				$b = self::$handlesOb ? serialize($message) : print_r($message, true);
+
+				if (!$raw_html) $b = htmlspecialchars($b);
+
+				$a = '<acronym title="' . date("d-m-Y H:i:s", $_SERVER['REQUEST_TIME']) . '">' . sprintf('%.02f', $a) . ' ms</acronym>: ' . $b . "\n";
+			}
+
+			$b = ini_get('error_log');
+			$b = fopen($b ? $b : './error.log', 'ab');
+			flock($b, LOCK_EX);
+			fwrite($b, $a, strlen($a));
+			fclose($b);
+		}
+
+		$prev_time = microtime(true);
+
+		return $a;
 	}
 
 	protected static function resolveAgentClass($agent, &$args)
