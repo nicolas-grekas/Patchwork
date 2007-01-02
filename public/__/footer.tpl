@@ -12,7 +12,7 @@
  ***************************************************************************}
 <!--
 
-IF 1 == g-1$nested
+IF 1 == g-1$headerNesting
 
 	--><script type="text/javascript">/*<![CDATA[*/footerHtml.length&&document.write(footerHtml.join(''))//]]></script>{*
 	*}<script type="text/javascript">/*<![CDATA[*/addOnload.run()//]]></script ><!--
