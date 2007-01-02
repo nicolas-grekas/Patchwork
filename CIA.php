@@ -183,6 +183,8 @@ define('CIA_MAXAGE',	$CONFIG['maxage']);
 define('CIA_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
 define('CIA_DIRECT', '_' == $_SERVER['CIA_REQUEST']);
 
+if (DEBUG) $version_id = -$version_id;
+
 function E($msg = '__getDeltaMicrotime')
 {
 	return CIA::log($msg, false, false);
