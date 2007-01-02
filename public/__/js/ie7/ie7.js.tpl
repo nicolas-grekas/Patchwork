@@ -1188,7 +1188,8 @@ ie7CSS.init();
 if (isHTML && ie7HTML) ie7HTML.init();
 
 // this script may be inserted via a favelet so the page may already be loaded
-if (1||complete) IE7.init();
+<!-- IF a$nativeInit -->
+if (complete) IE7.init();
 else {
 	// if we can load behaviors then use ondocumentready
 	documentElement.addBehavior(makePath("ie7-load.htc", path));
@@ -1199,6 +1200,9 @@ else {
 		if (document.readyState == "complete") setTimeout(IE7.init, 0);
 	});
 }
+<!-- ELSE -->
+IE7.init();
+<!-- END:IF -->
 
 // -----------------------------------------------------------------------
 //  error handling
