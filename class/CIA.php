@@ -49,10 +49,10 @@ class hunter
 // {{{ PHP session mechanism overloading
 class sessionHandler implements ArrayAccess
 {
-	function offsetGet($k)     {$_SESSION =& SESSION::get(); return $_SESSION[$k];}
-	function offsetSet($k, $v) {$_SESSION =& SESSION::get(); $_SESSION[$k] =& $v;}
-	function offsetExists($k)  {$_SESSION =& SESSION::get(); return isset($_SESSION[$k]);}
-	function offsetUnset($k)   {$_SESSION =& SESSION::get(); unset($_SESSION[$k]);}
+	function offsetGet($k)     {$_SESSION = SESSION::getAll(); return $_SESSION[$k];}
+	function offsetSet($k, $v) {$_SESSION = SESSION::getAll(); $_SESSION[$k] =& $v;}
+	function offsetExists($k)  {$_SESSION = SESSION::getAll(); return isset($_SESSION[$k]);}
+	function offsetUnset($k)   {$_SESSION = SESSION::getAll(); unset($_SESSION[$k]);}
 
 	static $id;
 
@@ -69,7 +69,7 @@ class sessionHandler implements ArrayAccess
 
 	static function read($id)
 	{
-		$_SESSION =& SESSION::get();
+		$_SESSION = SESSION::getAll();
 		self::$id = $id;
 		return '';
 	}

@@ -40,7 +40,6 @@ class driver_session_default
 	/* Protected properties */
 
 	protected static $started = false;
-	protected static $private = false;
 
 	protected static $DATA;
 	protected static $driver;
@@ -56,20 +55,11 @@ class driver_session_default
 	static function getSID() {return self::$SID;}
 	static function getLastseen() {return self::$lastseen;}
 
-	static function &get($name = false, $private = true)
+	static function get($name)
 	{
 		self::$started || self::start();
 
-		if ($private && !self::$private)
-		{
-			CIA::setGroup('private');
-			self::$private = true;
-		}
-
-		if (false === $name) return self::$DATA;
-
-		if (!isset(self::$DATA[$name])) self::$DATA[$name] = '';
-		return self::$DATA[$name];
+		return isset(self::$DATA[$name]) ? self::$DATA[$name] : '';
 	}
 
 	static function set($name, $value = '')
@@ -79,6 +69,21 @@ class driver_session_default
 		if (is_array($name) || is_object($name)) foreach($name as $k => &$value) self::$DATA[$k] =& $value;
 		else if ('' === $value) unset(self::$DATA[$name]);
 		else self::$DATA[$name] =& $value;
+	}
+
+	static function bind($name, &$value)
+	{
+		$value = self::get($name);
+		self::set(array($name => &$value));
+	}
+
+	static function getAll()
+	{
+		self::$started || self::start();
+
+		$a = array();
+		foreach (self::$DATA as $k => &$v) $a[$k] =& $v;
+		return $a;
 	}
 
 	static function regenerateId($initSession = false)
@@ -111,6 +116,11 @@ class driver_session_default
 		unset($_SERVER['HTTP_IF_MODIFIED_SINCE']);
 	}
 
+	static function destroy()
+	{
+		self::regenerateId(true);
+	}
+
 	static function close()
 	{
 		if (!self::$started) return;
@@ -124,6 +134,8 @@ class driver_session_default
 	protected static function start()
 	{
 		if (self::$started) return;
+
+		CIA::setGroup('private');
 
 		self::$class = 'driver_session_' . $GLOBALS['CONFIG']['session_driver'];
 
