@@ -361,7 +361,7 @@ class
 			if (DEBUG && CIA_CHECK_SOURCE && !CIA_POSTING && !$binaryMode)
 			{
 				self::touch('');
-				array_map('unlink', glob(self::$cachePath . '?/?/*', GLOB_NOSORT));
+				foreach (glob(self::$cachePath . '?/?/*', GLOB_NOSORT) as $v) if ('.session' != substr($v, -8)) unlink($v);
 
 				self::$fullVersionId -= filemtime('./config.php');
 
