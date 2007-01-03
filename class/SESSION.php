@@ -90,7 +90,7 @@ class driver_session_default
 	{
 		self::$started || self::start();
 
-		self::$driver->destroy();
+		self::$driver->reset();
 		self::$driver = false;
 
 		if ($initSession) self::$DATA = array();
@@ -262,7 +262,7 @@ class driver_session_default
 		fwrite($this->handle, $value, strlen($value));
 	}
 
-	protected function destroy()
+	protected function reset()
 	{
 		ftruncate($this->handle, 0);
 		fclose($this->handle);
