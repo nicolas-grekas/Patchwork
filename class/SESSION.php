@@ -223,7 +223,7 @@ class driver_session_default
 
 	protected function __construct($sid)
 	{
-		$this->path = CIA::$cachePath . '0/'. $sid[0] .'/session.'. substr($sid, 1) .'.txt';
+		$this->path = CIA::$cachePath . '0/'. $sid[0] .'/'. substr($sid, 1) .'.session';
 
 		CIA::makeDir($this->path);
 
@@ -273,7 +273,7 @@ class driver_session_default
 
 	protected static function gc($lifetime)
 	{
-		foreach (glob(CIA::$cachePath . '0/?/session.*.txt', GLOB_NOSORT) as $file)
+		foreach (glob(CIA::$cachePath . '0/?/*.session', GLOB_NOSORT) as $file)
 		{
 			if ($_SERVER['REQUEST_TIME'] - filemtime($file) > $lifetime) unlink($file);
 		}
