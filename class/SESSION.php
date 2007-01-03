@@ -264,6 +264,7 @@ class driver_session_default
 
 	protected function destroy()
 	{
+		ftruncate($this->handle, 0);
 		fclose($this->handle);
 		$this->handle = false;
 
