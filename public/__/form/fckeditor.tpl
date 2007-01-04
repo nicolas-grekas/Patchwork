@@ -59,7 +59,7 @@ SET $INPUT
 		SET g$_FCKEDITOR -->1<!-- END:SET
 
 		CLIENTSIDE
-			SET $js --><!-- INCLUDE fckeditor/js --><!-- END:SET
+			SET $js --><!-- AGENT 'fckeditor/js' --><!-- END:SET
 		END:CLIENTSIDE
 
 		SERVERSIDE
