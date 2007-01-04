@@ -53,7 +53,7 @@ class extends Mail_mime
 	{
 		$message_id = 'iaM' . CIA::uniqid();
 
-		$this->_headers['Message-Id'] = '<' . $message_id . '@' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'iaMail') . '>';
+		$this->_headers['Message-Id'] = '<' . $message_id . '@' . (isset($_SERVER['HTTP_HOST']) ? urlencode($_SERVER['HTTP_HOST']) : 'iaMail') . '>';
 
 		$this->setObserver('reply', 'Reply-To', $message_id);
 		$this->setObserver('bounce', 'Return-Path', $message_id);

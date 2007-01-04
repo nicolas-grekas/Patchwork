@@ -233,7 +233,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 		$lastInclude = '',
 		$includeCache = {},
 		
-		$masterHome = {g$__HOME__|js},
+		$masterHome = esc({g$__HOME__|js}),
 
 		$startTime = new Date;
 
@@ -715,8 +715,8 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 	g = parseurl($j.search.replace(/\+/g, '%20').substring(1), '&', /^amp;/);
 	g.__DEBUG__ = {g$__DEBUG__|js};
-	g.__HOST__ = {g$__HOST__|js};
-	g.__LANG__ = {g$__LANG__|js};
+	g.__HOST__ = esc({g$__HOST__|js});
+	g.__LANG__ = esc({g$__LANG__|js});
 	g.__HOME__ = $masterHome;
 	g.__AGENT__ = $homeAgent ? esc($homeAgent) + '/' : '';
 	g.__URI__ = esc(''+$j);

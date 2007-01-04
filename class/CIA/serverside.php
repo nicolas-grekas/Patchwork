@@ -64,9 +64,9 @@ class extends CIA
 			self::$uri = self::$host . substr($_SERVER['REQUEST_URI'], 1);
 
 			self::$get->__DEBUG__ = DEBUG ? DEBUG : 0;
-			self::$get->__HOST__ = self::$host;
-			$cache .= self::$get->__LANG__ = self::__LANG__();
-			$cache .= self::$get->__HOME__ = self::__HOME__();
+			self::$get->__HOST__ = htmlspecialchars(self::__HOST__());
+			$cache .= self::$get->__LANG__ = htmlspecialchars(self::__LANG__());
+			$cache .= self::$get->__HOME__ = htmlspecialchars(self::__HOME__());
 			self::$get->__AGENT__ = 'agent_index' == $agent ? '' : (str_replace('_', '/', substr($agent, 6)) . '/');
 			self::$get->__URI__ = htmlspecialchars(self::$uri);
 			self::$get->__REFERER__ = isset($_SERVER['HTTP_REFERER']) ? htmlspecialchars($_SERVER['HTTP_REFERER']) : '';
