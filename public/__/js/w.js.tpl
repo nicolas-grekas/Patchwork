@@ -706,7 +706,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 			/\/[^\/]+$/          , '/'
 		);
 
-		$document.cookie = 'T$=' + $i + '; path=' + eUC($j);
+		$document.cookie = 'T$=' + $i + '; path=' + encodeURI($j);
 	}
 
 	antiXSJ = $i;
