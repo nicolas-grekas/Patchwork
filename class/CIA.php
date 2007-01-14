@@ -604,28 +604,6 @@ class
 	public static function uniqid() {return md5( uniqid(mt_rand(), true) );}
 
 	/**
-	 *  Returns the hash of $pwd if this hash match $crypted_pwd or if $crypted_pwd is not supplied. Else returns false.
-	 */
-	public static function password($pwd, $crypted_pwd = false)
-	{
-		$saltLen = 4;
-
-		if ($crypted_pwd !== false)
-		{
-			$salt = substr($crypted_pwd, 0, $saltLen);
-			if ($salt . md5($pwd . $salt) != $crypted_pwd) return false;
-		}
-
-		$a = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
-		$b = strlen($a) - 1;
-
-		$salt = '';
-		do $salt .= $a{ mt_rand(0, $b) }; while (--$saltLen);
-
-		return $salt . md5($pwd . $salt);
-	}
-
-	/**
 	 * Revokes every agent watching $message
 	 */
 	public static function touch($message)
