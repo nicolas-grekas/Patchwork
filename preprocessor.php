@@ -41,8 +41,7 @@ function fetchPHPWhiteSpaceNComments(&$source, &$i)
 
 function runPreprocessor($source, $cache, $level, $class = false)
 {
-	$file = $GLOBALS['cia_paths'];
-	$file = substr($source, strlen($file[count($file) - $level - 1]) + 1);
+	$file = realpath($source);
 
 	$source = file_get_contents($source);
 	if (false !== strpos($source, "\r")) $source = str_replace(array("\r\n", "\r"), array("\n", "\n"), $source);

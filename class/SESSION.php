@@ -24,8 +24,8 @@ class driver_session_default
 
 	static $IPlevel = 2;
 
-	static $maxIdleTime = 3600;
-	static $maxLifeTime = 0;
+	static $maxIdleTime = 0;
+	static $maxLifeTime = 43200;
 
 	static $cookieName = 'SID';
 	static $cookiePath = '';
