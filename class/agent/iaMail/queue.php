@@ -24,7 +24,7 @@ class extends agent_bin
 
 	function control()
 	{
-		$sqlite = iaMail_queue::getSqlite();
+		$sqlite = iaMail::getSqlite();
 
 		if ($this->argv->__1__)
 		{
@@ -65,7 +65,7 @@ class extends agent_bin
 		else if (!$this->argv->do)
 		{
 			$sql = "SELECT 1 FROM queue WHERE sent_time=0 AND send_time <= {$_SERVER['REQUEST_TIME']} LIMIT 1";
-			!$sqlite->query($sql)->fetchObject() || iaMail_queue::isRunning() || tool_touchUrl::call(CIA::home('iaMail/queue?do=1'));
+			!$sqlite->query($sql)->fetchObject() || iaMail::isRunning() || tool_touchUrl::call(CIA::home('iaMail/queue?do=1'));
 		}
 		else
 		{
