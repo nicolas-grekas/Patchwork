@@ -37,9 +37,9 @@ class extends Mail_mime
 	}
 
 
-	function __construct($options = null)
+	protected function __construct($options = null)
 	{
-		parent::__construct("\n");
+		parent::__construct();
 
 		$this->options = $options;
 
@@ -49,7 +49,7 @@ class extends Mail_mime
 		$this->_build_params['head_charset'] = 'UTF-8';
 	}
 
-	function doSend()
+	protected function doSend()
 	{
 		$message_id = 'iaM' . CIA::uniqid();
 
@@ -61,10 +61,27 @@ class extends Mail_mime
 		$body =& $this->get($this->options);
 		$headers =& $this->headers();
 
-		$to = DEBUG ? $GLOBALS['CONFIG']['debug_email'] : $headers['To'];
+		if (!isset($headers['Return-Path']) && isset($headers['From'])) $headers['Return-Path'] = $headers['From'];
+
+		$to = $headers['To'];
 		unset($headers['To']);
 
-		$mail = @Mail::factory('mail', isset($headers['Return-Path']) ? '-f ' . escapeshellarg($headers['Return-Path']) : '' );
+		$options = null;
+		$driver = $GLOBALS['CONFIG']['email_driver'];
+
+		switch ($driver)
+		{
+		case 'mail':
+			$options = isset($GLOBALS['CONFIG']['email_options']) ? $GLOBALS['CONFIG']['email_options'] : '';
+			if (isset($headers['Return-Path'])) $options .= ' -f ' . escapeshellarg($headers['Return-Path']);
+			break;
+
+		case 'smtp':
+			$options = isset($GLOBALS['CONFIG']['email_options']) ? $GLOBALS['CONFIG']['email_options'] : array();
+			break;
+		}
+
+		$mail = @Mail::factory($driver, $options);
 		$mail->send($to, $headers, $body);
 	}
 

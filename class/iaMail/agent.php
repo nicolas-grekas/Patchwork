@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends iaMail
+class extends iaMail_mime
 {
 	protected $agent;
 	protected $argv;
@@ -20,7 +20,7 @@ class extends iaMail
 
 	static protected $imageCache = array();
 
-	function __construct($agent, $argv = array(), $options = null)
+	protected function __construct($agent, $argv = array(), $options = null)
 	{
 		$this->agent = $agent;
 		$this->argv = (array) $argv;
@@ -29,7 +29,7 @@ class extends iaMail
 		parent::__construct($options);
 	}
 
-	function doSend()
+	protected function doSend()
 	{
 		$html = CIA_serverside::returnAgent($this->agent, $this->argv, $this->lang);
 
