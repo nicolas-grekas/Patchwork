@@ -11,6 +11,12 @@
  *
  ***************************************************************************/
 
+#>>>
+if (isset($_SERVER['PHP_AUTH_USER']))
+{
+	$_SERVER['PHP_AUTH_USER'] = $_SERVER['PHP_AUTH_PW'] = "Don't use me, it would be a security hole (cross site javascript).";
+}
+#<<<
 
 // {{{ Shortcut functions for applications developpers
 function G($name, $type) {$a = func_get_args(); return VALIDATE::get(    $_GET[$name]   , $type, array_slice($a, 2));}
@@ -210,8 +216,7 @@ class
 		$cachePath = resolvePath(self::$cachePath);
 		self::$cachePath = ($cachePath == self::$cachePath ? $GLOBALS['cia_paths'][count($GLOBALS['cia_paths']) - 2] . '/' : '') . $cachePath;
 
-		if (DEBUG) self::$cia = new CIA_debug;
-		else self::$cia = new CIA;
+		self::$cia = new CIA;
 
 		self::setLang($_SERVER['CIA_LANG'] ? $_SERVER['CIA_LANG'] : substr($GLOBALS['CONFIG']['lang_list'], 0, 2));
 
@@ -352,13 +357,14 @@ class
 				exit;
 			}
 
+#>>>
 			/*
 			 * Both Firefox and IE send a "Cache-Control: no-cache" request header
 			 * only and only if the current page is reloaded with CTRL+F5 or the JS code :
 			 * "location.reload(true)". We use this behaviour to trigger a cache reset in DEBUG mode.
 			 */
 
-			if (DEBUG && CIA_CHECK_SOURCE && !CIA_POSTING && !$binaryMode)
+			if (CIA_CHECK_SOURCE && !CIA_POSTING && !$binaryMode)
 			{
 				self::touch('');
 				foreach (glob(self::$cachePath . '?/?/*', GLOB_NOSORT) as $v) if ('.session' != substr($v, -8)) unlink($v);
@@ -370,6 +376,7 @@ class
 				self::$fullVersionId += $_SERVER['REQUEST_TIME'];
 				self::$versionId = abs(self::$fullVersionId % 10000);
 			}
+#<<<
 
 			// load agent
 			if (CIA_POSTING || $binaryMode || isset($_GET['$bin']) || !isset($_COOKIE['JS']) || !$_COOKIE['JS'])
@@ -568,7 +575,7 @@ class
 
 				if ($b != $a && !self::$isGroupStage)
 				{
-					if (DEBUG) E('Miss-conception: self::setGroup() is called in ' . self::$agentClass . '->compose( ) rather than in ' . self::$agentClass . '->control(). Cache is now disabled for this agent.');
+#>					E('Miss-conception: self::setGroup() is called in ' . self::$agentClass . '->compose( ) rather than in ' . self::$agentClass . '->control(). Cache is now disabled for this agent.');
 
 					$a = array('private');
 				}
@@ -620,7 +627,7 @@ class
 
 			@include self::getCachePath('watch/' . $message, 'php');
 
-			if (DEBUG) E("CIA::touch('$message'): $i file(s) deleted.");
+#>			E("CIA::touch('$message'): $i file(s) deleted.");
 		}
 	}
 
@@ -1094,6 +1101,15 @@ class
 
 	function __construct()
 	{
+#>>>
+		self::log(
+			'<a href="' . htmlspecialchars($_SERVER['REQUEST_URI']) . '" target="_blank">'
+			. htmlspecialchars(preg_replace("'&v\\\$=[^&]*'", '', $_SERVER['REQUEST_URI']))
+			. '</a>'
+		);
+		register_shutdown_function(array('CIA', 'log'), '', true);
+#<<<
+
 		self::header('Content-Type: text/html; charset=UTF-8');
 		set_error_handler(array($this, 'error_handler'));
 		ob_start(array($this, 'ob_handler'));
@@ -1103,6 +1119,8 @@ class
 	{
 		self::$handlesOb = true;
 		chdir(CIA_PROJECT_PATH);
+
+#>		if (self::$isHtml) $buffer = $this->error_end(substr(trim($buffer), 0, 1)) . $buffer;
 
 		if (self::$redirectUrl !== false)
 		{
@@ -1387,6 +1405,33 @@ class
 
 		return $r;
 	}
+
+#>>>
+	protected function error_end($type)
+	{
+		$bgcolor = $this->has_error ? 'red' : 'blue';
+		$debugWin = self::$home . '_?d$&stop&' . mt_rand();
+		$QDebug = self::$home . 'js/QDebug.js';
+		$lang = CIA::__LANG__();
+
+		if ($type=='<') return <<<EOHTML
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script type="text/javascript">/*<![CDATA[*/
+_____ = new Date/1;
+onload = function() {
+window.debugWin = open('$debugWin','debugWin','toolbar=no,status=yes,resizable=yes,scrollbars,width=320,height=240,left=' + parseInt(screen.availWidth - 340) + ',top=' + parseInt(screen.availHeight - 290));
+if (!debugWin) alert('Disable anti-popup to use the Debug Window');
+else E('Rendering time: ' + (new Date/1 - _____) + ' ms');
+};
+//]]></script>
+<div style="position:fixed;_position:absolute;float:right;font-family:arial;font-size:9px;top:0px;right:0px;z-index:255"><a href="javascript:;" onclick="window.debugWin&&debugWin.focus()" style="background-color:$bgcolor;color:white;text-decoration:none;border:0px;" id="debugLink">Debug</a>&nbsp<a href="javascript:;" onclick="location.reload(1)" style="background-color:$bgcolor;color:white;text-decoration:none;border:0px;">Reload</a><script type="text/javascript" src="$QDebug"></script></div>
+
+EOHTML;
+
+		else if ($type=='w' && $this->has_error) return "L=document.getElementById('debugLink'); L && (L.style.backgroundColor='$bgcolor');";
+	}
+#<<<
 }
 
 class agent
