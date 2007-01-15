@@ -14,6 +14,8 @@
 
 class
 {
+	protected $is_enabled = true;
+
 	static function put($data, $delay = 0, $archive = false)
 	{
 		$sqlite = self::getSqlite();
@@ -23,7 +25,9 @@ class
 		$delay = time() + $delay;
 		$archive = (int)(bool) $archive;
 
-		$sql = "INSERT INTO queue VALUES('{$home}', '{$data}', {$delay}, {$archive}, 0)";
+		$sent = - (int)(bool) !$this->is_enabled;
+
+		$sql = "INSERT INTO queue VALUES('{$home}', '{$data}', {$delay}, {$archive}, {$sent})";
 		$sqlite->query($sql);
 
 		$id = $sqlite->lastInsertRowid();
