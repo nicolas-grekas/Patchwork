@@ -14,58 +14,26 @@
 
 class
 {
-	protected static $is_enabled = true;
-
-	static function send($headers, $body, $options = null)
-	{
-		return self::sendPut(array(
-			'headers' => &$headers,
-			'body' => &$body,
-			'options' => &$options,
-		));
-	}
-
-	static function sendAgent($headers, $agent, $argv = array(), $options = null)
-	{
-		return self::sendPut(array(
-			'headers' => &$headers,
-			'agent' => &$agent,
-			'argv' => &$argv,
-			'options' => &$options,
-		));
-	}
-
-	protected static function sendPut($data)
-	{
-#>		$data['headers']['X-Original-To'] = $data['headers']['To'];
-#>		$data['headers']['To'] = $GLOBALS['CONFIG']['debug_email'];
-
-		$data['session'] = isset($_COOKIE['SID']) ? SESSION::getAll() : array();
-
-		return self::put(
-			$data,
-			isset($data['options']['delay']) ? $data['options']['delay'] : 0,
-			isset($data['options']['archive']) && $data['options']['archive']
-		);
-	}
-
-	static function put($data, $delay = 0, $archive = false)
+	static function put($function, $arguments = array(), $delay = 0)
 	{
 		$sqlite = self::getSqlite();
 
 		$home = sqlite_escape_string(CIA::home('', true));
+		$data = array(
+			'function' => &$function,
+			'arguments' => &$arguments,
+			'session' => isset($_COOKIE['SID']) ? SESSION::getAll() : array()
+		);
+
 		$data = sqlite_escape_string(serialize($data));
 		$delay = time() + $delay;
-		$archive = (int)(bool) $archive;
 
-		$sent = - (int)(bool) !self::$is_enabled;
-
-		$sql = "INSERT INTO queue VALUES('{$home}', '{$data}', {$delay}, {$archive}, {$sent})";
+		$sql = "INSERT INTO queue VALUES('{$home}', '{$data}', {$delay})";
 		$sqlite->query($sql);
 
 		$id = $sqlite->lastInsertRowid();
 
-		self::isRunning() || tool_touchUrl::call(CIA::home('iaMail/queue?do=1'));
+		self::isRunning() || tool_touchUrl::call(CIA::home('iaCron/queue?do=1'));
 
 		return $id;
 	}
@@ -81,7 +49,7 @@ class
 
 	static function isRunning()
 	{
-		$lock = resolvePath('class/iaMail/queue/') . 'queue.lock';
+		$lock = resolvePath('class/iaCron/queue/') . 'lock';
 
 		if (!file_exists($lock)) return false;
 
@@ -96,7 +64,7 @@ class
 	{
 		if (isset(self::$sqlite)) return self::$sqlite;
 
-		$sqlite = resolvePath('class/iaMail/queue/') . 'queue.sqlite';
+		$sqlite = resolvePath('class/iaCron/queue/') . 'queue.sqlite';
 
 		if (file_exists($sqlite)) $sqlite = new SQLiteDatabase($sqlite);
 		else
@@ -105,11 +73,9 @@ class
 			@$sqlite->query('CREATE TABLE queue (
 				home TEXT,
 				data BLOB,
-				send_time INTEGER,
-				archive INTEGER,
-				sent_time INTEGER
+				run_time INTEGER
 			);
-			CREATE INDEX email_times ON queue (send_time, sent_time)');
+			CREATE INDEX run_time ON queue (run_time)');
 		}
 
 		return self::$sqlite = $sqlite;

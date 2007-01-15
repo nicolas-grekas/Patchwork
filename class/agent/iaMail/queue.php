@@ -12,122 +12,58 @@
  ***************************************************************************/
 
 
-class extends agent_bin
+class extends agent_iaCron_queue
 {
-	public $argv = array(
-		'do:bool',
-		'__1__:int:1',
-		'__2__:string:^[a-z0-9]{32}$'
-	);
+	protected $queueFolder = 'class/iaMail/queue/';
+	protected $getSqlite = array('iaMail', 'getSqlite');
 
-	protected $lock;
-
-	function control()
+	function doDaemon()
 	{
-		$sqlite = iaMail::getSqlite();
+		$sql = "SELECT 1 FROM queue WHERE sent_time=0 AND send_time <= {$_SERVER['REQUEST_TIME']} LIMIT 1";
+		!$this->sqlite->query($sql)->fetchObject() || iaMail::isRunning() || tool_touchUrl::call(CIA::home('iaMail/queue?do=1'));
+	}
 
-		if ($this->argv->__1__)
+	function doQueue()
+	{
+		$token = $this->getToken();
+
+		require_once 'HTTP/Request.php';
+
+		do
 		{
-			if ($this->argv->__2__ != $this->getToken()) return;
+			$time = time();
+			$sql = "SELECT OID, home FROM queue WHERE sent_time=0 AND send_time <= {$time} LIMIT 1";
+			$result = $this->sqlite->query($sql);
 
-			$id = (int) $this->argv->__1__;
-			$sql = "SELECT archive, data FROM queue WHERE OID={$id}";
-
-			if ($data = $sqlite->query($sql)->fetchObject())
+			if ($data = $result->fetchObject())
 			{
-				$archive = $data->archive;
-				$data = (object) unserialize($data->data);
-
-				if ($data->session)
-				{
-					class iaMail_SESSION_ extends SESSION__0
-					{
-						static function setDATA($data) {self::$DATA = $data;}
-						static function regenerateId($initSession = false) {if ($initSession) self::$DATA = array();}
-						protected static function start() {self::$lastseen = $_SERVER['REQUEST_TIME'];}
-					}
-
-					eval('class SESSION extends iaMail_SESSION_ {}');
-					SESSION::setDATA($data->session);
-				}
-
-				isset($data->agent)
-					? iaMail_mime::sendAgent($data->headers, $data->agent, $data->argv, $data->options)
-					: iaMail_mime::send($data->headers, $data->body, $data->options);
-
-				$time = time();
-				$sql = $archive
-					? "UPDATE queue SET sent_time={$time} WHERE OID={$id}"
-					: "DELETE FROM queue WHERE OID={$id}";
-				$sqlite->query($sql);
+				$data = new HTTP_Request("{$data->home}iaMail/queue/{$data->OID}/{$token}");
+				$data->sendRequest();
 			}
-		}
-		else if (!$this->argv->do)
-		{
-			$sql = "SELECT 1 FROM queue WHERE sent_time=0 AND send_time <= {$_SERVER['REQUEST_TIME']} LIMIT 1";
-			!$sqlite->query($sql)->fetchObject() || iaMail::isRunning() || tool_touchUrl::call(CIA::home('iaMail/queue?do=1'));
-		}
-		else
-		{
-			if (!$this->getLock()) return;
-
-			$token = $this->getToken();
-
-			require_once 'HTTP/Request.php';
-
-			do
-			{
-				$time = time();
-				$sql = "SELECT OID, home FROM queue WHERE sent_time=0 AND send_time <= {$time} LIMIT 1";
-				$result = $sqlite->query($sql);
-
-				if ($data = $result->fetchObject())
-				{
-					$data = new HTTP_Request("{$data->home}iaMail/queue/{$data->OID}/{$token}");
-					$data->sendRequest();
-					}
-				else break;
-			}
-
-			$this->releaseLock();
+			else break;
 		}
 	}
 
-	function getLock()
+	function doOne($id)
 	{
-		$lock = resolvePath('class/iaMail/queue/') . 'lock';
+		$sql = "SELECT archive, data FROM queue WHERE OID={$id}";
 
-		if (!file_exists($lock))
+		if ($data = $this->sqlite->query($sql)->fetchObject())
 		{
-			touch($lock);
-			chmod($lock, 0666);
+			$archive = $data->archive;
+			$data = (object) unserialize($data->data);
+
+			if (is_array($data->session)) $this->restoreSession($data->session);
+
+			isset($data->agent)
+				? iaMail_mime::sendAgent($data->headers, $data->agent, $data->argv, $data->options)
+				: iaMail_mime::send($data->headers, $data->body, $data->options);
+
+			$time = time();
+			$sql = $archive
+				? "UPDATE queue SET sent_time={$time} WHERE OID={$id}"
+				: "DELETE FROM queue WHERE OID={$id}";
+			$this->sqlite->query($sql);
 		}
-
-		$this->lock = $lock = fopen($lock, 'wb');
-		flock($lock, LOCK_EX+LOCK_NB, $wb);
-
-		if ($wb)
-		{
-			fclose($lock);
-			return false;
-		}
-
-		set_time_limit(0);
-
-		return true;
-	}
-
-	function releaseLock()
-	{
-		fclose($this->lock);
-	}
-
-	function getToken()
-	{
-		$token = resolvePath('class/iaMail/queue/') . 'token';
-
-		file_exists($token) || file_put_contents($token, CIA::uniqid());
-
-		return trim(file_get_contents($token));
 	}
 }
