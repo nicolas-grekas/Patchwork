@@ -38,6 +38,8 @@ class
 #>		$data['headers']['X-Original-To'] = $data['headers']['To'];
 #>		$data['headers']['To'] = $GLOBALS['CONFIG']['debug_email'];
 
+		$data['session'] = isset($_COOKIE['SID']) ? SESSION::getAll() : array();
+
 		return iaMail_queue::put(
 			$data,
 			isset($data['options']['delay']) ? $data['options']['delay'] : 0,

@@ -38,6 +38,19 @@ class extends agent_bin
 				$archive = $data->archive;
 				$data = (object) unserialize($data->data);
 
+				if ($data->session)
+				{
+					class iaMail_SESSION_ extends SESSION__0
+					{
+						static function setDATA($data) {self::$DATA = $data;}
+						static function regenerateId($initSession = false) {if ($initSession) self::$DATA = array();}
+						protected static function start() {self::$lastseen = $_SERVER['REQUEST_TIME'];}
+					}
+
+					eval('class SESSION extends iaMail_SESSION_ {}');
+					SESSION::setDATA($data->session);
+				}
+
 				isset($data->agent)
 					? iaMail_mime::sendAgent($data->headers, $data->agent, $data->argv, $data->options)
 					: iaMail_mime::send($data->headers, $data->body, $data->options);
