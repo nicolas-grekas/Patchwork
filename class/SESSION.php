@@ -14,7 +14,7 @@
 
 if (!isset($GLOBALS['CONFIG']['session_driver'])) $GLOBALS['CONFIG']['session_driver'] = 'default';
 
-eval('class SESSION extends driver_session_' . $GLOBALS['CONFIG']['session_driver'] . '{}');
+eval('class SESSION__0 extends driver_session_' . $GLOBALS['CONFIG']['session_driver'] . '{}');
 
 class driver_session_default
 {
@@ -27,7 +27,6 @@ class driver_session_default
 	static $maxIdleTime = 0;
 	static $maxLifeTime = 43200;
 
-	static $cookieName = 'SID';
 	static $cookiePath = '';
 	static $cookieDomain = '';
 	static $cookieSecure = false;
@@ -104,7 +103,7 @@ class driver_session_default
 		self::$birthtime = $_SERVER['REQUEST_TIME'];
 
 		header(
-			'Set-Cookie: ' . urlencode(self::$cookieName) . '=' . $sid .
+			'Set-Cookie: SID=' . $sid .
 			( self::$cookiePath ? '; path=' . urlencode(self::$cookiePath) : '; path=/' ) .
 			( self::$cookieDomain ? '; domain=' . urlencode(self::$cookieDomain) : '' ) .
 			( self::$cookieSecure ? '; secure' : '' ) .
@@ -161,7 +160,7 @@ class driver_session_default
 
 		self::$started = true;
 
-		self::setSID(isset($_COOKIE[self::$cookieName]) ? $_COOKIE[self::$cookieName] : '');
+		self::setSID(isset($_COOKIE['SID']) ? $_COOKIE['SID'] : '');
 
 		self::$driver = new self::$class(self::$SID);
 
