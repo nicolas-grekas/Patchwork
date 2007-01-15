@@ -15,7 +15,7 @@
 class extends agent_bin
 {
 	public $argv = array(
-		'doSend:bool',
+		'do:bool',
 		'__1__:int:1',
 		'__2__:string:^[a-z0-9]{32}$'
 	);
@@ -61,39 +61,36 @@ class extends agent_bin
 					: "DELETE FROM queue WHERE OID={$id}";
 				$sqlite->query($sql);
 			}
-
-			return;
 		}
-
-		if (!$this->doSend)
+		else if (!$this->argv->do)
 		{
 			$sql = "SELECT 1 FROM queue WHERE sent_time=0 AND send_time <= {$_SERVER['REQUEST_TIME']} LIMIT 1";
-			!$sqlite->query($sql)->fetchObject() || iaMail_queue::isRunning() || tool_touchUrl::call(CIA::home('iaMail/queue?doSend=1'));
-
-			return;
+			!$sqlite->query($sql)->fetchObject() || iaMail_queue::isRunning() || tool_touchUrl::call(CIA::home('iaMail/queue?do=1'));
 		}
-
-		if (!$this->getLock()) return;
-
-		$token = $this->getToken();
-
-		require_once 'HTTP/Request.php';
-
-		do
+		else
 		{
-			$time = time();
-			$sql = "SELECT OID, home FROM queue WHERE sent_time=0 AND send_time <= {$time} LIMIT 1";
-			$result = $sqlite->query($sql);
+			if (!$this->getLock()) return;
 
-			if ($data = $result->fetchObject())
+			$token = $this->getToken();
+
+			require_once 'HTTP/Request.php';
+
+			do
 			{
-				$data = new HTTP_Request("{$data->home}iaMail/queue/{$data->OID}/{$token}");
-				$data->sendRequest();
-			}
-			else break;
-		}
+				$time = time();
+				$sql = "SELECT OID, home FROM queue WHERE sent_time=0 AND send_time <= {$time} LIMIT 1";
+				$result = $sqlite->query($sql);
 
-		$this->releaseLock();
+				if ($data = $result->fetchObject())
+				{
+					$data = new HTTP_Request("{$data->home}iaMail/queue/{$data->OID}/{$token}");
+					$data->sendRequest();
+					}
+				else break;
+			}
+
+			$this->releaseLock();
+		}
 	}
 
 	function getLock()
