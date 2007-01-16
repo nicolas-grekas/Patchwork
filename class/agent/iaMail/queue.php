@@ -32,7 +32,7 @@ class extends agent_iaCron_queue
 		do
 		{
 			$time = time();
-			$sql = "SELECT OID, home FROM queue WHERE sent_time=0 AND send_time <= {$time} LIMIT 1";
+			$sql = "SELECT OID, home FROM queue WHERE sent_time=0 AND send_time <= {$time} ORDER BY send_time, OID LIMIT 1";
 			$result = $this->sqlite->query($sql);
 
 			if ($data = $result->fetchObject())
@@ -53,7 +53,7 @@ class extends agent_iaCron_queue
 			$archive = $data->archive;
 			$data = (object) unserialize($data->data);
 
-			if (is_array($data->session)) $this->restoreSession($data->session);
+			$this->restoreSession($data->session);
 
 			isset($data->agent)
 				? iaMail_mime::sendAgent($data->headers, $data->agent, $data->argv, $data->options)
