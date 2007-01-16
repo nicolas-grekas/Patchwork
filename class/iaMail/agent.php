@@ -48,7 +48,7 @@ class extends iaMail_mime
 
 	protected function addRawImage($match)
 	{
-		$url = CIA::home($match[4]);
+		$url = CIA::home($match[4], true);
 
 		if (isset(self::$imageCache[$url])) $data =& self::$imageCache[$url];
 		else
