@@ -39,15 +39,15 @@ class extends agent_bin
 
 				$this->doOne((int) $this->argv->__1__);
 			}
-			else $this->checkOne((int) $this->argv->__1__);
+			else $this->touchOne((int) $this->argv->__1__);
 		}
-		else if (isset($this->argv->do) && !$this->argv->do) $this->doDaemon();
-		else
+		else if ($this->argv->do)
 		{
 			if (!$this->getLock()) return;
 			$this->doQueue();
 			$this->releaseLock();
 		}
+		else $this->doDaemon();
 	}
 
 	function doDaemon()
