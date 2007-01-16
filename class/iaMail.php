@@ -65,7 +65,7 @@ class
 
 		$id = $sqlite->lastInsertRowid();
 
-		self::isRunning() || tool_touchUrl::call(CIA::home('iaMail/queue?do=1'));
+		self::isRunning() || tool_touchUrl::call(CIA::home('iaMail/queue?do=1', true));
 
 		return $id;
 	}

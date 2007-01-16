@@ -917,7 +917,7 @@ class
 
 		$args = array();
 		$HOME = $home = self::__HOME__();
-		$agent = self::home($agent);
+		$agent = self::home($agent, true);
 		$keys = false;
 		$s = '\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'';
 		$s = "/w\.k\((-?[0-9]+),($s),($s),($s),\[((?:$s(?:,$s)*)?)\]\)/su";

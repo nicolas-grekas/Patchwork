@@ -53,7 +53,7 @@ class extends agent_bin
 	function doDaemon()
 	{
 		$sql = "SELECT 1 FROM queue WHERE run_time <= {$_SERVER['REQUEST_TIME']} LIMIT 1";
-		!$this->sqlite->query($sql)->fetchObject() || iaCron::isRunning() || tool_touchUrl::call(CIA::home('iaCron/queue?do=1'));
+		!$this->sqlite->query($sql)->fetchObject() || iaCron::isRunning() || tool_touchUrl::call(CIA::home('iaCron/queue?do=1', true));
 	}
 
 	function doQueue()

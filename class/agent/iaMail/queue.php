@@ -20,7 +20,7 @@ class extends agent_iaCron_queue
 	function doDaemon()
 	{
 		$sql = "SELECT 1 FROM queue WHERE sent_time=0 AND send_time <= {$_SERVER['REQUEST_TIME']} LIMIT 1";
-		!$this->sqlite->query($sql)->fetchObject() || iaMail::isRunning() || tool_touchUrl::call(CIA::home('iaMail/queue?do=1'));
+		!$this->sqlite->query($sql)->fetchObject() || iaMail::isRunning() || tool_touchUrl::call(CIA::home('iaMail/queue?do=1', true));
 	}
 
 	function doQueue()
