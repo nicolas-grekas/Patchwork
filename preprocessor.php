@@ -39,6 +39,11 @@ function fetchPHPWhiteSpaceNComments(&$source, &$i)
 	return $token;
 }
 
+function extractPHPNewLines($a)
+{
+	return str_repeat("\n", substr_count(is_array($a) ? $a[0] : $a, "\n"));
+}
+
 function runPreprocessor($source, $cache, $level, $class = false)
 {
 	$file = realpath($source);
@@ -52,7 +57,7 @@ function runPreprocessor($source, $cache, $level, $class = false)
 	}
 	else
 	{
-		$source = preg_replace("'^#>>>\s*^.*^#<<<\s*$'mse", 'preg_replace("/[^\r\n]+/", "", "$0")', $source);
+		$source = preg_replace_callback("'^#>>>\s*^.*?^#<<<\s*$'ms", 'extractPHPNewLines', $source);
 	}
 
 	$tmp = './' . md5(uniqid(mt_rand(), true));
@@ -71,15 +76,15 @@ function runPreprocessor($source, $cache, $level, $class = false)
 		if (is_array($token)) switch ($token[0])
 		{
 			case T_OPEN_TAG:
-				$token = '<?php ' . str_repeat("\n", substr_count($token[1], "\n"));
+				$token = '<?php ' . extractPHPNewLines($token[1]);
 				break;
 
 			case T_OPEN_TAG_WITH_ECHO == $token[0]:
-				$token = '<?php echo ' . str_repeat("\n", substr_count($token[1], "\n"));
+				$token = '<?php echo ' . extractPHPNewLines($token[1]);
 				break;
 
 			case T_CLOSE_TAG:
-				$token = str_repeat("\n", substr_count($token[1], "\n")) . '?>';
+				$token = extractPHPNewLines($token[1]) . '?>';
 				break;
 
 			case T_CURLY_OPEN:
