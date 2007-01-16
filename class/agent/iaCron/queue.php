@@ -65,7 +65,7 @@ class extends agent_bin
 		do
 		{
 			$time = time();
-			$sql = "SELECT OID, home FROM queue WHERE run_time <= {$time} LIMIT 1";
+			$sql = "SELECT OID, home FROM queue WHERE run_time <= {$time} ORDER BY run_time, OID LIMIT 1";
 			$result = $this->sqlite->query($sql);
 	
 			if ($data = $result->fetchObject())
@@ -85,7 +85,7 @@ class extends agent_bin
 		{
 			$data = (object) unserialize($data->data);
 
-			if (is_array($data->session)) $this->restoreSession($data->session);
+			$this->restoreSession($data->session);
 
 			$time = call_user_func_array($data->function, $data->arguments);
 
@@ -100,7 +100,7 @@ class extends agent_bin
 		}
 	}
 
-	function checkOne($id)
+	function touchOne($id)
 	{
 	}
 
