@@ -950,13 +950,13 @@ class
 
 			if (ini_get('allow_url_fopen'))
 			{
-				$keys = file_get_contents($agent . '&k$', false, stream_context_create(array('http' => array('method' => 'GET'))));
+				$keys = file_get_contents($agent . '?k$', false, stream_context_create(array('http' => array('method' => 'GET'))));
 			}
 			else
 			{
 				require_once 'HTTP/Request.php';
 
-				$keys = new HTTP_Request($agent . '&k$');
+				$keys = new HTTP_Request($agent . '?k$');
 				$keys->sendRequest();
 				$keys = $keys->getResponseBody();
 			}
