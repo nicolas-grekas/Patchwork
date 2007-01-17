@@ -33,7 +33,7 @@ class
 
 		$id = $sqlite->lastInsertRowid();
 
-		self::isRunning() || tool_touchUrl::call(CIA::home('iaCron/queue?do=1', true));
+		self::isRunning() || tool_touchUrl::call('iaCron/queue?do=1');
 
 		return $id;
 	}

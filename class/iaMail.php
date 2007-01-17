@@ -14,7 +14,7 @@
 
 class
 {
-	protected static $is_enabled = true;
+	protected static $test_mode = false;
 
 	static function send($headers, $body, $options = null)
 	{
@@ -37,8 +37,11 @@ class
 
 	protected static function sendPut($data)
 	{
-#>		$data['headers']['X-Original-To'] = $data['headers']['To'];
-#>		$data['headers']['To'] = $GLOBALS['CONFIG']['debug_email'];
+		if (self::$test_mode)
+		{
+			$data['headers']['X-Original-To'] = $data['headers']['To'];
+			$data['headers']['To'] = $GLOBALS['CONFIG']['debug_email'];
+		}
 
 		$data['session'] = isset($_COOKIE['SID']) ? SESSION::getAll() : array();
 
@@ -56,16 +59,16 @@ class
 		$home = sqlite_escape_string(CIA::home('', true));
 		$data = sqlite_escape_string(serialize($data));
 		$delay = time() + $delay;
-		$archive = (int)(bool) $archive;
+		$archive = (int) ($archive || self::$test_mode);
 
-		$sent = - (int)(bool) !self::$is_enabled;
+		$sent = - (int)(bool) self::$test_mode;
 
 		$sql = "INSERT INTO queue VALUES('{$home}', '{$data}', {$delay}, {$archive}, {$sent})";
 		$sqlite->query($sql);
 
 		$id = $sqlite->lastInsertRowid();
 
-		self::isRunning() || tool_touchUrl::call(CIA::home('iaMail/queue?do=1', true));
+		self::isRunning() || tool_touchUrl::call('iaMail/queue?do=1');
 
 		return $id;
 	}

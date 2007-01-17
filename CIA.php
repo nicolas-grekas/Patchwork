@@ -95,8 +95,9 @@ if (function_exists('iconv_set_encoding'))
 
 // {{{ Load configuration
 
-ini_set('display_errors', false);
 ini_set('error_log', $CIA . '/error.log');
+ini_set('log_errors', true);
+ini_set('display_errors', false);
 
 $CONFIG = array();
 $version_id = $CIA . '/.config.zcache.php';
