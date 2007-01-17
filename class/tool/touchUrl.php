@@ -19,11 +19,13 @@ class
 	 */
 	static function call($url)
 	{
-		if (!preg_match("'^(https?)://(.*?)((?::[0-9]+)?)(/.*)$'i", $url, $h)) throw new Exception('Illegal URL');
+		$url = CIA::home($url, true);
+
+		if (!preg_match("'^(https?)://(.*?)((?::[0-9]+)?)(/.*)$'", $url, $h)) throw new Exception('Illegal URL');
 
 		$url = $h[4];
 
-		if ('https' == strtolower($h[1]))
+		if ('https' == $h[1])
 		{
 			$port = '443';
 			$req = 'ssl://';
@@ -35,6 +37,7 @@ class
 		}
 
 		$host = $h[2];
+		$req .= $host;
 
 		if ($h = $h[3])
 		{
