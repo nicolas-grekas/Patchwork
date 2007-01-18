@@ -14,11 +14,11 @@
 
 class
 {
-	static function put($function, $arguments = array(), $delay = 0)
+	static function put($function, $arguments = array(), $time = 0)
 	{
 		$sqlite = self::getSqlite();
 
-		$home = sqlite_escape_string(CIA::home('', true));
+		$home = sqlite_escape_string(CIA::__HOME__());
 		$data = array(
 			'function' => &$function,
 			'arguments' => &$arguments,
@@ -26,9 +26,10 @@ class
 		);
 
 		$data = sqlite_escape_string(serialize($data));
-		$delay = time() + $delay;
 
-		$sql = "INSERT INTO queue VALUES('{$home}', '{$data}', {$delay})";
+		if ($time < $_SERVER['REQUEST_TIME'] - 366*86400) $time += $_SERVER['REQUEST_TIME'];
+
+		$sql = "INSERT INTO queue VALUES('{$home}', '{$data}', {$time})";
 		$sqlite->query($sql);
 
 		$id = $sqlite->lastInsertRowid();
@@ -58,7 +59,7 @@ class
 		CREATE INDEX run_time ON queue (run_time)';
 
 
-	// Following functions should not be used directly
+	// The following functions should not be used directly
 
 	protected static $sqlite;
 	protected static $is_registered = false;

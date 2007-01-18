@@ -18,7 +18,7 @@ class extends iaCron
 
 	static function send($headers, $body, $options = null)
 	{
-		return self::sendPut(array(
+		return self::putMail(array(
 			'headers' => &$headers,
 			'body' => &$body,
 			'options' => &$options,
@@ -27,7 +27,7 @@ class extends iaCron
 
 	static function sendAgent($headers, $agent, $argv = array(), $options = null)
 	{
-		return self::sendPut(array(
+		return self::putMail(array(
 			'headers' => &$headers,
 			'agent' => &$agent,
 			'argv' => &$argv,
@@ -35,7 +35,7 @@ class extends iaCron
 		));
 	}
 
-	protected static function sendPut($data)
+	protected static function putMail($data)
 	{
 		if (self::$test_mode)
 		{
@@ -47,14 +47,17 @@ class extends iaCron
 
 		$sqlite = self::getSqlite();
 
-		$home = sqlite_escape_string(CIA::home('', true));
+		$home = sqlite_escape_string(CIA::__HOME__());
 		$data = sqlite_escape_string(serialize($data));
-		$delay = time() + (isset($data['options']['delay']) ? $data['options']['delay'] : 0);
+
+		$time = isset($data['options']['time']) ? $data['options']['time'] : 0;
+		if ($time < $_SERVER['REQUEST_TIME'] - 366*86400) $time += $_SERVER['REQUEST_TIME'];
+
 		$archive = (int) ((isset($data['options']['archive']) && $data['options']['archive']) || self::$test_mode);
 
 		$sent = - (int)(bool) self::$test_mode;
 
-		$sql = "INSERT INTO queue VALUES('{$home}', '{$data}', {$delay}, {$archive}, {$sent})";
+		$sql = "INSERT INTO queue VALUES('{$home}', '{$data}', {$time}, {$archive}, {$sent})";
 		$sqlite->query($sql);
 
 		$id = $sqlite->lastInsertRowid();
@@ -64,7 +67,7 @@ class extends iaCron
 		return $id;
 	}
 
-	static function put($function, $arguments = array(), $delay = 0)
+	static function put($function, $arguments = array(), $time = 0)
 	{
 		throw new Exception('iaMail::put() is disabled');
 	}
