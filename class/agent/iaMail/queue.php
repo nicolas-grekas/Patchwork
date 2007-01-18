@@ -15,12 +15,16 @@
 class extends agent_iaCron_queue
 {
 	protected $queueFolder = 'class/iaMail/queue/';
-	protected $getSqlite = array('iaMail', 'getSqlite');
+	protected $getSqlite = 'iaMail';
 
 	function doDaemon()
 	{
 		$sql = "SELECT 1 FROM queue WHERE sent_time=0 AND send_time <= {$_SERVER['REQUEST_TIME']} LIMIT 1";
-		!$this->sqlite->query($sql)->fetchObject() || iaMail::isRunning() || tool_touchUrl::call('iaMail/queue?do=1');
+		if ($this->sqlite->query($sql)->fetchObject())
+		{
+			$queue = new iaMail;
+			$queue->doQueue();
+		}
 	}
 
 	function doQueue()

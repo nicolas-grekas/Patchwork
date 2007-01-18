@@ -23,13 +23,15 @@ class extends agent_bin
 	protected $lock;
 	protected $queueName = 'queue';
 	protected $queueFolder = 'class/iaCron/queue/';
-	protected $getSqlite = array('iaCron', 'getSqlite');
+	protected $getSqlite = 'iaCron';
 
 	protected $sqlite;
 
 	function control()
 	{
-		$this->sqlite = call_user_func($this->getSqlite);
+		$sqlite = $this->getSqlite;
+		$sqlite = new $sqlite;
+		$this->sqlite = $sqlite->getSqlite;
 
 		if (isset($this->argv->__1__) && $this->argv->__1__)
 		{
@@ -53,7 +55,11 @@ class extends agent_bin
 	function doDaemon()
 	{
 		$sql = "SELECT 1 FROM queue WHERE run_time <= {$_SERVER['REQUEST_TIME']} LIMIT 1";
-		!$this->sqlite->query($sql)->fetchObject() || iaCron::isRunning() || tool_touchUrl::call('iaCron/queue?do=1');
+		if ($this->sqlite->query($sql)->fetchObject())
+		{
+			$queue = new iaCron;
+			$queue->doQueue();
+		}
 	}
 
 	function doQueue()

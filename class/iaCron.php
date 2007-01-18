@@ -16,7 +16,8 @@ class
 {
 	static function put($time, $function, $arguments = array())
 	{
-		$sqlite = self::getSqlite();
+		$queue = new iaCron;
+		$sqlite = $queue->getSqlite();
 
 		if (!is_array($arguments)) $arguments = array($arguments);
 
@@ -36,23 +37,24 @@ class
 
 		$id = $sqlite->lastInsertRowid();
 
-		self::$is_registered || self::registerQueue();
+		$queue->is_registered || $queue->registerQueue();
 
 		return $id;
 	}
 
 	static function pop($id)
 	{
+		$queue = new iaCron;
 		$id = (int) $id;
 		$sql = "DELETE FROM queue WHERE OID={$id}";
-		self::getSqlite()->query($sql);
+		$queue->getSqlite()->query($sql);
 	}
 
 
-	protected static $queueName = 'queue';
-	protected static $queueFolder = 'class/iaCron/queue/';
-	protected static $queueUrl = 'iaCron/queue?do=1';
-	protected static $queueSql = 'CREATE TABLE queue
+	protected $queueName = 'queue';
+	protected $queueFolder = 'class/iaCron/queue/';
+	protected $queueUrl = 'iaCron/queue?do=1';
+	protected $queueSql = 'CREATE TABLE queue
 		(
 			home TEXT,
 			data BLOB,
@@ -63,23 +65,25 @@ class
 
 	// The following functions should not be used directly
 
-	protected static $sqlite;
-	protected static $is_registered = false;
+	private static $sqlite;
+	protected $is_registered = false;
 
-	static function registerQueue()
+	protected function __construct() {}
+
+	function registerQueue()
 	{
-		register_shutdown_function(array(__CLASS__, 'doQueue'));
-		self::$is_registered = true;
+		register_shutdown_function(array($this, 'doQueue'));
+		$this->is_registered = true;
 	}
 
-	static function doQueue()
+	function doQueue()
 	{
-		self::isRunning() || tool_touchUrl::call(self::$queueUrl);
+		$this->isRunning() || tool_touchUrl::call($this->queueUrl);
 	}
 
-	static function isRunning()
+	function isRunning()
 	{
-		$lock = resolvePath(self::$queueFolder) . self::$queueName . '.lock';
+		$lock = resolvePath($this->queueFolder) . $this->queueName . '.lock';
 
 		if (!file_exists($lock)) return false;
 
@@ -90,17 +94,17 @@ class
 		return $type;
 	}
 
-	static function getSqlite()
+	function getSqlite()
 	{
 		if (isset(self::$sqlite)) return self::$sqlite;
 
-		$sqlite = resolvePath(self::$queueFolder) . self::$queueName . '.sqlite';
+		$sqlite = resolvePath($this->queueFolder) . $this->queueName . '.sqlite';
 
 		if (file_exists($sqlite)) $sqlite = new SQLiteDatabase($sqlite);
 		else
 		{
 			$sqlite = new SQLiteDatabase($sqlite);
-			@$sqlite->query(self::$queueSql);
+			@$sqlite->query($this->queueSql);
 		}
 
 		return self::$sqlite = $sqlite;
