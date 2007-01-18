@@ -93,6 +93,10 @@ function runPreprocessor($source, $cache, $level, $class = false)
 				++$curly_level;
 				break;
 
+			case T_CLASS_C:
+				$token = $class_pool ? end($class_pool) : $token[1];
+				break;
+
 			case T_CLASS:
 				// Look backward for the "final" keyword
 				$j = 0;
