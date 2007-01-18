@@ -60,9 +60,8 @@ class extends agent_iaCron_queue
 				? iaMail_mime::sendAgent($data->headers, $data->agent, $data->argv, $data->options)
 				: iaMail_mime::send($data->headers, $data->body, $data->options);
 
-			$time = time();
 			$sql = $archive
-				? "UPDATE queue SET sent_time={$time} WHERE OID={$id}"
+				? "UPDATE queue SET sent_time={$_SERVER['REQUEST_TIME']} WHERE OID={$id}"
 				: "DELETE FROM queue WHERE OID={$id}";
 			$this->sqlite->query($sql);
 		}
