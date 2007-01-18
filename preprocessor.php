@@ -242,7 +242,7 @@ function runPreprocessor($source, $cache, $level, $class = false)
 				}
 			}
 
-			if ($level) switch ($token)
+			switch ($token)
 			{
 			case '__CIA_LEVEL__':
 				$token = $level;
