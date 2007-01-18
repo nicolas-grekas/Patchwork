@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class extends iaCron
 {
 	protected static $test_mode = false;
 
@@ -45,21 +45,12 @@ class
 
 		$data['session'] = isset($_COOKIE['SID']) ? SESSION::getAll() : array();
 
-		return self::put(
-			$data,
-			isset($data['options']['delay']) ? $data['options']['delay'] : 0,
-			isset($data['options']['archive']) && $data['options']['archive']
-		);
-	}
-
-	static function put($data, $delay = 0, $archive = false)
-	{
 		$sqlite = self::getSqlite();
 
 		$home = sqlite_escape_string(CIA::home('', true));
 		$data = sqlite_escape_string(serialize($data));
-		$delay = time() + $delay;
-		$archive = (int) ($archive || self::$test_mode);
+		$delay = time() + (isset($data['options']['delay']) ? $data['options']['delay'] : 0);
+		$archive = (int) ((isset($data['options']['archive']) && $data['options']['archive']) || self::$test_mode);
 
 		$sent = - (int)(bool) self::$test_mode;
 
@@ -68,53 +59,25 @@ class
 
 		$id = $sqlite->lastInsertRowid();
 
-		self::isRunning() || tool_touchUrl::call('iaMail/queue?do=1');
+		self::$is_registered || self::registerQueue();
 
 		return $id;
 	}
 
-	static function pop($id)
+	static function put($function, $arguments = array(), $delay = 0)
 	{
-		$id = (int) $id;
-		$sql = "DELETE FROM queue WHERE OID={$id}";
-		self::getSqlite()->query($sql);
+		throw new Exception('iaMail::put() is disabled');
 	}
 
-	protected static $sqlite;
-
-	static function isRunning()
-	{
-		$lock = resolvePath('class/iaMail/queue/') . 'queue.lock';
-
-		if (!file_exists($lock)) return false;
-
-		$lock = fopen($lock, 'wb');
-		flock($lock, LOCK_EX+LOCK_NB, $type);
-		fclose($lock);
-
-		return $type;
-	}
-
-	static function getSqlite()
-	{
-		if (isset(self::$sqlite)) return self::$sqlite;
-
-		$sqlite = resolvePath('class/iaMail/queue/') . 'queue.sqlite';
-
-		if (file_exists($sqlite)) $sqlite = new SQLiteDatabase($sqlite);
-		else
-		{
-			$sqlite = new SQLiteDatabase($sqlite);
-			@$sqlite->query('CREATE TABLE queue (
-				home TEXT,
-				data BLOB,
-				send_time INTEGER,
-				archive INTEGER,
-				sent_time INTEGER
-			);
-			CREATE INDEX email_times ON queue (send_time, sent_time)');
-		}
-
-		return self::$sqlite = $sqlite;
-	}
+	protected static $queueFolder = 'class/iaMail/queue/';
+	protected static $queueUrl = 'iaMail/queue?do=1';
+	protected static $queueSql = 'CREATE TABLE queue
+		(
+			home TEXT,
+			data BLOB,
+			send_time INTEGER,
+			archive INTEGER,
+			sent_time INTEGER
+		);
+		CREATE INDEX email_times ON queue (send_time, sent_time)';
 }
