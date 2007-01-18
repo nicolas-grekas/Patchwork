@@ -92,7 +92,10 @@ class extends agent_bin
 
 			if ($time > 0)
 			{
-				$time += time();
+				$data = time();
+
+				if ($time < $data - 366*86400) $time += $data;
+
 				$sql = "UPDATE queue SET run_time={$time} WHERE OID={$id}";
 			}
 			else $sql = "DELETE FROM queue WHERE OID={$id}";
@@ -113,12 +116,16 @@ class extends agent_bin
 			return;
 		}
 
+		// eval() because nested class declaration is forbidden,
+		// and also to prevent the preprocessor from renamming the class
 		eval('class SESSION extends SESSION__0
 		{
 			static function setDATA($data) {self::$DATA = $data;}
 			static function regenerateId($initSession = false) {if ($initSession) self::$DATA = array();}
 			protected static function start() {self::$lastseen = $_SERVER["REQUEST_TIME"];}
 		}');
+
+		$_COOKIE['SID'] = '1';
 
 		SESSION::setDATA($session);
 	}
