@@ -154,7 +154,9 @@ function runPreprocessor($source, $cache, $level, $class = false)
 			{
 				$token .= $source[$i][1];
 				$token .= fetchPHPWhiteSpaceNComments($source, $i);
-				$token .= $class && isset($source[$i]) && is_array($source[$i]) && 'self' == $source[$i][1] ? $class . '__' . ($level && strtolower($c) == strtolower($class) ? $level-1 : $level) : $source[$i][1];
+				$token .= $class && isset($source[$i]) && is_array($source[$i]) && 'self' == $source[$i][1]
+					? $class . '__' . ($level && strtolower($c) == strtolower($class) ? $level-1 : $level)
+					: $source[$i][1];
 			}
 			else --$i;
 
