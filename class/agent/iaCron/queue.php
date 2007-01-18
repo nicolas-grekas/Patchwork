@@ -31,7 +31,7 @@ class extends agent_bin
 	{
 		$sqlite = $this->getSqlite;
 		$sqlite = new $sqlite;
-		$this->sqlite = $sqlite->getSqlite;
+		$this->sqlite = $sqlite->getSqlite();
 
 		if (isset($this->argv->__1__) && $this->argv->__1__)
 		{
