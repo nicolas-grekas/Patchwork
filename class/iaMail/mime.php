@@ -21,7 +21,7 @@ class extends Mail_mime
 
 	static function send($headers, $body, $options = null)
 	{
-		$mail = new iaMail($options);
+		$mail = new iaMail_mime($options);
 
 		$mail->headers($headers);
 		$mail->setTxtBody($body);
@@ -39,7 +39,7 @@ class extends Mail_mime
 
 	protected function __construct($options = null)
 	{
-		parent::__construct();
+		parent::__construct(CIA_WINDOWS ? "\r\n" : "\n");
 
 		$this->options = $options;
 

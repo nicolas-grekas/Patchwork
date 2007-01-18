@@ -65,10 +65,8 @@ class
 
 	// The following functions should not be used directly
 
-	private static $sqlite;
+	protected static $sqlite;
 	protected $is_registered = false;
-
-	protected function __construct() {}
 
 	function registerQueue()
 	{
