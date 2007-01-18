@@ -69,7 +69,7 @@ class extends iaCron
 
 	static function put($time, $function, $arguments = array())
 	{
-		throw new Exception('iaMail::put() is disabled');
+		throw new Exception(__CLASS__ . '::put() is disabled');
 	}
 
 	protected static $queueFolder = 'class/iaMail/queue/';
