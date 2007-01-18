@@ -14,7 +14,7 @@
 
 class
 {
-	static function put($function, $arguments = array(), $time = 0)
+	static function put($time, $function, $arguments = array())
 	{
 		$sqlite = self::getSqlite();
 
