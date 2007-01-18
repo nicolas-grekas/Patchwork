@@ -67,7 +67,7 @@ class extends iaCron
 		return $id;
 	}
 
-	static function put($function, $arguments = array(), $time = 0)
+	static function put($time, $function, $arguments = array())
 	{
 		throw new Exception('iaMail::put() is disabled');
 	}
