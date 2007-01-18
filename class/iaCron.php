@@ -33,7 +33,7 @@ class
 
 		$id = $sqlite->lastInsertRowid();
 
-		self::isRunning() || tool_touchUrl::call('iaCron/queue?do=1');
+		self::$is_registered || self::registerQueue();
 
 		return $id;
 	}
@@ -45,11 +45,38 @@ class
 		self::getSqlite()->query($sql);
 	}
 
+
+	protected static $queueName = 'queue';
+	protected static $queueFolder = 'class/iaCron/queue/';
+	protected static $queueUrl = 'iaCron/queue?do=1';
+	protected static $queueSql = 'CREATE TABLE queue
+		(
+			home TEXT,
+			data BLOB,
+			run_time INTEGER
+		);
+		CREATE INDEX run_time ON queue (run_time)';
+
+
+	// Following functions should not be used directly
+
 	protected static $sqlite;
+	protected static $is_registered = false;
+
+	static function registerQueue()
+	{
+		register_shutdown_function(array(__CLASS__, 'doQueue'));
+		self::$is_registered = true;
+	}
+
+	static function doQueue()
+	{
+		self::isRunning() || tool_touchUrl::call(self::$queueUrl);
+	}
 
 	static function isRunning()
 	{
-		$lock = resolvePath('class/iaCron/queue/') . 'lock';
+		$lock = resolvePath(self::$queueFolder) . self::$queueName . '.lock';
 
 		if (!file_exists($lock)) return false;
 
@@ -64,18 +91,13 @@ class
 	{
 		if (isset(self::$sqlite)) return self::$sqlite;
 
-		$sqlite = resolvePath('class/iaCron/queue/') . 'queue.sqlite';
+		$sqlite = resolvePath(self::$queueFolder) . self::$queueName . '.sqlite';
 
 		if (file_exists($sqlite)) $sqlite = new SQLiteDatabase($sqlite);
 		else
 		{
 			$sqlite = new SQLiteDatabase($sqlite);
-			@$sqlite->query('CREATE TABLE queue (
-				home TEXT,
-				data BLOB,
-				run_time INTEGER
-			);
-			CREATE INDEX run_time ON queue (run_time)');
+			@$sqlite->query(self::$queueSql);
 		}
 
 		return self::$sqlite = $sqlite;
