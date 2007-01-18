@@ -18,6 +18,8 @@ class
 	{
 		$sqlite = self::getSqlite();
 
+		if (!is_array($arguments)) $arguments = array($arguments);
+
 		$home = sqlite_escape_string(CIA::__HOME__());
 		$data = array(
 			'function' => &$function,
