@@ -14,7 +14,7 @@
 
 class extends iaCron
 {
-	protected static $test_mode = false;
+	protected $test_mode = false;
 
 	static function send($headers, $body, $options = null)
 	{
@@ -37,7 +37,9 @@ class extends iaCron
 
 	protected static function putMail($data)
 	{
-		if (self::$test_mode)
+		$queue = new iaMail;
+
+		if ($queue->test_mode)
 		{
 			$data['headers']['X-Original-To'] = $data['headers']['To'];
 			$data['headers']['To'] = $GLOBALS['CONFIG']['debug_email'];
@@ -45,7 +47,8 @@ class extends iaCron
 
 		$data['session'] = isset($_COOKIE['SID']) ? SESSION::getAll() : array();
 
-		$sqlite = self::getSqlite();
+
+		$sqlite = $queue->getSqlite();
 
 		$home = sqlite_escape_string(CIA::__HOME__());
 		$data = sqlite_escape_string(serialize($data));
@@ -53,16 +56,16 @@ class extends iaCron
 		$time = isset($data['options']['time']) ? $data['options']['time'] : 0;
 		if ($time < $_SERVER['REQUEST_TIME'] - 366*86400) $time += $_SERVER['REQUEST_TIME'];
 
-		$archive = (int) ((isset($data['options']['archive']) && $data['options']['archive']) || self::$test_mode);
+		$archive = (int) ((isset($data['options']['archive']) && $data['options']['archive']) || $queue->test_mode);
 
-		$sent = - (int)(bool) self::$test_mode;
+		$sent = - (int)(bool) $queue->test_mode;
 
 		$sql = "INSERT INTO queue VALUES('{$home}', '{$data}', {$time}, {$archive}, {$sent})";
 		$sqlite->query($sql);
 
 		$id = $sqlite->lastInsertRowid();
 
-		self::$is_registered || self::registerQueue();
+		$queue->is_registered || $queue->registerQueue();
 
 		return $id;
 	}
@@ -72,9 +75,9 @@ class extends iaCron
 		throw new Exception(__CLASS__ . '::put() is disabled');
 	}
 
-	protected static $queueFolder = 'class/iaMail/queue/';
-	protected static $queueUrl = 'iaMail/queue?do=1';
-	protected static $queueSql = 'CREATE TABLE queue
+	protected $queueFolder = 'class/iaMail/queue/';
+	protected $queueUrl = 'iaMail/queue?do=1';
+	protected $queueSql = 'CREATE TABLE queue
 		(
 			home TEXT,
 			data BLOB,
