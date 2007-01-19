@@ -12,15 +12,9 @@
  ***************************************************************************/
 
 
-if (!isset($GLOBALS['CONFIG']['session_driver'])) $GLOBALS['CONFIG']['session_driver'] = 'default';
-
-eval('class SESSION__0 extends driver_session_' . $GLOBALS['CONFIG']['session_driver'] . '{}');
-
-class driver_session_default
+class
 {
 	/* Public properties */
-
-	static $class = 'driver_session_default';
 
 	static $IPlevel = 2;
 
@@ -97,7 +91,7 @@ class driver_session_default
 		$sid = CIA::uniqid();
 		self::setSID($sid);
 
-		self::$driver = new self::$class(self::$SID);
+		self::$driver = new SESSION(self::$SID);
 
 		self::$lastseen = $_SERVER['REQUEST_TIME'];
 		self::$birthtime = $_SERVER['REQUEST_TIME'];
@@ -136,8 +130,6 @@ class driver_session_default
 
 		CIA::setGroup('private');
 
-		self::$class = 'driver_session_' . $GLOBALS['CONFIG']['session_driver'];
-
 		if (self::$maxIdleTime<1 && self::$maxLifeTime<1) trigger_error('At least one of the SESSION::$max*Time variables must be strictly positive.');
 
 		self::$sslid = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? md5($_SERVER['SSL_SESSION_ID']) : false;
@@ -147,7 +139,7 @@ class driver_session_default
 		while (--$i && mt_rand(0, $j));
 		if ($i)
 		{
-			$driver = new self::$class('0lastGC');
+			$driver = new SESSION('0lastGC');
 			$i = $driver->read();
 			$j = max(self::$maxIdleTime, self::$maxLifeTime);
 			if ($j && $_SERVER['REQUEST_TIME'] - $i > $j)
@@ -162,7 +154,7 @@ class driver_session_default
 
 		self::setSID(isset($_COOKIE['SID']) ? $_COOKIE['SID'] : '');
 
-		self::$driver = new self::$class(self::$SID);
+		self::$driver = new SESSION(self::$SID);
 
 		if ($i = self::$driver->read())
 		{
