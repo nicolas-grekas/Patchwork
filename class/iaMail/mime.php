@@ -61,7 +61,11 @@ class extends Mail_mime
 		$body =& $this->get($this->options);
 		$headers =& $this->headers();
 
-		if (!isset($headers['Return-Path']) && isset($headers['From'])) $headers['Return-Path'] = $headers['From'];
+		if (isset($headers['From']))
+		{
+			if (!isset($headers['Reply-To'])   ) $headers['Reply-To'] = $headers['From'];
+			if (!isset($headers['Return-Path'])) $headers['Return-Path'] = $headers['From'];
+		}
 
 		$to = $headers['To'];
 		unset($headers['To']);
