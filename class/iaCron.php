@@ -32,7 +32,7 @@ class
 
 		if ($time < $_SERVER['REQUEST_TIME'] - 366*86400) $time += $_SERVER['REQUEST_TIME'];
 
-		$sql = "INSERT INTO queue VALUES('{$home}', '{$data}', {$time})";
+		$sql = "INSERT INTO queue VALUES('{$home}','{$data}',{$time})";
 		$sqlite->query($sql);
 
 		$id = $sqlite->lastInsertRowid();

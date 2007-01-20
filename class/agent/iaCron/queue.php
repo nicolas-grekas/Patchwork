@@ -54,7 +54,7 @@ class extends agent_bin
 
 	function doDaemon()
 	{
-		$sql = "SELECT 1 FROM queue WHERE run_time <= {$_SERVER['REQUEST_TIME']} LIMIT 1";
+		$sql = "SELECT 1 FROM queue WHERE run_time AND run_time<={$_SERVER['REQUEST_TIME']} LIMIT 1";
 		if ($this->sqlite->query($sql)->fetchObject())
 		{
 			$queue = new iaCron;
@@ -64,18 +64,22 @@ class extends agent_bin
 
 	function doQueue()
 	{
-		$token = $this->getToken();
-
 		require_once 'HTTP/Request.php';
+
+		$token = $this->getToken();
+		$sqlite = $this->sqlite;
 
 		do
 		{
 			$time = time();
-			$sql = "SELECT OID, home FROM queue WHERE run_time <= {$time} ORDER BY run_time, OID LIMIT 1";
-			$result = $this->sqlite->query($sql);
+			$sql = "SELECT OID, home FROM queue WHERE run_time AND run_time<={$time} ORDER BY run_time, OID LIMIT 1";
+			$result = $sqlite->query($sql);
 	
 			if ($data = $result->fetchObject())
 			{
+				$sql = "UPDATE queue SET run_time=0 WHERE OID={$data->OID}";
+				$sqlite->query($sql);
+
 				$data = new HTTP_Request("{$data->home}iaCron/queue/{$data->OID}/{$token}");
 				$data->sendRequest();
 			}

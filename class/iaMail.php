@@ -60,7 +60,7 @@ class extends iaCron
 
 		$sent = - (int)(bool) $queue->test_mode;
 
-		$sql = "INSERT INTO queue VALUES('{$home}', '{$data}', {$time}, {$archive}, {$sent})";
+		$sql = "INSERT INTO queue VALUES('{$home}','{$data}',{$time},{$archive},{$sent})";
 		$sqlite->query($sql);
 
 		$id = $sqlite->lastInsertRowid();
