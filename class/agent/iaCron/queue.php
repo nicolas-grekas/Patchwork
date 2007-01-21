@@ -39,11 +39,11 @@ class extends agent_bin
 			{
 				if ($this->argv->__2__ != $this->getToken()) return;
 
-				$this->doOne((int) $this->argv->__1__);
+				$this->doOne($this->argv->__1__);
 			}
-			else $this->touchOne((int) $this->argv->__1__);
+			else $this->touchOne($this->argv->__1__);
 		}
-		else if ($this->argv->do)
+		else if (!isset($this->argv->do) || $this->argv->do)
 		{
 			if (!$this->getLock()) return;
 			$this->doQueue();
