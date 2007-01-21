@@ -396,9 +396,9 @@ function __autoload($searched_class)
 				$code = new COM('Scripting.FileSystemObject');
 				$code->GetFile($GLOBALS['cia_paths'][0] . '/' . $tmp)->Attributes |= 2;
 				file_exists($cache) && unlink($cache);
+				@rename($tmp, $cache) || E('Failed rename');
 			}
-
-			rename($tmp, $cache);
+			else rename($tmp, $cache);
 		}
 	}
 }

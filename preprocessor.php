@@ -349,7 +349,7 @@ function runPreprocessor($source, $cache, $level, $class = false)
 		$h = new COM('Scripting.FileSystemObject');
 		$h->GetFile(CIA_PROJECT_PATH .'/'. $tmp)->Attributes |= 2; // Set hidden attribute
 		file_exists($cache) && unlink($cache);
+		@rename($tmp, $cache) || E('Failed rename');
 	}
-
-	rename($tmp, $cache);
+	else rename($tmp, $cache);
 }

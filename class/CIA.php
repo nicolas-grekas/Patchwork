@@ -712,8 +712,12 @@ class
 			fwrite($h, $data, strlen($data));
 			fclose($h);
 
-			CIA_WINDOWS && @unlink($filename);
-			rename($tmpname, $filename);
+			if (CIA_WINDOWS)
+			{
+				file_exists($filename) && unlink($filename);
+				@rename($tmpname, $filename) || E('Failed rename');
+			}
+			else rename($tmpname, $filename);
 
 			if ($Dmtime) touch($filename, $_SERVER['REQUEST_TIME'] + $Dmtime);
 
