@@ -15,7 +15,7 @@
 class extends agent_iaCron_queue
 {
 	protected $queueFolder = 'class/iaMail/queue/';
-	protected $getSqlite = 'iaMail';
+	protected $dual = 'iaMail';
 
 	function doDaemon()
 	{

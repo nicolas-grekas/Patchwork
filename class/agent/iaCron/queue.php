@@ -23,13 +23,13 @@ class extends agent_bin
 	protected $lock;
 	protected $queueName = 'queue';
 	protected $queueFolder = 'class/iaCron/queue/';
-	protected $getSqlite = 'iaCron';
+	protected $dual = 'iaCron';
 
 	protected $sqlite;
 
 	function control()
 	{
-		$sqlite = $this->getSqlite;
+		$sqlite = $this->dual;
 		$sqlite = new $sqlite;
 		$this->sqlite = $sqlite->getSqlite();
 
