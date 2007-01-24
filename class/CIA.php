@@ -1248,7 +1248,7 @@ class
 				header('Last-Modified: ' . $LastModified);
 			}
 
-			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + self::$maxage));
+			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + (self::$private || !self::$maxage ? 0 : self::$maxage)));
 			header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');
 		}
 
