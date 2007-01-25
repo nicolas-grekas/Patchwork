@@ -321,7 +321,7 @@ function gLE($name, $multiple, $stack)
 function FeC($mode)
 {
 	document.write(
-		'<input type="image" border="0" width="1" height="1" src="' + home('img/blank.gif', 1) + '" alt="&nbsp;" style="position:absolute" onclick="return '
+		'<input type="image" border="0" width="1" height="1" src="' + home('img/blank.gif', 1, 1) + '" alt="&nbsp;" style="position:absolute" onclick="return '
 		+ ($mode == 2 ? 'enterControl(this.form)' : 'false') + '" />'
 	);
 }
