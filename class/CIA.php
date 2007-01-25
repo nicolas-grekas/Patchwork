@@ -1374,7 +1374,7 @@ class
 		if (!$appendedHtml)
 		{
 			$appendedHtml = self::$isHtml ? 'syncXSJ()' : '(function(){var d=document,f=d.forms;f=f[f.length-1].T$.value=d.cookie.match(/(^|; )T\\$=([0-9a-zA-Z]+)/)[2]})()';
-			$appendedHtml = '<input type="hidden" name="T$" value="' . (isset($_COOKIE['JS']) && $_COOKIE['JS'] ? CIA_TOKEN : '') . '" /><script type="text/javascript">' . "<!--\n{$appendedHtml}//--></script>";
+			$appendedHtml = '<input type="hidden" name="T$" value="' . (isset($_COOKIE['JS']) && $_COOKIE['JS'] ? '' : CIA_TOKEN) . '" /><script type="text/javascript">' . "<!--\n{$appendedHtml}//--></script>";
 		}
 
 		return $f . $appendedHtml;
