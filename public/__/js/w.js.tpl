@@ -767,7 +767,7 @@ function loadW()
 
 		$window.a ? w(a[0], a[1], a[2]) : w();
 	}
-	else document.write('<script type="text/javascript" src="' + {g$__HOME__|js} + 'js/compat?' + (a[2]/1) + '"></script>');
+	else document.write('<script type="text/javascript" src="' + {g$__HOME__|js} + 'js/compat"></script>');
 }
 
 function P$home($string, $noId)
