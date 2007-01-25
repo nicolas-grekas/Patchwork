@@ -18,7 +18,7 @@ IF 1 == g-1$headerNesting
 	*}<script type="text/javascript">/*<![CDATA[*/addOnload.run()//]]></script ><!--
 
 	IF !a$noIE7
-		--><!--[if lt IE 7]><script src="{$home}js/ie7/ie7.js" type="text/javascript"></script ><![endif]--><!--
+		--><!--[if lt IE 7]><script src="{~}js/ie7/ie7.js" type="text/javascript"></script ><![endif]--><!--
 	END:IF
 
 	--></body></html><!--
