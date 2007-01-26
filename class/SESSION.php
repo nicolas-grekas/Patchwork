@@ -197,13 +197,7 @@ class
 		}
 		else $IPs = '';
 
-		self::$SID = $SID . '-' . $IPs
-			. '-' . (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '')
-			. '-' . (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : '')
-			. '-' . (isset($_SERVER['HTTP_ACCEPT_ENCODING']) ? $_SERVER['HTTP_ACCEPT_ENCODING'] : '')
-			. '-' . (isset($_SERVER['HTTP_ACCEPT_CHARSET' ]) ? $_SERVER['HTTP_ACCEPT_CHARSET' ] : '');
-
-		self::$SID = md5(self::$SID);
+		self::$SID = md5($SID . '-' . $IPs . '-' . (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : ''));
 	}
 
 
