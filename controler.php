@@ -62,12 +62,8 @@ if ($len)
 
 	if (!$mime) $mime = 'application/octet-stream';
 
-	CIA::header('Content-Type: ' . $mime);
-	CIA::$isHtml = false;
 	CIA::setMaxage(-1);
 	CIA::writeWatchTable('public/static', 'zcache/');
 
-	readfile($source);
-
-	exit;
+	CIA::readfile($source, $mime);
 }
