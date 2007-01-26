@@ -238,7 +238,7 @@ checkElementStatus = IcES = function($msgs, $form)
 
 labelClick = IlC = function($elt)
 {
-	$elt = $elt.form[$elt.htmlFor];
+	$elt = document.getElementById($elt.htmlFor);
 
 	if (!$elt.type && $elt[0])
 	{
