@@ -463,6 +463,20 @@ class
 		}
 	}
 
+	public static function readfile($file, $mime = 'application/octet-stream')
+	{
+		CIA::header('Content-Type: ' . $mime);
+
+		self::$isHtml = false;
+		self::cancel();
+
+		header('Content-Length: ' . filesize($file));
+		ignore_user_abort(false);
+		readfile($file);
+
+		exit;
+	}
+
 	/**
 	 * Redirect the web browser to an other GET request
 	 */
