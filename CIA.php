@@ -356,8 +356,17 @@ function __autoload($searched_class)
 	}
 	else $class = '';
 
-	method_exists($searched_class, '__static_construct') && call_user_func(array($searched_class, '__static_construct'));
-	method_exists($searched_class, '__static_destruct' ) && register_shutdown_function(array($searched_class, '__static_destruct'));
+	if (PHP_VERSION >= '5.1')
+	{
+		method_exists($searched_class, '__static_construct') && call_user_func(array($searched_class, '__static_construct'));
+		method_exists($searched_class, '__static_destruct' ) && register_shutdown_function(array($searched_class, '__static_destruct'));
+	}
+	else
+	{
+		$c = get_class_methods($searched_class);
+		in_array('__static_construct', $c) && call_user_func(array($searched_class, '__static_construct'));
+		in_array('__static_destruct' , $c) && register_shutdown_function(array($searched_class, '__static_destruct'));
+	}
 
 	if ($cache)
 	{
