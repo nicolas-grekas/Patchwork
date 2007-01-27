@@ -12,8 +12,7 @@
  ***************************************************************************/
 
 
-$version_id = realpath($CIA);
-$version_id || die('Error: path $CIA is unreachable (' . htmlspecialchars($CIA) . ').');
+$version_id = realpath('.');
 
 $appConfigSource = array();
 $appInheritSeq = array();
@@ -23,13 +22,20 @@ $version_id = 0;
 
 // Linearize application inheritance graph
 $cia_paths = C3MRO($CIA);
-$cia_paths_token = substr(md5(serialize($cia_paths)), 0, 4);
+
+$cia_include_paths = explode(PATH_SEPARATOR, get_include_path());
+$cia_include_paths = array_map('realpath', $cia_include_paths);
+$cia_include_paths = array_diff($cia_include_paths, $cia_paths);
+$cia_include_paths = array_merge($cia_paths, $cia_include_paths);
+
+$cia_paths_token = substr(md5(serialize($cia_include_paths)), 0, 4);
 
 $appInheritSeq = array(
 	'<?php',
 	'$version_id=' . $version_id . ';',
 	'$cia_paths=' . var_export($cia_paths, true) . ';',
 	'$cia_paths_token=\'' . $cia_paths_token . '\';',
+	'$cia_include_paths=' . var_export($cia_include_paths, true) . ';',
 );
 
 $CIA = $cia_paths[0] . '/.';
@@ -51,7 +57,7 @@ file_put_contents($appConfigSource, implode("\n", $appInheritSeq));
 if (CIA_WINDOWS)
 {
 	$appInheritSeq = new COM('Scripting.FileSystemObject');
-	$appInheritSeq->GetFile($appConfigSource)->Attributes |= 2;
+	$appInheritSeq->GetFile($appConfigSource)->Attributes |= 2; // Set hidden attribute
 }
 
 unset($appConfigSource);

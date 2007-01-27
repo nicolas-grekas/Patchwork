@@ -95,12 +95,14 @@ if (function_exists('iconv_set_encoding'))
 
 // {{{ Load configuration
 
-ini_set('error_log', $CIA . '/error.log');
+chdir($CIA);
+
+ini_set('error_log', './error.log');
 ini_set('log_errors', true);
 ini_set('display_errors', false);
 
 $CONFIG = array();
-$version_id = $CIA . '/.config.zcache.php';
+$version_id = './.config.zcache.php';
 
 define('__CIA__', dirname(__FILE__));
 define('CIA_WINDOWS', '\\' == DIRECTORY_SEPARATOR);
@@ -114,11 +116,8 @@ if (!isset($CONFIG['DEBUG'])) $CONFIG['DEBUG'] = (int) @$CONFIG['DEBUG_KEYS'][ (
 if (isset($CONFIG['clientside']) && !$CONFIG['clientside']) $_GET['$bin'] = true;
 
 define('CIA_PROJECT_PATH', $cia_paths[0]);
-chdir(CIA_PROJECT_PATH);
 
-ini_set('error_log', CIA_PROJECT_PATH . '/error.log');
-
-// Restore the current dir in shutdown context.
+// Restore the current dir at shutdown context.
 register_shutdown_function('chdir', CIA_PROJECT_PATH);
 
 // }}}
@@ -169,8 +168,9 @@ if (!isset($_SERVER['CIA_HOME']))
 			else
 			{
 				$_SERVER['QUERY_STRING'] = null;
-				unset($_GET[ key($_GET) ]);
-				unset($_GET[ key($_GET) ]); // Double unset against a PHP security hole
+				$a = key($_GET);
+				unset($_GET[$a]);
+				unset($_GET[$a]); // Double unset against a PHP security hole
 			}
 		}
 	}
@@ -196,7 +196,7 @@ if (function_exists('date_default_timezone_set') && isset($CONFIG['timezone'])) 
 
 
 
-{ // Hack to enable the 3 functions below only when execution reaches this point
+{ // <-- Hack to enable the functions below only when execution reaches this point
 
 // {{{ function resolvePath(): cia-specific include_path-like mechanism
 function resolvePath($file, $level = false, $base = false)
@@ -375,7 +375,7 @@ function __autoload($searched_class)
 		$GLOBALS['__autoload_static_pool'] =& $parent_pool;
 
 
-		if ($current_pool) // Writes parent's source code in child's source file
+		if ($current_pool) // Pre-include parent's code in this derivated class
 		{
 			$code = '<?php ?>';
 			$tmp = file_get_contents($cache);
@@ -406,7 +406,7 @@ function __autoload($searched_class)
 			if (CIA_WINDOWS)
 			{
 				$code = new COM('Scripting.FileSystemObject');
-				$code->GetFile($GLOBALS['cia_paths'][0] . '/' . $tmp)->Attributes |= 2;
+				$code->GetFile(CIA_PROJECT_PATH .'/'. $tmp)->Attributes |= 2; // Set hidden attribute
 				file_exists($cache) && unlink($cache);
 				@rename($tmp, $cache) || E('Failed rename');
 			}
