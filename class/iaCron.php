@@ -65,7 +65,7 @@ class
 
 	// The following functions should not be used directly
 
-	protected static $sqlite;
+	protected static $sqlite = array();
 	protected $is_registered = false;
 
 	function registerQueue()
@@ -94,7 +94,8 @@ class
 
 	function getSqlite()
 	{
-		if (isset(self::$sqlite)) return self::$sqlite;
+		$sqlite =& self::$sqlite[get_class($this)];
+		if ($sqlite) return $sqlite;
 
 		$sqlite = resolvePath($this->queueFolder) . $this->queueName . '.sqlite';
 
@@ -105,6 +106,6 @@ class
 			@$sqlite->query($this->queueSql);
 		}
 
-		return self::$sqlite = $sqlite;
+		return $sqlite;
 	}
 }
