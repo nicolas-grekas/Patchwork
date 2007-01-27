@@ -14,15 +14,12 @@
 
 abstract class
 {
-	protected static $started;
-
 	protected static $driver;
 	protected static $cache;
 
 	public static function get($string, $lang, $usecache)
 	{
 		if ('' === $string || '__' == $lang) return $string;
-		isset(self::$started) || self::start();
 
 		$hash = md5($string);
 		$cache = '';
@@ -50,7 +47,17 @@ abstract class
 		return $cache;
 	}
 
-	public static function syncCache()
+
+	static function __static_construct()
+	{
+		self::$cache = array();
+
+		$driver = 'driver_translate_' . $GLOBALS['CONFIG']['translate_driver'];
+		self::$driver = new $driver($GLOBALS['CONFIG']['translate_params']);
+		self::$driver->open();
+	}
+
+	static function __static_destruct()
 	{
 		self::$driver->close();
 
@@ -61,23 +68,6 @@ abstract class
 			CIA::writeFile($file, $data);
 			if ($cache[1]) CIA::writeWatchTable('translate', $file, false);
 		}
-	}
-
-
-	/* Private methods */
-
-	private static function start()
-	{
-		if (isset(self::$started)) return;
-
-		self::$started = true;
-		self::$cache = array();
-
-		$driver = 'driver_translate_' . $GLOBALS['CONFIG']['translate_driver'];
-		self::$driver = new $driver($GLOBALS['CONFIG']['translate_params']);
-		self::$driver->open();
-
-		register_shutdown_function(array('TRANSLATE', 'syncCache'));
 	}
 
 
