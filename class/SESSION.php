@@ -32,8 +32,6 @@ class
 
 	/* Protected properties */
 
-	protected static $started = false;
-
 	protected static $DATA;
 	protected static $driver;
 
@@ -50,15 +48,11 @@ class
 
 	static function get($name)
 	{
-		self::$started || self::start();
-
 		return isset(self::$DATA[$name]) ? self::$DATA[$name] : '';
 	}
 
 	static function set($name, $value = '')
 	{
-		self::$started || self::start();
-
 		if (is_array($name) || is_object($name)) foreach($name as $k => &$value) self::$DATA[$k] =& $value;
 		else if ('' === $value) unset(self::$DATA[$name]);
 		else self::$DATA[$name] =& $value;
@@ -72,8 +66,6 @@ class
 
 	static function getAll()
 	{
-		self::$started || self::start();
-
 		$a = array();
 		foreach (self::$DATA as $k => &$v) $a[$k] =& $v;
 		return $a;
@@ -81,8 +73,6 @@ class
 
 	static function regenerateId($initSession = false)
 	{
-		self::$started || self::start();
-
 		self::$driver->reset();
 		self::$driver = false;
 
@@ -116,18 +106,14 @@ class
 
 	static function close()
 	{
-		if (!self::$started) return;
-
 		self::$driver = false;
 	}
 
 
 	/* Protected methods */
 
-	protected static function start()
+	static function __static_construct()
 	{
-		if (self::$started) return;
-
 		CIA::setGroup('private');
 
 		if (self::$maxIdleTime<1 && self::$maxLifeTime<1) trigger_error('At least one of the SESSION::$max*Time variables must be strictly positive.');
@@ -149,8 +135,6 @@ class
 			}
 			unset($driver);
 		}
-
-		self::$started = true;
 
 		self::setSID(isset($_COOKIE['SID']) ? $_COOKIE['SID'] : '');
 
@@ -220,17 +204,12 @@ class
 	{
 		if ($this->handle)
 		{
-			if (self::$started)
-			{
-				self::$driver->write(serialize(array(
-					$_SERVER['REQUEST_TIME'],
-					self::$birthtime,
-					self::$DATA,
-					self::$sslid
-				)));
-
-				self::$started = false;
-			}
+			self::$driver->write(serialize(array(
+				$_SERVER['REQUEST_TIME'],
+				self::$birthtime,
+				self::$DATA,
+				self::$sslid
+			)));
 
 			fclose($this->handle);
 		}

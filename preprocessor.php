@@ -226,7 +226,7 @@ function runPreprocessor($source, $cache, $level, $class = false)
 
 									if (!$bracket_level)
 									{
-										$class_pool[$curly_level]->construct_source = 'function __construct' . $p
+										$c->construct_source = 'function __construct' . $p
 											. '{$a=array(' . $s . ');'
 											. 'if(' . $num_args . '<func_num_args()){$b=func_get_args();array_splice($a,0,' . $num_args . ',$b);}'
 											. 'call_user_func_array(array($this,"' . $token . '"),$a);}';
@@ -325,7 +325,7 @@ function runPreprocessor($source, $cache, $level, $class = false)
 
 			if (isset($class_pool[$curly_level]))
 			{
-				if (!$$class_pool[$curly_level]->has_php5_construct) $token = $class_pool[$curly_level]->construct_source . '}';
+				if (!$class_pool[$curly_level]->has_php5_construct) $token = $class_pool[$curly_level]->construct_source . '}';
 
 				unset($class_pool[$curly_level]);
 			}

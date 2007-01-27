@@ -356,6 +356,9 @@ function __autoload($searched_class)
 	}
 	else $class = '';
 
+	method_exists($searched_class, '__static_construct') && call_user_func(array($searched_class, '__static_construct'));
+	method_exists($searched_class, '__static_destruct' ) && register_shutdown_function(array($searched_class, '__static_destruct'));
+
 	if ($cache)
 	{
 		if ($parent_pool && $class) $parent_pool[$searched_class] = array(1, '<?php ' . $class . '?>');
