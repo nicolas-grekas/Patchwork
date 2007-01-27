@@ -146,8 +146,8 @@ function runPreprocessor($source, $cache, $level, $class = false)
 
 			$class_pool[$curly_level] = (object) array(
 				'classname' => $c,
-				'construct_is_php5' => false,
-				'construct_source' => ''
+				'has_php5_construct' => false,
+				'construct_source' => '',
 			);
 
 			if ($c && isset($source[$i]) && is_array($source[$i]) && T_EXTENDS == $source[$i][0])
@@ -185,11 +185,12 @@ function runPreprocessor($source, $cache, $level, $class = false)
 					   is_array($source[$i-$j])
 					&& T_FUNCTION == $source[$i-$j][0]
 					&& isset($class_pool[$curly_level])
-					&& !$class_pool[$curly_level]->construct_is_php5
+					&& ($c = $class_pool[$curly_level])
+					&& !$c->has_php5_construct
 				)
 				{
-					if ('__construct' == strtolower($token)) $class_pool[$curly_level]->construct_is_php5 == true;
-					else if (strtolower($class_pool[$curly_level]->classname) == strtolower($token))
+					if ('__construct' == strtolower($token)) $c->has_php5_construct = true;
+					else if (strtolower($c->classname) == strtolower($token))
 					{
 						$p = '';
 						$s = '';
@@ -320,14 +321,14 @@ function runPreprocessor($source, $cache, $level, $class = false)
 		else if ('{' == $token) ++$curly_level;
 		else if ('}' == $token)
 		{
+			--$curly_level;
+
 			if (isset($class_pool[$curly_level]))
 			{
-				if (!$class_pool[$curly_level]->construct_is_php5) $token = $class_pool[$curly_level]->construct_source . '}';
+				if (!$$class_pool[$curly_level]->has_php5_construct) $token = $class_pool[$curly_level]->construct_source . '}';
 
 				unset($class_pool[$curly_level]);
 			}
-
-			--$curly_level;
 		}
 		else if ($prependSemiColon && ';' == $token)
 		{
