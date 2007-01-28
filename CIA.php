@@ -25,6 +25,7 @@ if (get_magic_quotes_gpc())
 }
 
 set_magic_quotes_runtime(0);
+ini_set('zlib.output_compression', false);
 
 /* To enable UTF-8 when using MySQL, add the following lines at the end of your my.cnf or my.ini file
 
@@ -78,7 +79,7 @@ unset($_REQUEST);
 unset($_REQUEST); // Double unset against a PHP security hole
 
 // Disables mod_deflate who overwrites any custom Vary: header and appends a body to 304 responses.
-// Replaced with native PHP output compression.
+// Replaced with our own output compression.
 if (function_exists('apache_setenv')) apache_setenv('no-gzip', '1');
 
 // Encoding context initialisation
@@ -445,7 +446,7 @@ if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && !strncmp($_SERVER['HTTP_IF_NONE_MAT
 	if (file_exists($match)) $headers = file_get_contents($match);
 	if (false !== $headers)
 	{
-		header('HTTP/1.x 304 Not Modified');
+		header('HTTP/1.1 304 Not Modified');
 		if ($headers)
 		{
 			$headers = explode("\n", $headers, 3);

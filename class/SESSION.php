@@ -33,7 +33,7 @@ class
 	/* Protected properties */
 
 	protected static $DATA;
-	protected static $driver;
+	protected static $driver = false;
 
 	protected static $SID = '';
 	protected static $lastseen = '';
@@ -73,8 +73,11 @@ class
 
 	static function regenerateId($initSession = false)
 	{
-		self::$driver->reset();
-		self::$driver = false;
+		if (self::$driver)
+		{
+			self::$driver->reset();
+			self::$driver = false;
+		}
 
 		if ($initSession) self::$DATA = array();
 
@@ -204,7 +207,7 @@ class
 	{
 		if ($this->handle)
 		{
-			self::$driver->write(serialize(array(
+			$this->write(serialize(array(
 				$_SERVER['REQUEST_TIME'],
 				self::$birthtime,
 				self::$DATA,

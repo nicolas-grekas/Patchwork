@@ -174,7 +174,7 @@ class
 	public static $cachePath = 'zcache/';
 	public static $agentClass;
 	public static $catchMeta = false;
-	public static $isHtml;
+	public static $isServersideHtml;
 
 	protected static $host;
 	protected static $lang = '__';
@@ -211,7 +211,7 @@ class
 		self::$versionId = abs(self::$fullVersionId % 10000);
 		self::$handlesOb = false;
 		self::$headers = array();
-		self::$isHtml = false;
+		self::$isServersideHtml = false;
 
 		$cachePath = resolvePath(self::$cachePath);
 		self::$cachePath = ($cachePath == self::$cachePath ? $GLOBALS['cia_paths'][count($GLOBALS['cia_paths']) - 2] . '/' : '') . $cachePath;
@@ -447,11 +447,11 @@ class
 
 		if (self::$catchMeta) self::$metaInfo[4][$name] = $string;
 
-		if ('content-type' == $name) self::$isHtml = false !== strpos(strtolower($string), 'html');
+		if ('content-type' == $name) self::$isServersideHtml = false !== stripos($string, 'html');
 
 		if (!self::$privateDetectionMode)
 		{
-			if ('content-type' == $name && false !== strpos(strtolower($string), 'script'))
+			if ('content-type' == $name && false !== stripos($string, 'script'))
 			{
 				if (self::$private) self::preventXSJ();
 
@@ -467,12 +467,35 @@ class
 	{
 		CIA::header('Content-Type: ' . $mime);
 
-		self::$isHtml = false;
-		self::cancel();
+		self::$isServersideHtml = false;
 
-		header('Content-Length: ' . filesize($file));
-		ignore_user_abort(false);
-		readfile($file);
+		// TODO:
+		// - handle 304 response
+		// - send and honor a header('Accept-Ranges: bytes');
+		// - gzip output (http://fr2.php.net/manual/fr/ref.zlib.php#56216)
+
+		if (false !== stripos($mime, 'html'))
+		{
+			// TODO: this special case is needed for <form>s auto antiXSJ insertion,
+			// but could this be done when streamed to the client
+			// rather than putting every thing in memory, then parse ?
+
+			readfile($file);
+		}
+		else
+		{
+			self::cancel();
+
+			$size = filesize($file);
+			$ETag = filemtime($file);
+			$mtime = gmdate('D, d M Y H:i:s \G\M\T', $ETag);
+			$ETag = md5($ETag . '-' . $size . '-' . fileinode($file));
+
+			header('Content-Length: ' . $size);
+			ignore_user_abort(false);
+
+			readfile($file);
+		}
 
 		exit;
 	}
@@ -1138,7 +1161,7 @@ class
 		self::$handlesOb = true;
 		chdir(CIA_PROJECT_PATH);
 
-#>		if (self::$isHtml) $buffer = $this->error_end(substr(trim($buffer), 0, 1)) . $buffer;
+#>		if (self::$isServersideHtml) $buffer = $this->error_end(substr(trim($buffer), 0, 1)) . $buffer;
 
 		if (self::$redirectUrl !== false)
 		{
@@ -1150,14 +1173,13 @@ class
 			}
 			else
 			{
-				header('HTTP/1.x 302 Found');
+				header('HTTP/1.1 302 Found');
 				header('Location: ' . (self::$redirectUrl !== '' ? self::$redirectUrl : $_SERVER['REQUEST_URI']));
 
 				$buffer = '';
 			}
 
 			header('Content-Length: ' . strlen($buffer));
-			@ini_set('zlib.output_compression', false);
 
 			self::$handlesOb = false;
 
@@ -1169,7 +1191,7 @@ class
 		if (stripos(self::$headers['content-type'], 'html') && ($meta = stripos($buffer, '<form')))
 		{
 			$meta = preg_replace_callback(
-				'#<form\s[^>]*method\s*=\s*(["\']?)post\1[^>]*>#iu', // XXX Who has a better regexp ?
+				'#<form\s(?:[^>]+?\s)?method\s*=\s*(["\']?)post\1.*?>#iu',
 				array($this, 'appendAntiXSJ'),
 				$buffer
 			);
@@ -1177,7 +1199,7 @@ class
 			if ($meta != $buffer)
 			{
 				self::$private = true;
-				if (!(isset($_COOKIE['JS']) && $_COOKIE['JS'])) self::$maxage = 10;
+				if (!(isset($_COOKIE['JS']) && $_COOKIE['JS']) && self::$maxage > 5) self::$maxage = 5;
 				$buffer = $meta;
 			}
 
@@ -1253,8 +1275,7 @@ class
 			if ($is304)
 			{
 				$buffer = '';
-				@ini_set('zlib.output_compression', false);
-				header('HTTP/1.x 304 Not Modified');
+				header('HTTP/1.1 304 Not Modified');
 			}
 			else
 			{
@@ -1278,11 +1299,10 @@ class
 			case 'image/gif':
 			case 'image/jpeg':
 				header('Content-Length: ' . strlen($buffer));
-				@ini_set('zlib.output_compression', false);
 				break;
 
 			default:
-				if (!ini_get('zlib.output_compression')) $buffer = ob_gzhandler($buffer, 5);
+				$buffer = ob_gzhandler($buffer, PHP_OUTPUT_HANDLER_START | PHP_OUTPUT_HANDLER_END);
 				break;
 		}
 
@@ -1387,7 +1407,7 @@ class
 
 		if (!$appendedHtml)
 		{
-			$appendedHtml = self::$isHtml ? 'syncXSJ()' : '(function(){var d=document,f=d.forms;f=f[f.length-1].T$.value=d.cookie.match(/(^|; )T\\$=([0-9a-zA-Z]+)/)[2]})()';
+			$appendedHtml = self::$isServersideHtml ? 'syncXSJ()' : '(function(){var d=document,f=d.forms;f=f[f.length-1].T$.value=d.cookie.match(/(^|; )T\\$=([0-9a-zA-Z]+)/)[2]})()';
 			$appendedHtml = '<input type="hidden" name="T$" value="' . (isset($_COOKIE['JS']) && $_COOKIE['JS'] ? '' : CIA_TOKEN) . '" /><script type="text/javascript">' . "<!--\n{$appendedHtml}//--></script>";
 		}
 
