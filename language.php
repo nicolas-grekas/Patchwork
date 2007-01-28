@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-if (!ini_get('zlib.output_compression')) ob_start('ob_gzhandler');
+ob_start('ob_gzhandler');
 
 header('Expires: ' . gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + CIA_MAXAGE) . ' GMT');
 header('Cache-Control: max-age=' . CIA_MAXAGE .',public');
