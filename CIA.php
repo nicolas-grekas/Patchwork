@@ -348,6 +348,8 @@ function __autoload($searched_class)
 		while ($level);
 	}
 
+	$c = $searched_class == $class;
+
 	if ($parent_class && class_exists($parent_class, true))
 	{
 		$class = new ReflectionClass($parent_class);
@@ -357,16 +359,19 @@ function __autoload($searched_class)
 	}
 	else $class = '';
 
-	if (PHP_VERSION >= '5.1')
+	if ($c)
 	{
-		method_exists($searched_class, '__static_construct') && call_user_func(array($searched_class, '__static_construct'));
-		method_exists($searched_class, '__static_destruct' ) && register_shutdown_function(array($searched_class, '__static_destruct'));
-	}
-	else
-	{
-		$c = get_class_methods($searched_class);
-		in_array('__static_construct', $c) && call_user_func(array($searched_class, '__static_construct'));
-		in_array('__static_destruct' , $c) && register_shutdown_function(array($searched_class, '__static_destruct'));
+		if (PHP_VERSION >= '5.1')
+		{
+			method_exists($searched_class, '__static_construct') && call_user_func(array($searched_class, '__static_construct'));
+			method_exists($searched_class, '__static_destruct' ) && register_shutdown_function(array($searched_class, '__static_destruct'));
+		}
+		else
+		{
+			$c = get_class_methods($searched_class);
+			in_array('__static_construct', $c) && call_user_func(array($searched_class, '__static_construct'));
+			in_array('__static_destruct' , $c) && register_shutdown_function(array($searched_class, '__static_destruct'));
+		}
 	}
 
 	if ($cache)

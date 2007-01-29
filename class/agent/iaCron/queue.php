@@ -120,6 +120,8 @@ class extends agent_bin
 
 	function restoreSession(&$session)
 	{
+		$_COOKIE['SID'] = '1';
+
 		if (class_exists('SESSION', false))
 		{
 			$_SESSION = $session;
@@ -132,12 +134,10 @@ class extends agent_bin
 		{
 			static function setDATA($data) {self::$DATA = $data;}
 			static function regenerateId($initSession = false) {if ($initSession) self::$DATA = array();}
-			protected static function start() {self::$lastseen = $_SERVER["REQUEST_TIME"];}
-		}');
-
-		$_COOKIE['SID'] = '1';
-
-		SESSION::setDATA($session);
+			static function __static_construct() {self::$lastseen = $_SERVER["REQUEST_TIME"];}
+		}
+		SESSION::__static_construct();
+		SESSION::setDATA($session);');
 	}
 
 	function getLock()
