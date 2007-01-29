@@ -1122,7 +1122,6 @@ class
 			}
 
 			E('Potential Cross Site JavaScript. Stopping !');
-			E($_SERVER); E($_POST); E($_COOKIE);
 
 			exit;
 		}
@@ -1195,7 +1194,7 @@ class
 			if ($meta != $buffer)
 			{
 				self::$private = true;
-				if (!(isset($_COOKIE['JS']) && $_COOKIE['JS']) && self::$maxage > 5) self::$maxage = 5;
+				if (!(isset($_COOKIE['JS']) && $_COOKIE['JS'])) self::$maxage = 0;
 				$buffer = $meta;
 			}
 
@@ -1398,7 +1397,7 @@ class
 		if (!$appendedHtml)
 		{
 			$appendedHtml = self::$isServersideHtml ? 'syncXSJ()' : '(function(){var d=document,f=d.forms;f=f[f.length-1].T$.value=d.cookie.match(/(^|; )T\\$=([0-9a-zA-Z]+)/)[2]})()';
-			$appendedHtml = '<input type="hidden" name="T$" value="' . (isset($_COOKIE['JS']) && $_COOKIE['JS'] ? '' : CIA_TOKEN) . '" /><script type="text/javascript">' . "<!--\n{$appendedHtml}//--></script>";
+			$appendedHtml = '<input type="hidden" name="T$" value="' . (isset($_COOKIE['JS']) && $_COOKIE['JS'] ? '' : $GLOBALS['cia_token']) . '" /><script type="text/javascript">' . "<!--\n{$appendedHtml}//--></script>";
 		}
 
 		return $f . $appendedHtml;
@@ -1502,7 +1501,7 @@ class agent
 			$key = array_shift($a);
 
 			$b = isset($args[$key]) ? (string) $args[$key] : '';
-			if (false !== strpos($b, "\0")) $b = str_replace("\0", "", $b);
+			if (false !== strpos($b, "\0")) $b = str_replace("\0", '', $b);
 
 			if ($a)
 			{

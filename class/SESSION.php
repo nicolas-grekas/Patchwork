@@ -97,6 +97,19 @@ class
 			( self::$cookieHttpOnly ? '; HttpOnly' : '' )
 		);
 
+
+		// Also regenerate antiXSJ token
+
+		$GLOBALS['cia_token'] = md5(uniqid(mt_rand(), true));
+
+		$sid = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_HOME'], 2));
+		$sid = preg_replace("'\?.*$'", '', $sid);
+		$sid = preg_replace("'^https?://[^/]*'i", '', $sid);
+		$sid = dirname($sid . ' ');
+		if (1 == strlen($sid)) $sid = '';
+
+		setcookie('T$', $GLOBALS['cia_token'], 0, $sid .'/');
+
 		// 304 Not Modified response code does not allow Set-Cookie headers, so we remove any header that could trigger a 304
 		unset($_SERVER['HTTP_IF_NONE_MATCH']);
 		unset($_SERVER['HTTP_IF_MODIFIED_SINCE']);
