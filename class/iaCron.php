@@ -21,16 +21,15 @@ class
 
 		if (!is_array($arguments)) $arguments = array($arguments);
 
+		if ($time < $_SERVER['REQUEST_TIME'] - 366*86400) $time += $_SERVER['REQUEST_TIME'];
+
 		$home = sqlite_escape_string(CIA::__HOME__());
 		$data = array(
 			'function' => &$function,
 			'arguments' => &$arguments,
 			'session' => isset($_COOKIE['SID']) ? SESSION::getAll() : array()
 		);
-
 		$data = sqlite_escape_string(serialize($data));
-
-		if ($time < $_SERVER['REQUEST_TIME'] - 366*86400) $time += $_SERVER['REQUEST_TIME'];
 
 		$sql = "INSERT INTO queue VALUES('{$home}','{$data}',{$time})";
 		$sqlite->query($sql);

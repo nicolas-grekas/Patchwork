@@ -50,15 +50,14 @@ class extends iaCron
 
 		$sqlite = $queue->getSqlite();
 
-		$home = sqlite_escape_string(CIA::__HOME__());
-		$data = sqlite_escape_string(serialize($data));
+		$sent = - (int)(bool) $queue->test_mode;
+		$archive = (int) ((isset($data['options']['archive']) && $data['options']['archive']) || $queue->test_mode);
 
 		$time = isset($data['options']['time']) ? $data['options']['time'] : 0;
 		if ($time < $_SERVER['REQUEST_TIME'] - 366*86400) $time += $_SERVER['REQUEST_TIME'];
 
-		$archive = (int) ((isset($data['options']['archive']) && $data['options']['archive']) || $queue->test_mode);
-
-		$sent = - (int)(bool) $queue->test_mode;
+		$home = sqlite_escape_string(CIA::__HOME__());
+		$data = sqlite_escape_string(serialize($data));
 
 		$sql = "INSERT INTO queue VALUES('{$home}','{$data}',{$time},{$archive},{$sent})";
 		$sqlite->query($sql);
