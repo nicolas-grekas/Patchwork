@@ -174,7 +174,7 @@ class
 	public static $cachePath = 'zcache/';
 	public static $agentClass;
 	public static $catchMeta = false;
-	public static $isServersideHtml;
+	public static $ETag = '';
 
 	protected static $host;
 	protected static $lang = '__';
@@ -187,6 +187,7 @@ class
 	protected static $metaInfo;
 	protected static $metaPool = array();
 	protected static $isGroupStage = true;
+	protected static $isServersideHtml;
 
 	protected static $maxage = false;
 	protected static $private = false;
@@ -331,12 +332,12 @@ class
 				self::setMaxage(-1);
 
 				echo 'w.k(',
-						self::$versionId, ',',
-						jsquote( $_SERVER['CIA_HOME'] ), ',',
-						jsquote( 'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)) ), ',',
-						jsquote( isset($_GET['__0__']) ? $_GET['__0__'] : '' ), ',',
-						'[', implode(',', array_map('jsquote', self::agentArgv($agent))), ']',
-					')';
+					self::$versionId, ',',
+					jsquote( $_SERVER['CIA_HOME'] ), ',',
+					jsquote( 'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)) ), ',',
+					jsquote( isset($_GET['__0__']) ? $_GET['__0__'] : '' ), ',',
+					'[', implode(',', array_map('jsquote', self::agentArgv($agent))), ']',
+				')';
 
 				exit;
 			}
@@ -392,6 +393,7 @@ class
 	public static function cancel()
 	{
 		self::$cancelled = true;
+		if (false !== self::$redirectUrl) exit;
 		while (@ob_end_clean());
 	}
 
@@ -470,32 +472,25 @@ class
 		self::$isServersideHtml = false;
 
 		// TODO:
-		// - handle 304 response
 		// - send and honor a header('Accept-Ranges: bytes');
 		// - gzip output (http://fr2.php.net/manual/fr/ref.zlib.php#56216)
+		// - a special case is needed for <form>s auto antiXSJ insertion,
+		//   but could this be done when streamed to the client
+		//   rather than putting everything in memory, then parse ?
 
-		if (false !== stripos($mime, 'html'))
+		if (false === stripos($mime, 'html'))
 		{
-			// TODO: this special case is needed for <form>s auto antiXSJ insertion,
-			// but could this be done when streamed to the client
-			// rather than putting every thing in memory, then parse ?
+			$size = filesize($file);
+			header('Content-Length: ' . $size);
 
-			readfile($file);
-		}
-		else
-		{
+			self::$ETag = $size .'-'. filemtime($file) .'-'. fileinode($file);
+
 			self::cancel();
 
-			$size = filesize($file);
-			$ETag = filemtime($file);
-			$mtime = gmdate('D, d M Y H:i:s \G\M\T', $ETag);
-			$ETag = md5($ETag . '-' . $size . '-' . fileinode($file));
-
-			header('Content-Length: ' . $size);
 			ignore_user_abort(false);
-
-			readfile($file);
 		}
+
+		readfile($file);
 
 		exit;
 	}
@@ -600,7 +595,7 @@ class
 		{
 			$a =& self::$metaInfo[1];
 
-			if (count($a) == 1 && 'private' == $a[0]) return;
+			if (1 == count($a) && 'private' == $a[0]) return;
 
 			if (in_array('private', $group)) $a = array('private');
 			else
@@ -1163,18 +1158,19 @@ class
 
 #>		if (self::$isServersideHtml) $buffer = $this->error_end(substr(trim($buffer), 0, 1)) . $buffer;
 
-		if (self::$redirectUrl !== false)
+		if (false !== self::$redirectUrl)
 		{
 			if (CIA_DIRECT)
 			{
-				$buffer = 'location.replace(' . (self::$redirectUrl !== ''
+				$buffer = 'location.replace(' . ('' !== self::$redirectUrl
 					? "'" . addslashes(self::$redirectUrl) . "'"
-					: 'location') . ')';
+					: 'location')
+				. ')';
 			}
 			else
 			{
 				header('HTTP/1.1 302 Found');
-				header('Location: ' . (self::$redirectUrl !== '' ? self::$redirectUrl : $_SERVER['REQUEST_URI']));
+				header('Location: ' . ('' !== self::$redirectUrl ? self::$redirectUrl : $_SERVER['REQUEST_URI']));
 
 				$buffer = '';
 			}
@@ -1207,15 +1203,9 @@ class
 		}
 
 
-		if (self::$cancelled)
-		{
-			self::$handlesOb = false;
-			return $buffer;
-		}
-
 		$is304 = false;
 
-		if (!CIA_POSTING && $buffer !== '')
+		if (!CIA_POSTING && ('' !== $buffer || self::$ETag))
 		{
 			if (!self::$maxage) self::$maxage = 0;
 
@@ -1226,7 +1216,7 @@ class
 				. self::$private . "\n"
 				. implode("\n", self::$headers);
 
-			$ETag = substr(md5($buffer .'-'. self::$expires .'-'. $meta), 0, 8);
+			$ETag = substr(md5(self::$ETag .'-'. $buffer .'-'. self::$expires .'-'. $meta), 0, 8);
 			$ETag = hexdec($ETag);
 			if ($ETag > 2147483647) $ETag -= 2147483648;
 
@@ -1288,12 +1278,9 @@ class
 		}
 
 
-		if ('HEAD' == $_SERVER['REQUEST_METHOD']) $buffer = '';
-
-
 		// Setup gzip compression
 
-		if (!$is304) switch (substr(self::$headers['content-type'], 14))
+		if (!self::$cancelled && !$is304) switch (substr(self::$headers['content-type'], 14))
 		{
 			case 'image/png':
 			case 'image/gif':
@@ -1307,6 +1294,9 @@ class
 		}
 
 		self::$handlesOb = false;
+
+		if ('HEAD' == $_SERVER['REQUEST_METHOD']) exit;
+
 		return $buffer;
 	}
 
