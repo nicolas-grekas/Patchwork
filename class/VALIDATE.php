@@ -238,6 +238,8 @@ class
 
 		if (isset($args[1]) && $args[1])
 		{
+			$value['name'] = basename(strtr($value['name'], "\\\0", '/_'));
+
 			$a = array(0, $args[1]);
 			if ( false === self::get_file($value['name'], $a) ) return false;
 		}
