@@ -100,7 +100,7 @@ class
 
 		// Also regenerate antiXSJ token
 
-		$GLOBALS['cia_token'] = md5(uniqid(mt_rand(), true));
+		$GLOBALS['cia_token'] = CIA::uniqid();
 
 		$sid = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_HOME'], 2));
 		$sid = preg_replace("'\?.*$'", '', $sid);
@@ -134,7 +134,7 @@ class
 
 		if (self::$maxIdleTime<1 && self::$maxLifeTime<1) trigger_error('At least one of the SESSION::$max*Time variables must be strictly positive.');
 
-		self::$sslid = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? md5($_SERVER['SSL_SESSION_ID']) : false;
+		self::$sslid = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? hash('md5', $_SERVER['SSL_SESSION_ID']) : false;
 
 		$i = self::$gcProbabilityNumerator + 1;
 		$j = self::$gcProbabilityDenominator - 1;
@@ -197,7 +197,7 @@ class
 		}
 		else $IPs = '';
 
-		self::$SID = md5($SID . '-' . $IPs . '-' . (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : ''));
+		self::$SID = hash('md5', $SID . '-' . $IPs . '-' . (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : ''));
 	}
 
 

@@ -193,7 +193,7 @@ class extends CIA
 		self::$values = $v->{'$'} = $v;
 
 		$ctemplate = self::getContextualCachePath('templates/' . $template, (constant("$agentClass::binary") ? 'bin' : 'html') . '.php');
-		$ftemplate = 'template' . md5($ctemplate);
+		$ftemplate = 'template' . hash('md5', $ctemplate);
 
 		if (function_exists($ftemplate)) $ftemplate($v, $a, $g);
 		else

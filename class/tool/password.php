@@ -24,7 +24,7 @@ class
 		if ($crypted_pwd !== false)
 		{
 			$salt = substr($crypted_pwd, 0, $saltLen);
-			if ($salt . md5($pwd . $salt) != $crypted_pwd) return false;
+			if ($salt . hash('md5', $pwd . $salt) != $crypted_pwd) return false;
 		}
 
 		$a = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
@@ -33,6 +33,6 @@ class
 		$salt = '';
 		do $salt .= $a{ mt_rand(0, $b) }; while (--$saltLen);
 
-		return $salt . md5($pwd . $salt);
+		return $salt . hash('md5', $pwd . $salt);
 	}
 }
