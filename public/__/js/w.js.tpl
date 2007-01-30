@@ -699,7 +699,11 @@ w = function($homeAgent, $keys, $masterCIApID)
 	if ($i = $document.cookie.match(/(^|; )T\$=([0-9a-zA-Z]+)/)) $i = $i[2];
 	else
 	{
-		$i = (''+Math.random()).substr(2);
+		$i = '';
+		do $i = (Math.random()+$i).substr(2);
+		while ($i.length < 32);
+		$i = $i.substr(0, 32);
+
 		$j = $masterHome.replace(
 			/\?.*$/              , '' ).replace(
 			/^https?:\/\/[^\/]*/i, '' ).replace(
