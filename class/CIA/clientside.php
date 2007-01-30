@@ -168,7 +168,7 @@ EOHTML;
 			}
 			else if ($data->getMessage())
 			{
-				echo 'location.reload(' . (DEBUG ? '' : 'true') . '))';
+				echo ');location.reload(' . (DEBUG ? '' : 'true') . ')';
 			}
 			else
 			{

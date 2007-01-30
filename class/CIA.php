@@ -227,6 +227,8 @@ class
 			exit;
 		}
 
+		if (isset($_GET['T$'])) self::$private = true;
+
 		// {{{ Static controler
 		$agent = $_SERVER['CIA_REQUEST'];
 		if (preg_match("'\.[a-z0-9]{1,4}$'i", $agent, $mime) && strcasecmp('.tpl', $mime[0])) require processPath('controler.php');
