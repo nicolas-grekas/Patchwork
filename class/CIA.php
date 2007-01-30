@@ -642,7 +642,7 @@ class
 		return is_object($a) ? $a->__toString() : (string) $a;
 	}
 
-	public static function uniqid() {return md5( uniqid(mt_rand(), true) );}
+	public static function uniqid() {return hash('md5', uniqid(mt_rand(), true));}
 
 	/**
 	 * Revokes every agent watching $message
@@ -765,7 +765,7 @@ class
 	{
 		if (''!==(string)$extension) $extension = '.' . $extension;
 
-		$hash = md5($filename . $extension . '.'. $key);
+		$hash = hash('md5', $filename . $extension . '.'. $key);
 		$hash = $hash{0} . '/' . $hash{1} . '/' . substr($hash, 2);
 
 		$filename = rawurlencode(str_replace('/', '.', $filename));
@@ -1217,7 +1217,7 @@ class
 				. self::$private . "\n"
 				. implode("\n", self::$headers);
 
-			$ETag = substr(md5(self::$ETag .'-'. $buffer .'-'. self::$expires .'-'. $meta), 0, 8);
+			$ETag = substr(hash('md5', self::$ETag .'-'. $buffer .'-'. self::$expires .'-'. $meta), 0, 8);
 			$ETag = hexdec($ETag);
 			if ($ETag > 2147483647) $ETag -= 2147483648;
 
@@ -1241,7 +1241,7 @@ class
 			if ('auto' == self::$expires && self::$watchTable)
 			{
 				$validator = self::$cachePath . $ETag[1] .'/'. $ETag[2] .'/'. substr($ETag, 3) .'.validator.'. DEBUG .'.';
-				$validator .= md5($_SERVER['CIA_HOME'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
+				$validator .= hash('md5', $_SERVER['CIA_HOME'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
 
 				if ($h = self::fopenX($validator))
 				{

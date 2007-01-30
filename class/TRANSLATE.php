@@ -21,7 +21,7 @@ abstract class
 	{
 		if ('' === $string || '__' == $lang) return $string;
 
-		$hash = md5($string);
+		$hash = hash('md5', $string);
 		$cache = '';
 
 		if ($usecache && $id = CIA::$agentClass)

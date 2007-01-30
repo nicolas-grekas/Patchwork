@@ -60,7 +60,7 @@ function runPreprocessor($source, $cache, $level, $class = false)
 		$source = preg_replace_callback("'^#>>>\s*^.*?^#<<<\s*$'ms", 'extractPHPNewLines', $source);
 	}
 
-	$tmp = './' . md5(uniqid(mt_rand(), true));
+	$tmp = './' . uniqid(mt_rand(), true);
 	$h = fopen($tmp, 'wb');
 
 	$source = token_get_all($source);

@@ -72,6 +72,27 @@ mbstring.func_overload = 0
 */
 // }}}
 
+if (!function_exists('hash_algos'))
+{
+	function hash_algos()
+	{
+		return array('md5', 'sha1', 'crc32');
+	}
+
+	// As of PHP5.1.2, hash('md5', $str) is a lot faster than md5($str) !
+	function hash($algo, $data, $raw_output = false)
+	{
+		switch ($algo)
+		{
+		case   'md5': return   md5($data, $raw_output);
+		case  'sha1': return  sha1($data, $raw_output);
+		case 'crc32': return crc32($data);
+		}
+
+		return false;
+	}
+}
+
 // {{{ Global context setup
 
 // $_REQUEST is an open door to security problems.
@@ -405,7 +426,7 @@ function __autoload($searched_class)
 			$code = substr($code, 0, -2) . ';' . substr($tmp, 6);
 
 
-			$tmp = md5(uniqid(mt_rand(), true));
+			$tmp = uniqid(mt_rand(), true);
 
 			file_put_contents($tmp, $code);
 
@@ -445,7 +466,7 @@ if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && !strncmp($_SERVER['HTTP_IF_NONE_MAT
 
 	$match = $match[0];
 	$match = resolvePath('zcache/') . $match[1] .'/'. $match[2] .'/'. substr($match, 3) .'.validator.'. DEBUG .'.';
-	$match .= md5($_SERVER['CIA_HOME'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
+	$match .= hash('md5', $_SERVER['CIA_HOME'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
 
 	$headers = false;
 	if (file_exists($match)) $headers = file_get_contents($match);
@@ -496,7 +517,7 @@ if (!$cia_token)
 	unset($_COOKIE['T$']);
 	unset($_COOKIE['T$']); // Double unset against a PHP security hole
 
-	$cia_token = md5(uniqid(mt_rand(), true));
+	$cia_token = hash('md5', uniqid(mt_rand(), true));
 
 	$k = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_HOME'], 2));
 	$k = preg_replace("'\?.*$'", '', $k);
