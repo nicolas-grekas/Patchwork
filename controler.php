@@ -66,4 +66,6 @@ if ($len)
 	CIA::writeWatchTable('public/static', 'zcache/');
 
 	CIA::readfile($source, $mime);
+
+	exit;
 }
