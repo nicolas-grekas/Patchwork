@@ -56,7 +56,8 @@ class extends CIA
 
 			if (isset($_GET['s$']))
 			{
-				ob_start(array(__CLASS__, 'htmlspecialchars'), 8192);
+				ob_start(array(__CLASS__, 'ob_htmlspecialchars'), 8192);
+				++self::$ob_level;
 				self::$get = (object) $a;
 			}
 			else self::$get = (object) array_map('htmlspecialchars', $a);
@@ -369,8 +370,10 @@ class extends CIA
 		return true;
 	}
 
-	static function htmlspecialchars($a)
+	static function ob_htmlspecialchars($a, $mode)
 	{
+		if (PHP_OUTPUT_HANDLER_END & $mode) --self::$ob_level;
+
 		return htmlspecialchars($a);
 	}
 }
