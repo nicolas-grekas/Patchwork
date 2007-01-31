@@ -171,10 +171,10 @@ function jsquoteRef(&$a) {$a = jsquote($a);}
 
 class
 {
-	public static $cachePath = 'zcache/';
-	public static $agentClass;
-	public static $catchMeta = false;
-	public static $ETag = '';
+	static $cachePath = 'zcache/';
+	static $agentClass;
+	static $catchMeta = false;
+	static $ETag = '';
 
 	protected static $host;
 	protected static $lang = '__';
@@ -183,6 +183,7 @@ class
 
 	protected static $versionId;
 	protected static $fullVersionId;
+	protected static $has_error = false;
 	protected static $handlesOb;
 	protected static $metaInfo;
 	protected static $metaPool = array();
@@ -195,15 +196,16 @@ class
 	protected static $watchTable = array();
 	protected static $headers;
 
-	protected static $cia;
 	protected static $redirectUrl = false;
 	protected static $agentClasses = '';
-	protected static $cancelled = false;
+	protected static $is_enabled = false;
+	protected static $ob_starting_level;
+	protected static $ob_level;
 	protected static $privateDetectionMode = false;
 	protected static $detectXSJ = false;
 	protected static $total_time = 0;
 
-	public static function start()
+	static function start()
 	{
 		// Stupid Zend Engine with PHP 5.0.x ...
 		// Static vars assigned in the class declaration are not accessible from an instance of a derived class.
@@ -217,7 +219,24 @@ class
 		$cachePath = resolvePath(self::$cachePath);
 		self::$cachePath = ($cachePath == self::$cachePath ? $GLOBALS['cia_paths'][count($GLOBALS['cia_paths']) - 2] . '/' : '') . $cachePath;
 
-		self::$cia = new CIA;
+#>>>
+		self::log(
+			'<a href="' . htmlspecialchars($_SERVER['REQUEST_URI']) . '" target="_blank">'
+			. htmlspecialchars(preg_replace("'&v\\\$=[^&]*'", '', $_SERVER['REQUEST_URI']))
+			. '</a>'
+		);
+		register_shutdown_function(array('CIA', 'log'), '', true);
+#<<<
+
+		self::header('Content-Type: text/html; charset=UTF-8');
+		set_error_handler(array(__CLASS__, 'error_handler'));
+
+		self::$is_enabled = true;
+		self::$ob_starting_level = ob_get_level();
+		ob_start(array(__CLASS__, 'ob_sendHeaders'));
+		ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
+		self::$ob_level = 2;
+
 
 		self::setLang($_SERVER['CIA_LANG'] ? $_SERVER['CIA_LANG'] : substr($GLOBALS['CONFIG']['lang_list'], 0, 2));
 
@@ -392,14 +411,25 @@ class
 		}
 	}
 
-	public static function cancel()
+	static function disable()
 	{
-		self::$cancelled = true;
-		if (false !== self::$redirectUrl) exit;
-		while (@ob_end_clean());
+		if (self::$is_enabled && ob_get_level() == self::$ob_starting_level + self::$ob_level)
+		{
+			self::$is_enabled = false;
+
+			while (self::$ob_level)
+			{
+				ob_end_clean();
+				--self::$ob_level;
+			}
+
+			return true;
+		}
+
+		return false;
 	}
 
-	public static function setLang($new_lang)
+	static function setLang($new_lang)
 	{
 		$lang = self::$lang;
 		self::$lang = $new_lang;
@@ -413,12 +443,12 @@ class
 		return $lang;
 	}
 
-	public static function __HOST__() {return self::$host;}
-	public static function __LANG__() {return self::$lang;}
-	public static function __HOME__() {return self::$home;}
-	public static function __URI__() {return self::$uri;}
+	static function __HOST__() {return self::$host;}
+	static function __LANG__() {return self::$lang;}
+	static function __HOME__() {return self::$home;}
+	static function __URI__() {return self::$uri;}
 
-	public static function home($url, $noId = false)
+	static function home($url, $noId = false)
 	{
 		if (!preg_match("'^https?://'", $url))
 		{
@@ -434,9 +464,9 @@ class
 	/**
 	 * Replacement for PHP's header() function
 	 */
-	public static function header($string)
+	static function header($string)
 	{
-		if (!self::$cancelled && (
+		if (self::$is_enabled && (
 			   0===stripos($string, 'http/')
 			|| 0===stripos($string, 'etag')
 			|| 0===stripos($string, 'last-modified')
@@ -467,53 +497,34 @@ class
 		}
 	}
 
-	public static function readfile($file, $mime = 'application/octet-stream')
+	static function readfile($file, $mime = 'application/octet-stream')
 	{
 		CIA::header('Content-Type: ' . $mime);
 
 		self::$isServersideHtml = false;
 
-		// TODO:
-		// - send and honor a header('Accept-Ranges: bytes');
-		// - gzip output (http://fr2.php.net/manual/fr/ref.zlib.php#56216)
-		// - a special case is needed for <form>s auto antiXSJ insertion,
-		//   but could this be done when streamed to the client
-		//   rather than putting everything in memory, then parse ?
+		self::$ETag = filesize($file) .'-'. filemtime($file) .'-'. fileinode($file);
+		self::disable();
 
-		if (false === stripos($mime, 'html'))
-		{
-			$size = filesize($file);
-			header('Content-Length: ' . $size);
+		ignore_user_abort(false);
 
-			self::$ETag = $size .'-'. filemtime($file) .'-'. fileinode($file);
-
-			self::cancel();
-
-			ignore_user_abort(false);
-		}
+		ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
 
 		readfile($file);
-
-		exit;
 	}
 
 	/**
 	 * Redirect the web browser to an other GET request
 	 */
-	public static function redirect($url = '', $exit = true)
+	static function redirect($url = '')
 	{
-		if (self::$privateDetectionMode)
-		{
-			if ($exit) throw new Exception;
-
-			return;
-		}
+		if (self::$privateDetectionMode) throw new Exception;
 
 		$url = (string) $url;
 
 		self::$redirectUrl = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'i", $url) ? $url : (self::$home . ('index' == $url ? '' : $url)));
 
-		if ($exit) exit;
+		exit;
 	}
 
 	protected static function openMeta($agentClass, $is_trace = true)
@@ -559,7 +570,7 @@ class
 	/**
 	 * Controls the Cache's max age.
 	 */
-	public static function setMaxage($maxage)
+	static function setMaxage($maxage)
 	{
 		if ($maxage < 0) $maxage = CIA_MAXAGE;
 		else $maxage = min(CIA_MAXAGE, $maxage);
@@ -580,7 +591,7 @@ class
 	/**
 	 * Controls the Cache's groups.
 	 */
-	public static function setGroup($group)
+	static function setGroup($group)
 	{
 		if ('public' == $group) return;
 
@@ -620,34 +631,34 @@ class
 	/**
 	 * Controls the Cache's expiration mechanism.
 	 */
-	public static function setExpires($expires)
+	static function setExpires($expires)
 	{
 		if (!self::$privateDetectionMode) if ('auto' == self::$expires || 'ontouch' == self::$expires) self::$expires = $expires;
 
 		if (self::$catchMeta) self::$metaInfo[2] = $expires;
 	}
 
-	public static function watch($watch)
+	static function watch($watch)
 	{
 		if (self::$catchMeta) self::$metaInfo[3] = array_merge(self::$metaInfo[3], (array) $watch);
 	}
 
-	public static function canPost()
+	static function canPost()
 	{
 		if (self::$catchMeta) self::$metaInfo[5] = true;
 	}
 
-	public static function string($a)
+	static function string($a)
 	{
 		return is_object($a) ? $a->__toString() : (string) $a;
 	}
 
-	public static function uniqid() {return hash('md5', uniqid(mt_rand(), true));}
+	static function uniqid() {return hash('md5', uniqid(mt_rand(), true));}
 
 	/**
 	 * Revokes every agent watching $message
 	 */
-	public static function touch($message)
+	static function touch($message)
 	{
 		if (is_array($message)) foreach ($message as &$message) self::touch($message);
 		else
@@ -668,7 +679,7 @@ class
 	/**
 	 * Like mkdir(), but works with multiple level of inexistant directory
 	 */
-	public static function makeDir($dir)
+	static function makeDir($dir)
 	{
 		$dir = dirname($dir . ' ');
 
@@ -705,7 +716,7 @@ class
 		}
 	}
 
-	public static function fopenX($file, &$readHandle = false)
+	static function fopenX($file, &$readHandle = false)
 	{
 		self::makeDir($file);
 
@@ -729,7 +740,7 @@ class
 	/**
 	 * Creates the full directory path to $filename, then writes $data into this file
 	 */
-	public static function writeFile($filename, &$data, $Dmtime = 0)
+	static function writeFile($filename, &$data, $Dmtime = 0)
 	{
 		$tmpname = dirname($filename) . '/' . self::uniqid();
 
@@ -774,12 +785,12 @@ class
 		return self::$cachePath . $hash . '.' . $filename . $extension;
 	}
 
-	public static function getContextualCachePath($filename, $extension, $key = '')
+	static function getContextualCachePath($filename, $extension, $key = '')
 	{
 		return self::getCachePath($filename, $extension, self::$home .'-'. self::$lang .'-'. DEBUG .'-'. CIA_PROJECT_PATH .'-'. $key);
 	}
 
-	public static function log($message, $is_end = false, $raw_html = true)
+	static function log($message, $is_end = false, $raw_html = true)
 	{
 		static $prev_time = CIA;
 		self::$total_time += $a = 1000*(microtime(true) - $prev_time);
@@ -946,7 +957,7 @@ class
 		return $args;
 	}
 
-	public static function resolveAgentTrace($agent)
+	static function resolveAgentTrace($agent)
 	{
 		static $cache = array();
 
@@ -1043,7 +1054,7 @@ class
 		return self::getContextualCachePath($agentClass, $type . '.php', $keys);
 	}
 
-	public static function writeWatchTable($message, $file, $exclusive = true)
+	static function writeWatchTable($message, $file, $exclusive = true)
 	{
 		$file =  "++\$i;unlink('" . str_replace(array('\\',"'"), array('\\\\',"\\'"), $file) . "');\n";
 
@@ -1130,77 +1141,118 @@ class
 	}
 
 
-	/*
-	* CIA object
-	*/
-
-	protected $has_error = false;
-
-	function __construct()
-	{
-#>>>
-		self::log(
-			'<a href="' . htmlspecialchars($_SERVER['REQUEST_URI']) . '" target="_blank">'
-			. htmlspecialchars(preg_replace("'&v\\\$=[^&]*'", '', $_SERVER['REQUEST_URI']))
-			. '</a>'
-		);
-		register_shutdown_function(array('CIA', 'log'), '', true);
-#<<<
-
-		self::header('Content-Type: text/html; charset=UTF-8');
-		set_error_handler(array($this, 'error_handler'));
-		ob_start(array($this, 'ob_handler'));
-	}
-
-	function &ob_handler(&$buffer)
+	static function &ob_filterOutput(&$buffer, $mode)
 	{
 		self::$handlesOb = true;
-		chdir(CIA_PROJECT_PATH);
 
-#>		if (self::$isServersideHtml) $buffer = $this->error_end(substr(trim($buffer), 0, 1)) . $buffer;
+#>		if (self::$isServersideHtml || CIA_DIRECT) $buffer = self::error_end() . $buffer;
+
+
+		// Anti-XSRF token
+
+		if (stripos(self::$headers['content-type'], 'html'))
+		{
+			static $lead;
+
+			if (PHP_OUTPUT_HANDLER_START & $mode)
+			{
+				$lead = '';
+
+				if ('' === $buffer)
+				{
+					self::$handlesOb = false;
+					return $buffer;
+				}
+			}
+
+			$tail = '';
+
+			if (!(PHP_OUTPUT_HANDLER_END & $mode))
+			{
+				$meta = strrpos($buffer, '<');
+				if (false !== $meta)
+				{
+					$tail = strrpos($buffer, '>');
+					if (false !== $tail && $tail > $meta) $meta = $tail;
+
+					$tail = substr($buffer, $meta);
+					$buffer = substr($buffer, 0, $meta);
+				}
+			}
+
+			$buffer = $lead . $buffer;
+			$lead = $tail;
+
+
+			$meta = stripos($buffer, '<form');
+			if (false !== $meta)
+			{
+				$meta = preg_replace_callback(
+					'#<form\s(?:[^>]+?\s)?method\s*=\s*(["\']?)post\1.*?>#iu',
+					array(__CLASS__, 'appendAntiXSJ'),
+					$buffer
+				);
+
+				if ($meta != $buffer)
+				{
+					self::$private = true;
+					if (!(isset($_COOKIE['JS']) && $_COOKIE['JS'])) self::$maxage = 0;
+					$buffer = $meta;
+				}
+
+				unset($meta);
+			}
+		}
+
+
+		// GZip compression
+
+		switch (substr(self::$headers['content-type'], 14))
+		{
+			case 'application/pdf':
+			case 'image/png':
+			case 'image/gif':
+			case 'image/jpeg':
+				break;
+
+			default:
+				$buffer = ob_gzhandler($buffer, $mode);
+				break;
+		}
+
+		self::$handlesOb = false;
+		return $buffer;
+	}
+
+	static function &ob_sendHeaders(&$buffer)
+	{
+		self::$handlesOb = true;
+
 
 		if (false !== self::$redirectUrl)
 		{
+			header('Content-Encoding:');
+
 			if (CIA_DIRECT)
 			{
 				$buffer = 'location.replace(' . ('' !== self::$redirectUrl
 					? "'" . addslashes(self::$redirectUrl) . "'"
 					: 'location')
 				. ')';
+
+				header('Content-Length: ' . strlen($buffer));
 			}
 			else
 			{
+				$buffer = '';
+
 				header('HTTP/1.1 302 Found');
 				header('Location: ' . ('' !== self::$redirectUrl ? self::$redirectUrl : $_SERVER['REQUEST_URI']));
-
-				$buffer = '';
+				header('Content-Length:');
 			}
-
-			header('Content-Length: ' . strlen($buffer));
 
 			self::$handlesOb = false;
-
 			return $buffer;
-		}
-
-
-		/* Anti-XSRF token */
-		if (stripos(self::$headers['content-type'], 'html') && ($meta = stripos($buffer, '<form')))
-		{
-			$meta = preg_replace_callback(
-				'#<form\s(?:[^>]+?\s)?method\s*=\s*(["\']?)post\1.*?>#iu',
-				array($this, 'appendAntiXSJ'),
-				$buffer
-			);
-
-			if ($meta != $buffer)
-			{
-				self::$private = true;
-				if (!(isset($_COOKIE['JS']) && $_COOKIE['JS'])) self::$maxage = 0;
-				$buffer = $meta;
-			}
-
-			unset($meta);
 		}
 
 
@@ -1243,6 +1295,8 @@ class
 				$validator = self::$cachePath . $ETag[1] .'/'. $ETag[2] .'/'. substr($ETag, 3) .'.validator.'. DEBUG .'.';
 				$validator .= hash('md5', $_SERVER['CIA_HOME'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
 
+				chdir(CIA_PROJECT_PATH);
+
 				if ($h = self::fopenX($validator))
 				{
 					fwrite($h, $meta, strlen($meta));
@@ -1279,21 +1333,6 @@ class
 		}
 
 
-		// Setup gzip compression
-
-		if (!self::$cancelled && !$is304) switch (substr(self::$headers['content-type'], 14))
-		{
-			case 'image/png':
-			case 'image/gif':
-			case 'image/jpeg':
-				header('Content-Length: ' . strlen($buffer));
-				break;
-
-			default:
-				$buffer = ob_gzhandler($buffer, PHP_OUTPUT_HANDLER_START | PHP_OUTPUT_HANDLER_END);
-				break;
-		}
-
 		self::$handlesOb = false;
 
 		if ('HEAD' == $_SERVER['REQUEST_METHOD']) exit;
@@ -1301,17 +1340,17 @@ class
 		return $buffer;
 	}
 
-	function error_handler($code, $message, $file, $line, $context)
+	static function error_handler($code, $message, $file, $line, $context)
 	{
 		if (!error_reporting()
 			|| ((E_NOTICE == $code || E_STRICT == $code) && 0!==strpos($file, end($GLOBALS['cia_paths'])))
 			|| (E_WARNING == $code && false !== stripos($message, 'safe mode'))
 		) return;
-		$this->has_error = true;
+		self::$has_error = true;
 		require processPath('error_handler.php');
 	}
 
-	function appendAntiXSJ($f)
+	static function appendAntiXSJ($f)
 	{
 		$f = $f[0];
 
@@ -1332,7 +1371,7 @@ class
 				{
 					static $entitiesRx = "'&(nbsp|iexcl|cent|pound|curren|yen|brvbar|sect|uml|copy|ordf|laquo|not|shy|reg|macr|deg|plusmn|sup2|sup3|acute|micro|para|middot|cedil|sup1|ordm|raquo|frac14|frac12|frac34|iquest|Agrave|Aacute|Acirc|Atilde|Auml|Aring|AElig|Ccedil|Egrave|Eacute|Ecirc|Euml|Igrave|Iacute|Icirc|Iuml|ETH|Ntilde|Ograve|Oacute|Ocirc|Otilde|Ouml|times|Oslash|Ugrave|Uacute|Ucirc|Uuml|Yacute|THORN|szlig|agrave|aacute|acirc|atilde|auml|aring|aelig|ccedil|egrave|eacute|ecirc|euml|igrave|iacute|icirc|iuml|eth|ntilde|ograve|oacute|ocirc|otilde|ouml|divide|oslash|ugrave|uacute|ucirc|uuml|yacute|thorn|yuml|quot|lt|gt|amp|[xX][0-9a-fA-F]+|[0-9]+);'";
 
-					$a = preg_replace_callback($entitiesRx, array($this, 'translateHtmlEntity'), $a);
+					$a = preg_replace_callback($entitiesRx, array(__CLASS__, 'translateHtmlEntity'), $a);
 				}
 
 				// Build absolute URI
@@ -1405,7 +1444,7 @@ class
 		return $f . $appendedHtml;
 	}
 
-	function translateHtmlEntity($c)
+	static function translateHtmlEntity($c)
 	{
 		static $table = false;
 
@@ -1436,14 +1475,14 @@ class
 	}
 
 #>>>
-	protected function error_end($type)
+	static protected function error_end()
 	{
-		$bgcolor = $this->has_error ? 'red' : 'blue';
+		$bgcolor = self::$has_error ? 'red' : 'blue';
 		$debugWin = self::$home . '_?d$&stop&' . mt_rand();
 		$QDebug = self::$home . 'js/QDebug.js';
 		$lang = CIA::__LANG__();
 
-		if ($type=='<') return <<<EOHTML
+		if (self::$isServersideHtml) return <<<EOHTML
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <script type="text/javascript">/*<![CDATA[*/
@@ -1458,7 +1497,7 @@ else E('Rendering time: ' + (new Date/1 - _____) + ' ms');
 
 EOHTML;
 
-		else if ($type=='w' && $this->has_error) return "L=document.getElementById('debugLink'); L && (L.style.backgroundColor='$bgcolor');";
+		else if (self::$has_error) return "L=document.getElementById('debugLink'); L && (L.style.backgroundColor='$bgcolor');";
 	}
 #<<<
 }

@@ -21,7 +21,7 @@ class extends CIA
 	protected static $masterCache = array();
 	protected static $cache;
 
-	public static function returnAgent($agent, $args, $lang = false)
+	static function returnAgent($agent, $args, $lang = false)
 	{
 		if ($lang) $lang = self::setLang($lang);
 
@@ -43,7 +43,7 @@ class extends CIA
 		return $agent;
 	}
 
-	public static function loadAgent($agent, $args, $is_exo)
+	static function loadAgent($agent, $args, $is_exo)
 	{
 		if (null === $agent) return;
 
@@ -56,7 +56,7 @@ class extends CIA
 
 			if (isset($_GET['s$']))
 			{
-				ob_start('htmlspecialchars');
+				ob_start(array(__CLASS__, 'htmlspecialchars'), 8192);
 				self::$get = (object) $a;
 			}
 			else self::$get = (object) array_map('htmlspecialchars', $a);
@@ -111,7 +111,7 @@ class extends CIA
 			{
 				if ($is_exo)
 				{
-					$agent = preg_replace("'__'", self::__LANG__(), $agent, 1) . '?s$';
+					$agent = implode(self::__LANG__(), explode('__', $agent, 2)) . '?s$';
 
 					foreach ($args as $k => &$v) $agent .= '&' . urlencode($k) . '=' . urlencode(self::string($v));
 
@@ -179,10 +179,22 @@ class extends CIA
 			if (!($is_cacheable && list($v, $template) = self::getFromCache($cagent)))
 			{
 				ob_start();
+				++self::$ob_level;
+
 				$v = (object) $agent->compose((object) array());
+
+				if (!self::$is_enabled)
+				{
+					self::closeMeta();
+					return;
+				}
+
 				$template = $agent->getTemplate();
+
 				$filter = true;
-				$rawdata = @ob_get_flush();
+
+				$rawdata = ob_get_flush();
+				--self::$ob_level;
 			}
 
 			$vClone = clone $v;
@@ -231,7 +243,7 @@ class extends CIA
 
 				if ($h = self::fopenX($fagent))
 				{
-					if (false !== strpos($rawdata, "\r")) $rawdata = str_replace('<?', "<<?php ?>?", $rawdata);
+					if (false !== strpos($rawdata, '<?')) $rawdata = str_replace('<?', '<<?php ?>?', $rawdata);
 					$rawdata .= '<?php $v=(object)';
 					fwrite($h, $rawdata, strlen($rawdata));
 
@@ -334,7 +346,7 @@ class extends CIA
 	/*
 	* Used internaly at template execution time, for counters.
 	*/
-	public static function increment($var, $step, $pool)
+	static function increment($var, $step, $pool)
 	{
 		if (!isset($pool->$var)) $pool->$var = 0;
 
@@ -346,15 +358,20 @@ class extends CIA
 		return $a;
 	}
 
-	public static function escape(&$object)
+	static function escape(&$object)
 	{
 		foreach ($object as &$v) if (is_string($v)) $v = htmlspecialchars($v);
 	}
 
-	public static function makeLoopByLength(&$length)
+	static function makeLoopByLength(&$length)
 	{
 		$length = new loop_length_($length);
 		return true;
+	}
+
+	static function htmlspecialchars($a)
+	{
+		return htmlspecialchars($a);
 	}
 }
 

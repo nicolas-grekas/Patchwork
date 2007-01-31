@@ -14,7 +14,7 @@
 
 CIA::setMaxage(0);
 CIA::setExpires('onmaxage');
-self::$private = true;
+CIA::$private = true;
 
 if (!function_exists('filterErrorArgs'))
 {
@@ -46,7 +46,7 @@ if (!function_exists('filterErrorArgs'))
 
 $context = '';
 
-if (!self::$handlesOb)
+if (!CIA::$handlesOb)
 {
 	$msg = debug_backtrace();
 

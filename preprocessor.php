@@ -97,7 +97,7 @@ function runPreprocessor($source, $cache, $level, $class = false)
 			break;
 
 		case T_CLASS_C:
-			$token = $class_pool ? "'" . end($class_pool) . "'" : $token[1];
+			$token = $class_pool ? "'" . end($class_pool)->classname . "'" : $token[1];
 			break;
 
 		case T_CLASS:

@@ -14,7 +14,7 @@
 
 class extends CIA
 {
-	public static function loadAgent($agent)
+	static function loadAgent($agent)
 	{
 		self::setMaxage(-1);
 		self::setGroup('private');
@@ -54,7 +54,7 @@ EOHTML;
 		}
 	}
 
-	public static function render($agent, $liveAgent)
+	static function render($agent, $liveAgent)
 	{
 		// Get the calling URI
 		if (isset($_COOKIE['R$']))
@@ -137,30 +137,49 @@ EOHTML;
 			}
 
 			ob_start();
+			++self::$ob_level;
 
-			$data = (object) $agent->compose((object) array());
-			$template = $agent->getTemplate();
-
-			echo '{';
-
-			$comma = '';
-			foreach ($data as $key => &$value)
+			try
 			{
-				echo $comma, "'", jsquote($key, false), "':";
-				if ($value instanceof loop) self::writeAgent($value);
-				else echo jsquote($value);
-				$comma = ',';
+				$data = (object) $agent->compose((object) array());
+
+				if (!self::$is_enabled)
+				{
+					self::closeMeta();
+					return;
+				}
+
+				$template = $agent->getTemplate();
+
+				echo '{';
+
+				$comma = '';
+				foreach ($data as $key => &$value)
+				{
+					echo $comma, "'", jsquote($key, false), "':";
+					if ($value instanceof loop) self::writeAgent($value);
+					else echo jsquote($value);
+					$comma = ',';
+				}
+	
+				echo '}';
+			}
+			catch (PrivateDetection $data)
+			{
+				ob_clean();
+				--self::$ob_level;
+				self::closeMeta();
+				throw $data;
 			}
 
-			echo '}';
+			$data = ob_get_clean();
+			--self::$ob_level;
 
 			$agent->metaCompose();
 			list($maxage, $group, $expires, $watch, $headers) = self::closeMeta();
 		}
 		catch (PrivateDetection $data)
 		{
-			if ($agent) @ob_clean();
-
 			if ($liveAgent)
 			{
 				echo 'false";(window.E||alert)("You must provide an auth token to get this liveAgent:\\n' . jsquote($_SERVER['REQUEST_URI'], false, '"') . '")';
@@ -180,13 +199,12 @@ EOHTML;
 
 		if ($liveAgent)
 		{
-			$data = @ob_get_clean();
 			echo str_replace(array('\\', '"'), array('\\\\', '\\"'), $data),
 				'"//</script><script type="text/javascript" src="' . self::__HOME__() . 'js/QJsrsHandler"></script>';
 		}
-		else $data = @ob_get_flush();
+		else echo $data;
 
-		if (false !== strpos($data, '<?')) $data = str_replace('<?', "<<?php ?>?", $data);
+		if (false !== strpos($data, '<?')) $data = str_replace('<?', '<<?php ?>?', $data);
 
 		if ('ontouch' == $expires && !($watch || CIA_MAXAGE == $maxage)) $expires = 'auto';
 		$expires = 'auto' == $expires && ($watch || CIA_MAXAGE == $maxage) ? 'ontouch' : 'onmaxage';
@@ -249,8 +267,8 @@ EOHTML;
 					if ($h = self::fopenX($cagent))
 					{
 						$ob = false;
-						$maxage = @($liveAgent ? ob_get_clean() : ob_get_flush());
-						if (false !== strpos($maxage, "\r")) $maxage = str_replace('<?', "<<?php ?>?", $maxage);
+						$maxage = ($liveAgent ? ob_get_clean() : ob_get_flush());
+						if (false !== strpos($maxage, '<?')) $maxage = str_replace('<?', '<<?php ?>?', $maxage);
 						$maxage = $template . $data . $maxage;
 
 						fwrite($h, $maxage, strlen($maxage));
@@ -263,7 +281,7 @@ EOHTML;
 					}
 				}
 
-				if ($ob) $liveAgent ? @ob_clean() : @ob_flush();
+				if ($ob) $liveAgent ? ob_clean() : ob_flush();
 			}
 		}
 	}
