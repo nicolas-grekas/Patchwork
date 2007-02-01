@@ -43,8 +43,7 @@ function postWords() {
 		var speller = opener.speller;
 		bodyDoc.write('<body class="normalText" onLoad="document.forms[0].submit();">');
 		bodyDoc.write('<p>' + window.parent.FCKLang.DlgSpellProgress + '<\/p>');		// by FredCK
-		bodyDoc.write('<'+'form action="'+speller.spellCheckScript+'" method="post">');
-		bodyDoc.write('<input type="hidden" name="T$" value="'+document.cookie.match(/(^|; )T\$=([0-9a-zA-Z]+)/)[2]+'" />');
+		bodyDoc.write('<form action="'+speller.spellCheckScript+'" method="post">');
 		for( var i = 0; i < speller.textInputs.length; i++ ) {
 			bodyDoc.write('<input type="hidden" name="textinputs[]" value="'+encodeForPost(speller.textInputs[i].value)+'">');
 		}
