@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends agent_iaCron_queue
+class extends agent_queue_iaCron
 {
 	protected $queueFolder = 'class/iaMail/queue/';
 	protected $dual = 'iaMail';
@@ -45,7 +45,7 @@ class extends agent_iaCron_queue
 				$sql = "UPDATE queue SET send_time=0 WHERE OID={$data->OID}";
 				$sqlite->query($sql);
 
-				$data = new HTTP_Request("{$data->home}iaMail/queue/{$data->OID}/{$token}");
+				$data = new HTTP_Request("{$data->home}queue/iaMail/{$data->OID}/{$token}");
 				$data->sendRequest();
 			}
 			else break;
