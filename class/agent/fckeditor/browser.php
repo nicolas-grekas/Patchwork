@@ -27,20 +27,20 @@ class extends agent
 
 	protected $path = false;
 
-	protected $allowFile = array('pdf', 'doc', 'odt');
-	protected  $denyFile = array(
-//		'asis','php','php2','php3','php4','php5','phtml','pwml','inc','asp','aspx','ascx',
-//		'jsp','cfm','cfc','pl','bat','exe','com','dll','vbs','js','reg','cgi','htaccess'
+	protected $allow_file = array('pdf','doc','odt');
+	protected  $deny_file = array(
+//		'html','htm','php','php2','php3','php4','php5','phtml','pwml','inc','asp','aspx','ascx',
+//		'jsp','cfm','cfc','pl','bat','exe','com','dll','vbs','js','reg','cgi','htaccess','asis',
 	);
 
-	protected $allowImage = array('jpg','gif','jpeg','png');
-	protected  $denyImage = array();
+	protected $allow_image = array('jpg','gif','jpeg','png','bmp');
+	protected  $deny_image = array();
 
-	protected $allowFlash = array('');
-	protected  $denyFlash = array();
+	protected $allow_flash = array('');
+	protected  $deny_flash = array();
 
-	protected $allowMedia = array('jpg','gif','jpeg','png','avi','mpg','mpeg');
-	protected  $denyMedia = array();
+	protected $allow_media = array('jpg','gif','jpeg','png','bmp','avi','mpg','mpeg');
+	protected  $deny_media = array();
 
 
 	protected function setPath()
@@ -72,7 +72,7 @@ class extends agent
 		CIA::header('Content-Type: text/xml; charset=utf-8');
 
 		$o->command       = $this->argv->Command;
-		$o->resourceType  = $this->argv->Type;
+		$o->resourceType  = strtolower($this->argv->Type);
 		$o->currentFolder = $currentFolder;
 		$o->currentUrl    = 'files/' . $o->resourceType . $currentFolder;
 
@@ -170,13 +170,13 @@ class extends agent
 			$extension = strtolower(pathinfo($o->filename, PATHINFO_EXTENSION));
 			$filename  = $extension ? substr($o->filename, 0, -strlen($extension) - 1) : $o->filename;
 
-			$allow = $this->{'allow' . $o->resourceType};
-			$deny = $this->{'deny' . $o->resourceType};
+			$allow = $this->{'allow_' . $o->resourceType};
+			$deny = $this->{'deny_' . $o->resourceType};
 	
 			if (
 				   (!$allow ||  in_array($extension, $allow))
 				&& (!$deny  || !in_array($extension, $deny ))
-				&& !(('Image' == $o->resourceType || ($this->allowImage && in_array($extension, $this->allowImage))) && false === @getimagesize($file['tmp_name']))
+				&& !(('image' == $o->resourceType || ($this->allow_image && in_array($extension, $this->allow_image))) && false === @getimagesize($file['tmp_name']))
 			)
 			{
 				$i = 0;
