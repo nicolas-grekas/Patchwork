@@ -75,7 +75,7 @@ class extends iaCron
 	}
 
 	protected $queueFolder = 'class/iaMail/queue/';
-	protected $queueUrl = 'queue/iaMail?do=1';
+	protected $queueUrl = 'queue/iaMail';
 	protected $queueSql = 'CREATE TABLE queue
 		(
 			home TEXT,

@@ -52,7 +52,7 @@ class
 
 	protected $queueName = 'queue';
 	protected $queueFolder = 'class/iaCron/queue/';
-	protected $queueUrl = 'queue/iaCron?do=1';
+	protected $queueUrl = 'queue/iaCron';
 	protected $queueSql = 'CREATE TABLE queue
 		(
 			home TEXT,
@@ -67,18 +67,21 @@ class
 	protected static $sqlite = array();
 	protected $is_registered = false;
 
-	function registerQueue()
+	protected function registerQueue()
 	{
-		register_shutdown_function(array($this, 'doQueue'));
-		$this->is_registered = true;
+		if (!$this->is_registered)
+		{
+			register_shutdown_function(array($this, 'startQueue'));
+			$this->is_registered = true;
+		}
 	}
 
-	function doQueue()
+	function startQueue()
 	{
 		$this->isRunning() || tool_touchUrl::call($this->queueUrl);
 	}
 
-	function isRunning()
+	protected function isRunning()
 	{
 		$lock = resolvePath($this->queueFolder) . $this->queueName . '.lock';
 
