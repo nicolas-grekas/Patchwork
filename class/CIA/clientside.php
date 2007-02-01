@@ -166,7 +166,7 @@ EOHTML;
 			}
 			catch (PrivateDetection $data)
 			{
-				ob_clean();
+				ob_end_clean();
 				--self::$ob_level;
 				self::closeMeta();
 				throw $data;
@@ -281,7 +281,7 @@ EOHTML;
 					}
 				}
 
-				if ($ob) $liveAgent ? ob_clean() : ob_flush();
+				if ($ob) $liveAgent ? ob_end_clean() : ob_end_flush();
 			}
 		}
 	}
