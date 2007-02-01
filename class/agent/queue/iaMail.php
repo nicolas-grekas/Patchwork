@@ -17,61 +17,37 @@ class extends agent_queue_iaCron
 	protected $queueFolder = 'class/iaMail/queue/';
 	protected $dual = 'iaMail';
 
-	function doDaemon()
+	protected function queueNext()
 	{
-		$sql = "SELECT 1 FROM queue WHERE sent_time=0 AND send_time AND send_time<={$_SERVER['REQUEST_TIME']} LIMIT 1";
-		if ($this->sqlite->query($sql)->fetchObject())
-		{
-			$queue = new iaMail;
-			$queue->doQueue();
-		}
+		$time = time();
+		$sql = "SELECT OID, home FROM queue WHERE sent_time=0 AND send_time AND send_time<={$time} ORDER BY send_time, OID LIMIT 1";
+		if ($data = $this->sqlite->query($sql)->fetchObject()) tool_touchUrl::call("{$data->home}queue/iaCron/{$data->OID}/" . $this->getToken();
 	}
 
-	function doQueue()
+	protected function doOne($id)
 	{
-		require_once 'HTTP/Request.php';
-
-		$token = $this->getToken();
 		$sqlite = $this->sqlite;
 
-		do
-		{
-			$time = time();
-			$sql = "SELECT OID, home FROM queue WHERE sent_time=0 AND send_time AND send_time<={$time} ORDER BY send_time, OID LIMIT 1";
-			$result = $sqlite->query($sql);
-
-			if ($data = $result->fetchObject())
-			{
-				$sql = "UPDATE queue SET send_time=0 WHERE OID={$data->OID}";
-				$sqlite->query($sql);
-
-				$data = new HTTP_Request("{$data->home}queue/iaMail/{$data->OID}/{$token}");
-				$data->sendRequest();
-			}
-			else break;
-		}
-		while (1);
-	}
-
-	function doOne($id)
-	{
 		$sql = "SELECT archive, data FROM queue WHERE OID={$id}";
+		$data = $sqlite->query($sql)->fetchObject();
+	
+		if (!$data) return;
 
-		if ($data = $this->sqlite->query($sql)->fetchObject())
-		{
-			$archive = $data->archive;
-			$data = (object) unserialize($data->data);
+		$sql = "UPDATE queue SET send_time=0 WHERE OID={$id}";
+		$sqlite->query($sql);
 
-			$this->restoreSession($data->session);
+		$archive = $data->archive;
+		$data = (object) unserialize($data->data);
 
-			isset($data->agent)
-				? iaMail_mime::sendAgent($data->headers, $data->agent, $data->argv, $data->options)
-				: iaMail_mime::send($data->headers, $data->body, $data->options);
+		$this->restoreSession($data->session);
 
-			$sql = $archive
-				? "UPDATE queue SET sent_time={$_SERVER['REQUEST_TIME']} WHERE OID={$id}"
-				: "DELETE FROM queue WHERE OID={$id}";
-			$this->sqlite->query($sql);
-		}
+		isset($data->agent)
+			? iaMail_mime::sendAgent($data->headers, $data->agent, $data->argv, $data->options)
+			: iaMail_mime::send($data->headers, $data->body, $data->options);
+
+		$sql = $archive
+			? "UPDATE queue SET sent_time={$_SERVER['REQUEST_TIME']} WHERE OID={$id}"
+			: "DELETE FROM queue WHERE OID={$id}";
+		$sqlite->query($sql);
 	}
 }

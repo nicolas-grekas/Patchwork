@@ -15,10 +15,11 @@
 class extends agent_bin
 {
 	public $argv = array(
-		'do:bool',
 		'__1__:int:1',
 		'__2__:string:^[a-f0-9]{32}$'
 	);
+
+	public static $callbackError = false;
 
 	protected $lock;
 	protected $queueName = 'queue';
@@ -35,90 +36,84 @@ class extends agent_bin
 
 		if (isset($this->argv->__1__) && $this->argv->__1__)
 		{
-			if (isset($this->argv->__2__) && $this->argv->__2__)
+			if (isset($this->argv->__2__) && $this->argv->__2__ == $this->getToken())
 			{
-				if ($this->argv->__2__ != $this->getToken()) return;
+				if ($this->getLock())
+				{
+					ob_start(array($this, 'ob_handler'));
+					$this->doOne($this->argv->__1__);
+					ob_end_clean();
+				}
 
-				$this->doOne($this->argv->__1__);
+				return;
 			}
 			else $this->touchOne($this->argv->__1__);
 		}
-		else if (!isset($this->argv->do) || $this->argv->do)
-		{
-			if (!$this->getLock()) return;
-			$this->doQueue();
-			$this->releaseLock();
-		}
-		else $this->doDaemon();
+
+		$this->queueNext();
 	}
 
-	function doDaemon()
+	function ob_handler($buffer)
 	{
-		$sql = "SELECT 1 FROM queue WHERE run_time AND run_time<={$_SERVER['REQUEST_TIME']} LIMIT 1";
-		if ($this->sqlite->query($sql)->fetchObject())
+		$this->releaseLock();
+		$this->queueNext();
+
+		if ('' !== $buffer)
 		{
-			$queue = new iaCron;
-			$queue->doQueue();
+			self::$callbackError = true;
+
+			iaMail_mime::send(
+				array('To' => $GLOBALS['CONFIG']['debug_email']),
+				$buffer
+			);
 		}
+
+		return '';
 	}
 
-	function doQueue()
+	protected function queueNext()
 	{
-		require_once 'HTTP/Request.php';
+		$time = time();
+		$sql = "SELECT OID, home FROM queue WHERE run_time AND run_time<={$time} ORDER BY run_time, OID LIMIT 1";
+		if ($data = $this->sqlite->query($sql)->fetchObject()) tool_touchUrl::call("{$data->home}queue/iaCron/{$data->OID}/" . $this->getToken());
+	}
 
-		$token = $this->getToken();
+	protected function doOne($id)
+	{
 		$sqlite = $this->sqlite;
 
-		do
-		{
-			$time = time();
-			$sql = "SELECT OID, home FROM queue WHERE run_time AND run_time<={$time} ORDER BY run_time, OID LIMIT 1";
-			$result = $sqlite->query($sql);
-	
-			if ($data = $result->fetchObject())
-			{
-				$sql = "UPDATE queue SET run_time=0 WHERE OID={$data->OID}";
-				$sqlite->query($sql);
-
-				$data = new HTTP_Request("{$data->home}queue/iaCron/{$data->OID}/{$token}");
-				$data->sendRequest();
-			}
-			else break;
-		}
-		while (1);
-	}
-
-	function doOne($id)
-	{
 		$sql = "SELECT data FROM queue WHERE OID={$id}";
+		$data = $sqlite->query($sql)->fetchObject();
 
-		if ($data = $this->sqlite->query($sql)->fetchObject())
+		if (!$data) return;
+
+		$sql = "UPDATE queue SET run_time=0 WHERE OID={$id}";
+		$sqlite->query($sql);
+
+		$data = (object) unserialize($data->data);
+
+		$this->restoreSession($data->session);
+
+		$time = call_user_func_array($data->function, $data->arguments);
+
+		if ($time > 0)
 		{
-			$data = (object) unserialize($data->data);
+			$data = time();
 
-			$this->restoreSession($data->session);
+			if ($time < $data - 366*86400) $time += $data;
 
-			$time = call_user_func_array($data->function, $data->arguments);
-
-			if ($time > 0)
-			{
-				$data = time();
-
-				if ($time < $data - 366*86400) $time += $data;
-
-				$sql = "UPDATE queue SET run_time={$time} WHERE OID={$id}";
-			}
-			else $sql = "DELETE FROM queue WHERE OID={$id}";
-
-			$this->sqlite->query($sql);
+			$sql = "UPDATE queue SET run_time={$time} WHERE OID={$id}";
 		}
+		else $sql = "DELETE FROM queue WHERE OID={$id}";
+
+		$sqlite->query($sql);
 	}
 
-	function touchOne($id)
+	protected function touchOne($id)
 	{
 	}
 
-	function restoreSession(&$session)
+	protected function restoreSession(&$session)
 	{
 		$_COOKIE['SID'] = '1';
 
@@ -133,12 +128,12 @@ class extends agent_bin
 		eval('class SESSION extends SESSION__0
 		{
 			static function setData(&$data) {self::$lastseen=$_SERVER["REQUEST_TIME"]; self::$DATA=&$data;}
-			static function regenerateId($reset=false) {if ($reset) self::$DATA = array();}
+			static function regenerateId($reset=false) {if ($reset) self::$DATA=array();}
 		}
 		SESSION::setData($session);');
 	}
 
-	function getLock()
+	protected function getLock()
 	{
 		$lock = resolvePath($this->queueFolder) . $this->queueName . '.lock';
 
@@ -162,12 +157,12 @@ class extends agent_bin
 		return true;
 	}
 
-	function releaseLock()
+	protected function releaseLock()
 	{
 		fclose($this->lock);
 	}
 
-	function getToken()
+	protected function getToken()
 	{
 		$token = resolvePath($this->queueFolder) . $this->queueName . '.token';
 
