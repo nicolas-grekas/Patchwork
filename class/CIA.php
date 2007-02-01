@@ -1232,6 +1232,8 @@ class
 		if (false !== self::$redirectUrl)
 		{
 			header('Content-Encoding:');
+			header('Content-Length:');
+			header('Vary:');
 
 			if (CIA_DIRECT)
 			{
@@ -1248,7 +1250,6 @@ class
 
 				header('HTTP/1.1 302 Found');
 				header('Location: ' . ('' !== self::$redirectUrl ? self::$redirectUrl : $_SERVER['REQUEST_URI']));
-				header('Content-Length:');
 			}
 
 			self::$handlesOb = false;
@@ -1320,6 +1321,9 @@ class
 			if ($is304)
 			{
 				$buffer = '';
+				header('Content-Encoding:');
+				header('Content-Length:');
+				header('Vary:');
 				header('HTTP/1.1 304 Not Modified');
 			}
 			else
