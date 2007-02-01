@@ -70,12 +70,7 @@ EOHTML;
 		}
 		else if (isset($_COOKIE['JS']) && 2 == $_COOKIE['JS'])
 		{
-			if (isset($_SERVER['HTTP_REFERER'])) self::$uri = $_SERVER['HTTP_REFERER'];
-			else // Should never append...
-			{
-				self::$uri = self::$home;
-				setcookie('JS', 1, 0, '/');
-			}
+			self::$uri = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : self::$home;
 		}
 
 		if ($liveAgent)
