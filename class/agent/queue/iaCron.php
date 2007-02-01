@@ -80,7 +80,7 @@ class extends agent_bin
 				$sql = "UPDATE queue SET run_time=0 WHERE OID={$data->OID}";
 				$sqlite->query($sql);
 
-				$data = new HTTP_Request("{$data->home}iaCron/queue/{$data->OID}/{$token}");
+				$data = new HTTP_Request("{$data->home}queue/iaCron/{$data->OID}/{$token}");
 				$data->sendRequest();
 			}
 			else break;
@@ -124,7 +124,7 @@ class extends agent_bin
 
 		if (class_exists('SESSION', false))
 		{
-			$_SESSION = $session;
+			foreach ($session as $k => $v) SESSION::set($k, $v);
 			return;
 		}
 
@@ -132,12 +132,10 @@ class extends agent_bin
 		// and also to prevent the preprocessor from renamming the class
 		eval('class SESSION extends SESSION__0
 		{
-			static function setDATA($data) {self::$DATA = $data;}
-			static function regenerateId($initSession = false) {if ($initSession) self::$DATA = array();}
-			static function __static_construct() {self::$lastseen = $_SERVER["REQUEST_TIME"];}
+			static function setData(&$data) {self::$lastseen=$_SERVER["REQUEST_TIME"]; self::$DATA=&$data;}
+			static function regenerateId($reset=false) {if ($reset) self::$DATA = array();}
 		}
-		SESSION::__static_construct();
-		SESSION::setDATA($session);');
+		SESSION::setData($session);');
 	}
 
 	function getLock()

@@ -52,7 +52,7 @@ class
 
 	protected $queueName = 'queue';
 	protected $queueFolder = 'class/iaCron/queue/';
-	protected $queueUrl = 'iaCron/queue?do=1';
+	protected $queueUrl = 'queue/iaCron?do=1';
 	protected $queueSql = 'CREATE TABLE queue
 		(
 			home TEXT,
