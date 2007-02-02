@@ -140,7 +140,7 @@ function DB($close = false)
 	if (@PEAR::isError($db))
 	{
 		trigger_error($db->getMessage(), E_USER_ERROR);
-		exit;
+		CIA::disable(true);
 	}
 
 	$db->beginTransaction();
@@ -219,15 +219,6 @@ class
 		$cachePath = resolvePath(self::$cachePath);
 		self::$cachePath = ($cachePath == self::$cachePath ? $GLOBALS['cia_paths'][count($GLOBALS['cia_paths']) - 2] . '/' : '') . $cachePath;
 
-#>>>
-		self::log(
-			'<a href="' . htmlspecialchars($_SERVER['REQUEST_URI']) . '" target="_blank">'
-			. htmlspecialchars(preg_replace("'&v\\\$=[^&]*'", '', $_SERVER['REQUEST_URI']))
-			. '</a>'
-		);
-		register_shutdown_function(array('CIA', 'log'), '', true);
-#<<<
-
 		self::header('Content-Type: text/html; charset=UTF-8');
 		set_error_handler(array(__CLASS__, 'error_handler'));
 
@@ -243,175 +234,190 @@ class
 		if (htmlspecialchars(self::$home) != self::$home)
 		{
 			E('Fatal error: illegal character found in self::$home');
-			exit;
+			self::disable(true);
 		}
 
 		if (isset($_GET['T$'])) self::$private = true;
 
-		// {{{ Static controler
 		$agent = $_SERVER['CIA_REQUEST'];
 		if (preg_match("'\.[a-z0-9]{1,4}$'i", $agent, $mime) && strcasecmp('.tpl', $mime[0])) require processPath('controler.php');
-		// }}}
 
-		if (!extension_loaded('mbstring')) require processPath('mbstring.php');
-
-		if (CIA_DIRECT)
-		{
-			// {{{ Client side rendering controler
-			self::header('Content-Type: text/javascript; charset=UTF-8');
-
-			if (isset($_GET['v$']) && self::$versionId != $_GET['v$'] && 'x$' != key($_GET))
-			{
-				echo 'w.r()';
-				exit;
-			}
-
-			switch ( key($_GET) )
-			{
-				case 't$':
-					$template = array_shift($_GET);
-					$template = str_replace('\\', '/', $template);
-					$template = str_replace('../', '/', $template);
-
-					echo 'w(0';
-
-					$ctemplate = self::getContextualCachePath("templates/$template", 'txt');
-					$readHandle = true;
-					if ($h = self::fopenX($ctemplate, $readHandle))
-					{
-						self::openMeta('agent__template/' . $template, false);
-						$compiler = new iaCompiler_js(false);
-						echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
-						fwrite($h, $template, strlen($template));
-						fclose($h);
-						list(,,, $watch) = self::closeMeta();
-						self::writeWatchTable($watch, $ctemplate);
-					}
-					else
-					{
-						echo stream_get_contents($readHandle);
-						fclose($readHandle);
-					}
-
-					self::setMaxage(-1);
-					break;
-
-				case 'p$':
-					$pipe = array_shift($_GET);
-					preg_match_all("/[a-zA-Z_][a-zA-Z_\d]*/u", $pipe, $pipe);
-					self::$agentClass = 'agent__pipe/' . implode('_', $pipe[0]);
-
-					foreach ($pipe[0] as &$pipe)
-					{
-						$cpipe = self::getContextualCachePath('pipe/' . $pipe, 'js');
-						$readHandle = true;
-						if ($h = self::fopenX($cpipe, $readHandle))
-						{
-							ob_start();
-							call_user_func(array('pipe_' . $pipe, 'js'));
-							$pipe = ob_get_clean();
-
-							$jsquiz = new jsquiz;
-							$jsquiz->addJs($pipe);
-							echo $pipe = $jsquiz->get();
-							$pipe .= "\n";
-							fwrite($h, $pipe, strlen($pipe));
-							fclose($h);
-							self::writeWatchTable(array('pipe'), $cpipe);
-						}
-						else
-						{
-							echo stream_get_contents($readHandle);
-							fclose($readHandle);
-						}
-					}
-
-					echo 'w(0,[])';
-
-					self::setMaxage(-1);
-					break;
-
-				case 'a$':
-					CIA_clientside::render(array_shift($_GET), false);
-					break;
-
-				case 'x$':
-					CIA_clientside::render(array_shift($_GET), true);
-					break;
-			}
-			// }}}
-		}
-		else
-		{
-			// {{{ Server side rendering controler
-
-			$agent = self::resolveAgentClass($_SERVER['CIA_REQUEST'], $_GET);
-
-			if (isset($_GET['k$']))
-			{
-				self::header('Content-Type: text/javascript; charset=UTF-8');
-				self::setMaxage(-1);
-
-				echo 'w.k(',
-					self::$versionId, ',',
-					jsquote( $_SERVER['CIA_HOME'] ), ',',
-					jsquote( 'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)) ), ',',
-					jsquote( isset($_GET['__0__']) ? $_GET['__0__'] : '' ), ',',
-					'[', implode(',', array_map('jsquote', self::agentArgv($agent))), ']',
-				')';
-
-				exit;
-			}
-
-			$binaryMode = (bool) constant("$agent::binary");
-
-			// Synch exoagents on browser request
-			if (isset($_COOKIE['cache_reset_id']) && self::$versionId == $_COOKIE['cache_reset_id'] && setcookie('cache_reset_id', '', 0, '/'))
-			{
-				self::touch('CIApID');
-				self::touch('foreignTrace');
-				touch('./config.php');
-
-				self::setMaxage(0);
-				self::setGroup('private');
-
-				echo '<html><head><script type="text/javascript">location.reload()</script></head></html>';
-				exit;
-			}
+		extension_loaded('mbstring') || require processPath('mbstring.php');
 
 #>>>
-			/*
-			 * Both Firefox and IE send a "Cache-Control: no-cache" request header
-			 * only and only if the current page is reloaded with CTRL+F5 or the JS code :
-			 * "location.reload(true)". We use this behaviour to trigger a cache reset in DEBUG mode.
-			 */
-
-			if (CIA_CHECK_SOURCE && !CIA_POSTING && !$binaryMode)
-			{
-				self::touch('');
-				foreach (glob(self::$cachePath . '?/?/*', GLOB_NOSORT) as $v) if ('.session' != substr($v, -8)) unlink($v);
-
-				self::$fullVersionId -= filemtime('./config.php');
-
-				touch('./config.php', $_SERVER['REQUEST_TIME']);
-
-				self::$fullVersionId += $_SERVER['REQUEST_TIME'];
-				self::$versionId = abs(self::$fullVersionId % 10000);
-			}
+		self::log(
+			'<a href="' . htmlspecialchars($_SERVER['REQUEST_URI']) . '" target="_blank">'
+			. htmlspecialchars(preg_replace("'&v\\\$=[^&]*'", '', $_SERVER['REQUEST_URI']))
+			. '</a>'
+		);
+		register_shutdown_function(array('CIA', 'log'), '', true);
 #<<<
 
-			// load agent
-			if (CIA_POSTING || $binaryMode || isset($_GET['$bin']) || !isset($_COOKIE['JS']) || !$_COOKIE['JS'])
-			{
-				if (!$binaryMode) self::setGroup('private');
-				CIA_serverside::loadAgent($agent, false, false);
-			}
-			else CIA_clientside::loadAgent($agent);
-			// }}}
+		CIA_DIRECT ? self::clientside() : self::serverside();
+
+		while (self::$ob_level)
+		{
+			ob_end_flush();
+			--self::$ob_level;
 		}
 	}
 
-	static function disable()
+	static function clientside()
+	{
+		// {{{ Client side rendering controler
+		self::header('Content-Type: text/javascript; charset=UTF-8');
+
+		if (isset($_GET['v$']) && self::$versionId != $_GET['v$'] && 'x$' != key($_GET))
+		{
+			echo 'w.r()';
+			return;
+		}
+
+		switch ( key($_GET) )
+		{
+			case 't$':
+				$template = array_shift($_GET);
+				$template = str_replace('\\', '/', $template);
+				$template = str_replace('../', '/', $template);
+
+				echo 'w(0';
+
+				$ctemplate = self::getContextualCachePath("templates/$template", 'txt');
+				$readHandle = true;
+				if ($h = self::fopenX($ctemplate, $readHandle))
+				{
+					self::openMeta('agent__template/' . $template, false);
+					$compiler = new iaCompiler_js(false);
+					echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
+					fwrite($h, $template, strlen($template));
+					fclose($h);
+					list(,,, $watch) = self::closeMeta();
+					self::writeWatchTable($watch, $ctemplate);
+				}
+				else
+				{
+					fpassthru($readHandle);
+					fclose($readHandle);
+				}
+
+				self::setMaxage(-1);
+				break;
+
+			case 'p$':
+				$pipe = array_shift($_GET);
+				preg_match_all("/[a-zA-Z_][a-zA-Z_\d]*/u", $pipe, $pipe);
+				self::$agentClass = 'agent__pipe/' . implode('_', $pipe[0]);
+
+				foreach ($pipe[0] as &$pipe)
+				{
+					$cpipe = self::getContextualCachePath('pipe/' . $pipe, 'js');
+					$readHandle = true;
+					if ($h = self::fopenX($cpipe, $readHandle))
+					{
+						ob_start();
+						call_user_func(array('pipe_' . $pipe, 'js'));
+						$pipe = ob_get_clean();
+
+						$jsquiz = new jsquiz;
+						$jsquiz->addJs($pipe);
+						echo $pipe = $jsquiz->get();
+						$pipe .= "\n";
+						fwrite($h, $pipe, strlen($pipe));
+						fclose($h);
+						self::writeWatchTable(array('pipe'), $cpipe);
+					}
+					else
+					{
+						fpassthru($readHandle);
+						fclose($readHandle);
+					}
+				}
+
+				echo 'w(0,[])';
+
+				self::setMaxage(-1);
+				break;
+
+			case 'a$':
+				CIA_clientside::render(array_shift($_GET), false);
+				break;
+
+			case 'x$':
+				CIA_clientside::render(array_shift($_GET), true);
+				break;
+		}
+	}
+	// }}}
+
+	// {{{ Server side rendering controler
+	static function serverside()
+	{
+		$agent = self::resolveAgentClass($_SERVER['CIA_REQUEST'], $_GET);
+
+		if (isset($_GET['k$']))
+		{
+			self::header('Content-Type: text/javascript; charset=UTF-8');
+			self::setMaxage(-1);
+
+			echo 'w.k(',
+				self::$versionId, ',',
+				jsquote( $_SERVER['CIA_HOME'] ), ',',
+				jsquote( 'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)) ), ',',
+				jsquote( isset($_GET['__0__']) ? $_GET['__0__'] : '' ), ',',
+				'[', implode(',', array_map('jsquote', self::agentArgv($agent))), ']',
+			')';
+
+			return;
+		}
+
+		$binaryMode = (bool) constant("$agent::binary");
+
+		// Synch exoagents on browser request
+		if (isset($_COOKIE['cache_reset_id']) && self::$versionId == $_COOKIE['cache_reset_id'] && setcookie('cache_reset_id', '', 0, '/'))
+		{
+			self::touch('CIApID');
+			self::touch('foreignTrace');
+			touch('./config.php');
+
+			self::setMaxage(0);
+			self::setGroup('private');
+
+			echo '<html><head><script type="text/javascript">location.reload()</script></head></html>';
+			return;
+		}
+
+#>>>
+		/*
+		 * Both Firefox and IE send a "Cache-Control: no-cache" request header
+		 * only and only if the current page is reloaded with CTRL+F5 or the JS code :
+		 * "location.reload(true)". We use this behaviour to trigger a cache reset in DEBUG mode.
+		 */
+
+		if (CIA_CHECK_SOURCE && !CIA_POSTING && !$binaryMode)
+		{
+			self::touch('');
+			foreach (glob(self::$cachePath . '?/?/*', GLOB_NOSORT) as $v) if ('.session' != substr($v, -8)) unlink($v);
+
+			self::$fullVersionId -= filemtime('./config.php');
+
+			touch('./config.php', $_SERVER['REQUEST_TIME']);
+
+			self::$fullVersionId += $_SERVER['REQUEST_TIME'];
+			self::$versionId = abs(self::$fullVersionId % 10000);
+		}
+#<<<
+
+		// load agent
+		if (CIA_POSTING || $binaryMode || isset($_GET['$bin']) || !isset($_COOKIE['JS']) || !$_COOKIE['JS'])
+		{
+			if (!$binaryMode) self::setGroup('private');
+			CIA_serverside::loadAgent($agent, false, false);
+		}
+		else CIA_clientside::loadAgent($agent);
+	}
+	// }}}
+
+	static function disable($exit = false)
 	{
 		if (self::$is_enabled && ob_get_level() == self::$ob_starting_level + self::$ob_level)
 		{
@@ -423,8 +429,10 @@ class
 				--self::$ob_level;
 			}
 
-			return true;
+			if (!$exit) return true;
 		}
+
+		if ($exit) exit;
 
 		return false;
 	}
@@ -524,7 +532,7 @@ class
 
 		self::$redirectUrl = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'i", $url) ? $url : (self::$home . ('index' == $url ? '' : $url)));
 
-		exit;
+		self::disable(true);
 	}
 
 	protected static function openMeta($agentClass, $is_trace = true)
@@ -1013,7 +1021,7 @@ class
 			if (!preg_match($s, $keys, $keys))
 			{
 				E('Error while getting meta info data for ' . htmlspecialchars($agent));
-				exit;
+				self::disable(true);
 			}
 		}
 
@@ -1136,7 +1144,7 @@ class
 
 			E('Potential Cross Site JavaScript. Stopping !');
 
-			exit;
+			self::disable(true);
 		}
 	}
 
@@ -1144,6 +1152,13 @@ class
 	static function &ob_filterOutput(&$buffer, $mode)
 	{
 		self::$handlesOb = true;
+
+		if ('' === $buffer && $mode == (PHP_OUTPUT_HANDLER_START | PHP_OUTPUT_HANDLER_END))
+		{
+			self::$is_enabled || header('Content-Length: 0');
+			self::$handlesOb = false;
+			return $buffer;
+		}
 
 #>		if (self::$isServersideHtml || CIA_DIRECT) $buffer = self::error_end() . $buffer;
 
@@ -1154,16 +1169,7 @@ class
 		{
 			static $lead;
 
-			if (PHP_OUTPUT_HANDLER_START & $mode)
-			{
-				$lead = '';
-
-				if ('' === $buffer)
-				{
-					self::$handlesOb = false;
-					return $buffer;
-				}
-			}
+			if (PHP_OUTPUT_HANDLER_START & $mode) $lead = '';
 
 			$tail = '';
 
@@ -1216,7 +1222,17 @@ class
 				break;
 
 			default:
-				$buffer = ob_gzhandler($buffer, $mode);
+				$gz = ob_gzhandler($buffer, $mode);
+
+				if ($mode == (PHP_OUTPUT_HANDLER_START | PHP_OUTPUT_HANDLER_END))
+				{
+					if (strlen($gz) < strlen($buffer)) $buffer =& $gz;
+					else header('Content-Encoding: identity');
+
+					self::$is_enabled || header('Content-Length: ' . strlen($buffer));
+				}
+				else $buffer =& $gz;
+
 				break;
 		}
 
@@ -1231,10 +1247,6 @@ class
 
 		if (false !== self::$redirectUrl)
 		{
-			header('Content-Encoding:');
-			header('Content-Length:');
-			header('Vary:');
-
 			if (CIA_DIRECT)
 			{
 				$buffer = 'location.replace(' . ('' !== self::$redirectUrl
@@ -1242,6 +1254,7 @@ class
 					: 'location')
 				. ')';
 
+				header('Content-Encoding: identity');
 				header('Content-Length: ' . strlen($buffer));
 			}
 			else
@@ -1318,27 +1331,21 @@ class
 			}
 
 
+			header('ETag: ' . $ETag);
+			header('Last-Modified: ' . $LastModified);
+			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + (self::$private || !self::$maxage ? 0 : self::$maxage)));
+			header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');
+
 			if ($is304)
 			{
 				$buffer = '';
-				header('Content-Encoding:');
-				header('Content-Length:');
-				header('Vary:');
 				header('HTTP/1.1 304 Not Modified');
 			}
-			else
-			{
-				header('ETag: ' . $ETag);
-				header('Last-Modified: ' . $LastModified);
-			}
-
-			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + (self::$private || !self::$maxage ? 0 : self::$maxage)));
-			header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');
 		}
 
+		if (!$is304) header('Content-Length: ' . strlen($buffer));
 
 		self::$handlesOb = false;
-
 		if ('HEAD' == $_SERVER['REQUEST_METHOD']) exit;
 
 		return $buffer;
