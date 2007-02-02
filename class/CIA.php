@@ -1282,7 +1282,7 @@ class
 			{
 				self::$contentEncoding = true;
 				self::$varyEncoding = true;
-				self::$is_enabled || header('Vary: Accept-Encoding');
+				if (!self::$is_enabled && (PHP_OUTPUT_HANDLER_START & $mode)) header('Vary: Accept-Encoding');
 				$buffer = ob_gzhandler($buffer, $mode);
 			}
 		}
