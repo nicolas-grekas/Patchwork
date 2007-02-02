@@ -11,6 +11,8 @@
  *
  ***************************************************************************/
 
+$S = isset($_GET['stop']);
+$S && ob_start('ob_gzhandler', 8192);
 
 header('Content-Type: text/html; charset=UTF-8');
 header('Cache-Control: max-age=0,private,must-revalidate');
@@ -57,7 +59,7 @@ $error_log = ini_get('error_log');
 $error_log = $error_log ? $error_log : './error.log';
 echo str_repeat(' ', 512), // special MSIE
 	'<pre>';
-flush();
+$S||flush();
 
 $sleep = max(100, (int) $sleep);
 $i = $period = max(1, (int) 1000*$period / $sleep);
@@ -68,7 +70,7 @@ while (1)
 	if (is_file($error_log))
 	{
 		echo '<b></b>'; // Test the connexion for "ignore_user_abort(false)"
-		flush();
+		$S||flush();
 
 		$h = @fopen($error_log, 'r');
 		while (!feof($h))
@@ -82,7 +84,7 @@ while (1)
 		fclose($h);
 
 		echo '<script type="text/javascript">/*<![CDATA[*/Z()//]]></script>';
-		flush();
+		$S||flush();
 
 		unlink($error_log);
 	}
@@ -90,10 +92,10 @@ while (1)
 	{
 		$i = $period;
 		echo '<b></b>'; // Test the connexion for "ignore_user_abort(false)"
-		flush();
+		$S||flush();
 	}
 
-	if (isset($_GET['stop']))
+	if ($S)
 	{
 		echo '<script type="text/javascript">/*<![CDATA[*/scrollTo(0,0);if(window.opener&&opener.E&&opener.E.buffer.length)document.write(opener.E.buffer.join("")),opener.E.buffer=[]//]]></script>';
 		break;

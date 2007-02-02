@@ -49,7 +49,7 @@ EOHTML;
 		}
 		else
 		{
-			echo stream_get_contents($readHandle);
+			fpassthru($readHandle);
 			fclose($readHandle);
 		}
 	}
@@ -226,7 +226,7 @@ EOHTML;
 				}
 				else
 				{
-					echo stream_get_contents($readHandle);
+					fpassthru($readHandle);
 					fclose($readHandle);
 				}
 
