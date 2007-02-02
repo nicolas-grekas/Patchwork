@@ -197,16 +197,23 @@ class
 	protected static $headers;
 
 	protected static $redirectUrl = false;
-	protected static $agentClasses = '';
 	protected static $is_enabled = false;
 	protected static $ob_starting_level;
 	protected static $ob_level;
 	protected static $varyEncoding = false;
 	protected static $contentEncoding = false;
 
+	protected static $agentClasses = '';
 	protected static $privateDetectionMode = false;
 	protected static $detectXSJ = false;
 	protected static $total_time = 0;
+
+	protected static $noGzip = array(
+		'application/pdf',
+		'image/png',
+		'image/gif',
+		'image/jpeg',
+	);
 
 	static function start()
 	{
@@ -517,18 +524,13 @@ class
 
 		ignore_user_abort(false);
 
-		switch (substr(self::$headers['content-type'], 14))
+		if (in_array(substr(self::$headers['content-type'], 14), self::$noGzip))
 		{
-			case 'application/pdf':
-			case 'image/png':
-			case 'image/gif':
-			case 'image/jpeg':
-				header('Content-Length: ' . filesize($file));
-				break;
-
-			default:
-				ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
-				break;
+			header('Content-Length: ' . filesize($file));
+		}
+		else
+		{
+			ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
 		}
 
 		readfile($file);
@@ -1227,51 +1229,42 @@ class
 
 		// GZip compression
 
-		switch (substr(self::$headers['content-type'], 14))
+		if (!in_array(substr(self::$headers['content-type'], 14), self::$noGzip))
 		{
-			case 'application/pdf':
-			case 'image/png':
-			case 'image/gif':
-			case 'image/jpeg':
-				break;
-
-			default:
-				if ($one_chunk)
+			if ($one_chunk)
+			{
+				if (strlen($buffer) > 100)
 				{
-					if (strlen($buffer) > 100)
+					self::$varyEncoding = true;
+					self::$is_enabled || header('Vary: Accept-Encoding');
+
+					$mode = isset($_SERVER['HTTP_ACCEPT_ENCODING']) ? $_SERVER['HTTP_ACCEPT_ENCODING'] : '';
+
+					if ($mode)
 					{
-						self::$varyEncoding = true;
-						self::$is_enabled || header('Vary: Accept-Encoding');
+						$algo = array(
+							'deflate'  => 'gzdeflate',
+							'gzip'     => 'gzencode',
+							'compress' => 'gzcompress',
+						);
 
-						$mode = isset($_SERVER['HTTP_ACCEPT_ENCODING']) ? $_SERVER['HTTP_ACCEPT_ENCODING'] : '';
-
-						if ($mode)
+						foreach ($algo as $encoding => $algo) if (false !== stripos($mode, $encoding))
 						{
-							$algo = array(
-								'deflate'  => 'gzdeflate',
-								'gzip'     => 'gzencode',
-								'compress' => 'gzcompress',
-							);
-
-							foreach ($algo as $encoding => $algo) if (false !== stripos($mode, $encoding))
-							{
-								self::$contentEncoding = $encoding;
-								self::$is_enabled || header('Content-Encoding: ' . $encoding);
-								$buffer = $algo($buffer);
-								break;
-							}
+							self::$contentEncoding = $encoding;
+							self::$is_enabled || header('Content-Encoding: ' . $encoding);
+							$buffer = $algo($buffer);
+							break;
 						}
 					}
 				}
-				else
-				{
-					self::$contentEncoding = true;
-					self::$varyEncoding = true;
-					self::$is_enabled || header('Vary: Accept-Encoding');
-					$buffer = ob_gzhandler($buffer, $mode);
-				}
-
-				break;
+			}
+			else
+			{
+				self::$contentEncoding = true;
+				self::$varyEncoding = true;
+				self::$is_enabled || header('Vary: Accept-Encoding');
+				$buffer = ob_gzhandler($buffer, $mode);
+			}
 		}
 
 		if ($one_chunk && !self::$is_enabled) header('Content-Length: ' . strlen($buffer));
