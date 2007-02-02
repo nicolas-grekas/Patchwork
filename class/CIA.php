@@ -201,6 +201,9 @@ class
 	protected static $is_enabled = false;
 	protected static $ob_starting_level;
 	protected static $ob_level;
+	protected static $varyEncoding = false;
+	protected static $contentEncoding = false;
+
 	protected static $privateDetectionMode = false;
 	protected static $detectXSJ = false;
 	protected static $total_time = 0;
@@ -421,13 +424,13 @@ class
 	{
 		if (self::$is_enabled && ob_get_level() == self::$ob_starting_level + self::$ob_level)
 		{
-			self::$is_enabled = false;
-
 			while (self::$ob_level)
 			{
 				ob_end_clean();
 				--self::$ob_level;
 			}
+
+			self::$is_enabled = false;
 
 			if (!$exit) return true;
 		}
@@ -1222,16 +1225,42 @@ class
 				break;
 
 			default:
-				$gz = ob_gzhandler($buffer, $mode);
-
 				if ($mode == (PHP_OUTPUT_HANDLER_START | PHP_OUTPUT_HANDLER_END))
 				{
-					if (strlen($gz) < strlen($buffer)) $buffer =& $gz;
-					else header('Content-Encoding: identity');
+					if (strlen($buffer) > 100)
+					{
+						self::$varyEncoding = true;
+						self::$is_enabled || header('Vary: Accept-Encoding');
+
+						$mode = isset($_SERVER['HTTP_ACCEPT_ENCODING']) ? $_SERVER['HTTP_ACCEPT_ENCODING'] : '';
+
+						if ($mode)
+						{
+							$algo = array(
+								'deflate'  => 'gzdeflate',
+								'gzip'     => 'gzencode',
+								'compress' => 'gzcompress',
+							);
+
+							foreach ($algo as $encoding => $algo) if (false !== stripos($mode, $encoding))
+							{
+								self::$contentEncoding = $encoding;
+								self::$is_enabled || header('Content-Encoding: ' . $encoding);
+								$buffer = $algo($buffer);
+								break;
+							}
+						}
+					}
 
 					self::$is_enabled || header('Content-Length: ' . strlen($buffer));
 				}
-				else $buffer =& $gz;
+				else
+				{
+					self::$contentEncoding = true;
+					self::$varyEncoding = true;
+					self::$is_enabled || header('Vary: Accept-Encoding');
+					$buffer = ob_gzhandler($buffer, $mode);
+				}
 
 				break;
 		}
@@ -1254,7 +1283,7 @@ class
 					: 'location')
 				. ')';
 
-				header('Content-Encoding: identity');
+				if (true === self::$contentEncoding) header('Content-Encoding: identity');
 				header('Content-Length: ' . strlen($buffer));
 			}
 			else
@@ -1330,20 +1359,27 @@ class
 				}
 			}
 
-
 			header('ETag: ' . $ETag);
-			header('Last-Modified: ' . $LastModified);
-			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + (self::$private || !self::$maxage ? 0 : self::$maxage)));
-			header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');
+			self::$varyEncoding && header('Vary: Accept-Encoding');
 
 			if ($is304)
 			{
 				$buffer = '';
 				header('HTTP/1.1 304 Not Modified');
 			}
+			else
+			{
+				header('Last-Modified: ' . $LastModified);
+				header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + (self::$private || !self::$maxage ? 0 : self::$maxage)));
+				header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');
+			}
 		}
 
-		if (!$is304) header('Content-Length: ' . strlen($buffer));
+		if (!$is304)
+		{
+			is_string(self::$contentEncoding) && header('Content-Encoding: ' . self::$contentEncoding);
+			header('Content-Length: ' . strlen($buffer));
+		}
 
 		self::$handlesOb = false;
 		if ('HEAD' == $_SERVER['REQUEST_METHOD']) exit;
