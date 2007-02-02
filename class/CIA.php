@@ -424,13 +424,11 @@ class
 	{
 		if (self::$is_enabled && ob_get_level() == self::$ob_starting_level + self::$ob_level)
 		{
-			while (self::$ob_level)
-			{
-				ob_end_clean();
-				--self::$ob_level;
-			}
+			while (self::$ob_level-- > 2) ob_end_clean();
 
+			ob_end_clean();
 			self::$is_enabled = false;
+			ob_end_clean();
 
 			if (!$exit) return true;
 		}
@@ -510,7 +508,7 @@ class
 
 	static function readfile($file, $mime = 'application/octet-stream')
 	{
-		CIA::header('Content-Type: ' . $mime);
+		self::header('Content-Type: ' . $mime);
 
 		self::$isServersideHtml = false;
 
@@ -519,7 +517,19 @@ class
 
 		ignore_user_abort(false);
 
-		ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
+		switch (substr(self::$headers['content-type'], 14))
+		{
+			case 'application/pdf':
+			case 'image/png':
+			case 'image/gif':
+			case 'image/jpeg':
+				header('Content-Length: ' . filesize($file));
+				break;
+
+			default:
+				ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
+				break;
+		}
 
 		readfile($file);
 	}
@@ -1156,9 +1166,10 @@ class
 	{
 		self::$handlesOb = true;
 
-		if ('' === $buffer && $mode == (PHP_OUTPUT_HANDLER_START | PHP_OUTPUT_HANDLER_END))
+		$one_chunk = $mode == (PHP_OUTPUT_HANDLER_START | PHP_OUTPUT_HANDLER_END);
+
+		if ('' === $buffer && $one_chunk)
 		{
-			self::$is_enabled || header('Content-Length: 0');
 			self::$handlesOb = false;
 			return $buffer;
 		}
@@ -1225,7 +1236,7 @@ class
 				break;
 
 			default:
-				if ($mode == (PHP_OUTPUT_HANDLER_START | PHP_OUTPUT_HANDLER_END))
+				if ($one_chunk)
 				{
 					if (strlen($buffer) > 100)
 					{
@@ -1251,8 +1262,6 @@ class
 							}
 						}
 					}
-
-					self::$is_enabled || header('Content-Length: ' . strlen($buffer));
 				}
 				else
 				{
@@ -1264,6 +1273,8 @@ class
 
 				break;
 		}
+
+		if ($one_chunk && !self::$is_enabled) header('Content-Length: ' . strlen($buffer));
 
 		self::$handlesOb = false;
 		return $buffer;
@@ -1360,6 +1371,9 @@ class
 			}
 
 			header('ETag: ' . $ETag);
+			header('Last-Modified: ' . $LastModified);
+			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + (self::$private || !self::$maxage ? 0 : self::$maxage)));
+			header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');
 			self::$varyEncoding && header('Vary: Accept-Encoding');
 
 			if ($is304)
@@ -1367,18 +1381,12 @@ class
 				$buffer = '';
 				header('HTTP/1.1 304 Not Modified');
 			}
-			else
-			{
-				header('Last-Modified: ' . $LastModified);
-				header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + (self::$private || !self::$maxage ? 0 : self::$maxage)));
-				header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');
-			}
 		}
 
 		if (!$is304)
 		{
 			is_string(self::$contentEncoding) && header('Content-Encoding: ' . self::$contentEncoding);
-			header('Content-Length: ' . strlen($buffer));
+			self::$is_enabled                 && header('Content-Length: ' . strlen($buffer));
 		}
 
 		self::$handlesOb = false;
