@@ -196,7 +196,7 @@ class
 	protected static $watchTable = array();
 	protected static $headers;
 
-	protected static $redirectUrl = false;
+	protected static $redirecting = false;
 	protected static $is_enabled = false;
 	protected static $ob_starting_level;
 	protected static $ob_level;
@@ -544,10 +544,30 @@ class
 		if (self::$privateDetectionMode) throw new Exception;
 
 		$url = (string) $url;
+		$url = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'i", $url) ? $url : (self::$home . ('index' == $url ? '' : $url)));
 
-		self::$redirectUrl = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'i", $url) ? $url : (self::$home . ('index' == $url ? '' : $url)));
+		self::$redirecting = true;
+		self::disable();
 
-		self::disable(true);
+		if (CIA_DIRECT)
+		{
+			$url = 'location.replace(' . ('' !== $url
+				? "'" . addslashes($url) . "'"
+				: 'location')
+			. ')';
+
+			if (true === self::$contentEncoding) header('Content-Encoding: identity');
+			header('Content-Length: ' . strlen($url));
+
+			echo $url;
+		}
+		else
+		{
+			header('HTTP/1.1 302 Found');
+			header('Location: ' . ('' !== $url ? $url : $_SERVER['REQUEST_URI']));
+		}
+
+		exit;
 	}
 
 	protected static function openMeta($agentClass, $is_trace = true)
@@ -1278,26 +1298,9 @@ class
 		self::$handlesOb = true;
 
 
-		if (false !== self::$redirectUrl)
+		if (self::$redirecting)
 		{
-			if (CIA_DIRECT)
-			{
-				$buffer = 'location.replace(' . ('' !== self::$redirectUrl
-					? "'" . addslashes(self::$redirectUrl) . "'"
-					: 'location')
-				. ')';
-
-				if (true === self::$contentEncoding) header('Content-Encoding: identity');
-				header('Content-Length: ' . strlen($buffer));
-			}
-			else
-			{
-				$buffer = '';
-
-				header('HTTP/1.1 302 Found');
-				header('Location: ' . ('' !== self::$redirectUrl ? self::$redirectUrl : $_SERVER['REQUEST_URI']));
-			}
-
+			$buffer = '';
 			self::$handlesOb = false;
 			return $buffer;
 		}
