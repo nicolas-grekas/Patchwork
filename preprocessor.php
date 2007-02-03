@@ -77,15 +77,15 @@ function runPreprocessor($source, $cache, $level, $class = false)
 
 		if (is_array($token)) switch ($token[0])
 		{
-		case T_OPEN_TAG:
+		case T_OPEN_TAG: // Normalize PHP open tag
 				$token = '<?php ' . extractPHPNewLines($token[1]);
 			break;
 
-		case T_OPEN_TAG_WITH_ECHO == $token[0]:
+		case T_OPEN_TAG_WITH_ECHO == $token[0]: // Normalize PHP open tag
 				$token = '<?php echo ' . extractPHPNewLines($token[1]);
 			break;
 
-		case T_CLOSE_TAG:
+		case T_CLOSE_TAG: // Normalize PHP close tag
 			$token = $prependSemiColon . extractPHPNewLines($token[1]) . '?>';
 			$prependSemiColon = '';
 			break;
@@ -181,14 +181,15 @@ function runPreprocessor($source, $cache, $level, $class = false)
 					}
 				}
 
-				if (
-					   is_array($source[$i-$j])
-					&& T_FUNCTION == $source[$i-$j][0]
-					&& isset($class_pool[$curly_level])
-					&& ($c = $class_pool[$curly_level])
-					&& !$c->has_php5_construct
-				)
+				if (is_array($source[$i-$j]) && T_FUNCTION == $source[$i-$j][0])
 				{
+					if (!( isset($class_pool[$curly_level])
+						&& ($c = $class_pool[$curly_level])
+						&& !$c->has_php5_construct )) break;
+
+					// If the currently parsed method is this class constructor
+					// build a PHP5 constructor if needed.
+
 					if ('__construct' == strtolower($token)) $c->has_php5_construct = true;
 					else if (strtolower($c->classname) == strtolower($token))
 					{
@@ -243,22 +244,24 @@ function runPreprocessor($source, $cache, $level, $class = false)
 				}
 			}
 
-			switch ($token)
+			switch (strtolower($token))
 			{
-			case '__CIA_LEVEL__':
+			case '__cia_level__':
 				$token = $level;
 				break;
 
-			case '__CIA_FILE__':
+			case '__cia_file__':
 				$token = "'" . str_replace(array('\\', "'"), array('\\\\', "\\'"), $file) . "'";
 				break;
 
-			case 'resolvePath':
-			case 'processPath':
+			case 'resolvepath':
+			case 'processpath':
 				$token .= fetchPHPWhiteSpaceNComments($source, $i);
 
 				if ('(' == $source[$i])
 				{
+					// Automatically append their third arg to resolve|processPath
+
 					$token .= '(';
 					$bracket_level = 1;
 					$param_position = 0;
@@ -267,7 +270,7 @@ function runPreprocessor($source, $cache, $level, $class = false)
 					{
 						$token .= fetchPHPWhiteSpaceNComments($source, $i);
 						if (!isset($source[$i])) break;
-						
+
 						if (is_array($source[$i])) $token .= $source[$i][1];
 						else
 						{
@@ -297,6 +300,8 @@ function runPreprocessor($source, $cache, $level, $class = false)
 			case 'self':
 				if ($class_pool)
 				{
+					// Replace every self::* by <__CLASS__>::*
+
 					$token = fetchPHPWhiteSpaceNComments($source, $i);
 					$token = (T_DOUBLE_COLON == $source[$i][0] ? end($class_pool)->classname : 'self') . $token;
 
@@ -307,7 +312,7 @@ function runPreprocessor($source, $cache, $level, $class = false)
 			}
 
 			break;
-			
+
 		case T_COMMENT:
 		case T_WHITESPACE:
 		case T_DOC_COMMENT:
