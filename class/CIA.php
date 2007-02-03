@@ -14,7 +14,7 @@
 #>>>
 if (isset($_SERVER['PHP_AUTH_USER']))
 {
-	$_SERVER['PHP_AUTH_USER'] = $_SERVER['PHP_AUTH_PW'] = "Don't use me, it would be a security hole (cross site javascript).";
+	$_SERVER['PHP_AUTH_USER'] = $_SERVER['PHP_AUTH_PW'] = "Don't use me, it would be a security hole (Cross Site Javascript Request).";
 }
 #<<<
 
@@ -103,10 +103,9 @@ session_set_save_handler(
 );
 
 $_SESSION = new sessionHandler;
-
 // }}}
 
-// {{{ Default database support with MDB2
+// {{{ Database sugar
 function DB($close = false)
 {
 	static $hunter;
@@ -114,39 +113,13 @@ function DB($close = false)
 
 	if ($db || $close)
 	{
-		if ($close && $db)
-		{
-			$db->commit();
-			$db = false;
-		}
-
-		return $db;
+		if ($close && $db) $db = dbAdapter::close($db) && false;
 	}
-
-	$hunter = new hunter('DB', array(true));
-
-	require_once 'MDB2.php';
-
-	$db = @MDB2::factory($GLOBALS['CONFIG']['DSN']);
-	$db->loadModule('Extended');
-	$db->setErrorHandling(PEAR_ERROR_CALLBACK, 'E');
-	$db->setFetchMode(MDB2_FETCHMODE_OBJECT);
-	$db->setOption('default_table_type', 'InnoDB');
-	$db->setOption('seqname_format', 'zeq_%s');
-	$db->setOption('portability', MDB2_PORTABILITY_ALL ^ MDB2_PORTABILITY_EMPTY_TO_NULL ^ MDB2_PORTABILITY_FIX_CASE);
-
-	$db->connect();
-
-	if (@PEAR::isError($db))
+	else
 	{
-		trigger_error($db->getMessage(), E_USER_ERROR);
-		CIA::disable(true);
+		$hunter = new hunter('DB', array(true));
+		$db = dbAdapter::connect();
 	}
-
-	$db->beginTransaction();
-
-	$db->query('SET NAMES utf8');
-	$db->query("SET collation_connection='utf8_general_ci'");
 
 	return $db;
 }
@@ -184,17 +157,17 @@ class
 	protected static $versionId;
 	protected static $fullVersionId;
 	protected static $has_error = false;
-	protected static $handlesOb;
+	protected static $handlesOb = false;
 	protected static $metaInfo;
 	protected static $metaPool = array();
 	protected static $isGroupStage = true;
-	protected static $isServersideHtml;
+	protected static $isServersideHtml = false;
 
 	protected static $maxage = false;
 	protected static $private = false;
 	protected static $expires = 'auto';
 	protected static $watchTable = array();
-	protected static $headers;
+	protected static $headers = array();
 
 	protected static $redirecting = false;
 	protected static $is_enabled = false;
@@ -205,7 +178,7 @@ class
 
 	protected static $agentClasses = '';
 	protected static $privateDetectionMode = false;
-	protected static $detectXSJ = false;
+	protected static $detectCSRF = false;
 	protected static $total_time = 0;
 
 	protected static $noGzip = array(
@@ -217,14 +190,8 @@ class
 
 	static function start()
 	{
-		// Stupid Zend Engine with PHP 5.0.x ...
-		// Static vars assigned in the class declaration are not accessible from an instance of a derived class.
-		// The workaround is to assign them at run time...
 		self::$fullVersionId = $GLOBALS['version_id'];
 		self::$versionId = abs(self::$fullVersionId % 10000);
-		self::$handlesOb = false;
-		self::$headers = array();
-		self::$isServersideHtml = false;
 
 		$cachePath = resolvePath(self::$cachePath);
 		self::$cachePath = ($cachePath == self::$cachePath ? $GLOBALS['cia_paths'][count($GLOBALS['cia_paths']) - 2] . '/' : '') . $cachePath;
@@ -285,76 +252,21 @@ class
 
 		switch ( key($_GET) )
 		{
-			case 't$':
-				$template = array_shift($_GET);
-				$template = str_replace('\\', '/', $template);
-				$template = str_replace('../', '/', $template);
+		case 't$':
+			CIA_sendTemplate::call();
+			break;
 
-				echo 'w(0';
+		case 'p$':
+			CIA_sendPipe::call();
+			break;
 
-				$ctemplate = self::getContextualCachePath("templates/$template", 'txt');
-				$readHandle = true;
-				if ($h = self::fopenX($ctemplate, $readHandle))
-				{
-					self::openMeta('agent__template/' . $template, false);
-					$compiler = new iaCompiler_js(false);
-					echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
-					fwrite($h, $template, strlen($template));
-					fclose($h);
-					list(,,, $watch) = self::closeMeta();
-					self::writeWatchTable($watch, $ctemplate);
-				}
-				else
-				{
-					fpassthru($readHandle);
-					fclose($readHandle);
-				}
+		case 'a$':
+			CIA_clientside::render(array_shift($_GET), false);
+			break;
 
-				self::setMaxage(-1);
-				break;
-
-			case 'p$':
-				$pipe = array_shift($_GET);
-				preg_match_all("/[a-zA-Z_][a-zA-Z_\d]*/u", $pipe, $pipe);
-				self::$agentClass = 'agent__pipe/' . implode('_', $pipe[0]);
-
-				foreach ($pipe[0] as &$pipe)
-				{
-					$cpipe = self::getContextualCachePath('pipe/' . $pipe, 'js');
-					$readHandle = true;
-					if ($h = self::fopenX($cpipe, $readHandle))
-					{
-						ob_start();
-						call_user_func(array('pipe_' . $pipe, 'js'));
-						$pipe = ob_get_clean();
-
-						$jsquiz = new jsquiz;
-						$jsquiz->addJs($pipe);
-						echo $pipe = $jsquiz->get();
-						$pipe .= "\n";
-						fwrite($h, $pipe, strlen($pipe));
-						fclose($h);
-						self::writeWatchTable(array('pipe'), $cpipe);
-					}
-					else
-					{
-						fpassthru($readHandle);
-						fclose($readHandle);
-					}
-				}
-
-				echo 'w(0,[])';
-
-				self::setMaxage(-1);
-				break;
-
-			case 'a$':
-				CIA_clientside::render(array_shift($_GET), false);
-				break;
-
-			case 'x$':
-				CIA_clientside::render(array_shift($_GET), true);
-				break;
+		case 'x$':
+			CIA_clientside::render(array_shift($_GET), true);
+			break;
 		}
 	}
 	// }}}
@@ -364,21 +276,7 @@ class
 	{
 		$agent = self::resolveAgentClass($_SERVER['CIA_REQUEST'], $_GET);
 
-		if (isset($_GET['k$']))
-		{
-			self::header('Content-Type: text/javascript; charset=UTF-8');
-			self::setMaxage(-1);
-
-			echo 'w.k(',
-				self::$versionId, ',',
-				jsquote( $_SERVER['CIA_HOME'] ), ',',
-				jsquote( 'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)) ), ',',
-				jsquote( isset($_GET['__0__']) ? $_GET['__0__'] : '' ), ',',
-				'[', implode(',', array_map('jsquote', self::agentArgv($agent))), ']',
-			')';
-
-			return;
-		}
+		if (isset($_GET['k$'])) return CIA_sendTrace::call($agent);
 
 		$binaryMode = (bool) constant("$agent::binary");
 
@@ -503,9 +401,9 @@ class
 		{
 			if ('content-type' == $name && false !== stripos($string, 'script'))
 			{
-				if (self::$private) self::preventXSJ();
+				if (self::$private) CIA_TOKEN_MATCH || CIA_alertCSRF::call();
 
-				self::$detectXSJ = true;
+				self::$detectCSRF = true;
 			}
 
 			self::$headers[$name] = $string;
@@ -643,7 +541,7 @@ class
 		if (!$group) return;
 
 		if (self::$privateDetectionMode) throw new PrivateDetection;
-		else if (self::$detectXSJ) self::preventXSJ();
+		else if (self::$detectCSRF) CIA_TOKEN_MATCH || CIA_alertCSRF::call();
 
 		self::$private = true;
 
@@ -962,8 +860,8 @@ class
 		if (is_array($args)) array_walk($args, array('self', 'stripArgv'));
 		else $args = array();
 
-		// autodetect private data for antiXSJ
-		$cache = self::getContextualCachePath('antiXSJ.' . $agent, 'txt');
+		// autodetect private data for antiCSRF
+		$cache = self::getContextualCachePath('antiCSRF.' . $agent, 'txt');
 		$readHandle = true;
 		if ($h = self::fopenX($cache, $readHandle))
 		{
@@ -998,87 +896,6 @@ class
 		}
 
 		return $args;
-	}
-
-	static function resolveAgentTrace($agent)
-	{
-		static $cache = array();
-
-		if (isset($cache[$agent])) return $cache[$agent];
-		else $cache[$agent] =& $trace;
-
-		$args = array();
-		$HOME = $home = self::__HOME__();
-		$agent = self::home($agent, true);
-		$keys = false;
-		$s = '\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'';
-		$s = "/w\.k\((-?[0-9]+),($s),($s),($s),\[((?:$s(?:,$s)*)?)\]\)/su";
-
-		if (
-			   0 === strpos($agent, $HOME)
-			&& !ini_get('safe_mode')
-			&& is_callable('shell_exec')
-			&& (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? !extension_loaded('openssl') : false)
-			&& $keys = $GLOBALS['CONFIG']['php']
-		)
-		{
-			$keys = $keys . ' -q ' . implode(' ', array_map('escapeshellarg', array(
-				processPath('getTrace.php'),
-				resolvePath('config.php'),
-				$_SERVER['CIA_HOME'],
-				self::__LANG__(),
-				substr($agent, strlen($HOME)),
-				isset($_SERVER['HTTPS']) ? (bool) $_SERVER['HTTPS'] : false
-			)));
-
-			$keys = shell_exec($keys);
-
-			if (!preg_match($s, $keys, $keys)) $keys = false;
-		}
-
-		if (!$keys)
-		{
-			$agent = implode(self::__LANG__(), explode('__', $agent, 2));
-
-			if (ini_get('allow_url_fopen'))
-			{
-				$keys = file_get_contents($agent . '?k$', false, stream_context_create(array('http' => array('method' => 'GET'))));
-			}
-			else
-			{
-				require_once 'HTTP/Request.php';
-
-				$keys = new HTTP_Request($agent . '?k$');
-				$keys->sendRequest();
-				$keys = $keys->getResponseBody();
-			}
-
-			if (!preg_match($s, $keys, $keys))
-			{
-				E('Error while getting meta info data for ' . htmlspecialchars($agent));
-				self::disable(true);
-			}
-		}
-
-		$CIApID = (int) $keys[1];
-		$home = stripcslashes(substr($keys[2], 1, -1));
-		$home = preg_replace("'__'", self::__LANG__(), $home, 1);
-		$agent = stripcslashes(substr($keys[3], 1, -1));
-		$a = stripcslashes(substr($keys[4], 1, -1));
-		$keys = eval('return array(' . $keys[5] . ');');
-
-		if ('' !== $a)
-		{
-			$args['__0__'] = $a;
-
-			$i = 0;
-			foreach (explode('/', $a) as $a) $args['__' . ++$i . '__'] = $a;
-		}
-
-		if ($home == $HOME) $CIApID = $home = false;
-		else self::watch('foreignTrace');
-
-		return $trace = array($CIApID, $home, $agent, $keys, $args);
 	}
 
 	protected static function stripArgv(&$a, $k)
@@ -1146,43 +963,6 @@ class
 		}
 	}
 
-	protected static function preventXSJ()
-	{
-		if (!CIA_TOKEN_MATCH)
-		{
-			self::setMaxage(0);
-			if (self::$catchMeta) self::$metaInfo[1] = array('private');
-
-			if (CIA_DIRECT)
-			{
-				$a = '';
-
-				$cache = self::getContextualCachePath('antiXSJ.' . self::$agentClass, 'txt');
-
-				self::makeDir($cache);
-
-				$h = fopen($cache, 'a+b');
-				flock($h, LOCK_EX);
-				fseek($h, 0, SEEK_END);
-				if (!ftell($h))
-				{
-					self::touch('CIApID');
-					self::touch('public/templates/js');
-
-					fwrite($h, $a = '1', 1);
-					touch('config.php');
-				}
-				fclose($h);
-
-				throw new PrivateDetection($a);
-			}
-
-			E('Potential Cross Site JavaScript. Stopping !');
-
-			self::disable(true);
-		}
-	}
-
 
 	static function &ob_filterOutput(&$buffer, $mode)
 	{
@@ -1196,7 +976,7 @@ class
 			return $buffer;
 		}
 
-#>		if (self::$isServersideHtml || CIA_DIRECT) $buffer = self::error_end() . $buffer;
+#>		if (self::$isServersideHtml || CIA_DIRECT) $buffer = CIA_debugWin::call() . $buffer;
 
 
 		// Anti-XSRF token
@@ -1231,7 +1011,7 @@ class
 			{
 				$meta = preg_replace_callback(
 					'#<form\s(?:[^>]+?\s)?method\s*=\s*(["\']?)post\1.*?>#iu',
-					array(__CLASS__, 'appendAntiXSJ'),
+					array('CIA_appendAntiCSRF', 'call'),
 					$buffer
 				);
 
@@ -1397,160 +1177,11 @@ class
 			|| ((E_NOTICE == $code || E_STRICT == $code) && 0!==strpos($file, end($GLOBALS['cia_paths'])))
 			|| (E_WARNING == $code && false !== stripos($message, 'safe mode'))
 		) return;
+
 		self::$has_error = true;
-		require processPath('error_handler.php');
+
+		CIA_error::call($code, $message, $file, $line, &$context);
 	}
-
-	static function appendAntiXSJ($f)
-	{
-		$f = $f[0];
-
-		// AntiXSJ token is appended only to local application's form
-
-		// Extract the action attribute
-		if (1 < preg_match_all('#\saction\s*=\s*(["\']?)(.*?)\1([^>]*)>#iu', $f, $a, PREG_SET_ORDER)) return $f;
-
-		if ($a)
-		{
-			$a = $a[0];
-			$a = trim($a[1] ? $a[2] : ($a[2] . $a[3]));
-
-			if (0 !== strpos($a, self::$home))
-			{
-				// Decode html encoded chars
-				if (false !== strpos($a, '&'))
-				{
-					static $entitiesRx = "'&(nbsp|iexcl|cent|pound|curren|yen|brvbar|sect|uml|copy|ordf|laquo|not|shy|reg|macr|deg|plusmn|sup2|sup3|acute|micro|para|middot|cedil|sup1|ordm|raquo|frac14|frac12|frac34|iquest|Agrave|Aacute|Acirc|Atilde|Auml|Aring|AElig|Ccedil|Egrave|Eacute|Ecirc|Euml|Igrave|Iacute|Icirc|Iuml|ETH|Ntilde|Ograve|Oacute|Ocirc|Otilde|Ouml|times|Oslash|Ugrave|Uacute|Ucirc|Uuml|Yacute|THORN|szlig|agrave|aacute|acirc|atilde|auml|aring|aelig|ccedil|egrave|eacute|ecirc|euml|igrave|iacute|icirc|iuml|eth|ntilde|ograve|oacute|ocirc|otilde|ouml|divide|oslash|ugrave|uacute|ucirc|uuml|yacute|thorn|yuml|quot|lt|gt|amp|[xX][0-9a-fA-F]+|[0-9]+);'";
-
-					$a = preg_replace_callback($entitiesRx, array(__CLASS__, 'translateHtmlEntity'), $a);
-				}
-
-				// Build absolute URI
-				if (preg_match("'^[^:/]*://[^/]*'", $a, $host))
-				{
-					$host = $host[0];
-					$a = substr($a, strlen($host));
-				}
-				else
-				{
-					$host = substr(self::$host, 0, -1);
-
-					if ('/' != substr($a, 0, 1))
-					{
-						static $uri = false;
-
-						if (!$uri)
-						{
-							$uri = $_SERVER['REQUEST_URI'];
-
-							if (false !== ($b = strpos($uri, '?'))) $uri = substr($uri, 0, $b);
-
-							$uri = dirname($uri . ' ');
-
-							if (
-								   ''  === $uri
-								|| '/'  == $uri
-								|| '\\' == $uri
-							)    $uri  = '/';
-							else $uri .= '/';
-						}
-
-						$a = $uri . $a;
-					}
-				}
-
-				if (false !== ($b = strpos($a, '?'))) $a = substr($a, 0, $b);
-				if (false !== ($b = strpos($a, '#'))) $a = substr($a, 0, $b);
-
-				$a .= '/';
-
-				// Resolve relative paths
-				if (false !== strpos($a, './') || false !== strpos($a, '//'))
-				{
-					$b = $a;
-
-					do
-					{
-						$a = $b;
-						$b = str_replace('/./', '/', $b);
-						$b = str_replace('//', '/', $b);
-						$b = preg_replace("'/[^/]*[^/\.][^/]*/\.\./'", '/', $b);
-					}
-					while ($b != $a);
-				}
-
-				// Compare action to application's home
-				if (0 !== strpos($host . $a, self::$home)) return $f;
-			}
-		}
-
-		static $appendedHtml = false;
-
-		if (!$appendedHtml)
-		{
-			$appendedHtml = self::$isServersideHtml ? 'syncXSJ()' : '(function(){var d=document,f=d.forms;f=f[f.length-1].T$.value=d.cookie.match(/(^|; )T\\$=([0-9a-zA-Z]+)/)[2]})()';
-			$appendedHtml = '<input type="hidden" name="T$" value="' . (isset($_COOKIE['JS']) && $_COOKIE['JS'] ? '' : $GLOBALS['cia_token']) . '" /><script type="text/javascript">' . "<!--\n{$appendedHtml}//--></script>";
-		}
-
-		return $f . $appendedHtml;
-	}
-
-	static function translateHtmlEntity($c)
-	{
-		static $table = false;
-
-		if (!$table) $table = array_flip(get_html_translation_table(HTML_ENTITIES));
-
-		if (isset($table[$c[0]])) return utf8_encode($table[$c[0]]);
-
-		$c = strtolower($c[1]);
-
-		if ('x' == $c[0]) $c = hexdec(substr($c, 1));
-
-		$c = sprinf('%08x', (int) $c);
-
-		if (strlen($c) > 8) return '';
-
-		$r = '';
-
-		do
-		{
-			$a = substr($c, 0, 2);
-			$c = substr($c, 2);
-
-			if ('00' != $a) $r .= chr(hexdec($a));
-		}
-		while ($c);
-
-		return $r;
-	}
-
-#>>>
-	static protected function error_end()
-	{
-		$bgcolor = self::$has_error ? 'red' : 'blue';
-		$debugWin = self::$home . '_?d$&stop&' . mt_rand();
-		$QDebug = self::$home . 'js/QDebug.js';
-		$lang = CIA::__LANG__();
-
-		if (self::$isServersideHtml) return <<<EOHTML
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<script type="text/javascript">/*<![CDATA[*/
-_____ = new Date/1;
-onload = function() {
-window.debugWin = open('$debugWin','debugWin','toolbar=no,status=yes,resizable=yes,scrollbars,width=320,height=240,left=' + parseInt(screen.availWidth - 340) + ',top=' + parseInt(screen.availHeight - 290));
-if (!debugWin) alert('Disable anti-popup to use the Debug Window');
-else E('Rendering time: ' + (new Date/1 - _____) + ' ms');
-};
-//]]></script>
-<div style="position:fixed;_position:absolute;float:right;font-family:arial;font-size:9px;top:0px;right:0px;z-index:255"><a href="javascript:;" onclick="window.debugWin&&debugWin.focus()" style="background-color:$bgcolor;color:white;text-decoration:none;border:0px;" id="debugLink">Debug</a>&nbsp<a href="javascript:;" onclick="location.reload(1)" style="background-color:$bgcolor;color:white;text-decoration:none;border:0px;">Reload</a><script type="text/javascript" src="$QDebug"></script></div>
-
-EOHTML;
-
-		else if (self::$has_error) return "L=document.getElementById('debugLink'); L && (L.style.backgroundColor='$bgcolor');";
-	}
-#<<<
 }
 
 class agent

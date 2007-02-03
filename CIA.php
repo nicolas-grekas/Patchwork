@@ -480,7 +480,7 @@ if (DEBUG && CIA_DIRECT && isset($_GET['d$']))
 }
 // }}}
 
-/// {{{ Anti Cross-Site-(Request-Forgery|Javascript) token
+/// {{{ Anti Cross-Site-(Request-Forgery|Javascript-Request) token
 $cia_token = false;
 
 if (isset($_COOKIE['T$']) && preg_match("'^[a-f0-9]{32}$'", $_COOKIE['T$']))

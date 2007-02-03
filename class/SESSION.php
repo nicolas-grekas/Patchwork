@@ -98,7 +98,7 @@ class
 		);
 
 
-		// Also regenerate antiXSJ token
+		// Also regenerate antiCSRF token
 
 		$GLOBALS['cia_token'] = CIA::uniqid();
 

@@ -81,7 +81,7 @@ class extends iaCompiler
 		{
 			eval("\$inc=$inc;");
 
-			list($CIApID, $home, $inc, $keys, $a) = CIA::resolveAgentTrace($inc);
+			list($CIApID, $home, $inc, $keys, $a) = CIA_resolveTrace::call($inc);
 
 			foreach ($a as $k => &$v) $args[$k] = $this->quote($v);
 

@@ -12,11 +12,11 @@
  **************************************************************************/*}
 /*
 * Init this JavaScript Remote Scripting object with
-* varname = new QJsrs($url, $POST, $antiXSJ), where $url is a server script aimed at
+* varname = new QJsrs($url, $POST, $antiCSRF), where $url is a server script aimed at
 * generating the result.
 * Set $POST to true if you want a POST request
 * to be made to the server.
-* Set $antiXSJ to true if the server needs an anti-cross-site-javascript token
+* Set $antiCSRF to true if the server needs an anti-cross-site-javascript-request token
 *
 * Then call this server script _asynchronously_
 * with varname.push($vararray, $function)
@@ -141,7 +141,7 @@ $window.loadQJsrs = function($context, $result)
 	return $context;
 }
 
-function $QJsrs($URL, $POST, $antiXSJ, $XMLHttpPreferred)
+function $QJsrs($URL, $POST, $antiCSRF, $XMLHttpPreferred)
 {
 	var $this = this,
 		$pool = [],
@@ -187,7 +187,7 @@ function $QJsrs($URL, $POST, $antiXSJ, $XMLHttpPreferred)
 
 		$function = $function || $emptyFunction;
 
-		if (($antiXSJ || $POST) && !$vararray.T$) $vararray.T$ = antiXSJ;
+		if (($antiCSRF || $POST) && !$vararray.T$) $vararray.T$ = antiCSRF;
 
 		$url = [];
 		for ($i in $vararray) if ('function' != typeof $vararray[$i]) $url.push('&' + eUC($i) + '=' + eUC($vararray[$i])); // Be aware that Konquerors for(..in..) loop does not preserve the order of declaration

@@ -46,7 +46,7 @@ class extends iaCompiler
 		{
 			eval("\$home=$inc;");
 
-			list(, $home, $end) = CIA::resolveAgentTrace($home);
+			list(, $home, $end) = CIA_resolveTrace::call($home);
 
 			if (false !== $home)
 			{
