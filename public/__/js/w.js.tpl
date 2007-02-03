@@ -25,7 +25,7 @@
 */
 
 footerHtml = [];
-antiXSJ = '';
+antiCSRF = '';
 
 function t($v, $type)
 {
@@ -98,30 +98,30 @@ function addOnload($function)
 
 addOnload.p = [];
 
-function syncXSJ($form)
+function syncCSRF($form)
 {
 	if (!$form)
 	{
 		$form = document.forms;
 		$form = $form[$form.length - 1];
-		$form.T$.value = antiXSJ;
+		$form.T$.value = antiCSRF;
 	}
 	else if ('post' == $form.method)
 	{
 		if ($form.action.indexOf({g$__HOME__|js})) return;
 
-		if ($form.T$) $form.T$.value = antiXSJ;
+		if ($form.T$) $form.T$.value = antiCSRF;
 		else if ($form.appendChild)
 		{
 			var $a = document.createElement('input');
 
 			$a.type = 'hidden';
 			$a.name = 'T$';
-			$a.value = antiXSJ;
+			$a.value = antiCSRF;
 
 			$form.appendChild($a);
 		}
-		else $form.innerHTML += '<input type="hidden" name="T$" value="' + antiXSJ + '" />';
+		else $form.innerHTML += '<input type="hidden" name="T$" value="' + antiCSRF + '" />';
 	}
 }
 
@@ -138,7 +138,7 @@ addOnload.run = function()
 
 			$pool = $document.getElementsByTagName('form');
 			$i = $pool.length;
-			while ($i--) syncXSJ($pool[$i]);
+			while ($i--) syncCSRF($pool[$i]);
 
 			$pool = $document.getElementsByTagName('script');
 			$i = $pool.length;
@@ -320,7 +320,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 				if ($keys)
 				{
-					$args.T$ = antiXSJ;
+					$args.T$ = antiCSRF;
 
 					if ($args.e$) for ($i in $args) $args[$i] = num(str($args[$i]), 1);
 					else          for ($i in $args) $args[$i] = num(    $args[$i] , 1);
@@ -713,7 +713,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 		$document.cookie = 'T$=' + $i + '; path=' + encodeURI($j);
 	}
 
-	antiXSJ = $i;
+	antiCSRF = $i;
 
 	$j = location;
 
