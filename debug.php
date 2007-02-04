@@ -103,3 +103,5 @@ while (1)
 
 	usleep($sleep);
 }
+
+exit;
