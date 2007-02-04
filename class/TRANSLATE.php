@@ -79,5 +79,3 @@ class
 	function search($string, $lang) {return $string; /*return "<span class='i18n {$lang}'>{$string}</span>";*/}
 	function close() {}
 }
-
-class driver_translate_default_ extends TRANSLATE {}
