@@ -76,13 +76,11 @@ class extends iaCron
 
 	protected $queueFolder = 'class/iaMail/queue/';
 	protected $queueUrl = 'queue/iaMail';
-	protected $queueSql = 'CREATE TABLE queue
-		(
-			home TEXT,
-			data BLOB,
-			send_time INTEGER,
-			archive INTEGER,
-			sent_time INTEGER
-		);
-		CREATE INDEX email_times ON queue (send_time, sent_time)';
+	protected $queueSql = '
+		CREATE TABLE queue (home TEXT, data BLOB, send_time INTEGER, archive INTEGER, sent_time INTEGER);
+		CREATE INDEX send_time ON queue (send_time);
+		CREATE INDEX sent_time ON queue (sent_time);
+		CREATE VIEW waiting AS SELECT * FROM queue WHERE send_time>0 AND sent_time=0;
+		CREATE VIEW error   AS SELECT * FROM queue WHERE send_time=0;
+		CREATE VIEW archive AS SELECT * FROM queue WHERE sent_time>0;';
 }
