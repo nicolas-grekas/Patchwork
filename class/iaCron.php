@@ -53,13 +53,11 @@ class
 	protected $queueName = 'queue';
 	protected $queueFolder = 'class/iaCron/queue/';
 	protected $queueUrl = 'queue/iaCron';
-	protected $queueSql = 'CREATE TABLE queue
-		(
-			home TEXT,
-			data BLOB,
-			run_time INTEGER
-		);
-		CREATE INDEX run_time ON queue (run_time)';
+	protected $queueSql = '
+		CREATE TABLE queue (home TEXT, data BLOB, run_time INTEGER);
+		CREATE INDEX run_time ON queue (run_time);
+		CREATE VIEW waiting AS SELECT * FROM queue WHERE run_time>0;
+		CREATE VIEW error   AS SELECT * FROM queue WHERE run_time=0;';
 
 
 	// The following functions should not be used directly
