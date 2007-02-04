@@ -182,7 +182,7 @@ class
 	protected static $total_time = 0;
 
 	protected static $allowGzip = array(
-		'text/','script','xml','html','bmp','wav','octet-stream',
+		'text/','script','xml','html','bmp','wav',
 		'msword','rtf','excel','powerpoint',
 	);
 
