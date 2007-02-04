@@ -14,33 +14,32 @@
 
 define('CIA', microtime(true)); isset($_SERVER['REQUEST_TIME']) || $_SERVER['REQUEST_TIME'] = time();
 
-// {{{ Server configuration helper
-/* Comment this section if your server's config is ok */
+// {{{ Server configuration
 
-if (get_magic_quotes_gpc())
+if (!(isset($CONFIG['php_ini_is_ok']) && $CONFIG['php_ini_is_ok']))
 {
-	if (ini_get('magic_quotes_sybase')) { function _q_(&$a) {is_array($a) ? array_walk($a, '_q_') : $a = str_replace("''", "'", $a);} }
-	else { function _q_(&$a) {is_array($a) ? array_walk($a, '_q_') : $a = stripslashes($a);} }
-	_q_($_GET);_q_($_POST);_q_($_COOKIE);
+	if (get_magic_quotes_gpc())
+	{
+		if (ini_get('magic_quotes_sybase')) { function _q_(&$a) {is_array($a) ? array_walk($a, '_q_') : $a = str_replace("''", "'", $a);} }
+		else { function _q_(&$a) {is_array($a) ? array_walk($a, '_q_') : $a = stripslashes($a);} }
+		_q_($_GET);_q_($_POST);_q_($_COOKIE);
+	}
+
+	ini_set('log_errors', true);
+	ini_set('display_errors', false);
+	ini_set('zlib.output_compression', false);
+	set_magic_quotes_runtime(0);
 }
 
-set_magic_quotes_runtime(0);
-ini_set('zlib.output_compression', false);
-
-/* To enable UTF-8 when using MySQL, add the following lines at the end of your my.cnf or my.ini file
-
-default-character-set=utf8
-init-connect="SET NAMES utf8"
-
-*/
-
-/* Copy/Paste the next block at the end of your php.ini
-
-log_errors = On
+/* Copy/Paste this block at the end of your php.ini,
+ * then set $CONFIG['php_ini_is_ok']=true in your global config.php
 
 ; Replace this to your needs
-error_log = c:/windows/temp/php.log
+error_log = /tmp/php_error.log
 
+log_errors = On
+display_errors = Off
+zlib.output_compression = Off
 magic_quotes_gpc = Off
 magic_quotes_runtime = Off
 
@@ -50,10 +49,10 @@ register_long_arrays = Off
 register_argc_argv = Off
 auto_globals_jit = On
 
-session.auto_start = 0
-session.use_only_cookies = 1
-session.use_cookies = 0
-session.use_trans_sid = 0
+session.auto_start = Off
+session.use_only_cookies = On
+session.use_cookies = Off
+session.use_trans_sid = Off
 
 mbstring.language = neutral
 mbstring.script_encoding = UTF-8
@@ -72,9 +71,6 @@ mbstring.func_overload = 0
 */
 // }}}
 
-// As of PHP5.1.2, hash('md5', $str) is a lot faster than md5($str) !
-function_exists('hash_algos') || require dirname(__FILE__) . '/hash.php';
-
 // {{{ Global context setup
 
 // $_REQUEST is an open door to security problems.
@@ -83,7 +79,7 @@ unset($_REQUEST); // Double unset against a PHP security hole
 
 // Disables mod_deflate who overwrites any custom Vary: header and appends a body to 304 responses.
 // Replaced with our own output compression.
-if (function_exists('apache_setenv')) apache_setenv('no-gzip', '1');
+function_exists('apache_setenv') && apache_setenv('no-gzip', '1');
 
 // Encoding context initialisation
 @putenv('LC_ALL=en_US.UTF-8');
@@ -102,8 +98,6 @@ if (function_exists('iconv_set_encoding'))
 chdir($CIA);
 
 ini_set('error_log', './error.log');
-ini_set('log_errors', true);
-ini_set('display_errors', false);
 
 $CONFIG = array();
 $version_id = './.config.zcache.php';
@@ -111,6 +105,9 @@ $version_id = './.config.zcache.php';
 define('__CIA__', dirname(__FILE__));
 define('CIA_WINDOWS', '\\' == DIRECTORY_SEPARATOR);
 define('CIA_CHECK_SOURCE', isset($_SERVER['HTTP_CACHE_CONTROL']) && 'no-cache' == $_SERVER['HTTP_CACHE_CONTROL']);
+
+// As of PHP5.1.2, hash('md5', $str) is a lot faster than md5($str) !
+function_exists('hash_algos') || require __CIA__ . '/hash.php';
 
 require !CIA_CHECK_SOURCE && file_exists($version_id)
 	? $version_id
@@ -195,7 +192,7 @@ function E($msg = '__getDeltaMicrotime')
 	return CIA::log($msg, false, false);
 }
 
-if (function_exists('date_default_timezone_set') && isset($CONFIG['timezone'])) date_default_timezone_set($CONFIG['timezone']);
+function_exists('date_default_timezone_set') && isset($CONFIG['timezone']) && date_default_timezone_set($CONFIG['timezone']);
 // }}}
 
 
@@ -428,11 +425,7 @@ function __autoload($searched_class)
 }
 
 // {{{ Language controler
-if (!$_SERVER['CIA_LANG'])
-{
-	require processPath('language.php');
-	exit;
-}
+$_SERVER['CIA_LANG'] || require processPath('language.php');
 // }}}
 
 // {{{ Validator
@@ -473,11 +466,7 @@ if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && !strncmp($_SERVER['HTTP_IF_NONE_MAT
 // }}}
 
 // {{{ Output debug window
-if (DEBUG && CIA_DIRECT && isset($_GET['d$']))
-{
-	require processPath('debug.php');
-	exit;
-}
+DEBUG && CIA_DIRECT && isset($_GET['d$']) && require processPath('debug.php');
 // }}}
 
 /// {{{ Anti Cross-Site-(Request-Forgery|Javascript-Request) token
