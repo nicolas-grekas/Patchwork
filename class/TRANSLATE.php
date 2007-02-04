@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-abstract class
+class
 {
 	protected static $driver;
 	protected static $cache;
@@ -52,8 +52,10 @@ abstract class
 	{
 		self::$cache = array();
 
-		$driver = 'driver_translate_' . $GLOBALS['CONFIG']['translate_driver'];
-		self::$driver = new $driver($GLOBALS['CONFIG']['translate_params']);
+		global $CONFIG;
+
+		$driver = isset($CONFIG['translate_driver']) && $CONFIG['translate_driver'] ? 'driver_translate_' . $CONFIG['translate_driver'] : __CLASS__;
+		self::$driver = new $driver(isset($CONFIG['translate_options']) ? $CONFIG['translate_options'] : array());
 		self::$driver->open();
 	}
 
