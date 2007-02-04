@@ -78,4 +78,4 @@ abstract class
 	function close() {}
 }
 
-class driver_translate_default_ extends self {}
+class driver_translate_default_ extends TRANSLATE {}
