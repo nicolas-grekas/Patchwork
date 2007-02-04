@@ -181,11 +181,9 @@ class
 	protected static $detectCSRF = false;
 	protected static $total_time = 0;
 
-	protected static $noGzip = array(
-		'application/pdf',
-		'image/png',
-		'image/gif',
-		'image/jpeg',
+	protected static $allowGzip = array(
+		'text/','script','xml','html','bmp','wav','octet-stream',
+		'msword','rtf','excel','powerpoint',
 	);
 
 	static function start()
@@ -411,6 +409,15 @@ class
 		}
 	}
 
+	static function isGzipAllowed()
+	{
+		$c = substr(self::$headers['content-type'], 14);
+
+		foreach (self::$allowGzip as $p) if (false !== stripos($c, $p)) return true;
+
+		return false;
+	}
+
 	static function readfile($file, $mime = 'application/octet-stream')
 	{
 		self::header('Content-Type: ' . $mime);
@@ -422,13 +429,13 @@ class
 
 		ignore_user_abort(false);
 
-		if (in_array(substr(self::$headers['content-type'], 14), self::$noGzip))
+		if (self::isGzipAllowed())
 		{
-			header('Content-Length: ' . filesize($file));
+			ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
 		}
 		else
 		{
-			ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
+			header('Content-Length: ' . filesize($file));
 		}
 
 		readfile($file);
@@ -1029,7 +1036,7 @@ class
 
 		// GZip compression
 
-		if (!in_array(substr(self::$headers['content-type'], 14), self::$noGzip))
+		if (self::isGzipAllowed())
 		{
 			if ($one_chunk)
 			{
