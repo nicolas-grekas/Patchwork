@@ -413,19 +413,19 @@ DEBUG && CIA_DIRECT && isset($_GET['d$']) && require processPath('debug.php');
 // }}}
 
 /// {{{ Anti Cross-Site-(Request-Forgery|Javascript-Request) token
-$cia_token = false;
 
-if (isset($_COOKIE['T$']) && preg_match("'^[a-f0-9]{32}$'", $_COOKIE['T$']))
+if (
+	isset($_COOKIE['T$'])
+	&& (!CIA_POSTING || (isset($_POST['T$']) && $_COOKIE['T$'] === $_POST['T$']))
+	&& preg_match("'^[a-f0-9]{32}$'", $_COOKIE['T$'])
+) $cia_token = $_COOKIE['T$'];
+else
 {
-	if (CIA_POSTING && (!isset($_POST['T$']) || $_COOKIE['T$'] !== $_POST['T$']))
+	if (CIA_POSTING)
 	{
 		E('Potential Cross Site Request Forgery. $_POST is not reliable. Erasing it !');
 	}
-	else $cia_token = $_COOKIE['T$'];
-}
 
-if (!$cia_token)
-{
 	$_POST = array();
 
 	unset($_COOKIE['T$']);
