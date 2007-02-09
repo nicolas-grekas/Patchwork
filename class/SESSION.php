@@ -33,7 +33,7 @@ class
 	/* Protected properties */
 
 	protected static $DATA;
-	protected static $driver = false;
+	protected static $adapter = false;
 
 	protected static $SID = '';
 	protected static $lastseen = '';
@@ -73,10 +73,10 @@ class
 
 	static function regenerateId($initSession = false)
 	{
-		if (self::$driver)
+		if (self::$adapter)
 		{
-			self::$driver->reset();
-			self::$driver = false;
+			self::$adapter->reset();
+			self::$adapter = false;
 		}
 
 		if ($initSession) self::$DATA = array();
@@ -84,7 +84,7 @@ class
 		$sid = CIA::uniqid();
 		self::setSID($sid);
 
-		self::$driver = new SESSION(self::$SID);
+		self::$adapter = new SESSION(self::$SID);
 
 		self::$lastseen = $_SERVER['REQUEST_TIME'];
 		self::$birthtime = $_SERVER['REQUEST_TIME'];
@@ -122,7 +122,7 @@ class
 
 	static function close()
 	{
-		self::$driver = false;
+		self::$adapter = false;
 	}
 
 
@@ -141,22 +141,22 @@ class
 		while (--$i && mt_rand(0, $j));
 		if ($i)
 		{
-			$driver = new SESSION('0lastGC');
-			$i = $driver->read();
+			$adapter = new SESSION('0lastGC');
+			$i = $adapter->read();
 			$j = max(self::$maxIdleTime, self::$maxLifeTime);
 			if ($j && $_SERVER['REQUEST_TIME'] - $i > $j)
 			{
-				$driver->write($_SERVER['REQUEST_TIME']);
+				$adapter->write($_SERVER['REQUEST_TIME']);
 				self::gc($j);
 			}
-			unset($driver);
+			unset($adapter);
 		}
 
 		self::setSID(isset($_COOKIE['SID']) ? $_COOKIE['SID'] : '');
 
-		self::$driver = new SESSION(self::$SID);
+		self::$adapter = new SESSION(self::$SID);
 
-		if ($i = self::$driver->read())
+		if ($i = self::$adapter->read())
 		{
 			$i = unserialize($i);
 			self::$lastseen =  $i[0];
@@ -201,7 +201,7 @@ class
 	}
 
 
-	/* Driver */
+	/* Adapter */
 
 	protected $handle;
 	protected $path;

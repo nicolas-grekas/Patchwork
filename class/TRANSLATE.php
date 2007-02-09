@@ -14,7 +14,7 @@
 
 class
 {
-	protected static $driver;
+	protected static $adapter;
 	protected static $cache;
 
 	public static function get($string, $lang, $usecache)
@@ -40,7 +40,7 @@ class
 			else self::$cache[$id][0] = true;
 		}
 
-		$cache = self::$driver->search($string, $lang);
+		$cache = self::$adapter->search($string, $lang);
 
 		if ('' === (string) $cache) $cache = $string;
 
@@ -54,14 +54,14 @@ class
 
 		global $CONFIG;
 
-		$driver = isset($CONFIG['translate_driver']) && $CONFIG['translate_driver'] ? 'driver_translate_' . $CONFIG['translate_driver'] : __CLASS__;
-		self::$driver = new $driver(isset($CONFIG['translate_options']) ? $CONFIG['translate_options'] : array());
-		self::$driver->open();
+		$adapter = isset($CONFIG['translate_adapter']) && $CONFIG['translate_adapter'] ? 'adapter_translate_' . $CONFIG['translate_adapter'] : __CLASS__;
+		self::$adapter = new $adapter(isset($CONFIG['translate_options']) ? $CONFIG['translate_options'] : array());
+		self::$adapter->open();
 	}
 
 	static function __static_destruct()
 	{
-		self::$driver->close();
+		self::$adapter->close();
 
 		foreach (self::$cache as $file => &$cache) if ($cache[0])
 		{
@@ -73,7 +73,7 @@ class
 	}
 
 
-	/* Driver interface */
+	/* Adapter interface */
 
 	function open() {}
 	function search($string, $lang) {return $string; /*return "<span class='i18n {$lang}'>{$string}</span>";*/}
