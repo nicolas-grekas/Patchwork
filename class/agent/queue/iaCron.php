@@ -58,11 +58,11 @@ class extends agent_bin
 		$this->releaseLock();
 		$this->queueNext();
 
-		if ('' !== $buffer)
+		if ('' !== $buffer || CIA::$has_error)
 		{
 			self::$callbackError = true;
 
-			iaMail_mime::send(
+			if ('' !== $buffer) iaMail_mime::send(
 				array('To' => $GLOBALS['CONFIG']['debug_email']),
 				$buffer
 			);

@@ -60,8 +60,6 @@ class extends CIA
 			}
 			else
 			{
-				require_once 'HTTP/Request.php';
-
 				$keys = new HTTP_Request($agent . '?k$');
 				$keys->sendRequest();
 				$keys = $keys->getResponseBody();

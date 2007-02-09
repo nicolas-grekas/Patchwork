@@ -14,7 +14,7 @@
 
 class extends CIA
 {
-	static $entitiesRx = "'&(nbsp|iexcl|cent|pound|curren|yen|brvbar|sect|uml|copy|ordf|laquo|not|shy|reg|macr|deg|plusmn|sup2|sup3|acute|micro|para|middot|cedil|sup1|ordm|raquo|frac14|frac12|frac34|iquest|Agrave|Aacute|Acirc|Atilde|Auml|Aring|AElig|Ccedil|Egrave|Eacute|Ecirc|Euml|Igrave|Iacute|Icirc|Iuml|ETH|Ntilde|Ograve|Oacute|Ocirc|Otilde|Ouml|times|Oslash|Ugrave|Uacute|Ucirc|Uuml|Yacute|THORN|szlig|agrave|aacute|acirc|atilde|auml|aring|aelig|ccedil|egrave|eacute|ecirc|euml|igrave|iacute|icirc|iuml|eth|ntilde|ograve|oacute|ocirc|otilde|ouml|divide|oslash|ugrave|uacute|ucirc|uuml|yacute|thorn|yuml|quot|lt|gt|amp|[xX][0-9a-fA-F]+|[0-9]+);'";
+	static $entitiesRx = "'&(nbsp|iexcl|cent|pound|curren|yen|euro|brvbar|sect|[AEIOUYaeiouy]?(?:uml|acute)|copy|ordf|laquo|not|shy|reg|macr|deg|plusmn|sup[123]|micro|para|middot|[Cc]?cedil|ordm|raquo|frac(?:14|12|34)|iquest|[AEIOUaeiou](?:grave|circ)|[ANOano]tilde|[Aa]ring|(?:AE|ae|sz)lig|ETH|times|[Oo]slash|THORN|eth|divide|thorn|quot|lt|gt|amp|[xX][0-9a-fA-F]+|[0-9]+);'";
 
 	static function call($f)
 	{

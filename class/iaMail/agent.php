@@ -60,8 +60,6 @@ class extends iaMail_mime
 			}
 			else
 			{
-				require_once 'HTTP/Request.php';
-
 				$data = new HTTP_Request($url);
 				$data->sendRequest();
 				$data = $data->getResponseBody();

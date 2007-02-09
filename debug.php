@@ -76,8 +76,8 @@ while (1)
 		while (!feof($h))
 		{
 			echo preg_replace(
-				"'in .*[\\\\/]\.{$cia_paths_token}(.*)\.[0-9]+([ab])([0-9]+)\.zcache\.php'e",
-				'"in ".("b"=="$2"?"/class":"").str_replace("_","/","_$1").("b"=="$2"?".php":"")." [{$cia_paths[0]}:".(count($cia_paths)-$3-1)."]"',
+				"'in .*?[\\\\/]\.([^\\\\/]+)\.{$cia_paths_token}\.[01][0-9]+-?\.zcache\.php'e",
+				"'in '.strtr('$1','_','/')",
 				fgets($h)
 			);
 		}

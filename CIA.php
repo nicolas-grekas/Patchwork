@@ -12,10 +12,10 @@
  ***************************************************************************/
 
 
-define('CIA', microtime(true)); isset($_SERVER['REQUEST_TIME']) || $_SERVER['REQUEST_TIME'] = time();
+define('CIA', microtime(true));
+isset($_SERVER['REQUEST_TIME']) || $_SERVER['REQUEST_TIME'] = time();
 
 // {{{ Global context setup
-
 // $_REQUEST is an open door to security problems.
 unset($_REQUEST);
 unset($_REQUEST); // Double unset against a PHP security hole
@@ -33,11 +33,9 @@ if (function_exists('iconv_set_encoding'))
 	iconv_set_encoding('internal_encoding', 'UTF-8');
 	iconv_set_encoding('output_encoding',   'UTF-8');
 }
-
 // }}}
 
 // {{{ Load configuration
-
 chdir($CIA);
 
 ini_set('error_log', './error.log');
@@ -63,7 +61,6 @@ define('CIA_PROJECT_PATH', $cia_paths[0]);
 
 // Restore the current dir at shutdown context.
 register_shutdown_function('chdir', CIA_PROJECT_PATH);
-
 // }}}
 
 // {{{ CIA's environment context
@@ -145,75 +142,78 @@ function_exists('date_default_timezone_set') && isset($CONFIG['timezone']) && da
 // {{{ function resolvePath(): cia-specific include_path-like mechanism
 function resolvePath($file, $level = false, $base = false)
 {
-	$paths =& $GLOBALS['cia_paths'];
-	$len = count($paths);
-	$i = 0;
+	$last_cia_paths = count($GLOBALS['cia_paths']) - 1;
 
-	if (false !== $level)
+	if (false === $level)
+	{
+		$i = 0;
+		$level = $last_cia_paths;
+	}
+	else
 	{
 		if (0 <= $level) $base = 0;
 
-		$i = $len - $level - $base - 1;
+		$i = $last_cia_paths - $level - $base;
 
 		if (0 > $i) $i = 0;
-		else if ($i >= $len) $i = $len - 1;
+		else if ($i > $last_cia_paths) $i = $last_cia_paths;
 	}
 
-	do
+	$GLOBALS['cia_lastpath_level'] =& $level;
+
+	$file = strtr($file, '\\', '/');
+
+	if ('class/' == substr($file, 0, 6)) $paths =& $GLOBALS['cia_include_paths'];
+	else $paths =& $GLOBALS['cia_paths'];
+
+	$nb_paths = count($paths);
+
+	for (; $i < $nb_paths; ++$i, --$level)
 	{
-		$path = $paths[$i] . '/';
-		if (file_exists($path . $file)) return $path . $file;
+		$source = $paths[$i] .'/'. (0<=$level ? $file : substr($file, 6));
+		if (file_exists($source)) return $source;
 	}
-	while (++$i < $len);
 
-	return $file;
+	return false;
 }
 // }}}
 
 // {{{ function processPath(): resolvePath + macro preprocessor
 function processPath($file, $level = false, $base = false)
 {
-	$paths =& $GLOBALS['cia_paths'];
-	$len = count($paths);
-	$i = 0;
+	$source = resolvePath($file, $level, $base);
 
-	if (false !== $level)
-	{
-		if (0 <= $level) $base = 0;
+	if (false === $source) return false;
 
-		$i = $len - $level - $base - 1;
+	$level = $GLOBALS['cia_lastpath_level'];
 
-		if (0 > $i) $i = 0;
-		else if ($i >= $len) $i = $len - 1;
-	}
+	$file = strtr($file, '\\', '/');
+	$cache = ((int)(bool)DEBUG) . (0>$level ? -$level .'-' : $level);
+	$cache = './.'. strtr(str_replace('_', '__', $file), '/', '_') . ".{$GLOBALS['cia_paths_token']}.{$cache}.zcache.php";
 
-	if (DEBUG || CIA_CHECK_SOURCE) $depth =& $i;
-	else $depth = $i;
+	if (file_exists($cache) && (!CIA_CHECK_SOURCE || filemtime($cache) >= filemtime($source))) return $cache;
 
-	$c = './.'. $GLOBALS['cia_paths_token'] . str_replace(array('_', '/', '\\'), array('__', '_', '_'), $file) .'.'. (int)(bool)DEBUG .'a';
+	$class = 0<=$level
+		&& 'class/' == substr($file, 0, 6)
+		&& false === strpos($file, '_')
+		&& '.php' == substr($file, -4)
+		&& false === strpos($class = substr($file, 6, -4), '.')
+		? strtr($class, '/', '_')
+		: false;
 
-	do
-	{
-		$source = $paths[$i] . '/' . $file;
-		$cache = $c . $depth .'.zcache.php';
+	CIA_preprocessor::run($source, $cache, $level, $class);
 
-		if (
-			file_exists($cache) && (!CIA_CHECK_SOURCE
-			|| (file_exists($source) && filemtime($cache) >= filemtime($source)))
-		) ;
-		else if (file_exists($source))
-		{
-			function_exists('runPreprocessor') || require resolvePath('preprocessor.php');
+	return $cache;
+}
+// }}}
 
-			runPreprocessor($source, $cache, $len - $i - 1);
-		}
-		else $cache = false;
+// {{{ function cia_adaptRequire(): automatically added by the preprocessor in files in the include_path
+function cia_adaptRequire($file)
+{
+	$file = strtr($file, '\\', '/');
+	$f = '.' . $file . '/';
 
-		if ($cache) return $cache;
-	}
-	while (++$i < $len);
-
-	return $file;
+	return false !== strpos($f, './') || false !== strpos($file, ':') ? $file : processPath('class/' . $file);
 }
 // }}}
 
@@ -222,73 +222,86 @@ $__autoload_static_pool = false;
 
 function __autoload($searched_class)
 {
-	if (preg_match("'^(.+)__(0|[1-9][0-9]*)$'", $searched_class, $class_level)) // Namespace renammed class
+	$last_cia_paths = count($GLOBALS['cia_paths']) - 1;
+
+	if (false !== strpos($searched_class, ';')) return;
+
+	$i = strrpos($searched_class, '__');
+	$level = false !== $i ? substr($searched_class, $i+2) : false;
+
+	if (false !== $level && ctype_digit($level))
 	{
-		$class = $class_level[1];
-		$class_level = (int) $class_level[2];
+		// Namespace renammed class
+		$class = substr($searched_class, 0, $i);
+		$level = min($last_cia_paths, '00' == $level ? -1 : (int) $level);
 	}
 	else
 	{
 		$class = $searched_class;
-		$class_level = -1;
+		$level = $last_cia_paths;
 	}
 
-	$level = $class_level>=0 ? $class_level + 1 : count($GLOBALS['cia_paths']);
+	$parent_class = $class . '__' . $level;
 	$cache = false;
 
-	if ('_' == substr($class, -1) || !strncmp('_', $class, 1) || false !== strpos($class, '__')) // Out of the path class: search for an existing parent
+	if ('_' == substr($class, -1) || !strncmp('_', $class, 1) || false !== strpos($class, '__'))
 	{
-		if ($class_level >= 0) --$level;
+		// Out of the path class: search for an existing parent
 
-		do $parent_class = $class . '__' . --$level;
-		while ($level && !class_exists($parent_class, false));
+		if ($class == $searched_class) ++$level;
+
+		do $parent_class = $class . '__' . (0<=--$level ? $level : '00');
+		while ($level>=0 && !class_exists($parent_class, false));
 	}
-	else // Conventional class: search its definition on disk
+	else if ($class != $searched_class || !class_exists($parent_class, false))
 	{
-		$file = 'class/' . str_replace('_', '/', $class) . '.php';
-		$i = $class_level>=0 ? count($GLOBALS['cia_paths']) - $class_level - 2 : -1;
-		$paths =& $GLOBALS['cia_paths'];
-		$parent_class = false;
+		// Conventional class: search its parent in existing classes or on disk
 
-		$c = './.'. $GLOBALS['cia_paths_token'] . $class .'.'. (int)(bool)DEBUG .'b';
+		$i = $last_cia_paths - $level;
+		if (0 > $i) $i = 0;
 
-		do
+		$file = 'class/' . strtr($class, '_', '/') . '.php';
+		$paths =& $GLOBALS['cia_include_paths'];
+		$nb_paths = count($paths);
+
+		for (; $i < $nb_paths; ++$i)
 		{
-			$parent_class = $class . '__' . --$level;
+			$source = $paths[$i] .'/'. (0<=$level ? $file : substr($file, 6));
 
-			if (class_exists($parent_class, false)) break;
-
-			$source = $paths[++$i] . '/' . $file;
-			$cache = $c . $i .'.zcache.php';
-
-			if (
-				file_exists($cache) && (!CIA_CHECK_SOURCE
-				|| (file_exists($source) && filemtime($cache) >= filemtime($source)))
-			) ;
-			else if (file_exists($source))
+			if (file_exists($source))
 			{
-				function_exists('runPreprocessor') || require resolvePath('preprocessor.php');
+				switch ($class)
+				{
+				case 'CIA_preprocessor':
+					require $source;
+					break;
 
-				runPreprocessor($source, $cache, $level, $class);
-			}
-			else $cache = false;
+				default:
+					$cache = ((int)(bool)DEBUG) . (0>$level ? -$level .'-' : $level);
+					$cache = "./.class_{$class}.php.{$GLOBALS['cia_paths_token']}.{$cache}.zcache.php";
 
-			if ($cache)
-			{
-				$current_pool = array();
-				$parent_pool =& $GLOBALS['__autoload_static_pool'];
-				$GLOBALS['__autoload_static_pool'] =& $current_pool;
+					if (file_exists($cache) && (!CIA_CHECK_SOURCE || filemtime($cache) >= filemtime($source))) ;
+					else CIA_preprocessor::run($source, $cache, $level, $class);
 
-				require $cache;
+					$current_pool = array();
+					$parent_pool =& $GLOBALS['__autoload_static_pool'];
+					$GLOBALS['__autoload_static_pool'] =& $current_pool;
 
-				if (class_exists($searched_class, false)) $parent_class = false;
+					require $cache;
 
-				if (false !== $parent_pool) $parent_pool[$parent_class ? $parent_class : $searched_class] = array(0, $cache);
+					if (class_exists($searched_class, false)) $parent_class = false;
+					if (false !== $parent_pool) $parent_pool[$parent_class ? $parent_class : $searched_class] = array(0, $cache);
+				}
 
 				break;
 			}
+
+			--$level;
+
+			$parent_class = $class . '__' . (0<=$level ? $level : '00');
+
+			if (class_exists($parent_class, false)) break;
 		}
-		while ($level);
 	}
 
 	$c = $searched_class == $class;
@@ -413,7 +426,6 @@ DEBUG && CIA_DIRECT && isset($_GET['d$']) && require processPath('debug.php');
 // }}}
 
 /// {{{ Anti Cross-Site-(Request-Forgery|Javascript-Request) token
-
 if (
 	isset($_COOKIE['T$'])
 	&& (!CIA_POSTING || (isset($_POST['T$']) && $_COOKIE['T$'] === $_POST['T$']))
@@ -443,7 +455,6 @@ else
 }
 
 define('CIA_TOKEN_MATCH', isset($_GET['T$']) && $cia_token === $_GET['T$']);
-
 // }}}
 
 /* Let's go */

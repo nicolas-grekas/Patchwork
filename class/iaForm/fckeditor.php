@@ -23,11 +23,9 @@ class extends iaForm_textarea
 		{
 			$value =& $this->form->rawValues[$this->name];
 
-			if (false !== strpos($value, "\r")) $value = str_replace(array("\r\n", "\r"), array("\n"  , "\n"), $value);
+			if (false !== strpos($value, "\r")) $value = strtr(str_replace("\r\n", "\n", $value), "\r", "\n");
 
 			$value = preg_replace("'(?<!>)\n'", "<br />\n", $value);
-
-			require_once 'HTML/Safe.php';
 
 			$parser = new HTML_Safe;
 			$parser->deleteTags[] = 'form';

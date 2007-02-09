@@ -45,10 +45,7 @@ class extends agent
 
 	protected function setPath()
 	{
-		$path = 'public/__/files/';
-		$rPath = resolvePath($path);
-
-		$this->path = $path != $rPath ? $rPath : false;
+		$this->path = resolvePath('public/__/files/');
 	}
 
 	function compose($o)

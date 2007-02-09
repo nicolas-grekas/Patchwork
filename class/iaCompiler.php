@@ -115,7 +115,7 @@ abstract class
 		$source = file_get_contents($source);
 
 		$source = rtrim($source);
-		if (false !== strpos($source, "\r")) $source = str_replace(array("\r\n", "\r"), array("\n" , "\n"), $source);
+		if (false !== strpos($source, "\r")) $source = strtr(str_replace("\r\n", "\n", $source), "\r", "\n");
 		$source = preg_replace_callback("'" . $this->Xcomment . "\n?'su", array($this, 'preserveLF'), $source);
 		$source = preg_replace("'({$this->Xrblock})\n'su", "\n$1", $source);
 		$source = preg_replace_callback(
@@ -190,7 +190,7 @@ abstract class
 		$template = (CIA_WINDOWS ? strtolower($m[1]) : $m[1]) . '.tpl';
 
 		$a = str_replace('\\', '/', $template) == preg_replace("'[\\/]+'", '/', $this->template);
-		$a = isset($m[2]) ? substr($m[2], 1) : ($a ? -1 : $path_count - $this->path_idx - 1);
+		$a = isset($m[2]) ? substr($m[2], 1) : ($a ? -1 : ($path_count - $this->path_idx - 1));
 		$a = $a < 0 ? $this->path_idx - $a : ($path_count - $a - 1);
 
 		if ($a < 0)
