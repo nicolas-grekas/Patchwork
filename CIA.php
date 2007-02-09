@@ -229,7 +229,7 @@ function __autoload($searched_class)
 	$i = strrpos($searched_class, '__');
 	$level = false !== $i ? substr($searched_class, $i+2) : false;
 
-	if (false !== $level && ctype_digit($level))
+	if (false !== $level && '' !== $level && '' === ltrim(strtr($level, '0123456789', '          ')))
 	{
 		// Namespace renammed class
 		$class = substr($searched_class, 0, $i);
@@ -436,6 +436,8 @@ else
 	if (CIA_POSTING)
 	{
 		E('Potential Cross Site Request Forgery. $_POST is not reliable. Erasing it !');
+		unset($_POST['f_password']);
+		E($_SERVER); E($_POST); E($_COOKIE);
 	}
 
 	$_POST = array();
