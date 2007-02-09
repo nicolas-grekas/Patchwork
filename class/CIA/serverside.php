@@ -122,8 +122,6 @@ class extends CIA
 					}
 					else
 					{
-						require_once 'HTTP/Request.php';
-
 						$agent = new HTTP_Request($agent);
 						$agent->sendRequest();
 						$agent = $agent->getResponseBody();

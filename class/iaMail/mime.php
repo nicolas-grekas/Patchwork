@@ -12,9 +12,6 @@
  ***************************************************************************/
 
 
-require_once 'Mail.php';
-require_once 'Mail/mime.php';
-
 class extends Mail_mime
 {
 	protected $options;
@@ -170,8 +167,6 @@ class extends Mail_mime
 			}
 			else
 			{
-				require_once 'HTTP/Request.php';
-
 				$r = new HTTP_Request( CIA::home($url, true) );
 				$r->setMethod(HTTP_REQUEST_METHOD_POST);
 				$r->addPostData('message_id', $message_id);
@@ -190,7 +185,7 @@ class extends Mail_mime
 			if (@PEAR::isError($data)) return $data;
 		}
 
-		$data = str_replace(array("\r\n", "\r", "\n"), array("\n", "\n", $this->_eol), $data);
+		$data = str_replace("\n", $this->_eol, strtr(str_replace("\r\n", "\n", $data), "\r", "\n"));
 
 		return parent::setTXTBody($data, false, $append);
 	}
@@ -204,7 +199,7 @@ class extends Mail_mime
 			if (@PEAR::isError($data)) return $data;
 		}
 
-		$data = str_replace(array("\r\n", "\r", "\n"), array("\n", "\n", $this->_eol), $data);
+		$data = str_replace("\n", $this->_eol, strtr(str_replace("\r\n", "\n", $data), "\r", "\n"));
 
 		return parent::setHTMLBody($data, false);
 	}

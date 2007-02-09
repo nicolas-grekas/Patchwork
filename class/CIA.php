@@ -129,11 +129,11 @@ function jsquote($a, $addDelim = true, $delim = "'")
 {
 	if ((string) $a === (string) ($a-0)) return $a-0;
 
-	false !== strpos($a, "\r") && ($a = str_replace(array("\r\n", "\r"), array("\n", "\n"), $a));
-	false !== strpos($a, '\\') && ($a = str_replace('\\', '\\\\', $a));
-	false !== strpos($a, "\n") && ($a = str_replace("\n", '\n', $a));
-	false !== strpos($a, '</') && ($a = str_replace('</', '<\\/', $a));
-	false !== strpos($a, $delim) && ($a = str_replace($delim, '\\' . $delim, $a));
+	false !== strpos($a, "\r") && $a = strtr(str_replace("\r\n", "\n", $a), "\r", "\n");
+	false !== strpos($a, '\\') && $a = str_replace('\\', '\\\\', $a);
+	false !== strpos($a, "\n") && $a = str_replace("\n", '\n', $a);
+	false !== strpos($a, '</') && $a = str_replace('</', '<\\/', $a);
+	false !== strpos($a, $delim) && $a = str_replace($delim, '\\' . $delim, $a);
 
 	if ($addDelim) $a = $delim . $a . $delim;
 
@@ -148,6 +148,7 @@ class
 	static $agentClass;
 	static $catchMeta = false;
 	static $ETag = '';
+	static $has_error = false;
 
 	protected static $host;
 	protected static $lang = '__';
@@ -156,7 +157,6 @@ class
 
 	protected static $versionId;
 	protected static $fullVersionId;
-	protected static $has_error = false;
 	protected static $handlesOb = false;
 	protected static $metaInfo;
 	protected static $metaPool = array();
@@ -192,7 +192,7 @@ class
 		self::$versionId = abs(self::$fullVersionId % 10000);
 
 		$cachePath = resolvePath(self::$cachePath);
-		self::$cachePath = ($cachePath == self::$cachePath ? $GLOBALS['cia_paths'][count($GLOBALS['cia_paths']) - 2] . '/' : '') . $cachePath;
+		self::$cachePath = (!$cachePath ? $GLOBALS['cia_paths'][count($GLOBALS['cia_paths']) - 2] . '/' : '') . $cachePath;
 
 		self::header('Content-Type: text/html; charset=UTF-8');
 		set_error_handler(array(__CLASS__, 'error_handler'));
@@ -807,21 +807,14 @@ class
 				break;
 			}
 
-			$path = "class/agent/{$potentialAgent}.php";
-			$p_th = processPath($path);
-			if ($path != $p_th)
+			if (processPath("class/agent/{$potentialAgent}.php"))
 			{
 				$createTemplate = false;
 				break;
 			}
 
-
-			$path = "public/{$lang}/{$potentialAgent}.tpl";
-			if ($path != resolvePath($path)) break;
-
-			$path = "public/__/{$potentialAgent}.tpl";
-			if ($path != resolvePath($path)) break;
-
+			if (resolvePath("public/{$lang}/{$potentialAgent}.tpl")) break;
+			if (resolvePath("public/__/{$potentialAgent}.tpl")) break;
 
 			if ('index' == $potentialAgent) break;
 
@@ -1181,7 +1174,7 @@ class
 	static function error_handler($code, $message, $file, $line, $context)
 	{
 		if (!error_reporting()
-			|| ((E_NOTICE == $code || E_STRICT == $code) && 0!==strpos($file, end($GLOBALS['cia_paths'])))
+			|| ((E_NOTICE == $code || E_STRICT == $code) && !substr_compare($file, '-.zcache.php', -12))
 			|| (E_WARNING == $code && false !== stripos($message, 'safe mode'))
 		) return;
 

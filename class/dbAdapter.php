@@ -16,8 +16,6 @@ class
 {
 	static function connect($arg = false)
 	{
-		require_once 'MDB2.php';
-
 		$db = @MDB2::factory($GLOBALS['CONFIG']['DSN']);
 		$db->loadModule('Extended');
 		$db->setErrorHandling(PEAR_ERROR_CALLBACK, 'E');

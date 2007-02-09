@@ -79,7 +79,7 @@ function C3MRO($appRealpath)
 
 	// Get config's source and clean it
 	$parent = file_get_contents($appRealpath . '/config.php');
-	if (false !== strpos($parent, "\r")) $parent = str_replace(array("\r\n", "\r"), array("\n", "\n"), $parent);
+	if (false !== strpos($parent, "\r")) $parent = strtr(str_replace("\r\n", "\n", $parent), "\r", "\n");
 
 	$k = false;
 

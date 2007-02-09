@@ -30,7 +30,7 @@ $header = '';
 while (!feof(STDIN))
 {
 	$a = fread(STDIN, 8192);
-	if (false !== strpos($a, "\r")) str_replace(array("\r\n", "\r"), array("\n", "\n"), $a)
+	if (false !== strpos($a, "\r")) $a = strtr(str_replace("\r\n", "\n", $a), "\r", "\n");
 	$header .= $a;
 
 	$a = strpos($header, "\n\n");
@@ -96,7 +96,7 @@ if ($send_email)
 	while (!feof(STDIN))
 	{
 		$a = fread(STDIN, 8192);
-		if (false !== strpos($a, "\r")) str_replace(array("\r\n", "\r"), array("\n", "\n"), $a)
+		if (false !== strpos($a, "\r")) $a = strtr(str_replace("\r\n", "\n", $a), "\r", "\n");
 		$send_mail .= $a;
 	}
 }
