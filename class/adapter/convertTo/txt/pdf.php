@@ -12,16 +12,11 @@
  ***************************************************************************/
 
 
-class extends driver_convertTo_abstract
+class extends adapter_convertTo_abstract
 {
 	function file($file)
 	{
 		$file = escapeshellarg($file);
-		$file = `w3m -dump -cols 80 -T text/html -I UTF-8 -O UTF-8 {$file}`;
-
-		if (false !== strpos($file, '━')) $file = str_replace('━', '_', $file);
-
-		return $file;
+		return `pdftotext -enc UTF-8 {$file} -`;
 	}
-
 }

@@ -16,23 +16,23 @@ abstract class
 {
 	static function file($file, $from, $to)
 	{
-		$driver = self::getDriver($from, $to);
-		if (!$driver) return false;
+		$adapter = self::getAdapter($from, $to);
+		if (!$adapter) return false;
 
-		return $driver->file($file);
+		return $adapter->file($file);
 	}
 
 	static function data($data, $from, $to)
 	{
-		$driver = self::getDriver($from, $to);
-		if (!$driver) return false;
+		$adapter = self::getAdapter($from, $to);
+		if (!$adapter) return false;
 
-		return $driver->data($data);
+		return $adapter->data($data);
 	}
 
-	protected static function getDriver($from, $to)
+	protected static function getAdapter($from, $to)
 	{
-		$class = 'driver_convertTo_' . $to . '_' . $from;
+		$class = 'adapter_convertTo_' . $to . '_' . $from;
 		if (preg_match("'[^a-zA-Z0-9_]'u", $class))
 		{
 			E('Disallowed classname: ' . $class);
@@ -41,7 +41,7 @@ abstract class
 
 		if (class_exists($class)) return new $class;
 
-		E('No defined driver for this convertion: ' . $class);
+		E('No defined adapter for this convertion: ' . $class);
 
 		return false;
 	}

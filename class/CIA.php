@@ -113,12 +113,12 @@ function DB($close = false)
 
 	if ($db || $close)
 	{
-		if ($close && $db) $db = dbAdapter::close($db) && false;
+		if ($close && $db) $db = adapter_DB::close($db) && false;
 	}
 	else
 	{
 		$hunter = new hunter('DB', array(true));
-		$db = dbAdapter::connect();
+		$db = adapter_DB::connect();
 	}
 
 	return $db;

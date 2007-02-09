@@ -68,7 +68,7 @@ $CONFIG += array(
 
 	// For sending emails. See PEAR's Mail::factory()
 	'debug_email' => 'webmaster',
-	'email_driver' => 'mail',
+	'email_backend' => 'mail',
 	'email_options' => '',
 
 
@@ -80,7 +80,7 @@ $CONFIG += array(
 	'maxage' => 3600,
 	'lang_list' => 'fr',
 
-//	'translate_driver' => false,
+//	'translate_adapter' => false,
 //	'translate_options' => array(),
 
 );

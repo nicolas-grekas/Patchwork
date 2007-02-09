@@ -68,9 +68,9 @@ class extends Mail_mime
 		unset($headers['To']);
 
 		$options = null;
-		$driver = $GLOBALS['CONFIG']['email_driver'];
+		$backend = $GLOBALS['CONFIG']['email_backend'];
 
-		switch ($driver)
+		switch ($backend)
 		{
 		case 'mail':
 			$options = isset($GLOBALS['CONFIG']['email_options']) ? $GLOBALS['CONFIG']['email_options'] : '';
@@ -82,7 +82,7 @@ class extends Mail_mime
 			break;
 		}
 
-		$mail = @Mail::factory($driver, $options);
+		$mail = @Mail::factory($backend, $options);
 		$mail->send($to, $headers, $body);
 	}
 
