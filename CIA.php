@@ -35,6 +35,33 @@ if (function_exists('iconv_set_encoding'))
 }
 // }}}
 
+// {{{ registerAutoloadPrefix()
+$__cia_autoload_prefix = array();
+
+function registerAutoloadPrefix($prefix, $class2file_resolver)
+{
+	$prefix = strtolower($prefix);
+	$registry = array();
+
+	foreach ($GLOBALS['__cia_autoload_prefix'] as $v)
+	{
+		if (false !== $prefix)
+		{
+			if ($prefix == $v[0]) $v[1] = $class2file_resolver;
+			else if (strlen($v[0]) < strlen($prefix)) $registry[] = array($prefix, $class2file_resolver);
+
+			$prefix = false;
+		}
+
+		$registry[] = array($v[0], $v[1]);
+	}
+
+	if (false !== $prefix) $registry[] = array($prefix, $class2file_resolver);
+
+	$GLOBALS['__cia_autoload_prefix'] =& $registry;
+}
+// }}}
+
 // {{{ Load configuration
 chdir($CIA);
 
@@ -257,10 +284,27 @@ function __autoload($searched_class)
 	{
 		// Conventional class: search its parent in existing classes or on disk
 
+		$file = false;
+		$lcClass = strtolower($class);
+
 		$i = $last_cia_paths - $level;
 		if (0 > $i) $i = 0;
 
-		$file = 'class/' . strtr($class, '_', '/') . '.php';
+		if ($GLOBALS['__cia_autoload_prefix'])
+		{
+			foreach ($GLOBALS['__cia_autoload_prefix'] as $v)
+			{
+				if ($v[0] == substr($lcClass, 0, strlen($v[0])))
+				{
+					$file = call_user_func($v[1], $class);
+					break;
+				}
+			}
+		}
+
+		$file || $file = strtr($class, '_', '/') . '.php';
+		$file = 'class/' . $file;
+
 		$paths =& $GLOBALS['cia_include_paths'];
 		$nb_paths = count($paths);
 
@@ -270,9 +314,9 @@ function __autoload($searched_class)
 
 			if (file_exists($source))
 			{
-				switch ($class)
+				switch ($lcClass)
 				{
-				case 'CIA_preprocessor':
+				case 'cia_preprocessor':
 					require $source;
 					break;
 

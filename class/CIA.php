@@ -332,6 +332,7 @@ class
 			ob_end_clean();
 			self::$is_enabled = false;
 			ob_end_clean();
+			self::$ob_level = 0;
 
 			if (!$exit) return true;
 		}
