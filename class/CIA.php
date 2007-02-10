@@ -162,6 +162,7 @@ class
 	protected static $metaPool = array();
 	protected static $isGroupStage = true;
 	protected static $isServersideHtml = false;
+	protected static $binaryMode = false;
 
 	protected static $maxage = false;
 	protected static $private = false;
@@ -276,7 +277,7 @@ class
 
 		if (isset($_GET['k$'])) return CIA_sendTrace::call($agent);
 
-		$binaryMode = (bool) constant("$agent::binary");
+		self::$binaryMode = (bool) constant("$agent::binary");
 
 		// Synch exoagents on browser request
 		if (isset($_COOKIE['cache_reset_id']) && self::$versionId == $_COOKIE['cache_reset_id'] && setcookie('cache_reset_id', '', 0, '/'))
@@ -299,7 +300,7 @@ class
 		 * "location.reload(true)". We use this behaviour to trigger a cache reset in DEBUG mode.
 		 */
 
-		if (CIA_CHECK_SOURCE && !CIA_POSTING && !$binaryMode)
+		if (CIA_CHECK_SOURCE && !CIA_POSTING && !self::$binaryMode)
 		{
 			self::touch('');
 			foreach (glob(self::$cachePath . '?/?/*', GLOB_NOSORT) as $v) if ('.session' != substr($v, -8)) unlink($v);
@@ -314,9 +315,9 @@ class
 #<<<
 
 		// load agent
-		if (CIA_POSTING || $binaryMode || isset($_GET['$bin']) || !isset($_COOKIE['JS']) || !$_COOKIE['JS'])
+		if (CIA_POSTING || self::$binaryMode || isset($_GET['$bin']) || !isset($_COOKIE['JS']) || !$_COOKIE['JS'])
 		{
-			if (!$binaryMode) self::setGroup('private');
+			if (!self::$binaryMode) self::setGroup('private');
 			CIA_serverside::loadAgent($agent, false, false);
 		}
 		else CIA_clientside::loadAgent($agent);
@@ -982,8 +983,11 @@ class
 		{
 			static $lead;
 
-			if (PHP_OUTPUT_HANDLER_START & $mode) $lead = '';
-#>			if ((PHP_OUTPUT_HANDLER_START & $mode) && (self::$isServersideHtml || CIA_DIRECT)) $buffer = CIA_debugWin::call() . $buffer;
+			if (PHP_OUTPUT_HANDLER_START & $mode)
+			{
+				$lead = '';
+#>				if (!self::$binaryMode && (self::$isServersideHtml || CIA_DIRECT) $buffer = CIA_debugWin::call() . $buffer;
+			}
 
 			$tail = '';
 
