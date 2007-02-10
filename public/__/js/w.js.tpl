@@ -18,7 +18,7 @@
 * esc
 * unesc
 * parseurl
-* addOnload
+* onDOMLoaded
 * setboard
 * topwin
 * BOARD
@@ -90,14 +90,6 @@ function parseurl($param, $delim, $rx, $array)
 	return $array;
 }
 
-function addOnload($function)
-{
-	var $p = addOnload.p;
-	$p[$p.length] = $function;
-}
-
-addOnload.p = [];
-
 function syncCSRF($form)
 {
 	if (!$form)
@@ -125,36 +117,30 @@ function syncCSRF($form)
 	}
 }
 
-addOnload.run = function()
+onDOMLoaded = [];
+onDOMLoaded.go = function()
 {
-	addOnload.o = window.onload;
+	var $document = document, $i, $pool, $script;
 
-	onload = function()
+	if ($document.removeChild)
 	{
-		var $document = document, $i, $pool, $script, $addOnload = addOnload;
+		$pool = $document.getElementsByTagName('form');
+		$i = $pool.length;
+		while ($i--) syncCSRF($pool[$i]);
 
-		if ($document.removeChild)
-		{
-
-			$pool = $document.getElementsByTagName('form');
-			$i = $pool.length;
-			while ($i--) syncCSRF($pool[$i]);
-
-			$pool = $document.getElementsByTagName('script');
-			$i = $pool.length;
-			while ($i--) if ('w' == ($script = $pool[$i]).className) $script.parentNode.removeChild($script);
-			$script = 0;
-		}
-
-		if ($addOnload.o) $i = $addOnload.o, $addOnload.o = null, $i();
-
-		$pool = $addOnload.p;
-		for ($i = 0; $i < $pool.length; ++$i) $pool[$i](), $pool[$i]=0;
-
-		$document = $addOnload = $pool = onload = null;
-
-		addOnload = function($function) {$function()};
+		$pool = $document.getElementsByTagName('script');
+		$i = $pool.length;
+		while ($i--) if ('w' == ($script = $pool[$i]).className) $script.parentNode.removeChild($script);
+		$script = 0;
 	}
+
+	$pool = onDOMLoaded;
+	for ($i = 0; $i < $pool.length; ++$i) $pool[$i](), $pool[$i]=0;
+
+	$document = 0;
+
+	onDOMLoaded = [];
+	onDOMLoaded.go = function() {};
 }
 
 
@@ -216,6 +202,8 @@ w = function($homeAgent, $keys, $masterCIApID)
 		$continue = '',
 		$includeSrc = '',
 		$trustReferer = 0,
+		$reloadRequest = 0,
+		$reloadNoCache = 0,
 
 		$WexecStack = [],
 		$WexecLast = 0,
@@ -595,14 +583,19 @@ w = function($homeAgent, $keys, $masterCIApID)
 		$document.write($content + $src);
 
 		if (!$src)
-			$document.close(),
+		{
+			$document.close();
 			w = $document = r = y = z = w.k = w.w = w.r = w.x = $loopIterator = 0; // Memory leaks prevention
+			$reloadRequest ? location.reload($reloadNoCache) : onDOMLoaded.go();
+		}
 	}
 
-	w.r = function()
+	w.r = function($now, $noCache)
 	{
 		if ($masterHome != g.__HOME__) $document.cookie = 'cache_reset_id=' + $masterCIApID + '; path=/';
-		location.reload();
+		$now && location.reload(!!$noCache);
+		$reloadRequest = true;
+		$reloadNoCache = $reloadNoCache || !!$noCache;
 	}
 
 	w.x = function($data)

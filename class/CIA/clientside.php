@@ -182,7 +182,7 @@ EOHTML;
 			}
 			else if ($data->getMessage())
 			{
-				echo ');location.reload(' . (DEBUG ? '' : 'true') . ')';
+				echo ');w.r(0,' . (int)!DEBUG . ')';
 			}
 			else
 			{
