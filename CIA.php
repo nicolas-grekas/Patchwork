@@ -278,7 +278,7 @@ function __autoload($searched_class)
 	$i = strrpos($searched_class, '__');
 	$level = false !== $i ? substr($searched_class, $i+2) : false;
 
-	if (false !== $level && '' !== $level && '' === ltrim(strtr($level, '0123456789', '          ')))
+	if (false !== $level && '' !== $level && '' === ltrim(strtr($level, ' 0123456789 ', '#          ')))
 	{
 		// Namespace renammed class
 		$class = substr($searched_class, 0, $i);
@@ -454,15 +454,16 @@ $_SERVER['CIA_LANG'] || require processPath('language.php');
 if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && !isset($_SERVER['HTTP_IF_NONE_MATCH'])) // Special behaviour thanks to IE
 {
 	$match = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE'], 2);
-	$_SERVER['HTTP_IF_NONE_MATCH'] = '-' . dechex(strtotime($match[0]));
+	$_SERVER['HTTP_IF_NONE_MATCH'] = '"-' . dechex(strtotime($match[0])) . '"';
 }
 
-if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && !strncmp($_SERVER['HTTP_IF_NONE_MATCH'], '-', 1) && preg_match("'^-[0-9a-f]{8}$'", $_SERVER['HTTP_IF_NONE_MATCH'], $match))
+if (
+	isset($_SERVER['HTTP_IF_NONE_MATCH'])
+	&& 11 == strlen($_SERVER['HTTP_IF_NONE_MATCH'])
+	&& '"-        "' == strtr($_SERVER['HTTP_IF_NONE_MATCH'], ' 0123456789abcdef', '#                '))
 {
-	$_SERVER['HTTP_IF_NONE_MATCH'] = substr($_SERVER['HTTP_IF_NONE_MATCH'], 1);
-
-	$match = $match[0];
-	$match = resolvePath('zcache/') . $match[1] .'/'. $match[2] .'/'. substr($match, 3) .'.validator.'. DEBUG .'.';
+	$match = $_SERVER['HTTP_IF_NONE_MATCH'];
+	$match = resolvePath('zcache/') . $match[2] .'/'. $match[3] .'/'. substr($match, 4) .'.validator.'. DEBUG .'.';
 	$match .= hash('md5', $_SERVER['CIA_HOME'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
 
 	$headers = false;
@@ -497,7 +498,7 @@ $_POST_BACKUP =& $_POST;
 if (
 	isset($_COOKIE['T$'])
 	&& (!CIA_POSTING || (isset($_POST['T$']) && $_COOKIE['T$'] === $_POST['T$']))
-	&& preg_match("'^[a-f0-9]{32}$'", $_COOKIE['T$'])
+	&& '                                ' == strtr($_COOKIE['T$'], ' 0123456789abcdef', '#                '))
 ) $cia_token = $_COOKIE['T$'];
 else
 {

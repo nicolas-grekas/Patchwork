@@ -428,8 +428,6 @@ class
 		self::$ETag = filesize($file) .'-'. filemtime($file) .'-'. fileinode($file);
 		self::disable();
 
-		ignore_user_abort(false);
-
 		if (self::isGzipAllowed())
 		{
 			ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
@@ -977,8 +975,6 @@ class
 			return $buffer;
 		}
 
-#>		if (self::$isServersideHtml || CIA_DIRECT) $buffer = CIA_debugWin::call() . $buffer;
-
 
 		// Anti-XSRF token
 
@@ -987,6 +983,7 @@ class
 			static $lead;
 
 			if (PHP_OUTPUT_HANDLER_START & $mode) $lead = '';
+#>			if ((PHP_OUTPUT_HANDLER_START & $mode) && (self::$isServersideHtml || CIA_DIRECT)) $buffer = CIA_debugWin::call() . $buffer;
 
 			$tail = '';
 
@@ -1108,8 +1105,8 @@ class
 			$ETag = dechex($ETag);
 
 
-			$is304 = (isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] == $ETag)
-				|| (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && 0===strpos($_SERVER['HTTP_IF_MODIFIED_SINCE'], $LastModified));
+			$is304 = (isset($_SERVER['HTTP_IF_NONE_MATCH']) && false!==strpos($_SERVER['HTTP_IF_NONE_MATCH'], $ETag))
+				|| (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && false!==strpos($_SERVER['HTTP_IF_MODIFIED_SINCE'], $LastModified));
 
 
 			if ('ontouch' == self::$expires || ('auto' == self::$expires && self::$watchTable))
@@ -1147,7 +1144,7 @@ class
 				}
 			}
 
-			header('ETag: ' . $ETag);
+			header('ETag: "' . $ETag . '"');
 			header('Last-Modified: ' . $LastModified);
 			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + (self::$private || !self::$maxage ? 0 : self::$maxage)));
 			header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');

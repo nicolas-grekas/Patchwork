@@ -285,7 +285,7 @@ class CIA_preprocessor__0
 					{
 						$bracket_pool[$bracket_level+1] = 'class_exists' == $lcToken
 							  // For files in the include_path, set the 2nd arg of class_exists() to true
-							? CIA_preprocessor::bracket(array(array($a, 'close')), array(array($a, 'position')))
+							? CIA_preprocessor::bracket(array(array($c = new CIA_preprocessor_classExists_, 'close')), array(array($c, 'position')))
 
 							  // Automatically append their third arg to resolve|processPath
 							: CIA_preprocessor::bracket(array(array(new CIA_preprocessor_path_, 'close'), $level));
