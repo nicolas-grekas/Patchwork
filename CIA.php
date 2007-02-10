@@ -492,6 +492,8 @@ DEBUG && CIA_DIRECT && isset($_GET['d$']) && require processPath('debug.php');
 // }}}
 
 /// {{{ Anti Cross-Site-(Request-Forgery|Javascript-Request) token
+$_POST_BACKUP =& $_POST;
+
 if (
 	isset($_COOKIE['T$'])
 	&& (!CIA_POSTING || (isset($_POST['T$']) && $_COOKIE['T$'] === $_POST['T$']))
@@ -499,13 +501,9 @@ if (
 ) $cia_token = $_COOKIE['T$'];
 else
 {
-	if (CIA_POSTING)
-	{
-		E('Potential Cross Site Request Forgery. $_POST is not reliable. Erasing it !');
-		unset($_POST['f_password']);
-		E($_SERVER); E($_POST); E($_COOKIE);
-	}
+	if (CIA_POSTING) E('Potential Cross Site Request Forgery. $_POST is not reliable. Erasing it !');
 
+	unset($_POST);
 	$_POST = array();
 
 	unset($_COOKIE['T$']);
@@ -527,5 +525,3 @@ define('CIA_TOKEN_MATCH', isset($_GET['T$']) && $cia_token === $_GET['T$']);
 
 /* Let's go */
 CIA::start();
-
-exit;
