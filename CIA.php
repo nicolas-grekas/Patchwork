@@ -498,7 +498,7 @@ $_POST_BACKUP =& $_POST;
 if (
 	isset($_COOKIE['T$'])
 	&& (!CIA_POSTING || (isset($_POST['T$']) && $_COOKIE['T$'] === $_POST['T$']))
-	&& '                                ' == strtr($_COOKIE['T$'], ' 0123456789abcdef', '#                '))
+	&& '                                ' == strtr($_COOKIE['T$'], ' 0123456789abcdef', '#                ')
 ) $cia_token = $_COOKIE['T$'];
 else
 {
