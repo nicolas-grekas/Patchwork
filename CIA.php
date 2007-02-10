@@ -240,7 +240,29 @@ function cia_adaptRequire($file)
 	$file = strtr($file, '\\', '/');
 	$f = '.' . $file . '/';
 
-	return false !== strpos($f, './') || false !== strpos($file, ':') ? $file : processPath('class/' . $file);
+	if (false !== strpos($f, './') || false !== strpos($file, ':'))
+	{
+		$f = realpath($file);
+		if (!$f) return $file;
+
+		$file = false;
+		$i = count($GLOBALS['cia_paths']);
+		$p =& $GLOBALS['cia_include_paths'];
+		$len = count($p);
+
+		for (; $i < $len; ++$i)
+		{
+			if (substr($f, 0, strlen($p[$i])+1) == $p[$i] . DIRECTORY_SEPARATOR)
+			{
+				$file = substr($f, strlen($p[$i])+1);
+				break;
+			}
+		}
+
+		if (false === $file) return $f;
+	}
+
+	return processPath('class/' . $file);
 }
 // }}}
 

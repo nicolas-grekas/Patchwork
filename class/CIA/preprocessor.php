@@ -13,7 +13,7 @@
 
 
 function_exists('token_get_all') || die('Extension "tokenizer" is needed and not loaded.');
-class_exists('Reflection', 0) || die('Extension "Reflection" is needed and not loaded.');
+class_exists('Reflection',false) || die('Extension "Reflection" is needed and not loaded.');
 
 
 class CIA_preprocessor__0
@@ -186,6 +186,10 @@ class CIA_preprocessor__0
 
 				switch ($lcToken)
 				{
+				case 'header':
+					if (class_exists('CIA', false)) break;
+					else break 2;
+
 				case '__construct':
 					if (!$c) break 2;
 					else break;
@@ -228,89 +232,79 @@ class CIA_preprocessor__0
 						// If the currently parsed method is this class constructor
 						// build a PHP5 constructor if needed.
 
-						if ('__construct' == $lcToken) $c->has_php5_construct = true;
-						else
+						if ($c)
 						{
-							$token .= CIA_preprocessor::fetchSugar($code, $i);
-
-							if ('(' == $code[$i])
+							if ('__construct' == $lcToken) $c->has_php5_construct = true;
+							else if ($lcToken == strtolower($c->classname))
 							{
-								$c->construct_source = $token;
-								$c = new CIA_preprocessor_construct_($c->construct_source);
-								CIA_preprocessor::$tokenFilter = array($c, 'filterToken');
+								$token .= CIA_preprocessor::fetchSugar($code, $i);
 
-								$b =& $bracket_pool[$bracket_level+1];
-								$b || $b = new CIA_preprocessor_bracket_;
-								$b->onClose = array(array($c, 'close'));
-								unset($b);
+								if ('(' == $code[$i])
+								{
+									$c->construct_source = $token;
+									$c = new CIA_preprocessor_construct_($c->construct_source);
+									CIA_preprocessor::$tokenFilter = array($c, 'filterToken');
+
+									$b =& $bracket_pool[$bracket_level+1];
+									$b || $b = new CIA_preprocessor_bracket_;
+									$b->onClose = array(array($c, 'close'));
+									unset($b);
+								}
+
+								--$i;
 							}
-
-							--$i;
 						}
 
 						break;
 					}
 				}
 
-				if (0<=$level) switch ($lcToken)
+				switch ($lcToken)
 				{
-				case '__cia_level__':
-					$token = $level;
-					break;
-
+				case 'header': $token = 'CIA::header'; break;
+				case '__cia_level__': $token = $level; break;
 				case '__cia_file__':
 					$token = "'" . str_replace(array('\\', "'"), array('\\\\', "\\'"), CIA_preprocessor::$source) . "'";
-					break;
-
-				case 'resolvepath':
-				case 'processpath':
-					// Automatically append their third arg to resolve|processPath
-
-					$token .= CIA_preprocessor::fetchSugar($code, $i);
-
-					if ('(' == $code[$i])
-					{
-						$b =& $bracket_pool[$bracket_level+1];
-						$b || $b = new CIA_preprocessor_bracket_;
-						$b->onClose = array(array(new CIA_preprocessor_path_, 'close'), $level);
-						unset($b);
-					}
-
-					--$i;
-
 					break;
 
 				case 'self':
 					if ($class_pool)
 					{
 						// Replace every self::* by <__CLASS__>::*
-
 						$token = CIA_preprocessor::fetchSugar($code, $i);
 						$token = (T_DOUBLE_COLON == $code[$i][0] ? end($class_pool)->classname : 'self') . $token;
-
 						--$i;
 					}
 
 					break;
-				}
-				else if ('class_exists' == $lcToken)
-				{
-					// For files in the include_path, set the 2nd arg of class_exists() to true
 
+				case 'resolvepath':
+				case 'processpath':
+				case 'class_exists':
 					$token .= CIA_preprocessor::fetchSugar($code, $i);
 
 					if ('(' == $code[$i])
 					{
-						$a = new CIA_preprocessor_classExists_;
-
 						$b =& $bracket_pool[$bracket_level+1];
 						$b || $b = new CIA_preprocessor_bracket_;
-						$b->onPositionUpdate = array(array($a, 'position'));
-						$b->onClose = array(array($a, 'close'));
+
+						if ('class_exists' == $lcToken)
+						{
+							// For files in the include_path, set the 2nd arg of class_exists() to true
+							$b->onPositionUpdate = array(array($a, 'position'));
+							$b->onClose = array(array($a, 'close'));
+						}
+						else
+						{
+							// Automatically append their third arg to resolve|processPath
+							$b->onClose = array(array(new CIA_preprocessor_path_, 'close'), $level);
+						}
+
 						unset($b);
 					}
 
 					--$i;
+					break;
 				}
 
 				break;
