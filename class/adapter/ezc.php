@@ -1,48 +1,27 @@
 <?php /*********************************************************************
  *
- *   Copyright : (C) 2005, 2006 eZ systems as. All rights reserved.
- *   License   : http://ez.no/licenses/new_bsd New BSD License
+ *   Copyright : (C) 2006 Nicolas Grekas. All rights reserved.
+ *   Email     : nicolas.grekas+patchwork@espci.org
+ *   License   : http://www.gnu.org/licenses/gpl.txt GNU/GPL, see COPYING
+ *
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation; either version 2 of the License, or
+ *   (at your option) any later version.
  *
  ***************************************************************************/
 
 
-require processPath('class/ezc/Base/base.php');
+/*
+ * To use eZComponents, setup them using the PEAR method,
+ * then add this line in your config.php :
+ * registerAutoloadPrefix('ezc', array('adapter_ezc', 'getAutoload'));
+ */
 
-class extends ezcBase__00
+class
 {
 	static function getAutoload($className)
 	{
-		if ('ezcBase' == $className) return 'ezc/Base/base.php';
-
-        if (isset(self::$autoloadArray[$className])) return 'ezc/' . self::$autoloadArray[$className];
-
-        if (preg_match( "/^([a-z]*)([A-Z][a-z0-9]*)([A-Z][a-z0-9]*)?/", $className, $matches ))
-        {
-            switch ( sizeof($matches) )
-            {
-                case 4:
-					$autoload = strtolower( "class/ezc/autoload/{$matches[2]}_{$matches[3]}_autoload.php" );
-                    if ($autoload = resolvePath($autoload))
-					{
-						$autoload = require $autoload;
-						self::$autoloadArray = array_merge( self::$autoloadArray, $autoload );
-						break;
-                    }
-
-                case 3:
-                    $autoload = strtolower( "class/ezc/autoload/{$matches[2]}_autoload.php" );
-                    if ($autoload = resolvePath($autoload))
-                    {
-						$autoload = require $autoload;
-						self::$autoloadArray = array_merge( self::$autoloadArray, $autoload );
-                    }
-
-					break;
-            }
-        }
-
-		return isset(self::$autoloadArray[$className])
-			? 'ezc/' . self::$autoloadArray[$className]
-			: false;
+		return 'ezcBase' == $className ? 'ezc/Base/base.php' : ezcBase::getAutoload($className);
 	}
 }

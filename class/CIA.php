@@ -377,7 +377,7 @@ class
 	/**
 	 * Replacement for PHP's header() function
 	 */
-	static function header($string)
+	static function header($string, $replace = true, $http_response_code = null)
 	{
 		if (self::$is_enabled && (
 			   0===stripos($string, 'http/')
@@ -405,8 +405,8 @@ class
 				self::$detectCSRF = true;
 			}
 
-			self::$headers[$name] = $string;
-			header($string);
+			self::$headers[$name] = $replace || !isset(self::$headers[$name]) ? $string : (self::$headers[$name] . ', ' . $string);
+			header($string, $replace, self::$is_enabled ? null : $http_response_code);
 		}
 	}
 
