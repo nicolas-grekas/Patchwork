@@ -10,4 +10,4 @@
  *   (at your option) any later version.
  *
  **************************************************************************/*}
-addOnload((function(e){return function(){QSelect(e,QSelectSearch([<!-- LOOP $DATA -->{$VALUE|js},<!-- END:LOOP -->0]))}})(formStack.shift()))
+onDOMLoaded.push((function(e){return function(){QSelect(e,QSelectSearch([<!-- LOOP $DATA -->{$VALUE|js},<!-- END:LOOP -->0]))}})(formStack.shift()))

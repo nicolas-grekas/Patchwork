@@ -386,7 +386,7 @@ function autofitTextarea()
 	}
 }
 	
-addOnload(function()
+onDOMLoaded.push(function()
 {
 	var $i = 0, $t, $T = document.getElementsByTagName('textarea');
 
@@ -414,7 +414,7 @@ addOnload(function()
 	}
 });
 
-addOnload(function()
+onDOMLoaded.push(function()
 {
 	scrollCntrl = 0;
 

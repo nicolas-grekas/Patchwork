@@ -245,7 +245,7 @@ class
 
 		if (isset($_GET['v$']) && self::$versionId != $_GET['v$'] && 'x$' != key($_GET))
 		{
-			echo 'w.r()';
+			echo 'w.r(1,' . (int)!DEBUG . ')';
 			return;
 		}
 
@@ -986,7 +986,7 @@ class
 			if (PHP_OUTPUT_HANDLER_START & $mode)
 			{
 				$lead = '';
-#>				if (!self::$binaryMode && (self::$isServersideHtml || CIA_DIRECT) $buffer = CIA_debugWin::call() . $buffer;
+#>				if (!self::$binaryMode && (self::$isServersideHtml || CIA_DIRECT)) $buffer = CIA_debugWin::call() . $buffer;
 			}
 
 			$tail = '';
