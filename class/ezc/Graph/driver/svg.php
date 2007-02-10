@@ -8,11 +8,11 @@
 
 class ezcGraphSvgDriver extends self
 {
-    function render($file)
-    {
-        $this->createDocument();  
-        $this->drawAllTexts();
-		if ('php://output' == $file) echo $this->dom->saveXML();
+	function render($file)
+	{
+		$this->createDocument();  
+		$this->drawAllTexts();
+		if (ob_get_level() && 'php://output' == $file) echo $this->dom->saveXML();
 		else $this->dom->save( $file );
-    }
+	}
 }
