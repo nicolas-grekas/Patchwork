@@ -30,12 +30,12 @@ class CIA_preprocessor__0
 		$code = file_get_contents(CIA_preprocessor::$source);
 		CIA_preprocessor::antePreprocess($code, $level, $class);
 
+
+		$code =& CIA_preprocessor::preprocess($code, $level, $class);
+
 		$tmp = './' . uniqid(mt_rand(), true);
-		$h = fopen($tmp, 'wb');
 
-		CIA_preprocessor::preprocess($h, $code, $level, $class);
-
-		fclose($h);
+		file_put_contents($tmp, $code);
 
 		if (CIA_WINDOWS)
 		{
@@ -50,22 +50,24 @@ class CIA_preprocessor__0
 	protected static function antePreprocess(&$code, $level, $class)
 	{
 		if (false !== strpos($code, "\r")) $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
-		if (false !== strpos($code, '#>>>>>')) $code = preg_replace_callback("'^#>>>>>\s*^.*?^#<<<<<\s*$'ms", array('CIA_preprocessor', 'extractLF'), $code);
+		if (false !== strpos($code, '#>>>>>')) $code = preg_replace_callback("'^#>>>>>\s*^.*?^#<<<<<\s*$'ms", array('CIA_preprocessor', 'extractRxLF'), $code);
 		if (DEBUG)
 		{
 			if (false !== strpos($code, '#>')) $code = preg_replace("'^#>([^>].*)$'m", '$1', $code);
 		}
 		else
 		{
-			if (false !== strpos($code, '#>>>')) $code = preg_replace_callback("'^#>>>\s*^.*?^#<<<\s*$'ms", array('CIA_preprocessor', 'extractLF'), $code);
+			if (false !== strpos($code, '#>>>')) $code = preg_replace_callback("'^#>>>\s*^.*?^#<<<\s*$'ms", array('CIA_preprocessor', 'extractRxLF'), $code);
 		}
 
 	}
 
-	protected static function preprocess($h, &$code, $level, $class)
+	protected static function &preprocess(&$code, $level, $class)
 	{
 		$code = token_get_all($code);
 		$codeLen = count($code);
+
+		$new_code = array();
 
 		$curly_level = 0;
 		$class_pool = array();
@@ -241,14 +243,10 @@ class CIA_preprocessor__0
 
 								if ('(' == $code[$i])
 								{
-									$c->construct_source = $token;
+									$c->construct_source = $c->classname;
 									$c = new CIA_preprocessor_construct_($c->construct_source);
 									CIA_preprocessor::$tokenFilter = array($c, 'filterToken');
-
-									$b =& $bracket_pool[$bracket_level+1];
-									$b || $b = new CIA_preprocessor_bracket_;
-									$b->onClose = array(array($c, 'close'));
-									unset($b);
+									$bracket_pool[$bracket_level+1] = CIA_preprocessor::bracket(array(array($c, 'close')));
 								}
 
 								--$i;
@@ -285,22 +283,12 @@ class CIA_preprocessor__0
 
 					if ('(' == $code[$i])
 					{
-						$b =& $bracket_pool[$bracket_level+1];
-						$b || $b = new CIA_preprocessor_bracket_;
+						$bracket_pool[$bracket_level+1] = 'class_exists' == $lcToken
+							  // For files in the include_path, set the 2nd arg of class_exists() to true
+							? CIA_preprocessor::bracket(array(array($a, 'close')), array(array($a, 'position')))
 
-						if ('class_exists' == $lcToken)
-						{
-							// For files in the include_path, set the 2nd arg of class_exists() to true
-							$b->onPositionUpdate = array(array($a, 'position'));
-							$b->onClose = array(array($a, 'close'));
-						}
-						else
-						{
-							// Automatically append their third arg to resolve|processPath
-							$b->onClose = array(array(new CIA_preprocessor_path_, 'close'), $level);
-						}
-
-						unset($b);
+							  // Automatically append their third arg to resolve|processPath
+							: CIA_preprocessor::bracket(array(array(new CIA_preprocessor_path_, 'close'), $level));
 					}
 
 					--$i;
@@ -327,7 +315,8 @@ class CIA_preprocessor__0
 			case T_COMMENT:
 			case T_WHITESPACE:
 			case T_DOC_COMMENT:
-				$token = CIA_preprocessor::stripSugar($token);
+				$token = substr_count($token, "\n");;
+				$token = $token ? str_repeat("\n", $token) : ' ';
 				break;
 
 			case false:
@@ -340,14 +329,12 @@ class CIA_preprocessor__0
 						unset($instructionSuffix[$bracket_level]);
 					}
 
-					if ($bracket_level) $token = $bracket_pool[$bracket_level]->incrementPosition($token);
+					if (isset($bracket_pool[$bracket_level])) $token = $bracket_pool[$bracket_level]->incrementPosition($token);
 
 					break;
 
 				case '(':
 					++$bracket_level;
-
-					if (!isset($bracket_pool[$bracket_level])) $bracket_pool[$bracket_level] = new CIA_preprocessor_bracket_;
 
 					break;
 
@@ -358,7 +345,12 @@ class CIA_preprocessor__0
 						unset($instructionSuffix[$bracket_level]);
 					}
 
-					$token = $bracket_pool[$bracket_level]->close($token);
+					if (isset($bracket_pool[$bracket_level]))
+					{
+						$token = $bracket_pool[$bracket_level]->close($token);
+						unset($bracket_pool[$bracket_level]);
+					}
+
 					--$bracket_level;
 
 					break;
@@ -388,40 +380,46 @@ class CIA_preprocessor__0
 
 			if (CIA_preprocessor::$tokenFilter) $token = call_user_func(CIA_preprocessor::$tokenFilter, $tokenType, $token);
 
-			fwrite($h, $token, strlen($token));
+			$new_code[] = $token;
 		}
 
 		$token =& $code[$codeLen - 1];
 
-		if (!is_array($token) || (T_CLOSE_TAG != $token[0] && T_INLINE_HTML != $token[0])) fwrite($h, '?>', 2);
-	}
+		if (!is_array($token) || (T_CLOSE_TAG != $token[0] && T_INLINE_HTML != $token[0])) $new_code[] = '?>';
 
-	protected static function stripSugar($a)
-	{
-		$a = preg_replace(
-			array("'[^\r\n]+'", "' +([\r\n])'", "'([\r\n]) +'"),
-			array(' '         , '$1'          , '$1'          ),
-			$a
-		);
+		$new_code = implode('', $new_code);
 
-		return $a;
+		return $new_code;
 	}
 
 	protected static function fetchSugar(&$code, &$i)
 	{
-		$token = '';
+		$token = ' ';
 
 		while (
 			isset($code[++$i]) && is_array($code[$i]) && ($t = $code[$i][0])
 			&& (T_COMMENT == $t || T_WHITESPACE == $t || T_DOC_COMMENT == $t)
-		) $token .= CIA_preprocessor::stripSugar($code[$i][1]);
+		) $token .= CIA_preprocessor::extractLF($code[$i][1]);
 
 		return $token;
 	}
 
 	protected static function extractLF($a)
 	{
-		return str_repeat("\n", substr_count(is_array($a) ? $a[0] : $a, "\n"));
+		return str_repeat("\n", substr_count($a, "\n"));
+	}
+
+	protected static function extractRxLF($a)
+	{
+		return CIA_preprocessor::extractLF($a[0]);
+	}
+
+	protected static function bracket($onClose = false, $onPositionUpdate = false)
+	{
+		$b = new CIA_preprocessor_bracket_;
+		if ($onClose) $b->onClose = $onClose;
+		if ($onPositionUpdate) $b->onPositionUpdate = $onPositionUpdate;
+		return $b;
 	}
 }
 
