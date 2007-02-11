@@ -365,6 +365,11 @@ w = function($homeAgent, $keys, $masterCIApID)
 		});
 		<!-- END:IF -->
 
+		function $evalNext($i)
+		{
+			return eval('$i=' + $code[$pointer++]);
+		}
+
 		($WexecStack[++$WexecLast] = function()
 		{
 			a = $arguments;
@@ -392,13 +397,11 @@ w = function($homeAgent, $keys, $masterCIApID)
 					break;
 
 				case 1: // agent
-					var $agent = $code[$pointer++],
-						$args = $code[$pointer++],
+					var $agent = $evalNext(),
+						$args = $evalNext(),
 						$keys = $code[$pointer++],
 						$meta = $code[$pointer++],
 						$data;
-
-					eval('$agent='+$agent+';$args='+$args);
 
 					<!-- IF g$__DEBUG__ -->
 					if (!t($agent))
@@ -480,7 +483,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 					break;
 
 				case 3: // eval echo
-					eval('$echo('+$code[$pointer++]+')');
+					$echo( $evalNext() );
 					break;
 
 				case 4: // set
@@ -506,11 +509,11 @@ w = function($homeAgent, $keys, $masterCIApID)
 					break;
 
 				case 7: // if
-					eval('(('+$code[$pointer++]+')&&++$pointer)||($pointer+=$code[$pointer])');
+					($evalNext() && ++$pointer) || ($pointer += $code[$pointer]);
 					break;
 
 				case 8: // loop
-					eval('$i='+$code[$pointer++]);
+					$i = $evalNext();
 					($i && (t($i, 'function') || ($i = y($i-0))) && $i()() && ++$pointer) || ($pointer += $code[$pointer]);
 					$context = v;
 					break;
