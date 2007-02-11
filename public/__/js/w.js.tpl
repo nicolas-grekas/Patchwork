@@ -533,7 +533,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 	{
 		// Any optimization to save some request here is likely to break IE ...
 
-		var $src = $includeSrc, $content = $buffer.join(''), $offset = 0;
+		var $src = $includeSrc, $content = $reloadRequest ? '' : $buffer.join(''), $offset = 0;
 
 		$includeSrc = '';
 		w.c = $continue;
