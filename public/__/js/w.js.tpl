@@ -216,12 +216,11 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 		$lastInclude = '',
 		$includeCache = {},
+		$startTime,
 		$maxRlevel = 100,
 		$Rlevel = $maxRlevel,
 		
-		$masterHome = {g$__HOME__|js},
-
-		$startTime;
+		$masterHome = {g$__HOME__|js};
 
 	if (!/safari|msie [0-5]\./i.test(navigator.userAgent) && !/(^|; )JS=[12](; |$)/.test($document.cookie)) $document.cookie = 'JS=1; path=/';
 
@@ -595,7 +594,8 @@ w = function($homeAgent, $keys, $masterCIApID)
 			$document.close();
 			w = $document = r = y = z = w.k = w.w = w.r = w.x = $loopIterator = 0; // Memory leaks prevention
 
-			if ($reloadRequest) location.reload($reloadNoCache)
+			if ($reloadRequest) location.reload($reloadNoCache);
+			else
 			{
 				$src = document.forms.length;
 				while ($formsLength < $src) syncCSRF(document.forms[$formsLength++]);
