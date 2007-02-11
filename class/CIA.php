@@ -668,21 +668,14 @@ class
 	{
 		self::makeDir($file);
 
-		if ($h = @fopen($file, 'x+b'))
-		{
-			flock($h, LOCK_EX+LOCK_NB, $w);
-
-			if ($w) fclose($h);
-			else return $h;
-		}
-
-		if ($readHandle)
+		if ($h = @fopen($file, 'x+b')) flock($h, LOCK_EX);
+		else if ($readHandle)
 		{
 			$readHandle = fopen($file, 'rb');
 			flock($readHandle, LOCK_SH);
 		}
 
-		return false;
+		return $h;
 	}
 
 	/**
