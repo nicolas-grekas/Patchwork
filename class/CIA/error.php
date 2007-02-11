@@ -87,24 +87,24 @@ class extends CIA
 			$context = htmlspecialchars( print_r($context, true) );
 		}
 
-		$msg = '';
-		$exit = true;
+		$exit = false;
+		defined('E_RECOVERABLE_ERROR') || define('E_RECOVERABLE_ERROR', E_ERROR);
 
 		switch ($code)
 		{
-			case E_ERROR: $msg = '<b>Error</b>'; break;
-			case E_USER_ERROR: $msg = '<b>User Error</b>'; break;
-			case E_WARNING: $msg = '<b>Warning</b>'; break;
-			case E_USER_WARNING: $msg = '<b>User Warning</b>'; break;
-		}
-
-		$msg || $exit = false;
-		if (!$msg) switch ($code)
-		{
-			case E_NOTICE: $msg = '<b>Notice</b>'; break;
-			case E_USER_NOTICE: $msg = '<b>User Notice</b>'; break;
-			case E_STRICT: $msg = '<b>Strict Notice</b>'; break;
-			default: $msg = '<b>Unknown Error ('.$code.')</b>';
+		case E_ERROR:
+		case E_RECOVERABLE_ERROR:
+			$msg = '<b>Recoverable Error</b>';
+			$exit = true;
+			break;
+			
+		case E_USER_ERROR:   $msg = '<b>User Error</b>';    break;
+		case E_WARNING:      $msg = '<b>Warning</b>';       break;
+		case E_USER_WARNING: $msg = '<b>User Warning</b>';  break;
+		case E_NOTICE:       $msg = '<b>Notice</b>';        break;
+		case E_USER_NOTICE:  $msg = '<b>User Notice</b>';   break;
+		case E_STRICT:       $msg = '<b>Strict Notice</b>'; break;
+		default:             $msg = '<b>Unknown Error (#'.$code.')</b>';
 		}
 
 		$cid = self::uniqid();

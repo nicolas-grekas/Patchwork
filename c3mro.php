@@ -38,8 +38,11 @@ $appInheritSeq = array(
 	'$cia_include_paths=' . var_export($cia_include_paths, true) . ';',
 );
 
-glob('./.*.' . $cia_paths_token . '.*.zcache.php', GLOB_NOSORT)
-	|| array_map('unlink', glob('./.*.zcache.php', GLOB_NOSORT));
+if (!file_exists($CIA = './.' . $cia_paths_token . '.zcache.php') && $h = @fopen($CIA, 'x+b'))
+{
+	fclose($h);
+	array_map('unlink', glob('./.*.zcache.php', GLOB_NOSORT));
+}
 
 foreach ($cia_paths as $CIA)
 {
@@ -47,7 +50,7 @@ foreach ($cia_paths as $CIA)
 	$appInheritSeq[] = $appConfigSource[$CIA];
 }
 
-$appConfigSource = $cia_paths[0] . '/.config.zcache.php';
+$appConfigSource = './.config.zcache.php';
 
 @unlink($appConfigSource);
 
