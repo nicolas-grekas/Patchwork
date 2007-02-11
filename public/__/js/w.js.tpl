@@ -220,6 +220,8 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 		$lastInclude = '',
 		$includeCache = {},
+		$maxRlevel = 100,
+		$Rlevel = $maxRlevel,
 		
 		$masterHome = {g$__HOME__|js},
 
@@ -252,19 +254,93 @@ w = function($homeAgent, $keys, $masterCIApID)
 *		v.$ : data, parent
 *		g : get
 
+*		w.k() : get agent's keys
+*		w.w() : does document.write()
+*		w.r() : flag the page for location.reload()
 *		w.x() : loop construtor for data arrays
 *		y() : loop construtor for numbers
 *		z() : counter initialization and incrementation
 */
 
-	w = function($context, $code)
+	function $echo($a)
+	{
+		t($a) && ($WobLast ? $WobStack[$WobLast] : $buffer).push($a);
+	}
+
+	function $include($inc, $args, $keys, $c)
+	{
+		if ($args)
+		{
+			if ($inc.indexOf('?')==-1) $inc += '?';
+			$c = '';
+
+			if ($keys)
+			{
+				$args.T$ = antiCSRF;
+
+				if ($args.e$) for ($i in $args) $args[$i] = num(str($args[$i]), 1);
+				else          for ($i in $args) $args[$i] = num(    $args[$i] , 1);
+
+				for ($i=0; $i<$keys.length; ++$i)
+					if (($j = $keys[$i]) && t($args[$j]))
+						$c += '&amp;' + eUC($j) + '=' + eUC(unesc($args[$j]));
+
+				if ($args.e$) $args.__URI__ += '?' + $c.substr(5);
+				a = $args;
+				$include($inc + $c + '&amp;v$=' + $CIApID);
+			}
+			else
+			{
+				w.k = function($id, $home, $agent, $__0__, $keys)
+				{
+					$home = esc($home).replace(/__/, g.__LANG__);
+					$agent = esc($agent);
+
+					$args.__0__ = $__0__;
+					$__0__ = $__0__.split('/');
+					for ($i = 0; $i < $__0__.length; ++$i) $args['__' + ($i+1) + '__'] = $__0__[$i];
+
+					if ($home != g.__HOME__)
+					{
+						$CIApID = $id/1;
+
+						$args.__DEBUG__ = g.__DEBUG__;
+						$args.__LANG__ = g.__LANG__;
+						$args.__HOME__ = $home;
+						$args.__HOST__ = $home.substr(0, $home.indexOf('/', 8)+1);
+						$args.__AGENT__ = $agent ? $agent + '/' : '';
+						$args.__URI__ = $home + $agent;
+						$args.e$ = 1;
+
+						g = $args;
+					}
+
+					$include($home + '_?a$=' + $agent, $args, $keys)
+				}
+
+				$include($inc + '&amp;k$=', 0, 0, 1);
+			}
+		}
+		else
+		{
+			$lastInclude = $c ? '' : $inc;
+
+			if (t($includeCache[$inc]) && --$Rlevel) w($includeCache[$inc][0], $includeCache[$inc][1], 1);
+			else
+				$Rlevel = $maxRlevel,
+				$includeSrc = $inc,
+				w.w();
+		}
+	}
+
+	w = function($context, $code, $fromCache)
 	{
 		$homeAgent; //This is here for jsquiz to work well
 		$code = $code || [];
 
-		$startTime = new Date;
+		$fromCache || ($startTime = new Date, $Rlevel = $maxRlevel);
 
-		var $pointer = 0, $arguments = a, $localCIApID = $CIApID, $localG = g, $maxRlevel = 100, $Rlevel = $maxRlevel;
+		var $pointer = 0, $arguments = a, $localCIApID = $CIApID, $localG = g;
 
 		<!-- IF g$__DEBUG__ -->var DEBUG = $i = 0;<!-- END:IF -->
 
@@ -288,82 +364,6 @@ w = function($homeAgent, $keys, $masterCIApID)
 			'Data': DEBUG-1 ? $context : ''
 		});
 		<!-- END:IF -->
-
-		function $evalNext()
-		{
-			return eval('$i=' + $code[$pointer++]);
-		}
-
-		function $echo($a)
-		{
-			t($a) && ($WobLast ? $WobStack[$WobLast] : $buffer).push($a);
-		}
-
-		function $include($inc, $args, $keys, $c)
-		{
-			if ($args)
-			{
-				if ($inc.indexOf('?')==-1) $inc += '?';
-				$c = '';
-
-				if ($keys)
-				{
-					$args.T$ = antiCSRF;
-
-					if ($args.e$) for ($i in $args) $args[$i] = num(str($args[$i]), 1);
-					else          for ($i in $args) $args[$i] = num(    $args[$i] , 1);
-
-					for ($i=0; $i<$keys.length; ++$i)
-						if (($j = $keys[$i]) && t($args[$j]))
-							$c += '&amp;' + eUC($j) + '=' + eUC(unesc($args[$j]));
-
-					if ($args.e$) $args.__URI__ += '?' + $c.substr(5);
-					a = $args;
-					$include($inc + $c + '&amp;v$=' + $CIApID);
-				}
-				else
-				{
-					w.k = function($id, $home, $agent, $__0__, $keys)
-					{
-						$home = esc($home).replace(/__/, g.__LANG__);
-						$agent = esc($agent);
-
-						$args.__0__ = $__0__;
-						$__0__ = $__0__.split('/');
-						for ($i = 0; $i < $__0__.length; ++$i) $args['__' + ($i+1) + '__'] = $__0__[$i];
-
-						if ($home != g.__HOME__)
-						{
-							$CIApID = $id/1;
-
-							$args.__DEBUG__ = g.__DEBUG__;
-							$args.__LANG__ = g.__LANG__;
-							$args.__HOME__ = $home;
-							$args.__HOST__ = $home.substr(0, $home.indexOf('/', 8)+1);
-							$args.__AGENT__ = $agent ? $agent + '/' : '';
-							$args.__URI__ = $home + $agent;
-							$args.e$ = 1;
-
-							g = $args;
-						}
-
-						$include($home + '_?a$=' + $agent, $args, $keys)
-					}
-
-					$include($inc + '&amp;k$=', 0, 0, 1);
-				}
-			}
-			else
-			{
-				$lastInclude = $c ? '' : $inc;
-
-				if (t($includeCache[$inc]) && --$Rlevel) w($includeCache[$inc][0], $includeCache[$inc][1]);
-				else
-					$Rlevel = $maxRlevel,
-					$includeSrc = $inc,
-					w.w();
-			}
-		}
 
 		($WexecStack[++$WexecLast] = function()
 		{
@@ -392,11 +392,13 @@ w = function($homeAgent, $keys, $masterCIApID)
 					break;
 
 				case 1: // agent
-					var $agent = $evalNext(),
-						$args = $evalNext(),
+					var $agent = $code[$pointer++],
+						$args = $code[$pointer++],
 						$keys = $code[$pointer++],
 						$meta = $code[$pointer++],
 						$data;
+
+					eval('$agent='+$agent+';$args='+$args);
 
 					<!-- IF g$__DEBUG__ -->
 					if (!t($agent))
@@ -478,7 +480,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 					break;
 
 				case 3: // eval echo
-					$echo( $evalNext() );
+					eval('$echo('+$code[$pointer++]+')');
 					break;
 
 				case 4: // set
@@ -504,11 +506,11 @@ w = function($homeAgent, $keys, $masterCIApID)
 					break;
 
 				case 7: // if
-					($evalNext() && ++$pointer) || ($pointer += $code[$pointer]);
+					eval('(('+$code[$pointer++]+')&&++$pointer)||($pointer+=$code[$pointer])');
 					break;
 
 				case 8: // loop
-					$i = $evalNext();
+					eval('$i='+$code[$pointer++]);
 					($i && (t($i, 'function') || ($i = y($i-0))) && $i()() && ++$pointer) || ($pointer += $code[$pointer]);
 					$context = v;
 					break;
@@ -597,7 +599,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 		$reloadNoCache = $reloadNoCache || !!$noCache;
 		if ($now)
 		{
-			do $WexecStack[$WexecLast] = [];
+			do $WexecStack[$WexecLast] = 0;
 			while (--$WexecLast);
 		}
 	}
