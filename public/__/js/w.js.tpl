@@ -593,9 +593,13 @@ w = function($homeAgent, $keys, $masterCIApID)
 	w.r = function($now, $noCache)
 	{
 		if ($masterHome != g.__HOME__) $document.cookie = 'cache_reset_id=' + $masterCIApID + '; path=/';
-		$now && location.reload(!!$noCache);
 		$reloadRequest = true;
 		$reloadNoCache = $reloadNoCache || !!$noCache;
+		if ($now)
+		{
+			do $WexecStack[$WexecLast] = [];
+			while (--$WexecLast);
+		}
 	}
 
 	w.x = function($data)
