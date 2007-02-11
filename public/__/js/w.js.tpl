@@ -96,9 +96,9 @@ function syncCSRF($form)
 	{
 		$form = document.forms;
 		$form = $form[$form.length - 1];
-		$form.T$.value = antiCSRF;
 	}
-	else if ('post' == $form.method)
+
+	if ('post' == $form.method.toLowerCase())
 	{
 		if ($form.action.indexOf({g$__HOME__|js})) return;
 
@@ -124,13 +124,9 @@ onDOMLoaded.go = function()
 
 	if ($document.removeChild)
 	{
-		$pool = $document.getElementsByTagName('form');
+		$pool = $document.getElementsByName('w$');
 		$i = $pool.length;
-		while ($i--) syncCSRF($pool[$i]);
-
-		$pool = $document.getElementsByTagName('script');
-		$i = $pool.length;
-		while ($i--) if ('w' == ($script = $pool[$i]).className) $script.parentNode.removeChild($script);
+		while ($i--) 'script' == ($script = $pool[$i]).tagName.toLowerCase() && $script.parentNode.removeChild($script);
 		$script = 0;
 	}
 
@@ -198,8 +194,8 @@ w = function($homeAgent, $keys, $masterCIApID)
 	var $document = document,
 
 		$buffer = [],
+		$formsLength = 0,
 		$inlineJs = 0,
-		$continue = '',
 		$includeSrc = '',
 		$trustReferer = 0,
 		$reloadRequest = 0,
@@ -225,7 +221,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 		
 		$masterHome = {g$__HOME__|js},
 
-		$startTime = new Date;
+		$startTime;
 
 	if (!/safari|msie [0-5]\./i.test(navigator.userAgent) && !/(^|; )JS=[12](; |$)/.test($document.cookie)) $document.cookie = 'JS=1; path=/';
 
@@ -327,7 +323,6 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 			if (t($includeCache[$inc]) && --$Rlevel) w($includeCache[$inc][0], $includeCache[$inc][1], 1);
 			else
-				$Rlevel = $maxRlevel,
 				$includeSrc = $inc,
 				w.w();
 		}
@@ -338,9 +333,17 @@ w = function($homeAgent, $keys, $masterCIApID)
 		$homeAgent; //This is here for jsquiz to work well
 		$code = $code || [];
 
-		$fromCache || ($startTime = new Date, $Rlevel = $maxRlevel);
+		var $pointer, $arguments = a, $localCIApID = $CIApID, $localG = g;
 
-		var $pointer = 0, $arguments = a, $localCIApID = $CIApID, $localG = g;
+		if (!$fromCache)
+		{
+			$startTime = new Date;
+			$Rlevel = $maxRlevel;
+			$pointer = $document.forms.length;
+			while ($formsLength < $pointer) syncCSRF($document.forms[$formsLength++]);
+		}
+
+		$pointer = 0;
 
 		<!-- IF g$__DEBUG__ -->var DEBUG = $i = 0;<!-- END:IF -->
 
@@ -380,151 +383,151 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 			while ($code[$pointer]>='') switch ($code[$pointer++])
 			{
-				case 0: // pipe
-					$i = $code[$pointer++];
+			case 0: // pipe
+				$i = $code[$pointer++];
 
-					if (!$i) break;
+				if (!$i) break;
 
-					$code[$pointer-1] = 0;
+				$code[$pointer-1] = 0;
 
-					$i = $i.split('.');
-					$j = $i.length;
-					while ($j--) $i[$j] = t(window['P$'+$i[$j]]) ? '' : ('.'+$i[$j]);
+				$i = $i.split('.');
+				$j = $i.length;
+				while ($j--) $i[$j] = t(window['P$'+$i[$j]]) ? '' : ('.'+$i[$j]);
 
-					$i = $i.join('');
+				$i = $i.join('');
 
-					if ($i) return $include(g.__HOME__ + '_?p$=' + esc($i.substr(1)), 0, 0, 1);
+				if ($i) return $include(g.__HOME__ + '_?p$=' + esc($i.substr(1)), 0, 0, 1);
+				break;
+
+			case 1: // agent
+				var $agent = $evalNext(),
+					$args = $evalNext(),
+					$keys = $code[$pointer++],
+					$meta = $code[$pointer++],
+					$data;
+
+				<!-- IF g$__DEBUG__ -->
+				if (!t($agent))
+				{
+					E('AGENT is undefined: ' + $code[$pointer-4]);
 					break;
+				}
+				<!-- ELSE -->
+				if (!t($agent)) break;
+				<!-- END:IF -->
 
-				case 1: // agent
-					var $agent = $evalNext(),
-						$args = $evalNext(),
-						$keys = $code[$pointer++],
-						$meta = $code[$pointer++],
-						$data;
+				if (t($agent, 'function'))
+				{
+					$agent = $agent();
+					while ($j = $agent()) $data = $j;
 
+					$agent = $data.a$;
+					eval('$keys='+$data.k$);
+
+					for ($i in $data) if (!/\$/.test($i)) $args[$i] = $data[$i];
+
+					if ($data.r$) $meta = [$data.v$, $data.r$];
+				}
+
+				$agent = esc($agent);
+
+				if (!$meta) $agent = g.__HOME__ + '_?t$=' + $agent;
+				else
+				{
+					if ($meta > 1)
+					{
 					<!-- IF g$__DEBUG__ -->
-					if (!t($agent))
-					{
-						E('AGENT is undefined: ' + $code[$pointer-4]);
-						break;
-					}
-					<!-- ELSE -->
-					if (!t($agent)) break;
-					<!-- END:IF -->
-
-					if (t($agent, 'function'))
-					{
-						$agent = $agent();
-						while ($j = $agent()) $data = $j;
-
-						$agent = $data.a$;
-						eval('$keys='+$data.k$);
-
-						for ($i in $data) if (!/\$/.test($i)) $args[$i] = $data[$i];
-
-						if ($data.r$) $meta = [$data.v$, $data.r$];
-					}
-
-					$agent = esc($agent);
-
-					if (!$meta) $agent = g.__HOME__ + '_?t$=' + $agent;
-					else
-					{
-						if ($meta > 1)
+						if (/^(\/|https?:\/\/)/.test($agent))
 						{
-						<!-- IF g$__DEBUG__ -->
-							if (/^(\/|https?:\/\/)/.test($agent))
+							if (2 == $meta)
 							{
-								if (2 == $meta)
-								{
-									E('EXOAGENT (' + $agent + ') called with AGENT');
-									break;
-								}
-
-								$keys = 0;
-							}
-							else if (3 == $meta)
-							{
-								E('AGENT (' + $agent + ') called with EXOAGENT');
+								E('EXOAGENT (' + $agent + ') called with AGENT');
 								break;
 							}
-						<!-- ELSE -->
-							if (/^(\/|https?:\/\/)/.test($agent))
-							{
-								if (2 == $meta) break;
 
-								$keys = 0;
-							}
-						<!-- END:IF -->
+							$keys = 0;
 						}
-						else if (1 != $meta)
+						else if (3 == $meta)
 						{
-							$CIApID = $meta[0]/1;
-
-							$args.__DEBUG__ = g.__DEBUG__;
-							$args.__LANG__ = g.__LANG__;
-							$args.__HOME__ = esc($meta[1]).replace(/__/, $args.__LANG__);
-							$args.__HOST__ = $args.__HOME__.substr(0, $args.__HOME__.indexOf('/', 8)+1);
-							$args.__AGENT__ = $agent ? $agent + '/' : '';
-							$args.__URI__ = $args.__HOME__ + $agent;
-							$args.e$ = 1;
-
-							g = $args;
+							E('AGENT (' + $agent + ') called with EXOAGENT');
+							break;
 						}
+					<!-- ELSE -->
+						if (/^(\/|https?:\/\/)/.test($agent))
+						{
+							if (2 == $meta) break;
 
-						$agent = $keys ? g.__HOME__ + '_?a$=' + $agent : home($agent, 0, 1);
+							$keys = 0;
+						}
+					<!-- END:IF -->
 					}
-
-					return $include($agent, $args, $keys);
-
-				case 2: // echo
-					$echo( $code[$pointer++] );
-					break;
-
-				case 3: // eval echo
-					$echo( $evalNext() );
-					break;
-
-				case 4: // set
-					$WobStack[++$WobLast] = [];
-					break;
-
-				case 5: // endset
-					$i = $code[$pointer++];
-					if (!$i) $i = a;
-					else if ($i==1) $i = g;
-					else
+					else if (1 != $meta)
 					{
-						$j = $i - 1;
-						$i = v;
-						while (--$j) $i = $i.$;
+						$CIApID = $meta[0]/1;
+
+						$args.__DEBUG__ = g.__DEBUG__;
+						$args.__LANG__ = g.__LANG__;
+						$args.__HOME__ = esc($meta[1]).replace(/__/, $args.__LANG__);
+						$args.__HOST__ = $args.__HOME__.substr(0, $args.__HOME__.indexOf('/', 8)+1);
+						$args.__AGENT__ = $agent ? $agent + '/' : '';
+						$args.__URI__ = $args.__HOME__ + $agent;
+						$args.e$ = 1;
+
+						g = $args;
 					}
 
-					$i[$code[$pointer++]] = num($WobStack[$WobLast--].join(''), 1);
-					break;
+					$agent = $keys ? g.__HOME__ + '_?a$=' + $agent : home($agent, 0, 1);
+				}
 
-				case 6: // jump
-					$pointer += $code[$pointer];
-					break;
+				return $include($agent, $args, $keys);
 
-				case 7: // if
-					($evalNext() && ++$pointer) || ($pointer += $code[$pointer]);
-					break;
+			case 2: // echo
+				$echo( $code[$pointer++] );
+				break;
 
-				case 8: // loop
-					$i = $evalNext();
-					($i && (t($i, 'function') || ($i = y($i-0))) && $i()() && ++$pointer) || ($pointer += $code[$pointer]);
-					$context = v;
-					break;
+			case 3: // eval echo
+				$echo( $evalNext() );
+				break;
 
-				case 9: // next
-					($loopIterator() && ($pointer -= $code[$pointer])) || ++$pointer;
-					$context = v;
+			case 4: // set
+				$WobStack[++$WobLast] = [];
+				break;
 
-					if (new Date - $startTime > 500) return $continue = w, $include($masterHome + 'js/x', 0, 0, 1);
+			case 5: // endset
+				$i = $code[$pointer++];
+				if (!$i) $i = a;
+				else if ($i==1) $i = g;
+				else
+				{
+					$j = $i - 1;
+					$i = v;
+					while (--$j) $i = $i.$;
+				}
 
-					break;
+				$i[$code[$pointer++]] = num($WobStack[$WobLast--].join(''), 1);
+				break;
+
+			case 6: // jump
+				$pointer += $code[$pointer];
+				break;
+
+			case 7: // if
+				($evalNext() && ++$pointer) || ($pointer += $code[$pointer]);
+				break;
+
+			case 8: // loop
+				$i = $evalNext();
+				($i && (t($i, 'function') || ($i = y($i-0))) && $i()() && ++$pointer) || ($pointer += $code[$pointer]);
+				$context = v;
+				break;
+
+			case 9: // next
+				($loopIterator() && ($pointer -= $code[$pointer])) || ++$pointer;
+				$context = v;
+
+				if (new Date - $startTime > 500) return $include($masterHome + 'js/x', 0, 0, 1);
+
+				break;
 			}
 
 			$WexecStack[$WexecLast] = 0;
@@ -541,7 +544,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 		var $src = $includeSrc, $content = $reloadRequest ? '' : $buffer.join(''), $offset = 0;
 
 		$includeSrc = '';
-		w.c = $continue;
+		w.c = w;
 		$buffer = [];
 
 		$i = $content.search(/<\/script\b/i);
@@ -578,10 +581,10 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 		if ($src)
 		{
-			$src = '<script type="text/javascript" class="w" src="' + $src + '"></script>';
+			$src = '<script type="text/javascript" name="w$" src="' + $src + '"></script>';
 
 			if ($trustReferer || /(^|; )JS=2(; |$)/.test($document.cookie)) $trustReferer = 1;
-			else $src = '<script type="text/javascript" class="w">document.cookie="R$="+eUC((""+location).replace(/#.*$/,""))+"; path=/"</script>' + $src;
+			else $src = '<script type="text/javascript" name="w$">document.cookie="R$="+eUC((""+location).replace(/#.*$/,""))+"; path=/"</script>' + $src;
 		}
 		else $src = '';
 
@@ -591,7 +594,14 @@ w = function($homeAgent, $keys, $masterCIApID)
 		{
 			$document.close();
 			w = $document = r = y = z = w.k = w.w = w.r = w.x = $loopIterator = 0; // Memory leaks prevention
-			$reloadRequest ? location.reload($reloadNoCache) : onDOMLoaded.go();
+
+			if ($reloadRequest) location.reload($reloadNoCache)
+			{
+				$src = document.forms.length;
+				while ($formsLength < $src) syncCSRF(document.forms[$formsLength++]);
+
+				onDOMLoaded.go();
+			}
 		}
 	}
 
