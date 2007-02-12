@@ -282,7 +282,7 @@ function __autoload($searched_class)
 	{
 		// Namespace renammed class
 		$class = substr($searched_class, 0, $i);
-		$level = min($last_cia_paths, '00' == $level ? -1 : (int) $level);
+		$level = min($last_cia_paths, '00' === $level ? -1 : (int) $level);
 	}
 	else
 	{
