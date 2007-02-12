@@ -176,6 +176,7 @@ class
 	protected static $ob_level;
 	protected static $varyEncoding = false;
 	protected static $contentEncoding = false;
+	protected static $is304 = false;
 
 	protected static $agentClasses = '';
 	protected static $privateDetectionMode = false;
@@ -335,6 +336,7 @@ class
 			ob_end_clean();
 			self::$ob_level = 0;
 
+			if (self::$is304) exit;
 			if (!$exit) return true;
 		}
 
@@ -422,23 +424,27 @@ class
 
 	static function readfile($file, $mime = 'application/octet-stream')
 	{
+		$size = filesize($file);
+
 		self::header('Content-Type: ' . $mime);
-
 		self::$isServersideHtml = false;
-
-		self::$ETag = filesize($file) .'-'. filemtime($file) .'-'. fileinode($file);
+		self::$ETag = $size .'-'. filemtime($file) .'-'. fileinode($file);
 		self::disable();
 
 		if (self::isGzipAllowed())
 		{
 			ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
-		}
-		else
-		{
-			header('Content-Length: ' . filesize($file));
-		}
 
-		readfile($file);
+			if ('HEAD' == $_SERVER['REQUEST_METHOD'])
+			{
+				// Fake CIA::ob_filterOutput() to make it send its headers
+				echo str_repeat(' ', $size > 100 ? 101 : 1);
+				ob_end_clean();
+			}
+		}
+		else header('Content-Length: ' . $size);
+
+		if ('HEAD' != $_SERVER['REQUEST_METHOD']) readfile($file);
 	}
 
 	/**
@@ -1160,8 +1166,10 @@ class
 			self::$is_enabled                 && header('Content-Length: ' . strlen($buffer));
 		}
 
+		self::$is304 = $is304;
+
 		self::$handlesOb = false;
-		if ('HEAD' == $_SERVER['REQUEST_METHOD']) exit;
+		if ('HEAD' == $_SERVER['REQUEST_METHOD']) $buffer = '';
 
 		return $buffer;
 	}
