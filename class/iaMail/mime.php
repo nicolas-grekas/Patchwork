@@ -34,7 +34,7 @@ class extends Mail_mime
 	}
 
 
-	protected function __construct($options = null)
+	function __construct($options = null)
 	{
 		parent::__construct(CIA_WINDOWS ? "\r\n" : "\n");
 
