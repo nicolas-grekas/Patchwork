@@ -295,13 +295,7 @@ class
 		}
 
 #>>>
-		/*
-		 * Both Firefox and IE send a "Cache-Control: no-cache" request header
-		 * only and only if the current page is reloaded with CTRL+F5 or the JS code :
-		 * "location.reload(true)". We use this behaviour to trigger a cache reset in DEBUG mode.
-		 */
-
-		if (CIA_CHECK_SOURCE && !CIA_POSTING && !self::$binaryMode)
+		if (CIA_CHECK_SOURCE && !self::$binaryMode)
 		{
 			self::touch('');
 			foreach (glob(self::$cachePath . '?/?/*', GLOB_NOSORT) as $v) if ('.session' != substr($v, -8)) unlink($v);
@@ -312,6 +306,15 @@ class
 
 			self::$fullVersionId += $_SERVER['REQUEST_TIME'];
 			self::$versionId = abs(self::$fullVersionId % 10000);
+
+			if (!CIA_POSTING)
+			{
+				self::setMaxage(0);
+				self::setGroup('private');
+
+				echo '<html><head><script type="text/javascript">location.reload()</script></head></html>';
+				return;
+			}
 		}
 #<<<
 
@@ -996,7 +999,7 @@ class
 			if (PHP_OUTPUT_HANDLER_START & $mode)
 			{
 				$lead = '';
-#>				if (!self::$binaryMode && (self::$isServersideHtml || CIA_DIRECT)) $buffer = CIA_debugWin::call() . $buffer;
+#>				if ((!CIA_CHECK_SOURCE || CIA_POSTING) && !self::$binaryMode && (self::$isServersideHtml || CIA_DIRECT)) $buffer = CIA_debugWin::call() . $buffer;
 			}
 
 			$tail = '';

@@ -11,97 +11,37 @@
  *
  ***************************************************************************/
 
-$S = isset($_GET['stop']);
-$S && ob_start('ob_gzhandler', 8192);
+$version_id = -$version_id;
 
-header('Content-Type: text/html; charset=UTF-8');
-header('Cache-Control: max-age=0,private,must-revalidate');
+CIA_DIRECT && isset($_GET['d$']) && require resolvePath('debugWin.php');
 
-?><html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<title>Debug Window</title>
-<style type="text/css">
-body
+if (CIA_CHECK_SOURCE && !CIA_DIRECT)
 {
-	margin: 0px;
-	padding: 0px;
-}
-pre
-{
-	font-family: Arial;
-	font-size: 10px;
-	border-top: 1px solid;
-	margin: 0px;
-	padding: 5px;
-}
-pre:hover
-{
-	background-color: #D9E4EC;
-}
-</style>
-<script type="text/javascript">/*<![CDATA[*/
-function Z()
-{
-	scrollTo(0, window.innerHeight||(document.documentElement||document.body).scrollHeight);
-}
-//]]></script>
-</head>
-<body><?php
-
-$sleep = 500;	// (ms)
-$period = 5;	// (s)
-
-ignore_user_abort(false);
-@set_time_limit(0);
-
-$error_log = ini_get('error_log');
-$error_log = $error_log ? $error_log : './error.log';
-echo str_repeat(' ', 512), // special MSIE
-	'<pre>';
-$S||flush();
-
-$sleep = max(100, (int) $sleep);
-$i = $period = max(1, (int) 1000*$period / $sleep);
-$sleep *= 1000;
-while (1)
-{
-	clearstatcache();
-	if (is_file($error_log))
+	if ($h = @fopen('./.debugLock', 'x+b'))
 	{
-		echo '<b></b>'; // Test the connexion for "ignore_user_abort(false)"
-		$S||flush();
+		flock($h, LOCK_EX);
 
-		$h = @fopen($error_log, 'r');
-		while (!feof($h))
+		foreach (glob('./.*.' . $cia_paths_token . '.*.zcache.php', GLOB_NOSORT) as $cache)
 		{
-			echo preg_replace(
-				"'in .*?[\\\\/]\.([^\\\\/]+)\.{$cia_paths_token}\.[01][0-9]+-?\.zcache\.php'e",
-				"'in '.strtr('$1','_','/')",
-				fgets($h)
-			);
+			$file = str_replace('%1', '%', str_replace('%2', '_', strtr(substr($cache, 3, -11), '_', '/')));
+			$level = substr(strrchr($file, '.'), 2);
+
+			$file = substr($file, 0, -(2 + strlen($cia_paths_token) + strlen($level)));
+			$level = '-' == substr($level, -1) ? -$level : (int) $level;
+
+			$file = $cia_include_paths[count($cia_paths) - $level - 1] .'/'. $file;
+
+			if (!file_exists($file) || filemtime($file) >= filemtime('./'.$cache)) @unlink($cache);
 		}
+
 		fclose($h);
-
-		echo '<script type="text/javascript">/*<![CDATA[*/Z()//]]></script>';
-		$S||flush();
-
-		unlink($error_log);
 	}
-	else if (!--$i)
+	else
 	{
-		$i = $period;
-		echo '<b></b>'; // Test the connexion for "ignore_user_abort(false)"
-		$S||flush();
+		$h = fopen('./.debugLock', 'rb');
+		flock($h, LOCK_SH);
+		fclose($h);
 	}
 
-	if ($S)
-	{
-		echo '<script type="text/javascript">/*<![CDATA[*/scrollTo(0,0);if(window.opener&&opener.E&&opener.E.buffer.length)document.write(opener.E.buffer.join("")),opener.E.buffer=[]//]]></script>';
-		break;
-	}
-
-	usleep($sleep);
+	@unlink('./.debugLock');
 }
-
-exit;

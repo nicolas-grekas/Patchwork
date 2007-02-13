@@ -72,6 +72,11 @@ $version_id = './.config.zcache.php';
 
 define('__CIA__', dirname(__FILE__));
 define('CIA_WINDOWS', '\\' == DIRECTORY_SEPARATOR);
+
+/*
+ * Major browsers send a "Cache-Control: no-cache" only if a page is reloaded
+ * with CTRL+F5 or location.reload(true). Usefull to trigger synchronization events.
+ */
 define('CIA_CHECK_SOURCE', isset($_SERVER['HTTP_CACHE_CONTROL']) && 'no-cache' == $_SERVER['HTTP_CACHE_CONTROL']);
 
 // As of PHP5.1.2, hash('md5', $str) is a lot faster than md5($str) !
@@ -86,7 +91,7 @@ if (isset($CONFIG['clientside']) && !$CONFIG['clientside']) $_GET['$bin'] = true
 
 define('CIA_PROJECT_PATH', $cia_paths[0]);
 
-// Restore the current dir at shutdown context.
+// Restore the current dir in shutdown context.
 register_shutdown_function('chdir', CIA_PROJECT_PATH);
 // }}}
 
@@ -152,8 +157,6 @@ define('CIA_MAXAGE',	$CONFIG['maxage']);
 define('CIA_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
 define('CIA_DIRECT', '_' == $_SERVER['CIA_REQUEST']);
 
-if (DEBUG) $version_id = -$version_id;
-
 function E($msg = '__getDeltaMicrotime')
 {
 	return CIA::log($msg, false, false);
@@ -216,9 +219,9 @@ function processPath($file, $level = false, $base = false)
 
 	$file = strtr($file, '\\', '/');
 	$cache = ((int)(bool)DEBUG) . (0>$level ? -$level .'-' : $level);
-	$cache = './.'. strtr(str_replace('_', '__', $file), '/', '_') . ".{$GLOBALS['cia_paths_token']}.{$cache}.zcache.php";
+	$cache = './.'. strtr(str_replace('_', '%2', str_replace('%', '%1', $file)), '/', '_') . ".{$GLOBALS['cia_paths_token']}.{$cache}.zcache.php";
 
-	if (file_exists($cache) && (!CIA_CHECK_SOURCE || filemtime($cache) >= filemtime($source))) return $cache;
+	if (file_exists($cache)) return $cache;
 
 	$class = 0<=$level
 		&& 'class/' == substr($file, 0, 6)
@@ -346,8 +349,7 @@ function __autoload($searched_class)
 					$cache = ((int)(bool)DEBUG) . (0>$level ? -$level .'-' : $level);
 					$cache = "./.class_{$class}.php.{$GLOBALS['cia_paths_token']}.{$cache}.zcache.php";
 
-					if (file_exists($cache) && (!CIA_CHECK_SOURCE || filemtime($cache) >= filemtime($source))) ;
-					else CIA_preprocessor::run($source, $cache, $level, $class);
+					file_exists($cache) || CIA_preprocessor::run($source, $cache, $level, $class);
 
 					$current_pool = array();
 					$parent_pool =& $GLOBALS['__autoload_static_pool'];
@@ -488,8 +490,8 @@ if (
 }
 // }}}
 
-// {{{ Output debug window
-DEBUG && CIA_DIRECT && isset($_GET['d$']) && require processPath('debug.php');
+// {{{ Debug mode add-on
+DEBUG && require processPath('debug.php');
 // }}}
 
 /// {{{ Anti Cross-Site-(Request-Forgery|Javascript-Request) token
