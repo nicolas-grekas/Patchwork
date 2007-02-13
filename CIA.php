@@ -502,13 +502,16 @@ if (
 ) $cia_token = $_COOKIE['T$'];
 else
 {
-	if (CIA_POSTING) E('Potential Cross Site Request Forgery. $_POST is not reliable. Erasing it !');
+	if ($_COOKIE)
+	{
+		if (CIA_POSTING) E('Potential Cross Site Request Forgery. $_POST is not reliable. Erasing it !');
 
-	unset($_POST);
-	$_POST = array();
+		unset($_POST);
+		$_POST = array();
 
-	unset($_COOKIE['T$']);
-	unset($_COOKIE['T$']); // Double unset against a PHP security hole
+		unset($_COOKIE['T$']);
+		unset($_COOKIE['T$']); // Double unset against a PHP security hole
+	}
 
 	$cia_token = hash('md5', uniqid(mt_rand(), true));
 
