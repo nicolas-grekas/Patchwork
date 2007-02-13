@@ -23,7 +23,6 @@ class
 
 	static $cookiePath = '';
 	static $cookieDomain = '';
-	static $cookieSecure = false;
 	static $cookieHttpOnly = true;
 
 	static $gcProbabilityNumerator = 1;
@@ -71,7 +70,7 @@ class
 		return $a;
 	}
 
-	static function regenerateId($initSession = false)
+	static function regenerateId($initSession = false, $restartNew = true)
 	{
 		if (self::$adapter)
 		{
@@ -81,24 +80,8 @@ class
 
 		if ($initSession) self::$DATA = array();
 
-		$sid = CIA::uniqid();
-		self::setSID($sid);
 
-		self::$adapter = new SESSION(self::$SID);
-
-		self::$lastseen = $_SERVER['REQUEST_TIME'];
-		self::$birthtime = $_SERVER['REQUEST_TIME'];
-
-		header(
-			'Set-Cookie: SID=' . $sid .
-			( self::$cookiePath ? '; path=' . urlencode(self::$cookiePath) : '; path=/' ) .
-			( self::$cookieDomain ? '; domain=' . urlencode(self::$cookieDomain) : '' ) .
-			( self::$cookieSecure ? '; secure' : '' ) .
-			( self::$cookieHttpOnly ? '; HttpOnly' : '' )
-		);
-
-
-		// Also regenerate antiCSRF token
+		// Generate a new antiCSRF token
 
 		$GLOBALS['cia_token'] = CIA::uniqid();
 
@@ -110,14 +93,37 @@ class
 
 		setcookie('T$', $GLOBALS['cia_token'], 0, $sid .'/');
 
-		// 304 Not Modified response code does not allow Set-Cookie headers, so we remove any header that could trigger a 304
+
+		if (!$initSession || $restartNew)
+		{
+			$sid = CIA::uniqid();
+			self::setSID($sid);
+
+			self::$adapter = new SESSION(self::$SID);
+
+			self::$lastseen = $_SERVER['REQUEST_TIME'];
+			self::$birthtime = $_SERVER['REQUEST_TIME'];
+		}
+		else $sid = '';
+
+		header(
+			'Set-Cookie: SID=' . $sid .
+				( self::$cookiePath ? '; path=' . urlencode(self::$cookiePath) : '; path=/' ) .
+				( self::$cookieDomain ? '; domain=' . urlencode(self::$cookieDomain) : '' ) .
+				( $sid ? '' : '; expires=Thu, 01-Jan-1970 00:00:00 GMT' ) .
+				( self::$cookieHttpOnly ? '; HttpOnly' : '' ),
+			false
+		);
+
+		// 304 Not Modified response code does not allow Set-Cookie headers,
+		// so we remove any header that could trigger a 304
 		unset($_SERVER['HTTP_IF_NONE_MATCH']);
 		unset($_SERVER['HTTP_IF_MODIFIED_SINCE']);
 	}
 
 	static function destroy()
 	{
-		self::regenerateId(true);
+		self::regenerateId(true, false);
 	}
 
 	static function close()
@@ -163,7 +169,7 @@ class
 			self::$birthtime = $i[1];
 			if ((self::$maxIdleTime && $_SERVER['REQUEST_TIME'] - self::$lastseen > self::$maxIdleTime))
 			{
-				// Session hax expired
+				// Session has expired
 				self::regenerateId(true);
 			}
 			else if ((self::$maxLifeTime && $_SERVER['REQUEST_TIME'] - self::$birthtime > self::$maxLifeTime))
@@ -197,7 +203,7 @@ class
 		}
 		else $IPs = '';
 
-		self::$SID = hash('md5', $SID . '-' . $IPs . '-' . (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : ''));
+		self::$SID = hash('md5', $SID .'-'. $IPs .'-'. (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '') .'-'. $GLOBALS['cia_token']);
 	}
 
 

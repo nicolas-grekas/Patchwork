@@ -394,14 +394,19 @@ class CIA_preprocessor__0
 
 	protected static function fetchSugar(&$code, &$i)
 	{
-		$token = ' ';
+		$token = '';
+		$nonEmpty = false;
 
 		while (
 			isset($code[++$i]) && is_array($code[$i]) && ($t = $code[$i][0])
 			&& (T_COMMENT == $t || T_WHITESPACE == $t || T_DOC_COMMENT == $t)
-		) $token .= CIA_preprocessor::extractLF($code[$i][1]);
+		)
+		{
+			$token .= CIA_preprocessor::extractLF($code[$i][1]);
+			$nonEmpty || $nonEmpty = true;
+		}
 
-		return $token;
+		return $nonEmpty && '' === $token ? ' ' : $token;
 	}
 
 	protected static function extractLF($a)
