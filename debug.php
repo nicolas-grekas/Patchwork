@@ -21,6 +21,8 @@ if (CIA_CHECK_SOURCE && !CIA_DIRECT)
 	{
 		flock($h, LOCK_EX);
 
+		@unlink('./.config.zcache.php');
+
 		foreach (glob('./.*.' . $cia_paths_token . '.*.zcache.php', GLOB_NOSORT) as $cache)
 		{
 			$file = str_replace('%1', '%', str_replace('%2', '_', strtr(substr($cache, 3, -11), '_', '/')));

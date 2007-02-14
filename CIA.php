@@ -73,18 +73,15 @@ $version_id = './.config.zcache.php';
 define('__CIA__', dirname(__FILE__));
 define('CIA_WINDOWS', '\\' == DIRECTORY_SEPARATOR);
 
-/*
- * Major browsers send a "Cache-Control: no-cache" only if a page is reloaded
- * with CTRL+F5 or location.reload(true). Usefull to trigger synchronization events.
- */
+// Major browsers send a "Cache-Control: no-cache" only if a page is reloaded
+// with CTRL+F5 or location.reload(true). Usefull to trigger synchronization events.
 define('CIA_CHECK_SOURCE', isset($_SERVER['HTTP_CACHE_CONTROL']) && 'no-cache' == $_SERVER['HTTP_CACHE_CONTROL']);
 
 // As of PHP5.1.2, hash('md5', $str) is a lot faster than md5($str) !
 function_exists('hash_algos') || require __CIA__ . '/hash.php';
 
-require !CIA_CHECK_SOURCE && file_exists($version_id)
-	? $version_id
-	: (__CIA__ . '/c3mro.php');
+// Load the configuration
+require file_exists($version_id) ? $version_id : (__CIA__ . '/c3mro.php');
 
 if (!isset($CONFIG['DEBUG'])) $CONFIG['DEBUG'] = (int) @$CONFIG['DEBUG_KEYS'][ (string) $_COOKIE['DEBUG'] ];
 if (isset($CONFIG['clientside']) && !$CONFIG['clientside']) $_GET['$bin'] = true;
