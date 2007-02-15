@@ -928,7 +928,7 @@ class
 	static function writeWatchTable($message, $file, $exclusive = true)
 	{
 		$file = realpath($file);
-		if (!file) return;
+		if (!$file) return;
 
 		$file =  "++\$i;unlink('" . str_replace(array('\\',"'"), array('\\\\',"\\'"), $file) . "');\n";
 
