@@ -14,12 +14,13 @@
 
 IF 1 == g-1$headerNesting
 
-	--><script type="text/javascript">/*<![CDATA[*/footerHtml.length&&document.write(footerHtml.join(''))//]]></script>{*
-	*}<script type="text/javascript">/*<![CDATA[*/onDOMLoaded.go()//]]></script ><!--
+	--><script type="text/javascript">/*<![CDATA[*/footerHtml.length&&document.write(footerHtml.join(''))//]]></script><!--
 
 	IF !a$noIE7
 		--><!--[if lt IE 7]><script src="{home:'js/ie7/ie7.js'}" type="text/javascript"></script ><![endif]--><!--
 	END:IF
+
+	SERVERSIDE --><script type="text/javascript">/*<![CDATA[*/onDOMLoaded.go()//]]></script><!-- END:SERVERSIDE
 
 	--></body></html><!--
 
