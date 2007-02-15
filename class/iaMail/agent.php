@@ -20,7 +20,7 @@ class extends iaMail_mime
 
 	static protected $imageCache = array();
 
-	protected function __construct($agent, $argv = array(), $options = null)
+	function __construct($agent, $argv = array(), $options = null)
 	{
 		$this->agent = $agent;
 		$this->argv = (array) $argv;
