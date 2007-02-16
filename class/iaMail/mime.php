@@ -86,54 +86,6 @@ class extends Mail_mime
 		$mail->send($to, $headers, $body);
 	}
 
-	// The original _encodeHeaders of Mail_mime is bugged !
-	function _encodeHeaders($input)
-	{
-		$ns = "[^\(\)<>@,;:\"\/\[\]\r\n]*";
-
-		foreach ($input as &$hdr_value)
-		{
-			$hdr_value = preg_replace_callback(
-				"/{$ns}(?:[\\x80-\\xFF]{$ns})+/",
-				array($this, '_encodeHeaderWord'),
-				$hdr_value
-			);
-		}
-
-		return $input;
-	}
-
-	protected function _encodeHeaderWord($word)
-	{
-		$word = preg_replace('/[=_\?\x00-\x1F\x80-\xFF]/e', '"=".strtoupper(dechex(ord("\0")))', $word[0]);
-
-		preg_match('/^( *)(.*?)( *)$/', $word, $w);
-
-		$word =& $w[2];
-		$word = str_replace(' ', '_', $word);
-
-		$start = '=?' . $this->_build_params['head_charset'] . '?Q?';
-		$offsetLen = strlen($start) + 2;
-
-		$w[1] .= $start;
-
-		while ($offsetLen + strlen($word) > 75)
-		{
-			$splitPos = 75 - $offsetLen;
-
-			switch ('=')
-			{
-				case substr($word, $splitPos - 2, 1): --$splitPos;
-				case substr($word, $splitPos - 1, 1): --$splitPos;
-			}
-
-			$w[1] .= substr($word, 0, $splitPos) . "?={$this->_eol} {$start}";
-			$word = substr($word, $splitPos);
-		}
-
-		return $w[1] . $word . '?=' . $w[3];
-	}
-
 	protected function setObserver($event, $header, $message_id)
 	{
 		if (!isset($this->options['on' . $event])) return;
@@ -174,33 +126,5 @@ class extends Mail_mime
 				$r->sendRequest();
 			}
 		}
-	}
-
-	// Add line feeds correction
-	function setTXTBody($data, $isfile = false, $append = false)
-	{
-		if ($isfile)
-		{
-			$data =& $this->_file2str($data);
-			if (@PEAR::isError($data)) return $data;
-		}
-
-		$data = str_replace("\n", $this->_eol, strtr(str_replace("\r\n", "\n", $data), "\r", "\n"));
-
-		return parent::setTXTBody($data, false, $append);
-	}
-
-	// Add line feed correction
-	function setHTMLBody($data, $isfile = false)
-	{
-		if ($isfile)
-		{
-			$data =& $this->_file2str($data);
-			if (@PEAR::isError($data)) return $data;
-		}
-
-		$data = str_replace("\n", $this->_eol, strtr(str_replace("\r\n", "\n", $data), "\r", "\n"));
-
-		return parent::setHTMLBody($data, false);
 	}
 }
