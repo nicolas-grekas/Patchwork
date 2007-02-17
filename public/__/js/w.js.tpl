@@ -578,6 +578,11 @@ w = function($homeAgent, $keys, $masterCIApID)
 			$buffer = [$content.substr($i)],
 			$content = $content.substring(0, $i);
 
+		// This is for IE, not supporting .appendChild() on non closed tags
+		$i = $content.search(/<\/form\b/i);
+		if (0 > $i) $i = -6;
+		if (0<=$content.substr($i+6).search(/<form\b[^>]+\bmethod\s*=\s*["']?post["']?\b/i)) $content += '<input type="hidden" name="T$" />';
+
 		if ($src)
 		{
 			$src = '<script type="text/javascript" name="w$" src="' + $src + '"></script>';
