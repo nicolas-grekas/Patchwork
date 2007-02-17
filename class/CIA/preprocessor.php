@@ -20,14 +20,14 @@ class CIA_preprocessor__0
 {
 	public static $tokenFilter = false;
 
-	protected static $source;
-	protected static $tmp;
+	protected static $escapedSource;
 
-	static function run($source, $dest, $level, $class)
+	static function run($source, $destination, $level, $class)
 	{
-		CIA_preprocessor::$source = realpath($source);
+		$source = realpath($source);
+		CIA_preprocessor::$escapedSource = "'" . str_replace(array('\\', "'"), array('\\\\', "\\'"), $source) . "'";
 
-		$code = file_get_contents(CIA_preprocessor::$source);
+		$code = file_get_contents($source);
 		CIA_preprocessor::antePreprocess($code, $level, $class);
 
 
@@ -41,10 +41,10 @@ class CIA_preprocessor__0
 		{
 			$code = new COM('Scripting.FileSystemObject');
 			$code->GetFile(CIA_PROJECT_PATH .'/'. $tmp)->Attributes |= 2; // Set hidden attribute
-			file_exists($dest) && unlink($dest);
-			@rename($tmp, $dest) || E('Failed rename');
+			file_exists($destination) && unlink($destination);
+			@rename($tmp, $destination) || E('Failed rename');
 		}
-		else rename($tmp, $dest);
+		else rename($tmp, $destination);
 	}
 
 	protected static function antePreprocess(&$code, $level, $class)
@@ -90,11 +90,11 @@ class CIA_preprocessor__0
 			switch ($tokenType)
 			{
 			case T_OPEN_TAG: // Normalize PHP open tag
-					$token = '<?php ' . CIA_preprocessor::extractLF($token);
+				$token = '<?php ' . CIA_preprocessor::extractLF($token);
 				break;
 
 			case T_OPEN_TAG_WITH_ECHO: // Normalize PHP open tag
-					$token = '<?php echo ' . CIA_preprocessor::extractLF($token);
+				$token = '<?php echo ' . CIA_preprocessor::extractLF($token);
 				break;
 
 			case T_CLOSE_TAG: // Normalize PHP close tag
@@ -262,7 +262,7 @@ class CIA_preprocessor__0
 				case 'header': $token = 'CIA::header'; break;
 				case '__cia_level__': $token = $level; break;
 				case '__cia_file__':
-					$token = "'" . str_replace(array('\\', "'"), array('\\\\', "\\'"), CIA_preprocessor::$source) . "'";
+					$token = CIA_preprocessor::$escapedSource;
 					break;
 
 				case 'self':
