@@ -14,7 +14,7 @@
 
 class extends agent_queue_iaCron
 {
-	protected $queueFolder = 'class/iaMail/queue/';
+	protected $queueFolder = 'data/queue/iaMail/';
 	protected $dual = 'iaMail';
 
 	protected function queueNext()

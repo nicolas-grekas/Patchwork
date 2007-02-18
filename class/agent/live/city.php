@@ -16,117 +16,99 @@ class extends agent
 {
 	public $argv = array('q');
 
-	protected $database = 'mysqli';
-
-	protected $maxage = -1;
-
 	function control() {}
 
 	function compose($o)
 	{
 		$sql = $this->argv->q;
 		$sql = ('*' == $sql ? '' : LIB::getKeywords($sql));
+		$sql = sqlite_escape_string($sql);
 
-		if ($sql)
+		switch ($a = substr($sql, 0, 3))
 		{
-			$sql = preg_replace("'^st 'u", 'saint ', $sql);
+		case 'st ': $sql = 'saint ' . substr($sql, 3); break;
 
-			if (preg_match("'^a[gy]ios( |$)'u", $sql))
+		case 'agi':
+		case 'ayi':
+			if ('os ' == substr($sql, 3, 3))
 			{
 				$sql = substr($sql, 5);
-				$sql = '(' . $this->doLIKE('search', 'agios' . $sql) . ' OR ' . $this->doLIKE('search', 'ayios' . $sql) . ')';
+				$sql = $this->doLike("agios$sql") . ' OR ' . $this->doLike("ayios$sql");
+				break;
 			}
-			else $sql = $this->doLIKE('search', $sql);
 
-			$sql = "SELECT city_id, city FROM geosearch WHERE {$sql} ORDER BY id";
-		}
-		else
-		{
-			$sql = "SELECT city_id, city FROM geosearch";
+		default: $sql = $this->doLike($sql); break;
 		}
 
-		switch ($this->database)
-		{
-			case 'sqlite': $o->cities = new loop_cities_sqlite_(new SQLiteDatabase( resolvePath('data/') . 'geodb.sqlite' ), $sql, 15); break;
-			case 'mysqli': $o->cities = new loop_cities_mysqli_(DB()->connection, $sql, 15); break;
-			case 'mysql' : $o->cities = new loop_cities_mysql_( DB()->connection, $sql, 15); break;
-		}
+		$sql = "SELECT city_id, city FROM city WHERE " . $sql;
+
+		$a = resolvePath('data/geodb.sqlite');
+		$a = new SQLiteDatabase($a);
+
+		$o->cities = new loop_city_($a, $sql, 15);
 
 		return $o;
 	}
 
-	function doLIKE($field, $a)
+	function doLike($a)
 	{
-		$b = preg_replace("'([a-z0-9])([^a-z0-9]*)$'ie", "chr(1+ord('$1')).'$2'", $a);
+		if ('' === $a) return 1;
 
-		return '' !== $a ? "({$field} >= '{$a}' AND {$field} < '{$b}' AND {$field} LIKE '{$a}%')" : 1;
+		$sql = "search >= '{$a}'";
+
+		$b = ord(substr($a, -1));
+		if (255 > $b)
+		{
+			$b = substr($a, 0, -1) . chr(1 + $b);
+			$sql = "({$sql} AND search < '{$b}')";
+		}
+
+		return $sql;
 	}
 }
 
-abstract class loop_cities_ extends loop
+class loop_city_ extends loop
 {
+	protected $db;
+	protected $sql;
+	protected $limit;
+
+	protected $prevId;
+	protected $count;
+	protected $result;
+
 	function __construct($db, $sql, $limit)
 	{
 		$this->db = $db;
 		$this->sql = $sql;
-		$this->limit = $limit;
+		$this->limit = $limit + 1;
 	}
-
-	abstract protected function query();
-	abstract protected function fetch();
-	abstract protected function free();
 
 	protected function prepare()
 	{
 		$this->prevId = 0;
-		$this->count = 0;
-
-		$this->query();
+		$this->count = $this->limit;
+		$this->result = $this->db->unbufferedQuery($this->sql);
 
 		return -1;
 	}
 
 	protected function next()
 	{
-		if ($this->count < $this->limit)
+		if (--$this->count) do
 		{
-			$data = $this->fetch();
-
-			if ($data)
+			if ($data = $this->result->fetchObject())
 			{
 				if ($data->city_id != $this->prevId)
 				{
-					++$this->count;
 					$this->prevId = $data->city_id;
-
 					return (object) array('city' => $data->city);
 				}
-
-				return $this->next();
 			}
+			else break;
 		}
+		while (1);
 
-		$this->free();
+		unset($this->result);
 	}
-}
-
-class loop_cities_sqlite_ extends loop_cities_
-{
-	protected function query() {$this->result = $this->db->unbufferedQuery($this->sql);}
-	protected function fetch() {return $this->result->fetchObject();}
-	protected function free() {unset($this->result);}
-}
-
-class loop_cities_mysqli_ extends loop_cities_
-{
-	protected function query() {$this->result = $this->db->query($this->sql, MYSQLI_USE_RESULT);}
-	protected function fetch() {return $this->result->fetch_object();}
-	protected function free() {$this->result->free(); unset($this->result);}
-}
-
-class loop_cities_mysql_ extends loop_cities_
-{
-	protected function query() {$this->result = mysql_unbuffered_query($this->sql, $this->db);}
-	protected function fetch() {return mysql_fetch_object($this->result);}
-	protected function free() {mysql_free_result($this->result); unset($this->result);}
 }

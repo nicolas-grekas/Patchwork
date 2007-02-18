@@ -74,7 +74,7 @@ class extends iaCron
 		throw new Exception(__CLASS__ . '::put() is disabled');
 	}
 
-	protected $queueFolder = 'class/iaMail/queue/';
+	protected $queueFolder = 'data/queue/iaMail/';
 	protected $queueUrl = 'queue/iaMail';
 	protected $queueSql = '
 		CREATE TABLE queue (home TEXT, data BLOB, send_time INTEGER, archive INTEGER, sent_time INTEGER);

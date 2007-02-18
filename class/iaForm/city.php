@@ -37,12 +37,19 @@ class extends iaForm_QSelect
 
 	function getDbValue()
 	{
+		static $db = false;
+
+		if (!$db)
+		{
+			$db = resolvePath('data/geodb.sqlite');
+			$db = new SQLiteDatabase($db);
+		}
+
 		if ($this->value)
 		{
-			$sql = "SELECT c.city_id
-				FROM geocities c, geosearch s
-				WHERE c.city_id=s.city_id AND s.search='" . LIB::getKeywords($this->value) . "'";
-			$city_id = (int) DB()->queryOne($sql);
+			$sql = "SELECT city_id FROM city WHERE search='" . sqlite_escape_string(LIB::getKeywords($this->value)) . "'";
+			$city_id = $db->query($sql)->fetchObject();
+			$city_id = $city_id ? $city_id->city_id : 0;
 		
 			$this->value = $city_id . ':' . $this->value;
 		}
