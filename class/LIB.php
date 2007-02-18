@@ -138,7 +138,7 @@ class
 
 		$kw = ' ' . $kw . ' ';
 
-		// Initials (Sigle)
+		// Acronym
 		$kw = preg_replace("'{$a}({$b}(?:\.{$b})+){$a}'ue", "str_replace('.','',' $1 ')", $kw);
 
 		// Ponctuation

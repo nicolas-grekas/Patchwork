@@ -23,7 +23,7 @@ class extends agent_bin
 
 	protected $lock;
 	protected $queueName = 'queue';
-	protected $queueFolder = 'class/iaCron/queue/';
+	protected $queueFolder = 'data/queue/iaCron/';
 	protected $dual = 'iaCron';
 
 	protected $sqlite;

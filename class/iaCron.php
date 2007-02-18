@@ -51,7 +51,7 @@ class
 
 
 	protected $queueName = 'queue';
-	protected $queueFolder = 'class/iaCron/queue/';
+	protected $queueFolder = 'data/queue/iaCron/';
 	protected $queueUrl = 'queue/iaCron';
 	protected $queueSql = '
 		CREATE TABLE queue (home TEXT, data BLOB, run_time INTEGER);
