@@ -76,6 +76,7 @@ EOHTML;
 		if ($liveAgent)
 		{
 			// The output is both html and js, but iframe transport layer needs html
+			self::$binaryMode = true;
 			self::header('Content-Type: text/html; charset=UTF-8');
 
 			echo '/*<script type="text/javascript">/**/q="';
