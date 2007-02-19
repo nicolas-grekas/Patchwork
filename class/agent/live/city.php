@@ -16,6 +16,8 @@ class extends agent
 {
 	public $argv = array('q');
 
+	protected $maxage = -1;
+
 	function control() {}
 
 	function compose($o)
