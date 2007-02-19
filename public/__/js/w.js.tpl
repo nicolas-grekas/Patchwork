@@ -103,7 +103,7 @@ function syncCSRF($form)
 		if ($form.action.indexOf({g$__HOME__|js})) return;
 
 		if ($form.T$) $form.T$.value = antiCSRF;
-		else if ($form.appendChild)
+		else if ($form.firstChild)
 		{
 			var $a = document.createElement('input');
 
@@ -111,7 +111,7 @@ function syncCSRF($form)
 			$a.name = 'T$';
 			$a.value = antiCSRF;
 
-			$form.appendChild($a);
+			$form.insertBefore($a, $form.firstChild);
 		}
 		else $form.innerHTML += '<input type="hidden" name="T$" value="' + antiCSRF + '" />';
 	}
@@ -577,11 +577,6 @@ w = function($homeAgent, $keys, $masterCIApID)
 			$i += $offset,
 			$buffer = [$content.substr($i)],
 			$content = $content.substring(0, $i);
-
-		// This is for IE, not supporting .appendChild() on non closed tags
-		$i = $content.search(/<\/form\b/i);
-		if (0 > $i) $i = -6;
-		if (0<=$content.substr($i+6).search(/<form\b[^>]+\bmethod\s*=\s*["']?post["']?\b/i)) $content += '<input type="hidden" name="T$" />';
 
 		if ($src)
 		{
