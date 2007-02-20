@@ -14,7 +14,7 @@
 
 class extends loop
 {
-	protected $db;
+	protected $db = false;
 	protected $sql;
 	protected $result = false;
 	protected $from = 0;
@@ -22,7 +22,6 @@ class extends loop
 
 	function __construct($sql, $filter = '', $from = 0, $count = 0)
 	{
-		$this->db = DB()->connection;
 		$this->sql = $sql;
 		$this->from = (int) $from;
 		$this->count = (int) $count;
@@ -42,6 +41,7 @@ class extends loop
 			$sql = $this->sql;
 			if ($this->count > 0) $sql .= " LIMIT {$this->from},{$this->count}";
 
+			$this->db || $this->db = DB()->connection;
 			$this->result = $this->db->query($sql);
 
 			if (!$this->result) E("MySQL Error ({$sql}) : {$this->db->error}");
