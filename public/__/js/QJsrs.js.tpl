@@ -56,7 +56,7 @@ var $contextPool = [],
 	$win = $window,
 	$XMLHttp = QJsrs - 1;
 
-$document.write('<div id="divQJsrs" style="position:absolute;visibility:hidden"></div>');
+$document.write('<div id="divQJsrs" style="position:absolute;visibility:hidden"><b></b></div>');
 
 function $QJsrsContext($name)
 {
@@ -102,14 +102,14 @@ function $QJsrsContext($name)
 		{
 			if (!$div) $div = $document.getElementById ? $document.getElementById('divQJsrs') : $document.all.divQJsrs;
 
-			if ($div.appendChild && (!$win.ScriptEngine || 5.5 <= ScriptEngineMajorVersion() + ScriptEngineMinorVersion() / 10))
+			if ($div.insertBefore && (!$win.ScriptEngine || 5.5 <= ScriptEngineMajorVersion() + ScriptEngineMinorVersion() / 10))
 			{
 				$html = $document.createElement('iframe');
 				$html.name = $name;
 				$html.src = $url;
 				$html.width = $html.height = $html.frameBorder = 0;
 				$html.tabIndex = -1;
-				$div.appendChild($html);
+				$div.insertBefore($html, $div.firstChild);
 			}
 			else $div.innerHTML += '<iframe name='+ $name +' src="'+ $url.replace(/"/g, '&quot;') +'" width="0" height="0" frameborder="0" tabindex="-1"></iframe>',
 
@@ -283,7 +283,9 @@ QJsrs.$withScript = function($url, $callback)
 		) $callback();
 	}
 
-	document.getElementsByTagName('head')[0].appendChild($script);
+	$url = document.getElementsByTagName('head')[0];
+	$url.insertBefore($script, $url.firstChild);
+	$url = 0;
 
 	return $script;
 }
