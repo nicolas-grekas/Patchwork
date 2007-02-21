@@ -314,7 +314,7 @@ class CIA_preprocessor__0
 
 			case T_COMMENT:
 			case T_WHITESPACE:
-			case T_DOC_COMMENT:
+//			case T_DOC_COMMENT: // Preserve T_DOC_COMMENT for PHP's native Reflection API
 				$token = substr_count($token, "\n");;
 				$token = $token ? str_repeat("\n", $token) : ' ';
 				break;
@@ -402,7 +402,8 @@ class CIA_preprocessor__0
 			&& (T_COMMENT == $t || T_WHITESPACE == $t || T_DOC_COMMENT == $t)
 		)
 		{
-			$token .= CIA_preprocessor::extractLF($code[$i][1]);
+			// Preserve T_DOC_COMMENT for PHP's native Reflection API
+			$token .= T_DOC_COMMENT == $t ? $code[$i][1] : CIA_preprocessor::extractLF($code[$i][1]);
 			$nonEmpty || $nonEmpty = true;
 		}
 
