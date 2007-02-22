@@ -150,6 +150,7 @@ class CIA_preprocessor__0
 
 				$class_pool[$curly_level] = (object) array(
 					'classname' => $c,
+					'is_final' => $final,
 					'has_php5_construct' => false,
 					'construct_source' => '',
 				);
@@ -169,11 +170,11 @@ class CIA_preprocessor__0
 				break;
 
 			case T_PRIVATE:
-				// "private static" methods or properties are problematic:
+				// "private static" methods or properties are problematic (except for final classes):
 				// as every "self" reference is renammed, "private static"s can not be accessed.
 				// To work around this, we change them to "protected static", and warn about it
 				// (except for files in the include path). Side effects exist but should be rare.
-				if (isset($class_pool[$curly_level-1]))
+				if (isset($class_pool[$curly_level-1]) && !$class_pool[$curly_level-1]->is_final)
 				{
 					// Look backward for the "static" keyword
 					$j = CIA_preprocessor::seekSugar($code, $i, true);
