@@ -20,18 +20,14 @@ class CIA_preprocessor__0
 {
 	public static $tokenFilter = false;
 
-	protected static $escapedSource;
-
 	static function run($source, $destination, $level, $class)
 	{
 		$source = realpath($source);
-		CIA_preprocessor::$escapedSource = "'" . str_replace(array('\\', "'"), array('\\\\', "\\'"), $source) . "'";
-
 		$code = file_get_contents($source);
-		CIA_preprocessor::antePreprocess($code, $level, $class);
+		CIA_preprocessor::antePreprocess($code, $level, $class, $source);
 
 
-		$code =& CIA_preprocessor::preprocess($code, $level, $class);
+		$code =& CIA_preprocessor::preprocess($code, $level, $class, $source);
 
 		$tmp = './' . uniqid(mt_rand(), true);
 
@@ -47,7 +43,7 @@ class CIA_preprocessor__0
 		else rename($tmp, $destination);
 	}
 
-	protected static function antePreprocess(&$code, $level, $class)
+	protected static function antePreprocess(&$code, $level, $class, $source)
 	{
 		if (false !== strpos($code, "\r")) $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
 		if (false !== strpos($code, '#>>>>>')) $code = preg_replace_callback("'^#>>>>>\s*^.*?^#<<<<<\s*$'ms", array('CIA_preprocessor', 'extractRxLF'), $code);
@@ -62,7 +58,7 @@ class CIA_preprocessor__0
 
 	}
 
-	protected static function &preprocess(&$code, $level, $class)
+	protected static function &preprocess(&$code, $level, $class, $source)
 	{
 		$code = token_get_all($code);
 		$codeLen = count($code);
@@ -117,22 +113,15 @@ class CIA_preprocessor__0
 				break;
 
 			case T_CLASS:
-				// Look backward for the "final" keyword
-				$j = 0;
-				do $t = isset($code[$i - (++$j)]) && is_array($code[$i-$j]) ? $code[$i-$j][0] : false;
-				while (T_COMMENT == $t || T_WHITESPACE == $t || T_DOC_COMMENT == $t);
-
-				$final = isset($code[$i-$j]) && is_array($code[$i-$j]) && T_FINAL == $code[$i-$j][0];
-
-
 				$c = '';
 
-				// Look forward
-				$j = 0;
-				do $t = isset($code[$i + (++$j)]) && is_array($code[$i+$j]) ? $code[$i+$j][0] : false;
-				while (T_COMMENT == $t || T_WHITESPACE == $t || T_DOC_COMMENT == $t);
+				// Look backward for the "final" keyword
+				$j = CIA_preprocessor::seekSugar($code, $i, true);
+				$final = isset($code[$j]) && is_array($code[$j]) && T_FINAL == $code[$j][0];
 
-				if (isset($code[$i+$j]) && is_array($code[$i+$j]) && T_STRING == $code[$i+$j][0])
+				// Look forward
+				$j = CIA_preprocessor::seekSugar($code, $i);
+				if (isset($code[$j]) && is_array($code[$j]) && T_STRING == $code[$j][0])
 				{
 					$token .= CIA_preprocessor::fetchSugar($code, $i);
 
@@ -179,6 +168,33 @@ class CIA_preprocessor__0
 
 				break;
 
+			case T_PRIVATE:
+				// "private static" methods or properties are problematic:
+				// as every "self" reference is renammed, "private static"s can not be accessed.
+				// To work around this, we change them to "protected static", and warn about it
+				// (except for files in the include path). Side effects exist but should be rare.
+				if (isset($class_pool[$curly_level-1]))
+				{
+					// Look backward for the "static" keyword
+					$j = CIA_preprocessor::seekSugar($code, $i, true);
+					if (isset($code[$j]) && is_array($code[$j]) && T_STATIC == $code[$j][0]) $j = true;
+					else
+					{
+						// Look forward for the "static" keyword
+						$j = CIA_preprocessor::seekSugar($code, $i);
+						$j = isset($code[$j]) && is_array($code[$j]) && T_STATIC == $code[$j][0];
+					}
+
+					if ($j)
+					{
+						$token = 'protected';
+
+						if (0<=$level) trigger_error("File {$source}:\nprivate static methods or properties are fordidden.\nPlease use protected static ones instead.", E_USER_WARNING);
+					}
+				}
+
+				break;
+
 			case T_STRING:
 				$lcToken = strtolower($token);
 
@@ -213,23 +229,16 @@ class CIA_preprocessor__0
 					break 2;
 				}
 
-				$j = 0;
-				do $t = isset($code[$i - (++$j)]) && is_array($code[$i-$j]) ? $code[$i-$j][0] : false;
-				while (T_COMMENT == $t || T_WHITESPACE == $t || T_DOC_COMMENT == $t);
-
-				if (isset($code[$i-$j]))
+				$j = CIA_preprocessor::seekSugar($code, $i, true);
+				if (isset($code[$j]))
 				{
-					if (is_array($code[$i-$j]))
+					if (is_array($code[$j]))
 					{
-						if (T_DOUBLE_COLON == $code[$i-$j][0] || T_OBJECT_OPERATOR == $code[$i-$j][0]) break;
-						else if ('&' == $code[$i-$j])
-						{
-							do $t = isset($code[$i - (++$j)]) && is_array($code[$i-$j]) ? $code[$i-$j][0] : false;
-							while (T_COMMENT == $t || T_WHITESPACE == $t || T_DOC_COMMENT == $t);
-						}
+						if (T_DOUBLE_COLON == $code[$j][0] || T_OBJECT_OPERATOR == $code[$j][0]) break;
 					}
+					else if ('&' == $code[$j]) $j = CIA_preprocessor::seekSugar($code, $j, true);
 
-					if (is_array($code[$i-$j]) && T_FUNCTION == $code[$i-$j][0])
+					if (is_array($code[$j]) && T_FUNCTION == $code[$j][0])
 					{
 						// If the currently parsed method is this class constructor
 						// build a PHP5 constructor if needed.
@@ -262,7 +271,7 @@ class CIA_preprocessor__0
 				case 'header': $token = 'CIA::header'; break;
 				case '__cia_level__': $token = $level; break;
 				case '__cia_file__':
-					$token = CIA_preprocessor::$escapedSource;
+					$token = "'" . str_replace(array('\\', "'"), array('\\\\', "\\'"), $source) . "'";
 					break;
 
 				case 'self':
@@ -312,8 +321,8 @@ class CIA_preprocessor__0
 
 				break;
 
-			case T_COMMENT:
 			case T_WHITESPACE:
+			case T_COMMENT:
 //			case T_DOC_COMMENT: // Preserve T_DOC_COMMENT for PHP's native Reflection API
 				$token = substr_count($token, "\n");;
 				$token = $token ? str_repeat("\n", $token) : ' ';
@@ -392,6 +401,18 @@ class CIA_preprocessor__0
 		return $new_code;
 	}
 
+	protected static function seekSugar(&$code, $i, $backward = false)
+	{
+		$backward = $backward ? -1 : 1;
+
+		while (
+			isset($code[$i += $backward]) && is_array($code[$i]) && ($t = $code[$i][0])
+			&& (T_WHITESPACE == $t || T_COMMENT == $t || T_DOC_COMMENT == $t)
+		) ;
+
+		return $i;
+	}
+
 	protected static function fetchSugar(&$code, &$i)
 	{
 		$token = '';
@@ -399,7 +420,7 @@ class CIA_preprocessor__0
 
 		while (
 			isset($code[++$i]) && is_array($code[$i]) && ($t = $code[$i][0])
-			&& (T_COMMENT == $t || T_WHITESPACE == $t || T_DOC_COMMENT == $t)
+			&& (T_WHITESPACE == $t || T_COMMENT == $t || T_DOC_COMMENT == $t)
 		)
 		{
 			// Preserve T_DOC_COMMENT for PHP's native Reflection API
