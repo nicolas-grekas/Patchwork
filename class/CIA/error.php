@@ -56,8 +56,8 @@ class extends CIA
 
 			$context = array();
 			$i = 0;
-			$exit = count($msg);
-			while ($i < $exit)
+			$length = count($msg);
+			while ($i < $length)
 			{
 				$a = array(
 					' in   ' => @ "{$msg[$i]['file']} line {$msg[$i]['line']}",
@@ -87,18 +87,14 @@ class extends CIA
 			$context = htmlspecialchars( print_r($context, true) );
 		}
 
-		$exit = false;
 		defined('E_RECOVERABLE_ERROR') || define('E_RECOVERABLE_ERROR', E_ERROR);
 
 		switch ($code)
 		{
-		case E_ERROR:
-		case E_RECOVERABLE_ERROR:
-			$msg = '<b>Recoverable Error</b>';
-			$exit = true;
-			break;
+		case E_ERROR:             $msg = '<b>Fatal Error</b>';             break;
+		case E_USER_ERROR:        $msg = '<b>Fatal User Error</b>';        break;
+		case E_RECOVERABLE_ERROR: $msg = '<b>Fatal Recoverable Error</b>'; break;
 			
-		case E_USER_ERROR:   $msg = '<b>User Error</b>';    break;
 		case E_WARNING:      $msg = '<b>Warning</b>';       break;
 		case E_USER_WARNING: $msg = '<b>User Warning</b>';  break;
 		case E_NOTICE:       $msg = '<b>Notice</b>';        break;
@@ -116,6 +112,12 @@ class extends CIA
 		fwrite($i, $cid, strlen($cid));
 		fclose($i);
 
-		if ($exit) exit;
+		switch ($code)
+		{
+		case E_ERROR:
+		case E_USER_ERROR:
+		case E_RECOVERABLE_ERROR:
+			exit;
+		}
 	}
 }
