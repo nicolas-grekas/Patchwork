@@ -1073,6 +1073,8 @@ class
 		{
 			// Fix IE mime-sniff misfeature
 			// (see http://www.splitbrain.org/blog/2007-02/12-internet_explorer_facilitates_cross_site_scripting)
+			// This will likely break binary contents, but it is also very unlikely
+			// that legitimate binary contents may contain these suspicious bytes.
 
 			$meta = substr($buffer, 0, 256);
 			$lt = strpos($meta, '<');
