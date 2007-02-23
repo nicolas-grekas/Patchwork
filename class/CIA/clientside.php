@@ -282,7 +282,7 @@ EOHTML;
 		}
 	}
 
-	private static function writeAgent(&$loop)
+	protected static function writeAgent(&$loop)
 	{
 		if (!self::string($loop))
 		{

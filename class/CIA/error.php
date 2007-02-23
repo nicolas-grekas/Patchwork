@@ -104,7 +104,18 @@ class extends CIA
 		}
 
 		$cid = self::uniqid();
-		$cid = "<a href=\"javascript:;\" onclick=\"var a=document.getElementById('{$cid}');a.style.display=a.style.display?'':'none';\">$msg</a> in <b>$file</b> line <b>$line</b>:\n$message<blockquote id=\"{$cid}\" style=\"display:none\">Context : $context</blockquote><br><br>";
+		$cid = <<<EOHTML
+<script type="text/javascript">/*<![CDATA[*/
+L=opener&&opener.document.getElementById('debugLink')
+L=L&&L.style
+if(L)
+{
+L.backgroundColor='red'
+L.fontSize='18px'
+}
+//]]></script><a href="javascript:;" onclick="var a=document.getElementById('{$cid}');a.style.display=a.style.display?'':'none';" style="color:red;font-weight:bold">{$msg}</a>
+in <b>$file</b> line <b>$line</b>:\n{$message}<blockquote id="{$cid}" style="display:none">Context: {$context}</blockquote><br><br>
+EOHTML;
 
 		$i = ini_get('error_log');
 		$i = fopen($i ? $i : './error.log', 'ab');

@@ -103,7 +103,7 @@ class extends CIA
 
 				if ($is_exo)
 				{
-					E("CIA Security Restriction Error: an AGENT ({$agent}) is called with EXOAGENT");
+					W("CIA Security Restriction Error: an AGENT ({$agent}) is called with EXOAGENT");
 					$_GET =& $a;
 					return;
 				}
@@ -133,7 +133,7 @@ class extends CIA
 						$agent
 					);
 				}
-				else E("CIA Security Restriction Error: an EXOAGENT ({$agent}) is called with AGENT");
+				else W("CIA Security Restriction Error: an EXOAGENT ({$agent}) is called with AGENT");
 
 				$_GET =& $a;
 				return;
@@ -272,7 +272,7 @@ class extends CIA
 		if (isset($vClone)) self::$cache[$cagent] = array($vClone, $template);
 	}
 
-	private static function writeAgent(&$h, &$data)
+	protected static function writeAgent(&$h, &$data)
 	{
 		fwrite($h, 'array(', 6);
 
@@ -313,7 +313,7 @@ class extends CIA
 		fwrite($h, ')', 1);
 	}
 
-	private static function getFromCache($cagent)
+	protected static function getFromCache($cagent)
 	{
 		if (file_exists($cagent))
 		{

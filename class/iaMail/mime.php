@@ -96,8 +96,8 @@ class extends Mail_mime
 		if (isset($this->options[$event . '_url'])) $url = $this->options['reply_url'];
 		else if (isset($GLOBALS['CONFIG'][$event . '_url'])) $url = $GLOBALS['CONFIG'][$event . '_url'];
 
-		if (!isset($email)) E("{$event}_email has not been configured.");
-		else if (!isset($url)) E("{$event}_url has not been configured.");
+		if (!isset($email)) W("{$event}_email has not been configured.");
+		else if (!isset($url)) W("{$event}_url has not been configured.");
 		else
 		{
 			$email = sprintf($email, $message_id);

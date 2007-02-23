@@ -52,13 +52,13 @@ class extends iaCompiler
 			{
 				if (!$is_exo)
 				{
-					E("Template Security Restriction Error: an EXOAGENT ({$home}{$end}) is called with AGENT on line " . $this->getLine());
+					W("Template Security Restriction Error: an EXOAGENT ({$home}{$end}) is called with AGENT on line " . $this->getLine());
 					exit;
 				}
 			}
 			else if ($is_exo)
 			{
-				E("Template Security Restriction Error: an AGENT ({$end}) is called with EXOAGENT on line " . $this->getLine());
+				W("Template Security Restriction Error: an AGENT ({$end}) is called with EXOAGENT on line " . $this->getLine());
 				exit;
 			}
 		}

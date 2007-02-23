@@ -35,13 +35,13 @@ abstract class
 		$class = 'adapter_convertTo_' . $to . '_' . $from;
 		if (preg_match("'[^a-zA-Z0-9_]'u", $class))
 		{
-			E('Disallowed classname: ' . $class);
+			W('Wrong class name: ' . $class);
 			return false;
 		}
 
 		if (class_exists($class)) return new $class;
 
-		E('No defined adapter for this convertion: ' . $class);
+		W('No defined adapter for this convertion: ' . $class);
 
 		return false;
 	}

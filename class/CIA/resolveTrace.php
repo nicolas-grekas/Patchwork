@@ -67,7 +67,7 @@ class extends CIA
 
 			if (!preg_match($s, $keys, $keys))
 			{
-				E('Error while getting meta info data for ' . htmlspecialchars($agent));
+				W('Error while getting meta info data for ' . htmlspecialchars($agent));
 				self::disable(true);
 			}
 		}

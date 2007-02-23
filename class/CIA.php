@@ -148,7 +148,6 @@ class
 	static $agentClass;
 	static $catchMeta = false;
 	static $ETag = '';
-	static $has_error = false;
 
 	protected static $host;
 	protected static $lang = '__';
@@ -225,7 +224,7 @@ class
 
 		if (htmlspecialchars(self::$home) != self::$home)
 		{
-			E('Fatal error: illegal character found in self::$home');
+			W('Fatal error: illegal character found in self::$home');
 			self::disable(true);
 		}
 
@@ -467,6 +466,7 @@ class
 		if ($gzip)
 		{
 			if ('HEAD' == $_SERVER['REQUEST_METHOD']) ob_end_clean();
+			$data = '';
 		}
 		else
 		{
@@ -612,7 +612,7 @@ class
 
 				if ($b != $a && !self::$isGroupStage)
 				{
-#>					E('Misconception: self::setGroup() is called in ' . self::$agentClass . '->compose( ) rather than in ' . self::$agentClass . '->control(). Cache is now disabled for this agent.');
+#>					W('Misconception: self::setGroup() is called in ' . self::$agentClass . '->compose( ) rather than in ' . self::$agentClass . '->control(). Cache is now disabled for this agent.');
 
 					$a = array('private');
 				}
@@ -745,7 +745,7 @@ class
 			if (CIA_WINDOWS)
 			{
 				file_exists($filename) && unlink($filename);
-				@rename($tmpname, $filename) || E('Failed rename');
+				rename($tmpname, $filename);
 			}
 			else rename($tmpname, $filename);
 
@@ -1028,7 +1028,7 @@ class
 			if (PHP_OUTPUT_HANDLER_START & $mode)
 			{
 				$lead = '';
-#>				if ((!CIA_CHECK_SOURCE || CIA_POSTING) && !self::$binaryMode && (self::$isServersideHtml || CIA_DIRECT)) $buffer = CIA_debugWin::call() . $buffer;
+#>				if (self::$isServersideHtml && (!CIA_CHECK_SOURCE || CIA_POSTING) && !self::$binaryMode) $buffer = CIA_debugWin::call() . $buffer;
 			}
 
 			$tail = '';
@@ -1250,8 +1250,6 @@ class
 			|| ((E_NOTICE == $code || E_STRICT == $code) && !substr_compare($file, '-.zcache.php', -12))
 			|| (E_WARNING == $code && false !== stripos($message, 'safe mode'))
 		) return;
-
-		self::$has_error = true;
 
 		CIA_error::call($code, $message, $file, $line, &$context);
 	}

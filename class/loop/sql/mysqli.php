@@ -44,7 +44,7 @@ class extends loop
 			$this->db || $this->db = DB()->connection;
 			$this->result = $this->db->query($sql);
 
-			if (!$this->result) E("MySQL Error ({$sql}) : {$this->db->error}");
+			if (!$this->result) W("MySQL Error ({$sql}) : {$this->db->error}");
 		}
 
 		return $this->result ? $this->result->num_rows : false;

@@ -195,7 +195,7 @@ abstract class
 
 		if ($a < 0)
 		{
-			E("Template error: Invalid level (resolved to $a) in \"{$m[0]}\"");
+			W("Template error: Invalid level (resolved to $a) in \"{$m[0]}\"");
 			return $m[0];
 		}
 		else
@@ -587,6 +587,6 @@ abstract class
 
 	private function endError($unexpected, $expected)
 	{
-		E("Template Parse Error: Unexpected END:$unexpected" . ($expected ? ", expecting END:$expected" : '') . " line " . $this->getLine());
+		W("Template Parse Error: Unexpected END:$unexpected" . ($expected ? ", expecting END:$expected" : '') . " line " . $this->getLine());
 	}
 }
