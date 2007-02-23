@@ -1017,7 +1017,7 @@ class
 		}
 
 
-		$type = strtolower(substr(self::$headers['content-type'], 14));
+		$type = isset(self::$headers['content-type']) ? strtolower(substr(self::$headers['content-type'], 14)) : false;
 
 		// Anti-XSRF token
 
@@ -1076,7 +1076,7 @@ class
 
 			$meta = substr($buffer, 0, 256);
 			$lt = strpos($meta, '<');
-			if (false !== $lt && in_array($type, self::$ieSniffedTypes))
+			if (false !== $lt && (!$type || in_array($type, self::$ieSniffedTypes)))
 			{
 				foreach (self::$ieSniffedTags as $tag)
 				{
