@@ -27,7 +27,7 @@ function_exists('apache_setenv') && apache_setenv('no-gzip', '1');
 // Encoding context initialisation
 @putenv('LC_ALL=en_US.UTF-8');
 setlocale(LC_ALL, 'en_US.UTF-8');
-if (function_exists('iconv_set_encoding'))
+if (function_exists('iconv'))
 {
 	iconv_set_encoding('input_encoding',    'UTF-8');
 	iconv_set_encoding('internal_encoding', 'UTF-8');
@@ -157,6 +157,11 @@ define('CIA_DIRECT', '_' == $_SERVER['CIA_REQUEST']);
 function E($msg = '__getDeltaMicrotime')
 {
 	return CIA::log($msg, false, false);
+}
+
+function W($msg)
+{
+	trigger_error($msg, E_USER_WARNING);
 }
 
 function_exists('date_default_timezone_set') && isset($CONFIG['timezone']) && date_default_timezone_set($CONFIG['timezone']);
@@ -435,7 +440,7 @@ function __autoload($searched_class)
 				$code = new COM('Scripting.FileSystemObject');
 				$code->GetFile(CIA_PROJECT_PATH .'/'. $tmp)->Attributes |= 2; // Set hidden attribute
 				file_exists($cache) && unlink($cache);
-				@rename($tmp, $cache) || E('Failed rename');
+				rename($tmp, $cache);
 			}
 			else rename($tmp, $cache);
 		}
@@ -503,7 +508,7 @@ else
 {
 	if ($_COOKIE)
 	{
-		if (CIA_POSTING) E('Potential Cross Site Request Forgery. $_POST is not reliable. Erasing it !');
+		if (CIA_POSTING) W('Potential Cross Site Request Forgery. $_POST is not reliable. Erasing it !');
 
 		unset($_POST);
 		$_POST = array();

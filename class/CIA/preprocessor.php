@@ -24,6 +24,21 @@ class CIA_preprocessor__0
 	{
 		$source = realpath($source);
 		$code = file_get_contents($source);
+
+		if (!preg_match("''u", $code))
+		{
+			W("File {$source}:\nfile encoding is not valid UTF-8. Trying to convert it without any hope. Please convert your source code to UTF-8.");
+
+			if (extension_loaded('mbstring'))
+			{
+				$code = mb_convert_encoding($code, 'UTF-8', 'JIS,EUC-JP,SJIS,ISO-8859-1');
+			}
+			else if (function_exists('iconv'))
+			{
+				$code = iconv('ISO-8859-1', 'UTF-8', $code);
+			}
+		}
+
 		CIA_preprocessor::antePreprocess($code, $level, $class, $source);
 
 
@@ -38,7 +53,7 @@ class CIA_preprocessor__0
 			$code = new COM('Scripting.FileSystemObject');
 			$code->GetFile(CIA_PROJECT_PATH .'/'. $tmp)->Attributes |= 2; // Set hidden attribute
 			file_exists($destination) && unlink($destination);
-			@rename($tmp, $destination) || E('Failed rename');
+			rename($tmp, $destination);
 		}
 		else rename($tmp, $destination);
 	}
@@ -170,8 +185,7 @@ class CIA_preprocessor__0
 				break;
 
 			case T_PRIVATE:
-				// "private static" methods or properties are problematic (except for final classes):
-				// as every "self" reference is renammed, "private static"s can not be accessed.
+				// "private static" methods or properties are problematic when considering application inheritance.
 				// To work around this, we change them to "protected static", and warn about it
 				// (except for files in the include path). Side effects exist but should be rare.
 				if (isset($class_pool[$curly_level-1]) && !$class_pool[$curly_level-1]->is_final)
@@ -190,7 +204,7 @@ class CIA_preprocessor__0
 					{
 						$token = 'protected';
 
-						if (0<=$level) trigger_error("File {$source}:\nprivate static methods or properties are fordidden.\nPlease use protected static ones instead.", E_USER_WARNING);
+						if (0<=$level) W("File {$source}:\nprivate static methods or properties are fordidden.\nPlease use protected static ones instead.");
 					}
 				}
 

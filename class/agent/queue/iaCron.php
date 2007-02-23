@@ -58,7 +58,7 @@ class extends agent_bin
 		$this->releaseLock();
 		$this->queueNext();
 
-		if ('' !== $buffer || CIA::$has_error)
+		if ('' !== $buffer)
 		{
 			self::$callbackError = true;
 

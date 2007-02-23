@@ -138,7 +138,7 @@ class
 	{
 		CIA::setGroup('private');
 
-		if (self::$maxIdleTime<1 && self::$maxLifeTime<1) trigger_error('At least one of the SESSION::$max*Time variables must be strictly positive.');
+		if (self::$maxIdleTime<1 && self::$maxLifeTime<1) W('At least one of the SESSION::$max*Time variables must be strictly positive.');
 
 		self::$sslid = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? hash('md5', $_SERVER['SSL_SESSION_ID']) : false;
 

@@ -43,7 +43,7 @@ class extends CIA
 			throw new PrivateDetection($a);
 		}
 
-		E('Potential Cross Site JavaScript Request. Stopping !');
+		W('Potential Cross Site JavaScript Request. Stopping !');
 
 		self::disable(true);
 	}
