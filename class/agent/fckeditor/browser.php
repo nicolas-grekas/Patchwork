@@ -173,7 +173,6 @@ class extends agent
 			if (
 				   (!$allow ||  in_array($extension, $allow))
 				&& (!$deny  || !in_array($extension, $deny ))
-				&& !(('image' == $o->resourceType || ($this->allow_image && in_array($extension, $this->allow_image))) && false === @getimagesize($file['tmp_name']))
 			)
 			{
 				$i = 0;
