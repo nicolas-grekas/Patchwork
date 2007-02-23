@@ -188,6 +188,21 @@ class
 		'msword','rtf','excel','powerpoint',
 	);
 
+	protected static $ieSniffedTypes = array(
+		'text/plain','text/richtext','audio/x-aiff','audio/basic','audio/wav',
+		'image/gif','image/jpeg','image/pjpeg','image/tiff','image/x-png','image/png',
+		'image/x-xbitmap','image/bmp','image/x-jg','image/x-emf','image/x-wmf',
+		'video/avi','video/mpeg','application/octet-stream','application/pdf',
+		'application/base64','application/macbinhex40','application/postscript',
+		'application/x-compressed','application/java','application/x-msdownload',
+		'application/x-gzip-compressed','application/x-zip-compressed'
+	);
+
+	protected static $ieSniffedTags = array(
+		'body','head','html','img','plaintext',
+		'pre','script','table','title'
+	);
+
 	static function start()
 	{
 		self::$fullVersionId = $GLOBALS['version_id'];
@@ -423,7 +438,7 @@ class
 		}
 	}
 
-	static function isGzipAllowed()
+	static function gzipAllowed()
 	{
 		$c = substr(self::$headers['content-type'], 14);
 
@@ -441,20 +456,33 @@ class
 		self::$ETag = $size .'-'. filemtime($file) .'-'. fileinode($file);
 		self::disable();
 
-		if (self::isGzipAllowed())
+		$gzip = self::gzipAllowed();
+		$gzip || ob_start();
+
+		ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
+
+		$h = fopen($file, 'rb');
+		echo fread($h, 256); // For CIA::ob_filterOutput to fix IE
+
+		if ($gzip)
 		{
-			ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
-
-			if ('HEAD' == $_SERVER['REQUEST_METHOD'])
-			{
-				// Fake CIA::ob_filterOutput() to make it send its headers
-				echo str_repeat(' ', $size > 100 ? 101 : 1);
-				ob_end_clean();
-			}
+			if ('HEAD' == $_SERVER['REQUEST_METHOD']) ob_end_clean();
 		}
-		else header('Content-Length: ' . $size);
+		else
+		{
+			ob_end_flush();
+			$data = ob_get_clean();
+			$size += strlen($data) - 256;
+			header('Content-Length: ' . $size);
+		}
 
-		if ('HEAD' != $_SERVER['REQUEST_METHOD']) readfile($file);
+		if ('HEAD' != $_SERVER['REQUEST_METHOD'])
+		{
+			echo $data;
+			feof($h) || fpassthru($h);
+		}
+
+		fclose($h);
 	}
 
 	/**
@@ -584,7 +612,7 @@ class
 
 				if ($b != $a && !self::$isGroupStage)
 				{
-#>					E('Miss-conception: self::setGroup() is called in ' . self::$agentClass . '->compose( ) rather than in ' . self::$agentClass . '->control(). Cache is now disabled for this agent.');
+#>					E('Misconception: self::setGroup() is called in ' . self::$agentClass . '->compose( ) rather than in ' . self::$agentClass . '->control(). Cache is now disabled for this agent.');
 
 					$a = array('private');
 				}
@@ -989,9 +1017,11 @@ class
 		}
 
 
+		$type = strtolower(substr(self::$headers['content-type'], 14));
+
 		// Anti-XSRF token
 
-		if (stripos(self::$headers['content-type'], 'html'))
+		if (false !== strpos($type, 'html'))
 		{
 			static $lead;
 
@@ -1039,11 +1069,36 @@ class
 				unset($meta);
 			}
 		}
+		else if (PHP_OUTPUT_HANDLER_START & $mode)
+		{
+			// Fix IE mime-sniff misfeature
+			// (see http://www.splitbrain.org/blog/2007-02/12-internet_explorer_facilitates_cross_site_scripting)
+
+			$meta = substr($buffer, 0, 256);
+			$lt = strpos($meta, '<');
+			if (false !== $lt && in_array($type, self::$ieSniffedTypes))
+			{
+				foreach (self::$ieSniffedTags as $tag)
+				{
+					$tail = stripos($meta, '<' . $tag, $lt);
+					if (false !== $tail && $tail + strlen($tag) < strlen($meta))
+					{
+						$buffer = substr($buffer, 0, $tail)
+							. '<!--IE-MimeSniffFix'
+							. str_repeat('-', 233 - strlen($tag) - $tail)
+							. '-->'
+							. substr($buffer, $tail);
+
+						break;
+					}
+				}
+			}
+		}
 
 
 		// GZip compression
 
-		if (self::isGzipAllowed())
+		if (self::gzipAllowed())
 		{
 			if ($one_chunk)
 			{
