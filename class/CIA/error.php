@@ -106,6 +106,7 @@ class extends CIA
 		$cid = self::uniqid();
 		$cid = <<<EOHTML
 <script type="text/javascript">/*<![CDATA[*/
+focus()
 L=opener&&opener.document.getElementById('debugLink')
 L=L&&L.style
 if(L)

@@ -425,7 +425,7 @@ function __autoload($searched_class)
 
 					$code = substr($code, 0, -2) . "if(!class_exists('$class',0)){" . substr($c, 6, -2) . '}?>';
 				}
-				else $code = substr($code, 0, -2) . "class_exists('{$class}',0)||require '{$c[1]}';?>";
+				else $code = substr($code, 0, -2) . "class_exists('{$class}',0)||include '{$c[1]}';?>";
 			}
 
 			$code = substr($code, 0, -2) . ';' . substr($tmp, 6);
