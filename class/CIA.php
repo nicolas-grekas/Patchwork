@@ -410,18 +410,7 @@ class
 
 		if (self::$catchMeta) self::$metaInfo[4][$name] = $string;
 
-		if ('content-type' == $name)
-		{
-			if (!strcasecmp('application/pdf', $string))
-			{
-				// Due to the Universal XSS hole in Acrobat Reader 7 and below, we
-				// disable Acrobat Reader's integration into the browser and force PDF download.
-				// Other workarounds exist (http://www.owasp.org/index.php/PDF_Attack_Filter_for_Java_EE)
-				// but they all disable HTTP caching and PDF Open Parameters features.
-				$string = 'application/octet-stream';
-			}
-			else self::$isServersideHtml = false !== stripos($string, 'html');
-		}
+		if ('content-type' == $name) self::$isServersideHtml = false !== stripos($string, 'html');
 
 		if (!self::$privateDetectionMode)
 		{
