@@ -282,7 +282,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 				if ($args.e$) $args.__URI__ += '?' + $c.substr(5);
 				a = $args;
-				$include($inc + $c + '&amp;v$=' + $CIApID);
+				$include($inc + $c);
 			}
 			else
 			{
@@ -352,7 +352,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 			if ($context) for ($i in $context) $context[$i] = esc($context[$i]);
 
 			<!-- IF g$__DEBUG__ -->
-			DEBUG = /*window.ScriptEngine ? 0 :*/ ($i ? 2 : 1); // Uncomment if IE is too slow in DEBUG.
+			DEBUG = $i ? 2 : 1;
 			<!-- END:IF -->
 		}
 
@@ -580,7 +580,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 		if ($src)
 		{
-			$src = '<script type="text/javascript" name="w$" src="' + $src + '"></script>';
+			$src = '<script type="text/javascript" name="w$" src="' + $src + (0<=$src.indexOf('?') ? '&amp;' : '?') + 'v$=' + $CIApID + '"></script>';
 
 			if ($trustReferer || /(^|; )JS=2(; |$)/.test($document.cookie)) $trustReferer = 1;
 			else $src = '<script type="text/javascript" name="w$">document.cookie="R$="+eUC((""+location).replace(/#.*$/,""))+"; path=/"</script>' + $src;
