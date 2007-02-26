@@ -35,14 +35,14 @@ class extends agent
 			if ('os ' == substr($sql, 3, 3))
 			{
 				$sql = substr($sql, 5);
-				$sql = $this->doLike("agios$sql") . ' OR ' . $this->doLike("ayios$sql");
+				$sql = "search GLOB 'agios{$sql}*' OR search GLOB 'ayios{$sql}*'";
 				break;
 			}
 
-		default: $sql = $this->doLike($sql); break;
+		default: $sql = '' === $sql ? 1 : "search GLOB '{$sql}*'"; break;
 		}
 
-		$sql = "SELECT city_id, city FROM city WHERE " . $sql;
+		$sql = "SELECT city_id, city FROM city WHERE {$sql} ORDER BY OID";
 
 		$a = resolvePath('data/geodb.sqlite');
 		$a = new SQLiteDatabase($a);
@@ -50,22 +50,6 @@ class extends agent
 		$o->cities = new loop_city_($a, $sql, 15);
 
 		return $o;
-	}
-
-	function doLike($a)
-	{
-		if ('' === $a) return 1;
-
-		$sql = "search >= '{$a}'";
-
-		$b = ord(substr($a, -1));
-		if (255 > $b)
-		{
-			$b = substr($a, 0, -1) . chr(1 + $b);
-			$sql = "({$sql} AND search < '{$b}')";
-		}
-
-		return $sql;
 	}
 }
 

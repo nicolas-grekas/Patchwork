@@ -181,7 +181,7 @@ getSelectStatus = IgSS = function()
 	) ? 1 : '';
 }
 
-checkElementStatus = IcES = function($msgs, $form)
+checkElementStatus = IcES = function($msgs, $form, $preserveScroll)
 {
 	var $i = 1, $element, $status, $onempty, $onerror;
 
@@ -229,8 +229,16 @@ checkElementStatus = IcES = function($msgs, $form)
 				if ($element.select) $element.select();
 			}
 
-			return false;
+			return $element = false;
 		}
+	}
+
+	if ($preserveScroll)
+	{
+		$preserveScroll = document;
+		$preserveScroll = $preserveScroll.documentElement || $preserveScroll.body;
+		setboard({lastX: $preserveScroll.scrollLeft, lastY: $preserveScroll.scrollTop});
+		$preserveScroll = 0;
 	}
 
 	return true;
@@ -432,21 +440,13 @@ onDOMLoaded.push(function()
 		$form.$onsubmit = $form.onsubmit;
 		$form.onsubmit = function($event)
 		{
-			var $this = this,
-				$body = document;
-
-			$body = $body.documentElement || $body.body;
+			var $this = this;
 
 			if ($this.precheck && !$this.precheck($event)) return false;
 
 			$event = $this.$onsubmit && $this.$onsubmit($event);
 
 			if (!$event && 'false' == ''+$event) return false;
-
-			setboard({
-				lastX: $body.scrollLeft,
-				lastY: $body.scrollTop
-			});
 
 			if ($this.UPLOAD_IDENTIFIER && window.loadUpload) loadUpload($this);
 		}
