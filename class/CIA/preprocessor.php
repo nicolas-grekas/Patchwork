@@ -18,11 +18,13 @@ class_exists('Reflection',false) || die('Extension "Reflection" is needed and no
 
 class CIA_preprocessor__0
 {
-	public static $tokenFilter = false;
+	static $tokenFilter = false;
+	static $source;
+	static $line = 1;
 
 	static function run($source, $destination, $level, $class)
 	{
-		$source = realpath($source);
+		CIA_preprocessor::$source = $source = realpath($source);
 		$code = file_get_contents($source);
 
 		if (!preg_match("''u", $code))
@@ -39,10 +41,10 @@ class CIA_preprocessor__0
 			}
 		}
 
-		CIA_preprocessor::antePreprocess($code, $level, $class, $source);
+		CIA_preprocessor::antePreprocess($code, $level, $class);
 
 
-		$code =& CIA_preprocessor::preprocess($code, $level, $class, $source);
+		$code =& CIA_preprocessor::preprocess($code, $level, $class);
 
 		$tmp = './' . uniqid(mt_rand(), true);
 
@@ -58,7 +60,7 @@ class CIA_preprocessor__0
 		else rename($tmp, $destination);
 	}
 
-	protected static function antePreprocess(&$code, $level, $class, $source)
+	protected static function antePreprocess(&$code, $level, $class)
 	{
 		if (false !== strpos($code, "\r")) $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
 		if (false !== strpos($code, '#>>>>>')) $code = preg_replace_callback("'^#>>>>>\s*^.*?^#<<<<<\s*$'ms", array('CIA_preprocessor', 'extractRxLF'), $code);
@@ -73,8 +75,12 @@ class CIA_preprocessor__0
 
 	}
 
-	protected static function &preprocess(&$code, $level, $class, $source)
+	protected static function &preprocess(&$code, $level, $class)
 	{
+		$source =  CIA_preprocessor::$source;
+		$line   =& CIA_preprocessor::$line;
+		$line   = 1;
+
 		$code = token_get_all($code);
 		$codeLen = count($code);
 
@@ -204,7 +210,7 @@ class CIA_preprocessor__0
 					{
 						$token = 'protected';
 
-						if (0<=$level) W("File {$source}:\nprivate static methods or properties are fordidden.\nPlease use protected static ones instead.");
+						if (0<=$level) W("File {$source} line {$line}:\nprivate static methods or properties are fordidden.\nPlease use protected static ones instead.");
 					}
 				}
 
@@ -227,6 +233,7 @@ class CIA_preprocessor__0
 					if (!$c) break 2;
 					else break;
 
+				case 't':
 				case '__cia_level__':
 				case '__cia_file__':
 				case 'resolvePath':
@@ -284,6 +291,13 @@ class CIA_preprocessor__0
 				switch ($lcToken)
 				{
 				case 'header': $token = 'CIA::header'; break;
+
+				case 't':
+					$token .= CIA_preprocessor::fetchSugar($code, $i);
+					if ('(' == $code[$i]) $bracket_pool[$bracket_level+1] = CIA_preprocessor::bracket(false, array(new CIA_preprocessor_t_, 'position'));
+					--$i;
+					break;
+
 				case '__cia_level__': $token = $level; break;
 				case '__cia_file__':
 					$token = "'" . str_replace(array('\\', "'"), array('\\\\', "\\'"), $source) . "'";
@@ -338,9 +352,14 @@ class CIA_preprocessor__0
 
 			case T_WHITESPACE:
 			case T_COMMENT:
-//			case T_DOC_COMMENT: // Preserve T_DOC_COMMENT for PHP's native Reflection API
-				$token = substr_count($token, "\n");;
+				$token = substr_count($token, "\n");
+				$line += $token;
 				$token = $token ? str_repeat("\n", $token) : ' ';
+				break;
+
+			case T_DOC_COMMENT: // Preserve T_DOC_COMMENT for PHP's native Reflection API
+			case T_CONSTANT_ENCAPSED_STRING:
+				$line += substr_count($token, "\n");
 				break;
 
 			case false:
@@ -442,6 +461,8 @@ class CIA_preprocessor__0
 			$token .= T_DOC_COMMENT == $t ? $code[$i][1] : CIA_preprocessor::extractLF($code[$i][1]);
 			$nonEmpty || $nonEmpty = true;
 		}
+
+		CIA_preprocessor::$line += substr_count($token, "\n");
 
 		return $nonEmpty && '' === $token ? ' ' : $token;
 	}
@@ -562,5 +583,27 @@ class CIA_preprocessor_classExists___0
 	function close($token, $position)
 	{
 		return 1 == $position ? ')||1' . $token : $token;
+	}
+}
+
+class CIA_preprocessor_t___0
+{
+	function position($token, $position)
+	{
+		CIA_preprocessor::$tokenFilter = 1 == $position ? array($this, 'filterToken') : false;
+		return $token;
+	}
+
+	function filterToken($type, $token)
+	{
+		if ($type !== T_CONSTANT_ENCAPSED_STRING)
+		{
+			$source = CIA_preprocessor::$source;
+			$line   = CIA_preprocessor::$line;
+
+			W("File {$source} line {$line}:\nUsage of T() is potentially divergent.\nUse sprintf() instead of string concatenation.");
+		}
+
+		return $token;
 	}
 }

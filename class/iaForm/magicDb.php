@@ -20,7 +20,7 @@ class
 		$result = DB()->query($sql);
 
 		$onempty = '';
-		$onerror = T('Input validation failed');
+		$onerror = T('Input validation error');
 
 		while ($row = $result->fetchRow())
 		{

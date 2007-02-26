@@ -38,6 +38,7 @@ class
 	protected static $lastseen = '';
 	protected static $birthtime = '';
 	protected static $sslid = '';
+	protected static $isIdled = false;
 
 
 	/* Public methods */
@@ -169,13 +170,14 @@ class
 			self::$birthtime = $i[1];
 			if ((self::$maxIdleTime && $_SERVER['REQUEST_TIME'] - self::$lastseen > self::$maxIdleTime))
 			{
-				// Session has expired
-				self::regenerateId(true);
+				// Session has idled
+				self::onIdle();
+				self::$isIdled = true;
 			}
 			else if ((self::$maxLifeTime && $_SERVER['REQUEST_TIME'] - self::$birthtime > self::$maxLifeTime))
 			{
-				// Session has idled
-				self::regenerateId(true);
+				// Session has expired
+				self::onExpire();
 			}
 			else self::$DATA =& $i[2];
 
@@ -206,6 +208,15 @@ class
 		self::$SID = hash('md5', $SID .'-'. $IPs .'-'. (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '') .'-'. $GLOBALS['cia_token']);
 	}
 
+	protected static function onIdle()
+	{
+		self::regenerateId(true);
+	}
+
+	protected static function onExpire()
+	{
+		self::onIdle();
+	}
 
 	/* Adapter */
 
@@ -227,7 +238,7 @@ class
 		if ($this->handle)
 		{
 			$this->write(serialize(array(
-				$_SERVER['REQUEST_TIME'],
+				self::$isIdled ? self::$lastseen : $_SERVER['REQUEST_TIME'],
 				self::$birthtime,
 				self::$DATA,
 				self::$sslid
