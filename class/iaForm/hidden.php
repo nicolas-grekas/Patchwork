@@ -161,7 +161,34 @@ class extends loop_callAgent
 			), true));
 #<<<
 
-			return "Input validation error in field {$this->name}";
+			if ($this->isfile && isset($_FILES[$this->name]))
+			{
+				switch ($_FILES[$this->name]['error'])
+				{
+				case UPLOAD_ERR_OK:
+				case UPLOAD_ERR_NO_FILE:
+				default:
+					$onerror = T('Input validation error');
+					break;
+
+				case UPLOAD_ERR_INI_SIZE:
+				case UPLOAD_ERR_FORM_SIZE:
+					$onerror = T('The uploaded file size exceeds the allowed limit');
+					break;
+
+				case UPLOAD_ERR_PARTIAL:
+					$onerror = T('The uploaded file was only partially uploaded');
+					break;
+
+				case UPLOAD_ERR_NO_TMP_DIR:
+				case UPLOAD_ERR_CANT_WRITE:
+					$onerror = sprintf(T('The server failed to accept the uploaded file (code #%d)'), $this->name, $_FILES[$this->name]['error']);
+					break;
+				}
+			}
+			else $onerror = T('Input validation error');
+
+			return $this->errormsg = $onerror;
 		}
 		else if ($this->status==='') $this->value = '';
 
