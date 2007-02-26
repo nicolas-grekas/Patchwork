@@ -23,6 +23,7 @@ You can control it with the additional arguments:
 - a$_beforeError_	|default:g$inputBeforeError		: HTML code put at the beginning of an error message
 - a$_afterError_	|default:g$inputAfterError		: HTML code put at the end of an error message
 - a$_focus_											: set the focus on this element
+- a$_preserveScroll_								: preserve scroll position when clicking on submit/image/button elements
 - a$_format_		|default:g$inputFormat			: a string to format the output where ("=>" means "is replaced by"):
 														  %0 => the caption,
 														  %1 => the control,
@@ -132,7 +133,7 @@ SET $INPUT
 
 		IF a$type == 'submit' || a$type == 'image' || a$type == 'button'
 			-->lE.oc=lE.onclick;
-			lE.onclick=function(e){var f=this.form;return(f.precheck?f.precheck():1)&&(this.cS()?(this.oc?this.oc(e):true):false)};<!--
+			lE.onclick=function(e){var f=this.form;return(f.precheck?f.precheck():true)&&(this.cS()?(this.oc?this.oc(e):true):false)};<!--
 
 		ELSE
 			-->lE.gS=function(){return valid(this<!-- LOOP a$_valid -->,{$VALUE|js}<!-- END:LOOP -->)};<!--
@@ -141,7 +142,7 @@ SET $INPUT
 
 	END:IF
 
-	-->lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form)};<!-- IF a$_focus_ -->lEF=lE;setTimeout('lEF.focus()',100);<!-- END:IF -->{a$_JsEnd}<!--
+	-->lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form,{a$_preserveScroll_|test:1:0})};<!-- IF a$_focus_ -->lEF=lE;setTimeout('lEF.focus()',100);<!-- END:IF -->{a$_JsEnd}<!--
 
 	IF a$_mandatory --></span><!-- END:IF
 
