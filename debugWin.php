@@ -75,11 +75,33 @@ while (1)
 		$h = @fopen($error_log, 'r');
 		while (!feof($h))
 		{
-			echo preg_replace(
-				"'in .*?[\\\\/]\.([^\\\\/]+)\.{$cia_paths_token}\.[01][0-9]+-?\.zcache\.php'e",
-				"'in '.strtr('$1','_','/')",
-				fgets($h)
-			);
+			$a = fgets($h);
+
+			if ('[' == $a[0] && '] PHP ' == substr($a, 21, 6))
+			{
+				$b = strpos($a, ':', 28);
+				$a = substr($a, 0, 23)
+					. '<script type="text/javascript">/*<![CDATA[*/
+focus()
+L=opener&&opener.document.getElementById(\'debugLink\')
+L=L&&L.style
+if(L)
+{
+L.backgroundColor=\'red\'
+L.fontSize=\'18px\'
+}
+//]]></script><span style="color:red;font-weight:bold">'
+					. substr($a, 23, $b-23)
+					. '</span>'
+					. preg_replace_callback(
+						"'" . preg_quote(htmlspecialchars(CIA_PROJECT_PATH) . DIRECTORY_SEPARATOR . '.')
+							. "([^\\\\/]+)\.{$cia_paths_token}\.[01]([0-9]+)(-?)\.zcache\.php'",
+						'cia_debugWin_filename',
+						substr($a, $b)
+					);
+			}
+
+			echo $a;
 		}
 		fclose($h);
 
@@ -102,6 +124,13 @@ while (1)
 	}
 
 	usleep($sleep);
+}
+
+function cia_debugWin_filename($m)
+{
+	return $GLOBALS['cia_include_paths'][count($GLOBALS['cia_paths']) - ((int)($m[3].$m[2])) - 1]
+		. DIRECTORY_SEPARATOR
+		. str_replace('%1', '%', str_replace('%2', '_', strtr($m[1], '_', DIRECTORY_SEPARATOR)));
 }
 
 exit;
