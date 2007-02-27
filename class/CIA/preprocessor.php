@@ -27,19 +27,7 @@ class CIA_preprocessor__0
 		CIA_preprocessor::$source = $source = realpath($source);
 		$code = file_get_contents($source);
 
-		if (!preg_match("''u", $code))
-		{
-			W("File {$source}:\nfile encoding is not valid UTF-8. Trying to convert it without any hope. Please convert your source code to UTF-8.");
-
-			if (extension_loaded('mbstring'))
-			{
-				$code = mb_convert_encoding($code, 'UTF-8', 'JIS,EUC-JP,SJIS,ISO-8859-1');
-			}
-			else if (function_exists('iconv'))
-			{
-				$code = iconv('ISO-8859-1', 'UTF-8', $code);
-			}
-		}
+		if (!preg_match("''u", $code)) W("File {$source}:\nfile encoding is not valid UTF-8. Please convert your source code to UTF-8.");
 
 		CIA_preprocessor::antePreprocess($code, $level, $class);
 
