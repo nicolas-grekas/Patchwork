@@ -22,17 +22,17 @@ class extends CIA
 
 		echo 'w(0';
 
-		$ctemplate = self::getContextualCachePath("templates/$template", 'txt');
+		$ctemplate = CIA::getContextualCachePath("templates/$template", 'txt');
 		$readHandle = true;
-		if ($h = self::fopenX($ctemplate, $readHandle))
+		if ($h = CIA::fopenX($ctemplate, $readHandle))
 		{
-			self::openMeta('agent__template/' . $template, false);
+			CIA::openMeta('agent__template/' . $template, false);
 			$compiler = new iaCompiler_js(false);
 			echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
 			fwrite($h, $template, strlen($template));
 			fclose($h);
-			list(,,, $watch) = self::closeMeta();
-			self::writeWatchTable($watch, $ctemplate);
+			list(,,, $watch) = CIA::closeMeta();
+			CIA::writeWatchTable($watch, $ctemplate);
 		}
 		else
 		{
@@ -40,6 +40,6 @@ class extends CIA
 			fclose($readHandle);
 		}
 
-		self::setMaxage(-1);
+		CIA::setMaxage(-1);
 	}
 }

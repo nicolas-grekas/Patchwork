@@ -16,8 +16,8 @@ class extends CIA
 {
 	static function call()
 	{
-		$debugWin = self::$home . '_?d$&stop&' . mt_rand();
-		$QDebug = self::$home . 'js/QDebug.js';
+		$debugWin = CIA::$home . '_?d$&stop&' . mt_rand();
+		$QDebug = CIA::$home . 'js/QDebug.js';
 		$lang = CIA::__LANG__();
 
 		return <<<EOHTML

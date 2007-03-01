@@ -22,7 +22,7 @@ class extends agent_bin
 
 	function control()
 	{
-		CIA::header('Content-Type: text/css; charset=UTF-8');
+		header('Content-Type: text/css; charset=UTF-8');
 
 		$tpl = $this->argv->__0__;
 

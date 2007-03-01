@@ -15,15 +15,15 @@ class extends CIA
 {
 	static function call($agent)
 	{
-		self::header('Content-Type: text/javascript; charset=UTF-8');
-		self::setMaxage(-1);
+		header('Content-Type: text/javascript; charset=UTF-8');
+		CIA::setMaxage(-1);
 
 		echo 'w.k(',
-			self::$versionId, ',',
+			CIA::$versionId, ',',
 			jsquote( $_SERVER['CIA_HOME'] ), ',',
 				jsquote( 'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)) ), ',',
 			jsquote( isset($_GET['__0__']) ? $_GET['__0__'] : '' ), ',',
-			'[', implode(',', array_map('jsquote', self::agentArgv($agent))), ']',
+			'[', implode(',', array_map('jsquote', CIA::agentArgv($agent))), ']',
 		')';
 	}
 }

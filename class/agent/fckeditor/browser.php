@@ -66,7 +66,7 @@ class extends agent
 		if (strpos($currentFolder, '..')) return array('number' => 102, 'text' => '');
 
 
-		CIA::header('Content-Type: text/xml; charset=utf-8');
+		header('Content-Type: text/xml; charset=utf-8');
 
 		$o->command       = $this->argv->Command;
 		$o->resourceType  = strtolower($this->argv->Type);
@@ -149,7 +149,7 @@ class extends agent
 
 	protected function fileUpload($o)
 	{
-		CIA::header('Content-Type: text/javascript; charset=utf-8');
+		header('Content-Type: text/javascript; charset=utf-8');
 
 		$o->number = 0;
 		$o->filename = '';

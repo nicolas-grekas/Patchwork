@@ -18,13 +18,13 @@ class extends CIA
 	{
 		$pipe = array_shift($_GET);
 		preg_match_all("/[a-zA-Z_][a-zA-Z_\d]*/u", $pipe, $pipe);
-		self::$agentClass = 'agent__pipe/' . implode('_', $pipe[0]);
+		CIA::$agentClass = 'agent__pipe/' . implode('_', $pipe[0]);
 
 		foreach ($pipe[0] as &$pipe)
 		{
-			$cpipe = self::getContextualCachePath('pipe/' . $pipe, 'js');
+			$cpipe = CIA::getContextualCachePath('pipe/' . $pipe, 'js');
 			$readHandle = true;
-			if ($h = self::fopenX($cpipe, $readHandle))
+			if ($h = CIA::fopenX($cpipe, $readHandle))
 			{
 				ob_start();
 				call_user_func(array('pipe_' . $pipe, 'js'));
@@ -36,7 +36,7 @@ class extends CIA
 				$pipe .= "\n";
 				fwrite($h, $pipe, strlen($pipe));
 				fclose($h);
-				self::writeWatchTable(array('pipe'), $cpipe);
+				CIA::writeWatchTable(array('pipe'), $cpipe);
 			}
 			else
 			{
@@ -47,6 +47,6 @@ class extends CIA
 
 		echo 'w(0,[])';
 
-		self::setMaxage(-1);
+		CIA::setMaxage(-1);
 	}
 }

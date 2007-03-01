@@ -22,7 +22,7 @@ class extends agent_bin
 
 	function control()
 	{
-		CIA::header('Content-Type: text/javascript; charset=UTF-8');
+		header('Content-Type: text/javascript; charset=UTF-8');
 
 		if (DEBUG || $this->argv->source)
 		{
