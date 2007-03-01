@@ -144,7 +144,7 @@ function jsquoteRef(&$a) {$a = jsquote($a);}
 
 class
 {
-	static $cachePath = 'zcache/';
+	static $cachePath;
 	static $agentClass;
 	static $catchMeta = false;
 	static $ETag = '';
@@ -207,8 +207,8 @@ class
 		self::$fullVersionId = $GLOBALS['version_id'];
 		self::$versionId = abs(self::$fullVersionId % 10000);
 
-		$cachePath = resolvePath(self::$cachePath);
-		self::$cachePath = (!$cachePath ? $GLOBALS['cia_paths'][count($GLOBALS['cia_paths']) - 2] . '/' : '') . $cachePath;
+		self::$cachePath = resolvePath('zcache/');
+		if (!self::$cachePath) self::$cachePath = $GLOBALS['cia_paths'][count($GLOBALS['cia_paths']) - 2] . '/zcache/';
 
 		self::header('Content-Type: text/html; charset=UTF-8');
 		set_error_handler(array(__CLASS__, 'error_handler'));
