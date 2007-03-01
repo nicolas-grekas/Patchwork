@@ -68,14 +68,14 @@ class CIA_preprocessor__0
 	protected function antePreprocess(&$code, $level, $class)
 	{
 		if (false !== strpos($code, "\r")) $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
-		if (false !== strpos($code, '#>>>>>')) $code = preg_replace_callback("'^#>>>>>\s*^.*?^#<<<<<\s*$'ms", array('CIA_preprocessor', 'extractRxLF'), $code);
+		if (false !== strpos($code, '#>>>>>')) $code = preg_replace_callback("'^#>>>>>\s*^.*?^#<<<<<\s*$'ms", array($this, 'extractRxLF'), $code);
 		if (DEBUG)
 		{
 			if (false !== strpos($code, '#>')) $code = preg_replace("'^#>([^>].*)$'m", '$1', $code);
 		}
 		else
 		{
-			if (false !== strpos($code, '#>>>')) $code = preg_replace_callback("'^#>>>\s*^.*?^#<<<\s*$'ms", array('CIA_preprocessor', 'extractRxLF'), $code);
+			if (false !== strpos($code, '#>>>')) $code = preg_replace_callback("'^#>>>\s*^.*?^#<<<\s*$'ms", array($this, 'extractRxLF'), $code);
 		}
 
 	}
