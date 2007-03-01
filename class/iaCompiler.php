@@ -84,7 +84,7 @@ abstract class
 
 		$this->makeBlocks($this->source);
 
-		$this->offset = mb_strlen($this->source);
+		$this->offset = strlen($this->source);
 		if ($this->blockStack) $this->endError('$end', array_pop($this->blockStack));
 
 		if (!($this->codeLast%2)) $this->code[$this->codeLast] = $this->getEcho( $this->makeVar("'" . $this->code[$this->codeLast]) );
