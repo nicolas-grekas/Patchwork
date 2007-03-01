@@ -32,7 +32,7 @@ class extends CIA
 		self::$get =& $f;
 
 		ob_start();
-		CIA::loadAgent(CIA::resolveAgentClass($agent, $_GET), false, false);
+		self::loadAgent(CIA::resolveAgentClass($agent, $_GET), false, false);
 		$agent = ob_get_clean();
 
 		$_GET =& $a;
