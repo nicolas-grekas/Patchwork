@@ -18,6 +18,7 @@ class
 	{
 		if (null !== $var) return preg_match("''u", $var);
 
-		// TODO null === $var
+		// We have already checked the UTF-8 validity of inputs
+		return true;
 	}
 }

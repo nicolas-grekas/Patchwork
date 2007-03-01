@@ -1,6 +1,8 @@
 <?php
 
-/* If possible, copy/paste these directives at the end of your php.ini :
+/* php.ini configuration :
+ * be sure to enable the mbstring extension, and
+ * copy/paste these directives at the end of the file.
 
 ; Replace this to your needs
 error_log = /tmp/php_error.log
@@ -38,20 +40,26 @@ mbstring.func_overload = 0
 
 */
 
-/* If your server's php.ini is ok, commment this section */
+/* If your php.ini is ok, commment this section */
 
 if (get_magic_quotes_gpc())
 {
 	if (ini_get('magic_quotes_sybase')) { function _q_(&$a) {is_array($a) ? array_walk($a, '_q_') : $a = str_replace("''", "'", $a);} }
 	else { function _q_(&$a) {is_array($a) ? array_walk($a, '_q_') : $a = stripslashes($a);} }
-	_q_($_GET);_q_($_POST);_q_($_COOKIE);
+	_q_($_GET); _q_($_POST); _q_($_COOKIE);
+}
+
+if (extension_loaded('mbstring')) mb_internal_encoding('UTF-8');
+else
+{
+	function _u_(&$a) {is_array($a) ? array_walk($a, '_u_') : (preg_match("''u", $a) || $a = false);}
+	_u_($_GET); _u_($_POST); _u_($_COOKIE); _u_($_FILES);
 }
 
 ini_set('log_errors', true);
 ini_set('display_errors', false);
 ini_set('zlib.output_compression', false);
 set_magic_quotes_runtime(false);
-extension_loaded('mbstring') && mb_internal_encoding('UTF-8');
 
 /**/
 
