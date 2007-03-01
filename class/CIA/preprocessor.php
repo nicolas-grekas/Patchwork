@@ -18,11 +18,15 @@ class_exists('Reflection',false) || die('Extension "Reflection" is needed and no
 
 class CIA_preprocessor__0
 {
+	protected static $replaceFunction = array('header' => 'CIA::header');
+
 	public $source;
 	public $line = 1;
+	public $level;
+	public $class;
 
 	static $variableType = array(
-		T_EVAL, '(', T_FILE, T_LINE, T_FUNC_C, T_CLASS_C, T_INCLUDE, T_REQUIRE,
+		'', T_EVAL, '(', T_FILE, T_LINE, T_FUNC_C, T_CLASS_C, T_INCLUDE, T_REQUIRE,
 		T_VARIABLE, T_INCLUDE_ONCE, T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES,
 	);
 
@@ -32,14 +36,15 @@ class CIA_preprocessor__0
 	{
 		$preproc = new CIA_preprocessor;
 		$preproc->source = $source = realpath($source);
+		$preproc->level = $level;
+		$preproc->class = $class;
+
 		$code = file_get_contents($source);
 
 		if (!preg_match("''u", $code)) W("File {$source}:\nfile encoding is not valid UTF-8. Please convert your source code to UTF-8.");
 
-		$preproc->antePreprocess($code, $level, $class);
-
-
-		$code =& $preproc->preprocess($code, $level, $class);
+		$preproc->antePreprocess($code);
+		$code =& $preproc->preprocess($code);
 
 		$tmp = './' . uniqid(mt_rand(), true);
 
@@ -55,6 +60,8 @@ class CIA_preprocessor__0
 		else rename($tmp, $destination);
 	}
 
+	protected function __construct() {}
+
 	function pushFilter($filter)
 	{
 		array_unshift($this->tokenFilter, $filter);
@@ -65,7 +72,7 @@ class CIA_preprocessor__0
 		array_shift($this->tokenFilter);
 	}
 
-	protected function antePreprocess(&$code, $level, $class)
+	protected function antePreprocess(&$code)
 	{
 		if (false !== strpos($code, "\r")) $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
 		if (false !== strpos($code, '#>>>>>')) $code = preg_replace_callback("'^#>>>>>\s*^.*?^#<<<<<\s*$'ms", array($this, 'extractRxLF'), $code);
@@ -80,9 +87,11 @@ class CIA_preprocessor__0
 
 	}
 
-	protected function &preprocess(&$code, $level, $class)
+	protected function &preprocess(&$code)
 	{
-		$source =  $this->source;
+		$source = $this->source;
+		$level  = $this->level;
+		$class  = $this->class;
 		$line   =& $this->line;
 		$line   = 1;
 
@@ -127,7 +136,11 @@ class CIA_preprocessor__0
 				break;
 
 			case T_CLASS_C:
-				$token = $class_pool ? "'" . end($class_pool)->classname . "'" : $token;
+				if ($class_pool)
+				{
+					$token = "'" . end($class_pool)->classname . "'";
+					$tokenType = T_CONSTANT_ENCAPSED_STRING;
+				}
 				break;
 
 			case T_CLASS:
@@ -206,6 +219,7 @@ class CIA_preprocessor__0
 					if ($j)
 					{
 						$token = 'protected';
+						$tokenType = T_PROTECTED;
 
 						if (0<=$level) W("File {$source} line {$line}:\nprivate static methods or properties are fordidden.\nPlease use protected static ones instead.");
 					}
@@ -222,10 +236,6 @@ class CIA_preprocessor__0
 
 				switch ($lcToken)
 				{
-				case 'header':
-					if ($class_pool && 'CIA' == end($class_pool)->classname) break 2;
-					else break;
-
 				case '__construct':
 					if (!$c) break 2;
 					else break;
@@ -244,7 +254,9 @@ class CIA_preprocessor__0
 					else break;
 
 				default:
-					if ($c && $lcToken == strtolower($c->classname)) break;
+					if (isset(CIA_preprocessor::$replaceFunction[$token])
+						&& 0 !== stripos(CIA_preprocessor::$replaceFunction[$token], $class . '::')) break;
+					else if ($c && $lcToken == strtolower($c->classname)) break;
 					break 2;
 				}
 
@@ -285,17 +297,20 @@ class CIA_preprocessor__0
 
 				switch ($lcToken)
 				{
-				case 'header': $token = 'CIA::header'; break;
-
 				case 't':
 					$token .= $this->fetchSugar($code, $i);
 					if ('(' == $code[$i]) $bracket_pool[$bracket_level+1] = new CIA_preprocessor_t_($this);
 					--$i;
 					break;
 
-				case '__cia_level__': $token = $level; break;
+				case '__cia_level__':
+					$token = $level;
+					$tokenType = T_LNUMBER;
+					break;
+
 				case '__cia_file__':
 					$token = "'" . str_replace(array('\\', "'"), array('\\\\', "\\'"), $source) . "'";
+					$tokenType = T_CONSTANT_ENCAPSED_STRING;
 					break;
 
 				case 'self':
@@ -321,11 +336,20 @@ class CIA_preprocessor__0
 							? new CIA_preprocessor_classExists_($this)
 
 							  // Automatically append their third arg to resolve|processPath
-							: new CIA_preprocessor_path_($this, $level);
+							: new CIA_preprocessor_path_($this);
 					}
 
 					--$i;
 					break;
+
+				default:
+					if (isset(CIA_preprocessor::$replaceFunction[$token]))
+					{
+						$c = $this->fetchSugar($code, $i);
+						if ('(' == $code[$i]) $token = CIA_preprocessor::$replaceFunction[$token];
+						$token .= $c;
+						--$i;
+					}
 				}
 
 				break;
@@ -520,16 +544,14 @@ class CIA_preprocessor_construct___0 extends CIA_preprocessor_bracket_
 
 class CIA_preprocessor_path___0 extends CIA_preprocessor_bracket_
 {
-	protected $level;
 	protected $count = 0;
 	protected $code = array();
 	protected $is_const = true;
 	protected $close = false;
 
-	function __construct($preproc, $level)
+	function __construct($preproc)
 	{
 		$this->preproc = $preproc;
-		$this->level = $level;
 		$preproc->pushFilter(array($this, 'filterToken'));
 	}
 
@@ -539,7 +561,7 @@ class CIA_preprocessor_path___0 extends CIA_preprocessor_bracket_
 
 		if ($this->close)
 		{
-			$type = false;
+			$type = '';
 			$this->code = implode('', $this->code);
 			$this->preproc->popFilter();
 
@@ -559,7 +581,7 @@ class CIA_preprocessor_path___0 extends CIA_preprocessor_bracket_
 	function onClose($token)
 	{
 		$this->close = true;
-		return 1 == $this->position ? ',' . $this->level . $token : $token;
+		return 1 == $this->position ? ',' . $this->preproc->level . $token : $token;
 	}
 }
 
@@ -654,7 +676,7 @@ class CIA_preprocessor_adaptRequire___0
 			{
 				if (true === $close) $close = '';
 
-				$type = false;
+				$type = '';
 				$this->code = 'cia_adaptRequire(' . implode('', $this->code) . ')';
 				$this->preproc->popFilter();
 
