@@ -418,8 +418,6 @@ class CIA_preprocessor__0
 
 		if (!is_array($token) || (T_CLOSE_TAG != $token[0] && T_INLINE_HTML != $token[0])) $new_code[] = '?>';
 
-		$new_code = implode('', $new_code);
-
 		return $new_code;
 	}
 
