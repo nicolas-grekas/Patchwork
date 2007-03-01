@@ -16,24 +16,24 @@ class extends CIA
 {
 	static function call()
 	{
-		self::setMaxage(0);
-		if (self::$catchMeta) self::$metaInfo[1] = array('private');
+		CIA::setMaxage(0);
+		if (CIA::$catchMeta) CIA::$metaInfo[1] = array('private');
 
 		if (CIA_DIRECT)
 		{
 			$a = '';
 
-			$cache = self::getContextualCachePath('antiCSRF.' . self::$agentClass, 'txt');
+			$cache = CIA::getContextualCachePath('antiCSRF.' . CIA::$agentClass, 'txt');
 
-			self::makeDir($cache);
+			CIA::makeDir($cache);
 
 			$h = fopen($cache, 'a+b');
 			flock($h, LOCK_EX);
 			fseek($h, 0, SEEK_END);
 			if (!ftell($h))
 			{
-				self::touch('CIApID');
-				self::touch('public/templates/js');
+				CIA::touch('CIApID');
+				CIA::touch('public/templates/js');
 
 				fwrite($h, $a = '1', 1);
 				touch('config.php');
@@ -45,6 +45,6 @@ class extends CIA
 
 		W('Potential Cross Site JavaScript Request. Stopping !');
 
-		self::disable(true);
+		CIA::disable(true);
 	}
 }

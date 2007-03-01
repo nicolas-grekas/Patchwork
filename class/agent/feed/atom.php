@@ -16,6 +16,6 @@ class extends agent_bin
 {
 	function control()
 	{
-		CIA::header('Content-Type: application/atom+xml');
+		header('Content-Type: application/atom+xml');
 	}
 }

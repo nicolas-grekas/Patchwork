@@ -30,7 +30,7 @@ class extends CIA
 			$a = $a[0];
 			$a = trim($a[1] ? $a[2] : ($a[2] . $a[3]));
 
-			if (0 !== strpos($a, self::$home))
+			if (0 !== strpos($a, CIA::$home))
 			{
 				// Decode html encoded chars
 				if (false !== strpos($a, '&')) $a = preg_replace_callback(self::$entitiesRx, array(__CLASS__, 'translateHtmlEntity'), $a);
@@ -43,7 +43,7 @@ class extends CIA
 				}
 				else
 				{
-					$host = substr(self::$host, 0, -1);
+					$host = substr(CIA::$host, 0, -1);
 
 					if ('/' != substr($a, 0, 1))
 					{
@@ -90,7 +90,7 @@ class extends CIA
 				}
 
 				// Compare action to application's home
-				if (0 !== strpos($host . $a, self::$home)) return $f;
+				if (0 !== strpos($host . $a, CIA::$home)) return $f;
 			}
 		}
 
@@ -98,7 +98,7 @@ class extends CIA
 
 		if (!$appendedHtml)
 		{
-			$appendedHtml = self::$isServersideHtml && !self::$binaryMode ? 'syncCSRF()' : '(function(){var d=document,f=d.forms;f=f[f.length-1].T$.value=d.cookie.match(/(^|; )T\\$=([0-9a-zA-Z]+)/)[2]})()';
+			$appendedHtml = CIA::$isServersideHtml && !CIA::$binaryMode ? 'syncCSRF()' : '(function(){var d=document,f=d.forms;f=f[f.length-1].T$.value=d.cookie.match(/(^|; )T\\$=([0-9a-zA-Z]+)/)[2]})()';
 			$appendedHtml = '<input type="hidden" name="T$" value="' . (isset($_COOKIE['JS']) && $_COOKIE['JS'] ? '' : $GLOBALS['cia_token']) . '" /><script type="text/javascript">' . "<!--\n{$appendedHtml}//--></script>";
 		}
 

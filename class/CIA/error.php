@@ -16,9 +16,9 @@ class extends CIA
 {
 	static function call($code, $message, $file, $line, &$context)
 	{
-		self::setMaxage(0);
-		self::setExpires('onmaxage');
-		self::$private = true;
+		CIA::setMaxage(0);
+		CIA::setExpires('onmaxage');
+		CIA::$private = true;
 
 		if (!function_exists('filterErrorArgs'))
 		{
@@ -50,7 +50,7 @@ class extends CIA
 
 		$context = '';
 
-		if (!self::$handlesOb)
+		if (!CIA::$handlesOb)
 		{
 			$msg = debug_backtrace();
 
@@ -103,7 +103,7 @@ class extends CIA
 		default:             $msg = '<b>Unknown Error (#'.$code.')</b>';
 		}
 
-		$cid = self::uniqid();
+		$cid = CIA::uniqid();
 		$cid = <<<EOHTML
 <script type="text/javascript">/*<![CDATA[*/
 focus()

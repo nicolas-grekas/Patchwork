@@ -22,8 +22,8 @@ class extends CIA
 		else $cache[$agent] =& $trace;
 
 		$args = array();
-		$HOME = $home = self::__HOME__();
-		$agent = self::home($agent, true);
+		$HOME = $home = CIA::__HOME__();
+		$agent = CIA::home($agent, true);
 		$keys = false;
 		$s = '\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'';
 		$s = "/w\.k\((-?[0-9]+),($s),($s),($s),\[((?:$s(?:,$s)*)?)\]\)/su";
@@ -40,7 +40,7 @@ class extends CIA
 				processPath('getTrace.php'),
 				resolvePath('config.php'),
 				$_SERVER['CIA_HOME'],
-				self::__LANG__(),
+				CIA::__LANG__(),
 				substr($agent, strlen($HOME)),
 				isset($_SERVER['HTTPS']) ? (bool) $_SERVER['HTTPS'] : false
 			)));
@@ -52,7 +52,7 @@ class extends CIA
 
 		if (!$keys)
 		{
-			$agent = implode(self::__LANG__(), explode('__', $agent, 2));
+			$agent = implode(CIA::__LANG__(), explode('__', $agent, 2));
 
 			if (ini_get('allow_url_fopen'))
 			{
@@ -68,13 +68,13 @@ class extends CIA
 			if (!preg_match($s, $keys, $keys))
 			{
 				W('Error while getting meta info data for ' . htmlspecialchars($agent));
-				self::disable(true);
+				CIA::disable(true);
 			}
 		}
 
 		$CIApID = (int) $keys[1];
 		$home = stripcslashes(substr($keys[2], 1, -1));
-		$home = preg_replace("'__'", self::__LANG__(), $home, 1);
+		$home = preg_replace("'__'", CIA::__LANG__(), $home, 1);
 		$agent = stripcslashes(substr($keys[3], 1, -1));
 		$a = stripcslashes(substr($keys[4], 1, -1));
 		$keys = eval('return array(' . $keys[5] . ');');
@@ -88,7 +88,7 @@ class extends CIA
 		}
 
 		if ($home == $HOME) $CIApID = $home = false;
-		else self::watch('foreignTrace');
+		else CIA::watch('foreignTrace');
 
 		return $trace = array($CIApID, $home, $agent, $keys, $args);
 	}

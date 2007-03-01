@@ -19,6 +19,6 @@ class extends agent_bin
 	function control()
 	{
 		parent::control();
-		CIA::header('Content-Type: text/javascript; charset=UTF-8');
+		header('Content-Type: text/javascript; charset=UTF-8');
 	}
 }
