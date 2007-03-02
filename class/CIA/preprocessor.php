@@ -18,14 +18,13 @@ class_exists('Reflection',false) || die('Extension "Reflection" is needed and no
 
 class CIA_preprocessor__0
 {
-	protected static $replaceFunction = array('header' => 'CIA::header');
-
 	public $source;
 	public $line = 1;
 	public $level;
 	public $class;
 
-	static $variableType = array(
+	public $replaceFunction = array('header' => 'CIA::header');
+	public $variableType = array(
 		'', T_EVAL, '(', T_FILE, T_LINE, T_FUNC_C, T_CLASS_C, T_INCLUDE, T_REQUIRE,
 		T_VARIABLE, T_INCLUDE_ONCE, T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES,
 	);
@@ -34,7 +33,8 @@ class CIA_preprocessor__0
 
 	static function run($source, $destination, $level, $class)
 	{
-		$preproc = new CIA_preprocessor;
+		$preproc = class_exists('CIA_preprocessor', false) ? 'CIA_preprocessor' : 'CIA_preprocessor__0';
+		$preproc = new $preproc;
 		$preproc->source = $source = realpath($source);
 		$preproc->level = $level;
 		$preproc->class = $class;
@@ -254,8 +254,8 @@ class CIA_preprocessor__0
 					else break;
 
 				default:
-					if (isset(CIA_preprocessor::$replaceFunction[$token])
-						&& 0 !== stripos(CIA_preprocessor::$replaceFunction[$token], $class . '::')) break;
+					if (isset($this->replaceFunction[$token])
+						&& 0 !== stripos($this->replaceFunction[$token], $class . '::')) break;
 					else if ($c && $lcToken == strtolower($c->classname)) break;
 					break 2;
 				}
@@ -343,10 +343,10 @@ class CIA_preprocessor__0
 					break;
 
 				default:
-					if (isset(CIA_preprocessor::$replaceFunction[$token]))
+					if (isset($this->replaceFunction[$token]))
 					{
 						$c = $this->fetchSugar($code, $i);
-						if ('(' == $code[$i]) $token = CIA_preprocessor::$replaceFunction[$token];
+						if ('(' == $code[$i]) $token = $this->replaceFunction[$token];
 						$token .= $c;
 						--$i;
 					}
@@ -573,7 +573,7 @@ class CIA_preprocessor_path___0 extends CIA_preprocessor_bracket_
 
 			return $this->code;
 		}
-		else if (2 < ++$this->count && in_array($type, CIA_preprocessor::$variableType)) $this->is_const = false;
+		else if (2 < ++$this->count && in_array($type, $this->preproc->variableType)) $this->is_const = false;
 
 		return '';
 	}
@@ -616,7 +616,7 @@ class CIA_preprocessor_t___0 extends CIA_preprocessor_bracket_
 
 	function filterToken($type, $token)
 	{
-		if (2 < ++$this->count && in_array($type, CIA_preprocessor::$variableType))
+		if (2 < ++$this->count && in_array($type, $this->preproc->variableType))
 			W("File {$this->preproc->source} line {$this->preproc->line}:\nUsage of T() is potentially divergent.\nUse sprintf() instead of string concatenation.");
 
 		return $token;
@@ -669,7 +669,7 @@ class CIA_preprocessor_adaptRequire___0
 			case T_STRING: $this->hereDoc || $this->is_const = false; break;
 
 			default:
-				in_array($type, CIA_preprocessor::$variableType) && $this->is_const = false;
+				in_array($type, $this->preproc->variableType) && $this->is_const = false;
 			}
 
 			if ($close)
