@@ -341,27 +341,30 @@ function __autoload($searched_class)
 
 			if (file_exists($source))
 			{
-				switch ($lcClass)
+				$preproc = 'cia_preprocessor';
+				if ($preproc == $lcClass)
 				{
-				case 'cia_preprocessor':
-					require $source;
-					break;
-
-				default:
-					$cache = ((int)(bool)DEBUG) . (0>$level ? -$level .'-' : $level);
-					$cache = "./.class_{$class}.php.{$GLOBALS['cia_paths_token']}.{$cache}.zcache.php";
-
-					file_exists($cache) || CIA_preprocessor::run($source, $cache, $level, $class);
-
-					$current_pool = array();
-					$parent_pool =& $GLOBALS['__autoload_static_pool'];
-					$GLOBALS['__autoload_static_pool'] =& $current_pool;
-
-					require $cache;
-
-					if (class_exists($searched_class, false)) $parent_class = false;
-					if (false !== $parent_pool) $parent_pool[$parent_class ? $parent_class : $searched_class] = array(0, $cache);
+					if ($level) $preproc .= '__0';
+					else
+					{
+						require $source;
+						break;
+					}
 				}
+
+				$cache = ((int)(bool)DEBUG) . (0>$level ? -$level .'-' : $level);
+				$cache = "./.class_{$class}.php.{$GLOBALS['cia_paths_token']}.{$cache}.zcache.php";
+
+				file_exists($cache) || call_user_func(array($preproc, 'run'), $source, $cache, $level, $class);
+
+				$current_pool = array();
+				$parent_pool =& $GLOBALS['__autoload_static_pool'];
+				$GLOBALS['__autoload_static_pool'] =& $current_pool;
+
+				require $cache;
+
+				if (class_exists($searched_class, false)) $parent_class = false;
+				if (false !== $parent_pool) $parent_pool[$parent_class ? $parent_class : $searched_class] = array(0, $cache);
 
 				break;
 			}
