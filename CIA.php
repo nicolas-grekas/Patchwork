@@ -38,10 +38,13 @@ if (function_exists('iconv'))
 // {{{ registerAutoloadPrefix()
 $__cia_autoload_prefix = array();
 
-function registerAutoloadPrefix($prefix, $class2file_resolver)
+function registerAutoloadPrefix($prefix, $class2file_resolver, $class2file_resolver_method = false)
 {
 	$prefix = strtolower($prefix);
 	$registry = array();
+
+	if (is_string($class2file_resolver_method) && is_string($class2file_resolver))
+		$class2file_resolver = array($class2file_resolver, $class2file_resolver_method);
 
 	foreach ($GLOBALS['__cia_autoload_prefix'] as $v)
 	{
@@ -171,6 +174,22 @@ function_exists('date_default_timezone_set') && isset($CONFIG['timezone']) && da
 
 { // <-- Hack to enable the functions below only when execution reaches this point
 
+function cia_atomic_write(&$data, $to)
+{
+	$tmp = uniqid(mt_rand(), true);
+	file_put_contents($tmp, $data);
+	unset($data);
+
+	if (CIA_WINDOWS)
+	{
+		$data = new COM('Scripting.FileSystemObject');
+		$data->GetFile(CIA_PROJECT_PATH .'/'. $tmp)->Attributes |= 2; // Set hidden attribute
+		file_exists($to) && unlink($to);
+		rename($tmp, $to);
+	}
+	else rename($tmp, $to);
+}
+
 // {{{ function resolvePath(): cia-specific include_path-like mechanism
 function resolvePath($file, $level = false, $base = false)
 {
@@ -272,7 +291,7 @@ function cia_adaptRequire($file)
 // }}}
 
 // {{{ function __autoload()
-$__autoload_static_pool = false;
+$__cia_autoload_static_pool = false;
 
 function __autoload($searched_class)
 {
@@ -283,7 +302,7 @@ function __autoload($searched_class)
 	$i = strrpos($searched_class, '__');
 	$level = false !== $i ? substr($searched_class, $i+2) : false;
 
-	if (false !== $level && '' !== $level && '' === ltrim(strtr($level, ' 0123456789 ', '#          ')))
+	if (false !== $level && '' !== $level && '' === ltrim(strtr($level, ' 0123456789', '#          ')))
 	{
 		// Namespace renammed class
 		$class = substr($searched_class, 0, $i);
@@ -297,6 +316,7 @@ function __autoload($searched_class)
 
 	$parent_class = $class . '__' . $level;
 	$cache = false;
+	$c = $searched_class == $class;
 
 	if ('_' == substr($class, -1) || !strncmp('_', $class, 1) || false !== strpos($class, '__'))
 	{
@@ -307,7 +327,7 @@ function __autoload($searched_class)
 		do $parent_class = $class . '__' . (0<=--$level ? $level : '00');
 		while ($level>=0 && !class_exists($parent_class, false));
 	}
-	else if ($class != $searched_class || !class_exists($parent_class, false))
+	else if (!$c || !class_exists($parent_class, false))
 	{
 		// Conventional class: search its parent in existing classes or on disk
 
@@ -358,8 +378,8 @@ function __autoload($searched_class)
 				file_exists($cache) || call_user_func(array($preproc, 'run'), $source, $cache, $level, $class);
 
 				$current_pool = array();
-				$parent_pool =& $GLOBALS['__autoload_static_pool'];
-				$GLOBALS['__autoload_static_pool'] =& $current_pool;
+				$parent_pool =& $GLOBALS['__cia_autoload_static_pool'];
+				$GLOBALS['__cia_autoload_static_pool'] =& $current_pool;
 
 				require $cache;
 
@@ -377,8 +397,6 @@ function __autoload($searched_class)
 		}
 	}
 
-	$c = $searched_class == $class;
-
 	if ($parent_class && class_exists($parent_class, true))
 	{
 		$class = new ReflectionClass($parent_class);
@@ -388,18 +406,18 @@ function __autoload($searched_class)
 	}
 	else $class = '';
 
-	if ($c)
+	if ($c = $c && (PHP_VERSION >= '5.1' ? true : get_class_methods($searched_class)))
 	{
-		if (PHP_VERSION >= '5.1')
+		if (true === $c ? method_exists($searched_class, '__static_construct') : in_array('__static_construct', $c))
 		{
-			method_exists($searched_class, '__static_construct') && call_user_func(array($searched_class, '__static_construct'));
-			method_exists($searched_class, '__static_destruct' ) && register_shutdown_function(array($searched_class, '__static_destruct'));
+			call_user_func(array($searched_class, '__static_construct'));
+			$class .= "{$searched_class}::__static_construct();";
 		}
-		else
+
+		if (true === $c ? method_exists($searched_class, '__static_destruct' ) : in_array('__static_destruct' , $c))
 		{
-			$c = get_class_methods($searched_class);
-			in_array('__static_construct', $c) && call_user_func(array($searched_class, '__static_construct'));
-			in_array('__static_destruct' , $c) && register_shutdown_function(array($searched_class, '__static_destruct'));
+			register_shutdown_function(array($searched_class, '__static_destruct'));
+			$class .= "register_shutdown_function(array('{$searched_class}','__static_destruct'));";
 		}
 	}
 
@@ -407,7 +425,7 @@ function __autoload($searched_class)
 	{
 		if ($parent_pool && $class) $parent_pool[$searched_class] = array(1, '<?php ' . $class . '?>');
 
-		$GLOBALS['__autoload_static_pool'] =& $parent_pool;
+		$GLOBALS['__cia_autoload_static_pool'] =& $parent_pool;
 
 
 		if ($current_pool) // Pre-include parent's code in this derivated class
@@ -433,19 +451,7 @@ function __autoload($searched_class)
 
 			$code = substr($code, 0, -2) . ';' . substr($tmp, 6);
 
-
-			$tmp = uniqid(mt_rand(), true);
-
-			file_put_contents($tmp, $code);
-
-			if (CIA_WINDOWS)
-			{
-				$code = new COM('Scripting.FileSystemObject');
-				$code->GetFile(CIA_PROJECT_PATH .'/'. $tmp)->Attributes |= 2; // Set hidden attribute
-				file_exists($cache) && unlink($cache);
-				rename($tmp, $cache);
-			}
-			else rename($tmp, $cache);
+			cia_atomic_write($code, $cache);
 		}
 	}
 }

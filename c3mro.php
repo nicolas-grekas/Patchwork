@@ -29,6 +29,7 @@ $cia_include_paths = array_diff($cia_include_paths, $cia_paths);
 $cia_include_paths = array_merge($cia_paths, $cia_include_paths);
 
 $cia_paths_token = substr(hash('md5', serialize($cia_include_paths)), 0, 4);
+${'_'.$cia_paths_token} = false;
 
 $appInheritSeq = array(
 	'<?php',
@@ -36,6 +37,7 @@ $appInheritSeq = array(
 	'$cia_paths=' . var_export($cia_paths, true) . ';',
 	'$cia_paths_token=\'' . $cia_paths_token . '\';',
 	'$cia_include_paths=' . var_export($cia_include_paths, true) . ';',
+	'$_' . $cia_paths_token . '=false;',
 );
 
 $lock = $cia_paths[0] . '/.' . $cia_paths_token . '.zcache.php';
