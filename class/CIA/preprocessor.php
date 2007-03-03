@@ -22,6 +22,8 @@ class CIA_preprocessor__0
 	public $line = 1;
 	public $level;
 	public $class;
+	public $marker;
+	public $hereDoc = false;
 
 	public $replaceFunction = array('header' => 'CIA::header');
 	public $variableType = array(
@@ -38,6 +40,7 @@ class CIA_preprocessor__0
 		$preproc->source = $source = realpath($source);
 		$preproc->level = $level;
 		$preproc->class = $class;
+		$preproc->marker = '$_' . $GLOBALS['cia_paths_token'];
 
 		$code = file_get_contents($source);
 
@@ -46,18 +49,7 @@ class CIA_preprocessor__0
 		$preproc->antePreprocess($code);
 		$code =& $preproc->preprocess($code);
 
-		$tmp = './' . uniqid(mt_rand(), true);
-
-		file_put_contents($tmp, $code);
-
-		if (CIA_WINDOWS)
-		{
-			$code = new COM('Scripting.FileSystemObject');
-			$code->GetFile(CIA_PROJECT_PATH .'/'. $tmp)->Attributes |= 2; // Set hidden attribute
-			file_exists($destination) && unlink($destination);
-			rename($tmp, $destination);
-		}
-		else rename($tmp, $destination);
+		cia_atomic_write($code, $destination);
 	}
 
 	protected function __construct() {}
@@ -98,10 +90,18 @@ class CIA_preprocessor__0
 		$code = token_get_all($code);
 		$codeLen = count($code);
 
+		$static_instruction = false;
+		$antePrevTokenType = '';
+		$prevTokenType = '';
 		$new_code = array();
+		$new_type = array();
+		$new_code_length = 0;
 
 		$curly_level = 0;
+		$curly_starts_function = false;
 		$class_pool = array();
+		$remove_marker = array(0);
+		$remove_marker_last =& $remove_marker[0];
 
 		$bracket_level = 0;
 		$bracket_pool = array();
@@ -130,6 +130,9 @@ class CIA_preprocessor__0
 				$token = $this->extractLF($token) . '?>';
 				break;
 
+			case T_START_HEREDOC: $this->hereDoc = true; break;
+			case T_END_HEREDOC: $this->hereDoc = false; break;
+
 			case T_CURLY_OPEN:
 			case T_DOLLAR_OPEN_CURLY_BRACES:
 				++$curly_level;
@@ -146,9 +149,7 @@ class CIA_preprocessor__0
 			case T_CLASS:
 				$c = '';
 
-				// Look backward for the "final" keyword
-				$j = $this->seekSugar($code, $i, true);
-				$final = isset($code[$j]) && is_array($code[$j]) && T_FINAL == $code[$j][0];
+				$final = T_FINAL == $prevTokenType;
 
 				// Look forward
 				$j = $this->seekSugar($code, $i);
@@ -200,6 +201,15 @@ class CIA_preprocessor__0
 
 				break;
 
+			case T_VAR:
+				if (0>$level)
+				{
+					$token = 'public';
+					$tokenType = T_PUBLIC;
+				}
+
+				break;
+
 			case T_PRIVATE:
 				// "private static" methods or properties are problematic when considering application inheritance.
 				// To work around this, we change them to "protected static", and warn about it
@@ -207,8 +217,7 @@ class CIA_preprocessor__0
 				if (isset($class_pool[$curly_level-1]) && !$class_pool[$curly_level-1]->is_final)
 				{
 					// Look backward for the "static" keyword
-					$j = $this->seekSugar($code, $i, true);
-					if (isset($code[$j]) && is_array($code[$j]) && T_STATIC == $code[$j][0]) $j = true;
+					if (T_STATIC == $prevTokenType) $j = true;
 					else
 					{
 						// Look forward for the "static" keyword
@@ -227,137 +236,169 @@ class CIA_preprocessor__0
 
 				break;
 
-			case T_STRING:
-				$lcToken = strtolower($token);
+			case T_FUNCTION:
+				$curly_starts_function = true;
+				break;
 
-				if (!( isset($class_pool[$curly_level-1])
-					&& ($c = $class_pool[$curly_level-1])
-					&& !$c->has_php5_construct )) $c = false;
+			case T_NEW:
+				$token .= $this->fetchSugar($code, $i);
+				$variable = isset($code[$i]) && is_array($code[$i]) && T_STRING != $code[$i][0];
+				--$i;
 
-				switch ($lcToken)
+			case T_DOUBLE_COLON:
+				if (
+					   T_NEW == $tokenType
+					|| (!$static_instruction
+					&& is_string($prevTokenType)
+					&& !isset($class_pool[$curly_level-1])
+					&& !in_array($prevTokenType, array($class_pool ? strtolower(end($class_pool)->classname) : '', 'self', 'parent', 'this', 'static'))
+				))
 				{
-				case '__construct':
-					if (!$c) break 2;
-					else break;
+					0>=$remove_marker_last || $remove_marker_last = -$remove_marker_last;;
 
-				case 't':
-				case '__cia_level__':
-				case '__cia_file__':
-				case 'resolvepath':
-				case 'processpath':
-				case 'self':
-					if (0>$level) break 2;
-					else break;
+					// Insert a marker at the beginning of the current instruction
 
-				case 'class_exists':
-					if (0<=$level) break 2;
-					else break;
+					$b = $j = $new_code_length;
+					$c = array();
+					while (--$j) switch ($new_type[$j])
+					{
+					case '}':
+						if (!$c)
+						{
+							$b = $j;
+							do if ('}' == $new_type[$b]) $c[] = $b;
+							while (--$b && in_array($new_type[$b], array('}', T_WHITESPACE, T_COMMENT, T_DOC_COMMENT)));
+							if (';' == $new_type[$b]) break 2;
+							$j = $b + 1;
+							break;
+						}
 
-				default:
-					if (isset($this->replaceFunction[$token])
-						&& 0 !== stripos($this->replaceFunction[$token], $class . '::')) break;
-					else if ($c && $lcToken == strtolower($c->classname)) break;
-					break 2;
+					case ')': $c[] = $j;
+					case '': case '?': case ':': case ';': case ',':
+					case T_DOUBLE_ARROW: case T_INCLUDE: case T_INCLUDE_ONCE:
+					case T_REQUIRE: case T_REQUIRE_ONCE:
+						if ($c) break;
+						else    break 2;
+
+					case '{':
+					case '(':
+						if ($c)
+						{
+							$b = array_pop($c);
+							break;
+						}
+						break 2;
+
+					case T_IF: case T_ELSEIF: case T_WHILE: case T_FOR: case T_FOREACH:
+						$j = $b;
+
+					case T_ELSE: case T_DO: case T_BREAK: case T_CONTINUE: case T_CASE:
+					case T_DEFAULT: case T_ECHO: case T_RETURN: case T_THROW:
+					case T_OPEN_TAG: case T_OPEN_TAG_WITH_ECHO:
+						break 2;
+					}
+
+					$new_code[++$j] = "(({$this->marker}=__FILE__.'*" .  (T_NEW == $tokenType && $variable ? '-' : '') . mt_rand() . "')?" . $new_code[$j];
+					$this->pushFilter(array(new CIA_preprocessor_new_($this), 'filterToken'));
 				}
 
-				$j = $this->seekSugar($code, $i, true);
-				if (isset($code[$j]))
-				{
-					if (is_array($code[$j]))
-					{
-						if (T_DOUBLE_COLON == $code[$j][0] || T_OBJECT_OPERATOR == $code[$j][0]) break;
-					}
-					else if ('&' == $code[$j]) $j = $this->seekSugar($code, $j, true);
+				break;
 
-					if (is_array($code[$j]) && T_FUNCTION == $code[$j][0])
+			case T_STRING:
+				if ($this->hereDoc || T_DOUBLE_COLON == $prevTokenType || T_OBJECT_OPERATOR == $prevTokenType) break;
+
+				$tokenType = strtolower($token);
+
+				if (T_FUNCTION == $prevTokenType || ('&' == $prevTokenType && T_FUNCTION == $antePrevTokenType))
+				{
+					if (   isset($class_pool[$curly_level-1])
+						&& ($c = $class_pool[$curly_level-1])
+						&& !$c->has_php5_construct)
 					{
 						// If the currently parsed method is this class constructor
 						// build a PHP5 constructor if needed.
 
-						if ($c)
+						if ('__construct' == $tokenType) $c->has_php5_construct = true;
+						else if ($tokenType == strtolower($c->classname))
 						{
-							if ('__construct' == $lcToken) $c->has_php5_construct = true;
-							else if ($lcToken == strtolower($c->classname))
+							$token .= $this->fetchSugar($code, $i);
+
+							if ('(' == $code[$i])
 							{
-								$token .= $this->fetchSugar($code, $i);
-
-								if ('(' == $code[$i])
-								{
-									$c->construct_source = $c->classname;
-									$bracket_pool[$bracket_level+1] = new CIA_preprocessor_construct_($this, $c->construct_source);
-								}
-
-								--$i;
+								$c->construct_source = $c->classname;
+								$bracket_pool[$bracket_level+1] = new CIA_preprocessor_construct_($this, $c->construct_source);
 							}
-						}
 
-						break;
+							--$i;
+						}
 					}
+
+					break;
 				}
 
-				switch ($lcToken)
-				{
-				case 't':
-					$token .= $this->fetchSugar($code, $i);
-					if ('(' == $code[$i]) $bracket_pool[$bracket_level+1] = new CIA_preprocessor_t_($this);
-					--$i;
-					break;
+				$c = $this->fetchSugar($code, $i);
+				--$i;
 
-				case '__cia_level__':
+				switch ($tokenType)
+				{
+				case '__cia_level__': if (0>$level) break;
 					$token = $level;
 					$tokenType = T_LNUMBER;
 					break;
 
-				case '__cia_file__':
-					$token = "'" . str_replace(array('\\', "'"), array('\\\\', "\\'"), $source) . "'";
+				case '__cia_file__': if (0>$level) break;
+					$token = var_export($source, true);
 					$tokenType = T_CONSTANT_ENCAPSED_STRING;
 					break;
 
 				case 'self':
-					if ($class_pool)
-					{
-						// Replace every self::* by <__CLASS__>::*
-						$token = $this->fetchSugar($code, $i);
-						$token = (T_DOUBLE_COLON == $code[$i][0] ? end($class_pool)->classname : 'self') . $token;
-						--$i;
-					}
-
+					// Replace every self::* by <__CLASS__>::*
+					if ($class_pool && is_array($code[$i+1]) && T_DOUBLE_COLON == $code[$i+1][0]) $token = end($class_pool)->classname;
 					break;
 
 				case 'resolvepath':
-				case 'processpath':
-				case 'class_exists':
-					$token .= $this->fetchSugar($code, $i);
-
-					if ('(' == $code[$i])
-					{
-						$bracket_pool[$bracket_level+1] = 'class_exists' == $lcToken
-							  // For files in the include_path, always set the 2nd arg of class_exists() to true
-							? new CIA_preprocessor_classExists_($this)
-
-							  // Automatically append their third arg to resolve|processPath
-							: new CIA_preprocessor_path_($this);
-					}
-
-					--$i;
+				case 'processpath': if (0>$level) break;
+					// Automatically append their third arg to resolve|processPath
+					if ('(' == $code[$i+1]) $bracket_pool[$bracket_level+1] = new CIA_preprocessor_path_($this);
 					break;
 
-				default:
-					if (isset($this->replaceFunction[$token]))
-					{
-						$c = $this->fetchSugar($code, $i);
-						if ('(' == $code[$i]) $token = $this->replaceFunction[$token];
-						$token .= $c;
-						--$i;
-					}
+				case 't': if (0>$level) break;
+					if ('(' == $code[$i+1]) $bracket_pool[$bracket_level+1] = new CIA_preprocessor_t_($this);
+					break;
+
+				case 'interface_exists':
+				case 'class_exists':
+					// For files in the include_path, always set the 2nd arg of class|interface_exists() to true
+					if (0>$level && '(' == $code[$i+1]) $bracket_pool[$bracket_level+1] = new CIA_preprocessor_classExists_($this);
+
+				case 'set_exception_handler':
+				case 'set_error_handler':
+				case 'is_callable':
+				case 'method_exists':
+				case 'property_exists':
+				case 'call_user_func':
+				case 'call_user_func_array':
+				case 'create_function':
+					$remove_marker_last = 0;
 				}
 
+				if (
+					isset($this->replaceFunction[$token])
+					&& '(' == $code[$i+1]
+					&& 0 !== stripos($this->replaceFunction[$token], $class . '::')
+				) $token = $this->replaceFunction[$token] . $c;
+				else $token .= $c;
+
 				break;
+
+			case T_EVAL: $remove_marker_last = 0; break;
 
 			case T_REQUIRE_ONCE:
 			case T_INCLUDE_ONCE:
 			case T_REQUIRE:
 			case T_INCLUDE:
+				$remove_marker_last = 0;
+
 				// Every require|include inside files in the include_path
 				// is preprocessed thanks to processPath().
 				if (0>$level) new CIA_preprocessor_adaptRequire_($this);
@@ -374,6 +415,14 @@ class CIA_preprocessor__0
 			case T_CONSTANT_ENCAPSED_STRING:
 			case T_ENCAPSED_AND_WHITESPACE:
 				$line += substr_count($token, "\n");
+				break;
+
+			case T_STATIC:
+				$static_instruction = true;
+				break;
+
+			case ';':
+				$static_instruction = false;
 				break;
 
 			case ',':
@@ -395,8 +444,43 @@ class CIA_preprocessor__0
 
 				break;
 
-			case '{': ++$curly_level; break;
+			case '{':
+				++$curly_level;
+
+				if ($curly_starts_function)
+				{
+					$curly_starts_function = false;
+					$token .= "global {$this->marker};{$this->marker}=__FILE__.'*-" . mt_rand() . "';";
+					$remove_marker_last =& $remove_marker[$curly_level];
+					$remove_marker_last = $new_code_length;
+				}
+
+				break;
+
 			case '}':
+				if (isset($remove_marker[$curly_level]))
+				{
+					if ($remove_marker_last)
+					{
+						if (0>$remove_marker_last) 
+						{
+							$c = '$1';
+							$remove_marker_last = -$remove_marker_last;
+						}
+						else $c = '';
+
+						$new_code[$remove_marker_last] = preg_replace(
+							"/(global \\{$this->marker};)\\{$this->marker}=__FILE__\.'\*-[0-9]+';/",
+							$c,
+							$new_code[$remove_marker_last]
+						);
+					}
+
+					unset($remove_marker[$curly_level]);
+					end($remove_marker);
+					$remove_marker_last =& $remove_marker[key($remove_marker)];
+				}
+
 				--$curly_level;
 
 				if (isset($class_pool[$curly_level]))
@@ -416,6 +500,14 @@ class CIA_preprocessor__0
 			}
 
 			$new_code[] = $token;
+			$new_type[] = $tokenType;
+			++$new_code_length;
+
+			if (T_WHITESPACE != $tokenType && T_COMMENT != $tokenType && T_DOC_COMMENT != $tokenType)
+			{
+				$antePrevTokenType = $prevTokenType;
+				$prevTokenType = $tokenType;
+			}
 		}
 
 		$token =& $code[$codeLen - 1];
@@ -425,12 +517,10 @@ class CIA_preprocessor__0
 		return $new_code;
 	}
 
-	protected function seekSugar(&$code, $i, $backward = false)
+	protected function seekSugar(&$code, $i)
 	{
-		$backward = $backward ? -1 : 1;
-
 		while (
-			isset($code[$i += $backward]) && is_array($code[$i]) && ($t = $code[$i][0])
+			isset($code[++$i]) && is_array($code[$i]) && ($t = $code[$i][0])
 			&& (T_WHITESPACE == $t || T_COMMENT == $t || T_DOC_COMMENT == $t)
 		) ;
 
@@ -651,22 +741,15 @@ class CIA_preprocessor_adaptRequire___0
 
 			switch ($type)
 			{
+			case T_STRING: $this->preproc->hereDoc || $this->is_const = false; break;
 			case '(': ++$this->bracket_level; break;
-			case ',': $this->bracket_level || $close = ','; break;
-			case ')':
-				if (!--$this->bracket_level)
-				{
-					$this->code[] = $token;
-					$close = true;
-				}
-				break;
+			case ')': $this->bracket_level-- || $close = $token; break;
 
-			case T_CLOSE_TAG:
-			case ';': $close = $token; break;
+			case '?': case ':': case ',':
+				$this->bracket_level || $close = $token; break;
 
-			case T_START_HEREDOC: $this->hereDoc = true; break;
-			case T_END_HEREDOC: $this->hereDoc = false; break;
-			case T_STRING: $this->hereDoc || $this->is_const = false; break;
+			case T_AS: case T_CLOSE_TAG: case ';':
+				$close = $token; break;
 
 			default:
 				in_array($type, $this->preproc->variableType) && $this->is_const = false;
@@ -674,8 +757,6 @@ class CIA_preprocessor_adaptRequire___0
 
 			if ($close)
 			{
-				if (true === $close) $close = '';
-
 				$type = '';
 				$this->code = 'cia_adaptRequire(' . implode('', $this->code) . ')';
 				$this->preproc->popFilter();
@@ -692,7 +773,43 @@ class CIA_preprocessor_adaptRequire___0
 			{
 				$this->code[] = $token;
 				return '';
-			}	
+			}
 		}
+	}
+}
+
+class CIA_preprocessor_new___0
+{
+	protected $preproc;
+	protected $bracket_level = 0;
+
+	function __construct($preproc)
+	{
+		$this->preproc = $preproc;
+	}
+
+	function filterToken($type, $token)
+	{
+		$close = '';
+
+		switch ($type)
+		{
+		case '(': ++$this->bracket_level; break;
+		case ')': $this->bracket_level-- || $close = $token; break;
+
+		case '?': case ':': case ',':
+			$this->bracket_level || $close = $token; break;
+
+		case T_AS: case T_CLOSE_TAG: case ';':
+			$close = $token; break;
+		}
+
+		if ($close)
+		{
+			$this->preproc->popFilter();
+			$token = ':0)' . $close;
+		}
+
+		return $token;
 	}
 }
