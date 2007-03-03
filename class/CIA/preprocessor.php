@@ -33,8 +33,19 @@ class CIA_preprocessor__0
 
 	protected $tokenFilter = array();
 
+	protected static $inline_class;
+	protected static $recursive = false;
+
 	static function run($source, $destination, $level, $class)
 	{
+		$recursive = CIA_preprocessor::$recursive;
+
+		if (!$recursive)
+		{
+			CIA_preprocessor::$inline_class = array('self', 'parent', 'this', 'static');
+			CIA_preprocessor::$recursive = true;
+		}
+
 		$preproc = class_exists('CIA_preprocessor', false) ? 'CIA_preprocessor' : 'CIA_preprocessor__0';
 		$preproc = new $preproc;
 		$preproc->source = $source = realpath($source);
@@ -48,6 +59,8 @@ class CIA_preprocessor__0
 
 		$preproc->antePreprocess($code);
 		$code =& $preproc->preprocess($code);
+
+		CIA_preprocessor::$recursive = $recursive;
 
 		cia_atomic_write($code, $destination);
 	}
@@ -187,13 +200,17 @@ class CIA_preprocessor__0
 					'construct_source' => '',
 				);
 
+				CIA_preprocessor::$inline_class[] = strtolower($c);
+
 				if ($c && isset($code[$i]) && is_array($code[$i]) && T_EXTENDS == $code[$i][0])
 				{
 					$token .= $code[$i][1];
 					$token .= $this->fetchSugar($code, $i);
 					if (isset($code[$i]) && is_array($code[$i]))
 					{
-						$token .= 0<=$level && 'self' == $code[$i][1] ? $c . '__' . ($level ? $level-1 : '00') : $code[$i][1];
+						$c = 0<=$level && 'self' == $code[$i][1] ? $c . '__' . ($level ? $level-1 : '00') : $code[$i][1];
+						$token .= $c;
+						CIA_preprocessor::$inline_class[] = strtolower($c);
 					}
 					else --$i;
 				}
@@ -251,7 +268,7 @@ class CIA_preprocessor__0
 					|| (!$static_instruction
 					&& is_string($prevTokenType)
 					&& !isset($class_pool[$curly_level-1])
-					&& !in_array($prevTokenType, array($class_pool ? strtolower(end($class_pool)->classname) : '', 'self', 'parent', 'this', 'static'))
+					&& !in_array($prevTokenType, CIA_preprocessor::$inline_class)
 				))
 				{
 					0>=$remove_marker_last || $remove_marker_last = -$remove_marker_last;;
