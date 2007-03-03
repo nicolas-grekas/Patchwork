@@ -361,8 +361,8 @@ function __autoload($searched_class)
 
 			if (file_exists($source))
 			{
-				$preproc = 'cia_preprocessor';
-				if ($preproc == $lcClass)
+				$preproc = 'CIA_preprocessor';
+				if ('cia_preprocessor' == $lcClass)
 				{
 					if ($level) $preproc .= '__0';
 					else
