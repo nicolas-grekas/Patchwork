@@ -100,7 +100,7 @@ class extends loop_callAgent
 	{
 		if (!isset($param['default']) && isset($this->defaults[$name])) $param['default'] = $this->defaults[$name];
 
-		$type = 'iaForm_' . preg_replace("'[^a-zA-Z\d]+'u", '_', $type);
+		$type = 'iaForm_' . preg_replace('"[^a-zA-Z0-9\x80-\xff]+"', '_', $type);
 		$elt = $this->elt[$this->agentPrefix . $name . $this->eltnameSuffix] = new $type($this, $this->agentPrefix . $name . $this->eltnameSuffix, $param, $this->sessionLink);
 
 		if ($type=='iaForm_hidden') $this->hidden[] = $elt;

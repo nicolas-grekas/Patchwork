@@ -77,7 +77,7 @@ class extends iaCompiler
 		$keys = false;
 		$meta = $is_exo ? 3 : 2;
 
-		if (preg_match('/^\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'$/su', $inc))
+		if (preg_match('/^\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'$/s', $inc))
 		{
 			eval("\$inc=$inc;");
 

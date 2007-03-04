@@ -33,7 +33,7 @@ abstract class
 	protected static function getAdapter($from, $to)
 	{
 		$class = 'adapter_convertTo_' . $to . '_' . $from;
-		if (preg_match("'[^a-zA-Z0-9_]'u", $class))
+		if (preg_match('"[^a-zA-Z0-9_\x80-\xff]"u', $class))
 		{
 			W('Wrong class name: ' . $class);
 			return false;
