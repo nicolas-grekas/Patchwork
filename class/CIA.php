@@ -231,7 +231,7 @@ class
 		if (isset($_GET['T$'])) self::$private = true;
 
 		$agent = $_SERVER['CIA_REQUEST'];
-		if (preg_match("'\.[a-z0-9]{1,4}$'i", $agent, $mime) && strcasecmp('.tpl', $mime[0])) require processPath('controler.php');
+		if (preg_match("'\..+?$'i", $agent, $mime) && strcasecmp('.tpl', $mime[0])) require processPath('controler.php');
 
 #>>>
 		self::log(
@@ -816,30 +816,25 @@ class
 	{
 		static $resolvedCache = array();
 
+		if (isset($resolvedCache[$agent])) return 'agent_' . strtr($agent, '/', '_');
 
-		if (isset($resolvedCache[$agent])) return 'agent_' . str_replace('/', '_', $agent);
-
-
-		$agent = preg_replace("'/(\.?/)+'", '/', '/' . $agent . '/');
-
-		do $agent = preg_replace("'[^/]+/\.\./'", '/', $a = $agent);
-		while ($a != $agent);
-
-		$agent = substr($agent, 1, -1);
-		$agent = preg_replace("'^(\.\.?/)+'", '', $agent);
-
-		preg_match("'^((?:[a-z0-9]+(?:[-_][a-z0-9]+)*(?:/|$))*)(.*?)$'iu", $agent, $agent);
-
-		$param = '' !== $agent[2] ? explode('/', $agent[2]) : array();
-		$agent = $agent[1];
-
-		if ('/' == substr($agent, -1)) $agent = substr($agent, 0, -1);
-
-		if ('' !== $agent)
+		if (preg_match("''u", $agent))
 		{
-			$potentialAgent = preg_replace("'[-_](.)'e", "strtoupper('$1')", $agent);
+			$agent = '/' . $agent . '/';
+			while (false !== strpos($agent, '//')) $agent = str_replace('//', '/', $agent);
+
+			preg_match('"^/(?:[a-zA-Z0-9\x80-\xff]+(?:([-_])[a-zA-Z0-9\x80-\xff]+)*/)*$"', $agent, $a);
 		}
-		else $potentialAgent = $agent = 'index';
+		else $a = array('/');
+
+		$param = (string) substr($agent, strlen($a[0]));
+		$param = '' !== $param ? explode('/', $param) : array();
+		$agent = (string) substr($a[0], 1, -1);
+
+		if (isset($a[1])) $agent = (string) preg_replace("'[-_](.)'eu", "mb_strtoupper('$1')", $agent);
+		if ('' === $agent) $agent = 'index';
+
+		$potentialAgent = $agent;
 
 		$lang = self::$lang;
 		$createTemplate = true;

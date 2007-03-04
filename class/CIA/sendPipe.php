@@ -17,7 +17,7 @@ class extends CIA
 	static function call()
 	{
 		$pipe = array_shift($_GET);
-		preg_match_all("/[a-zA-Z_][a-zA-Z_\d]*/u", $pipe, $pipe);
+		preg_match_all('/[a-zA-Z_0-9\x80-\xff]+/', $pipe, $pipe);
 		CIA::$agentClass = 'agent__pipe/' . implode('_', $pipe[0]);
 
 		foreach ($pipe[0] as &$pipe)

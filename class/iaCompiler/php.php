@@ -42,7 +42,7 @@ class extends iaCompiler
 	{
 		if ($end) return false;
 
-		if (preg_match('/^\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'$/su', $inc))
+		if (preg_match('/^\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'$/s', $inc))
 		{
 			eval("\$home=$inc;");
 

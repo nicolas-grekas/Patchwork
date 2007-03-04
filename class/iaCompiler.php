@@ -23,8 +23,8 @@ abstract class
 	private $Xrblock = '\s*-->';
 	private $Xcomment = '\\{\*.*?\*\\}';
 
-	private $Xvar = '(?:(?:[dag][-+]\d+|\\$*|[dag])?\\$)';
-	private $XpureVar = '[a-zA-Z_][a-zA-Z_\d]*';
+	private $Xvar = '(?:(?:[dag][-+][0-9]+|\\$*|[dag])?\\$)';
+	private $XpureVar = '[a-zA-Z_\x80-\xff][a-zA-Z_0-9\x80-\xff]*';
 
 	private $Xblock = '[A-Z]+\b';
 	private $XblockEnd = 'END:';
@@ -61,13 +61,13 @@ abstract class
 		$this->binaryMode = $binaryMode;
 		$this->Xvar .= $this->XpureVar;
 
-		$dnum = '(?:(?:\d*\.\d+)|(?:\d+\.\d*))';
-		$this->Xnumber = "-?(?:(?:\d+|$dnum)[eE][+-]?\d+|$dnum|[1-9]\d*|0[xX][\da-fA-F]+|0[0-7]*)(?!\d)";
-		$this->XvarNconst = "(?<!\d)(?:{$this->Xstring}|{$this->Xnumber}|{$this->Xvar}|[dag]\\$|\\$+)";
+		$dnum = '(?:(?:[0-9]*\.[0-9]+)|(?:[0-9]+\.[0-9]*))';
+		$this->Xnumber = "-?(?:(?:[0-9]+|$dnum)[eE][+-]?[0-9]+|$dnum|[1-9][0-9]*|0[xX][0-9a-fA-F]+|0[0-7]*)(?![0-9])";
+		$this->XvarNconst = "(?<![0-9])(?:{$this->Xstring}|{$this->Xnumber}|{$this->Xvar}|[dag]\\$|\\$+)";
 
 		$this->Xmath = "\(*(?:{$this->Xnumber}|{$this->Xvar})\)*";
 		$this->Xmath = "(?:{$this->Xmath}\s*[-+*\/%]\s*)*{$this->Xmath}";
-		$this->Xexpression = "(?<!\d)(?:{$this->Xstring}|(?:{$this->Xmath})|[dag]\\$|\\$+|[\/~])";
+		$this->Xexpression = "(?<![0-9])(?:{$this->Xstring}|(?:{$this->Xmath})|[dag]\\$|\\$+|[\/~])";
 
 		$this->Xmodifier = $this->XpureVar;
 		$this->XmodifierPipe = "\\|{$this->Xmodifier}(?::(?:{$this->Xexpression})?)*";
@@ -112,14 +112,16 @@ abstract class
 			&& !file_exists($source = $path . $l_ng . $template)
 		) return $this->load($template, $path_idx + 1);
 
-		$source = file_get_contents($source);
+		$lang = file_get_contents($source);
+		if (!preg_match("''u", $lang)) W("Template file {$source}:\nfile encoding is not valid UTF-8. Please convert your source code to UTF-8.");
+		$source =& $lang;
 
 		$source = rtrim($source);
 		if (false !== strpos($source, "\r")) $source = strtr(str_replace("\r\n", "\n", $source), "\r", "\n");
-		$source = preg_replace_callback("'" . $this->Xcomment . "\n?'su", array($this, 'preserveLF'), $source);
-		$source = preg_replace("'({$this->Xrblock})\n'su", "\n$1", $source);
+		$source = preg_replace_callback("'" . $this->Xcomment . "\n?'s", array($this, 'preserveLF'), $source);
+		$source = preg_replace("'({$this->Xrblock})\n's", "\n$1", $source);
 		$source = preg_replace_callback(
-			"/({$this->Xlblock}(?:{$this->XblockEnd})?{$this->Xblock})((?>{$this->Xstring}|.)*?)({$this->Xrblock})/su",
+			"/({$this->Xlblock}(?:{$this->XblockEnd})?{$this->Xblock})((?>{$this->Xstring}|.)*?)({$this->Xrblock})/s",
 			array($this, 'autoSplitBlocks'),
 			$source
 		);
@@ -127,13 +129,13 @@ abstract class
 		if ($this->serverMode)
 		{
 			$source = preg_replace_callback(
-				"'{$this->Xlblock}CLIENTSIDE{$this->Xrblock}.*?{$this->Xlblock}{$this->XblockEnd}CLIENTSIDE{$this->Xrblock}'su",
+				"'{$this->Xlblock}CLIENTSIDE{$this->Xrblock}.*?{$this->Xlblock}{$this->XblockEnd}CLIENTSIDE{$this->Xrblock}'s",
 				array($this, 'preserveLF'),
 				$source
 			);
 
 			$source = preg_replace_callback(
-				"'{$this->Xlblock}({$this->XblockEnd})?SERVERSIDE{$this->Xrblock}'su",
+				"'{$this->Xlblock}({$this->XblockEnd})?SERVERSIDE{$this->Xrblock}'s",
 				array($this, 'preserveLF'),
 				$source
 			);
@@ -141,23 +143,23 @@ abstract class
 		else
 		{
 			$source = preg_replace_callback(
-				"'{$this->Xlblock}SERVERSIDE{$this->Xrblock}.*?{$this->Xlblock}{$this->XblockEnd}SERVERSIDE{$this->Xrblock}'su",
+				"'{$this->Xlblock}SERVERSIDE{$this->Xrblock}.*?{$this->Xlblock}{$this->XblockEnd}SERVERSIDE{$this->Xrblock}'s",
 				array($this, 'preserveLF'),
 				$source
 			);
 
 			$source = preg_replace_callback(
-				"'{$this->Xlblock}({$this->XblockEnd})?CLIENTSIDE{$this->Xrblock}'su",
+				"'{$this->Xlblock}({$this->XblockEnd})?CLIENTSIDE{$this->Xrblock}'s",
 				array($this, 'preserveLF'),
 				$source
 			);
 		}
 
-		$rx = '[-_a-zA-Z\d][-_a-zA-Z\d\.]*';
+		$rx = '[-_a-zA-Z0-9\x80-\xff][-_a-zA-Z0-9\x80-\xff\.]*';
 
 		$this->template = CIA_WINDOWS ? strtolower($template) : $template;
 		$this->path_idx = $path_idx;
-		$source = preg_replace_callback("'{$this->Xlblock}INCLUDE\s+($rx(?:[\\/]$rx)*)(:-?\d+)?\s*{$this->Xrblock}'su", array($this, 'INCLUDEcallback'), $source);
+		$source = preg_replace_callback("'{$this->Xlblock}INCLUDE\s+($rx(?:[\\/]$rx)*)(:-?[0-9]+)?\s*{$this->Xrblock}'s", array($this, 'INCLUDEcallback'), $source);
 
 		return $source;
 	}
@@ -170,13 +172,13 @@ abstract class
 	protected function autoSplitBlocks($m)
 	{
 		$a =& $m[2];
-		$a = preg_split("/({$this->Xstring})/su", $a, -1, PREG_SPLIT_DELIM_CAPTURE);
+		$a = preg_split("/({$this->Xstring})/s", $a, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 		$i = 0;
 		$len = count($a);
 		while ($i < $len)
 		{
-			$a[$i] = preg_replace("'\n\s*(?:{$this->XblockEnd})?{$this->Xblock}(?!\s*=)'su", ' --><!-- $0', $a[$i]);
+			$a[$i] = preg_replace("'\n\s*(?:{$this->XblockEnd})?{$this->Xblock}(?!\s*=)'s", ' --><!-- $0', $a[$i]);
 			$i += 2;
 		}
 
@@ -264,12 +266,12 @@ abstract class
 	{
 		if (false !== strpos($a, "\r")) $a = str_replace("\r", '', $a);
 
-		return $this->binaryMode ? $a : preg_replace("/\s{2,}/seu", 'strpos(\'$0\', "\n")===false ? " " : "\n"', $a);
+		return $this->binaryMode ? $a : preg_replace("/\s{2,}/se", 'strpos(\'$0\', "\n")===false ? " " : "\n"', $a);
 	}
 
 	private function makeBlocks($a)
 	{
-		$a = preg_split("/({$this->Xlblock}{$this->Xblock}(?>{$this->Xstring}|.)*?{$this->Xrblock})/su", $a, -1, PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_DELIM_CAPTURE);
+		$a = preg_split("/({$this->Xlblock}{$this->Xblock}(?>{$this->Xstring}|.)*?{$this->Xrblock})/s", $a, -1, PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_DELIM_CAPTURE);
 
 		$this->makeVars($a[0][0]);
 
@@ -285,7 +287,7 @@ abstract class
 
 	private function makeVars(&$a)
 	{
-		$a = preg_split("/{$this->Xlvar}{$this->XfullVar}{$this->Xrvar}/su", $a, -1, PREG_SPLIT_DELIM_CAPTURE);
+		$a = preg_split("/{$this->Xlvar}{$this->XfullVar}{$this->Xrvar}/s", $a, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 		$this->pushText($a[0]);
 
@@ -302,13 +304,13 @@ abstract class
 	{
 		$blockname = $blockend = false;
 
-		if (preg_match("/^{$this->Xlblock}{$this->XblockEnd}({$this->Xblock}).*?{$this->Xrblock}$/su", $a, $block))
+		if (preg_match("/^{$this->Xlblock}{$this->XblockEnd}({$this->Xblock}).*?{$this->Xrblock}$/s", $a, $block))
 		{
 			$blockname = $block[1];
 			$block = false;
 			$blockend = true;
 		}
-		else if (preg_match("/^{$this->Xlblock}({$this->Xblock})(.*?){$this->Xrblock}$/su", $a, $block))
+		else if (preg_match("/^{$this->Xlblock}({$this->Xblock})(.*?){$this->Xrblock}$/s", $a, $block))
 		{
 			$blockname = $block[1];
 			$block = trim($block[2]);
@@ -322,14 +324,14 @@ abstract class
 			case 'AGENT':
 				$is_exo = 'EXOAGENT' == $blockname;
 
-				if (preg_match("/^({$this->Xstring}|{$this->Xvar})(?:\s+{$this->XpureVar}\s*=\s*(?:{$this->XvarNconst}))*$/su", $block, $block))
+				if (preg_match("/^({$this->Xstring}|{$this->Xvar})(?:\s+{$this->XpureVar}\s*=\s*(?:{$this->XvarNconst}))*$/s", $block, $block))
 				{
 					$inc = $this->evalVar($block[1]);
 
 					if ("''" != $inc)
 					{
 						$args = array();
-						if (preg_match_all("/\s+({$this->XpureVar})\s*=\s*({$this->XvarNconst})/su", $block[0], $block))
+						if (preg_match_all("/\s+({$this->XpureVar})\s*=\s*({$this->XvarNconst})/s", $block[0], $block))
 						{
 							$i = 0;
 							$len = count($block[0]);
@@ -348,7 +350,7 @@ abstract class
 				break;
 
 			case 'SET':
-				if (preg_match("/^([dag]|\\$*)\\$({$this->XpureVar})$/su", $block, $block))
+				if (preg_match("/^([dag]|\\$*)\\$({$this->XpureVar})$/s", $block, $block))
 				{
 					$type = $block[1];
 					$block = $block[2];
@@ -371,11 +373,11 @@ abstract class
 
 			case 'LOOP':
 
-				$block = preg_match("/^{$this->Xexpression}$/su", $block, $block)
-					? preg_replace("/{$this->XvarNconst}/sue", '$this->evalVar(\'$0\')', $block[0])
+				$block = preg_match("/^{$this->Xexpression}$/s", $block, $block)
+					? preg_replace("/{$this->XvarNconst}/se", '$this->evalVar(\'$0\')', $block[0])
 					: '';
 
-				$block = preg_replace("/\s+/su", '', $block);
+				$block = preg_replace("/\s+/s", '', $block);
 
 				if (!$this->addLOOP($blockend, $block)) $this->pushText($a);
 				else if ($blockend)
@@ -400,10 +402,10 @@ abstract class
 				}
 
 				$block = preg_split(
-					"/({$this->Xstring}|{$this->Xvar})/su",
+					"/({$this->Xstring}|{$this->Xvar})/s",
 					$block, -1, PREG_SPLIT_DELIM_CAPTURE
 				);
-				$testCode = preg_replace("'\s+'u", '', $block[0]);
+				$testCode = preg_replace("'\s+'", '', $block[0]);
 				$var = array();
 
 				$i = $j = 1;
@@ -411,10 +413,10 @@ abstract class
 				while ($i < $len)
 				{
 					$var['$a' . $j . 'b'] = $block[$i++];
-					$testCode .= '$a' . $j++ . 'b ' . preg_replace("'\s+'u", '', $block[$i++]);
+					$testCode .= '$a' . $j++ . 'b ' . preg_replace("'\s+'", '', $block[$i++]);
 				}
 
-				$testCode = preg_replace('/\s+/su', ' ', $testCode);
+				$testCode = preg_replace('/\s+/s', ' ', $testCode);
 				$testCode = strtr($testCode, '#[]{}^~?:,', ';;;;;;;;;;');
 				$testCode = str_replace(
 					array('&&' , '||' , '&', '|', '<>'),
@@ -422,8 +424,8 @@ abstract class
 					$testCode
 				);
 				$testCode = preg_replace(
-					array('/<<+/u', '/>>+/u', '/[a-zA-Z_\d]\(/u'),
-					array(';'     , ';'     , ';'),
+					array('/<<+/', '/>>+/', '/[a-zA-Z_0-9\xf7-\xff]\(/'),
+					array(';'    , ';'    , ';'),
 					$testCode
 				);
 				$testCode = str_replace(
@@ -437,7 +439,7 @@ abstract class
 
 				if ($i!==false)
 				{
-					$block = preg_split('/(\\$a\db) /su', $testCode, -1, PREG_SPLIT_DELIM_CAPTURE);
+					$block = preg_split('/(\$a[0-9]b) /s', $testCode, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 					$expression = $block[0];
 
@@ -466,13 +468,13 @@ abstract class
 	{
 		$detail = array();
 
-		preg_match_all("/({$this->Xexpression}|{$this->Xmodifier}|(?<=:)(?:{$this->Xexpression})?)/su", $var, $match);
+		preg_match_all("/({$this->Xexpression}|{$this->Xmodifier}|(?<=:)(?:{$this->Xexpression})?)/s", $var, $match);
 		$detail[] = $match[1];
 
-		preg_match_all("/{$this->XmodifierPipe}/su", $pipe, $match);
+		preg_match_all("/{$this->XmodifierPipe}/s", $pipe, $match);
 		foreach ($match[0] as &$match)
 		{
-			preg_match_all("/(?:^\\|{$this->Xmodifier}|:(?:{$this->Xexpression})?)/su", $match, $match);
+			preg_match_all("/(?:^\\|{$this->Xmodifier}|:(?:{$this->Xexpression})?)/s", $match, $match);
 			foreach ($match[0] as &$j) $j = $j == ':' ? "''" : substr($j, 1);
 			unset($j);
 			$detail[] = $match[0];
@@ -526,9 +528,9 @@ abstract class
 		{
 			$b = '"' == $a[0];
 
-			if (!$b) $a = '"' . substr(preg_replace('/([^\\\\](?:\\\\\\\\)*)"/su', '$1\\\\"', $a), 1, -1) . '"';
-			$a = preg_replace("/(?<!\\\\)\\\\((?:\\\\\\\\)*)'/su", '$1\'', $a);
-			$a = preg_replace('/([^\\\\](\\\\?)(?:\\\\\\\\)*)\\$/su', '$1$2\\\\$', $a);
+			if (!$b) $a = '"' . substr(preg_replace('/([^\\\\](?:\\\\\\\\)*)"/s', '$1\\\\"', $a), 1, -1) . '"';
+			$a = preg_replace("/(?<!\\\\)\\\\((?:\\\\\\\\)*)'/s", '$1\'', $a);
+			$a = preg_replace('/([^\\\\](\\\\?)(?:\\\\\\\\)*)\\$/s', '$1$2\\\\$', $a);
 			$a = eval("return $a;");
 
 			if ($b && trim($a)!=='')
@@ -558,10 +560,10 @@ abstract class
 
 			$a = "'" . $a;
 		}
-		else if (preg_match("/^{$this->Xnumber}$/su", $a)) $a = eval("return \"'\" . $a;");
-		else if (!preg_match("/^(?:{$this->Xvar}|[dag]\\$|\\$+)$/su", $a))
+		else if (preg_match("/^{$this->Xnumber}$/s", $a)) $a = eval("return \"'\" . $a;");
+		else if (!preg_match("/^(?:{$this->Xvar}|[dag]\\$|\\$+)$/s", $a))
 		{
-			$a = preg_split("/({$this->Xvar}|{$this->Xnumber})/su", $a, -1, PREG_SPLIT_DELIM_CAPTURE);
+			$a = preg_split("/({$this->Xvar}|{$this->Xnumber})/s", $a, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 			$i = 1;
 			$len = count($a);
