@@ -28,7 +28,7 @@ class CIA_preprocessor__0
 	public $replaceFunction = array('header' => 'CIA::header');
 	public $variableType = array(
 		'', T_EVAL, '(', T_FILE, T_LINE, T_FUNC_C, T_CLASS_C, T_INCLUDE, T_REQUIRE,
-		T_VARIABLE, T_INCLUDE_ONCE, T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES,
+		T_VARIABLE, '$', T_INCLUDE_ONCE, T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES,
 	);
 
 	protected $tokenFilter = array();
@@ -104,8 +104,8 @@ class CIA_preprocessor__0
 		$codeLen = count($code);
 
 		$static_instruction = false;
-		$antePrevTokenType = '';
-		$prevTokenType = '';
+		$antePrevType = '';
+		$prevType = '';
 		$new_code = array();
 		$new_type = array();
 		$new_code_length = 0;
@@ -116,20 +116,17 @@ class CIA_preprocessor__0
 		$remove_marker = array(0);
 		$remove_marker_last =& $remove_marker[0];
 
-		$bracket_level = 0;
-		$bracket_pool = array();
-
 		for ($i = 0; $i < $codeLen; ++$i)
 		{
 			$token = $code[$i];
 			if (is_array($token))
 			{
-				$tokenType = $token[0];
+				$type = $token[0];
 				$token = $token[1];
 			}
-			else $tokenType = $token;
+			else $type = $token;
 
-			switch ($tokenType)
+			switch ($type)
 			{
 			case T_OPEN_TAG: // Normalize PHP open tag
 				$token = '<?php ' . $this->extractLF($token);
@@ -155,14 +152,14 @@ class CIA_preprocessor__0
 				if ($class_pool)
 				{
 					$token = "'" . end($class_pool)->classname . "'";
-					$tokenType = T_CONSTANT_ENCAPSED_STRING;
+					$type = T_CONSTANT_ENCAPSED_STRING;
 				}
 				break;
 
 			case T_CLASS:
 				$c = '';
 
-				$final = T_FINAL == $prevTokenType;
+				$final = T_FINAL == $prevType;
 
 				// Look forward
 				$j = $this->seekSugar($code, $i);
@@ -222,7 +219,7 @@ class CIA_preprocessor__0
 				if (0>$level)
 				{
 					$token = 'public';
-					$tokenType = T_PUBLIC;
+					$type = T_PUBLIC;
 				}
 
 				break;
@@ -234,7 +231,7 @@ class CIA_preprocessor__0
 				if (isset($class_pool[$curly_level-1]) && !$class_pool[$curly_level-1]->is_final)
 				{
 					// Look backward for the "static" keyword
-					if (T_STATIC == $prevTokenType) $j = true;
+					if (T_STATIC == $prevType) $j = true;
 					else
 					{
 						// Look forward for the "static" keyword
@@ -245,9 +242,9 @@ class CIA_preprocessor__0
 					if ($j)
 					{
 						$token = 'protected';
-						$tokenType = T_PROTECTED;
+						$type = T_PROTECTED;
 
-						if (0<=$level) W("File {$source} line {$line}:\nprivate static methods or properties are fordidden.\nPlease use protected static ones instead.");
+						if (0<=$level) W("File {$source} line {$line}:\nprivate static methods or properties are banned.\nPlease use protected static ones instead.");
 					}
 				}
 
@@ -259,74 +256,81 @@ class CIA_preprocessor__0
 
 			case T_NEW:
 				$token .= $this->fetchSugar($code, $i);
-				$variable = isset($code[$i]) && is_array($code[$i]) && T_STRING != $code[$i][0];
-				--$i;
+				if (!isset($code[$j = $i--])) break;
+
+				$c = mt_rand();
+
+				if (is_array($code[$j]))
+				{
+					if (T_STRING != $code[$j][0]) $c = -$c;
+					else if (in_array($code[$j][1], CIA_preprocessor::$inline_class)) break;
+				}
+				else $c = -$c;
+
+				if ('&' == $prevType)
+				{
+					if ('=' != $antePrevType) break;
+					$antePrevType = '&';
+
+					$j = $new_code_length;
+					while (--$j && in_array($new_type[$j], array('=', '&', T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ;
+				}
+				else $token = "(({$this->marker}=__FILE__.'*{$c}')?" . $token;
 
 			case T_DOUBLE_COLON:
-				if (
-					   T_NEW == $tokenType
-					|| (!$static_instruction
-					&& is_string($prevTokenType)
-					&& !isset($class_pool[$curly_level-1])
-					&& !in_array($prevTokenType, CIA_preprocessor::$inline_class)
-				))
+				if (T_DOUBLE_COLON == $type)
 				{
-					0>=$remove_marker_last || $remove_marker_last = -$remove_marker_last;;
+					if ($static_instruction || isset($class_pool[$curly_level-1]) || in_array($prevType, CIA_preprocessor::$inline_class)) break;
 
-					// Insert a marker at the beginning of the current instruction
+					$c = mt_rand();
+					$j = $new_code_length;
 
-					$b = $j = $new_code_length;
-					$c = array();
-					while (--$j) switch ($new_type[$j])
+					if ('&' == $antePrevType)
 					{
-					case '}':
-						if (!$c)
-						{
-							$b = $j;
-							do if ('}' == $new_type[$b]) $c[] = $b;
-							while (--$b && in_array($new_type[$b], array('}', T_WHITESPACE, T_COMMENT, T_DOC_COMMENT)));
-							if (';' == $new_type[$b]) break 2;
-							$j = $b + 1;
-							break;
-						}
-
-					case ')': $c[] = $j;
-					case '': case '?': case ':': case ';': case ',':
-					case T_DOUBLE_ARROW: case T_INCLUDE: case T_INCLUDE_ONCE:
-					case T_REQUIRE: case T_REQUIRE_ONCE:
-						if ($c) break;
-						else    break 2;
-
-					case '{':
-					case '(':
-						if ($c)
-						{
-							$b = array_pop($c);
-							break;
-						}
-						break 2;
-
-					case T_IF: case T_ELSEIF: case T_WHILE: case T_FOR: case T_FOREACH:
-						$j = $b;
-
-					case T_ELSE: case T_DO: case T_BREAK: case T_CONTINUE: case T_CASE:
-					case T_DEFAULT: case T_ECHO: case T_RETURN: case T_THROW:
-					case T_OPEN_TAG: case T_OPEN_TAG_WITH_ECHO:
-						break 2;
+						while (--$j && in_array($new_type[$j], array('&', $prevType, T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ;
+						if ('=' != $new_type[$j--]) break;
 					}
-
-					$new_code[++$j] = "(({$this->marker}=__FILE__.'*" .  (T_NEW == $tokenType && $variable ? '-' : '') . mt_rand() . "')?" . $new_code[$j];
-					$this->pushFilter(array(new CIA_preprocessor_new_($this), 'filterToken'));
+					else
+					{
+						while (--$j && in_array($new_type[$j], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ;
+						$new_code[$j] = "(({$this->marker}=__FILE__.'*{$c}')?" . $new_code[$j];
+					}
 				}
+
+				if ('&' == $antePrevType)
+				{
+					$b = 0;
+
+					do switch ($new_type[$j])
+					{
+					case '$': if (!$b && ++$j) while (--$j && in_array($new_type[$j], array('$', T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ;
+					case T_VARIABLE:
+						if (!$b)
+						{
+							while (--$j && in_array($new_type[$j], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ;
+							if (T_OBJECT_OPERATOR != $new_type[$j] && ++$j) break 2;
+						}
+						break;
+
+					case '{': case '[': --$b; break;
+					case '}': case ']': ++$b; break;
+					}
+					while (--$j);
+
+					$new_code[$j] = "(({$this->marker}=__FILE__.'*{$c}')?" . $new_code[$j];
+				}
+
+				new CIA_preprocessor_marker_($this);
+				0>=$remove_marker_last || $remove_marker_last = -$remove_marker_last;
 
 				break;
 
 			case T_STRING:
-				if ($this->hereDoc || T_DOUBLE_COLON == $prevTokenType || T_OBJECT_OPERATOR == $prevTokenType) break;
+				if ($this->hereDoc || T_DOUBLE_COLON == $prevType || T_OBJECT_OPERATOR == $prevType) break;
 
-				$tokenType = strtolower($token);
+				$type = strtolower($token);
 
-				if (T_FUNCTION == $prevTokenType || ('&' == $prevTokenType && T_FUNCTION == $antePrevTokenType))
+				if (T_FUNCTION == $prevType || ('&' == $prevType && T_FUNCTION == $antePrevType))
 				{
 					if (   isset($class_pool[$curly_level-1])
 						&& ($c = $class_pool[$curly_level-1])
@@ -335,18 +339,11 @@ class CIA_preprocessor__0
 						// If the currently parsed method is this class constructor
 						// build a PHP5 constructor if needed.
 
-						if ('__construct' == $tokenType) $c->has_php5_construct = true;
-						else if ($tokenType == strtolower($c->classname))
+						if ('__construct' == $type) $c->has_php5_construct = true;
+						else if ($type == strtolower($c->classname))
 						{
-							$token .= $this->fetchSugar($code, $i);
-
-							if ('(' == $code[$i])
-							{
-								$c->construct_source = $c->classname;
-								$bracket_pool[$bracket_level+1] = new CIA_preprocessor_construct_($this, $c->construct_source);
-							}
-
-							--$i;
+							$c->construct_source = $c->classname;
+							new CIA_preprocessor_construct_($this, $c->construct_source);
 						}
 					}
 
@@ -356,16 +353,16 @@ class CIA_preprocessor__0
 				$c = $this->fetchSugar($code, $i);
 				--$i;
 
-				switch ($tokenType)
+				switch ($type)
 				{
 				case '__cia_level__': if (0>$level) break;
 					$token = $level;
-					$tokenType = T_LNUMBER;
+					$type = T_LNUMBER;
 					break;
 
 				case '__cia_file__': if (0>$level) break;
 					$token = var_export($source, true);
-					$tokenType = T_CONSTANT_ENCAPSED_STRING;
+					$type = T_CONSTANT_ENCAPSED_STRING;
 					break;
 
 				case 'self':
@@ -374,28 +371,34 @@ class CIA_preprocessor__0
 					break;
 
 				case 'resolvepath':
-				case 'processpath': if (0>$level) break;
-					// Automatically append their third arg to resolve|processPath
-					if ('(' == $code[$i+1]) $bracket_pool[$bracket_level+1] = new CIA_preprocessor_path_($this);
+				case 'processpath':
+					// If possible, resolve the path now, else append their third arg to resolve|processPath
+					if (0<=$level && '(' == $code[$i+1])
+					{
+						$j = (string) $this->fetchConstant($code, $i);
+						if ('' !== $j)
+						{
+							eval("\$b={$token}{$j};");
+							$token = false !== $b ? var_export($b, true) : "{$token}({$j})";
+							$type = T_CONSTANT_ENCAPSED_STRING;
+						}
+						else new CIA_preprocessor_path_($this);
+					}
 					break;
 
-				case 't': if (0>$level) break;
-					if ('(' == $code[$i+1]) $bracket_pool[$bracket_level+1] = new CIA_preprocessor_t_($this);
+				case 't':
+					if (0<=$level) new CIA_preprocessor_t_($this);
 					break;
 
 				case 'interface_exists':
 				case 'class_exists':
 					// For files in the include_path, always set the 2nd arg of class|interface_exists() to true
-					if (0>$level && '(' == $code[$i+1]) $bracket_pool[$bracket_level+1] = new CIA_preprocessor_classExists_($this);
+					if (0>$level) new CIA_preprocessor_classExists_($this);
 
-				case 'set_exception_handler':
-				case 'set_error_handler':
-				case 'is_callable':
-				case 'method_exists':
-				case 'property_exists':
-				case 'call_user_func':
-				case 'call_user_func_array':
-				case 'create_function':
+				case 'set_exception_handler': case 'set_error_handler': case 'is_callable':
+				case 'method_exists':         case 'property_exists':   case 'call_user_func':
+				case 'call_user_func_array':  case 'create_function':   case 'get_parent_class':
+				case 'get_class_methods':     case 'get_class_vars':
 					$remove_marker_last = 0;
 				}
 
@@ -415,13 +418,31 @@ class CIA_preprocessor__0
 			case T_REQUIRE:
 			case T_INCLUDE:
 				$remove_marker_last = 0;
+				$token .= $this->fetchSugar($code, $i);
 
 				// Every require|include inside files in the include_path
-				// is preprocessed thanks to processPath().
-				if (0>$level) new CIA_preprocessor_adaptRequire_($this);
+				// is preprocessed thanks to cia_adaptRequire().
+				if (isset($code[$i--]) && 0>$level)
+				{
+					$j = (string) $this->fetchConstant($code, $i);
+					if ( '' !== $j)
+					{
+						eval("\$b=cia_adaptRequire({$j});");
+						$code[$i--] = array(
+							T_CONSTANT_ENCAPSED_STRING,
+							false !== $b ? var_export($b, true) : "cia_adaptRequire({$j})"
+						);
+					}
+					else
+					{
+						$token .= 'cia_adaptRequire(';
+						new CIA_preprocessor_require_($this);
+					}
+				}
+
 				break;
 
-			case T_COMMENT: $tokenType = T_WHITESPACE;
+			case T_COMMENT: $type = T_WHITESPACE;
 			case T_WHITESPACE:
 				$token = substr_count($token, "\n");
 				$line += $token;
@@ -440,25 +461,6 @@ class CIA_preprocessor__0
 
 			case ';':
 				$static_instruction = false;
-				break;
-
-			case ',':
-				if (isset($bracket_pool[$bracket_level])) $token = $bracket_pool[$bracket_level]->incrementPosition($token);
-				break;
-
-			case '(':
-				++$bracket_level;
-				break;
-
-			case ')':
-				if (isset($bracket_pool[$bracket_level]))
-				{
-					$token = $bracket_pool[$bracket_level]->close($token);
-					unset($bracket_pool[$bracket_level]);
-				}
-
-				--$bracket_level;
-
 				break;
 
 			case '{':
@@ -510,21 +512,17 @@ class CIA_preprocessor__0
 				break;
 			}
 
-			if ($this->tokenFilter) foreach ($this->tokenFilter as $filter)
+			foreach ($this->tokenFilter as $filter) $token = call_user_func($filter, $type, $token);
+
+			if (T_WHITESPACE != $type && T_COMMENT != $type && T_DOC_COMMENT != $type)
 			{
-				$token = call_user_func($filter, $tokenType, $token);
-				if ('' === $token) continue 2;
+				$antePrevType = $prevType;
+				$prevType = $type;
 			}
 
 			$new_code[] = $token;
-			$new_type[] = $tokenType;
+			$new_type[] = $type;
 			++$new_code_length;
-
-			if (T_WHITESPACE != $tokenType && T_COMMENT != $tokenType && T_DOC_COMMENT != $tokenType)
-			{
-				$antePrevTokenType = $prevTokenType;
-				$prevTokenType = $tokenType;
-			}
 		}
 
 		$token =& $code[$codeLen - 1];
@@ -573,31 +571,105 @@ class CIA_preprocessor__0
 	{
 		return $this->extractLF($a[0]);
 	}
+
+	protected function fetchConstant(&$code, &$i)
+	{
+		$new_code = array();
+		$codeLen = count($code);
+		$hereDoc = false;
+		$bracket = 0;
+
+		for ($j = $i+1; $j < $codeLen; ++$j)
+		{
+			$token = $code[$j];
+			if (is_array($token))
+			{
+				$type = $token[0];
+				$token = $token[1];
+			}
+			else $type = $token;
+
+			$close = '';
+
+			switch ($type)
+			{
+			case T_START_HEREDOC: $hereDoc = true;        break;
+			case T_END_HEREDOC:   $hereDoc = false;       break;
+			case T_STRING:   if (!$hereDoc) return false; break;
+			case '?': case '(': ++$bracket;               break;
+			case ':': case ')':   $bracket-- ||    $close = true; break;
+			case ',':             $bracket   ||    $close = true; break;
+			case T_AS: case T_CLOSE_TAG: case ';': $close = true; break;
+			default: if (in_array($type, $this->variableType)) return false;
+			}
+
+			if ($close)
+			{
+				$i = $j - 1;
+				$j = implode('', $new_code);
+				if (false === @eval($j . ';')) return false;
+				$this->line += substr_count($j, "\n");
+				return $j;
+			}
+			else $new_code[] = $token;
+		}
+	}
 }
 
 abstract class CIA_preprocessor_bracket___0
 {
+	protected $first = true;
 	protected $preproc;
 	protected $position = 0;
+	protected $bracket = 0;
 
 	function __construct($preproc)
 	{
 		$this->preproc = $preproc;
+		$preproc->pushFilter(array($this, 'filterToken'));
 	}
 
-	function onPositionUpdate($token) {return $token;}
-	function onClose($token) {return $token;}
-
-	function incrementPosition($token)
+	function filterPreBracket($type, $token)
 	{
-		++$this->position;
-		return $this->onPositionUpdate($token);
+		0>=$this->bracket
+			&& T_WHITESPACE != $type && T_COMMENT != $type && T_DOC_COMMENT != $type
+			&& $this->preproc->popFilter();
+		return $token;
 	}
 
-	function close($token)
+	function filterBracket($type, $token) {return $token;}
+	function onStart      ($token) {return $token;}
+	function onReposition ($token) {return $token;}
+	function onClose      ($token) {$this->preproc->popFilter(); return $token;}
+
+	function filterToken($type, $token)
 	{
-		$token = $this->onClose($token);
-		$this->position = 0;
+		if ($this->first) $this->first = false;
+		else switch ($type)
+		{
+		case '(':
+			$token = 1<++$this->bracket ? $this->filterBracket($type, $token) : $this->onStart($token);
+			break;
+
+		case ')':
+			$token = !--$this->bracket ? $this->onClose($token)
+				: (0>$this->bracket ? $this->filterPreBracket($type, $token)
+					: $this->filterBracket($type, $token)
+				);
+			break;
+
+		case ',':
+			if (1 == $this->bracket)
+			{
+				$token = $this->filterBracket($type, $token);
+				++$this->position;
+				$token = $this->onReposition($token);
+				break;
+			}
+
+		default: $token = 0<$this->bracket ? $this->filterBracket($type, $token) : $this->filterPreBracket($type, $token);
+		}
+
 		return $token;
 	}
 }
@@ -605,33 +677,26 @@ abstract class CIA_preprocessor_bracket___0
 class CIA_preprocessor_construct___0 extends CIA_preprocessor_bracket_
 {
 	protected $source;
-	protected $started = false;
-	protected $num_args = 0;
 	protected $proto = '';
 	protected $args = '';
-
+	protected $num_args = 0;
 
 	function __construct($preproc, &$source)
 	{
-		$this->preproc = $preproc;
 		$this->source =& $source;
-		$preproc->pushFilter(array($this, 'filterToken'));
+		parent::__construct($preproc);
 	}
 
-	function filterToken($type, $token)
+	function filterBracket($type, $token)
 	{
-		if ($this->started)
+		if (T_VARIABLE == $type)
 		{
-			if (T_VARIABLE == $type)
-			{
-				$this->proto .=  '$p' . $this->num_args;
-				$this->args  .= '&$p' . $this->num_args . ',';
+			$this->proto .=  '$p' . $this->num_args;
+			$this->args  .= '&$p' . $this->num_args . ',';
 
-				++$this->num_args;
-			}
-			else $this->proto .= $token;
+			++$this->num_args;
 		}
-		else if ('(' == $type) $this->started = true;
+		else $this->proto .= $token;
 
 		return $token;
 	}
@@ -643,188 +708,87 @@ class CIA_preprocessor_construct___0 extends CIA_preprocessor_bracket_
 			. 'if(' . $this->num_args . '<func_num_args()){$b=func_get_args();array_splice($a,0,' . $this->num_args . ',$b);}'
 			. 'call_user_func_array(array($this,"' . $this->source . '"),$a);}';
 
-		$this->preproc->popFilter();
-
-		return $token;
+		return parent::onClose($token);
 	}
 }
 
 class CIA_preprocessor_path___0 extends CIA_preprocessor_bracket_
 {
-	protected $count = 0;
-	protected $code = array();
-	protected $is_const = true;
-	protected $close = false;
-
-	function __construct($preproc)
-	{
-		$this->preproc = $preproc;
-		$preproc->pushFilter(array($this, 'filterToken'));
-	}
-
-	function filterToken(&$type, $token)
-	{
-		$this->code[] = $token;
-
-		if ($this->close)
-		{
-			$type = '';
-			$this->code = implode('', $this->code);
-			$this->preproc->popFilter();
-
-			if ($this->is_const && false !== @eval('$token=' . $this->code . ';') && $token)
-			{
-				$this->code = var_export($token, true) . str_repeat("\n", substr_count($this->code, "\n"));
-				$type = T_CONSTANT_ENCAPSED_STRING;
-			}
-
-			return $this->code;
-		}
-		else if (2 < ++$this->count && in_array($type, $this->preproc->variableType)) $this->is_const = false;
-
-		return '';
-	}
-
 	function onClose($token)
 	{
-		$this->close = true;
-		return 1 == $this->position ? ',' . $this->preproc->level . $token : $token;
+		return parent::onClose(1 == $this->position ? ',' . $this->preproc->level . $token : $token);
 	}
 }
 
 class CIA_preprocessor_classExists___0 extends CIA_preprocessor_bracket_
 {
-	function onPositionUpdate($token)
+	function onReposition($token)
 	{
 		return 1 == $this->position ? $token . '(' : (2 == $this->position ? ')||1' . $token : $token);
 	}
 
 	function onClose($token)
 	{
-		return 1 == $this->position ? ')||1' . $token : $token;
+		return parent::onClose(1 == $this->position ? ')||1' . $token : $token);
 	}
 }
 
 class CIA_preprocessor_t___0 extends CIA_preprocessor_bracket_
 {
-	public $count = 0;
-
-	function __construct($preproc)
+	function filterBracket($type, $token)
 	{
-		$this->preproc = $preproc;
-		$preproc->pushFilter(array($this, 'filterToken'));
-	}
-
-	function onClose($token)
-	{
-		$this->preproc->popFilter();
-		return $token;
-	}
-
-	function filterToken($type, $token)
-	{
-		if (2 < ++$this->count && in_array($type, $this->preproc->variableType))
+		if (in_array($type, $this->preproc->variableType))
 			W("File {$this->preproc->source} line {$this->preproc->line}:\nUsage of T() is potentially divergent.\nUse sprintf() instead of string concatenation.");
 
 		return $token;
 	}
 }
 
-class CIA_preprocessor_adaptRequire___0
+class CIA_preprocessor_require___0 extends CIA_preprocessor_bracket_
 {
-	protected $preproc;
-	protected $start = true;
-	protected $code = array();
-	protected $is_const = true;
-	protected $bracket_level = 0;
-	protected $hereDoc = false;
+	function filterPreBracket($type, $token) {return $this->filter($type, $token);}
+	function filterBracket   ($type, $token) {return $this->filter($type, $token);}
+	function onClose($token)                 {return $this->filter(')'  , $token);}
 
-	function __construct($preproc)
+	function filter($type, $token)
 	{
-		$this->preproc = $preproc;
-		$preproc->pushFilter(array($this, 'filterToken'));
-	}
-
-	function filterToken(&$type, $token)
-	{
-		if ($this->start)
+		switch ($type)
 		{
-			$this->start = false;
-			return $token;
+		case '?': ++$this->bracket; break;
+		case ',': if ($this->bracket) break;
+		case ':': if ($this->bracket--) break;
+		case ')': if (0<=$this->bracket) break;
+		case T_AS: case T_CLOSE_TAG: case ';':
+			$token = ')' . $token;
+			$this->preproc->popFilter();
 		}
-		else
-		{
-			$close = '';
 
-			switch ($type)
-			{
-			case T_STRING: $this->preproc->hereDoc || $this->is_const = false; break;
-			case '(': ++$this->bracket_level; break;
-			case ')': $this->bracket_level-- || $close = $token; break;
-
-			case '?': case ':': case ',':
-				$this->bracket_level || $close = $token; break;
-
-			case T_AS: case T_CLOSE_TAG: case ';':
-				$close = $token; break;
-
-			default:
-				in_array($type, $this->preproc->variableType) && $this->is_const = false;
-			}
-
-			if ($close)
-			{
-				$type = '';
-				$this->code = 'cia_adaptRequire(' . implode('', $this->code) . ')';
-				$this->preproc->popFilter();
-
-				if ($this->is_const && false !== @eval('$token=' . $this->code . ';'))
-				{
-					$this->code = var_export($token, true) . str_repeat("\n", substr_count($this->code, "\n"));
-					$type = T_CONSTANT_ENCAPSED_STRING;
-				}
-
-				return ' ' . $this->code . $close;
-			}
-			else
-			{
-				$this->code[] = $token;
-				return '';
-			}
-		}
+		return $token;
 	}
 }
 
-class CIA_preprocessor_new___0
+class CIA_preprocessor_marker___0 extends CIA_preprocessor_require_
 {
-	protected $preproc;
-	protected $bracket_level = 0;
+	protected $curly = 0;
 
-	function __construct($preproc)
+	function filter($type, $token)
 	{
-		$this->preproc = $preproc;
-	}
-
-	function filterToken($type, $token)
-	{
-		$close = '';
-
-		switch ($type)
+		if (T_WHITESPACE == $type || T_COMMENT == $type || T_DOC_COMMENT == $type) ;
+		else if (0<=$this->curly) switch ($type)
 		{
-		case '(': ++$this->bracket_level; break;
-		case ')': $this->bracket_level-- || $close = $token; break;
-
-		case '?': case ':': case ',':
-			$this->bracket_level || $close = $token; break;
-
-		case T_AS: case T_CLOSE_TAG: case ';':
-			$close = $token; break;
+			case '$': break;
+			case '{': ++$this->curly; break;
+			case '}': --$this->curly; break;
+			default: 0<$this->curly || $this->curly = -1;
 		}
-
-		if ($close)
+		else if (0>=$this->bracket && ($this->bracket || ')' != $type))
 		{
-			$this->preproc->popFilter();
-			$token = ':0)' . $close;
+			if (T_OBJECT_OPERATOR == $type) $this->curly = 0;
+			else
+			{
+				$token = ':0)' . $token;
+				$this->preproc->popFilter();
+			}
 		}
 
 		return $token;
