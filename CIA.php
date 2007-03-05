@@ -23,15 +23,26 @@ unset($_REQUEST); // Double unset against a PHP security hole
 // Disables mod_deflate who overwrites any custom Vary: header and appends a body to 304 responses.
 // Replaced with our own output compression.
 function_exists('apache_setenv') && apache_setenv('no-gzip', '1');
+ini_set('zlib.output_compression', false);
 
-// Encoding context initialisation
+// Encoding context initialization
 @putenv('LC_ALL=en_US.UTF-8');
 setlocale(LC_ALL, 'en_US.UTF-8');
+extension_loaded('mbstring') && mb_internal_encoding('UTF-8');
 if (function_exists('iconv'))
 {
 	iconv_set_encoding('input_encoding',    'UTF-8');
 	iconv_set_encoding('internal_encoding', 'UTF-8');
 	iconv_set_encoding('output_encoding',   'UTF-8');
+}
+
+if (!preg_match("''u", urldecode($a = $_SERVER['REQUEST_URI'])))
+{
+	$a = $a != utf8_decode($a) ? '/' : preg_replace("'(?:%[89a-fA-F][0-9a-fA-F])+'e", "urlencode(utf8_encode(urldecode('$0')))", $a);
+
+	header('HTTP/1.1 301 Moved Permanently');
+	header('Location: ' . $a);
+	exit;
 }
 // }}}
 
@@ -65,10 +76,40 @@ function registerAutoloadPrefix($prefix, $class2file_resolver, $class2file_resol
 }
 // }}}
 
+// {{{ Fix php.ini settings if needed
+set_magic_quotes_runtime(false);
+
+if (get_magic_quotes_gpc())
+{
+	if (ini_get('magic_quotes_sybase')) { function _q_(&$a) {static $d=999; --$d&&is_array($a) ? array_walk($a, '_q_') : $a = str_replace("''", "'", $a); ++$d;} }
+	else { function _q_(&$a) {static $d=999; --$d&&is_array($a) ? array_walk($a, '_q_') : $a = stripslashes($a); ++$d;} }
+	_q_($_GET); _q_($_POST); _q_($_COOKIE);
+}
+
+if (!(extension_loaded('mbstring') && ini_get('mbstring.encoding_translation') & 'UTF-8' == ini_get('mbstring.http_input')))
+{
+	function _u_(&$a)
+	{
+		# See http://www.w3.org/International/questions/qa-forms-utf-8
+
+		static $d=999, $rx = '/(?:[\x00-\x7F]|[\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][\x80-\xBF]|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}|\xED[\x80-\x9F][\x80-\xBF]|\xF0[\x90-\xBF][\x80-\xBF]{2}|[\xF1-\xF3][\x80-\xBF]{3}|\xF4[\x80-\x8F][\x80-\xBF]{2})+/';
+
+		if (--$d && is_array($a)) array_walk($a, '_u_');
+		else if (!preg_match("''u", $a))
+		{
+			preg_match_all($rx, $a, $a, PREG_PATTERN_ORDER);
+			$a = implode('', $a[0]);
+		}
+
+		++$d;
+	}
+	// $_GET is already fixed at encoding context initialization
+	_u_($_POST); _u_($_COOKIE); _u_($_FILES);
+}
+// }}}
+
 // {{{ Load configuration
 chdir($CIA);
-
-ini_set('error_log', './error.log');
 
 $CONFIG = array();
 $version_id = './.config.zcache.php';
@@ -528,13 +569,13 @@ else
 
 	$cia_token = hash('md5', uniqid(mt_rand(), true));
 
-	$k = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_HOME'], 2));
-	$k = preg_replace("'\?.*$'", '', $k);
-	$k = preg_replace("'^https?://[^/]*'i", '', $k);
-	$k = dirname($k . ' ');
-	if (1 == strlen($k)) $k = '';
+	$a = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_HOME'], 2));
+	$a = preg_replace("'\?.*$'", '', $a);
+	$a = preg_replace("'^https?://[^/]*'i", '', $a);
+	$a = dirname($a . ' ');
+	if (1 == strlen($a)) $a = '';
 
-	setcookie('T$', $cia_token, 0, $k .'/');
+	setcookie('T$', $cia_token, 0, $a .'/');
 }
 
 define('CIA_TOKEN_MATCH', isset($_GET['T$']) && $cia_token === $_GET['T$']);

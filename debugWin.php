@@ -55,6 +55,7 @@ $period = 5;	// (s)
 ignore_user_abort(false);
 @set_time_limit(0);
 
+ini_set('error_log', './error.log');
 $error_log = ini_get('error_log');
 $error_log = $error_log ? $error_log : './error.log';
 echo str_repeat(' ', 512), // special MSIE

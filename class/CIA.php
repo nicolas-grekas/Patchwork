@@ -68,6 +68,7 @@ class sessionHandler implements ArrayAccess
 	static function open($path, $name)
 	{
 		session_cache_limiter('');
+		ini_set('session.use_only_cookies', true);
 		ini_set('session.use_cookies', false);
 		ini_set('session.use_trans_sid', false);
 		return true;
@@ -204,6 +205,10 @@ class
 
 	static function start()
 	{
+		ini_set('log_errors', true);
+		ini_set('error_log', './error.log');
+		ini_set('display_errors', false);
+
 		self::$fullVersionId = $GLOBALS['version_id'];
 		self::$versionId = abs(self::$fullVersionId % 10000);
 
