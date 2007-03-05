@@ -285,7 +285,7 @@ class extends iaCompiler
 
 	protected function getJsAccess($name)
 	{
-		return strlen($name) ? ( in_array($name, $this->jsreserved) ? "['$name']" : ".$name" ) : '';
+		return strlen($name) ? ( preg_match('"[^a-zA-Z0-9_\$]"', $name) || in_array($name, $this->jsreserved) ? "['$name']" : ".$name" ) : '';
 	}
 
 	protected function quote(&$a)

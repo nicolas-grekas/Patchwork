@@ -409,7 +409,7 @@ class
 		return $url;
 	}
 
-	/**
+	/*
 	 * Replacement for PHP's header() function
 	 */
 	static function header($string, $replace = true, $http_response_code = null)
@@ -493,7 +493,7 @@ class
 		fclose($h);
 	}
 
-	/**
+	/*
 	 * Redirect the web browser to an other GET request
 	 */
 	static function redirect($url = '')
@@ -567,7 +567,7 @@ class
 		return $poped;
 	}
 
-	/**
+	/*
 	 * Controls the Cache's max age.
 	 */
 	static function setMaxage($maxage)
@@ -588,7 +588,7 @@ class
 		}
 	}
 
-	/**
+	/*
 	 * Controls the Cache's groups.
 	 */
 	static function setGroup($group)
@@ -628,7 +628,7 @@ class
 		}
 	}
 
-	/**
+	/*
 	 * Controls the Cache's expiration mechanism.
 	 */
 	static function setExpires($expires)
@@ -655,7 +655,7 @@ class
 
 	static function uniqid() {return hash('md5', uniqid(mt_rand(), true));}
 
-	/**
+	/*
 	 * Revokes every agent watching $message
 	 */
 	static function touch($message)
@@ -676,7 +676,7 @@ class
 		}
 	}
 
-	/**
+	/*
 	 * Like mkdir(), but works with multiple level of inexistant directory
 	 */
 	static function makeDir($dir)
@@ -730,7 +730,7 @@ class
 		return $h;
 	}
 
-	/**
+	/*
 	 * Creates the full directory path to $filename, then writes $data into this file
 	 */
 	static function writeFile($filename, &$data, $Dmtime = 0)
