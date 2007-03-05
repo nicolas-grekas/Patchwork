@@ -159,7 +159,7 @@ define('CIA_DIRECT', '_' == $_SERVER['CIA_REQUEST']);
 
 function E($msg = '__getDeltaMicrotime')
 {
-	return CIA::log($msg, false, false);
+	return class_exists('CIA', false) ? CIA::log($msg, false, false) : trigger_error($msg);
 }
 
 function W($msg)
@@ -406,15 +406,15 @@ function __autoload($searched_class)
 	}
 	else $class = '';
 
-	if ($c = $c && (PHP_VERSION >= '5.1' ? true : get_class_methods($searched_class)))
+	if ($c)
 	{
-		if (true === $c ? method_exists($searched_class, '__static_construct') : in_array('__static_construct', $c))
+		if (method_exists($searched_class, '__static_construct'))
 		{
 			call_user_func(array($searched_class, '__static_construct'));
 			$class .= "{$searched_class}::__static_construct();";
 		}
 
-		if (true === $c ? method_exists($searched_class, '__static_destruct' ) : in_array('__static_destruct' , $c))
+		if (method_exists($searched_class, '__static_destruct'))
 		{
 			register_shutdown_function(array($searched_class, '__static_destruct'));
 			$class .= "register_shutdown_function(array('{$searched_class}','__static_destruct'));";
