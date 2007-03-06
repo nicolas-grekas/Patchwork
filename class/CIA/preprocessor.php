@@ -31,6 +31,59 @@ class CIA_preprocessor__0
 		T_VARIABLE, '$', T_INCLUDE_ONCE, T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES,
 	);
 
+	// List of native functions that could trigger __autoload()
+	public $callback = array(
+		// Unknown or multiple callback parameter position
+		'array_diff_ukey'         => 0,
+		'array_diff_uasso'        => 0,
+		'array_intersect_ukey'    => 0,
+		'array_udiff_assoc'       => 0,
+		'array_udiff_uassoc'      => 0,
+		'array_udiff'             => 0,
+		'array_uintersect_assoc'  => 0,
+		'array_uintersect_uassoc' => 0,
+		'array_uintersect'        => 0,
+		'constant'                => 0,
+		'create_function'         => 0,
+		'sqlite_create_aggregate' => 0,
+
+		// Classname as string in the first parameter
+		'class_exists'      => -1,
+		'get_class_methods' => -1,
+		'get_class_vars'    => -1,
+		'get_parent_class'  => -1,
+		'interface_exists'  => -1,
+		'method_exists'     => -1,
+		'property_exists'   => -1,
+
+		// Classname as callback in the first parameter
+		'array_map'                  => 1,
+		'call_user_func'             => 1,
+		'call_user_func_array'       => 1,
+		'is_callable'                => 1,
+		'session_set_save_handler'   => 1,
+		'set_exception_handler'      => 1,
+		'set_error_handler'          => 1,
+		'sybase_set_message_handler' => 1,
+		'ob_start'                   => 1,
+
+		// Classname as callback in the second parameter
+		'usort'                                  => 2,
+		'uksort'                                 => 2,
+		'uasort'                                 => 2,
+		'array_walk'                             => 2,
+		'array_walk_recursive'                   => 2,
+		'preg_replace_callback'                  => 2,
+		'runkit_sandbox_output_handler'          => 2,
+		'xml_set_processing_instruction_handler' => 2,
+		'xml_set_notation_decl_handler'          => 2,
+		'xml_set_external_entity_ref_handler'    => 2,
+		'xml_set_unparsed_entity_decl_handler'   => 2,
+
+		// Classname as callback in the third parameter
+		'sqlite_create_function' => 3,
+	);
+
 	protected $tokenFilter = array();
 
 	protected static $inline_class;
@@ -51,7 +104,11 @@ class CIA_preprocessor__0
 		$preproc->source = $source = realpath($source);
 		$preproc->level = $level;
 		$preproc->class = $class;
-		$preproc->marker = '$_' . $GLOBALS['cia_paths_token'];
+
+		$preproc->marker = array(
+			'global $a' . $GLOBALS['cia_paths_token'] . ';',
+			'global $a' . $GLOBALS['cia_paths_token'] . ',$b' . $GLOBALS['cia_paths_token'] . ';'
+		);
 
 		$code = file_get_contents($source);
 
@@ -110,11 +167,12 @@ class CIA_preprocessor__0
 		$new_type = array();
 		$new_code_length = 0;
 
+		$opentag_marker = $this->marker[1];
 		$curly_level = 0;
 		$curly_starts_function = false;
 		$class_pool = array();
-		$remove_marker = array(0);
-		$remove_marker_last =& $remove_marker[0];
+		$curly_marker = array(array(0,0));
+		$curly_marker_last =& $curly_marker[0];
 
 		for ($i = 0; $i < $codeLen; ++$i)
 		{
@@ -128,12 +186,14 @@ class CIA_preprocessor__0
 
 			switch ($type)
 			{
-			case T_OPEN_TAG: // Normalize PHP open tag
-				$token = '<?php ' . $this->extractLF($token);
-				break;
+			case T_OPEN_TAG_WITH_ECHO:
+				array_splice($code, $i+1, 0, array(array(T_ECHO, 'echo')));
+				++$codeLen;
+				$type = T_OPEN_TAG;
 
-			case T_OPEN_TAG_WITH_ECHO: // Normalize PHP open tag
-				$token = '<?php echo ' . $this->extractLF($token);
+			case T_OPEN_TAG: // Normalize PHP open tag
+				$token = '<?php ' . $opentag_marker . $this->extractLF($token);
+				$opentag_marker = '';
 				break;
 
 			case T_CLOSE_TAG: // Normalize PHP close tag
@@ -258,14 +318,18 @@ class CIA_preprocessor__0
 				$token .= $this->fetchSugar($code, $i);
 				if (!isset($code[$j = $i--])) break;
 
-				$c = mt_rand();
+				$c = true;
 
-				if (is_array($code[$j]))
+				if (is_array($code[$j]) && T_STRING == $code[$j][0])
 				{
-					if (T_STRING != $code[$j][0]) $c = -$c;
-					else if (in_array($code[$j][1], CIA_preprocessor::$inline_class)) break;
+					if (in_array($code[$j][1], CIA_preprocessor::$inline_class)) break;
+					$c = false;
 				}
-				else $c = -$c;
+
+				$c
+					? ($curly_marker_last[1]>0 || $curly_marker_last[1] =  1)
+					: ($curly_marker_last[1]   || $curly_marker_last[1] = -1);
+				$c = $this->marker($c);
 
 				if ('&' == $prevType)
 				{
@@ -275,14 +339,15 @@ class CIA_preprocessor__0
 					$j = $new_code_length;
 					while (--$j && in_array($new_type[$j], array('=', '&', T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ;
 				}
-				else $token = "(({$this->marker}=__FILE__.'*{$c}')?" . $token;
+				else $token = "(({$c})?" . $token;
 
 			case T_DOUBLE_COLON:
 				if (T_DOUBLE_COLON == $type)
 				{
 					if ($static_instruction || isset($class_pool[$curly_level-1]) || in_array($prevType, CIA_preprocessor::$inline_class)) break;
 
-					$c = mt_rand();
+					$curly_marker_last[1] || $curly_marker_last[1] = -1;
+					$c = $this->marker(false);
 					$j = $new_code_length;
 
 					if ('&' == $antePrevType)
@@ -293,7 +358,7 @@ class CIA_preprocessor__0
 					else
 					{
 						while (--$j && in_array($new_type[$j], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ;
-						$new_code[$j] = "(({$this->marker}=__FILE__.'*{$c}')?" . $new_code[$j];
+						$new_code[$j] = "(({$c})?" . $new_code[$j];
 					}
 				}
 
@@ -317,11 +382,10 @@ class CIA_preprocessor__0
 					}
 					while (--$j);
 
-					$new_code[$j] = "(({$this->marker}=__FILE__.'*{$c}')?" . $new_code[$j];
+					$new_code[$j] = "(({$c})?" . $new_code[$j];
 				}
 
 				new CIA_preprocessor_marker_($this);
-				0>=$remove_marker_last || $remove_marker_last = -$remove_marker_last;
 
 				break;
 
@@ -351,9 +415,60 @@ class CIA_preprocessor__0
 				}
 
 				$c = $this->fetchSugar($code, $i);
-				--$i;
 
-				switch ($type)
+				if ('(' == $code[$i--])
+				{
+					if (isset($this->replaceFunction[$type]) && 0 !== stripos($this->replaceFunction[$type], $class . '::'))
+					{
+						$token = $this->replaceFunction[$type];
+						$type = strtolower($token);
+					}
+
+					switch ($type)
+					{
+					case 'resolvepath':
+					case 'processpath':
+						// If possible, resolve the path now, else append their third arg to resolve|processPath
+						if (0<=$level)
+						{
+							$j = (string) $this->fetchConstant($code, $i);
+							if ('' !== $j)
+							{
+								eval("\$b={$token}{$j};");
+								$token = false !== $b ? var_export($b, true) : "{$token}({$j})";
+								$type = T_CONSTANT_ENCAPSED_STRING;
+							}
+							else new CIA_preprocessor_path_($this);
+						}
+						break;
+
+					case 't':
+						if (0<=$level) new CIA_preprocessor_t_($this);
+						break;
+
+					case 'interface_exists':
+					case 'class_exists':
+						// For files in the include_path, always set the 2nd arg of class|interface_exists() to true
+						if (0>$level) new CIA_preprocessor_classExists_($this);
+
+					default:
+						if (!isset($this->callback[$type])) break;
+
+						$token = '((' . $this->marker(true) . ')?' . $token;
+						$b = new CIA_preprocessor_marker_($this);
+						$b->curly = -1;
+						$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
+
+						if ('&' == $prevType)
+						{
+							$j = $new_code_length;
+							while (--$j && in_array($new_type[$j], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ;
+							$new_code[$j] = ' ';
+							$new_type[$j] = T_WHITESPACE;
+						}
+					}
+				}
+				else switch ($type)
 				{
 				case '__cia_level__': if (0>$level) break;
 					$token = $level;
@@ -368,75 +483,60 @@ class CIA_preprocessor__0
 				case 'self':
 					// Replace every self::* by <__CLASS__>::*
 					if ($class_pool && is_array($code[$i+1]) && T_DOUBLE_COLON == $code[$i+1][0]) $token = end($class_pool)->classname;
-					break;
-
-				case 'resolvepath':
-				case 'processpath':
-					// If possible, resolve the path now, else append their third arg to resolve|processPath
-					if (0<=$level && '(' == $code[$i+1])
-					{
-						$j = (string) $this->fetchConstant($code, $i);
-						if ('' !== $j)
-						{
-							eval("\$b={$token}{$j};");
-							$token = false !== $b ? var_export($b, true) : "{$token}({$j})";
-							$type = T_CONSTANT_ENCAPSED_STRING;
-						}
-						else new CIA_preprocessor_path_($this);
-					}
-					break;
-
-				case 't':
-					if (0<=$level) new CIA_preprocessor_t_($this);
-					break;
-
-				case 'interface_exists':
-				case 'class_exists':
-					// For files in the include_path, always set the 2nd arg of class|interface_exists() to true
-					if (0>$level) new CIA_preprocessor_classExists_($this);
-
-				case 'set_exception_handler': case 'set_error_handler': case 'is_callable':
-				case 'method_exists':         case 'property_exists':   case 'call_user_func':
-				case 'call_user_func_array':  case 'create_function':   case 'get_parent_class':
-				case 'get_class_methods':     case 'get_class_vars':
-					$remove_marker_last = 0;
 				}
 
-				if (
-					isset($this->replaceFunction[$token])
-					&& '(' == $code[$i+1]
-					&& 0 !== stripos($this->replaceFunction[$token], $class . '::')
-				) $token = $this->replaceFunction[$token] . $c;
-				else $token .= $c;
+				$token .= $c;
 
 				break;
 
-			case T_EVAL: $remove_marker_last = 0; break;
+			case T_EVAL:
+				$token .= $this->fetchSugar($code, $i);
+				if ('(' == $code[$i--])
+				{
+					$token = '((' . $this->marker(true) . ')?' . $token;
+					$b = new CIA_preprocessor_marker_($this);
+					$b->curly = -1;
+					$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
+				}
+				break;
 
 			case T_REQUIRE_ONCE:
 			case T_INCLUDE_ONCE:
 			case T_REQUIRE:
 			case T_INCLUDE:
-				$remove_marker_last = 0;
 				$token .= $this->fetchSugar($code, $i);
 
 				// Every require|include inside files in the include_path
 				// is preprocessed thanks to cia_adaptRequire().
-				if (isset($code[$i--]) && 0>$level)
+				if (isset($code[$i--]))
 				{
-					$j = (string) $this->fetchConstant($code, $i);
-					if ( '' !== $j)
+					if (0>$level)
 					{
-						eval("\$b=cia_adaptRequire({$j});");
-						$code[$i--] = array(
-							T_CONSTANT_ENCAPSED_STRING,
-							false !== $b ? var_export($b, true) : "cia_adaptRequire({$j})"
-						);
+						$j = (string) $this->fetchConstant($code, $i);
+						if ( '' !== $j)
+						{
+							eval("\$b=cia_adaptRequire({$j});");
+							$code[$i--] = array(
+								T_CONSTANT_ENCAPSED_STRING,
+								false !== $b ? var_export($b, true) : "cia_adaptRequire({$j})"
+							);
+						}
+						else
+						{
+							$token .= 'cia_adaptRequire(';
+							new CIA_preprocessor_require_($this);
+						}
 					}
 					else
 					{
-						$token .= 'cia_adaptRequire(';
-						new CIA_preprocessor_require_($this);
+						$j = '(' == $code[$i+1] && isset($code[$i+2]) ? $this->seekSugar($code, $i+1) : $i+1;
+						if (!(is_array($code[$j]) && T_STRING == $code[$j][0] && 'processpath' == strtolower($code[$j][1])))
+						{
+							$token .= '((' . $this->marker(true) . ')?';
+							$b = new CIA_preprocessor_require_($this);
+							$b->close = ':0)';
+							$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
+						}
 					}
 				}
 
@@ -469,35 +569,20 @@ class CIA_preprocessor__0
 				if ($curly_starts_function)
 				{
 					$curly_starts_function = false;
-					$token .= "global {$this->marker};{$this->marker}=__FILE__.'*-" . mt_rand() . "';";
-					$remove_marker_last =& $remove_marker[$curly_level];
-					$remove_marker_last = $new_code_length;
+					$curly_marker_last =& $curly_marker[$curly_level];
+					$curly_marker_last = array($new_code_length, 0);
 				}
 
 				break;
 
 			case '}':
-				if (isset($remove_marker[$curly_level]))
+				if (isset($curly_marker[$curly_level]))
 				{
-					if ($remove_marker_last)
-					{
-						if (0>$remove_marker_last) 
-						{
-							$c = '$1';
-							$remove_marker_last = -$remove_marker_last;
-						}
-						else $c = '';
+					$curly_marker_last[1] && $new_code[$curly_marker_last[0]] .= $this->marker[$curly_marker_last[1]>0 ? 1 : 0];
 
-						$new_code[$remove_marker_last] = preg_replace(
-							"/(global \\{$this->marker};)\\{$this->marker}=__FILE__\.'\*-[0-9]+';/",
-							$c,
-							$new_code[$remove_marker_last]
-						);
-					}
-
-					unset($remove_marker[$curly_level]);
-					end($remove_marker);
-					$remove_marker_last =& $remove_marker[key($remove_marker)];
+					unset($curly_marker[$curly_level]);
+					end($curly_marker);
+					$curly_marker_last =& $curly_marker[key($curly_marker)];
 				}
 
 				--$curly_level;
@@ -530,6 +615,12 @@ class CIA_preprocessor__0
 		if (!is_array($token) || (T_CLOSE_TAG != $token[0] && T_INLINE_HTML != $token[0])) $new_code[] = '?>';
 
 		return $new_code;
+	}
+
+	protected function marker($array)
+	{
+		global $cia_paths_token;
+		return ($array ? '$b' . $cia_paths_token . '=' : '') . '$a' . $cia_paths_token . '=__FILE__.\'-' . mt_rand() . '\'';
 	}
 
 	protected function seekSugar(&$code, $i)
@@ -746,6 +837,8 @@ class CIA_preprocessor_t___0 extends CIA_preprocessor_bracket_
 
 class CIA_preprocessor_require___0 extends CIA_preprocessor_bracket_
 {
+	public $close = ')';
+
 	function filterPreBracket($type, $token) {return $this->filter($type, $token);}
 	function filterBracket   ($type, $token) {return $this->filter($type, $token);}
 	function onClose($token)                 {return $this->filter(')'  , $token);}
@@ -759,7 +852,7 @@ class CIA_preprocessor_require___0 extends CIA_preprocessor_bracket_
 		case ':': if ($this->bracket--) break;
 		case ')': if (0<=$this->bracket) break;
 		case T_AS: case T_CLOSE_TAG: case ';':
-			$token = ')' . $token;
+			$token = $this->close . $token;
 			$this->preproc->popFilter();
 		}
 
@@ -769,7 +862,7 @@ class CIA_preprocessor_require___0 extends CIA_preprocessor_bracket_
 
 class CIA_preprocessor_marker___0 extends CIA_preprocessor_require_
 {
-	protected $curly = 0;
+	public $curly = 0;
 
 	function filter($type, $token)
 	{

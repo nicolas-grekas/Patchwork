@@ -37,7 +37,8 @@ $appInheritSeq = array(
 	'$cia_paths=' . var_export($cia_paths, true) . ';',
 	'$cia_paths_token=\'' . $cia_paths_token . '\';',
 	'$cia_include_paths=' . var_export($cia_include_paths, true) . ';',
-	'$_' . $cia_paths_token . '=false;',
+	'$a' . $cia_paths_token . '=false;',
+	'$b' . $cia_paths_token . '=false;',
 );
 
 $lock = $cia_paths[0] . '/.' . $cia_paths_token . '.zcache.php';
