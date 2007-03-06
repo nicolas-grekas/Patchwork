@@ -446,11 +446,6 @@ class CIA_preprocessor__0
 						if (0<=$level) new CIA_preprocessor_t_($this);
 						break;
 
-					case 'interface_exists':
-					case 'class_exists':
-						// For files in the include_path, always set the 2nd arg of class|interface_exists() to true
-						if (0>$level) new CIA_preprocessor_classExists_($this);
-
 					default:
 						if (!isset($this->callback[$type])) break;
 
@@ -466,6 +461,9 @@ class CIA_preprocessor__0
 							$new_code[$j] = ' ';
 							$new_type[$j] = T_WHITESPACE;
 						}
+
+						// For files in the include_path, always set the 2nd arg of class|interface_exists() to true
+						if (0>$level && in_array($type, array('interface_exists', 'class_exists'))) new CIA_preprocessor_classExists_($this);
 					}
 				}
 				else switch ($type)
