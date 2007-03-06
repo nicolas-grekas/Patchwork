@@ -23,41 +23,45 @@ mb_encode_mimeheader
 
  * Not implemented :
 
-mb_convert_kana — Convertit entre les différents "kana"
-mb_convert_variables — Convertit l'encodage de variables
-mb_decode_numericentity — Décode les entités HTML en caractères
-mb_detect_encoding — Détecte un encodage
-mb_detect_order — Lit/modifie l'ordre de détection des encodages
-mb_encode_numericentity — Encode des entités HTML
-mb_ereg_match — Expression rationnelle POSIX pour les chaînes multi-octets
-mb_ereg_replace — Remplace des segments de chaînes, avec le support des expressions rationnelles mutli-octets
-mb_ereg_search_getpos — Retourne l'offset du début du prochain segment repéré par une expression rationnelle
-mb_ereg_search_getregs — Lit le dernier segment de chaîne multi-octets qui correspond au masque
-mb_ereg_search_init — Configure les chaînes et les expressions rationnelles pour le support des caractères multi-octets
-mb_ereg_search_pos — Retourne la position et la longueur du segment de chaîne qui vérifie le masque de l'expression rationnelle
-mb_ereg_search_regs — Retourne le segment de chaîne trouvé par une expression rationnelle multi-octets
-mb_ereg_search_setpos — Choisit le point de départ de la recherche par expression rationnelle
-mb_ereg_search — Recherche par expression rationnelle multi-octets
-mb_ereg — Recherche par expression rationnelle avec support des caractères multi-octets
-mb_eregi_replace — Expression rationnelle avec support des caractères multi-octets, sans tenir compte de la casse
-mb_eregi — Expression rationnelle insensible à la casse avec le support des caractères multi-octets
-mb_get_info — Lit la configuration interne de l'extension mbstring
-mb_http_input — Détecte le type d'encodage d'un caractère HTTP
-mb_http_output — Lit/modifie l'encodage d'affichage
-mb_internal_encoding — Lit/modifie l'encodage interne
-mb_language — Lit/modifie le langage courant
-mb_list_encodings_alias_names — Returns an array of all supported alias encodings
-mb_list_mime_names — Returns an array or string of all supported mime names
-mb_output_handler — Fonction de traitement des affichages
-mb_preferred_mime_name — Détecte l'encodage MIME
-mb_regex_encoding — Retourne le jeu de caractères courant pour les expressions rationnelles
-mb_regex_set_options — Lit et modifie les options des fonctions d'expression rationnelle à support de caractères multi-octets
-mb_send_mail — Envoie un mail encodé
-mb_split — Scinde une chaîne en tableau avec une expression rationnelle multi-octets
-mb_strcut
-mb_strimwidth
-mb_strwidth
-mb_substitute_character
+mb_check_encoding - Check if the string is valid for the specified encoding
+Note: considering UTF-8, preg_match("''u", $var) is equivalent but 10 times faster than mb_check_encoding($var)
+
+mb_convert_case - Perform case folding on a string
+mb_convert_kana - Convert "kana" one from another ("zen-kaku", "han-kaku" and more)
+mb_convert_variables - Convert character code in variable(s)
+mb_decode_numericentity - Decode HTML numeric string reference to character
+mb_detect_encoding - Detect character encoding
+mb_detect_order - Set/Get character encoding detection order
+mb_encode_numericentity - Encode character to HTML numeric string reference
+mb_ereg_match - Regular expression match for multibyte string
+mb_ereg_replace - Replace regular expression with multibyte support
+mb_ereg_search_getpos - Returns start point for next regular expression match
+mb_ereg_search_getregs - Retrieve the result from the last multibyte regular expression match
+mb_ereg_search_init - Setup string and regular expression for multibyte regular expression match
+mb_ereg_search_pos - Return position and length of matched part of multibyte regular expression for predefined multibyte string
+mb_ereg_search_regs - Returns the matched part of multibyte regular expression
+mb_ereg_search_setpos - Set start point of next regular expression match
+mb_ereg_search - Multibyte regular expression match for predefined multibyte string
+mb_ereg - Regular expression match with multibyte support
+mb_eregi_replace - Replace regular expression with multibyte support ignoring case
+mb_eregi - Regular expression match ignoring case with multibyte support
+mb_get_info - Get internal settings of mbstring
+mb_http_input - Detect HTTP input character encoding
+mb_http_output - Set/Get HTTP output character encoding
+mb_internal_encoding - Set/Get internal character encoding
+mb_language - Set/Get current language
+mb_list_encodings_alias_names - Returns an array of all supported alias encodings
+mb_list_mime_names - Returns an array or string of all supported mime names
+mb_output_handler - Callback function converts character encoding in output buffer
+mb_preferred_mime_name - Get MIME charset string
+mb_regex_encoding - Returns current encoding for multibyte regex as string
+mb_regex_set_options - Set/Get the default options for mbregex functions
+mb_send_mail - Send encoded mail
+mb_split - Split multibyte string using regular expression
+mb_strcut - Get part of string
+mb_strimwidth - Get truncated string with specified width
+mb_strwidth - Return width of string
+mb_substitute_character - Set/Get substitution character
 
  */
 
