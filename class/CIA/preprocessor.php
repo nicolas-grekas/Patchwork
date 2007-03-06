@@ -104,11 +104,47 @@ class CIA_preprocessor__0
 		$preproc->source = $source = realpath($source);
 		$preproc->level = $level;
 		$preproc->class = $class;
-
 		$preproc->marker = array(
 			'global $a' . $GLOBALS['cia_paths_token'] . ';',
 			'global $a' . $GLOBALS['cia_paths_token'] . ',$b' . $GLOBALS['cia_paths_token'] . ';'
 		);
+
+		if (!function_exists('mb_stripos'))
+		{
+			$preproc->replaceFunction += array(
+				'mb_stripos'  => 'mbstring_520::stripos',
+				'mb_stristr'  => 'mbstring_520::stristr',
+				'mb_strrchr'  => 'mbstring_520::strrchr',
+				'mb_strrichr' => 'mbstring_520::strrichr',
+				'mb_strripos' => 'mbstring_520::strripos',
+				'mb_strstr'   => 'mbstring_520::strstr',
+			);
+
+			if (!extension_loaded('mbstring'))
+			{
+				$preproc->replaceFunction += array(
+					'mb_convert_encoding'  => 'mbstring_500::convert_encoding',
+					'mb_decode_mimeheader' => 'mbstring_500::decode_mimeheader',
+					'mb_encode_mimeheader' => 'mbstring_500::encode_mimeheader',
+					'mb_convert_case'      => 'mbstring_500::convert_case',
+					'mb_list_encodings'    => 'mbstring_500::list_encodings',
+					'mb_parse_str'         => 'parse_str',
+					'mb_strlen'            => 'mbstring_500::strlen',
+					'mb_strpos'            => 'mbstring_500::strpos',
+					'mb_strrpos'           => 'mbstring_500::strrpos',
+					'mb_strtolower'        => 'mbstring_500::strtolower',
+					'mb_strtoupper'        => 'mbstring_500::strtoupper',
+					'mb_substr_count'      => 'substr_count',
+					'mb_substr'            => 'mbstring_500::substr',
+				);
+
+				extension_loaded('iconv') && $preproc->replaceFunction += array(
+					'mb_convert_encoding'  => 'mbstring_500::convert_encoding',
+					'mb_decode_mimeheader' => 'mbstring_500::decode_mimeheader',
+					'mb_encode_mimeheader' => 'mbstring_500::encode_mimeheader',
+				);
+			}
+		}
 
 		$code = file_get_contents($source);
 
