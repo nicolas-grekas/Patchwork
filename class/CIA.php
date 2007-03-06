@@ -823,7 +823,7 @@ class
 			$agent = '/' . $agent . '/';
 			while (false !== strpos($agent, '//')) $agent = str_replace('//', '/', $agent);
 
-			preg_match('"^/(?:[a-zA-Z0-9\x80-\xff]+(?:([-_ ])[a-zA-Z0-9\x80-\xff]+)*/)*$"', $agent, $a);
+			preg_match('"^/(?:[a-zA-Z0-9\x80-\xff]+(?:([-_ ])[a-zA-Z0-9\x80-\xff]+)*/)*"', $agent, $a);
 		}
 		else $a = array('/');
 
