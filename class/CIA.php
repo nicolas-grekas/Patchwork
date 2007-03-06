@@ -247,20 +247,6 @@ class
 		register_shutdown_function(array('CIA', 'log'), '', true);
 #<<<
 
-
-		extension_loaded('mbstring') || require processPath('mbstring.php');
-
-		if (!function_exists('mb_stripos'))
-		{
-			function mb_stripos ($haystack, $needle, $offset = 0,   $encoding = null) {return mbstring_520::stripos ($haystack, $needle, $offset, $encoding);}
-			function mb_stristr ($haystack, $needle, $part = false, $encoding = null) {return mbstring_520::stristr ($haystack, $needle, $part,   $encoding);}
-			function mb_strrchr ($haystack, $needle, $part = false, $encoding = null) {return mbstring_520::strrchr ($haystack, $needle, $part,   $encoding);}
-			function mb_strrichr($haystack, $needle, $part = false, $encoding = null) {return mbstring_520::strrichr($haystack, $needle, $part,   $encoding);}
-			function mb_strripos($haystack, $needle, $offset = 0,   $encoding = null) {return mbstring_520::strripos($haystack, $needle, $offset, $encoding);}
-			function mb_strstr  ($haystack, $needle, $part = false, $encoding = null) {return mbstring_520::strstr  ($haystack, $needle, $part,   $encoding);}
-		}
-
-
 		CIA_DIRECT ? self::clientside() : self::serverside();
 
 		while (self::$ob_level)
