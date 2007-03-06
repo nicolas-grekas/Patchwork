@@ -47,7 +47,7 @@ while (--$len);
 
 if ($len)
 {
-	$mime = strtolower($mime[0]);
+	$mime = strtolower($mime);
 	$mime = isset($contentType[$mime]) ? $contentType[$mime] : false;
 
 	if (extension_loaded('fileinfo') && ($i = finfo_open(FILEINFO_SYMLINK|FILEINFO_MIME)))

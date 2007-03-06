@@ -236,7 +236,7 @@ class
 		if (isset($_GET['T$'])) self::$private = true;
 
 		$agent = $_SERVER['CIA_REQUEST'];
-		if (preg_match("'\..+?$'i", $agent, $mime) && strcasecmp('.tpl', $mime[0])) require processPath('controler.php');
+		if (($mime = strrchr($agent, '.')) && strcasecmp('.tpl', $mime)) require processPath('controler.php');
 
 #>>>
 		self::log(
@@ -249,11 +249,6 @@ class
 
 
 		extension_loaded('mbstring') || require processPath('mbstring.php');
-
-		if (!function_exists('mb_check_encoding'))
-		{
-			function mb_check_encoding($var = null, $encoding = null) {return mbstring_513::check_encoding($var, $encoding);}
-		}
 
 		if (!function_exists('mb_stripos'))
 		{
@@ -828,7 +823,7 @@ class
 			$agent = '/' . $agent . '/';
 			while (false !== strpos($agent, '//')) $agent = str_replace('//', '/', $agent);
 
-			preg_match('"^/(?:[a-zA-Z0-9\x80-\xff]+(?:([-_])[a-zA-Z0-9\x80-\xff]+)*/)*$"', $agent, $a);
+			preg_match('"^/(?:[a-zA-Z0-9\x80-\xff]+(?:([-_ ])[a-zA-Z0-9\x80-\xff]+)*/)*$"', $agent, $a);
 		}
 		else $a = array('/');
 
@@ -836,7 +831,7 @@ class
 		$param = '' !== $param ? explode('/', $param) : array();
 		$agent = (string) substr($a[0], 1, -1);
 
-		if (isset($a[1])) $agent = (string) preg_replace("'[-_](.)'eu", "mb_strtoupper('$1')", $agent);
+		if (isset($a[1])) $agent = (string) preg_replace("'[-_ ](.)'eu", "mb_strtoupper('$1')", $agent);
 		if ('' === $agent) $agent = 'index';
 
 		$potentialAgent = $agent;
