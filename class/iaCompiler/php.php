@@ -71,7 +71,7 @@ class extends iaCompiler
 			$comma = ',';
 		}
 
-#>>>
+/*>
 		if (!strncmp($inc, '(isset(', 7))
 		{
 			$inc = substr($inc, 7, strpos($inc, ')', 7) - 7);
@@ -79,7 +79,7 @@ class extends iaCompiler
 
 			return true;
 		}
-#<<<
+<*/
 
 		$this->pushCode("CIA_serverside::loadAgent($inc,array($a)," .( $is_exo ? 1 : 0 ). ");");
 
