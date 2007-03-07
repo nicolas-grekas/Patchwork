@@ -29,12 +29,7 @@ ini_set('zlib.output_compression', false);
 @putenv('LC_ALL=en_US.UTF-8');
 setlocale(LC_ALL, 'en_US.UTF-8');
 
-if (extension_loaded('mbstring')) mb_internal_encoding('UTF-8');
-else
-{
-	define('MB_OVERLOAD_MAIL', 1); define('MB_OVERLOAD_STRING', 2); define('MB_OVERLOAD_REGEX', 4);
-	define('MB_CASE_UPPER'   , 0); define('MB_CASE_LOWER'     , 1); define('MB_CASE_TITLE'    , 2);
-}
+extension_loaded('mbstring') && mb_internal_encoding('UTF-8');
 
 if (function_exists('iconv'))
 {
