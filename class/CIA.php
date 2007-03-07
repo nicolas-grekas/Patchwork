@@ -11,12 +11,12 @@
  *
  ***************************************************************************/
 
-#>>>
+/*>
 if (isset($_SERVER['PHP_AUTH_USER']))
 {
 	$_SERVER['PHP_AUTH_USER'] = $_SERVER['PHP_AUTH_PW'] = "Don't use me, it would be a security hole (Cross Site Javascript Request).";
 }
-#<<<
+<*/
 
 // {{{ Shortcut functions for applications developpers
 function G($name, $type) {$a = func_get_args(); return VALIDATE::get(    $_GET[$name]   , $type, array_slice($a, 2));}
@@ -238,14 +238,14 @@ class
 		$agent = $_SERVER['CIA_REQUEST'];
 		if (($mime = strrchr($agent, '.')) && strcasecmp('.tpl', $mime)) require processPath('controler.php');
 
-#>>>
+/*>
 		self::log(
 			'<a href="' . htmlspecialchars($_SERVER['REQUEST_URI']) . '" target="_blank">'
 			. htmlspecialchars(preg_replace("'&v\\\$=[^&]*'", '', $_SERVER['REQUEST_URI']))
 			. '</a>'
 		);
 		register_shutdown_function(array('CIA', 'log'), '', true);
-#<<<
+<*/
 
 		CIA_DIRECT ? self::clientside() : self::serverside();
 
@@ -311,7 +311,7 @@ class
 			return;
 		}
 
-#>>>
+/*>
 		if (CIA_CHECK_SOURCE && !self::$binaryMode)
 		{
 			self::$fullVersionId = -self::$fullVersionId - filemtime('./config.php');
@@ -331,7 +331,7 @@ class
 				return;
 			}
 		}
-#<<<
+<*/
 
 		// load agent
 		if (CIA_POSTING || self::$binaryMode || isset($_GET['$bin']) || !isset($_COOKIE['JS']) || !$_COOKIE['JS'])
