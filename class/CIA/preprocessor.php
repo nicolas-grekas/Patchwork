@@ -435,7 +435,7 @@ class CIA_preprocessor__0
 					$new_code[$j] = "(({$c})?" . $new_code[$j];
 				}
 
-				new CIA_preprocessor_marker_($this);
+				new CIA_preprocessor_marker_($this, true);
 
 				break;
 
@@ -470,11 +470,11 @@ class CIA_preprocessor__0
 				{
 					if (isset($this->replaceFunction[$type]))
 					{
-						if ($this->replaceFunction[$type] instanceof CIA_preprocessor_filterFunction)
+						if ($this->replaceFunction[$type] instanceof CIA_preprocessor_bracket)
 						{
 							$token .= $c;
 							$c = clone $this->replaceFunction[$type];
-							$c->registerPreprocessor($this);
+							$c->setupFilter();
 							break;
 						}
 						else if (0 !== stripos($this->replaceFunction[$type], $class . '::'))
@@ -499,19 +499,19 @@ class CIA_preprocessor__0
 								$token = false !== $b ? var_export($b, true) : "{$token}({$j})";
 								$type = T_CONSTANT_ENCAPSED_STRING;
 							}
-							else new CIA_preprocessor_path_($this);
+							else new CIA_preprocessor_path_($this, true);
 						}
 						break;
 
 					case 't':
-						if (0<=$level) new CIA_preprocessor_t_($this);
+						if (0<=$level) new CIA_preprocessor_t_($this, true);
 						break;
 
 					default:
 						if (!isset($this->callback[$type])) break;
 
 						$token = '((' . $this->marker(true) . ')?' . $token;
-						$b = new CIA_preprocessor_marker_($this);
+						$b = new CIA_preprocessor_marker_($this, true);
 						$b->curly = -1;
 						$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 
@@ -524,7 +524,7 @@ class CIA_preprocessor__0
 						}
 
 						// For files in the include_path, always set the 2nd arg of class|interface_exists() to true
-						if (0>$level && in_array($type, array('interface_exists', 'class_exists'))) new CIA_preprocessor_classExists_($this);
+						if (0>$level && in_array($type, array('interface_exists', 'class_exists'))) new CIA_preprocessor_classExists_($this, true);
 					}
 				}
 				else switch ($type)
@@ -553,7 +553,7 @@ class CIA_preprocessor__0
 				if ('(' == $code[$i--])
 				{
 					$token = '((' . $this->marker(true) . ')?' . $token;
-					$b = new CIA_preprocessor_marker_($this);
+					$b = new CIA_preprocessor_marker_($this, true);
 					$b->curly = -1;
 					$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 				}
@@ -583,7 +583,7 @@ class CIA_preprocessor__0
 						else
 						{
 							$token .= 'cia_adaptRequire(';
-							new CIA_preprocessor_require_($this);
+							new CIA_preprocessor_require_($this, true);
 						}
 					}
 					else
@@ -592,7 +592,7 @@ class CIA_preprocessor__0
 						if (!(is_array($code[$j]) && T_STRING == $code[$j][0] && 'processpath' == strtolower($code[$j][1])))
 						{
 							$token .= '((' . $this->marker(true) . ')?';
-							$b = new CIA_preprocessor_require_($this);
+							$b = new CIA_preprocessor_require_($this, true);
 							$b->close = ':0)';
 							$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 						}
@@ -766,36 +766,47 @@ class CIA_preprocessor__0
 	}
 }
 
-interface CIA_preprocessor_filterFunction
+abstract class CIA_preprocessor_bracket__0
 {
-	public function registerPreprocessor($preproc);
-}
-
-abstract class CIA_preprocessor_bracket___0
-{
-	protected $first = true;
 	protected $preproc;
-	protected $position = 0;
-	protected $bracket = 0;
+	protected $registered = false;
+	protected $first;
+	protected $position;
+	protected $bracket;
 
-	function __construct($preproc)
+	function __construct($preproc, $autoSetup = false)
 	{
 		$this->preproc = $preproc;
-		$preproc->pushFilter(array($this, 'filterToken'));
+		$autoSetup && $this->setupFilter();
+	}
+
+	function setupFilter()
+	{
+		$this->popFilter();
+		$this->preproc->pushFilter(array($this, 'filterToken'));
+		$this->first = $this->registered = true;
+		$this->position = 0;
+		$this->bracket = 0;
+	}
+
+	function popFilter()
+	{
+		$this->registered && $this->preproc->popFilter();
+		$this->registered = false;
 	}
 
 	function filterPreBracket($type, $token)
 	{
 		0>=$this->bracket
 			&& T_WHITESPACE != $type && T_COMMENT != $type && T_DOC_COMMENT != $type
-			&& $this->preproc->popFilter();
+			&& $this->popFilter();
 		return $token;
 	}
 
 	function filterBracket($type, $token) {return $token;}
 	function onStart      ($token) {return $token;}
 	function onReposition ($token) {return $token;}
-	function onClose      ($token) {$this->preproc->popFilter(); return $token;}
+	function onClose      ($token) {$this->popFilter(); return $token;}
 
 	function filterToken($type, $token)
 	{
@@ -829,7 +840,7 @@ abstract class CIA_preprocessor_bracket___0
 	}
 }
 
-class CIA_preprocessor_construct___0 extends CIA_preprocessor_bracket_
+class CIA_preprocessor_construct___0 extends CIA_preprocessor_bracket
 {
 	protected $source;
 	protected $proto = '';
@@ -839,7 +850,7 @@ class CIA_preprocessor_construct___0 extends CIA_preprocessor_bracket_
 	function __construct($preproc, &$source)
 	{
 		$this->source =& $source;
-		parent::__construct($preproc);
+		parent::__construct($preproc, true);
 	}
 
 	function filterBracket($type, $token)
@@ -867,7 +878,7 @@ class CIA_preprocessor_construct___0 extends CIA_preprocessor_bracket_
 	}
 }
 
-class CIA_preprocessor_path___0 extends CIA_preprocessor_bracket_
+class CIA_preprocessor_path___0 extends CIA_preprocessor_bracket
 {
 	function onClose($token)
 	{
@@ -875,7 +886,7 @@ class CIA_preprocessor_path___0 extends CIA_preprocessor_bracket_
 	}
 }
 
-class CIA_preprocessor_classExists___0 extends CIA_preprocessor_bracket_
+class CIA_preprocessor_classExists___0 extends CIA_preprocessor_bracket
 {
 	function onReposition($token)
 	{
@@ -888,7 +899,7 @@ class CIA_preprocessor_classExists___0 extends CIA_preprocessor_bracket_
 	}
 }
 
-class CIA_preprocessor_t___0 extends CIA_preprocessor_bracket_
+class CIA_preprocessor_t___0 extends CIA_preprocessor_bracket
 {
 	function filterBracket($type, $token)
 	{
@@ -899,7 +910,7 @@ class CIA_preprocessor_t___0 extends CIA_preprocessor_bracket_
 	}
 }
 
-class CIA_preprocessor_require___0 extends CIA_preprocessor_bracket_
+class CIA_preprocessor_require___0 extends CIA_preprocessor_bracket
 {
 	public $close = ')';
 
@@ -917,7 +928,7 @@ class CIA_preprocessor_require___0 extends CIA_preprocessor_bracket_
 		case ')': if (0<=$this->bracket) break;
 		case T_AS: case T_CLOSE_TAG: case ';':
 			$token = $this->close . $token;
-			$this->preproc->popFilter();
+			$this->popFilter();
 		}
 
 		return $token;
@@ -944,7 +955,7 @@ class CIA_preprocessor_marker___0 extends CIA_preprocessor_require_
 			else
 			{
 				$token = ':0)' . $token;
-				$this->preproc->popFilter();
+				$this->popFilter();
 			}
 		}
 
