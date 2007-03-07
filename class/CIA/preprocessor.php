@@ -23,22 +23,26 @@ class CIA_preprocessor__0
 	public $level;
 	public $class;
 	public $marker;
-	public $hereDoc = false;
+	public $inString = false;
 
-	public $replaceFunction = array(
+	protected $tokenFilter = array();
+
+
+	static $constant = array();
+	static $function = array(
 		'header' => 'CIA::header',
 		'rand'   => 'mt_rand',
 		'srand'  => 'mt_srand',
 		'getrandmax' => 'mt_getrandmax',
 	);
 
-	public $variableType = array(
-		'', T_EVAL, '(', T_FILE, T_LINE, T_FUNC_C, T_CLASS_C, T_INCLUDE, T_REQUIRE,
+	static $variableType = array(
+		T_EVAL, '(', T_FILE, T_LINE, T_FUNC_C, T_CLASS_C, T_INCLUDE, T_REQUIRE,
 		T_VARIABLE, '$', T_INCLUDE_ONCE, T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES,
 	);
 
 	// List of native functions that could trigger __autoload()
-	public $callback = array(
+	static $callback = array(
 		// Unknown or multiple callback parameter position
 		'array_diff_ukey'         => 0,
 		'array_diff_uasso'        => 0,
@@ -90,10 +94,66 @@ class CIA_preprocessor__0
 		'sqlite_create_function' => 3,
 	);
 
-	protected $tokenFilter = array();
-
 	protected static $inline_class;
 	protected static $recursive = false;
+
+	static function __static_construct()
+	{
+		// As of PHP5.1.2, md5($str) is a lot faster than md5($str) !
+		extension_loaded('hash') && CIA_preprocessor::$function += array(
+			'md5'   => "hash('md5',",
+			'sha1'  => "hash('sha1',",
+			'crc32' => "hash('crc32',",
+		);
+
+		if (!function_exists('mb_stripos'))
+		{
+			CIA_preprocessor::$function += array(
+				'mb_stripos'  => 'mbstring_520::stripos',
+				'mb_stristr'  => 'mbstring_520::stristr',
+				'mb_strrchr'  => 'mbstring_520::strrchr',
+				'mb_strrichr' => 'mbstring_520::strrichr',
+				'mb_strripos' => 'mbstring_520::strripos',
+				'mb_strstr'   => 'mbstring_520::strstr',
+			);
+
+			if (!extension_loaded('mbstring'))
+			{
+				CIA_preprocessor::$constant += array(
+					'MB_OVERLOAD_MAIL'   => 1,
+					'MB_OVERLOAD_STRING' => 2,
+					'MB_OVERLOAD_REGEX'  => 4,
+					'MB_CASE_UPPER' => 0,
+					'MB_CASE_LOWER' => 1,
+					'MB_CASE_TITLE' => 2
+				);
+
+				CIA_preprocessor::$function += array(
+					'mb_convert_encoding'  => 'mbstring_500::convert_encoding',
+					'mb_decode_mimeheader' => 'mbstring_500::decode_mimeheader',
+					'mb_encode_mimeheader' => 'mbstring_500::encode_mimeheader',
+					'mb_convert_case'      => 'mbstring_500::convert_case',
+					'mb_list_encodings'    => 'mbstring_500::list_encodings',
+					'mb_parse_str'         => 'parse_str',
+					'mb_strlen'            => 'mbstring_500::strlen',
+					'mb_strpos'            => 'mbstring_500::strpos',
+					'mb_strrpos'           => 'mbstring_500::strrpos',
+					'mb_strtolower'        => 'mbstring_500::strtolower',
+					'mb_strtoupper'        => 'mbstring_500::strtoupper',
+					'mb_substr_count'      => 'substr_count',
+					'mb_substr'            => 'mbstring_500::substr',
+				);
+
+				extension_loaded('iconv') && CIA_preprocessor::$function += array(
+					'mb_convert_encoding'  => 'mbstring_500::convert_encoding',
+					'mb_decode_mimeheader' => 'mbstring_500::decode_mimeheader',
+					'mb_encode_mimeheader' => 'mbstring_500::encode_mimeheader',
+				);
+			}
+		}
+
+		foreach (CIA_preprocessor::$constant as $k => &$v) $v = var_export($v, true);
+	}
 
 	static function run($source, $destination, $level, $class)
 	{
@@ -114,50 +174,6 @@ class CIA_preprocessor__0
 			'global $a' . $GLOBALS['cia_paths_token'] . ';',
 			'global $a' . $GLOBALS['cia_paths_token'] . ',$b' . $GLOBALS['cia_paths_token'] . ';'
 		);
-
-		// As of PHP5.1.2, md5($str) is a lot faster than md5($str) !
-		extension_loaded('hash') && $preproc->replaceFunction += array(
-			'md5'   => "hash('md5',",
-			'sha1'  => "hash('sha1',",
-			'crc32' => "hash('crc32',",
-		);
-
-		if (!function_exists('mb_stripos'))
-		{
-			$preproc->replaceFunction += array(
-				'mb_stripos'  => 'mbstring_520::stripos',
-				'mb_stristr'  => 'mbstring_520::stristr',
-				'mb_strrchr'  => 'mbstring_520::strrchr',
-				'mb_strrichr' => 'mbstring_520::strrichr',
-				'mb_strripos' => 'mbstring_520::strripos',
-				'mb_strstr'   => 'mbstring_520::strstr',
-			);
-
-			if (!extension_loaded('mbstring'))
-			{
-				$preproc->replaceFunction += array(
-					'mb_convert_encoding'  => 'mbstring_500::convert_encoding',
-					'mb_decode_mimeheader' => 'mbstring_500::decode_mimeheader',
-					'mb_encode_mimeheader' => 'mbstring_500::encode_mimeheader',
-					'mb_convert_case'      => 'mbstring_500::convert_case',
-					'mb_list_encodings'    => 'mbstring_500::list_encodings',
-					'mb_parse_str'         => 'parse_str',
-					'mb_strlen'            => 'mbstring_500::strlen',
-					'mb_strpos'            => 'mbstring_500::strpos',
-					'mb_strrpos'           => 'mbstring_500::strrpos',
-					'mb_strtolower'        => 'mbstring_500::strtolower',
-					'mb_strtoupper'        => 'mbstring_500::strtoupper',
-					'mb_substr_count'      => 'substr_count',
-					'mb_substr'            => 'mbstring_500::substr',
-				);
-
-				extension_loaded('iconv') && $preproc->replaceFunction += array(
-					'mb_convert_encoding'  => 'mbstring_500::convert_encoding',
-					'mb_decode_mimeheader' => 'mbstring_500::decode_mimeheader',
-					'mb_encode_mimeheader' => 'mbstring_500::encode_mimeheader',
-				);
-			}
-		}
 
 		$code = file_get_contents($source);
 
@@ -247,8 +263,9 @@ class CIA_preprocessor__0
 				$token = $this->extractLF($token) . '?>';
 				break;
 
-			case T_START_HEREDOC: $this->hereDoc = true; break;
-			case T_END_HEREDOC: $this->hereDoc = false; break;
+			case '"':  $this->inString = !$this->inString; break;
+			case T_START_HEREDOC: $this->inString = true;  break;
+			case T_END_HEREDOC:   $this->inString = false; break;
 
 			case T_CURLY_OPEN:
 			case T_DOLLAR_OPEN_CURLY_BRACES:
@@ -438,7 +455,7 @@ class CIA_preprocessor__0
 				break;
 
 			case T_STRING:
-				if ($this->hereDoc || T_DOUBLE_COLON == $prevType || T_OBJECT_OPERATOR == $prevType) break;
+				if ($this->inString || T_DOUBLE_COLON == $prevType || T_OBJECT_OPERATOR == $prevType) break;
 
 				$type = strtolower($token);
 
@@ -463,21 +480,26 @@ class CIA_preprocessor__0
 				}
 
 				$c = $this->fetchSugar($code, $i);
-
-				if ('(' == $code[$i--])
+				if (!isset($code[$i--]))
 				{
-					if (isset($this->replaceFunction[$type]))
+					$token .= $c;
+					break;
+				}
+
+				if ('(' == $code[$i+1])
+				{
+					if (isset(CIA_preprocessor::$function[$type]))
 					{
-						if ($this->replaceFunction[$type] instanceof CIA_preprocessor_bracket)
+						if (CIA_preprocessor::$function[$type] instanceof CIA_preprocessor_bracket)
 						{
 							$token .= $c;
-							$c = clone $this->replaceFunction[$type];
+							$c = clone CIA_preprocessor::$function[$type];
 							$c->setupFilter();
 							break;
 						}
-						else if (0 !== stripos($this->replaceFunction[$type], $class . '::'))
+						else if (0 !== stripos(CIA_preprocessor::$function[$type], $class . '::'))
 						{
-							$token = $this->replaceFunction[$type];
+							$token = CIA_preprocessor::$function[$type];
 							if (false !== strpos($token, '(')) ++$i && $type = '(';
 							else $type = strtolower($token);
 						}
@@ -506,7 +528,7 @@ class CIA_preprocessor__0
 						break;
 
 					default:
-						if (!isset($this->callback[$type])) break;
+						if (!isset(CIA_preprocessor::$callback[$type])) break;
 
 						$token = '((' . $this->marker(true) . ')?' . $token;
 						$b = new CIA_preprocessor_marker_($this, true);
@@ -525,7 +547,7 @@ class CIA_preprocessor__0
 						if (0>$level && in_array($type, array('interface_exists', 'class_exists'))) new CIA_preprocessor_classExists_($this, true);
 					}
 				}
-				else switch ($type)
+				else if (!(is_array($code[$i+1]) && T_DOUBLE_COLON == $code[$i+1][0])) switch ($type)
 				{
 				case '__cia_level__': if (0>$level) break;
 					$token = $level;
@@ -537,10 +559,16 @@ class CIA_preprocessor__0
 					$type = T_CONSTANT_ENCAPSED_STRING;
 					break;
 
-				case 'self':
-					// Replace every self::* by <__CLASS__>::*
-					if ($class_pool && is_array($code[$i+1]) && T_DOUBLE_COLON == $code[$i+1][0]) $token = end($class_pool)->classname;
+				default:
+					if (isset(CIA_preprocessor::$constant[$token]))
+					{
+						$token = CIA_preprocessor::$constant[$token];
+						     if (  is_int($token)) $type = T_LNUMBER;
+						else if (is_float($token)) $type = T_DNUMBER;
+						else if ("'" == $token[0]) $type = T_CONSTANT_ENCAPSED_STRING;
+					}
 				}
+				else if ('self' == $type && $class_pool) $token = end($class_pool)->classname; // Replace every self::* by __CLASS__::*
 
 				$token .= $c;
 
@@ -724,7 +752,7 @@ class CIA_preprocessor__0
 	{
 		$new_code = array();
 		$codeLen = count($code);
-		$hereDoc = false;
+		$inString = false;
 		$bracket = 0;
 
 		for ($j = $i+1; $j < $codeLen; ++$j)
@@ -741,14 +769,15 @@ class CIA_preprocessor__0
 
 			switch ($type)
 			{
-			case T_START_HEREDOC: $hereDoc = true;        break;
-			case T_END_HEREDOC:   $hereDoc = false;       break;
-			case T_STRING:   if (!$hereDoc) return false; break;
-			case '?': case '(': ++$bracket;               break;
+			case '"':             $inString = !$inString;  break;
+			case T_START_HEREDOC: $inString = true;        break;
+			case T_END_HEREDOC:   $inString = false;       break;
+			case T_STRING:   if (!$inString) return false; break;
+			case '?': case '(': ++$bracket;                break;
 			case ':': case ')':   $bracket-- ||    $close = true; break;
 			case ',':             $bracket   ||    $close = true; break;
 			case T_AS: case T_CLOSE_TAG: case ';': $close = true; break;
-			default: if (in_array($type, $this->variableType)) return false;
+			default: if (in_array($type, CIA_preprocessor::$variableType)) return false;
 			}
 
 			if ($close)
@@ -901,7 +930,7 @@ class CIA_preprocessor_t___0 extends CIA_preprocessor_bracket
 {
 	function filterBracket($type, $token)
 	{
-		if (in_array($type, $this->preproc->variableType))
+		if (in_array($type, CIA_preprocessor::$variableType))
 			W("File {$this->preproc->source} line {$this->preproc->line}:\nUsage of T() is potentially divergent.\nUse sprintf() instead of string concatenation.");
 
 		return $token;
