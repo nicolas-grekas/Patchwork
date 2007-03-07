@@ -1283,7 +1283,7 @@ class agent
 			$a = explode(':', $a);
 			$key = array_shift($a);
 
-			$b = isset($args[$key]) ? (string) $args[$key] : '';
+			$b = isset($args[$key]) ? (string) $args[$key] : $default;
 			if (false !== strpos($b, "\0")) $b = str_replace("\0", '', $b);
 
 			if ($a)
