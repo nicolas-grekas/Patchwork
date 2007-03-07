@@ -259,6 +259,7 @@ class CIA_preprocessor__0
 				}
 				break;
 
+			case T_INTERFACE:
 			case T_CLASS:
 				$c = '';
 
@@ -296,7 +297,7 @@ class CIA_preprocessor__0
 				$class_pool[$curly_level] = (object) array(
 					'classname' => $c,
 					'is_final' => $final,
-					'has_php5_construct' => false,
+					'has_php5_construct' => T_INTERFACE == $type,
 					'construct_source' => '',
 				);
 
@@ -463,7 +464,7 @@ class CIA_preprocessor__0
 				{
 					if (isset($this->replaceFunction[$type]))
 					{
-						if ($this->replaceFunction[$type] instanceof CIA_preprocessor_bracket_)
+						if ($this->replaceFunction[$type] instanceof CIA_preprocessor_filterFunction)
 						{
 							$token .= $c;
 							$c = clone $this->replaceFunction[$type];
@@ -757,6 +758,11 @@ class CIA_preprocessor__0
 			else $new_code[] = $token;
 		}
 	}
+}
+
+interface CIA_preprocessor_filterFunction
+{
+	public function registerPreprocessor($preproc);
 }
 
 abstract class CIA_preprocessor_bracket___0
