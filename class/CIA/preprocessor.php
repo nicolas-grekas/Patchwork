@@ -25,7 +25,13 @@ class CIA_preprocessor__0
 	public $marker;
 	public $hereDoc = false;
 
-	public $replaceFunction = array('header' => 'CIA::header');
+	public $replaceFunction = array(
+		'header' => 'CIA::header',
+		'rand'   => 'mt_rand',
+		'srand'  => 'mt_srand',
+		'getrandmax' => 'mt_getrandmax',
+	);
+
 	public $variableType = array(
 		'', T_EVAL, '(', T_FILE, T_LINE, T_FUNC_C, T_CLASS_C, T_INCLUDE, T_REQUIRE,
 		T_VARIABLE, '$', T_INCLUDE_ONCE, T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES,
