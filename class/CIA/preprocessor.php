@@ -186,16 +186,14 @@ class CIA_preprocessor__0
 	protected function antePreprocess(&$code)
 	{
 		if (false !== strpos($code, "\r")) $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
-		if (false !== strpos($code, '#>>>>>')) $code = preg_replace_callback("'^#>>>>>\s*^.*?^#<<<<<\s*$'ms", array($this, 'extractRxLF'), $code);
+		if (false !== strpos($code,  '#>>>')) $code = preg_replace_callback( "'^#>>>\s*^.*?^(?:#|//)<<<\s*$'ms", array($this, 'extractRxLF'), $code);
+		if (false !== strpos($code, '//>>>')) $code = preg_replace_callback("'^//>>>\s*^.*?^(?:#|//)<<<\s*$'ms", array($this, 'extractRxLF'), $code);
 		if (DEBUG)
 		{
-			if (false !== strpos($code, '#>')) $code = preg_replace("'^#>([^>].*)$'m", '$1', $code);
+			if (false !== strpos($code,  '#>')) $code = preg_replace( "'^#>([^>].*)$'m", '$1', $code);
+			if (false !== strpos($code, '//>')) $code = preg_replace("'^//>([^>].*)$'m", '$1', $code);
+			if (false !== strpos($code, '/*>')) $code = preg_replace("'^(/\*>)(\s*^.*?^)(<\*/\s*)$'ms", '$2$1$3', $code);
 		}
-		else
-		{
-			if (false !== strpos($code, '#>>>')) $code = preg_replace_callback("'^#>>>\s*^.*?^#<<<\s*$'ms", array($this, 'extractRxLF'), $code);
-		}
-
 	}
 
 	protected function &preprocess(&$code)
