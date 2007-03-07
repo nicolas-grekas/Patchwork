@@ -51,9 +51,10 @@ class extends iaForm_QSelect
 			$city_id = $db->query($sql)->fetchObject();
 			$city_id = $city_id ? $city_id->city_id : 0;
 		
-			$this->value = $city_id . ':' . $this->value;
+			$value = $city_id . ':' . $this->value;
 		}
+		else $value = '0:';
 
-		return $this->value;
+		return $value;
 	}
 }

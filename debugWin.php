@@ -52,7 +52,7 @@ function Z()
 $sleep = 500;	// (ms)
 $period = 5;	// (s)
 
-ignore_user_abort(false);
+ignore_user_abort($S);
 @set_time_limit(0);
 
 ini_set('error_log', './error.log');
@@ -70,7 +70,7 @@ while (1)
 	clearstatcache();
 	if (is_file($error_log))
 	{
-		echo '<b></b>'; // Test the connexion for "ignore_user_abort(false)"
+		echo '<b></b>'; // Test the connexion
 		$S||flush();
 
 		$h = @fopen($error_log, 'r');
@@ -103,6 +103,7 @@ L.fontSize=\'18px\'
 			}
 
 			echo $a;
+			if (connection_aborted()) break;
 		}
 		fclose($h);
 
@@ -114,7 +115,7 @@ L.fontSize=\'18px\'
 	else if (!--$i)
 	{
 		$i = $period;
-		echo '<b></b>'; // Test the connexion for "ignore_user_abort(false)"
+		echo '<b></b>'; // Test the connexion
 		$S||flush();
 	}
 
