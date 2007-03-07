@@ -30,10 +30,12 @@ class CIA_preprocessor__0
 
 	static $constant = array();
 	static $function = array(
-		'header' => 'CIA::header',
-		'rand'   => 'mt_rand',
-		'srand'  => 'mt_srand',
-		'getrandmax' => 'mt_getrandmax',
+		'header'       => 'CIA::header',
+		'setcookie'    => 'CIA::setcookie',
+		'setrawcookie' => 'CIA::setrawcookie',
+		'rand'         => 'mt_rand',
+		'srand'        => 'mt_srand',
+		'getrandmax'   => 'mt_getrandmax',
 	);
 
 	static $variableType = array(

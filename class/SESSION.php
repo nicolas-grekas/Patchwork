@@ -21,7 +21,7 @@ class
 	static $maxIdleTime = 0;
 	static $maxLifeTime = 43200;
 
-	static $cookiePath = '';
+	static $cookiePath = '/';
 	static $cookieDomain = '';
 	static $cookieHttpOnly = true;
 
@@ -107,14 +107,7 @@ class
 		}
 		else $sid = '';
 
-		header(
-			'Set-Cookie: SID=' . $sid .
-				( self::$cookiePath ? '; path=' . urlencode(self::$cookiePath) : '; path=/' ) .
-				( self::$cookieDomain ? '; domain=' . urlencode(self::$cookieDomain) : '' ) .
-				( $sid ? '' : '; expires=Thu, 01-Jan-1970 00:00:00 GMT' ) .
-				( self::$cookieHttpOnly ? '; HttpOnly' : '' ),
-			false
-		);
+		setcookie('SID', $sid, 0, self::$cookiePath, self::$cookieDomain, false, self::$cookieHttpOnly);
 
 		// 304 Not Modified response code does not allow Set-Cookie headers,
 		// so we remove any header that could trigger a 304
