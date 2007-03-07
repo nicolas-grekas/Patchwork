@@ -141,7 +141,7 @@ class
 
 		if (self::$maxIdleTime<1 && self::$maxLifeTime<1) W('At least one of the SESSION::$max*Time variables must be strictly positive.');
 
-		self::$sslid = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? hash('md5', $_SERVER['SSL_SESSION_ID']) : false;
+		self::$sslid = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? md5($_SERVER['SSL_SESSION_ID']) : false;
 
 		$i = self::$gcProbabilityNumerator + 1;
 		$j = self::$gcProbabilityDenominator - 1;
@@ -205,7 +205,7 @@ class
 		}
 		else $IPs = '';
 
-		self::$SID = hash('md5', $SID .'-'. $IPs .'-'. (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '') .'-'. $GLOBALS['cia_token']);
+		self::$SID = md5($SID .'-'. $IPs .'-'. (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '') .'-'. $GLOBALS['cia_token']);
 	}
 
 	protected static function onIdle()

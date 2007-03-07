@@ -109,6 +109,13 @@ class CIA_preprocessor__0
 			'global $a' . $GLOBALS['cia_paths_token'] . ',$b' . $GLOBALS['cia_paths_token'] . ';'
 		);
 
+		// As of PHP5.1.2, md5($str) is a lot faster than md5($str) !
+		extension_loaded('hash') && $preproc->replaceFunction += array(
+			'md5'   => "hash('md5',",
+			'sha1'  => "hash('sha1',",
+			'crc32' => "hash('crc32',",
+		);
+
 		if (!function_exists('mb_stripos'))
 		{
 			$preproc->replaceFunction += array(
@@ -454,10 +461,21 @@ class CIA_preprocessor__0
 
 				if ('(' == $code[$i--])
 				{
-					if (isset($this->replaceFunction[$type]) && 0 !== stripos($this->replaceFunction[$type], $class . '::'))
+					if (isset($this->replaceFunction[$type]))
 					{
-						$token = $this->replaceFunction[$type];
-						$type = strtolower($token);
+						if ($this->replaceFunction[$type] instanceof CIA_preprocessor_bracket_)
+						{
+							$token .= $c;
+							$c = clone $this->replaceFunction[$type];
+							$c->registerPreprocessor($this);
+							break;
+						}
+						else if (0 !== stripos($this->replaceFunction[$type], $class . '::'))
+						{
+							$token = $this->replaceFunction[$type];
+							if (false !== strpos($token, '(')) ++$i && $type = '(';
+							else $type = strtolower($token);
+						}
 					}
 
 					switch ($type)

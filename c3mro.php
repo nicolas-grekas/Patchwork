@@ -28,7 +28,7 @@ $cia_include_paths = array_map('realpath', $cia_include_paths);
 $cia_include_paths = array_diff($cia_include_paths, $cia_paths);
 $cia_include_paths = array_merge($cia_paths, $cia_include_paths);
 
-$cia_paths_token = substr(hash('md5', serialize($cia_include_paths)), 0, 4);
+$cia_paths_token = substr(md5(serialize($cia_include_paths)), 0, 4);
 ${'_'.$cia_paths_token} = false;
 
 $appInheritSeq = array(
