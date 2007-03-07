@@ -128,9 +128,6 @@ define('CIA_WINDOWS', '\\' == DIRECTORY_SEPARATOR);
 // with CTRL+F5 or location.reload(true). Usefull to trigger synchronization events.
 define('CIA_CHECK_SOURCE', isset($_SERVER['HTTP_CACHE_CONTROL']) && 'no-cache' == $_SERVER['HTTP_CACHE_CONTROL']);
 
-// As of PHP5.1.2, hash('md5', $str) is a lot faster than md5($str) !
-function_exists('hash_algos') || require __CIA__ . '/hash.php';
-
 // Load the configuration
 require file_exists($version_id) ? $version_id : (__CIA__ . '/c3mro.php');
 
@@ -525,7 +522,7 @@ if (
 {
 	$match = $_SERVER['HTTP_IF_NONE_MATCH'];
 	$match = resolvePath('zcache/') . $match[2] .'/'. $match[3] .'/'. substr($match, 4) .'.validator.'. DEBUG .'.';
-	$match .= hash('md5', $_SERVER['CIA_HOME'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
+	$match .= md5($_SERVER['CIA_HOME'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
 
 	$headers = false;
 	if (file_exists($match)) $headers = file_get_contents($match);
@@ -574,7 +571,7 @@ else
 		unset($_COOKIE['T$']); // Double unset against a PHP security hole
 	}
 
-	$cia_token = hash('md5', uniqid(mt_rand(), true));
+	$cia_token = md5(uniqid(mt_rand(), true));
 
 	$a = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_HOME'], 2));
 	$a = preg_replace("'\?.*$'", '', $a);
