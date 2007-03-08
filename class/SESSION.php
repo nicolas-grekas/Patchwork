@@ -159,13 +159,13 @@ class
 			$i = unserialize($i);
 			self::$lastseen =  $i[0];
 			self::$birthtime = $i[1];
-			if ((self::$maxIdleTime && $_SERVER['REQUEST_TIME'] - self::$lastseen > self::$maxIdleTime))
+			if (self::$maxIdleTime && $_SERVER['REQUEST_TIME'] - self::$lastseen > self::$maxIdleTime)
 			{
 				// Session has idled
 				self::onIdle();
 				self::$isIdled = true;
 			}
-			else if ((self::$maxLifeTime && $_SERVER['REQUEST_TIME'] - self::$birthtime > self::$maxLifeTime))
+			else if (self::$maxLifeTime && $_SERVER['REQUEST_TIME'] - self::$birthtime > self::$maxLifeTime)
 			{
 				// Session has expired
 				self::onExpire();
