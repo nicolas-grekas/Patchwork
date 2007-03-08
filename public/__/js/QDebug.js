@@ -16,11 +16,22 @@ function t($v, $type)
 	return $type ? (typeof $v == $type) : (typeof $v != 'undefined');
 }
 
-function E($v, $max_depth, $level, $expand)
+function E($v, $warn, $max_depth, $level, $expand)
 {
 	var $startTime = new Date/1,
 		$deltaTime = $startTime - E.lastTime,
 		$key;
+
+	if ($warn)
+	{
+		$key = document.getElementById('debugLink');
+		if ($key = $key && $key.style)
+		{
+			$key.backgroundColor='red';
+			$key.fontSize='18px';
+		}
+		$key = 0;
+	}
 
 	$max_depth = t($max_depth) ? $max_depth : E.max_depth;
 	$level = $level || 0;
@@ -43,7 +54,7 @@ function E($v, $max_depth, $level, $expand)
 			return $str.toString(10, $level).replace(/</g, '&lt;').replace(/>/g, '&gt;');
 		}
 
-		if (0 == $level) o('<pre>' + $deltaTime + ' ms : ');
+		if (0 == $level) o('<pre' + ($warn ? ' style="color:red;font-weight:bold"' : '') + '>' + $deltaTime + ' ms : ');
 
 		if (t($v, 'object') || t($v, 'array'))
 		{
@@ -58,7 +69,7 @@ function E($v, $max_depth, $level, $expand)
 			{
 				o(' ',  8*$level);
 				o('    ['+p($key)+'] => ');
-				E($v[$key], $max_depth, $level+1, $expand);
+				E($v[$key], 0, $max_depth, $level+1, $expand);
 			}
 			o(' ', 8*$level);
 			o(')\n\n');
