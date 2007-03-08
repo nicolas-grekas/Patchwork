@@ -98,6 +98,7 @@ class
 		if (!$initSession || $restartNew)
 		{
 			$sid = CIA::uniqid();
+			self::$sslid = (isset($_SERVER['HTTPS']) ? '' : '-') . CIA::uniqid();
 			self::setSID($sid);
 
 			self::$adapter = new SESSION(self::$SID);
@@ -105,9 +106,10 @@ class
 			self::$lastseen = $_SERVER['REQUEST_TIME'];
 			self::$birthtime = $_SERVER['REQUEST_TIME'];
 		}
-		else $sid = '';
+		else self::$sslid = $sid = '';
 
-		setcookie('SID', $sid, 0, self::$cookiePath, self::$cookieDomain, false, self::$cookieHttpOnly);
+		setcookie('SID',         $sid, 0, self::$cookiePath, self::$cookieDomain, false, self::$cookieHttpOnly);
+		setcookie('SSL', self::$sslid, 0, self::$cookiePath, self::$cookieDomain, true , self::$cookieHttpOnly);
 
 		// 304 Not Modified response code does not allow Set-Cookie headers,
 		// so we remove any header that could trigger a 304
@@ -134,12 +136,7 @@ class
 
 		if (self::$maxIdleTime<1 && self::$maxLifeTime<1) W('At least one of the SESSION::$max*Time variables must be strictly positive.');
 
-		self::$sslid = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? md5($_SERVER['SSL_SESSION_ID']) : false;
-
-		$i = self::$gcProbabilityNumerator + 1;
-		$j = self::$gcProbabilityDenominator - 1;
-		while (--$i && mt_rand(0, $j));
-		if ($i)
+		if (mt_rand(1, self::$gcProbabilityDenominator) <= self::$gcProbabilityNumerator)
 		{
 			$adapter = new SESSION('0lastGC');
 			$i = $adapter->read();
@@ -147,7 +144,9 @@ class
 			if ($j && $_SERVER['REQUEST_TIME'] - $i > $j)
 			{
 				$adapter->write($_SERVER['REQUEST_TIME']);
-				self::gc($j);
+				header('Connection: close');
+				ignore_user_abort(true);
+				register_shutdown_function(array(__CLASS__, 'gc'), $j);
 			}
 			unset($adapter);
 		}
@@ -174,10 +173,18 @@ class
 			}
 			else self::$DATA =& $i[2];
 
-			if (self::$sslid)
+			if (isset($_SERVER['HTTPS']) && (!isset($_COOKIE['SSL']) || $i[3] != $_COOKIE['SSL'])) self::regenerateId(true);
+			else
 			{
-				if (!$i[3]) self::regenerateId();
-				else if ($i[3]!=self::$sslid) self::regenerateId(true);
+				self::$sslid = $i[3];
+
+				if ('-' == self::$sslid[0] && isset($_SERVER['HTTPS']))
+				{
+					self::$sslid = CIA::uniqid();
+					setcookie('SSL', self::$sslid, 0, self::$cookiePath, self::$cookieDomain, true , self::$cookieHttpOnly);
+					unset($_SERVER['HTTP_IF_NONE_MATCH']);
+					unset($_SERVER['HTTP_IF_MODIFIED_SINCE']);
+				}
 			}
 		}
 		else self::regenerateId(true);
@@ -261,7 +268,7 @@ class
 		unlink($this->path);
 	}
 
-	protected static function gc($lifetime)
+	static function gc($lifetime)
 	{
 		foreach (glob(CIA::$cachePath . '0/?/*.session', GLOB_NOSORT) as $file)
 		{

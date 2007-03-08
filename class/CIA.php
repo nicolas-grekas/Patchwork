@@ -254,6 +254,8 @@ class
 			ob_end_flush();
 			--self::$ob_level;
 		}
+
+		flush();
 	}
 
 	static function clientside()
