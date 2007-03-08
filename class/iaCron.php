@@ -69,7 +69,6 @@ class
 	{
 		if (!$this->is_registered)
 		{
-			header('Connection: close');
 			register_shutdown_function(array($this, 'startQueue'));
 			$this->is_registered = true;
 		}
