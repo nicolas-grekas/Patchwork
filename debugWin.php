@@ -31,7 +31,7 @@ pre
 {
 	font-family: Arial;
 	font-size: 10px;
-	border-top: 1px solid;
+	border-top: 1px solid black;
 	margin: 0px;
 	padding: 5px;
 }

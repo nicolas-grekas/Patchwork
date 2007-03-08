@@ -408,7 +408,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 				<!-- IF g$__DEBUG__ -->
 				if (!t($agent))
 				{
-					E('AGENT is undefined: ' + $code[$pointer-4]);
+					E('Undefined AGENT: ' + $code[$pointer-4], 1);
 					break;
 				}
 				<!-- ELSE -->
@@ -440,7 +440,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 						{
 							if (2 == $meta)
 							{
-								E('EXOAGENT (' + $agent + ') called with AGENT');
+								E('EXOAGENT (' + $agent + ') called with AGENT', 1);
 								break;
 							}
 
@@ -448,7 +448,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 						}
 						else if (3 == $meta)
 						{
-							E('AGENT (' + $agent + ') called with EXOAGENT');
+							E('AGENT (' + $agent + ') called with EXOAGENT', 1);
 							break;
 						}
 					<!-- ELSE -->
