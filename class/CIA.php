@@ -244,7 +244,6 @@ class
 			. htmlspecialchars(preg_replace("'&v\\\$=[^&]*'", '', $_SERVER['REQUEST_URI']))
 			. '</a>'
 		);
-		register_shutdown_function(array('CIA', 'log'), '', true);
 <*/
 
 		CIA_DIRECT ? self::clientside() : self::serverside();
@@ -255,7 +254,7 @@ class
 			--self::$ob_level;
 		}
 
-		flush();
+#>		self::log('', true);
 	}
 
 	static function clientside()
@@ -1212,8 +1211,6 @@ class
 			{
 				$validator = self::$cachePath . $ETag[1] .'/'. $ETag[2] .'/'. substr($ETag, 3) .'.validator.'. DEBUG .'.';
 				$validator .= md5($_SERVER['CIA_HOME'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
-
-				chdir(CIA_PROJECT_PATH);
 
 				if ($h = self::fopenX($validator))
 				{

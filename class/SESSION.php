@@ -145,7 +145,6 @@ class
 			{
 				$adapter->write($_SERVER['REQUEST_TIME']);
 				header('Connection: close');
-				ignore_user_abort(true);
 				register_shutdown_function(array(__CLASS__, 'gc'), $j);
 			}
 			unset($adapter);
