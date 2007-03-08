@@ -101,6 +101,8 @@ class CIA_preprocessor__0
 
 	static function __static_construct()
 	{
+		defined('E_RECOVERABLE_ERROR') || CIA_preprocessor::$constant['E_RECOVERABLE_ERROR'] = E_ERROR;
+
 		// As of PHP5.1.2, md5($str) is a lot faster than md5($str) !
 		extension_loaded('hash') && CIA_preprocessor::$function += array(
 			'md5'   => "hash('md5',",

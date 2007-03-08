@@ -87,8 +87,6 @@ class extends CIA
 			$context = htmlspecialchars( print_r($context, true) );
 		}
 
-		defined('E_RECOVERABLE_ERROR') || define('E_RECOVERABLE_ERROR', E_ERROR);
-
 		switch ($code)
 		{
 		case E_ERROR:             $msg = '<b>Fatal Error</b>';             break;
