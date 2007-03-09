@@ -48,36 +48,6 @@ if (!preg_match("''u", urldecode($a = $_SERVER['REQUEST_URI'])))
 }
 // }}}
 
-// {{{ registerAutoloadPrefix()
-$cia_autoload_prefix = array();
-
-function registerAutoloadPrefix($prefix, $class2file_resolver, $class2file_resolver_method = false)
-{
-	$prefix = strtolower($prefix);
-	$registry = array();
-
-	if (is_string($class2file_resolver_method) && is_string($class2file_resolver))
-		$class2file_resolver = array($class2file_resolver, $class2file_resolver_method);
-
-	foreach ($GLOBALS['cia_autoload_prefix'] as $v)
-	{
-		if (false !== $prefix)
-		{
-			if ($prefix == $v[0]) $v[1] = $class2file_resolver;
-			else if (strlen($v[0]) < strlen($prefix)) $registry[] = array($prefix, $class2file_resolver);
-
-			$prefix = false;
-		}
-
-		$registry[] = array($v[0], $v[1]);
-	}
-
-	if (false !== $prefix) $registry[] = array($prefix, $class2file_resolver);
-
-	$GLOBALS['cia_autoload_prefix'] =& $registry;
-}
-// }}}
-
 // {{{ Fix php.ini settings if needed
 set_magic_quotes_runtime(false);
 
@@ -110,6 +80,54 @@ if (!(extension_loaded('mbstring') && ini_get('mbstring.encoding_translation') &
 }
 // }}}
 
+// {{{ registerAutoloadPrefix()
+$cia_autoload_prefix = array();
+
+function registerAutoloadPrefix($prefix, $class2file_resolver, $class2file_resolver_method = false)
+{
+	$prefix = strtolower($prefix);
+	$registry = array();
+
+	if (is_string($class2file_resolver_method) && is_string($class2file_resolver))
+		$class2file_resolver = array($class2file_resolver, $class2file_resolver_method);
+
+	foreach ($GLOBALS['cia_autoload_prefix'] as $v)
+	{
+		if (false !== $prefix)
+		{
+			if ($prefix == $v[0]) $v[1] = $class2file_resolver;
+			else if (strlen($v[0]) < strlen($prefix)) $registry[] = array($prefix, $class2file_resolver);
+
+			$prefix = false;
+		}
+
+		$registry[] = array($v[0], $v[1]);
+	}
+
+	if (false !== $prefix) $registry[] = array($prefix, $class2file_resolver);
+
+	$GLOBALS['cia_autoload_prefix'] =& $registry;
+}
+// }}}
+
+// {{{ cia_atomic_write
+function cia_atomic_write(&$data, $to)
+{
+	$tmp = uniqid(mt_rand(), true);
+	file_put_contents($tmp, $data);
+	unset($data);
+
+	if (CIA_WINDOWS)
+	{
+		$data = new COM('Scripting.FileSystemObject');
+		$data->GetFile(CIA_PROJECT_PATH .'/'. $tmp)->Attributes |= 2; // Set hidden attribute
+		file_exists($to) && unlink($to);
+		@rename($tmp, $to) || unlink($tmp);
+	}
+	else rename($tmp, $to);
+}
+// }}}
+
 // {{{ Load configuration
 chdir($CIA);
 
@@ -118,6 +136,7 @@ $version_id = './.config.zcache.php';
 
 define('__CIA__', dirname(__FILE__));
 define('CIA_WINDOWS', '\\' == DIRECTORY_SEPARATOR);
+define('CIA_PROJECT_PATH', getcwd());
 
 // Major browsers send a "Cache-Control: no-cache" only if a page is reloaded
 // with CTRL+F5 or location.reload(true). Usefull to trigger synchronization events.
@@ -128,8 +147,6 @@ require file_exists($version_id) ? $version_id : (__CIA__ . '/c3mro.php');
 
 if (!isset($CONFIG['DEBUG'])) $CONFIG['DEBUG'] = (int) @$CONFIG['DEBUG_KEYS'][ (string) $_COOKIE['DEBUG'] ];
 if (isset($CONFIG['clientside']) && !$CONFIG['clientside']) $_GET['$bin'] = true;
-
-define('CIA_PROJECT_PATH', $cia_paths[0]);
 
 // Restore the current dir in shutdown context.
 function cia_restoreProjectPath() {CIA_PROJECT_PATH != getcwd() && chdir(CIA_PROJECT_PATH);}
@@ -214,22 +231,6 @@ function_exists('date_default_timezone_set') && isset($CONFIG['timezone']) && da
 
 
 { // <-- Hack to enable the functions below only when execution reaches this point
-
-function cia_atomic_write(&$data, $to)
-{
-	$tmp = uniqid(mt_rand(), true);
-	file_put_contents($tmp, $data);
-	unset($data);
-
-	if (CIA_WINDOWS)
-	{
-		$data = new COM('Scripting.FileSystemObject');
-		$data->GetFile(CIA_PROJECT_PATH .'/'. $tmp)->Attributes |= 2; // Set hidden attribute
-		file_exists($to) && unlink($to);
-		rename($tmp, $to) || unlink($tmp);
-	}
-	else rename($tmp, $to);
-}
 
 // {{{ function resolvePath(): cia-specific include_path-like mechanism
 function resolvePath($file, $level = false, $base = false)
@@ -517,6 +518,8 @@ function __autoload($searched_class)
 		$tmp && cia_atomic_write($tmp, $cache);
 	}
 
+	if (0 === stripos($searched_class, 'CIA_preprocessor')) return;
+
 	if ($amark)
 	{
 		$cache || $amark = $bmark;
@@ -534,7 +537,7 @@ function __autoload($searched_class)
 		$code = str_replace($amark, $c, $code);
 		cia_atomic_write($code, $bmark);
 	}
-	else if (!$bmark && ($class || $cache) && 0 !== strpos($searched_class, 'CIA_preprocessor'))
+	else if (!$bmark && ($class || $cache))
 	{
 		$code = "\$cia_autoload_cache['{$searched_class}']='" . ($cache ? $cache : $class) . "';";
 

@@ -633,7 +633,7 @@ class
 
 				if ($b != $a && !self::$isGroupStage)
 				{
-#>					W('Misconception: self::setGroup() is called in ' . self::$agentClass . '->compose( ) rather than in ' . self::$agentClass . '->control(). Cache is now disabled for this agent.');
+#>					W('Misconception: CIA::setGroup() is called in ' . self::$agentClass . '->compose( ) rather than in ' . self::$agentClass . '->control(). Cache is now disabled for this agent.');
 
 					$a = array('private');
 				}
@@ -733,7 +733,7 @@ class
 	{
 		self::makeDir($file);
 
-		if ($h = @fopen($file, 'x+b')) flock($h, LOCK_EX);
+		if ($h = @fopen($file, 'xb')) flock($h, LOCK_EX);
 		else if ($readHandle)
 		{
 			$readHandle = fopen($file, 'rb');
