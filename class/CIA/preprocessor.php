@@ -156,7 +156,7 @@ class CIA_preprocessor__0
 			}
 		}
 
-		foreach (CIA_preprocessor::$constant as $k => &$v) $v = var_export($v, true);
+		foreach (CIA_preprocessor::$constant as $k => &$v) $v = CIA_preprocessor::export($v);
 	}
 
 	static function run($source, $destination, $level, $class)
@@ -176,7 +176,7 @@ class CIA_preprocessor__0
 		$preproc->class = $class;
 		$preproc->marker = array(
 			'global $a' . $GLOBALS['cia_paths_token'] . ';',
-			'global $a' . $GLOBALS['cia_paths_token'] . ',$b' . $GLOBALS['cia_paths_token'] . ';'
+			'global $a' . $GLOBALS['cia_paths_token'] . ',$b' . $GLOBALS['cia_paths_token'] . ',$cia_autoload_cache;'
 		);
 
 		$code = file_get_contents($source);
@@ -286,7 +286,7 @@ class CIA_preprocessor__0
 
 			case T_INTERFACE:
 			case T_CLASS:
-				$c = '';
+				$b = $c = '';
 
 				$final = T_FINAL == $prevType;
 
@@ -296,13 +296,14 @@ class CIA_preprocessor__0
 				{
 					$token .= $this->fetchSugar($code, $i);
 
-					$c = $code[$i][1];
+					$b = $c = $code[$i][1];
 
 					if ($final) $token .= $c;
 					else
 					{
 						$c = preg_replace("'__[0-9]+$'", '', $c);
-						$token .= $c . '__' . (0<=$level ? $level : '00');
+						$b = $c . '__' . (0<=$level ? $level : '00');
+						$token .= $b;
 					}
 
 					$token .= $this->fetchSugar($code, $i);
@@ -313,7 +314,8 @@ class CIA_preprocessor__0
 					if ($class && 0<=$level)
 					{
 						$c = $class;
-						$token .= ' ' . $c . (!$final ? '__' . $level : '');
+						$b = $c . (!$final ? '__' . $level : '');
+						$token .= ' ' . $b;
 					}
 
 					$token .= $this->fetchSugar($code, $i);
@@ -321,6 +323,7 @@ class CIA_preprocessor__0
 
 				$class_pool[$curly_level] = (object) array(
 					'classname' => $c,
+					'real_classname' => $b,
 					'is_final' => $final,
 					'has_php5_construct' => T_INTERFACE == $type,
 					'construct_source' => '',
@@ -520,7 +523,7 @@ class CIA_preprocessor__0
 							if ('' !== $j)
 							{
 								eval("\$b={$token}{$j};");
-								$token = false !== $b ? var_export($b, true) : "{$token}({$j})";
+								$token = false !== $b ? CIA_preprocessor::export($b) : "{$token}({$j})";
 								$type = T_CONSTANT_ENCAPSED_STRING;
 							}
 							else new CIA_preprocessor_path_($this, true);
@@ -559,7 +562,7 @@ class CIA_preprocessor__0
 					break;
 
 				case '__cia_file__': if (0>$level) break;
-					$token = var_export($source, true);
+					$token = CIA_preprocessor::export($source);
 					$type = T_CONSTANT_ENCAPSED_STRING;
 					break;
 
@@ -607,7 +610,7 @@ class CIA_preprocessor__0
 							eval("\$b=cia_adaptRequire({$j});");
 							$code[$i--] = array(
 								T_CONSTANT_ENCAPSED_STRING,
-								false !== $b ? var_export($b, true) : "cia_adaptRequire({$j})"
+								false !== $b ? CIA_preprocessor::export($b) : "cia_adaptRequire({$j})"
 							);
 						}
 						else
@@ -678,7 +681,10 @@ class CIA_preprocessor__0
 
 				if (isset($class_pool[$curly_level]))
 				{
-					if (!$class_pool[$curly_level]->has_php5_construct) $token = $class_pool[$curly_level]->construct_source . '}';
+					$c = $class_pool[$curly_level];
+
+					if (!$c->has_php5_construct) $token = $c->construct_source . '}';
+					$token .= "\$GLOBALS['cia_autoload_cache']['{$c->real_classname}']=__FILE__.'-" . mt_rand() . "';";
 
 					unset($class_pool[$curly_level]);
 				}
@@ -709,7 +715,7 @@ class CIA_preprocessor__0
 	protected function marker($array)
 	{
 		global $cia_paths_token;
-		return ($array ? '$b' . $cia_paths_token . '=' : '') . '$a' . $cia_paths_token . '=__FILE__.\'-' . mt_rand() . '\'';
+		return ($array ? '$b' . $cia_paths_token . '=' : '') . '$a' . $cia_paths_token . "=__FILE__.'-" . mt_rand() . "'";
 	}
 
 	protected function seekSugar(&$code, $i)
@@ -794,6 +800,15 @@ class CIA_preprocessor__0
 			}
 			else $new_code[] = $token;
 		}
+	}
+
+	protected static function export($var)
+	{
+		return
+			is_string($var) ? "'" . str_replace("'", "\\'", str_replace('\\', '\\\\', $var)) . "'" : (
+			is_bool($var)   ? ($var ? 'true' : 'false') : (
+			is_null($var)   ? 'null' : (string) $var
+		));
 	}
 }
 
