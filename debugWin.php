@@ -96,7 +96,7 @@ L.fontSize=\'18px\'
 					. '</span>'
 					. preg_replace_callback(
 						"'" . preg_quote(htmlspecialchars(CIA_PROJECT_PATH) . DIRECTORY_SEPARATOR . '.')
-							. "([^\\\\/]+)\.{$cia_paths_token}\.[01]([0-9]+)(-?)\.zcache\.php'",
+							. "([^\\\\/]+)\.[01]([0-9]+)(-?)\.{$cia_paths_token}\.zcache\.php'",
 						'cia_debugWin_filename',
 						substr($a, $b)
 					);

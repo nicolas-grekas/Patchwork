@@ -282,7 +282,7 @@ function processPath($file, $level = false, $base = false)
 
 	$file = strtr($file, '\\', '/');
 	$cache = ((int)(bool)DEBUG) . (0>$level ? -$level .'-' : $level);
-	$cache = './.'. strtr(str_replace('_', '%2', str_replace('%', '%1', $file)), '/', '_') . ".{$GLOBALS['cia_paths_token']}.{$cache}.zcache.php";
+	$cache = './.'. strtr(str_replace('_', '%2', str_replace('%', '%1', $file)), '/', '_') . ".{$cache}.{$GLOBALS['cia_paths_token']}.zcache.php";
 
 	if (file_exists($cache)) return $cache;
 
@@ -337,23 +337,17 @@ $cia_autoload_pool = false;
 
 function __autoload($searched_class)
 {
-	global $cia_autoload_cache;
+	global $cia_paths_token, $cia_autoload_cache;
 
 	if (isset($cia_autoload_cache[$searched_class]))
 	{
-		$c = $cia_autoload_cache[$searched_class];
-
-		if ('.' == $c[0]) include $c;
-		else eval($c);
-
+		include "./.class_{$cia_autoload_cache[$searched_class]}.{$cia_paths_token}.zcache.php";
 		if (class_exists($searched_class, 0)) return;
 	}
 
 	$last_cia_paths = count($GLOBALS['cia_paths']) - 1;
 
 	if (false !== strpos($searched_class, ';') || false !== strpos($searched_class, "'")) return;
-
-	global $cia_paths_token;
 
 	$amark = $GLOBALS['a' . $cia_paths_token];
 	$GLOBALS['a' . $cia_paths_token] = false;
@@ -433,7 +427,7 @@ function __autoload($searched_class)
 				}
 
 				$cache = ((int)(bool)DEBUG) . (0>$level ? -$level .'-' : $level);
-				$cache = "./.class_{$class}.php.{$cia_paths_token}.{$cache}.zcache.php";
+				$cache = "./.class_{$class}.php.{$cache}.{$cia_paths_token}.zcache.php";
 
 				file_exists($cache) || call_user_func(array($preproc, 'run'), $source, $cache, $level, $class);
 
@@ -444,7 +438,7 @@ function __autoload($searched_class)
 				require $cache;
 
 				if (class_exists($searched_class, false)) $parent_class = false;
-				if (false !== $parent_pool) $parent_pool[$parent_class ? $parent_class : $searched_class] = array(0, $cache);
+				if (false !== $parent_pool) $parent_pool[$parent_class ? $parent_class : $searched_class] = $cache;
 
 				break;
 			}
@@ -472,79 +466,89 @@ function __autoload($searched_class)
 	}
 	else $class = '';
 
+	if ($class && isset($cia_autoload_cache[$parent_class]))
+	{
+		// Include class declaration in its closest parent
+
+		$code = $cia_autoload_cache[$parent_class];
+		$tmp = strrpos($code, '-');
+		$level = substr($code, 0, $tmp);
+		$code = substr($code, $tmp);
+		$code = "\$GLOBALS['cia_autoload_cache']['{$parent_class}']=__FILE__.'{$code}';";
+
+		$tmp = file_get_contents($level);
+		if (false !== strpos($tmp, $code))
+		{
+			if (!$c)
+			{
+				$c = substr($code, 0, strrpos($code, '-') + 1) . mt_rand() . "';";
+				$class .= ';' . $c;
+			}
+
+			$tmp = str_replace($code, $class, $tmp);
+			($cache == $level && $current_pool) || cia_atomic_write($tmp, $level);
+		}
+	}
+	else $tmp = false;
+
 	if ($cache)
 	{
-		$tmp = false;
-
-		if ($class)
-		{
-			if ($c)
-			{
-				$tmp = file_get_contents($cache);
-				if ('?>' != substr($tmp, -2)) $tmp .= '<?php ?>';
-				$tmp = substr($tmp, 0, -2) . ';' . $class . '?>';
-				$amark = false;
-			}
-			else if ($parent_pool) $parent_pool[$searched_class] = array(1, '<?php ' . $class . '?>');
-		}
-
 		$GLOBALS['cia_autoload_pool'] =& $parent_pool;
 
 		if ($current_pool)
 		{
-			// Pre-include parent's code in this derivated class
+			// Add an include directive of parent's code in the derivated class
 
 			$code = '<?php ?>';
 			$tmp || $tmp = file_get_contents($cache);
 			if ('<?php ' != substr($tmp, 0, 6)) $tmp = '<?php ?>' . $tmp;
 
-			foreach ($current_pool as $class => &$c)
-			{
-				if ($c[0])
-				{
-					$c =& $c[1];
+			foreach ($current_pool as $class => &$c) $code = substr($code, 0, -2) . "class_exists('{$class}',0)||include '{$c}';?>";
 
-					if ('<?php ' != substr($c, 0, 6)) $c = '<?php ?>' . $c;
-					if ('?>' != substr($c, -2)) $c .= '<?php ?>';
-
-					$code = substr($code, 0, -2) . "if(!class_exists('$class',0)){" . substr($c, 6, -2) . '}?>';
-				}
-				else $code = substr($code, 0, -2) . "class_exists('{$class}',0)||include '{$c[1]}';?>";
-			}
-
-			$tmp = substr($code, 0, -2) . ';' . substr($tmp, 6);
+			$tmp = substr($code, 0, -2) . substr($tmp, 6);
+			cia_atomic_write($tmp, $cache);
 		}
 
-		$tmp && cia_atomic_write($tmp, $cache);
-	}
+		$cache = substr($cache, 9, -12-strlen($cia_paths_token));
 
-	if (0 === stripos($searched_class, 'CIA_preprocessor')) return;
+		if ($amark)
+		{
+			// Marker substitution
 
-	if ($amark)
-	{
-		$cache || $amark = $bmark;
-		$code = $amark != $bmark;
+			$code = $amark;
+			$amark = $amark != $bmark;
 
-		$c = strrpos($amark, '-');
-		$bmark = substr($amark, 0, $c);
-		$amark = substr($amark, $c);
-		$amark = "\$a{$cia_paths_token}=__FILE__.'{$amark}'";
+			$tmp = strrpos($code, '-');
+			$level = substr($code, 0, $tmp);
+			$code = substr($code, $tmp);
+			$code = "\$a{$cia_paths_token}=__FILE__.'{$code}'";
 
-		if ($code) $c = "class_exists('{$searched_class}',0)||(include '{$cache}')||1";
-		else return; //TODO
+			$tmp = file_get_contents($level);
+			if (false !== strpos($tmp, $code))
+			{
+				if ($amark) $c = "class_exists('{$searched_class}',0)||(include './.class_{$cache}.{$cia_paths_token}.zcache.php')||1";
+				else
+				{
+					$code = "\$b{$cia_paths_token}=" . $code;
+					$c = substr($code, 0, strrpos($code, '-') + 1);
+					$c = "(\$cia_autoload_cache['{$searched_class}']='{$cache}')&&" . $c . mt_rand() . "'";
+				}
 
-		$code = file_get_contents($bmark);
-		$code = str_replace($amark, $c, $code);
-		cia_atomic_write($code, $bmark);
-	}
-	else if (!$bmark && ($class || $cache))
-	{
-		$code = "\$cia_autoload_cache['{$searched_class}']='" . ($cache ? $cache : $class) . "';";
+				$tmp = str_replace($code, $c, $tmp);
+				cia_atomic_write($tmp, $level);
+			}
+		}
+		else if (!$bmark)
+		{
+			// Global cache completion
 
-		$c = fopen('./.config.zcache.php', 'ab');
-		flock($c, LOCK_EX);
-		fwrite($c, $code, strlen($code));
-		fclose($c);
+			$code = "\$cia_autoload_cache['{$searched_class}']='{$cache}';";
+
+			$c = fopen('./.config.zcache.php', 'ab');
+			flock($c, LOCK_EX);
+			fwrite($c, $code, strlen($code));
+			fclose($c);
+		}
 	}
 }
 // }}}
