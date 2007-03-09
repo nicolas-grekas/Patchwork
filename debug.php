@@ -23,12 +23,12 @@ if (CIA_CHECK_SOURCE && !CIA_DIRECT)
 
 		@unlink('./.config.zcache.php');
 
-		foreach (glob('./.*.' . $cia_paths_token . '.1*.zcache.php', GLOB_NOSORT) as $cache)
+		foreach (glob('./.*.1*.' . $cia_paths_token . '.zcache.php', GLOB_NOSORT) as $cache)
 		{
-			$file = str_replace('%1', '%', str_replace('%2', '_', strtr(substr($cache, 3, -11), '_', '/')));
+			$file = str_replace('%1', '%', str_replace('%2', '_', strtr(substr($cache, 3, -12-strlen($cia_paths_token)), '_', '/')));
 			$level = substr(strrchr($file, '.'), 2);
 
-			$file = substr($file, 0, -(3 + strlen($cia_paths_token) + strlen($level)));
+			$file = substr($file, 0, -(2 + strlen($level)));
 			if ('-' == substr($level, -1))
 			{
 				$level = -$level;

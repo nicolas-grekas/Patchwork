@@ -1260,8 +1260,13 @@ class
 
 	static function error_handler($code, $message, $file, $line, $context)
 	{
-		if (!error_reporting()
-			|| ((E_NOTICE == $code || E_STRICT == $code) && !substr_compare($file, '-.zcache.php', -12))
+		if (!error_reporting()) return;
+
+		static $offset = 0;
+		$offset || $offset = -13 - strlen($GLOBALS['cia_paths_token']);
+
+		if (
+			   ((E_NOTICE == $code || E_STRICT == $code) && '-' == substr($file, $offset, 1))
 			|| (E_WARNING == $code && false !== stripos($message, 'safe mode'))
 		) return;
 
