@@ -16,7 +16,7 @@ class extends iaCompiler
 {
 	protected $watch = 'public/templates/php';
 
-	protected $serverMode = true;
+	protected $closeModifier = '):0)';
 	protected $setStack = array();
 
 	protected function makeCode(&$code)
@@ -35,7 +35,7 @@ class extends iaCompiler
 
 	protected function makeModifier($name)
 	{
-		return 'pipe_' . $name . '::php';
+		return "((\$a{$GLOBALS['cia_paths_token']}=__FILE__.'-" . mt_rand() . "')?pipe_{$name}::php";
 	}
 
 	protected function addAGENT($end, $inc, &$args, $is_exo)
