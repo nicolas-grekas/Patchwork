@@ -47,7 +47,7 @@ $appInheritSeq = array(
 
 $lock = $cia_paths[0] . '/.' . $cia_paths_token . '.zcache.php';
 if (!file_exists($lock)
-	&& $CIA = @fopen($lock . '.lock', 'x+b'))
+	&& $CIA = @fopen($lock . '.lock', 'xb'))
 {
 	fclose($CIA);
 	array_map('unlink', glob('./.*.zcache.php', GLOB_NOSORT));
@@ -60,17 +60,14 @@ foreach ($cia_paths as $CIA)
 	$appInheritSeq[] = $appConfigSource[$CIA];
 }
 
-$appConfigSource = $cia_paths[0] . '/.config.zcache.php';
-
-@unlink($appConfigSource);
-
-file_put_contents($appConfigSource, implode("\n", $appInheritSeq));
+$appConfigSource = '.config.zcache.php';
+$appInheritSeq = implode("\n", $appInheritSeq);
+cia_atomic_write($appInheritSeq, $appConfigSource);
 
 if (CIA_WINDOWS)
 {
 	$appInheritSeq = new COM('Scripting.FileSystemObject');
-	$appInheritSeq->GetFile($appConfigSource)->Attributes |= 2; // Set hidden attribute
-	$appInheritSeq->GetFile($lock           )->Attributes |= 2; // Set hidden attribute
+	$appInheritSeq->GetFile($lock)->Attributes |= 2; // Set hidden attribute
 }
 
 unset($appConfigSource);
