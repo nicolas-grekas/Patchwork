@@ -28,12 +28,16 @@ if (CIA_CHECK_SOURCE && !CIA_DIRECT)
 			$file = str_replace('%1', '%', str_replace('%2', '_', strtr(substr($cache, 3, -11), '_', '/')));
 			$level = substr(strrchr($file, '.'), 2);
 
-			$file = substr($file, 0, -(2 + strlen($cia_paths_token) + strlen($level)));
-			$level = '-' == substr($level, -1) ? -$level : (int) $level;
+			$file = substr($file, 0, -(3 + strlen($cia_paths_token) + strlen($level)));
+			if ('-' == substr($level, -1))
+			{
+				$level = -$level;
+				$file = substr($file, 6);
+			}
 
 			$file = $cia_include_paths[count($cia_paths) - $level - 1] .'/'. $file;
 
-			if (!file_exists($file) || filemtime($file) >= filemtime('./'.$cache)) @unlink($cache);
+			if (!file_exists($file) || filemtime($file) >= filemtime($cache)) @unlink($cache);
 		}
 
 		fclose($h);
