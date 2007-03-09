@@ -49,7 +49,7 @@ if (!preg_match("''u", urldecode($a = $_SERVER['REQUEST_URI'])))
 // }}}
 
 // {{{ registerAutoloadPrefix()
-$__cia_autoload_prefix = array();
+$cia_autoload_prefix = array();
 
 function registerAutoloadPrefix($prefix, $class2file_resolver, $class2file_resolver_method = false)
 {
@@ -59,7 +59,7 @@ function registerAutoloadPrefix($prefix, $class2file_resolver, $class2file_resol
 	if (is_string($class2file_resolver_method) && is_string($class2file_resolver))
 		$class2file_resolver = array($class2file_resolver, $class2file_resolver_method);
 
-	foreach ($GLOBALS['__cia_autoload_prefix'] as $v)
+	foreach ($GLOBALS['cia_autoload_prefix'] as $v)
 	{
 		if (false !== $prefix)
 		{
@@ -74,7 +74,7 @@ function registerAutoloadPrefix($prefix, $class2file_resolver, $class2file_resol
 
 	if (false !== $prefix) $registry[] = array($prefix, $class2file_resolver);
 
-	$GLOBALS['__cia_autoload_prefix'] =& $registry;
+	$GLOBALS['cia_autoload_prefix'] =& $registry;
 }
 // }}}
 
@@ -226,7 +226,7 @@ function cia_atomic_write(&$data, $to)
 		$data = new COM('Scripting.FileSystemObject');
 		$data->GetFile(CIA_PROJECT_PATH .'/'. $tmp)->Attributes |= 2; // Set hidden attribute
 		file_exists($to) && unlink($to);
-		rename($tmp, $to);
+		rename($tmp, $to) || unlink($tmp);
 	}
 	else rename($tmp, $to);
 }
@@ -332,13 +332,31 @@ function cia_adaptRequire($file)
 // }}}
 
 // {{{ function __autoload()
-$__cia_autoload_static_pool = false;
+$cia_autoload_pool = false;
 
 function __autoload($searched_class)
 {
+	global $cia_autoload_cache;
+
+	if (isset($cia_autoload_cache[$searched_class]))
+	{
+		$c = $cia_autoload_cache[$searched_class];
+
+		if ('.' == $c[0]) include $c;
+		else eval($c);
+
+		if (class_exists($searched_class, 0)) return;
+	}
+
 	$last_cia_paths = count($GLOBALS['cia_paths']) - 1;
 
-	if (false !== strpos($searched_class, ';')) return;
+	if (false !== strpos($searched_class, ';') || false !== strpos($searched_class, "'")) return;
+
+	global $cia_paths_token;
+
+	$amark = $GLOBALS['a' . $cia_paths_token];
+	$GLOBALS['a' . $cia_paths_token] = false;
+	$bmark = $GLOBALS['b' . $cia_paths_token];
 
 	$i = strrpos($searched_class, '__');
 	$level = false !== $i ? substr($searched_class, $i+2) : false;
@@ -378,9 +396,9 @@ function __autoload($searched_class)
 		$i = $last_cia_paths - $level;
 		if (0 > $i) $i = 0;
 
-		if ($GLOBALS['__cia_autoload_prefix'])
+		if ($GLOBALS['cia_autoload_prefix'])
 		{
-			foreach ($GLOBALS['__cia_autoload_prefix'] as $v)
+			foreach ($GLOBALS['cia_autoload_prefix'] as $v)
 			{
 				if ($v[0] == substr($lcClass, 0, strlen($v[0])))
 				{
@@ -414,13 +432,13 @@ function __autoload($searched_class)
 				}
 
 				$cache = ((int)(bool)DEBUG) . (0>$level ? -$level .'-' : $level);
-				$cache = "./.class_{$class}.php.{$GLOBALS['cia_paths_token']}.{$cache}.zcache.php";
+				$cache = "./.class_{$class}.php.{$cia_paths_token}.{$cache}.zcache.php";
 
 				file_exists($cache) || call_user_func(array($preproc, 'run'), $source, $cache, $level, $class);
 
 				$current_pool = array();
-				$parent_pool =& $GLOBALS['__cia_autoload_static_pool'];
-				$GLOBALS['__cia_autoload_static_pool'] =& $current_pool;
+				$parent_pool =& $GLOBALS['cia_autoload_pool'];
+				$GLOBALS['cia_autoload_pool'] =& $current_pool;
 
 				require $cache;
 
@@ -443,37 +461,40 @@ function __autoload($searched_class)
 		$class = new ReflectionClass($parent_class);
 		$class = ($class->isAbstract() ? 'abstract ' : '') . 'class ' . $searched_class . ' extends ' . $parent_class . '{}';
 
+		if ($c)
+		{
+			method_exists($parent_class, '__static_construct') && $class .= "{$parent_class}::__static_construct();";
+			method_exists($parent_class, '__static_destruct' ) && $class .= "register_shutdown_function(array('{$parent_class}','__static_destruct'));";
+		}
+
 		eval($class);
 	}
 	else $class = '';
 
-	if ($c)
-	{
-		if (method_exists($searched_class, '__static_construct'))
-		{
-			call_user_func(array($searched_class, '__static_construct'));
-			$class .= "{$searched_class}::__static_construct();";
-		}
-
-		if (method_exists($searched_class, '__static_destruct'))
-		{
-			register_shutdown_function(array($searched_class, '__static_destruct'));
-			$class .= "register_shutdown_function(array('{$searched_class}','__static_destruct'));";
-		}
-	}
-
 	if ($cache)
 	{
-		if ($parent_pool && $class) $parent_pool[$searched_class] = array(1, '<?php ' . $class . '?>');
+		$tmp = false;
 
-		$GLOBALS['__cia_autoload_static_pool'] =& $parent_pool;
-
-
-		if ($current_pool) // Pre-include parent's code in this derivated class
+		if ($class)
 		{
-			$code = '<?php ?>';
-			$tmp = file_get_contents($cache);
+			if ($c)
+			{
+				$tmp = file_get_contents($cache);
+				if ('?>' != substr($tmp, -2)) $tmp .= '<?php ?>';
+				$tmp = substr($tmp, 0, -2) . ';' . $class . '?>';
+				$amark = false;
+			}
+			else if ($parent_pool) $parent_pool[$searched_class] = array(1, '<?php ' . $class . '?>');
+		}
 
+		$GLOBALS['cia_autoload_pool'] =& $parent_pool;
+
+		if ($current_pool)
+		{
+			// Pre-include parent's code in this derivated class
+
+			$code = '<?php ?>';
+			$tmp || $tmp = file_get_contents($cache);
 			if ('<?php ' != substr($tmp, 0, 6)) $tmp = '<?php ?>' . $tmp;
 
 			foreach ($current_pool as $class => &$c)
@@ -490,10 +511,37 @@ function __autoload($searched_class)
 				else $code = substr($code, 0, -2) . "class_exists('{$class}',0)||include '{$c[1]}';?>";
 			}
 
-			$code = substr($code, 0, -2) . ';' . substr($tmp, 6);
-
-			cia_atomic_write($code, $cache);
+			$tmp = substr($code, 0, -2) . ';' . substr($tmp, 6);
 		}
+
+		$tmp && cia_atomic_write($tmp, $cache);
+	}
+
+	if ($amark)
+	{
+		$cache || $amark = $bmark;
+		$code = $amark != $bmark;
+
+		$c = strrpos($amark, '-');
+		$bmark = substr($amark, 0, $c);
+		$amark = substr($amark, $c);
+		$amark = "\$a{$cia_paths_token}=__FILE__.'{$amark}'";
+
+		if ($code) $c = "class_exists('{$searched_class}',0)||(include '{$cache}')||1";
+		else return; //TODO
+
+		$code = file_get_contents($bmark);
+		$code = str_replace($amark, $c, $code);
+		cia_atomic_write($code, $bmark);
+	}
+	else if (!$bmark && ($class || $cache) && 0 !== strpos($searched_class, 'CIA_preprocessor'))
+	{
+		$code = "\$cia_autoload_cache['{$searched_class}']='" . ($cache ? $cache : $class) . "';";
+
+		$c = fopen('./.config.zcache.php', 'ab');
+		flock($c, LOCK_EX);
+		fwrite($c, $code, strlen($code));
+		fclose($c);
 	}
 }
 // }}}

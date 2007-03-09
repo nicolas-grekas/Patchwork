@@ -53,6 +53,7 @@ abstract class
 	protected $mode = 'echo';
 	protected $binaryMode = true;
 	protected $serverMode = true;
+	protected $closeModifier = ')';
 
 	function __construct($binaryMode)
 	{
@@ -487,7 +488,7 @@ abstract class
 		while (--$i)
 		{
 			$Estart .= $this->makeModifier($detail[$i][0]) . '(';
-			$Eend = ')' . $Eend;
+			$Eend = $this->closeModifier . $Eend;
 
 			$j = count($detail[$i]);
 			while (--$j) $Eend = ',' . $this->evalVar($detail[$i][$j], true) . $Eend;
@@ -495,7 +496,7 @@ abstract class
 
 		if (isset($detail[0][1]))
 		{
-			$Eend = ')' . $Eend;
+			$Eend = $this->closeModifier . $Eend;
 
 			$j = count($detail[0]);
 			while (--$j) $Eend = ',' . $this->evalVar($detail[0][$j], true) . $Eend;
