@@ -127,7 +127,7 @@ $lang_rx = \'([a-z]{2}(?:-[A-Z]{2})?)\'';
 			$host .= "Connection: Close\r\n\r\n";
 
 			fwrite($h, $host);
-			$host = fgets($h, 1024);
+			$host = fgets($h, 14);
 			fclose($h);
 
 			if (false !== strpos($host, '200')) $_SERVER['PATH_INFO'] = '';
