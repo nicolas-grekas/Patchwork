@@ -121,12 +121,15 @@ function cia_autoload($searched_class)
 		}
 	}
 
+	$searched_class = strtolower($searched_class);
+
 	if ($parent_class && class_exists($parent_class, true))
 	{
-		$class = new ReflectionClass($parent_class);
-		$class = ($class->isAbstract() ? 'abstract ' : '') . 'class ' . $searched_class . ' extends ' . $parent_class . '{}';
+		$parent_class = strtolower($parent_class);
+		$class = "class {$searched_class} extends {$parent_class}{}";
 
-		if ($c)
+		if (isset($GLOBALS['cia_abstract']->$parent_class)) $class  = "abstract {$class}\$GLOBALS['cia_abstract']->{$searched_class}=1;";
+		else if ($c)
 		{
 			method_exists($parent_class, '__static_construct') && $class .= "{$parent_class}::__static_construct();";
 			method_exists($parent_class, '__static_destruct' ) && $class .= "register_shutdown_function(array('{$parent_class}','__static_destruct'));";

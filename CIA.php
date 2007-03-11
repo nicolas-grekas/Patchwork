@@ -337,6 +337,8 @@ $cia_autoload_pool = false;
 
 function __autoload($searched_class)
 {
+	$a = strtolower($searched_class);
+
 	if ($a =& $GLOBALS['cia_autoload_cache']->$searched_class && !DEBUG)
 	{
 		if (is_int($a))

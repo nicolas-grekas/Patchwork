@@ -13,7 +13,6 @@
 
 
 function_exists('token_get_all') || die('Extension "tokenizer" is needed and not loaded.');
-class_exists('Reflection',false) || die('Extension "Reflection" is needed and not loaded.');
 
 
 class CIA_preprocessor__0
@@ -288,7 +287,8 @@ class CIA_preprocessor__0
 			case T_CLASS:
 				$b = $c = '';
 
-				$final = T_FINAL == $prevType;
+				$final    = T_FINAL    == $prevType;
+				$abstract = T_ABSTRACT == $prevType;
 
 				// Look forward
 				$j = $this->seekSugar($code, $i);
@@ -323,8 +323,9 @@ class CIA_preprocessor__0
 
 				$class_pool[$curly_level] = (object) array(
 					'classname' => $c,
-					'real_classname' => $b,
+					'real_classname' => strtolower($b),
 					'is_final' => $final,
+					'is_abstract' => $abstract,
 					'has_php5_construct' => T_INTERFACE == $type,
 					'construct_source' => '',
 				);
@@ -684,6 +685,7 @@ class CIA_preprocessor__0
 					$c = $class_pool[$curly_level];
 
 					if (!$c->has_php5_construct) $token = $c->construct_source . '}';
+					if ($c->is_abstract) $token .= "\$GLOBALS['cia_abstract']->{$c->real_classname}=1;";
 					$token .= "\$GLOBALS['c{$GLOBALS['cia_paths_token']}']->{$c->real_classname}=__FILE__.'-" . mt_rand() . "';";
 
 					unset($class_pool[$curly_level]);
