@@ -760,6 +760,8 @@ class CIA_preprocessor__0
 
 	protected function fetchConstant(&$code, &$i)
 	{
+		if (DEBUG) return false;
+
 		$new_code = array();
 		$codeLen = count($code);
 		$inString = false;
