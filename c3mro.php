@@ -201,7 +201,7 @@ foreach ($cia_paths as $appInheritSeq)
 	$CIA[] = $appConfigSource[$appInheritSeq];
 }
 
-$CIA = '<?php ' . implode(";\n", $CIA) . '?>';
+$CIA = '<?php ' . implode(";\n", $CIA) . ';';
 cia_atomic_write($CIA, '.config.zcache.php');
 
 if (CIA_WINDOWS)
