@@ -13,30 +13,6 @@
 
 
 define('CIA', microtime(true));
-isset($_SERVER['REQUEST_TIME']) || $_SERVER['REQUEST_TIME'] = time();
-
-// {{{ Global context setup
-// $_REQUEST is an open door to security problems.
-unset($_REQUEST);
-unset($_REQUEST); // Double unset against a PHP security hole
-
-// Disables mod_deflate who overwrites any custom Vary: header and appends a body to 304 responses.
-// Replaced with our own output compression.
-function_exists('apache_setenv') && apache_setenv('no-gzip', '1');
-ini_set('zlib.output_compression', false);
-
-// Encoding context initialization
-@putenv('LC_ALL=en_US.UTF-8');
-setlocale(LC_ALL, 'en_US.UTF-8');
-
-extension_loaded('mbstring') && mb_internal_encoding('UTF-8');
-
-if (function_exists('iconv'))
-{
-	iconv_set_encoding('input_encoding',    'UTF-8');
-	iconv_set_encoding('internal_encoding', 'UTF-8');
-	iconv_set_encoding('output_encoding',   'UTF-8');
-}
 
 if (!preg_match("''u", urldecode($a = $_SERVER['REQUEST_URI'])))
 {
@@ -46,38 +22,16 @@ if (!preg_match("''u", urldecode($a = $_SERVER['REQUEST_URI'])))
 	header('Location: ' . $a);
 	exit;
 }
-// }}}
 
-// {{{ Fix php.ini settings if needed
-set_magic_quotes_runtime(false);
 
-if (get_magic_quotes_gpc())
-{
-	if (ini_get('magic_quotes_sybase')) { function _q_(&$a) {static $d=999; --$d&&is_array($a) ? array_walk($a, '_q_') : $a = str_replace("''", "'", $a); ++$d;} }
-	else { function _q_(&$a) {static $d=999; --$d&&is_array($a) ? array_walk($a, '_q_') : $a = stripslashes($a); ++$d;} }
-	_q_($_GET); _q_($_POST); _q_($_COOKIE);
-}
+// {{{ Global context setup
+// $_REQUEST is an open door to security problems.
+unset($_REQUEST);
+unset($_REQUEST); // Double unset against a PHP security hole
 
-if (!(extension_loaded('mbstring') && ini_get('mbstring.encoding_translation') & 'UTF-8' == ini_get('mbstring.http_input')))
-{
-	function _u_(&$a)
-	{
-		# See http://www.w3.org/International/questions/qa-forms-utf-8
-
-		static $d=999, $rx = '/(?:[\x00-\x7F]|[\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][\x80-\xBF]|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}|\xED[\x80-\x9F][\x80-\xBF]|\xF0[\x90-\xBF][\x80-\xBF]{2}|[\xF1-\xF3][\x80-\xBF]{3}|\xF4[\x80-\x8F][\x80-\xBF]{2})+/';
-
-		if (--$d && is_array($a)) array_walk($a, '_u_');
-		else if (!preg_match("''u", $a))
-		{
-			preg_match_all($rx, $a, $a, PREG_PATTERN_ORDER);
-			$a = implode('', $a[0]);
-		}
-
-		++$d;
-	}
-	// $_GET is already fixed at encoding context initialization
-	_u_($_POST); _u_($_COOKIE); _u_($_FILES);
-}
+// Encoding context initialization
+@putenv('LC_ALL=en_US.UTF-8');
+setlocale(LC_ALL, 'en_US.UTF-8');
 // }}}
 
 // {{{ registerAutoloadPrefix()
@@ -151,62 +105,6 @@ if (isset($CONFIG['clientside']) && !$CONFIG['clientside']) $_GET['$bin'] = true
 // Restore the current dir in shutdown context.
 function cia_restoreProjectPath() {CIA_PROJECT_PATH != getcwd() && chdir(CIA_PROJECT_PATH);}
 register_shutdown_function('cia_restoreProjectPath', CIA_PROJECT_PATH);
-// }}}
-
-// {{{ CIA's environment context
-/**
-* Setup needed environment variables if they don't exists :
-*   $_SERVER['CIA_HOME']: application's home part of the url. Lang independant (ex. /cia/myapp/__/)
-*   $_SERVER['CIA_LANG']: lang (ex. en)
-*   $_SERVER['CIA_REQUEST']: request part of the url (ex. myagent/mysubagent/...)
-*
-* You can also define these vars with mod_rewrite, to get cleaner urls
-*/
-if (!isset($_SERVER['CIA_HOME']))
-{
-	$_SERVER['CIA_HOME'] = 'http' . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'];
-	$_SERVER['CIA_LANG'] = $_SERVER['CIA_REQUEST'] = '';
-
-	$lang_rx = '([a-z]{2}(?:-[A-Z]{2})?)';
-
-	if ($CONFIG['use_path_info'])
-	{
-		if (isset($_SERVER['ORIG_PATH_INFO'])) $_SERVER['PATH_INFO'] = $_SERVER['ORIG_PATH_INFO'];
-
-		$_SERVER['CIA_HOME'] .= '/__/';
-
-		if (isset($_SERVER['PATH_INFO']) && preg_match("'^/{$lang_rx}/?(.*)$'", $_SERVER['PATH_INFO'], $a))
-		{
-			$_SERVER['CIA_LANG']    = $a[1];
-			$_SERVER['CIA_REQUEST'] = $a[2];
-		}
-	}
-	else
-	{
-		$_SERVER['CIA_HOME'] .= '?__/';
-
-		if (isset($_SERVER['QUERY_STRING']) && preg_match("'^{$lang_rx}/?([^\?]*)(\??)'", rawurldecode($_SERVER['QUERY_STRING']), $a))
-		{
-			$_SERVER['CIA_LANG']    = $a[1];
-			$_SERVER['CIA_REQUEST'] = $a[2];
-
-			if ($a[3])
-			{
-				$_GET = array();
-				$_SERVER['QUERY_STRING'] = preg_replace("'^.*?(\?|%3F)'i", '', $_SERVER['QUERY_STRING']);
-				parse_str($_SERVER['QUERY_STRING'], $_GET);
-			}
-			else
-			{
-				$_SERVER['QUERY_STRING'] = null;
-				$a = key($_GET);
-				unset($_GET[$a]);
-				unset($_GET[$a]); // Double unset against a PHP security hole
-			}
-		}
-	}
-}
-else if (!strncmp('/', $_SERVER['CIA_HOME'], 1)) $_SERVER['CIA_HOME'] = 'http' . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['CIA_HOME'];
 // }}}
 
 // {{{ Global Initialisation
