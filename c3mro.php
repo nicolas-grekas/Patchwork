@@ -28,55 +28,191 @@ $cia_include_paths = array_map('realpath', $cia_include_paths);
 $cia_include_paths = array_diff($cia_include_paths, $cia_paths);
 $cia_include_paths = array_merge($cia_paths, $cia_include_paths);
 $cia_paths_offset  = count($cia_include_paths) - count($cia_paths) + 1;
-$cia_paths_token   = substr(md5(serialize($cia_include_paths)), 0, 4);
-$cia_abstract = (object) array();
-${'a' . $cia_paths_token} = false;
-${'b' . $cia_paths_token} = false;
-${'c' . $cia_paths_token} = (object) array();
-$cia_autoload_cache =& ${'c' . $cia_paths_token};
 
-$appInheritSeq = array(
-	'<?php',
-	'$version_id=' . $version_id . ';',
-	'$cia_paths=' . var_export($cia_paths, true) . ';',
-	'$cia_include_paths=' . var_export($cia_include_paths, true) . ';',
-	'$cia_paths_offset='  . $cia_paths_offset . ';',
-	'$cia_paths_token=\'' . $cia_paths_token . '\';',
+$CIA = array(
+	'#' . PHP_VERSION,
+	'$version_id=' . $version_id,
+	'$cia_paths=' . var_export($cia_paths, true),
+	'$cia_include_paths=' . var_export($cia_include_paths, true),
+	'$cia_paths_offset='  . $cia_paths_offset,
 	'$cia_abstract=(object)array();',
-	'$a' . $cia_paths_token . '=false;',
-	'$b' . $cia_paths_token . '=false;',
-	'$c' . $cia_paths_token . '=(object)array();',
-	'$cia_autoload_cache=&$c' . $cia_paths_token . ';',
 );
 
-$lock = $cia_paths[0] . '/.' . $cia_paths_token . '.zcache.php';
-if (!file_exists($lock)
-	&& $CIA = @fopen($lock . '.lock', 'xb'))
+
+isset($_SERVER['REQUEST_TIME']) || $CIA[] = '$_SERVER[\'REQUEST_TIME\']=time()';
+
+
+// {{{ Fix php.ini settings
+
+// Disables mod_deflate who overwrites any custom Vary: header and appends a body to 304 responses.
+// Replaced with our own output compression.
+function_exists('apache_setenv')   && $CIA[] = 'apache_setenv(\'no-gzip\',\'1\')';
+ini_get('zlib.output_compression') && $CIA[] = 'ini_set(\'zlib.output_compression\',false)';
+
+extension_loaded('mbstring') && 'UTF-8' != mb_internal_encoding() && $CIA[] = 'mb_internal_encoding(\'UTF-8\')';
+
+if (function_exists('iconv'))
 {
-	fclose($CIA);
+	'UTF-8' != iconv_get_encoding('input_encoding')    && $CIA[] = 'iconv_set_encoding(\'input_encoding\'   ,\'UTF-8\')';
+	'UTF-8' != iconv_get_encoding('internal_encoding') && $CIA[] = 'iconv_set_encoding(\'internal_encoding\',\'UTF-8\')';
+	'UTF-8' != iconv_get_encoding('output_encoding')   && $CIA[] = 'iconv_set_encoding(\'output_encoding\'  ,\'UTF-8\')';
+}
+
+get_magic_quotes_runtime() && $CIA[] = 'set_magic_quotes_runtime(false)';
+
+if (get_magic_quotes_gpc())
+{
+	$CIA[] = ini_get('magic_quotes_sybase')
+		? 'function _q_(&$a) {static $d=999; --$d&&is_array($a) ? array_walk($a, \'_q_\') : $a = str_replace("\'\'", "\'", $a); ++$d;} }'
+		: 'function _q_(&$a) {static $d=999; --$d&&is_array($a) ? array_walk($a, \'_q_\') : $a = stripslashes($a); ++$d;} }';
+	$CIA[] = '_q_($_GET); _q_($_POST); _q_($_COOKIE)';
+}
+
+if (
+	   !(extension_loaded('mbstring')
+	&& ini_get('mbstring.encoding_translation')
+	&& 'UTF-8' == ini_get('mbstring.http_input'))
+) $CIA[] = '
+function _u_(&$a)
+{
+	# See http://www.w3.org/International/questions/qa-forms-utf-8
+
+	static $d=999, $rx = \'/(?:[\x00-\x7F]|[\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][\x80-\xBF]|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}|\xED[\x80-\x9F][\x80-\xBF]|\xF0[\x90-\xBF][\x80-\xBF]{2}|[\xF1-\xF3][\x80-\xBF]{3}|\xF4[\x80-\x8F][\x80-\xBF]{2})+/\';
+
+	if (--$d && is_array($a)) array_walk($a, \'_u_\');
+	else if (!preg_match("\'\'u", $a))
+	{
+		preg_match_all($rx, $a, $a, PREG_PATTERN_ORDER);
+		$a = implode(\'\', $a[0]);
+	}
+
+	++$d;
+}
+# $_GET has already been fixed together with $_SERVER[\'REQUEST_URI\']
+_u_($_POST); _u_($_COOKIE); _u_($_FILES)';
+// }}}
+
+// {{{ CIA's environment context
+/**
+* Setup needed environment variables if they don't exists :
+*   $_SERVER['CIA_HOME']: application's home part of the url. Lang independant (ex. /cia/myapp/__/)
+*   $_SERVER['CIA_LANG']: lang (ex. en)
+*   $_SERVER['CIA_REQUEST']: request part of the url (ex. myagent/mysubagent/...)
+*
+* You can also define these vars with mod_rewrite, to get cleaner URLs for example.
+*/
+if (!isset($_SERVER['CIA_HOME']))
+{
+		$CIA[] = '
+$_SERVER[\'CIA_HOME\'] = \'http\' . (isset($_SERVER[\'HTTPS\']) ? \'s\' : \'\') . \'://\' . $_SERVER[\'HTTP_HOST\'] . $_SERVER[\'SCRIPT_NAME\'];
+$_SERVER[\'CIA_LANG\'] = $_SERVER[\'CIA_REQUEST\'] = \'\';
+
+$lang_rx = \'([a-z]{2}(?:-[A-Z]{2})?)\'';
+
+		if (!(isset($_SERVER['PATH_INFO']) || isset($_SERVER['ORIG_PATH_INFO'])))
+		{
+			// Check if the webserver supports PATH_INFO
+
+			$host = $_SERVER['HTTP_HOST'];
+
+			if (preg_match("':([^0-9]*)$'", $host, $h)) $host = (isset($_SERVER['HTTPS']) ? 'ssl://' : 'tcp://') . $host . (''===$h[1] ? '' : '80');
+			else if (isset($_SERVER['HTTPS'])) $host = 'ssl://' . $host . ':443';
+			else $host = 'tcp://' . $host . ':80';
+
+			$h = stream_socket_client($host, $errno, $errstr, 5);
+			if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
+
+			$host  = "GET {$_SERVER['SCRIPT_NAME']}/ HTTP/1.1\r\n";
+			$host .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
+			$host .= "Connection: Close\r\n\r\n";
+
+			fwrite($h, $host);
+			$host = fgets($h, 1024);
+			fclose($h);
+
+			if (false !== strpos($host, '200')) $_SERVER['PATH_INFO'] = '';
+
+			unset($host);
+			unset($h);
+		}
+
+		$appInheritSeq = isset($_SERVER['ORIG_PATH_INFO']) ? '$_SERVER[\'PATH_INFO\'] = $_SERVER[\'ORIG_PATH_INFO\'];' : '';
+
+		$CIA[] = isset($_SERVER['PATH_INFO']) || isset($_SERVER['ORIG_PATH_INFO'])
+			/* PATH_INFO enabled */ ? $appInheritSeq . '
+$_SERVER[\'CIA_HOME\'] .= \'/__/\';
+
+if (isset($_SERVER[\'PATH_INFO\']) && preg_match("\'^/{$lang_rx}/?(.*)$\'", $_SERVER[\'PATH_INFO\'], $a))
+{
+	$_SERVER[\'CIA_LANG\']    = $a[1];
+	$_SERVER[\'CIA_REQUEST\'] = $a[2];
+}'
+			/* PATH_INFO not enabled */ : '
+$_SERVER[\'CIA_HOME\'] .= \'?__/\';
+
+if (isset($_SERVER[\'QUERY_STRING\']) && preg_match("\'^{$lang_rx}/?(.*?)(?:[\?&](.*))?$\'", rawurldecode($_SERVER[\'QUERY_STRING\']), $a))
+{
+	$_SERVER[\'CIA_LANG\']    = $a[1];
+	$_SERVER[\'CIA_REQUEST\'] = $a[2];
+
+	if (isset($a[3]))
+	{
+		$_GET = array();
+		$_SERVER[\'QUERY_STRING\'] = $a[3];
+		parse_str($_SERVER[\'QUERY_STRING\'], $_GET);
+	}
+	else
+	{
+		$_SERVER[\'QUERY_STRING\'] = null;
+		$a = key($_GET);
+		unset($_GET[$a]);
+		unset($_GET[$a]); // Double unset against a PHP security hole
+	}
+}';
+}
+else if (!strncmp('/', $_SERVER['CIA_HOME'], 1)) $CIA[] = '$_SERVER[\'CIA_HOME\'] = \'http\' . (isset($_SERVER[\'HTTPS\']) && $_SERVER[\'HTTPS\'] ? \'s\' : \'\') . \'://\' . $_SERVER[\'HTTP_HOST\'] . $_SERVER[\'CIA_HOME\']';
+// }}}
+
+
+$cia_paths_token = substr(md5(serialize($CIA)), 0, 4);
+
+$lock = $cia_paths[0] . '/.' . $cia_paths_token . '.zcache.php';
+if (!file_exists($lock) && $appInheritSeq = @fopen($lock . '.lock', 'xb'))
+{
+	fclose($appInheritSeq);
 	array_map('unlink', glob('./.*.zcache.php', GLOB_NOSORT));
 	rename($lock . '.lock', $lock);
 }
 
-foreach ($cia_paths as $CIA)
+
+$CIA[] = '$cia_paths_token=\'' . $cia_paths_token . '\'';
+$CIA[] = '$a' . $cia_paths_token . '=false';
+$CIA[] = '$b' . $cia_paths_token . '=false';
+$CIA[] = '$c' . $cia_paths_token . '=(object)array()';
+$CIA[] = '$cia_autoload_cache=&$c' . $cia_paths_token;
+
+$CIA = array(implode(";\n", $CIA));
+
+eval($CIA[0] . ';');
+
+foreach ($cia_paths as $appInheritSeq)
 {
-	require $CIA . '/config.php';
-	$appInheritSeq[] = $appConfigSource[$CIA];
+	require $appInheritSeq . '/config.php';
+	$CIA[] = $appConfigSource[$appInheritSeq];
 }
 
-$appConfigSource = '.config.zcache.php';
-$appInheritSeq = implode("\n", $appInheritSeq);
-cia_atomic_write($appInheritSeq, $appConfigSource);
+$CIA = '<?php ' . implode(";\n", $CIA) . '?>';
+cia_atomic_write($CIA, '.config.zcache.php');
 
 if (CIA_WINDOWS)
 {
-	$appInheritSeq = new COM('Scripting.FileSystemObject');
-	$appInheritSeq->GetFile($lock)->Attributes |= 2; // Set hidden attribute
+	$CIA = new COM('Scripting.FileSystemObject');
+	$CIA->GetFile($lock)->Attributes |= 2; // Set hidden attribute
 }
 
 unset($appConfigSource);
 unset($appInheritSeq);
-
+unset($CIA);
 
 // C3 Method Resolution Order (like in Python 2.3) for multiple application inheritance
 // See http://python.org/2.3/mro.html

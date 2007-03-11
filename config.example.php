@@ -46,8 +46,6 @@ $CONFIG += array(
 	// Next: defaults should be ok to start with
 
 	'clientside' => true,
-	'use_path_info' => true,
-
 	'maxage' => 3600,
 	'lang_list' => 'fr',
 
