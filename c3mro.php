@@ -27,12 +27,12 @@ $cia_include_paths = explode(PATH_SEPARATOR, get_include_path());
 $cia_include_paths = array_map('realpath', $cia_include_paths);
 $cia_include_paths = array_diff($cia_include_paths, $cia_paths);
 $cia_include_paths = array_merge($cia_paths, $cia_include_paths);
-
-$cia_paths_token = substr(md5(serialize($cia_include_paths)), 0, 4);
+$cia_paths_offset  = count($cia_include_paths) - count($cia_paths) + 1;
+$cia_paths_token   = substr(md5(serialize($cia_include_paths)), 0, 4);
 ${'a' . $cia_paths_token} = false;
 ${'b' . $cia_paths_token} = false;
-
-$cia_autoload_cache = array();
+${'c' . $cia_paths_token} = (object) array();
+$cia_autoload_cache =& ${'c' . $cia_paths_token};
 
 $appInheritSeq = array(
 	'<?php',
@@ -40,9 +40,11 @@ $appInheritSeq = array(
 	'$cia_paths=' . var_export($cia_paths, true) . ';',
 	'$cia_paths_token=\'' . $cia_paths_token . '\';',
 	'$cia_include_paths=' . var_export($cia_include_paths, true) . ';',
+	'$cia_paths_offset='  . $cia_paths_offset . ';',
 	'$a' . $cia_paths_token . '=false;',
 	'$b' . $cia_paths_token . '=false;',
-	'$cia_autoload_cache = array();',
+	'$c' . $cia_paths_token . '=(object)array();',
+	'$cia_autoload_cache=&$c' . $cia_paths_token . ';',
 );
 
 $lock = $cia_paths[0] . '/.' . $cia_paths_token . '.zcache.php';

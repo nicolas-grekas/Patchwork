@@ -176,7 +176,7 @@ class CIA_preprocessor__0
 		$preproc->class = $class;
 		$preproc->marker = array(
 			'global $a' . $GLOBALS['cia_paths_token'] . ';',
-			'global $a' . $GLOBALS['cia_paths_token'] . ',$b' . $GLOBALS['cia_paths_token'] . ',$cia_autoload_cache;'
+			'global $a' . $GLOBALS['cia_paths_token'] . ',$b' . $GLOBALS['cia_paths_token'] . ',$c' . $GLOBALS['cia_paths_token'] . ';'
 		);
 
 		$code = file_get_contents($source);
@@ -684,7 +684,7 @@ class CIA_preprocessor__0
 					$c = $class_pool[$curly_level];
 
 					if (!$c->has_php5_construct) $token = $c->construct_source . '}';
-					$token .= "\$GLOBALS['cia_autoload_cache']['{$c->real_classname}']=__FILE__.'-" . mt_rand() . "';";
+					$token .= "\$GLOBALS['c{$GLOBALS['cia_paths_token']}']->{$c->real_classname}=__FILE__.'-" . mt_rand() . "';";
 
 					unset($class_pool[$curly_level]);
 				}

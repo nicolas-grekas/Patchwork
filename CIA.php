@@ -337,10 +337,17 @@ $cia_autoload_pool = false;
 
 function __autoload($searched_class)
 {
-	if (!DEBUG && isset($cia_autoload_cache[$searched_class]))
+	if ($a =& $GLOBALS['cia_autoload_cache']->$searched_class && !DEBUG)
 	{
-		global $cia_paths_token, $cia_autoload_cache;
-		include "./.class_{$cia_autoload_cache[$searched_class]}.{$cia_paths_token}.zcache.php";
+		if (is_int($a))
+		{
+			$b = $a; unset($a);
+			$a = $b - $GLOBALS['cia_paths_offset'];
+			$a = $searched_class . '.php.0' . (0>$a ? -$a .'-' : $a);
+		}
+
+		include "./.class_{$a}.{$GLOBALS['cia_paths_token']}.zcache.php";
+
 		if (class_exists($searched_class, 0)) return;
 	}
 

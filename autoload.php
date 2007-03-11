@@ -39,11 +39,25 @@ function cia_autoload($searched_class)
 		$level = $last_cia_paths;
 	}
 
+	$file = false;
+	$prefix = false;
+	$lcClass = strtolower($class);
+
+	foreach ($GLOBALS['cia_autoload_prefix'] as $c)
+	{
+		if ($c[0] == substr($lcClass, 0, strlen($c[0])))
+		{
+			$prefix = true;
+			$file = call_user_func($c[1], $class);
+			break;
+		}
+	}
+
 	$parent_class = $class . '__' . $level;
 	$cache = false;
 	$c = $searched_class == $class;
 
-	if ('_' == substr($class, -1) || !strncmp('_', $class, 1) || false !== strpos($class, '__'))
+	if (!$file && ('_' == substr($class, -1) || !strncmp('_', $class, 1) || false !== strpos($class, '__')))
 	{
 		// Out of the path class: search for an existing parent
 
@@ -56,23 +70,8 @@ function cia_autoload($searched_class)
 	{
 		// Conventional class: search its parent in existing classes or on disk
 
-		$file = false;
-		$lcClass = strtolower($class);
-
 		$i = $last_cia_paths - $level;
 		if (0 > $i) $i = 0;
-
-		if ($GLOBALS['cia_autoload_prefix'])
-		{
-			foreach ($GLOBALS['cia_autoload_prefix'] as $v)
-			{
-				if ($v[0] == substr($lcClass, 0, strlen($v[0])))
-				{
-					$file = call_user_func($v[1], $class);
-					break;
-				}
-			}
-		}
 
 		$file || $file = strtr($class, '_', '/') . '.php';
 		$file = 'class/' . $file;
@@ -139,17 +138,17 @@ function cia_autoload($searched_class)
 
 	if (DEBUG) return;
 
-	if ($class && isset($cia_autoload_cache[$parent_class]))
+	if ($class && isset($cia_autoload_cache->$parent_class))
 	{
 		// Include class declaration in its closest parent
 
-		$code = $cia_autoload_cache[$parent_class];
+		$code = $cia_autoload_cache->$parent_class;
 		$tmp = strrpos($code, '-');
-		$level = substr($code, 0, $tmp);
+		$file = substr($code, 0, $tmp);
 		$code = substr($code, $tmp);
-		$code = "\$GLOBALS['cia_autoload_cache']['{$parent_class}']=__FILE__.'{$code}';";
+		$code = "\$GLOBALS['c{$cia_paths_token}']->{$parent_class}=__FILE__.'{$code}';";
 
-		$tmp = file_get_contents($level);
+		$tmp = file_get_contents($file);
 		if (false !== strpos($tmp, $code))
 		{
 			if (!$c)
@@ -159,7 +158,7 @@ function cia_autoload($searched_class)
 			}
 
 			$tmp = str_replace($code, $class, $tmp);
-			($cache == $level && $current_pool) || cia_atomic_write($tmp, $level);
+			($cache == $file && $current_pool) || cia_atomic_write($tmp, $file);
 		}
 	}
 	else $tmp = false;
@@ -192,30 +191,32 @@ function cia_autoload($searched_class)
 			$amark = $amark != $bmark;
 
 			$tmp = strrpos($code, '-');
-			$level = substr($code, 0, $tmp);
+			$file = substr($code, 0, $tmp);
 			$code = substr($code, $tmp);
 			$code = "\$a{$cia_paths_token}=__FILE__.'{$code}'";
 
-			$tmp = file_get_contents($level);
+			$tmp = file_get_contents($file);
 			if (false !== strpos($tmp, $code))
 			{
 				if ($amark) $c = "class_exists('{$searched_class}',0)||(include './.class_{$cache}.{$cia_paths_token}.zcache.php')||1";
 				else
 				{
+					$amark = $prefix ? "'{$cache}'" : ($level + $GLOBALS['cia_paths_offset']);
 					$code = "\$b{$cia_paths_token}=" . $code;
 					$c = substr($code, 0, strrpos($code, '-') + 1);
-					$c = "(\$cia_autoload_cache['{$searched_class}']='{$cache}')&&" . $c . mt_rand() . "'";
+					$c = "(\$c{$cia_paths_token}->{$searched_class}={$amark})&&" . $c . mt_rand() . "'";
 				}
 
 				$tmp = str_replace($code, $c, $tmp);
-				cia_atomic_write($tmp, $level);
+				cia_atomic_write($tmp, $file);
 			}
 		}
 		else if (!$bmark && file_exists('./.config.zcache.php'))
 		{
 			// Global cache completion
 
-			$code = "\$cia_autoload_cache['{$searched_class}']='{$cache}';";
+			$amark = $prefix ? "'{$cache}'" : ($level + $GLOBALS['cia_paths_offset']);
+			$code = "\$c{$cia_paths_token}->{$searched_class}={$amark};";
 
 			$c = fopen('./.config.zcache.php', 'ab');
 			flock($c, LOCK_EX);
