@@ -12,6 +12,8 @@
  ***************************************************************************/
 
 
+$cia_autoload_pool = false;
+
 function cia_autoload($searched_class)
 {
 	global $cia_paths_token, $cia_autoload_cache;

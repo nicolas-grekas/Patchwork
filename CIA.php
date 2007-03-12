@@ -108,10 +108,10 @@ register_shutdown_function('cia_restoreProjectPath', CIA_PROJECT_PATH);
 // }}}
 
 // {{{ Global Initialisation
-define('DEBUG',			(int) $CONFIG['DEBUG']);
-define('CIA_MAXAGE',	$CONFIG['maxage']);
+define('DEBUG',       (int) $CONFIG['DEBUG']);
+define('CIA_MAXAGE',  $CONFIG['maxage']);
 define('CIA_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
-define('CIA_DIRECT', '_' == $_SERVER['CIA_REQUEST']);
+define('CIA_DIRECT',  '_' == $_SERVER['CIA_REQUEST']);
 
 function E($msg = '__getDeltaMicrotime')
 {
@@ -231,8 +231,6 @@ function cia_adaptRequire($file)
 // }}}
 
 // {{{ function __autoload()
-$cia_autoload_pool = false;
-
 function __autoload($searched_class)
 {
 	$a = strtolower($searched_class);
