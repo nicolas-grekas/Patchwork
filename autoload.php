@@ -209,14 +209,14 @@ function cia_autoload($searched_class)
 				}
 				else
 				{
-					$amark = $prefix ? "'{$cache}'" : ($level + $GLOBALS['cia_paths_offset']);
-					$amark = "(\$c{$cia_paths_token}->{$searched_class}={$amark})&&";
 					$code = "\$e{$cia_paths_token}=\$b{$cia_paths_token}={$code}";
 					$bmark = mt_rand(1, mt_getrandmax());
 					$GLOBALS['a' . $cia_paths_token] = $GLOBALS['b' . $cia_paths_token] = $file . '*' . $bmark;
 					$bmark = substr($code, 0, strrpos($code, '*') + 1) . $bmark . "'";
 					$code = "({$code})&&\$d{$cia_paths_token}&&";
-					$c = "({$bmark})&&\$d{$cia_paths_token}&&{$amark}";
+					$c = $prefix ? "'{$cache}'" : ($level + $GLOBALS['cia_paths_offset']);
+					$c = "\$c{$cia_paths_token}->{$searched_class}={$c}";
+					$c = "({$bmark})&&\$d{$cia_paths_token}&&({$c})&&";
 				}
 
 				$tmp = str_replace($code, $c, $tmp);
