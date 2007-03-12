@@ -42,6 +42,6 @@ class
 
 	static function close($db)
 	{
-		$db->commit();
+		$db->in_transaction && $db->commit();
 	}
 }
