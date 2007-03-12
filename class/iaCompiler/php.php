@@ -32,10 +32,11 @@ class extends iaCompiler
 		return ( $this->binaryMode ? '' : 'CIA_serverside::escape($v);' ) . $code;
 	}
 
-
 	protected function makeModifier($name)
 	{
-		return "((class_exists('" . strtolower($name) . "',0)||\$a{$GLOBALS['cia_paths_token']}=__FILE__.'*" . mt_rand() . "')?pipe_{$name}::php";
+		return DEBUG
+			? "(1?pipe_{$name}::php"
+			: "((isset(\$c{$GLOBALS['cia_paths_token']}['" . strtolower($name) . "'])||\$a{$GLOBALS['cia_paths_token']}=__FILE__.'*" . mt_rand() . "')?pipe_{$name}::php";
 	}
 
 	protected function addAGENT($end, $inc, &$args, $is_exo)

@@ -34,7 +34,7 @@ $CIA = array(
 	'$cia_paths=' . var_export($cia_paths, true),
 	'$cia_include_paths=' . var_export($cia_include_paths, true),
 	'$cia_paths_offset='  . $cia_paths_offset,
-	'$cia_abstract=(object)array();',
+	'$cia_abstract=array();',
 );
 
 
@@ -188,7 +188,7 @@ $CIA[] = '$version_id=' . $version_id;
 $CIA[] = '$cia_paths_token=\'' . $cia_paths_token . '\'';
 $CIA[] = '$a' . $cia_paths_token . '=false';
 $CIA[] = '$b' . $cia_paths_token . '=false';
-$CIA[] = '$c' . $cia_paths_token . '=(object)array()';
+$CIA[] = '$c' . $cia_paths_token . '=array()';
 $CIA[] = '$cia_autoload_cache=&$c' . $cia_paths_token;
 
 $CIA = array(implode(";\n", $CIA));

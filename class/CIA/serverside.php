@@ -215,7 +215,7 @@ class extends CIA
 			{
 				CIA::openMeta('agent__template/' . $template, false);
 				$compiler = new iaCompiler_php(constant("$agentClass::binary"));
-				$ftemplate = '<?php function ' . $ftemplate . '(&$v, &$a, &$g){global $a' . $GLOBALS['cia_paths_token'] . ';$d=$v;' . $compiler->compile($template . '.tpl') . '} ' . $ftemplate . '($v, $a, $g);';
+				$ftemplate = '<?php function ' . $ftemplate . '(&$v, &$a, &$g){global $a' . $GLOBALS['cia_paths_token'] . ',$c' . $GLOBALS['cia_paths_token'] . ';$d=$v;' . $compiler->compile($template . '.tpl') . '} ' . $ftemplate . '($v, $a, $g);';
 				fwrite($h, $ftemplate, strlen($ftemplate));
 				fclose($h);
 				list(,,, $watch) = CIA::closeMeta();
