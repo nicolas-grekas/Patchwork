@@ -680,6 +680,8 @@ class CIA_preprocessor__0
 				break;
 
 			case '{':
+				isset($class_pool[$curly_level-1]) && $static_instruction = false;
+
 				++$curly_level;
 
 				if ($curly_starts_function)
