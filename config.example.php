@@ -2,7 +2,7 @@
 
 /* php.ini configuration :
  * For maximum performance and security,
- * copy/paste these directives at the end of the file.
+ * copy/paste these directives at the end of your php.ini.
 
 magic_quotes_gpc = Off
 register_globals = Off

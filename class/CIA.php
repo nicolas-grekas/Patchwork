@@ -205,6 +205,49 @@ class
 
 	static function start()
 	{
+/*>
+		$GLOBALS['version_id'] *= -1;
+
+		CIA_DIRECT && isset($_GET['d$']) && CIA_debugWin::display();
+
+		if (CIA_CHECK_SOURCE && !CIA_DIRECT)
+		{
+			if ($h = @fopen('./.debugLock', 'xb'))
+			{
+				flock($h, LOCK_EX);
+
+				@unlink('./.config.zcache.php');
+
+				foreach (glob('./.*.1*.' . $GLOBALS['cia_paths_token'] . '.zcache.php', GLOB_NOSORT) as $cache)
+				{
+					$file = str_replace('%1', '%', str_replace('%2', '_', strtr(substr($cache, 3, -12-strlen($GLOBALS['cia_paths_token'])), '_', '/')));
+					$level = substr(strrchr($file, '.'), 2);
+
+					$file = substr($file, 0, -(2 + strlen($level)));
+					if ('-' == substr($level, -1))
+					{
+						$level = -$level;
+						$file = substr($file, 6);
+					}
+
+					$file = $GLOBALS['cia_include_paths'][count($GLOBALS['cia_paths']) - $level - 1] .'/'. $file;
+
+					if (!file_exists($file) || filemtime($file) >= filemtime($cache)) @unlink($cache);
+				}
+
+				fclose($h);
+			}
+			else
+			{
+				$h = fopen('./.debugLock', 'rb');
+				flock($h, LOCK_SH);
+				fclose($h);
+			}
+
+			@unlink('./.debugLock');
+		}
+<*/
+
 		ini_set('log_errors', true);
 		ini_set('error_log', './error.log');
 		ini_set('display_errors', false);
@@ -236,7 +279,7 @@ class
 		if (isset($_GET['T$'])) self::$private = true;
 
 		$agent = $_SERVER['CIA_REQUEST'];
-		if (($mime = strrchr($agent, '.')) && strcasecmp('.tpl', $mime)) require processPath('controler.php');
+		if (($mime = strrchr($agent, '.')) && strcasecmp('.tpl', $mime)) CIA_controler::call($agent, $mime);
 
 /*>
 		self::log(
@@ -302,7 +345,6 @@ class
 		if (isset($_COOKIE['cache_reset_id']) && self::$versionId == $_COOKIE['cache_reset_id'] && setcookie('cache_reset_id', '', 0, '/'))
 		{
 			touch('./config.php');
-			@unlink('./.config.zcache.php');
 			self::touch('foreignTrace');
 			self::touch('CIApID');
 
@@ -318,7 +360,6 @@ class
 		{
 			self::$fullVersionId = -self::$fullVersionId - filemtime('./config.php');
 			touch('./config.php', $_SERVER['REQUEST_TIME']);
-			@unlink('./.config.zcache.php');
 			self::$fullVersionId = -self::$fullVersionId - $_SERVER['REQUEST_TIME'];
 			self::$versionId = abs(self::$fullVersionId % 10000);
 
@@ -1046,7 +1087,7 @@ class
 			if (PHP_OUTPUT_HANDLER_START & $mode)
 			{
 				$lead = '';
-#>				if (self::$isServersideHtml && (!CIA_CHECK_SOURCE || CIA_POSTING) && !self::$binaryMode) $buffer = CIA_debugWin::call() . $buffer;
+#>				if (self::$isServersideHtml && (!CIA_CHECK_SOURCE || CIA_POSTING) && !self::$binaryMode) $buffer = CIA_debugWin::prolog() . $buffer;
 			}
 
 			$tail = '';
