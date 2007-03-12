@@ -301,10 +301,6 @@ if (
 }
 // }}}
 
-// {{{ Debug mode add-on
-DEBUG && require processPath('debug.php');
-// }}}
-
 /// {{{ Anti Cross-Site-(Request-Forgery|Javascript-Request) token
 $_POST_BACKUP =& $_POST;
 
