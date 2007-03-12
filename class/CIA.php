@@ -302,6 +302,7 @@ class
 		if (isset($_COOKIE['cache_reset_id']) && self::$versionId == $_COOKIE['cache_reset_id'] && setcookie('cache_reset_id', '', 0, '/'))
 		{
 			touch('./config.php');
+			@unlink('./.config.zcache.php');
 			self::touch('foreignTrace');
 			self::touch('CIApID');
 
@@ -317,6 +318,7 @@ class
 		{
 			self::$fullVersionId = -self::$fullVersionId - filemtime('./config.php');
 			touch('./config.php', $_SERVER['REQUEST_TIME']);
+			@unlink('./.config.zcache.php');
 			self::$fullVersionId = -self::$fullVersionId - $_SERVER['REQUEST_TIME'];
 			self::$versionId = abs(self::$fullVersionId % 10000);
 

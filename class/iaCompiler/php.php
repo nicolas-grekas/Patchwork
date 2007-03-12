@@ -35,7 +35,7 @@ class extends iaCompiler
 
 	protected function makeModifier($name)
 	{
-		return "((\$a{$GLOBALS['cia_paths_token']}=__FILE__.'-" . mt_rand() . "')?pipe_{$name}::php";
+		return "((class_exists('" . strtolower($name) . "',0)||\$a{$GLOBALS['cia_paths_token']}=__FILE__.'*" . mt_rand() . "')?pipe_{$name}::php";
 	}
 
 	protected function addAGENT($end, $inc, &$args, $is_exo)

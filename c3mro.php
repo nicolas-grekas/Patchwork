@@ -31,7 +31,6 @@ $cia_paths_offset  = count($cia_include_paths) - count($cia_paths) + 1;
 
 $CIA = array(
 	'#' . PHP_VERSION,
-	'$version_id=' . $version_id,
 	'$cia_paths=' . var_export($cia_paths, true),
 	'$cia_include_paths=' . var_export($cia_include_paths, true),
 	'$cia_paths_offset='  . $cia_paths_offset,
@@ -139,7 +138,7 @@ $lang_rx = \'([a-z]{2}(?:-[A-Z]{2})?)\'';
 		$appInheritSeq = isset($_SERVER['ORIG_PATH_INFO']) ? '$_SERVER[\'PATH_INFO\'] = $_SERVER[\'ORIG_PATH_INFO\'];' : '';
 
 		$CIA[] = isset($_SERVER['PATH_INFO']) || isset($_SERVER['ORIG_PATH_INFO'])
-			/* PATH_INFO enabled */ ? $appInheritSeq . '
+			? $appInheritSeq . '
 $_SERVER[\'CIA_HOME\'] .= \'/__/\';
 
 if (isset($_SERVER[\'PATH_INFO\']) && preg_match("\'^/{$lang_rx}/?(.*)$\'", $_SERVER[\'PATH_INFO\'], $a))
@@ -147,7 +146,7 @@ if (isset($_SERVER[\'PATH_INFO\']) && preg_match("\'^/{$lang_rx}/?(.*)$\'", $_SE
 	$_SERVER[\'CIA_LANG\']    = $a[1];
 	$_SERVER[\'CIA_REQUEST\'] = $a[2];
 }'
-			/* PATH_INFO not enabled */ : '
+			: '
 $_SERVER[\'CIA_HOME\'] .= \'?__/\';
 
 if (isset($_SERVER[\'QUERY_STRING\']) && preg_match("\'^{$lang_rx}/?(.*?)(?:[\?&](.*))?$\'", rawurldecode($_SERVER[\'QUERY_STRING\']), $a))
@@ -185,6 +184,7 @@ if (!file_exists($lock) && $appInheritSeq = @fopen($lock . '.lock', 'xb'))
 }
 
 
+$CIA[] = '$version_id=' . $version_id;
 $CIA[] = '$cia_paths_token=\'' . $cia_paths_token . '\'';
 $CIA[] = '$a' . $cia_paths_token . '=false';
 $CIA[] = '$b' . $cia_paths_token . '=false';

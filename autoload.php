@@ -146,7 +146,7 @@ function cia_autoload($searched_class)
 		// Include class declaration in its closest parent
 
 		$code = $cia_autoload_cache->$parent_class;
-		$tmp = strrpos($code, '-');
+		$tmp = strrpos($code, '*');
 		$file = substr($code, 0, $tmp);
 		$code = substr($code, $tmp);
 		$code = "\$GLOBALS['c{$cia_paths_token}']->{$parent_class}=__FILE__.'{$code}';";
@@ -156,7 +156,7 @@ function cia_autoload($searched_class)
 		{
 			if (!$c)
 			{
-				$c = substr($code, 0, strrpos($code, '-') + 1) . mt_rand() . "';";
+				$c = substr($code, 0, strrpos($code, '*') + 1) . mt_rand(1, mt_getrandmax()) . "';";
 				$class .= ';' . $c;
 			}
 
@@ -193,7 +193,7 @@ function cia_autoload($searched_class)
 			$code = $amark;
 			$amark = $amark != $bmark;
 
-			$tmp = strrpos($code, '-');
+			$tmp = strrpos($code, '*');
 			$file = substr($code, 0, $tmp);
 			$code = substr($code, $tmp);
 			$code = "\$a{$cia_paths_token}=__FILE__.'{$code}'";
@@ -201,13 +201,22 @@ function cia_autoload($searched_class)
 			$tmp = file_get_contents($file);
 			if (false !== strpos($tmp, $code))
 			{
-				if ($amark) $c = "class_exists('{$searched_class}',0)||(include './.class_{$cache}.{$cia_paths_token}.zcache.php')||1";
+				if ($amark)
+				{
+					$GLOBALS['a' . $cia_paths_token] = $bmark;
+					$code = "class_exists('{$searched_class}',0)||{$code}";
+					$c = "class_exists('{$searched_class}',0)||(include './.class_{$cache}.{$cia_paths_token}.zcache.php')||1";
+				}
 				else
 				{
 					$amark = $prefix ? "'{$cache}'" : ($level + $GLOBALS['cia_paths_offset']);
-					$code = "\$b{$cia_paths_token}=" . $code;
-					$c = substr($code, 0, strrpos($code, '-') + 1);
-					$c = "(\$c{$cia_paths_token}->{$searched_class}={$amark})&&" . $c . mt_rand() . "'";
+					$amark = "(\$c{$cia_paths_token}->{$searched_class}={$amark})&&";
+					$code = "\$e{$cia_paths_token}=\$b{$cia_paths_token}={$code}";
+					$bmark = mt_rand(1, mt_getrandmax());
+					$GLOBALS['a' . $cia_paths_token] = $GLOBALS['b' . $cia_paths_token] = $file . '*' . $bmark;
+					$bmark = substr($code, 0, strrpos($code, '*') + 1) . $bmark . "'";
+					$code = "({$code})&&\$d{$cia_paths_token}&&";
+					$c = "({$bmark})&&\$d{$cia_paths_token}&&{$amark}";
 				}
 
 				$tmp = str_replace($code, $c, $tmp);
