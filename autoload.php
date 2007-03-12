@@ -126,9 +126,9 @@ function cia_autoload($searched_class)
 	if ($parent_class && class_exists($parent_class, true))
 	{
 		$parent_class = strtolower($parent_class);
-		$class = "class {$searched_class} extends {$parent_class}{}";
+		$class = "class {$searched_class} extends {$parent_class}{}\$GLOBALS['c{$cia_paths_token}']['{$searched_class}']=1;";
 
-		if (isset($GLOBALS['cia_abstract']->$parent_class)) $class  = "abstract {$class}\$GLOBALS['cia_abstract']->{$searched_class}=1;";
+		if (isset($GLOBALS['cia_abstract'][$parent_class])) $class = "abstract {$class}\$GLOBALS['cia_abstract']['$searched_class']=1;";
 		else if ($c)
 		{
 			method_exists($parent_class, '__static_construct') && $class .= "{$parent_class}::__static_construct();";
@@ -141,15 +141,15 @@ function cia_autoload($searched_class)
 
 	if (DEBUG) return;
 
-	if ($class && isset($cia_autoload_cache->$parent_class))
+	if ($class && isset($cia_autoload_cache[$parent_class]))
 	{
 		// Include class declaration in its closest parent
 
-		$code = $cia_autoload_cache->$parent_class;
+		$code = $cia_autoload_cache[$parent_class];
 		$tmp = strrpos($code, '*');
 		$file = substr($code, 0, $tmp);
 		$code = substr($code, $tmp);
-		$code = "\$GLOBALS['c{$cia_paths_token}']->{$parent_class}=__FILE__.'{$code}';";
+		$code = "\$GLOBALS['c{$cia_paths_token}']['{$parent_class}']=__FILE__.'{$code}';";
 
 		$tmp = file_get_contents($file);
 		if (false !== strpos($tmp, $code))
@@ -204,8 +204,8 @@ function cia_autoload($searched_class)
 				if ($amark)
 				{
 					$GLOBALS['a' . $cia_paths_token] = $bmark;
-					$code = "class_exists('{$searched_class}',0)||{$code}";
-					$c = "class_exists('{$searched_class}',0)||(include './.class_{$cache}.{$cia_paths_token}.zcache.php')||1";
+					$code = "isset(\$c{$cia_paths_token}['{$searched_class}'])||{$code}";
+					$c = "isset(\$c{$cia_paths_token}['{$searched_class}'])||(include './.class_{$cache}.{$cia_paths_token}.zcache.php')||1";
 				}
 				else
 				{
@@ -215,7 +215,7 @@ function cia_autoload($searched_class)
 					$bmark = substr($code, 0, strrpos($code, '*') + 1) . $bmark . "'";
 					$code = "({$code})&&\$d{$cia_paths_token}&&";
 					$c = $prefix ? "'{$cache}'" : ($level + $GLOBALS['cia_paths_offset']);
-					$c = "\$c{$cia_paths_token}->{$searched_class}={$c}";
+					$c = "\$c{$cia_paths_token}['{$searched_class}']={$c}";
 					$c = "({$bmark})&&\$d{$cia_paths_token}&&({$c})&&";
 				}
 
@@ -228,7 +228,7 @@ function cia_autoload($searched_class)
 			// Global cache completion
 
 			$amark = $prefix ? "'{$cache}'" : ($level + $GLOBALS['cia_paths_offset']);
-			$code = "\$c{$cia_paths_token}->{$searched_class}={$amark};";
+			$code = "\$c{$cia_paths_token}['{$searched_class}']={$amark};";
 
 			$c = fopen('./.config.zcache.php', 'ab');
 			flock($c, LOCK_EX);

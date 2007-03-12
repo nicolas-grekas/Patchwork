@@ -191,7 +191,7 @@ class CIA_preprocessor__0
 		$preproc->level = $level;
 		$preproc->class = $class;
 		$preproc->marker = array(
-			'global $a' . $code . ';',
+			'global $a' . $code . ',$c' . $code . ';',
 			'global $a' . $code . ',$b' . $code . ',$c' . $code . ';'
 		);
 
@@ -712,8 +712,8 @@ class CIA_preprocessor__0
 					$c = $class_pool[$curly_level];
 
 					if (!$c->has_php5_construct) $token = $c->construct_source . '}';
-					if ($c->is_abstract) $token .= "\$GLOBALS['cia_abstract']->{$c->real_classname}=1;";
-					$token .= "\$GLOBALS['c{$GLOBALS['cia_paths_token']}']->{$c->real_classname}=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
+					if ($c->is_abstract) $token .= "\$GLOBALS['cia_abstract']['{$c->real_classname}']=1;";
+					$token .= "\$GLOBALS['c{$GLOBALS['cia_paths_token']}']['{$c->real_classname}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
 
 					unset($class_pool[$curly_level]);
 				}
@@ -744,7 +744,7 @@ class CIA_preprocessor__0
 	protected function marker($class = '')
 	{
 		global $cia_paths_token;
-		return ($class ? "class_exists('" . strtolower($class) . "',0)||" : ("\$e{$cia_paths_token}=\$b{$cia_paths_token}=")) . "\$a{$cia_paths_token}=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "'";
+		return ($class ? "isset(\$c{$cia_paths_token}['" . strtolower($class) . "'])||" : ("\$e{$cia_paths_token}=\$b{$cia_paths_token}=")) . "\$a{$cia_paths_token}=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "'";
 	}
 
 	protected function seekSugar(&$code, $i)
