@@ -300,9 +300,9 @@ class
 #>		self::log('', true);
 	}
 
+	// {{{ Client side rendering controler
 	static function clientside()
 	{
-		// {{{ Client side rendering controler
 		self::header('Content-Type: text/javascript; charset=UTF-8');
 
 		if (isset($_GET['v$']) && self::$versionId != $_GET['v$'] && 'x$' != key($_GET))
@@ -903,7 +903,7 @@ class
 				break;
 			}
 
-			if (processPath("class/agent/{$potentialAgent}.php"))
+			if (resolvePath("class/agent/{$potentialAgent}.php"))
 			{
 				$createTemplate = false;
 				break;
