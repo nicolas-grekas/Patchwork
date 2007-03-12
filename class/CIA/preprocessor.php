@@ -54,8 +54,11 @@ class CIA_preprocessor__0
 		'array_uintersect_assoc'  => 0,
 		'array_uintersect_uassoc' => 0,
 		'array_uintersect'        => 0,
+		'assert'                  => 0,
 		'constant'                => 0,
+		'curl_setopt'             => 0,
 		'create_function'         => 0,
+		'preg_replace'            => 0,
 		'sqlite_create_aggregate' => 0,
 
 		// Classname as string in the first parameter
@@ -72,26 +75,38 @@ class CIA_preprocessor__0
 		'call_user_func'             => 1,
 		'call_user_func_array'       => 1,
 		'is_callable'                => 1,
+		'ob_start'                   => 1,
+		'register_shutdown_function' => 1,
+		'register_tick_function'     => 1,
 		'session_set_save_handler'   => 1,
 		'set_exception_handler'      => 1,
 		'set_error_handler'          => 1,
 		'sybase_set_message_handler' => 1,
-		'ob_start'                   => 1,
 
 		// Classname as callback in the second parameter
+		'array_filter'                           => 2,
+		'array_reduce'                           => 2,
+		'array_walk'                             => 2,
+		'array_walk_recursive'                   => 2,
+		'assert_options'                         => 2,
+		'pcntl_signal'                           => 2,
+		'preg_replace_callback'                  => 2,
+		'runkit_sandbox_output_handler'          => 2,
 		'usort'                                  => 2,
 		'uksort'                                 => 2,
 		'uasort'                                 => 2,
-		'array_walk'                             => 2,
-		'array_walk_recursive'                   => 2,
-		'preg_replace_callback'                  => 2,
-		'runkit_sandbox_output_handler'          => 2,
+		'xml_set_character_data_handler'         => 2,
+		'xml_set_default_handler'                => 2,
+		'xml_set_element_handler'                => 2,
+		'xml_set_end_namespace_decl_handler'     => 2,
 		'xml_set_processing_instruction_handler' => 2,
+		'xml_set_start_namespace_decl_handler'   => 2,
 		'xml_set_notation_decl_handler'          => 2,
 		'xml_set_external_entity_ref_handler'    => 2,
 		'xml_set_unparsed_entity_decl_handler'   => 2,
 
 		// Classname as callback in the third parameter
+		'filter_var'             => 3,
 		'sqlite_create_function' => 3,
 	);
 
@@ -168,14 +183,16 @@ class CIA_preprocessor__0
 			CIA_preprocessor::$recursive = true;
 		}
 
+		$code = $GLOBALS['cia_paths_token'];
+
 		$preproc = class_exists('CIA_preprocessor', false) ? 'CIA_preprocessor' : 'CIA_preprocessor__0';
 		$preproc = new $preproc;
 		$preproc->source = $source = realpath($source);
 		$preproc->level = $level;
 		$preproc->class = $class;
 		$preproc->marker = array(
-			'global $a' . $GLOBALS['cia_paths_token'] . ';',
-			'global $a' . $GLOBALS['cia_paths_token'] . ',$b' . $GLOBALS['cia_paths_token'] . ',$c' . $GLOBALS['cia_paths_token'] . ';'
+			'global $a' . $code . ';',
+			'global $a' . $code . ',$b' . $code . ',$c' . $code . ';'
 		);
 
 		$code = file_get_contents($source);
@@ -233,7 +250,7 @@ class CIA_preprocessor__0
 		$new_type = array();
 		$new_code_length = 0;
 
-		$opentag_marker = $this->marker[1];
+		$opentag_marker = $this->marker[1] . "isset(\$e{$GLOBALS['cia_paths_token']})||\$e{$GLOBALS['cia_paths_token']}=false;";
 		$curly_level = 0;
 		$curly_starts_function = false;
 		$class_pool = array();
@@ -399,10 +416,16 @@ class CIA_preprocessor__0
 					$c = false;
 				}
 
-				$c
-					? ($curly_marker_last[1]>0 || $curly_marker_last[1] =  1)
-					: ($curly_marker_last[1]   || $curly_marker_last[1] = -1);
-				$c = $this->marker($c);
+				if ($c)
+				{
+					$curly_marker_last[1]>0 || $curly_marker_last[1] =  1;
+					$c = "\$a{$GLOBALS['cia_paths_token']}=\$b{$GLOBALS['cia_paths_token']}=\$e{$GLOBALS['cia_paths_token']}";
+				}
+				else
+				{
+					$curly_marker_last[1]   || $curly_marker_last[1] = -1;
+					$c = $this->marker($code[$j][1]);
+				}
 
 				if ('&' == $prevType)
 				{
@@ -420,7 +443,7 @@ class CIA_preprocessor__0
 					if ($static_instruction || isset($class_pool[$curly_level-1]) || in_array($prevType, CIA_preprocessor::$inline_class)) break;
 
 					$curly_marker_last[1] || $curly_marker_last[1] = -1;
-					$c = $this->marker(false);
+					$c = $this->marker($prevType);
 					$j = $new_code_length;
 
 					if ('&' == $antePrevType)
@@ -538,7 +561,7 @@ class CIA_preprocessor__0
 					default:
 						if (!isset(CIA_preprocessor::$callback[$type])) break;
 
-						$token = '((' . $this->marker(true) . ')?' . $token;
+						$token = "((\$a{$GLOBALS['cia_paths_token']}=\$b{$GLOBALS['cia_paths_token']}=\$e{$GLOBALS['cia_paths_token']})||1?" . $token;
 						$b = new CIA_preprocessor_marker_($this, true);
 						$b->curly = -1;
 						$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
@@ -586,7 +609,7 @@ class CIA_preprocessor__0
 				$token .= $this->fetchSugar($code, $i);
 				if ('(' == $code[$i--])
 				{
-					$token = '((' . $this->marker(true) . ')?' . $token;
+					$token = "((\$a{$GLOBALS['cia_paths_token']}=\$b{$GLOBALS['cia_paths_token']}=\$e{$GLOBALS['cia_paths_token']})||1?" . $token;
 					$b = new CIA_preprocessor_marker_($this, true);
 					$b->curly = -1;
 					$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
@@ -625,7 +648,7 @@ class CIA_preprocessor__0
 						$j = '(' == $code[$i+1] && isset($code[$i+2]) ? $this->seekSugar($code, $i+1) : $i+1;
 						if (!(is_array($code[$j]) && T_STRING == $code[$j][0] && 'processpath' == strtolower($code[$j][1])))
 						{
-							$token .= '((' . $this->marker(true) . ')?';
+							$token .= "((\$a{$GLOBALS['cia_paths_token']}=\$b{$GLOBALS['cia_paths_token']}=\$e{$GLOBALS['cia_paths_token']})||1?";
 							$b = new CIA_preprocessor_require_($this, true);
 							$b->close = ':0)';
 							$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
@@ -671,7 +694,9 @@ class CIA_preprocessor__0
 			case '}':
 				if (isset($curly_marker[$curly_level]))
 				{
-					$curly_marker_last[1] && $new_code[$curly_marker_last[0]] .= $this->marker[$curly_marker_last[1]>0 ? 1 : 0];
+					$curly_marker_last[1] && $new_code[$curly_marker_last[0]] .= $curly_marker_last[1]>0
+						? "{$this->marker[1]}static \$d{$GLOBALS['cia_paths_token']}=1;(" . $this->marker() . ")&&\$d{$GLOBALS['cia_paths_token']}&&\$d{$GLOBALS['cia_paths_token']}=0;"
+						: $this->marker[0];
 
 					unset($curly_marker[$curly_level]);
 					end($curly_marker);
@@ -686,7 +711,7 @@ class CIA_preprocessor__0
 
 					if (!$c->has_php5_construct) $token = $c->construct_source . '}';
 					if ($c->is_abstract) $token .= "\$GLOBALS['cia_abstract']->{$c->real_classname}=1;";
-					$token .= "\$GLOBALS['c{$GLOBALS['cia_paths_token']}']->{$c->real_classname}=__FILE__.'-" . mt_rand() . "';";
+					$token .= "\$GLOBALS['c{$GLOBALS['cia_paths_token']}']->{$c->real_classname}=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
 
 					unset($class_pool[$curly_level]);
 				}
@@ -714,10 +739,10 @@ class CIA_preprocessor__0
 		return $new_code;
 	}
 
-	protected function marker($array)
+	protected function marker($class = '')
 	{
 		global $cia_paths_token;
-		return ($array ? '$b' . $cia_paths_token . '=' : '') . '$a' . $cia_paths_token . "=__FILE__.'-" . mt_rand() . "'";
+		return ($class ? "class_exists('" . strtolower($class) . "',0)||" : ("\$e{$cia_paths_token}=\$b{$cia_paths_token}=")) . "\$a{$cia_paths_token}=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "'";
 	}
 
 	protected function seekSugar(&$code, $i)
