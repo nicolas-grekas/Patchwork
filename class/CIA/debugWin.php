@@ -122,7 +122,7 @@ function Z()
 							. '</span>'
 							. preg_replace_callback(
 								"'" . preg_quote(htmlspecialchars(CIA_PROJECT_PATH) . DIRECTORY_SEPARATOR . '.')
-									. "([^\\\\/]+)\.[01]([0-9]+)(-?)\.{$cia_paths_token}\.zcache\.php'",
+									. "([^\\\\/]+)\.[01]([0-9]+)(-?)\.{$GLOBALS['cia_paths_token']}\.zcache\.php'",
 								array(__CLASS__, 'filename'),
 								substr($a, $b)
 							);
