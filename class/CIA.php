@@ -883,7 +883,7 @@ class
 		}
 		else $a = array('/');
 
-		$param = (string) substr($agent, strlen($a[0]));
+		$param = (string) substr($agent, strlen($a[0]), -1);
 		$param = '' !== $param ? explode('/', $param) : array();
 		$agent = (string) substr($a[0], 1, -1);
 
