@@ -130,8 +130,11 @@ function cia_autoload($searched_class)
 		$parent_class = strtolower($parent_class);
 		$class = "class {$searched_class} extends {$parent_class}{}\$GLOBALS['c{$cia_paths_token}']['{$searched_class}']=1;";
 
-		if (isset($GLOBALS['cia_abstract'][$parent_class])) $class = "abstract {$class}\$GLOBALS['cia_abstract']['$searched_class']=1;";
-		else if ($c)
+		if (isset($GLOBALS['cia_abstract'][$parent_class])) $class = 'abstract ' . $class;
+
+		$class = "if(!class_exists('',0)){{$class}}";
+	
+		if ($c && !isset($GLOBALS['cia_abstract'][$parent_class]))
 		{
 			method_exists($parent_class, '__static_construct') && $class .= "{$parent_class}::__static_construct();";
 			method_exists($parent_class, '__static_destruct' ) && $class .= "register_shutdown_function(array('{$parent_class}','__static_destruct'));";

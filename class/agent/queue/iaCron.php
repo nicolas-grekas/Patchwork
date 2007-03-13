@@ -115,6 +115,8 @@ class extends agent_bin
 
 	protected function restoreSession(&$session)
 	{
+		if (!$session) return;
+
 		$_COOKIE['SID'] = '1';
 
 		if (class_exists('SESSION', false))
