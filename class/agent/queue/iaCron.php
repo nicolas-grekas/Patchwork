@@ -115,24 +115,11 @@ class extends agent_bin
 
 	protected function restoreSession(&$session)
 	{
-		if (!$session) return;
-
-		$_COOKIE['SID'] = '1';
-
-		if (class_exists('SESSION', false))
+		if ($session)
 		{
-			foreach ($session as $k => $v) SESSION::set($k, $v);
-			return;
+			foreach ($session as $k => &$v) SESSION::set($k, $v);
+			SESSION::regenerateId(false, false);
 		}
-
-		// eval() because nested class declaration is forbidden,
-		// and also to prevent the preprocessor from renamming the class
-		eval('class SESSION extends SESSION__0
-		{
-			static function setData(&$data) {self::$lastseen=$_SERVER["REQUEST_TIME"]; self::$DATA=&$data;}
-			static function regenerateId($reset=false) {if ($reset) self::$DATA=array();}
-		}
-		SESSION::setData($session);');
 	}
 
 	protected function getLock()
