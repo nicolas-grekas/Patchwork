@@ -158,7 +158,9 @@ function cia_autoload($searched_class)
 		{
 			if (!$c)
 			{
-				$c = substr($code, 0, strrpos($code, '*') + 1) . mt_rand(1, mt_getrandmax()) . "';";
+				$c = (string) mt_rand(1, mt_getrandmax());
+				$cia_autoload_cache[$parent_class] = $file . '*' . $c;
+				$c = substr($code, 0, strrpos($code, '*') + 1) . $c . "';";
 				$class .= ';' . $c;
 			}
 
@@ -212,7 +214,7 @@ function cia_autoload($searched_class)
 				else
 				{
 					$code = "\$e{$cia_paths_token}=\$b{$cia_paths_token}={$code}";
-					$bmark = mt_rand(1, mt_getrandmax());
+					$bmark = (string) mt_rand(1, mt_getrandmax());
 					$GLOBALS['a' . $cia_paths_token] = $GLOBALS['b' . $cia_paths_token] = $file . '*' . $bmark;
 					$bmark = substr($code, 0, strrpos($code, '*') + 1) . $bmark . "'";
 					$code = "({$code})&&\$d{$cia_paths_token}&&";
