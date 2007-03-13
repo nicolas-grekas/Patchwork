@@ -23,17 +23,6 @@ if (!preg_match("''u", urldecode($a = $_SERVER['REQUEST_URI'])))
 	exit;
 }
 
-
-// {{{ Global context setup
-// $_REQUEST is an open door to security problems.
-unset($_REQUEST);
-unset($_REQUEST); // Double unset against a PHP security hole
-
-// Encoding context initialization
-@putenv('LC_ALL=en_US.UTF-8');
-setlocale(LC_ALL, 'en_US.UTF-8');
-// }}}
-
 // {{{ registerAutoloadPrefix()
 $cia_autoload_prefix = array();
 
@@ -84,6 +73,10 @@ function cia_atomic_write(&$data, $to)
 
 // {{{ Load configuration
 chdir($CIA);
+
+// $_REQUEST is an open door to security problems.
+unset($_REQUEST);
+unset($_REQUEST); // Double unset against a PHP security hole
 
 $CONFIG = array();
 $version_id = './.config.zcache.php';
@@ -235,7 +228,7 @@ function __autoload($searched_class)
 {
 	$a = strtolower($searched_class);
 
-	if ($a =& $GLOBALS['cia_autoload_cache'][$searched_class] && !DEBUG)
+	if ($a =& $GLOBALS['cia_autoload_cache'][$a] && !DEBUG)
 	{
 		if (is_int($a))
 		{
