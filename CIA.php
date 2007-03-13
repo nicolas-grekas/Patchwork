@@ -155,7 +155,7 @@ function resolvePath($file, $level = false, $base = false)
 	for (; $i < $nb_paths; ++$i, --$level)
 	{
 		$source = $paths[$i] .'/'. (0<=$level ? $file : substr($file, 6));
-		if (file_exists($source)) return $source;
+		if (file_exists($source) && (!CIA_WINDOWS || is_file($source) || is_dir($source) || is_link($source))) return $source;
 	}
 
 	return false;
