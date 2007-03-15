@@ -45,7 +45,7 @@ isset($_SERVER['HTTPS']) && !isset($_SERVER['HTTPS_KEYSIZE']) && $CIA[] = 'unset
 isset($_SERVER['QUERY_STRING']) || $CIA[] = '
 $a = $_SERVER[\'REQUEST_URI\'];
 $b = strpos($a, \'?\');
-$_SERVER[\'QUERY_STRING\'] = false !== $b++ && $b < strlen($a) ? substr($a, $b) : null';
+$_SERVER[\'QUERY_STRING\'] = false !== $b++ && $b < strlen($a) ? substr($a, $b) : \'\'';
 
 // {{{ Fix php.ini settings
 
