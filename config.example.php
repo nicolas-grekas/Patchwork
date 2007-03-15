@@ -30,25 +30,24 @@ mbstring.func_overload = 0
 
 $CONFIG += array(
 
-	'DEBUG' => 1,
-	'DEBUG_KEYS' => array('' => 1),	// password => debug_level hash
+	// password => debug level hash
+	'DEBUG_PASSWORD' => array('' => 1),
 
-	// This is critical global config.
+	// Available application's locales
+	'lang_list' => 'fr|en',
+
+	// See http://php.net/date_default_timezone_set
 	'timezone' => 'Europe/Paris',
 
-	// For sending emails. See PEAR's Mail::factory()
+	// To send emails. See PEAR's Mail::factory()
 	'debug_email' => 'webmaster',
 	'email_backend' => 'mail',
 	'email_options' => '',
 
-
-	// Next: defaults should be ok to start with
-
-	'clientside' => true,
-	'maxage' => 3600,
-	'lang_list' => 'fr',
-
-//	'translate_adapter' => false,
-//	'translate_options' => array(),
+	// Defaults
+#	'clientside' => true,
+#	'maxage' => 3600,
+#	'translate_adapter' => false,
+#	'translate_options' => array(),
 
 );

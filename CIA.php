@@ -92,7 +92,6 @@ define('CIA_CHECK_SOURCE', isset($_SERVER['HTTP_CACHE_CONTROL']) && 'no-cache' =
 // Load the configuration
 require file_exists($version_id) ? $version_id : (__CIA__ . '/c3mro.php');
 
-if (!isset($CONFIG['DEBUG'])) $CONFIG['DEBUG'] = (int) @$CONFIG['DEBUG_KEYS'][ (string) $_COOKIE['DEBUG'] ];
 if (isset($CONFIG['clientside']) && !$CONFIG['clientside']) $_GET['$bin'] = true;
 
 // Restore the current dir in shutdown context.
@@ -101,8 +100,8 @@ register_shutdown_function('cia_restoreProjectPath', CIA_PROJECT_PATH);
 // }}}
 
 // {{{ Global Initialisation
-define('DEBUG',       (int) $CONFIG['DEBUG']);
-define('CIA_MAXAGE',  $CONFIG['maxage']);
+define('DEBUG',       (int) @$CONFIG['DEBUG_PASSWORD'][$_COOKIE['DEBUG']]);
+define('CIA_MAXAGE',  isset($CONFIG['maxage']) ? $CONFIG['maxage'] : 3600);
 define('CIA_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
 define('CIA_DIRECT',  '_' == $_SERVER['CIA_REQUEST']);
 
