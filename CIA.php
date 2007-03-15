@@ -54,11 +54,13 @@ function registerAutoloadPrefix($prefix, $class2file_resolver, $class2file_resol
 // }}}
 
 // {{{ cia_atomic_write
-function cia_atomic_write(&$data, $to)
+function cia_atomic_write(&$data, $to, $mtime = false)
 {
 	$tmp = uniqid(mt_rand(), true);
 	file_put_contents($tmp, $data);
 	unset($data);
+
+	$mtime && touch($tmp, $mtime);
 
 	if (CIA_WINDOWS)
 	{
