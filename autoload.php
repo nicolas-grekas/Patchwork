@@ -165,7 +165,7 @@ function cia_autoload($searched_class)
 			}
 
 			$tmp = str_replace($code, $class, $tmp);
-			($cache == $file && $current_pool) || cia_atomic_write($tmp, $file);
+			($cache == $file && $current_pool) || cia_atomic_write($tmp, $file, filemtime($file));
 		}
 	}
 	else $tmp = false;
@@ -185,7 +185,7 @@ function cia_autoload($searched_class)
 			foreach ($current_pool as $class => &$c) $code = substr($code, 0, -2) . "class_exists('{$class}',0)||include '{$c}';?>";
 
 			$tmp = substr($code, 0, -2) . substr($tmp, 6);
-			cia_atomic_write($tmp, $cache);
+			cia_atomic_write($tmp, $cache, filemtime($cache));
 		}
 
 		$cache = substr($cache, 9, -12-strlen($cia_paths_token));
@@ -224,7 +224,7 @@ function cia_autoload($searched_class)
 				}
 
 				$tmp = str_replace($code, $c, $tmp);
-				cia_atomic_write($tmp, $file);
+				cia_atomic_write($tmp, $file, filemtime($file));
 			}
 		}
 		else if (!$bmark && file_exists('./.config.zcache.php'))
