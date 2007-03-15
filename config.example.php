@@ -34,7 +34,6 @@ $CONFIG += array(
 	'DEBUG_KEYS' => array('' => 1),	// password => debug_level hash
 
 	// This is critical global config.
-	'php' => '/usr/bin/php', // Path to your php (CLI) executable.
 	'timezone' => 'Europe/Paris',
 
 	// For sending emails. See PEAR's Mail::factory()

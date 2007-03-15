@@ -24,52 +24,26 @@ class extends CIA
 		$args = array();
 		$HOME = $home = CIA::__HOME__();
 		$agent = CIA::home($agent, true);
-		$keys = false;
 		$s = '\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'';
 		$s = "/w\.k\((-?[0-9]+),($s),($s),($s),\[((?:$s(?:,$s)*)?)\]\)/su";
 
-		if (
-			   0 === strpos($agent, $HOME)
-			&& !ini_get('safe_mode')
-			&& is_callable('shell_exec')
-			&& (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? !extension_loaded('openssl') : false)
-			&& $keys = $GLOBALS['CONFIG']['php']
-		)
+		$agent = implode(CIA::__LANG__(), explode('__', $agent, 2));
+
+		if (ini_get('allow_url_fopen'))
 		{
-			$keys = $keys . ' -q ' . implode(' ', array_map('escapeshellarg', array(
-				processPath('getTrace.php'),
-				resolvePath('config.php'),
-				$_SERVER['CIA_HOME'],
-				CIA::__LANG__(),
-				substr($agent, strlen($HOME)),
-				isset($_SERVER['HTTPS']) ? (bool) $_SERVER['HTTPS'] : false
-			)));
-
-			$keys = shell_exec($keys);
-
-			if (!preg_match($s, $keys, $keys)) $keys = false;
+			$keys = file_get_contents($agent . '?k$', false);
+		}
+		else
+		{
+			$keys = new HTTP_Request($agent . '?k$');
+			$keys->sendRequest();
+			$keys = $keys->getResponseBody();
 		}
 
-		if (!$keys)
+		if (!preg_match($s, $keys, $keys))
 		{
-			$agent = implode(CIA::__LANG__(), explode('__', $agent, 2));
-
-			if (ini_get('allow_url_fopen'))
-			{
-				$keys = file_get_contents($agent . '?k$', false, stream_context_create(array('http' => array('method' => 'GET'))));
-			}
-			else
-			{
-				$keys = new HTTP_Request($agent . '?k$');
-				$keys->sendRequest();
-				$keys = $keys->getResponseBody();
-			}
-
-			if (!preg_match($s, $keys, $keys))
-			{
-				W('Error while getting meta info data for ' . htmlspecialchars($agent));
-				CIA::disable(true);
-			}
+			W('Error while getting meta info data for ' . htmlspecialchars($agent));
+			CIA::disable(true);
 		}
 
 		$CIApID = (int) $keys[1];
