@@ -16,6 +16,7 @@ define('CIA', microtime(true));
 
 // IIS compatibility
 isset($_SERVER['REQUEST_URI']) || $_SERVER['REQUEST_URI'] = $_SERVER['URL'];
+isset($_SERVER['SERVER_ADDR']) || $_SERVER['SERVER_ADDR'] = '127.0.0.1';
 
 if (!preg_match("''u", urldecode($a = $_SERVER['REQUEST_URI'])))
 {

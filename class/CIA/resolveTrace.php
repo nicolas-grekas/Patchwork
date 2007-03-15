@@ -24,23 +24,27 @@ class extends CIA
 		$args = array();
 		$HOME = $home = CIA::__HOME__();
 		$agent = CIA::home($agent, true);
-		$s = '\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'';
-		$s = "/w\.k\((-?[0-9]+),($s),($s),($s),\[((?:$s(?:,$s)*)?)\]\)/su";
 
 		$agent = implode(CIA::__LANG__(), explode('__', $agent, 2));
+		$agent = preg_replace("'^.*://[^/]*'", '', $agent);
+		
+		$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
+		$h = stream_socket_client("{$h}://{$_SERVER['SERVER_ADDR']}:{$_SERVER['SERVER_PORT']}", $errno, $errstr, 5);
+		if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
 
-		if (ini_get('allow_url_fopen'))
-		{
-			$keys = file_get_contents($agent . '?k$', false);
-		}
-		else
-		{
-			$keys = new HTTP_Request($agent . '?k$');
-			$keys->sendRequest();
-			$keys = $keys->getResponseBody();
-		}
+		$keys  = "GET {$agent}?k$ HTTP/1.1\r\n";
+		$keys .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
+		$keys .= "Connection: Close\r\n\r\n";
 
-		if (!preg_match($s, $keys, $keys))
+		fwrite($h, $keys);
+		$keys = array();
+		while (!feof($h)) $keys[] = fgets($h);
+		fclose($h);
+
+		$h = '\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'';
+		$h = "/w\.k\((-?[0-9]+),($h),($h),($h),\[((?:$h(?:,$h)*)?)\]\)/su";
+
+		if (!preg_match($h, implode('', $keys), $keys))
 		{
 			W('Error while getting meta info data for ' . htmlspecialchars($agent));
 			CIA::disable(true);

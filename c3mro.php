@@ -118,26 +118,21 @@ $lang_rx = \'([a-z]{2}(?:-[A-Z]{2})?)\'';
 		{
 			// Check if the webserver supports PATH_INFO
 
-			$host = $_SERVER['HTTP_HOST'];
-
-			if (preg_match("':([^0-9]*)$'", $host, $h)) $host = (isset($_SERVER['HTTPS']) ? 'ssl://' : 'tcp://') . $host . (''===$h[1] ? '' : '80');
-			else if (isset($_SERVER['HTTPS'])) $host = 'ssl://' . $host . ':443';
-			else $host = 'tcp://' . $host . ':80';
-
-			$h = stream_socket_client($host, $errno, $errstr, 5);
+			$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
+			$h = stream_socket_client("{$h}://{$_SERVER['SERVER_ADDR']}:{$_SERVER['SERVER_PORT']}", $errno, $errstr, 5);
 			if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
 
-			$host  = "GET {$_SERVER['SCRIPT_NAME']}/ HTTP/1.1\r\n";
-			$host .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
-			$host .= "Connection: Close\r\n\r\n";
+			$a  = "GET {$_SERVER['SCRIPT_NAME']}/ HTTP/1.1\r\n";
+			$a .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
+			$a .= "Connection: Close\r\n\r\n";
 
-			fwrite($h, $host);
-			$host = fgets($h, 14);
+			fwrite($h, $a);
+			$a = fgets($h, 14);
 			fclose($h);
 
-			if (false !== strpos($host, '200')) $_SERVER['PATH_INFO'] = '';
+			if (false !== strpos($a, '200')) $_SERVER['PATH_INFO'] = '';
 
-			unset($host);
+			unset($a);
 			unset($h);
 		}
 
@@ -175,7 +170,7 @@ if (isset($_SERVER[\'QUERY_STRING\']) && preg_match("\'^{$lang_rx}/?(.*?)(?:[\?&
 	}
 }';
 }
-else if (!strncmp('/', $_SERVER['CIA_HOME'], 1)) $CIA[] = '$_SERVER[\'CIA_HOME\'] = \'http\' . (isset($_SERVER[\'HTTPS\']) && $_SERVER[\'HTTPS\'] ? \'s\' : \'\') . \'://\' . $_SERVER[\'HTTP_HOST\'] . $_SERVER[\'CIA_HOME\']';
+else if (!strncmp('/', $_SERVER['CIA_HOME'], 1)) $CIA[] = '$_SERVER[\'CIA_HOME\'] = \'http\' . (isset($_SERVER[\'HTTPS\']) ? \'s\' : \'\') . \'://\' . $_SERVER[\'HTTP_HOST\'] . $_SERVER[\'CIA_HOME\']';
 // }}}
 
 

@@ -116,10 +116,7 @@ class extends CIA
 
 					foreach ($args as $k => &$v) $agent .= '&' . urlencode($k) . '=' . urlencode(CIA::string($v));
 
-					if (ini_get('allow_url_fopen'))
-					{
-						$agent = file_get_contents($agent, false, stream_context_create(array('http' => array('method' => 'GET'))));
-					}
+					if (ini_get('allow_url_fopen')) $agent = file_get_contents($agent);
 					else
 					{
 						$agent = new HTTP_Request($agent);
