@@ -14,6 +14,9 @@
 
 define('CIA', microtime(true));
 
+// IIS compatibility
+isset($_SERVER['REQUEST_URI']) || $_SERVER['REQUEST_URI'] = $_SERVER['URL'];
+
 if (!preg_match("''u", urldecode($a = $_SERVER['REQUEST_URI'])))
 {
 	$a = $a != utf8_decode($a) ? '/' : preg_replace("'(?:%[89a-fA-F][0-9a-fA-F])+'e", "urlencode(utf8_encode(urldecode('$0')))", $a);
