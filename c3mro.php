@@ -40,6 +40,12 @@ $CIA = array(
 
 isset($_SERVER['REQUEST_TIME']) || $CIA[] = '$_SERVER[\'REQUEST_TIME\']=time()';
 
+// IIS compatibility
+isset($_SERVER['HTTPS']) && !isset($_SERVER['HTTPS_KEYSIZE']) && $CIA[] = 'unset($_SERVER[\'HTTPS\'])';
+isset($_SERVER['QUERY_STRING']) || $CIA[] = '
+$a = $_SERVER[\'REQUEST_URI\'];
+$b = strpos($a, \'?\');
+$_SERVER[\'QUERY_STRING\'] = false !== $b++ && $b < strlen($a) ? substr($a, $b) : null';
 
 // {{{ Fix php.ini settings
 
