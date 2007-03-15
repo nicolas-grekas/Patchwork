@@ -33,7 +33,7 @@ function T($string, $lang = false)
 }
 // }}}
 
-// {{{ hunter : a user function is triggered when a hunter object is destroyed
+// {{{ hunter: a user function is triggered when a hunter object is destroyed
 class hunter
 {
 	protected $function;

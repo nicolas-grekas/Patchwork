@@ -53,11 +53,7 @@ class extends iaMail_mime
 		if (isset(self::$imageCache[$url])) $data =& self::$imageCache[$url];
 		else
 		{
-			if (ini_get('allow_url_fopen'))
-			{
-				$data = stream_context_create(array('http' => array('method' => 'GET')));
-				$data = file_get_contents($url, false, $data);
-			}
+			if (ini_get('allow_url_fopen')) $data = file_get_contents($url);
 			else
 			{
 				$data = new HTTP_Request($url);
