@@ -29,9 +29,6 @@ class CIA_preprocessor__0
 
 	static $constant = array();
 	static $function = array(
-		'header'       => 'CIA::header',
-		'setcookie'    => 'CIA::setcookie',
-		'setrawcookie' => 'CIA::setrawcookie',
 		'rand'         => 'mt_rand',
 		'srand'        => 'mt_srand',
 		'getrandmax'   => 'mt_getrandmax',
@@ -116,6 +113,12 @@ class CIA_preprocessor__0
 	static function __static_construct()
 	{
 		defined('E_RECOVERABLE_ERROR') || CIA_preprocessor::$constant['E_RECOVERABLE_ERROR'] = E_ERROR;
+
+		class_exists('CIA', false) && CIA_preprocessor::$function += array(
+			'header'       => 'CIA::header',
+			'setcookie'    => 'CIA::setcookie',
+			'setrawcookie' => 'CIA::setrawcookie',
+		);
 
 		// As of PHP5.1.2, md5($str) is a lot faster than md5($str) !
 		extension_loaded('hash') && CIA_preprocessor::$function += array(
@@ -453,8 +456,8 @@ class CIA_preprocessor__0
 					}
 					else
 					{
-						while (--$j && in_array($new_type[$j], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ;
-						$new_code[$j] = "(({$c})?" . $new_code[$j];
+						while (--$j && in_array($new_type[$j], array(T_DEC, T_INC, $prevType, T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ;
+						$new_code[++$j] = "(({$c})?" . $new_code[$j];
 					}
 				}
 
@@ -814,10 +817,12 @@ class CIA_preprocessor__0
 			case T_START_HEREDOC: $inString = true;        break;
 			case T_END_HEREDOC:   $inString = false;       break;
 			case T_STRING:   if (!$inString) return false; break;
-			case '?': case '(': ++$bracket;                break;
-			case ':': case ')':   $bracket-- ||    $close = true; break;
-			case ',':             $bracket   ||    $close = true; break;
-			case T_AS: case T_CLOSE_TAG: case ';': $close = true; break;
+			case '?': case '(': case '[': ++$bracket;      break;
+			case ':': case ')': case ']':
+			          $bracket-- || $close = true; break;
+			case ',': $bracket   || $close = true; break;
+			case T_AS: case T_CLOSE_TAG: case ';':
+			                        $close = true; break;
 			default: if (in_array($type, CIA_preprocessor::$variableType)) return false;
 			}
 
@@ -999,8 +1004,10 @@ class CIA_preprocessor_require___0 extends CIA_preprocessor_bracket
 	{
 		switch ($type)
 		{
+		case '[':
 		case '?': ++$this->bracket; break;
 		case ',': if ($this->bracket) break;
+		case ']':
 		case ':': if ($this->bracket--) break;
 		case ')': if (0<=$this->bracket) break;
 		case T_AS: case T_CLOSE_TAG: case ';':
@@ -1014,10 +1021,15 @@ class CIA_preprocessor_require___0 extends CIA_preprocessor_bracket
 
 class CIA_preprocessor_marker___0 extends CIA_preprocessor_require_
 {
+	public $close = ':0)';
+	public $greedy = false;
 	public $curly = 0;
+
 
 	function filter($type, $token)
 	{
+		if ($this->greedy) return parent::filter($type, $token);
+
 		if (T_WHITESPACE == $type || T_COMMENT == $type || T_DOC_COMMENT == $type) ;
 		else if (0<=$this->curly) switch ($type)
 		{
@@ -1026,13 +1038,45 @@ class CIA_preprocessor_marker___0 extends CIA_preprocessor_require_
 			case '}': --$this->curly; break;
 			default: 0<$this->curly || $this->curly = -1;
 		}
-		else if (0>=$this->bracket && ($this->bracket || ')' != $type))
+		else
 		{
-			if (T_OBJECT_OPERATOR == $type) $this->curly = 0;
-			else
+			if ('?' == $type) --$this->bracket;
+			$token = parent::filter($type, $token);
+			if (':' == $type) ++$this->bracket;
+
+			if (0<$this->bracket || !$this->registered) return $token;
+
+			switch ($type)
 			{
-				$token = ':0)' . $token;
-				$this->popFilter();
+			case T_INC:
+			case T_DEC:
+				break;
+
+			case '=':
+			case T_DIV_EQUAL:
+			case T_MINUS_EQUAL:
+			case T_MOD_EQUAL:
+			case T_MUL_EQUAL:
+			case T_PLUS_EQUAL:
+			case T_SL_EQUAL:
+			case T_SR_EQUAL:
+			case T_XOR_EQUAL:
+			case T_AND_EQUAL:
+			case T_OR_EQUAL:
+			case T_CONCAT_EQUAL:
+				$this->greedy = true;
+				break;
+
+			case ')':
+				if (!$this->bracket) break;
+
+			default:
+				if (T_OBJECT_OPERATOR == $type) $this->curly = 0;
+				else
+				{
+					$token = $this->close . $token;
+					$this->popFilter();
+				}
 			}
 		}
 

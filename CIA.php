@@ -255,8 +255,12 @@ function __autoload($searched_class)
 
 }
 
+// {{{ Debug context
+DEBUG && CIA_debug::checkCache();
+// }}}
+
 // {{{ Language controler
-$_SERVER['CIA_LANG'] || require processPath('language.php');
+$_SERVER['CIA_LANG'] || CIA_language::negociate();
 // }}}
 
 // {{{ Validator
