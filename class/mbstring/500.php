@@ -135,12 +135,16 @@ class
 
 	static function strtolower($str, $encoding = null)
 	{
-		return preg_replace('/[A-Z]+/eu', "strtolower('$0')", $str);
+		static $table;
+		isset($table) || $table = unserialize(file_get_contents(resolvePath('data/toLowerCase.ser'));
+		return strtr($str, $table);
 	}
 
 	static function strtoupper($str, $encoding = null)
 	{
-		return preg_replace('/[a-z]+/eu', "strtoupper('$0')", $str);
+		static $table;
+		isset($table) || $table = unserialize(file_get_contents(resolvePath('data/toUpperCase.ser'));
+		return strtr($str, $table);
 	}
 
 	static function substr($str, $start, $length = null, $encoding = null)
