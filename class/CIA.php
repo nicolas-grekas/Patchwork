@@ -205,52 +205,15 @@ class
 
 	static function start()
 	{
-/*>
-		$GLOBALS['version_id'] *= -1;
-
-		CIA_DIRECT && isset($_GET['d$']) && CIA_debugWin::display();
-
-		if (CIA_CHECK_SOURCE && !CIA_DIRECT)
-		{
-			if ($h = @fopen('./.debugLock', 'xb'))
-			{
-				flock($h, LOCK_EX);
-
-				@unlink('./.config.zcache.php');
-
-				foreach (glob('./.*.1*.' . $GLOBALS['cia_paths_token'] . '.zcache.php', GLOB_NOSORT) as $cache)
-				{
-					$file = str_replace('%1', '%', str_replace('%2', '_', strtr(substr($cache, 3, -12-strlen($GLOBALS['cia_paths_token'])), '_', '/')));
-					$level = substr(strrchr($file, '.'), 2);
-
-					$file = substr($file, 0, -(2 + strlen($level)));
-					if ('-' == substr($level, -1))
-					{
-						$level = -$level;
-						$file = substr($file, 6);
-					}
-
-					$file = $GLOBALS['cia_include_paths'][count($GLOBALS['cia_paths']) - $level - 1] .'/'. $file;
-
-					if (!file_exists($file) || filemtime($file) >= filemtime($cache)) @unlink($cache);
-				}
-
-				fclose($h);
-			}
-			else
-			{
-				$h = fopen('./.debugLock', 'rb');
-				flock($h, LOCK_SH);
-				fclose($h);
-			}
-
-			@unlink('./.debugLock');
-		}
-<*/
-
 		ini_set('log_errors', true);
 		ini_set('error_log', './error.log');
 		ini_set('display_errors', false);
+
+		class_exists('CIA_preprocessor__0', false) && CIA_preprocessor__0::$function += array(
+			'header'       => 'CIA::header',
+			'setcookie'    => 'CIA::setcookie',
+			'setrawcookie' => 'CIA::setrawcookie',
+		);
 
 		self::$fullVersionId = $GLOBALS['version_id'];
 		self::$versionId = abs(self::$fullVersionId % 10000);
@@ -484,7 +447,7 @@ class
 	{
 		isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 5') && $httponly = false;
 
-		if ($value != strtr($value, ",; \t\r\n\013\014", '--------')) setrawcookie($name, $value, $expires, $path, $domain, $secure, $httponly);
+		if ($value != strtr($value, ",; \t\r\n\013\014", '--------')) setrawcookie($name, $value, $expires, $path, $domain, $secure);
 		else
 		{
 			('' === (string) $value) && $expires = 1;
