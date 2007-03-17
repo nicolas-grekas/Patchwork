@@ -68,8 +68,8 @@ get_magic_quotes_runtime() && $CIA[] = 'set_magic_quotes_runtime(false)';
 if (get_magic_quotes_gpc())
 {
 	$CIA[] = ini_get('magic_quotes_sybase')
-		? 'function _q_(&$a) {static $d=999; --$d&&is_array($a) ? array_walk($a, \'_q_\') : $a = str_replace("\'\'", "\'", $a); ++$d;} }'
-		: 'function _q_(&$a) {static $d=999; --$d&&is_array($a) ? array_walk($a, \'_q_\') : $a = stripslashes($a); ++$d;} }';
+		? 'function _q_(&$a) {static $d=999; --$d&&is_array($a) ? array_walk($a, \'_q_\') : $a = str_replace("\'\'", "\'", $a); ++$d;}'
+		: 'function _q_(&$a) {static $d=999; --$d&&is_array($a) ? array_walk($a, \'_q_\') : $a = stripslashes($a); ++$d;}';
 	$CIA[] = '_q_($_GET); _q_($_POST); _q_($_COOKIE)';
 }
 
