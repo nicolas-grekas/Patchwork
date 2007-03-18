@@ -29,7 +29,7 @@ mbstring.substitute_character = "none"
 
 $CONFIG += array(
 
-	// password => debug level hash
+	// password => debug level
 	'DEBUG_PASSWORD' => array('' => 1),
 
 	// Available application's locales
