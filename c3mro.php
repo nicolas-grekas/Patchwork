@@ -47,56 +47,6 @@ $a = $_SERVER[\'REQUEST_URI\'];
 $b = strpos($a, \'?\');
 $_SERVER[\'QUERY_STRING\'] = false !== $b++ && $b < strlen($a) ? substr($a, $b) : \'\'';
 
-// {{{ Fix php.ini settings
-
-// Disables mod_deflate who overwrites any custom Vary: header and appends a body to 304 responses.
-// Replaced with our own output compression.
-function_exists('apache_setenv')   && $CIA[] = 'apache_setenv(\'no-gzip\',\'1\')';
-ini_get('zlib.output_compression') && $CIA[] = 'ini_set(\'zlib.output_compression\',false)';
-
-extension_loaded('mbstring') && 'UTF-8' != mb_internal_encoding() && $CIA[] = 'mb_internal_encoding(\'UTF-8\')';
-
-if (function_exists('iconv'))
-{
-	'UTF-8' != iconv_get_encoding('input_encoding')    && $CIA[] = 'iconv_set_encoding(\'input_encoding\'   ,\'UTF-8\')';
-	'UTF-8' != iconv_get_encoding('internal_encoding') && $CIA[] = 'iconv_set_encoding(\'internal_encoding\',\'UTF-8\')';
-	'UTF-8' != iconv_get_encoding('output_encoding')   && $CIA[] = 'iconv_set_encoding(\'output_encoding\'  ,\'UTF-8\')';
-}
-
-get_magic_quotes_runtime() && $CIA[] = 'set_magic_quotes_runtime(false)';
-
-if (get_magic_quotes_gpc())
-{
-	$CIA[] = ini_get('magic_quotes_sybase')
-		? 'function _q_(&$a) {static $d=999; --$d&&is_array($a) ? array_walk($a, \'_q_\') : $a = str_replace("\'\'", "\'", $a); ++$d;}'
-		: 'function _q_(&$a) {static $d=999; --$d&&is_array($a) ? array_walk($a, \'_q_\') : $a = stripslashes($a); ++$d;}';
-	$CIA[] = '_q_($_GET); _q_($_POST); _q_($_COOKIE)';
-}
-
-if (
-	   !(extension_loaded('mbstring')
-	&& ini_get('mbstring.encoding_translation')
-	&& 'UTF-8' == ini_get('mbstring.http_input'))
-) $CIA[] = '
-function _u_(&$a)
-{
-	# See http://www.w3.org/International/questions/qa-forms-utf-8
-
-	static $d=999, $rx = \'/(?:[\x00-\x7F]|[\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][\x80-\xBF]|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}|\xED[\x80-\x9F][\x80-\xBF]|\xF0[\x90-\xBF][\x80-\xBF]{2}|[\xF1-\xF3][\x80-\xBF]{3}|\xF4[\x80-\x8F][\x80-\xBF]{2})+/\';
-
-	if (--$d && is_array($a)) array_walk($a, \'_u_\');
-	else if (!preg_match("\'\'u", $a))
-	{
-		preg_match_all($rx, $a, $a, PREG_PATTERN_ORDER);
-		$a = implode(\'\', $a[0]);
-	}
-
-	++$d;
-}
-# $_GET has already been fixed together with $_SERVER[\'REQUEST_URI\']
-_u_($_POST); _u_($_COOKIE); _u_($_FILES)';
-// }}}
-
 // {{{ CIA's environment context
 /**
 * Setup needed environment variables if they don't exists :
@@ -171,6 +121,56 @@ if (isset($_SERVER[\'QUERY_STRING\']) && preg_match("\'^{$lang_rx}/?(.*?)(?:[\?&
 }';
 }
 else if (!strncmp('/', $_SERVER['CIA_HOME'], 1)) $CIA[] = '$_SERVER[\'CIA_HOME\'] = \'http\' . (isset($_SERVER[\'HTTPS\']) ? \'s\' : \'\') . \'://\' . $_SERVER[\'HTTP_HOST\'] . $_SERVER[\'CIA_HOME\']';
+// }}}
+
+// {{{ Fix php.ini settings
+
+// Disables mod_deflate who overwrites any custom Vary: header and appends a body to 304 responses.
+// Replaced with our own output compression.
+function_exists('apache_setenv')   && $CIA[] = 'apache_setenv(\'no-gzip\',\'1\')';
+ini_get('zlib.output_compression') && $CIA[] = 'ini_set(\'zlib.output_compression\',false)';
+
+if (extension_loaded('mbstring'))
+{
+	'none'  != mb_substitute_character() && $CIA[] = 'mb_substitute_character(\'none\')';
+	'UTF-8' != mb_internal_encoding()    && $CIA[] = 'mb_internal_encoding(\'UTF-8\')';
+	'pass'  != mb_http_output()          && $CIA[] = 'mb_http_output(\'pass\')';
+	'uni'   != mb_language()             && $CIA[] = 'mb_language(\'uni\')';
+}
+
+if (function_exists('iconv'))
+{
+	'UTF-8' != iconv_get_encoding('input_encoding')    && $CIA[] = 'iconv_set_encoding(\'input_encoding\'   ,\'UTF-8\')';
+	'UTF-8' != iconv_get_encoding('internal_encoding') && $CIA[] = 'iconv_set_encoding(\'internal_encoding\',\'UTF-8\')';
+	'UTF-8' != iconv_get_encoding('output_encoding')   && $CIA[] = 'iconv_set_encoding(\'output_encoding\'  ,\'UTF-8\')';
+}
+
+get_magic_quotes_runtime() && $CIA[] = 'set_magic_quotes_runtime(false)';
+
+$a = !(extension_loaded('mbstring') && ini_get('mbstring.encoding_translation') && 'UTF-8' == ini_get('mbstring.http_input'));
+
+# See http://www.w3.org/International/questions/qa-forms-utf-8
+if (get_magic_quotes_gpc() || $a) $CIA[] = ($a ? '$rx = \'/(?:[\x00-\x7F]|[\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][\x80-\xBF]|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}|\xED[\x80-\x9F][\x80-\xBF]|\xF0[\x90-\xBF][\x80-\xBF]{2}|[\xF1-\xF3][\x80-\xBF]{3}|\xF4[\x80-\x8F][\x80-\xBF]{2})+/\';' : '') .
+'$a = array(&$_GET, &$_POST, &$_COOKIE);
+foreach ($_FILES as &$v) $a[] = array(&$v[\'name\'], &$v[\'type\']);
+
+$len = count($a);
+for ($i = 0; $i < $len; ++$i)
+{
+	foreach ($a[$i] as &$v)
+	{
+		if (is_array($v)) $a[$len++] =& $v;
+		else
+		{
+			' .
+			(get_magic_quotes_gpc() ? '$v = ' . (ini_get('magic_quotes_sybase') ? 'str_replace("\'\'", "\'", ' : 'stripslashes(') . '$v);' : '' ) .
+			( $a ? '!preg_match("\'\'u", $v) && preg_match_all($rx, $v, $b, PREG_PATTERN_ORDER) && $v = implode(\'\', $b[0]);unset($b);' : '') . '
+		}
+	}
+
+	reset($a[$i]);
+	unset($a[$i]);
+}' . ($a ? 'unset($rx);' : '') . 'unset($a); unset($v)';
 // }}}
 
 

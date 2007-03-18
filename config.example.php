@@ -11,20 +11,19 @@ register_argc_argv = Off
 auto_globals_jit = On
 
 session.auto_start = Off
-session.use_only_cookies = On
-session.use_cookies = On
-session.use_trans_sid = Off
-
-mbstring.language = neutral
-mbstring.script_encoding = UTF-8
-mbstring.encoding_translation = On
-mbstring.http_input = UTF-8
-mbstring.http_output = pass
-mbstring.substitute_character = none
 
 ; mbstring's functions overloading prevents binary use of strings.
 ; You should directly use mb_*() functions instead.
 mbstring.func_overload = 0
+mbstring.substitute_character = "none"
+
+; For performance, uncomment this if all
+; your PHP applications can handle UTF-8
+;mbstring.language = "uni"
+;mbstring.script_encoding = "UTF-8"
+;mbstring.encoding_translation = On
+;mbstring.http_input = "UTF-8"
+;mbstring.http_output = "pass"
 
 */
 
