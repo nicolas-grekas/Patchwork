@@ -1094,7 +1094,8 @@ class
 		else if (PHP_OUTPUT_HANDLER_START & $mode)
 		{
 			// Fix IE mime-sniff misfeature
-			// (see http://www.splitbrain.org/blog/2007-02/12-internet_explorer_facilitates_cross_site_scripting)
+			// (see http://www.splitbrain.org/blog/2007-02/12-internet_explorer_facilitates_cross_site_scripting
+			//  and http://msdn.microsoft.com/library/default.asp?url=/workshop/networking/moniker/overview/appendix_a.asp)
 			// This will likely break binary contents, but it is also very unlikely
 			// that legitimate binary contents may contain these suspicious bytes.
 

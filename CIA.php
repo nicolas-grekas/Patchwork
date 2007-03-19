@@ -20,7 +20,7 @@ isset($_SERVER['SERVER_ADDR']) || $_SERVER['SERVER_ADDR'] = '127.0.0.1';
 
 if (!preg_match("''u", urldecode($a = $_SERVER['REQUEST_URI'])))
 {
-	$a = $a != utf8_decode($a) ? '/' : preg_replace("'(?:%[89a-fA-F][0-9a-fA-F])+'e", "urlencode(utf8_encode(urldecode('$0')))", $a);
+	$a = $a != utf8_decode($a) ? '/' : preg_replace("'(?:%[89a-f][0-9a-f])+'ei", "urlencode(utf8_encode(urldecode('$0')))", $a);
 
 	header('HTTP/1.1 301 Moved Permanently');
 	header('Location: ' . $a);
@@ -81,8 +81,7 @@ function cia_atomic_write(&$data, $to, $mtime = false)
 chdir($CIA);
 
 // $_REQUEST is an open door to security problems.
-unset($_REQUEST);
-unset($_REQUEST); // Double unset against a PHP security hole
+$_REQUEST = array();
 
 $CONFIG = array();
 $version_id = './.config.zcache.php';
@@ -273,7 +272,7 @@ if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && !isset($_SERVER['HTTP_IF_NONE_M
 if (
 	isset($_SERVER['HTTP_IF_NONE_MATCH'])
 	&& 11 == strlen($_SERVER['HTTP_IF_NONE_MATCH'])
-	&& '"-        "' == strtr($_SERVER['HTTP_IF_NONE_MATCH'], ' 0123456789abcdef', '#                '))
+	&& '"#--------"' == strtr($_SERVER['HTTP_IF_NONE_MATCH'], '-0123456789abcdef', '#----------------'))
 {
 	$match = $_SERVER['HTTP_IF_NONE_MATCH'];
 	$match = resolvePath('zcache/') . $match[2] .'/'. $match[3] .'/'. substr($match, 4) .'.validator.'. DEBUG .'.';
@@ -307,7 +306,7 @@ $_POST_BACKUP =& $_POST;
 if (
 	isset($_COOKIE['T$'])
 	&& (!CIA_POSTING || (isset($_POST['T$']) && $_COOKIE['T$'] === $_POST['T$']))
-	&& '--------------------------------' == strtr($_COOKIE['T$'], ' 0123456789abcdef', '-----------------')
+	&& '--------------------------------' == strtr($_COOKIE['T$'], '-0123456789abcdef', '#----------------')
 ) $cia_token = $_COOKIE['T$'];
 else
 {
