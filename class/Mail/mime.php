@@ -12,6 +12,9 @@
  ***************************************************************************/
 
 
+isset($GLOBALS['CONFIG']['email_backend']) || $GLOBALS['CONFIG']['email_backend'] = 'mail';
+isset($GLOBALS['CONFIG']['email_options']) || $GLOBALS['CONFIG']['email_options'] = '';
+
 class extends self
 {
 	// The original _encodeHeaders of Mail_mime is bugged !

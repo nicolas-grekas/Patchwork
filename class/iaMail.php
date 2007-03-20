@@ -12,6 +12,8 @@
  ***************************************************************************/
 
 
+isset($GLOBALS['CONFIG']['debug_email']) || $GLOBALS['CONFIG']['debug_email'] = 'webmaster';
+
 class extends iaCron
 {
 	protected $test_mode = false;

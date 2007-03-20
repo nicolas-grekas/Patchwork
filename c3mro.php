@@ -40,87 +40,12 @@ $CIA = array(
 
 isset($_SERVER['REQUEST_TIME']) || $CIA[] = '$_SERVER[\'REQUEST_TIME\']=time()';
 
-// IIS compatibility
+// {{{ IIS compatibility
 isset($_SERVER['HTTPS']) && !isset($_SERVER['HTTPS_KEYSIZE']) && $CIA[] = 'unset($_SERVER[\'HTTPS\'])';
 isset($_SERVER['QUERY_STRING']) || $CIA[] = '
 $a = $_SERVER[\'REQUEST_URI\'];
 $b = strpos($a, \'?\');
 $_SERVER[\'QUERY_STRING\'] = false !== $b++ && $b < strlen($a) ? substr($a, $b) : \'\'';
-
-// {{{ CIA's environment context
-/**
-* Setup needed environment variables if they don't exists :
-*   $_SERVER['CIA_HOME']: application's home part of the url. Lang independant (ex. /cia/myapp/__/)
-*   $_SERVER['CIA_LANG']: lang (ex. en)
-*   $_SERVER['CIA_REQUEST']: request part of the url (ex. myagent/mysubagent/...)
-*
-* You can also define these vars with mod_rewrite, to get cleaner URLs for example.
-*/
-if (!isset($_SERVER['CIA_HOME']))
-{
-		$CIA[] = '
-$_SERVER[\'CIA_HOME\'] = \'http\' . (isset($_SERVER[\'HTTPS\']) ? \'s\' : \'\') . \'://\' . $_SERVER[\'HTTP_HOST\'] . $_SERVER[\'SCRIPT_NAME\'];
-$_SERVER[\'CIA_LANG\'] = $_SERVER[\'CIA_REQUEST\'] = \'\';
-
-$lang_rx = \'([a-z]{2}(?:-[A-Z]{2})?)\'';
-
-		if (!(isset($_SERVER['PATH_INFO']) || isset($_SERVER['ORIG_PATH_INFO'])))
-		{
-			// Check if the webserver supports PATH_INFO
-
-			$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
-			$h = stream_socket_client("{$h}://{$_SERVER['SERVER_ADDR']}:{$_SERVER['SERVER_PORT']}", $errno, $errstr, 5);
-			if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
-
-			$a  = "GET {$_SERVER['SCRIPT_NAME']}/ HTTP/1.1\r\n";
-			$a .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
-			$a .= "Connection: Close\r\n\r\n";
-
-			fwrite($h, $a);
-			$a = fgets($h, 14);
-			fclose($h);
-
-			if (false !== strpos($a, '200')) $_SERVER['PATH_INFO'] = '';
-
-			unset($a);
-			unset($h);
-		}
-
-		$appInheritSeq = isset($_SERVER['ORIG_PATH_INFO']) ? '$_SERVER[\'PATH_INFO\'] = $_SERVER[\'ORIG_PATH_INFO\'];' : '';
-
-		$CIA[] = isset($_SERVER['PATH_INFO']) || isset($_SERVER['ORIG_PATH_INFO'])
-			? $appInheritSeq . '
-$_SERVER[\'CIA_HOME\'] .= \'/__/\';
-
-if (isset($_SERVER[\'PATH_INFO\']) && preg_match("\'^/{$lang_rx}/?(.*)$\'", $_SERVER[\'PATH_INFO\'], $a))
-{
-	$_SERVER[\'CIA_LANG\']    = $a[1];
-	$_SERVER[\'CIA_REQUEST\'] = $a[2];
-}'
-			: '
-$_SERVER[\'CIA_HOME\'] .= \'?__/\';
-
-if (isset($_SERVER[\'QUERY_STRING\']) && preg_match("\'^{$lang_rx}/?(.*?)(?:[\?&](.*))?$\'", rawurldecode($_SERVER[\'QUERY_STRING\']), $a))
-{
-	$_SERVER[\'CIA_LANG\']    = $a[1];
-	$_SERVER[\'CIA_REQUEST\'] = $a[2];
-
-	if (isset($a[3]))
-	{
-		$_GET = array();
-		$_SERVER[\'QUERY_STRING\'] = $a[3];
-		parse_str($_SERVER[\'QUERY_STRING\'], $_GET);
-	}
-	else
-	{
-		$_SERVER[\'QUERY_STRING\'] = null;
-		$a = key($_GET);
-		unset($_GET[$a]);
-		unset($_GET[$a]); // Double unset against a PHP security hole
-	}
-}';
-}
-else if (!strncmp('/', $_SERVER['CIA_HOME'], 1)) $CIA[] = '$_SERVER[\'CIA_HOME\'] = \'http\' . (isset($_SERVER[\'HTTPS\']) ? \'s\' : \'\') . \'://\' . $_SERVER[\'HTTP_HOST\'] . $_SERVER[\'CIA_HOME\']';
 // }}}
 
 // {{{ Fix php.ini settings
@@ -147,11 +72,10 @@ if (function_exists('iconv'))
 
 get_magic_quotes_runtime() && $CIA[] = 'set_magic_quotes_runtime(false)';
 
+# See http://www.w3.org/International/questions/qa-forms-utf-8
 $a = !(extension_loaded('mbstring') && ini_get('mbstring.encoding_translation') && 'UTF-8' == ini_get('mbstring.http_input'));
 
-# See http://www.w3.org/International/questions/qa-forms-utf-8
-if (get_magic_quotes_gpc() || $a) $CIA[] = ($a ? '$rx = \'/(?:[\x00-\x7F]|[\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][\x80-\xBF]|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}|\xED[\x80-\x9F][\x80-\xBF]|\xF0[\x90-\xBF][\x80-\xBF]{2}|[\xF1-\xF3][\x80-\xBF]{3}|\xF4[\x80-\x8F][\x80-\xBF]{2})+/\';' : '') .
-'$a = array(&$_GET, &$_POST, &$_COOKIE);
+if (get_magic_quotes_gpc() || $a) $CIA[] = '$a = array(&$_GET, &$_POST, &$_COOKIE);
 foreach ($_FILES as &$v) $a[] = array(&$v[\'name\'], &$v[\'type\']);
 
 $len = count($a);
@@ -164,13 +88,47 @@ for ($i = 0; $i < $len; ++$i)
 		{
 			' .
 			(get_magic_quotes_gpc() ? '$v = ' . (ini_get('magic_quotes_sybase') ? 'str_replace("\'\'", "\'", ' : 'stripslashes(') . '$v);' : '' ) .
-			( $a ? '!preg_match("\'\'u", $v) && preg_match_all($rx, $v, $b, PREG_PATTERN_ORDER) && $v = implode(\'\', $b[0]);unset($b);' : '') . '
+			( $a ? '!preg_match("\'\'u", $v) && preg_match_all(\'/(?:[\x00-\x7F]|[\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][\x80-\xBF]|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}|\xED[\x80-\x9F][\x80-\xBF]|\xF0[\x90-\xBF][\x80-\xBF]{2}|[\xF1-\xF3][\x80-\xBF]{3}|\xF4[\x80-\x8F][\x80-\xBF]{2})+/\', $v, $b, PREG_PATTERN_ORDER) && $v = implode(\'\', $b[0]);unset($b);' : '') . '
 		}
 	}
 
 	reset($a[$i]);
 	unset($a[$i]);
-}' . ($a ? 'unset($rx);' : '') . 'unset($a); unset($v)';
+} unset($a); unset($v)';
+// }}}
+
+// {{{ CIA's context early initialization
+if (!isset($_SERVER['CIA_HOME']))
+{
+		if (!(isset($_SERVER['PATH_INFO']) || isset($_SERVER['ORIG_PATH_INFO'])))
+		{
+			// Check if the webserver supports PATH_INFO
+
+			$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
+			$h = stream_socket_client("{$h}://{$_SERVER['SERVER_ADDR']}:{$_SERVER['SERVER_PORT']}", $errno, $errstr, 5);
+			if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
+
+			$a = strpos($_SERVER['REQUEST_URI'], '?');
+			$a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
+
+			$a  = "GET {$a}/ HTTP/1.1\r\n";
+			$a .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
+			$a .= "Connection: Close\r\n\r\n";
+
+			fwrite($h, $a);
+			$a = fgets($h, 14);
+			fclose($h);
+
+			if (false !== strpos($a, '200')) $_SERVER['PATH_INFO'] = '';
+
+			unset($a);
+			unset($h);
+		}
+
+		$CIA[] = isset($_SERVER['PATH_INFO']) || isset($_SERVER['ORIG_PATH_INFO']) ? '#PATH_INFO enabled' : '#PATH_INFO disabled';
+
+}
+else if ('/' == substr($_SERVER['CIA_HOME'], 0, 1)) $CIA[] = '$_SERVER[\'CIA_HOME\'] = \'http\' . (isset($_SERVER[\'HTTPS\']) ? \'s\' : \'\') . \'://\' . $_SERVER[\'HTTP_HOST\'] . $_SERVER[\'CIA_HOME\']';
 // }}}
 
 
@@ -196,14 +154,98 @@ $CIA = array(implode(";\n", $CIA));
 
 eval($CIA[0] . ';');
 
-foreach ($cia_paths as $appInheritSeq)
+
+// Include config files
+
+foreach ($cia_paths as $appInheritSeq) if (file_exists($appInheritSeq . '/config.php'))
 {
-	require $appInheritSeq . '/config.php';
 	$CIA[] = $appConfigSource[$appInheritSeq];
+	require $appInheritSeq . '/config.php';
 }
 
-$CIA = '<?php ' . implode(";\n", $CIA) . ';';
-cia_atomic_write($CIA, '.config.zcache.php');
+
+$CIA = array(implode(";\n", $CIA));
+
+isset($CONFIG['DEBUG_ALLOWED' ]) || $CIA[] = '$CONFIG[\'DEBUG_ALLOWED\'] = true';
+isset($CONFIG['DEBUG_PASSWORD']) || $CIA[] = '$CONFIG[\'DEBUG_PASSWORD\'] = \'\'';
+if(!isset($CONFIG['lang_list']))
+{
+	$CONFIG['lang_list'] = '';
+	$CIA[] = '$CONFIG[\'lang_list\'] = \'\'';
+}
+
+// {{{ CIA's context initialization
+/**
+* Setup needed environment variables if they don't exists :
+*   $_SERVER['CIA_HOME']: application's home part of the url. Lang independant (ex. /cia/myapp/__/)
+*   $_SERVER['CIA_LANG']: lang (ex. en)
+*   $_SERVER['CIA_REQUEST']: request part of the url (ex. myagent/mysubagent/...)
+*
+* You can also define these vars with mod_rewrite, to get cleaner URLs for example.
+*/
+if (!isset($_SERVER['CIA_HOME']))
+{
+	$CIA[] = '
+$_SERVER[\'CIA_HOME\'] = \'http\' . (isset($_SERVER[\'HTTPS\']) ? \'s\' : \'\') . \'://\' . $_SERVER[\'HTTP_HOST\'] . $_SERVER[\'SCRIPT_NAME\'];
+$_SERVER[\'CIA_LANG\'] = $_SERVER[\'CIA_REQUEST\'] = \'\'';
+
+	if (isset($_SERVER['PATH_INFO']) || isset($_SERVER['ORIG_PATH_INFO']))
+	{
+		$CIA[] = 'isset($_SERVER[\'ORIG_PATH_INFO\']) && $_SERVER[\'PATH_INFO\'] = $_SERVER[\'ORIG_PATH_INFO\']';
+		$CIA[] = $CONFIG['lang_list']
+
+			? '$_SERVER[\'CIA_HOME\'] .= \'/__/\';
+if (isset($_SERVER[\'PATH_INFO\']) && preg_match("\'^/(?:[a-z]{2}(?:-[A-Z]{2})?)(?:/|$)(.*?)$\'", $_SERVER[\'PATH_INFO\'], $a))
+{
+	$_SERVER[\'CIA_LANG\']    = $a[1];
+	$_SERVER[\'CIA_REQUEST\'] = $a[2];
+}'
+			: '$_SERVER[\'CIA_HOME\'] .= \'/\';
+if (isset($_SERVER[\'PATH_INFO\']) && preg_match("\'^/(.*)$\'", $_SERVER[\'PATH_INFO\'], $a)) $_SERVER[\'CIA_REQUEST\'] = $a[1]';
+	}
+	else
+	{
+		$CIA[] = $CONFIG['lang_list']
+
+			? '$_SERVER[\'CIA_HOME\'] .= \'?__/\';
+if (isset($_SERVER[\'QUERY_STRING\']) && preg_match("\'^((?:[a-z]{2}(?:-[A-Z]{2})?)?)(?:/|$)(.*?)(?:[\?&](.*))?$\'", rawurldecode($_SERVER[\'QUERY_STRING\']), $a))
+{
+	$_SERVER[\'CIA_LANG\']    = $a[1];
+	$_SERVER[\'CIA_REQUEST\'] = $a[2]'
+
+			: '$_SERVER[\'CIA_HOME\'] .= \'?\';
+if (isset($_SERVER[\'QUERY_STRING\']) && preg_match("\'^(.*?)([\?&](.*))?$\'", rawurldecode($_SERVER[\'QUERY_STRING\']), $a))
+{
+	$_SERVER[\'CIA_REQUEST\'] = $a[1]';
+
+
+		$CIA[] = '
+	if (isset($a[3]))
+	{
+		$_GET = array();
+		$_SERVER[\'QUERY_STRING\'] = $a[3];
+		parse_str($_SERVER[\'QUERY_STRING\'], $_GET);
+	}
+	else
+	{
+		$_SERVER[\'QUERY_STRING\'] = \'\';
+		$a = key($_GET);
+		unset($_GET[$a]);
+		unset($_GET[$a]); // Double unset against a PHP security hole
+	}
+}';
+	}
+}
+// }}}
+
+$CONFIG['lang_list'] || $CIA[] = '$_SERVER[\'CIA_LANG\'] = \'\'';
+
+$appConfigSource = '<?php ' . implode(";\n", $CIA) . ';';
+cia_atomic_write($appConfigSource, '.config.zcache.php');
+
+unset($CIA[0]);
+$CIA && eval(implode(";\n", $CIA) . ';');
+
 
 if (CIA_WINDOWS)
 {
@@ -224,7 +266,11 @@ function C3MRO($appRealpath)
 	// If result is cached, return it
 	if (null !== $resultSeq) return $resultSeq;
 
-	if (!file_exists($appRealpath . '/config.php')) die('Missing file config.php in ' . htmlspecialchars($appRealpath));
+	if (!file_exists($appRealpath . '/config.php'))
+	{
+		if (__CIA__ == $appRealpath) return array($appRealpath);
+		die('Missing file config.php in ' . htmlspecialchars($appRealpath));
+	}
 
 	$GLOBALS['version_id'] += filemtime($appRealpath . '/config.php');
 
