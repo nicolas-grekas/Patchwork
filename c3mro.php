@@ -192,49 +192,40 @@ $_SERVER[\'CIA_LANG\'] = $_SERVER[\'CIA_REQUEST\'] = \'\'';
 	if (isset($_SERVER['PATH_INFO']) || isset($_SERVER['ORIG_PATH_INFO']))
 	{
 		$CIA[] = 'isset($_SERVER[\'ORIG_PATH_INFO\']) && $_SERVER[\'PATH_INFO\'] = $_SERVER[\'ORIG_PATH_INFO\']';
-		$CIA[] = $CONFIG['lang_list']
+		$CIA[] = 'isset($_SERVER[\'PATH_INFO\']) && $_SERVER[\'CIA_REQUEST\'] = substr($_SERVER[\'PATH_INFO\'], 1)';
+		$CIA[] = '$_SERVER[\'CIA_HOME\'] .= \'/' . ($CONFIG['lang_list'] ? '__/' : '') . '\'';
+	}
+	else
+	{
+		$CIA[] = '$_SERVER[\'CIA_HOME\'] .= \'?' . ($CONFIG['lang_list'] ? '__/' : '') . '\'';
+		$CIA[] = '
+$_SERVER[\'CIA_REQUEST\'] = $_SERVER[\'QUERY_STRING\'];
 
-			? '$_SERVER[\'CIA_HOME\'] .= \'/__/\';
-if (isset($_SERVER[\'PATH_INFO\']) && preg_match("\'^/(?:[a-z]{2}(?:-[A-Z]{2})?)(?:/|$)(.*?)$\'", $_SERVER[\'PATH_INFO\'], $a))
+$a = strpos($_SERVER[\'QUERY_STRING\'], \'?\');
+false !== $a || $a = strpos($_SERVER[\'QUERY_STRING\'], \'&\');
+
+if (false !== $a)
+{
+	$_SERVER[\'CIA_REQUEST\'] = substr($_SERVER[\'QUERY_STRING\'], 0, $a);
+	$_SERVER[\'QUERY_STRING\'] = substr($_SERVER[\'QUERY_STRING\'], $a+1);
+	parse_str($_SERVER[\'QUERY_STRING\'], $_GET);
+}
+else if (\'\' !== $_SERVER[\'QUERY_STRING\'])
+{
+	$_SERVER[\'QUERY_STRING\'] = \'\';
+	$a = key($_GET);
+	unset($_GET[$a]);
+	unset($_GET[$a]); // Double unset against a PHP security hole
+}
+
+$_SERVER[\'CIA_REQUEST\'] = urldecode($_SERVER[\'CIA_REQUEST\'])';
+	}
+
+	$CIA[] = 'if (preg_match("#^(' . $CONFIG['lang_list'] . ')(?:/|$)(.*?)$#", $_SERVER[\'CIA_REQUEST\'], $a))
 {
 	$_SERVER[\'CIA_LANG\']    = $a[1];
 	$_SERVER[\'CIA_REQUEST\'] = $a[2];
-}'
-			: '$_SERVER[\'CIA_HOME\'] .= \'/\';
-if (isset($_SERVER[\'PATH_INFO\']) && preg_match("\'^/(.*)$\'", $_SERVER[\'PATH_INFO\'], $a)) $_SERVER[\'CIA_REQUEST\'] = $a[1]';
-	}
-	else
-	{
-		$CIA[] = $CONFIG['lang_list']
-
-			? '$_SERVER[\'CIA_HOME\'] .= \'?__/\';
-if (isset($_SERVER[\'QUERY_STRING\']) && preg_match("\'^((?:[a-z]{2}(?:-[A-Z]{2})?)?)(?:/|$)(.*?)(?:[\?&](.*))?$\'", rawurldecode($_SERVER[\'QUERY_STRING\']), $a))
-{
-	$_SERVER[\'CIA_LANG\']    = $a[1];
-	$_SERVER[\'CIA_REQUEST\'] = $a[2]'
-
-			: '$_SERVER[\'CIA_HOME\'] .= \'?\';
-if (isset($_SERVER[\'QUERY_STRING\']) && preg_match("\'^(.*?)([\?&](.*))?$\'", rawurldecode($_SERVER[\'QUERY_STRING\']), $a))
-{
-	$_SERVER[\'CIA_REQUEST\'] = $a[1]';
-
-
-		$CIA[] = '
-	if (isset($a[3]))
-	{
-		$_GET = array();
-		$_SERVER[\'QUERY_STRING\'] = $a[3];
-		parse_str($_SERVER[\'QUERY_STRING\'], $_GET);
-	}
-	else
-	{
-		$_SERVER[\'QUERY_STRING\'] = \'\';
-		$a = key($_GET);
-		unset($_GET[$a]);
-		unset($_GET[$a]); // Double unset against a PHP security hole
-	}
 }';
-	}
 }
 // }}}
 

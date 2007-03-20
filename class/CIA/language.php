@@ -16,20 +16,30 @@ class
 {
 	static function negociate()
 	{
-		ob_start('ob_gzhandler');
+		$lang = self::HTTP_Best_Language(explode('|', $GLOBALS['CONFIG']['lang_list']));
+		$b = $_SERVER['REQUEST_METHOD'];
 
-		header('Expires: ' . gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + CIA_MAXAGE) . ' GMT');
-		header('Cache-Control: max-age=' . CIA_MAXAGE .',public');
-		header('Content-Type: text/html; charset=UTF-8');
-		header('Vary: Accept-Language', false);
+		if ('GET' == $b || 'HEAD' == $b)
+		{
+			$lang  = implode($lang, explode('__', $_SERVER['CIA_HOME'], 2));
+			$lang .= $_SERVER['CIA_REQUEST'] . ($_GET ? '?' . $_SERVER['QUERY_STRING'] : '');
+			$_GET && $lang .= '?' . $_SERVER['QUERY_STRING'];
 
-		$lang = explode('__', $_SERVER['CIA_HOME'], 2);
-		$lang = implode(self::HTTP_Best_Language(explode('|', $GLOBALS['CONFIG']['lang_list'])), $lang);
-		$lang = htmlspecialchars($lang);
+			ob_start('ob_gzhandler');
 
-		?><html><head><title>Loading ...</title><script type="text/javascript">/*<![CDATA[*/w=document;if(!/safari|msie [0-5]\./i.test(navigator.userAgent)&&!/(^|; )JS=[12](; |$)/.test(w.cookie))w.cookie='JS=1; path=/'//]]></script><meta http-equiv="refresh" content="0; URL=<?php echo $lang?>" /></head><body onload="location.replace('<?php echo $lang?>')"><i>Loading <a href="<?php echo $lang?>"><?php echo $lang?></a> ...</i></body></html><?php
+			header('Content-Type: text/html; charset=UTF-8');
+			header('Expires: ' . gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + CIA_MAXAGE) . ' GMT');
+			header('Cache-Control: max-age=' . CIA_MAXAGE .',public');
+			header('Vary: Accept-Language', false);
+			header('Vary: Accept-Encoding', false);
 
-		exit;
+			$lang = htmlspecialchars($lang);
+
+			?><html><head><title>Loading ...</title><script type="text/javascript">/*<![CDATA[*/w=document;if(!/safari|msie [0-5]\./i.test(navigator.userAgent)&&!/(^|; )JS=[12](; |$)/.test(w.cookie))w.cookie='JS=1; path=/'//]]></script><meta http-equiv="refresh" content="0; URL=<?php echo $lang?>" /></head><body onload="location.replace('<?php echo $lang?>')"><i>Loading <a href="<?php echo $lang?>"><?php echo $lang?></a> ...</i></body></html><?php
+
+			exit;
+		}
+		else $_SERVER['CIA_LANG'] = $lang;
 	}
 
 	static function HTTP_Best_Language($supported)

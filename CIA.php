@@ -18,13 +18,25 @@ define('CIA', microtime(true));
 isset($_SERVER['REQUEST_URI']) || $_SERVER['REQUEST_URI'] = $_SERVER['URL'];
 isset($_SERVER['SERVER_ADDR']) || $_SERVER['SERVER_ADDR'] = '127.0.0.1';
 
+// Convert ISO-8859-1 URLs to UTF-8 ones
 if (!preg_match("''u", urldecode($a = $_SERVER['REQUEST_URI'])))
 {
 	$a = $a != utf8_decode($a) ? '/' : preg_replace("'(?:%[89a-f][0-9a-f])+'ei", "urlencode(utf8_encode(urldecode('$0')))", $a);
+	$b = $_SERVER['REQUEST_METHOD'];
 
-	header('HTTP/1.1 301 Moved Permanently');
-	header('Location: ' . $a);
-	exit;
+	if ('GET' == $b || 'HEAD' == $b)
+	{
+		header('HTTP/1.1 301 Moved Permanently');
+		header('Location: ' . $a);
+		exit;
+	}
+	else
+	{
+		$_SERVER['REQUEST_URI'] = $a;
+		$b = strpos($a, '?');
+		$_SERVER['QUERY_STRING'] = false !== $b++ && $b < strlen($a) ? substr($a, $b) : '';
+		parse_str($_SERVER['QUERY_STRING'], $_GET);
+	}
 }
 
 // {{{ registerAutoloadPrefix()

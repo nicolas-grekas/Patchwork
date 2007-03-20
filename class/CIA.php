@@ -1130,7 +1130,7 @@ class
 				if (strlen($buffer) > 100)
 				{
 					self::$varyEncoding = true;
-					self::$is_enabled || header('Vary: Accept-Encoding');
+					self::$is_enabled || header('Vary: Accept-Encoding', false);
 
 					$mode = isset($_SERVER['HTTP_ACCEPT_ENCODING']) ? $_SERVER['HTTP_ACCEPT_ENCODING'] : '';
 
@@ -1156,7 +1156,7 @@ class
 			{
 				self::$contentEncoding = true;
 				self::$varyEncoding = true;
-				if (!self::$is_enabled && (PHP_OUTPUT_HANDLER_START & $mode)) header('Vary: Accept-Encoding');
+				if (!self::$is_enabled && (PHP_OUTPUT_HANDLER_START & $mode)) header('Vary: Accept-Encoding', false);
 				$buffer = ob_gzhandler($buffer, $mode);
 			}
 		}
@@ -1242,7 +1242,7 @@ class
 			header('Last-Modified: ' . $LastModified);
 			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + (self::$private || !self::$maxage ? 0 : self::$maxage)));
 			header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');
-			self::$varyEncoding && header('Vary: Accept-Encoding');
+			self::$varyEncoding && header('Vary: Accept-Encoding', false);
 
 			if ($is304)
 			{
