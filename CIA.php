@@ -105,7 +105,7 @@ register_shutdown_function('cia_restoreProjectPath', CIA_PROJECT_PATH);
 // }}}
 
 // {{{ Global Initialisation
-define('DEBUG',       (int) @$CONFIG['DEBUG_PASSWORD'][$_COOKIE['DEBUG']]);
+define('DEBUG',       $CONFIG['DEBUG_ALLOWED'] && (!$CONFIG['DEBUG_PASSWORD'] || (isset($_COOKIE['DEBUG']) && $CONFIG['DEBUG_PASSWORD'] == $_COOKIE['DEBUG'])) ? 1 : 0);
 define('CIA_MAXAGE',  isset($CONFIG['maxage']) ? $CONFIG['maxage'] : 3600);
 define('CIA_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
 define('CIA_DIRECT',  '_' == $_SERVER['CIA_REQUEST']);
@@ -119,8 +119,6 @@ function W($msg)
 {
 	trigger_error($msg, E_USER_WARNING);
 }
-
-function_exists('date_default_timezone_set') && isset($CONFIG['timezone']) && date_default_timezone_set($CONFIG['timezone']);
 // }}}
 
 
@@ -259,7 +257,7 @@ DEBUG && CIA_debug::checkCache();
 // }}}
 
 // {{{ Language controler
-$_SERVER['CIA_LANG'] || CIA_language::negociate();
+if (!$_SERVER['CIA_LANG'] && $CONFIG['lang_list']) CIA_language::negociate();
 // }}}
 
 // {{{ Validator

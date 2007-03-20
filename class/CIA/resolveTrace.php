@@ -23,9 +23,8 @@ class extends CIA
 
 		$args = array();
 		$HOME = $home = CIA::__HOME__();
+		$agent = str_replace('%2F', '/', rawurlencode($agent));
 		$agent = CIA::home($agent, true);
-
-		$agent = implode(CIA::__LANG__(), explode('__', $agent, 2));
 		$agent = preg_replace("'^.*://[^/]*'", '', $agent);
 		
 		$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';

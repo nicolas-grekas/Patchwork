@@ -1,7 +1,7 @@
 <?php
 
 /* php.ini configuration :
- * For maximum performance and security,
+ * Not mandatory, but for maximum performance and security,
  * copy/paste these directives at the end of your php.ini.
 
 magic_quotes_gpc = Off
@@ -27,25 +27,31 @@ mbstring.substitute_character = "none"
 
 */
 
+
+
+/* All default settings */
+
 $CONFIG += array(
 
-	// password => debug level
-	'DEBUG_PASSWORD' => array('' => 1),
+	// Debug features
+#	'DEBUG_ALLOWED'  => 1,
+#	'DEBUG_PASSWORD' => '',
 
-	// Available application's locales
-	'lang_list' => 'fr|en',
+	// Used by iaMail in test mode
+#	'debug_email' => 'webmaster',
 
-	// See http://php.net/date_default_timezone_set
-	'timezone' => 'Europe/Paris',
+	// Defaults for PEAR's Mail_mime
+#	'email_backend' => 'mail',
+#	'email_options' => '',
 
-	// To send emails. See PEAR's Mail::factory()
-	'debug_email' => 'webmaster',
-	'email_backend' => 'mail',
-	'email_options' => '',
 
-	// Defaults
+	// Enable browser-side page rendering when available ?
 #	'clientside' => true,
+
+	// Max age (in seconds) for HTTP ressources caching
 #	'maxage' => 3600,
+
+	// Translation tables adapter config.
 #	'translate_adapter' => false,
 #	'translate_options' => array(),
 
