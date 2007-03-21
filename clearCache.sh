@@ -7,7 +7,11 @@ find -name ".config.zcache.php" -exec rm -f {} \;
 
 for I in `find -name zcache -type d`
 do
-	find $I/?/? -maxdepth 1 -type f -name "*.watch.*.php" -exec /usr/bin/php -q {} \; > /dev/null
+	for J in `find $I/?/? -maxdepth 1 -type f -name "*.watch.*.php" 2> /dev/null`
+	do
+		echo "<?php @include '$J';" | php -q
+	done
+
 	find $I/?/? -maxdepth 1 -type f -exec rm -f {} \;
 done
 
