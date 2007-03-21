@@ -118,7 +118,7 @@ register_shutdown_function('cia_restoreProjectPath', CIA_PROJECT_PATH);
 
 // {{{ Global Initialisation
 define('DEBUG',       $CONFIG['DEBUG_ALLOWED'] && (!$CONFIG['DEBUG_PASSWORD'] || (isset($_COOKIE['DEBUG']) && $CONFIG['DEBUG_PASSWORD'] == $_COOKIE['DEBUG'])) ? 1 : 0);
-define('CIA_MAXAGE',  isset($CONFIG['maxage']) ? $CONFIG['maxage'] : 3600);
+define('CIA_MAXAGE',  isset($CONFIG['maxage']) ? $CONFIG['maxage'] : 2678400); // 31D x 24H x 3600S = 2678400S ~ 1M
 define('CIA_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
 define('CIA_DIRECT',  '_' == $_SERVER['CIA_REQUEST']);
 
