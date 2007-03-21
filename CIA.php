@@ -124,12 +124,15 @@ define('CIA_DIRECT',  '_' == $_SERVER['CIA_REQUEST']);
 
 function E($msg = '__getDeltaMicrotime')
 {
-	return class_exists('CIA', false) ? CIA::log($msg, false, false) : trigger_error($msg);
+	return class_exists('CIA', false) ? CIA::log($msg, false, false) : W($msg, E_USER_NOTICE);
 }
 
-function W($msg)
+function W($msg, $err = E_USER_WARNING)
 {
-	trigger_error($msg, E_USER_WARNING);
+	ini_set('log_errors', true);
+	ini_set('error_log', './error.log');
+	ini_set('display_errors', false);
+	trigger_error($msg, $err);
 }
 // }}}
 
