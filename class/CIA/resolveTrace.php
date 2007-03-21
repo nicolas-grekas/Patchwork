@@ -25,7 +25,7 @@ class extends CIA
 		$HOME = $home = CIA::__HOME__();
 		$agent = str_replace('%2F', '/', rawurlencode($agent));
 		$agent = CIA::home($agent, true);
-		$agent = preg_replace("'^.*://[^/]*'", '', $agent);
+		$agent = preg_replace("'^.*?://[^/]*'", '', $agent);
 		
 		$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
 		$h = stream_socket_client("{$h}://{$_SERVER['SERVER_ADDR']}:{$_SERVER['SERVER_PORT']}", $errno, $errstr, 5);

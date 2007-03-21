@@ -12,6 +12,8 @@
  ***************************************************************************/
 
 
+isset($_SERVER['REDIRECT_URL']) && die('C3MRO Init. Error: $_SERVER[\'REDIRECT_URL\'] must not be set at this stage.');
+
 $version_id = realpath('.');
 
 $appConfigSource = array();
@@ -98,37 +100,52 @@ for ($i = 0; $i < $len; ++$i)
 // }}}
 
 // {{{ CIA's context early initialization
-if (!isset($_SERVER['CIA_HOME']))
+if (isset($_SERVER['CIA_HOME']))
 {
-		if (!(isset($_SERVER['PATH_INFO']) || isset($_SERVER['ORIG_PATH_INFO'])))
-		{
-			// Check if the webserver supports PATH_INFO
-
-			$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
-			$h = stream_socket_client("{$h}://{$_SERVER['SERVER_ADDR']}:{$_SERVER['SERVER_PORT']}", $errno, $errstr, 5);
-			if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
-
-			$a = strpos($_SERVER['REQUEST_URI'], '?');
-			$a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
-
-			$a  = "GET {$a}/ HTTP/1.1\r\n";
-			$a .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
-			$a .= "Connection: Close\r\n\r\n";
-
-			fwrite($h, $a);
-			$a = fgets($h, 14);
-			fclose($h);
-
-			if (false !== strpos($a, '200')) $_SERVER['PATH_INFO'] = '';
-
-			unset($a);
-			unset($h);
-		}
-
-		$CIA[] = isset($_SERVER['PATH_INFO']) || isset($_SERVER['ORIG_PATH_INFO']) ? '#PATH_INFO enabled' : '#PATH_INFO disabled';
-
+	$a = false !== strpos($_SERVER['CIA_HOME'], '/__/');
+	$a && $CIA[] = 'isset($_SERVER[\'CIA_HOME\']) || $_SERVER[\'CIA_HOME\'] = ' . var_export($_SERVER['CIA_HOME'], true);
+	'/'  == substr($_SERVER['CIA_HOME'], 0, 1) && $CIA[] = '$_SERVER[\'CIA_HOME\'] = \'http\' . (isset($_SERVER[\'HTTPS\']) ? \'s\' : \'\') . \'://\' . $_SERVER[\'HTTP_HOST\'] . $_SERVER[\'CIA_HOME\']';
+	$a && $CIA[] = 'if (isset($_SERVER[\'REDIRECT_URL\']))
+{
+	header(\'HTTP/1.1 200 OK\');
+	$_SERVER[\'CIA_LANG\'] = \'\';
+	$_SERVER[\'CIA_REQUEST\'] = substr($_SERVER[\'REDIRECT_URL\'], strlen(preg_replace("#^.*?://[^/]*#", \'\', $_SERVER[\'CIA_HOME\'])) - 3);
+	if (isset($_SERVER[\'REDIRECT_QUERY_STRING\']))
+	{
+		$_SERVER[\'QUERY_STRING\'] = $_SERVER[\'REDIRECT_QUERY_STRING\'];
+		parse_str($_SERVER[\'QUERY_STRING\'], $_GET);
+	}
+}';
 }
-else if ('/' == substr($_SERVER['CIA_HOME'], 0, 1)) $CIA[] = '$_SERVER[\'CIA_HOME\'] = \'http\' . (isset($_SERVER[\'HTTPS\']) ? \'s\' : \'\') . \'://\' . $_SERVER[\'HTTP_HOST\'] . $_SERVER[\'CIA_HOME\']';
+else
+{
+	if (!(isset($_SERVER['PATH_INFO']) || isset($_SERVER['ORIG_PATH_INFO'])))
+	{
+		// Check if the webserver supports PATH_INFO
+
+		$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
+		$h = stream_socket_client("{$h}://{$_SERVER['SERVER_ADDR']}:{$_SERVER['SERVER_PORT']}", $errno, $errstr, 5);
+		if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
+
+		$a = strpos($_SERVER['REQUEST_URI'], '?');
+		$a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
+	
+		$a  = "GET {$a}/ HTTP/1.1\r\n";
+		$a .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
+		$a .= "Connection: Close\r\n\r\n";
+
+		fwrite($h, $a);
+		$a = fgets($h, 14);
+		fclose($h);
+
+		if (false !== strpos($a, '200')) $_SERVER['PATH_INFO'] = '';
+
+		unset($a);
+		unset($h);
+	}
+
+	$CIA[] = isset($_SERVER['PATH_INFO']) || isset($_SERVER['ORIG_PATH_INFO']) ? '#PATH_INFO enabled' : '#PATH_INFO disabled';
+}
 // }}}
 
 
