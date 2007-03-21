@@ -19,7 +19,9 @@ class
 		$lang = self::HTTP_Best_Language(explode('|', $GLOBALS['CONFIG']['lang_list']));
 		$b = $_SERVER['REQUEST_METHOD'];
 
-		if ('GET' == $b || 'HEAD' == $b)
+		header('Vary: Accept-Language', false);
+
+		if (!CIA_DIRECT && ('GET' == $b || 'HEAD' == $b))
 		{
 			$lang  = implode($lang, explode('__', $_SERVER['CIA_HOME'], 2));
 			$lang .= $_SERVER['CIA_REQUEST'] . ($_GET ? '?' . $_SERVER['QUERY_STRING'] : '');
@@ -30,7 +32,6 @@ class
 			header('Content-Type: text/html; charset=UTF-8');
 			header('Expires: ' . gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + CIA_MAXAGE) . ' GMT');
 			header('Cache-Control: max-age=' . CIA_MAXAGE .',public');
-			header('Vary: Accept-Language', false);
 			header('Vary: Accept-Encoding', false);
 
 			$lang = htmlspecialchars($lang);
