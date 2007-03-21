@@ -57,6 +57,7 @@ class CIA_preprocessor__0
 		'create_function'         => 0,
 		'preg_replace'            => 0,
 		'sqlite_create_aggregate' => 0,
+		'unserialize'             => 0,
 
 		// Classname as string in the first parameter
 		'class_exists'      => -1,

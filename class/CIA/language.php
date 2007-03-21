@@ -19,12 +19,10 @@ class
 		$lang = self::HTTP_Best_Language(explode('|', $GLOBALS['CONFIG']['lang_list']));
 		$b = $_SERVER['REQUEST_METHOD'];
 
-		header('Vary: Accept-Language', false);
-
 		if (!CIA_DIRECT && ('GET' == $b || 'HEAD' == $b))
 		{
 			$lang  = implode($lang, explode('__', $_SERVER['CIA_HOME'], 2));
-			$lang .= $_SERVER['CIA_REQUEST'] . ($_GET ? '?' . $_SERVER['QUERY_STRING'] : '');
+			$lang .= $_SERVER['CIA_REQUEST'];
 			$_GET && $lang .= '?' . $_SERVER['QUERY_STRING'];
 
 			ob_start('ob_gzhandler');
@@ -36,7 +34,7 @@ class
 
 			$lang = htmlspecialchars($lang);
 
-			?><html><head><title>Loading ...</title><script type="text/javascript">/*<![CDATA[*/w=document;if(!/safari|msie [0-5]\./i.test(navigator.userAgent)&&!/(^|; )JS=[12](; |$)/.test(w.cookie))w.cookie='JS=1; path=/'//]]></script><meta http-equiv="refresh" content="0; URL=<?php echo $lang?>" /></head><body onload="location.replace('<?php echo $lang?>')"><i>Loading <a href="<?php echo $lang?>"><?php echo $lang?></a> ...</i></body></html><?php
+			?><html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Loading <?php echo $lang?>…</title><script type="text/javascript">/*<![CDATA[*/w=document;if(!/safari|msie [0-5]\./i.test(navigator.userAgent)&&!/(^|; )JS=[12](; |$)/.test(w.cookie))w.cookie='JS=1; path=/'//]]></script><meta http-equiv="refresh" content="0; URL=<?php echo $lang?>" /></head><body onload="location.replace('<?php echo $lang?>')"><i>Loading <a href="<?php echo $lang?>"><?php echo $lang?></a> ...</i></body></html><?php
 
 			exit;
 		}
@@ -45,6 +43,9 @@ class
 
 	static function HTTP_Best_Language($supported)
 	{
+		static $vary = true;
+		$vary && $vary = header('Vary: Accept-Language', false);
+
 		$candidates = array();
 
 		if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) foreach (explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']) as $item)
