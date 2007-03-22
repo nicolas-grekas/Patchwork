@@ -426,7 +426,7 @@ class CIA_preprocessor__0
 
 				if (is_array($code[$j]) && T_STRING == $code[$j][0])
 				{
-					if (isset(CIA_preprocessor::$inline_class[$code[$j][1]])) break;
+					if (isset(CIA_preprocessor::$inline_class[strtolower($code[$j][1])])) break;
 					$c = false;
 				}
 
