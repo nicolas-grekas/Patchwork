@@ -567,6 +567,9 @@ class CIA_preprocessor__0
 						if (0<=$level) new CIA_preprocessor_t_($this, true);
 						break;
 
+					case 'is_a':
+						if (0>$level) $type = $token = 'cia_is_a';
+
 					default:
 						if (!isset(CIA_preprocessor::$callback[$type])) break;
 
