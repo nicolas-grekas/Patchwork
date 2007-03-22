@@ -108,6 +108,7 @@ class CIA_preprocessor__0
 		'sqlite_create_function' => 3,
 	);
 
+	protected static $declared_class = array('self' => 1, 'parent' => 1, 'this' => 1, 'static' => 1);
 	protected static $inline_class;
 	protected static $recursive = false;
 
@@ -120,6 +121,13 @@ class CIA_preprocessor__0
 			'setcookie'    => 'CIA::setcookie',
 			'setrawcookie' => 'CIA::setrawcookie',
 		);
+
+		foreach (get_declared_classes() as $v)
+		{
+			$v = strtolower($v);
+			if ('cia_' == substr($v, 0, 4)) break;
+			CIA_preprocessor::$declared_class[$v] = 1;
+		}
 
 		// As of PHP5.1.2, md5($str) is a lot faster than md5($str) !
 		extension_loaded('hash') && CIA_preprocessor::$function += array(
@@ -174,7 +182,7 @@ class CIA_preprocessor__0
 			}
 		}
 
-		foreach (CIA_preprocessor::$constant as $k => &$v) $v = CIA_preprocessor::export($v);
+		foreach (CIA_preprocessor::$constant as &$v) $v = CIA_preprocessor::export($v);
 	}
 
 	static function run($source, $destination, $level, $class)
@@ -183,7 +191,7 @@ class CIA_preprocessor__0
 
 		if (!$recursive)
 		{
-			CIA_preprocessor::$inline_class = array('self', 'parent', 'this', 'static');
+			CIA_preprocessor::$inline_class = CIA_preprocessor::$declared_class;
 			CIA_preprocessor::$recursive = true;
 		}
 
@@ -271,12 +279,15 @@ class CIA_preprocessor__0
 			}
 			else $type = $token;
 
+			// Reduce memory usage
+			unset($code[$i]);
+
 			switch ($type)
 			{
 			case T_OPEN_TAG_WITH_ECHO:
-				array_splice($code, $i+1, 0, array(array(T_ECHO, 'echo')));
-				++$codeLen;
-				$type = T_OPEN_TAG;
+				$code[$i--] = array(T_ECHO, 'echo');
+				$code[$i--] = array(T_OPEN_TAG, '<?php ' . $this->extractLF($token));
+				continue 2;
 
 			case T_OPEN_TAG: // Normalize PHP open tag
 				$token = '<?php ' . $opentag_marker . $this->extractLF($token);
@@ -316,7 +327,6 @@ class CIA_preprocessor__0
 				$final    = T_FINAL    == $prevType;
 				$abstract = T_ABSTRACT == $prevType;
 
-				// Look forward
 				$j = $this->seekSugar($code, $i);
 				if (isset($code[$j]) && is_array($code[$j]) && T_STRING == $code[$j][0])
 				{
@@ -328,24 +338,19 @@ class CIA_preprocessor__0
 					else
 					{
 						$c = preg_replace("'__[0-9]+$'", '', $c);
-						$b = $c . '__' . (0<=$level ? $level : '00');
+						if ($c) $b = $c . '__' . (0<=$level ? $level : '00');
+						else $c = $b;
 						$token .= $b;
 					}
-
-					$token .= $this->fetchSugar($code, $i);
 				}
-
-				if (!$c)
+				else if ($class && 0<=$level)
 				{
-					if ($class && 0<=$level)
-					{
-						$c = $class;
-						$b = $c . (!$final ? '__' . $level : '');
-						$token .= ' ' . $b;
-					}
-
-					$token .= $this->fetchSugar($code, $i);
+					$c = $class;
+					$b = $c . (!$final ? '__' . $level : '');
+					$token .= ' ' . $b;
 				}
+
+				$token .= $this->fetchSugar($code, $i);
 
 				$class_pool[$curly_level] = (object) array(
 					'classname' => $c,
@@ -356,7 +361,7 @@ class CIA_preprocessor__0
 					'construct_source' => '',
 				);
 
-				CIA_preprocessor::$inline_class[] = strtolower($c);
+				CIA_preprocessor::$inline_class[strtolower($c)] = 1;
 
 				if ($c && isset($code[$i]) && is_array($code[$i]) && T_EXTENDS == $code[$i][0])
 				{
@@ -366,7 +371,7 @@ class CIA_preprocessor__0
 					{
 						$c = 0<=$level && 'self' == $code[$i][1] ? $c . '__' . ($level ? $level-1 : '00') : $code[$i][1];
 						$token .= $c;
-						CIA_preprocessor::$inline_class[] = strtolower($c);
+						CIA_preprocessor::$inline_class[strtolower($c)] = 1;
 					}
 					else --$i;
 				}
@@ -421,7 +426,7 @@ class CIA_preprocessor__0
 
 				if (is_array($code[$j]) && T_STRING == $code[$j][0])
 				{
-					if (in_array($code[$j][1], CIA_preprocessor::$inline_class)) break;
+					if (isset(CIA_preprocessor::$inline_class[$code[$j][1]])) break;
 					$c = false;
 				}
 
@@ -449,7 +454,7 @@ class CIA_preprocessor__0
 			case T_DOUBLE_COLON:
 				if (T_DOUBLE_COLON == $type)
 				{
-					if ($static_instruction || isset($class_pool[$curly_level-1]) || in_array($prevType, CIA_preprocessor::$inline_class)) break;
+					if ($static_instruction || isset($class_pool[$curly_level-1]) || isset(CIA_preprocessor::$inline_class[$prevType])) break;
 
 					$curly_marker_last[1] || $curly_marker_last[1] = -1;
 					$c = $this->marker($prevType);
@@ -552,7 +557,7 @@ class CIA_preprocessor__0
 						// If possible, resolve the path now, else append their third arg to resolve|processPath
 						if (0<=$level)
 						{
-							$j = (string) $this->fetchConstant($code, $i);
+							$j = (string) $this->fetchConstant($code, $i, $codeLen);
 							if ('' !== $j)
 							{
 								eval("\$b={$token}{$j};");
@@ -635,7 +640,7 @@ class CIA_preprocessor__0
 				{
 					if (0>$level)
 					{
-						$j = (string) $this->fetchConstant($code, $i);
+						$j = (string) $this->fetchConstant($code, $i, $codeLen);
 						if ( '' !== $j)
 						{
 							eval("\$b=cia_adaptRequire({$j});");
@@ -684,6 +689,7 @@ class CIA_preprocessor__0
 
 			case ';':
 				$static_instruction = false;
+				$new_type = array(($new_code_length-1) => '');
 				break;
 
 			case '{':
@@ -741,9 +747,7 @@ class CIA_preprocessor__0
 			++$new_code_length;
 		}
 
-		$token =& $code[$codeLen - 1];
-
-		if (!is_array($token) || (T_CLOSE_TAG != $token[0] && T_INLINE_HTML != $token[0])) $new_code[] = '?>';
+		if (T_CLOSE_TAG != $type && T_INLINE_HTML != $type) $new_code[] = '?>';
 
 		return $new_code;
 	}
@@ -794,12 +798,11 @@ class CIA_preprocessor__0
 		return $this->extractLF($a[0]);
 	}
 
-	protected function fetchConstant(&$code, &$i)
+	protected function fetchConstant(&$code, &$i, $codeLen)
 	{
 		if (DEBUG) return false;
 
 		$new_code = array();
-		$codeLen = count($code);
 		$inString = false;
 		$bracket = 0;
 
