@@ -296,6 +296,11 @@ class CIA_preprocessor__0
 				++$curly_level;
 				break;
 
+			case T_FILE:
+				$token = CIA_preprocessor::export($source);
+				$type = T_CONSTANT_ENCAPSED_STRING;
+				break;
+
 			case T_CLASS_C:
 				if ($class_pool)
 				{
@@ -587,11 +592,6 @@ class CIA_preprocessor__0
 				case '__cia_level__': if (0>$level) break;
 					$token = $level;
 					$type = T_LNUMBER;
-					break;
-
-				case '__cia_file__': if (0>$level) break;
-					$token = CIA_preprocessor::export($source);
-					$type = T_CONSTANT_ENCAPSED_STRING;
 					break;
 
 				default:
