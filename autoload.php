@@ -42,19 +42,19 @@ function cia_autoload($searched_class)
 	}
 
 	$file = false;
-	$prefix = false;
 	$lcClass = strtolower($class);
 
-	foreach ($GLOBALS['cia_autoload_prefix'] as $c)
+	if (isset($GLOBALS['cia_autoload_class'][$lcClass])) $file = $GLOBALS['cia_autoload_class'][$lcClass];
+	else foreach ($GLOBALS['cia_autoload_prefix'] as $c)
 	{
 		if ($c[0] == substr($lcClass, 0, strlen($c[0])))
 		{
-			$prefix = true;
 			$file = call_user_func($c[1], $class);
 			break;
 		}
 	}
 
+	$outerClass = (bool) $file;
 	$parent_class = $class . '__' . $level;
 	$cache = false;
 	$c = $searched_class == $class;
@@ -218,7 +218,7 @@ function cia_autoload($searched_class)
 					$GLOBALS['a' . $cia_paths_token] = $GLOBALS['b' . $cia_paths_token] = $file . '*' . $bmark;
 					$bmark = substr($code, 0, strrpos($code, '*') + 1) . $bmark . "'";
 					$code = "({$code})&&\$d{$cia_paths_token}&&";
-					$c = $prefix ? "'{$cache}'" : ($level + $GLOBALS['cia_paths_offset']);
+					$c = $outerClass ? "'{$cache}'" : ($level + $GLOBALS['cia_paths_offset']);
 					$c = "\$c{$cia_paths_token}['{$searched_class}']={$c}";
 					$c = "({$bmark})&&\$d{$cia_paths_token}&&({$c})&&";
 				}
@@ -231,7 +231,7 @@ function cia_autoload($searched_class)
 		{
 			// Global cache completion
 
-			$amark = $prefix ? "'{$cache}'" : ($level + $GLOBALS['cia_paths_offset']);
+			$amark = $outerClass ? "'{$cache}'" : ($level + $GLOBALS['cia_paths_offset']);
 			$code = "\$c{$cia_paths_token}['{$searched_class}']={$amark};";
 
 			$c = fopen('./.config.zcache.php', 'ab');

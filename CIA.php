@@ -69,6 +69,17 @@ function registerAutoloadPrefix($prefix, $class2file_resolver, $class2file_resol
 }
 // }}}
 
+// {{{ registerAutoloadClass()
+$cia_autoload_class = array();
+
+function registerAutoloadClass($class, $filename = '')
+{
+	global $cia_autoload_class;
+	is_string($class) && $class = array($class => $filename);
+	foreach ($class as $k => &$v) $cia_autoload_class[ strtolower($k) ] =& $v;
+}
+// }}}
+
 // {{{ cia_atomic_write
 function cia_atomic_write(&$data, $to, $mtime = false)
 {
