@@ -205,9 +205,36 @@ class
 
 	static function start()
 	{
+		// Workaround for a bug in eAccelerator 0.9.5
+		function cia_error_handler($code, $message, $file, $line, &$context)
+		{
+			if (error_reporting())
+			{
+				switch ($code)
+				{
+				case E_NOTICE:
+				case E_STRICT:
+					if (strpos($message, '__00::')) return;
+
+					static $offset = 0;
+					$offset || $offset = -13 - strlen($GLOBALS['cia_paths_token']);
+
+					if ('-' == substr($file, $offset, 1)) return;
+
+					break;
+
+				case E_WARNING:
+					if (stripos($message, 'safe mode')) return;
+				}
+
+				CIA::error_handler($code, $message, $file, $line, $context);
+			}
+		}
+
 		ini_set('log_errors', true);
 		ini_set('error_log', './error.log');
 		ini_set('display_errors', false);
+		set_error_handler('cia_error_handler');
 
 		class_exists('CIA_preprocessor__0', false) && CIA_preprocessor__0::$function += array(
 			'header'       => 'CIA::header',
@@ -222,7 +249,6 @@ class
 		if (!self::$cachePath) self::$cachePath = $GLOBALS['cia_paths'][count($GLOBALS['cia_paths']) - 2] . '/zcache/';
 
 		self::header('Content-Type: text/html; charset=UTF-8');
-		set_error_handler(array(__CLASS__, 'error_handler'));
 
 		self::$is_enabled = true;
 		self::$ob_starting_level = ob_get_level();
@@ -1265,19 +1291,9 @@ class
 		return $buffer;
 	}
 
-	static function error_handler($code, $message, $file, $line, $context)
+	static function error_handler($code, $message, $file, $line, &$context)
 	{
-		if (!error_reporting()) return;
-
-		static $offset = 0;
-		$offset || $offset = -13 - strlen($GLOBALS['cia_paths_token']);
-
-		if (
-			   ((E_NOTICE == $code || E_STRICT == $code) && ('-' == substr($file, $offset, 1) || strpos($message, '__00::')))
-			|| (E_WARNING == $code && false !== stripos($message, 'safe mode'))
-		) return;
-
-		CIA_error::call($code, $message, $file, $line, &$context);
+		CIA_error::call($code, $message, $file, $line, $context);
 	}
 }
 
