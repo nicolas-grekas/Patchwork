@@ -332,7 +332,177 @@ w = function($homeAgent, $keys, $masterCIApID)
 		$homeAgent; //This is here for jsquiz to work well
 		$code = $code || [];
 
-		var $pointer, $arguments = a, $localCIApID = $CIApID, $localG = g;
+		var $pointer,
+			$arguments = a,
+			$localCIApID = $CIApID,
+			$localG = g,
+			$bytecode = [
+
+			// 0: pipe
+			function()
+			{
+				if ($i = $code[$pointer++])
+				{
+					$code[$pointer-1] = 0;
+
+					$i = $i.split('.');
+					$j = $i.length;
+					while ($j--) $i[$j] = t(window['P$'+$i[$j]]) ? '' : ('.'+$i[$j]);
+
+					$i = $i.join('');
+
+					if ($i) return $include(g.__HOME__ + '_?p$=' + esc($i.substr(1)), 0, 0, 1), 1;
+				}
+			},
+
+			// 1: agent
+			function()
+			{
+				var $agent = $evalNext(),
+					$args = $evalNext(),
+					$keys = $code[$pointer++],
+					$meta = $code[$pointer++],
+					$data;
+
+				<!-- IF g$__DEBUG__ -->
+				if (!t($agent))
+				{
+					E('Undefined AGENT: ' + $code[$pointer-4], 1);
+					return;
+				}
+				<!-- ELSE -->
+				if (!t($agent)) return;
+				<!-- END:IF -->
+
+				if (t($agent, 'function'))
+				{
+					$agent = $agent();
+					while ($j = $agent()) $data = $j;
+
+					$agent = $data.a$;
+					eval('$keys='+$data.k$);
+
+					for ($i in $data) if (!/\$/.test($i)) $args[$i] = $data[$i];
+
+					if ($data.r$) $meta = [$data.v$, $data.r$];
+				}
+
+				$agent = esc($agent);
+
+				if (!$meta) $agent = g.__HOME__ + '_?t$=' + $agent;
+				else
+				{
+					if ($meta > 1)
+					{
+					<!-- IF g$__DEBUG__ -->
+						if (/^(\/|https?:\/\/)/.test($agent))
+						{
+							if (2 == $meta)
+							{
+								E('EXOAGENT (' + $agent + ') called with AGENT', 1);
+								return;
+							}
+
+							$keys = 0;
+						}
+						else if (3 == $meta)
+						{
+							E('AGENT (' + $agent + ') called with EXOAGENT', 1);
+							return;
+						}
+					<!-- ELSE -->
+						if (/^(\/|https?:\/\/)/.test($agent))
+						{
+							if (2 == $meta) return;
+
+							$keys = 0;
+						}
+					<!-- END:IF -->
+					}
+					else if (1 != $meta)
+					{
+						$CIApID = $meta[0]/1;
+
+						$args.__DEBUG__ = g.__DEBUG__;
+						$args.__LANG__ = g.__LANG__;
+						$args.__HOME__ = esc($meta[1]).replace(/__/, $args.__LANG__);
+						$args.__HOST__ = $args.__HOME__.substr(0, $args.__HOME__.indexOf('/', 8)+1);
+						$args.__AGENT__ = $agent ? $agent + '/' : '';
+						$args.__URI__ = $args.__HOME__ + $agent;
+						$args.e$ = 1;
+
+						g = $args;
+					}
+
+					$agent = $keys ? g.__HOME__ + '_?a$=' + $agent : home($agent, 0, 1);
+				}
+
+				return $include($agent, $args, $keys), 1;
+			},
+
+			// 2: echo
+			function()
+			{
+				$echo( $code[$pointer++] );
+			},
+
+			// 3: eval echo
+			function()
+			{
+				$echo( $evalNext() );
+			},
+
+			// 4: set
+			function()
+			{
+				$WobStack[++$WobLast] = [];
+			},
+
+			// 5: endset
+			function()
+			{
+				$i = $code[$pointer++];
+				if (!$i) $i = a;
+				else if ($i==1) $i = g;
+				else
+				{
+					$j = $i - 1;
+					$i = v;
+					while (--$j) $i = $i.$;
+				}
+
+				$i[$code[$pointer++]] = num($WobStack[$WobLast--].join(''), 1);
+			},
+
+			// 6: jump
+			function()
+			{
+				$pointer += $code[$pointer];
+			},
+
+			// 7: if
+			function()
+			{
+				($evalNext() && ++$pointer) || ($pointer += $code[$pointer]);
+			},
+
+			// 8: loop
+			function()
+			{
+				$i = $evalNext();
+				($i && (t($i, 'function') || ($i = y($i-0))) && $i()() && ++$pointer) || ($pointer += $code[$pointer]);
+				$context = v;
+			},
+
+			// 9: next
+			function()
+			{
+				($loopIterator() && ($pointer -= $code[$pointer])) || ++$pointer;
+				$context = v;
+
+				if (new Date - $startTime > 500) return $include($masterHome + 'js/x', 0, 0, 1), 1;
+			}
+		];
 
 		if (!$fromCache)
 		{
@@ -374,160 +544,15 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 		($WexecStack[++$WexecLast] = function()
 		{
+			var $l = $code.length;
+
 			a = $arguments;
 			v = $context;
 
 			$CIApID = $localCIApID;
 			g = $localG;
 
-			while ($code[$pointer]>='') switch ($code[$pointer++])
-			{
-			case 0: // pipe
-				$i = $code[$pointer++];
-
-				if (!$i) break;
-
-				$code[$pointer-1] = 0;
-
-				$i = $i.split('.');
-				$j = $i.length;
-				while ($j--) $i[$j] = t(window['P$'+$i[$j]]) ? '' : ('.'+$i[$j]);
-
-				$i = $i.join('');
-
-				if ($i) return $include(g.__HOME__ + '_?p$=' + esc($i.substr(1)), 0, 0, 1);
-				break;
-
-			case 1: // agent
-				var $agent = $evalNext(),
-					$args = $evalNext(),
-					$keys = $code[$pointer++],
-					$meta = $code[$pointer++],
-					$data;
-
-				<!-- IF g$__DEBUG__ -->
-				if (!t($agent))
-				{
-					E('Undefined AGENT: ' + $code[$pointer-4], 1);
-					break;
-				}
-				<!-- ELSE -->
-				if (!t($agent)) break;
-				<!-- END:IF -->
-
-				if (t($agent, 'function'))
-				{
-					$agent = $agent();
-					while ($j = $agent()) $data = $j;
-
-					$agent = $data.a$;
-					eval('$keys='+$data.k$);
-
-					for ($i in $data) if (!/\$/.test($i)) $args[$i] = $data[$i];
-
-					if ($data.r$) $meta = [$data.v$, $data.r$];
-				}
-
-				$agent = esc($agent);
-
-				if (!$meta) $agent = g.__HOME__ + '_?t$=' + $agent;
-				else
-				{
-					if ($meta > 1)
-					{
-					<!-- IF g$__DEBUG__ -->
-						if (/^(\/|https?:\/\/)/.test($agent))
-						{
-							if (2 == $meta)
-							{
-								E('EXOAGENT (' + $agent + ') called with AGENT', 1);
-								break;
-							}
-
-							$keys = 0;
-						}
-						else if (3 == $meta)
-						{
-							E('AGENT (' + $agent + ') called with EXOAGENT', 1);
-							break;
-						}
-					<!-- ELSE -->
-						if (/^(\/|https?:\/\/)/.test($agent))
-						{
-							if (2 == $meta) break;
-
-							$keys = 0;
-						}
-					<!-- END:IF -->
-					}
-					else if (1 != $meta)
-					{
-						$CIApID = $meta[0]/1;
-
-						$args.__DEBUG__ = g.__DEBUG__;
-						$args.__LANG__ = g.__LANG__;
-						$args.__HOME__ = esc($meta[1]).replace(/__/, $args.__LANG__);
-						$args.__HOST__ = $args.__HOME__.substr(0, $args.__HOME__.indexOf('/', 8)+1);
-						$args.__AGENT__ = $agent ? $agent + '/' : '';
-						$args.__URI__ = $args.__HOME__ + $agent;
-						$args.e$ = 1;
-
-						g = $args;
-					}
-
-					$agent = $keys ? g.__HOME__ + '_?a$=' + $agent : home($agent, 0, 1);
-				}
-
-				return $include($agent, $args, $keys);
-
-			case 2: // echo
-				$echo( $code[$pointer++] );
-				break;
-
-			case 3: // eval echo
-				$echo( $evalNext() );
-				break;
-
-			case 4: // set
-				$WobStack[++$WobLast] = [];
-				break;
-
-			case 5: // endset
-				$i = $code[$pointer++];
-				if (!$i) $i = a;
-				else if ($i==1) $i = g;
-				else
-				{
-					$j = $i - 1;
-					$i = v;
-					while (--$j) $i = $i.$;
-				}
-
-				$i[$code[$pointer++]] = num($WobStack[$WobLast--].join(''), 1);
-				break;
-
-			case 6: // jump
-				$pointer += $code[$pointer];
-				break;
-
-			case 7: // if
-				($evalNext() && ++$pointer) || ($pointer += $code[$pointer]);
-				break;
-
-			case 8: // loop
-				$i = $evalNext();
-				($i && (t($i, 'function') || ($i = y($i-0))) && $i()() && ++$pointer) || ($pointer += $code[$pointer]);
-				$context = v;
-				break;
-
-			case 9: // next
-				($loopIterator() && ($pointer -= $code[$pointer])) || ++$pointer;
-				$context = v;
-
-				if (new Date - $startTime > 500) return $include($masterHome + 'js/x', 0, 0, 1);
-
-				break;
-			}
+			while (++$pointer <= $l) if ($bytecode[$code[$pointer-1]]()) return;
 
 			$WexecStack[$WexecLast] = 0;
 
