@@ -276,6 +276,11 @@ function __autoload($searched_class)
 }
 // }}}
 
+function cia_is_a($obj, $class)
+{
+	return $obj instanceof $class;
+}
+
 }
 
 // {{{ Debug context
