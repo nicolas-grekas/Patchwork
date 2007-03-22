@@ -1273,7 +1273,7 @@ class
 		$offset || $offset = -13 - strlen($GLOBALS['cia_paths_token']);
 
 		if (
-			   ((E_NOTICE == $code || E_STRICT == $code) && '-' == substr($file, $offset, 1))
+			   ((E_NOTICE == $code || E_STRICT == $code) && ('-' == substr($file, $offset, 1) || strpos($message, '__00::')))
 			|| (E_WARNING == $code && false !== stripos($message, 'safe mode'))
 		) return;
 
