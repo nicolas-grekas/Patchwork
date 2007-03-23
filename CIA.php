@@ -361,10 +361,11 @@ else
 	if (1 == strlen($a)) $a = '';
 
 	setcookie('T$', $cia_token, 0, $a .'/');
-	header('Vary: *');
+	$cia_private = true;
 }
 
-define('CIA_TOKEN_MATCH', isset($_GET['T$']) && (header('Vary: *') || substr($cia_token, 1) == substr($_GET['T$'], 1)));
+isset($_GET['T$']) && $cia_private = true;
+define('CIA_TOKEN_MATCH', isset($_GET['T$']) && substr($cia_token, 1) == substr($_GET['T$'], 1));
 // }}}
 
 /* Let's go */

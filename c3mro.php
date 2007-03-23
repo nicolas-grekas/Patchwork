@@ -36,7 +36,8 @@ $CIA = array(
 	'$cia_paths=' . var_export($cia_paths, true),
 	'$cia_include_paths=' . var_export($cia_include_paths, true),
 	'$cia_paths_offset='  . $cia_paths_offset,
-	'$cia_abstract=array();',
+	'$cia_private=false',
+	'$cia_abstract=array()',
 );
 
 
