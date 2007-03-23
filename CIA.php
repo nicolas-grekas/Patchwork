@@ -364,7 +364,7 @@ else
 	header('Vary: *');
 }
 
-define('CIA_TOKEN_MATCH', isset($_GET['T$']) && substr($cia_token, 1) == substr($_GET['T$'], 1));
+define('CIA_TOKEN_MATCH', isset($_GET['T$']) && (header('Vary: *') || substr($cia_token, 1) == substr($_GET['T$'], 1)));
 // }}}
 
 /* Let's go */
