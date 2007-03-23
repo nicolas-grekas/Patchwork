@@ -265,8 +265,6 @@ class
 			self::disable(true);
 		}
 
-		if (isset($_GET['T$'])) self::$private = true;
-
 		$agent = $_SERVER['CIA_REQUEST'];
 		if (($mime = strrchr($agent, '.')) && strcasecmp('.tpl', $mime)) CIA_controler::call($agent, $mime);
 

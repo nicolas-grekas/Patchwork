@@ -741,10 +741,10 @@ w = function($homeAgent, $keys, $masterCIApID)
 	if ($i = $document.cookie.match(/(^|; )T\$=([0-9a-zA-Z]+)/)) $i = $i[2];
 	else
 	{
-		$i = '';
+		$i = '0';
 		do $i = (Math.random()+$i).substr(2);
-		while ($i.length < 32);
-		$i = $i.substr(0, 32);
+		while ($i.length < 33);
+		$i = $i.substr(0, 33);
 
 		$j = $masterHome.replace(
 			/\?.*$/              , '' ).replace(
@@ -752,7 +752,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 			/\/[^\/]+$/          , '/'
 		);
 
-		$document.cookie = 'T$=0' + $i + '; path=' + encodeURI($j);
+		$document.cookie = 'T$=' + $i + '; path=' + encodeURI($j);
 	}
 
 	antiCSRF = $i;
