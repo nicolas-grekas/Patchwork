@@ -262,7 +262,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 		t($a) && ($WobLast ? $WobStack[$WobLast] : $buffer).push($a);
 	}
 
-	function $include($inc, $args, $keys, $c)
+	function $include($inc, $args, $keys, $c, $i, $j)
 	{
 		if ($args)
 		{
@@ -332,16 +332,18 @@ w = function($homeAgent, $keys, $masterCIApID)
 		$homeAgent; //This is here for jsquiz to work well
 		$code = $code || [];
 
-		var $pointer,
+		var $pointer = 0,
 			$arguments = a,
 			$localCIApID = $CIApID,
 			$localG = g,
 			$bytecode = [
 
 			// 0: pipe
-			function()
+			function($code)
 			{
-				if ($i = $code[$pointer++])
+				var $i = $code[$pointer++], $j;
+
+				if ($i)
 				{
 					$code[$pointer-1] = 0;
 
@@ -356,13 +358,13 @@ w = function($homeAgent, $keys, $masterCIApID)
 			},
 
 			// 1: agent
-			function()
+			function($code)
 			{
-				var $agent = $evalNext(),
-					$args = $evalNext(),
+				var $agent = $evalNext($code),
+					$args = $evalNext($code),
 					$keys = $code[$pointer++],
 					$meta = $code[$pointer++],
-					$data;
+					$data, $i, $j;
 
 				<!-- IF g$__DEBUG__ -->
 				if (!t($agent))
@@ -441,27 +443,28 @@ w = function($homeAgent, $keys, $masterCIApID)
 			},
 
 			// 2: echo
-			function()
+			function($code)
 			{
 				$echo( $code[$pointer++] );
 			},
 
 			// 3: eval echo
-			function()
+			function($code)
 			{
-				$echo( $evalNext() );
+				$echo( $evalNext($code) );
 			},
 
 			// 4: set
-			function()
+			function($code)
 			{
 				$WobStack[++$WobLast] = [];
 			},
 
 			// 5: endset
-			function()
+			function($code)
 			{
-				$i = $code[$pointer++];
+				var $i = $code[$pointer++], $j;
+
 				if (!$i) $i = a;
 				else if ($i==1) $i = g;
 				else
@@ -475,27 +478,27 @@ w = function($homeAgent, $keys, $masterCIApID)
 			},
 
 			// 6: jump
-			function()
+			function($code)
 			{
 				$pointer += $code[$pointer];
 			},
 
 			// 7: if
-			function()
+			function($code)
 			{
-				($evalNext() && ++$pointer) || ($pointer += $code[$pointer]);
+				($evalNext($code) && ++$pointer) || ($pointer += $code[$pointer]);
 			},
 
 			// 8: loop
-			function()
+			function($code)
 			{
-				$i = $evalNext();
+				var $i = $evalNext($code);
 				($i && (t($i, 'function') || ($i = y($i-0))) && $i()() && ++$pointer) || ($pointer += $code[$pointer]);
 				$context = v;
 			},
 
 			// 9: next
-			function()
+			function($code)
 			{
 				($loopIterator() && ($pointer -= $code[$pointer])) || ++$pointer;
 				$context = v;
@@ -508,11 +511,8 @@ w = function($homeAgent, $keys, $masterCIApID)
 		{
 			$startTime = new Date;
 			$Rlevel = $maxRlevel;
-			$pointer = $document.forms.length;
-			while ($formsLength < $pointer) syncCSRF($document.forms[$formsLength++]);
+			while ($formsLength < $document.forms.length) syncCSRF($document.forms[$formsLength++]);
 		}
-
-		$pointer = 0;
 
 		<!-- IF g$__DEBUG__ -->var DEBUG = $i = 0;<!-- END:IF -->
 
@@ -537,14 +537,14 @@ w = function($homeAgent, $keys, $masterCIApID)
 		});
 		<!-- END:IF -->
 
-		function $evalNext($i)
+		function $evalNext($code)
 		{
-			return eval('$i=' + $code[$pointer++]);
+			return eval('$code=' + $code[$pointer++]);
 		}
 
 		($WexecStack[++$WexecLast] = function()
 		{
-			var $l = $code.length;
+			var $b = $bytecode, $c = $code, $codeLen = $c.length;
 
 			a = $arguments;
 			v = $context;
@@ -552,7 +552,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 			$CIApID = $localCIApID;
 			g = $localG;
 
-			while (++$pointer <= $l) if ($bytecode[$code[$pointer-1]]()) return;
+			while (++$pointer <= $codeLen) if ($b[$c[$pointer-1]]($c)) return;
 
 			$WexecStack[$WexecLast] = 0;
 
@@ -565,7 +565,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 	{
 		// Any optimization to save some request here is likely to break IE ...
 
-		var $src = $includeSrc, $content = $reloadRequest ? '' : $buffer.join(''), $offset = 0;
+		var $src = $includeSrc, $content = $reloadRequest ? '' : $buffer.join(''), $offset = 0, $i;
 
 		$includeSrc = '';
 		w.c = w;
@@ -655,7 +655,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 			$next = $data[1][0]
 
-				? function()
+				? function($i, $j)
 				{
 					$blockData = $data[$block];
 					$offset += $j = $blockData[0];
@@ -727,7 +727,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 		return w.x($data);
 	}
 
-	function z($a, $b, $global)
+	function z($a, $b, $global, $i, $j)
 	{
 		$j = $global ? g : a;
 
