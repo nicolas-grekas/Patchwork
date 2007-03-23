@@ -382,7 +382,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 					while ($j = $agent()) $data = $j;
 
 					$agent = $data.a$;
-					eval('$keys='+$data.k$);
+					'[]' == $data.k$ ? $keys = [] : eval('$keys='+$data.k$);
 
 					for ($i in $data) if (!/\$/.test($i)) $args[$i] = $data[$i];
 
@@ -539,7 +539,8 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 		function $evalNext($code)
 		{
-			return eval('$code=' + $code[$pointer++]);
+			'function' == typeof $code[$pointer] || eval('$code[$pointer]=function(a,d,v,g){return ' + $code[$pointer] + '}');
+			return $code[$pointer++](a, d, v, g);
 		}
 
 		($WexecStack[++$WexecLast] = function()
