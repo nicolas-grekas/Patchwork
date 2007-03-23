@@ -334,7 +334,7 @@ $_POST_BACKUP =& $_POST;
 
 if (
 	isset($_COOKIE['T$'])
-	&& (!CIA_POSTING || (isset($_POST['T$']) && $_COOKIE['T$'] === $_POST['T$']))
+	&& (!CIA_POSTING || (isset($_POST['T$']) && substr($_COOKIE['T$'], 1) == substr($_POST['T$'], 1)))
 	&& '---------------------------------' == strtr($_COOKIE['T$'], '-0123456789abcdef', '#----------------')
 ) $cia_token = $_COOKIE['T$'];
 else
@@ -364,7 +364,7 @@ else
 	header('Vary: *');
 }
 
-define('CIA_TOKEN_MATCH', isset($_GET['T$']) && $cia_token === $_GET['T$']);
+define('CIA_TOKEN_MATCH', isset($_GET['T$']) && substr($cia_token, 1) == substr($_GET['T$'], 1));
 // }}}
 
 /* Let's go */
