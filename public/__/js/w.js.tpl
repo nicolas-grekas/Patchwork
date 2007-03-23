@@ -221,7 +221,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 		
 		$masterHome = {g$__HOME__|js};
 
-	if (!/safari|msie [0-5]\./i.test(navigator.userAgent) && !/(^|; )JS=[12](; |$)/.test($document.cookie)) $document.cookie = 'JS=1; path=/';
+	if (!/safari|msie [0-5]\./i.test(navigator.userAgent) && !/(^|; )JS=1(; |$)/.test($document.cookie)) $document.cookie = 'JS=1; path=/; expires=Mon, 18 Jan 2038 00:00:00 GMT';
 
 	window.home = function($str, $master, $noId)
 	{
@@ -607,7 +607,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 		{
 			$src = '<script type="text/javascript" name="w$" src="' + $src + (0<=$src.indexOf('?') ? '&amp;' : '?') + 'v$=' + $CIApID + '"></script>';
 
-			if ($trustReferer || /(^|; )JS=2(; |$)/.test($document.cookie)) $trustReferer = 1;
+			if ($trustReferer || /(^|; )T$=1/.test($document.cookie)) $trustReferer = 1;
 			else $src = '<script type="text/javascript" name="w$">document.cookie="R$="+eUC((""+location).replace(/#.*$/,""))+"; path=/"</script>' + $src;
 
 			$document.write($content + $src);
@@ -752,7 +752,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 			/\/[^\/]+$/          , '/'
 		);
 
-		$document.cookie = 'T$=' + $i + '; path=' + encodeURI($j);
+		$document.cookie = 'T$=0' + $i + '; path=' + encodeURI($j);
 	}
 
 	antiCSRF = $i;
