@@ -475,8 +475,8 @@ class
 		else
 		{
 			('' === (string) $value) && $expires = 1;
-	
-			header('Vary: *');
+
+			$GLOBALS['cia_private'] = true;
 			header(
 				"Set-Cookie: {$name}={$value}" .
 					($expires  ? '; expires=' . date('D, d-M-Y H:i:s T', $expires) : '') .
@@ -1262,6 +1262,8 @@ class
 					self::writeWatchTable('CIApID', $validator);
 				}
 			}
+
+			if ($GLOBALS['cia_private']) self::$private = true;
 
 			header('ETag: "' . $ETag . '"');
 			header('Last-Modified: ' . $LastModified);
