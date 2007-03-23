@@ -135,10 +135,10 @@ else
 		$a .= "Connection: Close\r\n\r\n";
 
 		fwrite($h, $a);
-		$a = fgets($h, 14);
+		$a = fgets($h, 12);
 		fclose($h);
 
-		if (false !== strpos($a, '200')) $_SERVER['PATH_INFO'] = '';
+		strpos($a, ' 4') || $_SERVER['PATH_INFO'] = '';
 
 		unset($a);
 		unset($h);

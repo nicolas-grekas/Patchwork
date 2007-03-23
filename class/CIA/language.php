@@ -21,20 +21,15 @@ class
 
 		if (!CIA_DIRECT && ('GET' == $b || 'HEAD' == $b))
 		{
-			$lang  = implode($lang, explode('__', $_SERVER['CIA_HOME'], 2));
-			$lang .= $_SERVER['CIA_REQUEST'];
+			$lang = implode($lang, explode('__', $_SERVER['CIA_HOME'], 2));
+			$lang = preg_replace("'^.*?://[^/]*'", '', $lang);
+			$lang .= str_replace('%2F', '/', rawurlencode($_SERVER['CIA_REQUEST']));
 			$_GET && $lang .= '?' . $_SERVER['QUERY_STRING'];
 
-			ob_start('ob_gzhandler');
-
-			header('Content-Type: text/html; charset=UTF-8');
+			header('HTTP/1.1 301 Moved Permanently');
+			header('Location: ' . $lang);
 			header('Expires: ' . gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + CIA_MAXAGE) . ' GMT');
 			header('Cache-Control: max-age=' . CIA_MAXAGE .',public');
-			header('Vary: Accept-Encoding', false);
-
-			$lang = htmlspecialchars($lang);
-
-			?><html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Loading <?php echo $lang?>…</title><script type="text/javascript">/*<![CDATA[*/w=document;if(!/safari|msie [0-5]\./i.test(navigator.userAgent)&&!/(^|; )JS=[12](; |$)/.test(w.cookie))w.cookie='JS=1; path=/'//]]></script><meta http-equiv="refresh" content="0; URL=<?php echo $lang?>" /></head><body onload="location.replace('<?php echo $lang?>')"><i>Loading <a href="<?php echo $lang?>"><?php echo $lang?></a> ...</i></body></html><?php
 
 			exit;
 		}

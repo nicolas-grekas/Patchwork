@@ -335,10 +335,12 @@ $_POST_BACKUP =& $_POST;
 if (
 	isset($_COOKIE['T$'])
 	&& (!CIA_POSTING || (isset($_POST['T$']) && $_COOKIE['T$'] === $_POST['T$']))
-	&& '--------------------------------' == strtr($_COOKIE['T$'], '-0123456789abcdef', '#----------------')
+	&& '---------------------------------' == strtr($_COOKIE['T$'], '-0123456789abcdef', '#----------------')
 ) $cia_token = $_COOKIE['T$'];
 else
 {
+	$a = isset($_COOKIE['T$']) && '1' == substr($_COOKIE['T$'], 0, 1) ? '1' : '0';
+
 	if ($_COOKIE)
 	{
 		if (CIA_POSTING) W('Potential Cross Site Request Forgery. $_POST is not reliable. Erasing it !');
@@ -350,7 +352,7 @@ else
 		unset($_COOKIE['T$']); // Double unset against a PHP security hole
 	}
 
-	$cia_token = md5(uniqid(mt_rand(), true));
+	$cia_token = $a . md5(uniqid(mt_rand(), true));
 
 	$a = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_HOME'], 2));
 	$a = preg_replace("'\?.*$'", '', $a);
@@ -359,6 +361,7 @@ else
 	if (1 == strlen($a)) $a = '';
 
 	setcookie('T$', $cia_token, 0, $a .'/');
+	header('Vary: *');
 }
 
 define('CIA_TOKEN_MATCH', isset($_GET['T$']) && $cia_token === $_GET['T$']);

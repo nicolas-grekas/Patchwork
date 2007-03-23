@@ -61,17 +61,34 @@ EOHTML;
 		{
 			CIA::$uri = $_COOKIE['R$'];
 
-			setcookie('R$', false, 0, '/');
+			setcookie('R$', '', 1, '/');
 	
 			// Check the Referer header
-			// JS equals 1 when the Referer's confidence is unknown
-			//           2 when it is trusted
-			if (isset($_COOKIE['JS']) && isset($_SERVER['HTTP_REFERER']) && $_COOKIE['R$'] == $_SERVER['HTTP_REFERER']) setcookie('JS', 2, 0, '/');
+			// T$ starts with 0 when the Referer's confidence is unknown
+			//                1 when it is trusted
+			if (isset($_SERVER['HTTP_REFERER']) && $_COOKIE['R$'] == $_SERVER['HTTP_REFERER'])
+			{
+				if (class_exists('SESSION', false))
+				{
+					$_COOKIE['T$'] = '1';
+					SESSION::regenerateId();
+				}
+				else
+				{
+					$cia_token = $GLOBALS['cia_token'];
+					$cia_token[0] = '1';
+
+					$a = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_HOME'], 2));
+					$a = preg_replace("'\?.*$'", '', $a);
+					$a = preg_replace("'^https?://[^/]*'i", '', $a);
+					$a = dirname($a . ' ');
+					if (1 == strlen($a)) $a = '';
+
+					setcookie('T$', $cia_token, 0, $a .'/');
+				}
+			}
 		}
-		else if (isset($_COOKIE['JS']) && 2 == $_COOKIE['JS'])
-		{
-			CIA::$uri = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : CIA::$home;
-		}
+		else CIA::$uri = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : CIA::$home;
 
 		if ($liveAgent)
 		{

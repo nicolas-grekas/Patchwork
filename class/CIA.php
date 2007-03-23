@@ -478,6 +478,7 @@ class
 		{
 			('' === (string) $value) && $expires = 1;
 	
+			header('Vary: *');
 			header(
 				"Set-Cookie: {$name}={$value}" .
 					($expires  ? '; expires=' . date('D, d-M-Y H:i:s T', $expires) : '') .
