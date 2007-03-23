@@ -184,8 +184,7 @@ function setboard($name, $value, $window)
 
 if ((topwin = window).Error)
 	// This eval avoids a parse error with browsers not supporting exceptions.
-	eval('try{while(((w=topwin.parent)!=topwin)&&t(w.name))topwin=w}catch(w){}');
-
+	eval('try{while(((w=topwin.parent)!=topwin)&&t(w.name))topwin=w}catch(w){}try{document.execCommand("BackgroundImageCache",false,true)}catch(w){}');
 
 w = function($homeAgent, $keys, $masterCIApID)
 {
