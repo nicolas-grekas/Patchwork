@@ -45,7 +45,7 @@ class extends CIA
 			}
 		}
 
-		echo 'w(0,[])';
+		echo 'w()';
 
 		CIA::setMaxage(-1);
 	}
