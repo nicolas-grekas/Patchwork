@@ -331,7 +331,8 @@ w = function($homeAgent, $keys, $masterCIApID)
 		$homeAgent; //This is here for jsquiz to work well
 		$code = $code || [];
 
-		var $pointer = 0,
+		var $origContext,
+			$pointer = 0,
 			$arguments = a,
 			$localCIApID = $CIApID,
 			$localG = g,
@@ -525,7 +526,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 			<!-- END:IF -->
 		}
 
-		if ($context) d = $context.$ = v = $context;
+		if ($context) $origContext = $context.$ = v = $context;
 		else $context = v;
 
 		<!-- IF g$__DEBUG__ -->
@@ -546,6 +547,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 		{
 			var $b = $bytecode, $c = $code, $codeLen = $c.length;
 
+			d = $origContext;
 			a = $arguments;
 			v = $context;
 
@@ -565,13 +567,14 @@ w = function($homeAgent, $keys, $masterCIApID)
 	{
 		// Any optimization to save some request here is likely to break IE ...
 
-		var $src = $includeSrc, $content = $reloadRequest ? '' : $buffer.join(''), $offset = 0, $i;
+		var $src = $includeSrc,
+			$content = $reloadRequest ? '' : $buffer.join(''),
+			$offset = 0,
+			$i = $content.search(/<\/script\b/i);
 
 		$includeSrc = '';
 		w.c = w;
 		$buffer = [];
-
-		$i = $content.search(/<\/script\b/i);
 
 		while ($i>=0)
 		{
