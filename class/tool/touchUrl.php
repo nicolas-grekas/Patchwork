@@ -45,15 +45,13 @@ class
 			$port = substr($h, 1);
 		}
 
-		$req .= ':' . $port;
-
-		$h = stream_socket_client($req, $errno, $errstr, 5);
+		$h = fsockopen($req, $port, $errno, $errstr, 5);
 
 		if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
 
-		stream_set_blocking($h, 0);
+		socket_set_blocking($h, 0);
 
-		$req  = "GET {$url} HTTP/1.1\r\n";
+		$req  = "GET {$url} HTTP/1.0\r\n";
 		$req .= "Host: {$host}\r\n";
 		$req .= "Connection: Close\r\n\r\n";
 

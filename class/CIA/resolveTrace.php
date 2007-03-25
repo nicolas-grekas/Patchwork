@@ -28,10 +28,10 @@ class extends CIA
 		$agent = preg_replace("'^.*?://[^/]*'", '', $agent);
 		
 		$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
-		$h = stream_socket_client("{$h}://{$_SERVER['SERVER_ADDR']}:{$_SERVER['SERVER_PORT']}", $errno, $errstr, 5);
+		$h = fsockopen("{$h}://{$_SERVER['SERVER_ADDR']}", $_SERVER['SERVER_PORT'], $errno, $errstr, 30);
 		if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
 
-		$keys  = "GET {$agent}?k$ HTTP/1.1\r\n";
+		$keys  = "GET {$agent}?k$ HTTP/1.0\r\n";
 		$keys .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
 		$keys .= "Connection: Close\r\n\r\n";
 
