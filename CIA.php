@@ -100,6 +100,25 @@ function cia_atomic_write(&$data, $to, $mtime = false)
 }
 // }}}
 
+// {{{ hunter: a user callback is called when a hunter object is destroyed
+class hunter
+{
+	protected $callback;
+	protected $param_arr;
+
+	function __construct($callback, $param_arr = array())
+	{
+		$this->callback =& $callback;
+		$this->param_arr =& $param_arr;
+	}
+
+	function __destruct()
+	{
+		call_user_func_array($this->callback, $this->param_arr);
+	}
+}
+// }}}
+
 // {{{ Load configuration
 chdir($CIA);
 

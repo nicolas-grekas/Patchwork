@@ -33,25 +33,6 @@ function T($string, $lang = false)
 }
 // }}}
 
-// {{{ hunter: a user function is triggered when a hunter object is destroyed
-class hunter
-{
-	protected $function;
-	protected $param_arr;
-
-	function __construct($function, $param_arr)
-	{
-		$this->function =& $function;
-		$this->param_arr =& $param_arr;
-	}
-
-	function __destruct()
-	{
-		call_user_func_array($this->function, $this->param_arr);
-	}
-}
-// }}}
-
 // {{{ PHP session mechanism overloading
 class sessionHandler implements ArrayAccess
 {
