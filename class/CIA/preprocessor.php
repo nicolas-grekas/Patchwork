@@ -998,8 +998,8 @@ class CIA_preprocessor_t___0 extends CIA_preprocessor_bracket
 {
 	function filterBracket($type, $token)
 	{
-		if (in_array($type, CIA_preprocessor::$variableType))
-			W("File {$this->preproc->source} line {$this->preproc->line}:\nUsage of T() is potentially divergent.\nUse sprintf() instead of string concatenation.");
+		if ('.' == $type)
+			W("File {$this->preproc->source} line {$this->preproc->line}:\nUsage of T() is potentially divergent.\nPlease use sprintf() instead of string concatenation.");
 
 		return $token;
 	}
