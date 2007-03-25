@@ -125,13 +125,13 @@ else
 		// Check if the webserver supports PATH_INFO
 
 		$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
-		$h = stream_socket_client("{$h}://{$_SERVER['SERVER_ADDR']}:{$_SERVER['SERVER_PORT']}", $errno, $errstr, 5);
+		$h = fsockopen("{$h}://{$_SERVER['SERVER_ADDR']}", $_SERVER['SERVER_PORT'], $errno, $errstr, 30);
 		if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
 
 		$a = strpos($_SERVER['REQUEST_URI'], '?');
 		$a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
 	
-		$a  = "GET {$a}/ HTTP/1.1\r\n";
+		$a  = "GET {$a}/ HTTP/1.0\r\n";
 		$a .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
 		$a .= "Connection: Close\r\n\r\n";
 
