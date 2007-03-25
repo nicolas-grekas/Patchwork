@@ -246,6 +246,8 @@ class CIA_preprocessor__0
 
 	protected function &preprocess(&$code)
 	{
+		global $cia_paths_token;
+
 		$source = $this->source;
 		$level  = $this->level;
 		$class  = $this->class;
@@ -262,7 +264,7 @@ class CIA_preprocessor__0
 		$new_type = array();
 		$new_code_length = 0;
 
-		$opentag_marker = $this->marker[1] . "isset(\$e{$GLOBALS['cia_paths_token']})||\$e{$GLOBALS['cia_paths_token']}=false;";
+		$opentag_marker = $this->marker[1] . "isset(\$e{$cia_paths_token})||\$e{$cia_paths_token}=false;";
 		$curly_level = 0;
 		$curly_starts_function = false;
 		$class_pool = array();
@@ -433,7 +435,7 @@ class CIA_preprocessor__0
 				if ($c)
 				{
 					$curly_marker_last[1]>0 || $curly_marker_last[1] =  1;
-					$c = "\$a{$GLOBALS['cia_paths_token']}=\$b{$GLOBALS['cia_paths_token']}=\$e{$GLOBALS['cia_paths_token']}";
+					$c = "\$a{$cia_paths_token}=\$b{$cia_paths_token}=\$e{$cia_paths_token}";
 				}
 				else
 				{
@@ -578,7 +580,7 @@ class CIA_preprocessor__0
 					default:
 						if (!isset(CIA_preprocessor::$callback[$type])) break;
 
-						$token = "((\$a{$GLOBALS['cia_paths_token']}=\$b{$GLOBALS['cia_paths_token']}=\$e{$GLOBALS['cia_paths_token']})||1?" . $token;
+						$token = "((\$a{$cia_paths_token}=\$b{$cia_paths_token}=\$e{$cia_paths_token})||1?" . $token;
 						$b = new CIA_preprocessor_marker_($this, true);
 						$b->curly = -1;
 						$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
@@ -621,7 +623,7 @@ class CIA_preprocessor__0
 				$token .= $this->fetchSugar($code, $i);
 				if ('(' == $code[$i--])
 				{
-					$token = "((\$a{$GLOBALS['cia_paths_token']}=\$b{$GLOBALS['cia_paths_token']}=\$e{$GLOBALS['cia_paths_token']})||1?" . $token;
+					$token = "((\$a{$cia_paths_token}=\$b{$cia_paths_token}=\$e{$cia_paths_token})||1?" . $token;
 					$b = new CIA_preprocessor_marker_($this, true);
 					$b->curly = -1;
 					$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
@@ -660,7 +662,7 @@ class CIA_preprocessor__0
 						$j = '(' == $code[$i+1] && isset($code[$i+2]) ? $this->seekSugar($code, $i+1) : $i+1;
 						if (!(is_array($code[$j]) && T_STRING == $code[$j][0] && 'processpath' == strtolower($code[$j][1])))
 						{
-							$token .= "((\$a{$GLOBALS['cia_paths_token']}=\$b{$GLOBALS['cia_paths_token']}=\$e{$GLOBALS['cia_paths_token']})||1?";
+							$token .= "((\$a{$cia_paths_token}=\$b{$cia_paths_token}=\$e{$cia_paths_token})||1?";
 							$b = new CIA_preprocessor_require_($this, true);
 							$b->close = ':0)';
 							$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
@@ -694,6 +696,10 @@ class CIA_preprocessor__0
 
 			case '{':
 				isset($class_pool[$curly_level-1]) && $static_instruction = false;
+				isset($class_pool[$curly_level])
+					&&  $class_pool[$curly_level]->is_final
+					&& !$class_pool[$curly_level]->is_abstract
+					&& $token .= "public static \$hunter{$cia_paths_token};";
 
 				++$curly_level;
 
@@ -710,7 +716,7 @@ class CIA_preprocessor__0
 				if (isset($curly_marker[$curly_level]))
 				{
 					$curly_marker_last[1] && $new_code[$curly_marker_last[0]] .= $curly_marker_last[1]>0
-						? "{$this->marker[1]}static \$d{$GLOBALS['cia_paths_token']}=1;(" . $this->marker() . ")&&\$d{$GLOBALS['cia_paths_token']}&&\$d{$GLOBALS['cia_paths_token']}=0;"
+						? "{$this->marker[1]}static \$d{$cia_paths_token}=1;(" . $this->marker() . ")&&\$d{$cia_paths_token}&&\$d{$cia_paths_token}=0;"
 						: $this->marker[0];
 
 					unset($curly_marker[$curly_level]);
@@ -726,7 +732,7 @@ class CIA_preprocessor__0
 
 					if (!$c->has_php5_construct) $token = $c->construct_source . '}';
 					if ($c->is_abstract) $token .= "\$GLOBALS['cia_abstract']['{$c->real_classname}']=1;";
-					$token .= "\$GLOBALS['c{$GLOBALS['cia_paths_token']}']['{$c->real_classname}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
+					$token .= "\$GLOBALS['c{$cia_paths_token}']['{$c->real_classname}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
 
 					unset($class_pool[$curly_level]);
 				}

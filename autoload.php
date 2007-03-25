@@ -125,16 +125,29 @@ function cia_autoload($searched_class)
 
 	$searched_class = strtolower($searched_class);
 
-	if ($parent_class && class_exists($parent_class, true))
+	if ($parent_class ? class_exists($parent_class, true) : class_exists($searched_class, false))
 	{
-		$parent_class = strtolower($parent_class);
-		$class = "class {$searched_class} extends {$parent_class}{}\$GLOBALS['c{$cia_paths_token}']['{$searched_class}']=1;";
+		if ($parent_class)
+		{
+			$parent_class = strtolower($parent_class);
+			$class = "class {$searched_class} extends {$parent_class}{}\$GLOBALS['c{$cia_paths_token}']['{$searched_class}']=1;";
+		}
+		else
+		{
+			$parent_class = $searched_class;
+			$class = '';
+		}
 
-		if (isset($GLOBALS['cia_abstract'][$parent_class])) $class = 'abstract ' . $class;
+		if (isset($GLOBALS['cia_abstract'][$parent_class])) $class && $class = 'abstract ' . $class;
 		else if ($c)
 		{
 			method_exists($parent_class, '__static_construct') && $class .= "{$parent_class}::__static_construct();";
-			method_exists($parent_class, '__static_destruct' ) && $class .= "register_shutdown_function(array('{$parent_class}','__static_destruct'));";
+
+			if (method_exists($parent_class, '__static_destruct'))
+			{
+				$class = str_replace('{}', '{public static $hunter' . $cia_paths_token . ';}', $class);
+				$class .= "{$parent_class}::\$hunter{$cia_paths_token}=new hunter(array('{$parent_class}','__static_destruct'));";
+			}
 		}
 
 		eval($class);
