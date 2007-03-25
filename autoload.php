@@ -44,15 +44,32 @@ function cia_autoload($searched_class)
 	$file = false;
 	$lcClass = strtolower($class);
 
-	if (isset($GLOBALS['cia_autoload_class'][$lcClass])) $file = $GLOBALS['cia_autoload_class'][$lcClass];
-	else foreach ($GLOBALS['cia_autoload_prefix'] as $c)
+	if ($outerClass =& $GLOBALS['cia_autoload_prefix'] && $len = strlen($lcClass))
 	{
-		if ($c[0] == substr($lcClass, 0, strlen($c[0])))
+		$i = 0;
+		$cache = array();
+
+		do
 		{
-			$file = call_user_func($c[1], $class);
-			break;
+			$c = ord($lcClass[$i]);
+			if (isset($outerClass[$c]))
+			{
+				$outerClass =& $outerClass[$c];
+				isset($outerClass[-1]) && $cache[] = $outerClass[-1];
+			}
+			else break;
 		}
+		while (++$i < $len);
+
+		if ($cache) do
+		{
+			$file = array_pop($cache);
+			$file = $i < $len || !is_string($file) || function_exists($file) ? call_user_func($file, $class) : $file;
+		}
+		while (!$file && $cache);
 	}
+
+	unset($outerClass);
 
 	$outerClass = (bool) $file;
 	$parent_class = $class . '__' . $level;

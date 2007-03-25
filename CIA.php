@@ -42,41 +42,24 @@ if (!preg_match("''u", urldecode($a = $_SERVER['REQUEST_URI'])))
 // {{{ registerAutoloadPrefix()
 $cia_autoload_prefix = array();
 
-function registerAutoloadPrefix($prefix, $class2file_resolver, $class2file_resolver_method = false)
+function registerAutoloadPrefix($class_prefix, $class_to_file_callback)
 {
-	$prefix = strtolower($prefix);
-	$registry = array();
-
-	if (is_string($class2file_resolver_method) && is_string($class2file_resolver))
-		$class2file_resolver = array($class2file_resolver, $class2file_resolver_method);
-
-	foreach ($GLOBALS['cia_autoload_prefix'] as $v)
+	if ($len = strlen($class_prefix))
 	{
-		if (false !== $prefix)
+		$registry =& $GLOBALS['cia_autoload_prefix'];
+		$class_prefix = strtolower($class_prefix);
+		$i = 0;
+
+		do
 		{
-			if ($prefix == $v[0]) $v[1] = $class2file_resolver;
-			else if (strlen($v[0]) < strlen($prefix)) $registry[] = array($prefix, $class2file_resolver);
-
-			$prefix = false;
+			$c = ord($class_prefix[$i]);
+			isset($registry[$c]) || $registry[$c] = array();
+			$registry =& $registry[$c];
 		}
+		while (++$i < $len);
 
-		$registry[] = array($v[0], $v[1]);
+		$registry[-1] = $class_to_file_callback;
 	}
-
-	if (false !== $prefix) $registry[] = array($prefix, $class2file_resolver);
-
-	$GLOBALS['cia_autoload_prefix'] =& $registry;
-}
-// }}}
-
-// {{{ registerAutoloadClass()
-$cia_autoload_class = array();
-
-function registerAutoloadClass($class, $filename = '')
-{
-	global $cia_autoload_class;
-	is_string($class) && $class = array($class => $filename);
-	foreach ($class as $k => &$v) $cia_autoload_class[ strtolower($k) ] =& $v;
 }
 // }}}
 
