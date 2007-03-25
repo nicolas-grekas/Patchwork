@@ -369,7 +369,8 @@ w = function($homeAgent, $keys, $masterCIApID)
 				<!-- IF g$__DEBUG__ -->
 				if (!t($agent))
 				{
-					E('Undefined AGENT: ' + $code[$pointer-4], 1);
+					$i = '' + $code[$pointer-4];
+					E('Undefined AGENT: ' + $i.substring(7+$i.indexOf('return '), $i.indexOf(';')), 1);
 					return;
 				}
 				<!-- ELSE -->
