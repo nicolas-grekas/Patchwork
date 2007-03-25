@@ -146,7 +146,7 @@ function cia_autoload($searched_class)
 			if (method_exists($parent_class, '__static_destruct'))
 			{
 				$class = str_replace('{}', '{public static $hunter' . $cia_paths_token . ';}', $class);
-				$class .= "{$parent_class}::\$hunter{$cia_paths_token}=new hunter(array('{$parent_class}','__static_destruct'));";
+				$class .= "{$searched_class}::\$hunter{$cia_paths_token}=new hunter(array('{$parent_class}','__static_destruct'));";
 			}
 		}
 
