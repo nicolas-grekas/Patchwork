@@ -49,7 +49,7 @@ class extends loop
 
 						array_walk($keys, 'jsquoteRef');
 
-						$data->{'k$'} = '[' . implode(',', $keys) . ']';
+						$data->{'k$'} = implode(',', $keys);
 
 						if (false !== $home)
 						{
