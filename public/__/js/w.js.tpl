@@ -383,7 +383,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 					while ($j = $agent()) $data = $j;
 
 					$agent = $data.a$;
-					'[]' == $data.k$ ? $keys = [] : eval('$keys='+$data.k$);
+					$data.k$ ? eval('$keys=['+$data.k$+']') : $keys = [];
 
 					for ($i in $data) if (!/\$/.test($i)) $args[$i] = $data[$i];
 
