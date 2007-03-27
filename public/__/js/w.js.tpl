@@ -611,7 +611,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 		{
 			$src = '<script type="text/javascript" name="w$" src="' + $src + (0<=$src.indexOf('?') ? '&amp;' : '?') + 'v$=' + $CIApID + '"></script>';
 
-			if ($trustReferer || /(^|; )T$=1/.test($document.cookie)) $trustReferer = 1;
+			if ($trustReferer || /(^|; )T\$=1/.test($document.cookie)) $trustReferer = 1;
 			else $src = '<script type="text/javascript" name="w$">document.cookie="R$="+eUC((""+location).replace(/#.*$/,""))+"; path=/"</script>' + $src;
 
 			$document.write($content + $src);
