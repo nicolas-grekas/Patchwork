@@ -845,14 +845,27 @@ class
 
 		if (preg_match("''u", $agent))
 		{
+			$param = strrchr($agent, '.');
+
+			if(false !== $param && ($param[0] = '-') && strtr($param, './', '--') == $param)
+			{
+				$agent = substr($agent, 0, -strlen($param));
+				$param[0] = '.';
+			}
+			else $param = '';
+
 			$agent = '/' . $agent . '/';
 			while (false !== strpos($agent, '//')) $agent = str_replace('//', '/', $agent);
 
 			preg_match('"^/(?:[a-zA-Z0-9\x80-\xff]+(?:([-_ ])[a-zA-Z0-9\x80-\xff]+)*/)*"', $agent, $a);
 		}
-		else $a = array('/');
+		else
+		{
+			$param = '';
+			$a = array('/');
+		}
 
-		$param = (string) substr($agent, strlen($a[0]), -1);
+		$param = (string) substr($agent, strlen($a[0]), -1) . $param;
 		$param = '' !== $param ? explode('/', $param) : array();
 		$agent = (string) substr($a[0], 1, -1);
 
