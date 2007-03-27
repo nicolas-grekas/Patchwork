@@ -458,6 +458,7 @@ class
 			('' === (string) $value) && $expires = 1;
 
 			$GLOBALS['cia_private'] = true;
+			header('P3P: CP="' . $GLOBALS['CONFIG']['P3P'] . '"');
 			header(
 				"Set-Cookie: {$name}={$value}" .
 					($expires  ? '; expires=' . date('D, d-M-Y H:i:s T', $expires) : '') .
@@ -484,6 +485,7 @@ class
 		$size = filesize($file);
 
 		self::header('Content-Type: ' . $mime);
+		false !== stripos($mime, 'html') && header('P3P: CP="' . $GLOBALS['CONFIG']['P3P'] . '"');
 		self::$isServersideHtml = false;
 		self::$ETag = $size .'-'. filemtime($file) .'-'. fileinode($file);
 		self::disable();
@@ -1190,6 +1192,7 @@ class
 	{
 		self::$handlesOb = true;
 
+		self::$isServersideHtml && header('P3P: CP="' . $GLOBALS['CONFIG']['P3P'] . '"');
 
 		if (self::$redirecting)
 		{

@@ -362,6 +362,7 @@ else
 	$a = dirname($a . ' ');
 	if (1 == strlen($a)) $a = '';
 
+	header('P3P: CP="' . $CONFIG['P3P'] . '"');
 	setcookie('T$', $cia_token, 0, $a .'/');
 	$cia_private = true;
 }
