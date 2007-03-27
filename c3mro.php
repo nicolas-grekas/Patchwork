@@ -131,7 +131,7 @@ else
 		$a = strpos($_SERVER['REQUEST_URI'], '?');
 		$a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
 	
-		$a  = "GET {$a}/ HTTP/1.0\r\n";
+		$a  = "GET {$a}/_ HTTP/1.0\r\n";
 		$a .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
 		$a .= "Connection: Close\r\n\r\n";
 
@@ -215,6 +215,7 @@ $_SERVER[\'CIA_LANG\'] = $_SERVER[\'CIA_REQUEST\'] = \'\'';
 	}
 	else
 	{
+		$CIA[] = '\'index.php\' == substr($_SERVER[\'CIA_HOME\'], -9) && $_SERVER[\'CIA_HOME\'] = substr($_SERVER[\'CIA_HOME\'], 0, -9)';
 		$CIA[] = '$_SERVER[\'CIA_HOME\'] .= \'?' . ($CONFIG['lang_list'] ? '__/' : '') . '\'';
 		$CIA[] = '
 $_SERVER[\'CIA_REQUEST\'] = $_SERVER[\'QUERY_STRING\'];
