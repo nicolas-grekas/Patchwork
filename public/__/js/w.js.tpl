@@ -98,7 +98,7 @@ function syncCSRF($form)
 		$form = $form[$form.length - 1];
 	}
 
-	if ('post' == $form.method.toLowerCase())
+	if (antiCSRF && 'post' == $form.method.toLowerCase())
 	{
 		if ($form.action.indexOf({g$__HOME__|js})) return;
 
@@ -221,7 +221,11 @@ w = function($homeAgent, $keys, $masterCIApID)
 		
 		$masterHome = {g$__HOME__|js};
 
-	if (!/safari|msie [0-5]\./i.test(navigator.userAgent) && !/(^|; )JS=1(; |$)/.test($document.cookie)) $document.cookie = 'JS=1; path=/; expires=Mon, 18 Jan 2038 00:00:00 GMT';
+	if (!/safari|msie [0-5]\./i.test(navigator.userAgent) && !/(^|; )JS=1(; |$)/.test($document.cookie))
+	{
+		$document.cookie = 'JS=1; path=/; expires=' + new Date(2678400000+new Date()/1).toGMTString();
+		/(^|; )JS=1(; |$)/.test($document.cookie) || ($document.cookie = 'JS=1; path=/');
+	}
 
 	window.home = function($str, $master, $noId)
 	{
@@ -270,7 +274,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 			if ($keys)
 			{
-				$args.T$ = antiCSRF;
+				antiCSRF && ($args.T$ = antiCSRF);
 
 				if ($args.e$) for ($i in $args) $args[$i] = num(str($args[$i]), 1);
 				else          for ($i in $args) $args[$i] = num(    $args[$i] , 1);
@@ -757,6 +761,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 		);
 
 		$document.cookie = 'T$=' + $i + '; path=' + encodeURI($j);
+		/(^|; )T\$=0/.test($document.cookie) || ($i = '');
 	}
 
 	antiCSRF = $i;

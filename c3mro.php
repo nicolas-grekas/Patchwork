@@ -184,6 +184,7 @@ foreach ($cia_paths as $appInheritSeq) if (file_exists($appInheritSeq . '/config
 
 $CIA = array(implode(";\n", $CIA));
 
+isset($CONFIG['P3P'           ]) || $CIA[] = '$CONFIG[\'P3P\'] = \'CUR ADM\'';
 isset($CONFIG['DEBUG_ALLOWED' ]) || $CIA[] = '$CONFIG[\'DEBUG_ALLOWED\'] = true';
 isset($CONFIG['DEBUG_PASSWORD']) || $CIA[] = '$CONFIG[\'DEBUG_PASSWORD\'] = \'\'';
 if(!isset($CONFIG['lang_list']))
