@@ -776,7 +776,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 		$j = {$cookie_domain|js};
 
-		$document.cookie = 'T$=' + $i + '; path=' + encodeURI({$cookie_path|js}) . ($j ? '; domain=' + encodeURI($j) : '');
+		$document.cookie = 'T$=' + $i + '; path=' + encodeURI({$cookie_path|js}) + ($j ? '; domain=' + encodeURI($j) : '');
 		/(^|; )T\$=0/.test($document.cookie) || ($i = '');
 	}
 
