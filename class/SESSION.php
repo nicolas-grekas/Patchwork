@@ -108,7 +108,6 @@ class
 		// so we remove any header that could trigger a 304
 		unset($_SERVER['HTTP_IF_NONE_MATCH']);
 		unset($_SERVER['HTTP_IF_MODIFIED_SINCE']);
-		unset($_SERVER['HTTP_RANGE']);
 	}
 
 	static function destroy()
