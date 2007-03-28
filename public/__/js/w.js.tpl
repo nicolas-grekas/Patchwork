@@ -639,8 +639,8 @@ w = function($homeAgent, $keys, $masterCIApID)
 			{
 				w = {c: function()
 				{
-		                        if (!antiCSRF && ($i = $document.cookie.match(/(^|; )T\$=([0-9a-zA-Z]+)/))) antiCSRF = $i[2];
-		                        if (antiCSRF) while ($formsLength < $document.forms.length) syncCSRF($document.forms[$formsLength++]);
+					if (!antiCSRF && ($i = $document.cookie.match(/(^|; )T\$=([0-9a-zA-Z]+)/))) antiCSRF = $i[2];
+					if (antiCSRF) while ($formsLength < $document.forms.length) syncCSRF($document.forms[$formsLength++]);
 
 					w = w.c = $document = 0;
 
