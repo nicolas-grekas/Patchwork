@@ -137,7 +137,6 @@ class
 	protected static $uri;
 
 	protected static $versionId;
-	protected static $fullVersionId;
 	protected static $handlesOb = false;
 	protected static $metaInfo;
 	protected static $metaPool = array();
@@ -223,9 +222,7 @@ class
 			'setrawcookie' => 'CIA::setrawcookie',
 		);
 
-		self::$fullVersionId = $GLOBALS['version_id'];
-		self::$versionId = abs(self::$fullVersionId % 10000);
-
+		self::$versionId = abs($GLOBALS['version_id'] % 10000);
 		self::$cachePath = resolvePath('zcache/');
 		if (!self::$cachePath) self::$cachePath = $GLOBALS['cia_paths'][count($GLOBALS['cia_paths']) - 2] . '/zcache/';
 
@@ -326,10 +323,20 @@ class
 /*>
 		if (CIA_CHECK_SOURCE && !self::$binaryMode)
 		{
-			self::$fullVersionId = -self::$fullVersionId - filemtime('./config.php');
+			global $version_id;
+
+			$version_id = -$version_id - filemtime('./config.php');
 			touch('./config.php', $_SERVER['REQUEST_TIME']);
-			self::$fullVersionId = -self::$fullVersionId - $_SERVER['REQUEST_TIME'];
-			self::$versionId = abs(self::$fullVersionId % 10000);
+			$version_id = -$version_id - $_SERVER['REQUEST_TIME'];
+			self::$versionId = abs($version_id % 10000);
+
+			$a = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_HOME'], 2));
+			$a = preg_replace("'\?.*$'", '', $a);
+			$a = preg_replace("'^https?://[^/]*'i", '', $a);
+			$a = dirname($a . ' ');
+			if (1 == strlen($a)) $a = '';
+
+			self::setcookie('v$', self::$versionId, $_SERVER['REQUEST_TIME'] + CIA_MAXAGE, $a .'/');
 
 			self::touch('');
 			foreach (glob(self::$cachePath . '?/?/*', GLOB_NOSORT) as $v) if ('.session' != substr($v, -8)) unlink($v);
