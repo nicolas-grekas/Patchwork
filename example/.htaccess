@@ -1,0 +1,7 @@
+Allow from all
+
+# Should already be on be default
+AcceptPathInfo On
+
+# Enable PHP5 on free.fr
+php 1
