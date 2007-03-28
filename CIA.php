@@ -115,10 +115,6 @@ define('__CIA__', dirname(__FILE__));
 define('CIA_WINDOWS', '\\' == DIRECTORY_SEPARATOR);
 define('CIA_PROJECT_PATH', getcwd());
 
-// Major browsers send a "Cache-Control: no-cache" only if a page is reloaded
-// with CTRL+F5 or location.reload(true). Usefull to trigger synchronization events.
-define('CIA_CHECK_SOURCE', isset($_SERVER['HTTP_CACHE_CONTROL']) && 'no-cache' == $_SERVER['HTTP_CACHE_CONTROL']);
-
 // Load the configuration
 require file_exists($version_id) ? $version_id : (__CIA__ . '/c3mro.php');
 

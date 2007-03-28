@@ -12,6 +12,11 @@
  ***************************************************************************/
 
 
+// Mozilla and IE send a "Cache-Control: no-cache" only and only if a page is reloaded
+// with CTRL+F5 or location.reload(true). Usefull to trigger synchronization events.
+// XXX => This note does not seem to be valid for Opera
+define('CIA_CHECK_SOURCE', false === strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') && isset($_SERVER['HTTP_CACHE_CONTROL']) && 'no-cache' == $_SERVER['HTTP_CACHE_CONTROL']);
+
 class
 {
 	static $sleep = 500; // (ms)
