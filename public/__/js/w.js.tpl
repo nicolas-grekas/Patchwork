@@ -224,7 +224,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 	if (!/safari|msie [0-5]\./i.test(navigator.userAgent) && !/(^|; )JS=1(; |$)/.test($document.cookie))
 	{
 		$document.cookie = 'JS=1; path=/; expires=' + new Date({$maxage|js}000+new Date()/1).toGMTString();
-		/(^|; )JS=1(; |$)/.test($document.cookie) || ($document.cookie = 'JS=1; path=/');
+		0 || /(^|; )JS=1(; |$)/.test($document.cookie) || ($document.cookie = 'JS=1; path=/');
 	}
 
 	window.home = function($str, $master, $noId)
@@ -777,7 +777,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 		$j = {$cookie_domain|js};
 
 		$document.cookie = 'T$=' + $i + '; path=' + encodeURI({$cookie_path|js}) + ($j ? '; domain=' + encodeURI($j) : '');
-		/(^|; )T\$=0/.test($document.cookie) || ($i = '');
+		0 || /(^|; )T\$=0/.test($document.cookie) || ($i = '');
 	}
 
 	antiCSRF = $i;
