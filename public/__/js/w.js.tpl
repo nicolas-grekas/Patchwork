@@ -520,7 +520,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 			if (!antiCSRF && ($i = $document.cookie.match(/(^|; )T\$=([0-9a-zA-Z]+)/))) antiCSRF = $i[2];
 			if (antiCSRF) while ($formsLength < $document.forms.length) syncCSRF($document.forms[$formsLength++]);
 
-			if (($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/)) && $i[2]-0 != $masterCIApID) w.r(1);
+			if (($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/)) && $i[2]-0 != $masterCIApID) w.r(), $code = [];
 		}
 
 		<!-- IF g$__DEBUG__ -->var DEBUG = $i = 0;<!-- END:IF -->
