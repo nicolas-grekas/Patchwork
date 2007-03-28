@@ -289,10 +289,6 @@ function cia_is_a($obj, $class)
 DEBUG && CIA_debug::checkCache();
 // }}}
 
-// {{{ Language controler
-if (!$_SERVER['CIA_LANG'] && $CONFIG['lang_list']) CIA_language::negociate();
-// }}}
-
 // {{{ Validator
 if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && !isset($_SERVER['HTTP_IF_NONE_MATCH'])) // Special behaviour thanks to IE
 {
@@ -369,6 +365,10 @@ else
 
 isset($_GET['T$']) && $cia_private = true;
 define('CIA_TOKEN_MATCH', isset($_GET['T$']) && substr($cia_token, 1) == substr($_GET['T$'], 1));
+// }}}
+
+// {{{ Language controler
+if (!$_SERVER['CIA_LANG'] && $CONFIG['lang_list']) CIA_language::negociate();
 // }}}
 
 /* Let's go */

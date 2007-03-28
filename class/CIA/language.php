@@ -29,7 +29,7 @@ class
 			header('HTTP/1.1 301 Moved Permanently');
 			header('Location: ' . $lang);
 			header('Expires: ' . gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + CIA_MAXAGE) . ' GMT');
-			header('Cache-Control: max-age=' . CIA_MAXAGE .',public');
+			header('Cache-Control: max-age=' . CIA_MAXAGE .',' . ($GLOBALS['cia_private'] ? 'private' : 'public'));
 
 			exit;
 		}

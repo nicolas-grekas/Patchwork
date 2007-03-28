@@ -516,7 +516,8 @@ w = function($homeAgent, $keys, $masterCIApID)
 		{
 			$startTime = new Date;
 			$Rlevel = $maxRlevel;
-			while ($formsLength < $document.forms.length) syncCSRF($document.forms[$formsLength++]);
+			if (!antiCSRF && ($i = $document.cookie.match(/(^|; )T\$=([0-9a-zA-Z]+)/))) antiCSRF = $i[2];
+			if (antiCSRF) while ($formsLength < $document.forms.length) syncCSRF($document.forms[$formsLength++]);
 		}
 
 		<!-- IF g$__DEBUG__ -->var DEBUG = $i = 0;<!-- END:IF -->
@@ -611,10 +612,13 @@ w = function($homeAgent, $keys, $masterCIApID)
 			$buffer = [$content.substr($i)],
 			$content = $content.substring(0, $i);
 
-		if ($src)
-		{
-			$src = '<script type="text/javascript" name="w$" src="' + $src + (0<=$src.indexOf('?') ? '&amp;' : '?') + 'v$=' + $CIApID + '"></script>';
+		$i = !!$src;
+		$i || ($src = $masterHome + 'js/x');
 
+		$src = '<script type="text/javascript" name="w$" src="' + $src + (0<=$src.indexOf('?') ? '&amp;' : '?') + 'v$=' + $CIApID + '"></script>';
+
+		if ($i)
+		{
 			if ($trustReferer || /(^|; )T\$=1/.test($document.cookie)) $trustReferer = 1;
 			else $src = '<script type="text/javascript" name="w$">document.cookie="R$="+eUC((""+location).replace(/#.*$/,""))+"; path=/"</script>' + $src;
 
@@ -622,24 +626,35 @@ w = function($homeAgent, $keys, $masterCIApID)
 		}
 		else
 		{
-			if (!$reloadRequest)
+			// Memory leaks prevention
+			w = r = y = z = w.c = w.k = w.w = w.r = w.x = $loopIterator = 0;
+
+			if ($reloadRequest)
 			{
-				$src = '<script type="text/javascript" name="w$">(function(){var i='
-					+ $formsLength
-					+ ',f=document.forms;while(i-f.length)syncCSRF(f[i++])})();onDOMLoaded.go()</script>';
+				$document.close();
+				$document = 0;
+				location.reload($reloadNoCache);
+			}
+			else
+			{
+				w = {c: function()
+				{
+		                        if (!antiCSRF && ($i = $document.cookie.match(/(^|; )T\$=([0-9a-zA-Z]+)/))) antiCSRF = $i[2];
+		                        if (antiCSRF) while ($formsLength < $document.forms.length) syncCSRF($document.forms[$formsLength++]);
+
+					w = w.c = $document = 0;
+
+					onDOMLoaded.go();
+				}};
 
 				$i = $content.search(/<\/body\b/i);
 				if (0<=$i)
 					$src += $content.substr($i),
 					$content = $content.substr(0, $i);
+
+				$document.write($content + $src);
+				$document.close();
 			}
-
-			$document.write($content + $src);
-			$document.close();
-
-			w = $document = r = y = z = w.k = w.w = w.r = w.x = $loopIterator = 0; // Memory leaks prevention
-
-			if ($reloadRequest) location.reload($reloadNoCache);
 		}
 	}
 
