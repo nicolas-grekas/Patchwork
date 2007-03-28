@@ -57,6 +57,9 @@ class extends agent_bin
 			$o->DATA = $parser->get();
 		}
 
+		$o->cookie_path   = $GLOBALS['CONFIG']['session.cookie_path'];
+		$o->cookie_domain = $GLOBALS['CONFIG']['session.cookie_domain'];
+
 		return $o;
 	}
 }

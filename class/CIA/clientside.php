@@ -78,13 +78,7 @@ EOHTML;
 					$cia_token = $GLOBALS['cia_token'];
 					$cia_token[0] = '1';
 
-					$a = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_HOME'], 2));
-					$a = preg_replace("'\?.*$'", '', $a);
-					$a = preg_replace("'^https?://[^/]*'i", '', $a);
-					$a = dirname($a . ' ');
-					if (1 == strlen($a)) $a = '';
-
-					setcookie('T$', $cia_token, 0, $a .'/');
+					setcookie('T$', $cia_token, 0, $GLOBALS['CONFIG']['session.cookie_path'], $GLOBALS['CONFIG']['session.cookie_domain']);
 				}
 			}
 		}

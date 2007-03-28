@@ -51,6 +51,10 @@ $CONFIG += array(
 	// Max age (in seconds) for HTTP ressources caching
 #	'maxage' => 3600,
 
+	// Session cookie
+#	session.cookie_path => '/',
+#	session.cookie_domain => '',
+
 	// P3P - Platform for Privacy Preferences
 #	'P3P => 'CUR ADM',
 
