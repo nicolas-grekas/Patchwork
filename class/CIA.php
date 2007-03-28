@@ -1192,8 +1192,6 @@ class
 	{
 		self::$handlesOb = true;
 
-		self::$isServersideHtml && header('P3P: CP="' . $GLOBALS['CONFIG']['P3P'] . '"');
-
 		if (self::$redirecting)
 		{
 			$buffer = '';
@@ -1277,6 +1275,7 @@ class
 
 		if (!$is304)
 		{
+			self::$isServersideHtml           && header('P3P: CP="' . $GLOBALS['CONFIG']['P3P'] . '"');
 			is_string(self::$contentEncoding) && header('Content-Encoding: ' . self::$contentEncoding);
 			self::$is_enabled                 && header('Content-Length: ' . strlen($buffer));
 		}

@@ -51,6 +51,9 @@ $CONFIG += array(
 	// Max age (in seconds) for HTTP ressources caching
 #	'maxage' => 3600,
 
+	// P3P - Platform for Privacy Preferences
+#	'P3P => 'CUR ADM',
+
 	// Translation tables adapter config.
 #	'translate_adapter' => false,
 #	'translate_options' => array(),
