@@ -205,7 +205,7 @@ class
 		}
 		else $IPs = '';
 
-		self::$SID = md5($SID .'-'. $IPs .'-'. (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '') .'-'. $GLOBALS['cia_token']);
+		self::$SID = md5($SID .'-'. $IPs .'-'. (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '') .'-'. substr($GLOBALS['cia_token'], 1));
 	}
 
 	protected static function onIdle()
