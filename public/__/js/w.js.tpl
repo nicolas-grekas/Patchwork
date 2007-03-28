@@ -799,7 +799,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 		for ($i=0; $i<$j.length; ++$i) if ($j[$i]) $loopIterator[$loopIterator.length] = g['__'+($loopIterator.length+1)+'__'] = $j[$i];
 		g.__0__ = $loopIterator.join('/');
 
-		if (($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/)) && $i[2]-0 != $masterCIApID) w(0, [3, 'w(w.r(1))']);
+		if (($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/)) && $i[2]-0 != $masterCIApID) w(0, [3, 'w(w.r())']);
 		else
 
 		/* Block load, 2 steps : generating, then displaying. * /
