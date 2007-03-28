@@ -59,6 +59,7 @@ class extends agent_bin
 
 		$o->cookie_path   = $GLOBALS['CONFIG']['session.cookie_path'];
 		$o->cookie_domain = $GLOBALS['CONFIG']['session.cookie_domain'];
+		$o->maxage = CIA_MAXAGE;
 
 		return $o;
 	}

@@ -361,6 +361,23 @@ isset($_GET['T$']) && $cia_private = true;
 define('CIA_TOKEN_MATCH', isset($_GET['T$']) && substr($cia_token, 1) == substr($_GET['T$'], 1));
 // }}}
 
+// {{{ Version synchronism
+$b = abs($version_id % 10000);
+
+if (!isset($_COOKIE['v$']) || $_COOKIE['v$'] != $b)
+{
+	$a = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_HOME'], 2));
+	$a = preg_replace("'\?.*$'", '', $a);
+	$a = preg_replace("'^https?://[^/]*'i", '', $a);
+	$a = dirname($a . ' ');
+	if (1 == strlen($a)) $a = '';
+
+	header('P3P: CP="' . $CONFIG['P3P'] . '"');
+	setcookie('v$', $b, $_SERVER['REQUEST_TIME'] + CIA_MAXAGE, $a .'/');
+	$cia_private = true;
+}
+// }}}
+
 // {{{ Language controler
 if (!$_SERVER['CIA_LANG'] && $CONFIG['lang_list']) CIA_language::negociate();
 // }}}

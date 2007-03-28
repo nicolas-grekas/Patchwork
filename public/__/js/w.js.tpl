@@ -223,7 +223,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 	if (!/safari|msie [0-5]\./i.test(navigator.userAgent) && !/(^|; )JS=1(; |$)/.test($document.cookie))
 	{
-		$document.cookie = 'JS=1; path=/; expires=' + new Date(2678400000+new Date()/1).toGMTString();
+		$document.cookie = 'JS=1; path=/; expires=' + new Date({$maxage|js}000+new Date()/1).toGMTString();
 		/(^|; )JS=1(; |$)/.test($document.cookie) || ($document.cookie = 'JS=1; path=/');
 	}
 
@@ -516,8 +516,11 @@ w = function($homeAgent, $keys, $masterCIApID)
 		{
 			$startTime = new Date;
 			$Rlevel = $maxRlevel;
+
 			if (!antiCSRF && ($i = $document.cookie.match(/(^|; )T\$=([0-9a-zA-Z]+)/))) antiCSRF = $i[2];
 			if (antiCSRF) while ($formsLength < $document.forms.length) syncCSRF($document.forms[$formsLength++]);
+
+			if (($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/)) && $i[2]-0 != $masterCIApID) w.r(1);
 		}
 
 		<!-- IF g$__DEBUG__ -->var DEBUG = $i = 0;<!-- END:IF -->
@@ -642,9 +645,11 @@ w = function($homeAgent, $keys, $masterCIApID)
 					if (!antiCSRF && ($i = $document.cookie.match(/(^|; )T\$=([0-9a-zA-Z]+)/))) antiCSRF = $i[2];
 					if (antiCSRF) while ($formsLength < $document.forms.length) syncCSRF($document.forms[$formsLength++]);
 
+					$i = ($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/)) && $i[2]-0 != $masterCIApID;
+
 					w = w.c = $document = 0;
 
-					onDOMLoaded.go();
+					$i ? location.reload() : onDOMLoaded.go();
 				}};
 
 				$i = $content.search(/<\/body\b/i);
@@ -793,6 +798,9 @@ w = function($homeAgent, $keys, $masterCIApID)
 		$j = dUC(esc(''+$j).substr({g$__HOME__|length}+$homeAgent.length).split('?', 1)[0]).split('/');
 		for ($i=0; $i<$j.length; ++$i) if ($j[$i]) $loopIterator[$loopIterator.length] = g['__'+($loopIterator.length+1)+'__'] = $j[$i];
 		g.__0__ = $loopIterator.join('/');
+
+		if (($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/)) && $i[2]-0 != $masterCIApID) w(0, [3, 'w(w.r(1))']);
+		else
 
 		/* Block load, 2 steps : generating, then displaying. * /
 		w(0, [4, 1, '$homeAgent', 'g', $keys, 1, 5, 1, 'b', 3, 'g.b']);
