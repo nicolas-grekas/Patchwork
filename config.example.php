@@ -49,7 +49,7 @@ $CONFIG += array(
 #	'clientside' => true,
 
 	// Max age (in seconds) for HTTP ressources caching
-#	'maxage' => 3600,
+#	'maxage' => 2678400, // 31d x 24h x 3600s ~ 1 month
 
 	// Session cookie
 #	session.cookie_path => '/',
