@@ -847,14 +847,14 @@ class
 
 		if (preg_match("''u", $agent))
 		{
-			$param = strrchr($agent, '.');
+			$ext = strrchr($agent, '.');
 
-			if(false !== $param && ($param[0] = '-') && strtr($param, './', '--') == $param)
+			if(false !== $ext && ($ext[0] = '-') && strtr($ext, './', '--') == $ext)
 			{
-				$agent = substr($agent, 0, -strlen($param));
-				$param[0] = '.';
+				$agent = substr($agent, 0, -strlen($ext));
+				$ext[0] = '.';
 			}
-			else $param = '';
+			else $ext = '';
 
 			$agent = '/' . $agent . '/';
 			while (false !== strpos($agent, '//')) $agent = str_replace('//', '/', $agent);
@@ -863,11 +863,11 @@ class
 		}
 		else
 		{
-			$param = '';
+			$ext = '';
 			$a = array('/');
 		}
 
-		$param = (string) substr($agent, strlen($a[0]), -1) . $param;
+		$param = (string) substr($agent, strlen($a[0]), -1);
 		$param = '' !== $param ? explode('/', $param) : array();
 		$agent = (string) substr($a[0], 1, -1);
 
@@ -914,9 +914,11 @@ class
 			}
 		}
 
-		if ($param)
+		if ($param || $ext)
 		{
-			$args['__0__'] = implode('/', $param);
+			$param || $param = array();
+
+			$args['__0__'] = implode('/', $param) . $ext;
 
 			$i = 0;
 			foreach ($param as &$param) $args['__' . ++$i . '__'] = $param;
