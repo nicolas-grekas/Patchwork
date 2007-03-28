@@ -769,13 +769,9 @@ w = function($homeAgent, $keys, $masterCIApID)
 		while ($i.length < 33);
 		$i = $i.substr(0, 33);
 
-		$j = $masterHome.replace(
-			/\?.*$/              , '' ).replace(
-			/^https?:\/\/[^\/]*/i, '' ).replace(
-			/\/[^\/]+$/          , '/'
-		);
+		$j = {$cookie_domain|js};
 
-		$document.cookie = 'T$=' + $i + '; path=' + encodeURI($j);
+		$document.cookie = 'T$=' + $i + '; path=' + encodeURI({$cookie_path|js}) . ($j ? '; domain=' + encodeURI($j) : '');
 		/(^|; )T\$=0/.test($document.cookie) || ($i = '');
 	}
 

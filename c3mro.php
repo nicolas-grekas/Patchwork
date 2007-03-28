@@ -184,14 +184,12 @@ foreach ($cia_paths as $appInheritSeq) if (file_exists($appInheritSeq . '/config
 
 $CIA = array(implode(";\n", $CIA));
 
-isset($CONFIG['P3P'           ]) || $CIA[] = '$CONFIG[\'P3P\'] = \'CUR ADM\'';
-isset($CONFIG['DEBUG_ALLOWED' ]) || $CIA[] = '$CONFIG[\'DEBUG_ALLOWED\'] = true';
-isset($CONFIG['DEBUG_PASSWORD']) || $CIA[] = '$CONFIG[\'DEBUG_PASSWORD\'] = \'\'';
-if(!isset($CONFIG['lang_list']))
-{
-	$CONFIG['lang_list'] = '';
-	$CIA[] = '$CONFIG[\'lang_list\'] = \'\'';
-}
+$CIA[] = 'isset($CONFIG[\'P3P\'           ]) || $CONFIG[\'P3P\'] = \'CUR ADM\'';
+$CIA[] = 'isset($CONFIG[\'session.cookie_path\'   ]) || $CONFIG[\'session.cookie_path\'] = \'/\'';
+$CIA[] = 'isset($CONFIG[\'session.cookie_domain\' ]) || $CONFIG[\'session.cookie_domain\'] = \'\'';
+$CIA[] = 'isset($CONFIG[\'DEBUG_ALLOWED\' ]) || $CONFIG[\'DEBUG_ALLOWED\'] = true';
+$CIA[] = 'isset($CONFIG[\'DEBUG_PASSWORD\']) || $CONFIG[\'DEBUG_PASSWORD\'] = \'\'';
+$CIA[] = 'isset($CONFIG[\'lang_list\'     ]) || $CONFIG[\'lang_list\'] = \'\'';
 
 // {{{ CIA's context initialization
 /**
@@ -212,12 +210,12 @@ $_SERVER[\'CIA_LANG\'] = $_SERVER[\'CIA_REQUEST\'] = \'\'';
 	{
 		$CIA[] = 'isset($_SERVER[\'ORIG_PATH_INFO\']) && $_SERVER[\'PATH_INFO\'] = $_SERVER[\'ORIG_PATH_INFO\']';
 		$CIA[] = 'isset($_SERVER[\'PATH_INFO\']) && $_SERVER[\'CIA_REQUEST\'] = substr($_SERVER[\'PATH_INFO\'], 1)';
-		$CIA[] = '$_SERVER[\'CIA_HOME\'] .= \'/' . ($CONFIG['lang_list'] ? '__/' : '') . '\'';
+		$CIA[] = '$_SERVER[\'CIA_HOME\'] .= \'/\' . ($CONFIG[\'lang_list\'] ? \'__/\' : \'\')';
 	}
 	else
 	{
 		$CIA[] = '\'index.php\' == substr($_SERVER[\'CIA_HOME\'], -9) && $_SERVER[\'CIA_HOME\'] = substr($_SERVER[\'CIA_HOME\'], 0, -9)';
-		$CIA[] = '$_SERVER[\'CIA_HOME\'] .= \'?' . ($CONFIG['lang_list'] ? '__/' : '') . '\'';
+		$CIA[] = '$_SERVER[\'CIA_HOME\'] .= \'?\' . ($CONFIG[\'lang_list\'] ? \'__/\' : \'\')';
 		$CIA[] = '
 $_SERVER[\'CIA_REQUEST\'] = $_SERVER[\'QUERY_STRING\'];
 
@@ -241,7 +239,7 @@ else if (\'\' !== $_SERVER[\'QUERY_STRING\'])
 $_SERVER[\'CIA_REQUEST\'] = urldecode($_SERVER[\'CIA_REQUEST\'])';
 	}
 
-	$CIA[] = 'if (preg_match("#^(' . $CONFIG['lang_list'] . ')(?:/|$)(.*?)$#", $_SERVER[\'CIA_REQUEST\'], $a))
+	$CIA[] = 'if (preg_match("#^(" . $CONFIG[\'lang_list\'] . ")(?:/|$)(.*?)$#", $_SERVER[\'CIA_REQUEST\'], $a))
 {
 	$_SERVER[\'CIA_LANG\']    = $a[1];
 	$_SERVER[\'CIA_REQUEST\'] = $a[2];
@@ -249,7 +247,7 @@ $_SERVER[\'CIA_REQUEST\'] = urldecode($_SERVER[\'CIA_REQUEST\'])';
 }
 // }}}
 
-$CONFIG['lang_list'] || $CIA[] = '$_SERVER[\'CIA_LANG\'] = \'\'';
+$CIA[] = '$CONFIG[\'lang_list\'] || $_SERVER[\'CIA_LANG\'] = \'\'';
 
 $appConfigSource = '<?php ' . implode(";\n", $CIA) . ';';
 cia_atomic_write($appConfigSource, '.config.zcache.php');

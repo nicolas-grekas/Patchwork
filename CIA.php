@@ -352,14 +352,8 @@ else
 
 	$cia_token = $a . md5(uniqid(mt_rand(), true));
 
-	$a = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_HOME'], 2));
-	$a = preg_replace("'\?.*$'", '', $a);
-	$a = preg_replace("'^https?://[^/]*'i", '', $a);
-	$a = dirname($a . ' ');
-	if (1 == strlen($a)) $a = '';
-
 	header('P3P: CP="' . $CONFIG['P3P'] . '"');
-	setcookie('T$', $cia_token, 0, $a .'/');
+	setcookie('T$', $cia_token, 0, $CONFIG['session.cookie_path'], $CONFIG['session.cookie_domain']);
 	$cia_private = true;
 }
 

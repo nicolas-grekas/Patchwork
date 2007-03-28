@@ -21,10 +21,6 @@ class
 	static $maxIdleTime = 0;
 	static $maxLifeTime = 43200;
 
-	static $cookiePath = '/';
-	static $cookieDomain = '';
-	static $cookieHttpOnly = true;
-
 	static $gcProbabilityNumerator = 1;
 	static $gcProbabilityDenominator = 100;
 
@@ -82,18 +78,14 @@ class
 		if ($initSession) self::$DATA = array();
 
 
+		global $CONFIG;
+
 		// Generate a new antiCSRF token
 
 		$sid = isset($_COOKIE['T$']) && '1' == substr($_COOKIE['T$'], 0, 1) ? '1' : '0';
 		$GLOBALS['cia_token'] = $sid . CIA::uniqid();
 
-		$sid = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_HOME'], 2));
-		$sid = preg_replace("'\?.*$'", '', $sid);
-		$sid = preg_replace("'^https?://[^/]*'i", '', $sid);
-		$sid = dirname($sid . ' ');
-		if (1 == strlen($sid)) $sid = '';
-
-		setcookie('T$', $GLOBALS['cia_token'], 0, $sid .'/');
+		setcookie('T$', $GLOBALS['cia_token'], 0, $CONFIG['session.cookie_path'], $CONFIG['session.cookie_domain']);
 
 
 		if (!$initSession || $restartNew)
@@ -109,13 +101,14 @@ class
 		}
 		else self::$sslid = $sid = '';
 
-		setcookie('SID',         $sid, 0, self::$cookiePath, self::$cookieDomain, false, self::$cookieHttpOnly);
-		setcookie('SSL', self::$sslid, 0, self::$cookiePath, self::$cookieDomain, true , self::$cookieHttpOnly);
+		setcookie('SID',         $sid, 0, $CONFIG['session.cookie_path'], $CONFIG['session.cookie_domain'], false, true);
+		setcookie('SSL', self::$sslid, 0, $CONFIG['session.cookie_path'], $CONFIG['session.cookie_domain'], true , true);
 
 		// 304 Not Modified response code does not allow Set-Cookie headers,
 		// so we remove any header that could trigger a 304
 		unset($_SERVER['HTTP_IF_NONE_MATCH']);
 		unset($_SERVER['HTTP_IF_MODIFIED_SINCE']);
+		unset($_SERVER['HTTP_RANGE']);
 	}
 
 	static function destroy()
@@ -181,7 +174,7 @@ class
 				if ('-' == self::$sslid[0] && isset($_SERVER['HTTPS']))
 				{
 					self::$sslid = CIA::uniqid();
-					setcookie('SSL', self::$sslid, 0, self::$cookiePath, self::$cookieDomain, true , self::$cookieHttpOnly);
+					setcookie('SSL', self::$sslid, 0, $GLOBALS['CONFIG']['session.cookie_path'], $GLOBALS['CONFIG']['session.cookie_domain'], true , true);
 					unset($_SERVER['HTTP_IF_NONE_MATCH']);
 					unset($_SERVER['HTTP_IF_MODIFIED_SINCE']);
 				}
