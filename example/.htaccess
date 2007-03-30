@@ -4,4 +4,4 @@ Allow from all
 AcceptPathInfo On
 
 # Uncomment to enable PHP5 on free.fr
-php 1
+#php 1
