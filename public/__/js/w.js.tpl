@@ -92,29 +92,52 @@ function parseurl($param, $delim, $rx, $array)
 
 function syncCSRF($form)
 {
+	var $a, $antiCSRF = antiCSRF;
+
 	if (!$form)
 	{
 		$form = document.forms;
 		$form = $form[$form.length - 1];
 	}
 
-	if (antiCSRF && 'post' == $form.method.toLowerCase())
+	if ($antiCSRF && 'post' == $form.method.toLowerCase())
 	{
 		if ($form.action.indexOf({g$__HOME__|js})) return;
 
-		if ($form.T$) $form.T$.value = antiCSRF;
+		if ($form.T$) $form.T$.value = $antiCSRF;
 		else if ($form.firstChild)
 		{
-			var $a = document.createElement('input');
+			$a = document.createElement('input');
 
 			$a.type = 'hidden';
 			$a.name = 'T$';
-			$a.value = antiCSRF;
+			$a.value = $antiCSRF;
 
 			$form.insertBefore($a, $form.firstChild);
 		}
-		else $form.innerHTML += '<input type="hidden" name="T$" value="' + antiCSRF + '" />';
+		else $form.innerHTML += '<input type="hidden" name="T$" value="' + $antiCSRF + '" />';
 	}
+}
+
+function resyncCSRF()
+{
+	var $resyncCSRF = resyncCSRF,
+		$document = document,
+		$forms = $document.forms,
+		$cookie = $document.cookie.match(/(^|; )T\$=([0-9a-f]+)/);
+
+	$cookie = $cookie && $cookie[2];
+
+	if (antiCSRF = antiCSRF || $cookie)
+	{
+		antiCSRF == $cookie || ($resyncCSRF.$formsLength = 0);
+
+		while ($resyncCSRF.$formsLength < $forms.length) syncCSRF($forms[$resyncCSRF.$formsLength++]);
+
+		return $cookie;
+	}
+
+	$resyncCSRF.$formsLength = 0;
 }
 
 onDOMLoaded = [];
@@ -193,7 +216,6 @@ w = function($homeAgent, $keys, $masterCIApID)
 	var $document = document,
 
 		$buffer = [],
-		$formsLength = 0,
 		$inlineJs = 0,
 		$includeSrc = '',
 		$trustReferer = 0,
@@ -517,8 +539,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 			$startTime = new Date;
 			$Rlevel = $maxRlevel;
 
-			if (!antiCSRF && ($i = $document.cookie.match(/(^|; )T\$=([0-9a-zA-Z]+)/))) antiCSRF = $i[2];
-			if (antiCSRF) while ($formsLength < $document.forms.length) syncCSRF($document.forms[$formsLength++]);
+			resyncCSRF();
 
 			if (($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/)) && $i[2]-0 != $masterCIApID) w.r(), $code = [];
 		}
@@ -642,10 +663,9 @@ w = function($homeAgent, $keys, $masterCIApID)
 			{
 				w = {c: function()
 				{
-					if (!antiCSRF && ($i = $document.cookie.match(/(^|; )T\$=([0-9a-zA-Z]+)/))) antiCSRF = $i[2];
-					if (antiCSRF) while ($formsLength < $document.forms.length) syncCSRF($document.forms[$formsLength++]);
+					resyncCSRF();
 
-					$i = ($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/)) && $i[2]-0 != $masterCIApID;
+					$i = ($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/)) && $i[2]/1 != $masterCIApID;
 
 					w = w.c = $document = 0;
 
@@ -766,8 +786,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 		return $i;
 	}
 
-	if ($i = $document.cookie.match(/(^|; )T\$=([0-9a-zA-Z]+)/)) $i = $i[2];
-	else
+	if (!resyncCSRF())
 	{
 		$i = '2';
 		do $i = (Math.random()+$i).substr(2);
@@ -777,10 +796,8 @@ w = function($homeAgent, $keys, $masterCIApID)
 		$j = {$cookie_domain|js};
 
 		$document.cookie = 'T$=' + $i + '; path=' + encodeURI({$cookie_path|js}) + ($j ? '; domain=' + encodeURI($j) : '');
-		0 || /(^|; )T\$=2/.test($document.cookie) || ($i = '');
+		antiCSRF = /(^|; )T\$=2/.test($document.cookie) ? $i : '';
 	}
-
-	antiCSRF = $i;
 
 	$j = location;
 
@@ -799,7 +816,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 		for ($i=0; $i<$j.length; ++$i) if ($j[$i]) $loopIterator[$loopIterator.length] = g['__'+($loopIterator.length+1)+'__'] = $j[$i];
 		g.__0__ = $loopIterator.join('/');
 
-		if (($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/)) && $i[2]-0 != $masterCIApID) w(0, [3, 'w(w.r())']);
+		if (($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/)) && $i[2]/1 != $masterCIApID) w(0, [3, 'w(w.r())']);
 		else
 
 		/* Block load, 2 steps : generating, then displaying. * /
