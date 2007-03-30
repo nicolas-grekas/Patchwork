@@ -634,7 +634,7 @@ class CIA_preprocessor__0
 			case T_INCLUDE_ONCE:
 			case T_REQUIRE:
 			case T_INCLUDE:
-				$token .= $this->fetchSugar($code, $i);
+				$token .= ' ' . $this->fetchSugar($code, $i);
 
 				// Every require|include inside files in the include_path
 				// is preprocessed thanks to cia_adaptRequire().
