@@ -329,7 +329,7 @@ $_POST_BACKUP =& $_POST;
 if (
 	isset($_COOKIE['T$'])
 	&& (!CIA_POSTING || (isset($_POST['T$']) && substr($_COOKIE['T$'], 1) == substr($_POST['T$'], 1)))
-	&& '---------------------------------' == strtr($_COOKIE['T$'], '-0123456789abcdef', '#----------------')
+	&& '--------------------------------' == strtr(substr($_COOKIE['T$'], 0, 32), '-0123456789abcdef', '#----------------')
 ) $cia_token = $_COOKIE['T$'];
 else
 {
@@ -337,7 +337,14 @@ else
 
 	if ($_COOKIE)
 	{
-		if (CIA_POSTING) W('Potential Cross Site Request Forgery. $_POST is not reliable. Erasing it !');
+		if (CIA_POSTING)
+		{
+			W('Potential Cross Site Request Forgery. $_POST is not reliable. Erasing it !');
+			unset($_POST['f_password']);
+			E(var_export($_SERVER, true));
+			E(var_export($_POST, true));
+			E(var_export($_COOKIE, true));
+		}
 
 		unset($_POST);
 		$_POST = array();

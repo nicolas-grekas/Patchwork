@@ -136,9 +136,9 @@ function resyncCSRF()
 
 		return $cookie;
 	}
-
-	$resyncCSRF.$formsLength = 0;
 }
+
+resyncCSRF.$formsLength = 0;
 
 onDOMLoaded = [];
 onDOMLoaded.go = function()
