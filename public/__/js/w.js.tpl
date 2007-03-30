@@ -769,7 +769,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 	if ($i = $document.cookie.match(/(^|; )T\$=([0-9a-zA-Z]+)/)) $i = $i[2];
 	else
 	{
-		$i = '0';
+		$i = '2';
 		do $i = (Math.random()+$i).substr(2);
 		while ($i.length < 33);
 		$i = $i.substr(0, 33);
@@ -777,7 +777,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 		$j = {$cookie_domain|js};
 
 		$document.cookie = 'T$=' + $i + '; path=' + encodeURI({$cookie_path|js}) + ($j ? '; domain=' + encodeURI($j) : '');
-		0 || /(^|; )T\$=0/.test($document.cookie) || ($i = '');
+		0 || /(^|; )T\$=2/.test($document.cookie) || ($i = '');
 	}
 
 	antiCSRF = $i;

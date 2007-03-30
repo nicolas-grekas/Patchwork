@@ -82,7 +82,7 @@ class
 
 		// Generate a new antiCSRF token
 
-		$sid = isset($_COOKIE['T$']) && '1' == substr($_COOKIE['T$'], 0, 1) ? '1' : '0';
+		$sid = isset($_COOKIE['T$']) && '1' == substr($_COOKIE['T$'], 0, 1) ? '1' : '2';
 		$GLOBALS['cia_token'] = $sid . CIA::uniqid();
 
 		setcookie('T$', $GLOBALS['cia_token'], 0, $CONFIG['session.cookie_path'], $CONFIG['session.cookie_domain']);

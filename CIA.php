@@ -333,7 +333,7 @@ if (
 ) $cia_token = $_COOKIE['T$'];
 else
 {
-	$a = isset($_COOKIE['T$']) && '1' == substr($_COOKIE['T$'], 0, 1) ? '1' : '0';
+	$a = isset($_COOKIE['T$']) && '1' == substr($_COOKIE['T$'], 0, 1) ? '1' : '2';
 
 	if ($_COOKIE)
 	{

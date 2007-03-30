@@ -64,7 +64,7 @@ EOHTML;
 			setcookie('R$', '', 1, '/');
 	
 			// Check the Referer header
-			// T$ starts with 0 when the Referer's confidence is unknown
+			// T$ starts with 2 when the Referer's confidence is unknown
 			//                1 when it is trusted
 			if (isset($_SERVER['HTTP_REFERER']) && $_COOKIE['R$'] == $_SERVER['HTTP_REFERER'])
 			{
