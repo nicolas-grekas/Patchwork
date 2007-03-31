@@ -10,6 +10,8 @@
  *   (at your option) any later version.
  *
  **************************************************************************/*}
+
+
 /*
 * eUC
 * dUC
@@ -19,7 +21,6 @@
 * unesc
 * parseurl
 * onDOMLoaded
-* setboard
 * topwin
 * BOARD
 */
@@ -116,6 +117,15 @@ function syncCSRF($form)
 			$form.insertBefore($a, $form.firstChild);
 		}
 		else $form.innerHTML += '<input type="hidden" name="T$" value="' + $antiCSRF + '" />';
+		
+		$form.syncCSRF = $form.onsubmit;
+		$form.onsubmit = function($a, $this)
+		{
+			$this = this;
+			$a = $this.syncCSRF && $this.syncCSRF();
+			$this.T$.value = antiCSRF;
+			return $a;
+		}
 	}
 }
 
@@ -143,11 +153,11 @@ resyncCSRF.$formsLength = 0;
 onDOMLoaded = [];
 onDOMLoaded.go = function()
 {
-	var $document = document, $i, $pool, $script;
+	var $i, $pool, $script;
 
-	if ($document.removeChild)
+	if (document.removeChild)
 	{
-		$pool = $document.getElementsByName('w$');
+		$pool = document.getElementsByName('w$');
 		$i = $pool.length;
 		while ($i--) 'script' == ($script = $pool[$i]).tagName.toLowerCase() && $script.parentNode.removeChild($script);
 		$script = 0;
@@ -156,58 +166,14 @@ onDOMLoaded.go = function()
 	$pool = onDOMLoaded;
 	for ($i = 0; $i < $pool.length; ++$i) $pool[$i](), $pool[$i]=0;
 
-	$document = 0;
-
 	onDOMLoaded = [];
 	onDOMLoaded.go = function() {};
 }
 
 
-/*
-* Set a board variable
-*/
-function setboard($name, $value, $window)
-{
-	if (t($name, 'object')) for ($value in $name) setboard($value, $name[$value], $window);
-	else
-	{
-		$window = $window || topwin;
-
-		function $escape($str)
-		{
-			return eUC(''+$str).replace(
-				/_/g, '_5F').replace(
-				/!/g, '_21').replace(
-				/'/g, '_27').replace(
-				/\(/g, '_28').replace(
-				/\)/g, '_29').replace(
-				/\*/g, '_30').replace(
-				/-/g, '_2D').replace(
-				/\./g, '_2E').replace(
-				/~/g, '_7E').replace(
-				/%/g, '_'
-			);
-		}
-
-		$name = '_K' + $escape($name) + '_V';
-
-		var $varIdx = $window.name.indexOf($name),
-			$varEndIdx;
-
-		if ($varIdx>=0)
-		{
-			$varEndIdx = $window.name.indexOf('_K', $varIdx + $name.length);
-			$window.name = $window.name.substring(0, $varIdx) + ( $varEndIdx>=0 ? $window.name.substring($varEndIdx) : '' );
-		}
-
-		$window.name += $name + $escape($value);
-	}
-}
-
-
-if ((topwin = window).Error)
+if (window.Error)
 	// This eval avoids a parse error with browsers not supporting exceptions.
-	eval('try{while(((w=topwin.parent)!=topwin)&&t(w.name))topwin=w}catch(w){}try{document.execCommand("BackgroundImageCache",false,true)}catch(w){}');
+	eval('try{document.execCommand("BackgroundImageCache",false,true)}catch(w){}');
 
 w = function($homeAgent, $keys, $masterCIApID)
 {
@@ -663,13 +629,11 @@ w = function($homeAgent, $keys, $masterCIApID)
 			{
 				w = {c: function()
 				{
-					resyncCSRF();
-
 					$i = ($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/)) && $i[2]/1 != $masterCIApID;
 
 					w = w.c = $document = 0;
 
-					$i ? location.reload() : onDOMLoaded.go();
+					$i ? location.reload() : (resyncCSRF(), onDOMLoaded.go());
 				}};
 
 				$i = $content.search(/<\/body\b/i);
@@ -829,33 +793,14 @@ w = function($homeAgent, $keys, $masterCIApID)
 	}
 }
 
-function loadW()
+function loadW($window)
 {
-	var $window = window, $board = topwin.name.indexOf('_K'), $a = location;
+	$window = window;
 
 	if ($window.encodeURI)
 	{
 		$window.dUC = decodeURIComponent;
 		$window.eUC = encodeURIComponent;
-
-		$window.BOARD = {};
-
-		if (0 <= $board)
-		{
-			$board = parseurl(
-				topwin.name.substr($board).replace(
-					/_K/g, '&').replace(
-					/_V/g, '=').replace(
-					/_/g , '%')
-				, '&'
-			);
-
-			$a = $a.protocol + ':' + $a.hostname;
-			
-			if ($board.$ != $a) topwin.name = '', setboard('$', $a);
-			else $window.BOARD = $board;
-		}
-
 		$window.a ? w(a[0], a[1], a[2]) : w();
 	}
 	else document.write('<script type="text/javascript" src="' + {g$__HOME__|js} + 'js/compat"></script>');
