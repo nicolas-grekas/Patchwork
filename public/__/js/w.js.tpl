@@ -258,7 +258,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 		if ($args)
 		{
 			if ($inc.indexOf('?')==-1) $inc += '?';
-			$c = '';
+			$c = [];
 
 			if ($keys)
 			{
@@ -269,7 +269,9 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 				for ($i=0; $i<$keys.length; ++$i)
 					if (($j = $keys[$i]) && t($args[$j]))
-						$c += '&amp;' + eUC($j) + '=' + eUC(unesc($args[$j]));
+						$c.push('&amp;' + eUC($j) + '=' + eUC(unesc($args[$j])));
+
+				$c = $c.join('');
 
 				if ($args.e$) $args.__URI__ += '?' + $c.substr(5);
 				a = $args;
