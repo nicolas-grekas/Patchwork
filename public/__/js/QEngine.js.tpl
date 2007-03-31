@@ -105,12 +105,12 @@ function QEngine($keyword)
 
 		$a = stripAccents($a, -1);
 		$a = $a.replace(/[^a-z0-9]+/g, '_'); /* using ' ' instead of '_' causes a bug in NN4 */
-		$a = '_'+$a+'_';
+		$a = '_' + $a + '_';
 
 		if ($minKwLen > 1) $a = $a.replace(new RegExp("_[^_]{1,"+($minKwLen-1)+"}_", 'g'), '_');
 
 		$a = $a.replace(/^_+/g,'').replace(/_+$/g,'');
-		return $a == '' ? [] : $a.split('_');
+		return '' == $a ? [] : $a.split('_');
 	}
 
 	function $getMatches($w)
@@ -121,10 +121,10 @@ function QEngine($keyword)
 		for (; $i<$w.length; ++$i)
 		{
 			$k += $w.charAt($i);
-			if (t($kwDb[$k])) {$kwDb = $kwDb[$k]; $k = '';}
+			if (t($kwDb[$k])) $kwDb = $kwDb[$k], $k = '';
 		}
 
-		if ($k=='') $match = [$getChildId($kwDb)];
+		if ('' == $k) $match = [$getChildId($kwDb)];
 		else for ($i in $kwDb)
 		{
 			if ((''+$i).indexOf($k)==0) $match.push($getChildId($kwDb[$i]));
