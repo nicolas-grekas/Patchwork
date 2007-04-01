@@ -1,4 +1,4 @@
-{*/**************************************************************************
+{***************************************************************************
  *
  *   Copyright : (C) 2006 Nicolas Grekas. All rights reserved.
  *   Email     : nicolas.grekas+patchwork@espci.org
@@ -9,7 +9,7 @@
  *   the Free Software Foundation; either version 2 of the License, or
  *   (at your option) any later version.
  *
- **************************************************************************/*}
+ ***************************************************************************}
 <!-- SET a$DATA --><!-- AGENT $f_select --><!-- END:SET
 
 -->document.write('<select '+a+'>'+(i&&!m?'<option value="">'+c+'</option>':'')+{a$DATA|replace:'<select[^>]*>':''|replace:'<script.*':''|js});

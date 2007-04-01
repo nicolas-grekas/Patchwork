@@ -1,4 +1,4 @@
-{*/**************************************************************************
+{***************************************************************************
  *
  *   Copyright : (C) 2006 Nicolas Grekas. All rights reserved.
  *   Email     : nicolas.grekas+patchwork@espci.org
@@ -9,7 +9,7 @@
  *   the Free Software Foundation; either version 2 of the License, or
  *   (at your option) any later version.
  *
- **************************************************************************/*}
+ ***************************************************************************}
 
 $win = window;
 
@@ -99,41 +99,20 @@ $encodeURIComponent = $win.encodeURIComponent || function($string)
 	return $string.join('');
 }
 
-function $encode($str)
-{
-	return $encodeURIComponent('' + $str).replace(
-		/_/g, '_5F').replace(
-		/!/g, '_21').replace(
-		/'/g, '_27').replace(
-		/\(/g, '_28').replace(
-		/\)/g, '_29').replace(
-		/\*/g, '_30').replace(
-		/-/g, '_2D').replace(
-		/\./g, '_2E').replace(
-		/~/g, '_7E').replace(
-		/%/g, '_'
-	);
-}
-
-function $decode($str)
-{
-	return $decodeURIComponent(('' + $str).replace(/_/g, '%'));
-}
-
-$glue = 'Z_Y';
+$glue = 'Z%Y';
 $name = $win.name.split($glue);
 
 if (3 == $name.length)
 {
-	$win.name += $glue + $encode(q);
-	location.replace($decode($name[2]));
+	$win.name += $glue + $encodeURIComponent(q);
+	location.replace($decodeURIComponent($name[2]));
 }
 else
 {
 	if (4 == $name.length)
 	{
-		$win.name = $decode($name[1]);
-		q = $decode($name[3]);
+		$win.name = $decodeURIComponent($name[1]);
+		q = $decodeURIComponent($name[3]);
 	}
 
 	if (typeof $win.q != 'undefined') parent.loadQJsrs($win, q);
@@ -143,7 +122,7 @@ else
 
 		if (q && q.length)
 		{
-			if (!q[4]) $win.name = $glue + $encode($win.name) + $glue + $encode(location);
+			if (!q[4]) $win.name = $glue + $encodeURIComponent($win.name) + $glue + $encodeURIComponent(location);
 
 			if (q[3])
 			{
