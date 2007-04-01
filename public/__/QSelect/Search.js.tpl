@@ -1,4 +1,4 @@
-{*/**************************************************************************
+{***************************************************************************
  *
  *   Copyright : (C) 2006 Nicolas Grekas. All rights reserved.
  *   Email     : nicolas.grekas+patchwork@espci.org
@@ -9,5 +9,5 @@
  *   the Free Software Foundation; either version 2 of the License, or
  *   (at your option) any later version.
  *
- **************************************************************************/*}
+ ***************************************************************************}
 onDOMLoaded.push((function(e){return function(){QSelect(e,QSelectSearch([<!-- LOOP $DATA -->{$VALUE|js},<!-- END:LOOP -->0]))}})(formStack.shift()))

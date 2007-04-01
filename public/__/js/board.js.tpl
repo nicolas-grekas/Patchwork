@@ -1,4 +1,4 @@
-{*/**************************************************************************
+{***************************************************************************
  *
  *   Copyright : (C) 2006 Nicolas Grekas. All rights reserved.
  *   Email     : nicolas.grekas+patchwork@espci.org
@@ -9,7 +9,7 @@
  *   the Free Software Foundation; either version 2 of the License, or
  *   (at your option) any later version.
  *
- **************************************************************************/*}
+ ***************************************************************************}
 
 
 /*
@@ -25,23 +25,7 @@ function setboard($name, $value)
 	{
 		$window = setboard.topwin;
 
-		function $escape($str)
-		{
-			return eUC(''+$str).replace(
-				/_/g, '_5F').replace(
-				/!/g, '_21').replace(
-				/'/g, '_27').replace(
-				/\(/g, '_28').replace(
-				/\)/g, '_29').replace(
-				/\*/g, '_30').replace(
-				/-/g, '_2D').replace(
-				/\./g, '_2E').replace(
-				/~/g, '_7E').replace(
-				/%/g, '_'
-			);
-		}
-
-		$name = '_K' + $escape(location.hostname + 0 + $name) + '_V';
+		$name = '%K' + eUC(location.hostname + 0 + $name) + '%V';
 
 		var $winName = $window.name,
 			$varIdx = $winName.indexOf($name),
@@ -49,12 +33,11 @@ function setboard($name, $value)
 
 		if ($varIdx>=0)
 		{
-			$varEndIdx = $winName.indexOf('_K', $varIdx + $name.length);
+			$varEndIdx = $winName.indexOf('%K', $varIdx + $name.length);
 			$winName = $winName.substring(0, $varIdx) + ( $varEndIdx>=0 ? $winName.substring($varEndIdx) : '' );
 		}
 
-		$window.name = $winName + $name + $escape($value);
-		$window = 0;
+		$window.name = $winName + $name + eUC($value);
 	}
 }
 
@@ -70,15 +53,14 @@ window.BOARD || (function()
 	$board = $board.name;
 
 	window.BOARD = {};
-	$i = $board.indexOf('_K');
+	$i = $board.indexOf('%K');
 
 	if (0 <= $i)
 	{
 		$board = parseurl(
 			$board.substr($i).replace(
-				/_K/g, '&').replace(
-				/_V/g, '=').replace(
-				/_/g , '%')
+				/%K/g, '&').replace(
+				/%V/g, '=')
 			, '&'
 		);
 
