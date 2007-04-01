@@ -14,8 +14,6 @@
 if (!window.lF)
 {
 
-<!-- AGENT 'js/board' -->
-
 function valid($element, $type, $args)
 {
 	if ($element.disabled) return 1;
