@@ -155,6 +155,10 @@ onDOMLoaded.go = function()
 {
 	var $i, $pool, $script;
 
+	resyncCSRF();
+
+	if (window.scrollCntrl) scrollCntrl(), scrollCntrl = 0;
+
 	if (document.removeChild)
 	{
 		$pool = document.getElementsByName('w$');
@@ -635,7 +639,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 					w = w.c = $document = 0;
 
-					$i ? location.reload() : (resyncCSRF(), onDOMLoaded.go());
+					$i ? location.reload() : setTimeout('onDOMLoaded.go()', 0);
 				}};
 
 				$i = $content.search(/<\/body\b/i);
@@ -768,17 +772,20 @@ w = function($homeAgent, $keys, $masterCIApID)
 	$j = location;
 
 	g = parseurl($j.search.replace(/\+/g, '%20').substring(1), '&', /^amp;/);
+
+	$j = ('' + $j).replace(/#.*$/, '');
+
 	g.__DEBUG__ = {g$__DEBUG__|js};
 	g.__HOST__ = {g$__HOST__|js};
 	g.__LANG__ = {g$__LANG__|js};
 	g.__HOME__ = $masterHome;
 	g.__AGENT__ = $homeAgent ? esc($homeAgent) + '/' : '';
-	g.__URI__ = esc(''+$j);
+	g.__URI__ = esc($j);
 	g.__REFERER__ = esc($document.referrer);
 
 	if (t($homeAgent))
 	{
-		$j = dUC(esc(''+$j).substr({g$__HOME__|length}+$homeAgent.length).split('?', 1)[0]).split('/');
+		$j = dUC(esc($j).substr({g$__HOME__|length}+$homeAgent.length).split('?', 1)[0]).split('/');
 		for ($i=0; $i<$j.length; ++$i) if ($j[$i]) $loopIterator[$loopIterator.length] = g['__'+($loopIterator.length+1)+'__'] = $j[$i];
 		g.__0__ = $loopIterator.join('/');
 
@@ -803,6 +810,24 @@ function loadW($window)
 	{
 		$window.dUC = decodeURIComponent;
 		$window.eUC = encodeURIComponent;
+
+		(function($scrollPos)
+		{
+			if ($scrollPos = location.hash.match(/@([0-9]+),([0-9]+)$/))
+			{
+				($window.scrollCntrl = function()
+				{
+					var $body = document.documentElement || document.body,
+						$left = Math.min($scrollPos[1], $body.scrollWidth),
+						$top  = Math.min($scrollPos[2], $body.scrollHeight);
+
+					$body && scrollTo($left, $top);
+
+					if ($left != $body.scrollLeft || $top != $body.scrollTop) setTimeout('scrollCntrl&&scrollCntrl()', 100);
+				})();
+			}
+		})();
+
 		$window.a ? w(a[0], a[1], a[2]) : w();
 	}
 	else document.write('<script type="text/javascript" src="' + {g$__HOME__|js} + 'js/compat"></script>');

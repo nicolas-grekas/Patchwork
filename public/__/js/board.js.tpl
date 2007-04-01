@@ -13,14 +13,17 @@
 
 
 /*
-* Set a board variable
+* Set a board variable for data persistancy across pages.
+*
+* WARNING: you must not use board variables to store any sensitive information.
+* See http://www.boutell.com/newfaq/creating/scriptpass.html for explanation.
 */
-function setboard($name, $value, $window)
+function setboard($name, $value)
 {
-	if (t($name, 'object')) for ($value in $name) setboard($value, $name[$value], $window);
+	if (t($name, 'object')) for ($value in $name) setboard($value, $name[$value]);
 	else
 	{
-		$window = $window || topwin;
+		$window = setboard.topwin;
 
 		function $escape($str)
 		{
@@ -38,7 +41,7 @@ function setboard($name, $value, $window)
 			);
 		}
 
-		$name = '_K' + $escape($name) + '_V';
+		$name = '_K' + $escape(location.hostname + 0 + $name) + '_V';
 
 		var $winName = $window.name,
 			$varIdx = $winName.indexOf($name),
@@ -56,29 +59,29 @@ function setboard($name, $value, $window)
 }
 
 
-if (!window.BOARD)
+window.BOARD || (function()
 {
-	if ((topwin = window).Error)
-		// This eval avoids a parse error with browsers not supporting exceptions.
-		eval('try{while(((i=topwin.parent)!=topwin)&&t(i.name))topwin=i}catch(i){}');
+	var $board = window, $i, $h = location.hostname + 0;
 
-	BOARD = {};
-	i = topwin.name.indexOf('_K');
+	// This eval avoids a parse error with browsers not supporting exceptions.
+	$board.Error && eval('try{while((($i=$board.parent)!=$board)&&t($i.name))$board=$i}catch($i){}');
 
-	if (0 <= i)
+	setboard.topwin = $board;
+	$board = $board.name;
+
+	window.BOARD = {};
+	$i = $board.indexOf('_K');
+
+	if (0 <= $i)
 	{
-		i = parseurl(
-			topwin.name.substr(i).replace(
+		$board = parseurl(
+			$board.substr($i).replace(
 				/_K/g, '&').replace(
 				/_V/g, '=').replace(
 				/_/g , '%')
 			, '&'
 		);
 
-		l = location;
-		l = l.protocol + ':' + l.hostname;
-
-		if (i.$ != l) topwin.name = '', setboard('$', l);
-		else BOARD = i;
+		for ($i in $board) $i.indexOf($h) || (BOARD[ $i.substr($h.length) ] = $board[$i]);
 	}
-}
+})();

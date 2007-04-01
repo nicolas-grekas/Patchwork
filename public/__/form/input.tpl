@@ -23,7 +23,7 @@ You can control it with the additional arguments:
 - a$_beforeError_	|default:g$inputBeforeError		: HTML code put at the beginning of an error message
 - a$_afterError_	|default:g$inputAfterError		: HTML code put at the end of an error message
 - a$_focus_											: set the focus on this element
-- a$_preserveScroll_								: preserve scroll position when clicking on submit/image/button elements
+- a$_preserveScroll_								: preserve scroll position when an element triggers a submit
 - a$_format_		|default:g$inputFormat			: a string to format the output where ("=>" means "is replaced by"):
 														  %0 => the caption,
 														  %1 => the control,
