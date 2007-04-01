@@ -231,7 +231,7 @@ checkElementStatus = IcES = function($msgs, $form, $preserveScroll)
 				if ($element.select) $element.select();
 			}
 
-			return $element = false;
+			return $form = $element = false;
 		}
 	}
 
@@ -239,11 +239,15 @@ checkElementStatus = IcES = function($msgs, $form, $preserveScroll)
 	{
 		$preserveScroll = document;
 		$preserveScroll = $preserveScroll.documentElement || $preserveScroll.body;
-		setboard({lastX: $preserveScroll.scrollLeft, lastY: $preserveScroll.scrollTop});
-		$preserveScroll = 0;
+
+		$element = $form.action;
+		$element = 0>$element.indexOf('#') ? ($element += '#') : $element.replace(/@([0-9]+),([0-9]+)$/, '');
+		$element += '@' + $preserveScroll.scrollLeft + ',' + $preserveScroll.scrollTop;
+
+		$form.action = $element;
 	}
 
-	return true;
+	return $form = $preserveScroll = true;
 }
 
 labelClick = IlC = function($elt)
@@ -356,17 +360,6 @@ function enterControl($form)
 	return false;
 }
 
-if (t(BOARD.lastX)) (scrollCntrl = function()
-{
-	var $body = document.documentElement || document.body,
-		$left = Math.min(BOARD.lastX, $body.scrollWidth),
-		$top = Math.min(BOARD.lastY, $body.scrollHeight);
-
-	$body && scrollTo($left, $top);
-
-	if ($left != $body.scrollLeft || $top != $body.scrollTop) setTimeout('scrollCntrl&&scrollCntrl()', 100);
-})();
-
 function maxlengthTextarea()
 {
 	var $this = this, $maxlength = $this.getAttribute('maxlength'), $valueLength = $this.value, $rx = /\stoomuch(\s|$)/;
@@ -429,11 +422,6 @@ onDOMLoaded.push(function()
 	scrollCntrl = 0;
 
 	var $i = 0, $forms = document.forms, $form, $j, $elt;
-
-	if (BOARD.lastL == ''+location) t(BOARD.lastX) && scrollTo(BOARD.lastX, BOARD.lastY);
-	else setboard('lastL', location);
-
-	setboard({lastX: 0, lastY: 0});
 
 	for (; $i<$forms.length; ++$i)
 	{

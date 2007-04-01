@@ -20,7 +20,7 @@ IF 1 == g-1$headerNesting
 		--><!--[if lt IE 7]><script src="{home:'js/ie7/ie7.js'}" type="text/javascript"></script ><![endif]--><!--
 	END:IF
 
-	SERVERSIDE --><script type="text/javascript">/*<![CDATA[*/onDOMLoaded.go()//]]></script><!-- END:SERVERSIDE
+	SERVERSIDE --><script type="text/javascript">/*<![CDATA[*/setTimeout('onDOMLoaded.go()', 0)//]]></script><!-- END:SERVERSIDE
 
 	--></body></html><!--
 
