@@ -108,15 +108,15 @@ class CIA_preprocessor__0
 		'sqlite_create_function' => 3,
 	);
 
-	protected static $declared_class = array('self' => 1, 'parent' => 1, 'this' => 1, 'static' => 1);
-	protected static $inline_class;
-	protected static $recursive = false;
+	private static $declared_class = array('self' => 1, 'parent' => 1, 'this' => 1, 'static' => 1);
+	private static $inline_class;
+	private static $recursive = false;
 
 	static function __static_construct()
 	{
-		defined('E_RECOVERABLE_ERROR') || CIA_preprocessor::$constant['E_RECOVERABLE_ERROR'] = E_ERROR;
+		defined('E_RECOVERABLE_ERROR') || self::$constant['E_RECOVERABLE_ERROR'] = E_ERROR;
 
-		class_exists('CIA', false) && CIA_preprocessor::$function += array(
+		class_exists('CIA', false) && self::$function += array(
 			'header'       => 'CIA::header',
 			'setcookie'    => 'CIA::setcookie',
 			'setrawcookie' => 'CIA::setrawcookie',
@@ -126,11 +126,11 @@ class CIA_preprocessor__0
 		{
 			$v = strtolower($v);
 			if ('cia_' == substr($v, 0, 4)) break;
-			CIA_preprocessor::$declared_class[$v] = 1;
+			self::$declared_class[$v] = 1;
 		}
 
 		// As of PHP5.1.2, md5($str) is a lot faster than md5($str) !
-		extension_loaded('hash') && CIA_preprocessor::$function += array(
+		extension_loaded('hash') && self::$function += array(
 			'md5'   => "hash('md5',",
 			'sha1'  => "hash('sha1',",
 			'crc32' => "hash('crc32',",
@@ -138,7 +138,7 @@ class CIA_preprocessor__0
 
 		if (!function_exists('mb_stripos'))
 		{
-			CIA_preprocessor::$function += array(
+			self::$function += array(
 				'mb_stripos'  => 'mbstring_520::stripos',
 				'mb_stristr'  => 'mbstring_520::stristr',
 				'mb_strrchr'  => 'mbstring_520::strrchr',
@@ -149,7 +149,7 @@ class CIA_preprocessor__0
 
 			if (!extension_loaded('mbstring'))
 			{
-				CIA_preprocessor::$constant += array(
+				self::$constant += array(
 					'MB_OVERLOAD_MAIL'   => 1,
 					'MB_OVERLOAD_STRING' => 2,
 					'MB_OVERLOAD_REGEX'  => 4,
@@ -158,7 +158,7 @@ class CIA_preprocessor__0
 					'MB_CASE_TITLE' => 2
 				);
 
-				CIA_preprocessor::$function += array(
+				self::$function += array(
 					'mb_convert_encoding'  => 'mbstring_500::convert_encoding',
 					'mb_decode_mimeheader' => 'mbstring_500::decode_mimeheader',
 					'mb_encode_mimeheader' => 'mbstring_500::encode_mimeheader',
@@ -174,7 +174,7 @@ class CIA_preprocessor__0
 					'mb_substr'            => 'mbstring_500::substr',
 				);
 
-				extension_loaded('iconv') && CIA_preprocessor::$function += array(
+				extension_loaded('iconv') && self::$function += array(
 					'mb_convert_encoding'  => 'mbstring_500::convert_encoding',
 					'mb_decode_mimeheader' => 'mbstring_500::decode_mimeheader',
 					'mb_encode_mimeheader' => 'mbstring_500::encode_mimeheader',
@@ -182,23 +182,22 @@ class CIA_preprocessor__0
 			}
 		}
 
-		foreach (CIA_preprocessor::$constant as &$v) $v = CIA_preprocessor::export($v);
+		foreach (self::$constant as &$v) $v = self::export($v);
 	}
 
 	static function run($source, $destination, $level, $class)
 	{
-		$recursive = CIA_preprocessor::$recursive;
+		$recursive = self::$recursive;
 
 		if (!$recursive)
 		{
-			CIA_preprocessor::$inline_class = CIA_preprocessor::$declared_class;
-			CIA_preprocessor::$recursive = true;
+			self::$inline_class = self::$declared_class;
+			self::$recursive = true;
 		}
 
 		$code = $GLOBALS['cia_paths_token'];
 
-		$preproc = class_exists('CIA_preprocessor', false) ? 'CIA_preprocessor' : 'CIA_preprocessor__0';
-		$preproc = new $preproc;
+		$preproc = new CIA_preprocessor;
 		$preproc->source = $source = realpath($source);
 		$preproc->level = $level;
 		$preproc->class = $class;
@@ -214,7 +213,7 @@ class CIA_preprocessor__0
 		$preproc->antePreprocess($code);
 		$code =& $preproc->preprocess($code);
 
-		CIA_preprocessor::$recursive = $recursive;
+		self::$recursive = $recursive;
 
 		cia_atomic_write($code, $destination, filemtime($source));
 	}
@@ -310,7 +309,7 @@ class CIA_preprocessor__0
 				break;
 
 			case T_FILE:
-				$token = CIA_preprocessor::export($source);
+				$token = self::export($source);
 				$type = T_CONSTANT_ENCAPSED_STRING;
 				break;
 
@@ -339,8 +338,8 @@ class CIA_preprocessor__0
 					if ($final) $token .= $c;
 					else
 					{
-						$c = preg_replace("'__[0-9]+$'", '', $c);
-						if ($c) $b = $c . '__' . (0<=$level ? $level : '00');
+						$c = preg_replace("'{$cia_paths_token}[0-9]+$'", '', $c);
+						if ($c) $b = $c . $cia_paths_token . (0<=$level ? $level : '00');
 						else $c = $b;
 						$token .= $b;
 					}
@@ -348,7 +347,7 @@ class CIA_preprocessor__0
 				else if ($class && 0<=$level)
 				{
 					$c = $class;
-					$b = $c . (!$final ? '__' . $level : '');
+					$b = $c . (!$final ? $cia_paths_token . $level : '');
 					$token .= ' ' . $b;
 				}
 
@@ -363,7 +362,7 @@ class CIA_preprocessor__0
 					'construct_source' => '',
 				);
 
-				CIA_preprocessor::$inline_class[strtolower($c)] = 1;
+				self::$inline_class[strtolower($c)] = 1;
 
 				if ($c && isset($code[$i]) && is_array($code[$i]) && T_EXTENDS == $code[$i][0])
 				{
@@ -371,9 +370,9 @@ class CIA_preprocessor__0
 					$token .= $this->fetchSugar($code, $i);
 					if (isset($code[$i]) && is_array($code[$i]))
 					{
-						$c = 0<=$level && 'self' == $code[$i][1] ? $c . '__' . ($level ? $level-1 : '00') : $code[$i][1];
+						$c = 0<=$level && 'self' == $code[$i][1] ? $c . $cia_paths_token . ($level ? $level-1 : '00') : $code[$i][1];
 						$token .= $c;
-						CIA_preprocessor::$inline_class[strtolower($c)] = 1;
+						self::$inline_class[strtolower($c)] = 1;
 					}
 					else --$i;
 				}
@@ -428,7 +427,7 @@ class CIA_preprocessor__0
 
 				if (is_array($code[$j]) && T_STRING == $code[$j][0])
 				{
-					if (isset(CIA_preprocessor::$inline_class[strtolower($code[$j][1])])) break;
+					if (isset(self::$inline_class[strtolower($code[$j][1])])) break;
 					$c = false;
 				}
 
@@ -456,7 +455,7 @@ class CIA_preprocessor__0
 			case T_DOUBLE_COLON:
 				if (T_DOUBLE_COLON == $type)
 				{
-					if ($static_instruction || isset($class_pool[$curly_level-1]) || isset(CIA_preprocessor::$inline_class[$prevType])) break;
+					if ($static_instruction || isset($class_pool[$curly_level-1]) || isset(self::$inline_class[$prevType])) break;
 
 					$curly_marker_last[1] || $curly_marker_last[1] = -1;
 					$c = $this->marker($prevType);
@@ -497,7 +496,7 @@ class CIA_preprocessor__0
 					$new_code[$j] = "(({$c})?" . $new_code[$j];
 				}
 
-				new CIA_preprocessor_marker_($this, true);
+				new CIA_preprocessor_marker($this, true);
 
 				break;
 
@@ -519,7 +518,7 @@ class CIA_preprocessor__0
 						else if ($type == strtolower($c->classname))
 						{
 							$c->construct_source = $c->classname;
-							new CIA_preprocessor_construct_($this, $c->construct_source);
+							new CIA_preprocessor_construct($this, $c->construct_source);
 						}
 					}
 
@@ -535,18 +534,18 @@ class CIA_preprocessor__0
 
 				if ('(' == $code[$i+1])
 				{
-					if (isset(CIA_preprocessor::$function[$type]))
+					if (isset(self::$function[$type]))
 					{
-						if (CIA_preprocessor::$function[$type] instanceof CIA_preprocessor_bracket)
+						if (self::$function[$type] instanceof CIA_preprocessor_bracket)
 						{
 							$token .= $c;
-							$c = clone CIA_preprocessor::$function[$type];
+							$c = clone self::$function[$type];
 							$c->setupFilter();
 							break;
 						}
-						else if (0 !== stripos(CIA_preprocessor::$function[$type], $class . '::'))
+						else if (0 !== stripos(self::$function[$type], $class . '::'))
 						{
-							$token = CIA_preprocessor::$function[$type];
+							$token = self::$function[$type];
 							if (false !== strpos($token, '(')) ++$i && $type = '(';
 							else $type = strtolower($token);
 						}
@@ -563,25 +562,25 @@ class CIA_preprocessor__0
 							if ('' !== $j)
 							{
 								eval("\$b={$token}{$j};");
-								$token = false !== $b ? CIA_preprocessor::export($b) : "{$token}({$j})";
+								$token = false !== $b ? self::export($b) : "{$token}({$j})";
 								$type = T_CONSTANT_ENCAPSED_STRING;
 							}
-							else new CIA_preprocessor_path_($this, true);
+							else new CIA_preprocessor_path($this, true);
 						}
 						break;
 
 					case 't':
-						if (0<=$level) new CIA_preprocessor_t_($this, true);
+						if (0<=$level) new CIA_preprocessor_t($this, true);
 						break;
 
 					case 'is_a':
 						if (0>$level) $type = $token = 'cia_is_a';
 
 					default:
-						if (!isset(CIA_preprocessor::$callback[$type])) break;
+						if (!isset(self::$callback[$type])) break;
 
 						$token = "((\$a{$cia_paths_token}=\$b{$cia_paths_token}=\$e{$cia_paths_token})||1?" . $token;
-						$b = new CIA_preprocessor_marker_($this, true);
+						$b = new CIA_preprocessor_marker($this, true);
 						$b->curly = -1;
 						$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 
@@ -594,7 +593,7 @@ class CIA_preprocessor__0
 						}
 
 						// For files in the include_path, always set the 2nd arg of class|interface_exists() to true
-						if (0>$level && in_array($type, array('interface_exists', 'class_exists'))) new CIA_preprocessor_classExists_($this, true);
+						if (0>$level && in_array($type, array('interface_exists', 'class_exists'))) new CIA_preprocessor_classExists($this, true);
 					}
 				}
 				else if (!(is_array($code[$i+1]) && T_DOUBLE_COLON == $code[$i+1][0])) switch ($type)
@@ -605,9 +604,9 @@ class CIA_preprocessor__0
 					break;
 
 				default:
-					if (isset(CIA_preprocessor::$constant[$token]))
+					if (isset(self::$constant[$token]))
 					{
-						$token = CIA_preprocessor::$constant[$token];
+						$token = self::$constant[$token];
 						     if (  is_int($token)) $type = T_LNUMBER;
 						else if (is_float($token)) $type = T_DNUMBER;
 						else if ("'" == $token[0]) $type = T_CONSTANT_ENCAPSED_STRING;
@@ -624,7 +623,7 @@ class CIA_preprocessor__0
 				if ('(' == $code[$i--])
 				{
 					$token = "((\$a{$cia_paths_token}=\$b{$cia_paths_token}=\$e{$cia_paths_token})||1?" . $token;
-					$b = new CIA_preprocessor_marker_($this, true);
+					$b = new CIA_preprocessor_marker($this, true);
 					$b->curly = -1;
 					$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 				}
@@ -648,13 +647,13 @@ class CIA_preprocessor__0
 							eval("\$b=cia_adaptRequire({$j});");
 							$code[$i--] = array(
 								T_CONSTANT_ENCAPSED_STRING,
-								false !== $b ? CIA_preprocessor::export($b) : "cia_adaptRequire({$j})"
+								false !== $b ? self::export($b) : "cia_adaptRequire({$j})"
 							);
 						}
 						else
 						{
 							$token .= 'cia_adaptRequire(';
-							new CIA_preprocessor_require_($this, true);
+							new CIA_preprocessor_require($this, true);
 						}
 					}
 					else
@@ -663,7 +662,7 @@ class CIA_preprocessor__0
 						if (!(is_array($code[$j]) && T_STRING == $code[$j][0] && 'processpath' == strtolower($code[$j][1])))
 						{
 							$token .= "((\$a{$cia_paths_token}=\$b{$cia_paths_token}=\$e{$cia_paths_token})||1?";
-							$b = new CIA_preprocessor_require_($this, true);
+							$b = new CIA_preprocessor_require($this, true);
 							$b->close = ':0)';
 							$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 						}
@@ -836,7 +835,7 @@ class CIA_preprocessor__0
 			case ',': $bracket   || $close = true; break;
 			case T_AS: case T_CLOSE_TAG: case ';':
 			                        $close = true; break;
-			default: if (in_array($type, CIA_preprocessor::$variableType)) return false;
+			default: if (in_array($type, self::$variableType)) return false;
 			}
 
 			if ($close)
@@ -861,7 +860,7 @@ class CIA_preprocessor__0
 	}
 }
 
-abstract class CIA_preprocessor_bracket__0
+abstract class CIA_preprocessor_bracket
 {
 	protected $preproc;
 	protected $registered = false;
@@ -935,7 +934,7 @@ abstract class CIA_preprocessor_bracket__0
 	}
 }
 
-class CIA_preprocessor_construct___0 extends CIA_preprocessor_bracket
+class CIA_preprocessor_construct extends CIA_preprocessor_bracket
 {
 	protected $source;
 	protected $proto = '';
@@ -973,7 +972,7 @@ class CIA_preprocessor_construct___0 extends CIA_preprocessor_bracket
 	}
 }
 
-class CIA_preprocessor_path___0 extends CIA_preprocessor_bracket
+class CIA_preprocessor_path extends CIA_preprocessor_bracket
 {
 	function onClose($token)
 	{
@@ -981,7 +980,7 @@ class CIA_preprocessor_path___0 extends CIA_preprocessor_bracket
 	}
 }
 
-class CIA_preprocessor_classExists___0 extends CIA_preprocessor_bracket
+class CIA_preprocessor_classExists extends CIA_preprocessor_bracket
 {
 	function onReposition($token)
 	{
@@ -994,7 +993,7 @@ class CIA_preprocessor_classExists___0 extends CIA_preprocessor_bracket
 	}
 }
 
-class CIA_preprocessor_t___0 extends CIA_preprocessor_bracket
+class CIA_preprocessor_t extends CIA_preprocessor_bracket
 {
 	function filterBracket($type, $token)
 	{
@@ -1005,7 +1004,7 @@ class CIA_preprocessor_t___0 extends CIA_preprocessor_bracket
 	}
 }
 
-class CIA_preprocessor_require___0 extends CIA_preprocessor_bracket
+class CIA_preprocessor_require extends CIA_preprocessor_bracket
 {
 	public $close = ')';
 
@@ -1032,7 +1031,7 @@ class CIA_preprocessor_require___0 extends CIA_preprocessor_bracket
 	}
 }
 
-class CIA_preprocessor_marker___0 extends CIA_preprocessor_require_
+class CIA_preprocessor_marker extends CIA_preprocessor_require
 {
 	public $close = ':0)';
 	public $greedy = false;
