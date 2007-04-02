@@ -338,8 +338,8 @@ class CIA_preprocessor__0
 					if ($final) $token .= $c;
 					else
 					{
-						$c = preg_replace("'{$cia_paths_token}[0-9]+$'", '', $c);
-						if ($c) $b = $c . $cia_paths_token . (0<=$level ? $level : '00');
+						$c = preg_replace("'__[0-9]+$'", '', $c);
+						if ($c) $b = $c . '__' . (0<=$level ? $level : '00');
 						else $c = $b;
 						$token .= $b;
 					}
@@ -347,7 +347,7 @@ class CIA_preprocessor__0
 				else if ($class && 0<=$level)
 				{
 					$c = $class;
-					$b = $c . (!$final ? $cia_paths_token . $level : '');
+					$b = $c . (!$final ? '__' . $level : '');
 					$token .= ' ' . $b;
 				}
 
@@ -370,7 +370,7 @@ class CIA_preprocessor__0
 					$token .= $this->fetchSugar($code, $i);
 					if (isset($code[$i]) && is_array($code[$i]))
 					{
-						$c = 0<=$level && 'self' == $code[$i][1] ? $c . $cia_paths_token . ($level ? $level-1 : '00') : $code[$i][1];
+						$c = 0<=$level && 'self' == $code[$i][1] ? $c . '__' . ($level ? $level-1 : '00') : $code[$i][1];
 						$token .= $c;
 						self::$inline_class[strtolower($c)] = 1;
 					}
@@ -496,7 +496,7 @@ class CIA_preprocessor__0
 					$new_code[$j] = "(({$c})?" . $new_code[$j];
 				}
 
-				new CIA_preprocessor_marker($this, true);
+				new CIA_preprocessor_marker_($this, true);
 
 				break;
 
@@ -518,7 +518,7 @@ class CIA_preprocessor__0
 						else if ($type == strtolower($c->classname))
 						{
 							$c->construct_source = $c->classname;
-							new CIA_preprocessor_construct($this, $c->construct_source);
+							new CIA_preprocessor_construct_($this, $c->construct_source);
 						}
 					}
 
@@ -536,7 +536,7 @@ class CIA_preprocessor__0
 				{
 					if (isset(self::$function[$type]))
 					{
-						if (self::$function[$type] instanceof CIA_preprocessor_bracket)
+						if (self::$function[$type] instanceof CIA_preprocessor_bracket_)
 						{
 							$token .= $c;
 							$c = clone self::$function[$type];
@@ -565,12 +565,12 @@ class CIA_preprocessor__0
 								$token = false !== $b ? self::export($b) : "{$token}({$j})";
 								$type = T_CONSTANT_ENCAPSED_STRING;
 							}
-							else new CIA_preprocessor_path($this, true);
+							else new CIA_preprocessor_path_($this, true);
 						}
 						break;
 
 					case 't':
-						if (0<=$level) new CIA_preprocessor_t($this, true);
+						if (0<=$level) new CIA_preprocessor_t_($this, true);
 						break;
 
 					case 'is_a':
@@ -580,7 +580,7 @@ class CIA_preprocessor__0
 						if (!isset(self::$callback[$type])) break;
 
 						$token = "((\$a{$cia_paths_token}=\$b{$cia_paths_token}=\$e{$cia_paths_token})||1?" . $token;
-						$b = new CIA_preprocessor_marker($this, true);
+						$b = new CIA_preprocessor_marker_($this, true);
 						$b->curly = -1;
 						$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 
@@ -593,7 +593,7 @@ class CIA_preprocessor__0
 						}
 
 						// For files in the include_path, always set the 2nd arg of class|interface_exists() to true
-						if (0>$level && in_array($type, array('interface_exists', 'class_exists'))) new CIA_preprocessor_classExists($this, true);
+						if (0>$level && in_array($type, array('interface_exists', 'class_exists'))) new CIA_preprocessor_classExists_($this, true);
 					}
 				}
 				else if (!(is_array($code[$i+1]) && T_DOUBLE_COLON == $code[$i+1][0])) switch ($type)
@@ -623,7 +623,7 @@ class CIA_preprocessor__0
 				if ('(' == $code[$i--])
 				{
 					$token = "((\$a{$cia_paths_token}=\$b{$cia_paths_token}=\$e{$cia_paths_token})||1?" . $token;
-					$b = new CIA_preprocessor_marker($this, true);
+					$b = new CIA_preprocessor_marker_($this, true);
 					$b->curly = -1;
 					$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 				}
@@ -653,7 +653,7 @@ class CIA_preprocessor__0
 						else
 						{
 							$token .= 'cia_adaptRequire(';
-							new CIA_preprocessor_require($this, true);
+							new CIA_preprocessor_require_($this, true);
 						}
 					}
 					else
@@ -662,7 +662,7 @@ class CIA_preprocessor__0
 						if (!(is_array($code[$j]) && T_STRING == $code[$j][0] && 'processpath' == strtolower($code[$j][1])))
 						{
 							$token .= "((\$a{$cia_paths_token}=\$b{$cia_paths_token}=\$e{$cia_paths_token})||1?";
-							$b = new CIA_preprocessor_require($this, true);
+							$b = new CIA_preprocessor_require_($this, true);
 							$b->close = ':0)';
 							$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 						}
@@ -860,7 +860,7 @@ class CIA_preprocessor__0
 	}
 }
 
-abstract class CIA_preprocessor_bracket
+abstract class CIA_preprocessor_bracket_
 {
 	protected $preproc;
 	protected $registered = false;
@@ -934,7 +934,7 @@ abstract class CIA_preprocessor_bracket
 	}
 }
 
-class CIA_preprocessor_construct extends CIA_preprocessor_bracket
+class CIA_preprocessor_construct_ extends CIA_preprocessor_bracket_
 {
 	protected $source;
 	protected $proto = '';
@@ -972,7 +972,7 @@ class CIA_preprocessor_construct extends CIA_preprocessor_bracket
 	}
 }
 
-class CIA_preprocessor_path extends CIA_preprocessor_bracket
+class CIA_preprocessor_path_ extends CIA_preprocessor_bracket_
 {
 	function onClose($token)
 	{
@@ -980,7 +980,7 @@ class CIA_preprocessor_path extends CIA_preprocessor_bracket
 	}
 }
 
-class CIA_preprocessor_classExists extends CIA_preprocessor_bracket
+class CIA_preprocessor_classExists_ extends CIA_preprocessor_bracket_
 {
 	function onReposition($token)
 	{
@@ -993,7 +993,7 @@ class CIA_preprocessor_classExists extends CIA_preprocessor_bracket
 	}
 }
 
-class CIA_preprocessor_t extends CIA_preprocessor_bracket
+class CIA_preprocessor_t_ extends CIA_preprocessor_bracket_
 {
 	function filterBracket($type, $token)
 	{
@@ -1004,7 +1004,7 @@ class CIA_preprocessor_t extends CIA_preprocessor_bracket
 	}
 }
 
-class CIA_preprocessor_require extends CIA_preprocessor_bracket
+class CIA_preprocessor_require_ extends CIA_preprocessor_bracket_
 {
 	public $close = ')';
 
@@ -1031,7 +1031,7 @@ class CIA_preprocessor_require extends CIA_preprocessor_bracket
 	}
 }
 
-class CIA_preprocessor_marker extends CIA_preprocessor_require
+class CIA_preprocessor_marker_ extends CIA_preprocessor_require_
 {
 	public $close = ':0)';
 	public $greedy = false;
