@@ -26,7 +26,7 @@ function cia_autoload($searched_class)
 	$GLOBALS['a' . $cia_paths_token] = false;
 	$bmark = $GLOBALS['b' . $cia_paths_token];
 
-	$i = strrpos($searched_class, $cia_paths_token);
+	$i = strrpos($searched_class, '__');
 	$level = false !== $i ? substr($searched_class, $i+2) : false;
 
 	if (false !== $level && '' !== $level && '' === ltrim(strtr($level, ' 0123456789', '#          ')))
@@ -72,7 +72,7 @@ function cia_autoload($searched_class)
 	unset($outerClass);
 
 	$outerClass = (bool) $file;
-	$parent_class = $class . $cia_paths_token . $level;
+	$parent_class = $class . '__' . $level;
 	$cache = false;
 	$c = $searched_class == $class;
 
@@ -82,7 +82,7 @@ function cia_autoload($searched_class)
 
 		if ($class == $searched_class) ++$level;
 
-		do $parent_class = $class . $cia_paths_token . (0<=--$level ? $level : '00');
+		do $parent_class = $class . '__' . (0<=--$level ? $level : '00');
 		while ($level>=0 && !class_exists($parent_class, false));
 	}
 	else if (!$c || !class_exists($parent_class, false))
@@ -104,17 +104,21 @@ function cia_autoload($searched_class)
 
 			if (file_exists($source))
 			{
+				$preproc = 'CIA_preprocessor';
 				if ('cia_preprocessor' == $lcClass)
 				{
-					$parent_class = $class . '__0';
-					require $source;
-					break;
+					if ($level) $preproc .= '__0';
+					else
+					{
+						require $source;
+						break;
+					}
 				}
 
 				$cache = ((int)(bool)DEBUG) . (0>$level ? -$level .'-' : $level);
 				$cache = "./.class_{$class}.php.{$cache}.{$cia_paths_token}.zcache.php";
 
-				file_exists($cache) || CIA_preprocessor::run($source, $cache, $level, $class);
+				file_exists($cache) || call_user_func(array($preproc, 'run'), $source, $cache, $level, $class);
 
 				$current_pool = array();
 				$parent_pool =& $GLOBALS['cia_autoload_pool'];
@@ -130,7 +134,7 @@ function cia_autoload($searched_class)
 
 			--$level;
 
-			$parent_class = $class . $cia_paths_token . (0<=$level ? $level : '00');
+			$parent_class = $class . '__' . (0<=$level ? $level : '00');
 
 			if (class_exists($parent_class, false)) break;
 		}
