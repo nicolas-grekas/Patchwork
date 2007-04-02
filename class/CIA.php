@@ -194,7 +194,7 @@ class
 				{
 				case E_NOTICE:
 				case E_STRICT:
-					if (strpos($message, '__00::')) return;
+					if (strpos($message, '00::')) return;
 
 					static $offset = 0;
 					$offset || $offset = -13 - strlen($GLOBALS['cia_paths_token']);
