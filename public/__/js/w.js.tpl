@@ -21,7 +21,6 @@
 * unesc
 * parseurl
 * onDOMLoaded
-* topwin
 * BOARD
 */
 
