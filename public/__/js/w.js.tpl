@@ -117,15 +117,19 @@ function syncCSRF($form)
 			$form.insertBefore($a, $form.firstChild);
 		}
 		else $form.innerHTML += '<input type="hidden" name="T$" value="' + $antiCSRF + '" />';
-		
-		$form.syncCSRF = $form.onsubmit;
-		$form.onsubmit = function($a, $this)
+
+		if (!$form.syncCSRF)
 		{
-			$this = this;
-			$a = $this.syncCSRF && $this.syncCSRF();
-			$this.T$.value = antiCSRF;
-			return $a;
+			$a = $form.onsubmit;
+			$form.syncCSRF = 1;
+			$form.onsubmit = function()
+			{
+				this.T$.value = antiCSRF;
+				return $a && $a();
+			}
 		}
+
+		$form = 0;
 	}
 }
 
