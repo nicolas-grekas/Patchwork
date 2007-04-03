@@ -130,7 +130,8 @@ else
 
 		$a = strpos($_SERVER['REQUEST_URI'], '?');
 		$a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
-	
+		'/' == substr($a, -1) && $a .= 'index.php';
+
 		$a  = "GET {$a}/_ HTTP/1.0\r\n";
 		$a .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
 		$a .= "Connection: Close\r\n\r\n";

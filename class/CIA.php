@@ -878,10 +878,9 @@ class
 		$param = '' !== $param ? explode('/', $param) : array();
 		$agent = (string) substr($a[0], 1, -1);
 
-		if (isset($a[1])) $agent = (string) preg_replace("'[-_ ](.)'eu", "mb_strtoupper('$1')", $agent);
-		if ('' === $agent) $agent = 'index';
-
-		$potentialAgent = $agent;
+		if ('' === $agent) $potentialAgent = 'index';
+		else if (isset($a[1])) $potentialAgent = (string) preg_replace("'[-_ ](.)'eu", "mb_strtoupper('$1')", $agent);
+		else $potentialAgent = $agent;
 
 		$lang = self::$lang;
 		$createTemplate = true;

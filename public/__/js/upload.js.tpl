@@ -46,7 +46,7 @@ else
 {
 	var $sending, $progress, $remaining, $detail, $unitWidth, $maxWidth, $unitHtml, $liveAgent, $bytes_total;
 
-	$Done = {"Téléchargement terminé"|js} + ' !';
+	$Done = {"Téléchargement terminé !"|js};
 	$Minutes = {"minutes"|js};
 	$Minute = {"minute"|js};
 	$Secondes = {"secondes"|js};
