@@ -141,7 +141,6 @@ class
 	protected static $metaInfo;
 	protected static $metaPool = array();
 	protected static $isGroupStage = true;
-	protected static $isServersideHtml = false;
 	protected static $binaryMode = false;
 
 	protected static $maxage = false;
@@ -226,8 +225,6 @@ class
 		self::$cachePath = resolvePath('zcache/');
 		if (!self::$cachePath) self::$cachePath = $GLOBALS['cia_paths'][count($GLOBALS['cia_paths']) - 2] . '/zcache/';
 
-		self::header('Content-Type: text/html; charset=UTF-8');
-
 		self::$is_enabled = true;
 		self::$ob_starting_level = ob_get_level();
 		ob_start(array(__CLASS__, 'ob_sendHeaders'));
@@ -305,6 +302,7 @@ class
 		if (isset($_GET['k$'])) return CIA_sendTrace::call($agent);
 
 		self::$binaryMode = (bool) constant("$agent::binary");
+		self::$binaryMode || self::header('Content-Type: text/html; charset=UTF-8');
 
 		// Synch exoagents on browser request
 		if (isset($_COOKIE['cache_reset_id']) && self::$versionId == $_COOKIE['cache_reset_id'] && setcookie('cache_reset_id', '', 0, '/'))
@@ -434,15 +432,18 @@ class
 
 		if (self::$catchMeta) self::$metaInfo[4][$name] = $string;
 
-		if ('content-type' == $name) self::$isServersideHtml = false !== stripos($string, 'html');
-
 		if (!self::$privateDetectionMode)
 		{
-			if ('content-type' == $name && false !== stripos($string, 'script'))
+			if ('content-type' == $name)
 			{
-				if (self::$private) CIA_TOKEN_MATCH || CIA_alertCSRF::call();
+				if (isset(self::$headers[$name])) return;
 
-				self::$detectCSRF = true;
+				if (false !== stripos($string, 'script'))
+				{
+					if (self::$private) CIA_TOKEN_MATCH || CIA_alertCSRF::call();
+
+					self::$detectCSRF = true;
+				}
 			}
 
 			self::$headers[$name] = $replace || !isset(self::$headers[$name]) ? $string : (self::$headers[$name] . ', ' . $string);
@@ -478,11 +479,9 @@ class
 		}
 	}
 
-	static function gzipAllowed()
+	static function gzipAllowed($type)
 	{
-		$c = substr(self::$headers['content-type'], 14);
-
-		foreach (self::$allowGzip as $p) if (false !== stripos($c, $p)) return true;
+		foreach (self::$allowGzip as $p) if (false !== stripos($type, $p)) return true;
 
 		return false;
 	}
@@ -493,11 +492,11 @@ class
 
 		self::header('Content-Type: ' . $mime);
 		false !== stripos($mime, 'html') && header('P3P: CP="' . $GLOBALS['CONFIG']['P3P'] . '"');
-		self::$isServersideHtml = false;
+		self::$binaryMode = true;
 		self::$ETag = $size .'-'. filemtime($file) .'-'. fileinode($file);
 		self::disable();
 
-		$gzip = self::gzipAllowed();
+		$gzip = self::gzipAllowed($mime);
 		$gzip || ob_start();
 
 		ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
@@ -1068,7 +1067,7 @@ class
 		}
 
 
-		$type = isset(self::$headers['content-type']) ? strtolower(substr(self::$headers['content-type'], 14)) : false;
+		$type = isset(self::$headers['content-type']) ? strtolower(substr(self::$headers['content-type'], 14)) : 'html';
 
 		// Anti-XSRF token
 
@@ -1079,7 +1078,7 @@ class
 			if (PHP_OUTPUT_HANDLER_START & $mode)
 			{
 				$lead = '';
-#>				if (self::$isServersideHtml && (!CIA_CHECK_SOURCE || CIA_POSTING) && !self::$binaryMode) $buffer = CIA_debugWin::prolog() . $buffer;
+#>				if ((!CIA_CHECK_SOURCE || CIA_POSTING) && !self::$binaryMode) $buffer = CIA_debugWin::prolog() . $buffer;
 			}
 
 			$tail = '';
@@ -1152,7 +1151,7 @@ class
 
 		// GZip compression
 
-		if (self::gzipAllowed())
+		if (self::gzipAllowed($type))
 		{
 			if ($one_chunk)
 			{
@@ -1207,6 +1206,7 @@ class
 			return $buffer;
 		}
 
+		isset(self::$headers['content-type']) || CIA::header('Content-Type: text/html; charset=UTF-8');
 
 		$is304 = false;
 
@@ -1283,7 +1283,8 @@ class
 
 		if (!$is304)
 		{
-			self::$isServersideHtml           && header('P3P: CP="' . $GLOBALS['CONFIG']['P3P'] . '"');
+			$h = self::$headers['content-type'];
+			false !== stripos($h, 'html')     && header('P3P: CP="' . $GLOBALS['CONFIG']['P3P'] . '"');
 			is_string(self::$contentEncoding) && header('Content-Encoding: ' . self::$contentEncoding);
 			self::$is_enabled                 && header('Content-Length: ' . strlen($buffer));
 		}
