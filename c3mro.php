@@ -309,15 +309,14 @@ function C3MRO($appRealpath)
 	$GLOBALS['appConfigSource'][$appRealpath] = $parent;
 
 	// Get parent application(s)
-	if (preg_match("'^#extends[ \t].+(?:\n#.+)*'i", $parent, $parent))
+	if (preg_match("'^#import[ \t].+(?:\n(?:[ \t]*\n)*#import[ \t].+)*'", $parent, $parent))
 	{
-		$parent = '#' . substr($parent[0], 9);
-		preg_match_all("'^#(.+?)$'m", $parent, $parent);
+		preg_match_all("'^#import(.*)$'m", $parent[0], $parent);
 		$parent = $parent[1];
 	}
 	else $parent = false;
 
-	if (__CIA__ == $appRealpath && $parent) die('#extends clause is forbidden in root config file: ' . htmlspecialchars(__CIA__) . '/config.php');
+	if (__CIA__ == $appRealpath && $parent) die('#import clause is forbidden in root config file: ' . htmlspecialchars(__CIA__) . '/config.php');
 
 	// If no parent app, result is trival
 	if (!$parent) return array($appRealpath);

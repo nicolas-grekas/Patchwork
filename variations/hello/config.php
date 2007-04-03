@@ -1,1 +1,1 @@
-<?php #extends ../..
+<?php #import ../..
