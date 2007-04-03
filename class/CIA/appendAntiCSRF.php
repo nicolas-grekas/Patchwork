@@ -98,7 +98,7 @@ class extends CIA
 
 		if (!$appendedHtml)
 		{
-			$appendedHtml = CIA::$isServersideHtml && !CIA::$binaryMode ? 'syncCSRF()' : '(function(){var d=document,f=d.forms;f=f[f.length-1].T$.value=d.cookie.match(/(^|; )T\\$=([0-9a-f]+)/)[2]})()';
+			$appendedHtml = !CIA::$binaryMode ? 'syncCSRF()' : '(function(){var d=document,f=d.forms;f=f[f.length-1].T$.value=d.cookie.match(/(^|; )T\\$=([0-9a-f]+)/)[2]})()';
 			$appendedHtml = '<input type="hidden" name="T$" value="' . (isset($_COOKIE['JS']) && $_COOKIE['JS'] ? '' : $GLOBALS['cia_token']) . '" /><script type="text/javascript">' . "<!--\n{$appendedHtml}//--></script>";
 		}
 
