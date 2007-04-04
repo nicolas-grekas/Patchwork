@@ -524,7 +524,7 @@ abstract class
 	private function evalVar($a, $translate = false, $forceType = false)
 	{
 		if ($a === '') return "''";
-		if ('~' == $a) $a = 'g$__HOME__';
+		if ('~' == $a) $a = 'g$__BASE__';
 		if ('/' == $a) $a = 'g$__HOST__';
 
 		if ('"' == $a[0] || "'" == $a[0])

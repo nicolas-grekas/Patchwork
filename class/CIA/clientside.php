@@ -32,14 +32,14 @@ class extends CIA
 
 			$lang = CIA::__LANG__();
 			$CIApID = CIA::$versionId;
-			$home = CIA::__HOME__();
+			$base = CIA::__BASE__();
 
 			echo $a =<<<EOHTML
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="{$lang}">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <script type="text/javascript" name="w$">/*<![CDATA[*/a=[{$agent},[{$a}],{$CIApID}]//]]></script>
-<script type="text/javascript" src="{$home}js/w?{$CIApID}"></script>
+<script type="text/javascript" src="{$base}js/w?{$CIApID}"></script>
 </html>
 EOHTML;
 
@@ -82,7 +82,7 @@ EOHTML;
 				}
 			}
 		}
-		else CIA::$uri = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : CIA::$home;
+		else CIA::$uri = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : CIA::$base;
 
 		if ($liveAgent)
 		{
@@ -122,7 +122,7 @@ EOHTML;
 							require $dagent;
 							CIA::closeMeta();
 
-							echo '"//</script><script type="text/javascript" src="' . CIA::__HOME__() . 'js/QJsrsHandler"></script>';
+							echo '"//</script><script type="text/javascript" src="' . CIA::__BASE__() . 'js/QJsrsHandler"></script>';
 							return;
 						}
 						else unlink($dagent);
@@ -190,7 +190,7 @@ EOHTML;
 			if ($liveAgent)
 			{
 				echo 'false";(window.E||alert)("You must provide an auth token to get this liveAgent:\\n' . jsquote($_SERVER['REQUEST_URI'], false, '"') . '")';
-				echo '//</script><script type="text/javascript" src="' . CIA::__HOME__() . 'js/QJsrsHandler"></script>';
+				echo '//</script><script type="text/javascript" src="' . CIA::__BASE__() . 'js/QJsrsHandler"></script>';
 			}
 			else if ($data->getMessage())
 			{
@@ -207,7 +207,7 @@ EOHTML;
 		if ($liveAgent)
 		{
 			echo str_replace(array('\\', '"'), array('\\\\', '\\"'), $data),
-				'"//</script><script type="text/javascript" src="' . CIA::__HOME__() . 'js/QJsrsHandler"></script>';
+				'"//</script><script type="text/javascript" src="' . CIA::__BASE__() . 'js/QJsrsHandler"></script>';
 		}
 		else echo $data;
 

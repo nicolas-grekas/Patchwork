@@ -101,16 +101,16 @@ for ($i = 0; $i < $len; ++$i)
 // }}}
 
 // {{{ CIA's context early initialization
-if (isset($_SERVER['CIA_HOME']))
+if (isset($_SERVER['CIA_BASE']))
 {
-	$a = false !== strpos($_SERVER['CIA_HOME'], '/__/');
-	$a && $CIA[] = 'isset($_SERVER[\'CIA_HOME\']) || $_SERVER[\'CIA_HOME\'] = ' . var_export($_SERVER['CIA_HOME'], true);
-	'/'  == substr($_SERVER['CIA_HOME'], 0, 1) && $CIA[] = '$_SERVER[\'CIA_HOME\'] = \'http\' . (isset($_SERVER[\'HTTPS\']) ? \'s\' : \'\') . \'://\' . $_SERVER[\'HTTP_HOST\'] . $_SERVER[\'CIA_HOME\']';
+	$a = false !== strpos($_SERVER['CIA_BASE'], '/__/');
+	$a && $CIA[] = 'isset($_SERVER[\'CIA_BASE\']) || $_SERVER[\'CIA_BASE\'] = ' . var_export($_SERVER['CIA_BASE'], true);
+	'/'  == substr($_SERVER['CIA_BASE'], 0, 1) && $CIA[] = '$_SERVER[\'CIA_BASE\'] = \'http\' . (isset($_SERVER[\'HTTPS\']) ? \'s\' : \'\') . \'://\' . $_SERVER[\'HTTP_HOST\'] . $_SERVER[\'CIA_BASE\']';
 	$a && $CIA[] = 'if (isset($_SERVER[\'REDIRECT_URL\']))
 {
 	header(\'HTTP/1.1 200 OK\');
 	$_SERVER[\'CIA_LANG\'] = \'\';
-	$_SERVER[\'CIA_REQUEST\'] = substr($_SERVER[\'REDIRECT_URL\'], strlen(preg_replace("#^.*?://[^/]*#", \'\', $_SERVER[\'CIA_HOME\'])) - 3);
+	$_SERVER[\'CIA_REQUEST\'] = substr($_SERVER[\'REDIRECT_URL\'], strlen(preg_replace("#^.*?://[^/]*#", \'\', $_SERVER[\'CIA_BASE\'])) - 3);
 	if (isset($_SERVER[\'REDIRECT_QUERY_STRING\']))
 	{
 		$_SERVER[\'QUERY_STRING\'] = $_SERVER[\'REDIRECT_QUERY_STRING\'];
@@ -195,28 +195,28 @@ $CIA[] = 'isset($CONFIG[\'lang_list\'     ]) || $CONFIG[\'lang_list\'] = \'\'';
 // {{{ CIA's context initialization
 /**
 * Setup needed environment variables if they don't exists :
-*   $_SERVER['CIA_HOME']: application's home part of the url. Lang independant (ex. /cia/myapp/__/)
+*   $_SERVER['CIA_BASE']: application's base part of the url. Lang independant (ex. /cia/myapp/__/)
 *   $_SERVER['CIA_LANG']: lang (ex. en)
 *   $_SERVER['CIA_REQUEST']: request part of the url (ex. myagent/mysubagent/...)
 *
 * You can also define these vars with mod_rewrite, to get cleaner URLs for example.
 */
-if (!isset($_SERVER['CIA_HOME']))
+if (!isset($_SERVER['CIA_BASE']))
 {
 	$CIA[] = '
-$_SERVER[\'CIA_HOME\'] = \'http\' . (isset($_SERVER[\'HTTPS\']) ? \'s\' : \'\') . \'://\' . $_SERVER[\'HTTP_HOST\'] . $_SERVER[\'SCRIPT_NAME\'];
+$_SERVER[\'CIA_BASE\'] = \'http\' . (isset($_SERVER[\'HTTPS\']) ? \'s\' : \'\') . \'://\' . $_SERVER[\'HTTP_HOST\'] . $_SERVER[\'SCRIPT_NAME\'];
 $_SERVER[\'CIA_LANG\'] = $_SERVER[\'CIA_REQUEST\'] = \'\'';
 
 	if (isset($_SERVER['PATH_INFO']) || isset($_SERVER['ORIG_PATH_INFO']))
 	{
 		$CIA[] = 'isset($_SERVER[\'ORIG_PATH_INFO\']) && $_SERVER[\'PATH_INFO\'] = $_SERVER[\'ORIG_PATH_INFO\']';
 		$CIA[] = 'isset($_SERVER[\'PATH_INFO\']) && $_SERVER[\'CIA_REQUEST\'] = substr($_SERVER[\'PATH_INFO\'], 1)';
-		$CIA[] = '$_SERVER[\'CIA_HOME\'] .= \'/\' . ($CONFIG[\'lang_list\'] ? \'__/\' : \'\')';
+		$CIA[] = '$_SERVER[\'CIA_BASE\'] .= \'/\' . ($CONFIG[\'lang_list\'] ? \'__/\' : \'\')';
 	}
 	else
 	{
-		$CIA[] = '\'index.php\' == substr($_SERVER[\'CIA_HOME\'], -9) && $_SERVER[\'CIA_HOME\'] = substr($_SERVER[\'CIA_HOME\'], 0, -9)';
-		$CIA[] = '$_SERVER[\'CIA_HOME\'] .= \'?\' . ($CONFIG[\'lang_list\'] ? \'__/\' : \'\')';
+		$CIA[] = '\'index.php\' == substr($_SERVER[\'CIA_BASE\'], -9) && $_SERVER[\'CIA_BASE\'] = substr($_SERVER[\'CIA_BASE\'], 0, -9)';
+		$CIA[] = '$_SERVER[\'CIA_BASE\'] .= \'?\' . ($CONFIG[\'lang_list\'] ? \'__/\' : \'\')';
 		$CIA[] = '
 $_SERVER[\'CIA_REQUEST\'] = $_SERVER[\'QUERY_STRING\'];
 

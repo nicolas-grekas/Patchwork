@@ -23,7 +23,7 @@ class
 
 		if ($time < $_SERVER['REQUEST_TIME'] - 366*86400) $time += $_SERVER['REQUEST_TIME'];
 
-		$home = sqlite_escape_string(CIA::__HOME__());
+		$base = sqlite_escape_string(CIA::__BASE__());
 		$data = array(
 			'function' => &$function,
 			'arguments' => &$arguments,
@@ -31,7 +31,7 @@ class
 		);
 		$data = sqlite_escape_string(serialize($data));
 
-		$sql = "INSERT INTO queue VALUES('{$home}','{$data}',{$time})";
+		$sql = "INSERT INTO queue VALUES('{$base}','{$data}',{$time})";
 		$sqlite->query($sql);
 
 		$id = $sqlite->lastInsertRowid();
@@ -54,7 +54,7 @@ class
 	protected $queueFolder = 'data/queue/iaCron/';
 	protected $queueUrl = 'queue/iaCron';
 	protected $queueSql = '
-		CREATE TABLE queue (home TEXT, data BLOB, run_time INTEGER);
+		CREATE TABLE queue (base TEXT, data BLOB, run_time INTEGER);
 		CREATE INDEX run_time ON queue (run_time);
 		CREATE VIEW waiting AS SELECT * FROM queue WHERE run_time>0;
 		CREATE VIEW error   AS SELECT * FROM queue WHERE run_time=0;';

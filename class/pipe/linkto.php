@@ -27,9 +27,9 @@ class
 		}
 		else $hash = '';
 
-		return $url == htmlspecialchars(substr(CIA::__HOST__() . substr($_SERVER['REQUEST_URI'], 1), strlen(CIA::__HOME__())))
+		return $url == htmlspecialchars(substr(CIA::__HOST__() . substr($_SERVER['REQUEST_URI'], 1), strlen(CIA::__BASE__())))
 			? ('<b class="linkloop">' . $text . '</b>')
-			: ('<a href="' . CIA::home($url, true) . $hash . '" ' . CIA::string($attributes) . '>' . $text . '</a>');
+			: ('<a href="' . CIA::base($url, true) . $hash . '" ' . CIA::string($attributes) . '>' . $text . '</a>');
 	}
 
 	static function js()
@@ -49,9 +49,9 @@ P$linkto = function($text, $url, $attributes)
 	}
 	else $hash = '';
 
-	return $url == esc(''+location).substr(home('',1,1).length)
+	return $url == esc(''+location).substr(base('',1,1).length)
 			? ('<b class="linkloop">' + $text + '</b>')
-			: ('<a href="' + home($url,0,1) + $hash + '" ' + str($attributes) + '>' + $text + '</a>');
+			: ('<a href="' + base($url,0,1) + $hash + '" ' + str($attributes) + '>' + $text + '</a>');
 }
 
 <?php	}

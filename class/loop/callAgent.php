@@ -43,7 +43,7 @@ class extends loop
 				{
 					if (!isset($this->keys) || preg_match("'^(/|https?://)'", $this->agent))
 					{
-						list($CIApID, $home, $data->{'a$'}, $keys, $a) = CIA_resolveTrace::call($this->agent);
+						list($CIApID, $base, $data->{'a$'}, $keys, $a) = CIA_resolveTrace::call($this->agent);
 
 						foreach ($a as $k => &$v) $data->$k =& $v;
 
@@ -51,10 +51,10 @@ class extends loop
 
 						$data->{'k$'} = implode(',', $keys);
 
-						if (false !== $home)
+						if (false !== $base)
 						{
 							$data->{'v$'} = $CIApID;
-							$data->{'r$'} = $home;
+							$data->{'r$'} = $base;
 						}
 					}
 					else $data->{'k$'} = $this->keys;

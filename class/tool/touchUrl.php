@@ -19,7 +19,7 @@ class
 	 */
 	static function call($url)
 	{
-		$url = CIA::home($url, true);
+		$url = CIA::base($url, true);
 
 		if (!preg_match("'^(https?)://(.*?)((?::[0-9]+)?)(/.*)$'", $url, $h)) throw new Exception('Illegal URL');
 

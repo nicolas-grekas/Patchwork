@@ -20,7 +20,7 @@ class extends CIA
 
 		echo 'w.k(',
 			CIA::$versionId, ',',
-			jsquote( $_SERVER['CIA_HOME'] ), ',',
+			jsquote( $_SERVER['CIA_BASE'] ), ',',
 				jsquote( 'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)) ), ',',
 			jsquote( isset($_GET['__0__']) ? $_GET['__0__'] : '' ), ',',
 			'[', implode(',', array_map('jsquote', CIA::agentArgv($agent))), ']',

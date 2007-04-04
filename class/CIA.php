@@ -133,7 +133,7 @@ class
 
 	protected static $host;
 	protected static $lang = '__';
-	protected static $home;
+	protected static $base;
 	protected static $uri;
 
 	protected static $versionId;
@@ -234,9 +234,9 @@ class
 
 		self::setLang($_SERVER['CIA_LANG'] ? $_SERVER['CIA_LANG'] : substr($GLOBALS['CONFIG']['lang_list'], 0, 2));
 
-		if (htmlspecialchars(self::$home) != self::$home)
+		if (htmlspecialchars(self::$base) != self::$base)
 		{
-			W('Fatal error: illegal character found in self::$home');
+			W('Fatal error: illegal character found in self::$base');
 			self::disable(true);
 		}
 
@@ -328,7 +328,7 @@ class
 			$version_id = -$version_id - $_SERVER['REQUEST_TIME'];
 			self::$versionId = abs($version_id % 10000);
 
-			$a = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_HOME'], 2));
+			$a = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_BASE'], 2));
 			$a = preg_replace("'\?.*$'", '', $a);
 			$a = preg_replace("'^https?://[^/]*'i", '', $a);
 			$a = dirname($a . ' ');
@@ -385,25 +385,25 @@ class
 		$lang = self::$lang;
 		self::$lang = $new_lang;
 
-		self::$home = explode('__', $_SERVER['CIA_HOME'], 2);
-		self::$home = implode($new_lang, self::$home);
+		self::$base = explode('__', $_SERVER['CIA_BASE'], 2);
+		self::$base = implode($new_lang, self::$base);
 
-		self::$host = strtr(self::$home, '#?', '//');
-		self::$host = substr(self::$home, 0, strpos(self::$host, '/', 8)+1);
+		self::$host = strtr(self::$base, '#?', '//');
+		self::$host = substr(self::$base, 0, strpos(self::$host, '/', 8)+1);
 
 		return $lang;
 	}
 
 	static function __HOST__() {return self::$host;}
 	static function __LANG__() {return self::$lang;}
-	static function __HOME__() {return self::$home;}
+	static function __BASE__() {return self::$base;}
 	static function __URI__() {return self::$uri;}
 
-	static function home($url, $noId = false)
+	static function base($url, $noId = false)
 	{
 		if (!preg_match("'^https?://'", $url))
 		{
-			if (strncmp('/', $url, 1)) $url = self::$home . $url;
+			if (strncmp('/', $url, 1)) $url = self::$base . $url;
 			else $url = self::$host . substr($url, 1);
 
 			if (!$noId) $url .= (false === strpos($url, '?') ? '?' : '&amp;') . self::$versionId;
@@ -534,7 +534,7 @@ class
 		if (self::$privateDetectionMode) throw new Exception;
 
 		$url = (string) $url;
-		$url = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'i", $url) ? $url : (self::$home . ('index' == $url ? '' : $url)));
+		$url = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'i", $url) ? $url : (self::$base . ('index' == $url ? '' : $url)));
 
 		self::$redirecting = true;
 		self::disable();
@@ -813,7 +813,7 @@ class
 
 	static function getContextualCachePath($filename, $extension, $key = '')
 	{
-		return self::getCachePath($filename, $extension, self::$home .'-'. self::$lang .'-'. DEBUG .'-'. CIA_PROJECT_PATH .'-'. $key);
+		return self::getCachePath($filename, $extension, self::$base .'-'. self::$lang .'-'. DEBUG .'-'. CIA_PROJECT_PATH .'-'. $key);
 	}
 
 	static function log($message, $is_end = false, $raw_html = true)
@@ -1245,7 +1245,7 @@ class
 			if ('auto' == self::$expires && self::$watchTable)
 			{
 				$validator = self::$cachePath . $ETag[1] .'/'. $ETag[2] .'/'. substr($ETag, 3) .'.validator.'. DEBUG .'.';
-				$validator .= md5($_SERVER['CIA_HOME'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
+				$validator .= md5($_SERVER['CIA_BASE'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
 
 				if ($h = self::fopenX($validator))
 				{

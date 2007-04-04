@@ -58,10 +58,10 @@ class extends iaCron
 		$time = isset($data['options']['time']) ? $data['options']['time'] : 0;
 		if ($time < $_SERVER['REQUEST_TIME'] - 366*86400) $time += $_SERVER['REQUEST_TIME'];
 
-		$home = sqlite_escape_string(CIA::__HOME__());
+		$base = sqlite_escape_string(CIA::__BASE__());
 		$data = sqlite_escape_string(serialize($data));
 
-		$sql = "INSERT INTO queue VALUES('{$home}','{$data}',{$time},{$archive},{$sent})";
+		$sql = "INSERT INTO queue VALUES('{$base}','{$data}',{$time},{$archive},{$sent})";
 		$sqlite->query($sql);
 
 		$id = $sqlite->lastInsertRowid();
@@ -79,7 +79,7 @@ class extends iaCron
 	protected $queueFolder = 'data/queue/iaMail/';
 	protected $queueUrl = 'queue/iaMail';
 	protected $queueSql = '
-		CREATE TABLE queue (home TEXT, data BLOB, send_time INTEGER, archive INTEGER, sent_time INTEGER);
+		CREATE TABLE queue (base TEXT, data BLOB, send_time INTEGER, archive INTEGER, sent_time INTEGER);
 		CREATE INDEX send_time ON queue (send_time);
 		CREATE INDEX sent_time ON queue (sent_time);
 		CREATE VIEW waiting AS SELECT * FROM queue WHERE send_time>0 AND sent_time=0;

@@ -21,7 +21,7 @@ class
 
 		if (!CIA_DIRECT && ('GET' == $b || 'HEAD' == $b))
 		{
-			$lang = implode($lang, explode('__', $_SERVER['CIA_HOME'], 2));
+			$lang = implode($lang, explode('__', $_SERVER['CIA_BASE'], 2));
 			$lang = preg_replace("'^.*?://[^/]*'", '', $lang);
 			$lang .= str_replace('%2F', '/', rawurlencode($_SERVER['CIA_REQUEST']));
 			$_GET && $lang .= '?' . $_SERVER['QUERY_STRING'];
