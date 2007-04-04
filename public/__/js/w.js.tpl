@@ -214,7 +214,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 		$maxRlevel = 100,
 		$Rlevel = $maxRlevel,
 		
-		$masterHome = {g$__BASE__|js};
+		$masterBase = {g$__BASE__|js};
 
 	if (!/safari|msie [0-5]\./i.test(navigator.userAgent) && !/(^|; )JS=1(; |$)/.test($document.cookie))
 	{
@@ -226,7 +226,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 	{
 		if (!/^https?:\/\//.test($str))
 		{
-				$master = $master ? $masterHome : g.__BASE__;
+				$master = $master ? $masterBase : g.__BASE__;
 
 				$str = (
 					0 == $str.indexOf('/')
@@ -505,7 +505,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 				($loopIterator() && ($pointer -= $code[$pointer])) || ++$pointer;
 				$context = v;
 
-				if (new Date - $startTime > 500) return $include($masterHome + 'js/x', 0, 0, 1), 1;
+				if (new Date - $startTime > 500) return $include($masterBase + 'js/x', 0, 0, 1), 1;
 			}
 		];
 
@@ -590,7 +590,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 				$i += 9;
 				$includeSrc = $src;
 				w.c = w.w;
-				$src = $masterHome + 'js/x';
+				$src = $masterBase + 'js/x';
 				break;
 			}
 
@@ -612,7 +612,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 			$content = $content.substring(0, $i);
 
 		$i = !!$src;
-		$i || ($src = $masterHome + 'js/x');
+		$i || ($src = $masterBase + 'js/x');
 
 		$src = '<script type="text/javascript" name="w$" src="' + $src + (0<=$src.indexOf('?') ? '&amp;' : '?') + 'v$=' + $CIApID + '"></script>';
 
@@ -658,7 +658,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 
 	w.r = function($now, $noCache)
 	{
-		if ($masterHome != g.__BASE__) $document.cookie = 'cache_reset_id=' + $masterCIApID + '; path=/';
+		if ($masterBase != g.__BASE__) $document.cookie = 'cache_reset_id=' + $masterCIApID + '; path=/';
 		$reloadRequest = true;
 		$reloadNoCache = $reloadNoCache || !!$noCache;
 		if ($now)
@@ -781,7 +781,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 	g.__DEBUG__ = {g$__DEBUG__|js};
 	g.__HOST__ = {g$__HOST__|js};
 	g.__LANG__ = {g$__LANG__|js};
-	g.__BASE__ = $masterHome;
+	g.__BASE__ = $masterBase;
 	g.__AGENT__ = $baseAgent ? esc($baseAgent) + '/' : '';
 	g.__URI__ = esc($j);
 	g.__REFERER__ = esc($document.referrer);
