@@ -63,7 +63,7 @@ SET $INPUT
 		END:CLIENTSIDE
 
 		SERVERSIDE
-			--><script type="text/javascript" src="{home:'fckeditor/js'}"></script><!--
+			--><script type="text/javascript" src="{base:'fckeditor/js'}"></script><!--
 		END:SERVERSIDE
 	END:IF
 

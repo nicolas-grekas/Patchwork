@@ -41,15 +41,15 @@ END:SET
 
 SET $INPUT
 
-	IF !g$__QS --><link rel="stylesheet" type="text/css" href="{home:'QSelect/style.css'}" /><!-- END:IF
-	SET $INPUT -->{home:|urlencode}<!-- END:SET
+	IF !g$__QS --><link rel="stylesheet" type="text/css" href="{base:'QSelect/style.css'}" /><!-- END:IF
+	SET $INPUT -->{base:|urlencode}<!-- END:SET
 	IF a$_mandatory --><span class="mandatory"><!-- END:IF
 
-	--><span class="QSstyle"><input autocomplete="off" {a$|htmlArgs} /><img src="{home:'QSelect/b.gif'}" id="__QSb{$INPUT}{a$name}" onmouseover="this.src={home:'QSelect/bh.gif'|js}" onmouseout="this.src={home:'QSelect/b.gif'|js}" onmousedown="this.src={home:'QSelect/bp.gif'|js}" onmouseup="this.onmouseover()" alt=" " title="" /></span><script type="text/javascript">/*<![CDATA[*/<!--
+	--><span class="QSstyle"><input autocomplete="off" {a$|htmlArgs} /><img src="{base:'QSelect/b.gif'}" id="__QSb{$INPUT}{a$name}" onmouseover="this.src={base:'QSelect/bh.gif'|js}" onmouseout="this.src={base:'QSelect/b.gif'|js}" onmousedown="this.src={base:'QSelect/bp.gif'|js}" onmouseup="this.onmouseover()" alt=" " title="" /></span><script type="text/javascript">/*<![CDATA[*/<!--
 
 	IF !g$__QS
 		SET g$__QS
-			--><div id="__QSd1" style="position:absolute;visibility:hidden;z-index:9;top:0px"><form action=""><div id="__QSd2" style="position:absolute"><img src="{home:'QSelect/tr.png'}" width="5" height="10" /><br /><img src="{home:'QSelect/r.png'}" width="5" height="5" id="__QSi1" /><br /><img src="{home:'QSelect/br.png'}" width="5" height="5" /></div><div id="__QSd3" style="position:absolute"><img src="{home:'QSelect/bl.png'}" width="10" height="5" /><img src="{home:'QSelect/b.png'}" width="5" height="5" id="__QSi2" /></div><select id="__QSs" size="7"></select></form></div><script type="text/javascript" src="{home:'js/QSelect'}"></script ><!--
+			--><div id="__QSd1" style="position:absolute;visibility:hidden;z-index:9;top:0px"><form action=""><div id="__QSd2" style="position:absolute"><img src="{base:'QSelect/tr.png'}" width="5" height="10" /><br /><img src="{base:'QSelect/r.png'}" width="5" height="5" id="__QSi1" /><br /><img src="{base:'QSelect/br.png'}" width="5" height="5" /></div><div id="__QSd3" style="position:absolute"><img src="{base:'QSelect/bl.png'}" width="10" height="5" /><img src="{base:'QSelect/b.png'}" width="5" height="5" id="__QSi2" /></div><select id="__QSs" size="7"></select></form></div><script type="text/javascript" src="{base:'js/QSelect'}"></script ><!--
 		END:SET
 		-->window.__QSd||(window.__QSd=1,footerHtml.push({g$__QS|js}));<!--
 		SET g$__QS -->1<!-- END:SET
@@ -60,7 +60,7 @@ SET $INPUT
 
 	lE.gS=function(){return valid(this<!-- LOOP a$_valid -->,{$VALUE|js}<!-- END:LOOP -->)}
 
-	lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form)};<!-- IF a$_focus_ -->lE.focus()<!-- END:IF -->//]]></script ><script type="text/javascript" src="{home:a$_src}"></script ><!--
+	lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form)};<!-- IF a$_focus_ -->lE.focus()<!-- END:IF -->//]]></script ><script type="text/javascript" src="{base:a$_src}"></script ><!--
 
 	IF a$_mandatory --></span><!-- END:IF
 

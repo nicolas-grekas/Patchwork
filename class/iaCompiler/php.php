@@ -45,15 +45,15 @@ class extends iaCompiler
 
 		if (preg_match('/^\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'$/s', $inc))
 		{
-			eval("\$home=$inc;");
+			eval("\$base=$inc;");
 
-			list(, $home, $end) = CIA_resolveTrace::call($home);
+			list(, $base, $end) = CIA_resolveTrace::call($base);
 
-			if (false !== $home)
+			if (false !== $base)
 			{
 				if (!$is_exo)
 				{
-					W("Template Security Restriction Error: an EXOAGENT ({$home}{$end}) is called with AGENT on line " . $this->getLine());
+					W("Template Security Restriction Error: an EXOAGENT ({$base}{$end}) is called with AGENT on line " . $this->getLine());
 					exit;
 				}
 			}

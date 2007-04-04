@@ -81,19 +81,19 @@ class extends iaCompiler
 		{
 			eval("\$inc=$inc;");
 
-			list($CIApID, $home, $inc, $keys, $a) = CIA_resolveTrace::call($inc);
+			list($CIApID, $base, $inc, $keys, $a) = CIA_resolveTrace::call($inc);
 
 			foreach ($a as $k => &$v) $args[$k] = $this->quote($v);
 
-			if (false !== $home)
+			if (false !== $base)
 			{
 				if (!$is_exo)
 				{
-					W("Template Security Restriction Error: an EXOAGENT ({$home}{$inc}) is called with AGENT on line " . $this->getLine());
+					W("Template Security Restriction Error: an EXOAGENT ({$base}{$inc}) is called with AGENT on line " . $this->getLine());
 					exit;
 				}
 
-				$meta = array($CIApID, $this->quote($home));
+				$meta = array($CIApID, $this->quote($base));
 				$meta = '[' . implode(',', $meta) . ']';
 			}
 			else if ($is_exo)
@@ -266,7 +266,7 @@ class extends iaCompiler
 			case 'a':
 			case 'g':
 				$result = ''!==(string) $prefix ? "z('$name',$prefix" .( $type=='g' ? ',1' : '' ). ')' : ($type . $this->getJsAccess($name));
-				if ('g.__HOME__' == $result) $result = 'r';
+				if ('g.__BASE__' == $result) $result = 'r';
 				break;
 
 			case '':

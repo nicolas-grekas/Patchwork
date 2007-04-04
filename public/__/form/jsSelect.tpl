@@ -52,7 +52,7 @@ SET $INPUT
 	i={a$_firstItem|js};
 	c={a$_firstCaption|js};
 
-	//]]></script ><script type="text/javascript" src="{home:a$_src_}"></script><script type="text/javascript">/*<![CDATA[*/
+	//]]></script ><script type="text/javascript" src="{base:a$_src_}"></script><script type="text/javascript">/*<![CDATA[*/
 
 	lE=gLE({a$name|js})
 	jsSelectInit(lE,[<!-- LOOP a$_value -->{$VALUE|js},<!-- END:LOOP -->0])

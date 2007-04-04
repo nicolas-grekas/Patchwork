@@ -24,7 +24,7 @@ if (window.lF)
 			for (; $i < $len; ++$i) if ($form[$i].type == 'file' && $form[$i].value) break;
 
 			if ($i < $len) open(
-				{home:'upload':1|js},
+				{base:'upload':1|js},
 				'',
 				'status=no,scrollbars=no,resizable=no,dependent=yes,height=100,width=350,left=' + parseInt(screen.availWidth/2 - 200) + ',top=' + parseInt(screen.availHeight/2 - 100)
 			);
@@ -39,7 +39,7 @@ if (window.lF)
 			'img/upload/t.gif'
 		];
 
-		setTimeout('i=pLuL.length;while(i--)j=pLuL[i],pLuL[i]=new Image,pLuL[i].src=home(j)', 2000);
+		setTimeout('i=pLuL.length;while(i--)j=pLuL[i],pLuL[i]=new Image,pLuL[i].src=base(j)', 2000);
 	}
 }
 else

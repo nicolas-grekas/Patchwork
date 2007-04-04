@@ -20,8 +20,8 @@ class extends agent_queue_iaCron
 	protected function queueNext()
 	{
 		$time = time();
-		$sql = "SELECT OID, home FROM queue WHERE send_time AND send_time<={$time} ORDER BY send_time, OID LIMIT 1";
-		if ($data = $this->sqlite->query($sql)->fetchObject()) tool_touchUrl::call("{$data->home}queue/iaMail/{$data->OID}/" . $this->getToken());
+		$sql = "SELECT OID, base FROM queue WHERE send_time AND send_time<={$time} ORDER BY send_time, OID LIMIT 1";
+		if ($data = $this->sqlite->query($sql)->fetchObject()) tool_touchUrl::call("{$data->base}queue/iaMail/{$data->OID}/" . $this->getToken());
 	}
 
 	protected function doOne($id)

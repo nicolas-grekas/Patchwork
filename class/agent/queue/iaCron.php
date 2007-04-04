@@ -74,8 +74,8 @@ class extends agent_bin
 	protected function queueNext()
 	{
 		$time = time();
-		$sql = "SELECT OID, home FROM queue WHERE run_time AND run_time<={$time} ORDER BY run_time, OID LIMIT 1";
-		if ($data = $this->sqlite->query($sql)->fetchObject()) tool_touchUrl::call("{$data->home}queue/iaCron/{$data->OID}/" . $this->getToken());
+		$sql = "SELECT OID, base FROM queue WHERE run_time AND run_time<={$time} ORDER BY run_time, OID LIMIT 1";
+		if ($data = $this->sqlite->query($sql)->fetchObject()) tool_touchUrl::call("{$data->base}queue/iaCron/{$data->OID}/" . $this->getToken());
 	}
 
 	protected function doOne($id)

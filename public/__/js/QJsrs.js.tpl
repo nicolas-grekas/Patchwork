@@ -74,7 +74,7 @@ function $QJsrsContext($name)
 		if ($post || !$local)
 			$url[3] = $post,
 			$url[4] = $local,
-			$url = home('QJsrs.html', 1);
+			$url = base('QJsrs.html', 1);
 		else $url = $url[0] + $url[1];
 
 		// For GET requests, we prefer direct <script> tag creation rather than XMLHttpRequest :
@@ -147,13 +147,13 @@ function $QJsrs($URL, $POST, $antiCSRF, $XMLHttpPreferred)
 		$pool = [],
 		$poolLen = 0,
 		$localTimer = 0,
-		$context, $callback, $url = home(''), $i = '?',
+		$context, $callback, $url = base(''), $i = '?',
 		$LOCAL = location;
 
 	if (!$URL.indexOf($url)) $URL = $URL.substr($url.length);
 	if ($URL.indexOf($i)<0) $URL += $i;
 
-	$URL = home($URL);
+	$URL = base($URL);
 	
 	$LOCAL = 0 == $URL.indexOf($LOCAL.protocol+'//'+$LOCAL.hostname);
 	$POST = $POST ? 1 : 0;

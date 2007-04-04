@@ -111,18 +111,18 @@ class extends Mail_mime
 					'method' => 'POST',
 					'content' => http_build_query(array(
 						'message_id' => $message_id,
-						"{$event}_on{$event}" => CIA::home($this->options['on' . $event], true)
+						"{$event}_on{$event}" => CIA::base($this->options['on' . $event], true)
 					))
 				)));
 
-				file_get_contents(CIA::home($url, true), false, $context);
+				file_get_contents(CIA::base($url, true), false, $context);
 			}
 			else
 			{
-				$r = new HTTP_Request( CIA::home($url, true) );
+				$r = new HTTP_Request( CIA::base($url, true) );
 				$r->setMethod(HTTP_REQUEST_METHOD_POST);
 				$r->addPostData('message_id', $message_id);
-				$r->addPostData("{$event}_on{$event}", CIA::home($this->options['on' . $event], true));
+				$r->addPostData("{$event}_on{$event}", CIA::base($this->options['on' . $event], true));
 				$r->sendRequest();
 			}
 		}

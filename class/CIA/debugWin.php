@@ -16,8 +16,8 @@ class extends CIA
 {
 	static function prolog()
 	{
-		$debugWin = CIA::$home . '_?d$&stop&' . mt_rand();
-		$QDebug = CIA::$home . 'js/QDebug.js';
+		$debugWin = CIA::$base . '_?d$&stop&' . mt_rand();
+		$QDebug = CIA::$base . 'js/QDebug.js';
 		$lang = CIA::__LANG__();
 
 		return <<<EOHTML

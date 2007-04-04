@@ -11,4 +11,4 @@
  *
  ***************************************************************************/
 <!-- AGENT 'js/QSelect/QJsrs' -->
-onDOMLoaded.push((function(e){return function(){QSelect(e,QSelectQJsrs({home:$src|js}))}})(formStack.shift()))
+onDOMLoaded.push((function(e){return function(){QSelect(e,QSelectQJsrs({base:$src|js}))}})(formStack.shift()))

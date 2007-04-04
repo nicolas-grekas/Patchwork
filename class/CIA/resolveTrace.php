@@ -22,9 +22,9 @@ class extends CIA
 		else $cache[$agent] =& $trace;
 
 		$args = array();
-		$HOME = $home = CIA::__HOME__();
+		$BASE = $base = CIA::__BASE__();
 		$agent = str_replace('%2F', '/', rawurlencode($agent));
-		$agent = CIA::home($agent, true);
+		$agent = CIA::base($agent, true);
 		$agent = preg_replace("'^.*?://[^/]*'", '', $agent);
 		
 		$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
@@ -50,8 +50,8 @@ class extends CIA
 		}
 
 		$CIApID = (int) $keys[1];
-		$home = stripcslashes(substr($keys[2], 1, -1));
-		$home = preg_replace("'__'", CIA::__LANG__(), $home, 1);
+		$base = stripcslashes(substr($keys[2], 1, -1));
+		$base = preg_replace("'__'", CIA::__LANG__(), $base, 1);
 		$agent = stripcslashes(substr($keys[3], 1, -1));
 		$a = stripcslashes(substr($keys[4], 1, -1));
 		$keys = eval('return array(' . $keys[5] . ');');
@@ -64,9 +64,9 @@ class extends CIA
 			foreach (explode('/', $a) as $a) $args['__' . ++$i . '__'] = $a;
 		}
 
-		if ($home == $HOME) $CIApID = $home = false;
+		if ($base == $BASE) $CIApID = $base = false;
 		else CIA::watch('foreignTrace');
 
-		return $trace = array($CIApID, $home, $agent, $keys, $args);
+		return $trace = array($CIApID, $base, $agent, $keys, $args);
 	}
 }

@@ -34,7 +34,7 @@ ELSEIF a$_mode_ == 'close' --></form><!--
 
 ELSE
 
-	SET a$action --><!-- IF !a$action -->{g$__URI__}<!-- ELSE -->{home:a$action:1}<!-- END:IF --><!-- END:SET
+	SET a$action --><!-- IF !a$action -->{g$__URI__}<!-- ELSE -->{base:a$action:1}<!-- END:IF --><!-- END:SET
 	IF !a$id --><!-- SET a$id -->FiD{g+1$GLOBID}<!-- END:SET --><!-- END:IF
 
 	--><form accept-charset="UTF-8" {a$|htmlArgs}><!--
@@ -59,7 +59,7 @@ ELSE
 		END:CLIENTSIDE
 
 		SERVERSIDE
-			--><script type="text/javascript" src="{home:'js/v'}"></script><!--
+			--><script type="text/javascript" src="{base:'js/v'}"></script><!--
 		END:SERVERSIDE
 	END:IF
 
@@ -68,6 +68,6 @@ ELSE
 lF=document.getElementById({a$id|js});<!--
 IF a$_enterControl_ -->FeC({a$_enterControl_});<!-- END:IF -->//]]></script ><!--
 
-	IF !g$_UPLOAD && a$_upload --><!-- SET g$_UPLOAD -->1<!-- END:SET --><script type="text/javascript" src="{home:'js/upload'}"></script ><!-- END:IF
+	IF !g$_UPLOAD && a$_upload --><!-- SET g$_UPLOAD -->1<!-- END:SET --><script type="text/javascript" src="{base:'js/upload'}"></script ><!-- END:IF
 
 END:IF -->

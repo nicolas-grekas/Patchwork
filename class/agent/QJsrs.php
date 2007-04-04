@@ -21,7 +21,7 @@ class extends agent_bin
 		$o->DATA = '/*<script type="text/javascript">/**/q="'
 			. str_replace(array('\\', '"'), array('\\\\', '\\"'), $this->getJs($this->data))
 			. '"//</script>'
-			. '<script type="text/javascript" src="' . CIA::__HOME__() . 'js/QJsrsHandler"></script>';
+			. '<script type="text/javascript" src="' . CIA::__BASE__() . 'js/QJsrsHandler"></script>';
 
 		return $o;
 	}

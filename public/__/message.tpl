@@ -16,7 +16,7 @@
 
 <!-- IF a$time > 0 -->
 <script type="text/javascript">/*<![CDATA[*/
-<!-- SET a$redirect -->{home:a$redirect:1}<!-- END:SET -->
+<!-- SET a$redirect -->{base:a$redirect:1}<!-- END:SET -->
 <!-- SET a$a -->location.replace({a$redirect|js})<!-- END:SET -->
 setTimeout({a$a|js},{a$time*1000})
 //]]></script ><meta http-equiv="refresh" content="{a$time}; URL={a$redirect}" />

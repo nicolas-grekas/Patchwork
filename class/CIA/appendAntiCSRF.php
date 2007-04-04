@@ -30,7 +30,7 @@ class extends CIA
 			$a = $a[0];
 			$a = trim($a[1] ? $a[2] : ($a[2] . $a[3]));
 
-			if (0 !== strpos($a, CIA::$home))
+			if (0 !== strpos($a, CIA::$base))
 			{
 				// Decode html encoded chars
 				if (false !== strpos($a, '&')) $a = preg_replace_callback(self::$entitiesRx, array(__CLASS__, 'translateHtmlEntity'), $a);
@@ -89,8 +89,8 @@ class extends CIA
 					while ($b != $a);
 				}
 
-				// Compare action to application's home
-				if (0 !== strpos($host . $a, CIA::$home)) return $f;
+				// Compare action to application's base
+				if (0 !== strpos($host . $a, CIA::$base)) return $f;
 			}
 		}
 

@@ -102,7 +102,7 @@ function syncCSRF($form)
 
 	if ($antiCSRF && 'post' == $form.method.toLowerCase())
 	{
-		if (($form.action + '/').indexOf({g$__HOME__|js})) return;
+		if (($form.action + '/').indexOf({g$__BASE__|js})) return;
 
 		if ($form.T$) $form.T$.value = $antiCSRF;
 		else if ($form.firstChild)
@@ -182,7 +182,7 @@ if (window.Error)
 	// This eval avoids a parse error with browsers not supporting exceptions.
 	eval('try{document.execCommand("BackgroundImageCache",false,true)}catch(w){}');
 
-w = function($homeAgent, $keys, $masterCIApID)
+w = function($baseAgent, $keys, $masterCIApID)
 {
 	$masterCIApID /= 1;
 
@@ -206,7 +206,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 		a, d, v, g,
 		$CIApID = $masterCIApID,
 
-		r = {toString: function() {return g.__HOME__}},
+		r = {toString: function() {return g.__BASE__}},
 
 		$lastInclude = '',
 		$includeCache = {},
@@ -214,7 +214,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 		$maxRlevel = 100,
 		$Rlevel = $maxRlevel,
 		
-		$masterHome = {g$__HOME__|js};
+		$masterHome = {g$__BASE__|js};
 
 	if (!/safari|msie [0-5]\./i.test(navigator.userAgent) && !/(^|; )JS=1(; |$)/.test($document.cookie))
 	{
@@ -222,11 +222,11 @@ w = function($homeAgent, $keys, $masterCIApID)
 		0 || /(^|; )JS=1(; |$)/.test($document.cookie) || ($document.cookie = 'JS=1; path=/');
 	}
 
-	window.home = function($str, $master, $noId)
+	window.base = function($str, $master, $noId)
 	{
 		if (!/^https?:\/\//.test($str))
 		{
-				$master = $master ? $masterHome : g.__HOME__;
+				$master = $master ? $masterHome : g.__BASE__;
 
 				$str = (
 					0 == $str.indexOf('/')
@@ -286,31 +286,31 @@ w = function($homeAgent, $keys, $masterCIApID)
 			}
 			else
 			{
-				w.k = function($id, $home, $agent, $__0__, $keys)
+				w.k = function($id, $base, $agent, $__0__, $keys)
 				{
-					$home = esc($home).replace(/__/, g.__LANG__);
+					$base = esc($base).replace(/__/, g.__LANG__);
 					$agent = esc($agent);
 
 					$args.__0__ = $__0__;
 					$__0__ = $__0__.split('/');
 					for ($i = 0; $i < $__0__.length; ++$i) $args['__' + ($i+1) + '__'] = $__0__[$i];
 
-					if ($home != g.__HOME__)
+					if ($base != g.__BASE__)
 					{
 						$CIApID = $id/1;
 
 						$args.__DEBUG__ = g.__DEBUG__;
 						$args.__LANG__ = g.__LANG__;
-						$args.__HOME__ = $home;
-						$args.__HOST__ = $home.substr(0, $home.indexOf('/', 8)+1);
+						$args.__BASE__ = $base;
+						$args.__HOST__ = $base.substr(0, $base.indexOf('/', 8)+1);
 						$args.__AGENT__ = $agent ? $agent + '/' : '';
-						$args.__URI__ = $home + $agent;
+						$args.__URI__ = $base + $agent;
 						$args.e$ = 1;
 
 						g = $args;
 					}
 
-					$include($home + '_?a$=' + $agent, $args, $keys)
+					$include($base + '_?a$=' + $agent, $args, $keys)
 				}
 
 				$include($inc + '&amp;k$=', 0, 0, 1);
@@ -329,7 +329,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 	w = function($context, $code, $fromCache)
 	{
-		$homeAgent; //This is here for jsquiz to work well
+		$baseAgent; //This is here for jsquiz to work well
 		$code = $code || [];
 
 		var $origContext,
@@ -354,7 +354,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 					$i = $i.join('');
 
-					if ($i) return $include(g.__HOME__ + '_?p$=' + esc($i.substr(1)), 0, 0, 1), 1;
+					if ($i) return $include(g.__BASE__ + '_?p$=' + esc($i.substr(1)), 0, 0, 1), 1;
 				}
 			},
 
@@ -393,7 +393,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 				$agent = esc($agent);
 
-				if (!$meta) $agent = g.__HOME__ + '_?t$=' + $agent;
+				if (!$meta) $agent = g.__BASE__ + '_?t$=' + $agent;
 				else
 				{
 					if ($meta > 1)
@@ -429,16 +429,16 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 						$args.__DEBUG__ = g.__DEBUG__;
 						$args.__LANG__ = g.__LANG__;
-						$args.__HOME__ = esc($meta[1]).replace(/__/, $args.__LANG__);
-						$args.__HOST__ = $args.__HOME__.substr(0, $args.__HOME__.indexOf('/', 8)+1);
+						$args.__BASE__ = esc($meta[1]).replace(/__/, $args.__LANG__);
+						$args.__HOST__ = $args.__BASE__.substr(0, $args.__BASE__.indexOf('/', 8)+1);
 						$args.__AGENT__ = $agent ? $agent + '/' : '';
-						$args.__URI__ = $args.__HOME__ + $agent;
+						$args.__URI__ = $args.__BASE__ + $agent;
 						$args.e$ = 1;
 
 						g = $args;
 					}
 
-					$agent = $keys ? g.__HOME__ + '_?a$=' + $agent : home($agent, 0, 1);
+					$agent = $keys ? g.__BASE__ + '_?a$=' + $agent : base($agent, 0, 1);
 				}
 
 				return $include($agent, $args, $keys), 1;
@@ -536,7 +536,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 		<!-- IF g$__DEBUG__ -->
 		if (DEBUG) E({
-			'Agent': dUC(('['+$lastInclude.substr(g.__HOME__.length + 2)).replace(/&(amp;)?/g, ', [').replace(/=/g, '] = ')),
+			'Agent': dUC(('['+$lastInclude.substr(g.__BASE__.length + 2)).replace(/&(amp;)?/g, ', [').replace(/=/g, '] = ')),
 			'Arguments': a,
 			'Data': DEBUG-1 ? $context : ''
 		});
@@ -658,7 +658,7 @@ w = function($homeAgent, $keys, $masterCIApID)
 
 	w.r = function($now, $noCache)
 	{
-		if ($masterHome != g.__HOME__) $document.cookie = 'cache_reset_id=' + $masterCIApID + '; path=/';
+		if ($masterHome != g.__BASE__) $document.cookie = 'cache_reset_id=' + $masterCIApID + '; path=/';
 		$reloadRequest = true;
 		$reloadNoCache = $reloadNoCache || !!$noCache;
 		if ($now)
@@ -781,14 +781,14 @@ w = function($homeAgent, $keys, $masterCIApID)
 	g.__DEBUG__ = {g$__DEBUG__|js};
 	g.__HOST__ = {g$__HOST__|js};
 	g.__LANG__ = {g$__LANG__|js};
-	g.__HOME__ = $masterHome;
-	g.__AGENT__ = $homeAgent ? esc($homeAgent) + '/' : '';
+	g.__BASE__ = $masterHome;
+	g.__AGENT__ = $baseAgent ? esc($baseAgent) + '/' : '';
 	g.__URI__ = esc($j);
 	g.__REFERER__ = esc($document.referrer);
 
-	if (t($homeAgent))
+	if (t($baseAgent))
 	{
-		$j = dUC(esc($j).substr({g$__HOME__|length}+$homeAgent.length).split('?', 1)[0]).split('/');
+		$j = dUC(esc($j).substr({g$__BASE__|length}+$baseAgent.length).split('?', 1)[0]).split('/');
 		for ($i=0; $i<$j.length; ++$i) if ($j[$i]) $loopIterator[$loopIterator.length] = g['__'+($loopIterator.length+1)+'__'] = $j[$i];
 		g.__0__ = $loopIterator.join('/');
 
@@ -796,11 +796,11 @@ w = function($homeAgent, $keys, $masterCIApID)
 		else
 
 		/* Block load, 2 steps : generating, then displaying. * /
-		w(0, [4, 1, '$homeAgent', 'g', $keys, 1, 5, 1, 'b', 3, 'g.b']);
+		w(0, [4, 1, '$baseAgent', 'g', $keys, 1, 5, 1, 'b', 3, 'g.b']);
 		/**/
 
 		/* Dynamic load, 1 step : generating and displaying at the same time. */
-		w(0, [1, '$homeAgent', 'g', $keys, 1]);
+		w(0, [1, '$baseAgent', 'g', $keys, 1]);
 		/**/
 	}
 }
@@ -833,12 +833,12 @@ function loadW($window)
 
 		$window.a ? w(a[0], a[1], a[2]) : w();
 	}
-	else document.write('<script type="text/javascript" src="' + {g$__HOME__|js} + 'js/compat"></script>');
+	else document.write('<script type="text/javascript" src="' + {g$__BASE__|js} + 'js/compat"></script>');
 }
 
-function P$home($string, $noId)
+function P$base($string, $noId)
 {
-	return home(str($string), 0, $noId);
+	return base(str($string), 0, $noId);
 }
 
 loadW();

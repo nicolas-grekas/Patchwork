@@ -18,13 +18,13 @@
 <head>
 	<!-- SERVERSIDE -->
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<script type="text/javascript" src="{home:'js/w'}"></script>
+	<script type="text/javascript" src="{base:'js/w'}"></script>
 	<!-- END:SERVERSIDE -->
 
 	<title>{a$title|replace:'<[^>]*':''|replace:'>':''}</title>
 
 	<!-- IF a$css -->
-	<link rel="stylesheet" type="text/css" href="{home:a$css}" />
+	<link rel="stylesheet" type="text/css" href="{base:a$css}" />
 	<!-- END:IF -->
 
 	{a$head}

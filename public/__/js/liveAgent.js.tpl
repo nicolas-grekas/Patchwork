@@ -13,10 +13,10 @@
 
 <!-- AGENT 'js/QJsrs' -->
 
-function liveAgent($AGENT, $POST, $antiCSRF, $HOME, $XMLHttpPreferred)
+function liveAgent($AGENT, $POST, $antiCSRF, $BASE, $XMLHttpPreferred)
 {
-	$HOME = $HOME || home('', 0, 1);
-	$AGENT = $HOME + '_?x$=' + eUC($AGENT);
+	$BASE = $BASE || base('', 0, 1);
+	$AGENT = $BASE + '_?x$=' + eUC($AGENT);
 
 	var $QJsrs = new QJsrs($AGENT, $POST, $antiCSRF, $XMLHttpPreferred),
 		$originalDriver = $QJsrs.driver,

@@ -67,7 +67,7 @@ class extends CIA
 			self::$get->__DEBUG__ = DEBUG ? DEBUG : 0;
 			self::$get->__HOST__ = htmlspecialchars(CIA::__HOST__());
 			$cache .= self::$get->__LANG__ = htmlspecialchars(CIA::__LANG__());
-			$cache .= self::$get->__HOME__ = htmlspecialchars(CIA::__HOME__());
+			$cache .= self::$get->__BASE__ = htmlspecialchars(CIA::__BASE__());
 			self::$get->__AGENT__ = 'agent_index' == $agent ? '' : (str_replace('_', '/', substr($agent, 6)) . '/');
 			self::$get->__URI__ = htmlspecialchars(CIA::$uri);
 			self::$get->__REFERER__ = isset($_SERVER['HTTP_REFERER']) ? htmlspecialchars($_SERVER['HTTP_REFERER']) : '';
@@ -94,12 +94,12 @@ class extends CIA
 				foreach ($data as $k => &$v) $args[$k] = is_string($v) ? htmlspecialchars($v) : $v;
 			}
 
-			$HOME = CIA::__HOME__();
-			$agent = CIA::home($agent, true);
+			$BASE = CIA::__BASE__();
+			$agent = CIA::base($agent, true);
 
-			if (0 === strpos($agent, $HOME))
+			if (0 === strpos($agent, $BASE))
 			{
-				$agent = substr($agent, strlen($HOME));
+				$agent = substr($agent, strlen($BASE));
 
 				if ($is_exo)
 				{

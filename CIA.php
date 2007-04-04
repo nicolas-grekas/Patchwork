@@ -299,7 +299,7 @@ if (
 {
 	$match = $_SERVER['HTTP_IF_NONE_MATCH'];
 	$match = resolvePath('zcache/') . $match[2] .'/'. $match[3] .'/'. substr($match, 4) .'.validator.'. DEBUG .'.';
-	$match .= md5($_SERVER['CIA_HOME'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
+	$match .= md5($_SERVER['CIA_BASE'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
 
 	$headers = false;
 	if (file_exists($match)) $headers = file_get_contents($match);
@@ -362,7 +362,7 @@ $b = abs($version_id % 10000);
 
 if (!isset($_COOKIE['v$']) || $_COOKIE['v$'] != $b)
 {
-	$a = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_HOME'], 2));
+	$a = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_BASE'], 2));
 	$a = preg_replace("'\?.*$'", '', $a);
 	$a = preg_replace("'^https?://[^/]*'i", '', $a);
 	$a = dirname($a . ' ');
