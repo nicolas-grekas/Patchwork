@@ -102,7 +102,7 @@ function syncCSRF($form)
 
 	if ($antiCSRF && 'post' == $form.method.toLowerCase())
 	{
-		if ($form.action.indexOf({g$__HOME__|js})) return;
+		if (($form.action + '/').indexOf({g$__HOME__|js})) return;
 
 		if ($form.T$) $form.T$.value = $antiCSRF;
 		else if ($form.firstChild)
