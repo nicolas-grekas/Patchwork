@@ -90,7 +90,7 @@ class
 		if (!isset($args[2]) || $args[2]) $result = trim($result);
 		if (isset($args[0]) && $args[0])
 		{
-			$rx = '@' . str_replace('@', '\\@', $args[0]) . '@';
+			$rx = '@' . str_replace('@', '\\@', $args[0]) . '@D';
 			if (isset($args[1]) && $args[1]) $rx .= 'i';
 
 			if (!preg_match($rx . 'su', $result, $args[3])) return false;
