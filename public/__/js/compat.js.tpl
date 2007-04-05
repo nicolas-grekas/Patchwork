@@ -40,24 +40,25 @@ decodeURIComponent = window.decodeURIComponent || function($string)
 		$c,
 		$s = String.fromCharCode;
 
-	function $nextCode() {return parseInt('0x' + $string.substr(++$i, 2, $i+=2)) - 128;}
+	function $nextCode() {return parseInt('0x' + $string.substr(++$i, 2, $i += 2)) - 128;}
 
 	while ($i < $len)
 	{
-		if ($string.charAt($i) != '%') $dec.push($string.charAt($i++));
+		if ('%' != $string.charAt($i)) $dec.push($string.charAt($i++));
 		else
 		{
 			$c = $nextCode();
 
-			$dec.push($s( $c < 0
+			$dec.push($s(
+				  $c < 0
 				? $c + 128
 				: (
 					$c < 96
-					? ($c-64<<6)+$nextCode()
+					? ($c - 64 << 6) + $nextCode()
 					: (
 						$c < 112
-						? (($c-96<<6) + $nextCode()<<6) + $nextCode()
-						: ((($c-112<<6) + $nextCode()<<6) + $nextCode()<<6) + $nextCode()
+						?  (($c -  96 << 6) + $nextCode() << 6) + $nextCode()
+						: ((($c - 112 << 6) + $nextCode() << 6) + $nextCode() << 6) + $nextCode()
 					)
 				)
 			));
@@ -74,43 +75,48 @@ encodeURI = window.encodeURI || function($string)
 
 encodeURIComponent = window.encodeURIComponent || function($string, $encodeURI)
 {
-	var c, s, i = 0, $enc = [], $preserved = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.!~*'()" + ($encodeURI ? ',/?:@&=+$#;' : '');
+	var $c, $s, $i = 0, $enc = [], $preserved = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.!~*'()" + ($encodeURI ? ',/?:@&=+$#;' : '');
 
-	while (i<$string.length)
+	while ($i < $string.length)
 	{
-		c = $string.charCodeAt(i++);
+		$c = $string.charCodeAt($i++);
 
-		if (c>=56320 && c<57344) continue;
+		if (56320 <= $c && $c < 57344) continue;
 
-		if (c>=55296 && c<56320)
+		if (55296 <= $c && $c < 56320)
 		{
-			if (i>=$string.length) continue;
-			s = $string.charCodeAt(i++);
-			if (s<56320 || c>=56832) continue;
-			c = (c-55296<<10)+s+9216;
+			if ($i >= $string.length) continue;
+
+			$s = $string.charCodeAt($i++);
+			if ($s < 56320 || $c >= 56832) continue;
+
+			$c = ($c - 55296 << 10) + $s + 9216;
 		}
 
-		s = String.fromCharCode;
-		$enc.push(c<128
-			? s(c)
+		$s = String.fromCharCode;
+		$enc.push(
+			  $c < 128
+			? $s($c)
 			: (
-				c<2048
-				? s(192+(c>>6),128+(c&63))
+				$c < 2048
+				? $s(192 + ($c >> 6), 128 + ($c & 63))
 				: (
-					c<65536
-					? s(224+(c>>12),128+(c>>6&63),128+(c&63))
-					: s(240+(c>>18),128+(c>>12&63),128+(c>>6&63),128+(c&63))
+					$c < 65536
+					? $s(224 + ($c >> 12), 128 + ($c >>  6 & 63), 128 + ($c & 63))
+					: $s(240 + ($c >> 18), 128 + ($c >> 12 & 63), 128 + ($c >> 6 & 63), 128 + ($c & 63))
 				)
-			));
+			)
+		);
 	}
 
 	$enc = $enc.join('');
 	$string = [];
 
-	for (i = 0; i<$enc.length; ++i)
-		$string.push($preserved.indexOf($enc.charAt(i))==-1
-			? '%'+$enc.charCodeAt(i).toString(16).toUpperCase()
-			: $enc.charAt(i));
+	for ($i = 0; $i<$enc.length; ++$i) $string.push(
+		  -1 == $preserved.indexOf($enc.charAt($i))
+		? '%'+$enc.charCodeAt($i).toString(16).toUpperCase()
+		: $enc.charAt($i)
+	);
 
 	return $string.join('');
 }

@@ -127,7 +127,7 @@ function $QJsrsContext($name)
 				$html.tabIndex = -1;
 				$div.insertBefore($html, $div.firstChild);
 			}
-			else $div.innerHTML += '<iframe name='+ $name +' src="'+ $url.replace(/"/g, '&quot;') +'" width="0" height="0" frameborder="0" tabindex="-1"></iframe>',
+			else $div.innerHTML += '<iframe name="'+ $name +'" src="'+ $url.replace(/"/g, '&quot;') +'" width="0" height="0" frameborder="0" tabindex="-1"></iframe>',
 
 			$html = 1;
 		}
