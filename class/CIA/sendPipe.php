@@ -30,9 +30,9 @@ class extends CIA
 				call_user_func(array('pipe_' . $pipe, 'js'));
 				$pipe = ob_get_clean();
 
-				$jsquiz = new jsquiz;
-				$jsquiz->addJs($pipe);
-				echo $pipe = $jsquiz->get();
+				$parser = new jsqueez;
+				$parser->addJs($pipe);
+				echo $pipe = $parser->get();
 				$pipe .= "\n";
 				fwrite($h, $pipe, strlen($pipe));
 				fclose($h);

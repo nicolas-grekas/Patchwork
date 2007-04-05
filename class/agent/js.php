@@ -52,7 +52,7 @@ class extends agent_bin
 
 			$source = CIA_serverside::returnAgent(substr(get_class($this), 6), $source);
 
-			$parser = new jsquiz;
+			$parser = new jsqueez;
 			$parser->addJs($source);
 			$o->DATA = $parser->get();
 		}
