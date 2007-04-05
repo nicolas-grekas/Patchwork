@@ -329,7 +329,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 
 	w = function($context, $code, $fromCache)
 	{
-		$baseAgent; //This is here for jsquiz to work well
+		$baseAgent; //This is here for jsqueez to work well
 		$code = $code || [];
 
 		var $origContext,
