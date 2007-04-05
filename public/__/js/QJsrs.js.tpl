@@ -37,6 +37,22 @@ $window = window;
 if (!$window.QJsrs)
 {
 
+base = $window.base || function($str, $master)
+{
+	if (!/^https?:\/\//.test($str))
+	{
+		$master = {g$__BASE__|js};
+
+		$str = (
+			0 == $str.indexOf('/')
+			? $master.substr(0, $master.indexOf('/', 8))
+			: $master
+		) + $str;
+	}
+
+	return $str;
+}
+
 function $emptyFunction() {};
 
 // Preload the XMLHttp object and detects browser capabilities.

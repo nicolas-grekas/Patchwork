@@ -226,13 +226,13 @@ w = function($baseAgent, $keys, $masterCIApID)
 	{
 		if (!/^https?:\/\//.test($str))
 		{
-				$master = $master ? $masterBase : g.__BASE__;
+			$master = $master ? $masterBase : g.__BASE__;
 
-				$str = (
-					0 == $str.indexOf('/')
-					? $master.substr(0, $master.indexOf('/', 8))
-					: $master
-				) + $str;
+			$str = (
+				0 == $str.indexOf('/')
+				? $master.substr(0, $master.indexOf('/', 8))
+				: $master
+			) + $str;
 
 			if (!$noId) $str += (-1 == $str.indexOf('?') ? '?' : '&amp;') + $masterCIApID;
 		}
