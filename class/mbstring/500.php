@@ -13,7 +13,8 @@
 
 
 /*
-
+ * Partial mbstring implementation in pure PHP
+ *
  * Working only if iconv is loaded :
 
 mb_convert_encoding           - Convert character encoding
@@ -24,9 +25,8 @@ mb_encode_mimeheader          - Encode string for MIME header
  * Not implemented :
 
 mb_check_encoding             - Check if the string is valid for the specified encoding
-Note: considering UTF-8, preg_match("''u", $var) is equivalent but 10 times faster than mb_check_encoding($var)
+Note: considering UTF-8, preg_match("''u", $var) is roughly equivalent but 10 times faster than mb_check_encoding($var)
 
-mb_convert_case               - Perform case folding on a string
 mb_convert_kana               - Convert "kana" one from another ("zen-kaku", "han-kaku" and more)
 mb_convert_variables          - Convert character code in variable(s)
 mb_decode_numericentity       - Decode HTML numeric string reference to character

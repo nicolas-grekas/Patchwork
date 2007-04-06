@@ -12,6 +12,11 @@
  ***************************************************************************/
 
 
+/*
+ * Partial mbstring implementation in pure PHP
+ * Functions introduced with PHP 5.2.0
+ */
+
 class
 {
 	static function stripos($haystack, $needle, $offset = 0, $encoding = null)
