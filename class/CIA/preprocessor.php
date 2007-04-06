@@ -129,7 +129,7 @@ class CIA_preprocessor__0
 			self::$declared_class[$v] = 1;
 		}
 
-		// As of PHP5.1.2, md5($str) is a lot faster than md5($str) !
+		// As of PHP5.1.2, hash('md5', $str) is a lot faster than md5($str) !
 		extension_loaded('hash') && self::$function += array(
 			'md5'   => "hash('md5',",
 			'sha1'  => "hash('sha1',",
@@ -235,6 +235,7 @@ class CIA_preprocessor__0
 		if (false !== strpos($code, "\r")) $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
 		if (false !== strpos($code,  '#>>>')) $code = preg_replace_callback( "'^#>>>\s*^.*?^(?:#|//)<<<\s*$'ms", array($this, 'extractRxLF'), $code);
 		if (false !== strpos($code, '//>>>')) $code = preg_replace_callback("'^//>>>\s*^.*?^(?:#|//)<<<\s*$'ms", array($this, 'extractRxLF'), $code);
+
 		if (DEBUG)
 		{
 			if (false !== strpos($code,  '#>')) $code = preg_replace( "'^#>([^>].*)$'m", '$1', $code);
