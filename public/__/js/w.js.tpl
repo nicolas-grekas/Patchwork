@@ -41,9 +41,9 @@ function num($str, $weak)
 {
 	return $weak
 		? (
-			t($str)
+			  t($str)
 			? (
-				t($str, 'string') && ''+$str/1==$str
+				  t($str, 'string') && ''+$str/1==$str
 				? $str/1
 				: $str
 			) : ''
@@ -222,19 +222,22 @@ w = function($baseAgent, $keys, $masterCIApID)
 		0 || /(^|; )JS=1(; |$)/.test($document.cookie) || ($document.cookie = 'JS=1; path=/');
 	}
 
-	window.base = function($str, $master, $noId)
+	window.base = function($str, $noId, $master)
 	{
+		t($str) || ($str = '');
+
 		if (!/^https?:\/\//.test($str))
 		{
 			$master = $master ? $masterBase : g.__BASE__;
+			$noId = !$str || $noId;
 
 			$str = (
-				0 == $str.indexOf('/')
+				  0 == $str.indexOf('/')
 				? $master.substr(0, $master.indexOf('/', 8))
 				: $master
 			) + $str;
 
-			if (!$noId) $str += (-1 == $str.indexOf('?') ? '?' : '&amp;') + $masterCIApID;
+			if (!$noId && '/' != $str.substr(-1)) $str += (-1 == $str.indexOf('?') ? '?' : '&amp;') + $masterCIApID;
 		}
 
 		return $str;
@@ -438,7 +441,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 						g = $args;
 					}
 
-					$agent = $keys ? g.__BASE__ + '_?a$=' + $agent : base($agent, 0, 1);
+					$agent = $keys ? g.__BASE__ + '_?a$=' + $agent : base($agent, 1);
 				}
 
 				return $include($agent, $args, $keys), 1;
@@ -838,7 +841,7 @@ function loadW($window)
 
 function P$base($string, $noId)
 {
-	return base(str($string), 0, $noId);
+	return base(str($string), $noId);
 }
 
 loadW();
