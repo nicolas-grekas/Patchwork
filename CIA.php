@@ -323,7 +323,7 @@ if (
 }
 // }}}
 
-/// {{{ Anti Cross-Site-(Request-Forgery|Javascript-Request) token
+/// {{{ Anti Cross-Site-Request-Forgery / Javascript-Hijacking token
 $_POST_BACKUP =& $_POST;
 
 if (
