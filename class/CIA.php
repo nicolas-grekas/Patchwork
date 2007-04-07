@@ -14,7 +14,7 @@
 /*>
 if (isset($_SERVER['PHP_AUTH_USER']))
 {
-	$_SERVER['PHP_AUTH_USER'] = $_SERVER['PHP_AUTH_PW'] = "Don't use me, it would be a security hole (Cross Site Javascript Request).";
+	$_SERVER['PHP_AUTH_USER'] = $_SERVER['PHP_AUTH_PW'] = "Don't use me, it would enable Javascript-Hijacking.";
 }
 <*/
 

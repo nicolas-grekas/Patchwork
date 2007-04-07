@@ -11,7 +11,7 @@
  *
  ***************************************************************************/
 /*
-* Init this JavaScript Remote Scripting object with
+* Init this Javascript Remote Scripting object with
 * varname = new QJsrs($url, $POST, $antiCSRF), where $url is a server script aimed at
 * generating the result.
 * Set $POST to true if you want a POST request
