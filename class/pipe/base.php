@@ -27,7 +27,7 @@ class
 
 P$base = function($string, $noId)
 {
-	return base(str($string), 0, $noId);
+	return base(str($string), $noId);
 }
 
 <?php	}

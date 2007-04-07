@@ -399,14 +399,18 @@ class
 	static function __BASE__() {return self::$base;}
 	static function __URI__() {return self::$uri;}
 
-	static function base($url, $noId = false)
+	static function base($url = '', $noId = false)
 	{
+		$url = (string) $url;
+
 		if (!preg_match("'^https?://'", $url))
 		{
+			$noId = '' === $url || $noId;
+
 			if (strncmp('/', $url, 1)) $url = self::$base . $url;
 			else $url = self::$host . substr($url, 1);
-
-			if (!$noId) $url .= (false === strpos($url, '?') ? '?' : '&amp;') . self::$versionId;
+	
+			if (!$noId && '/' != substr($url, -1)) $url .= (false === strpos($url, '?') ? '?' : '&amp;') . self::$versionId;
 		}
 
 		return $url;
