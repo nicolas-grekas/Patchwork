@@ -23,6 +23,8 @@
 
 	<title>{a$title|replace:'<[^>]*':''|replace:'>':''}</title>
 
+	<style type="text/css">label{cursor:default}</style>
+
 	<!-- IF a$css -->
 	<link rel="stylesheet" type="text/css" href="{base:a$css}" />
 	<!-- END:IF -->
