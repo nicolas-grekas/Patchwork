@@ -14,21 +14,17 @@
 * Init this Javascript Remote Scripting object with
 * varname = new QJsrs($url, $POST, $antiCSRF), where $url is a server script aimed at
 * generating the result.
-* Set $POST to true if you want a POST request
-* to be made to the server.
-* Set $antiCSRF to true if the server needs an anti-cross-site-javascript-request token
+* Set $POST to true if you want a POST request to be made to the server.
+* Set $antiCSRF to true if the server needs an anti-javascript-hijacking token
 *
 * Then call this server script _asynchronously_
 * with varname.push($vararray, $function)
-* Multiple .push() calls are executed sequentialy : the last call is executed
+* Multiple .push() calls are executed sequentialy: a call is done
 * only when the previous one is finished.
 *
 * use varname.replace($vararray, $function) to empty the call sequence and then do the request
-*
 * $vararray is an associative array, which is going to be passed to the server script.
-*
 * $function(result) is called when the result is loaded.
-*
 * Cancel the callback pool with varname.abort()
 */
 
@@ -37,8 +33,10 @@ $window = window;
 if (!$window.QJsrs)
 {
 
-base = $window.base || function($str, $master)
+base = $window.base || function($str, $noId, $master)
 {
+	'undefined' != typeof $str || ($str = '');
+
 	if (!/^https?:\/\//.test($str))
 	{
 		$master = {g$__BASE__|js};
@@ -93,7 +91,7 @@ function $QJsrsContext($name)
 			$url = base('QJsrs.html', 0, 1);
 		else $url = $url[0] + $url[1];
 
-		// For GET requests, we prefer direct <script> tag creation rather than XMLHttpRequest :
+		// For GET requests, we prefer direct <script> tag creation rather than XMLHttpRequest:
 		// this prevents a caching bug in Firefox < 1.5 and works in IE even when ActiveX is disabled
 		if (!($XMLHttpPreferred && $local && $XMLHttp) && !$post && ('Gecko' == navigator.product || 'object' == typeof $document.onreadystatechange) && $document.createElement)
 			$container = $QJsrs.$withScript($this.q[0] + $this.q[1], function() {$this.$driver($this.$release);});
