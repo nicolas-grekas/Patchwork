@@ -18,11 +18,13 @@ class extends agent_bin
 
 	protected $maxage = -1;
 
-	protected $watch = array('public/js');
+	protected static $recursivity = 0;
 
 	function control()
 	{
 		header('Content-Type: text/javascript; charset=UTF-8');
+
+		self::$recursivity && $this->argv->source = 1;
 
 		if (DEBUG || $this->argv->source)
 		{
@@ -30,13 +32,9 @@ class extends agent_bin
 
 			if ($tpl !== '')
 			{
-				if ('.js' != strtolower(substr($tpl, -3))) $tpl .= '.js';
+				if ('.js' != substr($tpl, -3)) $tpl .= '.js';
 
-				$tpl = str_replace(
-					array('\\', '../'),
-					array('/' , '/'),
-					'js/' . $tpl
-				);
+				$tpl = str_replace('../', '/', strtr('js/' . $tpl, '\\', '/'));
 			}
 
 			$this->template = $tpl;
@@ -50,16 +48,20 @@ class extends agent_bin
 			$source = (array) $this->argv;
 			$source['source'] = 1;
 
+			++self::$recursivity;
 			$source = CIA_serverside::returnAgent(substr(get_class($this), 6), $source);
+			--self::$recursivity;
 
 			$parser = new jsqueez;
 			$parser->addJs($source);
 			$o->DATA = $parser->get();
 		}
-
-		$o->cookie_path   = $GLOBALS['CONFIG']['session.cookie_path'];
-		$o->cookie_domain = $GLOBALS['CONFIG']['session.cookie_domain'];
-		$o->maxage = CIA_MAXAGE;
+		else
+		{
+			$o->cookie_path   = $GLOBALS['CONFIG']['session.cookie_path'];
+			$o->cookie_domain = $GLOBALS['CONFIG']['session.cookie_domain'];
+			$o->maxage = CIA_MAXAGE;
+		}
 
 		return $o;
 	}
