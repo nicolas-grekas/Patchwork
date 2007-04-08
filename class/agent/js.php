@@ -18,13 +18,13 @@ class extends agent_bin
 
 	protected $maxage = -1;
 
-	protected static $recursivity = 0;
+	protected static $recursion = 0;
 
 	function control()
 	{
 		header('Content-Type: text/javascript; charset=UTF-8');
 
-		self::$recursivity && $this->argv->source = 1;
+		self::$recursion && $this->argv->source = 1;
 
 		if (DEBUG || $this->argv->source)
 		{
@@ -48,9 +48,9 @@ class extends agent_bin
 			$source = (array) $this->argv;
 			$source['source'] = 1;
 
-			++self::$recursivity;
+			++self::$recursion;
 			$source = CIA_serverside::returnAgent(substr(get_class($this), 6), $source);
-			--self::$recursivity;
+			--self::$recursion;
 
 			$parser = new jsqueez;
 			$parser->addJs($source);
