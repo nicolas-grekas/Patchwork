@@ -211,9 +211,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 		$lastInclude = '',
 		$includeCache = {},
 		$startTime,
-		$maxRlevel = 100,
-		$Rlevel = $maxRlevel,
-		
+
 		$masterBase = {g$__BASE__|js};
 
 	if (!/safari|msie [0-5]\./i.test(navigator.userAgent) && !/(^|; )JS=1(; |$)/.test($document.cookie))
@@ -285,7 +283,9 @@ w = function($baseAgent, $keys, $masterCIApID)
 
 				if ($args.e$) $args.__URI__ += '?' + $c.substr(5);
 				a = $args;
-				$include($inc + $c);
+
+				$inc += $c;
+				$c = 1;
 			}
 			else
 			{
@@ -313,27 +313,26 @@ w = function($baseAgent, $keys, $masterCIApID)
 						g = $args;
 					}
 
-					$include($base + '_?a$=' + $agent, $args, $keys)
+					$include($base + '_?a$=' + $agent, $args, $keys, 1)
 				}
 
-				$include($inc + '&amp;k$=', 0, 0, 1);
+				$inc += '&amp;k$=';
+				$c = 0;
 			}
 		}
-		else
-		{
-			$lastInclude = $c ? '' : $inc;
 
-			if (t($includeCache[$inc]) && --$Rlevel) w($includeCache[$inc][0], $includeCache[$inc][1], 1);
-			else
-				$includeSrc = $inc,
-				w.w();
-		}
+		$lastInclude = $c ? $inc : '';
+
+		return $c && t($includeCache[$inc])
+			? w($includeCache[$inc][0], $includeCache[$inc][1], $WexecLast)
+			: ($includeSrc = $inc, !w.w());
 	}
 
-	w = function($context, $code, $fromCache)
+	w = function($context, $code, $WexecLastLimit)
 	{
 		$baseAgent; //This is here for jsqueez to work well
 		$code = $code || [];
+		$WexecLastLimit = $WexecLastLimit || 0;
 
 		var $origContext,
 			$pointer = 0,
@@ -357,7 +356,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 
 					$i = $i.join('');
 
-					if ($i) return $include(g.__BASE__ + '_?p$=' + esc($i.substr(1)), 0, 0, 1), 1;
+					if ($i) return $include(g.__BASE__ + '_?p$=' + esc($i.substr(1)));
 				}
 			},
 
@@ -444,7 +443,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 					$agent = $keys ? g.__BASE__ + '_?a$=' + $agent : base($agent, 1);
 				}
 
-				return $include($agent, $args, $keys), 1;
+				return $include($agent, $args, $keys, 1) ? 1 : -1;
 			},
 
 			// 2: echo
@@ -508,14 +507,13 @@ w = function($baseAgent, $keys, $masterCIApID)
 				($loopIterator() && ($pointer -= $code[$pointer])) || ++$pointer;
 				$context = v;
 
-				if (new Date - $startTime > 500) return $include($masterBase + 'js/x', 0, 0, 1), 1;
+				if (new Date - $startTime > 500) return $include($masterBase + 'js/x');
 			}
 		];
 
-		if (!$fromCache)
+		if (!$WexecLastLimit)
 		{
 			$startTime = new Date;
-			$Rlevel = $maxRlevel;
 
 			resyncCSRF();
 
@@ -551,9 +549,9 @@ w = function($baseAgent, $keys, $masterCIApID)
 			return $code[$pointer++](a, d, v, g);
 		}
 
-		($WexecStack[++$WexecLast] = function()
+		$WexecStack[++$WexecLast] = function()
 		{
-			var $b = $bytecode, $c = $code, $codeLen = $c.length;
+			var $b = $bytecode, $c = $code, $codeLen = $c.length, $i;
 
 			d = $origContext;
 			a = $arguments;
@@ -562,13 +560,25 @@ w = function($baseAgent, $keys, $masterCIApID)
 			$CIApID = $localCIApID;
 			g = $localG;
 
-			while (++$pointer <= $codeLen) if ($b[$c[$pointer-1]]($c)) return;
+			while (++$pointer <= $codeLen) if ($i = $b[$c[$pointer-1]]($c))
+			{
+				if (0 < $i) return 1;
+
+				d = $origContext;
+				a = $arguments;
+				v = $context;
+
+				$CIApID = $localCIApID;
+				g = $localG;
+			}
 
 			$WexecStack[$WexecLast] = 0;
+		};
 
-			if (--$WexecLast) $WexecStack[$WexecLast]();
-			else w.w();
-		})();
+		do if ($WexecStack[$WexecLast]()) return 1;
+		while (--$WexecLast > $WexecLastLimit);
+
+		if (!$WexecLast) return !w.w();
 	}
 
 	w.w = function()
@@ -645,7 +655,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 
 					w = w.c = $document = 0;
 
-					$i ? location.reload() : setTimeout('onDOMLoaded.go()', 0);
+					$i ? location.reload() : onDOMLoaded.go();
 				}};
 
 				$i = $content.search(/<\/body\b/i);
@@ -664,11 +674,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 		if ($masterBase != g.__BASE__) $document.cookie = 'cache_reset_id=' + $masterCIApID + '; path=/';
 		$reloadRequest = true;
 		$reloadNoCache = $reloadNoCache || !!$noCache;
-		if ($now)
-		{
-			do $WexecStack[$WexecLast] = 0;
-			while (--$WexecLast);
-		}
+		if ($now) $WexecLast = $WexecStack.length = 0;
 	}
 
 	w.x = function($data)
