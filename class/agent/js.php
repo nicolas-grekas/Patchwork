@@ -45,11 +45,8 @@ class extends agent_bin
 	{
 		if (!DEBUG && !$this->argv->source)
 		{
-			$source = (array) $this->argv;
-			$source['source'] = 1;
-
 			++self::$recursion;
-			$source = CIA_serverside::returnAgent(substr(get_class($this), 6), $source);
+			$source = CIA_serverside::returnAgent(substr(get_class($this), 6), (array) $this->argv);
 			--self::$recursion;
 
 			$parser = new jsqueez;
