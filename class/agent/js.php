@@ -24,6 +24,7 @@ class extends agent_bin
 	{
 		header('Content-Type: text/javascript; charset=UTF-8');
 
+		$this->argv->source && self::$recursion = 1;
 		self::$recursion && $this->argv->source = 1;
 
 		if (DEBUG || $this->argv->source)
