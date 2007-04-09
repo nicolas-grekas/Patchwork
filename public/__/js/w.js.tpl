@@ -330,7 +330,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 
 	w = function($context, $code, $WexecLastLimit)
 	{
-		$baseAgent; //This is here for jsqueez to work well
+		'$baseAgent'; //Tells jsqueez that this var must not be overwritten
 		$code = $code || [];
 		$WexecLastLimit = $WexecLastLimit || 0;
 
@@ -545,8 +545,8 @@ w = function($baseAgent, $keys, $masterCIApID)
 
 		function $evalNext($code)
 		{
-			'function' == typeof $code[$pointer] || eval('$code[$pointer]=function(a,d,v,g){return ' + $code[$pointer] + '}');
-			return $code[$pointer++](a, d, v, g);
+			'function' == typeof $code[$pointer] || eval('$code[$pointer]=function(a,d,v,g,z,r){return ' + $code[$pointer] + '}');
+			return $code[$pointer++](a, d, v, g, z, r);
 		}
 
 		$WexecStack[++$WexecLast] = function()
