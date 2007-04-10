@@ -96,6 +96,21 @@ pre:hover
 {
 	background-color: #D9E4EC;
 }
+div
+{
+	clear: both;
+}
+acronym
+{
+	width: 50px;
+	text-align: right;
+	float: left;
+	clear: both;
+	text-decoration: none;
+	border-bottom: 0;
+	font-style: italic;
+	color: silver;
+}
 </style>
 <script type="text/javascript">/*<![CDATA[*/
 function Z()
