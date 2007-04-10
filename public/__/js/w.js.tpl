@@ -1,4 +1,4 @@
-/***************************************************************************
+<!-- SET g$__DEBUG__ -->0<!-- END:SET -->/***************************************************************************
  *
  *   Copyright : (C) 2006 Nicolas Grekas. All rights reserved.
  *   Email     : nicolas.grekas+patchwork@espci.org
@@ -545,11 +545,11 @@ w = function($baseAgent, $keys, $masterCIApID)
 		function $evalNext($code)
 		{
 			'function' == typeof $code[$pointer] || (
-				w, $baseAgent, // For jsqueez
-				eval('$code[$pointer]=function(a,d,v,g,z,r){return ' + $code[$pointer] + '}')
+				w, // For jsqueez, idem for the occurrences of $baseAgent
+				eval('$code[$pointer]=function(a,d,v,g,z,r,$baseAgent){return ' + $code[$pointer] + '}')
 			);
 
-			return $code[$pointer++](a, d, v, g, z, r);
+			return $code[$pointer++](a, d, v, g, z, r, $baseAgent);
 		}
 
 		$WexecStack[++$WexecLast] = function()
