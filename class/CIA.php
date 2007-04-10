@@ -827,14 +827,16 @@ class
 
 		if ('__getDeltaMicrotime' !== $message)
 		{
-			if ($is_end) $a = sprintf('Total: %.02f ms</pre><pre>', self::$total_time);
+			$mem = function_exists('memory_get_peak_usage') ? pipe_bytes::php(memory_get_peak_usage(true)) : '';
+
+			if (DEBUG && $is_end) $a = sprintf('<div>Total: %.01f ms%s</div></pre><pre>', self::$total_time, $mem ? ' - ' . $mem : '');
 			else
 			{
 				$b = self::$handlesOb ? serialize($message) : print_r($message, true);
 
 				if (!$raw_html) $b = htmlspecialchars($b);
 
-				$a = '<acronym title="' . date("d-m-Y H:i:s", $_SERVER['REQUEST_TIME']) . '">' . sprintf('%.02f', $a) . ' ms</acronym>: ' . $b . "\n";
+				$a = '<acronym title="Date: ' . date("d-m-Y H:i:s", $_SERVER['REQUEST_TIME']) . ($mem ? ' - Memory: ' . $mem : '') . '">' . sprintf('%.01f ms', $a) . '</acronym> ' . $b . "\n";
 			}
 
 			$b = ini_get('error_log');
