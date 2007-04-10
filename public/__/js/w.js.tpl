@@ -544,7 +544,10 @@ w = function($baseAgent, $keys, $masterCIApID)
 
 		function $evalNext($code)
 		{
-			'function' == typeof $code[$pointer] || eval('"$baseAgent";$code[$pointer]=function(a,d,v,g,z,r){return ' + $code[$pointer] + '}');
+			'function' == typeof $code[$pointer] || (
+				w, $baseAgent, // For jsqueez
+				eval('$code[$pointer]=function(a,d,v,g,z,r){return ' + $code[$pointer] + '}')
+			);
 
 			return $code[$pointer++](a, d, v, g, z, r);
 		}

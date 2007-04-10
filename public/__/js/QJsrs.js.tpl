@@ -177,6 +177,8 @@ function $QJsrs($URL, $POST, $antiCSRF, $XMLHttpPreferred)
 
 	$this.driver = function($callback, $text, $raw)
 	{
+		w; // For jsqueez
+
 		if ($text>='')
 		{
 			if ($raw) eval('$text=' + $text.replace(/<\/.*/, '').substr(39));
