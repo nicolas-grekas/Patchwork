@@ -1,4 +1,4 @@
-<!-- SET g$__DEBUG__ -->0<!-- END:SET -->/***************************************************************************
+/***************************************************************************
  *
  *   Copyright : (C) 2006 Nicolas Grekas. All rights reserved.
  *   Email     : nicolas.grekas+patchwork@espci.org
@@ -542,14 +542,15 @@ w = function($baseAgent, $keys, $masterCIApID)
 		});
 		<!-- END:IF -->
 
-		function $evalNext($code)
+		function $evalNext($code, $a)
 		{
-			'function' == typeof $code[$pointer] || (
-				w, // For jsqueez, idem for the occurrences of $baseAgent
-				eval('$code[$pointer]=function(a,d,v,g,z,r,$baseAgent){return ' + $code[$pointer] + '}')
-			);
+			$a = $code[$pointer++];
 
-			return $code[$pointer++](a, d, v, g, z, r, $baseAgent);
+			return 'function' == typeof $a || ($a && eval('$a=$code[$pointer-1]=function(a,d,v,g,z,r){return ' + $a + '}'))
+				? $a(a, d, v, g, z, r)
+				: $baseAgent;
+
+			w; // For jsqueez
 		}
 
 		$WexecStack[++$WexecLast] = function()
@@ -808,11 +809,11 @@ w = function($baseAgent, $keys, $masterCIApID)
 		else
 
 		/* Block load, 2 steps : generating, then displaying. * /
-		w(0, [4, 1, '$baseAgent', 'g', $keys, 1, 5, 1, 'b', 3, 'g.b']);
+		w(0, [4, 1, 0, 'g', $keys, 1, 5, 1, 'b', 3, 'g.b']);
 		/**/
 
 		/* Dynamic load, 1 step : generating and displaying at the same time. */
-		w(0, [1, '$baseAgent', 'g', $keys, 1]);
+		w(0, [1, 0, 'g', $keys, 1]);
 		/**/
 	}
 }
