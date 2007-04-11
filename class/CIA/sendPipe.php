@@ -31,8 +31,7 @@ class extends CIA
 				$pipe = ob_get_clean();
 
 				$parser = new jsqueez;
-				$parser->addJs($pipe);
-				echo $pipe = $parser->get();
+				echo $pipe = $parser->squeeze($pipe);
 				$pipe .= "\n";
 				fwrite($h, $pipe, strlen($pipe));
 				fclose($h);

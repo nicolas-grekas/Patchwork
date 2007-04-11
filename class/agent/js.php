@@ -51,8 +51,7 @@ class extends agent_bin
 			--self::$recursion;
 
 			$parser = new jsqueez;
-			$parser->addJs($source);
-			$o->DATA = $parser->get();
+			$o->DATA = $parser->squeeze($source);
 		}
 		else
 		{
