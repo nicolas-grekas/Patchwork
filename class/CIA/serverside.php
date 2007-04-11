@@ -200,7 +200,7 @@ class extends CIA
 
 		self::$values = $v->{'$'} = $v;
 
-		$ctemplate = CIA::getContextualCachePath('templates/' . $template, (constant("$agentClass::binary") ? 'bin' : 'html') . '.php');
+		$ctemplate = CIA::getContextualCachePath('templates/' . $template, (CIA::$binaryMode ? 'bin' : 'html') . '.php');
 		$ftemplate = 'template' . md5($ctemplate);
 
 		if (function_exists($ftemplate)) $ftemplate($v, $a, $g);
@@ -211,7 +211,7 @@ class extends CIA
 			if ($h = CIA::fopenX($ctemplate, $readHandle))
 			{
 				CIA::openMeta('agent__template/' . $template, false);
-				$compiler = new iaCompiler_php(constant("$agentClass::binary"));
+				$compiler = new iaCompiler_php(CIA::$binaryMode);
 				$ftemplate = '<?php function ' . $ftemplate . '(&$v, &$a, &$g){global $a' . $GLOBALS['cia_paths_token'] . ',$c' . $GLOBALS['cia_paths_token'] . ';$d=$v;' . $compiler->compile($template . '.tpl') . '} ' . $ftemplate . '($v, $a, $g);';
 				fwrite($h, $ftemplate, strlen($ftemplate));
 				fclose($h);
