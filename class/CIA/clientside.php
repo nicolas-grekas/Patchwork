@@ -229,7 +229,7 @@ EOHTML;
 				if ($h = CIA::fopenX($ctemplate, $readHandle))
 				{
 					CIA::openMeta('agent__template/' . $template, false);
-					$compiler = new iaCompiler_js(constant("$agentClass::binary"));
+					$compiler = new iaCompiler_js(CIA::binaryMode);
 					echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
 					fwrite($h, $template, strlen($template));
 					fclose($h);

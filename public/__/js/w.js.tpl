@@ -113,6 +113,7 @@ function syncCSRF($form)
 			$a.name = 'T$';
 			$a.value = $antiCSRF;
 
+			$form.T$ = $a; // Workaround for a bug in IE
 			$form.insertBefore($a, $form.firstChild);
 		}
 		else $form.innerHTML += '<input type="hidden" name="T$" value="' + $antiCSRF + '" />';
