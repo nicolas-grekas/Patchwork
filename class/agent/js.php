@@ -27,7 +27,7 @@ class extends agent_bin
 		$this->argv->source && self::$recursion = 1;
 		self::$recursion && $this->argv->source = 1;
 
-		if (DEBUG || $this->argv->source)
+		if ($this->argv->source)
 		{
 			$tpl = $this->argv->__0__;
 
@@ -44,7 +44,7 @@ class extends agent_bin
 
 	function compose($o)
 	{
-		if (!DEBUG && !$this->argv->source)
+		if (!$this->argv->source)
 		{
 			++self::$recursion;
 			$source = CIA_serverside::returnAgent(substr(get_class($this), 6), (array) $this->argv);
