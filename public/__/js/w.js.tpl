@@ -517,10 +517,10 @@ w = function($baseAgent, $keys, $masterCIApID)
 
 			resyncCSRF();
 
-			if ($localCIApID == $masterCIApID && ($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/)) && $i[2]/1 != $masterCIApID)
-				$masterCIApID = $CIApID = $localCIApID = $i[2]/1,
-				w.r(),
-				$code = [];
+			if ($masterBase == g.__BASE__
+				&& ($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/))
+				&& $i[2]/1 != $masterCIApID
+			) w.r(), $code = [];
 		}
 
 		<!-- IF g$__DEBUG__ -->var DEBUG = $i = 0;<!-- END:IF -->
@@ -677,12 +677,12 @@ w = function($baseAgent, $keys, $masterCIApID)
 		}
 	}
 
-	w.r = function($now, $noCache)
+	w.r = function($noCache)
 	{
 		if ($masterBase != g.__BASE__) $document.cookie = 'cache_reset_id=' + $masterCIApID + '; path=/';
 		$reloadRequest = true;
 		$reloadNoCache = $reloadNoCache || !!$noCache;
-		if ($now) $WexecLast = $WexecStack.length = 0;
+		$WexecLast = $WexecStack.length = 0;
 	}
 
 	w.x = function($data)
