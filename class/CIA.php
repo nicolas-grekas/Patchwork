@@ -269,7 +269,7 @@ class
 
 		if (isset($_GET['v$']) && self::$versionId != $_GET['v$'] && 'x$' != key($_GET))
 		{
-			echo 'w(w.r(' . (int)!DEBUG . '))';
+			echo 'w(w.r(1,' . (int)!DEBUG . '))';
 			return;
 		}
 

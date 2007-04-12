@@ -194,7 +194,7 @@ EOHTML;
 			}
 			else if ($data->getMessage())
 			{
-				echo 'w.r(' . (int)!DEBUG . '));';
+				echo 'w.r(0,' . (int)!DEBUG . '));';
 			}
 			else
 			{
