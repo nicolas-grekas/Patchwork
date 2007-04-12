@@ -242,7 +242,7 @@ checkElementStatus = IcES = function($msgs, $form, $preserveScroll)
 		$element = 0>$element.indexOf('#') ? ($element += '#') : $element.replace(/@([0-9]+),([0-9]+)$/, '');
 		$element += '@' + $preserveScroll.scrollLeft + ',' + $preserveScroll.scrollTop;
 
-		$form.action = $element;
+		if ('@0,0' != $element.substr(-4)) $form.action = $element;
 	}
 
 	return $form = $preserveScroll = true;
