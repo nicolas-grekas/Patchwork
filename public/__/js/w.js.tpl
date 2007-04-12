@@ -519,8 +519,11 @@ w = function($baseAgent, $keys, $masterCIApID)
 
 			if ($masterBase == g.__BASE__
 				&& ($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/))
-				&& $i[2]/1 != $masterCIApID
-			) w.r(), $code = [];
+				&& ($i = $i[2]/1) != $masterCIApID
+			)
+				$masterCIApID = $CIApID = $localCIApID = $i,
+				$code = [],
+				w.r();
 		}
 
 		<!-- IF g$__DEBUG__ -->var DEBUG = $i = 0;<!-- END:IF -->
