@@ -12,9 +12,9 @@
  ***************************************************************************}
 <!--
 
-AGENT 'feed/atom/tag/title'   value=a$title   type=a$title_type  mandatory=a$mandatory
-AGENT 'feed/atom/tag/id'      value=a$id                         mandatory=a$mandatory
-AGENT 'feed/atom/tag/updated' value=a$updated                    mandatory=a$mandatory
+AGENT 'feed/atom/tag/title'   value=a$title   type=a$title_type  required=a$required
+AGENT 'feed/atom/tag/id'      value=a$id                         required=a$required
+AGENT 'feed/atom/tag/updated' value=a$updated                    required=a$required
 AGENT 'feed/atom/tag/rights'  value=a$rights  type=a$rights_type
 
 LOOP a$author      --><!-- AGENT 'feed/atom/person/author'      name=$name uri=$uri email=$email --><!-- END:LOOP

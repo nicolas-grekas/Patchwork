@@ -16,7 +16,7 @@ class extends agent_bin
 {
 	public $argv = array(
 		'__1__:int:1',
-		'__2__:string:^[a-f0-9]{32}$'
+		'__2__:string:[a-f0-9]{32}'
 	);
 
 	public static $callbackError = false;

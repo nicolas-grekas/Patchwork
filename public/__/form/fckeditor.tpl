@@ -18,10 +18,10 @@ This template plugs FCKeditor
 You can pass it every HTML attribute you need (class, on*, ...), they will be used to define the element.
 
 You can control it with the additional arguments:
-- a$_caption_										: the caption of the element, with class="mandatory" if needed
+- a$_caption_										: the caption of the element, with class="required" if needed
 - a$_beforeError_	|default:g$inputBeforeError		: HTML code put at the beginning of an error message
 - a$_afterError_	|default:g$inputAfterError		: HTML code put at the end of an error message
-- a$_focus_											: set the focus on this element
+- a$autofocus										: set the focus on this element
 - a$_format_		|default:g$inputFormat			: a string to format the output where ("=>" means "is replaced by"):
 														  %0 => the caption,
 														  %1 => the control,
@@ -29,6 +29,14 @@ You can control it with the additional arguments:
 														  %% => %
 
 *}
+
+IF a$autofocus
+	SET a$autofocus -->autofocus<!-- END:SET
+END:IF
+
+IF a$required
+	SET a$required -->required<!-- END:SET
+END:IF
 
 SET a$id -->FiD{g+1$GLOBID}<!-- END:SET
 SET a$class -->{a$class|default:a$type}<!-- END:SET
@@ -43,9 +51,9 @@ END:IF
 SET $CAPTION
 	IF a$_caption_
 		--><label for="{a$id}" class="{a$class}" onclick="return IlC(this)"><!--
-		IF a$_mandatory --><span class="mandatory"><!-- END:IF
+		IF a$required --><span class="required"><!-- END:IF
 		-->{a$_caption_}<!--
-		IF a$_mandatory --></span><!-- END:IF
+		IF a$required --></span><!-- END:IF
 		--></label><!--
 	END:IF
 END:SET
@@ -53,7 +61,7 @@ END:SET
 
 SET $INPUT
 
-	IF a$_mandatory --><span class="mandatory"><!-- END:IF
+	IF a$required --><span class="required"><!-- END:IF
 
 	IF !g$_FCKEDITOR
 		SET g$_FCKEDITOR -->1<!-- END:SET
@@ -84,7 +92,7 @@ lE.Config[{$KEY|js}]=<!-- IF '[' == a$a -->{$VALUE|js}<!-- ELSE -->{$VALUE|js}<!
 lE.ReplaceTextarea()
 }//]]></script ><!--
 
-	IF a$_mandatory --></span><!-- END:IF
+	IF a$required --></span><!-- END:IF
 
 END:SET
 

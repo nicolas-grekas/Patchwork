@@ -18,11 +18,11 @@ This template merges all standard HTML form elements (<input type="*">, <textare
 You can pass it every HTML attribute you need (class, on*, ...), they will be used to define the element.
 
 You can control it with the additional arguments:
-- a$_caption_										: the caption of the element, with class="mandatory" if needed
+- a$_caption_										: the caption of the element, with class="required" if needed
 - a$_glue_			|default:g$checkboxGlue			: for radio|checkbox elements : string to put to glue a list of radio|checkbox
 - a$_beforeError_	|default:g$inputBeforeError		: HTML code put at the beginning of an error message
 - a$_afterError_	|default:g$inputAfterError		: HTML code put at the end of an error message
-- a$_focus_											: set the focus on this element
+- a$autofocus										: set the focus on this element
 - a$_preserveScroll_								: preserve scroll position when an element triggers a submit
 - a$_format_		|default:g$inputFormat			: a string to format the output where ("=>" means "is replaced by"):
 														  %0 => the caption,
@@ -33,6 +33,14 @@ You can control it with the additional arguments:
 Question : should I add a label attribute to every <option> tag ?
 
 *}
+
+IF a$autofocus
+	SET a$autofocus -->autofocus<!-- END:SET
+END:IF
+
+IF a$required
+	SET a$required -->required<!-- END:SET
+END:IF
 
 IF a$_type == 'check'
 	SET a$_check -->1<!-- END:SET
@@ -56,9 +64,9 @@ END:IF
 SET $CAPTION
 	IF a$_caption_ && !a$_check || 1 < a$_option
 		--><label for="{a$id}" class="{a$class}" onclick="return IlC(this)"><!--
-		IF a$_mandatory --><span class="mandatory"><!-- END:IF
+		IF a$required --><span class="required"><!-- END:IF
 		-->{a$_caption_}<!--
-		IF a$_mandatory --></span><!-- END:IF
+		IF a$required --></span><!-- END:IF
 		--></label><!--
 	END:IF
 END:SET
@@ -76,7 +84,7 @@ SET $INPUT
 		-->}//]]></script ><!--
 	END:SET
 
-	IF a$_mandatory --><span class="mandatory"><!-- END:IF
+	IF a$required --><span class="required"><!-- END:IF
 
 	IF a$_check
 
@@ -142,9 +150,9 @@ SET $INPUT
 
 	END:IF
 
-	-->lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form,{a$_preserveScroll_|test:1:0})};<!-- IF a$_focus_ -->lEF=lE;setTimeout('lEF.focus()',100);<!-- END:IF -->{a$_JsEnd}<!--
+	-->lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form,{a$_preserveScroll_|test:1:0})};<!-- IF a$autofocus -->lEF=lE;setTimeout('lEF.focus()',100);<!-- END:IF -->{a$_JsEnd}<!--
 
-	IF a$_mandatory --></span><!-- END:IF
+	IF a$required --></span><!-- END:IF
 
 END:SET
 

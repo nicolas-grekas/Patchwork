@@ -51,7 +51,7 @@ ELSE
 		textarea {overflow: visible}
 		textarea.toomuch {background-color: #FFD2D2}
 		.errormsg {color: red}
-		.mandatory {font-weight: bold}
+		.required {font-weight: bold}
 		</style><!--
 
 		CLIENTSIDE

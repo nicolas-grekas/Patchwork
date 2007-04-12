@@ -81,19 +81,26 @@ class
 		return in_array($value, $args[0]) ? $value : false;
 	}
 
-	# regexp, case insensitive, trim
+	# regexp
 	protected static function get_string(&$value, &$args)
+	{
+		if (!is_scalar($value)) return false;
+		$result = trim((string) $value);
+		return self::get_raw($result, $args);
+	}
+
+	# regexp
+	protected static function get_raw(&$value, &$args)
 	{
 		if (!is_scalar($value)) return false;
 
 		$result = (string) $value;
-		if (!isset($args[2]) || $args[2]) $result = trim($result);
-		if (isset($args[0]) && $args[0])
-		{
-			$rx = '@' . str_replace('@', '\\@', $args[0]) . '@D';
-			if (isset($args[1]) && $args[1]) $rx .= 'i';
 
-			if (!preg_match($rx . 'su', $result, $args[3])) return false;
+		if (isset($args[0]))
+		{
+			$rx = implode(':', $args);
+			$rx = str_replace(array('\\', '@'), array('\\\\', '\\@'), $rx);
+			if (!preg_match("@^{$rx}$@Dsu", $result)) return false;
 		}
 
 		return $result;
@@ -184,7 +191,7 @@ class
 		if (isset($args[1]) && $args[1])
 		{
 			$result = array($args[1], false);
-			$result = self::get_string($value, $result);
+			$result = self::get_raw($value, $result);
 			if (false === $result) return false;
 		}
 
