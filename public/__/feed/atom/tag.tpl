@@ -12,7 +12,7 @@
  ***************************************************************************}
 <!--
 
-IF a$mandatory || a$value
+IF a$required || a$value
 
 	SET a$a
 		IF a$type    --> type="{a$type}"<!--       END:IF

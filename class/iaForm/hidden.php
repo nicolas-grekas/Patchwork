@@ -20,7 +20,7 @@ class extends loop_callAgent
 
 	protected $isfile = false;
 	protected $isdata = true;
-	protected $mandatory = false;
+	protected $required = false;
 	protected $errormsg = '';
 
 	protected $form;
@@ -119,7 +119,7 @@ class extends loop_callAgent
 				);
 			}
 
-			if ($onempty) $this->elt[$name][0]->mandatory = true;
+			if ($onempty) $this->elt[$name][0]->required = true;
 		}
 	}
 
@@ -309,7 +309,7 @@ class extends loop_callAgent
 		if ($this->eltToCheck) $a->_elements = new loop_array($this->eltToCheck, 'filter_rawArray');
 		if (!$this->multiple) $a->value = $this->value;
 		if ($this->errormsg) $a->_errormsg = $this->errormsg;
-		if ($this->mandatory) $a->_mandatory = 1;
+		if ($this->required) $a->required = 'required';
 
 		return $this->addJsValidation($a);
 	}

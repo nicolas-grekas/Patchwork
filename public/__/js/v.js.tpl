@@ -46,11 +46,17 @@ valid_float = function($value, $args)
 
 valid_string = function($value, $args)
 {
+	$value = $value.replace(/^\s+/, '').replace(/\s+$/, '');
+	return valid_raw($value, $args);
+}
+
+valid_raw = function($value, $args)
+{
 	if ($args[0])
 	{
-		if (!t($args[2]) || $args[2]) $value = $value.replace(/^\s+/, '').replace(/\s+$/, '');
-		$args[0] = new RegExp($args[0], $args[1] ? 'i' : '');
-		if (!$args[0].test($value)) return false;
+		$args = (' ' + $args.join(':')).replace(/([^\\](\\\\)*)\./g, '$1[\s\S]');
+		$args = new RegExp('^ ' + $args . '$');
+		if (!$args.test($value)) return false;
 	}
 	return true;
 }
@@ -59,7 +65,7 @@ valid_email = function ($value, $args)
 {
 	if (/^\s*$/.test($value)) return true;
 	$value = $value.toLowerCase();
-	return valid_string($value, ['^\\s*[-a-z0-9_\\.\\+=%]+@([-a-z0-9]+(\\.[-a-z0-9]+)+)\\s*$']) ? $value : false;
+	return /^\s*[-a-z0-9_\.\+=%]+@([-a-z0-9]+(\.[-a-z0-9]+)+)\s*$/.test($value) ? $value : false;
 }
 
 valid_phone = function($value, $args)

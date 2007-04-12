@@ -18,7 +18,7 @@ See http://www.atomenabled.org/developers/syndication/atom-format-spec.php
 
 *}<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="{g$__LANG__}"><!--
 
-AGENT 'feed/atom/common' mandatory=1
+AGENT 'feed/atom/common' required=1
 	title=$title title_type=$title_type
 	id=$id
 	updated=$updated
@@ -36,7 +36,7 @@ AGENT 'feed/atom/tag/subtitle'  value=$subtitle type=$subtitle_type
 LOOP $entry
 --><entry><!--
 
-	AGENT 'feed/atom/common' mandatory=1
+	AGENT 'feed/atom/common' required=1
 		title=$title title_type=$title_type
 		id=$id
 		updated=$updated
@@ -47,7 +47,7 @@ LOOP $entry
 		link=$link
 
 	SET $source -->{$source}<!--
-		AGENT 'feed/atom/common' mandatory=0
+		AGENT 'feed/atom/common' required=0
 			title=$source_title title_type=$source_title_type
 			id=$source_id
 			updated=$source_updated

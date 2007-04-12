@@ -18,6 +18,14 @@ It takes the same parameters as input.tpl
 
 *}
 
+IF a$autofocus
+	SET a$autofocus -->autofocus<!-- END:SET
+END:IF
+
+IF a$required
+	SET a$required -->required<!-- END:SET
+END:IF
+
 SET a$id -->{a$name}<!-- END:SET
 SET a$class -->{a$class|default:'QSelect'}<!-- END:SET
 
@@ -31,9 +39,9 @@ END:IF
 SET $CAPTION
 	IF a$_caption_
 		--><label for="{a$id}" class="{a$class}" onclick="return IlC(this)"><!--
-		IF a$_mandatory --><span class="mandatory"><!-- END:IF
+		IF a$required --><span class="required"><!-- END:IF
 		-->{a$_caption_}<!--
-		IF a$_mandatory --></span><!-- END:IF
+		IF a$required --></span><!-- END:IF
 		--></label><!--
 	END:IF
 END:SET
@@ -43,7 +51,7 @@ SET $INPUT
 
 	IF !g$__QS --><link rel="stylesheet" type="text/css" href="{base:'QSelect/style.css'}" /><!-- END:IF
 	SET $INPUT -->{base:|urlencode}<!-- END:SET
-	IF a$_mandatory --><span class="mandatory"><!-- END:IF
+	IF a$required --><span class="required"><!-- END:IF
 
 	--><span class="QSstyle"><input autocomplete="off" {a$|htmlArgs} /><img src="{base:'QSelect/b.gif'}" id="__QSb{$INPUT}{a$name}" onmouseover="this.src={base:'QSelect/bh.gif'|js}" onmouseout="this.src={base:'QSelect/b.gif'|js}" onmousedown="this.src={base:'QSelect/bp.gif'|js}" onmouseup="this.onmouseover()" alt=" " title="" /></span><script type="text/javascript">/*<![CDATA[*/<!--
 
@@ -60,9 +68,9 @@ SET $INPUT
 
 	lE.gS=function(){return valid(this<!-- LOOP a$_valid -->,{$VALUE|js}<!-- END:LOOP -->)}
 
-	lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form)};<!-- IF a$_focus_ -->lE.focus()<!-- END:IF -->//]]></script ><script type="text/javascript" src="{base:a$_src}"></script ><!--
+	lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form)};<!-- IF a$autofocus -->lE.focus()<!-- END:IF -->//]]></script ><script type="text/javascript" src="{base:a$_src}"></script ><!--
 
-	IF a$_mandatory --></span><!-- END:IF
+	IF a$required --></span><!-- END:IF
 
 END:SET
 
