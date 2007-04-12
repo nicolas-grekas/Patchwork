@@ -677,12 +677,12 @@ w = function($baseAgent, $keys, $masterCIApID)
 		}
 	}
 
-	w.r = function($noCache)
+	w.r = function($now, $noCache)
 	{
 		if ($masterBase != g.__BASE__) $document.cookie = 'cache_reset_id=' + $masterCIApID + '; path=/';
 		$reloadRequest = true;
 		$reloadNoCache = $reloadNoCache || !!$noCache;
-		$WexecLast = $WexecStack.length = 0;
+		if ($now) $WexecLast = $WexecStack.length = 0;
 	}
 
 	w.x = function($data)
