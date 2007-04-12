@@ -497,7 +497,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 			function($code)
 			{
 				var $i = $evalNext($code);
-				($i && (t($i, 'function') || ($i = y($i-0))) && $i()() && ++$pointer) || ($pointer += $code[$pointer]);
+				($i && (t($i, 'function') || ($i = y($i/1))) && $i()() && ++$pointer) || ($pointer += $code[$pointer]);
 				$context = v;
 			},
 
@@ -517,7 +517,10 @@ w = function($baseAgent, $keys, $masterCIApID)
 
 			resyncCSRF();
 
-			if (($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/)) && $i[2]-0 != $masterCIApID) w.r(), $code = [];
+			if ($localCIApID == $masterCIApID && ($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/)) && $i[2]/1 != $masterCIApID)
+				$masterCIApID = $CIApID = $localCIApID = $i[2]/1,
+				w.r(),
+				$code = [];
 		}
 
 		<!-- IF g$__DEBUG__ -->var DEBUG = $i = 0;<!-- END:IF -->
