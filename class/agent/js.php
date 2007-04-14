@@ -17,6 +17,7 @@ class extends agent_bin
 	public $argv = array('__0__', 'source:bool');
 
 	protected $maxage = -1;
+	protected $watch = array('public/js');
 
 	protected static $recursion = 0;
 

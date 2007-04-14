@@ -30,12 +30,20 @@ $cia_include_paths = array_map('realpath', $cia_include_paths);
 $cia_include_paths = array_diff($cia_include_paths, $cia_paths);
 $cia_include_paths = array_merge($cia_paths, $cia_include_paths);
 $cia_paths_offset  = count($cia_include_paths) - count($cia_paths) + 1;
+$cia_zcache        = resolvePath('zcache/');
+if (!$cia_zcache)
+{
+	$a = count($cia_paths) - 2;
+	do $cia_zcache = $cia_paths[$a] . '/zcache/';
+	while (!@mkdir($cia_zcache) && $a--);
+}
 
 $CIA = array(
 	'#' . PHP_VERSION,
 	'$cia_paths=' . var_export($cia_paths, true),
 	'$cia_include_paths=' . var_export($cia_include_paths, true),
 	'$cia_paths_offset='  . $cia_paths_offset,
+	'$cia_zcache=' . var_export($cia_zcache, true),
 	'$cia_private=false',
 	'$cia_abstract=array()',
 );
