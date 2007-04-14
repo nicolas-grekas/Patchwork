@@ -1,6 +1,6 @@
 Allow from all
 
-# Should already be on be default
+# Should already be on by default
 #AcceptPathInfo On
 
 # Uncomment to enable PHP5 on free.fr
