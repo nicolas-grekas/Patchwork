@@ -38,7 +38,7 @@ class extends CIA
 		$i = 0;
 		$len = count($cia_paths);
 		$lang = CIA::__LANG__() . '/';
-		$l_ng = '__/';
+		$l_ng = 5 == strlen($lang) ? substr($lang, 0, 2) . '/' : false;
 
 		$source = false;
 
@@ -47,7 +47,8 @@ class extends CIA
 			$path = $cia_paths[$i++] . '/public/';
 
 			if (file_exists($source = $path . $lang . $agent)) break;
-			if (file_exists($source = $path . $l_ng . $agent)) break;
+			if ($l_ng && file_exists($source = $path . $l_ng . $agent)) break;
+			if (file_exists($source = $path . '__/' . $agent)) break;
 		}
 		while (--$len);
 

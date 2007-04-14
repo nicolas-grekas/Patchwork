@@ -240,7 +240,7 @@ class
 		}
 
 		$agent = $_SERVER['CIA_REQUEST'];
-		if (($mime = strrchr($agent, '.')) && strcasecmp('.tpl', $mime)) CIA_controler::call($agent, $mime);
+		if (($mime = strrchr($agent, '.')) && strcasecmp('.tpl', $mime)) CIA_staticControler::call($agent, $mime);
 
 /*>
 		self::log(
@@ -893,6 +893,7 @@ class
 		else $potentialAgent = $agent;
 
 		$lang = self::$lang;
+		$l_ng = 5 == strlen($lang) ? substr($lang, 0, 2) : false;
 		$createTemplate = true;
 
 		while (1)
@@ -910,6 +911,7 @@ class
 			}
 
 			if (resolvePath("public/{$lang}/{$potentialAgent}.tpl")) break;
+			if ($l_ng && resolvePath("public/{$l_ng}/{$potentialAgent}.tpl")) break;
 			if (resolvePath("public/__/{$potentialAgent}.tpl")) break;
 
 			if ('index' == $potentialAgent) break;

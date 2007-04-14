@@ -106,11 +106,12 @@ abstract class
 
 		$path = $GLOBALS['cia_paths'][$path_idx] . '/public/';
 		$lang = CIA::__LANG__() . '/';
-		$l_ng = '__/';
+		$l_ng = 5 == strlen($lang) ? substr($lang, 0, 2) . '/' : false;
 
 		if (
 			   !file_exists($source = $path . $lang . $template)
-			&& !file_exists($source = $path . $l_ng . $template)
+			&& !($l_ng && file_exists($source = $path . $l_ng . $template))
+			&& !file_exists($source = $path . '__/' . $template)
 		) return $this->load($template, $path_idx + 1);
 
 		$lang = file_get_contents($source);
