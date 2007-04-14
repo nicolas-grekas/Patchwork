@@ -128,7 +128,9 @@ class
 	static $cachePath;
 	static $agentClass;
 	static $catchMeta = false;
-	static $ETag = '';
+
+	protected static $ETag = '';
+	protected static $LastModified = 0;
 
 	protected static $host;
 	protected static $lang = '__';
@@ -222,8 +224,6 @@ class
 
 		self::$versionId = abs($GLOBALS['version_id'] % 10000);
 		self::$cachePath = resolvePath('zcache/');
-		if (!self::$cachePath) self::$cachePath = $GLOBALS['cia_paths'][count($GLOBALS['cia_paths']) - 2] . '/zcache/';
-
 		self::$is_enabled = true;
 		self::$ob_starting_level = ob_get_level();
 		ob_start(array(__CLASS__, 'ob_sendHeaders'));
@@ -496,7 +496,8 @@ class
 		self::header('Content-Type: ' . $mime);
 		false !== stripos($mime, 'html') && header('P3P: CP="' . $GLOBALS['CONFIG']['P3P'] . '"');
 		self::$binaryMode = true;
-		self::$ETag = $size .'-'. filemtime($file) .'-'. fileinode($file);
+		self::$LastModified = filemtime($file);
+		self::$ETag = $size .'-'. self::$LastModified .'-'. fileinode($file);
 		self::disable();
 
 		$gzip = self::gzipAllowed($mime);
@@ -603,6 +604,11 @@ class
 		return $poped;
 	}
 
+	static function setLastModified($LastModified)
+	{
+		if ($LastModified > self::$LastModified) self::$LastModified = $LastModified;
+	}
+	
 	/*
 	 * Controls the Cache's max age.
 	 */
@@ -1227,15 +1233,21 @@ class
 				. implode("\n", self::$headers);
 
 			$ETag = substr(md5(self::$ETag .'-'. $buffer .'-'. self::$expires .'-'. $meta), 0, 8);
-			$ETag = hexdec($ETag);
-			if ($ETag > 2147483647) $ETag -= 2147483648;
 
-			$LastModified = gmdate('D, d M Y H:i:s \G\M\T', $ETag);
-			$ETag = dechex($ETag);
+			if (self::$LastModified) $LastModified = self::$LastModified;
+			else
+			{
+				$ETag = hexdec($ETag);
+				if ($ETag >= 0x80000000) $ETag -= 0x80000000;
+				$LastModified = $ETag;
+				$ETag = dechex($ETag);
+			}
 
+			$LastModified = gmdate('D, d M Y H:i:s \G\M\T', $LastModified);
 
-			$is304 = (isset($_SERVER['HTTP_IF_NONE_MATCH']) && false!==strpos($_SERVER['HTTP_IF_NONE_MATCH'], $ETag))
-				|| (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && false!==strpos($_SERVER['HTTP_IF_MODIFIED_SINCE'], $LastModified));
+			$is304 = isset($_SERVER['HTTP_IF_NONE_MATCH'])
+				? false !== strpos($_SERVER['HTTP_IF_NONE_MATCH'], $ETag)
+				: (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && false !== strpos($_SERVER['HTTP_IF_MODIFIED_SINCE'], $LastModified));
 
 
 			if ('ontouch' == self::$expires || ('auto' == self::$expires && self::$watchTable))

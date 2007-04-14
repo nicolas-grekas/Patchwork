@@ -102,6 +102,49 @@ class hunter
 }
 // }}}
 
+{ // <-- Hack to enable the next function only when execution reaches this point
+	
+// {{{ function resolvePath(): cia-specific include_path-like mechanism
+function resolvePath($file, $level = false, $base = false)
+{
+	$last_cia_paths = count($GLOBALS['cia_paths']) - 1;
+
+	if (false === $level)
+	{
+		$i = 0;
+		$level = $last_cia_paths;
+	}
+	else
+	{
+		if (0 <= $level) $base = 0;
+
+		$i = $last_cia_paths - $level - $base;
+
+		if (0 > $i) $i = 0;
+		else if ($i > $last_cia_paths) $i = $last_cia_paths;
+	}
+
+	$GLOBALS['cia_lastpath_level'] =& $level;
+
+	$file = strtr($file, '\\', '/');
+
+	if ('class/' == substr($file, 0, 6)) $paths =& $GLOBALS['cia_include_paths'];
+	else $paths =& $GLOBALS['cia_paths'];
+
+	$nb_paths = count($paths);
+
+	for (; $i < $nb_paths; ++$i, --$level)
+	{
+		$source = $paths[$i] .'/'. (0<=$level ? $file : substr($file, 6));
+		if (file_exists($source) && (!CIA_WINDOWS || is_file($source) || is_dir($source) || is_link($source))) return $source;
+	}
+
+	return false;
+}
+// }}}
+
+}
+
 // {{{ Load configuration
 chdir($CIA);
 
@@ -146,47 +189,7 @@ function W($msg, $err = E_USER_WARNING)
 // }}}
 
 
-
-{ // <-- Hack to enable the functions below only when execution reaches this point
-
-// {{{ function resolvePath(): cia-specific include_path-like mechanism
-function resolvePath($file, $level = false, $base = false)
-{
-	$last_cia_paths = count($GLOBALS['cia_paths']) - 1;
-
-	if (false === $level)
-	{
-		$i = 0;
-		$level = $last_cia_paths;
-	}
-	else
-	{
-		if (0 <= $level) $base = 0;
-
-		$i = $last_cia_paths - $level - $base;
-
-		if (0 > $i) $i = 0;
-		else if ($i > $last_cia_paths) $i = $last_cia_paths;
-	}
-
-	$GLOBALS['cia_lastpath_level'] =& $level;
-
-	$file = strtr($file, '\\', '/');
-
-	if ('class/' == substr($file, 0, 6)) $paths =& $GLOBALS['cia_include_paths'];
-	else $paths =& $GLOBALS['cia_paths'];
-
-	$nb_paths = count($paths);
-
-	for (; $i < $nb_paths; ++$i, --$level)
-	{
-		$source = $paths[$i] .'/'. (0<=$level ? $file : substr($file, 6));
-		if (file_exists($source) && (!CIA_WINDOWS || is_file($source) || is_dir($source) || is_link($source))) return $source;
-	}
-
-	return false;
-}
-// }}}
+{ // <-- Hack to enable the next functions only when execution reaches this point
 
 // {{{ function processPath(): resolvePath + macro preprocessor
 function processPath($file, $level = false, $base = false)
@@ -286,39 +289,42 @@ DEBUG && CIA_debug::checkCache();
 // }}}
 
 // {{{ Validator
-if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && !isset($_SERVER['HTTP_IF_NONE_MATCH'])) // Special behaviour thanks to IE
-{
-	$match = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE'], 2);
-	$_SERVER['HTTP_IF_NONE_MATCH'] = '"-' . dechex(strtotime($match[0])) . '"';
-}
+$a = isset($_SERVER['HTTP_IF_NONE_MATCH'])
+	? $_SERVER['HTTP_IF_NONE_MATCH']
+	: isset($_SERVER['HTTP_IF_MODIFIED_SINCE']);
 
-if (
-	isset($_SERVER['HTTP_IF_NONE_MATCH'])
-	&& 11 == strlen($_SERVER['HTTP_IF_NONE_MATCH'])
-	&& '"#--------"' == strtr($_SERVER['HTTP_IF_NONE_MATCH'], '-0123456789abcdef', '#----------------'))
+if ($a)
 {
-	$match = $_SERVER['HTTP_IF_NONE_MATCH'];
-	$match = resolvePath('zcache/') . $match[2] .'/'. $match[3] .'/'. substr($match, 4) .'.validator.'. DEBUG .'.';
-	$match .= md5($_SERVER['CIA_BASE'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
-
-	$headers = false;
-	if (file_exists($match)) $headers = file_get_contents($match);
-	if (false !== $headers)
+	if (true === $a) // Special behaviour thanks to IE
 	{
-		header('HTTP/1.1 304 Not Modified');
-		if ($headers)
+		$a = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE'], 2);
+		$a = '"-' . dechex(strtotime($a[0])) . '"';
+	}
+
+	if (11 == strlen($a) && '"#--------"' == strtr($a, '-0123456789abcdef', '#----------------'))
+	{
+		$a = $cia_zcache . $a[2] .'/'. $a[3] .'/'. substr($a, 4) .'.validator.'. DEBUG .'.';
+		$a .= md5($_SERVER['CIA_BASE'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
+
+		$b = false;
+		if (file_exists($a)) $b = file_get_contents($a);
+		if (false !== $b)
 		{
-			$headers = explode("\n", $headers, 3);
+			header('HTTP/1.1 304 Not Modified');
+			if ($b)
+			{
+				$b = explode("\n", $b, 3);
 
-			$match = $headers[0];
+				$a = $b[0];
 
-			$headers[0] = 'Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', $_SERVER['REQUEST_TIME'] + $match);
-			$headers[1] = 'Cache-Control: max-age=' . $match . ((int) $headers[1] ? ',private,must' : ',public,proxy') . '-revalidate';
+				$b[0] = 'Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', $_SERVER['REQUEST_TIME'] + $a);
+				$b[1] = 'Cache-Control: max-age=' . $a . ((int) $b[1] ? ',private,must' : ',public,proxy') . '-revalidate';
 
-			array_map('header', $headers);
+				array_map('header', $b);
+			}
+
+			exit;
 		}
-
-		exit;
 	}
 }
 // }}}
