@@ -488,7 +488,7 @@ abstract class
 		$i = count($detail);
 		while (--$i)
 		{
-			class_exists('pipe_' . $detail[$i][0]) || W("Template error: Pipe not found ({$detail[$i][0]})");
+			class_exists('pipe_' . $detail[$i][0]) || W("Template warning: pipe_{$detail[$i][0]} does not exist");
 			$Estart .= $this->makeModifier($detail[$i][0]) . '(';
 			$Eend = $this->closeModifier . $Eend;
 
@@ -504,7 +504,7 @@ abstract class
 			while (--$j) $Eend = ',' . $this->evalVar($detail[0][$j], true) . $Eend;
 
 			$Eend[0] = '(';
-			class_exists('pipe_' . $detail[0][0]) || W("Template error: Pipe not found ({$detail[0][0]})");
+			class_exists('pipe_' . $detail[0][0]) || W("Template warning: pipe_{$detail[0][0]} does not exist");
 			$Estart .= $this->makeModifier($detail[0][0]);
 		}
 		else $Estart .= $this->evalVar($detail[0][0], true);
