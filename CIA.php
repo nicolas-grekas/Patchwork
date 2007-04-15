@@ -295,10 +295,12 @@ $a = isset($_SERVER['HTTP_IF_NONE_MATCH'])
 
 if ($a)
 {
-	if (true === $a) // Special behaviour thanks to IE
+	if (true === $a)
 	{
+		// Patch an IE<=6 bug when using ETag + compression
 		$a = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE'], 2);
 		$a = '"-' . dechex(strtotime($a[0])) . '"';
+		$cia_private = true;
 	}
 
 	if (11 == strlen($a) && '"#--------"' == strtr($a, '-0123456789abcdef', '#----------------'))
@@ -318,7 +320,7 @@ if ($a)
 				$a = $b[0];
 
 				$b[0] = 'Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', $_SERVER['REQUEST_TIME'] + $a);
-				$b[1] = 'Cache-Control: max-age=' . $a . ((int) $b[1] ? ',private,must' : ',public,proxy') . '-revalidate';
+				$b[1] = 'Cache-Control: max-age=' . $a . ($cia_private || (int) $b[1] ? ',private,must' : ',public,proxy') . '-revalidate';
 
 				array_map('header', $b);
 			}
