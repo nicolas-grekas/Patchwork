@@ -14,14 +14,18 @@
 
 class
 {
-	static function php($string, $email = '')
+	static function php($string, $email = '', $attributes = '')
 	{
 		$string = htmlspecialchars(CIA::string($string));
 		$email  = htmlspecialchars(CIA::string($email));
 		if (!$email) $email = $string;
+		$attributes = htmlspecialchars(CIA::string($attributes));
+		'' !== $attributes && $attributes = ' ' . $attributes;
+
 
 		return '<a href="mailto:'
-			. str_replace('@', '[&#97;t]', $email) . '">'
+			. str_replace('@', '[&#97;t]', $email) . '"'
+			. $attributes . '>'
 			. str_replace('@', '<span style="display:none">@</span>&#64;', $string)
 			. '</a>';
 	}
@@ -30,12 +34,14 @@ class
 	{
 		?>/*<script>*/
 
-P$mailto = function($string, $email)
+P$mailto = function($string, $email, $attributes)
 {
 	$string = esc(str($string));
 	$email  = esc(str($email)) || $string;
+	$attributes = esc(str($attributes));
+	if ($attributes) $attributes = ' ' + $attributes;
 
-	return '<a href="mailto:' + $email + '">' + $string + '</a>';
+	return '<a href="mailto:' + $email + '"' + $attributes + '>' + $string + '</a>';
 }
 
 <?php	}
