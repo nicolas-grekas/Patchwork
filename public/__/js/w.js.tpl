@@ -215,7 +215,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 
 		$masterBase = {g$__BASE__|js};
 
-	if (!/safari|msie [0-5]\./i.test(navigator.userAgent) && !/(^|; )JS=1(; |$)/.test($document.cookie))
+	if (!/Safari|MSIE [0-5]\./.test(navigator.userAgent) && !/(^|; )JS=1(; |$)/.test($document.cookie))
 	{
 		$document.cookie = 'JS=1; path=/; expires=' + new Date({$maxage|js}000+new Date()/1).toGMTString();
 		0 || /(^|; )JS=1(; |$)/.test($document.cookie) || ($document.cookie = 'JS=1; path=/');

@@ -1098,14 +1098,14 @@ class
 
 			if (!(PHP_OUTPUT_HANDLER_END & $mode))
 			{
-				$meta = strrpos($buffer, '<');
-				if (false !== $meta)
+				$a = strrpos($buffer, '<');
+				if (false !== $a)
 				{
 					$tail = strrpos($buffer, '>');
-					if (false !== $tail && $tail > $meta) $meta = $tail;
+					if (false !== $tail && $tail > $a) $a = $tail;
 
-					$tail = substr($buffer, $meta);
-					$buffer = substr($buffer, 0, $meta);
+					$tail = substr($buffer, $a);
+					$buffer = substr($buffer, 0, $a);
 				}
 			}
 
@@ -1113,23 +1113,23 @@ class
 			$lead = $tail;
 
 
-			$meta = stripos($buffer, '<form');
-			if (false !== $meta)
+			$a = stripos($buffer, '<form');
+			if (false !== $a)
 			{
-				$meta = preg_replace_callback(
+				$a = preg_replace_callback(
 					'#<form\s(?:[^>]+?\s)?method\s*=\s*(["\']?)post\1.*?>#iu',
 					array('CIA_appendAntiCSRF', 'call'),
 					$buffer
 				);
 
-				if ($meta != $buffer)
+				if ($a != $buffer)
 				{
 					self::$private = true;
 					if (!(isset($_COOKIE['JS']) && $_COOKIE['JS'])) self::$maxage = 0;
-					$buffer = $meta;
+					$buffer = $a;
 				}
 
-				unset($meta);
+				unset($a);
 			}
 		}
 		else if (PHP_OUTPUT_HANDLER_START & $mode)
@@ -1137,17 +1137,17 @@ class
 			// Fix IE mime-sniff misfeature
 			// (see http://www.splitbrain.org/blog/2007-02/12-internet_explorer_facilitates_cross_site_scripting
 			//  and http://msdn.microsoft.com/library/default.asp?url=/workshop/networking/moniker/overview/appendix_a.asp)
-			// This will likely break binary contents, but it is also very unlikely
-			// that legitimate binary contents may contain these suspicious bytes.
+			// This will break some binary contents, but it is very unlikely that a legitimate
+			// binary content contains the suspicious bytes that trigger IE mime-sniffing.
 
-			$meta = substr($buffer, 0, 256);
-			$lt = strpos($meta, '<');
+			$a = substr($buffer, 0, 256);
+			$lt = strpos($a, '<');
 			if (false !== $lt && (!$type || in_array($type, self::$ieSniffedTypes)))
 			{
 				foreach (self::$ieSniffedTags as $tag)
 				{
-					$tail = stripos($meta, '<' . $tag, $lt);
-					if (false !== $tail && $tail + strlen($tag) < strlen($meta))
+					$tail = stripos($a, '<' . $tag, $lt);
+					if (false !== $tail && $tail + strlen($tag) < strlen($a))
 					{
 						$buffer = substr($buffer, 0, $tail)
 							. '<!--IE-MimeSniffFix'
@@ -1226,31 +1226,48 @@ class
 		if (!CIA_POSTING && ('' !== $buffer || self::$ETag))
 		{
 			if (!self::$maxage) self::$maxage = 0;
-
+			if ($GLOBALS['cia_private']) self::$private = true;
 
 			/* ETag / Last-Modified validation */
 
 			$meta = self::$maxage . "\n"
-				. self::$private . "\n"
+				. (int)(bool)self::$private . "\n"
 				. implode("\n", self::$headers);
 
 			$ETag = substr(md5(self::$ETag .'-'. $buffer .'-'. self::$expires .'-'. $meta), 0, 8);
 
 			if (self::$LastModified) $LastModified = self::$LastModified;
-			else
+			else if (
+				isset($_SERVER['HTTP_USER_AGENT'])
+				&& strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE')
+				&& preg_match("'MSIE [0-6]\.'", $_SERVER['HTTP_USER_AGENT'])
+				&& self::gzipAllowed(strtolower(substr(self::$headers['content-type'], 14))))
 			{
+				// Patch an IE<=6 bug when using ETag + compression
+
+				self::$private = true;
+				$meta[ strlen(self::$maxage) + 1 ] = '1';
+
 				$ETag = hexdec($ETag);
 				if ($ETag >= 0x80000000) $ETag -= 0x80000000;
 				$LastModified = $ETag;
 				$ETag = dechex($ETag);
 			}
+			else $LastModified = $_SERVER['REQUEST_TIME'];
 
 			$LastModified = gmdate('D, d M Y H:i:s \G\M\T', $LastModified);
 
-			$is304 = isset($_SERVER['HTTP_IF_NONE_MATCH'])
-				? false !== strpos($_SERVER['HTTP_IF_NONE_MATCH'], $ETag)
-				: (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && false !== strpos($_SERVER['HTTP_IF_MODIFIED_SINCE'], $LastModified));
+			$is304 = isset($_SERVER['HTTP_IF_NONE_MATCH']) && false !== strpos($_SERVER['HTTP_IF_NONE_MATCH'], $ETag);
 
+			if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']))
+			{
+				if ($is304)
+				{
+					$LastModified = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE'], 2);
+					$LastModified = $LastModified[0];
+				}
+				else $is304 = false !== strpos($_SERVER['HTTP_IF_MODIFIED_SINCE'], $LastModified);
+			}
 
 			if ('ontouch' == self::$expires || ('auto' == self::$expires && self::$watchTable))
 			{
@@ -1284,8 +1301,6 @@ class
 					self::writeWatchTable('CIApID', $validator);
 				}
 			}
-
-			if ($GLOBALS['cia_private']) self::$private = true;
 
 			header('ETag: "' . $ETag . '"');
 			header('Last-Modified: ' . $LastModified);
