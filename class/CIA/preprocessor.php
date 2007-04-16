@@ -215,7 +215,7 @@ class CIA_preprocessor__0
 
 		self::$recursive = $recursive;
 
-		cia_atomic_write($code, $destination, filemtime($source));
+		cia_atomic_write($code, $destination);
 	}
 
 	protected function __construct() {}
