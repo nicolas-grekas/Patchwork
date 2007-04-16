@@ -11,12 +11,6 @@
  *
  ***************************************************************************/
 
-/*>
-if (isset($_SERVER['PHP_AUTH_USER']))
-{
-	$_SERVER['PHP_AUTH_USER'] = $_SERVER['PHP_AUTH_PW'] = "Don't use me, it would enable Javascript-Hijacking.";
-}
-<*/
 
 // {{{ Shortcut functions for applications developpers
 function P($name, $type) {$a = func_get_args(); return VALIDATE::get(    $_POST[$name]  , $type, array_slice($a, 2));}
@@ -185,7 +179,7 @@ class
 
 	static function start()
 	{
-		// Workaround for a bug in eAccelerator 0.9.5
+		// Not a static method of CIA because of a bug in eAccelerator 0.9.5
 		function cia_error_handler($code, $message, $file, $line, &$context)
 		{
 			if (error_reporting())
@@ -318,7 +312,7 @@ class
 		}
 
 /*>
-		if (CIA_CHECK_SOURCE && !self::$binaryMode)
+		if (CIA_SYNC_CACHE && !self::$binaryMode)
 		{
 			global $version_id;
 
@@ -1091,7 +1085,7 @@ class
 			if (PHP_OUTPUT_HANDLER_START & $mode)
 			{
 				$lead = '';
-#>				if ((!CIA_CHECK_SOURCE || CIA_POSTING) && !self::$binaryMode) $buffer = CIA_debugWin::prolog() . $buffer;
+#>				if ((!CIA_SYNC_CACHE || CIA_POSTING) && !self::$binaryMode) $buffer = CIA_debugWin::prolog() . $buffer;
 			}
 
 			$tail = '';
@@ -1138,7 +1132,7 @@ class
 			// (see http://www.splitbrain.org/blog/2007-02/12-internet_explorer_facilitates_cross_site_scripting
 			//  and http://msdn.microsoft.com/library/default.asp?url=/workshop/networking/moniker/overview/appendix_a.asp)
 			// This will break some binary contents, but it is very unlikely that a legitimate
-			// binary content contains the suspicious bytes that trigger IE mime-sniffing.
+			// binary content may contain the suspicious bytes that trigger IE mime-sniffing.
 
 			$a = substr($buffer, 0, 256);
 			$lt = strpos($a, '<');
@@ -1335,6 +1329,36 @@ class
 	{
 		CIA_error::call($code, $message, $file, $line, $context);
 	}
+
+/*>
+	static function syncTemplate($template, $ctemplate)
+	{
+		if (file_exists($ctemplate))
+		{
+			global $cia_paths;
+
+			$path_idx = 0;
+			$lang = CIA::__LANG__() . '/';
+			$l_ng = 5 == strlen($lang) ? substr($lang, 0, 2) . '/' : false;
+			$template .= '.tpl';
+
+			do
+			{
+				$path = $cia_paths[$path_idx] . '/public/';
+
+				if (
+					   file_exists($source = $path . $lang . $template)
+					|| ($l_ng && file_exists($source = $path . $l_ng . $template))
+					|| file_exists($source = $path . '__/' . $template))
+				{
+					if (filemtime($ctemplate) <= filemtime($source)) unlink($ctemplate);
+					break;
+				}
+			}
+			while (isset($cia_paths[++$path_idx]));
+		}
+	}
+<*/
 }
 
 class agent

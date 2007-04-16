@@ -204,7 +204,7 @@ function processPath($file, $level = false, $base = false)
 	$cache = ((int)(bool)DEBUG) . (0>$level ? -$level .'-' : $level);
 	$cache = './.'. strtr(str_replace('_', '%2', str_replace('%', '%1', $file)), '/', '_') . ".{$cache}.{$GLOBALS['cia_paths_token']}.zcache.php";
 
-	if (file_exists($cache)) return $cache;
+	if (DEBUG ? file_exists($cache) && filemtime($cache) > filemtime($source) : file_exists($cache)) return $cache;
 
 	$class = 0<=$level
 		&& 'class/' == substr($file, 0, 6)
@@ -271,7 +271,15 @@ function __autoload($searched_class)
 		if (class_exists($searched_class, 0)) return;
 	}
 
-	function_exists('cia_autoload') || require __CIA__ . '/autoload.php';
+
+	static $load_autoload = true;
+
+	if ($load_autoload)
+	{
+		require __CIA__ . '/autoload.php';
+		$load_autoload = false;
+	}
+
 
 	cia_autoload($searched_class);
 }

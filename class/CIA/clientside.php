@@ -225,7 +225,11 @@ EOHTML;
 			if (CIA_MAXAGE == $maxage)
 			{
 				$ctemplate = CIA::getContextualCachePath("templates/$template", 'txt');
+
+#>				CIA::syncTemplate($template, $ctemplate);
+
 				$readHandle = true;
+
 				if ($h = CIA::fopenX($ctemplate, $readHandle))
 				{
 					CIA::openMeta('agent__template/' . $template, false);
