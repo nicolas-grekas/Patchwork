@@ -15,7 +15,15 @@
 // Mozilla and IE send a "Cache-Control: no-cache" only and only if a page is reloaded
 // with CTRL+F5 or location.reload(true). Usefull to trigger synchronization events.
 // Note: Opera does not have the same behavior
-define('CIA_SYNC_CACHE', false === strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') && isset($_SERVER['HTTP_CACHE_CONTROL']) && 'no-cache' == $_SERVER['HTTP_CACHE_CONTROL']);
+define(
+	'CIA_SYNC_CACHE',
+	   filemtime('./config.php') > filemtime('./.config.zcache.php')
+	|| (
+		   false === strpos($_SERVER['HTTP_USER_AGENT'], 'Opera')
+		&& isset($_SERVER['HTTP_CACHE_CONTROL'])
+		&& 'no-cache' == $_SERVER['HTTP_CACHE_CONTROL']
+	)
+);
 
 class
 {

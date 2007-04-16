@@ -259,7 +259,7 @@ $_SERVER[\'CIA_REQUEST\'] = urldecode($_SERVER[\'CIA_REQUEST\'])';
 $CIA[] = '$CONFIG[\'lang_list\'] || $_SERVER[\'CIA_LANG\'] = \'\'';
 
 $appConfigSource = '<?php ' . implode(";\n", $CIA) . ';';
-cia_atomic_write($appConfigSource, '.config.zcache.php');
+cia_atomic_write($appConfigSource, '.config.zcache.php', $_SERVER['REQUEST_TIME'] + 1);
 
 unset($CIA[0]);
 $CIA && eval(implode(";\n", $CIA) . ';');
