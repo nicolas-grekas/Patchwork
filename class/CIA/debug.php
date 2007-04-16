@@ -14,8 +14,8 @@
 
 // Mozilla and IE send a "Cache-Control: no-cache" only and only if a page is reloaded
 // with CTRL+F5 or location.reload(true). Usefull to trigger synchronization events.
-// XXX => This note does not seem to be valid for Opera
-define('CIA_CHECK_SOURCE', false === strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') && isset($_SERVER['HTTP_CACHE_CONTROL']) && 'no-cache' == $_SERVER['HTTP_CACHE_CONTROL']);
+// Note: Opera does not have the same behavior
+define('CIA_SYNC_CACHE', false === strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') && isset($_SERVER['HTTP_CACHE_CONTROL']) && 'no-cache' == $_SERVER['HTTP_CACHE_CONTROL']);
 
 class
 {
@@ -28,7 +28,7 @@ class
 
 		CIA_DIRECT && isset($_GET['d$']) && self::debugWin();
 
-		if (CIA_CHECK_SOURCE && !CIA_DIRECT)
+		if (CIA_SYNC_CACHE && !CIA_DIRECT)
 		{
 			if ($h = @fopen('./.debugLock', 'xb'))
 			{
@@ -36,9 +36,14 @@ class
 
 				@unlink('./.config.zcache.php');
 
+				global $cia_include_paths;
+
+				$cia_paths_length = count($GLOBALS['cia_paths']);
+				$cia_paths_token_offset = -12 - strlen($GLOBALS['cia_paths_token']);
+
 				foreach (glob('./.*.1*.' . $GLOBALS['cia_paths_token'] . '.zcache.php', GLOB_NOSORT) as $cache)
 				{
-					$file = str_replace('%1', '%', str_replace('%2', '_', strtr(substr($cache, 3, -12-strlen($GLOBALS['cia_paths_token'])), '_', '/')));
+					$file = str_replace('%1', '%', str_replace('%2', '_', strtr(substr($cache, 3, $cia_paths_token_offset), '_', '/')));
 					$level = substr(strrchr($file, '.'), 2);
 
 					$file = substr($file, 0, -(2 + strlen($level)));
@@ -48,7 +53,7 @@ class
 						$file = substr($file, 6);
 					}
 
-					$file = $GLOBALS['cia_include_paths'][count($GLOBALS['cia_paths']) - $level - 1] .'/'. $file;
+					$file = $cia_include_paths[$cia_path_length- $level - 1] .'/'. $file;
 
 					if (!file_exists($file) || filemtime($file) >= filemtime($cache)) @unlink($cache);
 				}
