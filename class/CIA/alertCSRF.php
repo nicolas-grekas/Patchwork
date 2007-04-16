@@ -32,8 +32,12 @@ class extends CIA
 			fseek($h, 0, SEEK_END);
 			if (!ftell($h))
 			{
+				CIA::touch('CIApID');
 				CIA::touch('public/templates/js');
+
 				fwrite($h, $a = '1', 1);
+				touch('./config.php');
+#>				file_exists('./.config.zcache.php') && touch('./.config.zcache.php');
 			}
 			fclose($h);
 
