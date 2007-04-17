@@ -10,8 +10,8 @@
  *   (at your option) any later version.
  *
  ***************************************************************************}
-<!-- AGENT 'header' title=$hello -->
+<!-- AGENT 'header' title="Hello !" -->
 
-{$hello}
+Hello {$whom} !
 
 <!-- AGENT 'footer' -->
