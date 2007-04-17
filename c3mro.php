@@ -30,12 +30,19 @@ $cia_include_paths = array_map('realpath', $cia_include_paths);
 $cia_include_paths = array_diff($cia_include_paths, $cia_paths);
 $cia_include_paths = array_merge($cia_paths, $cia_include_paths);
 $cia_paths_offset  = count($cia_include_paths) - count($cia_paths) + 1;
-$cia_zcache        = resolvePath('zcache/');
+
+$cia_zcache = resolvePath('zcache/');
+
+if ($cia_zcache)
+{
+	if (@touch($cia_zcache . 'write_test')) @unlink($cia_zcache . 'write_test');
+	else $cia_zcache = false;
+}
+
 if (!$cia_zcache)
 {
-	$a = count($cia_paths) - 2;
-	do $cia_zcache = $cia_paths[$a] . '/zcache/';
-	while (!@mkdir($cia_zcache) && $a--);
+	$cia_zcache = $cia_paths[0] . '/zcache/';
+	file_exists($cia_zcache) || mkdir($cia_zcache);
 }
 
 $CIA = array(

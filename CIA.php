@@ -102,8 +102,6 @@ class hunter
 }
 // }}}
 
-{ // <-- Hack to enable the next function only when execution reaches this point
-	
 // {{{ function resolvePath(): cia-specific include_path-like mechanism
 function resolvePath($file, $level = false, $base = false)
 {
@@ -142,8 +140,6 @@ function resolvePath($file, $level = false, $base = false)
 	return false;
 }
 // }}}
-
-}
 
 // {{{ Load configuration
 chdir($CIA);
