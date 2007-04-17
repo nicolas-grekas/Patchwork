@@ -60,6 +60,8 @@ class extends Mail_mime
 
 		if (isset($headers['From']))
 		{
+			ini_set('sendmail_from', $headers['From']);
+
 			if (!isset($headers['Reply-To'])   ) $headers['Reply-To'] = $headers['From'];
 			if (!isset($headers['Return-Path'])) $headers['Return-Path'] = $headers['From'];
 		}
