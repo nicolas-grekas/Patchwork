@@ -1,6 +1,6 @@
 <?php
 
 #import iaForm/pieces
-#import various
+#import toolbox
 #import iaMail
 #import ie7
