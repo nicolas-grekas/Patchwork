@@ -1,4 +1,5 @@
-<?php
+<?php #import pieces
+
 
 /* All default settings */
 

@@ -1,1 +1,13 @@
-<?php #import __CIA__
+<?php
+
+// Configuration example
+
+/*
+
+$CONFIG += array(
+
+	'DEBUG_ALLOWED' => false,
+
+);
+
+ */

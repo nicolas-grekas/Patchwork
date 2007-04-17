@@ -1,6 +1,5 @@
 <?php #import ../iaCron
 
-
 $CONFIG += array(
 
 	// Used by iaMail in test mode

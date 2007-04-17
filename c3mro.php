@@ -14,12 +14,11 @@
 
 isset($_SERVER['REDIRECT_URL']) && die('C3MRO Init. Error: $_SERVER[\'REDIRECT_URL\'] must not be set at this stage.');
 
-$version_id = realpath('.');
+$CIA = realpath('.');
+file_exists('./config.php') || die("Missing file: {$CIA}/config.php");
 
 $appConfigSource = array();
 $appInheritSeq = array();
-
-$CIA = $version_id;
 $version_id = 0;
 
 // Linearize application inheritance graph
@@ -293,8 +292,9 @@ function C3MRO($appRealpath)
 
 	if (!file_exists($appRealpath . '/config.php'))
 	{
-		if (__CIA__ == $appRealpath) return array($appRealpath);
-		die('Missing file config.php in ' . htmlspecialchars($appRealpath));
+		$resultSeq = array($appRealpath);
+		__CIA__ != $appRealpath && $resultSeq[] = __CIA__;
+		return $resultSeq;
 	}
 
 	$GLOBALS['version_id'] += filemtime($appRealpath . '/config.php');
@@ -329,13 +329,14 @@ function C3MRO($appRealpath)
 	{
 		preg_match_all("'^#import(.*)$'m", $parent[0], $parent);
 		$parent = $parent[1];
+		$parent[] = '__CIA__';
 	}
 	else $parent = false;
 
 	if (__CIA__ == $appRealpath && $parent) die('#import clause is forbidden in root config file: ' . htmlspecialchars(__CIA__) . '/config.php');
 
 	// If no parent app, result is trival
-	if (!$parent) return array($appRealpath);
+	if (!$parent) return array($appRealpath, __CIA__);
 
 	$resultSeq = count($parent);
 
