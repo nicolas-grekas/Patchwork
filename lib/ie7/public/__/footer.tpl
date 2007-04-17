@@ -12,14 +12,12 @@
  ***************************************************************************}
 <!--
 
-IF 1 == g-1$headerNesting
-
-	--><script type="text/javascript">/*<![CDATA[*/footerHtml.length&&document.write(footerHtml.join(''))//]]></script>{a$footer}<!--
-
-	SERVERSIDE --><script type="text/javascript" defer="defer">/*<![CDATA[*/onDOMLoaded.go()//]]></script><!-- END:SERVERSIDE
-
-	--></body></html><!--
-
+IF !a$noIE7
+	SET a$footer
+		-->{a$footer}<!--[if lt IE 7]><script src="{base:'js/ie7/ie7.js'}" type="text/javascript"></script ><![endif]--><!--
+	END:SET
 END:IF
+
+INCLUDE footer:-1
 
 -->
