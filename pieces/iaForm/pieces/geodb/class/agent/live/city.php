@@ -23,7 +23,7 @@ class extends agent
 	function compose($o)
 	{
 		$sql = $this->argv->q;
-		$sql = ('*' == $sql ? '' : LIB::getKeywords($sql));
+		$sql = ('*' == $sql ? '' : lingua::getKeywords($sql));
 		$sql = sqlite_escape_string($sql);
 
 		switch ($a = substr($sql, 0, 3))

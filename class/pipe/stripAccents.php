@@ -16,7 +16,7 @@ class
 {
 	static function php($str, $case = 0)
 	{
-		return LIB::stripAccents($str, $case);
+		return lingua::stripAccents($str, $case);
 	}
 
 	static function js()
