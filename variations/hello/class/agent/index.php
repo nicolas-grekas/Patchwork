@@ -16,7 +16,7 @@ class extends agent
 {
 	function compose($o)
 	{
-		$o->hello = 'Hello World !';
+		$o->whom = 'World';
 
 		return $o;
 	}

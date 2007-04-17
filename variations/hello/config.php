@@ -1,1 +1,1 @@
-<?php #import ../..
+<?php #import __CIA__
