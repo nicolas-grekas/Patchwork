@@ -1,7 +1,4 @@
-<?php
-
-#import __CIA__
-#import ../iaCron
+<?php #import ../iaCron
 
 
 $CONFIG += array(
