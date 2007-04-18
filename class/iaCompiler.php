@@ -102,6 +102,8 @@ abstract class
 
 	private function load($template, $path_idx = 0)
 	{
+		$this->template = CIA_WINDOWS ? strtolower($template) : $template;
+
 		$template = CIA::resolvePublicPath($template, $path_idx);
 
 		if (!$template) return '';
@@ -148,10 +150,8 @@ abstract class
 			);
 		}
 
-		$rx = '[-_a-zA-Z\d\x80-\xffffffff][-_a-zA-Z\d\x80-\xffffffff\.]*';
-
-		$this->template = CIA_WINDOWS ? strtolower($template) : $template;
 		$this->path_idx = $path_idx;
+		$rx = '[-_a-zA-Z\d\x80-\xffffffff][-_a-zA-Z\d\x80-\xffffffff\.]*';
 		$source = preg_replace_callback("'{$this->Xlblock}INCLUDE\s+($rx(?:[\\/]$rx)*)(:-?\d+)?\s*{$this->Xrblock}'su", array($this, 'INCLUDEcallback'), $source);
 
 		return $source;
