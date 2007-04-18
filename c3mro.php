@@ -207,6 +207,7 @@ $CIA[] = 'isset($CONFIG[\'session.cookie_domain\' ]) || $CONFIG[\'session.cookie
 $CIA[] = 'isset($CONFIG[\'DEBUG_ALLOWED\' ]) || $CONFIG[\'DEBUG_ALLOWED\'] = true';
 $CIA[] = 'isset($CONFIG[\'DEBUG_PASSWORD\']) || $CONFIG[\'DEBUG_PASSWORD\'] = \'\'';
 $CIA[] = 'isset($CONFIG[\'lang_list\'     ]) || $CONFIG[\'lang_list\'] = \'\'';
+$CIA[] = '$cia_multilang = false !== strpos($CONFIG[\'lang_list\'], \'|\')';
 
 // {{{ CIA's context initialization
 /**
@@ -227,12 +228,12 @@ $_SERVER[\'CIA_LANG\'] = $_SERVER[\'CIA_REQUEST\'] = \'\'';
 	{
 		$CIA[] = 'isset($_SERVER[\'ORIG_PATH_INFO\']) && $_SERVER[\'PATH_INFO\'] = $_SERVER[\'ORIG_PATH_INFO\']';
 		$CIA[] = 'isset($_SERVER[\'PATH_INFO\']) && $_SERVER[\'CIA_REQUEST\'] = substr($_SERVER[\'PATH_INFO\'], 1)';
-		$CIA[] = '$_SERVER[\'CIA_BASE\'] .= \'/\' . ($CONFIG[\'lang_list\'] ? \'__/\' : \'\')';
+		$CIA[] = '$_SERVER[\'CIA_BASE\'] .= \'/\' . ($cia_multilang ? \'__/\' : \'\')';
 	}
 	else
 	{
 		$CIA[] = '\'index.php\' == substr($_SERVER[\'CIA_BASE\'], -9) && $_SERVER[\'CIA_BASE\'] = substr($_SERVER[\'CIA_BASE\'], 0, -9)';
-		$CIA[] = '$_SERVER[\'CIA_BASE\'] .= \'?\' . ($CONFIG[\'lang_list\'] ? \'__/\' : \'\')';
+		$CIA[] = '$_SERVER[\'CIA_BASE\'] .= \'?\' . ($cia_multilang ? \'__/\' : \'\')';
 		$CIA[] = '
 $_SERVER[\'CIA_REQUEST\'] = $_SERVER[\'QUERY_STRING\'];
 
@@ -264,7 +265,7 @@ $_SERVER[\'CIA_REQUEST\'] = urldecode($_SERVER[\'CIA_REQUEST\'])';
 }
 // }}}
 
-$CIA[] = '$CONFIG[\'lang_list\'] || $_SERVER[\'CIA_LANG\'] = \'\'';
+$CIA[] = '$cia_multilang || $_SERVER[\'CIA_LANG\'] = $CONFIG[\'lang_list\']';
 
 $appConfigSource = '<?php ' . implode(";\n", $CIA) . ';';
 cia_atomic_write($appConfigSource, '.config.zcache.php', $_SERVER['REQUEST_TIME'] + 1);
