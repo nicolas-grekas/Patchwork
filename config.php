@@ -15,8 +15,11 @@
 $CONFIG += array(
 
 	// Debug features
-#	'DEBUG_ALLOWED'  => 1,
+#	'DEBUG_ALLOWED'  => true,
 #	'DEBUG_PASSWORD' => '',
+
+	// List of available languages ("en|fr" for example).
+#	'lang_list' => '',
 
 	// Enable browser-side page rendering when available ?
 #	'clientside' => true,
