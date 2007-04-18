@@ -6,3 +6,4 @@
 #import iaMail
 #import ie7
 #import semanticWeb
+#import ezComponents

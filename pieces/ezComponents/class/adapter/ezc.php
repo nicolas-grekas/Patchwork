@@ -12,12 +12,6 @@
  ***************************************************************************/
 
 
-/*
- * To use eZComponents, setup them using the PEAR method,
- * then add this line in your config.php :
- * registerAutoloadPrefix('ezc', array('adapter_ezc', 'getAutoload'));
- */
-
 class
 {
 	static function getAutoload($className)
