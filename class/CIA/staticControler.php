@@ -33,38 +33,19 @@ class extends CIA
 
 	static function call($agent, $mime)
 	{
-		global $cia_paths;
-
-		$i = 0;
-		$len = count($cia_paths);
-		$lang = CIA::__LANG__() . '/';
-		$l_ng = 5 == strlen($lang) ? substr($lang, 0, 2) . '/' : false;
-
-		$source = false;
-
-		do
-		{
-			$path = $cia_paths[$i++] . '/public/';
-
-			if (file_exists($source = $path . $lang . $agent)) break;
-			if ($l_ng && file_exists($source = $path . $l_ng . $agent)) break;
-			if (file_exists($source = $path . '__/' . $agent)) break;
-		}
-		while (--$len);
-
-		if ($len)
+		if ($agent = CIA::resolvePublicPath($agent))
 		{
 			$mime = strtolower($mime);
 			$mime = isset(self::$contentType[$mime]) ? self::$contentType[$mime] : false;
 
 			if (extension_loaded('fileinfo') && ($i = finfo_open(FILEINFO_SYMLINK|FILEINFO_MIME)))
 			{
-				$mime = finfo_file($i, $source);
+				$mime = finfo_file($i, $agent);
 				finfo_close($i);
 			}
 			else if (function_exists('mime_content_type'))
 			{
-				$mime = mime_content_type($source);
+				$mime = mime_content_type($agent);
 			}
 
 			if (!$mime) $mime = 'application/octet-stream';
@@ -72,7 +53,7 @@ class extends CIA
 			CIA::setMaxage(-1);
 			CIA::writeWatchTable('public/static', 'zcache/');
 
-			CIA::readfile($source, $mime);
+			CIA::readfile($agent, $mime);
 
 			exit;
 		}

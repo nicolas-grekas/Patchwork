@@ -3,11 +3,11 @@
 
 // Import basic pieces of patchwork.
 
-#import iaForm/pieces
-#import toolbox
-#import lingua
-#import iaMail
-#import ie7
+#import pieces/iaForm/pieces
+#import pieces/toolbox
+#import pieces/lingua
+#import pieces/iaMail
+#import pieces/ie7
 
 
 /* All default settings */
