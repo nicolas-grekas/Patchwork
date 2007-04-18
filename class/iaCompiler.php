@@ -102,21 +102,12 @@ abstract class
 
 	private function load($template, $path_idx = 0)
 	{
-		if ($path_idx >= count($GLOBALS['cia_paths'])) return '';
+		$template = CIA::resolvePublicPath($template, $path_idx);
 
-		$path = $GLOBALS['cia_paths'][$path_idx] . '/public/';
-		$lang = CIA::__LANG__() . '/';
-		$l_ng = 5 == strlen($lang) ? substr($lang, 0, 2) . '/' : false;
+		if (!$template) return '';
 
-		if (
-			   !file_exists($source = $path . $lang . $template)
-			&& !($l_ng && file_exists($source = $path . $l_ng . $template))
-			&& !file_exists($source = $path . '__/' . $template)
-		) return $this->load($template, $path_idx + 1);
-
-		$lang = file_get_contents($source);
-		if (!preg_match("''u", $lang)) W("Template file {$source}:\nfile encoding is not valid UTF-8. Please convert your source code to UTF-8.");
-		$source =& $lang;
+		$source = file_get_contents($template);
+		if (!preg_match("''u", $source)) W("Template file {$template}:\nfile encoding is not valid UTF-8. Please convert your source code to UTF-8.");
 
 		$source = rtrim($source);
 		if (false !== strpos($source, "\r")) $source = strtr(str_replace("\r\n", "\n", $source), "\r", "\n");

@@ -1342,32 +1342,35 @@ class
 		CIA_error::call($code, $message, $file, $line, $context);
 	}
 
+	static function resolvePublicPath($filename, $path_idx = 0)
+	{
+		global $cia_paths;
+
+		$lang = CIA::__LANG__() . '/';
+		$l_ng = 5 == strlen($lang) ? substr($lang, 0, 2) . '/' : false;
+
+		do
+		{
+			$path = $cia_paths[$path_idx] . '/public/';
+
+			if (
+				   file_exists($result = $path . $lang . $filename)
+				|| ($l_ng && file_exists($result = $path . $l_ng . $filename))
+				|| file_exists($result = $path . '__/' . $filename)
+			) break;
+		}
+		while (isset($cia_paths[++$path_idx]));
+
+		return isset($cia_paths[$path_idx]) ? $result : false;
+	}
+
 /*>
 	static function syncTemplate($template, $ctemplate)
 	{
 		if (file_exists($ctemplate))
 		{
-			global $cia_paths;
-
-			$path_idx = 0;
-			$lang = CIA::__LANG__() . '/';
-			$l_ng = 5 == strlen($lang) ? substr($lang, 0, 2) . '/' : false;
-			$template .= '.tpl';
-
-			do
-			{
-				$path = $cia_paths[$path_idx] . '/public/';
-
-				if (
-					   file_exists($source = $path . $lang . $template)
-					|| ($l_ng && file_exists($source = $path . $l_ng . $template))
-					|| file_exists($source = $path . '__/' . $template))
-				{
-					if (filemtime($ctemplate) <= filemtime($source)) unlink($ctemplate);
-					break;
-				}
-			}
-			while (isset($cia_paths[++$path_idx]));
+			$template = self::resolvePublicPath($template . '.tpl');
+			if ($template && filemtime($ctemplate) <= filemtime($template)) unlink($ctemplate);
 		}
 	}
 <*/
