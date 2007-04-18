@@ -1,10 +1,13 @@
 <?php
 
 
-// Import all the pieces of the patchwork.
-// If you want more granularity, set the directive to your exact needs.
+// Import basic pieces of patchwork.
 
-#import pieces
+#import iaForm/pieces
+#import toolbox
+#import lingua
+#import iaMail
+#import ie7
 
 
 /* All default settings */
