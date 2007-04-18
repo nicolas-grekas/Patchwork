@@ -1342,11 +1342,13 @@ class
 		CIA_error::call($code, $message, $file, $line, $context);
 	}
 
-	static function resolvePublicPath($filename, $path_idx = 0)
+	static function resolvePublicPath($filename, &$path_idx = 0)
 	{
 		global $cia_paths;
 
-		$lang = CIA::__LANG__() . '/';
+		if ($path_idx && $path_idx >= count($cia_paths)) return false;
+
+		$lang = self::__LANG__() . '/';
 		$l_ng = 5 == strlen($lang) ? substr($lang, 0, 2) . '/' : false;
 
 		do
