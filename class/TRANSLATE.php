@@ -19,7 +19,7 @@ class
 
 	public static function get($string, $lang, $usecache)
 	{
-		if ('' === $string || '__' == $lang) return $string;
+		if ('' === $string || '__' == $lang || !$GLOBALS['cia_multilang']) return $string;
 
 		$hash = md5($string);
 		$cache = '';

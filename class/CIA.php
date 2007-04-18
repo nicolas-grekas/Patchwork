@@ -19,10 +19,17 @@ function F($name, $type) {$a = func_get_args(); return VALIDATE::getFile($_FILES
 
 function V($var , $type) {$a = func_get_args(); return VALIDATE::get(     $var          , $type, array_slice($a, 2));}
 
-function T($string, $lang = false)
+if ($GLOBALS['cia_multilang'])
 {
-	if (!$lang) $lang = CIA::__LANG__();
-	return TRANSLATE::get($string, $lang, true);
+	function T($string, $lang = false)
+	{
+		if (!$lang) $lang = CIA::__LANG__();
+		return TRANSLATE::get($string, $lang, true);
+	}
+}
+else
+{
+	function T($string) {return $string;}
 }
 // }}}
 
@@ -322,7 +329,7 @@ class
 			$version_id = -$version_id - $_SERVER['REQUEST_TIME'];
 			self::$versionId = abs($version_id % 10000);
 
-			$a = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_BASE'], 2));
+			$a = $GLOBALS['cia_multilang'] ? implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_BASE'], 2)) : $_SERVER['CIA_BASE'];
 			$a = preg_replace("'\?.*$'", '', $a);
 			$a = preg_replace("'^https?://[^/]*'i", '', $a);
 			$a = dirname($a . ' ');
@@ -379,8 +386,12 @@ class
 		$lang = self::$lang;
 		self::$lang = $new_lang;
 
-		self::$base = explode('__', $_SERVER['CIA_BASE'], 2);
-		self::$base = implode($new_lang, self::$base);
+		if ($GLOBALS['cia_multilang'])
+		{
+			self::$base = explode('__', $_SERVER['CIA_BASE'], 2);
+			self::$base = implode($new_lang, self::$base);
+		}
+		else self::$base = $_SERVER['CIA_BASE'];
 
 		self::$host = strtr(self::$base, '#?', '//');
 		self::$host = substr(self::$base, 0, strpos(self::$host, '/', 8)+1);
