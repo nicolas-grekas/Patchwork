@@ -22,7 +22,9 @@ $appInheritSeq = array();
 $version_id = 0;
 
 // Linearize application inheritance graph
-$cia_paths = C3MRO($CIA);
+$cia_paths = C3MRO(__CIA__, $CIA);
+$cia_paths = array_slice($cia_paths, 1);
+$cia_paths[] = __CIA__;
 
 $cia_include_paths = explode(PATH_SEPARATOR, get_include_path());
 $cia_include_paths = array_map('realpath', $cia_include_paths);
@@ -283,19 +285,14 @@ unset($CIA);
 
 // C3 Method Resolution Order (like in Python 2.3) for multiple application inheritance
 // See http://python.org/2.3/mro.html
-function C3MRO($appRealpath)
+function C3MRO($appRealpath, $firstParent = false)
 {
 	$resultSeq =& $GLOBALS['appInheritSeq'][$appRealpath];
 
 	// If result is cached, return it
 	if (null !== $resultSeq) return $resultSeq;
 
-	if (!file_exists($appRealpath . '/config.php'))
-	{
-		$resultSeq = array($appRealpath);
-		__CIA__ != $appRealpath && $resultSeq[] = __CIA__;
-		return $resultSeq;
-	}
+	if (!file_exists($appRealpath . '/config.php')) return $resultSeq = $firstParent ? array($appRealpath, $firstParent) : array($appRealpath);
 
 	$GLOBALS['version_id'] += filemtime($appRealpath . '/config.php');
 
@@ -329,14 +326,11 @@ function C3MRO($appRealpath)
 	{
 		preg_match_all("'^#import(.*)$'m", $parent[0], $parent);
 		$parent = $parent[1];
-		$parent[] = '__CIA__';
 	}
-	else $parent = false;
-
-	if (__CIA__ == $appRealpath && $parent) die('#import clause is forbidden in root config file: ' . htmlspecialchars(__CIA__) . '/config.php');
+	else $parent = array();
 
 	// If no parent app, result is trival
-	if (!$parent) return array($appRealpath, __CIA__);
+	if (!$parent && !$firstParent) return array($appRealpath);
 
 	$resultSeq = count($parent);
 
@@ -352,9 +346,12 @@ function C3MRO($appRealpath)
 		if ('/' != $seq[0] && '\\' != $seq[0] &&  ':' != $seq[1]) $seq = $appRealpath . '/' . $seq;
 
 		$seq = realpath($seq);
-
+		if (__CIA__ == $seq) unset($parent[$k]);
+	
 		++$k;
 	}
+	
+	if ($firstParent) array_unshift($parent, $firstParent);
 
 	// Compute C3 MRO
 	$seqs = array_merge(
@@ -369,24 +366,18 @@ function C3MRO($appRealpath)
 	{
 		if (!$seqs) return $resultSeq;
 
+		unset($seq);
+		$notHead = array();
+		foreach ($seqs as $seq)
+			foreach (array_slice($seq, 1) as $seq)
+				$notHead[$seq] = 1;
+
 		foreach ($seqs as &$seq)
 		{
 			$parent = reset($seq);
 
-			unset($seq);
-
-			foreach ($seqs as $seq)
-			{
-				unset($seq[key($seq)]);
-
-				if (in_array($parent, $seq))
-				{
-					$parent = false;
-					break;
-				}
-			}
-
-			if ($parent) break;
+			if (isset($notHead[$parent])) $parent = false;
+			else break;
 		}
 
 		if (!$parent) die('Inconsistent application hierarchy');
@@ -395,8 +386,8 @@ function C3MRO($appRealpath)
 
 		foreach ($seqs as $k => &$seq)
 		{
-			if ($parent == current($seq)) unset($seq[key($seq)]);
-			if (!$seq) unset($seqs[$k]);
+			if ($parent == current($seq)) unset($seqs[$k][key($seq)]);
+			if (!$seqs[$k]) unset($seqs[$k]);
 		}
 	}
 }
