@@ -1,5 +1,9 @@
 <?php
 
+
+// Import all the pieces of the patchwork.
+// If you want more granularity, set the directive to your exact needs.
+
 #import pieces
 
 
