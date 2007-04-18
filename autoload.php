@@ -118,7 +118,7 @@ function cia_autoload($searched_class)
 				$cache = ((int)(bool)DEBUG) . (0>$level ? -$level .'-' : $level);
 				$cache = "./.class_{$class}.php.{$cache}.{$cia_paths_token}.zcache.php";
 
-				if (DEBUG ? !file_exists($cache) || filemtime($cache) <= filemtime($source) : !file_exists($cache))
+				if (!file_exists($cache) || (DEBUG && filemtime($cache) <= filemtime($source)))
 					call_user_func(array($preproc, 'run'), $source, $cache, $level, $class);
 
 				$current_pool = array();
