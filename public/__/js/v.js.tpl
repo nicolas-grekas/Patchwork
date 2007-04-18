@@ -54,9 +54,9 @@ valid_raw = function($value, $args)
 {
 	if ($args[0])
 	{
-		$args = (' ' + $args.join(':')).replace(/([^\\](\\\\)*)\./g, '$1[\s\S]');
-		$args = new RegExp('^ ' + $args + '$');
-		if (!$args.test($value)) return false;
+		$args = (' ' + $args.join(':')).replace(/([^\\](\\\\)*)\./g, '$1[\\s\\S]');
+		$args = new RegExp('^' + $args + '$');
+		if (!$args.test(' ' + $value)) return false;
 	}
 	return true;
 }
