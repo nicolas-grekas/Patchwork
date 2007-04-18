@@ -99,7 +99,7 @@ class
 		if (isset($args[0]))
 		{
 			$rx = implode(':', $args);
-			$rx = str_replace(array('\\', '@'), array('\\\\', '\\@'), $rx);
+			$rx = preg_replace("/(?<!\\\\)((?:\\\\\\\\)*)@/", '$1\\@', $rx);
 			if (!preg_match("@^{$rx}$@Dsu", $result)) return false;
 		}
 
