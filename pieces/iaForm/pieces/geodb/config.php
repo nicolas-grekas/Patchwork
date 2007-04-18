@@ -1,1 +1,4 @@
-<?php #import ../QSelect
+<?php
+
+#import ../QSelect
+#import ../../../lingua
