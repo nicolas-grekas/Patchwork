@@ -12,6 +12,7 @@
  ***************************************************************************/
 
 
+function_exists('token_get_all') || die('Extension "tokenizer" is needed and not loaded.');
 isset($_SERVER['REDIRECT_URL']) && die('C3MRO Init. Error: $_SERVER[\'REDIRECT_URL\'] must not be set at this stage.');
 
 $CIA = realpath('.');
@@ -293,65 +294,18 @@ function C3MRO($appRealpath, $firstParent = false)
 	// If result is cached, return it
 	if (null !== $resultSeq) return $resultSeq;
 
-	if (!file_exists($appRealpath . '/config.php')) return $resultSeq = $firstParent ? array($appRealpath, $firstParent) : array($appRealpath);
+	if (!file_exists($appRealpath . '/config.php'))
+		return $resultSeq = $firstParent
+			? array($appRealpath, $firstParent)
+			: array($appRealpath);
 
 	$GLOBALS['version_id'] += filemtime($appRealpath . '/config.php');
 
-	// Get config's source and clean it
-	$parent = file_get_contents($appRealpath . '/config.php');
-	if (false !== strpos($parent, "\r")) $parent = strtr(str_replace("\r\n", "\n", $parent), "\r", "\n");
-
-	$k = false;
-
-	if ('<?' == substr($parent, 0, 2))
-	{
-		$seq = preg_replace("'^<\?(?:php)?\s'i", '', $parent);
-		$k = $seq != $parent;
-		$parent = trim($seq);
-		if ('?>' == substr($parent, -2)) $parent = substr($parent, 0, -2) . ';';
-	}
-	else
-	{
-		$seq = preg_replace("#^<script\s+language\s*=\s*(|[\"'])php\1\s*>#i", '', $parent);
-		$k = $seq != $parent;
-		$parent = trim($seq);
-		$parent = preg_replace("'</script\s*>$'i", ';', $parent);
-	}
-
-	if (!$k) die('Failed to detect PHP open tag (<?php) at the beginning of ' . htmlspecialchars($appRealpath) . '/config.php');
-
-	$GLOBALS['appConfigSource'][$appRealpath] = $parent;
-
-	// Get parent application(s)
-	if (preg_match("'^#import[ \t].+(?:\n(?:[ \t]*\n)*#import[ \t].+)*'", $parent, $parent))
-	{
-		preg_match_all("'^#import(.*)$'m", $parent[0], $parent);
-		$parent = $parent[1];
-	}
-	else $parent = array();
+	$parent = cia_get_parent_apps($appRealpath);
 
 	// If no parent app, result is trival
 	if (!$parent && !$firstParent) return array($appRealpath);
 
-	$resultSeq = count($parent);
-
-	// Parent's config file path is relative to the current application's directory
-	$k = 0;
-	while ($k < $resultSeq)
-	{
-		$seq =& $parent[$k];
-
-		$seq = trim($seq);
-		if ('__CIA__' == substr($seq, 0, 7)) $seq = __CIA__ . substr($seq, 7);
-
-		if ('/' != $seq[0] && '\\' != $seq[0] &&  ':' != $seq[1]) $seq = $appRealpath . '/' . $seq;
-
-		$seq = realpath($seq);
-		if (__CIA__ == $seq) unset($parent[$k]);
-	
-		++$k;
-	}
-	
 	if ($firstParent) array_unshift($parent, $firstParent);
 
 	// Compute C3 MRO
@@ -391,4 +345,79 @@ function C3MRO($appRealpath, $firstParent = false)
 			if (!$seqs[$k]) unset($seqs[$k]);
 		}
 	}
+}
+
+function cia_get_parent_apps($appRealpath)
+{
+	// Get config's source and clean it
+	$parent = file_get_contents($appRealpath . '/config.php');
+	if (false !== strpos($parent, "\r")) $parent = strtr(str_replace("\r\n", "\n", $parent), "\r", "\n");
+
+	$token = token_get_all($parent);
+	$parent = array();
+	$source = array();
+	$detectImport = true;
+
+	foreach ($token as $token)
+	{
+		if (is_array($token))
+		{
+			$type = $token[0];
+			$token = $token[1];
+		}
+		else $type = $token;
+
+		switch ($type)
+		{
+		case T_OPEN_TAG: continue 2;
+
+		case T_ECHO:
+		case T_INLINE_HTML:
+		case T_OPEN_TAG_WITH_ECHO:
+			die('Error: echo detected in ' . htmlspecialchars($appRealpath) . '/config.php');
+
+		case T_CLOSE_TAG:
+			$source[] = ';';
+			continue 2;
+		}
+
+		if ($detectImport) switch ($type)
+		{
+			case T_COMMENT:
+				$token = rtrim($token);
+				if ('#' == $token[0] && preg_match('/^#import[ \t]/', $token)) $parent[] = substr($token, 8);
+
+			case T_WHITESPACE:
+			case T_DOC_COMMENT:
+				break;
+
+			default:
+				$detectImport = false;
+		}
+
+		$source[] = $token;
+	}
+
+	$GLOBALS['appConfigSource'][$appRealpath] = implode('', $source);
+
+	$len = count($parent);
+
+	// Parent's config file path is relative to the current application's directory
+	$k = 0;
+	while ($k < $len)
+	{
+		$seq =& $parent[$k];
+
+		$seq = trim($seq);
+		if ('__CIA__' == substr($seq, 0, 7)) $seq = __CIA__ . substr($seq, 7);
+
+		if ('/' != $seq[0] && '\\' != $seq[0] &&  ':' != $seq[1]) $seq = $appRealpath . '/' . $seq;
+
+		$seq = realpath($seq);
+		if (__CIA__ == $seq) unset($parent[$k]);
+	
+		++$k;
+	}
+
+	return $parent;
 }
