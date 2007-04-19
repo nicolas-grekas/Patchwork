@@ -116,6 +116,23 @@ class CIA_preprocessor__0
 	{
 		defined('E_RECOVERABLE_ERROR') || self::$constant['E_RECOVERABLE_ERROR'] = E_ERROR;
 
+		if (CIA_WINDOWS && (DEBUG || phpversion() < '5.2'))
+		{
+			// In debug mode, checks if character case is strict.
+			// Fix a bug with long file names.
+			self::$function += array(
+				'file_exists'   => 'win_file_exists',
+				'is_file'       => 'win_is_file',
+				'is_dir'        => 'win_is_dir',
+				'is_link'       => 'win_is_link',
+				'is_executable' => 'win_is_executable',
+				'is_readable'   => 'win_is_readable',
+				'is_writable'   => 'win_is_writable',
+				'is_writeable'  => 'win_is_writable',
+				'stat'          => 'win_stat',
+			);
+		}
+
 		class_exists('CIA', false) && self::$function += array(
 			'header'       => 'CIA::header',
 			'setcookie'    => 'CIA::setcookie',
