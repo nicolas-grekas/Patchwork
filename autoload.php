@@ -102,7 +102,7 @@ function cia_autoload($searched_class)
 		{
 			$source = $paths[$i] .'/'. (0<=$level ? $file : substr($file, 6));
 
-			if (file_exists($source))
+			if (CIA_WINDOWS ? win_file_exists($source) : file_exists($source))
 			{
 				$preproc = 'CIA_preprocessor';
 				if ('cia_preprocessor' == $lcClass)

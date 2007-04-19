@@ -102,45 +102,6 @@ class hunter
 }
 // }}}
 
-// {{{ function resolvePath(): cia-specific include_path-like mechanism
-function resolvePath($file, $level = false, $base = false)
-{
-	$last_cia_paths = count($GLOBALS['cia_paths']) - 1;
-
-	if (false === $level)
-	{
-		$i = 0;
-		$level = $last_cia_paths;
-	}
-	else
-	{
-		if (0 <= $level) $base = 0;
-
-		$i = $last_cia_paths - $level - $base;
-
-		if (0 > $i) $i = 0;
-		else if ($i > $last_cia_paths) $i = $last_cia_paths;
-	}
-
-	$GLOBALS['cia_lastpath_level'] =& $level;
-
-	$file = strtr($file, '\\', '/');
-
-	if ('class/' == substr($file, 0, 6)) $paths =& $GLOBALS['cia_include_paths'];
-	else $paths =& $GLOBALS['cia_paths'];
-
-	$nb_paths = count($paths);
-
-	for (; $i < $nb_paths; ++$i, --$level)
-	{
-		$source = $paths[$i] .'/'. (0<=$level ? $file : substr($file, 6));
-		if (file_exists($source) && (!CIA_WINDOWS || is_file($source) || is_dir($source) || is_link($source))) return $source;
-	}
-
-	return false;
-}
-// }}}
-
 // {{{ Load configuration
 chdir($CIA);
 
@@ -186,6 +147,45 @@ function W($msg, $err = E_USER_WARNING)
 
 
 { // <-- Hack to enable the next functions only when execution reaches this point
+
+// {{{ function resolvePath(): cia-specific include_path-like mechanism
+function resolvePath($file, $level = false, $base = false)
+{
+	$last_cia_paths = count($GLOBALS['cia_paths']) - 1;
+
+	if (false === $level)
+	{
+		$i = 0;
+		$level = $last_cia_paths;
+	}
+	else
+	{
+		if (0 <= $level) $base = 0;
+
+		$i = $last_cia_paths - $level - $base;
+
+		if (0 > $i) $i = 0;
+		else if ($i > $last_cia_paths) $i = $last_cia_paths;
+	}
+
+	$GLOBALS['cia_lastpath_level'] =& $level;
+
+	$file = strtr($file, '\\', '/');
+
+	if ('class/' == substr($file, 0, 6)) $paths =& $GLOBALS['cia_include_paths'];
+	else $paths =& $GLOBALS['cia_paths'];
+
+	$nb_paths = count($paths);
+
+	for (; $i < $nb_paths; ++$i, --$level)
+	{
+		$source = $paths[$i] .'/'. (0<=$level ? $file : substr($file, 6));
+		if (CIA_WINDOWS ? win_file_exists($source) : file_exists($source)) return $source;
+	}
+
+	return false;
+}
+// }}}
 
 // {{{ function processPath(): resolvePath + macro preprocessor
 function processPath($file, $level = false, $base = false)
@@ -287,6 +287,54 @@ function cia_is_a($obj, $class)
 }
 
 }
+
+// {{{ file_exists replacement on Windows
+// In debug mode, checks if character case is strict.
+// Fix a bug with long file names.
+if (DEBUG || phpversion() < '5.2')
+{
+	if (DEBUG)
+	{
+		function win_file_exists($file)
+		{
+			if (file_exists($file) && $realfile = realpath($file))
+			{
+				$file = strtr($file, '/', '\\');
+
+				$i = strlen($file);
+				$j = strlen($realfile);
+
+				while ($i-- && $j--)
+				{
+					if ($file[$i] != $realfile[$j])
+					{
+						if (strtolower($file[$i]) == strtolower($realfile[$j])) W("Character case mismatch between requested file and its real path ({$file} vs {$realfile})");
+						break;
+					}
+				}
+
+				return true;
+			}
+			else return false;
+		}
+	}
+	else
+	{
+		function win_file_exists($file) {return file_exists($file) && (strlen($file) < 100 || realpath($file));}
+	}
+
+	function win_is_file($file)       {return win_file_exists($file) && is_file($file);}
+	function win_is_dir($file)        {return win_file_exists($file) && is_dir($file);}
+	function win_is_link($file)       {return win_file_exists($file) && is_link($file);}
+	function win_is_executable($file) {return win_file_exists($file) && is_executable($file);}
+	function win_is_readable($file)   {return win_file_exists($file) && is_readable($file);}
+	function win_is_writable($file)   {return win_file_exists($file) && is_writable($file);}
+}
+else
+{
+	function win_file_exists($file) {return file_exists($file);}
+}
+//}}}
 
 // {{{ Debug context
 DEBUG && CIA_debug::checkCache();
