@@ -930,22 +930,22 @@ class
 
 			if ($a)
 			{
-				array_unshift($param, substr($agent, $a + 1));
+				array_unshift($param, substr($agent, $a + 1) . $ext);
 				$agent = substr($agent, 0, $a);
 				$potentialAgent = substr($potentialAgent, 0, strrpos($potentialAgent, '/'));
 			}
 			else
 			{
-				array_unshift($param, $agent);
+				array_unshift($param, $agent . $ext);
 				$potentialAgent = $agent = 'index';
 			}
+
+			$ext = '';
 		}
 
-		if ($param || $ext)
+		if ($param)
 		{
-			$param || $param = array();
-
-			$args['__0__'] = implode('/', $param) . $ext;
+			$args['__0__'] = implode('/', $param);
 
 			$i = 0;
 			foreach ($param as &$param) $args['__' . ++$i . '__'] = $param;
