@@ -16,7 +16,7 @@ class
 {
 	static function php($string)
 	{
-		return strlen(CIA::string($string));
+		return mb_strlen(CIA::string($string));
 	}
 
 	static function js()

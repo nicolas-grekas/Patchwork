@@ -14,9 +14,51 @@
 
 class
 {
-	static function php($string, $length = 80, $break = "\n", $cut = false)
+	static function php($string, $length = 80, $break = "\n", $cut = true)
 	{
-		return wordwrap(CIA::string($string), CIA::string($length), CIA::string($break), CIA::string($cut));
+		// The native PHP wordwrap() is not UTF-8 aware
+
+		$cut = CIA::string($cut);
+		$break = CIA::string($break);
+		$length = (int) CIA::string($length);
+		$string = explode($break, CIA::string($string));
+
+		$iLen = count($string);
+		$result = array();
+		$line = '';
+
+		for ($i = 0; $i < $iLen; ++$i)
+		{
+			$a = explode(' ', $string[$i]);
+			$line && $result[] = $line;
+			$line = $a[0];
+			$jLen = count($a);
+
+			for ($j = 1; $j < $jLen; ++$j)
+			{
+				$b = $a[$j];
+
+				if (mb_strlen($line) + mb_strlen($b) < $length) $line .= ' ' . $b;
+				else
+				{
+					$result[] = $line;
+					$line = '';
+
+					if ($cut) while (mb_strlen($b) > $length)
+					{
+						$line = mb_substr($b, $length);
+						$result[] = mb_substr($b, 0, $length);
+						$b = $line;
+					}
+
+					if ($b) $line = $b;
+				}
+			}
+		}
+
+		$line && $result[] = $line;
+
+		return implode($break, $result);
 	}
 
 	static function js()
@@ -25,42 +67,46 @@ class
 
 P$wordwrap = function($string, $length, $break, $cut)
 {
-	$cut = str($cut);
-	$break = str($break, "\n");
+	$cut = str($cut, 1);
+	$break = str($break, '\n');
 	$length = str($length, 80);
 	$string = str($string).split($break);
 
-	var $i = 0,
-		$j, $line, $a, $b;
+	var $i = 0, $line,
+		$j, $a, $b
+		$result = [];
 
-	for (; $i<$string.length; ++$i)
+	for (; $i < $string.length; ++$i)
 	{
-		$line = '';
 		$a = $string[$i].split(' ');
+		$line && $result.push($line);
+		$line = $a[0];
 
-		for ($j = 0; $j<$a.length; ++$j)
+		for ($j = 1; $j < $a.length; ++$j)
 		{
-			$b = $a[$j] || ' ';
-			if ($line.length + $b.length <= $length) $line += $b;
+			$b = $a[$j];
+
+			if ($line.length + $b.length < $length) $line += ' ' + $b;
 			else
 			{
-				$line += $break;
-				if ($b != ' ' && $cut)
+				$result.push($line);
+				$line = '';
+
+				if ($cut) while ($b.length > $length)
 				{
-					while ($b.length>$length);
-					{
-						$line += $b.substr(0, $length);
-						$b = $b.substr($length);
-					}
-					$line += $b.substr(0, $length);
+					$line = $b.substr($length);
+					$result.push($b.substr(0, $length));
+					$b = $line;
 				}
+
+				if ($b) $line = $b;
 			}
 		}
-
-		$string[$i] = $line;
 	}
 
-	return $string.join($break);
+	$line && $result.push($line);
+
+	return $result.join($break);
 }
 
 <?php	}

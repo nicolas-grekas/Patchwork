@@ -16,7 +16,7 @@ class
 {
 	static function php($string, $search, $replace, $caseInsensitive = false)
 	{
-		$search = str_replace('@', '\\@', CIA::string($search));
+		$search = preg_replace("/(?<!\\\\)((?:\\\\\\\\)*)@/", '$1\\@', CIA::string($search));
 		$caseInsensitive = CIA::string($caseInsensitive) ? 'i' : '';
 		return preg_replace("@{$search}@su{$caseInsensitive}", CIA::string($replace), CIA::string($string));
 	}
