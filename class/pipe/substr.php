@@ -14,11 +14,13 @@
 
 class
 {
-	static function php($string, $start, $length = false)
+	static function php($string, $start, $length = null)
 	{
-		return false == $length
-			? substr(CIA::string($string), $start)
-			: substr(CIA::string($string), $start, $length);
+		return mb_substr(
+			CIA::string($string),
+			(int) CIA::string($start),
+			null !== $length ? (int)CIA::string($length) : null
+		);
 	}
 
 	static function js()
@@ -29,8 +31,8 @@ P$substr = function($string, $start, $length)
 {
 	$string = str($string);
 	return t($length)
-		? $string.substr($start, $length)
-		: $string.substr($start);
+		? $string.substr($start/1, $length/1)
+		: $string.substr($start/1);
 }
 
 <?php	}
