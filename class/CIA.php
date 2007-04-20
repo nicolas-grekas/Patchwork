@@ -875,10 +875,9 @@ class
 		{
 			$ext = strrchr($agent, '.');
 
-			if(false !== $ext && ($ext[0] = '-') && strtr($ext, './', '--') == $ext)
+			if (false !== $ext && false === strpos($ext, '/'))
 			{
 				$agent = substr($agent, 0, -strlen($ext));
-				$ext[0] = '.';
 			}
 			else $ext = '';
 
