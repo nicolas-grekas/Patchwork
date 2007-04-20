@@ -2,7 +2,7 @@
 
 /*
  * To use eZComponents, setup them using the PEAR method,
- * then import them in your config.php with:
+ * then import them in your config.cia.php with:
  * #import __CIA__/pieces/ezComponents
  */
 

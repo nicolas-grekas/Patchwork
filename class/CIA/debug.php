@@ -17,7 +17,7 @@
 // Note: Opera does not have the same behavior
 define(
 	'CIA_SYNC_CACHE',
-	   filemtime('./config.php') > filemtime('./.config.zcache.php')
+	   filemtime('./config.cia.php') > filemtime('./.config.zcache.php')
 	|| (
 		   false === strpos($_SERVER['HTTP_USER_AGENT'], 'Opera')
 		&& isset($_SERVER['HTTP_CACHE_CONTROL'])
