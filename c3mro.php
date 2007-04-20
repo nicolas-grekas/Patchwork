@@ -360,6 +360,7 @@ function cia_get_parent_apps($appRealpath)
 	$parent = array();
 	$source = array();
 	$detectImport = true;
+	$bracket = 0;
 
 	foreach ($token as $token)
 	{
@@ -377,11 +378,29 @@ function cia_get_parent_apps($appRealpath)
 		case T_ECHO:
 		case T_INLINE_HTML:
 		case T_OPEN_TAG_WITH_ECHO:
-			die('Error: echo detected in ' . htmlspecialchars($appRealpath) . '/config.cia.php');
+			$bracket || die('Error: echo detected in ' . htmlspecialchars($appRealpath) . '/config.cia.php');
+			break;
 
 		case T_CLOSE_TAG:
 			$source[] = ';';
 			continue 2;
+
+		case T_FUNCTION:
+			$bracket = 1;
+			break;
+
+		case '{':
+			$bracket && ++$bracket;
+			break;
+
+		case '}':
+			     $bracket && --$bracket;
+			1 == $bracket && --$bracket;
+			break;
+
+		case ';':
+			1 == $bracket && --$bracket;
+			break;
 		}
 
 		if ($detectImport) switch ($type)
