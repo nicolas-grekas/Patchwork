@@ -420,18 +420,30 @@ function cia_get_parent_apps($appRealpath)
 		{
 			if ($token = glob($seq . DIRECTORY_SEPARATOR . '*/config.cia.php', GLOB_NOSORT))
 			{
+				unset($seq);
 				$type = array();
 
 				foreach ($token as $token)
 				{
 					$token = substr($token, 0, -15);
-					if (__CIA__ != $token) $type[] = $token;
+					if (__CIA__ != $token)
+					{
+						foreach (C3MRO($token) as $seq)
+						{
+							if (false !== $a = array_search($seq, $type))
+							{
+								$type[$seq] = $token;
+								$token = $seq;
+								break;
+							}
+						}
+
+						$type[] = $token;
+					}
 				}
 
 				if ($token = count($type))
 				{
-					usort($type, 'cia_compare_parent_apps');
-
 					array_splice($parent, $k, 1, $type);
 
 					$k += --$token;
@@ -450,12 +462,4 @@ function cia_get_parent_apps($appRealpath)
 	}
 
 	return $parent;
-}
-
-function cia_compare_parent_apps($a, $b)
-{
-	$a = C3MRO($a);
-	$b = C3MRO($b);
-
-	return in_array($a[0], $b) ? 1 : (in_array($b[0], $a) ? -1 : 0);
 }
