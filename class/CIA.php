@@ -485,6 +485,9 @@ class
 					($httponly ? '; HttpOnly' : ''),
 				false
 			);
+
+			if ($domain && preg_match("'\*\.([^\*]+)$'D", $domain, $domain))
+				self::rawsetcookie($name, $value, $expires, $path, $domain[1], $secure, $httponly);
 		}
 	}
 
