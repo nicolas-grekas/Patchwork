@@ -418,39 +418,37 @@ function cia_get_parent_apps($appRealpath)
 
 		if ('*' == substr($seq, -1) && $seq = realpath(substr($seq, 0, -1)))
 		{
-			if ($token = glob($seq . DIRECTORY_SEPARATOR . '*/config.cia.php', GLOB_NOSORT))
+			$token = glob($seq . DIRECTORY_SEPARATOR . '**/config.cia.php', GLOB_NOSORT);
+
+			$type = array();
+			file_exists($seq . '/config.cia.php') && $type[] = $seq;
+			unset($seq);
+
+			foreach ($token as $token)
 			{
-				unset($seq);
-				$type = array();
-
-				foreach ($token as $token)
+				$token = substr($token, 0, -15);
+				if (__CIA__ != $token)
 				{
-					$token = substr($token, 0, -15);
-					if (__CIA__ != $token)
+					foreach (C3MRO($token) as $seq)
 					{
-						foreach (C3MRO($token) as $seq)
+						if (false !== $seq = array_search($seq, $type))
 						{
-							if (false !== $seq = array_search($seq, $type))
-							{
-								$type[$seq] = $token;
-								$token = false;
-								break;
-							}
+							$type[$seq] = $token;
+							$token = false;
+							break;
 						}
-
-						$token && $type[] = $token;
 					}
-				}
 
-				if ($token = count($type))
-				{
-					array_splice($parent, $k, 1, $type);
-
-					$k += --$token;
-					$len += $token;
+					$token && $type[] = $token;
 				}
 			}
-			else unset($parent[$k]);
+
+			$token = count($type);
+
+			array_splice($parent, $k, 1, $type);
+
+			$k += --$token;
+			$len += $token;
 		}
 		else
 		{
