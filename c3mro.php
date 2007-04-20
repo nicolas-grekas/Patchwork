@@ -338,7 +338,7 @@ function C3MRO($appRealpath, $firstParent = false)
 			else break;
 		}
 
-		if (!$parent) die('Inconsistent application hierarchy');
+		if (!$parent) die("Inconsistent application hierarchy in {$appRealpath}/config.cia.php");
 
 		$resultSeq[] = $parent;
 
@@ -430,6 +430,8 @@ function cia_get_parent_apps($appRealpath)
 
 				if ($token = count($type))
 				{
+					usort($type, 'cia_compare_parent_apps');
+
 					array_splice($parent, $k, 1, $type);
 
 					$k += --$token;
@@ -443,9 +445,17 @@ function cia_get_parent_apps($appRealpath)
 			$seq = realpath($seq);
 			if (__CIA__ == $seq) unset($parent[$k]);
 		}
-	
+
 		++$k;
 	}
 
 	return $parent;
+}
+
+function cia_compare_parent_apps($a, $b)
+{
+	$a = C3MRO($a);
+	$b = C3MRO($b);
+
+	return in_array($a[0], $b) ? 1 : (in_array($b[0], $a) ? -1 : 0);
 }
