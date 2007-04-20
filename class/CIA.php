@@ -307,7 +307,7 @@ class
 		// Synch exoagents on browser request
 		if (isset($_COOKIE['cache_reset_id']) && self::$versionId == $_COOKIE['cache_reset_id'] && setcookie('cache_reset_id', '', 0, '/'))
 		{
-			touch('./config.php');
+			touch('./config.cia.php');
 #>			file_exists('./.config.zcache.php') && touch('./.config.zcache.php');
 			self::touch('foreignTrace');
 			self::touch('CIApID');
@@ -324,8 +324,8 @@ class
 		{
 			global $version_id;
 
-			$version_id = -$version_id - filemtime('./config.php');
-			touch('./config.php', $_SERVER['REQUEST_TIME']);
+			$version_id = -$version_id - filemtime('./config.cia.php');
+			touch('./config.cia.php', $_SERVER['REQUEST_TIME']);
 			$version_id = -$version_id - $_SERVER['REQUEST_TIME'];
 			self::$versionId = abs($version_id % 10000);
 

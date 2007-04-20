@@ -16,7 +16,6 @@ function_exists('token_get_all') || die('Extension "tokenizer" is needed and not
 isset($_SERVER['REDIRECT_URL']) && die('C3MRO Init. Error: $_SERVER[\'REDIRECT_URL\'] must not be set at this stage.');
 
 $CIA = realpath('.');
-file_exists('./config.php') || die("Missing file: {$CIA}/config.php");
 
 $appConfigSource = array();
 $appInheritSeq = array();
@@ -200,10 +199,10 @@ eval($CIA[0] . ';');
 
 // Include config files
 
-foreach ($cia_paths as $appInheritSeq) if (file_exists($appInheritSeq . '/config.php'))
+foreach ($cia_paths as $appInheritSeq) if (file_exists($appInheritSeq . '/config.cia.php'))
 {
 	$CIA[] = $appConfigSource[$appInheritSeq];
-	require $appInheritSeq . '/config.php';
+	require $appInheritSeq . '/config.cia.php';
 }
 
 
@@ -301,12 +300,9 @@ function C3MRO($appRealpath, $firstParent = false)
 	// If result is cached, return it
 	if (null !== $resultSeq) return $resultSeq;
 
-	if (!file_exists($appRealpath . '/config.php'))
-		return $resultSeq = $firstParent
-			? array($appRealpath, $firstParent)
-			: array($appRealpath);
+	file_exists($appRealpath . '/config.cia.php') || die("Missing file: {$appRealpath}/config.cia.php");
 
-	$GLOBALS['version_id'] += filemtime($appRealpath . '/config.php');
+	$GLOBALS['version_id'] += filemtime($appRealpath . '/config.cia.php');
 
 	$parent = cia_get_parent_apps($appRealpath);
 
@@ -357,7 +353,7 @@ function C3MRO($appRealpath, $firstParent = false)
 function cia_get_parent_apps($appRealpath)
 {
 	// Get config's source and clean it
-	$parent = file_get_contents($appRealpath . '/config.php');
+	$parent = file_get_contents($appRealpath . '/config.cia.php');
 	if (false !== strpos($parent, "\r")) $parent = strtr(str_replace("\r\n", "\n", $parent), "\r", "\n");
 
 	$token = token_get_all($parent);
@@ -381,7 +377,7 @@ function cia_get_parent_apps($appRealpath)
 		case T_ECHO:
 		case T_INLINE_HTML:
 		case T_OPEN_TAG_WITH_ECHO:
-			die('Error: echo detected in ' . htmlspecialchars($appRealpath) . '/config.php');
+			die('Error: echo detected in ' . htmlspecialchars($appRealpath) . '/config.cia.php');
 
 		case T_CLOSE_TAG:
 			$source[] = ';';
@@ -420,8 +416,33 @@ function cia_get_parent_apps($appRealpath)
 
 		if ('/' != $seq[0] && '\\' != $seq[0] &&  ':' != $seq[1]) $seq = $appRealpath . '/' . $seq;
 
-		$seq = realpath($seq);
-		if (__CIA__ == $seq) unset($parent[$k]);
+		if ('*' == substr($seq, -1) && $seq = realpath(substr($seq, 0, -1)))
+		{
+			if ($token = glob($seq . DIRECTORY_SEPARATOR . '*/config.cia.php', GLOB_NOSORT))
+			{
+				$type = array();
+
+				foreach ($token as $token)
+				{
+					$token = substr($token, 0, -15);
+					if (__CIA__ != $token) $type[] = $token;
+				}
+
+				if ($token = count($type))
+				{
+					array_splice($parent, $k, 1, $type);
+
+					$k += --$token;
+					$len += $token;
+				}
+			}
+			else unset($parent[$k]);
+		}
+		else
+		{
+			$seq = realpath($seq);
+			if (__CIA__ == $seq) unset($parent[$k]);
+		}
 	
 		++$k;
 	}
