@@ -430,15 +430,15 @@ function cia_get_parent_apps($appRealpath)
 					{
 						foreach (C3MRO($token) as $seq)
 						{
-							if (false !== $a = array_search($seq, $type))
+							if (false !== $seq = array_search($seq, $type))
 							{
 								$type[$seq] = $token;
-								$token = $seq;
+								$token = false;
 								break;
 							}
 						}
 
-						$type[] = $token;
+						$token && $type[] = $token;
 					}
 				}
 
