@@ -33,7 +33,7 @@ if ( !window.dialogArguments )
 	window.dialogArguments = window.opener.FCKLastDialogInfo ;
 
 // Sets the Skin CSS
-document.write( '<link href="' + window.dialogArguments.Editor.FCKConfig.SkinPath + 'fck_dialog.css" type="text/css" rel="stylesheet">' ) ;
+document.write( '<link ' + 'href="' + window.dialogArguments.Editor.FCKConfig.SkinPath + 'fck_dialog.css" type="text/css" rel="stylesheet">' ) ;
 
 // Sets the language direction.
 window.document.dir = window.dialogArguments.Editor.FCKLang.Dir ;
@@ -60,7 +60,7 @@ function InnerDialogLoaded()
 	oInnerDoc.dir = window.dialogArguments.Editor.FCKLang.Dir ;
 
 	// Sets the Skin CSS.
-	oInnerDoc.write( '<link href="' + window.dialogArguments.Editor.FCKConfig.SkinPath + 'fck_dialog.css" type="text/css" rel="stylesheet">' ) ;
+	oInnerDoc.write( '<link ' + 'href="' + window.dialogArguments.Editor.FCKConfig.SkinPath + 'fck_dialog.css" type="text/css" rel="stylesheet">' ) ;
 
 	SetOnKeyDown( oInnerDoc ) ;
 	DisableContextMenu( oInnerDoc ) ;

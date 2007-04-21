@@ -29,6 +29,14 @@
 	<meta http-equiv="Cache-Control" content="public" />
 	<script type="text/javascript">
 
+// For CIA and PATH_INFO disabled servers
+var ciaLocation = '<a href="'.substr(9);
+function ciaRelocate(url)
+{
+	if (ciaLocation && !/^[\/\\#]|[^\n\r:\/]+?:/.test(url)) url = ciaLocation + url;
+	return url;
+}
+
 // Instead of loading scripts and CSSs using inline tags, all scripts are
 // loaded by code. In this way we can guarantee the correct processing order,
 // otherwise external scripts and inline scripts could be executed in an
@@ -36,12 +44,14 @@
 
 function LoadScript( url )
 {
-	document.write( '<scr' + 'ipt type="text/javascript" src="' + url + '" onerror="alert(\'Error loading \' + this.src);"><\/scr' + 'ipt>' ) ;
+	url = ciaRelocate(url);
+	document.write( '<scr' + 'ipt type="text/javascript" ' + 'src="' + url + '" onerror="alert(\'Error loading \' + this.src);"><\/scr' + 'ipt>' ) ;
 }
 
 function LoadCss( url )
 {
-	document.write( '<link href="' + url + '" type="text/css" rel="stylesheet" onerror="alert(\'Error loading \' + this.src);" />' ) ;
+	url = ciaRelocate(url);
+	document.write( '<link ' + 'href="' + url + '" type="text/css" rel="stylesheet" onerror="alert(\'Error loading \' + this.src);" />' ) ;
 }
 
 // Main editor scripts.

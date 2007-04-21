@@ -27,7 +27,7 @@ var FCKLang		= oEditor.FCKLang ;
 var FCKConfig	= oEditor.FCKConfig ;
 var FCKDebug	= oEditor.FCKDebug ;
 
-var bImageButton = ( document.location.search.length > 0 && document.location.search.substr(1) == 'ImageButton' ) ;
+var bImageButton = /\?ImageButton$/.test(document.location.search) ;
 
 //#### Dialog Tabs
 
