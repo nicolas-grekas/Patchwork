@@ -436,11 +436,16 @@ class
 		if (self::$is_enabled && (
 			   0===stripos($string, 'http/')
 			|| 0===stripos($string, 'etag')
-			|| 0===stripos($string, 'last-modified')
 			|| 0===stripos($string, 'expires')
 			|| 0===stripos($string, 'cache-control')
 			|| 0===stripos($string, 'content-length')
 		)) return;
+
+		if (0===stripos($string, 'last-modified'))
+		{
+			self::setLastModified(strtotime(trim(substr($string, 14))));
+			return;
+		}
 
 		$string = preg_replace("'[\r\n].*'s", '', $string);
 
@@ -520,6 +525,17 @@ class
 		$gzip || ob_start();
 
 		ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
+
+		// Transform relative URLs to absolute ones
+		if ('text/css' == substr($mime, 0, 8))
+		{
+			ob_start(array(new CIA_staticFilter("@([\s:]url\(\s*[\"']?)(?![/\\\\#]|[^\)\n\r:/]+?:)@i"), 'filter'), 8192);
+		}
+		else if ('text/html' == substr($mime, 0, 9) || 'text/x-component' === substr($mime, 0, 16))
+		{
+			ob_start(array(new CIA_staticFilter("@(<[^<>]+?\s(?:href|src)\s*=\s*[\"']?)(?![/\\\\#]|[^\n\r:/]+?:)@i"), 'filter'), 8192);
+		}
+
 
 		$h = fopen($file, 'rb');
 		echo fread($h, 256); // For CIA::ob_filterOutput to fix IE
