@@ -378,7 +378,7 @@ function cia_get_parent_apps($appRealpath)
 		case T_ECHO:
 		case T_INLINE_HTML:
 		case T_OPEN_TAG_WITH_ECHO:
-			$bracket || die('Error: echo detected in ' . htmlspecialchars($appRealpath) . '/config.cia.php');
+			$bracket || die("Error: echo detected in {$appRealpath}/config.cia.php");
 			break;
 
 		case T_CLOSE_TAG:

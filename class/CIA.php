@@ -307,8 +307,7 @@ class
 		// Synch exoagents on browser request
 		if (isset($_COOKIE['cache_reset_id']) && self::$versionId == $_COOKIE['cache_reset_id'] && setcookie('cache_reset_id', '', 0, '/'))
 		{
-			touch('./config.cia.php');
-#>			file_exists('./.config.zcache.php') && touch('./.config.zcache.php');
+			self::touchCIApID();
 			self::touch('foreignTrace');
 			self::touch('CIApID');
 
@@ -325,7 +324,7 @@ class
 			global $version_id;
 
 			$version_id = -$version_id - filemtime('./config.cia.php');
-			touch('./config.cia.php', $_SERVER['REQUEST_TIME']);
+			self::touchCIApID();
 			$version_id = -$version_id - $_SERVER['REQUEST_TIME'];
 			self::$versionId = abs($version_id % 10000);
 
@@ -360,6 +359,14 @@ class
 		else CIA_clientside::loadAgent($agent);
 	}
 	// }}}
+
+	protected static function touchCIApID()
+	{
+		// config.cia.php's last modification date is used for
+		// version synchronisation with clients and caches.
+		touch('./config.cia.php', $_SERVER['REQUEST_TIME']);
+#>		file_exists('./.config.zcache.php') && touch('./.config.zcache.php', $_SERVER['REQUEST_TIME']);
+	}
 
 	static function disable($exit = false)
 	{

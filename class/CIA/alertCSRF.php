@@ -36,8 +36,8 @@ class extends CIA
 				CIA::touch('public/templates/js');
 
 				fwrite($h, $a = '1', 1);
-				touch('./config.cia.php');
-#>				file_exists('./.config.zcache.php') && touch('./.config.zcache.php');
+
+				CIA::touchCIApId();
 			}
 			fclose($h);
 
