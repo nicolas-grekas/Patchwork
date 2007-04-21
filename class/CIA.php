@@ -512,54 +512,7 @@ class
 
 	static function readfile($file, $mime = 'application/octet-stream')
 	{
-		$size = filesize($file);
-
-		self::header('Content-Type: ' . $mime);
-		false !== stripos($mime, 'html') && header('P3P: CP="' . $GLOBALS['CONFIG']['P3P'] . '"');
-		self::$binaryMode = true;
-		self::$LastModified = filemtime($file);
-		self::$ETag = $size .'-'. self::$LastModified .'-'. fileinode($file);
-		self::disable();
-
-		$gzip = self::gzipAllowed($mime);
-		$gzip || ob_start();
-
-		ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
-
-		// Transform relative URLs to absolute ones
-		if ('text/css' == substr($mime, 0, 8))
-		{
-			ob_start(array(new CIA_staticFilter("@([\s:]url\(\s*[\"']?)(?![/\\\\#]|[^\)\n\r:/]+?:)@i"), 'filter'), 8192);
-		}
-		else if ('text/html' == substr($mime, 0, 9) || 'text/x-component' === substr($mime, 0, 16))
-		{
-			ob_start(array(new CIA_staticFilter("@(<[^<>]+?\s(?:href|src)\s*=\s*[\"']?)(?![/\\\\#]|[^\n\r:/]+?:)@i"), 'filter'), 8192);
-		}
-
-
-		$h = fopen($file, 'rb');
-		echo fread($h, 256); // For CIA::ob_filterOutput to fix IE
-
-		if ($gzip)
-		{
-			if ('HEAD' == $_SERVER['REQUEST_METHOD']) ob_end_clean();
-			$data = '';
-		}
-		else
-		{
-			ob_end_flush();
-			$data = ob_get_clean();
-			$size += strlen($data) - 256;
-			header('Content-Length: ' . $size);
-		}
-
-		if ('HEAD' != $_SERVER['REQUEST_METHOD'])
-		{
-			echo $data;
-			feof($h) || fpassthru($h);
-		}
-
-		fclose($h);
+		return CIA_staticControler::readfile($file, $mime);
 	}
 
 	/*
@@ -805,7 +758,7 @@ class
 	}
 
 	/*
-	 * Creates the full directory path to $filename, then writes $data into this file
+	 * Creates the full directory path to $filename, then writes $data to this file
 	 */
 	static function writeFile($filename, &$data, $Dmtime = 0)
 	{
