@@ -16,8 +16,8 @@ if (!window.lF)
 
 function valid($element, $type, $args)
 {
-	if ($element.disabled) return 1;
-	if ($element.value == '') return '';
+	if ($element.disabled || $element.readOnly) return 1;
+	if ('' == $element.value) return '';
 
 	$args = [$args];
 	for (var i=3, $argv = valid.arguments; i<$argv.length; i++) $args[$args.length] = $argv[i];
@@ -165,14 +165,16 @@ getCheckStatus = IgCS = function()
 {
 	var $this = this,
 		$i = 0,
-		$disabledCounter = 0;
+		$disabledCounter = 0,
+		$e;
 
-	if ($this.disabled || ((''+$this.value).length && $this.checked)) return 1;
+	if ($this.disabled || this.readOnly || ((''+$this.value).length && $this.checked)) return 1;
 
 	for (; $i<$this.length; ++$i)
 	{
-		if ($this[$i].disabled) ++$disabledCounter;
-		else if ((''+$this[$i].value).length && $this[$i].checked) return 1;
+		$e = $this[$i];
+		if ($e.disabled || $e.readOnly) ++$disabledCounter;
+		else if ((''+$e.value).length && $e.checked) return 1;
 	}
 
 	return ($i && $disabledCounter == $this.length) ? 1 : '';
@@ -181,7 +183,7 @@ getCheckStatus = IgCS = function()
 getSelectStatus = IgSS = function()
 {
 	var $this = this;
-	return ($this.disabled
+	return ($this.disabled || $this.readOnly
 		|| !$this.options.length
 		|| ($this.selectedIndex >= 0 && (''+$this.options[$this.selectedIndex].value).length)
 	) ? 1 : '';
@@ -261,11 +263,11 @@ labelClick = IlC = function($elt)
 	if (!$elt.type && $elt[0])
 	{
 		var $i = 0;
-		while ($i+1<$elt.length && $elt[$i].disabled) ++$i;
+		while ($i+1<$elt.length && ($elt[$i].disabled || $elt[$i].readOnly)) ++$i;
 		$elt = $elt[$i];
 	}
 
-	$elt && !$elt.disabled && $elt.focus();
+	$elt && !$elt.disabled && !$elt.readOnly && $elt.focus();
 	return false;
 }
 

@@ -79,7 +79,7 @@ SET $INPUT
 {$js|allowhtml}
 lE=gLE({a$name|js}<!-- IF a$multiple -->,1<!-- END:IF -->)
 if(lE){
-lE.gS=function(){return valid(this<!-- LOOP a$_valid -->,{$VALUE|js}<!-- END:LOOP -->)}
+lE.gS=function(){FCKeditorAPI.GetInstance({a$id|js}).UpdateLinkedField();return valid(this<!-- LOOP a$_valid -->,{$VALUE|js}<!-- END:LOOP -->)}
 lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form)}
 lE=new FCKeditor({a$id|js},(''+lE.style.width).indexOf('%')>0?lE.style.width:lE.offsetWidth,(''+lE.style.height).indexOf('%')>0?lE.style.height:lE.offsetHeight,{a$_toolbarSet|js},lE.value)
 lE.BasePath={~|js}+'fckeditor/'
