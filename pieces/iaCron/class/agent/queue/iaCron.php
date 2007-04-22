@@ -42,7 +42,7 @@ class extends agent_bin
 				{
 					ob_start(array($this, 'ob_handler'));
 					$this->doOne($this->argv->__1__);
-					ob_end_clean();
+					ob_end_flush();
 				}
 
 				return;
@@ -58,17 +58,9 @@ class extends agent_bin
 		$this->releaseLock();
 		$this->queueNext();
 
-		if ('' !== $buffer)
-		{
-			self::$callbackError = true;
+		if ('' !== $buffer) self::$callbackError = true;
 
-			if ('' !== $buffer) iaMail_mime::send(
-				array('To' => $GLOBALS['CONFIG']['debug_email']),
-				$buffer
-			);
-		}
-
-		return '';
+		return $buffer;
 	}
 
 	protected function queueNext()

@@ -14,7 +14,7 @@
 
 class
 {
-	static function put($time, $function, $arguments = array())
+	static function push($time, $function, $arguments = array())
 	{
 		$queue = new iaCron;
 		$sqlite = $queue->getSqlite();
@@ -27,7 +27,7 @@ class
 		$data = array(
 			'function' => &$function,
 			'arguments' => &$arguments,
-			'session' => isset($_COOKIE['SID']) ? SESSION::getAll() : array()
+			'session' => class_exists('SESSION', false) ? SESSION::getAll() : array()
 		);
 		$data = sqlite_escape_string(serialize($data));
 
