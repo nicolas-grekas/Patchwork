@@ -4,9 +4,9 @@
 // Import basic pieces of patchwork.
 
 #import pieces/iaForm/pieces/*
-#import pieces/toolbox
 #import pieces/lingua
 #import pieces/iaMail
+#import pieces/toolbox
 #import pieces/ie7
 
 
