@@ -217,7 +217,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 
 	if (!/Safari|MSIE [0-5]\./.test(navigator.userAgent) && !/(^|; )JS=1(; |$)/.test($document.cookie))
 	{
-		$document.cookie = 'JS=1; path=/; expires=' + new Date({$maxage|js}000+new Date()/1).toGMTString();
+		$document.cookie = 'JS=1; path=/; expires=' + new Date({$maxage+0|js}000+new Date()/1).toGMTString();
 		0 || /(^|; )JS=1(; |$)/.test($document.cookie) || ($document.cookie = 'JS=1; path=/');
 	}
 

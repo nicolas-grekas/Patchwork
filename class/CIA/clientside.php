@@ -43,7 +43,7 @@ class extends CIA
 </html>
 EOHTML;
 
-			fwrite($h, $a, strlen($a));
+			fwrite($h, $a);
 			fclose($h);
 			CIA::writeWatchTable('CIApID', $cagent);
 		}
@@ -110,19 +110,24 @@ EOHTML;
 
 			if ($is_cacheable = !(CIA_POSTING || in_array('private', $group)))
 			{
-				$cagent = CIA::agentCache($agentClass, $agent->argv, 'js.php', $group);
-				$dagent = CIA::getContextualCachePath('jsdata.' . $agentClass, 'js.php', $cagent);
+				$cagent = CIA::agentCache($agentClass, $agent->argv, 'js.ser', $group);
+				$dagent = CIA::getContextualCachePath('jsdata.' . $agentClass, 'js.ser', $cagent);
 
 				if ($liveAgent)
 				{
 					if (file_exists($dagent))
 					{
-						if (filemtime($dagent)>$_SERVER['REQUEST_TIME'])
+						if (filemtime($dagent) > $_SERVER['REQUEST_TIME'])
 						{
-							require $dagent;
+							$data = unserialize(file_get_contents($dagent));
+							CIA::setMaxage($data['maxage']);
+							CIA::setExpires($data['expires']);
+							array_map('header', $data['headers']);
 							CIA::closeMeta();
 
-							echo '"//</script><script type="text/javascript" src="' . CIA::__BASE__() . 'js/QJsrsHandler"></script>';
+							echo str_replace(array('\\', '"'), array('\\\\', '\\"'), $data['rawdata']),
+								'"//</script><script type="text/javascript" src="' . CIA::__BASE__() . 'js/QJsrsHandler"></script>';
+
 							return;
 						}
 						else unlink($dagent);
@@ -132,10 +137,16 @@ EOHTML;
 				{
 					if (file_exists($cagent))
 					{
-						if (filemtime($cagent)>$_SERVER['REQUEST_TIME'])
+						if (filemtime($cagent) > $_SERVER['REQUEST_TIME'])
 						{
-							require $cagent;
+							$data = unserialize(file_get_contents($cagent));
+							CIA::setMaxage($data['maxage']);
+							CIA::setExpires($data['expires']);
+							array_map('header', $data['headers']);
 							CIA::closeMeta();
+
+							echo $data['rawdata'];
+
 							return;
 						}
 						else unlink($cagent);
@@ -211,8 +222,6 @@ EOHTML;
 		}
 		else echo $data;
 
-		if (false !== strpos($data, '<?')) $data = str_replace('<?', '<<?php ?>?', $data);
-
 		if ('ontouch' == $expires && !($watch || CIA_MAXAGE == $maxage)) $expires = 'auto';
 		$expires = 'auto' == $expires && ($watch || CIA_MAXAGE == $maxage) ? 'ontouch' : 'onmaxage';
 
@@ -235,7 +244,7 @@ EOHTML;
 					CIA::openMeta('agent__template/' . $template, false);
 					$compiler = new iaCompiler_js(CIA::$binaryMode);
 					echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
-					fwrite($h, $template, strlen($template));
+					fwrite($h, $template);
 					fclose($h);
 					list(,,, $template) = CIA::closeMeta();
 					CIA::writeWatchTable($template, $ctemplate);
@@ -256,33 +265,26 @@ EOHTML;
 
 				if ($h = CIA::fopenX($dagent))
 				{
-					$template = '<?php CIA::setMaxage(' . (int) $maxage . ");CIA::setExpires('$expires');";
+					$template = array(
+						'maxage' => $maxage,
+						'expires' => $expires,
+						'headers' => $headers,
+						'rawdata' => $data,
+					);
 
-					if ($headers)
-					{
-						$headers = array_map('addslashes', $headers);
-						$template .= "header('" . implode("');header('", $headers) . "');";
-					}
+					fwrite($h, serialize($template));
+					fclose($h);
 
 					$expires = 'ontouch' == $expires ? CIA_MAXAGE : $maxage;
-
-					$template .= '?>';
-
-					$maxage = $template . str_replace(array('\\', '"'), array('\\\\', '\\"'), $data);
-
-					fwrite($h, $maxage, strlen($maxage));
-					fclose($h);
 
 					touch($dagent, $_SERVER['REQUEST_TIME'] + $expires);
 
 					if ($h = CIA::fopenX($cagent))
 					{
 						$ob = false;
-						$maxage = ($liveAgent ? ob_get_clean() : ob_get_flush());
-						if (false !== strpos($maxage, '<?')) $maxage = str_replace('<?', '<<?php ?>?', $maxage);
-						$maxage = $template . $data . $maxage;
+						$template['rawdata'] .= $liveAgent ? ob_get_clean() : ob_get_flush();
 
-						fwrite($h, $maxage, strlen($maxage));
+						fwrite($h, serialize($template));
 						fclose($h);
 
 						touch($dagent, $_SERVER['REQUEST_TIME'] + $expires);

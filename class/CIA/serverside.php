@@ -160,7 +160,7 @@ class extends CIA
 
 		$is_cacheable = !in_array('private', $group);
 
-		$cagent = CIA::agentCache($agentClass, $agent->argv, 'php', $group);
+		$cagent = CIA::agentCache($agentClass, $agent->argv, 'ser', $group);
 
 		$filter = false;
 
@@ -213,7 +213,7 @@ class extends CIA
 				CIA::openMeta('agent__template/' . $template, false);
 				$compiler = new iaCompiler_php(CIA::$binaryMode);
 				$ftemplate = '<?php function ' . $ftemplate . '(&$v, &$a, &$g){global $a' . $GLOBALS['cia_paths_token'] . ',$c' . $GLOBALS['cia_paths_token'] . ';$d=$v;' . $compiler->compile($template . '.tpl') . '} ' . $ftemplate . '($v, $a, $g);';
-				fwrite($h, $ftemplate, strlen($ftemplate));
+				fwrite($h, $ftemplate);
 				fclose($h);
 				list(,,, $watch) = CIA::closeMeta();
 				CIA::writeWatchTable($watch, $ctemplate);
@@ -238,23 +238,21 @@ class extends CIA
 
 				if ($h = CIA::fopenX($fagent))
 				{
-					if (false !== strpos($rawdata, '<?')) $rawdata = str_replace('<?', '<<?php ?>?', $rawdata);
-					$rawdata .= '<?php $v=(object)';
-					fwrite($h, $rawdata, strlen($rawdata));
+					$rawdata = array(
+						'rawdata' => $rawdata,
+						'v' => array(),
+					);
 
-					self::writeAgent($h, $vClone);
+					self::freezeAgent($rawdata['v'], $vClone);
 
-					$data = ';$template=' . var_export($template, true)
-						. ';CIA::setMaxage(' . (int) $maxage
-						. ");CIA::setExpires('$expires');";
+					$rawdata['template'] = $template;
+					$rawdata['maxage']   = $maxage;
+					$rawdata['expires']  = $expires;
+					$rawdata['headers']  = $headers;
 
-					if ($headers)
-					{
-						$headers = array_map('addslashes', $headers);
-						$data .= "header('" . implode("');header('", $headers) . "');";
-					}
+					$rawdata = serialize($rawdata);
 
-					fwrite($h, $data, strlen($data));
+					fwrite($h, $rawdata);
 					fclose($h);
 
 					touch($fagent, $_SERVER['REQUEST_TIME'] + ('ontouch' == $expires ? CIA_MAXAGE : $maxage));
@@ -268,69 +266,52 @@ class extends CIA
 		if (isset($vClone)) self::$cache[$cagent] = array($vClone, $template);
 	}
 
-	protected static function writeAgent(&$h, &$data)
+	protected static function freezeAgent(&$v, &$data)
 	{
-		fwrite($h, 'array(', 6);
-
-		$comma = '';
 		foreach ($data as $key => &$value)
 		{
-			$comma .= "'" . str_replace(array('\\', "'"), array('\\\\', "\\'"), $key) . "'=>";
-			fwrite($h, $comma, strlen($comma));
-
 			if ($value instanceof loop)
 			{
-				if (!CIA::string($value)) fwrite($h, "'0'", 3);
-				else
+				if (CIA::string($value))
 				{
-					fwrite($h, 'new L_(array(', 13);
+					$a = array();
 
-					$comma2 = '';
-					while ($key = $value->loop())
+					while ($b = $value->loop())
 					{
-						fwrite($h, $comma2, strlen($comma2));
-						self::writeAgent($h, $key);
-						$comma2 = ',';
+						$c = array();
+						$a[] =& $c;
+						self::freezeAgent($c, $b);
+						unset($c);
 					}
 
-					fwrite($h, '))', 2);
+					$v[$key] = new L_($a);
+					unset($a);
 				}
-
 			}
-			else
-			{
-				$comma = "'" . str_replace(array('\\', "'"), array('\\\\', "\\'"), $value) . "'";
-				fwrite($h, $comma, strlen($comma));
-			}
-
-			$comma = ',';
+			else $v[$key] =& $value;
 		}
-
-		fwrite($h, ')', 1);
 	}
 
 	protected static function getFromCache($cagent)
 	{
-		if (file_exists($cagent))
+		if (!file_exists($cagent))
 		{
-			if (filemtime($cagent)>$_SERVER['REQUEST_TIME'])
-			{
-				require $cagent;
-				return array($v, $template);
-			}
-			else unlink($cagent);
-
-			return false;
+			$cagent = substr($cagent, 0, -7) . 'post' . substr($cagent, -4);
+			if (CIA_POSTING || !file_exists($cagent)) $cagent = false;
 		}
 
-		$cagent = substr($cagent, 0, -7) . 'post' . substr($cagent, -4);
-
-		if (!CIA_POSTING && file_exists($cagent))
+		if ($cagent)
 		{
-			if (filemtime($cagent)>$_SERVER['REQUEST_TIME'])
+			if (filemtime($cagent) > $_SERVER['REQUEST_TIME'])
 			{
-				require $cagent;
-				return array($v, $template);
+				$data = unserialize(file_get_contents($cagent));
+				CIA::setMaxage($data['maxage']);
+				CIA::setExpires($data['expires']);
+				array_map('header', $data['headers']);
+
+				echo $data['rawdata'];
+
+				return array((object) $data['v'], $data['template']);
 			}
 			else unlink($cagent);
 		}
@@ -378,7 +359,7 @@ class L_ extends loop
 	protected $len;
 	protected $i = 0;
 
-	function __construct($array)
+	function __construct(&$array)
 	{
 		$this->array =& $array;
 	}

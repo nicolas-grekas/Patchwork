@@ -267,7 +267,7 @@ function cia_autoload($searched_class)
 
 			$c = fopen('./.config.zcache.php', 'ab');
 			flock($c, LOCK_EX);
-			fwrite($c, $code, strlen($code));
+			fwrite($c, $code);
 			fclose($c);
 		}
 	}

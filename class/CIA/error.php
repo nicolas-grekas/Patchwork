@@ -119,7 +119,7 @@ EOHTML;
 		$i = ini_get('error_log');
 		$i = fopen($i ? $i : './error.log', 'ab');
 		flock($i, LOCK_EX);
-		fwrite($i, $cid, strlen($cid));
+		fwrite($i, $cid);
 		fclose($i);
 
 		switch ($code)
