@@ -774,7 +774,7 @@ class
 
 		if ($h)
 		{
-			fwrite($h, $data, strlen($data));
+			fwrite($h, $data);
 			fclose($h);
 
 			if (CIA_WINDOWS)
@@ -832,7 +832,7 @@ class
 			$b = ini_get('error_log');
 			$b = fopen($b ? $b : './error.log', 'ab');
 			flock($b, LOCK_EX);
-			fwrite($b, $a, strlen($a));
+			fwrite($b, $a);
 			fclose($b);
 		}
 
@@ -965,7 +965,7 @@ class
 			{
 			}
 
-			fwrite($h, $private, strlen($private));
+			fwrite($h, $private);
 			fclose($h);
 
 			self::$privateDetectionMode = false;
@@ -995,7 +995,7 @@ class
 		if (false === $group) $group = self::$metaInfo[1];
 		$keys = serialize(array($keys, $group));
 
-		return self::getContextualCachePath($agentClass, $type . '.php', $keys);
+		return self::getContextualCachePath($agentClass, $type, $keys);
 	}
 
 	static function writeWatchTable($message, $file, $exclusive = true)
@@ -1023,7 +1023,7 @@ class
 			flock($h, LOCK_EX);
 			fseek($h, 0, SEEK_END);
 			if ($file_isnew = !ftell($h)) $file = "<?php ++\$i;unlink(__FILE__);\n" . $file;
-			fwrite($h, $file, strlen($file));
+			fwrite($h, $file);
 			fclose($h);
 
 			if ($file_isnew)
@@ -1041,7 +1041,7 @@ class
 					flock($h, LOCK_EX);
 					fseek($h, 0, SEEK_END);
 					if ($file_isnew = !ftell($h)) $file = "<?php ++\$i;unlink(__FILE__);\n" . $file;
-					fwrite($h, $file, strlen($file));
+					fwrite($h, $file);
 					fclose($h);
 
 					if (!$file_isnew) break;
@@ -1269,7 +1269,7 @@ class
 
 				if ($h = self::fopenX($validator))
 				{
-					fwrite($h, $meta, strlen($meta));
+					fwrite($h, $meta);
 					fclose($h);
 
 					$a = "++\$i;unlink('$validator');\n";
@@ -1278,7 +1278,7 @@ class
 					{
 						$h = fopen($path, 'ab');
 						flock($h, LOCK_EX);
-						fwrite($h, $a, strlen($a));
+						fwrite($h, $a);
 						fclose($h);
 					}
 

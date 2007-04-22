@@ -248,7 +248,7 @@ class
 	protected function write($value)
 	{
 		ftruncate($this->handle, 0);
-		fwrite($this->handle, $value, strlen($value));
+		fwrite($this->handle, $value);
 	}
 
 	protected function reset()

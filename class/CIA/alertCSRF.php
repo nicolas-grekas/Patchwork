@@ -35,7 +35,7 @@ class extends CIA
 				CIA::touch('CIApID');
 				CIA::touch('public/templates/js');
 
-				fwrite($h, $a = '1', 1);
+				fwrite($h, $a = '1');
 
 				CIA::touchCIApId();
 			}

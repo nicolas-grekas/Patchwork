@@ -33,7 +33,7 @@ class extends CIA
 			CIA::openMeta('agent__template/' . $template, false);
 			$compiler = new iaCompiler_js(false);
 			echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
-			fwrite($h, $template, strlen($template));
+			fwrite($h, $template);
 			fclose($h);
 			list(,,, $watch) = CIA::closeMeta();
 			CIA::writeWatchTable($watch, $ctemplate);

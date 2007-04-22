@@ -33,7 +33,7 @@ class extends CIA
 				$parser = new jsqueez;
 				echo $pipe = $parser->squeeze($pipe);
 				$pipe .= "\n";
-				fwrite($h, $pipe, strlen($pipe));
+				fwrite($h, $pipe);
 				fclose($h);
 				CIA::writeWatchTable(array('pipe'), $cpipe);
 			}
