@@ -24,7 +24,7 @@ class extends agent_queue_iaCron
 		if ($data = $this->sqlite->query($sql)->fetchObject())
 		{
 			if ($data->send_time <= $time) tool_touchUrl::call("{$data->base}queue/iaMail/{$data->OID}/" . $this->getToken());
-			else iaCron::push(array($this, 'queueNext'));
+			else iaCron::push($data->send_time, array($this, 'queueNext'));
 		}
 	}
 
