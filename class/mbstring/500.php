@@ -15,14 +15,14 @@
 /*
  * Partial mbstring implementation in pure PHP
  *
- * Working only if iconv is loaded :
+ * Working only if iconv is loaded:
 
 mb_convert_encoding           - Convert character encoding
 mb_decode_mimeheader          - Decode string in MIME header field
 mb_encode_mimeheader          - Encode string for MIME header
 
 
- * Not implemented :
+ * Not implemented:
 
 mb_check_encoding             - Check if the string is valid for the specified encoding
 Note: considering UTF-8, preg_match("''u", $var) is roughly equivalent but 10 times faster than mb_check_encoding($var)
@@ -70,14 +70,14 @@ class
 	static function convert_encoding($str, $to_encoding, $from_encoding = null)
 	{
 		if (function_exists('iconv')) return iconv($from_encoding ? $from_encoding : 'UTF-8', $to_encoding, $str);
-		W(__FUNCTION__ . '() not supported on this configuration');
+		W('mb_convert_encoding() not supported without mbstring or iconv');
 		return $str;
 	}
 
 	static function decode_mimeheader($str)
 	{
 		if (function_exists('iconv_mime_decode')) return iconv_mime_decode($str);
-		W(__FUNCTION__ . '() not supported on this configuration');
+		W('mb_decode_mimeheader() not supported without mbstring or iconv');
 		return $str;
 	}
 
@@ -90,7 +90,7 @@ class
 			'line-length' => 76,
 			'line-break-chars' => null === $linefeed ? "\r\n" : $linefeed,
 		));
-		W(__FUNCTION__ . '() not supported on this configuration');
+		W('mb_encode_mimeheader() not supported without mbstring or iconv');
 		return $str;
 	}
 
@@ -99,9 +99,9 @@ class
 	{
 		switch ($mode)
 		{
-		case MB_CASE_UPPER: return mb_strtoupper($str);
-		case MB_CASE_LOWER: return mb_strtolower($str);
-		case MB_CASE_TITLE: return preg_replace("/\b./eu", 'mb_strtoupper("$0",$encoding)', $str);
+		case MB_CASE_UPPER: return self::strtoupper($str);
+		case MB_CASE_LOWER: return self::strtolower($str);
+		case MB_CASE_TITLE: return preg_replace("/\b./eu", 'self::strtoupper("$0",$encoding)', $str);
 		}
 
 		return $str;
@@ -114,23 +114,23 @@ class
 
 	static function strlen($str, $encoding = null)
 	{
-		return function_exists('iconv_strlen') ? iconv_strlen($str) : strlen(utf8_decode($str));
+		return strlen(utf8_decode($str));
 	}
 
 	static function strpos($haystack, $needle, $offset = 0, $encoding = null)
 	{
 		if (function_exists('iconv_strpos')) return iconv_strpos($haystack, $needle, $offset);
-		if ($offset = (int) $offset) $haystack = mb_substr($haystack, $offset);
+		if ($offset = (int) $offset) $haystack = self::substr($haystack, $offset);
 		$pos = strpos($haystack, $needle);
-		return false === $pos ? false : ($offset + ($pos ? mb_strlen(substr($haystack, 0, $pos)) : 0));
+		return false === $pos ? false : ($offset + ($pos ? self::strlen(substr($haystack, 0, $pos)) : 0));
 	}
 
 	static function strrpos($haystack, $needle, $offset = 0, $encoding = null)
 	{
-		if ($offset = (int) $offset) $haystack = mb_substr($haystack, $offset);
-		$needle = mb_substr($needle, 0, 1);
+		if ($offset = (int) $offset) $haystack = self::substr($haystack, $offset);
+		$needle = self::substr($needle, 0, 1);
 		$pos = strpos(strrev($haystack), strrev($needle));
-		return false === $pos ? false : ($offset + mb_strlen($pos ? substr($haystack, 0, -$pos) : $haystack));
+		return false === $pos ? false : ($offset + self::strlen($pos ? substr($haystack, 0, -$pos) : $haystack));
 	}
 
 	static function strtolower($str, $encoding = null)
@@ -151,7 +151,7 @@ class
 	{
 		if (function_exists('iconv_substr')) return iconv_substr($str, $start, $length);
 
-		$strlen = mb_strlen($str);
+		$strlen = self::strlen($str);
 		$start = (int) $start;
 
 		if (0 > $start) $start += $strlen;
