@@ -20,7 +20,7 @@ class extends iaCron
 
 	static function send($headers, $body, $options = null)
 	{
-		return self::putMail(array(
+		return self::pushMail(array(
 			'headers' => &$headers,
 			'body' => &$body,
 			'options' => &$options,
@@ -29,7 +29,7 @@ class extends iaCron
 
 	static function sendAgent($headers, $agent, $argv = array(), $options = null)
 	{
-		return self::putMail(array(
+		return self::pushMail(array(
 			'headers' => &$headers,
 			'agent' => &$agent,
 			'argv' => &$argv,
@@ -37,7 +37,7 @@ class extends iaCron
 		));
 	}
 
-	protected static function putMail($data)
+	protected static function pushMail($data)
 	{
 		$queue = new iaMail;
 
