@@ -352,7 +352,7 @@ function enterControl($form)
 		$all = document.getElementsByTagName('*'),
 		$len = $all.length;
 
-	while (++$i < $len && $all[$i] != $form.$lastFocusedElt);
+	while (++$i < $len && $all[$i] != $form.v_lastFocusedElt);
 	while (++$i < $len)
 	{
 		$elt = $all[$i];
@@ -387,8 +387,8 @@ function autofitTextarea()
 
 	if (!window.ScriptEngine)
 	{
-		$style.height = $this.$offsetHeight + 'px';
-		$style.width  = $this.$offsetWidth  + 'px';
+		$style.height = $this.v_offsetHeight + 'px';
+		$style.width  = $this.v_offsetWidth  + 'px';
 
 		if ($this.offsetHeight < $this.scrollHeight) $style.height = $this.scrollHeight + 'px';
 		if ($this.offsetWidth  < $this.scrollWidth ) $style.width  = $this.scrollWidth  + 'px';
@@ -413,8 +413,8 @@ onDOMLoaded.push(function()
 			if (!window.ScriptEngine && window.getComputedStyle && 'visible' == document.defaultView.getComputedStyle($t, null).getPropertyValue('overflow'))
 			{
 				$t.style.overflow = 'hidden';
-				$t.$offsetHeight = $t.offsetHeight;
-				$t.$offsetWidth = $t.offsetWidth;
+				$t.v_offsetHeight = $t.offsetHeight;
+				$t.v_offsetWidth = $t.offsetWidth;
 				$t.onkeyup = $t.autofit;
 			}
 
@@ -433,14 +433,14 @@ onDOMLoaded.push(function()
 	{
 		$form = $forms[$i];
 
-		$form.$onsubmit = $form.onsubmit;
+		$form.v_onsubmit = $form.onsubmit;
 		$form.onsubmit = function($event)
 		{
 			var $this = this;
 
 			if ($this.precheck && !$this.precheck($event)) return false;
 
-			$event = $this.$onsubmit && $this.$onsubmit($event);
+			$event = $this.v_onsubmit && $this.v_onsubmit($event);
 
 			if (!$event && 'false' == ''+$event) return false;
 
@@ -454,12 +454,12 @@ onDOMLoaded.push(function()
 
 			if ($elt.type != 'submit' && $elt.type != 'image')
 			{
-				$elt.$onfocus = $elt.onfocus;
+				$elt.v_onfocus = $elt.onfocus;
 				$elt.onfocus = function($event)
 				{
 					var $this = this;
-					$this.form.$lastFocusedElt = $this;
-					$event = $this.$onfocus && $this.$onfocus($event);
+					$this.form.v_lastFocusedElt = $this;
+					$event = $this.v_onfocus && $this.v_onfocus($event);
 					if (!$event && 'false' == ''+$event) return false;
 				}
 			}
