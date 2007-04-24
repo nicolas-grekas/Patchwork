@@ -1427,7 +1427,7 @@ class loop
 	protected function prepare() {}
 	protected function next() {}
 
-	final public function &loop()
+	final public function &loop($escape = false)
 	{
 		$catchMeta = CIA::$catchMeta;
 		CIA::$catchMeta = true;
@@ -1449,6 +1449,8 @@ class loop
 		}
 
 		CIA::$catchMeta = $catchMeta;
+
+		if ($escape && !($this instanceof L_) && $data) foreach ($data as &$i) is_string($i) && $i = htmlspecialchars($i);
 
 		return $data;
 	}

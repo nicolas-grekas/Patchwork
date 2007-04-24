@@ -257,9 +257,10 @@ function __autoload($searched_class)
 	{
 		if (is_int($a))
 		{
-			$b = $a; unset($a);
+			$b = $a;
+			unset($a);
 			$a = $b - $GLOBALS['cia_paths_offset'];
-			$a = $searched_class . '.php.0' . (0>$a ? -$a .'-' : $a);
+			$a = $searched_class . '.php.' . ((string)(int)(bool)DEBUG) . (0>$a ? -$a . '-' : $a);
 		}
 
 		include "./.class_{$a}.{$GLOBALS['cia_paths_token']}.zcache.php";

@@ -187,6 +187,9 @@ class extends CIA
 
 				$template = $agent->getTemplate();
 
+				foreach ($v as &$h) is_string($h) && $h = htmlspecialchars($h);
+				unset($h);
+
 				$filter = true;
 
 				$rawdata = ob_get_flush();
@@ -266,7 +269,7 @@ class extends CIA
 		if (isset($vClone)) self::$cache[$cagent] = array($vClone, $template);
 	}
 
-	protected static function freezeAgent(&$v, &$data)
+	protected static function freezeAgent(&$v, &$data, $escape = false)
 	{
 		foreach ($data as $key => &$value)
 		{
@@ -280,7 +283,7 @@ class extends CIA
 					{
 						$c = array();
 						$a[] =& $c;
-						self::freezeAgent($c, $b);
+						self::freezeAgent($c, $b, !CIA::$binaryMode);
 						unset($c);
 					}
 
@@ -288,6 +291,7 @@ class extends CIA
 					unset($a);
 				}
 			}
+			else if ($escape && is_string($value)) $v[$key] = htmlspecialchars($value);
 			else $v[$key] =& $value;
 		}
 	}
@@ -332,11 +336,6 @@ class extends CIA
 		$a = $var;
 		$var += $step;
 		return $a;
-	}
-
-	static function escape(&$object)
-	{
-		foreach ($object as &$v) if (is_string($v)) $v = htmlspecialchars($v);
 	}
 
 	static function makeLoopByLength(&$length)
