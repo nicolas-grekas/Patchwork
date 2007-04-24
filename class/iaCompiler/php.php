@@ -29,7 +29,7 @@ class extends iaCompiler
 			implode($a, $code)
 		);
 
-		return ( $this->binaryMode ? '' : 'CIA_serverside::escape($v);' ) . $code;
+		return $code;
 	}
 
 	protected function makeModifier($name)
@@ -119,17 +119,16 @@ class extends iaCompiler
 			$this->pushCode(
 				'unset($p);$p=' . $var . ';if('
 					. '($p instanceof loop||(0<($p=(int)$p)&&CIA_serverside::makeLoopByLength($p)))'
-					. '&&CIA::string($v->{"p$"}=$p)'
-					. '&&($v->{"iteratorPosition$"}=-1)'
-					. '&&($p=(object)array("$"=>&$v))'
+					. '&&CIA::string($v->{\'p$\'}=$p)'
+					. '&&($v->{\'iteratorPosition$\'}=-1)'
+					. '&&($p=(object)array(\'$\'=>&$v))'
 					. '&&$v=&$p'
 				. ')while('
-					. '($p=&$v->{"$"}&&$v=$p->{"p$"}->loop())'
+					. '($p=&$v->{\'$\'}&&$v=$p->{\'p$\'}->loop(' .( $this->binaryMode ? '' : 'true' ). '))'
 					. '||($v=&$p&&0)'
 				. '){'
-				.( $this->binaryMode ? '' : 'CIA_serverside::escape($v);' )
-				. '$v->{"$"}=&$p;'
-				. '$v->iteratorPosition=++$p->{"iteratorPosition$"};'
+				. '$v->{\'$\'}=&$p;'
+				. '$v->iteratorPosition=++$p->{\'iteratorPosition$\'};'
 			);
 		}
 
