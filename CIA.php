@@ -103,7 +103,7 @@ class hunter
 // }}}
 
 // {{{ Load configuration
-chdir($CIA);
+chdir($CIA) || die("Unreachable directory: $CIA");
 
 // $_REQUEST is an open door to security problems.
 $_REQUEST = array();
