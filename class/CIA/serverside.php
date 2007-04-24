@@ -89,9 +89,10 @@ class extends CIA
 
 				while ($i =& $agent->loop()) $data =& $i;
 
-				$agent = $data->{'a$'};
+				if (!(CIA::$binaryMode || $agent instanceof L_)) foreach ($data as &$v) is_string($v) && $v = htmlspecialchars($v);
 
-				foreach ($data as $k => &$v) $args[$k] = is_string($v) ? htmlspecialchars($v) : $v;
+				$agent = $data->{'a$'};
+				$args = array_merge($args, (array) $data);
 			}
 
 			$BASE = CIA::__BASE__();
@@ -187,8 +188,11 @@ class extends CIA
 
 				$template = $agent->getTemplate();
 
-				foreach ($v as &$h) is_string($h) && $h = htmlspecialchars($h);
-				unset($h);
+				if (!CIA::$binaryMode)
+				{
+					foreach ($v as &$h) is_string($h) && $h = htmlspecialchars($h);
+					unset($h);
+				}
 
 				$filter = true;
 
@@ -269,7 +273,7 @@ class extends CIA
 		if (isset($vClone)) self::$cache[$cagent] = array($vClone, $template);
 	}
 
-	protected static function freezeAgent(&$v, &$data, $escape = false)
+	protected static function freezeAgent(&$v, &$data)
 	{
 		foreach ($data as $key => &$value)
 		{
@@ -279,11 +283,11 @@ class extends CIA
 				{
 					$a = array();
 
-					while ($b = $value->loop())
+					while ($b = $value->loop(!CIA::$binaryMode))
 					{
 						$c = array();
 						$a[] =& $c;
-						self::freezeAgent($c, $b, !CIA::$binaryMode);
+						self::freezeAgent($c, $b);
 						unset($c);
 					}
 
@@ -291,7 +295,6 @@ class extends CIA
 					unset($a);
 				}
 			}
-			else if ($escape && is_string($value)) $v[$key] = htmlspecialchars($value);
 			else $v[$key] =& $value;
 		}
 	}
