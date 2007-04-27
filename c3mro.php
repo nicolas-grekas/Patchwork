@@ -143,7 +143,7 @@ if (isset($_SERVER['CIA_BASE']))
 }
 else
 {
-	if (!(isset($_SERVER['PATH_INFO']) || isset($_SERVER['ORIG_PATH_INFO'])))
+	if (!isset($_SERVER['PATH_INFO']))
 	{
 		// Check if the webserver supports PATH_INFO
 
@@ -169,7 +169,7 @@ else
 		unset($h);
 	}
 
-	$CIA[] = isset($_SERVER['PATH_INFO']) || isset($_SERVER['ORIG_PATH_INFO']) ? '#PATH_INFO enabled' : '#PATH_INFO disabled';
+	$CIA[] = isset($_SERVER['PATH_INFO']) ? '#PATH_INFO enabled' : '#PATH_INFO disabled';
 }
 // }}}
 
@@ -231,9 +231,8 @@ if (!isset($_SERVER['CIA_BASE']))
 $_SERVER[\'CIA_BASE\'] = \'http\' . (isset($_SERVER[\'HTTPS\']) ? \'s\' : \'\') . \'://\' . $_SERVER[\'HTTP_HOST\'] . $_SERVER[\'SCRIPT_NAME\'];
 $_SERVER[\'CIA_LANG\'] = $_SERVER[\'CIA_REQUEST\'] = \'\'';
 
-	if (isset($_SERVER['PATH_INFO']) || isset($_SERVER['ORIG_PATH_INFO']))
+	if (isset($_SERVER['PATH_INFO']))
 	{
-		$CIA[] = 'isset($_SERVER[\'ORIG_PATH_INFO\']) && $_SERVER[\'PATH_INFO\'] = $_SERVER[\'ORIG_PATH_INFO\']';
 		$CIA[] = 'isset($_SERVER[\'PATH_INFO\']) && $_SERVER[\'CIA_REQUEST\'] = substr($_SERVER[\'PATH_INFO\'], 1)';
 		$CIA[] = '$_SERVER[\'CIA_BASE\'] .= \'/\' . ($cia_multilang ? \'__/\' : \'\')';
 	}
