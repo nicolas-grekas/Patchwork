@@ -845,7 +845,7 @@ class
 	{
 		static $resolvedCache = array();
 
-		if (isset($resolvedCache[$agent])) return 'agent_' . strtr($agent, '/', '_');
+		if (isset($resolvedCache['/' . $agent])) return 'agent_' . strtr($agent, '/', '_');
 
 		if (preg_match("''u", $agent))
 		{
@@ -872,50 +872,66 @@ class
 		$param = '' !== $param ? explode('/', $param) : array();
 		$agent = (string) substr($a[0], 1, -1);
 
-		if ('' === $agent) $potentialAgent = 'index';
-		else if (isset($a[1])) $potentialAgent = (string) preg_replace("'[-_ ](.)'eu", "mb_strtoupper('$1')", $agent);
+		if (isset($a[1])) $potentialAgent = (string) preg_replace("'[-_ ](.)'eu", "mb_strtoupper('$1')", $agent);
 		else $potentialAgent = $agent;
 
 		$lang = self::$lang;
 		$l_ng = 5 == strlen($lang) ? substr($lang, 0, 2) : false;
-		$createTemplate = true;
 
-		while (1)
+		$agent = '/index';
+		$createTemplate = false === resolvePath('class/agent/index.php');
+
+		if ('' !== $potentialAgent)
 		{
-			if (isset($resolvedCache[$potentialAgent]))
+			$potentialAgent = explode('/', $potentialAgent);
+			$potentialAgent_length = count($potentialAgent);
+
+			$i = 0;
+			$a = '';
+			$offset = 0;
+
+			while ($i < $potentialAgent_length)
 			{
-				$createTemplate = false;
+				$a .= '/' . $potentialAgent[$i++];
+
+				if (isset($resolvedCache[$a]) || resolvePath("class/agent{$a}.php"))
+				{
+					$agent = $a;
+					$createTemplate = false;
+					$offset = $i;
+					continue;
+				}
+
+				if (
+					   resolvePath("public/__{$a}.tpl")
+					|| ($l_ng && resolvePath("public/{$l_ng}{$a}.tpl"))
+					|| resolvePath("public/{$lang}{$a}.tpl")
+				)
+				{
+					$agent = $a;
+					$createTemplate = true;
+					$offset = $i;
+					continue;
+				}
+
+				if (
+					   resolvePath("class/agent{$a}/")
+					|| resolvePath("public/__{$a}/")
+					|| ($l_ng && resolvePath("public/{$l_ng}{$a}/"))
+					|| resolvePath("public/{$lang}{$a}/")
+				) continue;
+
 				break;
 			}
 
-			if (resolvePath("class/agent/{$potentialAgent}.php"))
-			{
-				$createTemplate = false;
-				break;
-			}
+			if ($offset < $potentialAgent_length) $param = array_merge(array_slice($potentialAgent, $offset), $param);
+		}
 
-			if (resolvePath("public/{$lang}/{$potentialAgent}.tpl")) break;
-			if ($l_ng && resolvePath("public/{$l_ng}/{$potentialAgent}.tpl")) break;
-			if (resolvePath("public/__/{$potentialAgent}.tpl")) break;
-
-			if ('index' == $potentialAgent) break;
-
-
-			$a = strrpos($agent, '/');
-
-			if ($a)
-			{
-				array_unshift($param, substr($agent, $a + 1) . $ext);
-				$agent = substr($agent, 0, $a);
-				$potentialAgent = substr($potentialAgent, 0, strrpos($potentialAgent, '/'));
-			}
-			else
-			{
-				array_unshift($param, $agent . $ext);
-				$potentialAgent = $agent = 'index';
-			}
-
-			$ext = '';
+		if ('' !== $ext)
+		{
+			$param
+				? $param[count($param) - 1] .= $ext
+				: $param = array($ext);
 		}
 
 		if ($param)
@@ -926,9 +942,9 @@ class
 			foreach ($param as &$param) $args['__' . ++$i . '__'] = $param;
 		}
 
-		$resolvedCache[$potentialAgent] = true;
+		$resolvedCache[$agent] = true;
 
-		$agent = 'agent_' . str_replace('/', '_', $potentialAgent);
+		$agent = 'agent' . strtr($agent, '/', '_');
 
 		if ($createTemplate) eval('class ' . $agent . ' extends agent{protected $maxage=-1;protected $watch=array(\'public/templates\');function control(){}}');
 
@@ -1322,26 +1338,39 @@ class
 
 	static function resolvePublicPath($filename, &$path_idx = 0)
 	{
-		global $cia_paths;
+		$last_cia_paths = count($GLOBALS['cia_paths']) - 1;
 
-		if ($path_idx && $path_idx >= count($cia_paths)) return false;
+		if ($path_idx && $path_idx > $last_cia_paths) return false;
+
+
+		global $cia_lastpath_level;
+
+		$level = $last_cia_paths - $path_idx;
 
 		$lang = self::__LANG__() . '/';
 		$l_ng = 5 == strlen($lang) ? substr($lang, 0, 2) . '/' : false;
 
-		do
+
+		$lang = resolvePath("public/{$lang}{$filename}", $level);
+		$lang_level = $cia_lastpath_level;
+
+		$l_ng = resolvePath("public/{$l_ng}{$filename}", $level);
+		if ($cia_lastpath_level > $lang_level)
 		{
-			$path = $cia_paths[$path_idx] . '/public/';
-
-			if (
-				   file_exists($result = $path . $lang . $filename)
-				|| ($l_ng && file_exists($result = $path . $l_ng . $filename))
-				|| file_exists($result = $path . '__/' . $filename)
-			) break;
+			$lang = $l_ng;
+			$lang_level = $cia_lastpath_level;
 		}
-		while (isset($cia_paths[++$path_idx]));
 
-		return isset($cia_paths[$path_idx]) ? $result : false;
+		$l_ng = resolvePath("public/__/{$filename}", $level);
+		if ($cia_lastpath_level > $lang_level)
+		{
+			$lang = $l_ng;
+			$lang_level = $cia_lastpath_level;
+		}
+
+		$path_idx = $last_cia_paths - $lang_level;
+
+		return $lang;
 	}
 
 /*>

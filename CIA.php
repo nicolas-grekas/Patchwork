@@ -148,6 +148,9 @@ function W($msg, $err = E_USER_WARNING)
 
 { // <-- Hack to enable the next functions only when execution reaches this point
 
+// include with sandboxed namespace
+function cia_include($file) {return include $file;}
+
 // {{{ function resolvePath(): cia-specific include_path-like mechanism
 function resolvePath($file, $level = false, $base = false)
 {
@@ -168,7 +171,8 @@ function resolvePath($file, $level = false, $base = false)
 		else if ($i > $last_cia_paths) $i = $last_cia_paths;
 	}
 
-	$GLOBALS['cia_lastpath_level'] =& $level;
+	$GLOBALS['cia_lastpath_level'] = $level;
+	$level =& $GLOBALS['cia_lastpath_level'];
 
 	$file = strtr($file, '\\', '/');
 
@@ -263,7 +267,7 @@ function __autoload($searched_class)
 			$a = $searched_class . '.php.' . ((string)(int)(bool)DEBUG) . (0>$a ? -$a . '-' : $a);
 		}
 
-		include "./.class_{$a}.{$GLOBALS['cia_paths_token']}.zcache.php";
+		cia_include("./.class_{$a}.{$GLOBALS['cia_paths_token']}.zcache.php");
 
 		if (class_exists($searched_class, 0)) return;
 	}
