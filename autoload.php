@@ -110,7 +110,7 @@ function cia_autoload($searched_class)
 					if ($level) $preproc .= '__0';
 					else
 					{
-						require $source;
+						cia_include($source);
 						break;
 					}
 				}
@@ -125,7 +125,7 @@ function cia_autoload($searched_class)
 				$parent_pool =& $GLOBALS['cia_autoload_pool'];
 				$GLOBALS['cia_autoload_pool'] =& $current_pool;
 
-				require $cache;
+				cia_include($cache);
 
 				if (class_exists($searched_class, false)) $parent_class = false;
 				if (false !== $parent_pool) $parent_pool[$parent_class ? $parent_class : $searched_class] = $cache;
@@ -213,7 +213,7 @@ function cia_autoload($searched_class)
 			$tmp || $tmp = file_get_contents($cache);
 			if ('<?php ' != substr($tmp, 0, 6)) $tmp = '<?php ?>' . $tmp;
 
-			foreach ($current_pool as $class => &$c) $code = substr($code, 0, -2) . "class_exists('{$class}',0)||include '{$c}';?>";
+			foreach ($current_pool as $class => &$c) $code = substr($code, 0, -2) . "class_exists('{$class}',0)||cia_include('{$c}');?>";
 
 			$tmp = substr($code, 0, -2) . substr($tmp, 6);
 			cia_atomic_write($tmp, $cache, filemtime($cache));
@@ -240,7 +240,7 @@ function cia_autoload($searched_class)
 				{
 					$GLOBALS['a' . $cia_paths_token] = $bmark;
 					$code = "isset(\$c{$cia_paths_token}['{$searched_class}'])||{$code}";
-					$c = "isset(\$c{$cia_paths_token}['{$searched_class}'])||(include './.class_{$cache}.{$cia_paths_token}.zcache.php')||1";
+					$c = "isset(\$c{$cia_paths_token}['{$searched_class}'])||(cia_include('./.class_{$cache}.{$cia_paths_token}.zcache.php'))||1";
 				}
 				else
 				{
