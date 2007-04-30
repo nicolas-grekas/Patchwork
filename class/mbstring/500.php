@@ -136,14 +136,22 @@ class
 	static function strtolower($str, $encoding = null)
 	{
 		static $table;
-		isset($table) || $table = unserialize(file_get_contents(resolvePath('data/toLowerCase.ser'));
+		if (!isset($table))
+		{
+			ob_start(); readgzfile(resolvePath('data/toLowerCase.gz'));
+			$table = unserialize(ob_get_clean());
+		}
 		return strtr($str, $table);
 	}
 
 	static function strtoupper($str, $encoding = null)
 	{
 		static $table;
-		isset($table) || $table = unserialize(file_get_contents(resolvePath('data/toUpperCase.ser'));
+		if (!isset($table))
+		{
+			ob_start(); readgzfile(resolvePath('data/toUpperCase.gz'));
+			$table = unserialize(ob_get_clean());
+		}
 		return strtr($str, $table);
 	}
 

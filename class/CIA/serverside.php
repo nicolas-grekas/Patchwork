@@ -161,7 +161,7 @@ class extends CIA
 
 		$is_cacheable = !in_array('private', $group);
 
-		$cagent = CIA::agentCache($agentClass, $agent->argv, 'ser', $group);
+		$cagent = CIA::agentCache($agentClass, $agent->argv, 'gz', $group);
 
 		$filter = false;
 
@@ -257,7 +257,7 @@ class extends CIA
 					$rawdata['expires']  = $expires;
 					$rawdata['headers']  = $headers;
 
-					$rawdata = serialize($rawdata);
+					$rawdata = gzencode(serialize($rawdata));
 
 					fwrite($h, $rawdata);
 					fclose($h);
@@ -311,7 +311,8 @@ class extends CIA
 		{
 			if (filemtime($cagent) > $_SERVER['REQUEST_TIME'])
 			{
-				$data = unserialize(file_get_contents($cagent));
+				ob_start(); readgzfile($cagent);
+				$data = unserialize(ob_get_clean());
 				CIA::setMaxage($data['maxage']);
 				CIA::setExpires($data['expires']);
 				array_map('header', $data['headers']);
