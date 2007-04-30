@@ -131,7 +131,7 @@ EOHTML;
 
 							return;
 						}
-						else unlink($dagent);
+						else @unlink($dagent);
 					}
 				}
 				else
@@ -151,7 +151,7 @@ EOHTML;
 
 							return;
 						}
-						else unlink($cagent);
+						else @unlink($cagent);
 					}
 				}
 			}
@@ -265,35 +265,36 @@ EOHTML;
 			{
 				$ob = true;
 
+				$template = array(
+					'maxage' => $maxage,
+					'expires' => $expires,
+					'headers' => $headers,
+					'rawdata' => $data,
+				);
+
+				$expires = 'ontouch' == $expires ? CIA_MAXAGE : $maxage;
+
 				if ($h = CIA::fopenX($dagent))
 				{
-					$template = array(
-						'maxage' => $maxage,
-						'expires' => $expires,
-						'headers' => $headers,
-						'rawdata' => $data,
-					);
+					fwrite($h, gzencode(serialize($template)));
+					fclose($h);
+
+					touch($dagent, $_SERVER['REQUEST_TIME'] + $expires);
+
+					CIA::writeWatchTable($watch, $dagent);
+				}
+
+				if ($h = CIA::fopenX($cagent))
+				{
+					$ob = false;
+					$template['rawdata'] .= $liveAgent ? ob_get_clean() : ob_get_flush();
 
 					fwrite($h, gzencode(serialize($template)));
 					fclose($h);
 
-					$expires = 'ontouch' == $expires ? CIA_MAXAGE : $maxage;
+					touch($cagent, $_SERVER['REQUEST_TIME'] + $expires);
 
-					touch($dagent, $_SERVER['REQUEST_TIME'] + $expires);
-
-					if ($h = CIA::fopenX($cagent))
-					{
-						$ob = false;
-						$template['rawdata'] .= $liveAgent ? ob_get_clean() : ob_get_flush();
-
-						fwrite($h, gzencode(serialize($template)));
-						fclose($h);
-
-						touch($dagent, $_SERVER['REQUEST_TIME'] + $expires);
-
-						CIA::writeWatchTable($watch, $dagent);
-						CIA::writeWatchTable($watch, $cagent);
-					}
+					CIA::writeWatchTable($watch, $cagent);
 				}
 
 				if ($ob) $liveAgent ? ob_end_clean() : ob_end_flush();
