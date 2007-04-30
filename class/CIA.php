@@ -1354,11 +1354,14 @@ class
 		$lang = resolvePath("public/{$lang}{$filename}", $level);
 		$lang_level = $cia_lastpath_level;
 
-		$l_ng = resolvePath("public/{$l_ng}{$filename}", $level);
-		if ($cia_lastpath_level > $lang_level)
+		if ($l_ng)
 		{
-			$lang = $l_ng;
-			$lang_level = $cia_lastpath_level;
+			$l_ng = resolvePath("public/{$l_ng}{$filename}", $level);
+			if ($cia_lastpath_level > $lang_level)
+			{
+				$lang = $l_ng;
+				$lang_level = $cia_lastpath_level;
+			}
 		}
 
 		$l_ng = resolvePath("public/__/{$filename}", $level);

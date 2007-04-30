@@ -12,6 +12,18 @@
  ***************************************************************************/
 
 
+if ($lockHandle = @fopen('.config.zcache.php', 'xb')) flock($lockHandle, LOCK_EX);
+else
+{
+	$lockHandle = fopen('.config.zcache.php', 'rb');
+	flock($lockHandle, LOCK_SH);
+	fclose($lockHandle);
+
+	require '.config.zcache.php';
+	return;
+}
+
+
 function_exists('token_get_all') || die('Extension "tokenizer" is needed and not loaded.');
 isset($_SERVER['REDIRECT_URL']) && die('C3MRO Init. Error: $_SERVER[\'REDIRECT_URL\'] must not be set at this stage.');
 
@@ -180,7 +192,7 @@ $lock = $cia_paths[0] . '/.' . $cia_paths_token . '.zcache.php';
 if (!file_exists($lock) && $appInheritSeq = @fopen($lock . '.lock', 'xb'))
 {
 	fclose($appInheritSeq);
-	array_map('unlink', glob('./.*.zcache.php', GLOB_NOSORT));
+	@array_map('unlink', glob('./.*.zcache.php', GLOB_NOSORT));
 	rename($lock . '.lock', $lock);
 }
 
@@ -208,9 +220,19 @@ foreach ($cia_paths as $appInheritSeq) if (file_exists($appInheritSeq . '/config
 
 $CIA = array(implode(";\n", $CIA));
 
+
+$h = ini_get('max_execution_time');
+set_time_limit(0);
+$appConfigSource = count($cia_paths);
+foreach ($cia_include_paths as $a => $appInheritSeq)
+{
+	@cia_populatePathCache($cia_zcache, $appInheritSeq, $a, $a < $appConfigSource ? '' : '/class');
+}
+set_time_limit($h);
+
+$CIA[] = 'isset($CONFIG[\'session.cookie_path\'  ]) || $CONFIG[\'session.cookie_path\'] = \'/\'';
+$CIA[] = 'isset($CONFIG[\'session.cookie_domain\']) || $CONFIG[\'session.cookie_domain\'] = \'\'';
 $CIA[] = 'isset($CONFIG[\'P3P\'           ]) || $CONFIG[\'P3P\'] = \'CUR ADM\'';
-$CIA[] = 'isset($CONFIG[\'session.cookie_path\'   ]) || $CONFIG[\'session.cookie_path\'] = \'/\'';
-$CIA[] = 'isset($CONFIG[\'session.cookie_domain\' ]) || $CONFIG[\'session.cookie_domain\'] = \'\'';
 $CIA[] = 'isset($CONFIG[\'DEBUG_ALLOWED\' ]) || $CONFIG[\'DEBUG_ALLOWED\'] = true';
 $CIA[] = 'isset($CONFIG[\'DEBUG_PASSWORD\']) || $CONFIG[\'DEBUG_PASSWORD\'] = \'\'';
 $CIA[] = 'isset($CONFIG[\'lang_list\'     ]) || $CONFIG[\'lang_list\'] = \'\'';
@@ -274,7 +296,10 @@ $_SERVER[\'CIA_REQUEST\'] = urldecode($_SERVER[\'CIA_REQUEST\'])';
 $CIA[] = '$cia_multilang || $_SERVER[\'CIA_LANG\'] = $CONFIG[\'lang_list\']';
 
 $appConfigSource = '<?php ' . implode(";\n", $CIA) . ';';
-cia_atomic_write($appConfigSource, '.config.zcache.php', $_SERVER['REQUEST_TIME'] + 1);
+fwrite($lockHandle, $appConfigSource);
+fclose($lockHandle);
+
+touch('.config.zcache.php', $_SERVER['REQUEST_TIME'] + 1);
 
 unset($CIA[0]);
 $CIA && eval(implode(";\n", $CIA) . ';');
@@ -284,6 +309,7 @@ if (CIA_WINDOWS)
 {
 	$CIA = new COM('Scripting.FileSystemObject');
 	$CIA->GetFile($lock)->Attributes |= 2; // Set hidden attribute
+	$CIA->GetFile(CIA_PROJECT_PATH . '/.config.zcache.php')->Attributes |= 2;
 }
 
 unset($appConfigSource);
@@ -478,4 +504,34 @@ function cia_get_parent_apps($appRealpath)
 	}
 
 	return $parent;
+}
+
+function cia_populatePathCache(&$cia_zcache, $dir, $i, $prefix, $subdir = '/')
+{
+	if ($h = opendir($dir . $subdir))
+	{
+		if ('/' != $subdir && file_exists($dir . $subdir . 'config.cia.php')) ;
+		else while (false !== $file = readdir($h)) if ('.' != $file[0] && 'zcache' != $file)
+		{
+			$file = $subdir . $file;
+
+			$cache = substr($prefix . $file, 1);
+			$cache = md5($cache);
+			$cache = $cache[0] . '/' . $cache[1] . '/' . substr($cache, 2) . '.cachePath.txt';
+
+			if (false === $f = fopen($cia_zcache . $cache, 'ab'))
+			{
+				@mkdir($cia_zcache . $cache[0]);
+				@mkdir($cia_zcache . substr($cache, 0, 3));
+				$f = fopen($cia_zcache . $cache, 'ab');
+			}
+
+			fwrite($f, $i . ',');
+			fclose($f);
+
+			cia_populatePathCache($cia_zcache, $dir, $i, $prefix, $file . '/');
+		}
+
+		closedir($h);
+	}
 }
