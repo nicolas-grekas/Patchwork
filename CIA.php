@@ -18,6 +18,8 @@ define('CIA', microtime(true));
 isset($_SERVER['REQUEST_URI']) || $_SERVER['REQUEST_URI'] = $_SERVER['URL'];
 isset($_SERVER['SERVER_ADDR']) || $_SERVER['SERVER_ADDR'] = '127.0.0.1';
 
+if ('/_?exit$' == substr($_SERVER['REQUEST_URI'], -8)) die('exit');
+
 // Convert ISO-8859-1 URLs to UTF-8 ones
 if (!preg_match("''u", urldecode($a = $_SERVER['REQUEST_URI'])))
 {
