@@ -110,8 +110,8 @@ EOHTML;
 
 			if ($is_cacheable = !(CIA_POSTING || in_array('private', $group)))
 			{
-				$cagent = CIA::agentCache($agentClass, $agent->argv, 'js.ser', $group);
-				$dagent = CIA::getContextualCachePath('jsdata.' . $agentClass, 'js.ser', $cagent);
+				$cagent = CIA::agentCache($agentClass, $agent->argv, 'js.gz', $group);
+				$dagent = CIA::getContextualCachePath('jsdata.' . $agentClass, 'js.gz', $cagent);
 
 				if ($liveAgent)
 				{
@@ -119,13 +119,14 @@ EOHTML;
 					{
 						if (filemtime($dagent) > $_SERVER['REQUEST_TIME'])
 						{
-							$data = unserialize(file_get_contents($dagent));
+							ob_start(); readgzfile($dagent);
+							$data = unserialize(ob_get_clean());
 							CIA::setMaxage($data['maxage']);
 							CIA::setExpires($data['expires']);
 							array_map('header', $data['headers']);
 							CIA::closeMeta();
 
-							echo str_replace(array('\\', '"'), array('\\\\', '\\"'), $data['rawdata']),
+							echo str_replace(array('\\', '"', '</'), array('\\\\', '\\"', '<\\/'), $data['rawdata']),
 								'"//</script><script type="text/javascript" src="' . CIA::__BASE__() . 'js/QJsrsHandler"></script>';
 
 							return;
@@ -139,7 +140,8 @@ EOHTML;
 					{
 						if (filemtime($cagent) > $_SERVER['REQUEST_TIME'])
 						{
-							$data = unserialize(file_get_contents($cagent));
+							ob_start(); readgzfile($cagent);
+							$data = unserialize(ob_get_clean());
 							CIA::setMaxage($data['maxage']);
 							CIA::setExpires($data['expires']);
 							array_map('header', $data['headers']);
@@ -217,7 +219,7 @@ EOHTML;
 
 		if ($liveAgent)
 		{
-			echo str_replace(array('\\', '"'), array('\\\\', '\\"'), $data),
+			echo str_replace(array('\\', '"', '</'), array('\\\\', '\\"', '<\\/'), $data),
 				'"//</script><script type="text/javascript" src="' . CIA::__BASE__() . 'js/QJsrsHandler"></script>';
 		}
 		else echo $data;
@@ -272,7 +274,7 @@ EOHTML;
 						'rawdata' => $data,
 					);
 
-					fwrite($h, serialize($template));
+					fwrite($h, gzencode(serialize($template)));
 					fclose($h);
 
 					$expires = 'ontouch' == $expires ? CIA_MAXAGE : $maxage;
@@ -284,7 +286,7 @@ EOHTML;
 						$ob = false;
 						$template['rawdata'] .= $liveAgent ? ob_get_clean() : ob_get_flush();
 
-						fwrite($h, serialize($template));
+						fwrite($h, gzencode(serialize($template)));
 						fclose($h);
 
 						touch($dagent, $_SERVER['REQUEST_TIME'] + $expires);
