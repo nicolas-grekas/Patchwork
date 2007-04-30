@@ -172,20 +172,35 @@ function resolvePath($file, $level = false, $base = false)
 	}
 
 	$GLOBALS['cia_lastpath_level'] = $level;
-	$level =& $GLOBALS['cia_lastpath_level'];
 
-	$file = strtr($file, '\\', '/');
 
-	if ('class/' == substr($file, 0, 6)) $paths =& $GLOBALS['cia_include_paths'];
-	else $paths =& $GLOBALS['cia_paths'];
-
-	$nb_paths = count($paths);
-
-	for (; $i < $nb_paths; ++$i, --$level)
+	if (0 == $i)
 	{
-		$source = $paths[$i] .'/'. (0<=$level ? $file : substr($file, 6));
+		$source = CIA_PROJECT_PATH .'/'. $file;
 		if (CIA_WINDOWS ? win_file_exists($source) : file_exists($source)) return $source;
 	}
+
+
+	$file = strtr($file, '\\', '/');
+	if ('/' == substr($file, -1)) $file = substr($file, 0, -1);
+
+	$base = md5($file);
+	$base = $GLOBALS['cia_zcache'] . $base[0] . '/' . $base[1] . '/' . substr($base, 2) . '.cachePath.txt';
+
+	if (false !== $base = @file_get_contents($base))
+	{
+		$base = explode(',', substr($base, 0, -1));
+		do if (current($base) >= $i)
+		{
+			$base = current($base);
+			$level = $GLOBALS['cia_lastpath_level'] -= $base - $i;
+			
+			return $GLOBALS['cia_include_paths'][$base] . '/' . (0<=$level ? $file : substr($file, 6));
+		}
+		while (false !== next($base));
+	}
+
+	$GLOBALS['cia_lastpath_level'] = -$GLOBALS['cia_paths_offset'];
 
 	return false;
 }
