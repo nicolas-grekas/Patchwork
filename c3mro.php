@@ -12,14 +12,17 @@
  ***************************************************************************/
 
 
-if ($lockHandle = @fopen('.config.zcache.php', 'xb')) flock($lockHandle, LOCK_EX);
+if ($lockHandle = fopen('./.config.zcache.lock.php', 'xb')) flock($lockHandle, LOCK_EX);
 else
 {
-	$lockHandle = fopen('.config.zcache.php', 'rb');
-	flock($lockHandle, LOCK_SH);
-	fclose($lockHandle);
+	if ($lockHandle = @fopen('./.config.zcache.lock.php', 'rb'))
+	{
+		flock($lockHandle, LOCK_SH);
+		fclose($lockHandle);
+		while (!file_exists('./.config.zcache.php')) ;
+	}
 
-	require '.config.zcache.php';
+	require './.config.zcache.php';
 	return;
 }
 
@@ -167,7 +170,7 @@ else
 		$a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
 		'/' == substr($a, -1) && $a .= 'index.php';
 
-		$a  = "GET {$a}/_ HTTP/1.0\r\n";
+		$a  = "GET {$a}/_?exit$ HTTP/1.0\r\n";
 		$a .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
 		$a .= "Connection: Close\r\n\r\n";
 
@@ -188,12 +191,17 @@ else
 
 $cia_paths_token = substr(md5(serialize($CIA)), 0, 4);
 
-$lock = $cia_paths[0] . '/.' . $cia_paths_token . '.zcache.php';
-if (!file_exists($lock) && $appInheritSeq = @fopen($lock . '.lock', 'xb'))
+$a = $cia_paths[0] . '/.' . $cia_paths_token . '.zcache.php';
+if (!file_exists($a))
 {
-	fclose($appInheritSeq);
 	@array_map('unlink', glob('./.*.zcache.php', GLOB_NOSORT));
-	rename($lock . '.lock', $lock);
+	touch($a);
+	if (CIA_WINDOWS)
+	{
+		$h = new COM('Scripting.FileSystemObject');
+		$h->GetFile($a)->Attributes |= 2; // Set hidden attribute
+		unset($h);
+	}
 }
 
 
@@ -299,22 +307,25 @@ $appConfigSource = '<?php ' . implode(";\n", $CIA) . ';';
 fwrite($lockHandle, $appConfigSource);
 fclose($lockHandle);
 
-touch('.config.zcache.php', $_SERVER['REQUEST_TIME'] + 1);
+touch('./.config.zcache.lock.php', $_SERVER['REQUEST_TIME'] + 1);
+
+if (CIA_WINDOWS)
+{
+	$h = new COM('Scripting.FileSystemObject');
+	$h->GetFile(CIA_PROJECT_PATH . '/.config.zcache.lock.php')->Attributes |= 2; // Set hidden attribute
+}
+
+rename('./.config.zcache.lock.php', './.config.zcache.php');
+
 
 unset($CIA[0]);
 $CIA && eval(implode(";\n", $CIA) . ';');
 
 
-if (CIA_WINDOWS)
-{
-	$CIA = new COM('Scripting.FileSystemObject');
-	$CIA->GetFile($lock)->Attributes |= 2; // Set hidden attribute
-	$CIA->GetFile(CIA_PROJECT_PATH . '/.config.zcache.php')->Attributes |= 2;
-}
-
 unset($appConfigSource);
 unset($appInheritSeq);
 unset($CIA);
+unset($h);
 
 // C3 Method Resolution Order (like in Python 2.3) for multiple application inheritance
 // See http://python.org/2.3/mro.html
