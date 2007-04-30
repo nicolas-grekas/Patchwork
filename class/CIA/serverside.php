@@ -241,7 +241,7 @@ class extends CIA
 			if ($is_cacheable && !CIA_POSTING && !in_array('private', $group) && ($maxage || 'ontouch' == $expires))
 			{
 				$fagent = $cagent;
-				if ($canPost) $fagent = substr($cagent, 0, -7) . 'post' . substr($cagent, -4);
+				if ($canPost) $fagent = substr($cagent, 0, -3) . '.post' . substr($cagent, -3);
 
 				if ($h = CIA::fopenX($fagent))
 				{
@@ -303,7 +303,7 @@ class extends CIA
 	{
 		if (!file_exists($cagent))
 		{
-			$cagent = substr($cagent, 0, -7) . 'post' . substr($cagent, -4);
+			$cagent = substr($cagent, 0, -3) . '.post' . substr($cagent, -3);
 			if (CIA_POSTING || !file_exists($cagent)) $cagent = false;
 		}
 
