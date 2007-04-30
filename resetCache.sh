@@ -2,8 +2,7 @@
 
 chown apache: * -R
 find -name ".*.zcache.php" -exec rm -f {} \;
-find -name config.php -exec touch {} \;
-find -name ".config.zcache.php" -exec rm -f {} \;
+find -name config.cia.php -exec touch {} \;
 
 for I in `find -name zcache -type d 2> /dev/null`
 do
@@ -15,3 +14,4 @@ do
 	find $I/?/? -maxdepth 1 -type f -exec rm -f {} \; 2> /dev/null
 done
 
+find -name ".config.zcache.php" -exec rm -f {} \;
