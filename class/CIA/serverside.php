@@ -315,7 +315,7 @@ class extends CIA
 				$data = unserialize(ob_get_clean());
 				CIA::setMaxage($data['maxage']);
 				CIA::setExpires($data['expires']);
-				array_map('header', $data['headers']);
+				array_map(array('CIA', 'header'), $data['headers']);
 
 				echo $data['rawdata'];
 

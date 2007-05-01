@@ -123,7 +123,7 @@ EOHTML;
 							$data = unserialize(ob_get_clean());
 							CIA::setMaxage($data['maxage']);
 							CIA::setExpires($data['expires']);
-							array_map('header', $data['headers']);
+							array_map(array('CIA', 'header'), $data['headers']);
 							CIA::closeMeta();
 
 							echo str_replace(array('\\', '"', '</'), array('\\\\', '\\"', '<\\/'), $data['rawdata']),
@@ -148,7 +148,7 @@ EOHTML;
 							$data = unserialize(ob_get_clean());
 							CIA::setMaxage($data['maxage']);
 							CIA::setExpires($data['expires']);
-							array_map('header', $data['headers']);
+							array_map(array('CIA', 'header'), $data['headers']);
 							CIA::closeMeta();
 
 							echo $data['rawdata'];
