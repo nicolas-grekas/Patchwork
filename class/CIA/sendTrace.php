@@ -15,7 +15,7 @@ class extends CIA
 {
 	static function call($agent)
 	{
-		header('Content-Type: text/javascript; charset=UTF-8');
+		header('Content-Type: text/javascript');
 		CIA::setMaxage(-1);
 
 		echo 'w.k(',

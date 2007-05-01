@@ -12,13 +12,8 @@
  ***************************************************************************/
 
 
-class extends agent_bin
+class extends agent
 {
+	const contentType = 'text/javascript';
 	protected $template = 'QSelect/Search.js';
-
-	function control()
-	{
-		parent::control();
-		header('Content-Type: text/javascript; charset=UTF-8');
-	}
 }

@@ -12,14 +12,11 @@
  ***************************************************************************/
 
 
-class extends agent_bin
+class extends agent
 {
-	protected $maxage = -1;
+	const contentType = 'text/javascript';
 
-	function control()
-	{
-		header('Content-Type: text/javascript; charset=UTF-8');
-	}
+	protected $maxage = -1;
 
 	function compose($o)
 	{
