@@ -1219,7 +1219,7 @@ class
 			return $buffer;
 		}
 
-		isset(self::$headers['content-type']) || CIA::header('Content-Type: text/html; charset=UTF-8');
+		CIA::header(isset(self::$headers['content-type']) ? self::$headers['content-type'] : 'Content-Type: text/html; charset=UTF-8');
 
 		$is304 = false;
 
