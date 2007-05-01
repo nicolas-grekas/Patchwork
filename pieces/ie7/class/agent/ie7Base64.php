@@ -12,8 +12,10 @@
  ***************************************************************************/
 
 
-class extends agent_bin
+class extends agent
 {
+	const contentType = '';
+
 	function control() {}
 
 	function compose($o)
@@ -21,7 +23,7 @@ class extends agent_bin
 		if (!isset($_SERVER['QUERY_STRING']) || false !== strpos($_SERVER['QUERY_STRING'], ';'))
 		{
 			$data = explode(';', $_SERVER['QUERY_STRING']);
-			header('Content-Type: ' . $data[0]);
+			$this->contentType = $data[0];
 
 			$data = explode(',', $data[1]),
 			$o->DATA = base64_decode($data[1]);

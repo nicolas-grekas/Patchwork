@@ -12,8 +12,9 @@
  ***************************************************************************/
 
 
-class extends agent_bin
+class extends agent
 {
+	const contentType = 'text/javascript';
 	public $argv = array('__0__', 'source:bool');
 
 	protected $maxage = -1;
@@ -23,8 +24,6 @@ class extends agent_bin
 
 	function control()
 	{
-		header('Content-Type: text/javascript; charset=UTF-8');
-
 		$this->argv->source && self::$recursion = 1;
 		self::$recursion && $this->argv->source = 1;
 

@@ -61,7 +61,7 @@ class extends CIA
 		}
 	}
 
-	static function readfile($file, $mime = 'application/octet-stream')
+	static function readfile($file, $mime)
 	{
 		$size = filesize($file);
 

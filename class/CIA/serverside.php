@@ -200,6 +200,8 @@ class extends CIA
 				--CIA::$ob_level;
 			}
 
+			isset(CIA::$headers['content-type']) || CIA::header('Content-Type: ' . $agent->contentType);
+
 			$vClone = clone $v;
 		}
 

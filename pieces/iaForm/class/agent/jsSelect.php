@@ -12,17 +12,14 @@
  ***************************************************************************/
 
 
-class extends agent_bin
+class extends agent
 {
+	const contentType = 'text/javascript';
+
 	protected $maxage = -1;
 	protected $template = 'form/jsSelect.js';
 
 	protected $param = array();
-
-	function control()
-	{
-		header('Content-Type: text/javascript; charset=UTF-8');
-	}
 
 	function compose($o)
 	{

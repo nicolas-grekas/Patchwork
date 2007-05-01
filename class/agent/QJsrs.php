@@ -12,8 +12,11 @@
  ***************************************************************************/
 
 
-class extends agent_bin
+class extends agent
 {
+	const contentType = '';
+	public $contentType = 'text/html';
+
 	protected $data = array();
 
 	function compose($o)

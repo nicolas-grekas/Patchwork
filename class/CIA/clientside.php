@@ -88,7 +88,7 @@ EOHTML;
 		{
 			// The output is both html and js, but iframe transport layer needs html
 			CIA::$binaryMode = true;
-			header('Content-Type: text/html; charset=UTF-8');
+			header('Content-Type: text/html');
 
 			echo '/*<script type="text/javascript">/**/q="';
 		}

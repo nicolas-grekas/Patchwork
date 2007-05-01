@@ -265,7 +265,7 @@ class
 	// {{{ Client side rendering controler
 	static function clientside()
 	{
-		self::header('Content-Type: text/javascript; charset=UTF-8');
+		self::header('Content-Type: text/javascript');
 
 		if (isset($_GET['v$']) && self::$versionId != $_GET['v$'] && 'x$' != key($_GET))
 		{
@@ -301,8 +301,7 @@ class
 
 		if (isset($_GET['k$'])) return CIA_sendTrace::call($agent);
 
-		self::$binaryMode = (bool) constant("$agent::binary");
-		self::$binaryMode || self::header('Content-Type: text/html; charset=UTF-8');
+		self::$binaryMode = 'text/html' != substr(constant("$agent::contentType"), 0, 9);
 
 		// Synch exoagents on browser request
 		if (isset($_COOKIE['cache_reset_id']) && self::$versionId == $_COOKIE['cache_reset_id'] && setcookie('cache_reset_id', '', 0, '/'))
@@ -467,7 +466,9 @@ class
 				}
 			}
 
-			self::$headers[$name] = $replace || !isset(self::$headers[$name]) ? $string : (self::$headers[$name] . ', ' . $string);
+			if ('text/' == substr($string, 14, 5) && !strpos($string, ';')) $string .= '; charset=UTF-8';
+
+			self::$headers[$name] = $replace || !isset(self::$headers[$name]) ? $string : (self::$headers[$name] . ',' . substr($string, 1+strpos($string, ':')));
 			header($string, $replace, self::$is_enabled ? null : $http_response_code);
 		}
 	}
@@ -510,7 +511,7 @@ class
 		return false;
 	}
 
-	static function readfile($file, $mime = 'application/octet-stream')
+	static function readfile($file, $mime)
 	{
 		return CIA_staticControler::readfile($file, $mime);
 	}
@@ -1219,7 +1220,11 @@ class
 			return $buffer;
 		}
 
-		CIA::header(isset(self::$headers['content-type']) ? self::$headers['content-type'] : 'Content-Type: text/html; charset=UTF-8');
+		CIA::header(
+			isset(self::$headers['content-type'])
+				? self::$headers['content-type']
+				: 'Content-Type: text/html'
+		);
 
 		$is304 = false;
 
@@ -1390,7 +1395,8 @@ class
 
 class agent
 {
-	const binary = false;
+	const contentType = 'text/html';
+	public $contentType;
 
 	public $argv = array();
 
@@ -1405,11 +1411,21 @@ class agent
 	function compose($o) {return $o;}
 	function getTemplate()
 	{
-		return $this->template ? $this->template : str_replace('_', '/', substr(get_class($this), 6));
+		if ($this->template) return $this->template;
+		else
+		{
+			$class = get_class($this);
+
+			return 'text/html' == substr(constant("$class::contentType"), 0, 9)
+				? strtr(substr($class, 6), '_', '/')
+				: 'bin';
+		}
 	}
 
 	final public function __construct($args = array())
 	{
+		isset($this->contentType) || $this->contentType = constant(get_class($this) . '::contentType');
+
 		$a = (array) $this->argv;
 
 		$this->argv = (object) array();

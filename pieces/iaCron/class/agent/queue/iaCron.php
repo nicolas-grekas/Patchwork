@@ -12,8 +12,10 @@
  ***************************************************************************/
 
 
-class extends agent_bin
+class extends agent
 {
+	const contentType = '';
+
 	public $argv = array(
 		'__1__:int:1',
 		'__2__:string:[a-f0-9]{32}'

@@ -12,10 +12,8 @@
  ***************************************************************************/
 
 
-class extends agent_bin
+class extends agent
 {
-	function control()
-	{
-		header('Content-Type: application/atom+xml');
-	}
+	const contentType = 'application/atom+xml';
+	protected $template = 'feed/atom';
 }

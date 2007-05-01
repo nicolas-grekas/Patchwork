@@ -12,18 +12,16 @@
  ***************************************************************************/
 
 
-class extends agent_bin
+class extends agent
 {
+	const contentType = 'text/css';
 	public $argv = array('__0__');
 
 	protected $maxage = -1;
-
 	protected $watch = array('public/css');
 
 	function control()
 	{
-		header('Content-Type: text/css; charset=UTF-8');
-
 		$tpl = $this->argv->__0__;
 
 		if ($tpl !== '')
