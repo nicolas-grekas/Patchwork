@@ -14,7 +14,7 @@
 
 class extends agent
 {
-	const contentType = 'text/server-html';
+	const contentType = '';
 
 	protected $data = array();
 
