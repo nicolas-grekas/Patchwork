@@ -200,7 +200,7 @@ class extends CIA
 				--CIA::$ob_level;
 			}
 
-			isset(CIA::$headers['content-type']) || CIA::header('Content-Type: text/serverside-html');
+			isset(CIA::$headers['content-type']) || CIA::header('Content-Type: text/server-html');
 
 			$vClone = clone $v;
 		}

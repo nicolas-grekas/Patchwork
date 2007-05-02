@@ -468,7 +468,7 @@ class
 
 			if ('text/' == substr($string, 14, 5))
 			{
-				$string = str_replace('text/serverside-html', 'text/html', $string);
+				$string = str_replace('text/server-html', 'text/html', $string);
 				strpos($string, ';') || $string .= '; charset=UTF-8';
 			}
 
