@@ -111,7 +111,7 @@ chdir($CIA) || die("Unreachable directory: $CIA");
 $_REQUEST = array();
 
 $CONFIG = array();
-$version_id = './.config.zcache.php';
+$version_id = './.config.cia.php';
 
 define('__CIA__', dirname(__FILE__));
 define('CIA_WINDOWS', '\\' == DIRECTORY_SEPARATOR);

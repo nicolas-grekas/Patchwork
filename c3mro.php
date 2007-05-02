@@ -12,17 +12,17 @@
  ***************************************************************************/
 
 
-if ($lockHandle = fopen('./.config.zcache.lock.php', 'xb')) flock($lockHandle, LOCK_EX);
+if ($lockHandle = fopen('./.config.lock.php', 'xb')) flock($lockHandle, LOCK_EX);
 else
 {
-	if ($lockHandle = @fopen('./.config.zcache.lock.php', 'rb'))
+	if ($lockHandle = @fopen('./.config.lock.php', 'rb'))
 	{
 		flock($lockHandle, LOCK_SH);
 		fclose($lockHandle);
-		while (!file_exists('./.config.zcache.php')) ;
+		while (!file_exists('./.config.cia.php')) ;
 	}
 
-	require './.config.zcache.php';
+	require './.config.cia.php';
 	return;
 }
 
@@ -307,15 +307,15 @@ $appConfigSource = '<?php ' . implode(";\n", $CIA) . ';';
 fwrite($lockHandle, $appConfigSource);
 fclose($lockHandle);
 
-touch('./.config.zcache.lock.php', $_SERVER['REQUEST_TIME'] + 1);
+touch('./.config.lock.php', $_SERVER['REQUEST_TIME'] + 1);
 
 if (CIA_WINDOWS)
 {
 	$h = new COM('Scripting.FileSystemObject');
-	$h->GetFile(CIA_PROJECT_PATH . '/.config.zcache.lock.php')->Attributes |= 2; // Set hidden attribute
+	$h->GetFile(CIA_PROJECT_PATH . '/.config.lock.php')->Attributes |= 2; // Set hidden attribute
 }
 
-rename('./.config.zcache.lock.php', './.config.zcache.php');
+rename('./.config.lock.php', './.config.cia.php');
 
 
 unset($CIA[0]);

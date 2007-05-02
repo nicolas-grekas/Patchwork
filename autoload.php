@@ -258,14 +258,14 @@ function cia_autoload($searched_class)
 				cia_atomic_write($tmp, $file, filemtime($file));
 			}
 		}
-		else if (!$bmark && file_exists('./.config.zcache.php'))
+		else if (!$bmark && file_exists('./.config.cia.php'))
 		{
 			// Global cache completion
 
 			$amark = $outerClass ? "'{$cache}'" : ($level + $GLOBALS['cia_paths_offset']);
 			$code = "\$c{$cia_paths_token}['{$searched_class}']={$amark};";
 
-			$c = fopen('./.config.zcache.php', 'ab');
+			$c = fopen('./.config.cia.php', 'ab');
 			flock($c, LOCK_EX);
 			fwrite($c, $code);
 			fclose($c);
