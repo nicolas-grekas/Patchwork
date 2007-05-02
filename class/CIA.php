@@ -466,11 +466,7 @@ class
 				}
 			}
 
-			if ('text/' == substr($string, 14, 5))
-			{
-				$string = str_replace('text/server-html', 'text/html', $string);
-				strpos($string, ';') || $string .= '; charset=UTF-8';
-			}
+			if ('text/' == substr($string, 14, 5) && !strpos($string, ';')) $string .= '; charset=UTF-8';
 
 			self::$headers[$name] = $replace || !isset(self::$headers[$name]) ? $string : (self::$headers[$name] . ',' . substr($string, 1+strpos($string, ':')));
 			header($string, $replace, self::$is_enabled ? null : $http_response_code);
