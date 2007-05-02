@@ -7,10 +7,13 @@ do
 	touch $I/config.cia.php
 	rm -f $I/.*.zcache.php 2> /dev/null
 
-	if test -d $I/zcache
-	then
-		mv $I/zcache $I/zcache.old
+	test -d $I/zcache && mv $I/zcache $I/zcache.old
 
+	rm -f "$I/.config.lock.php" 2> /dev/null
+	rm -f "$I/.config.cia.php"  2> /dev/null
+
+	if test -d $I/zcache.old
+	then
 		for J in `find $I/zcache.old/?/? -maxdepth 1 -type f -name "*.watch.*.php" 2> /dev/null`
 		do
 			echo "<?php @include '$J';" | php -q
@@ -18,7 +21,4 @@ do
 
 		rm -Rf $I/zcache.old
 	fi
-
-	rm -f "$I/.config.lock.php" 2> /dev/null
-	rm -f "$I/.config.cia.php"  2> /dev/null
 done
