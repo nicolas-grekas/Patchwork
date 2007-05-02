@@ -15,7 +15,6 @@
 class extends agent
 {
 	const contentType = '';
-	public $contentType = 'text/html';
 
 	public $argv = array(
 		'Command:string:FileUpload|GetFolders|GetFoldersAndFiles|CreateFolder',
@@ -67,7 +66,7 @@ class extends agent
 		if (strpos($currentFolder, '..')) return array('number' => 102, 'text' => '');
 
 
-		$this->contentType = 'text/xml';
+		header('Content-Type: text/xml');
 
 		$o->command       = $this->argv->Command;
 		$o->resourceType  = strtolower($this->argv->Type);
@@ -150,7 +149,7 @@ class extends agent
 
 	protected function fileUpload($o)
 	{
-		$this->contentType = 'text/javascript';
+		header('Content-Type: text/javascript');
 
 		$o->number = 0;
 		$o->filename = '';

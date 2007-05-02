@@ -466,7 +466,11 @@ class
 				}
 			}
 
-			if ('text/' == substr($string, 14, 5) && !strpos($string, ';')) $string .= '; charset=UTF-8';
+			if ('text/' == substr($string, 14, 5))
+			{
+				$string = str_replace('text/serverside-html', 'text/html', $string);
+				strpos($string, ';') || $string .= '; charset=UTF-8';
+			}
 
 			self::$headers[$name] = $replace || !isset(self::$headers[$name]) ? $string : (self::$headers[$name] . ',' . substr($string, 1+strpos($string, ':')));
 			header($string, $replace, self::$is_enabled ? null : $http_response_code);
@@ -1081,7 +1085,8 @@ class
 		}
 
 
-		$type = isset(self::$headers['content-type']) ? strtolower(substr(self::$headers['content-type'], 14)) : 'html';
+		static $type = false;
+		false !== $type || $type = isset(self::$headers['content-type']) ? strtolower(substr(self::$headers['content-type'], 14)) : 'html';
 
 		// Anti-XSRF token
 
@@ -1396,7 +1401,6 @@ class
 class agent
 {
 	const contentType = 'text/html';
-	public $contentType;
 
 	public $argv = array();
 
@@ -1406,6 +1410,9 @@ class agent
 	protected $expires = 'auto';
 	protected $canPost = false;
 	protected $watch = array();
+
+	// For convenience only, same content as <$this>::contentType
+	protected $contentType;
 
 	function control() {}
 	function compose($o) {return $o;}
@@ -1424,7 +1431,8 @@ class agent
 
 	final public function __construct($args = array())
 	{
-		isset($this->contentType) || $this->contentType = constant(get_class($this) . '::contentType');
+		$this->contentType = constant(get_class($this) . '::contentType');
+		$this->contentType && CIA::header('Content-Type: ' . $this->contentType);
 
 		$a = (array) $this->argv;
 

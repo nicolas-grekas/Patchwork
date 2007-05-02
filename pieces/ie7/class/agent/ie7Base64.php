@@ -23,7 +23,7 @@ class extends agent
 		if (!isset($_SERVER['QUERY_STRING']) || false !== strpos($_SERVER['QUERY_STRING'], ';'))
 		{
 			$data = explode(';', $_SERVER['QUERY_STRING']);
-			$this->contentType = $data[0];
+			header('Content-Type: ' . $data[0]);
 
 			$data = explode(',', $data[1]),
 			$o->DATA = base64_decode($data[1]);

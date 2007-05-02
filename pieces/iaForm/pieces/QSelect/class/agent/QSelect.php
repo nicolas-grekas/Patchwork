@@ -15,5 +15,6 @@
 class extends agent
 {
 	const contentType = 'text/javascript';
+
 	protected $template = 'QSelect/Search.js';
 }
