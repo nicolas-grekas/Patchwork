@@ -364,7 +364,7 @@ class
 		// config.cia.php's last modification date is used for
 		// version synchronisation with clients and caches.
 		touch('./config.cia.php', $_SERVER['REQUEST_TIME']);
-#>		file_exists('./.config.zcache.php') && touch('./.config.zcache.php', $_SERVER['REQUEST_TIME']);
+#>		file_exists('./.config.cia.php') && touch('./.config.cia.php', $_SERVER['REQUEST_TIME']);
 	}
 
 	static function disable($exit = false)

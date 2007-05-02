@@ -1,19 +1,24 @@
 #!/bin/bash
 
 chown apache: * -R
-find -name ".*.zcache.php" -exec rm -f {} \;
-find -name config.cia.php -exec touch {} \;
 
-for I in `find -name zcache -type d 2> /dev/null`
+for I in `find -name config.cia.php -printf "%h\n" 2> /dev/null`
 do
-	mv $I $I.old
+	touch $I/config.cia.php
+	rm -f $I/.*.zcache.php 2> /dev/null
 
-	for J in `find $I.old/?/? -maxdepth 1 -type f -name "*.watch.*.php" 2> /dev/null`
-	do
-		echo "<?php @include '$J';" | php -q
-	done
+	if test -d $I/zcache
+	then
+		mv $I/zcache $I/zcache.old
 
-	rm -Rf $I.old
+		for J in `find $I/zcache.old/?/? -maxdepth 1 -type f -name "*.watch.*.php" 2> /dev/null`
+		do
+			echo "<?php @include '$J';" | php -q
+		done
+
+		rm -Rf $I/zcache.old
+	fi
+
+	rm -f "$I/.config.lock.php" 2> /dev/null
+	rm -f "$I/.config.cia.php"  2> /dev/null
 done
-
-find -name ".config.zcache.php" -exec rm -f {} \;
