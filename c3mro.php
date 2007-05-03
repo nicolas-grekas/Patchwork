@@ -43,7 +43,7 @@ $cia_paths[] = __CIA__;
 
 $cia_include_paths = explode(PATH_SEPARATOR, get_include_path());
 $cia_include_paths = array_map('realpath', $cia_include_paths);
-$cia_include_paths = array_diff($cia_include_paths, $cia_paths);
+$cia_include_paths = array_diff($cia_include_paths, $cia_paths, array(''));
 $cia_include_paths = array_merge($cia_paths, $cia_include_paths);
 $cia_paths_offset  = count($cia_include_paths) - count($cia_paths) + 1;
 
