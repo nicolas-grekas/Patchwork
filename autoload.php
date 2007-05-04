@@ -89,55 +89,44 @@ function cia_autoload($searched_class)
 	{
 		// Conventional class: search its parent in existing classes or on disk
 
-		$i = $last_cia_paths - $level;
-		if (0 > $i) $i = 0;
-
 		$file || $file = strtr($class, '_', '/') . '.php';
-		$file = 'class/' . $file;
 
-		$paths =& $GLOBALS['cia_include_paths'];
-		$nb_paths = count($paths);
-
-		for (; $i < $nb_paths; ++$i)
+		if ($source = resolvePath('class/' . $file, $level, 0)) do
 		{
-			$source = $paths[$i] .'/'. (0<=$level ? $file : substr($file, 6));
-
-			if (CIA_WINDOWS ? win_file_exists($source) : file_exists($source))
+			for (; $level >= $file; --$level)
 			{
-				$preproc = 'CIA_preprocessor';
-				if ('cia_preprocessor' == $lcClass)
-				{
-					if ($level) $preproc .= '__0';
-					else
-					{
-						cia_include($source);
-						break;
-					}
-				}
+				$parent_class = $class . '__' . (0<=$level ? $level : '00');
+				if (class_exists($parent_class, false)) break 2;
+			}
 
-				$cache = ((int)(bool)DEBUG) . (0>$level ? -$level .'-' : $level);
-				$cache = "./.class_{$class}.php.{$cache}.{$cia_paths_token}.zcache.php";
-
-				if (!file_exists($cache) || (DEBUG && filemtime($cache) <= filemtime($source)))
-					call_user_func(array($preproc, 'run'), $source, $cache, $level, $class);
-
-				$current_pool = array();
-				$parent_pool =& $GLOBALS['cia_autoload_pool'];
-				$GLOBALS['cia_autoload_pool'] =& $current_pool;
-
-				cia_include($cache);
-
-				if (class_exists($searched_class, false)) $parent_class = false;
-				if (false !== $parent_pool) $parent_pool[$parent_class ? $parent_class : $searched_class] = $cache;
-
+			if ('cia_preprocessor' == $lcClass)
+			{
+				cia_include($source);
 				break;
 			}
 
-			--$level;
+			$cache = ((int)(bool)DEBUG) . (0>++$level ? -$level .'-' : $level);
+			$cache = "./.class_{$class}.php.{$cache}.{$cia_paths_token}.zcache.php";
 
-			$parent_class = $class . '__' . (0<=$level ? $level : '00');
+			if (!file_exists($cache) || (DEBUG && filemtime($cache) <= filemtime($source)))
+			call_user_func(array('CIA_preprocessor', 'run'), $source, $cache, $level, $class);
 
-			if (class_exists($parent_class, false)) break;
+			$current_pool = array();
+			$parent_pool =& $GLOBALS['cia_autoload_pool'];
+			$GLOBALS['cia_autoload_pool'] =& $current_pool;
+
+			cia_include($cache);
+
+			if (class_exists($searched_class, false)) $parent_class = false;
+			if (false !== $parent_pool) $parent_pool[$parent_class ? $parent_class : $searched_class] = $cache;
+		} while (0);
+		else
+		{
+			for (; $level >= -1; --$level)
+			{
+				$parent_class = $class . '__' . (0<=$level ? $level : '00');
+				if (class_exists($parent_class, false)) break;
+			}
 		}
 	}
 

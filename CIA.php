@@ -165,12 +165,9 @@ function resolvePath($file, $level = false, $base = false)
 	}
 	else
 	{
-		if (0 <= $level) $base = 0;
-
+		0 <= $level && $base = 0;
 		$i = $last_cia_paths - $level - $base;
-
-		if (0 > $i) $i = 0;
-		else if ($i > $last_cia_paths) $i = $last_cia_paths;
+		0 > $i && $i = 0;
 	}
 
 	$GLOBALS['cia_lastpath_level'] = $level;
@@ -274,7 +271,7 @@ function __autoload($searched_class)
 {
 	$a = strtolower($searched_class);
 
-	if ($a =& $GLOBALS['cia_autoload_cache'][$a] && !DEBUG)
+	if ($a =& $GLOBALS['cia_autoload_cache'][$a])
 	{
 		if (is_int($a))
 		{
