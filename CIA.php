@@ -78,7 +78,7 @@ function cia_atomic_write(&$data, $to, $mtime = false)
 	{
 		$data = new COM('Scripting.FileSystemObject');
 		$data->GetFile(CIA_PROJECT_PATH .'/'. $tmp)->Attributes |= 2; // Set hidden attribute
-		file_exists($to) && unlink($to);
+		file_exists($to) && @unlink($to);
 		@rename($tmp, $to) || unlink($tmp);
 	}
 	else rename($tmp, $to);

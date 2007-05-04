@@ -123,7 +123,7 @@ EOHTML;
 							$data = unserialize(ob_get_clean());
 							CIA::setMaxage($data['maxage']);
 							CIA::setExpires($data['expires']);
-							foreach ($data['watch'] as $a) self::$watchTable[$a] = 0;
+							CIA::writeWatchTable($data['watch']);
 							array_map(array('CIA', 'header'), $data['headers']);
 							CIA::closeMeta();
 
@@ -149,7 +149,7 @@ EOHTML;
 							$data = unserialize(ob_get_clean());
 							CIA::setMaxage($data['maxage']);
 							CIA::setExpires($data['expires']);
-							foreach ($data['watch'] as $a) self::$watchTable[$a] = 0;
+							CIA::writeWatchTable($data['watch']);
 							array_map(array('CIA', 'header'), $data['headers']);
 							CIA::closeMeta();
 
