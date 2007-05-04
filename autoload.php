@@ -93,6 +93,8 @@ function cia_autoload($searched_class)
 
 		if ($source = resolvePath('class/' . $file, $level, 0)) do
 		{
+			$file = $GLOBALS['cia_lastpath_level'];
+
 			for (; $level >= $file; --$level)
 			{
 				$parent_class = $class . '__' . (0<=$level ? $level : '00');
@@ -109,7 +111,7 @@ function cia_autoload($searched_class)
 			$cache = "./.class_{$class}.php.{$cache}.{$cia_paths_token}.zcache.php";
 
 			if (!file_exists($cache) || (DEBUG && filemtime($cache) <= filemtime($source)))
-			call_user_func(array('CIA_preprocessor', 'run'), $source, $cache, $level, $class);
+				call_user_func(array('CIA_preprocessor', 'run'), $source, $cache, $level, $class);
 
 			$current_pool = array();
 			$parent_pool =& $GLOBALS['cia_autoload_pool'];
