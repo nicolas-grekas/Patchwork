@@ -1235,46 +1235,7 @@ class
 			if (!self::$maxage) self::$maxage = 0;
 			if ($GLOBALS['cia_private']) self::$private = true;
 
-			/* ETag / Last-Modified validation */
-
-			$ETag = substr(
-				md5(
-					self::$ETag .'-'. $buffer .'-'. self::$expires .'-'. self::$maxage .'-'.
-					(int)(bool)self::$private .'-'. implode('-', self::$headers)
-				), 0, 8
-			);
-
-			if (self::$LastModified) $LastModified = self::$LastModified;
-			else if (
-				isset($_SERVER['HTTP_USER_AGENT'])
-				&& strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE')
-				&& preg_match("'MSIE [0-6]\.'", $_SERVER['HTTP_USER_AGENT'])
-				&& self::gzipAllowed(strtolower(substr(self::$headers['content-type'], 14))))
-			{
-				// Patch an IE<=6 bug when using ETag + compression
-
-				self::$private = true;
-
-				$ETag = hexdec($ETag);
-				if ($ETag >= 0x80000000) $ETag -= 0x80000000;
-				$LastModified = $ETag;
-				$ETag = dechex($ETag);
-			}
-			else $LastModified = $_SERVER['REQUEST_TIME'];
-
-			$LastModified = gmdate('D, d M Y H:i:s \G\M\T', $LastModified);
-
-			$is304 = isset($_SERVER['HTTP_IF_NONE_MATCH']) && false !== strpos($_SERVER['HTTP_IF_NONE_MATCH'], $ETag);
-
-			if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']))
-			{
-				if ($is304)
-				{
-					$LastModified = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE'], 2);
-					$LastModified = $LastModified[0];
-				}
-				else $is304 = false !== strpos($_SERVER['HTTP_IF_MODIFIED_SINCE'], $LastModified);
-			}
+			$LastModified = $_SERVER['REQUEST_TIME'];
 
 
 			/* Write watch table */
@@ -1283,13 +1244,15 @@ class
 
 			if ('auto' == self::$expires && self::$watchTable)
 			{
+				$is304 = false;
+
 				self::$watchTable = array_keys(self::$watchTable);
 				sort(self::$watchTable);
 
 				$validator = $_SERVER['CIA_BASE'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH;
 				$validator = substr(md5(serialize(self::$watchTable) . $validator), 0, 8);
 
-				$ETag .= '-' . $validator . '-';
+				$ETag = $validator . '-';
 
 				$validator = self::$cachePath . $validator[0] .'/'. $validator[1] .'/'. substr($validator, 2) .'.validator.'. DEBUG .'.txt';
 
@@ -1297,7 +1260,7 @@ class
 				if ($h = self::fopenX($validator, $readHandle))
 				{
 					$a = substr(md5(microtime(1)), 0, 8);
-					fwrite($h, $a);
+					fwrite($h, $a .'-'. $LastModified);
 					fclose($h);
 
 					$readHandle = "++\$i;unlink('$validator');\n";
@@ -1314,13 +1277,46 @@ class
 				}
 				else
 				{
-					$a = fread($readHandle, 8);
+					$a = fread($readHandle, 32);
 					fclose($readHandle);
+
+					$a = explode('-', $a);
+					$LastModified = $a[1];
+					$a = $a[0];
 				}
 
 				$ETag .= $a;
+			}
+			else
+			{
+				/* ETag / Last-Modified validation */
 
-				$is304 && header('ETag: "' . $ETag . '"');
+				$ETag = substr(
+					md5(
+						self::$ETag .'-'. $buffer .'-'. self::$expires .'-'. self::$maxage .'-'.
+						(int)(bool)self::$private .'-'. implode('-', self::$headers)
+					), 0, 8
+				);
+
+				if (self::$LastModified) $LastModified = self::$LastModified;
+				else if (
+					isset($_SERVER['HTTP_USER_AGENT'])
+					&& strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE')
+					&& preg_match("'MSIE [0-6]\.'", $_SERVER['HTTP_USER_AGENT'])
+					&& self::gzipAllowed(strtolower(substr(self::$headers['content-type'], 14))))
+				{
+					// Patch an IE<=6 bug when using ETag + compression
+
+					self::$private = true;
+
+					$ETag = hexdec($ETag);
+					if ($ETag >= 0x80000000) $ETag -= 0x80000000;
+					$LastModified = $ETag;
+					$ETag = dechex($ETag);
+				}
+
+				$is304 = (isset($_SERVER['HTTP_IF_NONE_MATCH']) && false !== strpos($_SERVER['HTTP_IF_NONE_MATCH'], $ETag))
+					|| (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && false !== strpos($_SERVER['HTTP_IF_MODIFIED_SINCE'], $LastModified));
 			}
 
 			if ($is304)
@@ -1331,7 +1327,7 @@ class
 			else
 			{
 				header('ETag: "' . $ETag . '"');
-				header('Last-Modified: ' . $LastModified);
+				header('Last-Modified: ' . gmdate('D, d M Y H:i:s \G\M\T', $LastModified));
 				header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + (self::$private || !self::$maxage ? 0 : self::$maxage)));
 				header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');
 				self::$varyEncoding && header('Vary: Accept-Encoding', false);
