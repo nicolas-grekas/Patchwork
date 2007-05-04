@@ -1015,16 +1015,15 @@ class
 		return self::getContextualCachePath($agentClass, $type, $keys);
 	}
 
-	static function writeWatchTable($message, $file, $exclusive = true)
+	static function writeWatchTable($message, $file = '', $exclusive = true)
 	{
-		$file = realpath($file);
-		if (!$file) return;
-
-		$file =  "++\$i;unlink('" . str_replace(array('\\',"'"), array('\\\\',"\\'"), $file) . "');\n";
+		$file && $file = realpath($file);
+		if (!$file && !$exclusive) return;
+		$file && $file =  "++\$i;unlink('" . str_replace(array('\\',"'"), array('\\\\',"\\'"), $file) . "');\n";
 
 		foreach (array_unique((array) $message) as $message)
 		{
-			if (self::$catchMeta) self::$metaInfo[3][] = $message;
+			if ($file && self::$catchMeta) self::$metaInfo[3][] = $message;
 
 			$message = preg_split("'[\\\\/]+'u", $message, -1, PREG_SPLIT_NO_EMPTY);
 			$message = array_map('rawurlencode', $message);
@@ -1032,7 +1031,9 @@ class
 			$message = str_replace('.', '%2E', $message);
 
 			$path = self::getCachePath('watch/' . $message, 'php');
-			if ($exclusive) self::$watchTable[$path] = 1;
+			if ($exclusive) self::$watchTable[$path] = (bool) $file;
+
+			if (!$file) continue;
 
 			self::makeDir($path);
 
