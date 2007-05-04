@@ -1032,7 +1032,7 @@ class
 			$message = str_replace('.', '%2E', $message);
 
 			$path = self::getCachePath('watch/' . $message, 'php');
-			if ($exclusive) self::$watchTable[] = $path;
+			if ($exclusive) self::$watchTable[$path] = 1;
 
 			self::makeDir($path);
 
@@ -1236,11 +1236,12 @@ class
 
 			/* ETag / Last-Modified validation */
 
-			$meta = self::$maxage . "\n"
-				. (int)(bool)self::$private . "\n"
-				. implode("\n", self::$headers);
-
-			$ETag = substr(md5(self::$ETag .'-'. $buffer .'-'. self::$expires .'-'. $meta), 0, 8);
+			$ETag = substr(
+				md5(
+					self::$ETag .'-'. $buffer .'-'. self::$expires .'-'. self::$maxage .'-'.
+					(int)(bool)self::$private .'-'. implode('-', self::$headers)
+				), 0, 8
+			);
 
 			if (self::$LastModified) $LastModified = self::$LastModified;
 			else if (
@@ -1252,7 +1253,6 @@ class
 				// Patch an IE<=6 bug when using ETag + compression
 
 				self::$private = true;
-				$meta[ strlen(self::$maxage) + 1 ] = '1';
 
 				$ETag = hexdec($ETag);
 				if ($ETag >= 0x80000000) $ETag -= 0x80000000;
@@ -1275,49 +1275,65 @@ class
 				else $is304 = false !== strpos($_SERVER['HTTP_IF_MODIFIED_SINCE'], $LastModified);
 			}
 
-			if ('ontouch' == self::$expires || ('auto' == self::$expires && self::$watchTable))
-			{
-				self::$expires = 'auto';
-				$ETag = '-' . $ETag;
-			}
-
 
 			/* Write watch table */
 
+			if ('ontouch' == self::$expires) self::$expires = 'auto';
+
 			if ('auto' == self::$expires && self::$watchTable)
 			{
-				$validator = self::$cachePath . $ETag[1] .'/'. $ETag[2] .'/'. substr($ETag, 3) .'.validator.'. DEBUG .'.';
-				$validator .= md5($_SERVER['CIA_BASE'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
+				self::$watchTable = array_keys(self::$watchTable);
+				sort(self::$watchTable);
 
-				if ($h = self::fopenX($validator))
+				$validator = $_SERVER['CIA_BASE'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH;
+				$validator = substr(md5(serialize(self::$watchTable) . $validator), 0, 8);
+
+				$ETag .= '-' . $validator . '-';
+
+				$validator = self::$cachePath . $validator[0] .'/'. $validator[1] .'/'. substr($validator, 2) .'.validator.'. DEBUG .'.txt';
+
+				$readHandle = true;
+				if ($h = self::fopenX($validator, $readHandle))
 				{
-					fwrite($h, $meta);
+					$a = substr(md5(microtime(1)), 0, 8);
+					fwrite($h, $a);
 					fclose($h);
 
-					$a = "++\$i;unlink('$validator');\n";
+					$readHandle = "++\$i;unlink('$validator');\n";
 
-					foreach (array_unique(self::$watchTable) as $path)
+					foreach (self::$watchTable as $path)
 					{
 						$h = fopen($path, 'ab');
 						flock($h, LOCK_EX);
-						fwrite($h, $a);
+						fwrite($h, $readHandle);
 						fclose($h);
 					}
 
 					self::writeWatchTable('CIApID', $validator);
 				}
-			}
+				else
+				{
+					$a = fread($readHandle, 8);
+					fclose($readHandle);
+				}
 
-			header('ETag: "' . $ETag . '"');
-			header('Last-Modified: ' . $LastModified);
-			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + (self::$private || !self::$maxage ? 0 : self::$maxage)));
-			header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');
-			self::$varyEncoding && header('Vary: Accept-Encoding', false);
+				$ETag .= $a;
+
+				$is304 && header('ETag: "' . $ETag . '"');
+			}
 
 			if ($is304)
 			{
 				$buffer = '';
 				header('HTTP/1.1 304 Not Modified');
+			}
+			else
+			{
+				header('ETag: "' . $ETag . '"');
+				header('Last-Modified: ' . $LastModified);
+				header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + (self::$private || !self::$maxage ? 0 : self::$maxage)));
+				header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');
+				self::$varyEncoding && header('Vary: Accept-Encoding', false);
 			}
 		}
 
