@@ -375,7 +375,7 @@ if ($a)
 	}
 	else if (19 == strlen($a) && '"--------#--------"' == strtr($a, '-0123456789abcdef', '#----------------'))
 	{
-		$b = $cia_zcache . $b[0] .'/'. $b[1] .'/'. substr($a, 2, 6) .'.validator.'. DEBUG .'.txt';
+		$b = $cia_zcache . $a[1] .'/'. $a[2] .'/'. substr($a, 3, 6) .'.validator.'. DEBUG .'.txt';
 		if (file_exists($b) && substr(file_get_contents($b), 0, 8) == substr($a, 10, -1))
 		{
 			header('HTTP/1.1 304 Not Modified');
