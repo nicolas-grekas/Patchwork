@@ -373,32 +373,15 @@ if ($a)
 	{
 		// Patch an IE<=6 bug when using ETag + compression
 		$a = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE'], 2);
-		$a = '"-' . dechex(strtotime($a[0])) . '"';
+		$a = '"' . dechex(strtotime($a[0])) . '"';
 		$cia_private = true;
 	}
-
-	if (11 == strlen($a) && '"#--------"' == strtr($a, '-0123456789abcdef', '#----------------'))
+	else if (28 == strlen($a) && '"--------#--------#--------"' == strtr($a, '-0123456789abcdef', '#----------------'))
 	{
-		$a = $cia_zcache . $a[2] .'/'. $a[3] .'/'. substr($a, 4) .'.validator.'. DEBUG .'.';
-		$a .= md5($_SERVER['CIA_BASE'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH .'-'. $_SERVER['REQUEST_URI']) . '.txt';
-
-		$b = false;
-		if (file_exists($a)) $b = file_get_contents($a);
-		if (false !== $b)
+		$b = $cia_zcache . $b[10] .'/'. $b[11] .'/'. substr($a, 12, 6) .'.validator.'. DEBUG .'.txt';
+		if (file_exists($b) && file_get_contents($b) == substr($a, 19, -1))
 		{
 			header('HTTP/1.1 304 Not Modified');
-			if ($b)
-			{
-				$b = explode("\n", $b, 3);
-
-				$a = $b[0];
-
-				$b[0] = 'Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', $_SERVER['REQUEST_TIME'] + $a);
-				$b[1] = 'Cache-Control: max-age=' . $a . ($cia_private || (int) $b[1] ? ',private,must' : ',public,proxy') . '-revalidate';
-
-				array_map('header', $b);
-			}
-
 			exit;
 		}
 	}
