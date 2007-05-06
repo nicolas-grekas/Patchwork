@@ -487,6 +487,8 @@ class
 		{
 			('' === (string) $value) && $expires = 1;
 
+			if ($domain && '.' != substr($domaine, 0, 1)) W('setcookie() RFC incompatibility: $domain must start with a dot.');
+
 			$GLOBALS['cia_private'] = true;
 			header('P3P: CP="' . $GLOBALS['CONFIG']['P3P'] . '"');
 			header(
@@ -499,8 +501,7 @@ class
 				false
 			);
 
-			if ($domain && preg_match("'\*\.([^\*]+)$'D", $domain, $domain))
-				self::rawsetcookie($name, $value, $expires, $path, $domain[1], $secure, $httponly);
+			if ($domain) self::rawsetcookie($name, $value, $expires, $path, false, $secure, $httponly);
 		}
 	}
 

@@ -1,5 +1,9 @@
 Allow from all
 
+# Minimal tuning of mbstring
+php_value mbstring.func_overload 0
+php_value mbstring.language neutral
+
 # Should already be on by default
 #AcceptPathInfo On
 

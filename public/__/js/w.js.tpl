@@ -75,12 +75,16 @@ function unesc($str)
 
 function setcookie($name, $value, $expires, $path, $domain)
 {
-	document.cookie += $name + '=' + eUC($value)
+	<!-- IF $DEBUG -->
+	if ($domain && '.' != $domain.charAt(0)) alert('setcookie() RFC incompatibility: $domain must start with a dot.');
+	<!-- END:IF -->
+
+	document.cookie = $name + '=' + eUC($value)
 		+ ($expires ? '; expires=' + $expires.toGMTString() : '')
 		+ ($path    ? '; path='    + $path   : '')
 		+ ($domain  ? '; domain='  + $domain : '');
 
-	if ($domain = $domain && $domain.match(/\*\.([^\*]+)$/)) setcookie($name, $value, $expires, $path, $domain[1]);
+	if ($domain) setcookie($name, $value, $expires, $path);
 }
 
 function parseurl($param, $delim, $rx, $array)
@@ -227,9 +231,8 @@ w = function($baseAgent, $keys, $masterCIApID)
 
 	if (!/Safari|MSIE [0-5]\./.test(navigator.userAgent) && !/(^|; )JS=1(; |$)/.test($document.cookie))
 	{
-		$j = location.host;
-		$i = $j.match(/[^.]+\.[^\.0-9]+$/);
-		$i = $i ? '*.' + $i[0] : $j;
+		$i = location.host.match(/[^.]+\.[^\.0-9]+$/);
+		$i = $i ? '.' + $i[0] : 0;
 		setcookie('JS', 1, new Date({$maxage+0|js}000+new Date()/1), '/', $i);
 		0 || /(^|; )JS=1(; |$)/.test($document.cookie) || setcookie('JS', 1, 0, '/', $i);
 	}
