@@ -308,8 +308,8 @@ function cia_is_a($obj, $class)
 }
 
 // {{{ file_exists replacement on Windows
-// In debug mode, checks if character case is strict.
 // Fix a bug with long file names.
+// In debug mode, checks if character case is strict.
 if (DEBUG || phpversion() < '5.2')
 {
 	if (DEBUG)
