@@ -1315,8 +1315,8 @@ class
 				}
 			}
 
-			$is304 = (isset($_SERVER['HTTP_IF_NONE_MATCH']) && false !== strpos($_SERVER['HTTP_IF_NONE_MATCH'], $ETag))
-				|| (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && false !== strpos($_SERVER['HTTP_IF_MODIFIED_SINCE'], $LastModified));
+			$is304 = (isset($_SERVER['HTTP_IF_NONE_MATCH'    ]) && false !== strpos($_SERVER['HTTP_IF_NONE_MATCH'    ], $ETag        ))
+				  || (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && false !== strpos($_SERVER['HTTP_IF_MODIFIED_SINCE'], $LastModified));
 
 			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + (self::$private || !self::$maxage ? 0 : self::$maxage)));
 			header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');
