@@ -501,7 +501,7 @@ class
 				false
 			);
 
-			if ($domain) self::rawsetcookie($name, $value, $expires, $path, false, $secure, $httponly);
+			if ($domain) self::setrawcookie($name, $value, $expires, $path, false, $secure, $httponly);
 		}
 	}
 
