@@ -373,12 +373,13 @@ if ($a)
 		$a = '"' . dechex(strtotime($a[0])) . '"';
 		$cia_private = true;
 	}
-	else if (19 == strlen($a) && '"--------#--------"' == strtr($a, '-0123456789abcdef', '#----------------'))
+	else if (27 == strlen($a) && '"-------------------------"' == strtr($a, '0123456789abcdef', '----------------'))
 	{
 		$b = $cia_zcache . $a[1] .'/'. $a[2] .'/'. substr($a, 3, 6) .'.validator.'. DEBUG .'.txt';
-		if (file_exists($b) && substr(file_get_contents($b), 0, 8) == substr($a, 10, -1))
+		if (file_exists($b) && substr(file_get_contents($b), 0, 8) == substr($a, 9, 8))
 		{
 			header('HTTP/1.1 304 Not Modified');
+			header('Cache-Control: max-age=' . hexdec(substr($a, 18, 8)) . (substr($a, 17, 1) ? ',private,must' : ',public,proxy') . '-revalidate');
 			exit;
 		}
 	}

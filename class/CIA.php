@@ -1252,7 +1252,7 @@ class
 				$validator = $_SERVER['CIA_BASE'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH;
 				$validator = substr(md5(serialize(self::$watchTable) . $validator), 0, 8);
 
-				$ETag = $validator . '-';
+				$ETag = $validator;
 
 				$validator = self::$cachePath . $validator[0] .'/'. $validator[1] .'/'. substr($validator, 2) .'.validator.'. DEBUG .'.txt';
 
@@ -1285,7 +1285,7 @@ class
 					$a = $a[0];
 				}
 
-				$ETag .= $a;
+				$ETag .= $a . (int)(bool) self::$private . sprintf('%08x', self::$maxage);
 			}
 			else
 			{
@@ -1319,6 +1319,9 @@ class
 					|| (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && false !== strpos($_SERVER['HTTP_IF_MODIFIED_SINCE'], $LastModified));
 			}
 
+			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + (self::$private || !self::$maxage ? 0 : self::$maxage)));
+			header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');
+
 			if ($is304)
 			{
 				$buffer = '';
@@ -1328,8 +1331,6 @@ class
 			{
 				header('ETag: "' . $ETag . '"');
 				header('Last-Modified: ' . gmdate('D, d M Y H:i:s \G\M\T', $LastModified));
-				header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + (self::$private || !self::$maxage ? 0 : self::$maxage)));
-				header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');
 				self::$varyEncoding && header('Vary: Accept-Encoding', false);
 			}
 		}
