@@ -378,8 +378,12 @@ if ($a)
 		$b = $cia_zcache . $a[1] .'/'. $a[2] .'/'. substr($a, 3, 6) .'.validator.'. DEBUG .'.txt';
 		if (file_exists($b) && substr(file_get_contents($b), 0, 8) == substr($a, 9, 8))
 		{
+			$private = substr($a, 17, 1);
+			$maxage  = hexdec(substr($a, 18, 8));
+
 			header('HTTP/1.1 304 Not Modified');
-			header('Cache-Control: max-age=' . hexdec(substr($a, 18, 8)) . (substr($a, 17, 1) ? ',private,must' : ',public,proxy') . '-revalidate');
+			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', $_SERVER['REQUEST_TIME'] + ($private || !$maxage ? 0 : $maxage)));
+			header('Cache-Control: max-age=' . $maxage . ($private ? ',private,must' : ',public,proxy') . '-revalidate');
 			exit;
 		}
 	}
