@@ -73,6 +73,16 @@ function unesc($str)
 		) : $str;
 }
 
+function setcookie($name, $value, $expires, $path, $domain)
+{
+	document.cookie += $name + '=' + eUC($value)
+		+ ($expires ? '; expires=' + $expires.toGMTString() : '')
+		+ ($path    ? '; path='    + $path   : '')
+		+ ($domain  ? '; domain='  + $domain : '');
+
+	if ($domain = $domain && $domain.match(/\*\.([^\*]+)$/)) setcookie($name, $value, $expires, $path, $domain[1]);
+}
+
 function parseurl($param, $delim, $rx, $array)
 {
 	var $i;
@@ -217,8 +227,11 @@ w = function($baseAgent, $keys, $masterCIApID)
 
 	if (!/Safari|MSIE [0-5]\./.test(navigator.userAgent) && !/(^|; )JS=1(; |$)/.test($document.cookie))
 	{
-		$document.cookie = 'JS=1; path=/; expires=' + new Date({$maxage+0|js}000+new Date()/1).toGMTString();
-		0 || /(^|; )JS=1(; |$)/.test($document.cookie) || ($document.cookie = 'JS=1; path=/');
+		$j = location.host;
+		$i = $j.match(/[^.]+\.[^\.0-9]+$/);
+		$i = $i ? '*.' + $i[0] : $j;
+		setcookie('JS', 1, new Date({$maxage+0|js}000+new Date()/1), '/', $i);
+		0 || /(^|; )JS=1(; |$)/.test($document.cookie) || setcookie('JS', 1, '/', $i);
 	}
 
 	window.base = function($str, $noId, $master)
@@ -682,7 +695,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 
 	w.r = function($now, $noCache)
 	{
-		if ($masterBase != g.__BASE__) $document.cookie = 'cache_reset_id=' + $masterCIApID + '; path=/';
+		if ($masterBase != g.__BASE__) setcookie('cache_reset_id', $masterCIApID, 0, '/');
 		$reloadRequest = true;
 		$reloadNoCache = $reloadNoCache || !!$noCache;
 		if ($now) $WexecLast = $WexecStack.length = 0;
@@ -786,9 +799,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 		while ($i.length < 33);
 		$i = $i.substr(0, 33);
 
-		$j = {$cookie_domain|js};
-
-		$document.cookie = 'T$=' + $i + '; path=' + encodeURI({$cookie_path|js}) + ($j ? '; domain=' + encodeURI($j) : '');
+		setcookie('T$', $i, 0, encodeURI({$cookie_path|js}), encodeURI({$cookie_domain|js}));
 		antiCSRF = /(^|; )T\$=2/.test($document.cookie) ? $i : '';
 	}
 
