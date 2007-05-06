@@ -231,7 +231,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 		$i = $j.match(/[^.]+\.[^\.0-9]+$/);
 		$i = $i ? '*.' + $i[0] : $j;
 		setcookie('JS', 1, new Date({$maxage+0|js}000+new Date()/1), '/', $i);
-		0 || /(^|; )JS=1(; |$)/.test($document.cookie) || setcookie('JS', 1, '/', $i);
+		0 || /(^|; )JS=1(; |$)/.test($document.cookie) || setcookie('JS', 1, 0, '/', $i);
 	}
 
 	window.base = function($str, $noId, $master)
