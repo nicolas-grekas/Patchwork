@@ -28,8 +28,8 @@ $CONFIG += array(
 #	'maxage' => 2678400, // 31d x 24h x 3600s ~ 1 month
 
 	// Session cookie
-#	session.cookie_path => '/',
-#	session.cookie_domain => '',
+#	'session.cookie_path'   => '/',
+#	'session.cookie_domain' => '',
 
 	// P3P - Platform for Privacy Preferences
 #	'P3P => 'CUR ADM',
