@@ -49,161 +49,227 @@ P$date = function($time, $format)
 
 	$time = new Date($time);
 
-	var $result = '',
+	var $result = [],
 		$a = /(\d\d).+(\d{4}) (\d\d):(\d\d):(\d\d)/,
 		$GMT = $time.toGMTString().match($a),
 		$local = $time.toLocaleString().match($a),
 		$zone = (''+$time).match(/([A-Z]{3})?([-\+]\d{2})(\d{2})/),
 
+		// This could easily be translated, but shouldn't
+		// the format itself vary with the language ?
+		// Also, native PHP's date() speaks only english.
 		$month = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
 		$day = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
 
 		$i = 0,
-		$len = $format.length;
+		$len = $format.length,
+		$t,
+		
+		$token = {
+			a: function()
+			{
+				// Lowercase Ante meridiem and Post meridiem am or pm
+				return $local[3]<12 ? 'am' : 'pm';
+			},
+
+			A: function()
+			{
+				// Uppercase Ante meridiem and Post meridiem AM or PM
+				return $local[3]<12 ? 'AM' : 'PM';
+			},
+
+			B: function()
+			{
+				// Internet Swatch Time 000 to 999
+				return (''+parseInt(((60*(60*($GMT[3]/1+1) + $GMT[4]/1) + $GMT[5]/1)%86400)/86.4+1000)).substr(1);
+			},
+
+			c: function()
+			{
+				// ISO 8601 date (Ex. 2004-02-12T15:19:21+00:00)
+				return P$date('Y-m-d\\TH:i:s') + $zone[2] + ':' + $zone[3];
+			},
+
+			d: function()
+			{
+				// Day of the month, 2 digits with leading zeros 01 to 31
+				return $local[1];
+			},
+
+			D: function()
+			{
+				// A textual representation of a day, three letters Mon through Sun
+				return $day[$time.getDay()].substr(0, 3);
+			},
+
+			F: function()
+			{
+				// A full textual representation of a month, such as January or March January through December
+				return $month[$time.getMonth()];
+			},
+
+			g: function()
+			{
+				// 12-hour format of an hour without leading zeros 1 through 12
+				return $local[3]%12;
+			},
+
+			G: function()
+			{
+				// 24-hour format of an hour without leading zeros 0 through 23
+				return $local[3]/1;
+			},
+
+			h: function()
+			{
+				// 12-hour format of an hour with leading zeros 01 through 12
+				return (''+($local[3]%12 + 100)).substr(1);
+			},
+
+			H: function()
+			{
+				// 24-hour format of an hour with leading zeros 00 through 23
+				return $local[3];
+			},
+
+			i: function()
+			{
+				// Minutes with leading zeros 00 to 59
+				return $local[4];
+			},
+
+			I: function()
+			{
+				// Whether or not the date is in daylights savings time 1 if Daylight Savings Time, 0 otherwise.
+				return $time.getTimezoneOffset() == -60 * $zone[2] + $zone[3]/1 ? 0 : 1;
+			},
+
+			j: function()
+			{
+				// Day of the month without leading zeros 1 to 31
+				return $local[1]/1;
+			},
+
+			l: function()
+			{
+				// A full textual representation of the day of the week Sunday through Saturday
+				return $day[$time.getDay()];
+			},
+
+			L: function()
+			{
+				// Whether it's a leap year 1 if it is a leap year, 0 otherwise.
+				return $local[2]%4 ? 0 : 1;
+			},
+
+			m: function()
+			{
+				// Numeric representation of a month, with leading zeros 01 through 12
+				return (''+($time.getMonth() + 101)).substr(1);
+			},
+
+			M: function()
+			{
+				// A short textual representation of a month, three letters Jan through Dec
+				return $month[$time.getMonth()].substr(0, 3);
+			},
+
+			n: function()
+			{
+				// Numeric representation of a month, without leading zeros 1 through 12
+				return $time.getMonth() + 1;
+			},
+
+			O: function()
+			{
+				// Difference to Greenwich time (GMT) in hours Example: +0200
+				return $zone[2] + $zone[3];
+			},
+
+			r: function()
+			{
+				// RFC 2822 formatted date Example: Thu, 21 Dec 2000 16:01:07 +0200
+				return P$date('D, d M Y H:i:s O', $time);
+			},
+
+			s: function()
+			{
+				// Seconds, with leading zeros 00 through 59
+				return $local[5];
+			},
+
+			S: function()
+			{
+				// English ordinal suffix for the day of the month, 2 characters st, nd, rd or th. Works well with j
+				$a = $local[1];
+				return 4<=$a && $a<=20 ? 'th' : (['st', 'nd', 'rd'][$a%10-1] || 'th');
+			},
+
+			t: function()
+			{
+				// Number of days in the given month 28 through 31
+				return new Date($local[2], $time.getMonth()+1, 0).getDate();
+			},
+
+			T: function()
+			{
+				// Timezone setting of this machine Examples: EST, MDT ...
+				return $zone[0];
+			},
+
+			U: function()
+			{
+				// Seconds since the Unix Epoch (January 1 1970 00:00:00 GMT)
+				return parseInt($time/1000);
+			},
+
+			w: function()
+			{
+				// Numeric representation of the day of the week 0 (for Sunday) through 6 (for Saturday)
+				return $time.getDay();
+			},
+
+			W: function()
+			{
+				// ISO-8601 week number of year, weeks starting on Monday Example: 42 (the 42nd week in the year)
+				$a = new Date($local[2], 0, 1, 0, 0, 0, 0).getDay() - 1;
+				if ($a < 0) $a = 6;
+				return (Date.UTC($local[2], $time.getMonth(), $local[1]) - Date.UTC($local[2], 0, 8 - $a)) / (1000 * 60 * 60 * 24 * 7) + 1;
+			},
+
+			Y: function()
+			{
+				// A full numeric representation of a year, 4 digits Examples: 1999 or 2003
+				return $local[2];
+			},
+
+			y: function()
+			{
+				// A two digit representation of a year Examples: 99 or 03
+				return $local[2].substr(2);
+			},
+
+			z: function()
+			{
+				// The day of the year (starting from 0) 0 through 365
+				return (Date.UTC($local[2], $time.getMonth(), $local[1]) - Date.UTC($local[2], 0, 0)) / (1000 * 60 * 60 * 24);
+			},
+
+			Z: function()
+			{
+				// Timezone offset in seconds. The offset for timezones west of UTC is always negative, and for those east of UTC is always positive. -43200 through 43200
+				return 60 * ( 60*$zone[2] + $zone[3]/1 );
+			}
+		};
 
 	while ($i < $len)
 	{
-		switch($format.charAt($i))
-		{
-			case 'a':// Lowercase Ante meridiem and Post meridiem am or pm
-				$result += $local[3]<12 ? 'am' : 'pm';
-				break;
-
-			case 'A':// Uppercase Ante meridiem and Post meridiem AM or PM
-				$result += $local[3]<12 ? 'AM' : 'PM';
-				break;
-
-			case 'B':// Internet Swatch	Time 000 to 999
-				$result += (''+parseInt(((60*(60*($GMT[3]/1+1) + $GMT[4]/1) + $GMT[5]/1)%86400)/86.4+1000)).substr(1);
-				break;
-
-			case 'c':// ISO 8601 date (Ex. 2004-02-12T15:19:21+00:00)
-				$result += _pipe_date('Y-m-d\\TH:i:s') + $zone[2] + ':' + $zone[3];
-				break;
-
-			case 'd':// Day of the month, 2 digits with leading zeros 01 to 31
-				$result += $local[1];
-				break;
-
-			case 'D':// A textual representation of a day, three letters Mon through Sun
-				$result += $day[$time.getDay()].substr(0, 3);
-				break;
-
-			case 'F':// A full textual representation of a month, such as January or March January through December
-				$result += $month[$time.getMonth()];
-				break;
-
-			case 'g':// 12-hour format of an hour without leading zeros 1 through 12
-				$result += $local[3]%12;
-				break;
-
-			case 'G':// 24-hour format of an hour without leading zeros 0 through 23
-				$result += $local[3]/1;
-				break;
-
-			case 'h':// 12-hour format of an hour with leading zeros 01 through 12
-				$result += (''+($local[3]%12 + 100)).substr(1);
-				break;
-
-			case 'H':// 24-hour format of an hour with leading zeros 00 through 23
-				$result += $local[3];
-				break;
-
-			case 'i':// Minutes with leading zeros 00 to 59
-				$result += $local[4];
-				break;
-
-			case 'I':// Whether or not the date is in daylights savings time 1 if Daylight Savings Time, 0 otherwise.
-				$result += $time.getTimezoneOffset() == -60 * $zone[2] + $zone[3]/1 ? 0 : 1;
-				break;
-
-			case 'j':// Day of the month without leading zeros 1 to 31
-				$result += $local[1]/1;
-				break;
-
-			case 'l':// A full textual representation of the day of the week Sunday through Saturday
-				$result += $day[$time.getDay()];
-				break;
-
-			case 'L':// Whether it's a leap year 1 if it is a leap year, 0 otherwise.
-				$result += $local[2]%4 ? 0 : 1;
-				break;
-
-			case 'm':// Numeric representation of a month, with leading zeros 01 through 12
-				$result += (''+($time.getMonth() + 101)).substr(1);
-				break;
-
-			case 'M':// A short textual representation of a month, three letters Jan through Dec
-				$result += $month[$time.getMonth()].substr(0, 3);
-				break;
-
-			case 'n':// Numeric representation of a month, without leading zeros 1 through 12
-				$result += $time.getMonth() + 1;
-				break;
-
-			case 'O':// Difference to Greenwich time (GMT) in hours Example: +0200
-				$result += $zone[2] + $zone[3];
-				break;
-
-			case 'r':// » RFC 2822 formatted date Example: Thu, 21 Dec 2000 16:01:07 +0200
-				$result += _pipe_date('D, d M Y H:i:s O', $time);
-				break;
-
-			case 's':// Seconds, with leading zeros 00 through 59
-				$result += $local[5];
-				break;
-
-			case 'S':// English ordinal suffix for the day of the month, 2 characters st, nd, rd or th. Works well with j
-				$a = $local[1];
-				$result += 4<=$a && $a<=20 ? 'th' : (['st', 'nd', 'rd'][$a%10-1] || 'th');
-				break;
-
-			case 't':// Number of days in the given month 28 through 31
-				$result += new Date($local[2], $time.getMonth()+1, 0).getDate();
-				break;
-
-			case 'T':// Timezone setting of this machine Examples: EST, MDT ...
-				$result += $zone[0];
-				break;
-
-			case 'U':// Seconds since the Unix Epoch (January 1 1970 00:00:00 GMT)
-				$result += parseInt($time/1000);
-				break;
-
-			case 'w':// Numeric representation of the day of the week 0 (for Sunday) through 6 (for Saturday)
-				$result += $time.getDay();
-				break;
-
-			case 'W':// ISO-8601 week number of year, weeks starting on Monday Example: 42 (the 42nd week in the year)
-				$a = new Date($local[2], 0, 1, 0, 0, 0, 0).getDay() - 1;
-				if ($a < 0) $a = 6;
-				$result += (Date.UTC($local[2], $time.getMonth(), $local[1]) - Date.UTC($local[2], 0, 8 - $a)) / (1000 * 60 * 60 * 24 * 7) + 1;
-				break;
-
-			case 'Y':// A full numeric representation of a year, 4 digits Examples: 1999 or 2003
-				$result += $local[2];
-				break;
-
-			case 'y':// A two digit representation of a year Examples: 99 or 03
-				$result += $local[2].substr(2);
-				break;
-
-			case 'z':// The day of the year (starting from 0) 0 through 365
-				$result += (Date.UTC($local[2], $time.getMonth(), $local[1]) - Date.UTC($local[2], 0, 0)) / (1000 * 60 * 60 * 24);
-				break;
-
-			case 'Z':// Timezone offset in seconds. The offset for timezones west of UTC is always negative, and for those east of UTC is always positive. -43200 through 43200
-				$result += 60 * ( 60*$zone[2] + $zone[3]/1 );
-				break;
-
-			default:
-				$result += $format.charAt($i)=='\\' && $i+1 < $len ? $format.charAt(++$i) : $format.charAt($i);
-		}
-
+		$t = $format.charAt($i);
+		$result.push($token[$t] ? $token[$t]() : ('\\' == $t && $i+1 < $len ? $format.charAt(++$i) : $t));
 		++$i;
 	}
 
-	return $result;
+	return $result.join('');
 }
 
 <?php	}
