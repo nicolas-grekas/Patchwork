@@ -487,7 +487,7 @@ class
 		{
 			('' === (string) $value) && $expires = 1;
 
-			if ($domain && '.' != substr($domaine, 0, 1)) W('setcookie() RFC incompatibility: $domain must start with a dot.');
+			if ($domain && '.' != substr($domain, 0, 1)) W('setcookie() RFC incompatibility: $domain must start with a dot.');
 
 			$GLOBALS['cia_private'] = true;
 			header('P3P: CP="' . $GLOBALS['CONFIG']['P3P'] . '"');
