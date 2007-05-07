@@ -313,7 +313,7 @@ class
 			self::setMaxage(0);
 			self::setGroup('private');
 
-			echo '<html><head><script type="text/javascript">location.reload()</script></head></html>';
+			echo '<html><head><script type="text/javascript">location.replace(location)</script></head></html>';
 			return;
 		}
 
@@ -343,7 +343,7 @@ class
 				self::setMaxage(0);
 				self::setGroup('private');
 
-				echo '<html><head><script type="text/javascript">location.reload()</script></head></html>';
+				echo '<html><head><script type="text/javascript">location.replace(location)</script></head></html>';
 				return;
 			}
 		}
