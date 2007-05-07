@@ -65,18 +65,10 @@ SET $INPUT
 
 	IF !g$_FCKEDITOR
 		SET g$_FCKEDITOR -->1<!-- END:SET
-
-		CLIENTSIDE
-			SET $js --><!-- AGENT 'fckeditor/js' --><!-- END:SET
-		END:CLIENTSIDE
-
-		SERVERSIDE
-			--><script type="text/javascript" src="{base:'fckeditor/js'}"></script><!--
-		END:SERVERSIDE
+		--><script type="text/javascript" src="{base:'fckeditor/js'}"></script><!--
 	END:IF
 
 	--><textarea {a$|htmlArgs:'type':'value'}>{a$value}</textarea><script type="text/javascript">/*<![CDATA[*/
-{$js|allowhtml}
 lE=gLE({a$name|js}<!-- IF a$multiple -->,1<!-- END:IF -->)
 if(lE){
 lE.gS=function(){FCKeditorAPI.GetInstance({a$id|js}).UpdateLinkedField();return valid(this<!-- LOOP a$_valid -->,{$VALUE|js}<!-- END:LOOP -->)}
