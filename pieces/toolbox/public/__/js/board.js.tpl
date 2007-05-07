@@ -47,7 +47,7 @@ window.BOARD || (function()
 	var $board = window, $i, $h = location.hostname + 0;
 
 	// This eval avoids a parse error with browsers not supporting exceptions.
-	$board.Error && eval('try{while((($i=$board.parent)!=$board)&&t($i.name))$board=$i}catch($i){}');
+	t($board.Error) && eval('try{while((($i=$board.parent)!=$board)&&t($i.name))$board=$i}catch($i){}');
 
 	setboard.topwin = $board;
 	$board = $board.name;
