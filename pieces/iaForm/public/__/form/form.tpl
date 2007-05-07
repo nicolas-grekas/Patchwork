@@ -52,19 +52,10 @@ ELSE
 		textarea.toomuch {background-color: #FFD2D2}
 		.errormsg {color: red}
 		.required {font-weight: bold}
-		</style><!--
-
-		CLIENTSIDE
-			SET $js --><!-- AGENT 'js/v' --><!-- END:SET
-		END:CLIENTSIDE
-
-		SERVERSIDE
-			--><script type="text/javascript" src="{base:'js/v'}"></script><!--
-		END:SERVERSIDE
+		</style><script type="text/javascript" src="{base:'js/v'}"></script><!--
 	END:IF
 
 	--><script type="text/javascript">/*<![CDATA[*/
-{$js|allowhtml}
 lF=document.getElementById({a$id|js});<!--
 IF a$_enterControl_ -->FeC({a$_enterControl_});<!-- END:IF -->//]]></script ><!--
 
