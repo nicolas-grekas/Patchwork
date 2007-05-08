@@ -181,7 +181,7 @@ class
 
 	protected static $ieSniffedTags = array(
 		'body','head','html','img','plaintext',
-		'pre','script','table','title'
+		'a href','pre','script','table','title'
 	);
 
 	static function start()
