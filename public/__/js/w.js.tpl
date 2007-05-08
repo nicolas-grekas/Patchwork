@@ -229,7 +229,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 
 		$masterBase = {g$__BASE__|js};
 
-	if (!/Safari|MSIE [0-5]\./.test(navigator.userAgent) && !/(^|; )JS=1(; |$)/.test($document.cookie))
+	if (!/MSIE [0-5]\./.test(navigator.userAgent) && !/(^|; )JS=1(; |$)/.test($document.cookie))
 	{
 		$i = location.host.match(/[^.]+\.[^\.0-9]+$/);
 		$i = $i ? '.' + $i[0] : 0;
@@ -829,13 +829,12 @@ w = function($baseAgent, $keys, $masterCIApID)
 		if (($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/)) && $i[2]/1 != $masterCIApID) w(0, [3, 'w(w.r())']);
 		else
 
-		/* Block load, 2 steps : generating, then displaying. * /
-		w(0, [4, 1, 0, 'g', $keys, 1, 5, 1, 'b', 3, 'g.b']);
-		/**/
-
-		/* Dynamic load, 1 step : generating and displaying at the same time. */
-		w(0, [1, 0, 'g', $keys, 1]);
-		/**/
+		w(
+			0,
+			/Safari/.test(navigator.userAgent)
+				? [4, 1, 0, 'g', $keys, 1, 5, 1, 'b', 3, 'g.b'] // Block load, 2 steps : generating, then displaying.
+				: [1, 0, 'g', $keys, 1] // Dynamic load, 1 step : generating and displaying at the same time.
+		);
 	}
 }
 
