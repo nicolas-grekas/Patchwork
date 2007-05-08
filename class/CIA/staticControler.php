@@ -80,12 +80,12 @@ class extends CIA
 		// Transform relative URLs to absolute ones
 		if ('text/css' == substr($mime, 0, 8))
 		{
-			self::$filterRx = "@([\s:]url\(\s*[\"']?)(?![/\\\\#]|[^\)\n\r:/]+?:)@i";
+			self::$filterRx = "@([\s:]url\(\s*[\"']?)(?![/\\\\#\"']|[^\)\n\r:/\"']+?:)@i";
 			ob_start(array(__CLASS__, 'filter'), 8192);
 		}
 		else if ('text/html' == substr($mime, 0, 9) || 'text/x-component' === substr($mime, 0, 16))
 		{
-			self::$filterRx = "@(<[^<>]+?\s(?:href|src)\s*=\s*[\"']?)(?![/\\\\#]|[^\n\r:/]+?:)@i";
+			self::$filterRx = "@(<[^<>]+?\s(?:href|src)\s*=\s*[\"']?)(?![/\\\\#\"']|[^\n\r:/\"']+?:)@i";
 			ob_start(array(__CLASS__, 'filter'), 8192);
 		}
 

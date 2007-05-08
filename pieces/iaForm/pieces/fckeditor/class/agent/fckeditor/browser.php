@@ -23,8 +23,6 @@ class extends agent
 		'NewFolderName'
 	);
 
-	protected $watch = array('public/files');
-
 	protected $path = false;
 
 	protected $allow_file = array('pdf','doc','odt');
@@ -46,6 +44,7 @@ class extends agent
 	protected function setPath()
 	{
 		$this->path = resolvePath('public/__/files/');
+		$this->path && $this->watch[] = 'public/files';
 	}
 
 	function compose($o)
@@ -54,6 +53,7 @@ class extends agent
 
 		$path = $this->path;
 
+		if (!$path || 'FileUpload' != $this->argv->Command) header('Content-Type: text/xml');
 		if (!$path) return array('number' => 1, 'text' => 'The filemanager is disabled');
 
 		if ('/' != substr($path, -1)) $path .= '/';
@@ -65,8 +65,6 @@ class extends agent
 
 		if (strpos($currentFolder, '..')) return array('number' => 102, 'text' => '');
 
-
-		header('Content-Type: text/xml');
 
 		$o->command       = $this->argv->Command;
 		$o->resourceType  = strtolower($this->argv->Type);
@@ -123,14 +121,11 @@ class extends agent
 
 	protected function createFolder($o)
 	{
-		$o = (object) array(
-			'number' => 0,
-			'originalDescription' => ''
-		);
+		$number = 0;
 
 		if ($newFolderName = $this->argv->NewFolderName)
 		{
-			if (false !== strpos($newFolderName, '..')) $o->number = 102;
+			if (false !== strpos($newFolderName, '..')) $number = 102;
 			else
 			{
 				$newFolderName = $this->path . $o->resourceType . $o->currentFolder . $newFolderName . '/';
@@ -139,18 +134,19 @@ class extends agent
 
 				if (!is_dir($newFolderName)) return array('number' => 102, 'originalDescription' => 'Failed creating new directory. Please check folder permissions.');
 
-				CIA::touch('public/files');
+				CIA::touch($this->watch);
 			}
 		}
-		else $o->number = 102;
+		else $number = 102;
 
-		return $o;
+		return (object) array(
+			'number' => $number,
+			'originalDescription' => ''
+		);
 	}
 
 	protected function fileUpload($o)
 	{
-		header('Content-Type: text/javascript');
-
 		$o->number = 0;
 		$o->filename = '';
 
@@ -197,7 +193,7 @@ class extends agent
 							umask($i);
 						}
 
-						CIA::touch('public/files');
+						CIA::touch($this->watch);
 
 						break;
 					}
