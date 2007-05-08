@@ -1427,15 +1427,7 @@ class agent
 	function compose($o) {return $o;}
 	function getTemplate()
 	{
-		if ($this->template) return $this->template;
-		else
-		{
-			$class = get_class($this);
-
-			return 'text/html' == substr(constant("$class::contentType"), 0, 9)
-				? strtr(substr($class, 6), '_', '/')
-				: 'bin';
-		}
+		return $this->template ? $this->template : strtr(substr(get_class($this), 6), '_', '/');
 	}
 
 	final public function __construct($args = array())

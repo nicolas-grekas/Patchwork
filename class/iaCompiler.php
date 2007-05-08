@@ -106,7 +106,7 @@ abstract class
 
 		$template = CIA::resolvePublicPath($template, $path_idx);
 
-		if (!$template) return '';
+		if (!$template) return '{$DATA}';
 
 		$source = file_get_contents($template);
 		if (!preg_match("''u", $source)) W("Template file {$template}:\nfile encoding is not valid UTF-8. Please convert your source code to UTF-8.");
