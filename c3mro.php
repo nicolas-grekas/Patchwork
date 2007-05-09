@@ -12,23 +12,35 @@
  ***************************************************************************/
 
 
-if ($lockHandle = fopen('./.config.lock.php', 'xb')) flock($lockHandle, LOCK_EX);
+function_exists('token_get_all') || die('Extension "tokenizer" is needed and not loaded.');
+isset($_SERVER['REDIRECT_URL']) && die('C3MRO Init. Error: $_SERVER[\'REDIRECT_URL\'] must not be set at this stage.');
+
+
+if ($lockHandle = fopen('./.config.lock.php', 'xb'))
+{
+	flock($lockHandle, LOCK_EX);
+
+	function cia_c3mro_die($message)
+	{
+		fclose($GLOBALS['lockHandle']);
+		unlink('./.config.lock.php');
+		die($message);
+	}
+}
 else
 {
 	if ($lockHandle = @fopen('./.config.lock.php', 'rb'))
 	{
 		flock($lockHandle, LOCK_SH);
 		fclose($lockHandle);
-		while (!file_exists('./.config.cia.php')) ;
+		$a = 300;
+		while (--$a && !file_exists('./.config.cia.php')) sleep(1);
 	}
 
 	require './.config.cia.php';
 	return;
 }
 
-
-function_exists('token_get_all') || die('Extension "tokenizer" is needed and not loaded.');
-isset($_SERVER['REDIRECT_URL']) && die('C3MRO Init. Error: $_SERVER[\'REDIRECT_URL\'] must not be set at this stage.');
 
 $CIA = realpath('.');
 
@@ -336,7 +348,7 @@ function C3MRO($appRealpath, $firstParent = false)
 	// If result is cached, return it
 	if (null !== $resultSeq) return $resultSeq;
 
-	file_exists($appRealpath . '/config.cia.php') || die("Missing file: {$appRealpath}/config.cia.php");
+	file_exists($appRealpath . '/config.cia.php') || cia_c3mro_die("Missing file: {$appRealpath}/config.cia.php");
 
 	$GLOBALS['version_id'] += filemtime($appRealpath . '/config.cia.php');
 
@@ -374,7 +386,7 @@ function C3MRO($appRealpath, $firstParent = false)
 			else break;
 		}
 
-		if (!$parent) die("Inconsistent application hierarchy in {$appRealpath}/config.cia.php");
+		if (!$parent) cia_c3mro_die("Inconsistent application hierarchy in {$appRealpath}/config.cia.php");
 
 		$resultSeq[] = $parent;
 
@@ -414,7 +426,7 @@ function cia_get_parent_apps($appRealpath)
 		case T_ECHO:
 		case T_INLINE_HTML:
 		case T_OPEN_TAG_WITH_ECHO:
-			$bracket || die("Error: echo detected in {$appRealpath}/config.cia.php");
+			$bracket || cia_c3mro_die("Error: echo detected in {$appRealpath}/config.cia.php");
 			break;
 
 		case T_CLOSE_TAG:
