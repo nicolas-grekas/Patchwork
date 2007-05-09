@@ -100,7 +100,6 @@ class
 		{
 			$rx = implode(':', $args);
 			$rx = preg_replace("/(?<!\\\\)((?:\\\\\\\\)*)@/", '$1\\@', $rx);
-			E($rx);
 			if (!preg_match("@^{$rx}$@Dsu", $result)) return false;
 		}
 
