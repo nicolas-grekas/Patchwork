@@ -16,7 +16,7 @@ function_exists('token_get_all') || die('Extension "tokenizer" is needed and not
 isset($_SERVER['REDIRECT_URL']) && die('C3MRO Init. Error: $_SERVER[\'REDIRECT_URL\'] must not be set at this stage.');
 
 
-if ($lockHandle = fopen('./.config.lock.php', 'xb'))
+if ($lockHandle = @fopen('./.config.lock.php', 'xb'))
 {
 	flock($lockHandle, LOCK_EX);
 
