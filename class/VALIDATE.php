@@ -100,6 +100,7 @@ class
 		{
 			$rx = implode(':', $args);
 			$rx = preg_replace("/(?<!\\\\)((?:\\\\\\\\)*)@/", '$1\\@', $rx);
+			E($rx);
 			if (!preg_match("@^{$rx}$@Dsu", $result)) return false;
 		}
 
@@ -190,7 +191,7 @@ class
 
 		if (isset($args[1]) && $args[1])
 		{
-			$result = array($args[1], false);
+			$result = array($args[1]);
 			$result = self::get_raw($value, $result);
 			if (false === $result) return false;
 		}
