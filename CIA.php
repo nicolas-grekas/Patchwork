@@ -327,7 +327,7 @@ if (DEBUG || phpversion() < '5.2')
 				{
 					if ($file[$i] != $realfile[$j])
 					{
-						if (strtolower($file[$i]) == strtolower($realfile[$j])) W("Character case mismatch between requested file and its real path ({$file} vs {$realfile})");
+						if (strtolower($file[$i]) == strtolower($realfile[$j]) && !(0 == $i && ':' == substr($file, 1, 1))) W("Character case mismatch between requested file and its real path ({$file} vs {$realfile})");
 						break;
 					}
 				}
