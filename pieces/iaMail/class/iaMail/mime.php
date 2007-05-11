@@ -84,7 +84,7 @@ class extends Mail_mime
 			break;
 		}
 
-		$mail = @Mail::factory($backend, $options);
+		$mail = Mail::factory($backend, $options);
 		$mail->send($to, $headers, $body);
 	}
 
