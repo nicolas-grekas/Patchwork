@@ -881,7 +881,6 @@ class
 		$l_ng = 5 == strlen($lang) ? substr($lang, 0, 2) : false;
 
 		$agent = '/index';
-		$createTemplate = false === resolvePath('class/agent/index.php');
 
 		if ('' !== $potentialAgent)
 		{
@@ -896,10 +895,10 @@ class
 			{
 				$a .= '/' . $potentialAgent[$i++];
 
-				if (isset($resolvedCache[$a]) || resolvePath("class/agent{$a}.php"))
+				if (($b = isset($resolvedCache[$a])) || ($b = processPath("class/agent{$a}.php")))
 				{
 					$agent = $a;
-					$createTemplate = false;
+					$agentSource = $b;
 					$offset = $i;
 					continue;
 				}
@@ -911,7 +910,7 @@ class
 				)
 				{
 					$agent = $a;
-					$createTemplate = true;
+					$agentSource = false;
 					$offset = $i;
 					continue;
 				}
@@ -948,7 +947,14 @@ class
 
 		$agent = 'agent' . strtr($agent, '/', '_');
 
-		if ($createTemplate) eval('class ' . $agent . ' extends agent{protected $maxage=-1;protected $watch=array(\'public/templates\');function control(){}}');
+		isset($agentSource) || $agentSource = processPath('class/agent/index.php');
+
+		if (true !== $agentSource)
+		{
+			$agentSource
+				? cia_include($agentSource)
+				: eval('class ' . $agent . ' extends agent{protected $maxage=-1;protected $watch=array(\'public/templates\');function control(){}}');
+		}
 
 		return $agent;
 	}
