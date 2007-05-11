@@ -99,6 +99,7 @@ class hunter
 
 	function __destruct()
 	{
+		cia_restoreProjectPath();
 		call_user_func_array($this->callback, $this->param_arr);
 	}
 }
