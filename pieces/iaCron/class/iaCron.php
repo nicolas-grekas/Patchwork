@@ -36,7 +36,7 @@ class
 
 		$id = $sqlite->lastInsertRowid();
 
-		$queue->is_registered || $queue->registerQueue();
+		self::$is_registered || $queue->registerQueue();
 
 		return $id;
 	}
@@ -63,14 +63,14 @@ class
 	// The following functions should not be used directly
 
 	protected static $sqlite = array();
-	protected $is_registered = false;
+	protected static $is_registered = false;
 
 	protected function registerQueue()
 	{
-		if (!$this->is_registered)
+		if (!self::$is_registered)
 		{
 			register_shutdown_function(array($this, 'startQueue'));
-			$this->is_registered = true;
+			self::$is_registered = true;
 		}
 	}
 
@@ -86,7 +86,7 @@ class
 		if (!file_exists($lock)) return false;
 
 		$lock = fopen($lock, 'wb');
-		flock($lock, LOCK_EX+LOCK_NB, $type);
+		flock($lock, LOCK_EX+LOCK_NB, $type) || $type = CIA_WINDOWS;
 		fclose($lock);
 
 		return $type;
