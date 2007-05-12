@@ -86,7 +86,7 @@ class
 		if (!file_exists($lock)) return false;
 
 		$lock = fopen($lock, 'wb');
-		flock($lock, LOCK_EX+LOCK_NB, $type) || $type = CIA_WINDOWS;
+		flock($lock, LOCK_EX+LOCK_NB, $type) || $type = true;
 		fclose($lock);
 
 		return $type;
