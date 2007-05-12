@@ -66,7 +66,7 @@ class extends iaCron
 
 		$id = $sqlite->lastInsertRowid();
 
-		$queue->is_registered || $queue->registerQueue();
+		self::$is_registered || $queue->registerQueue();
 
 		return $id;
 	}

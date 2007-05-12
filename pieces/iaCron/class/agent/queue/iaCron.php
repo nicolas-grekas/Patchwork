@@ -127,7 +127,7 @@ class extends agent
 		}
 
 		$this->lock = $lock = fopen($lock, 'wb');
-		flock($lock, LOCK_EX+LOCK_NB, $wb);
+		flock($lock, LOCK_EX+LOCK_NB, $wb) || $wb = CIA_WINDOWS;
 
 		if ($wb)
 		{

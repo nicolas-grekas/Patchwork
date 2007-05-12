@@ -34,7 +34,7 @@ class extends iaForm_text
 
 	protected function addJsValidation($a)
 	{
-		$a->_valid = new loop_array(array('string', isset($this->valid_args[0]) ? $this->valid_args[0] : ''));
+		$a->_valid = new loop_array(array('string', isset($this->valid_args[1]) ? $this->valid_args[1] : ''));
 		return $a;
 	}
 }
