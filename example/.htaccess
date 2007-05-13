@@ -17,12 +17,12 @@ Allow from all
 
 # Tuning of mbstring
 php_value mbstring.func_overload 0
-php_value mbstring.language = "neutral"
+php_value mbstring.language "neutral"
 
 # More tuning, for performance, but only if directory
 # contains only applications that can handle it.
-#php_value mbstring.language = "uni"
-#php_value mbstring.script_encoding = "UTF-8"
-#php_value mbstring.encoding_translation = On
-#php_value mbstring.http_input = "UTF-8"
-#php_value mbstring.http_output = "pass"
+#php_value mbstring.language "uni"
+#php_value mbstring.script_encoding "UTF-8"
+#php_value mbstring.encoding_translation On
+#php_value mbstring.http_input "UTF-8"
+#php_value mbstring.http_output "pass"
