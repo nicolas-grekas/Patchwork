@@ -225,16 +225,16 @@ w = function($baseAgent, $keys, $masterCIApID)
 
 		$lastInclude = '',
 		$includeCache = {},
-		$startTime,
+		$startTime = /(^|; )JS=1(; |$)/,
 
 		$masterBase = {g$__BASE__|js};
 
-	if (!/MSIE [0-5]\./.test(navigator.userAgent) && !/(^|; )JS=1(; |$)/.test($document.cookie))
+	if (!/MSIE [0-5]\./.test(navigator.userAgent) && !$startTime.test($document.cookie))
 	{
 		$i = location.host.match(/[^.]+\.[^\.0-9]+$/);
 		$i = $i ? '.' + $i[0] : 0;
 		setcookie('JS', 1, new Date({$maxage+0|js}000+new Date()/1), '/', $i);
-		0 || /(^|; )JS=1(; |$)/.test($document.cookie) || setcookie('JS', 1, 0, '/', $i);
+		$startTime.test($document.cookie) || setcookie('JS', 1, 0, '/', $i);
 	}
 
 	window.base = function($str, $noId, $master)
@@ -347,6 +347,8 @@ w = function($baseAgent, $keys, $masterCIApID)
 
 	w = function($context, $code, $WexecLastLimit)
 	{
+		0&&c&&r&&x; // Workaround for a bug in Firefox 1 + jsqueez
+
 		$code = $code || [];
 		$WexecLastLimit = $WexecLastLimit || 0;
 
@@ -826,14 +828,17 @@ w = function($baseAgent, $keys, $masterCIApID)
 		for ($i=0; $i<$j.length; ++$i) if ($j[$i]) $loopIterator[$loopIterator.length] = g['__'+($loopIterator.length+1)+'__'] = $j[$i];
 		g.__0__ = $loopIterator.join('/');
 
-		if (($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/)) && $i[2]/1 != $masterCIApID) w(0, [3, 'w(w.r())']);
-		else
+		$j = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/);
 
 		w(
 			0,
-			/Safari/.test(navigator.userAgent)
+			  $j && $j[2]/1 != $masterCIApID
+			? [3, 'w(w.r())']
+			: (
+				  /Safari/.test(navigator.userAgent)
 				? [4, 1, 0, 'g', $keys, 1, 5, 1, 'b', 3, 'g.b'] // Block load, 2 steps : generating, then displaying.
 				: [1, 0, 'g', $keys, 1] // Dynamic load, 1 step : generating and displaying at the same time.
+			)
 		);
 	}
 }
