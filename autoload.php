@@ -12,8 +12,6 @@
  ***************************************************************************/
 
 
-$cia_autoload_pool = false;
-
 function cia_autoload($searched_class)
 {
 	global $cia_paths_token, $cia_autoload_cache;
@@ -134,7 +132,7 @@ function cia_autoload($searched_class)
 
 	$searched_class = strtolower($searched_class);
 
-	if ($parent_class ? class_exists($parent_class, true) : class_exists($searched_class, false))
+	if ($parent_class ? class_exists($parent_class) : class_exists($searched_class, false))
 	{
 		if ($parent_class)
 		{

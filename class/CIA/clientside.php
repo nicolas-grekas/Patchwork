@@ -243,7 +243,7 @@ EOHTML;
 		{
 			if ($is_cacheable) ob_start();
 
-			if (CIA_MAXAGE == $maxage)
+			if (CIA_MAXAGE == $maxage && !DEBUG)
 			{
 				$ctemplate = CIA::getContextualCachePath("templates/$template", 'txt');
 

@@ -278,13 +278,26 @@ function __autoload($searched_class)
 		{
 			$b = $a;
 			unset($a);
+
 			$a = $b - $GLOBALS['cia_paths_offset'];
-			$a = $searched_class . '.php.' . ((string)(int)(bool)DEBUG) . (0>$a ? -$a . '-' : $a);
+
+			$b = $searched_class;
+			$i = strrpos($b, '__');
+			false !== $i && '__' === rtrim(strtr(substr($b, $i), ' 0123456789', '#          ')) && $b = substr($b, 0, $i);
+
+			$a = $b . '.php.' . ((string)(int)(bool)DEBUG) . (0>$a ? -$a . '-' : $a);
 		}
 
-		cia_include("./.class_{$a}.{$GLOBALS['cia_paths_token']}.zcache.php");
+		$a = "./.class_{$a}.{$GLOBALS['cia_paths_token']}.zcache.php";
 
-		if (class_exists($searched_class, 0)) return;
+		if (file_exists($a))
+		{
+			cia_include($a);
+
+			if (class_exists($searched_class, false)) return;
+		}
+
+		$GLOBALS['a' . $GLOBALS['cia_paths_token']] = false;
 	}
 
 
