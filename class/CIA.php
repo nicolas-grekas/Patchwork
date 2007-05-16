@@ -895,10 +895,10 @@ class
 			{
 				$a .= '/' . $potentialAgent[$i++];
 
-				if (($b = isset($resolvedCache[$a])) || ($b = processPath("class/agent{$a}.php")))
+				if (isset($resolvedCache[$a]) || resolvePath("class/agent{$a}.php"))
 				{
 					$agent = $a;
-					$agentSource = $b;
+					$agentSource = isset($resolvedCache[$a]) ? true : $GLOBALS['cia_lastpath_level'];
 					$offset = $i;
 					continue;
 				}
@@ -947,13 +947,12 @@ class
 
 		$agent = 'agent' . strtr($agent, '/', '_');
 
-		isset($agentSource) || $agentSource = processPath('class/agent/index.php');
+		isset($agentSource) || $agentSource = resolvePath('class/agent/index.php') ? $GLOBALS['cia_lastpath_level'] : false;
 
-		if (true !== $agentSource)
+		if (true !== $agentSource && !class_exists($agent, false))
 		{
-			$agentSource
-				? cia_include($agentSource)
-				: eval('class ' . $agent . ' extends agent{protected $maxage=-1;protected $watch=array(\'public/templates\');function control(){}}');
+			if (false === $agentSource) eval('class ' . $agent . ' extends agentTemplate {}');
+			else $GLOBALS['cia_autoload_cache'][$agent] = $agentSource + $GLOBALS['cia_paths_offset'];
 		}
 
 		return $agent;
@@ -1249,7 +1248,7 @@ class
 
 			if ('ontouch' == self::$expires) self::$expires = 'auto';
 
-			if ('auto' == self::$expires && self::$watchTable)
+			if ('auto' == self::$expires && self::$watchTable && !DEBUG)
 			{
 				self::$watchTable = array_keys(self::$watchTable);
 				sort(self::$watchTable);
@@ -1480,6 +1479,14 @@ class agent
 		CIA::watch($this->watch);
 		if ($this->canPost) CIA::canPost();
 	}
+}
+
+class agentTemplate extends agent
+{
+	protected $maxage = -1;
+	protected $watch = array('public/templates');
+
+	function control() {}
 }
 
 class loop
