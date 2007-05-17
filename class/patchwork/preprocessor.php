@@ -15,7 +15,7 @@
 function_exists('token_get_all') || die('Extension "tokenizer" is needed and not loaded.');
 
 
-class CIA_preprocessor__0
+class patchwork_preprocessor__0
 {
 	public $source;
 	public $line = 1;
@@ -116,7 +116,7 @@ class CIA_preprocessor__0
 	{
 		defined('E_RECOVERABLE_ERROR') || self::$constant['E_RECOVERABLE_ERROR'] = E_ERROR;
 
-		if (CIA_WINDOWS && (DEBUG || phpversion() < '5.2'))
+		if (IS_WINDOWS && (DEBUG || phpversion() < '5.2'))
 		{
 			// In debug mode, checks if character case is strict.
 			// Fix a bug with long file names.
@@ -133,16 +133,16 @@ class CIA_preprocessor__0
 			);
 		}
 
-		class_exists('CIA', false) && self::$function += array(
-			'header'       => 'CIA::header',
-			'setcookie'    => 'CIA::setcookie',
-			'setrawcookie' => 'CIA::setrawcookie',
+		class_exists('patchwork', false) && self::$function += array(
+			'header'       => 'patchwork::header',
+			'setcookie'    => 'patchwork::setcookie',
+			'setrawcookie' => 'patchwork::setrawcookie',
 		);
 
 		foreach (get_declared_classes() as $v)
 		{
 			$v = strtolower($v);
-			if ('cia_' == substr($v, 0, 4)) break;
+			if ('patchwork_' == substr($v, 0, 10)) break;
 			self::$declared_class[$v] = 1;
 		}
 
@@ -212,9 +212,9 @@ class CIA_preprocessor__0
 			self::$recursive = true;
 		}
 
-		$code = $GLOBALS['cia_paths_token'];
+		$code = $GLOBALS['patchwork_paths_token'];
 
-		$preproc = new CIA_preprocessor;
+		$preproc = new patchwork_preprocessor;
 		$preproc->source = $source = realpath($source);
 		$preproc->level = $level;
 		$preproc->class = $class;
@@ -232,7 +232,7 @@ class CIA_preprocessor__0
 
 		self::$recursive = $recursive;
 
-		cia_atomic_write($code, $destination);
+		patchwork_atomic_write($code, $destination);
 	}
 
 	protected function __construct() {}
@@ -263,7 +263,7 @@ class CIA_preprocessor__0
 
 	protected function &preprocess(&$code)
 	{
-		global $cia_paths_token;
+		global $patchwork_paths_token;
 
 		$source = $this->source;
 		$level  = $this->level;
@@ -281,7 +281,7 @@ class CIA_preprocessor__0
 		$new_type = array();
 		$new_code_length = 0;
 
-		$opentag_marker = $this->marker[1] . "isset(\$e{$cia_paths_token})||\$e{$cia_paths_token}=false;";
+		$opentag_marker = $this->marker[1] . "isset(\$e{$patchwork_paths_token})||\$e{$patchwork_paths_token}=false;";
 		$curly_level = 0;
 		$curly_starts_function = false;
 		$class_pool = array();
@@ -452,7 +452,7 @@ class CIA_preprocessor__0
 				if ($c)
 				{
 					$curly_marker_last[1]>0 || $curly_marker_last[1] =  1;
-					$c = "\$a{$cia_paths_token}=\$b{$cia_paths_token}=\$e{$cia_paths_token}";
+					$c = "\$a{$patchwork_paths_token}=\$b{$patchwork_paths_token}=\$e{$patchwork_paths_token}";
 				}
 				else
 				{
@@ -514,7 +514,7 @@ class CIA_preprocessor__0
 					$new_code[$j] = "(({$c})?" . $new_code[$j];
 				}
 
-				new CIA_preprocessor_marker_($this, true);
+				new patchwork_preprocessor_marker_($this, true);
 
 				break;
 
@@ -536,7 +536,7 @@ class CIA_preprocessor__0
 						else if ($type == strtolower($c->classname))
 						{
 							$c->construct_source = $c->classname;
-							new CIA_preprocessor_construct_($this, $c->construct_source);
+							new patchwork_preprocessor_construct_($this, $c->construct_source);
 						}
 					}
 
@@ -554,7 +554,7 @@ class CIA_preprocessor__0
 				{
 					if (isset(self::$function[$type]))
 					{
-						if (self::$function[$type] instanceof CIA_preprocessor_bracket_)
+						if (self::$function[$type] instanceof patchwork_preprocessor_bracket_)
 						{
 							$token .= $c;
 							$c = clone self::$function[$type];
@@ -573,7 +573,7 @@ class CIA_preprocessor__0
 					{
 					case 'resolvepath':
 					case 'processpath':
-						// If possible, resolve the path now, else append their third arg to resolve|processPath
+						// If possible, resolve the path now, else append its third arg to resolve|processPath
 						if (0<=$level)
 						{
 							$j = (string) $this->fetchConstant($code, $i, $codeLen);
@@ -583,22 +583,22 @@ class CIA_preprocessor__0
 								$token = false !== $b ? self::export($b) : "{$token}({$j})";
 								$type = T_CONSTANT_ENCAPSED_STRING;
 							}
-							else new CIA_preprocessor_path_($this, true);
+							else new patchwork_preprocessor_path_($this, true);
 						}
 						break;
 
 					case 't':
-						if (0<=$level) new CIA_preprocessor_t_($this, true);
+						if (0<=$level) new patchwork_preprocessor_t_($this, true);
 						break;
 
 					case 'is_a':
-						if (0>$level) $type = $token = 'cia_is_a';
+						if (0>$level) $type = $token = 'patchwork_is_a';
 
 					default:
 						if (!isset(self::$callback[$type])) break;
 
-						$token = "((\$a{$cia_paths_token}=\$b{$cia_paths_token}=\$e{$cia_paths_token})||1?" . $token;
-						$b = new CIA_preprocessor_marker_($this, true);
+						$token = "((\$a{$patchwork_paths_token}=\$b{$patchwork_paths_token}=\$e{$patchwork_paths_token})||1?" . $token;
+						$b = new patchwork_preprocessor_marker_($this, true);
 						$b->curly = -1;
 						$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 
@@ -611,12 +611,12 @@ class CIA_preprocessor__0
 						}
 
 						// For files in the include_path, always set the 2nd arg of class|interface_exists() to true
-						if (0>$level && in_array($type, array('interface_exists', 'class_exists'))) new CIA_preprocessor_classExists_($this, true);
+						if (0>$level && in_array($type, array('interface_exists', 'class_exists'))) new patchwork_preprocessor_classExists_($this, true);
 					}
 				}
 				else if (!(is_array($code[$i+1]) && T_DOUBLE_COLON == $code[$i+1][0])) switch ($type)
 				{
-				case '__cia_level__': if (0>$level) break;
+				case '__patchwork_level__': if (0>$level) break;
 					$token = $level;
 					$type = T_LNUMBER;
 					break;
@@ -640,8 +640,8 @@ class CIA_preprocessor__0
 				$token .= $this->fetchSugar($code, $i);
 				if ('(' == $code[$i--])
 				{
-					$token = "((\$a{$cia_paths_token}=\$b{$cia_paths_token}=\$e{$cia_paths_token})||1?" . $token;
-					$b = new CIA_preprocessor_marker_($this, true);
+					$token = "((\$a{$patchwork_paths_token}=\$b{$patchwork_paths_token}=\$e{$patchwork_paths_token})||1?" . $token;
+					$b = new patchwork_preprocessor_marker_($this, true);
 					$b->curly = -1;
 					$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 				}
@@ -654,7 +654,7 @@ class CIA_preprocessor__0
 				$token .= ' ' . $this->fetchSugar($code, $i);
 
 				// Every require|include inside files in the include_path
-				// is preprocessed thanks to cia_adaptRequire().
+				// is preprocessed thanks to patchworkProcessedPath().
 				if (isset($code[$i--]))
 				{
 					if (0>$level)
@@ -662,16 +662,16 @@ class CIA_preprocessor__0
 						$j = (string) $this->fetchConstant($code, $i, $codeLen);
 						if ( '' !== $j)
 						{
-							eval("\$b=cia_adaptRequire({$j});");
+							eval("\$b=patchworkProcessedPath({$j});");
 							$code[$i--] = array(
 								T_CONSTANT_ENCAPSED_STRING,
-								false !== $b ? self::export($b) : "cia_adaptRequire({$j})"
+								false !== $b ? self::export($b) : "patchworkProcessedPath({$j})"
 							);
 						}
 						else
 						{
-							$token .= 'cia_adaptRequire(';
-							new CIA_preprocessor_require_($this, true);
+							$token .= 'patchworkProcessedPath(';
+							new patchwork_preprocessor_require_($this, true);
 						}
 					}
 					else
@@ -679,8 +679,8 @@ class CIA_preprocessor__0
 						$j = '(' == $code[$i+1] && isset($code[$i+2]) ? $this->seekSugar($code, $i+1) : $i+1;
 						if (!(is_array($code[$j]) && T_STRING == $code[$j][0] && 'processpath' == strtolower($code[$j][1])))
 						{
-							$token .= "((\$a{$cia_paths_token}=\$b{$cia_paths_token}=\$e{$cia_paths_token})||1?";
-							$b = new CIA_preprocessor_require_($this, true);
+							$token .= "((\$a{$patchwork_paths_token}=\$b{$patchwork_paths_token}=\$e{$patchwork_paths_token})||1?";
+							$b = new patchwork_preprocessor_require_($this, true);
 							$b->close = ':0)';
 							$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 						}
@@ -716,7 +716,7 @@ class CIA_preprocessor__0
 				isset($class_pool[$curly_level])
 					&&  $class_pool[$curly_level]->is_final
 					&& !$class_pool[$curly_level]->is_abstract
-					&& $token .= "public static \$hunter{$cia_paths_token};";
+					&& $token .= "public static \$hunter{$patchwork_paths_token};";
 
 				++$curly_level;
 
@@ -733,7 +733,7 @@ class CIA_preprocessor__0
 				if (isset($curly_marker[$curly_level]))
 				{
 					$curly_marker_last[1] && $new_code[$curly_marker_last[0]] .= $curly_marker_last[1]>0
-						? "{$this->marker[1]}static \$d{$cia_paths_token}=1;(" . $this->marker() . ")&&\$d{$cia_paths_token}&&\$d{$cia_paths_token}=0;"
+						? "{$this->marker[1]}static \$d{$patchwork_paths_token}=1;(" . $this->marker() . ")&&\$d{$patchwork_paths_token}&&\$d{$patchwork_paths_token}=0;"
 						: $this->marker[0];
 
 					unset($curly_marker[$curly_level]);
@@ -748,8 +748,8 @@ class CIA_preprocessor__0
 					$c = $class_pool[$curly_level];
 
 					if (!$c->has_php5_construct) $token = $c->construct_source . '}';
-					if ($c->is_abstract) $token .= "\$GLOBALS['cia_abstract']['{$c->real_classname}']=1;";
-					$token .= "\$GLOBALS['c{$cia_paths_token}']['{$c->real_classname}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
+					if ($c->is_abstract) $token .= "\$GLOBALS['patchwork_abstract']['{$c->real_classname}']=1;";
+					$token .= "\$GLOBALS['c{$patchwork_paths_token}']['{$c->real_classname}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
 
 					unset($class_pool[$curly_level]);
 				}
@@ -777,8 +777,8 @@ class CIA_preprocessor__0
 
 	protected function marker($class = '')
 	{
-		global $cia_paths_token;
-		return ($class ? "isset(\$c{$cia_paths_token}['" . strtolower($class) . "'])||" : ("\$e{$cia_paths_token}=\$b{$cia_paths_token}=")) . "\$a{$cia_paths_token}=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "'";
+		global $patchwork_paths_token;
+		return ($class ? "isset(\$c{$patchwork_paths_token}['" . strtolower($class) . "'])||" : ("\$e{$patchwork_paths_token}=\$b{$patchwork_paths_token}=")) . "\$a{$patchwork_paths_token}=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "'";
 	}
 
 	protected function seekSugar(&$code, $i)
@@ -878,7 +878,7 @@ class CIA_preprocessor__0
 	}
 }
 
-abstract class CIA_preprocessor_bracket_
+abstract class patchwork_preprocessor_bracket_
 {
 	protected $preproc;
 	protected $registered = false;
@@ -952,7 +952,7 @@ abstract class CIA_preprocessor_bracket_
 	}
 }
 
-class CIA_preprocessor_construct_ extends CIA_preprocessor_bracket_
+class patchwork_preprocessor_construct_ extends patchwork_preprocessor_bracket_
 {
 	protected $source;
 	protected $proto = '';
@@ -990,7 +990,7 @@ class CIA_preprocessor_construct_ extends CIA_preprocessor_bracket_
 	}
 }
 
-class CIA_preprocessor_path_ extends CIA_preprocessor_bracket_
+class patchwork_preprocessor_path_ extends patchwork_preprocessor_bracket_
 {
 	function onClose($token)
 	{
@@ -998,7 +998,7 @@ class CIA_preprocessor_path_ extends CIA_preprocessor_bracket_
 	}
 }
 
-class CIA_preprocessor_classExists_ extends CIA_preprocessor_bracket_
+class patchwork_preprocessor_classExists_ extends patchwork_preprocessor_bracket_
 {
 	function onReposition($token)
 	{
@@ -1011,7 +1011,7 @@ class CIA_preprocessor_classExists_ extends CIA_preprocessor_bracket_
 	}
 }
 
-class CIA_preprocessor_t_ extends CIA_preprocessor_bracket_
+class patchwork_preprocessor_t_ extends patchwork_preprocessor_bracket_
 {
 	function filterBracket($type, $token)
 	{
@@ -1022,7 +1022,7 @@ class CIA_preprocessor_t_ extends CIA_preprocessor_bracket_
 	}
 }
 
-class CIA_preprocessor_require_ extends CIA_preprocessor_bracket_
+class patchwork_preprocessor_require_ extends patchwork_preprocessor_bracket_
 {
 	public $close = ')';
 
@@ -1049,7 +1049,7 @@ class CIA_preprocessor_require_ extends CIA_preprocessor_bracket_
 	}
 }
 
-class CIA_preprocessor_marker_ extends CIA_preprocessor_require_
+class patchwork_preprocessor_marker_ extends patchwork_preprocessor_require_
 {
 	public $close = ':0)';
 	public $greedy = false;
