@@ -24,14 +24,14 @@ class extends iaMail_mime
 	{
 		$this->agent = $agent;
 		$this->argv = (array) $argv;
-		$this->lang = isset($options['lang']) ? $options['lang'] : CIA::__LANG__();
+		$this->lang = isset($options['lang']) ? $options['lang'] : patchwork::__LANG__();
 
 		parent::__construct($options);
 	}
 
 	protected function doSend()
 	{
-		$html = CIA_serverside::returnAgent($this->agent, $this->argv, $this->lang);
+		$html = patchwork_serverside::returnAgent($this->agent, $this->argv, $this->lang);
 
 		if (!isset($this->_headers['Subject']) && preg_match("'<title[^>]*>(.*?)</title[^>]*>'isu", $html, $title))
 		{
@@ -48,7 +48,7 @@ class extends iaMail_mime
 
 	protected function addRawImage($match)
 	{
-		$url = CIA::base($match[4], true);
+		$url = patchwork::base($match[4], true);
 
 		if (isset(self::$imageCache[$url])) $data =& self::$imageCache[$url];
 		else

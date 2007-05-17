@@ -29,7 +29,7 @@ class
 		if (PEAR::isError($db))
 		{
 			trigger_error($db->getMessage(), E_USER_ERROR);
-			CIA::disable(true);
+			patchwork::disable(true);
 		}
 
 		$db->beginTransaction();

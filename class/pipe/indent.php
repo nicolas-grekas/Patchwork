@@ -16,7 +16,7 @@ class
 {
 	static function php($string, $chars = 4, $char = ' ')
 	{
-		return preg_replace('/^/mu', str_repeat(CIA::string($char), CIA::string($chars)), CIA::string($string));
+		return preg_replace('/^/mu', str_repeat(patchwork::string($char), patchwork::string($chars)), patchwork::string($string));
 	}
 
 	static function js()

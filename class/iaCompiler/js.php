@@ -81,7 +81,7 @@ class extends iaCompiler
 		{
 			eval("\$inc=$inc;");
 
-			list($CIApID, $base, $inc, $keys, $a) = CIA_resolveTrace::call($inc);
+			list($appId, $base, $inc, $keys, $a) = patchwork_resolveTrace::call($inc);
 
 			foreach ($a as $k => &$v) $args[$k] = $this->quote($v);
 
@@ -93,7 +93,7 @@ class extends iaCompiler
 					exit;
 				}
 
-				$meta = array($CIApID, $this->quote($base));
+				$meta = array($appId, $this->quote($base));
 				$meta = '[' . implode(',', $meta) . ']';
 			}
 			else if ($is_exo)

@@ -19,7 +19,7 @@ class
 
 	static function php($string)
 	{
-		$string = ' ' . CIA::string($string);
+		$string = ' ' . patchwork::string($string);
 
 		$string = preg_replace(
 			self::$mailrx . 'u',

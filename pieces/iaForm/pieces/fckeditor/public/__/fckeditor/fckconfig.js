@@ -24,7 +24,7 @@
  * http://wiki.fckeditor.net/Developer%27s_Guide/Configuration/Configurations_Settings
  */
 
-// For CIA and PATH_INFO disabled servers
+// For patchwork and PATH_INFO disabled servers
 if (ciaLocation)
 {
 	FCKConfig.BasePath = FCKConfig.FullBasePath = ciaLocation;

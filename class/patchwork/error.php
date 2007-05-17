@@ -12,13 +12,13 @@
  ***************************************************************************/
 
 
-class extends CIA
+class extends patchwork
 {
 	static function call($code, $message, $file, $line, &$context)
 	{
-		CIA::setMaxage(0);
-		CIA::setExpires('onmaxage');
-		CIA::$private = true;
+		patchwork::setMaxage(0);
+		patchwork::setExpires('onmaxage');
+		patchwork::$private = true;
 
 		if (!function_exists('filterErrorArgs'))
 		{
@@ -50,7 +50,7 @@ class extends CIA
 
 		$context = '';
 
-		if (!CIA::$handlesOb)
+		if (!patchwork::$handlesOb)
 		{
 			$msg = debug_backtrace();
 
@@ -68,7 +68,7 @@ class extends CIA
 					in_array(
 						$a[' call '],
 						array(
-							'CIA->error_handler()',
+							'patchwork->error_handler()',
 							'require()', 'require_once()',
 							'include()', 'include_once()',
 						)
@@ -101,7 +101,7 @@ class extends CIA
 		default:             $msg = '<b>Unknown Error (#'.$code.')</b>';
 		}
 
-		$cid = CIA::uniqid();
+		$cid = patchwork::uniqid();
 		$cid = <<<EOHTML
 <script type="text/javascript">/*<![CDATA[*/
 focus()

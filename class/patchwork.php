@@ -19,11 +19,11 @@ function F($name, $type) {$a = func_get_args(); return VALIDATE::getFile($_FILES
 
 function V($var , $type) {$a = func_get_args(); return VALIDATE::get(     $var          , $type, array_slice($a, 2));}
 
-if ($GLOBALS['cia_multilang'])
+if ($GLOBALS['patchwork_multilang'])
 {
 	function T($string, $lang = false)
 	{
-		if (!$lang) $lang = CIA::__LANG__();
+		if (!$lang) $lang = patchwork::__LANG__();
 		return TRANSLATE::get($string, $lang, true);
 	}
 }
@@ -138,7 +138,7 @@ class
 	protected static $base;
 	protected static $uri;
 
-	protected static $versionId;
+	protected static $appId;
 	protected static $handlesOb = false;
 	protected static $metaInfo;
 	protected static $metaPool = array();
@@ -186,8 +186,8 @@ class
 
 	static function start()
 	{
-		// Not a static method of CIA because of a bug in eAccelerator 0.9.5
-		function cia_error_handler($code, $message, $file, $line, &$context)
+		// Not a static method of patchwork because of a bug in eAccelerator 0.9.5
+		function patchwork_error_handler($code, $message, $file, $line, &$context)
 		{
 			if (error_reporting())
 			{
@@ -198,7 +198,7 @@ class
 					if (strpos($message, '__00::')) return;
 
 					static $offset = 0;
-					$offset || $offset = -13 - strlen($GLOBALS['cia_paths_token']);
+					$offset || $offset = -13 - strlen($GLOBALS['patchwork_paths_token']);
 
 					if ('-' == substr($file, $offset, 1)) return;
 
@@ -208,22 +208,22 @@ class
 					if (stripos($message, 'safe mode')) return;
 				}
 
-				CIA::error_handler($code, $message, $file, $line, $context);
+				patchwork::error_handler($code, $message, $file, $line, $context);
 			}
 		}
 
 		ini_set('log_errors', true);
 		ini_set('error_log', './error.log');
 		ini_set('display_errors', false);
-		set_error_handler('cia_error_handler');
+		set_error_handler('patchwork_error_handler');
 
-		class_exists('CIA_preprocessor__0', false) && CIA_preprocessor__0::$function += array(
-			'header'       => 'CIA::header',
-			'setcookie'    => 'CIA::setcookie',
-			'setrawcookie' => 'CIA::setrawcookie',
+		class_exists('patchwork_preprocessor__0', false) && patchwork_preprocessor__0::$function += array(
+			'header'       => 'patchwork::header',
+			'setcookie'    => 'patchwork::setcookie',
+			'setrawcookie' => 'patchwork::setrawcookie',
 		);
 
-		self::$versionId = abs($GLOBALS['version_id'] % 10000);
+		self::$appId = abs($GLOBALS['patchwork_appId'] % 10000);
 		self::$cachePath = resolvePath('zcache/');
 		self::$is_enabled = true;
 		self::$ob_starting_level = ob_get_level();
@@ -232,7 +232,7 @@ class
 		self::$ob_level = 2;
 
 
-		self::setLang($_SERVER['CIA_LANG'] ? $_SERVER['CIA_LANG'] : substr($GLOBALS['CONFIG']['lang_list'], 0, 2));
+		self::setLang($_SERVER['PATCHWORK_LANG'] ? $_SERVER['PATCHWORK_LANG'] : substr($GLOBALS['CONFIG']['lang_list'], 0, 2));
 
 		if (htmlspecialchars(self::$base) != self::$base)
 		{
@@ -240,8 +240,8 @@ class
 			self::disable(true);
 		}
 
-		$agent = $_SERVER['CIA_REQUEST'];
-		if (($mime = strrchr($agent, '.')) && strcasecmp('.tpl', $mime)) CIA_staticControler::call($agent, $mime);
+		$agent = $_SERVER['PATCHWORK_REQUEST'];
+		if (($mime = strrchr($agent, '.')) && strcasecmp('.tpl', $mime)) patchwork_staticControler::call($agent, $mime);
 
 /*>
 		self::log(
@@ -251,7 +251,7 @@ class
 		);
 <*/
 
-		CIA_DIRECT ? self::clientside() : self::serverside();
+		PATCHWORK_DIRECT ? self::clientside() : self::serverside();
 
 		while (self::$ob_level)
 		{
@@ -267,7 +267,7 @@ class
 	{
 		self::header('Content-Type: text/javascript');
 
-		if (isset($_GET['v$']) && self::$versionId != $_GET['v$'] && 'x$' != key($_GET))
+		if (isset($_GET['v$']) && self::$appId != $_GET['v$'] && 'x$' != key($_GET))
 		{
 			echo 'w(w.r(1,' . (int)!DEBUG . '))';
 			return;
@@ -276,19 +276,19 @@ class
 		switch ( key($_GET) )
 		{
 		case 't$':
-			CIA_sendTemplate::call();
+			patchwork_sendTemplate::call();
 			break;
 
 		case 'p$':
-			CIA_sendPipe::call();
+			patchwork_sendPipe::call();
 			break;
 
 		case 'a$':
-			CIA_clientside::render(array_shift($_GET), false);
+			patchwork_clientside::render(array_shift($_GET), false);
 			break;
 
 		case 'x$':
-			CIA_clientside::render(array_shift($_GET), true);
+			patchwork_clientside::render(array_shift($_GET), true);
 			break;
 		}
 	}
@@ -297,18 +297,18 @@ class
 	// {{{ Server side rendering controler
 	static function serverside()
 	{
-		$agent = self::resolveAgentClass($_SERVER['CIA_REQUEST'], $_GET);
+		$agent = self::resolveAgentClass($_SERVER['PATCHWORK_REQUEST'], $_GET);
 
-		if (isset($_GET['k$'])) return CIA_sendTrace::call($agent);
+		if (isset($_GET['k$'])) return patchwork_sendTrace::call($agent);
 
 		self::$binaryMode = 'text/html' != substr(constant("$agent::contentType"), 0, 9);
 
 		// Synch exoagents on browser request
-		if (isset($_COOKIE['cache_reset_id']) && self::$versionId == $_COOKIE['cache_reset_id'] && setcookie('cache_reset_id', '', 0, '/'))
+		if (isset($_COOKIE['cache_reset_id']) && self::$appId == $_COOKIE['cache_reset_id'] && setcookie('cache_reset_id', '', 0, '/'))
 		{
-			self::touchCIApID();
+			self::touchAppId();
 			self::touch('foreignTrace');
-			self::touch('CIApID');
+			self::touch('appId');
 
 			self::setMaxage(0);
 			self::setGroup('private');
@@ -318,27 +318,27 @@ class
 		}
 
 /*>
-		if (CIA_SYNC_CACHE && !self::$binaryMode)
+		if (PATCHWORK_SYNC_CACHE && !self::$binaryMode)
 		{
-			global $version_id;
+			global $patchwork_appId;
 
-			$version_id = -$version_id - filemtime('./config.cia.php');
-			self::touchCIApID();
-			$version_id = -$version_id - $_SERVER['REQUEST_TIME'];
-			self::$versionId = abs($version_id % 10000);
+			$patchwork_appId = -$patchwork_appId - filemtime('./config.patchwork.php');
+			self::touchAppId();
+			$patchwork_appId = -$patchwork_appId - $_SERVER['REQUEST_TIME'];
+			self::$appId = abs($patchwork_appId % 10000);
 
-			$a = $GLOBALS['cia_multilang'] ? implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_BASE'], 2)) : $_SERVER['CIA_BASE'];
+			$a = $GLOBALS['patchwork_multilang'] ? implode($_SERVER['PATCHWORK_LANG'], explode('__', $_SERVER['PATCHWORK_BASE'], 2)) : $_SERVER['PATCHWORK_BASE'];
 			$a = preg_replace("'\?.*$'", '', $a);
 			$a = preg_replace("'^https?://[^/]*'i", '', $a);
 			$a = dirname($a . ' ');
 			if (1 == strlen($a)) $a = '';
 
-			self::setcookie('v$', self::$versionId, $_SERVER['REQUEST_TIME'] + CIA_MAXAGE, $a .'/');
+			self::setcookie('v$', self::$appId, $_SERVER['REQUEST_TIME'] + $GLOBALS['CONFIG']['maxage'], $a .'/');
 
 			self::touch('');
 			foreach (glob(self::$cachePath . '?/?/*', GLOB_NOSORT) as $v) if ('.session' != substr($v, -8)) unlink($v);
 
-			if (!CIA_POSTING)
+			if (!IS_POSTING)
 			{
 				self::setMaxage(0);
 				self::setGroup('private');
@@ -350,21 +350,21 @@ class
 <*/
 
 		// load agent
-		if (CIA_POSTING || self::$binaryMode || isset($_GET['$bin']) || !isset($_COOKIE['JS']) || !$_COOKIE['JS'])
+		if (IS_POSTING || self::$binaryMode || isset($_GET['$bin']) || !isset($_COOKIE['JS']) || !$_COOKIE['JS'])
 		{
 			if (!self::$binaryMode) self::setGroup('private');
-			CIA_serverside::loadAgent($agent, false, false);
+			patchwork_serverside::loadAgent($agent, false, false);
 		}
-		else CIA_clientside::loadAgent($agent);
+		else patchwork_clientside::loadAgent($agent);
 	}
 	// }}}
 
-	protected static function touchCIApID()
+	protected static function touchAppId()
 	{
-		// config.cia.php's last modification date is used for
+		// config.patchwork.php's last modification date is used for
 		// version synchronisation with clients and caches.
-		touch('./config.cia.php', $_SERVER['REQUEST_TIME']);
-#>		file_exists('./.config.cia.php') && touch('./.config.cia.php', $_SERVER['REQUEST_TIME']);
+		touch('./config.patchwork.php', $_SERVER['REQUEST_TIME']);
+#>		file_exists('./.config.patchwork.php') && touch('./.config.patchwork.php', $_SERVER['REQUEST_TIME']);
 	}
 
 	static function disable($exit = false)
@@ -392,12 +392,12 @@ class
 		$lang = self::$lang;
 		self::$lang = $new_lang;
 
-		if ($GLOBALS['cia_multilang'])
+		if ($GLOBALS['patchwork_multilang'])
 		{
-			self::$base = explode('__', $_SERVER['CIA_BASE'], 2);
+			self::$base = explode('__', $_SERVER['PATCHWORK_BASE'], 2);
 			self::$base = implode($new_lang, self::$base);
 		}
-		else self::$base = $_SERVER['CIA_BASE'];
+		else self::$base = $_SERVER['PATCHWORK_BASE'];
 
 		self::$host = strtr(self::$base, '#?', '//');
 		self::$host = substr(self::$base, 0, strpos(self::$host, '/', 8)+1);
@@ -421,7 +421,7 @@ class
 			if (strncmp('/', $url, 1)) $url = self::$base . $url;
 			else $url = self::$host . substr($url, 1);
 	
-			if (!$noId && '/' != substr($url, -1)) $url .= (false === strpos($url, '?') ? '?' : '&amp;') . self::$versionId;
+			if (!$noId && '/' != substr($url, -1)) $url .= (false === strpos($url, '?') ? '?' : '&amp;') . self::$appId;
 		}
 
 		return $url;
@@ -460,7 +460,7 @@ class
 
 				if (false !== stripos($string, 'script'))
 				{
-					if (self::$private) CIA_TOKEN_MATCH || CIA_alertCSRF::call();
+					if (self::$private) PATCHWORK_TOKEN_MATCH || patchwork_alertCSRF::call();
 
 					self::$detectCSRF = true;
 				}
@@ -489,7 +489,7 @@ class
 
 			if ($domain && '.' != substr($domain, 0, 1)) W('setcookie() RFC incompatibility: $domain must start with a dot.');
 
-			$GLOBALS['cia_private'] = true;
+			$GLOBALS['patchwork_private'] = true;
 			header('P3P: CP="' . $GLOBALS['CONFIG']['P3P'] . '"');
 			header(
 				"Set-Cookie: {$name}={$value}" .
@@ -514,7 +514,7 @@ class
 
 	static function readfile($file, $mime)
 	{
-		return CIA_staticControler::readfile($file, $mime);
+		return patchwork_staticControler::readfile($file, $mime);
 	}
 
 	/*
@@ -530,7 +530,7 @@ class
 		self::$redirecting = true;
 		self::disable();
 
-		if (CIA_DIRECT)
+		if (PATCHWORK_DIRECT)
 		{
 			$url = 'location.replace(' . ('' !== $url
 				? "'" . addslashes($url) . "'"
@@ -601,8 +601,8 @@ class
 	 */
 	static function setMaxage($maxage)
 	{
-		if ($maxage < 0) $maxage = CIA_MAXAGE;
-		else $maxage = min(CIA_MAXAGE, $maxage);
+		if ($maxage < 0) $maxage = $GLOBALS['CONFIG']['maxage'];
+		else $maxage = min($GLOBALS['CONFIG']['maxage'], $maxage);
 
 		if (!self::$privateDetectionMode)
 		{
@@ -629,7 +629,7 @@ class
 		if (!$group) return;
 
 		if (self::$privateDetectionMode) throw new PrivateDetection;
-		else if (self::$detectCSRF) CIA_TOKEN_MATCH || CIA_alertCSRF::call();
+		else if (self::$detectCSRF) PATCHWORK_TOKEN_MATCH || patchwork_alertCSRF::call();
 
 		self::$private = true;
 
@@ -649,7 +649,7 @@ class
 
 				if ($b != $a && !self::$isGroupStage)
 				{
-#>					W('Misconception: CIA::setGroup() is called in ' . self::$agentClass . '->compose( ) rather than in ' . self::$agentClass . '->control(). Cache is now disabled for this agent.');
+#>					W('Misconception: patchwork::setGroup() is called in ' . self::$agentClass . '->compose( ) rather than in ' . self::$agentClass . '->control(). Cache is now disabled for this agent.');
 
 					$a = array('private');
 				}
@@ -701,7 +701,7 @@ class
 
 			@include self::getCachePath('watch/' . $message, 'php');
 
-#>			E("CIA::touch('$message'): $i file(s) deleted.");
+#>			E("patchwork::touch('$message'): $i file(s) deleted.");
 		}
 	}
 
@@ -724,7 +724,7 @@ class
 			if (!$dir) return;
 			$dir[0] = '/' . $dir[0];
 		}
-		else if (!(CIA_WINDOWS && ':' == substr($dir[0], -1))) $dir[0] = './' . $dir[0];
+		else if (!(IS_WINDOWS && ':' == substr($dir[0], -1))) $dir[0] = './' . $dir[0];
 
 		$new = array();
 
@@ -779,7 +779,7 @@ class
 			fwrite($h, $data);
 			fclose($h);
 
-			if (CIA_WINDOWS)
+			if (IS_WINDOWS)
 			{
 				file_exists($filename) && unlink($filename);
 				rename($tmpname, $filename);
@@ -809,12 +809,12 @@ class
 
 	static function getContextualCachePath($filename, $extension, $key = '')
 	{
-		return self::getCachePath($filename, $extension, self::$base .'-'. self::$lang .'-'. DEBUG .'-'. CIA_PROJECT_PATH .'-'. $key);
+		return self::getCachePath($filename, $extension, self::$base .'-'. self::$lang .'-'. DEBUG .'-'. PATCHWORK_PROJECT_PATH .'-'. $key);
 	}
 
 	static function log($message, $is_end = false, $raw_html = true)
 	{
-		static $prev_time = CIA;
+		static $prev_time = patchwork;
 		self::$total_time += $a = 1000*(microtime(true) - $prev_time);
 
 		if ('__getDeltaMicrotime' !== $message)
@@ -882,6 +882,8 @@ class
 
 		$agent = '/index';
 
+		global $patchwork_lastpath_level;
+
 		if ('' !== $potentialAgent)
 		{
 			$potentialAgent = explode('/', $potentialAgent);
@@ -898,7 +900,7 @@ class
 				if (isset($resolvedCache[$a]) || resolvePath("class/agent{$a}.php"))
 				{
 					$agent = $a;
-					$agentSource = isset($resolvedCache[$a]) ? true : $GLOBALS['cia_lastpath_level'];
+					$agentLevel = isset($resolvedCache[$a]) ? true : $patchwork_lastpath_level;
 					$offset = $i;
 					continue;
 				}
@@ -910,7 +912,7 @@ class
 				)
 				{
 					$agent = $a;
-					$agentSource = false;
+					$agentLevel = false;
 					$offset = $i;
 					continue;
 				}
@@ -947,12 +949,12 @@ class
 
 		$agent = 'agent' . strtr($agent, '/', '_');
 
-		isset($agentSource) || $agentSource = resolvePath('class/agent/index.php') ? $GLOBALS['cia_lastpath_level'] : false;
+		isset($agentLevel) || $agentLevel = resolvePath('class/agent/index.php') ? $patchwork_lastpath_level : false;
 
-		if (true !== $agentSource && !class_exists($agent, false))
+		if (true !== $agentLevel && !class_exists($agent, false))
 		{
-			if (false === $agentSource) eval('class ' . $agent . ' extends agentTemplate {}');
-			else $GLOBALS['cia_autoload_cache'][$agent] = $agentSource + $GLOBALS['cia_paths_offset'];
+			if (false === $agentLevel) eval('class ' . $agent . ' extends agentTemplate {}');
+			else $GLOBALS['patchwork_autoload_cache'][$agent] = $agentLevel + $GLOBALS['patchwork_paths_offset'];
 		}
 
 		return $agent;
@@ -1100,7 +1102,7 @@ class
 			if (PHP_OUTPUT_HANDLER_START & $mode)
 			{
 				$lead = '';
-#>				if ((!CIA_SYNC_CACHE || CIA_POSTING) && !self::$binaryMode) $buffer = CIA_debugWin::prolog() . $buffer;
+#>				if ((!PATCHWORK_SYNC_CACHE || IS_POSTING) && !self::$binaryMode) $buffer = patchwork_debugWin::prolog() . $buffer;
 			}
 
 			$tail = '';
@@ -1127,7 +1129,7 @@ class
 			{
 				$a = preg_replace_callback(
 					'#<form\s(?:[^>]+?\s)?method\s*=\s*(["\']?)post\1.*?>#iu',
-					array('CIA_appendAntiCSRF', 'call'),
+					array('patchwork_appendAntiCSRF', 'call'),
 					$buffer
 				);
 
@@ -1228,7 +1230,7 @@ class
 			return $buffer;
 		}
 
-		CIA::header(
+		patchwork::header(
 			isset(self::$headers['content-type'])
 				? self::$headers['content-type']
 				: 'Content-Type: text/html'
@@ -1236,10 +1238,10 @@ class
 
 		$is304 = false;
 
-		if (!CIA_POSTING && ('' !== $buffer || self::$ETag))
+		if (!IS_POSTING && ('' !== $buffer || self::$ETag))
 		{
 			if (!self::$maxage) self::$maxage = 0;
-			if ($GLOBALS['cia_private']) self::$private = true;
+			if ($GLOBALS['patchwork_private']) self::$private = true;
 
 			$LastModified = $_SERVER['REQUEST_TIME'];
 
@@ -1253,7 +1255,7 @@ class
 				self::$watchTable = array_keys(self::$watchTable);
 				sort(self::$watchTable);
 
-				$validator = $_SERVER['CIA_BASE'] .'-'. $_SERVER['CIA_LANG'] .'-'. CIA_PROJECT_PATH;
+				$validator = $_SERVER['PATCHWORK_BASE'] .'-'. $_SERVER['PATCHWORK_LANG'] .'-'. PATCHWORK_PROJECT_PATH;
 				$validator = substr(md5(serialize(self::$watchTable) . $validator), 0, 8);
 
 				$ETag = $validator;
@@ -1277,7 +1279,7 @@ class
 						fclose($h);
 					}
 
-					self::writeWatchTable('CIApID', $validator);
+					self::writeWatchTable('appId', $validator);
 				}
 				else
 				{
@@ -1357,45 +1359,45 @@ class
 
 	static function error_handler($code, $message, $file, $line, &$context)
 	{
-		CIA_error::call($code, $message, $file, $line, $context);
+		patchwork_error::call($code, $message, $file, $line, $context);
 	}
 
 	static function resolvePublicPath($filename, &$path_idx = 0)
 	{
-		$last_cia_paths = count($GLOBALS['cia_paths']) - 1;
+		$last_patchwork_paths = count($GLOBALS['patchwork_paths']) - 1;
 
-		if ($path_idx && $path_idx > $last_cia_paths) return false;
+		if ($path_idx && $path_idx > $last_patchwork_paths) return false;
 
 
-		global $cia_lastpath_level;
+		global $patchwork_lastpath_level;
 
-		$level = $last_cia_paths - $path_idx;
+		$level = $last_patchwork_paths - $path_idx;
 
 		$lang = self::__LANG__() . '/';
 		$l_ng = 5 == strlen($lang) ? substr($lang, 0, 2) . '/' : false;
 
 
 		$lang = resolvePath("public/{$lang}{$filename}", $level);
-		$lang_level = $cia_lastpath_level;
+		$lang_level = $patchwork_lastpath_level;
 
 		if ($l_ng)
 		{
 			$l_ng = resolvePath("public/{$l_ng}{$filename}", $level);
-			if ($cia_lastpath_level > $lang_level)
+			if ($patchwork_lastpath_level > $lang_level)
 			{
 				$lang = $l_ng;
-				$lang_level = $cia_lastpath_level;
+				$lang_level = $patchwork_lastpath_level;
 			}
 		}
 
 		$l_ng = resolvePath("public/__/{$filename}", $level);
-		if ($cia_lastpath_level > $lang_level)
+		if ($patchwork_lastpath_level > $lang_level)
 		{
 			$lang = $l_ng;
-			$lang_level = $cia_lastpath_level;
+			$lang_level = $patchwork_lastpath_level;
 		}
 
-		$path_idx = $last_cia_paths - $lang_level;
+		$path_idx = $last_patchwork_paths - $lang_level;
 
 		return $lang;
 	}
@@ -1438,7 +1440,7 @@ class agent
 	final public function __construct($args = array())
 	{
 		$this->contentType = constant(get_class($this) . '::contentType');
-		$this->contentType && CIA::header('Content-Type: ' . $this->contentType);
+		$this->contentType && patchwork::header('Content-Type: ' . $this->contentType);
 
 		$a = (array) $this->argv;
 
@@ -1474,10 +1476,10 @@ class agent
 
 	function metaCompose()
 	{
-		CIA::setMaxage($this->maxage);
-		CIA::setExpires($this->expires);
-		CIA::watch($this->watch);
-		if ($this->canPost) CIA::canPost();
+		patchwork::setMaxage($this->maxage);
+		patchwork::setExpires($this->expires);
+		patchwork::watch($this->watch);
+		if ($this->canPost) patchwork::canPost();
 	}
 }
 
@@ -1499,8 +1501,8 @@ class loop
 
 	final public function &loop($escape = false)
 	{
-		$catchMeta = CIA::$catchMeta;
-		CIA::$catchMeta = true;
+		$catchMeta = patchwork::$catchMeta;
+		patchwork::$catchMeta = true;
 
 		if ($this->loopLength === false) $this->loopLength = (int) $this->prepare();
 
@@ -1518,7 +1520,7 @@ class loop
 			else $this->loopLength = false;
 		}
 
-		CIA::$catchMeta = $catchMeta;
+		patchwork::$catchMeta = $catchMeta;
 
 		if ($escape && !($this instanceof L_) && $data) foreach ($data as &$i) is_string($i) && $i = htmlspecialchars($i);
 
@@ -1529,12 +1531,12 @@ class loop
 
 	final public function __toString()
 	{
-		$catchMeta = CIA::$catchMeta;
-		CIA::$catchMeta = true;
+		$catchMeta = patchwork::$catchMeta;
+		patchwork::$catchMeta = true;
 
 		if ($this->loopLength === false) $this->loopLength = (int) $this->prepare();
 
-		CIA::$catchMeta = $catchMeta;
+		patchwork::$catchMeta = $catchMeta;
 
 		return (string) $this->loopLength;
 	}

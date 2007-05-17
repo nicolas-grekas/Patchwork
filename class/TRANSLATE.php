@@ -19,14 +19,14 @@ class
 
 	public static function get($string, $lang, $usecache)
 	{
-		if ('' === $string || '__' == $lang || !$GLOBALS['cia_multilang']) return $string;
+		if ('' === $string || '__' == $lang || !$GLOBALS['patchwork_multilang']) return $string;
 
 		$hash = md5($string);
 		$cache = '';
 
-		if ($usecache && $id = CIA::$agentClass)
+		if ($usecache && $id = patchwork::$agentClass)
 		{
-			$id = CIA::getContextualCachePath('lang/' . substr($id, 6), 'php');
+			$id = patchwork::getContextualCachePath('lang/' . substr($id, 6), 'php');
 			if (!isset(self::$cache[$id]))
 			{
 				if (file_exists($id)) $cache = include $id;
@@ -67,8 +67,8 @@ class
 		{
 			$data = '<?php return ' . var_export($cache[2], true) . ';';
 
-			CIA::writeFile($file, $data);
-			if ($cache[1]) CIA::writeWatchTable('translate', $file, false);
+			patchwork::writeFile($file, $data);
+			if ($cache[1]) patchwork::writeWatchTable('translate', $file, false);
 		}
 	}
 

@@ -18,10 +18,10 @@ class
 	{
 		// The native PHP wordwrap() is not UTF-8 aware
 
-		$cut = CIA::string($cut);
-		$break = CIA::string($break);
-		$length = (int) CIA::string($length);
-		$string = explode($break, CIA::string($string));
+		$cut = patchwork::string($cut);
+		$break = patchwork::string($break);
+		$length = (int) patchwork::string($length);
+		$string = explode($break, patchwork::string($string));
 
 		$iLen = count($string);
 		$result = array();

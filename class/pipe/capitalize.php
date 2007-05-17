@@ -16,7 +16,7 @@ class
 {
 	static function php($string)
 	{
-		return preg_replace("/\b./eu", "mb_strtoupper('$0')", CIA::string($string));
+		return preg_replace("/\b./eu", "mb_strtoupper('$0')", patchwork::string($string));
 	}
 
 	static function js()

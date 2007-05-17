@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends CIA
+class extends patchwork
 {
 	static $entitiesRx = "'&(nbsp|iexcl|cent|pound|curren|yen|euro|brvbar|sect|[AEIOUYaeiouy]?(?:uml|acute)|copy|ordf|laquo|not|shy|reg|macr|deg|plusmn|sup[123]|micro|para|middot|[Cc]?cedil|ordm|raquo|frac(?:14|12|34)|iquest|[AEIOUaeiou](?:grave|circ)|[ANOano]tilde|[Aa]ring|(?:AE|ae|sz)lig|ETH|times|[Oo]slash|THORN|eth|divide|thorn|quot|lt|gt|amp|[xX][0-9a-fA-F]+|[0-9]+);'";
 
@@ -30,7 +30,7 @@ class extends CIA
 			$a = $a[0];
 			$a = trim($a[1] ? $a[2] : ($a[2] . $a[3]));
 
-			if (0 !== strpos($a, CIA::$base))
+			if (0 !== strpos($a, patchwork::$base))
 			{
 				// Decode html encoded chars
 				if (false !== strpos($a, '&')) $a = preg_replace_callback(self::$entitiesRx, array(__CLASS__, 'translateHtmlEntity'), $a);
@@ -43,7 +43,7 @@ class extends CIA
 				}
 				else
 				{
-					$host = substr(CIA::$host, 0, -1);
+					$host = substr(patchwork::$host, 0, -1);
 
 					if ('/' != substr($a, 0, 1))
 					{
@@ -90,7 +90,7 @@ class extends CIA
 				}
 
 				// Compare action to application's base
-				if (0 !== strpos($host . $a, CIA::$base)) return $f;
+				if (0 !== strpos($host . $a, patchwork::$base)) return $f;
 			}
 		}
 
@@ -98,8 +98,8 @@ class extends CIA
 
 		if (!$appendedHtml)
 		{
-			$appendedHtml = !CIA::$binaryMode ? 'syncCSRF()' : '(function(){var d=document,f=d.forms;f=f[f.length-1].T$.value=d.cookie.match(/(^|; )T\\$=([0-9a-f]+)/)[2]})()';
-			$appendedHtml = '<input type="hidden" name="T$" value="' . (isset($_COOKIE['JS']) && $_COOKIE['JS'] ? '' : $GLOBALS['cia_token']) . '" /><script type="text/javascript">' . "<!--\n{$appendedHtml}//--></script>";
+			$appendedHtml = !patchwork::$binaryMode ? 'syncCSRF()' : '(function(){var d=document,f=d.forms;f=f[f.length-1].T$.value=d.cookie.match(/(^|; )T\\$=([0-9a-f]+)/)[2]})()';
+			$appendedHtml = '<input type="hidden" name="T$" value="' . (isset($_COOKIE['JS']) && $_COOKIE['JS'] ? '' : $GLOBALS['patchwork_token']) . '" /><script type="text/javascript">' . "<!--\n{$appendedHtml}//--></script>";
 		}
 
 		return $f . $appendedHtml;

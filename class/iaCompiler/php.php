@@ -36,7 +36,7 @@ class extends iaCompiler
 	{
 		return DEBUG
 			? "(1?pipe_{$name}::php"
-			: "((isset(\$c{$GLOBALS['cia_paths_token']}['" . strtolower($name) . "'])||\$a{$GLOBALS['cia_paths_token']}=__FILE__.'*" . mt_rand() . "')?pipe_{$name}::php";
+			: "((isset(\$c{$GLOBALS['patchwork_paths_token']}['" . strtolower($name) . "'])||\$a{$GLOBALS['patchwork_paths_token']}=__FILE__.'*" . mt_rand() . "')?pipe_{$name}::php";
 	}
 
 	protected function addAGENT($end, $inc, &$args, $is_exo)
@@ -47,7 +47,7 @@ class extends iaCompiler
 		{
 			eval("\$base=$inc;");
 
-			list(, $base, $end) = CIA_resolveTrace::call($base);
+			list(, $base, $end) = patchwork_resolveTrace::call($base);
 
 			if (false !== $base)
 			{
@@ -76,13 +76,13 @@ class extends iaCompiler
 		if (!strncmp($inc, '(isset(', 7))
 		{
 			$inc = substr($inc, 7, strpos($inc, ')', 7) - 7);
-			$this->pushCode("isset($inc)?CIA_serverside::loadAgent($inc,array($a)," .( $is_exo ? 1 : 0 ). "):E('AGENT is undefined: $inc');");
+			$this->pushCode("isset($inc)?patchwork_serverside::loadAgent($inc,array($a)," .( $is_exo ? 1 : 0 ). "):E('AGENT is undefined: $inc');");
 
 			return true;
 		}
 <*/
 
-		$this->pushCode("CIA_serverside::loadAgent($inc,array($a)," .( $is_exo ? 1 : 0 ). ");");
+		$this->pushCode("patchwork_serverside::loadAgent($inc,array($a)," .( $is_exo ? 1 : 0 ). ");");
 
 		return true;
 	}
@@ -118,8 +118,8 @@ class extends iaCompiler
 		{
 			$this->pushCode(
 				'unset($p);$p=' . $var . ';if('
-					. '($p instanceof loop||(0<($p=(int)$p)&&CIA_serverside::makeLoopByLength($p)))'
-					. '&&CIA::string($v->{\'p$\'}=$p)'
+					. '($p instanceof loop||(0<($p=(int)$p)&&patchwork_serverside::makeLoopByLength($p)))'
+					. '&&patchwork::string($v->{\'p$\'}=$p)'
 					. '&&($v->{\'iteratorPosition$\'}=-1)'
 					. '&&($p=(object)array(\'$\'=>&$v))'
 					. '&&$v=&$p'
@@ -182,7 +182,7 @@ class extends iaCompiler
 			case 'd':
 			case 'a':
 			case 'g':
-				$var = ''!==(string) $prefix ? "CIA_serverside::increment('$name',$prefix,\$$type)" : "@\${$type}->$name";
+				$var = ''!==(string) $prefix ? "patchwork_serverside::increment('$name',$prefix,\$$type)" : "@\${$type}->$name";
 				break;
 
 			case '':
@@ -198,12 +198,12 @@ class extends iaCompiler
 			if (!strlen($name))
 			{
 				$var = substr($var, 0, -2);
-				if ($forceType) $var = "CIA::string($var)";
+				if ($forceType) $var = "patchwork::string($var)";
 			}
 			else if ('@' == $var[0])
 			{
 				$var = substr($var, 1);
-				$var = "(isset($var)?" .($forceType ? "CIA::string($var)" : $var). ":'')";
+				$var = "(isset($var)?" .($forceType ? "patchwork::string($var)" : $var). ":'')";
 			}
 
 			

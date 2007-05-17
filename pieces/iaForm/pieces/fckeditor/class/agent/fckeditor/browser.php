@@ -84,7 +84,7 @@ class extends agent
 
 				$path .= $o->resourceType . $o->currentFolder;
 
-				CIA::makeDir($path);
+				patchwork::makeDir($path);
 
 				foreach (new DirectoryIterator($path) as $file)
 				{
@@ -130,11 +130,11 @@ class extends agent
 			{
 				$newFolderName = $this->path . $o->resourceType . $o->currentFolder . $newFolderName . '/';
 
-				@CIA::makeDir($newFolderName);
+				@patchwork::makeDir($newFolderName);
 
 				if (!is_dir($newFolderName)) return array('number' => 102, 'originalDescription' => 'Failed creating new directory. Please check folder permissions.');
 
-				CIA::touch($this->watch);
+				patchwork::touch($this->watch);
 			}
 		}
 		else $number = 102;
@@ -156,7 +156,7 @@ class extends agent
 
 			$path = $this->path . $o->resourceType . $o->currentFolder;
 
-			@CIA::makeDir($path);
+			@patchwork::makeDir($path);
 
 			$o->filename = $file['name'];
 
@@ -193,7 +193,7 @@ class extends agent
 							umask($i);
 						}
 
-						CIA::touch($this->watch);
+						patchwork::touch($this->watch);
 
 						break;
 					}

@@ -17,9 +17,9 @@ class
 	static function php($string, $start, $length = null)
 	{
 		return mb_substr(
-			CIA::string($string),
-			(int) CIA::string($start),
-			null !== $length ? (int)CIA::string($length) : null
+			patchwork::string($string),
+			(int) patchwork::string($start),
+			null !== $length ? (int)patchwork::string($length) : null
 		);
 	}
 

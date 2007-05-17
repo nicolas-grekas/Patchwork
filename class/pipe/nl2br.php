@@ -16,7 +16,7 @@ class
 {
 	static function php($string)
 	{
-		return nl2br(CIA::string($string));
+		return nl2br(patchwork::string($string));
 	}
 
 	static function js()

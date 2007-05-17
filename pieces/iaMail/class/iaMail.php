@@ -58,7 +58,7 @@ class extends iaCron
 		$time = isset($data['options']['time']) ? $data['options']['time'] : 0;
 		if ($time < $_SERVER['REQUEST_TIME'] - 366*86400) $time += $_SERVER['REQUEST_TIME'];
 
-		$base = sqlite_escape_string(CIA::__BASE__());
+		$base = sqlite_escape_string(patchwork::__BASE__());
 		$data = sqlite_escape_string(serialize($data));
 
 		$sql = "INSERT INTO queue VALUES('{$base}','{$data}',{$time},{$archive},{$sent})";

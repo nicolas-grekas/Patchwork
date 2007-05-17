@@ -1,7 +1,7 @@
 <?php
 
 // Directory of the application to run here
-$CIA = '../variations/hello';
+$patchwork = '../variations/hello';
 
-// Load CIA and run the application defined by $CIA
-require '../CIA.php';
+// Load patchwork and run the application defined by $patchwork
+require '../patchwork.php';

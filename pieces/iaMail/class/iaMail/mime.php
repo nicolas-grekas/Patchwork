@@ -36,7 +36,7 @@ class extends Mail_mime
 
 	function __construct($options = null)
 	{
-		parent::__construct(CIA_WINDOWS ? "\r\n" : "\n");
+		parent::__construct(IS_WINDOWS ? "\r\n" : "\n");
 
 		$this->options = $options;
 
@@ -48,7 +48,7 @@ class extends Mail_mime
 
 	protected function doSend()
 	{
-		$message_id = 'iaM' . CIA::uniqid();
+		$message_id = 'iaM' . patchwork::uniqid();
 
 		$this->_headers['Message-Id'] = '<' . $message_id . '@' . (isset($_SERVER['HTTP_HOST']) ? urlencode($_SERVER['HTTP_HOST']) : 'iaMail') . '>';
 
@@ -113,18 +113,18 @@ class extends Mail_mime
 					'method' => 'POST',
 					'content' => http_build_query(array(
 						'message_id' => $message_id,
-						"{$event}_on{$event}" => CIA::base($this->options['on' . $event], true)
+						"{$event}_on{$event}" => patchwork::base($this->options['on' . $event], true)
 					))
 				)));
 
-				file_get_contents(CIA::base($url, true), false, $context);
+				file_get_contents(patchwork::base($url, true), false, $context);
 			}
 			else
 			{
-				$r = new HTTP_Request( CIA::base($url, true) );
+				$r = new HTTP_Request( patchwork::base($url, true) );
 				$r->setMethod(HTTP_REQUEST_METHOD_POST);
 				$r->addPostData('message_id', $message_id);
-				$r->addPostData("{$event}_on{$event}", CIA::base($this->options['on' . $event], true));
+				$r->addPostData("{$event}_on{$event}", patchwork::base($this->options['on' . $event], true));
 				$r->sendRequest();
 			}
 		}

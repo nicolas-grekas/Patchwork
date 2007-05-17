@@ -19,21 +19,21 @@ class
 		$lang = self::HTTP_Best_Language(explode('|', $GLOBALS['CONFIG']['lang_list']));
 		$b = $_SERVER['REQUEST_METHOD'];
 
-		if (!CIA_DIRECT && ('GET' == $b || 'HEAD' == $b))
+		if (!PATCHWORK_DIRECT && ('GET' == $b || 'HEAD' == $b))
 		{
-			$lang = implode($lang, explode('__', $_SERVER['CIA_BASE'], 2));
+			$lang = implode($lang, explode('__', $_SERVER['PATCHWORK_BASE'], 2));
 			$lang = preg_replace("'^.*?://[^/]*'", '', $lang);
-			$lang .= str_replace('%2F', '/', rawurlencode($_SERVER['CIA_REQUEST']));
+			$lang .= str_replace('%2F', '/', rawurlencode($_SERVER['PATCHWORK_REQUEST']));
 			$_GET && $lang .= '?' . $_SERVER['QUERY_STRING'];
 
 			header('HTTP/1.1 301 Moved Permanently');
 			header('Location: ' . $lang);
-			header('Expires: ' . gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + CIA_MAXAGE) . ' GMT');
-			header('Cache-Control: max-age=' . CIA_MAXAGE .',' . ($GLOBALS['cia_private'] ? 'private' : 'public'));
+			header('Expires: ' . gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $GLOBALS['CONFIG']['maxage']) . ' GMT');
+			header('Cache-Control: max-age=' . $GLOBALS['CONFIG']['maxage'] .',' . ($GLOBALS['patchwork_private'] ? 'private' : 'public'));
 
 			exit;
 		}
-		else $_SERVER['CIA_LANG'] = $lang;
+		else $_SERVER['PATCHWORK_LANG'] = $lang;
 	}
 
 	static function HTTP_Best_Language($supported)

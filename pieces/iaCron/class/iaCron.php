@@ -23,7 +23,7 @@ class
 
 		if ($time < $_SERVER['REQUEST_TIME'] - 366*86400) $time += $_SERVER['REQUEST_TIME'];
 
-		$base = sqlite_escape_string(CIA::__BASE__());
+		$base = sqlite_escape_string(patchwork::__BASE__());
 		$data = array(
 			'function' => &$function,
 			'arguments' => &$arguments,

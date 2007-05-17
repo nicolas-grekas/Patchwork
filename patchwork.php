@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-define('CIA', microtime(true));
+define('patchwork', microtime(true));
 
 // IIS compatibility
 isset($_SERVER['REQUEST_URI']) || $_SERVER['REQUEST_URI'] = $_SERVER['URL'];
@@ -42,13 +42,13 @@ if (!preg_match("''u", urldecode($a = $_SERVER['REQUEST_URI'])))
 }
 
 // {{{ registerAutoloadPrefix()
-$cia_autoload_prefix = array();
+$patchwork_autoload_prefix = array();
 
 function registerAutoloadPrefix($class_prefix, $class_to_file_callback)
 {
 	if ($len = strlen($class_prefix))
 	{
-		$registry =& $GLOBALS['cia_autoload_prefix'];
+		$registry =& $GLOBALS['patchwork_autoload_prefix'];
 		$class_prefix = strtolower($class_prefix);
 		$i = 0;
 
@@ -65,8 +65,8 @@ function registerAutoloadPrefix($class_prefix, $class_to_file_callback)
 }
 // }}}
 
-// {{{ cia_atomic_write
-function cia_atomic_write(&$data, $to, $mtime = false)
+// {{{ patchwork_atomic_write
+function patchwork_atomic_write(&$data, $to, $mtime = false)
 {
 	$tmp = uniqid(mt_rand(), true);
 	file_put_contents($tmp, $data);
@@ -74,10 +74,10 @@ function cia_atomic_write(&$data, $to, $mtime = false)
 
 	$mtime && touch($tmp, $mtime);
 
-	if (CIA_WINDOWS)
+	if (IS_WINDOWS)
 	{
 		$data = new COM('Scripting.FileSystemObject');
-		$data->GetFile(CIA_PROJECT_PATH .'/'. $tmp)->Attributes |= 2; // Set hidden attribute
+		$data->GetFile(PATCHWORK_PROJECT_PATH .'/'. $tmp)->Attributes |= 2; // Set hidden attribute
 		file_exists($to) && @unlink($to);
 		@rename($tmp, $to) || unlink($tmp);
 	}
@@ -99,44 +99,44 @@ class hunter
 
 	function __destruct()
 	{
-		cia_restoreProjectPath();
+		patchwork_restoreProjectPath();
 		call_user_func_array($this->callback, $this->param_arr);
 	}
 }
 // }}}
 
 // {{{ Load configuration
-chdir($CIA) || die("Unreachable directory: $CIA");
+chdir($patchwork) || die("Unreachable directory: $patchwork");
 
 // $_REQUEST is an open door to security problems.
 $_REQUEST = array();
 
 $CONFIG = array();
-$version_id = './.config.cia.php';
+$patchwork_appId = './.config.patchwork.php';
 
-define('__CIA__', dirname(__FILE__));
-define('CIA_WINDOWS', '\\' == DIRECTORY_SEPARATOR);
-define('CIA_PROJECT_PATH', getcwd());
+define('__patchwork__', dirname(__FILE__));
+define('IS_WINDOWS', '\\' == DIRECTORY_SEPARATOR);
+define('PATCHWORK_PROJECT_PATH', getcwd());
 
 // Load the configuration
-require file_exists($version_id) ? $version_id : (__CIA__ . '/c3mro.php');
+require file_exists($patchwork_appId) ? $patchwork_appId : (__patchwork__ . '/c3mro.php');
 
 if (isset($CONFIG['clientside']) && !$CONFIG['clientside']) $_GET['$bin'] = true;
 
 // Restore the current dir in shutdown context.
-function cia_restoreProjectPath() {CIA_PROJECT_PATH != getcwd() && chdir(CIA_PROJECT_PATH);}
-register_shutdown_function('cia_restoreProjectPath', CIA_PROJECT_PATH);
+function patchwork_restoreProjectPath() {PATCHWORK_PROJECT_PATH != getcwd() && chdir(PATCHWORK_PROJECT_PATH);}
+register_shutdown_function('patchwork_restoreProjectPath', PATCHWORK_PROJECT_PATH);
 // }}}
 
 // {{{ Global Initialisation
 define('DEBUG',       $CONFIG['DEBUG_ALLOWED'] && (!$CONFIG['DEBUG_PASSWORD'] || (isset($_COOKIE['DEBUG']) && $CONFIG['DEBUG_PASSWORD'] == $_COOKIE['DEBUG'])) ? 1 : 0);
-define('CIA_MAXAGE',  isset($CONFIG['maxage']) ? $CONFIG['maxage'] : 2678400);
-define('CIA_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
-define('CIA_DIRECT',  '_' == $_SERVER['CIA_REQUEST']);
+$CONFIG['maxage'] = isset($CONFIG['maxage']) ? $CONFIG['maxage'] : 2678400;
+define('IS_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
+define('PATCHWORK_DIRECT',  '_' == $_SERVER['PATCHWORK_REQUEST']);
 
 function E($msg = '__getDeltaMicrotime')
 {
-	return class_exists('CIA', false) ? CIA::log($msg, false, false) : W($msg, E_USER_NOTICE);
+	return class_exists('patchwork', false) ? patchwork::log($msg, false, false) : W($msg, E_USER_NOTICE);
 }
 
 function W($msg, $err = E_USER_WARNING)
@@ -152,40 +152,40 @@ function W($msg, $err = E_USER_WARNING)
 { // <-- Hack to enable the next functions only when execution reaches this point
 
 // include with sandboxed namespace
-function cia_include($file) {return include $file;}
+function patchwork_include($file) {return include $file;}
 
-// {{{ function resolvePath(): cia-specific include_path-like mechanism
+// {{{ function resolvePath(): patchwork-specific include_path-like mechanism
 function resolvePath($file, $level = false, $base = false)
 {
-	$last_cia_paths = count($GLOBALS['cia_paths']) - 1;
+	$last_patchwork_paths = count($GLOBALS['patchwork_paths']) - 1;
 
 	if (false === $level)
 	{
 		$i = 0;
-		$level = $last_cia_paths;
+		$level = $last_patchwork_paths;
 	}
 	else
 	{
 		0 <= $level && $base = 0;
-		$i = $last_cia_paths - $level - $base;
+		$i = $last_patchwork_paths - $level - $base;
 		0 > $i && $i = 0;
 	}
 
-	$GLOBALS['cia_lastpath_level'] = $level;
+	$GLOBALS['patchwork_lastpath_level'] = $level;
 
 
 	if (0 == $i)
 	{
-		$source = CIA_PROJECT_PATH .'/'. $file;
-		if (CIA_WINDOWS ? win_file_exists($source) : file_exists($source)) return $source;
+		$source = PATCHWORK_PROJECT_PATH .'/'. $file;
+		if (IS_WINDOWS ? win_file_exists($source) : file_exists($source)) return $source;
 	}
 
 
 	$file = strtr($file, '\\', '/');
-	if ($last_cia_paths = '/' == substr($file, -1)) $file = substr($file, 0, -1);
+	if ($last_patchwork_paths = '/' == substr($file, -1)) $file = substr($file, 0, -1);
 
 	$base = md5($file);
-	$base = $GLOBALS['cia_zcache'] . $base[0] . '/' . $base[1] . '/' . substr($base, 2) . '.cachePath.txt';
+	$base = $GLOBALS['patchwork_zcache'] . $base[0] . '/' . $base[1] . '/' . substr($base, 2) . '.cachePath.txt';
 
 	if (false !== $base = @file_get_contents($base))
 	{
@@ -193,14 +193,14 @@ function resolvePath($file, $level = false, $base = false)
 		do if (current($base) >= $i)
 		{
 			$base = current($base);
-			$level = $GLOBALS['cia_lastpath_level'] -= $base - $i;
+			$level = $GLOBALS['patchwork_lastpath_level'] -= $base - $i;
 			
-			return $GLOBALS['cia_include_paths'][$base] . '/' . (0<=$level ? $file : substr($file, 6)) . ($last_cia_paths ? '/' : '');
+			return $GLOBALS['patchwork_include_paths'][$base] . '/' . (0<=$level ? $file : substr($file, 6)) . ($last_patchwork_paths ? '/' : '');
 		}
 		while (false !== next($base));
 	}
 
-	$GLOBALS['cia_lastpath_level'] = -$GLOBALS['cia_paths_offset'];
+	$GLOBALS['patchwork_lastpath_level'] = -$GLOBALS['patchwork_paths_offset'];
 
 	return false;
 }
@@ -213,11 +213,11 @@ function processPath($file, $level = false, $base = false)
 
 	if (false === $source) return false;
 
-	$level = $GLOBALS['cia_lastpath_level'];
+	$level = $GLOBALS['patchwork_lastpath_level'];
 
 	$file = strtr($file, '\\', '/');
 	$cache = ((int)(bool)DEBUG) . (0>$level ? -$level .'-' : $level);
-	$cache = './.'. strtr(str_replace('_', '%2', str_replace('%', '%1', $file)), '/', '_') . ".{$cache}.{$GLOBALS['cia_paths_token']}.zcache.php";
+	$cache = './.'. strtr(str_replace('_', '%2', str_replace('%', '%1', $file)), '/', '_') . ".{$cache}.{$GLOBALS['patchwork_paths_token']}.zcache.php";
 
 	if (DEBUG ? file_exists($cache) && filemtime($cache) > filemtime($source) : file_exists($cache)) return $cache;
 
@@ -229,14 +229,14 @@ function processPath($file, $level = false, $base = false)
 		? strtr($class, '/', '_')
 		: false;
 
-	CIA_preprocessor::run($source, $cache, $level, $class);
+	patchwork_preprocessor::run($source, $cache, $level, $class);
 
 	return $cache;
 }
 // }}}
 
-// {{{ function cia_adaptRequire(): automatically added by the preprocessor in files in the include_path
-function cia_adaptRequire($file)
+// {{{ function patchworkProcessedPath(): automatically added by the preprocessor in files in the include_path
+function patchworkProcessedPath($file)
 {
 	$file = strtr($file, '\\', '/');
 	$f = '.' . $file . '/';
@@ -247,8 +247,8 @@ function cia_adaptRequire($file)
 		if (!$f) return $file;
 
 		$file = false;
-		$i = count($GLOBALS['cia_paths']);
-		$p =& $GLOBALS['cia_include_paths'];
+		$i = count($GLOBALS['patchwork_paths']);
+		$p =& $GLOBALS['patchwork_include_paths'];
 		$len = count($p);
 
 		for (; $i < $len; ++$i)
@@ -272,14 +272,13 @@ function __autoload($searched_class)
 {
 	$a = strtolower($searched_class);
 
-	if ($a =& $GLOBALS['cia_autoload_cache'][$a])
+	if ($a =& $GLOBALS['patchwork_autoload_cache'][$a])
 	{
 		if (is_int($a))
 		{
 			$b = $a;
 			unset($a);
-
-			$a = $b - $GLOBALS['cia_paths_offset'];
+			$a = $b - $GLOBALS['patchwork_paths_offset'];
 
 			$b = $searched_class;
 			$i = strrpos($b, '__');
@@ -288,33 +287,32 @@ function __autoload($searched_class)
 			$a = $b . '.php.' . ((string)(int)(bool)DEBUG) . (0>$a ? -$a . '-' : $a);
 		}
 
-		$a = "./.class_{$a}.{$GLOBALS['cia_paths_token']}.zcache.php";
+		$a = "./.class_{$a}.{$GLOBALS['patchwork_paths_token']}.zcache.php";
 
 		if (file_exists($a))
 		{
-			cia_include($a);
+			patchwork_include($a);
 
 			if (class_exists($searched_class, false)) return;
 		}
 
-		$GLOBALS['a' . $GLOBALS['cia_paths_token']] = false;
+		$GLOBALS['a' . $GLOBALS['patchwork_paths_token']] = false;
 	}
-
 
 	static $load_autoload = true;
 
 	if ($load_autoload)
 	{
-		require __CIA__ . '/autoload.php';
+		require __patchwork__ . '/autoload.php';
 		$load_autoload = false;
 	}
 
 
-	cia_autoload($searched_class);
+	patchwork_autoload($searched_class);
 }
 // }}}
 
-function cia_is_a($obj, $class)
+function patchwork_is_a($obj, $class)
 {
 	return $obj instanceof $class;
 }
@@ -370,7 +368,7 @@ else
 //}}}
 
 // {{{ Debug context
-DEBUG && CIA_debug::checkCache();
+DEBUG && patchwork_debug::checkCache();
 // }}}
 
 // {{{ Validator
@@ -385,11 +383,11 @@ if ($a)
 		// Patch an IE<=6 bug when using ETag + compression
 		$a = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE'], 2);
 		$a = '"' . dechex(strtotime($a[0])) . '"';
-		$cia_private = true;
+		$patchwork_private = true;
 	}
 	else if (27 == strlen($a) && '"-------------------------"' == strtr($a, '0123456789abcdef', '----------------'))
 	{
-		$b = $cia_zcache . $a[1] .'/'. $a[2] .'/'. substr($a, 3, 6) .'.validator.'. DEBUG .'.txt';
+		$b = $patchwork_zcache . $a[1] .'/'. $a[2] .'/'. substr($a, 3, 6) .'.validator.'. DEBUG .'.txt';
 		if (file_exists($b) && substr(file_get_contents($b), 0, 8) == substr($a, 9, 8))
 		{
 			$private = substr($a, 17, 1);
@@ -409,16 +407,16 @@ $_POST_BACKUP =& $_POST;
 
 if (
 	isset($_COOKIE['T$'])
-	&& (!CIA_POSTING || (isset($_POST['T$']) && substr($_COOKIE['T$'], 1) == substr($_POST['T$'], 1)))
+	&& (!IS_POSTING || (isset($_POST['T$']) && substr($_COOKIE['T$'], 1) == substr($_POST['T$'], 1)))
 	&& '---------------------------------' == strtr($_COOKIE['T$'], '-0123456789abcdef', '#----------------')
-) $cia_token = $_COOKIE['T$'];
+) $patchwork_token = $_COOKIE['T$'];
 else
 {
 	$a = isset($_COOKIE['T$']) && '1' == substr($_COOKIE['T$'], 0, 1) ? '1' : '2';
 
 	if ($_COOKIE)
 	{
-		if (CIA_POSTING) W('Potential Cross Site Request Forgery. $_POST is not reliable. Erasing it !');
+		if (IS_POSTING) W('Potential Cross Site Request Forgery. $_POST is not reliable. Erasing it !');
 
 		unset($_POST);
 		$_POST = array();
@@ -427,37 +425,40 @@ else
 		unset($_COOKIE['T$']); // Double unset against a PHP security hole
 	}
 
-	$cia_token = $a . md5(uniqid(mt_rand(), true));
+	$patchwork_token = $a . md5(uniqid(mt_rand(), true));
 
 	header('P3P: CP="' . $CONFIG['P3P'] . '"');
-	setcookie('T$', $cia_token, 0, $CONFIG['session.cookie_path'], $CONFIG['session.cookie_domain']);
-	$cia_private = true;
+	setcookie('T$', $patchwork_token, 0, $CONFIG['session.cookie_path'], $CONFIG['session.cookie_domain']);
+	$patchwork_private = true;
 }
 
-isset($_GET['T$']) && $cia_private = true;
-define('CIA_TOKEN_MATCH', isset($_GET['T$']) && substr($cia_token, 1) == substr($_GET['T$'], 1));
+isset($_GET['T$']) && $patchwork_private = true;
+define('PATCHWORK_TOKEN_MATCH', isset($_GET['T$']) && substr($patchwork_token, 1) == substr($_GET['T$'], 1));
 // }}}
 
 // {{{ Version synchronism
-$b = abs($version_id % 10000);
+$b = abs($patchwork_appId % 10000);
 
 if (!isset($_COOKIE['v$']) || $_COOKIE['v$'] != $b)
 {
-	$a = implode($_SERVER['CIA_LANG'], explode('__', $_SERVER['CIA_BASE'], 2));
+	$a = implode($_SERVER['PATCHWORK_LANG'], explode('__', $_SERVER['PATCHWORK_BASE'], 2));
 	$a = preg_replace("'\?.*$'", '', $a);
 	$a = preg_replace("'^https?://[^/]*'i", '', $a);
 	$a = dirname($a . ' ');
 	if (1 == strlen($a)) $a = '';
 
 	header('P3P: CP="' . $CONFIG['P3P'] . '"');
-	setcookie('v$', $b, $_SERVER['REQUEST_TIME'] + CIA_MAXAGE, $a .'/');
-	$cia_private = true;
+	setcookie('v$', $b, $_SERVER['REQUEST_TIME'] + $CONFIG['maxage'], $a .'/');
+	$patchwork_private = true;
 }
 // }}}
 
 // {{{ Language controler
-if (!$_SERVER['CIA_LANG'] && $CONFIG['lang_list']) CIA_language::negociate();
+if (!$_SERVER['PATCHWORK_LANG'] && $CONFIG['lang_list']) patchwork_language::negociate();
 // }}}
 
+// Shortcut for patchwork::*
+class p extends patchwork {}
+
 /* Let's go */
-CIA::start();
+patchwork::start();
