@@ -64,7 +64,7 @@ FCKConfig.AutoDetectLanguage	= true ;
 FCKConfig.DefaultLanguage		= 'en' ;
 FCKConfig.ContentLangDirection	= 'ltr' ;
 
-FCKConfig.ProcessHTMLEntities	= true ;
+FCKConfig.ProcessHTMLEntities	= false ;
 FCKConfig.IncludeLatinEntities	= true ;
 FCKConfig.IncludeGreekEntities	= true ;
 
@@ -76,7 +76,7 @@ FCKConfig.FillEmptyBlocks	= true ;
 
 FCKConfig.FormatSource		= true ;
 FCKConfig.FormatOutput		= true ;
-FCKConfig.FormatIndentator	= '    ' ;
+FCKConfig.FormatIndentator	= '\t' ;
 
 FCKConfig.ForceStrongEm = true ;
 FCKConfig.GeckoUseSPAN	= false ;
