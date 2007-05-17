@@ -2,15 +2,15 @@
 
 chown apache: * -R
 
-for I in `find -name config.cia.php -printf "%h\n" 2> /dev/null`
+for I in `find -name config.patchwork.php -printf "%h\n" 2> /dev/null`
 do
-	touch $I/config.cia.php
+	touch $I/config.patchwork.php
 	rm -f $I/.*.zcache.php 2> /dev/null
 
 	test -d $I/zcache && mv $I/zcache $I/zcache.old
 
 	rm -f "$I/.config.lock.php" 2> /dev/null
-	rm -f "$I/.config.cia.php"  2> /dev/null
+	rm -f "$I/.config.patchwork.php"  2> /dev/null
 
 	if test -d $I/zcache.old
 	then
