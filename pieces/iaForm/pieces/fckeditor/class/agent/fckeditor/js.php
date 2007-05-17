@@ -18,6 +18,8 @@ class extends agent
 
 	protected $maxage = -1;
 
+	function control() {}
+
 	function compose($o)
 	{
 		$o->DATA = file_get_contents(resolvePath('public/__/fckeditor/fckeditor.js'));
