@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends CIA
+class extends patchwork
 {
 	static function call($agent)
 	{
@@ -22,9 +22,9 @@ class extends CIA
 		else $cache[$agent] =& $trace;
 
 		$args = array();
-		$BASE = $base = CIA::__BASE__();
+		$BASE = $base = patchwork::__BASE__();
 		$agent = str_replace('%2F', '/', rawurlencode($agent));
-		$agent = CIA::base($agent, true);
+		$agent = patchwork::base($agent, true);
 		$agent = preg_replace("'^.*?://[^/]*'", '', $agent);
 		
 		$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
@@ -46,12 +46,12 @@ class extends CIA
 		if (!preg_match($h, implode('', $keys), $keys))
 		{
 			W('Error while getting meta info data for ' . htmlspecialchars($agent));
-			CIA::disable(true);
+			patchwork::disable(true);
 		}
 
-		$CIApID = (int) $keys[1];
+		$appId = (int) $keys[1];
 		$base = stripcslashes(substr($keys[2], 1, -1));
-		$base = preg_replace("'__'", CIA::__LANG__(), $base, 1);
+		$base = preg_replace("'__'", patchwork::__LANG__(), $base, 1);
 		$agent = stripcslashes(substr($keys[3], 1, -1));
 		$a = stripcslashes(substr($keys[4], 1, -1));
 		$keys = eval('return array(' . $keys[5] . ');');
@@ -64,9 +64,9 @@ class extends CIA
 			foreach (explode('/', $a) as $a) $args['__' . ++$i . '__'] = $a;
 		}
 
-		if ($base == $BASE) $CIApID = $base = false;
-		else CIA::watch('foreignTrace');
+		if ($base == $BASE) $appId = $base = false;
+		else patchwork::watch('foreignTrace');
 
-		return $trace = array($CIApID, $base, $agent, $keys, $args);
+		return $trace = array($appId, $base, $agent, $keys, $args);
 	}
 }

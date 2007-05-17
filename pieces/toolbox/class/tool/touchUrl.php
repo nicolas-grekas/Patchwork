@@ -19,7 +19,7 @@ class
 	 */
 	static function call($url)
 	{
-		$url = CIA::base($url, true);
+		$url = patchwork::base($url, true);
 
 		if (!preg_match("'^(https?)://(.*?)((?::[0-9]+)?)(/.*)$'", $url, $h)) throw new Exception('Illegal URL');
 

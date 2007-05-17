@@ -16,7 +16,7 @@ class
 {
 	static function php($string)
 	{
-		$string = CIA::string($string);
+		$string = patchwork::string($string);
 
 		return (string) $string === (string) ($string-0)
 			? $string

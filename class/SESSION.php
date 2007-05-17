@@ -83,15 +83,15 @@ class
 		// Generate a new antiCSRF token
 
 		$sid = isset($_COOKIE['T$']) && '1' == substr($_COOKIE['T$'], 0, 1) ? '1' : '2';
-		$GLOBALS['cia_token'] = $sid . CIA::uniqid();
+		$GLOBALS['patchwork_token'] = $sid . patchwork::uniqid();
 
-		setcookie('T$', $GLOBALS['cia_token'], 0, $CONFIG['session.cookie_path'], $CONFIG['session.cookie_domain']);
+		setcookie('T$', $GLOBALS['patchwork_token'], 0, $CONFIG['session.cookie_path'], $CONFIG['session.cookie_domain']);
 
 
 		if (!$initSession || $restartNew)
 		{
-			$sid = CIA::uniqid();
-			self::$sslid = (isset($_SERVER['HTTPS']) ? '' : '-') . CIA::uniqid();
+			$sid = patchwork::uniqid();
+			self::$sslid = (isset($_SERVER['HTTPS']) ? '' : '-') . patchwork::uniqid();
 			self::setSID($sid);
 
 			self::$adapter = new SESSION(self::$SID);
@@ -125,7 +125,7 @@ class
 
 	static function __static_construct()
 	{
-		CIA::setGroup('private');
+		patchwork::setGroup('private');
 
 		if (self::$maxIdleTime<1 && self::$maxLifeTime<1) W('At least one of the SESSION::$max*Time variables must be strictly positive.');
 
@@ -172,7 +172,7 @@ class
 
 				if ('-' == self::$sslid[0] && isset($_SERVER['HTTPS']))
 				{
-					self::$sslid = CIA::uniqid();
+					self::$sslid = patchwork::uniqid();
 					setcookie('SSL', self::$sslid, 0, $GLOBALS['CONFIG']['session.cookie_path'], $GLOBALS['CONFIG']['session.cookie_domain'], true , true);
 					unset($_SERVER['HTTP_IF_NONE_MATCH']);
 					unset($_SERVER['HTTP_IF_MODIFIED_SINCE']);
@@ -197,7 +197,7 @@ class
 		}
 		else $IPs = '';
 
-		self::$SID = md5($SID .'-'. $IPs .'-'. (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '') .'-'. substr($GLOBALS['cia_token'], 1));
+		self::$SID = md5($SID .'-'. $IPs .'-'. (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '') .'-'. substr($GLOBALS['patchwork_token'], 1));
 	}
 
 	protected static function onIdle()
@@ -217,9 +217,9 @@ class
 
 	protected function __construct($sid)
 	{
-		$this->path = CIA::$cachePath . '0/'. $sid[0] .'/'. substr($sid, 1) .'.session';
+		$this->path = patchwork::$cachePath . '0/'. $sid[0] .'/'. substr($sid, 1) .'.session';
 
-		CIA::makeDir($this->path);
+		patchwork::makeDir($this->path);
 
 		$this->handle = fopen($this->path, 'a+b');
 		flock($this->handle, LOCK_EX);
@@ -262,7 +262,7 @@ class
 
 	static function gc($lifetime)
 	{
-		foreach (glob(CIA::$cachePath . '0/?/*.session', GLOB_NOSORT) as $file)
+		foreach (glob(patchwork::$cachePath . '0/?/*.session', GLOB_NOSORT) as $file)
 		{
 			if ($_SERVER['REQUEST_TIME'] - filemtime($file) > $lifetime) unlink($file);
 		}

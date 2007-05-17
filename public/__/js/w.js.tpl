@@ -197,9 +197,9 @@ if (window.Error)
 	// This eval avoids a parse error with browsers not supporting exceptions.
 	eval('try{document.execCommand("BackgroundImageCache",false,true)}catch(w){}');
 
-w = function($baseAgent, $keys, $masterCIApID)
+w = function($baseAgent, $keys, $masterAppId)
 {
-	$masterCIApID /= 1;
+	$masterAppId /= 1;
 
 	var $document = document,
 
@@ -219,7 +219,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 		$i, $j, $loopIterator = [],
 
 		a, d, v, g,
-		$CIApID = $masterCIApID,
+		$AppId = $masterAppId,
 
 		r = {toString: function() {return g.__BASE__}},
 
@@ -252,7 +252,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 				: $master
 			) + $str;
 
-			if (!$noId && '/' != $str.substr(-1)) $str += (-1 == $str.indexOf('?') ? '?' : '&amp;') + $masterCIApID;
+			if (!$noId && '/' != $str.substr(-1)) $str += (-1 == $str.indexOf('?') ? '?' : '&amp;') + $masterAppId;
 		}
 
 		return $str;
@@ -317,7 +317,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 
 					if ($base != g.__BASE__)
 					{
-						$CIApID = $id/1;
+						$AppId = $id/1;
 
 						$args.__DEBUG__ = g.__DEBUG__;
 						$args.__LANG__ = g.__LANG__;
@@ -355,7 +355,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 		var $origContext,
 			$pointer = 0,
 			$arguments = a,
-			$localCIApID = $CIApID,
+			$localAppId = $AppId,
 			$localG = g,
 			$bytecode = [
 
@@ -445,7 +445,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 					}
 					else if (1 != $meta)
 					{
-						$CIApID = $meta[0]/1;
+						$AppId = $meta[0]/1;
 
 						$args.__DEBUG__ = g.__DEBUG__;
 						$args.__LANG__ = g.__LANG__;
@@ -537,9 +537,9 @@ w = function($baseAgent, $keys, $masterCIApID)
 
 			if ($masterBase == g.__BASE__
 				&& ($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/))
-				&& ($i = $i[2]/1) != $masterCIApID
+				&& ($i = $i[2]/1) != $masterAppId
 			)
-				$masterCIApID = $CIApID = $localCIApID = $i,
+				$masterAppId = $AppId = $localAppId = $i,
 				$code = [],
 				w.r();
 		}
@@ -586,7 +586,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 			a = $arguments;
 			v = $context;
 
-			$CIApID = $localCIApID;
+			$AppId = $localAppId;
 			g = $localG;
 
 			while (++$pointer <= $codeLen) if ($i = $b[$c[$pointer-1]]($c))
@@ -597,7 +597,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 				a = $arguments;
 				v = $context;
 
-				$CIApID = $localCIApID;
+				$AppId = $localAppId;
 				g = $localG;
 			}
 
@@ -656,7 +656,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 		$i = !!$src;
 		$i || ($src = $masterBase + 'js/x');
 
-		$src = '<script type="text/javascript" name="w$" src="' + $src + (0<=$src.indexOf('?') ? '&amp;' : '?') + 'v$=' + $CIApID + '"></script>';
+		$src = '<script type="text/javascript" name="w$" src="' + $src + (0<=$src.indexOf('?') ? '&amp;' : '?') + 'v$=' + $AppId + '"></script>';
 
 		if ($i)
 		{
@@ -680,7 +680,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 			{
 				w = {c: function()
 				{
-					$i = ($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/)) && $i[2]/1 != $masterCIApID;
+					$i = ($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/)) && $i[2]/1 != $masterAppId;
 
 					w = w.c = $document = 0;
 
@@ -700,7 +700,7 @@ w = function($baseAgent, $keys, $masterCIApID)
 
 	w.r = function($now, $noCache)
 	{
-		if ($masterBase != g.__BASE__) setcookie('cache_reset_id', $masterCIApID, 0, '/');
+		if ($masterBase != g.__BASE__) setcookie('cache_reset_id', $masterAppId, 0, '/');
 		$reloadRequest = true;
 		$reloadNoCache = $reloadNoCache || !!$noCache;
 		if ($now) $WexecLast = $WexecStack.length = 0;
@@ -832,10 +832,10 @@ w = function($baseAgent, $keys, $masterCIApID)
 
 		w(
 			0,
-			  $j && $j[2]/1 != $masterCIApID
+			  $j && $j[2]/1 != $masterAppId
 			? [3, 'w(w.r())']
 			: (
-				  /Safari/.test(navigator.userAgent)
+			/Safari/.test(navigator.userAgent)
 				? [4, 1, 0, 'g', $keys, 1, 5, 1, 'b', 3, 'g.b'] // Block load, 2 steps : generating, then displaying.
 				: [1, 0, 'g', $keys, 1] // Dynamic load, 1 step : generating and displaying at the same time.
 			)

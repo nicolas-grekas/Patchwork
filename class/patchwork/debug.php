@@ -15,8 +15,8 @@
 // Major browsers send a "Cache-Control: no-cache" only and only if a page is reloaded with
 // CTRL+F5, CTRL+SHIFT+R or location.reload(true). Usefull to trigger synchronization events.
 define(
-	'CIA_SYNC_CACHE',
-	   filemtime('./config.cia.php') > filemtime('./.config.cia.php')
+	'PATCHWORK_SYNC_CACHE',
+	   filemtime('./config.patchwork.php') > filemtime('./.config.patchwork.php')
 	|| (isset($_SERVER['HTTP_CACHE_CONTROL']) && 'no-cache' == $_SERVER['HTTP_CACHE_CONTROL'])
 );
 
@@ -27,26 +27,26 @@ class
 
 	static function checkCache()
 	{
-		$GLOBALS['version_id'] *= -1;
+		$GLOBALS['patchwork_appId'] = -$GLOBALS['patchwork_appId'];
 
-		CIA_DIRECT && isset($_GET['d$']) && self::debugWin();
+		PATCHWORK_DIRECT && isset($_GET['d$']) && self::debugWin();
 
-		if (CIA_SYNC_CACHE && !CIA_DIRECT)
+		if (PATCHWORK_SYNC_CACHE && !PATCHWORK_DIRECT)
 		{
 			if ($h = @fopen('./.debugLock', 'xb'))
 			{
 				flock($h, LOCK_EX);
 
-				@unlink('./.config.cia.php');
+				@unlink('./.config.patchwork.php');
 
-				global $cia_include_paths;
+				global $patchwork_include_paths;
 
-				$cia_paths_length = count($GLOBALS['cia_paths']);
-				$cia_paths_token_offset = -12 - strlen($GLOBALS['cia_paths_token']);
+				$patchwork_paths_length = count($GLOBALS['patchwork_paths']);
+				$patchwork_paths_token_offset = -12 - strlen($GLOBALS['patchwork_paths_token']);
 
-				foreach (glob('./.*.1*.' . $GLOBALS['cia_paths_token'] . '.zcache.php', GLOB_NOSORT) as $cache)
+				foreach (glob('./.*.1*.' . $GLOBALS['patchwork_paths_token'] . '.zcache.php', GLOB_NOSORT) as $cache)
 				{
-					$file = str_replace('%1', '%', str_replace('%2', '_', strtr(substr($cache, 3, $cia_paths_token_offset), '_', '/')));
+					$file = str_replace('%1', '%', str_replace('%2', '_', strtr(substr($cache, 3, $patchwork_paths_token_offset), '_', '/')));
 					$level = substr(strrchr($file, '.'), 2);
 
 					$file = substr($file, 0, -(2 + strlen($level)));
@@ -56,7 +56,7 @@ class
 						$file = substr($file, 6);
 					}
 
-					$file = $cia_include_paths[$cia_path_length- $level - 1] .'/'. $file;
+					$file = $patchwork_include_paths[$patchwork_path_length- $level - 1] .'/'. $file;
 
 					if (!file_exists($file) || filemtime($file) >= filemtime($cache)) @unlink($cache);
 				}
@@ -172,8 +172,8 @@ function Z()
 							. substr($a, 23, $b-23)
 							. '</span>'
 							. preg_replace_callback(
-								"'" . preg_quote(htmlspecialchars(CIA_PROJECT_PATH) . DIRECTORY_SEPARATOR . '.')
-									. "([^\\\\/]+)\.[01]([0-9]+)(-?)\.{$GLOBALS['cia_paths_token']}\.zcache\.php'",
+								"'" . preg_quote(htmlspecialchars(PATCHWORK_PROJECT_PATH) . DIRECTORY_SEPARATOR . '.')
+									. "([^\\\\/]+)\.[01]([0-9]+)(-?)\.{$GLOBALS['patchwork_paths_token']}\.zcache\.php'",
 								array(__CLASS__, 'filename'),
 								substr($a, $b)
 							);
@@ -210,7 +210,7 @@ function Z()
 
 	static function filename($m)
 	{
-		return $GLOBALS['cia_include_paths'][count($GLOBALS['cia_paths']) - ((int)($m[3].$m[2])) - 1]
+		return $GLOBALS['patchwork_include_paths'][count($GLOBALS['patchwork_paths']) - ((int)($m[3].$m[2])) - 1]
 			. DIRECTORY_SEPARATOR
 			. str_replace('%1', '%', str_replace('%2', '_', strtr($m[1], '_', DIRECTORY_SEPARATOR)));
 	}

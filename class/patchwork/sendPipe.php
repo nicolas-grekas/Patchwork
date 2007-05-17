@@ -12,19 +12,19 @@
  ***************************************************************************/
 
 
-class extends CIA
+class extends patchwork
 {
 	static function call()
 	{
 		$pipe = array_shift($_GET);
 		preg_match_all('/[a-zA-Z_0-9\x80-\xff]+/', $pipe, $pipe);
-		CIA::$agentClass = 'agent__pipe/' . implode('_', $pipe[0]);
+		patchwork::$agentClass = 'agent__pipe/' . implode('_', $pipe[0]);
 
 		foreach ($pipe[0] as &$pipe)
 		{
-			$cpipe = CIA::getContextualCachePath('pipe/' . $pipe, 'js');
+			$cpipe = patchwork::getContextualCachePath('pipe/' . $pipe, 'js');
 			$readHandle = true;
-			if ($h = CIA::fopenX($cpipe, $readHandle))
+			if ($h = patchwork::fopenX($cpipe, $readHandle))
 			{
 				ob_start();
 				call_user_func(array('pipe_' . $pipe, 'js'));
@@ -35,7 +35,7 @@ class extends CIA
 				$pipe .= "\n";
 				fwrite($h, $pipe);
 				fclose($h);
-				CIA::writeWatchTable(array('pipe'), $cpipe);
+				patchwork::writeWatchTable(array('pipe'), $cpipe);
 			}
 			else
 			{
@@ -46,6 +46,6 @@ class extends CIA
 
 		echo 'w()';
 
-		CIA::setMaxage(-1);
+		patchwork::setMaxage(-1);
 	}
 }

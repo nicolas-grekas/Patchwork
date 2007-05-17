@@ -16,7 +16,7 @@ class
 {
 	static function php($string, $forceString = false)
 	{
-		$string = CIA::string($string);
+		$string = patchwork::string($string);
 
 		return jsquote(str_replace(
 			array('&#039;', '&quot;', '&gt;', '&lt;', '&amp;'),

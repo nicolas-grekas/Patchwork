@@ -16,8 +16,8 @@ class
 {
 	static function php($string)
 	{
-		CIA::setMaxage(1);
-		CIA::setExpires('onmaxage');
+		patchwork::setMaxage(1);
+		patchwork::setExpires('onmaxage');
 		return $_SERVER['REQUEST_TIME'];
 	}
 

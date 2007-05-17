@@ -47,7 +47,7 @@ class extends agent
 		if (!DEBUG && !$this->argv->source)
 		{
 			++self::$recursion;
-			$source = CIA_serverside::returnAgent(substr(get_class($this), 6), (array) $this->argv);
+			$source = patchwork_serverside::returnAgent(substr(get_class($this), 6), (array) $this->argv);
 			--self::$recursion;
 
 			$parser = new jsqueez;
@@ -57,7 +57,7 @@ class extends agent
 		{
 			$o->cookie_path   = $GLOBALS['CONFIG']['session.cookie_path'];
 			$o->cookie_domain = $GLOBALS['CONFIG']['session.cookie_domain'];
-			$o->maxage = CIA_MAXAGE;
+			$o->maxage = $GLOBALS['CONFIG']['maxage'];
 		}
 
 		return $o;

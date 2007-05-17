@@ -16,10 +16,10 @@ class
 {
 	static function php($string, $length = 80, $etc = '...', $break_words = false)
 	{
-		$string = CIA::string($string);
-		$length = CIA::string($length);
-		$etc = CIA::string($etc);
-		$break_words = CIA::string($break_words);
+		$string = patchwork::string($string);
+		$length = patchwork::string($length);
+		$etc = patchwork::string($etc);
+		$break_words = patchwork::string($break_words);
 
 		if (!$length) return '';
 

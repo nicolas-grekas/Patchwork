@@ -12,17 +12,17 @@
  ***************************************************************************/
 
 
-function cia_autoload($searched_class)
+function patchwork_autoload($searched_class)
 {
-	global $cia_paths_token, $cia_autoload_cache;
+	global $patchwork_paths_token, $patchwork_autoload_cache;
 
-	$last_cia_paths = count($GLOBALS['cia_paths']) - 1;
+	$last_patchwork_paths = count($GLOBALS['patchwork_paths']) - 1;
 
 	if (false !== strpos($searched_class, ';') || false !== strpos($searched_class, "'")) return;
 
-	$amark = $GLOBALS['a' . $cia_paths_token];
-	$GLOBALS['a' . $cia_paths_token] = false;
-	$bmark = $GLOBALS['b' . $cia_paths_token];
+	$amark = $GLOBALS['a' . $patchwork_paths_token];
+	$GLOBALS['a' . $patchwork_paths_token] = false;
+	$bmark = $GLOBALS['b' . $patchwork_paths_token];
 
 	$i = strrpos($searched_class, '__');
 	$level = false !== $i ? substr($searched_class, $i+2) : false;
@@ -31,18 +31,18 @@ function cia_autoload($searched_class)
 	{
 		// Namespace renammed class
 		$class = substr($searched_class, 0, $i);
-		$level = min($last_cia_paths, '00' === $level ? -1 : (int) $level);
+		$level = min($last_patchwork_paths, '00' === $level ? -1 : (int) $level);
 	}
 	else
 	{
 		$class = $searched_class;
-		$level = $last_cia_paths;
+		$level = $last_patchwork_paths;
 	}
 
 	$file = false;
 	$lcClass = strtolower($class);
 
-	if ($outerClass =& $GLOBALS['cia_autoload_prefix'] && $len = strlen($lcClass))
+	if ($outerClass =& $GLOBALS['patchwork_autoload_prefix'] && $len = strlen($lcClass))
 	{
 		$i = 0;
 		$cache = array();
@@ -91,7 +91,7 @@ function cia_autoload($searched_class)
 
 		if ($source = resolvePath('class/' . $file, $level, 0)) do
 		{
-			$file = $GLOBALS['cia_lastpath_level'];
+			$file = $GLOBALS['patchwork_lastpath_level'];
 
 			for (; $level >= $file; --$level)
 			{
@@ -99,23 +99,23 @@ function cia_autoload($searched_class)
 				if (class_exists($parent_class, false)) break 2;
 			}
 
-			if ('cia_preprocessor' == $lcClass)
+			if ('patchwork_preprocessor' == $lcClass)
 			{
-				cia_include($source);
+				patchwork_include($source);
 				break;
 			}
 
 			$cache = ((int)(bool)DEBUG) . (0>++$level ? -$level .'-' : $level);
-			$cache = "./.class_{$class}.php.{$cache}.{$cia_paths_token}.zcache.php";
+			$cache = "./.class_{$class}.php.{$cache}.{$patchwork_paths_token}.zcache.php";
 
 			if (!file_exists($cache) || (DEBUG && filemtime($cache) <= filemtime($source)))
-				call_user_func(array('CIA_preprocessor', 'run'), $source, $cache, $level, $class);
+				call_user_func(array('patchwork_preprocessor', 'run'), $source, $cache, $level, $class);
 
 			$current_pool = array();
-			$parent_pool =& $GLOBALS['cia_autoload_pool'];
-			$GLOBALS['cia_autoload_pool'] =& $current_pool;
+			$parent_pool =& $GLOBALS['patchwork_autoload_pool'];
+			$GLOBALS['patchwork_autoload_pool'] =& $current_pool;
 
-			cia_include($cache);
+			patchwork_include($cache);
 
 			if (class_exists($searched_class, false)) $parent_class = false;
 			if (false !== $parent_pool) $parent_pool[$parent_class ? $parent_class : $searched_class] = $cache;
@@ -137,7 +137,7 @@ function cia_autoload($searched_class)
 		if ($parent_class)
 		{
 			$parent_class = strtolower($parent_class);
-			$class = "class {$searched_class} extends {$parent_class}{}\$GLOBALS['c{$cia_paths_token}']['{$searched_class}']=1;";
+			$class = "class {$searched_class} extends {$parent_class}{}\$GLOBALS['c{$patchwork_paths_token}']['{$searched_class}']=1;";
 		}
 		else
 		{
@@ -145,15 +145,15 @@ function cia_autoload($searched_class)
 			$class = '';
 		}
 
-		if (isset($GLOBALS['cia_abstract'][$parent_class])) $class && $class = 'abstract ' . $class;
+		if (isset($GLOBALS['patchwork_abstract'][$parent_class])) $class && $class = 'abstract ' . $class;
 		else if ($c)
 		{
 			method_exists($parent_class, '__static_construct') && $class .= "{$parent_class}::__static_construct();";
 
 			if (method_exists($parent_class, '__static_destruct'))
 			{
-				$class = str_replace('{}', '{public static $hunter' . $cia_paths_token . ';}', $class);
-				$class .= "{$searched_class}::\$hunter{$cia_paths_token}=new hunter(array('{$parent_class}','__static_destruct'));";
+				$class = str_replace('{}', '{public static $hunter' . $patchwork_paths_token . ';}', $class);
+				$class .= "{$searched_class}::\$hunter{$patchwork_paths_token}=new hunter(array('{$parent_class}','__static_destruct'));";
 			}
 		}
 
@@ -163,15 +163,15 @@ function cia_autoload($searched_class)
 
 	if (DEBUG) return;
 
-	if ($class && isset($cia_autoload_cache[$parent_class]))
+	if ($class && isset($patchwork_autoload_cache[$parent_class]))
 	{
 		// Include class declaration in its closest parent
 
-		$code = $cia_autoload_cache[$parent_class];
+		$code = $patchwork_autoload_cache[$parent_class];
 		$tmp = strrpos($code, '*');
 		$file = substr($code, 0, $tmp);
 		$code = substr($code, $tmp);
-		$code = "\$GLOBALS['c{$cia_paths_token}']['{$parent_class}']=__FILE__.'{$code}';";
+		$code = "\$GLOBALS['c{$patchwork_paths_token}']['{$parent_class}']=__FILE__.'{$code}';";
 
 		$tmp = file_get_contents($file);
 		if (false !== strpos($tmp, $code))
@@ -179,20 +179,20 @@ function cia_autoload($searched_class)
 			if (!$c)
 			{
 				$c = (string) mt_rand(1, mt_getrandmax());
-				$cia_autoload_cache[$parent_class] = $file . '*' . $c;
+				$patchwork_autoload_cache[$parent_class] = $file . '*' . $c;
 				$c = substr($code, 0, strrpos($code, '*') + 1) . $c . "';";
 				$class .= ';' . $c;
 			}
 
 			$tmp = str_replace($code, $class, $tmp);
-			($cache == $file && $current_pool) || cia_atomic_write($tmp, $file, filemtime($file));
+			($cache == $file && $current_pool) || patchwork_atomic_write($tmp, $file, filemtime($file));
 		}
 	}
 	else $tmp = false;
 
 	if ($cache)
 	{
-		$GLOBALS['cia_autoload_pool'] =& $parent_pool;
+		$GLOBALS['patchwork_autoload_pool'] =& $parent_pool;
 
 		if ($current_pool)
 		{
@@ -202,13 +202,13 @@ function cia_autoload($searched_class)
 			$tmp || $tmp = file_get_contents($cache);
 			if ('<?php ' != substr($tmp, 0, 6)) $tmp = '<?php ?>' . $tmp;
 
-			foreach ($current_pool as $class => &$c) $code = substr($code, 0, -2) . "class_exists('{$class}',0)||cia_include('{$c}');?>";
+			foreach ($current_pool as $class => &$c) $code = substr($code, 0, -2) . "class_exists('{$class}',0)||patchwork_include('{$c}');?>";
 
 			$tmp = substr($code, 0, -2) . substr($tmp, 6);
-			cia_atomic_write($tmp, $cache, filemtime($cache));
+			patchwork_atomic_write($tmp, $cache, filemtime($cache));
 		}
 
-		$cache = substr($cache, 9, -12-strlen($cia_paths_token));
+		$cache = substr($cache, 9, -12-strlen($patchwork_paths_token));
 
 		if ($amark)
 		{
@@ -220,41 +220,41 @@ function cia_autoload($searched_class)
 			$tmp = strrpos($code, '*');
 			$file = substr($code, 0, $tmp);
 			$code = substr($code, $tmp);
-			$code = "\$a{$cia_paths_token}=__FILE__.'{$code}'";
+			$code = "\$a{$patchwork_paths_token}=__FILE__.'{$code}'";
 
 			$tmp = file_get_contents($file);
 			if (false !== strpos($tmp, $code))
 			{
 				if ($amark)
 				{
-					$GLOBALS['a' . $cia_paths_token] = $bmark;
-					$code = "isset(\$c{$cia_paths_token}['{$searched_class}'])||{$code}";
-					$c = "isset(\$c{$cia_paths_token}['{$searched_class}'])||(cia_include('./.class_{$cache}.{$cia_paths_token}.zcache.php'))||1";
+					$GLOBALS['a' . $patchwork_paths_token] = $bmark;
+					$code = "isset(\$c{$patchwork_paths_token}['{$searched_class}'])||{$code}";
+					$c = "isset(\$c{$patchwork_paths_token}['{$searched_class}'])||(patchwork_include('./.class_{$cache}.{$patchwork_paths_token}.zcache.php'))||1";
 				}
 				else
 				{
-					$code = "\$e{$cia_paths_token}=\$b{$cia_paths_token}={$code}";
+					$code = "\$e{$patchwork_paths_token}=\$b{$patchwork_paths_token}={$code}";
 					$bmark = (string) mt_rand(1, mt_getrandmax());
-					$GLOBALS['a' . $cia_paths_token] = $GLOBALS['b' . $cia_paths_token] = $file . '*' . $bmark;
+					$GLOBALS['a' . $patchwork_paths_token] = $GLOBALS['b' . $patchwork_paths_token] = $file . '*' . $bmark;
 					$bmark = substr($code, 0, strrpos($code, '*') + 1) . $bmark . "'";
-					$code = "({$code})&&\$d{$cia_paths_token}&&";
-					$c = $outerClass ? "'{$cache}'" : ($level + $GLOBALS['cia_paths_offset']);
-					$c = "\$c{$cia_paths_token}['{$searched_class}']={$c}";
-					$c = "({$bmark})&&\$d{$cia_paths_token}&&({$c})&&";
+					$code = "({$code})&&\$d{$patchwork_paths_token}&&";
+					$c = $outerClass ? "'{$cache}'" : ($level + $GLOBALS['patchwork_paths_offset']);
+					$c = "\$c{$patchwork_paths_token}['{$searched_class}']={$c}";
+					$c = "({$bmark})&&\$d{$patchwork_paths_token}&&({$c})&&";
 				}
 
 				$tmp = str_replace($code, $c, $tmp);
-				cia_atomic_write($tmp, $file, filemtime($file));
+				patchwork_atomic_write($tmp, $file, filemtime($file));
 			}
 		}
-		else if (!$bmark && file_exists('./.config.cia.php'))
+		else if (!$bmark && file_exists('./.config.patchwork.php'))
 		{
 			// Global cache completion
 
-			$amark = $outerClass ? "'{$cache}'" : ($level + $GLOBALS['cia_paths_offset']);
-			$code = "\$c{$cia_paths_token}['{$searched_class}']={$amark};";
+			$amark = $outerClass ? "'{$cache}'" : ($level + $GLOBALS['patchwork_paths_offset']);
+			$code = "\$c{$patchwork_paths_token}['{$searched_class}']={$amark};";
 
-			$c = fopen('./.config.cia.php', 'ab');
+			$c = fopen('./.config.patchwork.php', 'ab');
 			flock($c, LOCK_EX);
 			fwrite($c, $code);
 			fclose($c);

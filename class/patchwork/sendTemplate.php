@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends CIA
+class extends patchwork
 {
 	static function call()
 	{
@@ -22,21 +22,21 @@ class extends CIA
 
 		echo 'w(0';
 
-		$ctemplate = CIA::getContextualCachePath("templates/$template", 'txt');
+		$ctemplate = patchwork::getContextualCachePath("templates/$template", 'txt');
 
-#>		CIA::syncTemplate($template, $ctemplate);
+#>		patchwork::syncTemplate($template, $ctemplate);
 
 		$readHandle = true;
 
-		if ($h = CIA::fopenX($ctemplate, $readHandle))
+		if ($h = patchwork::fopenX($ctemplate, $readHandle))
 		{
-			CIA::openMeta('agent__template/' . $template, false);
+			patchwork::openMeta('agent__template/' . $template, false);
 			$compiler = new iaCompiler_js(false);
 			echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
 			fwrite($h, $template);
 			fclose($h);
-			list(,,, $watch) = CIA::closeMeta();
-			CIA::writeWatchTable($watch, $ctemplate);
+			list(,,, $watch) = patchwork::closeMeta();
+			patchwork::writeWatchTable($watch, $ctemplate);
 		}
 		else
 		{
@@ -44,6 +44,6 @@ class extends CIA
 			fclose($readHandle);
 		}
 
-		CIA::setMaxage(-1);
+		patchwork::setMaxage(-1);
 	}
 }

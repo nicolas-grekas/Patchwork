@@ -16,7 +16,7 @@ class
 {
 	static function php($string, $num)
 	{
-		return str_repeat(CIA::string($string), CIA::string($num));
+		return str_repeat(patchwork::string($string), patchwork::string($num));
 	}
 
 	static function js()

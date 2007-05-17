@@ -18,13 +18,13 @@ class
 	{
 		if ($format === false)
 		{
-			$format = CIA::string($time);
+			$format = patchwork::string($time);
 			$time = null;
 		}
 		else
 		{
-			$time = CIA::string($time);
-			$format = CIA::string($format);
+			$time = patchwork::string($time);
+			$format = patchwork::string($format);
 		}
 
 		return date($format, $time);

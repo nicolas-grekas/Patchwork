@@ -16,7 +16,7 @@ class
 {
 	static function php($byte)
 	{
-		$byte = CIA::string($byte);
+		$byte = patchwork::string($byte);
 
 		$suffix = ' Ko';
 

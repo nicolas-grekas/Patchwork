@@ -43,7 +43,7 @@ class extends loop
 				{
 					if (!isset($this->keys) || preg_match("'^(/|https?://)'", $this->agent))
 					{
-						list($CIApID, $base, $data->{'a$'}, $keys, $a) = CIA_resolveTrace::call($this->agent);
+						list($appId, $base, $data->{'a$'}, $keys, $a) = patchwork_resolveTrace::call($this->agent);
 
 						foreach ($a as $k => &$v) $data->$k =& $v;
 
@@ -53,7 +53,7 @@ class extends loop
 
 						if (false !== $base)
 						{
-							$data->{'v$'} = $CIApID;
+							$data->{'v$'} = $appId;
 							$data->{'r$'} = $base;
 						}
 					}

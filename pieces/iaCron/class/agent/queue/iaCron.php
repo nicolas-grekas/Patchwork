@@ -149,7 +149,7 @@ class extends agent
 	{
 		$token = resolvePath($this->queueFolder) . $this->queueName . '.token';
 
-		file_exists($token) || file_put_contents($token, CIA::uniqid());
+		file_exists($token) || file_put_contents($token, patchwork::uniqid());
 
 		return trim(file_get_contents($token));
 	}

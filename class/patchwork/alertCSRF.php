@@ -12,32 +12,32 @@
  ***************************************************************************/
 
 
-class extends CIA
+class extends patchwork
 {
 	static function call()
 	{
-		CIA::setMaxage(0);
-		if (CIA::$catchMeta) CIA::$metaInfo[1] = array('private');
+		patchwork::setMaxage(0);
+		if (patchwork::$catchMeta) patchwork::$metaInfo[1] = array('private');
 
-		if (CIA_DIRECT)
+		if (PATCHWORK_DIRECT)
 		{
 			$a = '';
 
-			$cache = CIA::getContextualCachePath('antiCSRF.' . CIA::$agentClass, 'txt');
+			$cache = patchwork::getContextualCachePath('antiCSRF.' . patchwork::$agentClass, 'txt');
 
-			CIA::makeDir($cache);
+			patchwork::makeDir($cache);
 
 			$h = fopen($cache, 'a+b');
 			flock($h, LOCK_EX);
 			fseek($h, 0, SEEK_END);
 			if (!ftell($h))
 			{
-				CIA::touch('CIApID');
-				CIA::touch('public/templates/js');
+				patchwork::touch('appId');
+				patchwork::touch('public/templates/js');
 
 				fwrite($h, $a = '1');
 
-				CIA::touchCIApId();
+				patchwork::touchAppId();
 			}
 			fclose($h);
 
@@ -46,6 +46,6 @@ class extends CIA
 
 		W('Potential JavaScript-Hijacking. Stopping !');
 
-		CIA::disable(true);
+		patchwork::disable(true);
 	}
 }

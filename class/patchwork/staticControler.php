@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends CIA
+class extends patchwork
 {
 	static $contentType = array(
 		'.html' => 'text/html; charset=UTF-8',
@@ -35,7 +35,7 @@ class extends CIA
 
 	static function call($agent, $mime)
 	{
-		if ($agent = CIA::resolvePublicPath($agent))
+		if ($agent = patchwork::resolvePublicPath($agent))
 		{
 			$mime = strtolower($mime);
 			$mime = isset(self::$contentType[$mime]) ? self::$contentType[$mime] : false;
@@ -52,10 +52,10 @@ class extends CIA
 
 			if (!$mime) $mime = 'application/octet-stream';
 
-			CIA::setMaxage(-1);
-			CIA::writeWatchTable('public/static', 'zcache/');
+			patchwork::setMaxage(-1);
+			patchwork::writeWatchTable('public/static', 'zcache/');
 
-			CIA::readfile($agent, $mime);
+			patchwork::readfile($agent, $mime);
 
 			exit;
 		}
@@ -65,14 +65,14 @@ class extends CIA
 	{
 		$size = filesize($file);
 
-		CIA::header('Content-Type: ' . $mime);
+		patchwork::header('Content-Type: ' . $mime);
 		false !== stripos($mime, 'html') && header('P3P: CP="' . $GLOBALS['CONFIG']['P3P'] . '"');
-		CIA::$binaryMode = true;
-		CIA::$LastModified = filemtime($file);
-		CIA::$ETag = $size .'-'. CIA::$LastModified .'-'. fileinode($file);
-		CIA::disable();
+		patchwork::$binaryMode = true;
+		patchwork::$LastModified = filemtime($file);
+		patchwork::$ETag = $size .'-'. patchwork::$LastModified .'-'. fileinode($file);
+		patchwork::disable();
 
-		$gzip = CIA::gzipAllowed($mime);
+		$gzip = patchwork::gzipAllowed($mime);
 		$gzip || ob_start();
 
 		ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
@@ -91,7 +91,7 @@ class extends CIA
 
 
 		$h = fopen($file, 'rb');
-		echo fread($h, 256); // For CIA::ob_filterOutput to fix IE
+		echo fread($h, 256); // For patchwork::ob_filterOutput to fix IE
 
 		if ($gzip)
 		{
@@ -119,7 +119,7 @@ class extends CIA
 	{
 		static $rest = '';
 
-		$base = CIA::__BASE__() . dirname($_SERVER['CIA_REQUEST']) . '/';
+		$base = patchwork::__BASE__() . dirname($_SERVER['PATCHWORK_REQUEST']) . '/';
 
 		$buffer = preg_split(self::$filterRx, $rest . $buffer, -1, PREG_SPLIT_DELIM_CAPTURE);
 

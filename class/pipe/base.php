@@ -18,7 +18,7 @@ class
 {
 	static function php($string = '', $noId = false)
 	{
-		return CIA::base(CIA::string($string), $noId);
+		return patchwork::base(patchwork::string($string), $noId);
 	}
 
 	static function js()

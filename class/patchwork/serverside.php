@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends CIA
+class extends patchwork
 {
 	protected static $args;
 	protected static $values;
@@ -23,7 +23,7 @@ class extends CIA
 
 	static function returnAgent($agent, $args, $lang = false)
 	{
-		if ($lang) $lang = CIA::setLang($lang);
+		if ($lang) $lang = patchwork::setLang($lang);
 
 		$a =& $_GET;
 		$g =& self::$get;
@@ -32,13 +32,13 @@ class extends CIA
 		self::$get =& $f;
 
 		ob_start();
-		self::loadAgent(CIA::resolveAgentClass($agent, $_GET), false, false);
+		self::loadAgent(patchwork::resolveAgentClass($agent, $_GET), false, false);
 		$agent = ob_get_clean();
 
 		$_GET =& $a;
 		self::$get =& $g;
 
-		if ($lang) CIA::setLang($lang);
+		if ($lang) patchwork::setLang($lang);
 
 		return $agent;
 	}
@@ -57,19 +57,19 @@ class extends CIA
 			if (isset($_GET['s$']))
 			{
 				ob_start(array(__CLASS__, 'ob_htmlspecialchars'), 8192);
-				++CIA::$ob_level;
+				++patchwork::$ob_level;
 				self::$get = (object) $a;
 			}
 			else self::$get = (object) array_map('htmlspecialchars', $a);
 
-			CIA::$uri = CIA::$host . substr($_SERVER['REQUEST_URI'], 1);
+			patchwork::$uri = patchwork::$host . substr($_SERVER['REQUEST_URI'], 1);
 
 			self::$get->__DEBUG__ = DEBUG ? DEBUG : 0;
-			self::$get->__HOST__ = htmlspecialchars(CIA::__HOST__());
-			$cache .= self::$get->__LANG__ = htmlspecialchars(CIA::__LANG__());
-			$cache .= self::$get->__BASE__ = htmlspecialchars(CIA::__BASE__());
+			self::$get->__HOST__ = htmlspecialchars(patchwork::__HOST__());
+			$cache .= self::$get->__LANG__ = htmlspecialchars(patchwork::__LANG__());
+			$cache .= self::$get->__BASE__ = htmlspecialchars(patchwork::__BASE__());
 			self::$get->__AGENT__ = 'agent_index' == $agent ? '' : (str_replace('_', '/', substr($agent, 6)) . '/');
-			self::$get->__URI__ = htmlspecialchars(CIA::$uri);
+			self::$get->__URI__ = htmlspecialchars(patchwork::$uri);
 			self::$get->__REFERER__ = isset($_SERVER['HTTP_REFERER']) ? htmlspecialchars($_SERVER['HTTP_REFERER']) : '';
 
 			self::$args = self::$get;
@@ -83,20 +83,20 @@ class extends CIA
 			$reset_get = false;
 			$_GET =& $args;
 
-			if ($agent instanceof loop && CIA::string($agent))
+			if ($agent instanceof loop && patchwork::string($agent))
 			{
 				$agent->autoResolve = false;
 
 				while ($i =& $agent->loop()) $data =& $i;
 
-				if (!(CIA::$binaryMode || $agent instanceof L_)) foreach ($data as &$v) is_string($v) && $v = htmlspecialchars($v);
+				if (!(patchwork::$binaryMode || $agent instanceof L_)) foreach ($data as &$v) is_string($v) && $v = htmlspecialchars($v);
 
 				$agent = $data->{'a$'};
 				$args = array_merge($args, (array) $data);
 			}
 
-			$BASE = CIA::__BASE__();
-			$agent = CIA::base($agent, true);
+			$BASE = patchwork::__BASE__();
+			$agent = patchwork::base($agent, true);
 
 			if (0 === strpos($agent, $BASE))
 			{
@@ -104,7 +104,7 @@ class extends CIA
 
 				if ($is_exo)
 				{
-					W("CIA Security Restriction Error: an AGENT ({$agent}) is called with EXOAGENT");
+					W("patchwork Security Restriction Error: an AGENT ({$agent}) is called with EXOAGENT");
 					$_GET =& $a;
 					return;
 				}
@@ -113,9 +113,9 @@ class extends CIA
 			{
 				if ($is_exo)
 				{
-					$agent = implode(CIA::__LANG__(), explode('__', $agent, 2)) . '?s$';
+					$agent = implode(patchwork::__LANG__(), explode('__', $agent, 2)) . '?s$';
 
-					foreach ($args as $k => &$v) $agent .= '&' . urlencode($k) . '=' . urlencode(CIA::string($v));
+					foreach ($args as $k => &$v) $agent .= '&' . urlencode($k) . '=' . urlencode(patchwork::string($v));
 
 					if (ini_get('allow_url_fopen')) $agent = file_get_contents($agent);
 					else
@@ -131,13 +131,13 @@ class extends CIA
 						$agent
 					);
 				}
-				else W("CIA Security Restriction Error: an EXOAGENT ({$agent}) is called with AGENT");
+				else W("patchwork Security Restriction Error: an EXOAGENT ({$agent}) is called with AGENT");
 
 				$_GET =& $a;
 				return;
 			}
 
-			$agent = CIA::resolveAgentClass($agent, $args);
+			$agent = patchwork::resolveAgentClass($agent, $args);
 			self::$args = (object) $args;
 		}
 
@@ -150,18 +150,18 @@ class extends CIA
 
 	protected static function render($agentClass)
 	{
-		CIA::openMeta($agentClass);
+		patchwork::openMeta($agentClass);
 
 		$a = self::$args;
 		$g = self::$get;
 
 		$agent = new $agentClass($_GET);
 
-		$group = CIA::closeGroupStage();
+		$group = patchwork::closeGroupStage();
 
 		$is_cacheable = !in_array('private', $group);
 
-		$cagent = CIA::agentCache($agentClass, $agent->argv, 'gz', $group);
+		$cagent = patchwork::agentCache($agentClass, $agent->argv, 'gz', $group);
 
 		$filter = false;
 
@@ -176,19 +176,19 @@ class extends CIA
 			if (!($is_cacheable && list($v, $template) = self::getFromCache($cagent)))
 			{
 				ob_start();
-				++CIA::$ob_level;
+				++patchwork::$ob_level;
 
 				$v = (object) $agent->compose((object) array());
 
-				if (!CIA::$is_enabled)
+				if (!patchwork::$is_enabled)
 				{
-					CIA::closeMeta();
+					patchwork::closeMeta();
 					return;
 				}
 
 				$template = $agent->getTemplate();
 
-				if (!CIA::$binaryMode)
+				if (!patchwork::$binaryMode)
 				{
 					foreach ($v as &$h) is_string($h) && $h = htmlspecialchars($h);
 					unset($h);
@@ -197,35 +197,35 @@ class extends CIA
 				$filter = true;
 
 				$rawdata = ob_get_flush();
-				--CIA::$ob_level;
+				--patchwork::$ob_level;
 			}
 
-			isset(CIA::$headers['content-type']) || CIA::header('Content-Type: text/html');
+			isset(patchwork::$headers['content-type']) || patchwork::header('Content-Type: text/html');
 
 			$vClone = clone $v;
 		}
 
-		CIA::$catchMeta = false;
+		patchwork::$catchMeta = false;
 
 		self::$values = $v->{'$'} = $v;
 
-		$ctemplate = CIA::getContextualCachePath('templates/' . $template, (CIA::$binaryMode ? 'bin' : 'html') . '.php');
+		$ctemplate = patchwork::getContextualCachePath('templates/' . $template, (patchwork::$binaryMode ? 'bin' : 'html') . '.php');
 		$ftemplate = 'template' . md5($ctemplate);
 
 		if (function_exists($ftemplate)) $ftemplate($v, $a, $g);
 		else
 		{
-#>			CIA::syncTemplate($template, $ctemplate);
+#>			patchwork::syncTemplate($template, $ctemplate);
 
-			if ($h = CIA::fopenX($ctemplate))
+			if ($h = patchwork::fopenX($ctemplate))
 			{
-				CIA::openMeta('agent__template/' . $template, false);
-				$compiler = new iaCompiler_php(CIA::$binaryMode);
-				$ftemplate = '<?php function ' . $ftemplate . '(&$v, &$a, &$g){global $a' . $GLOBALS['cia_paths_token'] . ',$c' . $GLOBALS['cia_paths_token'] . ';$d=$v;' . $compiler->compile($template . '.tpl') . '} ' . $ftemplate . '($v, $a, $g);';
+				patchwork::openMeta('agent__template/' . $template, false);
+				$compiler = new iaCompiler_php(patchwork::$binaryMode);
+				$ftemplate = '<?php function ' . $ftemplate . '(&$v, &$a, &$g){global $a' . $GLOBALS['patchwork_paths_token'] . ',$c' . $GLOBALS['patchwork_paths_token'] . ';$d=$v;' . $compiler->compile($template . '.tpl') . '} ' . $ftemplate . '($v, $a, $g);';
 				fwrite($h, $ftemplate);
 				fclose($h);
-				list(,,, $watch) = CIA::closeMeta();
-				CIA::writeWatchTable($watch, $ctemplate);
+				list(,,, $watch) = patchwork::closeMeta();
+				patchwork::writeWatchTable($watch, $ctemplate);
 			}
 
 			require $ctemplate;
@@ -233,19 +233,19 @@ class extends CIA
 
 		if ($filter)
 		{
-			CIA::$catchMeta = true;
+			patchwork::$catchMeta = true;
 			$agent->metaCompose();
-			list($maxage, $group, $expires, $watch, $headers, $canPost) = CIA::closeMeta();
+			list($maxage, $group, $expires, $watch, $headers, $canPost) = patchwork::closeMeta();
 
 			if ('ontouch' == $expires && !$watch) $expires = 'auto';
 			$expires = 'auto' == $expires && $watch ? 'ontouch' : 'onmaxage';
 
-			if ($is_cacheable && !CIA_POSTING && !in_array('private', $group) && ($maxage || 'ontouch' == $expires))
+			if ($is_cacheable && !IS_POSTING && !in_array('private', $group) && ($maxage || 'ontouch' == $expires))
 			{
 				$fagent = $cagent;
 				if ($canPost) $fagent = substr($cagent, 0, -3) . '.post' . substr($cagent, -3);
 
-				if ($h = CIA::fopenX($fagent))
+				if ($h = patchwork::fopenX($fagent))
 				{
 					$rawdata = array(
 						'rawdata' => $rawdata,
@@ -265,13 +265,13 @@ class extends CIA
 					fwrite($h, $rawdata);
 					fclose($h);
 
-					touch($fagent, $_SERVER['REQUEST_TIME'] + ('ontouch' == $expires ? CIA_MAXAGE : $maxage));
+					touch($fagent, $_SERVER['REQUEST_TIME'] + ('ontouch' == $expires ? $GLOBALS['CONFIG']['maxage'] : $maxage));
 
-					CIA::writeWatchTable($watch, $fagent);
+					patchwork::writeWatchTable($watch, $fagent);
 				}
 			}
 		}
-		else CIA::closeMeta();
+		else patchwork::closeMeta();
 
 		if (isset($vClone)) self::$cache[$cagent] = array($vClone, $template);
 	}
@@ -282,11 +282,11 @@ class extends CIA
 		{
 			if ($value instanceof loop)
 			{
-				if (CIA::string($value))
+				if (patchwork::string($value))
 				{
 					$a = array();
 
-					while ($b = $value->loop(!CIA::$binaryMode))
+					while ($b = $value->loop(!patchwork::$binaryMode))
 					{
 						$c = array();
 						$a[] =& $c;
@@ -307,7 +307,7 @@ class extends CIA
 		if (!file_exists($cagent))
 		{
 			$cagent = substr($cagent, 0, -3) . '.post' . substr($cagent, -3);
-			if (CIA_POSTING || !file_exists($cagent)) $cagent = false;
+			if (IS_POSTING || !file_exists($cagent)) $cagent = false;
 		}
 
 		if ($cagent)
@@ -316,10 +316,10 @@ class extends CIA
 			{
 				ob_start(); readgzfile($cagent);
 				$data = unserialize(ob_get_clean());
-				CIA::setMaxage($data['maxage']);
-				CIA::setExpires($data['expires']);
-				CIA::writeWatchTable($data['watch']);
-				array_map(array('CIA', 'header'), $data['headers']);
+				patchwork::setMaxage($data['maxage']);
+				patchwork::setExpires($data['expires']);
+				patchwork::writeWatchTable($data['watch']);
+				array_map(array('patchwork', 'header'), $data['headers']);
 
 				echo $data['rawdata'];
 
@@ -354,7 +354,7 @@ class extends CIA
 
 	static function ob_htmlspecialchars($a, $mode)
 	{
-		if (PHP_OUTPUT_HANDLER_END & $mode) --CIA::$ob_level;
+		if (PHP_OUTPUT_HANDLER_END & $mode) --patchwork::$ob_level;
 
 		return htmlspecialchars($a);
 	}

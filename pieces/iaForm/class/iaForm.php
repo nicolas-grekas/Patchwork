@@ -47,7 +47,7 @@ class extends loop_callAgent
 		$this->POST = (bool) $POST;
 		if ($this->POST)
 		{
-			CIA::canPost();
+			patchwork::canPost();
 			$this->rawValues =& $_POST;
 		}
 		else $this->rawValues =& $_GET;
@@ -128,7 +128,7 @@ class extends loop_callAgent
 			if (function_exists('upload_progress_meter_get_info') || function_exists('uploadprogress_get_info'))
 			{
 				$elt = $this->elt['UPLOAD_IDENTIFIER'] = new iaForm_hidden($this, 'UPLOAD_IDENTIFIER', array(), $this->sessionLink);
-				$elt->setValue(CIA::uniqid());
+				$elt->setValue(patchwork::uniqid());
 				array_unshift($this->hidden, $elt);
 			}
 		}

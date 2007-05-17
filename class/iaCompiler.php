@@ -57,7 +57,7 @@ abstract class
 
 	function __construct($binaryMode)
 	{
-		CIA::watch($this->watch);
+		patchwork::watch($this->watch);
 
 		$this->binaryMode = $binaryMode;
 		$this->Xvar .= $this->XpureVar;
@@ -102,9 +102,9 @@ abstract class
 
 	private function load($template, $path_idx = 0)
 	{
-		$this->template = CIA_WINDOWS ? strtolower($template) : $template;
+		$this->template = IS_WINDOWS ? strtolower($template) : $template;
 
-		$template = CIA::resolvePublicPath($template, $path_idx);
+		$template = patchwork::resolvePublicPath($template, $path_idx);
 
 		if (!$template) return '{$DATA}';
 
@@ -180,9 +180,9 @@ abstract class
 
 	protected function INCLUDEcallback($m)
 	{
-		$path_count = count($GLOBALS['cia_paths']);
+		$path_count = count($GLOBALS['patchwork_paths']);
 
-		$template = (CIA_WINDOWS ? strtolower($m[1]) : $m[1]) . '.tpl';
+		$template = (IS_WINDOWS ? strtolower($m[1]) : $m[1]) . '.tpl';
 
 		$a = str_replace('\\', '/', $template) == preg_replace("'[\\/]+'", '/', $this->template);
 		$a = isset($m[2]) ? substr($m[2], 1) : ($a ? -1 : ($path_count - $this->path_idx - 1));
@@ -530,7 +530,7 @@ abstract class
 
 			if ($b && trim($a)!=='')
 			{
-				if ($translate) $a = TRANSLATE::get($a, CIA::__LANG__(), false);
+				if ($translate) $a = TRANSLATE::get($a, patchwork::__LANG__(), false);
 				else
 				{
 					$this->mode = 'concat';
@@ -539,7 +539,7 @@ abstract class
 
 					$this->makeVars($a);
 
-					if ($this->concatLast == 0) $this->concat[0] = TRANSLATE::get($this->concat[0], CIA::__LANG__(), false);
+					if ($this->concatLast == 0) $this->concat[0] = TRANSLATE::get($this->concat[0], patchwork::__LANG__(), false);
 
 					for ($i = 0; $i<=$this->concatLast; $i+=2)
 					{

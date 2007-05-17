@@ -11,19 +11,19 @@
  *
  ***************************************************************************/
 
-class extends CIA
+class extends patchwork
 {
 	static function call($agent)
 	{
 		header('Content-Type: text/javascript');
-		CIA::setMaxage(-1);
+		patchwork::setMaxage(-1);
 
 		echo 'w.k(',
-			CIA::$versionId, ',',
-			jsquote( $_SERVER['CIA_BASE'] ), ',',
+			patchwork::$appId, ',',
+			jsquote( $_SERVER['PATCHWORK_BASE'] ), ',',
 				jsquote( 'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)) ), ',',
 			jsquote( isset($_GET['__0__']) ? $_GET['__0__'] : '' ), ',',
-			'[', implode(',', array_map('jsquote', CIA::agentArgv($agent))), ']',
+			'[', implode(',', array_map('jsquote', patchwork::agentArgv($agent))), ']',
 		')';
 	}
 }
