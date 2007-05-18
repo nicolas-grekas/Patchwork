@@ -572,8 +572,7 @@ class patchwork_preprocessor__0
 					switch ($type)
 					{
 					case 'resolvepath':
-					case 'processpath':
-						// If possible, resolve the path now, else append its third arg to resolve|processPath
+						// If possible, resolve the path now, else append its third arg to resolvePath
 						if (0<=$level)
 						{
 							$j = (string) $this->fetchConstant($code, $i, $codeLen);
@@ -676,14 +675,10 @@ class patchwork_preprocessor__0
 					}
 					else
 					{
-						$j = '(' == $code[$i+1] && isset($code[$i+2]) ? $this->seekSugar($code, $i+1) : $i+1;
-						if (!(is_array($code[$j]) && T_STRING == $code[$j][0] && 'processpath' == strtolower($code[$j][1])))
-						{
-							$token .= "((\$a{$patchwork_paths_token}=\$b{$patchwork_paths_token}=\$e{$patchwork_paths_token})||1?";
-							$b = new patchwork_preprocessor_require_($this, true);
-							$b->close = ':0)';
-							$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
-						}
+						$token .= "((\$a{$patchwork_paths_token}=\$b{$patchwork_paths_token}=\$e{$patchwork_paths_token})||1?";
+						$b = new patchwork_preprocessor_require_($this, true);
+						$b->close = ':0)';
+						$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 					}
 				}
 

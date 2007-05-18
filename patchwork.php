@@ -206,35 +206,6 @@ function resolvePath($file, $level = false, $base = false)
 }
 // }}}
 
-// {{{ function processPath(): resolvePath + macro preprocessor
-function processPath($file, $level = false, $base = false)
-{
-	$source = resolvePath($file, $level, $base);
-
-	if (false === $source) return false;
-
-	$level = $GLOBALS['patchwork_lastpath_level'];
-
-	$file = strtr($file, '\\', '/');
-	$cache = ((int)(bool)DEBUG) . (0>$level ? -$level .'-' : $level);
-	$cache = './.'. strtr(str_replace('_', '%2', str_replace('%', '%1', $file)), '/', '_') . ".{$cache}.{$GLOBALS['patchwork_paths_token']}.zcache.php";
-
-	if (DEBUG ? file_exists($cache) && filemtime($cache) > filemtime($source) : file_exists($cache)) return $cache;
-
-	$class = 0<=$level
-		&& 'class/' == substr($file, 0, 6)
-		&& false === strpos($file, '_')
-		&& '.php' == substr($file, -4)
-		&& false === strpos($class = substr($file, 6, -4), '.')
-		? strtr($class, '/', '_')
-		: false;
-
-	patchwork_preprocessor::run($source, $cache, $level, $class);
-
-	return $cache;
-}
-// }}}
-
 // {{{ function patchworkProcessedPath(): automatically added by the preprocessor in files in the include_path
 function patchworkProcessedPath($file)
 {
@@ -263,7 +234,23 @@ function patchworkProcessedPath($file)
 		if (false === $file) return $f;
 	}
 
-	return processPath('class/' . $file);
+	$file = 'class/' . $file;
+
+	$source = resolvePath($file);
+
+	if (false === $source) return false;
+
+	$level = $GLOBALS['patchwork_lastpath_level'];
+
+	$file = strtr($file, '\\', '/');
+	$cache = ((int)(bool)DEBUG) . (0>$level ? -$level .'-' : $level);
+	$cache = './.'. strtr(str_replace('_', '%2', str_replace('%', '%1', $file)), '/', '_') . ".{$cache}.{$GLOBALS['patchwork_paths_token']}.zcache.php";
+
+	if (DEBUG ? file_exists($cache) && filemtime($cache) > filemtime($source) : file_exists($cache)) return $cache;
+
+	patchwork_preprocessor::run($source, $cache, $level, false);
+
+	return $cache;
 }
 // }}}
 
