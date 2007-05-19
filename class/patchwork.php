@@ -139,7 +139,6 @@ class
 	protected static $uri;
 
 	protected static $appId;
-	protected static $handlesOb = false;
 	protected static $metaInfo;
 	protected static $metaPool = array();
 	protected static $isGroupStage = true;
@@ -824,7 +823,7 @@ class
 			if (DEBUG && $is_end) $a = sprintf('<div>Total: %.01f ms%s</div></pre><pre>', self::$total_time, $mem ? ' - ' . $mem : '');
 			else
 			{
-				$b = self::$handlesOb ? serialize($message) : print_r($message, true);
+				$b = ob::$in_handler ? serialize($message) : print_r($message, true);
 
 				if (!$raw_html) $b = htmlspecialchars($b);
 
@@ -1079,15 +1078,9 @@ class
 
 	static function &ob_filterOutput(&$buffer, $mode)
 	{
-		self::$handlesOb = true;
-
 		$one_chunk = $mode == (PHP_OUTPUT_HANDLER_START | PHP_OUTPUT_HANDLER_END);
 
-		if ('' === $buffer && $one_chunk)
-		{
-			self::$handlesOb = false;
-			return $buffer;
-		}
+		if ('' === $buffer && $one_chunk) return $buffer;
 
 
 		static $type = false;
@@ -1215,18 +1208,14 @@ class
 
 		if ($one_chunk && !self::$is_enabled) header('Content-Length: ' . strlen($buffer));
 
-		self::$handlesOb = false;
 		return $buffer;
 	}
 
 	static function &ob_sendHeaders(&$buffer)
 	{
-		self::$handlesOb = true;
-
 		if (self::$redirecting)
 		{
 			$buffer = '';
-			self::$handlesOb = false;
 			return $buffer;
 		}
 
@@ -1351,7 +1340,6 @@ class
 
 		self::$is304 = $is304;
 
-		self::$handlesOb = false;
 		if ('HEAD' == $_SERVER['REQUEST_METHOD']) $buffer = '';
 
 		return $buffer;

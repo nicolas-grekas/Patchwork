@@ -29,9 +29,10 @@ class patchwork_preprocessor__0
 
 	static $constant = array();
 	static $function = array(
-		'rand'         => 'mt_rand',
-		'srand'        => 'mt_srand',
-		'getrandmax'   => 'mt_getrandmax',
+		'ob_start'   => 'ob::start',
+		'rand'       => 'mt_rand',
+		'srand'      => 'mt_srand',
+		'getrandmax' => 'mt_getrandmax',
 	);
 
 	static $variableType = array(

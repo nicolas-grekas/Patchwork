@@ -50,7 +50,7 @@ class extends patchwork
 
 		$context = '';
 
-		if (!patchwork::$handlesOb)
+		if (!ob::$in_handler)
 		{
 			$msg = debug_backtrace();
 

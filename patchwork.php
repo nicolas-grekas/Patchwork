@@ -105,6 +105,32 @@ class hunter
 }
 // }}}
 
+// {{{ ob: wrapper for ob_start
+class ob
+{
+	static $in_handler = false;
+
+	static function start($callback = null, $chunk_size = null, $erase = true)
+	{
+		null !== $callback && $callback = array(new ob($callback), 'callback');
+		return ob_start($callback, $chunk_size, $erase);
+	}
+
+	function __construct($callback)
+	{
+		$this->callback = $callback;
+	}
+
+	function &callback(&$buffer, $mode)
+	{
+		self::$in_handler = true;
+		$buffer = call_user_func_array($this->callback, array(&$buffer, $mode));
+		self::$in_handler = false;
+		return $buffer;
+	}
+}
+// }}}
+
 // {{{ Load configuration
 chdir($patchwork) || die("Unreachable directory: $patchwork");
 
