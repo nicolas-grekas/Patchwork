@@ -13,10 +13,10 @@
 
 
 /*
-* Set a board variable for data persistancy across pages.
+* Set a board variable for data persistence across pages.
 *
 * WARNING: you must not use board variables to store any sensitive information.
-* See http://www.boutell.com/newfaq/creating/scriptpass.html for explanation.
+* See http://www.boutell.com/newfaq/creating/scriptpass.html for explanations.
 */
 function setboard($name, $value)
 {

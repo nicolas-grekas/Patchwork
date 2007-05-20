@@ -14,7 +14,7 @@
 
 class
 {
-	static function php($string, $length = 80, $break = "\n", $cut = true)
+	static function php($string, $length = 75, $break = "\n", $cut = true)
 	{
 		// The native PHP wordwrap() is not UTF-8 aware
 
