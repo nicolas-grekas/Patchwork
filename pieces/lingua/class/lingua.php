@@ -93,7 +93,7 @@ class
 
 		$str = preg_replace(self::$ACCENT_FROM, self::$ACCENT_TO, $str);
 
-		return $case>0 ? mb_strtoupper($str) : $case<0 ? mb_strtolower($str) : $str;
+		return $case>0 ? u::strtoupper($str) : $case<0 ? u::strtolower($str) : $str;
 	}
 
 	/**

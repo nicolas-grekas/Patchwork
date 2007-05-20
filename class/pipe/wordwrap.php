@@ -38,16 +38,16 @@ class
 			{
 				$b = $a[$j];
 
-				if (mb_strlen($line) + mb_strlen($b) < $length) $line .= ' ' . $b;
+				if (u::strlen($line) + u::strlen($b) < $length) $line .= ' ' . $b;
 				else
 				{
 					$result[] = $line;
 					$line = '';
 
-					if ($cut) while (mb_strlen($b) > $length)
+					if ($cut) while (u::strlen($b) > $length)
 					{
-						$line = mb_substr($b, $length);
-						$result[] = mb_substr($b, 0, $length);
+						$line = u::substr($b, $length);
+						$result[] = u::substr($b, 0, $length);
 						$b = $line;
 					}
 

@@ -23,12 +23,12 @@ class
 
 		if (!$length) return '';
 
-		if (mb_strlen($string) > $length)
+		if (u::strlen($string) > $length)
 		{
-			$length -= mb_strlen($etc);
-			if (!$break_words) $string = preg_replace('/\s+?(\S+)?$/u', '', mb_substr($string, 0, $length + 1));
+			$length -= u::strlen($etc);
+			if (!$break_words) $string = preg_replace('/\s+?(\S+)?$/u', '', u::substr($string, 0, $length + 1));
 
-			return mb_substr($string, 0, $length) . $etc;
+			return u::substr($string, 0, $length) . $etc;
 		}
 
 		return $string;

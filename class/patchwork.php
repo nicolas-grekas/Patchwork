@@ -873,7 +873,7 @@ class
 		$param = '' !== $param ? explode('/', $param) : array();
 		$agent = (string) substr($a[0], 1, -1);
 
-		if (isset($a[1])) $potentialAgent = (string) preg_replace("'[-_ ](.)'eu", "mb_strtoupper('$1')", $agent);
+		if (isset($a[1])) $potentialAgent = (string) preg_replace("'[-_ ](.)'eu", "u::strtoupper('$1')", $agent);
 		else $potentialAgent = $agent;
 
 		$lang = self::$lang;

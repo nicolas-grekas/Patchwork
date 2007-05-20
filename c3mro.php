@@ -108,8 +108,12 @@ $_SERVER[\'QUERY_STRING\'] = false !== $b++ && $b < strlen($a) ? substr($a, $b) 
 function_exists('apache_setenv')   && $patchwork[] = 'apache_setenv(\'no-gzip\',\'1\')';
 ini_get('zlib.output_compression') && $patchwork[] = 'ini_set(\'zlib.output_compression\',false)';
 
+preg_match('/^.$/u', 'Δ') || trigger_error('PCRE is not compiled with UTF-8 support', E_USER_ERROR);
+
 if (extension_loaded('mbstring'))
 {
+	if (ini_get('mbstring.func_overload') & MB_OVERLOAD_STRING) trigger_error('String functions are overloaded by mbstring', E_USER_ERROR);;
+
 	'none'  != mb_substitute_character() && $patchwork[] = 'mb_substitute_character(\'none\')';
 	'UTF-8' != mb_internal_encoding()    && $patchwork[] = 'mb_internal_encoding(\'UTF-8\')';
 	'pass'  != mb_http_output()          && $patchwork[] = 'mb_http_output(\'pass\')';
