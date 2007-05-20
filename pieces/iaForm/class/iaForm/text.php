@@ -24,7 +24,7 @@ class extends iaForm_hidden
 
 		if (false !== strpos($this->value, "\r")) $this->value = strtr(str_replace("\r\n", "\n", $this->value), "\r", "\n");
 
-		if (u::strlen($this->value) > $this->maxlength) $this->value = u::substr($this->value, 0, $this->maxlength);
+		if (mb_strlen($this->value) > $this->maxlength) $this->value = mb_substr($this->value, 0, $this->maxlength);
 	}
 
 	protected function get()

@@ -16,7 +16,7 @@ class
 {
 	static function php($string)
 	{
-		return u::strtoupper(patchwork::string($string));
+		return mb_strtoupper(patchwork::string($string));
 	}
 
 	static function js()
