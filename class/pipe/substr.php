@@ -16,7 +16,7 @@ class
 {
 	static function php($string, $start, $length = null)
 	{
-		return mb_substr(
+		return u::substr(
 			patchwork::string($string),
 			(int) patchwork::string($start),
 			null !== $length ? (int)patchwork::string($length) : null

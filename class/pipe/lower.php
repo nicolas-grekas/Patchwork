@@ -16,7 +16,7 @@ class
 {
 	static function php($string)
 	{
-		return mb_strtolower(patchwork::string($string));
+		return u::strtolower(patchwork::string($string));
 	}
 
 	static function js()
