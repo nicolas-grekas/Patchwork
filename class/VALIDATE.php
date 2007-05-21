@@ -94,7 +94,7 @@ class
 	{
 		if (!is_scalar($value)) return false;
 
-		$result = preg_replace("'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+'", '', $value);
+		$result = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/', '', $value);
 		false !== strpos($result, "\r") && $result = strtr(str_replace("\r\n", "\n", $result), "\r", "\n");
 		// XXX - We could also enforce UTF-8 normalization here, but is it worth ?
 
