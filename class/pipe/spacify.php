@@ -16,9 +16,8 @@ class
 {
 	static function php($string, $spacify_char = ' ')
 	{
-		$string = preg_split("''u", patchwork::string($string));
-		$string = array_slice($string, 1, -1);
-		return implode(patchwork::string($spacify_char), $string);
+		preg_match_all("'.'u", patchwork::string($string), $string);
+		return implode(patchwork::string($spacify_char), $string[0]);
 	}
 
 	static function js()
