@@ -35,6 +35,8 @@ class
 		if ($value['error']==4) return '';
 		if ($value['error']) return false;
 
+		if ('image/pjpeg' == $value['type']) $value['type'] = 'image/jpeg';
+
 		$type = "getFile_$type";
 		return self::$type($value, $args);
 	}
