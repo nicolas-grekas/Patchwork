@@ -109,6 +109,7 @@ class extends patchwork
 		if ('HEAD' != $_SERVER['REQUEST_METHOD'])
 		{
 			echo $data;
+			set_time_limit(0);
 			feof($h) || fpassthru($h);
 		}
 
