@@ -347,7 +347,7 @@ w = function($baseAgent, $keys, $masterAppId)
 
 	w = function($context, $code, $WexecLastLimit)
 	{
-		0&&c&&r&&x; // Workaround for a bug in Firefox 1 + jsqueez
+		0&&c&&r&&x; // Workaround for a bug in Firefox 1.0 + jsqueez
 
 		$code = $code || [];
 		$WexecLastLimit = $WexecLastLimit || 0;
@@ -406,7 +406,7 @@ w = function($baseAgent, $keys, $masterAppId)
 					$agent = $data.a$;
 					$data.k$ ? eval('$keys=['+$data.k$+']') : $keys = [];
 
-					for ($i in $data) if (!/\$/.test($i)) $args[$i] = $data[$i];
+					for ($i in $data) if (!/\$/.test($i)) t($args[$i]) || ($args[$i] = $data[$i])
 
 					if ($data.r$) $meta = [$data.v$, $data.r$];
 				}

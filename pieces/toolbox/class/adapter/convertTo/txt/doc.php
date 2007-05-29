@@ -17,6 +17,6 @@ class extends adapter_convertTo_abstract
 	function file($file)
 	{
 		$file = escapeshellarg($file);
-		return `antiword -t -w 0 {$file}`;
+		return `antiword -t -w 0 -m UTF-8 {$file}`;
 	}
 }
