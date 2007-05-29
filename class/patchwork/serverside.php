@@ -92,7 +92,7 @@ class extends patchwork
 				if (!(patchwork::$binaryMode || $agent instanceof L_)) foreach ($data as &$v) is_string($v) && $v = htmlspecialchars($v);
 
 				$agent = $data->{'a$'};
-				$args = array_merge($args, (array) $data);
+				$args = array_merge((array) $data, $args);
 			}
 
 			$BASE = patchwork::__BASE__();
