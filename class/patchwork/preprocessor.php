@@ -27,7 +27,7 @@ class patchwork_preprocessor__0
 	protected $tokenFilter = array();
 
 
-	static $constant = array();
+	static $constant = array('DEBUG' => DEBUG);
 	static $function = array(
 		'ob_start'   => 'ob::start',
 		'rand'       => 'mt_rand',
