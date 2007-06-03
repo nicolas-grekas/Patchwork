@@ -285,7 +285,7 @@ function __autoload($searched_class)
 {
 	$a = strtolower($searched_class);
 
-	if ($a =& $GLOBALS['patchwork_autoload_cache'][$a])
+	if ($a =& $GLOBALS['patchwork_autoload_cache'][$a] && !DEBUG)
 	{
 		if (is_int($a))
 		{

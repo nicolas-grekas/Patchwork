@@ -2,6 +2,8 @@
 
 $CONFIG += array(
 
+#	'email_from'    => '', // Default value for From header
+
 	// Used by iaMail in test mode
 #	'debug_email' => 'webmaster',
 

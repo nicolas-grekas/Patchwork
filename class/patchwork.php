@@ -818,7 +818,7 @@ class
 
 		if ('__getDeltaMicrotime' !== $message)
 		{
-			$mem = function_exists('memory_get_peak_usage') ? pipe_bytes::php(memory_get_peak_usage(true)) : '';
+			$mem = function_exists('memory_get_peak_usage') ? round(memory_get_peak_usage(true)/104857.6)/10 . 'M' : '';
 
 			if (DEBUG && $is_end) $a = sprintf('<div>Total: %.01f ms%s</div></pre><pre>', self::$total_time, $mem ? ' - ' . $mem : '');
 			else

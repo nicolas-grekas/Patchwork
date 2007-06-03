@@ -69,6 +69,10 @@ class extends Mail_mime
 		$to = $headers['To'];
 		unset($headers['To']);
 
+		isset($headers['Return-Path'])
+			&& preg_match("'" . VALIDATE::email_rx . "'", $headers['Return-Path'], $options)
+			&& $headers['Return-Path'] = $options[0];
+
 		$options = null;
 		$backend = $GLOBALS['CONFIG']['email_backend'];
 
