@@ -24,12 +24,13 @@ if ($lockHandle = @fopen('./.config.lock.php', 'xb'))
 	{
 		fclose($GLOBALS['lockHandle']);
 		unlink('./.config.lock.php');
+		header('Content-Type: text/plain');
 		die($message);
 	}
 }
 else
 {
-	if ($lockHandle = @fopen('./.config.lock.php', 'rb'))
+	if ($lockHandle = fopen('./.config.lock.php', 'rb'))
 	{
 		flock($lockHandle, LOCK_SH);
 		fclose($lockHandle);
@@ -523,7 +524,10 @@ function patchwork_get_parent_apps($appRealpath)
 		}
 		else
 		{
-			$seq = realpath($seq);
+			$type = realpath($seq);
+			if (false === $type) patchwork_c3mro_die("Missing file: {$seq}/config.patchwork.php");
+
+			$seq = $type;
 			if (__patchwork__ == $seq) unset($parent[$k]);
 		}
 

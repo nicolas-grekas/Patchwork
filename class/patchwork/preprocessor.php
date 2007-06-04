@@ -289,6 +289,8 @@ class patchwork_preprocessor__0
 		$curly_marker = array(array(0,0));
 		$curly_marker_last =& $curly_marker[0];
 
+		$type = T_INLINE_HTML;
+
 		for ($i = 0; $i < $codeLen; ++$i)
 		{
 			$token = $code[$i];
