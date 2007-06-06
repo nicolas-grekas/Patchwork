@@ -132,7 +132,7 @@ function patchwork_autoload($searched_class)
 
 	$searched_class = strtolower($searched_class);
 
-	if ($parent_class ? class_exists($parent_class) : class_exists($searched_class, false))
+	if ($parent_class ? class_exists($parent_class) : !class_exists($searched_class, false))
 	{
 		if ($parent_class)
 		{
@@ -152,7 +152,7 @@ function patchwork_autoload($searched_class)
 
 			if (method_exists($parent_class, '__static_destruct'))
 			{
-				$class = str_replace('{}', '{public static $hunter' . $patchwork_paths_token . ';}', $class);
+				$class = str_replace('{}', '{static $hunter' . $patchwork_paths_token . ';}', $class);
 				$class .= "{$searched_class}::\$hunter{$patchwork_paths_token}=new hunter(array('{$parent_class}','__static_destruct'));";
 			}
 		}

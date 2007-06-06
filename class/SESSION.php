@@ -143,11 +143,15 @@ class
 			unset($adapter);
 		}
 
-		self::setSID(isset($_COOKIE['SID']) ? $_COOKIE['SID'] : '');
+		if (isset($_COOKIE['SID']))
+		{
+			self::setSID($_COOKIE['SID']);
+			self::$adapter = new SESSION(self::$SID);
+			$i = self::$adapter->read();
+		}
+		else $i = false;
 
-		self::$adapter = new SESSION(self::$SID);
-
-		if ($i = self::$adapter->read())
+		if ($i)
 		{
 			$i = unserialize($i);
 			self::$lastseen =  $i[0];
