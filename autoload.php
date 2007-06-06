@@ -132,7 +132,7 @@ function patchwork_autoload($searched_class)
 
 	$searched_class = strtolower($searched_class);
 
-	if ($parent_class ? class_exists($parent_class) : !class_exists($searched_class, false))
+	if ($parent_class ? class_exists($parent_class) : (class_exists($searched_class, false) && !isset($patchwork_autoload_cache[$searched_class])))
 	{
 		if ($parent_class)
 		{
