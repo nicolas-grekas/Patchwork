@@ -2,8 +2,9 @@
 
 chown apache: * -R
 
-for I in `find -name config.patchwork.php -printf "%h\n" 2> /dev/null`
+for I in `locate /config.patchwork.php 2> /dev/null`
 do
+	I=`dirname $I`
 	touch $I/config.patchwork.php
 	rm -f $I/.*.zcache.php 2> /dev/null
 
