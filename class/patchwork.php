@@ -240,7 +240,7 @@ class
 		}
 
 		$agent = $_SERVER['PATCHWORK_REQUEST'];
-		if (($mime = strrchr($agent, '.')) && strcasecmp('.tpl', $mime)) patchwork_staticControler::call($agent, $mime);
+		if (($mime = strrchr($agent, '.')) && strcasecmp('.ptl', $mime)) patchwork_staticControler::call($agent, $mime);
 
 /*>
 		self::log(
@@ -905,9 +905,9 @@ class
 				}
 
 				if (
-					   resolvePath("public/__{$a}.tpl")
-					|| ($l_ng && resolvePath("public/{$l_ng}{$a}.tpl"))
-					|| resolvePath("public/{$lang}{$a}.tpl")
+					   resolvePath("public/__{$a}.ptl")
+					|| ($l_ng && resolvePath("public/{$l_ng}{$a}.ptl"))
+					|| resolvePath("public/{$lang}{$a}.ptl")
 				)
 				{
 					$agent = $a;
@@ -1395,7 +1395,7 @@ class
 	{
 		if (file_exists($ctemplate))
 		{
-			$template = self::resolvePublicPath($template . '.tpl');
+			$template = self::resolvePublicPath($template . '.ptl');
 			if ($template && filemtime($ctemplate) <= filemtime($template)) unlink($ctemplate);
 		}
 	}

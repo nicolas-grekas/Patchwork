@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends iaCompiler
+class extends ptlCompiler
 {
 	protected $watch = 'public/templates/php';
 

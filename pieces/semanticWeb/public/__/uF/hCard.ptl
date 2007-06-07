@@ -34,8 +34,8 @@
 	</div>
 	<!-- END:IF -->
 
-	<!-- INCLUDE uF/adr -->
-	<!-- INCLUDE uF/geo -->
+	<!-- INLINE uF/adr -->
+	<!-- INLINE uF/geo -->
 
 	<!--
 	

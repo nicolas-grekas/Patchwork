@@ -14,7 +14,7 @@
 {*
 
 This template displays a QSelect control.
-It takes the same parameters as input.tpl
+It takes the same parameters as input.ptl
 
 *}
 

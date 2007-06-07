@@ -257,8 +257,8 @@ EOHTML;
 				if ($h = patchwork::fopenX($ctemplate, $readHandle))
 				{
 					patchwork::openMeta('agent__template/' . $template, false);
-					$compiler = new iaCompiler_js(patchwork::$binaryMode);
-					echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
+					$compiler = new ptlCompiler_js(patchwork::$binaryMode);
+					echo $template = ',[' . $compiler->compile($template . '.ptl') . '])';
 					fwrite($h, $template);
 					fclose($h);
 					list(,,, $template) = patchwork::closeMeta();
