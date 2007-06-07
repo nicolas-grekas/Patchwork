@@ -23,7 +23,7 @@ define('pC_IF',		'7');
 define('pC_LOOP',	'8');
 define('pC_NEXT',	'9');
 
-class extends iaCompiler
+class extends ptlCompiler
 {
 	protected $watch = 'public/templates/js';
 

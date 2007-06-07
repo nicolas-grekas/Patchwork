@@ -31,8 +31,8 @@ class extends patchwork
 		if ($h = patchwork::fopenX($ctemplate, $readHandle))
 		{
 			patchwork::openMeta('agent__template/' . $template, false);
-			$compiler = new iaCompiler_js(false);
-			echo $template = ',[' . $compiler->compile($template . '.tpl') . '])';
+			$compiler = new ptlCompiler_js(false);
+			echo $template = ',[' . $compiler->compile($template . '.ptl') . '])';
 			fwrite($h, $template);
 			fclose($h);
 			list(,,, $watch) = patchwork::closeMeta();

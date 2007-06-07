@@ -152,7 +152,7 @@ abstract class
 
 		$this->path_idx = $path_idx;
 		$rx = '[-_a-zA-Z\d\x80-\xffffffff][-_a-zA-Z\d\x80-\xffffffff\.]*';
-		$source = preg_replace_callback("'{$this->Xlblock}INCLUDE\s+($rx(?:[\\/]$rx)*)(:-?\d+)?\s*{$this->Xrblock}'su", array($this, 'INCLUDEcallback'), $source);
+		$source = preg_replace_callback("'{$this->Xlblock}INLINE\s+($rx(?:[\\/]$rx)*)(:-?\d+)?\s*{$this->Xrblock}'su", array($this, 'INLINEcallback'), $source);
 
 		return $source;
 	}
@@ -178,11 +178,11 @@ abstract class
 		return $m[1] . implode($a) . $m[3];
 	}
 
-	protected function INCLUDEcallback($m)
+	protected function INLINEcallback($m)
 	{
 		$path_count = count($GLOBALS['patchwork_paths']);
 
-		$template = (IS_WINDOWS ? strtolower($m[1]) : $m[1]) . '.tpl';
+		$template = (IS_WINDOWS ? strtolower($m[1]) : $m[1]) . '.ptl';
 
 		$a = str_replace('\\', '/', $template) == preg_replace("'[\\/]+'", '/', $this->template);
 		$a = isset($m[2]) ? substr($m[2], 1) : ($a ? -1 : ($path_count - $this->path_idx - 1));

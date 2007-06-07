@@ -18,6 +18,6 @@ IF !a$noIE7
 	END:SET
 END:IF
 
-INCLUDE footer:-1
+INLINE footer:-1
 
 -->
