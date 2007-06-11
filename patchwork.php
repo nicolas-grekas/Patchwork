@@ -416,7 +416,7 @@ if ($a)
 // }}}
 
 /// {{{ Anti Cross-Site-Request-Forgery / Javascript-Hijacking token
-$_POST_BACKUP =& $_POST;
+IS_POSTING && $_POST_BACKUP =& $_POST;
 
 if (
 	isset($_COOKIE['T$'])
@@ -447,6 +447,7 @@ else
 
 isset($_GET['T$']) && $patchwork_private = true;
 define('PATCHWORK_TOKEN_MATCH', isset($_GET['T$']) && substr($patchwork_token, 1) == substr($_GET['T$'], 1));
+if (IS_POSTING) {unset($_POST['T$']); unset($_POST['T$']);}
 // }}}
 
 // {{{ Version synchronism

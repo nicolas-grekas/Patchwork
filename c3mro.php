@@ -239,7 +239,10 @@ eval($patchwork[0] . ';');
 foreach ($patchwork_paths as $appInheritSeq) if (file_exists($appInheritSeq . '/config.patchwork.php'))
 {
 	$patchwork[] = $appConfigSource[$appInheritSeq];
-	require $appInheritSeq . '/config.patchwork.php';
+	$appInheritSeq .= '/config.patchwork.php';
+	$h = stat($appInheritSeq);
+	@chmod( $appInheritSeq, isset($h[2]) ? $h[2] & 0660 : 0660);
+	require $appInheritSeq;
 }
 
 
@@ -324,6 +327,7 @@ $appConfigSource = '<?php ' . implode(";\n", $patchwork) . ';';
 fwrite($lockHandle, $appConfigSource);
 fclose($lockHandle);
 
+@chmod('./.config.lock.php', 0600);
 touch('./.config.lock.php', $_SERVER['REQUEST_TIME'] + 1);
 
 if (IS_WINDOWS)
