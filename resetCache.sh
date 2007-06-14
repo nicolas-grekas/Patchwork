@@ -2,7 +2,7 @@
 
 chown apache: * -R
 
-for I in `locate /config.patchwork.php 2> /dev/null`
+for I in `locate /config.patchwork.php | grep -v \\\.svn -v 2> /dev/null`
 do
 	I=`dirname $I`
 	touch $I/config.patchwork.php
