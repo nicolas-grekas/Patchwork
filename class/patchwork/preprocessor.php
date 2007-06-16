@@ -489,8 +489,9 @@ class patchwork_preprocessor__0
 					}
 					else
 					{
-						while (--$j && in_array($new_type[$j], array(T_DEC, T_INC, $prevType, T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ;
-						$new_code[++$j] = "(({$c})?" . $new_code[$j];
+						while (--$j && in_array($new_type[$j], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT, T_DEC, T_INC, $prevType))) ;
+						while (++$j && in_array($new_type[$j], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ;
+						$new_code[$j] = "(({$c})?" . $new_code[$j];
 					}
 				}
 
@@ -513,6 +514,8 @@ class patchwork_preprocessor__0
 					case '}': case ']': ++$b; break;
 					}
 					while (--$j);
+
+					while (in_array($new_type[$j], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ++$j;
 
 					$new_code[$j] = "(({$c})?" . $new_code[$j];
 				}

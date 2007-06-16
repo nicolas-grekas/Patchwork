@@ -72,6 +72,9 @@ class extends patchwork
 		patchwork::$ETag = $size .'-'. patchwork::$LastModified .'-'. fileinode($file);
 		patchwork::disable();
 
+		DB(true);
+		class_exists('SESSION', false) && SESSION::close();
+
 		$gzip = patchwork::gzipAllowed($mime);
 		$gzip || ob_start();
 

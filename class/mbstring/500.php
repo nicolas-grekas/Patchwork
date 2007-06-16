@@ -136,22 +136,14 @@ class
 	static function strtolower($str, $encoding = null)
 	{
 		static $table;
-		if (!isset($table))
-		{
-			ob_start(); readgzfile(resolvePath('data/toLowerCase.gz'));
-			$table = unserialize(ob_get_clean());
-		}
+		isset($table) || $table = self::loadCaseTable(0);
 		return strtr($str, $table);
 	}
 
 	static function strtoupper($str, $encoding = null)
 	{
 		static $table;
-		if (!isset($table))
-		{
-			ob_start(); readgzfile(resolvePath('data/toUpperCase.gz'));
-			$table = unserialize(ob_get_clean());
-		}
+		isset($table) || $table = self::loadCaseTable(1);
 		return strtr($str, $table);
 	}
 
@@ -191,5 +183,12 @@ class
 		}
 
 		return implode('', $rx) . '(?:.{' . $offset . '})';
+	}
+
+	static function loadCaseTable($upper)
+	{
+		ob_start();
+		readgzfile(resolvePath('data/utf8/' . ($upper ? 'upp' : 'low' ) . 'erCase.gz'));
+		return unserialize(ob_get_clean());
 	}
 }
