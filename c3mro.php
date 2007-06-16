@@ -357,10 +357,6 @@ function C3MRO($appRealpath, $firstParent = false)
 	// If result is cached, return it
 	if (null !== $resultSeq) return $resultSeq;
 
-	file_exists($appRealpath . '/config.patchwork.php') || patchwork_c3mro_die("Missing file: {$appRealpath}/config.patchwork.php");
-
-	$GLOBALS['patchwork_appId'] += filemtime($appRealpath . '/config.patchwork.php');
-
 	$parent = patchwork_get_parent_apps($appRealpath);
 
 	// If no parent app, result is trival
@@ -409,7 +405,10 @@ function C3MRO($appRealpath, $firstParent = false)
 
 function patchwork_get_parent_apps($appRealpath)
 {
+	$GLOBALS['patchwork_appId'] += filemtime($appRealpath . '/config.patchwork.php');
+
 	// Get config's source and clean it
+	file_exists($appRealpath . '/config.patchwork.php') || patchwork_c3mro_die("Missing file: {$appRealpath}/config.patchwork.php");
 	$parent = file_get_contents($appRealpath . '/config.patchwork.php');
 	if (false !== strpos($parent, "\r")) $parent = strtr(str_replace("\r\n", "\n", $parent), "\r", "\n");
 
