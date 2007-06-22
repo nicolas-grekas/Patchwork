@@ -109,7 +109,7 @@ $_SERVER[\'QUERY_STRING\'] = false !== $b++ && $b < strlen($a) ? substr($a, $b) 
 function_exists('apache_setenv')   && $patchwork[] = 'apache_setenv(\'no-gzip\',\'1\')';
 ini_get('zlib.output_compression') && $patchwork[] = 'ini_set(\'zlib.output_compression\',false)';
 
-preg_match('/^.$/u', 'Δ') || trigger_error('PCRE is not compiled with UTF-8 support', E_USER_ERROR);
+preg_match('/^.$/u', '') || trigger_error('PCRE is not compiled with UTF-8 support', E_USER_ERROR);
 
 if (extension_loaded('mbstring'))
 {
@@ -239,24 +239,67 @@ eval($patchwork[0] . ';');
 foreach ($patchwork_paths as $appInheritSeq) if (file_exists($appInheritSeq . '/config.patchwork.php'))
 {
 	$patchwork[] = $appConfigSource[$appInheritSeq];
-	$appInheritSeq .= '/config.patchwork.php';
-	$h = stat($appInheritSeq);
-	@chmod( $appInheritSeq, isset($h[2]) ? $h[2] & 0660 : 0660);
-	require $appInheritSeq;
+	require $appInheritSeq . '/config.patchwork.php';
 }
 
+
+isset($CONFIG['umask']) && umask($CONFIG['umask']);
 
 $patchwork = array(implode(";\n", $patchwork));
 
 
-$h = ini_get('max_execution_time');
-set_time_limit(0);
+$paths = array();
 $appConfigSource = count($patchwork_paths);
 foreach ($patchwork_include_paths as $a => $appInheritSeq)
 {
-	@patchwork_populatePathCache($patchwork_zcache, $appInheritSeq, $a, $a < $appConfigSource ? '' : '/class');
+	@patchwork_populatePathCache($paths, $appInheritSeq, $a, $a < $appConfigSource ? '' : '/class');
 }
-set_time_limit($h);
+
+if (function_exists('dba_handlers'))
+{
+	$h = array('cdb','db2','db3','db4','qdbm','gdbm','ndbm','dbm','flatfile','inifile');
+	$h = array_intersect($h, dba_handlers());
+	$h || $h = dba_handlers();
+	$h = $h ? $h[0] : '';
+}
+else $h = '';
+
+$patchwork[] = "define('DBA_HANDLER','{$h}')";
+
+if ($h)
+{
+	$h = dba_open('./.parentPaths.db', 'n', $h, 0600);
+	foreach ($paths as $a => $appInheritSeq) dba_insert($a, substr($appInheritSeq, 0, -1), $h);
+	dba_close($h);
+	unset($paths);
+
+	if (IS_WINDOWS)
+	{
+		$h = new COM('Scripting.FileSystemObject');
+		$h->GetFile($patchwork_paths[0] . '/.parentPaths.db')->Attributes |= 2; // Set hidden attribute
+		unset($h);
+	}
+}
+else
+{
+	foreach ($paths as $a => $appInheritSeq)
+	{
+			$a = md5($a);
+			$a = $a[0] . '/' . $a[1] . '/' . substr($a, 2) . '.cachePath.txt';
+
+			if (false === $h = fopen($patchwork_zcache . $a, 'ab'))
+			{
+				@mkdir($patchwork_zcache . $a[0]);
+				@mkdir($patchwork_zcache . substr($a, 0, 3));
+				$h = fopen($patchwork_zcache . $a, 'ab');
+			}
+
+			fwrite($h, substr($appInheritSeq, 0, -1));
+			fclose($h);
+	}
+}
+
+set_time_limit(ini_get('max_execution_time'));
 
 $patchwork[] = 'isset($CONFIG[\'session.cookie_path\'  ]) || $CONFIG[\'session.cookie_path\'] = \'/\'';
 $patchwork[] = 'isset($CONFIG[\'session.cookie_domain\']) || $CONFIG[\'session.cookie_domain\'] = \'\'';
@@ -327,7 +370,6 @@ $appConfigSource = '<?php ' . implode(";\n", $patchwork) . ';';
 fwrite($lockHandle, $appConfigSource);
 fclose($lockHandle);
 
-@chmod('./.config.lock.php', 0600);
 touch('./.config.lock.php', $_SERVER['REQUEST_TIME'] + 1);
 
 if (IS_WINDOWS)
@@ -405,12 +447,12 @@ function C3MRO($appRealpath, $firstParent = false)
 
 function patchwork_get_parent_apps($appRealpath)
 {
-	$GLOBALS['patchwork_appId'] += filemtime($appRealpath . '/config.patchwork.php');
-
 	// Get config's source and clean it
 	file_exists($appRealpath . '/config.patchwork.php') || patchwork_c3mro_die("Missing file: {$appRealpath}/config.patchwork.php");
 	$parent = file_get_contents($appRealpath . '/config.patchwork.php');
 	if (false !== strpos($parent, "\r")) $parent = strtr(str_replace("\r\n", "\n", $parent), "\r", "\n");
+
+	$GLOBALS['patchwork_appId'] += filemtime($appRealpath . '/config.patchwork.php');
 
 	$token = token_get_all($parent);
 	$parent = array();
@@ -540,7 +582,7 @@ function patchwork_get_parent_apps($appRealpath)
 	return $parent;
 }
 
-function patchwork_populatePathCache(&$patchwork_zcache, $dir, $i, $prefix, $subdir = '/')
+function patchwork_populatePathCache(&$paths, $dir, $i, $prefix, $subdir = '/')
 {
 	if ($h = opendir($dir . $subdir))
 	{
@@ -549,21 +591,9 @@ function patchwork_populatePathCache(&$patchwork_zcache, $dir, $i, $prefix, $sub
 		{
 			$file = $subdir . $file;
 
-			$cache = substr($prefix . $file, 1);
-			$cache = md5($cache);
-			$cache = $cache[0] . '/' . $cache[1] . '/' . substr($cache, 2) . '.cachePath.txt';
+			$paths[substr($prefix . $file, 1)] .= $i . ',';
 
-			if (false === $f = fopen($patchwork_zcache . $cache, 'ab'))
-			{
-				@mkdir($patchwork_zcache . $cache[0]);
-				@mkdir($patchwork_zcache . substr($cache, 0, 3));
-				$f = fopen($patchwork_zcache . $cache, 'ab');
-			}
-
-			fwrite($f, $i . ',');
-			fclose($f);
-
-			patchwork_populatePathCache($patchwork_zcache, $dir, $i, $prefix, $file . '/');
+			patchwork_populatePathCache($paths, $dir, $i, $prefix, $file . '/');
 		}
 
 		closedir($h);

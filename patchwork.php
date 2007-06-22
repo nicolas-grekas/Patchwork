@@ -155,10 +155,12 @@ register_shutdown_function('patchwork_restoreProjectPath', PATCHWORK_PROJECT_PAT
 // }}}
 
 // {{{ Global Initialisation
+isset($CONFIG['umask']) && umask($CONFIG['umask']);
 define('DEBUG',       $CONFIG['DEBUG_ALLOWED'] && (!$CONFIG['DEBUG_PASSWORD'] || (isset($_COOKIE['DEBUG']) && $CONFIG['DEBUG_PASSWORD'] == $_COOKIE['DEBUG'])) ? 1 : 0);
 $CONFIG['maxage'] = isset($CONFIG['maxage']) ? $CONFIG['maxage'] : 2678400;
 define('IS_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
 define('PATCHWORK_DIRECT',  '_' == $_SERVER['PATCHWORK_REQUEST']);
+define('PATCHWORK_TURBO', !DEBUG && isset($CONFIG['turbo']) && $CONFIG['turbo']);
 
 function E($msg = '__getDeltaMicrotime')
 {
@@ -197,7 +199,8 @@ function resolvePath($file, $level = false, $base = false)
 		0 > $i && $i = 0;
 	}
 
-	$GLOBALS['patchwork_lastpath_level'] = $level;
+	global $patchwork_lastpath_level;
+	$patchwork_lastpath_level = $level;
 
 
 	if (0 == $i)
@@ -210,23 +213,33 @@ function resolvePath($file, $level = false, $base = false)
 	$file = strtr($file, '\\', '/');
 	if ($last_patchwork_paths = '/' == substr($file, -1)) $file = substr($file, 0, -1);
 
-	$base = md5($file);
-	$base = $GLOBALS['patchwork_zcache'] . $base[0] . '/' . $base[1] . '/' . substr($base, 2) . '.cachePath.txt';
-
-	if (false !== $base = @file_get_contents($base))
+	if (DBA_HANDLER)
 	{
-		$base = explode(',', substr($base, 0, -1));
+		static $db;
+		isset($db) || $db = dba_popen('./.parentPaths.db', 'rd', DBA_HANDLER);
+		$base = dba_fetch($file, $db);
+	}
+	else
+	{
+		$base = md5($file);
+		$base = $GLOBALS['patchwork_zcache'] . $base[0] . '/' . $base[1] . '/' . substr($base, 2) . '.cachePath.txt';
+		$base = @file_get_contents($base);
+	}
+
+	if (false !== $base)
+	{
+		$base = explode(',', $base);
 		do if (current($base) >= $i)
 		{
-			$base = current($base);
-			$level = $GLOBALS['patchwork_lastpath_level'] -= $base - $i;
+			$base = (int) current($base);
+			$level = $patchwork_lastpath_level -= $base - $i;
 			
 			return $GLOBALS['patchwork_include_paths'][$base] . '/' . (0<=$level ? $file : substr($file, 6)) . ($last_patchwork_paths ? '/' : '');
 		}
 		while (false !== next($base));
 	}
 
-	$GLOBALS['patchwork_lastpath_level'] = -$GLOBALS['patchwork_paths_offset'];
+	$patchwork_lastpath_level = -$GLOBALS['patchwork_paths_offset'];
 
 	return false;
 }
@@ -272,7 +285,7 @@ function patchworkProcessedPath($file)
 	$cache = ((int)(bool)DEBUG) . (0>$level ? -$level .'-' : $level);
 	$cache = './.'. strtr(str_replace('_', '%2', str_replace('%', '%1', $file)), '/', '_') . ".{$cache}.{$GLOBALS['patchwork_paths_token']}.zcache.php";
 
-	if (DEBUG ? file_exists($cache) && filemtime($cache) > filemtime($source) : file_exists($cache)) return $cache;
+	if (file_exists($cache) && (PATCHWORK_TURBO || filemtime($cache) > filemtime($source))) return $cache;
 
 	patchwork_preprocessor::run($source, $cache, $level, false);
 
@@ -285,7 +298,7 @@ function __autoload($searched_class)
 {
 	$a = strtolower($searched_class);
 
-	if ($a =& $GLOBALS['patchwork_autoload_cache'][$a] && !DEBUG)
+	if ($a =& $GLOBALS['patchwork_autoload_cache'][$a] && PATCHWORK_TURBO)
 	{
 		if (is_int($a))
 		{

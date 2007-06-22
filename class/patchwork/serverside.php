@@ -161,7 +161,7 @@ class extends patchwork
 
 		$is_cacheable = !in_array('private', $group);
 
-		$cagent = patchwork::agentCache($agentClass, $agent->argv, 'gz', $group);
+		$cagent = patchwork::agentCache($agentClass, $agent->argv, 'ser', $group);
 
 		$filter = false;
 
@@ -215,7 +215,7 @@ class extends patchwork
 		if (function_exists($ftemplate)) $ftemplate($v, $a, $g);
 		else
 		{
-#>			patchwork::syncTemplate($template, $ctemplate);
+			PATCHWORK_TURBO || patchwork::syncTemplate($template, $ctemplate);
 
 			if ($h = patchwork::fopenX($ctemplate))
 			{
@@ -243,7 +243,7 @@ class extends patchwork
 			if ($is_cacheable && !IS_POSTING && !in_array('private', $group) && ($maxage || 'ontouch' == $expires))
 			{
 				$fagent = $cagent;
-				if ($canPost) $fagent = substr($cagent, 0, -3) . '.post' . substr($cagent, -3);
+				if ($canPost) $fagent = substr($cagent, 0, -4) . '.post' . substr($cagent, -4);
 
 				if ($h = patchwork::fopenX($fagent))
 				{
@@ -260,7 +260,7 @@ class extends patchwork
 					$rawdata['watch']    = $watch;
 					$rawdata['headers']  = $headers;
 
-					$rawdata = gzencode(serialize($rawdata));
+					$rawdata = serialize($rawdata);
 
 					fwrite($h, $rawdata);
 					fclose($h);
@@ -306,7 +306,7 @@ class extends patchwork
 	{
 		if (!file_exists($cagent))
 		{
-			$cagent = substr($cagent, 0, -3) . '.post' . substr($cagent, -3);
+			$cagent = substr($cagent, 0, -4) . '.post' . substr($cagent, -4);
 			if (IS_POSTING || !file_exists($cagent)) $cagent = false;
 		}
 
@@ -314,8 +314,7 @@ class extends patchwork
 		{
 			if (filemtime($cagent) > $_SERVER['REQUEST_TIME'])
 			{
-				ob_start(); readgzfile($cagent);
-				$data = unserialize(ob_get_clean());
+				$data = unserialize(file_get_contents($cagent));
 				patchwork::setMaxage($data['maxage']);
 				patchwork::setExpires($data['expires']);
 				patchwork::writeWatchTable($data['watch']);

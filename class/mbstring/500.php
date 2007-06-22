@@ -187,8 +187,10 @@ class
 
 	static function loadCaseTable($upper)
 	{
-		ob_start();
-		readgzfile(resolvePath('data/utf8/' . ($upper ? 'upp' : 'low' ) . 'erCase.gz'));
-		return unserialize(ob_get_clean());
+		return unserialize(file_get_contents(
+			$upper
+				? resolvePath('data/utf8/upperCase.ser')
+				: resolvePath('data/utf8/lowerCase.ser')
+		));
 	}
 }

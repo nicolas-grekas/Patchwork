@@ -18,21 +18,16 @@ $CONFIG += array(
 #	'DEBUG_ALLOWED'  => true,
 #	'DEBUG_PASSWORD' => '',
 
-	// List of available languages ("en|fr" for example).
-#	'lang_list' => '',
-
-	// Enable browser-side page rendering when available ?
-#	'clientside' => true,
-
-	// Max age (in seconds) for HTTP ressources caching
-#	'maxage' => 2678400, // 31d x 24h x 3600s ~ 1 month
+#	'lang_list' => '',		// List of available languages ('en|fr' for example)
+#	'maxage' => 2678400,	// Max age (in seconds) for HTTP ressources caching
+#	'turbo' => false,		// Run patchwork at full speed, at the cost of source code synchronism
+#	'clientside' => true,	// Enable browser-side page rendering when available
+#	'umask' => umask(),		// Set the user file creation mode mask
+#	'P3P => 'CUR ADM',		// P3P - Platform for Privacy Preferences
 
 	// Session cookie
 #	'session.cookie_path'   => '/',
 #	'session.cookie_domain' => '',
-
-	// P3P - Platform for Privacy Preferences
-#	'P3P => 'CUR ADM',
 
 	// Translation tables adapter config.
 #	'translate_adapter' => false,

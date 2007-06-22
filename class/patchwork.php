@@ -1390,16 +1390,14 @@ class
 		return $lang;
 	}
 
-/*>
 	static function syncTemplate($template, $ctemplate)
 	{
 		if (file_exists($ctemplate))
 		{
 			$template = self::resolvePublicPath($template . '.ptl');
-			if ($template && filemtime($ctemplate) <= filemtime($template)) unlink($ctemplate);
+			if ($template && filemtime($ctemplate) <= filemtime($template)) return unlink($ctemplate);
 		}
 	}
-<*/
 }
 
 class agent

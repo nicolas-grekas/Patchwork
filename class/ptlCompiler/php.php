@@ -34,9 +34,7 @@ class extends ptlCompiler
 
 	protected function makeModifier($name)
 	{
-		return DEBUG
-			? "(1?pipe_{$name}::php"
-			: "((isset(\$c{$GLOBALS['patchwork_paths_token']}['" . strtolower($name) . "'])||\$a{$GLOBALS['patchwork_paths_token']}=__FILE__.'*" . mt_rand() . "')?pipe_{$name}::php";
+		return "((isset(\$c{$GLOBALS['patchwork_paths_token']}['" . strtolower($name) . "'])||\$a{$GLOBALS['patchwork_paths_token']}=__FILE__.'*" . mt_rand() . "')?pipe_{$name}::php";
 	}
 
 	protected function addAGENT($end, $inc, &$args, $is_exo)
