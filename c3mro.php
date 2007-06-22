@@ -260,7 +260,7 @@ if (function_exists('dba_handlers'))
 	$h = array('cdb','db2','db3','db4','qdbm','gdbm','ndbm','dbm','flatfile','inifile');
 	$h = array_intersect($h, dba_handlers());
 	$h || $h = dba_handlers();
-	$h = $h ? $h[0] : '';
+	$h = $h ? reset($h) : '';
 }
 else $h = '';
 
