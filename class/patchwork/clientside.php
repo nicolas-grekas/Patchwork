@@ -113,8 +113,8 @@ EOHTML;
 
 			if ($is_cacheable = !(IS_POSTING || in_array('private', $group)))
 			{
-				$cagent = patchwork::agentCache($agentClass, $agent->argv, 'js.gz', $group);
-				$dagent = patchwork::getContextualCachePath('jsdata.' . $agentClass, 'js.gz', $cagent);
+				$cagent = patchwork::agentCache($agentClass, $agent->argv, 'js.ser', $group);
+				$dagent = patchwork::getContextualCachePath('jsdata.' . $agentClass, 'js.ser', $cagent);
 
 				if ($liveAgent)
 				{
@@ -122,8 +122,7 @@ EOHTML;
 					{
 						if (filemtime($dagent) > $_SERVER['REQUEST_TIME'])
 						{
-							ob_start(); readgzfile($dagent);
-							$data = unserialize(ob_get_clean());
+							$data = unserialize(file_get_contents($dagent));
 							patchwork::setMaxage($data['maxage']);
 							patchwork::setExpires($data['expires']);
 							patchwork::writeWatchTable($data['watch']);
@@ -148,8 +147,7 @@ EOHTML;
 					{
 						if (filemtime($cagent) > $_SERVER['REQUEST_TIME'])
 						{
-							ob_start(); readgzfile($cagent);
-							$data = unserialize(ob_get_clean());
+							$data = unserialize(file_get_contents($cagent));
 							patchwork::setMaxage($data['maxage']);
 							patchwork::setExpires($data['expires']);
 							patchwork::writeWatchTable($data['watch']);
@@ -246,11 +244,11 @@ EOHTML;
 		{
 			if ($is_cacheable) ob_start();
 
-			if ($maxage == $config_maxage && !DEBUG)
+			if ($maxage == $config_maxage && PATCHWORK_TURBO)
 			{
 				$ctemplate = patchwork::getContextualCachePath("templates/$template", 'txt');
 
-#>				patchwork::syncTemplate($template, $ctemplate);
+				patchwork::syncTemplate($template, $ctemplate);
 
 				$readHandle = true;
 
@@ -290,7 +288,7 @@ EOHTML;
 
 				if ($h = patchwork::fopenX($dagent))
 				{
-					fwrite($h, gzencode(serialize($template)));
+					fwrite($h, serialize($template));
 					fclose($h);
 
 					touch($dagent, $_SERVER['REQUEST_TIME'] + $expires);
@@ -303,7 +301,7 @@ EOHTML;
 					$ob = false;
 					$template['rawdata'] .= $liveAgent ? ob_get_clean() : ob_get_flush();
 
-					fwrite($h, gzencode(serialize($template)));
+					fwrite($h, serialize($template));
 					fclose($h);
 
 					touch($cagent, $_SERVER['REQUEST_TIME'] + $expires);

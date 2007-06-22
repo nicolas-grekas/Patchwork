@@ -22,26 +22,32 @@ class extends patchwork
 
 		foreach ($pipe[0] as &$pipe)
 		{
-			$cpipe = patchwork::getContextualCachePath('pipe/' . $pipe, 'js');
-			$readHandle = true;
-			if ($h = patchwork::fopenX($cpipe, $readHandle))
-			{
-				ob_start();
-				call_user_func(array('pipe_' . $pipe, 'js'));
-				$pipe = ob_get_clean();
+#>			if (DEBUG) call_user_func(array('pipe_' . $pipe, 'js'));
+#>			else
+#>			{
+				$cpipe = patchwork::getContextualCachePath('pipe/' . $pipe, 'js');
+				$readHandle = true;
+				if ($h = patchwork::fopenX($cpipe, $readHandle))
+				{
+					ob_start();
+					call_user_func(array('pipe_' . $pipe, 'js'));
+					$pipe = ob_get_clean();
 
-				$parser = new jsqueez;
-				echo $pipe = $parser->squeeze($pipe);
-				$pipe .= "\n";
-				fwrite($h, $pipe);
-				fclose($h);
-				patchwork::writeWatchTable(array('pipe'), $cpipe);
-			}
-			else
-			{
-				fpassthru($readHandle);
-				fclose($readHandle);
-			}
+					$parser = new jsqueez;
+					echo $pipe = $parser->squeeze($pipe);
+
+					fwrite($h, $pipe);
+					fclose($h);
+					patchwork::writeWatchTable(array('pipe'), $cpipe);
+				}
+				else
+				{
+					fpassthru($readHandle);
+					fclose($readHandle);
+				}
+#>			}
+			
+			echo "\n";
 		}
 
 		echo 'w()';
