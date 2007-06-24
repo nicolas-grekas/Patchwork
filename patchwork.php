@@ -222,7 +222,7 @@ function resolvePath($file, $level = false, $base = false)
 	else
 	{
 		$base = md5($file);
-		$base = $GLOBALS['patchwork_zcache'] . $base[0] . '/' . $base[1] . '/' . substr($base, 2) . '.cachePath.txt';
+		$base = $GLOBALS['patchwork_zcache'] . $base[0] . '/' . $base[1] . '/' . substr($base, 2) . '.path.txt';
 		$base = @file_get_contents($base);
 	}
 

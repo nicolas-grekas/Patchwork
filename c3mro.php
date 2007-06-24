@@ -268,6 +268,7 @@ $patchwork[] = "define('DBA_HANDLER','{$h}')";
 
 if ($h)
 {
+	@unlink('./.parentPaths.db');
 	$h = dba_open('./.parentPaths.db', 'n', $h, 0600);
 	foreach ($paths as $a => $appInheritSeq) dba_insert($a, substr($appInheritSeq, 0, -1), $h);
 	dba_close($h);
@@ -285,13 +286,13 @@ else
 	foreach ($paths as $a => $appInheritSeq)
 	{
 			$a = md5($a);
-			$a = $a[0] . '/' . $a[1] . '/' . substr($a, 2) . '.cachePath.txt';
+			$a = $a[0] . '/' . $a[1] . '/' . substr($a, 2) . '.path.txt';
 
-			if (false === $h = fopen($patchwork_zcache . $a, 'ab'))
+			if (false === $h = @fopen($patchwork_zcache . $a, 'wb'))
 			{
 				@mkdir($patchwork_zcache . $a[0]);
 				@mkdir($patchwork_zcache . substr($a, 0, 3));
-				$h = fopen($patchwork_zcache . $a, 'ab');
+				$h = fopen($patchwork_zcache . $a, 'wb');
 			}
 
 			fwrite($h, substr($appInheritSeq, 0, -1));
