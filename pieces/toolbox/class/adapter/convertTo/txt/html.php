@@ -21,7 +21,7 @@ class extends adapter_convertTo_abstract
 
 		if (false !== strpos($file, '━')) $file = str_replace('━', '_', $file);
 
-		return $file;
+		return VALIDATE::get($file, 'raw');
 	}
 
 }
