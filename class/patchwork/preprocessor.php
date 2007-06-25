@@ -12,9 +12,6 @@
  ***************************************************************************/
 
 
-function_exists('token_get_all') || die('Extension "tokenizer" is needed and not loaded.');
-
-
 class patchwork_preprocessor__0
 {
 	public $source;
@@ -824,7 +821,7 @@ class patchwork_preprocessor__0
 
 	protected function fetchConstant(&$code, &$i, $codeLen)
 	{
-		if (DEBUG) return false;
+		if (DEBUG || !PATCHWORK_TURBO) return false;
 
 		$new_code = array();
 		$inString = false;
