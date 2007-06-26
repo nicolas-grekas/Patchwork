@@ -29,6 +29,7 @@ class extends agent
 	protected  $deny_file = array(
 //		'html','htm','php','php2','php3','php4','php5','phtml','pwml','inc','asp','aspx','ascx',
 //		'jsp','cfm','cfc','pl','bat','exe','com','dll','vbs','js','reg','cgi','htaccess','asis',
+//		'sh','shtml','shtm','phtm',
 	);
 
 	protected $allow_image = array('jpg','gif','jpeg','png','bmp');
