@@ -83,6 +83,27 @@ class
 		return in_array($value, $args[0]) ? $value : false;
 	}
 
+	# no args
+	protected static function get_html(&$value, &$args)
+	{
+		$a = array();
+
+		if ($result = self::get_raw($value, $a))
+		{
+			static $parser;
+
+			if (!isset($parser))
+			{
+				$parser = new HTML_Safe;
+				$parser->deleteTags[] = 'form';
+			}
+
+			$result = $parser->parse($result);
+		}
+
+		return $result;
+	}
+
 	# regexp
 	protected static function get_string(&$value, &$args)
 	{

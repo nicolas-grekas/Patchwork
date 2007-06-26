@@ -22,14 +22,8 @@ class extends iaForm_textarea
 		if (isset($this->form->rawValues[$this->name]))
 		{
 			$value =& $this->form->rawValues[$this->name];
-
-			if (false !== strpos($value, "\r")) $value = strtr(str_replace("\r\n", "\n", $value), "\r", "\n");
-
 			$value = preg_replace("'(?<!>)\n'", "<br />\n", $value);
-
-			$parser = new HTML_Safe;
-			$parser->deleteTags[] = 'form';
-			$value = $parser->parse($value);
+			$value = VALIDATE::get($value, 'html');
 		}
 
 		parent::init($param);
