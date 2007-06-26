@@ -109,6 +109,10 @@ $_SERVER[\'QUERY_STRING\'] = false !== $b++ && $b < strlen($a) ? substr($a, $b) 
 function_exists('apache_setenv')   && $patchwork[] = 'apache_setenv(\'no-gzip\',\'1\')';
 ini_get('zlib.output_compression') && $patchwork[] = 'ini_set(\'zlib.output_compression\',false)';
 
+$a = file_get_contents(__patchwork__.'/data/utf8/quickChecks.txt');
+$a = explode("\n", $a);
+$patchwork[] = 'define(\'UTF8_NFC_RX\',' . var_export('/' . substr($a[1], 5, -6) . '/u', true) . ')';
+
 preg_match('/^.$/u', '') || trigger_error('PCRE is not compiled with UTF-8 support', E_USER_ERROR);
 
 if (extension_loaded('mbstring'))
@@ -130,7 +134,6 @@ if (function_exists('iconv'))
 
 get_magic_quotes_runtime() && $patchwork[] = 'set_magic_quotes_runtime(false)';
 
-# See http://www.w3.org/International/questions/qa-forms-utf-8
 $a = !(extension_loaded('mbstring') && ini_get('mbstring.encoding_translation') && 'UTF-8' == ini_get('mbstring.http_input'));
 
 if (get_magic_quotes_gpc() || $a) $patchwork[] = '$a = array(&$_GET, &$_POST, &$_COOKIE);
@@ -146,7 +149,7 @@ for ($i = 0; $i < $len; ++$i)
 		{
 			' .
 			(get_magic_quotes_gpc() ? '$v = ' . (ini_get('magic_quotes_sybase') ? 'str_replace("\'\'", "\'", ' : 'stripslashes(') . '$v);' : '' ) .
-			( $a ? 'preg_match_all(\'/(?:[\x00-\x7F]|[\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][\x80-\xBF]|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}|\xED[\x80-\x9F][\x80-\xBF]|\xF0[\x90-\xBF][\x80-\xBF]{2}|[\xF1-\xF3][\x80-\xBF]{3}|\xF4[\x80-\x8F][\x80-\xBF]{2})+/\', $v, $b); $v = implode(\'\', $b[0]);' : '') . '
+			( $a ? 'preg_match_all(UTF8_VALID_RX, $v, $b); $v = implode(\'\', $b[0]);' : '') . '
 		}
 	}
 

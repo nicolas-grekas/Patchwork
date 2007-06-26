@@ -144,6 +144,9 @@ define('__patchwork__', dirname(__FILE__));
 define('IS_WINDOWS', '\\' == DIRECTORY_SEPARATOR);
 define('PATCHWORK_PROJECT_PATH', getcwd());
 
+# From http://www.w3.org/International/questions/qa-forms-utf-8
+define('UTF8_VALID_RX', '/(?:[\x00-\x7F]|[\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][\x80-\xBF]|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}|\xED[\x80-\x9F][\x80-\xBF]|\xF0[\x90-\xBF][\x80-\xBF]{2}|[\xF1-\xF3][\x80-\xBF]{3}|\xF4[\x80-\x8F][\x80-\xBF]{2})+/');
+
 // Load the configuration
 require file_exists($patchwork_appId) ? $patchwork_appId : (__patchwork__ . '/c3mro.php');
 

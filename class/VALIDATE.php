@@ -17,9 +17,6 @@ class
 	// This RegExp must work in most Javascript implementation too
 	const email_rx = '[-+=_a-zA-Z0-9%]+(\\.[-+=_a-zA-Z0-9%]+)*@([-+=_a-zA-Z0-9%]+(\\.[-+=_a-zA-Z0-9%]+)*)';
 
-	// Generated with utf8_generate::quickCheck('NFC')
-	const utf8_NFC_quickCheck = '/[\x{300}-\x{34e}\x{350}-\x{36f}\x{374}\x{37e}\x{387}\x{483}-\x{486}\x{591}-\x{5bd}\x{5bf}\x{5c1}\x{5c2}\x{5c4}\x{5c5}\x{5c7}\x{610}-\x{615}\x{64b}-\x{65e}\x{670}\x{6d6}-\x{6dc}\x{6df}-\x{6e4}\x{6e7}\x{6e8}\x{6ea}-\x{6ed}\x{711}\x{730}-\x{74a}\x{7eb}-\x{7f3}\x{93c}\x{94d}\x{951}-\x{954}\x{958}-\x{95f}\x{9bc}\x{9be}\x{9cd}\x{9d7}\x{9dc}\x{9dd}\x{9df}\x{a33}\x{a36}\x{a3c}\x{a4d}\x{a59}-\x{a5b}\x{a5e}\x{abc}\x{acd}\x{b3c}\x{b3e}\x{b4d}\x{b56}\x{b57}\x{b5c}\x{b5d}\x{bbe}\x{bcd}\x{bd7}\x{c4d}\x{c55}\x{c56}\x{cbc}\x{cc2}\x{ccd}\x{cd5}\x{cd6}\x{d3e}\x{d4d}\x{d57}\x{dca}\x{dcf}\x{ddf}\x{e38}-\x{e3a}\x{e48}-\x{e4b}\x{eb8}\x{eb9}\x{ec8}-\x{ecb}\x{f18}\x{f19}\x{f35}\x{f37}\x{f39}\x{f43}\x{f4d}\x{f52}\x{f57}\x{f5c}\x{f69}\x{f71}-\x{f76}\x{f78}\x{f7a}-\x{f7d}\x{f80}-\x{f84}\x{f86}\x{f87}\x{f93}\x{f9d}\x{fa2}\x{fa7}\x{fac}\x{fb9}\x{fc6}\x{102e}\x{1037}\x{1039}\x{1161}-\x{1175}\x{11a8}-\x{11c2}\x{135f}\x{1714}\x{1734}\x{17d2}\x{17dd}\x{18a9}\x{1939}-\x{193b}\x{1a17}\x{1a18}\x{1b34}\x{1b35}\x{1b44}\x{1b6b}-\x{1b73}\x{1dc0}-\x{1dca}\x{1dfe}\x{1dff}\x{1f71}\x{1f73}\x{1f75}\x{1f77}\x{1f79}\x{1f7b}\x{1f7d}\x{1fbb}\x{1fbe}\x{1fc9}\x{1fcb}\x{1fd3}\x{1fdb}\x{1fe3}\x{1feb}\x{1fee}\x{1fef}\x{1ff9}\x{1ffb}\x{1ffd}\x{2000}\x{2001}\x{20d0}-\x{20dc}\x{20e1}\x{20e5}-\x{20ef}\x{2126}\x{212a}\x{212b}\x{2329}\x{232a}\x{2adc}\x{302a}-\x{302f}\x{3099}\x{309a}\x{a806}\x{f900}-\x{fa0d}\x{fa10}\x{fa12}\x{fa15}-\x{fa1e}\x{fa20}\x{fa22}\x{fa25}\x{fa26}\x{fa2a}-\x{fa2d}\x{fa30}-\x{fa6a}\x{fa70}-\x{fad9}\x{fb1d}-\x{fb1f}\x{fb2a}-\x{fb36}\x{fb38}-\x{fb3c}\x{fb3e}\x{fb40}\x{fb41}\x{fb43}\x{fb44}\x{fb46}-\x{fb4e}\x{fe20}-\x{fe23}\x{10a0d}\x{10a0f}\x{10a38}-\x{10a3a}\x{10a3f}\x{1d15e}-\x{1d169}\x{1d16d}-\x{1d172}\x{1d17b}-\x{1d182}\x{1d185}-\x{1d18b}\x{1d1aa}-\x{1d1ad}\x{1d1bb}-\x{1d1c0}\x{1d242}\x{2f800}]/u';
-	
 	static $IMAGETYPE = array(
 		1 => 'gif', 'jpg', 'png',
 		5 => 'psd', 'bmp', 'tif', 'tif', 'jpc', 'jp2', 'jpx', 'jb2', 'swc', 'iff'
@@ -102,7 +99,7 @@ class
 		$result = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/', '', $value);
 		false !== strpos($result, "\r") && $result = strtr(str_replace("\r\n", "\n", $result), "\r", "\n");
 
-		preg_match(self::utf8_NFC_quickCheck, $result) && $result = utf8_normalize::toNFC($result);
+		preg_match(UTF8_NFC_RX, $result) && $result = utf8_normalize::toNFC($result);
 
 		if (isset($args[0]))
 		{
