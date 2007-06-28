@@ -16,7 +16,8 @@ class
 {
 	static function php($g, $lang)
 	{
-		$url = explode("/{$g->__LANG__}/", $g->__URI__, 2);
+		$url = $g->__LANG__ ? $g->__LANG__ : '__';
+		$url = explode("/{$url}/", $g->__URI__, 2);
 		$url = implode("/{$lang}/", $url);
 
 		return $url;
@@ -28,7 +29,7 @@ class
 
 P$switchLang = function($g, $lang)
 {
-	return $g.__URI__.replace(new RegExp('/' + $g.__LANG__ + '/'), '/' + $lang + '/');
+	return $g.__URI__.replace(new RegExp('/' + ($g.__LANG__ || '__') + '/'), '/' + $lang + '/');
 }
 
 <?php	}
