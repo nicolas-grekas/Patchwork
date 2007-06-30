@@ -163,6 +163,13 @@ class extends ptlCompiler
 		return str_replace("\"'\"'o", '', implode('.', $array));
 	}
 
+	protected function getRawString($str)
+	{
+		$str = str_replace("\"'\"'o", '', $Estart);
+		eval("\$str=$str;");
+		return $str;
+	}
+
 	protected function getVar($name, $type, $prefix, $forceType)
 	{
 		if ((string) $name === (string) ($name-0)) return $name . "\"'\"'o";
