@@ -20,7 +20,7 @@ $CONFIG += array(
 
 #	'lang_list' => '',		// List of available languages ('en|fr' for example)
 #	'maxage' => 2678400,	// Max age (in seconds) for HTTP ressources caching
-#	'turbo' => false,		// Run patchwork at full speed, at the cost of source code synchronism
+#	'turbo' => false,		// Run patchwork at full speed, at the cost of source code desynchronisation
 #	'clientside' => true,	// Enable browser-side page rendering when available
 #	'umask' => umask(),		// Set the user file creation mode mask
 #	'P3P => 'CUR ADM',		// P3P - Platform for Privacy Preferences

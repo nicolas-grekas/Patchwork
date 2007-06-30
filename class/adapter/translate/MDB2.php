@@ -15,11 +15,12 @@
 class extends TRANSLATE
 {
 	protected $db;
-	protected $table = 's_translate';
+	protected $table = 'translation';
 
-	function __construct()
+	function __construct($options)
 	{
 		$this->db = DB();
+		isset($options['table']) && $this->table = $options['table'];
 	}
 
 	function search($string, $lang)

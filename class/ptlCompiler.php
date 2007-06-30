@@ -208,6 +208,7 @@ abstract class
 	abstract protected function addELSE($end);
 	abstract protected function getEcho($str);
 	abstract protected function getConcat($array);
+	abstract protected function getRawString($str);
 	abstract protected function getVar($name, $type, $prefix, $forceType);
 	abstract protected function makeModifier($name);
 
@@ -219,10 +220,10 @@ abstract class
 			$type = "'";
 			$name = $this->filter(substr($name, 1));
 		}
-		else if (($pos = strrpos($name, '$'))!==false)
+		else if (false !== $pos = strrpos($name, '$'))
 		{
 			$type = $name[0];
-			$prefix = substr($name, 1, $type=='$' ? $pos : $pos-1);
+			$prefix = substr($name, 1, '$' == $type ? $pos : $pos-1);
 			$name = substr($name, $pos+1);
 		}
 		else $type = '';
@@ -259,7 +260,7 @@ abstract class
 	{
 		if (false !== strpos($a, "\r")) $a = str_replace("\r", '', $a);
 
-		return $this->binaryMode ? $a : preg_replace("/\s{2,}/seu", 'strpos(\'$0\', "\n")===false ? " " : "\n"', $a);
+		return $this->binaryMode ? $a : preg_replace("/\s{2,}/seu", "false===strpos('$0', '\n') ? ' ' : '\n'", $a);
 	}
 
 	private function makeBlocks($a)
@@ -309,7 +310,7 @@ abstract class
 			$block = trim($block[2]);
 		}
 
-		if ($blockname!==false)
+		if (false !== $blockname)
 		{
 			switch ($blockname)
 			{
@@ -428,9 +429,9 @@ abstract class
 				);
 
 				$i = @eval("($testCode);");
-				if ($i!==false) while (--$j) if (isset(${'a'.$j.'b'})) $i = false;
+				if (false !== $i) while (--$j) if (isset(${'a'.$j.'b'})) $i = false;
 
-				if ($i!==false)
+				if (false !== $i)
 				{
 					$block = preg_split('/(\\$a\db) /su', $testCode, -1, PREG_SPLIT_DELIM_CAPTURE);
 
@@ -502,11 +503,10 @@ abstract class
 
 		if ("'" == $Estart[0])
 		{
-			$Estart = $this->getConcat(array($Estart));
-			eval("\$Estart=$Estart;");
+			$Estart = $this->getRawString($Estart);
 			$this->pushText($Estart);
 		}
-		else if ($this->mode == 'concat')
+		else if ('concat' == $this->mode)
 		{
 			$this->concat[++$this->concatLast] = $Estart . $Eend;
 		}
