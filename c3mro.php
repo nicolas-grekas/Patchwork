@@ -111,7 +111,7 @@ ini_get('zlib.output_compression') && $patchwork[] = 'ini_set(\'zlib.output_comp
 
 $a = file_get_contents(__patchwork__.'/data/utf8/quickChecks.txt');
 $a = explode("\n", $a);
-$patchwork[] = 'define(\'UTF8_NFC_RX\',' . var_export('/' . substr($a[1], 5, -6) . '/u', true) . ')';
+$patchwork[] = 'define(\'UTF8_NFC_RX\',' . var_export('/' . substr($a[1], 6, -5) . '/u', true) . ')';
 
 preg_match('/^.$/u', '') || trigger_error('PCRE is not compiled with UTF-8 support', E_USER_ERROR);
 
