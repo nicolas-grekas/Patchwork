@@ -24,8 +24,8 @@ class extends ptlCompiler
 		$a = "\n";
 
 		$code = str_replace(
-			array("\"'\"'o;$a\"'\"' ", "';$a\"'\"' ", ";;$a\"'\"' ", "\"'\"' "     , "\"'\"''", "\"'\"'o", "\"'\"'"),
-			array(",\"'\"'"          , "',\"'\"'"   , ",\"'\"'"    , "echo \"'\"'" , "'"      , ''       , ''),
+			array("\"'\"'o;$a\"'\"' ", "';$a\"'\"' ", ";;$a\"'\"' ", '"\'"\' '     , '"\'"\'\'', '"\'"\'o', '"\'"\''),
+			array(',"\'"\''          , '\',"\'"\''  , ',"\'"\''    , 'echo "\'"\'' , '\''      , ''       , ''),
 			implode($a, $code)
 		);
 
@@ -96,7 +96,7 @@ class extends ptlCompiler
 			{
 				$i = strlen($type);
 				$type = 'v';
-				if ($i) do $type .= '->{"$"}'; while (--$i);
+				if ($i) do $type .= '->{\'$\'}'; while (--$i);
 			}
 			$this->pushCode("\${$type}->{$name}=ob_get_clean();");
 		}
@@ -160,19 +160,19 @@ class extends ptlCompiler
 
 	protected function getConcat($array)
 	{
-		return str_replace("\"'\"'o", '', implode('.', $array));
+		return str_replace('"\'"\'o', '', implode('.', $array));
 	}
 
 	protected function getRawString($str)
 	{
-		$str = str_replace("\"'\"'o", '', $Estart);
+		$str = str_replace('"\'"\'o', '', $str);
 		eval("\$str=$str;");
 		return $str;
 	}
 
 	protected function getVar($name, $type, $prefix, $forceType)
 	{
-		if ((string) $name === (string) ($name-0)) return $name . "\"'\"'o";
+		if ((string) $name === (string) ($name-0)) return $name . '"\'"\'o';
 
 		switch ($type)
 		{
@@ -214,7 +214,7 @@ class extends ptlCompiler
 			
 		}
 
-		$var .= "\"'\"'o";
+		$var .= '"\'"\'o';
 
 		return $var;
 	}
