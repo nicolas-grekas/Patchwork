@@ -15,7 +15,7 @@
 class
 {
 	// This RegExp must work in most Javascript implementation too
-	const email_rx = '[-+=_a-zA-Z0-9%]+(\\.[-+=_a-zA-Z0-9%]+)*@([-+=_a-zA-Z0-9%]+(\\.[-+=_a-zA-Z0-9%]+)*)';
+	const email_rx = '(?:[-+=_a-zA-Z0-9%]+(\\.[-+=_a-zA-Z0-9%]+)*@([-+=_a-zA-Z0-9%]+(\\.[-+=_a-zA-Z0-9%]+)*))';
 
 	static $IMAGETYPE = array(
 		1 => 'gif', 'jpg', 'png',
@@ -54,7 +54,7 @@ class
 		if (!is_scalar($value)) return false;
 
 		$result = trim($value);
-		if (!preg_match("'^[+-]?[0-9]+$'u", $result)) return false;
+		if (!preg_match('/^[+-]?[0-9]+$/u', $result)) return false;
 		if (isset($args[0]) && $result < $args[0]) return false;
 		if (isset($args[1]) && $result > $args[1]) return false;
 
@@ -118,15 +118,14 @@ class
 		if (!is_scalar($value)) return false;
 
 		$result = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/', '', $value);
-		false !== strpos($result, "\r") && $result = strtr(str_replace("\r\n", "\n", $result), "\r", "\n");
-
+		false !== strpos($result, "\r")  && $result = strtr(str_replace("\r\n", "\n", $result), "\r", "\n");
 		preg_match(UTF8_NFC_RX, $result) && $result = utf8_normalize::toNFC($result);
 
 		if (isset($args[0]))
 		{
 			$rx = implode(':', $args);
-			$rx = preg_replace("/(?<!\\\\)((?:\\\\\\\\)*)@/", '$1\\@', $rx);
-			if (!preg_match("@^{$rx}$@Dsu", $result)) return false;
+			$rx = preg_replace('/(?<!\\\\)((?:\\\\\\\\)*)@/', '$1\\@', $rx);
+			if (!preg_match("@^(?:{$rx})$@Dsu", $result)) return false;
 		}
 
 		return $result;
@@ -139,7 +138,7 @@ class
 
 		$result = trim($value);
 
-		if ( !preg_match("'^" . self::email_rx . "$'u", $result, $domain) ) return false;
+		if ( !preg_match('/^' . self::email_rx . '$/u', $result, $domain) ) return false;
 		if ( function_exists('checkdnsrr') && !checkdnsrr($domain[2]) ) return false;
 		return $result;
 	}
@@ -149,10 +148,10 @@ class
 	{
 		if (!is_scalar($value)) return false;
 
-		$r = preg_replace("'[^+0-9]+'u", '', $value);
-		$r = preg_replace("'^00'u", '+', $r);
+		$r = preg_replace('/[^+0-9]+/u', '', $value);
+		$r = preg_replace('/^00/u', '+', $r);
 
-		if (!preg_match("'^\+?[0-9]{4,}$'u", $r)) return false;
+		if (!preg_match('/^\+?[0-9]{4,}$/u', $r)) return false;
 		if (isset($args[0]) && $args[0] && strpos($r, '+')!==0) return false;
 
 		return $r;
@@ -167,12 +166,12 @@ class
 
 		if ('0000-00-00' == $r) return $value = '';
 
-		$r = preg_replace("'^(\d{4})-(\d{2})-(\d{2})$'u", '$3-$2-$1', $r);
+		$r = preg_replace('/^(\d{4})-(\d{2})-(\d{2})$/u', '$3-$2-$1', $r);
 
 		$Y = date('Y');
-		$r = preg_replace("'^[^0-9]+'u", '', $r);
-		$r = preg_replace("'[^0-9]+$'u", '', $r);
-		$r = preg_split("'[^0-9]+'u", $r);
+		$r = preg_replace('/^[^0-9]+/u', '', $r);
+		$r = preg_replace('/[^0-9]+$/u', '', $r);
+		$r = preg_split('/[^0-9]+/u', $r);
 
 		if (2 == count($r)) $r[2] = $Y;
 		else if (1 == count($r))
