@@ -21,7 +21,7 @@ isset($_SERVER['SERVER_ADDR']) || $_SERVER['SERVER_ADDR'] = '127.0.0.1';
 isset($_GET['exit$']) && die('Exit requested');
 
 // Convert ISO-8859-1 URLs to UTF-8 ones
-if (!preg_match("''u", urldecode($a = $_SERVER['REQUEST_URI'])))
+if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 {
 	$a = $a != utf8_decode($a) ? '/' : preg_replace("'(?:%[89a-f][0-9a-f])+'ei", "urlencode(utf8_encode(urldecode('$0')))", $a);
 	$b = $_SERVER['REQUEST_METHOD'];
@@ -108,7 +108,7 @@ class hunter
 // {{{ ob: wrapper for ob_start
 class ob
 {
-	static $in_handler = false;
+	static $in_handler = 0;
 
 	static function start($callback = null, $chunk_size = null, $erase = true)
 	{
@@ -123,9 +123,9 @@ class ob
 
 	function &callback(&$buffer, $mode)
 	{
-		self::$in_handler = true;
+		$a = self::$in_handler++;
 		$buffer = call_user_func_array($this->callback, array(&$buffer, $mode));
-		self::$in_handler = false;
+		self::$in_handler = $a;
 		return $buffer;
 	}
 }
