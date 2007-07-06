@@ -63,12 +63,12 @@ class extends iaForm_hidden
 			{
 				if (is_array($v))
 				{
-					$param[0] += array_keys($v);
+					$param[0] = array_merge($param[0], array_keys($v));
 					$this->length += count($v) - 1;
 				}
 				else $param[0][] = $k;
 
-				$this->length += 1;
+				++$this->length;
 			}
 		}
 
