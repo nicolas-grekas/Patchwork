@@ -965,8 +965,8 @@ class
 		$args = get_class_vars($agent);
 		$args =& $args['argv'];
 
-		if (is_array($args)) array_walk($args, array('self', 'stripArgv'));
-		else $args = array();
+		is_array($args) || $args = (array) $args;
+		$args && array_walk($args, array('self', 'stripArgv'));
 
 		// autodetect private data for antiCSRF
 		$cache = self::getContextualCachePath('antiCSRF.' . $agent, 'txt');
@@ -979,7 +979,7 @@ class
 
 			try
 			{
-				new $agent;
+				new $agent instanceof agent || W("Class {$agent} does not inherit from class agent");
 			}
 			catch (PrivateDetection $d)
 			{
