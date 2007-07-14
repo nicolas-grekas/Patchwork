@@ -25,8 +25,6 @@ mb_encode_mimeheader          - Encode string for MIME header
  * Not implemented:
 
 mb_check_encoding             - Check if the string is valid for the specified encoding
-Note: considering UTF-8, preg_match("''u", $var) is roughly equivalent but 10 times faster than mb_check_encoding($var)
-
 mb_convert_kana               - Convert "kana" one from another ("zen-kaku", "han-kaku" and more)
 mb_convert_variables          - Convert character code in variable(s)
 mb_decode_numericentity       - Decode HTML numeric string reference to character
@@ -166,7 +164,7 @@ class
 
 		if ($length > $strlen - $start) $length = $rx;
 
-		$rx = '/^' . (0 > $start ? '' : self::preg_offset($start)) . '(' . self::preg_offset($length) . ')/u';
+		$rx = '/^' . ($start ? self::preg_offset($start) : '') . '(' . self::preg_offset($length) . ')/u';
 
 		return preg_match($rx, $str, $str) ? $str[1] : '';
 	}

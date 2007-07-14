@@ -305,8 +305,6 @@ else
 
 set_time_limit(ini_get('max_execution_time'));
 
-$patchwork[] = 'isset($CONFIG[\'session.cookie_path\'  ]) || $CONFIG[\'session.cookie_path\'] = \'/\'';
-$patchwork[] = 'isset($CONFIG[\'session.cookie_domain\']) || $CONFIG[\'session.cookie_domain\'] = \'\'';
 $patchwork[] = 'isset($CONFIG[\'P3P\'           ]) || $CONFIG[\'P3P\'] = \'CUR ADM\'';
 $patchwork[] = 'isset($CONFIG[\'DEBUG_ALLOWED\' ]) || $CONFIG[\'DEBUG_ALLOWED\'] = true';
 $patchwork[] = 'isset($CONFIG[\'DEBUG_PASSWORD\']) || $CONFIG[\'DEBUG_PASSWORD\'] = \'\'';

@@ -24,6 +24,12 @@ class
 	static $gcProbabilityNumerator = 1;
 	static $gcProbabilityDenominator = 100;
 
+	static $cookiePath = '/';
+	static $cookieDomain = '';
+
+	static $authVars = array();
+	static $groupVars = array();
+
 
 	/* Protected properties */
 
@@ -39,31 +45,62 @@ class
 
 	/* Public methods */
 
-	static function getSID() {return self::$SID;}
-	static function getLastseen() {return self::$lastseen;}
+	static function getSID()      {patchwork::setGroup('private'); return self::$SID;}
+	static function getLastseen() {patchwork::setGroup('private'); return self::$lastseen;}
 
 	static function get($name)
 	{
-		return isset(self::$DATA[$name]) ? self::$DATA[$name] : '';
+		$value = isset(self::$DATA[$name]) ? self::$DATA[$name] : '';
+		patchwork::setGroup(isset(self::$groupVars[$name]) ? 'session/' . $name . '/' . $value : 'private');
+		return $value;
 	}
 
 	static function set($name, $value = '')
 	{
-		if (is_array($name) || is_object($name)) foreach($name as $k => &$value) self::$DATA[$k] =& $value;
-		else if ('' === $value) unset(self::$DATA[$name]);
-		else self::$DATA[$name] =& $value;
+		if (is_array($name) || is_object($name))
+		{
+			$regenerateId = false;
+
+			foreach ($name as $k => &$value)
+			{
+				self::$DATA[$k] =& $value;
+				$regenerateId || $regenerateId = isset(self::$authVars[$k]);
+			}
+
+			$regenerateId && self::regenerateId();
+		}
+		else
+		{
+			if ('' === $value) unset(self::$DATA[$name]);
+			else self::$DATA[$name] =& $value;
+
+			isset(self::$authVars[$name]) && self::regenerateId();
+		}
 	}
 
 	static function bind($name, &$value)
 	{
 		$value = self::get($name);
+		patchwork::setGroup(isset(self::$groupVars[$name]) ? 'session/' . $name . '/' . $value : 'private');
 		self::set(array($name => &$value));
+	}
+
+	static function flash($name, $value = '')
+	{
+		$a = self::get($name);
+		self::set($name, $value);
+		return $a;
 	}
 
 	static function getAll()
 	{
 		$a = array();
-		foreach (self::$DATA as $k => &$v) $a[$k] =& $v;
+		foreach (self::$DATA as $k => &$v)
+		{
+			patchwork::setGroup(isset(self::$groupVars[$k]) ? 'session/' . $k . '/' . $v : 'private');
+			$a[$k] =& $v;
+		}
+
 		return $a;
 	}
 
@@ -78,14 +115,12 @@ class
 		if ($initSession) self::$DATA = array();
 
 
-		global $CONFIG;
-
 		// Generate a new antiCSRF token
 
 		$sid = isset($_COOKIE['T$']) && '1' == substr($_COOKIE['T$'], 0, 1) ? '1' : '2';
 		$GLOBALS['patchwork_token'] = $sid . patchwork::uniqid();
 
-		setcookie('T$', $GLOBALS['patchwork_token'], 0, $CONFIG['session.cookie_path'], $CONFIG['session.cookie_domain']);
+		setcookie('T$', $GLOBALS['patchwork_token'], 0, self::$cookiePath, self::$cookieDomain);
 
 
 		if (!$initSession || $restartNew)
@@ -101,8 +136,8 @@ class
 		}
 		else self::$sslid = $sid = '';
 
-		setcookie('SID',         $sid, 0, $CONFIG['session.cookie_path'], $CONFIG['session.cookie_domain'], false, true);
-		setcookie('SSL', self::$sslid, 0, $CONFIG['session.cookie_path'], $CONFIG['session.cookie_domain'], true , true);
+		setcookie('SID',         $sid, 0, self::$cookiePath, self::$cookieDomain, false, true);
+		setcookie('SSL', self::$sslid, 0, self::$cookiePath, self::$cookieDomain, true , true);
 
 		// 304 Not Modified response code does not allow Set-Cookie headers,
 		// so we remove any header that could trigger a 304
@@ -121,11 +156,19 @@ class
 	}
 
 
-	/* Protected methods */
+	/* Internal methods */
 
 	static function __static_construct()
 	{
-		patchwork::setGroup('private');
+		global $CONFIG;
+
+		isset($CONFIG['session.auth_vars'])     && self::$authVars     = array_merge(self::$authVars , $CONFIG['session.auth_vars']);
+		isset($CONFIG['session.group_vars'])    && self::$groupVars    = array_merge(self::$groupVars, $CONFIG['session.group_vars']);
+		isset($CONFIG['session.cookie_path'])   && self::$cookiePath   = $CONFIG['session.cookie_path'];
+		isset($CONFIG['session.cookie_domain']) && self::$cookieDomain = $CONFIG['session.cookie_domain'];
+
+		self::$authVars  = array_flip(self::$authVars);
+		self::$groupVars = array_flip(self::$groupVars);
 
 		if (self::$maxIdleTime<1 && self::$maxLifeTime<1) W('At least one of the SESSION::$max*Time variables must be strictly positive.');
 
@@ -177,7 +220,7 @@ class
 				if ('-' == self::$sslid[0] && isset($_SERVER['HTTPS']))
 				{
 					self::$sslid = patchwork::uniqid();
-					setcookie('SSL', self::$sslid, 0, $GLOBALS['CONFIG']['session.cookie_path'], $GLOBALS['CONFIG']['session.cookie_domain'], true , true);
+					setcookie('SSL', self::$sslid, 0, self::$cookiePath, self::$cookieDomain, true , true);
 					unset($_SERVER['HTTP_IF_NONE_MATCH']);
 					unset($_SERVER['HTTP_IF_MODIFIED_SINCE']);
 				}

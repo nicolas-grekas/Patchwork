@@ -25,11 +25,13 @@ $CONFIG += array(
 #	'umask' => umask(),		// Set the user file creation mode mask
 #	'P3P => 'CUR ADM',		// P3P - Platform for Privacy Preferences
 
-	// Session cookie
+	// Session
 #	'session.cookie_path'   => '/',
 #	'session.cookie_domain' => '',
+#	'session.auth_vars' => array(), // Set of session vars used for authentication or authorization
+#	'session.group_vars' => array(), // Set of session vars whose values define user groups
 
-	// Translation tables adapter config.
+	// Translation adapter
 #	'translate_adapter' => false,
 #	'translate_options' => array(),
 
