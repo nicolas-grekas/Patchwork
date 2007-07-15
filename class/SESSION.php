@@ -14,33 +14,31 @@
 
 class
 {
-	/* Public properties */
+	public static
 
-	static $IPlevel = 2;
+		$IPlevel = 2,
 
-	static $maxIdleTime = 0;
-	static $maxLifeTime = 43200;
-
-	static $gcProbabilityNumerator = 1;
-	static $gcProbabilityDenominator = 100;
-
-	static $cookiePath = '/';
-	static $cookieDomain = '';
-
-	static $authVars = array();
-	static $groupVars = array();
+		$maxIdleTime = 0,
+		$maxLifeTime = 43200,
+		
+		$gcProbabilityNumerator = 1,
+		$gcProbabilityDenominator = 100,
+		
+		$authVars = array(),
+		$groupVars = array();
 
 
-	/* Protected properties */
+	protected static
 
-	protected static $DATA;
-	protected static $adapter = false;
-
-	protected static $SID = '';
-	protected static $lastseen = '';
-	protected static $birthtime = '';
-	protected static $sslid = '';
-	protected static $isIdled = false;
+		$cookiePath,
+		$cookieDomain,
+		$DATA,
+		$adapter = false,
+		$SID = '',
+		$lastseen = '',
+		$birthtime = '',
+		$sslid = '',
+		$isIdled = false;
 
 
 	/* Public methods */
@@ -162,10 +160,11 @@ class
 	{
 		global $CONFIG;
 
-		isset($CONFIG['session.auth_vars'])     && self::$authVars     = array_merge(self::$authVars , $CONFIG['session.auth_vars']);
-		isset($CONFIG['session.group_vars'])    && self::$groupVars    = array_merge(self::$groupVars, $CONFIG['session.group_vars']);
-		isset($CONFIG['session.cookie_path'])   && self::$cookiePath   = $CONFIG['session.cookie_path'];
-		isset($CONFIG['session.cookie_domain']) && self::$cookieDomain = $CONFIG['session.cookie_domain'];
+		self::$cookiePath   = $CONFIG['session.cookie_path'];
+		self::$cookieDomain = $CONFIG['session.cookie_domain'];
+
+		isset($CONFIG['session.auth_vars'])  && self::$authVars  = array_merge(self::$authVars , $CONFIG['session.auth_vars']);
+		isset($CONFIG['session.group_vars']) && self::$groupVars = array_merge(self::$groupVars, $CONFIG['session.group_vars']);
 
 		self::$authVars  = array_flip(self::$authVars);
 		self::$groupVars = array_flip(self::$groupVars);
