@@ -15,7 +15,7 @@
 class extends agent
 {
 	const contentType = 'text/css';
-	public $get = array('__0__');
+	public $get = '__0__';
 
 	protected
 		$maxage = -1,
