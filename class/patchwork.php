@@ -340,7 +340,7 @@ class
 			self::setcookie('v$', self::$appId, $_SERVER['REQUEST_TIME'] + $GLOBALS['CONFIG']['maxage'], $a .'/');
 
 			self::touch('');
-			foreach (glob(self::$cachePath . '?/?/*', GLOB_NOSORT) as $v) if ('.session' != substr($v, -8)) unlink($v);
+			foreach (glob(self::$cachePath . '?/?/*', GLOB_NOSORT) as $v) unlink($v);
 
 			if (!IS_POSTING)
 			{
@@ -601,7 +601,7 @@ class
 	}
 	
 	/*
-	 * Controls the Cache's max age.
+	 * Controls cache max age
 	 */
 	static function setMaxage($maxage)
 	{
@@ -622,7 +622,7 @@ class
 	}
 
 	/*
-	 * Controls the Cache's groups.
+	 * Controls cache groups
 	 */
 	static function setGroup($group)
 	{
@@ -662,7 +662,7 @@ class
 	}
 
 	/*
-	 * Controls the Cache's expiration mechanism.
+	 * Controls cache expiration mechanism
 	 */
 	static function setExpires($expires)
 	{
@@ -689,7 +689,7 @@ class
 	static function uniqid() {return md5(uniqid(mt_rand(), true));}
 
 	/*
-	 * Revokes every agent watching $message
+	 * Clears files linked to $message
 	 */
 	static function touch($message)
 	{
@@ -764,7 +764,7 @@ class
 	}
 
 	/*
-	 * Creates the full directory path to $filename, then writes $data to this file
+	 * Creates the full directory path to $filename, then writes $data to the file
 	 */
 	static function writeFile($filename, &$data, $Dmtime = 0)
 	{

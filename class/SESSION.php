@@ -30,6 +30,7 @@ class
 
 	protected static
 
+		$savePath,
 		$cookiePath,
 		$cookieDomain,
 		$DATA,
@@ -160,6 +161,7 @@ class
 	{
 		global $CONFIG;
 
+		self::$savePath     = $CONFIG['session.save_path'];
 		self::$cookiePath   = $CONFIG['session.cookie_path'];
 		self::$cookieDomain = $CONFIG['session.cookie_domain'];
 
@@ -263,7 +265,7 @@ class
 
 	protected function __construct($sid)
 	{
-		$this->path = patchwork::$cachePath . '0/'. $sid[0] .'/'. substr($sid, 1) .'.session';
+		$this->path = self::$savePath .'/'. $sid[0] .'/'. substr($sid, 1) .'.session';
 
 		patchwork::makeDir($this->path);
 
@@ -308,7 +310,7 @@ class
 
 	static function gc($lifetime)
 	{
-		foreach (glob(patchwork::$cachePath . '0/?/*.session', GLOB_NOSORT) as $file)
+		foreach (glob(self::$savePath . '/?/*.session', GLOB_NOSORT) as $file)
 		{
 			if ($_SERVER['REQUEST_TIME'] - filemtime($file) > $lifetime) unlink($file);
 		}

@@ -305,6 +305,7 @@ else
 
 set_time_limit(ini_get('max_execution_time'));
 
+$patchwork[] = 'isset($CONFIG[\'session.save_path\'    ]) || $CONFIG[\'session.save_path\'] = $patchwork_zcache';
 $patchwork[] = 'isset($CONFIG[\'session.cookie_path\'  ]) || $CONFIG[\'session.cookie_path\'] = \'/\'';
 $patchwork[] = 'isset($CONFIG[\'session.cookie_domain\']) || $CONFIG[\'session.cookie_domain\'] = \'\'';
 $patchwork[] = 'isset($CONFIG[\'P3P\'           ]) || $CONFIG[\'P3P\'] = \'CUR ADM\'';
