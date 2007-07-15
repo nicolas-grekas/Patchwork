@@ -26,6 +26,7 @@ $CONFIG += array(
 #	'P3P => 'CUR ADM',		// P3P - Platform for Privacy Preferences
 
 	// Session
+#	'session.save_path'     => $patchwork_zcache,
 #	'session.cookie_path'   => '/',
 #	'session.cookie_domain' => '',
 #	'session.auth_vars' => array(), // Set of session vars used for authentication or authorization
