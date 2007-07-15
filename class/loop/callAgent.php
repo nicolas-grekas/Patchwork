@@ -16,11 +16,13 @@ class extends loop
 {
 	public $autoResolve = true;
 
-	protected $agent;
-	protected $keys;
+	protected
+		$agent,
+		$keys;
 
-	private $data;
-	private $firstCall = true;
+	private
+		$data,
+		$firstCall = true;
 
 	function __construct($agent, $keys = false)
 	{

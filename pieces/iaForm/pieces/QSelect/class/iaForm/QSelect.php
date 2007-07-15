@@ -14,8 +14,9 @@
 
 class extends iaForm_text
 {
-	protected $src;
-	protected $lock;
+	protected
+		$src,
+		$lock;
 
 	protected function init(&$param)
 	{

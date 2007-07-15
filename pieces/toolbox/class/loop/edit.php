@@ -2,17 +2,18 @@
 
 abstract class extends loop
 {
-	protected $type;
-	protected $form;
-	protected $fromDb;
-	protected $counter;
-	protected $contextIsSet;
-	protected $length;
-	protected $submit_add;
-	protected $submit_count;
-	protected $count_name;
-	protected $count_value;
-	protected $deleted = array();
+	protected
+		$type,
+		$form,
+		$fromDb,
+		$counter,
+		$contextIsSet,
+		$length,
+		$submit_add,
+		$submit_count,
+		$count_name,
+		$count_value,
+		$deleted = array();
 
 	function __construct($form, $loop)
 	{

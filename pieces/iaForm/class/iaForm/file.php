@@ -14,9 +14,10 @@
 
 class extends iaForm_text
 {
-	protected $type = 'file';
-	public $isfile = true;
-	public $isdata = false;
+	protected
+		$type = 'file',
+		$isfile = true,
+		$isdata = false;
 
 	protected function init(&$param)
 	{
@@ -34,7 +35,7 @@ class extends iaForm_text
 
 	protected function addJsValidation($a)
 	{
-		$a->_valid = new loop_array(array('string', isset($this->valid_args[1]) ? $this->valid_args[1] : ''));
+		$a->_valid = new loop_array(array('char', isset($this->valid_args[1]) ? $this->valid_args[1] : ''));
 		return $a;
 	}
 }

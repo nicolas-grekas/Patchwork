@@ -22,8 +22,11 @@ define(
 
 class
 {
-	static $sleep = 500; // (ms)
-	static $period = 5;  // (s)
+	static
+
+		$sleep = 500, // (ms)
+		$period = 5;  // (s)
+
 
 	static function checkCache()
 	{

@@ -14,8 +14,9 @@
 
 class extends agent_queue_iaCron
 {
-	protected $queueFolder = 'data/queue/iaMail/';
-	protected $dual = 'iaMail';
+	protected
+		$queueFolder = 'data/queue/iaMail/',
+		$dual = 'iaMail';
 
 	protected function queueNext()
 	{
@@ -46,7 +47,7 @@ class extends agent_queue_iaCron
 		$this->restoreSession($data->session);
 
 		isset($data->agent)
-			? iaMail_mime::sendAgent($data->headers, $data->agent, $data->argv, $data->options)
+			? iaMail_mime::sendAgent($data->headers, $data->agent, $data->args, $data->options)
 			: iaMail_mime::send($data->headers, $data->body, $data->options);
 
 		$sql = $archive

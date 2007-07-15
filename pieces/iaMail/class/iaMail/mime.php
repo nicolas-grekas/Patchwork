@@ -26,9 +26,9 @@ class extends Mail_mime
 		$mail->doSend();
 	}
 
-	static function sendAgent($headers, $agent, $argv = array(), $options = null)
+	static function sendAgent($headers, $agent, $args = array(), $options = null)
 	{
-		$mail = new iaMail_agent($agent, $argv, $options);
+		$mail = new iaMail_agent($agent, $args, $options);
 		$mail->headers($headers);
 		$mail->doSend();
 	}

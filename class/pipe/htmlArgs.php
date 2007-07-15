@@ -40,9 +40,9 @@ class
 P$htmlArgs = function($pool)
 {
 	if (!$pool) return '';
-	var $result = '', $argv = P$htmlArgs.arguments, $i = $argv.length, $except = [];
+	var $result = '', $args = P$htmlArgs.arguments, $i = $args.length, $except = [];
 
-	while (--$i) $except[$i] = $argv[$i];
+	while (--$i) $except[$i] = $args[$i];
 	$except = new RegExp('^(|'+$except.join('|')+')$');
 
 	for ($i in $pool) if ('_'!=$i.substr(0, 1) && 'iteratorPosition'!=$i && $i.indexOf('$')<0 && $i.search($except)) $result += $i + '="' + $pool[$i] + '" ';

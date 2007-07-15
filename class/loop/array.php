@@ -14,8 +14,9 @@
 
 class extends loop
 {
-	protected $array;
-	protected $isAssociative = true;
+	protected
+		$array,
+		$isAssociative = true;
 
 	function __construct($array, $filter = '', $isAssociative = null)
 	{

@@ -14,17 +14,18 @@
 
 class extends loop
 {
-	protected $loop;
-	protected $freqKey;
-	protected $sizeKey;
-	protected $range;
-
-	protected $histo;
-	protected $min;
-	protected $max;
-
-	protected $histoCumule = array();
-	protected $dynamic;
+	protected
+		$loop,
+		$freqKey,
+		$sizeKey,
+		$range,
+		
+		$histo,
+		$min,
+		$max,
+		
+		$histoCumule = array(),
+		$dynamic;
 
 	function __construct($loop, $freqKey, $sizeKey, $range)
 	{

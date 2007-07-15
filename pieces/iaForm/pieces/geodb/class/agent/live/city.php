@@ -14,7 +14,7 @@
 
 class extends agent
 {
-	public $argv = array('q');
+	public $get = array('q');
 
 	protected $maxage = -1;
 
@@ -22,7 +22,7 @@ class extends agent
 
 	function compose($o)
 	{
-		$sql = $this->argv->q;
+		$sql = $this->get->q;
 		$sql = ('*' == $sql ? '' : lingua::getKeywords($sql));
 		$sql = sqlite_escape_string($sql);
 

@@ -14,12 +14,15 @@
 
 class extends patchwork
 {
-	protected static $args;
-	protected static $values;
-	protected static $get;
+	protected static
 
-	protected static $masterCache = array();
-	protected static $cache;
+		$args,
+		$values,
+		$get,
+		
+		$masterCache = array(),
+		$cache;
+
 
 	static function returnAgent($agent, $args, $lang = false)
 	{
@@ -161,7 +164,7 @@ class extends patchwork
 
 		$is_cacheable = !in_array('private', $group);
 
-		$cagent = patchwork::agentCache($agentClass, $agent->argv, 'ser', $group);
+		$cagent = patchwork::agentCache($agentClass, $agent->get, 'ser', $group);
 
 		$filter = false;
 

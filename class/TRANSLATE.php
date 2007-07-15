@@ -14,8 +14,9 @@
 
 class
 {
-	protected static $adapter;
-	protected static $cache;
+	protected static
+		$adapter,
+		$cache;
 
 	public static function get($string, $lang, $usecache)
 	{

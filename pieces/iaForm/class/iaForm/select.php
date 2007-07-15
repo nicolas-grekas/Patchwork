@@ -14,10 +14,11 @@
 
 class extends iaForm_hidden
 {
-	protected $type = 'select';
-	protected $item = array();
-	protected $firstItem = false;
-	protected $length = -1;
+	protected
+		$type = 'select',
+		$item = array(),
+		$firstItem = false,
+		$length = -1;
 
 	protected function init(&$param)
 	{

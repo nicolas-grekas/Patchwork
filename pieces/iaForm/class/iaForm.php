@@ -14,26 +14,27 @@
 
 class extends loop_callAgent
 {
-	public $rawValues;
-	public $errormsg = array();
-	public $sessionLink = false;
-	public $action = false;
+	public
+		$rawValues,
+		$errormsg = array(),
+		$sessionLink = false,
+		$action = false;
 
-	protected $elt = array();
-	protected $hidden = array();
+	protected
+		$elt = array(),
+		$hidden = array(),
+		$POST,
+		$eltnameSuffix = '',
+		
+		$agentData = false,
+		$agentPrefix = 'f_',
 
-	protected $POST;
-	protected $eltnameSuffix = '';
-
-	protected $agentData = false;
-	protected $agentPrefix = 'f_';
-
-	protected $hasfile = false;
-	protected $enterControl = false;
-	protected $firstName = -1;
-
-	protected $contextPool = array();
-	protected $defaults = array();
+		$hasfile = false,
+		$enterControl = false,
+		$firstName = -1,
+		
+		$contextPool = array(),
+		$defaults = array();
 
 	function __construct($agentData, $sessionLink = '', $POST = true, $formVarname = 'form')
 	{
@@ -98,6 +99,8 @@ class extends loop_callAgent
 
 	function add($type, $name, $param = array(), $autoPopulate = true)
 	{
+		is_array($param) || $param = (array) $param;
+
 		if (!isset($param['default']) && isset($this->defaults[$name])) $param['default'] = $this->defaults[$name];
 
 		$type = 'iaForm_' . preg_replace('"[^a-zA-Z0-9\x80-\xff]+"', '_', $type);

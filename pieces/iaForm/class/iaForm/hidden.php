@@ -14,27 +14,28 @@
 
 class extends loop_callAgent
 {
-	protected $name = '';
-	protected $value = '';
-	protected $status = false;
+	protected
+		$name = '',
+		$value = '',
+		$status = false,
+		
+		$isfile = false,
+		$isdata = true,
+		$required = false,
+		$errormsg = '',
+		
+		$form,
+		$sessionLink = false,
+		
+		$multiple = false,
+		$type = 'hidden',
+		
+		$valid,
+		$valid_args = array(),
 
-	protected $isfile = false;
-	protected $isdata = true;
-	protected $required = false;
-	protected $errormsg = '';
-
-	protected $form;
-	protected $sessionLink = false;
-
-	protected $multiple = false;
-	protected $type = 'hidden';
-
-	protected $valid;
-	protected $valid_args = array();
-
-	protected $elt = array();
-	protected $eltToCheck = array();
-	protected $isOn;
+		$elt = array(),
+		$eltToCheck = array(),
+		$isOn;
 
 	function __construct($form, $name, $param, &$sessionLink = false)
 	{
@@ -42,6 +43,7 @@ class extends loop_callAgent
 		$this->sessionLink =& $sessionLink;
 		$this->name =& $name;
 
+		is_array($param) || $param = (array) $param;
 		$this->init($param);
 
 		if ($sessionLink)
@@ -212,7 +214,7 @@ class extends loop_callAgent
 
 	protected function init(&$param)
 	{
-		$this->valid = isset($param['valid']) ? $param['valid'] : 'string';
+		$this->valid = isset($param['valid']) ? $param['valid'] : 'char';
 
 		if (isset($param['multiple']) && $param['multiple'])
 		{

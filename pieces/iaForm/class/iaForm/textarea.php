@@ -14,6 +14,13 @@
 
 class extends iaForm_text
 {
-	protected $type = 'textarea';
-	protected $maxlength = 65535;
+	protected
+		$type = 'textarea',
+		$maxlength = 65535;
+
+	protected function init(&$param)
+	{
+		isset($param['valid']) || $param['valid'] = 'text';
+		return parent::init($param)
+	}
 }
