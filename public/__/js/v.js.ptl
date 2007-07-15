@@ -44,20 +44,24 @@ valid_float = function($value, $args)
 	return true;
 }
 
-valid_string = function($value, $args)
+valid_char = function($value, $args)
 {
-	$value = $value.replace(/^\s+/, '').replace(/\s+$/, '');
-	return valid_raw($value, $args);
+	$value = $value.replace(/[ \t\r\n]+/g, ' ', ' '+$value+' ');
+	$value = $value.substr(1, $value.length - 2);
+	return valid_text($value, $args);
 }
 
-valid_raw = function($value, $args)
+valid_text = function($value, $args)
 {
+	$value = $value.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]+/g, '');
+
 	if ($args[0])
 	{
 		$args = (' ' + $args.join(':')).replace(/([^\\](\\\\)*)\./g, '$1[\\s\\S]');
 		$args = new RegExp('^(' + $args + ')$');
 		if (!$args.test(' ' + $value)) return false;
 	}
+
 	return true;
 }
 

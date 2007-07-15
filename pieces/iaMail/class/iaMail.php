@@ -27,12 +27,12 @@ class extends iaCron
 		));
 	}
 
-	static function sendAgent($headers, $agent, $argv = array(), $options = null)
+	static function sendAgent($headers, $agent, $args = array(), $options = null)
 	{
 		return self::pushMail(array(
 			'headers' => &$headers,
 			'agent' => &$agent,
-			'argv' => &$argv,
+			'args' => &$args,
 			'options' => &$options,
 		));
 	}

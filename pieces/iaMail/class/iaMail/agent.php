@@ -14,16 +14,17 @@
 
 class extends iaMail_mime
 {
-	protected $agent;
-	protected $argv;
-	protected $lang;
+	protected
+		$agent,
+		$args,
+		$lang;
 
 	static protected $imageCache = array();
 
-	function __construct($agent, $argv = array(), $options = null)
+	function __construct($agent, $args = array(), $options = null)
 	{
 		$this->agent = $agent;
-		$this->argv = (array) $argv;
+		$this->args = (array) $args;
 		$this->lang = isset($options['lang']) ? $options['lang'] : patchwork::__LANG__();
 
 		parent::__construct($options);
@@ -31,7 +32,7 @@ class extends iaMail_mime
 
 	protected function doSend()
 	{
-		$html = patchwork_serverside::returnAgent($this->agent, $this->argv, $this->lang);
+		$html = patchwork_serverside::returnAgent($this->agent, $this->args, $this->lang);
 
 		if (!isset($this->_headers['Subject']) && preg_match("'<title[^>]*>(.*?)</title[^>]*>'isu", $html, $title))
 		{

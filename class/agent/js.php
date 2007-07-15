@@ -15,21 +15,22 @@
 class extends agent
 {
 	const contentType = 'text/javascript';
-	public $argv = array('__0__', 'source:bool');
+	public $get = array('__0__', 'source:b');
 
-	protected $maxage = -1;
-	protected $watch = array('public/js');
+	protected
+		$maxage = -1,
+		$watch = array('public/js');
 
 	protected static $recursion = 0;
 
 	function control()
 	{
-		$this->argv->source && self::$recursion = 1;
-		self::$recursion && $this->argv->source = 1;
+		$this->get->source && self::$recursion = 1;
+		self::$recursion && $this->get->source = 1;
 
-		if (DEBUG || $this->argv->source)
+		if (DEBUG || $this->get->source)
 		{
-			$tpl = $this->argv->__0__;
+			$tpl = $this->get->__0__;
 
 			if ($tpl !== '')
 			{
@@ -44,10 +45,10 @@ class extends agent
 
 	function compose($o)
 	{
-		if (!DEBUG && !$this->argv->source)
+		if (!DEBUG && !$this->get->source)
 		{
 			++self::$recursion;
-			$source = patchwork_serverside::returnAgent(substr(get_class($this), 6), (array) $this->argv);
+			$source = patchwork_serverside::returnAgent(substr(get_class($this), 6), (array) $this->get);
 			--self::$recursion;
 
 			$parser = new jsqueez;

@@ -43,12 +43,14 @@ class
 
 
 	# no args
+	protected static function get_b   (&$value, &$args) {return self::get_bool($value, $args);}
 	protected static function get_bool(&$value, &$args)
 	{
 		return (string) (bool) $value;
 	}
 
 	# min, max
+	protected static function get_i   (&$value, &$args) {return self::get_int($value, $args);}
 	protected static function get_int(&$value, &$args)
 	{
 		if (!is_scalar($value)) return false;
@@ -62,6 +64,7 @@ class
 	}
 
 	# min, max
+	protected static function get_f   (&$value, &$args) {return self::get_f($value, $args);}
 	protected static function get_float(&$value, &$args)
 	{
 		if (!is_scalar($value)) return false;
@@ -78,6 +81,7 @@ class
 	}
 
 	# array
+	protected static function get_a       (&$value, &$args) {return self::get_in_array($value, $args);}
 	protected static function get_in_array(&$value, &$args)
 	{
 		return in_array($value, $args[0]) ? $value : false;
@@ -88,7 +92,7 @@ class
 	{
 		$a = array();
 
-		if ($result = self::get_raw($value, $a))
+		if ($result = self::get_text($value, $a))
 		{
 			static $parser;
 
@@ -105,19 +109,21 @@ class
 	}
 
 	# regexp
-	protected static function get_string(&$value, &$args)
+	protected static function get_c   (&$value, &$args) {return self::get_char($value, $args);}
+	protected static function get_char(&$value, &$args)
 	{
 		if (!is_scalar($value)) return false;
-		$result = trim((string) $value);
-		return self::get_raw($result, $args);
+		$result = substr(preg_replace('/[ \t\r\n]+/', ' ', " $value "), 1, -1);
+		return self::get_text($result, $args);
 	}
 
 	# regexp
-	protected static function get_raw(&$value, &$args)
+	protected static function get_t   (&$value, &$args) {return self::get_text($value, $args);}
+	protected static function get_text(&$value, &$args)
 	{
 		if (!is_scalar($value)) return false;
 
-		$result = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/', '', $value);
+		$result = preg_replace('/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]+/', '', $value);
 		false !== strpos($result, "\r")  && $result = strtr(str_replace("\r\n", "\n", $result), "\r", "\n");
 		preg_match(UTF8_NFC_RX, $result) && $result = utf8_normalize::toNFC($result);
 
@@ -216,7 +222,7 @@ class
 		if (isset($args[1]) && $args[1])
 		{
 			$result = array($args[1]);
-			$result = self::get_raw($value, $result);
+			$result = self::get_char($value, $result);
 			if (false === $result) return false;
 		}
 

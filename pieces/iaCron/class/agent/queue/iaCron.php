@@ -16,19 +16,20 @@ class extends agent
 {
 	const contentType = '';
 
-	public $argv = array(
-		'__1__:int:1',
-		'__2__:string:[a-f0-9]{32}'
+	public $get = array(
+		'__1__:i:1',
+		'__2__:c:[a-f0-9]{32}'
 	);
 
 	public static $callbackError = false;
 
-	protected $lock;
-	protected $queueName = 'queue';
-	protected $queueFolder = 'data/queue/iaCron/';
-	protected $dual = 'iaCron';
-
-	protected $sqlite;
+	protected
+		$lock,
+		$queueName = 'queue',
+		$queueFolder = 'data/queue/iaCron/',
+		$dual = 'iaCron',
+		
+		$sqlite;
 
 	function control()
 	{
@@ -36,20 +37,20 @@ class extends agent
 		$sqlite = new $sqlite;
 		$this->sqlite = $sqlite->getSqlite();
 
-		if (isset($this->argv->__1__) && $this->argv->__1__)
+		if (isset($this->get->__1__) && $this->get->__1__)
 		{
-			if (isset($this->argv->__2__) && $this->argv->__2__ == $this->getToken())
+			if (isset($this->get->__2__) && $this->get->__2__ == $this->getToken())
 			{
 				if ($this->getLock())
 				{
 					ob_start(array($this, 'ob_handler'));
-					$this->doOne($this->argv->__1__);
+					$this->doOne($this->get->__1__);
 					ob_end_flush();
 				}
 
 				return;
 			}
-			else $this->touchOne($this->argv->__1__);
+			else $this->touchOne($this->get->__1__);
 		}
 
 		$this->queueNext();

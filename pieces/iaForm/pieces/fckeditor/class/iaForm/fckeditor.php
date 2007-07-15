@@ -14,8 +14,9 @@
 
 class extends iaForm_textarea
 {
-	protected $toolbarSet;
-	protected $config;
+	protected
+		$toolbarSet,
+		$config;
 
 	protected function init(&$param)
 	{

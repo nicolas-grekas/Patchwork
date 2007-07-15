@@ -14,8 +14,9 @@
 
 class extends agent_QSelect
 {
-	protected $maxage = -1;
-	protected $template = 'QSelect/liveAgent.js';
+	protected
+		$maxage = -1,
+		$template = 'QSelect/liveAgent.js';
 
 	function control() {}
 

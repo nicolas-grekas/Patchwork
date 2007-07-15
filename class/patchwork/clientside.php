@@ -24,7 +24,7 @@ class extends patchwork
 		$readHandle = true;
 		if ($h = patchwork::fopenX($cagent, $readHandle))
 		{
-			$a = patchwork::agentArgv($agent);
+			$a = patchwork::agentArgs($agent);
 			array_walk($a, 'jsquoteRef');
 			$a = implode(',', $a);
 
@@ -113,7 +113,7 @@ EOHTML;
 
 			if ($is_cacheable = !(IS_POSTING || in_array('private', $group)))
 			{
-				$cagent = patchwork::agentCache($agentClass, $agent->argv, 'js.ser', $group);
+				$cagent = patchwork::agentCache($agentClass, $agent->get, 'js.ser', $group);
 				$dagent = patchwork::getContextualCachePath('jsdata.' . $agentClass, 'js.ser', $cagent);
 
 				if ($liveAgent)

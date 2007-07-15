@@ -14,24 +14,24 @@
 
 class extends agent
 {
-	public $argv = array('id');
+	public $get = array('id');
 
 	function control() {}
 
 	function compose($o)
 	{
-		if ($this->argv->id)
+		if ($this->get->id)
 		{
 			$this->expires = 'onmaxage';
 			patchwork::setGroup('private');
 
 			if (function_exists('upload_progress_meter_get_info'))
 			{
-				$o = (object) @upload_progress_meter_get_info($this->argv->id);
+				$o = (object) @upload_progress_meter_get_info($this->get->id);
 			}
 			else if (function_exists('uploadprogress_get_info'))
 			{
-				$o = (object) @uploadprogress_get_info($this->argv->id);
+				$o = (object) @uploadprogress_get_info($this->get->id);
 			}
 		}
 		else $this->maxage = -1;

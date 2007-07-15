@@ -20,11 +20,11 @@ class extends iaForm_select
 	{
 		unset($param['item']);
 		unset($param['sql']);
-		if (!isset($param['valid'])) $param['valid'] = 'string';
+		isset($param['valid']) || $param['valid'] = 'char';
 
 		parent::init($param);
 
-		if (isset($param['src'])) $this->src = $param['src'];
+		isset($param['src']) && $this->src = $param['src'];
 	}
 
 	protected function get()

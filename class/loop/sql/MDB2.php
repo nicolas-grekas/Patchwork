@@ -14,11 +14,12 @@
 
 class extends loop
 {
-	protected $db = false;
-	protected $sql;
-	protected $result;
-	protected $from = 0;
-	protected $count = 0;
+	protected
+		$db = false,
+		$sql,
+		$result,
+		$from = 0,
+		$count = 0;
 
 	function __construct($sql, $filter = '', $from = 0, $count = 0)
 	{

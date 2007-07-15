@@ -14,8 +14,9 @@
 
 class extends iaForm_hidden
 {
-	protected $type = 'text';
-	protected $maxlength = 255;
+	protected
+		$type = 'text',
+		$maxlength = 255;
 
 	protected function init(&$param)
 	{

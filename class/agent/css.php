@@ -15,14 +15,15 @@
 class extends agent
 {
 	const contentType = 'text/css';
-	public $argv = array('__0__');
+	public $get = array('__0__');
 
-	protected $maxage = -1;
-	protected $watch = array('public/css');
+	protected
+		$maxage = -1,
+		$watch = array('public/css');
 
 	function control()
 	{
-		$tpl = $this->argv->__0__;
+		$tpl = $this->get->__0__;
 
 		if ($tpl !== '')
 		{

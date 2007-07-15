@@ -90,8 +90,7 @@ $_SESSION = new sessionHandler;
 // {{{ Database sugar
 function DB($close = false)
 {
-	static $hunter;
-	static $db = false;
+	static $hunter, $db = false;
 
 	if ($db || $close)
 	{
@@ -126,62 +125,68 @@ function jsquoteRef(&$a) {$a = jsquote($a);}
 
 class
 {
-	static $cachePath;
-	static $agentClass;
-	static $catchMeta = false;
+	static
+		
+		$cachePath,
+		$agentClass,
+		$catchMeta = false;
 
-	protected static $ETag = '';
-	protected static $LastModified = 0;
 
-	protected static $host;
-	protected static $lang = '__';
-	protected static $base;
-	protected static $uri;
+	protected static
+		
+		$ETag = '',
+		$LastModified = 0,
+		
+		$host,
+		$lang = '__',
+		$base,
+		$uri,
+		
+		$appId,
+		$metaInfo,
+		$metaPool = array(),
+		$isGroupStage = true,
+		$binaryMode = false,
+		
+		$maxage = false,
+		$private = false,
+		$expires = 'auto',
+		$watchTable = array(),
+		$headers = array(),
+		
+		$redirecting = false,
+		$is_enabled = false,
+		$ob_starting_level,
+		$ob_level,
+		$varyEncoding = false,
+		$contentEncoding = false,
+		$is304 = false,
+		
+		$agentClasses = '',
+		$privateDetectionMode = false,
+		$detectCSRF = false,
+		$total_time = 0,
+		
+		$allowGzip = array(
+			'text/','script','xml','html','bmp','wav',
+			'msword','rtf','excel','powerpoint',
+		),
+		
+		$ieSniffedTypes = array(
+			'text/plain','text/richtext','audio/x-aiff','audio/basic','audio/wav',
+			'image/gif','image/jpeg','image/pjpeg','image/tiff','image/x-png','image/png',
+			'image/x-xbitmap','image/bmp','image/x-jg','image/x-emf','image/x-wmf',
+			'video/avi','video/mpeg','application/octet-stream','application/pdf',
+			'application/base64','application/macbinhex40','application/postscript',
+			'application/x-compressed','application/java','application/x-msdownload',
+			'application/x-gzip-compressed','application/x-zip-compressed'
+		),
+		
+		$ieSniffedTags = array(
+			'body','head','html','img','plaintext',
+			'a href','pre','script','table','title'
+		);
 
-	protected static $appId;
-	protected static $metaInfo;
-	protected static $metaPool = array();
-	protected static $isGroupStage = true;
-	protected static $binaryMode = false;
-
-	protected static $maxage = false;
-	protected static $private = false;
-	protected static $expires = 'auto';
-	protected static $watchTable = array();
-	protected static $headers = array();
-
-	protected static $redirecting = false;
-	protected static $is_enabled = false;
-	protected static $ob_starting_level;
-	protected static $ob_level;
-	protected static $varyEncoding = false;
-	protected static $contentEncoding = false;
-	protected static $is304 = false;
-
-	protected static $agentClasses = '';
-	protected static $privateDetectionMode = false;
-	protected static $detectCSRF = false;
-	protected static $total_time = 0;
-
-	protected static $allowGzip = array(
-		'text/','script','xml','html','bmp','wav',
-		'msword','rtf','excel','powerpoint',
-	);
-
-	protected static $ieSniffedTypes = array(
-		'text/plain','text/richtext','audio/x-aiff','audio/basic','audio/wav',
-		'image/gif','image/jpeg','image/pjpeg','image/tiff','image/x-png','image/png',
-		'image/x-xbitmap','image/bmp','image/x-jg','image/x-emf','image/x-wmf',
-		'video/avi','video/mpeg','application/octet-stream','application/pdf',
-		'application/base64','application/macbinhex40','application/postscript',
-		'application/x-compressed','application/java','application/x-msdownload',
-		'application/x-gzip-compressed','application/x-zip-compressed'
-	);
-
-	protected static $ieSniffedTags = array(
-		'body','head','html','img','plaintext',
-		'a href','pre','script','table','title'
-	);
 
 	static function start()
 	{
@@ -959,14 +964,14 @@ class
 		return $agent;
 	}
 
-	protected static function agentArgv($agent)
+	protected static function agentArgs($agent)
 	{
-		// get declared arguments in $agent::$argv public property
+		// get declared arguments in $agent->get public property
 		$args = get_class_vars($agent);
-		$args =& $args['argv'];
+		$args =& $args['get'];
 
 		is_array($args) || $args = (array) $args;
-		$args && array_walk($args, array('self', 'stripArgv'));
+		$args && array_walk($args, array('self', 'stripArgs'));
 
 		// autodetect private data for antiCSRF
 		$cache = self::getContextualCachePath('antiCSRF.' . $agent, 'txt');
@@ -1006,7 +1011,7 @@ class
 		return $args;
 	}
 
-	protected static function stripArgv(&$a, $k)
+	protected static function stripArgs(&$a, $k)
 	{
 		if (is_string($k)) $a = $k;
 
@@ -1404,17 +1409,17 @@ class agent
 {
 	const contentType = 'text/html';
 
-	public $argv = array();
+	public $get = array();
 
-	protected $template = '';
-
-	protected $maxage  = 0;
-	protected $expires = 'auto';
-	protected $canPost = false;
-	protected $watch = array();
-
-	// For convenience only, same content as <$this>::contentType
-	protected $contentType;
+	protected
+		$template = '',
+		$maxage  = 0,
+		$expires = 'auto',
+		$canPost = false,
+		$watch = array(),
+		
+		// For convenience only, same content as agent::contentType
+		$contentType;
 
 	function control() {}
 	function compose($o) {return $o;}
@@ -1428,9 +1433,9 @@ class agent
 		$this->contentType = constant(get_class($this) . '::contentType');
 		$this->contentType && patchwork::header('Content-Type: ' . $this->contentType);
 
-		$a = (array) $this->argv;
+		$a = (array) $this->get;
 
-		$this->argv = (object) array();
+		$this->get = (object) array();
 		$_GET = array();
 
 		foreach ($a as $key => &$a)
@@ -1454,7 +1459,7 @@ class agent
 				if (false === $b) $b = $default;
 			}
 
-			$_GET[$key] = $this->argv->$key = $b;
+			$_GET[$key] = $this->get->$key = $b;
 		}
 
 		$this->control();
@@ -1479,8 +1484,9 @@ class agentTemplate extends agent
 
 class loop
 {
-	private $loopLength = false;
-	private $filter = array();
+	private
+		$loopLength = false,
+		$filter = array();
 
 	protected function prepare() {}
 	protected function next() {}

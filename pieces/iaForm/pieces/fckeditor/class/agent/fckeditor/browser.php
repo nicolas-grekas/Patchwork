@@ -16,30 +16,33 @@ class extends agent
 {
 	const contentType = '';
 
-	public $argv = array(
-		'Command:string:FileUpload|GetFolders|GetFoldersAndFiles|CreateFolder',
-		'Type:string:File|Image|Flash|Media',
+	public $get = array(
+		'Command:c:FileUpload|GetFolders|GetFoldersAndFiles|CreateFolder',
+		'Type:c:File|Image|Flash|Media',
 		'CurrentFolder',
 		'NewFolderName'
 	);
 
-	protected $path = false;
 
-	protected $allow_file = array('pdf','doc','odt');
-	protected  $deny_file = array(
-//		'html','htm','php','php2','php3','php4','php5','phtml','pwml','inc','asp','aspx','ascx',
-//		'jsp','cfm','cfc','pl','bat','exe','com','dll','vbs','js','reg','cgi','htaccess','asis',
-//		'sh','shtml','shtm','phtm',
-	);
+	protected
 
-	protected $allow_image = array('jpg','gif','jpeg','png','bmp');
-	protected  $deny_image = array();
-
-	protected $allow_flash = array('');
-	protected  $deny_flash = array();
-
-	protected $allow_media = array('jpg','gif','jpeg','png','bmp','avi','mpg','mpeg');
-	protected  $deny_media = array();
+		$path = false,
+		
+		$allow_file = array('pdf','doc','odt'),
+		$deny_file  = array(
+//			'html','htm','php','php2','php3','php4','php5','phtml','pwml','inc','asp','aspx','ascx',
+//			'jsp','cfm','cfc','pl','bat','exe','com','dll','vbs','js','reg','cgi','htaccess','asis',
+//			'sh','shtml','shtm','phtm',
+		),
+			
+		$allow_image = array('jpg','gif','jpeg','png','bmp'),
+		$deny_image  = array(),
+		
+		$allow_flash = array(''),
+		$deny_flash  = array(),
+		
+		$allow_media = array('jpg','gif','jpeg','png','bmp','avi','mpg','mpeg'),
+		$deny_media  = array();
 
 
 	protected function setPath()
@@ -54,12 +57,12 @@ class extends agent
 
 		$path = $this->path;
 
-		if (!$path || 'FileUpload' != $this->argv->Command) header('Content-Type: text/xml');
+		if (!$path || 'FileUpload' != $this->get->Command) header('Content-Type: text/xml');
 		if (!$path) return array('number' => 1, 'text' => 'The filemanager is disabled');
 
 		if ('/' != substr($path, -1)) $path .= '/';
 
-		$currentFolder = $this->argv->CurrentFolder;
+		$currentFolder = $this->get->CurrentFolder;
 
 		if ('/' != substr($currentFolder, -1   )) $currentFolder .= '/';
 		if ('/' != substr($currentFolder,  0, 1)) $currentFolder  = '/' . $currentFolder;
@@ -67,8 +70,8 @@ class extends agent
 		if (strpos($currentFolder, '..')) return array('number' => 102, 'text' => '');
 
 
-		$o->command       = $this->argv->Command;
-		$o->resourceType  = strtolower($this->argv->Type);
+		$o->command       = $this->get->Command;
+		$o->resourceType  = strtolower($this->get->Type);
 		$o->currentFolder = $currentFolder;
 		$o->currentUrl    = 'files/' . $o->resourceType . $currentFolder;
 
@@ -124,7 +127,7 @@ class extends agent
 	{
 		$number = 0;
 
-		if ($newFolderName = $this->argv->NewFolderName)
+		if ($newFolderName = $this->get->NewFolderName)
 		{
 			if (false !== strpos($newFolderName, '..')) $number = 102;
 			else

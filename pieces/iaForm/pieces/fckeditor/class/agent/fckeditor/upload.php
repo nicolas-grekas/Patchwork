@@ -14,12 +14,12 @@
 
 class extends agent_fckeditor_browser
 {
-	public $argv = array('Type:string:File|Image|Flash|Media');
+	public $get = array('Type:c:File|Image|Flash|Media');
 
 	function compose($o)
 	{
-		$this->argv->Command = 'FileUpload';
-		$this->argv->CurrentFolder = '/';
+		$this->get->Command = 'FileUpload';
+		$this->get->CurrentFolder = '/';
 
 		$o = parent::compose($o);
 
