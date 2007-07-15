@@ -21,6 +21,6 @@ class extends iaForm_text
 	protected function init(&$param)
 	{
 		isset($param['valid']) || $param['valid'] = 'text';
-		return parent::init($param)
+		return parent::init($param);
 	}
 }
