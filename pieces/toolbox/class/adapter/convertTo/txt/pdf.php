@@ -19,6 +19,6 @@ class extends adapter_convertTo_abstract
 		$file = escapeshellarg($file);
 		$file = `pdftotext -enc UTF-8 {$file} -`;
 
-		return VALIDATE::get($file, 'raw');
+		return VALIDATE::get($file, 'text');
 	}
 }
