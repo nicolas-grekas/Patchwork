@@ -14,7 +14,7 @@
 
 class extends agent
 {
-	public $get = array('q');
+	public $get = 'q';
 
 	protected $maxage = -1;
 

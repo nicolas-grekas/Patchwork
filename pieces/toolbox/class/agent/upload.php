@@ -14,7 +14,7 @@
 
 class extends agent
 {
-	public $get = array('id');
+	public $get = 'id';
 
 	function control() {}
 

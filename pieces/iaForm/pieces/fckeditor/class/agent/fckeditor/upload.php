@@ -14,7 +14,7 @@
 
 class extends agent_fckeditor_browser
 {
-	public $get = array('Type:c:File|Image|Flash|Media');
+	public $get = 'Type:c:File|Image|Flash|Media';
 
 	function compose($o)
 	{
