@@ -39,7 +39,8 @@ class
 		$lastseen = '',
 		$birthtime = '',
 		$sslid = '',
-		$isIdled = false;
+		$isIdled = false,
+		$regenerated = false;
 
 
 	/* Public methods */
@@ -56,25 +57,25 @@ class
 
 	static function set($name, $value = '')
 	{
+		$regenerateId = false;
+
 		if (is_array($name) || is_object($name))
 		{
-			$regenerateId = false;
-
 			foreach ($name as $k => &$value)
 			{
 				self::$DATA[$k] =& $value;
-				$regenerateId || $regenerateId = isset(self::$authVars[$k]);
+				self::$regenerated || $regenerateId || $regenerateId = isset(self::$authVars[$k]);
 			}
-
-			$regenerateId && self::regenerateId();
 		}
 		else
 		{
 			if ('' === $value) unset(self::$DATA[$name]);
 			else self::$DATA[$name] =& $value;
 
-			isset(self::$authVars[$name]) && self::regenerateId();
+			self::$regenerated || $regenerateId = isset(self::$authVars[$name]);
 		}
+
+		$regenerateId && self::regenerateId();
 	}
 
 	static function bind($name, &$value)
@@ -105,6 +106,8 @@ class
 
 	static function regenerateId($initSession = false, $restartNew = true)
 	{
+		self::$regenerated = true;
+
 		if (self::$adapter)
 		{
 			self::$adapter->reset();

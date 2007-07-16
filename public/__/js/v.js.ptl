@@ -46,7 +46,7 @@ valid_float = function($value, $args)
 
 valid_char = function($value, $args)
 {
-	$value = $value.replace(/[ \t\r\n]+/g, ' ', ' '+$value+' ');
+	$value = (' '+$value+' ').replace(/[ \t\r\n]+/g, ' ');
 	$value = $value.substr(1, $value.length - 2);
 	return valid_text($value, $args);
 }
