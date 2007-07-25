@@ -16,12 +16,12 @@ class extends patchwork
 {
 	protected static
 
-		$args,
-		$values,
-		$get,
-		
-		$masterCache = array(),
-		$cache;
+	$args,
+	$values,
+	$get,
+
+	$masterCache = array(),
+	$cache;
 
 
 	static function returnAgent($agent, $args, $lang = false)
@@ -364,9 +364,12 @@ class extends patchwork
 
 class L_ extends loop
 {
-	protected $array;
-	protected $len;
-	protected $i = 0;
+	protected
+
+	$array,
+	$len,
+	$i = 0;
+
 
 	function __construct(&$array)
 	{
@@ -387,8 +390,11 @@ class L_ extends loop
 
 class loop_length_ extends loop
 {
-	protected $length;
-	protected $counter;
+	protected
+
+	$length,
+	$counter;
+
 
 	function __construct($length)
 	{

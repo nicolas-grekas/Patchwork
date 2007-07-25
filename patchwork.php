@@ -13,6 +13,7 @@
 
 
 define('patchwork', microtime(true));
+error_reporting(E_ALL | E_STRICT);
 
 // IIS compatibility
 isset($_SERVER['REQUEST_URI']) || $_SERVER['REQUEST_URI'] = $_SERVER['URL'];
@@ -88,8 +89,10 @@ function patchwork_atomic_write(&$data, $to, $mtime = false)
 // {{{ hunter: a user callback is called when a hunter object is destroyed
 class hunter
 {
-	protected $callback;
-	protected $param_arr;
+	protected
+
+	$callback,
+	$param_arr;
 
 	function __construct($callback, $param_arr = array())
 	{

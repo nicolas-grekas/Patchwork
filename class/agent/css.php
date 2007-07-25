@@ -15,11 +15,14 @@
 class extends agent
 {
 	const contentType = 'text/css';
+
 	public $get = '__0__';
 
 	protected
-		$maxage = -1,
-		$watch = array('public/css');
+
+	$maxage = -1,
+	$watch = array('public/css');
+
 
 	function control()
 	{

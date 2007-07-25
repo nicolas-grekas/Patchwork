@@ -15,49 +15,49 @@
 abstract class
 {
 	private
-		
-		$Xlvar = '\\{',
-		$Xrvar = '\\}',
 
-		$Xlblock = '<!--\s*',
-		$Xrblock = '\s*-->',
-		$Xcomment = '\\{\*.*?\*\\}',
+	$Xlvar = '\\{',
+	$Xrvar = '\\}',
 
-		$Xvar = '(?:(?:[dag][-+]\d+|\\$*|[dag])?\\$)',
-		$XpureVar = '[a-zA-Z_\x80-\xffffffff][a-zA-Z_\d\x80-\xffffffff]*',
+	$Xlblock = '<!--\s*',
+	$Xrblock = '\s*-->',
+	$Xcomment = '\\{\*.*?\*\\}',
 
-		$Xblock = '[A-Z]+\b',
-		$XblockEnd = 'END:',
+	$Xvar = '(?:(?:[dag][-+]\d+|\\$*|[dag])?\\$)',
+	$XpureVar = '[a-zA-Z_\x80-\xffffffff][a-zA-Z_\d\x80-\xffffffff]*',
 
-		$Xstring = '"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"|\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'',
-		$Xnumber,
-		$XvarNconst,
-		$Xmath,
-		$Xexpression,
-		$XfullVar,
-		$Xmodifier,
-		$XmodifierPipe,
+	$Xblock = '[A-Z]+\b',
+	$XblockEnd = 'END:',
 
-		$code,
-		$codeLast,
-		$concat,
-		$concatLast,
-		$source,
+	$Xstring = '"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"|\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'',
+	$Xnumber,
+	$XvarNconst,
+	$Xmath,
+	$Xexpression,
+	$XfullVar,
+	$Xmodifier,
+	$XmodifierPipe,
 
-		$path_idx,
-		$template,
+	$code,
+	$codeLast,
+	$concat,
+	$concatLast,
+	$source,
 
-		$offset = 0,
-		$blockStack = array();
+	$path_idx,
+	$template,
+
+	$offset = 0,
+	$blockStack = array();
 
 
 	protected
 
-		$watch,
-		$mode = 'echo',
-		$binaryMode = true,
-		$serverMode = true,
-		$closeModifier = ')';
+	$watch,
+	$mode = 'echo',
+	$binaryMode = true,
+	$serverMode = true,
+	$closeModifier = ')';
 
 
 	function __construct($binaryMode)

@@ -15,107 +15,108 @@
 class patchwork_preprocessor__0
 {
 	public
-		
-		$source,
-		$line = 1,
-		$level,
-		$class,
-		$marker,
-		$inString = false;
+
+	$source,
+	$line = 1,
+	$level,
+	$class,
+	$marker,
+	$inString = false;
+
 
 	protected $tokenFilter = array();
 
 
 	static
+
+	$constant = array('DEBUG' => DEBUG),
+	$function = array(
+		'ob_start'   => 'ob::start',
+		'rand'       => 'mt_rand',
+		'srand'      => 'mt_srand',
+		'getrandmax' => 'mt_getrandmax',
+	),
 		
-		$constant = array('DEBUG' => DEBUG),
-		$function = array(
-			'ob_start'   => 'ob::start',
-			'rand'       => 'mt_rand',
-			'srand'      => 'mt_srand',
-			'getrandmax' => 'mt_getrandmax',
-		),
-		
-		$variableType = array(
-			T_EVAL, '(', T_FILE, T_LINE, T_FUNC_C, T_CLASS_C, T_INCLUDE, T_REQUIRE,
-			T_VARIABLE, '$', T_INCLUDE_ONCE, T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES,
-		),
+	$variableType = array(
+		T_EVAL, '(', T_FILE, T_LINE, T_FUNC_C, T_CLASS_C, T_INCLUDE, T_REQUIRE,
+		T_VARIABLE, '$', T_INCLUDE_ONCE, T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES,
+	),
 
 	// List of native functions that could trigger __autoload()
-		$callback = array(
-			// Unknown or multiple callback parameter position
-			'array_diff_ukey'         => 0,
-			'array_diff_uasso'        => 0,
-			'array_intersect_ukey'    => 0,
-			'array_udiff_assoc'       => 0,
-			'array_udiff_uassoc'      => 0,
-			'array_udiff'             => 0,
-			'array_uintersect_assoc'  => 0,
-			'array_uintersect_uassoc' => 0,
-			'array_uintersect'        => 0,
-			'assert'                  => 0,
-			'constant'                => 0,
-			'curl_setopt'             => 0,
-			'create_function'         => 0,
-			'preg_replace'            => 0,
-			'sqlite_create_aggregate' => 0,
-			'unserialize'             => 0,
+	$callback = array(
+		// Unknown or multiple callback parameter position
+		'array_diff_ukey'         => 0,
+		'array_diff_uasso'        => 0,
+		'array_intersect_ukey'    => 0,
+		'array_udiff_assoc'       => 0,
+		'array_udiff_uassoc'      => 0,
+		'array_udiff'             => 0,
+		'array_uintersect_assoc'  => 0,
+		'array_uintersect_uassoc' => 0,
+		'array_uintersect'        => 0,
+		'assert'                  => 0,
+		'constant'                => 0,
+		'curl_setopt'             => 0,
+		'create_function'         => 0,
+		'preg_replace'            => 0,
+		'sqlite_create_aggregate' => 0,
+		'unserialize'             => 0,
 
-			// Classname as string in the first parameter
-			'class_exists'      => -1,
-			'get_class_methods' => -1,
-			'get_class_vars'    => -1,
-			'get_parent_class'  => -1,
-			'interface_exists'  => -1,
-			'method_exists'     => -1,
-			'property_exists'   => -1,
+		// Classname as string in the first parameter
+		'class_exists'      => -1,
+		'get_class_methods' => -1,
+		'get_class_vars'    => -1,
+		'get_parent_class'  => -1,
+		'interface_exists'  => -1,
+		'method_exists'     => -1,
+		'property_exists'   => -1,
 
-			// Classname as callback in the first parameter
-			'array_map'                  => 1,
-			'call_user_func'             => 1,
-			'call_user_func_array'       => 1,
-			'is_callable'                => 1,
-			'ob_start'                   => 1,
-			'register_shutdown_function' => 1,
-			'register_tick_function'     => 1,
-			'session_set_save_handler'   => 1,
-			'set_exception_handler'      => 1,
-			'set_error_handler'          => 1,
-			'sybase_set_message_handler' => 1,
+		// Classname as callback in the first parameter
+		'array_map'                  => 1,
+		'call_user_func'             => 1,
+		'call_user_func_array'       => 1,
+		'is_callable'                => 1,
+		'ob_start'                   => 1,
+		'register_shutdown_function' => 1,
+		'register_tick_function'     => 1,
+		'session_set_save_handler'   => 1,
+		'set_exception_handler'      => 1,
+		'set_error_handler'          => 1,
+		'sybase_set_message_handler' => 1,
 
-			// Classname as callback in the second parameter
-			'array_filter'                           => 2,
-			'array_reduce'                           => 2,
-			'array_walk'                             => 2,
-			'array_walk_recursive'                   => 2,
-			'assert_options'                         => 2,
-			'pcntl_signal'                           => 2,
-			'preg_replace_callback'                  => 2,
-			'runkit_sandbox_output_handler'          => 2,
-			'usort'                                  => 2,
-			'uksort'                                 => 2,
-			'uasort'                                 => 2,
-			'xml_set_character_data_handler'         => 2,
-			'xml_set_default_handler'                => 2,
-			'xml_set_element_handler'                => 2,
-			'xml_set_end_namespace_decl_handler'     => 2,
-			'xml_set_processing_instruction_handler' => 2,
-			'xml_set_start_namespace_decl_handler'   => 2,
-			'xml_set_notation_decl_handler'          => 2,
-			'xml_set_external_entity_ref_handler'    => 2,
-			'xml_set_unparsed_entity_decl_handler'   => 2,
+		// Classname as callback in the second parameter
+		'array_filter'                           => 2,
+		'array_reduce'                           => 2,
+		'array_walk'                             => 2,
+		'array_walk_recursive'                   => 2,
+		'assert_options'                         => 2,
+		'pcntl_signal'                           => 2,
+		'preg_replace_callback'                  => 2,
+		'runkit_sandbox_output_handler'          => 2,
+		'usort'                                  => 2,
+		'uksort'                                 => 2,
+		'uasort'                                 => 2,
+		'xml_set_character_data_handler'         => 2,
+		'xml_set_default_handler'                => 2,
+		'xml_set_element_handler'                => 2,
+		'xml_set_end_namespace_decl_handler'     => 2,
+		'xml_set_processing_instruction_handler' => 2,
+		'xml_set_start_namespace_decl_handler'   => 2,
+		'xml_set_notation_decl_handler'          => 2,
+		'xml_set_external_entity_ref_handler'    => 2,
+		'xml_set_unparsed_entity_decl_handler'   => 2,
 
-			// Classname as callback in the third parameter
-			'filter_var'             => 3,
-			'sqlite_create_function' => 3,
-		);
+		// Classname as callback in the third parameter
+		'filter_var'             => 3,
+		'sqlite_create_function' => 3,
+	);
 
 
 	private static
-		
-		$declared_class = array('self' => 1, 'parent' => 1, 'this' => 1, 'static' => 1),
-		$inline_class,
-		$recursive = false;
+
+	$declared_class = array('self' => 1, 'parent' => 1, 'this' => 1, 'static' => 1),
+	$inline_class,
+	$recursive = false;
 
 
 	static function __static_construct()
@@ -886,11 +887,14 @@ class patchwork_preprocessor__0
 
 abstract class patchwork_preprocessor_bracket_
 {
-	protected $preproc;
-	protected $registered = false;
-	protected $first;
-	protected $position;
-	protected $bracket;
+	protected
+
+	$preproc,
+	$registered = false,
+	$first,
+	$position,
+	$bracket;
+
 
 	function __construct($preproc, $autoSetup = false)
 	{
@@ -960,10 +964,13 @@ abstract class patchwork_preprocessor_bracket_
 
 class patchwork_preprocessor_construct_ extends patchwork_preprocessor_bracket_
 {
-	protected $source;
-	protected $proto = '';
-	protected $args = '';
-	protected $num_args = 0;
+	protected
+
+	$source,
+	$proto = '',
+	$args = '',
+	$num_args = 0;
+
 
 	function __construct($preproc, &$source)
 	{
@@ -1021,8 +1028,11 @@ class patchwork_preprocessor_t_ extends patchwork_preprocessor_bracket_
 {
 	function filterBracket($type, $token)
 	{
-		if ('.' == $type)
-			W("File {$this->preproc->source} line {$this->preproc->line}:\nUsage of T() is potentially divergent.\nPlease use sprintf() instead of string concatenation.");
+		if ('.' == $type) W(
+"File {$this->preproc->source} line {$this->preproc->line}:
+Usage of T() is potentially divergent.
+Please use sprintf() instead of string concatenation."
+		);
 
 		return $token;
 	}
@@ -1057,9 +1067,11 @@ class patchwork_preprocessor_require_ extends patchwork_preprocessor_bracket_
 
 class patchwork_preprocessor_marker_ extends patchwork_preprocessor_require_
 {
-	public $close = ':0)';
-	public $greedy = false;
-	public $curly = 0;
+	public
+	
+	$close = ':0)',
+	$greedy = false,
+	$curly = 0;
 
 
 	function filter($type, $token)

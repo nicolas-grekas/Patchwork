@@ -15,8 +15,10 @@
 class extends loop
 {
 	protected
-		$array,
-		$isAssociative = true;
+
+	$array,
+	$isAssociative = true;
+
 
 	function __construct($array, $filter = '', $isAssociative = null)
 	{

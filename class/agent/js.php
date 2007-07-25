@@ -15,13 +15,17 @@
 class extends agent
 {
 	const contentType = 'text/javascript';
+
 	public $get = array('__0__', 'source:b');
 
 	protected
-		$maxage = -1,
-		$watch = array('public/js');
+
+	$maxage = -1,
+	$watch = array('public/js');
+
 
 	protected static $recursion = 0;
+
 
 	function control()
 	{

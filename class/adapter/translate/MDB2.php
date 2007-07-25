@@ -15,8 +15,10 @@
 class extends TRANSLATE
 {
 	protected
-		$db,
-		$table = 'translation';
+
+	$db,
+	$table = 'translation';
+
 
 	function __construct($options)
 	{
