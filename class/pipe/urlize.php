@@ -14,21 +14,24 @@
 
 class
 {
-	static $mailrx = '/(\s)([-a-z\d_\.\+=]+)@([-a-z\d]+(\.[-a-z\d]+)+)/i';
-	static $httprx = '/(\s)(http(s?):\/\/)?(((((([a-z\d]([-a-z\d]*[a-z\d])?)\.)+[a-z]{2,3})|(\d+(\.\d+){3}))(:\d+)?)(\/((([-a-z\d$_.+!*\'\[\],;:@&=?#~]|%[a-f\d]{2})+\/)*([-a-z\d$_.+!*\'\[\],;:@&=?#~]|%[a-f\d]{2})*[a-z\d$~]\/?)?)?)/i';
+	const
+
+	mailRx = '/(\s)([-a-z\d_\.\+=]+)@([-a-z\d]+(\.[-a-z\d]+)+)/i',
+	httpRx = '/(\s)(http(s?):\/\/)?(((((([a-z\d]([-a-z\d]*[a-z\d])?)\.)+[a-z]{2,3})|(\d+(\.\d+){3}))(:\d+)?)(\/((([-a-z\d$_.+!*\'\[\],;:@&=?#~]|%[a-f\d]{2})+\/)*([-a-z\d$_.+!*\'\[\],;:@&=?#~]|%[a-f\d]{2})*[a-z\d$~]\/?)?)?)/i';
+
 
 	static function php($string)
 	{
 		$string = ' ' . patchwork::string($string);
 
 		$string = preg_replace(
-			self::$mailrx . 'u',
+			self::mailRx . 'u',
 			'$1<a href="mailto:$2[&#97;t]$3"><span style="display:none">@</span>&#64;$3</a>',
 			$string
 		);
 
 		$string = preg_replace(
-			self::$httprx . 'u',
+			self::httpRx . 'u',
 			'$1<a href="http$3://$4">$4</a>',
 			$string
 		);
@@ -43,9 +46,9 @@ class
 P$urlize = function($string)
 {
 	return (' '+$string).replace(
-		<?php echo self::$mailrx?>g, '$1<a href="mailto:$2@$3">$2@$3</a>'
+		<?php echo self::mailRx?>g, '$1<a href="mailto:$2@$3">$2@$3</a>'
 	).replace(
-		<?php echo self::$httprx?>g, '$1<a href="http$3://$4">$4</a>'
+		<?php echo self::httpRx?>g, '$1<a href="http$3://$4">$4</a>'
 	).substr(1);
 }
 

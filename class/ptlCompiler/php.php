@@ -15,11 +15,11 @@
 class extends ptlCompiler
 {
 	protected
-		
-		$watch = 'public/templates/php',
-		
-		$closeModifier = '):0)',
-		$setStack = array();
+
+	$watch = 'public/templates/php',
+
+	$closeModifier = '):0)',
+	$setStack = array();
 
 
 	protected function makeCode(&$code)

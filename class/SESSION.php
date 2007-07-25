@@ -16,31 +16,31 @@ class
 {
 	public static
 
-		$IPlevel = 2,
+	$IPlevel = 2,
 
-		$maxIdleTime = 0,
-		$maxLifeTime = 43200,
-		
-		$gcProbabilityNumerator = 1,
-		$gcProbabilityDenominator = 100,
-		
-		$authVars = array(),
-		$groupVars = array();
+	$maxIdleTime = 0,
+	$maxLifeTime = 43200,
+
+	$gcProbabilityNumerator = 1,
+	$gcProbabilityDenominator = 100,
+
+	$authVars = array(),
+	$groupVars = array();
 
 
 	protected static
 
-		$savePath,
-		$cookiePath,
-		$cookieDomain,
-		$DATA,
-		$adapter = false,
-		$SID = '',
-		$lastseen = '',
-		$birthtime = '',
-		$sslid = '',
-		$isIdled = false,
-		$regenerated = false;
+	$savePath,
+	$cookiePath,
+	$cookieDomain,
+	$DATA,
+	$adapter = false,
+	$SID = '',
+	$lastseen = '',
+	$birthtime = '',
+	$sslid = '',
+	$isIdled = false,
+	$regenerated = false;
 
 
 	/* Public methods */
@@ -261,10 +261,14 @@ class
 		self::onIdle();
 	}
 
+
 	/* Adapter */
 
-	protected $handle;
-	protected $path;
+	protected
+
+	$handle,
+	$path;
+
 
 	protected function __construct($sid)
 	{

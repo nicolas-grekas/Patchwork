@@ -126,66 +126,66 @@ function jsquoteRef(&$a) {$a = jsquote($a);}
 class
 {
 	static
-		
-		$cachePath,
-		$agentClass,
-		$catchMeta = false;
+
+	$cachePath,
+	$agentClass,
+	$catchMeta = false;
 
 
 	protected static
-		
-		$ETag = '',
-		$LastModified = 0,
-		
-		$host,
-		$lang = '__',
-		$base,
-		$uri,
-		
-		$appId,
-		$metaInfo,
-		$metaPool = array(),
-		$isGroupStage = true,
-		$binaryMode = false,
-		
-		$maxage = false,
-		$private = false,
-		$expires = 'auto',
-		$watchTable = array(),
-		$headers = array(),
-		
-		$redirecting = false,
-		$is_enabled = false,
-		$ob_starting_level,
-		$ob_level,
-		$varyEncoding = false,
-		$contentEncoding = false,
-		$is304 = false,
-		
-		$agentClasses = '',
-		$privateDetectionMode = false,
-		$detectCSRF = false,
-		$total_time = 0,
-		
-		$allowGzip = array(
-			'text/','script','xml','html','bmp','wav',
-			'msword','rtf','excel','powerpoint',
-		),
-		
-		$ieSniffedTypes = array(
-			'text/plain','text/richtext','audio/x-aiff','audio/basic','audio/wav',
-			'image/gif','image/jpeg','image/pjpeg','image/tiff','image/x-png','image/png',
-			'image/x-xbitmap','image/bmp','image/x-jg','image/x-emf','image/x-wmf',
-			'video/avi','video/mpeg','application/octet-stream','application/pdf',
-			'application/base64','application/macbinhex40','application/postscript',
-			'application/x-compressed','application/java','application/x-msdownload',
-			'application/x-gzip-compressed','application/x-zip-compressed'
-		),
-		
-		$ieSniffedTags = array(
-			'body','head','html','img','plaintext',
-			'a href','pre','script','table','title'
-		);
+
+	$ETag = '',
+	$LastModified = 0,
+
+	$host,
+	$lang = '__',
+	$base,
+	$uri,
+
+	$appId,
+	$metaInfo,
+	$metaPool = array(),
+	$isGroupStage = true,
+	$binaryMode = false,
+
+	$maxage = false,
+	$private = false,
+	$expires = 'auto',
+	$watchTable = array(),
+	$headers = array(),
+
+	$redirecting = false,
+	$is_enabled = false,
+	$ob_starting_level,
+	$ob_level,
+	$varyEncoding = false,
+	$contentEncoding = false,
+	$is304 = false,
+
+	$agentClasses = '',
+	$privateDetectionMode = false,
+	$detectCSRF = false,
+	$total_time = 0,
+
+	$allowGzip = array(
+		'text/','script','xml','html','bmp','wav',
+		'msword','rtf','excel','powerpoint',
+	),
+
+	$ieSniffedTypes = array(
+		'text/plain','text/richtext','audio/x-aiff','audio/basic','audio/wav',
+		'image/gif','image/jpeg','image/pjpeg','image/tiff','image/x-png','image/png',
+		'image/x-xbitmap','image/bmp','image/x-jg','image/x-emf','image/x-wmf',
+		'video/avi','video/mpeg','application/octet-stream','application/pdf',
+		'application/base64','application/macbinhex40','application/postscript',
+		'application/x-compressed','application/java','application/x-msdownload',
+		'application/x-gzip-compressed','application/x-zip-compressed'
+	),
+
+	$ieSniffedTags = array(
+		'body','head','html','img','plaintext',
+		'a href','pre','script','table','title'
+	);
 
 
 	static function start()
@@ -1352,6 +1352,7 @@ class
 
 	static function error_handler($code, $message, $file, $line, &$context)
 	{
+		class_exists('patchwork_error', false) || __autoload('patchwork_error'); // PHP bug workaround
 		patchwork_error::call($code, $message, $file, $line, $context);
 	}
 
@@ -1412,14 +1413,14 @@ class agent
 	public $get = array();
 
 	protected
-		$template = '',
-		$maxage  = 0,
-		$expires = 'auto',
-		$canPost = false,
-		$watch = array(),
-		
-		// For convenience only, same content as agent::contentType
-		$contentType;
+	$template = '',
+	$maxage  = 0,
+	$expires = 'auto',
+	$canPost = false,
+	$watch = array(),
+
+	// For convenience only, same content as agent::contentType
+	$contentType;
 
 	function control() {}
 	function compose($o) {return $o;}
@@ -1476,8 +1477,9 @@ class agent
 
 class agentTemplate extends agent
 {
-	protected $maxage = -1;
-	protected $watch = array('public/templates');
+	protected
+	$maxage = -1,
+	$watch = array('public/templates');
 
 	function control() {}
 }
@@ -1485,8 +1487,10 @@ class agentTemplate extends agent
 class loop
 {
 	private
-		$loopLength = false,
-		$filter = array();
+
+	$loopLength = false,
+	$filter = array();
+
 
 	protected function prepare() {}
 	protected function next() {}

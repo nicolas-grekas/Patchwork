@@ -15,8 +15,10 @@
 class
 {
 	protected static
-		$adapter,
-		$cache;
+
+	$adapter,
+	$cache;
+
 
 	public static function get($string, $lang, $usecache)
 	{
