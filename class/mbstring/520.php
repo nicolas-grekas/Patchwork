@@ -32,7 +32,7 @@ class
 
 	static function strrchr($haystack, $needle, $part = false, $encoding = null)
 	{
-		$pos = mb_strrpos($haystack, $needle, $encoding);
+		$pos = mb_strrpos($haystack, $needle, 0, $encoding);
 		return false === $pos ? false : ($part ? mb_substr($haystack, 0, $pos, $encoding) : mb_substr($haystack, $pos, null, $encoding));
 	}
 
@@ -51,5 +51,18 @@ class
 	{
 		$pos = strpos($haystack, $needle);
 		return false === $pos ? false : ($part ? substr($haystack, 0, $pos) : substr($haystack, $pos));
+	}
+
+	static function strrpos($haystack, $needle, $offset = 0, $encoding = null)
+	{
+		if (null === $encoding && $offset != (int) $offset)
+		{
+			$encoding = $offset;
+			$offset = 0;
+		}
+		else if ($offset = (int) $offset) $haystack = self::substr($haystack, $offset);
+		$needle = self::substr($needle, 0, 1);
+		$pos = strpos(strrev($haystack), strrev($needle));
+		return false === $pos ? false : ($offset + self::strlen($pos ? substr($haystack, 0, -$pos) : $haystack));
 	}
 }
