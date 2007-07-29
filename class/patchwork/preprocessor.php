@@ -168,6 +168,7 @@ class patchwork_preprocessor__0
 				'mb_strrchr'  => 'mbstring_520::strrchr',
 				'mb_strrichr' => 'mbstring_520::strrichr',
 				'mb_strripos' => 'mbstring_520::strripos',
+				'mb_strrpos'  => 'mbstring_520::strrpos',
 				'mb_strstr'   => 'mbstring_520::strstr',
 			);
 
@@ -191,7 +192,6 @@ class patchwork_preprocessor__0
 					'mb_parse_str'         => 'parse_str',
 					'mb_strlen'            => 'mbstring_500::strlen',
 					'mb_strpos'            => 'mbstring_500::strpos',
-					'mb_strrpos'           => 'mbstring_500::strrpos',
 					'mb_strtolower'        => 'mbstring_500::strtolower',
 					'mb_strtoupper'        => 'mbstring_500::strtoupper',
 					'mb_substr_count'      => 'substr_count',
