@@ -123,14 +123,6 @@ class
 		return false === $pos ? false : ($offset + ($pos ? self::strlen(substr($haystack, 0, $pos)) : 0));
 	}
 
-	static function strrpos($haystack, $needle, $offset = 0, $encoding = null)
-	{
-		if ($offset = (int) $offset) $haystack = self::substr($haystack, $offset);
-		$needle = self::substr($needle, 0, 1);
-		$pos = strpos(strrev($haystack), strrev($needle));
-		return false === $pos ? false : ($offset + self::strlen($pos ? substr($haystack, 0, -$pos) : $haystack));
-	}
-
 	static function strtolower($str, $encoding = null)
 	{
 		static $table;
