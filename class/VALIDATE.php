@@ -125,7 +125,9 @@ class
 
 		$result = preg_replace('/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]+/', '', $value);
 		false !== strpos($result, "\r")  && $result = strtr(str_replace("\r\n", "\n", $result), "\r", "\n");
-		preg_match(UTF8_NFC_RX, $result) && $result = utf8_normalize::toNFC($result);
+		preg_match('/[^\x00-\x{2ff}]/u', $result)
+			&& preg_match(UTF8_NFC_RX, $result)
+			&& $result = utf8_normalize::toNFC($result);
 
 		if (isset($args[0]))
 		{
