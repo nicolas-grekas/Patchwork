@@ -15,8 +15,10 @@
 class
 {
 	protected static
-		$sort_keys,
-		$sort_length;
+
+	$sort_keys,
+	$sort_length;
+
 
 	/**
 	 * Sorts an array of array/objects according to a list of keys/properties.

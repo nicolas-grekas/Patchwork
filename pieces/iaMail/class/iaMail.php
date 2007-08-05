@@ -14,7 +14,7 @@
 
 isset($GLOBALS['CONFIG']['debug_email']) || $GLOBALS['CONFIG']['debug_email'] = 'webmaster';
 
-class extends iaCron
+class extends pTask
 {
 	protected $test_mode = false;
 

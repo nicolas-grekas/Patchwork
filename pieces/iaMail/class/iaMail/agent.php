@@ -15,11 +15,14 @@
 class extends iaMail_mime
 {
 	protected
-		$agent,
-		$args,
-		$lang;
+
+	$agent,
+	$args,
+	$lang;
+
 
 	static protected $imageCache = array();
+
 
 	function __construct($agent, $args = array(), $options = null)
 	{

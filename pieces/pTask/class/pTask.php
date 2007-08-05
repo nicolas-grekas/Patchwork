@@ -83,8 +83,8 @@ class
 	protected
 
 	$queueName = 'queue',
-	$queueFolder = 'data/queue/iaCron/',
-	$queueUrl = 'queue/iaCron',
+	$queueFolder = 'data/queue/pTask/',
+	$queueUrl = 'queue/pTask',
 	$queueSql = '
 		CREATE TABLE queue (base TEXT, data BLOB, run_time INTEGER);
 		CREATE INDEX run_time ON queue (run_time);

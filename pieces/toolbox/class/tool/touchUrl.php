@@ -53,7 +53,7 @@ class
 
 		$req  = "GET {$url} HTTP/1.0\r\n";
 		$req .= "Host: {$host}\r\n";
-		$req .= "Connection: Close\r\n\r\n";
+		$req .= "Connection: close\r\n\r\n";
 
 		do
 		{

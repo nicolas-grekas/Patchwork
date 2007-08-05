@@ -15,9 +15,11 @@
 class extends iaForm_text
 {
 	protected
-		$type = 'file',
-		$isfile = true,
-		$isdata = false;
+
+	$type = 'file',
+	$isfile = true,
+	$isdata = false;
+
 
 	protected function init(&$param)
 	{

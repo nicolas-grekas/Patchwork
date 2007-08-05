@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends agent_queue_iaCron
+class extends agent_queue_pTask
 {
 	protected
 
@@ -27,7 +27,7 @@ class extends agent_queue_iaCron
 		if ($data = $this->sqlite->query($sql)->fetchObject())
 		{
 			if ($data->send_time <= $time) tool_touchUrl::call("{$data->base}queue/iaMail/{$data->OID}/" . $this->getToken());
-			else iaCron::schedule(new iaCron(array($this, 'queueNext')), $data->send_time);
+			else pTask::schedule(new pTask(array($this, 'queueNext')), $data->send_time);
 		}
 	}
 

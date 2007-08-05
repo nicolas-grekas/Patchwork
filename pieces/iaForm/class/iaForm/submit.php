@@ -15,8 +15,10 @@
 class extends iaForm_hidden
 {
 	protected
-		$type = 'submit',
-		$isdata = false;
+
+	$type = 'submit',
+	$isdata = false;
+
 
 	protected function init(&$param)
 	{

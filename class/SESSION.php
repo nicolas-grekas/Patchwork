@@ -184,7 +184,6 @@ class
 			if ($j && $_SERVER['REQUEST_TIME'] - $i > $j)
 			{
 				$adapter->write($_SERVER['REQUEST_TIME']);
-				header('Connection: close');
 				register_shutdown_function(array(__CLASS__, 'gc'), $j);
 			}
 			unset($adapter);

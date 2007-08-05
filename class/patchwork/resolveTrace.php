@@ -33,7 +33,7 @@ class extends patchwork
 
 		$keys  = "GET {$agent}?k$ HTTP/1.0\r\n";
 		$keys .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
-		$keys .= "Connection: Close\r\n\r\n";
+		$keys .= "Connection: close\r\n\r\n";
 
 		fwrite($h, $keys);
 		$keys = array();

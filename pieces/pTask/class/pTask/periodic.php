@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends iaCron
+class extends pTask
 {
 	static
 	

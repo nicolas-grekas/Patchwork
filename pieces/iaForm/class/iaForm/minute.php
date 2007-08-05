@@ -15,8 +15,10 @@
 class extends iaForm_text
 {
 	protected
-		$maxlength = 2,
-		$maxint = 59;
+
+	$maxlength = 2,
+	$maxint = 59;
+
 
 	protected function get()
 	{

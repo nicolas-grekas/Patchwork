@@ -15,27 +15,29 @@
 class extends loop_callAgent
 {
 	protected
-		$name = '',
-		$value = '',
-		$status = false,
-		
-		$isfile = false,
-		$isdata = true,
-		$required = false,
-		$errormsg = '',
-		
-		$form,
-		$sessionLink = false,
-		
-		$multiple = false,
-		$type = 'hidden',
-		
-		$valid,
-		$valid_args = array(),
 
-		$elt = array(),
-		$eltToCheck = array(),
-		$isOn;
+	$name = '',
+	$value = '',
+	$status = false,
+
+	$isfile = false,
+	$isdata = true,
+	$required = false,
+	$errormsg = '',
+
+	$form,
+	$sessionLink = false,
+
+	$multiple = false,
+	$type = 'hidden',
+
+	$valid,
+	$valid_args = array(),
+
+	$elt = array(),
+	$eltToCheck = array(),
+	$isOn;
+
 
 	function __construct($form, $name, $param, &$sessionLink = false)
 	{

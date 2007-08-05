@@ -15,17 +15,19 @@
 class extends loop
 {
 	protected
-		$loop,
-		$freqKey,
-		$sizeKey,
-		$range,
-		
-		$histo,
-		$min,
-		$max,
-		
-		$histoCumule = array(),
-		$dynamic;
+
+	$loop,
+	$freqKey,
+	$sizeKey,
+	$range,
+
+	$histo,
+	$min,
+	$max,
+
+	$histoCumule = array(),
+	$dynamic;
+
 
 	function __construct($loop, $freqKey, $sizeKey, $range)
 	{
