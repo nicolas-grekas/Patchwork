@@ -57,9 +57,7 @@ class extends pTask_periodic
 
 	static function setup()
 	{
-		$file = new pTask;
-		$file->setupQueue();
-		$file = resolvePath($file->queueFolder) . $file->queueName . '.crontab';
+		$file = patchwork::$cachePath . 'crontabId';
 
 		$id = file_exists($file) ? file_get_contents($file) : 0;
 		$id && pTask::cancel($id);

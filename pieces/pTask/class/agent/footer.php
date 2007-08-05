@@ -14,12 +14,10 @@
 
 class extends self
 {
-	protected $poorMansCron = true;
-
 	function compose($o)
 	{
 		$o = parent::compose($o);
-		$o->poorMansCron = $this->poorMansCron;
+		$o->poorMansCron = !isset($GLOBALS['CONFIG']['poorMansCron']) || $GLOBALS['CONFIG']['poorMansCron'];
 		return $o;
 	}
 }
