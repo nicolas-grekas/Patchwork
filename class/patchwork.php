@@ -255,6 +255,7 @@ class
 		);
 <*/
 
+		defined('PATCHWORK_SETUP') && patchwork_setup::call();
 		PATCHWORK_DIRECT ? self::clientside() : self::serverside();
 
 		while (self::$ob_level)
@@ -1478,8 +1479,10 @@ class agent
 class agentTemplate extends agent
 {
 	protected
+
 	$maxage = -1,
 	$watch = array('public/templates');
+
 
 	function control() {}
 }

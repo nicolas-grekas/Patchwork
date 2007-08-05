@@ -12,12 +12,16 @@
  ***************************************************************************/
 
 
-class extends pTask_periodic
-{
-	protected $crontab = '30 5 1 * *';
+/**
+ * Hook executed only once, when application is initialized
+ */
 
-	function execute()
+class extends self
+{
+	static function call()
 	{
-		parent::execute();
+		parent::call();
+
+		pTask_crontab::setup();
 	}
 }

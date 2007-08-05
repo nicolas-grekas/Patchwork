@@ -59,7 +59,7 @@ class
 						$file = substr($file, 6);
 					}
 
-					$file = $patchwork_include_paths[$patchwork_path_length- $level - 1] .'/'. $file;
+					$file = $patchwork_include_paths[$patchwork_paths_length- $level - 1] .'/'. $file;
 
 					if (!file_exists($file) || filemtime($file) >= filemtime($cache)) @unlink($cache);
 				}

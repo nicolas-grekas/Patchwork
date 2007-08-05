@@ -12,12 +12,14 @@
  ***************************************************************************/
 
 
-class extends pTask_periodic
+class extends self
 {
-	protected $crontab = '30 5 1 * *';
+	protected $poorMansCron = true;
 
-	function execute()
+	function compose($o)
 	{
-		parent::execute();
+		$o = parent::compose($o);
+		$o->poorMansCron = $this->poorMansCron;
+		return $o;
 	}
 }

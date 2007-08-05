@@ -12,12 +12,6 @@
  ***************************************************************************/
 
 
-class extends pTask_periodic
+class extends agentTemplate
 {
-	protected $crontab = '30 5 1 * *';
-
-	function execute()
-	{
-		parent::execute();
-	}
 }

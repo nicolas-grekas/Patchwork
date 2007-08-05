@@ -15,22 +15,19 @@
 class extends pTask
 {
 	static
-	
-	$days   = array('sun','mon','thu','wed','tue','fri','sat'),
-	$months = array(
-		1 => 'jan','feb','mar','apr','may','jun',
-		'jul','aug','sep','oct','nov','dec'
-	);
+
+	$days   = array('sun'=>0,'mon'=>1,'thu'=>2,'wed'=>3,'tue'=>4,'fri'=>5,'sat'=>6),
+	$months = array('jan'=>1,'feb'=>2,'mar'=>3,'apr'=>4,'may'=>5,'jun'=>6,'jul'=>7,'aug'=>8,'sep'=>9,'oct'=>10,'nov'=>11,'dec'=>12);
 
 
 	protected
 
 	$crontab = array(),
 	$finalRun = 0,
-	$runLimit = 0;
+	$runLimit = -1;
 
 
-	function __construct($callback, $arguments = array())
+	function __construct($callback = false, $arguments = array())
 	{
 		is_string($this->crontab) && $this->setCrontab($this->crontab);
 		parent::__construct($callback, $arguments);
@@ -87,7 +84,7 @@ class extends pTask
 
 	function getNextRun($time = false)
 	{
-		if ($this->runLimit <= 0 || !$this->crontab
+		if (!$this->runLimit || !$this->crontab
 			|| (0 < $this->finalRun && $this->finalRun <= $_SERVER['REQUEST_TIME']))
 		{
 			return 0;
@@ -131,12 +128,6 @@ class extends pTask
 	}
 
 
-	static function __static_construct()
-	{
-		self::$days   = array_flip(self::$days  );
-		self::$months = array_flip(self::$months);
-	}
-
 	protected static function expandCrontabItem($cronitem, $min, $max)
 	{
 		if ('*' == $cronitem[0]) $cronitem = $min . '-' . $max . substr($cronitem, 1);
@@ -146,9 +137,9 @@ class extends pTask
 
 		$list = array();
 
-		foreach ($cronitem as $item)
+		foreach ($cronitem as $i)
 		{
-			if (preg_match('#^(\d+)(?:-(\d+)((?:[~/]\d+)*))?$#', $item, $item))
+			if (preg_match('#^(\d+)(?:-(\d+)((?:[~/]\d+)*))?$#', $i, $item))
 			{
 				$item[1] = ($item[1] - $min) % $width + $min;
 
@@ -189,7 +180,7 @@ class extends pTask
 				}
 				else $list[] = $item[1];
 			}
-			else W("Invalid crontab item: " . $item);
+			else W("Invalid crontab item: " . $i);
 		}
 
 		$list = array_unique($list);

@@ -25,7 +25,9 @@ class extends pTask_periodic
 	}
 
 
-	protected $lastRun = 1;
+	protected $lastRun;
+
+	function __construct() {$this->lastRun = $_SERVER['REQUEST_TIME'];}
 
 	function execute()
 	{
@@ -40,14 +42,29 @@ class extends pTask_periodic
 			{
 				$task = 'pTask_' . $task;
 				pTask::schedule(new pTask(array(new $task, 'run')), $now);
-				$task = parent::getNextRun();
-				if (!$this->nextRun || $task < $this->nextRun) $this->nextRun = $task;
 			}
+
+			$task = parent::getNextRun();
+			if (!$this->nextRun || $task < $this->nextRun) $this->nextRun = $task;
 		}
 
 		$this->crontab = array();
 		$this->lastRun = time();
 	}
 
-	function getNextRun() {return $this->nextRun;}
+	function getNextRun($time = false) {return $this->nextRun;}
+
+
+	static function setup()
+	{
+		$file = new pTask;
+		$file->setupQueue();
+		$file = resolvePath($file->queueFolder) . $file->queueName . '.crontab';
+
+		$id = file_exists($file) ? file_get_contents($file) : 0;
+		$id && pTask::cancel($id);
+		$id = pTask::schedule(new self);
+
+		file_put_contents($file, $id);
+	}
 }

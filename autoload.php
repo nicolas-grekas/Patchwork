@@ -130,18 +130,18 @@ function patchwork_autoload($searched_class)
 		}
 	}
 
-	$searched_class = strtolower($searched_class);
+	$lcClass = strtolower($searched_class);
 
-	if ($parent_class ? class_exists($parent_class) : (class_exists($searched_class, false) && !isset($patchwork_autoload_cache[$searched_class])))
+	if ($parent_class ? class_exists($parent_class) : (class_exists($searched_class, false) && !isset($patchwork_autoload_cache[$lcClass])))
 	{
 		if ($parent_class)
 		{
+			$class = "class {$searched_class} extends {$parent_class}{}\$GLOBALS['c{$patchwork_paths_token}']['{$lcClass}']=1;";
 			$parent_class = strtolower($parent_class);
-			$class = "class {$searched_class} extends {$parent_class}{}\$GLOBALS['c{$patchwork_paths_token}']['{$searched_class}']=1;";
 		}
 		else
 		{
-			$parent_class = $searched_class;
+			$parent_class = $lcClass;
 			$class = '';
 		}
 
@@ -228,8 +228,8 @@ function patchwork_autoload($searched_class)
 				if ($amark)
 				{
 					$GLOBALS['a' . $patchwork_paths_token] = $bmark;
-					$code = "isset(\$c{$patchwork_paths_token}['{$searched_class}'])||{$code}";
-					$c = "isset(\$c{$patchwork_paths_token}['{$searched_class}'])||(patchwork_include('./.class_{$cache}.{$patchwork_paths_token}.zcache.php'))||1";
+					$code = "isset(\$c{$patchwork_paths_token}['{$lcClass}'])||{$code}";
+					$c = "isset(\$c{$patchwork_paths_token}['{$lcClass}'])||(patchwork_include('./.class_{$cache}.{$patchwork_paths_token}.zcache.php'))||1";
 				}
 				else
 				{
@@ -239,7 +239,7 @@ function patchwork_autoload($searched_class)
 					$bmark = substr($code, 0, strrpos($code, '*') + 1) . $bmark . "'";
 					$code = "({$code})&&\$d{$patchwork_paths_token}&&";
 					$c = $outerClass ? "'{$cache}'" : ($level + $GLOBALS['patchwork_paths_offset']);
-					$c = "\$c{$patchwork_paths_token}['{$searched_class}']={$c}";
+					$c = "\$c{$patchwork_paths_token}['{$lcClass}']={$c}";
 					$c = "({$bmark})&&\$d{$patchwork_paths_token}&&({$c})&&";
 				}
 
@@ -252,7 +252,7 @@ function patchwork_autoload($searched_class)
 			// Global cache completion
 
 			$amark = $outerClass ? "'{$cache}'" : ($level + $GLOBALS['patchwork_paths_offset']);
-			$code = "\$c{$patchwork_paths_token}['{$searched_class}']={$amark};";
+			$code = "\$c{$patchwork_paths_token}['{$lcClass}']={$amark};";
 
 			$c = fopen('./.config.patchwork.php', 'ab');
 			flock($c, LOCK_EX);

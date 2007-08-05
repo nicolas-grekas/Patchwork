@@ -80,25 +80,32 @@ class
 	}
 
 
-	protected
-
-	$queueName = 'queue',
-	$queueFolder = 'data/queue/pTask/',
-	$queueUrl = 'queue/pTask',
-	$queueSql = '
-		CREATE TABLE queue (base TEXT, data BLOB, run_time INTEGER);
-		CREATE INDEX run_time ON queue (run_time);
-		CREATE VIEW waiting AS SELECT * FROM queue WHERE run_time>0;
-		CREATE VIEW error   AS SELECT * FROM queue WHERE run_time=0;';
-
-
 	// The following functions should not be used directly
+
+	protected function setupQueue()
+	{
+		$this->queueName = 'queue';
+		$this->queueFolder = 'data/queue/pTask/';
+		$this->queueUrl = 'queue/pTask';
+		$this->queueSql = '
+			CREATE TABLE queue (base TEXT, data BLOB, run_time INTEGER);
+			CREATE INDEX run_time ON queue (run_time);
+			CREATE VIEW waiting AS SELECT * FROM queue WHERE run_time>0;
+			CREATE VIEW error   AS SELECT * FROM queue WHERE run_time=0;';
+	}
+
 
 	protected static
 
 	$sqlite = array(),
 	$is_registered = false;
 
+
+	function preSerialize()
+	{
+		unset($this->queueName, $this->queueFolder, $this->queueUrl, $this->queueSql);
+		return $this;
+	}
 
 	protected function registerQueue()
 	{
@@ -129,6 +136,8 @@ class
 
 	function getSqlite()
 	{
+		$this->setupQueue();
+
 		$sqlite =& self::$sqlite[get_class($this)];
 		if ($sqlite) return $sqlite;
 
