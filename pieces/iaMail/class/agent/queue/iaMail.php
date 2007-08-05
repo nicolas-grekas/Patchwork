@@ -15,8 +15,10 @@
 class extends agent_queue_iaCron
 {
 	protected
-		$queueFolder = 'data/queue/iaMail/',
-		$dual = 'iaMail';
+
+	$queueFolder = 'data/queue/iaMail/',
+	$dual = 'iaMail';
+
 
 	protected function queueNext()
 	{
@@ -25,7 +27,7 @@ class extends agent_queue_iaCron
 		if ($data = $this->sqlite->query($sql)->fetchObject())
 		{
 			if ($data->send_time <= $time) tool_touchUrl::call("{$data->base}queue/iaMail/{$data->OID}/" . $this->getToken());
-			else iaCron::push($data->send_time, array($this, 'queueNext'));
+			else iaCron::schedule(new iaCron(array($this, 'queueNext')), $data->send_time);
 		}
 	}
 

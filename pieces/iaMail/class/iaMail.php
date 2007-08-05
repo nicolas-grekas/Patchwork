@@ -39,7 +39,7 @@ class extends iaCron
 
 	protected static function pushMail($data)
 	{
-		$queue = new iaMail;
+		$queue = new self;
 
 		if ($queue->test_mode)
 		{
@@ -74,14 +74,17 @@ class extends iaCron
 		return $id;
 	}
 
-	static function push($time, $function, $arguments = array())
+	static function schedule($task)
 	{
-		throw new Exception(__CLASS__ . '::push() is disabled');
+		throw new Exception(__CLASS__ . '::schedule() is disabled');
 	}
 
-	protected $queueFolder = 'data/queue/iaMail/';
-	protected $queueUrl = 'queue/iaMail';
-	protected $queueSql = '
+
+	protected
+
+	$queueFolder = 'data/queue/iaMail/',
+	$queueUrl = 'queue/iaMail',
+	$queueSql = '
 		CREATE TABLE queue (base TEXT, data BLOB, send_time INTEGER, archive INTEGER, sent_time INTEGER);
 		CREATE INDEX send_time ON queue (send_time);
 		CREATE INDEX sent_time ON queue (sent_time);

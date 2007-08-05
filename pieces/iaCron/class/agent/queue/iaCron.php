@@ -14,22 +14,29 @@
 
 class extends agent
 {
-	const contentType = '';
+	const contentType = 'image/gif';
 
-	public $get = array(
+
+	public
+	
+	$get = array(
 		'__1__:i:1',
 		'__2__:c:[a-f0-9]{32}'
 	);
 
-	public static $callbackError = false;
 
 	protected
-		$lock,
-		$queueName = 'queue',
-		$queueFolder = 'data/queue/iaCron/',
-		$dual = 'iaCron',
+
+	$lock,
+	$queueName = 'queue',
+	$queueFolder = 'data/queue/iaCron/',
+	$dual = 'iaCron',
 		
-		$sqlite;
+	$sqlite;
+
+
+	static $callbackError = false;
+
 
 	function control()
 	{
@@ -54,6 +61,11 @@ class extends agent
 		}
 
 		$this->queueNext();
+	}
+
+	function compose($o)
+	{
+		echo base64_decode('R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==');
 	}
 
 	function ob_handler($buffer)
@@ -85,19 +97,22 @@ class extends agent
 		$sql = "UPDATE queue SET run_time=0 WHERE OID={$id}";
 		$sqlite->query($sql);
 
-		$data = (object) unserialize($data->data);
+		$data = unserialize($data->data);
 
-		$this->restoreSession($data->session);
+		$this->restoreSession($data['session']);
 
-		$time = call_user_func_array($data->function, $data->arguments);
+		$data['task']->run();
+		$time = $data['task']->getNextRun();
 
 		if ($time > 0)
 		{
-			$data = time();
+			$sql = time();
+			if ($time < $sql - 366*86400) $time += $sql;
 
-			if ($time < $data - 366*86400) $time += $data;
+			$data['session'] = class_exists('SESSION', false) ? SESSION::getAll() : array();
+			$data = sqlite_escape_string(serialize($data));
 
-			$sql = "UPDATE queue SET run_time={$time} WHERE OID={$id}";
+			$sql = "UPDATE queue SET run_time={$time},data='{$data}' WHERE OID={$id}";
 		}
 		else $sql = "DELETE FROM queue WHERE OID={$id}";
 

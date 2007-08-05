@@ -14,19 +14,49 @@
 
 class
 {
-	static function push($time, $function, $arguments = array())
-	{
-		$queue = new iaCron;
-		$sqlite = $queue->getSqlite();
+	protected
 
-		if (!is_array($arguments)) $arguments = array($arguments);
+	$callback,
+	$arguments,
+	$nextRun = 0;
+
+
+	function __construct($callback = false, $arguments = array())
+	{
+		is_array($arguments) || $arguments = array($arguments);
+
+		$this->callback  = $callback;
+		$this->arguments = $arguments;
+	}
+
+	function run($time = false)
+	{
+		if ($time) self::schedule($this, $time);
+		else $this->callback ? call_user_func_array($this->callback, $this->arguments) : $this->execute();
+
+		return $this;
+	}
+
+	function execute()
+	{
+	}
+
+	function getNextRun()
+	{
+		return $this->nextRun;
+	}
+
+
+	static function schedule(self $task, $time = 0)
+	{
+		$queue = new self;
+		$sqlite = $queue->getSqlite();
 
 		if ($time < $_SERVER['REQUEST_TIME'] - 366*86400) $time += $_SERVER['REQUEST_TIME'];
 
 		$base = sqlite_escape_string(patchwork::__BASE__());
 		$data = array(
-			'function' => &$function,
-			'arguments' => &$arguments,
+			'task' => $task,
 			'session' => class_exists('SESSION', false) ? SESSION::getAll() : array()
 		);
 		$data = sqlite_escape_string(serialize($data));
@@ -41,19 +71,21 @@ class
 		return $id;
 	}
 
-	static function pop($id)
+	static function cancel($id)
 	{
-		$queue = new iaCron;
+		$queue = new self;
 		$id = (int) $id;
 		$sql = "DELETE FROM queue WHERE OID={$id}";
 		$queue->getSqlite()->query($sql);
 	}
 
 
-	protected $queueName = 'queue';
-	protected $queueFolder = 'data/queue/iaCron/';
-	protected $queueUrl = 'queue/iaCron';
-	protected $queueSql = '
+	protected
+
+	$queueName = 'queue',
+	$queueFolder = 'data/queue/iaCron/',
+	$queueUrl = 'queue/iaCron',
+	$queueSql = '
 		CREATE TABLE queue (base TEXT, data BLOB, run_time INTEGER);
 		CREATE INDEX run_time ON queue (run_time);
 		CREATE VIEW waiting AS SELECT * FROM queue WHERE run_time>0;
@@ -62,8 +94,11 @@ class
 
 	// The following functions should not be used directly
 
-	protected static $sqlite = array();
-	protected static $is_registered = false;
+	protected static
+
+	$sqlite = array(),
+	$is_registered = false;
+
 
 	protected function registerQueue()
 	{
