@@ -1,4 +1,4 @@
-<?php #import ../iaCron
+<?php #import ../pTask
 
 $CONFIG += array(
 

@@ -15,26 +15,30 @@
 class extends loop_callAgent
 {
 	public
-		$rawValues,
-		$errormsg = array(),
-		$sessionLink = false,
-		$action = false;
+
+	$rawValues,
+	$errormsg = array(),
+	$sessionLink = false,
+	$action = false;
+
 
 	protected
-		$elt = array(),
-		$hidden = array(),
-		$POST,
-		$eltnameSuffix = '',
-		
-		$agentData = false,
-		$agentPrefix = 'f_',
 
-		$hasfile = false,
-		$enterControl = false,
-		$firstName = -1,
-		
-		$contextPool = array(),
-		$defaults = array();
+	$elt = array(),
+	$hidden = array(),
+	$POST,
+	$eltnameSuffix = '',
+
+	$agentData = false,
+	$agentPrefix = 'f_',
+
+	$hasfile = false,
+	$enterControl = false,
+	$firstName = -1,
+
+	$contextPool = array(),
+	$defaults = array();
+
 
 	function __construct($agentData, $sessionLink = '', $POST = true, $formVarname = 'form')
 	{

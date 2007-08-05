@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends iaCron_periodic
+class extends pTask_periodic
 {
 	static function crontab()
 	{
@@ -38,8 +38,8 @@ class extends iaCron_periodic
 
 			if (parent::getNextRun($this->lastRun) <= $now)
 			{
-				$task = 'iaCron_' . $task;
-				iaCron::schedule(new iaCron(array(new $task, 'run')), $now);
+				$task = 'pTask_' . $task;
+				pTask::schedule(new pTask(array(new $task, 'run')), $now);
 				$task = parent::getNextRun();
 				if (!$this->nextRun || $task < $this->nextRun) $this->nextRun = $task;
 			}

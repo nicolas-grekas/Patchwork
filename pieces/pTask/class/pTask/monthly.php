@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends iaCron_periodic
+class extends pTask_periodic
 {
 	protected $crontab = '30 5 1 * *';
 

@@ -26,23 +26,23 @@ class extends agent
 
 	protected
 
-		$path = false,
-		
-		$allow_file = array('pdf','doc','odt'),
-		$deny_file  = array(
-//			'html','htm','php','php2','php3','php4','php5','phtml','pwml','inc','asp','aspx','ascx',
-//			'jsp','cfm','cfc','pl','bat','exe','com','dll','vbs','js','reg','cgi','htaccess','asis',
-//			'sh','shtml','shtm','phtm',
-		),
-			
-		$allow_image = array('jpg','gif','jpeg','png','bmp'),
-		$deny_image  = array(),
-		
-		$allow_flash = array(''),
-		$deny_flash  = array(),
-		
-		$allow_media = array('jpg','gif','jpeg','png','bmp','avi','mpg','mpeg'),
-		$deny_media  = array();
+	$path = false,
+
+	$allow_file = array('pdf','doc','odt'),
+	$deny_file  = array(
+//		'html','htm','php','php2','php3','php4','php5','phtml','pwml','inc','asp','aspx','ascx',
+//		'jsp','cfm','cfc','pl','bat','exe','com','dll','vbs','js','reg','cgi','htaccess','asis',
+//		'sh','shtml','shtm','phtm',
+	),
+	
+	$allow_image = array('jpg','gif','jpeg','png','bmp'),
+	$deny_image  = array(),
+
+	$allow_flash = array(''),
+	$deny_flash  = array(),
+
+	$allow_media = array('jpg','gif','jpeg','png','bmp','avi','mpg','mpeg'),
+	$deny_media  = array();
 
 
 	protected function setPath()

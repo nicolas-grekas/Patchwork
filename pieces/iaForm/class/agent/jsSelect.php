@@ -17,10 +17,12 @@ class extends agent
 	const contentType = 'text/javascript';
 
 	protected
-		$maxage = -1,
-		$template = 'form/jsSelect.js',
-		
-		$param = array();
+
+	$maxage = -1,
+	$template = 'form/jsSelect.js',
+
+	$param = array();
+
 
 	function compose($o)
 	{
