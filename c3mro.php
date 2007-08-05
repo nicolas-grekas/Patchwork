@@ -20,6 +20,8 @@ if ($lockHandle = @fopen('./.config.lock.php', 'xb'))
 {
 	flock($lockHandle, LOCK_EX);
 
+	define('PATCHWORK_SETUP', true);
+
 	function patchwork_c3mro_die($message)
 	{
 		fclose($GLOBALS['lockHandle']);

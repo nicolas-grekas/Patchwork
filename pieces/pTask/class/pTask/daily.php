@@ -18,5 +18,6 @@ class extends pTask_periodic
 
 	function execute()
 	{
+		parent::execute();
 	}
 }

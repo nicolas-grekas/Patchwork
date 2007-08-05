@@ -27,6 +27,8 @@ class extends agent
 
 	protected
 
+	$maxage = 3600,
+
 	$lock,
 	$queueName = 'queue',
 	$queueFolder = 'data/queue/pTask/',
@@ -81,8 +83,18 @@ class extends agent
 	protected function queueNext()
 	{
 		$time = time();
-		$sql = "SELECT OID, base FROM queue WHERE run_time AND run_time<={$time} ORDER BY run_time, OID LIMIT 1";
-		if ($data = $this->sqlite->query($sql)->fetchObject()) tool_touchUrl::call("{$data->base}queue/pTask/{$data->OID}/" . $this->getToken());
+		$sql = "SELECT OID, base, run_time FROM queue WHERE run_time>0 ORDER BY run_time, OID LIMIT 1";
+		if ($data = $this->sqlite->query($sql)->fetchObject())
+		{
+			if ($data->run_time <= $time)
+			{
+				tool_touchUrl::call("{$data->base}queue/pTask/{$data->OID}/" . $this->getToken());
+
+				$sql = "SELECT run_time FROM queue WHERE run_time>{$time} ORDER BY run_time LIMIT 1";
+				if ($data = $this->sqlite->query($sql)->fetchObject()) p::setMaxage($data->run_time - $time);
+			}
+			else p::setMaxage($data->run_time - $time);
+		}
 	}
 
 	protected function doOne($id)

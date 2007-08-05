@@ -1,4 +1,4 @@
-<?php /*********************************************************************
+{***************************************************************************
  *
  *   Copyright : (C) 2006 Nicolas Grekas. All rights reserved.
  *   Email     : nicolas.grekas+patchwork@espci.org
@@ -9,15 +9,13 @@
  *   the Free Software Foundation; either version 2 of the License, or
  *   (at your option) any later version.
  *
- ***************************************************************************/
+ ***************************************************************************}
+<!--
 
+IF $poorMansCron
+	SET a$footer -->{a$footer}<img src="{~}queue/pTask" width="1" height="1" alt="" /><!-- END:SET
+END:IF
 
-class extends pTask_periodic
-{
-	protected $crontab = '30 5 1 * *';
+INLINE footer
 
-	function execute()
-	{
-		parent::execute();
-	}
-}
+-->
