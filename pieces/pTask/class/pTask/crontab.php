@@ -17,10 +17,10 @@ class extends pTask_periodic
 	static function crontab()
 	{
 		return array(
-			' 0 * * * *' => 'hourly',
-			' 1 3 * * *' => 'daily',
-			'15 4 * * 0' => 'weekly',
-			'30 5 1 * *' => 'monthly',
+			'hourly'  => ' 0 * * * *',
+			'daily'   => ' 1 3 * * *',
+			'weekly'  => '15 4 * * 0',
+			'monthly' => '30 5 1 * *',
 		);
 	}
 
@@ -34,7 +34,7 @@ class extends pTask_periodic
 		$now = $_SERVER['REQUEST_TIME'];
 		$this->nextRun = 0;
 
-		foreach (self::crontab() as $crontab => $task)
+		foreach (self::crontab() as $task => $crontab)
 		{
 			$this->setCrontab($crontab);
 
@@ -53,16 +53,4 @@ class extends pTask_periodic
 	}
 
 	function getNextRun($time = false) {return $this->nextRun;}
-
-
-	static function setup()
-	{
-		$file = patchwork::$cachePath . 'crontabId';
-
-		$id = file_exists($file) ? file_get_contents($file) : 0;
-		$id && pTask::cancel($id);
-		$id = pTask::schedule(new self);
-
-		file_put_contents($file, $id);
-	}
 }

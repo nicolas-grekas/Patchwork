@@ -22,6 +22,15 @@ class extends self
 	{
 		parent::call();
 
-		pTask_crontab::setup();
+
+		// Register the crontab
+
+		$file = patchwork::$cachePath . 'crontabId';
+
+		$id = file_exists($file) ? file_get_contents($file) : 0;
+		$id && pTask::cancel($id);
+		$id = pTask::schedule(new pTask_crontab);
+
+		file_put_contents($file, $id);
 	}
 }
