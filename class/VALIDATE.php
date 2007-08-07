@@ -103,6 +103,8 @@ class
 			}
 
 			$result = $parser->parse($result);
+			$result = str_replace(patchwork::__BASE__(), '{~}', $result);
+			$result = str_replace(patchwork::__HOST__(), '{/}', $result);
 		}
 
 		return $result;

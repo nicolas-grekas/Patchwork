@@ -19,16 +19,14 @@ class extends self
 	{
 		$a = array();
 
-		if ($result = self::get_raw($value, $a))
+		if ($result = self::get_text($value, $a))
 		{
 			static $parser;
-
-			if (!isset($parser))
-			{
-				$parser = new HTMLPurifier;
-			}
+			isset($parser) || $parser = new HTMLPurifier;
 
 			$result = $parser->purify($result, isset($args[0]) ? $args[0] : null);
+			$result = str_replace(patchwork::__BASE__(), '{~}', $result);
+			$result = str_replace(patchwork::__HOST__(), '{/}', $result);
 		}
 
 		return $result;
