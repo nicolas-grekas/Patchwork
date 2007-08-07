@@ -74,7 +74,7 @@ class extends pTask
 		return $id;
 	}
 
-	static function schedule($task)
+	static function schedule(self $task, $time = 0)
 	{
 		throw new Exception(__CLASS__ . '::schedule() is disabled');
 	}
