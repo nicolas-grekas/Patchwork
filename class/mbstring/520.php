@@ -26,25 +26,25 @@ class
 
 	static function stristr($haystack, $needle, $part = false, $encoding = null)
 	{
-		$pos = mb_stripos($haystack, $needle, $encoding);
+		$pos = self::stripos($haystack, $needle, $encoding);
 		return false === $pos ? false : ($part ? mb_substr($haystack, 0, $pos, $encoding) : mb_substr($haystack, $pos, null, $encoding));
 	}
 
 	static function strrchr($haystack, $needle, $part = false, $encoding = null)
 	{
-		$pos = mb_strrpos($haystack, $needle, 0, $encoding);
+		$pos = self::strrpos($haystack, $needle, 0, $encoding);
 		return false === $pos ? false : ($part ? mb_substr($haystack, 0, $pos, $encoding) : mb_substr($haystack, $pos, null, $encoding));
 	}
 
 	static function strrichr($haystack, $needle, $part = false, $encoding = null)
 	{
-		$pos = mb_strripos($haystack, $needle, $encoding);
+		$pos = self::strripos($haystack, $needle, $encoding);
 		return false === $pos ? false : ($part ? mb_substr($haystack, 0, $pos, $encoding) : mb_substr($haystack, $pos, null, $encoding));
 	}
 
 	static function strripos($haystack, $needle, $offset = 0, $encoding = null)
 	{
-		return mb_strrpos(mb_strtolower($haystack, $encoding), mb_strtolower($needle, $encoding), $offset, $encoding);
+		return self::strrpos(mb_strtolower($haystack, $encoding), mb_strtolower($needle, $encoding), $offset, $encoding);
 	}
 
 	static function strstr($haystack, $needle, $part = false, $encoding = null)
@@ -60,9 +60,12 @@ class
 			$encoding = $offset;
 			$offset = 0;
 		}
-		else if ($offset = (int) $offset) $haystack = self::substr($haystack, $offset);
-		$needle = self::substr($needle, 0, 1);
+		else if ($offset = (int) $offset) $haystack = mb_substr($haystack, $offset);
+
+		if (function_exists('iconv_strrpos')) return iconv_strrpos($haystack, $needle, $encoding);
+
+		$needle = mb_substr($needle, 0, 1);
 		$pos = strpos(strrev($haystack), strrev($needle));
-		return false === $pos ? false : ($offset + self::strlen($pos ? substr($haystack, 0, -$pos) : $haystack));
+		return false === $pos ? false : ($offset + mb_strlen($pos ? substr($haystack, 0, -$pos) : $haystack));
 	}
 }
