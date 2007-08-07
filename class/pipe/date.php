@@ -47,12 +47,12 @@ P$date = function($time, $format)
 		$time = null;
 	}
 
-	$time = new Date($time);
+	$time = new Date(1000*$time);
 
 	var $result = [],
 		$a = /(\d\d).+(\d{4}) (\d\d):(\d\d):(\d\d)/,
 		$GMT = $time.toGMTString().match($a),
-		$local = $time.toLocaleString().match($a),
+		$local = (''+$time).match($a),
 		$zone = (''+$time).match(/([A-Z]{3})?([-\+]\d{2})(\d{2})/),
 
 		// This could easily be translated, but shouldn't
