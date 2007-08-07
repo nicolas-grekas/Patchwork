@@ -62,10 +62,28 @@ class
 		}
 		else if ($offset = (int) $offset) $haystack = mb_substr($haystack, $offset);
 
-		if (function_exists('iconv_strrpos')) return iconv_strrpos($haystack, $needle, $encoding);
+		$pos = mb_strrpos($haystack, $needle, $encoding);
 
-		$needle = mb_substr($needle, 0, 1);
-		$pos = strpos(strrev($haystack), strrev($needle));
-		return false === $pos ? false : ($offset + mb_strlen($pos ? substr($haystack, 0, -$pos) : $haystack));
+		return false === $pos ? false : ($offset + $pos);
+	}
+}
+
+if (!function_exists('mb_strrpos'))
+{
+	if (function_exists('iconv_strrpos'))
+	{
+		function mb_strrpos($haystack, $needle, $encoding)
+		{
+			return iconv_strrpos($haystack, $needle, $encoding);
+		}
+	}
+	else
+	{
+		function mb_strrpos($haystack, $needle, $encoding)
+		{
+			$needle = mb_substr($needle, 0, 1);
+			$pos = strpos(strrev($haystack), strrev($needle));
+			return false === $pos ? false : mb_strlen($pos ? substr($haystack, 0, -$pos) : $haystack);
+		}
 	}
 }
