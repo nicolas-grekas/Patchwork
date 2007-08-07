@@ -15,7 +15,7 @@
 /*
  * Partial mbstring implementation in pure PHP
  *
- * Working only if iconv is loaded:
+ * Supported through iconv:
 
 mb_convert_encoding           - Convert character encoding
 mb_decode_mimeheader          - Decode string in MIME header field
@@ -113,11 +113,15 @@ class
 	static function strlen($str, $encoding = null)
 	{
 		return strlen(utf8_decode($str));
+
+		// Quickest alternative if utf8_decode() is not available:
+		//preg_replace('/./u', '', $str, -1, $str);
+		//return $str;
+
 	}
 
 	static function strpos($haystack, $needle, $offset = 0, $encoding = null)
 	{
-		if (function_exists('iconv_strpos')) return iconv_strpos($haystack, $needle, $offset);
 		if ($offset = (int) $offset) $haystack = self::substr($haystack, $offset);
 		$pos = strpos($haystack, $needle);
 		return false === $pos ? false : ($offset + ($pos ? self::strlen(substr($haystack, 0, $pos)) : 0));
@@ -139,8 +143,6 @@ class
 
 	static function substr($str, $start, $length = null, $encoding = null)
 	{
-		if (function_exists('iconv_substr')) return iconv_substr($str, $start, $length);
-
 		$strlen = self::strlen($str);
 		$start = (int) $start;
 
