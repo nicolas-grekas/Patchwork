@@ -95,11 +95,52 @@ class
 
 	static function convert_case($str, $mode, $encoding = null)
 	{
+		if ('' === $str) return '';
+
 		switch ($mode)
 		{
-		case MB_CASE_UPPER: return self::strtoupper($str);
-		case MB_CASE_LOWER: return self::strtolower($str);
-		case MB_CASE_TITLE: return preg_replace("/\b./eu", 'self::strtoupper("$0",$encoding)', $str);
+		case MB_CASE_TITLE: return preg_replace('/\b./eu', 'self::strtoupper("$0",$encoding)', $str);
+		case MB_CASE_UPPER:
+			static $upper;
+			isset($upper) || $upper = self::loadCaseTable(1);
+			$map =& $upper;
+			break;
+
+		case MB_CASE_LOWER:
+		default:
+			static $lower;
+			isset($lower) || $lower = self::loadCaseTable(0);
+			$map =& $lower;
+		}
+
+		static $utf_len_mask = array("\xC0" => 2, "\xD0" => 2, "\xE0" => 3, "\xF0" => 4);
+
+		$i = 0;
+		$len = strlen($str);
+
+		while ($i < $len)
+		{
+			$utf_len = $s[$i] < "\x80" ? 1 : $utf_len_mask[$s[$i] & "\xF0"];
+			$utf_chr = substr($s, $i, $utf_len);
+			$i += $utf_len;
+
+			if (isset($map[$utf_chr]))
+			{
+				$utf_chr = $map[$utf_chr];
+				$new_len = strlen($utf_chr);
+
+				if ($new_len == $utf_len)
+				{
+					do $s[$i - --$utf_len] = $utf_chr[$utf_len];
+					while ($utf_len);
+				}
+				else
+				{
+					$s = substr_replace($s, $utf_chr, $i, $utf_len);
+					$len += $new_len - $utf_len;
+					$i   += $new_len - $utf_len;
+				}
+			}
 		}
 
 		return $str;
@@ -129,16 +170,12 @@ class
 
 	static function strtolower($str, $encoding = null)
 	{
-		static $table;
-		isset($table) || $table = self::loadCaseTable(0);
-		return strtr($str, $table);
+		return self::convert_case($str, MB_CASE_LOWER, $encoding);
 	}
 
 	static function strtoupper($str, $encoding = null)
 	{
-		static $table;
-		isset($table) || $table = self::loadCaseTable(1);
-		return strtr($str, $table);
+		return self::convert_case($str, MB_CASE_UPPER, $encoding);
 	}
 
 	static function substr($str, $start, $length = null, $encoding = null)
@@ -163,7 +200,7 @@ class
 		return preg_match($rx, $str, $str) ? $str[1] : '';
 	}
 
-	static function preg_offset($offset)
+	protected static function preg_offset($offset)
 	{
 		$rx = array();
 		$offset = (int) $offset;
@@ -177,7 +214,7 @@ class
 		return implode('', $rx) . '(?:.{' . $offset . '})';
 	}
 
-	static function loadCaseTable($upper)
+	protected static function loadCaseTable($upper)
 	{
 		return unserialize(file_get_contents(
 			$upper
