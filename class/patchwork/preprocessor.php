@@ -163,13 +163,13 @@ class patchwork_preprocessor__0
 		if (!function_exists('mb_stripos'))
 		{
 			self::$function += array(
-				'mb_stripos'  => 'mbstring_520::stripos',
-				'mb_stristr'  => 'mbstring_520::stristr',
-				'mb_strrchr'  => 'mbstring_520::strrchr',
-				'mb_strrichr' => 'mbstring_520::strrichr',
-				'mb_strripos' => 'mbstring_520::strripos',
-				'mb_strrpos'  => 'mbstring_520::strrpos',
-				'mb_strstr'   => 'mbstring_520::strstr',
+				'mb_stripos'  => 'utf8_mbstring_520::stripos',
+				'mb_stristr'  => 'utf8_mbstring_520::stristr',
+				'mb_strrchr'  => 'utf8_mbstring_520::strrchr',
+				'mb_strrichr' => 'utf8_mbstring_520::strrichr',
+				'mb_strripos' => 'utf8_mbstring_520::strripos',
+				'mb_strrpos'  => 'utf8_mbstring_520::strrpos',
+				'mb_strstr'   => 'utf8_mbstring_520::strstr',
 			);
 
 			if (!extension_loaded('mbstring'))
@@ -184,23 +184,23 @@ class patchwork_preprocessor__0
 				);
 
 				self::$function += array(
-					'mb_convert_case'      => 'mbstring_500::convert_case',
-					'mb_list_encodings'    => 'mbstring_500::list_encodings',
+					'mb_convert_case'      => 'utf8_mbstring_500::convert_case',
+					'mb_list_encodings'    => 'utf8_mbstring_500::list_encodings',
 					'mb_parse_str'         => 'parse_str',
-					'mb_strlen'            => 'mbstring_500::strlen',
-					'mb_strpos'            => 'mbstring_500::strpos',
-					'mb_strtolower'        => 'mbstring_500::strtolower',
-					'mb_strtoupper'        => 'mbstring_500::strtoupper',
+					'mb_strlen'            => 'utf8_mbstring_500::strlen',
+					'mb_strpos'            => 'utf8_mbstring_500::strpos',
+					'mb_strtolower'        => 'utf8_mbstring_500::strtolower',
+					'mb_strtoupper'        => 'utf8_mbstring_500::strtoupper',
 					'mb_substr_count'      => 'substr_count',
-					'mb_substr'            => 'mbstring_500::substr',
+					'mb_substr'            => 'utf8_mbstring_500::substr',
 				);
 
 				if (extension_loaded('iconv'))
 				{
 					self::$function += array(
-						'mb_convert_encoding'  => 'mbstring_500::convert_encoding',
+						'mb_convert_encoding'  => 'utf8_mbstring_500::convert_encoding',
 						'mb_decode_mimeheader' => 'iconv_mime_decode',
-						'mb_encode_mimeheader' => 'mbstring_500::encode_mimeheader',
+						'mb_encode_mimeheader' => 'utf8_mbstring_500::encode_mimeheader',
 					);
 
 					self::$function['mb_strlen'] = 'iconv_strlen';
