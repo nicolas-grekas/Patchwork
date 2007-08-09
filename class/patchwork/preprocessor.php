@@ -170,6 +170,7 @@ class patchwork_preprocessor__0
 				'mb_strripos' => 'utf8_mbstring_520::strripos',
 				'mb_strrpos'  => 'utf8_mbstring_520::strrpos',
 				'mb_strstr'   => 'utf8_mbstring_520::strstr',
+				'utf8_mbstring_500_strrpos' => 'mb_strrpos',
 			);
 
 			if (!extension_loaded('mbstring'))
@@ -261,14 +262,12 @@ class patchwork_preprocessor__0
 	protected function antePreprocess(&$code)
 	{
 		if (false !== strpos($code, "\r")) $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
-		if (false !== strpos($code,  '#>>>')) $code = preg_replace_callback( "'^#>>>\s*^.*?^(?:#|//)<<<\s*$'ms", array($this, 'extractRxLF'), $code);
-		if (false !== strpos($code, '//>>>')) $code = preg_replace_callback("'^//>>>\s*^.*?^(?:#|//)<<<\s*$'ms", array($this, 'extractRxLF'), $code);
+		if (false !== strpos($code,  '#>>>')) $code = preg_replace_callback("'^#>>>[^\n]*\n.*?^#<<<[^\n]*'ms", array($this, 'extractLF_callback'), $code);
 
 		if (DEBUG)
 		{
-			if (false !== strpos($code,  '#>')) $code = preg_replace( "'^#>([^>].*)$'m", '$1', $code);
-			if (false !== strpos($code, '//>')) $code = preg_replace("'^//>([^>].*)$'m", '$1', $code);
-			if (false !== strpos($code, '/*>')) $code = preg_replace("'^(/\*>)(\s*^.*?^)(<\*/\s*)$'ms", '$2$1$3', $code);
+			if (false !== strpos($code,  '#>')) $code = preg_replace("'^#>([^>].*)$'m", '$1', $code);
+			if (false !== strpos($code, '/*>')) $code = preg_replace("'^(/\*>[^\n]*)(\n.*?)^<\*/'ms", '$1*/$2', $code);
 		}
 	}
 
@@ -827,7 +826,7 @@ class patchwork_preprocessor__0
 		return str_repeat("\n", substr_count($a, "\n"));
 	}
 
-	protected function extractRxLF($a)
+	protected function extractLF_callback($a)
 	{
 		return $this->extractLF($a[0]);
 	}
