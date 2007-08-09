@@ -14,7 +14,7 @@
 
 class
 {
-	// This RegExp must work in most Javascript implementation too
+	// This RegExp must work in most Javascript implementations too
 	const email_rx = '(?:[-+=_a-zA-Z0-9%]+(\\.[-+=_a-zA-Z0-9%]+)*@([-+=_a-zA-Z0-9%]+(\\.[-+=_a-zA-Z0-9%]+)*))';
 
 	static $IMAGETYPE = array(
