@@ -148,9 +148,14 @@ function patchwork_autoload($searched_class)
 		if (isset($GLOBALS['patchwork_abstract'][$parent_class])) $class && $class = 'abstract ' . $class;
 		else if ($c)
 		{
-			method_exists($parent_class, '__static_construct') && $class .= "{$parent_class}::__static_construct();";
+			$file = "{$parent_class}::__static_construct{$patchwork_paths_token}";
+			if (defined($file) ? $searched_class == constant($file) : method_exists($parent_class, '__static_construct'))
+			{
+				$class .= "{$parent_class}::__static_construct();";
+			}
 
-			if (method_exists($parent_class, '__static_destruct'))
+			$file = "{$parent_class}::__static_destruct{$patchwork_paths_token}";
+			if (defined($file) ? $searched_class == constant($file) : method_exists($parent_class, '__static_destruct'))
 			{
 				$class = str_replace('{}', '{static $hunter' . $patchwork_paths_token . ';}', $class);
 				$class .= "{$searched_class}::\$hunter{$patchwork_paths_token}=new hunter(array('{$parent_class}','__static_destruct'));";
