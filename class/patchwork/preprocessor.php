@@ -388,7 +388,9 @@ class patchwork_preprocessor__0
 					'real_classname' => strtolower($b),
 					'is_final' => $final,
 					'is_abstract' => $abstract,
-					'has_php5_construct' => T_INTERFACE == $type,
+					'add_php5_construct' => T_CLASS == $type,
+					'add_static_construct' => false,
+					'add_static_destruct'  => false,
 					'construct_source' => '',
 				);
 
@@ -540,16 +542,15 @@ class patchwork_preprocessor__0
 
 				if (T_FUNCTION == $prevType || ('&' == $prevType && T_FUNCTION == $antePrevType))
 				{
-					if (   isset($class_pool[$curly_level-1])
-						&& ($c = $class_pool[$curly_level-1])
-						&& !$c->has_php5_construct)
+					if (isset($class_pool[$curly_level-1]) && $c = $class_pool[$curly_level-1])
 					{
-						// If the currently parsed method is this class constructor
-						// build a PHP5 constructor if needed.
-
-						if ('__construct' == $type) $c->has_php5_construct = true;
-						else if ($type == strtolower($c->classname))
+						switch ($type)
 						{
+						case '__static_construct': $c->add_static_construct = true ; break;
+						case '__static_destruct' : $c->add_static_destruct  = true ; break;
+						case '__construct':        $c->add_php5_construct   = false; break;
+
+						case strtolower($c->classname):
 							$c->construct_source = $c->classname;
 							new patchwork_preprocessor_construct_($this, $c->construct_source);
 						}
@@ -757,7 +758,9 @@ class patchwork_preprocessor__0
 				{
 					$c = $class_pool[$curly_level];
 
-					if (!$c->has_php5_construct) $token = $c->construct_source . '}';
+					if ($c->add_php5_construct) $token = $c->construct_source . '}';
+					if ($c->add_static_construct) $token = "const __static_construct{$patchwork_paths_token}='{$c->classname}';{$token}";
+					if ($c->add_static_destruct ) $token = "const __static_destruct{$patchwork_paths_token} ='{$c->classname}';{$token}";
 					if ($c->is_abstract) $token .= "\$GLOBALS['patchwork_abstract']['{$c->real_classname}']=1;";
 					$token .= "\$GLOBALS['c{$patchwork_paths_token}']['{$c->real_classname}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
 

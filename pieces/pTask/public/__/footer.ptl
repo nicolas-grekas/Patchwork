@@ -13,7 +13,7 @@
 <!--
 
 IF $poorMansCron
-	SET a$footer -->{a$footer}<img src="{~}queue/pTask" width="1" height="1" alt="" /><!-- END:SET
+	SET a$footer -->{a$footer}<img src="{~}queue/pTask" width="1" height="1" style="position: absolute" alt="" /><!-- END:SET
 END:IF
 
 INLINE footer
