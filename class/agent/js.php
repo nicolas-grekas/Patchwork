@@ -60,9 +60,9 @@ class extends agent
 		}
 		else
 		{
-			$o->cookie_path   = $GLOBALS['CONFIG']['session.cookie_path'];
-			$o->cookie_domain = $GLOBALS['CONFIG']['session.cookie_domain'];
-			$o->maxage = $GLOBALS['CONFIG']['maxage'];
+			$o->cookie_path   = $CONFIG['session.cookie_path'];
+			$o->cookie_domain = $CONFIG['session.cookie_domain'];
+			$o->maxage = $CONFIG['maxage'];
 		}
 
 		return $o;

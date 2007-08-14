@@ -12,8 +12,8 @@
  ***************************************************************************/
 
 
-isset($GLOBALS['CONFIG']['email_backend']) || $GLOBALS['CONFIG']['email_backend'] = 'mail';
-isset($GLOBALS['CONFIG']['email_options']) || $GLOBALS['CONFIG']['email_options'] = '';
+isset($CONFIG['email_backend']) || $CONFIG['email_backend'] = 'mail';
+isset($CONFIG['email_options']) || $CONFIG['email_options'] = '';
 
 class extends self
 {

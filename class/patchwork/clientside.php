@@ -56,7 +56,6 @@ EOHTML;
 
 	static function render($agent, $liveAgent)
 	{
-		global $CONFIG;
 		$config_maxage = $CONFIG['maxage'];
 
 		// Get the calling URI

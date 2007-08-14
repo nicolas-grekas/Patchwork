@@ -16,7 +16,7 @@ class
 {
 	static function connect($arg = false)
 	{
-		$db = MDB2::factory($GLOBALS['CONFIG']['DSN']);
+		$db = MDB2::factory($CONFIG['DSN']);
 		$db->loadModule('Extended');
 		$db->setErrorHandling(PEAR_ERROR_CALLBACK, 'E');
 		$db->setFetchMode(MDB2_FETCHMODE_OBJECT);

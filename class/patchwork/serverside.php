@@ -268,7 +268,7 @@ class extends patchwork
 					fwrite($h, $rawdata);
 					fclose($h);
 
-					touch($fagent, $_SERVER['REQUEST_TIME'] + ('ontouch' == $expires ? $GLOBALS['CONFIG']['maxage'] : $maxage));
+					touch($fagent, $_SERVER['REQUEST_TIME'] + ('ontouch' == $expires ? $CONFIG['maxage'] : $maxage));
 
 					patchwork::writeWatchTable($watch, $fagent);
 				}

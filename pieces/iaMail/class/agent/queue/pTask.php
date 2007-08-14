@@ -21,7 +21,7 @@ class extends self
 		if ('' !== $buffer)
 		{
 			iaMail_mime::send(
-				array('To' => $GLOBALS['CONFIG']['debug_email']),
+				array('To' => $CONFIG['debug_email']),
 				$buffer
 			);
 		}

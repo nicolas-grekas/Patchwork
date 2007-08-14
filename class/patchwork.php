@@ -236,7 +236,7 @@ class
 		self::$ob_level = 2;
 
 
-		self::setLang($_SERVER['PATCHWORK_LANG'] ? $_SERVER['PATCHWORK_LANG'] : substr($GLOBALS['CONFIG']['lang_list'], 0, 2));
+		self::setLang($_SERVER['PATCHWORK_LANG'] ? $_SERVER['PATCHWORK_LANG'] : substr($CONFIG['lang_list'], 0, 2));
 
 		if (htmlspecialchars(self::$base) != self::$base)
 		{
@@ -338,7 +338,7 @@ class
 			$a = dirname($a . ' ');
 			if (1 == strlen($a)) $a = '';
 
-			self::setcookie('v$', self::$appId, $_SERVER['REQUEST_TIME'] + $GLOBALS['CONFIG']['maxage'], $a .'/');
+			self::setcookie('v$', self::$appId, $_SERVER['REQUEST_TIME'] + $CONFIG['maxage'], $a .'/');
 
 			self::touch('');
 			foreach (glob(self::$cachePath . '?/?/*', GLOB_NOSORT) as $v) unlink($v);
@@ -495,7 +495,7 @@ class
 			if ($domain && '.' != substr($domain, 0, 1)) W('setcookie() RFC incompatibility: $domain must start with a dot.');
 
 			$GLOBALS['patchwork_private'] = true;
-			header('P3P: CP="' . $GLOBALS['CONFIG']['P3P'] . '"');
+			header('P3P: CP="' . $CONFIG['P3P'] . '"');
 			header(
 				"Set-Cookie: {$name}={$value}" .
 					($expires  ? '; expires=' . date('D, d-M-Y H:i:s T', $expires) : '') .
@@ -606,8 +606,8 @@ class
 	 */
 	static function setMaxage($maxage)
 	{
-		if ($maxage < 0) $maxage = $GLOBALS['CONFIG']['maxage'];
-		else $maxage = min($GLOBALS['CONFIG']['maxage'], $maxage);
+		if ($maxage < 0) $maxage = $CONFIG['maxage'];
+		else $maxage = min($CONFIG['maxage'], $maxage);
 
 		if (!self::$privateDetectionMode)
 		{
@@ -1339,7 +1339,7 @@ class
 		if (!$is304)
 		{
 			$h = self::$headers['content-type'];
-			false !== stripos($h, 'html')     && header('P3P: CP="' . $GLOBALS['CONFIG']['P3P'] . '"');
+			false !== stripos($h, 'html')     && header('P3P: CP="' . $CONFIG['P3P'] . '"');
 			is_string(self::$contentEncoding) && header('Content-Encoding: ' . self::$contentEncoding);
 			self::$is_enabled                 && header('Content-Length: ' . strlen($buffer));
 		}

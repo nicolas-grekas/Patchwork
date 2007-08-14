@@ -66,7 +66,7 @@ class extends patchwork
 		$size = filesize($file);
 
 		patchwork::header('Content-Type: ' . $mime);
-		false !== stripos($mime, 'html') && header('P3P: CP="' . $GLOBALS['CONFIG']['P3P'] . '"');
+		false !== stripos($mime, 'html') && header('P3P: CP="' . $CONFIG['P3P'] . '"');
 		patchwork::$binaryMode = true;
 		patchwork::$LastModified = filemtime($file);
 		patchwork::$ETag = $size .'-'. patchwork::$LastModified .'-'. fileinode($file);

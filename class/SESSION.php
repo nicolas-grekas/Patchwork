@@ -162,8 +162,6 @@ class
 
 	static function __static_construct()
 	{
-		global $CONFIG;
-
 		self::$savePath     = $CONFIG['session.save_path'];
 		self::$cookiePath   = $CONFIG['session.cookie_path'];
 		self::$cookieDomain = $CONFIG['session.cookie_domain'];

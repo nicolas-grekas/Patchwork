@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-isset($GLOBALS['CONFIG']['debug_email']) || $GLOBALS['CONFIG']['debug_email'] = 'webmaster';
+isset($CONFIG['debug_email']) || $CONFIG['debug_email'] = 'webmaster';
 
 class extends pTask
 {
@@ -44,10 +44,10 @@ class extends pTask
 		if ($queue->test_mode)
 		{
 			$data['headers']['X-Original-To'] = $data['headers']['To'];
-			$data['headers']['To'] = $GLOBALS['CONFIG']['debug_email'];
+			$data['headers']['To'] = $CONFIG['debug_email'];
 		}
 
-		if (!isset($data['headers']['From']) && isset($GLOBALS['CONFIG']['email_from'])) $data['headers']['From'] = $GLOBALS['CONFIG']['email_from'];
+		if (!isset($data['headers']['From']) && isset($CONFIG['email_from'])) $data['headers']['From'] = $CONFIG['email_from'];
 		if (isset($data['headers']['From']) && !$data['headers']['From']) W("Email is likely not to be sent: From header is empty.");
 
 		$data['session'] = isset($_COOKIE['SID']) ? SESSION::getAll() : array();

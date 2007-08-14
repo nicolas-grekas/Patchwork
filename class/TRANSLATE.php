@@ -55,8 +55,6 @@ class
 	{
 		self::$cache = array();
 
-		global $CONFIG;
-
 		$adapter = isset($CONFIG['translate_adapter']) && $CONFIG['translate_adapter'] ? 'adapter_translate_' . $CONFIG['translate_adapter'] : __CLASS__;
 		self::$adapter = new $adapter(isset($CONFIG['translate_options']) ? $CONFIG['translate_options'] : array());
 		self::$adapter->open();

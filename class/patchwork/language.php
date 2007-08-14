@@ -16,7 +16,7 @@ class
 {
 	static function negociate()
 	{
-		$lang = self::HTTP_Best_Language(explode('|', $GLOBALS['CONFIG']['lang_list']));
+		$lang = self::HTTP_Best_Language(explode('|', $CONFIG['lang_list']));
 		$b = $_SERVER['REQUEST_METHOD'];
 
 		if (!PATCHWORK_DIRECT && ('GET' == $b || 'HEAD' == $b))
@@ -28,8 +28,8 @@ class
 
 			header('HTTP/1.1 301 Moved Permanently');
 			header('Location: ' . $lang);
-			header('Expires: ' . gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $GLOBALS['CONFIG']['maxage']) . ' GMT');
-			header('Cache-Control: max-age=' . $GLOBALS['CONFIG']['maxage'] .',' . ($GLOBALS['patchwork_private'] ? 'private' : 'public'));
+			header('Expires: ' . gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $CONFIG['maxage']) . ' GMT');
+			header('Cache-Control: max-age=' . $CONFIG['maxage'] .',' . ($GLOBALS['patchwork_private'] ? 'private' : 'public'));
 
 			exit;
 		}
