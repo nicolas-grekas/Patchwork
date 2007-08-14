@@ -17,7 +17,7 @@ class extends self
 	function compose($o)
 	{
 		$o = parent::compose($o);
-		$o->poorMansCron = !isset($GLOBALS['CONFIG']['poorMansCron']) || $GLOBALS['CONFIG']['poorMansCron'];
+		$o->poorMansCron = !isset($CONFIG['poorMansCron']) || $CONFIG['poorMansCron'];
 		return $o;
 	}
 }

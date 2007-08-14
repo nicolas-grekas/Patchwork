@@ -74,17 +74,17 @@ class extends Mail_mime
 			&& $headers['Return-Path'] = $options[0];
 
 		$options = null;
-		$backend = $GLOBALS['CONFIG']['email_backend'];
+		$backend = $CONFIG['email_backend'];
 
 		switch ($backend)
 		{
 		case 'mail':
-			$options = isset($GLOBALS['CONFIG']['email_options']) ? $GLOBALS['CONFIG']['email_options'] : '';
+			$options = isset($CONFIG['email_options']) ? $CONFIG['email_options'] : '';
 			if (isset($headers['Return-Path'])) $options .= ' -f ' . escapeshellarg($headers['Return-Path']);
 			break;
 
 		case 'smtp':
-			$options = isset($GLOBALS['CONFIG']['email_options']) ? $GLOBALS['CONFIG']['email_options'] : array();
+			$options = isset($CONFIG['email_options']) ? $CONFIG['email_options'] : array();
 			break;
 		}
 
@@ -97,10 +97,10 @@ class extends Mail_mime
 		if (!isset($this->options['on' . $event])) return;
 
 		if (isset($this->options[$event . '_email'])) $email = $this->options[$event . '_email'];
-		else if (isset($GLOBALS['CONFIG'][$event . '_email'])) $email = $GLOBALS['CONFIG'][$event . '_email'];
+		else if (isset($CONFIG[$event . '_email'])) $email = $CONFIG[$event . '_email'];
 
 		if (isset($this->options[$event . '_url'])) $url = $this->options['reply_url'];
-		else if (isset($GLOBALS['CONFIG'][$event . '_url'])) $url = $GLOBALS['CONFIG'][$event . '_url'];
+		else if (isset($CONFIG[$event . '_url'])) $url = $CONFIG[$event . '_url'];
 
 		if (!isset($email)) W("{$event}_email has not been configured.");
 		else if (!isset($url)) W("{$event}_url has not been configured.");

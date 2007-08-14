@@ -291,9 +291,13 @@ class patchwork_preprocessor__0
 		$new_type = array();
 		$new_code_length = 0;
 
-		$opentag_marker = $this->marker[1] . "isset(\$e{$patchwork_paths_token})||\$e{$patchwork_paths_token}=false;";
+		$opentag_marker = "if(!isset(\$a{$patchwork_paths_token})){global \$CONFIG,"
+			. substr($this->marker[1], 7)
+			. "}isset(\$e{$patchwork_paths_token})||\$e{$patchwork_paths_token}=false;";
+
 		$curly_level = 0;
 		$curly_starts_function = false;
+		$autoglobalize = 0;
 		$class_pool = array();
 		$curly_marker = array(array(0,0));
 		$curly_marker_last =& $curly_marker[0];
@@ -449,6 +453,7 @@ class patchwork_preprocessor__0
 
 			case T_FUNCTION:
 				$curly_starts_function = true;
+				$autoglobalize = 0;
 				break;
 
 			case T_NEW:
@@ -700,6 +705,15 @@ class patchwork_preprocessor__0
 
 				break;
 
+			case T_VARIABLE:
+
+				if (!$autoglobalize && '$CONFIG' == $token && T_DOUBLE_COLON != $prevType)
+				{
+					$autoglobalize = $curly_starts_function ? 2 : 1;
+				}
+
+				break;
+
 			case T_COMMENT: $type = T_WHITESPACE;
 			case T_WHITESPACE:
 				$token = substr_count($token, "\n");
@@ -718,6 +732,7 @@ class patchwork_preprocessor__0
 				break;
 
 			case ';':
+				$curly_starts_function = false;
 				$static_instruction = false;
 				$new_type = array(($new_code_length-1) => '');
 				break;
@@ -741,11 +756,15 @@ class patchwork_preprocessor__0
 				break;
 
 			case '}':
+				$curly_starts_function = false;
+
 				if (isset($curly_marker[$curly_level]))
 				{
 					$curly_marker_last[1] && $new_code[$curly_marker_last[0]] .= $curly_marker_last[1]>0
 						? "{$this->marker[1]}static \$d{$patchwork_paths_token}=1;(" . $this->marker() . ")&&\$d{$patchwork_paths_token}&&\$d{$patchwork_paths_token}=0;"
 						: $this->marker[0];
+
+					1 == $autoglobalize && $new_code[$curly_marker_last[0]] .= 'global $CONFIG;';
 
 					unset($curly_marker[$curly_level]);
 					end($curly_marker);
