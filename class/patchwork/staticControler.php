@@ -12,6 +12,8 @@
  ***************************************************************************/
 
 
+$CONFIG['xsendfile'] = isset($CONFIG['xsendfile']) && $CONFIG['xsendfile'];
+
 class extends patchwork
 {
 	static $contentType = array(
@@ -63,6 +65,8 @@ class extends patchwork
 
 	static function readfile($file, $mime)
 	{
+		if (strlen($file) < 2 || !('/' == $file[0] || ':' == $file[1])) $file = resolvePath($file);
+
 		$size = filesize($file);
 
 		patchwork::header('Content-Type: ' . $mime);
@@ -72,8 +76,8 @@ class extends patchwork
 		patchwork::$ETag = $size .'-'. patchwork::$LastModified .'-'. fileinode($file);
 		patchwork::disable();
 
-		DB(true);
 		class_exists('SESSION', false) && SESSION::close();
+		DB(true);
 
 		$gzip = patchwork::gzipAllowed($mime);
 		$gzip || ob_start();
@@ -91,29 +95,36 @@ class extends patchwork
 			self::$filterRx = "@(<[^<>]+?\s(?:href|src)\s*=\s*[\"']?)(?![/\\\\#\"']|[^\n\r:/\"']+?:)@i";
 			ob_start(array(__CLASS__, 'filter'), 8192);
 		}
+		else self::$filterRx = false;
 
 
 		$h = fopen($file, 'rb');
-		echo fread($h, 256); // For patchwork::ob_filterOutput to fix IE
+		echo $starting_data = fread($h, 256); // For patchwork::ob_filterOutput to fix IE
 
 		if ($gzip)
 		{
 			if ('HEAD' == $_SERVER['REQUEST_METHOD']) ob_end_clean();
 			$data = '';
+			$starting_data = false;
 		}
 		else
 		{
 			ob_end_flush();
 			$data = ob_get_clean();
-			$size += strlen($data) - 256;
+			$size += strlen($data) - strlen($starting_data);
+			$starting_data = $data == $starting_data;
 			header('Content-Length: ' . $size);
 		}
 
 		if ('HEAD' != $_SERVER['REQUEST_METHOD'])
 		{
-			echo $data;
-			set_time_limit(0);
-			feof($h) || fpassthru($h);
+			if ($CONFIG['xsendfile'] && $starting_data && !self::$filterRx) header('X-Sendfile: ' . $file);
+			else
+			{
+				echo $data;
+				set_time_limit(0);
+				feof($h) || fpassthru($h);
+			}
 		}
 
 		fclose($h);
@@ -121,9 +132,9 @@ class extends patchwork
 
 	static function filter($buffer, $mode)
 	{
-		static $rest = '';
+		static $rest = '', $base;
 
-		$base = patchwork::__BASE__() . dirname($_SERVER['PATCHWORK_REQUEST']) . '/';
+		isset($base) || $base = patchwork::__BASE__() . dirname($_SERVER['PATCHWORK_REQUEST']) . '/';
 
 		$buffer = preg_split(self::$filterRx, $rest . $buffer, -1, PREG_SPLIT_DELIM_CAPTURE);
 
@@ -133,9 +144,9 @@ class extends patchwork
 		if (PHP_OUTPUT_HANDLER_END & $mode) $rest = '';
 		else
 		{
-			$base = array_pop($buffer);
-			$rest = substr($base, 4096);
-			array_push($buffer, substr($base, 0, 4096));
+			--$len;
+			$rest = substr($buffer[$len], 4096);
+			$buffer[$len] = substr($buffer[$len], 0, 4096);
 		}
 
 		return implode('', $buffer);
