@@ -24,6 +24,7 @@ $CONFIG += array(
 #	'clientside' => true,	// Enable browser-side page rendering when available
 #	'umask' => umask(),		// Set the user file creation mode mask
 #	'P3P => 'CUR ADM',		// P3P - Platform for Privacy Preferences
+#	'xsendfile' => false,	// If your server is "X-Sendfile" enabled, turn this to true
 
 	// Session
 #	'session.save_path'     => $patchwork_zcache,
