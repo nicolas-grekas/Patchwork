@@ -16,7 +16,7 @@ class
 {
 	static function php($string)
 	{
-		return preg_replace("/\b./eu", "mb_strtoupper('$0')", patchwork::string($string));
+		return mb_convert_case(patchwork::string($string), MB_CASE_TITLE, 'UTF-8');
 	}
 
 	static function js()
@@ -27,8 +27,22 @@ P$capitalize = function($string)
 {
 	$string = str($string).split(/\b/g);
 
-	var $i = $string.length;
-	while ($i--) $string[$i] = $string[$i].substr(0,1).toUpperCase() + $string[$i].substr(1);
+	var $i = $string.length, $b;
+	while ($i--)
+	{
+		if ($i)
+		{
+			$b = $string[$i-1].substr(-1);
+			$b = $b.toUpperCase() == $b.toLowerCase();
+		}
+		else $b = 1;
+
+		if ($b)
+		{
+			$b = $string[$i].charAt(0).toUpperCase();
+			if ($b != $string[$i].charAt(0)) $string[$i] = $b + $string[$i].substr(1);
+		}
+	}
 
 	return $string.join('');
 }

@@ -18,10 +18,10 @@ class
 	{
 		$byte = patchwork::string($byte);
 
-		$suffix = ' Ko';
+		$suffix = ' Kio';
 
-		if ($byte >= ($div=1073741824)) $suffix = ' Go';
-		else if ($byte >= ($div=1048576)) $suffix = ' Mo';
+		if ($byte >= ($div=1073741824)) $suffix = ' Gio';
+		else if ($byte >= ($div=1048576)) $suffix = ' Mio';
 		else $div = 1024;
 
 		$byte /= $div;
@@ -38,10 +38,10 @@ class
 P$bytes = function($byte)
 {
 	$byte = str($byte);
-	var $suffix = ' Ko', $div;
+	var $suffix = ' Kio', $div;
 
-	if ($byte >= ($div=1073741824)) $suffix = ' Go';
-	else if ($byte >= ($div=1048576)) $suffix = ' Mo';
+	if ($byte >= ($div=1073741824)) $suffix = ' Gio';
+	else if ($byte >= ($div=1048576)) $suffix = ' Mio';
 	else $div = 1024;
 
 	$byte /= $div;
