@@ -66,59 +66,71 @@ class extends patchwork
 	static function readfile($file, $mime)
 	{
 		if (strlen($file) < 2 || !('/' == $file[0] || ':' == $file[1])) $file = resolvePath($file);
+		$mime = strtolower($mime);
+
+		$head = 'HEAD' == $_SERVER['REQUEST_METHOD'];
+		$gzip = patchwork::gzipAllowed($mime);
+		$filter = $gzip || $head || !$CONFIG['xsendfile'] || in_array($mime, patchwork::$ieSniffedTypes);
+
+		header('Content-Type: ' . $mime);
+		false !== strpos($mime, 'html') && header('P3P: CP="' . $CONFIG['P3P'] . '"');
 
 		$size = filesize($file);
-
-		patchwork::header('Content-Type: ' . $mime);
-		false !== stripos($mime, 'html') && header('P3P: CP="' . $CONFIG['P3P'] . '"');
-		patchwork::$binaryMode = true;
-		patchwork::$LastModified = filemtime($file);
 		patchwork::$ETag = $size .'-'. patchwork::$LastModified .'-'. fileinode($file);
+		patchwork::$LastModified = filemtime($file);
+		patchwork::$binaryMode = true;
 		patchwork::disable();
 
 		class_exists('SESSION', false) && SESSION::close();
 		DB(true);
 
-		$gzip = patchwork::gzipAllowed($mime);
-		$gzip || ob_start();
 
-		ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
+		$gzip   || ob_start();
+		$filter && ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
+
 
 		// Transform relative URLs to absolute ones
-		if ('text/css' == substr($mime, 0, 8))
-		{
-			self::$filterRx = "@([\s:]url\(\s*[\"']?)(?![/\\\\#\"']|[^\)\n\r:/\"']+?:)@i";
-			ob_start(array(__CLASS__, 'filter'), 8192);
-		}
-		else if ('text/html' == substr($mime, 0, 9) || 'text/x-component' === substr($mime, 0, 16))
-		{
-			self::$filterRx = "@(<[^<>]+?\s(?:href|src)\s*=\s*[\"']?)(?![/\\\\#\"']|[^\n\r:/\"']+?:)@i";
-			ob_start(array(__CLASS__, 'filter'), 8192);
-		}
-		else self::$filterRx = false;
-
-
-		$h = fopen($file, 'rb');
-		echo $starting_data = fread($h, 256); // For patchwork::ob_filterOutput to fix IE
-
 		if ($gzip)
 		{
-			if ('HEAD' == $_SERVER['REQUEST_METHOD']) ob_end_clean();
-			$data = '';
-			$starting_data = false;
-		}
-		else
-		{
-			ob_end_flush();
-			$data = ob_get_clean();
-			$size += strlen($data) - strlen($starting_data);
-			$starting_data = $data == $starting_data;
-			header('Content-Length: ' . $size);
+			if ('text/css' == substr($mime, 0, 8))
+			{
+				self::$filterRx = "@([\s:]url\(\s*[\"']?)(?![/\\\\#\"']|[^\)\n\r:/\"']+?:)@i";
+				ob_start(array(__CLASS__, 'filter'), 8192);
+			}
+			else if ('text/html' == substr($mime, 0, 9) || 'text/x-component' === substr($mime, 0, 16))
+			{
+				self::$filterRx = "@(<[^<>]+?\s(?:href|src)\s*=\s*[\"']?)(?![/\\\\#\"']|[^\n\r:/\"']+?:)@i";
+				ob_start(array(__CLASS__, 'filter'), 8192);
+			}
 		}
 
-		if ('HEAD' != $_SERVER['REQUEST_METHOD'])
+
+		if ($filter)
 		{
-			if ($CONFIG['xsendfile'] && $starting_data && !self::$filterRx) header('X-Sendfile: ' . $file);
+			$h = fopen($file, 'rb');
+			echo $starting_data = fread($h, 256); // For patchwork::ob_filterOutput to fix IE
+
+			if ($gzip)
+			{
+				if ($head) ob_end_clean();
+				$data = '';
+				$starting_data = false;
+			}
+			else
+			{
+				ob_end_flush();
+				$data = ob_get_clean();
+				$size += strlen($data) - strlen($starting_data);
+				$starting_data = $data == $starting_data;
+				header('Content-Length: ' . $size);
+			}
+		}
+		else $starting_data = true;
+
+
+		if (!$head)
+		{
+			if ($starting_data && $CONFIG['xsendfile']) header('X-Sendfile: ' . $file);
 			else
 			{
 				echo $data;
@@ -127,7 +139,8 @@ class extends patchwork
 			}
 		}
 
-		fclose($h);
+
+		$filter && fclose($h);
 	}
 
 	static function filter($buffer, $mode)
