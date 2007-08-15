@@ -16,14 +16,14 @@ class
 {
 	static function php($time, $format = false)
 	{
-		if ($format === false)
+		if (false === $format)
 		{
 			$format = patchwork::string($time);
-			$time = null;
+			$time = $_SERVER['REQUEST_TIME'];
 		}
 		else
 		{
-			$time = patchwork::string($time);
+			$time = (int) patchwork::string($time);
 			$format = patchwork::string($format);
 		}
 
@@ -39,12 +39,12 @@ P$date = function($time, $format)
 	if (t($format))
 	{
 		$format = str($format);
-		$time = t($time) ? $time : null;
+		$time = t($time) ? $time-0||0 : null;
 	}
 	else
 	{
 		$format = str($time);
-		$time = null;
+		$time = new Date()/1000;
 	}
 
 	$time = new Date(1000*$time);
@@ -87,7 +87,7 @@ P$date = function($time, $format)
 			c: function()
 			{
 				// ISO 8601 date (Ex. 2004-02-12T15:19:21+00:00)
-				return P$date('Y-m-d\\TH:i:s') + $zone[2] + ':' + $zone[3];
+				return P$date($time/1000, 'Y-m-d\\TH:i:s') + $zone[2] + ':' + $zone[3];
 			},
 
 			d: function()
@@ -189,7 +189,7 @@ P$date = function($time, $format)
 			r: function()
 			{
 				// RFC 2822 formatted date Example: Thu, 21 Dec 2000 16:01:07 +0200
-				return P$date('D, d M Y H:i:s O', $time);
+				return P$date($time/1000, 'D, d M Y H:i:s O');
 			},
 
 			s: function()
@@ -234,19 +234,19 @@ P$date = function($time, $format)
 				// ISO-8601 week number of year, weeks starting on Monday Example: 42 (the 42nd week in the year)
 				$a = new Date($local[2], 0, 1, 0, 0, 0, 0).getDay() - 1;
 				if ($a < 0) $a = 6;
-				return (Date.UTC($local[2], $time.getMonth(), $local[1]) - Date.UTC($local[2], 0, 8 - $a)) / (1000 * 60 * 60 * 24 * 7) + 1;
-			},
-
-			Y: function()
-			{
-				// A full numeric representation of a year, 4 digits Examples: 1999 or 2003
-				return $local[2];
+				return Math.ceil((Date.UTC($local[2], $time.getMonth(), $local[1]) - Date.UTC($local[2], 0, 8 - $a)) / (1000 * 60 * 60 * 24 * 7)) + 1;
 			},
 
 			y: function()
 			{
 				// A two digit representation of a year Examples: 99 or 03
 				return $local[2].substr(2);
+			},
+
+			Y: function()
+			{
+				// A full numeric representation of a year, 4 digits Examples: 1999 or 2003
+				return $local[2];
 			},
 
 			z: function()

@@ -1,0 +1,139 @@
+<!-- AGENT 'header' title="testCases" -->
+
+<h2>Pipes</h2>
+
+<table border="1">
+<tr>
+	<th>&nbsp;</th>
+	<th>got<br />expected</th>
+</tr><!--
+
+
+SET a$test -->&#039;&quot;&lt;hr/&gt;&amp;{'{/}{~}'}<!-- END:SET
+SET a$test -->{a$test|allowhtml}<!-- END:SET
+SET a$expect -->'"<hr/>&{/}{~}<!-- END:SET
+AGENT 'helper/pipeLine' pipe='allowhtml' test=a$test expect=a$expect
+
+
+SET a$test -->foobar<!-- END:SET
+SET a$test -->{a$test|base:1}<!-- END:SET
+SET a$expect -->{~}foobar<!-- END:SET
+AGENT 'helper/pipeLine' pipe='base' test=a$test expect=a$expect
+
+
+SET a$test -->{200000000000|bytes} {1000000000|bytes} {123456|bytes}<!-- END:SET
+SET a$expect -->186 Gio 953 Mio 120 Kio<!-- END:SET
+AGENT 'helper/pipeLine' pipe='bytes' test=a$test expect=a$expect
+
+
+SET a$test -->{'ôh mon dieu !'|capitalize}<!-- END:SET
+SET a$expect -->Ôh Mon Dieu !<!-- END:SET
+AGENT 'helper/pipeLine' pipe='capitalize' test=a$test expect=a$expect
+
+
+SET a$test -->{'c1'|cycle:'red':'blue':'green'} {'c2'|cycle:'red':'blue':'green'} {'c2'|cycle:'red':'blue':'green'}<!-- END:SET
+SET a$expect -->red red blue<!-- END:SET
+AGENT 'helper/pipeLine' pipe='cycle' test=a$test expect=a$expect
+
+
+SET a$test -->{123456789|date:'\d\a\\t\e-aABcdDFgGhHiIjlLmMnOrsSt UwWYyzZ'}<!-- END:SET
+SET a$expect -->date-pmPM9391973-11-29T22:33:09+01:0029ThuNovember1022102233029Thursday011Nov11+0100Thu, 29 Nov 1973 22:33:09 +010009th30 1234567894481973733323600<!-- END:SET
+AGENT 'helper/pipeLine' pipe='date' test=a$test expect=a$expect
+
+
+SET a$test -->{$toto|default:'toto'} {'tata'|default:'titi'}<!-- END:SET
+SET a$expect -->toto tata<!-- END:SET
+AGENT 'helper/pipeLine' pipe='default' test=a$test expect=a$expect
+
+
+SET a$test -->{'test%%0 test%00 test%10 test%20'|echo:1:2:3}<!-- END:SET
+SET a$expect -->test%0 test10 test20 test30<!-- END:SET
+AGENT 'helper/pipeLine' pipe='echo' test=a$test expect=a$expect
+
+
+SET a$test --><!-- END:SET
+SET a$expect -->???<!-- END:SET
+AGENT 'helper/pipeLine' pipe='geo' test=a$test expect=a$expect
+
+
+SET a$a -->b<!-- END:SET
+SET a$c -->d<!-- END:SET
+SET a$test -->{a$|htmlArgs:'test':'expect':'headerNesting'}<!-- END:SET
+SET a$expect -->a="b" c="d" <!-- END:SET
+AGENT 'helper/pipeLine' pipe='htmlArgs' test=a$test expect=a$expect
+
+
+SET a$test -->{'This program is free software;
+it under the terms of the GNU
+the Free Software Foundation
+(at your option).'|indent:5:'-'}<!-- END:SET
+SET a$expect -->-----This program is free software;
+-----it under the terms of the GNU
+-----the Free Software Foundation
+-----(at your option).<!-- END:SET
+AGENT 'helper/pipeLine' pipe='indent' test=a$test expect=a$expect
+
+
+SET a$test -->{'0toto'|js} {'0'|js} {0|js} {1|js} {'02'|js}<!-- END:SET
+SET a$expect -->'0toto' 0 0 1 '02'<!-- END:SET
+AGENT 'helper/pipeLine' pipe='js' test=a$test expect=a$expect
+
+
+SET a$test -->{'tôto'|length}<!-- END:SET
+SET a$expect -->4<!-- END:SET
+AGENT 'helper/pipeLine' pipe='length' test=a$test expect=a$expect
+
+
+SET a$test -->{linkto:'L1'} {'L2'|linkto:g$__URI__}<!-- END:SET
+SET a$expect --><a href="{~}" >L1</a> <b class="linkloop">L2</b><!-- END:SET
+AGENT 'helper/pipeLine' pipe='linkto' test=a$test expect=a$expect
+
+
+SET a$test -->{lower:'ÀÔÏ'}<!-- END:SET
+SET a$expect -->àôï<!-- END:SET
+AGENT 'helper/pipeLine' pipe='lower' test=a$test expect=a$expect
+
+
+SET a$test -->{mailto:'foo@bar.com'}<!-- END:SET
+SET a$expect
+	CLIENTSIDE --><a href="mailto:foo@bar.com">foo@bar.com</a><!-- END:CLIENTSIDE
+	SERVERSIDE -->???<!-- END:SERVERSIDE
+END:SET
+AGENT 'helper/pipeLine' pipe='mailto' test=a$test expect=a$expect
+
+
+SET a$test -->{'This program is free software;
+it under the terms of the GNU
+the Free Software Foundation
+(at your option).'|nl2br}<!-- END:SET
+SET a$expect -->This program is free software;<br />
+it under the terms of the GNU<br />
+the Free Software Foundation<br />
+(at your option).<!-- END:SET
+AGENT 'helper/pipeLine' pipe='nl2br' test=a$test expect=a$expect
+
+
+SET a$test -->{now:}<!-- END:SET
+SET a$expect -->{date:'U'}<!-- END:SET
+AGENT 'helper/pipeLine' pipe='now' test=a$test expect=a$expect
+
+
+SET a$test -->(© wikipedia) Yosemite National Park is a national park largely in Mariposa County, and Tuolumne County, California, United States. The park covers an area of 1,189 mi² (3,081 km²) and reaches across the western slopes of the Sierra Nevada mountain chain.<!-- END:SET
+SET a$test -->{a$test|wordwrap:30}<!-- END:SET
+SET a$expect -->(© wikipedia) Yosemite
+National Park is a national
+park largely in Mariposa
+County, and Tuolumne County,
+California, United States. The
+park covers an area of 1,189
+mi² (3,081 km²) and reaches
+across the western slopes of
+the Sierra Nevada mountain
+chain.<!-- END:SET
+AGENT 'helper/pipeLine' pipe='wordwrap' test=a$test expect=a$expect
+
+
+-->
+</table>
+
+<!-- AGENT 'footer' -->

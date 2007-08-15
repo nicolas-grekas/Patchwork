@@ -16,7 +16,9 @@ class
 {
 	static function php($string, $chars = 4, $char = ' ')
 	{
-		return preg_replace('/^/mu', str_repeat(patchwork::string($char), patchwork::string($chars)), patchwork::string($string));
+		$chars = str_repeat(patchwork::string($char), patchwork::string($chars));
+
+		return $chars . str_replace("\n", "\n$chars", patchwork::string($string));
 	}
 
 	static function js()
@@ -32,7 +34,7 @@ P$indent = function($string, $chars, $char)
 	var $char_repeated = $char;
 	while (--$chars) $char_repeated += $char;
 
-	return $char_repeated + $string.replace('/\n/g', '\n'+$char_repeated);
+	return $char_repeated + $string.replace(/\n/g, '\n' + $char_repeated);
 }
 
 <?php	}
