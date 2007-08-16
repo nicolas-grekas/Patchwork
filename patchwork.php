@@ -414,7 +414,8 @@ if ($a)
 	{
 		// Patch an IE<=6 bug when using ETag + compression
 		$a = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE'], 2);
-		$a = '"' . dechex(strtotime($a[0])) . '"';
+		$a = $_SERVER['HTTP_IF_MODIFIED_SINCE'] = strtotime($a[0]);
+		$a = '"' . dechex($a) . '"';
 		$patchwork_private = true;
 	}
 	else if (27 == strlen($a) && '"-------------------------"' == strtr($a, '0123456789abcdef', '----------------'))
