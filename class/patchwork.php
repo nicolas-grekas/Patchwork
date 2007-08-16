@@ -1303,7 +1303,7 @@ class
 				else if (
 					isset($_SERVER['HTTP_USER_AGENT'])
 					&& strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE')
-					&& preg_match("'MSIE [0-6]\.'", $_SERVER['HTTP_USER_AGENT'])
+					&& preg_match('/MSIE [0-6]\./', $_SERVER['HTTP_USER_AGENT'])
 					&& self::gzipAllowed(strtolower(substr(self::$headers['content-type'], 14))))
 				{
 					// Patch an IE<=6 bug when using ETag + compression
@@ -1317,8 +1317,11 @@ class
 				}
 			}
 
-			$is304 = (isset($_SERVER['HTTP_IF_NONE_MATCH'    ]) && false !== strpos($_SERVER['HTTP_IF_NONE_MATCH'    ], $ETag        ))
-				  || (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && false !== strpos($_SERVER['HTTP_IF_MODIFIED_SINCE'], $LastModified));
+			self::$ETag = $ETag;
+			self::$LastModified = $LastModified;
+
+			$is304 = (isset($_SERVER['HTTP_IF_NONE_MATCH'    ]) && false !== strpos($_SERVER['HTTP_IF_NONE_MATCH'], $ETag))
+				  || (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && $_SERVER['HTTP_IF_MODIFIED_SINCE'] == $LastModified);
 
 			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + (self::$private || !self::$maxage ? 0 : self::$maxage)));
 			header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');
@@ -1330,9 +1333,19 @@ class
 			}
 			else
 			{
+				'' !== $buffer && header('Accept-Ranges: bytes');
+
 				header('ETag: "' . $ETag . '"');
 				header('Last-Modified: ' . gmdate('D, d M Y H:i:s \G\M\T', $LastModified));
 				self::$varyEncoding && header('Vary: Accept-Encoding', false);
+
+				if ('' !== $buffer && ($range = isset($_SERVER['HTTP_RANGE'])
+					? patchwork_httpRange::negociate(strlen($buffer), $ETag, $LastModified)
+					: false))
+				{
+					self::$is_enabled = false;
+					patchwork_httpRange::sendChunks($range, $buffer, self::$headers['content-type'], 0);
+				}
 			}
 		}
 

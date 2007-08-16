@@ -122,7 +122,6 @@ class extends patchwork
 				$data = ob_get_clean();
 				$size += strlen($data) - strlen($starting_data);
 				$starting_data = $data == $starting_data;
-				header('Content-Length: ' . $size);
 			}
 		}
 		else $starting_data = true;
@@ -133,9 +132,24 @@ class extends patchwork
 			if ($starting_data && $CONFIG['xsendfile']) header('X-Sendfile: ' . $file);
 			else
 			{
-				echo $data;
+				if ($range = $starting_data && !$gzip)
+				{
+					header('Accept-Ranges: bytes');
+
+					$range = isset($_SERVER['HTTP_RANGE']) ? patchwork_httpRange::negociate($size, self::$ETag, self::$LastModified) : false;
+				}
+				else header('Accept-Ranges: none');
+
 				set_time_limit(0);
-				feof($h) || fpassthru($h);
+				ignore_user_abort(false);
+
+				if ($range) patchwork_httpRange::sendChunks($range[1], $h, $mime, $size);
+				else
+				{
+					header('Content-Length: ' . $size);
+					echo $data;
+					feof($h) || fpassthru($h);
+				}
 			}
 		}
 
@@ -143,7 +157,7 @@ class extends patchwork
 		$filter && fclose($h);
 	}
 
-	static function filter($buffer, $mode)
+	static function &filter(&$buffer, $mode)
 	{
 		static $rest = '', $base;
 
