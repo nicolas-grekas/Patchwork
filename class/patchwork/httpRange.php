@@ -19,7 +19,7 @@ class
 		if (!isset($_SERVER['HTTP_RANGE'])) return false;
 
 		$range = str_replace(' ', '', $_SERVER['HTTP_RANGE']);
-		if (!preg_match('/^bytes=(?:\d+-\d*|-\d+)(?:,(?:\d+-\d*|-\d+))$/', $range)) return false;
+		if (!preg_match('/^bytes=(?:\d+-\d*|-\d+)(?:,(?:\d+-\d*|-\d+))*$/', $range)) return false;
 
 
 		$if_range = isset($_SERVER['HTTP_IF_RANGE']);
@@ -77,7 +77,7 @@ class
 				if ($min <= $filesize)
 				{
 					$max = (int) $max;
-					$range = array($min, $max > $filesize ? $filesize : $max);
+					$range[] = array($min, $max > $filesize ? $filesize : $max);
 				}
 			}
 		}
@@ -102,7 +102,7 @@ class
 	}
 
 
-	protected static $boundary = '3aedfd5ac177ca71fa67f6520b846496';
+	protected static $boundary = '3aedfd5ac177ca71';
 	protected static $stringBuffer;
 
 	static function sendChunks(&$range, &$h, $mime, $size)
@@ -119,7 +119,7 @@ class
 			$size = strlen($h);
 			self::$stringBuffer = array('');
 		}
-		else self::$stringbuffer = false;
+		else self::$stringBuffer = false;
 
 		if (!$range) return;
 
@@ -135,8 +135,9 @@ class
 		}
 		else
 		{
-			$len = 0;
-			$lenOffset = 49 + strlen(self::$boundary) + strlen($mime) + strlen((string) $size);
+			$len = strlen(self::$boundary);
+			$lenOffset = 49 + $len + strlen($mime) + strlen((string) $size);
+			$len += 8;
 
 			foreach ($range as $r) $len += $lenOffset + $r[1] - $r[0] + 1 + strlen(implode('', $r));
 	
@@ -157,6 +158,11 @@ class
 
 				self::sendChunk($h, $min, $max);
 			}
+
+			$r = self::$boundary;
+			$r = "\r\n--{$r}--\r\n";
+			if (self::$stringBuffer) self::$stringBuffer[] = $r;
+			else echo $r;
 		}
 
 		self::$stringBuffer && $h = implode('', self::$stringBuffer);
@@ -164,9 +170,9 @@ class
 
 	protected static function sendChunk(&$h, $min, $max)
 	{
-		$max -= $min + 1;
+		$max -= $min - 1;
 
-		if (self::$stringbuffer) self::$stringBuffer[] = substr($h, $min, $max);
+		if (self::$stringBuffer) self::$stringBuffer[] = substr($h, $min, $max);
 		else
 		{
 			fseek($h, $min);

@@ -143,7 +143,7 @@ class extends patchwork
 				set_time_limit(0);
 				ignore_user_abort(false);
 
-				if ($range) patchwork_httpRange::sendChunks($range[1], $h, $mime, $size);
+				if ($range) patchwork_httpRange::sendChunks($range, $h, $mime, $size);
 				else
 				{
 					header('Content-Length: ' . $size);
