@@ -437,21 +437,22 @@ class
 	 */
 	static function header($string, $replace = true, $http_response_code = null)
 	{
-		if (self::$is_enabled && (
-			   0===stripos($string, 'http/')
+		$string = preg_replace("'[\r\n].*'s", '', $string);
+
+		if (!self::$is_enabled) return header($string, $replace, $http_response_code);
+
+		if (   0===stripos($string, 'http/')
 			|| 0===stripos($string, 'etag')
 			|| 0===stripos($string, 'expires')
 			|| 0===stripos($string, 'cache-control')
 			|| 0===stripos($string, 'content-length')
-		)) return;
+		) return;
 
 		if (0===stripos($string, 'last-modified'))
 		{
 			self::setLastModified(strtotime(trim(substr($string, 14))));
 			return;
 		}
-
-		$string = preg_replace("'[\r\n].*'s", '', $string);
 
 		$name = strtolower(substr($string, 0, strpos($string, ':')));
 
@@ -474,7 +475,7 @@ class
 			if ('text/' == substr($string, 14, 5) && !strpos($string, ';')) $string .= '; charset=UTF-8';
 
 			self::$headers[$name] = $replace || !isset(self::$headers[$name]) ? $string : (self::$headers[$name] . ',' . substr($string, 1+strpos($string, ':')));
-			header($string, $replace, self::$is_enabled ? null : $http_response_code);
+			header($string, $replace);
 		}
 	}
 
