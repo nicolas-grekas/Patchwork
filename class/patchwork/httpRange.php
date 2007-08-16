@@ -142,7 +142,7 @@ class
 			foreach ($range as $r) $len += $lenOffset + $r[1] - $r[0] + 1 + strlen(implode('', $r));
 	
 			header('Content-Length: ' . $len);
-			header('Content-Type: multipart/x-byteranges; boundary=' . self::$boundary);
+			header('Content-Type: multipart/byteranges; boundary=' . self::$boundary);
 
 			foreach ($range as $r)
 			{
