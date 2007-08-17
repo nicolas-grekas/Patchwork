@@ -115,7 +115,7 @@ $a = file_get_contents(__patchwork__.'/data/utf8/quickChecks.txt');
 $a = explode("\n", $a);
 $patchwork[] = 'define(\'UTF8_NFC_RX\',' . var_export('/' . $a[1] . '/u', true) . ')';
 
-preg_match('/^.$/u', '') || trigger_error('PCRE is not compiled with UTF-8 support', E_USER_ERROR);
+preg_match('/^.$/u', '§') || trigger_error('PCRE is not compiled with UTF-8 support', E_USER_ERROR);
 
 if (extension_loaded('mbstring'))
 {
