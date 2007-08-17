@@ -225,7 +225,7 @@ w = function($baseAgent, $keys, $masterAppId)
 
 		$lastInclude = '',
 		$includeCache = {},
-		$startTime = /(^|; )JS=1(; |$)/,
+		$startTime = /(^|; )JS=[01](; |$)/,
 
 		$masterBase = {g$__BASE__|js};
 

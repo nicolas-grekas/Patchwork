@@ -355,7 +355,7 @@ class
 <*/
 
 		// load agent
-		if (IS_POSTING || self::$binaryMode || isset($_GET['$bin']) || !isset($_COOKIE['JS']) || !$_COOKIE['JS'])
+		if (IS_POSTING || self::$binaryMode || !isset($_COOKIE['JS']) || !$_COOKIE['JS'])
 		{
 			if (!self::$binaryMode) self::setGroup('private');
 			patchwork_serverside::loadAgent($agent, false, false);
@@ -1367,7 +1367,7 @@ class
 
 	static function error_handler($code, $message, $file, $line, &$context)
 	{
-		class_exists('patchwork_error', false) || __autoload('patchwork_error'); // PHP bug workaround
+		class_exists('patchwork_error', false) || __autoload('patchwork_error'); // http://bugs.php.net/42098 workaround
 		patchwork_error::call($code, $message, $file, $line, $context);
 	}
 
