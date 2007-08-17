@@ -160,7 +160,8 @@ if (isset($CONFIG['clientside']) && !$CONFIG['clientside'])
 }
 else if (isset($_GET['$bin']))
 {
-	setcookie('JS', isset($_COOKIE['JS']) && !$_COOKIE['JS'] ? '' : '0', null, '/');
+	header('P3P: CP="' . $CONFIG['P3P'] . '"');
+	setcookie('JS', isset($_COOKIE['JS']) && !$_COOKIE['JS'] ? '' : '0', 0, '/');
 	header('Location: ' . preg_replace('/[\?&]\$bin[^&]*/', '', $_SERVER['REQUEST_URI']));
 	exit;
 }
