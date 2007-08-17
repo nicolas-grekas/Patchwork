@@ -153,7 +153,17 @@ define('UTF8_VALID_RX', '/(?:[\x00-\x7F]|[\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][
 // Load the configuration
 require file_exists($patchwork_appId) ? $patchwork_appId : (__patchwork__ . '/c3mro.php');
 
-if (isset($CONFIG['clientside']) && !$CONFIG['clientside']) $_GET['$bin'] = true;
+if (isset($CONFIG['clientside']) && !$CONFIG['clientside'])
+{
+	unset($_COOKIE['JS']);
+	unset($_COOKIE['JS']); // Double unset against a PHP security hole
+}
+else if (isset($_GET['$bin']))
+{
+	setcookie('JS', isset($_COOKIE['JS']) && !$_COOKIE['JS'] ? '' : '0', null, '/');
+	header('Location: ' . preg_replace('/[\?&]\$bin[^&]*/', '', $_SERVER['REQUEST_URI']));
+	exit;
+}
 
 // Restore the current dir in shutdown context.
 function patchwork_restoreProjectPath() {PATCHWORK_PROJECT_PATH != getcwd() && chdir(PATCHWORK_PROJECT_PATH);}
