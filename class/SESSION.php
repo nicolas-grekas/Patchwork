@@ -116,14 +116,8 @@ class
 
 		if ($initSession) self::$DATA = array();
 
-
 		// Generate a new antiCSRF token
-
-		$sid = isset($_COOKIE['T$']) && '1' == substr($_COOKIE['T$'], 0, 1) ? '1' : '2';
-		$GLOBALS['patchwork_token'] = $sid . patchwork::uniqid();
-
-		setcookie('T$', $GLOBALS['patchwork_token'], 0, self::$cookiePath, self::$cookieDomain);
-
+		self::getAantiCSRFtoken(true);
 
 		if (!$initSession || $restartNew)
 		{
@@ -143,8 +137,7 @@ class
 
 		// 304 Not Modified response code does not allow Set-Cookie headers,
 		// so we remove any header that could trigger a 304
-		unset($_SERVER['HTTP_IF_NONE_MATCH']);
-		unset($_SERVER['HTTP_IF_MODIFIED_SINCE']);
+		unset($_SERVER['HTTP_IF_NONE_MATCH'], $_SERVER['HTTP_IF_MODIFIED_SINCE']);
 	}
 
 	static function destroy()
@@ -222,8 +215,7 @@ class
 				{
 					self::$sslid = patchwork::uniqid();
 					setcookie('SSL', self::$sslid, 0, self::$cookiePath, self::$cookieDomain, true , true);
-					unset($_SERVER['HTTP_IF_NONE_MATCH']);
-					unset($_SERVER['HTTP_IF_MODIFIED_SINCE']);
+					unset($_SERVER['HTTP_IF_NONE_MATCH'], $_SERVER['HTTP_IF_MODIFIED_SINCE']);
 				}
 			}
 		}
@@ -245,7 +237,7 @@ class
 		}
 		else $IPs = '';
 
-		self::$SID = md5($SID .'-'. $IPs .'-'. (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '') .'-'. substr($GLOBALS['patchwork_token'], 1));
+		self::$SID = md5($SID .'-'. $IPs .'-'. (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '') .'-'. substr(patchwork::getAntiCSRFtoken(), 1));
 	}
 
 	protected static function onIdle()

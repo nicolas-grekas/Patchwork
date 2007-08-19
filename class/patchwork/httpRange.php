@@ -25,8 +25,8 @@ class
 		$if_range = isset($_SERVER['HTTP_IF_RANGE']);
 
 		if ($if_range
-			&& false === strpos($_SERVER['HTTP_IF_RANGE'], $ETag)
-			&& false === strpos($_SERVER['HTTP_IF_RANGE'], $LastModified)
+			&& $_SERVER['HTTP_IF_RANGE'] != $ETag
+			&& $_SERVER['HTTP_IF_RANGE'] != $LastModified
 		) return false;
 
 		if (isset($_SERVER['HTTP_UNLESS_MODIFIED_SINCE'])
@@ -39,7 +39,7 @@ class
 			if (strtotime($r[0]) != $LastModified) $_SERVER['HTTP_IF_MATCH'] = '';
 		}
 
-		if (isset($_SERVER['HTTP_IF_MATCH']) && false === strpos($_SERVER['HTTP_IF_MATCH'], $ETag))
+		if (isset($_SERVER['HTTP_IF_MATCH']) && $_SERVER['HTTP_IF_MATCH'] != $ETag)
 		{
 			return $if_range
 				? false

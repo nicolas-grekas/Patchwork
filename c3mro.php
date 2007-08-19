@@ -157,7 +157,7 @@ for ($i = 0; $i < $len; ++$i)
 
 	reset($a[$i]);
 	unset($a[$i]);
-} unset($a); unset($v)';
+} unset($a, $v)';
 // }}}
 
 // {{{ patchwork's context early initialization
@@ -202,8 +202,7 @@ else
 
 		strpos($a, ' 4') || $_SERVER['PATH_INFO'] = '';
 
-		unset($a);
-		unset($h);
+		unset($a, $h);
 	}
 
 	$patchwork[] = isset($_SERVER['PATH_INFO']) ? '#PATH_INFO enabled' : '#PATH_INFO disabled';
@@ -356,8 +355,7 @@ else if (\'\' !== $_SERVER[\'QUERY_STRING\'])
 {
 	$_SERVER[\'QUERY_STRING\'] = \'\';
 	$a = key($_GET);
-	unset($_GET[$a]);
-	unset($_GET[$a]); // Double unset against a PHP security hole
+	unset($_GET[$a], $_GET[$a]); // Double unset against a PHP security hole
 }
 
 $_SERVER[\'PATCHWORK_REQUEST\'] = urldecode($_SERVER[\'PATCHWORK_REQUEST\'])';
@@ -391,11 +389,9 @@ rename('./.config.lock.php', './.config.patchwork.php');
 unset($patchwork[0]);
 $patchwork && eval(implode(";\n", $patchwork) . ';');
 
+strtr($_SERVER['PATCHWORK_BASE'], '"&<>\'', '-----') != $_SERVER['PATCHWORK_BASE'] && die('Illegal character found in $_SERVER[\'PATCHWORK_BASE\']');
 
-unset($appConfigSource);
-unset($appInheritSeq);
-unset($patchwork);
-unset($h);
+unset($appConfigSource, $appInheritSeq, $patchwork, $h);
 
 // C3 Method Resolution Order (like in Python 2.3) for multiple application inheritance
 // See http://python.org/2.3/mro.html

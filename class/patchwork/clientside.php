@@ -77,10 +77,8 @@ EOHTML;
 				}
 				else
 				{
-					$patchwork_token = $GLOBALS['patchwork_token'];
-					$patchwork_token[0] = '1';
-
-					setcookie('T$', $patchwork_token, 0, $CONFIG['session.cookie_path'], $CONFIG['session.cookie_domain']);
+					self::$antiCSRFtoken[0] = '1';
+					setcookie('T$', self::$antiCSRFtoken, 0, $CONFIG['session.cookie_path'], $CONFIG['session.cookie_domain']);
 				}
 			}
 		}
