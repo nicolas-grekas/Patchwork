@@ -77,6 +77,7 @@ function patchwork_atomic_write(&$data, $to, $mtime = false)
 
 	if (IS_WINDOWS)
 	{
+		// Not so atomic under Windows but that's the best I can do...
 		$data = new COM('Scripting.FileSystemObject');
 		$data->GetFile(PATCHWORK_PROJECT_PATH .'/'. $tmp)->Attributes |= 2; // Set hidden attribute
 		file_exists($to) && @unlink($to);
@@ -119,7 +120,7 @@ class ob
 		return ob_start($callback, $chunk_size, $erase);
 	}
 
-	function __construct($callback)
+	protected function __construct($callback)
 	{
 		$this->callback = $callback;
 	}
@@ -153,19 +154,6 @@ define('UTF8_VALID_RX', '/(?:[\x00-\x7F]|[\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][
 // Load the configuration
 require file_exists($patchwork_appId) ? $patchwork_appId : (__patchwork__ . '/c3mro.php');
 
-if (isset($CONFIG['clientside']) && !$CONFIG['clientside'])
-{
-	unset($_COOKIE['JS']);
-	unset($_COOKIE['JS']); // Double unset against a PHP security hole
-}
-else if (isset($_GET['$bin']))
-{
-	header('P3P: CP="' . $CONFIG['P3P'] . '"');
-	setcookie('JS', isset($_COOKIE['JS']) && !$_COOKIE['JS'] ? '' : '0', 0, '/');
-	header('Location: ' . preg_replace('/[\?&]\$bin[^&]*/', '', $_SERVER['REQUEST_URI']));
-	exit;
-}
-
 // Restore the current dir in shutdown context.
 function patchwork_restoreProjectPath() {PATCHWORK_PROJECT_PATH != getcwd() && chdir(PATCHWORK_PROJECT_PATH);}
 register_shutdown_function('patchwork_restoreProjectPath', PATCHWORK_PROJECT_PATH);
@@ -173,7 +161,7 @@ register_shutdown_function('patchwork_restoreProjectPath', PATCHWORK_PROJECT_PAT
 
 // {{{ Global Initialisation
 isset($CONFIG['umask']) && umask($CONFIG['umask']);
-define('DEBUG',       $CONFIG['DEBUG_ALLOWED'] && (!$CONFIG['DEBUG_PASSWORD'] || (isset($_COOKIE['DEBUG']) && $CONFIG['DEBUG_PASSWORD'] == $_COOKIE['DEBUG'])) ? 1 : 0);
+define('DEBUG', $CONFIG['DEBUG_ALLOWED'] && (!$CONFIG['DEBUG_PASSWORD'] || (isset($_COOKIE['DEBUG']) && $CONFIG['DEBUG_PASSWORD'] == $_COOKIE['DEBUG'])) ? 1 : 0);
 $CONFIG['maxage'] = isset($CONFIG['maxage']) ? $CONFIG['maxage'] : 2678400;
 define('IS_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
 define('PATCHWORK_DIRECT',  '_' == $_SERVER['PATCHWORK_REQUEST']);
@@ -410,6 +398,9 @@ else
 }
 //}}}
 
+
+defined('PATCHWORK_SETUP') && patchwork_setup::call();
+
 // {{{ Debug context
 DEBUG && patchwork_debug::checkCache();
 // }}}
@@ -425,8 +416,8 @@ if ($a)
 	{
 		// Patch an IE<=6 bug when using ETag + compression
 		$a = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE'], 2);
-		$a = $_SERVER['HTTP_IF_MODIFIED_SINCE'] = strtotime($a[0]);
-		$a = '"' . dechex($a) . '"';
+		$_SERVER['HTTP_IF_MODIFIED_SINCE'] = $a = strtotime($a[0]);
+		$_SERVER['HTTP_IF_NONE_MATCH'] = '"' . dechex($a) . '"';
 		$patchwork_private = true;
 	}
 	else if (27 == strlen($a) && '"-------------------------"' == strtr($a, '0123456789abcdef', '----------------'))
@@ -443,58 +434,6 @@ if ($a)
 			exit;
 		}
 	}
-}
-// }}}
-
-/// {{{ Anti Cross-Site-Request-Forgery / Javascript-Hijacking token
-IS_POSTING && $_POST_BACKUP =& $_POST;
-
-if (
-	isset($_COOKIE['T$'])
-	&& (!IS_POSTING || (isset($_POST['T$']) && substr($_COOKIE['T$'], 1) == substr($_POST['T$'], 1)))
-	&& '---------------------------------' == strtr($_COOKIE['T$'], '-0123456789abcdef', '#----------------')
-) $patchwork_token = $_COOKIE['T$'];
-else
-{
-	$a = isset($_COOKIE['T$']) && '1' == substr($_COOKIE['T$'], 0, 1) ? '1' : '2';
-
-	if ($_COOKIE)
-	{
-		if (IS_POSTING) W('Potential Cross Site Request Forgery. $_POST is not reliable. Erasing it !');
-
-		unset($_POST);
-		$_POST = array();
-
-		unset($_COOKIE['T$']);
-		unset($_COOKIE['T$']); // Double unset against a PHP security hole
-	}
-
-	$patchwork_token = $a . md5(uniqid(mt_rand(), true));
-
-	header('P3P: CP="' . $CONFIG['P3P'] . '"');
-	setcookie('T$', $patchwork_token, 0, $CONFIG['session.cookie_path'], $CONFIG['session.cookie_domain']);
-	$patchwork_private = true;
-}
-
-isset($_GET['T$']) && $patchwork_private = true;
-define('PATCHWORK_TOKEN_MATCH', isset($_GET['T$']) && substr($patchwork_token, 1) == substr($_GET['T$'], 1));
-if (IS_POSTING) {unset($_POST['T$']); unset($_POST['T$']);}
-// }}}
-
-// {{{ Version synchronism
-$b = abs($patchwork_appId % 10000);
-
-if (!isset($_COOKIE['v$']) || $_COOKIE['v$'] != $b)
-{
-	$a = implode($_SERVER['PATCHWORK_LANG'], explode('__', $_SERVER['PATCHWORK_BASE'], 2));
-	$a = preg_replace("'\?.*$'", '', $a);
-	$a = preg_replace("'^https?://[^/]*'i", '', $a);
-	$a = dirname($a . ' ');
-	if (1 == strlen($a)) $a = '';
-
-	header('P3P: CP="' . $CONFIG['P3P'] . '"');
-	setcookie('v$', $b, $_SERVER['REQUEST_TIME'] + $CONFIG['maxage'], $a .'/');
-	$patchwork_private = true;
 }
 // }}}
 

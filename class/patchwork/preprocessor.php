@@ -35,6 +35,11 @@ class patchwork_preprocessor__0
 		'rand'       => 'mt_rand',
 		'srand'      => 'mt_srand',
 		'getrandmax' => 'mt_getrandmax',
+
+		'w'            => 'trigger_error',
+		'header'       => 'patchwork::header',
+		'setcookie'    => 'patchwork::setcookie',
+		'setrawcookie' => 'patchwork::setrawcookie',
 	),
 		
 	$variableType = array(

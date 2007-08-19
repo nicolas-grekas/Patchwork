@@ -123,6 +123,37 @@ function jsquote($a, $addDelim = true, $delim = "'")
 
 function jsquoteRef(&$a) {$a = jsquote($a);}
 
+function patchwork_error_handler($code, $message, $file, $line, &$context)
+{
+	if (error_reporting())
+	{
+		switch ($code)
+		{
+		case E_NOTICE:
+		case E_STRICT:
+			if (strpos($message, '__00::')) return;
+
+			static $offset = 0;
+			$offset || $offset = -13 - strlen($GLOBALS['patchwork_paths_token']);
+
+			if ('-' == substr($file, $offset, 1)) return;
+
+			break;
+
+		case E_WARNING:
+			if (stripos($message, 'safe mode')) return;
+		}
+
+		patchwork::error_handler($code, $message, $file, $line, $context);
+	}
+}
+
+ini_set('log_errors', true);
+ini_set('error_log', './error.log');
+ini_set('display_errors', false);
+set_error_handler('patchwork_error_handler');
+
+
 class
 {
 	static
@@ -164,6 +195,7 @@ class
 
 	$agentClasses = '',
 	$privateDetectionMode = false,
+	$antiCSRFtoken,
 	$detectCSRF = false,
 	$total_time = 0,
 
@@ -188,65 +220,26 @@ class
 	);
 
 
-	static function start()
+	static function __static_construct()
 	{
-		// Not a static method of patchwork because of a bug in eAccelerator 0.9.5
-		function patchwork_error_handler($code, $message, $file, $line, &$context)
+		if (isset($CONFIG['clientside']) && !$CONFIG['clientside'])
 		{
-			if (error_reporting())
-			{
-				switch ($code)
-				{
-				case E_NOTICE:
-				case E_STRICT:
-					if (strpos($message, '__00::')) return;
-
-					static $offset = 0;
-					$offset || $offset = -13 - strlen($GLOBALS['patchwork_paths_token']);
-
-					if ('-' == substr($file, $offset, 1)) return;
-
-					break;
-
-				case E_WARNING:
-					if (stripos($message, 'safe mode')) return;
-				}
-
-				patchwork::error_handler($code, $message, $file, $line, $context);
-			}
+			unset($_COOKIE['JS'], $_COOKIE['JS']); // Double unset against a PHP security hole
 		}
-
-		ini_set('log_errors', true);
-		ini_set('error_log', './error.log');
-		ini_set('display_errors', false);
-		set_error_handler('patchwork_error_handler');
-
-		class_exists('patchwork_preprocessor__0', false) && patchwork_preprocessor__0::$function += array(
-			'header'       => 'patchwork::header',
-			'setcookie'    => 'patchwork::setcookie',
-			'setrawcookie' => 'patchwork::setrawcookie',
-		);
+		else if (isset($_GET['$bin']))
+		{
+			self::setcookie('JS', isset($_COOKIE['JS']) && !$_COOKIE['JS'] ? '' : '0', 0, '/');
+			header('Location: ' . preg_replace('/[\?&]\$bin[^&]*/', '', $_SERVER['REQUEST_URI']));
+			exit;
+		}
 
 		self::$appId = abs($GLOBALS['patchwork_appId'] % 10000);
 		self::$cachePath = resolvePath('zcache/');
-		self::$is_enabled = true;
-		self::$ob_starting_level = ob_get_level();
-		ob_start(array(__CLASS__, 'ob_sendHeaders'));
-		ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
-		self::$ob_level = 2;
-
-
 		self::setLang($_SERVER['PATCHWORK_LANG'] ? $_SERVER['PATCHWORK_LANG'] : substr($CONFIG['lang_list'], 0, 2));
+	}
 
-		if (htmlspecialchars(self::$base) != self::$base)
-		{
-			W('Fatal error: illegal character found in self::$base');
-			self::disable(true);
-		}
-
-		$agent = $_SERVER['PATCHWORK_REQUEST'];
-		if (($mime = strrchr($agent, '.')) && strcasecmp('.ptl', $mime)) patchwork_staticControler::call($agent, $mime);
-
+	static function start()
+	{
 /*>
 		self::log(
 			'<a href="' . htmlspecialchars($_SERVER['REQUEST_URI']) . '" target="_blank">'
@@ -255,7 +248,52 @@ class
 		);
 <*/
 
-		defined('PATCHWORK_SETUP') && patchwork_setup::call();
+
+		// patchwork_appId cookie synchronisation
+
+		if (!isset($_COOKIE['v$']) || $_COOKIE['v$'] != self::$appId)
+		{
+			$a = implode($_SERVER['PATCHWORK_LANG'], explode('__', $_SERVER['PATCHWORK_BASE'], 2));
+			$a = preg_replace("'\?.*$'", '', $a);
+			$a = preg_replace("'^https?://[^/]*'i", '', $a);
+			$a = dirname($a . ' ');
+			if (1 == strlen($a)) $a = '';
+
+			self::setcookie('v$', self::$appId, $_SERVER['REQUEST_TIME'] + $CONFIG['maxage'], $a .'/');
+			$GLOBALS['patchwork_private'] = true;
+		}
+
+
+		// Anti Cross-Site-Request-Forgery / Javascript-Hijacking token
+
+		IS_POSTING && $GLOBALS['_POST_BACKUP'] =& $_POST;
+
+		if (
+			isset($_COOKIE['T$'])
+			&& (!IS_POSTING || (isset($_POST['T$']) && substr($_COOKIE['T$'], 1) == substr($_POST['T$'], 1)))
+			&& '---------------------------------' == strtr($_COOKIE['T$'], '-0123456789abcdef', '#----------------')
+		) self::$antiCSRFtoken = $_COOKIE['T$'];
+		else self::getAntiCSRFtoken(true);
+
+		isset($_GET['T$']) && $GLOBALS['patchwork_private'] = true;
+		define('PATCHWORK_TOKEN_MATCH', isset($_GET['T$']) && substr(self::$antiCSRFtoken, 1) == substr($_GET['T$'], 1));
+		if (IS_POSTING) {unset($_POST['T$'], $_POST['T$']);}
+
+
+		// If the URL has an extension, check for static files
+
+		$agent = $_SERVER['PATCHWORK_REQUEST'];
+		if (($mime = strrchr($agent, '.')) && strcasecmp('.ptl', $mime)) patchwork_staticControler::call($agent, $mime);
+
+
+		// Go
+
+		self::$is_enabled = true;
+		self::$ob_starting_level = ob_get_level();
+		ob_start(array(__CLASS__, 'ob_sendHeaders'));
+		ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
+		self::$ob_level = 2;
+
 		PATCHWORK_DIRECT ? self::clientside() : self::serverside();
 
 		while (self::$ob_level)
@@ -430,6 +468,30 @@ class
 		}
 
 		return $url;
+	}
+
+	static function getAntiCSRFtoken($new = false)
+	{
+		if ($new)
+		{
+			$new = isset($_COOKIE['T$']) && '1' == substr($_COOKIE['T$'], 0, 1) ? '1' : '2';
+
+			if (!isset(self::$antiCSRFtoken) && $_COOKIE)
+			{
+				if (IS_POSTING) W('Potential Cross Site Request Forgery. $_POST is not reliable. Erasing it !');
+
+				$_POST = array();
+
+				unset($_COOKIE['T$'], $_COOKIE['T$']); // Double unset against a PHP security hole
+			}
+
+			self::$antiCSRFtoken = $new . md5(uniqid(mt_rand(), true));
+
+			self::setcookie('T$', self::$antiCSRFtoken, 0, $CONFIG['session.cookie_path'], $CONFIG['session.cookie_domain']);
+			$GLOBALS['patchwork_private'] = true;
+		}
+
+		return self::$antiCSRFtoken;
 	}
 
 	/*
@@ -1318,10 +1380,11 @@ class
 				}
 			}
 
+			$ETag = '"' . $ETag . '"';
 			self::$ETag = $ETag;
 			self::$LastModified = $LastModified;
 
-			$is304 = (isset($_SERVER['HTTP_IF_NONE_MATCH'    ]) && false !== strpos($_SERVER['HTTP_IF_NONE_MATCH'], $ETag))
+			$is304 = (isset($_SERVER['HTTP_IF_NONE_MATCH'    ]) && $_SERVER['HTTP_IF_NONE_MATCH'] == $ETag)
 				  || (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && $_SERVER['HTTP_IF_MODIFIED_SINCE'] == $LastModified);
 
 			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + (self::$private || !self::$maxage ? 0 : self::$maxage)));
@@ -1336,7 +1399,7 @@ class
 			{
 				'' !== $buffer && header('Accept-Ranges: bytes');
 
-				header('ETag: "' . $ETag . '"');
+				header('ETag: ' . $ETag);
 				header('Last-Modified: ' . gmdate('D, d M Y H:i:s \G\M\T', $LastModified));
 				self::$varyEncoding && header('Vary: Accept-Encoding', false);
 
