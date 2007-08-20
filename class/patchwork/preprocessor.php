@@ -397,7 +397,7 @@ class patchwork_preprocessor__0
 					'real_classname' => strtolower($b),
 					'is_final' => $final,
 					'is_abstract' => $abstract,
-					'add_php5_construct' => T_CLASS == $type,
+					'add_php5_construct' => T_CLASS == $type && 0>$level,
 					'add_static_construct' => false,
 					'add_static_destruct'  => false,
 					'construct_source' => '',
