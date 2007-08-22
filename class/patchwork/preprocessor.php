@@ -29,7 +29,13 @@ class patchwork_preprocessor__0
 
 	static
 
-	$constant = array('DEBUG' => DEBUG),
+	$constant = array(
+		'DEBUG' => DEBUG,
+		'IS_WINDOWS' => IS_WINDOWS,
+		'PATCHWORK_ZCACHE' => PATCHWORK_ZCACHE,
+		'PATCHWORK_PATH_OFFSET' => PATCHWORK_PATH_OFFSET,
+	),
+
 	$function = array(
 		'ob_start'   => 'ob::start',
 		'rand'       => 'mt_rand',
@@ -229,15 +235,13 @@ class patchwork_preprocessor__0
 			self::$recursive = true;
 		}
 
-		$code = $GLOBALS['patchwork_paths_token'];
-
 		$preproc = new patchwork_preprocessor;
 		$preproc->source = $source = realpath($source);
 		$preproc->level = $level;
 		$preproc->class = $class;
 		$preproc->marker = array(
-			'global $a' . $code . ',$c' . $code . ';',
-			'global $a' . $code . ',$b' . $code . ',$c' . $code . ';'
+			'global $a' . PATCHWORK_PATH_TOKEN . ',$c' . PATCHWORK_PATH_TOKEN . ';',
+			'global $a' . PATCHWORK_PATH_TOKEN . ',$b' . PATCHWORK_PATH_TOKEN . ',$c' . PATCHWORK_PATH_TOKEN . ';'
 		);
 
 		$code = file_get_contents($source);
@@ -249,7 +253,17 @@ class patchwork_preprocessor__0
 
 		self::$recursive = $recursive;
 
-		patchwork_atomic_write($code, $destination);
+		$tmp = uniqid(mt_rand(), true);
+		file_put_contents($tmp, $code);
+
+		if (IS_WINDOWS)
+		{
+			$code = new COM('Scripting.FileSystemObject');
+			$code->GetFile(PATCHWORK_PROJECT_PATH .'/'. $tmp)->Attributes |= 2; // Set hidden attribute
+			file_exists($destination) && @unlink($destination);
+			@rename($tmp, $destination) || unlink($tmp);
+		}
+		else rename($tmp, $destination);
 	}
 
 	protected function __construct() {}
@@ -278,8 +292,6 @@ class patchwork_preprocessor__0
 
 	protected function &preprocess(&$code)
 	{
-		global $patchwork_paths_token;
-
 		$source = $this->source;
 		$level  = $this->level;
 		$class  = $this->class;
@@ -296,9 +308,8 @@ class patchwork_preprocessor__0
 		$new_type = array();
 		$new_code_length = 0;
 
-		$opentag_marker = "if(!isset(\$a{$patchwork_paths_token})){global \$CONFIG,"
-			. substr($this->marker[1], 7)
-			. "}isset(\$e{$patchwork_paths_token})||\$e{$patchwork_paths_token}=false;";
+		$T = PATCHWORK_PATH_TOKEN;
+		$opentag_marker = "if(!isset(\$a{$T})){global \$CONFIG," . substr($this->marker[1], 7) . "}isset(\$e{$T})||\$e{$T}=false;";
 
 		$curly_level = 0;
 		$curly_starts_function = false;
@@ -476,7 +487,7 @@ class patchwork_preprocessor__0
 				if ($c)
 				{
 					$curly_marker_last[1]>0 || $curly_marker_last[1] =  1;
-					$c = "\$a{$patchwork_paths_token}=\$b{$patchwork_paths_token}=\$e{$patchwork_paths_token}";
+					$c = "\$a{$T}=\$b{$T}=\$e{$T}";
 				}
 				else
 				{
@@ -622,7 +633,7 @@ class patchwork_preprocessor__0
 					default:
 						if (!isset(self::$callback[$type])) break;
 
-						$token = "((\$a{$patchwork_paths_token}=\$b{$patchwork_paths_token}=\$e{$patchwork_paths_token})||1?" . $token;
+						$token = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$token}";
 						$b = new patchwork_preprocessor_marker_($this, true);
 						$b->curly = -1;
 						$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
@@ -665,7 +676,7 @@ class patchwork_preprocessor__0
 				$token .= $this->fetchSugar($code, $i);
 				if ('(' == $code[$i--])
 				{
-					$token = "((\$a{$patchwork_paths_token}=\$b{$patchwork_paths_token}=\$e{$patchwork_paths_token})||1?" . $token;
+					$token = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$token}";
 					$b = new patchwork_preprocessor_marker_($this, true);
 					$b->curly = -1;
 					$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
@@ -701,7 +712,7 @@ class patchwork_preprocessor__0
 					}
 					else
 					{
-						$token .= "((\$a{$patchwork_paths_token}=\$b{$patchwork_paths_token}=\$e{$patchwork_paths_token})||1?";
+						$token .= "((\$a{$T}=\$b{$T}=\$e{$T})||1?";
 						$b = new patchwork_preprocessor_require_($this, true);
 						$b->close = ':0)';
 						$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
@@ -747,7 +758,7 @@ class patchwork_preprocessor__0
 				isset($class_pool[$curly_level])
 					&&  $class_pool[$curly_level]->is_final
 					&& !$class_pool[$curly_level]->is_abstract
-					&& $token .= "public static \$hunter{$patchwork_paths_token};";
+					&& $token .= "public static \$hunter{$T};";
 
 				++$curly_level;
 
@@ -766,7 +777,7 @@ class patchwork_preprocessor__0
 				if (isset($curly_marker[$curly_level]))
 				{
 					$curly_marker_last[1] && $new_code[$curly_marker_last[0]] .= $curly_marker_last[1]>0
-						? "{$this->marker[1]}static \$d{$patchwork_paths_token}=1;(" . $this->marker() . ")&&\$d{$patchwork_paths_token}&&\$d{$patchwork_paths_token}=0;"
+						? "{$this->marker[1]}static \$d{$T}=1;(" . $this->marker() . ")&&\$d{$T}&&\$d{$T}=0;"
 						: $this->marker[0];
 
 					1 == $autoglobalize && $new_code[$curly_marker_last[0]] .= 'global $CONFIG;';
@@ -783,10 +794,10 @@ class patchwork_preprocessor__0
 					$c = $class_pool[$curly_level];
 
 					if ($c->add_php5_construct) $token = $c->construct_source . '}';
-					if ($c->add_static_construct) $token = "const __static_construct{$patchwork_paths_token}='{$c->classname}';{$token}";
-					if ($c->add_static_destruct ) $token = "const __static_destruct{$patchwork_paths_token} ='{$c->classname}';{$token}";
+					if ($c->add_static_construct) $token = "const __static_construct{$T}='{$c->classname}';{$token}";
+					if ($c->add_static_destruct ) $token = "const __static_destruct{$T} ='{$c->classname}';{$token}";
 					if ($c->is_abstract) $token .= "\$GLOBALS['patchwork_abstract']['{$c->real_classname}']=1;";
-					$token .= "\$GLOBALS['c{$patchwork_paths_token}']['{$c->real_classname}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
+					$token .= "\$GLOBALS['c{$T}']['{$c->real_classname}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
 
 					unset($class_pool[$curly_level]);
 				}
@@ -814,8 +825,7 @@ class patchwork_preprocessor__0
 
 	protected function marker($class = '')
 	{
-		global $patchwork_paths_token;
-		return ($class ? "isset(\$c{$patchwork_paths_token}['" . strtolower($class) . "'])||" : ("\$e{$patchwork_paths_token}=\$b{$patchwork_paths_token}=")) . "\$a{$patchwork_paths_token}=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "'";
+		return ($class ? 'isset($c' . PATCHWORK_PATH_TOKEN . "['" . strtolower($class) . "'])||" : ('$e' . PATCHWORK_PATH_TOKEN . '=$b' . PATCHWORK_PATH_TOKEN . '=')) . '$a' . PATCHWORK_PATH_TOKEN . "=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "'";
 	}
 
 	protected function seekSugar(&$code, $i)

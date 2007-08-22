@@ -66,27 +66,6 @@ function registerAutoloadPrefix($class_prefix, $class_to_file_callback)
 }
 // }}}
 
-// {{{ patchwork_atomic_write
-function patchwork_atomic_write(&$data, $to, $mtime = false)
-{
-	$tmp = uniqid(mt_rand(), true);
-	file_put_contents($tmp, $data);
-	unset($data);
-
-	$mtime && touch($tmp, $mtime);
-
-	if (IS_WINDOWS)
-	{
-		// Not so atomic under Windows but that's the best I can do...
-		$data = new COM('Scripting.FileSystemObject');
-		$data->GetFile(PATCHWORK_PROJECT_PATH .'/'. $tmp)->Attributes |= 2; // Set hidden attribute
-		file_exists($to) && @unlink($to);
-		@rename($tmp, $to) || unlink($tmp);
-	}
-	else rename($tmp, $to);
-}
-// }}}
-
 // {{{ hunter: a user callback is called when a hunter object is destroyed
 class hunter
 {
@@ -227,7 +206,7 @@ function resolvePath($file, $level = false, $base = false)
 	else
 	{
 		$base = md5($file);
-		$base = $GLOBALS['patchwork_zcache'] . $base[0] . '/' . $base[1] . '/' . substr($base, 2) . '.path.txt';
+		$base = PATCHWORK_ZCACHE . $base[0] . '/' . $base[1] . '/' . substr($base, 2) . '.path.txt';
 		$base = @file_get_contents($base);
 	}
 
@@ -244,7 +223,7 @@ function resolvePath($file, $level = false, $base = false)
 		while (false !== next($base));
 	}
 
-	$patchwork_lastpath_level = -$GLOBALS['patchwork_paths_offset'];
+	$patchwork_lastpath_level = -PATCHWORK_PATH_OFFSET;
 
 	return false;
 }
@@ -288,7 +267,7 @@ function patchworkProcessedPath($file)
 
 	$file = strtr($file, '\\', '/');
 	$cache = ((int)(bool)DEBUG) . (0>$level ? -$level .'-' : $level);
-	$cache = './.'. strtr(str_replace('_', '%2', str_replace('%', '%1', $file)), '/', '_') . ".{$cache}.{$GLOBALS['patchwork_paths_token']}.zcache.php";
+	$cache = './.'. strtr(str_replace('_', '%2', str_replace('%', '%1', $file)), '/', '_') . '.' . $cache . '.' . PATCHWORK_PATH_TOKEN . '.zcache.php';
 
 	if (file_exists($cache) && (PATCHWORK_TURBO || filemtime($cache) > filemtime($source))) return $cache;
 
@@ -309,7 +288,7 @@ function __autoload($searched_class)
 		{
 			$b = $a;
 			unset($a);
-			$a = $b - $GLOBALS['patchwork_paths_offset'];
+			$a = $b - PATCHWORK_PATH_OFFSET;
 
 			$b = $searched_class;
 			$i = strrpos($b, '__');
@@ -318,7 +297,7 @@ function __autoload($searched_class)
 			$a = $b . '.php.' . ((string)(int)(bool)DEBUG) . (0>$a ? -$a . '-' : $a);
 		}
 
-		$a = "./.class_{$a}.{$GLOBALS['patchwork_paths_token']}.zcache.php";
+		$a = './.class_' . $a . '.' . PATCHWORK_PATH_TOKEN . '.zcache.php';
 
 		if (file_exists($a))
 		{
@@ -327,7 +306,7 @@ function __autoload($searched_class)
 			if (class_exists($searched_class, false)) return;
 		}
 
-		$GLOBALS['a' . $GLOBALS['patchwork_paths_token']] = false;
+		$GLOBALS['a' . PATCHWORK_PATH_TOKEN] = false;
 	}
 
 	static $load_autoload = true;
@@ -422,7 +401,7 @@ if ($a)
 	}
 	else if (27 == strlen($a) && '"-------------------------"' == strtr($a, '0123456789abcdef', '----------------'))
 	{
-		$b = $patchwork_zcache . $a[1] .'/'. $a[2] .'/'. substr($a, 3, 6) .'.validator.'. DEBUG .'.txt';
+		$b = PATCHWORK_ZCACHE . $a[1] .'/'. $a[2] .'/'. substr($a, 3, 6) .'.validator.'. DEBUG .'.txt';
 		if (file_exists($b) && substr(file_get_contents($b), 0, 8) == substr($a, 9, 8))
 		{
 			$private = substr($a, 17, 1);

@@ -224,7 +224,7 @@ class extends patchwork
 			{
 				patchwork::openMeta('agent__template/' . $template, false);
 				$compiler = new ptlCompiler_php(patchwork::$binaryMode);
-				$ftemplate = '<?php function ' . $ftemplate . '(&$v, &$a, &$g){global $a' . $GLOBALS['patchwork_paths_token'] . ',$c' . $GLOBALS['patchwork_paths_token'] . ';$d=$v;' . $compiler->compile($template . '.ptl') . '} ' . $ftemplate . '($v, $a, $g);';
+				$ftemplate = '<?php function ' . $ftemplate . '(&$v, &$a, &$g){global $a' . PATCHWORK_PATH_TOKEN . ',$c' . PATCHWORK_PATH_TOKEN . ';$d=$v;' . $compiler->compile($template . '.ptl') . '} ' . $ftemplate . '($v, $a, $g);';
 				fwrite($h, $ftemplate);
 				fclose($h);
 				list(,,, $watch) = patchwork::closeMeta();

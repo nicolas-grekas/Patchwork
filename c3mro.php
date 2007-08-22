@@ -60,8 +60,6 @@ $patchwork_include_paths = explode(PATH_SEPARATOR, get_include_path());
 $patchwork_include_paths = array_map('realpath', $patchwork_include_paths);
 $patchwork_include_paths = array_diff($patchwork_include_paths, $patchwork_paths, array(''));
 $patchwork_include_paths = array_merge($patchwork_paths, $patchwork_include_paths);
-$patchwork_paths_offset  = count($patchwork_include_paths) - count($patchwork_paths) + 1;
-
 $patchwork_zcache = false;
 
 foreach ($patchwork_paths as $patchwork)
@@ -87,8 +85,8 @@ $patchwork = array(
 	'#' . PHP_VERSION,
 	'$patchwork_paths=' . var_export($patchwork_paths, true),
 	'$patchwork_include_paths=' . var_export($patchwork_include_paths, true),
-	'$patchwork_paths_offset='  . $patchwork_paths_offset,
-	'$patchwork_zcache=' . var_export($patchwork_zcache, true),
+	'define(\'PATCHWORK_PATH_OFFSET\', '  . (count($patchwork_include_paths) - count($patchwork_paths) + 1) . ')',
+	'define(\'PATCHWORK_ZCACHE\', ' . var_export($patchwork_zcache, true) . ')',
 	'$patchwork_private=false',
 	'$patchwork_abstract=array()',
 );
@@ -210,9 +208,9 @@ else
 // }}}
 
 
-$patchwork_paths_token = substr(md5(serialize($patchwork)), 0, 4);
+$b = substr(md5(serialize($patchwork)), 0, 4);
 
-$a = $patchwork_paths[0] . '/.' . $patchwork_paths_token . '.zcache.php';
+$a = $patchwork_paths[0] . '/.' . $b . '.zcache.php';
 if (!file_exists($a))
 {
 	@array_map('unlink', glob('./.*.zcache.php', GLOB_NOSORT));
@@ -227,11 +225,11 @@ if (!file_exists($a))
 
 
 $patchwork[] = '$patchwork_appId=' . $patchwork_appId;
-$patchwork[] = '$patchwork_paths_token=\'' . $patchwork_paths_token . '\'';
-$patchwork[] = '$a' . $patchwork_paths_token . '=false';
-$patchwork[] = '$b' . $patchwork_paths_token . '=false';
-$patchwork[] = '$c' . $patchwork_paths_token . '=array()';
-$patchwork[] = '$patchwork_autoload_cache=&$c' . $patchwork_paths_token;
+$patchwork[] = 'define(\'PATCHWORK_PATH_TOKEN\', \'' . $b . '\')';
+$patchwork[] = '$a' . $b . '=false';
+$patchwork[] = '$b' . $b . '=false';
+$patchwork[] = '$c' . $b . '=array()';
+$patchwork[] = '$patchwork_autoload_cache=&$c' . $b;
 
 $patchwork = array(implode(";\n", $patchwork));
 
@@ -306,7 +304,7 @@ else
 
 set_time_limit(ini_get('max_execution_time'));
 
-$patchwork[] = 'isset($CONFIG[\'session.save_path\'    ]) || $CONFIG[\'session.save_path\'] = $patchwork_zcache';
+$patchwork[] = 'isset($CONFIG[\'session.save_path\'    ]) || $CONFIG[\'session.save_path\'] = PATCHWORK_ZCACHE';
 $patchwork[] = 'isset($CONFIG[\'session.cookie_path\'  ]) || $CONFIG[\'session.cookie_path\'] = \'/\'';
 $patchwork[] = 'isset($CONFIG[\'session.cookie_domain\']) || $CONFIG[\'session.cookie_domain\'] = \'\'';
 $patchwork[] = 'isset($CONFIG[\'P3P\'           ]) || $CONFIG[\'P3P\'] = \'CUR ADM\'';

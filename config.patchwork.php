@@ -27,7 +27,7 @@ $CONFIG += array(
 #	'xsendfile' => false,	// If your server is "X-Sendfile" enabled, turn this to true
 
 	// Session
-#	'session.save_path'     => $patchwork_zcache,
+#	'session.save_path'     => PATCHWORK_ZCACHE,
 #	'session.cookie_path'   => '/',
 #	'session.cookie_domain' => '',
 #	'session.auth_vars' => array(), // Set of session vars used for authentication or authorization
