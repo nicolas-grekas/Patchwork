@@ -148,6 +148,12 @@ function patchwork_error_handler($code, $message, $file, $line, &$context)
 	}
 }
 
+ini_set('log_errors', true);
+ini_set('error_log', './error.log');
+ini_set('display_errors', false);
+
+set_error_handler('patchwork_error_handler');
+
 
 class
 {
@@ -217,11 +223,6 @@ class
 
 	static function __static_construct()
 	{
-		ini_set('log_errors', true);
-		ini_set('error_log', './error.log');
-		ini_set('display_errors', false);
-		set_error_handler('patchwork_error_handler');
-
 		if (isset($CONFIG['clientside']) && !$CONFIG['clientside'])
 		{
 			unset($_COOKIE['JS'], $_COOKIE['JS']); // Double unset against a PHP security hole
