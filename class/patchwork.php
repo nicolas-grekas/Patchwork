@@ -134,7 +134,7 @@ function patchwork_error_handler($code, $message, $file, $line, &$context)
 			if (strpos($message, '__00::')) return;
 
 			static $offset = 0;
-			$offset || $offset = -13 - strlen($GLOBALS['patchwork_paths_token']);
+			$offset || $offset = -13 - strlen(PATCHWORK_PATH_TOKEN);
 
 			if ('-' == substr($file, $offset, 1)) return;
 
@@ -147,11 +147,6 @@ function patchwork_error_handler($code, $message, $file, $line, &$context)
 		patchwork::error_handler($code, $message, $file, $line, $context);
 	}
 }
-
-ini_set('log_errors', true);
-ini_set('error_log', './error.log');
-ini_set('display_errors', false);
-set_error_handler('patchwork_error_handler');
 
 
 class
@@ -222,6 +217,11 @@ class
 
 	static function __static_construct()
 	{
+		ini_set('log_errors', true);
+		ini_set('error_log', './error.log');
+		ini_set('display_errors', false);
+		set_error_handler('patchwork_error_handler');
+
 		if (isset($CONFIG['clientside']) && !$CONFIG['clientside'])
 		{
 			unset($_COOKIE['JS'], $_COOKIE['JS']); // Double unset against a PHP security hole
@@ -234,7 +234,7 @@ class
 		}
 
 		self::$appId = abs($GLOBALS['patchwork_appId'] % 10000);
-		self::$cachePath = resolvePath('zcache/');
+		self::$cachePath = PATCHWORK_ZCACHE;
 		self::setLang($_SERVER['PATCHWORK_LANG'] ? $_SERVER['PATCHWORK_LANG'] : substr($CONFIG['lang_list'], 0, 2));
 	}
 
@@ -866,7 +866,7 @@ class
 	{
 		if (''!==(string)$extension) $extension = '.' . $extension;
 
-		$hash = md5($filename . $extension . '.'. $key);
+		$hash = md5($filename . $extension . '.' . $key);
 		$hash = $hash{0} . '/' . $hash{1} . '/' . substr($hash, 2);
 
 		$filename = rawurlencode(str_replace('/', '.', $filename));
@@ -1022,7 +1022,7 @@ class
 		if (true !== $agentLevel && !class_exists($agent, false))
 		{
 			if (false === $agentLevel) eval('class ' . $agent . ' extends agentTemplate {}');
-			else $GLOBALS['patchwork_autoload_cache'][$agent] = $agentLevel + $GLOBALS['patchwork_paths_offset'];
+			else $GLOBALS['patchwork_autoload_cache'][$agent] = $agentLevel + PATCHWORK_PATH_OFFSET;
 		}
 
 		return $agent;

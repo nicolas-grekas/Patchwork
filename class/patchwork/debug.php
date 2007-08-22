@@ -44,12 +44,12 @@ class
 
 				global $patchwork_include_paths;
 
-				$patchwork_paths_length = count($GLOBALS['patchwork_paths']);
-				$patchwork_paths_token_offset = -12 - strlen($GLOBALS['patchwork_paths_token']);
+				$length = count($GLOBALS['patchwork_paths']);
+				$offset = -12 - strlen(PATCHWORK_PATH_TOKEN);
 
-				foreach (glob('./.*.1*.' . $GLOBALS['patchwork_paths_token'] . '.zcache.php', GLOB_NOSORT) as $cache)
+				foreach (glob('./.*.1*.' . PATCHWORK_PATH_TOKEN . '.zcache.php', GLOB_NOSORT) as $cache)
 				{
-					$file = str_replace('%1', '%', str_replace('%2', '_', strtr(substr($cache, 3, $patchwork_paths_token_offset), '_', '/')));
+					$file = str_replace('%1', '%', str_replace('%2', '_', strtr(substr($cache, 3, $offset), '_', '/')));
 					$level = substr(strrchr($file, '.'), 2);
 
 					$file = substr($file, 0, -(2 + strlen($level)));
@@ -59,7 +59,7 @@ class
 						$file = substr($file, 6);
 					}
 
-					$file = $patchwork_include_paths[$patchwork_paths_length- $level - 1] .'/'. $file;
+					$file = $patchwork_include_paths[$length - $level - 1] .'/'. $file;
 
 					if (!file_exists($file) || filemtime($file) >= filemtime($cache)) @unlink($cache);
 				}
@@ -176,7 +176,7 @@ function Z()
 							. '</span>'
 							. preg_replace_callback(
 								"'" . preg_quote(htmlspecialchars(PATCHWORK_PROJECT_PATH) . DIRECTORY_SEPARATOR . '.')
-									. "([^\\\\/]+)\.[01]([0-9]+)(-?)\.{$GLOBALS['patchwork_paths_token']}\.zcache\.php'",
+									. '([^\\\\/]+)\.[01]([0-9]+)(-?)\.' . PATCHWORK_PATH_TOKEN . "\.zcache\.php'",
 								array(__CLASS__, 'filename'),
 								substr($a, $b)
 							);
