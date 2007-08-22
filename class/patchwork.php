@@ -501,29 +501,26 @@ class
 	static function header($string, $replace = true, $http_response_code = null)
 	{
 		$string = preg_replace("'[\r\n].*'s", '', $string);
-
-		if (!self::$is_enabled) return header($string, $replace, $http_response_code);
-
-		if (   0===stripos($string, 'http/')
-			|| 0===stripos($string, 'etag')
-			|| 0===stripos($string, 'expires')
-			|| 0===stripos($string, 'cache-control')
-			|| 0===stripos($string, 'content-length')
-		) return;
-
-		if (0===stripos($string, 'last-modified'))
-		{
-			self::setLastModified(strtotime(trim(substr($string, 14))));
-			return;
-		}
-
 		$name = strtolower(substr($string, 0, strpos($string, ':')));
 
-		if (self::$catchMeta) self::$metaInfo[4][$name] = $string;
-
-		if (!self::$privateDetectionMode)
+		if (self::$is_enabled)
 		{
-			if ('content-type' == $name)
+			if (   0===stripos($string, 'http/')
+				|| 0===stripos($string, 'etag')
+				|| 0===stripos($string, 'expires')
+				|| 0===stripos($string, 'cache-control')
+				|| 0===stripos($string, 'content-length')
+			) return;
+
+			if (0===stripos($string, 'last-modified'))
+			{
+				self::setLastModified(strtotime(trim(substr($string, 14))));
+				return;
+			}
+
+			if (self::$catchMeta) self::$metaInfo[4][$name] = $string;
+
+			if ('content-type' == $name && !self::$privateDetectionMode)
 			{
 				if (isset(self::$headers[$name])) return;
 
@@ -534,7 +531,10 @@ class
 					self::$detectCSRF = true;
 				}
 			}
+		}
 
+		if (!self::$privateDetectionMode)
+		{
 			if ('text/' == substr($string, 14, 5) && !strpos($string, ';')) $string .= '; charset=UTF-8';
 
 			self::$headers[$name] = $replace || !isset(self::$headers[$name]) ? $string : (self::$headers[$name] . ',' . substr($string, 1+strpos($string, ':')));
