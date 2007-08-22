@@ -20,16 +20,11 @@ function patchwork_autoload($searched_class)
 
 	if (false !== strpos($searched_class, ';') || false !== strpos($searched_class, "'")) return;
 
-	$token = PATCHWORK_PATH_TOKEN;
-	$AMARK = 'a' . $token;
-	$BMARK = 'b' . $token;
-	$CMARK = 'c' . $token;
-	$DMARK = 'd' . $token;
-	$EMARK = 'e' . $token;
+	$T = PATCHWORK_PATH_TOKEN;
 
-	$amark = $GLOBALS[$AMARK];
-	$GLOBALS[$BMARK] = false;
-	$bmark = $GLOBALS[$BMARK];
+	$amark = $GLOBALS['a'.$T];
+	$GLOBALS['b'.$T] = false;
+	$bmark = $GLOBALS['b'.$T];
 
 	$i = strrpos($searched_class, '__');
 	$level = false !== $i ? substr($searched_class, $i+2) : false;
@@ -113,7 +108,7 @@ function patchwork_autoload($searched_class)
 			}
 
 			$cache = ((int)(bool)DEBUG) . (0>++$level ? -$level .'-' : $level);
-			$cache = "./.class_{$class}.php.{$cache}.{$token}.zcache.php";
+			$cache = "./.class_{$class}.php.{$cache}.{$T}.zcache.php";
 
 			if (!(file_exists($cache) && (PATCHWORK_TURBO || filemtime($cache) > filemtime($source))))
 				call_user_func(array('patchwork_preprocessor', 'run'), $source, $cache, $level, $class);
@@ -143,7 +138,7 @@ function patchwork_autoload($searched_class)
 	{
 		if ($parent_class)
 		{
-			$class = "class {$searched_class} extends {$parent_class}{}\$GLOBALS['{$CMARK}']['{$lcClass}']=1;";
+			$class = "class {$searched_class} extends {$parent_class}{}\$GLOBALS['c{$T}']['{$lcClass}']=1;";
 			$parent_class = strtolower($parent_class);
 		}
 		else
@@ -155,17 +150,17 @@ function patchwork_autoload($searched_class)
 		if (isset($GLOBALS['patchwork_abstract'][$parent_class])) $class && $class = 'abstract ' . $class;
 		else if ($c)
 		{
-			$file = "{$parent_class}::__static_construct{$token}";
+			$file = "{$parent_class}::__static_construct{$T}";
 			if (defined($file) ? $searched_class == constant($file) : method_exists($parent_class, '__static_construct'))
 			{
 				$class .= "{$parent_class}::__static_construct();";
 			}
 
-			$file = "{$parent_class}::__static_destruct{$token}";
+			$file = "{$parent_class}::__static_destruct{$T}";
 			if (defined($file) ? $searched_class == constant($file) : method_exists($parent_class, '__static_destruct'))
 			{
-				$class = str_replace('{}', '{static $hunter' . $token . ';}', $class);
-				$class .= "{$searched_class}::\$hunter{$token}=new hunter(array('{$parent_class}','__static_destruct'));";
+				$class = str_replace('{}', "{static \$hunter{$T};}", $class);
+				$class .= "{$searched_class}::\$hunter{$T}=new hunter(array('{$parent_class}','__static_destruct'));";
 			}
 		}
 
@@ -183,7 +178,7 @@ function patchwork_autoload($searched_class)
 		$tmp = strrpos($code, '*');
 		$file = substr($code, 0, $tmp);
 		$code = substr($code, $tmp);
-		$code = "\$GLOBALS['{$CMARK}']['{$parent_class}']=__FILE__.'{$code}';";
+		$code = "\$GLOBALS['c{$T}']['{$parent_class}']=__FILE__.'{$code}';";
 
 		$tmp = file_get_contents($file);
 		if (false !== strpos($tmp, $code))
@@ -220,7 +215,7 @@ function patchwork_autoload($searched_class)
 			patchwork_autoload_write($tmp, $cache);
 		}
 
-		$cache = substr($cache, 9, -12-strlen($token));
+		$cache = substr($cache, 9, -12-strlen($T));
 
 		if ($amark)
 		{
@@ -232,27 +227,27 @@ function patchwork_autoload($searched_class)
 			$tmp = strrpos($code, '*');
 			$file = substr($code, 0, $tmp);
 			$code = substr($code, $tmp);
-			$code = "{$AMARK}=__FILE__.'{$code}'";
+			$code = "\$a{$T}=__FILE__.'{$code}'";
 
 			$tmp = file_get_contents($file);
 			if (false !== strpos($tmp, $code))
 			{
 				if ($amark)
 				{
-					$GLOBALS[$AMARK] = $bmark;
-					$code = "isset({$CMARK}['{$lcClass}'])||{$code}";
-					$c = "isset({$CMARK}['{$lcClass}'])||(patchwork_include('./.class_{$cache}.{$token}.zcache.php'))||1";
+					$GLOBALS['a'.$T] = $bmark;
+					$code = "isset(\$c{$T}['{$lcClass}'])||{$code}";
+					$c = "isset(\$c{$T}['{$lcClass}'])||(patchwork_include('./.class_{$cache}.{$T}.zcache.php'))||1";
 				}
 				else
 				{
-					$code = "{$EMARK}={$BMARK}={$code}";
+					$code = "\$e{$T}=\$b{$T}={$code}";
 					$bmark = (string) mt_rand(1, mt_getrandmax());
-					$GLOBALS[$AMARK] = $GLOBALS[$BMARK] = $file . '*' . $bmark;
+					$GLOBALS['a'.$T] = $GLOBALS['b'.$T] = $file . '*' . $bmark;
 					$bmark = substr($code, 0, strrpos($code, '*') + 1) . $bmark . "'";
-					$code = "({$code})&&{$DMARK}&&";
+					$code = "({$code})&&\$d{$T}&&";
 					$c = $outerClass ? "'{$cache}'" : ($level + PATCHWORK_PATH_OFFSET);
-					$c = "{$CMARK}['{$lcClass}']={$c}";
-					$c = "({$bmark})&&{$DMARK}&&({$c})&&";
+					$c = "\$c{$T}['{$lcClass}']={$c}";
+					$c = "({$bmark})&&\$d{$T}&&({$c})&&";
 				}
 
 				$tmp = str_replace($code, $c, $tmp);
@@ -264,7 +259,7 @@ function patchwork_autoload($searched_class)
 			// Global cache completion
 
 			$amark = $outerClass ? "'{$cache}'" : ($level + PATCHWORK_PATH_OFFSET);
-			$code = "{$CMARK}['{$lcClass}']={$amark};";
+			$code = "\$c{$T}['{$lcClass}']={$amark};";
 
 			$c = fopen('./.config.patchwork.php', 'ab');
 			flock($c, LOCK_EX);
