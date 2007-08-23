@@ -36,7 +36,7 @@ class extends Mail_mime
 
 	function __construct($options = null)
 	{
-		parent::__construct(IS_WINDOWS ? "\r\n" : "\n");
+		parent::__construct();
 
 		$this->options = $options;
 
