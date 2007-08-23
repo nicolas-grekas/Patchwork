@@ -117,7 +117,7 @@ class
 		if ($initSession) self::$DATA = array();
 
 		// Generate a new antiCSRF token
-		self::getAantiCSRFtoken(true);
+		self::getAntiCSRFtoken(true);
 
 		if (!$initSession || $restartNew)
 		{
