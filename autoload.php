@@ -110,7 +110,7 @@ function patchwork_autoload($searched_class)
 			$cache = ((int)(bool)DEBUG) . (0>++$level ? -$level .'-' : $level);
 			$cache = "./.class_{$class}.php.{$cache}.{$T}.zcache.php";
 
-			if (!(file_exists($cache) && (PATCHWORK_TURBO || filemtime($cache) > filemtime($source))))
+			if (!(file_exists($cache) && (TURBO || filemtime($cache) > filemtime($source))))
 				call_user_func(array('patchwork_preprocessor', 'run'), $source, $cache, $level, $class);
 
 			$current_pool = array();
@@ -168,7 +168,7 @@ function patchwork_autoload($searched_class)
 	}
 	else $class = '';
 
-	if (!PATCHWORK_TURBO) return;
+	if (!TURBO) return;
 
 	if ($class && isset($patchwork_autoload_cache[$parent_class]))
 	{

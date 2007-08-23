@@ -218,7 +218,7 @@ class extends patchwork
 		if (function_exists($ftemplate)) $ftemplate($v, $a, $g);
 		else
 		{
-			PATCHWORK_TURBO || patchwork::syncTemplate($template, $ctemplate);
+			TURBO || patchwork::syncTemplate($template, $ctemplate);
 
 			if ($h = patchwork::fopenX($ctemplate))
 			{

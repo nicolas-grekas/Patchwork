@@ -19,7 +19,7 @@ function F($name, $type) {$a = func_get_args(); return VALIDATE::getFile($_FILES
 
 function V($var , $type) {$a = func_get_args(); return VALIDATE::get(     $var          , $type, array_slice($a, 2));}
 
-if ($GLOBALS['patchwork_multilang'])
+if (PATCHWORK_I18N)
 {
 	function T($string, $lang = false)
 	{
@@ -144,12 +144,13 @@ function patchwork_error_handler($code, $message, $file, $line, &$context)
 			if (stripos($message, 'safe mode')) return;
 		}
 
-		patchwork::error_handler($code, $message, $file, $line, $context);
+		class_exists('patchwork_error', false) || __autoload('patchwork_error'); // http://bugs.php.net/42098 workaround
+		patchwork_error::call($code, $message, $file, $line, $context);
 	}
 }
 
 ini_set('log_errors', true);
-ini_set('error_log', './error.log');
+ini_set('error_log', PATCHWORK_PROJECT_PATH . '/error.log');
 ini_set('display_errors', false);
 
 set_error_handler('patchwork_error_handler');
@@ -236,7 +237,7 @@ class
 
 		self::$appId = abs($GLOBALS['patchwork_appId'] % 10000);
 		self::$cachePath = PATCHWORK_ZCACHE;
-		self::setLang($_SERVER['PATCHWORK_LANG'] ? $_SERVER['PATCHWORK_LANG'] : substr($CONFIG['lang_list'], 0, 2));
+		self::setLang($_SERVER['PATCHWORK_LANG'] ? $_SERVER['PATCHWORK_LANG'] : substr($CONFIG['i18n.lang_list'], 0, 2));
 	}
 
 	static function start()
@@ -247,7 +248,14 @@ class
 			. htmlspecialchars(preg_replace("'&v\\\$=[^&]*'", '', $_SERVER['REQUEST_URI']))
 			. '</a>'
 		);
+		register_shutdown_function(array(__CLASS__, 'log'), '', true);
 <*/
+
+		// Language controler
+
+		!$_SERVER['PATCHWORK_LANG']
+			&& $CONFIG['i18n.lang_list']
+			&& patchwork_language::negociate();
 
 
 		// patchwork_appId cookie synchronisation
@@ -302,8 +310,6 @@ class
 			ob_end_flush();
 			--self::$ob_level;
 		}
-
-#>		self::log('', true);
 	}
 
 	// {{{ Client side rendering controler
@@ -371,7 +377,7 @@ class
 			$patchwork_appId = -$patchwork_appId - $_SERVER['REQUEST_TIME'];
 			self::$appId = abs($patchwork_appId % 10000);
 
-			$a = $GLOBALS['patchwork_multilang'] ? implode($_SERVER['PATCHWORK_LANG'], explode('__', $_SERVER['PATCHWORK_BASE'], 2)) : $_SERVER['PATCHWORK_BASE'];
+			$a = PATCHWORK_I18N ? implode($_SERVER['PATCHWORK_LANG'], explode('__', $_SERVER['PATCHWORK_BASE'], 2)) : $_SERVER['PATCHWORK_BASE'];
 			$a = preg_replace("'\?.*$'", '', $a);
 			$a = preg_replace("'^https?://[^/]*'i", '', $a);
 			$a = dirname($a . ' ');
@@ -436,7 +442,7 @@ class
 		$lang = self::$lang;
 		self::$lang = $new_lang;
 
-		if ($GLOBALS['patchwork_multilang'])
+		if (PATCHWORK_I18N)
 		{
 			self::$base = explode('__', $_SERVER['PATCHWORK_BASE'], 2);
 			self::$base = implode($new_lang, self::$base);
@@ -901,7 +907,7 @@ class
 			}
 
 			$b = ini_get('error_log');
-			$b = fopen($b ? $b : './error.log', 'ab');
+			$b = fopen($b ? $b : (PATCHWORK_PROJECT_PATH . '/error.log'), 'ab');
 			flock($b, LOCK_EX);
 			fwrite($b, $a);
 			fclose($b);
@@ -1427,12 +1433,6 @@ class
 		if ('HEAD' == $_SERVER['REQUEST_METHOD']) $buffer = '';
 
 		return $buffer;
-	}
-
-	static function error_handler($code, $message, $file, $line, &$context)
-	{
-		class_exists('patchwork_error', false) || __autoload('patchwork_error'); // http://bugs.php.net/42098 workaround
-		patchwork_error::call($code, $message, $file, $line, $context);
 	}
 
 	static function resolvePublicPath($filename, &$path_idx = 0)

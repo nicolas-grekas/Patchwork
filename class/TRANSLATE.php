@@ -22,7 +22,7 @@ class
 
 	public static function get($string, $lang, $usecache)
 	{
-		if ('' === $string || '__' == $lang || !$GLOBALS['patchwork_multilang']) return $string;
+		if ('' === $string || '__' == $lang || !PATCHWORK_I18N) return $string;
 
 		$hash = md5($string);
 		$cache = '';
@@ -55,8 +55,8 @@ class
 	{
 		self::$cache = array();
 
-		$adapter = isset($CONFIG['translate_adapter']) && $CONFIG['translate_adapter'] ? 'adapter_translate_' . $CONFIG['translate_adapter'] : __CLASS__;
-		self::$adapter = new $adapter(isset($CONFIG['translate_options']) ? $CONFIG['translate_options'] : array());
+		$adapter = isset($CONFIG['translate.adapter']) && $CONFIG['translate.adapter'] ? 'adapter_translate_' . $CONFIG['translate.adapter'] : __CLASS__;
+		self::$adapter = new $adapter(isset($CONFIG['translate.options']) ? $CONFIG['translate.options'] : array());
 		self::$adapter->open();
 	}
 

@@ -134,7 +134,7 @@ class patchwork_preprocessor__0
 	{
 		defined('E_RECOVERABLE_ERROR') || self::$constant['E_RECOVERABLE_ERROR'] = E_ERROR;
 
-		if (IS_WINDOWS && (DEBUG || phpversion() < '5.2'))
+		if (IS_WINDOWS && (DEBUG || PHP_VERSION < '5.2'))
 		{
 			// In debug mode, checks if character case is strict.
 			// Fix a bug with long file names.
@@ -246,7 +246,7 @@ class patchwork_preprocessor__0
 
 		$code = file_get_contents($source);
 
-		if (!preg_match("''u", $code)) W("File {$source}:\nfile encoding is not valid UTF-8. Please convert your source code to UTF-8.");
+		if (!preg_match('//u', $code)) trigger_error("File {$source}:\nfile encoding is not valid UTF-8. Please convert your source code to UTF-8.");
 
 		$preproc->antePreprocess($code);
 		$code =& $preproc->preprocess($code);
@@ -259,7 +259,7 @@ class patchwork_preprocessor__0
 		if (IS_WINDOWS)
 		{
 			$code = new COM('Scripting.FileSystemObject');
-			$code->GetFile(PATCHWORK_PROJECT_PATH .'/'. $tmp)->Attributes |= 2; // Set hidden attribute
+			$code->GetFile(PATCHWORK_PROJECT_PATH . '/' . $tmp)->Attributes |= 2; // Set hidden attribute
 			file_exists($destination) && @unlink($destination);
 			@rename($tmp, $destination) || unlink($tmp);
 		}
@@ -461,7 +461,7 @@ class patchwork_preprocessor__0
 						$token = 'protected';
 						$type = T_PROTECTED;
 
-						if (0<=$level) W("File {$source} line {$line}:\nprivate static methods or properties are banned.\nPlease use protected static ones instead.");
+						if (0<=$level) trigger_error("File {$source} line {$line}:\nprivate static methods or properties are banned.\nPlease use protected static ones instead.");
 					}
 				}
 
@@ -870,7 +870,7 @@ class patchwork_preprocessor__0
 
 	protected function fetchConstant(&$code, &$i, $codeLen)
 	{
-		if (DEBUG || !PATCHWORK_TURBO) return false;
+		if (DEBUG || !TURBO) return false;
 
 		$new_code = array();
 		$inString = false;
@@ -1068,7 +1068,7 @@ class patchwork_preprocessor_t_ extends patchwork_preprocessor_bracket_
 {
 	function filterBracket($type, $token)
 	{
-		if ('.' == $type) W(
+		if ('.' == $type) trigger_error(
 "File {$this->preproc->source} line {$this->preproc->line}:
 Usage of T() is potentially divergent.
 Please use sprintf() instead of string concatenation."

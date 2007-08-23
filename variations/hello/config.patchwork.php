@@ -4,6 +4,6 @@
 
 $CONFIG += array(
 
-	'DEBUG_ALLOWED' => true,
+	'debug.allowed' => true,
 
 );
