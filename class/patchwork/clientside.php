@@ -241,7 +241,7 @@ EOHTML;
 		{
 			if ($is_cacheable) ob_start();
 
-			if ($maxage == $config_maxage && PATCHWORK_TURBO)
+			if ($maxage == $config_maxage && TURBO)
 			{
 				$ctemplate = patchwork::getContextualCachePath("templates/$template", 'txt');
 

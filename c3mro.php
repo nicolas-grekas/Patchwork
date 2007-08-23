@@ -308,10 +308,10 @@ $patchwork[] = 'isset($CONFIG[\'session.save_path\'    ]) || $CONFIG[\'session.s
 $patchwork[] = 'isset($CONFIG[\'session.cookie_path\'  ]) || $CONFIG[\'session.cookie_path\'] = \'/\'';
 $patchwork[] = 'isset($CONFIG[\'session.cookie_domain\']) || $CONFIG[\'session.cookie_domain\'] = \'\'';
 $patchwork[] = 'isset($CONFIG[\'P3P\'           ]) || $CONFIG[\'P3P\'] = \'CUR ADM\'';
-$patchwork[] = 'isset($CONFIG[\'DEBUG_ALLOWED\' ]) || $CONFIG[\'DEBUG_ALLOWED\'] = true';
-$patchwork[] = 'isset($CONFIG[\'DEBUG_PASSWORD\']) || $CONFIG[\'DEBUG_PASSWORD\'] = \'\'';
-$patchwork[] = 'isset($CONFIG[\'lang_list\'     ]) || $CONFIG[\'lang_list\'] = \'\'';
-$patchwork[] = '$patchwork_multilang = false !== strpos($CONFIG[\'lang_list\'], \'|\')';
+$patchwork[] = 'isset($CONFIG[\'debug.allowed\' ]) || $CONFIG[\'debug.allowed\'] = true';
+$patchwork[] = 'isset($CONFIG[\'debug.password\']) || $CONFIG[\'debug.password\'] = \'\'';
+$patchwork[] = 'isset($CONFIG[\'i18n.lang_list\'     ]) || $CONFIG[\'i18n.lang_list\'] = \'\'';
+$patchwork[] = 'define(\'PATCHWORK_I18N\', false !== strpos($CONFIG[\'i18n.lang_list\'], \'|\'))';
 
 // {{{ patchwork's context initialization
 /**
@@ -331,12 +331,12 @@ $_SERVER[\'PATCHWORK_LANG\'] = $_SERVER[\'PATCHWORK_REQUEST\'] = \'\'';
 	if (isset($_SERVER['PATH_INFO']))
 	{
 		$patchwork[] = 'isset($_SERVER[\'PATH_INFO\']) && $_SERVER[\'PATCHWORK_REQUEST\'] = substr($_SERVER[\'PATH_INFO\'], 1)';
-		$patchwork[] = '$_SERVER[\'PATCHWORK_BASE\'] .= \'/\' . ($patchwork_multilang ? \'__/\' : \'\')';
+		$patchwork[] = '$_SERVER[\'PATCHWORK_BASE\'] .= \'/\' . (PATCHWORK_I18N ? \'__/\' : \'\')';
 	}
 	else
 	{
 		$patchwork[] = '\'index.php\' == substr($_SERVER[\'PATCHWORK_BASE\'], -9) && $_SERVER[\'PATCHWORK_BASE\'] = substr($_SERVER[\'PATCHWORK_BASE\'], 0, -9)';
-		$patchwork[] = '$_SERVER[\'PATCHWORK_BASE\'] .= \'?\' . ($patchwork_multilang ? \'__/\' : \'\')';
+		$patchwork[] = '$_SERVER[\'PATCHWORK_BASE\'] .= \'?\' . (PATCHWORK_I18N ? \'__/\' : \'\')';
 		$patchwork[] = '
 $_SERVER[\'PATCHWORK_REQUEST\'] = $_SERVER[\'QUERY_STRING\'];
 
@@ -359,7 +359,7 @@ else if (\'\' !== $_SERVER[\'QUERY_STRING\'])
 $_SERVER[\'PATCHWORK_REQUEST\'] = urldecode($_SERVER[\'PATCHWORK_REQUEST\'])';
 	}
 
-	$patchwork[] = 'if (preg_match("#^(" . $CONFIG[\'lang_list\'] . ")(?:/|$)(.*?)$#", $_SERVER[\'PATCHWORK_REQUEST\'], $a))
+	$patchwork[] = 'if (preg_match("#^(" . $CONFIG[\'i18n.lang_list\'] . ")(?:/|$)(.*?)$#", $_SERVER[\'PATCHWORK_REQUEST\'], $a))
 {
 	$_SERVER[\'PATCHWORK_LANG\']    = $a[1];
 	$_SERVER[\'PATCHWORK_REQUEST\'] = $a[2];
@@ -367,7 +367,7 @@ $_SERVER[\'PATCHWORK_REQUEST\'] = urldecode($_SERVER[\'PATCHWORK_REQUEST\'])';
 }
 // }}}
 
-$patchwork[] = '$patchwork_multilang || $_SERVER[\'PATCHWORK_LANG\'] = $CONFIG[\'lang_list\']';
+$patchwork[] = 'PATCHWORK_I18N || $_SERVER[\'PATCHWORK_LANG\'] = $CONFIG[\'i18n.lang_list\']';
 
 $appConfigSource = '<?php ' . implode(";\n", $patchwork) . ';';
 fwrite($lockHandle, $appConfigSource);

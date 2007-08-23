@@ -16,7 +16,7 @@ class
 {
 	static function negociate()
 	{
-		$lang = self::HTTP_Best_Language(explode('|', $CONFIG['lang_list']));
+		$lang = self::HTTP_Best_Language(explode('|', $CONFIG['i18n.lang_list']));
 		$b = $_SERVER['REQUEST_METHOD'];
 
 		if (!PATCHWORK_DIRECT && ('GET' == $b || 'HEAD' == $b))

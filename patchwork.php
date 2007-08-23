@@ -82,7 +82,6 @@ class hunter
 
 	function __destruct()
 	{
-		patchwork_restoreProjectPath();
 		call_user_func_array($this->callback, $this->param_arr);
 	}
 }
@@ -133,18 +132,13 @@ define('UTF8_VALID_RX', '/(?:[\x00-\x7F]|[\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][
 // Load the configuration
 require file_exists($patchwork_appId) ? $patchwork_appId : (__patchwork__ . '/c3mro.php');
 
-// Restore the current dir in shutdown context.
-function patchwork_restoreProjectPath() {PATCHWORK_PROJECT_PATH != getcwd() && chdir(PATCHWORK_PROJECT_PATH);}
-register_shutdown_function('patchwork_restoreProjectPath', PATCHWORK_PROJECT_PATH);
-// }}}
-
 // {{{ Global Initialisation
 isset($CONFIG['umask']) && umask($CONFIG['umask']);
-define('DEBUG', $CONFIG['DEBUG_ALLOWED'] && (!$CONFIG['DEBUG_PASSWORD'] || (isset($_COOKIE['DEBUG']) && $CONFIG['DEBUG_PASSWORD'] == $_COOKIE['DEBUG'])) ? 1 : 0);
+define('DEBUG', $CONFIG['debug.allowed'] && (!$CONFIG['debug.password'] || (isset($_COOKIE['debug.password']) && $CONFIG['debug.password'] == $_COOKIE['debug.password'])) ? 1 : 0);
 $CONFIG['maxage'] = isset($CONFIG['maxage']) ? $CONFIG['maxage'] : 2678400;
 define('IS_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
 define('PATCHWORK_DIRECT',  '_' == $_SERVER['PATCHWORK_REQUEST']);
-define('PATCHWORK_TURBO', !DEBUG && isset($CONFIG['turbo']) && $CONFIG['turbo']);
+define('turbo', !DEBUG && isset($CONFIG['turbo']) && $CONFIG['turbo']);
 
 function E($msg = '__getDeltaMicrotime')
 {
@@ -269,7 +263,7 @@ function patchworkProcessedPath($file)
 	$cache = ((int)(bool)DEBUG) . (0>$level ? -$level .'-' : $level);
 	$cache = './.'. strtr(str_replace('_', '%2', str_replace('%', '%1', $file)), '/', '_') . '.' . $cache . '.' . PATCHWORK_PATH_TOKEN . '.zcache.php';
 
-	if (file_exists($cache) && (PATCHWORK_TURBO || filemtime($cache) > filemtime($source))) return $cache;
+	if (file_exists($cache) && (TURBO || filemtime($cache) > filemtime($source))) return $cache;
 
 	patchwork_preprocessor::run($source, $cache, $level, false);
 
@@ -282,7 +276,7 @@ function __autoload($searched_class)
 {
 	$a = strtolower($searched_class);
 
-	if ($a =& $GLOBALS['patchwork_autoload_cache'][$a] && PATCHWORK_TURBO)
+	if ($a =& $GLOBALS['patchwork_autoload_cache'][$a] && TURBO)
 	{
 		if (is_int($a))
 		{
@@ -332,7 +326,7 @@ function patchwork_is_a($obj, $class)
 // {{{ file_exists replacement on Windows
 // Fix a bug with long file names.
 // In debug mode, checks if character case is strict.
-if (DEBUG || phpversion() < '5.2')
+if (DEBUG || PHP_VERSION < '5.2')
 {
 	if (DEBUG)
 	{
@@ -381,7 +375,7 @@ else
 defined('PATCHWORK_SETUP') && patchwork_setup::call();
 
 // {{{ Debug context
-DEBUG && patchwork_debug::checkCache();
+DEBUG && patchwork_debug::call();
 // }}}
 
 // {{{ Validator
@@ -416,9 +410,6 @@ if ($a)
 }
 // }}}
 
-// {{{ Language controler
-if (!$_SERVER['PATCHWORK_LANG'] && $CONFIG['lang_list']) patchwork_language::negociate();
-// }}}
 
 // Shortcut for patchwork::*
 class p extends patchwork {}

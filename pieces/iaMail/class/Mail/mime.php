@@ -12,9 +12,6 @@
  ***************************************************************************/
 
 
-isset($CONFIG['email_backend']) || $CONFIG['email_backend'] = 'mail';
-isset($CONFIG['email_options']) || $CONFIG['email_options'] = '';
-
 class extends self
 {
 	// The original _encodeHeaders of Mail_mime is bugged !

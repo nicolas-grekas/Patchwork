@@ -24,7 +24,7 @@ class extends patchwork
 
 		$ctemplate = patchwork::getContextualCachePath("templates/$template", 'txt');
 
-		PATCHWORK_TURBO || patchwork::syncTemplate($template, $ctemplate);
+		TURBO || patchwork::syncTemplate($template, $ctemplate);
 
 		$readHandle = true;
 

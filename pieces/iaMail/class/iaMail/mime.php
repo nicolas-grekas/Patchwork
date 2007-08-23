@@ -12,6 +12,9 @@
  ***************************************************************************/
 
 
+isset($CONFIG['iaMail.backend']) || $CONFIG['iaMail.backend'] = 'mail';
+isset($CONFIG['iaMail.options']) || $CONFIG['iaMail.options'] = '';
+
 class extends Mail_mime
 {
 	protected $options;
@@ -74,17 +77,17 @@ class extends Mail_mime
 			&& $headers['Return-Path'] = $options[0];
 
 		$options = null;
-		$backend = $CONFIG['email_backend'];
+		$backend = $CONFIG['iaMail.backend'];
 
 		switch ($backend)
 		{
 		case 'mail':
-			$options = isset($CONFIG['email_options']) ? $CONFIG['email_options'] : '';
+			$options = $CONFIG['iaMail.options'];
 			if (isset($headers['Return-Path'])) $options .= ' -f ' . escapeshellarg($headers['Return-Path']);
 			break;
 
 		case 'smtp':
-			$options = isset($CONFIG['email_options']) ? $CONFIG['email_options'] : array();
+			$options = $CONFIG['iaMail.options'];
 			break;
 		}
 

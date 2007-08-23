@@ -2,13 +2,9 @@
 
 $CONFIG += array(
 
-#	'email_from'    => '', // Default value for From header
-
-	// Used by iaMail in test mode
-#	'debug_email' => 'webmaster',
-
-	// Defaults for PEAR's Mail_mime
-#	'email_backend' => 'mail',
-#	'email_options' => '',
+#	'iaMail.from'        => '',          // Default value for From header
+#	'iaMail.debug_email' => 'webmaster', // Used by iaMail in test mode
+#	'iaMail.backend'     => 'mail',      // See PEAR's Mail_mime constructor
+#	'iaMail.options'     => '',          // See PEAR's Mail_mime constructor
 
 );

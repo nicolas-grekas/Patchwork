@@ -28,7 +28,7 @@ class
 	$period = 5;  // (s)
 
 
-	static function checkCache()
+	static function call()
 	{
 		$GLOBALS['patchwork_appId'] = -$GLOBALS['patchwork_appId'];
 
