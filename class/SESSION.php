@@ -117,7 +117,7 @@ class
 		if ($initSession) self::$DATA = array();
 
 		// Generate a new antiCSRF token
-		self::getAntiCSRFtoken(true);
+		patchwork::getAntiCSRFtoken(true);
 
 		if (!$initSession || $restartNew)
 		{
