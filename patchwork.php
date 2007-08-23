@@ -138,7 +138,7 @@ define('DEBUG', $CONFIG['debug.allowed'] && (!$CONFIG['debug.password'] || (isse
 $CONFIG['maxage'] = isset($CONFIG['maxage']) ? $CONFIG['maxage'] : 2678400;
 define('IS_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
 define('PATCHWORK_DIRECT',  '_' == $_SERVER['PATCHWORK_REQUEST']);
-define('turbo', !DEBUG && isset($CONFIG['turbo']) && $CONFIG['turbo']);
+define('TURBO', !DEBUG && isset($CONFIG['turbo']) && $CONFIG['turbo']);
 
 function E($msg = '__getDeltaMicrotime')
 {
