@@ -176,6 +176,8 @@ class extends patchwork
 			$buffer[$len] = substr($buffer[$len], 0, 4096);
 		}
 
-		return implode('', $buffer);
+		$buffer = implode('', $buffer);
+
+		return $buffer;
 	}
 }
