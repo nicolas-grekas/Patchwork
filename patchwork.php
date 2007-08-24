@@ -129,6 +129,11 @@ define('UTF8_VALID_RX', '/(?:[\x00-\x7F]|[\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][
 // Load the configuration
 require file_exists($patchwork_appId) ? $patchwork_appId : (__patchwork__ . '/c3mro.php');
 
+// Restore the current dir in shutdown context.
+function patchwork_chdir($realdir) {$realdir === getcwd() || chdir($realdir);}
+register_shutdown_function('patchwork_chdir', PATCHWORK_PROJECT_PATH);
+// }}}
+
 // {{{ Global Initialisation
 isset($CONFIG['umask']) && umask($CONFIG['umask']);
 define('DEBUG', $CONFIG['debug.allowed'] && (!$CONFIG['debug.password'] || (isset($_COOKIE['debug.password']) && $CONFIG['debug.password'] == $_COOKIE['debug.password'])) ? 1 : 0);

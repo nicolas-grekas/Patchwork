@@ -284,5 +284,4 @@ function patchwork_autoload_write(&$data, $to)
 		}
 		else rename($tmp, $to);
 	}
-	else trigger_error('Failed to write file ' . $to);
 }

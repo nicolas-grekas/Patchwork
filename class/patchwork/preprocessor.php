@@ -265,7 +265,6 @@ class patchwork_preprocessor__0
 			}
 			else rename($tmp, $destination);
 		}
-		else trigger_error('Failed to write file ' . $destination);
 	}
 
 	protected function __construct() {}
