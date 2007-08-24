@@ -45,7 +45,7 @@ else
 }
 
 
-$patchwork = realpath('.');
+$patchwork = getcwd();
 
 $appConfigSource = array();
 $appInheritSeq = array();
