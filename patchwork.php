@@ -114,11 +114,8 @@ class ob
 // }}}
 
 // {{{ Load configuration
-chdir($patchwork) || die("Unreachable directory: $patchwork");
 
-// $_REQUEST is an open door to security problems.
-$_REQUEST = array();
-
+$_REQUEST = array(); // $_REQUEST is an open door to security problems.
 $CONFIG = array();
 $patchwork_appId = './.config.patchwork.php';
 
