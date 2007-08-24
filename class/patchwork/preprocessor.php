@@ -253,17 +253,19 @@ class patchwork_preprocessor__0
 
 		self::$recursive = $recursive;
 
-		$tmp = uniqid(mt_rand(), true);
-		file_put_contents($tmp, $code);
-
-		if (IS_WINDOWS)
+		$tmp = './' . uniqid(mt_rand(), true);
+		if (false !== file_put_contents($tmp, $code))
 		{
-			$code = new COM('Scripting.FileSystemObject');
-			$code->GetFile(PATCHWORK_PROJECT_PATH . '/' . $tmp)->Attributes |= 2; // Set hidden attribute
-			file_exists($destination) && @unlink($destination);
-			@rename($tmp, $destination) || unlink($tmp);
+			if (IS_WINDOWS)
+			{
+				$code = new COM('Scripting.FileSystemObject');
+				$code->GetFile(PATCHWORK_PROJECT_PATH . '/' . $tmp)->Attributes |= 2; // Set hidden attribute
+				file_exists($destination) && @unlink($destination);
+				@rename($tmp, $destination) || unlink($tmp);
+			}
+			else rename($tmp, $destination);
 		}
-		else rename($tmp, $destination);
+		else trigger_error('Failed to write file ' . $destination);
 	}
 
 	protected function __construct() {}

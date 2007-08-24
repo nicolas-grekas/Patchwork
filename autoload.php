@@ -271,16 +271,18 @@ function patchwork_autoload($searched_class)
 
 function patchwork_autoload_write(&$data, $to)
 {
-	$tmp = uniqid(mt_rand(), true);
-	file_put_contents($tmp, $data);
-
-	touch($tmp, filemtime($to));
-
-	if (IS_WINDOWS)
+	$tmp = './' . uniqid(mt_rand(), true);
+	if (false !== file_put_contents($tmp, $data))
 	{
-		$data = new COM('Scripting.FileSystemObject');
-		$data->GetFile(PATCHWORK_PROJECT_PATH .'/'. $tmp)->Attributes |= 2; // Set hidden attribute
-		@rename($tmp, $to) || unlink($tmp);
+		touch($tmp, filemtime($to));
+
+		if (IS_WINDOWS)
+		{
+			$data = new COM('Scripting.FileSystemObject');
+			$data->GetFile(PATCHWORK_PROJECT_PATH .'/'. $tmp)->Attributes |= 2; // Set hidden attribute
+			@rename($tmp, $to) || unlink($tmp);
+		}
+		else rename($tmp, $to);
 	}
-	else rename($tmp, $to);
+	else trigger_error('Failed to write file ' . $to);
 }
