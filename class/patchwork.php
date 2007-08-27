@@ -1381,7 +1381,7 @@ class
 					self::$private = true;
 
 					$ETag = hexdec($ETag);
-					if ($ETag >= 0x80000000) $ETag -= 0x80000000;
+					if ($ETag > PHP_INT_MAX) $ETag -= PHP_INT_MAX + 1;
 					$LastModified = $ETag;
 					$ETag = dechex($ETag);
 				}
