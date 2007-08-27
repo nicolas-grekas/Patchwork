@@ -222,6 +222,19 @@ class patchwork_preprocessor__0
 			}
 		}
 
+
+		$v = get_defined_constants(true);
+		unset(
+			$v['user'],
+			$v['standard']['INF'],
+			$v['internal']['TRUE'],
+			$v['internal']['FALSE'],
+			$v['internal']['NULL'],
+			$v['internal']['PHP_EOL'],
+		);
+
+		foreach ($v as $v) self::$constant += $v;
+
 		foreach (self::$constant as &$v) $v = self::export($v);
 	}
 
