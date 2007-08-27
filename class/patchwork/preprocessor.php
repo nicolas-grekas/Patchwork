@@ -230,7 +230,7 @@ class patchwork_preprocessor__0
 			$v['internal']['TRUE'],
 			$v['internal']['FALSE'],
 			$v['internal']['NULL'],
-			$v['internal']['PHP_EOL'],
+			$v['internal']['PHP_EOL']
 		);
 
 		foreach ($v as $v) self::$constant += $v;
