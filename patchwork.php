@@ -165,17 +165,17 @@ function patchwork_include($file) {return include $file;}
 // {{{ function resolvePath(): patchwork-specific include_path-like mechanism
 function resolvePath($file, $level = false, $base = false)
 {
-	$last_patchwork_paths = count($GLOBALS['patchwork_paths']) - 1;
+	$path_last = PATCHWORK_PATH_LAST;
 
 	if (false === $level)
 	{
 		$i = 0;
-		$level = $last_patchwork_paths;
+		$level = $path_last;
 	}
 	else
 	{
 		0 <= $level && $base = 0;
-		$i = $last_patchwork_paths - $level - $base;
+		$i = $path_last - $level - $base;
 		0 > $i && $i = 0;
 	}
 
@@ -191,7 +191,7 @@ function resolvePath($file, $level = false, $base = false)
 
 
 	$file = strtr($file, '\\', '/');
-	if ($last_patchwork_paths = '/' == substr($file, -1)) $file = substr($file, 0, -1);
+	if ($path_last = '/' == substr($file, -1)) $file = substr($file, 0, -1);
 
 	if (DBA_HANDLER)
 	{
@@ -214,7 +214,7 @@ function resolvePath($file, $level = false, $base = false)
 			$base = (int) current($base);
 			$level = $patchwork_lastpath_level -= $base - $i;
 			
-			return $GLOBALS['patchwork_include_paths'][$base] . '/' . (0<=$level ? $file : substr($file, 6)) . ($last_patchwork_paths ? '/' : '');
+			return $GLOBALS['patchwork_path'][$base] . '/' . (0<=$level ? $file : substr($file, 6)) . ($path_last ? '/' : '');
 		}
 		while (false !== next($base));
 	}
@@ -237,8 +237,8 @@ function patchworkProcessedPath($file)
 		if (!$f) return $file;
 
 		$file = false;
-		$i = count($GLOBALS['patchwork_paths']);
-		$p =& $GLOBALS['patchwork_include_paths'];
+		$i = PATCHWORK_PATH_LAST + 1;
+		$p =& $GLOBALS['patchwork_path'];
 		$len = count($p);
 
 		for (; $i < $len; ++$i)

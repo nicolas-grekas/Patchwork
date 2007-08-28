@@ -185,13 +185,11 @@ abstract class
 
 	protected function INLINEcallback($m)
 	{
-		$path_count = count($GLOBALS['patchwork_paths']);
-
 		$template = (IS_WINDOWS ? strtolower($m[1]) : $m[1]) . '.ptl';
 
 		$a = str_replace('\\', '/', $template) == preg_replace("'[\\/]+'", '/', $this->template);
-		$a = isset($m[2]) ? substr($m[2], 1) : ($a ? -1 : ($path_count - $this->path_idx - 1));
-		$a = $a < 0 ? $this->path_idx - $a : ($path_count - $a - 1);
+		$a = isset($m[2]) ? substr($m[2], 1) : ($a ? -1 : (PATCHWORK_PATH_LAST - $this->path_idx));
+		$a = $a < 0 ? $this->path_idx - $a : (PATCHWORK_PATH_LAST - $a);
 
 		if ($a < 0)
 		{
@@ -200,7 +198,7 @@ abstract class
 		}
 		else
 		{
-			if ($a >= $path_count) $a = $path_count - 1;
+			if ($a > PATCHWORK_PATH_LAST) $a = PATCHWORK_PATH_LAST;
 			return $this->load($template, $a);
 		}
 	}

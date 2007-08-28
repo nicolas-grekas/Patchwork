@@ -42,9 +42,8 @@ class
 
 				@unlink('./.config.patchwork.php');
 
-				global $patchwork_include_paths;
+				global $patchwork_path;
 
-				$length = count($GLOBALS['patchwork_paths']);
 				$offset = -12 - strlen(PATCHWORK_PATH_TOKEN);
 
 				foreach (glob('./.*.1*.' . PATCHWORK_PATH_TOKEN . '.zcache.php', GLOB_NOSORT) as $cache)
@@ -59,7 +58,7 @@ class
 						$file = substr($file, 6);
 					}
 
-					$file = $patchwork_include_paths[$length - $level - 1] .'/'. $file;
+					$file = $patchwork_path[PATCHWORK_PATH_LAST - $level] .'/'. $file;
 
 					if (!file_exists($file) || filemtime($file) >= filemtime($cache)) @unlink($cache);
 				}
@@ -213,7 +212,7 @@ function Z()
 
 	static function filename($m)
 	{
-		return $GLOBALS['patchwork_include_paths'][count($GLOBALS['patchwork_paths']) - ((int)($m[3].$m[2])) - 1]
+		return $GLOBALS['patchwork_path'][PATCHWORK_PATH_LAST - ((int)($m[3].$m[2]))]
 			. DIRECTORY_SEPARATOR
 			. str_replace('%1', '%', str_replace('%2', '_', strtr($m[1], '_', DIRECTORY_SEPARATOR)));
 	}

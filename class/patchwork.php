@@ -1437,14 +1437,12 @@ class
 
 	static function resolvePublicPath($filename, &$path_idx = 0)
 	{
-		$last_patchwork_paths = count($GLOBALS['patchwork_paths']) - 1;
-
-		if ($path_idx && $path_idx > $last_patchwork_paths) return false;
+		if ($path_idx && $path_idx > PATCHWORK_PATH_LAST) return false;
 
 
 		global $patchwork_lastpath_level;
 
-		$level = $last_patchwork_paths - $path_idx;
+		$level = PATCHWORK_PATH_LAST - $path_idx;
 
 		$lang = self::__LANG__() . '/';
 		$l_ng = 5 == strlen($lang) ? substr($lang, 0, 2) . '/' : false;
@@ -1470,7 +1468,7 @@ class
 			$lang_level = $patchwork_lastpath_level;
 		}
 
-		$path_idx = $last_patchwork_paths - $lang_level;
+		$path_idx = PATCHWORK_PATH_LAST - $lang_level;
 
 		return $lang;
 	}
