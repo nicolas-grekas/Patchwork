@@ -16,7 +16,7 @@ function patchwork_autoload($searched_class)
 {
 	global $patchwork_autoload_cache;
 
-	$last_patchwork_paths = count($GLOBALS['patchwork_paths']) - 1;
+	$path_last = PATCHWORK_PATH_LAST;
 
 	if (false !== strpos($searched_class, ';') || false !== strpos($searched_class, "'")) return;
 
@@ -33,12 +33,12 @@ function patchwork_autoload($searched_class)
 	{
 		// Namespace renammed class
 		$class = substr($searched_class, 0, $i);
-		$level = min($last_patchwork_paths, '00' === $level ? -1 : (int) $level);
+		$level = min($path_last, '00' === $level ? -1 : (int) $level);
 	}
 	else
 	{
 		$class = $searched_class;
-		$level = $last_patchwork_paths;
+		$level = $path_last;
 	}
 
 	$file = false;

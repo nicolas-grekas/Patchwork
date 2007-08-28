@@ -52,17 +52,17 @@ $appInheritSeq = array();
 $patchwork_appId = 0;
 
 // Linearize application inheritance graph
-$patchwork_paths = C3MRO(__patchwork__, $patchwork);
-$patchwork_paths = array_slice($patchwork_paths, 1);
-$patchwork_paths[] = __patchwork__;
+$patchwork_linearized_path = C3MRO(__patchwork__, $patchwork);
+$patchwork_linearized_path = array_slice($patchwork_linearized_path, 1);
+$patchwork_linearized_path[] = __patchwork__;
 
-$patchwork_include_paths = explode(PATH_SEPARATOR, get_include_path());
-$patchwork_include_paths = array_map('realpath', $patchwork_include_paths);
-$patchwork_include_paths = array_diff($patchwork_include_paths, $patchwork_paths, array(''));
-$patchwork_include_paths = array_merge($patchwork_paths, $patchwork_include_paths);
+$patchwork_path = explode(PATH_SEPARATOR, get_include_path());
+$patchwork_path = array_map('realpath', $patchwork_path);
+$patchwork_path = array_diff($patchwork_path, $patchwork_linearized_path, array(''));
+$patchwork_path = array_merge($patchwork_linearized_path, $patchwork_path);
 $patchwork_zcache = false;
 
-foreach ($patchwork_paths as $patchwork)
+foreach ($patchwork_linearized_path as $patchwork)
 {
 	if (file_exists($patchwork . '/zcache/'))
 	{
@@ -77,15 +77,15 @@ foreach ($patchwork_paths as $patchwork)
 
 if (!$patchwork_zcache)
 {
-	$patchwork_zcache = $patchwork_paths[0] . '/zcache/';
+	$patchwork_zcache = $patchwork_linearized_path[0] . '/zcache/';
 	file_exists($patchwork_zcache) || mkdir($patchwork_zcache);
 }
 
 $patchwork = array(
 	'#' . PHP_VERSION,
-	'$patchwork_paths=' . var_export($patchwork_paths, true),
-	'$patchwork_include_paths=' . var_export($patchwork_include_paths, true),
-	'define(\'PATCHWORK_PATH_OFFSET\', '  . (count($patchwork_include_paths) - count($patchwork_paths) + 1) . ')',
+	'$patchwork_path=' . var_export($patchwork_path, true),
+	'define(\'PATCHWORK_PATH_LAST\', '  . (count($patchwork_linearized_path) - 1) . ')',
+	'define(\'PATCHWORK_PATH_OFFSET\', '  . (count($patchwork_path) - count($patchwork_linearized_path) + 1) . ')',
 	'define(\'PATCHWORK_ZCACHE\', ' . var_export($patchwork_zcache, true) . ')',
 	'$patchwork_private=false',
 	'$patchwork_abstract=array()',
@@ -210,7 +210,7 @@ else
 
 $b = substr(md5(serialize($patchwork)), 0, 4);
 
-$a = $patchwork_paths[0] . '/.' . $b . '.zcache.php';
+$a = $patchwork_linearized_path[0] . '/.' . $b . '.zcache.php';
 if (!file_exists($a))
 {
 	@array_map('unlink', glob('./.*.zcache.php', GLOB_NOSORT));
@@ -238,7 +238,7 @@ eval($patchwork[0] . ';');
 
 // Include config files
 
-foreach ($patchwork_paths as $appInheritSeq) if (file_exists($appInheritSeq . '/config.patchwork.php'))
+foreach ($patchwork_linearized_path as $appInheritSeq) if (file_exists($appInheritSeq . '/config.patchwork.php'))
 {
 	$patchwork[] = $appConfigSource[$appInheritSeq];
 	require $appInheritSeq . '/config.patchwork.php';
@@ -251,8 +251,8 @@ $patchwork = array(implode(";\n", $patchwork));
 
 
 $paths = array();
-$appConfigSource = count($patchwork_paths);
-foreach ($patchwork_include_paths as $a => $appInheritSeq)
+$appConfigSource = count($patchwork_linearized_path);
+foreach ($patchwork_path as $a => $appInheritSeq)
 {
 	@patchwork_populatePathCache($paths, $appInheritSeq, $a, $a < $appConfigSource ? '' : '/class');
 }
@@ -279,7 +279,7 @@ if ($h)
 	if (IS_WINDOWS)
 	{
 		$h = new COM('Scripting.FileSystemObject');
-		$h->GetFile($patchwork_paths[0] . '/.parentPaths.db')->Attributes |= 2; // Set hidden attribute
+		$h->GetFile($patchwork_linearized_path[0] . '/.parentPaths.db')->Attributes |= 2; // Set hidden attribute
 		unset($h);
 	}
 }
@@ -384,7 +384,7 @@ if (IS_WINDOWS)
 rename('./.config.lock.php', './.config.patchwork.php');
 
 
-unset($patchwork[0]);
+unset($patchwork[0], $patchwork_linearized_path);
 $patchwork && eval(implode(";\n", $patchwork) . ';');
 
 strtr($_SERVER['PATCHWORK_BASE'], '"&<>\'', '-----') != $_SERVER['PATCHWORK_BASE'] && die('Illegal character found in $_SERVER[\'PATCHWORK_BASE\']');
