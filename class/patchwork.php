@@ -224,7 +224,7 @@ class
 
 	static function __static_construct()
 	{
-#>		defined('PATCHWORK_SYNC_CACHE') || define('PATCHWORK_SYNC_CACHE', true);
+#>		patchwork_debug::call();
 
 		if (isset($CONFIG['clientside']) && !$CONFIG['clientside'])
 		{

@@ -231,7 +231,7 @@ class __patchwork_loader
 			$a = '<?php '
 				. implode('', self::$configCode)
 				. '
-DEBUG ? patchwork_debug::call() : include \'' . patchworkProcessedPath('patchwork.php') .'\';
+include \'' . patchworkProcessedPath('patchwork.php') .'\';
 class p extends patchwork {}
 patchwork::start();';
 
