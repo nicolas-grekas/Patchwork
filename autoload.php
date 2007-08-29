@@ -42,7 +42,7 @@ function patchwork_autoload($searched_class)
 	}
 
 	$file = false;
-	$lcClass = strtolower($class);
+	$lcClass = clower($class);
 
 	if ($outerClass =& $GLOBALS['patchwork_autoload_prefix'] && $len = strlen($lcClass))
 	{
@@ -132,14 +132,14 @@ function patchwork_autoload($searched_class)
 		}
 	}
 
-	$lcClass = strtolower($searched_class);
+	$lcClass = clower($searched_class);
 
 	if ($parent_class ? class_exists($parent_class) : (class_exists($searched_class, false) && !isset($patchwork_autoload_cache[$lcClass])))
 	{
 		if ($parent_class)
 		{
 			$class = "class {$searched_class} extends {$parent_class}{}\$GLOBALS['c{$T}']['{$lcClass}']=1;";
-			$parent_class = strtolower($parent_class);
+			$parent_class = clower($parent_class);
 		}
 		else
 		{
