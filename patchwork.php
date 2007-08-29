@@ -209,7 +209,7 @@ class __patchwork_loader
 		if (self::$lock = @fopen('./.patchwork.lock', 'xb'))
 		{
 			flock(self::$lock, LOCK_EX);
-			ob::start(array(__CLASS__, 'ob_handler'));
+			ob_start(array(__CLASS__, 'ob_handler'));
 
 			self::$pwd = dirname(__FILE__);
 			self::$cwd = getcwd();
@@ -235,6 +235,8 @@ class __patchwork_loader
 
 		if ('' === $buffer)
 		{
+			++ob::$in_handler;
+
 			$T = self::$token;
 			$a = array("<?php \$patchwork_autoload_cache = array(); \$c{$T} =& \$patchwork_autoload_cache; \$d{$T} = 1;");
 
@@ -265,6 +267,8 @@ patchwork::start();';
 			rename($lock, './.patchwork.php');
 
 			set_time_limit(ini_get('max_execution_time'));
+
+			--ob::$in_handler;
 		}
 		else
 		{
