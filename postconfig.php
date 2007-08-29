@@ -174,12 +174,19 @@ function E($msg = '__getDeltaMicrotime') {return patchwork::log($msg, false, fal
 
 // Fix config
 
-isset($CONFIG['i18n.lang_list'     ]) || $CONFIG['i18n.lang_list'] = '';
-isset($CONFIG['maxage'        ]) || $CONFIG['maxage'] = 2678400;
-isset($CONFIG['P3P'           ]) || $CONFIG['P3P'] = 'CUR ADM';
-isset($CONFIG['session.save_path'    ]) || $CONFIG['session.save_path'] = PATCHWORK_ZCACHE;
-isset($CONFIG['session.cookie_path'  ]) || $CONFIG['session.cookie_path'] = '/';
+isset($CONFIG['clientside'           ]) || $CONFIG['clientside'           ] = true;
+isset($CONFIG['i18n.lang_list'       ]) || $CONFIG['i18n.lang_list'       ] = '';
+isset($CONFIG['maxage'               ]) || $CONFIG['maxage'               ] = 2678400;
+isset($CONFIG['P3P'                  ]) || $CONFIG['P3P'                  ] = 'CUR ADM';
+isset($CONFIG['xsendfile'            ]) || $CONFIG['xsendfile'            ] = false;
+isset($CONFIG['session.save_path'    ]) || $CONFIG['session.save_path'    ] = PATCHWORK_ZCACHE;
+isset($CONFIG['session.cookie_path'  ]) || $CONFIG['session.cookie_path'  ] = '/';
 isset($CONFIG['session.cookie_domain']) || $CONFIG['session.cookie_domain'] = '';
+isset($CONFIG['session.auth_vars'    ]) || $CONFIG['session.auth_vars'    ] = array();
+isset($CONFIG['session.group_vars'   ]) || $CONFIG['session.group_vars'   ] = array();
+isset($CONFIG['translate.adapter'    ]) || $CONFIG['translate.adapter'    ] = false
+isset($CONFIG['translate.options'    ]) || $CONFIG['translate.options'    ] = array();
+
 
 
 define('PATCHWORK_I18N', false !== strpos($CONFIG['i18n.lang_list'], '|'));

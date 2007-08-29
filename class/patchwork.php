@@ -226,7 +226,7 @@ class
 	{
 #>		patchwork_debug::call();
 
-		if (isset($CONFIG['clientside']) && !$CONFIG['clientside'])
+		if (!$CONFIG['clientside'])
 		{
 			unset($_COOKIE['JS'], $_COOKIE['JS']); // Double unset against a PHP security hole
 		}
@@ -1154,7 +1154,7 @@ class
 	}
 
 
-	static function &ob_filterOutput(&$buffer, $mode)
+	static function ob_filterOutput($buffer, $mode)
 	{
 		$one_chunk = $mode == (PHP_OUTPUT_HANDLER_START | PHP_OUTPUT_HANDLER_END);
 
@@ -1289,7 +1289,7 @@ class
 		return $buffer;
 	}
 
-	static function &ob_sendHeaders(&$buffer)
+	static function ob_sendHeaders($buffer)
 	{
 		if (self::$redirecting)
 		{

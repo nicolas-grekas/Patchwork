@@ -12,8 +12,6 @@
  ***************************************************************************/
 
 
-isset($CONFIG['iaMail.debug_email']) || $CONFIG['iaMail.debug_email'] = 'webmaster';
-
 class extends pTask
 {
 	protected $test_mode = false;
@@ -47,7 +45,7 @@ class extends pTask
 			$data['headers']['To'] = $CONFIG['iaMail.debug_email'];
 		}
 
-		if (!isset($data['headers']['From']) && isset($CONFIG['iaMail.from'])) $data['headers']['From'] = $CONFIG['iaMail.from'];
+		if (!isset($data['headers']['From']) && $CONFIG['iaMail.from']) $data['headers']['From'] = $CONFIG['iaMail.from'];
 		if (isset($data['headers']['From']) && !$data['headers']['From']) W("Email is likely not to be sent: From header is empty.");
 
 		$data['session'] = isset($_COOKIE['SID']) ? SESSION::getAll() : array();

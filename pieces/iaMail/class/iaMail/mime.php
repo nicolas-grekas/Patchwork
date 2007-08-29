@@ -12,9 +12,6 @@
  ***************************************************************************/
 
 
-isset($CONFIG['iaMail.backend']) || $CONFIG['iaMail.backend'] = 'mail';
-isset($CONFIG['iaMail.options']) || $CONFIG['iaMail.options'] = '';
-
 class extends Mail_mime
 {
 	protected $options;
