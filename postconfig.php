@@ -184,7 +184,7 @@ isset($CONFIG['session.cookie_path'  ]) || $CONFIG['session.cookie_path'  ] = '/
 isset($CONFIG['session.cookie_domain']) || $CONFIG['session.cookie_domain'] = '';
 isset($CONFIG['session.auth_vars'    ]) || $CONFIG['session.auth_vars'    ] = array();
 isset($CONFIG['session.group_vars'   ]) || $CONFIG['session.group_vars'   ] = array();
-isset($CONFIG['translate.adapter'    ]) || $CONFIG['translate.adapter'    ] = false
+isset($CONFIG['translate.adapter'    ]) || $CONFIG['translate.adapter'    ] = false;
 isset($CONFIG['translate.options'    ]) || $CONFIG['translate.options'    ] = array();
 
 
