@@ -23,7 +23,7 @@ function patchwork_autoload($searched_class)
 	$T = PATCHWORK_PATH_TOKEN;
 
 	$amark = $GLOBALS['a'.$T];
-	$GLOBALS['b'.$T] = false;
+	$GLOBALS['a'.$T] = false;
 	$bmark = $GLOBALS['b'.$T];
 
 	$i = strrpos($searched_class, '__');
@@ -259,7 +259,7 @@ function patchwork_autoload($searched_class)
 			// Global cache completion
 
 			$amark = $outerClass ? "'{$cache}'" : ($level + PATCHWORK_PATH_OFFSET);
-			$code = "\$c{$T}['{$lcClass}']={$amark};";
+			$code = "\n\$c{$T}['{$lcClass}']={$amark};";
 
 			$c = fopen('./.config.patchwork.php', 'ab');
 			flock($c, LOCK_EX);
