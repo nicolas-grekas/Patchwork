@@ -209,7 +209,13 @@ function patchwork_autoload($searched_class)
 			$tmp || $tmp = file_get_contents($cache);
 			if ('<?php ' != substr($tmp, 0, 6)) $tmp = '<?php ?>' . $tmp;
 
-			foreach ($current_pool as $class => &$c) $code = substr($code, 0, -2) . "class_exists('{$class}',0)||patchwork_include('{$c}');?>";
+			$class = '/^' . preg_replace('/__[0-9]+$/', '', $lcClass) . '__[0-9]+$/i';
+
+			foreach ($current_pool as $parent_class => $c)
+			{
+				$parent_class = preg_match($class, $parent_class) ? '' : "class_exists('{$parent_class}',0)||";
+				$code = substr($code, 0, -2) . $parent_class . "include '{$c}';?>";
+			}
 
 			$tmp = substr($code, 0, -2) . substr($tmp, 6);
 			patchwork_autoload_write($tmp, $cache);
