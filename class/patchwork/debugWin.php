@@ -16,9 +16,9 @@ class extends patchwork
 {
 	static function prolog()
 	{
-		$debugWin = patchwork::$base . '_?d$&stop&' . mt_rand();
-		$QDebug = patchwork::$base . 'js/QDebug.js';
-		$lang = patchwork::__LANG__();
+		$debugWin = p::$base . '_?d$&stop&' . mt_rand();
+		$QDebug = p::$base . 'js/QDebug.js';
+		$lang = p::__LANG__();
 
 		return <<<EOHTML
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

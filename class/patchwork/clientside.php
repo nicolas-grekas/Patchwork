@@ -16,23 +16,23 @@ class extends patchwork
 {
 	static function loadAgent($agent)
 	{
-		patchwork::setMaxage(-1);
-		patchwork::setGroup('private');
-		patchwork::setExpires('onmaxage');
+		p::setMaxage(-1);
+		p::setGroup('private');
+		p::setExpires('onmaxage');
 
-		$cagent = patchwork::getContextualCachePath('controler/' . $agent, 'txt', patchwork::$appId);
+		$cagent = p::getContextualCachePath('controler/' . $agent, 'txt', p::$appId);
 		$readHandle = true;
-		if ($h = patchwork::fopenX($cagent, $readHandle))
+		if ($h = p::fopenX($cagent, $readHandle))
 		{
-			$a = patchwork::agentArgs($agent);
+			$a = p::agentArgs($agent);
 			array_walk($a, 'jsquoteRef');
 			$a = implode(',', $a);
 
 			$agent = jsquote('agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)));
 
-			$lang = patchwork::__LANG__();
-			$appId = patchwork::$appId;
-			$base = patchwork::__BASE__();
+			$lang = p::__LANG__();
+			$appId = p::$appId;
+			$base = p::__BASE__();
 
 			echo $a =<<<EOHTML
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -45,7 +45,7 @@ EOHTML;
 
 			fwrite($h, $a);
 			fclose($h);
-			patchwork::writeWatchTable('appId', $cagent);
+			p::writeWatchTable('appId', $cagent);
 		}
 		else
 		{
@@ -61,7 +61,7 @@ EOHTML;
 		// Get the calling URI
 		if (isset($_COOKIE['R$']))
 		{
-			patchwork::$uri = $_COOKIE['R$'];
+			p::$uri = $_COOKIE['R$'];
 
 			setcookie('R$', '', 1, '/');
 	
@@ -82,21 +82,21 @@ EOHTML;
 				}
 			}
 		}
-		else patchwork::$uri = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : patchwork::$base;
+		else p::$uri = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : p::$base;
 
 		if ($liveAgent)
 		{
 			// The output is both html and js, but iframe transport layer needs html
-			patchwork::$binaryMode = true;
+			p::$binaryMode = true;
 			header('Content-Type: text/html');
 
 			echo '/*<script type="text/javascript">/**/q="';
 		}
 		else echo 'w(';
 
-		$agentClass = patchwork::resolveAgentClass($agent, $_GET);
+		$agentClass = p::resolveAgentClass($agent, $_GET);
 
-		patchwork::openMeta($agentClass);
+		p::openMeta($agentClass);
 
 		$agent = false;
 
@@ -106,12 +106,12 @@ EOHTML;
 
 			$agent = new $agentClass($_GET);
 
-			$group = patchwork::closeGroupStage();
+			$group = p::closeGroupStage();
 
 			if ($is_cacheable = !(IS_POSTING || in_array('private', $group)))
 			{
-				$cagent = patchwork::agentCache($agentClass, $agent->get, 'js.ser', $group);
-				$dagent = patchwork::getContextualCachePath('jsdata.' . $agentClass, 'js.ser', $cagent);
+				$cagent = p::agentCache($agentClass, $agent->get, 'js.ser', $group);
+				$dagent = p::getContextualCachePath('jsdata.' . $agentClass, 'js.ser', $cagent);
 
 				if ($liveAgent)
 				{
@@ -120,14 +120,14 @@ EOHTML;
 						if (filemtime($dagent) > $_SERVER['REQUEST_TIME'])
 						{
 							$data = unserialize(file_get_contents($dagent));
-							patchwork::setMaxage($data['maxage']);
-							patchwork::setExpires($data['expires']);
-							patchwork::writeWatchTable($data['watch']);
+							p::setMaxage($data['maxage']);
+							p::setExpires($data['expires']);
+							p::writeWatchTable($data['watch']);
 							array_map(array('patchwork', 'header'), $data['headers']);
-							patchwork::closeMeta();
+							p::closeMeta();
 
 							echo str_replace(array('\\', '"', '</'), array('\\\\', '\\"', '<\\/'), $data['rawdata']),
-								'"//</script><script type="text/javascript" src="' . patchwork::__BASE__() . 'js/QJsrsHandler"></script>';
+								'"//</script><script type="text/javascript" src="' . p::__BASE__() . 'js/QJsrsHandler"></script>';
 
 							return;
 						}
@@ -145,11 +145,11 @@ EOHTML;
 						if (filemtime($cagent) > $_SERVER['REQUEST_TIME'])
 						{
 							$data = unserialize(file_get_contents($cagent));
-							patchwork::setMaxage($data['maxage']);
-							patchwork::setExpires($data['expires']);
-							patchwork::writeWatchTable($data['watch']);
+							p::setMaxage($data['maxage']);
+							p::setExpires($data['expires']);
+							p::writeWatchTable($data['watch']);
 							array_map(array('patchwork', 'header'), $data['headers']);
-							patchwork::closeMeta();
+							p::closeMeta();
 
 							echo $data['rawdata'];
 
@@ -165,15 +165,15 @@ EOHTML;
 			}
 
 			ob_start();
-			++patchwork::$ob_level;
+			++p::$ob_level;
 
 			try
 			{
 				$data = (object) $agent->compose((object) array());
 
-				if (!patchwork::$is_enabled)
+				if (!p::$is_enabled)
 				{
-					patchwork::closeMeta();
+					p::closeMeta();
 					return;
 				}
 
@@ -195,23 +195,23 @@ EOHTML;
 			catch (PrivateDetection $data)
 			{
 				ob_end_clean();
-				--patchwork::$ob_level;
-				patchwork::closeMeta();
+				--p::$ob_level;
+				p::closeMeta();
 				throw $data;
 			}
 
 			$data = ob_get_clean();
-			--patchwork::$ob_level;
+			--p::$ob_level;
 
 			$agent->metaCompose();
-			list($maxage, $group, $expires, $watch, $headers) = patchwork::closeMeta();
+			list($maxage, $group, $expires, $watch, $headers) = p::closeMeta();
 		}
 		catch (PrivateDetection $data)
 		{
 			if ($liveAgent)
 			{
 				echo 'false";(window.E||alert)("You must provide an auth token to get this liveAgent:\\n' . jsquote($_SERVER['REQUEST_URI'], false, '"') . '")';
-				echo '//</script><script type="text/javascript" src="' . patchwork::__BASE__() . 'js/QJsrsHandler"></script>';
+				echo '//</script><script type="text/javascript" src="' . p::__BASE__() . 'js/QJsrsHandler"></script>';
 			}
 			else if ($data->getMessage())
 			{
@@ -228,7 +228,7 @@ EOHTML;
 		if ($liveAgent)
 		{
 			echo str_replace(array('\\', '"', '</'), array('\\\\', '\\"', '<\\/'), $data),
-				'"//</script><script type="text/javascript" src="' . patchwork::__BASE__() . 'js/QJsrsHandler"></script>';
+				'"//</script><script type="text/javascript" src="' . p::__BASE__() . 'js/QJsrsHandler"></script>';
 		}
 		else echo $data;
 
@@ -243,21 +243,21 @@ EOHTML;
 
 			if ($maxage == $config_maxage && TURBO)
 			{
-				$ctemplate = patchwork::getContextualCachePath("templates/$template", 'txt');
+				$ctemplate = p::getContextualCachePath("templates/$template", 'txt');
 
-				patchwork::syncTemplate($template, $ctemplate);
+				p::syncTemplate($template, $ctemplate);
 
 				$readHandle = true;
 
-				if ($h = patchwork::fopenX($ctemplate, $readHandle))
+				if ($h = p::fopenX($ctemplate, $readHandle))
 				{
-					patchwork::openMeta('agent__template/' . $template, false);
-					$compiler = new ptlCompiler_js(patchwork::$binaryMode);
+					p::openMeta('agent__template/' . $template, false);
+					$compiler = new ptlCompiler_js(p::$binaryMode);
 					echo $template = ',[' . $compiler->compile($template . '.ptl') . '])';
 					fwrite($h, $template);
 					fclose($h);
-					list(,,, $template) = patchwork::closeMeta();
-					patchwork::writeWatchTable($template, $ctemplate);
+					list(,,, $template) = p::closeMeta();
+					p::writeWatchTable($template, $ctemplate);
 				}
 				else
 				{
@@ -283,17 +283,17 @@ EOHTML;
 
 				$expires = 'ontouch' == $expires ? $config_maxage : $maxage;
 
-				if ($h = patchwork::fopenX($dagent))
+				if ($h = p::fopenX($dagent))
 				{
 					fwrite($h, serialize($template));
 					fclose($h);
 
 					touch($dagent, $_SERVER['REQUEST_TIME'] + $expires);
 
-					patchwork::writeWatchTable($watch, $dagent);
+					p::writeWatchTable($watch, $dagent);
 				}
 
-				if ($h = patchwork::fopenX($cagent))
+				if ($h = p::fopenX($cagent))
 				{
 					$ob = false;
 					$template['rawdata'] .= $liveAgent ? ob_get_clean() : ob_get_flush();
@@ -303,7 +303,7 @@ EOHTML;
 
 					touch($cagent, $_SERVER['REQUEST_TIME'] + $expires);
 
-					patchwork::writeWatchTable($watch, $cagent);
+					p::writeWatchTable($watch, $cagent);
 				}
 
 				if ($ob) $liveAgent ? ob_end_clean() : ob_end_flush();
@@ -313,7 +313,7 @@ EOHTML;
 
 	protected static function writeAgent(&$loop)
 	{
-		if (!patchwork::string($loop))
+		if (!p::string($loop))
 		{
 			echo 0;
 			return;

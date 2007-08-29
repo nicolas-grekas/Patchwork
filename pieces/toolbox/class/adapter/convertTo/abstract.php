@@ -20,7 +20,7 @@ abstract class
 	{
 		$file = tempnam('./tmp', 'convert');
 
-		patchwork::writeFile($file, $data);
+		p::writeFile($file, $data);
 
 		$data = $this->file($file);
 

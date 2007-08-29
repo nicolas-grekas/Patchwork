@@ -30,7 +30,7 @@ class extends patchwork
 			$a = $a[0];
 			$a = trim($a[1] ? $a[2] : ($a[2] . $a[3]));
 
-			if (0 !== strpos($a, patchwork::$base))
+			if (0 !== strpos($a, p::$base))
 			{
 				// Decode html encoded chars
 				if (false !== strpos($a, '&')) $a = preg_replace_callback(self::$entitiesRx, array(__CLASS__, 'translateHtmlEntity'), $a);
@@ -43,7 +43,7 @@ class extends patchwork
 				}
 				else
 				{
-					$host = substr(patchwork::$host, 0, -1);
+					$host = substr(p::$host, 0, -1);
 
 					if ('/' != substr($a, 0, 1))
 					{
@@ -90,7 +90,7 @@ class extends patchwork
 				}
 
 				// Compare action to application's base
-				if (0 !== strpos($host . $a, patchwork::$base)) return $f;
+				if (0 !== strpos($host . $a, p::$base)) return $f;
 			}
 		}
 
@@ -98,7 +98,7 @@ class extends patchwork
 
 		if (!$appendedHtml)
 		{
-			$appendedHtml = !patchwork::$binaryMode ? 'syncCSRF()' : '(function(){var d=document,f=d.forms;f=f[f.length-1].T$.value=d.cookie.match(/(^|; )T\\$=([0-9a-f]+)/)[2]})()';
+			$appendedHtml = !p::$binaryMode ? 'syncCSRF()' : '(function(){var d=document,f=d.forms;f=f[f.length-1].T$.value=d.cookie.match(/(^|; )T\\$=([0-9a-f]+)/)[2]})()';
 			$appendedHtml = '<input type="hidden" name="T$" value="' . (isset($_COOKIE['JS']) && $_COOKIE['JS'] ? '' : self::$antiCSRFtoken) . '" /><script type="text/javascript">' . "<!--\n{$appendedHtml}//--></script>";
 		}
 

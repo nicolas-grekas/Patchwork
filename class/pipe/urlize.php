@@ -22,7 +22,7 @@ class
 
 	static function php($string)
 	{
-		$string = ' ' . patchwork::string($string);
+		$string = ' ' . p::string($string);
 
 		$string = preg_replace(
 			self::mailRx . 'u',

@@ -18,7 +18,7 @@ class
 
 	static function php($name)
 	{
-		$name = patchwork::string($name);
+		$name = p::string($name);
 		$args = func_get_args();
 		$key =& self::$pool[$name];
 
@@ -28,7 +28,7 @@ class
 		}
 		else $key = 1;
 
-		return patchwork::string($args[$key]);
+		return p::string($args[$key]);
 	}
 
 	static function js()

@@ -18,13 +18,13 @@ class
 	{
 		if (false === $format)
 		{
-			$format = patchwork::string($time);
+			$format = p::string($time);
 			$time = $_SERVER['REQUEST_TIME'];
 		}
 		else
 		{
-			$time = (int) patchwork::string($time);
-			$format = patchwork::string($format);
+			$time = (int) p::string($time);
+			$format = p::string($format);
 		}
 
 		return date($format, $time);

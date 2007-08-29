@@ -28,7 +28,7 @@ class extends iaMail_mime
 	{
 		$this->agent = $agent;
 		$this->args = (array) $args;
-		$this->lang = isset($options['lang']) ? $options['lang'] : patchwork::__LANG__();
+		$this->lang = isset($options['lang']) ? $options['lang'] : p::__LANG__();
 
 		parent::__construct($options);
 	}
@@ -52,7 +52,7 @@ class extends iaMail_mime
 
 	protected function addRawImage($match)
 	{
-		$url = patchwork::base($match[4], true);
+		$url = p::base($match[4], true);
 
 		if (isset(self::$imageCache[$url])) $data =& self::$imageCache[$url];
 		else

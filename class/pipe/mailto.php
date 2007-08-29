@@ -16,10 +16,10 @@ class
 {
 	static function php($string, $email = '', $attributes = '')
 	{
-		$string = htmlspecialchars(patchwork::string($string));
-		$email  = htmlspecialchars(patchwork::string($email));
+		$string = htmlspecialchars(p::string($string));
+		$email  = htmlspecialchars(p::string($email));
 		if (!$email) $email = $string;
-		$attributes = htmlspecialchars(patchwork::string($attributes));
+		$attributes = htmlspecialchars(p::string($attributes));
 		'' !== $attributes && $attributes = ' ' . $attributes;
 
 

@@ -18,8 +18,8 @@ class
 	{
 		if ($max === '') $max = 32767;
 
-		$min = (int) patchwork::string($min);
-		$max = (int) patchwork::string($max);
+		$min = (int) p::string($min);
+		$max = (int) p::string($max);
 
 		return mt_rand($min, $max);
 	}

@@ -22,9 +22,9 @@ class extends patchwork
 		else $cache[$agent] =& $trace;
 
 		$args = array();
-		$BASE = $base = patchwork::__BASE__();
+		$BASE = $base = p::__BASE__();
 		$agent = str_replace('%2F', '/', rawurlencode($agent));
-		$agent = patchwork::base($agent, true);
+		$agent = p::base($agent, true);
 		$agent = preg_replace("'^.*?://[^/]*'", '', $agent);
 		
 		$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
@@ -46,12 +46,12 @@ class extends patchwork
 		if (!preg_match($h, implode('', $keys), $keys))
 		{
 			W('Error while getting meta info data for ' . htmlspecialchars($agent));
-			patchwork::disable(true);
+			p::disable(true);
 		}
 
 		$appId = (int) $keys[1];
 		$base = stripcslashes(substr($keys[2], 1, -1));
-		$base = preg_replace("'__'", patchwork::__LANG__(), $base, 1);
+		$base = preg_replace("'__'", p::__LANG__(), $base, 1);
 		$agent = stripcslashes(substr($keys[3], 1, -1));
 		$a = stripcslashes(substr($keys[4], 1, -1));
 		$keys = eval('return array(' . $keys[5] . ');');
@@ -65,7 +65,7 @@ class extends patchwork
 		}
 
 		if ($base == $BASE) $appId = $base = false;
-		else patchwork::watch('foreignTrace');
+		else p::watch('foreignTrace');
 
 		return $trace = array($appId, $base, $agent, $keys, $args);
 	}

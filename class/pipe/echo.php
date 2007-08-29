@@ -21,7 +21,7 @@ class
 		$args = func_get_args();
 
 		if ($format == '') $args = implode('', $args);
-		else $args = preg_replace("'%([0-9])'eu", 'isset($args[$1+1])?patchwork::string($args[$1+1]):""', patchwork::string($format));
+		else $args = preg_replace("'%([0-9])'eu", 'isset($args[$1+1])?p::string($args[$1+1]):""', p::string($format));
 
 		return $args;
 	}

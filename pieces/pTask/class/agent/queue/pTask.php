@@ -91,9 +91,9 @@ class extends agent
 				tool_touchUrl::call("{$data->base}queue/pTask/{$data->OID}/" . $this->getToken());
 
 				$sql = "SELECT run_time FROM queue WHERE run_time>{$time} ORDER BY run_time LIMIT 1";
-				if ($data = $this->sqlite->query($sql)->fetchObject()) patchwork::setMaxage($data->run_time - $time);
+				if ($data = $this->sqlite->query($sql)->fetchObject()) p::setMaxage($data->run_time - $time);
 			}
-			else patchwork::setMaxage($data->run_time - $time);
+			else p::setMaxage($data->run_time - $time);
 		}
 	}
 
@@ -177,7 +177,7 @@ class extends agent
 	{
 		$token = resolvePath($this->queueFolder) . $this->queueName . '.token';
 
-		file_exists($token) || file_put_contents($token, patchwork::uniqid());
+		file_exists($token) || file_put_contents($token, p::uniqid());
 
 		return trim(file_get_contents($token));
 	}

@@ -26,7 +26,7 @@ class
 		{
 			if ('_'!=substr($k, 0, 1) && 'iteratorPosition'!=$k && strpos($k, '$')===false && !in_array($k, $except))
 			{
-				$result .= $k . '="' . patchwork::string($v) . '" ';
+				$result .= $k . '="' . p::string($v) . '" ';
 			}
 		}
 
