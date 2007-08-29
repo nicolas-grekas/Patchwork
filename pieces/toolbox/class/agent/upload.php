@@ -23,7 +23,7 @@ class extends agent
 		if ($this->get->id)
 		{
 			$this->expires = 'onmaxage';
-			patchwork::setGroup('private');
+			p::setGroup('private');
 
 			if (function_exists('upload_progress_meter_get_info'))
 			{

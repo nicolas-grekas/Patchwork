@@ -37,7 +37,7 @@ class extends patchwork
 
 	static function call($agent, $mime)
 	{
-		if ($agent = patchwork::resolvePublicPath($agent))
+		if ($agent = p::resolvePublicPath($agent))
 		{
 			$mime = strtolower($mime);
 			$mime = isset(self::$contentType[$mime]) ? self::$contentType[$mime] : false;
@@ -54,10 +54,10 @@ class extends patchwork
 
 			if (!$mime) $mime = 'application/octet-stream';
 
-			patchwork::setMaxage(-1);
-			patchwork::writeWatchTable('public/static', 'zcache/');
+			p::setMaxage(-1);
+			p::writeWatchTable('public/static', 'zcache/');
 
-			patchwork::readfile($agent, $mime);
+			p::readfile($agent, $mime);
 
 			exit;
 		}
@@ -69,17 +69,17 @@ class extends patchwork
 		$mime = strtolower($mime);
 
 		$head = 'HEAD' == $_SERVER['REQUEST_METHOD'];
-		$gzip = patchwork::gzipAllowed($mime);
-		$filter = $gzip || $head || !$CONFIG['xsendfile'] || in_array($mime, patchwork::$ieSniffedTypes);
+		$gzip = p::gzipAllowed($mime);
+		$filter = $gzip || $head || !$CONFIG['xsendfile'] || in_array($mime, p::$ieSniffedTypes);
 
 		header('Content-Type: ' . $mime);
 		false !== strpos($mime, 'html') && header('P3P: CP="' . $CONFIG['P3P'] . '"');
 
 		$size = filesize($file);
-		patchwork::$ETag = $size .'-'. patchwork::$LastModified .'-'. fileinode($file);
-		patchwork::$LastModified = filemtime($file);
-		patchwork::$binaryMode = true;
-		patchwork::disable();
+		p::$ETag = $size .'-'. p::$LastModified .'-'. fileinode($file);
+		p::$LastModified = filemtime($file);
+		p::$binaryMode = true;
+		p::disable();
 
 		class_exists('SESSION', false) && SESSION::close();
 		DB(true);
@@ -161,7 +161,7 @@ class extends patchwork
 	{
 		static $rest = '', $base;
 
-		isset($base) || $base = patchwork::__BASE__() . dirname($_SERVER['PATCHWORK_REQUEST']) . '/';
+		isset($base) || $base = p::__BASE__() . dirname($_SERVER['PATCHWORK_REQUEST']) . '/';
 
 		$buffer = preg_split(self::$filterRx, $rest . $buffer, -1, PREG_SPLIT_DELIM_CAPTURE);
 

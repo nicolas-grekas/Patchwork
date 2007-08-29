@@ -25,7 +25,7 @@ class extends self
 
 		// Register the crontab
 
-		$file = patchwork::$cachePath . 'crontabId';
+		$file = p::$cachePath . 'crontabId';
 
 		$id = file_exists($file) ? file_get_contents($file) : 0;
 		$id && pTask::cancel($id);

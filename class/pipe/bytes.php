@@ -16,7 +16,7 @@ class
 {
 	static function php($byte)
 	{
-		$byte = patchwork::string($byte);
+		$byte = p::string($byte);
 
 		$suffix = ' Kio';
 

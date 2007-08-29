@@ -16,13 +16,13 @@ class
 {
 	static function php($string)
 	{
-		$string = patchwork::string($string);
+		$string = p::string($string);
 
 		return (string) $string === (string) ($string-0)
 			? $string
 			: str_replace(
 				array('&#039;', '&quot;', '&gt;', '&lt;', '&amp;', '{/}'                , '{~}'),
-				array("'"     , '"'     , '>'   , '<'   , '&'    , patchwork::__HOST__(), patchwork::__BASE__()),
+				array("'"     , '"'     , '>'   , '<'   , '&'    , p::__HOST__(), p::__BASE__()),
 				$string
 			);
 	}

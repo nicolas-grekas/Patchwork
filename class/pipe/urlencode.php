@@ -16,7 +16,7 @@ class
 {
 	static function php($str)
 	{
-		return rawurlencode(patchwork::string($str));
+		return rawurlencode(p::string($str));
 	}
 
 	static function js()

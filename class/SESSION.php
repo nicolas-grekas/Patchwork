@@ -45,13 +45,13 @@ class
 
 	/* Public methods */
 
-	static function getSID()      {patchwork::setGroup('private'); return self::$SID;}
-	static function getLastseen() {patchwork::setGroup('private'); return self::$lastseen;}
+	static function getSID()      {p::setGroup('private'); return self::$SID;}
+	static function getLastseen() {p::setGroup('private'); return self::$lastseen;}
 
 	static function get($name)
 	{
 		$value = isset(self::$DATA[$name]) ? self::$DATA[$name] : '';
-		patchwork::setGroup(isset(self::$groupVars[$name]) ? 'session/' . $name . '/' . $value : 'private');
+		p::setGroup(isset(self::$groupVars[$name]) ? 'session/' . $name . '/' . $value : 'private');
 		return $value;
 	}
 
@@ -81,7 +81,7 @@ class
 	static function bind($name, &$value)
 	{
 		$value = self::get($name);
-		patchwork::setGroup(isset(self::$groupVars[$name]) ? 'session/' . $name . '/' . $value : 'private');
+		p::setGroup(isset(self::$groupVars[$name]) ? 'session/' . $name . '/' . $value : 'private');
 		self::set(array($name => &$value));
 	}
 
@@ -97,7 +97,7 @@ class
 		$a = array();
 		foreach (self::$DATA as $k => &$v)
 		{
-			patchwork::setGroup(isset(self::$groupVars[$k]) ? 'session/' . $k . '/' . $v : 'private');
+			p::setGroup(isset(self::$groupVars[$k]) ? 'session/' . $k . '/' . $v : 'private');
 			$a[$k] =& $v;
 		}
 
@@ -117,12 +117,12 @@ class
 		if ($initSession) self::$DATA = array();
 
 		// Generate a new antiCSRF token
-		patchwork::getAntiCSRFtoken(true);
+		p::getAntiCSRFtoken(true);
 
 		if (!$initSession || $restartNew)
 		{
-			$sid = patchwork::uniqid();
-			self::$sslid = (isset($_SERVER['HTTPS']) ? '' : '-') . patchwork::uniqid();
+			$sid = p::uniqid();
+			self::$sslid = (isset($_SERVER['HTTPS']) ? '' : '-') . p::uniqid();
 			self::setSID($sid);
 
 			self::$adapter = new SESSION(self::$SID);
@@ -213,7 +213,7 @@ class
 
 				if ('-' == self::$sslid[0] && isset($_SERVER['HTTPS']))
 				{
-					self::$sslid = patchwork::uniqid();
+					self::$sslid = p::uniqid();
 					setcookie('SSL', self::$sslid, 0, self::$cookiePath, self::$cookieDomain, true , true);
 					unset($_SERVER['HTTP_IF_NONE_MATCH'], $_SERVER['HTTP_IF_MODIFIED_SINCE']);
 				}
@@ -237,7 +237,7 @@ class
 		}
 		else $IPs = '';
 
-		self::$SID = md5($SID .'-'. $IPs .'-'. (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '') .'-'. substr(patchwork::getAntiCSRFtoken(), 1));
+		self::$SID = md5($SID .'-'. $IPs .'-'. (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '') .'-'. substr(p::getAntiCSRFtoken(), 1));
 	}
 
 	protected static function onIdle()
@@ -263,7 +263,7 @@ class
 	{
 		$this->path = self::$savePath .'/'. $sid[0] .'/'. substr($sid, 1) .'.session';
 
-		patchwork::makeDir($this->path);
+		p::makeDir($this->path);
 
 		$this->handle = fopen($this->path, 'a+b');
 		flock($this->handle, LOCK_EX);

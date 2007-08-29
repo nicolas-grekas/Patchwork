@@ -16,9 +16,9 @@ class extends patchwork
 {
 	static function call($code, $message, $file, $line, &$context)
 	{
-		patchwork::setMaxage(0);
-		patchwork::setExpires('onmaxage');
-		patchwork::$private = true;
+		p::setMaxage(0);
+		p::setExpires('onmaxage');
+		p::$private = true;
 
 		if (!function_exists('filterErrorArgs'))
 		{
@@ -101,7 +101,7 @@ class extends patchwork
 		default:             $msg = '<b>Unknown Error (#'.$code.')</b>';
 		}
 
-		$cid = patchwork::uniqid();
+		$cid = p::uniqid();
 		$cid = <<<EOHTML
 <script type="text/javascript">/*<![CDATA[*/
 focus()

@@ -22,21 +22,21 @@ class extends patchwork
 
 		echo 'w(0';
 
-		$ctemplate = patchwork::getContextualCachePath("templates/$template", 'txt');
+		$ctemplate = p::getContextualCachePath("templates/$template", 'txt');
 
-		TURBO || patchwork::syncTemplate($template, $ctemplate);
+		TURBO || p::syncTemplate($template, $ctemplate);
 
 		$readHandle = true;
 
-		if ($h = patchwork::fopenX($ctemplate, $readHandle))
+		if ($h = p::fopenX($ctemplate, $readHandle))
 		{
-			patchwork::openMeta('agent__template/' . $template, false);
+			p::openMeta('agent__template/' . $template, false);
 			$compiler = new ptlCompiler_js(false);
 			echo $template = ',[' . $compiler->compile($template . '.ptl') . '])';
 			fwrite($h, $template);
 			fclose($h);
-			list(,,, $watch) = patchwork::closeMeta();
-			patchwork::writeWatchTable($watch, $ctemplate);
+			list(,,, $watch) = p::closeMeta();
+			p::writeWatchTable($watch, $ctemplate);
 		}
 		else
 		{
@@ -44,6 +44,6 @@ class extends patchwork
 			fclose($readHandle);
 		}
 
-		patchwork::setMaxage(-1);
+		p::setMaxage(-1);
 	}
 }

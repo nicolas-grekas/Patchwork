@@ -62,7 +62,7 @@ abstract class
 
 	function __construct($binaryMode)
 	{
-		patchwork::watch($this->watch);
+		p::watch($this->watch);
 
 		$this->binaryMode = $binaryMode;
 		$this->Xvar .= $this->XpureVar;
@@ -109,7 +109,7 @@ abstract class
 	{
 		$this->template = IS_WINDOWS ? strtolower($template) : $template;
 
-		$template = patchwork::resolvePublicPath($template, $path_idx);
+		$template = p::resolvePublicPath($template, $path_idx);
 
 		if (!$template) return '{$DATA}';
 
@@ -533,7 +533,7 @@ abstract class
 
 			if ($b && trim($a)!=='')
 			{
-				if ($translate) $a = TRANSLATE::get($a, patchwork::__LANG__(), false);
+				if ($translate) $a = TRANSLATE::get($a, p::__LANG__(), false);
 				else
 				{
 					$this->mode = 'concat';
@@ -542,7 +542,7 @@ abstract class
 
 					$this->makeVars($a);
 
-					if ($this->concatLast == 0) $this->concat[0] = TRANSLATE::get($this->concat[0], patchwork::__LANG__(), false);
+					if ($this->concatLast == 0) $this->concat[0] = TRANSLATE::get($this->concat[0], p::__LANG__(), false);
 
 					for ($i = 0; $i<=$this->concatLast; $i+=2)
 					{

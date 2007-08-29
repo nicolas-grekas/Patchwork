@@ -16,28 +16,28 @@ class extends patchwork
 {
 	static function call()
 	{
-		patchwork::setMaxage(0);
-		if (patchwork::$catchMeta) patchwork::$metaInfo[1] = array('private');
+		p::setMaxage(0);
+		if (p::$catchMeta) p::$metaInfo[1] = array('private');
 
 		if (PATCHWORK_DIRECT)
 		{
 			$a = '';
 
-			$cache = patchwork::getContextualCachePath('antiCSRF.' . patchwork::$agentClass, 'txt');
+			$cache = p::getContextualCachePath('antiCSRF.' . p::$agentClass, 'txt');
 
-			patchwork::makeDir($cache);
+			p::makeDir($cache);
 
 			$h = fopen($cache, 'a+b');
 			flock($h, LOCK_EX);
 			fseek($h, 0, SEEK_END);
 			if (!ftell($h))
 			{
-				patchwork::touch('appId');
-				patchwork::touch('public/templates/js');
+				p::touch('appId');
+				p::touch('public/templates/js');
 
 				fwrite($h, $a = '1');
 
-				patchwork::touchAppId();
+				p::touchAppId();
 			}
 			fclose($h);
 
@@ -46,6 +46,6 @@ class extends patchwork
 
 		W('Potential JavaScript-Hijacking. Stopping !');
 
-		patchwork::disable(true);
+		p::disable(true);
 	}
 }

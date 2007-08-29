@@ -16,9 +16,9 @@ class
 {
 	static function php($string, $search, $replace, $caseInsensitive = false)
 	{
-		$search = preg_replace("/(?<!\\\\)((?:\\\\\\\\)*)@/", '$1\\@', patchwork::string($search));
-		$caseInsensitive = patchwork::string($caseInsensitive) ? 'i' : '';
-		return preg_replace("@{$search}@su{$caseInsensitive}", patchwork::string($replace), patchwork::string($string));
+		$search = preg_replace("/(?<!\\\\)((?:\\\\\\\\)*)@/", '$1\\@', p::string($search));
+		$caseInsensitive = p::string($caseInsensitive) ? 'i' : '';
+		return preg_replace("@{$search}@su{$caseInsensitive}", p::string($replace), p::string($string));
 	}
 
 	static function js()

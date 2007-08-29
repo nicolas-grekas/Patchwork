@@ -25,8 +25,8 @@ class extends self
 			isset($parser) || $parser = new HTMLPurifier;
 
 			$result = $parser->purify($result, isset($args[0]) ? $args[0] : null);
-			$result = str_replace(patchwork::__BASE__(), '{~}', $result);
-			$result = str_replace(patchwork::__HOST__(), '{/}', $result);
+			$result = str_replace(p::__BASE__(), '{~}', $result);
+			$result = str_replace(p::__HOST__(), '{/}', $result);
 		}
 
 		return $result;

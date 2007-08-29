@@ -16,7 +16,7 @@ class
 {
 	static function php($string)
 	{
-		return mb_strlen(patchwork::string($string));
+		return mb_strlen(p::string($string));
 	}
 
 	static function js()

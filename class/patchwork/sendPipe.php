@@ -18,16 +18,16 @@ class extends patchwork
 	{
 		$pipe = array_shift($_GET);
 		preg_match_all('/[a-zA-Z_0-9\x80-\xff]+/', $pipe, $pipe);
-		patchwork::$agentClass = 'agent__pipe/' . implode('_', $pipe[0]);
+		p::$agentClass = 'agent__pipe/' . implode('_', $pipe[0]);
 
 		foreach ($pipe[0] as &$pipe)
 		{
 #>			if (DEBUG) call_user_func(array('pipe_' . $pipe, 'js'));
 #>			else
 #>			{
-				$cpipe = patchwork::getContextualCachePath('pipe/' . $pipe, 'js');
+				$cpipe = p::getContextualCachePath('pipe/' . $pipe, 'js');
 				$readHandle = true;
-				if ($h = patchwork::fopenX($cpipe, $readHandle))
+				if ($h = p::fopenX($cpipe, $readHandle))
 				{
 					ob_start();
 					call_user_func(array('pipe_' . $pipe, 'js'));
@@ -38,7 +38,7 @@ class extends patchwork
 
 					fwrite($h, $pipe);
 					fclose($h);
-					patchwork::writeWatchTable(array('pipe'), $cpipe);
+					p::writeWatchTable(array('pipe'), $cpipe);
 				}
 				else
 				{
@@ -52,6 +52,6 @@ class extends patchwork
 
 		echo 'w()';
 
-		patchwork::setMaxage(-1);
+		p::setMaxage(-1);
 	}
 }

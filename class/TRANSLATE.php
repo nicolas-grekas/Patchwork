@@ -27,9 +27,9 @@ class
 		$hash = md5($string);
 		$cache = '';
 
-		if ($usecache && $id = patchwork::$agentClass)
+		if ($usecache && $id = p::$agentClass)
 		{
-			$id = patchwork::getContextualCachePath('lang/' . substr($id, 6), 'php');
+			$id = p::getContextualCachePath('lang/' . substr($id, 6), 'php');
 			if (!isset(self::$cache[$id]))
 			{
 				if (file_exists($id)) $cache = include $id;
@@ -68,8 +68,8 @@ class
 		{
 			$data = '<?php return ' . var_export($cache[2], true) . ';';
 
-			patchwork::writeFile($file, $data);
-			if ($cache[1]) patchwork::writeWatchTable('translate', $file, false);
+			p::writeFile($file, $data);
+			if ($cache[1]) p::writeWatchTable('translate', $file, false);
 		}
 	}
 

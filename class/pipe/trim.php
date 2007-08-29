@@ -16,7 +16,7 @@ class
 {
 	static function php($a)
 	{
-		return trim( patchwork::string($a) );
+		return trim( p::string($a) );
 	}
 
 	static function js()

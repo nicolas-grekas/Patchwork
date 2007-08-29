@@ -16,7 +16,7 @@ class
 {
 	static function php($test, $ifData, $elseData = '')
 	{
-		return patchwork::string($test) ? $ifData : $elseData;
+		return p::string($test) ? $ifData : $elseData;
 	}
 
 	static function js()

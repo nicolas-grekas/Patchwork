@@ -16,8 +16,8 @@ class
 {
 	static function php($text, $url = '', $attributes = '')
 	{
-		$text = patchwork::string($text);
-		$url = patchwork::string($url);
+		$text = p::string($text);
+		$url = p::string($url);
 
 		$a = strpos($url, '#');
 		if (false !== $a)
@@ -27,9 +27,9 @@ class
 		}
 		else $hash = '';
 
-		return $url == htmlspecialchars(substr(patchwork::__HOST__() . substr($_SERVER['REQUEST_URI'], 1), strlen(patchwork::__BASE__())))
+		return $url == htmlspecialchars(substr(p::__HOST__() . substr($_SERVER['REQUEST_URI'], 1), strlen(p::__BASE__())))
 			? ('<b class="linkloop">' . $text . '</b>')
-			: ('<a href="' . patchwork::base($url, true) . $hash . '" ' . patchwork::string($attributes) . '>' . $text . '</a>');
+			: ('<a href="' . p::base($url, true) . $hash . '" ' . p::string($attributes) . '>' . $text . '</a>');
 	}
 
 	static function js()

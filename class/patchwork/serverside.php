@@ -26,7 +26,7 @@ class extends patchwork
 
 	static function returnAgent($agent, $args, $lang = false)
 	{
-		if ($lang) $lang = patchwork::setLang($lang);
+		if ($lang) $lang = p::setLang($lang);
 
 		$a =& $_GET;
 		$g =& self::$get;
@@ -35,13 +35,13 @@ class extends patchwork
 		self::$get =& $f;
 
 		ob_start();
-		self::loadAgent(patchwork::resolveAgentClass($agent, $_GET), false, false);
+		self::loadAgent(p::resolveAgentClass($agent, $_GET), false, false);
 		$agent = ob_get_clean();
 
 		$_GET =& $a;
 		self::$get =& $g;
 
-		if ($lang) patchwork::setLang($lang);
+		if ($lang) p::setLang($lang);
 
 		return $agent;
 	}
@@ -60,19 +60,19 @@ class extends patchwork
 			if (isset($_GET['s$']))
 			{
 				ob_start(array(__CLASS__, 'ob_htmlspecialchars'), 8192);
-				++patchwork::$ob_level;
+				++p::$ob_level;
 				self::$get = (object) $a;
 			}
 			else self::$get = (object) array_map('htmlspecialchars', $a);
 
-			patchwork::$uri = patchwork::$host . substr($_SERVER['REQUEST_URI'], 1);
+			p::$uri = p::$host . substr($_SERVER['REQUEST_URI'], 1);
 
 			self::$get->__DEBUG__ = DEBUG ? DEBUG : 0;
-			self::$get->__HOST__ = htmlspecialchars(patchwork::__HOST__());
-			$cache .= self::$get->__LANG__ = htmlspecialchars(patchwork::__LANG__());
-			$cache .= self::$get->__BASE__ = htmlspecialchars(patchwork::__BASE__());
+			self::$get->__HOST__ = htmlspecialchars(p::__HOST__());
+			$cache .= self::$get->__LANG__ = htmlspecialchars(p::__LANG__());
+			$cache .= self::$get->__BASE__ = htmlspecialchars(p::__BASE__());
 			self::$get->__AGENT__ = 'agent_index' == $agent ? '' : (str_replace('_', '/', substr($agent, 6)) . '/');
-			self::$get->__URI__ = htmlspecialchars(patchwork::$uri);
+			self::$get->__URI__ = htmlspecialchars(p::$uri);
 			self::$get->__REFERER__ = isset($_SERVER['HTTP_REFERER']) ? htmlspecialchars($_SERVER['HTTP_REFERER']) : '';
 
 			self::$args = self::$get;
@@ -86,20 +86,20 @@ class extends patchwork
 			$reset_get = false;
 			$_GET =& $args;
 
-			if ($agent instanceof loop && patchwork::string($agent))
+			if ($agent instanceof loop && p::string($agent))
 			{
 				$agent->autoResolve = false;
 
 				while ($i =& $agent->loop()) $data =& $i;
 
-				if (!(patchwork::$binaryMode || $agent instanceof L_)) foreach ($data as &$v) is_string($v) && $v = htmlspecialchars($v);
+				if (!(p::$binaryMode || $agent instanceof L_)) foreach ($data as &$v) is_string($v) && $v = htmlspecialchars($v);
 
 				$agent = $data->{'a$'};
 				$args = array_merge((array) $data, $args);
 			}
 
-			$BASE = patchwork::__BASE__();
-			$agent = patchwork::base($agent, true);
+			$BASE = p::__BASE__();
+			$agent = p::base($agent, true);
 
 			if (0 === strpos($agent, $BASE))
 			{
@@ -116,9 +116,9 @@ class extends patchwork
 			{
 				if ($is_exo)
 				{
-					$agent = implode(patchwork::__LANG__(), explode('__', $agent, 2)) . '?s$';
+					$agent = implode(p::__LANG__(), explode('__', $agent, 2)) . '?s$';
 
-					foreach ($args as $k => &$v) $agent .= '&' . urlencode($k) . '=' . urlencode(patchwork::string($v));
+					foreach ($args as $k => &$v) $agent .= '&' . urlencode($k) . '=' . urlencode(p::string($v));
 
 					if (ini_get('allow_url_fopen')) $agent = file_get_contents($agent);
 					else
@@ -140,7 +140,7 @@ class extends patchwork
 				return;
 			}
 
-			$agent = patchwork::resolveAgentClass($agent, $args);
+			$agent = p::resolveAgentClass($agent, $args);
 			self::$args = (object) $args;
 		}
 
@@ -153,18 +153,18 @@ class extends patchwork
 
 	protected static function render($agentClass)
 	{
-		patchwork::openMeta($agentClass);
+		p::openMeta($agentClass);
 
 		$a = self::$args;
 		$g = self::$get;
 
 		$agent = new $agentClass($_GET);
 
-		$group = patchwork::closeGroupStage();
+		$group = p::closeGroupStage();
 
 		$is_cacheable = !in_array('private', $group);
 
-		$cagent = patchwork::agentCache($agentClass, $agent->get, 'ser', $group);
+		$cagent = p::agentCache($agentClass, $agent->get, 'ser', $group);
 
 		$filter = false;
 
@@ -179,19 +179,19 @@ class extends patchwork
 			if (!($is_cacheable && list($v, $template) = self::getFromCache($cagent)))
 			{
 				ob_start();
-				++patchwork::$ob_level;
+				++p::$ob_level;
 
 				$v = (object) $agent->compose((object) array());
 
-				if (!patchwork::$is_enabled)
+				if (!p::$is_enabled)
 				{
-					patchwork::closeMeta();
+					p::closeMeta();
 					return;
 				}
 
 				$template = $agent->getTemplate();
 
-				if (!patchwork::$binaryMode)
+				if (!p::$binaryMode)
 				{
 					foreach ($v as &$h) is_string($h) && $h = htmlspecialchars($h);
 					unset($h);
@@ -200,35 +200,35 @@ class extends patchwork
 				$filter = true;
 
 				$rawdata = ob_get_flush();
-				--patchwork::$ob_level;
+				--p::$ob_level;
 			}
 
-			isset(patchwork::$headers['content-type']) || patchwork::header('Content-Type: text/html');
+			isset(p::$headers['content-type']) || p::header('Content-Type: text/html');
 
 			$vClone = clone $v;
 		}
 
-		patchwork::$catchMeta = false;
+		p::$catchMeta = false;
 
 		self::$values = $v->{'$'} = $v;
 
-		$ctemplate = patchwork::getContextualCachePath('templates/' . $template, (patchwork::$binaryMode ? 'bin' : 'html') . '.php');
+		$ctemplate = p::getContextualCachePath('templates/' . $template, (p::$binaryMode ? 'bin' : 'html') . '.php');
 		$ftemplate = 'template' . md5($ctemplate);
 
 		if (function_exists($ftemplate)) $ftemplate($v, $a, $g);
 		else
 		{
-			TURBO || patchwork::syncTemplate($template, $ctemplate);
+			TURBO || p::syncTemplate($template, $ctemplate);
 
-			if ($h = patchwork::fopenX($ctemplate))
+			if ($h = p::fopenX($ctemplate))
 			{
-				patchwork::openMeta('agent__template/' . $template, false);
-				$compiler = new ptlCompiler_php(patchwork::$binaryMode);
+				p::openMeta('agent__template/' . $template, false);
+				$compiler = new ptlCompiler_php(p::$binaryMode);
 				$ftemplate = '<?php function ' . $ftemplate . '(&$v, &$a, &$g){global $a' . PATCHWORK_PATH_TOKEN . ',$c' . PATCHWORK_PATH_TOKEN . ';$d=$v;' . $compiler->compile($template . '.ptl') . '} ' . $ftemplate . '($v, $a, $g);';
 				fwrite($h, $ftemplate);
 				fclose($h);
-				list(,,, $watch) = patchwork::closeMeta();
-				patchwork::writeWatchTable($watch, $ctemplate);
+				list(,,, $watch) = p::closeMeta();
+				p::writeWatchTable($watch, $ctemplate);
 			}
 
 			require $ctemplate;
@@ -236,9 +236,9 @@ class extends patchwork
 
 		if ($filter)
 		{
-			patchwork::$catchMeta = true;
+			p::$catchMeta = true;
 			$agent->metaCompose();
-			list($maxage, $group, $expires, $watch, $headers, $canPost) = patchwork::closeMeta();
+			list($maxage, $group, $expires, $watch, $headers, $canPost) = p::closeMeta();
 
 			if ('ontouch' == $expires && !$watch) $expires = 'auto';
 			$expires = 'auto' == $expires && $watch ? 'ontouch' : 'onmaxage';
@@ -248,7 +248,7 @@ class extends patchwork
 				$fagent = $cagent;
 				if ($canPost) $fagent = substr($cagent, 0, -4) . '.post' . substr($cagent, -4);
 
-				if ($h = patchwork::fopenX($fagent))
+				if ($h = p::fopenX($fagent))
 				{
 					$rawdata = array(
 						'rawdata' => $rawdata,
@@ -270,11 +270,11 @@ class extends patchwork
 
 					touch($fagent, $_SERVER['REQUEST_TIME'] + ('ontouch' == $expires ? $CONFIG['maxage'] : $maxage));
 
-					patchwork::writeWatchTable($watch, $fagent);
+					p::writeWatchTable($watch, $fagent);
 				}
 			}
 		}
-		else patchwork::closeMeta();
+		else p::closeMeta();
 
 		if (isset($vClone)) self::$cache[$cagent] = array($vClone, $template);
 	}
@@ -285,11 +285,11 @@ class extends patchwork
 		{
 			if ($value instanceof loop)
 			{
-				if (patchwork::string($value))
+				if (p::string($value))
 				{
 					$a = array();
 
-					while ($b = $value->loop(!patchwork::$binaryMode))
+					while ($b = $value->loop(!p::$binaryMode))
 					{
 						$c = array();
 						$a[] =& $c;
@@ -318,9 +318,9 @@ class extends patchwork
 			if (filemtime($cagent) > $_SERVER['REQUEST_TIME'])
 			{
 				$data = unserialize(file_get_contents($cagent));
-				patchwork::setMaxage($data['maxage']);
-				patchwork::setExpires($data['expires']);
-				patchwork::writeWatchTable($data['watch']);
+				p::setMaxage($data['maxage']);
+				p::setExpires($data['expires']);
+				p::writeWatchTable($data['watch']);
 				array_map(array('patchwork', 'header'), $data['headers']);
 
 				echo $data['rawdata'];
@@ -356,7 +356,7 @@ class extends patchwork
 
 	static function ob_htmlspecialchars($a, $mode)
 	{
-		if (PHP_OUTPUT_HANDLER_END & $mode) --patchwork::$ob_level;
+		if (PHP_OUTPUT_HANDLER_END & $mode) --p::$ob_level;
 
 		return htmlspecialchars($a);
 	}
