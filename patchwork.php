@@ -209,7 +209,7 @@ class __patchwork_loader
 		if (self::$lock = @fopen('./.patchwork.lock', 'xb'))
 		{
 			flock(self::$lock, LOCK_EX);
-			ob_start(array(__CLASS__, 'ob_handler'));
+			ob::start(array(__CLASS__, 'ob_handler'));
 
 			self::$pwd = dirname(__FILE__);
 			self::$cwd = getcwd();
@@ -229,7 +229,7 @@ class __patchwork_loader
 		}
 	}
 
-	static function &ob_handler(&$buffer)
+	static function ob_handler($buffer)
 	{
 		$lock = self::$cwd . '/.patchwork.lock';
 

@@ -12,8 +12,6 @@
  ***************************************************************************/
 
 
-$CONFIG['xsendfile'] = isset($CONFIG['xsendfile']) && $CONFIG['xsendfile'];
-
 class extends patchwork
 {
 	static $contentType = array(
@@ -157,7 +155,7 @@ class extends patchwork
 		$filter && fclose($h);
 	}
 
-	static function &filter(&$buffer, $mode)
+	static function filter($buffer, $mode)
 	{
 		static $rest = '', $base;
 

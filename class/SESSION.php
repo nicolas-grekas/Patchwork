@@ -159,8 +159,8 @@ class
 		self::$cookiePath   = $CONFIG['session.cookie_path'];
 		self::$cookieDomain = $CONFIG['session.cookie_domain'];
 
-		isset($CONFIG['session.auth_vars'])  && self::$authVars  = array_merge(self::$authVars , $CONFIG['session.auth_vars']);
-		isset($CONFIG['session.group_vars']) && self::$groupVars = array_merge(self::$groupVars, $CONFIG['session.group_vars']);
+		$CONFIG['session.auth_vars']  && self::$authVars  = array_merge(self::$authVars , $CONFIG['session.auth_vars']);
+		$CONFIG['session.group_vars'] && self::$groupVars = array_merge(self::$groupVars, $CONFIG['session.group_vars']);
 
 		self::$authVars  = array_flip(self::$authVars);
 		self::$groupVars = array_flip(self::$groupVars);
