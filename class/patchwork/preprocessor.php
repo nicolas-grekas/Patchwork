@@ -126,7 +126,7 @@ class patchwork_preprocessor__0
 
 	private static
 
-	$declared_class = array('self' => 1, 'parent' => 1, 'this' => 1, 'static' => 1),
+	$declared_class = array('self' => 1, 'parent' => 1, 'this' => 1, 'static' => 1, 'p' => 1),
 	$inline_class,
 	$recursive = false;
 
@@ -682,6 +682,7 @@ class patchwork_preprocessor__0
 					}
 				}
 				else if ('self' == $type && $class_pool) $token = end($class_pool)->classname; // Replace every self::* by __CLASS__::*
+				else if ('p' == $type) $token = 'patchwork';
 
 				$token .= $c;
 
