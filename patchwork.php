@@ -54,7 +54,6 @@ __patchwork_loader::$last   = count($a) - 1;
 __patchwork_loader::$offset = count($patchwork_path) - __patchwork_loader::$last;
 
 
-
 // Get zcache/'s location
 
 $a = false;
@@ -121,6 +120,14 @@ if (!file_exists($a))
 	}
 	closedir($b);
 }
+
+
+// Autoload markers
+
+$a = __patchwork_loader::$token;
+$patchwork_autoload_cache = array();
+${'c'.$a} =& $patchwork_autoload_cache;
+${'b'.$a} = ${'a'.$a} = false;
 
 
 // Load config
@@ -222,18 +229,27 @@ class __patchwork_loader
 		}
 	}
 
-	static function &ob_handler(&$buffer, $mode)
+	static function &ob_handler(&$buffer)
 	{
 		$lock = self::$cwd . '/.patchwork.lock';
 
 		if ('' === $buffer)
 		{
-			$a = '<?php '
-				. implode('', self::$configCode)
-				. '
+			$T = self::$token;
+			$a = array("<?php \$patchwork_autoload_cache = array(); \$c{$T} =& \$patchwork_autoload_cache; \$d{$T} = 1;");
+
+			foreach (self::$configCode as &$code)
+			{
+				$a[] = "(\$e{$T}=\$b{$T}=\$a{$T}=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "')&&\$d{$T}&&0;";
+				$a[] =& $code;
+			}
+
+			$a[] = '
 include \'' . patchworkProcessedPath('patchwork.php') .'\';
 class p extends patchwork {}
 patchwork::start();';
+
+			$a = implode('', $a);
 
 			fwrite(self::$lock, $a, strlen($a));
 			fclose(self::$lock);

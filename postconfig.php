@@ -6,12 +6,7 @@
 
 
 
-/**/$a = __patchwork_loader::$token;
-define('PATCHWORK_PATH_TOKEN', /**/$a/**/);
-${/**/'a'.$a/**/} = false;
-${/**/'b'.$a/**/} = false;
-${/**/'c'.$a/**/} = array();
-$patchwork_autoload_cache =& ${/**/'c'.$a/**/};
+define('PATCHWORK_PATH_TOKEN', /**/__patchwork_loader::$token/**/);
 
 
 isset($CONFIG['debug.allowed' ]) || $CONFIG['debug.allowed' ] = true;
