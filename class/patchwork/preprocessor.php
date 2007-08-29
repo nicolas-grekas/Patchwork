@@ -160,7 +160,7 @@ class patchwork_preprocessor__0
 
 		foreach (get_declared_classes() as $v)
 		{
-			$v = strtolower($v);
+			$v = clower($v);
 			if ('patchwork_' == substr($v, 0, 10)) break;
 			self::$declared_class[$v] = 1;
 		}
@@ -420,7 +420,7 @@ class patchwork_preprocessor__0
 
 				$class_pool[$curly_level] = (object) array(
 					'classname' => $c,
-					'real_classname' => strtolower($b),
+					'real_classname' => clower($b),
 					'is_final' => $final,
 					'is_abstract' => $abstract,
 					'add_php5_construct' => T_CLASS == $type && 0>$level,
@@ -429,7 +429,7 @@ class patchwork_preprocessor__0
 					'construct_source' => '',
 				);
 
-				self::$inline_class[strtolower($c)] = 1;
+				self::$inline_class[clower($c)] = 1;
 
 				if ($c && isset($code[$i]) && is_array($code[$i]) && T_EXTENDS == $code[$i][0])
 				{
@@ -439,7 +439,7 @@ class patchwork_preprocessor__0
 					{
 						$c = 0<=$level && 'self' == $code[$i][1] ? $c . '__' . ($level ? $level-1 : '00') : $code[$i][1];
 						$token .= $c;
-						self::$inline_class[strtolower($c)] = 1;
+						self::$inline_class[clower($c)] = 1;
 					}
 					else --$i;
 				}
@@ -495,7 +495,7 @@ class patchwork_preprocessor__0
 
 				if (is_array($code[$j]) && T_STRING == $code[$j][0])
 				{
-					if (isset(self::$inline_class[strtolower($code[$j][1])])) break;
+					if (isset(self::$inline_class[clower($code[$j][1])])) break;
 					$c = false;
 				}
 
@@ -574,7 +574,7 @@ class patchwork_preprocessor__0
 			case T_STRING:
 				if ($this->inString || T_DOUBLE_COLON == $prevType || T_OBJECT_OPERATOR == $prevType) break;
 
-				$type = strtolower($token);
+				$type = clower($token);
 
 				if (T_FUNCTION == $prevType || ('&' == $prevType && T_FUNCTION == $antePrevType))
 				{
@@ -586,7 +586,7 @@ class patchwork_preprocessor__0
 						case '__static_destruct' : $c->add_static_destruct  = true ; break;
 						case '__construct':        $c->add_php5_construct   = false; break;
 
-						case strtolower($c->classname):
+						case clower($c->classname):
 							$c->construct_source = $c->classname;
 							new patchwork_preprocessor_construct_($this, $c->construct_source);
 						}
@@ -617,7 +617,7 @@ class patchwork_preprocessor__0
 						{
 							$token = self::$function[$type];
 							if (false !== strpos($token, '(')) ++$i && $type = '(';
-							else $type = strtolower($token);
+							else $type = clower($token);
 						}
 					}
 
@@ -841,7 +841,7 @@ class patchwork_preprocessor__0
 
 	protected function marker($class = '')
 	{
-		return ($class ? 'isset($c' . PATCHWORK_PATH_TOKEN . "['" . strtolower($class) . "'])||" : ('$e' . PATCHWORK_PATH_TOKEN . '=$b' . PATCHWORK_PATH_TOKEN . '=')) . '$a' . PATCHWORK_PATH_TOKEN . "=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "'";
+		return ($class ? 'isset($c' . PATCHWORK_PATH_TOKEN . "['" . clower($class) . "'])||" : ('$e' . PATCHWORK_PATH_TOKEN . '=$b' . PATCHWORK_PATH_TOKEN . '=')) . '$a' . PATCHWORK_PATH_TOKEN . "=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "'";
 	}
 
 	protected function seekSugar(&$code, $i)
