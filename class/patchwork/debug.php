@@ -16,7 +16,8 @@
 // CTRL+F5, CTRL+SHIFT+R or location.reload(true). Usefull to trigger synchronization events.
 define(
 	'PATCHWORK_SYNC_CACHE',
-	   filemtime('./config.patchwork.php') > filemtime('./.patchwork.php')
+	file_exists('./.patchwork.php')
+	&& filemtime('./config.patchwork.php') > filemtime('./.patchwork.php')
 	|| (isset($_SERVER['HTTP_CACHE_CONTROL']) && 'no-cache' == $_SERVER['HTTP_CACHE_CONTROL'])
 );
 
