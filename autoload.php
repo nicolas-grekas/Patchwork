@@ -278,8 +278,8 @@ function patchwork_autoload_write(&$data, $to)
 
 		if (IS_WINDOWS)
 		{
-			$data = new COM('Scripting.FileSystemObject');
-			$data->GetFile(PATCHWORK_PROJECT_PATH .'/'. $tmp)->Attributes |= 2; // Set hidden attribute
+			$h = new COM('Scripting.FileSystemObject');
+			$h->GetFile(PATCHWORK_PROJECT_PATH .'/'. $tmp)->Attributes |= 2; // Set hidden attribute
 			@rename($tmp, $to) || unlink($tmp);
 		}
 		else rename($tmp, $to);
