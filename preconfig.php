@@ -249,7 +249,7 @@ if ($a)
 	}
 	else if (27 == strlen($a) && '"-------------------------"' == strtr($a, '0123456789abcdef', '----------------'))
 	{
-		$b = PATCHWORK_ZCACHE . $a[1] .'/'. $a[2] .'/'. substr($a, 3, 6) .'.validator.' . DEBUG . '.txt';
+		$b = PATCHWORK_ZCACHE . $a[1] .'/'. $a[2] .'/'. substr($a, 3, 6) .'.v.txt';
 		if (file_exists($b) && substr(file_get_contents($b), 0, 8) == substr($a, 9, 8))
 		{
 			$private = substr($a, 17, 1);

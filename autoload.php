@@ -242,7 +242,7 @@ function patchwork_autoload($searched_class)
 				{
 					$GLOBALS['a'.$T] = $bmark;
 					$code = "isset(\$c{$T}['{$lcClass}'])||{$code}";
-					$c = "isset(\$c{$T}['{$lcClass}'])||(patchwork_include('./.class_{$cache}.{$T}.zcache.php'))||1";
+					$c = "isset(\$c{$T}['{$lcClass}'])||patchwork_include('./.class_{$cache}.{$T}.zcache.php')||1";
 				}
 				else
 				{
