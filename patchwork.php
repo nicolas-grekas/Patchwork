@@ -136,7 +136,7 @@ register_shutdown_function('patchwork_chdir', PATCHWORK_PROJECT_PATH);
 
 // {{{ Global Initialisation
 isset($CONFIG['umask']) && umask($CONFIG['umask']);
-define('DEBUG', $CONFIG['debug.allowed'] && (!$CONFIG['debug.password'] || (isset($_COOKIE['debug.password']) && $CONFIG['debug.password'] == $_COOKIE['debug.password'])) ? 1 : 0);
+define('DEBUG', $CONFIG['debug.allowed'] && (!$CONFIG['debug.password'] || (isset($_COOKIE['debug_password']) && $CONFIG['debug.password'] == $_COOKIE['debug_password'])) ? 1 : 0);
 $CONFIG['maxage'] = isset($CONFIG['maxage']) ? $CONFIG['maxage'] : 2678400;
 define('IS_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
 define('PATCHWORK_DIRECT',  '_' == $_SERVER['PATCHWORK_REQUEST']);
@@ -278,7 +278,7 @@ function __autoload($searched_class)
 {
 	$a = strtolower($searched_class);
 
-	if ($a =& $GLOBALS['patchwork_autoload_cache'][$a] && TURBO)
+	if ($a =& $GLOBALS['patchwork_autoload_cache'][$a])
 	{
 		if (is_int($a))
 		{
@@ -295,14 +295,14 @@ function __autoload($searched_class)
 
 		$a = './.class_' . $a . '.' . PATCHWORK_PATH_TOKEN . '.zcache.php';
 
+		$GLOBALS['a' . PATCHWORK_PATH_TOKEN] = false;
+
 		if (file_exists($a))
 		{
 			patchwork_include($a);
 
 			if (class_exists($searched_class, false)) return;
 		}
-
-		$GLOBALS['a' . PATCHWORK_PATH_TOKEN] = false;
 	}
 
 	static $load_autoload = true;
