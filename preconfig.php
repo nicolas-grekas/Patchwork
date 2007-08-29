@@ -303,7 +303,7 @@ define('UTF8_VALID_RX', /**/"/(?:[\x00-\x7f]|[\xc2-\xdf][\x80-\xbf]|\xe0[\xa0-\x
 
 // iconv configuration
 
-/**/if (function_exists('iconv'))
+/**/if (extension_loaded('iconv'))
 /**/{
 /**/	if ('UTF-8' != iconv_get_encoding('input_encoding'))
 			iconv_set_encoding('input_encoding'   , 'UTF-8');
@@ -438,8 +438,15 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 
 /**/				if (!$h)
 /**/				{
-						preg_match_all(UTF8_VALID_RX, $v, $b);
-						$v = implode('', $b[0]);
+/**/					if (extension_loaded('iconv'))
+/**/					{
+							$v = iconv('UTF-8', 'UTF-8//IGNORE', $v);
+/**/					}
+/**/					else
+/**/					{
+							preg_match_all(UTF8_VALID_RX, $v, $b);
+							$v = implode('', $b[0]);
+/**/					}
 /**/				}
 				}
 			}
