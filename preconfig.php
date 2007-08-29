@@ -56,7 +56,8 @@ $patchwork_abstract = array();
 
 function patchwork_include($file)     {return include $file;}
 function patchwork_is_a($obj, $class) {return $obj instanceof $class;}
-function patchwork_chdir($realdir) {$realdir === getcwd() || chdir($realdir);}
+function patchwork_chdir($realdir)    {$realdir === getcwd() || chdir($realdir);}
+function clower($s) {return strtr($s, 'CLASPEMITDBFRUGNJVHOWKXQYZ', 'claspemitdbfrugnjvhowkxqyz');}
 
 register_shutdown_function('patchwork_chdir', /**/__patchwork_loader::$cwd/**/);
 
@@ -70,7 +71,7 @@ function registerAutoloadPrefix($class_prefix, $class_to_file_callback)
 	if ($len = strlen($class_prefix))
 	{
 		$registry =& $GLOBALS['patchwork_autoload_prefix'];
-		$class_prefix = strtolower($class_prefix);
+		$class_prefix = clower($class_prefix);
 		$i = 0;
 
 		do
@@ -449,14 +450,3 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 
 		unset($a, $v);
 /**/}
-
-
-// Locale configuration
-
-/**/$a = strtoupper(setlocale(LC_COLLATE, 0));
-/**/if ('C' != $a && 'POSIX' != $a)
-		setlocale(/**/LC_COLLATE/**/, 'C');
-
-/**/$a = strtoupper(setlocale(LC_CTYPE  , 0));
-/**/if ('C' != $a && 'POSIX' != $a)
-		setlocale(/**/LC_CTYPE  /**/, 'C');
