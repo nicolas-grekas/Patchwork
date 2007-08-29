@@ -23,7 +23,7 @@ if (PATCHWORK_I18N)
 {
 	function T($string, $lang = false)
 	{
-		if (!$lang) $lang = patchwork::__LANG__();
+		if (!$lang) $lang = p::__LANG__();
 		return TRANSLATE::get($string, $lang, true);
 	}
 }
@@ -224,6 +224,8 @@ class
 
 	static function __static_construct()
 	{
+#>		defined('PATCHWORK_SYNC_CACHE') || define('PATCHWORK_SYNC_CACHE', true);
+
 		if (isset($CONFIG['clientside']) && !$CONFIG['clientside'])
 		{
 			unset($_COOKIE['JS'], $_COOKIE['JS']); // Double unset against a PHP security hole
@@ -414,7 +416,7 @@ class
 		// config.patchwork.php's last modification date is used for
 		// version synchronisation with clients and caches.
 		touch('./config.patchwork.php', $_SERVER['REQUEST_TIME']);
-#>		file_exists('./.config.patchwork.php') && touch('./.config.patchwork.php', $_SERVER['REQUEST_TIME']);
+#>		file_exists('./.patchwork.php') && touch('./.patchwork.php', $_SERVER['REQUEST_TIME']);
 	}
 
 	static function disable($exit = false)
@@ -1295,7 +1297,7 @@ class
 			return $buffer;
 		}
 
-		patchwork::header(
+		p::header(
 			isset(self::$headers['content-type'])
 				? self::$headers['content-type']
 				: 'Content-Type: text/html'
@@ -1509,7 +1511,7 @@ class agent
 	final public function __construct($args = array())
 	{
 		$this->contentType = constant(get_class($this) . '::contentType');
-		$this->contentType && patchwork::header('Content-Type: ' . $this->contentType);
+		$this->contentType && p::header('Content-Type: ' . $this->contentType);
 
 		$a = (array) $this->get;
 
@@ -1545,10 +1547,10 @@ class agent
 
 	function metaCompose()
 	{
-		patchwork::setMaxage($this->maxage);
-		patchwork::setExpires($this->expires);
-		patchwork::watch($this->watch);
-		if ($this->canPost) patchwork::canPost();
+		p::setMaxage($this->maxage);
+		p::setExpires($this->expires);
+		p::watch($this->watch);
+		if ($this->canPost) p::canPost();
 	}
 }
 
@@ -1576,8 +1578,8 @@ class loop
 
 	final public function &loop($escape = false)
 	{
-		$catchMeta = patchwork::$catchMeta;
-		patchwork::$catchMeta = true;
+		$catchMeta = p::$catchMeta;
+		p::$catchMeta = true;
 
 		if ($this->loopLength === false) $this->loopLength = (int) $this->prepare();
 
@@ -1595,7 +1597,7 @@ class loop
 			else $this->loopLength = false;
 		}
 
-		patchwork::$catchMeta = $catchMeta;
+		p::$catchMeta = $catchMeta;
 
 		if ($escape && !($this instanceof L_) && $data) foreach ($data as &$i) is_string($i) && $i = htmlspecialchars($i);
 
@@ -1606,12 +1608,12 @@ class loop
 
 	final public function __toString()
 	{
-		$catchMeta = patchwork::$catchMeta;
-		patchwork::$catchMeta = true;
+		$catchMeta = p::$catchMeta;
+		p::$catchMeta = true;
 
 		if ($this->loopLength === false) $this->loopLength = (int) $this->prepare();
 
-		patchwork::$catchMeta = $catchMeta;
+		p::$catchMeta = $catchMeta;
 
 		return (string) $this->loopLength;
 	}

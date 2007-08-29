@@ -12,409 +12,600 @@
  ***************************************************************************/
 
 
-define('patchwork', microtime(true));
-error_reporting(E_ALL | E_STRICT);
+// Mandatory PHP dependencies
 
-// IIS compatibility
-isset($_SERVER['REQUEST_URI']) || $_SERVER['REQUEST_URI'] = $_SERVER['URL'];
-isset($_SERVER['SERVER_ADDR']) || $_SERVER['SERVER_ADDR'] = '127.0.0.1';
+function_exists('token_get_all') || die('Patchwork Error: Extension "tokenizer" is needed and not loaded');
+preg_match('/^.$/u', '§')        || die('Patchwork Error: PCRE is not compiled with UTF-8 support');
+isset($_SERVER['REDIRECT_URL'])  && die('Patchwork Error: $_SERVER[\'REDIRECT_URL\'] must not be set at this stage');
+extension_loaded('mbstring')
+	&& (ini_get('mbstring.func_overload') & MB_OVERLOAD_STRING)
+	&& die('Patchwork Error: String functions are overloaded by mbstring');
+
+
+error_reporting(E_ALL | E_STRICT);
 
 isset($_GET['exit$']) && die('Exit requested');
 
-// Convert ISO-8859-1 URLs to UTF-8 ones
-if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
-{
-	$a = $a != utf8_decode($a) ? '/' : preg_replace("'(?:%[89a-f][0-9a-f])+'ei", "urlencode(utf8_encode(urldecode('$0')))", $a);
-	$b = $_SERVER['REQUEST_METHOD'];
 
-	if ('GET' == $b || 'HEAD' == $b)
+// Acquire lock
+
+if (!__patchwork_loader::getLock())
+{
+	require './.patchwork.php';
+	return;
+}
+
+
+// Linearize applications inheritance graph
+
+$a = __patchwork_loader::c3mro(__patchwork_loader::$pwd, __patchwork_loader::$cwd);
+$a = array_slice($a, 1);
+$a[] = __patchwork_loader::$pwd;
+
+
+// Get include_path
+
+$patchwork_path = explode(PATH_SEPARATOR, get_include_path());
+$patchwork_path = array_map('realpath', $patchwork_path);
+$patchwork_path = array_diff($patchwork_path, $a, array(''));
+$patchwork_path = array_merge($a, $patchwork_path);
+
+__patchwork_loader::$last   = count($a) - 1;
+__patchwork_loader::$offset = count($patchwork_path) - __patchwork_loader::$last;
+
+
+
+// Get zcache/'s location
+
+$a = false;
+for ($i = 0; $i <= __patchwork_loader::$last; ++$i)
+{
+	if (file_exists($patchwork_path[$i] . '/zcache/'))
 	{
-		header('HTTP/1.1 301 Moved Permanently');
-		header('Location: ' . $a);
-		exit;
-	}
-	else
-	{
-		$_SERVER['REQUEST_URI'] = $a;
-		$b = strpos($a, '?');
-		$_SERVER['QUERY_STRING'] = false !== $b++ && $b < strlen($a) ? substr($a, $b) : '';
-		parse_str($_SERVER['QUERY_STRING'], $_GET);
+		$a = $patchwork_path[$i] . '/zcache/';
+
+		if (@touch($a . 'write_test')) @unlink($a . 'write_test');
+		else $a = false;
+
+		break;
 	}
 }
 
-// {{{ registerAutoloadPrefix()
-$patchwork_autoload_prefix = array();
-
-function registerAutoloadPrefix($class_prefix, $class_to_file_callback)
+if (!$a)
 {
-	if ($len = strlen($class_prefix))
-	{
-		$registry =& $GLOBALS['patchwork_autoload_prefix'];
-		$class_prefix = strtolower($class_prefix);
-		$i = 0;
+	$a = $patchwork_path[0] . '/zcache/';
+	file_exists($a) || mkdir($a);
+}
 
-		do
+__patchwork_loader::$zcache = $a;
+
+
+// Load preconfig
+
+$a = __patchwork_loader::$last + 1;
+$a = array_slice($patchwork_path, 0, $a);
+$a = array_reverse($a);
+foreach ($a as $a)
+{
+	$a .= DIRECTORY_SEPARATOR . '/preconfig.php';
+
+	if (file_exists($a))
+	{
+		eval(__patchwork_loader::staticPass1($a));
+		__patchwork_loader::staticPass2($a);
+		__patchwork_loader::$token = md5(__patchwork_loader::$token . $a);
+	}
+}
+
+
+__patchwork_loader::$token = substr(__patchwork_loader::$token, 0, 4);
+
+
+// Purge sources cache
+
+$a = __patchwork_loader::$cwd . '/.' . __patchwork_loader::$token . '.zcache.php';
+if (!file_exists($a))
+{
+	touch($a);
+
+	if ('\\' == DIRECTORY_SEPARATOR)
+	{
+		$b = new COM('Scripting.FileSystemObject');
+		$b->GetFile($a)->Attributes |= 2; // Set hidden attribute
+	}
+
+	$b = opendir(__patchwork_loader::$cwd);
+	while (false !== $a = readdir($b))
+	{
+		if ('.zcache.php' == substr($a, -11) && '.' == $a[0]) @unlink(__patchwork_loader::$cwd . '/' . $a);
+	}
+	closedir($b);
+}
+
+
+// Load config
+
+$a = array_keys(__patchwork_loader::$configSource);
+foreach ($a as $a) __patchwork_loader::$configCode[$a] =& __patchwork_loader::$configSource[$a];
+
+
+// Load postconfig
+
+$a = __patchwork_loader::$last + 1;
+$a = array_slice($patchwork_path, 0, $a);
+$a = array_reverse($a);
+foreach ($a as $a)
+{
+	$a .= DIRECTORY_SEPARATOR . 'postconfig.php';
+
+	if (file_exists($a))
+	{
+		eval(__patchwork_loader::staticPass1($a));
+		__patchwork_loader::staticPass2();
+	}
+}
+
+
+// Eval configs
+
+foreach (__patchwork_loader::$configCode as __patchwork_loader::$file => $a)
+{
+	ob_start();
+	eval($a);
+	if ('' !== $a = ob_get_clean()) echo preg_replace('/' . __patchwork_loader::$selfRx . '\(\d+\) : eval\(\)\'d code/', __patchwork_loader::$file, $a);
+}
+
+
+// Setup hook
+
+class p extends patchwork {}
+patchwork_setup::call();
+
+
+// Save config and release lock
+
+__patchwork_loader::release();
+
+
+// Let's go
+
+patchwork::start();
+return;
+
+
+class __patchwork_loader
+{
+	static
+
+	$pwd,
+	$cwd,
+	$token = '',
+	$zcache,
+	$offset,
+	$last,
+	$appId = 0,
+
+	$selfRx,
+	$file,
+	$code,
+	$configCode = array(),
+	$configSource = array();
+
+
+	protected static $lock;
+
+
+	static function getLock()
+	{
+		self::$selfRx = preg_quote(__FILE__, '/');
+
+		if (self::$lock = @fopen('./.patchwork.lock', 'xb'))
 		{
-			$c = ord($class_prefix[$i]);
-			isset($registry[$c]) || $registry[$c] = array();
-			$registry =& $registry[$c];
+			flock(self::$lock, LOCK_EX);
+			ob_start(array(__CLASS__, 'ob_handler'));
+
+			self::$pwd = dirname(__FILE__);
+			self::$cwd = getcwd();
+
+			return true;
 		}
-		while (++$i < $len);
+		else
+		{
+			if ($h = fopen('./.patchwork.lock', 'rb'))
+			{
+				flock($h, LOCK_SH);
+				fclose($h);
+				file_exists('./.patchwork.php') || sleep(1);
+			}
 
-		$registry[-1] = $class_to_file_callback;
-	}
-}
-// }}}
-
-// {{{ hunter: a user callback is called when a hunter object is destroyed
-class hunter
-{
-	protected
-
-	$callback,
-	$param_arr;
-
-	function __construct($callback, $param_arr = array())
-	{
-		$this->callback =& $callback;
-		$this->param_arr =& $param_arr;
+			return false;
+		}
 	}
 
-	function __destruct()
+	static function &ob_handler(&$buffer, $mode)
 	{
-		call_user_func_array($this->callback, $this->param_arr);
-	}
-}
-// }}}
+		$lock = self::$cwd . '/.patchwork.lock';
 
-// {{{ ob: wrapper for ob_start
-class ob
-{
-	static $in_handler = 0;
+		if ('' === $buffer)
+		{
+			$a = '<?php '
+				. implode('', self::$configCode)
+				. '
+DEBUG ? patchwork_debug::call() : include \'' . patchworkProcessedPath('patchwork.php') .'\';
+class p extends patchwork {}
+patchwork::start();';
 
-	static function start($callback = null, $chunk_size = null, $erase = true)
-	{
-		null !== $callback && $callback = array(new ob($callback), 'callback');
-		return ob_start($callback, $chunk_size, $erase);
-	}
+			fwrite(self::$lock, $a, strlen($a));
+			fclose(self::$lock);
 
-	protected function __construct($callback)
-	{
-		$this->callback = $callback;
-	}
+			touch($lock, $_SERVER['REQUEST_TIME'] + 1);
 
-	function &callback(&$buffer, $mode)
-	{
-		$a = self::$in_handler++;
-		$buffer = call_user_func_array($this->callback, array(&$buffer, $mode));
-		self::$in_handler = $a;
+			if ('\\' == DIRECTORY_SEPARATOR)
+			{
+				$a = new COM('Scripting.FileSystemObject');
+				$a->GetFile($lock)->Attributes |= 2; // Set hidden attribute
+			}
+
+			rename($lock, './.patchwork.php');
+
+			set_time_limit(ini_get('max_execution_time'));
+		}
+		else
+		{
+			fclose(self::$lock);
+			unlink($lock);
+		}
+
+		self::$lock = self::$configCode = self::$configSource = null;
+
 		return $buffer;
 	}
-}
-// }}}
 
-// {{{ Load configuration
-
-$_REQUEST = array(); // $_REQUEST is an open door to security problems.
-$CONFIG = array();
-$patchwork_appId = './.config.patchwork.php';
-
-define('__patchwork__', dirname(__FILE__));
-define('IS_WINDOWS', '\\' == DIRECTORY_SEPARATOR);
-define('PATCHWORK_PROJECT_PATH', getcwd());
-
-# From http://www.w3.org/International/questions/qa-forms-utf-8
-define('UTF8_VALID_RX', '/(?:[\x00-\x7F]|[\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][\x80-\xBF]|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}|\xED[\x80-\x9F][\x80-\xBF]|\xF0[\x90-\xBF][\x80-\xBF]{2}|[\xF1-\xF3][\x80-\xBF]{3}|\xF4[\x80-\x8F][\x80-\xBF]{2})+/');
-
-// Load the configuration
-require file_exists($patchwork_appId) ? $patchwork_appId : (__patchwork__ . '/c3mro.php');
-
-// Restore the current dir in shutdown context.
-function patchwork_chdir($realdir) {$realdir === getcwd() || chdir($realdir);}
-register_shutdown_function('patchwork_chdir', PATCHWORK_PROJECT_PATH);
-// }}}
-
-// {{{ Global Initialisation
-isset($CONFIG['umask']) && umask($CONFIG['umask']);
-define('DEBUG', $CONFIG['debug.allowed'] && (!$CONFIG['debug.password'] || (isset($_COOKIE['debug_password']) && $CONFIG['debug.password'] == $_COOKIE['debug_password'])) ? 1 : 0);
-$CONFIG['maxage'] = isset($CONFIG['maxage']) ? $CONFIG['maxage'] : 2678400;
-define('IS_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
-define('PATCHWORK_DIRECT',  '_' == $_SERVER['PATCHWORK_REQUEST']);
-define('TURBO', !DEBUG && isset($CONFIG['turbo']) && $CONFIG['turbo']);
-
-function E($msg = '__getDeltaMicrotime')
-{
-	return class_exists('patchwork', false) ? patchwork::log($msg, false, false) : W($msg, E_USER_NOTICE);
-}
-
-function W($msg, $err = E_USER_WARNING)
-{
-	ini_set('log_errors', true);
-	ini_set('error_log', './error.log');
-	ini_set('display_errors', false);
-	trigger_error($msg, $err);
-}
-// }}}
-
-
-{ // <-- Hack to enable the next functions only when execution reaches this point
-
-// include with sandboxed namespace
-function patchwork_include($file) {return include $file;}
-
-// {{{ function resolvePath(): patchwork-specific include_path-like mechanism
-function resolvePath($file, $level = false, $base = false)
-{
-	$path_last = PATCHWORK_PATH_LAST;
-
-	if (false === $level)
+	static function release()
 	{
-		$i = 0;
-		$level = $path_last;
-	}
-	else
-	{
-		0 <= $level && $base = 0;
-		$i = $path_last - $level - $base;
-		0 > $i && $i = 0;
-	}
-
-	global $patchwork_lastpath_level;
-	$patchwork_lastpath_level = $level;
-
-
-	if (0 == $i)
-	{
-		$source = PATCHWORK_PROJECT_PATH .'/'. $file;
-		if (IS_WINDOWS ? win_file_exists($source) : file_exists($source)) return $source;
+		$buffer = ob_get_clean();
+		'' !== $buffer && die($buffer . "\n<br /><br />\n\n<small>---- dying ----</small>");
 	}
 
 
-	$file = strtr($file, '\\', '/');
-	if ($path_last = '/' == substr($file, -1)) $file = substr($file, 0, -1);
+	// C3 Method Resolution Order (like in Python 2.3) for multiple application inheritance
+	// See http://python.org/2.3/mro.html
 
-	if (DBA_HANDLER)
+	static function c3mro($realpath, $firstParent = false)
 	{
-		static $db;
-		isset($db) || $db = dba_popen('./.parentPaths.db', 'rd', DBA_HANDLER);
-		$base = dba_fetch($file, $db);
-	}
-	else
-	{
-		$base = md5($file);
-		$base = PATCHWORK_ZCACHE . $base[0] . '/' . $base[1] . '/' . substr($base, 2) . '.path.txt';
-		$base = @file_get_contents($base);
-	}
+		static $cache = array();
 
-	if (false !== $base)
-	{
-		$base = explode(',', $base);
-		do if (current($base) >= $i)
+		$resultSeq =& $cache[$realpath];
+
+		// If result is cached, return it
+		if (null !== $resultSeq) return $resultSeq;
+
+		$parent = self::getParentApps($realpath);
+
+		// If no parent app, result is trival
+		if (!$parent && !$firstParent) return array($realpath);
+
+		if ($firstParent) array_unshift($parent, $firstParent);
+
+		// Compute C3 MRO
+		$seqs = array_merge(
+			array(array($realpath)),
+			array_map(array(__CLASS__, 'c3mro'), $parent),
+			array($parent)
+		);
+		$resultSeq = array();
+		$parent = false;
+
+		while (1)
 		{
-			$base = (int) current($base);
-			$level = $patchwork_lastpath_level -= $base - $i;
-			
-			return $GLOBALS['patchwork_path'][$base] . '/' . (0<=$level ? $file : substr($file, 6)) . ($path_last ? '/' : '');
-		}
-		while (false !== next($base));
-	}
-
-	$patchwork_lastpath_level = -PATCHWORK_PATH_OFFSET;
-
-	return false;
-}
-// }}}
-
-// {{{ function patchworkProcessedPath(): automatically added by the preprocessor in files in the include_path
-function patchworkProcessedPath($file)
-{
-	$file = strtr($file, '\\', '/');
-	$f = '.' . $file . '/';
-
-	if (false !== strpos($f, './') || false !== strpos($file, ':'))
-	{
-		$f = realpath($file);
-		if (!$f) return $file;
-
-		$file = false;
-		$i = PATCHWORK_PATH_LAST + 1;
-		$p =& $GLOBALS['patchwork_path'];
-		$len = count($p);
-
-		for (; $i < $len; ++$i)
-		{
-			if (substr($f, 0, strlen($p[$i])+1) == $p[$i] . DIRECTORY_SEPARATOR)
+			if (!$seqs)
 			{
-				$file = substr($f, strlen($p[$i])+1);
-				break;
+				false !== $firstParent && $cache = array();
+				return $resultSeq;
+			}
+
+			unset($seq);
+			$notHead = array();
+			foreach ($seqs as $seq)
+				foreach (array_slice($seq, 1) as $seq)
+					$notHead[$seq] = 1;
+
+			foreach ($seqs as &$seq)
+			{
+				$parent = reset($seq);
+
+				if (isset($notHead[$parent])) $parent = false;
+				else break;
+			}
+
+			if (!$parent) die('Patchwork Error: Inconsistent application hierarchy in ' . $realpath . DIRECTORY_SEPARATOR . 'config.patchwork.php');
+
+			$resultSeq[] = $parent;
+
+			foreach ($seqs as $k => &$seq)
+			{
+				if ($parent == current($seq)) unset($seqs[$k][key($seq)]);
+				if (!$seqs[$k]) unset($seqs[$k]);
 			}
 		}
-
-		if (false === $file) return $f;
 	}
 
-	$file = 'class/' . $file;
-
-	$source = resolvePath($file);
-
-	if (false === $source) return false;
-
-	$level = $GLOBALS['patchwork_lastpath_level'];
-
-	$file = strtr($file, '\\', '/');
-	$cache = ((int)(bool)DEBUG) . (0>$level ? -$level .'-' : $level);
-	$cache = './.'. strtr(str_replace('_', '%2', str_replace('%', '%1', $file)), '/', '_') . '.' . $cache . '.' . PATCHWORK_PATH_TOKEN . '.zcache.php';
-
-	if (file_exists($cache) && (TURBO || filemtime($cache) > filemtime($source))) return $cache;
-
-	patchwork_preprocessor::run($source, $cache, $level, false);
-
-	return $cache;
-}
-// }}}
-
-// {{{ function __autoload()
-function __autoload($searched_class)
-{
-	$a = strtolower($searched_class);
-
-	if ($a =& $GLOBALS['patchwork_autoload_cache'][$a])
+	protected static function getParentApps($realpath)
 	{
-		if (is_int($a))
+		$parent = array();
+		$config = $realpath . DIRECTORY_SEPARATOR . 'config.patchwork.php';
+
+
+		// Get config's source and clean it
+
+		file_exists($config)
+			|| die('Patchwork Error: Missing file ' . $config);
+
+		self::$appId += filemtime($config);
+
+		$source = file_get_contents($config);
+		if (false !== strpos($source, "\r")) $source = strtr(str_replace("\r\n", "\n", $source), "\r", "\n");
+
+		if ($source = token_get_all($source))
 		{
-			$b = $a;
-			unset($a);
-			$a = $b - PATCHWORK_PATH_OFFSET;
+			$len = count($source);
 
-			$b = $searched_class;
-			$i = strrpos($b, '__');
-			false !== $i && '__' === rtrim(strtr(substr($b, $i), ' 0123456789', '#          ')) && $b = substr($b, 0, $i);
-
-			$a = $b . '.php.' . ((string)(int)(bool)DEBUG) . (0>$a ? -$a . '-' : $a);
-		}
-
-		$a = './.class_' . $a . '.' . PATCHWORK_PATH_TOKEN . '.zcache.php';
-
-		$GLOBALS['a' . PATCHWORK_PATH_TOKEN] = false;
-
-		if (file_exists($a))
-		{
-			patchwork_include($a);
-
-			if (class_exists($searched_class, false)) return;
-		}
-	}
-
-	static $load_autoload = true;
-
-	if ($load_autoload)
-	{
-		require __patchwork__ . '/autoload.php';
-		$load_autoload = false;
-	}
-
-
-	patchwork_autoload($searched_class);
-}
-// }}}
-
-function patchwork_is_a($obj, $class)
-{
-	return $obj instanceof $class;
-}
-
-}
-
-// {{{ file_exists replacement on Windows
-// Fix a bug with long file names.
-// In debug mode, checks if character case is strict.
-if (DEBUG || PHP_VERSION < '5.2')
-{
-	if (DEBUG)
-	{
-		function win_file_exists($file)
-		{
-			if (file_exists($file) && $realfile = realpath($file))
+			if (T_OPEN_TAG == $source[0][0])
 			{
-				$file = strtr($file, '/', '\\');
+				$source[0] = '';
 
-				$i = strlen($file);
-				$j = strlen($realfile);
-
-				while ($i-- && $j--)
+				for ($i = 1; $i < $len; ++$i)
 				{
-					if ($file[$i] != $realfile[$j])
+					$a = $source[$i];
+
+					if (is_array($a) && in_array($a[0], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT)))
 					{
-						if (strtolower($file[$i]) == strtolower($realfile[$j]) && !(0 == $i && ':' == substr($file, 1, 1))) W("Character case mismatch between requested file and its real path ({$file} vs {$realfile})");
-						break;
+						if (T_COMMENT == $a[0] && preg_match('/^#import[ \t]/', $a[1])) $parent[] = trim(substr($a[1], 8));
+					}
+					else break;
+				}
+			}
+			else $source[0][1] = '?>' . $source[0][1];
+
+			if (is_array($a = $source[$len - 1]))
+			{
+				if (T_CLOSE_TAG == $a[0]) $a[1] = ';';
+				else if (T_INLINE_HTML == $a[0]) $a[1] .= '<?php ';
+			}
+
+			array_walk($source, array(__CLASS__, 'flattenToken'));
+		}
+
+		self::$configSource[$config] = implode('', $source);
+
+
+		// Parent's config file path is relative to the current application's directory
+
+		$len = count($parent);
+		for ($i = 0; $i < $len; ++$i)
+		{
+			$a =& $parent[$i];
+
+			if ('__patchwork__' == substr($a, 0, 13)) $a = self::$pwd . substr($a, 13);
+
+			if ('/' != $a[0] && '\\' != $a[0] &&  ':' != $a[1]) $a = $realpath . '/' . $a;
+
+			if ('*' == substr($a, -1) && $a = realpath(substr($a, 0, -1)))
+			{
+				$source = glob($a . '/**/config.patchwork.php', GLOB_NOSORT);
+
+				$p = array();
+				file_exists($a . '/config.patchwork.php') && $p[] = $a;
+
+				unset($a);
+
+				foreach ($source as $source)
+				{
+					$source = substr($source, 0, -21);
+
+					if (self::$pwd != $source)
+					{
+						foreach (self::c3mro($source) as $a)
+						{
+							if (false !== $a = array_search($a, $p))
+							{
+								$p[$a] = $source;
+								$source = false;
+								break;
+							}
+						}
+
+						$source && $p[] = $source;
 					}
 				}
 
-				return true;
+				$a = count($p);
+
+				array_splice($parent, $i, 1, $p);
+
+				$i += --$a;
+				$len += $a;
 			}
-			else return false;
+			else
+			{
+				$source = realpath($a);
+				if (false === $source) die('Patchwork Error: Missing file ' . $a . DIRECTORY_SEPARATOR . 'config.patchwork.php');
+
+				$a = $source;
+				if (self::$pwd == $a) unset($parent[$i]);
+			}
 		}
-	}
-	else
-	{
-		function win_file_exists($file) {return file_exists($file) && (strlen($file) < 100 || realpath($file));}
+
+		return $parent;
 	}
 
-	function win_is_file($file)       {return win_file_exists($file) && is_file($file);}
-	function win_is_dir($file)        {return win_file_exists($file) && is_dir($file);}
-	function win_is_link($file)       {return win_file_exists($file) && is_link($file);}
-	function win_is_executable($file) {return win_file_exists($file) && is_executable($file);}
-	function win_is_readable($file)   {return win_file_exists($file) && is_readable($file);}
-	function win_is_writable($file)   {return win_file_exists($file) && is_writable($file);}
-}
-else
-{
-	function win_file_exists($file) {return file_exists($file);}
-}
-//}}}
-
-
-defined('PATCHWORK_SETUP') && patchwork_setup::call();
-
-// {{{ Debug context
-DEBUG && patchwork_debug::call();
-// }}}
-
-// {{{ Validator
-$a = isset($_SERVER['HTTP_IF_NONE_MATCH'])
-	? $_SERVER['HTTP_IF_NONE_MATCH']
-	: isset($_SERVER['HTTP_IF_MODIFIED_SINCE']);
-
-if ($a)
-{
-	if (true === $a)
+	protected static function flattenToken(&$token)
 	{
-		// Patch an IE<=6 bug when using ETag + compression
-		$a = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE'], 2);
-		$_SERVER['HTTP_IF_MODIFIED_SINCE'] = $a = strtotime($a[0]);
-		$_SERVER['HTTP_IF_NONE_MATCH'] = '"' . dechex($a) . '"';
-		$patchwork_private = true;
+		is_array($token) && $token = $token[1];
 	}
-	else if (27 == strlen($a) && '"-------------------------"' == strtr($a, '0123456789abcdef', '----------------'))
+
+
+	static function buildPathCache($dba)
 	{
-		$b = PATCHWORK_ZCACHE . $a[1] .'/'. $a[2] .'/'. substr($a, 3, 6) .'.validator.'. DEBUG .'.txt';
-		if (file_exists($b) && substr(file_get_contents($b), 0, 8) == substr($a, 9, 8))
+		global $patchwork_path;
+
+		$paths = array();
+
+		foreach ($patchwork_path as $level => $h)
 		{
-			$private = substr($a, 17, 1);
-			$maxage  = hexdec(substr($a, 18, 8));
+			@self::populatePathCache($paths, $h, $level, $level <= self::$last ? '' : '/class');
+		}
 
-			header('HTTP/1.1 304 Not Modified');
-			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', $_SERVER['REQUEST_TIME'] + ($private || !$maxage ? 0 : $maxage)));
-			header('Cache-Control: max-age=' . $maxage . ($private ? ',private,must' : ',public,proxy') . '-revalidate');
-			exit;
+
+		if ($dba)
+		{
+			@unlink('./.parentPaths.db');
+			$h = dba_open('./.parentPaths.db', 'n', $dba, 0600);
+			foreach ($paths as $paths => $level) dba_insert($paths, substr($level, 0, -1), $h);
+			dba_close($h);
+
+			if ('\\' == DIRECTORY_SEPARATOR)
+			{
+				$h = new COM('Scripting.FileSystemObject');
+				$h->GetFile(self::$cwd . '/.parentPaths.db')->Attributes |= 2; // Set hidden attribute
+				unset($h);
+			}
+		}
+		else
+		{
+			foreach ($paths as $paths => $level)
+			{
+				$paths = md5($paths);
+				$paths = $paths[0] . '/' . $paths[1] . '/' . substr($paths, 2) . '.path.txt';
+
+				if (false === $h = @fopen(self::$zcache . $paths, 'wb'))
+				{
+					@mkdir(self::$zcache . $paths[0]);
+					@mkdir(self::$zcache . substr($paths, 0, 3));
+					$h = fopen(self::$zcache . $paths, 'wb');
+				}
+
+				fwrite($h, substr($level, 0, -1));
+				fclose($h);
+			}
 		}
 	}
+
+	protected static function populatePathCache(&$paths, $dir, $i, $prefix, $subdir = '/')
+	{
+		if ($h = opendir($dir . $subdir))
+		{
+			if ('/' != $subdir && file_exists($dir . $subdir . 'config.patchwork.php')) ;
+			else while (false !== $file = readdir($h)) if ('.' != $file[0] && 'zcache' != $file)
+			{
+				$file = $subdir . $file;
+
+				$paths[substr($prefix . $file, 1)] .= $i . ',';
+
+				self::populatePathCache($paths, $dir, $i, $prefix, $file . '/');
+			}
+
+			closedir($h);
+		}
+	}
+
+
+	static function staticPass1($a)
+	{
+		self::$file = $a;
+		$a = file_get_contents($a);
+
+		false !== strpos($a, "\r") && $a = strtr(str_replace("\r\n", "\n", $a), "\r", "\n");
+		$a = preg_replace('/^<\?(?:php)?/', '', $a);
+		$a = preg_replace('/\?>$/', ';', $a);
+
+
+		$a = preg_split('#(^(?:\s*/\*\*/.*)+)#m', $a, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+		$line = 0;
+		$iLen = count($a);
+		for ($i = 0; $i < $iLen; ++$i)
+		{
+			$b = preg_split('#/\*\*/(.*?)/\*\*/#', $a[$i], -1, PREG_SPLIT_DELIM_CAPTURE);
+
+			$jLen = count($b);
+			for ($j = 0; $j < $jLen; ++$j)
+			{
+				$b[$j] = var_export($b[$j], true);
+				if (++$j < $jLen)
+				{
+					$b[$j] = '__patchwork_loader::export(' . $b[$j] . ') . '
+						. '"' . str_repeat('\n', substr_count($b[$j], "\n")) .'"';
+				}
+			}
+
+			$a[$i] = '{__patchwork_loader::$code[' . $line . ']=' . implode('.', $b) . ';}';
+			$line += substr_count($a[$i], "\n");
+
+			if (++$i < $iLen) $line += substr_count($a[$i], "\n");
+		}
+
+		ob_start();
+		self::$code = array();
+
+		return implode('', $a);
+	}
+
+	static function staticPass2(&$a = '')
+	{
+		if ('' !== $a = ob_get_clean()) echo preg_replace('/' . self::$selfRx . '\(\d+\) : eval\(\)\'d code/', self::$file, $a);
+
+		$a = '';
+		$line = 0;
+		foreach (self::$code as $i => $b)
+		{
+			$a .= str_repeat("\n", $i - $line) . $b;
+			$line = $i + substr_count($b, "\n");
+		}
+
+		self::$code = array();
+		self::$configCode[self::$file] = $a;
+	}
+
+	static function export($a)
+	{
+		if (is_array($a))
+		{
+			if ($a)
+			{
+				$b = array();
+				foreach ($a as $k => &$a) $b[] = var_export($k, true) . '=>' . self::export($a);
+				$b = 'array(' . implode(',', $b) . ')';
+			}
+			else return 'array()';
+		}
+		else if (is_object($a))
+		{
+			$b = array();
+			$v = (array) $a;
+			foreach ($v as $k => &$v)
+			{
+				if ("\000" === substr($k, 0, 1)) $k = substr($k, 3);
+				$b[$k] =& $v;
+			}
+
+			$b = self::export($b);
+			$b = get_class($a) . '::__set_state(' . $b . ')';
+		}
+		else $b = var_export($a, true);
+
+		if (false !== strpos($b, "\n") || false !== strpos($b, "\r"))
+		{
+			$b = preg_replace_callback("/[\r\n]+/", array(__CLASS__, 'exportCRLF'), $b);
+		}
+
+		return $b;
+	}
+
+	protected static function exportCRLF($a)
+	{
+		$a = str_replace("\n", '\n', $a[0]);
+		$a = str_replace("\r", '\r', $a);
+		return "'.\"{$a}\".'";
+	}
 }
-// }}}
-
-
-// Shortcut for patchwork::*
-class p extends patchwork {}
-
-/* Let's go */
-patchwork::start();

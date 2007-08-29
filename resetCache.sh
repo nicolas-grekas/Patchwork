@@ -11,8 +11,8 @@ do
 	test -d $I/zcache && mv $I/zcache $I/zcache.old
 
 	rm -f "$I/.parentPaths.db" 2> /dev/null
-	rm -f "$I/.config.lock.php" 2> /dev/null
-	rm -f "$I/.config.patchwork.php"  2> /dev/null
+	rm -f "$I/.patchwork.lock" 2> /dev/null
+	rm -f "$I/.patchwork.php"  2> /dev/null
 
 	if test -d $I/zcache.old
 	then
