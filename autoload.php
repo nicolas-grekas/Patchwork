@@ -107,7 +107,7 @@ function patchwork_autoload($searched_class)
 				break;
 			}
 
-			$cache = ((int)(bool)DEBUG) . (0>++$level ? -$level .'-' : $level);
+			$cache = DEBUG . (0>++$level ? -$level . '-' : $level);
 			$cache = "./.class_{$class}.php.{$cache}.{$T}.zcache.php";
 
 			if (!(file_exists($cache) && (TURBO || filemtime($cache) > filemtime($source))))
@@ -254,18 +254,11 @@ function patchwork_autoload($searched_class)
 				patchwork_autoload_write($tmp, $file);
 			}
 		}
-		else if (!$bmark && file_exists('./.config.patchwork.php'))
+/*
+		else if (!$bmark)
 		{
-			// Global cache completion
-
-			$amark = $outerClass ? "'{$cache}'" : ($level + PATCHWORK_PATH_OFFSET);
-			$code = "\n\$c{$T}['{$lcClass}']={$amark};";
-
-			$c = fopen('./.config.patchwork.php', 'ab');
-			flock($c, LOCK_EX);
-			fwrite($c, $code);
-			fclose($c);
 		}
+*/
 	}
 }
 
