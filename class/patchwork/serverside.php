@@ -243,6 +243,8 @@ class extends patchwork
 			if ('ontouch' == $expires && !$watch) $expires = 'auto';
 			$expires = 'auto' == $expires && $watch ? 'ontouch' : 'onmaxage';
 
+			p::setExpires($expires);
+
 			if ($is_cacheable && !IS_POSTING && !in_array('private', $group) && ($maxage || 'ontouch' == $expires))
 			{
 				$fagent = $cagent;

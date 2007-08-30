@@ -789,13 +789,13 @@ class
 	{
 		$dir = dirname($dir . ' ');
 
-		if (is_dir($dir)) return;
+		if (file_exists($dir)) return;
 
 		$dir = preg_split("'[/\\\\]+'u", $dir);
 
 		if (!$dir) return;
 
-		if ($dir[0]==='')
+		if ('' === $dir[0])
 		{
 			array_shift($dir);
 			if (!$dir) return;
@@ -803,22 +803,12 @@ class
 		}
 		else if (!(IS_WINDOWS && ':' == substr($dir[0], -1))) $dir[0] = './' . $dir[0];
 
-		$new = array();
+		$new = '';
 
-		while ($dir && !is_dir( implode('/', $dir)))
+		foreach ($dir as $dir)
 		{
-			$new[] = array_pop($dir);
-		}
-
-		if ($new)
-		{
-			$dir = implode('/', $dir);
-
-			while ($new)
-			{
-				$dir .= '/' . array_pop($new);
-				mkdir($dir);
-			}
+			$new .= $dir . '/';
+			file_exists($new) || mkdir($new);
 		}
 	}
 
