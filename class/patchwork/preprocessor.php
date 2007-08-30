@@ -201,7 +201,7 @@ class patchwork_preprocessor__0
 					'mb_internal_encoding'    => 'utf8_mbstring_500::internal_encoding',
 					'mb_list_encodings'       => 'utf8_mbstring_500::list_encodings',
 					'mb_parse_str'            => 'parse_str',
-					'mb_strlen'               => 'utf8_mbstring_500::strlen',
+					'mb_strlen'               => extension_loaded('xml') ? 'utf8_mbstring_500::strlen' : 'utf8_mbstring_500::strlen2',
 					'mb_strpos'               => 'utf8_mbstring_500::strpos',
 					'mb_strtolower'           => 'utf8_mbstring_500::strtolower',
 					'mb_strtoupper'           => 'utf8_mbstring_500::strtoupper',
