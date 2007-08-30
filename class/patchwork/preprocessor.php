@@ -197,15 +197,17 @@ class patchwork_preprocessor__0
 				);
 
 				self::$function += array(
-					'mb_convert_case'      => 'utf8_mbstring_500::convert_case',
-					'mb_list_encodings'    => 'utf8_mbstring_500::list_encodings',
-					'mb_parse_str'         => 'parse_str',
-					'mb_strlen'            => 'utf8_mbstring_500::strlen',
-					'mb_strpos'            => 'utf8_mbstring_500::strpos',
-					'mb_strtolower'        => 'utf8_mbstring_500::strtolower',
-					'mb_strtoupper'        => 'utf8_mbstring_500::strtoupper',
-					'mb_substr_count'      => 'substr_count',
-					'mb_substr'            => 'utf8_mbstring_500::substr',
+					'mb_convert_case'         => 'utf8_mbstring_500::convert_case',
+					'mb_internal_encoding'    => 'utf8_mbstring_500::internal_encoding',
+					'mb_list_encodings'       => 'utf8_mbstring_500::list_encodings',
+					'mb_parse_str'            => 'parse_str',
+					'mb_strlen'               => extension_loaded('xml') ? 'utf8_mbstring_500::strlen' : 'utf8_mbstring_500::strlen2',
+					'mb_strpos'               => 'utf8_mbstring_500::strpos',
+					'mb_strtolower'           => 'utf8_mbstring_500::strtolower',
+					'mb_strtoupper'           => 'utf8_mbstring_500::strtoupper',
+					'mb_substitute_character' => 'utf8_mbstring_500::substitute_character',
+					'mb_substr_count'         => 'substr_count',
+					'mb_substr'               => 'utf8_mbstring_500::substr',
 				);
 
 				if (extension_loaded('iconv'))
@@ -223,6 +225,42 @@ class patchwork_preprocessor__0
 			}
 		}
 
+		if (!extension_loaded('iconv'))
+		{
+			self::$constant += array(
+				'ICONV_MIME_DECODE_STRICT' => 1,
+				'ICONV_MIME_DECODE_CONTINUE_ON_ERROR' => 2,
+			);
+
+			self::$function += array(
+				'iconv' => 'iconv::iconv',
+				'iconv_get_encoding' => 'iconv::get_encoding',
+				'iconv_set_encoding' => 'iconv::set_encoding',
+				'iconv_mime_decode'  => 'iconv::mime_decode',
+				'iconv_mime_encode'  => 'iconv::mime_encode',
+				'ob_iconv_handler'   => 'iconv::ob_handler',
+				'iconv_mime_decode_headers' => 'iconv::mime_decode_headers',
+			);
+
+			if (extension_loaded('mbstring'))
+			{
+				self::$function += array(
+					'iconv_strlen'  => 'mb_strlen',
+					'iconv_strpos'  => 'mb_strpos',
+					'iconv_strrpos' => 'mb_strrpos',
+					'iconv_substr'  => 'mb_substr',
+				);
+			}
+			else
+			{
+				self::$function += array(
+					'iconv_strlen'  => 'utf8_mbstring_500::strlen',
+					'iconv_strpos'  => 'utf8_mbstring_500::strpos',
+					'iconv_strrpos' => 'utf8_mbstring_520::strrpos',
+					'iconv_substr'  => 'utf8_mbstring_500::substr',
+				);
+			}
+		}
 
 		$v = get_defined_constants(true);
 		unset(
