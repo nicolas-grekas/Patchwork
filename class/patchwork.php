@@ -1322,12 +1322,12 @@ class
 				self::$watchTable = array_keys(self::$watchTable);
 				sort(self::$watchTable);
 
-				$validator = $_SERVER['PATCHWORK_BASE'] .'-'. $_SERVER['PATCHWORK_LANG'] .'-'. PATCHWORK_PROJECT_PATH .'-'. DEBUG;
+				$validator = $_SERVER['PATCHWORK_BASE'] .'-'. $_SERVER['PATCHWORK_LANG'] .'-'. PATCHWORK_PROJECT_PATH;
 				$validator = substr(md5(serialize(self::$watchTable) . $validator), 0, 8);
 
 				$ETag = $validator;
 
-				$validator = self::$cachePath . $validator[0] .'/'. $validator[1] .'/'. substr($validator, 2) .'.v.txt';
+				$validator = self::$cachePath . $validator[0] .'/'. $validator[1] .'/'. substr($validator, 2) .'.validator.'. DEBUG .'.txt';
 
 				$readHandle = true;
 				if ($h = self::fopenX($validator, $readHandle))
