@@ -388,7 +388,18 @@ class
 			self::setcookie('v$', self::$appId, $_SERVER['REQUEST_TIME'] + $CONFIG['maxage'], $a .'/');
 
 			self::touch('');
-			foreach (glob(self::$cachePath . '?/?/*', GLOB_NOSORT) as $v) unlink($v);
+
+			for ($i = 0; $i < 16; ++$i) for ($j = 0; $j < 16; ++$j)
+			{
+				$dir = self::$cachePath . dechex($i) . '/' . dechex($j) . '/';
+
+				if (file_exists($dir))
+				{
+					$h = opendir($dir);
+					while (false !== $file = readdir($h)) '.' !== $file && '..' !== $file && unlink($dir . $file);
+					closedir($h);
+				}
+			}
 
 			if (!IS_POSTING)
 			{

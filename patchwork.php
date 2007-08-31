@@ -380,7 +380,7 @@ patchwork::start();';
 
 					if (is_array($a) && in_array($a[0], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT)))
 					{
-						if (T_COMMENT == $a[0] && preg_match('/^#import[ \t]/', $a[1])) $parent[] = trim(substr($a[1], 8));
+						if (T_COMMENT == $a[0] && preg_match('/^#patchwork[ \t]/', $a[1])) $parent[] = trim(substr($a[1], 11));
 					}
 					else break;
 				}
@@ -412,17 +412,35 @@ patchwork::start();';
 
 			if ('*' == substr($a, -1) && $a = realpath(substr($a, 0, -1)))
 			{
-				$source = glob($a . '/**/config.patchwork.php', GLOB_NOSORT);
+				$source = array();
+
+				$p = array($a);
+				unset($a);
+
+				$pLen = 1;
+				for ($j = 0; $j < $pLen; ++$j)
+				{
+					$d = $p[$j];
+					$a = file_exists($d . '/config.patchwork.php');
+					$a && $source[] = $d;
+
+					$h = opendir($d);
+					while (false !== $file = readdir($h)) if ('.' !== $file && '..' !== $file)
+					{
+						if ($a && ('class' === $file || 'public' === $file || 'zcache' === $file)) continue;
+
+						is_dir($d . '/' . $file) && $p[$pLen++] = $d . DIRECTORY_SEPARATOR . $file;
+					}
+					closedir($h);
+
+					unset($p[$j]);
+				}
+
 
 				$p = array();
-				file_exists($a . '/config.patchwork.php') && $p[] = $a;
-
-				unset($a);
 
 				foreach ($source as $source)
 				{
-					$source = substr($source, 0, -21);
-
 					if (self::$pwd != $source)
 					{
 						foreach (self::c3mro($source) as $a)

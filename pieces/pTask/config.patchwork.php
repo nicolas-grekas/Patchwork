@@ -1,4 +1,4 @@
-<?php #import ../toolbox
+<?php #patchwork ../toolbox
 
 // By default, Poor Man's Cron is enabled.
 // But it is better to use some external pingger like
