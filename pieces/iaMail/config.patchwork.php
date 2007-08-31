@@ -1,4 +1,4 @@
-<?php #import ../pTask
+<?php #patchwork ../pTask
 
 $CONFIG += array(
 

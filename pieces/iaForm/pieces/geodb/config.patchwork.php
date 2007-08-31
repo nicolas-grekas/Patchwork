@@ -1,4 +1,4 @@
 <?php
 
-#import ../QSelect
-#import ../../../lingua
+#patchwork ../QSelect
+#patchwork ../../../lingua

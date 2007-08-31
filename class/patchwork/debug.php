@@ -47,8 +47,10 @@ class
 
 				$offset = -12 - strlen(PATCHWORK_PATH_TOKEN);
 
-				foreach (glob('./.*.1*.' . PATCHWORK_PATH_TOKEN . '.zcache.php', GLOB_NOSORT) as $cache)
+				$dir = opendir('.');
+				while (false !== $cache = readdir($dir)) if (preg_match('/^\..+\.1.+\.' . PATCHWORK_PATH_TOKEN . '\.zcache\.php$/D', $cache))
 				{
+					$cache = './' . $cache;
 					$file = str_replace('%1', '%', str_replace('%2', '_', strtr(substr($cache, 3, $offset), '_', '/')));
 					$level = substr(strrchr($file, '.'), 2);
 
@@ -63,6 +65,7 @@ class
 
 					if (!file_exists($file) || filemtime($file) >= filemtime($cache)) @unlink($cache);
 				}
+				closedir($dir);
 
 				fclose($h);
 			}

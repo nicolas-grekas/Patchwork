@@ -306,9 +306,19 @@ class
 
 	static function gc($lifetime)
 	{
-		foreach (glob(self::$savePath . '/?/*.session', GLOB_NOSORT) as $file)
+		for ($i = 0; $i < 16; ++$i)
 		{
-			if ($_SERVER['REQUEST_TIME'] - filemtime($file) > $lifetime) unlink($file);
+			$dir = self::$savePath . '/' . dechex($i) . '/';
+
+			if (file_exists($h))
+			{
+				$h = opendir($dir);
+				while (false !== $file = readdir($h))
+					'.session' === substr($file, -8)
+						&& $_SERVER['REQUEST_TIME'] - filemtime($dir . $file) > $lifetime)
+						&& unlink($dir . $file);
+				closedir($h);
+			}
 		}
 	}
 }
