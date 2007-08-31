@@ -315,7 +315,7 @@ class
 				$h = opendir($dir);
 				while (false !== $file = readdir($h))
 					'.session' === substr($file, -8)
-						&& $_SERVER['REQUEST_TIME'] - filemtime($dir . $file) > $lifetime)
+						&& $_SERVER['REQUEST_TIME'] - filemtime($dir . $file) > $lifetime
 						&& unlink($dir . $file);
 				closedir($h);
 			}
