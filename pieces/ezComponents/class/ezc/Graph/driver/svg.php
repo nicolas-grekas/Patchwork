@@ -10,7 +10,7 @@ class ezcGraphSvgDriver extends self
 {
 	function render($file)
 	{
-		$this->createDocument();  
+		$this->createDocument();
 		$this->drawAllTexts();
 		if (ob_get_level() && 'php://output' == $file) echo $this->dom->saveXML();
 		else $this->dom->save( $file );

@@ -214,8 +214,6 @@ class extends ptlCompiler
 				$var = substr($var, 1);
 				$var = "(isset($var)?" .($forceType ? "patchwork::string($var)" : $var). ":'')";
 			}
-
-			
 		}
 
 		$var .= '"\'"\'o';

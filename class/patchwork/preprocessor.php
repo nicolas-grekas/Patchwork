@@ -48,7 +48,7 @@ class patchwork_preprocessor__0
 		'setcookie'    => 'patchwork::setcookie',
 		'setrawcookie' => 'patchwork::setrawcookie',
 	),
-		
+
 	$variableType = array(
 		T_EVAL, '(', T_FILE, T_LINE, T_FUNC_C, T_CLASS_C, T_INCLUDE, T_REQUIRE,
 		T_VARIABLE, '$', T_INCLUDE_ONCE, T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES,
@@ -1162,7 +1162,7 @@ class patchwork_preprocessor_require_ extends patchwork_preprocessor_bracket_
 class patchwork_preprocessor_marker_ extends patchwork_preprocessor_require_
 {
 	public
-	
+
 	$close = ':0)',
 	$greedy = false,
 	$curly = 0;

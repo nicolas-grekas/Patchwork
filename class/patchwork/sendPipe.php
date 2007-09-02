@@ -46,7 +46,7 @@ class extends patchwork
 					fclose($readHandle);
 				}
 #>			}
-			
+
 			echo "\n";
 		}
 

@@ -64,7 +64,7 @@ EOHTML;
 			p::$uri = $_COOKIE['R$'];
 
 			setcookie('R$', '', 1, '/');
-	
+
 			// Check the Referer header
 			// T$ starts with 2 when the Referer's confidence is unknown
 			//                1 when it is trusted
@@ -189,7 +189,7 @@ EOHTML;
 					else echo jsquote($value);
 					$comma = ',';
 				}
-	
+
 				echo '}';
 			}
 			catch (PrivateDetection $data)

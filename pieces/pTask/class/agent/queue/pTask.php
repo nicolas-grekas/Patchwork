@@ -18,7 +18,7 @@ class extends agent
 
 
 	public
-	
+
 	$get = array(
 		'__1__:i:1',
 		'__2__:c:[a-f0-9]{32}'
@@ -33,7 +33,7 @@ class extends agent
 	$queueName = 'queue',
 	$queueFolder = 'data/queue/pTask/',
 	$dual = 'pTask',
-		
+
 	$sqlite;
 
 

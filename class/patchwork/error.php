@@ -92,7 +92,7 @@ class extends patchwork
 		case E_ERROR:             $msg = '<b>Fatal Error</b>';             break;
 		case E_USER_ERROR:        $msg = '<b>Fatal User Error</b>';        break;
 		case E_RECOVERABLE_ERROR: $msg = '<b>Fatal Recoverable Error</b>'; break;
-			
+
 		case E_WARNING:      $msg = '<b>Warning</b>';       break;
 		case E_USER_WARNING: $msg = '<b>User Warning</b>';  break;
 		case E_NOTICE:       $msg = '<b>Notice</b>';        break;

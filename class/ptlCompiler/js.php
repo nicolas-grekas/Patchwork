@@ -254,7 +254,7 @@ class extends ptlCompiler
 	protected function getRawString($str)
 	{
 		$str = substr($str, 1, -1);
-		
+
 		false !== strpos($str, "\\'")  && $str = str_replace("\\'" , "'" , $str);
 		false !== strpos($str, '<\\/') && $str = str_replace('<\\/', '</', $str);
 		false !== strpos($str, '\n')   && $str = str_replace('\n'  , "\n", $str);
