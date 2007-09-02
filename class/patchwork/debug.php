@@ -61,7 +61,7 @@ class
 						$file = substr($file, 6);
 					}
 
-					$file = $patchwork_path[PATCHWORK_PATH_LAST - $level] .'/'. $file;
+					$file = $patchwork_path[PATCHWORK_PATH_LEVEL - $level] .'/'. $file;
 
 					if (!file_exists($file) || filemtime($file) >= filemtime($cache)) @unlink($cache);
 				}
@@ -216,7 +216,7 @@ function Z()
 
 	static function filename($m)
 	{
-		return $GLOBALS['patchwork_path'][PATCHWORK_PATH_LAST - ((int)($m[3].$m[2]))]
+		return $GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - ((int)($m[3].$m[2]))]
 			. DIRECTORY_SEPARATOR
 			. str_replace('%1', '%', str_replace('%2', '_', strtr($m[1], '_', DIRECTORY_SEPARATOR)));
 	}

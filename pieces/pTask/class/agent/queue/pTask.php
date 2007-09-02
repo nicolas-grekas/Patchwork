@@ -86,14 +86,17 @@ class extends agent
 		$sql = "SELECT OID, base, run_time FROM queue WHERE run_time>0 ORDER BY run_time, OID LIMIT 1";
 		if ($data = $this->sqlite->query($sql)->fetchObject())
 		{
+			0 > $this->maxage && $this->maxage = PHP_INT_MAX;
+
 			if ($data->run_time <= $time)
 			{
+				// XXX What if the URL is not valid anymore ?
 				tool_touchUrl::call("{$data->base}queue/pTask/{$data->OID}/" . $this->getToken());
 
 				$sql = "SELECT run_time FROM queue WHERE run_time>{$time} ORDER BY run_time LIMIT 1";
-				if ($data = $this->sqlite->query($sql)->fetchObject()) p::setMaxage($data->run_time - $time);
+				if ($data = $this->sqlite->query($sql)->fetchObject()) p::setMaxage(min($this->maxage, $data->run_time - $time));
 			}
-			else p::setMaxage($data->run_time - $time);
+			else p::setMaxage(min($this->maxage, $data->run_time - $time));
 		}
 	}
 
@@ -107,7 +110,7 @@ class extends agent
 		if (!$data) return;
 
 		$sql = "UPDATE queue SET run_time=0 WHERE OID={$id}";
-		$sqlite->query($sql);
+		$sqlite->queryExec($sql);
 
 		$data = unserialize($data->data);
 
@@ -128,7 +131,7 @@ class extends agent
 		}
 		else $sql = "DELETE FROM queue WHERE OID={$id}";
 
-		$sqlite->query($sql);
+		$sqlite->queryExec($sql);
 	}
 
 	protected function touchOne($id)

@@ -27,15 +27,16 @@ class extends pTask
 	$runLimit = -1;
 
 
-	function __construct($callback = false, $arguments = array())
+	function __construct($crontab, $callback = false, $arguments = array())
 	{
-		is_string($this->crontab) && $this->setCrontab($this->crontab);
+		$this->setCrontab($crontab);
 		parent::__construct($callback, $arguments);
 	}
 
 	function setCrontab($crontab)
 	{
 		is_array($crontab) && $crontab = implode("\n", $crontab);
+		$crontab = strtr($crontab, '|', "\n");
 		$crontab = strtolower(trim($crontab));
 		false !== strpos($crontab, "\r")  && $crontab = strtr(str_replace("\r\n", "\n", $crontab), "\r", "\n");
 

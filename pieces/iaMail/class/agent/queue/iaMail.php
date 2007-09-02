@@ -41,7 +41,7 @@ class extends agent_queue_pTask
 		if (!$data) return;
 
 		$sql = "UPDATE queue SET send_time=0 WHERE OID={$id}";
-		$sqlite->query($sql);
+		$sqlite->queryExec($sql);
 
 		$archive = $data->archive;
 		$data = (object) unserialize($data->data);
@@ -55,6 +55,6 @@ class extends agent_queue_pTask
 		$sql = $archive
 			? "UPDATE queue SET sent_time={$_SERVER['REQUEST_TIME']} WHERE OID={$id}"
 			: "DELETE FROM queue WHERE OID={$id}";
-		$sqlite->query($sql);
+		$sqlite->queryExec($sql);
 	}
 }

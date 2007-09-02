@@ -160,7 +160,6 @@ class
 {
 	static
 
-	$cachePath,
 	$agentClass,
 	$catchMeta = false;
 
@@ -238,7 +237,6 @@ class
 		}
 
 		self::$appId = abs($GLOBALS['patchwork_appId'] % 10000);
-		self::$cachePath = PATCHWORK_ZCACHE;
 		self::setLang($_SERVER['PATCHWORK_LANG'] ? $_SERVER['PATCHWORK_LANG'] : substr($CONFIG['i18n.lang_list'], 0, 2));
 	}
 
@@ -391,7 +389,7 @@ class
 
 			for ($i = 0; $i < 16; ++$i) for ($j = 0; $j < 16; ++$j)
 			{
-				$dir = self::$cachePath . dechex($i) . '/' . dechex($j) . '/';
+				$dir = PATCHWORK_ZCACHE . dechex($i) . '/' . dechex($j) . '/';
 
 				if (file_exists($dir))
 				{
@@ -882,7 +880,7 @@ class
 		$filename = rawurlencode(str_replace('/', '.', $filename));
 		$filename = substr($filename, 0, 224 - strlen($extension));
 
-		return self::$cachePath . $hash . '.' . $filename . $extension;
+		return PATCHWORK_ZCACHE . $hash . '.' . $filename . $extension;
 	}
 
 	static function getContextualCachePath($filename, $extension, $key = '')
@@ -1323,12 +1321,12 @@ class
 				self::$watchTable = array_keys(self::$watchTable);
 				sort(self::$watchTable);
 
-				$validator = $_SERVER['PATCHWORK_BASE'] .'-'. $_SERVER['PATCHWORK_LANG'] .'-'. PATCHWORK_PROJECT_PATH;
+				$validator = $_SERVER['PATCHWORK_BASE'] .'-'. $_SERVER['PATCHWORK_LANG'] .'-'. PATCHWORK_PROJECT_PATH .'-'. DEBUG;
 				$validator = substr(md5(serialize(self::$watchTable) . $validator), 0, 8);
 
 				$ETag = $validator;
 
-				$validator = self::$cachePath . $validator[0] .'/'. $validator[1] .'/'. substr($validator, 2) .'.validator.'. DEBUG .'.txt';
+				$validator = PATCHWORK_ZCACHE . $validator[0] .'/'. $validator[1] .'/'. substr($validator, 2) .'.v.txt';
 
 				$readHandle = true;
 				if ($h = self::fopenX($validator, $readHandle))
@@ -1440,12 +1438,12 @@ class
 
 	static function resolvePublicPath($filename, &$path_idx = 0)
 	{
-		if ($path_idx && $path_idx > PATCHWORK_PATH_LAST) return false;
+		if ($path_idx && $path_idx > PATCHWORK_PATH_LEVEL) return false;
 
 
 		global $patchwork_lastpath_level;
 
-		$level = PATCHWORK_PATH_LAST - $path_idx;
+		$level = PATCHWORK_PATH_LEVEL - $path_idx;
 
 		$lang = self::__LANG__() . '/';
 		$l_ng = 5 == strlen($lang) ? substr($lang, 0, 2) . '/' : false;
@@ -1471,7 +1469,7 @@ class
 			$lang_level = $patchwork_lastpath_level;
 		}
 
-		$path_idx = PATCHWORK_PATH_LAST - $lang_level;
+		$path_idx = PATCHWORK_PATH_LEVEL - $lang_level;
 
 		return $lang;
 	}

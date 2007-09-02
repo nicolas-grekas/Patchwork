@@ -12,45 +12,55 @@
  ***************************************************************************/
 
 
-class extends pTask_periodic
+class extends pTask
 {
-	static function crontab()
+	static function getCrontab()
 	{
 		return array(
-			'hourly'  => ' 0 * * * *',
-			'daily'   => ' 1 3 * * *',
-			'weekly'  => '15 4 * * 0',
-			'monthly' => '30 5 1 * *',
+#			'name_of_my_custom_task'  => new pTask_my_periodic_task(/*...*/),
+
+#			'name_of_my_hourly__task' => new pTask_periodic(' 0 * * * *', /*my_hourly__callback*/ /*[, callback_arguments_array]*/),
+#			'name_of_my_daily___task' => new pTask_periodic(' 1 3 * * *', /*my_daily___callback*/ /*[, callback_arguments_array]*/),
+#			'name_of_my_weekly__task' => new pTask_periodic('15 4 * * 0', /*my_weekly__callback*/ /*[, callback_arguments_array]*/),
+#			'name_of_my_monthly_task' => new pTask_periodic('30 5 1 * *', /*my_monthly_callback*/ /*[, callback_arguments_array]*/),
 		);
 	}
 
 
-	protected $lastRun;
-
-	function __construct() {$this->lastRun = $_SERVER['REQUEST_TIME'];}
-
-	function execute()
+	static function setup()
 	{
-		$now = $_SERVER['REQUEST_TIME'];
-		$this->nextRun = 0;
+		$crontab = self::getCrontab();
+		$zcache = sqlite_escape_string(PATCHWORK_ZCACHE);
 
-		foreach (self::crontab() as $task => $crontab)
+
+		$sqlite = new pTask;
+		$sqlite = $sqlite->getSqlite();
+
+		$sql = "DELETE FROM registry WHERE level=" . PATCHWORK_PATH_LEVEL . " AND zcache='{$zcache}'";
+		$sqlite->queryExec($sql);
+
+		$noname = false;
+		$sqlite->queryExec('BEGIN');
+		foreach ($crontab as $name => $task)
 		{
-			$this->setCrontab($crontab);
-
-			if (parent::getNextRun($this->lastRun) <= $now)
+			if (is_int($name))
 			{
-				$task = 'pTask_' . $task;
-				pTask::schedule(new pTask(array(new $task, 'run')), $now);
+				$noname || W('Every periodic task in the crontab should have a unique name.');
+				$noname = true;
+
+				$name = array();
+				while (false !== $sql = get_parent_class($task)) $name[] = $sql;
+				$name = md5(serialize(array($task, $name)));
 			}
 
-			$task = parent::getNextRun();
-			if (!$this->nextRun || $task < $this->nextRun) $this->nextRun = $task;
+			$name = sqlite_escape_string($name);
+			$sql = "DELETE FROM registry WHERE name='{$name}' AND level>=" . PATCHWORK_PATH_LEVEL . " AND zcache='{$zcache}'";
+			$sqlite->queryExec($sql);
+
+			$id = pTask::schedule($task, $task->getNextRun());
+			$sql = "INSERT INTO registry VALUES ({$id}, '{$name}', " . PATCHWORK_PATH_LEVEL . ", '{$zcache}')";
+			$sqlite->queryExec($sql);
 		}
-
-		$this->crontab = array();
-		$this->lastRun = time();
+		$sqlite->queryExec('COMMIT');
 	}
-
-	function getNextRun($time = false) {return $this->nextRun;}
 }

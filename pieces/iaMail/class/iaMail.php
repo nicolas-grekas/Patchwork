@@ -63,7 +63,7 @@ class extends pTask
 		$data = sqlite_escape_string(serialize($data));
 
 		$sql = "INSERT INTO queue VALUES('{$base}','{$data}',{$time},{$archive},{$sent})";
-		$sqlite->query($sql);
+		$sqlite->queryExec($sql);
 
 		$id = $sqlite->lastInsertRowid();
 
@@ -78,9 +78,9 @@ class extends pTask
 	}
 
 
-	protected function setupQueue()
+	protected function defineQueue()
 	{
-		parent::setupQueue();
+		parent::defineQueue();
 
 		$this->queueFolder = 'data/queue/iaMail/';
 		$this->queueUrl = 'queue/iaMail';

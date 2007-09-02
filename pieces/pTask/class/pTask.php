@@ -62,7 +62,7 @@ class
 		$data = sqlite_escape_string(serialize($data));
 
 		$sql = "INSERT INTO queue VALUES('{$base}','{$data}',{$time})";
-		$sqlite->query($sql);
+		$sqlite->queryExec($sql);
 
 		$id = $sqlite->lastInsertRowid();
 
@@ -76,13 +76,13 @@ class
 		$queue = new self;
 		$id = (int) $id;
 		$sql = "DELETE FROM queue WHERE OID={$id}";
-		$queue->getSqlite()->query($sql);
+		$queue->getSqlite()->queryExec($sql);
 	}
 
 
 	// The following functions should not be used directly
 
-	protected function setupQueue()
+	protected function defineQueue()
 	{
 		$this->queueName = 'queue';
 		$this->queueFolder = 'data/queue/pTask/';
@@ -91,7 +91,20 @@ class
 			CREATE TABLE queue (base TEXT, data BLOB, run_time INTEGER);
 			CREATE INDEX run_time ON queue (run_time);
 			CREATE VIEW waiting AS SELECT * FROM queue WHERE run_time>0;
-			CREATE VIEW error   AS SELECT * FROM queue WHERE run_time=0;';
+			CREATE VIEW error   AS SELECT * FROM queue WHERE run_time=0;
+
+			CREATE TABLE registry (task_id INTEGER, task_name TEXT, level INTEGER, zcache TEXT);
+			CREATE INDEX task_id ON registry registry (task_id);
+
+			CREATE TRIGGER DELETE ON queue
+			BEGIN
+				DELETE FROM registry WHERE task_id=OLD.OID;
+			END;
+
+			CREATE TRIGGER DELETE ON registry
+			BEGIN
+				DELETE FROM queue WHERE OID=OLD.task_id
+			END;';
 	}
 
 
@@ -136,7 +149,7 @@ class
 
 	function getSqlite()
 	{
-		$this->setupQueue();
+		$this->defineQueue();
 
 		$sqlite =& self::$sqlite[get_class($this)];
 		if ($sqlite) return $sqlite;
@@ -147,7 +160,7 @@ class
 		else
 		{
 			$sqlite = new SQLiteDatabase($sqlite);
-			@$sqlite->query($this->queueSql);
+			@$sqlite->queryExec($this->queueSql);
 		}
 
 		return $sqlite;
