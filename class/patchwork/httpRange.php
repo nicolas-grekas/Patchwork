@@ -102,7 +102,6 @@ class
 	}
 
 
-	protected static $boundary = '3aedfd5ac177ca71';
 	protected static $stringBuffer;
 
 	static function sendChunks(&$range, &$h, $mime, $size)
@@ -135,20 +134,21 @@ class
 		}
 		else
 		{
-			$len = strlen(self::$boundary);
+			$boundary = substr(p::uniqid(), -16);
+			$len = strlen($boundary);
 			$lenOffset = 49 + $len + strlen($mime) + strlen((string) $size);
 			$len += 8;
 
 			foreach ($range as $r) $len += $lenOffset + $r[1] - $r[0] + 1 + strlen(implode('', $r));
 	
 			header('Content-Length: ' . $len);
-			header('Content-Type: multipart/byteranges; boundary=' . self::$boundary);
+			header('Content-Type: multipart/byteranges; boundary=' . $boundary);
 
 			foreach ($range as $r)
 			{
 				list($min, $max) = $r;
 
-				$r = self::$boundary;
+				$r = $boundary;
 				$r = "\r\n--{$r}\r\n"
 					. "Content-Type: {$mime}\r\n"
 					. "Content-Range: bytes {$min}-{$max}/{$size}\r\n\r\n";
@@ -159,7 +159,7 @@ class
 				self::sendChunk($h, $min, $max);
 			}
 
-			$r = self::$boundary;
+			$r = $boundary;
 			$r = "\r\n--{$r}--\r\n";
 			if (self::$stringBuffer) self::$stringBuffer[] = $r;
 			else echo $r;
