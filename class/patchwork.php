@@ -289,19 +289,20 @@ class
 		if (IS_POSTING) {unset($_POST['T$'], $_POST['T$']);}
 
 
-		// If the URL has an extension, check for static files
-
-		$agent = $_SERVER['PATCHWORK_REQUEST'];
-		if (($mime = strrchr($agent, '.')) && strcasecmp('.ptl', $mime)) patchwork_staticControler::call($agent, $mime);
-
-
-		// Go
+		// Setup output filters
 
 		self::$is_enabled = true;
 		self::$ob_starting_level = ob_get_level();
 		ob_start(array(__CLASS__, 'ob_sendHeaders'));
 		ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
 		self::$ob_level = 2;
+
+
+		// If the URL has an extension, check for static files
+
+		$agent = $_SERVER['PATCHWORK_REQUEST'];
+		if (($mime = strrchr($agent, '.')) && strcasecmp('.ptl', $mime)) patchwork_staticControler::call($agent, $mime);
+
 
 		PATCHWORK_DIRECT ? self::clientside() : self::serverside();
 
