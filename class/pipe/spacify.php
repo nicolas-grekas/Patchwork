@@ -16,7 +16,7 @@ class
 {
 	static function php($string, $spacify_char = ' ')
 	{
-		preg_match_all("'.'u", p::string($string), $string);
+		preg_match_all('/./u', p::string($string), $string);
 		return implode(p::string($spacify_char), $string[0]);
 	}
 

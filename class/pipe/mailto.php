@@ -16,18 +16,37 @@ class
 {
 	static function php($string, $email = '', $attributes = '')
 	{
+		static $first = true;
+
 		$string = htmlspecialchars(p::string($string));
 		$email  = htmlspecialchars(p::string($email));
 		if (!$email) $email = $string;
 		$attributes = htmlspecialchars(p::string($attributes));
 		'' !== $attributes && $attributes = ' ' . $attributes;
 
-
-		return '<a href="mailto:'
+		$email = '<a name="mailA' . PATCHWORK_PATH_TOKEN . '" href="mailto:'
 			. str_replace('@', '[&#97;t]', $email) . '"'
 			. $attributes . '>'
-			. str_replace('@', '<span style="display:none">@</span>&#64;', $string)
+			. str_replace('@', '<span style="display:none" name="mailS' . PATCHWORK_PATH_TOKEN . '">@</span>&#64;', $string)
 			. '</a>';
+
+		if ($first)
+		{
+			$first = false;
+			$email .= '<script type="text/javascript" name="w$">/*<![CDATA[*/document.getElementsByName && onDOMLoaded.push(function()
+{
+	var i, l
+
+	a = document.getElementsByName("mailA' . PATCHWORK_PATH_TOKEN . '");
+	for (i=0, len=a.length; i<len; ++i) a[i].href = a[i].href.replace(/\\[at\\]/, "@");
+
+	a = document.getElementsByName("mailS' . PATCHWORK_PATH_TOKEN . '");
+	for (i=0, len=a.length; i<len; ++i) a[i].parentNode.removeChild(a[i]);
+}
+)//]]></script>';
+		}
+
+		return $email;
 	}
 
 	static function js()
