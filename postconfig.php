@@ -266,7 +266,7 @@ define('PATCHWORK_I18N', false !== strpos($CONFIG['i18n.lang_list'], '|'));
 /**/	{
 			'/index.php' == substr($_SERVER['PATCHWORK_BASE'], -10) && $_SERVER['PATCHWORK_BASE'] = substr($_SERVER['PATCHWORK_BASE'], 0, -10);
 			$_SERVER['PATCHWORK_BASE'] .= '?' . (PATCHWORK_I18N ? '__/' : '');
-			
+
 			$_SERVER['PATCHWORK_REQUEST'] = $_SERVER['QUERY_STRING'];
 
 			$a = strpos($_SERVER['QUERY_STRING'], '?');

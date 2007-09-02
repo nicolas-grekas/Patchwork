@@ -28,8 +28,8 @@ class extends iaForm_hidden
 			$x =& $this->form->rawValues;
 
 			$this->value = array(
-				isset($x[$this->name.'_x']) ? (int) $x[$this->name.'_x'] : 0, 
-				isset($x[$this->name.'_y']) ? (int) $x[$this->name.'_y'] : 0, 
+				isset($x[$this->name.'_x']) ? (int) $x[$this->name.'_x'] : 0,
+				isset($x[$this->name.'_y']) ? (int) $x[$this->name.'_y'] : 0,
 			);
 
 			unset($x);

@@ -34,7 +34,7 @@ class extends agent
 //		'jsp','cfm','cfc','pl','bat','exe','com','dll','vbs','js','reg','cgi','htaccess','asis',
 //		'sh','shtml','shtm','phtm',
 	),
-	
+
 	$allow_image = array('jpg','gif','jpeg','png','bmp'),
 	$deny_image  = array(),
 
@@ -99,7 +99,7 @@ class extends agent
 
 				natcasesort($folders);
 				$o->FOLDERS = new loop_array($folders);
-				
+
 				if ($getFiles)
 				{
 					uksort($files, 'strnatcasecmp');
@@ -169,7 +169,7 @@ class extends agent
 
 			$allow = $this->{'allow_' . $o->resourceType};
 			$deny = $this->{'deny_' . $o->resourceType};
-	
+
 			if (
 				   (!$allow ||  in_array($extension, $allow))
 				&& (!$deny  || !in_array($extension, $deny ))

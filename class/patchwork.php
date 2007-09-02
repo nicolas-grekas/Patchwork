@@ -482,7 +482,7 @@ class
 
 			if (strncmp('/', $url, 1)) $url = self::$base . $url;
 			else $url = self::$host . substr($url, 1);
-	
+
 			if (!$noId && '/' != substr($url, -1)) $url .= (false === strpos($url, '?') ? '?' : '&amp;') . self::$appId;
 		}
 
@@ -564,7 +564,7 @@ class
 	{
 		self::setrawcookie($name, urlencode($value), $expires, $path, $domain, $secure, $httponly);
 	}
-	
+
 	static function setrawcookie($name, $value = '', $expires = 0, $path = '', $domain = '', $secure = false, $httponly = false)
 	{
 		isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 5') && $httponly = false;
@@ -682,7 +682,7 @@ class
 	{
 		if ($LastModified > self::$LastModified) self::$LastModified = $LastModified;
 	}
-	
+
 	/*
 	 * Controls cache max age
 	 */

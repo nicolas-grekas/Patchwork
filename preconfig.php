@@ -160,7 +160,7 @@ function resolvePath($file, $level = false, $base = false)
 		{
 			$base = (int) current($base);
 			$level = $patchwork_lastpath_level -= $base - $i;
-			
+
 			return $GLOBALS['patchwork_path'][$base] . '/' . (0<=$level ? $file : substr($file, 6)) . ($slash ? '/' : '');
 		}
 		while (false !== next($base));
@@ -230,7 +230,7 @@ class ob
 $patchwork_private = false;
 
 
-// Check HTTP validator 
+// Check HTTP validator
 
 /**/unset($_SERVER['HTTP_IF_NONE_MATCH'], $_SERVER['HTTP_IF_MODIFIED_SINCE']);
 

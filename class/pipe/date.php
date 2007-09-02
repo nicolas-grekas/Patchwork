@@ -64,7 +64,7 @@ P$date = function($time, $format)
 		$i = 0,
 		$len = $format.length,
 		$t,
-		
+
 		$token = {
 			a: function()
 			{

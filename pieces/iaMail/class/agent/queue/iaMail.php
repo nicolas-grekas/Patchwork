@@ -37,7 +37,7 @@ class extends agent_queue_pTask
 
 		$sql = "SELECT archive, data FROM queue WHERE OID={$id}";
 		$data = $sqlite->query($sql)->fetchObject();
-	
+
 		if (!$data) return;
 
 		$sql = "UPDATE queue SET send_time=0 WHERE OID={$id}";
