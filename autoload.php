@@ -16,7 +16,7 @@ function patchwork_autoload($searched_class)
 {
 	global $patchwork_autoload_cache;
 
-	$path_last = PATCHWORK_PATH_LAST;
+	$path_last = PATCHWORK_PATH_LEVEL;
 
 	if (false !== strpos($searched_class, ';') || false !== strpos($searched_class, "'")) return;
 

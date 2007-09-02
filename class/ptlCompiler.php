@@ -188,8 +188,8 @@ abstract class
 		$template = (IS_WINDOWS ? clower($m[1]) : $m[1]) . '.ptl';
 
 		$a = str_replace('\\', '/', $template) == preg_replace("'[\\/]+'", '/', $this->template);
-		$a = isset($m[2]) ? substr($m[2], 1) : ($a ? -1 : (PATCHWORK_PATH_LAST - $this->path_idx));
-		$a = $a < 0 ? $this->path_idx - $a : (PATCHWORK_PATH_LAST - $a);
+		$a = isset($m[2]) ? substr($m[2], 1) : ($a ? -1 : (PATCHWORK_PATH_LEVEL - $this->path_idx));
+		$a = $a < 0 ? $this->path_idx - $a : (PATCHWORK_PATH_LEVEL - $a);
 
 		if ($a < 0)
 		{
@@ -198,7 +198,7 @@ abstract class
 		}
 		else
 		{
-			if ($a > PATCHWORK_PATH_LAST) $a = PATCHWORK_PATH_LAST;
+			if ($a > PATCHWORK_PATH_LEVEL) $a = PATCHWORK_PATH_LEVEL;
 			return $this->load($template, $a);
 		}
 	}

@@ -14,7 +14,7 @@ error_reporting(E_ALL | E_STRICT);
 
 define('PATCHWORK_PROJECT_PATH', /**/__patchwork_loader::$cwd   /**/);
 define('PATCHWORK_ZCACHE',       /**/__patchwork_loader::$zcache/**/);
-define('PATCHWORK_PATH_LAST',    /**/__patchwork_loader::$last  /**/);
+define('PATCHWORK_PATH_LEVEL',   /**/__patchwork_loader::$last  /**/);
 define('PATCHWORK_PATH_OFFSET',  /**/__patchwork_loader::$offset/**/);
 
 $_REQUEST = array(); // $_REQUEST is an open door to security problems.
@@ -228,6 +228,41 @@ class ob
 
 
 $patchwork_private = false;
+
+
+// Check HTTP validator 
+
+/**/unset($_SERVER['HTTP_IF_NONE_MATCH'], $_SERVER['HTTP_IF_MODIFIED_SINCE']);
+
+$a = isset($_SERVER['HTTP_IF_NONE_MATCH'])
+	? $_SERVER['HTTP_IF_NONE_MATCH']
+	: isset($_SERVER['HTTP_IF_MODIFIED_SINCE']);
+
+if ($a)
+{
+	if (true === $a)
+	{
+		// Patch an IE<=6 bug when using ETag + compression
+		$a = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE'], 2);
+		$_SERVER['HTTP_IF_MODIFIED_SINCE'] = $a = strtotime($a[0]);
+		$_SERVER['HTTP_IF_NONE_MATCH'] = '"' . dechex($a) . '"';
+		$patchwork_private = true;
+	}
+	else if (27 == strlen($a) && '"-------------------------"' == strtr($a, '0123456789abcdef', '----------------'))
+	{
+		$b = PATCHWORK_ZCACHE . $a[1] .'/'. $a[2] .'/'. substr($a, 3, 6) .'.v.txt';
+		if (file_exists($b) && substr(file_get_contents($b), 0, 8) == substr($a, 9, 8))
+		{
+			$private = substr($a, 17, 1);
+			$maxage  = hexdec(substr($a, 18, 8));
+
+			header('HTTP/1.1 304 Not Modified');
+			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', $_SERVER['REQUEST_TIME'] + ($private || !$maxage ? 0 : $maxage)));
+			header('Cache-Control: max-age=' . $maxage . ($private ? ',private,must' : ',public,proxy') . '-revalidate');
+			exit;
+		}
+	}
+}
 
 
 /**/$a = file_get_contents(__patchwork_loader::$pwd . '/data/utf8/quickChecks.txt');
