@@ -210,9 +210,6 @@ define('PATCHWORK_I18N', false !== strpos($CONFIG['i18n.lang_list'], '|'));
 /**/	if ('/'  == substr($_SERVER['PATCHWORK_BASE'], 0, 1))
 			$_SERVER['PATCHWORK_BASE'] = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PATCHWORK_BASE'];
 
-/**/	if (!isset($_SERVER['PATCHWORK_LANG']))
-			isset($_SERVER['PATCHWORK_LANG']) || $_SERVER['PATCHWORK_LANG'] = '';
-
 /**/	if ($a)
 /**/	{
 			if (isset($_SERVER['REDIRECT_URL']))
@@ -227,6 +224,7 @@ define('PATCHWORK_I18N', false !== strpos($CONFIG['i18n.lang_list'], '|'));
 					parse_str($_SERVER['QUERY_STRING'], $_GET);
 				}
 			}
+			else isset($_SERVER['PATCHWORK_LANG']) || $_SERVER['PATCHWORK_LANG'] = '';
 /**/	}
 /**/}
 /**/else
