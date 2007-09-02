@@ -35,11 +35,11 @@ P$rot13 = function($string)
 
 		if ((64 < $b && $b < 78) || (96 < $b && $b < 110))
 		{
-			b += 13;
+			$b += 13;
 		}
 		else if ((77 < $b && $b < 91) || (109 < $b && $b < 123))
 		{
-			b -= 13;
+			$b -= 13;
 		}
 
 		$result += String.fromCharCode($b);

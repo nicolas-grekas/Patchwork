@@ -17,7 +17,7 @@ class
 	static function php($text, $url = '', $attributes = '')
 	{
 		$text = p::string($text);
-		$url = p::string($url);
+		$url  = p::string($url);
 
 		$a = strpos($url, '#');
 		if (false !== $a)
