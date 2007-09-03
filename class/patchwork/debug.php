@@ -138,9 +138,9 @@ function Z()
 		ignore_user_abort($S);
 		@set_time_limit(0);
 
-		ini_set('error_log', './error.log');
+		ini_set('error_log', './error.patchwork.log');
 		$error_log = ini_get('error_log');
-		$error_log = $error_log ? $error_log : './error.log';
+		$error_log = $error_log ? $error_log : './error.patchwork.log';
 		echo str_repeat(' ', 512), // special MSIE
 			'<pre>';
 		$S||flush();

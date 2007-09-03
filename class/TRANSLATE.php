@@ -29,10 +29,10 @@ class
 
 		if ($usecache && $id = p::$agentClass)
 		{
-			$id = p::getContextualCachePath('lang/' . substr($id, 6), 'php');
+			$id = p::getContextualCachePath('lang/' . substr($id, 6), 'ser');
 			if (!isset(self::$cache[$id]))
 			{
-				if (file_exists($id)) $cache = include $id;
+				if (file_exists($id)) $cache = unserialize(file_get_contents($id));
 
 				self::$cache[$id] = $cache ? array(false, false, &$cache) : array(false, true, array());
 			}
@@ -66,7 +66,7 @@ class
 
 		foreach (self::$cache as $file => &$cache) if ($cache[0])
 		{
-			$data = '<?php return ' . var_export($cache[2], true) . ';';
+			$data = serialize($cache[2]);
 
 			p::writeFile($file, $data);
 			if ($cache[1]) p::writeWatchTable('translate', $file, false);
@@ -77,6 +77,6 @@ class
 	/* Adapter interface */
 
 	function open() {}
-	function search($string, $lang) {return $string; /*return "<span class='i18n {$lang}'>{$string}</span>";*/}
+	function search($string, $lang) {/*return "<span class=\"i18n {$lang}\">{$string}</span>";*/ return $string;}
 	function close() {}
 }

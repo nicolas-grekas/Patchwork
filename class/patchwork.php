@@ -150,7 +150,7 @@ function patchwork_error_handler($code, $message, $file, $line, &$context)
 }
 
 ini_set('log_errors', true);
-ini_set('error_log', PATCHWORK_PROJECT_PATH . '/error.log');
+ini_set('error_log', PATCHWORK_PROJECT_PATH . '/error.patchwork.log');
 ini_set('display_errors', false);
 
 set_error_handler('patchwork_error_handler');
@@ -909,7 +909,7 @@ class
 			}
 
 			$b = ini_get('error_log');
-			$b = fopen($b ? $b : (PATCHWORK_PROJECT_PATH . '/error.log'), 'ab');
+			$b = fopen($b ? $b : (PATCHWORK_PROJECT_PATH . '/error.patchwork.log'), 'ab');
 			flock($b, LOCK_EX);
 			fwrite($b, $a);
 			fclose($b);
