@@ -8,9 +8,9 @@
 
 // Import basic pieces of patchwork.
 
-#patchwork pieces/iaForm/pieces/*
+#patchwork pieces/pForm/pieces/*
 #patchwork pieces/lingua
-#patchwork pieces/iaMail
+#patchwork pieces/pMail
 #patchwork pieces/toolbox
 #patchwork pieces/ie7
 

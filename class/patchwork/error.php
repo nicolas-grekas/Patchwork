@@ -117,7 +117,7 @@ in <b>$file</b> line <b>$line</b>:\n{$message}<blockquote id="{$cid}" style="dis
 EOHTML;
 
 		$i = ini_get('error_log');
-		$i = fopen($i ? $i : './error.log', 'ab');
+		$i = fopen($i ? $i : './error.patchwork.log', 'ab');
 		flock($i, LOCK_EX);
 		fwrite($i, $cid);
 		fclose($i);
