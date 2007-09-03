@@ -310,7 +310,7 @@ class
 		{
 			$dir = self::$savePath . '/' . dechex($i) . '/';
 
-			if (file_exists($h))
+			if (file_exists($dir))
 			{
 				$h = opendir($dir);
 				while (false !== $file = readdir($h))
