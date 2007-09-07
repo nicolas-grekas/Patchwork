@@ -132,8 +132,15 @@ ${'b'.$a} = ${'a'.$a} = false;
 
 // Load config
 
-$a = array_keys(__patchwork_loader::$configSource);
-foreach ($a as $a) __patchwork_loader::$configCode[$a] =& __patchwork_loader::$configSource[$a];
+$a = __patchwork_loader::$last + 1;
+$a = array_slice($patchwork_path, 0, $a);
+$b =& __patchwork_loader::$configSource;
+foreach ($a as $a)
+{
+	$a .= DIRECTORY_SEPARATOR . 'config.patchwork.php';
+	isset($b[$a]) && __patchwork_loader::$configCode[$a] =& $b[$a];
+}
+unset($b);
 
 
 // Load postconfig
@@ -161,6 +168,8 @@ foreach (__patchwork_loader::$configCode as __patchwork_loader::$file => $a)
 	eval($a);
 	if ('' !== $a = ob_get_clean()) echo preg_replace('/' . __patchwork_loader::$selfRx . '\(\d+\) : eval\(\)\'d code/', __patchwork_loader::$file, $a);
 }
+
+unset($a);
 
 
 // Setup hook
