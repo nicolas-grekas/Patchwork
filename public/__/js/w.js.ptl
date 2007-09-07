@@ -171,7 +171,7 @@ resyncCSRF.$formsLength = 0;
 onDOMLoaded = [];
 onDOMLoaded.go = function()
 {
-	var $i, $pool, $script;
+	var $i, $pool;
 
 	resyncCSRF();
 
@@ -181,8 +181,7 @@ onDOMLoaded.go = function()
 	{
 		$pool = document.getElementsByName('w$');
 		$i = $pool.length;
-		while ($i--) 'script' == ($script = $pool[$i]).tagName.toLowerCase() && $script.parentNode.removeChild($script);
-		$script = 0;
+		while ($i--) $pool[$i].parentNode.removeChild($pool[$i]);
 	}
 
 	$pool = onDOMLoaded;

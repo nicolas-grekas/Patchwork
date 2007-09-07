@@ -13,6 +13,6 @@
 <!-- IF a$latitude || a$longitude -->
 <div class="geo">Geo:
 	<!-- IF a$latitude  --><abbr class="latitude"  title="{a$latitude}" >{a$latitude|geo:'latitude'}</abbr>{a$longitude|test:', '}<!-- END:IF -->
-	<!-- IF a$longitude --><abbr class="longitude" title="{a$longitude}">{a$latitude|geo:'longitude'}</abbr><!-- END:IF -->
+	<!-- IF a$longitude --><abbr class="longitude" title="{a$longitude}">{a$longitude|geo:'longitude'}</abbr><!-- END:IF -->
 </div>
 <!-- END:IF -->
