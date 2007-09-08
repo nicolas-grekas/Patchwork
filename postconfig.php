@@ -20,8 +20,10 @@
 define('PATCHWORK_PATH_TOKEN', /**/__patchwork_loader::$token/**/);
 
 
-isset($CONFIG['debug.allowed' ]) || $CONFIG['debug.allowed' ] = true;
-isset($CONFIG['debug.password']) || $CONFIG['debug.password'] = '';
+$CONFIG += array(
+	'debug.allowed'  => true,
+	'debug.password' => '',
+);
 
 define('DEBUG', $CONFIG['debug.allowed'] && (!$CONFIG['debug.password'] || (isset($_COOKIE['debug_password']) && $CONFIG['debug.password'] == $_COOKIE['debug_password'])) ? 1 : 0);
 define('TURBO', !DEBUG && isset($CONFIG['turbo']) && $CONFIG['turbo']);
@@ -185,19 +187,20 @@ function E($msg = '__getDeltaMicrotime') {return patchwork::log($msg, false, fal
 
 // Fix config
 
-isset($CONFIG['clientside'           ]) || $CONFIG['clientside'           ] = true;
-isset($CONFIG['i18n.lang_list'       ]) || $CONFIG['i18n.lang_list'       ] = '';
-isset($CONFIG['maxage'               ]) || $CONFIG['maxage'               ] = 2678400;
-isset($CONFIG['P3P'                  ]) || $CONFIG['P3P'                  ] = 'CUR ADM';
-isset($CONFIG['xsendfile'            ]) || $CONFIG['xsendfile'            ] = false;
-isset($CONFIG['session.save_path'    ]) || $CONFIG['session.save_path'    ] = /**/__patchwork_loader::$zcache/**/;
-isset($CONFIG['session.cookie_path'  ]) || $CONFIG['session.cookie_path'  ] = '/';
-isset($CONFIG['session.cookie_domain']) || $CONFIG['session.cookie_domain'] = '';
-isset($CONFIG['session.auth_vars'    ]) || $CONFIG['session.auth_vars'    ] = array();
-isset($CONFIG['session.group_vars'   ]) || $CONFIG['session.group_vars'   ] = array();
-isset($CONFIG['translate.adapter'    ]) || $CONFIG['translate.adapter'    ] = false;
-isset($CONFIG['translate.options'    ]) || $CONFIG['translate.options'    ] = array();
-
+$CONFIG += array(
+	'clientside'            => true,
+	'i18n.lang_list'        => '',
+	'maxage'                => 2678400,
+	'P3P'                   => 'CUR ADM',
+	'xsendfile'             => false,
+	'session.save_path'     => /**/__patchwork_loader::$zcache/**/,
+	'session.cookie_path'   => '/',
+	'session.cookie_domain' => '',
+	'session.auth_vars'     => array(),
+	'session.group_vars'    => array(),
+	'translate.adapter'     => false,
+	'translate.options'     => array(),
+);
 
 
 define('PATCHWORK_I18N', false !== strpos($CONFIG['i18n.lang_list'], '|'));

@@ -14,6 +14,11 @@
 
 class extends patchwork
 {
+	// Extension to Content-Type map
+	// This list doesn't have to exhaustive:
+	// only types which can be handled by the browser
+	// or one of its plugin need to be listed here.
+
 	static $contentType = array(
 		'.html' => 'text/html; charset=UTF-8',
 		'.htm' => 'text/html; charset=UTF-8',
@@ -21,6 +26,7 @@ class extends patchwork
 		'.js' => 'text/javascript; charset=UTF-8',
 		'.htc' => 'text/x-component; charset=UTF-8',
 		'.xml' => 'application/xml',
+		'.swf' => 'application/x-shockwave-flash',
 
 		'.png' => 'image/png',
 		'.gif' => 'image/gif',
@@ -38,19 +44,7 @@ class extends patchwork
 		if ($agent = p::resolvePublicPath($agent))
 		{
 			$mime = strtolower($mime);
-			$mime = isset(self::$contentType[$mime]) ? self::$contentType[$mime] : false;
-
-			if (extension_loaded('fileinfo') && ($i = finfo_open(FILEINFO_SYMLINK|FILEINFO_MIME)))
-			{
-				$mime = finfo_file($i, $agent);
-				finfo_close($i);
-			}
-			else if (function_exists('mime_content_type'))
-			{
-				$mime = mime_content_type($agent);
-			}
-
-			if (!$mime) $mime = 'application/octet-stream';
+			$mime = isset(self::$contentType[$mime]) ? self::$contentType[$mime] : 'application/octet-stream';
 
 			p::setMaxage(-1);
 			p::writeWatchTable('public/static', 'zcache/');
