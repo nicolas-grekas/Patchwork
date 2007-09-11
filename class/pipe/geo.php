@@ -35,7 +35,7 @@ P$geo = function($geo, $latlong)
 	if ($geo = str($geo))
 	{
 		$geo = '' + Math.round(100*$geo);
-		$geo = $geo.substr(0, -2) + '.' + $geo.substr(-2);
+		$geo = $geo.substr(0, $geo.length - 2) + '.' + $geo.substr(-2);
 	}
 	else $geo = '0.00';
 
