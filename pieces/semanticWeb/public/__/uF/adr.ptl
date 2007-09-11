@@ -19,12 +19,14 @@
 	|| a$country_name
 -->
 <div class="adr">
-	<!-- IF a$post_office_box  --><div  class="post-office-box">{a$post_office_box}</div><!-- END:IF -->
-	<!-- IF a$extended_address --><div  class="extended-address">{a$extended_address}</div><!-- END:IF -->
-	<!-- IF a$street_address   --><div  class="street-address">{a$street_address}</div><!-- END:IF -->
-	<!-- IF a$postal_code      --><span class="postal-code">{a$postal_code}</span>,<!-- END:IF -->
-	<!-- IF a$locality         --><span class="locality">{a$locality}</span>{a$region|test:','}<!-- END:IF -->
-	<!-- IF a$region           --><span class="region">{a$region}</span><!-- END:IF -->
-	<!-- IF a$country_name     --><span class="country-name">{a$country_name}</span><!-- END:IF -->
+<!--
+	IF a$post_office_box  --><div  class="post-office-box">{a$post_office_box}</div><!-- END:IF
+	IF a$extended_address --> <div  class="extended-address">{a$extended_address}</div><!-- END:IF
+	IF a$street_address   --> <div  class="street-address">{a$street_address}</div><!-- END:IF
+	IF a$postal_code      --> <span class="postal-code">{a$postal_code}</span><!-- END:IF
+	IF a$locality         --> <span class="locality">{a$locality}</span>{a$region|test:','}<!-- END:IF
+	IF a$region           --> <span class="region">{a$region}</span><!-- END:IF -->{a$country_name|test:','}<!--
+	IF a$country_name     --> <span class="country-name">{a$country_name}</span><!-- END:IF
+-->
 </div>
 <!-- END:IF -->

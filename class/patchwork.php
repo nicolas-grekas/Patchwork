@@ -594,7 +594,15 @@ class
 
 	static function gzipAllowed($type)
 	{
-		foreach (self::$allowGzip as $p) if (false !== stripos($type, $p)) return true;
+		$type = explode(';', $type);
+		$type = strtolower($type[0]);
+		$len  = strlen($type);
+
+		foreach (self::$allowGzip as $p)
+		{
+			$p = strpos($type, $p);
+			if (false !== $p && (0 === $p || $len - $p === strlen($p))) return true;
+		}
 
 		return false;
 	}
