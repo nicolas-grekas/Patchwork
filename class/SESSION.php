@@ -121,8 +121,9 @@ class
 
 		if (!$initSession || $restartNew)
 		{
-			$sid = p::uniqid();
-			self::$sslid = (isset($_SERVER['HTTPS']) ? '' : '-') . p::uniqid();
+			$sid = p::strongid();
+			$sid[0] = dechex(mt_rand(0, 15));
+			self::$sslid = (isset($_SERVER['HTTPS']) ? '' : '-') . p::strongid();
 			self::setSID($sid);
 
 			self::$adapter = new SESSION(self::$SID);
@@ -213,7 +214,7 @@ class
 
 				if ('-' == self::$sslid[0] && isset($_SERVER['HTTPS']))
 				{
-					self::$sslid = p::uniqid();
+					self::$sslid = p::strongid();
 					setcookie('SSL', self::$sslid, 0, self::$cookiePath, self::$cookieDomain, true , true);
 					unset($_SERVER['HTTP_IF_NONE_MATCH'], $_SERVER['HTTP_IF_MODIFIED_SINCE']);
 				}
