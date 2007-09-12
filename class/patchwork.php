@@ -280,7 +280,7 @@ class
 		if (
 			isset($_COOKIE['T$'])
 			&& (!IS_POSTING || (isset($_POST['T$']) && substr($_COOKIE['T$'], 1) == substr($_POST['T$'], 1)))
-			&& '---------------------------------' == strtr($_COOKIE['T$'], '-0123456789abcdef', '#----------------')
+			&& '---------------------------------' == strtr($_COOKIE['T$'], '-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', '#--------------------------------------------------------------')
 		) self::$antiCSRFtoken = $_COOKIE['T$'];
 		else self::getAntiCSRFtoken(true);
 
@@ -587,8 +587,6 @@ class
 					($httponly ? '; HttpOnly' : ''),
 				false
 			);
-
-			if ($domain) self::setrawcookie($name, $value, $expires, $path, false, $secure, $httponly);
 		}
 	}
 
