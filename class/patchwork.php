@@ -783,16 +783,16 @@ class
 
 		$n = unpack('C*', md5(uniqid(mt_rand(), true), true) . md5(uniqid(mt_rand(), true), true));
 		$a = '--------------------------------';
-		$i = -1;
+		$i = 0;
 
 		do
 		{
-			$a[++$i] = $chars[$n[$i]%62];
-			$a[++$i] = $chars[$n[$i]%62];
-			$a[++$i] = $chars[$n[$i]%62];
-			$a[++$i] = $chars[$n[$i]%62];
+			$a[$i] = $chars[$n[++$i]%62];
+			$a[$i] = $chars[$n[++$i]%62];
+			$a[$i] = $chars[$n[++$i]%62];
+			$a[$i] = $chars[$n[++$i]%62];
 		}
-		while ($i < 31);
+		while ($i < 32);
 
 		return $a;
 	}
