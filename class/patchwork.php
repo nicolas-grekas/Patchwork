@@ -504,7 +504,7 @@ class
 				unset($_COOKIE['T$'], $_COOKIE['T$']); // Double unset against a PHP security hole
 			}
 
-			self::$antiCSRFtoken = $new . md5(uniqid(mt_rand(), true));
+			self::$antiCSRFtoken = $new . self::strongid();
 
 			self::setcookie('T$', self::$antiCSRFtoken, 0, $CONFIG['session.cookie_path'], $CONFIG['session.cookie_domain']);
 			$GLOBALS['patchwork_private'] = true;
@@ -779,6 +779,26 @@ class
 
 	static function uniqid() {return md5(uniqid(mt_rand(), true));}
 
+	static function strongid()
+	{
+		static $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+		$n = unpack('C*', md5(uniqid(mt_rand(), true), true) . md5(uniqid(mt_rand(), true), true));
+		$a = '--------------------------------';
+		$i = -1;
+
+		do
+		{
+			$a[++$i] = $chars[$n[$i]%62];
+			$a[++$i] = $chars[$n[$i]%62];
+			$a[++$i] = $chars[$n[$i]%62];
+			$a[++$i] = $chars[$n[$i]%62];
+		}
+		while ($i < 31);
+
+		return $a;
+	}
+
 	/*
 	 * Clears files linked to $message
 	 */
@@ -849,7 +869,7 @@ class
 	 */
 	static function writeFile($filename, &$data, $Dmtime = 0)
 	{
-		$tmpname = dirname($filename) . '/' . self::uniqid();
+		$tmpname = dirname($filename) . '/' . uniqid(mt_rand(), true);
 
 		$h = @fopen($tmpname, 'wb');
 

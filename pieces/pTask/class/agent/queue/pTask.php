@@ -21,7 +21,7 @@ class extends agent
 
 	$get = array(
 		'__1__:i:1',
-		'__2__:c:[a-f0-9]{32}'
+		'__2__:c:[0-9a-zA-Z]{32}'
 	);
 
 
@@ -180,7 +180,7 @@ class extends agent
 	{
 		$token = resolvePath($this->queueFolder) . $this->queueName . '.token';
 
-		file_exists($token) || file_put_contents($token, p::uniqid());
+		file_exists($token) || file_put_contents($token, p::strongid());
 
 		return trim(file_get_contents($token));
 	}
