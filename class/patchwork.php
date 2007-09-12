@@ -782,16 +782,10 @@ class
 		static $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
 		$n = unpack('C*', md5(uniqid(mt_rand(), true), true) . md5(uniqid(mt_rand(), true), true));
-		$a = '--------------------------------';
+		$a = '';
 		$i = 0;
 
-		do
-		{
-			$a[$i] = $chars[$n[++$i]%62];
-			$a[$i] = $chars[$n[++$i]%62];
-			$a[$i] = $chars[$n[++$i]%62];
-			$a[$i] = $chars[$n[++$i]%62];
-		}
+		do $a .= $chars[$n[++$i]%62] . $chars[$n[++$i]%62] . $chars[$n[++$i]%62] . $chars[$n[++$i]%62];
 		while ($i < 32);
 
 		return $a;
