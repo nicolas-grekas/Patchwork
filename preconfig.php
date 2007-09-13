@@ -20,8 +20,8 @@
 #/**/PHP_VERSION/**/
 
 define('patchwork', microtime(true));
-
 error_reporting(E_ALL | E_STRICT);
+if (!isset($_SERVER['HTTP_HOST']) || $_SERVER['HTTP_HOST'] !== strtr($_SERVER['HTTP_HOST'], '\'"<>', '----')) die('Invalid HTTP/1.1 Host header');
 
 define('PATCHWORK_PROJECT_PATH', /**/__patchwork_loader::$cwd   /**/);
 define('PATCHWORK_ZCACHE',       /**/__patchwork_loader::$zcache/**/);
