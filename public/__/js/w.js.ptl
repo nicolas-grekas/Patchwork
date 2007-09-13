@@ -83,8 +83,6 @@ function setcookie($name, $value, $expires, $path, $domain)
 		+ ($expires ? '; expires=' + $expires.toGMTString() : '')
 		+ ($path    ? '; path='    + $path   : '')
 		+ ($domain  ? '; domain='  + $domain : '');
-
-	if ($domain) setcookie($name, $value, $expires, $path);
 }
 
 function parseurl($param, $delim, $rx, $array)
