@@ -50,7 +50,7 @@ P$date = function($time, $format)
 	$time = new Date(1000*$time);
 
 	var $result = [],
-		$a = /(\d\d).+(\d{4}) (\d\d):(\d\d):(\d\d)/,
+		$a = /(\d\d):(\d\d):(\d\d)/,
 		$GMT = $time.toGMTString().match($a),
 		$local = (''+$time).match($a),
 		$zone = (''+$time).match(/([A-Z]{3})?([-\+]\d{2})(\d{2})/),
@@ -69,19 +69,19 @@ P$date = function($time, $format)
 			a: function()
 			{
 				// Lowercase Ante meridiem and Post meridiem am or pm
-				return $local[3]<12 ? 'am' : 'pm';
+				return $local[1]<12 ? 'am' : 'pm';
 			},
 
 			A: function()
 			{
 				// Uppercase Ante meridiem and Post meridiem AM or PM
-				return $local[3]<12 ? 'AM' : 'PM';
+				return $local[1]<12 ? 'AM' : 'PM';
 			},
 
 			B: function()
 			{
 				// Internet Swatch Time 000 to 999
-				return (''+parseInt(((60*(60*($GMT[3]/1+1) + $GMT[4]/1) + $GMT[5]/1)%86400)/86.4+1000)).substr(1);
+				return (''+parseInt(((60*(60*($GMT[1]/1+1) + $GMT[2]/1) + $GMT[3]/1)%86400)/86.4+1000)).substr(1);
 			},
 
 			c: function()
@@ -93,7 +93,7 @@ P$date = function($time, $format)
 			d: function()
 			{
 				// Day of the month, 2 digits with leading zeros 01 to 31
-				return $local[1];
+				return $local[4] < 10 ? '0' + $local[4]/1 : $local[4];
 			},
 
 			D: function()
@@ -111,31 +111,31 @@ P$date = function($time, $format)
 			g: function()
 			{
 				// 12-hour format of an hour without leading zeros 1 through 12
-				return $local[3]%12;
+				return $local[1]%12;
 			},
 
 			G: function()
 			{
 				// 24-hour format of an hour without leading zeros 0 through 23
-				return $local[3]/1;
+				return $local[1]/1;
 			},
 
 			h: function()
 			{
 				// 12-hour format of an hour with leading zeros 01 through 12
-				return (''+($local[3]%12 + 100)).substr(1);
+				return (''+($local[1]%12 + 100)).substr(1);
 			},
 
 			H: function()
 			{
 				// 24-hour format of an hour with leading zeros 00 through 23
-				return $local[3];
+				return $local[1];
 			},
 
 			i: function()
 			{
 				// Minutes with leading zeros 00 to 59
-				return $local[4];
+				return $local[2];
 			},
 
 			I: function()
@@ -147,7 +147,7 @@ P$date = function($time, $format)
 			j: function()
 			{
 				// Day of the month without leading zeros 1 to 31
-				return $local[1]/1;
+				return $local[4]/1;
 			},
 
 			l: function()
@@ -159,7 +159,7 @@ P$date = function($time, $format)
 			L: function()
 			{
 				// Whether it's a leap year 1 if it is a leap year, 0 otherwise.
-				return $local[2]%4 ? 0 : 1;
+				return $local[5]%4 ? 0 : 1;
 			},
 
 			m: function()
@@ -195,20 +195,20 @@ P$date = function($time, $format)
 			s: function()
 			{
 				// Seconds, with leading zeros 00 through 59
-				return $local[5];
+				return $local[3];
 			},
 
 			S: function()
 			{
 				// English ordinal suffix for the day of the month, 2 characters st, nd, rd or th. Works well with j
-				$a = $local[1];
+				$a = $local[4];
 				return 4<=$a && $a<=20 ? 'th' : (['st', 'nd', 'rd'][$a%10-1] || 'th');
 			},
 
 			t: function()
 			{
 				// Number of days in the given month 28 through 31
-				return new Date($local[2], $time.getMonth()+1, 0).getDate();
+				return new Date($local[5], $time.getMonth()+1, 0).getDate();
 			},
 
 			T: function()
@@ -232,27 +232,27 @@ P$date = function($time, $format)
 			W: function()
 			{
 				// ISO-8601 week number of year, weeks starting on Monday Example: 42 (the 42nd week in the year)
-				$a = new Date($local[2], 0, 1, 0, 0, 0, 0).getDay() - 1;
+				$a = new Date($local[5], 0, 1, 0, 0, 0, 0).getDay() - 1;
 				if ($a < 0) $a = 6;
-				return Math.ceil((Date.UTC($local[2], $time.getMonth(), $local[1]) - Date.UTC($local[2], 0, 8 - $a)) / (1000 * 60 * 60 * 24 * 7)) + 1;
+				return Math.ceil((Date.UTC($local[5], $time.getMonth(), $local[4]) - Date.UTC($local[5], 0, 8 - $a)) / (1000 * 60 * 60 * 24 * 7)) + 1;
 			},
 
 			y: function()
 			{
 				// A two digit representation of a year Examples: 99 or 03
-				return $local[2].substr(2);
+				return $local[5].substr(2);
 			},
 
 			Y: function()
 			{
 				// A full numeric representation of a year, 4 digits Examples: 1999 or 2003
-				return $local[2];
+				return $local[5];
 			},
 
 			z: function()
 			{
 				// The day of the year (starting from 0) 0 through 365
-				return (Date.UTC($local[2], $time.getMonth(), $local[1]) - Date.UTC($local[2], 0, 0)) / (1000 * 60 * 60 * 24);
+				return (Date.UTC($local[5]/1, $time.getMonth(), $local[4]/1) - Date.UTC($local[5], 0, 1)) / (1000 * 60 * 60 * 24);
 			},
 
 			Z: function()
@@ -261,6 +261,10 @@ P$date = function($time, $format)
 				return 60 * ( 60*$zone[2] + $zone[3]/1 );
 			}
 		};
+
+	$local[4] = $time.getDate();
+	$local[5] = (''+$time).match(/ (\d\d\d\d)/);
+	$local[5] = $local[5][1];
 
 	while ($i < $len)
 	{
