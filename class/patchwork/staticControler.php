@@ -14,8 +14,8 @@
 
 class extends patchwork
 {
-	// Extension to Content-Type map
-	// This list doesn't have to exhaustive:
+	// Map from extensions to content-types
+	// This list doesn't have to be exhaustive:
 	// only types which can be handled by the browser
 	// or one of its plugin need to be listed here.
 
