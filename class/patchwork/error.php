@@ -84,6 +84,8 @@ class extends patchwork
 				$context[$i++] = $a;
 			}
 
+			$context[$i++] = array('_SERVER' => &$_SERVER);
+
 			$context = htmlspecialchars( print_r($context, true) );
 		}
 
