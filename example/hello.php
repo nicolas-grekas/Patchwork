@@ -1,7 +1,7 @@
 <?php
 
-// Directory of the application to run here
-$patchwork = '../variations/hello';
+chdir('../variations/hello'); // XXX: chdir to the directory of the application
 
-// Load patchwork and run the application defined by $patchwork
-require '../patchwork.php';
+require file_exists('./.patchwork.php')
+	? './.patchwork.php'
+	: '../patchwork.php'; // XXX: path to patchwork's patchwork.php
