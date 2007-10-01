@@ -231,7 +231,9 @@ class
 		}
 		else if (isset($_GET['$bin']))
 		{
-			self::setcookie('JS', isset($_COOKIE['JS']) && !$_COOKIE['JS'] ? '' : '0', 0, '/');
+			preg_match('/[^.]+\.[^\.0-9]+$/', $_SERVER['HTTP_HOST'], $domain);
+			$domain = isset($domain[0]) ? '.' . $domain[0] : false;
+			self::setcookie('JS', isset($_COOKIE['JS']) && !$_COOKIE['JS'] ? '' : '0', 0, '/', $domain);
 			header('Location: ' . preg_replace('/[\?&]\$bin[^&]*/', '', $_SERVER['REQUEST_URI']));
 			exit;
 		}
