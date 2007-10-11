@@ -721,6 +721,7 @@ class patchwork_preprocessor__0
 				}
 				else if ('self' == $type && $class_pool) $token = end($class_pool)->classname; // Replace every self::* by __CLASS__::*
 				else if ('p' == $type) $token = 'patchwork';
+				else if ('s' == $type) $token = 'SESSION';
 
 				$token .= $c;
 

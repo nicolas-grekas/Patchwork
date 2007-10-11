@@ -36,7 +36,15 @@ class extends Mail_mime
 
 	function __construct($options = null)
 	{
-		parent::__construct();
+		$eol = "\r\n";
+
+		if ('smtp' !== $CONFIG['pMail.backend'])
+		{
+			false === strpos(PHP_OS, 'WIN') && $eol = "\n";
+			defined('PHP_EOL') && $eol = PHP_EOL;
+		}
+
+		parent::__construct($eol);
 
 		$this->options = $options;
 

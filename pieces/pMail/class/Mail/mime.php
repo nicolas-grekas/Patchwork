@@ -14,7 +14,8 @@
 
 class extends self
 {
-	// The original _encodeHeaders of Mail_mime is bugged !
+	// The original Mail_mime->_encodeHeaders() is bugged !
+
 	function _encodeHeaders($input)
 	{
 		$ns = "[^\(\)<>@,;:\"\/\[\]\r\n]*";
@@ -62,19 +63,31 @@ class extends self
 		return $w[1] . $word . '?=' . $w[3];
 	}
 
+
 	// Add line feeds correction
+
 	function setTXTBody($data, $isfile = false, $append = false)
 	{
-		if (!$isfile) $data = str_replace("\n", $this->_eol, strtr(str_replace("\r\n", "\n", $data), "\r", "\n"));
-
+		$isfile || $this->_fixEOL($data);
 		return parent::setTXTBody($data, $isfile, $append);
 	}
 
-	// Add line feed correction
 	function setHTMLBody($data, $isfile = false)
 	{
-		if (!$isfile) $data = str_replace("\n", $this->_eol, strtr(str_replace("\r\n", "\n", $data), "\r", "\n"));
-
+		$isfile || $this->_fixEOL($data);
 		return parent::setHTMLBody($data, $isfile);
+	}
+
+	function &_file2str($file_name)
+	{
+		$file_name =& parent::_file2str($file_name);
+		$this->fixEOL($file_name);
+		return $file_name;
+	}
+
+	protected function _fixEOL(&$a)
+	{
+		false !== strpos($a, "\r") && $a = strtr(str_replace("\r\n", "\n", $a), "\r", "\n");
+		"\n"  !== $this->_eol      && $a = str_replace("\n", $this->_eol, $a);
 	}
 }

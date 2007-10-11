@@ -233,6 +233,11 @@ class ob
 }
 
 
+isset($_SERVER['HTTP_X_FORWARDED_PROTO'])
+	&& 'https' == strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'])
+	&& $_SERVER['HTTPS'] = 'on';
+
+
 
 /**** Pre-configuration stage 1 ****/
 
