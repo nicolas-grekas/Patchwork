@@ -14,9 +14,17 @@
 
 class
 {
-	static function connect($arg = false)
+	static function connect()
 	{
 		$db = MDB2::factory($CONFIG['DSN']);
+
+		if (PEAR::isError($db))
+		{
+			trigger_error($db->getMessage(), E_USER_ERROR);
+			p::disable(true);
+		}
+
+
 		$db->loadModule('Extended');
 		$db->setErrorHandling(PEAR_ERROR_CALLBACK, 'E');
 		$db->setFetchMode(MDB2_FETCHMODE_OBJECT);
@@ -25,12 +33,6 @@ class
 		$db->setOption('portability', MDB2_PORTABILITY_ALL ^ MDB2_PORTABILITY_EMPTY_TO_NULL ^ MDB2_PORTABILITY_FIX_CASE);
 
 		$db->connect();
-
-		if (PEAR::isError($db))
-		{
-			trigger_error($db->getMessage(), E_USER_ERROR);
-			p::disable(true);
-		}
 
 		$db->beginTransaction();
 
