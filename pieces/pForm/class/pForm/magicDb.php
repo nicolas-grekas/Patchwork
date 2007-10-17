@@ -14,7 +14,7 @@
 
 class
 {
-	public static function populate($table, $form, $save = false, $rxFilter = false)
+	static function populate($table, $form, $save = false, $rxFilter = false)
 	{
 		$sql = 'SHOW COLUMNS FROM ' . $table;
 		$result = DB()->query($sql);

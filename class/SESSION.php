@@ -14,7 +14,7 @@
 
 class
 {
-	public static
+	static
 
 	$IPlevel = 2,
 

@@ -20,7 +20,7 @@ class
 	$cache;
 
 
-	public static function get($string, $lang, $usecache)
+	static function get($string, $lang, $usecache)
 	{
 		if ('' === $string || '__' == $lang || !PATCHWORK_I18N) return $string;
 
