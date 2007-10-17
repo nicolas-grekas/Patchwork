@@ -27,6 +27,8 @@ class
 		$hash = md5($string);
 		$cache = '';
 
+#>		$usecache = false;
+
 		if ($usecache && $id = p::$agentClass)
 		{
 			$id = p::getContextualCachePath('lang/' . substr($id, 6), 'ser');
