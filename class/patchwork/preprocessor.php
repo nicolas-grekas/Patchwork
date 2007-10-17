@@ -813,7 +813,7 @@ class patchwork_preprocessor__0
 				isset($class_pool[$curly_level])
 					&&  $class_pool[$curly_level]->is_final
 					&& !$class_pool[$curly_level]->is_abstract
-					&& $token .= "public static \$hunter{$T};";
+					&& $token .= "static \$hunter{$T};";
 
 				++$curly_level;
 
