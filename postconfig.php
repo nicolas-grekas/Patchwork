@@ -189,7 +189,7 @@ function E($msg = '__getDeltaMicrotime') {return patchwork::log($msg, false, fal
 
 $CONFIG += array(
 	'clientside'            => true,
-	'i18n.lang_list'        => '',
+	'i18n.lang_list'        => array(),
 	'maxage'                => 2678400,
 	'P3P'                   => 'CUR ADM',
 	'xsendfile'             => false,
@@ -203,7 +203,34 @@ $CONFIG += array(
 );
 
 
-define('PATCHWORK_I18N', false !== strpos($CONFIG['i18n.lang_list'], '|'));
+// Prepare for I18N
+
+$a =& $CONFIG['i18n.lang_list'];
+is_array($a) || $a = $a ? explode('|', $a) : array();
+define('PATCHWORK_I18N', 2 <= count($a));
+
+$b = array();
+
+foreach ($a as $k => &$v)
+{
+	if (is_int($k))
+	{
+		$v = (string) $v;
+
+		if (!isset($a[$v]))
+		{
+			$a[$v] = $v;
+			$b[] = preg_quote($v, '#');
+		}
+
+		unset($a[$k]);
+	}
+	else $b[] = preg_quote($v, '#');
+}
+
+unset($a, $k, $v);
+
+$b = '(' . implode('|', $b) . ')';
 
 
 /* patchwork's context initialization
@@ -218,19 +245,33 @@ define('PATCHWORK_I18N', false !== strpos($CONFIG['i18n.lang_list'], '|'));
 
 /**/if (isset($_SERVER['PATCHWORK_BASE']))
 /**/{
-/**/	if ($a = false !== strpos($_SERVER['PATCHWORK_BASE'], '/__/'))
-			isset($_SERVER['PATCHWORK_BASE']) || $_SERVER['PATCHWORK_BASE'] = /**/$_SERVER['PATCHWORK_BASE']/**/;
-
 /**/	if ('/'  == substr($_SERVER['PATCHWORK_BASE'], 0, 1))
-			$_SERVER['PATCHWORK_BASE'] = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PATCHWORK_BASE'];
+/**/		$_SERVER['PATCHWORK_BASE'] = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PATCHWORK_BASE'];
 
-/**/	if ($a)
+		if (isset($_SERVER['PATCHWORK_BASE']))
+		{
+			if ('/'  == substr($_SERVER['PATCHWORK_BASE'], 0, 1))
+				$_SERVER['PATCHWORK_BASE'] = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PATCHWORK_BASE'];
+		}
+		else $_SERVER['PATCHWORK_BASE'] = /**/$_SERVER['PATCHWORK_BASE']/**/;
+
+
+/**/	$a = explode('__', $_SERVER['PATCHWORK_BASE'], 2);
+/**/	if (2 === count($a))
 /**/	{
+			if (!isset($_SERVER['PATCHWORK_LANG']))
+			{
+				$a = explode('__', $_SERVER['PATCHWORK_BASE'], 2);
+				$a = '#' . preg_quote($a[0], '#') . $b . preg_quote($a[1], '#') . '#';
+				preg_match($a, $_SERVER['SCRIPT_URI'], $a)
+					&& $_SERVER['PATCHWORK_LANG'] = array_search($a[1], $CONFIG['i18n.lang_list']);
+			}
+
 			if (isset($_SERVER['REDIRECT_URL']))
 			{
 				header('HTTP/1.1 200 OK');
-				$_SERVER['PATCHWORK_LANG'] = '';
-				$_SERVER['PATCHWORK_REQUEST'] = substr($_SERVER['REDIRECT_URL'], strlen(preg_replace("#^.*?://[^/]*#", '', $_SERVER['PATCHWORK_BASE'])) - 3);
+				
+				isset($_SERVER['PATCHWORK_REQUEST']) || $_SERVER['PATCHWORK_REQUEST'] = substr($_SERVER['REDIRECT_URL'], strlen(preg_replace("#^.*?://[^/]*#", '', $_SERVER['PATCHWORK_BASE'])) - 3);
 
 				if (isset($_SERVER['REDIRECT_QUERY_STRING']))
 				{
@@ -238,7 +279,9 @@ define('PATCHWORK_I18N', false !== strpos($CONFIG['i18n.lang_list'], '|'));
 					parse_str($_SERVER['QUERY_STRING'], $_GET);
 				}
 			}
-			else isset($_SERVER['PATCHWORK_LANG']) || $_SERVER['PATCHWORK_LANG'] = '';
+
+			isset($_SERVER['PATCHWORK_LANG'])    || $_SERVER['PATCHWORK_LANG']    = '';
+			isset($_SERVER['PATCHWORK_REQUEST']) || $_SERVER['PATCHWORK_REQUEST'] = '';
 /**/	}
 /**/}
 /**/else
@@ -303,7 +346,7 @@ define('PATCHWORK_I18N', false !== strpos($CONFIG['i18n.lang_list'], '|'));
 			$_SERVER['PATCHWORK_REQUEST'] = urldecode($_SERVER['PATCHWORK_REQUEST']);
 /**/	}
 
-		if (preg_match("#^(" . $CONFIG['i18n.lang_list'] . ")(?:/|$)(.*?)$#", $_SERVER['PATCHWORK_REQUEST'], $a))
+		if (preg_match("#^{$b}(?:/|$)(.*?)$#", $_SERVER['PATCHWORK_REQUEST'], $a))
 		{
 			$_SERVER['PATCHWORK_LANG']    = $a[1];
 			$_SERVER['PATCHWORK_REQUEST'] = $a[2];
@@ -311,5 +354,5 @@ define('PATCHWORK_I18N', false !== strpos($CONFIG['i18n.lang_list'], '|'));
 /**/}
 
 
-PATCHWORK_I18N || $_SERVER['PATCHWORK_LANG'] = $CONFIG['i18n.lang_list'];
+PATCHWORK_I18N || $_SERVER['PATCHWORK_LANG'] = key($CONFIG['i18n.lang_list']);
 define('PATCHWORK_DIRECT',  '_' == $_SERVER['PATCHWORK_REQUEST']);

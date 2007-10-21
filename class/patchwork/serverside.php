@@ -116,7 +116,8 @@ class extends patchwork
 			{
 				if ($is_exo)
 				{
-					$agent = implode(p::__LANG__(), explode('__', $agent, 2)) . '?s$';
+					$k = $CONFIG['i18n.lang_list'][p::__LANG__()];
+					$agent = implode($k, explode('__', $agent, 2)) . '?s$';
 
 					foreach ($args as $k => &$v) $agent .= '&' . urlencode($k) . '=' . urlencode(p::string($v));
 

@@ -16,13 +16,13 @@ class
 {
 	static function negociate()
 	{
-		$lang = self::HTTP_Best_Language(explode('|', $CONFIG['i18n.lang_list']));
+		$lang = self::HTTP_Best_Language(array_keys($CONFIG['i18n.lang_list']));
 		$b = $_SERVER['REQUEST_METHOD'];
 
 		if (!PATCHWORK_DIRECT && ('GET' == $b || 'HEAD' == $b))
 		{
+			$lang = $CONFIG['i18n.lang_list'][$lang];
 			$lang = implode($lang, explode('__', $_SERVER['PATCHWORK_BASE'], 2));
-			$lang = preg_replace("'^.*?://[^/]*'", '', $lang);
 			$lang .= str_replace('%2F', '/', rawurlencode($_SERVER['PATCHWORK_REQUEST']));
 			$_GET && $lang .= '?' . $_SERVER['QUERY_STRING'];
 
@@ -49,7 +49,7 @@ class
 			if ($item[0] = trim($item[0])) $candidates[ $item[0] ] = isset($item[1]) ? (double) trim($item[1]) : 1;
 		}
 
-		$lang = $supported[0];
+		$lang = reset($supported);
 		$qMax = 0;
 
 		foreach ($candidates as $l => &$q) if (
