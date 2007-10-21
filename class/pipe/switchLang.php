@@ -16,9 +16,12 @@ class
 {
 	static function php($g, $lang)
 	{
-		$url = $g->__LANG__ ? $g->__LANG__ : '__';
-		$url = explode("/{$url}/", $g->__URI__, 2);
-		$url = implode("/{$lang}/", $url);
+		if (isset($CONFIG['i18n.lang_list'][$lang]))
+		{
+			$url = $g->__LANG__ ? $CONFIG['i18n.lang_list'][$g->__LANG__] : '__';
+			$url = preg_replace("'\\b{$url}\\b'", $CONFIG['i18n.lang_list'][$lang], $g->__URI__, 1);
+		}
+		else $url = $g->__URI__;
 
 		return $url;
 	}
@@ -29,7 +32,11 @@ class
 
 P$switchLang = function($g, $lang)
 {
-	return $g.__URI__.replace(new RegExp('/' + ($g.__LANG__ || '__') + '/'), '/' + $lang + '/');
+	var $lang_list = {'':''<?php foreach ($CONFIG['i18n.lang_list'] as $k => $v) echo ',',jsquote($k),':',jsquote($v);?>};
+
+	return t($lang_list[$lang])
+		? $g.__URI__.replace(new RegExp('\\b' + ($g.__LANG__ ? $lang_list[$g.__LANG__] : '__') + '\\b'), $lang_list[$lang])
+		: $g.__URI__;
 }
 
 <?php	}

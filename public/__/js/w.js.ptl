@@ -305,7 +305,7 @@ w = function($baseAgent, $keys, $masterAppId)
 			{
 				w.k = function($id, $base, $agent, $__0__, $keys)
 				{
-					$base = esc($base).replace(/__/, g.__LANG__);
+					$base = esc($base).replace(/__/, {$lang_url|js});
 					$agent = esc($agent);
 
 					$args.__0__ = $__0__;
@@ -446,7 +446,7 @@ w = function($baseAgent, $keys, $masterAppId)
 
 						$args.__DEBUG__ = g.__DEBUG__;
 						$args.__LANG__ = g.__LANG__;
-						$args.__BASE__ = esc($meta[1]).replace(/__/, $args.__LANG__);
+						$args.__BASE__ = esc($meta[1]).replace(/__/, {$lang_url|js});
 						$args.__HOST__ = $args.__BASE__.substr(0, $args.__BASE__.indexOf('/', 8)+1);
 						$args.__AGENT__ = $agent ? $agent + '/' : '';
 						$args.__URI__ = $args.__BASE__ + $agent;

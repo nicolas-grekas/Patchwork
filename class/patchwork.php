@@ -239,7 +239,14 @@ class
 		}
 
 		self::$appId = abs($GLOBALS['patchwork_appId'] % 10000);
-		self::setLang($_SERVER['PATCHWORK_LANG'] ? $_SERVER['PATCHWORK_LANG'] : substr($CONFIG['i18n.lang_list'], 0, 2));
+
+		// Language controler
+
+		!$_SERVER['PATCHWORK_LANG']
+			&& $CONFIG['i18n.lang_list']
+			&& patchwork_language::negociate();
+
+		self::setLang($_SERVER['PATCHWORK_LANG'] ? $_SERVER['PATCHWORK_LANG'] : key($CONFIG['i18n.lang_list']));
 	}
 
 	static function start()
@@ -253,18 +260,12 @@ class
 		register_shutdown_function(array(__CLASS__, 'log'), '', true);
 <*/
 
-		// Language controler
-
-		!$_SERVER['PATCHWORK_LANG']
-			&& $CONFIG['i18n.lang_list']
-			&& patchwork_language::negociate();
-
-
 		// patchwork_appId cookie synchronisation
 
 		if (!isset($_COOKIE['v$']) || $_COOKIE['v$'] != self::$appId)
 		{
-			$a = implode($_SERVER['PATCHWORK_LANG'], explode('__', $_SERVER['PATCHWORK_BASE'], 2));
+			$a = $CONFIG['i18n.lang_list'][$_SERVER['PATCHWORK_LANG']];
+			$a = implode($a, explode('__', $_SERVER['PATCHWORK_BASE'], 2));
 			$a = preg_replace("'\?.*$'", '', $a);
 			$a = preg_replace("'^https?://[^/]*'i", '', $a);
 			$a = dirname($a . ' ');
@@ -380,7 +381,8 @@ class
 			$patchwork_appId = -$patchwork_appId - $_SERVER['REQUEST_TIME'];
 			self::$appId = abs($patchwork_appId % 10000);
 
-			$a = PATCHWORK_I18N ? implode($_SERVER['PATCHWORK_LANG'], explode('__', $_SERVER['PATCHWORK_BASE'], 2)) : $_SERVER['PATCHWORK_BASE'];
+			$a = $CONFIG['i18n.lang_list'][$_SERVER['PATCHWORK_LANG']];
+			$a = implode($a, explode('__', $_SERVER['PATCHWORK_BASE'], 2));
 			$a = preg_replace("'\?.*$'", '', $a);
 			$a = preg_replace("'^https?://[^/]*'i", '', $a);
 			$a = dirname($a . ' ');
@@ -453,18 +455,18 @@ class
 
 	static function setLang($new_lang)
 	{
-		$lang = self::$lang;
-		self::$lang = $new_lang;
-
-		if (PATCHWORK_I18N)
+		if (isset($CONFIG['i18n.lang_list'][$new_lang]))
 		{
-			self::$base = explode('__', $_SERVER['PATCHWORK_BASE'], 2);
-			self::$base = implode($new_lang, self::$base);
-		}
-		else self::$base = $_SERVER['PATCHWORK_BASE'];
+			$lang = $CONFIG['i18n.lang_list'][$new_lang];
+			self::$base = implode($lang, explode('__', $_SERVER['PATCHWORK_BASE'], 2));
 
-		self::$host = strtr(self::$base, '#?', '//');
-		self::$host = substr(self::$base, 0, strpos(self::$host, '/', 8)+1);
+			$lang = self::$lang;
+			self::$lang = $new_lang;
+
+			self::$host = strtr(self::$base, '#?', '//');
+			self::$host = substr(self::$base, 0, strpos(self::$host, '/', 8)+1);
+		}
+		else $lang = false;
 
 		return $lang;
 	}

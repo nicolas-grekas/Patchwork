@@ -51,7 +51,8 @@ class extends patchwork
 
 		$appId = (int) $keys[1];
 		$base = stripcslashes(substr($keys[2], 1, -1));
-		$base = preg_replace("'__'", p::__LANG__(), $base, 1);
+		$a = $CONFIG['i18n.lang_list'][p::__LANG__()];
+		$base = implode($a, explode('__', $base, 2));
 		$agent = stripcslashes(substr($keys[3], 1, -1));
 		$a = stripcslashes(substr($keys[4], 1, -1));
 		$keys = eval('return array(' . $keys[5] . ');');
