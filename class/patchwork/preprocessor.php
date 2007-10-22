@@ -131,7 +131,7 @@ class patchwork_preprocessor__0
 	$recursive = false;
 
 
-	static function __static_construct()
+	static function __constructStatic()
 	{
 		defined('E_RECOVERABLE_ERROR') || self::$constant['E_RECOVERABLE_ERROR'] = E_ERROR;
 
@@ -462,8 +462,8 @@ class patchwork_preprocessor__0
 					'is_final' => $final,
 					'is_abstract' => $abstract,
 					'add_php5_construct' => T_CLASS == $type && 0>$level,
-					'add_static_construct' => false,
-					'add_static_destruct'  => false,
+					'add_constructStatic' => false,
+					'add_destructStatic'  => false,
 					'construct_source' => '',
 				);
 
@@ -620,9 +620,9 @@ class patchwork_preprocessor__0
 					{
 						switch ($type)
 						{
-						case '__static_construct': $c->add_static_construct = true ; break;
-						case '__static_destruct' : $c->add_static_destruct  = true ; break;
-						case '__construct':        $c->add_php5_construct   = false; break;
+						case '__constructStatic': $c->add_constructStatic = true ; break;
+						case '__destructStatic' : $c->add_destructStatic  = true ; break;
+						case '__construct'      : $c->add_php5_construct  = false; break;
 
 						case clower($c->classname):
 							$c->construct_source = $c->classname;
@@ -849,8 +849,8 @@ class patchwork_preprocessor__0
 					$c = $class_pool[$curly_level];
 
 					if ($c->add_php5_construct) $token = $c->construct_source . '}';
-					if ($c->add_static_construct) $token = "const __static_construct{$T}='{$c->classname}';{$token}";
-					if ($c->add_static_destruct ) $token = "const __static_destruct{$T} ='{$c->classname}';{$token}";
+					if ($c->add_constructStatic) $token = "const __constructStatic{$T}='{$c->classname}';{$token}";
+					if ($c->add_destructStatic ) $token = "const __destructStatic{$T} ='{$c->classname}';{$token}";
 					if ($c->is_abstract) $token .= "\$GLOBALS['patchwork_abstract']['{$c->real_classname}']=1;";
 					$token .= "\$GLOBALS['c{$T}']['{$c->real_classname}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
 

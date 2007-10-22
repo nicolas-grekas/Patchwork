@@ -53,7 +53,7 @@ class
 	}
 
 
-	static function __static_construct()
+	static function __constructStatic()
 	{
 		self::$cache = array();
 
@@ -62,7 +62,7 @@ class
 		self::$adapter->open();
 	}
 
-	static function __static_destruct()
+	static function __destructStatic()
 	{
 		self::$adapter->close();
 

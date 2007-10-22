@@ -150,17 +150,17 @@ function patchwork_autoload($searched_class)
 		if (isset($GLOBALS['patchwork_abstract'][$parent_class])) $class && $class = 'abstract ' . $class;
 		else if ($c)
 		{
-			$file = "{$parent_class}::__static_construct{$T}";
-			if (defined($file) ? $searched_class == constant($file) : method_exists($parent_class, '__static_construct'))
+			$file = "{$parent_class}::__constructStatic{$T}";
+			if (defined($file) ? $searched_class == constant($file) : method_exists($parent_class, '__constructStatic'))
 			{
-				$class .= "{$parent_class}::__static_construct();";
+				$class .= "{$parent_class}::__constructStatic();";
 			}
 
-			$file = "{$parent_class}::__static_destruct{$T}";
-			if (defined($file) ? $searched_class == constant($file) : method_exists($parent_class, '__static_destruct'))
+			$file = "{$parent_class}::__destructStatic{$T}";
+			if (defined($file) ? $searched_class == constant($file) : method_exists($parent_class, '__destructStatic'))
 			{
 				$class = str_replace('{}', "{static \$hunter{$T};}", $class);
-				$class .= "{$searched_class}::\$hunter{$T}=new hunter(array('{$parent_class}','__static_destruct'));";
+				$class .= "{$searched_class}::\$hunter{$T}=new hunter(array('{$parent_class}','__destructStatic'));";
 			}
 		}
 

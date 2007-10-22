@@ -154,7 +154,7 @@ class
 
 	/* Internal methods */
 
-	static function __static_construct()
+	static function __constructStatic()
 	{
 		self::$savePath     = $CONFIG['session.save_path'];
 		self::$cookiePath   = $CONFIG['session.cookie_path'];
