@@ -221,7 +221,7 @@ class
 	);
 
 
-	static function __static_construct()
+	static function __constructStatic()
 	{
 #>		patchwork_debug::call();
 
