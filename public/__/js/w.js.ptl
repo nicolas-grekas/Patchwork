@@ -378,7 +378,7 @@ w = function($baseAgent, $keys, $masterAppId)
 			// 1: agent
 			function($code)
 			{
-				var $agent = $evalNext($code),
+				var $agent = $evalNext($code) || $baseAgent,
 					$args = $evalNext($code),
 					$keys = $code[$pointer++],
 					$meta = $code[$pointer++],
@@ -570,7 +570,7 @@ w = function($baseAgent, $keys, $masterAppId)
 
 			return 'function' == typeof $a || ($a && eval('$a=$code[$pointer-1]=function(a,d,v,g,z,r){return ' + $a + '}'))
 				? $a(a, d, v, g, z, r)
-				: $baseAgent;
+				: $a;
 
 			w; // For jsqueez
 		}
