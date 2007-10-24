@@ -827,14 +827,16 @@ w = function($baseAgent, $keys, $masterAppId)
 
 		$j = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/);
 
+		$baseAgent = '"' + $baseAgent + '"';
+
 		w(
 			0,
 			  $j && $j[2]/1 != $masterAppId
 			? [3, 'w(w.r())']
 			: (
 			/Safari/.test(navigator.userAgent)
-				? [4, 1, '"'+$baseAgent+'"', 'g', $keys, 1, 5, 1, 'b', 3, 'g.b'] // Block load, 2 steps : generating, then displaying.
-				: [1, '"'+$baseAgent+'"', 'g', $keys, 1] // Dynamic load, 1 step : generating and displaying at the same time.
+				? [4, 1, $baseAgent, 'g', $keys, 1, 5, 1, 'b', 3, 'g.b'] // Block load, 2 steps : generating, then displaying.
+				: [   1, $baseAgent, 'g', $keys, 1] // Dynamic load, 1 step : generating and displaying at the same time.
 			)
 		);
 	}
