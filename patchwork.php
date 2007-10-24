@@ -255,10 +255,12 @@ class __patchwork_loader
 				$a[] =& $code;
 			}
 
-			$a[] = '
-include \'' . patchworkProcessedPath('patchwork.php') .'\';
+			resolvePath('class/patchwork.php');
+			$T = "'./.class_patchwork.php.0{$GLOBALS['patchwork_lastpath_level']}.{$T}.zcache.php'";
+			$a[] = "
+DEBUG || file_exists({$T}) && include {$T};
 class p extends patchwork {}
-patchwork::start();';
+patchwork::start();";
 
 			$a = implode('', $a);
 
