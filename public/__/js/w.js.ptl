@@ -378,7 +378,7 @@ w = function($baseAgent, $keys, $masterAppId)
 			// 1: agent
 			function($code)
 			{
-				var $agent = $evalNext($code) || $baseAgent,
+				var $agent = $evalNext($code),
 					$args = $evalNext($code),
 					$keys = $code[$pointer++],
 					$meta = $code[$pointer++],
@@ -833,8 +833,8 @@ w = function($baseAgent, $keys, $masterAppId)
 			? [3, 'w(w.r())']
 			: (
 			/Safari/.test(navigator.userAgent)
-				? [4, 1, 0, 'g', $keys, 1, 5, 1, 'b', 3, 'g.b'] // Block load, 2 steps : generating, then displaying.
-				: [1, 0, 'g', $keys, 1] // Dynamic load, 1 step : generating and displaying at the same time.
+				? [4, 1, '"'+$baseAgent+'"', 'g', $keys, 1, 5, 1, 'b', 3, 'g.b'] // Block load, 2 steps : generating, then displaying.
+				: [1, '"'+$baseAgent+'"', 'g', $keys, 1] // Dynamic load, 1 step : generating and displaying at the same time.
 			)
 		);
 	}
