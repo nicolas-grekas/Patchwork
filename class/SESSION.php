@@ -70,7 +70,7 @@ class
 		else
 		{
 			if ('' === $value) unset(self::$DATA[$name]);
-			else self::$DATA[$name] =& $value;
+			else self::$DATA[$name] = $value;
 
 			self::$regenerated || $regenerateId = isset(self::$authVars[$name]);
 		}
@@ -78,10 +78,14 @@ class
 		$regenerateId && self::regenerateId();
 	}
 
+	static function free($name)
+	{
+		isset(self::$DATA[$name]) && self::set($name);
+	}
+
 	static function bind($name, &$value)
 	{
 		$value = self::get($name);
-		p::setGroup(isset(self::$groupVars[$name]) ? 'session/' . $name . '/' . $value : 'private');
 		self::set(array($name => &$value));
 	}
 
@@ -95,6 +99,7 @@ class
 	static function getAll()
 	{
 		$a = array();
+
 		foreach (self::$DATA as $k => &$v)
 		{
 			p::setGroup(isset(self::$groupVars[$k]) ? 'session/' . $k . '/' . $v : 'private');
@@ -173,11 +178,13 @@ class
 			$adapter = new SESSION('0lastGC');
 			$i = $adapter->read();
 			$j = max(self::$maxIdleTime, self::$maxLifeTime);
+
 			if ($j && $_SERVER['REQUEST_TIME'] - $i > $j)
 			{
 				$adapter->write($_SERVER['REQUEST_TIME']);
 				register_shutdown_function(array(__CLASS__, 'gc'), $j);
 			}
+
 			unset($adapter);
 		}
 
@@ -194,6 +201,7 @@ class
 			$i = unserialize($i);
 			self::$lastseen =  $i[0];
 			self::$birthtime = $i[1];
+
 			if (self::$maxIdleTime && $_SERVER['REQUEST_TIME'] - self::$lastseen > self::$maxIdleTime)
 			{
 				// Session has idled
@@ -207,7 +215,10 @@ class
 			}
 			else self::$DATA =& $i[2];
 
-			if (isset($_SERVER['HTTPS']) && (!isset($_COOKIE['SSL']) || $i[3] != $_COOKIE['SSL'])) self::regenerateId(true);
+			if (isset($_SERVER['HTTPS']) && (!isset($_COOKIE['SSL']) || $i[3] != $_COOKIE['SSL']))
+			{
+				self::regenerateId(true);
+			}
 			else
 			{
 				self::$sslid = $i[3];

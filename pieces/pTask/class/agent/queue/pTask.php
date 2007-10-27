@@ -142,7 +142,7 @@ class extends agent
 	{
 		if ($session)
 		{
-			foreach ($session as $k => &$v) SESSION::set($k, $v);
+			foreach ($session as $k => &$v) s::set($k, $v);
 			SESSION::regenerateId(false, false);
 		}
 	}
