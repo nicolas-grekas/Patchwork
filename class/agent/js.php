@@ -38,7 +38,7 @@ class extends agent
 
 			if ($tpl !== '')
 			{
-				if ('.js' != substr($tpl, -3)) $tpl .= '.js';
+				if ('.js' !== substr($tpl, -3)) $tpl .= '.js';
 
 				$tpl = str_replace('../', '/', strtr('js/' . $tpl, '\\', '/'));
 			}
@@ -63,7 +63,6 @@ class extends agent
 			$o->cookie_path   = $CONFIG['session.cookie_path'];
 			$o->cookie_domain = $CONFIG['session.cookie_domain'];
 			$o->maxage = $CONFIG['maxage'];
-			$o->lang_url = $CONFIG['i18n.lang_list'][p::__LANG__()];
 		}
 
 		return $o;

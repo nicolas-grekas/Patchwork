@@ -170,7 +170,7 @@ class
 	$LastModified = 0,
 
 	$host,
-	$lang = '__',
+	$lang = '',
 	$base,
 	$uri,
 
@@ -244,9 +244,12 @@ class
 
 		'' === $_SERVER['PATCHWORK_LANG']
 			&& '' !== key($CONFIG['i18n.lang_list'])
+			&& !PATCHWORK_DIRECT
+			&& !isset($_GET['k$'])
 			&& patchwork_language::negociate();
 
 		self::setLang($_SERVER['PATCHWORK_LANG']);
+		self::$uri = self::$host . substr($_SERVER['REQUEST_URI'], 1);
 	}
 
 	static function start()
@@ -321,7 +324,7 @@ class
 	{
 		self::header('Content-Type: text/javascript');
 
-		if (isset($_GET['v$']) && self::$appId != $_GET['v$'] && 'x$' != key($_GET))
+		if (isset($_GET['v$']) && self::$appId != $_GET['v$'] && 'x$' !== key($_GET))
 		{
 			echo 'w(w.r(1,' . (int)!DEBUG . '))';
 			return;
@@ -355,7 +358,7 @@ class
 
 		if (isset($_GET['k$'])) return patchwork_sendTrace::call($agent);
 
-		self::$binaryMode = 'text/html' != substr(constant("$agent::contentType"), 0, 9);
+		self::$binaryMode = 'text/html' !== substr(constant("$agent::contentType"), 0, 9);
 
 		// Synch exoagents on browser request
 		if (isset($_COOKIE['cache_reset_id']) && self::$appId == $_COOKIE['cache_reset_id'] && setcookie('cache_reset_id', '', 0, '/'))
@@ -389,7 +392,7 @@ class
 			$a = preg_replace("'\?.*$'", '', $a);
 			$a = preg_replace("'^https?://[^/]*'i", '', $a);
 			$a = dirname($a . ' ');
-			if (1 == strlen($a)) $a = '';
+			if (1 === strlen($a)) $a = '';
 
 			self::setcookie('v$', self::$appId, $_SERVER['REQUEST_TIME'] + $CONFIG['maxage'], $a .'/');
 
@@ -438,7 +441,7 @@ class
 
 	static function disable($exit = false)
 	{
-		if (self::$is_enabled && ob_get_level() == self::$ob_starting_level + self::$ob_level)
+		if (self::$is_enabled && ob_get_level() === self::$ob_starting_level + self::$ob_level)
 		{
 			while (self::$ob_level-- > 2) ob_end_clean();
 
@@ -456,22 +459,30 @@ class
 		return false;
 	}
 
-	static function setLang($new_lang)
+	static function setLang($lang)
 	{
-		if (isset($CONFIG['i18n.lang_list'][$new_lang]))
+		if (!isset($CONFIG['i18n.lang_list'][$lang]) || isset(self::$lang) && self::$lang === $lang) return;
+
+		self::$lang = $lang;
+
+		$base = $CONFIG['i18n.lang_list'][$lang];
+		$base = implode($base, explode('__', $_SERVER['PATCHWORK_BASE'], 2));
+
+		self::$base = $base;
+
+		self::$host = strtr($base, '#?', '//');
+		self::$host = substr($base, 0, strpos(self::$host, '/', 8)+1);
+
+		if (isset(self::$uri))
 		{
-			$lang = $CONFIG['i18n.lang_list'][$new_lang];
-			self::$base = implode($lang, explode('__', $_SERVER['PATCHWORK_BASE'], 2));
+			$base = preg_quote($_SERVER['PATCHWORK_BASE'], "'");
+			$base = explode('__', $base, 2);
+			$base = "'^{$base[0]}.+?{$base[1]}(.*)$'D";
 
-			$lang = self::$lang;
-			self::$lang = $new_lang;
-
-			self::$host = strtr(self::$base, '#?', '//');
-			self::$host = substr(self::$base, 0, strpos(self::$host, '/', 8)+1);
+			preg_match($base, self::$uri, $base)
+				? self::$uri = self::$base . self::translateRequest($base[1], $lang)
+				: W('Something is wrong between p::$uri and PATCHWORK_BASE');
 		}
-		else $lang = false;
-
-		return $lang;
 	}
 
 	static function __HOST__() {return self::$host;}
@@ -490,17 +501,22 @@ class
 			if (strncmp('/', $url, 1)) $url = self::$base . $url;
 			else $url = self::$host . substr($url, 1);
 
-			if (!$noId && '/' != substr($url, -1)) $url .= (false === strpos($url, '?') ? '?' : '&amp;') . self::$appId;
+			if (!$noId && '/' !== substr($url, -1)) $url .= (false === strpos($url, '?') ? '?' : '&amp;') . self::$appId;
 		}
 
 		return $url;
+	}
+
+	static function translateRequest($req, $lang)
+	{
+		return $req;
 	}
 
 	static function getAntiCSRFtoken($new = false)
 	{
 		if ($new)
 		{
-			$new = isset($_COOKIE['T$']) && '1' == substr($_COOKIE['T$'], 0, 1) ? '1' : '2';
+			$new = isset($_COOKIE['T$']) && '1' === substr($_COOKIE['T$'], 0, 1) ? '1' : '2';
 
 			if (!isset(self::$antiCSRFtoken) && $_COOKIE)
 			{
@@ -530,14 +546,14 @@ class
 
 		if (self::$is_enabled)
 		{
-			if (   0===stripos($string, 'http/')
-				|| 0===stripos($string, 'etag')
-				|| 0===stripos($string, 'expires')
-				|| 0===stripos($string, 'cache-control')
-				|| 0===stripos($string, 'content-length')
+			if (   0 === stripos($string, 'http/')
+				|| 0 === stripos($string, 'etag')
+				|| 0 === stripos($string, 'expires')
+				|| 0 === stripos($string, 'cache-control')
+				|| 0 === stripos($string, 'content-length')
 			) return;
 
-			if (0===stripos($string, 'last-modified'))
+			if (0 === stripos($string, 'last-modified'))
 			{
 				self::setLastModified(strtotime(trim(substr($string, 14))));
 				return;
@@ -545,7 +561,7 @@ class
 
 			if (self::$catchMeta) self::$metaInfo[4][$name] = $string;
 
-			if ('content-type' == $name && !self::$privateDetectionMode)
+			if ('content-type' === $name && !self::$privateDetectionMode)
 			{
 				if (isset(self::$headers[$name])) return;
 
@@ -560,7 +576,7 @@ class
 
 		if (!self::$privateDetectionMode)
 		{
-			if ('text/' == substr($string, 14, 5) && !strpos($string, ';')) $string .= '; charset=UTF-8';
+			if ('text/' === substr($string, 14, 5) && !strpos($string, ';')) $string .= '; charset=UTF-8';
 
 			self::$headers[$name] = $replace || !isset(self::$headers[$name]) ? $string : (self::$headers[$name] . ',' . substr($string, 1+strpos($string, ':')));
 			header($string, $replace);
@@ -576,12 +592,12 @@ class
 	{
 		isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 5') && $httponly = false;
 
-		if ($value != strtr($value, ",; \t\r\n\013\014", '--------')) setrawcookie($name, $value, $expires, $path, $domain, $secure);
+		if ($value !== strtr($value, ",; \t\r\n\013\014", '--------')) setrawcookie($name, $value, $expires, $path, $domain, $secure);
 		else
 		{
 			('' === (string) $value) && $expires = 1;
 
-			if ($domain && '.' != substr($domain, 0, 1)) W('setcookie() RFC incompatibility: $domain must start with a dot.');
+			if ($domain && '.' !== substr($domain, 0, 1)) W('setcookie() RFC incompatibility: $domain must start with a dot.');
 
 			$GLOBALS['patchwork_private'] = true;
 			header('P3P: CP="' . $CONFIG['P3P'] . '"');
@@ -625,7 +641,7 @@ class
 		if (self::$privateDetectionMode) throw new Exception;
 
 		$url = (string) $url;
-		$url = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'i", $url) ? $url : (self::$base . ('index' == $url ? '' : $url)));
+		$url = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'i", $url) ? $url : (self::$base . ('index' === $url ? '' : $url)));
 
 		self::$redirecting = true;
 		self::disable();
@@ -722,7 +738,7 @@ class
 	 */
 	static function setGroup($group)
 	{
-		if ('public' == $group) return;
+		if ('public' === $group) return;
 
 		$group = array_diff((array) $group, array('public'));
 
@@ -737,7 +753,7 @@ class
 		{
 			$a =& self::$metaInfo[1];
 
-			if (1 == count($a) && 'private' == $a[0]) return;
+			if (1 === count($a) && 'private' === $a[0]) return;
 
 			if (in_array('private', $group)) $a = array('private');
 			else
@@ -762,7 +778,7 @@ class
 	 */
 	static function setExpires($expires)
 	{
-		if (!self::$privateDetectionMode) if ('auto' == self::$expires || 'ontouch' == self::$expires) self::$expires = $expires;
+		if (!self::$privateDetectionMode) if ('auto' === self::$expires || 'ontouch' === self::$expires) self::$expires = $expires;
 
 		if (self::$catchMeta) self::$metaInfo[2] = $expires;
 	}
@@ -838,7 +854,7 @@ class
 			if (!$dir) return;
 			$dir[0] = '/' . $dir[0];
 		}
-		else if (!(IS_WINDOWS && ':' == substr($dir[0], -1))) $dir[0] = './' . $dir[0];
+		else if (!(IS_WINDOWS && ':' === substr($dir[0], -1))) $dir[0] = './' . $dir[0];
 
 		$new = '';
 
@@ -900,10 +916,10 @@ class
 
 	protected static function getCachePath($filename, $extension, $key = '')
 	{
-		if (''!==(string)$extension) $extension = '.' . $extension;
+		if ('' !== (string) $extension) $extension = '.' . $extension;
 
 		$hash = md5($filename . $extension . '.' . $key);
-		$hash = $hash{0} . '/' . $hash{1} . '/' . substr($hash, 2);
+		$hash = $hash[0] . '/' . $hash[1] . '/' . substr($hash, 2);
 
 		$filename = rawurlencode(str_replace('/', '.', $filename));
 		$filename = substr($filename, 0, 224 - strlen($extension));
@@ -982,7 +998,7 @@ class
 		else $potentialAgent = $agent;
 
 		$lang = self::$lang;
-		$l_ng = 5 == strlen($lang) ? substr($lang, 0, 2) : false;
+		$l_ng = 5 === strlen($lang) ? substr($lang, 0, 2) : false;
 
 		$agent = '/index';
 
@@ -1159,7 +1175,7 @@ class
 			if ($file_isnew)
 			{
 				$message = explode('/', $message);
-				while (array_pop($message) !== null)
+				while (null !== array_pop($message))
 				{
 					$file = "include '" . str_replace(array('\\', "'"), array('\\\\', "\\'"), $path) . "';\n";
 
@@ -1183,7 +1199,7 @@ class
 
 	static function ob_filterOutput($buffer, $mode)
 	{
-		$one_chunk = $mode == (PHP_OUTPUT_HANDLER_START | PHP_OUTPUT_HANDLER_END);
+		$one_chunk = $mode === (PHP_OUTPUT_HANDLER_START | PHP_OUTPUT_HANDLER_END);
 
 		if ('' === $buffer && $one_chunk) return $buffer;
 
@@ -1231,7 +1247,7 @@ class
 					$buffer
 				);
 
-				if ($a != $buffer)
+				if ($a !== $buffer)
 				{
 					self::$private = true;
 					if (!(isset($_COOKIE['JS']) && $_COOKIE['JS'])) self::$maxage = 0;
@@ -1342,9 +1358,9 @@ class
 
 			/* Write watch table */
 
-			if ('ontouch' == self::$expires) self::$expires = 'auto';
+			if ('ontouch' === self::$expires) self::$expires = 'auto';
 
-			if ('auto' == self::$expires && self::$watchTable && !DEBUG)
+			if ('auto' === self::$expires && self::$watchTable && !DEBUG)
 			{
 				self::$watchTable = array_keys(self::$watchTable);
 				sort(self::$watchTable);
@@ -1420,8 +1436,8 @@ class
 			self::$ETag = $ETag;
 			self::$LastModified = $LastModified;
 
-			$is304 = (isset($_SERVER['HTTP_IF_NONE_MATCH'    ]) && $_SERVER['HTTP_IF_NONE_MATCH'] == $ETag)
-				  || (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && $_SERVER['HTTP_IF_MODIFIED_SINCE'] == $LastModified);
+			$is304 = (isset($_SERVER['HTTP_IF_NONE_MATCH'    ]) && $_SERVER['HTTP_IF_NONE_MATCH'] === $ETag)
+			      || (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && $_SERVER['HTTP_IF_MODIFIED_SINCE'] === $LastModified);
 
 			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + (self::$private || !self::$maxage ? 0 : self::$maxage)));
 			header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');
@@ -1459,7 +1475,7 @@ class
 
 		self::$is304 = $is304;
 
-		if ('HEAD' == $_SERVER['REQUEST_METHOD']) $buffer = '';
+		if ('HEAD' === $_SERVER['REQUEST_METHOD']) $buffer = '';
 
 		return $buffer;
 	}
@@ -1474,7 +1490,7 @@ class
 		$level = PATCHWORK_PATH_LEVEL - $path_idx;
 
 		$lang = self::__LANG__() . '/';
-		$l_ng = 5 == strlen($lang) ? substr($lang, 0, 2) . '/' : false;
+		$l_ng = 5 === strlen($lang) ? substr($lang, 0, 2) . '/' : false;
 
 
 		$lang = resolvePath("public/{$lang}{$filename}", $level);
@@ -1599,6 +1615,11 @@ class loop
 	$loopLength = false,
 	$filter = array();
 
+
+	function __construct($filter = '')
+	{
+		$filter && $this->addFilter($filter);
+	}
 
 	protected function prepare() {}
 	protected function next() {}

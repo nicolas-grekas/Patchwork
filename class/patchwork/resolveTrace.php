@@ -31,7 +31,8 @@ class extends patchwork
 		$h = fsockopen("{$h}://{$_SERVER['SERVER_ADDR']}", $_SERVER['SERVER_PORT'], $errno, $errstr, 30);
 		if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
 
-		$keys  = "GET {$agent}?k$ HTTP/1.0\r\n";
+		$keys  = p::$lang;
+		$keys  = "GET {$agent}?k$={$keys} HTTP/1.0\r\n";
 		$keys .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
 		$keys .= "Connection: close\r\n\r\n";
 
@@ -51,8 +52,6 @@ class extends patchwork
 
 		$appId = (int) $keys[1];
 		$base = stripcslashes(substr($keys[2], 1, -1));
-		$a = $CONFIG['i18n.lang_list'][p::__LANG__()];
-		$base = implode($a, explode('__', $base, 2));
 		$agent = stripcslashes(substr($keys[3], 1, -1));
 		$a = stripcslashes(substr($keys[4], 1, -1));
 		$keys = eval('return array(' . $keys[5] . ');');
@@ -65,7 +64,7 @@ class extends patchwork
 			foreach (explode('/', $a) as $a) $args['__' . ++$i . '__'] = $a;
 		}
 
-		if ($base == $BASE) $appId = $base = false;
+		if ($base === $BASE) $appId = $base = false;
 		else p::watch('foreignTrace');
 
 		return $trace = array($appId, $base, $agent, $keys, $args);

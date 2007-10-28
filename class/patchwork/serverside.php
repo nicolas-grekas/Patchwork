@@ -26,7 +26,12 @@ class extends patchwork
 
 	static function returnAgent($agent, $args, $lang = false)
 	{
-		if ($lang) $lang = p::setLang($lang);
+		if (false !== $lang)
+		{
+			$a = p::$lang;
+			p::setLang($lang);
+			$lang = $a;
+		}
 
 		$a =& $_GET;
 		$g =& self::$get;
@@ -41,7 +46,7 @@ class extends patchwork
 		$_GET =& $a;
 		self::$get =& $g;
 
-		if ($lang) p::setLang($lang);
+		false !== $lang && p::setLang($lang);
 
 		return $agent;
 	}
@@ -65,15 +70,14 @@ class extends patchwork
 			}
 			else self::$get = (object) array_map('htmlspecialchars', $a);
 
-			p::$uri = p::$host . substr($_SERVER['REQUEST_URI'], 1);
-
 			self::$get->__DEBUG__ = DEBUG ? DEBUG : 0;
 			self::$get->__HOST__ = htmlspecialchars(p::__HOST__());
 			$cache .= self::$get->__LANG__ = htmlspecialchars(p::__LANG__());
 			$cache .= self::$get->__BASE__ = htmlspecialchars(p::__BASE__());
-			self::$get->__AGENT__ = 'agent_index' == $agent ? '' : (str_replace('_', '/', substr($agent, 6)) . '/');
+			self::$get->__AGENT__ = 'agent_index' === $agent ? '' : (str_replace('_', '/', substr($agent, 6)) . '/');
 			self::$get->__URI__ = htmlspecialchars(p::$uri);
 			self::$get->__REFERER__ = isset($_SERVER['HTTP_REFERER']) ? htmlspecialchars($_SERVER['HTTP_REFERER']) : '';
+			self::$get->__LANG_ALT__ = new loop_altLang;
 
 			self::$args = self::$get;
 
@@ -241,12 +245,12 @@ class extends patchwork
 			$agent->metaCompose();
 			list($maxage, $group, $expires, $watch, $headers, $canPost) = p::closeMeta();
 
-			if ('ontouch' == $expires && !$watch) $expires = 'auto';
-			$expires = 'auto' == $expires && $watch ? 'ontouch' : 'onmaxage';
+			if ('ontouch' === $expires && !$watch) $expires = 'auto';
+			$expires = 'auto' === $expires && $watch ? 'ontouch' : 'onmaxage';
 
 			p::setExpires($expires);
 
-			if ($is_cacheable && !IS_POSTING && !in_array('private', $group) && ($maxage || 'ontouch' == $expires))
+			if ($is_cacheable && !IS_POSTING && !in_array('private', $group) && ($maxage || 'ontouch' === $expires))
 			{
 				$fagent = $cagent;
 				if ($canPost) $fagent = substr($cagent, 0, -4) . '.post' . substr($cagent, -4);
@@ -271,7 +275,7 @@ class extends patchwork
 					fwrite($h, $rawdata);
 					fclose($h);
 
-					touch($fagent, $_SERVER['REQUEST_TIME'] + ('ontouch' == $expires ? $CONFIG['maxage'] : $maxage));
+					touch($fagent, $_SERVER['REQUEST_TIME'] + ('ontouch' === $expires ? $CONFIG['maxage'] : $maxage));
 
 					p::writeWatchTable($watch, $fagent);
 				}
