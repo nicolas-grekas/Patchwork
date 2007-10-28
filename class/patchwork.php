@@ -242,11 +242,11 @@ class
 
 		// Language controler
 
-		!$_SERVER['PATCHWORK_LANG']
-			&& $CONFIG['i18n.lang_list']
+		'' === $_SERVER['PATCHWORK_LANG']
+			&& '' !== key($CONFIG['i18n.lang_list'])
 			&& patchwork_language::negociate();
 
-		self::setLang($_SERVER['PATCHWORK_LANG'] ? $_SERVER['PATCHWORK_LANG'] : key($CONFIG['i18n.lang_list']));
+		self::setLang($_SERVER['PATCHWORK_LANG']);
 	}
 
 	static function start()

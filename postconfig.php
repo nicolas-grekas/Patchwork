@@ -38,7 +38,7 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 // Fix a bug with long file names.
 // In debug mode, checks if character case is strict.
 
-/**/if ('\\' == DIRECTORY_SEPARATOR)
+/**/if ('\\' === DIRECTORY_SEPARATOR)
 /**/{
 		if (/**/PHP_VERSION < '5.2'/**/ || DEBUG)
 		{
@@ -57,7 +57,7 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 						{
 							if ($file[$i] != $realfile[$j])
 							{
-								if (clower($file[$i]) == clower($realfile[$j]) && !(0 == $i && ':' == substr($file, 1, 1))) trigger_error("Character case mismatch between requested file and its real path ({$file} vs {$realfile})");
+								if (clower($file[$i]) === clower($realfile[$j]) && !(0 === $i && ':' === substr($file, 1, 1))) trigger_error("Character case mismatch between requested file and its real path ({$file} vs {$realfile})");
 								break;
 							}
 						}
@@ -146,7 +146,7 @@ function patchworkProcessedPath($file)
 
 		for (; $i < /**/count($patchwork_path)/**/; ++$i)
 		{
-			if (substr($f, 0, strlen($p[$i])+1) == $p[$i] . DIRECTORY_SEPARATOR)
+			if (substr($f, 0, strlen($p[$i])+1) === $p[$i] . DIRECTORY_SEPARATOR)
 			{
 				$file = substr($f, strlen($p[$i])+1);
 				break;
@@ -206,7 +206,7 @@ $CONFIG += array(
 // Prepare for I18N
 
 $a =& $CONFIG['i18n.lang_list'];
-is_array($a) || $a = $a ? explode('|', $a) : array();
+$a ? (is_array($a) || $a = explode('|', $a)) : ($a = array('' => '__'));
 define('PATCHWORK_I18N', 2 <= count($a));
 
 $b = array();
@@ -245,23 +245,22 @@ $b = '(' . implode('|', $b) . ')';
 
 /**/if (isset($_SERVER['PATCHWORK_BASE']))
 /**/{
-/**/	if ('/'  == substr($_SERVER['PATCHWORK_BASE'], 0, 1))
+/**/	if ('/'  === substr($_SERVER['PATCHWORK_BASE'], 0, 1))
 /**/		$_SERVER['PATCHWORK_BASE'] = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PATCHWORK_BASE'];
 
 		if (isset($_SERVER['PATCHWORK_BASE']))
 		{
-			if ('/'  == substr($_SERVER['PATCHWORK_BASE'], 0, 1))
+			if ('/'  === substr($_SERVER['PATCHWORK_BASE'], 0, 1))
 				$_SERVER['PATCHWORK_BASE'] = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PATCHWORK_BASE'];
 		}
 		else $_SERVER['PATCHWORK_BASE'] = /**/$_SERVER['PATCHWORK_BASE']/**/;
 
 
-/**/	$a = explode('__', $_SERVER['PATCHWORK_BASE'], 2);
-/**/	if (2 === count($a))
-/**/	{
+		$a = explode('__', $_SERVER['PATCHWORK_BASE'], 2);
+		if (2 === count($a))
+		{
 			if (!isset($_SERVER['PATCHWORK_LANG']))
 			{
-				$a = explode('__', $_SERVER['PATCHWORK_BASE'], 2);
 				$a = '#' . preg_quote($a[0], '#') . $b . preg_quote($a[1], '#') . '#';
 				preg_match($a, $_SERVER['SCRIPT_URI'], $a)
 					&& $_SERVER['PATCHWORK_LANG'] = array_search($a[1], $CONFIG['i18n.lang_list']);
@@ -282,7 +281,7 @@ $b = '(' . implode('|', $b) . ')';
 
 			isset($_SERVER['PATCHWORK_LANG'])    || $_SERVER['PATCHWORK_LANG']    = '';
 			isset($_SERVER['PATCHWORK_REQUEST']) || $_SERVER['PATCHWORK_REQUEST'] = '';
-/**/	}
+		}
 /**/}
 /**/else
 /**/{
@@ -296,7 +295,7 @@ $b = '(' . implode('|', $b) . ')';
 /**/
 /**/		$a = strpos($_SERVER['REQUEST_URI'], '?');
 /**/		$a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
-/**/		'/' == substr($a, -1) && $a .= 'index.php';
+/**/		'/' === substr($a, -1) && $a .= 'index.php';
 /**/
 /**/		$a  = "GET {$a}/_?exit$ HTTP/1.0\r\n";
 /**/		$a .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
@@ -321,7 +320,7 @@ $b = '(' . implode('|', $b) . ')';
 /**/	}
 /**/	else
 /**/	{
-			'/index.php' == substr($_SERVER['PATCHWORK_BASE'], -10) && $_SERVER['PATCHWORK_BASE'] = substr($_SERVER['PATCHWORK_BASE'], 0, -10);
+			'/index.php' === substr($_SERVER['PATCHWORK_BASE'], -10) && $_SERVER['PATCHWORK_BASE'] = substr($_SERVER['PATCHWORK_BASE'], 0, -10);
 			$_SERVER['PATCHWORK_BASE'] .= '?' . (PATCHWORK_I18N ? '__/' : '');
 
 			$_SERVER['PATCHWORK_REQUEST'] = $_SERVER['QUERY_STRING'];
@@ -355,4 +354,4 @@ $b = '(' . implode('|', $b) . ')';
 
 
 PATCHWORK_I18N || $_SERVER['PATCHWORK_LANG'] = key($CONFIG['i18n.lang_list']);
-define('PATCHWORK_DIRECT',  '_' == $_SERVER['PATCHWORK_REQUEST']);
+define('PATCHWORK_DIRECT',  '_' === $_SERVER['PATCHWORK_REQUEST']);
