@@ -28,17 +28,25 @@ class extends patchwork
 			array_walk($a, 'jsquoteRef');
 			$a = implode(',', $a);
 
-			$agent = jsquote('agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)));
+			$agent = jsquote('agent_index' === $agent ? '' : str_replace('_', '/', substr($agent, 6)));
 
 			$lang = p::__LANG__();
 			$appId = p::$appId;
 			$base = p::__BASE__();
 
+			if (PATCHWORK_I18N)
+			{
+				ob_start();
+				self::writeAgent(new loop_altLang);
+				$b = substr(ob_get_clean(), 4, -1);
+			}
+			else $b = '0';
+
 			echo $a =<<<EOHTML
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="{$lang}" lang="{$lang}">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<script type="text/javascript" name="w$">/*<![CDATA[*/a=[{$agent},[{$a}],{$appId}]//]]></script>
+<script type="text/javascript" name="w$">/*<![CDATA[*/a=[{$agent},[{$a}],{$appId},{$b}]//]]></script>
 <script type="text/javascript" src="{$base}js/w?{$appId}"></script>
 </html>
 EOHTML;
@@ -68,7 +76,7 @@ EOHTML;
 			// Check the Referer header
 			// T$ starts with 2 when the Referer's confidence is unknown
 			//                1 when it is trusted
-			if (isset($_SERVER['HTTP_REFERER']) && $_COOKIE['R$'] == $_SERVER['HTTP_REFERER'])
+			if (isset($_SERVER['HTTP_REFERER']) && $_COOKIE['R$'] === $_SERVER['HTTP_REFERER'])
 			{
 				if (class_exists('SESSION', false))
 				{
@@ -232,16 +240,16 @@ EOHTML;
 		}
 		else echo $data;
 
-		if ('ontouch' == $expires && !($watch || $config_maxage == $maxage)) $expires = 'auto';
-		$expires = 'auto' == $expires && ($watch || $config_maxage == $maxage) ? 'ontouch' : 'onmaxage';
+		if ('ontouch' === $expires && !($watch || $config_maxage == $maxage)) $expires = 'auto';
+		$expires = 'auto' === $expires && ($watch || $config_maxage == $maxage) ? 'ontouch' : 'onmaxage';
 
-		$is_cacheable = $is_cacheable && !in_array('private', $group) && ($maxage || 'ontouch' == $expires);
+		$is_cacheable = $is_cacheable && !in_array('private', $group) && ($maxage || 'ontouch' === $expires);
 
 		if (!$liveAgent || $is_cacheable)
 		{
 			if ($is_cacheable) ob_start();
 
-			if ($maxage == $config_maxage && TURBO)
+			if ($config_maxage == $maxage && TURBO)
 			{
 				$ctemplate = p::getContextualCachePath("templates/$template", 'txt');
 
@@ -281,7 +289,7 @@ EOHTML;
 					'rawdata' => $data,
 				);
 
-				$expires = 'ontouch' == $expires ? $config_maxage : $maxage;
+				$expires = 'ontouch' === $expires ? $config_maxage : $maxage;
 
 				if ($h = p::fopenX($dagent))
 				{
@@ -311,7 +319,7 @@ EOHTML;
 		}
 	}
 
-	protected static function writeAgent(&$loop)
+	protected static function writeAgent($loop)
 	{
 		if (!p::string($loop))
 		{
@@ -331,7 +339,7 @@ EOHTML;
 			array_walk($keyList, 'jsquoteRef');
 			$keyList = implode(',', $keyList);
 
-			if ($keyList != $prevKeyList)
+			if ($keyList !== $prevKeyList)
 			{
 				echo $prevKeyList ? '],[' : '',  count($data), ',', $keyList;
 				$prevKeyList = $keyList;

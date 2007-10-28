@@ -194,13 +194,12 @@ if (window.Error)
 	// This eval avoids a parse error with browsers not supporting exceptions.
 	eval('try{document.execCommand("BackgroundImageCache",false,true)}catch(w){}');
 
-w = function($baseAgent, $keys, $masterAppId)
+w = function($baseAgent, $keys, $masterAppId, $buffer)
 {
 	$masterAppId /= 1;
 
 	var $document = document,
 
-		$buffer = [],
 		$inlineJs = 0,
 		$includeSrc = '',
 		$trustReferer = 0,
@@ -305,7 +304,7 @@ w = function($baseAgent, $keys, $masterAppId)
 			{
 				w.k = function($id, $base, $agent, $__0__, $keys)
 				{
-					$base = esc($base).replace(/__/, {$lang_url|js});
+					$base = esc($base);
 					$agent = esc($agent);
 
 					$args.__0__ = $__0__;
@@ -316,12 +315,14 @@ w = function($baseAgent, $keys, $masterAppId)
 					{
 						$AppId = $id/1;
 
-						$args.__DEBUG__ = g.__DEBUG__;
-						$args.__LANG__ = g.__LANG__;
-						$args.__BASE__ = $base;
-						$args.__HOST__ = $base.substr(0, $base.indexOf('/', 8)+1);
-						$args.__AGENT__ = $agent ? $agent + '/' : '';
-						$args.__URI__ = $base + $agent;
+						$args.__DEBUG__    = g.__DEBUG__;
+						$args.__LANG__     = g.__LANG__;
+						$args.__BASE__     = $base;
+						$args.__HOST__     = $base.substr(0, $base.indexOf('/', 8)+1);
+						$args.__AGENT__    = $agent ? $agent + '/' : '';
+						$args.__URI__      = $base + $agent;
+						$args.__REFERER__  = g.__REFERER__;
+						$args.__LANG_ALT__ = g.__LANG_ALT__;
 						$args.e$ = 1;
 
 						g = $args;
@@ -330,7 +331,7 @@ w = function($baseAgent, $keys, $masterAppId)
 					$include($base + '_?a$=' + $agent, $args, $keys, 1)
 				}
 
-				$inc += '&amp;k$=';
+				$inc += '&amp;k$=' + g.__LANG__;
 				$c = 0;
 			}
 		}
@@ -444,12 +445,14 @@ w = function($baseAgent, $keys, $masterAppId)
 					{
 						$AppId = $meta[0]/1;
 
-						$args.__DEBUG__ = g.__DEBUG__;
-						$args.__LANG__ = g.__LANG__;
-						$args.__BASE__ = esc($meta[1]).replace(/__/, {$lang_url|js});
-						$args.__HOST__ = $args.__BASE__.substr(0, $args.__BASE__.indexOf('/', 8)+1);
-						$args.__AGENT__ = $agent ? $agent + '/' : '';
-						$args.__URI__ = $args.__BASE__ + $agent;
+						$args.__DEBUG__    = g.__DEBUG__;
+						$args.__LANG__     = g.__LANG__;
+						$args.__BASE__     = esc($meta[1]);
+						$args.__HOST__     = $args.__BASE__.substr(0, $args.__BASE__.indexOf('/', 8)+1);
+						$args.__AGENT__    = $agent ? $agent + '/' : '';
+						$args.__URI__      = $args.__BASE__ + $agent;
+						$args.__REFERER__  = g.__REFERER__;
+						$args.__LANG_ALT__ = g.__LANG_ALT__;
 						$args.e$ = 1;
 
 						g = $args;
@@ -811,13 +814,16 @@ w = function($baseAgent, $keys, $masterAppId)
 
 	$j = ('' + $j).replace(/#.*$/, '');
 
-	g.__DEBUG__ = {g$__DEBUG__|js};
-	g.__HOST__ = {g$__HOST__|js};
-	g.__LANG__ = {g$__LANG__|js};
-	g.__BASE__ = $masterBase;
-	g.__AGENT__ = $baseAgent ? esc($baseAgent) + '/' : '';
-	g.__URI__ = esc($j);
-	g.__REFERER__ = esc($document.referrer);
+	g.__DEBUG__    = {g$__DEBUG__|js};
+	g.__HOST__     = {g$__HOST__|js};
+	g.__LANG__     = {g$__LANG__|js};
+	g.__BASE__     = $masterBase;
+	g.__AGENT__    = $baseAgent ? esc($baseAgent) + '/' : '';
+	g.__URI__      = esc($j);
+	g.__REFERER__  = esc($document.referrer);
+	g.__LANG_ALT__ = $buffer && w.x($buffer);
+
+	$buffer = [];
 
 	if (t($baseAgent))
 	{
@@ -868,7 +874,7 @@ function loadW($window)
 			}
 		})();
 
-		$window.a ? w(a[0], a[1], a[2]) : w();
+		$window.a ? w(a[0], a[1], a[2], a[3]) : w();
 	}
 	else document.write('<script type="text/javascript" src="' + {g$__BASE__|js} + 'js/compat"></script>');
 }

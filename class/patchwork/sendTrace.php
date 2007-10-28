@@ -17,11 +17,13 @@ class extends patchwork
 	{
 		header('Content-Type: text/javascript');
 		p::setMaxage(-1);
+		p::setLang($_GET['k$']);
+
 
 		echo 'w.k(',
 			p::$appId, ',',
-			jsquote( $_SERVER['PATCHWORK_BASE'] ), ',',
-				jsquote( 'agent_index' == $agent ? '' : str_replace('_', '/', substr($agent, 6)) ), ',',
+			jsquote( p::$base ), ',',
+			jsquote( 'agent_index' === $agent ? '' : str_replace('_', '/', substr($agent, 6)) ), ',',
 			jsquote( isset($_GET['__0__']) ? $_GET['__0__'] : '' ), ',',
 			'[', implode(',', array_map('jsquote', p::agentArgs($agent))), ']',
 		')';
