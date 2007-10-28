@@ -347,7 +347,7 @@ $b = '(' . implode('|', $b) . ')';
 
 		if (preg_match("#^{$b}(?:/|$)(.*?)$#", $_SERVER['PATCHWORK_REQUEST'], $a))
 		{
-			$_SERVER['PATCHWORK_LANG']    = $a[1];
+			$_SERVER['PATCHWORK_LANG']    = array_search($a[1], $CONFIG['i18n.lang_list']);
 			$_SERVER['PATCHWORK_REQUEST'] = $a[2];
 		}
 /**/}
