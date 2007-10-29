@@ -620,8 +620,8 @@ class patchwork_preprocessor__0
 					{
 						switch ($type)
 						{
-						case '__constructStatic': $c->add_constructStatic = true ; break;
-						case '__destructStatic' : $c->add_destructStatic  = true ; break;
+						case '__constructstatic': $c->add_constructStatic = true ; break;
+						case '__destructstatic' : $c->add_destructStatic  = true ; break;
 						case '__construct'      : $c->add_php5_construct  = false; break;
 
 						case clower($c->classname):
