@@ -277,7 +277,7 @@ class
 
 		p::makeDir($this->path);
 
-		$this->handle = fopen($this->path, 'a+b');
+		$this->handle = fopen($this->path, 'r+b');
 		flock($this->handle, LOCK_EX);
 	}
 
@@ -304,6 +304,7 @@ class
 	protected function write($value)
 	{
 		ftruncate($this->handle, 0);
+		rewind($this->handle);
 		fwrite($this->handle, $value);
 	}
 
