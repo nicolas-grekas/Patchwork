@@ -953,7 +953,6 @@ class
 
 			$b = ini_get('error_log');
 			$b = fopen($b ? $b : (PATCHWORK_PROJECT_PATH . '/error.patchwork.log'), 'ab');
-			flock($b, LOCK_EX);
 			fwrite($b, $a);
 			fclose($b);
 		}
@@ -1082,7 +1081,7 @@ class
 
 	protected static function agentArgs($agent)
 	{
-		$cache = self::getContextualCachePath('agentArgs/' . $agent, 'txt', self::$appId);
+		$cache = self::getContextualCachePath('agentArgs/' . $agent, 'txt');
 		$readHandle = true;
 		if ($h = self::fopenX($cache, $readHandle))
 		{
@@ -1118,9 +1117,8 @@ class
 
 			// Cache results
 
-			fwrite($h, $private . serialize($args));
+			fwrite($h, $private . (DEBUG ? '' : serialize($args)));
 			fclose($h);
-			p::writeWatchTable('appId', $cache);
 
 			self::$privateDetectionMode = false;
 
@@ -1131,7 +1129,18 @@ class
 			$cache = stream_get_contents($readHandle);
 			fclose($readHandle);
 
-			$args = unserialize(substr($cache, 1));
+#>			if (DEBUG)
+#>			{
+#>				$args = get_class_vars($agent);
+#>				$args =& $args['get'];
+#>
+#>				is_array($args) || $args = (array) $args;
+#>				$args && array_walk($args, array('self', 'stripArgs'));
+#>			}
+#>			else
+#>			{
+				$args = unserialize(substr($cache, 1));
+#>			}
 
 			if ($cache[0]) $args[] = 'T$';
 		}
@@ -1396,7 +1405,6 @@ class
 					foreach (self::$watchTable as $path)
 					{
 						$h = fopen($path, 'ab');
-						flock($h, LOCK_EX);
 						fwrite($h, $readHandle);
 						fclose($h);
 					}

@@ -23,12 +23,11 @@ class extends patchwork
 		{
 			$a = '';
 
-			$cache = p::getContextualCachePath('agentArgs/' . p::$agentClass, 'txt', p::$appId);
+			$cache = p::getContextualCachePath('agentArgs/' . p::$agentClass, 'txt');
 
 			if (file_exists($cache))
 			{
 				$h = fopen($cache, 'r+b');
-				flock($h, LOCK_SH);
 				if (!$a = fread($h, 1))
 				{
 					p::touch('appId');
