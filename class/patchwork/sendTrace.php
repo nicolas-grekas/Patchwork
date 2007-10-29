@@ -19,7 +19,6 @@ class extends patchwork
 		p::setMaxage(-1);
 		p::setLang($_GET['k$']);
 
-
 		echo 'w.k(',
 			p::$appId, ',',
 			jsquote( p::$base ), ',',

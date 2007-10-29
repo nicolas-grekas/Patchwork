@@ -473,7 +473,7 @@ class
 		self::$host = strtr($base, '#?', '//');
 		self::$host = substr($base, 0, strpos(self::$host, '/', 8)+1);
 
-		if (isset(self::$uri))
+		if (PATCHWORK_I18N && isset(self::$uri))
 		{
 			$base = preg_quote($_SERVER['PATCHWORK_BASE'], "'");
 			$base = explode('__', $base, 2);
@@ -1082,19 +1082,22 @@ class
 
 	protected static function agentArgs($agent)
 	{
-		// get declared arguments in $agent->get public property
-		$args = get_class_vars($agent);
-		$args =& $args['get'];
-
-		is_array($args) || $args = (array) $args;
-		$args && array_walk($args, array('self', 'stripArgs'));
-
-		// autodetect private data for antiCSRF
-		$cache = self::getContextualCachePath('antiCSRF.' . $agent, 'txt');
+		$cache = self::getContextualCachePath('agentArgs/' . $agent, 'txt', self::$appId);
 		$readHandle = true;
 		if ($h = self::fopenX($cache, $readHandle))
 		{
-			$private = '';
+			// get declared arguments in $agent->get public property
+
+			$args = get_class_vars($agent);
+			$args =& $args['get'];
+
+			is_array($args) || $args = (array) $args;
+			$args && array_walk($args, array('self', 'stripArgs'));
+
+
+			// autodetect private data for antiCSRF
+
+			$private = '0';
 
 			self::$privateDetectionMode = true;
 
@@ -1108,10 +1111,16 @@ class
 			}
 			catch (Exception $d)
 			{
+				W('Exception thrown while testing for private agent');
+				W($d);
 			}
 
-			fwrite($h, $private);
+
+			// Cache results
+
+			fwrite($h, $private . serialize($args));
 			fclose($h);
+			p::writeWatchTable('appId', $cache);
 
 			self::$privateDetectionMode = false;
 
@@ -1119,9 +1128,12 @@ class
 		}
 		else
 		{
-			$cache = fstat($readHandle);
+			$cache = stream_get_contents($readHandle);
 			fclose($readHandle);
-			if ($cache['size']) $args[] = 'T$';
+
+			$args = unserialize(substr($cache, 1));
+
+			if ($cache[0]) $args[] = 'T$';
 		}
 
 		return $args;

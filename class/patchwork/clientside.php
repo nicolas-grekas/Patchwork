@@ -20,29 +20,25 @@ class extends patchwork
 		p::setGroup('private');
 		p::setExpires('onmaxage');
 
-		$cagent = p::getContextualCachePath('controler/' . $agent, 'txt', p::$appId);
-		$readHandle = true;
-		if ($h = p::fopenX($cagent, $readHandle))
+		$a = p::agentArgs($agent);
+		array_walk($a, 'jsquoteRef');
+		$a = implode(',', $a);
+
+		$agent = jsquote('agent_index' === $agent ? '' : str_replace('_', '/', substr($agent, 6)));
+
+		$lang = p::__LANG__();
+		$appId = p::$appId;
+		$base = p::__BASE__();
+
+		if (PATCHWORK_I18N)
 		{
-			$a = p::agentArgs($agent);
-			array_walk($a, 'jsquoteRef');
-			$a = implode(',', $a);
+			ob_start();
+			self::writeAgent(new loop_altLang);
+			$b = substr(ob_get_clean(), 4, -1);
+		}
+		else $b = '0';
 
-			$agent = jsquote('agent_index' === $agent ? '' : str_replace('_', '/', substr($agent, 6)));
-
-			$lang = p::__LANG__();
-			$appId = p::$appId;
-			$base = p::__BASE__();
-
-			if (PATCHWORK_I18N)
-			{
-				ob_start();
-				self::writeAgent(new loop_altLang);
-				$b = substr(ob_get_clean(), 4, -1);
-			}
-			else $b = '0';
-
-			echo $a =<<<EOHTML
+		echo $a =<<<EOHTML
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="{$lang}" lang="{$lang}">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -50,16 +46,6 @@ class extends patchwork
 <script type="text/javascript" src="{$base}js/w?{$appId}"></script>
 </html>
 EOHTML;
-
-			fwrite($h, $a);
-			fclose($h);
-			p::writeWatchTable('appId', $cagent);
-		}
-		else
-		{
-			fpassthru($readHandle);
-			fclose($readHandle);
-		}
 	}
 
 	static function render($agent, $liveAgent)

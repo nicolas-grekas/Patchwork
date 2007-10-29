@@ -25,9 +25,11 @@
 
 	<style type="text/css">label{cursor:default}</style>
 
-	<!-- LOOP g$__LANG_ALT__ -->
+	<!-- LOOP g$__LANG_ALT__
+	     IF $lang != g$__LANG__ -->
 	<link rel="alternate" type="text/html" href="{$href}" title="{$title}" hreflang="{$lang}" lang="{$lang}" xml:lang="{$lang}" />
-	<!-- END:LOOP -->
+	<!-- END:IF
+	     END:LOOP -->
 
 
 	<!-- IF a$css -->

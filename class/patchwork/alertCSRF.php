@@ -23,23 +23,25 @@ class extends patchwork
 		{
 			$a = '';
 
-			$cache = p::getContextualCachePath('antiCSRF.' . p::$agentClass, 'txt');
+			$cache = p::getContextualCachePath('agentArgs/' . p::$agentClass, 'txt', p::$appId);
 
-			p::makeDir($cache);
-
-			$h = fopen($cache, 'a+b');
-			flock($h, LOCK_EX);
-			fseek($h, 0, SEEK_END);
-			if (!ftell($h))
+			if (file_exists($cache))
 			{
-				p::touch('appId');
-				p::touch('public/templates/js');
+				$h = fopen($cache, 'r+b');
+				flock($h, LOCK_SH);
+				if (!$a = fread($h, 1))
+				{
+					p::touch('appId');
+					p::touch('public/templates/js');
 
-				fwrite($h, $a = '1');
+					rewind($h);
+					fwrite($h, $a = '1');
 
-				p::touchAppId();
+					p::touchAppId();
+				}
+
+				fclose($h);
 			}
-			fclose($h);
 
 			throw new PrivateDetection($a);
 		}
