@@ -26,8 +26,8 @@ version_compare(phpversion(), $a, '<') && die("PHP $a or higher is required.");
 
 version_compare($a, '5.1', '<') && $a = '5.1.x';
 $b = str_replace('a', 'b', array(-1 => -1));
-isset($b[-1]) || die("PHP 5.0.x is buggy on your 64-bit system; you must upgrade to PHP $a
-or higher. (see http://bugs.php.net/bug.php?id=34879)");
+isset($b[-1]) || die("PHP 5.0.x is buggy on your 64-bit system; you must upgrade to
+PHP $a or higher. (see http://bugs.php.net/bug.php?id=34879)");
 
 
 require dirname(__FILE__) . '/loader.php';

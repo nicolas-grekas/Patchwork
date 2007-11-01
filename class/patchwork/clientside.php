@@ -16,6 +16,8 @@ class extends patchwork
 {
 	static function loadAgent($agent)
 	{
+#>		p::touch('debugSync');
+
 		p::setMaxage(-1);
 		p::setGroup('private');
 		p::setExpires('onmaxage');
