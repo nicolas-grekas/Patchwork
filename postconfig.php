@@ -261,7 +261,7 @@ $b = '(' . implode('|', $b) . ')';
 		{
 			if (!isset($_SERVER['PATCHWORK_LANG']))
 			{
-				$a = '#' . preg_quote($a[0], '#') . $b . preg_quote($a[1], '#') . '#';
+				$a = '#' . preg_quote($a[0], '#') . $b . '#';
 				preg_match($a, $_SERVER['SCRIPT_URI'], $a)
 					&& $_SERVER['PATCHWORK_LANG'] = array_search($a[1], $CONFIG['i18n.lang_list']);
 			}

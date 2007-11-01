@@ -185,6 +185,8 @@ abstract class
 
 	protected function INLINEcallback($m)
 	{
+#>		p::watch('debugSync');
+
 		$template = (IS_WINDOWS ? clower($m[1]) : $m[1]) . '.ptl';
 
 		$a = str_replace('\\', '/', $template) == preg_replace("'[\\/]+'", '/', $this->template);
@@ -531,9 +533,13 @@ abstract class
 			$a = preg_replace('/([^\\\\](\\\\?)(?:\\\\\\\\)*)\\$/su', '$1$2\\\\$', $a);
 			$a = eval("return $a;");
 
-			if ($b && trim($a)!=='')
+			if ($b && '' !== trim($a))
 			{
-				if ($translate) $a = TRANSLATE::get($a, p::__LANG__(), false);
+				if ($translate)
+				{
+					$a = TRANSLATE::get($a, p::__LANG__(), false);
+#>					p::watch('debugSync');
+				}
 				else
 				{
 					$this->mode = 'concat';
@@ -542,7 +548,11 @@ abstract class
 
 					$this->makeVars($a);
 
-					if ($this->concatLast == 0) $this->concat[0] = TRANSLATE::get($this->concat[0], p::__LANG__(), false);
+					if ($this->concatLast == 0)
+					{
+						$this->concat[0] = TRANSLATE::get($this->concat[0], p::__LANG__(), false);
+#>						p::watch('debugSync');
+					}
 
 					for ($i = 0; $i<=$this->concatLast; $i+=2)
 					{

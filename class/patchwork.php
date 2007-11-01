@@ -477,7 +477,8 @@ class
 		{
 			$base = preg_quote($_SERVER['PATCHWORK_BASE'], "'");
 			$base = explode('__', $base, 2);
-			$base = "'^{$base[0]}.+?{$base[1]}(.*)$'D";
+			$base[1] = '/' === $base[1] ? '[^?/]+/?' : ".+?{$base[1]}";
+			$base = "'^{$base[0]}{$base[1]}(.*)$'D";
 
 			preg_match($base, self::$uri, $base)
 				? self::$uri = self::$base . self::translateRequest($base[1], $lang)
@@ -867,9 +868,13 @@ class
 
 	static function fopenX($file, &$readHandle = false)
 	{
-		self::makeDir($file);
+		if ($h = !file_exists($file))
+		{
+			self::makeDir($file);
+			$h = @fopen($file, 'xb');
+		}
 
-		if ($h = @fopen($file, 'xb')) flock($h, LOCK_EX);
+		if ($h) flock($h, LOCK_EX);
 		else if ($readHandle)
 		{
 			$readHandle = fopen($file, 'rb');

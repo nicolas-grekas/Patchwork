@@ -28,7 +28,8 @@ class extends loop
 
 				$base = preg_quote($_SERVER['PATCHWORK_BASE'], "'");
 				$base = explode('__', $base, 2);
-				$base = "'^({$base[0]}).+?({$base[1]})(.*)$'D";
+				$base[1] = '/' === $base[1] ? '[^?/]+(/?)' : ".+?({$base[1]})";
+				$base = "'^({$base[0]}){$base[1]}(.*)$'D";
 
 				if (preg_match($base, p::__URI__(), $base))
 				{

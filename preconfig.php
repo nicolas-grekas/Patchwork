@@ -410,6 +410,15 @@ define('UTF8_VALID_RX', /**/"/(?:[\x00-\x7f]|[\xc2-\xdf][\x80-\xbf]|\xe0[\xa0-\x
 /**/}
 
 
+// Configure PCRE
+
+/**/if (ini_get('pcre.backtrack_limit') < 5000000)
+		ini_set('pcre.backtrack_limit',   5000000);
+
+/**/if (ini_get('pcre.recursion_limit') < 10000)
+		ini_set('pcre.recursion_limit',   10000);
+
+
 // Convert ISO-8859-1 URLs to UTF-8 ones
 
 if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))

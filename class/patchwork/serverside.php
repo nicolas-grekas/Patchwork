@@ -59,6 +59,8 @@ class extends patchwork
 
 		if (false === $args)
 		{
+#>			p::touch('debugSync');
+
 			$reset_get = true;
 			$cache = '';
 
