@@ -59,7 +59,7 @@ class extends patchwork
 
 		if (false === $args)
 		{
-#>			p::touch('debugSync');
+#>			p::$binaryMode || p::touch('debugSync');
 
 			$reset_get = true;
 			$cache = '';
