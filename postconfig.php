@@ -183,6 +183,7 @@ function patchworkProcessedPath($file)
 
 
 function E($msg = '__getDeltaMicrotime') {return patchwork::log($msg, false, false);}
+function strlencmp($a, $b) {return strlen($b) - strlen($a);}
 
 
 // Fix config
@@ -230,6 +231,7 @@ foreach ($a as $k => &$v)
 
 unset($a, $k, $v);
 
+usort($b, 'strlencmp');
 $b = '(' . implode('|', $b) . ')';
 
 
