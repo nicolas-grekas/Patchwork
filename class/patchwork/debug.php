@@ -48,7 +48,7 @@ class
 				$offset = -12 - strlen(PATCHWORK_PATH_TOKEN);
 
 				$dir = opendir('.');
-				while (false !== $cache = readdir($dir)) if (preg_match('/^\..+\.1.+\.' . PATCHWORK_PATH_TOKEN . '\.zcache\.php$/D', $cache))
+				while (false !== $cache = readdir($dir)) if (preg_match('/^\..+\.[^0][^\.]+\.' . PATCHWORK_PATH_TOKEN . '\.zcache\.php$/D', $cache))
 				{
 					$cache = './' . $cache;
 					$file = str_replace('%1', '%', str_replace('%2', '_', strtr(substr($cache, 3, $offset), '_', '/')));
