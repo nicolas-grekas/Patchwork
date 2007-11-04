@@ -44,14 +44,12 @@ function patchworkRelocate(url)
 
 function LoadScript( url )
 {
-	url = patchworkRelocate(url);
-	document.write( '<scr' + 'ipt type="text/javascript" ' + 'src="' + url + '" onerror="alert(\'Error loading \' + this.src);"><\/scr' + 'ipt>' ) ;
+	document.write( '<scr' + 'ipt type="text/javascript" '+'src="' + patchworkRelocate(url) + '" onerror="alert(\'Error loading \' + this.src);"><\/scr' + 'ipt>' ) ;
 }
 
 function LoadCss( url )
 {
-	url = ciaRelocate(url);
-	document.write( '<link ' + 'href="' + url + '" type="text/css" rel="stylesheet" onerror="alert(\'Error loading \' + this.src);" />' ) ;
+	document.write( '<link '+'href="' + patchworkRelocate(url) + '" type="text/css" rel="stylesheet" onerror="alert(\'Error loading \' + this.src);" />' ) ;
 }
 
 // Main editor scripts.
