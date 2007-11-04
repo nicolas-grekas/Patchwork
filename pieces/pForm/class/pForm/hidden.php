@@ -80,7 +80,7 @@ class extends loop_callAgent
 
 	final public function isValidData($checkStatus = true, $checkIsData = true)
 	{
-		if ($checkStatus && $this->status===false) return false;
+		if ($checkStatus && false === $this->status) return false;
 		if ($checkIsData && !$this->isdata) return false;
 
 		return true;
@@ -130,7 +130,7 @@ class extends loop_callAgent
 	function isOn()
 	{
 		if (isset($this->isOn)) return $this->isOn;
-		if ($this->status === '') return $this->isOn = false;
+		if ('' === $this->status || isset($GLOBALS['_POST_BACKUP'])) return $this->isOn = false;
 
 		$error =& $this->form->errormsg;
 
@@ -142,7 +142,7 @@ class extends loop_callAgent
 
 			$elt = $elt->checkError($onempty, $onerror);
 
-			if ($elt && $elt !== true) $error[] = $elt;
+			if ($elt && true !== $elt) $error[] = $elt;
 		}
 
 		if ($this->sessionLink && $error) unset($this->sessionLink[$this->name]);
@@ -153,9 +153,9 @@ class extends loop_callAgent
 	function checkError($onempty, $onerror)
 	{
 		if ($this->errormsg) return true;
-		else if ($onempty && $this->status==='') return $this->errormsg = $onempty;
-		else if ($onerror && $this->status===false) return $this->errormsg = $onerror;
-		else if ($this->status===false)
+		else if ($onempty && '' === $this->status) return $this->errormsg = $onempty;
+		else if ($onerror && false === $this->status) return $this->errormsg = $onerror;
+		else if (false === $this->status)
 		{
 /*>
 			W('Input validation error in ' . get_class($this) . ' element: ' . print_r(array(
@@ -165,9 +165,11 @@ class extends loop_callAgent
 			), true));
 <*/
 
-			if ($this->isfile && isset($_FILES[$this->name]))
+			$a =& $this->form->filesValues;
+
+			if ($this->isfile && isset($a[$this->name]))
 			{
-				switch ($_FILES[$this->name]['error'])
+				switch ($a[$this->name]['error'])
 				{
 				case UPLOAD_ERR_OK:
 				case UPLOAD_ERR_NO_FILE:
@@ -186,7 +188,7 @@ class extends loop_callAgent
 
 				case UPLOAD_ERR_NO_TMP_DIR:
 				case UPLOAD_ERR_CANT_WRITE:
-					$onerror = sprintf(T('The server failed to accept the uploaded file (code #%d)'), $this->name, $_FILES[$this->name]['error']);
+					$onerror = sprintf(T('The server failed to accept the uploaded file (code #%d)'), $this->name, $a[$this->name]['error']);
 					break;
 				}
 			}
@@ -194,7 +196,7 @@ class extends loop_callAgent
 
 			return $this->errormsg = $onerror;
 		}
-		else if ($this->status==='') $this->value = '';
+		else if ('' === $this->status) $this->value = '';
 
 		return false;
 	}
@@ -259,7 +261,7 @@ class extends loop_callAgent
 			{
 				if (is_array($this->value))
 				{
-					if (implode('', $this->value)==='') $this->status = '';
+					if ('' === implode('', $this->value)) $this->status = '';
 					else
 					{
 						$status = true;
@@ -268,7 +270,7 @@ class extends loop_callAgent
 						{
 							$v = VALIDATE::get($value, $this->valid, $this->valid_args);
 
-							if ($v===false) $status = false;
+							if (false === $v) $status = false;
 							else
 							{
 								$value = $v;
@@ -287,12 +289,12 @@ class extends loop_callAgent
 			}
 			else $this->value = array();
 		}
-		else if ((string) $this->value==='') $this->status = '';
+		else if ('' === (string) $this->value) $this->status = '';
 		else
 		{
 			$this->status = VALIDATE::get($this->value, $this->valid, $this->valid_args);
 
-			if ($this->status!=='' && $this->status!==false)
+			if ('' !== $this->status && false !== $this->status)
 			{
 				$this->value = $this->status;
 				$this->status = true;

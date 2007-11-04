@@ -31,7 +31,7 @@ class extends pForm_text
 		$i = 0;
 		while(isset($param[$i])) $this->valid_args[] =& $param[$i++];
 
-		$this->status = VALIDATE::getFile($_FILES[$this->name], $this->valid, $this->valid_args);
+		$this->status = VALIDATE::getFile($this->form->filesValues[$this->name], $this->valid, $this->valid_args);
 		$this->value = $this->status;
 	}
 

@@ -17,6 +17,7 @@ class extends loop_callAgent
 	public
 
 	$rawValues,
+	$filesValues = array(),
 	$errormsg = array(),
 	$sessionLink = false,
 	$action = false;
@@ -53,7 +54,17 @@ class extends loop_callAgent
 		if ($this->POST)
 		{
 			p::canPost();
-			$this->rawValues =& $_POST;
+
+			if (isset($_POST['_POST_BACKUP']))
+			{
+				$this->rawValues   =& $GLOBALS['_POST_BACKUP'];
+				$this->filesValues =& $GLOBALS['_FILES_BACKUP'];
+			}
+			else
+			{
+				$this->rawValues   =& $_POST;
+				$this->filesValues =& $_FILES;
+			}
 		}
 		else $this->rawValues =& $_GET;
 

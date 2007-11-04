@@ -14,9 +14,51 @@
 
 class extends patchwork
 {
-	static $entitiesRx = "'&(nbsp|iexcl|cent|pound|curren|yen|euro|brvbar|sect|[AEIOUYaeiouy]?(?:uml|acute)|copy|ordf|laquo|not|shy|reg|macr|deg|plusmn|sup[123]|micro|para|middot|[Cc]?cedil|ordm|raquo|frac(?:14|12|34)|iquest|[AEIOUaeiou](?:grave|circ)|[ANOano]tilde|[Aa]ring|(?:AE|ae|sz)lig|ETH|times|[Oo]slash|THORN|eth|divide|thorn|quot|lt|gt|amp|[xX][0-9a-fA-F]+|[0-9]+);'";
+	protected static $entitiesRx = "'&(nbsp|iexcl|cent|pound|curren|yen|euro|brvbar|sect|[AEIOUYaeiouy]?(?:uml|acute)|copy|ordf|laquo|not|shy|reg|macr|deg|plusmn|sup[123]|micro|para|middot|[Cc]?cedil|ordm|raquo|frac(?:14|12|34)|iquest|[AEIOUaeiou](?:grave|circ)|[ANOano]tilde|[Aa]ring|(?:AE|ae|sz)lig|ETH|times|[Oo]slash|THORN|eth|divide|thorn|quot|lt|gt|amp|[xX][0-9a-fA-F]+|[0-9]+);'";
 
-	static function call($f)
+
+	static function scriptAlert()
+	{
+		p::setMaxage(0);
+		if (p::$catchMeta) p::$metaInfo[1] = array('private');
+
+		if (PATCHWORK_DIRECT)
+		{
+			$a = '';
+
+			$cache = p::getContextualCachePath('agentArgs/' . p::$agentClass, 'txt');
+
+			if (file_exists($cache))
+			{
+				$h = fopen($cache, 'r+b');
+				if (!$a = fread($h, 1))
+				{
+					p::touch('appId');
+					p::touch('public/templates/js');
+
+					rewind($h);
+					fwrite($h, $a = '1');
+
+					p::touchAppId();
+				}
+
+				fclose($h);
+			}
+
+			throw new PrivateDetection($a);
+		}
+
+		W('Potential JavaScript-Hijacking. Stopping !');
+
+		p::disable(true);
+	}
+
+	static function postAlert()
+	{
+		W('Potential Cross Site Request Forgery. $_POST and $_FILES are not reliable. Erasing !');
+	}
+
+	static function appendToken($f)
 	{
 		$f = $f[0];
 
@@ -33,7 +75,7 @@ class extends patchwork
 			if (0 !== strpos($a, p::$base))
 			{
 				// Decode html encoded chars
-				if (false !== strpos($a, '&')) $a = preg_replace_callback(self::$entitiesRx, array(__CLASS__, 'translateHtmlEntity'), $a);
+				if (false !== strpos($a, '&')) $a = preg_replace_callback(self::$entitiesRx, array(__CLASS__, 'translateHtmlEntities'), $a);
 
 				// Build absolute URI
 				if (preg_match("'^[^:/]*://[^/]*'", $a, $host))
@@ -45,7 +87,7 @@ class extends patchwork
 				{
 					$host = substr(p::$host, 0, -1);
 
-					if ('/' != substr($a, 0, 1))
+					if ('/' !== substr($a, 0, 1))
 					{
 						static $uri = false;
 
@@ -58,9 +100,9 @@ class extends patchwork
 							$uri = dirname($uri . ' ');
 
 							if (
-								   ''  === $uri
-								|| '/'  == $uri
-								|| '\\' == $uri
+								   ''   === $uri
+								|| '/'  === $uri
+								|| '\\' === $uri
 							)    $uri  = '/';
 							else $uri .= '/';
 						}
@@ -105,7 +147,7 @@ class extends patchwork
 		return $f . $appendedHtml;
 	}
 
-	static function translateHtmlEntity($c)
+	protected static function translateHtmlEntities($c)
 	{
 		static $table = false;
 

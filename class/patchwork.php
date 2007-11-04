@@ -136,7 +136,7 @@ function patchwork_error_handler($code, $message, $file, $line, &$context)
 			static $offset = 0;
 			$offset || $offset = -13 - strlen(PATCHWORK_PATH_TOKEN);
 
-			if ('-' == substr($file, $offset, 1)) return;
+			if ('-' === substr($file, $offset, 1)) return;
 
 			break;
 
@@ -272,27 +272,11 @@ class
 			$a = preg_replace("'\?.*$'", '', $a);
 			$a = preg_replace("'^https?://[^/]*'i", '', $a);
 			$a = dirname($a . ' ');
-			if (1 == strlen($a)) $a = '';
+			if (1 === strlen($a)) $a = '';
 
 			self::setcookie('v$', self::$appId, $_SERVER['REQUEST_TIME'] + $CONFIG['maxage'], $a .'/');
 			$GLOBALS['patchwork_private'] = true;
 		}
-
-
-		// Anti Cross-Site-Request-Forgery / Javascript-Hijacking token
-
-		IS_POSTING && $GLOBALS['_POST_BACKUP'] =& $_POST;
-
-		if (
-			isset($_COOKIE['T$'])
-			&& (!IS_POSTING || (isset($_POST['T$']) && substr($_COOKIE['T$'], 1) == substr($_POST['T$'], 1)))
-			&& '---------------------------------' == strtr($_COOKIE['T$'], '-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', '#--------------------------------------------------------------')
-		) self::$antiCSRFtoken = $_COOKIE['T$'];
-		else self::getAntiCSRFtoken(true);
-
-		isset($_GET['T$']) && $GLOBALS['patchwork_private'] = true;
-		define('PATCHWORK_TOKEN_MATCH', isset($_GET['T$']) && substr(self::$antiCSRFtoken, 1) == substr($_GET['T$'], 1));
-		if (IS_POSTING) {unset($_POST['T$'], $_POST['T$']);}
 
 
 		// Setup output filters
@@ -302,6 +286,20 @@ class
 		ob_start(array(__CLASS__, 'ob_sendHeaders'));
 		ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
 		self::$ob_level = 2;
+
+
+		// Anti Cross-Site-Request-Forgery / Javascript-Hijacking token
+
+		if (
+			isset($_COOKIE['T$'])
+			&& (!IS_POSTING || (isset($_POST['T$']) && substr($_COOKIE['T$'], 1) === substr($_POST['T$'], 1)))
+			&& '---------------------------------' === strtr($_COOKIE['T$'], '-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', '#--------------------------------------------------------------')
+		) self::$antiCSRFtoken = $_COOKIE['T$'];
+		else self::getAntiCSRFtoken(true);
+
+		isset($_GET['T$']) && $GLOBALS['patchwork_private'] = true;
+		define('PATCHWORK_TOKEN_MATCH', isset($_GET['T$']) && substr(self::$antiCSRFtoken, 1) === substr($_GET['T$'], 1));
+		if (IS_POSTING) unset($_POST['T$'], $_POST['T$']);
 
 
 		// If the URL has an extension, check for static files
@@ -521,9 +519,16 @@ class
 
 			if (!isset(self::$antiCSRFtoken) && $_COOKIE)
 			{
-				if (IS_POSTING) W('Potential Cross Site Request Forgery. $_POST is not reliable. Erasing it !');
+				if (IS_POSTING)
+				{
+					$GLOBALS['_POST_BACKUP'] = $_POST;
+					$_POST = array();
 
-				$_POST = array();
+					$GLOBALS['_FILES_BACKUP'] = $_FILES;
+					$_FILES = array();
+
+					patchwork_antiCSRF::postAlert();
+				}
 
 				unset($_COOKIE['T$'], $_COOKIE['T$']); // Double unset against a PHP security hole
 			}
@@ -568,7 +573,7 @@ class
 
 				if (false !== stripos($string, 'script'))
 				{
-					if (self::$private) PATCHWORK_TOKEN_MATCH || patchwork_alertCSRF::call();
+					if (self::$private) PATCHWORK_TOKEN_MATCH || patchwork_antiCSRF::scriptAlert();
 
 					self::$detectCSRF = true;
 				}
@@ -746,7 +751,7 @@ class
 		if (!$group) return;
 
 		if (self::$privateDetectionMode) throw new PrivateDetection;
-		else if (self::$detectCSRF) PATCHWORK_TOKEN_MATCH || patchwork_alertCSRF::call();
+		else if (self::$detectCSRF) PATCHWORK_TOKEN_MATCH || patchwork_antiCSRF::scriptAlert();
 
 		self::$private = true;
 
@@ -1269,7 +1274,7 @@ class
 			{
 				$a = preg_replace_callback(
 					'#<form\s(?:[^>]+?\s)?method\s*=\s*(["\']?)post\1.*?>#iu',
-					array('patchwork_appendAntiCSRF', 'call'),
+					array('patchwork_antiCSRF', 'appendToken'),
 					$buffer
 				);
 
