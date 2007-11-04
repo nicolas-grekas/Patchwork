@@ -27,7 +27,7 @@ var FCKDialogCommand = function( name, title, url, width, height, getStateFuncti
 {
 	this.Name	= name ;
 	this.Title	= title ;
-	this.Url	= url ;
+	this.Url	= patchworkRelocate(url) ;
 	this.Width	= width ;
 	this.Height	= height ;
 

@@ -29,7 +29,7 @@ FCKDialog.OpenDialog = function( dialogName, dialogTitle, dialogPage, width, hei
 	// Setup the dialog info.
 	var oDialogInfo = new Object() ;
 	oDialogInfo.Title = dialogTitle ;
-	oDialogInfo.Page = dialogPage ;
+	oDialogInfo.Page = patchworkRelocate(dialogPage) ;
 	oDialogInfo.Editor = window ;
 	oDialogInfo.CustomValue = customValue ;		// Optional
 

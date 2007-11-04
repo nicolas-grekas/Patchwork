@@ -27,7 +27,7 @@ var FCKURLParams = new Object() ;
 
 (function()
 {
-	var aParams = document.location.search.substr(1).split('&') ;
+	var aParams = document.location.search.substr(document.location.search.lastIndexOf('?')+1).split('&') ;
 	for ( var i = 0 ; i < aParams.length ; i++ )
 	{
 		var aParam = aParams[i].split('=') ;

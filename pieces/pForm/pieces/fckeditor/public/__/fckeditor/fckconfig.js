@@ -24,11 +24,11 @@
  * http://wiki.fckeditor.net/Developer%27s_Guide/Configuration/Configurations_Settings
  */
 
-// For patchwork and PATH_INFO disabled servers
-if (ciaLocation)
+// For Patchwork and PATH_INFO disabled servers
+if (patchworkLocation)
 {
-	FCKConfig.BasePath = FCKConfig.FullBasePath = ciaLocation;
-	FCKConfig.EditorPath = ciaLocation.replace(/editor\/$/, '');
+	FCKConfig.BasePath = FCKConfig.FullBasePath = patchworkLocation;
+	FCKConfig.EditorPath = patchworkLocation.replace(/editor\/$/, '');
 }
 
 // Disable the custom Enter Key Handler. This option will be removed in version 2.5.
@@ -216,7 +216,6 @@ FCKConfig.FlashBrowserWindowHeight = FCKConfig.ScreenHeight * 0.7 ;	//70% ;
 FCKConfig.LinkUpload = true ;
 FCKConfig.LinkUploadURL = FCKConfig.BasePath + '../upload';
 FCKConfig.LinkUploadAllowedExtensions	= "\.(pdf|doc|odt)$" ;			// empty for all
-//FCKConfig.LinkUploadDeniedExtensions	= ".(html|htm|php|php2|php3|php4|php5|phtml|pwml|inc|asp|aspx|ascx|jsp|cfm|cfc|pl|bat|exe|com|dll|vbs|js|reg|cgi|htaccess|asis|sh|shtml|shtm|phtm)$" ;	// empty for no one
 FCKConfig.LinkUploadDeniedExtensions	= "" ;							// empty for no one
 
 FCKConfig.ImageUpload = true ;

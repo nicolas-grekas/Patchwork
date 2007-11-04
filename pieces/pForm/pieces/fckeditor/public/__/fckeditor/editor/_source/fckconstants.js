@@ -44,8 +44,8 @@ var FCK_TOOLBARITEM_ICONTEXT	= window.parent.FCK_TOOLBARITEM_ICONTEXT	= 2 ;
 var FCK_EDITMODE_WYSIWYG	= window.parent.FCK_EDITMODE_WYSIWYG	= 0 ;
 var FCK_EDITMODE_SOURCE		= window.parent.FCK_EDITMODE_SOURCE		= 1 ;
 
-var FCK_IMAGES_PATH = 'images/' ;		// Check usage.
-var FCK_SPACER_PATH = 'images/spacer.gif' ;
+var FCK_IMAGES_PATH = patchworkLocation + 'images/' ;		// Check usage.
+var FCK_SPACER_PATH = patchworkLocation + 'images/spacer.gif' ;
 
 var CTRL	= 1000 ;
 var SHIFT	= 2000 ;
