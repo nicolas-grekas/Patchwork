@@ -29,11 +29,11 @@
 	<meta http-equiv="Cache-Control" content="public" />
 	<script type="text/javascript">
 
-// For CIA and PATH_INFO disabled servers
-var ciaLocation = '<a href="'.substr(9);
-function ciaRelocate(url)
+// For Patchwork and PATH_INFO disabled servers
+var patchworkLocation = '<a href="'.substr(9);
+function patchworkRelocate(url)
 {
-	if (ciaLocation && !/^[\/\\#]|[^\n\r:\/]+?:/.test(url)) url = ciaLocation + url;
+	if (patchworkLocation && !/^[\/\\#]|[^\n\r:\/]+?:/.test(url)) url = patchworkLocation + url;
 	return url;
 }
 
@@ -44,7 +44,7 @@ function ciaRelocate(url)
 
 function LoadScript( url )
 {
-	url = ciaRelocate(url);
+	url = patchworkRelocate(url);
 	document.write( '<scr' + 'ipt type="text/javascript" ' + 'src="' + url + '" onerror="alert(\'Error loading \' + this.src);"><\/scr' + 'ipt>' ) ;
 }
 
