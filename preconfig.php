@@ -35,7 +35,6 @@ define('IS_WINDOWS', /**/'\\' == DIRECTORY_SEPARATOR/**/);
 define('IS_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
 
 
-$patchwork_appId = /**/__patchwork_loader::$appId/**/;
 $patchwork_path = /**/$patchwork_path/**/;
 $patchwork_abstract = array();
 

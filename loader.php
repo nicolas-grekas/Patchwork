@@ -54,7 +54,7 @@ __patchwork_loader::$last   = count($a) - 1;
 __patchwork_loader::$offset = count($patchwork_path) - __patchwork_loader::$last;
 
 
-// Get zcache/'s location
+// Get zcache's location
 
 $a = false;
 for ($i = 0; $i <= __patchwork_loader::$last; ++$i)
@@ -91,6 +91,7 @@ foreach ($a as $a)
 	if (file_exists($a))
 	{
 		eval(__patchwork_loader::staticPass1($a));
+		unset($a, $b);
 		__patchwork_loader::staticPass2($a);
 		__patchwork_loader::$token = md5(__patchwork_loader::$token . $a);
 	}
@@ -155,6 +156,7 @@ foreach ($a as $a)
 	if (file_exists($a))
 	{
 		eval(__patchwork_loader::staticPass1($a));
+		unset($a, $b);
 		__patchwork_loader::staticPass2();
 	}
 }
@@ -166,6 +168,7 @@ foreach (__patchwork_loader::$configCode as __patchwork_loader::$file => $a)
 {
 	ob_start();
 	eval($a);
+	unset($a, $b);
 	if ('' !== $a = ob_get_clean()) echo preg_replace('/' . __patchwork_loader::$selfRx . '\(\d+\) : eval\(\)\'d code/', __patchwork_loader::$file, $a);
 }
 

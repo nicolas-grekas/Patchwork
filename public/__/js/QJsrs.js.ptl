@@ -67,6 +67,7 @@ var $contextPool = [],
 	$document = document,
 	$div = 0,
 	$emptyFunction = $window.$emptyFunction,
+	$defaultFunction = $emptyFunction,
 	$win = $window,
 	$XMLHttp = QJsrs - 1;
 
@@ -203,7 +204,7 @@ function $QJsrs($URL, $POST, $antiCSRF, $XMLHttpPreferred)
 
 		++$loadCounter;
 
-		$function = $function || $emptyFunction;
+		$function = $function || $defaultFunction;
 
 		if (($antiCSRF || $POST) && !$vararray.T$) $vararray.T$ = antiCSRF;
 
@@ -263,6 +264,11 @@ function $QJsrs($URL, $POST, $antiCSRF, $XMLHttpPreferred)
 $QJsrs.$setTimeoutId = 0;
 $QJsrs.$setTimeoutPool = [];
 $QJsrs.onloading = $QJsrs.onloaded = $emptyFunction;
+$QJsrs.setCallback = function($function)
+{
+	$defaultFunction = $function || $defaultFunction;
+	return $QJsrs;
+}
 
 return $QJsrs;
 
