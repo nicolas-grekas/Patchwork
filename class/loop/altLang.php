@@ -16,6 +16,14 @@ class extends loop
 {
 	protected $lang, $alt;
 
+	protected static $nativeLang = array(
+		'fr' => 'Français',
+		'en' => 'English',
+		'es' => 'Español',
+		'de' => 'Deutsch',
+	);
+
+
 	protected function prepare()
 	{
 		if (PATCHWORK_I18N)
@@ -43,7 +51,7 @@ class extends loop
 
 						$a[] = (object) array(
 							'lang' => $k,
-							'title' => $k,
+							'title' => isset(self::$nativeLang[$k]) ? self::$nativeLang[$k] : $k,
 							'href'  => $v,
 						);
 					}
