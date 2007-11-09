@@ -835,7 +835,39 @@ class
 
 			$i = 0;
 
-			@include self::getCachePath('watch/' . $message, 'php');
+			$pool = array(self::getCachePath('watch/' . $message, 'txt'));
+
+			$er = error_reporting(0);
+
+			while ($message = array_pop($pool))
+			{
+				if (file_exists($message) && $h = fopen($message, 'rb'))
+				{
+					flock($h, LOCK_EX+LOCK_NB, $wb) || $wb = true;
+
+					if (!$wb)
+					{
+						while ($line = fgets($h))
+						{
+							$a = $line[0];
+							$line = substr($line, 1, -1);
+
+							if ('I' === $a) $pool[] = $line;
+							else if (file_exists($line)) unlink($line) && ++$i;
+						}
+
+						$wb = !IS_WINDOWS && unlink($message);
+					}
+
+					fclose($h);
+
+					$wb || unlink($message);
+
+					++$i;
+				}
+			}
+
+			error_reporting($er);
 
 #>			E("patchwork::touch('$message'): $i file(s) deleted.");
 		}
@@ -1178,7 +1210,7 @@ class
 	{
 		$file && $file = realpath($file);
 		if (!$file && !$exclusive) return;
-		$file && $file =  "++\$i;unlink('" . str_replace(array('\\',"'"), array('\\\\',"\\'"), $file) . "');\n";
+		$file && $file = strtr($file, "\n\r", '--');
 
 		foreach (array_unique((array) $message) as $message)
 		{
@@ -1189,18 +1221,15 @@ class
 			$message = implode('/', $message);
 			$message = str_replace('.', '%2E', $message);
 
-			$path = self::getCachePath('watch/' . $message, 'php');
+			$path = self::getCachePath('watch/' . $message, 'txt');
 			if ($exclusive) self::$watchTable[$path] = (bool) $file;
 
 			if (!$file) continue;
 
-			self::makeDir($path);
+			if ($file_isnew = !file_exists($path)) self::makeDir($path);
 
-			$h = fopen($path, 'a+b');
-			flock($h, LOCK_EX);
-			fseek($h, 0, SEEK_END);
-			if ($file_isnew = !ftell($h)) $file = "<?php ++\$i;unlink(__FILE__);\n" . $file;
-			fwrite($h, $file);
+			$h = fopen($path, 'ab');
+			fwrite($h, 'U' . $file . "\n");
 			fclose($h);
 
 			if ($file_isnew)
@@ -1208,17 +1237,13 @@ class
 				$message = explode('/', $message);
 				while (null !== array_pop($message))
 				{
-					$file = "include '" . str_replace(array('\\', "'"), array('\\\\', "\\'"), $path) . "';\n";
+					$a = $path;
+					$path = self::getCachePath('watch/' . implode('/', $message), 'txt');
 
-					$path = self::getCachePath('watch/' . implode('/', $message), 'php');
+					if ($file_isnew = !file_exists($path)) self::makeDir($path);
 
-					self::makeDir($path);
-
-					$h = fopen($path, 'a+b');
-					flock($h, LOCK_EX);
-					fseek($h, 0, SEEK_END);
-					if ($file_isnew = !ftell($h)) $file = "<?php ++\$i;unlink(__FILE__);\n" . $file;
-					fwrite($h, $file);
+					$h = fopen($path, 'ab');
+					fwrite($h, 'I' . $a . "\n");
 					fclose($h);
 
 					if (!$file_isnew) break;
