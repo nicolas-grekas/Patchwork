@@ -338,7 +338,7 @@ class patchwork_preprocessor__0
 
 		if (DEBUG)
 		{
-			if (false !== strpos($code,  '#>')) $code = preg_replace("'^#>([^>].*)$'m", '$1', $code);
+			if (false !== strpos($code,  '#>')) $code = preg_replace("'^#>([^>\n].*)$'m", '$1', $code);
 			if (false !== strpos($code, '/*>')) $code = preg_replace("'^(/\*>[^\n]*)(\n.*?)^<\*/'ms", '$1*/$2', $code);
 		}
 	}

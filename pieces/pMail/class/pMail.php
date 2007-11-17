@@ -18,6 +18,8 @@ class extends pTask
 
 	static function send($headers, $body, $options = null)
 	{
+		is_array($headers) || $headers = (array) $headers;
+
 		return self::pushMail(array(
 			'headers' => &$headers,
 			'body' => &$body,
@@ -27,6 +29,9 @@ class extends pTask
 
 	static function sendAgent($headers, $agent, $args = array(), $options = null)
 	{
+		is_array($headers) || $headers = (array) $headers;
+		is_array($args)    || $args    = (array) $args;		
+
 		return self::pushMail(array(
 			'headers' => &$headers,
 			'agent' => &$agent,

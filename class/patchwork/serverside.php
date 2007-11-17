@@ -70,7 +70,7 @@ class extends patchwork
 				++p::$ob_level;
 				self::$get = (object) $a;
 			}
-			else self::$get = (object) array_map('htmlspecialchars', $a);
+			else self::$get = (object) @array_map('htmlspecialchars', $a);
 
 			self::$get->__DEBUG__ = DEBUG ? DEBUG : 0;
 			self::$get->__HOST__ = htmlspecialchars(p::__HOST__());

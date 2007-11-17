@@ -1152,8 +1152,6 @@ class
 			}
 			catch (Exception $d)
 			{
-				W('Exception thrown while testing for private agent');
-				W($d);
 			}
 
 
