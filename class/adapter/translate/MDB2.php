@@ -30,7 +30,7 @@ class extends TRANSLATE
 	{
 		$string = $this->db->quote($string);
 
-		$sql = "SELECT {$lang} FROM {$this->table} WHERE __={$string}";
+		$sql = "SELECT {$lang} FROM {$this->table} WHERE __=BINARY {$string}";
 		if ($row = $this->db->queryRow($sql))
 		{
 			return $row->$lang;
