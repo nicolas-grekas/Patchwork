@@ -141,7 +141,7 @@ class extends self
 					$b = @iconv('UTF-8', $c, $data);
 					if (false !== $b)
 					{
-						$a =& $b;
+						$a = $b;
 						break;
 					}
 				}
