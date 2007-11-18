@@ -22,6 +22,7 @@ class extends self
 
 		foreach ($input as &$hdr_value)
 		{
+			$this->optimizeCharset($hdr_value, 'head');
 			$hdr_value = preg_replace_callback(
 				"/{$ns}(?:[\\x80-\\xFF]{$ns})+/",
 				array($this, '_encodeHeaderWord'),
@@ -69,12 +70,20 @@ class extends self
 	function setTXTBody($data, $isfile = false, $append = false)
 	{
 		$isfile || $this->_fixEOL($data);
+		$this->optimizeCharset($data, 'text');
 		return parent::setTXTBody($data, $isfile, $append);
 	}
 
 	function setHTMLBody($data, $isfile = false)
 	{
 		$isfile || $this->_fixEOL($data);
+
+		$data = preg_replace('#<(head|script|title|applet|frameset|i?frame)\b[^>]*>.*?</\1\b[^>]*>#is', '', $data);
+		$data = preg_replace('#</?(?:!DOCTYPE|html|meta|body|base|link)\b[^>]*>#is', '', $data);
+		$data = preg_replace('#<!--.*?-->#s', '', $data);
+		$data = trim($data);
+
+		$this->optimizeCharset($data, 'html');
 		return parent::setHTMLBody($data, $isfile);
 	}
 
@@ -89,5 +98,68 @@ class extends self
 	{
 		false !== strpos($a, "\r") && $a = strtr(str_replace("\r\n", "\n", $a), "\r", "\n");
 		"\n"  !== $this->_eol      && $a = str_replace("\n", $this->_eol, $a);
+	}
+
+	protected static $charsetCheck = array(
+		'windows-1252' => '1,cp1252',
+		'iso-8859-1'   => '1,iso8859-1,latin1',
+		'iso-8859-2'   => '1,iso8859-2,latin2',
+		'iso-8859-3'   => '1,iso8859-3,latin3',
+		'iso-8859-4'   => '1,iso8859-4,latin4',
+		'iso-8859-5'   => '0,iso8859-5',
+		'iso-8859-6'   => '0,iso8859-6',
+		'iso-8859-7'   => '0,iso8859-7',
+		'iso-8859-8'   => '0,iso8859-8',
+		'iso-8859-9'   => '1,iso8859-9,latin5',
+		'iso-8859-10'  => '1,iso8859-10,latin6',
+		'iso-8859-11'  => '0,iso8859-11',
+		'iso-8859-13'  => '1,iso8859-13,latin7',
+		'iso-8859-14'  => '1,iso8859-14,latin8',
+		'iso-8859-15'  => '1,iso8859-15,latin9',
+		'iso-8859-16'  => '1,iso8859-16,latin10',
+		'viscii'       => 1,
+		'big5'         => 0,
+		'iso-2022-jp'  => 0,
+		'koi8-r'       => '0,koi8',
+	);
+
+	protected function optimizeCharset(&$data, $type)
+	{
+		// In an ideal world, every email client would handle UTF-8...
+
+		if (function_exists('iconv')) foreach (self::$charsetCheck as $charset => $enc)
+		{
+			$c = $charset;
+			$a = @iconv('UTF-8', $c, $data);
+
+			if (false === $a && is_string($c))
+			{
+				$c = explode(',', $c);
+				unset($c[0]);
+				foreach ($c as $c)
+				{
+					$b = @iconv('UTF-8', $c, $data);
+					if (false !== $b)
+					{
+						$a =& $b;
+						break;
+					}
+				}
+			}
+
+			if (false !== $a && iconv($c, 'UTF-8', $conv) === $data)
+			{
+				$data =& $a;
+				$enc = (int) $enc ? 'quoted-printable' : 'base64';
+
+				$this->_build_params[$type . '_charset' ] = $charset;
+				$this->_build_params[$type . '_encoding'] = $enc;
+
+				return;
+			}
+		}
+
+		$this->_build_params[$type . '_charset' ] = 'UTF-8';
+		$this->_build_params[$type . '_encoding'] = 'base64';
 	}
 }

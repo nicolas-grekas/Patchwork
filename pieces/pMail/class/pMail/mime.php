@@ -48,10 +48,13 @@ class extends Mail_mime
 
 		$this->options = $options;
 
-		$this->_build_params['text_encoding'] = 'quoted-printable';
-		$this->_build_params['html_charset'] = 'UTF-8';
-		$this->_build_params['text_charset'] = 'UTF-8';
-		$this->_build_params['head_charset'] = 'UTF-8';
+		$this->_build_params['head_charset' ] = 'UTF-8';
+
+		$this->_build_params['text_charset' ] = 'UTF-8';
+		$this->_build_params['text_encoding'] = 'base64';
+
+		$this->_build_params['html_charset' ] = 'UTF-8';
+		$this->_build_params['html_encoding'] = 'base64';
 	}
 
 	protected function doSend()
@@ -63,7 +66,7 @@ class extends Mail_mime
 		$this->setObserver('reply', 'Reply-To', $message_id);
 		$this->setObserver('bounce', 'Return-Path', $message_id);
 
-		$body =& $this->get($this->options);
+		$body =& $this->get();
 		$headers =& $this->headers();
 
 		if (isset($headers['From']))

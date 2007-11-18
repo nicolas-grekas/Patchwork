@@ -54,31 +54,36 @@ class extends pMail_mime
 	{
 		$url = p::base($match[4], true);
 
-		if (isset(self::$imageCache[$url])) $data =& self::$imageCache[$url];
-		else
+		if (isset($this->options['embedImages']) && $this->options['embedImages'])
 		{
-			if (ini_get('allow_url_fopen')) $data = file_get_contents($url);
+			if (isset(self::$imageCache[$url])) $data =& self::$imageCache[$url];
 			else
 			{
-				$data = new HTTP_Request($url);
-				$data->sendRequest();
-				$data = $data->getResponseBody();
+				if (ini_get('allow_url_fopen')) $data = file_get_contents($url);
+				else
+				{
+					$data = new HTTP_Request($url);
+					$data->sendRequest();
+					$data = $data->getResponseBody();
+				}
+
+				self::$imageCache[$url] =& $data;
 			}
 
-			self::$imageCache[$url] =& $data;
+			switch (strtolower($match[5]))
+			{
+				case 'png': $mime = 'image/png'; break;
+				case 'gif': $mime = 'image/gif'; break;
+				default: $mime = 'image/jpeg';
+			}
+
+			$this->addHtmlImage($data, $mime, $match[4], false);
+
+			$a =& $this->_html_images[ count($this->_html_images) - 1 ];
+
+			$url = 'cid:' . $a['cid'];
 		}
 
-		switch (strtolower($match[5]))
-		{
-			case 'png': $mime = 'image/png'; break;
-			case 'gif': $mime = 'image/gif'; break;
-			default: $mime = 'image/jpeg';
-		}
-
-		$this->addHtmlImage($data, $mime, $match[4], false);
-
-		$a =& $this->_html_images[ count($this->_html_images) - 1 ];
-
-		return $match[1] . $match[2] . '=cid:' . $a['cid'];
+		return $match[1] . $match[2] . '="' . str_replace('"', '&quot;', $url) . '"';
 	}
 }
