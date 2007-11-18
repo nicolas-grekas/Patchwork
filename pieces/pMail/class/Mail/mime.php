@@ -101,26 +101,31 @@ class extends self
 	}
 
 	protected static $charsetCheck = array(
-		'iso-8859-1'   => '1,iso8859-1,latin1',
-		'windows-1252' => '1,cp1252',
-		'iso-8859-2'   => '1,iso8859-2,latin2',
-		'iso-8859-3'   => '1,iso8859-3,latin3',
-		'iso-8859-4'   => '1,iso8859-4,latin4',
-		'iso-8859-5'   => '0,iso8859-5',
-		'iso-8859-6'   => '0,iso8859-6',
-		'iso-8859-7'   => '0,iso8859-7',
-		'iso-8859-8'   => '0,iso8859-8',
-		'iso-8859-9'   => '1,iso8859-9,latin5',
-		'iso-8859-10'  => '1,iso8859-10,latin6',
-		'iso-8859-11'  => '0,iso8859-11',
-		'iso-8859-13'  => '1,iso8859-13,latin7',
-		'iso-8859-14'  => '1,iso8859-14,latin8',
-		'iso-8859-15'  => '1,iso8859-15,latin9',
-		'iso-8859-16'  => '1,iso8859-16,latin10',
-		'viscii'       => 1,
-		'big5'         => 0,
-		'iso-2022-jp'  => 0,
-		'koi8-r'       => '0,koi8',
+		'iso-8859-1'   => '1,iso8859-1,latin1',   // Western European
+		'windows-1252' => '1,cp1252',             // Western European - more popular than iso-8859-15
+		'iso-8859-15'  => '1,iso8859-15,latin9',  // Western European
+		'iso-8859-2'   => '1,iso8859-2,latin2',   // Central European
+		'iso-8859-3'   => '1,iso8859-3,latin3',   // South European
+		'iso-8859-4'   => '1,iso8859-4,latin4',   // Baltic
+		'iso-8859-10'  => '1,iso8859-10,latin6',  // Baltic
+		'iso-8859-13'  => '1,iso8859-13,latin7',  // Baltic
+		'koi8-r'       => '0,koi8',               // Cyrillic - more popular than iso-8859-5
+		'iso-8859-5'   => '0,iso8859-5',          // Cyrillic
+		'windows-1256' => '0,cp1256',             // Arabic - more popular than iso-8859-6
+		'iso-8859-6'   => '0,iso8859-6',          // Arabic
+		'iso-8859-7'   => '0,iso8859-7',          // Greek
+		'windows-1255' => '0,cp1255',             // Hebrew-logical
+		'iso-8859-8-I' => '0,iso8859-8-I',        // Hebrew-logical
+		'iso-8859-8'   => '0,iso8859-8',          // Hebrew-visual
+		'iso-8859-9'   => '1,iso8859-9,latin5',   // Turkish
+		'tis-620'      =>  0,                     // Thai - national standard
+		'iso-8859-11'  => '0,iso8859-11',         // Thai
+		'iso-8859-14'  => '1,iso8859-14,latin8',  // Celtic
+		'iso-8859-16'  => '1,iso8859-16,latin10', // South-Eastern European
+		'windows-1258' => '1,cp1258',             // Vietnamese
+		'viscii'       =>  1,                     // Vietnamese
+		'iso-2022-jp'  =>  0,                     // Japanese
+		'big5'         =>  0,                     // Chinese Traditional
 	);
 
 	protected function optimizeCharset(&$data, $type)
