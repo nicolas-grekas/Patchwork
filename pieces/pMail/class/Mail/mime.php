@@ -147,9 +147,9 @@ class extends self
 				}
 			}
 
-			if (false !== $a && iconv($c, 'UTF-8', $conv) === $data)
+			if (false !== $a && iconv($c, 'UTF-8', $a) === $data)
 			{
-				$data =& $a;
+				$data = $a;
 				$enc = (int) $enc ? 'quoted-printable' : 'base64';
 
 				$this->_build_params[$type . '_charset' ] = $charset;
