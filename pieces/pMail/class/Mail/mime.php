@@ -101,8 +101,8 @@ class extends self
 	}
 
 	protected static $charsetCheck = array(
-		'windows-1252' => '1,cp1252',
 		'iso-8859-1'   => '1,iso8859-1,latin1',
+		'windows-1252' => '1,cp1252',
 		'iso-8859-2'   => '1,iso8859-2,latin2',
 		'iso-8859-3'   => '1,iso8859-3,latin3',
 		'iso-8859-4'   => '1,iso8859-4,latin4',
