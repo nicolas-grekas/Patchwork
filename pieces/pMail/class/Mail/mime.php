@@ -70,19 +70,19 @@ class extends self
 	function setTXTBody($data, $isfile = false, $append = false)
 	{
 		$isfile || $this->_fixEOL($data);
-		$this->optimizeCharset($data, 'text');
+
+		if ($append && 'UTF-8' !== $this->_build_params['text_charset'])
+		{
+			$data = iconv('UTF-8', $this->_build_params['text_charset'], $data);
+		}
+		else $this->optimizeCharset($data, 'text');
+
 		return parent::setTXTBody($data, $isfile, $append);
 	}
 
 	function setHTMLBody($data, $isfile = false)
 	{
 		$isfile || $this->_fixEOL($data);
-
-		$data = preg_replace('#<(head|script|title|applet|frameset|i?frame)\b[^>]*>.*?</\1\b[^>]*>#is', '', $data);
-		$data = preg_replace('#</?(?:!DOCTYPE|html|meta|body|base|link)\b[^>]*>#is', '', $data);
-		$data = preg_replace('#<!--.*?-->#s', '', $data);
-		$data = trim($data);
-
 		$this->optimizeCharset($data, 'html');
 		return parent::setHTMLBody($data, $isfile);
 	}

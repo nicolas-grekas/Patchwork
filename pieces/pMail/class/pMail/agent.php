@@ -42,48 +42,106 @@ class extends pMail_mime
 			$this->headers(array('Subject' => trim(html_entity_decode($title[1], ENT_QUOTES, 'UTF-8'))));
 		}
 
-		$html = preg_replace_callback('/(\s)(src|background)\s*=\s*(["\'])?((?(3)(?:[^\3]*)|[^\s>]*)\.(jpe?g|png|gif))(?(3)\3)/iu', array($this, 'addRawImage'), $html);
+
+		// HTML cleanup
+
+		$html = preg_replace('#<(head|script|title|applet|frameset|i?frame)\b[^>]*>.*?</\1\b[^>]*>#is', '', $html);
+		$html = preg_replace('#</?(?:!DOCTYPE|html|meta|body|base|link)\b[^>]*>#is', '', $html);
+		$html = preg_replace('#<!--.*?-->#s', '', $html);
+		$html = trim($html);
+
+		$html = preg_replace_callback(
+			'/(\s)(src|background|href)\s*=\s*(["\'])?((?(3)(?:[^\3]*)|[^\s>]*))(?(3)\3)/iu',
+			array($this, 'cleanUrlAttribute'),
+			$html
+		);
+
+		if (isset($this->options['embedImages']) && $this->options['embedImages'])
+		{
+			$html = preg_replace_callback(
+				'/(\s)(src|background)="([^"]+\.(jpe?g|png|gif))"/iu',
+				array($this, 'addRawImage'),
+				$html
+			);
+		}
 
 		$this->setHTMLBody($html);
-		$this->setTXTBody( CONVERT::data($html, 'html', 'txt') );
+
+
+		// Prepare HTML for text convertion
+
+		$html = preg_replace_callback(
+			'#<a\b[^>]*\shref="([^"]*)"[^>]*>(.*?)</a\b[^>]*>#isu',
+			array($this, 'buildTextAnchor'),
+			$html
+		);
+
+		$html = preg_replace('#<(?:b|strong)\b[^>]*>(\s*)#isu' , '$1*', $html);
+		$html = preg_replace('#(\s*)</(?:b|strong)\b[^>]*>#isu', '*$1', $html);
+		$html = preg_replace('#<(?:i|em)\b[^>]*>(\s*)#isu' , '$1/', $html);
+		$html = preg_replace('#(\s*)</(?:i|em)\b[^>]*>#isu', '/$1', $html);
+		$html = preg_replace('#<u\b[^>]*>(\s*)#isu' , '$1_', $html);
+		$html = preg_replace('#(\s*)</u\b[^>]*>#isu', '_$1', $html);
+
+		$c = new convert_txt_html(65);
+		$this->setTXTBody( $c->convertData($html) );
 
 		parent::doSend();
 	}
 
-	protected function addRawImage($match)
+	protected function cleanUrlAttribute($m)
 	{
-		$url = p::base($match[4], true);
+		return $m[1] . $m[2] . '="' . str_replace('"', '&quot;', p::base($m[4], true)) . '"';
+	}
 
-		if (isset($this->options['embedImages']) && $this->options['embedImages'])
+	protected function addRawImage($m)
+	{
+		$url = $m[3];
+
+		if (isset(self::$imageCache[$url])) $data =& self::$imageCache[$url];
+		else
 		{
-			if (isset(self::$imageCache[$url])) $data =& self::$imageCache[$url];
+			if (ini_get('allow_url_fopen')) $data = file_get_contents($url);
 			else
 			{
-				if (ini_get('allow_url_fopen')) $data = file_get_contents($url);
-				else
-				{
-					$data = new HTTP_Request($url);
-					$data->sendRequest();
-					$data = $data->getResponseBody();
-				}
-
-				self::$imageCache[$url] =& $data;
+				$data = new HTTP_Request($url);
+				$data->sendRequest();
+				$data = $data->getResponseBody();
 			}
 
-			switch (strtolower($match[5]))
-			{
-				case 'png': $mime = 'image/png'; break;
-				case 'gif': $mime = 'image/gif'; break;
-				default: $mime = 'image/jpeg';
-			}
-
-			$this->addHtmlImage($data, $mime, $match[4], false);
-
-			$a =& $this->_html_images[ count($this->_html_images) - 1 ];
-
-			$url = 'cid:' . $a['cid'];
+			self::$imageCache[$url] =& $data;
 		}
 
-		return $match[1] . $match[2] . '="' . str_replace('"', '&quot;', $url) . '"';
+		switch (strtolower($m[4]))
+		{
+			case 'png': $mime = 'image/png'; break;
+			case 'gif': $mime = 'image/gif'; break;
+			default: $mime = 'image/jpeg';
+		}
+
+		$this->addHtmlImage($data, $mime, $url, false);
+
+		$a =& $this->_html_images[ count($this->_html_images) - 1 ];
+
+		return $m[1] . $m[2] . '="cid:' . $a['cid'] . '"';
+	}
+
+	protected function buildTextAnchor($m)
+	{
+		$a = html_entity_decode($m[2], ENT_QUOTES, 'UTF-8');
+		$m = trim(html_entity_decode($m[1], ENT_QUOTES, 'UTF-8'));
+
+		if (false === stripos(urldecode($a), urldecode($m)))
+		{
+			$m = preg_replace_callback('"[^-a-z0-9_.!~*\'(),/?:@&=+$#]+"i', array($this, 'rawurlencodeCallback'), $m);
+			$a .= " <{$m}> ";
+		}
+
+		return htmlspecialchars($a);
+	}
+
+	protected function rawurlencodeCallback($m)
+	{
+		return rawurlencode($m[0]);
 	}
 }
