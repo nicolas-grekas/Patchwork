@@ -12,12 +12,19 @@
  ***************************************************************************/
 
 
-class extends adapter_convertTo_abstract
+class extends convert_abstract
 {
-	function file($file)
+	protected $cols = 80;
+
+	function __construct($cols = false)
+	{
+		$cols && $this->cols = (int) $cols;
+	}
+
+	function convertFile($file)
 	{
 		$file = escapeshellarg($file);
-		$file = `w3m -dump -cols 80 -T text/html -I UTF-8 -O UTF-8 {$file}`;
+		$file = `w3m -dump -cols {$this->cols} -T text/html -I UTF-8 -O UTF-8 {$file}`;
 
 		if (false !== strpos($file, '━')) $file = str_replace('━', '_', $file);
 

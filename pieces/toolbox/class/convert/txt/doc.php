@@ -12,9 +12,9 @@
  ***************************************************************************/
 
 
-class extends adapter_convertTo_abstract
+class extends convert_abstract
 {
-	function file($file)
+	function convertFile($file)
 	{
 		$file = escapeshellarg($file);
 		$file = `antiword -t -w 0 -m UTF-8 {$file}`;

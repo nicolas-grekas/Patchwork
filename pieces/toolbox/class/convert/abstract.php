@@ -12,13 +12,20 @@
  ***************************************************************************/
 
 
-class extends adapter_convertTo_abstract
+abstract class
 {
-	function file($file)
-	{
-		$file = escapeshellarg($file);
-		$file = `pdftotext -enc UTF-8 {$file} -`;
+	abstract function convertFile($file);
 
-		return VALIDATE::get($file, 'text');
+	function convertData($data)
+	{
+		$file = tempnam('./tmp', 'convert');
+
+		p::writeFile($file, $data);
+
+		$data = $this->convertFile($file);
+
+		unlink($file);
+
+		return $data;
 	}
 }
