@@ -18,7 +18,8 @@ class extends pMail_mime
 
 	$agent,
 	$args,
-	$lang;
+	$lang,
+	$textAnchor = array();
 
 
 	static protected $imageCache = array();
@@ -45,19 +46,22 @@ class extends pMail_mime
 
 		// HTML cleanup
 
+		// Remove noisy tags
 		$html = preg_replace('#<(head|script|title|applet|frameset|i?frame)\b[^>]*>.*?</\1\b[^>]*>#is', '', $html);
 		$html = preg_replace('#</?(?:!DOCTYPE|html|meta|body|base|link)\b[^>]*>#is', '', $html);
 		$html = preg_replace('#<!--.*?-->#s', '', $html);
 		$html = trim($html);
 
+		// Clean up URLs in attributes
 		$html = preg_replace_callback(
-			'/(\s)(src|background|href)\s*=\s*(["\'])?((?(3)(?:[^\3]*)|[^\s>]*))(?(3)\3)/iu',
+			'/(\s)(src|background|href)\s*=\s*(["\'])?((?(3).*?|[^\s>]*))(?(3)\3)/iu',
 			array($this, 'cleanUrlAttribute'),
 			$html
 		);
 
 		if (isset($this->options['embedImages']) && $this->options['embedImages'])
 		{
+			// Embed images
 			$html = preg_replace_callback(
 				'/(\s)(src|background)="([^"]+\.(jpe?g|png|gif))"/iu',
 				array($this, 'addRawImage'),
@@ -68,23 +72,28 @@ class extends pMail_mime
 		$this->setHTMLBody($html);
 
 
-		// Prepare HTML for text convertion
+		// Prepare HTML for text conversion
 
+		// Inline URLs
 		$html = preg_replace_callback(
 			'#<a\b[^>]*\shref="([^"]*)"[^>]*>(.*?)</a\b[^>]*>#isu',
 			array($this, 'buildTextAnchor'),
 			$html
 		);
 
+		// Style according to the Netiquette
 		$html = preg_replace('#<(?:b|strong)\b[^>]*>(\s*)#isu' , '$1*', $html);
 		$html = preg_replace('#(\s*)</(?:b|strong)\b[^>]*>#isu', '*$1', $html);
-		$html = preg_replace('#<(?:i|em)\b[^>]*>(\s*)#isu' , '$1/', $html);
-		$html = preg_replace('#(\s*)</(?:i|em)\b[^>]*>#isu', '/$1', $html);
 		$html = preg_replace('#<u\b[^>]*>(\s*)#isu' , '$1_', $html);
 		$html = preg_replace('#(\s*)</u\b[^>]*>#isu', '_$1', $html);
 
-		$c = new convert_txt_html(65);
-		$this->setTXTBody( $c->convertData($html) );
+		$c = new convert_txt_html(78);
+		$html = $c->convertData($html);
+
+		$html = strtr($html, $this->textAnchor);
+		$this->textAnchor = array();
+
+		$this->setTXTBody($html);
 
 		parent::doSend();
 	}
@@ -128,16 +137,25 @@ class extends pMail_mime
 
 	protected function buildTextAnchor($m)
 	{
-		$a = html_entity_decode($m[2], ENT_QUOTES, 'UTF-8');
-		$m = trim(html_entity_decode($m[1], ENT_QUOTES, 'UTF-8'));
+		$a = $m[2];
+		$m = trim($m[1]);
+		$m = preg_replace('"^mailto:\s*"i', '', $m);
 
-		if (false === stripos(urldecode($a), urldecode($m)))
-		{
-			$m = preg_replace_callback('"[^-a-z0-9_.!~*\'(),/?:@&=+$#]+"i', array($this, 'rawurlencodeCallback'), $m);
-			$a .= " <{$m}> ";
-		}
+		$b = strtr($m, '&;', '--') !== $m ? u::html_entity_decode($m) : $m;
+		$b = preg_replace_callback('"[^-a-zA-Z0-9_.~,/?:@&=+$#]+"', array($this, 'rawurlencodeCallback'), $b);
+		$len = strlen($b);
 
-		return htmlspecialchars($a);
+		$c = '';
+		do $c .= md5(mt_rand());
+		while (strlen($c) < $len);
+		$c = substr($c, 0, $len);
+
+		$this->textAnchor[$c] = $b;
+
+		if (false === stripos($a, $m)) $a .= " &lt;{$c}&gt;";
+		else $a = str_ireplace($m, $c, $a);
+
+		return $a;
 	}
 
 	protected function rawurlencodeCallback($m)
