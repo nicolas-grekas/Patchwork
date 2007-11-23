@@ -806,19 +806,49 @@ class
 
 	static function uniqid() {return md5(uniqid(mt_rand(), true));}
 
-	static function strongid()
+	static function strongid($length = 32)
 	{
-		static $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		static $chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
 
-		$n = unpack('C*', md5(uniqid(mt_rand(), true), true) . md5(uniqid(mt_rand(), true), true));
 		$a = '';
-		$i = 0;
 
-		do $a .= $chars[$n[++$i]%62] . $chars[$n[++$i]%62] . $chars[$n[++$i]%62] . $chars[$n[++$i]%62];
-		while ($i < 32);
+		do
+		{
+			$i = 0;
+			$len = min(32, $length);
+			$n = unpack('C*', md5(uniqid(mt_rand(), true), true) . md5(uniqid(mt_rand(), true), true));
+
+			do $a .= $chars[$n[++$i]%57] . $chars[$n[++$i]%57] . $chars[$n[++$i]%57] . $chars[$n[++$i]%57];
+			while ($i < $len);
+
+			$length -= 32;
+		}
+		while ($length > 0);
+
+		$length && $a = substr($a, 0, $length);
 
 		return $a;
 	}
+
+
+	protected static
+
+	$saltLength = 4,
+	$saltedHashTruncation = 32;
+
+	static function saltedHash($pwd)
+	{
+		return substr(self::strongid(self::$saltLength) . md5($pwd . $salt), 0, self::$saltedHashTruncation);
+	}
+
+	static function matchSaltedHash($pwd, $saltedHash)
+	{
+		$salt = substr($saltedHash, 0, self::$saltLength);
+		$pwd  = $salt . md5($pwd . $salt);
+
+		return 0 === substr_compare($pwd, $saltedHash, 0, self::$saltedHashTruncation);
+	}
+
 
 	/*
 	 * Clears files linked to $message

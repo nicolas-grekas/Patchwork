@@ -31,8 +31,8 @@ define('PATCHWORK_PATH_OFFSET',  /**/__patchwork_loader::$offset/**/);
 $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 $CONFIG   = array();
 
-define('IS_WINDOWS', /**/'\\' == DIRECTORY_SEPARATOR/**/);
-define('IS_POSTING', 'POST' == $_SERVER['REQUEST_METHOD']);
+define('IS_WINDOWS', /**/'\\' === DIRECTORY_SEPARATOR/**/);
+define('IS_POSTING', 'POST' === $_SERVER['REQUEST_METHOD']);
 
 
 $patchwork_path = /**/$patchwork_path/**/;
@@ -121,7 +121,7 @@ function resolvePath($file, $level = false, $base = false)
 	{
 		$source = /**/__patchwork_loader::$cwd . '/'/**/ . $file;
 
-/**/	if ('\\' == DIRECTORY_SEPARATOR)
+/**/	if ('\\' === DIRECTORY_SEPARATOR)
 /**/	{
 			if (function_exists('win_file_exists') ? win_file_exists($source) : file_exists($source)) return $source;
 /**/	}
@@ -133,7 +133,7 @@ function resolvePath($file, $level = false, $base = false)
 
 
 	$file = strtr($file, '\\', '/');
-	if ($slash = '/' == substr($file, -1)) $file = substr($file, 0, -1);
+	if ($slash = '/' === substr($file, -1)) $file = substr($file, 0, -1);
 
 /**/
 /**/ // DBA handler
@@ -233,7 +233,7 @@ class ob
 
 
 isset($_SERVER['HTTP_X_FORWARDED_PROTO'])
-	&& 'https' == strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'])
+	&& 'https' === strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'])
 	&& $_SERVER['HTTPS'] = 'on';
 
 
@@ -266,7 +266,7 @@ if ($a)
 	else if (27 == strlen($a) && '"-------------------------"' == strtr($a, '0123456789abcdef', '----------------'))
 	{
 		$b = PATCHWORK_ZCACHE . $a[1] .'/'. $a[2] .'/'. substr($a, 3, 6) .'.v.txt';
-		if (file_exists($b) && substr(file_get_contents($b), 0, 8) == substr($a, 9, 8))
+		if (file_exists($b) && substr(file_get_contents($b), 0, 8) === substr($a, 9, 8))
 		{
 			$private = substr($a, 17, 1);
 			$maxage  = hexdec(substr($a, 18, 8));
@@ -301,16 +301,16 @@ define('UTF8_VALID_RX', /**/"/(?:[\x00-\x7f]|[\xc2-\xdf][\x80-\xbf]|\xe0[\xa0-\x
 
 /**/if (extension_loaded('mbstring'))
 /**/{
-/**/	if ('none'  != mb_substitute_character())
+/**/	if ('none'  !== mb_substitute_character())
 			mb_substitute_character('none');
 
-/**/	if ('UTF-8' != mb_internal_encoding())
+/**/	if ('UTF-8' !== mb_internal_encoding())
 			mb_internal_encoding('UTF-8');
 
-/**/	if ('pass'  != mb_http_output())
+/**/	if ('pass'  !== mb_http_output())
 			mb_http_output('pass');
 
-/**/	if ('uni'   != mb_language())
+/**/	if ('uni'   !== mb_language())
 			mb_language('uni');
 /**/}
 
@@ -328,13 +328,13 @@ define('UTF8_VALID_RX', /**/"/(?:[\x00-\x7f]|[\xc2-\xdf][\x80-\xbf]|\xe0[\xa0-\x
 
 /**/if (function_exists('iconv'))
 /**/{
-/**/	if ('UTF-8' != iconv_get_encoding('input_encoding'))
+/**/	if ('UTF-8' !== iconv_get_encoding('input_encoding'))
 			iconv_set_encoding('input_encoding'   , 'UTF-8');
 
-/**/	if ('UTF-8' != iconv_get_encoding('internal_encoding'))
+/**/	if ('UTF-8' !== iconv_get_encoding('internal_encoding'))
 			iconv_set_encoding('internal_encoding', 'UTF-8');
 
-/**/	if ('UTF-8' != iconv_get_encoding('output_encoding'))
+/**/	if ('UTF-8' !== iconv_get_encoding('output_encoding'))
 			iconv_set_encoding('output_encoding'  , 'UTF-8');
 /**/}
 
@@ -422,10 +422,10 @@ define('UTF8_VALID_RX', /**/"/(?:[\x00-\x7f]|[\xc2-\xdf][\x80-\xbf]|\xe0[\xa0-\x
 
 if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 {
-	$a = $a != utf8_decode($a) ? '/' : preg_replace('/(?:%[89a-f][0-9a-f])+/ei', 'urlencode(utf8_encode(urldecode(\'$0\')))', $a);
+	$a = $a !== utf8_decode($a) ? '/' : preg_replace('/(?:%[89a-f][0-9a-f])+/ei', 'urlencode(utf8_encode(urldecode(\'$0\')))', $a);
 	$b = $_SERVER['REQUEST_METHOD'];
 
-	if ('GET' == $b || 'HEAD' == $b)
+	if ('GET' === $b || 'HEAD' === $b)
 	{
 		header('HTTP/1.1 301 Moved Permanently');
 		header('Location: ' . $a);
