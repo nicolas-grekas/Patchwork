@@ -40,7 +40,7 @@ class extends pMail_mime
 
 		if (!isset($this->_headers['Subject']) && preg_match("'<title[^>]*>(.*?)</title[^>]*>'isu", $html, $title))
 		{
-			$this->headers(array('Subject' => trim(html_entity_decode($title[1], ENT_QUOTES, 'UTF-8'))));
+			$this->headers(array('Subject' => trim(html_entity_decode($title[1], ENT_COMPAT, 'UTF-8'))));
 		}
 
 
@@ -141,7 +141,7 @@ class extends pMail_mime
 		$m = trim($m[1]);
 		$m = preg_replace('"^mailto:\s*"i', '', $m);
 
-		$b = strtr($m, '&;', '--') !== $m ? u::html_entity_decode($m) : $m;
+		$b = strtr($m, '&;', '--') !== $m ? html_entity_decode($m, ENT_COMPAT, 'UTF-8') : $m;
 		$b = preg_replace_callback('"[^-a-zA-Z0-9_.~,/?:@&=+$#%]+"', array($this, 'rawurlencodeCallback'), $b);
 		$len = strlen($b);
 
