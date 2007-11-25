@@ -18,13 +18,13 @@ class extends self
 
 	function _encodeHeaders($input)
 	{
-		$ns = "[^\(\)<>@,;:\"\/\[\]\r\n]*";
+		static $ns = '[^\(\)<>@,;:"\/\[\]]*';
 
 		foreach ($input as &$hdr_value)
 		{
 			$this->optimizeCharset($hdr_value, 'head');
 			$hdr_value = preg_replace_callback(
-				"/{$ns}(?:[\\x80-\\xFF]{$ns})+/",
+				"/{$ns}(?:[\r\n\?\\x80-\\xFF]{$ns})+/",
 				array($this, '_encodeHeaderWord'),
 				$hdr_value
 			);
@@ -35,33 +35,28 @@ class extends self
 
 	protected function _encodeHeaderWord($word)
 	{
-		$word = preg_replace('/[=_\?\x00-\x1F\x80-\xFF]/e', '"=".strtoupper(dechex(ord("\0")))', $word[0]);
+		$pref = array(
+			'scheme'           => 'B',
+			'input-charset'    => $this->_build_params['head_charset'],
+			'output-charset'   => $this->_build_params['head_charset'],
+			'line-break-chars' => $this->_eol,
+		);
 
-		preg_match('/^( *)(.*?)( *)$/', $word, $w);
+		preg_match('/^( *)(.*?)( *)$/sD', $word[0], $word);
 
-		$word =& $w[2];
-		$word = str_replace(' ', '_', $word);
+		$B = iconv_mime_encode('', $word[2], $pref);
 
-		$start = '=?' . $this->_build_params['head_charset'] . '?Q?';
-		$offsetLen = strlen($start) + 2;
-
-		$w[1] .= $start;
-
-		while ($offsetLen + strlen($word) > 75)
+		if ('quoted-printable' === $this->_build_params['head_encoding'])
 		{
-			$splitPos = 75 - $offsetLen;
-
-			switch ('=')
+			$pref['scheme'] = 'Q';
+			if (false !== $Q = @iconv_mime_encode('', $word[2], $pref))
 			{
-				case substr($word, $splitPos - 2, 1): --$splitPos;
-				case substr($word, $splitPos - 1, 1): --$splitPos;
+				$Q = str_replace('=20', '_', $Q);
+				strlen($Q) <= strlen($Q) && $B =& $Q;
 			}
-
-			$w[1] .= substr($word, 0, $splitPos) . "?={$this->_eol} {$start}";
-			$word = substr($word, $splitPos);
 		}
 
-		return $w[1] . $word . '?=' . $w[3];
+		return $word[1] . substr($B, 2) . $word[3];
 	}
 
 
@@ -115,7 +110,7 @@ class extends self
 		'iso-8859-6'   => '0,iso8859-6',          // Arabic
 		'iso-8859-7'   => '0,iso8859-7',          // Greek
 		'windows-1255' => '0,cp1255',             // Hebrew-logical
-		'iso-8859-8-I' => '0,iso8859-8-I',        // Hebrew-logical
+		'iso-8859-8-i' => '0,iso8859-8-i',        // Hebrew-logical
 		'iso-8859-8'   => '0,iso8859-8',          // Hebrew-visual
 		'iso-8859-9'   => '1,iso8859-9,latin5',   // Turkish
 		'tis-620'      =>  0,                     // Thai - national standard
@@ -165,6 +160,6 @@ class extends self
 		}
 
 		$this->_build_params[$type . '_charset' ] = 'UTF-8';
-		$this->_build_params[$type . '_encoding'] = 'base64';
+		$this->_build_params[$type . '_encoding'] = 'quoted-printable';
 	}
 }
