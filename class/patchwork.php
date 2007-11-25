@@ -1359,8 +1359,8 @@ class
 					if (false !== $tail && $tail + strlen($tag) < strlen($a))
 					{
 						$buffer = substr($buffer, 0, $tail)
-							. '<!--IE-MimeSniffFix'
-							. str_repeat('-', 233 - strlen($tag) - $tail)
+							. '<!--'
+							. str_repeat(' ', max(1, 248 - strlen($tag) - $tail))
 							. '-->'
 							. substr($buffer, $tail);
 
