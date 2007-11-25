@@ -23,8 +23,8 @@ class extends self
 		foreach ($input as &$hdr_value)
 		{
 			$this->optimizeCharset($hdr_value, 'head');
-			$hdr_value = preg_replace("/[\r\n](?!\s)/", '$0 '); // Header injection protection
-			$hdr_value = str_replace('=?', "={$this->_eol} ?"); // Encoded string injection protection
+			$hdr_value = preg_replace("/[\r\n](?!\s)/", '$0 ', $hdr_value); // Header injection protection
+			$hdr_value = str_replace('=?', "={$this->_eol} ?", $hdr_value); // Encoded string injection protection
 			$hdr_value = preg_replace_callback(
 				"/{$ns}(?:[\\x80-\\xFF]{$ns})+/",
 				array($this, '_encodeHeaderWord'),
