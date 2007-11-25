@@ -52,7 +52,7 @@ class extends self
 			if (false !== $Q = @iconv_mime_encode('', $word[2], $pref))
 			{
 				$Q = str_replace('=20', '_', $Q);
-				strlen($Q) <= strlen($Q) && $B =& $Q;
+				strlen($Q) <= strlen($B) && $B =& $Q;
 			}
 		}
 
