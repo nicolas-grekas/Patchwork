@@ -198,6 +198,7 @@ class patchwork_preprocessor__0
 
 				self::$function += array(
 					'mb_convert_case'         => 'utf8_mbstring_500::convert_case',
+					'mb_encode_mimeheader'    => 'E(\'mb_encode_mimeheader() is bugged. Please use iconv_mime_encode() instead.\',',
 					'mb_internal_encoding'    => 'utf8_mbstring_500::internal_encoding',
 					'mb_list_encodings'       => 'utf8_mbstring_500::list_encodings',
 					'mb_parse_str'            => 'parse_str',
@@ -215,7 +216,6 @@ class patchwork_preprocessor__0
 					self::$function += array(
 						'mb_convert_encoding'  => 'utf8_mbstring_500::convert_encoding',
 						'mb_decode_mimeheader' => 'iconv_mime_decode',
-						'mb_encode_mimeheader' => 'utf8_mbstring_500::encode_mimeheader',
 					);
 
 					self::$function['mb_strlen'] = 'iconv_strlen';
@@ -250,6 +250,8 @@ class patchwork_preprocessor__0
 					'iconv_strrpos' => 'mb_strrpos',
 					'iconv_substr'  => 'mb_substr',
 				);
+
+				self::$function['iconv_mime_decode'] = 'mb_decode_mimeheader';
 			}
 			else
 			{
@@ -1077,8 +1079,8 @@ class patchwork_preprocessor_construct_ extends patchwork_preprocessor_bracket_
 	{
 		if (T_VARIABLE == $type)
 		{
-			$this->proto .=  '$p' . $this->num_args;
-			$this->args  .= '&$p' . $this->num_args . ',';
+			$this->proto .=  '$a' . $this->num_args;
+			$this->args  .= '&$a' . $this->num_args . ',';
 
 			++$this->num_args;
 		}
@@ -1091,7 +1093,7 @@ class patchwork_preprocessor_construct_ extends patchwork_preprocessor_bracket_
 	{
 		$this->source = 'function __construct(' . $this->proto . ')'
 			. '{$a=array(' . $this->args . ');'
-			. 'if(' . $this->num_args . '<func_num_args()){$b=func_get_args();array_splice($a,0,' . $this->num_args . ',$b);}'
+			. 'if(' . $this->num_args . '<func_num_args())$a+=func_get_args();'
 			. 'call_user_func_array(array($this,"' . $this->source . '"),$a);}';
 
 		return parent::onClose($token);
