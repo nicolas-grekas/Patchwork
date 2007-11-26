@@ -16,14 +16,22 @@
 
 class
 {
+	protected static $args;
+
 	static function php($format = '')
 	{
 		$args = func_get_args();
+		self::$args =& $args;
 
 		if ($format == '') $args = implode('', $args);
-		else $args = preg_replace("'%([0-9])'eu", 'isset($args[$1+1])?p::string($args[$1+1]):""', p::string($format));
+		else $args = preg_replace_callback("'%([0-9])'u", array(__CLASS__, 'replace_callback'), p::string($format));
 
 		return $args;
+	}
+
+	protected static function replace_callback($m)
+	{
+		return isset(self::$args[$m[1]+1]) ? p::string(self::$args[$m[1]+1]) : '';
 	}
 
 	static function js()

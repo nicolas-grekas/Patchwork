@@ -142,7 +142,7 @@ class
 		$kw = ' ' . $kw . ' ';
 
 		// Acronym
-		$kw = preg_replace("'{$a}({$b}(?:\.{$b})+){$a}'ue", "str_replace('.','',' $1 ')", $kw);
+		$kw = preg_replace_callback("'{$a}({$b}(?:\.{$b})+){$a}'u", array(__CLASS__, 'acronym_callback'), $kw);
 
 		// Ponctuation
 		$kw = preg_replace("'{$a}+'u", ' ', $kw);
@@ -151,5 +151,10 @@ class
 		$kw = self::stripAccents($kw, -1);
 
 		return trim($kw);
+	}
+
+	protected static acronym_callback($m)
+	{
+		return str_replace('.', '', " {$m[1]} ");
 	}
 }

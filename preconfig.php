@@ -420,9 +420,11 @@ define('UTF8_VALID_RX', /**/"/(?:[\x00-\x7f]|[\xc2-\xdf][\x80-\xbf]|\xe0[\xa0-\x
 
 // Convert ISO-8859-1 URLs to UTF-8 ones
 
+function url_enc_utf8_dec_callback($m) {return urlencode(utf8_encode(urldecode($m[0])));}
+
 if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 {
-	$a = $a !== utf8_decode($a) ? '/' : preg_replace('/(?:%[89a-f][0-9a-f])+/ei', 'urlencode(utf8_encode(urldecode(\'$0\')))', $a);
+	$a = $a !== utf8_decode($a) ? '/' : preg_replace_callback('/(?:%[89a-f][0-9a-f])+/i', 'url_enc_utf8_dec_callback', $a);
 	$b = $_SERVER['REQUEST_METHOD'];
 
 	if ('GET' === $b || 'HEAD' === $b)

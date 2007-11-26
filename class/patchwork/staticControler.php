@@ -57,7 +57,17 @@ class extends patchwork
 
 	static function readfile($file, $mime)
 	{
-		if (strlen($file) < 2 || !('/' == $file[0] || ':' == $file[1])) $file = resolvePath($file);
+		$h = $file;
+
+		if (strlen($h) < 2 || !('/' == $h[0] || ':' == $h[1])) $h = resolvePath($h);
+
+		if (!file_exists($h) || is_dir($h))
+		{
+			W(__CLASS__ . '::' . __METHOD__ . "(..): invalid file ({$file})");
+			return;
+		}
+
+		$file = $h;
 		$mime = strtolower($mime);
 
 		$head = 'HEAD' == $_SERVER['REQUEST_METHOD'];
