@@ -138,7 +138,7 @@ class extends patchwork
 				if ($range) patchwork_httpRange::sendChunks($range, $h, $mime, $size);
 				else
 				{
-					header('Content-Length: ' . $size);
+					$gzip || header('Content-Length: ' . $size);
 					echo $data;
 					feof($h) || fpassthru($h);
 				}
