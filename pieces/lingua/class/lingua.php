@@ -153,7 +153,7 @@ class
 		return trim($kw);
 	}
 
-	protected static acronym_callback($m)
+	static function acronym_callback($m)
 	{
 		return str_replace('.', '', " {$m[1]} ");
 	}
