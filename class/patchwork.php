@@ -804,6 +804,11 @@ class
 		return is_object($a) ? $a->__toString() : (string) $a;
 	}
 
+	static function mb_strtoupper_callback($m)
+	{
+		return mb_strtoupper($m[1]);
+	}
+
 	static function uniqid() {return md5(uniqid(mt_rand(), true));}
 
 	static function strongid($length = 32)
@@ -838,7 +843,8 @@ class
 
 	static function saltedHash($pwd)
 	{
-		return substr(self::strongid(self::$saltLength) . md5($pwd . $salt), 0, self::$saltedHashTruncation);
+		$salt = self::strongid(self::$saltLength);
+		return substr($salt . md5($pwd . $salt), 0, self::$saltedHashTruncation);
 	}
 
 	static function matchSaltedHash($pwd, $saltedHash)
@@ -1065,7 +1071,7 @@ class
 		$param = '' !== $param ? explode('/', $param) : array();
 		$agent = (string) substr($a[0], 1, -1);
 
-		if (isset($a[1])) $potentialAgent = (string) preg_replace("'[-_ ](.)'eu", "mb_strtoupper('$1')", $agent);
+		if (isset($a[1])) $potentialAgent = (string) preg_replace_callback("'[-_ ](.)'u", array(__CLASS__, 'mb_strtoupper_callback'), $agent);
 		else $potentialAgent = $agent;
 
 		$lang = self::$lang;

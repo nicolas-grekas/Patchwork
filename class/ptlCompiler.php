@@ -265,7 +265,7 @@ abstract class
 	{
 		if (false !== strpos($a, "\r")) $a = str_replace("\r", '', $a);
 
-		return $this->binaryMode ? $a : preg_replace("/\s{2,}/seu", "false===strpos('$0', '\n') ? ' ' : '\n'", $a);
+		return $this->binaryMode ? $a : preg_replace_callback("/\s{2,}/su", array(__CLASS__, 'filter_callback'), $a);
 	}
 
 	private function makeBlocks($a)
@@ -373,7 +373,7 @@ abstract class
 			case 'LOOP':
 
 				$block = preg_match("/^{$this->Xexpression}$/su", $block, $block)
-					? preg_replace("/{$this->XvarNconst}/sue", '$this->evalVar(\'$0\')', $block[0])
+					? preg_replace_callback("/{$this->XvarNconst}/su", array($this, 'evalVar_callback'), $block[0])
 					: '';
 
 				$block = preg_replace("/\s+/su", '', $block);
@@ -594,6 +594,9 @@ abstract class
 
 		return $this->makeVar($a, $forceType);
 	}
+
+	protected static function filter_callback($m) {return false === strpos($m[0], "\n") ? ' ' : "\n";}
+	private function evalVar_callback($m) {return $this->evalVar($m[0]);}
 
 	private function endError($unexpected, $expected)
 	{
