@@ -74,7 +74,7 @@ class extends ptlCompiler
 			$comma = ',';
 		}
 
-/*>
+/*<
 		if (!strncmp($inc, '(isset(', 7))
 		{
 			$inc = substr($inc, 7, strpos($inc, ')', 7) - 7);
@@ -82,7 +82,7 @@ class extends ptlCompiler
 
 			return true;
 		}
-<*/
+>*/
 
 		$this->pushCode("patchwork_serverside::loadAgent($inc,array($a)," .( $is_exo ? 1 : 0 ). ");");
 
