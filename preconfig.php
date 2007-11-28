@@ -283,6 +283,7 @@ if ($a)
 /*#>*/$a = file_get_contents(__patchwork_loader::$pwd . '/data/utf8/quickChecks.txt');
 /*#>*/$a = explode("\n", $a);
 define('UTF8_NFC_RX', /*<*/'/' . $a[1] . '/u'/*>*/);
+define('UTF8_BOM', /*<*/__patchwork_loader::UTF8_BOM/*>*/);
 
 
 // Disables mod_deflate who overwrites any custom Vary: header and appends a body to 304 responses.

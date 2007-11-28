@@ -136,7 +136,7 @@ function Z()
 <body><?php
 
 		ignore_user_abort($S);
-		@set_time_limit(0);
+		set_time_limit(0);
 
 		ini_set('error_log', './error.patchwork.log');
 		$error_log = ini_get('error_log');
