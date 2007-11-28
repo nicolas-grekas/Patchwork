@@ -64,32 +64,21 @@ class extends self
 
 	// Add line feeds correction
 
-	function setTXTBody($data, $isfile = false, $append = false)
+	function &_addTextPart(&$obj, $text)
 	{
-		$isfile || $this->_fixEOL($data);
-
-		if ($append && 'UTF-8' !== $this->_build_params['text_charset'])
-		{
-			$data = iconv('UTF-8', $this->_build_params['text_charset'], $data);
-		}
-		else $this->optimizeCharset($data, 'text');
-
-		return parent::setTXTBody($data, $isfile, $append);
+		$this->_fixEOL($text);
+		$this->optimizeCharset($text, 'text');
+		return parent::_addTextPart($obj, $text);
 	}
 
-	function setHTMLBody($data, $isfile = false)
+	function &_addHtmlPart(&$obj)
 	{
-		$isfile || $this->_fixEOL($data);
-		$this->optimizeCharset($data, 'html');
-		return parent::setHTMLBody($data, $isfile);
+		$text =& $this->_htmlbody;
+		$this->_fixEOL($text);
+		$this->optimizeCharset($text, 'text');
+		return parent::_addHtmlPart($obj, $text);
 	}
 
-	function &_file2str($file_name)
-	{
-		$file_name =& parent::_file2str($file_name);
-		$this->fixEOL($file_name);
-		return $file_name;
-	}
 
 	protected function _fixEOL(&$a)
 	{
