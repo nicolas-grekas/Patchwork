@@ -129,7 +129,7 @@ class extends self
 	{
 		// In an ideal world, every email client would handle UTF-8...
 
-		if (function_exists('iconv')) foreach (self::$charsetCheck as $charset => $enc)
+		foreach (self::$charsetCheck as $charset => $enc)
 		{
 			$c = $charset;
 			$a = @iconv('UTF-8', $c, $data);
