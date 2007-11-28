@@ -114,7 +114,9 @@ abstract class
 		if (!$template) return '{$DATA}';
 
 		$source = file_get_contents($template);
-		if (!preg_match("''u", $source)) W("Template file {$template}:\nfile encoding is not valid UTF-8. Please convert your source code to UTF-8.");
+		UTF8_BOM === substr($source, 0, 3) && $source = substr($source, 3);
+
+		if (!preg_match('//u', $source)) W("Template file {$template}:\nfile encoding is not valid UTF-8. Please convert your source code to UTF-8.");
 
 		$source = rtrim($source);
 		if (false !== strpos($source, "\r")) $source = strtr(str_replace("\r\n", "\n", $source), "\r", "\n");

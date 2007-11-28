@@ -194,6 +194,8 @@ return;
 
 class __patchwork_loader
 {
+	const UTF8_BOM = "\xEF\xBB\xBF";
+
 	static
 
 	$pwd,
@@ -225,6 +227,8 @@ class __patchwork_loader
 
 			self::$pwd = dirname(__FILE__);
 			self::$cwd = getcwd();
+
+			set_time_limit(0);
 
 			return true;
 		}
@@ -378,7 +382,8 @@ patchwork::start();";
 		self::$appId += filemtime($config);
 
 		$source = file_get_contents($config);
-		if (false !== strpos($source, "\r")) $source = strtr(str_replace("\r\n", "\n", $source), "\r", "\n");
+		self::UTF8_BOM === substr($source, 0, 3) && $source = substr($source, 3);
+		false !== strpos($source, "\r") && $source = strtr(str_replace("\r\n", "\n", $source), "\r", "\n");
 
 		if ($source = token_get_all($source))
 		{
@@ -566,7 +571,7 @@ patchwork::start();";
 	{
 		self::$file = $a;
 		$a = file_get_contents($a);
-
+		self::UTF8_BOM === substr($a, 0, 3) && $a = substr($a, 3);
 		false !== strpos($a, "\r") && $a = strtr(str_replace("\r\n", "\n", $a), "\r", "\n");
 		$a = preg_replace('/^<\?(?:php)?/', '', $a);
 		$a = preg_replace('/\?>$/', ';', $a);

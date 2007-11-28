@@ -31,6 +31,7 @@ class patchwork_preprocessor__0
 
 	$constant = array(
 		'DEBUG' => DEBUG,
+		'UTF8_BOM' => UTF8_BOM,
 		'IS_WINDOWS' => IS_WINDOWS,
 		'PATCHWORK_ZCACHE' => PATCHWORK_ZCACHE,
 		'PATCHWORK_PATH_LEVEL' => PATCHWORK_PATH_LEVEL,
@@ -299,6 +300,7 @@ class patchwork_preprocessor__0
 		);
 
 		$code = file_get_contents($source);
+		UTF8_BOM === substr($code, 0, 3) && $code = substr($code, 3);
 
 		if (!preg_match('//u', $code)) trigger_error("File {$source}:\nfile encoding is not valid UTF-8. Please convert your source code to UTF-8.");
 
