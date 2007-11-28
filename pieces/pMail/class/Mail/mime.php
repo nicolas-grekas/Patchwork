@@ -73,9 +73,11 @@ class extends self
 
 	function &_addHtmlPart(&$obj)
 	{
-		$text =& $this->_htmlbody;
+		if (1 < func_num_args()) $text = func_get_arg(1);
+		else $text =& $this->_htmlbody;
+
 		$this->_fixEOL($text);
-		$this->optimizeCharset($text, 'text');
+		$this->optimizeCharset($text, 'html');
 		return parent::_addHtmlPart($obj, $text);
 	}
 
