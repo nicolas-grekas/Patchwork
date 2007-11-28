@@ -15,8 +15,8 @@
 
 /**** Post-configuration stage 0 ****/
 
-$patchwork_appId = /**/__patchwork_loader::$appId/**/;
-define('PATCHWORK_PATH_TOKEN', /**/__patchwork_loader::$token/**/);
+$patchwork_appId = /*<*/__patchwork_loader::$appId/*>*/;
+define('PATCHWORK_PATH_TOKEN', /*<*/__patchwork_loader::$token/*>*/);
 
 
 $CONFIG += array(
@@ -37,9 +37,9 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 // Fix a bug with long file names.
 // In debug mode, checks if character case is strict.
 
-/**/if ('\\' === DIRECTORY_SEPARATOR)
-/**/{
-		if (/**/PHP_VERSION < '5.2'/**/ || DEBUG)
+/*#>*/if ('\\' === DIRECTORY_SEPARATOR)
+/*#>*/{
+		if (/*<*/PHP_VERSION < '5.2'/*>*/ || DEBUG)
 		{
 			if (DEBUG)
 			{
@@ -78,7 +78,7 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 			function win_is_readable($file)   {return win_file_exists($file) && is_readable($file);}
 			function win_is_writable($file)   {return win_file_exists($file) && is_writable($file);}
 		}
-/**/}
+/*#>*/}
 
 
 // __autoload(): the magic part
@@ -93,7 +93,7 @@ function __autoload($searched_class)
 		{
 			$b = $a;
 			unset($a);
-			$a = $b - /**/__patchwork_loader::$offset/**/;
+			$a = $b - /*<*/__patchwork_loader::$offset/*>*/;
 
 			$b = $searched_class;
 			$i = strrpos($b, '__');
@@ -102,9 +102,9 @@ function __autoload($searched_class)
 			$a = $b . '.php.' . DEBUG . (0>$a ? -$a . '-' : $a);
 		}
 
-		$a = './.class_' . $a . /**/__patchwork_loader::$token . '.zcache.php'/**/;
+		$a = './.class_' . $a . /*<*/__patchwork_loader::$token . '.zcache.php'/*>*/;
 
-		$GLOBALS[/**/'a' . __patchwork_loader::$token/**/] = false;
+		$GLOBALS[/*<*/'a' . __patchwork_loader::$token/*>*/] = false;
 
 		if (file_exists($a))
 		{
@@ -118,7 +118,7 @@ function __autoload($searched_class)
 
 	if ($load_autoload)
 	{
-		require /**/__patchwork_loader::$pwd . '/autoload.php'/**/;
+		require /*<*/__patchwork_loader::$pwd . '/autoload.php'/*>*/;
 		$load_autoload = false;
 	}
 
@@ -140,10 +140,10 @@ function patchworkProcessedPath($file)
 		if (!$f) return $file;
 
 		$file = false;
-		$i = /**/__patchwork_loader::$last + 1/**/;
+		$i = /*<*/__patchwork_loader::$last + 1/*>*/;
 		$p =& $GLOBALS['patchwork_path'];
 
-		for (; $i < /**/count($patchwork_path)/**/; ++$i)
+		for (; $i < /*<*/count($patchwork_path)/*>*/; ++$i)
 		{
 			if (substr($f, 0, strlen($p[$i])+1) === $p[$i] . DIRECTORY_SEPARATOR)
 			{
@@ -166,7 +166,7 @@ function patchworkProcessedPath($file)
 	$file = strtr($file, '\\', '/');
 	$cache = DEBUG . (0>$level ? -$level . '-' : $level);
 	$cache = './.' . strtr(str_replace('_', '%2', str_replace('%', '%1', $file)), '/', '_')
-		. '.' . $cache . /**/'.' . __patchwork_loader::$token . '.zcache.php'/**/;
+		. '.' . $cache . /*<*/'.' . __patchwork_loader::$token . '.zcache.php'/*>*/;
 
 	if (file_exists($cache) && (TURBO || filemtime($cache) > filemtime($source))) return $cache;
 
@@ -193,7 +193,7 @@ $CONFIG += array(
 	'maxage'                => 2678400,
 	'P3P'                   => 'CUR ADM',
 	'xsendfile'             => false,
-	'session.save_path'     => /**/__patchwork_loader::$zcache/**/,
+	'session.save_path'     => /*<*/__patchwork_loader::$zcache/*>*/,
 	'session.cookie_path'   => '/',
 	'session.cookie_domain' => '',
 	'session.auth_vars'     => array(),
@@ -244,17 +244,17 @@ $b = '(' . implode('|', $b) . ')';
 * You can also define them with mod_rewrite, to get cleaner URLs for example.
 */
 
-/**/if (isset($_SERVER['PATCHWORK_BASE']))
-/**/{
-/**/	if ('/'  === substr($_SERVER['PATCHWORK_BASE'], 0, 1))
-/**/		$_SERVER['PATCHWORK_BASE'] = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PATCHWORK_BASE'];
+/*#>*/if (isset($_SERVER['PATCHWORK_BASE']))
+/*#>*/{
+/*#>*/	if ('/'  === substr($_SERVER['PATCHWORK_BASE'], 0, 1))
+/*#>*/		$_SERVER['PATCHWORK_BASE'] = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PATCHWORK_BASE'];
 
 		if (isset($_SERVER['PATCHWORK_BASE']))
 		{
 			if ('/'  === substr($_SERVER['PATCHWORK_BASE'], 0, 1))
 				$_SERVER['PATCHWORK_BASE'] = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PATCHWORK_BASE'];
 		}
-		else $_SERVER['PATCHWORK_BASE'] = /**/$_SERVER['PATCHWORK_BASE']/**/;
+		else $_SERVER['PATCHWORK_BASE'] = /*<*/$_SERVER['PATCHWORK_BASE']/*>*/;
 
 
 		$a = explode('__', $_SERVER['PATCHWORK_BASE'], 2);
@@ -283,44 +283,44 @@ $b = '(' . implode('|', $b) . ')';
 			isset($_SERVER['PATCHWORK_LANG'])    || $_SERVER['PATCHWORK_LANG']    = '';
 			isset($_SERVER['PATCHWORK_REQUEST']) || $_SERVER['PATCHWORK_REQUEST'] = '';
 		}
-/**/}
-/**/else
-/**/{
-/**/	if (!isset($_SERVER['PATH_INFO']))
-/**/	{
-/**/		// Check if the webserver supports PATH_INFO
-/**/
-/**/		$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
-/**/		$h = fsockopen("{$h}://{$_SERVER['SERVER_ADDR']}", $_SERVER['SERVER_PORT'], $errno, $errstr, 30);
-/**/		if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
-/**/
-/**/		$a = strpos($_SERVER['REQUEST_URI'], '?');
-/**/		$a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
-/**/		'/' === substr($a, -1) && $a .= 'index.php';
-/**/
-/**/		$a  = "GET {$a}/_?exit$ HTTP/1.0\r\n";
-/**/		$a .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
-/**/		$a .= "Connection: close\r\n\r\n";
-/**/
-/**/		fwrite($h, $a);
-/**/		$a = fgets($h, 12);
-/**/		fclose($h);
-/**/
-/**/		strpos($a, ' 4') || $_SERVER['PATH_INFO'] = '';
-/**/
-/**/		unset($a, $h);
-/**/	}
+/*#>*/}
+/*#>*/else
+/*#>*/{
+/*#>*/	if (!isset($_SERVER['PATH_INFO']))
+/*#>*/	{
+/*#>*/		// Check if the webserver supports PATH_INFO
+/*#>*/
+/*#>*/		$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
+/*#>*/		$h = fsockopen("{$h}://{$_SERVER['SERVER_ADDR']}", $_SERVER['SERVER_PORT'], $errno, $errstr, 30);
+/*#>*/		if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
+/*#>*/
+/*#>*/		$a = strpos($_SERVER['REQUEST_URI'], '?');
+/*#>*/		$a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
+/*#>*/		'/' === substr($a, -1) && $a .= 'index.php';
+/*#>*/
+/*#>*/		$a  = "GET {$a}/_?exit$ HTTP/1.0\r\n";
+/*#>*/		$a .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
+/*#>*/		$a .= "Connection: close\r\n\r\n";
+/*#>*/
+/*#>*/		fwrite($h, $a);
+/*#>*/		$a = fgets($h, 12);
+/*#>*/		fclose($h);
+/*#>*/
+/*#>*/		strpos($a, ' 4') || $_SERVER['PATH_INFO'] = '';
+/*#>*/
+/*#>*/		unset($a, $h);
+/*#>*/	}
 
 		$_SERVER['PATCHWORK_BASE'] = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'];
 		$_SERVER['PATCHWORK_LANG'] = $_SERVER['PATCHWORK_REQUEST'] = '';
 
-/**/	if (isset($_SERVER['PATH_INFO']))
-/**/	{
+/*#>*/	if (isset($_SERVER['PATH_INFO']))
+/*#>*/	{
 			isset($_SERVER['PATH_INFO']) && $_SERVER['PATCHWORK_REQUEST'] = substr($_SERVER['PATH_INFO'], 1);
 			$_SERVER['PATCHWORK_BASE'] .= '/' . (PATCHWORK_I18N ? '__/' : '');
-/**/	}
-/**/	else
-/**/	{
+/*#>*/	}
+/*#>*/	else
+/*#>*/	{
 			'/index.php' === substr($_SERVER['PATCHWORK_BASE'], -10) && $_SERVER['PATCHWORK_BASE'] = substr($_SERVER['PATCHWORK_BASE'], 0, -10);
 			$_SERVER['PATCHWORK_BASE'] .= '?' . (PATCHWORK_I18N ? '__/' : '');
 
@@ -344,14 +344,14 @@ $b = '(' . implode('|', $b) . ')';
 			}
 
 			$_SERVER['PATCHWORK_REQUEST'] = urldecode($_SERVER['PATCHWORK_REQUEST']);
-/**/	}
+/*#>*/	}
 
 		if (preg_match("#^{$b}(?:/|$)(.*?)$#", $_SERVER['PATCHWORK_REQUEST'], $a))
 		{
 			$_SERVER['PATCHWORK_LANG']    = array_search($a[1], $CONFIG['i18n.lang_list']);
 			$_SERVER['PATCHWORK_REQUEST'] = $a[2];
 		}
-/**/}
+/*#>*/}
 
 
 PATCHWORK_I18N || $_SERVER['PATCHWORK_LANG'] = key($CONFIG['i18n.lang_list']);

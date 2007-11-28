@@ -572,13 +572,13 @@ patchwork::start();";
 		$a = preg_replace('/\?>$/', ';', $a);
 
 
-		$a = preg_split('#(^(?:\s*/\*\*/.*)+)#m', $a, -1, PREG_SPLIT_DELIM_CAPTURE);
+		$a = preg_split('#(^(?:\s*/\*\#>\*/.*)+)#m', $a, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 		$line = 0;
 		$iLen = count($a);
 		for ($i = 0; $i < $iLen; ++$i)
 		{
-			$b = preg_split('#/\*\*/(.*?)/\*\*/#', $a[$i], -1, PREG_SPLIT_DELIM_CAPTURE);
+			$b = preg_split('#/\*<\*/(.*?)/\*>\*/#s', $a[$i], -1, PREG_SPLIT_DELIM_CAPTURE);
 
 			$jLen = count($b);
 			for ($j = 0; $j < $jLen; ++$j)
@@ -626,7 +626,7 @@ patchwork::start();";
 			if ($a)
 			{
 				$b = array();
-				foreach ($a as $k => &$a) $b[] = var_export($k, true) . '=>' . self::export($a);
+				foreach ($a as $k => &$a) $b[] = self::export($k, true) . '=>' . self::export($a);
 				$b = 'array(' . implode(',', $b) . ')';
 			}
 			else return 'array()';
@@ -637,27 +637,23 @@ patchwork::start();";
 			$v = (array) $a;
 			foreach ($v as $k => &$v)
 			{
-				if ("\000" === substr($k, 0, 1)) $k = substr($k, 3);
+				if ("\0" === substr($k, 0, 1)) $k = substr($k, 3);
 				$b[$k] =& $v;
 			}
 
 			$b = self::export($b);
 			$b = get_class($a) . '::__set_state(' . $b . ')';
 		}
+		else if (is_string($a) && $a !== strtr($a, "\r\n\0", '---'))
+		{
+			$b = '"'. str_replace(
+				array(  "\\",   '"',   '$',  "\r",  "\n",  "\0"),
+				array('\\\\', '\\"', '\\$', '\\r', '\\n', '\\0'),
+				$a
+			) . '"';
+		}
 		else $b = var_export($a, true);
 
-		if (false !== strpos($b, "\n") || false !== strpos($b, "\r"))
-		{
-			$b = preg_replace_callback("/[\r\n]+/", array(__CLASS__, 'exportCRLF'), $b);
-		}
-
 		return $b;
-	}
-
-	protected static function exportCRLF($a)
-	{
-		$a = str_replace("\n", '\n', $a[0]);
-		$a = str_replace("\r", '\r', $a);
-		return "'.\"{$a}\".'";
 	}
 }

@@ -157,13 +157,13 @@ class extends loop_callAgent
 		else if ($onerror && false === $this->status) return $this->errormsg = $onerror;
 		else if (false === $this->status)
 		{
-/*>
+/*<
 			W('Input validation error in ' . get_class($this) . ' element: ' . print_r(array(
 				'name' => $this->name,
 				'value' => $this->value,
 				'valid' => $this->valid, $this->valid_args
 			), true));
-<*/
+>*/
 
 			$a =& $this->form->filesValues;
 

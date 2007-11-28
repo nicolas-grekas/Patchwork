@@ -254,14 +254,14 @@ class
 
 	static function start()
 	{
-/*>
+/*<
 		self::log(
 			'<a href="' . htmlspecialchars($_SERVER['REQUEST_URI']) . '" target="_blank">'
 			. htmlspecialchars(preg_replace("'&v\\\$=[^&]*'", '', $_SERVER['REQUEST_URI']))
 			. '</a>'
 		);
 		register_shutdown_function(array(__CLASS__, 'log'), '', true);
-<*/
+>*/
 
 		// patchwork_appId cookie synchronisation
 
@@ -375,7 +375,7 @@ class
 			return;
 		}
 
-/*>
+/*<
 		if (PATCHWORK_SYNC_CACHE && !self::$binaryMode)
 		{
 			global $patchwork_appId;
@@ -417,7 +417,7 @@ class
 				return;
 			}
 		}
-<*/
+>*/
 
 		// load agent
 		if (IS_POSTING || self::$binaryMode || !isset($_COOKIE['JS']) || !$_COOKIE['JS'])

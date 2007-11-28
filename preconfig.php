@@ -17,49 +17,49 @@
 
 
 
-#/**/PHP_VERSION/**/
+#/*<*/PHP_VERSION/*>*/
 
 define('patchwork', microtime(true));
 error_reporting(E_ALL | E_STRICT);
 if (!isset($_SERVER['HTTP_HOST']) || $_SERVER['HTTP_HOST'] !== strtr($_SERVER['HTTP_HOST'], '\'"<>', '----')) die('Invalid HTTP/1.1 Host header');
 
-define('PATCHWORK_PROJECT_PATH', /**/__patchwork_loader::$cwd   /**/);
-define('PATCHWORK_ZCACHE',       /**/__patchwork_loader::$zcache/**/);
-define('PATCHWORK_PATH_LEVEL',   /**/__patchwork_loader::$last  /**/);
-define('PATCHWORK_PATH_OFFSET',  /**/__patchwork_loader::$offset/**/);
+define('PATCHWORK_PROJECT_PATH', /*<*/__patchwork_loader::$cwd   /*>*/);
+define('PATCHWORK_ZCACHE',       /*<*/__patchwork_loader::$zcache/*>*/);
+define('PATCHWORK_PATH_LEVEL',   /*<*/__patchwork_loader::$last  /*>*/);
+define('PATCHWORK_PATH_OFFSET',  /*<*/__patchwork_loader::$offset/*>*/);
 
 $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 $CONFIG   = array();
 
-define('IS_WINDOWS', /**/'\\' === DIRECTORY_SEPARATOR/**/);
+define('IS_WINDOWS', /*<*/'\\' === DIRECTORY_SEPARATOR/*>*/);
 define('IS_POSTING', 'POST' === $_SERVER['REQUEST_METHOD']);
 
 
-$patchwork_path = /**/$patchwork_path/**/;
+$patchwork_path = /*<*/$patchwork_path/*>*/;
 $patchwork_abstract = array();
 
 
-/**/if (!isset($_SERVER['REQUEST_TIME']))
+/*#>*/if (!isset($_SERVER['REQUEST_TIME']))
 		$_SERVER['REQUEST_TIME'] = time();
 
 
 // IIS compatibility
 
-/**/if (!isset($_SERVER['REQUEST_URI']))
+/*#>*/if (!isset($_SERVER['REQUEST_URI']))
 		$_SERVER['REQUEST_URI'] = $_SERVER['URL'];
 
-/**/if (!isset($_SERVER['SERVER_ADDR']))
+/*#>*/if (!isset($_SERVER['SERVER_ADDR']))
 		$_SERVER['SERVER_ADDR'] = '127.0.0.1';
 
-/**/if (isset($_SERVER['HTTPS']) && !isset($_SERVER['HTTPS_KEYSIZE']))
+/*#>*/if (isset($_SERVER['HTTPS']) && !isset($_SERVER['HTTPS_KEYSIZE']))
 		unset($_SERVER['HTTPS']);
 
-/**/if (!isset($_SERVER['QUERY_STRING']))
-/**/{
+/*#>*/if (!isset($_SERVER['QUERY_STRING']))
+/*#>*/{
 		$a = $_SERVER['REQUEST_URI'];
 		$b = strpos($a, '?');
 		$_SERVER['QUERY_STRING'] = false !== $b++ && $b < strlen($a) ? substr($a, $b) : '';
-/**/}
+/*#>*/}
 
 
 // Utility functions
@@ -69,7 +69,7 @@ function patchwork_is_a($obj, $class) {return $obj instanceof $class;}
 function patchwork_chdir($realdir)    {$realdir === getcwd() || chdir($realdir);}
 function clower($s) {return strtr($s, 'CLASPEMITDBFRUGNJVHOWKXQYZ', 'claspemitdbfrugnjvhowkxqyz');}
 
-register_shutdown_function('patchwork_chdir', /**/__patchwork_loader::$cwd/**/);
+register_shutdown_function('patchwork_chdir', /*<*/__patchwork_loader::$cwd/*>*/);
 
 
 // registerAutoloadPrefix()
@@ -104,12 +104,12 @@ function resolvePath($file, $level = false, $base = false)
 	if (false === $level)
 	{
 		$i = 0;
-		$level = /**/__patchwork_loader::$last/**/;
+		$level = /*<*/__patchwork_loader::$last/*>*/;
 	}
 	else
 	{
 		0 <= $level && $base = 0;
-		$i = /**/__patchwork_loader::$last/**/ - $level - $base;
+		$i = /*<*/__patchwork_loader::$last/*>*/ - $level - $base;
 		0 > $i && $i = 0;
 	}
 
@@ -119,49 +119,49 @@ function resolvePath($file, $level = false, $base = false)
 
 	if (0 == $i)
 	{
-		$source = /**/__patchwork_loader::$cwd . '/'/**/ . $file;
+		$source = /*<*/__patchwork_loader::$cwd . '/'/*>*/ . $file;
 
-/**/	if ('\\' === DIRECTORY_SEPARATOR)
-/**/	{
+/*#>*/	if ('\\' === DIRECTORY_SEPARATOR)
+/*#>*/	{
 			if (function_exists('win_file_exists') ? win_file_exists($source) : file_exists($source)) return $source;
-/**/	}
-/**/	else
-/**/	{
+/*#>*/	}
+/*#>*/	else
+/*#>*/	{
 			if (file_exists($source)) return $source;
-/**/	}
+/*#>*/	}
 	}
 
 
 	$file = strtr($file, '\\', '/');
 	if ($slash = '/' === substr($file, -1)) $file = substr($file, 0, -1);
 
-/**/
-/**/ // DBA handler
-/**/
-/**/if (function_exists('dba_handlers'))
-/**/{
-/**/	$a = array('cdb','db2','db3','db4','qdbm','gdbm','ndbm','dbm','flatfile','inifile');
-/**/	$a = array_intersect($a, dba_handlers());
-/**/	$a || $dba = dba_handlers();
-/**/	$a = $a ? reset($a) : '';
-/**/}
-/**/else $a = '';
-/**/
-/**/__patchwork_loader::buildPathCache($a);
-/**/
+/*#>*/
+/*#>*/ // DBA handler
+/*#>*/
+/*#>*/if (function_exists('dba_handlers'))
+/*#>*/{
+/*#>*/	$a = array('cdb','db2','db3','db4','qdbm','gdbm','ndbm','dbm','flatfile','inifile');
+/*#>*/	$a = array_intersect($a, dba_handlers());
+/*#>*/	$a || $dba = dba_handlers();
+/*#>*/	$a = $a ? reset($a) : '';
+/*#>*/}
+/*#>*/else $a = '';
+/*#>*/
+/*#>*/__patchwork_loader::buildPathCache($a);
+/*#>*/
 
-/**/if ($a)
-/**/{
+/*#>*/if ($a)
+/*#>*/{
 		static $db;
-		isset($db) || $db = dba_popen('./.parentPaths.db', 'rd', /**/$a/**/);
+		isset($db) || $db = dba_popen('./.parentPaths.db', 'rd', /*<*/$a/*>*/);
 		$base = dba_fetch($file, $db);
-/**/}
-/**/else
-/**/{
+/*#>*/}
+/*#>*/else
+/*#>*/{
 		$base = md5($file);
-		$base = /**/__patchwork_loader::$zcache/**/ . $base[0] . '/' . $base[1] . '/' . substr($base, 2) . '.path.txt';
+		$base = /*<*/__patchwork_loader::$zcache/*>*/ . $base[0] . '/' . $base[1] . '/' . substr($base, 2) . '.path.txt';
 		$base = @file_get_contents($base);
-/**/}
+/*#>*/}
 
 	if (false !== $base)
 	{
@@ -176,7 +176,7 @@ function resolvePath($file, $level = false, $base = false)
 		while (false !== next($base));
 	}
 
-	$patchwork_lastpath_level = -/**/__patchwork_loader::$offset/**/;
+	$patchwork_lastpath_level = -/*<*/__patchwork_loader::$offset/*>*/;
 
 	return false;
 }
@@ -247,7 +247,7 @@ $patchwork_private = false;
 
 // Check HTTP validator
 
-/**/unset($_SERVER['HTTP_IF_NONE_MATCH'], $_SERVER['HTTP_IF_MODIFIED_SINCE']);
+/*#>*/unset($_SERVER['HTTP_IF_NONE_MATCH'], $_SERVER['HTTP_IF_MODIFIED_SINCE']);
 
 $a = isset($_SERVER['HTTP_IF_NONE_MATCH'])
 	? $_SERVER['HTTP_IF_NONE_MATCH']
@@ -280,79 +280,78 @@ if ($a)
 }
 
 
-/**/$a = file_get_contents(__patchwork_loader::$pwd . '/data/utf8/quickChecks.txt');
-/**/$a = explode("\n", $a);
-define('UTF8_NFC_RX', /**/'/' . $a[1] . '/u'/**/);
-define('UTF8_VALID_RX', /**/"/(?:[\x00-\x7f]|[\xc2-\xdf][\x80-\xbf]|\xe0[\xa0-\xbf][\x80-\xbf]|[\xe1-\xec\xee\xef][\x80-\xbf]{2}|\xed[\x80-\x9f][\x80-\xbf]|\xf0[\x90-\xbf][\x80-\xbf]{2}|[\xf1-\xf3][\x80-\xbf]{3}|\xf4[\x80-\x8f][\x80-\xbf]{2})+/"/**/); # From http://www.w3.org/International/questions/qa-forms-utf-8
+/*#>*/$a = file_get_contents(__patchwork_loader::$pwd . '/data/utf8/quickChecks.txt');
+/*#>*/$a = explode("\n", $a);
+define('UTF8_NFC_RX', /*<*/'/' . $a[1] . '/u'/*>*/);
 
 
 // Disables mod_deflate who overwrites any custom Vary: header and appends a body to 304 responses.
 // Replaced with our own output compression.
 
-/**/if (function_exists('apache_setenv'))
+/*#>*/if (function_exists('apache_setenv'))
 		apache_setenv('no-gzip','1');
 
 
-/**/if (ini_get('zlib.output_compression'))
+/*#>*/if (ini_get('zlib.output_compression'))
 		ini_set('zlib.output_compression', false);
 
 
 // mbstring configuration
 
-/**/if (extension_loaded('mbstring'))
-/**/{
-/**/	if ('none'  !== mb_substitute_character())
+/*#>*/if (extension_loaded('mbstring'))
+/*#>*/{
+/*#>*/	if ('none'  !== mb_substitute_character())
 			mb_substitute_character('none');
 
-/**/	if ('UTF-8' !== mb_internal_encoding())
+/*#>*/	if ('UTF-8' !== mb_internal_encoding())
 			mb_internal_encoding('UTF-8');
 
-/**/	if ('pass'  !== mb_http_output())
+/*#>*/	if ('pass'  !== mb_http_output())
 			mb_http_output('pass');
 
-/**/	if ('uni'   !== mb_language())
+/*#>*/	if ('uni'   !== mb_language())
 			mb_language('uni');
-/**/}
+/*#>*/}
 
 
 // iconv configuration
 
-/**/ // See http://php.net/manual/en/function.iconv.php#47428
-/**/if (!function_exists('iconv') && function_exists('libiconv'))
-/**/{
+/*#>*/ // See http://php.net/manual/en/function.iconv.php#47428
+/*#>*/if (!function_exists('iconv') && function_exists('libiconv'))
+/*#>*/{
 		function iconv($in_charset, $out_charset, $str)
 		{
 			return libiconv($in_charset, $out_charset, $str);
 		}
-/**/}
+/*#>*/}
 
-/**/if (function_exists('iconv'))
-/**/{
-/**/	if ('UTF-8' !== iconv_get_encoding('input_encoding'))
+/*#>*/if (function_exists('iconv'))
+/*#>*/{
+/*#>*/	if ('UTF-8' !== iconv_get_encoding('input_encoding'))
 			iconv_set_encoding('input_encoding'   , 'UTF-8');
 
-/**/	if ('UTF-8' !== iconv_get_encoding('internal_encoding'))
+/*#>*/	if ('UTF-8' !== iconv_get_encoding('internal_encoding'))
 			iconv_set_encoding('internal_encoding', 'UTF-8');
 
-/**/	if ('UTF-8' !== iconv_get_encoding('output_encoding'))
+/*#>*/	if ('UTF-8' !== iconv_get_encoding('output_encoding'))
 			iconv_set_encoding('output_encoding'  , 'UTF-8');
-/**/}
+/*#>*/}
 
 
 // utf8_encode/decode support
 
-/**/if (!function_exists('utf8_encode'))
-/**/{
-/**/	if (extension_loaded('mbstring'))
-/**/	{
+/*#>*/if (!function_exists('utf8_encode'))
+/*#>*/{
+/*#>*/	if (extension_loaded('mbstring'))
+/*#>*/	{
 			function utf8_encode($s) {return mb_convert_encoding($s, 'UTF-8', 'ISO-8859-1');}
-/**/	}
-/**/	else if (function_exists('iconv'))
-/**/	{
+/*#>*/	}
+/*#>*/	else if (function_exists('iconv'))
+/*#>*/	{
 			function utf8_encode($s) {return iconv('ISO-8859-1', 'UTF-8', $s);}
-/**/	}
-/**/	else
-/**/	{
+/*#>*/	}
+/*#>*/	else
+/*#>*/	{
 			function utf8_encode($s)
 			{
 				$r = '';
@@ -367,21 +366,21 @@ define('UTF8_VALID_RX', /**/"/(?:[\x00-\x7f]|[\xc2-\xdf][\x80-\xbf]|\xe0[\xa0-\x
 
 				return $r;
 			}
-/**/	}
-/**/}
+/*#>*/	}
+/*#>*/}
 
-/**/if (!function_exists('utf8_decode'))
-/**/{
-/**/	if (extension_loaded('mbstring'))
-/**/	{
+/*#>*/if (!function_exists('utf8_decode'))
+/*#>*/{
+/*#>*/	if (extension_loaded('mbstring'))
+/*#>*/	{
 			function utf8_decode($s) {return mb_convert_encoding($s, 'ISO-8859-1', 'UTF-8');}
-/**/	}
-/**/	else if (function_exists('iconv'))
-/**/	{
+/*#>*/	}
+/*#>*/	else if (function_exists('iconv'))
+/*#>*/	{
 			function utf8_decode($s) {return iconv('UTF-8', 'ISO-8859-1//IGNORE', $s);}
-/**/	}
-/**/	else
-/**/	{
+/*#>*/	}
+/*#>*/	else
+/*#>*/	{
 			function utf8_decode($s)
 			{
 				$len = strlen($s);
@@ -405,16 +404,16 @@ define('UTF8_VALID_RX', /**/"/(?:[\x00-\x7f]|[\xc2-\xdf][\x80-\xbf]|\xe0[\xa0-\x
 
 				return substr($s, 0, $j);
 			}
-/**/	}
-/**/}
+/*#>*/	}
+/*#>*/}
 
 
 // Configure PCRE
 
-/**/if (ini_get('pcre.backtrack_limit') < 5000000)
+/*#>*/if (ini_get('pcre.backtrack_limit') < 5000000)
 		ini_set('pcre.backtrack_limit',   5000000);
 
-/**/if (ini_get('pcre.recursion_limit') < 10000)
+/*#>*/if (ini_get('pcre.recursion_limit') < 10000)
 		ini_set('pcre.recursion_limit',   10000);
 
 
@@ -445,12 +444,12 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 
 // Input normalization
 
-/**/if (get_magic_quotes_runtime())
+/*#>*/if (get_magic_quotes_runtime())
 		set_magic_quotes_runtime(false);
 
-/**/$h = extension_loaded('mbstring') && ini_get('mbstring.encoding_translation') && 'UTF-8' == ini_get('mbstring.http_input');
-/**/if (get_magic_quotes_gpc() || !$h)
-/**/{
+/*#>*/$h = extension_loaded('mbstring') && ini_get('mbstring.encoding_translation') && 'UTF-8' == ini_get('mbstring.http_input');
+/*#>*/if (get_magic_quotes_gpc() || !$h)
+/*#>*/{
 		$a = array(&$_GET, &$_POST, &$_COOKIE);
 		foreach ($_FILES as &$v) $a[] = array(&$v['name'], &$v['type']);
 
@@ -462,26 +461,27 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 				if (is_array($v)) $a[$len++] =& $v;
 				else
 				{
-/**/				if (get_magic_quotes_gpc())
-/**/				{
-/**/					if (ini_get('magic_quotes_sybase'))
+/*#>*/				if (get_magic_quotes_gpc())
+/*#>*/				{
+/*#>*/					if (ini_get('magic_quotes_sybase'))
 							$v = str_replace("''", "'", $v);
-/**/					else
+/*#>*/					else
 							$v = stripslashes($v);
-/**/				}
+/*#>*/				}
 
-/**/				if (!$h)
-/**/				{
-/**/					if (extension_loaded('iconv'))
-/**/					{
+/*#>*/				if (!$h)
+/*#>*/				{
+/*#>*/					if (extension_loaded('iconv'))
+/*#>*/					{
 							$v = iconv('UTF-8', 'UTF-8//IGNORE', $v);
-/**/					}
-/**/					else
-/**/					{
-							preg_match_all(UTF8_VALID_RX, $v, $b);
+/*#>*/					}
+/*#>*/					else
+/*#>*/					{
+							# From http://www.w3.org/International/questions/qa-forms-utf-8
+							preg_match_all(/*<*/"/(?:[\x00-\x7f]|[\xc2-\xdf][\x80-\xbf]|\xe0[\xa0-\xbf][\x80-\xbf]|[\xe1-\xec\xee\xef][\x80-\xbf]{2}|\xed[\x80-\x9f][\x80-\xbf]|\xf0[\x90-\xbf][\x80-\xbf]{2}|[\xf1-\xf3][\x80-\xbf]{3}|\xf4[\x80-\x8f][\x80-\xbf]{2})+/"/*>*/, $v, $b);
 							$v = implode('', $b[0]);
-/**/					}
-/**/				}
+/*#>*/					}
+/*#>*/				}
 				}
 			}
 
@@ -490,4 +490,4 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 		}
 
 		unset($a, $v);
-/**/}
+/*#>*/}
