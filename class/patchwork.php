@@ -820,11 +820,10 @@ class
 		do
 		{
 			$i = 0;
-			$len = min(32, $length);
 			$n = unpack('C*', md5(uniqid(mt_rand(), true), true) . md5(uniqid(mt_rand(), true), true));
 
 			do $a .= $chars[$n[++$i]%57] . $chars[$n[++$i]%57] . $chars[$n[++$i]%57] . $chars[$n[++$i]%57];
-			while ($i < $len);
+			while ($i < 32);
 
 			$length -= 32;
 		}
