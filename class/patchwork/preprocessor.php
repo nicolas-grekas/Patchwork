@@ -182,7 +182,7 @@ class patchwork_preprocessor__0
 				'mb_strripos' => 'utf8_mbstring_520::strripos',
 				'mb_strrpos'  => 'utf8_mbstring_520::strrpos',
 				'mb_strstr'   => 'utf8_mbstring_520::strstr',
-				'utf8_mbstring_500_strrpos' => 'mb_strrpos',
+				'mb_strrpos_500' => 'mb_strrpos',
 			);
 
 			if (!extension_loaded('mbstring'))
@@ -197,6 +197,8 @@ class patchwork_preprocessor__0
 				);
 
 				self::$function += array(
+					'mb_convert_encoding'     => 'utf8_mbstring_500::convert_encoding',
+					'mb_decode_mimeheader'    => 'utf8_iconv::mime_decode',
 					'mb_convert_case'         => 'utf8_mbstring_500::convert_case',
 					'mb_encode_mimeheader'    => 'E(\'mb_encode_mimeheader() is bugged. Please use iconv_mime_encode() instead.\',',
 					'mb_internal_encoding'    => 'utf8_mbstring_500::internal_encoding',
@@ -213,15 +215,13 @@ class patchwork_preprocessor__0
 
 				if (extension_loaded('iconv'))
 				{
-					self::$function += array(
-						'mb_convert_encoding'  => 'utf8_mbstring_500::convert_encoding',
-						'mb_decode_mimeheader' => 'iconv_mime_decode',
-					);
-
-					self::$function['mb_strlen'] = 'iconv_strlen';
-					self::$function['mb_strpos'] = 'iconv_strpos';
-					self::$function['mb_substr'] = 'iconv_substr';
+					self::$function['mb_strlen']            = 'iconv_strlen';
+					self::$function['mb_strpos']            = 'iconv_strpos';
+					self::$function['mb_substr']            = 'iconv_substr';
+					self::$function['mb_strrpos_500']       = 'iconv_strrpos';
+					self::$function['mb_decode_mimeheader'] = 'iconv_mime_decode';
 				}
+				else self::$function['mb_strrpos_500'] = 'utf8_mbstring_500::mb_strrpos';
 			}
 		}
 
@@ -233,13 +233,13 @@ class patchwork_preprocessor__0
 			);
 
 			self::$function += array(
-				'iconv' => 'iconv::iconv',
-				'iconv_get_encoding' => 'iconv::get_encoding',
-				'iconv_set_encoding' => 'iconv::set_encoding',
-				'iconv_mime_decode'  => 'iconv::mime_decode',
-				'iconv_mime_encode'  => 'iconv::mime_encode',
-				'ob_iconv_handler'   => 'iconv::ob_handler',
-				'iconv_mime_decode_headers' => 'iconv::mime_decode_headers',
+				'iconv' => 'utf8_iconv::iconv',
+				'iconv_get_encoding' => 'utf8_iconv::get_encoding',
+				'iconv_set_encoding' => 'utf8_iconv::set_encoding',
+				'iconv_mime_decode'  => 'utf8_iconv::mime_decode',
+				'iconv_mime_encode'  => 'utf8_iconv::mime_encode',
+				'ob_iconv_handler'   => 'utf8_iconv::ob_handler',
+				'iconv_mime_decode_headers' => 'utf8_iconv::mime_decode_headers',
 			);
 
 			if (extension_loaded('mbstring'))
@@ -258,7 +258,7 @@ class patchwork_preprocessor__0
 				self::$function += array(
 					'iconv_strlen'  => 'utf8_mbstring_500::strlen',
 					'iconv_strpos'  => 'utf8_mbstring_500::strpos',
-					'iconv_strrpos' => 'utf8_mbstring_520::strrpos',
+					'iconv_strrpos' => 'utf8_mbstring_500::strrpos',
 					'iconv_substr'  => 'utf8_mbstring_500::substr',
 				);
 			}
