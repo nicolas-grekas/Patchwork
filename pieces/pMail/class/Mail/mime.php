@@ -68,7 +68,8 @@ class extends self
 	{
 		$this->_fixEOL($text);
 		$this->optimizeCharset($text, 'text');
-		return parent::_addTextPart($obj, $text);
+		$text =& parent::_addTextPart($obj, $text);
+		return $text;
 	}
 
 	function &_addHtmlPart(&$obj)
@@ -78,7 +79,8 @@ class extends self
 
 		$this->_fixEOL($text);
 		$this->optimizeCharset($text, 'html');
-		return parent::_addHtmlPart($obj, $text);
+		$text =& parent::_addHtmlPart($obj, $text);
+		return $text;
 	}
 
 
