@@ -198,8 +198,8 @@ $CONFIG += array(
 	'session.cookie_domain' => '',
 	'session.auth_vars'     => array(),
 	'session.group_vars'    => array(),
-	'translate.adapter'     => false,
-	'translate.options'     => array(),
+	'translator.adapter'    => false,
+	'translator.options'    => array(),
 );
 
 

@@ -37,9 +37,82 @@ class extends patchwork
 		'.pdf' => 'application/pdf',
 	);
 
-	protected static $filterRx;
 
-	static function call($agent, $mime)
+	static function sendTemplate()
+	{
+		$template = array_shift($_GET);
+		$template = str_replace('\\', '/', $template);
+		$template = str_replace('../', '/', $template);
+
+		echo 'w(0';
+
+		$ctemplate = p::getContextualCachePath("templates/$template", 'txt');
+
+		TURBO || p::syncTemplate($template, $ctemplate);
+
+		$readHandle = true;
+
+		if ($h = p::fopenX($ctemplate, $readHandle))
+		{
+			p::openMeta('agent__template/' . $template, false);
+			$compiler = new ptlCompiler_js(false);
+			echo $template = ',[' . $compiler->compile($template . '.ptl') . '])';
+			fwrite($h, $template);
+			fclose($h);
+			list(,,, $watch) = p::closeMeta();
+			p::writeWatchTable($watch, $ctemplate);
+		}
+		else
+		{
+			fpassthru($readHandle);
+			fclose($readHandle);
+		}
+
+		p::setMaxage(-1);
+	}
+
+	static function sendPipe()
+	{
+		$pipe = array_shift($_GET);
+		preg_match_all('/[a-zA-Z_0-9\x80-\xff]+/', $pipe, $pipe);
+		p::$agentClass = 'agent__pipe/' . implode('_', $pipe[0]);
+
+		foreach ($pipe[0] as &$pipe)
+		{
+#>			if (DEBUG) call_user_func(array('pipe_' . $pipe, 'js'));
+#>			else
+#>			{
+				$cpipe = p::getContextualCachePath('pipe/' . $pipe, 'js');
+				$readHandle = true;
+				if ($h = p::fopenX($cpipe, $readHandle))
+				{
+					ob_start();
+					call_user_func(array('pipe_' . $pipe, 'js'));
+					$pipe = ob_get_clean();
+
+					$parser = new jsqueez;
+					echo $pipe = $parser->squeeze($pipe);
+
+					fwrite($h, $pipe);
+					fclose($h);
+					p::writeWatchTable(array('pipe'), $cpipe);
+				}
+				else
+				{
+					fpassthru($readHandle);
+					fclose($readHandle);
+				}
+#>			}
+
+			echo "\n";
+		}
+
+		echo 'w()';
+
+		p::setMaxage(-1);
+	}
+
+	static function sendFile($agent, $mime)
 	{
 		if ($agent = p::resolvePublicPath($agent))
 		{
@@ -54,6 +127,9 @@ class extends patchwork
 			exit;
 		}
 	}
+
+
+	protected static $filterRx;
 
 	static function readfile($file, $mime)
 	{

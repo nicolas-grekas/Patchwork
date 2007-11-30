@@ -87,7 +87,7 @@ class extends pMail_mime
 		$html = preg_replace('#<u\b[^>]*>(\s*)#isu' , '$1_', $html);
 		$html = preg_replace('#(\s*)</u\b[^>]*>#isu', '_$1', $html);
 
-		$c = new convert_txt_html(78);
+		$c = new converter_txt_html(78);
 		$html = $c->convertData($html);
 
 		$html = strtr($html, $this->textAnchor);

@@ -34,8 +34,8 @@ $CONFIG += array(
 #	'session.group_vars' => array(), // Set of session vars whose values define user groups
 
 	// Translation adapter
-#	'translate.adapter' => false,
-#	'translate.options' => array(),
+#	'translator.adapter' => false,
+#	'translator.options' => array(),
 
 );
 

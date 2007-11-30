@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends loop_callAgent
+class extends loop_agentWrapper
 {
 	public
 

@@ -12,13 +12,13 @@
  ***************************************************************************/
 
 
-class extends convert_abstract
+class extends converter_abstract
 {
 	function convertFile($file)
 	{
 		$file = escapeshellarg($file);
-		$file = `pdftotext -enc UTF-8 {$file} -`;
+		$file = `antiword -t -w 0 -m UTF-8 {$file}`;
 
-		return VALIDATE::get($file, 'text');
+		return FILTER::get($file, 'text');
 	}
 }

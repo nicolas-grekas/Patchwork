@@ -33,7 +33,7 @@ class
 	{
 		$GLOBALS['patchwork_appId'] = -$GLOBALS['patchwork_appId'];
 
-		PATCHWORK_DIRECT && isset($_GET['d$']) && self::debugWin();
+		PATCHWORK_DIRECT && isset($_GET['d$']) && self::sendDebugInfo();
 
 		if (PATCHWORK_SYNC_CACHE && !PATCHWORK_DIRECT)
 		{
@@ -80,7 +80,28 @@ class
 		}
 	}
 
-	static function debugWin()
+	static function sendProlog()
+	{
+		$debugWin = p::__BASE__() . '_?d$&stop&' . mt_rand();
+		$QDebug   = p::__BASE__() . 'js/QDebug.js';
+		$lang     = p::__LANG__();
+
+		return <<<EOHTML
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script type="text/javascript">/*<![CDATA[*/
+_____ = new Date/1;
+onload = function() {
+window.debugWin = open('$debugWin','debugWin','toolbar=no,status=yes,resizable=yes,scrollbars,width=320,height=240,left=' + parseInt(screen.availWidth - 340) + ',top=' + parseInt(screen.availHeight - 290));
+if (!debugWin) alert('Disable anti-popup to use the Debug Window');
+else E('Rendering time: ' + (new Date/1 - _____) + ' ms');
+};
+//]]></script>
+<div style="position:fixed;_position:absolute;float:right;font-family:arial;font-size:9px;top:0px;right:0px;z-index:255"><a href="javascript:;" onclick="window.debugWin&&debugWin.focus()" style="background-color:blue;color:white;text-decoration:none;border:0px;" id="debugLink">Debug</a><script type="text/javascript" src="{$QDebug}"></script></div>
+EOHTML;
+	}
+
+	static function sendDebugInfo()
 	{
 		$S = isset($_GET['stop']);
 		$S && ob_start('ob_gzhandler', 8192);

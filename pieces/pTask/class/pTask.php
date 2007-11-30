@@ -131,7 +131,7 @@ class
 
 	function startQueue()
 	{
-		$this->isRunning() || tool_touchUrl::call($this->queueUrl);
+		$this->isRunning() || tool_url::touch($this->queueUrl);
 	}
 
 	protected function isRunning()
