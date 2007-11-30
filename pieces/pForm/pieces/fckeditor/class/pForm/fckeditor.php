@@ -26,7 +26,7 @@ class extends pForm_textarea
 		{
 			$value =& $this->form->rawValues[$this->name];
 			$value = preg_replace("'(?<!>)\n'", "<br />\n", $value);
-			$value = VALIDATE::get($value, 'html');
+			$value = FILTER::get($value, 'html');
 		}
 
 		parent::init($param);

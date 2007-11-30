@@ -12,13 +12,34 @@
  ***************************************************************************/
 
 
-class extends convert_abstract
+class extends TRANSLATOR
 {
-	function convertFile($file)
-	{
-		$file = escapeshellarg($file);
-		$file = `antiword -t -w 0 -m UTF-8 {$file}`;
+	protected
 
-		return VALIDATE::get($file, 'text');
+	$db,
+	$table = 'translation';
+
+
+	function __construct($options)
+	{
+		$this->db = DB();
+		isset($options['table']) && $this->table = $options['table'];
+	}
+
+	function search($string, $lang)
+	{
+		$string = $this->db->quote($string);
+
+		$sql = "SELECT {$lang} FROM {$this->table} WHERE __=BINARY {$string}";
+		if ($row = $this->db->queryRow($sql))
+		{
+			return $row->$lang;
+		}
+		else
+		{
+			$sql = "INSERT INTO {$this->table} (__) VALUES ({$string})";
+			$this->db->exec($sql);
+			return '';
+		}
 	}
 }

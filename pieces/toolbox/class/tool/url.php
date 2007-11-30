@@ -17,7 +17,7 @@ class
 	/**
 	 * Sends the request to the webserver but don't wait for the response.
 	 */
-	static function call($url)
+	static function touch($url)
 	{
 		$url = p::base($url, true);
 

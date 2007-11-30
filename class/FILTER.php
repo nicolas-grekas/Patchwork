@@ -15,7 +15,7 @@
 class
 {
 	// This RegExp must work in most Javascript implementations too
-	const email_rx = '(?:[-+=_a-zA-Z0-9%]+(\\.[-+=_a-zA-Z0-9%]+)*@([-+=_a-zA-Z0-9%]+(\\.[-+=_a-zA-Z0-9%]+)*))';
+	const EMAIL_RX = '(?:[-+=_a-zA-Z0-9%]+(\\.[-+=_a-zA-Z0-9%]+)*@([-+=_a-zA-Z0-9%]+(\\.[-+=_a-zA-Z0-9%]+)*))';
 
 	static $IMAGETYPE = array(
 		1 => 'gif', 'jpg', 'png',
@@ -129,7 +129,7 @@ class
 		false !== strpos($result, "\r") && $result = strtr(str_replace("\r\n", "\n", $result), "\r", "\n");
 		preg_match('/[^\x00-\x{2ff}]/u', $result)
 			&& preg_match(UTF8_NFC_RX, $result)
-			&& $result = utf8_normalize::toNFC($result);
+			&& $result = utf8_normalizer::toNFC($result);
 
 		if (isset($args[0]))
 		{
@@ -148,7 +148,7 @@ class
 
 		$result = trim($value);
 
-		if ( !preg_match('/^' . self::email_rx . '$/u', $result, $domain) ) return false;
+		if ( !preg_match('/^' . self::EMAIL_RX . '$/u', $result, $domain) ) return false;
 		if ( function_exists('checkdnsrr') && !checkdnsrr($domain[2]) ) return false;
 		return $result;
 	}

@@ -12,34 +12,13 @@
  ***************************************************************************/
 
 
-class extends TRANSLATE
+class extends converter_abstract
 {
-	protected
-
-	$db,
-	$table = 'translation';
-
-
-	function __construct($options)
+	function convertFile($file)
 	{
-		$this->db = DB();
-		isset($options['table']) && $this->table = $options['table'];
-	}
+		$file = escapeshellarg($file);
+		$file = `pdftotext -enc UTF-8 {$file} -`;
 
-	function search($string, $lang)
-	{
-		$string = $this->db->quote($string);
-
-		$sql = "SELECT {$lang} FROM {$this->table} WHERE __=BINARY {$string}";
-		if ($row = $this->db->queryRow($sql))
-		{
-			return $row->$lang;
-		}
-		else
-		{
-			$sql = "INSERT INTO {$this->table} (__) VALUES ({$string})";
-			$this->db->exec($sql);
-			return '';
-		}
+		return FILTER::get($file, 'text');
 	}
 }

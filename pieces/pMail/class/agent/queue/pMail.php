@@ -26,7 +26,7 @@ class extends agent_queue_pTask
 		$sql = "SELECT OID, base, send_time FROM queue WHERE send_time ORDER BY send_time, OID LIMIT 1";
 		if ($data = $this->sqlite->query($sql)->fetchObject())
 		{
-			if ($data->send_time <= $time) tool_touchUrl::call("{$data->base}queue/pMail/{$data->OID}/" . $this->getToken());
+			if ($data->send_time <= $time) tool_url::touch("{$data->base}queue/pMail/{$data->OID}/" . $this->getToken());
 			else pTask::schedule(new pTask(array($this, 'queueNext')), $data->send_time);
 		}
 	}

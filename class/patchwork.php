@@ -12,19 +12,13 @@
  ***************************************************************************/
 
 
-// {{{ Shortcut functions for applications developpers
-function P($name, $type) {$a = func_get_args(); return VALIDATE::get(    $_POST[$name]  , $type, array_slice($a, 2));}
-function C($name, $type) {$a = func_get_args(); return VALIDATE::get(    $_COOKIE[$name], $type, array_slice($a, 2));}
-function F($name, $type) {$a = func_get_args(); return VALIDATE::getFile($_FILES[$name] , $type, array_slice($a, 2));}
-
-function V($var , $type) {$a = func_get_args(); return VALIDATE::get(     $var          , $type, array_slice($a, 2));}
-
+// {{{ Shortcut for applications developers
 if (PATCHWORK_I18N)
 {
 	function T($string, $lang = false)
 	{
 		if (!$lang) $lang = p::__LANG__();
-		return TRANSLATE::get($string, $lang, true);
+		return TRANSLATOR::get($string, $lang, true);
 	}
 }
 else
@@ -145,7 +139,7 @@ function patchwork_error_handler($code, $message, $file, $line, &$context)
 		}
 
 		class_exists('patchwork_error', false) || __autoload('patchwork_error'); // http://bugs.php.net/42098 workaround
-		patchwork_error::call($code, $message, $file, $line, $context);
+		patchwork_error::handle($code, $message, $file, $line, $context);
 	}
 }
 
@@ -223,7 +217,7 @@ class
 
 	static function __constructStatic()
 	{
-#>		patchwork_debug::call();
+#>		patchwork_debugger::call();
 
 		if (!$CONFIG['clientside'])
 		{
@@ -305,7 +299,7 @@ class
 		// If the URL has an extension, check for static files
 
 		$agent = $_SERVER['PATCHWORK_REQUEST'];
-		if (($mime = strrchr($agent, '.')) && strcasecmp('.ptl', $mime)) patchwork_staticControler::call($agent, $mime);
+		if (($mime = strrchr($agent, '.')) && strcasecmp('.ptl', $mime)) patchwork_static::sendFile($agent, $mime);
 
 
 		PATCHWORK_DIRECT ? self::clientside() : self::serverside();
@@ -331,11 +325,11 @@ class
 		switch ( key($_GET) )
 		{
 		case 't$':
-			patchwork_sendTemplate::call();
+			patchwork_static::sendTemplate();
 			break;
 
 		case 'p$':
-			patchwork_sendPipe::call();
+			patchwork_static::sendPipe();
 			break;
 
 		case 'a$':
@@ -354,7 +348,7 @@ class
 	{
 		$agent = self::resolveAgentClass($_SERVER['PATCHWORK_REQUEST'], $_GET);
 
-		if (isset($_GET['k$'])) return patchwork_sendTrace::call($agent);
+		if (isset($_GET['k$'])) return patchwork_agentTrace::send($agent);
 
 		self::$binaryMode = 'text/html' !== substr(constant("$agent::contentType"), 0, 9);
 
@@ -636,7 +630,7 @@ class
 
 	static function readfile($file, $mime)
 	{
-		return patchwork_staticControler::readfile($file, $mime);
+		return patchwork_static::readfile($file, $mime);
 	}
 
 	/*
@@ -1305,7 +1299,7 @@ class
 			if (PHP_OUTPUT_HANDLER_START & $mode)
 			{
 				$lead = '';
-#>				if ((!PATCHWORK_SYNC_CACHE || IS_POSTING) && !self::$binaryMode) $buffer = patchwork_debugWin::prolog() . $buffer;
+#>				if ((!PATCHWORK_SYNC_CACHE || IS_POSTING) && !self::$binaryMode) $buffer = patchwork_debugger::sendProlog() . $buffer;
 			}
 
 			$tail = '';
@@ -1666,7 +1660,7 @@ class agent
 
 			if ($a)
 			{
-				$b = VALIDATE::get($b, array_shift($a), $a);
+				$b = FILTER::get($b, array_shift($a), $a);
 				if (false === $b) $b = $default;
 			}
 

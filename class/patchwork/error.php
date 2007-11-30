@@ -14,7 +14,7 @@
 
 class extends patchwork
 {
-	static function call($code, $message, $file, $line, &$context)
+	static function handle($code, $message, $file, $line, &$context)
 	{
 		p::setMaxage(0);
 		p::setExpires('onmaxage');

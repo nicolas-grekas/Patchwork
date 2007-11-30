@@ -81,7 +81,7 @@ class extends Mail_mime
 		unset($headers['To']);
 
 		isset($headers['Return-Path'])
-			&& preg_match("'" . VALIDATE::email_rx . "'", $headers['Return-Path'], $options)
+			&& preg_match("'" . FILTER::EMAIL_RX . "'", $headers['Return-Path'], $options)
 			&& $headers['Return-Path'] = $options[0];
 
 		$options = null;

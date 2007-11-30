@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends convert_abstract
+class extends converter_abstract
 {
 	protected $cols = 80;
 
@@ -28,7 +28,7 @@ class extends convert_abstract
 
 		if (false !== strpos($file, '━')) $file = str_replace('━', '_', $file);
 
-		return VALIDATE::get($file, 'text');
+		return FILTER::get($file, 'text');
 	}
 
 }

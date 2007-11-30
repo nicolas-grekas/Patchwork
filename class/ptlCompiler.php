@@ -539,7 +539,7 @@ abstract class
 			{
 				if ($translate)
 				{
-					$a = TRANSLATE::get($a, p::__LANG__(), false);
+					$a = TRANSLATOR::get($a, p::__LANG__(), false);
 #>					p::watch('debugSync');
 				}
 				else
@@ -552,7 +552,7 @@ abstract class
 
 					if ($this->concatLast == 0)
 					{
-						$this->concat[0] = TRANSLATE::get($this->concat[0], p::__LANG__(), false);
+						$this->concat[0] = TRANSLATOR::get($this->concat[0], p::__LANG__(), false);
 #>						p::watch('debugSync');
 					}
 

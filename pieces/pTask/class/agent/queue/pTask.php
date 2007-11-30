@@ -91,7 +91,7 @@ class extends agent
 			if ($data->run_time <= $time)
 			{
 				// XXX What if the URL is not valid anymore ?
-				tool_touchUrl::call("{$data->base}queue/pTask/{$data->OID}/" . $this->getToken());
+				tool_url::touch("{$data->base}queue/pTask/{$data->OID}/" . $this->getToken());
 
 				$sql = "SELECT run_time FROM queue WHERE run_time>{$time} ORDER BY run_time LIMIT 1";
 				if ($data = $this->sqlite->query($sql)->fetchObject()) p::setMaxage(min($this->maxage, $data->run_time - $time));

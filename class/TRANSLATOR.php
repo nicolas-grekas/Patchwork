@@ -57,8 +57,8 @@ class
 	{
 		self::$cache = array();
 
-		$adapter = $CONFIG['translate.adapter'] ? 'adapter_translate_' . $CONFIG['translate.adapter'] : __CLASS__;
-		self::$adapter = new $adapter($CONFIG['translate.options']);
+		$adapter = $CONFIG['translator.adapter'] ? 'adapter_translator_' . $CONFIG['translator.adapter'] : __CLASS__;
+		self::$adapter = new $adapter($CONFIG['translator.options']);
 		self::$adapter->open();
 	}
 
@@ -71,7 +71,7 @@ class
 			$data = serialize($cache[2]);
 
 			p::writeFile($file, $data);
-			if ($cache[1]) p::writeWatchTable('translate', $file, false);
+			if ($cache[1]) p::writeWatchTable('translator', $file, false);
 		}
 	}
 

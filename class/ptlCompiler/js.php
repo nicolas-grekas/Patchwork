@@ -84,7 +84,7 @@ class extends ptlCompiler
 		{
 			eval("\$inc=$inc;");
 
-			list($appId, $base, $inc, $keys, $a) = patchwork_resolveTrace::call($inc);
+			list($appId, $base, $inc, $keys, $a) = patchwork_agentTrace::resolve($inc);
 
 			foreach ($a as $k => &$v) $args[$k] = $this->quote($v);
 

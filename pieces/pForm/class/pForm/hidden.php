@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends loop_callAgent
+class extends loop_agentWrapper
 {
 	protected
 
@@ -268,7 +268,7 @@ class extends loop_callAgent
 
 						foreach ($this->value as &$value)
 						{
-							$v = VALIDATE::get($value, $this->valid, $this->valid_args);
+							$v = FILTER::get($value, $this->valid, $this->valid_args);
 
 							if (false === $v) $status = false;
 							else
@@ -292,7 +292,7 @@ class extends loop_callAgent
 		else if ('' === (string) $this->value) $this->status = '';
 		else
 		{
-			$this->status = VALIDATE::get($this->value, $this->valid, $this->valid_args);
+			$this->status = FILTER::get($this->value, $this->valid, $this->valid_args);
 
 			if ('' !== $this->status && false !== $this->status)
 			{

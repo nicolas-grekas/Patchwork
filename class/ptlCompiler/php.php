@@ -49,7 +49,7 @@ class extends ptlCompiler
 		{
 			eval("\$base=$inc;");
 
-			list(, $base, $end) = patchwork_resolveTrace::call($base);
+			list(, $base, $end) = patchwork_agentTrace::resolve($base);
 
 			if (false !== $base)
 			{
