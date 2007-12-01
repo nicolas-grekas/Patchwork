@@ -673,7 +673,7 @@ class patchwork_preprocessor__0
 							if ('' !== $j)
 							{
 								eval("\$b={$token}{$j};");
-								$token = false !== $b ? self::export($b) : "{$token}({$j})";
+								$token = false !== $b ? self::export($b, substr_count($j, "\n")) : "{$token}({$j})";
 								$type = T_CONSTANT_ENCAPSED_STRING;
 							}
 							else new patchwork_preprocessor_path_($this, true);
@@ -760,7 +760,7 @@ class patchwork_preprocessor__0
 							eval("\$b=patchworkProcessedPath({$j});");
 							$code[$i--] = array(
 								T_CONSTANT_ENCAPSED_STRING,
-								false !== $b ? self::export($b) : "patchworkProcessedPath({$j})"
+								false !== $b ? self::export($b, substr_count($j, "\n")) : "patchworkProcessedPath({$j})"
 							);
 						}
 						else
@@ -974,13 +974,47 @@ class patchwork_preprocessor__0
 		}
 	}
 
-	protected static function export($var)
+	static function export($a, $lf = 0)
 	{
-		return
-			is_string($var) ? "'" . str_replace("'", "\\'", str_replace('\\', '\\\\', $var)) . "'" : (
-			is_bool($var)   ? ($var ? 'true' : 'false') : (
-			is_null($var)   ? 'null' : (string) $var
+		if (is_array($a))
+		{
+			if ($a)
+			{
+				$b = array();
+				foreach ($a as $k => &$a) $b[] = self::export($k) . '=>' . self::export($a);
+				$b = 'array(' . implode(',', $b) . ')';
+			}
+			else return 'array()';
+		}
+		else if (is_object($a))
+		{
+			$b = array();
+			$v = (array) $a;
+			foreach ($v as $k => &$v)
+			{
+				if ("\0" === substr($k, 0, 1)) $k = substr($k, 3);
+				$b[$k] =& $v;
+			}
+
+			$b = self::export($b);
+			$b = get_class($a) . '::__set_state(' . $b . ')';
+		}
+		else if (is_string($a) && $a !== strtr($a, "\r\n\0", '---'))
+		{
+			$b = '"'. str_replace(
+				array(  "\\",   '"',   '$',  "\r",  "\n",  "\0"),
+				array('\\\\', '\\"', '\\$', '\\r', '\\n', '\\0'),
+				$a
+			) . '"';
+		}
+		else $b = is_string($a) ? "'" . str_replace("'", "\\'", str_replace('\\', '\\\\', $a)) . "'" : (
+			is_bool($a)   ? ($a ? 'true' : 'false') : (
+			is_null($a)   ? 'null' : (string) $a
 		));
+
+		$lf && $b .= str_repeat("\n", $lf);
+
+		return $b;
 	}
 }
 

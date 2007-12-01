@@ -43,7 +43,7 @@ P$printf = function($format)
 		$type = $match[12];
 		$format = $match[13];
 
-		if ($type=='%') $param = $type;
+		if ('%' == $type) $param = $type;
 		else if ($type)
 		{
 			var $base = 0,
@@ -55,7 +55,7 @@ P$printf = function($format)
 				case 'b': $param = $iParam.toString(2); break;
 			 	case 'c': $iParam = String.fromCharCode($iParam);
 				case 'd': $param = $iParam; break;
-				case 'u': $param = ''+$Math.abs($iParam); break;
+				case 'u': $param = '' + $Math.abs($iParam); break;
 				case 'e':
 					$iParam = 0;
 					while ($param>9) $param /= 10, ++$iParam;
@@ -67,13 +67,13 @@ P$printf = function($format)
 					$param = $Math.round($param * $Math.pow(10, $base)) || (''+$Math.pow(10, $base+1)).substr(1);
 					$param = '' + $param;
 					if ($base) $base = $param.length - $base, $param = ($param.substr(0, $base)||0) + '.' + $param.substr($base);
-					if ($type == 'e') $param += 'e' + ($iParam>=0 ? '+'+$iParam : $iParam);
+					if ('e' == $type) $param += $type + ($iParam>=0 ? '+' + $iParam : $iParam);
 					break;
 				case 'x':
-				case 'X': $base = 8;
+				case 'X': $base  = 8;
 				case 'o': $base += 8;
 					$param = $iParam.toString($base).toLowerCase();
-					if ($type == 'X') $param = $param.toUpperCase();
+					if ('X' == $type) $param = $param.toUpperCase();
 			}
 
 			$param += '';

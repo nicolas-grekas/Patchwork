@@ -1068,7 +1068,7 @@ class
 		else $potentialAgent = $agent;
 
 		$lang = self::$lang;
-		$l_ng = 5 === strlen($lang) ? substr($lang, 0, 2) : false;
+		$l_ng = 2 < strlen($lang) ? substr($lang, 0, 2) : false;
 
 		$agent = '/index';
 
@@ -1566,14 +1566,27 @@ class
 	{
 		if ($path_idx && $path_idx > PATCHWORK_PATH_LEVEL) return false;
 
+		static $last_lang,
+			$last__in_filename = '', $last__in_path_idx,
+			$last_out_filename,      $last_out_path_idx;
+
+		$lang = self::__LANG__() . '/';
+		$l_ng = 2 < strlen($lang) ? substr($lang, 0, 2) . '/' : false;
+
+
+		if ($filename == $last__in_filename && $lang == $last_lang && $last__in_path_idx <= $path_idx && $path_idx <= $last_out_path_idx)
+		{
+			$path_idx = $last_out_path_idx;
+			return $last_out_filename;
+		}
+
+		$last_lang = $lang;
+		$last__in_filename = $filename;
+		$last__in_path_idx = $path_idx;
 
 		global $patchwork_lastpath_level;
 
 		$level = PATCHWORK_PATH_LEVEL - $path_idx;
-
-		$lang = self::__LANG__() . '/';
-		$l_ng = 5 === strlen($lang) ? substr($lang, 0, 2) . '/' : false;
-
 
 		$lang = resolvePath("public/{$lang}{$filename}", $level);
 		$lang_level = $patchwork_lastpath_level;
@@ -1597,6 +1610,9 @@ class
 
 		$path_idx = PATCHWORK_PATH_LEVEL - $lang_level;
 
+		$last_out_filename = $lang;
+		$last_out_path_idx = $path_idx;
+
 		return $lang;
 	}
 
@@ -1617,6 +1633,7 @@ class agent
 	public $get = array();
 
 	protected
+
 	$template = '',
 	$maxage  = 0,
 	$expires = 'auto',
@@ -1626,11 +1643,25 @@ class agent
 	// For convenience only, same content as agent::contentType
 	$contentType;
 
+
 	function control() {}
 	function compose($o) {return $o;}
 	function getTemplate()
 	{
-		return $this->template ? $this->template : strtr(substr(get_class($this), 6), '_', '/');
+		if ($this->template) return $this->template;
+
+		$class = get_class($this);
+		$prev = '';
+
+		do
+		{
+			$template = strtr(substr($class, 6), '_', '/');
+			if ($template !== $prev && false !== p::resolvePublicPath($template . '.ptl')) return $template;
+			$prev = $template;
+		}
+		while ($class = get_parent_class($class));
+
+		return 'bin';
 	}
 
 	final public function __construct($args = array())
