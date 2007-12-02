@@ -86,7 +86,7 @@ $a = array_slice($patchwork_path, 0, $a);
 $a = array_reverse($a);
 foreach ($a as $a)
 {
-	$a .= DIRECTORY_SEPARATOR . '/preconfig.php';
+	$a .= DIRECTORY_SEPARATOR . 'preconfig.php';
 
 	if (file_exists($a))
 	{
