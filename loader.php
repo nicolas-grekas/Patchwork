@@ -639,21 +639,22 @@ patchwork::start();";
 			}
 
 			$c = var_export($c, true);
+			unset($c);
 
 			$b[0] = "'" . substr($b[0], 7);
 
 			$a[$i] = ' __patchwork_loader::$code[' . $line . ']=';
 
-			foreach ($b as $b => &$c)
+			foreach ($b as $c => $b)
 			{
-				if ($b === $j && $j > 0 && "''" !== $c)
+				if ($c === $j && $j > 0 && "''" !== $b)
 				{
 					$a[$i] .= '"";__patchwork_loader::$code[' . $line . ']=';
 				}
 
-				$a[$i] .= $c . '.';
+				$a[$i] .= $b . '.';
 
-				$line += substr_count($c, "\n");
+				$line += substr_count($b, "\n");
 			}
 
 			$a[$i] .= '"";';
