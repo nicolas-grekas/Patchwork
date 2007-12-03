@@ -31,12 +31,10 @@ if (patchworkLocation)
 	FCKConfig.EditorPath = patchworkLocation.replace(/editor\/$/, '');
 }
 
-// Disable the custom Enter Key Handler. This option will be removed in version 2.5.
-FCKConfig.DisableEnterKeyHandler = false ;
-
 FCKConfig.CustomConfigurationsPath = '' ;
 
 FCKConfig.EditorAreaCSS = FCKConfig.BasePath + 'css/fck_editorarea.css' ;
+FCKConfig.EditorAreaStyles = '' ;
 FCKConfig.ToolbarComboPreviewCSS = '' ;
 
 FCKConfig.DocType = '' ;
@@ -44,6 +42,9 @@ FCKConfig.DocType = '' ;
 FCKConfig.BaseHref = '' ;
 
 FCKConfig.FullPage = false ;
+
+// The following option determines whether the "Show Blocks" feature is enabled or not at startup.
+FCKConfig.StartupShowBlocks = false ;
 
 FCKConfig.Debug = false ;
 FCKConfig.AllowQueryStringDebug = true ;
@@ -54,6 +55,7 @@ FCKConfig.PreloadImages = [ FCKConfig.SkinPath + 'images/toolbar.start.gif', FCK
 FCKConfig.PluginsPath = FCKConfig.BasePath + 'plugins/' ;
 
 // FCKConfig.Plugins.Add( 'autogrow' ) ;
+// FCKConfig.Plugins.Add( 'dragresizetable' );
 FCKConfig.AutoGrowMax = 400 ;
 
 // FCKConfig.ProtectedSource.Add( /<%[\s\S]*?%>/g ) ;	// ASP style server side code <%...%>
@@ -78,11 +80,11 @@ FCKConfig.FormatSource		= true ;
 FCKConfig.FormatOutput		= true ;
 FCKConfig.FormatIndentator	= '\t' ;
 
-FCKConfig.ForceStrongEm = true ;
 FCKConfig.GeckoUseSPAN	= false ;
 FCKConfig.StartupFocus	= false ;
 FCKConfig.ForcePasteAsPlainText	= false ;
 FCKConfig.AutoDetectPasteFromWord = true ;	// IE only.
+FCKConfig.ShowDropDialog = true ;
 FCKConfig.ForceSimpleAmpersand	= false ;
 FCKConfig.TabSpaces		= 0 ;
 FCKConfig.ShowBorders	= true ;
@@ -92,6 +94,7 @@ FCKConfig.ToolbarCanCollapse	= true ;
 FCKConfig.IgnoreEmptyParagraphValue = true ;
 FCKConfig.PreserveSessionOnFileBrowser = false ;
 FCKConfig.FloatingPanelsZIndex = 10000 ;
+FCKConfig.HtmlEncodeOutput = false ;
 
 FCKConfig.TemplateReplaceAll = true ;
 FCKConfig.TemplateReplaceCheckbox = true ;
@@ -105,14 +108,14 @@ FCKConfig.ToolbarSets["Default"] = [
 	['Form','Checkbox','Radio','TextField','Textarea','Select','Button','ImageButton','HiddenField'],
 	'/',
 	['Bold','Italic','Underline','StrikeThrough','-','Subscript','Superscript'],
-	['OrderedList','UnorderedList','-','Outdent','Indent'],
+	['OrderedList','UnorderedList','-','Outdent','Indent','Blockquote'],
 	['JustifyLeft','JustifyCenter','JustifyRight','JustifyFull'],
 	['Link','Unlink','Anchor'],
 	['Image','Flash','Table','Rule','Smiley','SpecialChar','PageBreak'],
 	'/',
 	['Style','FontFormat','FontName','FontSize'],
 	['TextColor','BGColor'],
-	['FitWindow','-','About']
+	['FitWindow','ShowBlocks','-','About']		// No comma for the last row.
 ] ;
 
 FCKConfig.ToolbarSets["Basic"] = [
@@ -145,6 +148,8 @@ FCKConfig.Keystrokes = [
 	[ CTRL + 88 /*X*/, true ],
 	[ CTRL + 86 /*V*/, 'Paste' ],
 	[ SHIFT + 45 /*INS*/, 'Paste' ],
+	[ CTRL + 88 /*X*/, 'Cut' ],
+	[ SHIFT + 46 /*DEL*/, 'Cut' ],
 	[ CTRL + 90 /*Z*/, 'Undo' ],
 	[ CTRL + 89 /*Y*/, 'Redo' ],
 	[ CTRL + SHIFT + 90 /*Z*/, 'Redo' ],
@@ -160,11 +165,12 @@ FCKConfig.Keystrokes = [
 FCKConfig.ContextMenu = ['Generic','Link','Anchor','Image','Flash','Select','Textarea','Checkbox','Radio','TextField','HiddenField','ImageButton','Button','BulletedList','NumberedList','Table','Form'] ;
 FCKConfig.BrowserContextMenuOnCtrl = false ;
 
+FCKConfig.EnableMoreFontColors = true ;
 FCKConfig.FontColors = '000000,993300,333300,003300,003366,000080,333399,333333,800000,FF6600,808000,808080,008080,0000FF,666699,808080,FF0000,FF9900,99CC00,339966,33CCCC,3366FF,800080,999999,FF00FF,FFCC00,FFFF00,00FF00,00FFFF,00CCFF,993366,C0C0C0,FF99CC,FFCC99,FFFF99,CCFFCC,CCFFFF,99CCFF,CC99FF,FFFFFF' ;
 
+FCKConfig.FontFormats	= 'p;h1;h2;h3;h4;h5;h6;pre;address;div' ;
 FCKConfig.FontNames		= 'Arial;Comic Sans MS;Courier New;Tahoma;Times New Roman;Verdana' ;
-FCKConfig.FontSizes		= '1/xx-small;2/x-small;3/small;4/medium;5/large;6/x-large;7/xx-large' ;
-FCKConfig.FontFormats	= 'p;div;pre;address;h1;h2;h3;h4;h5;h6' ;
+FCKConfig.FontSizes		= 'smaller;larger;xx-small;x-small;small;medium;large;x-large;xx-large' ;
 
 FCKConfig.StylesXmlPath		= FCKConfig.EditorPath + 'fckstyles.xml' ;
 FCKConfig.TemplatesXmlPath	= FCKConfig.EditorPath + 'fcktemplates.xml' ;
@@ -193,10 +199,82 @@ FCKConfig.ProtectedTags = '' ;
 FCKConfig.BodyId = '' ;
 FCKConfig.BodyClass = '' ;
 
+FCKConfig.DefaultStyleLabel = '' ;
+FCKConfig.DefaultFontFormatLabel = '' ;
+FCKConfig.DefaultFontLabel = '' ;
+FCKConfig.DefaultFontSizeLabel = '' ;
+
 FCKConfig.DefaultLinkTarget = '' ;
 
 // The option switches between trying to keep the html structure or do the changes so the content looks like it was in Word
 FCKConfig.CleanWordKeepsStructure = false ;
+
+// Only inline elements are valid.
+FCKConfig.RemoveFormatTags = 'b,big,code,del,dfn,em,font,i,ins,kbd,q,samp,small,span,strike,strong,sub,sup,tt,u,var' ;
+
+FCKConfig.CustomStyles = 
+{
+	'Red Title'	: { Element : 'h3', Styles : { 'color' : 'Red' } }
+};
+
+// Do not add, rename or remove styles here. Only apply definition changes.
+FCKConfig.CoreStyles = 
+{
+	// Basic Inline Styles.
+	'Bold'			: { Element : 'b', Overrides : 'strong' },
+	'Italic'		: { Element : 'i', Overrides : 'em' },
+	'Underline'		: { Element : 'u' },
+	'StrikeThrough'	: { Element : 'strike' },
+	'Subscript'		: { Element : 'sub' },
+	'Superscript'	: { Element : 'sup' },
+	
+	// Basic Block Styles (Font Format Combo).
+	'p'				: { Element : 'p' },
+	'div'			: { Element : 'div' },
+	'pre'			: { Element : 'pre' },
+	'address'		: { Element : 'address' },
+	'h1'			: { Element : 'h1' },
+	'h2'			: { Element : 'h2' },
+	'h3'			: { Element : 'h3' },
+	'h4'			: { Element : 'h4' },
+	'h5'			: { Element : 'h5' },
+	'h6'			: { Element : 'h6' },
+	
+	// Other formatting features.
+	'FontFace' : 
+	{ 
+		Element		: 'span', 
+		Styles		: { 'font-family' : '#("Font")' }, 
+		Overrides	: [ { Element : 'font', Attributes : { 'face' : null } } ]
+	},
+	
+	'Size' :
+	{ 
+		Element		: 'span', 
+		Styles		: { 'font-size' : '#("Size","fontSize")' }, 
+		Overrides	: [ { Element : 'font', Attributes : { 'size' : null } } ]
+	},
+	
+	'Color' :
+	{ 
+		Element		: 'span', 
+		Styles		: { 'color' : '#("Color","color")' }, 
+		Overrides	: [ { Element : 'font', Attributes : { 'color' : null } } ]
+	},
+	
+	'BackColor'		: { Element : 'span', Styles : { 'background-color' : '#("Color","color")' } }
+};
+
+// The distance of an indentation step.
+FCKConfig.IndentLength = 40 ;
+FCKConfig.IndentUnit = 'px' ;
+
+// Alternatively, FCKeditor allows the use of CSS classes for block indentation.
+// This overrides the IndentLength/IndentUnit settings.
+FCKConfig.IndentClasses = [] ;
+
+// [ Left, Center, Right, Justified ]
+FCKConfig.JustifyClasses = [] ;
 
 FCKConfig.LinkBrowser = true ;
 FCKConfig.LinkBrowserURL = FCKConfig.BasePath + 'filemanager/browser/default/browser.html?Connector=../../../../browser';
@@ -233,3 +311,4 @@ FCKConfig.SmileyImages	= ['regular_smile.gif','sad_smile.gif','wink_smile.gif','
 FCKConfig.SmileyColumns = 8 ;
 FCKConfig.SmileyWindowWidth		= 320 ;
 FCKConfig.SmileyWindowHeight	= 240 ;
+

@@ -45,6 +45,7 @@ InsertLinkLbl		: "Ссылка",
 InsertLink			: "Вставить/Редактировать ссылку",
 RemoveLink			: "Убрать ссылку",
 Anchor				: "Вставить/Редактировать якорь",
+AnchorDelete		: "Remove Anchor",	//MISSING
 InsertImageLbl		: "Изображение",
 InsertImage			: "Вставить/Редактировать изображение",
 InsertFlashLbl		: "Flash",
@@ -70,6 +71,7 @@ RightJustify		: "По правому краю",
 BlockJustify		: "По ширине",
 DecreaseIndent		: "Уменьшить отступ",
 IncreaseIndent		: "Увеличить отступ",
+Blockquote			: "Blockquote",	//MISSING
 Undo				: "Отменить",
 Redo				: "Повторить",
 NumberedListLbl		: "Нумерованный список",
@@ -103,20 +105,27 @@ SelectionField	: "Список",
 ImageButton		: "Кнопка с изображением",
 
 FitWindow		: "Развернуть окно редактора",
+ShowBlocks		: "Show Blocks",	//MISSING
 
 // Context Menu
 EditLink			: "Вставить ссылку",
 CellCM				: "Ячейка",
 RowCM				: "Строка",
 ColumnCM			: "Колонка",
-InsertRow			: "Вставить строку",
+InsertRowAfter		: "Insert Row After",	//MISSING
+InsertRowBefore		: "Insert Row Before",	//MISSING
 DeleteRows			: "Удалить строки",
-InsertColumn		: "Вставить колонку",
+InsertColumnAfter	: "Insert Column After",	//MISSING
+InsertColumnBefore	: "Insert Column Before",	//MISSING
 DeleteColumns		: "Удалить колонки",
-InsertCell			: "Вставить ячейку",
+InsertCellAfter		: "Insert Cell After",	//MISSING
+InsertCellBefore	: "Insert Cell Before",	//MISSING
 DeleteCells			: "Удалить ячейки",
 MergeCells			: "Соединить ячейки",
-SplitCell			: "Разбить ячейку",
+MergeRight			: "Merge Right",	//MISSING
+MergeDown			: "Merge Down",	//MISSING
+HorizontalSplitCell	: "Split Cell Horizontally",	//MISSING
+VerticalSplitCell	: "Split Cell Vertically",	//MISSING
 TableDelete			: "Удалить таблицу",
 CellProperties		: "Свойства ячейки",
 TableProperties		: "Свойства таблицы",
@@ -134,7 +143,7 @@ SelectionFieldProp	: "Свойства списка",
 TextareaProp		: "Свойства текстовой области",
 FormProp			: "Свойства формы",
 
-FontFormats			: "Нормальный;Форматированный;Адрес;Заголовок 1;Заголовок 2;Заголовок 3;Заголовок 4;Заголовок 5;Заголовок 6;Нормальный (DIV)",		//REVIEW : Check _getfontformat.html
+FontFormats			: "Нормальный;Форматированный;Адрес;Заголовок 1;Заголовок 2;Заголовок 3;Заголовок 4;Заголовок 5;Заголовок 6;Нормальный (DIV)",
 
 // Alerts and Messages
 ProcessingXHTML		: "Обработка XHTML. Пожалуйста подождите...",
@@ -229,7 +238,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Выберите якорь",
 DlgLnkAnchorByName	: "По имени якоря",
 DlgLnkAnchorById	: "По идентификатору элемента",
-DlgLnkNoAnchors		: "<Нет якорей доступных в этом документе>",		//REVIEW : Change < and > with ( and )
+DlgLnkNoAnchors		: "(Нет якорей доступных в этом документе)",
 DlgLnkEMail			: "Адрес эл. почты",
 DlgLnkEMailSubject	: "Заголовок сообщения",
 DlgLnkEMailBody		: "Тело сообщения",
@@ -321,6 +330,9 @@ DlgCellCollSpan		: "Диапазон колонок (span)",
 DlgCellBackColor	: "Цвет фона",
 DlgCellBorderColor	: "Цвет бордюра",
 DlgCellBtnSelect	: "Выберите...",
+
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Find and Replace",	//MISSING
 
 // Find Dialog
 DlgFindTitle		: "Найти",

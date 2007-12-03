@@ -75,8 +75,10 @@ lE.gS=function(){FCKeditorAPI.GetInstance({a$id|js}).UpdateLinkedField();return 
 lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form)}
 lE=new FCKeditor({a$id|js},(''+lE.style.width).indexOf('%')>0?lE.style.width:lE.offsetWidth,(''+lE.style.height).indexOf('%')>0?lE.style.height:lE.offsetHeight,{a$_toolbarSet|js},lE.value)
 lE.BasePath={~|js}+'fckeditor/'
+<!-- IF g$__LANG__ -->
 lE.Config.AutoDetectLanguage=false
 lE.Config.DefaultLanguage={g$__LANG__|js}
+<!-- END:IF -->
 <!-- LOOP a$_config -->
 <!-- SET a$a -->{$VALUE|substr:0:1}<!-- END:SET -->
 lE.Config[{$KEY|js}]=<!-- IF '[' == a$a -->{$VALUE|js}<!-- ELSE -->{$VALUE|js}<!-- END:IF -->

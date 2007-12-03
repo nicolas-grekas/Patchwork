@@ -1,4 +1,4 @@
-﻿/*
+/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  *
@@ -37,8 +37,6 @@ var FCKeditor = function( instanceName, width, height, toolbarSet, value )
 	this.BasePath		= '/fckeditor/' ;
 	this.CheckBrowser	= true ;
 	this.DisplayErrors	= true ;
-	this.EnableSafari	= false ;		// This is a temporary property, while Safari support is under development.
-	this.EnableOpera	= false ;		// This is a temporary property, while Opera support is under development.
 
 	this.Config			= new Object() ;
 
@@ -46,8 +44,8 @@ var FCKeditor = function( instanceName, width, height, toolbarSet, value )
 	this.OnError		= null ;	// function( source, errorNumber, errorDescription )
 }
 
-FCKeditor.prototype.Version			= '2.4.3' ;
-FCKeditor.prototype.VersionBuild	= '15657' ;
+FCKeditor.prototype.Version			= '2.5' ;
+FCKeditor.prototype.VersionBuild	= '17352' ;
 
 FCKeditor.prototype.Create = function()
 {
@@ -154,7 +152,7 @@ FCKeditor.prototype._GetIFrameHtml = function()
 
 FCKeditor.prototype._IsCompatibleBrowser = function()
 {
-	return FCKeditor_IsCompatibleBrowser( this.EnableSafari, this.EnableOpera ) ;
+	return FCKeditor_IsCompatibleBrowser() ;
 }
 
 FCKeditor.prototype._ThrowError = function( errorNumber, errorDescription )
@@ -187,12 +185,12 @@ FCKeditor.prototype._HTMLEncode = function( text )
 	return text ;
 }
 
-function FCKeditor_IsCompatibleBrowser( enableSafari, enableOpera )
+function FCKeditor_IsCompatibleBrowser()
 {
 	var sAgent = navigator.userAgent.toLowerCase() ;
 
-	// Internet Explorer
-	if ( sAgent.indexOf("msie") != -1 && sAgent.indexOf("mac") == -1 && sAgent.indexOf("opera") == -1 )
+	// Internet Explorer 5.5+
+	if ( /*@cc_on!@*/false && sAgent.indexOf("mac") == -1 )
 	{
 		var sBrowserVersion = navigator.appVersion.match(/MSIE (.\..)/)[1] ;
 		return ( sBrowserVersion >= 5.5 ) ;
@@ -202,13 +200,13 @@ function FCKeditor_IsCompatibleBrowser( enableSafari, enableOpera )
 	if ( navigator.product == "Gecko" && navigator.productSub >= 20030210 && !( typeof(opera) == 'object' && opera.postError ) )
 		return true ;
 
-	// Opera
-	if ( enableOpera && sAgent.indexOf( 'opera' ) == 0 && parseInt( navigator.appVersion, 10 ) >= 9 )
+	// Opera 9.50+
+	if ( window.opera && window.opera.version && parseFloat( window.opera.version() ) >= 9.5 )
 			return true ;
 
-	// Safari
-	if ( enableSafari && sAgent.indexOf( 'safari' ) != -1 )
-		return ( sAgent.match( /safari\/(\d+)/ )[1] >= 312 ) ;	// Build must be at least 312 (1.3)
+	// Safari 3+
+	if ( sAgent.indexOf( ' applewebkit/' ) != -1 )
+		return ( sAgent.match( / applewebkit\/(\d+)/ )[1] >= 522 ) ;	// Build must be at least 522 (v3)
 
 	return false ;
 }
