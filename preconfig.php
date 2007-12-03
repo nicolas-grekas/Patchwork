@@ -64,7 +64,7 @@ $patchwork_abstract = array();
 
 // Utility functions
 
-function patchwork_include($file)     {return include $file;}
+function patchwork_include($file)     {global $CONFIG; return include $file;}
 function patchwork_is_a($obj, $class) {return $obj instanceof $class;}
 function patchwork_chdir($realdir)    {$realdir === getcwd() || chdir($realdir);}
 function clower($s) {return strtr($s, 'CLASPEMITDBFRUGNJVHOWKXQYZ', 'claspemitdbfrugnjvhowkxqyz');}
@@ -328,13 +328,13 @@ define('UTF8_BOM', /*<*/__patchwork_loader::UTF8_BOM/*>*/);
 
 /*#>*/if (function_exists('iconv'))
 /*#>*/{
-/*#>*/	if ('UTF-8' !== iconv_get_encoding('input_encoding'))
+/*#>*/	if ('UTF-8//IGNORE' !== iconv_get_encoding('input_encoding'))
 			iconv_set_encoding('input_encoding'   , 'UTF-8//IGNORE');
 
-/*#>*/	if ('UTF-8' !== iconv_get_encoding('internal_encoding'))
+/*#>*/	if ('UTF-8//IGNORE' !== iconv_get_encoding('internal_encoding'))
 			iconv_set_encoding('internal_encoding', 'UTF-8//IGNORE');
 
-/*#>*/	if ('UTF-8' !== iconv_get_encoding('output_encoding'))
+/*#>*/	if ('UTF-8//IGNORE' !== iconv_get_encoding('output_encoding'))
 			iconv_set_encoding('output_encoding'  , 'UTF-8//IGNORE');
 /*#>*/}
 

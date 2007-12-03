@@ -583,21 +583,80 @@ patchwork::start();";
 		$iLen = count($a);
 		for ($i = 0; $i < $iLen; ++$i)
 		{
-			$b = preg_split('#/\*<\*/(.*?)/\*>\*/#s', $a[$i], -1, PREG_SPLIT_DELIM_CAPTURE);
+			$b = array('');
+			$c =& $b[0];
+			$j = 0;
 
-			$jLen = count($b);
-			for ($j = 0; $j < $jLen; ++$j)
+			foreach (token_get_all("<?php\n{$a[$i]}") as $token)
 			{
-				$b[$j] = var_export($b[$j], true);
-				if (++$j < $jLen)
+				if (is_array($token))
 				{
-					$b[$j] = '__patchwork_loader::export(' . $b[$j] . ') . '
-						. '"' . str_repeat('\n', substr_count($b[$j], "\n")) .'"';
+					$type = $token[0];
+					$token = $token[1];
 				}
+				else $type = $token;
+
+				switch ($type)
+				{
+				case T_COMMENT:
+					if ('/*<*/' === $token)
+					{
+						$c = var_export($c, true);
+						$c =& $b[];
+						$c = '__patchwork_loader::export(';
+						continue 2;
+					}
+					else if ('/*>*/' === $token)
+					{
+						$c .= ')."' . str_repeat('\n', substr_count($c, "\n")) . '"';
+						$c =& $b[];
+						$c = '';
+						continue 2;
+					}
+
+				case T_DOC_COMMENT:
+				case T_WHITESPACE:
+					$token = substr_count($token, "\n");
+					$token = $token ? str_repeat("\n", $token) : ' ';
+					break;
+
+				case T_CLOSE_TAG:
+				case ';':
+					$j || $j = -1;
+					break;
+
+				default:
+					if (-1 === $j)
+					{
+						$j = count($b);
+						$c = var_export($c, true);
+						$c =& $b[];
+						$c = '';
+					}
+				}
+
+				$c .= $token;
 			}
 
-			$a[$i] = '{__patchwork_loader::$code[' . $line . ']=' . implode('.', $b) . ';}';
-			$line += substr_count($a[$i], "\n");
+			$c = var_export($c, true);
+
+			$b[0] = "'" . substr($b[0], 7);
+
+			$a[$i] = ' __patchwork_loader::$code[' . $line . ']=';
+
+			foreach ($b as $b => &$c)
+			{
+				if ($b === $j && $j > 0 && "''" !== $c)
+				{
+					$a[$i] .= '"";__patchwork_loader::$code[' . $line . ']=';
+				}
+
+				$a[$i] .= $c . '.';
+
+				$line += substr_count($c, "\n");
+			}
+
+			$a[$i] .= '"";';
 
 			if (++$i < $iLen) $line += substr_count($a[$i], "\n");
 		}

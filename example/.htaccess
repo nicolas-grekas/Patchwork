@@ -1,5 +1,14 @@
 Allow from all
 
+# One way to clean your URLs by removing the extension in MyPatchworkApp.php:
+# - rename MyPatchworkApp.php to MyPatchworkApp (remove extension)
+# - enable the following directive
+#
+#<Files MyPatchworkApp>
+#ForceType application/x-httpd-php
+#</Files>
+
+
 # Should already be on by default
 #AcceptPathInfo On
 

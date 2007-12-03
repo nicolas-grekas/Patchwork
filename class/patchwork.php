@@ -641,7 +641,9 @@ class
 		if (self::$privateDetectionMode) throw new Exception;
 
 		$url = (string) $url;
-		$url = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'i", $url) ? $url : (self::$base . ('index' === $url ? '' : $url)));
+		$url = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'", $url) ? $url : (self::$base . ('index' === $url ? '' : $url)));
+
+		if ('.' === $url[0]) W('Current patchwork::redirect() behaviour with relative URLs may change in a future version of Patchwork. As long as this notice appears, using relative URLs is strongly discouraged.');
 
 		self::$redirecting = true;
 		self::disable();
@@ -1499,7 +1501,8 @@ class
 				if (self::$LastModified) $LastModified = self::$LastModified;
 				else if (
 					isset($_SERVER['HTTP_USER_AGENT'])
-					&& strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE')
+					&&  strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE')
+					&& !strpos($_SERVER['HTTP_USER_AGENT'], 'Opera')
 					&& preg_match('/MSIE [0-6]\./', $_SERVER['HTTP_USER_AGENT'])
 					&& self::gzipAllowed(strtolower(substr(self::$headers['content-type'], 14))))
 				{
@@ -1549,10 +1552,36 @@ class
 
 		if (!$is304)
 		{
-			$h = self::$headers['content-type'];
-			false !== stripos($h, 'html')     && header('P3P: CP="' . $CONFIG['P3P'] . '"');
+			$h = stripos(self::$headers['content-type'], 'html');
+			$h && header('P3P: CP="' . $CONFIG['P3P'] . '"');
+			self::$is_enabled && header('Content-Length: ' . strlen($buffer));
 			is_string(self::$contentEncoding) && header('Content-Encoding: ' . self::$contentEncoding);
-			self::$is_enabled                 && header('Content-Length: ' . strlen($buffer));
+
+			if (!$h && !isset(self::$headers['content-disposition']))
+			{
+				// IE considers that the charset of filename is the same as its local charset...
+				// But we don't want do introduce "Vary: User-Agent" just because of this.
+
+				if ((IS_POSTING || self::$private)
+					&&   isset($_SERVER['HTTP_USER_AGENT'])
+					&&  strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE')
+					&& !strpos($_SERVER['HTTP_USER_AGENT'], 'Opera'))
+				{
+					$h = basename($_SERVER['PATCHWORK_REQUEST']);
+
+					if (preg_match('/[\x80-\xFF]/', $h))
+					{
+						$h = str_replace(array('%', '^', "'", '`', '~', '"' ), array('%0','%1','%2','%3','%4','%5'), $h);
+						$h = iconv('UTF-8', 'US-ASCII//IGNORE//TRANSLIT', $h);
+						$h = str_replace(array(     '^', "'", '`', '~', '"' ), '', $h);
+						$h = str_replace(array('%1','%2','%3','%4','%5','%0'), array('^', "'", '`', '~', '"', '%' ), $h);
+					}
+					else if (!isset($_SERVER['PATCHWORK_FILENAME'])) $h = false;
+				}
+				else $h = isset($_SERVER['PATCHWORK_FILENAME']) ? basename($_SERVER['PATCHWORK_REQUEST']) : false;
+
+				false !== $h && p::header('Content-Disposition: inline; filename="' . str_replace('"', "''", $h) . '"');
+			}
 		}
 
 		self::$is304 = $is304;
