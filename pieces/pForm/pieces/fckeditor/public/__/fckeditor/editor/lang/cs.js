@@ -45,6 +45,7 @@ InsertLinkLbl		: "Odkaz",
 InsertLink			: "Vložit/změnit odkaz",
 RemoveLink			: "Odstranit odkaz",
 Anchor				: "Vložít/změnit záložku",
+AnchorDelete		: "Remove Anchor",	//MISSING
 InsertImageLbl		: "Obrázek",
 InsertImage			: "Vložit/změnit obrázek",
 InsertFlashLbl		: "Flash",
@@ -70,6 +71,7 @@ RightJustify		: "Zarovnat vpravo",
 BlockJustify		: "Zarovnat do bloku",
 DecreaseIndent		: "Zmenšit odsazení",
 IncreaseIndent		: "Zvětšit odsazení",
+Blockquote			: "Blockquote",	//MISSING
 Undo				: "Zpět",
 Redo				: "Znovu",
 NumberedListLbl		: "Číslování",
@@ -103,20 +105,27 @@ SelectionField	: "Seznam",
 ImageButton		: "Obrázkové tlačítko",
 
 FitWindow		: "Maximalizovat velikost editoru",
+ShowBlocks		: "Show Blocks",	//MISSING
 
 // Context Menu
 EditLink			: "Změnit odkaz",
 CellCM				: "Buňka",
 RowCM				: "Řádek",
 ColumnCM			: "Sloupec",
-InsertRow			: "Vložit řádek",
+InsertRowAfter		: "Insert Row After",	//MISSING
+InsertRowBefore		: "Insert Row Before",	//MISSING
 DeleteRows			: "Smazat řádek",
-InsertColumn		: "Vložit sloupec",
+InsertColumnAfter	: "Insert Column After",	//MISSING
+InsertColumnBefore	: "Insert Column Before",	//MISSING
 DeleteColumns		: "Smazat sloupec",
-InsertCell			: "Vložit buňku",
+InsertCellAfter		: "Insert Cell After",	//MISSING
+InsertCellBefore	: "Insert Cell Before",	//MISSING
 DeleteCells			: "Smazat buňky",
 MergeCells			: "Sloučit buňky",
-SplitCell			: "Rozdělit buňku",
+MergeRight			: "Merge Right",	//MISSING
+MergeDown			: "Merge Down",	//MISSING
+HorizontalSplitCell	: "Split Cell Horizontally",	//MISSING
+VerticalSplitCell	: "Split Cell Vertically",	//MISSING
 TableDelete			: "Smazat tabulku",
 CellProperties		: "Vlastnosti buňky",
 TableProperties		: "Vlastnosti tabulky",
@@ -134,7 +143,7 @@ SelectionFieldProp	: "Vlastnosti seznamu",
 TextareaProp		: "Vlastnosti textové oblasti",
 FormProp			: "Vlastnosti formuláře",
 
-FontFormats			: "Normální;Formátovaný;Adresa;Nadpis 1;Nadpis 2;Nadpis 3;Nadpis 4;Nadpis 5;Nadpis 6",		//REVIEW : Check _getfontformat.html
+FontFormats			: "Normální;Naformátováno;Adresa;Nadpis 1;Nadpis 2;Nadpis 3;Nadpis 4;Nadpis 5;Nadpis 6;Normální (DIV)",
 
 // Alerts and Messages
 ProcessingXHTML		: "Probíhá zpracování XHTML. Prosím čekejte...",
@@ -229,7 +238,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Vybrat kotvu",
 DlgLnkAnchorByName	: "Podle jména kotvy",
 DlgLnkAnchorById	: "Podle Id objektu",
-DlgLnkNoAnchors		: "<Ve stránce žádná kotva není definována>",		//REVIEW : Change < and > with ( and )
+DlgLnkNoAnchors		: "(Ve stránce žádná kotva není definována)",
 DlgLnkEMail			: "E-Mailová adresa",
 DlgLnkEMailSubject	: "Předmět zprávy",
 DlgLnkEMailBody		: "Tělo zprávy",
@@ -322,6 +331,9 @@ DlgCellBackColor	: "Barva pozadí",
 DlgCellBorderColor	: "Barva ohraničení",
 DlgCellBtnSelect	: "Výběr...",
 
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Find and Replace",	//MISSING
+
 // Find Dialog
 DlgFindTitle		: "Hledat",
 DlgFindFindBtn		: "Hledat",
@@ -344,7 +356,7 @@ PasteAsText		: "Vložit jako čistý text",
 PasteFromWord	: "Vložit text z Wordu",
 
 DlgPasteMsg2	: "Do následujícího pole vložte požadovaný obsah pomocí klávesnice (<STRONG>Ctrl+V</STRONG>) a stiskněte <STRONG>OK</STRONG>.",
-DlgPasteSec		: "Because of your browser security settings, the editor is not able to access your clipboard data directly. You are required to paste it again in this window.",	//MISSING
+DlgPasteSec		: "Z důvodů nastavení bezpečnosti Vašeho prohlížeče nemůže editor přistupovat přímo do schránky. Obsah schránky prosím vložte znovu do tohoto okna.",
 DlgPasteIgnoreFont		: "Ignorovat písmo",
 DlgPasteRemoveStyles	: "Odstranit styly",
 DlgPasteCleanBox		: "Vyčistit",
