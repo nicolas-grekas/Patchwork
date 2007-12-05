@@ -326,7 +326,7 @@ define('UTF8_BOM', /*<*/__patchwork_loader::UTF8_BOM/*>*/);
 		}
 /*#>*/}
 
-/*#>*/if (function_exists('iconv'))
+/*#>*/if (extension_loaded('iconv'))
 /*#>*/{
 /*#>*/	if ('UTF-8//IGNORE' !== iconv_get_encoding('input_encoding'))
 			iconv_set_encoding('input_encoding'   , 'UTF-8//IGNORE');
@@ -343,11 +343,7 @@ define('UTF8_BOM', /*<*/__patchwork_loader::UTF8_BOM/*>*/);
 
 /*#>*/if (!function_exists('utf8_encode'))
 /*#>*/{
-/*#>*/	if (extension_loaded('mbstring'))
-/*#>*/	{
-			function utf8_encode($s) {return mb_convert_encoding($s, 'UTF-8', 'ISO-8859-1');}
-/*#>*/	}
-/*#>*/	else if (function_exists('iconv'))
+/*#>*/	if (extension_loaded('iconv'))
 /*#>*/	{
 			function utf8_encode($s) {return iconv('ISO-8859-1', 'UTF-8', $s);}
 /*#>*/	}
@@ -355,57 +351,49 @@ define('UTF8_BOM', /*<*/__patchwork_loader::UTF8_BOM/*>*/);
 /*#>*/	{
 			function utf8_encode($s)
 			{
-				$r = '';
+				ob_start();
 				$len = strlen($s);
 
 				for ($i = 0; $i < $len; ++$i)
 				{
-					if ($s[$i] < "\x80") $r .= $s[$i];
-					else if ($s[$i] < "\xc0") $r .= "\xc2" . $s[$i];
-					else $r .= "\xc3" . chr(ord($s[$i]) - 64);
+					if ($s[$i] < "\x80") echo $s[$i];
+					else if ($s[$i] < "\xc0") echo "\xc2", $s[$i];
+					else echo "\xc3", chr(ord($s[$i]) - 64);
 				}
 
-				return $r;
+				return ob_get_clean();
 			}
 /*#>*/	}
 /*#>*/}
 
 /*#>*/if (!function_exists('utf8_decode'))
 /*#>*/{
-/*#>*/	if (extension_loaded('mbstring'))
-/*#>*/	{
-			function utf8_decode($s) {return mb_convert_encoding($s, 'ISO-8859-1', 'UTF-8');}
-/*#>*/	}
-/*#>*/	else if (function_exists('iconv'))
-/*#>*/	{
-			function utf8_decode($s) {return iconv('UTF-8', 'ISO-8859-1//IGNORE', $s);}
-/*#>*/	}
-/*#>*/	else
-/*#>*/	{
-			function utf8_decode($s)
+		function utf8_decode($s)
+		{
+			$len = strlen($s);
+
+			for ($i = 0, $j = 0; $i < $len; ++$i, ++$j)
 			{
-				$len = strlen($s);
-
-				for ($i = 0, $j = 0; $i < $len; ++$i, ++$j)
+				switch ($s[$i] & "\xf0")
 				{
-					switch ($s[$i] & "\xf0")
-					{
-					case "\xc0":
-					case "\xd0":
-						$c = (ord($s[$i] & "\x1f") << 6) | ord($s[++$i] & "\x3f");
-						$s[$j] = $c < 256 ? chr($c) : '?';
-						break;
+				case "\xc0":
+				case "\xd0":
+					$c = (ord($s[$i] & "\x1f") << 6) | ord($s[++$i] & "\x3f");
+					$s[$j] = $c < 256 ? chr($c) : '?';
+					break;
 
-					case "\xf0": ++$i;
-					case "\xe0":
-						$s[$j] = '?';
-						$i += 2;
-					}
-				}
+				case "\xf0": ++$i;
+				case "\xe0":
+					$s[$j] = '?';
+					$i += 2;
+					break;
 
-				return substr($s, 0, $j);
+				default:
+					$s[$j] = $s[$i];
 			}
-/*#>*/	}
+
+			return substr($s, 0, $j);
+		}
 /*#>*/}
 
 
@@ -479,7 +467,7 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 /*#>*/					else
 /*#>*/					{
 							# From http://www.w3.org/International/questions/qa-forms-utf-8
-							preg_match_all(/*<*/"/(?:[\x00-\x7f]|[\xc2-\xdf][\x80-\xbf]|\xe0[\xa0-\xbf][\x80-\xbf]|[\xe1-\xec\xee\xef][\x80-\xbf]{2}|\xed[\x80-\x9f][\x80-\xbf]|\xf0[\x90-\xbf][\x80-\xbf]{2}|[\xf1-\xf3][\x80-\xbf]{3}|\xf4[\x80-\x8f][\x80-\xbf]{2})+/"/*>*/, $v, $b);
+							preg_match_all(/*<*/"/(?:[\\x00-\x7f]|[\xc2-\xdf][\x80-\xbf]|\xe0[\xa0-\xbf][\x80-\xbf]|[\xe1-\xec\xee\xef][\x80-\xbf]{2}|\xed[\x80-\x9f][\x80-\xbf]|\xf0[\x90-\xbf][\x80-\xbf]{2}|[\xf1-\xf3][\x80-\xbf]{3}|\xf4[\x80-\x8f][\x80-\xbf]{2})+/"/*>*/, $v, $b);
 							$v = implode('', $b[0]);
 /*#>*/					}
 /*#>*/				}
