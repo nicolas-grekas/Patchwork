@@ -207,22 +207,13 @@ class patchwork_preprocessor__0
 					'mb_parse_str'            => 'parse_str',
 					'mb_strlen'               => extension_loaded('xml') ? 'utf8_mbstring_500::strlen' : 'utf8_mbstring_500::strlen2',
 					'mb_strpos'               => 'utf8_mbstring_500::strpos',
+					'mb_strrpos_500'          => 'utf8_mbstring_500::mb_strrpos',
 					'mb_strtolower'           => 'utf8_mbstring_500::strtolower',
 					'mb_strtoupper'           => 'utf8_mbstring_500::strtoupper',
 					'mb_substitute_character' => 'utf8_mbstring_500::substitute_character',
 					'mb_substr_count'         => 'substr_count',
 					'mb_substr'               => 'utf8_mbstring_500::substr',
 				);
-
-				if (extension_loaded('iconv'))
-				{
-					self::$function['mb_strlen']            = 'iconv_strlen';
-					self::$function['mb_strpos']            = 'iconv_strpos';
-					self::$function['mb_substr']            = 'iconv_substr';
-					self::$function['mb_strrpos_500']       = 'iconv_strrpos';
-					self::$function['mb_decode_mimeheader'] = 'iconv_mime_decode';
-				}
-				else self::$function['mb_strrpos_500'] = 'utf8_mbstring_500::mb_strrpos';
 			}
 		}
 
@@ -263,6 +254,15 @@ class patchwork_preprocessor__0
 					'iconv_substr'  => 'utf8_mbstring_500::substr',
 				);
 			}
+		}
+		else
+		{
+			// iconv is way faster than mbstring
+			self::$function['mb_strlen']            = 'iconv_strlen';
+			self::$function['mb_strpos']            = 'iconv_strpos';
+			self::$function['mb_strrpos_500']       = 'iconv_strrpos';
+			self::$function['mb_substr']            = 'iconv_substr';
+			self::$function['mb_decode_mimeheader'] = 'iconv_mime_decode';
 		}
 
 		$v = get_defined_constants(true);
