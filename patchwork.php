@@ -13,10 +13,10 @@
 
 
 // Check for required PHP version before including other
-// files so people don't see scary parse errors.
+// files to avoid obscure parse error messages.
 
 
-// TODO: set this to patchwork's minimum PHP version
+// TODO: set this to patchwork's minimal PHP version
 
 $a = '5.1.4';
 
@@ -26,8 +26,7 @@ version_compare(phpversion(), $a, '<') && die("PHP $a or higher is required.");
 
 version_compare($a, '5.1', '<') && $a = '5.1.x';
 $b = str_replace('a', 'b', array(-1 => -1));
-isset($b[-1]) || die("PHP 5.0.x is buggy on your 64-bit system; you must upgrade to
-PHP $a or higher. (see http://bugs.php.net/bug.php?id=34879)");
+isset($b[-1]) || die("Your PHP 5.0.x is buggy; please upgrade to PHP $a or higher. (see http://bugs.php.net/bug.php?id=34879)");
 
 
 require dirname(__FILE__) . '/loader.php';
