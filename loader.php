@@ -385,6 +385,8 @@ patchwork::start();";
 		self::UTF8_BOM === substr($source, 0, 3) && $source = substr($source, 3);
 		false !== strpos($source, "\r") && $source = strtr(str_replace("\r\n", "\n", $source), "\r", "\n");
 
+		ob_start();
+
 		if ($source = token_get_all($source))
 		{
 			$len = count($source);
@@ -412,10 +414,10 @@ patchwork::start();";
 				else if (T_INLINE_HTML == $a[0]) $a[1] .= '<?php ';
 			}
 
-			array_walk($source, array(__CLASS__, 'flattenToken'));
+			array_walk($source, array(__CLASS__, 'echoToken'));
 		}
 
-		self::$configSource[$config] = implode('', $source);
+		self::$configSource[$config] = ob_get_clean();
 
 
 		// Parent's config file path is relative to the current application's directory
@@ -496,9 +498,19 @@ patchwork::start();";
 		return $parent;
 	}
 
-	protected static function flattenToken(&$token)
+	protected static function echoToken(&$token)
 	{
-		is_array($token) && $token = $token[1];
+		if (is_array($token))
+		{
+			if (in_array($token[0], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT)))
+			{
+				$a = substr_count($token[1], "\n");
+				$token[1] = $a ? str_repeat("\n", $a) : ' ';
+			}
+
+			echo $token[1];
+		}
+		else echo $token;
 	}
 
 
@@ -567,121 +579,151 @@ patchwork::start();";
 	}
 
 
-	static function staticPass1($a)
+	static function staticPass1($code)
 	{
-		self::$file = $a;
-		$a = file_get_contents($a);
-		self::UTF8_BOM === substr($a, 0, 3) && $a = substr($a, 3);
-		false !== strpos($a, "\r") && $a = strtr(str_replace("\r\n", "\n", $a), "\r", "\n");
-		$a = preg_replace('/^<\?(?:php)?/', '', $a);
-		$a = preg_replace('/\?>$/', ';', $a);
+		self::$file = $code;
+		$code = file_get_contents($code);
+		self::UTF8_BOM === substr($code, 0, 3) && $code = substr($code, 3);
+		false !== strpos($code, "\r") && $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
+		$code = preg_replace('/\?>$/', ';', $code);
 
+		$mode = 2;
+		$first_isolation = 0;
+		$mode1_transition = false;
 
-		$a = preg_split('#(^(?:\s*/\*\#>\*/.*)+)#m', $a, -1, PREG_SPLIT_DELIM_CAPTURE);
+		$line = 1;
+		$bracket = 0;
 
-		$line = 0;
-		$iLen = count($a);
-		for ($i = 0; $i < $iLen; ++$i)
+		$new_code = array();
+		$transition = array();
+
+		foreach (token_get_all($code) as $i => $token)
 		{
-			$b = array('');
-			$c =& $b[0];
-			$j = 0;
-
-			foreach (token_get_all("<?php\n{$a[$i]}") as $token)
+			if (is_array($token))
 			{
-				if (is_array($token))
+				$type = $token[0];
+				$token = $token[1];
+			}
+			else $type = $token;
+
+			switch ($type)
+			{
+			case T_OPEN_TAG:
+				$token = '<?php ' . str_repeat("\n", substr_count($token, "\n"));
+				break;
+
+			case '(': ++$bracket; break;
+			case ')': --$bracket; break;
+
+			case T_DOC_COMMENT:
+			case T_COMMENT:
+				if ($mode1_transition && '/*#>*/' === $token)
 				{
-					$type = $token[0];
-					$token = $token[1];
-				}
-				else $type = $token;
-
-				switch ($type)
-				{
-				case T_COMMENT:
-					if ('/*<*/' === $token)
+					$mode1_transition = false;
+					if (1 !== $mode)
 					{
-						$c = var_export($c, true);
-						$c =& $b[];
-						$c = '__patchwork_loader::export(';
-						continue 2;
-					}
-					else if ('/*>*/' === $token)
-					{
-						$c .= ')."' . str_repeat('\n', substr_count($c, "\n")) . '"';
-						$c =& $b[];
-						$c = '';
-						continue 2;
-					}
-
-				case T_DOC_COMMENT:
-				case T_WHITESPACE:
-					$token = substr_count($token, "\n");
-					$token = $token ? str_repeat("\n", $token) : ' ';
-					break;
-
-				case T_CLOSE_TAG:
-				case ';':
-					$j || $j = -1;
-					break;
-
-				default:
-					if (-1 === $j)
-					{
-						$j = count($b);
-						$c = var_export($c, true);
-						$c =& $b[];
-						$c = '';
+						$transition[$i] = array($mode = 1, $line);
+						$first_isolation = 0;
 					}
 				}
+				else if (2 === $mode && '/*<*/' === $token) $transition[$i] = array($mode = 3, $line);
+				else if (3 === $mode && '/*>*/' === $token) $transition[$i] = array($mode = 2, $line);
 
-				$c .= $token;
+			case T_WHITESPACE:
+				$token = substr_count($token, "\n");
+				$token = $token ? str_repeat("\n", $token) : ' ';
+				break;
+
+			case T_CLOSE_TAG:
+			case ';':
+				if (1 < $mode && !$bracket && !$first_isolation) $first_isolation = 1;
+				break;
+
+			default:
+				if (1 < $mode && 2 == $first_isolation)
+				{
+					$transition[$i] = array($mode = 2, $line);
+					$first_isolation = 3;
+				}
 			}
 
-			$c = var_export($c, true);
-			unset($c);
-
-			$b[0] = "'" . substr($b[0], 7);
-
-			$a[$i] = ' __patchwork_loader::$code[' . $line . ']=';
-
-			foreach ($b as $c => $b)
+			if (T_WHITESPACE === $type && false !== strpos($token, "\n"))
 			{
-				if ($c === $j && $j > 0 && "''" !== $b)
-				{
-					$a[$i] .= '"";__patchwork_loader::$code[' . $line . ']=';
-				}
-
-				$a[$i] .= $b . '.';
-
-				$line += substr_count($b, "\n");
+				if (1 < $mode && 1 == $first_isolation) $first_isolation = 2;
+				$mode1_transition = true;
+			}
+			else
+			{
+				$mode1_transition && 1 === $mode && $transition[$i] = array($mode = 2, $line);
+				$mode1_transition = false;
 			}
 
-			$a[$i] .= '"";';
-
-			if (++$i < $iLen) $line += substr_count($a[$i], "\n");
+			$new_code[] = $token;
+			$line += substr_count($token, "\n");
 		}
 
+		$code = '';
+		ob_start();
+		echo '__patchwork_loader::$code[1]=';
+
+		$iLast = 0;
+		$mode = 2;
+		$line = '';
+
+		foreach ($transition as $i => $transition)
+		{
+			$line = implode('', array_slice($new_code, $iLast, $i - $iLast));
+
+			switch ($mode)
+			{
+			case 1: echo $line; break;
+			case 2: echo var_export($line, true); break;
+			case 3: echo $line, ')."', str_repeat('\n', substr_count($line, "\n")), '"'; break;
+			}
+
+			switch ($transition[0])
+			{
+			case 1: echo 2 === $mode ? ';' : ''; break;
+			case 2: echo (3 !== $mode ? (2 === $mode ? ';' : ' ') . '__patchwork_loader::$code[' . $transition[1] . ']=' : '.'); break;
+			case 3: echo '.__patchwork_loader::export('; break;
+			}
+
+			$mode = $transition[0];
+			$iLast = $i;
+		}
+
+		$line = implode('', array_slice($new_code, $iLast));
+
+		switch ($mode)
+		{
+		case 1: echo $line; break;
+		case 2: echo var_export($line, true), ';'; break;
+		case 3: echo $line, ')."', str_repeat('\n', substr_count($line, "\n")), '";'; break;
+		}
+
+		$code = ob_get_clean();
 		ob_start();
 		self::$code = array();
 
-		return implode('', $a);
+		return $code;
 	}
 
-	static function staticPass2(&$a = '')
+	static function staticPass2(&$code = '')
 	{
-		if ('' !== $a = ob_get_clean()) echo preg_replace('/' . self::$selfRx . '\(\d+\) : eval\(\)\'d code/', self::$file, $a);
+		if ('' !== $code = ob_get_clean()) echo preg_replace('/' . self::$selfRx . '\(\d+\) : eval\(\)\'d code/', self::$file, $code);
 
-		$a = '';
-		$line = 0;
+		$code = '?>';
+		$line = 1;
 		foreach (self::$code as $i => $b)
 		{
-			$a .= str_repeat("\n", $i - $line) . $b;
+			$code .= str_repeat("\n", $i - $line) . $b;
 			$line = $i + substr_count($b, "\n");
 		}
 
+		'?><?php' === substr($code, 0, 7) && $code = substr($code, 7);
+
 		self::$code = array();
-		self::$configCode[self::$file] = $a;
+		self::$configCode[self::$file] = $code;
 	}
 
 	static function export($a)

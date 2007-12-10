@@ -14,62 +14,22 @@
 
 class
 {
-	static function php($string, $length = 75, $break = "\n", $cut = true)
+	static function php($string, $width = 75, $break = "\n", $cut = true)
 	{
-		// The native PHP wordwrap() is not UTF-8 aware
-
-		$cut = p::string($cut);
-		$break = p::string($break);
-		$length = (int) p::string($length);
-		$string = explode($break, p::string($string));
-
-		$iLen = count($string);
-		$result = array();
-		$line = '';
-
-		for ($i = 0; $i < $iLen; ++$i)
-		{
-			$a = explode(' ', $string[$i]);
-			$line && $result[] = $line;
-			$line = $a[0];
-			$jLen = count($a);
-
-			for ($j = 1; $j < $jLen; ++$j)
-			{
-				$b = $a[$j];
-
-				if (mb_strlen($line) + mb_strlen($b) < $length) $line .= ' ' . $b;
-				else
-				{
-					$result[] = $line;
-					$line = '';
-
-					if ($cut) while (mb_strlen($b) > $length)
-					{
-						$line = mb_substr($b, $length);
-						$result[] = mb_substr($b, 0, $length);
-						$b = $line;
-					}
-
-					if ($b) $line = $b;
-				}
-			}
-		}
-
-		$line && $result[] = $line;
-
-		return implode($break, $result);
+		return u::wordwrap(p::string($string), p::string($width), p::string($break), p::string($cut));
 	}
 
 	static function js()
 	{
+		// This JS implementation is not Grapheme Cluster aware...
+
 		?>/*<script>*/
 
-P$wordwrap = function($string, $length, $break, $cut)
+P$wordwrap = function($string, $width, $break, $cut)
 {
 	$cut = str($cut, 1);
 	$break = str($break, '\n');
-	$length = str($length, 80);
+	$width = str($width, 75);
 	$string = str($string).split($break);
 
 	var $i = 0, $line,
@@ -86,17 +46,16 @@ P$wordwrap = function($string, $length, $break, $cut)
 		{
 			$b = $a[$j];
 
-			if ($line.length + $b.length < $length) $line += ' ' + $b;
+			if ($line.length + $b.length < $width) $line += ' ' + $b;
 			else
 			{
 				$result.push($line);
 				$line = '';
 
-				if ($cut) while ($b.length > $length)
+				if ($cut) while ($b.length > $width)
 				{
-					$line = $b.substr($length);
-					$result.push($b.substr(0, $length));
-					$b = $line;
+					$result.push($b.substr(0, $width));
+					$line = $b = $b.substr($width);
 				}
 
 				if ($b) $line = $b;

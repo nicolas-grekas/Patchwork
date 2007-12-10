@@ -17,7 +17,7 @@
 
 
 
-#/*<*/PHP_VERSION/*>*/
+/*<*/PHP_VERSION/*>*/;
 
 define('patchwork', microtime(true));
 error_reporting(E_ALL | E_STRICT);
