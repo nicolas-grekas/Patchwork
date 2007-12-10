@@ -789,6 +789,7 @@ class patchwork_preprocessor__0
 
 				break;
 
+			case T_DOC_COMMENT:
 			case T_COMMENT: $type = T_WHITESPACE;
 			case T_WHITESPACE:
 				$token = substr_count($token, "\n");
@@ -796,7 +797,6 @@ class patchwork_preprocessor__0
 				$token = $token ? str_repeat("\n", $token) : ' ';
 				break;
 
-			case T_DOC_COMMENT: // Preserve T_DOC_COMMENT for PHP's native Reflection API
 			case T_CONSTANT_ENCAPSED_STRING:
 			case T_ENCAPSED_AND_WHITESPACE:
 				$line += substr_count($token, "\n");
