@@ -514,7 +514,7 @@ patchwork::start();";
 	}
 
 
-	static function buildPathCache($dba)
+	static function buildPathCache()
 	{
 		global $patchwork_path;
 
@@ -526,10 +526,19 @@ patchwork::start();";
 		}
 
 
-		if ($dba)
+		$dba = $h = false;
+
+		if (function_exists('dba_handlers'))
 		{
+			$h = array('cdb','db2','db3','db4','qdbm','gdbm','ndbm','dbm','flatfile','inifile');
+			$h = array_intersect($h, dba_handlers());
+			$h || $h = dba_handlers();
 			@unlink('./.parentPaths.db');
-			$h = dba_open('./.parentPaths.db', 'n', $dba, 0600);
+			if ($h) foreach ($h as $dba) if ($h = @dba_open('./.parentPaths.db', 'n', $dba, 0600)) break;
+		}
+
+		if ($h)
+		{
 			foreach ($paths as $paths => $level) dba_insert($paths, substr($level, 0, -1), $h);
 			dba_close($h);
 
@@ -542,6 +551,8 @@ patchwork::start();";
 		}
 		else
 		{
+			$dba = false;
+
 			foreach ($paths as $paths => $level)
 			{
 				$paths = md5($paths);
@@ -558,6 +569,8 @@ patchwork::start();";
 				fclose($h);
 			}
 		}
+
+		return $dba;
 	}
 
 	protected static function populatePathCache(&$paths, $dir, $i, $prefix, $subdir = '/')

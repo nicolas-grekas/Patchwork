@@ -931,11 +931,17 @@ class
 
 		$new = '';
 
+		$e = error_reporting(0);
+
 		foreach ($dir as $dir)
 		{
 			$new .= $dir . '/';
 			file_exists($new) || mkdir($new);
 		}
+
+		error_reporting($e);
+
+		file_exists($new) || mkdir($new);
 	}
 
 	static function fopenX($file, &$readHandle = false)
