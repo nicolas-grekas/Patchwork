@@ -199,14 +199,18 @@ class
 		'msword','rtf','excel','powerpoint',
 	),
 
-	$ieSniffedTypes = array(
+	$ieSniffedTypes_edit = array(
 		'text/plain','text/richtext','audio/x-aiff','audio/basic','audio/wav',
 		'image/gif','image/jpeg','image/pjpeg','image/tiff','image/x-png','image/png',
 		'image/x-xbitmap','image/bmp','image/x-jg','image/x-emf','image/x-wmf',
-		'video/avi','video/mpeg','application/octet-stream','application/pdf',
-		'application/base64','application/macbinhex40','application/postscript',
-		'application/x-compressed','application/java','application/x-msdownload',
-		'application/x-gzip-compressed','application/x-zip-compressed'
+		'video/avi','video/mpeg','application/pdf','application/java',
+		'application/base64','application/postscript',
+	),
+
+	$ieSniffedTypes_download = array(
+		'application/octet-stream','application/macbinhex40',
+		'application/x-compressed','application/x-msdownload',
+		'application/x-gzip-compressed','application/x-zip-compressed',
 	),
 
 	$ieSniffedTags = array(
@@ -1352,18 +1356,22 @@ class
 
 			$a = substr($buffer, 0, 256);
 			$lt = strpos($a, '<');
-			if (false !== $lt && (!$type || in_array($type, self::$ieSniffedTypes)))
+			if (false !== $lt && ($b = in_array($type, self::$ieSniffedTypes_edit) ? 1 : (in_array($type, self::$ieSniffedTypes_download) ? 2 : 0)))
 			{
 				foreach (self::$ieSniffedTags as $tag)
 				{
 					$tail = stripos($a, '<' . $tag, $lt);
 					if (false !== $tail && $tail + strlen($tag) < strlen($a))
 					{
-						$buffer = substr($buffer, 0, $tail)
-							. '<!--'
-							. str_repeat(' ', max(1, 248 - strlen($tag) - $tail))
-							. '-->'
-							. substr($buffer, $tail);
+						if (2 === $b) header('Content-Type: application/x-octet-stream');
+						else
+						{
+							$buffer = substr($buffer, 0, $tail)
+								. '<!--'
+								. str_repeat(' ', max(1, 248 - strlen($tag) - $tail))
+								. '-->'
+								. substr($buffer, $tail);
+						}
 
 						break;
 					}
@@ -1559,7 +1567,7 @@ class
 
 			if (!$h && !isset(self::$headers['content-disposition']))
 			{
-				// IE considers that the charset of filename is the same as its local charset...
+				// It seems that IE assumes that filename is represented in its local system charset...
 				// But we don't want do introduce "Vary: User-Agent" just because of this.
 
 				if ((IS_POSTING || self::$private)
@@ -1571,16 +1579,28 @@ class
 
 					if (preg_match('/[\x80-\xFF]/', $h))
 					{
-						$h = str_replace(array('%', '^', "'", '`', '~', '"' ), array('%0','%1','%2','%3','%4','%5'), $h);
-						$h = iconv('UTF-8', 'US-ASCII//IGNORE//TRANSLIT', $h);
-						$h = str_replace(array(     '^', "'", '`', '~', '"' ), '', $h);
-						$h = str_replace(array('%1','%2','%3','%4','%5','%0'), array('^', "'", '`', '~', '"', '%' ), $h);
+						if (stripos(self::$headers['content-type'], 'octet-stream') && preg_match('#(.*)(\.[- -,/-~]+)$#D', $h, $h))
+						{
+							// Don't search any rational here, it's IE...
+							p::header('Content-Disposition: attachment; filename=' . rawurlencode($h[1]) . str_replace('"', "''", $h[2]));
+							$h = false;
+						}
+						else
+						{
+							$h = str_replace(array('%', '^', "'", '`', '~', '"' ), array('%0','%1','%2','%3','%4','%5'), $h);
+							$h = iconv('UTF-8', 'US-ASCII//IGNORE//TRANSLIT', $h);
+							$h = str_replace(array(     '^', "'", '`', '~', '"' ), '', $h);
+							$h = str_replace(array('%1','%2','%3','%4','%5','%0'), array('^', "'", '`', '~', '"', '%' ), $h);
+						}
 					}
 					else if (!isset($_SERVER['PATCHWORK_FILENAME'])) $h = false;
 				}
 				else $h = isset($_SERVER['PATCHWORK_FILENAME']) ? basename($_SERVER['PATCHWORK_REQUEST']) : false;
 
 				false !== $h && p::header('Content-Disposition: inline; filename="' . str_replace('"', "''", $h) . '"');
+
+				// If only RFC 2184 were in use...
+				//false !== $h && p::header("Content-Disposition: attachment; filename*=utf-8''" . rawurlencode($h));
 			}
 		}
 

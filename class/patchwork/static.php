@@ -144,6 +144,7 @@ class extends patchwork
 		}
 
 		$file = $h;
+		$mime || $mime = isset(p::$headers['content-type']) ? substr(p::$headers['content-type'], 14) : 'application/octet-stream';
 		$mime = strtolower($mime);
 
 		$head = 'HEAD' == $_SERVER['REQUEST_METHOD'];
