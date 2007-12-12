@@ -139,7 +139,7 @@ function resolvePath($file, $level = false, $base = false)
 /*#>*/if ($a = __patchwork_loader::buildPathCache())
 /*#>*/{
 		static $db;
-		isset($db) || $db = dba_popen('./.parentPaths.db', 'rd', /*<*/$a/*>*/);
+		isset($db) || $db = dba_popen(/*<*/__patchwork_loader::$cwd . DIRECTORY_SEPARATOR . '.parentPaths.db'/*>*/, 'rd', /*<*/$a/*>*/);
 		$base = dba_fetch($file, $db);
 /*#>*/}
 /*#>*/else

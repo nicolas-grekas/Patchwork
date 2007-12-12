@@ -534,7 +534,7 @@ patchwork::start();";
 			$h = array_intersect($h, dba_handlers());
 			$h || $h = dba_handlers();
 			@unlink('./.parentPaths.db');
-			if ($h) foreach ($h as $dba) if ($h = @dba_open('./.parentPaths.db', 'n', $dba, 0600)) break;
+			if ($h) foreach ($h as $dba) if ($h = @dba_open(self::$cwd . DIRECTORY_SEPARATOR . '.parentPaths.db', 'nd', $dba, 0600)) break;
 		}
 
 		if ($h)
