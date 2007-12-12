@@ -135,22 +135,8 @@ function resolvePath($file, $level = false, $base = false)
 	$file = strtr($file, '\\', '/');
 	if ($slash = '/' === substr($file, -1)) $file = substr($file, 0, -1);
 
-/*#>*/
-/*#>*/ // DBA handler
-/*#>*/
-/*#>*/if (function_exists('dba_handlers'))
-/*#>*/{
-/*#>*/	$a = array('cdb','db2','db3','db4','qdbm','gdbm','ndbm','dbm','flatfile','inifile');
-/*#>*/	$a = array_intersect($a, dba_handlers());
-/*#>*/	$a || $dba = dba_handlers();
-/*#>*/	$a = $a ? reset($a) : '';
-/*#>*/}
-/*#>*/else $a = '';
-/*#>*/
-/*#>*/__patchwork_loader::buildPathCache($a);
-/*#>*/
 
-/*#>*/if ($a)
+/*#>*/if ($a = __patchwork_loader::buildPathCache())
 /*#>*/{
 		static $db;
 		isset($db) || $db = dba_popen('./.parentPaths.db', 'rd', /*<*/$a/*>*/);
@@ -280,6 +266,12 @@ if ($a)
 }
 
 
+// Timezone settings
+
+/*#>*/if (!ini_get('date.timezone'))
+	ini_get('date.timezone') || ini_set('date.timezone', 'Universal');
+
+
 /*#>*/$a = file_get_contents(__patchwork_loader::$pwd . '/data/utf8/quickChecks.txt');
 /*#>*/$a = explode("\n", $a);
 define('UTF8_NFC_RX', /*<*/'/' . $a[1] . '/u'/*>*/);
@@ -310,7 +302,7 @@ define('UTF8_BOM', /*<*/__patchwork_loader::UTF8_BOM/*>*/);
 /*#>*/	if ('pass'  !== mb_http_output())
 			mb_http_output('pass');
 
-/*#>*/	if ('uni'   !== mb_language())
+/*#>*/	if ('uni'   !== mb_language() && 'neutral' !== mb_language())
 			mb_language('uni');
 /*#>*/}
 

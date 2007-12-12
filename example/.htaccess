@@ -24,6 +24,9 @@ Allow from all
 #SetEnv MAGIC_QUOTES 0
 #SetEnv SESSION_USE_TRANS_SID 0
 
+# Edit this to your default timezone
+php_value date.timezone "Universal"
+
 # Tuning of mbstring
 php_value mbstring.func_overload 0
 php_value mbstring.language "neutral"
