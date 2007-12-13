@@ -359,7 +359,7 @@ class
 		// Synch exoagents on browser request
 		if (isset($_COOKIE['cache_reset_id']) && self::$appId == $_COOKIE['cache_reset_id'] && setcookie('cache_reset_id', '', 0, '/'))
 		{
-			self::touchAppId();
+			self::updateAppId();
 			self::touch('foreignTrace');
 			self::touch('appId');
 
@@ -376,12 +376,7 @@ class
 /*<
 		if (PATCHWORK_SYNC_CACHE && !self::$binaryMode)
 		{
-			global $patchwork_appId;
-
-			$patchwork_appId = -$patchwork_appId - filemtime('./config.patchwork.php');
-			self::touchAppId();
-			$patchwork_appId = -$patchwork_appId - $_SERVER['REQUEST_TIME'];
-			self::$appId = abs($patchwork_appId % 10000);
+			self::updateAppId();
 
 			$a = $CONFIG['i18n.lang_list'][$_SERVER['PATCHWORK_LANG']];
 			$a = implode($a, explode('__', $_SERVER['PATCHWORK_BASE'], 2));
@@ -427,12 +422,39 @@ class
 	}
 	// }}}
 
-	protected static function touchAppId()
+	protected static function updateAppId()
 	{
 		// config.patchwork.php's last modification date is used for
 		// version synchronisation with clients and caches.
-		touch('./config.patchwork.php', $_SERVER['REQUEST_TIME']);
-#>		file_exists('./.patchwork.php') && touch('./.patchwork.php', $_SERVER['REQUEST_TIME']);
+
+		@touch('./config.patchwork.php', $_SERVER['REQUEST_TIME']);
+
+		global $patchwork_appId;
+
+		$oldAppId = sprintf('%020d', $patchwork_appId);
+
+		$patchwork_appId += $_SERVER['REQUEST_TIME'] - filemtime('./config.patchwork.php');
+		self::$appId = abs($patchwork_appId % 10000);
+
+		if (file_exists('./.patchwork.php'))
+		{
+			$offset = 0;
+
+			$h = fopen('./.patchwork.php', 'r+b');
+
+			while (false !== $line = fgets($h))
+			{
+				if (false !== $pos = strpos($line, $oldAppId))
+				{
+					fseek($h, $offset + $pos);
+					fwrite($h, sprintf('%020d', $patchwork_appId));
+					break;
+				}
+				else $offset += strlen($line);
+			}
+
+			fclose($h);
+		}
 	}
 
 	static function disable($exit = false)

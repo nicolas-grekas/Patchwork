@@ -15,7 +15,7 @@
 
 /**** Post-configuration stage 0 ****/
 
-$patchwork_appId = /*<*/__patchwork_loader::$appId/*>*/;
+$patchwork_appId = (int) /*<*/sprintf('%020d', __patchwork_loader::$appId)/*>*/;
 define('PATCHWORK_PATH_TOKEN', /*<*/__patchwork_loader::$token/*>*/);
 
 
