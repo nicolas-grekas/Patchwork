@@ -40,11 +40,11 @@ class extends loop
 	protected function prepare()
 	{
 		$sql = $this->sql;
+		$this->db || $this->db = DB();
 
 		if ($this->count > 0)
 		{
-			$this->db || $this->db = DB();
-			if ('mysql' == $this->db->phptype) $sql .= " LIMIT {$this->from},{$this->count}";
+			if ('mysql' === substr($this->db->phptype, 0, 5)) $sql .= " LIMIT {$this->from},{$this->count}";
 			else $this->db->setLimit($this->count, $this->from);
 		}
 

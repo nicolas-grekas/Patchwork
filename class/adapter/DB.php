@@ -24,20 +24,25 @@ class
 			p::disable(true);
 		}
 
+		$mysql = 'mysql' === substr($db->phptype, 0, 5);
 
 		$db->loadModule('Extended');
 		$db->setErrorHandling(PEAR_ERROR_CALLBACK, 'E');
 		$db->setFetchMode(MDB2_FETCHMODE_OBJECT);
-		$db->setOption('default_table_type', 'InnoDB');
 		$db->setOption('seqname_format', 'zeq_%s');
 		$db->setOption('portability', MDB2_PORTABILITY_ALL ^ MDB2_PORTABILITY_EMPTY_TO_NULL ^ MDB2_PORTABILITY_FIX_CASE);
 
+		$mysql && $db->setOption('default_table_type', 'InnoDB');
+
 		$db->connect();
 
-		$db->beginTransaction();
+		if ($mysql)
+		{
+			$db->query('SET NAMES utf8');
+			$db->query("SET collation_connection='utf8_general_ci'");
+		}
 
-		$db->query('SET NAMES utf8');
-		$db->query("SET collation_connection='utf8_general_ci'");
+		$db->beginTransaction();
 
 		return $db;
 	}
