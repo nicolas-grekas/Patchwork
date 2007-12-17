@@ -220,6 +220,8 @@ class patchwork_preprocessor__0
 		if (!extension_loaded('iconv'))
 		{
 			self::$constant += array(
+				'ICONV_IMPL' => '"patchworkiconv"',
+				'ICONV_VERSION' => '1.0',
 				'ICONV_MIME_DECODE_STRICT' => 1,
 				'ICONV_MIME_DECODE_CONTINUE_ON_ERROR' => 2,
 			);
