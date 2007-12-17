@@ -39,7 +39,7 @@ class extends patchwork
 					rewind($h);
 					fwrite($h, $a = '1');
 
-					p::touchAppId();
+					p::updateAppId();
 				}
 
 				fclose($h);
