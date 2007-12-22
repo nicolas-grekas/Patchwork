@@ -1250,16 +1250,19 @@ class patchwork_preprocessor_marker_ extends patchwork_preprocessor_require_
 				$this->greedy = true;
 				break;
 
+			case T_OBJECT_OPERATOR:
+				$this->curly = 0;
+				break;
+
+			case ']':
 			case ')':
-				if (!$this->bracket) break;
+				$token .= $this->close;
+				$this->popFilter();
+				break;
 
 			default:
-				if (T_OBJECT_OPERATOR == $type) $this->curly = 0;
-				else
-				{
-					$token = $this->close . $token;
-					$this->popFilter();
-				}
+				$token = $this->close . $token;
+				$this->popFilter();
 			}
 		}
 
