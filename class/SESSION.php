@@ -45,8 +45,8 @@ class
 
 	/* Public methods */
 
-	static function getSID()      {p::setGroup('private'); return self::$SID;}
-	static function getLastseen() {p::setGroup('private'); return self::$lastseen;}
+	static function getSID()      {p::setPrivate(); return self::$SID;}
+	static function getLastseen() {p::setPrivate(); return self::$lastseen;}
 
 	static function get($name)
 	{

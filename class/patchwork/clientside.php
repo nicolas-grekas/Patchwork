@@ -19,7 +19,7 @@ class extends patchwork
 #>		p::touch('debugSync');
 
 		p::setMaxage(-1);
-		p::setGroup('private');
+		p::setPrivate();
 		p::setExpires('onmaxage');
 
 		$a = p::agentArgs($agent);

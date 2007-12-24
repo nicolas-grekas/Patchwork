@@ -364,7 +364,7 @@ class
 			self::touch('appId');
 
 			self::setMaxage(0);
-			self::setGroup('private');
+			self::setPrivate();
 
 			echo '<html><head><script type="text/javascript">location.',
 				IS_POSTING ? 'replace(location)' : 'reload()',
@@ -404,7 +404,7 @@ class
 			if (!IS_POSTING)
 			{
 				self::setMaxage(0);
-				self::setGroup('private');
+				self::setPrivate();
 
 				echo '<html><head><script type="text/javascript">location.reload()</script></head></html>';
 				return;
@@ -415,7 +415,7 @@ class
 		// load agent
 		if (IS_POSTING || self::$binaryMode || !isset($_COOKIE['JS']) || !$_COOKIE['JS'])
 		{
-			if (!self::$binaryMode) self::setGroup('private');
+			if (!self::$binaryMode) self::setPrivate();
 			patchwork_serverside::loadAgent($agent, false, false);
 		}
 		else patchwork_clientside::loadAgent($agent);
@@ -520,7 +520,7 @@ class
 			if (strncmp('/', $url, 1)) $url = self::$base . $url;
 			else $url = self::$host . substr($url, 1);
 
-			if (!$noId && '/' !== substr($url, -1)) $url .= (false === strpos($url, '?') ? '?' : '&amp;') . self::$appId;
+			if (!$noId && '/' !== substr($url, -1)) $url .= (false === strpos($url, '?') ? '?' : '&') . self::$appId;
 		}
 
 		return $url;
@@ -800,6 +800,9 @@ class
 			}
 		}
 	}
+
+	static function setPrivate() {return self::setGroup('private');}
+
 
 	/*
 	 * Controls cache expiration mechanism
