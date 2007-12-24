@@ -64,7 +64,7 @@ class
 	}
 
 	# min, max
-	protected static function get_f   (&$value, &$args) {return self::get_f($value, $args);}
+	protected static function get_f   (&$value, &$args) {return self::get_float($value, $args);}
 	protected static function get_float(&$value, &$args)
 	{
 		if (!is_scalar($value)) return false;

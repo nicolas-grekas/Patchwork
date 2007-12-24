@@ -38,8 +38,9 @@ class
 
 		if ($mysql)
 		{
-			$db->query('SET NAMES utf8');
-			$db->query("SET collation_connection='utf8_general_ci'");
+			$db->exec('SET NAMES utf8');
+			$db->exec("SET collation_connection='utf8_unicode_ci'");
+			$db->exec('SET group_concat_max_len=10485760'); // The effective maximum length is constrained by max_allowed_packet
 		}
 
 		$db->beginTransaction();

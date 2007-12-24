@@ -248,7 +248,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 				: $master
 			) + $str;
 
-			if (!$noId && '/' != $str.substr(-1)) $str += (-1 == $str.indexOf('?') ? '?' : '&amp;') + $masterAppId;
+			if (!$noId && '/' != $str.substr(-1)) $str += (-1 == $str.indexOf('?') ? '?' : '&') + $masterAppId;
 		}
 
 		return $str;
