@@ -20,31 +20,7 @@ function liveAgent($AGENT, $POST, $antiCSRF, $BASE, $XMLHttpPreferred)
 
 	var $QJsrs = new QJsrs($AGENT, $POST, $antiCSRF, $XMLHttpPreferred),
 		$originalDriver = $QJsrs.driver,
-		w = {
-			x:function($data)
-			{
-				var $a = [], $dataLen = $data.length, $counter = -1, $i = 1, $block, $blockLen, $modulo, $keys, $j, $b, $k;
-
-				for (; $i < $data.length; ++$i)
-				{
-					$block = $data[$i];
-					$blockLen = $block.length;
-					$modulo = $block[0];
-					$j = $modulo + 1;
-
-					$keys = $block.slice(1, $j);
-
-					for (; $j < $blockLen; $j+=$modulo)
-					{
-						$b = $a[++$counter] = {};
-
-						for ($k = 0; $k < $modulo; ++$k) $b[ $keys[$k] ] = $block[$j + $k];
-					}
-				}
-
-				return $a;
-			}
-		};
+		w = {x: liveAgent.$iteratorFactory};
 
 	$QJsrs.driver = function($callback, $text, $raw)
 	{
@@ -57,4 +33,31 @@ function liveAgent($AGENT, $POST, $antiCSRF, $BASE, $XMLHttpPreferred)
 	}
 
 	return $QJsrs;
+}
+
+liveAgent.$iteratorFactory = function($data)
+{
+	var $dataLen = $data.length, $block = 1, $offset = 0;
+
+	function $next()
+	{
+		var $blockData = $data[$block],
+			$blockLen = $blockData.length,
+			$v = {}, $i = 1,
+			$j = $blockData[0];
+
+		$offset += $j;
+
+		if ($offset + $j >= $blockLen) return $offset = 0, ++$block < $dataLen ? $next() : ($block = 1, 0);
+
+		for (; $i <= $j; ++$i) $v[ $blockData[$i] ] = $blockData[$i + $offset];
+
+		return $v;
+	}
+
+	$data[0] || ($next = function() {return 0});
+
+	$next.toString = function() {return ''+$data[0]};
+
+	return $next;
 }
