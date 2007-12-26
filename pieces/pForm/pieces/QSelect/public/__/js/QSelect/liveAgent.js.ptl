@@ -29,11 +29,11 @@ function QSelectLiveAgent($liveAgent, $loop, $key)
 				{
 					if ($result)
 					{
-						var $l = $result[$loop], $i = 0, $k = $key;
+						var $r = $result[$loop], $c;
 
 						$result = [];
 
-						for (; $i < $l.length; ++$i) $result.push( $l[$i][$k] );
+						while ($c = $r()) $result.push($c[$key]);
 
 						$pushBack($result);
 					}
