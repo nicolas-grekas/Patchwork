@@ -28,8 +28,6 @@ class extends agent
 
 		switch ($a = substr($sql, 0, 3))
 		{
-		case 'st ': $sql = 'saint ' . substr($sql, 3); break;
-
 		case 'agi':
 		case 'ayi':
 			if ('os ' == substr($sql, 3, 3))
@@ -39,7 +37,8 @@ class extends agent
 				break;
 			}
 
-		default: $sql = '' === $sql ? 1 : "search GLOB '{$sql}*'"; break;
+		case 'st ': $sql = 'saint ' . substr($sql, 3);
+		default: $sql = '' === $sql ? 1 : "search GLOB '{$sql}*'";
 		}
 
 		$sql = "SELECT city_id, city FROM city WHERE {$sql} ORDER BY OID";
