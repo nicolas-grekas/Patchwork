@@ -131,28 +131,30 @@ function __autoload($searched_class)
 
 function patchworkProcessedPath($file)
 {
-	$file = strtr($file, '\\', '/');
-	$f = '.' . $file . '/';
+/*#>*/	if ('\\' === DIRECTORY_SEPARATOR)
+		$file = strtr($file, '\\', '/');
 
-	if (false !== strpos($f, './') || false !== strpos($file, ':'))
+	if (
+			( ('./' === substr($file, 0, 2) || '../' === substr($file, 0, 3)) && /*<*/__patchwork_loader::$cwd/*>*/ !== getcwd() )
+			|| ('/' === substr($file, 0, 1) || /*<*/'\\' === DIRECTORY_SEPARATOR/*>*/ && ':/' === substr($file, 1, 2))
+		)
 	{
 		$f = realpath($file);
 		if (!$f) return $file;
 
-		$file = false;
 		$i = /*<*/__patchwork_loader::$last + 1/*>*/;
 		$p =& $GLOBALS['patchwork_path'];
 
 		for (; $i < /*<*/count($patchwork_path)/*>*/; ++$i)
 		{
-			if (substr($f, 0, strlen($p[$i])+1) === $p[$i] . DIRECTORY_SEPARATOR)
+			if (substr($f, 0, strlen($p[$i])+1) === $p[$i] . /*<*/DIRECTORY_SEPARATOR/*>*/)
 			{
 				$file = substr($f, strlen($p[$i])+1);
 				break;
 			}
 		}
 
-		if (false === $file) return $f;
+		if (/*<*/count($patchwork_path)/*>*/ === $i) return $f;
 	}
 
 	$file = 'class/' . $file;

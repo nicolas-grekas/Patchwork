@@ -101,6 +101,36 @@ function registerAutoloadPrefix($class_prefix, $class_to_file_callback)
 
 function resolvePath($file, $level = false, $base = false)
 {
+	global $patchwork_lastpath_level;
+
+/*#>*/	if ('\\' === DIRECTORY_SEPARATOR)
+		$file = strtr($file, '\\', '/');
+
+	if (
+			( ('./' === substr($file, 0, 2) || '../' === substr($file, 0, 3)) && /*<*/__patchwork_loader::$cwd/*>*/ !== getcwd() )
+			|| ('/' === substr($file, 0, 1) || /*<*/'\\' === DIRECTORY_SEPARATOR/*>*/ && ':/' === substr($file, 1, 2))
+		)
+	{
+		$patchwork_lastpath_level = -/*<*/__patchwork_loader::$offset/*>*/;
+
+		$f = realpath($file);
+		if (!$f) return false;
+
+		$i = /*<*/__patchwork_loader::$last + 1/*>*/;
+		$p =& $GLOBALS['patchwork_path'];
+
+		for (; $i < /*<*/count($patchwork_path)/*>*/; ++$i)
+		{
+			if (substr($f, 0, strlen($p[$i])+1) === $p[$i] . /*<*/DIRECTORY_SEPARATOR/*>*/)
+			{
+				$file = substr($f, strlen($p[$i])+1);
+				break;
+			}
+		}
+
+		if (/*<*/count($patchwork_path)/*>*/ === $i) return $f;
+	}
+
 	if (false === $level)
 	{
 		$i = 0;
@@ -113,9 +143,7 @@ function resolvePath($file, $level = false, $base = false)
 		0 > $i && $i = 0;
 	}
 
-	global $patchwork_lastpath_level;
 	$patchwork_lastpath_level = $level;
-
 
 	if (0 == $i)
 	{
@@ -132,7 +160,6 @@ function resolvePath($file, $level = false, $base = false)
 	}
 
 
-	$file = strtr($file, '\\', '/');
 	if ($slash = '/' === substr($file, -1)) $file = substr($file, 0, -1);
 
 
