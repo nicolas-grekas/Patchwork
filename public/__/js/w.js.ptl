@@ -26,6 +26,7 @@
 
 footerHtml = [];
 antiCSRF = '';
+<!-- IF $document_domain -->document.domain = {$document_domain|js};<!-- END:IF -->
 
 function t($v, $type)
 {

@@ -11,6 +11,7 @@
  *
  ***************************************************************************/
 
+<!-- IF $document_domain -->document.domain = {$document_domain|js};<!-- END:IF -->
 $window = window;
 $parent = parent;
 

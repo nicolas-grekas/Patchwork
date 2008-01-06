@@ -148,6 +148,9 @@ acronym
 }
 </style>
 <script type="text/javascript">/*<![CDATA[*/
+
+<?php if ($CONFIG['document.domain']) echo 'document.domain=', jsquote($CONFIG['document.domain']), ';' ?>
+
 function Z()
 {
 	scrollTo(0, window.innerHeight||(document.documentElement||document.body).scrollHeight);
