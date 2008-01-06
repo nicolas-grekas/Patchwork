@@ -190,6 +190,7 @@ $CONFIG += array(
 	'maxage'                => 2678400,
 	'P3P'                   => 'CUR ADM',
 	'xsendfile'             => false,
+	'document.domain'       => '',
 	'session.save_path'     => /*<*/__patchwork_loader::$zcache/*>*/,
 	'session.cookie_path'   => '/',
 	'session.cookie_domain' => '',

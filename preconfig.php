@@ -51,15 +51,28 @@ $patchwork_abstract = array();
 /*#>*/if (!isset($_SERVER['SERVER_ADDR']))
 		$_SERVER['SERVER_ADDR'] = '127.0.0.1';
 
-/*#>*/if (isset($_SERVER['HTTPS']) && !isset($_SERVER['HTTPS_KEYSIZE']))
-		unset($_SERVER['HTTPS']);
-
 /*#>*/if (!isset($_SERVER['QUERY_STRING']))
 /*#>*/{
 		$a = $_SERVER['REQUEST_URI'];
 		$b = strpos($a, '?');
 		$_SERVER['QUERY_STRING'] = false !== $b++ && $b < strlen($a) ? substr($a, $b) : '';
 /*#>*/}
+
+if (isset($_SERVER['HTTPS']))
+{
+	if ('on' === strtolower($_SERVER['HTTPS']) || '1' == $_SERVER['HTTPS']) $_SERVER['HTTPS'] = 'on';
+	else unset($_SERVER['HTTPS']);
+}
+
+if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) // Is it problematic to trust this header ?
+{
+	if ('https' === strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'])) $_SERVER['HTTPS'] = 'on';
+	else unset($_SERVER['HTTPS']);
+
+	$a = strstr($_SERVER['HTTP_HOST'], ':');
+	$_SERVER['SERVER_PORT'] = false !== $a ? (string)(int) substr($a, 1) : (isset($_SERVER['HTTPS']) ? '443' : '80');
+	$_SERVER['SERVER_ADDR'] = $_SERVER['REMOTE_ADDR'];
+}
 
 
 // Utility functions
@@ -239,11 +252,6 @@ class ob
 		return $buffer;
 	}
 }
-
-
-isset($_SERVER['HTTP_X_FORWARDED_PROTO'])
-	&& 'https' === strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'])
-	&& $_SERVER['HTTPS'] = 'on';
 
 
 
