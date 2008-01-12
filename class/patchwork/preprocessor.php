@@ -1001,7 +1001,7 @@ class patchwork_preprocessor__0
 			$b = self::export($b);
 			$b = get_class($a) . '::__set_state(' . $b . ')';
 		}
-		else if (is_string($a) && $a !== strtr($a, "\r\n\0", '---'))
+		else if (is_string($a) && strspn($a, "\r\n\0"))
 		{
 			$b = '"'. str_replace(
 				array(  "\\",   '"',   '$',  "\r",  "\n",  "\0"),

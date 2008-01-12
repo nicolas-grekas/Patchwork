@@ -29,7 +29,7 @@ function patchwork_autoload($searched_class)
 	$i = strrpos($searched_class, '__');
 	$level = false !== $i ? substr($searched_class, $i+2) : false;
 
-	if (false !== $level && '' !== $level && '' === ltrim(strtr($level, ' 0123456789', '#          ')))
+	if (false !== $level && '' !== $level && 0 === strcspn($level, '0123456789'))
 	{
 		// Namespace renammed class
 		$class = substr($searched_class, 0, $i);

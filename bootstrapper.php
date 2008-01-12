@@ -30,7 +30,7 @@ isset($_GET['exit$']) && die('Exit requested');
 
 // Acquire lock
 
-if (!__patchwork_loader::getLock())
+if (!__patchwork_bootstrapper::getLock())
 {
 	require './.patchwork.php';
 	return;
@@ -39,9 +39,9 @@ if (!__patchwork_loader::getLock())
 
 // Linearize applications inheritance graph
 
-$a = __patchwork_loader::c3mro(__patchwork_loader::$pwd, __patchwork_loader::$cwd);
+$a = __patchwork_bootstrapper::c3mro(__patchwork_bootstrapper::$pwd, __patchwork_bootstrapper::$cwd);
 $a = array_slice($a, 1);
-$a[] = __patchwork_loader::$pwd;
+$a[] = __patchwork_bootstrapper::$pwd;
 
 
 // Get include_path
@@ -51,14 +51,14 @@ foreach (explode(PATH_SEPARATOR, get_include_path()) as $i) if ($i = @realpath($
 $patchwork_path = array_diff($patchwork_path, $a, array(''));
 $patchwork_path = array_merge($a, $patchwork_path);
 
-__patchwork_loader::$last   = count($a) - 1;
-__patchwork_loader::$offset = count($patchwork_path) - __patchwork_loader::$last;
+__patchwork_bootstrapper::$last   = count($a) - 1;
+__patchwork_bootstrapper::$offset = count($patchwork_path) - __patchwork_bootstrapper::$last;
 
 
 // Get zcache's location
 
 $a = false;
-for ($i = 0; $i <= __patchwork_loader::$last; ++$i)
+for ($i = 0; $i <= __patchwork_bootstrapper::$last; ++$i)
 {
 	if (file_exists($patchwork_path[$i] . '/zcache/'))
 	{
@@ -77,12 +77,12 @@ if (!$a)
 	file_exists($a) || mkdir($a);
 }
 
-__patchwork_loader::$zcache = $a;
+__patchwork_bootstrapper::$zcache = $a;
 
 
 // Load preconfig
 
-$a = __patchwork_loader::$last + 1;
+$a = __patchwork_bootstrapper::$last + 1;
 $a = array_slice($patchwork_path, 0, $a);
 $a = array_reverse($a);
 foreach ($a as $a)
@@ -91,20 +91,20 @@ foreach ($a as $a)
 
 	if (file_exists($a))
 	{
-		eval(__patchwork_loader::staticPass1($a));
+		eval(__patchwork_bootstrapper::staticPass1($a));
 		unset($a, $b);
-		__patchwork_loader::staticPass2($a);
-		__patchwork_loader::$token = md5(__patchwork_loader::$token . $a);
+		__patchwork_bootstrapper::staticPass2($a);
+		__patchwork_bootstrapper::$token = md5(__patchwork_bootstrapper::$token . $a);
 	}
 }
 
 
-__patchwork_loader::$token = substr(__patchwork_loader::$token, 0, 4);
+__patchwork_bootstrapper::$token = substr(__patchwork_bootstrapper::$token, 0, 4);
 
 
 // Purge sources cache
 
-$a = __patchwork_loader::$cwd . '/.' . __patchwork_loader::$token . '.zcache.php';
+$a = __patchwork_bootstrapper::$cwd . '/.' . __patchwork_bootstrapper::$token . '.zcache.php';
 if (!file_exists($a))
 {
 	touch($a);
@@ -115,10 +115,10 @@ if (!file_exists($a))
 		$b->GetFile($a)->Attributes |= 2; // Set hidden attribute
 	}
 
-	$b = opendir(__patchwork_loader::$cwd);
+	$b = opendir(__patchwork_bootstrapper::$cwd);
 	while (false !== $a = readdir($b))
 	{
-		if ('.zcache.php' == substr($a, -11) && '.' == $a[0]) @unlink(__patchwork_loader::$cwd . '/' . $a);
+		if ('.zcache.php' == substr($a, -11) && '.' == $a[0]) @unlink(__patchwork_bootstrapper::$cwd . '/' . $a);
 	}
 	closedir($b);
 }
@@ -126,7 +126,7 @@ if (!file_exists($a))
 
 // Autoload markers
 
-$a = __patchwork_loader::$token;
+$a = __patchwork_bootstrapper::$token;
 $patchwork_autoload_cache = array();
 ${'c'.$a} =& $patchwork_autoload_cache;
 ${'b'.$a} = ${'a'.$a} = false;
@@ -134,20 +134,20 @@ ${'b'.$a} = ${'a'.$a} = false;
 
 // Load config
 
-$a = __patchwork_loader::$last + 1;
+$a = __patchwork_bootstrapper::$last + 1;
 $a = array_slice($patchwork_path, 0, $a);
-$b =& __patchwork_loader::$configSource;
+$b =& __patchwork_bootstrapper::$configSource;
 foreach ($a as $a)
 {
 	$a .= DIRECTORY_SEPARATOR . 'config.patchwork.php';
-	isset($b[$a]) && __patchwork_loader::$configCode[$a] =& $b[$a];
+	isset($b[$a]) && __patchwork_bootstrapper::$configCode[$a] =& $b[$a];
 }
 unset($b);
 
 
 // Load postconfig
 
-$a = __patchwork_loader::$last + 1;
+$a = __patchwork_bootstrapper::$last + 1;
 $a = array_slice($patchwork_path, 0, $a);
 $a = array_reverse($a);
 foreach ($a as $a)
@@ -156,21 +156,21 @@ foreach ($a as $a)
 
 	if (file_exists($a))
 	{
-		eval(__patchwork_loader::staticPass1($a));
+		eval(__patchwork_bootstrapper::staticPass1($a));
 		unset($a, $b);
-		__patchwork_loader::staticPass2();
+		__patchwork_bootstrapper::staticPass2();
 	}
 }
 
 
 // Eval configs
 
-foreach (__patchwork_loader::$configCode as __patchwork_loader::$file => $a)
+foreach (__patchwork_bootstrapper::$configCode as __patchwork_bootstrapper::$file => $a)
 {
 	ob_start();
 	eval($a);
 	unset($a, $b);
-	if ('' !== $a = ob_get_clean()) echo preg_replace('/' . __patchwork_loader::$selfRx . '\(\d+\) : eval\(\)\'d code/', __patchwork_loader::$file, $a);
+	if ('' !== $a = ob_get_clean()) echo preg_replace('/' . __patchwork_bootstrapper::$selfRx . '\(\d+\) : eval\(\)\'d code/', __patchwork_bootstrapper::$file, $a);
 }
 
 unset($a);
@@ -184,7 +184,7 @@ patchwork_setup::call();
 
 // Save config and release lock
 
-__patchwork_loader::release();
+__patchwork_bootstrapper::release();
 
 
 // Let's go
@@ -193,7 +193,7 @@ patchwork::start();
 return;
 
 
-class __patchwork_loader
+class __patchwork_bootstrapper
 {
 	const UTF8_BOM = "\xEF\xBB\xBF";
 
@@ -678,7 +678,7 @@ patchwork::start();";
 
 		$code = '';
 		ob_start();
-		echo '__patchwork_loader::$code[1]=';
+		echo '__patchwork_bootstrapper::$code[1]=';
 
 		$iLast = 0;
 		$mode = 2;
@@ -698,8 +698,8 @@ patchwork::start();";
 			switch ($transition[0])
 			{
 			case 1: echo 2 === $mode ? ';' : ''; break;
-			case 2: echo (3 !== $mode ? (2 === $mode ? ';' : ' ') . '__patchwork_loader::$code[' . $transition[1] . ']=' : '.'); break;
-			case 3: echo '.__patchwork_loader::export('; break;
+			case 2: echo (3 !== $mode ? (2 === $mode ? ';' : ' ') . '__patchwork_bootstrapper::$code[' . $transition[1] . ']=' : '.'); break;
+			case 3: echo '.__patchwork_bootstrapper::export('; break;
 			}
 
 			$mode = $transition[0];
@@ -765,7 +765,7 @@ patchwork::start();";
 			$b = self::export($b);
 			$b = get_class($a) . '::__set_state(' . $b . ')';
 		}
-		else if (is_string($a) && $a !== strtr($a, "\r\n\0", '---'))
+		else if (is_string($a) && strspn($a, "\r\n\0"))
 		{
 			$b = '"'. str_replace(
 				array(  "\\",   '"',   '$',  "\r",  "\n",  "\0"),

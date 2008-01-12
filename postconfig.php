@@ -15,8 +15,8 @@
 
 /**** Post-configuration stage 0 ****/
 
-$patchwork_appId = (int) /*<*/sprintf('%020d', __patchwork_loader::$appId)/*>*/;
-define('PATCHWORK_PATH_TOKEN', /*<*/__patchwork_loader::$token/*>*/);
+$patchwork_appId = (int) /*<*/sprintf('%020d', __patchwork_bootstrapper::$appId)/*>*/;
+define('PATCHWORK_PATH_TOKEN', /*<*/__patchwork_bootstrapper::$token/*>*/);
 
 
 $CONFIG += array(
@@ -94,18 +94,18 @@ function __autoload($searched_class)
 		{
 			$b = $a;
 			unset($a);
-			$a = $b - /*<*/__patchwork_loader::$offset/*>*/;
+			$a = $b - /*<*/__patchwork_bootstrapper::$offset/*>*/;
 
 			$b = $searched_class;
 			$i = strrpos($b, '__');
-			false !== $i && '__' === rtrim(strtr(substr($b, $i), ' 0123456789', '#          ')) && $b = substr($b, 0, $i);
+			false !== $i && 0 === strcspn(substr($b, $i+2), '0123456789') && $b = substr($b, 0, $i);
 
 			$a = $b . '.php.' . DEBUG . (0>$a ? -$a . '-' : $a);
 		}
 
-		$a = './.class_' . $a . /*<*/__patchwork_loader::$token . '.zcache.php'/*>*/;
+		$a = './.class_' . $a . /*<*/__patchwork_bootstrapper::$token . '.zcache.php'/*>*/;
 
-		$GLOBALS[/*<*/'a' . __patchwork_loader::$token/*>*/] = false;
+		$GLOBALS[/*<*/'a' . __patchwork_bootstrapper::$token/*>*/] = false;
 
 		if (file_exists($a))
 		{
@@ -119,7 +119,7 @@ function __autoload($searched_class)
 
 	if ($load_autoload)
 	{
-		require /*<*/__patchwork_loader::$pwd . '/autoload.php'/*>*/;
+		require /*<*/__patchwork_bootstrapper::$pwd . '/autoload.php'/*>*/;
 		$load_autoload = false;
 	}
 
@@ -141,7 +141,7 @@ function patchworkProcessedPath($file)
 
 		$p =& $GLOBALS['patchwork_path'];
 
-		for ($i = /*<*/__patchwork_loader::$last + 1/*>*/; $i < /*<*/count($patchwork_path)/*>*/; ++$i)
+		for ($i = /*<*/__patchwork_bootstrapper::$last + 1/*>*/; $i < /*<*/count($patchwork_path)/*>*/; ++$i)
 		{
 			if (substr($file, 0, strlen($p[$i])+1) === $p[$i] . /*<*/DIRECTORY_SEPARATOR/*>*/)
 			{
@@ -164,7 +164,7 @@ function patchworkProcessedPath($file)
 	$file = strtr($file, '\\', '/');
 	$cache = DEBUG . (0>$level ? -$level . '-' : $level);
 	$cache = './.' . strtr(str_replace('_', '%2', str_replace('%', '%1', $file)), '/', '_')
-		. '.' . $cache . /*<*/'.' . __patchwork_loader::$token . '.zcache.php'/*>*/;
+		. '.' . $cache . /*<*/'.' . __patchwork_bootstrapper::$token . '.zcache.php'/*>*/;
 
 	if (file_exists($cache) && (TURBO || filemtime($cache) > filemtime($source))) return $cache;
 
@@ -192,7 +192,7 @@ $CONFIG += array(
 	'P3P'                   => 'CUR ADM',
 	'xsendfile'             => false,
 	'document.domain'       => '',
-	'session.save_path'     => /*<*/__patchwork_loader::$zcache/*>*/,
+	'session.save_path'     => /*<*/__patchwork_bootstrapper::$zcache/*>*/,
 	'session.cookie_path'   => '/',
 	'session.cookie_domain' => '',
 	'session.auth_vars'     => array(),

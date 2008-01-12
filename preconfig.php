@@ -21,12 +21,12 @@
 
 define('patchwork', microtime(true));
 error_reporting(E_ALL | E_STRICT);
-if (!isset($_SERVER['HTTP_HOST']) || $_SERVER['HTTP_HOST'] !== strtr($_SERVER['HTTP_HOST'], '\'"<>', '----')) die('Invalid HTTP/1.1 Host header');
+isset($_SERVER['HTTP_HOST']) && strspn($_SERVER['HTTP_HOST'], '\'"<>') && die('Invalid HTTP/1.1 Host header');
 
-define('PATCHWORK_PROJECT_PATH', /*<*/__patchwork_loader::$cwd   /*>*/);
-define('PATCHWORK_ZCACHE',       /*<*/__patchwork_loader::$zcache/*>*/);
-define('PATCHWORK_PATH_LEVEL',   /*<*/__patchwork_loader::$last  /*>*/);
-define('PATCHWORK_PATH_OFFSET',  /*<*/__patchwork_loader::$offset/*>*/);
+define('PATCHWORK_PROJECT_PATH', /*<*/__patchwork_bootstrapper::$cwd   /*>*/);
+define('PATCHWORK_ZCACHE',       /*<*/__patchwork_bootstrapper::$zcache/*>*/);
+define('PATCHWORK_PATH_LEVEL',   /*<*/__patchwork_bootstrapper::$last  /*>*/);
+define('PATCHWORK_PATH_OFFSET',  /*<*/__patchwork_bootstrapper::$offset/*>*/);
 
 $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 $CONFIG   = array();
@@ -82,7 +82,7 @@ function patchwork_is_a($obj, $class) {return $obj instanceof $class;}
 function patchwork_chdir($realdir)    {$realdir === getcwd() || chdir($realdir);}
 function clower($s) {return strtr($s, 'CLASPEMITDBFRUGNJVHOWKXQYZ', 'claspemitdbfrugnjvhowkxqyz');}
 
-register_shutdown_function('patchwork_chdir', /*<*/__patchwork_loader::$cwd/*>*/);
+register_shutdown_function('patchwork_chdir', /*<*/__patchwork_bootstrapper::$cwd/*>*/);
 
 
 // registerAutoloadPrefix()
@@ -121,7 +121,7 @@ function resolvePath($file, $level = false, $base = false)
 
 	if (false !== strpos('.' . $file, './') || /*<*/'\\' === DIRECTORY_SEPARATOR/*>*/ && ':/' === substr($file, 1, 2))
 	{
-		$patchwork_lastpath_level = -/*<*/__patchwork_loader::$offset/*>*/;
+		$patchwork_lastpath_level = -/*<*/__patchwork_bootstrapper::$offset/*>*/;
 
 		if ($f = realpath($file)) $file = $f;
 
@@ -132,7 +132,7 @@ function resolvePath($file, $level = false, $base = false)
 			if (substr($file, 0, strlen($p[$i])+1) === $p[$i] . /*<*/DIRECTORY_SEPARATOR/*>*/)
 			{
 				$file = substr($file, strlen($p[$i])+1);
-				if (/*<*/__patchwork_loader::$last/*>*/ < $i) $file = 'class/' . $file;
+				if (/*<*/__patchwork_bootstrapper::$last/*>*/ < $i) $file = 'class/' . $file;
 				break;
 			}
 		}
@@ -143,12 +143,12 @@ function resolvePath($file, $level = false, $base = false)
 	if (false === $level)
 	{
 		$i = 0;
-		$level = /*<*/__patchwork_loader::$last/*>*/;
+		$level = /*<*/__patchwork_bootstrapper::$last/*>*/;
 	}
 	else
 	{
 		0 <= $level && $base = 0;
-		$i = /*<*/__patchwork_loader::$last/*>*/ - $level - $base;
+		$i = /*<*/__patchwork_bootstrapper::$last/*>*/ - $level - $base;
 		0 > $i && $i = 0;
 	}
 
@@ -156,7 +156,7 @@ function resolvePath($file, $level = false, $base = false)
 
 	if (0 == $i)
 	{
-		$source = /*<*/__patchwork_loader::$cwd . '/'/*>*/ . $file;
+		$source = /*<*/__patchwork_bootstrapper::$cwd . '/'/*>*/ . $file;
 
 /*#>*/	if ('\\' === DIRECTORY_SEPARATOR)
 /*#>*/	{
@@ -172,16 +172,16 @@ function resolvePath($file, $level = false, $base = false)
 	if ($slash = '/' === substr($file, -1)) $file = substr($file, 0, -1);
 
 
-/*#>*/if ($a = __patchwork_loader::buildPathCache())
+/*#>*/if ($a = __patchwork_bootstrapper::buildPathCache())
 /*#>*/{
 		static $db;
-		isset($db) || $db = dba_popen(/*<*/__patchwork_loader::$cwd . DIRECTORY_SEPARATOR . '.parentPaths.db'/*>*/, 'rd', /*<*/$a/*>*/);
+		isset($db) || $db = dba_popen(/*<*/__patchwork_bootstrapper::$cwd . DIRECTORY_SEPARATOR . '.parentPaths.db'/*>*/, 'rd', /*<*/$a/*>*/);
 		$base = dba_fetch($file, $db);
 /*#>*/}
 /*#>*/else
 /*#>*/{
 		$base = md5($file);
-		$base = /*<*/__patchwork_loader::$zcache/*>*/ . $base[0] . '/' . $base[1] . '/' . substr($base, 2) . '.path.txt';
+		$base = /*<*/__patchwork_bootstrapper::$zcache/*>*/ . $base[0] . '/' . $base[1] . '/' . substr($base, 2) . '.path.txt';
 		$base = @file_get_contents($base);
 /*#>*/}
 
@@ -198,7 +198,7 @@ function resolvePath($file, $level = false, $base = false)
 		while (false !== next($base));
 	}
 
-	$patchwork_lastpath_level = -/*<*/__patchwork_loader::$offset/*>*/;
+	$patchwork_lastpath_level = -/*<*/__patchwork_bootstrapper::$offset/*>*/;
 
 	return false;
 }
@@ -280,7 +280,7 @@ if ($a)
 		$_SERVER['HTTP_IF_NONE_MATCH'] = '"' . dechex($a) . '"';
 		$patchwork_private = true;
 	}
-	else if (27 == strlen($a) && '"-------------------------"' == strtr($a, '0123456789abcdef', '----------------'))
+	else if (27 == strlen($a) && 25 === strspn($a, '0123456789abcdef') && '""' === $a[0] . $a[26])
 	{
 		$b = PATCHWORK_ZCACHE . $a[1] .'/'. $a[2] .'/'. substr($a, 3, 6) .'.v.txt';
 		if (file_exists($b) && substr(file_get_contents($b), 0, 8) === substr($a, 9, 8))
@@ -303,10 +303,10 @@ if ($a)
 	ini_get('date.timezone') || ini_set('date.timezone', 'Universal');
 
 
-/*#>*/$a = file_get_contents(__patchwork_loader::$pwd . '/data/utf8/quickChecks.txt');
+/*#>*/$a = file_get_contents(__patchwork_bootstrapper::$pwd . '/data/utf8/quickChecks.txt');
 /*#>*/$a = explode("\n", $a);
 define('UTF8_NFC_RX', /*<*/'/' . $a[1] . '/u'/*>*/);
-define('UTF8_BOM', /*<*/__patchwork_loader::UTF8_BOM/*>*/);
+define('UTF8_BOM', /*<*/__patchwork_bootstrapper::UTF8_BOM/*>*/);
 
 
 // Disables mod_deflate who overwrites any custom Vary: header and appends a body to 304 responses.
