@@ -22,10 +22,11 @@ define('PATCHWORK_PATH_TOKEN', /*<*/__patchwork_loader::$token/*>*/);
 $CONFIG += array(
 	'debug.allowed'  => true,
 	'debug.password' => '',
+	'turbo' => false,
 );
 
-define('DEBUG', $CONFIG['debug.allowed'] && (!$CONFIG['debug.password'] || (isset($_COOKIE['debug_password']) && $CONFIG['debug.password'] == $_COOKIE['debug_password'])) ? 1 : 0);
-define('TURBO', !DEBUG && isset($CONFIG['turbo']) && $CONFIG['turbo']);
+define('DEBUG', $CONFIG['debug.allowed'] && (!$CONFIG['debug.password'] || $CONFIG['debug.password'] == $_COOKIE['debug_password']) ? 1 : 0);
+define('TURBO', !DEBUG && $CONFIG['turbo']);
 
 unset($CONFIG['debug.allowed'], $CONFIG['debug.password'], $CONFIG['turbo']);
 
@@ -284,6 +285,8 @@ $b = '(' . implode('|', $b) . ')';
 /*#>*/}
 /*#>*/else
 /*#>*/{
+/*#>*/	isset($_SERVER['ORIG_PATH_INFO']) && !isset($_SERVER['PATH_INFO']) && $_SERVER['PATH_INFO'] = $_SERVER['ORIG_PATH_INFO'];
+/*#>*/
 /*#>*/	if (!isset($_SERVER['PATH_INFO']))
 /*#>*/	{
 /*#>*/		// Check if the webserver supports PATH_INFO
@@ -314,6 +317,7 @@ $b = '(' . implode('|', $b) . ')';
 
 /*#>*/	if (isset($_SERVER['PATH_INFO']))
 /*#>*/	{
+			isset($_SERVER['ORIG_PATH_INFO']) && !isset($_SERVER['PATH_INFO']) && $_SERVER['PATH_INFO'] = $_SERVER['ORIG_PATH_INFO'];
 			isset($_SERVER['PATH_INFO']) && $_SERVER['PATCHWORK_REQUEST'] = substr($_SERVER['PATH_INFO'], 1);
 			$_SERVER['PATCHWORK_BASE'] .= '/' . (PATCHWORK_I18N ? '__/' : '');
 /*#>*/	}

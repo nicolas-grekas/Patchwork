@@ -18,7 +18,7 @@ class
 	{
 		$string = p::string($string);
 
-		return (string) $string === (string) ($string-0)
+		return is_numeric($string)
 			? $string
 			: str_replace(
 				array('&#039;', '&quot;', '&gt;', '&lt;', '&amp;', '{/}'                , '{~}'),

@@ -233,7 +233,7 @@ class extends ptlCompiler
 
 	protected function getEcho($str)
 	{
-		if ("'" == $str[0] || (string) $str === (string) ($str-0))
+		if ("'" == $str[0] || is_numeric($str))
 		{
 			if ("''" != $str) array_push($this->jscode, pC_ECHO, $str);
 		}
@@ -265,7 +265,7 @@ class extends ptlCompiler
 
 	protected function getVar($name, $type, $prefix, $forceType)
 	{
-		if ((string) $name === (string) ($name-0)) return $name;
+		if (is_numeric($name)) return $name;
 
 		switch ($type)
 		{
