@@ -48,10 +48,10 @@ P$truncate = function($string, $length, $etc, $break_words)
 
 	if ($string.length > $length)
 	{
-		$length -= strlen($etc);
+		$length -= $etc.length;
 		if (!str($break_words)) $string = $string.substr(0, $length + 1).replace(/\s+?(\S+)?$/g, '');
 
-		return substr($string, 0, $length) . $etc;
+		return $string.substr(0, $length) + $etc;
 	}
 
 	return $string;
