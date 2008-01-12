@@ -29,4 +29,4 @@ $b = str_replace('a', 'b', array(-1 => -1));
 isset($b[-1]) || die("Your PHP 5.0.x is buggy; please upgrade to PHP $a or higher. (see http://bugs.php.net/bug.php?id=34879)");
 
 
-require dirname(__FILE__) . '/loader.php';
+require dirname(__FILE__) . '/bootstrapper.php';

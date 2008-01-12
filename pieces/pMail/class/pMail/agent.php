@@ -141,7 +141,7 @@ class extends pMail_mime
 		$m = trim($m[1]);
 		$m = preg_replace('"^mailto:\s*"i', '', $m);
 
-		$b = strtr($m, '&;', '--') !== $m ? html_entity_decode($m, ENT_COMPAT, 'UTF-8') : $m;
+		$b = false !== strpos($m, '&') ? html_entity_decode($m, ENT_COMPAT, 'UTF-8') : $m;
 		$b = preg_replace_callback('"[^-a-zA-Z0-9_.~,/?:@&=+$#%]+"', array($this, 'rawurlencodeCallback'), $b);
 		$len = strlen($b);
 

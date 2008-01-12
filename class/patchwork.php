@@ -291,7 +291,7 @@ class
 		if (
 			isset($_COOKIE['T$'])
 			&& (!IS_POSTING || (isset($_POST['T$']) && substr($_COOKIE['T$'], 1) === substr($_POST['T$'], 1)))
-			&& '---------------------------------' === strtr($_COOKIE['T$'], '-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', '#--------------------------------------------------------------')
+			&& 33 === strlen($_COOKIE['T$']) && 33 === strspn($_COOKIE['T$'], 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789')
 		) self::$antiCSRFtoken = $_COOKIE['T$'];
 		else self::getAntiCSRFtoken(true);
 
@@ -618,7 +618,7 @@ class
 	{
 		isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 5') && $httponly = false;
 
-		if ($value !== strtr($value, ",; \t\r\n\013\014", '--------')) setrawcookie($name, $value, $expires, $path, $domain, $secure);
+		if (strspn($value, ",; \t\r\n\013\014")) setrawcookie($name, $value, $expires, $path, $domain, $secure);
 		else
 		{
 			('' === (string) $value) && $expires = 1;
@@ -1274,7 +1274,7 @@ class
 	{
 		$file && $file = realpath($file);
 		if (!$file && !$exclusive) return;
-		$file && $file = strtr($file, "\n\r", '--');
+		$file && $file = strtr($file, "\n\r\0", '---');
 
 		foreach (array_unique((array) $message) as $message)
 		{
