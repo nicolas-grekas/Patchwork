@@ -46,7 +46,7 @@ $patchwork_abstract = array();
 // IIS compatibility
 
 /*#>*/if (!isset($_SERVER['REQUEST_URI']))
-		$_SERVER['REQUEST_URI'] = $_SERVER['URL'];
+		$_SERVER['REQUEST_URI'] = isset($_SERVER['HTTP_X_REWRITE_URL']) ? $_SERVER['HTTP_X_REWRITE_URL'] : $_SERVER['URL'];
 
 /*#>*/if (!isset($_SERVER['SERVER_ADDR']))
 		$_SERVER['SERVER_ADDR'] = '127.0.0.1';
