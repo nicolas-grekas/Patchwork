@@ -150,13 +150,13 @@ function patchwork_autoload($searched_class)
 		if (isset($GLOBALS['patchwork_abstract'][$parent_class])) $class && $class = 'abstract ' . $class;
 		else if ($c)
 		{
-			$file = "{$parent_class}::__constructStatic{$T}";
+			$file = "{$parent_class}::__cS{$T}";
 			if (defined($file) ? $searched_class == constant($file) : method_exists($parent_class, '__constructStatic'))
 			{
 				$class .= "{$parent_class}::__constructStatic();";
 			}
 
-			$file = "{$parent_class}::__destructStatic{$T}";
+			$file = "{$parent_class}::__dS{$T}";
 			if (defined($file) ? $searched_class == constant($file) : method_exists($parent_class, '__destructStatic'))
 			{
 				$class = str_replace('{}', "{static \$hunter{$T};}", $class);

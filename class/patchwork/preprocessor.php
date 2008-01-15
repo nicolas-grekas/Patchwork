@@ -162,7 +162,7 @@ class patchwork_preprocessor__0
 		foreach (get_declared_classes() as $v)
 		{
 			$v = clower($v);
-			if ('patchwork_' == substr($v, 0, 10)) break;
+			if ('patchwork_' === substr($v, 0, 10)) break;
 			self::$declared_class[$v] = 1;
 		}
 
@@ -434,11 +434,11 @@ class patchwork_preprocessor__0
 			case T_CLASS:
 				$b = $c = '';
 
-				$final    = T_FINAL    == $prevType;
-				$abstract = T_ABSTRACT == $prevType;
+				$final    = T_FINAL    === $prevType;
+				$abstract = T_ABSTRACT === $prevType;
 
 				$j = $this->seekSugar($code, $i);
-				if (isset($code[$j]) && is_array($code[$j]) && T_STRING == $code[$j][0])
+				if (isset($code[$j]) && is_array($code[$j]) && T_STRING === $code[$j][0])
 				{
 					$token .= $this->fetchSugar($code, $i);
 
@@ -467,27 +467,36 @@ class patchwork_preprocessor__0
 					'real_classname' => clower($b),
 					'is_final' => $final,
 					'is_abstract' => $abstract,
-					'add_php5_construct' => T_CLASS == $type && 0>$level,
-					'add_constructStatic' => false,
-					'add_destructStatic'  => false,
+					'add_php5_construct' => T_CLASS === $type && 0>$level,
+					'add_constructStatic' => 0,
+					'add_destructStatic'  => 0,
 					'construct_source' => '',
 				);
 
 				self::$inline_class[clower($c)] = 1;
 
-				if ($c && isset($code[$i]) && is_array($code[$i]) && T_EXTENDS == $code[$i][0])
+				if ($c && isset($code[$i]) && is_array($code[$i]) && T_EXTENDS === $code[$i][0])
 				{
 					$token .= $code[$i][1];
 					$token .= $this->fetchSugar($code, $i);
 					if (isset($code[$i]) && is_array($code[$i]))
 					{
-						$c = 0<=$level && 'self' == $code[$i][1] ? $c . '__' . ($level ? $level-1 : '00') : $code[$i][1];
+						$c = 0<=$level && 'self' === $code[$i][1] ? $c . '__' . ($level ? $level-1 : '00') : $code[$i][1];
 						$token .= $c;
 						self::$inline_class[clower($c)] = 1;
 					}
 					else --$i;
 				}
-				else --$i;
+				else
+				{
+					if (T_CLASS === $type)
+					{
+						$class_pool[$curly_level]->add_constructStatic = 2;
+						$class_pool[$curly_level]->add_destructStatic = 2;
+					}
+
+					--$i;
+				}
 
 				break;
 
@@ -507,12 +516,12 @@ class patchwork_preprocessor__0
 				if (isset($class_pool[$curly_level-1]) && !$class_pool[$curly_level-1]->is_final)
 				{
 					// Look backward for the "static" keyword
-					if (T_STATIC == $prevType) $j = true;
+					if (T_STATIC === $prevType) $j = true;
 					else
 					{
 						// Look forward for the "static" keyword
 						$j = $this->seekSugar($code, $i);
-						$j = isset($code[$j]) && is_array($code[$j]) && T_STATIC == $code[$j][0];
+						$j = isset($code[$j]) && is_array($code[$j]) && T_STATIC === $code[$j][0];
 					}
 
 					if ($j)
@@ -537,7 +546,7 @@ class patchwork_preprocessor__0
 
 				$c = true;
 
-				if (is_array($code[$j]) && T_STRING == $code[$j][0])
+				if (is_array($code[$j]) && T_STRING === $code[$j][0])
 				{
 					if (isset(self::$inline_class[clower($code[$j][1])])) break;
 					$c = false;
@@ -554,7 +563,7 @@ class patchwork_preprocessor__0
 					$c = $this->marker($code[$j][1]);
 				}
 
-				if ('&' == $prevType)
+				if ('&' === $prevType)
 				{
 					if ('=' != $antePrevType) break;
 					$antePrevType = '&';
@@ -565,7 +574,7 @@ class patchwork_preprocessor__0
 				else $token = "(({$c})?" . $token;
 
 			case T_DOUBLE_COLON:
-				if (T_DOUBLE_COLON == $type)
+				if (T_DOUBLE_COLON === $type)
 				{
 					if ($static_instruction || isset($class_pool[$curly_level-1]) || isset(self::$inline_class[$prevType])) break;
 
@@ -573,7 +582,7 @@ class patchwork_preprocessor__0
 					$c = $this->marker($prevType);
 					$j = $new_code_length;
 
-					if ('&' == $antePrevType)
+					if ('&' === $antePrevType)
 					{
 						while (--$j && in_array($new_type[$j], array('&', $prevType, T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ;
 						if ('=' != $new_type[$j--]) break;
@@ -586,7 +595,7 @@ class patchwork_preprocessor__0
 					}
 				}
 
-				if ('&' == $antePrevType)
+				if ('&' === $antePrevType)
 				{
 					$b = 0;
 
@@ -616,18 +625,18 @@ class patchwork_preprocessor__0
 				break;
 
 			case T_STRING:
-				if ($this->inString || T_DOUBLE_COLON == $prevType || T_OBJECT_OPERATOR == $prevType) break;
+				if ($this->inString || T_DOUBLE_COLON === $prevType || T_OBJECT_OPERATOR === $prevType) break;
 
 				$type = clower($token);
 
-				if (T_FUNCTION == $prevType || ('&' == $prevType && T_FUNCTION == $antePrevType))
+				if (T_FUNCTION === $prevType || ('&' === $prevType && T_FUNCTION === $antePrevType))
 				{
 					if (isset($class_pool[$curly_level-1]) && $c = $class_pool[$curly_level-1])
 					{
 						switch ($type)
 						{
-						case '__constructstatic': $c->add_constructStatic = true ; break;
-						case '__destructstatic' : $c->add_destructStatic  = true ; break;
+						case '__constructstatic': $c->add_constructStatic = 1 ; break;
+						case '__destructstatic' : $c->add_destructStatic  = 1 ; break;
 						case '__construct'      : $c->add_php5_construct  = false; break;
 
 						case clower($c->classname):
@@ -646,7 +655,7 @@ class patchwork_preprocessor__0
 					break;
 				}
 
-				if ('(' == $code[$i+1])
+				if ('(' === $code[$i+1])
 				{
 					if (isset(self::$function[$type]))
 					{
@@ -697,7 +706,7 @@ class patchwork_preprocessor__0
 						$b->curly = -1;
 						$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 
-						if ('&' == $prevType)
+						if ('&' === $prevType)
 						{
 							$j = $new_code_length;
 							while (--$j && in_array($new_type[$j], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ;
@@ -709,7 +718,7 @@ class patchwork_preprocessor__0
 						if (0>$level && in_array($type, array('interface_exists', 'class_exists'))) new patchwork_preprocessor_classExists_($this, true);
 					}
 				}
-				else if (!(is_array($code[$i+1]) && T_DOUBLE_COLON == $code[$i+1][0])) switch ($type)
+				else if (!(is_array($code[$i+1]) && T_DOUBLE_COLON === $code[$i+1][0])) switch ($type)
 				{
 				case '__patchwork_level__': if (0>$level) break;
 					$token = $level;
@@ -722,12 +731,12 @@ class patchwork_preprocessor__0
 						$token = self::$constant[$token];
 						     if (  is_int($token)) $type = T_LNUMBER;
 						else if (is_float($token)) $type = T_DNUMBER;
-						else if ("'" == $token[0]) $type = T_CONSTANT_ENCAPSED_STRING;
+						else if ("'" === $token[0]) $type = T_CONSTANT_ENCAPSED_STRING;
 					}
 				}
-				else if ('self' == $type && $class_pool) $token = end($class_pool)->classname; // Replace every self::* by __CLASS__::*
-				else if ('p' == $type) $token = 'patchwork';
-				else if ('s' == $type) $token = 'SESSION';
+				else if ('self' === $type && $class_pool) $token = end($class_pool)->classname; // Replace every self::* by __CLASS__::*
+				else if ('p' === $type) $token = 'patchwork';
+				else if ('s' === $type) $token = 'SESSION';
 
 				$token .= $c;
 
@@ -735,7 +744,7 @@ class patchwork_preprocessor__0
 
 			case T_EVAL:
 				$token .= $this->fetchSugar($code, $i);
-				if ('(' == $code[$i--])
+				if ('(' === $code[$i--])
 				{
 					$token = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$token}";
 					$b = new patchwork_preprocessor_marker_($this, true);
@@ -784,7 +793,7 @@ class patchwork_preprocessor__0
 
 			case T_VARIABLE:
 
-				if (!$autoglobalize && '$CONFIG' == $token && T_DOUBLE_COLON != $prevType)
+				if (!$autoglobalize && '$CONFIG' === $token && T_DOUBLE_COLON != $prevType)
 				{
 					$autoglobalize = $curly_starts_function ? 2 : 1;
 				}
@@ -841,7 +850,7 @@ class patchwork_preprocessor__0
 						? "{$this->marker[1]}static \$d{$T}=1;(" . $this->marker() . ")&&\$d{$T}&&\$d{$T}=0;"
 						: $this->marker[0];
 
-					1 == $autoglobalize && $new_code[$curly_marker_last[0]] .= 'global $CONFIG;';
+					1 === $autoglobalize && $new_code[$curly_marker_last[0]] .= 'global $CONFIG;';
 
 					unset($curly_marker[$curly_level]);
 					end($curly_marker);
@@ -855,8 +864,17 @@ class patchwork_preprocessor__0
 					$c = $class_pool[$curly_level];
 
 					if ($c->add_php5_construct) $token = $c->construct_source . '}';
-					if ($c->add_constructStatic) $token = "const __constructStatic{$T}='{$c->classname}';{$token}";
-					if ($c->add_destructStatic ) $token = "const __destructStatic{$T} ='{$c->classname}';{$token}";
+
+					if ($c->add_constructStatic)
+					{
+						$token = "const __cS{$T}=" . (1 === $c->add_constructStatic ? "'{$c->classname}';" : "'';static function __constructStatic(){}") . $token;
+					}
+
+					if ($c->add_destructStatic)
+					{
+						$token = "const __dS{$T}=" . (1 === $c->add_destructStatic  ? "'{$c->classname}';" : "'';static function __destructStatic() {}") . $token;
+					}
+
 					if ($c->is_abstract) $token .= "\$GLOBALS['patchwork_abstract']['{$c->real_classname}']=1;";
 					$token .= "\$GLOBALS['c{$T}']['{$c->real_classname}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
 
@@ -893,7 +911,7 @@ class patchwork_preprocessor__0
 	{
 		while (
 			isset($code[++$i]) && is_array($code[$i]) && ($t = $code[$i][0])
-			&& (T_WHITESPACE == $t || T_COMMENT == $t || T_DOC_COMMENT == $t)
+			&& (T_WHITESPACE === $t || T_COMMENT === $t || T_DOC_COMMENT === $t)
 		) ;
 
 		return $i;
@@ -906,11 +924,11 @@ class patchwork_preprocessor__0
 
 		while (
 			isset($code[++$i]) && is_array($code[$i]) && ($t = $code[$i][0])
-			&& (T_WHITESPACE == $t || T_COMMENT == $t || T_DOC_COMMENT == $t)
+			&& (T_WHITESPACE === $t || T_COMMENT === $t || T_DOC_COMMENT === $t)
 		)
 		{
 			// Preserve T_DOC_COMMENT for PHP's native Reflection API
-			$token .= T_DOC_COMMENT == $t ? $code[$i][1] : $this->extractLF($code[$i][1]);
+			$token .= T_DOC_COMMENT === $t ? $code[$i][1] : $this->extractLF($code[$i][1]);
 			$nonEmpty || $nonEmpty = true;
 		}
 
@@ -1082,7 +1100,7 @@ abstract class patchwork_preprocessor_bracket_
 			break;
 
 		case ',':
-			if (1 == $this->bracket)
+			if (1 === $this->bracket)
 			{
 				$token = $this->filterBracket($type, $token);
 				++$this->position;
@@ -1115,7 +1133,7 @@ class patchwork_preprocessor_construct_ extends patchwork_preprocessor_bracket_
 
 	function filterBracket($type, $token)
 	{
-		if (T_VARIABLE == $type)
+		if (T_VARIABLE === $type)
 		{
 			$this->proto .=  '$a' . $this->num_args;
 			$this->args  .= '&$a' . $this->num_args . ',';
@@ -1142,7 +1160,7 @@ class patchwork_preprocessor_path_ extends patchwork_preprocessor_bracket_
 {
 	function onClose($token)
 	{
-		return parent::onClose(1 == $this->position ? ',' . $this->preproc->level . $token : $token);
+		return parent::onClose(1 === $this->position ? ',' . $this->preproc->level . $token : $token);
 	}
 }
 
@@ -1150,12 +1168,12 @@ class patchwork_preprocessor_classExists_ extends patchwork_preprocessor_bracket
 {
 	function onReposition($token)
 	{
-		return 1 == $this->position ? $token . '(' : (2 == $this->position ? ')||1' . $token : $token);
+		return 1 === $this->position ? $token . '(' : (2 === $this->position ? ')||1' . $token : $token);
 	}
 
 	function onClose($token)
 	{
-		return parent::onClose(1 == $this->position ? ')||1' . $token : $token);
+		return parent::onClose(1 === $this->position ? ')||1' . $token : $token);
 	}
 }
 
@@ -1163,7 +1181,7 @@ class patchwork_preprocessor_t_ extends patchwork_preprocessor_bracket_
 {
 	function filterBracket($type, $token)
 	{
-		if ('.' == $type) trigger_error(
+		if ('.' === $type) trigger_error(
 "File {$this->preproc->source} line {$this->preproc->line}:
 Usage of T() is potentially divergent.
 Please use sprintf() instead of string concatenation."
@@ -1213,7 +1231,7 @@ class patchwork_preprocessor_marker_ extends patchwork_preprocessor_require_
 	{
 		if ($this->greedy) return parent::filter($type, $token);
 
-		if (T_WHITESPACE == $type || T_COMMENT == $type || T_DOC_COMMENT == $type) ;
+		if (T_WHITESPACE === $type || T_COMMENT === $type || T_DOC_COMMENT === $type) ;
 		else if (0<=$this->curly) switch ($type)
 		{
 			case '$': break;
@@ -1223,9 +1241,9 @@ class patchwork_preprocessor_marker_ extends patchwork_preprocessor_require_
 		}
 		else
 		{
-			if ('?' == $type) --$this->bracket;
+			if ('?' === $type) --$this->bracket;
 			$token = parent::filter($type, $token);
-			if (':' == $type) ++$this->bracket;
+			if (':' === $type) ++$this->bracket;
 
 			if (0<$this->bracket || !$this->registered) return $token;
 
