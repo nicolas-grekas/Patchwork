@@ -176,7 +176,7 @@ class extends ptlCompiler
 
 	protected function getVar($name, $type, $prefix, $forceType)
 	{
-		if (is_numeric($name)) return $name . '"\'"\'o';
+		if ((string) $name === (string) ($name-0)) return $name . '"\'"\'o';
 
 		switch ($type)
 		{
