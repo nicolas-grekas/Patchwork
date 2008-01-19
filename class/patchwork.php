@@ -102,7 +102,7 @@ function DB($close = false)
 
 function jsquote($a, $addDelim = true, $delim = "'")
 {
-	if (is_numeric($a)) return $a;
+	if ((string) $a === (string) ($a-0)) return $a-0;
 
 	false !== strpos($a, "\r") && $a = strtr(str_replace("\r\n", "\n", $a), "\r", "\n");
 	false !== strpos($a, '\\') && $a = str_replace('\\', '\\\\', $a);

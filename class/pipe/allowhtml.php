@@ -18,13 +18,11 @@ class
 	{
 		$string = p::string($string);
 
-		return is_numeric($string)
-			? $string
-			: str_replace(
-				array('&#039;', '&quot;', '&gt;', '&lt;', '&amp;', '{/}'                , '{~}'),
-				array("'"     , '"'     , '>'   , '<'   , '&'    , p::__HOST__(), p::__BASE__()),
-				$string
-			);
+		return str_replace(
+			array('&#039;', '&quot;', '&gt;', '&lt;', '&amp;', '{/}'                , '{~}'),
+			array("'"     , '"'     , '>'   , '<'   , '&'    , p::__HOST__(), p::__BASE__()),
+			$string
+		);
 	}
 
 	static function js()
