@@ -51,7 +51,7 @@ class patchwork_preprocessor__0
 	),
 
 	$variableType = array(
-		T_EVAL, '(', T_FILE, T_LINE, T_FUNC_C, T_CLASS_C, T_INCLUDE, T_REQUIRE,
+		T_EVAL, '(', T_FILE, T_LINE, T_FUNC_C, T_CLASS_C, T_INCLUDE, T_REQUIRE, T_CURLY_OPEN,
 		T_VARIABLE, '$', T_INCLUDE_ONCE, T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES,
 	),
 
@@ -387,7 +387,7 @@ class patchwork_preprocessor__0
 				$type = $token[0];
 				$token = $token[1];
 			}
-			else $type = $token;
+			else $type = $this->inString && '"' !== $token ? T_ENCAPSED_AND_WHITESPACE : $token;
 
 			// Reduce memory usage
 			unset($code[$i]);
@@ -411,11 +411,6 @@ class patchwork_preprocessor__0
 			case '"':  $this->inString = !$this->inString; break;
 			case T_START_HEREDOC: $this->inString = true;  break;
 			case T_END_HEREDOC:   $this->inString = false; break;
-
-			case T_CURLY_OPEN:
-			case T_DOLLAR_OPEN_CURLY_BRACES:
-				++$curly_level;
-				break;
 
 			case T_FILE:
 				$token = self::export($source);
@@ -963,7 +958,7 @@ class patchwork_preprocessor__0
 				$type = $token[0];
 				$token = $token[1];
 			}
-			else $type = $token;
+			else $type = $inString && '"' !== $token ? T_ENCAPSED_AND_WHITESPACE : $token;
 
 			$close = '';
 

@@ -170,9 +170,9 @@ if (appVersion < 5.5) {
       case 4: r = o[$](a[0],a[1],a[2],a[3]); break;
       case 5: r = o[$](a[0],a[1],a[2],a[3],a[4]); break;
       default:
-        var i = a.length - 1, $a = a, $r = [], $o = o, $$ = $;
+        var i = a.length - 1, $a = a, $r = [], $o = o, $k = $;
         do $r[i] = "$a[" + i + "]"; while (i--);
-        eval("$r=$o[$$](" + $r + ")");
+        eval("$r=$o[$k](" + $r + ")");
         r = $r;
     }
     if (typeof o.valueOf == "function") { // not a COM object
