@@ -1725,7 +1725,7 @@ if (appVersion >= 5.5 && appVersion < 7) {
   
   // ** IE7 VARIABLE
   // e.g. only apply the hack to files ending in ".png"
-  // IE7_PNG_SUFFIX = ".png";
+  IE7_PNG_SUFFIX = "\.png";
 
   // replace background(-image): url(..) ..  with background(-image): .. ;filter: ..;
   IE7.CSS.addFix(BACKGROUND, function(match, $1, $2, url, $4) {
