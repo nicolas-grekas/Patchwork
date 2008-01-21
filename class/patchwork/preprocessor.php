@@ -387,7 +387,7 @@ class patchwork_preprocessor__0
 				$type = $token[0];
 				$token = $token[1];
 			}
-			else $type = $this->inString && '"' !== $token ? T_ENCAPSED_AND_WHITESPACE : $token;
+			else $type = $this->inString && '"' !== $token && '`' !== $token ? T_ENCAPSED_AND_WHITESPACE : $token;
 
 			// Reduce memory usage
 			unset($code[$i]);
@@ -408,6 +408,7 @@ class patchwork_preprocessor__0
 				$token = $this->extractLF($token) . '?>';
 				break;
 
+			case '`':
 			case '"':  $this->inString = !$this->inString; break;
 			case T_START_HEREDOC: $this->inString = true;  break;
 			case T_END_HEREDOC:   $this->inString = false; break;
@@ -958,12 +959,13 @@ class patchwork_preprocessor__0
 				$type = $token[0];
 				$token = $token[1];
 			}
-			else $type = $inString && '"' !== $token ? T_ENCAPSED_AND_WHITESPACE : $token;
+			else $type = $inString && '"' !== $token && '`' !== $token ? T_ENCAPSED_AND_WHITESPACE : $token;
 
 			$close = '';
 
 			switch ($type)
 			{
+			case '`':
 			case '"':             $inString = !$inString;  break;
 			case T_START_HEREDOC: $inString = true;        break;
 			case T_END_HEREDOC:   $inString = false;       break;
