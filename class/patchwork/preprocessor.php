@@ -21,7 +21,7 @@ class patchwork_preprocessor__0
 	$level,
 	$class,
 	$marker,
-	$inString = false;
+	$inString = 0;
 
 
 	protected $tokenFilter = array();
@@ -387,7 +387,7 @@ class patchwork_preprocessor__0
 				$type = $token[0];
 				$token = $token[1];
 			}
-			else $type = $this->inString && '"' !== $token && '`' !== $token ? T_ENCAPSED_AND_WHITESPACE : $token;
+			else $type = $this->inString%2 && '"' !== $token && '`' !== $token ? T_ENCAPSED_AND_WHITESPACE : $token;
 
 			// Reduce memory usage
 			unset($code[$i]);
@@ -409,9 +409,18 @@ class patchwork_preprocessor__0
 				break;
 
 			case '`':
-			case '"':  $this->inString = !$this->inString; break;
-			case T_START_HEREDOC: $this->inString = true;  break;
-			case T_END_HEREDOC:   $this->inString = false; break;
+			case '"':
+				if ($this->inString%2) --$this->inString;
+				else ++$this->inString;
+				break;
+
+			case T_START_HEREDOC: ++$this->inString;  break;
+			case T_END_HEREDOC:   --$this->inString; break;
+
+			case T_CURLY_OPEN:
+			case T_DOLLAR_OPEN_CURLY_BRACES:
+				++$this->inString;
+				break;
 
 			case T_FILE:
 				$token = self::export($source);
@@ -621,7 +630,7 @@ class patchwork_preprocessor__0
 				break;
 
 			case T_STRING:
-				if ($this->inString || T_DOUBLE_COLON === $prevType || T_OBJECT_OPERATOR === $prevType) break;
+				if ($this->inString%2 || T_DOUBLE_COLON === $prevType || T_OBJECT_OPERATOR === $prevType) break;
 
 				$type = clower($token);
 
@@ -838,6 +847,13 @@ class patchwork_preprocessor__0
 				break;
 
 			case '}':
+				if ($this->inString)
+				{
+					$type = T_ENCAPSED_AND_WHITESPACE;
+					--$this->inString;
+					break;
+				}
+
 				$curly_starts_function = false;
 
 				if (isset($curly_marker[$curly_level]))
@@ -965,7 +981,7 @@ class patchwork_preprocessor__0
 
 			switch ($type)
 			{
-			case '`':
+			case '`': return false;
 			case '"':             $inString = !$inString;  break;
 			case T_START_HEREDOC: $inString = true;        break;
 			case T_END_HEREDOC:   $inString = false;       break;
