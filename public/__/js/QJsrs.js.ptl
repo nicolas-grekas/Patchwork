@@ -64,11 +64,11 @@ QJsrs = (function()
 var $contextPool = [],
 	$loadCounter = 0,
 	$masterTimer = 0,
+	$win = $window,
 	$document = document,
 	$div = 0,
-	$emptyFunction = $window.$emptyFunction,
+	$emptyFunction = $win.$emptyFunction,
 	$defaultFunction = $emptyFunction,
-	$win = $window,
 	$XMLHttp = QJsrs - 1;
 
 $document.write('<div id="divQJsrs" style="position:absolute;visibility:hidden"><b></b></div>');
