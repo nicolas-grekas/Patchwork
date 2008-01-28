@@ -387,7 +387,7 @@ class patchwork_preprocessor__0
 				$type = $token[0];
 				$token = $token[1];
 			}
-			else $type = $this->inString%2 && '"' !== $token && '`' !== $token ? T_ENCAPSED_AND_WHITESPACE : $token;
+			else $type = ($this->inString & 1) && '"' !== $token && '`' !== $token ? T_ENCAPSED_AND_WHITESPACE : $token;
 
 			// Reduce memory usage
 			unset($code[$i]);
@@ -410,17 +410,14 @@ class patchwork_preprocessor__0
 
 			case '`':
 			case '"':
-				if ($this->inString%2) --$this->inString;
+				if ($this->inString & 1) --$this->inString;
 				else ++$this->inString;
 				break;
 
-			case T_START_HEREDOC: ++$this->inString;  break;
-			case T_END_HEREDOC:   --$this->inString; break;
-
 			case T_CURLY_OPEN:
 			case T_DOLLAR_OPEN_CURLY_BRACES:
-				++$this->inString;
-				break;
+			case T_START_HEREDOC: ++$this->inString; break;
+			case T_END_HEREDOC:   --$this->inString; break;
 
 			case T_FILE:
 				$token = self::export($source);
@@ -630,7 +627,7 @@ class patchwork_preprocessor__0
 				break;
 
 			case T_STRING:
-				if ($this->inString%2 || T_DOUBLE_COLON === $prevType || T_OBJECT_OPERATOR === $prevType) break;
+				if (($this->inString & 1) || T_DOUBLE_COLON === $prevType || T_OBJECT_OPERATOR === $prevType) break;
 
 				$type = clower($token);
 
