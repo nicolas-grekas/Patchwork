@@ -156,7 +156,7 @@ function resolvePath($file, $level = false, $base = false)
 
 	if (0 == $i)
 	{
-		$source = /*<*/__patchwork_bootstrapper::$cwd . '/'/*>*/ . $file;
+		$source = /*<*/__patchwork_bootstrapper::$cwd . DIRECTORY_SEPARATOR/*>*/ . $file;
 
 /*#>*/	if ('\\' === DIRECTORY_SEPARATOR)
 /*#>*/	{

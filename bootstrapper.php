@@ -229,6 +229,16 @@ class __patchwork_bootstrapper
 			self::$pwd = dirname(__FILE__);
 			self::$cwd = getcwd();
 
+			if (!self::$cwd)
+			{
+				if (file_put_contents('./.getcwd', '<?php return dirname(__FILE__);'))
+				{
+					self::$cwd = require './.getcwd';
+					unlink('./.getcwd');
+				}
+				else die("Patchwork Error: Your system's getcwd() is bugged and workaround failed.");
+			}
+
 			set_time_limit(0);
 
 			return true;
