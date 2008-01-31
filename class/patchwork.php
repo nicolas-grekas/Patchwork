@@ -1107,26 +1107,27 @@ class
 		$lang = self::$lang;
 		$l_ng = 2 < strlen($lang) ? substr($lang, 0, 2) : false;
 
-		$agent = '/index';
+		$existingAgent = '/index';
 
 		global $patchwork_lastpath_level;
 
 		if ('' !== $potentialAgent)
 		{
+			$agent = explode('/', $agent);
+			$agentLength = count($agent);
 			$potentialAgent = explode('/', $potentialAgent);
-			$potentialAgent_length = count($potentialAgent);
 
 			$i = 0;
 			$a = '';
 			$offset = 0;
 
-			while ($i < $potentialAgent_length)
+			while ($i < $agentLength)
 			{
 				$a .= '/' . $potentialAgent[$i++];
 
 				if (isset($resolvedCache[$a]) || resolvePath("class/agent{$a}.php"))
 				{
-					$agent = $a;
+					$existingAgent = $a;
 					$agentLevel = isset($resolvedCache[$a]) ? true : $patchwork_lastpath_level;
 					$offset = $i;
 					continue;
@@ -1138,7 +1139,7 @@ class
 					|| resolvePath("public/{$lang}{$a}.ptl")
 				)
 				{
-					$agent = $a;
+					$existingAgent = $a;
 					$agentLevel = false;
 					$offset = $i;
 					continue;
@@ -1154,7 +1155,7 @@ class
 				break;
 			}
 
-			if ($offset < $potentialAgent_length) $param = array_merge(array_slice($potentialAgent, $offset), $param);
+			if ($offset < $agentLength) $param = array_merge(array_slice($agent, $offset), $param);
 		}
 
 		if ('' !== $ext)
@@ -1172,9 +1173,9 @@ class
 			foreach ($param as &$param) $args['__' . ++$i . '__'] = $param;
 		}
 
-		$resolvedCache[$agent] = true;
+		$resolvedCache[$existingAgent] = true;
 
-		$agent = 'agent' . strtr($agent, '/', '_');
+		$agent = 'agent' . strtr($existingAgent, '/', '_');
 
 		isset($agentLevel) || $agentLevel = resolvePath('class/agent/index.php') ? $patchwork_lastpath_level : false;
 

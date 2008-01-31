@@ -43,20 +43,44 @@ $patchwork_abstract = array();
 		$_SERVER['REQUEST_TIME'] = time();
 
 
-// IIS compatibility
+// Fix some $_SERVER variables under Windows
 
-/*#>*/if (!isset($_SERVER['REQUEST_URI']))
-		$_SERVER['REQUEST_URI'] = isset($_SERVER['HTTP_X_REWRITE_URL']) ? $_SERVER['HTTP_X_REWRITE_URL'] : $_SERVER['URL'];
-
-/*#>*/if (!isset($_SERVER['SERVER_ADDR']))
-		$_SERVER['SERVER_ADDR'] = '127.0.0.1';
-
-/*#>*/if (!isset($_SERVER['QUERY_STRING']))
+/*#>*/if ('\\' === DIRECTORY_SEPARATOR)
 /*#>*/{
-		$a = $_SERVER['REQUEST_URI'];
-		$b = strpos($a, '?');
-		$_SERVER['QUERY_STRING'] = false !== $b++ && $b < strlen($a) ? substr($a, $b) : '';
+		if (isset($_SERVER['PATH_INFO'])
+			&& '.' === substr($_SERVER['SCRIPT_NAME'], -1)
+			&& '.' !== substr($_SERVER['PATH_INFO'], -1)
+			&& (false !== strpos($_SERVER['REQUEST_URI'], '?') ? false !== strpos($_SERVER['REQUEST_URI'], '.?') : '.' === substr($_SERVER['REQUEST_URI'], -1))
+		)
+		{
+			$a = strlen($_SERVER['SCRIPT_NAME']) - 1;
+			$b = 1;
+			while ('.' === substr($_SERVER['SCRIPT_NAME'], $a - $b, 1)) ++$b;
+
+			$a = substr($_SERVER['SCRIPT_NAME'], -$b);
+
+			$_SERVER['PATH_INFO'] .= $a;
+			$_SERVER['PATH_TRANSLATED'] .= $a;
+			$_SERVER['SCRIPT_NAME'] = substr($_SERVER['SCRIPT_NAME'], 0, -strlen($_SERVER['PATH_INFO']));
+		}
+
+
+		// IIS compatibility
+
+/*#>*/	if (!isset($_SERVER['REQUEST_URI']))
+			$_SERVER['REQUEST_URI'] = isset($_SERVER['HTTP_X_REWRITE_URL']) ? $_SERVER['HTTP_X_REWRITE_URL'] : $_SERVER['URL'];
+
+/*#>*/	if (!isset($_SERVER['SERVER_ADDR']))
+			$_SERVER['SERVER_ADDR'] = '127.0.0.1';
+
+/*#>*/	if (!isset($_SERVER['QUERY_STRING']))
+/*#>*/	{
+			$a = $_SERVER['REQUEST_URI'];
+			$b = strpos($a, '?');
+			$_SERVER['QUERY_STRING'] = false !== $b++ && $b < strlen($a) ? substr($a, $b) : '';
+/*#>*/	}
 /*#>*/}
+
 
 if (isset($_SERVER['HTTPS']))
 {
@@ -119,29 +143,29 @@ function resolvePath($file, $level = false, $base = false)
 /*#>*/	if ('\\' === DIRECTORY_SEPARATOR)
 		false !== strpos($file, '\\') && $file = strtr($file, '\\', '/');
 
-	if (false !== strpos('.' . $file, './') || /*<*/'\\' === DIRECTORY_SEPARATOR/*>*/ && ':/' === substr($file, 1, 2))
-	{
-		$patchwork_lastpath_level = -/*<*/__patchwork_bootstrapper::$offset/*>*/;
-
-		if ($f = realpath($file)) $file = $f;
-
-		$p =& $GLOBALS['patchwork_path'];
-
-		for ($i = 0; $i < /*<*/count($patchwork_path)/*>*/; ++$i)
-		{
-			if (substr($file, 0, strlen($p[$i])+1) === $p[$i] . /*<*/DIRECTORY_SEPARATOR/*>*/)
-			{
-				$file = substr($file, strlen($p[$i])+1);
-				if (/*<*/__patchwork_bootstrapper::$last/*>*/ < $i) $file = 'class/' . $file;
-				break;
-			}
-		}
-
-		if (/*<*/count($patchwork_path)/*>*/ === $i) return $f;
-	}
-
 	if (false === $level)
 	{
+		if (false !== strpos('.' . $file, './') || /*<*/'\\' === DIRECTORY_SEPARATOR/*>*/ && ':/' === substr($file, 1, 2))
+		{
+			$patchwork_lastpath_level = -/*<*/__patchwork_bootstrapper::$offset/*>*/;
+
+			if ($f = realpath($file)) $file = $f;
+
+			$p =& $GLOBALS['patchwork_path'];
+
+			for ($i = 0; $i < /*<*/count($patchwork_path)/*>*/; ++$i)
+			{
+				if (substr($file, 0, strlen($p[$i])+1) === $p[$i] . /*<*/DIRECTORY_SEPARATOR/*>*/)
+				{
+					$file = substr($file, strlen($p[$i])+1);
+					if (/*<*/__patchwork_bootstrapper::$last/*>*/ < $i) $file = 'class/' . $file;
+					break;
+				}
+			}
+
+			if (/*<*/count($patchwork_path)/*>*/ === $i) return $f;
+		}
+
 		$i = 0;
 		$level = /*<*/__patchwork_bootstrapper::$last/*>*/;
 	}

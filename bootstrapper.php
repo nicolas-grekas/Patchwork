@@ -586,9 +586,20 @@ patchwork::start();";
 
 	protected static function populatePathCache(&$paths, $dir, $i, $prefix, $subdir = '/')
 	{
+		if ('/' === $subdir && $prefix)
+		{
+			$h = explode('/', substr($prefix, 1));
+			do
+			{
+				$paths[implode('/', $h)] .= $i . ',';
+				array_pop($h);
+			}
+			while ($h);
+		}
+
 		if ($h = opendir($dir . $subdir))
 		{
-			if ('/' != $subdir && file_exists($dir . $subdir . 'config.patchwork.php')) ;
+			if ('/' !== $subdir && file_exists($dir . $subdir . 'config.patchwork.php')) ;
 			else while (false !== $file = readdir($h)) if ('.' != $file[0] && 'zcache' != $file)
 			{
 				$file = $subdir . $file;
