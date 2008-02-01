@@ -2,12 +2,6 @@
 
 class extends agent_pStudio
 {
-	public $get = array(
-		'__0__:c',
-		'low:i',
-		'high:i'
-	);
-
 	function compose($o)
 	{
 		$low  = $this->get->low;

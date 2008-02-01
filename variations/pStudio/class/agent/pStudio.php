@@ -5,13 +5,19 @@ class extends agent
 	public $get = array(
 		'__0__:c',
 		'low:i' => false,
-		'high:i' => false,
+		'high:i' => PATCHWORK_PATH_LEVEL,
 	);
 
-	protected $dirname, $path, $depth;
+	protected $realpath, $path, $depth;
 
 	function control()
 	{
+		if (false === $this->get->low)
+		{
+			resolvePath('zcache/');
+			$this->get->low = $GLOBALS['patchwork_lastpath_level'];
+		}
+
 		$this->setPath($this->get->__0__, $this->get->low, $this->get->high) || p::redirect('pStudio');
 	}
 
@@ -20,8 +26,8 @@ class extends agent
 		$o->filename = pStudio::encFilename($this->path);
 		$o->dirname  = '' === $this->path || '/' === substr($this->path, -1) ? $this->path : dirname($this->path);
 
-		$o->low  = false !== $this->get->low  ? $this->get->low  : $GLOBALS['patchwork_lastpath_level'];
-		$o->high = false !== $this->get->high ? $this->get->high : PATCHWORK_PATH_LEVEL;
+		$o->low  = $this->get->low;
+		$o->high = $this->get->high;
 
 		return $o;
 	}
@@ -32,25 +38,22 @@ class extends agent
 		{
 			if (!isset($GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - $high])) return false;
 
-			$dirname = $GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - $high] . '/';
-			$path = '';
+			$realpath = $GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - $high] . '/';
 			$depth = $high;
 		}
 		else
 		{
-			$path = resolvePath($path, $high, 0);
+			$realpath = resolvePath($path, $high, 0);
 			$depth = $GLOBALS['patchwork_lastpath_level'];
 
-			if (!$path || $depth < $low) return false;
+			if (!$realpath || $depth < $low) return false;
 
-			$dirname = $GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - $depth] . '/';
-			$path = substr($path, strlen($dirname)) . ('/' !== substr($path, -1) && is_dir($path) ? '/' : '');
-			if ($depth < 0) $path = 'class/' . $path;
+			'/' !== substr($path, -1) && is_dir($realpath) && $path .= '/';
 		}
 
 		if (pStudio::isAuthRead($path))
 		{
-			$this->dirname = $dirname;
+			$this->realpath = $realpath;
 			$this->path = $path;
 			$this->depth = $depth;
 

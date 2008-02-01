@@ -2,13 +2,6 @@
 
 class extends agent_pStudio
 {
-	public $get = array(
-		'__0__:c',
-		'low:i',
-		'high:i'
-	);
-
-
 	function control()
 	{
 		$this->get->__0__ = pStudio::decFilename($this->get->__0__);
