@@ -5,7 +5,7 @@
 
 <!-- IF '/' != a$path -->
 <!-- SET a$fullpath -->{a$fullpath}/<!-- END:SET -->
-<a href="{a$fullpath}..?low={a$low}&high={a$high}">..</a>
+<a href="{a$fullpath}..?low={a$low}&amp;high={a$high}">..</a>
 <!-- END:IF -->
 
 <!-- LOOP $paths -->
@@ -20,9 +20,9 @@
 <!-- IF $isApp -->
 <b>{$name}</b>
 <!-- ELSEIF $isDir -->
-<a href="{a$fullpath}{$name}/?low={a$low}&high={a$high}" title="{$appname}"><b>{$name}</b></a>
+<a href="{a$fullpath}{$name}/?low={a$low}&amp;high={a$high}" title="{$appname}"><b>{$name}</b></a>
 <!-- ELSE -->
-<a href="{a$fullpath}{$name}?low={a$low}&high={a$high}" title="{$appname}">{$name}</a>
+<a href="{a$fullpath}{$name}?low={a$low}&amp;high={a$high}" title="{$appname}">{$name}</a>
 <!-- END:IF -->
 
 </div>

@@ -1,13 +1,13 @@
 <!-- SET a$path --><!-- END:SET -->
 
-<a href="{~}pStudio/?low={a$low}&high={a$high}">{$appname}</a>
+<a href="{~}pStudio/?low={a$low}&amp;high={a$high}">{$appname}</a>
 
 
 <!-- LOOP $paths -->
 <!-- SET a$path -->{a$path}{$VALUE}/<!-- END:SET -->
  &gt; 
 <!-- IF $iteratorPosition + 1 < $$paths -->
-<a href="{~}pStudio/{a$path}?low={a$low}&high={a$high}">{$VALUE}</a>
+<a href="{~}pStudio/{a$path}?low={a$low}&amp;high={a$high}">{$VALUE}</a>
 <!-- ELSE -->
 <b>{$VALUE}</b>
 <!-- END:IF -->
