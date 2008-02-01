@@ -1,0 +1,23 @@
+<!-- AGENT 'header' -->
+
+<table>
+<tr>
+	<td colspan="3"><!--
+		SET a$a -->pStudioWidget/location/{$filename}<!-- END:SET
+		AGENT a$a low=$low high=$high
+	--></td>
+</tr>
+<tr>
+	<td valign="top"><!-- AGENT 'pStudioWidget/app' low=$low high=$high --></td>
+	<td valign="top"><!--
+		SET a$a -->pStudioWidget/path/{$dirname}<!-- END:SET
+		AGENT a$a low=$low high=$high
+	--></td>
+	<td valign="top"><!--
+		SET a$a -->pStudioWidget/reader/{$filename}<!-- END:SET
+		AGENT a$a low=$low high=$high
+	--></td>
+</tr>
+</table>
+
+<!-- AGENT 'footer' -->

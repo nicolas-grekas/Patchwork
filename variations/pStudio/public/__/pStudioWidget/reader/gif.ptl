@@ -1,0 +1,3 @@
+<!-- IF $extension -->
+<img src="{~}pStudioWidget/reader/{$extension}/{a$__0__}?low=4&amp;high=7&amp;raw=1" />
+<!-- END:IF -->
