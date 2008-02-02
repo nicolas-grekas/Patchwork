@@ -47,23 +47,25 @@ $patchwork_abstract = array();
 
 /*#>*/if ('\\' === DIRECTORY_SEPARATOR)
 /*#>*/{
-		if (isset($_SERVER['PATH_INFO'])
-			&& '.' === substr($_SERVER['SCRIPT_NAME'], -1)
-			&& '.' !== substr($_SERVER['PATH_INFO'], -1)
-			&& (false !== strpos($_SERVER['REQUEST_URI'], '?') ? false !== strpos($_SERVER['REQUEST_URI'], '.?') : '.' === substr($_SERVER['REQUEST_URI'], -1))
-		)
-		{
-			$a = strlen($_SERVER['SCRIPT_NAME']) - 1;
-			$b = 1;
-			while ('.' === substr($_SERVER['SCRIPT_NAME'], $a - $b, 1)) ++$b;
+/*#>*/	if (version_compare(PHP_VERSION, '5.2.6', '<')) // Fix for http://bugs.php.net/bug.php?id=44001
+/*#>*/	{
+			if (isset($_SERVER['PATH_INFO'])
+				&& '.' === substr($_SERVER['SCRIPT_NAME'], -1)
+				&& '.' !== substr($_SERVER['PATH_INFO'], -1)
+				&& (false !== strpos($_SERVER['REQUEST_URI'], '?') ? false !== strpos($_SERVER['REQUEST_URI'], '.?') : '.' === substr($_SERVER['REQUEST_URI'], -1))
+			)
+			{
+				$a = strlen($_SERVER['SCRIPT_NAME']) - 1;
+				$b = 1;
+				while ('.' === substr($_SERVER['SCRIPT_NAME'], $a - $b, 1)) ++$b;
 
-			$a = substr($_SERVER['SCRIPT_NAME'], -$b);
+				$a = substr($_SERVER['SCRIPT_NAME'], -$b);
 
-			$_SERVER['PATH_INFO'] .= $a;
-			$_SERVER['PATH_TRANSLATED'] .= $a;
-			$_SERVER['SCRIPT_NAME'] = substr($_SERVER['SCRIPT_NAME'], 0, -strlen($_SERVER['PATH_INFO']));
-		}
-
+				$_SERVER['PATH_INFO'] .= $a;
+				$_SERVER['PATH_TRANSLATED'] .= $a;
+				$_SERVER['SCRIPT_NAME'] = substr($_SERVER['SCRIPT_NAME'], 0, -strlen($_SERVER['PATH_INFO']));
+			}
+/*#>*/	}
 
 		// IIS compatibility
 
