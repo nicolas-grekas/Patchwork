@@ -50,7 +50,7 @@ class
 	}
 
 	# min, max
-	protected static function get_i   (&$value, &$args) {return self::get_int($value, $args);}
+	protected static function get_i  (&$value, &$args) {return self::get_int($value, $args);}
 	protected static function get_int(&$value, &$args)
 	{
 		if (!is_scalar($value)) return false;

@@ -40,7 +40,7 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 
 /*#>*/if ('\\' === DIRECTORY_SEPARATOR)
 /*#>*/{
-		if (/*<*/PHP_VERSION < '5.2'/*>*/ || DEBUG)
+		if (/*<*/version_compare(PHP_VERSION, '5.2', '<')/*>*/ || DEBUG)
 		{
 			if (DEBUG)
 			{

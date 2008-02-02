@@ -14,9 +14,7 @@
 
 class extends pForm_text
 {
-	protected
-		$src,
-		$lock;
+	protected $src, $lock;
 
 	protected function init(&$param)
 	{

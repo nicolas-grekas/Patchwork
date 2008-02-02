@@ -8,12 +8,13 @@ class
 		'^class/',
 		'^public/',
 		'^example/',
-		'^data/((utf8|unicode)/)?',
+		'^data/((utf8|unicode)/.*)?[^/]*$',
 		'^[^/]+$',
 	),
 
 	$readBlacklist = array(
 		'(^|/)\.',
+		'(^|/)zcache(/|$)',
 		'(^|/)config\.patchwork\.php',
 		'(^|/)error\.patchwork\.log',
 	),
