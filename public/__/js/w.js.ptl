@@ -764,7 +764,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 				$d.push(v);
 			}
 
-			E($d, 0, $level, 2);
+			E($d, 0, 0, $level, 2);
 			return '';
 		}
 		<!-- ELSE -->
