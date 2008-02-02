@@ -1,7 +1,14 @@
 <?php
 
-class extends agent_pStudioWidget_location
+class extends agent_pStudio
 {
+	function control()
+	{
+		$this->get->__0__ = pStudio::decFilename($this->get->__0__);
+
+		parent::control();
+	}
+
 	function compose($o)
 	{
 		if ($a = @file_get_contents($this->realpath))

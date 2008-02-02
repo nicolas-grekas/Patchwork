@@ -2,17 +2,59 @@
 
 <table>
 <tr>
-	<td colspan="3"><!--
-		SET a$a -->pStudioWidget/location/{$filename}<!-- END:SET
-		AGENT a$a low=$low high=$high
-	--></td>
+	<td colspan="3">
+	<a href="{~}pStudio/?low={a$low}&amp;high={a$high}">{$appname}</a>
+	<!--
+		SET a$path --><!-- END:SET
+		LOOP $paths
+			SET a$path -->{a$path}{$VALUE}/<!-- END:SET
+
+			--> &gt; <!--
+
+			IF $iteratorPosition + 1 < $$paths
+				--><a href="{~}pStudio/{a$path}?low={a$low}&amp;high={a$high}">{$VALUE}</a><!--
+			ELSE
+				--><b>{$VALUE}</b><!--
+			END:IF
+		END:LOOP
+	-->
+	</td>
 </tr>
 <tr>
 	<td valign="top"><!-- AGENT 'pStudioWidget/app' low=$low high=$high --></td>
-	<td valign="top"><!--
-		SET a$a -->pStudioWidget/path/{$dirname}<!-- END:SET
-		AGENT a$a low=$low high=$high
-	--></td>
+	<td valign="top">
+	<div style="color: silver; white-space: nowrap">
+
+	<!-- SET a$path -->/{$dirname}<!-- END:SET -->
+	<!-- SET a$fullpath -->{~}pStudio{a$path}<!-- END:SET -->
+
+	<!-- IF '/' != a$path -->
+	<a href="{a$fullpath}..?low={a$low}&amp;high={a$high}">..</a>
+	<!-- END:IF -->
+
+	<!-- LOOP $subpaths -->
+
+		<!-- IF $isTop --><div style="color: black"><!-- END:IF -->
+
+		<div>
+
+		{$ancestorsNb|test:'*':'-'}
+
+		<!-- IF $isApp -->
+		<b>{$name}</b>
+		<!-- ELSEIF $isDir -->
+		<a href="{a$fullpath}{$name}/?low={a$low}&amp;high={a$high}" title="{$appname}"><b>{$name}</b></a>
+		<!-- ELSE -->
+		<a href="{a$fullpath}{$name}?low={a$low}&amp;high={a$high}" title="{$appname}">{$name}</a>
+		<!-- END:IF -->
+
+		</div>
+
+		<!-- IF $isTop --></div><!-- END:IF -->
+
+	<!-- END:LOOP -->
+	</div>
+	</td>
 	<td valign="top"><!--
 		SET a$a -->pStudioWidget/reader/{$filename}<!-- END:SET
 		AGENT a$a low=$low high=$high
