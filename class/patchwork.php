@@ -1010,7 +1010,7 @@ class
 			if (IS_WINDOWS)
 			{
 				file_exists($filename) && unlink($filename);
-				rename($tmpname, $filename);
+				rename($tmpname, $filename) || unlink($tmpname);
 			}
 			else rename($tmpname, $filename);
 
