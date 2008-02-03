@@ -1,0 +1,9 @@
+db name : {$dbname} <br />
+
+list of tables contained:
+<ul>
+<!-- LOOP $tables -->
+<li>{$name}</li>
+<!-- END:LOOP -->
+</ul>
+
