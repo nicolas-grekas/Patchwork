@@ -6,6 +6,7 @@ class extends agent
 		'__0__:c',
 		'low:i' => false,
 		'high:i' => PATCHWORK_PATH_LEVEL,
+		'$serverside:b',
 	);
 
 	protected $realpath, $path, $depth;
@@ -19,6 +20,12 @@ class extends agent
 		}
 
 		$this->setPath($this->get->__0__, $this->get->low, $this->get->high) || p::redirect('pStudio');
+
+		if ($this->get->{'$serverside'} && is_file($this->realpath))
+		{
+			header('Content-Type: application/octet-stream');
+			p::readfile($this->realpath, false);
+		}
 	}
 
 	function compose($o)
@@ -29,7 +36,8 @@ class extends agent
 		$o->high = $this->get->high;
 
 		$o->appname = pStudio::getAppname($this->depth);
-		$o->dirname = $this->path = '' === $this->path || '/' === substr($this->path, -1) ? $this->path : (dirname($this->path) . '/');
+		$o->dirname = '' === $this->path || '/' === substr($this->path, -1) ? $this->path : (dirname($this->path) . '/');
+		$o->is_file = '/' !== substr($this->path, -1);
 
 		$o->paths = new loop_array(explode('/', rtrim($this->path, '/')));
 		$o->subpaths = new loop_array($this->getSubpaths($o->dirname, $o->low, $o->high), 'filter_rawArray');

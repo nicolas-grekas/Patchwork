@@ -2,13 +2,6 @@
 
 class extends agent_pStudioWidget_reader
 {
-	function control()
-	{
-		$this->get->__0__ = 'sqlite/' . $this->get->__0__;
-
-		parent::control();
-	}
-
 	function compose($o)
 	{
 		$db = new SQLiteDatabase($this->realpath, 0444, $o->error_msg);
