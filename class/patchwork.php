@@ -227,14 +227,15 @@ class
 		{
 			unset($_COOKIE['JS'], $_COOKIE['JS']); // Double unset against a PHP security hole
 		}
-		else if (isset($_GET['$bin']))
+		else if (isset($_GET['$flipside']))
 		{
 			preg_match('/[^.]+\.[^\.0-9]+$/', $_SERVER['HTTP_HOST'], $domain);
 			$domain = isset($domain[0]) ? '.' . $domain[0] : false;
 			self::setcookie('JS', isset($_COOKIE['JS']) && !$_COOKIE['JS'] ? '' : '0', 0, '/', $domain);
-			header('Location: ' . preg_replace('/[\?&]\$bin[^&]*/', '', $_SERVER['REQUEST_URI']));
+			header('Location: ' . preg_replace('/[\?&]\$flipside[^&]*/', '', $_SERVER['REQUEST_URI']));
 			exit;
 		}
+		else if (isset($_GET['$serverside']) && $_GET['$serverside'] && isset($_COOKIE['JS'])) $_COOKIE['JS'] = '0';
 
 		self::$appId = abs($GLOBALS['patchwork_appId'] % 10000);
 
@@ -586,22 +587,22 @@ class
 			}
 
 			if (self::$catchMeta) self::$metaInfo[4][$name] = $string;
+		}
 
-			if ('content-type' === $name && !self::$privateDetectionMode)
+		if (!self::$privateDetectionMode)
+		{
+			if ('content-type' === $name)
 			{
 				if (isset(self::$headers[$name])) return;
 
-				if (false !== stripos($string, 'script'))
+				if (self::$is_enabled && false !== stripos($string, 'script'))
 				{
 					if (self::$private) PATCHWORK_TOKEN_MATCH || patchwork_antiCSRF::scriptAlert();
 
 					self::$detectCSRF = true;
 				}
 			}
-		}
 
-		if (!self::$privateDetectionMode)
-		{
 			if ('text/' === substr($string, 14, 5) && !strpos($string, ';')) $string .= '; charset=UTF-8';
 
 			self::$headers[$name] = $replace || !isset(self::$headers[$name]) ? $string : (self::$headers[$name] . ',' . substr($string, 1+strpos($string, ':')));
@@ -1748,7 +1749,6 @@ class agent
 	final public function __construct($args = array())
 	{
 		$this->contentType = constant(get_class($this) . '::contentType');
-		$this->contentType && p::header('Content-Type: ' . $this->contentType);
 
 		$a = (array) $this->get;
 
@@ -1780,6 +1780,8 @@ class agent
 		}
 
 		$this->control();
+
+		$this->contentType && p::header('Content-Type: ' . $this->contentType);
 	}
 
 	function metaCompose()

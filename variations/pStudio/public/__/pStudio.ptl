@@ -3,7 +3,7 @@
 <table>
 <tr>
 	<td colspan="3">
-	<a href="{~}pStudio/?low={a$low}&amp;high={a$high}">{$appname}</a>
+	<a href="{~}pStudio/?low={$low}&amp;high={$high}">{$appname}</a>
 	<!--
 		SET a$path --><!-- END:SET
 		LOOP $paths
@@ -12,11 +12,15 @@
 			--> &gt; <!--
 
 			IF $iteratorPosition + 1 < $$paths
-				--><a href="{~}pStudio/{a$path}?low={a$low}&amp;high={a$high}">{$VALUE}</a><!--
+				--><a href="{~}pStudio/{a$path}?low={$low}&amp;high={$high}">{$VALUE}</a><!--
 			ELSE
 				--><b>{$VALUE}</b><!--
 			END:IF
 		END:LOOP
+
+		IF $is_file
+			--> [<a href="{~}pStudio/{g$__0__}?low={$low}&amp;high={$high}&amp;$serverside=1">{"Download"}</a>]<!--
+		END:IF
 	-->
 	</td>
 </tr>
@@ -29,7 +33,7 @@
 	<!-- SET a$fullpath -->{~}pStudio{a$path}<!-- END:SET -->
 
 	<!-- IF '/' != a$path -->
-	<a href="{a$fullpath}..?low={a$low}&amp;high={a$high}">..</a>
+	<a href="{a$fullpath}..?low={$low}&amp;high={$high}">..</a>
 	<!-- END:IF -->
 
 	<!-- LOOP $subpaths -->
@@ -43,9 +47,9 @@
 		<!-- IF $isApp -->
 		<b>{$name}</b>
 		<!-- ELSEIF $isDir -->
-		<a href="{a$fullpath}{$name}/?low={a$low}&amp;high={a$high}" title="{$appname}"><b>{$name}</b></a>
+		<a href="{a$fullpath}{$name}/?low={$$low}&amp;high={$$high}" title="{$appname}"><b>{$name}</b></a>
 		<!-- ELSE -->
-		<a href="{a$fullpath}{$name}?low={a$low}&amp;high={a$high}" title="{$appname}">{$name}</a>
+		<a href="{a$fullpath}{$name}?low={$$low}&amp;high={$$high}" title="{$appname}">{$name}</a>
 		<!-- END:IF -->
 
 		</div>

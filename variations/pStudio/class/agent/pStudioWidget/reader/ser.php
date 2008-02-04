@@ -2,13 +2,6 @@
 
 class extends agent_pStudioWidget_reader
 {
-	function control()
-	{
-		$this->get->__0__ = 'ser/' . $this->get->__0__;
-
-		parent::control();
-	}
-
 	function compose($o)
 	{
 		$o->data = @file_get_contents($this->realpath);
