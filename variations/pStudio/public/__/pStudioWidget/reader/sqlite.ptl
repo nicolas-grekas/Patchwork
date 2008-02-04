@@ -1,6 +1,19 @@
+<!-- IF !a$table -->{* Display general info on the database *}
+
 <ul>
 <!-- LOOP $tables -->
-<li>{$name}</li>
+<li><a href="{~}pStudio/{g$__0__}?low={a$low}&amp;high={a$high}&amp;table={$name}" alt="table">{$name}</a></li>
 <!-- END:LOOP -->
 </ul>
 
+<!-- IF g$table -->{* if a table is selected, display its infos *}
+<!-- AGENT 'pStudioWidget/reader/sqlite' __0__=a$__0__ low=a$low high=a$high table=g$table -->
+<!-- END:IF -->
+
+<!-- ELSE -->{* Display info on one specific table *}
+<h2>{a$table}</h2>
+<!-- LOOP $field -->
+<b>{$VALUE}</b>
+<!-- END:LOOP -->
+
+<!-- END:IF -->
