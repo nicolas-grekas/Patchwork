@@ -2,5 +2,5 @@
 
 class extends agent_pStudioWidget_reader_gif
 {
-	const contentType = 'image/png';
+	protected $rawContentType = 'image/png';
 }
