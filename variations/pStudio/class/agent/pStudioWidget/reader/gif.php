@@ -15,7 +15,7 @@ class extends agent_pStudioWidget_reader_php
 		}
 		else
 		{
-			if (extension_loaded('exif'))
+			if (extension_loaded('exif') && in_array(get_class($this),array('jpeg','jpg')))
 			{
 				$metainfos = exif_read_data($this->realpath);
 
