@@ -6,14 +6,15 @@ class extends agent_pStudioWidget_reader
 		'__0__:c',
 		'low:i' => false,
 		'high:i' => PATCHWORK_PATH_LEVEL,
-		'$serverside:b',
 		'table:c',
+		'start:i:0' => 0,
+		'length:i:0' => 25,
 	);
 
 	function compose($o)
 	{
 		$db = new SQLiteDatabase($this->realpath, 0666, $o->error_msg);
-E($this->get->table);
+
 		if(!$this->get->table)
 		{
 			$sql = "SELECT name, type
@@ -26,20 +27,24 @@ E($this->get->table);
 		}
 		else
 		{
-			$sql = "SELECT *
-				FROM {$this->get->table}
-				LIMIT 1";
-			$res = $db->unbufferedQuery($sql);
-			$n_fields = $res->numFields();
-			$i = 0;
-			while ($i < $n_fields)
-			{
-				$fields[] = $res->fieldName($i++);
+			$table = strtr($this->get->table, '[]', '  ');
 
+			$sql = "SELECT * FROM [{$table}] LIMIT {$this->get->start}, {$this->get->length}";
+			if ($rows = $db->arrayQuery($sql, SQLITE_ASSOC))
+			{
+				$o->fields = new loop_array(array_keys($rows[0]));
+				$o->rows = new loop_array($rows, array($this, 'filterRow'));
 			}
-E($fields);
-			$o->field = new loop_array($fields);
 		}
+
+		return $o;
+	}
+
+	function filterRow($o)
+	{
+		$o = (object) array(
+			'columns' => new loop_array($o->VALUE),
+		);
 
 		return $o;
 	}

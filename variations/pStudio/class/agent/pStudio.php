@@ -21,7 +21,7 @@ class extends agent
 
 		$this->setPath($this->get->__0__, $this->get->low, $this->get->high) || p::redirect('pStudio');
 
-		if ($this->get->{'$serverside'} && is_file($this->realpath)) $this->contentType = 'application/octet-stream';
+		if (isset($this->get->{'$serverside'}) && $this->get->{'$serverside'} && is_file($this->realpath)) $this->contentType = 'application/octet-stream';
 	}
 
 	function compose($o)
