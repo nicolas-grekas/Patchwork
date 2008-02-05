@@ -15,10 +15,9 @@ class extends agent_pStudioWidget_reader_php
 		}
 		else
 		{
-			list($width, $height) = getimagesize($this->realpath);
-			$o->width = $width;
-			$o->height = $height;
+			list($o->width, $o->height) = getimagesize($this->realpath);
 
+			$o->filesize  = filesize($this->realpath);
 			$o->extension = $this->extension;
 		}
 
