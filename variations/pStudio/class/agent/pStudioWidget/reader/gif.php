@@ -2,24 +2,17 @@
 
 class extends agent_pStudioWidget_reader_php
 {
-	const contentType = 'image/gif';
+	protected
 
-	protected $template = 'pStudioWidget/reader/gif';
+	$rawContentType = 'image/gif',
+	$template = 'pStudioWidget/reader/gif';
 
 	function compose($o)
 	{
-		if ($this->get->{'$serverside'})
-		{
-			header('Content-Type: ' . $this->contentType);
-			p::readfile($this->realpath, false);
-		}
-		else
-		{
-			list($o->width, $o->height) = getimagesize($this->realpath);
+		list($o->width, $o->height) = getimagesize($this->realpath);
 
-			$o->filesize  = filesize($this->realpath);
-			$o->extension = $this->extension;
-		}
+		$o->filesize  = filesize($this->realpath);
+		$o->extension = $this->extension;
 
 		return $o;
 	}
