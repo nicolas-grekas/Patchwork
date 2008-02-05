@@ -8,7 +8,7 @@ class extends agent_pStudioWidget_reader
 		'high:i' => PATCHWORK_PATH_LEVEL,
 		'table:c',
 		'start:i:0' => 0,
-		'length:i:0' => 25,
+		'length:i:1' => 25,
 	);
 
 	function compose($o)
@@ -27,6 +27,7 @@ class extends agent_pStudioWidget_reader
 		}
 		else
 		{
+E($this->get->start);
 			$table = strtr($this->get->table, '[]', '  ');
 
 			$sql = "SELECT * FROM [{$table}] LIMIT {$this->get->start}, {$this->get->length}";
@@ -34,6 +35,8 @@ class extends agent_pStudioWidget_reader
 			{
 				$o->fields = new loop_array(array_keys($rows[0]));
 				$o->rows = new loop_array($rows, array($this, 'filterRow'));
+				$o->start = $this->get->start;
+				$o->length = $this->get->length;
 			}
 		}
 

@@ -7,13 +7,25 @@
 </ul>
 
 <!-- IF g$table -->{* if a table is selected, display its infos *}
-<!-- AGENT 'pStudioWidget/reader/sqlite' __0__=a$__0__ low=a$low high=a$high table=g$table -->
+<!-- AGENT 'pStudioWidget/reader/sqlite' __0__=a$__0__ low=a$low high=a$high table=g$table start=g$start length=g$length -->
 <!-- END:IF -->
 
 <!-- ELSE -->{* Display info on one specific table *}
 
 <h2>{a$table}</h2>
+{* navigator *}
+<table>
+<!-- SET $prev -->{($start - $length)}<!-- END:SET
+SET $next -->{($start + $length)}<!-- END:SET -->
+<!-- IF $start>0 -->
+<tr><td><a href="{~}pStudio/{g$__0__}?low={a$low}&amp;high={a$high}&amp;table={g$table}&amp;start={$prev}&amp;length={$length}" alt="previous">&lt; Previous {$length}</a></td>
+<!-- ELSE -->
+<tr>
+<!-- END:IF -->
+<td><a href="{~}pStudio/{g$__0__}?low={a$low}&amp;high={a$high}&amp;table={g$table}&amp;start={$next}&amp;length={$length}" alt="next">Next {$length} &gt;</a></td></tr>
+</table>
 
+{* table's content *}
 <!-- IF $fields -->
 <table border="1">
 <tr>
