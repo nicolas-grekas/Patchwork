@@ -13,7 +13,14 @@ class extends agent_pStudioWidget_reader_php
 			header('Content-Type: ' . $this->contentType);
 			p::readfile($this->realpath, false);
 		}
-		else $o->extension = $this->extension;
+		else
+		{
+			list($width, $height) = getimagesize($this->realpath);
+			$o->width = $width;
+			$o->height = $height;
+
+			$o->extension = $this->extension;
+		}
 
 		return $o;
 	}
