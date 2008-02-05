@@ -11,9 +11,31 @@
 <!-- END:IF -->
 
 <!-- ELSE -->{* Display info on one specific table *}
+
 <h2>{a$table}</h2>
-<!-- LOOP $field -->
-<b>{$VALUE}</b>
+
+<!-- IF $fields -->
+<table border="1">
+<tr>
+<!-- LOOP $fields -->
+	<th>{$VALUE}</th>
 <!-- END:LOOP -->
+</tr>
+<!-- LOOP $rows -->
+<tr>
+<!-- LOOP $columns -->
+	<!-- IF $VALUE-0 == $VALUE -->{* Align numbers on the right *}
+	<td style="text-align: right">{$VALUE}</td>
+	<!-- ELSE -->
+	<td>{$VALUE}</td>
+	<!-- END:IF -->
+<!-- END:LOOP -->
+</tr>
+<!-- END:LOOP -->
+</table>
+
+<!-- ELSE -->
+Your query returned no result.
+<!-- END:IF -->
 
 <!-- END:IF -->
