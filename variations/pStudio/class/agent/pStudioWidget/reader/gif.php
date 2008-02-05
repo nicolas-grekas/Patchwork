@@ -15,21 +15,9 @@ class extends agent_pStudioWidget_reader_php
 		}
 		else
 		{
-			if (extension_loaded('exif') && in_array(get_class($this),array('jpeg','jpg')))
-			{
-				$metainfos = exif_read_data($this->realpath);
+			list($o->width, $o->height) = getimagesize($this->realpath);
 
-				$o->filesize = $metainfos['FileSize'];
-				$o->width = $metainfos['ExifImageWidth'];
-				$o->height = $metainfos['ExifImageLength'];
-			}
-			else
-			{
-				list($o->width, $o->height) = getimagesize($this->realpath);
-
-				$o->filesize  = filesize($this->realpath);
-			}
-
+			$o->filesize  = filesize($this->realpath);
 			$o->extension = $this->extension;
 		}
 
