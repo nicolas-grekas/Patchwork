@@ -388,6 +388,18 @@ define('UTF8_BOM', /*<*/__patchwork_bootstrapper::UTF8_BOM/*>*/);
 /*#>*/}
 
 
+// EXIF configuration
+
+/*#>*/if (extension_loaded('exif'))
+/*#>*/{
+/*#>*/	if ('UTF-8' !== ini_get('exif.encode_unicode') && '' !== ini_get('exif.encode_unicode'))
+			ini_set('exif.encode_unicode', 'UTF-8');
+
+/*#>*/	if ('UTF-8' !== ini_get('exif.encode_jis') && '' !== ini_get('exif.encode_jis'))
+			ini_set('exif.encode_jis', 'UTF-8');
+/*#>*/}
+
+
 // utf8_encode/decode support
 
 /*#>*/if (!function_exists('utf8_encode'))
