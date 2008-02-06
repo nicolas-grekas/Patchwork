@@ -42,6 +42,7 @@ class extends agent
 		$o->appname = pStudio::getAppname($this->depth);
 		$o->is_file = '' !== $this->path && '/' !== substr($this->path, -1);
 		$o->dirname = $o->is_file ? dirname($this->path) . '/' : $this->path;
+		'./' === $o->dirname && $o->dirname = '';
 
 		$o->paths = new loop_array(explode('/', rtrim($this->path, '/')));
 		$o->subpaths = new loop_array($this->getSubpaths($o->dirname, $o->low, $o->high), 'filter_rawArray');
