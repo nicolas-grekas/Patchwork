@@ -593,6 +593,8 @@ class
 		{
 			if ('content-type' === $name)
 			{
+				$string = substr($string, 14);
+
 				if (isset(self::$headers[$name])) return;
 
 				if (self::$is_enabled && false !== stripos($string, 'script'))
@@ -601,9 +603,15 @@ class
 
 					self::$detectCSRF = true;
 				}
-			}
 
-			if ('text/' === substr($string, 14, 5) && !strpos($string, ';')) $string .= '; charset=UTF-8';
+				// Any non registered mime type is treated as application/octet-stream.
+				// BUT! IE does special mangling with literal application/octet-stream...
+				$string = str_ireplace('application/octet-stream', 'application/x-octet-stream', $string);
+
+				if ((false !== stripos($string, 'text/') || false !== stripos($string, 'xml')) && false === strpos($string, ';')) $string .= '; charset=UTF-8';
+
+				$string = 'Content-Type: ' . $string;
+			}
 
 			self::$headers[$name] = $replace || !isset(self::$headers[$name]) ? $string : (self::$headers[$name] . ',' . substr($string, 1+strpos($string, ':')));
 			header($string, $replace);

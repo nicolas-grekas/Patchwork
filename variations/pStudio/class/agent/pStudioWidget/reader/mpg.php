@@ -10,8 +10,6 @@ class extends agent_pStudioWidget_reader
 
 	function compose($o)
 	{
-		$o = parent::compose($o);
-
 		$o->extension = $this->extension;
 
 		return $o;

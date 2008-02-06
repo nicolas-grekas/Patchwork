@@ -15,7 +15,7 @@ class extends agent_pStudioWidget_reader
 	{
 		$db = new SQLiteDatabase($this->realpath, 0666, $o->error_msg);
 
-		if(!$this->get->table)
+		if (!$this->get->table)
 		{
 			$sql = "SELECT name, type
 				FROM sqlite_master
@@ -27,7 +27,6 @@ class extends agent_pStudioWidget_reader
 		}
 		else
 		{
-E($this->get->start);
 			$table = strtr($this->get->table, '[]', '  ');
 
 			$sql = "SELECT * FROM [{$table}] LIMIT {$this->get->start}, {$this->get->length}";
