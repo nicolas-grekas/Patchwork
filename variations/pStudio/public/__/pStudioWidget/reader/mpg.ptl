@@ -1,7 +1,1 @@
-<!-- IF $extension -->
-
-<embed
-	src="{~}pStudioWidget/reader/{$extension}/{a$__0__}?low={a$low}&amp;high={a$high}&amp;$serverside=1"
-	width="144" height="60" />
-
-<!-- END:IF -->
+<embed src="{~}pStudioWidget/reader/{$extension}/{a$__0__}?low={a$low}&amp;high={a$high}&amp;$serverside=1" />
