@@ -2,5 +2,5 @@
 
 class extends agent_pStudioWidget_reader_mpg
 {
-	protected $rawContentType = 'audio/x-wav';
+	protected $rawContentType = 'audio/mid';
 }
