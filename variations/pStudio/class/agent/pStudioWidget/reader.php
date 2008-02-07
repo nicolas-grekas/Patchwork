@@ -31,11 +31,17 @@ class extends agent_pStudio
 	{
 		if ($a = @file_get_contents($this->realpath))
 		{
-			$a && false !== strpos($a, "\r") && $a = strtr(str_replace("\r\n", "\n", $a), "\r", "\n");
-			u::isUTF8($a) || $a = utf8_encode($a);
+			if (preg_match('/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/', $a))
+			{
+				$o->is_binary = true;
+			}
+			else
+			{
+				$a && false !== strpos($a, "\r") && $a = strtr(str_replace("\r\n", "\n", $a), "\r", "\n");
+				u::isUTF8($a) || $a = utf8_encode($a);
+				$o->text = $a;
+			}
 		}
-
-		$o->data = $a;
 
 		return $o;
 	}

@@ -4,14 +4,15 @@ class extends agent_pStudioWidget_reader
 {
 	function compose($o)
 	{
-		$o->data = @file_get_contents($this->realpath);
+		$a = @file_get_contents($this->realpath);
 
-		if (isset($o->data) && false !== $o->data)
+		if (false !== $a)
 		{
-			$a = @unserialize($o->data);
-			if (false !== $a || $o->data === serialize(false))
+			$b = @unserialize($a);
+
+			if (false !== $b || $a === serialize(false))
 			{
-				$o->data = '<?php serialize(' . var_export($a, true) . ')';
+				$o->text = '<?php serialize(' . var_export($b, true) . ')';
 			}
 		}
 

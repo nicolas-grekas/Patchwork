@@ -2,11 +2,7 @@
 
 class extends agent_pStudioWidget_reader_php
 {
-	protected
-
-	$rawContentType = 'image/gif',
-	$template = 'pStudioWidget/reader/gif';
-
+	protected $rawContentType = 'image/gif';
 
 	function compose($o)
 	{
