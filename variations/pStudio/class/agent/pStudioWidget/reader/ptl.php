@@ -4,12 +4,10 @@ class extends agent_pStudioWidget_reader_html
 {
 	function control()
 	{
-		$a = explode('/', $this->get->__0__, 2);
-
-		switch ($a[0])
+		switch (pipe_pStudio_extension::php($this->get->path))
 		{
-			case 'js' : $this->language = 'javascript'; break;
-			case 'css': $this->language = 'css';        break;
+			case 'ptl/js/' : $this->language = 'javascript'; break;
+			case 'ptl/css/': $this->language = 'css';        break;
 		}
 
 		parent::control();
