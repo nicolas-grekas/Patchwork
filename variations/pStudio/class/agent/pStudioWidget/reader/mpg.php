@@ -2,11 +2,7 @@
 
 class extends agent_pStudioWidget_reader
 {
-	protected
-
-	$rawContentType = 'audio/mpeg',
-	$template = 'pStudioWidget/reader/mpg';
-
+	protected $rawContentType = 'audio/mpeg';
 
 	function compose($o)
 	{
