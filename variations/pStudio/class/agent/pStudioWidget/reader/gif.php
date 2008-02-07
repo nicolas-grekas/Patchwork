@@ -7,6 +7,7 @@ class extends agent_pStudioWidget_reader_php
 	$rawContentType = 'image/gif',
 	$template = 'pStudioWidget/reader/gif';
 
+
 	function compose($o)
 	{
 		list($o->width, $o->height) = getimagesize($this->realpath);

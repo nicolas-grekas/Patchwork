@@ -1,4 +1,4 @@
-<!-- AGENT 'header' -->
+<!-- AGENT 'header' title="{$topname} - pStudio"-->
 
 <table>
 <tr>
@@ -60,8 +60,8 @@
 	</div>
 	</td>
 	<td valign="top"><!--
-		SET a$a -->pStudioWidget/reader/{$filename}<!-- END:SET
-		AGENT a$a low=$low high=$high
+		SET a$a -->pStudioWidget/reader/{g$__0__|pStudio_extension}<!-- END:SET
+		AGENT a$a path=g$__0__ low=$low high=$high
 	--></td>
 </tr>
 </table>

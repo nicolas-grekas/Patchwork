@@ -2,6 +2,13 @@
 
 class extends agent_pStudio
 {
+	public $get = array(
+		'path:c',
+		'low:i' => false,
+		'high:i' => PATCHWORK_PATH_LEVEL,
+		'$serverside:b',
+	);
+
 	protected $extension = '';
 
 	function control()
@@ -11,15 +18,11 @@ class extends agent_pStudio
 		if (0 === strpos($a, __CLASS__ . '_'))
 		{
 			$a = substr($a, strlen(__CLASS__) + 1);
-			$a = strtr($a, '_', '/');
-			$this->get->__0__ = $a . '/' . $this->get->__0__;
-
-			$a = explode('/', $a);
-			$a = array_reverse($a);
-			$this->extension = implode('.', $a);
+			$a = strtr($a, '_', '/') . '/';
+			$this->extension = $a;
 		}
 
-		$this->get->__0__ = pStudio::decFilename($this->get->__0__);
+		$this->get->__0__ = $this->get->path;
 
 		parent::control();
 	}

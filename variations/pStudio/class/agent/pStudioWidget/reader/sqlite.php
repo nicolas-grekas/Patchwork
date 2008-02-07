@@ -3,7 +3,7 @@
 class extends agent_pStudioWidget_reader
 {
 	public $get = array(
-		'__0__:c',
+		'path:c',
 		'low:i' => false,
 		'high:i' => PATCHWORK_PATH_LEVEL,
 		'table:c',

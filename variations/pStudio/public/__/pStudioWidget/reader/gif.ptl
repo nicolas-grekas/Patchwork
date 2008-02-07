@@ -1,2 +1,2 @@
 Width: {$width}px - Height: {$height}px - File size: {$filesize|bytes}<br />
-<img src="{~}pStudioWidget/reader/{$extension}/{a$__0__}?low={a$low}&amp;high={a$high}&amp;$serverside=1" width="<!-- IF $width > 200 -->400<!-- ELSE -->{$width}<!-- END:IF -->" />
+<img src="{~}pStudioWidget/reader/?path={a$path}&amp;low={a$low}&amp;high={a$high}&amp;$serverside=1" width="<!-- IF $width > 200 -->400<!-- ELSE -->{$width}<!-- END:IF -->" />

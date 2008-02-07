@@ -66,27 +66,6 @@ class
 		return true;
 	}
 
-	static function encFilename($file)
-	{
-		$file = '_' . $file;
-		$file = strtr($file, '/.', './');
-		$file = explode('/', $file);
-		$file = array_reverse($file);
-		$file = implode('/', $file);
-
-		return $file;
-	}
-
-	static function decFilename($file)
-	{
-		$file = explode('/', $file);
-		$file = array_reverse($file);
-		$file = implode('/', $file);
-		$file = strtr($file, '/.', './');
-
-		return (string) substr($file, 1);
-	}
-
 	static function getAppname($depth)
 	{
 		global $patchwork_path;

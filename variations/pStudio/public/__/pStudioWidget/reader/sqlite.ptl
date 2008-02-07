@@ -7,7 +7,7 @@
 </ul>
 
 <!-- IF g$table -->{* if a table is selected, display its infos *}
-<!-- AGENT 'pStudioWidget/reader/sqlite' __0__=a$__0__ low=a$low high=a$high table=g$table start=g$start length=g$length -->
+<!-- AGENT 'pStudioWidget/reader/sqlite' path=a$path low=a$low high=a$high table=g$table start=g$start length=g$length -->
 <!-- END:IF -->
 
 <!-- ELSE -->{* Display info on one specific table *}

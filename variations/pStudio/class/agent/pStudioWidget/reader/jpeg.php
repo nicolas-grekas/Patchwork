@@ -8,7 +8,7 @@ class extends agent_pStudioWidget_reader_gif
 	{
 		$o = parent::compose($o);
 
-		if (isset($o->extension) && extension_loaded('exif'))
+		if (extension_loaded('exif'))
 		{
 			$exif = exif_read_data($this->realpath);
 

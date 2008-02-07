@@ -34,13 +34,12 @@ class extends agent
 
 	function compose($o)
 	{
-		$o->filename = pStudio::encFilename($this->path);
-
 		$o->low  = $this->get->low;
 		$o->high = $this->get->high;
 
 		$o->appname = pStudio::getAppname($this->depth);
 		$o->is_file = '' !== $this->path && '/' !== substr($this->path, -1);
+		$o->topname = '' !== $this->path ? basename($o->is_file ? $this->path : substr($this->path, 0, -1)) : $o->appname;
 		$o->dirname = $o->is_file ? dirname($this->path) . '/' : $this->path;
 		'./' === $o->dirname && $o->dirname = '';
 
