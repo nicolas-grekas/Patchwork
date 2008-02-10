@@ -18,9 +18,18 @@ function_exists('token_get_all') || die('Patchwork Error: Extension "tokenizer" 
 preg_match('/^.$/u', '§')        || die('Patchwork Error: PCRE is not compiled with UTF-8 support');
 isset($_SERVER['REDIRECT_STATUS']) && '200' !== $_SERVER['REDIRECT_STATUS'] && die('Patchwork Error: initialization forbidden. Please try using the shortest possible URL');
 
-extension_loaded('mbstring')
-	&& (ini_get('mbstring.func_overload') & MB_OVERLOAD_STRING)
-	&& die('Patchwork Error: String functions are overloaded by mbstring');
+if (extension_loaded('mbstring'))
+{
+	(ini_get('mbstring.func_overload') & MB_OVERLOAD_STRING)
+		&& die('Patchwork Error: mbstring is overloading string functions');
+
+	ini_get('mbstring.encoding_translation')
+		&& !in_array(strtolower(ini_get('mbstring.http_input')), array('pass', 'utf-8'))
+		&& die('Patchwork Error: mbstring is set to translate input encoding');
+
+	!in_array(strtolower(ini_get('mbstring.http_output')), array('pass', 'utf-8'))
+		&& die('Patchwork Error: mbstring is set to translate output encoding');
+}
 
 
 error_reporting(E_ALL | E_STRICT);
