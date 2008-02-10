@@ -22,19 +22,31 @@ Allow from all
 #SetEnv REGISTER_GLOBALS 0
 #SetEnv ZEND_OPTIMIZER 1
 #SetEnv MAGIC_QUOTES 0
-#SetEnv SESSION_USE_TRANS_SID 0
 
 # Edit this to your default timezone
 php_value date.timezone "Universal"
 
+php_flag magic_quotes_gpc Off
+php_flag register_globals Off
+php_flag register_long_arrays Off
+php_flag register_argc_argv Off
+php_flag auto_globals_jit On
+
+php_flag session.auto_start Off
+
 # Tuning of mbstring
 php_value mbstring.func_overload 0
 php_value mbstring.language "neutral"
+php_value mbstring.substitute_character "none"
+php_flag  mbstring.encoding_translation Off
+php_value mbstring.http_input "pass"
+php_value mbstring.http_output "pass"
 
-# More tuning, for performance, but only if directory
-# contains only applications that can handle it.
-#php_value mbstring.language "uni"
-#php_value mbstring.script_encoding "UTF-8"
-#php_value mbstring.encoding_translation On
+# More tuning, for performance, but only if the current
+# directory contains only applications that can handle it.
+#php_flag  mbstring.encoding_translation On
 #php_value mbstring.http_input "UTF-8"
-#php_value mbstring.http_output "pass"
+
+#php_value iconv.input_encoding "UTF-8//IGNORE"
+#php_value iconv.output_encoding "UTF-8//IGNORE"
+#php_value iconv.output_encoding "UTF-8//IGNORE"
