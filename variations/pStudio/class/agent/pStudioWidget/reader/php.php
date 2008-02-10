@@ -12,7 +12,7 @@ class extends agent_pStudioWidget_reader
 		{
 			$a && false !== strpos($a, "\r") && $a = strtr(str_replace("\r\n", "\n", $a), "\r", "\n");
 			u::isUTF8($a) || $a = utf8_encode($a);
-	
+
 			$a = new geshi($a, $this->language);
 			$a->set_encoding('UTF-8');
 			$a->enable_line_numbers(GESHI_NORMAL_LINE_NUMBERS);
