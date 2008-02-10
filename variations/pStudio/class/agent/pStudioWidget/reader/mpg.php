@@ -7,6 +7,7 @@ class extends agent_pStudioWidget_reader
 	function compose($o)
 	{
 		$o->extension = $this->extension;
+		$o->rawContentType = $this->rawContentType;
 
 		return $o;
 	}
