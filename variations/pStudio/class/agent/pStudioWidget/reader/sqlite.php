@@ -9,6 +9,7 @@ class extends agent_pStudioWidget_reader
 		'table:c',
 		'start:i:0' => 0,
 		'length:i:1' => 25,
+		'q:c',
 	);
 
 	function compose($o)
@@ -38,6 +39,29 @@ class extends agent_pStudioWidget_reader
 				$o->length = $this->get->length;
 			}
 		}
+
+        // Définition du formulaire de recherche
+        $form = new pForm($o);
+
+        $form->add('textarea', 'q');
+		$send=$form->add('submit','send');
+		$send->add('q', '', '');
+
+		if ($send->isOn())
+		{
+			$data = $send->getData();
+			$sql = sqlite_escape_string($data['q']);
+
+E($sql);
+			if ($rows = $db->arrayQuery($sql, SQLITE_ASSOC))
+			{
+E($rows);
+				$o->results = new loop_array($rows, 'filter_rawArray');
+				$o->fields = new loop_array(array_keys($rows[0]));
+				$o->rows = new loop_array($rows, array($this, 'filterRow'));
+			}
+		}
+
 
 		return $o;
 	}

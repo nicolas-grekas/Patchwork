@@ -1,3 +1,41 @@
+
+
+<!-- LOOP $results -->
+<!-- IF $fields -->
+<table border="1">
+<tr>
+<!-- LOOP $fields -->
+	<th>{$VALUE}</th>
+<!-- END:LOOP -->
+</tr>
+<!-- LOOP $rows -->
+<tr>
+<!-- LOOP $columns -->
+	<!-- IF $VALUE-0 == $VALUE -->{* Align numbers on the right *}
+	<td style="text-align: right">{$VALUE}</td>
+	<!-- ELSE -->
+	<td>{$VALUE}</td>
+	<!-- END:IF -->
+<!-- END:LOOP -->
+</tr>
+<!-- END:LOOP -->
+</table>
+<!-- END:IF -->
+<!-- END:LOOP -->
+
+
+<!-- IF a$level == 0 -->
+<div id="SQLiteQuery">
+Type your SQLite request and submit it<br />
+	<!-- AGENT $form -->
+	<!-- AGENT $f_q autofocus=1 -->
+	<!-- AGENT $f_send  -->
+	<!-- AGENT $form _mode_='close' -->
+</div>
+
+
+<!-- END:IF -->
+
 <!-- IF !a$table -->{* Display general info on the database *}
 
 <ul>
@@ -51,3 +89,4 @@ Your query returned no result.
 <!-- END:IF -->
 
 <!-- END:IF -->
+
