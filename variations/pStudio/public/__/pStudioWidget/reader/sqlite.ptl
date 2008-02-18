@@ -1,69 +1,39 @@
-
-
-<!-- LOOP $results -->
-<!-- IF $fields -->
-<table border="1">
-<tr>
-<!-- LOOP $fields -->
-	<th>{$VALUE}</th>
-<!-- END:LOOP -->
-</tr>
-<!-- LOOP $rows -->
-<tr>
-<!-- LOOP $columns -->
-	<!-- IF $VALUE-0 == $VALUE -->{* Align numbers on the right *}
-	<td style="text-align: right">{$VALUE}</td>
-	<!-- ELSE -->
-	<td>{$VALUE}</td>
-	<!-- END:IF -->
-<!-- END:LOOP -->
-</tr>
-<!-- END:LOOP -->
-</table>
-<!-- END:IF -->
-<!-- END:LOOP -->
-
-
-<!-- IF a$level == 0 -->
-<div id="SQLiteQuery">
-Type your SQLite request and submit it<br />
-	<!-- AGENT $form -->
-	<!-- AGENT $f_q autofocus=1 -->
-	<!-- AGENT $f_send  -->
-	<!-- AGENT $form _mode_='close' -->
-</div>
-
-
-<!-- END:IF -->
-
-<!-- IF !a$table -->{* Display general info on the database *}
+<!-- IF !a$sql -->{* Display general info on the database *}
 
 <ul>
 <!-- LOOP $tables -->
-<li><a href="{~}pStudio/{g$__0__}?low={a$low}&amp;high={a$high}&amp;table={$name}" alt="table">{$name}</a></li>
+<li><a href="{~}pStudio/{g$__0__}?low={a$low}&amp;high={a$high}&amp;sql=SELECT * FROM {$name}">{$name}</a></li>
 <!-- END:LOOP -->
 </ul>
 
-<!-- IF g$table -->{* if a table is selected, display its infos *}
-<!-- AGENT 'pStudioWidget/reader/sqlite' path=a$path low=a$low high=a$high table=g$table start=g$start length=g$length -->
+<form action="{g$__URI__}" accept-charset="UTF-8">
+<input type="hidden" name="low" value="{g$low}" />
+<input type="hidden" name="high" value="{g$high}" />
+<textarea name="sql">{g$sql}</textarea>
+<input type="submit" value="Execute" />
+</form>
+
+<!-- IF g$sql -->{* display qiery results *}
+<!-- AGENT 'pStudioWidget/reader/sqlite' path=a$path low=a$low high=a$high sql=g$sql start=g$start length=g$length -->
 <!-- END:IF -->
 
-<!-- ELSE -->{* Display info on one specific table *}
+<!-- ELSE -->{* Display query results *}
 
-<h2>{a$table}</h2>
-{* navigator *}
+<h2>{a$sql}</h2>
+
+{* Pagination *}
 <table>
 <!-- SET $prev -->{($start - $length)}<!-- END:SET
 SET $next -->{($start + $length)}<!-- END:SET -->
 <!-- IF $start>0 -->
-<tr><td><a href="{~}pStudio/{g$__0__}?low={a$low}&amp;high={a$high}&amp;table={g$table}&amp;start={$prev}&amp;length={$length}" alt="previous">&lt; Previous {$length}</a></td>
+<tr><td><a href="{~}pStudio/{g$__0__}?low={a$low}&amp;high={a$high}&amp;sql={a$sql}&amp;start={$prev}&amp;length={$length}">&lt; Previous {$length}</a></td>
 <!-- ELSE -->
 <tr>
 <!-- END:IF -->
-<td><a href="{~}pStudio/{g$__0__}?low={a$low}&amp;high={a$high}&amp;table={g$table}&amp;start={$next}&amp;length={$length}" alt="next">Next {$length} &gt;</a></td></tr>
+<td><a href="{~}pStudio/{g$__0__}?low={a$low}&amp;high={a$high}&amp;sql={a$sql}&amp;start={$next}&amp;length={$length}">Next {$length} &gt;</a></td></tr>
 </table>
 
-{* table's content *}
+{* Results *}
 <!-- IF $fields -->
 <table border="1">
 <tr>
