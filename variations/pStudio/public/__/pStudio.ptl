@@ -49,7 +49,7 @@
 		<!-- ELSEIF $isDir -->
 		<a href="{a$fullpath}{$name}/?low={$$low}&amp;high={$$high}" title="{$appname}"><b>{$name}</b></a>
 		<!-- ELSE -->
-		<a href="{a$fullpath}{$name}?low={$$low}&amp;high={$$high}&amp;level=0" title="{$appname}">{$name}</a>
+		<a href="{a$fullpath}{$name}?low={$$low}&amp;high={$$high}" title="{$appname}">{$name}</a>
 		<!-- END:IF -->
 
 		</div>
@@ -61,7 +61,7 @@
 	</td>
 	<td valign="top"><!--
 		SET a$a -->pStudioWidget/reader/{g$__0__|pStudio_extension}<!-- END:SET
-		AGENT a$a path=g$__0__ low=$low high=$high level=0
+		AGENT a$a path=g$__0__ low=$low high=$high
 	--></td>
 </tr>
 </table>
