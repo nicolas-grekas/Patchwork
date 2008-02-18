@@ -45,7 +45,7 @@ SET $next -->{($start + $length)}<!-- END:SET -->
 <tr>
 <!-- LOOP $columns -->
 	<!-- IF $VALUE-0 == $VALUE -->{* Align numbers on the right *}
-	<td style="text-align: right">{$VALUE}</td>
+	<td style="text-align: right">{$VALUE|default:'&nbsp;'}</td>
 	<!-- ELSE -->
 	<td>{$VALUE}</td>
 	<!-- END:IF -->

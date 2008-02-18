@@ -82,7 +82,7 @@ function E($v, $warn, $max_depth, $level, $expand)
 
 	if (0 == $level)
 	{
-		_____ += (E.lastTime = new Date/1) - $startTime;
+		E.startTime += (E.lastTime = new Date/1) - $startTime;
 
 		return $deltaTime;
 	}
@@ -104,7 +104,7 @@ E.hiddenList = {
 	'parentNode' : true,
 	'document' : true
 };
-E.lastTime = _____;
+E.lastTime = E.startTime = new Date/1;
 E.counter = 0;
 QDebug_toggle = function($d, $e)
 {

@@ -83,7 +83,7 @@ class
 		{
 			$v = self::$ACCENT[$i];
 			self::$ACCENT_FROM[] = '/[' . substr($v, 1) . ']/u';
-			self::$ACCENT_TO[]   = $v{0};
+			self::$ACCENT_TO[]   = $v[0];
 		}
 	}
 
@@ -117,7 +117,7 @@ class
 		for ($i = 0; $i < $len; ++$i)
 		{
 			$v = self::$ACCENT[$i];
-			$str = str_replace($v{0}, "[{$v}]", $str);
+			$str = str_replace($v[0], "[{$v}]", $str);
 		}
 
 		return $str;
