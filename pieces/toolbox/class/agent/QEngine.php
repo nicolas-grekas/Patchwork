@@ -152,13 +152,13 @@ class extends agent
 
 	protected function P($k, $v = false)
 	{
-		$a = (is_numeric($k{0}) ? "\"$k\"" : $k) . ':{';
+		$a = (is_numeric($k[0]) ? "\"$k\"" : $k) . ':{';
 		if ($v !== false) $a .= '$:' . (is_int($v) ? $v : "\"$v\"") . ',';
 		return $a;
 	}
 
 	protected function S($k, $v)
 	{
-		return (is_numeric($k{0}) ? "\"$k\"" : $k) . ':' . (is_int($v) ? $v : "\"$v\"");
+		return (is_numeric($k[0]) ? "\"$k\"" : $k) . ':' . (is_int($v) ? $v : "\"$v\"");
 	}
 }

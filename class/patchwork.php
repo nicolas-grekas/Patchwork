@@ -367,6 +367,8 @@ class
 			self::setMaxage(0);
 			self::setPrivate();
 
+			header('Refresh: 0');
+
 			echo '<html><head><script type="text/javascript">location.',
 				IS_POSTING ? 'replace(location)' : 'reload()',
 				'</script></head></html>';
@@ -406,6 +408,8 @@ class
 			{
 				self::setMaxage(0);
 				self::setPrivate();
+
+				header('Refresh: 0');
 
 				echo '<html><head><script type="text/javascript">location.reload()</script></head></html>';
 				return;
@@ -678,7 +682,7 @@ class
 		$url = (string) $url;
 		$url = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'", $url) ? $url : (self::$base . ('index' === $url ? '' : $url)));
 
-		if ('.' === $url[0]) W('Current patchwork::redirect() behaviour with relative URLs may change in a future version of Patchwork. As long as this notice appears, using relative URLs is strongly discouraged.');
+		if ('.' === substr($url, 0, 1)) W('Current patchwork::redirect() behaviour with relative URLs may change in a future version of Patchwork. As long as this notice appears, using relative URLs is strongly discouraged.');
 
 		self::$redirecting = true;
 		self::disable();
@@ -1346,12 +1350,16 @@ class
 			if (PHP_OUTPUT_HANDLER_START & $mode)
 			{
 				$lead = '';
-#>				if ((!PATCHWORK_SYNC_CACHE || IS_POSTING) && !self::$binaryMode) $buffer = patchwork_debugger::sendProlog() . $buffer;
+#>				if ((!PATCHWORK_SYNC_CACHE || IS_POSTING) && !self::$binaryMode) $buffer = patchwork_debugger::getProlog() . $buffer;
 			}
 
 			$tail = '';
 
-			if (!(PHP_OUTPUT_HANDLER_END & $mode))
+			if (PHP_OUTPUT_HANDLER_END & $mode)
+			{
+#>				if ((!PATCHWORK_SYNC_CACHE || IS_POSTING) && !self::$binaryMode) $buffer .= patchwork_debugger::getConclusion();
+			}
+			else
 			{
 				$a = strrpos($buffer, '<');
 				if (false !== $a)

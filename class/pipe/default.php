@@ -16,7 +16,7 @@ class
 {
 	static function php($string, $default = '')
 	{
-		return '' != (string) $string ? $string : $default;
+		return '' !== (string) $string ? $string : $default;
 	}
 
 	static function js()
@@ -25,7 +25,7 @@ class
 
 P$default = function($string, $default)
 {
-	return $string>'' ? $string : $default;
+	return $string>''||$string<0 ? $string : $default;
 }
 
 <?php	}

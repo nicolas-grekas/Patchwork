@@ -80,24 +80,25 @@ class
 		}
 	}
 
-	static function sendProlog()
+	static function getProlog()
 	{
-		$debugWin = p::__BASE__() . '_?d$&stop&' . mt_rand();
 		$QDebug   = p::__BASE__() . 'js/QDebug.js';
-		$lang     = p::__LANG__();
 
 		return <<<EOHTML
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<script type="text/javascript">/*<![CDATA[*/
-_____ = new Date/1;
-onload = function() {
-window.debugWin = open('$debugWin','debugWin','toolbar=no,status=yes,resizable=yes,scrollbars,width=320,height=240,left=' + parseInt(screen.availWidth - 340) + ',top=' + parseInt(screen.availHeight - 290));
-if (!debugWin) alert('Disable anti-popup to use the Debug Window');
-else E('Rendering time: ' + (new Date/1 - _____) + ' ms');
-};
-//]]></script>
-<div style="position:fixed;_position:absolute;float:right;font-family:arial;font-size:9px;top:0px;right:0px;z-index:255"><a href="javascript:;" onclick="window.debugWin&&debugWin.focus()" style="background-color:blue;color:white;text-decoration:none;border:0px;" id="debugLink">Debug</a><script type="text/javascript" src="{$QDebug}"></script></div>
+<script type="text/javascript" src="{$QDebug}"></script>
+EOHTML;
+	}
+
+	static function getConclusion()
+	{
+		$debugWin = p::__BASE__() . '_?d$&stop';
+
+		return <<<EOHTML
+<script type="text/javascript">/*<![CDATA[*/E('Rendering time: ' + (new Date/1 - E.startTime) + ' ms');//]]></script>
+<div style="position:fixed;_position:absolute;top:0px;right:0px;visibility:hidden;height:100%" id="debugFrame"><iframe src="{$debugWin}" style="width:400px;height:100%"></iframe></div>
+<div style="position:fixed;_position:absolute;top:0px;right:0px;z-index:255;font-family:arial;font-size:9px"><a href="javascript:;" onclick="var f=document.getElementById('debugFrame');if (f) f.style.visibility='hidden'==f.style.visibility?'visible':'hidden'" style="background-color:blue;color:white;text-decoration:none;border:0px;" id="debugLink">Debug</a></div>
 EOHTML;
 	}
 
@@ -191,7 +192,7 @@ function Z()
 						$a = substr($a, 0, 23)
 							. '<script type="text/javascript">/*<![CDATA[*/
 		focus()
-		L=opener&&opener.document.getElementById(\'debugLink\')
+		L=parent&&parent.document.getElementById(\'debugLink\')
 		L=L&&L.style
 		if(L)
 		{
@@ -228,7 +229,7 @@ function Z()
 
 			if ($S)
 			{
-				echo '<script type="text/javascript">/*<![CDATA[*/scrollTo(0,0);if(window.opener&&opener.E&&opener.E.buffer.length)document.write(opener.E.buffer.join("")),opener.E.buffer=[]//]]></script>';
+				echo '<script type="text/javascript">/*<![CDATA[*/scrollTo(0,0);if(window.parent&&parent.E&&parent.E.buffer.length)document.write(parent.E.buffer.join("")),parent.E.buffer=[]//]]></script>';
 				break;
 			}
 
