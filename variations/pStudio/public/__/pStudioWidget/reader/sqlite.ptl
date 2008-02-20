@@ -1,5 +1,6 @@
-<!-- IF !a$sql -->{* Display general info on the database *}
+{$errorSQLite}
 
+<!-- IF !a$sql -->{* Display general info on the database *}
 <ul>
 <!-- LOOP $tables -->
 <li><a href="{~}pStudio/{g$__0__}?low={a$low}&amp;high={a$high}&amp;sql=SELECT * FROM {$name}">{$name}</a></li>
@@ -13,13 +14,13 @@
 <input type="submit" value="Execute" />
 </form>
 
-<!-- IF g$sql -->{* display qiery results *}
+<!-- IF g$sql -->{* display query results *}
 <!-- AGENT 'pStudioWidget/reader/sqlite' path=a$path low=a$low high=a$high sql=g$sql start=g$start length=g$length -->
 <!-- END:IF -->
 
 <!-- ELSE -->{* Display query results *}
 
-<h2>{a$sql}</h2>
+<h2>{$query|allowhtml}</h2>
 
 {* Pagination *}
 <table>
