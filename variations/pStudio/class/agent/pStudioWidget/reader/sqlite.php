@@ -23,7 +23,7 @@ class extends agent_pStudioWidget_reader
 
 			if (self::isReadOnlyQuery($db, $this->get->sql, $o->error_msg))
 			{
-				$sql = "{$this->get->sql}\n LIMIT {$this->get->start}, {$this->get->length}";
+				$sql = (preg_match('/\bselect\b/i', $this->get->sql) && !preg_match('/\blimit\b/i', $this->get->sql)) ? "{$this->get->sql}\n LIMIT {$this->get->start}, {$this->get->length}" : "{$this->get->sql}\n";
 				$rows = @$db->arrayQuery($sql, SQLITE_ASSOC);
 
 				if (false !== $rows)
