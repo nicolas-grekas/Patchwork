@@ -28,11 +28,11 @@
 <!-- SET $prev -->{($start - $length)}<!-- END:SET
 SET $next -->{($start + $length)}<!-- END:SET -->
 <!-- IF $start>0 -->
-<tr><td><a href="{~}pStudio/{g$__0__}?low={a$low}&amp;high={a$high}&amp;sql={a$sql}&amp;start={$prev}&amp;length={$length}">&lt; Previous {$length}</a></td>
+<tr><td><a href="{~}pStudio/{g$__0__}?low={a$low}&amp;high={a$high}&amp;sql={a$sql|urlencode|replace:'%20':'+'}&amp;start={$prev}&amp;length={$length}">&lt; Previous {$length}</a></td>
 <!-- ELSE -->
 <tr>
 <!-- END:IF -->
-<td><a href="{~}pStudio/{g$__0__}?low={a$low}&amp;high={a$high}&amp;sql={a$sql}&amp;start={$next}&amp;length={$length}">Next {$length} &gt;</a></td></tr>
+<td><a href="{~}pStudio/{g$__0__}?low={a$low}&amp;high={a$high}&amp;sql={a$sql|urlencode|replace:'%20':'+'}&amp;start={$next}&amp;length={$length}">Next {$length} &gt;</a></td></tr>
 </table>
 
 {* Results *}
