@@ -1,0 +1,69 @@
+<!-- AGENT 'header' title="{$topname} - pStudio"-->
+
+<table>
+<tr>
+	<td colspan="3">
+	<a href="{~}pStudio/explorer/?low={$low}&amp;high={$high}">{$appname}</a>
+	<!--
+		SET a$path --><!-- END:SET
+		LOOP $paths
+			SET a$path -->{a$path}{$VALUE}/<!-- END:SET
+
+			--> &gt; <!--
+
+			IF $iteratorPosition + 1 < $$paths
+				--><a href="{~}pStudio/explorer/{a$path}?low={$low}&amp;high={$high}">{$VALUE}</a><!--
+			ELSE
+				--><b>{$VALUE}</b><!--
+			END:IF
+		END:LOOP
+
+		IF $is_file
+			--> [<a href="{~}pStudio/explorer/{g$__0__}?low={$low}&amp;high={$high}&amp;$serverside=1">{"Download"}</a>]<!--
+		END:IF
+	-->
+	</td>
+</tr>
+<tr>
+	<td valign="top"><!-- AGENT 'pStudio/app' low=$low high=$high --></td>
+	<td valign="top">
+	<div style="color: silver; white-space: nowrap">
+
+	<!-- SET a$path -->/{$dirname}<!-- END:SET -->
+	<!-- SET a$fullpath -->{~}pStudio/explorer{a$path}<!-- END:SET -->
+
+	<!-- IF '/' != a$path -->
+	<a href="{a$fullpath}..?low={$low}&amp;high={$high}">..</a>
+	<!-- END:IF -->
+
+	<!-- LOOP $subpaths -->
+
+		<!-- IF $isTop --><div style="color: black"><!-- END:IF -->
+
+		<div>
+
+		{$ancestorsNb|test:'*':'-'}
+
+		<!-- IF $isApp -->
+		<b>{$name}</b>
+		<!-- ELSEIF $isDir -->
+		<a href="{a$fullpath}{$name}/?low={$$low}&amp;high={$$high}" title="{$appname}"><b>{$name}</b></a>
+		<!-- ELSE -->
+		<a href="{a$fullpath}{$name}?low={$$low}&amp;high={$$high}" title="{$appname}">{$name}</a>
+		<!-- END:IF -->
+
+		</div>
+
+		<!-- IF $isTop --></div><!-- END:IF -->
+
+	<!-- END:LOOP -->
+	</div>
+	</td>
+	<td valign="top"><!--
+		SET a$a -->pStudio/reader/{g$__0__|pStudio_extension}<!-- END:SET
+		AGENT a$a path=g$__0__ low=$low high=$high
+	--></td>
+</tr>
+</table>
+
+<!-- AGENT 'footer' -->

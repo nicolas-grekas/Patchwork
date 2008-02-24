@@ -56,7 +56,17 @@ $a[] = __patchwork_bootstrapper::$pwd;
 // Get include_path
 
 $patchwork_path = array();
-foreach (explode(PATH_SEPARATOR, get_include_path()) as $i) if ($i = @realpath($i)) $patchwork_path[] = $i;
+
+foreach (explode(PATH_SEPARATOR, get_include_path()) as $i)
+{
+	$i = @realpath($i);
+	if ($i && $b = @opendir($i))
+	{
+		closedir($b);
+		$patchwork_path[] = $i;
+	}
+}
+
 $patchwork_path = array_diff($patchwork_path, $a, array(''));
 $patchwork_path = array_merge($a, $patchwork_path);
 
