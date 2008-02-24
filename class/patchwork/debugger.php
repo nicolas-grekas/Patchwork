@@ -97,8 +97,10 @@ EOHTML;
 
 		return <<<EOHTML
 <script type="text/javascript">/*<![CDATA[*/E('Rendering time: ' + (new Date/1 - E.startTime) + ' ms');//]]></script>
-<div style="position:fixed;_position:absolute;top:0px;right:0px;visibility:hidden;height:100%" id="debugFrame"><iframe src="{$debugWin}" style="width:400px;height:100%"></iframe></div>
-<div style="position:fixed;_position:absolute;top:0px;right:0px;z-index:255;font-family:arial;font-size:9px"><a href="javascript:;" onclick="var f=document.getElementById('debugFrame');if (f) f.style.visibility='hidden'==f.style.visibility?'visible':'hidden'" style="background-color:blue;color:white;text-decoration:none;border:0px;" id="debugLink">Debug</a></div>
+<input type="hidden" name="debugStore" id="debugStore" value="" />
+<div style="position:fixed;_position:absolute;top:0px;right:0px;background-color:white;visibility:hidden;height:100%" id="debugFrame"><iframe src="{$debugWin}" style="width:400px;height:100%"></iframe></div>
+<div style="position:fixed;_position:absolute;top:0px;right:0px;z-index:255;font-family:arial;font-size:9px"><a href="javascript:;" onclick="var f=document.getElementById('debugFrame');if (f) f.style.visibility='hidden'==f.style.visibility?'visible':'hidden',document.getElementById('debugStore').value=f.style.visibility" style="background-color:blue;color:white;text-decoration:none;border:0px;" id="debugLink">Debug</a></div>
+<script type="text/javascript">/*<![CDATA[*/setTimeout(function(){var f=document.getElementById('debugFrame'),s=document.getElementById('debugStore');if (f&&s&&s.value)f.style.visibility=s.value},0)//]]></script>
 EOHTML;
 	}
 
