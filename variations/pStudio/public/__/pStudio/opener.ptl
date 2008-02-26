@@ -28,7 +28,8 @@ setInterval(function()
 
 onbeforeunload = function ()
 {
-	if (code_is_modified) return {"Your document has not been saved."|js};
+	if (code_is_modified && !save_element.value) return {"Your document has not been saved."|js};
+	if (code_is_modified && save_element.value) return {"Your document will be saved on the server."|js};
 }
 
 </script><!--
