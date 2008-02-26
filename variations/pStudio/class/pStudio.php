@@ -29,7 +29,7 @@ class
 
 		static $cache = array();
 
-		isset($cache[$path]) || $cache[$path] = self::isAuthEdit($path) || self::isAuth($path, self::$readWhitelist, self::$readBlacklist);
+		isset($cache[$path]) || $cache[$path] = self::isAuth($path, self::$readWhitelist, self::$readBlacklist);
 
 		return $cache[$path];
 	}

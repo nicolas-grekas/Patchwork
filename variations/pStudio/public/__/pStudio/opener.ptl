@@ -1,0 +1,16 @@
+<!--
+
+IF $is_binary
+	-->[{"Binary content"}]<!--
+ELSE
+	IF $is_auth_edit
+		AGENT $form
+		AGENT $f_code
+		AGENT $f_save value="Save"
+		AGENT $form _mode_='close'
+	ELSE
+		--><pre>{$text}</pre><!--
+	END:IF
+END:IF
+
+-->

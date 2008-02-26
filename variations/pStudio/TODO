@@ -1,0 +1,25 @@
+Gestion des autorisations :
+- chargement de profils
+- attribution de profil
+- authEdit dépendant de la profondeur
+
+Impression :
+- css media=print
+- mode reader forcé
+
+Gestion de fichiers :
+- création d'un nouveau (opener dépendant)
+- déplacement/renommage
+- suppression
+
+Intégration à patchwork :
+- cache auto-synchro
+- cache reset forcé
+- mode DEBUG
+
+Divers :
+- gestion conflit d'éditions simultanées (merge vs lock)
+
+LOOK & ERGONOMIE :
+- onbeforeunload
+- ...

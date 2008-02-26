@@ -1,9 +1,0 @@
-<!--
-
-IF $is_binary
-	-->[{"Binary content"}]<!--
-ELSE
-	--><pre>{$text}</pre><!--
-END:IF
-
--->

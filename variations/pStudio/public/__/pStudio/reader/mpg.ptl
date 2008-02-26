@@ -1,1 +1,0 @@
-<embed type="{$rawContentType}" src="{~}pStudio/reader/{$extension}?path={a$path}&amp;low={a$low}&amp;high={a$high}&amp;$serverside=1" />
