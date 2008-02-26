@@ -1,4 +1,4 @@
-<!-- AGENT 'header' title="{$topname} - pStudio"-->
+<!-- AGENT 'pStudio/header' title="{$topname} - pStudio"-->
 
 <table>
 <tr>
@@ -20,6 +20,12 @@
 
 		IF $is_file
 			--> [<a href="{~}pStudio/explorer/{g$__0__}?low={$low}&amp;high={$high}&amp;$serverside=1">{"Download"}</a>]<!--
+			IF $is_auth_edit
+				AGENT $form
+				AGENT $f_file
+				AGENT $f_send value="Upload"
+				AGENT $form _mode_='close'
+			END:IF
 		END:IF
 	-->
 	</td>
@@ -60,10 +66,12 @@
 	</div>
 	</td>
 	<td valign="top"><!--
-		SET a$a -->pStudio/reader/{g$__0__|pStudio_extension}<!-- END:SET
-		AGENT a$a path=g$__0__ low=$low high=$high
+		IF $is_file
+			SET a$a -->pStudio/opener/{g$__0__|pStudio_extension}<!-- END:SET
+			AGENT a$a path=g$__0__ low=$low high=$high
+		END:IF
 	--></td>
 </tr>
 </table>
 
-<!-- AGENT 'footer' -->
+<!-- AGENT 'pStudio/footer' -->

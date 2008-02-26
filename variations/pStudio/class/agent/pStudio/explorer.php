@@ -12,7 +12,7 @@ class extends agent
 	protected
 
 	$rawContentType = 'application/octet-stream',
-	$realpath, $path, $depth;
+	$realpath, $path, $depth, $is_auth_edit = false;
 
 
 	function control()
@@ -39,6 +39,7 @@ class extends agent
 
 		$o->appname = pStudio::getAppname($this->depth);
 		$o->is_file = '' !== $this->path && '/' !== substr($this->path, -1);
+		$o->is_auth_edit = $this->is_auth_edit;
 		$o->topname = '' !== $this->path ? basename($o->is_file ? $this->path : substr($this->path, 0, -1)) : $o->appname;
 		$o->dirname = $o->is_file ? dirname($this->path) . '/' : $this->path;
 		'./' === $o->dirname && $o->dirname = '';
@@ -46,6 +47,23 @@ class extends agent
 		$o->paths = new loop_array(explode('/', rtrim($this->path, '/')));
 		$o->subpaths = new loop_array($this->getSubpaths($o->dirname, $o->low, $o->high), 'filter_rawArray');
 
+		if ($o->is_auth_edit)
+		{
+			$f = new pForm($o);
+			$f->add('file', 'file');
+			$send = $f->add('submit', 'send');
+			$send->add('file', 'Please select a file', '');
+
+			if ($send->isOn())
+			{
+				$file = $f->getElement('file')->getValue();
+				unlink($this->realpath);
+				move_uploaded_file($file['tmp_name'], $this->realpath);
+
+				p::redirect();
+			}
+
+		}
 		return $o;
 	}
 
@@ -68,7 +86,9 @@ class extends agent
 			'/' !== substr($path, -1) && is_dir($realpath) && $path .= '/';
 		}
 
-		if (pStudio::isAuthRead($path))
+		$this->is_auth_edit = pStudio::isAuthEdit($path);
+
+		if ($this->is_auth_edit || pStudio::isAuthRead($path))
 		{
 			$this->realpath = $realpath;
 			$this->path = $path;
