@@ -108,7 +108,7 @@ function patchwork_autoload($searched_class)
 			}
 
 			$cache = DEBUG . (0>++$level ? -$level . '-' : $level);
-			$cache = PATCHWORK_PROJECT_PATH . DIRECTORY_SEPARATOR . ".class_{$class}.php.{$cache}.{$T}.zcache.php";
+			$cache = PATCHWORK_PROJECT_PATH . ".class_{$class}.php.{$cache}.{$T}.zcache.php";
 
 			if (!(file_exists($cache) && (TURBO || filemtime($cache) > filemtime($source))))
 				call_user_func(array('patchwork_preprocessor', 'run'), $source, $cache, $level, $class);
@@ -221,7 +221,7 @@ function patchwork_autoload($searched_class)
 			patchwork_autoload_write($tmp, $cache);
 		}
 
-		$cache = substr($cache, strlen(PATCHWORK_PROJECT_PATH) + 8, -12-strlen($T));
+		$cache = substr($cache, strlen(PATCHWORK_PROJECT_PATH) + 7, -12-strlen($T));
 
 		if ($amark)
 		{
@@ -278,7 +278,7 @@ function patchwork_autoload_write(&$data, $to)
 		if (IS_WINDOWS)
 		{
 			$h = new COM('Scripting.FileSystemObject');
-			$h->GetFile(PATCHWORK_PROJECT_PATH .'/'. $tmp)->Attributes |= 2; // Set hidden attribute
+			$h->GetFile(PATCHWORK_PROJECT_PATH . $tmp)->Attributes |= 2; // Set hidden attribute
 			file_exists($to) && @unlink($to);
 			@rename($tmp, $to) || unlink($tmp);
 		}

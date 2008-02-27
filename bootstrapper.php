@@ -63,7 +63,7 @@ foreach (explode(PATH_SEPARATOR, get_include_path()) as $i)
 	if ($i && $b = @opendir($i))
 	{
 		closedir($b);
-		$patchwork_path[] = $i;
+		$patchwork_path[] = rtrim($i, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 	}
 }
 
@@ -79,9 +79,9 @@ __patchwork_bootstrapper::$offset = count($patchwork_path) - __patchwork_bootstr
 $a = false;
 for ($i = 0; $i <= __patchwork_bootstrapper::$last; ++$i)
 {
-	if (file_exists($patchwork_path[$i] . '/zcache/'))
+	if (file_exists($patchwork_path[$i] . 'zcache/'))
 	{
-		$a = $patchwork_path[$i] . '/zcache/';
+		$a = $patchwork_path[$i] . 'zcache' . DIRECTORY_SEPARATOR;
 
 		if (@touch($a . 'write_test')) @unlink($a . 'write_test');
 		else $a = false;
@@ -92,7 +92,7 @@ for ($i = 0; $i <= __patchwork_bootstrapper::$last; ++$i)
 
 if (!$a)
 {
-	$a = $patchwork_path[0] . '/zcache/';
+	$a = $patchwork_path[0] . 'zcache' . DIRECTORY_SEPARATOR;
 	file_exists($a) || mkdir($a);
 }
 
@@ -106,7 +106,7 @@ $a = array_slice($patchwork_path, 0, $a);
 $a = array_reverse($a);
 foreach ($a as $a)
 {
-	$a .= DIRECTORY_SEPARATOR . 'preconfig.php';
+	$a .= 'preconfig.php';
 
 	if (file_exists($a))
 	{
@@ -123,7 +123,7 @@ __patchwork_bootstrapper::$token = substr(__patchwork_bootstrapper::$token, 0, 4
 
 // Purge sources cache
 
-$a = __patchwork_bootstrapper::$cwd . '/.' . __patchwork_bootstrapper::$token . '.zcache.php';
+$a = __patchwork_bootstrapper::$cwd . '.' . __patchwork_bootstrapper::$token . '.zcache.php';
 if (!file_exists($a))
 {
 	touch($a);
@@ -137,7 +137,7 @@ if (!file_exists($a))
 	$b = opendir(__patchwork_bootstrapper::$cwd);
 	while (false !== $a = readdir($b))
 	{
-		if ('.zcache.php' == substr($a, -11) && '.' == $a[0]) @unlink(__patchwork_bootstrapper::$cwd . '/' . $a);
+		if ('.zcache.php' == substr($a, -11) && '.' == $a[0]) @unlink(__patchwork_bootstrapper::$cwd . $a);
 	}
 	closedir($b);
 }
@@ -158,7 +158,7 @@ $a = array_slice($patchwork_path, 0, $a);
 $b =& __patchwork_bootstrapper::$configSource;
 foreach ($a as $a)
 {
-	$a .= DIRECTORY_SEPARATOR . 'config.patchwork.php';
+	$a .= 'config.patchwork.php';
 	isset($b[$a]) && __patchwork_bootstrapper::$configCode[$a] =& $b[$a];
 }
 unset($b);
@@ -171,7 +171,7 @@ $a = array_slice($patchwork_path, 0, $a);
 $a = array_reverse($a);
 foreach ($a as $a)
 {
-	$a .= DIRECTORY_SEPARATOR . 'postconfig.php';
+	$a .= 'postconfig.php';
 
 	if (file_exists($a))
 	{
@@ -245,7 +245,7 @@ class __patchwork_bootstrapper
 			flock(self::$lock, LOCK_EX);
 			ob_start(array(__CLASS__, 'ob_handler'));
 
-			self::$pwd = dirname(__FILE__);
+			self::$pwd = rtrim(dirname(__FILE__), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 			self::$cwd = getcwd();
 
 			if (!self::$cwd)
@@ -257,6 +257,8 @@ class __patchwork_bootstrapper
 				}
 				else die("Patchwork Error: Your system's getcwd() is bugged and workaround failed.");
 			}
+
+			self::$cwd = rtrim(self::$cwd, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
 			set_time_limit(0);
 
@@ -277,7 +279,7 @@ class __patchwork_bootstrapper
 
 	static function ob_handler($buffer)
 	{
-		$lock = self::$cwd . '/.patchwork.lock';
+		$lock = self::$cwd . '.patchwork.lock';
 
 		if ('' === $buffer)
 		{
@@ -386,7 +388,7 @@ patchwork::start();";
 				else break;
 			}
 
-			if (!$parent) die('Patchwork Error: Inconsistent application hierarchy in ' . $realpath . DIRECTORY_SEPARATOR . 'config.patchwork.php');
+			if (!$parent) die('Patchwork Error: Inconsistent application hierarchy in ' . $realpath . 'config.patchwork.php');
 
 			$resultSeq[] = $parent;
 
@@ -459,10 +461,11 @@ patchwork::start();";
 
 			if ('__patchwork__' == substr($a, 0, 13)) $a = self::$pwd . substr($a, 13);
 
-			if ('/' != $a[0] && '\\' != $a[0] &&  ':' != $a[1]) $a = $realpath . '/' . $a;
+			if ('/' !== $a[0] && '\\' !== $a[0] && ':' !== $a[1]) $a = $realpath . $a;
 
-			if ('*' == substr($a, -1) && $a = realpath(substr($a, 0, -1)))
+			if ('/*' === substr(strtr($a, '\\', '/'), -2) && $a = realpath(substr($a, 0, -2)))
 			{
+				$a = rtrim($a, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 				$source = array();
 
 				$p = array($a);
@@ -472,7 +475,7 @@ patchwork::start();";
 				for ($j = 0; $j < $pLen; ++$j)
 				{
 					$d = $p[$j];
-					$a = file_exists($d . '/config.patchwork.php');
+					$a = file_exists($d . 'config.patchwork.php');
 					$a && $source[] = $d;
 
 					$h = opendir($d);
@@ -480,7 +483,7 @@ patchwork::start();";
 					{
 						if ($a && ('class' === $file || 'public' === $file || 'zcache' === $file)) continue;
 
-						is_dir($d . '/' . $file) && $p[$pLen++] = $d . DIRECTORY_SEPARATOR . $file;
+						is_dir($d . $file) && $p[$pLen++] = $d . $file . DIRECTORY_SEPARATOR;
 					}
 					closedir($h);
 
@@ -518,10 +521,11 @@ patchwork::start();";
 			else
 			{
 				$source = realpath($a);
-				if (false === $source) die('Patchwork Error: Missing file ' . $a . DIRECTORY_SEPARATOR . 'config.patchwork.php');
+				if (false === $source) die('Patchwork Error: Missing file ' . rtrim(strtr($a, '\\', '/'), '/') . '/config.patchwork.php');
+				$source = rtrim($source, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
 				$a = $source;
-				if (self::$pwd == $a) unset($parent[$i]);
+				if (self::$pwd === $a) unset($parent[$i]);
 			}
 		}
 
@@ -552,7 +556,7 @@ patchwork::start();";
 
 		foreach ($patchwork_path as $level => $h)
 		{
-			@self::populatePathCache($paths, $h, $level, $level <= self::$last ? '' : '/class');
+			@self::populatePathCache($paths, $h, $level, $level <= self::$last ? '' : 'class');
 		}
 
 
@@ -564,7 +568,7 @@ patchwork::start();";
 			$h = array_intersect($h, dba_handlers());
 			$h || $h = dba_handlers();
 			@unlink('./.parentPaths.db');
-			if ($h) foreach ($h as $dba) if ($h = @dba_open(self::$cwd . DIRECTORY_SEPARATOR . '.parentPaths.db', 'nd', $dba, 0600)) break;
+			if ($h) foreach ($h as $dba) if ($h = @dba_open(self::$cwd . '.parentPaths.db', 'nd', $dba, 0600)) break;
 		}
 
 		if ($h)
@@ -575,7 +579,7 @@ patchwork::start();";
 			if ('\\' == DIRECTORY_SEPARATOR)
 			{
 				$h = new COM('Scripting.FileSystemObject');
-				$h->GetFile(self::$cwd . '/.parentPaths.db')->Attributes |= 2; // Set hidden attribute
+				$h->GetFile(self::$cwd . '.parentPaths.db')->Attributes |= 2; // Set hidden attribute
 				unset($h);
 			}
 		}
@@ -603,11 +607,11 @@ patchwork::start();";
 		return $dba;
 	}
 
-	protected static function populatePathCache(&$paths, $dir, $i, $prefix, $subdir = '/')
+	protected static function populatePathCache(&$paths, $dir, $i, $prefix, $subdir = '')
 	{
-		if ('/' === $subdir && $prefix)
+		if ('' === $subdir && $prefix)
 		{
-			$h = explode('/', substr($prefix, 1));
+			$h = explode('/', $prefix);
 			do
 			{
 				$paths[implode('/', $h)] .= $i . ',';
@@ -618,12 +622,12 @@ patchwork::start();";
 
 		if ($h = opendir($dir . $subdir))
 		{
-			if ('/' !== $subdir && file_exists($dir . $subdir . 'config.patchwork.php')) ;
+			if ('' !== $subdir && file_exists($dir . $subdir . 'config.patchwork.php')) ;
 			else while (false !== $file = readdir($h)) if ('.' != $file[0] && 'zcache' != $file)
 			{
 				$file = $subdir . $file;
 
-				$paths[substr($prefix . $file, 1)] .= $i . ',';
+				$paths[$prefix . $file] .= $i . ',';
 
 				self::populatePathCache($paths, $dir, $i, $prefix, $file . '/');
 			}

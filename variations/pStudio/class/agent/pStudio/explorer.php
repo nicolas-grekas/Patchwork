@@ -73,7 +73,7 @@ class extends agent
 		{
 			if (!isset($GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - $high])) return false;
 
-			$realpath = $GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - $high] . '/';
+			$realpath = $GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - $high];
 			$depth = $high;
 		}
 		else
@@ -138,7 +138,7 @@ class extends agent
 			}
 			else
 			{
-				$path = $GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - $i] . '/';
+				$path = $GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - $i];
 				$depth = $i;
 			}
 
