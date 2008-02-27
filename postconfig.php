@@ -119,7 +119,7 @@ function __autoload($searched_class)
 
 	if ($load_autoload)
 	{
-		require /*<*/__patchwork_bootstrapper::$pwd . '/autoload.php'/*>*/;
+		require /*<*/__patchwork_bootstrapper::$pwd . 'autoload.php'/*>*/;
 		$load_autoload = false;
 	}
 
@@ -143,9 +143,9 @@ function patchworkProcessedPath($file)
 
 		for ($i = /*<*/__patchwork_bootstrapper::$last + 1/*>*/; $i < /*<*/count($patchwork_path)/*>*/; ++$i)
 		{
-			if (substr($file, 0, strlen($p[$i])+1) === $p[$i] . /*<*/DIRECTORY_SEPARATOR/*>*/)
+			if (substr($file, 0, strlen($p[$i])) === $p[$i])
 			{
-				$file = substr($file, strlen($p[$i])+1);
+				$file = substr($file, strlen($p[$i]));
 				break;
 			}
 		}

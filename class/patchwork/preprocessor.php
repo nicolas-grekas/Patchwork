@@ -12,6 +12,8 @@
  ***************************************************************************/
 
 
+defined('T_DIR') || define('T_DIR', 378); // T_DIR exists since PHP 5.3
+
 class patchwork_preprocessor__0
 {
 	public
@@ -52,7 +54,7 @@ class patchwork_preprocessor__0
 
 	$variableType = array(
 		T_EVAL, '(', T_FILE, T_LINE, T_FUNC_C, T_CLASS_C, T_INCLUDE, T_REQUIRE, T_CURLY_OPEN,
-		T_VARIABLE, '$', T_INCLUDE_ONCE, T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES,
+		T_VARIABLE, '$', T_INCLUDE_ONCE, T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES, T_DIR,
 	),
 
 	// List of native functions that could trigger __autoload()
@@ -317,7 +319,7 @@ class patchwork_preprocessor__0
 			if (IS_WINDOWS)
 			{
 				$code = new COM('Scripting.FileSystemObject');
-				$code->GetFile(PATCHWORK_PROJECT_PATH . '/' . $tmp)->Attributes |= 2; // Set hidden attribute
+				$code->GetFile(PATCHWORK_PROJECT_PATH . $tmp)->Attributes |= 2; // Set hidden attribute
 				file_exists($destination) && @unlink($destination);
 				@rename($tmp, $destination) || unlink($tmp);
 			}
@@ -421,6 +423,11 @@ class patchwork_preprocessor__0
 
 			case T_FILE:
 				$token = self::export($source);
+				$type = T_CONSTANT_ENCAPSED_STRING;
+				break;
+
+			case T_DIR:
+				$token = self::export(dirname($source));
 				$type = T_CONSTANT_ENCAPSED_STRING;
 				break;
 

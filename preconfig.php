@@ -105,7 +105,7 @@ if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) // Is it problematic to trust thi
 
 function patchwork_include($file)     {global $CONFIG; return include $file;}
 function patchwork_is_a($obj, $class) {return $obj instanceof $class;}
-function patchwork_chdir($realdir)    {$realdir === getcwd() || chdir($realdir);}
+function patchwork_chdir($realdir)    {rtrim($realdir, /*<*/DIRECTORY_SEPARATOR/*>*/) === rtrim(getcwd(), /*<*/DIRECTORY_SEPARATOR/*>*/) || chdir($realdir);}
 function clower($s) {return strtr($s, 'CLASPEMITDBFRUGNJVHOWKXQYZ', 'claspemitdbfrugnjvhowkxqyz');}
 
 register_shutdown_function('patchwork_chdir', /*<*/__patchwork_bootstrapper::$cwd/*>*/);
@@ -157,9 +157,9 @@ function resolvePath($file, $level = false, $base = false)
 
 			for ($i = 0; $i < /*<*/count($patchwork_path)/*>*/; ++$i)
 			{
-				if (substr($file, 0, strlen($p[$i])+1) === $p[$i] . /*<*/DIRECTORY_SEPARATOR/*>*/)
+				if (substr($file, 0, strlen($p[$i])) === $p[$i])
 				{
-					$file = substr($file, strlen($p[$i])+1);
+					$file = substr($file, strlen($p[$i]));
 					if (/*<*/__patchwork_bootstrapper::$last/*>*/ < $i) $file = 'class/' . $file;
 					break;
 				}
@@ -182,7 +182,7 @@ function resolvePath($file, $level = false, $base = false)
 
 	if (0 == $i)
 	{
-		$source = /*<*/__patchwork_bootstrapper::$cwd . DIRECTORY_SEPARATOR/*>*/ . $file;
+		$source = /*<*/__patchwork_bootstrapper::$cwd/*>*/ . $file;
 
 /*#>*/	if ('\\' === DIRECTORY_SEPARATOR)
 /*#>*/	{
@@ -201,7 +201,7 @@ function resolvePath($file, $level = false, $base = false)
 /*#>*/if ($a = __patchwork_bootstrapper::buildPathCache())
 /*#>*/{
 		static $db;
-		isset($db) || $db = dba_popen(/*<*/__patchwork_bootstrapper::$cwd . DIRECTORY_SEPARATOR . '.parentPaths.db'/*>*/, 'rd', /*<*/$a/*>*/);
+		isset($db) || $db = dba_popen(/*<*/__patchwork_bootstrapper::$cwd . '.parentPaths.db'/*>*/, 'rd', /*<*/$a/*>*/);
 		$base = dba_fetch($file, $db);
 /*#>*/}
 /*#>*/else
@@ -219,7 +219,7 @@ function resolvePath($file, $level = false, $base = false)
 			$base = (int) current($base);
 			$level = $patchwork_lastpath_level -= $base - $i;
 
-			return $GLOBALS['patchwork_path'][$base] . '/' . (0<=$level ? $file : substr($file, 6)) . ($slash ? '/' : '');
+			return $GLOBALS['patchwork_path'][$base] . (0<=$level ? $file : substr($file, 6)) . ($slash ? '/' : '');
 		}
 		while (false !== next($base));
 	}
@@ -329,7 +329,7 @@ if ($a)
 	ini_get('date.timezone') || ini_set('date.timezone', 'Universal');
 
 
-/*#>*/$a = file_get_contents(__patchwork_bootstrapper::$pwd . '/data/utf8/quickChecks.txt');
+/*#>*/$a = file_get_contents(__patchwork_bootstrapper::$pwd . 'data/utf8/quickChecks.txt');
 /*#>*/$a = explode("\n", $a);
 define('UTF8_NFC_RX', /*<*/'/' . $a[1] . '/u'/*>*/);
 define('UTF8_BOM', /*<*/__patchwork_bootstrapper::UTF8_BOM/*>*/);
