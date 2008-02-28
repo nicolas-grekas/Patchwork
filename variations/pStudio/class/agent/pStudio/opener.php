@@ -83,8 +83,10 @@ class extends agent_pStudio_explorer
 			if ($send->isOn())
 			{
 				$code = $send->getData();
+				$code = $code['code'];
+				if ('' !== $code && "\n" !== substr($code, -1)) $code .= "\n";
 
-				file_put_contents($this->realpath, $code['code']);
+				file_put_contents($this->realpath, $code);
 
 				p::redirect();
 			}

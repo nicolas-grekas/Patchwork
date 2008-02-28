@@ -403,7 +403,7 @@ patchwork::start();";
 	protected static function getParentApps($realpath)
 	{
 		$parent = array();
-		$config = $realpath . DIRECTORY_SEPARATOR . 'config.patchwork.php';
+		$config = $realpath . 'config.patchwork.php';
 
 
 		// Get config's source and clean it
@@ -556,7 +556,7 @@ patchwork::start();";
 
 		foreach ($patchwork_path as $level => $h)
 		{
-			@self::populatePathCache($paths, $h, $level, $level <= self::$last ? '' : 'class');
+			@self::populatePathCache($paths, $h, $level, $level <= self::$last ? '' : '/class');
 		}
 
 
@@ -607,11 +607,11 @@ patchwork::start();";
 		return $dba;
 	}
 
-	protected static function populatePathCache(&$paths, $dir, $i, $prefix, $subdir = '')
+	protected static function populatePathCache(&$paths, $dir, $i, $prefix, $subdir = '/')
 	{
-		if ('' === $subdir && $prefix)
+		if ('/' === $subdir && $prefix)
 		{
-			$h = explode('/', $prefix);
+			$h = explode('/', substr($prefix, 1));
 			do
 			{
 				$paths[implode('/', $h)] .= $i . ',';
@@ -622,12 +622,12 @@ patchwork::start();";
 
 		if ($h = opendir($dir . $subdir))
 		{
-			if ('' !== $subdir && file_exists($dir . $subdir . 'config.patchwork.php')) ;
+			if ('/' !== $subdir && file_exists($dir . $subdir . 'config.patchwork.php')) ;
 			else while (false !== $file = readdir($h)) if ('.' != $file[0] && 'zcache' != $file)
 			{
 				$file = $subdir . $file;
 
-				$paths[$prefix . $file] .= $i . ',';
+				$paths[substr($prefix . $file, 1)] .= $i . ',';
 
 				self::populatePathCache($paths, $dir, $i, $prefix, $file . '/');
 			}
