@@ -986,17 +986,38 @@ class patchwork_preprocessor__0
 			switch ($type)
 			{
 			case '`': return false;
+
 			case '"':             $inString = !$inString;  break;
 			case T_START_HEREDOC: $inString = true;        break;
 			case T_END_HEREDOC:   $inString = false;       break;
 			case T_STRING:   if (!$inString) return false; break;
-			case '?': case '(': case '[': ++$bracket;      break;
-			case ':': case ')': case ']':
-			          $bracket-- || $close = true; break;
-			case ',': $bracket   || $close = true; break;
-			case T_AS: case T_CLOSE_TAG: case ';':
-			                        $close = true; break;
-			default: if (in_array($type, self::$variableType)) return false;
+
+			case '?':
+			case '(':
+			case '{':
+			case '[':
+				++$bracket;
+				break;
+
+			case ':':
+			case ')':
+			case '}':
+			case ']':
+				$bracket-- || $close = true;
+				break;
+
+			case ',':
+				$bracket   || $close = true;
+				break;
+
+			case T_AS:
+			case T_CLOSE_TAG:
+			case ';':
+				$close = true;
+				break;
+
+			default:
+				if (in_array($type, self::$variableType)) return false;
 			}
 
 			if ($close)
@@ -1220,9 +1241,11 @@ class patchwork_preprocessor_require_ extends patchwork_preprocessor_bracket_
 	{
 		switch ($type)
 		{
+		case '{':
 		case '[':
 		case '?': ++$this->bracket; break;
 		case ',': if ($this->bracket) break;
+		case '}':
 		case ']':
 		case ':': if ($this->bracket--) break;
 		case ')': if (0<=$this->bracket) break;
@@ -1266,6 +1289,8 @@ class patchwork_preprocessor_marker_ extends patchwork_preprocessor_require_
 
 			switch ($type)
 			{
+			case '}':
+			case ']':
 			case T_INC:
 			case T_DEC:
 				break;
@@ -1289,7 +1314,6 @@ class patchwork_preprocessor_marker_ extends patchwork_preprocessor_require_
 				$this->curly = 0;
 				break;
 
-			case ']':
 			case ')':
 				$token .= $this->close;
 				$this->popFilter();
