@@ -14,29 +14,42 @@
 
 class
 {
-	static function php($string)
+	static function php($string, $urlInterpolation = false)
 	{
 		$string = p::string($string);
 
-		return str_replace(
-			array('&#039;', '&quot;', '&gt;', '&lt;', '&amp;', '{/}'                , '{~}'),
-			array("'"     , '"'     , '>'   , '<'   , '&'    , p::__HOST__(), p::__BASE__()),
+		$string = str_replace(
+			array('&#039;', '&quot;', '&gt;', '&lt;', '&amp;'),
+			array("'"     , '"'     , '>'   , '<'   , '&'),
 			$string
 		);
+
+		$urlInterpolation && $string = str_replace(
+			array('{/}'        , '{~}'),
+			array(p::__HOST__(), p::__BASE__()),
+			$string
+		);
+
+		return $string;
 	}
 
 	static function js()
 	{
 		?>/*<script>*/
 
-P$allowhtml = function($string)
+P$allowhtml = function($string, $urlInterpolation)
 {
 	var $base = base();
 
 	$string = str($string);
-	return (''+$string/1==$string)
+
+	return ''+$string/1 == $string
 		? $string/1
-		: unesc($string).replace(/{\/}/g, $base.substr(0, $base.indexOf('/', 8)+1)).replace(/{~}/g, $base);
+		: (
+			$urlInterpolation
+			? unesc($string).replace(/{\/}/g, $base.substr(0, $base.indexOf('/', 8)+1)).replace(/{~}/g, $base)
+			: unesc($string)
+		);
 }
 
 <?php	}

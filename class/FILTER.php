@@ -103,8 +103,11 @@ class
 			}
 
 			$result = $parser->parse($result);
-			$result = str_replace(p::__BASE__(), '{~}', $result);
-			$result = str_replace(p::__HOST__(), '{/}', $result);
+			$result = str_replace(
+				array('{~}'     , '{/}'     , p::__BASE__(), p::__HOST__()),
+				array('{&#126;}', '{&#047;}', '{~}'        , '{/}'),
+				$result
+			);
 		}
 
 		return $result;

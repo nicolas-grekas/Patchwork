@@ -10,7 +10,7 @@
 
 
 SET a$test -->&#039;&quot;&lt;hr/&gt;&amp;{'{/}{~}'}<!-- END:SET
-SET a$test -->{a$test|allowhtml}<!-- END:SET
+SET a$test -->{a$test|allowhtml:1}<!-- END:SET
 SET a$expect -->'"<hr/>&{/}{~}<!-- END:SET
 AGENT 'helper/pipeLine' pipe='allowhtml' test=a$test expect=a$expect
 
