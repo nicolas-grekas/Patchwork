@@ -25,7 +25,7 @@ $CONFIG += array(
 	'turbo' => false,
 );
 
-define('DEBUG', $CONFIG['debug.allowed'] && (!$CONFIG['debug.password'] || isset($_COOKIE['debug_password']) && $CONFIG['debug.password'] == $_COOKIE['debug_password']) ? 1 : 0);
+defined('DEBUG') || define('DEBUG', $CONFIG['debug.allowed'] && (!$CONFIG['debug.password'] || isset($_COOKIE['debug_password']) && $CONFIG['debug.password'] == $_COOKIE['debug_password']) ? 1 : 0);
 define('TURBO', !DEBUG && $CONFIG['turbo']);
 
 unset($CONFIG['debug.allowed'], $CONFIG['debug.password'], $CONFIG['turbo']);
@@ -57,7 +57,7 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 						{
 							if ($file[$i] != $realfile[$j])
 							{
-								if (clower($file[$i]) === clower($realfile[$j]) && !(0 === $i && ':' === substr($file, 1, 1))) trigger_error("Character case mismatch between requested file and its real path ({$file} vs {$realfile})");
+								if (lowerascii($file[$i]) === lowerascii($realfile[$j]) && !(0 === $i && ':' === substr($file, 1, 1))) trigger_error("Character case mismatch between requested file and its real path ({$file} vs {$realfile})");
 								break;
 							}
 						}
@@ -86,7 +86,7 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 
 function __autoload($searched_class)
 {
-	$a = clower($searched_class);
+	$class = lowerascii($searched_class);
 
 	if ($a =& $GLOBALS['patchwork_autoload_cache'][$a])
 	{
@@ -115,16 +115,9 @@ function __autoload($searched_class)
 		}
 	}
 
-	static $load_autoload = true;
+	class_exists('__patchwork_autoloader', false) || require /*<*/__patchwork_bootstrapper::$pwd . 'autoloader.php'/*>*/;
 
-	if ($load_autoload)
-	{
-		require /*<*/__patchwork_bootstrapper::$pwd . 'autoload.php'/*>*/;
-		$load_autoload = false;
-	}
-
-
-	patchwork_autoload($searched_class);
+	__patchwork_autoloader::autoload($searched_class);
 }
 
 
