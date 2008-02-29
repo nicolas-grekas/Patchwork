@@ -28,9 +28,15 @@ class
 P$substr = function($string, $start, $length)
 {
 	$string = str($string);
-	return t($length)
-		? $string.substr($start/1, $length/1)
-		: $string.substr($start/1);
+
+	$start /= 1;
+	if ($start < 0) $start += $string.length;
+	if ($start < 0) $start  = 0;
+
+	$length = t($length) ? $length/1 : $string.length;
+	if ($length < 0) $length += $string.length - $start;
+
+	return $string.substr($start, $length);
 }
 
 <?php	}
