@@ -163,7 +163,7 @@ class patchwork_preprocessor__0
 
 		foreach (get_declared_classes() as $v)
 		{
-			$v = clower($v);
+			$v = lowerascii($v);
 			if ('patchwork_' === substr($v, 0, 10)) break;
 			self::$declared_class[$v] = 1;
 		}
@@ -473,7 +473,7 @@ class patchwork_preprocessor__0
 
 				$class_pool[$curly_level] = (object) array(
 					'classname' => $c,
-					'real_classname' => clower($b),
+					'real_classname' => lowerascii($b),
 					'is_final' => $final,
 					'is_abstract' => $abstract,
 					'add_php5_construct' => T_CLASS === $type && 0>$level,
@@ -482,7 +482,7 @@ class patchwork_preprocessor__0
 					'construct_source' => '',
 				);
 
-				self::$inline_class[clower($c)] = 1;
+				self::$inline_class[lowerascii($c)] = 1;
 
 				if ($c && isset($code[$i]) && is_array($code[$i]) && T_EXTENDS === $code[$i][0])
 				{
@@ -492,7 +492,7 @@ class patchwork_preprocessor__0
 					{
 						$c = 0<=$level && 'self' === $code[$i][1] ? $c . '__' . ($level ? $level-1 : '00') : $code[$i][1];
 						$token .= $c;
-						self::$inline_class[clower($c)] = 1;
+						self::$inline_class[lowerascii($c)] = 1;
 					}
 					else --$i;
 				}
@@ -557,7 +557,7 @@ class patchwork_preprocessor__0
 
 				if (is_array($code[$j]) && T_STRING === $code[$j][0])
 				{
-					if (isset(self::$inline_class[clower($code[$j][1])])) break;
+					if (isset(self::$inline_class[lowerascii($code[$j][1])])) break;
 					$c = false;
 				}
 
@@ -629,14 +629,14 @@ class patchwork_preprocessor__0
 					$new_code[$j] = "(({$c})?" . $new_code[$j];
 				}
 
-				new patchwork_preprocessor_marker_($this, true);
+				new __patchwork_preprocessor_marker($this, true);
 
 				break;
 
 			case T_STRING:
 				if (($this->inString & 1) || T_DOUBLE_COLON === $prevType || T_OBJECT_OPERATOR === $prevType) break;
 
-				$type = clower($token);
+				$type = lowerascii($token);
 
 				if (T_FUNCTION === $prevType || ('&' === $prevType && T_FUNCTION === $antePrevType))
 				{
@@ -648,9 +648,9 @@ class patchwork_preprocessor__0
 						case '__destructstatic' : $c->add_destructStatic  = 1 ; break;
 						case '__construct'      : $c->add_php5_construct  = false; break;
 
-						case clower($c->classname):
+						case lowerascii($c->classname):
 							$c->construct_source = $c->classname;
-							new patchwork_preprocessor_construct_($this, $c->construct_source);
+							new __patchwork_preprocessor_construct($this, $c->construct_source);
 						}
 					}
 
@@ -668,7 +668,7 @@ class patchwork_preprocessor__0
 				{
 					if (isset(self::$function[$type]))
 					{
-						if (self::$function[$type] instanceof patchwork_preprocessor_bracket_)
+						if (self::$function[$type] instanceof __patchwork_preprocessor_bracket)
 						{
 							$token .= $c;
 							$c = clone self::$function[$type];
@@ -679,7 +679,7 @@ class patchwork_preprocessor__0
 						{
 							$token = self::$function[$type];
 							if (false !== strpos($token, '(')) ++$i && $type = '(';
-							else $type = clower($token);
+							else $type = lowerascii($token);
 						}
 					}
 
@@ -696,12 +696,12 @@ class patchwork_preprocessor__0
 								$token = false !== $b ? self::export($b, substr_count($j, "\n")) : "{$token}({$j})";
 								$type = T_CONSTANT_ENCAPSED_STRING;
 							}
-							else new patchwork_preprocessor_path_($this, true);
+							else new __patchwork_preprocessor_path($this, true);
 						}
 						break;
 
 					case 't':
-						if (0<=$level) new patchwork_preprocessor_t_($this, true);
+						if (0<=$level) new __patchwork_preprocessor_t($this, true);
 						break;
 
 					case 'is_a':
@@ -711,7 +711,7 @@ class patchwork_preprocessor__0
 						if (!isset(self::$callback[$type])) break;
 
 						$token = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$token}";
-						$b = new patchwork_preprocessor_marker_($this, true);
+						$b = new __patchwork_preprocessor_marker($this, true);
 						$b->curly = -1;
 						$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 
@@ -724,7 +724,7 @@ class patchwork_preprocessor__0
 						}
 
 						// For files in the include_path, always set the 2nd arg of class|interface_exists() to true
-						if (0>$level && in_array($type, array('interface_exists', 'class_exists'))) new patchwork_preprocessor_classExists_($this, true);
+						if (0>$level && in_array($type, array('interface_exists', 'class_exists'))) new __patchwork_preprocessor_classExists($this, true);
 					}
 				}
 				else if (!(is_array($code[$i+1]) && T_DOUBLE_COLON === $code[$i+1][0])) switch ($type)
@@ -756,7 +756,7 @@ class patchwork_preprocessor__0
 				if ('(' === $code[$i--])
 				{
 					$token = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$token}";
-					$b = new patchwork_preprocessor_marker_($this, true);
+					$b = new __patchwork_preprocessor_marker($this, true);
 					$b->curly = -1;
 					$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 				}
@@ -786,13 +786,13 @@ class patchwork_preprocessor__0
 						else
 						{
 							$token .= 'patchworkProcessedPath(';
-							new patchwork_preprocessor_require_($this, true);
+							new __patchwork_preprocessor_require($this, true);
 						}
 					}
 					else
 					{
 						$token .= "((\$a{$T}=\$b{$T}=\$e{$T})||1?";
-						$b = new patchwork_preprocessor_require_($this, true);
+						$b = new __patchwork_preprocessor_require($this, true);
 						$b->close = ':0)';
 						$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 					}
@@ -920,7 +920,7 @@ class patchwork_preprocessor__0
 
 	protected function marker($class = '')
 	{
-		return ($class ? 'isset($c' . PATCHWORK_PATH_TOKEN . "['" . clower($class) . "'])||" : ('$e' . PATCHWORK_PATH_TOKEN . '=$b' . PATCHWORK_PATH_TOKEN . '=')) . '$a' . PATCHWORK_PATH_TOKEN . "=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "'";
+		return ($class ? 'isset($c' . PATCHWORK_PATH_TOKEN . "['" . lowerascii($class) . "'])||" : ('$e' . PATCHWORK_PATH_TOKEN . '=$b' . PATCHWORK_PATH_TOKEN . '=')) . '$a' . PATCHWORK_PATH_TOKEN . "=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "'";
 	}
 
 	protected function seekSugar(&$code, $i)
@@ -1076,7 +1076,7 @@ class patchwork_preprocessor__0
 	}
 }
 
-abstract class patchwork_preprocessor_bracket_
+abstract class __patchwork_preprocessor_bracket
 {
 	protected
 
@@ -1153,7 +1153,7 @@ abstract class patchwork_preprocessor_bracket_
 	}
 }
 
-class patchwork_preprocessor_construct_ extends patchwork_preprocessor_bracket_
+class __patchwork_preprocessor_construct extends __patchwork_preprocessor_bracket
 {
 	protected
 
@@ -1194,7 +1194,7 @@ class patchwork_preprocessor_construct_ extends patchwork_preprocessor_bracket_
 	}
 }
 
-class patchwork_preprocessor_path_ extends patchwork_preprocessor_bracket_
+class __patchwork_preprocessor_path extends __patchwork_preprocessor_bracket
 {
 	function onClose($token)
 	{
@@ -1202,7 +1202,7 @@ class patchwork_preprocessor_path_ extends patchwork_preprocessor_bracket_
 	}
 }
 
-class patchwork_preprocessor_classExists_ extends patchwork_preprocessor_bracket_
+class __patchwork_preprocessor_classExists extends __patchwork_preprocessor_bracket
 {
 	function onReposition($token)
 	{
@@ -1215,7 +1215,7 @@ class patchwork_preprocessor_classExists_ extends patchwork_preprocessor_bracket
 	}
 }
 
-class patchwork_preprocessor_t_ extends patchwork_preprocessor_bracket_
+class __patchwork_preprocessor_t extends __patchwork_preprocessor_bracket
 {
 	function filterBracket($type, $token)
 	{
@@ -1229,7 +1229,7 @@ Please use sprintf() instead of string concatenation."
 	}
 }
 
-class patchwork_preprocessor_require_ extends patchwork_preprocessor_bracket_
+class __patchwork_preprocessor_require extends __patchwork_preprocessor_bracket
 {
 	public $close = ')';
 
@@ -1258,7 +1258,7 @@ class patchwork_preprocessor_require_ extends patchwork_preprocessor_bracket_
 	}
 }
 
-class patchwork_preprocessor_marker_ extends patchwork_preprocessor_require_
+class __patchwork_preprocessor_marker extends __patchwork_preprocessor_require
 {
 	public
 
