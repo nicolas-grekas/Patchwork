@@ -389,7 +389,7 @@ function autofitTextarea()
 
 	$this.checkMaxlength();
 
-	if ($this..visibleOverflow && 'hidden' == $this.style.overflow)
+	if ($this.autofitEnabled && 'hidden' == $this.style.overflow)
 	{
 		$style.height = $this.v_offsetHeight + 'px';
 		$style.width  = $this.v_offsetWidth  + 'px';
@@ -420,7 +420,7 @@ onDOMLoaded.push(function()
 				$t.v_offsetHeight = $t.offsetHeight;
 				$t.v_offsetWidth = $t.offsetWidth;
 				$t.onkeyup = $t.autofit;
-				$t.visibleOverflow = 1;
+				$t.autofitEnabled = 1;
 			}
 
 			$t.onkeyup && $t.onkeyup();
