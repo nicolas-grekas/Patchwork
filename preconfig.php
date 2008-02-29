@@ -106,7 +106,7 @@ if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) // Is it problematic to trust thi
 function patchwork_include($file)     {global $CONFIG; return include $file;}
 function patchwork_is_a($obj, $class) {return $obj instanceof $class;}
 function patchwork_chdir($realdir)    {rtrim($realdir, /*<*/DIRECTORY_SEPARATOR/*>*/) === rtrim(getcwd(), /*<*/DIRECTORY_SEPARATOR/*>*/) || chdir($realdir);}
-function clower($s) {return strtr($s, 'CLASPEMITDBFRUGNJVHOWKXQYZ', 'claspemitdbfrugnjvhowkxqyz');}
+function lowerascii($s) {return strtr($s, 'CLASPEMITDBFRUGNJVHOWKXQYZ', 'claspemitdbfrugnjvhowkxqyz');}
 
 register_shutdown_function('patchwork_chdir', /*<*/__patchwork_bootstrapper::$cwd/*>*/);
 
@@ -120,7 +120,7 @@ function registerAutoloadPrefix($class_prefix, $class_to_file_callback)
 	if ($len = strlen($class_prefix))
 	{
 		$registry =& $GLOBALS['patchwork_autoload_prefix'];
-		$class_prefix = clower($class_prefix);
+		$class_prefix = lowerascii($class_prefix);
 		$i = 0;
 
 		do
