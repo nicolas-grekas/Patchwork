@@ -86,7 +86,7 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 
 function __autoload($searched_class)
 {
-	$class = lowerascii($searched_class);
+	$a = lowerascii($searched_class);
 
 	if ($a =& $GLOBALS['patchwork_autoload_cache'][$a])
 	{

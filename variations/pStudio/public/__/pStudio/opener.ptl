@@ -5,7 +5,7 @@ IF $is_binary
 ELSE
 	IF $is_auth_edit
 		AGENT $form
-		AGENT $f_code style='width: 700px; height: 480px; overflow: auto;'
+		AGENT $f_code style='width: 700px; height: 480px'
 		AGENT $f_save value="Save"
 		AGENT $form _mode_='close'
 
@@ -20,7 +20,7 @@ setInterval(function()
 	window.code_is_modified = code_element.defaultValue != code_element.value;
 
 	var s = ' *', v = window.save_element.value;
-	if (s == v.substr(-s.length)) v = v.substr(0, v.length - s.length);
+	if (s == v.substr(v.length-s.length)) v = v.substr(0, v.length - s.length);
 	if (window.code_is_modified) v += s;
 	if (v != window.save_element.value) window.save_element.value = v;
 
