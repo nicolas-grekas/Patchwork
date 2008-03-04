@@ -20,188 +20,187 @@ class __patchwork_autoloader
 	$pool;
 
 
-	static function autoload($searched_class)
+	static function autoload($req)
 	{
-		$path_last = PATCHWORK_PATH_LEVEL;
-
-		if (false !== strpos($searched_class, ';') || false !== strpos($searched_class, "'")) return;
+		if (strspn($req, ";'")) return;
 
 		$T = PATCHWORK_PATH_TOKEN;
+		$lc_req = lowerascii($req);
 
 		$amark = $GLOBALS['a'.$T];
 		$GLOBALS['a'.$T] = false;
 		$bmark = $GLOBALS['b'.$T];
 
-		$i = strrpos($searched_class, '__');
-		$level = false !== $i ? substr($searched_class, $i+2) : false;
 
-		if (false !== $level && '' !== $level && 0 === strcspn($level, '0123456789'))
+		// Step 1 - Get basic info
+
+		$i = strrpos($req, '__');
+		$level = false !== $i ? substr($req, $i+2) : false;
+		$isTop = false === $level || '' === $level || 0 !== strcspn($level, '0123456789');
+
+		if ($isTop)
 		{
-			// Namespace renammed class
-			$class = substr($searched_class, 0, $i);
-			$level = min($path_last, '00' === $level ? -1 : (int) $level);
+			// Top class
+			$top = $req;
+			$lc_top = $lc_req;
+			$level = PATCHWORK_PATH_LEVEL;
 		}
 		else
 		{
-			$class = $searched_class;
-			$level = $path_last;
+			// Preprocessor renammed class
+			$top = substr($req, 0, $i);
+			$lc_top = substr($lc_req, 0, $i);
+			$level = min(PATCHWORK_PATH_LEVEL, '00' === $level ? -1 : (int) $level);
 		}
 
-		$file = false;
-		$lcClass = lowerascii($class);
 
-		if ($outerClass =& $GLOBALS['patchwork_autoload_prefix'] && $len = strlen($lcClass))
+		// Step 2 - Get source file
+
+		$src = false;
+
+		if ($customSrc =& $GLOBALS['patchwork_autoload_prefix'] && $a = strlen($lc_top))
 		{
+			// Look for a registered prefix autoloader
+
 			$i = 0;
 			$cache = array();
 
 			do
 			{
-				$c = ord($lcClass[$i]);
-				if (isset($outerClass[$c]))
+				$code = ord($lc_top[$i]);
+				if (isset($customSrc[$code]))
 				{
-					$outerClass =& $outerClass[$c];
-					isset($outerClass[-1]) && $cache[] = $outerClass[-1];
+					$customSrc =& $customSrc[$code];
+					isset($customSrc[-1]) && $cache[] = $customSrc[-1];
 				}
 				else break;
 			}
-			while (++$i < $len);
+			while (++$i < $a);
 
 			if ($cache) do
 			{
-				$file = array_pop($cache);
-				$file = $i < $len || !is_string($file) || function_exists($file) ? call_user_func($file, $class) : $file;
+				$src = array_pop($cache);
+				$src = $i < $a || !is_string($src) || function_exists($src) ? call_user_func($src, $top) : $src;
 			}
-			while (!$file && $cache);
+			while (!$src && $cache);
 		}
 
-		unset($outerClass);
+		unset($customSrc);
 
-		$outerClass = (bool) $file;
-		$parent_class = $class . '__' . $level;
+		if ($customSrc = (bool) $src) {}
+		else if ('_' !== substr($top, -1) && strncmp('_', $top, 1) && false === strpos($top, '__'))
+		{
+			$src = 'class/' . strtr($top, '_', '/') . '.php';
+		}
+
+		if ($src)
+		{
+			$src = resolvePath($src, $level, 0);
+			$src && $a = $GLOBALS['patchwork_lastpath_level'];
+		}
+
+
+		// Step 3 - Get parent class
+
+		$src || $a = -1;
+		$isTop && ++$level;
+
+		if ($level > $a)
+		{
+			do $parent = $lc_top . '__' . (0 <= --$level ? $level : '00');
+			while (!($parent_exists = class_exists($parent, false)) && $level > $a);
+		}
+		else
+		{
+			$parent = 0 <= $level ? $lc_top . '__' . (0 < $level ? $level - 1 : '00') : false;
+			$parent_exists = false;
+		}
+
+
+		// Step 4 - Load class definition
+
 		$cache = false;
-		$c = $searched_class == $class;
 
-		if (!$file && ('_' == substr($class, -1) || !strncmp('_', $class, 1) || false !== strpos($class, '__')))
+		if (!$src) {}
+		else if ('patchwork_preprocessor' === $lc_top) patchwork_include($src);
+		else if (!$parent_exists)
 		{
-			// Out of the path class: search for an existing parent
+			$cache = DEBUG . (0>$level ? -$level . '-' : $level);
+			$cache = PATCHWORK_PROJECT_PATH . ".class_{$top}.php.{$cache}.{$T}.zcache.php";
 
-			if ($class == $searched_class) ++$level;
+			if (!(file_exists($cache) && (TURBO || filemtime($cache) > filemtime($src))))
+				patchwork_preprocessor::run($src, $cache, $level, $top);
 
-			do $parent_class = $class . '__' . (0<=--$level ? $level : '00');
-			while ($level>=0 && !class_exists($parent_class, false));
-		}
-		else if (!$c || !class_exists($parent_class, false))
-		{
-			// Conventional class: search its parent in existing classes or on disk
+			$current_pool = array();
+			$parent_pool =& self::$pool;
+			self::$pool =& $current_pool;
 
-			$file || $file = strtr($class, '_', '/') . '.php';
+			patchwork_include($cache);
 
-			if ($source = resolvePath('class/' . $file, $level, 0)) do
-			{
-				$file = $GLOBALS['patchwork_lastpath_level'];
-
-				for (; $level >= $file; --$level)
-				{
-					$parent_class = $class . '__' . (0<=$level ? $level : '00');
-					if (class_exists($parent_class, false)) break 2;
-				}
-
-				if ('patchwork_preprocessor' == $lcClass)
-				{
-					patchwork_include($source);
-					break;
-				}
-
-				$cache = DEBUG . (0>++$level ? -$level . '-' : $level);
-				$cache = PATCHWORK_PROJECT_PATH . ".class_{$class}.php.{$cache}.{$T}.zcache.php";
-
-				if (!(file_exists($cache) && (TURBO || filemtime($cache) > filemtime($source))))
-					call_user_func(array('patchwork_preprocessor', 'run'), $source, $cache, $level, $class);
-
-				$current_pool = array();
-				$parent_pool =& self::$pool;
-				self::$pool =& $current_pool;
-
-				patchwork_include($cache);
-
-				if (class_exists($searched_class, false)) $parent_class = false;
-				if (false !== $parent_pool) $parent_pool[$parent_class ? $parent_class : $searched_class] = $cache;
-			} while (0);
-			else
-			{
-				for (; $level >= -1; --$level)
-				{
-					$parent_class = $class . '__' . (0<=$level ? $level : '00');
-					if (class_exists($parent_class, false)) break;
-				}
-			}
+			if ($parent && class_exists($req, false)) $parent = false;
+			if (false !== $parent_pool) $parent_pool[$parent ? $parent : $req] = $cache;
 		}
 
-		$lcClass = lowerascii($searched_class);
 
-		if ($parent_class ? class_exists($parent_class) : (class_exists($searched_class, false) && !isset(self::$cache[$lcClass])))
+		// Step 5 - Finalize class loading
+
+		$code = '';
+
+		if ($parent ? class_exists($parent) : (class_exists($req, false) && !isset(self::$cache[$lc_req])))
 		{
-			if ($parent_class)
+			if ($parent)
 			{
-				$class = "class {$searched_class} extends {$parent_class}{}\$GLOBALS['c{$T}']['{$lcClass}']=1;";
-				$parent_class = lowerascii($parent_class);
-			}
-			else
-			{
-				$parent_class = $lcClass;
-				$class = '';
-			}
+				$code = "class {$req} extends {$parent}{}\$GLOBALS['c{$T}']['{$lc_req}']=1;";
 
-			if (isset($GLOBALS['patchwork_abstract'][$parent_class])) $class && $class = 'abstract ' . $class;
-			else if ($c)
-			{
-				$file = "{$parent_class}::__cS{$T}";
-				if (defined($file) ? $searched_class == constant($file) : method_exists($parent_class, '__constructStatic'))
+				if (isset($GLOBALS['patchwork_abstract'][$parent]))
 				{
-					$class .= "{$parent_class}::__constructStatic();";
-				}
-
-				$file = "{$parent_class}::__dS{$T}";
-				if (defined($file) ? $searched_class == constant($file) : method_exists($parent_class, '__destructStatic'))
-				{
-					$class = str_replace('{}', "{static \$hunter{$T};}", $class);
-					$class .= "{$searched_class}::\$hunter{$T}=new hunter(array('{$parent_class}','__destructStatic'));";
+					$code = 'abstract ' . $code;
+					$GLOBALS['patchwork_abstract'][$lc_req] = 1;
 				}
 			}
+			else $parent = $lc_req;
 
-			eval($class);
+			if ($isTop)
+			{
+				$a = "{$parent}::__cS{$T}";
+				if (defined($a) ? $req === constant($a) : method_exists($parent, '__constructStatic'))
+				{
+					$code .= "{$parent}::__constructStatic();";
+				}
+
+				$a = "{$parent}::__dS{$T}";
+				if (defined($a) ? $req === constant($a) : method_exists($parent, '__destructStatic'))
+				{
+					$code = str_replace('{}', "{static \$hunter{$T};}", $code);
+					$code .= "{$req}::\$hunter{$T}=new hunter(array('{$parent}','__destructStatic'));";
+				}
+			}
+
+			$code && eval($code);
 		}
-		else $class = '';
 
 		if (!TURBO) return;
 
-		if ($class && isset(self::$cache[$parent_class]))
+		if ($code && isset(self::$cache[$parent]))
 		{
 			// Include class declaration in its closest parent
 
-			$code = self::$cache[$parent_class];
-			$tmp = strrpos($code, '*');
-			$file = substr($code, 0, $tmp);
-			$code = substr($code, $tmp);
-			$code = "\$GLOBALS['c{$T}']['{$parent_class}']=__FILE__.'{$code}';";
+			list($src, $marker, $a) = self::parseMarker(self::$cache[$parent], "\$GLOBALS['c{$T}']['{$parent}']=%marker%;");
 
-			$tmp = file_get_contents($file);
-			if (false !== strpos($tmp, $code))
+			if (false !== $a)
 			{
-				if (!$c)
+				if (!$isTop)
 				{
-					$c = (string) mt_rand(1, mt_getrandmax());
-					self::$cache[$parent_class] = $file . '*' . $c;
-					$c = substr($code, 0, strrpos($code, '*') + 1) . $c . "';";
-					$class .= ';' . $c;
+					$i = (string) mt_rand(1, mt_getrandmax());
+					self::$cache[$parent] = $src . '*' . $i;
+					$code .= substr($marker, 0, strrpos($marker, '*') + 1) . $i . "';";
 				}
 
-				$tmp = str_replace($code, $class, $tmp);
-				($cache === $file && $current_pool) || self::write($tmp, $file);
+				$a = str_replace($marker, $code, $a);
+				($cache === $src && $current_pool) || self::write($a, $src);
 			}
 		}
-		else $tmp = false;
+		else $a = false;
 
 		if ($cache)
 		{
@@ -212,19 +211,19 @@ class __patchwork_autoloader
 				// Add an include directive of parent's code in the derivated class
 
 				$code = '<?php ?>';
-				$tmp || $tmp = file_get_contents($cache);
-				if ('<?php ' != substr($tmp, 0, 6)) $tmp = '<?php ?>' . $tmp;
+				$a || $a = file_get_contents($cache);
+				if ('<?php ' != substr($a, 0, 6)) $a = '<?php ?>' . $a;
 
-				$class = '/^' . preg_replace('/__[0-9]+$/', '', $lcClass) . '__[0-9]+$/i';
+				$i = '/^' . preg_replace('/__[0-9]+$/', '', $lc_req) . '__[0-9]+$/i';
 
-				foreach ($current_pool as $parent_class => $c)
+				foreach ($current_pool as $parent => $src)
 				{
-					$parent_class = preg_match($class, $parent_class) ? '' : "class_exists('{$parent_class}',0)||";
-					$code = substr($code, 0, -2) . $parent_class . "include '{$c}';?>";
+					$parent = preg_match($i, $parent) ? '' : "class_exists('{$parent}',0)||";
+					$code = substr($code, 0, -2) . $parent . "include '{$src}';?>";
 				}
 
-				$tmp = substr($code, 0, -2) . substr($tmp, 6);
-				self::write($tmp, $cache);
+				$a = substr($code, 0, -2) . substr($a, 6);
+				self::write($a, $cache);
 			}
 
 			$cache = substr($cache, strlen(PATCHWORK_PROJECT_PATH) + 7, -12-strlen($T));
@@ -233,62 +232,62 @@ class __patchwork_autoloader
 			{
 				// Marker substitution
 
-				$code = $amark;
-				$amark = $amark != $bmark;
+				list($src, $marker, $a) = self::parseMarker($amark, "\$a{$T}=%marker%");
 
-				$tmp = strrpos($code, '*');
-				$file = substr($code, 0, $tmp);
-				$code = substr($code, $tmp);
-				$code = "\$a{$T}=__FILE__.'{$code}'";
-
-				$tmp = file_get_contents($file);
-				if (false !== strpos($tmp, $code))
+				if (false !== $a)
 				{
-					if ($amark)
+					if ($amark != $bmark)
 					{
 						$GLOBALS['a'.$T] = $bmark;
-						$code = "isset(\$c{$T}['{$lcClass}'])||{$code}";
-						$c = "isset(\$c{$T}['{$lcClass}'])||patchwork_include('./.class_{$cache}.{$T}.zcache.php')||1";
+						$marker = "isset(\$c{$T}['{$lc_req}'])||{$marker}";
+						$code = "isset(\$c{$T}['{$lc_req}'])||patchwork_include('./.class_{$cache}.{$T}.zcache.php')||1";
 					}
 					else
 					{
-						$code = "\$e{$T}=\$b{$T}={$code}";
-						$bmark = (string) mt_rand(1, mt_getrandmax());
-						$GLOBALS['a'.$T] = $GLOBALS['b'.$T] = $file . '*' . $bmark;
-						$bmark = substr($code, 0, strrpos($code, '*') + 1) . $bmark . "'";
-						$code = "({$code})&&\$d{$T}&&";
-						$c = $outerClass ? "'{$cache}'" : ($level + PATCHWORK_PATH_OFFSET);
-						$c = "\$c{$T}['{$lcClass}']={$c}";
-						$c = "({$bmark})&&\$d{$T}&&({$c})&&";
+						$marker = "\$e{$T}=\$b{$T}={$marker}";
+						$i = (string) mt_rand(1, mt_getrandmax());
+						$GLOBALS['a'.$T] = $GLOBALS['b'.$T] = $src . '*' . $i;
+						$i = substr($marker, 0, strrpos($marker, '*') + 1) . $i . "'";
+						$marker = "({$marker})&&\$d{$T}&&";
+						$code = $customSrc ? "'{$cache}'" : ($level + PATCHWORK_PATH_OFFSET);
+						$code = "\$c{$T}['{$lc_req}']={$code}";
+						$code = "({$i})&&\$d{$T}&&({$code})&&";
 					}
 
-					$tmp = str_replace($code, $c, $tmp);
-					self::write($tmp, $file);
+					$a = str_replace($marker, $code, $a);
+					self::write($a, $src);
 				}
 			}
-/*
-			else if (!$bmark)
-			{
-			}
-*/
 		}
+	}
+
+	protected static function parseMarker($marker, $template)
+	{
+		$a = strrpos($marker, '*');
+		$src = './' . basename(substr($marker, 0, $a));
+		$marker = substr($marker, $a);
+		$marker = str_replace('%marker%', "__FILE__.'{$marker}'", $template);
+
+		if ($a = @file_get_contents($src)) false === strpos($a, $marker) && $a = false;
+
+		return array($src, $marker, &$a);
 	}
 
 	protected static function write(&$data, $to)
 	{
-		$tmp = './' . uniqid(mt_rand(), true);
-		if (false !== file_put_contents($tmp, $data))
+		$a = './' . uniqid(mt_rand(), true);
+		if (false !== file_put_contents($a, $data))
 		{
-			touch($tmp, filemtime($to));
+			touch($a, filemtime($to));
 
 			if (IS_WINDOWS)
 			{
 				$h = new COM('Scripting.FileSystemObject');
-				$h->GetFile(PATCHWORK_PROJECT_PATH . $tmp)->Attributes |= 2; // Set hidden attribute
+				$h->GetFile(PATCHWORK_PROJECT_PATH . $a)->Attributes |= 2; // Set hidden attribute
 				file_exists($to) && @unlink($to);
-				@rename($tmp, $to) || unlink($tmp);
+				@rename($a, $to) || unlink($a);
 			}
-			else rename($tmp, $to);
+			else rename($a, $to);
 		}
 	}
 }
