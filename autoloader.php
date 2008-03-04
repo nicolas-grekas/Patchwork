@@ -107,12 +107,12 @@ class __patchwork_autoloader
 
 		if ($level > $a)
 		{
-			do $parent = $lc_top . '__' . (0 <= --$level ? $level : '00');
+			do $parent = $top . '__' . (0 <= --$level ? $level : '00');
 			while (!($parent_exists = class_exists($parent, false)) && $level > $a);
 		}
 		else
 		{
-			$parent = 0 <= $level ? $lc_top . '__' . (0 < $level ? $level - 1 : '00') : false;
+			$parent = 0 <= $level ? $top . '__' . (0 < $level ? $level - 1 : '00') : false;
 			$parent_exists = false;
 		}
 
@@ -151,6 +151,7 @@ class __patchwork_autoloader
 			if ($parent)
 			{
 				$code = "class {$req} extends {$parent}{}\$GLOBALS['c{$T}']['{$lc_req}']=1;";
+				$parent = lowerascii($parent);
 
 				if (isset($GLOBALS['patchwork_abstract'][$parent]))
 				{
