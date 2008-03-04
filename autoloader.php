@@ -265,7 +265,7 @@ class __patchwork_autoloader
 	protected static function parseMarker($marker, $template)
 	{
 		$a = strrpos($marker, '*');
-		$src = './' . basename(substr($marker, 0, $a));
+		$src = substr($marker, 0, $a);
 		$marker = substr($marker, $a);
 		$marker = str_replace('%marker%', "__FILE__.'{$marker}'", $template);
 
@@ -276,7 +276,7 @@ class __patchwork_autoloader
 
 	protected static function write(&$data, $to)
 	{
-		$a = './' . uniqid(mt_rand(), true);
+		$a = PATCHWORK_PROJECT_PATH . uniqid(mt_rand(), true);
 		if (false !== file_put_contents($a, $data))
 		{
 			touch($a, filemtime($to));

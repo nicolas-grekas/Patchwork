@@ -103,7 +103,7 @@ function __autoload($searched_class)
 			$a = $b . '.php.' . DEBUG . (0>$a ? -$a . '-' : $a);
 		}
 
-		$a = './.class_' . $a . /*<*/__patchwork_bootstrapper::$token . '.zcache.php'/*>*/;
+		$a = './.class_' . $a . /*<*/'.' . __patchwork_bootstrapper::$token . '.zcache.php'/*>*/;
 
 		$GLOBALS[/*<*/'a' . __patchwork_bootstrapper::$token/*>*/] = false;
 
