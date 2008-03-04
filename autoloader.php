@@ -284,7 +284,7 @@ class __patchwork_autoloader
 			if (IS_WINDOWS)
 			{
 				$h = new COM('Scripting.FileSystemObject');
-				$h->GetFile(PATCHWORK_PROJECT_PATH . $a)->Attributes |= 2; // Set hidden attribute
+				$h->GetFile($a)->Attributes |= 2; // Set hidden attribute
 				file_exists($to) && @unlink($to);
 				@rename($a, $to) || unlink($a);
 			}
