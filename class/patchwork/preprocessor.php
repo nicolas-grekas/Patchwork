@@ -78,6 +78,7 @@ class patchwork_preprocessor__0
 		'unserialize'             => 0,
 
 		// Classname as string in the first parameter
+		'__autoload'        => -1,
 		'class_exists'      => -1,
 		'get_class_methods' => -1,
 		'get_class_vars'    => -1,
