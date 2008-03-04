@@ -281,7 +281,7 @@ class patchwork_preprocessor__0
 
 		foreach ($v as $v) self::$constant += $v;
 
-		foreach (self::$constant as &$v) $v = self::export($v);
+		foreach (self::$constant as &$v) $v = patchwork_preprocessor::export($v);
 	}
 
 	static function run($source, $destination, $level, $class)
@@ -422,12 +422,12 @@ class patchwork_preprocessor__0
 			case T_END_HEREDOC:   --$this->inString; break;
 
 			case T_FILE:
-				$token = self::export($source);
+				$token = patchwork_preprocessor::export($source);
 				$type = T_CONSTANT_ENCAPSED_STRING;
 				break;
 
 			case T_DIR:
-				$token = self::export(dirname($source));
+				$token = patchwork_preprocessor::export(dirname($source));
 				$type = T_CONSTANT_ENCAPSED_STRING;
 				break;
 
@@ -443,8 +443,7 @@ class patchwork_preprocessor__0
 			case T_CLASS:
 				$b = $c = '';
 
-				$final    = T_FINAL    === $prevType;
-				$abstract = T_ABSTRACT === $prevType;
+				$final = T_FINAL === $prevType;
 
 				$j = $this->seekSugar($code, $i);
 				if (isset($code[$j]) && is_array($code[$j]) && T_STRING === $code[$j][0])
@@ -474,18 +473,27 @@ class patchwork_preprocessor__0
 				$class_pool[$curly_level] = (object) array(
 					'classname' => $c,
 					'real_classname' => lowerascii($b),
+					'is_root' => true,
 					'is_final' => $final,
-					'is_abstract' => $abstract,
 					'add_php5_construct' => T_CLASS === $type && 0>$level,
 					'add_constructStatic' => 0,
 					'add_destructStatic'  => 0,
 					'construct_source' => '',
 				);
 
+				if (T_ABSTRACT === $prevType)
+				{
+					$j = $new_code_length;
+					while (--$j && in_array($new_type[$j], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ;
+					$new_code[$j] = "\$GLOBALS['patchwork_abstract']['{$class_pool[$curly_level]->real_classname}']=1;" . $new_code[$j];
+				}
+
 				self::$inline_class[lowerascii($c)] = 1;
 
 				if ($c && isset($code[$i]) && is_array($code[$i]) && T_EXTENDS === $code[$i][0])
 				{
+					$class_pool[$curly_level]->is_root = false;
+
 					$token .= $code[$i][1];
 					$token .= $this->fetchSugar($code, $i);
 					if (isset($code[$i]) && is_array($code[$i]))
@@ -693,7 +701,7 @@ class patchwork_preprocessor__0
 							if ('' !== $j)
 							{
 								eval("\$b={$token}{$j};");
-								$token = false !== $b ? self::export($b, substr_count($j, "\n")) : "{$token}({$j})";
+								$token = false !== $b ? patchwork_preprocessor::export($b, substr_count($j, "\n")) : "{$token}({$j})";
 								$type = T_CONSTANT_ENCAPSED_STRING;
 							}
 							else new __patchwork_preprocessor_path($this, true);
@@ -780,7 +788,7 @@ class patchwork_preprocessor__0
 							eval("\$b=patchworkProcessedPath({$j});");
 							$code[$i--] = array(
 								T_CONSTANT_ENCAPSED_STRING,
-								false !== $b ? self::export($b, substr_count($j, "\n")) : "patchworkProcessedPath({$j})"
+								false !== $b ? patchwork_preprocessor::export($b, substr_count($j, "\n")) : "patchworkProcessedPath({$j})"
 							);
 						}
 						else
@@ -835,8 +843,7 @@ class patchwork_preprocessor__0
 			case '{':
 				isset($class_pool[$curly_level-1]) && $static_instruction = false;
 				isset($class_pool[$curly_level])
-					&&  $class_pool[$curly_level]->is_final
-					&& !$class_pool[$curly_level]->is_abstract
+					&& $class_pool[$curly_level]->is_final
 					&& $token .= "static \$hunter{$T};";
 
 				++$curly_level;
@@ -891,7 +898,6 @@ class patchwork_preprocessor__0
 						$token = "const __dS{$T}=" . (1 === $c->add_destructStatic  ? "'{$c->classname}';" : "'';static function __destructStatic() {}") . $token;
 					}
 
-					if ($c->is_abstract) $token .= "\$GLOBALS['patchwork_abstract']['{$c->real_classname}']=1;";
 					$token .= "\$GLOBALS['c{$T}']['{$c->real_classname}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
 
 					unset($class_pool[$curly_level]);
@@ -1076,7 +1082,7 @@ class patchwork_preprocessor__0
 	}
 }
 
-abstract class __patchwork_preprocessor_bracket
+class __patchwork_preprocessor_bracket__0
 {
 	protected
 
@@ -1153,7 +1159,7 @@ abstract class __patchwork_preprocessor_bracket
 	}
 }
 
-class __patchwork_preprocessor_construct extends __patchwork_preprocessor_bracket
+class __patchwork_preprocessor_construct__0 extends __patchwork_preprocessor_bracket
 {
 	protected
 
@@ -1194,7 +1200,7 @@ class __patchwork_preprocessor_construct extends __patchwork_preprocessor_bracke
 	}
 }
 
-class __patchwork_preprocessor_path extends __patchwork_preprocessor_bracket
+class __patchwork_preprocessor_path__0 extends __patchwork_preprocessor_bracket
 {
 	function onClose($token)
 	{
@@ -1202,7 +1208,7 @@ class __patchwork_preprocessor_path extends __patchwork_preprocessor_bracket
 	}
 }
 
-class __patchwork_preprocessor_classExists extends __patchwork_preprocessor_bracket
+class __patchwork_preprocessor_classExists__0 extends __patchwork_preprocessor_bracket
 {
 	function onReposition($token)
 	{
@@ -1215,7 +1221,7 @@ class __patchwork_preprocessor_classExists extends __patchwork_preprocessor_brac
 	}
 }
 
-class __patchwork_preprocessor_t extends __patchwork_preprocessor_bracket
+class __patchwork_preprocessor_t__0 extends __patchwork_preprocessor_bracket
 {
 	function filterBracket($type, $token)
 	{
@@ -1229,7 +1235,7 @@ Please use sprintf() instead of string concatenation."
 	}
 }
 
-class __patchwork_preprocessor_require extends __patchwork_preprocessor_bracket
+class __patchwork_preprocessor_require__0 extends __patchwork_preprocessor_bracket
 {
 	public $close = ')';
 
@@ -1258,7 +1264,7 @@ class __patchwork_preprocessor_require extends __patchwork_preprocessor_bracket
 	}
 }
 
-class __patchwork_preprocessor_marker extends __patchwork_preprocessor_require
+class __patchwork_preprocessor_marker__0 extends __patchwork_preprocessor_require
 {
 	public
 
