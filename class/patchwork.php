@@ -1118,7 +1118,13 @@ class
 		else $potentialAgent = $agent;
 
 		$lang = self::$lang;
-		$l_ng = 2 < strlen($lang) ? substr($lang, 0, 2) : false;
+		$l_ng = substr($lang, 0, 2);
+
+		if ($lang)
+		{
+			$lang = '/' . $lang;
+			$l_ng = '/' . $l_ng;
+		}
 
 		$existingAgent = '/index';
 
@@ -1148,8 +1154,8 @@ class
 
 				if (
 					   resolvePath("public/__{$a}.ptl")
-					|| ($l_ng && resolvePath("public/{$l_ng}{$a}.ptl"))
-					|| resolvePath("public/{$lang}{$a}.ptl")
+					|| ($l_ng != $lang && resolvePath("public{$l_ng}{$a}.ptl"))
+					|| resolvePath("public{$lang}{$a}.ptl")
 				)
 				{
 					$existingAgent = $a;
@@ -1161,8 +1167,8 @@ class
 				if (
 					   resolvePath("class/agent{$a}/")
 					|| resolvePath("public/__{$a}/")
-					|| ($l_ng && resolvePath("public/{$l_ng}{$a}/"))
-					|| resolvePath("public/{$lang}{$a}/")
+					|| ($l_ng != $lang && resolvePath("public{$l_ng}{$a}/"))
+					|| resolvePath("public{$lang}{$a}/")
 				) continue;
 
 				break;
@@ -1667,8 +1673,14 @@ class
 			$last__in_filename = '', $last__in_path_idx,
 			$last_out_filename,      $last_out_path_idx;
 
-		$lang = self::__LANG__() . '/';
-		$l_ng = 2 < strlen($lang) ? substr($lang, 0, 2) . '/' : false;
+		$lang = self::__LANG__();
+		$l_ng =  substr($lang, 0, 2);
+
+		if ($lang)
+		{
+			$lang = '/' . $lang;
+			$l_ng = '/' . $l_ng;
+		}
 
 
 		if ($filename == $last__in_filename && $lang == $last_lang && $last__in_path_idx <= $path_idx && $path_idx <= $last_out_path_idx)
@@ -1681,16 +1693,18 @@ class
 		$last__in_filename = $filename;
 		$last__in_path_idx = $path_idx;
 
+		$filename = '/' . $filename;
+
 		global $patchwork_lastpath_level;
 
 		$level = PATCHWORK_PATH_LEVEL - $path_idx;
 
-		$lang = resolvePath("public/{$lang}{$filename}", $level);
+		$lang = resolvePath("public{$lang}{$filename}", $level);
 		$lang_level = $patchwork_lastpath_level;
 
-		if ($l_ng)
+		if ($l_ng != $lang)
 		{
-			$l_ng = resolvePath("public/{$l_ng}{$filename}", $level);
+			$l_ng = resolvePath("public{$l_ng}{$filename}", $level);
 			if ($patchwork_lastpath_level > $lang_level)
 			{
 				$lang = $l_ng;
@@ -1698,7 +1712,7 @@ class
 			}
 		}
 
-		$l_ng = resolvePath("public/__/{$filename}", $level);
+		$l_ng = resolvePath("public/__{$filename}", $level);
 		if ($patchwork_lastpath_level > $lang_level)
 		{
 			$lang = $l_ng;
