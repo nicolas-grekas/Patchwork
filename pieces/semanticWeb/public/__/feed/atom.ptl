@@ -16,7 +16,7 @@ IF $xsl --><?xml-stylesheet type="text/xsl" href="{$xsl}"?><!-- END:IF -->{*
 
 See http://www.atomenabled.org/developers/syndication/atom-format-spec.php
 
-*}<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="{g$__LANG__}"><!--
+*}<feed xmlns="http://www.w3.org/2005/Atom"<!-- IF g$__LANG__ --> xml:lang="{g$__LANG__}"<!-- END:IF -->><!--
 
 AGENT 'feed/atom/common' required=1
 	title=$title title_type=$title_type

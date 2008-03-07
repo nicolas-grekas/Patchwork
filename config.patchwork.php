@@ -7,7 +7,6 @@
 #patchwork pieces/lingua
 #patchwork pieces/pMail
 #patchwork pieces/toolbox
-#patchwork pieces/ie7
 
 
 /* All default settings */
