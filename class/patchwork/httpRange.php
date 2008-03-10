@@ -127,6 +127,7 @@ class
 		{
 			list($min, $max) = $range[0];
 
+			header('Content-Type: ' . $mime);
 			header('Content-Length: ' . ($max - $min + 1));
 			header("Content-Range: bytes {$min}-{$max}/{$size}");
 
