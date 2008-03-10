@@ -215,14 +215,18 @@ class extends patchwork
 				{
 					header('Accept-Ranges: bytes');
 
-					$range = isset($_SERVER['HTTP_RANGE']) ? patchwork_httpRange::negociate($size, self::$ETag, self::$LastModified) : false;
+					$range = isset($_SERVER['HTTP_RANGE']) ? patchwork_httpRange::negociate($size, p::$ETag, p::$LastModified) : false;
 				}
 				else header('Accept-Ranges: none');
 
 				set_time_limit(0);
 				ignore_user_abort(false);
 
-				if ($range) patchwork_httpRange::sendChunks($range, $h, $mime, $size);
+				if ($range)
+				{
+					unset(p::$headers['content-type']);
+					patchwork_httpRange::sendChunks($range, $h, $mime, $size);
+				}
 				else
 				{
 					$gzip || header('Content-Length: ' . $size);
