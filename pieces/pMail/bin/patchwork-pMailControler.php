@@ -49,7 +49,7 @@ if (preg_match_all("'\n(references|to|in-reply-to):(.*?)\n[-a-z]+:'si", $header,
 {
 	$a = strtolower($m[1]);
 
-	if (preg_match_all("'iaM[0-9a-zA-Z]{32,}'", $m[2], $m)) foreach ($m as &$m)
+	if (preg_match_all("'pM[0-9a-zA-Z]{32,}'", $m[2], $m)) foreach ($m as &$m)
 	{
 		if (strlen($m[0]) != 32) continue;
 

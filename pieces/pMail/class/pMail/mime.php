@@ -59,23 +59,34 @@ class extends Mail_mime
 
 	protected function doSend()
 	{
-		$message_id = 'iaM' . p::uniqid();
+		$message_id = 'pM' . p::uniqid();
 
 		$this->_headers['Message-Id'] = '<' . $message_id . '@' . (isset($_SERVER['HTTP_HOST']) ? urlencode($_SERVER['HTTP_HOST']) : 'pMail') . '>';
-
-		$this->setObserver('reply', 'Reply-To', $message_id);
-		$this->setObserver('bounce', 'Return-Path', $message_id);
 
 		$body =& $this->get();
 		$headers =& $this->headers();
 
-		if (isset($headers['From']))
-		{
-			ini_set('sendmail_from', $headers['From']);
+		$h = array();
+		foreach ($headers as $k => $v) $h[strtolower($k)] = $k;
 
-			if (!isset($headers['Reply-To'])   ) $headers['Reply-To'] = $headers['From'];
-			if (!isset($headers['Return-Path'])) $headers['Return-Path'] = $headers['From'];
+		$k = array('Return-Path', 'Errors-To', 'From', 'To', 'Reply-To');
+		foreach ($k as $v)
+		{
+			$k = strtolower($v);
+			if (isset($h[$k]) && $h[$k] !== $v)
+			{
+				$headers[$v] =& $headers[$h[$k]];
+				unset($headers[$h[$k]]);
+			}
 		}
+
+		if (isset($headers['Return-Path'])) $headers['Errors-To'] =& $headers['Return-Path'];
+		else if (isset($headers['Errors-To'])) $headers['Return-Path'] =& $headers['Errors-To'];
+
+		$this->setObserver('reply', 'Reply-To', $message_id);
+		$this->setObserver('bounce', 'Return-Path', $message_id);
+
+		isset($headers['From']) && ini_set('sendmail_from', $headers['From']);
 
 		$to = $headers['To'];
 		unset($headers['To']);
