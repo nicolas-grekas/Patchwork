@@ -404,7 +404,7 @@ define('UTF8_BOM', /*<*/__patchwork_bootstrapper::UTF8_BOM/*>*/);
 
 /*#>*/if (!function_exists('utf8_encode'))
 /*#>*/{
-/*#>*/	if (extension_loaded('iconv'))
+/*#>*/	if (extension_loaded('iconv') && '§' === @iconv('ISO-8859-1', 'UTF-8', "\xA7"))
 /*#>*/	{
 			function utf8_encode($s) {return iconv('ISO-8859-1', 'UTF-8', $s);}
 /*#>*/	}
@@ -521,7 +521,7 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 
 /*#>*/				if (!$h)
 /*#>*/				{
-/*#>*/					if (extension_loaded('iconv'))
+/*#>*/					if (extension_loaded('iconv') && '§' === @iconv('UTF-8', 'UTF-8//IGNORE', "§\xE0"))
 /*#>*/					{
 							$v = iconv('UTF-8', 'UTF-8//IGNORE', $v);
 /*#>*/					}
