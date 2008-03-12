@@ -55,12 +55,12 @@ class
 	{
 		if (!is_scalar($value)) return false;
 
-		$result = trim($value);
+		$result = trim(str_replace(' ', '', strtr($value, ",.'", ' ')));
 		if (!preg_match('/^[+-]?[0-9]+$/u', $result)) return false;
 		if (isset($args[0]) && $result < $args[0]) return false;
 		if (isset($args[1]) && $result > $args[1]) return false;
 
-		return (int) $result;
+		return $value = (int) $result;
 	}
 
 	# min, max
@@ -72,12 +72,13 @@ class
 		$rx = '(?:(?:\d*\.\d+)|(?:\d+\.\d*))';
 		$rx = "(?:[+-]\s*)?(?:(?:\d+|$rx)[eE][+-]?\d+|$rx|[1-9]\d*|0[xX][\da-fA-F]+|0[0-7]*)(?!\d)";
 
-		$result = str_replace(',', '.', trim($value));
+		$result = trim(str_replace(' ', '', strtr($value, "'", ' ')));
+		$result = strtr($result, ',', '.');
 		if (!preg_match("'^$rx$'u", $result)) return false;
 		if (isset($args[0]) && $result < $args[0]) return false;
 		if (isset($args[1]) && $result > $args[1]) return false;
 
-		return (float) $result;
+		return $value = (float) $result;
 	}
 
 	# array
@@ -153,6 +154,7 @@ class
 
 		if ( !preg_match('/^' . self::EMAIL_RX . '$/u', $result, $domain) ) return false;
 		if ( function_exists('checkdnsrr') && !checkdnsrr($domain[2]) ) return false;
+
 		return $result;
 	}
 

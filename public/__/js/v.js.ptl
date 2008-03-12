@@ -26,6 +26,7 @@ function valid($element, $type, $args)
 
 valid_int = function($value, $args)
 {
+	$value = $value.replace(/[,\. ']+/g, '');
 	if (!/^\s*[+-]?[0-9]+\s*$/.test($value)) return false;
 
 	$value -= 0;
@@ -36,6 +37,7 @@ valid_int = function($value, $args)
 
 valid_float = function($value, $args)
 {
+	$value = $value.replace(/ '/g, '').replace(/,/g, '.');
 	$value = parseFloat($value);
 
 	if (isNaN($value)) return false;
