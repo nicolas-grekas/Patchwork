@@ -220,7 +220,16 @@ class patchwork_preprocessor__0
 			}
 		}
 
-		if (!extension_loaded('iconv'))
+		if (extension_loaded('iconv') && 'fi' === @iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'ﬁ'))
+		{
+			// iconv is way faster than mbstring
+			self::$function['mb_strlen']            = 'iconv_strlen';
+			self::$function['mb_strpos']            = 'iconv_strpos';
+			self::$function['mb_strrpos_500']       = 'iconv_strrpos';
+			self::$function['mb_substr']            = 'iconv_substr';
+			self::$function['mb_decode_mimeheader'] = 'iconv_mime_decode';
+		}
+		else
 		{
 			self::$constant += array(
 				'ICONV_IMPL' => '"patchworkiconv"',
@@ -259,15 +268,6 @@ class patchwork_preprocessor__0
 					'iconv_substr'  => 'utf8_mbstring_500::substr',
 				);
 			}
-		}
-		else
-		{
-			// iconv is way faster than mbstring
-			self::$function['mb_strlen']            = 'iconv_strlen';
-			self::$function['mb_strpos']            = 'iconv_strpos';
-			self::$function['mb_strrpos_500']       = 'iconv_strrpos';
-			self::$function['mb_substr']            = 'iconv_substr';
-			self::$function['mb_decode_mimeheader'] = 'iconv_mime_decode';
 		}
 
 		$v = get_defined_constants(true);
