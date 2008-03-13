@@ -255,7 +255,7 @@ $b = '(' . implode('|', $b) . ')';
 			if (!isset($_SERVER['PATCHWORK_LANG']))
 			{
 				$a = '#' . preg_quote($a[0], '#') . $b . '#';
-				preg_match($a, $_SERVER['SCRIPT_URI'], $a)
+				preg_match($a, 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], $a)
 					&& $_SERVER['PATCHWORK_LANG'] = array_search($a[1], $CONFIG['i18n.lang_list']);
 			}
 
