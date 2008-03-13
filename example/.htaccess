@@ -1,16 +1,19 @@
 Allow from all
 
-# One way to clean your URLs by removing the extension in MyPatchworkApp.php:
-# - rename MyPatchworkApp.php to MyPatchworkApp (remove extension)
-# - enable the following directive
-#
-#<Files MyPatchworkApp>
+AcceptPathInfo On
+RewriteEngine On
+
+# Avoid TRACE and TRACK method to prevent "Cross-Site-Tracing"
+RewriteCond %{REQUEST_METHOD} ^TRAC
+RewriteRule .? - [NS,F]
+
+# If you want to clean URLs like /foo/bar.php/... to /foo/bar/...
+# - put this .htaccess file in the /foo directory
+# - rename bar.php to bar (remove its extension)
+# - enable the following directive:
+#<Files bar>
 #ForceType application/x-httpd-php
 #</Files>
-
-
-# Should already be on by default
-#AcceptPathInfo On
 
 # Uncomment to enable PHP5 on free.fr
 #php 1
@@ -47,6 +50,6 @@ php_value mbstring.http_output "pass"
 #php_flag  mbstring.encoding_translation On
 #php_value mbstring.http_input "UTF-8"
 
-#php_value iconv.input_encoding "UTF-8//IGNORE"
+#php_value iconv.input_encoding  "UTF-8//IGNORE"
 #php_value iconv.output_encoding "UTF-8//IGNORE"
 #php_value iconv.output_encoding "UTF-8//IGNORE"
