@@ -81,11 +81,14 @@ class extends pMail_mime
 			$html
 		);
 
+		// Remove <sub> and <sup> tags
+		$html = preg_replace('#<(/?)su[bp]\b([^>]*)>#iu' , '<$1span$2>', $html);
+
 		// Style according to the Netiquette
-		$html = preg_replace('#<(?:b|strong)\b[^>]*>(\s*)#isu' , '$1*', $html);
-		$html = preg_replace('#(\s*)</(?:b|strong)\b[^>]*>#isu', '*$1', $html);
-		$html = preg_replace('#<u\b[^>]*>(\s*)#isu' , '$1_', $html);
-		$html = preg_replace('#(\s*)</u\b[^>]*>#isu', '_$1', $html);
+		$html = preg_replace('#<(?:b|strong)\b[^>]*>(\s*)#iu' , '$1*', $html);
+		$html = preg_replace('#(\s*)</(?:b|strong)\b[^>]*>#iu', '*$1', $html);
+		$html = preg_replace('#<u\b[^>]*>(\s*)#iu' , '$1_', $html);
+		$html = preg_replace('#(\s*)</u\b[^>]*>#iu', '_$1', $html);
 
 		$c = new converter_txt_html(78);
 		$html = $c->convertData($html);
