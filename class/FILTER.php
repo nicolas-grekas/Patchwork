@@ -119,8 +119,8 @@ class
 	protected static function get_char(&$value, &$args)
 	{
 		if (!is_scalar($value) || strspn($value, "\r\n")) return false;
-		$result = self::get_text($result, $args);
-		return $result ? substr(preg_replace('/\s+/u', ' ', " {$value} "), 1, -1) : $result;
+		$result = self::get_text($value, $args);
+		return $result ? substr(preg_replace('/\s+/u', ' ', " {$result} "), 1, -1) : $result;
 	}
 
 	# regexp
