@@ -60,7 +60,7 @@ class
 		if (isset($args[0]) && $result < $args[0]) return false;
 		if (isset($args[1]) && $result > $args[1]) return false;
 
-		return $value = (int) $result;
+		return (int) $result;
 	}
 
 	# min, max
@@ -78,7 +78,7 @@ class
 		if (isset($args[0]) && $result < $args[0]) return false;
 		if (isset($args[1]) && $result > $args[1]) return false;
 
-		return $value = (float) $result;
+		return (float) $result;
 	}
 
 	# array
@@ -118,9 +118,9 @@ class
 	protected static function get_c   (&$value, &$args) {return self::get_char($value, $args);}
 	protected static function get_char(&$value, &$args)
 	{
-		if (!is_scalar($value)) return false;
-		$result = substr(preg_replace('/[ \t\r\n]+/', ' ', " $value "), 1, -1);
-		return self::get_text($result, $args);
+		if (!is_scalar($value) || strspn($value, "\r\n")) return false;
+		$result = self::get_text($result, $args);
+		return $result ? substr(preg_replace('/\s+/u', ' ', " {$value} "), 1, -1) : $result;
 	}
 
 	# regexp
