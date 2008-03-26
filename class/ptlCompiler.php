@@ -523,16 +523,16 @@ abstract class
 	private function evalVar($a, $translate = false, $forceType = false)
 	{
 		if ($a === '') return "''";
-		if ('~' == $a) $a = 'g$__BASE__';
-		if ('/' == $a) $a = 'g$__HOST__';
+		if ('~' === $a) $a = 'g$__BASE__';
+		if ('/' === $a) $a = 'g$__HOST__';
 
-		if ('"' == $a[0] || "'" == $a[0])
+		if ('"' === $a[0] || "'" === $a[0])
 		{
-			$b = '"' == $a[0];
+			$b = '"' === $a[0];
 
-			if (!$b) $a = '"' . substr(preg_replace('/([^\\\\](?:\\\\\\\\)*)"/su', '$1\\\\"', $a), 1, -1) . '"';
+			if (!$b) $a = '"' . substr(preg_replace('/(?<!\\\\)((?:\\\\\\\\)*)"/su', '$1\\\\"', $a), 1, -1) . '"';
 			$a = preg_replace("/(?<!\\\\)\\\\((?:\\\\\\\\)*)'/su", '$1\'', $a);
-			$a = preg_replace('/([^\\\\](\\\\?)(?:\\\\\\\\)*)\\$/su', '$1$2\\\\$', $a);
+			$a = preg_replace('/(?<!\\\\)((\\\\?)(?:\\\\\\\\)*)\\$/su', '$1$2\\\\$', $a);
 			$a = eval("return $a;");
 
 			if ($b && '' !== trim($a))
