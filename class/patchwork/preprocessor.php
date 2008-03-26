@@ -583,18 +583,32 @@ class patchwork_preprocessor__0
 
 				if ('&' === $prevType)
 				{
-					if ('=' != $antePrevType) break;
-					$antePrevType = '&';
-
 					$j = $new_code_length;
-					while (--$j && in_array($new_type[$j], array('=', '&', T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ;
+					while (--$j && '&' !== $new_type[$j]) ;
+
+					if ('=' === $antePrevType)
+					{
+						while (--$j && '=' !== $new_type[$j]) ;
+						--$j;
+						$antePrevType = '&';
+					}
+					else
+					{
+						$new_type[$j] = $prevType = T_WHITESPACE;
+						$new_code[$j] = ' ';
+						$token = "(({$c})?" . $token;
+					}
 				}
 				else $token = "(({$c})?" . $token;
 
 			case T_DOUBLE_COLON:
 				if (T_DOUBLE_COLON === $type)
 				{
-					if ($static_instruction || isset($class_pool[$curly_level-1]) || isset(self::$inline_class[$prevType])) break;
+					if (strspn($antePrevType, '(,') // To not break pass by ref, isset, unset and list
+						|| $static_instruction
+						|| isset($class_pool[$curly_level-1])
+						|| isset(self::$inline_class[$prevType])
+					) break;
 
 					$curly_marker_last[1] || $curly_marker_last[1] = -1;
 					$c = $this->marker($prevType);
