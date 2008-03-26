@@ -709,18 +709,8 @@ class patchwork_preprocessor__0
 					switch ($type)
 					{
 					case 'resolvepath':
-						// If possible, resolve the path now, else append its third arg to resolvePath
-						if (0<=$level)
-						{
-							$j = (string) $this->fetchConstant($code, $i, $codeLen);
-							if ('' !== $j)
-							{
-								eval("\$b={$token}{$j};");
-								$token = false !== $b ? patchwork_preprocessor::export($b, substr_count($j, "\n")) : "{$token}({$j})";
-								$type = T_CONSTANT_ENCAPSED_STRING;
-							}
-							else new __patchwork_preprocessor_path($this, true);
-						}
+						// Append its third arg to resolvePath
+						if (0<=$level) new __patchwork_preprocessor_path($this, true);
 						break;
 
 					case 't':
