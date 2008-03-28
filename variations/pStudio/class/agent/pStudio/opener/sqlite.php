@@ -14,6 +14,8 @@ class extends agent_pStudio_opener
 	protected function composeReader($o)
 	{
 		$db = new SQLiteDatabase($this->realpath, 0666, $o->error_msg);
+		$db->createFunction('php', array(__CLASS__, 'php'));
+		$db->createFunction('preg_match', 'preg_match', 2);
 
 		if ($this->get->sql)
 		{
@@ -28,10 +30,13 @@ class extends agent_pStudio_opener
 
 				if (false !== $rows)
 				{
-					$o->fields = new loop_array(array_keys($rows[0]));
-					$o->rows = new loop_array($rows, array($this, 'filterRow'));
-					$o->start = $this->get->start;
-					$o->length = $this->get->length;
+					if ($rows)
+					{
+						$o->fields = new loop_array(array_keys($rows[0]));
+						$o->rows = new loop_array($rows, array($this, 'filterRow'));
+						$o->start = $this->get->start;
+						$o->length = $this->get->length;
+					}
 				}
 				else $o->error_msg = sqlite_error_string($db->lastError());
 			}
@@ -64,5 +69,10 @@ class extends agent_pStudio_opener
 		$sql = str_replace(';', ';EXPLAIN ', $sql);
 
 		return @($db->queryExec("EXPLAIN {$sql}\n LIMIT 1", $error_msg) && $db->queryExec("EXPLAIN SELECT 1 FROM ({$sql}\n LIMIT 1)", $error_msg));
+	}
+
+	static function php($rx, $s)
+	{
+		return '<!PHP disabled>';
 	}
 }
