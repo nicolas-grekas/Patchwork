@@ -29,7 +29,7 @@ class
 	$period = 5;  // (s)
 
 
-	static function call()
+	static function execute()
 	{
 		$GLOBALS['patchwork_appId'] = -$GLOBALS['patchwork_appId'];
 

@@ -198,7 +198,7 @@ unset($a);
 // Setup hook
 
 class p extends patchwork {}
-patchwork_setup::call();
+patchwork_setup::execute();
 
 
 // Save config and release lock
@@ -246,16 +246,24 @@ class __patchwork_bootstrapper
 			ob_start(array(__CLASS__, 'ob_handler'));
 
 			self::$pwd = rtrim(dirname(__FILE__), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-			self::$cwd = getcwd();
+			self::$cwd = function_exists('getcwd') ? @getcwd() : '';
 
 			if (!self::$cwd)
 			{
-				if (file_put_contents('./.getcwd', '<?php return dirname(__FILE__);'))
+				ob_start();
+				echo "Patchwork Error: Your system's getcwd() is bugged and workarounds failed."; // This will be erased if following workarounds succeed
+
+				self::$cwd = realpath('.');
+
+				if (self::$cwd && '.' !== self::$cwd) {}
+				else if (file_put_contents('./.getcwd', '<?php return dirname(__FILE__);'))
 				{
 					self::$cwd = require './.getcwd';
 					unlink('./.getcwd');
 				}
-				else die("Patchwork Error: Your system's getcwd() is bugged and workaround failed.");
+				else self::$cwd = `pwd || realpath .`;
+
+				self::$cwd ? ob_end_clean() : exit();
 			}
 
 			self::$cwd = rtrim(self::$cwd, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;

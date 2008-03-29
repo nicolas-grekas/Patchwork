@@ -23,7 +23,7 @@
 
 	<title>{a$title|replace:'<[^>]*':''|replace:'>':''}</title>
 
-	<style type="text/css">html{background:transparent}label{cursor:default}</style>  {* Hacks for IE and Safari *}
+	<style type="text/css">html{background:transparent}label{cursor:default}</style> {* Hacks for IE and Safari *}
 
 	<!-- LOOP g$__LANG_ALT__
 	     IF $lang != g$__LANG__ -->

@@ -73,6 +73,6 @@ class extends agent_pStudio_opener
 
 	static function php($rx, $s)
 	{
-		return '<!PHP disabled>';
+		return '<!php() function is disabled>';
 	}
 }
