@@ -311,7 +311,15 @@ $b = '(' . implode('|', $b) . ')';
 /*#>*/	if (isset($_SERVER['PATH_INFO']))
 /*#>*/	{
 			isset($_SERVER['ORIG_PATH_INFO']) && $_SERVER['PATH_INFO'] = $_SERVER['ORIG_PATH_INFO'];
-			isset($_SERVER['PATH_INFO']) && $_SERVER['PATCHWORK_REQUEST'] = substr($_SERVER['PATH_INFO'], 1);
+
+			if (isset($_SERVER['PATH_INFO']))
+			{
+				$_SERVER['PATCHWORK_REQUEST'] = substr($_SERVER['PATH_INFO'], 1);
+
+/*#>*/			if (isset($_SERVER['SCRIPT_URI']))
+					$_SERVER['PATCHWORK_BASE'] = substr($_SERVER['SCRIPT_URI'], 0, -strlen($_SERVER['PATH_INFO']));
+			}
+
 			$_SERVER['PATCHWORK_BASE'] .= '/' . (PATCHWORK_I18N ? '__/' : '');
 /*#>*/	}
 /*#>*/	else

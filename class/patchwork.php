@@ -439,7 +439,7 @@ class
 		$patchwork_appId += $_SERVER['REQUEST_TIME'] - filemtime('./config.patchwork.php');
 		self::$appId = abs($patchwork_appId % 10000);
 
-		if (file_exists('./.patchwork.php') && $h = fopen('./.patchwork.php', 'r+b'))
+		if (file_exists('./.patchwork.php') && $h = @fopen('./.patchwork.php', 'r+b'))
 		{
 			$offset = 0;
 
