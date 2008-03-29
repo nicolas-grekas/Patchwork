@@ -18,9 +18,9 @@
 
 class extends self
 {
-	static function call()
+	static function execute()
 	{
-		parent::call();
+		parent::execute();
 
 		pTask_crontab::setup();
 	}

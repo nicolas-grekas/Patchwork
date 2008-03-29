@@ -18,7 +18,7 @@
 
 class
 {
-	static function call()
+	static function execute()
 	{
 	}
 }

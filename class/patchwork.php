@@ -221,7 +221,7 @@ class
 
 	static function __constructStatic()
 	{
-#>		patchwork_debugger::call();
+#>		patchwork_debugger::execute();
 
 		if (!$CONFIG['clientside'])
 		{
@@ -432,8 +432,6 @@ class
 		// config.patchwork.php's last modification date is used for
 		// version synchronisation with clients and caches.
 
-		@touch('./config.patchwork.php', $_SERVER['REQUEST_TIME']);
-
 		global $patchwork_appId;
 
 		$oldAppId = sprintf('%020d', $patchwork_appId);
@@ -441,11 +439,9 @@ class
 		$patchwork_appId += $_SERVER['REQUEST_TIME'] - filemtime('./config.patchwork.php');
 		self::$appId = abs($patchwork_appId % 10000);
 
-		if (file_exists('./.patchwork.php'))
+		if (file_exists('./.patchwork.php') && $h = fopen('./.patchwork.php', 'r+b'))
 		{
 			$offset = 0;
-
-			$h = fopen('./.patchwork.php', 'r+b');
 
 			while (false !== $line = fgets($h))
 			{
@@ -459,7 +455,11 @@ class
 			}
 
 			fclose($h);
+
+			@touch('./.patchwork.php');
 		}
+
+		@touch('./config.patchwork.php', $_SERVER['REQUEST_TIME']);
 	}
 
 	static function disable($exit = false)
