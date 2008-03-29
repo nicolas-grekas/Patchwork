@@ -264,12 +264,6 @@ $b = '(' . implode('|', $b) . ')';
 				header('HTTP/1.1 200 OK');
 				
 				isset($_SERVER['PATCHWORK_REQUEST']) || $_SERVER['PATCHWORK_REQUEST'] = substr($_SERVER['REDIRECT_URL'], strlen(preg_replace("#^.*?://[^/]*#", '', $_SERVER['PATCHWORK_BASE'])) - 3);
-
-				if (isset($_SERVER['REDIRECT_QUERY_STRING']))
-				{
-					$_SERVER['QUERY_STRING'] = $_SERVER['REDIRECT_QUERY_STRING'];
-					parse_str($_SERVER['QUERY_STRING'], $_GET);
-				}
 			}
 
 			isset($_SERVER['PATCHWORK_LANG'])    || $_SERVER['PATCHWORK_LANG']    = '';
@@ -305,7 +299,10 @@ $b = '(' . implode('|', $b) . ')';
 /*#>*/		unset($a, $h);
 /*#>*/	}
 
-		$_SERVER['PATCHWORK_BASE'] = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'];
+		$a = strlen($_SERVER['QUERY_STRING']);
+		$a = $a ? substr($_SERVER['REQUEST_URI'], 0, -$a - 1) : rtrim($_SERVER['REQUEST_URI'], '?');
+
+		$_SERVER['PATCHWORK_BASE'] = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $a;
 		$_SERVER['PATCHWORK_LANG'] = $_SERVER['PATCHWORK_REQUEST'] = '';
 
 /*#>*/	if (isset($_SERVER['PATH_INFO']))
@@ -315,9 +312,7 @@ $b = '(' . implode('|', $b) . ')';
 			if (isset($_SERVER['PATH_INFO']))
 			{
 				$_SERVER['PATCHWORK_REQUEST'] = substr($_SERVER['PATH_INFO'], 1);
-
-/*#>*/			if (isset($_SERVER['SCRIPT_URI']))
-					$_SERVER['PATCHWORK_BASE'] = substr($_SERVER['SCRIPT_URI'], 0, -strlen($_SERVER['PATH_INFO']));
+				$_SERVER['PATCHWORK_BASE'] = substr($_SERVER['PATCHWORK_BASE'], 0, -strlen($_SERVER['PATH_INFO']));
 			}
 
 			$_SERVER['PATCHWORK_BASE'] .= '/' . (PATCHWORK_I18N ? '__/' : '');
