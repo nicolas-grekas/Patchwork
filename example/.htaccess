@@ -7,11 +7,19 @@ RewriteEngine On
 RewriteCond %{REQUEST_METHOD} ^TRAC
 RewriteRule .? - [NS,F]
 
-# If you want to clean URLs like /foo/bar.php/... to /foo/bar/...
-# - put this .htaccess file in the /foo directory
-# - rename bar.php to bar (remove its extension)
-# - enable the following directive:
-#<Files bar>
+# Rewrite rules for friendly URLs
+RewriteCond %{ENV:REDIRECT_PATH_INFO} .
+RewriteRule .?                  -   [L]
+
+RewriteRule ^index\.php         -   [R=404,L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-l
+RewriteRule .* index.php            [E=PATH_INFO:/$0]
+
+# Here is an other way to get friendly URLs
+#<Files bootstrap_file_here>
 #ForceType application/x-httpd-php
 #</Files>
 
@@ -22,9 +30,9 @@ RewriteRule .? - [NS,F]
 #SetEnv PHP_VER 5
 
 # Some common env vars
-#SetEnv REGISTER_GLOBALS 0
-#SetEnv ZEND_OPTIMIZER 1
-#SetEnv MAGIC_QUOTES 0
+SetEnv REGISTER_GLOBALS 0
+SetEnv ZEND_OPTIMIZER 1
+SetEnv MAGIC_QUOTES 0
 
 # Edit this to your default timezone
 php_value date.timezone "Universal"
@@ -50,6 +58,6 @@ php_value mbstring.http_output "pass"
 #php_flag  mbstring.encoding_translation On
 #php_value mbstring.http_input "UTF-8"
 
-#php_value iconv.input_encoding  "UTF-8//IGNORE"
-#php_value iconv.output_encoding "UTF-8//IGNORE"
-#php_value iconv.output_encoding "UTF-8//IGNORE"
+#php_value iconv.input_encoding    "UTF-8//IGNORE"
+#php_value iconv.internal_encoding "UTF-8//IGNORE"
+#php_value iconv.output_encoding   "UTF-8//IGNORE"
