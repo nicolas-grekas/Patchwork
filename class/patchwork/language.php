@@ -19,12 +19,14 @@ class
 		$lang = self::HTTP_Best_Language(array_keys($CONFIG['i18n.lang_list']));
 		$b = $_SERVER['REQUEST_METHOD'];
 
-		if (!PATCHWORK_DIRECT && ('GET' == $b || 'HEAD' == $b))
+		if (!PATCHWORK_DIRECT && ('GET' === $b || 'HEAD' === $b))
 		{
 			$lang = $CONFIG['i18n.lang_list'][$lang];
 			$lang = implode($lang, explode('__', $_SERVER['PATCHWORK_BASE'], 2));
 			$lang .= str_replace('%2F', '/', rawurlencode($_SERVER['PATCHWORK_REQUEST']));
-			$_GET && $lang .= '?' . $_SERVER['QUERY_STRING'];
+
+			if (!isset($_SERVER['REDIRECT_QUERY_STRING'])) empty($_SERVER['QUERY_STRING']) || $lang .= '?' . $_SERVER['QUERY_STRING'];
+			else '' === $_SERVER['REDIRECT_QUERY_STRING'] || $lang .= '?' . $_SERVER['REDIRECT_QUERY_STRING'];
 
 			header('HTTP/1.1 301 Moved Permanently');
 			header('Location: ' . $lang);

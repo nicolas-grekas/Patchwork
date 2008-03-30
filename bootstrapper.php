@@ -16,7 +16,7 @@
 
 function_exists('token_get_all') || die('Patchwork Error: Extension "tokenizer" is needed and not loaded');
 preg_match('/^.$/u', '§')        || die('Patchwork Error: PCRE is not compiled with UTF-8 support');
-isset($_SERVER['REDIRECT_STATUS']) && '200' !== $_SERVER['REDIRECT_STATUS'] && die('Patchwork Error: initialization forbidden. Please try using the shortest possible URL');
+isset($_SERVER['REDIRECT_STATUS']) && '200' !== $_SERVER['REDIRECT_STATUS'] && die('Patchwork Error: initialization forbidden (try using the shortest possible URL)');
 
 if (extension_loaded('mbstring'))
 {
