@@ -283,7 +283,7 @@ class
 		self::$is_enabled = true;
 		self::$ob_starting_level = ob_get_level();
 		ob_start(array(__CLASS__, 'ob_sendHeaders'));
-		ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
+		ob_start(array(__CLASS__, 'ob_filterOutput'), 32768);
 		self::$ob_level = 2;
 
 
