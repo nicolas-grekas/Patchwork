@@ -12,7 +12,7 @@
 			--> &gt; <!--
 
 			IF $iteratorPosition + 1 < $$paths
-				--><a href="{~}pStudio/explorer/{a$path}?low={$low}&amp;high={$high}">{$VALUE}</a><!--
+				--><a href="{~}pStudio/explorer/{a$path}?low={$$low}&amp;high={$$high}">{$VALUE}</a><!--
 			ELSE
 				--><b>{$VALUE}</b><!--
 			END:IF
