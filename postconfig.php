@@ -309,7 +309,7 @@ $b = '(' . implode('|', $b) . ')';
 /*#>*/	{
 			isset($_SERVER['ORIG_PATH_INFO']) && $_SERVER['PATH_INFO'] = $_SERVER['ORIG_PATH_INFO'];
 
-			if (isset($_SERVER['PATH_INFO']))
+			if (!empty($_SERVER['PATH_INFO']))
 			{
 				$_SERVER['PATCHWORK_REQUEST'] = substr($_SERVER['PATH_INFO'], 1);
 				$_SERVER['PATCHWORK_BASE'] = substr($_SERVER['PATCHWORK_BASE'], 0, -strlen($_SERVER['PATH_INFO']));
