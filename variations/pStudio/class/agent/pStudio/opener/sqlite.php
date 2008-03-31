@@ -71,7 +71,7 @@ class extends agent_pStudio_opener
 		return @($db->queryExec("EXPLAIN {$sql}\n LIMIT 1", $error_msg) && $db->queryExec("EXPLAIN SELECT 1 FROM ({$sql}\n LIMIT 1)", $error_msg));
 	}
 
-	static function php($rx, $s)
+	static function php()
 	{
 		return '<!php() function is disabled>';
 	}
