@@ -261,7 +261,7 @@ class __patchwork_bootstrapper
 					self::$cwd = require './.getcwd';
 					unlink('./.getcwd');
 				}
-				else self::$cwd = `pwd || realpath .`;
+				else self::$cwd = `pwd`;
 
 				self::$cwd ? ob_end_clean() : exit();
 			}
