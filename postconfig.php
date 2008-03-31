@@ -353,5 +353,6 @@ $b = '(' . implode('|', $b) . ')';
 /*#>*/}
 
 
+reset($CONFIG['i18n.lang_list']);
 PATCHWORK_I18N || $_SERVER['PATCHWORK_LANG'] = key($CONFIG['i18n.lang_list']);
 define('PATCHWORK_DIRECT',  '_' === $_SERVER['PATCHWORK_REQUEST']);

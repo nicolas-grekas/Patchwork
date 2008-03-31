@@ -13,7 +13,7 @@
 
 
 // {{{ Shortcut for applications developers
-if (PATCHWORK_I18N)
+if ($_SERVER['PATCHWORK_LANG'])
 {
 	function T($string, $lang = false)
 	{

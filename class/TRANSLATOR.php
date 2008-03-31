@@ -22,7 +22,7 @@ class
 
 	static function get($string, $lang, $usecache)
 	{
-		if ('' === $string || '__' == $lang || !PATCHWORK_I18N) return $string;
+		if ('' === $string || '__' == $lang) return $string;
 
 		$hash = md5($string);
 		$cache = '';

@@ -60,7 +60,7 @@ function E($v, $warn, $max_depth, $level, $expand)
 		{
 			if ($max_depth && $level>=$max_depth) return o('### Max Depth Reached ###\n');
 
-			if ($level) o('<a href="#" onclick="return opener.QDebug_toggle(document, ' + (++E.counter) + ')">');
+			if ($level) o('<a href="#" onclick="return parent.QDebug_toggle(document, ' + (++E.counter) + ')">');
 			o(t($v, 'object') ? 'Object\n' : 'Array\n');
 			if ($level) o('</a><span id="QDebugId' + E.counter + '"'+($expand && !--$expand ? '' : ' style="display: none;"')+'>');
 			o(' ', 8*$level);
