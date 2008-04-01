@@ -88,7 +88,7 @@ function __autoload($searched_class)
 {
 	$a = lowerascii($searched_class);
 
-	if ($a =& $GLOBALS['patchwork_autoload_cache'][$a])
+	if (TURBO && $a =& $GLOBALS['patchwork_autoload_cache'][$a])
 	{
 		if (is_int($a))
 		{
