@@ -129,7 +129,7 @@ class __patchwork_autoloader
 			$cache = PATCHWORK_PROJECT_PATH . ".class_{$top}.php.{$cache}.{$T}.zcache.php";
 
 			if (!(file_exists($cache) && (TURBO || filemtime($cache) > filemtime($src))))
-				patchwork_preprocessor::run($src, $cache, $level, $top);
+				patchwork_preprocessor::execute($src, $cache, $level, $top);
 
 			$current_pool = array();
 			$parent_pool =& self::$pool;
