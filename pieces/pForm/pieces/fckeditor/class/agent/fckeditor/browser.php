@@ -190,13 +190,6 @@ class extends agent
 					{
 						move_uploaded_file($file['tmp_name'], $filepath);
 
-						if (is_file($filepath))
-						{
-							$i = umask(0);
-							chmod($filepath, 0777);
-							umask($i);
-						}
-
 						p::touch($this->watch);
 
 						break;
