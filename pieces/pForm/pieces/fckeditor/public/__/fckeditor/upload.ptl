@@ -11,5 +11,35 @@
  *
  ***************************************************************************}
 <script type="text/javascript">
+
+(function()
+{
+	var d = document.domain;
+
+	while (1)
+	{
+		try
+		{
+			var test = window.top.opener.document.domain;
+			break;
+		}
+		catch (e) {}
+
+		d = d.replace(/.*?(?:\.|$)/, '');
+
+		if (!d.length) break;
+
+		try
+		{
+			document.domain = d;
+		}
+		catch (e)
+		{
+			break;
+		}
+	}
+})() ;
+
 window.parent.OnUploadCompleted({$number|js},{$url|js},{$filename|js},{$text|js})
+
 </script>
