@@ -285,7 +285,7 @@ class patchwork_preprocessor__0
 		foreach (self::$constant as &$v) $v = patchwork_preprocessor::export($v);
 	}
 
-	static function run($source, $destination, $level, $class)
+	static function execute($source, $destination, $level, $class)
 	{
 		$recursive = self::$recursive;
 
