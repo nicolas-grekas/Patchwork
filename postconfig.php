@@ -161,7 +161,7 @@ function patchworkProcessedPath($file)
 
 	if (file_exists($cache) && (TURBO || filemtime($cache) > filemtime($source))) return $cache;
 
-	patchwork_preprocessor::run($source, $cache, $level, false);
+	patchwork_preprocessor::execute($source, $cache, $level, false);
 
 	return $cache;
 }
@@ -172,7 +172,7 @@ function patchworkProcessedPath($file)
 
 
 
-function E($msg = '__getDeltaMicrotime') {return patchwork::log($msg, false, false);}
+function E($msg = '__Δms') {return patchwork::log($msg, false, false);}
 function strlencmp($a, $b) {return strlen($b) - strlen($a);}
 
 

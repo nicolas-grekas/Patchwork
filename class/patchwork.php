@@ -164,7 +164,7 @@ class
 	$LastModified = 0,
 
 	$host,
-	$lang = '',
+	$lang,
 	$base,
 	$uri,
 
@@ -1058,7 +1058,7 @@ class
 		static $prev_time = patchwork;
 		self::$total_time += $a = 1000*(microtime(true) - $prev_time);
 
-		if ('__getDeltaMicrotime' !== $message)
+		if ('__Δms' !== $message)
 		{
 			$mem = function_exists('memory_get_peak_usage') ? round(memory_get_peak_usage(true)/104857.6)/10 . 'M' : '';
 
@@ -1155,7 +1155,7 @@ class
 				if (
 					   resolvePath("public/__{$a}.ptl")
 					|| ($l_ng != $lang && resolvePath("public{$l_ng}{$a}.ptl"))
-					|| resolvePath("public{$lang}{$a}.ptl")
+					|| ($lang && resolvePath("public{$lang}{$a}.ptl"))
 				)
 				{
 					$existingAgent = $a;
@@ -1168,7 +1168,7 @@ class
 					   resolvePath("class/agent{$a}/")
 					|| resolvePath("public/__{$a}/")
 					|| ($l_ng != $lang && resolvePath("public{$l_ng}{$a}/"))
-					|| resolvePath("public{$lang}{$a}/")
+					|| ($lang && resolvePath("public{$lang}{$a}/"))
 				) continue;
 
 				break;
@@ -1674,7 +1674,7 @@ class
 			$last_out_filename,      $last_out_path_idx;
 
 		$lang = self::__LANG__();
-		$l_ng =  substr($lang, 0, 2);
+		$l_ng = substr($lang, 0, 2);
 
 		if ($lang)
 		{
@@ -1699,21 +1699,24 @@ class
 
 		$level = PATCHWORK_PATH_LEVEL - $path_idx;
 
-		$lang = resolvePath("public{$lang}{$filename}", $level);
-		$lang_level = $patchwork_lastpath_level;
-
-		if ($l_ng != $lang)
+		if ($lang)
 		{
-			$l_ng = resolvePath("public{$l_ng}{$filename}", $level);
-			if ($patchwork_lastpath_level > $lang_level)
+			$lang = resolvePath("public{$lang}{$filename}", $level);
+			$lang_level = $patchwork_lastpath_level;
+
+			if ($l_ng != $last_lang)
 			{
-				$lang = $l_ng;
-				$lang_level = $patchwork_lastpath_level;
+				$l_ng = resolvePath("public{$l_ng}{$filename}", $level);
+				if ($patchwork_lastpath_level > $lang_level)
+				{
+					$lang = $l_ng;
+					$lang_level = $patchwork_lastpath_level;
+				}
 			}
 		}
 
 		$l_ng = resolvePath("public/__{$filename}", $level);
-		if ($patchwork_lastpath_level > $lang_level)
+		if (!$lang || $patchwork_lastpath_level > $lang_level)
 		{
 			$lang = $l_ng;
 			$lang_level = $patchwork_lastpath_level;
