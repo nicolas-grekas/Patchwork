@@ -325,8 +325,9 @@ $b = '(' . implode('|', $b) . ')';
 				{
 /*#>*/				if (isset($_SERVER['PERDIR_PATH_INFO']))
 						'/' === substr($a, -1) && '/' . basename($_SERVER['SCRIPT_NAME']) === $_SERVER['PATH_INFO'] && $_SERVER['PATH_INFO'] = '';
-					$_SERVER['PATCHWORK_REQUEST'] = preg_replace("'/[./]*(?:/|$)'", '/', trim($_SERVER['PATH_INFO'], '/.'));
+					$_SERVER['PATCHWORK_REQUEST'] = preg_replace("'/[./]*(?:/|$)'", '/', $_SERVER['PATH_INFO']);
 					$_SERVER['PATCHWORK_BASE'] .= rtrim('' !== $_SERVER['PATCHWORK_REQUEST'] ? substr($a, 0, -strlen($_SERVER['PATCHWORK_REQUEST'])) : $a, '/');
+					$_SERVER['PATCHWORK_REQUEST'] = trim($_SERVER['PATCHWORK_REQUEST'], '/.');
 				}
 /*#>*/			if (!isset($_SERVER['PERDIR_PATH_INFO']))
 /*#>*/			{
