@@ -235,7 +235,7 @@ class
 			header('Location: ' . preg_replace('/[\?&]\$flipside[^&]*/', '', $_SERVER['REQUEST_URI']));
 			exit;
 		}
-		else if (isset($_GET['$serverside']) && $_GET['$serverside'] && isset($_COOKIE['JS'])) $_COOKIE['JS'] = '0';
+		else if (!empty($_GET['$serverside']) && isset($_COOKIE['JS'])) $_COOKIE['JS'] = '0';
 
 		self::$appId = abs($GLOBALS['patchwork_appId'] % 10000);
 
@@ -1393,7 +1393,7 @@ class
 				if ($a !== $buffer)
 				{
 					self::$private = true;
-					if (!(isset($_COOKIE['JS']) && $_COOKIE['JS'])) self::$maxage = 0;
+					if (empty($_COOKIE['JS'])) self::$maxage = 0;
 					$buffer = $a;
 				}
 

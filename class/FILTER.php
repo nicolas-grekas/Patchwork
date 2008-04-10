@@ -167,7 +167,7 @@ class
 		$r = preg_replace('/^00/u', '+', $r);
 
 		if (!preg_match('/^\+?[0-9]{4,}$/u', $r)) return false;
-		if (isset($args[0]) && $args[0] && strpos($r, '+')!==0) return false;
+		if (!empty($args[0]) && strpos($r, '+')!==0) return false;
 
 		return $r;
 	}
@@ -228,14 +228,14 @@ class
 	{
 		$result = $value;
 
-		if (isset($args[1]) && $args[1])
+		if (!empty($args[1]))
 		{
 			$result = array($args[1]);
 			$result = self::get_char($value, $result);
 			if (false === $result) return false;
 		}
 
-		if (isset($args[0]) && $args[0])
+		if (!empty($args[0]))
 		{
 			$s = @filesize($result);
 			if (false === $s || ($args[0] && $s > $args[0])) return false;
@@ -277,13 +277,13 @@ class
 	# size (octet), regexp
 	protected static function getFile_file(&$value, &$args)
 	{
-		if (isset($args[0]) && $args[0])
+		if (!empty($args[0]))
 		{
 			$a = array($args[0]);
 			if ( false === self::get_file($value['tmp_name'], $a) ) return false;
 		}
 
-		if (isset($args[1]) && $args[1])
+		if (!empty($args[1]))
 		{
 			$value['name'] = basename(strtr($value['name'], "\\\0", '/_'));
 

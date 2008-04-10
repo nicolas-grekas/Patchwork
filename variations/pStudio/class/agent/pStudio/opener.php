@@ -66,7 +66,7 @@ class extends agent_pStudio_explorer
 	{
 		$o = self::composeReader($o);
 
-		if (isset($o->is_binary) && $o->is_binary)
+		if (!empty($o->is_binary))
 		{
 			unset($o->is_binary, $o->is_auth_edit);
 			$o = $this->composeReader($o);

@@ -79,7 +79,7 @@ class extends patchwork
 					continue;
 				}
 
-				if (isset($msg[$i]['args']) && $msg[$i]['args']) $a[' args '] = array_map('filterErrorArgs', $msg[$i]['args']);
+				if (!empty($msg[$i]['args'])) $a[' args '] = array_map('filterErrorArgs', $msg[$i]['args']);
 
 				$context[$i++] = $a;
 			}

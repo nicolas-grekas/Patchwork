@@ -20,7 +20,7 @@ class extends pForm_text
 	{
 		parent::init($param);
 		if (isset($param['src'])) $this->src = $param['src'];
-		if (isset($param['lock']) && $param['lock']) $this->lock = 1;
+		if (!empty($param['lock'])) $this->lock = 1;
 	}
 
 	protected function get()

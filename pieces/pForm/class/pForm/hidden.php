@@ -220,7 +220,7 @@ class extends loop_agentWrapper
 	{
 		$this->valid = isset($param['valid']) ? $param['valid'] : 'char';
 
-		if (isset($param['multiple']) && $param['multiple'])
+		if (!empty($param['multiple']))
 		{
 			$this->isdata = false;
 			$this->multiple = true;
