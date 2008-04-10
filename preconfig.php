@@ -21,8 +21,6 @@
 
 define('patchwork', microtime(true));
 error_reporting(E_ALL | E_STRICT);
-isset($_SERVER['HTTP_HOST']) && strspn($_SERVER['HTTP_HOST'], '\'"<>') && die('Invalid HTTP/1.1 Host header');
-isset($_SERVER['REDIRECT_PATH_INFO']) && $_SERVER['PATH_INFO'] = $_SERVER['REDIRECT_PATH_INFO'];
 
 define('PATCHWORK_PROJECT_PATH', /*<*/__patchwork_bootstrapper::$cwd   /*>*/);
 define('PATCHWORK_ZCACHE',       /*<*/__patchwork_bootstrapper::$zcache/*>*/);
@@ -40,6 +38,13 @@ $patchwork_path = /*<*/$patchwork_path/*>*/;
 $patchwork_abstract = array();
 
 
+// $_SERVER variables manipulations
+
+isset($_SERVER['HTTP_HOST']) && strspn($_SERVER['HTTP_HOST'], '\'"<>') && die('Invalid HTTP/1.1 Host header');
+
+/*#>*/if (isset($_SERVER['ORIG_SCRIPT_NAME']))
+		$_SERVER['SCRIPT_NAME'] = $_SERVER['ORIG_SCRIPT_NAME'];
+
 /*#>*/if (!isset($_SERVER['REQUEST_TIME']))
 		$_SERVER['REQUEST_TIME'] = time();
 
@@ -48,22 +53,6 @@ $patchwork_abstract = array();
 
 /*#>*/if ('\\' === DIRECTORY_SEPARATOR)
 /*#>*/{
-/*#>*/	if (version_compare(PHP_VERSION, '5.2.6', '<')) // Fix for http://bugs.php.net/bug.php?id=44001
-/*#>*/	{
-			if (isset($_SERVER['PATH_INFO'])
-				&& '.' === substr($a = isset($_SERVER['REDIRECT_URL']) ? $_SERVER['REDIRECT_URL'] : $_SERVER['SCRIPT_NAME'], -1)
-				&& '.' !== substr($_SERVER['PATH_INFO'], -1)
-				&& (false !== strpos($_SERVER['REQUEST_URI'], '?') ? false !== strpos($_SERVER['REQUEST_URI'], '.?') : '.' === substr($_SERVER['REQUEST_URI'], -1))
-			)
-			{
-				$b = strlen($a) - 1;
-				$i = 1;
-				while ('.' === substr($a, $b - $i, 1)) ++$i;
-
-				$_SERVER['PATH_INFO'] .= substr($a, -$b);
-			}
-/*#>*/	}
-
 		// IIS compatibility
 
 /*#>*/	if (!isset($_SERVER['REQUEST_URI']))

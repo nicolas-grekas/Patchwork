@@ -1,27 +1,30 @@
 Allow from all
 
 AcceptPathInfo On
+
 RewriteEngine On
 
 # Avoid TRACE and TRACK method to prevent "Cross-Site-Tracing"
 RewriteCond %{REQUEST_METHOD} ^TRAC
 RewriteRule .? - [NS,F]
 
-# Rewrite rules for friendly URLs
-RewriteCond %{ENV:REDIRECT_PATH_INFO} .
-RewriteRule .?                  -   [L]
-
-RewriteRule ^index\.php         -   [R=404,L]
-
+# Rewrite rule for friendly URLs
+RewriteCond $0 ^index\.php          [OR]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-l
-RewriteRule .* index.php            [E=PATH_INFO:/$0]
+RewriteRule .* index.php            [E=PERDIR_PATH_INFO:/$0]
 
 # Here is an other way to get friendly URLs
 #<Files bootstrap_file_here>
 #ForceType application/x-httpd-php
 #</Files>
+
+# And a third way to get friendly URLs
+# http://httpd.apache.org/docs/2.0/fr/content-negotiation.html#multiviews
+#Options +Multiviews
+#MultiviewsMatch Handlers Filters
+
 
 # Uncomment to enable PHP5 on free.fr
 #php 1

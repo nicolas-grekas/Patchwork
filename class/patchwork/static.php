@@ -244,7 +244,12 @@ class extends patchwork
 	{
 		static $rest = '', $base;
 
-		isset($base) || $base = p::__BASE__() . dirname($_SERVER['PATCHWORK_REQUEST']) . '/';
+		if (!isset($base))
+		{
+			$base = dirname($_SERVER['PATCHWORK_REQUEST'] . ' ');
+			if (1 === strlen($base) && strspn($base, '/\\.')) $base = '';
+			$base = p::__BASE__() . $base . '/';
+		}
 
 		$buffer = preg_split(self::$filterRx, $rest . $buffer, -1, PREG_SPLIT_DELIM_CAPTURE);
 

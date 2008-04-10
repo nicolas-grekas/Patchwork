@@ -105,6 +105,8 @@ class extends patchwork
 								|| '\\' === $uri
 							)    $uri  = '/';
 							else $uri .= '/';
+
+							$uri = preg_replace("'/[./]*(?:/|$)'", '/', $uri);
 						}
 
 						$a = $uri . $a;
