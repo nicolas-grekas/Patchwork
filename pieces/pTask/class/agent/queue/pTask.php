@@ -46,7 +46,7 @@ class extends agent
 		$sqlite = new $sqlite;
 		$this->sqlite = $sqlite->getSqlite();
 
-		if (isset($this->get->__1__) && $this->get->__1__)
+		if (!empty($this->get->__1__))
 		{
 			if (isset($this->get->__2__) && $this->get->__2__ == $this->getToken())
 			{

@@ -25,7 +25,7 @@ class extends agent
 
 		$this->setPath($this->get->__0__, $this->get->low, $this->get->high) || p::redirect('pStudio');
 
-		if (isset($this->get->{'$serverside'}) && $this->get->{'$serverside'} && is_file($this->realpath))
+		if (!empty($this->get->{'$serverside'}) && is_file($this->realpath))
 		{
 			header('Content-Type: ' . $this->rawContentType);
 			p::readfile($this->realpath, false);

@@ -59,7 +59,7 @@ class extends pMail_mime
 			$html
 		);
 
-		if (isset($this->options['embedImages']) && $this->options['embedImages'])
+		if (!empty($this->options['embedImages']))
 		{
 			// Embed images
 			$html = preg_replace_callback(

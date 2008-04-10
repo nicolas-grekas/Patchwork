@@ -59,7 +59,7 @@ class extends pTask
 		$sqlite = $queue->getSqlite();
 
 		$sent = - (int)(bool) $queue->test_mode;
-		$archive = (int) ((isset($data['options']['archive']) && $data['options']['archive']) || $queue->test_mode);
+		$archive = (int) (!empty($data['options']['archive']) || $queue->test_mode);
 
 		$time = isset($data['options']['time']) ? $data['options']['time'] : 0;
 		if ($time < $_SERVER['REQUEST_TIME'] - 366*86400) $time += $_SERVER['REQUEST_TIME'];
