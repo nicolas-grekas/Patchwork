@@ -1087,8 +1087,6 @@ class
 	{
 		static $resolvedCache = array();
 
-		if (isset($resolvedCache['/' . $agent])) return 'agent_' . strtr($agent, '/', '_');
-
 		if (preg_match("''u", $agent))
 		{
 			$ext = strrchr($agent, '.');
@@ -1099,8 +1097,7 @@ class
 			}
 			else $ext = '';
 
-			$agent = '/' . $agent . '/';
-			while (false !== strpos($agent, '//')) $agent = str_replace('//', '/', $agent);
+			$agent = preg_replace("'/[./]*(?:/|$)'", '/', '/' . trim($agent, '/.') . '/');
 
 			preg_match('"^/(?:[a-zA-Z0-9\x80-\xff]+(?:([-_ ])[a-zA-Z0-9\x80-\xff]+)*/)*"', $agent, $a);
 		}
@@ -1116,6 +1113,8 @@ class
 
 		if (isset($a[1])) $potentialAgent = (string) preg_replace_callback("'[-_ ](.)'u", array(__CLASS__, 'mb_strtoupper_callback'), $agent);
 		else $potentialAgent = $agent;
+
+		if (isset($resolvedCache['/' . $potentialAgent])) return 'agent_' . strtr($potentialAgent, '/', '_');
 
 		$lang = self::$lang;
 		$l_ng = substr($lang, 0, 2);
