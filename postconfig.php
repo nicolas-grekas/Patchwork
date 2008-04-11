@@ -84,6 +84,14 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 
 // __autoload(): the magic part
 
+/*#>*/copy(__patchwork_bootstrapper::$pwd . 'autoloader.php', './.patchwork.autoloader.php');
+/*#>*/
+/*#>*/if ('\\' === DIRECTORY_SEPARATOR)
+/*#>*/{
+/*#>*/	$a = new COM('Scripting.FileSystemObject');
+/*#>*/	$a->GetFile(__patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')->Attributes |= 2; // Set hidden attribute
+/*#>*/}
+
 function __autoload($searched_class)
 {
 	$a = lowerascii($searched_class);
@@ -115,7 +123,7 @@ function __autoload($searched_class)
 		}
 	}
 
-	class_exists('__patchwork_autoloader', false) || require /*<*/__patchwork_bootstrapper::$pwd . 'autoloader.php'/*>*/;
+	class_exists('__patchwork_autoloader', false) || require TURBO ? './.patchwork.autoloader.php' : /*<*/__patchwork_bootstrapper::$pwd . 'autoloader.php'/*>*/;
 
 	__patchwork_autoloader::autoload($searched_class);
 }
