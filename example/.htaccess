@@ -9,11 +9,12 @@ RewriteCond %{REQUEST_METHOD} ^TRAC
 RewriteRule .? - [NS,F]
 
 # Rewrite rule for friendly URLs
+RewriteRule .* - [E=PERDIR_PATH_INFO:/$0]
 RewriteCond $0 ^index\.php          [OR]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-l
-RewriteRule .* index.php            [E=PERDIR_PATH_INFO:/$0]
+RewriteRule .* index.php
 
 # Here is an other way to get friendly URLs
 #<Files bootstrap_file_here>
@@ -38,7 +39,7 @@ SetEnv ZEND_OPTIMIZER 1
 SetEnv MAGIC_QUOTES 0
 
 # Edit this to your default timezone
-php_value date.timezone "Universal"
+#php_value date.timezone "Universal"
 
 php_flag magic_quotes_gpc Off
 php_flag register_globals Off
