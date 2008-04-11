@@ -220,7 +220,7 @@ foreach ($a as $k => &$v)
 	else $b[] = preg_quote($v, '#');
 }
 
-unset($v);
+unset($a, $v);
 
 usort($b, 'strlencmp');
 $b = '(' . implode('|', $b) . ')';
@@ -329,7 +329,11 @@ $b = '(' . implode('|', $b) . ')';
 				}
 /*#>*/			if (!isset($_SERVER['PERDIR_PATH_INFO']))
 /*#>*/			{
-					else if ('/' === substr($a, -1)) $_SERVER['PATCHWORK_BASE'] .= $a . basename($_SERVER['SCRIPT_NAME']);
+					else
+					{
+						$_SERVER['PATCHWORK_BASE'] .= $a;
+						'/' === substr($a, -1) && $_SERVER['PATCHWORK_BASE'] .= basename($_SERVER['SCRIPT_NAME']);
+					}
 /*#>*/			}
 
 				$_SERVER['PATCHWORK_BASE'] .= '/' . (PATCHWORK_I18N ? '__/' : '');
@@ -392,7 +396,7 @@ $b = '(' . implode('|', $b) . ')';
 										$v = str_replace("''", "'", $v);
 /*#>*/								else
 										$v = stripslashes($v);
-/*#>*/							}
+								}
 							}
 
 							reset($a[$i]);
