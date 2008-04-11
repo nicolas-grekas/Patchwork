@@ -220,7 +220,7 @@ foreach ($a as $k => &$v)
 	else $b[] = preg_quote($v, '#');
 }
 
-unset($a, $k, $v);
+unset($v);
 
 usort($b, 'strlencmp');
 $b = '(' . implode('|', $b) . ')';
@@ -308,8 +308,6 @@ $b = '(' . implode('|', $b) . ')';
 /*#>*/			fclose($h);
 /*#>*/
 /*#>*/			strpos($a, ' 200') && $_SERVER['PATH_INFO'] = '';
-/*#>*/
-/*#>*/			unset($a, $h);
 /*#>*/		}
 
 			$a = strpos($_SERVER['REQUEST_URI'], '?');
@@ -339,6 +337,7 @@ $b = '(' . implode('|', $b) . ')';
 /*#>*/		else
 /*#>*/		{
 				$_SERVER['PATCHWORK_BASE'] .= $a . '?' . (PATCHWORK_I18N ? '__/' : '');
+				$_SERVER['PATCHWORK_REQUEST'] = $_SERVER['QUERY_STRING'];
 
 				$a = strpos($_SERVER['QUERY_STRING'], '?');
 				false !== $a || $a = strpos($_SERVER['QUERY_STRING'], '&');
@@ -347,17 +346,71 @@ $b = '(' . implode('|', $b) . ')';
 				{
 					$_SERVER['PATCHWORK_REQUEST'] = substr($_SERVER['QUERY_STRING'], 0, $a);
 					$_SERVER['QUERY_STRING'] = substr($_SERVER['QUERY_STRING'], $a+1);
+
+					$a = explode('/', urldecode($_SERVER['PATCHWORK_REQUEST']));
+					$k = array();
+					$v = 0;
+
+					foreach ($a as $a)
+					{
+						if ('.' === $a) continue;
+						if ('..' === $a) $k ? array_pop($k) : ++$v;
+						else $k[]= $a;
+					}
+
+					if ($v)
+					{
+						$a = 4 + isset($_SERVER['HTTPS']) + 3 + strlen($_SERVER['HTTP_HOST']) + 1;
+						$a = substr($_SERVER['PATCHWORK_BASE'], $a, PATCHWORK_I18N ? -4 : -1) . '/';
+						$a = preg_replace("'[^/]*/{1,{$v}}$'", '', $a) . implode('/', $k);
+						$a = strtr($a, array('%' => '%25', '?' => '%3F', "\r" => '%0D', "\n" => '%0A'));
+						$a = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . '/' . $a;
+						'' !== $_SERVER['QUERY_STRING'] && $a .= '?' . $_SERVER['QUERY_STRING'];
+
+						header('HTTP/1.1 301 Moved Permanently');
+						header('Location: ' . $a);
+
+						exit;
+					}
+
+					$_SERVER['PATCHWORK_REQUEST'] = preg_replace("'/[./]*(?:/|$)'", '/', trim(implode('/', $k), '/.'));
+
 					parse_str($_SERVER['QUERY_STRING'], $_GET);
+
+/*#>*/				if (get_magic_quotes_gpc())
+/*#>*/				{
+						$a = array(&$_GET);
+						$k = 1;
+						for ($i = 0; $i < $k; ++$i)
+						{
+							foreach ($a[$i] as &$v)
+							{
+								if (is_array($v)) $a[$k++] =& $v;
+								else
+								{
+/*#>*/								if (ini_get('magic_quotes_sybase'))
+										$v = str_replace("''", "'", $v);
+/*#>*/								else
+										$v = stripslashes($v);
+/*#>*/							}
+							}
+
+							reset($a[$i]);
+							unset($a[$i]);
+						}
+
+						unset($a, $v);
+/*#>*/				}
 				}
 				else if ('' !== $_SERVER['QUERY_STRING'])
 				{
 					$_SERVER['QUERY_STRING'] = '';
 
+					reset($_GET);
 					$a = key($_GET);
 					unset($_GET[$a], $_GET[$a]); // Double unset against a PHP security hole
 				}
 
-				$_SERVER['PATCHWORK_REQUEST'] = preg_replace("'/[./]*(?:/|$)'", '/', trim(urldecode($_SERVER['PATCHWORK_REQUEST']), '/.'));;
 				$_SERVER['PATCHWORK_FILENAME'] = basename($_SERVER['PATCHWORK_REQUEST']);
 /*#>*/		}
 /*#>*/	}

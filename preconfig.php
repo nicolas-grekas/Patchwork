@@ -476,7 +476,7 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 	{
 		$_SERVER['REQUEST_URI'] = $a;
 		$b = strpos($a, '?');
-		$_SERVER['QUERY_STRING'] = false !== $b++ && $b < strlen($a) ? substr($a, $b) : '';
+		$_SERVER['QUERY_STRING'] = false !== $b && ++$b < strlen($a) ? substr($a, $b) : '';
 		parse_str($_SERVER['QUERY_STRING'], $_GET);
 	}
 }
@@ -493,12 +493,12 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 		$a = array(&$_GET, &$_POST, &$_COOKIE);
 		foreach ($_FILES as &$v) $a[] = array(&$v['name'], &$v['type']);
 
-		$len = count($a);
-		for ($i = 0; $i < $len; ++$i)
+		$k = count($a);
+		for ($i = 0; $i < $k; ++$i)
 		{
 			foreach ($a[$i] as &$v)
 			{
-				if (is_array($v)) $a[$len++] =& $v;
+				if (is_array($v)) $a[$k++] =& $v;
 				else
 				{
 /*#>*/				if (get_magic_quotes_gpc())
