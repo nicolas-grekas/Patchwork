@@ -121,15 +121,25 @@ class __patchwork_autoloader
 
 		$cache = false;
 
-		if (!$src) {}
-		else if ('patchwork_preprocessor' === $lc_top) patchwork_include($src);
-		else if (!$parent_exists)
+		if ($src && !$parent_exists)
 		{
 			$cache = DEBUG . (0>$level ? -$level . '-' : $level);
 			$cache = PATCHWORK_PROJECT_PATH . ".class_{$top}.php.{$cache}.{$T}.zcache.php";
 
 			if (!(file_exists($cache) && (TURBO || filemtime($cache) > filemtime($src))))
-				patchwork_preprocessor::execute($src, $cache, $level, $top);
+			{
+				if ('patchwork_preprocessor' === $lc_top)
+				{
+					copy($src, $cache);
+
+					if (IS_WINDOWS)
+					{
+						$code = new COM('Scripting.FileSystemObject');
+						$code->GetFile($cache)->Attributes |= 2; // Set hidden attribute
+					}
+				}
+				else patchwork_preprocessor::execute($src, $cache, $level, $top);
+			}
 
 			$current_pool = array();
 			$parent_pool =& self::$pool;
