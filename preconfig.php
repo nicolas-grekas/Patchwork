@@ -21,6 +21,7 @@
 
 define('patchwork', microtime(true));
 error_reporting(E_ALL | E_STRICT);
+setlocale(LC_ALL, 'C');
 
 define('PATCHWORK_PROJECT_PATH', /*<*/__patchwork_bootstrapper::$cwd   /*>*/);
 define('PATCHWORK_ZCACHE',       /*<*/__patchwork_bootstrapper::$zcache/*>*/);
@@ -91,7 +92,6 @@ if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) // Is it problematic to trust thi
 
 function patchwork_include($file)     {global $CONFIG; return include $file;}
 function patchwork_is_a($obj, $class) {return $obj instanceof $class;}
-function lowerascii($s) {return strtr($s, 'CLASPEMITDBFRUGNJVHOWKXQYZ', 'claspemitdbfrugnjvhowkxqyz');}
 
 /*#>*/if (function_exists('getcwd') && @getcwd())
 function patchwork_chdir($realdir) {rtrim($realdir, /*<*/DIRECTORY_SEPARATOR/*>*/) === rtrim(getcwd(), /*<*/DIRECTORY_SEPARATOR/*>*/) || chdir($realdir);}
@@ -110,7 +110,7 @@ function registerAutoloadPrefix($class_prefix, $class_to_file_callback)
 	if ($len = strlen($class_prefix))
 	{
 		$registry =& $GLOBALS['patchwork_autoload_prefix'];
-		$class_prefix = lowerascii($class_prefix);
+		$class_prefix = strtolower($class_prefix);
 		$i = 0;
 
 		do

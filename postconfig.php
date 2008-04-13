@@ -57,7 +57,7 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 						{
 							if ($file[$i] != $realfile[$j])
 							{
-								if (lowerascii($file[$i]) === lowerascii($realfile[$j]) && !(0 === $i && ':' === substr($file, 1, 1))) trigger_error("Character case mismatch between requested file and its real path ({$file} vs {$realfile})");
+								if (strtolower($file[$i]) === strtolower($realfile[$j]) && !(0 === $i && ':' === substr($file, 1, 1))) trigger_error("Character case mismatch between requested file and its real path ({$file} vs {$realfile})");
 								break;
 							}
 						}
@@ -94,7 +94,7 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 
 function __autoload($searched_class)
 {
-	$a = lowerascii($searched_class);
+	$a = strtolower($searched_class);
 
 	if (TURBO && $a =& $GLOBALS['patchwork_autoload_cache'][$a])
 	{

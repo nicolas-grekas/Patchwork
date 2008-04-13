@@ -25,7 +25,7 @@ class __patchwork_autoloader
 		if (strspn($req, ";'")) return;
 
 		$T = PATCHWORK_PATH_TOKEN;
-		$lc_req = lowerascii($req);
+		$lc_req = strtolower($req);
 
 		$amark = $GLOBALS['a'.$T];
 		$GLOBALS['a'.$T] = false;
@@ -161,7 +161,7 @@ class __patchwork_autoloader
 			if ($parent)
 			{
 				$code = "class {$req} extends {$parent}{}\$GLOBALS['c{$T}']['{$lc_req}']=1;";
-				$parent = lowerascii($parent);
+				$parent = strtolower($parent);
 
 				if (isset($GLOBALS['patchwork_abstract'][$parent]))
 				{

@@ -107,7 +107,7 @@ abstract class
 
 	private function load($template, $path_idx = 0)
 	{
-		$this->template = IS_WINDOWS ? lowerascii($template) : $template;
+		$this->template = IS_WINDOWS ? strtolower($template) : $template;
 
 		$template = p::resolvePublicPath($template, $path_idx);
 
@@ -189,7 +189,7 @@ abstract class
 	{
 #>		p::watch('debugSync');
 
-		$template = (IS_WINDOWS ? lowerascii($m[1]) : $m[1]) . '.ptl';
+		$template = (IS_WINDOWS ? strtolower($m[1]) : $m[1]) . '.ptl';
 
 		$a = str_replace('\\', '/', $template) == preg_replace("'[\\/]+'", '/', $this->template);
 		$a = isset($m[2]) ? substr($m[2], 1) : ($a ? -1 : (PATCHWORK_PATH_LEVEL - $this->path_idx));

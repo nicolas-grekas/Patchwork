@@ -37,7 +37,7 @@ class extends ptlCompiler
 
 	protected function makeModifier($name)
 	{
-		return '((isset($c' . PATCHWORK_PATH_TOKEN . "['" . lowerascii($name)
+		return '((isset($c' . PATCHWORK_PATH_TOKEN . "['" . strtolower($name)
 			. "'])||\$a" . PATCHWORK_PATH_TOKEN . "=__FILE__.'*" . mt_rand() . "')?pipe_{$name}::php";
 	}
 
