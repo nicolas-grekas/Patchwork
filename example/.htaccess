@@ -8,8 +8,10 @@ RewriteEngine On
 RewriteCond %{REQUEST_METHOD} ^TRAC
 RewriteRule .? - [NS,F]
 
-# Rewrite rule for friendly URLs
-RewriteRule .* - [E=PERDIR_PATH_INFO:/$0]
+# Rewrite rules for friendly URLs
+RewriteCond %{ENV:PATCHWORK_REQUEST} ^$
+RewriteRule .* - [E=PATCHWORK_REQUEST:/$0]
+
 RewriteCond $0 ^index\.php          [OR]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

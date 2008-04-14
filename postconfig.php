@@ -35,7 +35,8 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 
 
 // file_exists replacement on Windows
-// Fix a bug with long file names.
+// Private use for the preprocessor
+// Fix a bug with long file names
 // In debug mode, checks if character case is strict.
 
 /*#>*/if ('\\' === DIRECTORY_SEPARATOR)
@@ -84,7 +85,8 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 
 // __autoload(): the magic part
 
-/*#>*/copy(__patchwork_bootstrapper::$pwd . 'autoloader.php', './.patchwork.autoloader.php');
+/*#>*/@copy(__patchwork_bootstrapper::$pwd . 'autoloader.php', './.patchwork.autoloader.php')
+/*#>*/	|| @unlink('./.patchwork.autoloader.php') + copy(__patchwork_bootstrapper::$pwd . 'autoloader.php', './.patchwork.autoloader.php');
 /*#>*/
 /*#>*/if ('\\' === DIRECTORY_SEPARATOR)
 /*#>*/{
@@ -240,200 +242,203 @@ $b = '(' . implode('|', $b) . ')';
 *   $_SERVER['PATCHWORK_BASE']: application's base part of the url. Lang independant (ex. /myapp/__/)
 *   $_SERVER['PATCHWORK_REQUEST']: request part of the url (ex. myagent/mysubagent/...)
 *   $_SERVER['PATCHWORK_LANG']: lang (ex. en) if application is internationalized
-*
-* You can also define them with mod_rewrite, to get cleaner URLs for example.
 */
 
-/*#>*/if (isset($_SERVER['PATCHWORK_BASE']) || isset($_SERVER['REDIRECT_PATCHWORK_BASE']))
+$a = strpos($_SERVER['REQUEST_URI'], '?');
+$a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
+$a = rawurldecode($a);
+
+/*#>*/$a = true;
+/*#>*/
+/*#>*/switch (true)
 /*#>*/{
-		if (isset($_SERVER['REDIRECT_PATCHWORK_BASE']))
+/*#>*/case isset($_SERVER['REDIRECT_PATCHWORK_REQUEST']):
+/*#>*/case isset($_SERVER['PATCHWORK_REQUEST'])         :
+/*#>*/case isset($_SERVER['ORIG_PATH_INFO'])            : 
+/*#>*/case isset($_SERVER['PATH_INFO'])                 : break;
+/*#>*/
+/*#>*/default:
+/*#>*/	// Check if the webserver supports PATH_INFO
+/*#>*/
+/*#>*/	$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
+/*#>*/	$h = fsockopen("{$h}://{$_SERVER['SERVER_ADDR']}", $_SERVER['SERVER_PORT'], $errno, $errstr, 30);
+/*#>*/	if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
+/*#>*/
+/*#>*/	$a = strpos($_SERVER['REQUEST_URI'], '?');
+/*#>*/	$a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
+/*#>*/	'/' === substr($a, -1) && $a .= basename(isset($_SERVER['ORIG_SCRIPT_NAME']) ? $_SERVER['ORIG_SCRIPT_NAME'] : $_SERVER['SCRIPT_NAME']);
+/*#>*/
+/*#>*/	$a  = "GET {$a}/_?exit$ HTTP/1.0\r\n";
+/*#>*/	$a .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
+/*#>*/	$a .= "Connection: close\r\n\r\n";
+/*#>*/
+/*#>*/	fwrite($h, $a);
+/*#>*/	$a = fgets($h, 14);
+/*#>*/	fclose($h);
+/*#>*/
+/*#>*/	$a = strpos($a, ' 200');
+/*#>*/}
+/*#>*/
+/*#>*/if ($a)
+/*#>*/{
+		switch (true)
 		{
-			$_SERVER['PATCHWORK_BASE'] = $_SERVER['REDIRECT_PATCHWORK_BASE'];
-			isset($_SERVER['REDIRECT_PATCHWORK_LANG'])    && $_SERVER['PATCHWORK_LANG']    = $_SERVER['REDIRECT_PATCHWORK_LANG'];
-			isset($_SERVER['REDIRECT_PATCHWORK_REQUEST']) && $_SERVER['PATCHWORK_REQUEST'] = $_SERVER['REDIRECT_PATCHWORK_REQUEST'];
+		case isset($_SERVER['REDIRECT_PATCHWORK_REQUEST']): $r = $_SERVER['REDIRECT_PATCHWORK_REQUEST']; break;
+		case isset($_SERVER['PATCHWORK_REQUEST'])         : $r = $_SERVER['PATCHWORK_REQUEST']         ; break;
+		case isset($_SERVER['ORIG_PATH_INFO'])            : $r = $_SERVER['ORIG_PATH_INFO']            ; break;
+		case isset($_SERVER['PATH_INFO'])                 : $r = $_SERVER['PATH_INFO']                 ; break;
+
+		case '/' === substr($a, -1): $a .= basename(isset($_SERVER['ORIG_SCRIPT_NAME']) ? $_SERVER['ORIG_SCRIPT_NAME'] : $_SERVER['SCRIPT_NAME']);
+		default: $r = '';
 		}
 
-		if ('/'  === substr($_SERVER['PATCHWORK_BASE'], 0, 1))
-			$_SERVER['PATCHWORK_BASE'] = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PATCHWORK_BASE'];
-
-		$a = explode('__', $_SERVER['PATCHWORK_BASE'], 2);
-		if (2 === count($a))
-		{
-			if (!isset($_SERVER['PATCHWORK_LANG']))
-			{
-				$a = '#' . preg_quote($a[0], '#') . $b . '#';
-				preg_match($a, 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . rawurldecode($_SERVER['REQUEST_URI']), $a)
-					&& $_SERVER['PATCHWORK_LANG'] = array_search($a[1], $CONFIG['i18n.lang_list']);
-			}
-
-			isset($_SERVER['PATCHWORK_LANG'])    || $_SERVER['PATCHWORK_LANG']    = '';
-			isset($_SERVER['PATCHWORK_REQUEST']) || $_SERVER['PATCHWORK_REQUEST'] = '';
-		}
-
-		$_SERVER['PATCHWORK_REQUEST'] = preg_replace("'/[./]*(?:/|$)'", '/', trim($_SERVER['PATCHWORK_REQUEST'], '/.'));
+		$a .= '/';
 /*#>*/}
 /*#>*/else
 /*#>*/{
-		$_SERVER['PATCHWORK_BASE'] = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'];
-		$_SERVER['PATCHWORK_LANG'] = $_SERVER['PATCHWORK_REQUEST'] = '';
+		$r = $_SERVER['QUERY_STRING'];
+		$j = strpos($r, '?');
+		false !== $j || $j = strpos($r, '&');
 
-/*#>*/	if (isset($_SERVER['PERHOST_PATH_INFO']))
-/*#>*/	{
-			$_SERVER['PATCHWORK_BASE'] .= substr($_SERVER['SCRIPT_NAME'], 0, -strlen($_SERVER['PERHOST_PATH_INFO'])) . '/' . (PATCHWORK_I18N ? '__/' : '');
-			$_SERVER['PATCHWORK_REQUEST'] = preg_replace("'/[./]*(?:/|$)'", '/', trim($_SERVER['PERHOST_PATH_INFO'], '/.'));
-/*#>*/	}
-/*#>*/	else
-/*#>*/	{
-/*#>*/		isset($_SERVER['ORIG_PATH_INFO']) && $_SERVER['PATH_INFO'] = $_SERVER['ORIG_PATH_INFO'];
-/*#>*/
-/*#>*/		if (isset($_SERVER['PERDIR_PATH_INFO']))
-/*#>*/		{
-				if (isset($_SERVER['REDIRECT_PERDIR_PATH_INFO']))
-				{
-					$_SERVER['PATCHWORK_BASE'] .= substr($_SERVER['SCRIPT_NAME'], 0, -strlen($_SERVER['PERDIR_PATH_INFO']));
-					$_SERVER['PATCHWORK_REQUEST'] = trim($_SERVER['REDIRECT_PERDIR_PATH_INFO'], '/.');
-				}
-				else $_SERVER['PATH_INFO'] = $_SERVER['PERDIR_PATH_INFO'];
-/*#>*/		}
-/*#>*/		else if (!isset($_SERVER['PATH_INFO']))
-/*#>*/		{
-/*#>*/			// Check if the webserver supports PATH_INFO
-/*#>*/
-/*#>*/			$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
-/*#>*/			$h = fsockopen("{$h}://{$_SERVER['SERVER_ADDR']}", $_SERVER['SERVER_PORT'], $errno, $errstr, 30);
-/*#>*/			if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
-/*#>*/
-/*#>*/			$a = strpos($_SERVER['REQUEST_URI'], '?');
-/*#>*/			$a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
-/*#>*/			'/' === substr($a, -1) && $a .= basename($_SERVER['SCRIPT_NAME']);
-/*#>*/
-/*#>*/			$a  = "GET {$a}/_?exit$ HTTP/1.0\r\n";
-/*#>*/			$a .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
-/*#>*/			$a .= "Connection: close\r\n\r\n";
-/*#>*/
-/*#>*/			fwrite($h, $a);
-/*#>*/			$a = fgets($h, 14);
-/*#>*/			fclose($h);
-/*#>*/
-/*#>*/			strpos($a, ' 200') && $_SERVER['PATH_INFO'] = '';
-/*#>*/		}
-
-			$a = strpos($_SERVER['REQUEST_URI'], '?');
-			$a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
-			$a = rawurldecode($a);
-			$a = preg_replace("'/[./]*(?:/|$)'", '/', $a);
-
-/*#>*/		if (isset($_SERVER['PATH_INFO']) || isset($_SERVER['PERDIR_PATH_INFO']))
-/*#>*/		{
-				isset($_SERVER['ORIG_PATH_INFO']) && $_SERVER['PATH_INFO'] = $_SERVER['ORIG_PATH_INFO'];
-
-				if (isset($_SERVER['PATH_INFO']))
-				{
-/*#>*/				if (isset($_SERVER['PERDIR_PATH_INFO']))
-						'/' === substr($a, -1) && '/' . basename($_SERVER['SCRIPT_NAME']) === $_SERVER['PATH_INFO'] && $_SERVER['PATH_INFO'] = '';
-					$_SERVER['PATCHWORK_REQUEST'] = preg_replace("'/[./]*(?:/|$)'", '/', $_SERVER['PATH_INFO']);
-					$_SERVER['PATCHWORK_BASE'] .= rtrim('' !== $_SERVER['PATCHWORK_REQUEST'] ? substr($a, 0, -strlen($_SERVER['PATCHWORK_REQUEST'])) : $a, '/');
-					$_SERVER['PATCHWORK_REQUEST'] = trim($_SERVER['PATCHWORK_REQUEST'], '/.');
-				}
-/*#>*/			if (!isset($_SERVER['PERDIR_PATH_INFO']))
-/*#>*/			{
-					else
-					{
-						$_SERVER['PATCHWORK_BASE'] .= $a;
-						'/' === substr($a, -1) && $_SERVER['PATCHWORK_BASE'] .= basename($_SERVER['SCRIPT_NAME']);
-					}
-/*#>*/			}
-
-				$_SERVER['PATCHWORK_BASE'] .= '/' . (PATCHWORK_I18N ? '__/' : '');
-/*#>*/		}
-/*#>*/		else
-/*#>*/		{
-				$_SERVER['PATCHWORK_BASE'] .= $a . '?' . (PATCHWORK_I18N ? '__/' : '');
-				$_SERVER['PATCHWORK_REQUEST'] = $_SERVER['QUERY_STRING'];
-
-				$a = strpos($_SERVER['QUERY_STRING'], '?');
-				false !== $a || $a = strpos($_SERVER['QUERY_STRING'], '&');
-
-				if (false !== $a)
-				{
-					$_SERVER['PATCHWORK_REQUEST'] = substr($_SERVER['QUERY_STRING'], 0, $a);
-					$_SERVER['QUERY_STRING'] = substr($_SERVER['QUERY_STRING'], $a+1);
-
-					$a = explode('/', urldecode($_SERVER['PATCHWORK_REQUEST']));
-					$k = array();
-					$v = 0;
-
-					foreach ($a as $a)
-					{
-						if ('.' === $a) continue;
-						if ('..' === $a) $k ? array_pop($k) : ++$v;
-						else $k[]= $a;
-					}
-
-					if ($v)
-					{
-						$a = 4 + isset($_SERVER['HTTPS']) + 3 + strlen($_SERVER['HTTP_HOST']) + 1;
-						$a = substr($_SERVER['PATCHWORK_BASE'], $a, PATCHWORK_I18N ? -4 : -1) . '/';
-						$a = preg_replace("'[^/]*/{1,{$v}}$'", '', $a) . implode('/', $k);
-						$a = strtr($a, array('%' => '%25', '?' => '%3F', "\r" => '%0D', "\n" => '%0A'));
-						$a = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . '/' . $a;
-						'' !== $_SERVER['QUERY_STRING'] && $a .= '?' . $_SERVER['QUERY_STRING'];
-
-						header('HTTP/1.1 301 Moved Permanently');
-						header('Location: ' . $a);
-
-						exit;
-					}
-
-					$_SERVER['PATCHWORK_REQUEST'] = preg_replace("'/[./]*(?:/|$)'", '/', trim(implode('/', $k), '/.'));
-
-					parse_str($_SERVER['QUERY_STRING'], $_GET);
-
-/*#>*/				if (get_magic_quotes_gpc())
-/*#>*/				{
-						$a = array(&$_GET);
-						$k = 1;
-						for ($i = 0; $i < $k; ++$i)
-						{
-							foreach ($a[$i] as &$v)
-							{
-								if (is_array($v)) $a[$k++] =& $v;
-								else
-								{
-/*#>*/								if (ini_get('magic_quotes_sybase'))
-										$v = str_replace("''", "'", $v);
-/*#>*/								else
-										$v = stripslashes($v);
-								}
-							}
-
-							reset($a[$i]);
-							unset($a[$i]);
-						}
-
-						unset($a, $v);
-/*#>*/				}
-				}
-				else if ('' !== $_SERVER['QUERY_STRING'])
-				{
-					$_SERVER['QUERY_STRING'] = '';
-
-					reset($_GET);
-					$a = key($_GET);
-					unset($_GET[$a], $_GET[$a]); // Double unset against a PHP security hole
-				}
-
-				$_SERVER['PATCHWORK_FILENAME'] = basename($_SERVER['PATCHWORK_REQUEST']);
-/*#>*/		}
-/*#>*/	}
-
-		if (preg_match("#^{$b}(?:/|$)(.*?)$#", $_SERVER['PATCHWORK_REQUEST'], $a))
+		if (false !== $j)
 		{
-			$_SERVER['PATCHWORK_LANG']    = array_search($a[1], $CONFIG['i18n.lang_list']);
-			$_SERVER['PATCHWORK_REQUEST'] = $a[2];
+			$r = substr($r, 0, $j);
+			$_SERVER['QUERY_STRING'] = substr($_SERVER['QUERY_STRING'], $j+1);
+
+			parse_str($_SERVER['QUERY_STRING'], $_GET);
+
+/*#>*/		if (get_magic_quotes_gpc())
+/*#>*/		{
+				$k = array(&$_GET);
+				for ($i = 0, $j = 1; $i < $j; ++$i)
+				{
+					foreach ($k[$i] as &$v)
+					{
+						if (is_array($v)) $k[$j++] =& $v;
+						else
+						{
+/*#>*/						if (ini_get('magic_quotes_sybase'))
+								$v = str_replace("''", "'", $v);
+/*#>*/						else
+								$v = stripslashes($v);
+						}
+					}
+
+					reset($k[$i]);
+					unset($k[$i]);
+				}
+
+				unset($k, $v);
+/*#>*/		}
+		}
+		else if ('' !== $r)
+		{
+			$_SERVER['QUERY_STRING'] = '';
+
+			reset($_GET);
+			$j = key($_GET);
+			unset($_GET[$j], $_GET[$j]); // Double unset against a PHP security hole
+		}
+
+		$j = explode('/', urldecode($r));
+		$r = array();
+		$v = 0;
+
+		foreach ($j as $j)
+		{
+			if ('.' === $j) continue;
+			if ('..' === $j) $r ? array_pop($r) : ++$v;
+			else $r[]= $j;
+		}
+
+		$r = implode('/', $r);
+
+		if ($v)
+		{
+			'/' !== substr($a, -1) && $a .= '/';
+			$a = preg_replace("'[^/]*/{1,{$v}}$'", '', $a);
+			'' === $a && $a = '/';
+			$a = strtr($a . $r, array('%' => '%25', '?' => '%3F', "\r" => '%0D', "\n" => '%0A'));
+			'' !== $_SERVER['QUERY_STRING'] && $a .= '?' . $_SERVER['QUERY_STRING'];
+
+			header('HTTP/1.1 301 Moved Permanently');
+			header('Location: ' . $a);
+
+			exit;
 		}
 /*#>*/}
 
+$r = preg_replace("'/[./]*/'", '/', '/' . $r . '/');
+$a = preg_replace("'/[./]*/'", '/', '/' . $a);
+
+/*#>*/if ($a && '\\' === DIRECTORY_SEPARATOR && version_compare(PHP_VERSION, '5.2.6', '<'))
+/*#>*/{
+		// Workaround for http://bugs.php.net/bug.php?id=44001
+
+		if ('/' !== $r && false !== strpos($a, './') && false === strpos($r, './'))
+		{
+			$r = explode('/', $r);
+			$j = count($r) - 1;
+
+			$a = explode('/', strrev($a), $j);
+
+			for ($i = 0; $i < $j; ++$i) $r[$j - $i] .= str_repeat('.', strspn($a[$i], '.'));
+
+			$a = strrev(implode('/', $a));
+			$r = implode('/', $r);
+		}
+/*#>*/}
+
+$_SERVER['PATCHWORK_REQUEST'] = (string) substr($r, 1, -1);
+
+/*#>*/if (!$a)
+	$_SERVER['PATCHWORK_FILENAME'] = basename($r);
+
+isset($_SERVER['REDIRECT_PATCHWORK_BASE']) && $_SERVER['PATCHWORK_BASE'] = $_SERVER['REDIRECT_PATCHWORK_BASE'];
+isset($_SERVER['REDIRECT_PATCHWORK_LANG']) && $_SERVER['PATCHWORK_LANG'] = $_SERVER['REDIRECT_PATCHWORK_LANG'];
+
+if (isset($_SERVER['PATCHWORK_BASE']))
+{
+	if ('/' === substr($_SERVER['PATCHWORK_BASE'], 0, 1)) $_SERVER['PATCHWORK_BASE'] = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PATCHWORK_BASE'];
+
+	if (!isset($_SERVER['PATCHWORK_LANG']))
+	{
+		$k = explode('__', $_SERVER['PATCHWORK_BASE'], 2);
+		if (2 === count($k))
+		{
+			$k = '#' . preg_quote($k[0], '#') . $b . '#';
+			preg_match($k, 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $a, $k)
+				&& $_SERVER['PATCHWORK_LANG'] = (string) array_search($k[1], $CONFIG['i18n.lang_list']);
+		}
+		else if (PATCHWORK_I18N) switch (substr($_SERVER['PATCHWORK_BASE'], -1))
+		{
+		case '/': 
+		case '?': $_SERVER['PATCHWORK_BASE'] .= '__/'; break;
+		default:
+/*#>*/		if ($a)
+				$_SERVER['PATCHWORK_BASE'] .= '/__/';
+/*#>*/		else
+				$_SERVER['PATCHWORK_BASE'] .= '?__/';
+		}
+	}
+}
+else
+{
+	$a = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $a;
+
+/*#>*/if ($a)
+		$_SERVER['PATCHWORK_BASE'] = substr($a, 0, -strlen($r)) . '/' . (PATCHWORK_I18N ? '__/' : '');
+/*#>*/else
+		$_SERVER['PATCHWORK_BASE'] = $a . '?' . (PATCHWORK_I18N ? '__/' : '');
+}
+
+if ('__/' === substr($_SERVER['PATCHWORK_BASE'], -3) && preg_match("#^/{$b}/(.*?)/$#", $r, $r))
+{
+	isset($_SERVER['PATCHWORK_LANG']) || $_SERVER['PATCHWORK_LANG'] = array_search($r[1], $CONFIG['i18n.lang_list']);
+	$_SERVER['PATCHWORK_REQUEST'] = $r[2];
+}
+
+isset($_SERVER['PATCHWORK_LANG']) || $_SERVER['PATCHWORK_LANG'] = '';
 
 reset($CONFIG['i18n.lang_list']);
 PATCHWORK_I18N || $_SERVER['PATCHWORK_LANG'] = key($CONFIG['i18n.lang_list']);

@@ -43,9 +43,6 @@ $patchwork_abstract = array();
 
 isset($_SERVER['HTTP_HOST']) && strspn($_SERVER['HTTP_HOST'], '\'"<>') && die('Invalid HTTP/1.1 Host header');
 
-/*#>*/if (isset($_SERVER['ORIG_SCRIPT_NAME']))
-		$_SERVER['SCRIPT_NAME'] = $_SERVER['ORIG_SCRIPT_NAME'];
-
 /*#>*/if (!isset($_SERVER['REQUEST_TIME']))
 		$_SERVER['REQUEST_TIME'] = time();
 
