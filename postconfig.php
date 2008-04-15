@@ -432,10 +432,10 @@ else
 		$_SERVER['PATCHWORK_BASE'] = $a . '?' . (PATCHWORK_I18N ? '__/' : '');
 }
 
-if (!isset($_SERVER['PATCHWORK_LANG']) && '__/' === substr($_SERVER['PATCHWORK_BASE'], -3) && preg_match("#^/{$b}/(.*?)/$#", $r, $r))
+if (!isset($_SERVER['PATCHWORK_LANG']) && '__/' === substr($_SERVER['PATCHWORK_BASE'], -3) && preg_match("#^/{$b}/#", $r, $a))
 {
-	$_SERVER['PATCHWORK_LANG'] = array_search($r[1], $CONFIG['i18n.lang_list']);
-	$_SERVER['PATCHWORK_REQUEST'] = $r[2];
+	$_SERVER['PATCHWORK_LANG'] = array_search($a[1], $CONFIG['i18n.lang_list']);
+	$_SERVER['PATCHWORK_REQUEST'] = (string) substr($r, strlen($a[1])+2, -1);
 }
 else isset($_SERVER['PATCHWORK_LANG']) || $_SERVER['PATCHWORK_LANG'] = '';
 
