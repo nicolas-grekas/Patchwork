@@ -19,7 +19,7 @@
 		END:LOOP
 
 		IF $is_file
-			--> [<a href="{~}pStudio/explorer/{g$__0__}?low={$low}&amp;high={$high}&amp;$serverside=1">{"Download"}</a>]<!--
+			--> [<a href="{~}pStudio/explorer/{g$__0__}?low={$$low}&amp;high={$$high}&amp;$serverside=1">{"Download"}</a>]<!--
 			IF $is_auth_edit
 				AGENT $form
 				AGENT $f_file

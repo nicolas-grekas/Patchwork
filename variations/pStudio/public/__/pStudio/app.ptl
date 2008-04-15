@@ -8,8 +8,8 @@
 <!--
 
 SET $lowHigh
-	IF $depth <= a$high --><a href="{~}pStudio/explorer/?low={$depth}&amp;high={a$high}">⇩</a><!-- END:IF
-	IF $depth >= a$low  --><a href="{~}pStudio/explorer/?low={a$low}&amp;high={$depth}">⇧</a><!-- END:IF
+	IF $depth <= a$high --><a href="{~}pStudio/explorer/?low={$depth}&amp;high={a$high}" rel="nofollow">⇩</a><!-- END:IF
+	IF $depth >= a$low  --><a href="{~}pStudio/explorer/?low={a$low}&amp;high={$depth}" rel="nofollow">⇧</a><!-- END:IF
 END:SET
 
 -->
