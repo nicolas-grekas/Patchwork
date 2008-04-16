@@ -9,14 +9,15 @@ RewriteCond %{REQUEST_METHOD} ^TRAC
 RewriteRule .? - [NS,F]
 
 # Rewrite rules for friendly URLs
-RewriteCond %{ENV:PATCHWORK_REQUEST} ^$
-RewriteRule .* - [E=PATCHWORK_REQUEST:/$0]
+RewriteRule ^index\.php(/.*)?$ - [S=1]
 
-RewriteCond $0 ^index\.php          [OR]
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-l
-RewriteRule .* index.php
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d [OR]
+RewriteCond %{REQUEST_FILENAME} -l
+RewriteRule .+ - [S=1]
+
+RewriteCond %{ENV:PATCHWORK_REQUEST} ^$
+RewriteRule .* index.php [E=PATCHWORK_REQUEST:/$0]
 
 # Here is an other way to get friendly URLs
 #<Files bootstrap_file_here>
