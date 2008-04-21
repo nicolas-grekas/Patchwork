@@ -27,6 +27,8 @@
 footerHtml = [];
 antiCSRF = '';
 
+<!-- AGENT 'js/docDomain' -->
+
 function t($v, $type)
 {
 	return $type ? (typeof $v == $type) : (typeof $v != 'undefined');
@@ -221,37 +223,6 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 
 		$masterBase = {g$__BASE__|js};
 
-
-	<!-- IF $document_domain -->
-	$document.domain = {$document_domain|js};
-	<!-- ELSE -->
-	d = $document.domain, $j = window.opener || window.parent;
-
-	$document.originalDomain = d;
-
-	while (1)
-	{
-		try
-		{
-			$i = $j.document.domain;
-			break;
-		}
-		catch ($i) {}
-
-		$i = d.indexOf('.');
-		if ($i < 0) break;
-		d = d.substr($i+1);
-
-		try
-		{
-			$document.domain = d;
-		}
-		catch ($i)
-		{
-			break;
-		}
-	}
-	<!-- END:IF -->
 
 	try
 	{

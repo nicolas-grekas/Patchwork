@@ -11,42 +11,12 @@
  *
  ***************************************************************************/
 
-$document = document;
 
-<!-- IF $document_domain -->
-$document.domain = {$document_domain|js};
-<!-- ELSE -->
-d = $document.domain;
-$window = window.opener || window.parent;
-
-$document.originalDomain = d;
-
-while (1)
-{
-	try
-	{
-		q = $window.document.domain;
-		break;
-	}
-	catch (q) {}
-
-	q = d.indexOf('.');
-	if (q < 0) break;
-	d = d.substr(q+1);
-
-	try
-	{
-		$document.domain = d;
-	}
-	catch (t)
-	{
-		break;
-	}
-}
-<!-- END:IF -->
+<!-- AGENT 'js/docDomain' -->
 
 $window = window;
 $parent = parent;
+$document = document;
 
 /* push */
 if (!([].push && [].push(0))) Array.prototype.push = function()
