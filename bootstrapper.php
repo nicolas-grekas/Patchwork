@@ -26,9 +26,6 @@ if (extension_loaded('mbstring'))
 	ini_get('mbstring.encoding_translation')
 		&& !in_array(strtolower(ini_get('mbstring.http_input')), array('pass', 'utf-8'))
 		&& die('Patchwork Error: mbstring is set to translate input encoding');
-
-	!in_array(strtolower(ini_get('mbstring.http_output')), array('pass', 'utf-8'))
-		&& die('Patchwork Error: mbstring is set to translate output encoding');
 }
 
 

@@ -12,33 +12,30 @@
  ***************************************************************************}
 <script type="text/javascript">
 
-(function()
+D = document, d = D.domain, w = window.top.opener;
+
+while (1)
 {
-	var d = document.domain;
-
-	while (1)
+	try
 	{
-		try
-		{
-			var test = window.top.opener.document.domain;
-			break;
-		}
-		catch (e) {}
-
-		d = d.replace(/.*?(?:\.|$)/, '');
-
-		if (!d.length) break;
-
-		try
-		{
-			document.domain = d;
-		}
-		catch (e)
-		{
-			break;
-		}
+		t = w.document.domain;
+		break;
 	}
-})() ;
+	catch (t) {}
+
+	t = d.indexOf('.');
+	if (t < 0) break;
+	d = d.substr(t+1);
+
+	try
+	{
+		D.domain = d;
+	}
+	catch (t)
+	{
+		break;
+	}
+}
 
 window.parent.OnUploadCompleted({$number|js},{$url|js},{$filename|js},{$text|js})
 
