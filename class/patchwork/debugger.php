@@ -152,7 +152,40 @@ acronym
 </style>
 <script type="text/javascript">/*<![CDATA[*/
 
-<?php if ($CONFIG['document.domain']) echo 'document.domain=', jsquote($CONFIG['document.domain']), ';' ?>
+<?php
+
+if ($CONFIG['document.domain']) echo 'document.domain=', jsquote($CONFIG['document.domain']), ';';
+else
+{
+?>
+D = document, d = D.domain, w = window.opener || window.parent;
+
+while (1)
+{
+	try
+	{
+		t = w.document.domain;
+		break;
+	}
+	catch (t) {}
+
+	t = d.indexOf('.');
+	if (t < 0) break;
+	d = d.substr(t+1);
+
+	try
+	{
+		D.domain = d;
+	}
+	catch (t)
+	{
+		break;
+	}
+}
+<?php
+}
+
+?>
 
 function Z()
 {

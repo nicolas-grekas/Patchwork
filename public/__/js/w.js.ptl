@@ -26,7 +26,6 @@
 
 footerHtml = [];
 antiCSRF = '';
-<!-- IF $document_domain -->document.domain = {$document_domain|js};<!-- END:IF -->
 
 function t($v, $type)
 {
@@ -191,10 +190,6 @@ onDOMLoaded.go = function()
 }
 
 
-if (window.Error)
-	// This eval avoids a parse error with browsers not supporting exceptions.
-	eval('try{document.execCommand("BackgroundImageCache",false,true)}catch(w){}');
-
 w = function($baseAgent, $keys, $masterAppId, $buffer)
 {
 	$masterAppId /= 1;
@@ -225,6 +220,44 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 		$startTime = /(^|; )JS=[01](; |$)/,
 
 		$masterBase = {g$__BASE__|js};
+
+
+	<!-- IF $document_domain -->
+	$document.domain = {$document_domain|js};
+	<!-- ELSE -->
+	d = $document.domain, $j = window.opener || window.parent;
+
+	$document.originalDomain = d;
+
+	while (1)
+	{
+		try
+		{
+			$i = $j.document.domain;
+			break;
+		}
+		catch ($i) {}
+
+		$i = d.indexOf('.');
+		if ($i < 0) break;
+		d = d.substr($i+1);
+
+		try
+		{
+			$document.domain = d;
+		}
+		catch ($i)
+		{
+			break;
+		}
+	}
+	<!-- END:IF -->
+
+	try
+	{
+		$document.execCommand("BackgroundImageCache", false, true);
+	}
+	catch ($i) {}
 
 	if (!/MSIE [0-5]\./.test(navigator.userAgent) && !$startTime.test($document.cookie))
 	{

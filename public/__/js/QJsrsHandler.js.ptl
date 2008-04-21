@@ -11,7 +11,40 @@
  *
  ***************************************************************************/
 
-<!-- IF $document_domain -->document.domain = {$document_domain|js};<!-- END:IF -->
+$document = document;
+
+<!-- IF $document_domain -->
+$document.domain = {$document_domain|js};
+<!-- ELSE -->
+d = $document.domain;
+$window = window.opener || window.parent;
+
+$document.originalDomain = d;
+
+while (1)
+{
+	try
+	{
+		q = $window.document.domain;
+		break;
+	}
+	catch (q) {}
+
+	q = d.indexOf('.');
+	if (q < 0) break;
+	d = d.substr(q+1);
+
+	try
+	{
+		$document.domain = d;
+	}
+	catch (t)
+	{
+		break;
+	}
+}
+<!-- END:IF -->
+
 $window = window;
 $parent = parent;
 
@@ -134,7 +167,6 @@ else if ($parent && $parent.loadQJsrs)
 
 			if (q[3])
 			{
-				$document = document;
 				$value = q[2];
 
 				$form = ['<form accept-charset="UTF-8" method="post">'];
