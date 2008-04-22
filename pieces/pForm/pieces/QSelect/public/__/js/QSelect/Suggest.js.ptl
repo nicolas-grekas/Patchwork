@@ -35,11 +35,11 @@ function QSelectSuggest($data, $separator, $separatorRx)
 
 			$selectionStart = $selectionStart || $query.length;
 
-			$q = $query.substr($selectionStart).split(new RegExp($separatorRx + '.*$'));
+			$q = $query.substr($selectionStart).split(new RegExp($separatorRx + '[\\s\\S]*$'));
 
 			if ('' == $q[0])
 			{
-				$q = $query.substr(0, $selectionStart).replace(new RegExp('^.*' + $separatorRx), '').replace(new RegExp('^[^0-9a-z' + ACCENT.join('') + ']+', 'i'), '');
+				$q = $query.substr(0, $selectionStart).replace(new RegExp('^[\\s\\S]*' + $separatorRx), '').replace(new RegExp('^[^0-9a-z' + ACCENT.join('') + ']+', 'i'), '');
 
 				if ($q)
 				{
@@ -66,7 +66,7 @@ function QSelectSuggest($data, $separator, $separatorRx)
 			$vBegin = $vEnd.substr(0, $caretPos);
 			$vEnd = $vEnd.substr($caretPos);
 
-			$vBegin = $vBegin.match(new RegExp('^(.*' + $separatorRx + ')'));
+			$vBegin = $vBegin.match(new RegExp('^([\\s\\S]*' + $separatorRx + ')'));
 			$vBegin = $vBegin ? $vBegin[1] : '';
 
 			$vBegin += $options[$idx].text + $separator;

@@ -14,13 +14,15 @@
 
 class extends pForm_text
 {
-	protected $src, $lock;
+	protected $src, $lock, $textarea;
 
 	protected function init(&$param)
 	{
 		parent::init($param);
-		if (isset($param['src'])) $this->src = $param['src'];
-		if (!empty($param['lock'])) $this->lock = 1;
+
+		isset($param['src'])      && $this->src      = $param['src'];
+		isset($param['textarea']) && $this->textarea = $param['textarea'];
+		empty($param['lock'])     || $this->lock     = 1;
 	}
 
 	protected function get()
@@ -29,8 +31,9 @@ class extends pForm_text
 
 		$this->agent = 'QSelect/input';
 
-		if (isset($this->src)) $a->_src = $this->src;
-		if (isset($this->lock)) $a->_lock = $this->lock;
+		isset($this->src)      && $a->_src      = $this->src;
+		isset($this->textarea) && $a->_textarea = $this->textarea;
+		isset($this->lock)     && $a->_lock     = $this->lock;
 
 		return $a;
 	}

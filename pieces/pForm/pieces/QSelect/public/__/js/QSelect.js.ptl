@@ -61,6 +61,8 @@ function $onkeyup($e)
 		$keyupid = $this.$lastKeyupid, $i,
 		$caretPos = getCaret(this);
 
+	this.autofit && this.autofit();
+
 	$e = ($e || event).keyCode;
 
 	$selectRange = $e && $e != 8 && $e != 46;
@@ -363,7 +365,7 @@ function QSelectSearch($data)
 				if ($query)
 				{
 					$query = RegExp.quote($query, 1);
-					$query = new RegExp(($qLen>1 ? '(^|[^0-9a-z'+ACCENT.join('')+'])' : '^') + $query, 'gi');
+					$query = new RegExp('(^|[^0-9a-z'+ACCENT.join('')+'])' + $query, 'gi');
 
 					for (; $i < $data.length; ++$i) if ($query.test($data[$i])) $result[$result.length] = $data[$i];
 				}

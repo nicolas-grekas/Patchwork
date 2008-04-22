@@ -53,7 +53,7 @@ SET $INPUT
 	SET $INPUT -->{base:|urlencode}<!-- END:SET
 	IF a$required --><span class="required"><!-- END:IF
 
-	--><span class="QSstyle"><input autocomplete="off" {a$|htmlArgs} /><img src="{base:'QSelect/b.gif'}" id="__QSb{$INPUT}{a$name}" onmouseover="this.src={base:'QSelect/bh.gif'|js}" onmouseout="this.src={base:'QSelect/b.gif'|js}" onmousedown="this.src={base:'QSelect/bp.gif'|js}" onmouseup="this.onmouseover()" alt=" " title="" /></span><script type="text/javascript">/*<![CDATA[*/<!--
+	--><span class="QSstyle"><!-- IF a$_textarea --><textarea {a$|htmlArgs:'value'}>{a$value}</textarea><!-- ELSE --><input autocomplete="off" {a$|htmlArgs} /><!-- END:IF --><img src="{base:'QSelect/b.gif'}" id="__QSb{$INPUT}{a$name}" onmouseover="this.src={base:'QSelect/bh.gif'|js}" onmouseout="this.src={base:'QSelect/b.gif'|js}" onmousedown="this.src={base:'QSelect/bp.gif'|js}" onmouseup="this.onmouseover()" alt=" " title="" /></span><script type="text/javascript">/*<![CDATA[*/<!--
 
 	IF !g$__QS
 		SET g$__QS
