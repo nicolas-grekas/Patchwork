@@ -1,0 +1,52 @@
+/***************************************************************************
+ *
+ *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Email     : p@tchwork.org
+ *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
+ *
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU Affero General Public License as
+ *   published by the Free Software Foundation, either version 3 of the
+ *   License, or (at your option) any later version.
+ *
+ ***************************************************************************/
+
+
+<!-- IF $document_domain -->
+
+document.domain = {$document_domain|js};
+
+<!-- ELSE -->
+
+(function()
+{
+	var $document = document,
+		d = $document.domain,
+		w = window.opener || window.parent,
+		i;
+
+	while (1)
+	{
+		try
+		{
+			i = w.document.domain;
+			break;
+		}
+		catch (i) {}
+
+		i = d.indexOf('.');
+		if (i < 0) break;
+		d = d.substr(i+1);
+
+		try
+		{
+			$document.domain = d;
+		}
+		catch (i)
+		{
+			break;
+		}
+	}
+})();
+
+<!-- END:IF -->
