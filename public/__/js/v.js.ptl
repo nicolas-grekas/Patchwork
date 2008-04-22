@@ -387,17 +387,29 @@ function maxlengthTextarea()
 
 function autofitTextarea()
 {
-	var $this = this, $style = $this.style;
+	var $this = this, $this_style = $this.style, $ghost, $ghost_style;
 
 	$this.checkMaxlength();
 
 	if ($this.autofitEnabled && 'hidden' == $this.style.overflow)
 	{
-		$style.height = $this.v_offsetHeight + 'px';
-		$style.width  = $this.v_offsetWidth  + 'px';
+		$ghost = document.createElement('textarea');
+		$ghost_style = $ghost.style;
+		$ghost.value = $this.value;
 
-		if ($this.offsetHeight < $this.scrollHeight) $style.height = $this.scrollHeight + 'px';
-		if ($this.offsetWidth  < $this.scrollWidth ) $style.width  = $this.scrollWidth  + 'px';
+		$ghost_style.visibility = 'hidden';
+		$ghost_style.position = 'absolute';
+		$ghost_style.top  = '0px';
+		$ghost_style.left = '0px';
+		$ghost_style.height = $this.v_offsetHeight + 'px';
+		$ghost_style.width  = $this.v_offsetWidth  + 'px';
+
+		$this.parentNode.appendChild($ghost);
+
+		$this_style.height = $ghost.offsetHeight < $ghost.scrollHeight ? $ghost.scrollHeight + 'px' : $ghost_style.height;
+		$this_style.width  = $ghost.offsetWidth  < $ghost.scrollWidth  ? $ghost.scrollWidth  + 'px' : $ghost_style.width ;
+
+		$this.parentNode.removeChild($ghost);
 	}
 }
 	
