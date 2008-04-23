@@ -14,15 +14,31 @@
 
 class extends pForm_text
 {
-	protected $src, $lock, $textarea;
+	protected
+
+	$src = '',
+	$lock = 0,
+	$textarea = 0;
+
 
 	protected function init(&$param)
 	{
-		parent::init($param);
-
 		isset($param['src'])      && $this->src      = $param['src'];
-		isset($param['textarea']) && $this->textarea = $param['textarea'];
 		empty($param['lock'])     || $this->lock     = 1;
+
+		if (isset($param['textarea']))
+		{
+			$this->textarea = (int) (bool) $param['textarea'];
+		}
+		else if (isset($param['valid']) && 'text' === $param['valid']) $this->textarea = 1;
+
+		if ($this->textarea)
+		{
+			$this->maxlength = 65635;
+			isset($param['valid']) || $param['valid'] = 'text';
+		}
+
+		parent::init($param);
 	}
 
 	protected function get()
@@ -31,9 +47,9 @@ class extends pForm_text
 
 		$this->agent = 'QSelect/input';
 
-		isset($this->src)      && $a->_src      = $this->src;
-		isset($this->textarea) && $a->_textarea = $this->textarea;
-		isset($this->lock)     && $a->_lock     = $this->lock;
+		$a->_src = $this->src;
+		$this->textarea && $a->_textarea = 1;
+		$this->lock     && $a->_lock     = 1;
 
 		return $a;
 	}
