@@ -473,20 +473,20 @@ class patchwork_preprocessor__0
 
 				$class_pool[$curly_level] = (object) array(
 					'classname' => $c,
-					'real_classname' => strtolower($b),
-					'is_root' => true,
-					'is_final' => $final,
-					'add_php5_construct' => T_CLASS === $type && 0>$level,
+					'classkey'  => strtolower($b),
+					'is_root'   => true,
+					'is_final'  => $final,
+					'add_php5_construct'  => T_CLASS === $type && 0>$level,
 					'add_constructStatic' => 0,
 					'add_destructStatic'  => 0,
-					'construct_source' => '',
+					'construct_source'    => '',
 				);
 
 				if (T_ABSTRACT === $prevType)
 				{
 					$j = $new_code_length;
 					while (--$j && in_array($new_type[$j], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ;
-					$new_code[$j] = "\$GLOBALS['patchwork_abstract']['{$class_pool[$curly_level]->real_classname}']=1;" . $new_code[$j];
+					$new_code[$j] = "\$GLOBALS['patchwork_abstract']['{$class_pool[$curly_level]->classkey}']=1;" . $new_code[$j];
 				}
 
 				self::$inline_class[strtolower($c)] = 1;
@@ -890,20 +890,21 @@ class patchwork_preprocessor__0
 				if (isset($class_pool[$curly_level]))
 				{
 					$c = $class_pool[$curly_level];
+					$j = strtolower($c->classname);
 
 					if ($c->add_php5_construct) $token = $c->construct_source . '}';
 
 					if ($c->add_constructStatic)
 					{
-						$token = "const __cS{$T}=" . (1 === $c->add_constructStatic ? "'{$c->classname}';" : "'';static function __constructStatic(){}") . $token;
+						$token = "const __cS{$T}=" . (1 === $c->add_constructStatic ? "'{$j}';" : "'';static function __constructStatic(){}") . $token;
 					}
 
 					if ($c->add_destructStatic)
 					{
-						$token = "const __dS{$T}=" . (1 === $c->add_destructStatic  ? "'{$c->classname}';" : "'';static function __destructStatic() {}") . $token;
+						$token = "const __dS{$T}=" . (1 === $c->add_destructStatic  ? "'{$j}';" : "'';static function __destructStatic() {}") . $token;
 					}
 
-					$token .= "\$GLOBALS['c{$T}']['{$c->real_classname}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
+					$token .= "\$GLOBALS['c{$T}']['{$c->classkey}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
 
 					unset($class_pool[$curly_level]);
 				}

@@ -56,7 +56,7 @@ class __patchwork_autoloader
 
 		// Step 2 - Get source file
 
-		$src = false;
+		$src = '';
 
 		if ($customSrc =& $GLOBALS['patchwork_autoload_prefix'] && $a = strlen($lc_top))
 		{
@@ -87,7 +87,7 @@ class __patchwork_autoloader
 
 		unset($customSrc);
 
-		if ($customSrc = (bool) $src) {}
+		if ($customSrc = '' !== (string) $src) {}
 		else if ('_' !== substr($top, -1) && strncmp('_', $top, 1) && false === strpos($top, '__'))
 		{
 			$src = 'class/' . strtr($top, '_', '/') . '.php';
@@ -174,13 +174,13 @@ class __patchwork_autoloader
 			if ($isTop)
 			{
 				$a = "{$parent}::__cS{$T}";
-				if (defined($a) ? $req === constant($a) : method_exists($parent, '__constructStatic'))
+				if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__constructStatic'))
 				{
 					$code .= "{$parent}::__constructStatic();";
 				}
 
 				$a = "{$parent}::__dS{$T}";
-				if (defined($a) ? $req === constant($a) : method_exists($parent, '__destructStatic'))
+				if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__destructStatic'))
 				{
 					$code = str_replace('{}', "{static \$hunter{$T};}", $code);
 					$code .= "{$req}::\$hunter{$T}=new hunter(array('{$parent}','__destructStatic'));";
