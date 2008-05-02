@@ -14,7 +14,7 @@
 
 class
 {
-	static function php($string, $length = 80, $etc = '...', $break_words = false)
+	static function php($string, $length = 80, $etc = '…', $break_words = false)
 	{
 		$string = p::string($string);
 		$length = p::string($length);
@@ -42,7 +42,7 @@ P$truncate = function($string, $length, $etc, $break_words)
 {
 	$string = str($string);
 	$length = str($length, 80);
-	$etc = str($etc, '...');
+	$etc = str($etc, '…');
 
 	if (!$length) return '';
 
