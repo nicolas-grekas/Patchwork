@@ -23,14 +23,14 @@ class extends pForm_text
 
 	protected function init(&$param)
 	{
-		isset($param['src'])      && $this->src      = $param['src'];
-		empty($param['lock'])     || $this->lock     = 1;
+		isset($param['src'])  && $this->src  = $param['src'];
+		empty($param['lock']) || $this->lock = 1;
 
 		if (isset($param['textarea']))
 		{
 			$this->textarea = (int) (bool) $param['textarea'];
 		}
-		else if (isset($param['valid']) && 'text' === $param['valid']) $this->textarea = 1;
+		else if (isset($param['valid']) && 'text' === strtolower($param['valid'])) $this->textarea = 1;
 
 		if ($this->textarea)
 		{
