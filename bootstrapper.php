@@ -358,7 +358,7 @@ patchwork::start();";
 		$parent = self::getParentApps($realpath);
 
 		// If no parent app, result is trival
-		if (!$parent && !$firstParent) return array($realpath);
+		if (!$parent && !$firstParent) return $resultSeq = array($realpath);
 
 		if ($firstParent) array_unshift($parent, $firstParent);
 
@@ -480,17 +480,17 @@ patchwork::start();";
 				for ($j = 0; $j < $pLen; ++$j)
 				{
 					$d = $p[$j];
-					$a = file_exists($d . 'config.patchwork.php');
-					$a && $source[] = $d;
 
-					$h = opendir($d);
-					while (false !== $file = readdir($h)) if ('.' !== $file && '..' !== $file)
+					if (file_exists($d . 'config.patchwork.php')) $source[] = $d;
+					else
 					{
-						if ($a && ('class' === $file || 'public' === $file || 'zcache' === $file)) continue;
-
-						is_dir($d . $file) && $p[$pLen++] = $d . $file . DIRECTORY_SEPARATOR;
+						$h = opendir($d);
+						while (false !== $file = readdir($h))
+						{
+							'.' !== $file[0] && is_dir($d . $file) && $p[$pLen++] = $d . $file . DIRECTORY_SEPARATOR;
+						}
+						closedir($h);
 					}
-					closedir($h);
 
 					unset($p[$j]);
 				}
@@ -559,13 +559,27 @@ patchwork::start();";
 
 		$paths = array();
 
-		foreach ($patchwork_path as $level => $h)
+		if (file_exists('./.parentPaths.txt'))
 		{
-			@self::populatePathCache($paths, $h, $level, $level <= self::$last ? '' : '/class');
+			rename('./.parentPaths.txt', './.parentPaths.old');
+			$old_db = fopen('./.parentPaths.old', 'rb');
+		}
+		else $old_db = false;
+
+		$db = fopen('./.parentPaths.txt', 'wb');
+
+		$level = $patchwork_path;
+		uasort($level, array(__CLASS__, 'dirCmp'));
+
+		foreach ($level as $level => $h)
+		{
+			@self::populatePathCache($old_db, $db, $paths, $patchwork_path, substr($h, 0, -1), $level, $level <= self::$last ? '' : '/class');
 		}
 
+		fclose($db);
+		$old_db && fclose($old_db) && unlink('./.parentPaths.old');
 
-		$dba = $h = false;
+		$db = $h = false;
 
 		if (function_exists('dba_handlers'))
 		{
@@ -573,12 +587,17 @@ patchwork::start();";
 			$h = array_intersect($h, dba_handlers());
 			$h || $h = dba_handlers();
 			@unlink('./.parentPaths.db');
-			if ($h) foreach ($h as $dba) if ($h = @dba_open(self::$cwd . '.parentPaths.db', 'nd', $dba, 0600)) break;
+			if ($h) foreach ($h as $db) if ($h = @dba_open(self::$cwd . '.parentPaths.db', 'nd', $db, 0600)) break;
 		}
 
 		if ($h)
 		{
-			foreach ($paths as $paths => $level) dba_insert($paths, substr($level, 0, -1), $h);
+			foreach ($paths as $paths => &$level)
+			{
+				sort($level);
+				dba_insert($paths, implode(',', $level), $h);
+			}
+
 			dba_close($h);
 
 			if ('\\' == DIRECTORY_SEPARATOR)
@@ -590,9 +609,9 @@ patchwork::start();";
 		}
 		else
 		{
-			$dba = false;
+			$db = false;
 
-			foreach ($paths as $paths => $level)
+			foreach ($paths as $paths => &$level)
 			{
 				$paths = md5($paths);
 				$paths = $paths[0] . '/' . $paths[1] . '/' . substr($paths, 2) . '.path.txt';
@@ -604,40 +623,118 @@ patchwork::start();";
 					$h = fopen(self::$zcache . $paths, 'wb');
 				}
 
-				fwrite($h, substr($level, 0, -1));
+				sort($level);
+				fwrite($h, implode(',', $level));
 				fclose($h);
 			}
 		}
 
-		return $dba;
+		return $db;
 	}
 
-	protected static function populatePathCache(&$paths, $dir, $i, $prefix, $subdir = '/')
+	protected static function populatePathCache(&$old_db, &$db, &$paths, &$patchwork_path, $root, $level, $prefix, $subdir = '/')
 	{
-		if ('/' === $subdir && $prefix)
+		// Kind of updatedb with mlocale strategy
+
+		if ('/' !== $subdir && $prefix)
 		{
 			$h = explode('/', substr($prefix, 1));
 			do
 			{
-				$paths[implode('/', $h)] .= $i . ',';
+				$paths[implode('/', $h)][] = $level;
 				array_pop($h);
 			}
 			while ($h);
 		}
 
-		if ($h = opendir($dir . $subdir))
+		$dir = $root . ('\\' === DIRECTORY_SEPARATOR ? strtr($subdir, '/', '\\') : $subdir);
+
+		static $old_db_line, $populated = array();
+
+		if ('/' === $subdir && in_array($dir, $populated)) return;
+
+		isset($old_db_line) || $old_db_line = $old_db ? fgets($old_db) : false;
+
+		if (false !== $old_db_line)
 		{
-			if ('/' !== $subdir && file_exists($dir . $subdir . 'config.patchwork.php')) ;
-			else while (false !== $file = readdir($h)) if ('.' != $file[0] && 'zcache' != $file)
+			do
 			{
-				$file = $subdir . $file;
+				$h = explode('*', $old_db_line, 2);
+				false !== strpos($h[0], '%') && $h[0] = rawurldecode($h[0]);
 
-				$paths[substr($prefix . $file, 1)] .= $i . ',';
+				if (0 <= $h[0] = self::dirCmp($h[0], $dir))
+				{
+					if (0 === $h[0] && max(filemtime($dir), filectime($dir)) === (int) $h[1])
+					{
+						closedir($h[0]);
 
-				self::populatePathCache($paths, $dir, $i, $prefix, $file . '/');
+						if (false !== strpos($h[1], '/0config.patchwork.php/'))
+						{
+							if (in_array($dir, $patchwork_path)) $populated[] = $dir;
+							else break;
+						}
+
+						fwrite($db, $old_db_line);
+
+						$h = explode('/', $h[1]);
+						unset($h[0], $h[count($h)]);
+
+						foreach ($h as $file)
+						{
+							$h = $file[0];
+
+							$file = $subdir . substr($file, 1);
+							$paths[substr($prefix . $file, 1)][] = $level;
+
+							$h && self::populatePathCache($old_db, $db, $paths, $patchwork_path, $root, $level, $prefix, $file . '/');
+						}
+
+						return;
+					}
+
+					break;
+				}
+			}
+			while (false !== $old_db_line = fgets($old_db));
+		}
+
+		if (file_exists($dir . 'config.patchwork.php'))
+		{
+			if (in_array($dir, $patchwork_path)) $populated[] = $dir;
+			else return;
+		}
+
+		if ($h = opendir($dir))
+		{
+			static $now;
+			isset($now) || $now = time() - 1;
+
+			ob_start();
+
+			$file = (string) min($now, max(filemtime($dir), filectime($dir)));
+			echo strtr($dir, array('%' => '%25', "\r" => '%0D', "\n" => '%0A', '*' => '%2A')) . '*' . $file . '/';
+
+			$subdirs = array();
+
+			while (false !== $file = readdir($h)) if ('.' !== $file[0] && 'zcache' !== $file)
+			{
+				if (is_dir($dir . $file))
+				{
+					echo '1' . $file . '/';
+					$subdirs[] = $subdir . $file . '/';
+				}
+				else echo '0' . $file . '/';
+
+				$paths[substr($prefix . $subdir . $file, 1)][] = $level;
 			}
 
 			closedir($h);
+
+			echo "\n";
+
+			fwrite($db, ob_get_clean());
+
+			foreach ($subdirs as $subdir) self::populatePathCache($old_db, $db, $paths, $patchwork_path, $root, $level, $prefix, $subdir);
 		}
 	}
 
@@ -825,5 +922,28 @@ patchwork::start();";
 		else $b = var_export($a, true);
 
 		return $b;
+	}
+
+	static function dirCmp($a, $b)
+	{
+		$len = min(strlen($a), strlen($b));
+
+		if ('\\' === DIRECTORY_SEPARATOR)
+		{
+			$a = strtoupper(strtr($a, '\\', '/'));
+			$b = strtoupper(strtr($b, '\\', '/'));
+		}
+
+		for ($i = 0; $i < $len; ++$i)
+		{
+			if ($a[$i] !== $b[$i])
+			{
+				if ('/' === $a[$i]) return -1;
+				if ('/' === $b[$i]) return  1;
+				return strcmp($a[$i], $b[$i]);
+			}
+		}
+
+		return strlen($a) - strlen($b);
 	}
 }
