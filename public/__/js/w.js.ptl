@@ -492,14 +492,16 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 			{
 				var $i = $code[$pointer++], $j;
 
-				if (!$i) $i = a;
-				else if ($i==1) $i = g;
-				else
+				if (1 == $i) $i = g;
+				else if (2 == $i) $i = d;
+				else if ($i)
 				{
-					$j = $i - 1;
+					$j = $i - 2;
 					$i = v;
 					while (--$j) $i = $i.$;
 				}
+				else $i = a;
+
 
 				$i[$code[$pointer++]] = num($WobStack[$WobLast--].join(''), 1);
 			},
@@ -561,8 +563,10 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 			<!-- END:IF -->
 		}
 
-		if ($context) $origContext = $context.$ = v = $context;
+		if ($context) $context.$ = v = $context;
 		else $context = v;
+
+		$origContext = $context;
 
 		<!-- IF g$__DEBUG__ -->
 		if (DEBUG) E({
