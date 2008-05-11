@@ -191,7 +191,7 @@ abstract class
 
 		$template = (IS_WINDOWS ? strtolower($m[1]) : $m[1]) . '.ptl';
 
-		$a = str_replace('\\', '/', $template) == preg_replace("'[\\/]+'", '/', $this->template);
+		$a = str_replace('\\', '/', $template) === preg_replace("'[\\/]+'", '/', $this->template);
 		$a = isset($m[2]) ? substr($m[2], 1) : ($a ? -1 : (PATCHWORK_PATH_LEVEL - $this->path_idx));
 		$a = $a < 0 ? $this->path_idx - $a : (PATCHWORK_PATH_LEVEL - $a);
 
@@ -222,7 +222,7 @@ abstract class
 	final protected function makeVar($name, $forceType = false)
 	{
 		$type = $prefix = '';
-		if ("'" == $name[0])
+		if ("'" === $name[0])
 		{
 			$type = "'";
 			$name = $this->filter(substr($name, 1));
@@ -230,7 +230,7 @@ abstract class
 		else if (false !== $pos = strrpos($name, '$'))
 		{
 			$type = $name[0];
-			$prefix = substr($name, 1, '$' == $type ? $pos : $pos-1);
+			$prefix = substr($name, 1, '$' === $type ? $pos : $pos-1);
 			$name = substr($name, $pos+1);
 		}
 		else $type = '';
@@ -240,7 +240,7 @@ abstract class
 
 	final protected function pushText($a)
 	{
-		if ('concat' == $this->mode)
+		if ('concat' === $this->mode)
 		{
 			if ($this->concatLast % 2) $this->concat[++$this->concatLast] = $a;
 			else $this->concat[$this->concatLast] .= $a;
@@ -323,13 +323,13 @@ abstract class
 			{
 			case 'EXOAGENT':
 			case 'AGENT':
-				$is_exo = 'EXOAGENT' == $blockname;
+				$is_exo = 'EXOAGENT' === $blockname;
 
 				if (preg_match("/^({$this->Xstring}|{$this->Xvar})(?:\s+{$this->XpureVar}\s*=\s*(?:{$this->XvarNconst}))*$/su", $block, $block))
 				{
 					$inc = $this->evalVar($block[1]);
 
-					if ("''" != $inc)
+					if ("''" !== $inc)
 					{
 						$args = array();
 						if (preg_match_all("/\s+({$this->XpureVar})\s*=\s*({$this->XvarNconst})/su", $block[0], $block))
@@ -364,7 +364,7 @@ abstract class
 					if ($this->addSET($blockend, '', ''))
 					{
 						$block = array_pop($this->blockStack);
-						if ($block != $blockname) $this->endError($blockname, $block);
+						if ($block !== $blockname) $this->endError($blockname, $block);
 					}
 					else $this->pushText($a);
 				}
@@ -384,7 +384,7 @@ abstract class
 				else if ($blockend)
 				{
 					$block = array_pop($this->blockStack);
-					if ($block != $blockname) $this->endError($blockname, $block);
+					if ($block !== $blockname) $this->endError($blockname, $block);
 				}
 				else $this->blockStack[] = $blockname;
 				break;
@@ -393,11 +393,11 @@ abstract class
 			case 'ELSEIF':
 				if ($blockend)
 				{
-					if (!$this->addIF(true, $blockname=='ELSEIF', $block)) $this->pushText($a);
+					if (!$this->addIF(true, 'ELSEIF' === $blockname, $block)) $this->pushText($a);
 					else
 					{
 						$block = array_pop($this->blockStack);
-						if ($block != $blockname) $this->endError($blockname, $block);
+						if ($block !== $blockname) $this->endError($blockname, $block);
 					}
 					break;
 				}
@@ -452,8 +452,8 @@ abstract class
 						$expression .= $block[$i++];
 					}
 
-					if (!$this->addIF(false, $blockname=='ELSEIF', $expression)) $this->pushText($a);
-					else if ($blockname!='ELSEIF') $this->blockStack[] = $blockname;
+					if (!$this->addIF(false, 'ELSEIF' === $blockname, $expression)) $this->pushText($a);
+					else if ('ELSEIF' !== $blockname) $this->blockStack[] = $blockname;
 				}
 				else $this->pushText($a);
 				break;
@@ -476,7 +476,7 @@ abstract class
 		foreach ($match[0] as &$match)
 		{
 			preg_match_all("/(?:^\\|{$this->Xmodifier}|:(?:{$this->Xexpression})?)/su", $match, $match);
-			foreach ($match[0] as &$j) $j = $j == ':' ? "''" : substr($j, 1);
+			foreach ($match[0] as &$j) $j = ':' === $j ? "''" : substr($j, 1);
 			unset($j);
 			$detail[] = $match[0];
 		}
@@ -508,12 +508,12 @@ abstract class
 		}
 		else $Estart .= $this->evalVar($detail[0][0], true);
 
-		if ("'" == $Estart[0])
+		if ("'" === $Estart[0])
 		{
 			$Estart = $this->getRawString($Estart);
 			$this->pushText($Estart);
 		}
-		else if ('concat' == $this->mode)
+		else if ('concat' === $this->mode)
 		{
 			$this->concat[++$this->concatLast] = $Estart . $Eend;
 		}
@@ -522,7 +522,7 @@ abstract class
 
 	private function evalVar($a, $translate = false, $forceType = false)
 	{
-		if ($a === '') return "''";
+		if ( '' === $a) return "''";
 		if ('~' === $a) $a = 'g$__BASE__';
 		if ('/' === $a) $a = 'g$__HOST__';
 
@@ -550,7 +550,7 @@ abstract class
 
 					$this->makeVars($a);
 
-					if ($this->concatLast == 0)
+					if (!$this->concatLast)
 					{
 						$this->concat[0] = TRANSLATOR::get($this->concat[0], p::__LANG__(), false);
 #>						p::watch('debugSync');
@@ -558,7 +558,7 @@ abstract class
 
 					for ($i = 0; $i<=$this->concatLast; $i+=2)
 					{
-						if ($this->concat[$i] !== '') $this->concat[$i] = $this->makeVar("'" . $this->concat[$i]);
+						if ('' !== $this->concat[$i]) $this->concat[$i] = $this->makeVar("'" . $this->concat[$i]);
 						else unset($this->concat[$i]);
 
 					}
@@ -581,7 +581,7 @@ abstract class
 			{
 				$a[$i-1] = trim($a[$i-1]);
 
-				$b = $i > 1 && $a[$i][0] == '-' && '' === $a[$i-1];
+				$b = $i > 1 && '-' === $a[$i][0] && '' === $a[$i-1];
 
 				$a[$i] = $this->evalVar($a[$i], false, 'number');
 

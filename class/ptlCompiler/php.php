@@ -78,13 +78,13 @@ class extends ptlCompiler
 		if (!strncmp($inc, '(isset(', 7))
 		{
 			$inc = substr($inc, 7, strpos($inc, ')', 7) - 7);
-			$this->pushCode("isset($inc)?patchwork_serverside::loadAgent($inc,array($a)," .( $is_exo ? 1 : 0 ). "):E('AGENT is undefined: $inc');");
+			$this->pushCode("isset($inc)?patchwork_serverside::loadAgent($inc,array($a)," . ($is_exo ? 1 : 0) . "):E('AGENT is undefined: $inc');");
 
 			return true;
 		}
 >*/
 
-		$this->pushCode("patchwork_serverside::loadAgent($inc,array($a)," .( $is_exo ? 1 : 0 ). ");");
+		$this->pushCode("patchwork_serverside::loadAgent($inc,array($a)," . ($is_exo ? 1 : 0) . ");");
 
 		return true;
 	}
@@ -96,12 +96,14 @@ class extends ptlCompiler
 			$type = array_pop($this->setStack);
 			$name = $type[0];
 			$type = $type[1];
-			if ('d' != $type && 'a' != $type && 'g' != $type)
+
+			if ('d' !== $type && 'a' !== $type && 'g' !== $type)
 			{
 				$i = strlen($type);
 				$type = 'v';
 				if ($i) do $type .= '->{\'$\'}'; while (--$i);
 			}
+
 			$this->pushCode("\${$type}->{$name}=ob_get_clean();");
 		}
 		else
@@ -126,7 +128,7 @@ class extends ptlCompiler
 					. '&&($p=(object)array(\'$\'=>&$v))'
 					. '&&$v=&$p'
 				. ')while('
-					. '($p=&$v->{\'$\'}&&$v=$p->{\'p$\'}->loop(' .( $this->binaryMode ? '' : 'true' ). '))'
+					. '($p=&$v->{\'$\'}&&$v=$p->{\'p$\'}->loop(' . ($this->binaryMode ? '' : 'true') . '))'
 					. '||($v=&$p&&0)'
 				. '){'
 				. '$v->{\'$\'}=&$p;'
@@ -157,8 +159,8 @@ class extends ptlCompiler
 
 	protected function getEcho($str)
 	{
-		$str = "''" == substr($str, 0, 2) ? '' : "\"'\"' $str;";
-		if (')' == substr($str, -2, 1)) $str .= ';';
+		$str = "''" === substr($str, 0, 2) ? '' : "\"'\"' $str;";
+		if (')' === substr($str, -2, 1)) $str .= ';';
 		return $str;
 	}
 
@@ -191,7 +193,7 @@ class extends ptlCompiler
 			case 'd':
 			case 'a':
 			case 'g':
-				$var = ''!==(string) $prefix ? "patchwork_serverside::increment('$name',$prefix,\$$type)" : "@\${$type}->$name";
+				$var = '' !== (string) $prefix ? "patchwork_serverside::increment('$name',$prefix,\$$type)" : "@\${$type}->$name";
 				break;
 
 			case '':
@@ -202,17 +204,17 @@ class extends ptlCompiler
 				$var = "@\${$type}->$name";
 		}
 
-		if ("'" != $type)
+		if ("'" !== $type)
 		{
 			if (!strlen($name))
 			{
 				$var = substr($var, 0, -2);
 				if ($forceType) $var = "patchwork::string($var)";
 			}
-			else if ('@' == $var[0])
+			else if ('@' === $var[0])
 			{
 				$var = substr($var, 1);
-				$var = "(isset($var)?" .($forceType ? "patchwork::string($var)" : $var). ":'')";
+				$var = "(isset($var)?" . ($forceType ? "patchwork::string($var)" : $var) . ":'')";
 			}
 		}
 

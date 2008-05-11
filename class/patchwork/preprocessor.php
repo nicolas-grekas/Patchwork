@@ -454,13 +454,7 @@ class patchwork_preprocessor__0
 					$b = $c = $code[$i][1];
 
 					if ($final) $token .= $c;
-					else
-					{
-						$c = preg_replace("'__[0-9]+$'", '', $c);
-						if ($c) $b = $c . '__' . (0<=$level ? $level : '00');
-						else $c = $b;
-						$token .= $b;
-					}
+					else $token .= $b = $c . '__' . (0<=$level ? $level : '00');
 				}
 				else if ($class && 0<=$level)
 				{
