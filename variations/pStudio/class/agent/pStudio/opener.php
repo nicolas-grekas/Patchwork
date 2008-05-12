@@ -78,7 +78,7 @@ class extends agent_pStudio_explorer
 			$f = new pForm($o);
 			$f->add('textarea', 'code', array('default' => $o->text));
 			$send = $f->add('submit', 'save');
-			$send->add('code', '', '');
+			$send->attach('code', '', '');
 
 			if ($send->isOn())
 			{

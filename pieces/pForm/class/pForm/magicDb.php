@@ -82,7 +82,7 @@ class
 			if ($continue) continue;
 
 			$form->add($type, $row->Field, $param);
-			if ($save) $save->add($row->Field, $onempty, $onerror);
+			if ($save) $save->attach($row->Field, $onempty, $onerror);
 		}
 	}
 }

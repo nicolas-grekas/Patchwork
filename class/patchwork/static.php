@@ -21,20 +21,21 @@ class extends patchwork
 
 	static $contentType = array(
 		'.html' => 'text/html; charset=UTF-8',
-		'.htm' => 'text/html; charset=UTF-8',
-		'.css' => 'text/css; charset=UTF-8',
-		'.js' => 'text/javascript; charset=UTF-8',
-		'.htc' => 'text/x-component; charset=UTF-8',
-		'.xml' => 'application/xml',
-		'.swf' => 'application/x-shockwave-flash',
+		'.htm'  => 'text/html; charset=UTF-8',
+		'.css'  => 'text/css; charset=UTF-8',
+		'.js'   => 'text/javascript; charset=UTF-8',
+		'.htc'  => 'text/x-component; charset=UTF-8',
+		'.xml'  => 'application/xml',
+		'.swf'  => 'application/x-shockwave-flash',
 
-		'.png' => 'image/png',
-		'.gif' => 'image/gif',
-		'.jpg' => 'image/jpeg',
+		'.png'  => 'image/png',
+		'.gif'  => 'image/gif',
+		'.jpg'  => 'image/jpeg',
 		'.jpeg' => 'image/jpeg',
+		'.ico'  => 'image/x-icon',
 
-		'.doc' => 'application/msword',
-		'.pdf' => 'application/pdf',
+		'.doc'  => 'application/msword',
+		'.pdf'  => 'application/pdf',
 	);
 
 

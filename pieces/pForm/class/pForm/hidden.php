@@ -71,7 +71,7 @@ class extends loop_agentWrapper
 		if ($this->isdata && is_array($a))
 		{
 			$b = '';
-			foreach ($a as &$v) $b .= ',' . str_replace(array('%', ','), array('%25', '%2C'), $v);
+			foreach ($a as &$v) $b .= ',' . strtr($v, array('%' => '%25', ',' => '%2C'));
 			$a = substr($b, 1);
 		}
 
@@ -96,7 +96,7 @@ class extends loop_agentWrapper
 		return $this->status;
 	}
 
-	function add()
+	function attach()
 	{
 		$a = func_get_args();
 
