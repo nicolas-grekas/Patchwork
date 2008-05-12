@@ -52,7 +52,7 @@ class extends agent
 			$f = new pForm($o);
 			$f->add('file', 'file');
 			$send = $f->add('submit', 'send');
-			$send->add('file', 'Please select a file', '');
+			$send->attach('file', 'Please select a file', '');
 
 			if ($send->isOn())
 			{
