@@ -174,6 +174,8 @@ EOSQL
 			@$sqlite->queryExec($q->sql);
 		}
 
+		$sqlite->def = $q;
+
 		return $sqlite;
 	}
 }
