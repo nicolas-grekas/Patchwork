@@ -40,7 +40,12 @@ class patchwork_preprocessor__0
 		'PATCHWORK_PATH_OFFSET' => PATCHWORK_PATH_OFFSET,
 	),
 
-	$function = array(
+	$classAlias = array(
+		'p' => 'patchwork',
+		's' => 'SESSION',
+	),
+
+	$functionAlias = array(
 		'ob_start'   => 'ob::start',
 		'rand'       => 'mt_rand',
 		'srand'      => 'mt_srand',
@@ -130,8 +135,8 @@ class patchwork_preprocessor__0
 
 	private static
 
-	$declared_class = array('self' => 1, 'parent' => 1, 'this' => 1, 'static' => 1, 'p' => 1),
-	$inline_class,
+	$declaredClass = array('self' => 1, 'parent' => 1, 'this' => 1, 'static' => 1, 'p' => 1, 'patchwork' => 1),
+	$inlineClass,
 	$recursive = false;
 
 
@@ -143,7 +148,7 @@ class patchwork_preprocessor__0
 		{
 			// In debug mode, checks if character case is strict.
 			// Fix a bug with long file names.
-			self::$function += array(
+			self::$functionAlias += array(
 				'file_exists'   => 'win_file_exists',
 				'is_file'       => 'win_is_file',
 				'is_dir'        => 'win_is_dir',
@@ -156,7 +161,7 @@ class patchwork_preprocessor__0
 			);
 		}
 
-		class_exists('patchwork', false) && self::$function += array(
+		class_exists('patchwork', false) && self::$functionAlias += array(
 			'header'       => 'patchwork::header',
 			'setcookie'    => 'patchwork::setcookie',
 			'setrawcookie' => 'patchwork::setrawcookie',
@@ -164,13 +169,13 @@ class patchwork_preprocessor__0
 
 		foreach (get_declared_classes() as $v)
 		{
-			$v = strtolower($v);
-			if ('patchwork_' === substr($v, 0, 10)) break;
-			self::$declared_class[$v] = 1;
+			if (false !== strpos($v, 'patchwork')) continue;
+			self::$declaredClass[$v] = 1;
+			if ('p' === $v) break;
 		}
 
 		// As of PHP5.1.2, hash('md5', $str) is a lot faster than md5($str) !
-		extension_loaded('hash') && self::$function += array(
+		extension_loaded('hash') && self::$functionAlias += array(
 			'md5'   => "hash('md5',",
 			'sha1'  => "hash('sha1',",
 			'crc32' => "hash('crc32',",
@@ -178,7 +183,7 @@ class patchwork_preprocessor__0
 
 		if (!function_exists('mb_stripos'))
 		{
-			self::$function += array(
+			self::$functionAlias += array(
 				'mb_stripos'  => 'utf8_mbstring_520::stripos',
 				'mb_stristr'  => 'utf8_mbstring_520::stristr',
 				'mb_strrchr'  => 'utf8_mbstring_520::strrchr',
@@ -200,7 +205,7 @@ class patchwork_preprocessor__0
 					'MB_CASE_TITLE' => 2
 				);
 
-				self::$function += array(
+				self::$functionAlias += array(
 					'mb_convert_encoding'     => 'utf8_mbstring_500::convert_encoding',
 					'mb_decode_mimeheader'    => 'utf8_iconv::mime_decode',
 					'mb_convert_case'         => 'utf8_mbstring_500::convert_case',
@@ -223,11 +228,11 @@ class patchwork_preprocessor__0
 		if (extension_loaded('iconv') && 'fi' === @iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'ﬁ'))
 		{
 			// iconv is way faster than mbstring
-			self::$function['mb_strlen']            = 'iconv_strlen';
-			self::$function['mb_strpos']            = 'iconv_strpos';
-			self::$function['mb_strrpos_500']       = 'iconv_strrpos';
-			self::$function['mb_substr']            = 'iconv_substr';
-			self::$function['mb_decode_mimeheader'] = 'iconv_mime_decode';
+			self::$functionAlias['mb_strlen']            = 'iconv_strlen';
+			self::$functionAlias['mb_strpos']            = 'iconv_strpos';
+			self::$functionAlias['mb_strrpos_500']       = 'iconv_strrpos';
+			self::$functionAlias['mb_substr']            = 'iconv_substr';
+			self::$functionAlias['mb_decode_mimeheader'] = 'iconv_mime_decode';
 		}
 		else
 		{
@@ -238,7 +243,7 @@ class patchwork_preprocessor__0
 				'ICONV_MIME_DECODE_CONTINUE_ON_ERROR' => 2,
 			);
 
-			self::$function += array(
+			self::$functionAlias += array(
 				'iconv' => 'utf8_iconv::iconv',
 				'iconv_get_encoding' => 'utf8_iconv::get_encoding',
 				'iconv_set_encoding' => 'utf8_iconv::set_encoding',
@@ -250,18 +255,18 @@ class patchwork_preprocessor__0
 
 			if (extension_loaded('mbstring'))
 			{
-				self::$function += array(
+				self::$functionAlias += array(
 					'iconv_strlen'  => 'mb_strlen',
 					'iconv_strpos'  => 'mb_strpos',
 					'iconv_strrpos' => 'mb_strrpos',
 					'iconv_substr'  => 'mb_substr',
 				);
 
-				self::$function['iconv_mime_decode'] = 'mb_decode_mimeheader';
+				self::$functionAlias['iconv_mime_decode'] = 'mb_decode_mimeheader';
 			}
 			else
 			{
-				self::$function += array(
+				self::$functionAlias += array(
 					'iconv_strlen'  => 'utf8_mbstring_500::strlen',
 					'iconv_strpos'  => 'utf8_mbstring_500::strpos',
 					'iconv_strrpos' => 'utf8_mbstring_500::strrpos',
@@ -291,7 +296,7 @@ class patchwork_preprocessor__0
 
 		if (!$recursive)
 		{
-			self::$inline_class = self::$declared_class;
+			self::$inlineClass = self::$declaredClass;
 			self::$recursive = true;
 		}
 
@@ -483,7 +488,7 @@ class patchwork_preprocessor__0
 					$new_code[$j] = "\$GLOBALS['patchwork_abstract']['{$class_pool[$curly_level]->classkey}']=1;" . $new_code[$j];
 				}
 
-				self::$inline_class[strtolower($c)] = 1;
+				self::$inlineClass[strtolower($c)] = 1;
 
 				if ($c && isset($code[$i]) && is_array($code[$i]) && T_EXTENDS === $code[$i][0])
 				{
@@ -495,7 +500,7 @@ class patchwork_preprocessor__0
 					{
 						$c = 0<=$level && 'self' === $code[$i][1] ? $c . '__' . ($level ? $level-1 : '00') : $code[$i][1];
 						$token .= $c;
-						self::$inline_class[strtolower($c)] = 1;
+						self::$inlineClass[strtolower($c)] = 1;
 					}
 					else --$i;
 				}
@@ -556,15 +561,16 @@ class patchwork_preprocessor__0
 				$token .= $this->fetchSugar($code, $i);
 				if (!isset($code[$j = $i--])) break;
 
-				$c = true;
+				$c = '';
 
 				if (is_array($code[$j]) && T_STRING === $code[$j][0])
 				{
-					if (isset(self::$inline_class[strtolower($code[$j][1])])) break;
-					$c = false;
+					$c = strtolower($code[$j][1]);
+					empty(self::$classAlias[$c]) || $c = self::$classAlias[$c];
+					if (isset(self::$inlineClass[$c])) break;
 				}
 
-				if ($c)
+				if ('' === $c)
 				{
 					$curly_marker_last[1]>0 || $curly_marker_last[1] =  1;
 					$c = "\$a{$T}=\$b{$T}=\$e{$T}";
@@ -572,7 +578,7 @@ class patchwork_preprocessor__0
 				else
 				{
 					$curly_marker_last[1]   || $curly_marker_last[1] = -1;
-					$c = $this->marker($code[$j][1]);
+					$c = $this->marker($c);
 				}
 
 				if ('&' === $prevType)
@@ -601,7 +607,7 @@ class patchwork_preprocessor__0
 					if (strspn($antePrevType, '(,') // To not break pass by ref, isset, unset and list
 						|| $static_instruction
 						|| isset($class_pool[$curly_level-1])
-						|| isset(self::$inline_class[$prevType])
+						|| isset(self::$inlineClass[$prevType])
 					) break;
 
 					$curly_marker_last[1] || $curly_marker_last[1] = -1;
@@ -681,20 +687,27 @@ class patchwork_preprocessor__0
 					break;
 				}
 
-				if ('(' === $code[$i+1])
+				if (T_NEW === $prevType || is_array($code[$i+1]) && T_DOUBLE_COLON === $code[$i+1][0])
 				{
-					if (isset(self::$function[$type]))
+					if ('self' === $type) $class_pool && $token = end($class_pool)->classname; // Replace every self::* by __CLASS__::*
+					else empty(self::$classAlias[$type]) || $token = self::$classAlias[$type];
+				}
+				else if ('(' === $code[$i+1])
+				{
+					if (isset(self::$functionAlias[$type]))
 					{
-						if (self::$function[$type] instanceof __patchwork_preprocessor_bracket)
+						$j = self::$functionAlias[$type];
+
+						if ($j instanceof __patchwork_preprocessor_bracket)
 						{
 							$token .= $c;
-							$c = clone self::$function[$type];
+							$c = clone $j;
 							$c->setupFilter();
 							break;
 						}
-						else if (0 !== stripos(self::$function[$type], $class . '::'))
+						else if (0 !== stripos($j, $class . '::'))
 						{
-							$token = self::$function[$type];
+							$token = $j;
 							if (false !== strpos($token, '(')) ++$i && $type = '(';
 							else $type = strtolower($token);
 						}
@@ -734,7 +747,7 @@ class patchwork_preprocessor__0
 						if (0>$level && in_array($type, array('interface_exists', 'class_exists'))) new __patchwork_preprocessor_classExists($this, true);
 					}
 				}
-				else if (!(is_array($code[$i+1]) && T_DOUBLE_COLON === $code[$i+1][0])) switch ($type)
+				else switch ($type)
 				{
 				case '__patchwork_level__': if (0>$level) break;
 					$token = $level;
@@ -750,9 +763,6 @@ class patchwork_preprocessor__0
 						else if ("'" === $token[0]) $type = T_CONSTANT_ENCAPSED_STRING;
 					}
 				}
-				else if ('self' === $type && $class_pool) $token = end($class_pool)->classname; // Replace every self::* by __CLASS__::*
-				else if ('p' === $type) $token = 'patchwork';
-				else if ('s' === $type) $token = 'SESSION';
 
 				$token .= $c;
 
