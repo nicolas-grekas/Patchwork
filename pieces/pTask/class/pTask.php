@@ -21,6 +21,11 @@ class
 	$nextRun = 0;
 
 
+	protected static
+
+	$staticRegistry = array();
+
+
 	function __construct($callback = false, $arguments = array())
 	{
 		is_array($arguments) || $arguments = array($arguments);
@@ -47,96 +52,93 @@ class
 	}
 
 
-	static function schedule(self $task, $time = 0)
+	final static function schedule(self $task, $time = 0)
 	{
-		$queue = new self;
-		$sqlite = $queue->getSqlite();
+		$task->doSchedule($time);
+	}
+
+	static function cancel($id, $sqlite = false)
+	{
+		$sqlite || ($sqlite = new self) && $sqlite = $sqlite->getSqlite();
+
+		$id = (int) $id;
+		$sql = "DELETE FROM queue WHERE OID={$id}";
+		$sqlite->queryExec($sql);
+	}
+
+
+	protected function doSchedule($time)
+	{
+		$sqlite = $this->getSqlite();
 
 		if ($time < $_SERVER['REQUEST_TIME'] - 366*86400) $time += $_SERVER['REQUEST_TIME'];
 
 		$base = sqlite_escape_string(p::__BASE__());
 		$data = array(
-			'task' => $task,
+			'task' => $this,
 			'session' => class_exists('SESSION', false) ? SESSION::getAll() : array()
 		);
 		$data = sqlite_escape_string(serialize($data));
 
-		$sql = "INSERT INTO queue VALUES('{$base}','{$data}',{$time})";
+		$sql = "INSERT INTO queue (base, data, run_time)
+				VALUES('{$base}','{$data}',{$time})";
 		$sqlite->queryExec($sql);
 
 		$id = $sqlite->lastInsertRowid();
 
-		self::$is_registered || $queue->registerQueue();
+		$this->registerQueue();
 
 		return $id;
 	}
 
-	static function cancel($id)
+	protected function getQueueDefinition()
 	{
-		$queue = new self;
-		$id = (int) $id;
-		$sql = "DELETE FROM queue WHERE OID={$id}";
-		$queue->getSqlite()->queryExec($sql);
-	}
+		return (object) array(
+			'name'   => 'queue',
+			'folder' => 'data/queue/pTask/',
+			'url'    => 'queue/pTask',
+			'sql'    => <<<EOSQL
+				CREATE TABLE queue (base TEXT, data BLOB, run_time INTEGER);
+				CREATE INDEX run_time ON queue (run_time);
+				CREATE VIEW waiting AS SELECT * FROM queue WHERE run_time>0;
+				CREATE VIEW error   AS SELECT * FROM queue WHERE run_time=0;
 
+				CREATE TABLE registry (task_id INTEGER, task_name TEXT, level INTEGER, zcache TEXT);
+				CREATE INDEX task_id ON registry registry (task_id);
 
-	// The following functions should not be used directly
+				CREATE TRIGGER DELETE ON queue
+				BEGIN
+					DELETE FROM registry WHERE task_id=OLD.OID;
+				END;
 
-	protected function defineQueue()
-	{
-		$this->queueName = 'queue';
-		$this->queueFolder = 'data/queue/pTask/';
-		$this->queueUrl = 'queue/pTask';
-		$this->queueSql = '
-			CREATE TABLE queue (base TEXT, data BLOB, run_time INTEGER);
-			CREATE INDEX run_time ON queue (run_time);
-			CREATE VIEW waiting AS SELECT * FROM queue WHERE run_time>0;
-			CREATE VIEW error   AS SELECT * FROM queue WHERE run_time=0;
-
-			CREATE TABLE registry (task_id INTEGER, task_name TEXT, level INTEGER, zcache TEXT);
-			CREATE INDEX task_id ON registry registry (task_id);
-
-			CREATE TRIGGER DELETE ON queue
-			BEGIN
-				DELETE FROM registry WHERE task_id=OLD.OID;
-			END;
-
-			CREATE TRIGGER DELETE ON registry
-			BEGIN
-				DELETE FROM queue WHERE OID=OLD.task_id
-			END;';
-	}
-
-
-	protected static
-
-	$sqlite = array(),
-	$is_registered = false;
-
-
-	function preSerialize()
-	{
-		unset($this->queueName, $this->queueFolder, $this->queueUrl, $this->queueSql);
-		return $this;
+				CREATE TRIGGER DELETE ON registry
+				BEGIN
+					DELETE FROM queue WHERE OID=OLD.task_id
+				END;
+EOSQL
+		);
 	}
 
 	protected function registerQueue()
 	{
-		if (!self::$is_registered)
+		$is_registered =& $this->getStatic('isRegistered');
+
+		if (!$is_registered)
 		{
 			register_shutdown_function(array($this, 'startQueue'));
-			self::$is_registered = true;
+			$is_registered = true;
 		}
 	}
 
-	function startQueue()
+	function startQueue($q = false)
 	{
-		$this->isRunning() || tool_url::touch($this->queueUrl);
+		$q || $q = $this->getQueueDefinition();
+		$this->isRunning($q) || tool_url::touch($q->url);
 	}
 
-	protected function isRunning()
+	protected function isRunning($q)
 	{
-		$lock = resolvePath($this->queueFolder) . $this->queueName . '.lock';
+		$lock = resolvePath($q->folder) . $q->name . '.lock';
 
 		if (!file_exists($lock)) return false;
 
@@ -147,20 +149,29 @@ class
 		return $type;
 	}
 
+	protected function &getStatic($key)
+	{
+		$c = get_class($this);
+
+		isset(self::$staticRegistry[$c]) || self::$staticRegistry[$c] = array();
+
+		return self::$staticRegistry[$c][$key];
+	}
+
 	function getSqlite()
 	{
-		$this->defineQueue();
+		$sqlite =& $this->getStatic('sqlite');
 
-		$sqlite =& self::$sqlite[get_class($this)];
 		if ($sqlite) return $sqlite;
 
-		$sqlite = resolvePath($this->queueFolder) . $this->queueName . '.sqlite';
+		$q = $this->getQueueDefinition();
+		$sqlite = resolvePath($q->folder) . $q->name . '.sqlite';
 
 		if (file_exists($sqlite)) $sqlite = new SQLiteDatabase($sqlite);
 		else
 		{
 			$sqlite = new SQLiteDatabase($sqlite);
-			@$sqlite->queryExec($this->queueSql);
+			@$sqlite->queryExec($q->sql);
 		}
 
 		return $sqlite;

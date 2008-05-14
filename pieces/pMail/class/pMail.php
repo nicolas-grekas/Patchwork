@@ -14,7 +14,7 @@
 
 class extends pTask
 {
-	protected $test_mode = false;
+	protected $testMode = false;
 
 	static function send($headers, $body, $options = null)
 	{
@@ -40,11 +40,11 @@ class extends pTask
 		));
 	}
 
-	protected static function pushMail($data)
+	protected static function pushMail($data, $queue = false)
 	{
-		$queue = new self;
+		$queue || $queue = new self;
 
-		if ($queue->test_mode)
+		if ($queue->testMode)
 		{
 			$data['headers']['X-Original-To'] = $data['headers']['To'];
 			$data['headers']['To'] = $CONFIG['pMail.debug_email'];
@@ -58,8 +58,8 @@ class extends pTask
 
 		$sqlite = $queue->getSqlite();
 
-		$sent = - (int)(bool) $queue->test_mode;
-		$archive = (int) (!empty($data['options']['archive']) || $queue->test_mode);
+		$sent = - (int)(bool) $queue->testMode;
+		$archive = (int) (!empty($data['options']['archive']) || $queue->testMode);
 
 		$time = isset($data['options']['time']) ? $data['options']['time'] : 0;
 		if ($time < $_SERVER['REQUEST_TIME'] - 366*86400) $time += $_SERVER['REQUEST_TIME'];
@@ -67,34 +67,37 @@ class extends pTask
 		$base = sqlite_escape_string(p::__BASE__());
 		$data = sqlite_escape_string(serialize($data));
 
-		$sql = "INSERT INTO queue VALUES('{$base}','{$data}',{$time},{$archive},{$sent})";
+		$sql = "INSERT INTO queue (base, data, send_time, archive, sent_time)
+				VALUES('{$base}','{$data}',{$time},{$archive},{$sent})";
 		$sqlite->queryExec($sql);
 
 		$id = $sqlite->lastInsertRowid();
 
-		self::$is_registered || $queue->registerQueue();
+		$queue->registerQueue();
 
 		return $id;
 	}
 
-	static function schedule(self $task, $time = 0)
+
+	protected function doSchedule($time)
 	{
-		throw new Exception(__CLASS__ . '::schedule() is disabled');
+		throw new Exception(get_class($this) . '::schedule() is disabled');
 	}
 
-
-	protected function defineQueue()
+	protected function getQueueDefinition()
 	{
-		parent::defineQueue();
-
-		$this->queueFolder = 'data/queue/pMail/';
-		$this->queueUrl = 'queue/pMail';
-		$this->queueSql = '
-			CREATE TABLE queue (base TEXT, data BLOB, send_time INTEGER, archive INTEGER, sent_time INTEGER);
-			CREATE INDEX send_time ON queue (send_time);
-			CREATE INDEX sent_time ON queue (sent_time);
-			CREATE VIEW waiting AS SELECT * FROM queue WHERE send_time>0 AND sent_time=0;
-			CREATE VIEW error   AS SELECT * FROM queue WHERE send_time=0;
-			CREATE VIEW archive AS SELECT * FROM queue WHERE sent_time>0;';
+		return (object) array(
+			'name'   => 'queue',
+			'folder' => 'data/queue/pMail/',
+			'url'    => 'queue/pMail',
+			'sql'    => <<<EOSQL
+				CREATE TABLE queue (base TEXT, data BLOB, send_time INTEGER, archive INTEGER, sent_time INTEGER);
+				CREATE INDEX send_time ON queue (send_time);
+				CREATE INDEX sent_time ON queue (sent_time);
+				CREATE VIEW waiting AS SELECT * FROM queue WHERE send_time>0 AND sent_time=0;
+				CREATE VIEW error   AS SELECT * FROM queue WHERE send_time=0;
+				CREATE VIEW archive AS SELECT * FROM queue WHERE sent_time>0;
+EOSQL
+		);
 	}
 }
