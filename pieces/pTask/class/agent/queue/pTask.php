@@ -46,7 +46,7 @@ class extends agent
 
 		if (!empty($this->get->__1__))
 		{
-			if (isset($this->get->__2__) && $this->get->__2__ == $this->getToken())
+			if (!empty($this->get->__2__) && $this->get->__2__ == $this->getToken())
 			{
 				if ($this->getLock())
 				{
