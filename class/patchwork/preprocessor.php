@@ -12,7 +12,9 @@
  ***************************************************************************/
 
 
-defined('T_DIR') || define('T_DIR', 378); // T_DIR exists since PHP 5.3
+// New tokens since PHP 5.3
+defined('T_DIR' ) || define('T_DIR' , -1);
+defined('T_NS_C') || define('T_NS_C', -1);
 
 class patchwork_preprocessor__0
 {
@@ -58,8 +60,8 @@ class patchwork_preprocessor__0
 	),
 
 	$variableType = array(
-		T_EVAL, '(', T_FILE, T_LINE, T_FUNC_C, T_CLASS_C, T_INCLUDE, T_REQUIRE, T_CURLY_OPEN,
-		T_VARIABLE, '$', T_INCLUDE_ONCE, T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES, T_DIR,
+		T_EVAL, '(', T_LINE, T_FILE, T_DIR, T_FUNC_C, T_CLASS_C, T_METHOD_C, T_NS_C, T_INCLUDE, T_REQUIRE,
+		T_CURLY_OPEN, T_VARIABLE, '$', T_INCLUDE_ONCE, T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES,
 	),
 
 	// List of native functions that could trigger __autoload()
@@ -441,6 +443,15 @@ class patchwork_preprocessor__0
 				if ($class_pool)
 				{
 					$token = "'" . end($class_pool)->classname . "'";
+					$type = T_CONSTANT_ENCAPSED_STRING;
+				}
+				break;
+
+			case T_METHOD_C:
+				if ($class_pool)
+				{
+					// XXX PB AVEC LES INSTRUCTIONS STATIQUES !!!
+					$token = "('" . end($class_pool)->classname . "::'.__FUNCTION__)";
 					$type = T_CONSTANT_ENCAPSED_STRING;
 				}
 				break;
