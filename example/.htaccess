@@ -2,6 +2,11 @@ Allow from all
 
 AcceptPathInfo On
 
+<IfModule mod_xsendfile.c>
+SetEnv PATCHWORK_XSENDFILE 1
+</IfModule>
+
+<IfModule mod_rewrite.c>
 RewriteEngine On
 
 # Avoid TRACE and TRACK method to prevent "Cross-Site-Tracing"
@@ -18,6 +23,7 @@ RewriteRule .+ - [S=1]
 
 RewriteCond %{ENV:PATCHWORK_REQUEST} ^$
 RewriteRule .* index.php [E=PATCHWORK_REQUEST:/$0]
+</IfModule>
 
 # Here is an other way to get friendly URLs
 #<Files bootstrap_file_here>
