@@ -171,12 +171,6 @@ class extends loop_agentWrapper
 			{
 				switch ($a[$this->name]['error'])
 				{
-				case UPLOAD_ERR_OK:
-				case UPLOAD_ERR_NO_FILE:
-				default:
-					$onerror = T('Input validation error');
-					break;
-
 				case UPLOAD_ERR_INI_SIZE:
 				case UPLOAD_ERR_FORM_SIZE:
 					$onerror = T('The uploaded file size exceeds the allowed limit');
@@ -186,9 +180,8 @@ class extends loop_agentWrapper
 					$onerror = T('The uploaded file was only partially uploaded');
 					break;
 
-				case UPLOAD_ERR_NO_TMP_DIR:
-				case UPLOAD_ERR_CANT_WRITE:
-					$onerror = sprintf(T('The server failed to accept the uploaded file (code #%d)'), $this->name, $a[$this->name]['error']);
+				default:
+					$onerror = sprintf(T('File upload failed (code #%d)'), $this->name, $a[$this->name]['error']);
 					break;
 				}
 			}

@@ -32,8 +32,8 @@ class
 	{
 		if (!is_array($value)) return '';
 
-		if ($value['error']==4) return '';
-		if ($value['error']) return false;
+		if (UPLOAD_ERR_NO_FILE === $value['error']) return '';
+		if (UPLOAD_ERR_OK !== $value['error']) return false;
 
 		if ('image/pjpeg' == $value['type']) $value['type'] = 'image/jpeg';
 
