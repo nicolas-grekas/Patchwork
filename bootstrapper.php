@@ -339,7 +339,7 @@ patchwork::start();";
 	static function release()
 	{
 		$buffer = ob_get_clean();
-		'' !== $buffer && die($buffer . "\n<br /><br />\n\n<small>---- dying ----</small>");
+		'' !== $buffer && die($buffer . "\n<br /><br />\n\n<small>---- Something has been echoed during bootstrap - dying ----</small>");
 	}
 
 
@@ -642,7 +642,7 @@ patchwork::start();";
 
 	protected static function populatePathCache(&$old_db, &$db, &$parentPaths, &$path, $root, $level, $prefix = '', $subdir = '/')
 	{
-		// Kind of updatedb with mlocale strategy
+		// Kind of updatedb with mlocate strategy
 
 		$dir = $root . ('\\' === DIRECTORY_SEPARATOR ? strtr($subdir, '/', '\\') : $subdir);
 
