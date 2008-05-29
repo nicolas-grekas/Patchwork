@@ -150,10 +150,22 @@ class
 	{
 		if (!is_scalar($value)) return false;
 
-		$result = trim($value);
+		$result = strtolower(trim($value));
 
-		if ( !preg_match('/^' . self::EMAIL_RX . '$/u', $result, $domain) ) return false;
-		if ( function_exists('checkdnsrr') && !checkdnsrr($domain[2]) ) return false;
+		if (!preg_match('/^' . self::EMAIL_RX . '$/u', $result, $d)) return false;
+
+		static $dns;
+
+		isset($dns) || $dns = function_exists('checkdnsrr') && checkdnsrr('gmail.com') ? array('gmail.com' => 1) : false;
+
+		if ($dns)
+		{
+			$d = $d[2];
+
+			if (isset($dns[$d])) {}
+			else if (checkdnsrr($d)) $dns[$d] = 1;
+			else return false;
+		}
 
 		return $result;
 	}

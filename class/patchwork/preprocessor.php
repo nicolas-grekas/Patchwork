@@ -314,7 +314,7 @@ class patchwork_preprocessor__0
 		$code = file_get_contents($source);
 		UTF8_BOM === substr($code, 0, 3) && $code = substr($code, 3);
 
-		if (!preg_match('//u', $code)) trigger_error("File {$source}:\nfile encoding is not valid UTF-8. Please convert your source code to UTF-8.");
+		if (!preg_match('//u', $code)) trigger_error("File {$source}:\nfile encoding is not valid UTF-8.\nPlease configure your code editor for UTF-8.");
 
 		$preproc->antePreprocess($code);
 		$code =& $preproc->preprocess($code);
