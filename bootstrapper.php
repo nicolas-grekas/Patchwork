@@ -421,6 +421,7 @@ patchwork::start();";
 		$source = file_get_contents($config);
 		self::UTF8_BOM === substr($source, 0, 3) && $source = substr($source, 3);
 		false !== strpos($source, "\r") && $source = strtr(str_replace("\r\n", "\n", $source), "\r", "\n");
+		"\n" === $source && $source = '';
 
 		ob_start();
 
