@@ -227,7 +227,7 @@ class patchwork_preprocessor__0
 			}
 		}
 
-		if (extension_loaded('iconv') && 'fi' === @iconv('UTF-8', 'ASCII//IGNORE//TRANSLIT', 'ﬁ'))
+		if (extension_loaded('iconv') && 'fi' === @iconv('UTF-8', 'ASCII//TRANSLIT', 'ﬁ'))
 		{
 			// iconv is way faster than mbstring
 			self::$functionAlias['mb_strlen']            = 'iconv_strlen';
