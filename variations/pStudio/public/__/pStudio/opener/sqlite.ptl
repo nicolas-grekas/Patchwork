@@ -8,7 +8,7 @@
 <!-- END:LOOP -->
 </ul>
 
-<form action="{g$__URI__}" accept-charset="UTF-8">
+<form action="{g$__URI__}" accept-charset="utf-8">
 <input type="hidden" name="low" value="{g$low}" />
 <input type="hidden" name="high" value="{g$high}" />
 <textarea name="sql">{g$sql}</textarea>

@@ -37,7 +37,7 @@ ELSE
 	SET a$action --><!-- IF !a$action -->{g$__URI__}<!-- ELSE -->{base:a$action:1}<!-- END:IF --><!-- END:SET
 	IF !a$id --><!-- SET a$id -->FiD{g+1$GLOBID}<!-- END:SET --><!-- END:IF
 
-	--><form accept-charset="UTF-8" {a$|htmlArgs}><!--
+	--><form accept-charset="utf-8" {a$|htmlArgs}><!--
 
 	LOOP a$_hidden
 		--><input type="hidden" name="{$name}" value="{$value}" /><!--

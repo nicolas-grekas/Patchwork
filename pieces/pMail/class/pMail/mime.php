@@ -48,12 +48,12 @@ class extends Mail_mime
 
 		$this->options = $options;
 
-		$this->_build_params['head_charset' ] = 'UTF-8';
+		$this->_build_params['head_charset' ] = 'utf-8';
 
-		$this->_build_params['text_charset' ] = 'UTF-8';
+		$this->_build_params['text_charset' ] = 'utf-8';
 		$this->_build_params['text_encoding'] = 'base64';
 
-		$this->_build_params['html_charset' ] = 'UTF-8';
+		$this->_build_params['html_charset' ] = 'utf-8';
 		$this->_build_params['html_encoding'] = 'base64';
 	}
 

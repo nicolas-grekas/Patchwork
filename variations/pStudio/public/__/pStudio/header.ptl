@@ -1,1 +1,10 @@
-<!-- INLINE header:0 -->
+<!--
+
+SET a$head
+	-->{a$head}<!--
+	IF g$low != g$high --><meta name="robots" content="noindex, nofollow"><!-- END:IF
+END:SET
+
+INLINE header:0
+
+-->

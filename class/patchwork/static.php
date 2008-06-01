@@ -20,11 +20,11 @@ class extends patchwork
 	// or one of its plugin need to be listed here.
 
 	static $contentType = array(
-		'.html' => 'text/html; charset=UTF-8',
-		'.htm'  => 'text/html; charset=UTF-8',
-		'.css'  => 'text/css; charset=UTF-8',
-		'.js'   => 'text/javascript; charset=UTF-8',
-		'.htc'  => 'text/x-component; charset=UTF-8',
+		'.html' => 'text/html; charset=utf-8',
+		'.htm'  => 'text/html; charset=utf-8',
+		'.css'  => 'text/css; charset=utf-8',
+		'.js'   => 'text/javascript; charset=utf-8',
+		'.htc'  => 'text/x-component; charset=utf-8',
 		'.xml'  => 'application/xml',
 		'.swf'  => 'application/x-shockwave-flash',
 

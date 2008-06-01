@@ -21,6 +21,7 @@
 
 define('patchwork', microtime(true));
 error_reporting(E_ALL | E_STRICT);
+setlocale(LC_ALL, 'C');
 
 define('PATCHWORK_PROJECT_PATH', /*<*/__patchwork_bootstrapper::$cwd   /*>*/);
 define('PATCHWORK_ZCACHE',       /*<*/__patchwork_bootstrapper::$zcache/*>*/);
