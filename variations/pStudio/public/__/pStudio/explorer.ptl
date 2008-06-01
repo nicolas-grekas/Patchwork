@@ -1,14 +1,13 @@
 <!--
 
 AGENT 'pStudio/header' title="{$topname} - pStudio"
-SET a$rel --><!-- IF $low != $high -->rel="nofollow"<!-- END:IF --><!-- END:SET
 
 -->
 
 <table>
 <tr>
 	<td colspan="3">
-	<a href="{~}pStudio/explorer/?low={$low}&amp;high={$high}" {a$rel}>{$appname}</a>
+	<a href="{~}pStudio/explorer/?low={$low}&amp;high={$high}">{$appname}</a>
 	<!--
 		SET a$path --><!-- END:SET
 
@@ -18,14 +17,14 @@ SET a$rel --><!-- IF $low != $high -->rel="nofollow"<!-- END:IF --><!-- END:SET
 			--> &gt; <!--
 
 			IF $iteratorPosition + 1 < $$paths
-				--><a href="{~}pStudio/explorer/{a$path}?low={$$low}&amp;high={$$high}" {a$rel}>{$VALUE}</a><!--
+				--><a href="{~}pStudio/explorer/{a$path}?low={$$low}&amp;high={$$high}">{$VALUE}</a><!--
 			ELSE
 				--><b>{$VALUE}</b><!--
 			END:IF
 		END:LOOP
 
 		IF $is_file
-			--> [<a href="{~}pStudio/explorer/{g$__0__}?low={$$low}&amp;high={$$high}&amp;$serverside=1" {a$rel}>{"Download"}</a>]<!--
+			--> [<a href="{~}pStudio/explorer/{g$__0__}?low={$$low}&amp;high={$$high}&amp;$serverside=1">{"Download"}</a>]<!--
 			IF $is_auth_edit
 				AGENT $form
 				AGENT $f_file
@@ -45,7 +44,7 @@ SET a$rel --><!-- IF $low != $high -->rel="nofollow"<!-- END:IF --><!-- END:SET
 	<!-- SET a$fullpath -->{~}pStudio/explorer{a$path}<!-- END:SET -->
 
 	<!-- IF '/' != a$path -->
-	<a href="{a$fullpath}..?low={$low}&amp;high={$high}" {a$rel}>..</a>
+	<a href="{a$fullpath}..?low={$low}&amp;high={$high}">..</a>
 	<!-- END:IF -->
 
 	<!-- LOOP $subpaths -->
@@ -59,9 +58,9 @@ SET a$rel --><!-- IF $low != $high -->rel="nofollow"<!-- END:IF --><!-- END:SET
 		<!-- IF $isApp -->
 		<b>{$name}</b>
 		<!-- ELSEIF $isDir -->
-		<a href="{a$fullpath}{$name}/?low={$$low}&amp;high={$$high}" title="{$appname}" {a$rel}><b>{$name}</b></a>
+		<a href="{a$fullpath}{$name}/?low={$$low}&amp;high={$$high}" title="{$appname}"><b>{$name}</b></a>
 		<!-- ELSE -->
-		<a href="{a$fullpath}{$name}?low={$$low}&amp;high={$$high}" title="{$appname}" {a$rel}>{$name}</a>
+		<a href="{a$fullpath}{$name}?low={$$low}&amp;high={$$high}" title="{$appname}">{$name}</a>
 		<!-- END:IF -->
 
 		</div>

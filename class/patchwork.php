@@ -612,7 +612,7 @@ class
 				// BUT! IE does special mangling with literal application/octet-stream...
 				$string = str_ireplace('application/octet-stream', 'application/x-octet-stream', $string);
 
-				if ((false !== stripos($string, 'text/') || false !== stripos($string, 'xml')) && false === strpos($string, ';')) $string .= '; charset=UTF-8';
+				if ((false !== stripos($string, 'text/') || false !== stripos($string, 'xml')) && false === strpos($string, ';')) $string .= '; charset=utf-8';
 
 				$string = 'Content-Type: ' . $string;
 			}
@@ -1638,13 +1638,7 @@ class
 							p::header('Content-Disposition: attachment; filename=' . rawurlencode($h[1]) . str_replace('"', "''", $h[2]));
 							$h = false;
 						}
-						else
-						{
-							$h = str_replace(array('%', '^', "'", '`', '~', '"' ), array('%0','%1','%2','%3','%4','%5'), $h);
-							$h = iconv('UTF-8', 'US-ASCII//IGNORE//TRANSLIT', $h);
-							$h = str_replace(array(     '^', "'", '`', '~', '"' ), '', $h);
-							$h = str_replace(array('%1','%2','%3','%4','%5','%0'), array('^', "'", '`', '~', '"', '%' ), $h);
-						}
+						else $h = utf8_normalizer::toASCII($h);
 					}
 					else if (!isset($_SERVER['PATCHWORK_FILENAME'])) $h = false;
 				}

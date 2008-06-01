@@ -17,7 +17,7 @@
 <!-- IF !g+1$headerNesting -->
 <head>
 	<!-- SERVERSIDE -->
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<script type="text/javascript" src="{base:'js/w'}"></script>
 	<!-- END:SERVERSIDE -->
 
@@ -38,5 +38,5 @@
 
 	{a$head}
 </head>
-<body class="{a$class}">
+<body<!-- IF a$class --> class="{a$class}"<!-- END:IF -->>
 <!-- END:IF -->

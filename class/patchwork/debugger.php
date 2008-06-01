@@ -86,7 +86,7 @@ class
 
 		return <<<EOHTML
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script type="text/javascript" src="{$QDebug}"></script>
 EOHTML;
 	}
@@ -109,12 +109,12 @@ EOHTML;
 		$S = isset($_GET['stop']);
 		$S && ob_start('ob_gzhandler', 8192);
 
-		header('Content-Type: text/html; charset=UTF-8');
+		header('Content-Type: text/html; charset=utf-8');
 		header('Cache-Control: max-age=0,private,must-revalidate');
 
 		?><html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>Debug Window</title>
 <style type="text/css">
 body

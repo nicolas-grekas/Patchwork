@@ -154,7 +154,7 @@ class extends self
 			}
 		}
 
-		$this->_build_params[$type . '_charset' ] = 'UTF-8';
+		$this->_build_params[$type . '_charset' ] = 'utf-8';
 		$this->_build_params[$type . '_encoding'] = 'quoted-printable';
 	}
 }
