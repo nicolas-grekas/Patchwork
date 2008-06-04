@@ -36,6 +36,8 @@
 	<link rel="stylesheet" type="text/css" href="{base:a$css}" />
 	<!-- END:IF -->
 
+	<meta name="generator" content="Patchwork" />
+
 	{a$head}
 </head>
 <body<!-- IF a$class --> class="{a$class}"<!-- END:IF -->>

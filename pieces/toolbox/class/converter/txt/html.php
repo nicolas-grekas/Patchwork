@@ -14,7 +14,15 @@
 
 class extends converter_abstract
 {
-	protected $cols = 80;
+	protected $cols = 78;
+
+	protected static $charMap = array(
+		'┼' => '+', '├' => '|', '┬' => '-', '┌' => '+', '┤' => '|', '│' => '|', '┐' => '+', '┴' => '-',
+		'└' => '+', '─' => '-', '┘' => '+', '┼' => '+', '┠' => '|', '┯' => '-', '┏' => '+', '┨' => '|',
+		'┃' => '|', '┓' => '+', '┷' => '-', '┗' => '+', '━' => '-', '┛' => '+', '•' => '*', '□' => '+',
+		'☆' => 'o', '○' => '#', '■' => '@', '★' => '-', '◎' => '=', '●' => 'x', '△' => '%', '●' => '*',
+		'○' => 'o', '□' => '#', '●' => '#', '≪ ↑ ↓ ' => '<=UpDn ',
+	);
 
 	function __construct($cols = false)
 	{
@@ -25,8 +33,7 @@ class extends converter_abstract
 	{
 		$file = escapeshellarg($file);
 		$file = `w3m -dump -cols {$this->cols} -T text/html -I UTF-8 -O UTF-8 {$file}`;
-
-		if (false !== strpos($file, '━')) $file = str_replace('━', '_', $file);
+		$file = strtr($file, self::$charMap);
 
 		return FILTER::get($file, 'text');
 	}
