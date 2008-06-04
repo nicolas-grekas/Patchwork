@@ -34,8 +34,7 @@ class extends agent
 	$queueFolder = 'data/queue/pTask/',
 	$dual = 'pTask',
 
-	$sqlite,
-	$callbackError = false;
+	$sqlite;
 
 
 	function control()
@@ -72,8 +71,6 @@ class extends agent
 	{
 		$this->releaseLock();
 		$this->queueNext();
-
-		if ('' !== $buffer) $this->callbackError = true;
 
 		return $buffer;
 	}
