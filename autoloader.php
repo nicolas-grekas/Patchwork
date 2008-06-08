@@ -130,6 +130,7 @@ class __patchwork_autoloader
 			{
 				if ('patchwork_preprocessor' === $lc_top)
 				{
+					@unlink($cache);
 					copy($src, $cache);
 
 					if (IS_WINDOWS)
