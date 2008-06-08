@@ -28,5 +28,6 @@ version_compare($a, '5.1', '<') && $a = '5.1.x';
 $b = str_replace('a', 'b', array(-1 => -1));
 isset($b[-1]) || die("Your PHP 5.0.x is buggy; please upgrade to PHP $a or higher. (see http://bugs.php.net/bug.php?id=34879)");
 
+ini_set('display_errors', true); // Only while bootstrapping
 
 require dirname(__FILE__) . '/bootstrapper.php';
