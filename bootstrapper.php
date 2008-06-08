@@ -233,59 +233,55 @@ class __patchwork_bootstrapper
 	protected static $lock;
 
 
-	static function getLock()
+	static function getLock($retry = true)
 	{
-		if (!self::$lock = @fopen('./.patchwork.lock', 'xb'))
+		if (self::$lock = @fopen('./.patchwork.lock', 'xb'))
 		{
-			if ($h = fopen('./.patchwork.lock', 'rb'))
+			flock(self::$lock, LOCK_EX);
+			ob_start(array(__CLASS__, 'ob_handler'));
+
+			self::$selfRx = preg_quote(__FILE__, '/');
+			self::$pwd = rtrim(dirname(__FILE__), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+			self::$cwd = function_exists('getcwd') ? @getcwd() : '';
+
+			if (!self::$cwd)
 			{
-				usleep(1000);
-				flock($h, LOCK_SH);
-				fclose($h);
-				file_exists('./.patchwork.php') || sleep(1);
+				ob_start();
+				echo "Patchwork Error: Your system's getcwd() is bugged and workarounds failed."; // This will be erased if following workarounds succeed
+
+				self::$cwd = realpath('.');
+
+				if (self::$cwd && '.' !== self::$cwd) {}
+				else if (file_put_contents('./.getcwd', '<?php return dirname(__FILE__);'))
+				{
+					self::$cwd = require './.getcwd';
+					unlink('./.getcwd');
+				}
+				else self::$cwd = `pwd`;
+
+				self::$cwd ? ob_end_clean() : exit();
 			}
 
-			if (file_exists('./.patchwork.php')) return false;
-			else
-			{
-				@unlink('./.patchwork.lock');
-				self::$lock = fopen('./.patchwork.lock', 'xb')
+			self::$cwd = rtrim(self::$cwd, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
-				if (!self::$lock) return false
-			}
+			set_time_limit(0);
+
+			return true;
+		}
+		else if ($h = fopen('./.patchwork.lock', 'rb'))
+		{
+			usleep(1000);
+			flock($h, LOCK_SH);
+			fclose($h);
+			file_exists('./.patchwork.php') || sleep(1);
 		}
 
-		flock(self::$lock, LOCK_EX);
-		register_shutdown_function(array(__CLASS__, 'releaseLock'));
-		ob_start(array(__CLASS__, 'ob_handler'));
-
-		self::$selfRx = preg_quote(__FILE__, '/');
-		self::$pwd = rtrim(dirname(__FILE__), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-		self::$cwd = function_exists('getcwd') ? @getcwd() : '';
-
-		if (!self::$cwd)
+		if ($retry && !file_exists('./.patchwork.php'))
 		{
-			ob_start();
-			echo "Patchwork Error: Your system's getcwd() is bugged and workarounds failed."; // This will be erased if following workarounds succeed
-
-			self::$cwd = realpath('.');
-
-			if (self::$cwd && '.' !== self::$cwd) {}
-			else if (file_put_contents('./.getcwd', '<?php return dirname(__FILE__);'))
-			{
-				self::$cwd = require './.getcwd';
-				unlink('./.getcwd');
-			}
-			else self::$cwd = `pwd`;
-
-			self::$cwd ? ob_end_clean() : exit();
+			@unlink('./.patchwork.lock');
+			return self::getLock(false);
 		}
-
-		self::$cwd = rtrim(self::$cwd, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-
-		set_time_limit(0);
-
-		return true;
+		else return false;
 	}
 
 	static function releaseLock()
@@ -293,9 +289,10 @@ class __patchwork_bootstrapper
 		if (self::$lock)
 		{
 			fclose(self::$lock);
-			unlink(self::$cwd . '.patchwork.lock');
 			self::$lock = null;
 		}
+
+		@unlink(self::$cwd . '.patchwork.lock');
 	}
 
 	static function ob_handler($buffer)
