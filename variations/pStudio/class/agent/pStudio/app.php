@@ -2,6 +2,10 @@
 
 class extends agent
 {
+	function control()
+	{
+	}
+
 	function compose($o)
 	{
 		resolvePath('zcache/');

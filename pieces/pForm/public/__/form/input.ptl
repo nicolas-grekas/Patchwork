@@ -140,6 +140,7 @@ SET $INPUT
 		-->{a$_JsStart}<!--
 
 		IF a$type == 'submit' || a$type == 'image' || a$type == 'button'
+			SET a$_format_ -->{a$_format_|default:'%1'}<!-- END:SET
 			-->lE.oc=lE.onclick;
 			lE.onclick=function(e){var f=this.form;return(f.precheck?f.precheck():true)&&(this.cS()?(this.oc?this.oc(e):true):false)};<!--
 
