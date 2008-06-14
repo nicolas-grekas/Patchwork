@@ -158,7 +158,9 @@ function resyncCSRF()
 
 	if (antiCSRF = antiCSRF || $cookie)
 	{
-		antiCSRF == $cookie || ($resyncCSRF.$formsLength = 0);
+		if (antiCSRF != $cookie)
+			$resyncCSRF.$formsLength = 0,
+			antiCSRF = $cookie;
 
 		while ($resyncCSRF.$formsLength < $forms.length) syncCSRF($forms[$resyncCSRF.$formsLength++]);
 
