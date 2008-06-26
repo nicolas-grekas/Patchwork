@@ -1335,6 +1335,11 @@ class
 	}
 
 
+	protected static function appendToken($f)
+	{
+		return patchwork_antiCSRF::appendToken($f);
+	}
+
 	static function ob_filterOutput($buffer, $mode)
 	{
 		$one_chunk = $mode === (PHP_OUTPUT_HANDLER_START | PHP_OUTPUT_HANDLER_END);
@@ -1385,7 +1390,7 @@ class
 			{
 				$a = preg_replace_callback(
 					'#<form\s(?:[^>]+?\s)?method\s*=\s*(["\']?)post\1.*?>#iu',
-					array('patchwork_antiCSRF', 'appendToken'),
+					array(__CLASS__, 'appendToken'),
 					$buffer
 				);
 
