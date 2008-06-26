@@ -55,7 +55,7 @@ liveAgent.$iteratorFactory = function($data)
 		return $v;
 	}
 
-	$data[0] || ($next = function() {return 0});
+	$data[1][0] || ($next = function() {return 0});
 
 	$next.toString = function() {return ''+$data[0]};
 
