@@ -95,7 +95,7 @@ while (i < aImages.length)
 		{
 			var sUrl = sBasePath + aImages[i] ;
 			document.write( '<td width="' + iColWidth + '%" align="center" class="DarkBackground Hand" onclick="InsertSmiley(\'' + sUrl.replace(/'/g, "\\'" ) + '\')" onmouseover="over(this)" onmouseout="out(this)">' ) ;
-			document.write( '<img '+'src="' + sUrl + '" border="0" />' ) ;
+			document.write( '<img src="' + sUrl + '" border="0" />' ) ;
 		}
 		else
 			document.write( '<td width="' + iColWidth + '%" class="DarkBackground">&nbsp;' ) ;
