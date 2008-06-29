@@ -22,14 +22,18 @@ class extends pForm_hidden
 
 	protected function init(&$param)
 	{
-		if (isset($this->form->rawValues[$this->name])) $this->status = true;
-		else if (isset($this->form->rawValues[$this->name.'_x']) && isset($this->form->rawValues[$this->name.'_y']))
+		empty($param['disabled']) || $this->disabled = true;
+		if ($this->disabled || !empty($param['readonly'])) $this->readonly = true;
+
+		if ($this->readonly) {}
+		else if (isset($this->form->rawValues[$this->name])) $this->status = true;
+		else if (isset($this->form->rawValues[$this->name . '_x']) && isset($this->form->rawValues[$this->name . '_y']))
 		{
 			$x =& $this->form->rawValues;
 
 			$this->value = array(
-				isset($x[$this->name.'_x']) ? (int) $x[$this->name.'_x'] : 0,
-				isset($x[$this->name.'_y']) ? (int) $x[$this->name.'_y'] : 0,
+				isset($x[$this->name . '_x']) ? (int) $x[$this->name . '_x'] : 0,
+				isset($x[$this->name . '_y']) ? (int) $x[$this->name . '_y'] : 0,
 			);
 
 			unset($x);
@@ -37,7 +41,7 @@ class extends pForm_hidden
 			$x = $this->value[0];
 			$y = $this->value[1];
 
-			$this->status = false!=$x && false!=$y;
+			$this->status = false !== $x && false !== $y;
 			$this->value = $this->status ? array($x, $y) : array();
 		}
 		else $this->status = '';
