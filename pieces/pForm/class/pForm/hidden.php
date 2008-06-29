@@ -19,6 +19,8 @@ class extends loop_agentWrapper
 	$name = '',
 	$value = '',
 	$status = false,
+	$disabled = false,
+	$readonly = false,
 
 	$isfile = false,
 	$isdata = true,
@@ -50,7 +52,7 @@ class extends loop_agentWrapper
 
 		if ($sessionLink)
 		{
-			if (!isset($this->form->rawValues[$name]) && isset($sessionLink[$name])) $this->value =& $sessionLink[$name];
+			if (isset($sessionLink[$name])) $this->value =& $sessionLink[$name];
 			else $sessionLink[$name] =& $this->value;
 		}
 
@@ -93,7 +95,7 @@ class extends loop_agentWrapper
 
 	function getStatus()
 	{
-		return $this->status;
+		return $this->disabled ? '' : $this->status;
 	}
 
 	function attach()
@@ -129,6 +131,8 @@ class extends loop_agentWrapper
 
 	function isOn()
 	{
+		if ($this->disabled) return false;
+
 		if (isset($this->isOn)) return $this->isOn;
 		if ('' === $this->status || isset($GLOBALS['_POST_BACKUP'])) return $this->isOn = false;
 
@@ -211,6 +215,9 @@ class extends loop_agentWrapper
 
 	protected function init(&$param)
 	{
+		empty($param['disabled']) || $this->disabled = true;
+		if ($this->disabled || !empty($param['readonly'])) $this->readonly = true;
+
 		$this->valid = isset($param['valid']) ? $param['valid'] : 'char';
 
 		if (!empty($param['multiple']))
@@ -224,7 +231,7 @@ class extends loop_agentWrapper
 		$i = 0;
 		while(isset($param[$i])) $this->valid_args[] =& $param[$i++];
 
-		if (isset($this->form->rawValues[$this->name]))
+		if (!$this->readonly && isset($this->form->rawValues[$this->name]))
 		{
 			$this->value = $this->form->rawValues[$this->name];
 
@@ -309,6 +316,9 @@ class extends loop_agentWrapper
 		if (!$this->multiple) $a->value = $this->value;
 		if ($this->errormsg) $a->_errormsg = $this->errormsg;
 		if ($this->required) $a->required = 'required';
+
+		if ($this->disabled) $a->disabled = 'disabled';
+		else if ($this->readonly) $a->readonly = 'readonly';
 
 		return $this->addJsValidation($a);
 	}
