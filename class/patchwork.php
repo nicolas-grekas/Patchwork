@@ -291,7 +291,11 @@ class
 
 		if (
 			isset($_COOKIE['T$'])
-			&& (!IS_POSTING || (isset($_POST['T$']) && substr($_COOKIE['T$'], 1) === substr($_POST['T$'], 1)))
+			&& (
+				!IS_POSTING
+				|| (isset($_POST['T$']) && substr($_COOKIE['T$'], 1) === substr($_POST['T$'], 1))
+				|| (isset( $_GET['T$']) && substr($_COOKIE['T$'], 1) === substr( $_GET['T$'], 1))
+			)
 			&& 33 === strlen($_COOKIE['T$']) && 33 === strspn($_COOKIE['T$'], 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789')
 		) self::$antiCSRFtoken = $_COOKIE['T$'];
 		else self::getAntiCSRFtoken(true);
