@@ -35,6 +35,7 @@ class
 		if (UPLOAD_ERR_NO_FILE === $value['error']) return '';
 		if (UPLOAD_ERR_OK !== $value['error']) return false;
 
+		$value['name'] = basename(strtr($value['name'], "\\\0", '/_'));
 		if ('image/pjpeg' == $value['type']) $value['type'] = 'image/jpeg';
 
 		$type = "getFile_$type";
@@ -297,8 +298,6 @@ class
 
 		if (!empty($args[1]))
 		{
-			$value['name'] = basename(strtr($value['name'], "\\\0", '/_'));
-
 			$a = array(0, $args[1]);
 			if ( false === self::get_file($value['name'], $a) ) return false;
 		}

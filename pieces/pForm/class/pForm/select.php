@@ -66,12 +66,43 @@ class extends pForm_hidden
 			{
 				if (is_array($v))
 				{
-					$param[0] = array_merge($param[0], array_keys($v));
-					$this->length += count($v) - 1;
-				}
-				else $param[0][] = $k;
+					foreach ($v as $k => &$v)
+					{
+						if (is_object($v))
+						{
+							if (empty($v->disabled)) unset($v->disabled);
+							else
+							{
+								$v->disabled = 'disabled';
+								$k = false;
+							}
+						}
 
-				++$this->length;
+						if (false !== $k)
+						{
+							$param[0][] = $k;
+							++$this->length;
+						}
+					}
+				}
+				else
+				{
+					if (is_object($v))
+					{
+						if (empty($v->disabled)) unset($v->disabled);
+						else
+						{
+							$v->disabled = 'disabled';
+							$k = false;
+						}
+					}
+
+					if (false !== $k)
+					{
+						$param[0][] = $k;
+						++$this->length;
+					}
+				}
 			}
 		}
 
