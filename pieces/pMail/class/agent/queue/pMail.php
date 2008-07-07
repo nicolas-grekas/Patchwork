@@ -46,7 +46,7 @@ class extends agent_queue_pTask
 		$archive = $data->archive;
 		$data = (object) unserialize($data->data);
 
-		$this->restoreSession($data->session);
+		$this->restoreContext($data->cookie, $data->session);
 
 		isset($data->agent)
 			? pMail_mime::sendAgent($data->headers, $data->agent, $data->args, $data->options)

@@ -16,8 +16,8 @@ class
 {
 	protected
 
-	$callback,
-	$arguments,
+	$callback = false,
+	$arguments = array(),
 	$nextRun = 0;
 
 
@@ -76,6 +76,7 @@ class
 		$base = sqlite_escape_string(p::__BASE__());
 		$data = array(
 			'task' => $this,
+			'cookie' => &$_COOKIE,
 			'session' => class_exists('SESSION', false) ? SESSION::getAll() : array()
 		);
 		$data = sqlite_escape_string(serialize($data));

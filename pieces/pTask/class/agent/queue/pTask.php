@@ -109,7 +109,7 @@ class extends agent
 
 		$data = unserialize($data->data);
 
-		$this->restoreSession($data['session']);
+		$this->restoreContext($data['cookie'], $data['session']);
 
 		$data['task']->run();
 		$time = $data['task']->getNextRun();
@@ -133,8 +133,10 @@ class extends agent
 	{
 	}
 
-	protected function restoreSession(&$session)
+	protected function restoreContext(&$cookie, &$session)
 	{
+		$_COOKIE =& $cookie;
+
 		if ($session)
 		{
 			foreach ($session as $k => &$v) s::set($k, $v);

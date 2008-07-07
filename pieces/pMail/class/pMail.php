@@ -53,6 +53,7 @@ class extends pTask
 		if (!isset($data['headers']['From']) && $CONFIG['pMail.from']) $data['headers']['From'] = $CONFIG['pMail.from'];
 		if (isset($data['headers']['From']) && !$data['headers']['From']) W("Email is likely not to be sent: From header is empty.");
 
+		$data['cookie']  =& $_COOKIE;
 		$data['session'] = isset($_COOKIE['SID']) ? SESSION::getAll() : array();
 
 
