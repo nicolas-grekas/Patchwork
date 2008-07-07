@@ -40,18 +40,41 @@ class extends pTask
 		));
 	}
 
+	static function cleanHeaders(&$headers, $tpl)
+	{
+		$h = array();
+		foreach ($headers as $k => $v) $h[strtolower($k)] = $k;
+
+		foreach (explode('|', $tpl) as $v)
+		{
+			$k = strtolower(trim($v));
+			if (isset($h[$k]) && $h[$k] !== $v)
+			{
+				$headers[$v] =& $headers[$h[$k]];
+				unset($headers[$h[$k]]);
+			}
+		}
+	}
+
 	protected static function pushMail($data, $queue = false)
 	{
 		$queue || $queue = new self;
 
+		$headers =& $data['headers'];
+		self::cleanHeaders($headers, 'From|To|Cc|Bcc');
+
 		if ($queue->testMode)
 		{
-			$data['headers']['X-Original-To'] = $data['headers']['To'];
-			$data['headers']['To'] = $CONFIG['pMail.debug_email'];
+			$headers['X-Original-To'] = $headers['To'];
+			isset($headers[ 'Cc']) && $headers['X-Original-Cc' ] = $headers[ 'Cc'];
+			isset($headers['Bcc']) && $headers['X-Original-Bcc'] = $headers['Bcc'];
+
+			$headers['To'] = $CONFIG['pMail.debug_email'];
+			unset($headers[ 'Cc'], $headers[ 'Bcc']);
 		}
 
-		if (!isset($data['headers']['From']) && $CONFIG['pMail.from']) $data['headers']['From'] = $CONFIG['pMail.from'];
-		if (isset($data['headers']['From']) && !$data['headers']['From']) W("Email is likely not to be sent: From header is empty.");
+		if (!isset($headers['From']) && $CONFIG['pMail.from']) $headers['From'] = $CONFIG['pMail.from'];
+		if ( isset($headers['From']) && !$headers['From']) W("Email is likely not to be sent: From header is empty.");
 
 		$data['cookie']  =& $_COOKIE;
 		$data['session'] = isset($_COOKIE['SID']) ? SESSION::getAll() : array();

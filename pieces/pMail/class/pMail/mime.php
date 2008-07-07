@@ -66,19 +66,7 @@ class extends Mail_mime
 		$body =& $this->get();
 		$headers =& $this->headers();
 
-		$h = array();
-		foreach ($headers as $k => $v) $h[strtolower($k)] = $k;
-
-		$k = array('Return-Path', 'Errors-To', 'From', 'To', 'Reply-To');
-		foreach ($k as $v)
-		{
-			$k = strtolower($v);
-			if (isset($h[$k]) && $h[$k] !== $v)
-			{
-				$headers[$v] =& $headers[$h[$k]];
-				unset($headers[$h[$k]]);
-			}
-		}
+		pMail::cleanHeaders($headers, 'Return-Path|Errors-To|From|To|Reply-To');
 
 		if (isset($headers['Return-Path'])) $headers['Errors-To'] =& $headers['Return-Path'];
 		else if (isset($headers['Errors-To'])) $headers['Return-Path'] =& $headers['Errors-To'];
