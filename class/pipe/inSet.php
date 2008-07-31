@@ -14,7 +14,7 @@ class
 
 P$inSet = function($index, $set)
 {
-	$set = $set.split($set.chartAt(0));
+	$set = $set.split($set.charAt(0));
 	return $set[$index + 1] || $index;
 }
 
