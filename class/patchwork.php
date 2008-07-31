@@ -108,6 +108,9 @@ function jsquote($a, $addDelim = true, $delim = "'")
 	false !== strpos($a, '\\') && $a = str_replace('\\', '\\\\', $a);
 	false !== strpos($a, "\n") && $a = str_replace("\n", '\n', $a);
 	false !== strpos($a, '</') && $a = str_replace('</', '<\\/', $a);
+	false !== strpos($a, "\xC2\x85"    ) && $a = str_replace("\xC2\x85"    , '\u0085', $a); // Next Line
+	false !== strpos($a, "\xE2\x80\xA8") && $a = str_replace("\xE2\x80\xA8", '\u2028', $a); // Line Separator
+	false !== strpos($a, "\xE2\x80\xA9") && $a = str_replace("\xE2\x80\xA9", '\u2029', $a); // Paragraph Separator
 	false !== strpos($a, $delim) && $a = str_replace($delim, '\\' . $delim, $a);
 
 	if ($addDelim) $a = $delim . $a . $delim;
