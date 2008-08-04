@@ -47,11 +47,8 @@ class extends pForm_QSelect
 
 		if ($this->value)
 		{
-			$sql = "SELECT city_id FROM city WHERE search='" . sqlite_escape_string(lingua::getKeywords($this->value)) . "'";
-			$city_id = $db->query($sql)->fetchObject();
-			$city_id = $city_id ? $city_id->city_id : 0;
-
-			$value = $city_id . ':' . $this->value;
+			$sql = "SELECT city_id FROM city WHERE search='" . sqlite_escape_string(lingua::getKeywords($this->value)) . "' LIMIT 1";
+			$value = ((int) $db->unbufferedQuery($sql)->fetchSingle()) . ':' . $this->value;
 		}
 		else $value = '0:';
 

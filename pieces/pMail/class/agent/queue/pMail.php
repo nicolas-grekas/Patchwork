@@ -24,10 +24,12 @@ class extends agent_queue_pTask
 	{
 		$time = time();
 		$sql = "SELECT OID, base, send_time FROM queue WHERE send_time ORDER BY send_time, OID LIMIT 1";
-		if ($data = $this->sqlite->query($sql)->fetchObject())
+		if ($data = $this->sqlite->arrayQuery($sql, SQLITE_ASSOC))
 		{
-			if ($data->send_time <= $time) tool_url::touch("{$data->base}queue/pMail/{$data->OID}/" . $this->getToken());
-			else pTask::schedule(new pTask(array($this, 'queueNext')), $data->send_time);
+			$data = $data[0];
+
+			if ($data['send_time'] <= $time) tool_url::touch("{$data['base']}queue/pMail/{$data['OID']}/" . $this->getToken());
+			else pTask::schedule(new pTask(array($this, 'queueNext')), $data['send_time']);
 		}
 	}
 
@@ -36,15 +38,15 @@ class extends agent_queue_pTask
 		$sqlite = $this->sqlite;
 
 		$sql = "SELECT archive, data FROM queue WHERE OID={$id}";
-		$data = $sqlite->query($sql)->fetchObject();
+		$data = $sqlite->arrayQuery($sql, SQLITE_NUM);
 
 		if (!$data) return;
 
 		$sql = "UPDATE queue SET send_time=0 WHERE OID={$id}";
 		$sqlite->queryExec($sql);
 
-		$archive = $data->archive;
-		$data = (object) unserialize($data->data);
+		$archive = $data[0][0];
+		$data = (object) unserialize($data[0][1]);
 
 		$this->restoreContext($data->cookie, $data->session);
 

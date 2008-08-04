@@ -79,19 +79,21 @@ class extends agent
 	{
 		$time = time();
 		$sql = "SELECT OID, base, run_time FROM queue WHERE run_time>0 ORDER BY run_time, OID LIMIT 1";
-		if ($data = $this->sqlite->query($sql)->fetchObject())
+		if ($data = $this->sqlite->arrayQuery($sql, SQLITE_ASSOC))
 		{
+			$data = $data[0];
+
 			0 > $this->maxage && $this->maxage = PHP_INT_MAX;
 
-			if ($data->run_time <= $time)
+			if ($data['run_time'] <= $time)
 			{
 				// XXX What if the URL is not valid anymore ?
-				tool_url::touch("{$data->base}queue/pTask/{$data->OID}/" . $this->getToken());
+				tool_url::touch("{$data['base']}queue/pTask/{$data['OID']}/" . $this->getToken());
 
 				$sql = "SELECT run_time FROM queue WHERE run_time>{$time} ORDER BY run_time LIMIT 1";
-				if ($data = $this->sqlite->query($sql)->fetchObject()) p::setMaxage(min($this->maxage, $data->run_time - $time));
+				if ($data = $this->sqlite->query($sql)->fetchSingle()) p::setMaxage(min($this->maxage, $data - $time));
 			}
-			else p::setMaxage(min($this->maxage, $data->run_time - $time));
+			else p::setMaxage(min($this->maxage, $data['run_time'] - $time));
 		}
 	}
 
@@ -100,14 +102,14 @@ class extends agent
 		$sqlite = $this->sqlite;
 
 		$sql = "SELECT data FROM queue WHERE OID={$id}";
-		$data = $sqlite->query($sql)->fetchObject();
+		$data = $sqlite->query($sql)->fetchSingle;
 
 		if (!$data) return;
 
 		$sql = "UPDATE queue SET run_time=0 WHERE OID={$id}";
 		$sqlite->queryExec($sql);
 
-		$data = unserialize($data->data);
+		$data = unserialize($data);
 
 		$this->restoreContext($data['cookie'], $data['session']);
 
