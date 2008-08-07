@@ -91,7 +91,7 @@ class extends agent
 				tool_url::touch("{$data['base']}queue/pTask/{$data['OID']}/" . $this->getToken());
 
 				$sql = "SELECT run_time FROM queue WHERE run_time>{$time} ORDER BY run_time LIMIT 1";
-				if ($data = $this->sqlite->query($sql)->fetchSingle()) p::setMaxage(min($this->maxage, $data - $time));
+				if ($data = $this->sqlite->arrayQuery($sql, SQLITE_NUM)) p::setMaxage(min($this->maxage, $data[0][0] - $time));
 			}
 			else p::setMaxage(min($this->maxage, $data['run_time'] - $time));
 		}
