@@ -41,7 +41,10 @@ $patchwork_abstract = array();
 
 // $_SERVER variables manipulations
 
-isset($_SERVER['HTTP_HOST']) && strspn($_SERVER['HTTP_HOST'], '\'"<>') && die('Invalid HTTP/1.1 Host header');
+if (!isset($_SERVER['HTTP_HOST']) || strcspn($_SERVER['HTTP_HOST'], 'eiasntroludcmpghv.fb:-q102yx9jk3548w67z'))
+{
+	die('Invalid HTTP/1.1 Host header');
+}
 
 /*#>*/if (!isset($_SERVER['REQUEST_TIME']))
 		$_SERVER['REQUEST_TIME'] = time();
