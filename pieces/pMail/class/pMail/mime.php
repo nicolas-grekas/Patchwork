@@ -61,7 +61,7 @@ class extends Mail_mime
 	{
 		$message_id = 'pM' . p::uniqid();
 
-		$this->_headers['Message-Id'] = '<' . $message_id . '@' . (isset($_SERVER['HTTP_HOST']) ? urlencode($_SERVER['HTTP_HOST']) : 'pMail') . '>';
+		$this->_headers['Message-Id'] = '<' . $message_id . '@' . $_SERVER['HTTP_HOST']. '>';
 
 		$body =& $this->get();
 		$headers =& $this->headers();

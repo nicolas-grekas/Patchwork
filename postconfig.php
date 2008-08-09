@@ -26,7 +26,7 @@ $CONFIG += array(
 );
 
 defined('DEBUG') || define('DEBUG', $CONFIG['debug.allowed'] && (!$CONFIG['debug.password'] || isset($_COOKIE['debug_password']) && $CONFIG['debug.password'] == $_COOKIE['debug_password']) ? 1 : 0);
-define('TURBO', !DEBUG && $CONFIG['turbo']);
+defined('TURBO') || define('TURBO', !DEBUG && $CONFIG['turbo']);
 
 unset($CONFIG['debug.allowed'], $CONFIG['debug.password'], $CONFIG['turbo']);
 
