@@ -879,6 +879,19 @@ class
 		return $a;
 	}
 
+	// Basic UTF-8 to ASCII transliteration
+	static function toASCII($s)
+	{
+		if (preg_match("'[\x80-\xFF]'", $s))
+		{
+			$s = Normalizer::normalize($s, Normalizer::FORM_KD);
+			$s = preg_replace('/\p{Mn}+/u', '', $s);
+			$s = iconv('UTF-8', 'ASCII' . ('glibc' !== ICONV_IMPL ? '//IGNORE' : '') . '//TRANSLIT', $s);
+		}
+
+		return $s
+	}
+
 
 	protected static
 
@@ -1650,7 +1663,7 @@ class
 							p::header('Content-Disposition: attachment; filename=' . rawurlencode($h[1]) . str_replace('"', "''", $h[2]));
 							$h = false;
 						}
-						else $h = utf8_normalizer::toASCII($h);
+						else $h = self::toASCII($h);
 					}
 					else if (!isset($_SERVER['PATCHWORK_FILENAME'])) $h = false;
 				}

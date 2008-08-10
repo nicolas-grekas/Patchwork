@@ -134,7 +134,7 @@ class
 		false !== strpos($result, "\r") && $result = strtr(str_replace("\r\n", "\n", $result), "\r", "\n");
 		preg_match('/[^\x00-\x{2ff}]/u', $result)
 			&& preg_match(UTF8_NFC_RX, $result)
-			&& $result = utf8_normalizer::toNFC($result);
+			&& $result = Normalizer::normalize($result);
 
 		if (isset($args[0]))
 		{
