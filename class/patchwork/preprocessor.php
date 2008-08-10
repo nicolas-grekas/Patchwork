@@ -183,6 +183,23 @@ class patchwork_preprocessor__0
 			'crc32' => "hash('crc32',",
 		);
 
+		if (!extension_loaded('intl'))
+		{
+			self::$functionAlias += array(
+				'normalizer_is_normalized' => 'Normalizer::isNormalized',
+				'normalizer_normalize'     => 'Normalizer::normalize',
+
+				'grapheme_stripos'  => 'u::stripos',
+				'grapheme_stristr'  => 'u::stristr',
+				'grapheme_strlen'   => 'u::strlen',
+				'grapheme_strpos'   => 'u::strpos',
+				'grapheme_strripos' => 'u::strripos',
+				'grapheme_strrpos'  => 'u::strrpos',
+				'grapheme_strstr'   => 'u::strstr',
+				'grapheme_substr'   => 'u::substr',
+			);
+		}
+
 		if (!function_exists('mb_stripos'))
 		{
 			self::$functionAlias += array(
