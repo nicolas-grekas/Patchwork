@@ -52,7 +52,7 @@ class extends loop_agentWrapper
 
 		if ($sessionLink)
 		{
-			if (isset($sessionLink[$name])) $this->value =& $sessionLink[$name];
+			if (isset($sessionLink[$name]) && $this->readonly || !isset($this->form->rawValues[$name])) $this->value =& $sessionLink[$name];
 			else $sessionLink[$name] =& $this->value;
 		}
 
