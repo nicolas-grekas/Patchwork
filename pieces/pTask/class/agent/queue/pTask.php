@@ -102,14 +102,14 @@ class extends agent
 		$sqlite = $this->sqlite;
 
 		$sql = "SELECT data FROM queue WHERE OID={$id}";
-		$data = $sqlite->query($sql)->fetchSingle;
+		$data = $sqlite->arrayQuery($sql);
 
 		if (!$data) return;
 
 		$sql = "UPDATE queue SET run_time=0 WHERE OID={$id}";
 		$sqlite->queryExec($sql);
 
-		$data = unserialize($data);
+		$data = unserialize($data[0][0]);
 
 		$this->restoreContext($data['cookie'], $data['session']);
 
