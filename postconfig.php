@@ -432,30 +432,22 @@ else
 		$_SERVER['PATCHWORK_BASE'] = $a . '?' . (PATCHWORK_I18N ? '__/' : '');
 }
 
-reset($CONFIG['i18n.lang_list']);
-
 if (isset($_SERVER['PATCHWORK_LANG']))
 {
 	$a =& $CONFIG['i18n.lang_list'];
 	$b =& $_SERVER['PATCHWORK_LANG'];
 
-	if (!isset($a[$b]))
-	{
-		$b = array_search($b, $a);
-		false === $b && $b = (string) key($a);
-	}
+	isset($a[$b]) || $b = (string) array_search($b, $a);
 
 	unset($a, $b);
 }
-else
+else if ('__/' === substr($_SERVER['PATCHWORK_BASE'], -3) && preg_match("#^/{$b}/#", $r, $a))
 {
-	$_SERVER['PATCHWORK_LANG'] = (string) key($CONFIG['i18n.lang_list']);
-
-	if ('__/' === substr($_SERVER['PATCHWORK_BASE'], -3) && preg_match("#^/{$b}/#", $r, $a))
-	{
-		$_SERVER['PATCHWORK_LANG'] = array_search($a[1], $CONFIG['i18n.lang_list']);
-		$_SERVER['PATCHWORK_REQUEST'] = (string) substr($r, strlen($a[1])+2, -1);
-	}
+	$_SERVER['PATCHWORK_LANG'] = array_search($a[1], $CONFIG['i18n.lang_list']);
+	$_SERVER['PATCHWORK_REQUEST'] = (string) substr($r, strlen($a[1])+2, -1);
 }
+else $_SERVER['PATCHWORK_LANG'] = '';
 
+reset($CONFIG['i18n.lang_list']);
+PATCHWORK_I18N || $_SERVER['PATCHWORK_LANG'] = key($CONFIG['i18n.lang_list']);
 define('PATCHWORK_DIRECT', '_' === $_SERVER['PATCHWORK_REQUEST']);
