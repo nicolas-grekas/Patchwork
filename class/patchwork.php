@@ -82,20 +82,10 @@ $_SESSION = new sessionHandler;
 // }}}
 
 // {{{ Database sugar
-function DB($close = false)
+function DB()
 {
-	static $hunter, $db = false;
-
-	if ($db || $close)
-	{
-		if ($close && $db) $db = adapter_DB::close($db) && false;
-	}
-	else
-	{
-		$hunter = new hunter('DB', array(true));
-		$db = adapter_DB::connect();
-	}
-
+	static $db;
+	isset($db) || $db = adapter_DB::connect();
 	return $db;
 }
 // }}}
