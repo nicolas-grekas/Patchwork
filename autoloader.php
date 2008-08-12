@@ -183,8 +183,7 @@ class __patchwork_autoloader
 				$a = "{$parent}::__dS{$T}";
 				if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__destructStatic'))
 				{
-					$code = str_replace('{}', "{static \$hunter{$T};}", $code);
-					$code .= "{$req}::\$hunter{$T}=new hunter(array('{$parent}','__destructStatic'));";
+					$code .= "\$GLOBALS['patchwork_destructors'][]='{$parent}';";
 				}
 			}
 

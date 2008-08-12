@@ -37,6 +37,7 @@ define('IS_POSTING', 'POST' === $_SERVER['REQUEST_METHOD']);
 
 $patchwork_path = /*<*/$patchwork_path/*>*/;
 $patchwork_abstract = array();
+$patchwork_destructors = array();
 
 
 // $_SERVER variables manipulations
@@ -98,7 +99,23 @@ function patchwork_chdir($realdir) {rtrim($realdir, /*<*/DIRECTORY_SEPARATOR/*>*
 /*#>*/else
 function patchwork_chdir($realdir) {chdir($realdir);}
 
-register_shutdown_function('patchwork_chdir', /*<*/__patchwork_bootstrapper::$cwd/*>*/);
+function patchwork_shutdown_start()
+{
+	patchwork_chdir(/*<*/__patchwork_bootstrapper::$cwd/*>*/);
+
+	register_shutdown_function('patchwork_shutdown_end');
+}
+
+function patchwork_shutdown_end()
+{
+	global $patchwork_destructors;
+
+	$i = count($patchwork_destructors);
+
+	while ($i--) call_user_func(array($patchwork_destructors[$i], '__destructStatic'));
+}
+
+register_shutdown_function('patchwork_shutdown_start');
 
 
 // registerAutoloadPrefix()
@@ -217,29 +234,6 @@ function resolvePath($file, $level = false, $base = false)
 	$patchwork_lastpath_level = -/*<*/__patchwork_bootstrapper::$offset/*>*/;
 
 	return false;
-}
-
-
-// Class hunter: a user callback is called when a hunter object is destroyed
-
-class hunter
-{
-	protected
-
-	$callback,
-	$param_arr;
-
-
-	function __construct($callback, $param_arr = array())
-	{
-		$this->callback =& $callback;
-		$this->param_arr =& $param_arr;
-	}
-
-	function __destruct()
-	{
-		call_user_func_array($this->callback, $this->param_arr);
-	}
 }
 
 
