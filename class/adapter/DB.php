@@ -14,8 +14,12 @@
 
 class
 {
+	protected static $db;
+
 	static function connect()
 	{
+		if (isset(self::$db)) return $db;
+
 		$db = MDB2::factory($CONFIG['DSN']);
 
 		if (PEAR::isError($db))
@@ -45,11 +49,13 @@ class
 
 		$db->beginTransaction();
 
+		self::$db = $db;
+
 		return $db;
 	}
 
-	static function close($db)
+	static function __destructStatic()
 	{
-		$db->in_transaction && $db->commit();
+		isset(self::$db) && self::$db->in_transaction && self::$db->commit();
 	}
 }
