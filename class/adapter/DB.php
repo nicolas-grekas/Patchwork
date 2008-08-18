@@ -54,8 +54,19 @@ class
 		return $db;
 	}
 
+	static function disconnect()
+	{
+		if (isset(self::$db))
+		{
+			self::$db->in_transaction && self::$db->commit();
+			self::$db->disconnect();
+
+			unset(self::$db);
+		}
+	}
+
 	static function __destructStatic()
 	{
-		isset(self::$db) && self::$db->in_transaction && self::$db->commit();
+		self::disconnect();
 	}
 }

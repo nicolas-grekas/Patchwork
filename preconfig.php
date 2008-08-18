@@ -108,11 +108,12 @@ function patchwork_shutdown_start()
 
 function patchwork_shutdown_end()
 {
-	global $patchwork_destructors;
-
-	$i = count($patchwork_destructors);
-
-	while ($i--) call_user_func(array($patchwork_destructors[$i], '__destructStatic'));
+	if ($GLOBALS['patchwork_destructors'])
+	{
+		$class = array_shift($GLOBALS['patchwork_destructors']);
+		register_shutdown_function('patchwork_shutdown_end');
+		call_user_func(array($class, '__destructStatic'));
+	}
 }
 
 register_shutdown_function('patchwork_shutdown_start');
