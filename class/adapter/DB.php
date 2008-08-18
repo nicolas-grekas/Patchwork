@@ -14,11 +14,11 @@
 
 class
 {
-	protected static $db;
+	protected static $db = false;
 
 	static function connect()
 	{
-		if (isset(self::$db)) return $db;
+		if (self::$db) return $db;
 
 		$db = MDB2::factory($CONFIG['DSN']);
 
@@ -56,12 +56,11 @@ class
 
 	static function disconnect()
 	{
-		if (isset(self::$db))
+		if (self::$db)
 		{
 			self::$db->in_transaction && self::$db->commit();
 			self::$db->disconnect();
-
-			unset(self::$db);
+			self::$db = false;
 		}
 	}
 
