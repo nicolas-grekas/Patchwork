@@ -113,26 +113,10 @@ class extends patchwork
 		p::setMaxage(-1);
 	}
 
-	static function sendFile($agent, $mime)
-	{
-		if ($agent = p::resolvePublicPath($agent))
-		{
-			$mime = strtolower($mime);
-			$mime = isset(self::$contentType[$mime]) ? self::$contentType[$mime] : 'application/octet-stream';
-
-			p::setMaxage(-1);
-			p::writeWatchTable('public/static', 'zcache/');
-
-			p::readfile($agent, $mime);
-
-			exit;
-		}
-	}
-
 
 	protected static $filterRx;
 
-	static function readfile($file, $mime)
+	static function readfile($file, $mime = true, $filename = true)
 	{
 		$h = $file;
 
@@ -145,6 +129,13 @@ class extends patchwork
 		}
 
 		$file = $h;
+
+		if (true === $mime)
+		{
+			$mime = strtolower(strrchr($file, '.'));
+			$mime = isset(self::$contentType[$mime]) ? self::$contentType[$mime] : false;
+		}
+
 		$mime || $mime = isset(p::$headers['content-type']) ? substr(p::$headers['content-type'], 14) : 'application/octet-stream';
 		$mime = strtolower($mime);
 
@@ -153,7 +144,18 @@ class extends patchwork
 		$filter = $gzip || $head || !$CONFIG['xsendfile'] || in_array($mime, p::$ieSniffedTypes);
 
 		header('Content-Type: ' . $mime);
-		false !== strpos($mime, 'html') && header('P3P: CP="' . $CONFIG['P3P'] . '"');
+
+		if ($filename)
+		{
+			$filename = basename(true === $filename ? $_SERVER['PATCHWORK_REQUEST'] : $filename);
+
+			header('Content-Disposition: attachment' . ($filename ? '; filename="' . str_replace('"', "''", $filename) . '"' : ''));
+
+			// If only RFC 2184 were in use...
+			//header('Content-Disposition: attachment' . ($filename ? "; filename*=utf-8''" . rawurlencode($filename) : ''));
+		}
+
+		$filename || false !== strpos($mime, 'html') && header('P3P: CP="' . $CONFIG['P3P'] . '"');
 
 		$size = filesize($file);
 		p::$ETag = $size .'-'. p::$LastModified .'-'. fileinode($file);
@@ -161,8 +163,8 @@ class extends patchwork
 		p::$binaryMode = true;
 		p::disable();
 
-		class_exists('SESSION', false) && SESSION::close();
-		DB(true);
+		class_exists('SESSION'   , false) && SESSION::close();
+		class_exists('adapter_DB', false) && adapter_DB::disconnect();
 
 
 		$gzip   || ob_start();

@@ -391,9 +391,6 @@ $a = preg_replace("'/[./]*/'", '/', '/' . $a);
 
 $_SERVER['PATCHWORK_REQUEST'] = (string) substr($r, 1, -1);
 
-/*#>*/if (!$a)
-	$_SERVER['PATCHWORK_FILENAME'] = basename($r);
-
 isset($_SERVER['REDIRECT_PATCHWORK_BASE']) && $_SERVER['PATCHWORK_BASE'] = $_SERVER['REDIRECT_PATCHWORK_BASE'];
 isset($_SERVER['REDIRECT_PATCHWORK_LANG']) && $_SERVER['PATCHWORK_LANG'] = $_SERVER['REDIRECT_PATCHWORK_LANG'];
 

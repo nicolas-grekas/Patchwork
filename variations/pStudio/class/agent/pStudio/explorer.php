@@ -27,8 +27,7 @@ class extends agent
 
 		if (!empty($this->get->{'$serverside'}) && is_file($this->realpath))
 		{
-			header('Content-Type: ' . $this->rawContentType);
-			p::readfile($this->realpath, false);
+			p::readfile($this->realpath, $this->rawContentType, $this->realpath);
 		}
 	}
 

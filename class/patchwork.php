@@ -300,8 +300,15 @@ class
 
 		// If the URL has an extension, check for static files
 
-		$agent = $_SERVER['PATCHWORK_REQUEST'];
-		if (($mime = strrchr($agent, '.')) && strcasecmp('.ptl', $mime)) patchwork_static::sendFile($agent, $mime);
+		if (($agent = strrchr($_SERVER['PATCHWORK_REQUEST'], '.'))
+			&& strcasecmp('.ptl', $agent)
+			&& $agent = p::resolvePublicPath($_SERVER['PATCHWORK_REQUEST']))
+		{
+			self::setMaxage(-1);
+			self::writeWatchTable('public/static', 'zcache/');
+			self::readfile($agent, true, false);
+			exit;
+		}
 
 
 		PATCHWORK_DIRECT ? self::clientside() : self::serverside();
@@ -664,9 +671,9 @@ class
 		return false;
 	}
 
-	static function readfile($file, $mime)
+	static function readfile($file, $mime = true, $filename = true)
 	{
-		return patchwork_static::readfile($file, $mime);
+		return patchwork_static::readfile($file, $mime, $filename);
 	}
 
 	/*
@@ -1424,7 +1431,9 @@ class
 
 			$a = substr($buffer, 0, 256);
 			$lt = strpos($a, '<');
-			if (false !== $lt && ($b = in_array($type, self::$ieSniffedTypes_edit) ? 1 : (in_array($type, self::$ieSniffedTypes_download) ? 2 : 0)))
+			if (false !== $lt
+				&& !(isset(self::$headers['content-disposition']) && 0 === stripos(self::$headers['content-disposition'], 'attachment'))
+				&& $b = in_array($type, self::$ieSniffedTypes_edit) ? 1 : (in_array($type, self::$ieSniffedTypes_download) ? 2 : 0))
 			{
 				foreach (self::$ieSniffedTags as $tag)
 				{
@@ -1628,42 +1637,9 @@ class
 
 		if (!$is304)
 		{
-			$h = stripos(self::$headers['content-type'], 'html');
-			$h && header('P3P: CP="' . $CONFIG['P3P'] . '"');
+			stripos(self::$headers['content-type'], 'html') && header('P3P: CP="' . $CONFIG['P3P'] . '"');
 			self::$is_enabled && header('Content-Length: ' . strlen($buffer));
 			is_string(self::$contentEncoding) && header('Content-Encoding: ' . self::$contentEncoding);
-
-			if (!$h && !isset(self::$headers['content-disposition']))
-			{
-				// It seems that IE assumes that filename is represented in its local system charset...
-				// But we don't want do introduce "Vary: User-Agent" just because of this.
-
-				if ((IS_POSTING || self::$private)
-					&&   isset($_SERVER['HTTP_USER_AGENT'])
-					&&  strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE')
-					&& !strpos($_SERVER['HTTP_USER_AGENT'], 'Opera'))
-				{
-					$h = basename($_SERVER['PATCHWORK_REQUEST']);
-
-					if (preg_match('/[\x80-\xFF]/', $h))
-					{
-						if (stripos(self::$headers['content-type'], 'octet-stream') && preg_match('#(.*)(\.[- -,/-~]+)$#D', $h, $h))
-						{
-							// Don't search any rational here, it's IE...
-							p::header('Content-Disposition: attachment; filename=' . rawurlencode($h[1]) . str_replace('"', "''", $h[2]));
-							$h = false;
-						}
-						else $h = self::toASCII($h);
-					}
-					else if (!isset($_SERVER['PATCHWORK_FILENAME'])) $h = false;
-				}
-				else $h = isset($_SERVER['PATCHWORK_FILENAME']) ? basename($_SERVER['PATCHWORK_REQUEST']) : false;
-
-				false !== $h && p::header('Content-Disposition: inline; filename="' . str_replace('"', "''", $h) . '"');
-
-				// If only RFC 2184 were in use...
-				//false !== $h && p::header("Content-Disposition: attachment; filename*=utf-8''" . rawurlencode($h));
-			}
 		}
 
 		self::$is304 = $is304;
