@@ -156,8 +156,8 @@ class extends patchwork
 			if ((IS_POSTING || p::$private)
 				&&   isset($_SERVER['HTTP_USER_AGENT'])
 				&&  strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE')
-				&& !strpos($_SERVER['HTTP_USER_AGENT'], 'Opera'))
-				&& preg_match('/[\x80-\xFF]/', $filename)
+				&& !strpos($_SERVER['HTTP_USER_AGENT'], 'Opera')
+				&& preg_match('/[\x80-\xFF]/', $filename))
 			{
 				if (stripos(p::$headers['content-type'], 'octet-stream') && preg_match('#(.*)(\.[- -,/-~]+)$#D', $filename, $size))
 				{
