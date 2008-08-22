@@ -1,0 +1,72 @@
+<!--
+
+SET a$page -->{a$page|default:g$p}<!-- END:SET
+SET a$page --><!-- IF a$page > 0 -->{a$page-1}<!-- ELSE -->0<!-- END:IF --><!-- END:SET
+SET a$pages_nb -->{a$results_nb/a$results_per_page}<!-- END:SET
+IF a$results_nb % a$results_per_page --><!-- SET a$pages_nb -->{a$pages_nb+1}<!-- END:SET --><!-- END:IF
+
+IF a$pages_nb >= 2
+
+	SET a$url -->{g$__URI__|replace:'\?':''}<!-- END:SET
+	SET a$url
+		IF a$url != g$__URI__
+			-->{g$__URI__|replace:'((\?)|&amp;)p=[^&]+':'$2'}<!--
+		ELSE
+			-->{g$__URI__}?<!--
+		END:IF
+	END:SET
+
+	SET a$sep -->{a$url|substr:-1}<!-- END:SET
+	SET a$sep
+		IF '?' == a$sep
+			-->?<!--
+			SET a$url -->{a$url|substr:0:-1}<!--
+		ELSE -->&amp;<!--
+		END:IF
+		-->p=<!--
+	END:SET
+
+--><div class="pagination">
+
+‹ <!--
+
+	IF a$page
+		IF a$page > 1 --><a href="{a$url}{a$sep}{a$page}">{"Page précédente"}</a><!--
+		ELSE --><a href="{a$url}">{"Page précédente"}</a><!--
+		END:IF
+	ELSE -->{"Page précédente"}<!--
+	END:IF
+
+--> | <!--
+
+	LOOP a$pages_nb
+
+		IF $iteratorPosition == a$page --> <b>{$iteratorPosition+1}</b> <!--
+
+		ELSEIF $iteratorPosition < 3
+			|| $iteratorPosition > a$pages_nb-4
+			|| $iteratorPosition - a$page == 1
+			|| a$page - $iteratorPosition == 1 --> <!--
+
+			IF $iteratorPosition
+				--><a href="{a$url}{a$sep}{$iteratorPosition+1}">{$iteratorPosition+1}</a><!--
+			ELSE
+				--><a href="{a$url}">{$iteratorPosition+1}</a><!--
+			END:IF --> <!--
+		ELSE --><a href="{a$url}{a$sep}{$iteratorPosition+1}">.</a><!--
+
+		END:IF
+
+	END:LOOP
+
+--> | <!--
+
+	IF a$page + 2 < a$pages_nb --><a href="{a$url}{a$sep}{a$page+2}">{"Suivante"}</a><!--
+	ELSE -->{"Suivante"}<!--
+	END:IF
+
+--> › </div><!--
+
+END:IF
+
+-->

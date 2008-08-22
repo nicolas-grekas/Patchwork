@@ -36,7 +36,7 @@ class
 			$req = 'tcp://';
 		}
 
-		$host = $h[2];
+		$host = gethostbyname($h[2]);
 		$req .= $host;
 
 		if ($h = $h[3])

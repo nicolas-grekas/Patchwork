@@ -25,8 +25,11 @@ class extends pForm_textarea
 		if (isset($this->form->rawValues[$this->name]))
 		{
 			$value =& $this->form->rawValues[$this->name];
-			$value = preg_replace("'(?<!>)\n'", "<br />\n", $value);
 			$value = FILTER::get($value, 'html');
+			$value = preg_replace("'\s+$'mu", '', $value);
+			$value = preg_replace("'\n{3,}'", "\n\n", trim($value));
+			$value = preg_replace("'(?<!>)\n\n'", "<br />\n<br />\n", $value);
+			$value = preg_replace("'(?<!>)\n'"  , "<br />\n"        , $value);
 		}
 
 		parent::init($param);
