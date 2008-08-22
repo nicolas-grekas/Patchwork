@@ -19,11 +19,18 @@ class extends pForm_hidden
 	$type = 'select',
 	$item = array(),
 	$firstItem = false,
-	$length = -1;
+	$length = -1,
+	$default = array();
 
 
 	protected function init(&$param)
 	{
+		if (!empty($param['multiple']) && isset($param['default']))
+		{
+			$this->default = $param['default'];
+			unset($param['default']);
+		}
+
 		if (isset($param['firstItem'])) $this->firstItem = $param['firstItem'];
 
 		if (isset($param['item'])) $this->item =& $param['item'];
@@ -123,7 +130,23 @@ class extends pForm_hidden
 				$a->_firstCaption = $this->firstItem;
 			}
 
-			$a->_option = new loop_pForm_selectOption__($this->item, $this->value, $this->length);
+			if ($this->multiple && '' === $this->status)
+			{
+				$v =& $this->default;
+
+				if (!is_array($v))
+				{
+					if ('' !== $v)
+					{
+						$v = explode(',', $v);
+						$v = array_map('rawurldecode', $v);
+					}
+					else $v = array();
+				}
+			}
+			else $v =& $this->value;
+
+			$a->_option = new loop_pForm_selectOption__($this->item, $v, $this->length);
 		}
 
 		unset($a->value);
