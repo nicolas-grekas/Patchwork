@@ -148,14 +148,35 @@ class extends patchwork
 		if ($filename)
 		{
 			$filename = basename(true === $filename ? $_SERVER['PATCHWORK_REQUEST'] : $filename);
+			$size = false;
 
-			header('Content-Disposition: attachment' . ($filename ? '; filename="' . str_replace('"', "''", $filename) . '"' : ''));
+			// It seems that IE assumes that filename is represented in its local system charset...
+			// But we don't want to introduce "Vary: User-Agent" just because of this.
+
+			if ((IS_POSTING || p::$private)
+				&&   isset($_SERVER['HTTP_USER_AGENT'])
+				&&  strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE')
+				&& !strpos($_SERVER['HTTP_USER_AGENT'], 'Opera'))
+				&& preg_match('/[\x80-\xFF]/', $filename)
+			{
+				if (stripos(p::$headers['content-type'], 'octet-stream') && preg_match('#(.*)(\.[- -,/-~]+)$#D', $filename, $size))
+				{
+					// Don't search any rational here, it's IE...
+					header(
+						'Content-Disposition: attachment; filename='
+						. rawurlencode($size[1])
+						. str_replace('"', "''", $size[2])
+					);
+				}
+				else $filename = p::toASCII($filename);
+			}
+
+			$size || header('Content-Disposition: attachment; filename="' . str_replace('"', "''", $filename) . '"');
 
 			// If only RFC 2184 were in use...
-			//header('Content-Disposition: attachment' . ($filename ? "; filename*=utf-8''" . rawurlencode($filename) : ''));
+			//header('Content-Disposition: attachment; filename*=utf-8''" . rawurlencode($filename));
 		}
-
-		$filename || false !== strpos($mime, 'html') && header('P3P: CP="' . $CONFIG['P3P'] . '"');
+		else false !== strpos($mime, 'html') && header('P3P: CP="' . $CONFIG['P3P'] . '"');
 
 		$size = filesize($file);
 		p::$ETag = $size .'-'. p::$LastModified .'-'. fileinode($file);

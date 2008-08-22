@@ -72,9 +72,13 @@ class extends loop_agentWrapper
 
 		if ($this->isdata && is_array($a))
 		{
-			$b = '';
-			foreach ($a as &$v) $b .= ',' . strtr($v, array('%' => '%25', ',' => '%2C'));
-			$a = substr($b, 1);
+			if ($a)
+			{
+				$b = '';
+				foreach ($a as &$v) $b .= ',' . strtr($v, array('%' => '%25', ',' => '%2C'));
+				$a = substr($b, 1);
+			}
+			else $a = '';
 		}
 
 		return $a;
@@ -261,12 +265,12 @@ class extends loop_agentWrapper
 			{
 				if (is_array($this->value))
 				{
-					if ('' === implode('', $this->value)) $this->status = '';
-					else
-					{
-						$status = true;
+					$status = true;
 
-						foreach ($this->value as &$value)
+					foreach ($this->value as $i => &$value)
+					{
+						if ('' === $value) unset($this->value[$i]);
+						else
 						{
 							$v = FILTER::get($value, $this->valid, $this->valid_args);
 
@@ -277,9 +281,9 @@ class extends loop_agentWrapper
 								$status = true && $status;
 							}
 						}
-
-						$this->status = $status;
 					}
+
+					$this->value && $this->status = $status;
 				}
 				else
 				{

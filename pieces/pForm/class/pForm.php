@@ -109,7 +109,7 @@ class extends loop_agentWrapper
 
 	function setDefaults($data)
 	{
-		$this->defaults = (array) $data;
+		$this->defaults = array_merge($this->defaults, (array) $data);
 	}
 
 	function add($type, $name, $param = array(), $autoPopulate = true)
