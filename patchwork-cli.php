@@ -13,8 +13,8 @@
 
 
 // If you want to use your patchwork application in CLI scripts:
-// - First chdir() to your application's directory
-// - Then define $_SERVER['PATCHWORK_BASE']
+// - first chdir() to your application's directory
+// - then define $_SERVER['PATCHWORK_BASE']
 // - for multilanguage applications, set $_SERVER['PATCHWORK_LANG']
 // - and include this present file
 
@@ -29,7 +29,7 @@ $url = implode($_SERVER['PATCHWORK_LANG'], $url);
 
 if (!preg_match("'^http(s?)://([-.:a-z0-9]+)(/(?:\?|.+[/\?])?)$'D", $url, $url))
 {
-	throw new Exception("Invalid \$_SERVER['PATCHWORK_BASE'] variable");
+	throw new Exception("Invalid \$_SERVER['PATCHWORK_BASE']");
 }
 
 if ($url[1]) $_SERVER['HTTPS'] = 'on';

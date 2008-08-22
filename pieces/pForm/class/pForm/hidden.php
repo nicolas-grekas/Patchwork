@@ -59,9 +59,9 @@ class extends loop_agentWrapper
 		$form->setFile($this->isfile);
 	}
 
-	final public function getName() {return $this->name;}
+	public function getName() {return $this->name;}
 
-	final public function setValue($value)
+	public function setValue($value)
 	{
 		$this->value = $value;
 	}
@@ -84,7 +84,7 @@ class extends loop_agentWrapper
 		return $a;
 	}
 
-	final public function isValidData($checkStatus = true, $checkIsData = true)
+	public function isValidData($checkStatus = true, $checkIsData = true)
 	{
 		if ($checkStatus && false === $this->status) return false;
 		if ($checkIsData && !$this->isdata) return false;
@@ -92,7 +92,7 @@ class extends loop_agentWrapper
 		return true;
 	}
 
-	final public function getValue()
+	public function getValue()
 	{
 		return $this->value;
 	}

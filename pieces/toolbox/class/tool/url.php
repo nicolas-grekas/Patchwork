@@ -36,8 +36,8 @@ class
 			$req = 'tcp://';
 		}
 
-		$host = gethostbyname($h[2]);
-		$req .= $host;
+		$host = $h[2];
+		$req .= gethostbyname($host);
 
 		if ($h = $h[3])
 		{
@@ -47,21 +47,23 @@ class
 
 		$h = fsockopen($req, $port, $errno, $errstr, 5);
 
-		if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
-
-		socket_set_blocking($h, 0);
-
-		$req  = "GET {$url} HTTP/1.0\r\n";
-		$req .= "Host: {$host}\r\n";
-		$req .= "Connection: close\r\n\r\n";
-
-		do
+		if (!$h) W("Socket error n°{$errno}: {$errstr}");
+		else
 		{
-			$len = fwrite($h, $req);
-			$req = substr($req, $len);
-		}
-		while (false !== $len && false !== $req);
+			socket_set_blocking($h, 0);
 
-		fclose($h);
+			$req  = "GET {$url} HTTP/1.0\r\n";
+			$req .= "Host: {$host}\r\n";
+			$req .= "Connection: close\r\n\r\n";
+
+			do
+			{
+				$len = fwrite($h, $req);
+				$req = substr($req, $len);
+			}
+			while (false !== $len && false !== $req);
+
+			fclose($h);
+		}
 	}
 }
