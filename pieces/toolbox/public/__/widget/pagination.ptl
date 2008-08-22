@@ -20,7 +20,7 @@ IF a$pages_nb >= 2
 	SET a$sep
 		IF '?' == a$sep
 			-->?<!--
-			SET a$url -->{a$url|substr:0:-1}<!--
+			SET a$url -->{a$url|substr:0:-1}<!-- END:SET
 		ELSE -->&amp;<!--
 		END:IF
 		-->p=<!--
