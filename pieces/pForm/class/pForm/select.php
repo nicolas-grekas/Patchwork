@@ -20,12 +20,15 @@ class extends pForm_hidden
 	$item = array(),
 	$firstItem = false,
 	$length = -1,
-	$default = array();
+	$default;
 
 
 	protected function init(&$param)
 	{
-		if (!empty($param['multiple']) && isset($param['default']))
+		if (empty($param['disabled'])
+			&& empty($param['readonly'])
+			&& !empty($param['multiple'])
+			&& isset($param['default']))
 		{
 			$this->default = $param['default'];
 			unset($param['default']);
@@ -130,7 +133,7 @@ class extends pForm_hidden
 				$a->_firstCaption = $this->firstItem;
 			}
 
-			if ($this->multiple && '' === $this->status)
+			if (isset($this->default) && !isset($this->form->rawValues[$this->name]))
 			{
 				$v =& $this->default;
 
