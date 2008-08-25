@@ -12,8 +12,6 @@
  ***************************************************************************/
 
 
-/* Both version (PHP & JS) of this pipe are bugged */
-
 class
 {
 	protected static $args;
@@ -23,15 +21,28 @@ class
 		$args = func_get_args();
 		self::$args =& $args;
 
-		if ($format == '') $args = implode('', $args);
-		else $args = preg_replace_callback("'%([0-9])'u", array(__CLASS__, 'replace_callback'), p::string($format));
+		if ('' !== $format) 
+		{
+			$args = preg_replace_callback(
+				"'(%+)([0-9]?)'",
+				array(__CLASS__, 'replace_callback'),
+				p::string($format)
+			);
+		}
+		else $args = implode('', $args);
 
 		return $args;
 	}
 
 	protected static function replace_callback($m)
 	{
-		return isset(self::$args[$m[1]+1]) ? p::string(self::$args[$m[1]+1]) : '';
+		if (1 === strlen($m[1]) % 2)
+		{
+			$m[1] = substr($m[1], 1);
+			$m[2] = isset(self::$args[$m[2]+1]) ? p::string(self::$args[$m[2]+1]) : '';
+		}
+
+		return substr($m[1], 0, strlen($m[1])>>1) . $m[2];
 	}
 
 	static function js()
@@ -40,31 +51,34 @@ class
 
 P$echo = function($format)
 {
+	var $i = 1, $args = P$echo.arguments;
 	$format = str($format);
-
-	var $args = P$echo.arguments, $i = 1, $firstChar;
 
 	if ($format != '')
 	{
-		$format = $format.split('%');
-
-		for (; $i<$format.length; ++$i)
-		{
-			$firstChar = $format[$i].substr(0, 1);
-			if ($firstChar.length && $firstChar != '%')
-			{
-				if (0 <= $firstChar && $firstChar <= 9) $format[$i] = str($args[$firstChar/1+1]) + $format[$i].substr(1);
-				else $format[$i] = '%' + $format[$i];
-			}
-		}
+		P$echo.$args = $args;
+		$format = $format.replace(/(%+)([0-9]?)/g, P$echo.$replace_callback);
+		P$echo.$args = 0;
 	}
 	else
 	{
 		$format = [];
 		for (; $i<$args.length; ++$i) $format[$i] = $args[$i];
+		$format = $format.join('');
 	}
 
-	return $format.join('');
+	return $format;
+}
+
+P$echo.$replace_callback = function($m0, $m1, $m2)
+{
+	if (1 == $m1.length % 2)
+	{
+		$m1 = $m1.substr(1);
+		$m2 = str(P$echo.$args[$m2-0+1]);
+	}
+
+	return $m1.substr(0, $m1.length>>1) + $m2;
 }
 
 <?php	}
