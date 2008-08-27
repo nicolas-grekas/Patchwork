@@ -39,15 +39,11 @@ class extends pTask
 		$sql = "DELETE FROM registry WHERE level=" . PATCHWORK_PATH_LEVEL . " AND zcache='{$zcache}'";
 		$sqlite->queryExec($sql);
 
-		$noname = false;
 		$sqlite->queryExec('BEGIN');
 		foreach ($crontab as $name => $task)
 		{
 			if (is_int($name))
 			{
-				$noname || W('Every periodic task in the crontab should have a unique name.');
-				$noname = true;
-
 				$name = array();
 				while (false !== $sql = get_parent_class($task)) $name[] = $sql;
 				$name = md5(serialize(array($task, $name)));
