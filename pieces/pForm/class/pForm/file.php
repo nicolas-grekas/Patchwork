@@ -23,6 +23,9 @@ class extends pForm_text
 
 	protected function init(&$param)
 	{
+		empty($param['disabled']) || $this->disabled = true;
+		if ($this->disabled || !empty($param['readonly'])) $this->readonly = true;
+
 		$this->valid_args[] = $this->maxlength = isset($param['maxlength']) ? (int) $param['maxlength'] : 0;
 
 		$this->valid = isset($param['valid']) ? $param['valid'] : '';
@@ -31,8 +34,57 @@ class extends pForm_text
 		$i = 0;
 		while(isset($param[$i])) $this->valid_args[] =& $param[$i++];
 
-		$this->status = FILTER::getFile($this->form->filesValues[$this->name], $this->valid, $this->valid_args);
-		$this->value = $this->status;
+		if (!empty($param['multiple']))
+		{
+			$this->multiple = true;
+			$this->value = array();
+		}
+
+		if (!$this->readonly)
+		{
+			if ($this->multiple)
+			{
+				$this->status = '';
+				$value = isset($this->form->filesValues[$this->name]) ? $this->form->filesValues[$this->name] : '';
+				
+				if (!empty($value['name']))
+				{
+					if (is_array($value['name']))
+					{
+						$status = true;
+
+						foreach ($value['name'] as $i => $v)
+						{
+							$v = array(
+								'name'     => $v,
+								'type'     => $value['type'    ][$i],
+								'tmp_name' => $value['tmp_name'][$i],
+								'error'    => $value['error'   ][$i],
+								'size'     => $value['size'    ][$i],
+							);
+
+							$v = FILTER::getFile($v, $this->valid, $this->valid_args);
+
+							if (false === $v) $status = false;
+							else
+							{
+								$this->value[] = $v;
+								$status = true && $status;
+							}
+						}
+
+						$this->value && $this->status = $status;
+					}
+					else $this->status = false;
+				}
+			}
+			else
+			{
+				$this->status = FILTER::getFile($this->form->filesValues[$this->name], $this->valid, $this->valid_args);
+				$this->value = $this->status;
+			}
+		}
+		else $this->status = '';
 	}
 
 	protected function addJsValidation($a)
