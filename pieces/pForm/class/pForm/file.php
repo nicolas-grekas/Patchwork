@@ -66,7 +66,7 @@ class extends pForm_text
 							$v = FILTER::getFile($v, $this->valid, $this->valid_args);
 
 							if (false === $v) $status = false;
-							else
+							else if ('' !== $v)
 							{
 								$this->value[] = $v;
 								$status = true && $status;
