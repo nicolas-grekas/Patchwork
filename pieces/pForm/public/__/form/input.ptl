@@ -134,7 +134,11 @@ SET $INPUT
 		ELSEIF a$type == 'textarea'
 			--><textarea {a$|htmlArgs:'type':'value'}>{a$value}</textarea><!--
 
-		ELSE --><input {a$|htmlArgs} /><!--
+		ELSE
+			IF a$type == 'image'
+				SET a$src -->{a$src|base}<!-- END:SET
+			END:IF
+			--><input {a$|htmlArgs} /><!--
 		END:IF
 
 		-->{a$_JsStart}<!--
