@@ -90,11 +90,16 @@ class extends agent
 
 				p::makeDir($path);
 
-				foreach (new DirectoryIterator($path) as $file)
+				if ($h = opendir($path))
 				{
-					if ($file->isDot()) continue;
-					if ($file->isDir()) $folders[] = $file->getFilename();
-					else if ($getFiles) $files[$file->getFilename()] = $file->getSize();
+					while (false !== $file = readdir($h))
+					{
+						if ('.' === $file || '..' === $file) continue;
+						if (is_dir($path . $file)) $folders[] = $file;
+						else if ($getFiles) $files[$file] = filesize($path . $file);
+					}
+
+					closedir($h);
 				}
 
 				natcasesort($folders);
