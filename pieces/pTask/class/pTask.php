@@ -54,7 +54,7 @@ class
 
 	final static function schedule(self $task, $time = 0)
 	{
-		$task->doSchedule($time);
+		return $task->doSchedule($time);
 	}
 
 	static function cancel($id, $sqlite = false)
