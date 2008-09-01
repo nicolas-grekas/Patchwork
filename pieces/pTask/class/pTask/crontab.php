@@ -39,24 +39,23 @@ class extends pTask
 		$sql = "DELETE FROM registry WHERE level=" . PATCHWORK_PATH_LEVEL . " AND zcache='{$zcache}'";
 		$sqlite->queryExec($sql);
 
-		$sqlite->queryExec('BEGIN');
 		foreach ($crontab as $name => $task)
 		{
 			if (is_int($name))
 			{
 				$name = array();
-				while (false !== $sql = get_parent_class($task)) $name[] = $sql;
+				$sql = get_class($task);
+				while (false !== $sql = get_parent_class($sql)) $name[] = $sql;
 				$name = md5(serialize(array($task, $name)));
 			}
 
 			$name = sqlite_escape_string($name);
-			$sql = "DELETE FROM registry WHERE name='{$name}' AND level>=" . PATCHWORK_PATH_LEVEL . " AND zcache='{$zcache}'";
+			$sql = "DELETE FROM registry WHERE task_name='{$name}' AND level>=" . PATCHWORK_PATH_LEVEL . " AND zcache='{$zcache}'";
 			$sqlite->queryExec($sql);
 
 			$id = pTask::schedule($task, $task->getNextRun());
 			$sql = "INSERT INTO registry VALUES ({$id}, '{$name}', " . PATCHWORK_PATH_LEVEL . ", '{$zcache}')";
 			$sqlite->queryExec($sql);
 		}
-		$sqlite->queryExec('COMMIT');
 	}
 }

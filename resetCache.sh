@@ -1,6 +1,6 @@
 #!/bin/bash
 
-chown apache: * -R
+chown apache: `dirname $0` -R
 
 for I in `locate /config.patchwork.php | grep -v \\\.svn -v 2> /dev/null`
 do
