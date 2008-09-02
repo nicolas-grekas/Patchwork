@@ -119,6 +119,18 @@ class extends pForm_hidden
 		parent::init($param);
 	}
 
+	protected function checkError($onempty, $onerror)
+	{
+		if ('' === $this->status
+			&& isset($this->default)
+			&& !isset($this->form->rawValues[$this->name]))
+		{
+			unset($this->default);
+		}
+
+		return parent::checkError($onempty, $onerror);
+	}
+
 	protected function get()
 	{
 		$a = parent::get();
