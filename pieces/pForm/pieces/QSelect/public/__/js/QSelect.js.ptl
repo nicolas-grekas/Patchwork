@@ -369,7 +369,7 @@ function QSelectSearch($data)
 					$query = RegExp.quote($query, 1);
 					$query = new RegExp('(^|[^0-9a-z'+ACCENT.join('')+'])' + $query, 'gi');
 
-					for (; $i < $data.length; ++$i) if ($query.test($data[$i].replace(/@[-._a-z0-9]+/gi, ''))) $result[$result.length] = $data[$i];
+					for (; $i < $data.length; ++$i) if ($query.test((''+$data[$i]).replace(/@[-._a-z0-9]+/gi, ''))) $result[$result.length] = ''+$data[$i];
 				}
 
 				$pushBack($result);
