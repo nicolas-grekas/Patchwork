@@ -161,7 +161,19 @@ class extends loop_agentWrapper
 	function checkError($onempty, $onerror)
 	{
 		if ($this->errormsg) return true;
-		else if ($onempty && '' === $this->status) return $this->errormsg = $onempty;
+		else if ($onempty && '' === $this->status)
+		{
+/*<
+			if (  $this->isfile
+				? !isset($this->form->filesValues[$this->name])
+				: !isset($this->form->rawValues[$this->name]))
+			{
+				W("Form's input data do not even mention the [{$this->name}] mandatory field .\nMaybe it is not present in the definition of the form ?");
+			}
+>*/
+
+			return $this->errormsg = $onempty;
+		}
 		else if ($onerror && false === $this->status) return $this->errormsg = $onerror;
 		else if (false === $this->status)
 		{
@@ -173,11 +185,12 @@ class extends loop_agentWrapper
 			), true));
 >*/
 
-			$a =& $this->form->filesValues;
-
-			if ($this->isfile && isset($a[$this->name]))
+			if ($this->isfile && isset($this->form->filesValues[$this->name]['error']))
 			{
-				switch ($a[$this->name]['error'])
+				$a = $this->form->filesValues[$this->name]['error'];
+				is_array($a) && $a = $a[0];
+
+				switch ($a)
 				{
 				case UPLOAD_ERR_INI_SIZE:
 				case UPLOAD_ERR_FORM_SIZE:
@@ -189,7 +202,7 @@ class extends loop_agentWrapper
 					break;
 
 				default:
-					$onerror = sprintf(T('File upload failed (code #%d)'), $this->name, $a[$this->name]['error']);
+					$onerror = sprintf(T('File upload failed (code #%d)'), $this->name, $a);
 					break;
 				}
 			}
@@ -197,7 +210,7 @@ class extends loop_agentWrapper
 
 			return $this->errormsg = $onerror;
 		}
-		else if ('' === $this->status) $this->value = '';
+		else if ('' === $this->status) $this->value = $this->multiple ? array() : '';
 
 		return false;
 	}
