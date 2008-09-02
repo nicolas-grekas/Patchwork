@@ -57,8 +57,9 @@ class extends loop_agentWrapper
 
 			if (isset($_POST['_POST_BACKUP']))
 			{
+				// This should only be used for field persistence, not as valid input
 				$this->rawValues   =& $GLOBALS['_POST_BACKUP'];
-				$this->filesValues =& $GLOBALS['_FILES_BACKUP'];
+//				$this->filesValues =& $GLOBALS['_FILES_BACKUP'];
 			}
 			else
 			{
@@ -156,6 +157,11 @@ class extends loop_agentWrapper
 	{
 		if ($this->firstName === -1) $this->firstName = $name;
 		else if ($name != $this->firstName) $this->enterControl = true;
+	}
+
+	function isPOST()
+	{
+		return $this->POST;
 	}
 
 	protected function get()

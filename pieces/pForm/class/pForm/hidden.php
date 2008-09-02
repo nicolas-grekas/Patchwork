@@ -138,7 +138,7 @@ class extends loop_agentWrapper
 		if ($this->disabled) return false;
 
 		if (isset($this->isOn)) return $this->isOn;
-		if ('' === $this->status || isset($GLOBALS['_POST_BACKUP'])) return $this->isOn = false;
+		if ('' === $this->status || isset($GLOBALS['_POST_BACKUP']) && $this->form->isPOST()) return $this->isOn = false;
 
 		$error =& $this->form->errormsg;
 
@@ -158,7 +158,7 @@ class extends loop_agentWrapper
 		return $this->isOn = empty($error);
 	}
 
-	function checkError($onempty, $onerror)
+	protected function checkError($onempty, $onerror)
 	{
 		if ($this->errormsg) return true;
 		else if ($onempty && '' === $this->status)
