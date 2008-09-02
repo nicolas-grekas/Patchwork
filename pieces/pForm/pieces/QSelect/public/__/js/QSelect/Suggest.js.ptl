@@ -46,7 +46,7 @@ function QSelectSuggest($data, $separator, $separatorRx)
 					$q = RegExp.quote($q, 1);
 					$q = new RegExp('(^|[^0-9a-z' + ACCENT.join('') + '])' + $q, 'i');
 
-					for (; $i < $data.length; ++$i) if ($q.test($data[$i].replace(/@[-._a-z0-9]+/gi, ''))) $result[$result.length] = $data[$i];
+					for (; $i < $data.length; ++$i) if ($q.test((''+$data[$i]).replace(/@[-._a-z0-9]+/gi, ''))) $result[$result.length] = ''+$data[$i];
 				}
 			}
 
