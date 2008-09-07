@@ -1361,9 +1361,6 @@ class
 	{
 		$one_chunk = $mode === (PHP_OUTPUT_HANDLER_START | PHP_OUTPUT_HANDLER_END);
 
-		if ('' === $buffer && $one_chunk) return $buffer;
-
-
 		static $type = false;
 		false !== $type || $type = isset(self::$headers['content-type']) ? strtolower(substr(self::$headers['content-type'], 14)) : 'html';
 
@@ -1455,6 +1452,9 @@ class
 				}
 			}
 		}
+
+
+		if ('' === $buffer && $one_chunk) return $buffer;
 
 
 		// GZip compression
