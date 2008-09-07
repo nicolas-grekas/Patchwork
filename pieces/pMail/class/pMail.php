@@ -14,7 +14,7 @@
 
 class extends pTask
 {
-	protected $testMode = false;
+	protected $testMode = DEBUG;
 
 	static function send($headers, $body, $options = null)
 	{
@@ -22,8 +22,8 @@ class extends pTask
 
 		return self::pushMail(array(
 			'headers' => &$headers,
-			'body' => &$body,
 			'options' => &$options,
+			'body' => &$body,
 		));
 	}
 
@@ -34,9 +34,9 @@ class extends pTask
 
 		return self::pushMail(array(
 			'headers' => &$headers,
+			'options' => &$options,
 			'agent' => &$agent,
 			'args' => &$args,
-			'options' => &$options,
 		));
 	}
 
@@ -65,6 +65,30 @@ class extends pTask
 
 		if ($queue->testMode)
 		{
+			if (isset($data['agent']))
+			{
+				if (!empty($data['options']['lang']))
+				{
+					$lang = p::__LANG__();
+					p::setLang($data['options']['lang']);
+				}
+
+				$url = p::base($data['agent'], true);
+				empty($data['args']) || $url .= '?' . http_build_query($data['args']);
+
+				if (!empty($data['options']['lang']))
+				{
+					p::setLang($lang);
+				}
+
+				p::log('Sending email &lt;<a href="' . htmlspecialchars($url) . '">' . htmlspecialchars($data['agent']) . '</a>&gt;');
+			}
+			else E(p::log('Sending email'));
+
+			E($data);
+
+			if (empty($CONFIG['pMail.debug_email'])) return 0;
+
 			$headers['X-Original-To'] = $headers['To'];
 			isset($headers[ 'Cc']) && $headers['X-Original-Cc' ] = $headers[ 'Cc'];
 			isset($headers['Bcc']) && $headers['X-Original-Bcc'] = $headers['Bcc'];
