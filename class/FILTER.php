@@ -44,8 +44,16 @@ class
 
 	static function getMsg($type, $args = array())
 	{
-		$msg = 'self::FILTERMSG_' . strtoupper($type);
-		$msg = defined($msg) ? T(constant($msg)) : '';
+		if (method_exists(__CLASS__, 'getMsg_' . $type))
+		{
+			$msg = 'getMsg_' . $type;
+			$msg = self::$msg($args);
+		}
+		else
+		{
+			$msg = __CLASS__ . '::FILTERMSG_' . strtoupper($type);
+			$msg = defined($msg) ? T(constant($msg)) : '';
+		}
 
 		return $msg;
 	}
