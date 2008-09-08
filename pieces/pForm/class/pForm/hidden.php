@@ -122,10 +122,13 @@ class extends loop_agentWrapper
 			$onerror = $a[$i+2];
 
 			$addedElt = $this->form->getElement($name);
+
+			$onerror || $onerror = $addedElt->validmsg;
+
 			$this->elt[$name] = array(
 				$addedElt,
 				$onempty,
-				$onerror
+				$onerror,
 			);
 
 			if ($onempty || $onerror)
@@ -133,11 +136,11 @@ class extends loop_agentWrapper
 				$this->eltToCheck[] = array(
 					'name' => $addedElt->getName(),
 					'onempty' => $onempty,
-					'onerror' => $onerror
+					'onerror' => $onerror,
 				);
 			}
 
-			if ($onempty) $this->elt[$name][0]->required = true;
+			$onempty && $addedElt->required = true;
 		}
 	}
 
