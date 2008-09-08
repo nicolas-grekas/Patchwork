@@ -188,7 +188,8 @@ class extends loop_agentWrapper
 		}
 		else if (false === $this->status)
 		{
-			if (!$onerror && $this->validmsg) $onerror = $this->validmsg;
+			if ($onerror) {}
+			else if ($this->validmsg) $onerror = $this->validmsg;
 			else
 			{
 /*<
