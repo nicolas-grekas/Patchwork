@@ -25,6 +25,7 @@ class extends loop_agentWrapper
 	$isfile = false,
 	$isdata = true,
 	$required = false,
+	$validmsg = '',
 	$errormsg = '',
 
 	$form,
@@ -52,16 +53,23 @@ class extends loop_agentWrapper
 
 		if ($sessionLink)
 		{
-			if (isset($sessionLink[$name]) && $this->readonly || !isset($this->form->rawValues[$name])) $this->value =& $sessionLink[$name];
+			if (isset($sessionLink[$name]) && $this->readonly || !isset($this->form->rawValues[$name]))
+			{
+				$this->value =& $sessionLink[$name];
+				$this->status = '';
+			}
 			else $sessionLink[$name] =& $this->value;
 		}
 
 		$form->setFile($this->isfile);
 	}
 
-	public function getName() {return $this->name;}
+	function getName()
+	{
+		return $this->name;
+	}
 
-	public function setValue($value)
+	function setValue($value)
 	{
 		$this->value = $value;
 	}
@@ -84,7 +92,7 @@ class extends loop_agentWrapper
 		return $a;
 	}
 
-	public function isValidData($checkStatus = true, $checkIsData = true)
+	function isValidData($checkStatus = true, $checkIsData = true)
 	{
 		if ($checkStatus && false === $this->status) return false;
 		if ($checkIsData && !$this->isdata) return false;
@@ -92,7 +100,7 @@ class extends loop_agentWrapper
 		return true;
 	}
 
-	public function getValue()
+	function getValue()
 	{
 		return $this->value;
 	}
@@ -161,7 +169,8 @@ class extends loop_agentWrapper
 	protected function checkError($onempty, $onerror)
 	{
 		if ($this->errormsg) return true;
-		else if ($onempty && '' === $this->status)
+
+		if ($onempty && '' === $this->status)
 		{
 /*<
 			if (  $this->isfile
@@ -174,39 +183,42 @@ class extends loop_agentWrapper
 
 			return $this->errormsg = $onempty;
 		}
-		else if ($onerror && false === $this->status) return $this->errormsg = $onerror;
 		else if (false === $this->status)
 		{
+			if (!$onerror && $this->validmsg) $onerror = $this->validmsg;
+			else
+			{
 /*<
-			W('Input validation error in ' . get_class($this) . ' element: ' . print_r(array(
-				'name' => $this->name,
-				'value' => $this->value,
-				'valid' => $this->valid, $this->valid_args
-			), true));
+				W('Input validation error in ' . get_class($this) . ' element: ' . print_r(array(
+					'name' => $this->name,
+					'value' => $this->value,
+					'valid' => $this->valid, $this->valid_args
+				), true));
 >*/
 
-			if ($this->isfile && isset($this->form->filesValues[$this->name]['error']))
-			{
-				$a = $this->form->filesValues[$this->name]['error'];
-				is_array($a) && $a = $a[0];
-
-				switch ($a)
+				if ($this->isfile && isset($this->form->filesValues[$this->name]['error']))
 				{
-				case UPLOAD_ERR_INI_SIZE:
-				case UPLOAD_ERR_FORM_SIZE:
-					$onerror = T('The uploaded file size exceeds the allowed limit');
-					break;
+					$a = $this->form->filesValues[$this->name]['error'];
+					is_array($a) && $a = $a[0];
 
-				case UPLOAD_ERR_PARTIAL:
-					$onerror = T('The uploaded file was only partially uploaded');
-					break;
+					switch ($a)
+					{
+					case UPLOAD_ERR_INI_SIZE:
+					case UPLOAD_ERR_FORM_SIZE:
+						$onerror = T('The uploaded file size exceeds the allowed limit');
+						break;
 
-				default:
-					$onerror = sprintf(T('File upload failed (code #%d)'), $this->name, $a);
-					break;
+					case UPLOAD_ERR_PARTIAL:
+						$onerror = T('The uploaded file was only partially uploaded');
+						break;
+
+					default:
+						$onerror = sprintf(T('File upload failed (code #%d)'), $this->name, $a);
+						break;
+					}
 				}
+				else $onerror = T('Input validation error');
 			}
-			else $onerror = T('Input validation error');
 
 			return $this->errormsg = $onerror;
 		}
@@ -243,10 +255,13 @@ class extends loop_agentWrapper
 			$this->multiple = true;
 		}
 
-		if (isset($param['isdata'])) $this->isdata = (bool) $param['isdata'];
+		isset($param['isdata']) && $this->isdata = (bool) $param['isdata'];
 
 		$i = 0;
 		while(isset($param[$i])) $this->valid_args[] =& $param[$i++];
+
+		isset($param['validmsg']) && $this->validmsg = $param['validmsg'];
+		$this->validmsg || $this->validmsg = FILTER::getMsg($this->valid, $this->valid_args);
 
 		if (!$this->readonly && isset($this->form->rawValues[$this->name]))
 		{
@@ -329,10 +344,11 @@ class extends loop_agentWrapper
 			'name' => $this->name . ($this->multiple ? '[]' : ''),
 		);
 
-		if ($this->eltToCheck) $a->_elements = new loop_array($this->eltToCheck, 'filter_rawArray');
-		if (!$this->multiple) $a->value = $this->value;
-		if ($this->errormsg) $a->_errormsg = $this->errormsg;
-		if ($this->required) $a->required = 'required';
+		$this->multiple || $a->value = $this->value;
+		$this->eltToCheck && $a->_elements = new loop_array($this->eltToCheck, 'filter_rawArray');
+		$this->validmsg   && $a->_validmsg = $this->validmsg;
+		$this->errormsg   && $a->_errormsg = $this->errormsg;
+		$this->required   && $a->required  = 'required';
 
 		if ($this->disabled) $a->disabled = 'disabled';
 		else if ($this->readonly) $a->readonly = 'readonly';

@@ -31,7 +31,7 @@ SET a$class -->{a$class|default:'QSelect'}<!-- END:SET
 
 IF !a$title
 	SET a$title
-		-->{a$_caption_}<!--
+		-->{a$_validmsg|default:a$_caption_|replace:'<[^>]*>':''}<!--
 	END:SET
 END:IF
 

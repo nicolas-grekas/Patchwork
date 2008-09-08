@@ -14,18 +14,40 @@
 
 class
 {
-	// This RegExp must work in most Javascript implementations too
-	const EMAIL_RX = '(?:[-+=_a-zA-Z0-9%]+(\\.[-+=_a-zA-Z0-9%]+)*@([-+=_a-zA-Z0-9%]+(\\.[-+=_a-zA-Z0-9%]+)*))';
+	const
 
-	static $IMAGETYPE = array(
+	// This RegExp must work in most Javascript implementations too
+	EMAIL_RX = '(?:[-+=_a-zA-Z0-9%]+(\\.[-+=_a-zA-Z0-9%]+)*@([-+=_a-zA-Z0-9%]+(\\.[-+=_a-zA-Z0-9%]+)*))',
+
+	FILTERMSG_INT   = 'Please provide a valid integer',
+	FILTERMSG_I     = self::FILTERMSG_INT,
+	FILTERMSG_FLOAT = 'Please provide a valid decimal number',
+	FILTERMSG_F     = self::FILTERMSG_FLOAT,
+	FILTERMSG_EMAIL = 'Please provide a valid email address',
+	FILTERMSG_PHONE = 'Please provide a valid phone number',
+	FILTERMSG_DATE  = 'Please provide a valid date';
+
+
+	static
+
+	$IMAGETYPE = array(
 		1 => 'gif', 'jpg', 'png',
 		5 => 'psd', 'bmp', 'tif', 'tif', 'jpc', 'jp2', 'jpx', 'jb2', 'swc', 'iff'
 	);
+
 
 	static function get(&$value, $type, $args = array())
 	{
 		$type = "get_$type";
 		return self::$type($value, $args);
+	}
+
+	static function getMsg($type, $args = array())
+	{
+		$msg = 'self::FILTERMSG_' . strtoupper($type);
+		$msg = defined($msg) ? T(constant($msg)) : '';
+
+		return $msg;
 	}
 
 	static function getFile(&$value, $type, $args = array())
