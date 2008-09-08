@@ -261,6 +261,7 @@ class extends loop_agentWrapper
 		while(isset($param[$i])) $this->valid_args[] =& $param[$i++];
 
 		isset($param['validmsg']) && $this->validmsg = $param['validmsg'];
+		isset($param['validMsg']) && $this->validmsg = $param['validMsg'];
 		$this->validmsg || $this->validmsg = FILTER::getMsg($this->valid, $this->valid_args);
 
 		if (!$this->readonly && isset($this->form->rawValues[$this->name]))
