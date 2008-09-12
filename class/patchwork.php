@@ -110,7 +110,7 @@ function jsquote($a, $addDelim = true, $delim = "'")
 
 function jsquoteRef(&$a) {$a = jsquote($a);}
 
-function patchwork_error_handler($code, $message, $file, $line, &$context)
+function patchwork_error_handler($code, $message, $file, $line)
 {
 	if (error_reporting())
 	{
@@ -132,7 +132,7 @@ function patchwork_error_handler($code, $message, $file, $line, &$context)
 		}
 
 		class_exists('patchwork_error', false) || __autoload('patchwork_error'); // http://bugs.php.net/42098 workaround
-		patchwork_error::handle($code, $message, $file, $line, $context);
+		patchwork_error::handle($code, $message, $file, $line);
 	}
 }
 

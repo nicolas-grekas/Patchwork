@@ -14,40 +14,13 @@
 
 class extends patchwork
 {
-	static function handle($code, $message, $file, $line, &$context)
+	static function handle($code, $message, $file, $line)
 	{
 		p::setMaxage(0);
 		p::setExpires('onmaxage');
 		p::$private = true;
 
-		if (!function_exists('filterErrorArgs'))
-		{
-			function filterErrorArgs($a, $k = true)
-			{
-				switch (gettype($a))
-				{
-					case 'object': return '(object) ' . get_class($a);
-
-					case 'array':
-						if ($k)
-						{
-							$b = array();
-
-							foreach ($a as $k => &$v) $b[$k] = filterErrorArgs($v, false);
-						}
-						else $b = 'array(...)';
-
-						return $b;
-
-					case 'string': return '(string) ' . $a;
-
-					case 'boolean': return $a ? 'true' : 'false';
-				}
-
-				return $a;
-			}
-		}
-
+		$callee = '';
 		$context = '';
 
 		if (!ob::$in_handler)
@@ -59,32 +32,62 @@ class extends patchwork
 			$length = count($msg);
 			while ($i < $length)
 			{
-				$a = array(
-					' in   ' => @ "{$msg[$i]['file']} line {$msg[$i]['line']}",
-					' call ' => @ (isset($msg[$i]['class']) ? $msg[$i]['class'].$msg[$i]['type'] : '') . $msg[$i]['function'] . '()'
+				$a = @array(
+					' in   ' => "{$msg[$i]['file']} line {$msg[$i]['line']}",
+					' call ' => (isset($msg[$i]['class']) ? $msg[$i]['class'].$msg[$i]['type'] : '') . $msg[$i]['function'] . '()'
 				);
 
-				if (
-					in_array(
-						$a[' call '],
-						array(
-							'patchwork->error_handler()',
-							'require()', 'require_once()',
-							'include()', 'include_once()',
-						)
-					)
-				)
+				switch ($a[' call '])
 				{
-					++$i;
-					continue;
+				case 'patchwork_error_handler()':
+					$context = array();
+					unset($msg[$i]['args'][0], $msg[$i]['args'][2], $msg[$i]['args'][3], $msg[$i]['args'][4]);
+					break;
+
+				case 'require()':
+				case 'require_once()':
+				case 'include()':
+				case 'include_once()':
+					$a = array();
+					break;
+
+				case 'trigger_error()':
+					$context = array();
+					$j = $i+1;
+
+					if (isset($msg[$j]['class']))
+					{
+						for (++$j; $j < $length; ++$j)
+						{
+							if (!isset($msg[$j]['class']) || $msg[$j]['class'] !== $msg[$i+1]['class'])
+							{
+								--$j;
+
+								$callee = $msg[$j]['class'];
+								$callee = substr($callee, 0, strpos($callee, '__'));
+								$callee .= $msg[$j]['type'] . $msg[$j]['function'] . '([…])';
+
+								$file = $msg[$j]['file'];
+								$line = $msg[$j]['line'];
+
+								break;
+							}
+						}
+					}
+
+					break;
 				}
 
-				if (!empty($msg[$i]['args'])) $a[' args '] = array_map('filterErrorArgs', $msg[$i]['args']);
+				if ($a)
+				{
+					empty($msg[$i]['args']) || $a[' args '] = array_map(array(__CLASS__, 'filterArgs'), $msg[$i]['args']);
+					$context[] = $a;
+				}
 
-				$context[$i++] = $a;
+				++$i;
 			}
 
-			$context[$i++] = array('_SERVER' => &$_SERVER);
+			$context[] = array('_SERVER' => &$_SERVER);
 
 			$context = htmlspecialchars( print_r($context, true) );
 		}
@@ -103,19 +106,23 @@ class extends patchwork
 		default:             $msg = '<b>Unknown Error (#'.$code.')</b>';
 		}
 
+		$date = date('d-M-Y H:i:s');
+		$callee && $callee = " calling <b>{$callee}</b>";
+
 		$cid = p::uniqid();
 		$cid = <<<EOHTML
 <script type="text/javascript">/*<![CDATA[*/
 focus()
-L=opener&&opener.document.getElementById('debugLink')
+L=opener||parent;
+L=L&&L.document.getElementById('debugLink')
 L=L&&L.style
 if(L)
 {
 L.backgroundColor='red'
 L.fontSize='18px'
 }
-//]]></script><a href="javascript:;" onclick="var a=document.getElementById('{$cid}');a.style.display=a.style.display?'':'none';" style="color:red;font-weight:bold">{$msg}</a>
-in <b>$file</b> line <b>$line</b>:\n{$message}<blockquote id="{$cid}" style="display:none">Context: {$context}</blockquote><br><br>
+//]]></script><a href="javascript:;" onclick="var a=document.getElementById('{$cid}');a.style.display=a.style.display?'':'none';" style="color:red;font-weight:bold" title="[{$date}]">{$msg}</a>
+in <b>{$file}</b> line <b>{$line}</b>{$callee}:\n{$message}<blockquote id="{$cid}" style="display:none">Context: {$context}</blockquote><br><br>
 EOHTML;
 
 		$i = ini_get('error_log');
@@ -130,5 +137,28 @@ EOHTML;
 		case E_RECOVERABLE_ERROR:
 			exit;
 		}
+	}
+
+	protected static function filterArgs($a, $k = true)
+	{
+		switch (gettype($a))
+		{
+		case 'array':
+			if ($k)
+			{
+				$b = array();
+
+				foreach ($a as $k => &$v) $b[$k] = self::filterArgs($v, false);
+			}
+			else $b = 'array(...)';
+
+			return $b;
+
+		case 'object' : return '(object) ' . get_class($a);
+		case 'string' : return '(string) ' . $a;
+		case 'boolean': return $a ? 'true' : 'false';
+		}
+
+		return $a;
 	}
 }

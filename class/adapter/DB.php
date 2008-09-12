@@ -31,7 +31,7 @@ class
 		$mysql = 'mysql' === substr($db->phptype, 0, 5);
 
 		$db->loadModule('Extended');
-		$db->setErrorHandling(PEAR_ERROR_CALLBACK, 'E');
+		$db->setErrorHandling(PEAR_ERROR_TRIGGER, E_USER_WARNING);
 		$db->setFetchMode(MDB2_FETCHMODE_OBJECT);
 		$db->setOption('seqname_format', 'zeq_%s');
 		$db->setOption('portability', MDB2_PORTABILITY_ALL ^ MDB2_PORTABILITY_EMPTY_TO_NULL ^ MDB2_PORTABILITY_FIX_CASE);
