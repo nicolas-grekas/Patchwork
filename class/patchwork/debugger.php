@@ -221,28 +221,30 @@ function Z()
 				{
 					$a = fgets($h);
 
+					$a = preg_replace_callback(
+						"'" . preg_quote(htmlspecialchars(PATCHWORK_PROJECT_PATH) . '.')
+							. '([^\\\\/]+)\.[01]([0-9]+)(-?)\.' . PATCHWORK_PATH_TOKEN . "\.zcache\.php'",
+						array(__CLASS__, 'filename'),
+						$a
+					);
+
 					if ('[' == $a[0] && '] PHP ' == substr($a, 21, 6))
 					{
 						$b = strpos($a, ':', 28);
-						$a = substr($a, 0, 23)
-							. '<script type="text/javascript">/*<![CDATA[*/
+						$a = '<script type="text/javascript">/*<![CDATA[*/
 		focus()
-		L=parent&&parent.document.getElementById(\'debugLink\')
+		L=opener||parent;
+		L=L&&L.document.getElementById(\'debugLink\')
 		L=L&&L.style
 		if(L)
 		{
 		L.backgroundColor=\'red\'
 		L.fontSize=\'18px\'
 		}
-		//]]></script><span style="color:red;font-weight:bold">'
+		//]]></script><a href="javascript:;" style="color:red;font-weight:bold" title="' . substr($a, 0, 22) . '">'
 							. substr($a, 23, $b-23)
-							. '</span>'
-							. preg_replace_callback(
-								"'" . preg_quote(htmlspecialchars(PATCHWORK_PROJECT_PATH) . '.')
-									. '([^\\\\/]+)\.[01]([0-9]+)(-?)\.' . PATCHWORK_PATH_TOKEN . "\.zcache\.php'",
-								array(__CLASS__, 'filename'),
-								substr($a, $b)
-							);
+							. "</a>\n"
+							. substr($a, $b+2);
 					}
 
 					echo $a;
@@ -276,7 +278,8 @@ function Z()
 
 	static function filename($m)
 	{
-		return $GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - ((int)($m[3].$m[2]))]
-			. str_replace('%1', '%', str_replace('%2', '_', strtr($m[1], '_', DIRECTORY_SEPARATOR)));
+		return '<span title="' . $GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - ((int)($m[3].$m[2]))] . '">.' . DIRECTORY_SEPARATOR
+			. str_replace('%1', '%', str_replace('%2', '_', strtr($m[1], '_', DIRECTORY_SEPARATOR)))
+			. '</span>';
 	}
 }

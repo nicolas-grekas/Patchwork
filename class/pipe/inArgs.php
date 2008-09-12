@@ -5,7 +5,7 @@ class
 	static function php($index)
 	{
 		$a = func_get_args();
-		return isset($a[$index + 1]) ? $a[$index + 1] : $index;
+		return isset($a[$index + 1]) ? $a[$index + 1] : '';
 	}
 
 	static function js()
@@ -14,7 +14,7 @@ class
 
 P$inArgs = function($index)
 {
-	return P$inArgs.arguments[$index + 1] || $index;
+	return P$inArgs.arguments[$index + 1] || '';
 }
 
 <?php	}
