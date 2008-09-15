@@ -14,6 +14,15 @@
 
 class extends Mail_mime
 {
+	static $contentType = array(
+		'.png'  => 'image/png',
+		'.gif'  => 'image/gif',
+		'.jpg'  => 'image/jpeg',
+		'.jpeg' => 'image/jpeg',
+		'.doc'  => 'application/msword',
+		'.pdf'  => 'application/pdf',
+	);
+
 	protected $options;
 
 	static function send($headers, $body, $options = null)
@@ -55,6 +64,21 @@ class extends Mail_mime
 
 		$this->_build_params['html_charset' ] = 'utf-8';
 		$this->_build_params['html_encoding'] = 'base64';
+
+		if (!empty($options['attachments']) && is_array($options['attachments']))
+		{
+			foreach ($options['attachments'] as $name => $file)
+			{
+				is_int($name) && $name = '';
+				$c_type = 'application/octet-stream';
+
+				$ext = strtolower(strrchr($name ? $name : $file, '.'));
+
+				isset(self::$contentType[$ext]) && $c_type = self::$contentType[$ext];
+
+				$this->addAttachment(resolvePath($file), $c_type, $name);
+			}
+		}
 	}
 
 	protected function doSend()
