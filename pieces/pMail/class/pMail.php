@@ -83,7 +83,7 @@ class extends pTask
 
 				p::log('Sending email &lt;<a href="' . htmlspecialchars($url) . '">' . htmlspecialchars($data['agent']) . '</a>&gt;');
 			}
-			else E(p::log('Sending email'));
+			else p::log('Sending email');
 
 			E($data);
 
@@ -101,7 +101,7 @@ class extends pTask
 		if ( isset($headers['From']) && !$headers['From']) W("Email is likely not to be sent: From header is empty.");
 
 		$data['cookie']  =& $_COOKIE;
-		$data['session'] = isset($_COOKIE['SID']) ? SESSION::getAll() : array();
+		$data['session'] = class_exists('SESSION', false) ? SESSION::getAll() : array();
 
 
 		$sqlite = $queue->getSqlite();
