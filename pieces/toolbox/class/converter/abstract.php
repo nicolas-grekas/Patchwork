@@ -18,7 +18,7 @@ abstract class
 
 	function convertData($data)
 	{
-		$file = tempnam('./tmp', 'convert');
+		$file = tempnam('.', 'converter');
 
 		p::writeFile($file, $data);
 

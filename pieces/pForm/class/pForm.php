@@ -45,7 +45,16 @@ class extends loop_agentWrapper
 	{
 		if ($agentData)
 		{
-			if ($formVarname) $agentData->$formVarname = $this;
+			if ($formVarname)
+			{
+				if (isset($agentData->$formVarname))
+				{
+					W(__CLASS__ . ": Overwriting existing \$agentData->{$formVarname}! If this is the intended behavior, unset(\$agentData->{$formVarname}) to remove this warning.");
+				}
+
+				$agentData->$formVarname = $this;
+			}
+
 			$this->agentData = $agentData;
 		}
 		else $this->agentData = false;

@@ -18,8 +18,7 @@ class extends pMail_mime
 
 	$agent,
 	$args,
-	$lang,
-	$textAnchor = array();
+	$lang;
 
 
 	static protected $imageCache = array();
@@ -72,29 +71,11 @@ class extends pMail_mime
 		$this->setHTMLBody($html);
 
 
-		// Prepare HTML for text conversion
-
-		// Inline URLs
-		$html = preg_replace_callback(
-			'#<a\b[^>]*\shref="([^"]*)"[^>]*>(.*?)</a\b[^>]*>#isu',
-			array($this, 'buildTextAnchor'),
-			$html
-		);
-
-		// Remove <sub> and <sup> tags
-		$html = preg_replace('#<(/?)su[bp]\b([^>]*)>#iu' , '<$1span$2>', $html);
-
-		// Style according to the Netiquette
-		$html = preg_replace('#<(?:b|strong)\b[^>]*>(\s*)#iu' , '$1*', $html);
-		$html = preg_replace('#(\s*)</(?:b|strong)\b[^>]*>#iu', '*$1', $html);
-		$html = preg_replace('#<u\b[^>]*>(\s*)#iu' , '$1_', $html);
-		$html = preg_replace('#(\s*)</u\b[^>]*>#iu', '_$1', $html);
+		// HTML to text conversion
 
 		$c = new converter_txt_html(78);
 		$html = $c->convertData($html);
 
-		$html = strtr($html, $this->textAnchor);
-		$this->textAnchor = array();
 
 		$this->setTXTBody($html);
 
@@ -136,33 +117,5 @@ class extends pMail_mime
 		$a =& $this->_html_images[ count($this->_html_images) - 1 ];
 
 		return $m[1] . $m[2] . '="cid:' . $a['cid'] . '"';
-	}
-
-	protected function buildTextAnchor($m)
-	{
-		$a = $m[2];
-		$m = trim($m[1]);
-		$m = preg_replace('"^mailto:\s*"i', '', $m);
-
-		$b = false !== strpos($m, '&') ? html_entity_decode($m, ENT_COMPAT, 'UTF-8') : $m;
-		$b = preg_replace_callback('"[^-a-zA-Z0-9_.~,/?:@&=+$#%]+"', array($this, 'rawurlencodeCallback'), $b);
-		$len = strlen($b);
-
-		$c = '';
-		do $c .= md5(mt_rand());
-		while (strlen($c) < $len);
-		$c = substr($c, 0, $len);
-
-		$this->textAnchor[$c] = $b;
-
-		if (false === stripos($a, $m)) $a .= " &lt;{$c}&gt;";
-		else $a = str_ireplace($m, $c, $a);
-
-		return $a;
-	}
-
-	protected function rawurlencodeCallback($m)
-	{
-		return rawurlencode($m[0]);
 	}
 }
