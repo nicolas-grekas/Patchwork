@@ -69,14 +69,20 @@ class extends Mail_mime
 		{
 			foreach ($options['attachments'] as $name => $file)
 			{
+				if (!file_exists($file))
+				{
+					W(__CLASS__ . ': file attachment not found (' . $file . ')');
+					continue;
+				}
+
 				is_int($name) && $name = '';
-				$c_type = 'application/octet-stream';
 
-				$ext = strtolower(strrchr($name ? $name : $file, '.'));
+				$c_type = strtolower(strrchr($name ? $name : $file, '.'));
+				$c_type = isset(self::$contentType[$c_type])
+					? self::$contentType[$c_type]
+					: 'application/octet-stream';
 
-				isset(self::$contentType[$ext]) && $c_type = self::$contentType[$ext];
-
-				$this->addAttachment(resolvePath($file), $c_type, $name);
+				$this->addAttachment($file, $c_type, $name);
 			}
 		}
 	}
@@ -90,10 +96,16 @@ class extends Mail_mime
 		$body =& $this->get();
 		$headers =& $this->headers();
 
-		pMail::cleanHeaders($headers, 'Return-Path|Errors-To|From|To|Reply-To');
+		if (!isset($headers['From']) && $CONFIG['pMail.from']) $headers['From'] = $CONFIG['pMail.from'];
+		if ( isset($headers['From']) && !$headers['From']) W("Email is likely not to be sent: From header is empty.");
 
 		if (isset($headers['Return-Path'])) $headers['Errors-To'] =& $headers['Return-Path'];
 		else if (isset($headers['Errors-To'])) $headers['Return-Path'] =& $headers['Errors-To'];
+		else if (isset($headers['From']))
+		{
+			$headers['Return-Path'] = $headers['From'];
+			$headers['Errors-To'] =& $headers['Return-Path'];
+		}
 
 		$this->setObserver('reply', 'Reply-To', $message_id);
 		$this->setObserver('bounce', 'Return-Path', $message_id);
