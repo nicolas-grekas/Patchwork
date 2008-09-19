@@ -46,6 +46,16 @@ class extends pTask
 
 		if ($queue->testMode)
 		{
+			$log = <<<EOHTML
+<script type="text/javascript">/*<![CDATA[*/
+focus()
+L=opener||parent;
+L=L&&L.document.getElementById('debugLink')
+L=L&&L.style
+if(L) L.fontSize='18px'
+//]]></script>
+EOHTML;
+
 			if (isset($data['agent']))
 			{
 				if (!empty($data['options']['lang']))
@@ -62,9 +72,9 @@ class extends pTask
 					p::setLang($lang);
 				}
 
-				p::log('Sending email &lt;<a href="' . htmlspecialchars($url) . '">' . htmlspecialchars($data['agent']) . '</a>&gt;');
+				p::log($log . '<strong>Sending email</strong> &lt;<a href="' . htmlspecialchars($url) . '">' . htmlspecialchars($data['agent']) . '</a>&gt;');
 			}
-			else p::log('Sending email');
+			else p::log($log . '<strong>Sending email</strong>');
 
 			E($data);
 

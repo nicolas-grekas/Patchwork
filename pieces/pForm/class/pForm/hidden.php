@@ -44,6 +44,8 @@ class extends loop_agentWrapper
 
 	function __construct($form, $name, $param, &$sessionLink = false)
 	{
+		empty($form) && W(get_class($this) . ': $form parameter is empty');
+
 		$this->form = $form;
 		$this->sessionLink =& $sessionLink;
 		$this->name =& $name;
