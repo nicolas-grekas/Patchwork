@@ -39,7 +39,7 @@ class
 		if (1 === strlen($m[1]) % 2)
 		{
 			$m[1] = substr($m[1], 1);
-			$m[2] = isset(self::$args[$m[2]+1]) ? p::string(self::$args[$m[2]+1]) : '';
+			$m[2] = '' !== $m[2] && isset(self::$args[$m[2]+1]) ? p::string(self::$args[$m[2]+1]) : '%';
 		}
 
 		return substr($m[1], 0, strlen($m[1])>>1) . $m[2];
@@ -75,7 +75,7 @@ P$echo.$replace_callback = function($m0, $m1, $m2)
 	if (1 == $m1.length % 2)
 	{
 		$m1 = $m1.substr(1);
-		$m2 = str(P$echo.$args[$m2-0+1]);
+		$m2 = '' != $m2 ? str(P$echo.$args[$m2-0+1]) : '%';
 	}
 
 	return $m1.substr(0, $m1.length>>1) + $m2;
