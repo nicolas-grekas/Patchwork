@@ -14,15 +14,6 @@
 
 class extends Mail_mime
 {
-	static $contentType = array(
-		'.png'  => 'image/png',
-		'.gif'  => 'image/gif',
-		'.jpg'  => 'image/jpeg',
-		'.jpeg' => 'image/jpeg',
-		'.doc'  => 'application/msword',
-		'.pdf'  => 'application/pdf',
-	);
-
 	protected $options;
 
 	static function send($headers, $body, $options = null)
@@ -78,8 +69,8 @@ class extends Mail_mime
 				is_int($name) && $name = '';
 
 				$c_type = strtolower(strrchr($name ? $name : $file, '.'));
-				$c_type = isset(self::$contentType[$c_type])
-					? self::$contentType[$c_type]
+				$c_type = isset(patchwork_static::$contentType[$c_type])
+					? patchwork_static::$contentType[$c_type]
 					: 'application/octet-stream';
 
 				$this->addAttachment($file, $c_type, $name);
