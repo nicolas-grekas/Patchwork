@@ -243,15 +243,13 @@ EOHTML;
 			{
 				$ctemplate = p::getContextualCachePath("templates/$template", 'txt');
 
-				p::syncTemplate($template, $ctemplate);
-
 				$readHandle = true;
 
 				if ($h = p::fopenX($ctemplate, $readHandle))
 				{
 					p::openMeta('agent__template/' . $template, false);
 					$compiler = new ptlCompiler_js(p::$binaryMode);
-					echo $template = ',[' . $compiler->compile($template . '.ptl') . '])';
+					echo $template = ',[' . $compiler->compile($template) . '])';
 					fwrite($h, $template);
 					fclose($h);
 					list(,,, $template) = p::closeMeta();

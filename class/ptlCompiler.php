@@ -107,9 +107,19 @@ abstract class
 
 	private function load($template, $path_idx = 0)
 	{
-		$this->template = IS_WINDOWS ? strtolower($template) : $template;
+		'.ptl' === strtolower(substr($template, -4)) && $template = substr($template, 0, -4);
 
-		$template = p::resolvePublicPath($template, $path_idx);
+		$this->template = IS_WINDOWS ? strtolower($template) : $template;
+		$this->template = preg_replace("'[\\/]+'", '/', $this->template);
+
+		$source = p::resolvePublicPath($template . '.ptl', $path_idx);
+
+		if ($source) $template = $source;
+		else
+		{
+			$path_idx = 0;
+			$template = p::resolvePublicPath($template, $path_idx);
+		}
 
 		if (!$template) return '{$DATA}';
 
@@ -120,10 +130,18 @@ abstract class
 
 		$source = rtrim($source);
 		if (false !== strpos($source, "\r")) $source = strtr(str_replace("\r\n", "\n", $source), "\r", "\n");
+
+		if ('.ptl' !== strtolower(substr($template, -4)))
+		{
+			$source = preg_replace("'(?:{$this->Xlvar}|{$this->Xlblock})'" , "{'$0'}", $source);
+
+			return $source;
+		}
+
 		$source = preg_replace_callback("'" . $this->Xcomment . "\n?'su", array($this, 'preserveLF'), $source);
 		$source = preg_replace("'({$this->Xrblock})\n'su", "\n$1", $source);
 		$source = preg_replace_callback(
-			"/({$this->Xlblock}(?:{$this->XblockEnd})?{$this->Xblock})((?>{$this->Xstring}|.)*?)({$this->Xrblock})/su",
+			"/({$this->Xlblock}(?:{$this->XblockEnd})?{$this->Xblock})((?".">{$this->Xstring}|.)*?)({$this->Xrblock})/su",
 			array($this, 'autoSplitBlocks'),
 			$source
 		);
@@ -189,9 +207,11 @@ abstract class
 	{
 #>		p::watch('debugSync');
 
-		$template = (IS_WINDOWS ? strtolower($m[1]) : $m[1]) . '.ptl';
+		$template = IS_WINDOWS ? strtolower($m[1]) : $m[1];
+		$template = preg_replace("'[\\/]+'", '/', $template);
+		'.ptl' === substr($template, -4) && $template = substr($template, 0, -4);
 
-		$a = str_replace('\\', '/', $template) === preg_replace("'[\\/]+'", '/', $this->template);
+		$a = $template === $this->template;
 		$a = isset($m[2]) ? substr($m[2], 1) : ($a ? -1 : (PATCHWORK_PATH_LEVEL - $this->path_idx));
 		$a = $a < 0 ? $this->path_idx - $a : (PATCHWORK_PATH_LEVEL - $a);
 
@@ -203,7 +223,7 @@ abstract class
 		else
 		{
 			if ($a > PATCHWORK_PATH_LEVEL) $a = PATCHWORK_PATH_LEVEL;
-			return $this->load($template, $a);
+			return $this->load($m[1], $a);
 		}
 	}
 
@@ -272,7 +292,7 @@ abstract class
 
 	private function makeBlocks($a)
 	{
-		$a = preg_split("/({$this->Xlblock}{$this->Xblock}(?>{$this->Xstring}|.)*?{$this->Xrblock})/su", $a, -1, PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_DELIM_CAPTURE);
+		$a = preg_split("/({$this->Xlblock}{$this->Xblock}(?".">{$this->Xstring}|.)*?{$this->Xrblock})/su", $a, -1, PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_DELIM_CAPTURE);
 
 		$this->makeVars($a[0][0]);
 
