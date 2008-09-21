@@ -289,7 +289,8 @@ class
 				|| (isset($_POST['T$']) && substr($_COOKIE['T$'], 1) === substr($_POST['T$'], 1))
 				|| (isset( $_GET['T$']) && substr($_COOKIE['T$'], 1) === substr( $_GET['T$'], 1))
 			)
-			&& 33 === strlen($_COOKIE['T$']) && 33 === strspn($_COOKIE['T$'], 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789')
+			&& 33 === strlen($_COOKIE['T$'])
+			&& 33 === strspn($_COOKIE['T$'], 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789')
 		) self::$antiCSRFtoken = $_COOKIE['T$'];
 		else self::getAntiCSRFtoken(true);
 
@@ -362,7 +363,9 @@ class
 		self::$binaryMode = 'text/html' !== substr(constant("$agent::contentType"), 0, 9);
 
 		// Synch exoagents on browser request
-		if (isset($_COOKIE['cache_reset_id']) && self::$appId == $_COOKIE['cache_reset_id'] && setcookie('cache_reset_id', '', 0, '/'))
+		if (isset($_COOKIE['cache_reset_id'])
+			&& self::$appId == $_COOKIE['cache_reset_id']
+			&& setcookie('cache_reset_id', '', 0, '/'))
 		{
 			self::updateAppId();
 			self::touch('foreignTrace');
@@ -851,7 +854,10 @@ class
 		return mb_strtoupper($m[1]);
 	}
 
-	static function uniqid() {return md5(uniqid(mt_rand(), true));}
+	static function uniqid($raw = false)
+	{
+		return md5(uniqid(mt_rand() . pack('d', lcg_value()), true), $raw);
+	}
 
 	static function strongid($length = 32)
 	{
@@ -862,7 +868,7 @@ class
 		do
 		{
 			$i = 0;
-			$n = unpack('C*', md5(uniqid(mt_rand(), true), true) . md5(uniqid(mt_rand(), true), true));
+			$n = unpack('C*', self::uniqid(true) . self::uniqid(true));
 
 			do $a .= $chars[$n[++$i]%57] . $chars[$n[++$i]%57] . $chars[$n[++$i]%57] . $chars[$n[++$i]%57];
 			while ($i < 32);
@@ -1403,7 +1409,7 @@ class
 			if (false !== $a)
 			{
 				$a = preg_replace_callback(
-					'#<form\s(?:[^>]+?\s)?method\s*=\s*(["\']?)post\1.*?\>#iu',
+					'#<form\s(?:[^>]+?\s)?method\s*=\s*(["\']?)post\1.*?'.'>#iu',
 					array(__CLASS__, 'appendToken'),
 					$buffer
 				);
@@ -1422,7 +1428,7 @@ class
 		{
 			// Fix IE mime-sniff misfeature
 			// (see http://www.splitbrain.org/blog/2007-02/12-internet_explorer_facilitates_cross_site_scripting
-			//  and http://msdn.microsoft.com/library/default.asp?url=/workshop/networking/moniker/overview/appendix_a.asp)
+			// http://msdn.microsoft.com/fr-fr/library/ms775147.aspx
 			// This will break some binary contents, but it is very unlikely that a legitimate
 			// binary content may contain the suspicious bytes that trigger IE mime-sniffing.
 
@@ -1606,8 +1612,14 @@ class
 			$is304 = (isset($_SERVER['HTTP_IF_NONE_MATCH'    ]) && $_SERVER['HTTP_IF_NONE_MATCH'] === $ETag)
 			      || (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && $_SERVER['HTTP_IF_MODIFIED_SINCE'] === $LastModified);
 
-			header('Expires: ' . gmdate('D, d M Y H:i:s \G\M\T', time() + (self::$private || !self::$maxage ? 0 : self::$maxage)));
-			header('Cache-Control: max-age=' . self::$maxage . (self::$private ? ',private,must' : ',public,proxy') . '-revalidate');
+			header('Expires: ' . gmdate(
+				'D, d M Y H:i:s \G\M\T',
+				time() + (self::$private || !self::$maxage ? 0 : self::$maxage)
+			));
+			header(
+				'Cache-Control: max-age=' . self::$maxage
+				. (self::$private ? ',private,must' : ',public,proxy') . '-revalidate'
+			);
 
 			if ($is304)
 			{
@@ -1664,7 +1676,10 @@ class
 		}
 
 
-		if ($filename == $last__in_filename && $lang == $last_lang && $last__in_path_idx <= $path_idx && $path_idx <= $last_out_path_idx)
+		if ($filename == $last__in_filename
+			&& $lang  == $last_lang
+			&& $last__in_path_idx <= $path_idx
+			&& $path_idx <= $last_out_path_idx)
 		{
 			$path_idx = $last_out_path_idx;
 			return $last_out_filename;
@@ -1856,7 +1871,10 @@ class loop
 
 		p::$catchMeta = $catchMeta;
 
-		if ($escape && !($this instanceof L_) && $data) foreach ($data as &$i) is_string($i) && $i = htmlspecialchars($i);
+		if ($escape && !($this instanceof L_) && $data)
+		{
+			foreach ($data as &$i) is_string($i) && $i = htmlspecialchars($i);
+		}
 
 		return $data;
 	}

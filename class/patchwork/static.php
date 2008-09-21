@@ -57,7 +57,7 @@ class extends patchwork
 		{
 			p::openMeta('agent__template/' . $template, false);
 			$compiler = new ptlCompiler_js(false);
-			echo $template = ',[' . $compiler->compile($template . '.ptl') . '])';
+			echo $template = ',[' . $compiler->compile($template) . '])';
 			fwrite($h, $template);
 			fclose($h);
 			list(,,, $watch) = p::closeMeta();
