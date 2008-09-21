@@ -232,7 +232,7 @@ class
 
 		self::$appId = abs($GLOBALS['patchwork_appId'] % 10000);
 
-		// Language controler
+		// Language controller
 
 		'' === $_SERVER['PATCHWORK_LANG']
 			&& '' !== key($CONFIG['i18n.lang_list'])
@@ -299,19 +299,6 @@ class
 		if (IS_POSTING) unset($_POST['T$'], $_POST['T$']);
 
 
-		// If the URL has an extension, check for static files
-
-		if (($agent = strrchr($_SERVER['PATCHWORK_REQUEST'], '.'))
-			&& strcasecmp('.ptl', $agent)
-			&& $agent = p::resolvePublicPath($_SERVER['PATCHWORK_REQUEST']))
-		{
-			self::setMaxage(-1);
-			self::writeWatchTable('public/static', 'zcache/');
-			self::readfile($agent, true, false);
-			exit;
-		}
-
-
 		PATCHWORK_DIRECT ? self::clientside() : self::serverside();
 
 		while (self::$ob_level)
@@ -321,7 +308,7 @@ class
 		}
 	}
 
-	// {{{ Client side rendering controler
+	// {{{ Client side rendering controller
 	static function clientside()
 	{
 		self::header('Content-Type: text/javascript');
@@ -353,14 +340,50 @@ class
 	}
 	// }}}
 
-	// {{{ Server side rendering controler
+	// {{{ Server side rendering controller
 	static function serverside()
 	{
-		$agent = self::resolveAgentClass($_SERVER['PATCHWORK_REQUEST'], $_GET);
+		$request = $_SERVER['PATCHWORK_REQUEST'];
+		$agent = self::resolveAgentClass($request, $_GET);
+
+
+		// If the URL has an extension and only a subdirectory agent has been found, check for static file
+
+		if (!empty($_GET['__0__'])
+			&& ($ext = strrchr($request, '.'))
+			&& $ext !== $_GET['__0__']
+			&& strcasecmp('.ptl', $ext))
+		{
+			if ($file = p::resolvePublicPath($request . '.ptl'))
+			{
+				$ext = isset(patchwork_static::$contentType[$ext])
+					? patchwork_static::$contentType[$ext]
+					: 'application/octet-stream';
+
+				$agent = 'agentTemplate__' . mt_rand();
+
+				$i = 0;
+				while (isset($_GET["__{$i}__"])) unset($_GET["__{$i}__"]);
+
+				eval("
+					class {$agent} extends agentTemplate
+					{
+						const contentType='" . addslashes($ext) . "';
+						protected \$template='" . addslashes($request) . "';
+					}"
+				);
+			}
+			else if ($file = p::resolvePublicPath($request))
+			{
+				self::setMaxage(-1);
+				self::writeWatchTable('public/static', 'zcache/');
+				self::readfile($file, true, false);
+				exit;
+			}
+		}
+
 
 		if (isset($_GET['k$'])) return patchwork_agentTrace::send($agent);
-
-		self::$binaryMode = 'text/html' !== substr(constant("$agent::contentType"), 0, 9);
 
 		// Synch exoagents on browser request
 		if (isset($_COOKIE['cache_reset_id'])
@@ -382,6 +405,8 @@ class
 
 			return;
 		}
+
+		self::$binaryMode = 'text/html' !== substr(constant("$agent::contentType"), 0, 9);
 
 /*<
 		if (PATCHWORK_SYNC_CACHE && !self::$binaryMode)
@@ -1222,7 +1247,7 @@ class
 
 		if (true !== $agentLevel && !class_exists($agent, false))
 		{
-			if (false === $agentLevel) eval('class ' . $agent . ' extends agentTemplate {}');
+			if (false === $agentLevel) eval("class {$agent} extends agentTemplate {}");
 			else $GLOBALS['patchwork_autoload_cache'][$agent] = $agentLevel + PATCHWORK_PATH_OFFSET;
 		}
 
