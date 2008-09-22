@@ -350,8 +350,8 @@ class
 		// If the URL has an extension and only a subdirectory agent has been found, check for static file
 
 		if (!empty($_GET['__0__'])
+			&& !isset($_GET['__EXTENSION__'])
 			&& ($ext = strrchr($request, '.'))
-			&& $ext !== $_GET['__0__']
 			&& strcasecmp('.ptl', $ext))
 		{
 			if ($file = p::resolvePublicPath($request . '.ptl'))
@@ -1137,30 +1137,18 @@ class
 
 		if (preg_match("''u", $agent))
 		{
-			$ext = strrchr($agent, '.');
+			$agent = preg_replace("'/[./]*(?:/|$)'", '/', '/' . $agent . '/');
+			'/' !== $agent && $agent = substr($agent, 1);
 
-			if (false !== $ext && false === strpos($ext, '/'))
-			{
-				$agent = substr($agent, 0, -strlen($ext));
-			}
-			else $ext = '';
+			preg_match('"^((?:/?[a-zA-Z0-9\x80-\xff]+(?:([-_ ])[a-zA-Z0-9\x80-\xff]+)*)*)((?:\.[^.\x00-\x20]+)?/)"', $agent, $a);
 
-			$agent = preg_replace("'/[./]*(?:/|$)'", '/', '/' . trim($agent, '/.') . '/');
-
-			preg_match('"^/(?:[a-zA-Z0-9\x80-\xff]+(?:([-_ ])[a-zA-Z0-9\x80-\xff]+)*/)*"', $agent, $a);
+			$param = (string) substr($agent, strlen($a[1]), -1);
+			$agent = $a[1];
+			$potentialAgent = !empty($a[2])
+				? (string) preg_replace_callback("'[-_ ](.)'u", array(__CLASS__, 'mb_strtoupper_callback'), $agent)
+				: $agent;
 		}
-		else
-		{
-			$ext = '';
-			$a = array('/');
-		}
-
-		$param = (string) substr($agent, strlen($a[0]), -1);
-		$param = '' !== $param ? explode('/', $param) : array();
-		$agent = (string) substr($a[0], 1, -1);
-
-		if (isset($a[1])) $potentialAgent = (string) preg_replace_callback("'[-_ ](.)'u", array(__CLASS__, 'mb_strtoupper_callback'), $agent);
-		else $potentialAgent = $agent;
+		else $potentialAgent = $agent = $param = '';
 
 		if (isset($resolvedCache['/' . $potentialAgent])) return 'agent_' . strtr($potentialAgent, '/', '_');
 
@@ -1211,8 +1199,8 @@ class
 					continue;
 				}
 
-				if (
-					   resolvePath("class/agent{$a}/")
+				if ($i < $agentLength
+					&& resolvePath("class/agent{$a}/")
 					|| resolvePath("public/__{$a}/")
 					|| ($l_ng != $lang && resolvePath("public{$l_ng}{$a}/"))
 					|| ($lang && resolvePath("public{$lang}{$a}/"))
@@ -1221,22 +1209,35 @@ class
 				break;
 			}
 
-			if ($offset < $agentLength) $param = array_merge(array_slice($agent, $offset), $param);
+			if ($offset < $agentLength) $param = '/' . implode('/', array_slice($agent, $offset)) . $param;
 		}
 
-		if ('' !== $ext)
+		if ('' !== $param)
 		{
-			$param
-				? $param[count($param) - 1] .= $ext
-				: $param = array($ext);
-		}
+			if ('.' === $param[0])
+			{
+				if (false !== $ext = strpos($param, '/'))
+				{
+					$ext = substr($param, 0, $ext);
+					$param = substr($param, strlen($ext)+1);
+				}
+				else
+				{
+					$ext = $param;
+					$param = '';
+				}
 
-		if ($param)
-		{
-			$args['__0__'] = implode('/', $param);
+				$args['__EXTENSION__'] = $ext;
+			}
+			else $param = substr($param, 1);
 
-			$i = 0;
-			foreach ($param as &$param) $args['__' . ++$i . '__'] = $param;
+			if ('' !== $param)
+			{
+				$args['__0__'] = $param;
+
+				$i = 0;
+				foreach (explode('/', $param) as $param) $args['__' . ++$i . '__'] = $param;
+			}
 		}
 
 		$resolvedCache[$existingAgent] = true;

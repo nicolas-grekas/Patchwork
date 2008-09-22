@@ -371,7 +371,7 @@ $a = rawurldecode($a);
 $r = preg_replace("'/[./]*/'", '/', '/' . $r . '/');
 $a = preg_replace("'/[./]*/'", '/', '/' . $a);
 
-/*#>*/if ($a && '\\' === DIRECTORY_SEPARATOR && version_compare(PHP_VERSION, '5.2.6', '<'))
+/*#>*/if ($a && '\\' === DIRECTORY_SEPARATOR)
 /*#>*/{
 		// Workaround for http://bugs.php.net/bug.php?id=44001
 
