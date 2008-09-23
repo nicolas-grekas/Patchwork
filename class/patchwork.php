@@ -1104,7 +1104,7 @@ class
 			$agent = preg_replace("'/[./]*(?:/|$)'", '/', '/' . $agent . '/');
 
 			$a = '[a-zA-Z0-9\x80-\xff]+';
-			preg_match("'^((?:/{$a}(?:([-_ ]){$a})*)*)((?:\.{$a})*)/'", $agent, $a);
+			preg_match("'^((?:/{$a}(?:([-_ ]){$a})*)*)((?:\.{$a})*(?<!\.ptl))/'", $agent, $a);
 
 			$extension = $a[3];
 			$param = (string) substr($agent, strlen($a[0]), -1);
@@ -1165,9 +1165,7 @@ class
 				|| ($lang && resolvePath("public{$lang}{$a}/")))
 			);
 
-			if (   $i === $agentLength
-				&& '' !== $extension
-				&& '.ptl' !== strtolower(substr($extension, -4)))
+			if ($i === $agentLength && '' !== $extension)
 			{
 				$a .= $extension;
 
@@ -1204,7 +1202,7 @@ class
 
 			if ($offset < $agentLength)
 			{
-				'' !== $param && $extention .=  '/' . $param;
+				'' !== $param && $extension .=  '/' . $param;
 				$param = implode('/', array_slice($agent, $offset)) . $extension;
 				$extension = '';
 			}
