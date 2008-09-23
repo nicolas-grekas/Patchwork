@@ -384,6 +384,8 @@ class patchwork_preprocessor__0
 		$line   =& $this->line;
 		$line   = 1;
 
+		$extension = preg_match('"(?:\.[a-zA-Z0-9\x80-\xff]+)\.php$"', $this->source, $extension) ? $extension[0] : '';
+
 		$code = token_get_all($code);
 		$codeLen = count($code);
 
@@ -432,7 +434,7 @@ class patchwork_preprocessor__0
 				break;
 
 			case T_CLOSE_TAG: // Normalize PHP close tag
-				$token = $this->extractLF($token) . '?>';
+				$token = $this->extractLF($token) . '?'.'>';
 				break;
 
 			case '`':
@@ -879,9 +881,7 @@ class patchwork_preprocessor__0
 
 			case '{':
 				isset($class_pool[$curly_level-1]) && $static_instruction = false;
-				isset($class_pool[$curly_level])
-					&& $class_pool[$curly_level]->is_final
-					&& $token .= "static \$hunter{$T};";
+				isset($class_pool[$curly_level  ]) && $token .= "const __FILEXT__='{$extension}';";
 
 				++$curly_level;
 
@@ -957,7 +957,7 @@ class patchwork_preprocessor__0
 			++$new_code_length;
 		}
 
-		if (T_CLOSE_TAG != $type && T_INLINE_HTML != $type) $new_code[] = '?>';
+		if (T_CLOSE_TAG != $type && T_INLINE_HTML != $type) $new_code[] = '?'.'>';
 
 		return $new_code;
 	}

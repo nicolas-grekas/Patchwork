@@ -1097,6 +1097,8 @@ class
 	{
 		static $resolvedCache = array();
 
+		unset($args['__FILEXT__']);
+
 		if (preg_match("''u", $agent))
 		{
 			$agent = preg_replace("'/[./]*(?:/|$)'", '/', '/' . $agent . '/');
@@ -1112,8 +1114,6 @@ class
 				: $agent;
 		}
 		else $potentialAgent = $agent = $param = $extension = '';
-
-		if (isset($resolvedCache['/' . $potentialAgent])) return 'agent_' . strtr($potentialAgent, '/', '_');
 
 		$lang = self::$lang;
 		$l_ng = substr($lang, 0, 2);
@@ -1194,6 +1194,10 @@ class
 				{
 					$existingAgent = $a;
 					$offset = $agentLength;
+				}
+				else if ('' !== $extension)
+				{
+					$args['__FILEXT__'] = $extension;
 					$extension = '';
 				}
 			}
@@ -1205,9 +1209,6 @@ class
 				$extension = '';
 			}
 		}
-
-		if ('' !== $extension) $args['__EXTENSION__'] = $extension;
-		else unset($args['__EXTENSION__']);
 
 		if ('' !== $param)
 		{
@@ -1225,8 +1226,8 @@ class
 
 		if (true !== $agentLevel && !class_exists($agent, false))
 		{
-			     if (false === $agentLevel) eval("class {$agent} extends agentTemplate {}");
-			else if ('s'   === $agentLevel) eval("class {$agent} extends agentTemplate {const contentType='';}");
+			     if (false === $agentLevel) eval("class {$agent} extends agentTemplate {const __FILEXT__='{$extension}';}");
+			else if ('s'   === $agentLevel) eval("class {$agent} extends agentTemplate {const __FILEXT__='{$extension}'; const contentType='';}");
 			else $GLOBALS['patchwork_autoload_cache'][$agent] = $agentLevel + PATCHWORK_PATH_OFFSET;
 		}
 
@@ -1765,15 +1766,19 @@ class agent
 		if ($this->template) return $this->template;
 
 		$class = get_class($this);
-		$prev = '';
 
 		do
 		{
-			$template = str_replace('·', '.', strtr(substr($class, 6), '_', '/'));
-			if ($template !== $prev && false !== p::resolvePublicPath($template . '.ptl')) return $template;
-			$prev = $template;
+			if ((false === $tailLen = strrpos($class, '__'))
+				|| 0 !== strcspn(substr($class, $tailLen+2), '0123456789'))
+			{
+				$extension = constant($class . '::__FILEXT__');
+				$tailLen   = $extension ? strlen($extension) + substr_count($extension, '.') : -strlen($class);
+				$template = strtr(substr($class, 6, -$tailLen), '_', '/') . $extension;
+				if (p::resolvePublicPath($template . '.ptl')) return $template;
+			}
 		}
-		while ($class = get_parent_class($class));
+		while (__CLASS__ !== $class = get_parent_class($class));
 
 		return 'bin';
 	}
@@ -1816,11 +1821,10 @@ class agent
 		$this->control();
 
 		if (!$this->contentType
-			&& false !== strpos($class, '·')
-			&& preg_match('"(?:·[a-zA-Z0-9\x80-\xff]+)+$"', $class, $a))
+			&& $a = constant($class . '::__FILEXT__'))
 		{
-			$this->contentType = isset(patchwork_static::$contentType[$a[0]])
-				? patchwork_static::$contentType[$a[0]]
+			$this->contentType = isset(patchwork_static::$contentType[$a])
+				? patchwork_static::$contentType[$a]
 				: 'application/octet-stream';
 		}
 
