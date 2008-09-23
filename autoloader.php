@@ -90,7 +90,7 @@ class __patchwork_autoloader
 		if ($customSrc = '' !== (string) $src) {}
 		else if ('_' !== substr($top, -1) && strncmp('_', $top, 1) && false === strpos($top, '__'))
 		{
-			$src = 'class/' . strtr($top, '_', '/') . '.php';
+			$src = 'class/' . str_replace('·', '.', strtr($top, '_', '/')) . '.php';
 		}
 
 		if ($src)

@@ -87,7 +87,7 @@ class extends patchwork
 			self::$get->__HOST__ = htmlspecialchars(p::__HOST__());
 			$cache .= self::$get->__LANG__ = htmlspecialchars(p::__LANG__());
 			$cache .= self::$get->__BASE__ = htmlspecialchars(p::__BASE__());
-			self::$get->__AGENT__ = 'agent_index' === $agent ? '' : (str_replace('_', '/', substr($agent, 6)) . '/');
+			self::$get->__AGENT__ = 'agent_index' === $agent ? '' : (str_replace('·', '.', strtr(substr($agent, 6), '_', '/')) . '/');
 			self::$get->__URI__ = htmlspecialchars(p::$uri);
 			self::$get->__REFERER__ = isset($_SERVER['HTTP_REFERER']) ? htmlspecialchars($_SERVER['HTTP_REFERER']) : '';
 			self::$get->__LANG_ALT__ = new loop_altLang;

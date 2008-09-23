@@ -26,7 +26,7 @@ class extends patchwork
 		array_walk($a, 'jsquoteRef');
 		$a = implode(',', $a);
 
-		$agent = jsquote('agent_index' === $agent ? '' : str_replace('_', '/', substr($agent, 6)));
+		$agent = jsquote('agent_index' === $agent ? '' : str_replace('·', '.', strtr(substr($agent, 6), '_', '/')));
 
 		$lang = p::__LANG__();
 		$appId = p::$appId;
