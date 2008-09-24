@@ -103,6 +103,26 @@ EOHTML;
 		$time = isset($data['options']['time']) ? $data['options']['time'] : 0;
 		if ($time < $_SERVER['REQUEST_TIME'] - 366*86400) $time += $_SERVER['REQUEST_TIME'];
 
+		if (!empty($data['options']['attachments']) && is_array($data['options']['attachments']))
+		{
+			$tmpToken = false;
+
+			foreach ($data['options']['attachments'] as &$file)
+			{
+				if (is_uploaded_file($file) || PATCHWORK_ZCACHE === substr($file, 0, strlen(PATCHWORK_ZCACHE)))
+				{
+					$tmpToken || $tmpToken = p::strongid(8);
+					$base = PATCHWORK_ZCACHE . p::strongid(8) . '~' . $tmpToken;
+					copy($file, $base);
+					$file = $base;
+				}
+			}
+
+			unset($file, $data['options']['attachments.tmpToken']);
+
+			$tmpToken && $data['options']['attachments.tmpToken'] = $tmpToken;
+		}
+
 		$base = sqlite_escape_string(p::__BASE__());
 		$data = sqlite_escape_string(serialize($data));
 
