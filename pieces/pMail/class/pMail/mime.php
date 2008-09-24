@@ -58,6 +58,8 @@ class extends Mail_mime
 
 		if (!empty($options['attachments']) && is_array($options['attachments']))
 		{
+			$tmpToken = isset($options['attachments.tmpToken']) ? '~' . $options['attachments.tmpToken'] : false;
+
 			foreach ($options['attachments'] as $name => $file)
 			{
 				if (!file_exists($file))
@@ -74,6 +76,10 @@ class extends Mail_mime
 					: 'application/octet-stream';
 
 				$this->addAttachment($file, $c_type, $name);
+
+				$tmpToken
+					&& $tmpToken === substr($file, -strlen($tmpToken))
+					&& register_shutdown_function(array(__CLASS__, 'unlink'), $file);
 			}
 		}
 	}
@@ -169,5 +175,10 @@ class extends Mail_mime
 				$r->sendRequest();
 			}
 		}
+	}
+
+	static function unlink($file)
+	{
+		@unlink($file);
 	}
 }

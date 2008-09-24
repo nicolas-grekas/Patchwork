@@ -1104,7 +1104,7 @@ class
 			$agent = preg_replace("'/[./]*(?:/|$)'", '/', '/' . $agent . '/');
 
 			$a = '[a-zA-Z0-9\x80-\xff]+';
-			preg_match("'^((?:/{$a}(?:([-_ ]){$a})*)*)((?:\.{$a})*(?<!\.ptl))/'", $agent, $a);
+			preg_match("'^((?:/{$a}(?:([-_ ]){$a})*)*)((?:\.{$a})*(?<!\.(?i)ptl))/'", $agent, $a);
 
 			$extension = $a[3];
 			$param = (string) substr($agent, strlen($a[0]), -1);
@@ -1819,7 +1819,7 @@ class agent
 		$this->control();
 
 		if (!$this->contentType
-			&& $a = constant($class . '::__FILEXT__'))
+			&& $a = strtolower(constant($class . '::__FILEXT__')))
 		{
 			$this->contentType = isset(patchwork_static::$contentType[$a])
 				? patchwork_static::$contentType[$a]
