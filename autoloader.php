@@ -22,7 +22,7 @@ class __patchwork_autoloader
 
 	static function autoload($req)
 	{
-		if (strspn($req, ";'")) return;
+		if ($req !== strtr($req, ";'", '--')) return;
 
 		$T = PATCHWORK_PATH_TOKEN;
 		$lc_req = strtolower($req);
@@ -36,7 +36,7 @@ class __patchwork_autoloader
 
 		$i = strrpos($req, '__');
 		$level = false !== $i ? substr($req, $i+2) : false;
-		$isTop = false === $level || '' === $level || 0 !== strcspn($level, '0123456789');
+		$isTop = false === $level || '' === $level || strspn($level, '0123456789') !== strlen($level);
 
 		if ($isTop)
 		{
@@ -88,9 +88,9 @@ class __patchwork_autoloader
 		unset($customSrc);
 
 		if ($customSrc = '' !== (string) $src) {}
-		else if ('_' !== substr($top, -1) && strncmp('_', $top, 1) && false === strpos($top, '__'))
+		else if ('_' !== substr($top, -1))
 		{
-			$src = 'class/' . str_replace('·', '.', strtr($top, '_', '/')) . '.php';
+			$src = 'class/' . patchwork_class2file($top) . '.php';
 		}
 
 		if ($src)

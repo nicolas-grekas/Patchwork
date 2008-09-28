@@ -384,8 +384,6 @@ class patchwork_preprocessor__0
 		$line   =& $this->line;
 		$line   = 1;
 
-		$extension = preg_match('"(?:\.[a-zA-Z0-9\x80-\xff]+)\.php$"', $this->source, $extension) ? $extension[0] : '';
-
 		$code = token_get_all($code);
 		$codeLen = count($code);
 
@@ -881,7 +879,6 @@ class patchwork_preprocessor__0
 
 			case '{':
 				isset($class_pool[$curly_level-1]) && $static_instruction = false;
-				isset($class_pool[$curly_level  ]) && $token .= "const __FILEXT__='{$extension}';";
 
 				++$curly_level;
 
@@ -1101,7 +1098,7 @@ class patchwork_preprocessor__0
 			$b = self::export($b);
 			$b = get_class($a) . '::__set_state(' . $b . ')';
 		}
-		else if (is_string($a) && strspn($a, "\r\n\0"))
+		else if (is_string($a) && $a !== strtr($a, "\r\n\0", '---'))
 		{
 			$b = '"'. str_replace(
 				array(  "\\",   '"',   '$',  "\r",  "\n",  "\0"),

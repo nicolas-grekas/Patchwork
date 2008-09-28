@@ -42,7 +42,7 @@ $patchwork_destructors = array();
 
 // $_SERVER variables manipulations
 
-if (!isset($_SERVER['HTTP_HOST']) || strcspn($_SERVER['HTTP_HOST'], 'eiasntroludcmpghv.fb:-q102yx9jk3548w67z'))
+if (!isset($_SERVER['HTTP_HOST']) || strspn($_SERVER['HTTP_HOST'], 'eiasntroludcmpghv.fb:-q102yx9jk3548w67z') !== strlen($_SERVER['HTTP_HOST']))
 {
 	die('Invalid HTTP/1.1 Host header');
 }
@@ -114,6 +114,40 @@ function patchwork_shutdown_end()
 		register_shutdown_function('patchwork_shutdown_end');
 		call_user_func(array($class, '__destructStatic'));
 	}
+}
+
+function patchwork_class2file($class)
+{
+	static $map = array(
+		'//20' => ' ', '//21' => '!', '//23' => '#', '//24' => '$',
+		'//25' => '%', '//26' => '&', '//27' => '\'','//28' => '(',
+		'//29' => ')', '//2B' => '+', '//2C' => ',', '//2D' => '-',
+		'//2E' => '.', '//3B' => ';', '//3D' => '=', '//40' => '@',
+		'//5B' => '[', '//5D' => ']', '//5E' => '^', '//5F' => '/',
+		'//60' => '`', '//7B' => '{', '//7D' => '}', '//7E' => '~',
+	);
+
+	$class = strtr($class, '_', '/');
+	false !== strpos($class, '//') && $class = strtr($class, $map);
+
+	return $class;
+}
+
+function patchwork_file2class($file)
+{
+	static $map = array (
+		' ' => '__20', '!' => '__21', '#' => '__23', '$' => '__24',
+		'%' => '__25', '&' => '__26','\'' => '__27', '(' => '__28',
+		')' => '__29', '+' => '__2B', ',' => '__2C', '-' => '__2D',
+		'.' => '__2E', ';' => '__3B', '=' => '__3D', '@' => '__40',
+		'[' => '__5B', ']' => '__5D', '^' => '__5E', '_' => '__5F',
+		'`' => '__60', '{' => '__7B', '}' => '__7D', '~' => '__7E',
+	);
+
+	$file = strtr($file, $map);
+	$file = strtr($file, '/', '_');
+
+	return $file;
 }
 
 register_shutdown_function('patchwork_shutdown_start');
@@ -188,7 +222,7 @@ function resolvePath($file, $level = false, $base = false)
 
 	$patchwork_lastpath_level = $level;
 
-	if (0 == $i)
+	if (0 === $i)
 	{
 		$source = /*<*/__patchwork_bootstrapper::$cwd/*>*/ . $file;
 
@@ -201,9 +235,6 @@ function resolvePath($file, $level = false, $base = false)
 			if (file_exists($source)) return $source;
 /*#>*/	}
 	}
-
-
-	if ($slash = '/' === substr($file, -1)) $file = substr($file, 0, -1);
 
 
 /*#>*/if ($a = __patchwork_bootstrapper::buildPathCache())
@@ -227,7 +258,7 @@ function resolvePath($file, $level = false, $base = false)
 			$base = (int) current($base);
 			$level = $patchwork_lastpath_level -= $base - $i;
 
-			return $GLOBALS['patchwork_path'][$base] . (0<=$level ? $file : substr($file, 6)) . ($slash ? '/' : '');
+			return $GLOBALS['patchwork_path'][$base] . (0<=$level ? $file : substr($file, 6));
 		}
 		while (false !== next($base));
 	}

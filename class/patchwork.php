@@ -625,7 +625,7 @@ class
 	{
 		isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 5') && $httponly = false;
 
-		if (strspn($value, ",; \t\r\n\013\014")) setrawcookie($name, $value, $expires, $path, $domain, $secure);
+		if ($value !== strtr($value, ",; \t\r\n\013\014", '--------')) setrawcookie($name, $value, $expires, $path, $domain, $secure);
 		else
 		{
 			('' === (string) $value) && $expires = 1;
@@ -834,11 +834,6 @@ class
 	static function string($a)
 	{
 		return is_object($a) ? $a->__toString() : (string) $a;
-	}
-
-	static function mb_strtoupper_callback($m)
-	{
-		return mb_strtoupper($m[1]);
 	}
 
 	static function uniqid($raw = false)
@@ -1097,23 +1092,16 @@ class
 	{
 		static $resolvedCache = array();
 
-		unset($args['__FILEXT__']);
-
 		if (preg_match("''u", $agent))
 		{
 			$agent = preg_replace("'/[./]*(?:/|$)'", '/', '/' . $agent . '/');
 
-			$a = '[a-zA-Z0-9\x80-\xff]+';
-			preg_match("'^((?:/{$a}(?:([-_ ]){$a})*)*)((?:\.{$a})*(?<!\.(?i)ptl))/'", $agent, $a);
+			preg_match('"^((?:/[- !#$%&\'()+,.;=@[\]^_`{}~a-zA-Z0-9\x80-\xff]+)*)(?<!\.(?i)ptl)/"', $agent, $a);
 
-			$extension = $a[3];
 			$param = (string) substr($agent, strlen($a[0]), -1);
 			$agent = (string) substr($a[1], 1);
-			$potentialAgent = !empty($a[2])
-				? preg_replace_callback("'[-_ ](.)'u", array(__CLASS__, 'mb_strtoupper_callback'), $agent)
-				: $agent;
 		}
-		else $potentialAgent = $agent = $param = $extension = '';
+		else $agent = $param = $extension = '';
 
 		$lang = self::$lang;
 		$l_ng = substr($lang, 0, 2);
@@ -1128,11 +1116,10 @@ class
 
 		global $patchwork_lastpath_level;
 
-		if ('' !== $potentialAgent)
+		if ('' !== $agent)
 		{
 			$agent = explode('/', $agent);
 			$agentLength = count($agent);
-			$potentialAgent = explode('/', $potentialAgent);
 
 			$i = 0;
 			$a = '';
@@ -1140,7 +1127,7 @@ class
 
 			do
 			{
-				$a .= '/' . $potentialAgent[$i++];
+				$a .= '/' . $agent[$i++];
 
 				if (isset($resolvedCache[$a]) || resolvePath("class/agent{$a}.php"))
 				{
@@ -1165,21 +1152,9 @@ class
 				|| ($lang && resolvePath("public{$lang}{$a}/")))
 			);
 
-			if ($i === $agentLength && '' !== $extension)
+			if ($offset < $agentLength)
 			{
-				$a .= $extension;
-
-				if (isset($resolvedCache[$a]) || resolvePath("class/agent{$a}.php"))
-				{
-					$agentLevel = isset($resolvedCache[$a]) ? true : $patchwork_lastpath_level;
-				}
-				else if (resolvePath("public/__{$a}.ptl")
-					|| ($l_ng != $lang && resolvePath("public{$l_ng}{$a}.ptl"))
-					|| ($lang && resolvePath("public{$lang}{$a}.ptl")))
-				{
-					$agentLevel = 's';
-				}
-				else if ($a = p::resolvePublicPath(substr($a, 1)))
+				if ($i === $agentLength && $a = p::resolvePublicPath(substr($a, 1)))
 				{
 					p::setMaxage(-1);
 					p::writeWatchTable('public/static', 'zcache/');
@@ -1188,23 +1163,7 @@ class
 					exit;
 				}
 
-				if ($a)
-				{
-					$existingAgent = $a;
-					$offset = $agentLength;
-				}
-				else if ('' !== $extension)
-				{
-					$args['__FILEXT__'] = $extension;
-					$extension = '';
-				}
-			}
-
-			if ($offset < $agentLength)
-			{
-				'' !== $param && $extension .=  '/' . $param;
-				$param = implode('/', array_slice($agent, $offset)) . $extension;
-				$extension = '';
+				$param = implode('/', array_slice($agent, $offset)) . ('' !== $param ? '/' . $param : '');
 			}
 		}
 
@@ -1218,14 +1177,17 @@ class
 
 		$resolvedCache[$existingAgent] = true;
 
-		$agent = 'agent' . str_replace('.', '·', strtr($existingAgent, '/', '_'));
+		$agent = 'agent' . patchwork_file2class($existingAgent);
 
 		isset($agentLevel) || $agentLevel = resolvePath('class/agent/index.php') ? $patchwork_lastpath_level : false;
 
 		if (true !== $agentLevel && !class_exists($agent, false))
 		{
-			     if (false === $agentLevel) eval("class {$agent} extends agentTemplate {const __FILEXT__='{$extension}';}");
-			else if ('s'   === $agentLevel) eval("class {$agent} extends agentTemplate {const __FILEXT__='{$extension}'; const contentType='';}");
+			if (false === $agentLevel)
+			{
+				$agentLevel = '' !== pathinfo($existingAgent, PATHINFO_EXTENSION) ? 'const contentType="";' : '';
+				eval("class {$agent} extends agentTemplate {{$agentLevel}}");
+			}
 			else $GLOBALS['patchwork_autoload_cache'][$agent] = $agentLevel + PATCHWORK_PATH_OFFSET;
 		}
 
@@ -1767,12 +1729,10 @@ class agent
 
 		do
 		{
-			if ((false === $tailLen = strrpos($class, '__'))
-				|| 0 !== strcspn(substr($class, $tailLen+2), '0123456789'))
+			if ((false === $tail = strrpos($class, '__'))
+				|| ((false !== $tail = substr($class, $tail+2)) && strspn($tail, '0123456789') !== strlen($tail)))
 			{
-				$extension = constant($class . '::__FILEXT__');
-				$tailLen   = $extension ? strlen($extension) + substr_count($extension, '.') : -strlen($class);
-				$template = strtr(substr($class, 6, -$tailLen), '_', '/') . $extension;
+				$template = patchwork_class2file(substr($class, 6));
 				if (p::resolvePublicPath($template . '.ptl')) return $template;
 			}
 		}
@@ -1819,7 +1779,7 @@ class agent
 		$this->control();
 
 		if (!$this->contentType
-			&& $a = strtolower(constant($class . '::__FILEXT__')))
+			&& '' !== $a = strtolower(pathinfo(patchwork_class2file($class), PATHINFO_EXTENSION)))
 		{
 			$this->contentType = isset(patchwork_static::$contentType[$a])
 				? patchwork_static::$contentType[$a]

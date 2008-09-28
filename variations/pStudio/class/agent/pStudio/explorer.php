@@ -81,8 +81,6 @@ class extends agent
 			$depth = $GLOBALS['patchwork_lastpath_level'];
 
 			if (!$realpath || $depth < $low) return false;
-
-			'/' !== substr($path, -1) && is_dir($realpath) && $path .= '/';
 		}
 
 		$this->is_auth_edit = pStudio::isAuthEdit($path);
