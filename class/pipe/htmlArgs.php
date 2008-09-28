@@ -24,7 +24,7 @@ class
 		$result = '';
 		foreach ($pool as $k => &$v)
 		{
-			if ('_'!=substr($k, 0, 1) && 'iteratorPosition'!=$k && strpos($k, '$')===false && !in_array($k, $except))
+			if ('_' !== substr($k, 0, 1) && 'iteratorPosition' !== $k && false === strpos($k, '$') && !in_array($k, $except))
 			{
 				$result .= $k . '="' . p::string($v) . '" ';
 			}
@@ -43,9 +43,9 @@ P$htmlArgs = function($pool)
 	var $result = '', $args = P$htmlArgs.arguments, $i = $args.length, $except = [];
 
 	while (--$i) $except[$i] = $args[$i];
-	$except = new RegExp('^(|'+$except.join('|')+')$');
+	$except = new RegExp('^(|' + $except.join('|') + ')$');
 
-	for ($i in $pool) if ('_'!=$i.substr(0, 1) && 'iteratorPosition'!=$i && $i.indexOf('$')<0 && $i.search($except)) $result += $i + '="' + $pool[$i] + '" ';
+	for ($i in $pool) if ('_' != $i.substr(0, 1) && 'iteratorPosition' != $i && $i.indexOf('$') < 0 && $i.search($except)) $result += $i + '="' + $pool[$i] + '" ';
 
 	return $result;
 }

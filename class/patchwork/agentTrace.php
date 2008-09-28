@@ -79,7 +79,7 @@ class extends patchwork
 		echo 'w.k(',
 			p::$appId, ',',
 			jsquote( p::$base ), ',',
-			jsquote( 'agent_index' === $agent ? '' : str_replace('·', '.', strtr(substr($agent, 6), '_', '/')) ), ',',
+			jsquote( 'agent_index' === $agent ? '' : patchwork_class2file(substr($agent, 6)) ), ',',
 			jsquote( isset($_GET['__0__']) ? $_GET['__0__'] : '' ), ',',
 			'[', implode(',', array_map('jsquote', p::agentArgs($agent))), ']',
 		')';

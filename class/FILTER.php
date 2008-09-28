@@ -149,7 +149,7 @@ class
 	protected static function get_c   (&$value, &$args) {return self::get_char($value, $args);}
 	protected static function get_char(&$value, &$args)
 	{
-		if (!is_scalar($value) || strspn($value, "\r\n")) return false;
+		if (!is_scalar($value) || $value !== strtr($value, "\r\n", '--')) return false;
 		$result = self::get_text($value, $args);
 		return $result ? substr(preg_replace('/\s+/u', ' ', " {$result} "), 1, -1) : $result;
 	}
