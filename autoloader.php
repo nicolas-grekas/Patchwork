@@ -90,7 +90,8 @@ class __patchwork_autoloader
 		if ($customSrc = '' !== (string) $src) {}
 		else if ('_' !== substr($top, -1))
 		{
-			$src = 'class/' . patchwork_class2file($top) . '.php';
+			$src = patchwork_class2file($top);
+			$src = trim($src, '/') === $src ? "class/{$src}.php" : '';
 		}
 
 		if ($src)
