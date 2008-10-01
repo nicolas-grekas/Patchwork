@@ -1101,7 +1101,7 @@ class
 			$param = (string) substr($agent, strlen($a[0]), -1);
 			$agent = (string) substr($a[1], 1);
 		}
-		else $agent = $param = $extension = '';
+		else $agent = $param = '';
 
 		$lang = self::$lang;
 		$l_ng = substr($lang, 0, 2);
@@ -1154,7 +1154,7 @@ class
 
 			if ($offset < $agentLength)
 			{
-				if ($i === $agentLength && $a = p::resolvePublicPath(substr($a, 1)))
+				if ($i === $agentLength && ($a = p::resolvePublicPath(substr($a, 1))) && !is_dir($a))
 				{
 					p::setMaxage(-1);
 					p::writeWatchTable('public/static', 'zcache/');

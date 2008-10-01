@@ -668,7 +668,7 @@ patchwork::start();";
 			if ($level > self::$last)
 			{
 				$prefix = '/class';
-				$parentPaths['class/'][] = $level;
+				$parentPaths['class'][] = $level;
 			}
 		}
 
@@ -698,7 +698,7 @@ patchwork::start();";
 								if ($level > self::$last)
 								{
 									$prefix = '/class';
-									$parentPaths['class/'][] = $level;
+									$parentPaths['class'][] = $level;
 								}
 								else $prefix = '';
 							}
@@ -714,10 +714,10 @@ patchwork::start();";
 						{
 							$h = $file[0];
 
-							$file = $subdir . substr($file, 1) . ($h ? '/' : '');
+							$file = $subdir . substr($file, 1);
 							$parentPaths[substr($prefix . $file, 1)][] = $level;
 
-							$h && self::populatePathCache($old_db, $db, $parentPaths, $path, $root, $level, $prefix, $file);
+							$h && self::populatePathCache($old_db, $db, $parentPaths, $path, $root, $level, $prefix, $file . '/');
 						}
 
 						return;
@@ -757,7 +757,7 @@ patchwork::start();";
 							if ($level > self::$last)
 							{
 								$prefix = '/class';
-								$parentPaths['class/'][] = $level;
+								$parentPaths['class'][] = $level;
 							}
 							else $prefix = '';
 						}
@@ -796,9 +796,9 @@ patchwork::start();";
 
 			foreach ($dirs as $file)
 			{
-				$file = $subdir . $file . '/';
+				$file = $subdir . $file;
 				$parentPaths[substr($prefix . $file, 1)][] = $level;
-				self::populatePathCache($old_db, $db, $parentPaths, $path, $root, $level, $prefix, $file);
+				self::populatePathCache($old_db, $db, $parentPaths, $path, $root, $level, $prefix, $file . '/');
 			}
 		}
 	}

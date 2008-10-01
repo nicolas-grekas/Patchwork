@@ -228,19 +228,16 @@ function resolvePath($file, $level = false, $base = false)
 
 /*#>*/	if ('\\' === DIRECTORY_SEPARATOR)
 /*#>*/	{
-			if (function_exists('win_file_exists') ? win_file_exists($source) : file_exists($source))
-			{
-				return ('/' !== substr($file, -1)) - is_dir($source) ? $source : false;
-			}
+			if (function_exists('win_file_exists') ? win_file_exists($source) : file_exists($source)) return $source;
 /*#>*/	}
 /*#>*/	else
 /*#>*/	{
-			if (file_exists($source))
-			{
-				return ('/' !== substr($file, -1)) - is_dir($source) ? $source : false;
-			}
+			if (file_exists($source)) return $source;
 /*#>*/	}
 	}
+
+
+	if ($slash = '/' === substr($file, -1)) $file = substr($file, 0, -1);
 
 
 /*#>*/if ($a = __patchwork_bootstrapper::buildPathCache())
@@ -264,7 +261,7 @@ function resolvePath($file, $level = false, $base = false)
 			$base = (int) current($base);
 			$level = $patchwork_lastpath_level -= $base - $i;
 
-			return $GLOBALS['patchwork_path'][$base] . (0<=$level ? $file : substr($file, 6));
+			return $GLOBALS['patchwork_path'][$base] . (0<=$level ? $file : substr($file, 6)) . ($slash ? '/' : '');
 		}
 		while (false !== next($base));
 	}

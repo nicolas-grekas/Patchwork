@@ -78,11 +78,11 @@ class extends agent
 		else
 		{
 			$realpath = resolvePath($path, $high, 0);
-			$realpath || $realpath = resolvePath($path .= '/', $high, 0);
-
 			$depth = $GLOBALS['patchwork_lastpath_level'];
 
 			if (!$realpath || $depth < $low) return false;
+
+			'/' !== substr($path, -1) && is_dir($realpath) && $path .= '/';
 		}
 
 		$this->is_auth_edit = pStudio::isAuthEdit($path);
