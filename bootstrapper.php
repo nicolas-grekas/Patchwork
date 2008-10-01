@@ -580,6 +580,7 @@ patchwork::start();";
 		$db = fopen('./.parentPaths.txt', 'wb');
 
 		$path = array_flip($patchwork_path);
+		unset($path[self::$cwd]);
 		uksort($path, array(__CLASS__, 'dirCmp'));
 
 		foreach ($path as $h => $level)

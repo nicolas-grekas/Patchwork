@@ -78,6 +78,8 @@ class extends agent
 		else
 		{
 			$realpath = resolvePath($path, $high, 0);
+			$realpath || $realpath = resolvePath($path .= '/', $high, 0);
+
 			$depth = $GLOBALS['patchwork_lastpath_level'];
 
 			if (!$realpath || $depth < $low) return false;

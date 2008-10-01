@@ -24,8 +24,7 @@
 * BOARD
 */
 
-footerHtml = [];
-antiCSRF = '';
+var undefined, footerHtml = [], antiCSRF = '';
 
 <!-- AGENT 'js/docDomain' -->
 
