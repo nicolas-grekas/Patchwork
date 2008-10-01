@@ -228,11 +228,17 @@ function resolvePath($file, $level = false, $base = false)
 
 /*#>*/	if ('\\' === DIRECTORY_SEPARATOR)
 /*#>*/	{
-			if (function_exists('win_file_exists') ? win_file_exists($source) : file_exists($source)) return $source;
+			if (function_exists('win_file_exists') ? win_file_exists($source) : file_exists($source))
+			{
+				return ('/' !== substr($file, -1)) - is_dir($source) ? $source : false;
+			}
 /*#>*/	}
 /*#>*/	else
 /*#>*/	{
-			if (file_exists($source)) return $source;
+			if (file_exists($source))
+			{
+				return ('/' !== substr($file, -1)) - is_dir($source) ? $source : false;
+			}
 /*#>*/	}
 	}
 
