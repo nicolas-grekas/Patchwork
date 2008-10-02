@@ -79,6 +79,6 @@ class
 	/* Adapter interface */
 
 	function open() {}
-	function search($string, $lang) {/*return "<span class=\"i18n {$lang}\">{$string}</span>";*/ return $string;}
+	function search($string, $lang) {return "⌈{$string}⌋";}
 	function close() {}
 }

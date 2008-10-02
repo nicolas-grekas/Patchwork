@@ -255,7 +255,7 @@ function Z()
 				echo '<script type="text/javascript">/*<![CDATA[*/Z()//]]></script>';
 				$S||flush();
 
-				unlink($error_log);
+				@unlink($error_log);
 			}
 			else if (!--$i)
 			{

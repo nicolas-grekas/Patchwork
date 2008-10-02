@@ -460,7 +460,7 @@ abstract class
 
 				if (false !== $i)
 				{
-					$block = preg_split('/(\\$a\db) /su', $testCode, -1, PREG_SPLIT_DELIM_CAPTURE);
+					$block = preg_split('/(\\$a\d+b) /su', $testCode, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 					$expression = $block[0];
 
