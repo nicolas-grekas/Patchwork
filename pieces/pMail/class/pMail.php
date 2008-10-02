@@ -56,22 +56,8 @@ if(L) L.fontSize='18px'
 //]]></script>
 EOHTML;
 
-			if (isset($data['agent']))
+			if ($url = self::getUrl($data))
 			{
-				if (!empty($data['options']['lang']))
-				{
-					$lang = p::__LANG__();
-					p::setLang($data['options']['lang']);
-				}
-
-				$url = p::base($data['agent'], true);
-				empty($data['args']) || $url .= '?' . http_build_query($data['args']);
-
-				if (!empty($data['options']['lang']))
-				{
-					p::setLang($lang);
-				}
-
 				p::log($log . '<strong>Sending email</strong> &lt;<a href="' . htmlspecialchars($url) . '">' . htmlspecialchars($data['agent']) . '</a>&gt;');
 			}
 			else p::log($log . '<strong>Sending email</strong>');
@@ -81,14 +67,13 @@ EOHTML;
 			if (empty($CONFIG['pMail.debug_email'])) return 0;
 
 			$headers =& $data['headers'];
-			Mail_mime::cleanHeaders($headers, 'From|To|Cc|Bcc');
 
 			$headers['X-Original-To'] = $headers['To'];
 			isset($headers[ 'Cc']) && $headers['X-Original-Cc' ] = $headers[ 'Cc'];
 			isset($headers['Bcc']) && $headers['X-Original-Bcc'] = $headers['Bcc'];
 
 			$headers['To'] = $CONFIG['pMail.debug_email'];
-			unset($headers[ 'Cc'], $headers[ 'Bcc']);
+			unset($headers['Cc'], $headers['Bcc']);
 		}
 
 		$data['cookie']  =& $_COOKIE;
@@ -135,6 +120,31 @@ EOHTML;
 		$queue->registerQueue();
 
 		return $id;
+	}
+
+	protected static function getUrl($data)
+	{
+		if (isset($data['agent']))
+		{
+			if (!empty($data['options']['lang']))
+			{
+				$lang = p::__LANG__();
+				p::setLang($data['options']['lang']);
+			}
+
+			$url = p::base($data['agent'], true);
+			empty($data['args']) || $url .= '?' . http_build_query($data['args']);
+
+			if (!empty($data['options']['lang']))
+			{
+				p::setLang($lang);
+			}
+		}
+		else $url = false;
+
+		Mail_mime::cleanHeaders($data['headers'], 'From|To|Cc|Bcc|Subject');
+
+		return $url;
 	}
 
 
