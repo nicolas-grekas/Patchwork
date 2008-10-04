@@ -9,7 +9,6 @@ class extends agent_pStudio_opener
 		list($o->width, $o->height) = getimagesize($this->realpath);
 
 		$o->filesize  = filesize($this->realpath);
-		$o->extension = $this->extension;
 
 		return $o;
 	}

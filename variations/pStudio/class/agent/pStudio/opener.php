@@ -33,6 +33,8 @@ class extends agent_pStudio_explorer
 
 	function compose($o)
 	{
+		$o->extension = $this->extension;
+
 		if ($this->is_auth_edit)
 		{
 			$o->is_auth_edit = true;
