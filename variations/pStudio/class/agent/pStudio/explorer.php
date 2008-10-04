@@ -17,11 +17,7 @@ class extends agent
 
 	function control()
 	{
-		if (false === $this->get->low)
-		{
-			resolvePath('zcache/');
-			$this->get->low = $GLOBALS['patchwork_lastpath_level'];
-		}
+		if (false === $this->get->low) patchworkPath('zcache/', $this->get->low);
 
 		$this->setPath($this->get->__0__, $this->get->low, $this->get->high) || p::redirect('pStudio');
 
@@ -77,8 +73,7 @@ class extends agent
 		}
 		else
 		{
-			$realpath = resolvePath($path, $high, 0);
-			$depth = $GLOBALS['patchwork_lastpath_level'];
+			$realpath = patchworkPath($path, $depth, $high, 0);
 
 			if (!$realpath || $depth < $low) return false;
 
@@ -101,19 +96,13 @@ class extends agent
 
 	protected function getSubpaths($dirpath, $low, $high)
 	{
-		global $patchwork_lastpath_level;
-
 		$paths = array();
 
 		$i = $high;
 		$isTop = 1;
 		do
 		{
-			if ('' !== $dirpath)
-			{
-				$path = resolvePath($dirpath, $i, 0);
-				$depth = $patchwork_lastpath_level;
-			}
+			if ('' !== $dirpath) $path = patchworkPath($dirpath, $depth, $i, 0);
 			else if ($i < 0)
 			{
 				if (!pStudio::isAuthRead('class')) break;

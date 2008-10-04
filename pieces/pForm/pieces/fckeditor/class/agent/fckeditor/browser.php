@@ -47,7 +47,7 @@ class extends agent
 
 	protected function setPath()
 	{
-		$this->path = resolvePath('public/__/files/');
+		$this->path = patchworkPath('public/__/files/');
 		$this->path && $this->watch[] = 'public/files';
 	}
 

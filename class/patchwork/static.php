@@ -120,7 +120,7 @@ class extends patchwork
 	{
 		$h = $file;
 
-		if (strlen($h) < 2 || !('/' == $h[0] || ':' == $h[1])) $h = resolvePath($h);
+		if (strlen($h) < 2 || !('/' == $h[0] || ':' == $h[1])) $h = patchworkPath($h);
 
 		if (!file_exists($h) || is_dir($h))
 		{

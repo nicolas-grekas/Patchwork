@@ -43,7 +43,7 @@ class extends agent
 
 		$sql = "SELECT city_id, city FROM city WHERE {$sql} ORDER BY OID";
 
-		$a = resolvePath('data/geodb.sqlite');
+		$a = patchworkPath('data/geodb.sqlite');
 		$a = new SQLiteDatabase($a);
 
 		$o->cities = new loop_city_($a, $sql, 15);

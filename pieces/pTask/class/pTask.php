@@ -139,7 +139,7 @@ EOSQL
 
 	protected function isRunning($q)
 	{
-		$lock = resolvePath($q->folder) . $q->name . '.lock';
+		$lock = patchworkPath($q->folder) . $q->name . '.lock';
 
 		if (!file_exists($lock)) return false;
 
@@ -166,7 +166,7 @@ EOSQL
 		if ($sqlite) return $sqlite;
 
 		$q = $this->getQueueDefinition();
-		$sqlite = resolvePath($q->folder) . $q->name . '.sqlite';
+		$sqlite = patchworkPath($q->folder) . $q->name . '.sqlite';
 
 		if (file_exists($sqlite)) $sqlite = new SQLiteDatabase($sqlite);
 		else

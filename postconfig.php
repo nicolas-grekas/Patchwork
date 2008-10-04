@@ -158,11 +158,9 @@ function patchworkProcessedPath($file)
 
 	$file = 'class/' . $file;
 
-	$source = resolvePath($file);
+	$source = patchworkPath($file, $level);
 
 	if (false === $source) return false;
-
-	$level = $GLOBALS['patchwork_lastpath_level'];
 
 	$file = strtr($file, '\\', '/');
 	$cache = DEBUG . (0>$level ? -$level . '-' : $level);

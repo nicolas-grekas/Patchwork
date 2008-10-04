@@ -8,9 +8,8 @@ class extends agent
 
 	function compose($o)
 	{
-		resolvePath('zcache/');
+		patchworkPath('zcache/', $o->zcacheDepth);
 
-		$o->zcacheDepth = $GLOBALS['patchwork_lastpath_level'];
 		$o->apps = new loop_array(
 			$GLOBALS['patchwork_path'],
 			array($this, 'filterApp')

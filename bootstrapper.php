@@ -312,8 +312,8 @@ class __patchwork_bootstrapper
 				$a[] =& $code;
 			}
 
-			resolvePath('class/patchwork.php');
-			$T = "'./.class_patchwork.php.0{$GLOBALS['patchwork_lastpath_level']}.{$T}.zcache.php'";
+			patchworkPath('class/patchwork.php', $level);
+			$T = "'./.class_patchwork.php.0{$level}.{$T}.zcache.php'";
 			$a[] = "
 DEBUG || file_exists({$T}) && include {$T};
 class p extends patchwork {}

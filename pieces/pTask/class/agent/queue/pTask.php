@@ -148,7 +148,7 @@ class extends agent
 
 	protected function getLock()
 	{
-		$lock = resolvePath($this->queueFolder) . $this->queueName . '.lock';
+		$lock = patchworkPath($this->queueFolder) . $this->queueName . '.lock';
 
 		if (!file_exists($lock))
 		{
@@ -177,7 +177,7 @@ class extends agent
 
 	protected function getToken()
 	{
-		$token = resolvePath($this->queueFolder) . $this->queueName . '.token';
+		$token = patchworkPath($this->queueFolder) . $this->queueName . '.token';
 
 		file_exists($token) || file_put_contents($token, p::strongid());
 
