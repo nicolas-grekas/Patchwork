@@ -6,7 +6,6 @@ class extends agent_pStudio_opener
 
 	protected function composeReader($o)
 	{
-		$o->extension = $this->extension;
 		$o->rawContentType = $this->rawContentType;
 
 		return $o;

@@ -19,9 +19,7 @@ class extends agent_pStudio_opener
 
 		if ($this->get->sql)
 		{
-			$a = new geshi(trim($this->get->sql), 'sql');
-			$a->set_encoding('UTF-8');
-			$o->sql = $a->parse_code();
+			$o->sql = pStudio_highlighter::highlight(trim($this->get->sql), 'sql', false);
 
 			if (self::isReadOnlyQuery($db, $this->get->sql, $o->error_msg))
 			{
