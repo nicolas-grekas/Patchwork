@@ -743,8 +743,8 @@ class patchwork_preprocessor__0
 
 					switch ($type)
 					{
-					case 'resolvepath':
-						// Append its third arg to resolvePath
+					case 'patchworkpath':
+						// Append its fourth arg to patchworkPath
 						if (0<=$level) new __patchwork_preprocessor_path($this, true);
 						break;
 
@@ -1033,17 +1033,11 @@ class patchwork_preprocessor__0
 			case T_END_HEREDOC:   $inString = false;       break;
 			case T_STRING:   if (!$inString) return false; break;
 
-			case '?':
-			case '(':
-			case '{':
-			case '[':
+			case '?': case '(': case '{': case '[':
 				++$bracket;
 				break;
 
-			case ':':
-			case ')':
-			case '}':
-			case ']':
+			case ':': case ')': case '}': case ']':
 				$bracket-- || $close = true;
 				break;
 
@@ -1239,7 +1233,7 @@ class __patchwork_preprocessor_path__0 extends __patchwork_preprocessor_bracket
 {
 	function onClose($token)
 	{
-		return parent::onClose(1 === $this->position ? ',' . $this->preproc->level . $token : $token);
+		return parent::onClose(2 === $this->position ? ',' . $this->preproc->level . $token : $token);
 	}
 }
 
