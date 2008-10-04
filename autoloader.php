@@ -94,11 +94,7 @@ class __patchwork_autoloader
 			$src = trim($src, '/') === $src ? "class/{$src}.php" : '';
 		}
 
-		if ($src)
-		{
-			$src = resolvePath($src, $level, 0);
-			$src && $a = $GLOBALS['patchwork_lastpath_level'];
-		}
+		$src && $src = patchworkPath($src, $a, $level, 0);
 
 
 		// Step 3 - Get parent class

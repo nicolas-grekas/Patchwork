@@ -41,7 +41,7 @@ class extends pForm_QSelect
 
 		if (!$db)
 		{
-			$db = resolvePath('data/geodb.sqlite');
+			$db = patchworkPath('data/geodb.sqlite');
 			$db = new SQLiteDatabase($db);
 		}
 

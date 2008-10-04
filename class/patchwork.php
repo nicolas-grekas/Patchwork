@@ -1114,8 +1114,6 @@ class
 
 		$existingAgent = '/index';
 
-		global $patchwork_lastpath_level;
-
 		if ('' !== $agent)
 		{
 			$agent = explode('/', $agent);
@@ -1129,27 +1127,27 @@ class
 			{
 				$a .= '/' . $agent[$i++];
 
-				if (isset($resolvedCache[$a]) || resolvePath("class/agent{$a}.php"))
+				unset($level);
+
+				if (isset($resolvedCache[$a])) $level = true;
+				else if (patchworkPath("class/agent{$a}.php", $level)) {}
+				else if (patchworkPath("public/__{$a}.ptl")
+					|| ($l_ng !== $lang && patchworkPath("public{$l_ng}{$a}.ptl"))
+					|| ($lang && patchworkPath("public{$lang}{$a}.ptl"))) $level = false;
+
+				if (isset($level))
 				{
 					$existingAgent = $a;
-					$agentLevel = isset($resolvedCache[$a]) ? true : $patchwork_lastpath_level;
-					$offset = $i;
-				}
-				else if (resolvePath("public/__{$a}.ptl")
-					|| ($l_ng != $lang && resolvePath("public{$l_ng}{$a}.ptl"))
-					|| ($lang && resolvePath("public{$lang}{$a}.ptl")))
-				{
-					$existingAgent = $a;
-					$agentLevel = false;
+					$agentLevel = $level;
 					$offset = $i;
 				}
 			} while (
 				   $i < $agentLength
-				&& ($offset === $i
-				|| resolvePath("class/agent{$a}/")
-				|| resolvePath("public/__{$a}/")
-				|| ($l_ng != $lang && resolvePath("public{$l_ng}{$a}/"))
-				|| ($lang && resolvePath("public{$lang}{$a}/")))
+				&& (isset($level)
+				|| patchworkPath("class/agent{$a}/")
+				|| patchworkPath("public/__{$a}/")
+				|| ($l_ng != $lang && patchworkPath("public{$l_ng}{$a}/"))
+				|| ($lang && patchworkPath("public{$lang}{$a}/")))
 			);
 
 			if ($offset < $agentLength)
@@ -1179,7 +1177,9 @@ class
 
 		$agent = 'agent' . patchwork_file2class($existingAgent);
 
-		isset($agentLevel) || $agentLevel = resolvePath('class/agent/index.php') ? $patchwork_lastpath_level : false;
+		isset($agentLevel)
+			|| patchworkPath('class/agent/index.php', $agentLevel)
+			|| $agentLevel = false;
 
 		if (true !== $agentLevel && !class_exists($agent, false))
 		{
@@ -1656,31 +1656,29 @@ class
 
 		$filename = '/' . $filename;
 
-		global $patchwork_lastpath_level;
-
 		$level = PATCHWORK_PATH_LEVEL - $path_idx;
 
 		if ($lang)
 		{
-			$lang = resolvePath("public{$lang}{$filename}", $level);
-			$lang_level = $patchwork_lastpath_level;
+			$lang = patchworkPath("public{$lang}{$filename}", $lang_level, $level);
+			$last_lang_level = $lang_level;
 
-			if ($l_ng != $last_lang)
+			if ($l_ng !== $last_lang)
 			{
-				$l_ng = resolvePath("public{$l_ng}{$filename}", $level);
-				if ($patchwork_lastpath_level > $lang_level)
+				$l_ng = patchworkPath("public{$l_ng}{$filename}", $last_lang_level, $level);
+				if ($last_lang_level > $lang_level)
 				{
 					$lang = $l_ng;
-					$lang_level = $patchwork_lastpath_level;
+					$lang_level = $last_lang_level;
 				}
 			}
 		}
 
-		$l_ng = resolvePath("public/__{$filename}", $level);
-		if (!$lang || $patchwork_lastpath_level > $lang_level)
+		$l_ng = patchworkPath("public/__{$filename}", $last_lang_level, $level);
+		if (!$lang || $last_lang_level > $lang_level)
 		{
 			$lang = $l_ng;
-			$lang_level = $patchwork_lastpath_level;
+			$lang_level = $last_lang_level;
 		}
 
 		$path_idx = PATCHWORK_PATH_LEVEL - $lang_level;

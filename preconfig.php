@@ -116,19 +116,22 @@ function patchwork_shutdown_end()
 	}
 }
 
+register_shutdown_function('patchwork_shutdown_start');
+
+
 function patchwork_class2file($class)
 {
 	static $map = array(
-		'//20' => ' ', '//21' => '!', '//23' => '#', '//24' => '$',
-		'//25' => '%', '//26' => '&', '//27' => '\'','//28' => '(',
-		'//29' => ')', '//2B' => '+', '//2C' => ',', '//2D' => '-',
-		'//2E' => '.', '//3B' => ';', '//3D' => '=', '//40' => '@',
-		'//5B' => '[', '//5D' => ']', '//5E' => '^', '//5F' => '/',
-		'//60' => '`', '//7B' => '{', '//7D' => '}', '//7E' => '~',
+		'//x20' => ' ', '//x21' => '!', '//x23' => '#', '//x24' => '$',
+		'//x25' => '%', '//x26' => '&', '//x27' => '\'','//x28' => '(',
+		'//x29' => ')', '//x2B' => '+', '//x2C' => ',', '//x2D' => '-',
+		'//x2E' => '.', '//x3B' => ';', '//x3D' => '=', '//x40' => '@',
+		'//x5B' => '[', '//x5D' => ']', '//x5E' => '^', '//x5F' => '/',
+		'//x60' => '`', '//x7B' => '{', '//x7D' => '}', '//x7E' => '~',
 	);
 
 	$class = strtr($class, '_', '/');
-	false !== strpos($class, '//') && $class = strtr($class, $map);
+	false !== strpos($class, '//x') && $class = strtr($class, $map);
 
 	return $class;
 }
@@ -136,12 +139,12 @@ function patchwork_class2file($class)
 function patchwork_file2class($file)
 {
 	static $map = array (
-		' ' => '__20', '!' => '__21', '#' => '__23', '$' => '__24',
-		'%' => '__25', '&' => '__26','\'' => '__27', '(' => '__28',
-		')' => '__29', '+' => '__2B', ',' => '__2C', '-' => '__2D',
-		'.' => '__2E', ';' => '__3B', '=' => '__3D', '@' => '__40',
-		'[' => '__5B', ']' => '__5D', '^' => '__5E', '_' => '__5F',
-		'`' => '__60', '{' => '__7B', '}' => '__7D', '~' => '__7E',
+		' ' => '__x20', '!' => '__x21', '#' => '__x23', '$' => '__x24',
+		'%' => '__x25', '&' => '__x26','\'' => '__x27', '(' => '__x28',
+		')' => '__x29', '+' => '__x2B', ',' => '__x2C', '-' => '__x2D',
+		'.' => '__x2E', ';' => '__x3B', '=' => '__x3D', '@' => '__x40',
+		'[' => '__x5B', ']' => '__x5D', '^' => '__x5E', '_' => '__x5F',
+		'`' => '__x60', '{' => '__x7B', '}' => '__x7D', '~' => '__x7E',
 	);
 
 	$file = strtr($file, $map);
@@ -149,8 +152,6 @@ function patchwork_file2class($file)
 
 	return $file;
 }
-
-register_shutdown_function('patchwork_shutdown_start');
 
 
 // registerAutoloadPrefix()
@@ -180,10 +181,8 @@ function registerAutoloadPrefix($class_prefix, $class_to_file_callback)
 
 // patchwork-specific include_path-like mechanism
 
-function resolvePath($file, $level = false, $base = false)
+function patchworkPath($file, &$last_level = false, $level = false, $base = false)
 {
-	global $patchwork_lastpath_level;
-
 /*#>*/	if ('\\' === DIRECTORY_SEPARATOR)
 		false !== strpos($file, '\\') && $file = strtr($file, '\\', '/');
 
@@ -191,8 +190,6 @@ function resolvePath($file, $level = false, $base = false)
 	{
 		if (false !== strpos('.' . $file, './') || /*<*/'\\' === DIRECTORY_SEPARATOR/*>*/ && ':/' === substr($file, 1, 2))
 		{
-			$patchwork_lastpath_level = -/*<*/__patchwork_bootstrapper::$offset/*>*/;
-
 			if ($f = realpath($file)) $file = $f;
 
 			$p =& $GLOBALS['patchwork_path'];
@@ -207,7 +204,11 @@ function resolvePath($file, $level = false, $base = false)
 				}
 			}
 
-			if (/*<*/count($patchwork_path)/*>*/ === $i) return $f;
+			if (/*<*/count($patchwork_path)/*>*/ === $i)
+			{
+				$last_level = -/*<*/__patchwork_bootstrapper::$offset/*>*/;
+				return $f;
+			}
 		}
 
 		$i = 0;
@@ -220,20 +221,22 @@ function resolvePath($file, $level = false, $base = false)
 		0 > $i && $i = 0;
 	}
 
-	$patchwork_lastpath_level = $level;
-
 	if (0 === $i)
 	{
 		$source = /*<*/__patchwork_bootstrapper::$cwd/*>*/ . $file;
 
-/*#>*/	if ('\\' === DIRECTORY_SEPARATOR)
-/*#>*/	{
-			if (function_exists('win_file_exists') ? win_file_exists($source) : file_exists($source)) return $source;
-/*#>*/	}
-/*#>*/	else
-/*#>*/	{
-			if (file_exists($source)) return $source;
-/*#>*/	}
+		if (
+
+/*#>*/		if ('\\' === DIRECTORY_SEPARATOR)
+/*#>*/		{
+				function_exists('win_file_exists') ? win_file_exists($source) :
+/*#>*/		}
+
+			file_exists($source))
+		{
+			$last_level = $level;
+			return $source;
+		}
 	}
 
 
@@ -259,14 +262,12 @@ function resolvePath($file, $level = false, $base = false)
 		do if (current($base) >= $i)
 		{
 			$base = (int) current($base);
-			$level = $patchwork_lastpath_level -= $base - $i;
+			$last_level = $level - $base + $i;
 
-			return $GLOBALS['patchwork_path'][$base] . (0<=$level ? $file : substr($file, 6)) . ($slash ? '/' : '');
+			return $GLOBALS['patchwork_path'][$base] . (0<=$last_level ? $file : substr($file, 6)) . ($slash ? '/' : '');
 		}
 		while (false !== next($base));
 	}
-
-	$patchwork_lastpath_level = -/*<*/__patchwork_bootstrapper::$offset/*>*/;
 
 	return false;
 }

@@ -18,7 +18,7 @@ class ezcBase extends self
 			{
 				case 4:
 					$autoload = strtolower("class/ezc/autoload/{$matches[2]}_{$matches[3]}_autoload.php");
-					if ($autoload = resolvePath($autoload))
+					if ($autoload = patchworkPath($autoload))
 					{
 						$autoload = require $autoload;
 						self::$autoloadArray = array_merge(self::$autoloadArray, $autoload);
@@ -27,7 +27,7 @@ class ezcBase extends self
 
 				case 3:
 					$autoload = strtolower("class/ezc/autoload/{$matches[2]}_autoload.php");
-					if ($autoload = resolvePath($autoload))
+					if ($autoload = patchworkPath($autoload))
 					{
 						$autoload = require $autoload;
 						self::$autoloadArray = array_merge(self::$autoloadArray, $autoload);
