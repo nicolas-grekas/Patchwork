@@ -79,6 +79,10 @@ class
 	/* Adapter interface */
 
 	function open() {}
-	function search($string, $lang) {return "⌈{$string}⌋";}
+	function search($string, $lang)
+	{
+#>		return "⌈{$string}⌋";
+		return $string;
+	}
 	function close() {}
 }
