@@ -7,6 +7,8 @@ AGENT 'pStudio/header' title="{$topname} - pStudio"
 <table>
 <tr>
 	<td colspan="3">
+	<!-- IF $is_auth_edit --><!-- AGENT $form --><!-- END:IF -->
+
 	<a href="{~}pStudio/explorer/?low={$low}&amp;high={$high}">{$appname}</a>
 	<!--
 		SET a$path --><!-- END:SET
@@ -18,21 +20,34 @@ AGENT 'pStudio/header' title="{$topname} - pStudio"
 
 			IF $iteratorPosition + 1 < $$paths
 				--><a href="{~}pStudio/explorer/{a$path}?low={$$low}&amp;high={$$high}">{$VALUE}</a><!--
+			ELSEIF d$is_file
+			--><a href="{~}pStudio/explorer/{g$__0__}?low={$$low}&amp;high={$$high}&amp;$serverside=1"><b>{$VALUE}</b></a><!--
 			ELSE
 				--><b>{$VALUE}</b><!--
 			END:IF
 		END:LOOP
 
-		IF $is_file
-			--> [<a href="{~}pStudio/explorer/{g$__0__}?low={$$low}&amp;high={$$high}&amp;$serverside=1">{"Download"}</a>]<!--
-			IF $is_auth_edit
-				AGENT $form
+		IF $is_auth_edit
+			IF $is_file
+				--> Current file: <!--
 				AGENT $f_file
-				AGENT $f_send value="Upload"
-				AGENT $form _mode_='close'
+				AGENT $f_send value="Replace"
+				AGENT $f_del value="Delete"
+			ELSE
+				IF $f_del
+					--> Current directory: <!--
+					AGENT $f_del value="Delete" --><br /><!--
+				END:IF
+
+				--> New <!--
+				AGENT $f_newfile value="File*" --> or <!--
+				AGENT $f_newdir  value="Directory*" -->: <!--
+				AGENT $f_filename
 			END:IF
 		END:IF
 	-->
+
+	<!-- IF $is_auth_edit --><!-- AGENT $form _mode_='close' --><!-- END:IF -->
 	</td>
 </tr>
 <tr>

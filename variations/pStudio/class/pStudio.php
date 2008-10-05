@@ -17,6 +17,7 @@ class
 		'(^|/)zcache(/|$)',
 		'(^|/)config\.patchwork\.php',
 		'(^|/)error\.patchwork\.log',
+		'~trashed$',
 	),
 
 	$editWhitelist = array(),

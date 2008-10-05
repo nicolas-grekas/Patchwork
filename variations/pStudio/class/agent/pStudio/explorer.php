@@ -45,20 +45,65 @@ class extends agent
 		if ($o->is_auth_edit)
 		{
 			$f = new pForm($o);
-			$f->add('file', 'file');
-			$send = $f->add('submit', 'send');
-			$send->attach('file', 'Please select a file', '');
 
-			if ($send->isOn())
+			if ($o->is_file)
 			{
-				$file = $f->getElement('file')->getValue();
-				unlink($this->realpath);
-				move_uploaded_file($file['tmp_name'], $this->realpath);
+				$f->add('file', 'file');
+				$send = $f->add('submit', 'send');
+				$send->attach('file', 'Please select a file', '');
 
-				p::redirect();
+				if ($send->isOn())
+				{
+					$file = $f->getElement('file')->getValue();
+					unlink($this->realpath);
+					move_uploaded_file($file['tmp_name'], $this->realpath);
+
+					p::redirect();
+				}
+			}
+			else
+			{
+				$filename = $f->add('text', 'filename', array(
+					'valid' => 'c', '^[^\x00-\x1F\/:*?"<>|\x7F]+$',
+					'validmsg' => T('Special characters are forbidden:') . ' \ / : * ? " < > |'
+				));
+
+				if ($filename->getStatus())
+				{
+					$newfile = $filename->getValue();
+					pStudio::isAuthEdit($this->path . $newfile) || $filename->setError(T('You are not allowed to create a ressource with this name'));
+					$filename = $newfile;
+				}
+
+				$newfile = $f->add('submit', 'newfile');
+				$newfile->attach('filename', 'Please fill in the file name', '');
+
+				$newdir = $f->add('submit', 'newdir');
+				$newdir->attach('filename', 'Please fill in the directory name', '');
+
+				     if ($newfile->isOn()) file_put_contents($this->realpath . '/' . $filename, "\n");
+				else if ($newdir ->isOn()) mkdir($this->realpath . '/' . $filename);
+				else $filename = false;
+
+				if (false !== $filename)
+				{
+					unlink('./.patchwork.php');
+					p::redirect("pStudio/explorer/{$this->path}{$filename}/?low={$this->get->low}&high={$this->get->high}");
+				}
 			}
 
+			if ('' !== $this->path
+				&& ($o->is_file || !$o->subpaths->getLength())
+				&& $f->add('submit', 'del')->isOn())
+			{
+				if ($o->is_file) rename($this->realpath, $this->realpath . '~trashed');
+				else rmdir($this->realpath);
+
+				unlink('./.patchwork.php');
+				p::redirect('pStudio/explorer/' . dirname($this->path) . '/?low=' . "?low={$this->get->low}&high={$this->get->high}");
+			}
 		}
+
 		return $o;
 	}
 
