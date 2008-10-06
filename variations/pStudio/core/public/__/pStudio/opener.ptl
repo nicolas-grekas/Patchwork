@@ -5,7 +5,7 @@ IF $is_binary
 ELSE
 	IF $is_auth_edit
 		AGENT $form
-		AGENT $f_code style='width: 700px; height: 480px'
+		AGENT $f_code style='width: 700px; height: 480px' --><br /><!--
 		AGENT $f_save value="Save"
 		AGENT $form _mode_='close'
 
