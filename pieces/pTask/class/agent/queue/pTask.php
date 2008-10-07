@@ -109,26 +109,43 @@ class extends agent
 		$sql = "UPDATE queue SET run_time=0 WHERE OID={$id}";
 		$sqlite->queryExec($sql);
 
-		$data = unserialize($data[0][0]);
+		$data_serialized = $data[0][0];
+		$data = unserialize($data_serialized);
 
 		$this->restoreContext($data['cookie'], $data['session']);
 
-		$data['task']->run();
-		$time = $data['task']->getNextRun();
-
-		if ($time > 0)
+		try
 		{
-			$sql = time();
-			if ($time < $sql - 366*86400) $time += $sql;
+			$time = $data['task']->getNextRun();
 
-			$data['session'] = class_exists('SESSION', false) ? SESSION::getAll() : array();
-			$data = sqlite_escape_string(serialize($data));
+			if ($time > 0)
+			{
+				$sql = time();
+				if ($time < $sql - 366*86400) $time += $sql;
 
-			$sql = "UPDATE queue SET run_time={$time},data='{$data}' WHERE OID={$id}";
+				$sql = "UPDATE queue SET run_time={$time} WHERE OID={$id}";
+				$sqlite->queryExec($sql);
+
+				$data['session'] = class_exists('SESSION', false) ? SESSION::getAll() : array();
+
+				if ($data_serialized !== $data = serialize($data))
+				{
+					$data = sqlite_escape_string($data);
+					$sql = "UPDATE queue SET data='{$data}' WHERE OID={$id}";
+					$sqlite->queryExec($sql);
+				}
+			}
+			else
+			{
+				$sql = "DELETE FROM queue WHERE OID={$id}";
+				$sqlite->queryExec($sql);
+			}
 		}
-		else $sql = "DELETE FROM queue WHERE OID={$id}";
+		catch(Exception $time)
+		{
+		}
 
-		$sqlite->queryExec($sql);
+		$data['task']->run();
 	}
 
 	protected function touchOne($id)
