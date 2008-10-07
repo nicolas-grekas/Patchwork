@@ -18,7 +18,7 @@ class extends self
 	{
 		parent::ob_handler($buffer);
 
-		if ('' !== $buffer)
+		if ('' !== $buffer && $CONFIG['pMail.debug_email'])
 		{
 			pMail_mime::send(
 				array('To' => $CONFIG['pMail.debug_email']),
