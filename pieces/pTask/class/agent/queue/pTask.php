@@ -88,7 +88,7 @@ class extends agent
 			if ($data['run_time'] <= $time)
 			{
 				$sql = "UPDATE queue SET run_time=0 WHERE OID={$data['OID']}";
-				$sqlite->queryExec($sql)
+				$this->sqlite->queryExec($sql);
 
 				tool_url::touch("{$data['base']}queue/pTask/{$data['OID']}/" . $this->getToken());
 

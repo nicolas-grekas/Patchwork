@@ -31,7 +31,7 @@ class extends agent_queue_pTask
 			if ($data['send_time'] <= $time)
 			{
 				$sql = "UPDATE queue SET send_time=0 WHERE OID={$data['OID']}";
-				$sqlite->queryExec($sql);
+				$this->sqlite->queryExec($sql);
 
 				tool_url::touch("{$data['base']}queue/pMail/{$data['OID']}/" . $this->getToken());
 			}
