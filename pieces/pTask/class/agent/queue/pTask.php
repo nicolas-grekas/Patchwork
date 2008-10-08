@@ -27,7 +27,7 @@ class extends agent
 
 	protected
 
-	$maxage = 3600,
+	$maxage = -1,
 
 	$lock,
 	$queueName = 'queue',
@@ -83,11 +83,13 @@ class extends agent
 		{
 			$data = $data[0];
 
-			0 > $this->maxage && $this->maxage = PHP_INT_MAX;
+			0 > $this->maxage && $this->maxage = $CONFIG['maxage'];
 
 			if ($data['run_time'] <= $time)
 			{
-				// XXX What if the URL is not valid anymore ?
+				$sql = "UPDATE queue SET run_time=0 WHERE OID={$data['OID']}";
+				$sqlite->queryExec($sql)
+
 				tool_url::touch("{$data['base']}queue/pTask/{$data['OID']}/" . $this->getToken());
 
 				$sql = "SELECT run_time FROM queue WHERE run_time>{$time} ORDER BY run_time LIMIT 1";
@@ -106,9 +108,6 @@ class extends agent
 
 		if (!$data) return;
 
-		$sql = "UPDATE queue SET run_time=0 WHERE OID={$id}";
-		$sqlite->queryExec($sql);
-
 		$data_serialized = $data[0][0];
 		$data = unserialize($data_serialized);
 
@@ -125,15 +124,6 @@ class extends agent
 
 				$sql = "UPDATE queue SET run_time={$time} WHERE OID={$id}";
 				$sqlite->queryExec($sql);
-
-				$data['session'] = class_exists('SESSION', false) ? SESSION::getAll() : array();
-
-				if ($data_serialized !== $data = serialize($data))
-				{
-					$data = sqlite_escape_string($data);
-					$sql = "UPDATE queue SET data='{$data}' WHERE OID={$id}";
-					$sqlite->queryExec($sql);
-				}
 			}
 			else
 			{
@@ -143,9 +133,22 @@ class extends agent
 		}
 		catch(Exception $time)
 		{
+			$time = 0;
 		}
 
 		$data['task']->run();
+
+		if ($time > 0)
+		{
+			$data['session'] = class_exists('SESSION', false) ? SESSION::getAll() : array();
+
+			if ($data_serialized !== $data = serialize($data))
+			{
+				$data = sqlite_escape_string($data);
+				$sql = "UPDATE queue SET data='{$data}' WHERE OID={$id}";
+				$sqlite->queryExec($sql);
+			}
+		}
 	}
 
 	protected function touchOne($id)
@@ -196,6 +199,7 @@ class extends agent
 	{
 		$token = patchworkPath($this->queueFolder) . $this->queueName . '.token';
 
+		//XXX user right problem?
 		file_exists($token) || file_put_contents($token, p::strongid());
 
 		return trim(file_get_contents($token));
