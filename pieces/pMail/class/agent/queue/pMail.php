@@ -28,7 +28,13 @@ class extends agent_queue_pTask
 		{
 			$data = $data[0];
 
-			if ($data['send_time'] <= $time) tool_url::touch("{$data['base']}queue/pMail/{$data['OID']}/" . $this->getToken());
+			if ($data['send_time'] <= $time)
+			{
+				$sql = "UPDATE queue SET send_time=0 WHERE OID={$data['OID']}";
+				$sqlite->queryExec($sql);
+
+				tool_url::touch("{$data['base']}queue/pMail/{$data['OID']}/" . $this->getToken());
+			}
 			else pTask::schedule(new pTask(array($this, 'queueNext')), $data['send_time']);
 		}
 	}
@@ -42,9 +48,6 @@ class extends agent_queue_pTask
 
 		if (!$data) return;
 
-		$sql = "UPDATE queue SET send_time=0 WHERE OID={$id}";
-		$sqlite->queryExec($sql);
-
 		$archive = $data[0][0];
 		$data = (object) unserialize($data[0][1]);
 
@@ -55,7 +58,7 @@ class extends agent_queue_pTask
 			: pMail_mime::send($data->headers, $data->body, $data->options);
 
 		$sql = $archive
-			? "UPDATE queue SET sent_time={$_SERVER['REQUEST_TIME']} WHERE OID={$id}"
+			? "UPDATE queue SET sent_time={$_SERVER['REQUEST_TIME']}, send_time=0 WHERE OID={$id}"
 			: "DELETE FROM queue WHERE OID={$id}";
 		$sqlite->queryExec($sql);
 	}
