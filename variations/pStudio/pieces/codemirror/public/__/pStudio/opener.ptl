@@ -18,6 +18,9 @@ parser = {
 	'js' : {file: ['tokenizejavascript.js', 'parsejavascript.js'],
 			css : parser+'jscolors.css'},
 
+	'php' : {file: ['tokenizephp.js', 'parsephp.js'],
+			css : parser+'jscolors.css'},
+
 	'':0
 };
 
