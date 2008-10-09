@@ -107,12 +107,12 @@ class
 				CREATE TABLE registry (task_id INTEGER, task_name TEXT, level INTEGER, zcache TEXT);
 				CREATE INDEX task_id ON registry registry (task_id);
 
-				CREATE TRIGGER DELETE ON queue
+				CREATE TRIGGER sync_clean_registry DELETE ON queue
 				BEGIN
 					DELETE FROM registry WHERE task_id=OLD.OID;
 				END;
 
-				CREATE TRIGGER DELETE ON registry
+				CREATE TRIGGER sync_clean_queue DELETE ON registry
 				BEGIN
 					DELETE FROM queue WHERE OID=OLD.task_id
 				END;
