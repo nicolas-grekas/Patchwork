@@ -8,7 +8,12 @@ do
 	touch $I/config.patchwork.php
 	rm -f $I/.*.zcache.php 2> /dev/null
 
-	test -d $I/zcache && mv $I/zcache $I/zcache.old
+	if test -d $I/zcache
+	then
+		mv $I/zcache $I/zcache.old
+		mkdir $I/zcache
+		chown `stat $I/zcache.old -c %u:%g` $I/zcache
+	fi
 
 	rm -f "$I/.parentPaths.db" 2> /dev/null
 	rm -f "$I/.patchwork.lock" 2> /dev/null
