@@ -18,7 +18,18 @@
 
 class
 {
-	static function execute()
+	protected static function execute()
 	{
+	}
+
+
+	static function hook()
+	{
+		$G = $_GET; $P = $_POST; $C = $_COOKIE; $F = $_FILES;
+		$_GET = $_POST = $_COOKIE = $_FILES = array();
+
+		self::execute();
+
+		$_GET = $G; $_POST = $P; $_COOKIE = $C; $_FILES = $F;
 	}
 }
