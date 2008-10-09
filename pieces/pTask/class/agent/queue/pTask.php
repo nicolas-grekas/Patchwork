@@ -45,18 +45,21 @@ class extends agent
 
 		if (!empty($this->get->__1__))
 		{
+			$id = $this->get->__1__;
+
 			if (!empty($this->get->__2__) && $this->get->__2__ == $this->getToken())
 			{
 				if ($this->getLock())
 				{
 					ob_start(array($this, 'ob_handler'));
-					$this->doOne($this->get->__1__);
+					$this->doOne($id);
 					ob_end_flush();
 				}
+				else $this->doAsap($id);
 
 				return;
 			}
-			else $this->touchOne($this->get->__1__);
+			else $this->touchOne($id);
 		}
 
 		$this->queueNext();
@@ -87,10 +90,11 @@ class extends agent
 
 			if ($data['run_time'] <= $time)
 			{
-				$sql = "UPDATE queue SET run_time=0 WHERE OID={$data['OID']}";
+				$sql = "UPDATE queue SET run_time=0
+						WHERE OID={$data['OID']} AND run_time>0";
 				$this->sqlite->queryExec($sql);
 
-				tool_url::touch("{$data['base']}queue/pTask/{$data['OID']}/" . $this->getToken());
+				$this->sqlite->changes() && tool_url::touch("{$data['base']}queue/pTask/{$data['OID']}/" . $this->getToken());
 
 				$sql = "SELECT run_time FROM queue WHERE run_time>{$time} ORDER BY run_time LIMIT 1";
 				if ($data = $this->sqlite->arrayQuery($sql, SQLITE_NUM)) p::setMaxage(min($this->maxage, $data[0][0] - $time));
@@ -99,11 +103,18 @@ class extends agent
 		}
 	}
 
+	protected function doAsap($id)
+	{
+		$sql = "UPDATE queue SET run_time=1
+				WHERE OID={$id} AND run_time=0";
+		$this->sqlite->queryExec($sql);
+	}
+
 	protected function doOne($id)
 	{
 		$sqlite = $this->sqlite;
 
-		$sql = "SELECT data FROM queue WHERE OID={$id}";
+		$sql = "SELECT data FROM queue WHERE OID={$id} AND run_time=0";
 		$data = $sqlite->arrayQuery($sql);
 
 		if (!$data) return;
