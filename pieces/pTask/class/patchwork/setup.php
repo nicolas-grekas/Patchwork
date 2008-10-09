@@ -18,7 +18,7 @@
 
 class extends self
 {
-	static function execute()
+	protected static function execute()
 	{
 		parent::execute();
 

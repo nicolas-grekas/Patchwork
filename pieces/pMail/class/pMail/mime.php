@@ -88,10 +88,12 @@ class extends Mail_mime
 	{
 		$message_id = 'pM' . p::uniqid();
 
-		$this->_headers['Message-Id'] = '<' . $message_id . '@' . $_SERVER['HTTP_HOST']. '>';
-
 		$body =& $this->get();
-		$headers =& $this->headers();
+		$headers =& $this->_headers;
+
+		self::cleanHeaders($headers, 'Return-Path|Errors-To|From|Reply-To|Message-Id');
+
+		$headers['Message-Id'] = '<' . $message_id . '@' . $_SERVER['HTTP_HOST']. '>';
 
 		if (!isset($headers['From']) && $CONFIG['pMail.from']) $headers['From'] = $CONFIG['pMail.from'];
 		if ( isset($headers['From']) && !$headers['From']) W("Email is likely not to be sent: From header is empty.");
@@ -107,7 +109,7 @@ class extends Mail_mime
 		$this->setObserver('reply', 'Reply-To', $message_id);
 		$this->setObserver('bounce', 'Return-Path', $message_id);
 
-		isset($headers['From']) && ini_set('sendmail_from', $headers['From']);
+		$headers =& $this->headers();
 
 		$to = $headers['To'];
 		unset($headers['To']);

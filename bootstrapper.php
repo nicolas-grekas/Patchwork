@@ -195,7 +195,7 @@ unset($a);
 // Setup hook
 
 class p extends patchwork {}
-patchwork_setup::execute();
+patchwork_setup::hook();
 
 
 // Save config and release lock
