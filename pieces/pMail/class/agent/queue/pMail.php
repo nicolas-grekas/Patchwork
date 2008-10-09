@@ -23,27 +23,35 @@ class extends agent_queue_pTask
 	protected function queueNext()
 	{
 		$time = time();
-		$sql = "SELECT OID, base, send_time FROM queue WHERE send_time ORDER BY send_time, OID LIMIT 1";
+		$sql = "SELECT OID, base, send_time FROM queue WHERE send_time>0 ORDER BY send_time, OID LIMIT 1";
 		if ($data = $this->sqlite->arrayQuery($sql, SQLITE_ASSOC))
 		{
 			$data = $data[0];
 
 			if ($data['send_time'] <= $time)
 			{
-				$sql = "UPDATE queue SET send_time=0 WHERE OID={$data['OID']}";
+				$sql = "UPDATE queue SET send_time=0
+						WHERE OID={$data['OID']} AND send_time>0";
 				$this->sqlite->queryExec($sql);
 
-				tool_url::touch("{$data['base']}queue/pMail/{$data['OID']}/" . $this->getToken());
+				$this->sqlite->changes() && tool_url::touch("{$data['base']}queue/pMail/{$data['OID']}/" . $this->getToken());
 			}
 			else pTask::schedule(new pTask(array($this, 'queueNext')), $data['send_time']);
 		}
+	}
+
+	protected function doAsap($id)
+	{
+		$sql = "UPDATE queue SET send_time=1
+				WHERE OID={$id} AND send_time=0";
+		$this->sqlite->queryExec($sql);
 	}
 
 	protected function doOne($id)
 	{
 		$sqlite = $this->sqlite;
 
-		$sql = "SELECT archive, data FROM queue WHERE OID={$id}";
+		$sql = "SELECT archive, data FROM queue WHERE OID={$id} AND send_time=0";
 		$data = $sqlite->arrayQuery($sql, SQLITE_NUM);
 
 		if (!$data) return;
