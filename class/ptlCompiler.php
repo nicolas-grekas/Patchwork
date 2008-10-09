@@ -223,7 +223,16 @@ abstract class
 		else
 		{
 			if ($a > PATCHWORK_PATH_LEVEL) $a = PATCHWORK_PATH_LEVEL;
-			return $this->load($m[1], $a);
+
+			$template = $this->template;
+			$path_idx = $this->path_idx;
+
+			$a = $this->load($m[1], $a);
+
+			$this->template = $template;
+			$this->path_idx = $path_idx;
+
+			return $a;
 		}
 	}
 
