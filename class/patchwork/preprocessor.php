@@ -495,6 +495,7 @@ class patchwork_preprocessor__0
 					$b = $c . (!$final ? '__' . $level : '');
 					$token .= ' ' . $b;
 				}
+				else patchwork_error::handle(E_ERROR, "Please specify explicitly the name of the class", $source, $line);
 
 				$token .= $this->fetchSugar($code, $i);
 
