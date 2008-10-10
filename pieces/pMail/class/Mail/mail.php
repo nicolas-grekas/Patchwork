@@ -1,6 +1,6 @@
 <?php
 
-class extends self
+class Mail_mail extends self
 {
 	function send($recipients, $headers, $body)
 	{
