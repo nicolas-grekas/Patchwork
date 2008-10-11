@@ -202,7 +202,13 @@ class
 			self::$adapter = new SESSION(self::$SID);
 			$i = self::$adapter->read();
 		}
-		else $i = false;
+		else
+		{
+			$i = false;
+
+			class_exists('__patchwork_bootstrapper', false)
+				&& W("Using SESSION class during bootstraping will destroy user's session");
+		}
 
 		if ($i)
 		{
