@@ -331,7 +331,7 @@ class patchwork_preprocessor__0
 		$code = file_get_contents($source);
 		UTF8_BOM === substr($code, 0, 3) && $code = substr($code, 3);
 
-		if (!preg_match('//u', $code)) patchwork_preprocessor::error("File encoding is not valid UTF-8", $source, 0);
+		if (!preg_match('//u', $code)) patchwork_preprocessor::error("File encoding is not valid UTF-8.", $source, 0);
 
 		$preproc->antePreprocess($code);
 		$code =& $preproc->preprocess($code);
@@ -498,7 +498,7 @@ class patchwork_preprocessor__0
 					$b = $c . (!$final ? '__' . $level : '');
 					$token .= ' ' . $b;
 				}
-				else patchwork_preprocessor::error("Please specify explicitly the name of the class", $source, $line);
+				else patchwork_preprocessor::error("Please specify explicitly the name of the class.", $source, $line);
 
 				$token .= $this->fetchSugar($code, $i);
 
@@ -578,7 +578,7 @@ class patchwork_preprocessor__0
 						$token = 'protected';
 						$type = T_PROTECTED;
 
-						if (0<=$level) patchwork_preprocessor::error("Private static methods or properties are banned, please use protected static ones instead", $source, $line);
+						if (0<=$level) patchwork_preprocessor::error("Private static methods or properties are banned, please use protected static ones instead.", $source, $line);
 					}
 				}
 
@@ -1264,7 +1264,7 @@ class __patchwork_preprocessor_t__0 extends __patchwork_preprocessor_bracket
 	function filterBracket($type, $token)
 	{
 		if ('.' === $type) patchwork_preprocessor::error(
-			"Usage of T() is potentially divergent, please use sprintf() instead of string concatenation",
+			"Usage of T() is potentially divergent, please use sprintf() instead of string concatenation.",
 			$this->preproc->source, $this->preproc->line
 		);
 
