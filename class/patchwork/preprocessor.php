@@ -331,7 +331,7 @@ class patchwork_preprocessor__0
 		$code = file_get_contents($source);
 		UTF8_BOM === substr($code, 0, 3) && $code = substr($code, 3);
 
-		if (!preg_match('//u', $code)) trigger_error("File {$source}:\nfile encoding is not valid UTF-8.\nPlease configure your code editor for UTF-8.");
+		if (!preg_match('//u', $code)) patchwork_preprocessor::error("File encoding is not valid UTF-8.", $source, 0);
 
 		$preproc->antePreprocess($code);
 		$code =& $preproc->preprocess($code);
@@ -422,16 +422,19 @@ class patchwork_preprocessor__0
 			switch ($type)
 			{
 			case T_OPEN_TAG_WITH_ECHO:
+				$line += substr_count($token, "\n");
 				$code[$i--] = array(T_ECHO, 'echo');
 				$code[$i--] = array(T_OPEN_TAG, '<?php ' . $this->extractLF($token));
 				continue 2;
 
 			case T_OPEN_TAG: // Normalize PHP open tag
+				$line += substr_count($token, "\n");
 				$token = '<?php ' . $opentag_marker . $this->extractLF($token);
 				$opentag_marker = '';
 				break;
 
 			case T_CLOSE_TAG: // Normalize PHP close tag
+				$line += substr_count($token, "\n");
 				$token = $this->extractLF($token) . '?'.'>';
 				break;
 
@@ -495,7 +498,7 @@ class patchwork_preprocessor__0
 					$b = $c . (!$final ? '__' . $level : '');
 					$token .= ' ' . $b;
 				}
-				else patchwork_error::handle(E_ERROR, "Please specify explicitly the name of the class", $source, $line);
+				else patchwork_preprocessor::error("Please specify explicitly the name of the class.", $source, $line);
 
 				$token .= $this->fetchSugar($code, $i);
 
@@ -575,7 +578,7 @@ class patchwork_preprocessor__0
 						$token = 'protected';
 						$type = T_PROTECTED;
 
-						if (0<=$level) trigger_error("File {$source} line {$line}:\nprivate static methods or properties are banned.\nPlease use protected static ones instead.");
+						if (0<=$level) patchwork_preprocessor::error("Private static methods or properties are banned, please use protected static ones instead.", $source, $line);
 					}
 				}
 
@@ -1110,6 +1113,11 @@ class patchwork_preprocessor__0
 
 		return $b;
 	}
+
+	static function error($message, $file, $line, $code = E_USER_ERROR)
+	{
+		patchwork_error::handle($code, $message, $file, $line);
+	}
 }
 
 class __patchwork_preprocessor_bracket__0
@@ -1255,10 +1263,9 @@ class __patchwork_preprocessor_t__0 extends __patchwork_preprocessor_bracket
 {
 	function filterBracket($type, $token)
 	{
-		if ('.' === $type) trigger_error(
-"File {$this->preproc->source} line {$this->preproc->line}:
-Usage of T() is potentially divergent.
-Please use sprintf() instead of string concatenation."
+		if ('.' === $type) patchwork_preprocessor::error(
+			"Usage of T() is potentially divergent, please use sprintf() instead of string concatenation.",
+			$this->preproc->source, $this->preproc->line
 		);
 
 		return $token;
