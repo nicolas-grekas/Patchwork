@@ -246,6 +246,31 @@ $a = strpos($_SERVER['REQUEST_URI'], '?');
 $a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
 $a = rawurldecode($a);
 
+if (false !== strpos($a, '/.'))
+{
+	$j = explode('/', substr($a, 1));
+	$r = array();
+	$v = false;
+
+	foreach ($j as $j)
+	{
+		if ('.' === $j) continue;
+		if ('..' === $j)
+		{
+			$v = true;
+			$r && array_pop($r);
+		}
+		else $r[]= rawurlencode($j);
+	}
+
+	if ($v)
+	{
+		$r = '/' . implode('/', $r);
+		'' !== $_SERVER['QUERY_STRING'] && $r .= '?' . $_SERVER['QUERY_STRING'];
+		patchwork_bad_request("Please resolve references to '.' and '..' before issuing your request.", $r);
+	}
+}
+
 /*#>*/$a = true;
 /*#>*/
 /*#>*/switch (true)
@@ -356,7 +381,7 @@ $a = rawurldecode($a);
 			'/' !== substr($a, -1) && $a .= '/';
 			$a = preg_replace("'[^/]*/{1,{$v}}$'", '', $a);
 			'' === $a && $a = '/';
-			$a = strtr($a . $r, array('%' => '%25', '?' => '%3F', "\r" => '%0D', "\n" => '%0A'));
+			$a = str_replace('%2F', '/', rawurlencode($a . $r));
 			'' !== $_SERVER['QUERY_STRING'] && $a .= '?' . $_SERVER['QUERY_STRING'];
 
 			header('HTTP/1.1 301 Moved Permanently');
