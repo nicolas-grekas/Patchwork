@@ -252,20 +252,16 @@ if (false !== strpos($a, '/.'))
 	$r = array();
 	$v = false;
 
-	foreach ($j as $j)
+	foreach ($j as $j) switch ($j)
 	{
-		if ('.' === $j) continue;
-		if ('..' === $j)
-		{
-			$v = true;
-			$r && array_pop($r);
-		}
-		else $r[]= rawurlencode($j);
+	case '..': $r && array_pop($r);
+	case '.' : $v = true; break;
+	default  : $r[] = rawurlencode($j);
 	}
 
 	if ($v)
 	{
-		$r = '/' . implode('/', $r);
+		$r = '/' . ($r ? implode('/', $r) . ('.' === $j || '..' === $j ? '/' : '') : '');
 		'' !== $_SERVER['QUERY_STRING'] && $r .= '?' . $_SERVER['QUERY_STRING'];
 		patchwork_bad_request("Please resolve references to '.' and '..' before issuing your request.", $r);
 	}
