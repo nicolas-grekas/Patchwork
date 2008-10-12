@@ -59,7 +59,7 @@ AGENT 'pStudio/header' title="{$topname} - pStudio"
 	<!-- SET a$fullpath -->{~}pStudio/explorer{a$path}<!-- END:SET -->
 
 	<!-- IF '/' != a$path -->
-	<a href="{a$fullpath}..?low={$low}&amp;high={$high}">..</a>
+	<a href="{a$fullpath|replace:'[^/]*/$':'/'}?low={$low}&amp;high={$high}">..</a>
 	<!-- END:IF -->
 
 	<!-- LOOP $subpaths -->

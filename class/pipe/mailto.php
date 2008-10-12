@@ -26,7 +26,7 @@ class
 			. str_replace('@', '[&#97;t]', $email) . '"'
 			. ' onmouseover="this.href=this.href.replace(/\\[at\\]/, \'@\');this.onmouseover=null"'
 			. $attributes . '>'
-			. str_replace('@', '<span style="display:none" name="w$">@</span>&#64;', $string)
+			. str_replace('@', '<a style="display:none" name="w$">@</a>&#64;', $string)
 			. '</a>';
 
 		return $email;
