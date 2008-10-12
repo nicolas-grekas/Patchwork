@@ -1262,7 +1262,7 @@ class
 
 	static function writeWatchTable($message, $file = '', $exclusive = true)
 	{
-		$file && $file = file_exists($file) ? realpath($file) : patchworkPath($file);
+		$file && '/' !== substr($file, 0, 1) && $file = file_exists($file) ? realpath($file) : patchworkPath($file);
 		if (!$file && !$exclusive) return;
 
 		foreach (array_unique((array) $message) as $message)
@@ -1496,7 +1496,7 @@ class
 					foreach (self::$watchTable as $path)
 					{
 						$h = fopen($path, 'ab');
-						fwrite($h, 'U' . $validator);
+						fwrite($h, 'U' . $validator . "\n");
 						fclose($h);
 					}
 
@@ -1860,7 +1860,7 @@ class patchwork_exception_redirection extends Exception
 	function __construct($url)
 	{
 		$url = (string) $url;
-		$url = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'", $url) ? $url : (self::$base . ('index' === $url ? '' : $url)));
+		$url = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'", $url) ? $url : (patchwork::__BASE__() . ('index' === $url ? '' : $url)));
 
 		if ('.' === substr($url, 0, 1)) W('Current patchwork::redirect() behaviour with relative URLs may change in a future version of Patchwork. As long as this notice appears, using relative URLs is strongly discouraged.');
 
