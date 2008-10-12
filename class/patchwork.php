@@ -173,7 +173,6 @@ class
 	$watchTable = array(),
 	$headers = array(),
 
-	$redirecting = false,
 	$is_enabled = false,
 	$ob_starting_level,
 	$ob_level,
@@ -299,7 +298,14 @@ class
 		if (IS_POSTING) unset($_POST['T$'], $_POST['T$']);
 
 
-		PATCHWORK_DIRECT ? self::clientside() : self::serverside();
+		try
+		{
+			PATCHWORK_DIRECT ? self::clientside() : self::serverside();
+		}
+		catch (patchwork_exception_redirection $a)
+		{
+			$a->redirect();
+		}
 
 		while (self::$ob_level)
 		{
@@ -460,11 +466,11 @@ class
 	{
 		if (self::$is_enabled && ob_get_level() === self::$ob_starting_level + self::$ob_level)
 		{
-			while (self::$ob_level-- > 2) ob_end_clean();
+			while (self::$ob_level-- > 2) {ob_clean(); ob_end_clean();}
 
-			ob_end_clean();
+			ob_clean(); ob_end_clean();
 			self::$is_enabled = false;
-			ob_end_clean();
+			ob_clean(); ob_end_clean();
 			self::$ob_level = 0;
 
 			if (self::$is304) exit;
@@ -671,35 +677,12 @@ class
 	 */
 	static function redirect($url = '')
 	{
-		if (self::$privateDetectionMode) throw new Exception;
+		throw new patchwork_exception_redirection($url);
+	}
 
-		$url = (string) $url;
-		$url = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'", $url) ? $url : (self::$base . ('index' === $url ? '' : $url)));
-
-		if ('.' === substr($url, 0, 1)) W('Current patchwork::redirect() behaviour with relative URLs may change in a future version of Patchwork. As long as this notice appears, using relative URLs is strongly discouraged.');
-
-		self::$redirecting = true;
-		self::disable();
-
-		if (PATCHWORK_DIRECT)
-		{
-			$url = 'location.replace(' . ('' !== $url
-				? "'" . addslashes($url) . "'"
-				: 'location')
-			. ')';
-
-			if (true === self::$contentEncoding) header('Content-Encoding: identity');
-			header('Content-Length: ' . strlen($url));
-
-			echo $url;
-		}
-		else
-		{
-			header('HTTP/1.1 302 Found');
-			header('Location: ' . ('' !== $url ? $url : $_SERVER['REQUEST_URI']));
-		}
-
-		exit;
+	static function forbidden()
+	{
+		throw new patchwork_exception_forbidden();
 	}
 
 	protected static function openMeta($agentClass, $is_trace = true)
@@ -779,7 +762,7 @@ class
 
 		if (!$group) return;
 
-		if (self::$privateDetectionMode) throw new PrivateDetection;
+		if (self::$privateDetectionMode) throw new patchwork_exception_private;
 		else if (self::$detectCSRF) PATCHWORK_TOKEN_MATCH || patchwork_antiCSRF::scriptAlert();
 
 		self::$private = true;
@@ -1219,11 +1202,11 @@ class
 			{
 				new $agent instanceof agent || W("Class {$agent} does not inherit from class agent");
 			}
-			catch (PrivateDetection $d)
+			catch (patchwork_exception_private $d)
 			{
 				$private = '1';
 			}
-			catch (Exception $d)
+			catch (patchwork_exception_redirection $d)
 			{
 			}
 
@@ -1458,7 +1441,6 @@ class
 			}
 			else
 			{
-				self::$contentEncoding = true;
 				self::$varyEncoding = true;
 				if (!self::$is_enabled && (PHP_OUTPUT_HANDLER_START & $mode)) header('Vary: Accept-Encoding', false);
 				$buffer = ob_gzhandler($buffer, $mode);
@@ -1472,12 +1454,6 @@ class
 
 	static function ob_sendHeaders($buffer)
 	{
-		if (self::$redirecting)
-		{
-			$buffer = '';
-			return $buffer;
-		}
-
 		p::header(
 			isset(self::$headers['content-type'])
 				? self::$headers['content-type']
@@ -1591,18 +1567,21 @@ class
 			}
 			else
 			{
-				'' !== $buffer && header('Accept-Ranges: bytes');
-
 				header('ETag: ' . $ETag);
 				header('Last-Modified: ' . gmdate('D, d M Y H:i:s \G\M\T', $LastModified));
-				self::$varyEncoding && header('Vary: Accept-Encoding', false);
 
-				if ('' !== $buffer && ($range = isset($_SERVER['HTTP_RANGE'])
-					? patchwork_httpRange::negociate(strlen($buffer), $ETag, $LastModified)
-					: false))
+				if ('' !== $buffer)
 				{
-					self::$is_enabled = false;
-					patchwork_httpRange::sendChunks($range, $buffer, self::$headers['content-type'], 0);
+					header('Accept-Ranges: bytes');
+					self::$varyEncoding && header('Vary: Accept-Encoding', false);
+
+					if ($range = isset($_SERVER['HTTP_RANGE'])
+						? patchwork_httpRange::negociate(strlen($buffer), $ETag, $LastModified)
+						: false)
+					{
+						self::$is_enabled = false;
+						patchwork_httpRange::sendChunks($range, $buffer, self::$headers['content-type'], 0);
+					}
 				}
 			}
 		}
@@ -1611,7 +1590,7 @@ class
 		{
 			stripos(self::$headers['content-type'], 'html') && header('P3P: CP="' . $CONFIG['P3P'] . '"');
 			self::$is_enabled && header('Content-Length: ' . strlen($buffer));
-			is_string(self::$contentEncoding) && header('Content-Encoding: ' . self::$contentEncoding);
+			'' !== $buffer && self::$contentEncoding && header('Content-Encoding: ' . self::$contentEncoding);
 		}
 
 		self::$is304 = $is304;
@@ -1872,4 +1851,47 @@ class loop
 	}
 }
 
-class PrivateDetection extends Exception {}
+class patchwork_exception_private extends Exception {}
+
+class patchwork_exception_redirection extends Exception
+{
+	protected $url;
+
+	function __construct($url)
+	{
+		$url = (string) $url;
+		$url = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'", $url) ? $url : (self::$base . ('index' === $url ? '' : $url)));
+
+		if ('.' === substr($url, 0, 1)) W('Current patchwork::redirect() behaviour with relative URLs may change in a future version of Patchwork. As long as this notice appears, using relative URLs is strongly discouraged.');
+
+		$this->url = $url;
+	}
+
+	function redirect()
+	{
+		patchwork::disable();
+
+		$url = $this->url;
+
+		if (PATCHWORK_DIRECT)
+		{
+			$url = 'location.replace(' . ('' !== $url
+				? "'" . addslashes($url) . "'"
+				: 'location')
+			. ')';
+
+			header('Content-Length: ' . strlen($url));
+			echo $url;
+		}
+		else
+		{
+			header('HTTP/1.1 302 Found');
+			header('Location: ' . ('' !== $url ? $url : $_SERVER['REQUEST_URI']));
+		}
+	}
+}
+
+class patchwork_exception_forbidden extends patchwork_exception_redirection
+{
+	function __construct() {parent::__construct('403-Forbidden');}
+}

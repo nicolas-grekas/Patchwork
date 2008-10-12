@@ -45,7 +45,7 @@ class extends patchwork
 				fclose($h);
 			}
 
-			throw new PrivateDetection($a);
+			throw new patchwork_exception_private($a);
 		}
 
 		W('Potential JavaScript-Hijacking. Stopping !');

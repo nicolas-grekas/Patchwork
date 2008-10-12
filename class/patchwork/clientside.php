@@ -100,7 +100,7 @@ EOHTML;
 
 		try
 		{
-			if (isset($_GET['T$']) && !PATCHWORK_TOKEN_MATCH) throw new PrivateDetection;
+			if (isset($_GET['T$']) && !PATCHWORK_TOKEN_MATCH) throw new patchwork_exception_private;
 
 			$agent = new $agentClass($_GET);
 
@@ -190,7 +190,7 @@ EOHTML;
 
 				echo '}';
 			}
-			catch (PrivateDetection $data)
+			catch (patchwork_exception_private $data)
 			{
 				ob_end_clean();
 				--p::$ob_level;
@@ -204,7 +204,7 @@ EOHTML;
 			$agent->metaCompose();
 			list($maxage, $group, $expires, $watch, $headers) = p::closeMeta();
 		}
-		catch (PrivateDetection $data)
+		catch (patchwork_exception_private $data)
 		{
 			if ($liveAgent)
 			{

@@ -61,9 +61,14 @@ class extends agent_queue_pTask
 
 		$this->restoreContext($data->cookie, $data->session);
 
-		isset($data->agent)
-			? pMail_mime::sendAgent($data->headers, $data->agent, $data->args, $data->options)
-			: pMail_mime::send($data->headers, $data->body, $data->options);
+		try
+		{
+			isset($data->agent)
+				? pMail_mime::sendAgent($data->headers, $data->agent, $data->args, $data->options)
+				: pMail_mime::send($data->headers, $data->body, $data->options);
+		}
+		catch (patchwork_exception_forbidden $e) {W("pMail #{$id}: forbidden acces detected" ); $archive = 1;}
+		catch (patchwork_exception_redirect  $e) {W("pMail #{$id}: HTTP redirection detected"); $archive = 1;}
 
 		$sql = $archive
 			? "UPDATE queue SET sent_time={$_SERVER['REQUEST_TIME']}, send_time=0 WHERE OID={$id}"
