@@ -126,28 +126,27 @@ class extends agent
 
 		try
 		{
-			$time = $data['task']->getNextRun();
-
-			if ($time > 0)
+			try
 			{
-				$sql = time();
-				if ($time < $sql - 366*86400) $time += $sql;
+				if (0 < $time = (int) $data['task']->getNextRun())
+				{
+					$sql = time();
+					if ($time < $sql - 366*86400) $time += $sql;
 
-				$sql = "UPDATE queue SET run_time={$time} WHERE OID={$id}";
-				$sqlite->queryExec($sql);
+					$sql = "UPDATE queue SET run_time={$time} WHERE OID={$id}";
+					$sqlite->queryExec($sql);
+				}
 			}
-			else
+			catch (Exception $e)
 			{
-				$sql = "DELETE FROM queue WHERE OID={$id}";
-				$sqlite->queryExec($sql);
+				$data['task']->run();
+				throw $e;
 			}
-		}
-		catch(Exception $time)
-		{
-			$time = 0;
-		}
 
-		$data['task']->run();
+			$data['task']->run();
+		}
+		catch (patchwork_exception_forbidden $e) {W("pTask #{$id}: forbidden acces detected" ); $time = false;}
+		catch (patchwork_exception_redirect  $e) {W("pTask #{$id}: HTTP redirection detected"); $time = false;}
 
 		if ($time > 0)
 		{
@@ -159,6 +158,11 @@ class extends agent
 				$sql = "UPDATE queue SET data='{$data}' WHERE OID={$id}";
 				$sqlite->queryExec($sql);
 			}
+		}
+		else if (false !== $time)
+		{
+			$sql = "DELETE FROM queue WHERE OID={$id}";
+			$sqlite->queryExec($sql);
 		}
 	}
 
