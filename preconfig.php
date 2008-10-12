@@ -99,6 +99,35 @@ function patchwork_chdir($realdir) {rtrim($realdir, /*<*/DIRECTORY_SEPARATOR/*>*
 /*#>*/else
 function patchwork_chdir($realdir) {chdir($realdir);}
 
+function patchwork_bad_request($message, $url)
+{
+	if (in_array($_SERVER['REQUEST_METHOD'], array('GET', 'HEAD')))
+	{
+		header('HTTP/1.1 301 Moved Permanently');
+		header('Location: ' . $url);
+	}
+	else
+	{
+		header('HTTP/1.1 400 Bad Request');
+		header('Content-Type: text/html; charset=utf-8');
+
+		$message = htmlspecialchars($message);
+		$url = htmlspecialchars($url);
+
+		echo <<<EOHTML
+<html>
+<head><title>400 Bad Request</title></head>
+<body>
+<h1>400 Bad Request</h1>
+<p>{$message}<br /> Maybe are you trying to reach <a href="{$a}">this URL</a>?</p>
+</body>
+</html>
+EOHTML;
+	}
+
+	exit;
+}
+
 function patchwork_shutdown_start()
 {
 	patchwork_chdir(/*<*/__patchwork_bootstrapper::$cwd/*>*/);
@@ -273,7 +302,7 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 }
 
 
-// Class ob: wrapper for ob_start used by the preprocessor
+// Class ob: wrapper for ob_start inserted by the preprocessor
 
 class ob
 {
@@ -494,21 +523,8 @@ function url_enc_utf8_dec_callback($m) {return urlencode(utf8_encode(urldecode($
 if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 {
 	$a = $a !== utf8_decode($a) ? '/' : preg_replace_callback('/(?:%[89a-f][0-9a-f])+/i', 'url_enc_utf8_dec_callback', $a);
-	$b = $_SERVER['REQUEST_METHOD'];
 
-	if ('GET' === $b || 'HEAD' === $b)
-	{
-		header('HTTP/1.1 301 Moved Permanently');
-		header('Location: ' . $a);
-		exit;
-	}
-	else
-	{
-		$_SERVER['REQUEST_URI'] = $a;
-		$b = strpos($a, '?');
-		$_SERVER['QUERY_STRING'] = false !== $b && ++$b < strlen($a) ? substr($a, $b) : '';
-		parse_str($_SERVER['QUERY_STRING'], $_GET);
-	}
+	patchwork_bad_request('Requested URL is not a valid urlencoded UTF-8 string.', $a);
 }
 
 
