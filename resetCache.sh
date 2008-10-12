@@ -21,11 +21,7 @@ do
 
 	if test -d $I/zcache.old
 	then
-		for J in `find $I/zcache.old/?/? -maxdepth 1 -type f -name "*.watch.*.php" 2> /dev/null`
-		do
-			echo "<?php @include '$J';" | php -q
-		done
-
+		rm -f `find $I/zcache.old/ -mindepth 3 -maxdepth 3 -type f -name "*.watch.*.txt" -exec sh -c 'grep "^U" $0 | grep $1 -vF' {} $I/zcache/ \; | sed s/^U//`
 		rm -Rf $I/zcache.old
 	fi
 done

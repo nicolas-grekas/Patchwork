@@ -1155,7 +1155,7 @@ class
 				if ($i === $agentLength && ($a = p::resolvePublicPath(substr($a, 1))) && !is_dir($a))
 				{
 					p::setMaxage(-1);
-					p::writeWatchTable('public/static', 'zcache/');
+					p::writeWatchTable('public/static', PATCHWORK_ZCACHE);
 					p::readfile($a, true, false);
 
 					exit;
@@ -1279,7 +1279,7 @@ class
 
 	static function writeWatchTable($message, $file = '', $exclusive = true)
 	{
-		$file && $file = realpath($file);
+		$file && $file = file_exists($file) ? realpath($file) : patchworkPath($file);
 		if (!$file && !$exclusive) return;
 
 		foreach (array_unique((array) $message) as $message)
@@ -1517,12 +1517,10 @@ class
 					fwrite($h, $a .'-'. $LastModified);
 					fclose($h);
 
-					$readHandle = "++\$i;unlink('$validator');\n";
-
 					foreach (self::$watchTable as $path)
 					{
 						$h = fopen($path, 'ab');
-						fwrite($h, $readHandle);
+						fwrite($h, 'U' . $validator);
 						fclose($h);
 					}
 
