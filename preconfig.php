@@ -309,7 +309,7 @@ class ob
 	static
 
 	$in_handler = 0,
-	clear = false;
+	$clear = false;
 
 
 	static function start($callback = null, $chunk_size = null, $erase = true)
