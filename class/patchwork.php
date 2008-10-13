@@ -466,11 +466,11 @@ class
 	{
 		if (self::$is_enabled && ob_get_level() === self::$ob_starting_level + self::$ob_level)
 		{
-			while (self::$ob_level-- > 2) {ob_clean(); ob_end_clean();}
+			while (self::$ob_level-- > 2) {ob::$clear = true; ob_end_clean();}
 
-			ob_clean(); ob_end_clean();
+			ob::$clear = true; ob_end_clean();
 			self::$is_enabled = false;
-			ob_clean(); ob_end_clean();
+			ob::$clear = true; ob_end_clean();
 			self::$ob_level = 0;
 
 			if (self::$is304) exit;
@@ -1476,11 +1476,11 @@ class
 
 			if ('auto' === self::$expires && self::$watchTable && !DEBUG)
 			{
-				self::$watchTable = array_keys(self::$watchTable);
-				sort(self::$watchTable);
+				$path = array_keys(self::$watchTable);
+				sort($path);
 
 				$validator = $_SERVER['PATCHWORK_BASE'] .'-'. $_SERVER['PATCHWORK_LANG'] .'-'. PATCHWORK_PROJECT_PATH .'-'. DEBUG;
-				$validator = substr(md5(serialize(self::$watchTable) . $validator), 0, 8);
+				$validator = substr(md5(serialize($path) . $validator), 0, 8);
 
 				$ETag = $validator;
 
@@ -1493,7 +1493,7 @@ class
 					fwrite($h, $a .'-'. $LastModified);
 					fclose($h);
 
-					foreach (self::$watchTable as $path)
+					foreach ($path as $path)
 					{
 						$h = fopen($path, 'ab');
 						fwrite($h, 'U' . $validator . "\n");

@@ -306,7 +306,11 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 
 class ob
 {
-	static $in_handler = 0;
+	static
+
+	$in_handler = 0,
+	clear = false;
+
 
 	static function start($callback = null, $chunk_size = null, $erase = true)
 	{
@@ -322,8 +326,10 @@ class ob
 	function &callback(&$buffer, $mode)
 	{
 		$a = self::$in_handler++;
+		self::$clear && $buffer = '';
 		$buffer = call_user_func_array($this->callback, array(&$buffer, $mode));
 		self::$in_handler = $a;
+		self::$clear = false;
 		return $buffer;
 	}
 }
