@@ -299,9 +299,12 @@ class extends ptlCompiler
 				$result = $type . $this->getJsAccess($name);
 		}
 
-		if ('number' === $forceType) $result = "num($result)";
-		else if ('unified' === $forceType) $result = "num($result,1)";
-		else if ('concat' === $this->mode && "'" !== $result[0]) $result = "str($result)";
+		switch ($forceType)
+		{
+		case 'number' : $result = "'" === $result[0] ? ($result-0) : "num($result)"  ; break;
+		case 'unified': $result = "'" === $result[0] ?  $result    : "num($result,1)"; break;
+		default: if ('concat' === $this->mode && "'" !== $result[0]) $result = "str($result)";
+		}
 
 		return $result;
 	}
