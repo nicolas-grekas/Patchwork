@@ -300,7 +300,8 @@ class extends ptlCompiler
 		}
 
 		if ('number' === $forceType) $result = "num($result)";
-		else if ('string' === $forceType || ('concat' === $this->mode && "'" !== $result[0])) $result = "str($result)";
+		else if ('unified' === $forceType) $result = "num($result,1)";
+		else if ('concat' === $this->mode && "'" !== $result[0]) $result = "str($result)";
 
 		return $result;
 	}

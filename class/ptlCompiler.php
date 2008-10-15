@@ -477,7 +477,7 @@ abstract class
 					$len = count($block);
 					while ($i < $len)
 					{
-						$expression .= $this->evalVar($var[ $block[$i++] ], false, 'string');
+						$expression .= $this->evalVar($var[ $block[$i++] ], false, 'unified');
 						$expression .= $block[$i++];
 					}
 
