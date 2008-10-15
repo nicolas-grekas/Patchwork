@@ -228,7 +228,7 @@ function Z()
 						$a
 					);
 
-					if ('[' == $a[0] && '] PHP ' == substr($a, 21, 6))
+					if ('' !== $a && '[' == $a[0] && '] PHP ' == substr($a, 21, 6))
 					{
 						$b = strpos($a, ':', 28);
 						$a = '<script type="text/javascript">/*<![CDATA[*/

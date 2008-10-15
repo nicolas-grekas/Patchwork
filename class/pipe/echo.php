@@ -39,7 +39,7 @@ class
 		if (1 === strlen($m[1]) % 2)
 		{
 			$m[1] = substr($m[1], 1);
-			$m[2] = '' !== $m[2] && isset(self::$args[$m[2]+1]) ? p::string(self::$args[$m[2]+1]) : '%';
+			$m[2] = '' !== $m[2] ? (isset(self::$args[$m[2]+1]) ? p::string(self::$args[$m[2]+1]) : '') : '%';
 		}
 
 		return substr($m[1], 0, strlen($m[1])>>1) . $m[2];
