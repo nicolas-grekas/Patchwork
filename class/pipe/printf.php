@@ -47,7 +47,7 @@ P$printf = function($format)
 		else if ($type)
 		{
 			var $base = 0,
-				$param = P$printf.arguments[ $match[4] ? $match[5]-0 : ++$idCounter ],
+				$param = str(P$printf.arguments[ $match[4] ? $match[5]-0 : ++$idCounter ]),
 				$iParam = parseInt($param) || 0;
 
 			switch ($type)
