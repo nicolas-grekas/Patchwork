@@ -144,7 +144,8 @@ class extends loop_agentWrapper
 
 	function getElement($name)
 	{
-		return $this->elt[$this->agentPrefix . $name . $this->eltnameSuffix];
+		$name = $this->agentPrefix . $name . $this->eltnameSuffix;
+		return isset($this->elt[$name]) ? $this->elt[$name] : false;
 	}
 
 	function setFile($isfile)
