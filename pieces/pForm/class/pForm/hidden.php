@@ -233,8 +233,10 @@ class extends loop_agentWrapper
 		return false;
 	}
 
-	function setError($message)
+	function setError($message = '')
 	{
+		$message || $message = $this->validmsg;
+		$message || W(get_class($this) . ': empty error $message');
 		$this->status = false;
 		$this->form->errormsg[] = $this->errormsg = $message;
 	}
