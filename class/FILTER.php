@@ -231,8 +231,8 @@ class
 		$r = preg_replace('/[^0-9]+$/u', '', $r);
 		$r = preg_split('/[^0-9]+/u', $r);
 
-		if (2 == count($r)) $r[2] = $Y;
-		else if (1 == count($r))
+		if (2 === count($r)) $r[2] = $Y;
+		else if (1 === count($r))
 		{
 			$r = $r[0];
 			switch (strlen($r))
@@ -254,8 +254,9 @@ class
 			}
 		}
 
-		if (3 != count($r)) return false;
-		if ($r[2]<100)
+		if (3 !== count($r)) return false;
+
+		if ($r[2] < 100)
 		{
 			$r[2] += 1900;
 			if ($Y - $r[2] > 80) $r[2] += 100;
@@ -269,20 +270,14 @@ class
 	# size (octet), regexp
 	protected static function get_file(&$value, &$args)
 	{
-		$result = $value;
+		$result = isset($args[1]) ? array($args[1]) : array();
+		$result = self::get_char($value, $result);
+		if (false === $result) return false;
 
-		if (!empty($args[1]))
-		{
-			$result = array($args[1]);
-			$result = self::get_char($value, $result);
-			if (false === $result) return false;
-		}
+		$s = @filesize($result);
 
-		if (!empty($args[0]))
-		{
-			$s = @filesize($result);
-			if (false === $s || ($args[0] && $s > $args[0])) return false;
-		}
+		if (0 === $s || false === $s) return '';
+		if (!empty($args[0]) && $s > $args[0]) return false;
 
 		return $result;
 	}
@@ -290,27 +285,28 @@ class
 	# size (octet), regexp, type, max_width, max_height, min_width, min_height
 	protected static function get_image(&$value, &$args)
 	{
-		$type =       isset($args[2]) ? $args[2] : 0;
-		$max_width =  isset($args[3]) ? $args[3] : 0;
+		$type       = isset($args[2]) ? $args[2] : 0;
+		$max_width  = isset($args[3]) ? $args[3] : 0;
 		$max_height = isset($args[4]) ? $args[4] : 0;
-		$min_width =  isset($args[5]) ? $args[5] : 0;
+		$min_width  = isset($args[5]) ? $args[5] : 0;
 		$min_height = isset($args[6]) ? $args[6] : 0;
 
 		$result = self::get_file($value, $args);
 
-		if ($result === false) return false;
+		if (false === $result || '' === $result) return $result;
 
 		$size = @getimagesize($result);
 		if (is_array($size))
 		{
-			if ($max_width && $size[0]>$max_width) return false;
-			if ($min_width && $size[0]<$min_width) return false;
-			if ($max_height && $size[1]>$max_height) return false;
-			if ($min_height && $size[1]<$min_height) return false;
+			if ($max_width  && $size[0] > $max_width ) return false;
+			if ($min_width  && $size[0] < $min_width ) return false;
+			if ($max_height && $size[1] > $max_height) return false;
+			if ($min_height && $size[1] < $min_height) return false;
 
 			if ($type && !in_array(self::$IMAGETYPE[$size[2]], (array) $type)) return false;
 
 			$args[7] =& $size;
+
 			return $result;
 		}
 		else return false;
@@ -320,17 +316,13 @@ class
 	# size (octet), regexp
 	protected static function getFile_file(&$value, &$args)
 	{
-		if (!empty($args[0]))
-		{
-			$a = array($args[0]);
-			if ( false === self::get_file($value['tmp_name'], $a) ) return false;
-		}
+		$a = isset($args[1]) ? array($args[1]) : array();
+		$a = self::get_char($value['name'], $a);
+		if (false === $a) return false;
 
-		if (!empty($args[1]))
-		{
-			$a = array(0, $args[1]);
-			if ( false === self::get_file($value['name'], $a) ) return false;
-		}
+		$a = array(!empty($args[0]) ? $args[0] : 0);
+		$a = self::get_file($value['tmp_name'], $a);
+		if (false === $a || '' === $a) return $a;
 
 		return $value;
 	}
@@ -338,11 +330,13 @@ class
 	# size (octet), regexp, type, max_width, max_height, min_width, min_height
 	protected static function getFile_image(&$value, &$args)
 	{
-		$a = array(0, isset($args[1]) ? $args[1] : '');
-		$args[1] = false;
+		$a = isset($args[1]) ? array($args[1]) : array();
+		$a = self::get_char($value['name'], $a);
+		if (false === $a) return false;
 
-		if ( false === self::get_image($value['tmp_name'], $args) ) return false;
-		if ( false === self::get_file($value['name'], $a) ) return false;
+		unset($args[1]);
+		$a = self::get_image($value['tmp_name'], $args);
+		if (false === $a || '' === $a) return $a;
 
 		$type =& $args[7][2];
 		$type = self::$IMAGETYPE[$type];
