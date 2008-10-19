@@ -1,6 +1,7 @@
-{$error_msg}
+<!-- SET g$sql -->{g$sql|trim}<!-- END:SET -->
+<!-- SET a$sql -->{a$sql|trim}<!-- END:SET -->
 
-<!-- IF !$sql -->{* Display general info on the database *}
+<!-- IF !a$sql -->{* Display general info on the database *}
 
 <ul>
 <!-- LOOP $tables -->
@@ -8,20 +9,45 @@
 <!-- END:LOOP -->
 </ul>
 
-<form action="{g$__URI__}" accept-charset="utf-8">
-<input type="hidden" name="low" value="{g$low}" />
-<input type="hidden" name="high" value="{g$high}" />
-<textarea name="sql">{g$sql}</textarea>
-<input type="submit" value="Execute" />
-</form>
+<!-- AGENT $form -->
 
-<!-- IF g$sql -->{* display query results *}
-<!-- AGENT 'pStudio/opener/sqlite' path=a$path low=a$low high=a$high sql=g$sql start=g$start length=g$length -->
+<!-- IF $write_sql && !$error_msg -->
+<h2>{$write_sql|allowhtml}</h2>
 <!-- END:IF -->
+
+<!--
+
+IF $error_msg
+	AGENT $sql _format_='%1%2'
+ELSE
+	AGENT $sql _format_='%1%2' value=g$sql
+END:IF
+
+-->
+<input type="submit" value="Execute" />
+
+<!-- AGENT $form _mode_='close' -->
+
+<!--
+
+IF $error_msg
+	-->
+	{$error_msg}
+	<h2>{$write_sql|allowhtml}</h2>
+	<!--
+ELSEIF g$sql -->{* display query results *}<!--
+	AGENT 'pStudio/opener/sqlite' path=a$path low=a$low high=a$high sql=g$sql start=g$start length=g$length
+END:IF
+-->
+
+<!-- ELSEIF $error_msg -->
+
+{$error_msg}
+<h2>{$read_sql|allowhtml}</h2>
 
 <!-- ELSE -->{* Display query results *}
 
-<h2>{$sql|allowhtml}</h2>
+<h2>{$read_sql|allowhtml}</h2>
 
 {* Pagination *}
 <table>
