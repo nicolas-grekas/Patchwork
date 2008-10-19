@@ -34,20 +34,18 @@ class extends agent_pStudio_explorer
 	function compose($o)
 	{
 		$o->extension = $this->extension;
+		$o->is_auth_edit = $this->is_auth_edit;
 
-		if ($this->is_auth_edit)
-		{
-			$o->is_auth_edit = true;
-			$o = $this->composeEditor($o);
-		}
-		else $o = $this->composeReader($o);
+		$o = $o->is_auth_edit
+			? $this->composeEditor($o)
+			: $this->composeReader($o);
 
 		return $o;
 	}
 
 	protected function composeReader($o)
 	{
-		if ($a = @file_get_contents($this->realpath))
+		if (false !== $a = @file_get_contents($this->realpath))
 		{
 			if (preg_match('/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/', $a))
 			{
