@@ -100,7 +100,7 @@ class extends agent
 				else rmdir($this->realpath);
 
 				unlink('./.patchwork.php');
-				p::redirect('pStudio/explorer/' . dirname($this->path) . '/?low=' . "?low={$this->get->low}&high={$this->get->high}");
+				p::redirect('pStudio/explorer/' . dirname($this->path) . "/?low={$this->get->low}&high={$this->get->high}");
 			}
 		}
 
