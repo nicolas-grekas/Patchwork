@@ -316,7 +316,7 @@ class
 	# size (octet), regexp
 	protected static function getFile_file(&$value, &$args)
 	{
-		$a = !empty($args[1]) ? array($args[1]) : array();
+		$a = isset($args[1]) ? array($args[1]) : array();
 		$a = self::get_char($value['name'], $a);
 		if (false === $a) return false;
 
@@ -330,7 +330,7 @@ class
 	# size (octet), regexp, type, max_width, max_height, min_width, min_height
 	protected static function getFile_image(&$value, &$args)
 	{
-		$a = !empty($args[1]) ? array($args[1]) : array();
+		$a = isset($args[1]) ? array($args[1]) : array();
 		$a = self::get_char($value['name'], $a);
 		if (false === $a) return false;
 
