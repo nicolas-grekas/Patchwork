@@ -135,11 +135,20 @@ class
 			}
 
 			$result = $parser->parse($result);
-			$result = str_replace(
-				array('{~}'     , '{/}'     , p::__BASE__(), p::__HOST__()),
-				array('{&#126;}', '{&#047;}', '{~}'        , '{/}'),
-				$result
-			);
+
+			$a = strip_tags($result);
+			$a = html_entity_decode($a, ENT_COMPAT, 'UTF-8');
+			$a = preg_replace('/\pZ+/u', '', $a);
+
+			if ('' === $a) $result = '';
+			else
+			{
+				$result = str_replace(
+					array('{~}'     , '{/}'     , p::__BASE__(), p::__HOST__()),
+					array('{&#126;}', '{&#047;}', '{~}'        , '{/}'),
+					$result
+				);
+			}
 		}
 
 		return $result;
