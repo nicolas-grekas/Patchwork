@@ -81,7 +81,7 @@ class
 	function open() {}
 	function search($string, $lang)
 	{
-#>		return "⌈{$string}⌋";
+#>		return "‘{$string}’";
 		return $string;
 	}
 	function close() {}
