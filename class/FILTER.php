@@ -126,23 +126,20 @@ class
 
 		if ($result = self::get_text($value, $a))
 		{
-			static $parser;
-
-			if (!isset($parser))
-			{
-				$parser = new HTML_Safe;
-				$parser->deleteTags[] = 'form';
-			}
-
-			$result = $parser->parse($result);
+			$result = self::sanitizeHtml($result);
 
 			$a = strip_tags($result);
 			$a = html_entity_decode($a, ENT_COMPAT, 'UTF-8');
-			$a = preg_replace('/\pZ+/u', '', $a);
+			$a = preg_replace('/^\pZ+/u', '', $a);
 
 			if ('' === $a) $result = '';
 			else
 			{
+				$result = preg_replace("'[ \t]+$'m"  , ''    ,        trim($result));
+				$result = preg_replace("'\n{3,}'"    , "\n\n",             $result);
+				$result = preg_replace("'(?<!>)\n\n'", "<br />\n<br />\n", $result);
+				$result = preg_replace("'(?<!>)\n'"  , "<br />\n",         $result);
+
 				$result = str_replace(
 					array('{~}'     , '{/}'     , p::__BASE__(), p::__HOST__()),
 					array('{&#126;}', '{&#047;}', '{~}'        , '{/}'),
@@ -158,9 +155,9 @@ class
 	protected static function get_c   (&$value, &$args) {return self::get_char($value, $args);}
 	protected static function get_char(&$value, &$args)
 	{
-		if (!is_scalar($value) || $value !== strtr($value, "\r\n", '--')) return false;
+		if (!is_scalar($value)) return false;
 		$result = self::get_text($value, $args);
-		return $result ? substr(preg_replace('/\s+/u', ' ', " {$result} "), 1, -1) : $result;
+		return $result ? (string) substr(preg_replace('/\pZ+/u', ' ', " {$result} "), 1, -1) : $result;
 	}
 
 	# regexp
@@ -353,5 +350,21 @@ class
 		$value['info'] = $args[7];
 
 		return $value;
+	}
+
+
+	// Superpose your favorite HTML cleaner here
+
+	protected static function sanitizeHtml($html)
+	{
+		static $parser;
+
+		if (!isset($parser))
+		{
+			$parser = new HTML_Safe;
+			$parser->deleteTags[] = 'form';
+		}
+
+		return $parser->parse($result);
 	}
 }
