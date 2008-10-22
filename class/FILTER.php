@@ -130,7 +130,7 @@ class
 
 			$a = strip_tags($result);
 			$a = html_entity_decode($a, ENT_COMPAT, 'UTF-8');
-			$a = preg_replace('/^\pZ+/u', '', $a);
+			$a = preg_replace('/[\s\pZ]+/u', '', $a);
 
 			if ('' === $a) $result = '';
 			else
@@ -157,7 +157,7 @@ class
 	{
 		if (!is_scalar($value)) return false;
 		$result = self::get_text($value, $args);
-		return $result ? (string) substr(preg_replace('/\pZ+/u', ' ', " {$result} "), 1, -1) : $result;
+		return $result ? (string) substr(preg_replace('/[\s\pZ]+/u', ' ', " {$result} "), 1, -1) : $result;
 	}
 
 	# regexp
@@ -365,6 +365,6 @@ class
 			$parser->deleteTags[] = 'form';
 		}
 
-		return $parser->parse($result);
+		return $parser->parse($html);
 	}
 }
