@@ -193,14 +193,14 @@ class
 
 		static $dns;
 
-		isset($dns) || $dns = function_exists('checkdnsrr') && checkdnsrr('gmail.com') ? array('gmail.com' => 1) : false;
+		isset($dns) || $dns = function_exists('checkdnsrr') && checkdnsrr('gmail.com.', 'ANY') ? array('gmail.com' => 1) : false;
 
 		if ($dns)
 		{
 			$d = $d[2];
 
 			if (isset($dns[$d])) {}
-			else if (checkdnsrr($d)) $dns[$d] = 1;
+			else if (checkdnsrr("{$d}.", 'ANY')) $dns[$d] = 1;
 			else return false;
 		}
 
