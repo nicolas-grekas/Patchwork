@@ -130,7 +130,7 @@ class
 
 			$a = strip_tags($result);
 			$a = html_entity_decode($a, ENT_COMPAT, 'UTF-8');
-			$a = preg_replace('/[\s\pZ]+/u', '', $a);
+			$a = preg_replace('/^[\s\pZ]+/u', '', $a);
 
 			if ('' === $a) $result = '';
 			else
