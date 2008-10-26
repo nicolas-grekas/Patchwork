@@ -4,7 +4,7 @@ class extends agent
 {
 	public $get = array(
 		'__0__:c',
-		'low:i' => false,
+		'low:i' => 0,
 		'high:i' => PATCHWORK_PATH_LEVEL,
 		'$serverside:b',
 	);
@@ -17,8 +17,6 @@ class extends agent
 
 	function control()
 	{
-		if (false === $this->get->low) patchworkPath('zcache/', $this->get->low);
-
 		$this->setPath($this->get->__0__, $this->get->low, $this->get->high) || p::redirect('pStudio');
 
 		if (!empty($this->get->{'$serverside'}) && is_file($this->realpath))
