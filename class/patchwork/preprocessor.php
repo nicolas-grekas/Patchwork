@@ -762,7 +762,7 @@ class patchwork_preprocessor__0
 							else if ('' !== (string) $j && $_SERVER['PATCHWORK_LANG'])
 							{
 								// Add the string to the translation table
-								T($j);
+								TRANSLATOR::get($j, $_SERVER['PATCHWORK_LANG'], false);
 							}
 						}
 						break;
