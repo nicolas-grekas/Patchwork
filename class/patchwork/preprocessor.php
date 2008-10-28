@@ -753,7 +753,18 @@ class patchwork_preprocessor__0
 						break;
 
 					case 't':
-						if (0<=$level) new __patchwork_preprocessor_t($this, true);
+						if (0<=$level)
+						{
+							if (false === $this->fetchConstantCode($code, $i, $codeLen, $j))
+							{
+								new __patchwork_preprocessor_t($this, true);
+							}
+							else if ('' !== (string) $j && $_SERVER['PATCHWORK_LANG'])
+							{
+								// Add the string to the translation table
+								TRANSLATOR::get($j, $_SERVER['PATCHWORK_LANG'], false);
+							}
+						}
 						break;
 
 					case 'is_a':
@@ -823,8 +834,8 @@ class patchwork_preprocessor__0
 				{
 					if (0>$level)
 					{
-						$j = (string) $this->fetchConstant($code, $i, $codeLen);
-						if ( '' !== $j)
+						$j = (string) $this->fetchConstantCode($code, $i, $codeLen);
+						if ('' !== $j)
 						{
 							eval("\$b=patchworkProcessedPath({$j});");
 							$code[$i--] = array(
@@ -1008,10 +1019,11 @@ class patchwork_preprocessor__0
 		return $this->extractLF($a[0]);
 	}
 
-	protected function fetchConstant(&$code, &$i, $codeLen)
+	protected function fetchConstantCode(&$code, &$i, $codeLen, &$value = null)
 	{
 		if (DEBUG || !TURBO) return false;
 
+		$value = null;
 		$new_code = array();
 		$inString = false;
 		$bracket = 0;
@@ -1063,12 +1075,14 @@ class patchwork_preprocessor__0
 			{
 				$i = $j - 1;
 				$j = implode('', $new_code);
-				if (false === @eval($j . ';')) return false;
+				if (false === @eval('$value=' . $j . ';')) return false;
 				$this->line += substr_count($j, "\n");
 				return $j;
 			}
 			else $new_code[] = $token;
 		}
+
+		return false;
 	}
 
 	static function export($a, $lf = 0)
