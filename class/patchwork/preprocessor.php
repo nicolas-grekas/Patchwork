@@ -755,13 +755,17 @@ class patchwork_preprocessor__0
 					case 't':
 						if (0<=$level)
 						{
-							if (false === $this->fetchConstantCode($code, $i, $codeLen, $j))
+							$j = $i;
+							$j = (string) $this->fetchConstantCode($code, $j, $codeLen);
+
+							if ('' === $j)
 							{
 								new __patchwork_preprocessor_t($this, true);
 							}
-							else if ('' !== (string) $j && $_SERVER['PATCHWORK_LANG'])
+							else if ($_SERVER['PATCHWORK_LANG'])
 							{
 								// Add the string to the translation table
+								eval("\$j={$j};");
 								TRANSLATOR::get($j, $_SERVER['PATCHWORK_LANG'], false);
 							}
 						}
@@ -835,13 +839,20 @@ class patchwork_preprocessor__0
 					if (0>$level)
 					{
 						$j = (string) $this->fetchConstantCode($code, $i, $codeLen);
+
 						if ('' !== $j)
 						{
 							eval("\$b=patchworkProcessedPath({$j});");
-							$code[$i--] = array(
-								T_CONSTANT_ENCAPSED_STRING,
-								false !== $b ? patchwork_preprocessor::export($b, substr_count($j, "\n")) : "patchworkProcessedPath({$j})"
-							);
+
+							if (false === $b) $c = "patchworkProcessedPath({$j})";
+							else
+							{
+								$c = substr_count($j, "\n");
+								$line += $c;
+								$c = patchwork_preprocessor::export($b, $c);
+							}
+
+							$code[$i--] = array(T_CONSTANT_ENCAPSED_STRING, $c);
 						}
 						else
 						{
@@ -1019,11 +1030,10 @@ class patchwork_preprocessor__0
 		return $this->extractLF($a[0]);
 	}
 
-	protected function fetchConstantCode(&$code, &$i, $codeLen, &$value = null)
+	protected function fetchConstantCode(&$code, &$i, $codeLen)
 	{
 		if (DEBUG || !TURBO) return false;
 
-		$value = null;
 		$new_code = array();
 		$inString = false;
 		$bracket = 0;
@@ -1044,10 +1054,10 @@ class patchwork_preprocessor__0
 			{
 			case '`': return false;
 
-			case '"':             $inString = !$inString;  break;
-			case T_START_HEREDOC: $inString = true;        break;
-			case T_END_HEREDOC:   $inString = false;       break;
-			case T_STRING:   if (!$inString) return false; break;
+			case '"':             $inString = !$inString; break;
+			case T_START_HEREDOC: $inString = true;       break;
+			case T_END_HEREDOC:   $inString = false;      break;
+			case T_STRING:   if (!$inString) return;      break;
 
 			case '?': case '(': case '{': case '[':
 				++$bracket;
@@ -1068,21 +1078,18 @@ class patchwork_preprocessor__0
 				break;
 
 			default:
-				if (in_array($type, self::$variableType)) return false;
+				if (in_array($type, self::$variableType)) return;
 			}
 
 			if ($close)
 			{
 				$i = $j - 1;
 				$j = implode('', $new_code);
-				if (false === @eval('$value=' . $j . ';')) return false;
-				$this->line += substr_count($j, "\n");
+				if (false === @eval($j . ';')) return;
 				return $j;
 			}
 			else $new_code[] = $token;
 		}
-
-		return false;
 	}
 
 	static function export($a, $lf = 0)
