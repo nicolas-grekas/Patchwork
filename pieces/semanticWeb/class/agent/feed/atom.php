@@ -15,5 +15,21 @@
 class extends agent
 {
 	const contentType = 'application/atom+xml';
+
 	protected $template = 'feed/atom';
+
+
+	static function hrefLink($href)
+	{
+		$href = (array) $href;
+		$link = array();
+		foreach ($href as $href) $link[] = array('href' => $href);
+
+		return new loop_array($link, 'filter_rawArray');
+	}
+
+	static function date($timestamp)
+	{
+		return date('Y-m-d\TH:i:s', $timestamp) . date('P', $_SERVER['REQUEST_TIME']);
+	}
 }
