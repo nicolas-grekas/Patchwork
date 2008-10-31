@@ -17,7 +17,7 @@ IF a$id - 0
 END:IF
 
 IF a$updated - 0
-	SET a$updated -->{a$updated|date:'Y-m-d\\TH:i:s'}{date:'P'}<!-- END:SET
+	SET a$updated -->{a$updated|date:'Y-m-d\\TH:i:sP'}<!-- END:SET
 END:IF
 
 AGENT 'feed/atom/tag/title'   value=a$title   type=a$title_type  required=a$required

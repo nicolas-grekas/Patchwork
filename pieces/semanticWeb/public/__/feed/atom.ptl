@@ -57,7 +57,7 @@ LOOP $entries
 	END:SET
 
 	IF a$published - 0
-		SET a$published -->{a$published|date:'Y-m-d\\TH:i:s'}{date:'P'}<!-- END:SET
+		SET a$published -->{a$published|date:'Y-m-d\\TH:i:sP'}<!-- END:SET
 	END:IF
 
 	AGENT 'feed/atom/tag/source'    value=$source
