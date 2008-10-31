@@ -19,17 +19,15 @@ class extends agent
 	protected $template = 'feed/atom';
 
 
-	static function hrefLink($href)
+	function compose($o)
 	{
-		$href = (array) $href;
-		$link = array();
-		foreach ($href as $href) $link[] = array('href' => $href);
+		isset($o->entries) && $o->entries->addFilter(array($this, 'filterEntry'));
 
-		return new loop_array($link, 'filter_rawArray');
+		return $o;
 	}
 
-	static function date($timestamp)
+	function filterEntry($o)
 	{
-		return date('Y-m-d\TH:i:s', $timestamp) . date('P', $_SERVER['REQUEST_TIME']);
+		return $o;
 	}
 }
