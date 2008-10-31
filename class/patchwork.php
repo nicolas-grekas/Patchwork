@@ -1071,7 +1071,7 @@ class
 		return $a;
 	}
 
-	protected static function resolveAgentClass($agent, &$args)
+	static function resolveAgentClass($agent, &$args)
 	{
 		static $resolvedCache = array();
 
@@ -1779,14 +1779,13 @@ class agent
 
 		try
 		{
-			$agent = 'agent_' . $agent;
+			$agent = p::resolveAgentClass($agent, $args);
 			$agent = new $agent($args);
+			$o = $agent->compose($o);
+			$agent->metaCompose();
 		}
-		catch (patchwork_exception_forbidden   $agent) {W("Forbidden acces detected" ); return $o;}
-		catch (patchwork_exception_redirection $agent) {W("HTTP redirection detected"); return $o;}
-
-		$o = $agent->compose($o);
-		$agent->metaCompose();
+		catch (patchwork_exception_forbidden   $agent) {W("Forbidden acces detected" );}
+		catch (patchwork_exception_redirection $agent) {W("HTTP redirection detected");}
 
 		return $o;
 	}

@@ -22,15 +22,7 @@ IF $xsl_href --><?xml-stylesheet type="text/xsl" href="{$xsl_href}"?><!-- END:IF
 
 SET g$feedId -->{$id}<!-- END:SET
 
-AGENT 'feed/atom/common' required=1
-	title=$title title_type=$title_type
-	id=$id
-	updated=$updated
-	rights=$rights rights_type=$rights_type
-	author_name      = $author_name      authors      = $authors
-	contributor_name = $contributor_name contributors = $contributors
-	category_term    = $category_term    categories   = $categories
-	link_href        = $link_href        links        = $links
+INLINE feed/atom/common.require
 
 --><link rel="self" type="application/atom+xml" href="{g$__URI__}" /><!--
 
@@ -48,30 +40,19 @@ AGENT 'feed/atom/tag/subtitle'  value=$subtitle type=$subtitle_type
 LOOP $entries
 --><entry><!--
 
-	AGENT 'feed/atom/common' required=1
-		title=$title title_type=$title_type
-		id=$id
-		updated=$updated
-		rights=$rights rights_type=$rights_type
-		author_name      = $author_name      authors      = $authors
-		contributor_name = $contributor_name contributors = $contributors
-		category_term    = $category_term    categories   = $categories
-		link_href        = $link_href        links        = $links
+	INLINE feed/atom/common.require
 
+	SET $source_rel -->{$source_rel|default:'via'}<!-- END:SET
 	SET $source -->{$source}<!--
 		AGENT 'feed/atom/common' required=0
 			title=$source_title title_type=$source_title_type
 			id=$source_id
 			updated=$source_updated
-			rights=$source_rights rights_type=$source_rights_type
-			author_name      = $source_author_name      authors      = $source_authors
-			contributor_name = $source_contributor_name contributors = $source_contributors
-			category_term    = $source_category_term    categories   = $source_categories
-			link_href        = $source_link_href        links        = $source_links
+			link_href     = $source_href
+			link_rel      = $source_rel
+			link_type     = $source_type
+			link_hreflang = $source_hreflang
 
-		AGENT 'feed/atom/tag/generator' value=$source_generator uri=$source_generator_uri version=$source_generator_version
-		AGENT 'feed/atom/tag/icon'      value=$source_icon
-		AGENT 'feed/atom/tag/logo'      value=$source_logo
 		AGENT 'feed/atom/tag/subtitle'  value=$source_subtitle type=$source_subtitle_type
 	END:SET
 

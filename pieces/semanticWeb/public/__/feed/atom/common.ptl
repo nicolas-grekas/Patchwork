@@ -25,16 +25,16 @@ AGENT 'feed/atom/tag/id'      value=a$id                         required=a$requ
 AGENT 'feed/atom/tag/updated' value=a$updated                    required=a$required
 AGENT 'feed/atom/tag/rights'  value=a$rights  type=a$rights_type
 
-IF   a$author_name --><!-- AGENT 'feed/atom/person/author' name=a$author_name --><!-- END:IF
-LOOP a$authors     --><!-- AGENT 'feed/atom/person/author' name=$name uri=$uri email=$email --><!-- END:LOOP
+IF   a$author_name --><!-- AGENT 'feed/atom/person/author' name=a$author_name uri=a$author_uri email=a$author_email --><!-- END:IF
+LOOP a$authors     --><!-- AGENT 'feed/atom/person/author' name=$name         uri=$uri         email=$email --><!-- END:LOOP
 
-IF   a$contributor_name --><!-- AGENT 'feed/atom/person/contributor' name=a$contributor_name --><!-- END:IF
-LOOP a$contributors     --><!-- AGENT 'feed/atom/person/contributor' name=$name uri=$uri email=$email --><!-- END:LOOP
+IF   a$contributor_name --><!-- AGENT 'feed/atom/person/contributor' name=a$contributor_name uri=a$contributor_uri email=a$contributor_email --><!-- END:IF
+LOOP a$contributors     --><!-- AGENT 'feed/atom/person/contributor' name=$name              uri=$uri              email=$email --><!-- END:LOOP
 
-IF   a$category_term --><category term="{a$category_term}" /><!-- END:IF
-LOOP a$categories    -->{* Attributes: term*, scheme, label *}<category term="{$term}" {$|htmlArgs:'term'}/><!-- END:LOOP
+IF   a$category_term --><category {htmlArgsList:'term':a$category_term:'scheme':a$category_scheme:'label':a$category_label}/><!-- END:IF
+LOOP a$categories    --><category term="{$term}" {$|htmlArgs:'term'}/><!-- END:LOOP
 
-IF   a$link_href --><link href="{a$link_href}" rel="alternate" type="text/html" /><!-- END:IF
-LOOP a$links     -->{* Attributes: href*, rel, type, hreflang, title, length *}<link href="{$href}" rel="{$ref|default:'alternate'}" type="{$type|default:'text/html'}" {$|htmlArgs:'href':'rel':'type'}/><!-- END:LOOP
+IF   a$link_href --><link {htmlArgsList:'href':a$link_href:'rel':a$link_rel:'type':a$link_type:'hreflang':a$link_hreflang:'title':a$link_title:'length':a$link_length}/><!-- END:IF
+LOOP a$links     --><link href="{$href}" {$|htmlArgs:'href'}/><!-- END:LOOP
 
 -->
