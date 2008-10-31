@@ -1,0 +1,34 @@
+<!--
+
+AGENT 'feed/atom/common' required=1
+
+title=$title title_type=$title_type
+id=$id
+updated=$updated
+
+rights=$rights rights_type=$rights_type
+
+author_name  = $author_name
+author_uri   = $author_uri
+author_email = $author_email
+authors      = $authors
+
+contributor_name  = $contributor_name
+contributor_uri   = $contributor_uri
+contributor_email = $contributor_email
+contributors      = $contributors
+
+category_term   = $category_term
+category_scheme = $category_scheme
+category_label  = $category_label
+categories      = $categories
+
+link_href     = $link_href
+link_rel      = $link_rel
+link_type     = $link_type
+link_hreflang = $link_hreflang
+link_title    = $link_title
+link_length   = $link_length
+links         = $links
+
+-->
