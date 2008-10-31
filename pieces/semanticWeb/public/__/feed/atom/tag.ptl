@@ -15,7 +15,7 @@
 IF a$required || a$value
 
 	SET a$a
-		IF a$type    --> type="{a$type}"<!--       END:IF
+		IF a$type    --> type="{a$type}"<!--       END:IF -->{* Must be "text", "html" or "xhtml" *}<!--
 		IF a$src     --> src="{a$src}"<!--         END:IF -->{* Only for content *}<!--
 		IF a$uri     --> uri="{a$uri}"<!--         END:IF -->{* Only for generator *}<!--
 		IF a$version --> version="{a$version}"<!-- END:IF -->{* Only for generator *}<!--

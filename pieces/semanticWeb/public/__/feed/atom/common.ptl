@@ -12,14 +12,29 @@
  ***************************************************************************}
 <!--
 
+IF a$id - 0
+	SET a$id -->{g$feedId}#{a$id}<!-- END:SET
+END:IF
+
+IF a$updated - 0
+	SET a$updated -->{a$updated|date:'Y-m-d\\TH:i:s'}{date:'P'}<!-- END:SET
+END:IF
+
 AGENT 'feed/atom/tag/title'   value=a$title   type=a$title_type  required=a$required
 AGENT 'feed/atom/tag/id'      value=a$id                         required=a$required
 AGENT 'feed/atom/tag/updated' value=a$updated                    required=a$required
 AGENT 'feed/atom/tag/rights'  value=a$rights  type=a$rights_type
 
-LOOP a$author      --><!-- AGENT 'feed/atom/person/author'      name=$name uri=$uri email=$email --><!-- END:LOOP
-LOOP a$contributor --><!-- AGENT 'feed/atom/person/contributor' name=$name uri=$uri email=$email --><!-- END:LOOP
-LOOP a$category    -->{* Attributes: term*, scheme, label *}<category term="{$term}" {$|htmlArgs:'term'}/><!-- END:LOOP
-LOOP a$link        -->{* Attributes: href*, rel, type, hreflang, title, length *}<link href="{$href}" {$|htmlArgs:'href'}/><!-- END:LOOP
+IF   a$author_name --><!-- AGENT 'feed/atom/person/author' name=a$author_name --><!-- END:IF
+LOOP a$authors     --><!-- AGENT 'feed/atom/person/author' name=$name uri=$uri email=$email --><!-- END:LOOP
+
+IF   a$contributor_name --><!-- AGENT 'feed/atom/person/contributor' name=a$contributor_name --><!-- END:IF
+LOOP a$contributors     --><!-- AGENT 'feed/atom/person/contributor' name=$name uri=$uri email=$email --><!-- END:LOOP
+
+IF   a$category_term --><category term="{a$category_term}" /><!-- END:IF
+LOOP a$categories    -->{* Attributes: term*, scheme, label *}<category term="{$term}" {$|htmlArgs:'term'}/><!-- END:LOOP
+
+IF   a$link_href --><link href="{a$link_href}" rel="alternate" type="text/html" /><!-- END:IF
+LOOP a$links     -->{* Attributes: href*, rel, type, hreflang, title, length *}<link href="{$href}" rel="{$ref|default:'alternate'}" type="{$type|default:'text/html'}" {$|htmlArgs:'href':'rel':'type'}/><!-- END:LOOP
 
 -->

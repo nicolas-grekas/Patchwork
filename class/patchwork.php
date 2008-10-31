@@ -1771,6 +1771,25 @@ class agent
 		p::watch($this->watch);
 		if ($this->canPost) p::canPost();
 	}
+
+
+	static function get($agent, $args = array())
+	{
+		$o = (object) array();
+
+		try
+		{
+			$agent = 'agent_' . $agent;
+			$agent = new $agent($args);
+		}
+		catch (patchwork_exception_forbidden   $agent) {W("Forbidden acces detected" ); return $o;}
+		catch (patchwork_exception_redirection $agent) {W("HTTP redirection detected"); return $o;}
+
+		$o = $agent->compose($o);
+		$agent->metaCompose();
+
+		return $o;
+	}
 }
 
 class agentTemplate extends agent
