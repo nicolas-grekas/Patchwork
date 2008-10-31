@@ -23,13 +23,14 @@ class extends patchwork
 
 		$args = array();
 		$BASE = $base = p::__BASE__();
-		$agent = str_replace('%2F', '/', rawurlencode($agent));
 		$agent = p::base($agent, true);
 		$agent = preg_replace("'^.*?://[^/]*'", '', $agent);
 
 		$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
 		$h = fsockopen("{$h}://{$_SERVER['SERVER_ADDR']}", $_SERVER['SERVER_PORT'], $errno, $errstr, 30);
 		if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
+
+		$agent = str_replace('%2F', '/', rawurlencode($agent));
 
 		$keys  = p::$lang;
 		$keys  = "GET {$agent}?k$={$keys} HTTP/1.0\r\n";
