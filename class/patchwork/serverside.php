@@ -64,7 +64,7 @@ class extends patchwork
 			$reset_get = true;
 			$cache = '';
 
-			if (isset($_GET['s$']))
+			if ('s' === p::$requestMode)
 			{
 				ob_start(array(__CLASS__, 'ob_htmlspecialchars'), 8192);
 				++p::$ob_level;
@@ -134,7 +134,7 @@ class extends patchwork
 				if ($is_exo)
 				{
 					$k = $CONFIG['i18n.lang_list'][p::__LANG__()];
-					$agent = implode($k, explode('__', $agent, 2)) . '?s$';
+					$agent = implode($k, explode('__', $agent, 2)) . '?p:=s';
 
 					foreach ($args as $k => &$v) $agent .= '&' . urlencode($k) . '=' . urlencode(p::string($v));
 

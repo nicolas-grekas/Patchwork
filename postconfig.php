@@ -287,7 +287,7 @@ if (false !== strpos($a, '/.'))
 /*#>*/	$a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
 /*#>*/	'/' === substr($a, -1) && $a .= basename(isset($_SERVER['ORIG_SCRIPT_NAME']) ? $_SERVER['ORIG_SCRIPT_NAME'] : $_SERVER['SCRIPT_NAME']);
 /*#>*/
-/*#>*/	$a  = "GET {$a}/_?exit$ HTTP/1.0\r\n";
+/*#>*/	$a  = "GET {$a}/:?p:=exit HTTP/1.0\r\n";
 /*#>*/	$a .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
 /*#>*/	$a .= "Connection: close\r\n\r\n";
 /*#>*/
@@ -466,4 +466,3 @@ else $_SERVER['PATCHWORK_LANG'] = '';
 
 reset($CONFIG['i18n.lang_list']);
 PATCHWORK_I18N || $_SERVER['PATCHWORK_LANG'] = key($CONFIG['i18n.lang_list']);
-define('PATCHWORK_DIRECT', '_' === $_SERVER['PATCHWORK_REQUEST']);

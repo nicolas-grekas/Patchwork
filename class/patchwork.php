@@ -166,6 +166,8 @@ class
 	$metaPool = array(),
 	$isGroupStage = true,
 	$binaryMode = false,
+	$requestMode = '',
+	$requestArg  = '',
 
 	$maxage = false,
 	$private = false,
@@ -213,34 +215,57 @@ class
 
 	static function __constructStatic()
 	{
+		if (isset($_GET['p:']))
+		{
+			list(self::$requestMode, self::$requestArg) = explode(':', $_GET['p:'], 2) + array(1 => '');
+
+			if ('s' === self::$requestMode || 'flipside' === self::$requestMode)
+			{
+				$a = explode('?', $_SERVER['REQUEST_URI'], 2);
+				$a[1] = preg_replace('/(^|&)p:(?:=[^&]*)?/', '', $a[1]);
+				if ('' === $a[1]) unset($a[1]);
+				else if ('&' === $a[1][0]) $a[1] = substr($a[1], 1);
+				$_SERVER['REQUEST_URI'] = implode('?', $a);
+			}
+		}
+
 #>		patchwork_debugger::execute();
 
 		if (!$CONFIG['clientside'])
 		{
 			unset($_COOKIE['JS'], $_COOKIE['JS']); // Double unset against a PHP security hole
 		}
-		else if (isset($_GET['$flipside']))
+		else if ('flipside' === self::$requestMode)
 		{
 			preg_match('/[^.]+\.[^\.0-9]+$/', $_SERVER['HTTP_HOST'], $domain);
 			$domain = isset($domain[0]) ? '.' . $domain[0] : false;
 			self::setcookie('JS', isset($_COOKIE['JS']) && !$_COOKIE['JS'] ? '' : '0', 0, '/', $domain);
-			header('Location: ' . preg_replace('/[\?&]\$flipside[^&]*/', '', $_SERVER['REQUEST_URI']));
+			header('Location: ' . $_SERVER['REQUEST_URI']);
 			exit;
 		}
-		else if (!empty($_GET['$serverside']) && isset($_COOKIE['JS'])) $_COOKIE['JS'] = '0';
+		else if ('serverside' === self::$requestMode)
+		{
+			self::$requestMode = '';
+			isset($_COOKIE['JS']) && $_COOKIE['JS'] = '0';
+		}
 
 		self::$appId = abs($GLOBALS['patchwork_appId'] % 10000);
 
 		// Language controller
 
-		'' === $_SERVER['PATCHWORK_LANG']
-			&& '' !== key($CONFIG['i18n.lang_list'])
-			&& !PATCHWORK_DIRECT
-			&& !isset($_GET['k$'])
-			&& patchwork_language::negociate();
+		switch (self::$requestMode)
+		{
+		case 'k': self::setLang(self::$requestArg); break;
 
-		self::setLang($_SERVER['PATCHWORK_LANG']);
-		self::$uri = self::$host . substr($_SERVER['REQUEST_URI'], 1);
+		case '':
+			if ('' === $_SERVER['PATCHWORK_LANG'] && '' !== key($CONFIG['i18n.lang_list']))
+			{
+				patchwork_language::negociate();
+				exit;
+			}
+
+		default: self::setLang($_SERVER['PATCHWORK_LANG']);
+		}
 	}
 
 	static function start()
@@ -253,6 +278,21 @@ class
 		);
 		register_shutdown_function(array(__CLASS__, 'log'), '', true);
 >*/
+
+
+		// Cache synchronization
+
+		if ('-' === strtr(self::$requestMode, '-tpax', '#----'))
+		{
+			self::header('Content-Type: text/javascript');
+
+			if (isset($_GET['v$']) && self::$appId != $_GET['v$'] && 'x' !== self::$requestMode)
+			{
+				echo 'w(w.r(1,' . (int)!DEBUG . '))';
+				return;
+			}
+		}
+
 
 		// patchwork_appId cookie synchronisation
 
@@ -268,15 +308,6 @@ class
 			self::setcookie('v$', self::$appId, $_SERVER['REQUEST_TIME'] + $CONFIG['maxage'], $a .'/');
 			$GLOBALS['patchwork_private'] = true;
 		}
-
-
-		// Setup output filters
-
-		self::$is_enabled = true;
-		self::$ob_starting_level = ob_get_level();
-		ob_start(array(__CLASS__, 'ob_sendHeaders'));
-		ob_start(array(__CLASS__, 'ob_filterOutput'), 32768);
-		self::$ob_level = 2;
 
 
 		// Anti Cross-Site-Request-Forgery / Javascript-Hijacking token
@@ -298,13 +329,37 @@ class
 		if (IS_POSTING) unset($_POST['T$'], $_POST['T$']);
 
 
+		// Start output
+
+		self::$is_enabled = true;
+		self::$ob_starting_level = ob_get_level();
+		ob_start(array(__CLASS__, 'ob_sendHeaders'));
+		ob_start(array(__CLASS__, 'ob_filterOutput'), 32768);
+		self::$ob_level = 2;
+
 		try
 		{
-			PATCHWORK_DIRECT ? self::clientside() : self::serverside();
+			$agent = $_SERVER['PATCHWORK_REQUEST'];
+
+			if ('' === self::$requestMode || '-' === strtr(self::$requestMode, '-axks', '#----'))
+			{
+				$agent = self::resolveAgentClass($agent, $_GET);
+			}
+
+			switch (self::$requestMode)
+			{
+			case 't': patchwork_static::sendTemplate($agent);        break;
+			case 'p': patchwork_static::sendPipe(self::$requestArg); break;
+			case 'a': patchwork_clientside::render($agent, false);   break;
+			case 'x': patchwork_clientside::render($agent, true);    break;
+			case 'k': patchwork_agentTrace::send($agent);            break;
+			case 's':
+			case '' : self::servePublicRequest($agent);
+			}
 		}
 		catch (patchwork_exception_redirection $a)
 		{
-			$a->redirect();
+			$a->redirect('-' === strtr(self::$requestMode, '-tpax', '#----'));
 		}
 
 		while (self::$ob_level)
@@ -314,45 +369,9 @@ class
 		}
 	}
 
-	// {{{ Client side rendering controller
-	static function clientside()
+	// {{{ Public request controller
+	static function servePublicRequest($agent)
 	{
-		self::header('Content-Type: text/javascript');
-
-		if (isset($_GET['v$']) && self::$appId != $_GET['v$'] && 'x$' !== key($_GET))
-		{
-			echo 'w(w.r(1,' . (int)!DEBUG . '))';
-			return;
-		}
-
-		switch ( key($_GET) )
-		{
-		case 't$':
-			patchwork_static::sendTemplate();
-			break;
-
-		case 'p$':
-			patchwork_static::sendPipe();
-			break;
-
-		case 'a$':
-			patchwork_clientside::render(array_shift($_GET), false);
-			break;
-
-		case 'x$':
-			patchwork_clientside::render(array_shift($_GET), true);
-			break;
-		}
-	}
-	// }}}
-
-	// {{{ Server side rendering controller
-	static function serverside()
-	{
-		$agent = self::resolveAgentClass($_SERVER['PATCHWORK_REQUEST'], $_GET);
-
-		if (isset($_GET['k$'])) return patchwork_agentTrace::send($agent);
-
 		// Synch exoagents on browser request
 		if (isset($_COOKIE['cache_reset_id'])
 			&& self::$appId == $_COOKIE['cache_reset_id']
@@ -420,7 +439,7 @@ class
 		// load agent
 		if (IS_POSTING || self::$binaryMode || !isset($_COOKIE['JS']) || !$_COOKIE['JS'])
 		{
-			if (!self::$binaryMode) self::setPrivate();
+			self::$binaryMode || self::setPrivate();
 			patchwork_serverside::loadAgent($agent, false, false);
 		}
 		else patchwork_clientside::loadAgent($agent);
@@ -496,7 +515,8 @@ class
 		self::$host = strtr($base, '#?', '//');
 		self::$host = substr($base, 0, strpos(self::$host, '/', 8)+1);
 
-		if (PATCHWORK_I18N && isset(self::$uri))
+		if (!isset(self::$uri)) self::$uri = self::$host . substr($_SERVER['REQUEST_URI'], 1);
+		else if (PATCHWORK_I18N)
 		{
 			$base = preg_quote($_SERVER['PATCHWORK_BASE'], "'");
 			$base = explode('__', $base, 2);
@@ -1736,11 +1756,22 @@ class agent
 			}
 			else $default = '';
 
-			$a = explode(':', $a);
+			false !== strpos($a, "\000") && $a = str_replace("\000", '', $a);
+
+			if (false !== strpos($a, '\\'))
+			{
+				$a = strtr($a, array('\\\\' => '\\', '\\:' => "\000"));
+				$a = explode(':', $a);
+				$b = count($a);
+				do false !== strpos($a[--$b], "\000") && $a[$b] = strtr($a[$b], "\000", ':');
+				while ($b);
+			}
+			else $a = explode(':', $a);
+
 			$key = array_shift($a);
 
 			$b = isset($args[$key]) ? (string) $args[$key] : $default;
-			if (false !== strpos($b, "\0")) $b = str_replace("\0", '', $b);
+			false !== strpos($b, "\000") && $b = str_replace("\000", '', $b);
 
 			if ($a)
 			{

@@ -21,7 +21,7 @@ AGENT 'pStudio/header' title="{$topname} - pStudio"
 			IF $iteratorPosition + 1 < $$paths
 				--><a href="{~}pStudio/explorer/{a$path}?low={$$low}&amp;high={$$high}">{$VALUE}</a><!--
 			ELSEIF d$is_file
-			--><a href="{~}pStudio/explorer/{g$__0__}?low={$$low}&amp;high={$$high}&amp;$serverside=1"><b>{$VALUE}</b></a><!--
+			--><a href="{~}pStudio/explorer/{g$__0__}?low={$$low}&amp;high={$$high}&amp;p:=serverside"><b>{$VALUE}</b></a><!--
 			ELSE
 				--><b>{$VALUE}</b><!--
 			END:IF

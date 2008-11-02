@@ -92,24 +92,20 @@ EOHTML;
 		}
 		else echo 'w(';
 
-		$agentClass = p::resolveAgentClass($agent, $_GET);
-
-		p::openMeta($agentClass);
-
-		$agent = false;
+		p::openMeta($agent);
 
 		try
 		{
 			if (isset($_GET['T$']) && !PATCHWORK_TOKEN_MATCH) throw new patchwork_exception_private;
 
-			$agent = new $agentClass($_GET);
+			$a = new $agent($_GET);
 
 			$group = p::closeGroupStage();
 
 			if ($is_cacheable = !(IS_POSTING || in_array('private', $group)))
 			{
-				$cagent = p::agentCache($agentClass, $agent->get, 'js.ser', $group);
-				$dagent = p::getContextualCachePath('jsdata.' . $agentClass, 'js.ser', $cagent);
+				$cagent = p::agentCache($agent, $a->get, 'js.ser', $group);
+				$dagent = p::getContextualCachePath('jsdata.' . $agent, 'js.ser', $cagent);
 
 				if ($liveAgent)
 				{
@@ -167,7 +163,7 @@ EOHTML;
 
 			try
 			{
-				$data = (object) $agent->compose((object) array());
+				$data = (object) $a->compose((object) array());
 
 				if (!p::$is_enabled)
 				{
@@ -175,7 +171,7 @@ EOHTML;
 					return;
 				}
 
-				$template = $agent->getTemplate();
+				$template = $a->getTemplate();
 
 				echo '{';
 
@@ -201,7 +197,7 @@ EOHTML;
 			$data = ob_get_clean();
 			--p::$ob_level;
 
-			$agent->metaCompose();
+			$a->metaCompose();
 			list($maxage, $group, $expires, $watch, $headers) = p::closeMeta();
 		}
 		catch (patchwork_exception_private $data)
