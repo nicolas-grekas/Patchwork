@@ -21,7 +21,7 @@ define(
 	|| (isset($_SERVER['HTTP_CACHE_CONTROL']) && 'no-cache' == $_SERVER['HTTP_CACHE_CONTROL'])
 );
 
-class
+class extends patchwork
 {
 	static
 
@@ -33,9 +33,8 @@ class
 	{
 		$GLOBALS['patchwork_appId'] = -$GLOBALS['patchwork_appId'];
 
-		PATCHWORK_DIRECT && isset($_GET['d$']) && self::sendDebugInfo();
-
-		if (PATCHWORK_SYNC_CACHE && !PATCHWORK_DIRECT)
+		if ('debug' === p::$requestMode) self::sendDebugInfo();
+		else if (PATCHWORK_SYNC_CACHE)
 		{
 			if ($h = @fopen('./.debugLock', 'xb'))
 			{
@@ -93,7 +92,7 @@ EOHTML;
 
 	static function getConclusion()
 	{
-		$debugWin = p::__BASE__() . '_?d$&stop';
+		$debugWin = p::__BASE__() . '?p:=debug:stop';
 
 		return <<<EOHTML
 <script type="text/javascript">/*<![CDATA[*/E('Rendering time: ' + (new Date/1 - E.startTime) + ' ms');//]]></script>
@@ -106,7 +105,7 @@ EOHTML;
 
 	static function sendDebugInfo()
 	{
-		$S = isset($_GET['stop']);
+		$S = 'stop' === p::$requestArg;
 		$S && ob_start('ob_gzhandler', 8192);
 
 		header('Content-Type: text/html; charset=utf-8');

@@ -31,7 +31,7 @@ if (extension_loaded('mbstring'))
 
 error_reporting(E_ALL | E_STRICT);
 
-isset($_GET['exit$']) && die('Exit requested');
+isset($_GET['p:']) && 'exit' === $_GET['p:'] && die('Exit requested');
 
 
 // Acquire lock

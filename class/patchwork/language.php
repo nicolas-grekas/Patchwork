@@ -14,28 +14,21 @@
 
 class
 {
-	static function negociate()
+	static function negociate($lang_list)
 	{
-		$lang = self::HTTP_Best_Language(array_keys($CONFIG['i18n.lang_list']));
-		$b = $_SERVER['REQUEST_METHOD'];
+		$_SERVER['PATCHWORK_LANG'] = $lang = self::HTTP_Best_Language(array_keys($lang_list));
 
-		if (!PATCHWORK_DIRECT && ('GET' === $b || 'HEAD' === $b))
-		{
-			$lang = $CONFIG['i18n.lang_list'][$lang];
-			$lang = implode($lang, explode('__', $_SERVER['PATCHWORK_BASE'], 2));
-			$lang .= str_replace('%2F', '/', rawurlencode($_SERVER['PATCHWORK_REQUEST']));
+		$lang = $lang_list[$lang];
+		$lang = implode($lang, explode('__', $_SERVER['PATCHWORK_BASE'], 2));
+		$lang .= str_replace('%2F', '/', rawurlencode($_SERVER['PATCHWORK_REQUEST']));
 
-			if (!isset($_SERVER['REDIRECT_QUERY_STRING'])) empty($_SERVER['QUERY_STRING']) || $lang .= '?' . $_SERVER['QUERY_STRING'];
-			else '' === $_SERVER['REDIRECT_QUERY_STRING'] || $lang .= '?' . $_SERVER['REDIRECT_QUERY_STRING'];
+		if (!isset($_SERVER['REDIRECT_QUERY_STRING'])) empty($_SERVER['QUERY_STRING']) || $lang .= '?' . $_SERVER['QUERY_STRING'];
+		else '' === $_SERVER['REDIRECT_QUERY_STRING'] || $lang .= '?' . $_SERVER['REDIRECT_QUERY_STRING'];
 
-			header('HTTP/1.1 301 Moved Permanently');
-			header('Location: ' . $lang);
-			header('Expires: ' . gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $CONFIG['maxage']) . ' GMT');
-			header('Cache-Control: max-age=' . $CONFIG['maxage'] .',' . ($GLOBALS['patchwork_private'] ? 'private' : 'public'));
-
-			exit;
-		}
-		else $_SERVER['PATCHWORK_LANG'] = $lang;
+		header('HTTP/1.1 301 Moved Permanently');
+		header('Location: ' . $lang);
+		header('Expires: ' . gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $CONFIG['maxage']) . ' GMT');
+		header('Cache-Control: max-age=' . $CONFIG['maxage'] .',' . ($GLOBALS['patchwork_private'] ? 'private' : 'public'));
 	}
 
 	static function HTTP_Best_Language($supported)

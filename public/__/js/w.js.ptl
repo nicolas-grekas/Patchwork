@@ -334,10 +334,10 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 						g = $args;
 					}
 
-					$include($base + '_?a$=' + $agent, $args, $keys, 1)
+					$include($base + $agent + '?p:=a', $args, $keys, 1)
 				}
 
-				$inc += '&amp;k$=' + g.__LANG__;
+				$inc += '&amp;p:=k:' + g.__LANG__;
 				$c = 0;
 			}
 		}
@@ -378,7 +378,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 
 					$i = $i.join('');
 
-					if ($i) return $include(g.__BASE__ + '_?p$=' + esc($i.substr(1)));
+					if ($i) return $include(g.__BASE__ + '?p:=p:' + esc($i.substr(1)));
 				}
 			},
 
@@ -417,7 +417,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 
 				$agent = esc($agent);
 
-				if (!$meta) $agent = g.__BASE__ + '_?t$=' + $agent;
+				if (!$meta) $agent = g.__BASE__ + $agent + '?p:=t';
 				else
 				{
 					if ($meta > 1)
@@ -464,7 +464,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 						g = $args;
 					}
 
-					$agent = $keys ? g.__BASE__ + '_?a$=' + $agent : base($agent, 1);
+					$agent = $keys ? g.__BASE__ + $agent + '?p:=a' : base($agent, 1);
 				}
 
 				return $include($agent, $args, $keys, 1) ? 1 : -1;

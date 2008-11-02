@@ -22,7 +22,7 @@ class extends patchwork
 		p::setMaxage(0);
 		if (p::$catchMeta) p::$metaInfo[1] = array('private');
 
-		if (PATCHWORK_DIRECT)
+		if ('-' === strtr(self::$requestMode, '-tpax', '#----'))
 		{
 			$a = '';
 
@@ -78,14 +78,15 @@ class extends patchwork
 				if (false !== strpos($a, '&')) $a = preg_replace_callback(self::$entitiesRx, array(__CLASS__, 'translateHtmlEntities'), $a);
 
 				// Build absolute URI
-				if (preg_match("'^[^:/]*://[^/]*'", $a, $host))
+				if (preg_match("'^[^:/]*://([^/]*)'", $a, $host))
 				{
-					$host = $host[0];
-					$a = substr($a, strlen($host));
+					$a = substr($a, strlen($host[0]));
+					$host = $host[1];
 				}
 				else
 				{
-					$host = substr(p::$host, 0, -1);
+					$host = substr(p::$host, 7, -1);
+					'/' === substr($host, 0, 1) && $host = substr($host, 1);
 
 					if ('/' !== substr($a, 0, 1))
 					{
@@ -116,25 +117,51 @@ class extends patchwork
 				if (false !== ($b = strpos($a, '?'))) $a = substr($a, 0, $b);
 				if (false !== ($b = strpos($a, '#'))) $a = substr($a, 0, $b);
 
-				$a .= '/';
-
 				// Resolve relative paths
-				if (false !== strpos($a, './') || false !== strpos($a, '//'))
+				if (false !== strpos($a, '/.'))
 				{
-					$b = $a;
+					$b = explode('/', substr($a, 1));
+					$a = array();
 
-					do
+					foreach ($b as $b) switch ($b)
 					{
-						$a = $b;
-						$b = str_replace('/./', '/', $b);
-						$b = str_replace('//', '/', $b);
-						$b = preg_replace("'/[^/]*[^/\.][^/]*/\.\./'", '/', $b);
+					case '..': $a && array_pop($a);
+					case '.' : break;
+					default  : $a[] = $b;
 					}
-					while ($b != $a);
+
+					$a = '/' . implode('/', $a);
 				}
 
-				// Compare action to application's base
-				if (0 !== strpos($host . $a, p::$base)) return $f;
+				'/' !== substr($a, -1) && $a .= '/';
+
+
+				// Check if action is in our antiCSRF cookie area
+
+				if ($b = $CONFIG['session.cookie_domain'])
+				{
+					'.' === substr($b, 0, 1) && $b = substr($b, 1);
+					if ($host !== $b && substr($host, -1 - strlen($b)) !== '.' . $b) return $f;
+				}
+				else
+				{
+					$b = substr(p::$host, 7, -1);
+
+					'/' === substr($b, 0, 1) && $b = substr($b, 1);
+					if ($host !== $b) return $f;
+				}
+
+				if (!$b = $CONFIG['session.cookie_path']);
+				{
+					$b = strpos(p::$base, '?');
+					$b = false === $b ? p::$base : substr(p::$base, 0, $b);
+					$b = substr($b, strlen(p::$host)-1);
+					$b = dirname($b . ' ');
+				}
+
+				'/' === substr($b, -1) || $b .= '/';
+
+				if (0 !== strpos($a, $b)) return $f;
 			}
 		}
 

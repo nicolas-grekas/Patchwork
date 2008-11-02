@@ -26,13 +26,13 @@ class patchwork_exception_redirection extends Exception
 		$this->url = $url;
 	}
 
-	function redirect()
+	function redirect($javascript)
 	{
 		patchwork::disable();
 
 		$url = $this->url;
 
-		if (PATCHWORK_DIRECT)
+		if ($javascript)
 		{
 			$url = 'location.replace(' . ('' !== $url
 				? "'" . addslashes($url) . "'"

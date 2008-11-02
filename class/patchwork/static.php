@@ -39,9 +39,8 @@ class extends patchwork
 	);
 
 
-	static function sendTemplate()
+	static function sendTemplate($template)
 	{
-		$template = array_shift($_GET);
 		$template = str_replace('\\', '/', $template);
 		$template = str_replace('../', '/', $template);
 
@@ -72,9 +71,8 @@ class extends patchwork
 		p::setMaxage(-1);
 	}
 
-	static function sendPipe()
+	static function sendPipe($pipe)
 	{
-		$pipe = array_shift($_GET);
 		preg_match_all('/[a-zA-Z_0-9\x80-\xff]+/', $pipe, $pipe);
 		p::$agentClass = 'agent__pipe/' . implode('_', $pipe[0]);
 

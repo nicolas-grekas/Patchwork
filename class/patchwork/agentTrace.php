@@ -23,6 +23,13 @@ class extends patchwork
 
 		$args = array();
 		$BASE = $base = p::__BASE__();
+
+		$agent = rawurlencode($agent);
+		$agent = strtr($agent, array(
+			'%21'=>'!','%7E'=>'~','%2A'=>'*','%28'=>'(','%29'=>')','%2C'=>',',
+			'%2F'=>'/','%3A'=>':','%40'=>'@','%24'=>'$','%3B'=>';'
+		));
+
 		$agent = p::base($agent, true);
 		$agent = preg_replace("'^.*?://[^/]*'", '', $agent);
 
@@ -30,10 +37,8 @@ class extends patchwork
 		$h = fsockopen("{$h}://{$_SERVER['SERVER_ADDR']}", $_SERVER['SERVER_PORT'], $errno, $errstr, 30);
 		if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
 
-		$agent = str_replace('%2F', '/', rawurlencode($agent));
-
 		$keys  = p::$lang;
-		$keys  = "GET {$agent}?k$={$keys} HTTP/1.0\r\n";
+		$keys  = "GET {$agent}?p:=k:{$keys} HTTP/1.0\r\n";
 		$keys .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
 		$keys .= "Connection: close\r\n\r\n";
 
@@ -75,7 +80,6 @@ class extends patchwork
 	{
 		header('Content-Type: text/javascript');
 		p::setMaxage(-1);
-		p::setLang($_GET['k$']);
 
 		echo 'w.k(',
 			p::$appId, ',',

@@ -6,7 +6,7 @@ class extends agent
 		'__0__:c',
 		'low:i' => 0,
 		'high:i' => PATCHWORK_PATH_LEVEL,
-		'$serverside:b',
+		'p\::c:serverside',
 	);
 
 	protected
@@ -19,7 +19,7 @@ class extends agent
 	{
 		$this->setPath($this->get->__0__, $this->get->low, $this->get->high) || p::redirect('pStudio');
 
-		if (!empty($this->get->{'$serverside'}) && is_file($this->realpath))
+		if (!empty($this->get->{'p:'}) && is_file($this->realpath))
 		{
 			p::readfile($this->realpath, $this->rawContentType, $this->realpath);
 		}

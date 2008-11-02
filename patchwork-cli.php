@@ -21,7 +21,7 @@
 
 empty($_SERVER['PATCHWORK_LANG']) && $_SERVER['PATCHWORK_LANG'] = '';
 
-$_GET = array('k$' => $_SERVER['PATCHWORK_LANG']);
+$_GET = array('p:' => 'k:' . $_SERVER['PATCHWORK_LANG']);
 $_COOKIE = $_POST = array();
 
 $url = explode('__', $_SERVER['PATCHWORK_BASE'], 2);
@@ -36,7 +36,7 @@ if ($url[1]) $_SERVER['HTTPS'] = 'on';
 else unset($_SERVER['HTTPS']);
 
 $_SERVER['PATCHWORK_REQUEST'] = '/patchworkCli';
-$_SERVER['QUERY_STRING'] = 'k$=' . $_SERVER['PATCHWORK_LANG'];
+$_SERVER['QUERY_STRING'] = 'p:=k:' . $_SERVER['PATCHWORK_LANG'];
 $_SERVER['HTTP_HOST'] = $url[2];
 $_SERVER['REQUEST_URI'] = $url[3] . 'patchworkCli?' . $_SERVER['QUERY_STRING'];
 $_SERVER['REQUEST_METHOD'] = 'GET';

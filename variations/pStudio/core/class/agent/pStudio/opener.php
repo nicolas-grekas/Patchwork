@@ -6,7 +6,7 @@ class extends agent_pStudio_explorer
 		'path:c',
 		'low:i' => false,
 		'high:i' => PATCHWORK_PATH_LEVEL,
-		'$serverside:b',
+		'p\::c:serverside',
 	);
 
 	protected
