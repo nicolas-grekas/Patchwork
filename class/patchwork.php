@@ -260,7 +260,7 @@ class
 		case '':
 			if ('' === $_SERVER['PATCHWORK_LANG'] && '' !== key($CONFIG['i18n.lang_list']))
 			{
-				patchwork_language::negociate();
+				patchwork_language::negociate($CONFIG['i18n.lang_list']);
 				exit;
 			}
 
