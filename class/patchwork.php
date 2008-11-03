@@ -255,13 +255,23 @@ class
 
 		switch (self::$requestMode)
 		{
-		case 'k': self::setLang(self::$requestArg); break;
+		case 'k':
+
+			if ('' !== $_SERVER['PATCHWORK_LANG'])
+			{
+				$_SERVER['PATCHWORK_LANG'] = isset($CONFIG['i18n.lang_list'][self::$requestArg])
+					? self::$requestArg
+					: patchwork_language::getBest(array_keys($CONFIG['i18n.lang_list']), self::$requestArg);
+			}
+
+			self::setLang($_SERVER['PATCHWORK_LANG']);
+
+			break;
 
 		case '':
 			if ('' === $_SERVER['PATCHWORK_LANG'] && '' !== key($CONFIG['i18n.lang_list']))
 			{
-				patchwork_language::negociate($CONFIG['i18n.lang_list']);
-				exit;
+				patchwork_language::HTTP_Negociate($CONFIG['i18n.lang_list']);
 			}
 
 		default: self::setLang($_SERVER['PATCHWORK_LANG']);
@@ -353,7 +363,7 @@ class
 			case 'a': patchwork_clientside::render($agent, false);   break;
 			case 'x': patchwork_clientside::render($agent, true);    break;
 			case 'k': patchwork_agentTrace::send($agent);            break;
-			case 's':
+			case 's': isset($_COOKIE['JS']) && $_COOKIE['JS'] = '0';
 			case '' : self::servePublicRequest($agent);
 			}
 		}
@@ -1268,8 +1278,16 @@ class
 	{
 		if (is_string($k)) $a = $k;
 
-		$b = strpos($a, ':');
-		if (false !== $b) $a = substr($a, 0, $b);
+		false !== strpos($a, "\000") && $a = str_replace("\000", '', $a);
+		false !== strpos($a, '\\')   && $a = strtr($a, array('\\\\' => '\\', '\\:' => "\000"));
+
+		if (false !== strpos($a, ':'))
+		{
+			$a = explode(':', $a, 2);
+			$a = $a[0];
+		}
+
+		false !== strpos($a, "\000") && $a = strtr($a, "\000", ':');
 	}
 
 	protected static function agentCache($agentClass, $keys, $type, $group = false)

@@ -14,9 +14,13 @@
 
 class
 {
-	static function negociate($lang_list)
+	static function HTTP_Negociate($lang_list)
 	{
-		$_SERVER['PATCHWORK_LANG'] = $lang = self::HTTP_Best_Language(array_keys($lang_list));
+		static $vary = true;
+		$vary && $vary = header('Vary: Accept-Language', false);
+		$lang = isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : false;
+
+		$_SERVER['PATCHWORK_LANG'] = $lang = self::getBest(array_keys($lang_list), $lang);
 
 		$lang = $lang_list[$lang];
 		$lang = implode($lang, explode('__', $_SERVER['PATCHWORK_BASE'], 2));
@@ -29,16 +33,14 @@ class
 		header('Location: ' . $lang);
 		header('Expires: ' . gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $CONFIG['maxage']) . ' GMT');
 		header('Cache-Control: max-age=' . $CONFIG['maxage'] .',' . ($GLOBALS['patchwork_private'] ? 'private' : 'public'));
+		exit;
 	}
 
-	static function HTTP_Best_Language($supported)
+	static function getBest($supported, $lang)
 	{
-		static $vary = true;
-		$vary && $vary = header('Vary: Accept-Language', false);
-
 		$candidates = array();
 
-		if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) foreach (explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']) as $item)
+		if ($lang) foreach (explode(',', $lang) as $item)
 		{
 			$item = explode(';q=', $item);
 			if ($item[0] = trim($item[0])) $candidates[ $item[0] ] = isset($item[1]) ? (double) trim($item[1]) : 1;
@@ -62,6 +64,6 @@ class
 			$lang = $l;
 		}
 
-		return $lang;
+		return (string) $lang;
 	}
 }
