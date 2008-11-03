@@ -229,17 +229,21 @@ class __patchwork_autoloader
 				$code = '<?php ?>';
 				$a || $a = file_get_contents($cache);
 				if ('<?php ' != substr($a, 0, 6)) $a = '<?php ?>' . $a;
+				$a = explode("\n", $a, 2);
+				isset($a[1]) || $a[1] = '';
 
 				$i = '/^' . preg_replace('/__[0-9]+$/', '', $lc_req) . '__[0-9]+$/i';
 
-				foreach ($current_pool as $parent => $src)
+				foreach ($current_pool as $parent => $src) if (false === strpos($a[0], $src))
 				{
-					$parent = preg_match($i, $parent) ? '' : "class_exists('{$parent}',0)||";
-					$code = substr($code, 0, -2) . $parent . "include '{$src}';?>";
+					$code = substr($code, 0, -2) . (preg_match($i, $parent) ? 'include' : 'include_once') . " '{$src}';?>";
 				}
 
-				$a = substr($code, 0, -2) . substr($a, 6);
-				self::write($a, $cache);
+				if ('<?php ?>' !== $code)
+				{
+					$a = substr($code, 0, -2) . substr($a[0], 6) . $a[1];
+					self::write($a, $cache);
+				}
 			}
 
 			$cache = substr($cache, strlen(PATCHWORK_PROJECT_PATH) + 7, -12-strlen($T));
