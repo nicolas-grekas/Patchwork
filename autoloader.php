@@ -17,7 +17,7 @@ class __patchwork_autoloader
 	static
 
 	$cache,
-	$pool;
+	$pool = false;
 
 
 	static function autoload($req)
@@ -183,11 +183,19 @@ class __patchwork_autoloader
 					$code .= "\$GLOBALS['patchwork_destructors'][]='{$parent}';";
 				}
 			}
-
-			$code && eval($code);
 		}
 
-		if (!TURBO) return;
+		if ($cache)
+		{
+			$a = false;
+			self::$pool =& $a;
+			$code && eval($code);
+			self::$pool =& $parent_pool;
+			unset($a);
+		}
+		else $code && eval($code);
+
+		if (!TURBO || (class_exists('patchwork_preprocessor', false) && patchwork_preprocessor::isRunning())) return;
 
 		if ($code && isset(self::$cache[$parent]))
 		{
@@ -212,8 +220,6 @@ class __patchwork_autoloader
 
 		if ($cache)
 		{
-			self::$pool =& $parent_pool;
-
 			if ($current_pool)
 			{
 				// Add an include directive of parent's code in the derivated class
