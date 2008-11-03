@@ -352,6 +352,11 @@ class patchwork_preprocessor__0
 		}
 	}
 
+	static function isRunning()
+	{
+		return self::$recursive;
+	}
+
 	protected function __construct() {}
 
 	function pushFilter($filter)
