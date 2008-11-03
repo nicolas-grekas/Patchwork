@@ -230,7 +230,7 @@ class __patchwork_bootstrapper
 	$configSource = array();
 
 
-	protected static $lock;
+	protected static $lock = null;
 
 
 	static function getLock($retry = true)
@@ -282,6 +282,11 @@ class __patchwork_bootstrapper
 			return self::getLock(false);
 		}
 		else return false;
+	}
+
+	static function isReleased()
+	{
+		return !self::$lock;
 	}
 
 	static function releaseLock()
