@@ -151,7 +151,7 @@ class extends patchwork
 					if ($host !== $b) return $f;
 				}
 
-				if (!$b = $CONFIG['session.cookie_path']);
+				if (!$b = $CONFIG['session.cookie_path'])
 				{
 					$b = strpos(p::$base, '?');
 					$b = false === $b ? p::$base : substr(p::$base, 0, $b);
