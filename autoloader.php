@@ -123,6 +123,10 @@ class __patchwork_autoloader
 			$cache = DEBUG . (0>$level ? -$level . '-' : $level);
 			$cache = PATCHWORK_PROJECT_PATH . ".class_{$top}.php.{$cache}.{$T}.zcache.php";
 
+			$current_pool = false;
+			$parent_pool =& self::$pool;
+			self::$pool =& $current_pool;
+
 			if (!(file_exists($cache) && (TURBO || filemtime($cache) > filemtime($src))))
 			{
 				if ('patchwork_preprocessor' === $lc_top)
@@ -140,8 +144,6 @@ class __patchwork_autoloader
 			}
 
 			$current_pool = array();
-			$parent_pool =& self::$pool;
-			self::$pool =& $current_pool;
 
 			patchwork_include($cache);
 
