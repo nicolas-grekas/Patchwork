@@ -185,17 +185,9 @@ class __patchwork_autoloader
 					$code .= "\$GLOBALS['patchwork_destructors'][]='{$parent}';";
 				}
 			}
-		}
 
-		if ($cache)
-		{
-			$a = false;
-			self::$pool =& $a;
 			$code && eval($code);
-			self::$pool =& $parent_pool;
-			unset($a);
 		}
-		else $code && eval($code);
 
 		if (!TURBO || (class_exists('patchwork_preprocessor', false) && patchwork_preprocessor::isRunning())) return;
 
@@ -234,7 +226,7 @@ class __patchwork_autoloader
 
 				$i = '/^' . preg_replace('/__[0-9]+$/', '', $lc_req) . '__[0-9]+$/i';
 
-				foreach ($current_pool as $parent => $src) if (false === strpos($a[0], $src))
+				foreach ($current_pool as $parent => $src) if ($req instanceof $parent && false === strpos($a[0], $src))
 				{
 					$code = substr($code, 0, -2) . (preg_match($i, $parent) ? 'include' : 'include_once') . " '{$src}';?>";
 				}
