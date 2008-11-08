@@ -1,0 +1,8 @@
+<public:component lightWeight="true">
+<public:attach event="onmousewheel" onevent="i = element.selectedIndex + 1" />
+<public:attach event="onfocus"      onevent="i = 0" />
+<public:attach event="onblur"       onevent="i = 0" />
+<public:attach event="onkeydown"    onevent="i = 0" />
+<public:attach event="onmousedown"  onevent="i = 0" />
+<public:attach event="onchange"     onevent="if (i) element.selectedIndex = i - 1" />
+</public:component>

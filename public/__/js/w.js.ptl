@@ -284,8 +284,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 	{
 		if ($args)
 		{
-			if ($inc.indexOf('?')==-1) $inc += '?';
-			$c = [];
+			if (-1 == $inc.indexOf('?')) $inc += '?';
 
 			if ($keys)
 			{
@@ -294,13 +293,15 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 				if ($args.e$) for ($i in $args) $args[$i] = num(str($args[$i]), 1);
 				else          for ($i in $args) $args[$i] = num(    $args[$i] , 1);
 
+				$c = [];
+
 				for ($i=0; $i<$keys.length; ++$i)
 					if (($j = $keys[$i]) && t($args[$j]))
 						$c.push('&amp;' + eUC($j) + '=' + eUC(unesc($args[$j])));
 
 				$c = $c.join('');
 
-				if ($args.e$) $args.__URI__ += '?' + $c.substr(5);
+				if ($args.e$ && $c) $args.__URI__ += '?' + $c.substr(5);
 				a = $args;
 
 				$inc += $c;
