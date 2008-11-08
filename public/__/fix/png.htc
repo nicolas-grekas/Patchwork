@@ -1,0 +1,39 @@
+<public:component lightWeight="true">
+<public:attach event="onpropertychange" onevent="if (fix && 'src' == event.propertyName) fixPng()" />
+<public:attach event="onbeforeprint"    onevent="if (pngSrc) {fix = 0; element.src = pngSrc; element.runtimeStyle.filter = '';}" for="window" />
+<public:attach event="onafterprint"     onevent="if (!fix  ) {fix = 1; fixPng()}" for="window" />
+<script>
+
+var fix = 1, pngSrc = '', blank = base("img/blank.gif");
+
+function fixPng()
+{
+	if (/\.png$/i.test(element.src))
+	{
+		var img = new Image(element.width, element.height);
+
+		img.onload = function()
+		{
+			element.width  = img.width;
+			element.height = img.height;
+			img = 0;
+		};
+
+		img.src = pngSrc = element.src;
+
+		fix = false;
+		element.src = blank;
+		element.runtimeStyle.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + pngSrc + "',sizingMethod='scale')";
+		fix = true;
+	}
+	else if (pngSrc)
+	{
+		element.runtimeStyle.filter = '';
+		pngSrc = '';
+	}
+}
+
+fixPng();
+
+</script>
+</public:component>
