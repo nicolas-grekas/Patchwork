@@ -1,16 +1,20 @@
 <public:component lightWeight="true">
-<public:attach event="onpropertychange" onevent="if (fix && 'src' == event.propertyName) fixPng()" />
-<public:attach event="onbeforeprint"    onevent="if (pngSrc) {fix = 0; element.src = pngSrc; element.runtimeStyle.filter = '';}" for="window" />
-<public:attach event="onafterprint"     onevent="if (!fix  ) {fix = 1; fixPng()}" for="window" />
+<public:attach event="onpropertychange" onevent="propertyChange()" />
+<public:attach event="onbeforeprint"    onevent="beforePrint()" for="window" />
+<public:attach event="onafterprint"     onevent="afterPrint()"  for="window" />
 <script>
 
 var fix = 1, pngSrc = '', blank = base("img/blank.gif");
+
+function propertyChange() {if (fix && 'src' == event.propertyName) fixPng();}
+function beforePrint()    {if (pngSrc) {fix = 0; element.src = pngSrc; element.runtimeStyle.filter = '';}}
+function afterPrint()     {if (!fix  ) {fix = 1; fixPng()}}
 
 function fixPng()
 {
 	if (/\.png$/i.test(element.src))
 	{
-		var img = new Image(element.width, element.height);
+		var img = element.width || element.height ? new Image(element.width, element.height) : new Image;
 
 		img.onload = function()
 		{
