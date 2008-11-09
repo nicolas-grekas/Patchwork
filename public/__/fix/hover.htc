@@ -74,7 +74,7 @@ function parseCSSRule(rule)
 {
 	var i, select = rule.selectorText, style = rule.style.cssText;
 
-	if(!csshoverReg.test(select) || !style) return;
+	if (!csshoverReg.test(select) || !style) return;
 
 	var pseudo    = select.replace(/[^:]+:([a-z-]+).*/i, 'on$1'),
 		newSelect = select.replace(/(\.([a-z0-9_-]+):[a-z]+)|(:[a-z]+)/gi, '.$2' + pseudo),
