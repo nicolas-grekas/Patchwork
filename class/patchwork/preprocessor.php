@@ -440,7 +440,7 @@ class patchwork_preprocessor__0
 
 			case T_CLOSE_TAG: // Normalize PHP close tag
 				$line += substr_count($token, "\n");
-				$token = $this->extractLF($token) . '?'.'>';
+				$token = $this->extractLF($token) . '?>';
 				break;
 
 			case '`':
@@ -984,7 +984,7 @@ class patchwork_preprocessor__0
 			++$new_code_length;
 		}
 
-		if (T_CLOSE_TAG != $type && T_INLINE_HTML != $type) $new_code[] = '?'.'>';
+		if (T_CLOSE_TAG != $type && T_INLINE_HTML != $type) $new_code[] = '?>';
 
 		return $new_code;
 	}
