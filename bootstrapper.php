@@ -458,12 +458,12 @@ patchwork::start();";
 					else break;
 				}
 			}
-			else $source[0][1] = '?'.'>' . $source[0][1];
+			else $source[0][1] = '?>' . $source[0][1];
 
 			if (is_array($a = $source[$len - 1]))
 			{
 				if (T_CLOSE_TAG == $a[0]) $a[1] = ';';
-				else if (T_INLINE_HTML == $a[0]) $a[1] .= '<'.'?php ';
+				else if (T_INLINE_HTML == $a[0]) $a[1] .= '<?php ';
 			}
 
 			array_walk($source, array(__CLASS__, 'echoToken'));
@@ -815,7 +815,7 @@ patchwork::start();";
 		$code = file_get_contents($code);
 		self::UTF8_BOM === substr($code, 0, 3) && $code = substr($code, 3);
 		false !== strpos($code, "\r") && $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
-		$code = preg_replace('/\?'.'>$/', ';', $code);
+		$code = preg_replace('/\?>$/', ';', $code);
 
 		$mode = 2;
 		$first_isolation = 0;
@@ -942,7 +942,7 @@ patchwork::start();";
 	{
 		if ('' !== $code = ob_get_clean()) echo preg_replace('/' . self::$selfRx . '\(\d+\) : eval\(\)\'d code/', self::$file, $code);
 
-		$code = '?'.'>';
+		$code = '?>';
 		$line = 1;
 		foreach (self::$code as $i => $b)
 		{
@@ -950,7 +950,7 @@ patchwork::start();";
 			$line = $i + substr_count($b, "\n");
 		}
 
-		'?'.'><'.'?php' === substr($code, 0, 7) && $code = substr($code, 7);
+		'?><?php' === substr($code, 0, 7) && $code = substr($code, 7);
 
 		self::$code = array();
 		self::$configCode[self::$file] = $code;

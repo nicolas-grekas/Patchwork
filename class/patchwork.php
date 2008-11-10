@@ -1395,7 +1395,7 @@ class
 			if (false !== $a)
 			{
 				$a = preg_replace_callback(
-					'#<form\s(?:[^>]+?\s)?method\s*=\s*(["\']?)post\1.*?'.'>#iu',
+					'#<form\s(?:[^>]+?\s)?method\s*=\s*(["\']?)post\1.*?>#iu',
 					array(__CLASS__, 'appendToken'),
 					$buffer
 				);
