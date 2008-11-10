@@ -19,8 +19,9 @@ abstract class
 	$Xlvar = '\\{',
 	$Xrvar = '\\}',
 
+	$blockSplit = ' --><!-- ',
 	$Xlblock = '<!--\s*',
-	$Xrblock = '\s*-->',
+	$Xrblock = '\s*-->\n?',
 	$Xcomment = '\\{\*.*?\*\\}',
 
 	$Xvar = '(?:(?:[dag][-+]\d+|\\$*|[dag])?\\$)',
@@ -95,7 +96,11 @@ abstract class
 
 		if (!($this->codeLast%2)) $this->code[$this->codeLast] = $this->getEcho( $this->makeVar("'" . $this->code[$this->codeLast]) );
 
-		return $this->makeCode($this->code);
+		$template = $this->makeCode($this->code);
+
+		false !== strpos($template, $this->blockSplit) && $template = str_replace($this->blockSplit, '', $template);
+
+		return $template;
 	}
 
 	final protected function getLine()
@@ -139,9 +144,8 @@ abstract class
 		}
 
 		$source = preg_replace_callback("'" . $this->Xcomment . "\n?'su", array($this, 'preserveLF'), $source);
-		$source = preg_replace("'({$this->Xrblock})\n'su", "\n$1", $source);
 		$source = preg_replace_callback(
-			"/({$this->Xlblock}(?:{$this->XblockEnd})?{$this->Xblock})((?".">{$this->Xstring}|.)*?)({$this->Xrblock})/su",
+			"/({$this->Xlblock}(?:{$this->XblockEnd})?{$this->Xblock})((?>{$this->Xstring}|.)*?)({$this->Xrblock})/su",
 			array($this, 'autoSplitBlocks'),
 			$source
 		);
@@ -196,7 +200,7 @@ abstract class
 		$len = count($a);
 		while ($i < $len)
 		{
-			$a[$i] = preg_replace("'\n\s*(?:{$this->XblockEnd})?{$this->Xblock}(?!\s*=)'su", ' --><!-- $0', $a[$i]);
+			$a[$i] = preg_replace("'\n\s*(?:{$this->XblockEnd})?{$this->Xblock}(?!\s*=)'su", $this->blockSplit . '$0', $a[$i]);
 			$i += 2;
 		}
 
@@ -301,7 +305,7 @@ abstract class
 
 	private function makeBlocks($a)
 	{
-		$a = preg_split("/({$this->Xlblock}{$this->Xblock}(?".">{$this->Xstring}|.)*?{$this->Xrblock})/su", $a, -1, PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_DELIM_CAPTURE);
+		$a = preg_split("/({$this->Xlblock}{$this->Xblock}(?>{$this->Xstring}|.)*?{$this->Xrblock})/su", $a, -1, PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_DELIM_CAPTURE);
 
 		$this->makeVars($a[0][0]);
 
