@@ -22,7 +22,7 @@ abstract class
 	$blockSplit = ' --><!-- ',
 	$Xlblock = '<!--\s*',
 	$Xrblock = '\s*-->\n?',
-	$Xcomment = '\\{\*.*?\*\\}',
+	$Xcomment = '\\{\*.*?\*\\}\n?',
 
 	$Xvar = '(?:(?:[dag][-+]\d+|\\$*|[dag])?\\$)',
 	$XpureVar = '[a-zA-Z_\x80-\xffffffff][a-zA-Z_\d\x80-\xffffffff]*',
@@ -143,7 +143,7 @@ abstract class
 			return $source;
 		}
 
-		$source = preg_replace_callback("'" . $this->Xcomment . "\n?'su", array($this, 'preserveLF'), $source);
+		$source = preg_replace_callback("'" . $this->Xcomment . "'su", array($this, 'preserveLF'), $source);
 		$source = preg_replace_callback(
 			"/({$this->Xlblock}(?:{$this->XblockEnd})?{$this->Xblock})((?>{$this->Xstring}|.)*?)({$this->Xrblock})/su",
 			array($this, 'autoSplitBlocks'),
