@@ -11,7 +11,19 @@ var i = 0;
 
 function wheel()  {i = element.selectedIndex + 1}
 function down()   {i = 0}
-function change() {if (i) element.selectedIndex = i - 1}
+function change()
+{
+	if (i)
+	{
+		if (element.selectedIndex != i - 1)
+		{
+			element.selectedIndex = i - 1;
+			if (element.onchange) element.onchange();
+		}
+
+		window.focus();
+	}
+}
 
 </script>
 </public:component>
