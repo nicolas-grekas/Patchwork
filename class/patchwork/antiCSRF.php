@@ -190,7 +190,7 @@ class extends patchwork
 
 		$c = sprinf('%08x', (int) $c);
 
-		if (strlen($c) > 8) return '';
+		if (isset($c[8])) return '';
 
 		$r = '';
 

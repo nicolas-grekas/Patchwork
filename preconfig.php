@@ -67,7 +67,7 @@ if (!isset($_SERVER['HTTP_HOST']) || strspn($_SERVER['HTTP_HOST'], 'eiasntroludc
 /*#>*/	{
 			$a = $_SERVER['REQUEST_URI'];
 			$b = strpos($a, '?');
-			$_SERVER['QUERY_STRING'] = false !== $b++ && $b < strlen($a) ? substr($a, $b) : '';
+			$_SERVER['QUERY_STRING'] = false !== $b++ && isset($a[$b]) ? substr($a, $b) : '';
 /*#>*/	}
 /*#>*/}
 
@@ -361,7 +361,7 @@ if ($a)
 		$_SERVER['HTTP_IF_NONE_MATCH'] = '"' . dechex($a) . '"';
 		$patchwork_private = true;
 	}
-	else if (27 == strlen($a) && 25 === strspn($a, '0123456789abcdef') && '""' === $a[0] . $a[26])
+	else if (27 === strlen($a) && 25 === strspn($a, '0123456789abcdef') && '""' === $a[0] . $a[26])
 	{
 		$b = PATCHWORK_ZCACHE . $a[1] .'/'. $a[2] .'/'. substr($a, 3, 6) .'.v.txt';
 		if (file_exists($b) && substr(file_get_contents($b), 0, 8) === substr($a, 9, 8))

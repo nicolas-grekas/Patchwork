@@ -1452,7 +1452,7 @@ class
 		{
 			if ($one_chunk)
 			{
-				if (strlen($buffer) > 100)
+				if (isset($buffer[100]))
 				{
 					self::$varyEncoding = true;
 					self::$is_enabled || header('Vary: Accept-Encoding', false);
