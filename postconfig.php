@@ -70,7 +70,7 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 			}
 			else
 			{
-				function win_file_exists($file) {return file_exists($file) && (strlen($file) < 100 || realpath($file));}
+				function win_file_exists($file) {return file_exists($file) && (!isset($file[99]) || realpath($file));}
 			}
 
 			function win_is_file($file)       {return win_file_exists($file) && is_file($file);}
