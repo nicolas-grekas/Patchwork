@@ -41,27 +41,27 @@ class extends ptlCompiler
 			. "'])||\$a" . PATCHWORK_PATH_TOKEN . "=__FILE__.'*" . mt_rand() . "')?pipe_{$name}::php";
 	}
 
-	protected function addAGENT($end, $inc, &$args, $is_exo)
+	protected function addAGENT($limit, $inc, &$args, $is_exo)
 	{
-		if ($end) return false;
+		if ($limit) return false;
 
 		if (preg_match('/^\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'$/s', $inc))
 		{
 			eval("\$base=$inc;");
 
-			list(, $base, $end) = patchwork_agentTrace::resolve($base);
+			list(, $base, $limit) = patchwork_agentTrace::resolve($base);
 
 			if (false !== $base)
 			{
 				if (!$is_exo)
 				{
-					W("Template Security Restriction Error: an EXOAGENT ({$base}{$end}) is called with AGENT on line " . $this->getLine());
+					W("Template Security Restriction Error: an EXOAGENT ({$base}{$limit}) is called with AGENT on line " . $this->getLine());
 					exit;
 				}
 			}
 			else if ($is_exo)
 			{
-				W("Template Security Restriction Error: an AGENT ({$end}) is called with EXOAGENT on line " . $this->getLine());
+				W("Template Security Restriction Error: an AGENT ({$limit}) is called with EXOAGENT on line " . $this->getLine());
 				exit;
 			}
 		}
@@ -89,9 +89,9 @@ class extends ptlCompiler
 		return true;
 	}
 
-	protected function addSET($end, $name, $type)
+	protected function addSET($limit, $name, $type)
 	{
-		if ($end)
+		if ($limit > 0)
 		{
 			$type = array_pop($this->setStack);
 			$name = $type[0];
@@ -115,9 +115,9 @@ class extends ptlCompiler
 		return true;
 	}
 
-	protected function addLOOP($end, $var)
+	protected function addLOOP($limit, $var)
 	{
-		if ($end) $this->pushCode('}');
+		if ($limit > 0) $this->pushCode('}');
 		else
 		{
 			$this->pushCode(
@@ -139,18 +139,18 @@ class extends ptlCompiler
 		return true;
 	}
 
-	protected function addIF($end, $elseif, $expression)
+	protected function addIF($limit, $elseif, $expression)
 	{
-		if ($elseif && $end) return false;
+		if ($elseif && $limit) return false;
 
-		$this->pushCode($end ? '}' : (($elseif ? '}else ' : '') . "if(($expression)){"));
+		$this->pushCode($limit > 0 ? '}' : (($elseif ? '}else ' : '') . "if(($expression)){"));
 
 		return true;
 	}
 
-	protected function addELSE($end)
+	protected function addELSE($limit)
 	{
-		if ($end) return false;
+		if ($limit) return false;
 
 		$this->pushCode('}else{');
 
