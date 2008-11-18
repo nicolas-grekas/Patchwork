@@ -74,9 +74,9 @@ class extends ptlCompiler
 		return 'P$' . $name;
 	}
 
-	protected function addAGENT($end, $inc, &$args, $is_exo)
+	protected function addAGENT($limit, $inc, &$args, $is_exo)
 	{
-		if ($end) return false;
+		if ($limit) return false;
 
 		$this->pushCode('');
 
@@ -129,11 +129,11 @@ class extends ptlCompiler
 		return true;
 	}
 
-	protected function addSET($end, $name, $type)
+	protected function addSET($limit, $name, $type)
 	{
 		$this->pushCode('');
 
-		if ($end)
+		if ($limit > 0)
 		{
 			$type = array_pop($this->setStack);
 			$name = $type[0];
@@ -158,11 +158,11 @@ class extends ptlCompiler
 		return true;
 	}
 
-	protected function addLOOP($end, $var)
+	protected function addLOOP($limit, $var)
 	{
 		$this->pushCode('');
 
-		if ($end)
+		if ($limit > 0)
 		{
 			$a = array_pop($this->stack);
 			$b = count($this->jscode) - $a;
@@ -182,13 +182,13 @@ class extends ptlCompiler
 		return true;
 	}
 
-	protected function addIF($end, $elseif, $expression)
+	protected function addIF($limit, $elseif, $expression)
 	{
-		if ($elseif && $end) return false;
+		if ($elseif && $limit) return false;
 
 		$this->pushCode('');
 
-		if ($end)
+		if ($limit > 0)
 		{
 			$a = array_pop($this->stack);
 			$b = count($this->jscode) - $a;
@@ -214,9 +214,9 @@ class extends ptlCompiler
 		return true;
 	}
 
-	protected function addELSE($end)
+	protected function addELSE($limit)
 	{
-		if ($end) return false;
+		if ($limit) return false;
 
 		$this->pushCode('');
 

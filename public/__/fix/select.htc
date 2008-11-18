@@ -9,8 +9,8 @@
 
 var i = 0;
 
-function wheel()  {i = element.selectedIndex + 1}
-function down()   {i = 0}
+function wheel() {i = element.selectedIndex + 1}
+function down()  {i = 0}
 function change()
 {
 	if (i)
@@ -24,6 +24,11 @@ function change()
 		window.focus();
 	}
 }
+
+
+// TODO?
+// - fix overlap bug
+// - fix options truncation
 
 </script>
 </public:component>

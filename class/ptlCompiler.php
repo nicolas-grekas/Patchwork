@@ -28,6 +28,7 @@ abstract class
 	$XpureVar = '[a-zA-Z_\x80-\xffffffff][a-zA-Z_\d\x80-\xffffffff]*',
 
 	$Xblock = '[A-Z]+\b',
+	$XblockBegin = 'BEGIN:',
 	$XblockEnd = 'END:',
 
 	$Xstring = '"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"|\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'',
@@ -153,13 +154,13 @@ abstract class
 		if ($this->serverMode)
 		{
 			$source = preg_replace_callback(
-				"'{$this->Xlblock}CLIENTSIDE{$this->Xrblock}.*?{$this->Xlblock}{$this->XblockEnd}CLIENTSIDE{$this->Xrblock}'su",
+				"'{$this->Xlblock}(?:{$this->XblockBegin})?CLIENTSIDE{$this->Xrblock}.*?{$this->Xlblock}{$this->XblockEnd}CLIENTSIDE{$this->Xrblock}'su",
 				array($this, 'preserveLF'),
 				$source
 			);
 
 			$source = preg_replace_callback(
-				"'{$this->Xlblock}({$this->XblockEnd})?SERVERSIDE{$this->Xrblock}'su",
+				"'{$this->Xlblock}(?:{$this->XblockBegin}|{$this->XblockEnd})?SERVERSIDE{$this->Xrblock}'su",
 				array($this, 'preserveLF'),
 				$source
 			);
@@ -167,13 +168,13 @@ abstract class
 		else
 		{
 			$source = preg_replace_callback(
-				"'{$this->Xlblock}SERVERSIDE{$this->Xrblock}.*?{$this->Xlblock}{$this->XblockEnd}SERVERSIDE{$this->Xrblock}'su",
+				"'{$this->Xlblock}(?:{$this->XblockBegin})?SERVERSIDE{$this->Xrblock}.*?{$this->Xlblock}{$this->XblockEnd}SERVERSIDE{$this->Xrblock}'su",
 				array($this, 'preserveLF'),
 				$source
 			);
 
 			$source = preg_replace_callback(
-				"'{$this->Xlblock}({$this->XblockEnd})?CLIENTSIDE{$this->Xrblock}'su",
+				"'{$this->Xlblock}(?:{$this->XblockBegin}|{$this->XblockEnd})?CLIENTSIDE{$this->Xrblock}'su",
 				array($this, 'preserveLF'),
 				$source
 			);
@@ -200,7 +201,7 @@ abstract class
 		$len = count($a);
 		while ($i < $len)
 		{
-			$a[$i] = preg_replace("'\n\s*(?:{$this->XblockEnd})?{$this->Xblock}(?!\s*=)'su", $this->blockSplit . '$0', $a[$i]);
+			$a[$i] = preg_replace("'\n\s*(?:{$this->XblockBegin}|{$this->XblockEnd})?{$this->Xblock}(?!\s*=)'su", $this->blockSplit . '$0', $a[$i]);
 			$i += 2;
 		}
 
@@ -241,11 +242,11 @@ abstract class
 	}
 
 	abstract protected function makeCode(&$code);
-	abstract protected function addAGENT($end, $inc, &$args, $is_exo);
-	abstract protected function addSET($end, $name, $type);
-	abstract protected function addLOOP($end, $var);
-	abstract protected function addIF($end, $elseif, $expression);
-	abstract protected function addELSE($end);
+	abstract protected function addAGENT($limit, $inc, &$args, $is_exo);
+	abstract protected function addSET($limit, $name, $type);
+	abstract protected function addLOOP($limit, $var);
+	abstract protected function addIF($limit, $elseif, $expression);
+	abstract protected function addELSE($limit);
 	abstract protected function getEcho($str);
 	abstract protected function getConcat($array);
 	abstract protected function getRawString($str);
@@ -336,18 +337,20 @@ abstract class
 
 	private function compileBlock(&$a)
 	{
-		$blockname = $blockend = false;
+		$blockname = false;
+		$limit = 0;
 
 		if (preg_match("/^{$this->Xlblock}{$this->XblockEnd}({$this->Xblock}).*?{$this->Xrblock}$/su", $a, $block))
 		{
 			$blockname = $block[1];
 			$block = false;
-			$blockend = true;
+			$limit = 1;
 		}
-		else if (preg_match("/^{$this->Xlblock}({$this->Xblock})(.*?){$this->Xrblock}$/su", $a, $block))
+		else if (preg_match("/^{$this->Xlblock}((?:{$this->XblockBegin})?)({$this->Xblock})(.*?){$this->Xrblock}$/su", $a, $block))
 		{
-			$blockname = $block[1];
-			$block = trim($block[2]);
+			$limit = $block[1] ? -1 : 0;
+			$blockname = $block[2];
+			$block = trim($block[3]);
 		}
 
 		if (false !== $blockname)
@@ -358,7 +361,16 @@ abstract class
 			case 'AGENT':
 				$is_exo = 'EXOAGENT' === $blockname;
 
-				if (preg_match("/^({$this->Xstring}|{$this->Xvar})(?:\s+{$this->XpureVar}\s*=\s*(?:{$this->XvarNconst}))*$/su", $block, $block))
+				if ($limit > 0)
+				{
+					if ($this->addAGENT(1, '', array(), $is_exo))
+					{
+						$block = array_pop($this->blockStack);
+						if ($block !== $blockname) $this->endError($blockname, $block);
+					}
+					else $this->pushText($a);
+				}
+				else if (preg_match("/^({$this->Xstring}|{$this->Xvar})(?:\s+{$this->XpureVar}\s*=\s*(?:{$this->XvarNconst}))*$/su", $block, $block))
 				{
 					$inc = $this->evalVar($block[1]);
 
@@ -376,7 +388,8 @@ abstract class
 							}
 						}
 
-						if (!$this->addAGENT($blockend, $inc, $args, $is_exo)) $this->pushText($a);
+						if ($this->addAGENT($limit, $inc, $args, $is_exo)) $limit < 0 && $this->blockStack[] = $blockname;
+						else $this->pushText($a);
 					}
 					else $this->pushText($a);
 				}
@@ -384,21 +397,21 @@ abstract class
 				break;
 
 			case 'SET':
-				if (preg_match("/^([dag]|\\$*)\\$({$this->XpureVar})$/su", $block, $block))
+				if ($limit > 0)
 				{
-					$type = $block[1];
-					$block = $block[2];
-
-					if ($this->addSET($blockend, $block, $type)) $this->blockStack[] = $blockname;
-					else $this->pushText($a);
-				}
-				else if ($blockend)
-				{
-					if ($this->addSET($blockend, '', ''))
+					if ($this->addSET(1, '', ''))
 					{
 						$block = array_pop($this->blockStack);
 						if ($block !== $blockname) $this->endError($blockname, $block);
 					}
+					else $this->pushText($a);
+				}
+				else if (preg_match("/^([dag]|\\$*)\\$({$this->XpureVar})$/su", $block, $block))
+				{
+					$type = $block[1];
+					$block = $block[2];
+
+					if ($this->addSET(-1, $block, $type)) $this->blockStack[] = $blockname;
 					else $this->pushText($a);
 				}
 				else $this->pushText($a);
@@ -413,8 +426,8 @@ abstract class
 
 				$block = preg_replace("/\s+/su", '', $block);
 
-				if (!$this->addLOOP($blockend, $block)) $this->pushText($a);
-				else if ($blockend)
+				if (!$this->addLOOP($limit > 0 ? 1 : -1, $block)) $this->pushText($a);
+				else if ($limit > 0)
 				{
 					$block = array_pop($this->blockStack);
 					if ($block !== $blockname) $this->endError($blockname, $block);
@@ -424,14 +437,19 @@ abstract class
 
 			case 'IF':
 			case 'ELSEIF':
-				if ($blockend)
+				if ($limit > 0)
 				{
-					if (!$this->addIF(true, 'ELSEIF' === $blockname, $block)) $this->pushText($a);
+					if (!$this->addIF(1, 'ELSEIF' === $blockname, $block)) $this->pushText($a);
 					else
 					{
 						$block = array_pop($this->blockStack);
 						if ($block !== $blockname) $this->endError($blockname, $block);
 					}
+					break;
+				}
+				else if ($limit < 0 && 'ELSEIF' === $blockname)
+				{
+					$this->pushText($a);
 					break;
 				}
 
@@ -485,14 +503,14 @@ abstract class
 						$expression .= $block[$i++];
 					}
 
-					if (!$this->addIF(false, 'ELSEIF' === $blockname, $expression)) $this->pushText($a);
+					if (!$this->addIF($limit, 'ELSEIF' === $blockname, $expression)) $this->pushText($a);
 					else if ('ELSEIF' !== $blockname) $this->blockStack[] = $blockname;
 				}
 				else $this->pushText($a);
 				break;
 
 			default:
-				if (!(method_exists($this, 'add'.$blockname) && $this->{'add'.$blockname}($blockend, $block))) $this->pushText($a);
+				if (!(method_exists($this, 'add'.$blockname) && $this->{'add'.$blockname}($limit, $block))) $this->pushText($a);
 			}
 		}
 		else $this->pushText($a);
