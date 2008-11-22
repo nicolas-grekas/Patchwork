@@ -85,7 +85,7 @@ class extends agent
 
 				if (false !== $filename)
 				{
-					unlink('./.patchwork.php');
+					unlink(PATCHWORK_PROJECT_PATH . '.patchwork.php');
 					p::redirect("pStudio/explorer/{$this->path}{$filename}/?low={$this->get->low}&high={$this->get->high}");
 				}
 			}
@@ -97,7 +97,7 @@ class extends agent
 				if ($o->is_file) rename($this->realpath, $this->realpath . '~trashed');
 				else rmdir($this->realpath);
 
-				unlink('./.patchwork.php');
+				unlink(PATCHWORK_PROJECT_PATH . '.patchwork.php');
 				p::redirect('pStudio/explorer/' . dirname($this->path) . "/?low={$this->get->low}&high={$this->get->high}");
 			}
 		}

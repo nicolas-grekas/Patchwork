@@ -38,7 +38,7 @@ isset($_GET['p:']) && 'exit' === $_GET['p:'] && die('Exit requested');
 
 if (!__patchwork_bootstrapper::getLock())
 {
-	require './.patchwork.php';
+	require __patchwork_bootstrapper::$cwd . '.patchwork.php';
 	return;
 }
 
@@ -56,7 +56,7 @@ $patchwork_path = array();
 
 foreach (explode(PATH_SEPARATOR, get_include_path()) as $i)
 {
-	$i = @realpath($i);
+	$i = __patchwork_bootstrapper::realpath($i);
 	if ($i && $b = @opendir($i))
 	{
 		closedir($b);
@@ -235,50 +235,35 @@ class __patchwork_bootstrapper
 
 	static function getLock($retry = true)
 	{
-		if (self::$lock = @fopen('./.patchwork.lock', 'xb'))
+		$cwd = self::$cwd = (defined('PATCHWORK_BOOTPATH') ? PATCHWORK_BOOTPATH : '.') . DIRECTORY_SEPARATOR;
+
+		if (self::$lock = @fopen($cwd . '.patchwork.lock', 'xb'))
 		{
 			flock(self::$lock, LOCK_EX);
 			ob_start(array(__CLASS__, 'ob_handler'));
 
 			self::$selfRx = preg_quote(__FILE__, '/');
 			self::$pwd = rtrim(dirname(__FILE__), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-			self::$cwd = function_exists('getcwd') ? @getcwd() : '';
 
-			if (!self::$cwd)
-			{
-				ob_start();
-				echo "Patchwork Error: Your system's getcwd() is bugged and workarounds failed."; // This will be erased if following workarounds succeed
-
-				self::$cwd = realpath('.');
-
-				if (self::$cwd && '.' !== self::$cwd) {}
-				else if (file_put_contents('./.getcwd', '<?php return dirname(__FILE__);'))
-				{
-					self::$cwd = require './.getcwd';
-					unlink('./.getcwd');
-				}
-				else self::$cwd = `pwd`;
-
-				self::$cwd ? ob_end_clean() : exit();
-			}
-
-			self::$cwd = rtrim(self::$cwd, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+			file_put_contents($cwd . '.cwd.php', '<?php return dirname(__FILE__) . DIRECTORY_SEPARATOR;');
+			self::$cwd = require $cwd . '.cwd.php';
+			unlink($cwd . '.cwd.php');
 
 			set_time_limit(0);
 
 			return true;
 		}
-		else if ($h = fopen('./.patchwork.lock', 'rb'))
+		else if ($h = fopen($cwd . '.patchwork.lock', 'rb'))
 		{
 			usleep(1000);
 			flock($h, LOCK_SH);
 			fclose($h);
-			file_exists('./.patchwork.php') || sleep(1);
+			file_exists($cwd . '.patchwork.php') || sleep(1);
 		}
 
-		if ($retry && !file_exists('./.patchwork.php'))
+		if ($retry && !file_exists($cwd . '.patchwork.php'))
 		{
-			@unlink('./.patchwork.lock');
+			@unlink($cwd . '.patchwork.lock');
 			return self::getLock(false);
 		}
 		else return false;
@@ -302,12 +287,11 @@ class __patchwork_bootstrapper
 
 	static function ob_handler($buffer)
 	{
-		$lock = self::$cwd . '.patchwork.lock';
-
 		if ('' === $buffer)
 		{
 			++ob::$in_handler;
 
+			$cwd = self::$cwd;
 			$T = self::$token;
 			$a = array("<?php \$patchwork_autoload_cache = array(); \$c{$T} =& \$patchwork_autoload_cache; \$d{$T} = 1;");
 
@@ -318,9 +302,9 @@ class __patchwork_bootstrapper
 			}
 
 			patchworkPath('class/patchwork.php', $level);
-			$T = "'./.class_patchwork.php.0{$level}.{$T}.zcache.php'";
+			$T = addslashes($cwd . ".class_patchwork.php.0{$level}.{$T}.zcache.php");
 			$a[] = "
-DEBUG || file_exists({$T}) && include {$T};
+DEBUG || file_exists('{$T}') && include '{$T}';
 class p extends patchwork {}
 patchwork::start();";
 
@@ -329,15 +313,15 @@ patchwork::start();";
 			fwrite(self::$lock, $a, strlen($a));
 			fclose(self::$lock);
 
-			touch($lock, $_SERVER['REQUEST_TIME'] + 1);
+			touch($cwd . '.patchwork.lock', $_SERVER['REQUEST_TIME'] + 1);
 
 			if ('\\' == DIRECTORY_SEPARATOR)
 			{
 				$a = new COM('Scripting.FileSystemObject');
-				$a->GetFile($lock)->Attributes |= 2; // Set hidden attribute
+				$a->GetFile($cwd . '.patchwork.lock')->Attributes |= 2; // Set hidden attribute
 			}
 
-			rename($lock, './.patchwork.php');
+			rename($cwd . '.patchwork.lock', $cwd . '.patchwork.php');
 
 			set_time_limit(ini_get('max_execution_time'));
 
@@ -407,13 +391,13 @@ patchwork::start();";
 				else break;
 			}
 
-			if (!$parent) die('Patchwork Error: Inconsistent application hierarchy in ' . $realpath . 'config.patchwork.php');
+			if (false === $parent) die('Patchwork Error: Inconsistent application hierarchy in ' . $realpath . 'config.patchwork.php');
 
 			$resultSeq[] = $parent;
 
 			foreach ($seqs as $k => &$seq)
 			{
-				if ($parent == current($seq)) unset($seqs[$k][key($seq)]);
+				if ($parent === current($seq)) unset($seqs[$k][key($seq)]);
 				if (!$seqs[$k]) unset($seqs[$k]);
 			}
 		}
@@ -483,7 +467,7 @@ patchwork::start();";
 
 			if ('/' !== $a[0] && '\\' !== $a[0] && ':' !== $a[1]) $a = $realpath . $a;
 
-			if ('/*' === substr(strtr($a, '\\', '/'), -2) && $a = realpath(substr($a, 0, -2)))
+			if ('/*' === substr(strtr($a, '\\', '/'), -2) && $a = self::realpath(substr($a, 0, -2)))
 			{
 				$a = rtrim($a, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 				$source = array();
@@ -539,7 +523,7 @@ patchwork::start();";
 			}
 			else
 			{
-				$source = realpath($a);
+				$source = self::realpath($a);
 				if (false === $source) die('Patchwork Error: Missing file ' . rtrim(strtr($a, '\\', '/'), '/') . '/config.patchwork.php');
 				$source = rtrim($source, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
@@ -571,21 +555,22 @@ patchwork::start();";
 	{
 		global $patchwork_path;
 
+		$cwd = self::$cwd;
 		$parentPaths = array();
 
 		$error_level = error_reporting(0);
 
-		if (file_exists('./.parentPaths.txt'))
+		if (file_exists($cwd . '.parentPaths.txt'))
 		{
-			rename('./.parentPaths.txt', './.parentPaths.old');
-			$old_db = fopen('./.parentPaths.old', 'rb');
+			rename($cwd . '.parentPaths.txt', $cwd . '.parentPaths.old');
+			$old_db = fopen($cwd . '.parentPaths.old', 'rb');
 		}
 		else $old_db = false;
 
-		$db = fopen('./.parentPaths.txt', 'wb');
+		$db = fopen($cwd . '.parentPaths.txt', 'wb');
 
 		$path = array_flip($patchwork_path);
-		unset($path[self::$cwd]);
+		unset($path[$cwd]);
 		uksort($path, array(__CLASS__, 'dirCmp'));
 
 		foreach ($path as $h => $level)
@@ -594,12 +579,12 @@ patchwork::start();";
 		}
 
 		fclose($db);
-		$old_db && fclose($old_db) && unlink('./.parentPaths.old');
+		$old_db && fclose($old_db) && unlink($cwd . '.parentPaths.old');
 
 		if ('\\' == DIRECTORY_SEPARATOR)
 		{
 			$h = new COM('Scripting.FileSystemObject');
-			$h->GetFile(self::$cwd . '.parentPaths.txt')->Attributes |= 2; // Set hidden attribute
+			$h->GetFile($cwd . '.parentPaths.txt')->Attributes |= 2; // Set hidden attribute
 		}
 
 		error_reporting($error_level);
@@ -611,8 +596,8 @@ patchwork::start();";
 			$h = array('cdb','db2','db3','db4','qdbm','gdbm','ndbm','dbm','flatfile','inifile');
 			$h = array_intersect($h, dba_handlers());
 			$h || $h = dba_handlers();
-			@unlink('./.parentPaths.db');
-			if ($h) foreach ($h as $db) if ($h = @dba_open(self::$cwd . '.parentPaths.db', 'nd', $db, 0600)) break;
+			@unlink($cwd . '.parentPaths.db');
+			if ($h) foreach ($h as $db) if ($h = @dba_open($cwd . '.parentPaths.db', 'nd', $db, 0600)) break;
 		}
 
 		if ($h)
@@ -628,7 +613,7 @@ patchwork::start();";
 			if ('\\' == DIRECTORY_SEPARATOR)
 			{
 				$h = new COM('Scripting.FileSystemObject');
-				$h->GetFile(self::$cwd . '.parentPaths.db')->Attributes |= 2; // Set hidden attribute
+				$h->GetFile($cwd . '.parentPaths.db')->Attributes |= 2; // Set hidden attribute
 			}
 		}
 		else
@@ -1015,5 +1000,19 @@ patchwork::start();";
 		}
 
 		return strlen($a) - strlen($b);
+	}
+
+	static function realpath($a)
+	{
+		static $s;
+
+		if (!isset($s))
+		{
+			$s = file_exists('realpath') ? @realpath('.') : false;
+			$s = $s && '.' !== $s;
+		}
+
+		if ($s) return realpath($a);
+		else return file_exists($a) ? $a : false;
 	}
 }

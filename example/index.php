@@ -1,7 +1,7 @@
 <?php
 
-chdir('../variations/hello'); // XXX: chdir to the directory of the application
+define('PATCHWORK_BOOTPATH', '../variations/hello'); // XXX: Put the path to your application here
 
-require file_exists('./.patchwork.php')
-	? './.patchwork.php'
-	: '../patchwork.php'; // XXX: path to patchwork's patchwork.php
+require file_exists(PATCHWORK_BOOTPATH . '/.patchwork.php')
+	? PATCHWORK_BOOTPATH . '/.patchwork.php'
+	: '../patchwork.php'; // XXX: Put the path to patchwork's patchwork.php here

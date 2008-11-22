@@ -126,7 +126,7 @@ in <b>{$file}</b> line <b>{$line}</b>{$callee}:\n{$message}<blockquote id="{$cid
 EOHTML;
 
 		$i = ini_get('error_log');
-		$i = fopen($i ? $i : './error.patchwork.log', 'ab');
+		$i = fopen($i ? $i : PATCHWORK_PROJECT_PATH . 'error.patchwork.log', 'ab');
 		fwrite($i, $cid);
 		fclose($i);
 

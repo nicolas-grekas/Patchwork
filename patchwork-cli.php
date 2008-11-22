@@ -13,7 +13,7 @@
 
 
 // If you want to use your patchwork application in CLI scripts:
-// - first chdir() to your application's directory
+// - first define PATCHWORK_BOOTPATH with your application's path
 // - then define $_SERVER['PATCHWORK_BASE']
 // - for multilanguage applications, set $_SERVER['PATCHWORK_LANG']
 // - and include this present file
@@ -55,7 +55,7 @@ empty($_SERVER['REQUEST_TIME']) && $_SERVER['REQUEST_TIME'] = time();
 
 function apache_setenv() {}
 
-if (!file_exists('./.patchwork.php'))
+if (!file_exists(PATCHWORK_BOOTPATH . '/.patchwork.php'))
 {
 	$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
 	$h = fsockopen("{$h}://{$_SERVER['SERVER_ADDR']}", $_SERVER['SERVER_PORT'], $errno, $errstr, 30);
@@ -73,5 +73,5 @@ if (!file_exists('./.patchwork.php'))
 define('TURBO', false);
 
 ob_start();
-require './.patchwork.php';
+require PATCHWORK_BOOTPATH . '/.patchwork.php';
 ob_end_clean();

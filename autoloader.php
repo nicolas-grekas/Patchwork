@@ -252,7 +252,8 @@ class __patchwork_autoloader
 					{
 						$GLOBALS['a'.$T] = $bmark;
 						$marker = "isset(\$c{$T}['{$lc_req}'])||{$marker}";
-						$code = "isset(\$c{$T}['{$lc_req}'])||patchwork_include('./.class_{$cache}.{$T}.zcache.php')||1";
+						$code = addslashes(PATCHWORK_PROJECT_PATH . ".class_{$cache}.{$T}.zcache.php");
+						$code = "isset(\$c{$T}['{$lc_req}'])||patchwork_include('{$code}')||1";
 					}
 					else
 					{
