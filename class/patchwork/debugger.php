@@ -16,8 +16,8 @@
 // CTRL+F5, CTRL+SHIFT+R or location.reload(true). Usefull to trigger synchronization events.
 define(
 	'PATCHWORK_SYNC_CACHE',
-	file_exists('./.patchwork.php')
-	&& filemtime('./config.patchwork.php') > filemtime('./.patchwork.php')
+	file_exists(PATCHWORK_PROJECT_PATH . '.patchwork.php')
+	&& filemtime(PATCHWORK_PROJECT_PATH . 'config.patchwork.php') > filemtime(PATCHWORK_PROJECT_PATH . '.patchwork.php')
 	|| (isset($_SERVER['HTTP_CACHE_CONTROL']) && 'no-cache' == $_SERVER['HTTP_CACHE_CONTROL'])
 );
 
@@ -36,21 +36,20 @@ class extends patchwork
 		if ('debug' === p::$requestMode) self::sendDebugInfo();
 		else if (PATCHWORK_SYNC_CACHE)
 		{
-			if ($h = @fopen('./.debugLock', 'xb'))
+			if ($h = @fopen(PATCHWORK_PROJECT_PATH . '.debugLock', 'xb'))
 			{
 				flock($h, LOCK_EX);
 
-				@unlink('./.patchwork.php');
+				@unlink(PATCHWORK_PROJECT_PATH . '.patchwork.php');
 
 				global $patchwork_path;
 
 				$offset = -12 - strlen(PATCHWORK_PATH_TOKEN);
 
-				$dir = opendir('.');
+				$dir = opendir(PATCHWORK_PROJECT_PATH);
 				while (false !== $cache = readdir($dir)) if (preg_match('/^\..+\.[^0][^\.]+\.' . PATCHWORK_PATH_TOKEN . '\.zcache\.php$/D', $cache))
 				{
-					$cache = './' . $cache;
-					$file = str_replace('%1', '%', str_replace('%2', '_', strtr(substr($cache, 3, $offset), '_', '/')));
+					$file = str_replace('%1', '%', str_replace('%2', '_', strtr(substr($cache, 1, $offset), '_', '/')));
 					$level = substr(strrchr($file, '.'), 2);
 
 					$file = substr($file, 0, -(2 + strlen($level)));
@@ -62,7 +61,7 @@ class extends patchwork
 
 					$file = $patchwork_path[PATCHWORK_PATH_LEVEL - $level] . $file;
 
-					if (!file_exists($file) || filemtime($file) >= filemtime($cache)) @unlink($cache);
+					if (!file_exists($file) || filemtime($file) >= filemtime(PATCHWORK_PROJECT_PATH . $cache)) @unlink(PATCHWORK_PROJECT_PATH . $cache);
 				}
 				closedir($dir);
 
@@ -70,12 +69,12 @@ class extends patchwork
 			}
 			else
 			{
-				$h = fopen('./.debugLock', 'rb');
+				$h = fopen(PATCHWORK_PROJECT_PATH . '.debugLock', 'rb');
 				flock($h, LOCK_SH);
 				fclose($h);
 			}
 
-			@unlink('./.debugLock');
+			@unlink(PATCHWORK_PROJECT_PATH . '.debugLock');
 		}
 	}
 
@@ -197,9 +196,9 @@ function Z()
 		ignore_user_abort($S);
 		set_time_limit(0);
 
-		ini_set('error_log', './error.patchwork.log');
+		ini_set('error_log', PATCHWORK_PROJECT_PATH . 'error.patchwork.log');
 		$error_log = ini_get('error_log');
-		$error_log = $error_log ? $error_log : './error.patchwork.log';
+		$error_log = $error_log ? $error_log : PATCHWORK_PROJECT_PATH . 'error.patchwork.log';
 		echo str_repeat(' ', 512), // special MSIE
 			'<pre>';
 		$S||flush();

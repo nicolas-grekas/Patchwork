@@ -116,11 +116,9 @@ class extends patchwork
 
 	static function readfile($file, $mime = true, $filename = true)
 	{
-		$h = $file;
+		$h = patchworkPath($file);
 
-		if (!isset($h[1]) || !('/' == $h[0] || ':' == $h[1])) $h = patchworkPath($h);
-
-		if (!file_exists($h) || is_dir($h))
+		if (!$h || !file_exists($h) || is_dir($h))
 		{
 			W(__CLASS__ . '::' . __METHOD__ . "(..): invalid file ({$file})");
 			return;

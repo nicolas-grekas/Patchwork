@@ -85,8 +85,8 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 
 // __autoload(): the magic part
 
-/*#>*/@copy(__patchwork_bootstrapper::$pwd . 'autoloader.php', './.patchwork.autoloader.php')
-/*#>*/	|| @unlink('./.patchwork.autoloader.php') + copy(__patchwork_bootstrapper::$pwd . 'autoloader.php', './.patchwork.autoloader.php');
+/*#>*/@copy(__patchwork_bootstrapper::$pwd . 'autoloader.php', __patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')
+/*#>*/	|| @unlink(__patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php') + copy(__patchwork_bootstrapper::$pwd . 'autoloader.php', __patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php');
 /*#>*/
 /*#>*/if ('\\' === DIRECTORY_SEPARATOR)
 /*#>*/{
@@ -113,7 +113,7 @@ function __autoload($searched_class)
 			$a = $b . '.php.' . DEBUG . (0>$a ? -$a . '-' : $a);
 		}
 
-		$a = './.class_' . $a . /*<*/'.' . __patchwork_bootstrapper::$token . '.zcache.php'/*>*/;
+		$a = /*<*/__patchwork_bootstrapper::$cwd . '.class_'/*>*/ . $a . /*<*/'.' . __patchwork_bootstrapper::$token . '.zcache.php'/*>*/;
 
 		$GLOBALS[/*<*/'a' . __patchwork_bootstrapper::$token/*>*/] = false;
 
@@ -125,7 +125,7 @@ function __autoload($searched_class)
 		}
 	}
 
-	class_exists('__patchwork_autoloader', false) || require TURBO ? './.patchwork.autoloader.php' : /*<*/__patchwork_bootstrapper::$pwd . 'autoloader.php'/*>*/;
+	class_exists('__patchwork_autoloader', false) || require TURBO ? /*<*/__patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php'/*>*/ : /*<*/__patchwork_bootstrapper::$pwd . 'autoloader.php'/*>*/;
 
 	__patchwork_autoloader::autoload($searched_class);
 }
@@ -135,26 +135,9 @@ function __autoload($searched_class)
 
 function patchworkProcessedPath($file)
 {
-/*#>*/	if ('\\' === DIRECTORY_SEPARATOR)
-		false !== strpos($file, '\\') && $file = strtr($file, '\\', '/');
-
-	if (false !== strpos('.' . $file, './') || /*<*/'\\' === DIRECTORY_SEPARATOR/*>*/ && ':/' === substr($file, 1, 2))
-	{
-		if ($f = realpath($file)) $file = $f;
-
-		$p =& $GLOBALS['patchwork_path'];
-
-		for ($i = /*<*/__patchwork_bootstrapper::$last + 1/*>*/; $i < /*<*/count($patchwork_path)/*>*/; ++$i)
-		{
-			if (substr($file, 0, strlen($p[$i])) === $p[$i])
-			{
-				$file = substr($file, strlen($p[$i]));
-				break;
-			}
-		}
-
-		if (/*<*/count($patchwork_path)/*>*/ === $i) return $f;
-	}
+/*#>*/if ('\\' === DIRECTORY_SEPARATOR)
+		if (isset($file[0]) && ('\\' === $file[0] || isset($file[1]) && ':' === $file[1])) return $file;
+		if (isset($file[0]) &&  '/'  === $file[0]) return $file;
 
 	$file = 'class/' . $file;
 
@@ -162,9 +145,11 @@ function patchworkProcessedPath($file)
 
 	if (false === $source) return false;
 
-	$file = strtr($file, '\\', '/');
+/*#>*/if ('\\' === DIRECTORY_SEPARATOR)
+		false !== strpos($file, '\\') && $file = strtr($file, '\\', '/');
+
 	$cache = DEBUG . (0>$level ? -$level . '-' : $level);
-	$cache = './.' . strtr(str_replace('_', '%2', str_replace('%', '%1', $file)), '/', '_')
+	$cache = /*<*/__patchwork_bootstrapper::$cwd . '.'/*>*/ . strtr(str_replace('_', '%2', str_replace('%', '%1', $file)), '/', '_')
 		. '.' . $cache . /*<*/'.' . __patchwork_bootstrapper::$token . '.zcache.php'/*>*/;
 
 	if (file_exists($cache) && (TURBO || filemtime($cache) > filemtime($source))) return $cache;

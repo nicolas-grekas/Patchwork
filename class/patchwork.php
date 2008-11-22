@@ -465,10 +465,10 @@ class
 
 		$oldAppId = sprintf('%020d', $patchwork_appId);
 
-		$patchwork_appId += $_SERVER['REQUEST_TIME'] - filemtime('./config.patchwork.php');
+		$patchwork_appId += $_SERVER['REQUEST_TIME'] - filemtime(PATCHWORK_PROJECT_PATH . 'config.patchwork.php');
 		self::$appId = abs($patchwork_appId % 10000);
 
-		if (file_exists('./.patchwork.php') && $h = @fopen('./.patchwork.php', 'r+b'))
+		if (file_exists(PATCHWORK_PROJECT_PATH . '.patchwork.php') && $h = @fopen(PATCHWORK_PROJECT_PATH . '.patchwork.php', 'r+b'))
 		{
 			$offset = 0;
 
@@ -485,10 +485,10 @@ class
 
 			fclose($h);
 
-			@touch('./.patchwork.php');
+			@touch(PATCHWORK_PROJECT_PATH . '.patchwork.php');
 		}
 
-		@touch('./config.patchwork.php', $_SERVER['REQUEST_TIME']);
+		@touch(PATCHWORK_PROJECT_PATH . 'config.patchwork.php', $_SERVER['REQUEST_TIME']);
 	}
 
 	static function disable($exit = false)
@@ -983,7 +983,7 @@ class
 			if (!$dir) return;
 			$dir[0] = '/' . $dir[0];
 		}
-		else if (!(IS_WINDOWS && ':' === substr($dir[0], -1))) $dir[0] = './' . $dir[0];
+		else if (!(IS_WINDOWS && ':' === substr($dir[0], -1))) $dir[0] = PATCHWORK_PROJECT_PATH . $dir[0];
 
 		$new = '';
 
@@ -1300,7 +1300,8 @@ class
 
 	static function writeWatchTable($message, $file = '', $exclusive = true)
 	{
-		$file && '/' !== substr($file, 0, 1) && $file = file_exists($file) ? realpath($file) : patchworkPath($file);
+		$file = patchworkPath($file);
+
 		if (!$file && !$exclusive) return;
 
 		foreach (array_unique((array) $message) as $message)
