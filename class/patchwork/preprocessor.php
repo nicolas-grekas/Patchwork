@@ -311,6 +311,12 @@ class patchwork_preprocessor__0
 
 	static function execute($source, $destination, $level, $class)
 	{
+		if (!(isset($source[0]) && ('/'  === $source[0] || (IS_WINDOWS && ('\\' === $source[0] || (isset($source[1]) && ':' === $source[1]))))))
+		{
+			trigger_error('$source path must be an absolute path', E_USER_ERROR);
+			return;
+		}
+
 		$recursive = self::$recursive;
 
 		if (!$recursive)
@@ -320,7 +326,7 @@ class patchwork_preprocessor__0
 		}
 
 		$preproc = new patchwork_preprocessor;
-		$preproc->source = $source = realpath($source);
+		$preproc->source = $source;
 		$preproc->level = $level;
 		$preproc->class = $class;
 		$preproc->marker = array(
@@ -338,13 +344,13 @@ class patchwork_preprocessor__0
 
 		self::$recursive = $recursive;
 
-		$tmp = './' . uniqid(mt_rand(), true);
+		$tmp = PATCHWORK_PROJECT_PATH . uniqid(mt_rand(), true);
 		if (false !== file_put_contents($tmp, $code))
 		{
 			if (IS_WINDOWS)
 			{
 				$code = new COM('Scripting.FileSystemObject');
-				$code->GetFile(PATCHWORK_PROJECT_PATH . $tmp)->Attributes |= 2; // Set hidden attribute
+				$code->GetFile($tmp)->Attributes |= 2; // Set hidden attribute
 				file_exists($destination) && @unlink($destination);
 				@rename($tmp, $destination) || unlink($tmp);
 			}
