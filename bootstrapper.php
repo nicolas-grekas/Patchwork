@@ -80,7 +80,7 @@ for ($i = 0; $i <= __patchwork_bootstrapper::$last; ++$i)
 	{
 		$a = $patchwork_path[$i] . 'zcache' . DIRECTORY_SEPARATOR;
 
-		if (@touch($a . 'write_test')) @unlink($a . 'write_test');
+		if (@touch($a . '.patchwork.writeTest')) @unlink($a . '.patchwork.writeTest');
 		else $a = false;
 
 		break;
@@ -239,6 +239,14 @@ class __patchwork_bootstrapper
 
 		if (self::$lock = @fopen($cwd . '.patchwork.lock', 'xb'))
 		{
+			if (file_exists($cwd . '.patchwork.php'))
+			{
+				fclose(self::$lock);
+				@unlink($cwd . '.patchwork.lock');
+				if ($retry) die('Patchwork Error: file .patchwork.php exists in PATCHWORK_BOOTPATH. Please fix your public bootstrap file.');
+				else return false;
+			}
+
 			flock(self::$lock, LOCK_EX);
 			ob_start(array(__CLASS__, 'ob_handler'));
 
