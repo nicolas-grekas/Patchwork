@@ -47,7 +47,6 @@ ELSE
 		SET g$_FORM -->1<!-- END:SET
 
 		--><style type="text/css">
-		label {cursor: default}
 		textarea {overflow: auto}
 		textarea.toomuch {background-color: #FFD2D2}
 		.errormsg {color: red}
