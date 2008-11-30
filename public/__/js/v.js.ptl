@@ -71,7 +71,7 @@ valid_email = function ($value, $args)
 {
 	if (/^\s*$/.test($value)) return true;
 	$value = $value.toLowerCase();
-	return /^\s*[-a-z0-9_\.\+=%]+@([-a-z0-9]+(\.[-a-z0-9]+)+)\s*$/.test($value) ? $value : false;
+	return /^\s*[-!#-&*+\/-9=?A-Z^`-~]+(\.[-!#-&*+\/-9=?A-Z^`-~]+)*@[-a-zA-Z0-9]+(\.[-a-zA-Z0-9]+)*\s*$/.test($value) ? $value : false;
 }
 
 valid_phone = function($value, $args)

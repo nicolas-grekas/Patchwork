@@ -23,24 +23,24 @@
 
 	<title>{a$title|replace:'<[^>]*':''|replace:'>':''}</title>
 
-	<style type="text/css">html{background:transparent} label{cursor:default}</style> {* Hacks for IE and Safari *}
+	<meta name="generator" content="Patchwork" />
+
 	<!--[if lt IE 7]>
 	<script type="text/javascript">document.createElement('abbr');</script >
 	<style type="text/css">body{behavior:url("{base:'fix/hover.htc'}")} select{behavior:url("{base:'fix/select.htc'}")} img,input{behavior:url("{base:'fix/png.htc'}");}</style>
 	<![endif]-->
 
-	<!-- LOOP g$__LANG_ALT__
-	     IF $lang != g$__LANG__ -->
-	<link rel="alternate" type="text/html" href="{$href}" title="{$title}" hreflang="{$lang}" lang="{$lang}" xml:lang="{$lang}" />
-	<!-- END:IF
-	     END:LOOP -->
+	<link rel="stylesheet" type="text/css" href="{a$css|default:'css/style'|base}" />
 
+	<!--
 
-	<!-- IF a$css -->
-	<link rel="stylesheet" type="text/css" href="{base:a$css}" />
-	<!-- END:IF -->
+	LOOP g$__LANG_ALT__
+		IF $lang != g$__LANG__
+			--><link rel="alternate" type="text/html" href="{$href}" title="{$title}" hreflang="{$lang}" lang="{$lang}" xml:lang="{$lang}" /><!--
+		END:IF
+	END:LOOP
 
-	<meta name="generator" content="Patchwork" />
+	-->
 
 	{a$head}
 </head>
