@@ -18,15 +18,15 @@ class
 	{
 		$string = htmlspecialchars(p::string($string));
 		$email  = htmlspecialchars(p::string($email));
-		if (!$email) $email = $string;
-		$attributes = htmlspecialchars(p::string($attributes));
+		$email || $email = $string;
+		$attributes = p::string($attributes);
 		'' !== $attributes && $attributes = ' ' . $attributes;
 
 		$email = '<a href="mailto:'
 			. str_replace('@', '[&#97;t]', $email) . '"'
-			. ' onmouseover="this.href=this.href.replace(/\\[at\\]/, \'@\');this.onmouseover=null"'
+			. ' onmouseover="this.href=this.href.replace(/\\[at\\]/, \'@\');' . ($email === $string ? 'this.innerHTML=this.href.substr(7);' : '') . 'this.onmouseover=null"'
 			. $attributes . '>'
-			. str_replace('@', '<a style="display:none" name="w$">@</a>&#64;', $string)
+			. str_replace('@', '<span style="display:none">@</span>&#64;', $string)
 			. '</a>';
 
 		return $email;
@@ -40,7 +40,7 @@ P$mailto = function($string, $email, $attributes)
 {
 	$string = esc(str($string));
 	$email  = esc(str($email)) || $string;
-	$attributes = esc(str($attributes));
+	$attributes = str($attributes);
 	if ($attributes) $attributes = ' ' + $attributes;
 
 	return '<a href="mailto:' + $email + '"' + $attributes + '>' + $string + '</a>';
