@@ -329,6 +329,10 @@ function gLE($name, $multiple, $stack)
 
 		if ($name)
 		{
+			<!-- IF g$__DEBUG__ -->
+			if (!window.lF) E('Last form can not be found. Please double check your template.', 1);
+			<!-- END:IF -->
+
 			if (t(lF[$name])) $lastElement = lF[$name];
 			else
 			{
