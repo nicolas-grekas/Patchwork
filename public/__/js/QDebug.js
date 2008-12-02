@@ -22,17 +22,6 @@ function E($v, $warn, $max_depth, $level, $expand)
 		$deltaTime = $startTime - E.lastTime,
 		$key;
 
-	if ($warn)
-	{
-		$key = document.getElementById('debugLink');
-		if ($key = $key && $key.style)
-		{
-			$key.backgroundColor='red';
-			$key.fontSize='18px';
-		}
-		$key = 0;
-	}
-
 	$max_depth = t($max_depth) ? $max_depth : E.max_depth;
 	$level = $level || 0;
 	$expand = $expand || 0;
@@ -54,7 +43,7 @@ function E($v, $warn, $max_depth, $level, $expand)
 			return $str.toString(10, $level).replace(/</g, '&lt;').replace(/>/g, '&gt;');
 		}
 
-		if (0 == $level) o('<pre' + ($warn ? ' style="color:red;font-weight:bold"' : '') + '>' + $deltaTime + ' ms : ');
+		if (0 == $level) o(($warn ? '<script type="text/javascript">focus();L=opener||parent;L=L&&L.document.getElementById(\'debugLink\');L=L&&L.style;if(L){L.backgroundColor=\'red\';L.fontSize=\'18px\'}<\/script><pre style="color:red;font-weight:bold">' : '<pre>') + $deltaTime + ' ms : ');
 
 		if (t($v, 'object') || t($v, 'array'))
 		{

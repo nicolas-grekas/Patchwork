@@ -37,8 +37,8 @@ class extends loop_agentWrapper
 	$valid,
 	$valid_args = array(),
 
-	$elt = array(),
-	$eltToCheck = array(),
+	$elements = array(),
+	$elementsToCheck = array(),
 	$isOn;
 
 
@@ -115,6 +115,7 @@ class extends loop_agentWrapper
 	function attach()
 	{
 		$a = func_get_args();
+		$elements = array();
 
 		$len = count($a);
 		for ($i = 0; $i<$len; $i+=3)
@@ -127,7 +128,7 @@ class extends loop_agentWrapper
 
 			$onerror || $onerror = $addedElt->validmsg;
 
-			$this->elt[$name] = array(
+			$elements[] = $this->elements[$name] = array(
 				$addedElt,
 				$onempty,
 				$onerror,
@@ -135,7 +136,7 @@ class extends loop_agentWrapper
 
 			if ($onempty || $onerror)
 			{
-				$this->eltToCheck[] = array(
+				$this->elementsToCheck[] = array(
 					'name' => $addedElt->getName(),
 					'onempty' => $onempty,
 					'onerror' => $onerror,
@@ -144,22 +145,35 @@ class extends loop_agentWrapper
 
 			$onempty && $addedElt->required = true;
 		}
+
+		if (isset($this->isOn) && $elements)
+		{
+			$this->isOn =& $elements;
+			$this->isOn();
+		}
 	}
 
 	function isOn()
 	{
 		if ($this->disabled) return false;
 
-		if (isset($this->isOn)) return $this->isOn;
+		$elements =& $this->elements;
+
+		if (isset($this->isOn))
+		{
+			if (is_array($this->isOn)) $elements =& $this->isOn;
+			else return $this->isOn;
+		}
+
 		if ('' === $this->status || isset($GLOBALS['_POST_BACKUP']) && $this->form->isPOST()) return $this->isOn = false;
 
 		$error =& $this->form->errormsg;
 
-		foreach ($this->elt as &$elt_info)
+		foreach ($elements as $elt)
 		{
-			$onempty = $elt_info[1];
-			$onerror = $elt_info[2];
-			$elt = $elt_info[0];
+			$onempty = $elt[1];
+			$onerror = $elt[2];
+			$elt     = $elt[0];
 
 			$elt = $elt->checkError($onempty, $onerror);
 
@@ -245,7 +259,7 @@ class extends loop_agentWrapper
 	{
 		$data  = array();
 
-		foreach ($this->elt as $name => &$elt) if ($elt[0]->isValidData()) $data[$name] = $elt[0]->getDbValue();
+		foreach ($this->elements as $name => &$elt) if ($elt[0]->isValidData()) $data[$name] = $elt[0]->getDbValue();
 
 		return $data;
 	}
@@ -354,7 +368,7 @@ class extends loop_agentWrapper
 		);
 
 		$this->multiple || $a->value = $this->value;
-		$this->eltToCheck && $a->_elements = new loop_array($this->eltToCheck, 'filter_rawArray');
+		$this->elementsToCheck && $a->_elements = new loop_array($this->elementsToCheck, 'filter_rawArray');
 		$this->validmsg   && $a->_validmsg = $this->validmsg;
 		$this->errormsg   && $a->_errormsg = $this->errormsg;
 		$this->required   && $a->required  = 'required';
