@@ -23,6 +23,8 @@ You can control it with the additional arguments:
 - a$_beforeError_	|default:g$inputBeforeError		: HTML code put at the beginning of an error message
 - a$_afterError_	|default:g$inputAfterError		: HTML code put at the end of an error message
 - a$autofocus										: set the focus on this element
+- a$required										: declare the field as required
+- a$placeholder										: short hint for the user (eg. a sample value or a brief description of the expected format)
 - a$_preserveScroll_								: preserve scroll position when an element triggers a submit
 - a$_format_		|default:g$inputFormat			: a string to format the output where ("=>" means "is replaced by"):
 														  %0 => the caption,
@@ -35,11 +37,13 @@ Question : should I add a label attribute to every <option> tag ?
 *}
 
 IF a$autofocus
-	SET a$autofocus -->autofocus<!-- END:SET
+	SET a$_autofocus -->1<!-- END:SET
+	SET a$autofocus --><!-- END:SET
 END:IF
 
 IF a$required
-	SET a$required -->required<!-- END:SET
+	SET a$_required -->1<!-- END:SET
+	SET a$required --><!-- END:SET
 END:IF
 
 IF a$_type == 'check'
@@ -50,6 +54,13 @@ IF a$_type == 'check'
 END:IF
 
 IF !a$type --><!-- SET a$type -->{a$_type}<!-- END:SET --><!-- END:IF
+
+IF a$placeholder
+	SET a$_placeholder
+		IF a$type == 'text' -->{a$placeholder|replace:'[\\r\\n].*':''}<!-- END:IF
+	END:SET
+	SET a$placeholder --><!-- END:SET
+END:IF
 
 SET a$id -->FiD{g+1$GLOBID}<!-- END:SET
 SET a$class -->{a$class|default:a$type}<!-- END:SET
@@ -64,9 +75,9 @@ END:IF
 SET $CAPTION
 	IF a$_caption_ && !a$_check || 1 < a$_option
 		--><label for="{a$id}" class="{a$class}" onclick="return IlC(this)"><!--
-		IF a$required --><span class="required"><!-- END:IF
+		IF a$_required --><span class="required"><!-- END:IF
 		-->{a$_caption_}<!--
-		IF a$required --></span><!-- END:IF
+		IF a$_required --></span><!-- END:IF
 		--></label><!--
 	END:IF
 END:SET
@@ -84,7 +95,7 @@ SET $INPUT
 		-->}//]]></script ><!--
 	END:SET
 
-	IF a$required --><span class="required"><!-- END:IF
+	IF a$_required --><span class="required"><!-- END:IF
 
 	IF a$_check
 
@@ -144,20 +155,23 @@ SET $INPUT
 		-->{a$_JsStart}<!--
 
 		IF a$type == 'submit' || a$type == 'image' || a$type == 'button'
-			SET a$_format_ -->{a$_format_|default:'%1'}<!-- END:SET
+			SET a$_format_ -->{a$_format_|default:'%1%2'}<!-- END:SET
 			-->lE.oc=lE.onclick;
 			lE.onclick=function(e){var f=this.form;return(f.precheck?f.precheck():true)&&(this.cS()?(this.oc?this.oc(e):true):false)};<!--
 
 		ELSE
 			-->lE.gS=function(){return valid(this<!-- LOOP a$_valid -->,{$VALUE|js}<!-- END:LOOP -->)};<!--
 
+			IF a$type == 'text' && a$_placeholder
+				-->lE.placeholder={a$_placeholder|js};<!--
+			END:IF
 		END:IF
 
 	END:IF
 
-	-->lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form,{a$_preserveScroll_|test:1:0})};<!-- IF a$autofocus -->lEF=lE;setTimeout('lEF.focus()',100);<!-- END:IF -->{a$_JsEnd}<!--
+	-->lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form,{a$_preserveScroll_|test:1:0})};<!-- IF a$_autofocus -->lEF=lE;setTimeout('lEF.focus()',100);<!-- END:IF -->{a$_JsEnd}<!--
 
-	IF a$required --></span><!-- END:IF
+	IF a$_required --></span><!-- END:IF
 
 END:SET
 

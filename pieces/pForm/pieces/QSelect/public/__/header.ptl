@@ -1,0 +1,11 @@
+<!--
+
+IF !g$headerNesting
+
+	INLINE header
+
+	--><div id="__QSd1" style="position:absolute;visibility:hidden;display:none;z-index:9;top:0px"><form><div id="__QSd2" style="position:absolute"><img src="{base:'QSelect/tr.png'}" width="5" height="10" /><br /><img src="{base:'QSelect/r.png'}" width="5" height="5" id="__QSi1" /><br /><img src="{base:'QSelect/br.png'}" width="5" height="5" /></div><div id="__QSd3" style="position:absolute"><img src="{base:'QSelect/bl.png'}" width="10" height="5" /><img src="{base:'QSelect/b.png'}" width="5" height="5" id="__QSi2" /></div><select id="__QSs" size="7"></select></form></div><script type="text/javascript" src="{base:'js/QSelect'}"></script ><!--
+
+END:IF
+
+-->

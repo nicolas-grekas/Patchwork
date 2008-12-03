@@ -11,10 +11,10 @@
  *
  ***************************************************************************/
 
-if (!window.lF)
+if (!window.valid)
 {
 
-function valid($element, $type, $args)
+valid = function($element, $type, $args)
 {
 	if ($element.disabled || $element.readOnly) return 1;
 	if ('' == $element.value) return '';
@@ -478,12 +478,53 @@ onDOMLoaded.push(function()
 			if ($elt.type != 'submit' && $elt.type != 'image')
 			{
 				$elt.v_onfocus = $elt.onfocus;
-				$elt.onfocus = function($event)
+
+				if ($elt.type == 'text' && $elt.placeholder)
 				{
-					var $this = this;
-					$this.form.v_lastFocusedElt = $this;
-					$event = $this.v_onfocus && $this.v_onfocus($event);
-					if (!$event && 'false' == ''+$event) return false;
+					$elt.onfocus = function($event)
+					{
+						var $this = this;
+						$this.form.v_lastFocusedElt = $this;
+
+						if (/\splaceholder\b/.test($this.className))
+						{
+							$this.value = '';
+							$this.className = $this.className.replace(/\splaceholder\b/g, '');
+						}
+
+						$event = $this.v_onfocus && $this.v_onfocus($event);
+						if (!$event && 'false' == ''+$event) return false;
+					}
+
+					$elt.v_onblur = $elt.onblur;
+					$elt.onblur = function($event)
+					{
+						var $this = this;
+						if ('' == $this.value || $this.placeholder == $this.value)
+						{
+							$this.className += ' placeholder';
+							$this.value = $this.placeholder;
+						}
+						else
+						{
+							$this.className = $this.className.replace(/\splaceholder\b/g, '');
+						}
+
+						$event = $this.v_onblur && $this.v_onblur($event);
+						if (!$event && 'false' == ''+$event) return false;
+					}
+
+					$elt.onblur();
+				}
+				else
+				{
+					$elt.onfocus = function($event)
+					{
+						var $this = this;
+						$this.form.v_lastFocusedElt = $this;
+						$event = $this.v_onfocus && $this.v_onfocus($event);
+						if (!$event && 'false' == ''+$event) return false;
+					}
 				}
 			}
 		}

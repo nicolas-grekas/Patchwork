@@ -153,13 +153,13 @@ abstract class
 
 		if ($this->serverMode)
 		{
-			$source = preg_replace_callback(
+			false !== strpos($source, 'CLIENTSIDE') && $source = preg_replace_callback(
 				"'{$this->Xlblock}(?:{$this->XblockBegin})?CLIENTSIDE{$this->Xrblock}.*?{$this->Xlblock}{$this->XblockEnd}CLIENTSIDE{$this->Xrblock}'su",
 				array($this, 'preserveLF'),
 				$source
 			);
 
-			$source = preg_replace_callback(
+			false !== strpos($source, 'SERVERSIDE') && $source = preg_replace_callback(
 				"'{$this->Xlblock}(?:{$this->XblockBegin}|{$this->XblockEnd})?SERVERSIDE{$this->Xrblock}'su",
 				array($this, 'preserveLF'),
 				$source
@@ -167,13 +167,13 @@ abstract class
 		}
 		else
 		{
-			$source = preg_replace_callback(
+			false !== strpos($source, 'SERVERSIDE') && $source = preg_replace_callback(
 				"'{$this->Xlblock}(?:{$this->XblockBegin})?SERVERSIDE{$this->Xrblock}.*?{$this->Xlblock}{$this->XblockEnd}SERVERSIDE{$this->Xrblock}'su",
 				array($this, 'preserveLF'),
 				$source
 			);
 
-			$source = preg_replace_callback(
+			false !== strpos($source, 'CLIENTSIDE') && $source = preg_replace_callback(
 				"'{$this->Xlblock}(?:{$this->XblockBegin}|{$this->XblockEnd})?CLIENTSIDE{$this->Xrblock}'su",
 				array($this, 'preserveLF'),
 				$source
@@ -182,7 +182,11 @@ abstract class
 
 		$this->path_idx = $path_idx;
 		$rx = '[-_a-zA-Z\d\x80-\xffffffff][-_a-zA-Z\d\x80-\xffffffff\.]*';
-		$source = preg_replace_callback("'{$this->Xlblock}INLINE\s+($rx(?:[\\/]$rx)*)(:-?\d+)?\s*{$this->Xrblock}'su", array($this, 'INLINEcallback'), $source);
+		false !== strpos($source, 'INLINE') && $source = preg_replace_callback(
+			"'{$this->Xlblock}INLINE\s+($rx(?:[\\/]$rx)*)(:-?\d+)?\s*{$this->Xrblock}'su",
+			array($this, 'INLINEcallback'),
+			$source
+		);
 
 		return $source;
 	}
