@@ -159,6 +159,8 @@ var $selectRange,
 $select.onfocus = $onfocus;
 $select.onblur = $onblur;
 $select.onmouseup = $onmouseup;
+$options[0] = null;
+$options.length = 0;
 
 
 return function($input, $driver)

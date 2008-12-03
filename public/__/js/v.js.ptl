@@ -226,7 +226,14 @@ checkElementStatus = IcES = function($msgs, $form, $preserveScroll)
 			}
 		}
 
-		$status = $element.gS();
+		if ($element.type == 'text' && $element.placeholder && /\splaceholder\b/.test($element.className))
+		{
+			$element.value = '';
+			$status = $element.gS();
+			$element.value = $element.placeholder;
+		}
+		else $status = $element.gS();
+
 		if ($status) continue;
 
 		$status = '' + $status;
@@ -459,13 +466,19 @@ onDOMLoaded.push(function()
 		$form.v_onsubmit = $form.onsubmit;
 		$form.onsubmit = function($event)
 		{
-			var $this = this;
+			var $this = this, $i, $elt;
 
 			if ($this.precheck && !$this.precheck($event)) return false;
 
 			$event = $this.v_onsubmit && $this.v_onsubmit($event);
 
 			if (!$event && 'false' == ''+$event) return false;
+
+			for ($i = 0; $i < $this.length; ++$i)
+			{
+				$elt = $this[$i];
+				if ($elt.type == 'text'&& $elt.placeholder && /\splaceholder\b/.test($elt.className)) $elt.value = '';
+			}
 
 			if ($this.UPLOAD_IDENTIFIER && window.loadUpload) loadUpload($this);
 		}
