@@ -101,7 +101,7 @@ SET $INPUT
 
 				--><input {$|htmlArgs:'caption':'selected'} {a$|htmlArgs:'class'} /><!--
 
-				IF $caption || a$_caption_ --><label for="{a$id}" class="{$class|default:a$class}" onclick="return IcbC(event,this)" {$|htmlArgs:'caption':'selected':'class'}>&nbsp;{$caption|default:a$_caption_}</label><!-- END:IF
+				IF $caption || a$_caption_ --><label for="{a$id}" onclick="return IcbC(event,this)" {$|htmlArgs:'caption':'selected':'onclick'}>&nbsp;{$caption|default:a$_caption_}</label><!-- END:IF
 				SET a$id -->FiD{g+1$GLOBID}<!-- END:SET
 			END:IF
 		END:LOOP

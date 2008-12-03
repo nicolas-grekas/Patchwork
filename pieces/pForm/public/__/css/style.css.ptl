@@ -1,0 +1,7 @@
+<!-- INLINE css/style.css -->
+
+textarea {overflow: auto}
+textarea.toomuch {background-color: #FFD2D2}
+.errormsg {color: red}
+.required {font-weight: bold}
+
