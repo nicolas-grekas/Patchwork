@@ -22,11 +22,12 @@ class
 		$except = array_slice($except, 1);
 
 		$result = '';
-		foreach ($pool as $k => &$v)
+		foreach ($pool as $k => $v)
 		{
 			if ('_' !== substr($k, 0, 1) && 'iteratorPosition' !== $k && false === strpos($k, '$') && !in_array($k, $except))
 			{
-				$result .= $k . '="' . p::string($v) . '" ';
+				$v = p::string($v);
+				'' !== $v && $result .= $k . '="' . $v . '" ';
 			}
 		}
 
@@ -45,7 +46,14 @@ P$htmlArgs = function($pool)
 	while (--$i) $except[$i] = $args[$i];
 	$except = new RegExp('^(|' + $except.join('|') + ')$');
 
-	for ($i in $pool) if ('_' != $i.substr(0, 1) && 'iteratorPosition' != $i && $i.indexOf('$') < 0 && $i.search($except)) $result += $i + '="' + $pool[$i] + '" ';
+	for ($i in $pool)
+	{
+		if ('_' != $i.substr(0, 1) && 'iteratorPosition' != $i && $i.indexOf('$') < 0 && $i.search($except))
+		{
+			$args = str($pool[$i]);
+			if ('' != $args) $result += $i + '="' + $args + '" ';
+		}
+	}
 
 	return $result;
 }

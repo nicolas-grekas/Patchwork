@@ -1,7 +1,7 @@
 <!--
 
 IF !g$headerNesting
-	SET a$head -->{a$head}<script type="text/javascript" src="{base:'js/v'}"></script><!-- END:SET
+	SET a$head -->{a$head}<script type="text/javascript" src="{base:'js/v'}"></script ><!-- END:SET
 
 	INLINE header
 END:IF

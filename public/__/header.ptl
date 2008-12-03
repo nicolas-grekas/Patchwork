@@ -14,12 +14,10 @@
 <!-- SERVERSIDE -->
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"<!-- IF g$__LANG__ --> xml:lang="{g$__LANG__}" lang="{g$__LANG__}"<!-- END:IF -->>
-<!-- END:SERVERSIDE -->
 <head>
-	<!-- SERVERSIDE -->
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<script type="text/javascript" src="{base:'js/w'}"></script>
-	<!-- END:SERVERSIDE -->
+<!-- END:SERVERSIDE -->
 
 	<title>{a$title|replace:'<[^>]*':''|replace:'>':''}</title>
 
@@ -43,6 +41,8 @@
 	-->
 
 	{a$head}
+<!-- SERVERSIDE -->
 </head>
+<!-- END:SERVERSIDE -->
 <body<!-- IF a$class --> class="{a$class}"<!-- END:IF -->>
 <!-- END:IF -->

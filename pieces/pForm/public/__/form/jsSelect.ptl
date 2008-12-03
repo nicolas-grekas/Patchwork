@@ -19,11 +19,13 @@ It has the same parameters as input.ptl
 *}
 
 IF a$autofocus
-	SET a$autofocus -->autofocus<!-- END:SET
+	SET a$_autofocus -->1<!-- END:SET
+	SET a$autofocus --><!-- END:SET
 END:IF
 
 IF a$required
-	SET a$required -->required<!-- END:SET
+	SET a$_required -->1<!-- END:SET
+	SET a$required --><!-- END:SET
 END:IF
 
 SET a$id -->{a$name}<!-- END:SET
@@ -39,9 +41,9 @@ END:IF
 SET $CAPTION
 	IF a$_caption_
 		--><label for="{a$id}" class="{a$class}" onclick="return IlC(this)"><!--
-		IF a$required --><span class="required"><!-- END:IF
+		IF a$_required --><span class="required"><!-- END:IF
 		-->{a$_caption_}<!--
-		IF a$required --></span><!-- END:IF
+		IF a$_required --></span><!-- END:IF
 		--></label><!--
 	END:IF
 END:SET
@@ -49,7 +51,7 @@ END:SET
 
 SET $INPUT
 
-	IF a$required --><span class="required"><!-- END:IF
+	IF a$_required --><span class="required"><!-- END:IF
 
 	SET $id -->{a$name}<!-- END:SET
 
@@ -65,13 +67,13 @@ SET $INPUT
 	lE=gLE({a$name|js})
 	jsSelectInit(lE,[<!-- LOOP a$_value -->{$VALUE|js},<!-- END:LOOP -->0])
 	lE.gS=IgSS;
-	lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form)};<!-- IF a$autofocus -->lE.focus()<!-- END:IF -->//]]></script ><!--
+	lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form)};<!-- IF a$_autofocus -->lE.focus()<!-- END:IF -->//]]></script ><!--
 
 	SERVERSIDE
 		--><noscript><input {a$|htmlArgs}></noscript><!--
 	END:SERVERSIDE
 
-	IF a$required --></span><!-- END:IF
+	IF a$_required --></span><!-- END:IF
 
 END:SET
 

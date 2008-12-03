@@ -1016,11 +1016,15 @@ patchwork::start();";
 
 		if (!isset($s))
 		{
-			$s = file_exists('realpath') ? @realpath('.') : false;
+			$s = function_exists('realpath') ? @realpath('.') : false;
 			$s = $s && '.' !== $s;
 		}
 
 		if ($s) return realpath($a);
-		else return file_exists($a) ? $a : false;
+		else
+		{
+			//TODO: implement some realpath-equivalent function
+			return file_exists($a) ? $a : false;
+		}
 	}
 }
