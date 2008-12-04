@@ -222,6 +222,7 @@ class __patchwork_bootstrapper
 	$offset,
 	$last,
 	$appId = 0,
+	$buggyRealpath = false,
 
 	$selfRx,
 	$file,
@@ -251,10 +252,10 @@ class __patchwork_bootstrapper
 			ob_start(array(__CLASS__, 'ob_handler'));
 
 			self::$selfRx = preg_quote(__FILE__, '/');
-			self::$pwd = rtrim(dirname(__FILE__), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+			self::$pwd = self::realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
 
-			file_put_contents($cwd . '.cwd.php', '<?php return dirname(__FILE__) . DIRECTORY_SEPARATOR;');
-			self::$cwd = require $cwd . '.cwd.php';
+			file_put_contents($cwd . '.cwd.php', '<?php return dirname(__FILE__);');
+			self::$cwd = self::realpath(require $cwd . '.cwd.php') . DIRECTORY_SEPARATOR;
 			unlink($cwd . '.cwd.php');
 
 			set_time_limit(0);
@@ -1021,10 +1022,77 @@ patchwork::start();";
 		}
 
 		if ($s) return realpath($a);
-		else
+
+		$DS = DIRECTORY_SEPARATOR;
+
+		do
 		{
-			//TODO: implement some realpath-equivalent function
-			return file_exists($a) ? $a : false;
+			if (isset($a[0]))
+			{
+				if ('\\' === $DS)
+				{
+					if ('/' === $a[0] || '\\' === $a[0])
+					{
+						$a = 'c:' . $a;
+						break;
+					}
+
+					if (isset($a[1]) && ':' === $a[1]) break;
+				}
+				else if ('/' === $a[0]) break;
+			}
+
+			static $getcwd;
+
+			if (!isset($getcwd))
+			{
+				if ($cwd = function_exists('getcwd') ? @getcwd() : '')
+				{
+					$getcwd = true;
+				}
+				else
+				{
+					$getcwd = function_exists('get_included_files') ? @get_included_files() : '';
+					$getcwd = $getcwd ? $getcwd[0] : (!empty($_SERVER['SCRIPT_FILENAME']) ? $_SERVER['SCRIPT_FILENAME'] : '.');
+
+					$cwd = $getcwd = dirname($getcwd);
+				}
+
+				self::$buggyRealpath = $getcwd;
+			}
+			else if (true === $getcwd) $getcwd = @getcwd();
+			else $cwd = $getcwd;
+
+			$a = $cwd . $DS . $a;
+
+			break;
 		}
+		while (0);
+
+		if (isset($cwd) && '.' === $cwd) $prefix = '.';
+		else if ('\\' === $DS)
+		{
+			$prefix = $a[0] . ':\\';
+			$a = substr($a, 2);
+		}
+		else $prefix = '/';
+
+		'\\' === $DS && $a = strtr($a, '/', '\\');
+
+		$a = explode($DS, $a);
+		$b = array();
+
+		foreach ($a as $a)
+		{
+			if (!isset($a[0]) || '.' === $a) continue;
+			if ('..' === $a) $b && array_pop($b);
+			else $b[]= $a;
+		}
+
+		$a = $prefix . implode($DS, $b);
+
+		'\\' === $DS && $a = strtolower($a);
+
+		return file_exists($a) ? $a : false;
 	}
 }

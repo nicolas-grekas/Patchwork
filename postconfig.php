@@ -39,7 +39,7 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 // Fix a bug with long file names
 // In debug mode, checks if character case is strict.
 
-/*#>*/if ('\\' === DIRECTORY_SEPARATOR)
+/*#>*/if ('\\' === DIRECTORY_SEPARATOR && !__patchwork_bootstrapper::$buggyRealpath)
 /*#>*/{
 		if (/*<*/version_compare(PHP_VERSION, '5.2', '<')/*>*/ || DEBUG)
 		{
