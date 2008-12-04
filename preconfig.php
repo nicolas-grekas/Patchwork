@@ -283,6 +283,85 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 	return false;
 }
 
+/*#>*/if (__patchwork_bootstrapper::$buggyRealpath)
+/*#>*/{
+		function realpath_is_buggy() {return true;}
+
+		function patchwork_realpath($a)
+		{
+			do
+			{
+				if (isset($a[0]))
+				{
+/*#>*/				if ('\\' === DIRECTORY_SEPARATOR)
+/*#>*/				{
+						if ('/' === $a[0] || '\\' === $a[0])
+						{
+							$a = 'c:' . $a;
+							break;
+						}
+
+						if (isset($a[1]) && ':' === $a[1]) break;
+/*#>*/				}
+/*#>*/				else
+/*#>*/				{
+						if ('/' === $a[0]) break;
+/*#>*/				}
+				}
+
+/*#>*/			if (true === __patchwork_bootstrapper::$buggyRealpath)
+					$cwd = getcwd();
+/*#>*/			else
+					$cwd = /*<*/__patchwork_bootstrapper::$buggyRealpath/*>*/;
+
+				$a = $cwd . /*<*/DIRECTORY_SEPARATOR/*>*/ . $a;
+
+				break;
+			}
+			while (0);
+
+			if (isset($cwd) && '.' === $cwd) $prefix = '.';
+			else
+			{
+/*#>*/			if ('\\' === DIRECTORY_SEPARATOR)
+/*#>*/			{
+					$prefix = strtoupper($a[0]) . ':\\';
+					$a = substr($a, 2);
+/*#>*/			}
+/*#>*/			else
+/*#>*/			{
+					$prefix = '/';
+/*#>*/			}
+			}
+
+/*#>*/		if ('\\' === DIRECTORY_SEPARATOR)
+				$a = strtr($a, '/', '\\');
+
+			$a = explode(/*<*/DIRECTORY_SEPARATOR/*>*/, $a);
+			$b = array();
+
+			foreach ($a as $a)
+			{
+				if (!isset($a[0]) || '.' === $a) continue;
+				if ('..' === $a) $b && array_pop($b);
+				else $b[]= $a;
+			}
+
+			$a = $prefix . implode(/*<*/DIRECTORY_SEPARATOR/*>*/, $b);
+
+/*#>*/		if ('\\' === DIRECTORY_SEPARATOR)
+				$a = strtolower($a);
+
+			return file_exists($a) ? $a : false;
+		}
+/*#>*/}
+/*#>*/else
+/*#>*/{
+		function realpath_is_buggy() {return false;}
+
+		function patchwork_realpath($a) {return realpath($a);}
+/*#>*/}
+
 
 // Class ob: wrapper for ob_start inserted by the preprocessor
 
