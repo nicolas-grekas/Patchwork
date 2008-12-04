@@ -146,7 +146,7 @@ class patchwork_preprocessor__0
 	{
 		defined('E_RECOVERABLE_ERROR') || self::$constant['E_RECOVERABLE_ERROR'] = E_ERROR;
 
-		if (IS_WINDOWS && (DEBUG || PHP_VERSION < '5.2'))
+		if (function_exists('win_file_exists'))
 		{
 			// In debug mode, checks if character case is strict.
 			// Fix a bug with long file names.
@@ -162,6 +162,10 @@ class patchwork_preprocessor__0
 				'stat'          => 'win_stat',
 			);
 		}
+
+		realpath_is_buggy() && self::$functionAlias += array(
+			'realpath' => 'patchwork_realpath',
+		);
 
 		class_exists('patchwork', false) && self::$functionAlias += array(
 			'header'       => 'patchwork::header',
@@ -311,11 +315,7 @@ class patchwork_preprocessor__0
 
 	static function execute($source, $destination, $level, $class)
 	{
-		if (!(isset($source[0]) && ('/'  === $source[0] || (IS_WINDOWS && ('\\' === $source[0] || (isset($source[1]) && ':' === $source[1]))))))
-		{
-			trigger_error('$source path must be an absolute path', E_USER_ERROR);
-			return;
-		}
+		$source = patchwork_realpath($source);
 
 		$recursive = self::$recursive;
 
