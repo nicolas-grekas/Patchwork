@@ -198,7 +198,7 @@ function Z()
 
 		ini_set('error_log', PATCHWORK_PROJECT_PATH . 'error.patchwork.log');
 		$error_log = ini_get('error_log');
-		$error_log = $error_log ? $error_log : PATCHWORK_PROJECT_PATH . 'error.patchwork.log';
+		$error_log || $error_log = PATCHWORK_PROJECT_PATH . 'error.patchwork.log';
 		echo str_repeat(' ', 512), // special MSIE
 			'<pre>';
 		$S||flush();

@@ -311,7 +311,7 @@ if (false !== strpos($a, '/.'))
 
 			parse_str($_SERVER['QUERY_STRING'], $_GET);
 
-/*#>*/		if (get_magic_quotes_gpc())
+/*#>*/		if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc())
 /*#>*/		{
 				$k = array(&$_GET);
 				for ($i = 0, $j = 1; $i < $j; ++$i)
@@ -321,7 +321,7 @@ if (false !== strpos($a, '/.'))
 						if (is_array($v)) $k[$j++] =& $v;
 						else
 						{
-/*#>*/						if (ini_get('magic_quotes_sybase'))
+/*#>*/						if (@ini_get('magic_quotes_sybase'))
 								$v = str_replace("''", "'", $v);
 /*#>*/						else
 								$v = stripslashes($v);

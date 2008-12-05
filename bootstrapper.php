@@ -20,10 +20,10 @@ isset($_SERVER['REDIRECT_STATUS']) && '200' !== $_SERVER['REDIRECT_STATUS'] && d
 
 if (extension_loaded('mbstring'))
 {
-	(ini_get('mbstring.func_overload') & MB_OVERLOAD_STRING)
+	(@ini_get('mbstring.func_overload') & MB_OVERLOAD_STRING)
 		&& die('Patchwork Error: mbstring is overloading string functions');
 
-	ini_get('mbstring.encoding_translation')
+	@ini_get('mbstring.encoding_translation')
 		&& !in_array(strtolower(ini_get('mbstring.http_input')), array('pass', 'utf-8'))
 		&& die('Patchwork Error: mbstring is set to translate input encoding');
 }
@@ -263,7 +263,7 @@ class __patchwork_bootstrapper
 			self::$selfRx = preg_quote(__FILE__, '/');
 			self::$pwd = self::realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
 
-			set_time_limit(0);
+			@set_time_limit(0);
 
 			return true;
 		}
@@ -337,7 +337,7 @@ patchwork::start();";
 
 			rename($cwd . '.patchwork.lock', $cwd . '.patchwork.php');
 
-			set_time_limit(ini_get('max_execution_time'));
+			@set_time_limit(ini_get('max_execution_time'));
 
 			--ob::$in_handler;
 		}
