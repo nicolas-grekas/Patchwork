@@ -236,7 +236,16 @@ class __patchwork_bootstrapper
 
 	static function getLock($retry = true)
 	{
-		$cwd = self::$cwd = (defined('PATCHWORK_BOOTPATH') ? PATCHWORK_BOOTPATH : '.') . DIRECTORY_SEPARATOR;
+		$cwd = defined('PATCHWORK_BOOTPATH') && '' !== PATCHWORK_BOOTPATH ? PATCHWORK_BOOTPATH : '.';
+		self::$cwd = self::realpath($cwd . '/config.patchwork.php');
+
+		if (!self::$cwd)
+		{
+			'-' !== strtr(substr($cwd, -1), '-/\\', '#--') && $cwd .= DIRECTORY_SEPARATOR;
+			die("Patchwork Error: file {$cwd}config.patchwork.php not found. Did you set PATCHWORK_BOOTPATH correctly?");
+		}
+
+		$cwd = self::$cwd = dirname(self::$cwd) . DIRECTORY_SEPARATOR;
 
 		if (self::$lock = @fopen($cwd . '.patchwork.lock', 'xb'))
 		{
@@ -253,10 +262,6 @@ class __patchwork_bootstrapper
 
 			self::$selfRx = preg_quote(__FILE__, '/');
 			self::$pwd = self::realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
-
-			file_put_contents($cwd . '.cwd.php', '<?php return dirname(__FILE__);');
-			self::$cwd = self::realpath(require $cwd . '.cwd.php') . DIRECTORY_SEPARATOR;
-			unlink($cwd . '.cwd.php');
 
 			set_time_limit(0);
 
