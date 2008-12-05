@@ -167,6 +167,28 @@ class patchwork_preprocessor__0
 			'realpath' => 'patchwork_realpath',
 		);
 
+
+		$v = md5(mt_rand());
+		$a = @ini_set('display_errors', $v);
+
+		if (@ini_get('display_errors') !== $v)
+		{
+			self::$functionAlias += array(
+				'ini_set' => '@ini_set',
+				'ini_get' => '@ini_get',
+				'set_time_limit' => '@set_time_limit',
+			);
+		}
+		else if (ini_get('safe_mode'))
+		{
+			self::$functionAlias += array(
+				'set_time_limit' => '@set_time_limit',
+			);
+		}
+
+		@ini_set('display_errors', $a);
+
+
 		class_exists('patchwork', false) && self::$functionAlias += array(
 			'header'       => 'patchwork::header',
 			'setcookie'    => 'patchwork::setcookie',
@@ -1363,11 +1385,15 @@ class __patchwork_preprocessor_marker__0 extends __patchwork_preprocessor_requir
 
 			switch ($type)
 			{
+			case ')':
 			case '}':
 			case ']':
 			case T_INC:
 			case T_DEC:
 				break;
+
+			case T_OBJECT_OPERATOR:
+				$this->curly = 0;
 
 			case '=':
 			case T_DIV_EQUAL:
@@ -1382,15 +1408,6 @@ class __patchwork_preprocessor_marker__0 extends __patchwork_preprocessor_requir
 			case T_OR_EQUAL:
 			case T_CONCAT_EQUAL:
 				$this->greedy = true;
-				break;
-
-			case T_OBJECT_OPERATOR:
-				$this->curly = 0;
-				break;
-
-			case ')':
-				$token .= $this->close;
-				$this->popFilter();
 				break;
 
 			default:

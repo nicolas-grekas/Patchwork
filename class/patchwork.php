@@ -1090,8 +1090,15 @@ class
 				$a = '<span title="Date: ' . date("d-m-Y H:i:s", $_SERVER['REQUEST_TIME']) . ($mem ? ' - Memory: ' . $mem : '') . '">' . sprintf('%.01f ms', $a) . '</span> ' . $b . "\n";
 			}
 
-			$b = ini_get('error_log');
-			$b = fopen($b ? $b : (PATCHWORK_PROJECT_PATH . 'error.patchwork.log'), 'ab');
+			static $error_log;
+
+			if (!isset($error_log))
+			{
+				$error_log = ini_get('error_log');
+				$error_log || $error_log = PATCHWORK_PROJECT_PATH . 'error.patchwork.log';
+			}
+
+			$b = fopen($error_log, 'ab');
 			fwrite($b, $a);
 			fclose($b);
 		}

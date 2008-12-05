@@ -441,8 +441,8 @@ if ($a)
 
 // Timezone settings
 
-/*#>*/if (!ini_get('date.timezone'))
-	ini_get('date.timezone') || ini_set('date.timezone', 'Universal');
+/*#>*/if (!@ini_get('date.timezone'))
+	@(ini_get('date.timezone') || ini_set('date.timezone', 'Universal'));
 
 
 /*#>*/$a = file_get_contents(__patchwork_bootstrapper::$pwd . 'data/utf8/quickChecks.txt');
@@ -458,8 +458,8 @@ define('UTF8_BOM', /*<*/__patchwork_bootstrapper::UTF8_BOM/*>*/);
 		apache_setenv('no-gzip','1');
 
 
-/*#>*/if (ini_get('zlib.output_compression'))
-		ini_set('zlib.output_compression', false);
+/*#>*/if (@ini_get('zlib.output_compression'))
+		@ini_set('zlib.output_compression', false);
 
 
 // mbstring configuration
@@ -508,11 +508,11 @@ define('UTF8_BOM', /*<*/__patchwork_bootstrapper::UTF8_BOM/*>*/);
 
 /*#>*/if (extension_loaded('exif'))
 /*#>*/{
-/*#>*/	if ('UTF-8' !== ini_get('exif.encode_unicode') && '' !== ini_get('exif.encode_unicode'))
-			ini_set('exif.encode_unicode', 'UTF-8');
+/*#>*/	if (@('UTF-8' !== ini_get('exif.encode_unicode') && ini_get('exif.encode_unicode')))
+			@ini_set('exif.encode_unicode', 'UTF-8');
 
-/*#>*/	if ('UTF-8' !== ini_get('exif.encode_jis') && '' !== ini_get('exif.encode_jis'))
-			ini_set('exif.encode_jis', 'UTF-8');
+/*#>*/	if (@('UTF-8' !== ini_get('exif.encode_jis') && ini_get('exif.encode_jis')))
+			@ini_set('exif.encode_jis', 'UTF-8');
 /*#>*/}
 
 
@@ -576,11 +576,11 @@ define('UTF8_BOM', /*<*/__patchwork_bootstrapper::UTF8_BOM/*>*/);
 
 // Configure PCRE
 
-/*#>*/if (ini_get('pcre.backtrack_limit') < 5000000)
-		ini_set('pcre.backtrack_limit',   5000000);
+/*#>*/if (@ini_get('pcre.backtrack_limit') < 5000000)
+		@ini_set('pcre.backtrack_limit', 5000000);
 
-/*#>*/if (ini_get('pcre.recursion_limit') < 10000)
-		ini_set('pcre.recursion_limit',   10000);
+/*#>*/if (@ini_get('pcre.recursion_limit') < 10000)
+		@ini_set('pcre.recursion_limit', 10000);
 
 
 // Convert ISO-8859-1 URLs to UTF-8 ones
@@ -597,11 +597,11 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 
 // Input normalization
 
-/*#>*/if (get_magic_quotes_runtime())
-		set_magic_quotes_runtime(false);
+/*#>*/if (function_exists('get_magic_quotes_runtime') && @get_magic_quotes_runtime())
+		@set_magic_quotes_runtime(false);
 
-/*#>*/$h = extension_loaded('mbstring') && ini_get('mbstring.encoding_translation') && 'UTF-8' == ini_get('mbstring.http_input');
-/*#>*/if (get_magic_quotes_gpc() || !$h)
+/*#>*/$h = @(extension_loaded('mbstring') && ini_get('mbstring.encoding_translation') && 'UTF-8' == ini_get('mbstring.http_input'));
+/*#>*/if (!$h || (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc()))
 /*#>*/{
 		$a = array(&$_GET, &$_POST, &$_COOKIE);
 		foreach ($_FILES as &$v) $a[] = array(&$v['name'], &$v['type']);
@@ -614,9 +614,9 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 				if (is_array($v)) $a[$k++] =& $v;
 				else
 				{
-/*#>*/				if (get_magic_quotes_gpc())
+/*#>*/				if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc())
 /*#>*/				{
-/*#>*/					if (ini_get('magic_quotes_sybase'))
+/*#>*/					if (@ini_get('magic_quotes_sybase'))
 							$v = str_replace("''", "'", $v);
 /*#>*/					else
 							$v = stripslashes($v);
