@@ -138,7 +138,7 @@ class extends patchwork
 
 					foreach ($args as $k => &$v) $agent .= '&' . urlencode($k) . '=' . urlencode(p::string($v));
 
-					if (ini_get('allow_url_fopen')) $agent = file_get_contents($agent);
+					if (ini_get_bool('allow_url_fopen')) $agent = file_get_contents($agent);
 					else
 					{
 						$agent = new HTTP_Request($agent);

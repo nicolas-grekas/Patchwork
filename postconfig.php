@@ -321,7 +321,7 @@ if (false !== strpos($a, '/.'))
 						if (is_array($v)) $k[$j++] =& $v;
 						else
 						{
-/*#>*/						if (@ini_get('magic_quotes_sybase'))
+/*#>*/						if (__patchwork_bootstrapper::ini_get_bool('magic_quotes_sybase'))
 								$v = str_replace("''", "'", $v);
 /*#>*/						else
 								$v = stripslashes($v);

@@ -101,7 +101,7 @@ if ($send_email)
 	}
 }
 
-if (ini_get('allow_url_fopen'))
+if (ini_get_bool('allow_url_fopen'))
 {
 	foreach ($notify_urls as &$a)
 	{

@@ -156,7 +156,7 @@ class extends Mail_mime
 			if (isset($this->headers[$header])) $this->headers[$header] .= ', ' . $email;
 			else $this->headers[$header] = $email;
 
-			if (ini_get('allow_url_fopen'))
+			if (ini_get_bool('allow_url_fopen'))
 			{
 				$context = stream_context_create(array('http' => array(
 					'method' => 'POST',

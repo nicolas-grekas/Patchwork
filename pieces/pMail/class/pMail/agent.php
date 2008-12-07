@@ -94,7 +94,7 @@ class extends pMail_mime
 		if (isset(self::$imageCache[$url])) $data =& self::$imageCache[$url];
 		else
 		{
-			if (ini_get('allow_url_fopen')) $data = file_get_contents($url);
+			if (ini_get_bool('allow_url_fopen')) $data = file_get_contents($url);
 			else
 			{
 				$data = new HTTP_Request($url);
