@@ -179,7 +179,7 @@ class patchwork_preprocessor__0
 				'set_time_limit' => '@set_time_limit',
 			);
 		}
-		else if (ini_get('safe_mode'))
+		else if (ini_get_bool('safe_mode'))
 		{
 			self::$functionAlias += array(
 				'set_time_limit' => '@set_time_limit',
