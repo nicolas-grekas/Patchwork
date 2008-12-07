@@ -94,6 +94,24 @@ if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) // Is it problematic to trust thi
 function patchwork_include($file)     {global $CONFIG; return include $file;}
 function patchwork_is_a($obj, $class) {return $obj instanceof $class;}
 
+function ini_get_bool($a)
+{
+	switch ($b = strtolower(@ini_get($a)))
+	{
+	case 'on':
+	case 'yes':
+	case 'true':
+		return true;
+
+	case 'stdout':
+	case 'stderr':
+		if ('display_errors' === $a) return true;
+
+	default:
+		return (bool) (int) $b;
+	}
+}
+
 function patchwork_bad_request($message, $url)
 {
 	if (in_array($_SERVER['REQUEST_METHOD'], array('GET', 'HEAD')))
@@ -458,7 +476,7 @@ define('UTF8_BOM', /*<*/__patchwork_bootstrapper::UTF8_BOM/*>*/);
 		apache_setenv('no-gzip','1');
 
 
-/*#>*/if (@ini_get('zlib.output_compression'))
+/*#>*/if (__patchwork_bootstrapper::ini_get_bool('zlib.output_compression'))
 		@ini_set('zlib.output_compression', false);
 
 
@@ -508,10 +526,10 @@ define('UTF8_BOM', /*<*/__patchwork_bootstrapper::UTF8_BOM/*>*/);
 
 /*#>*/if (extension_loaded('exif'))
 /*#>*/{
-/*#>*/	if (@('UTF-8' !== ini_get('exif.encode_unicode') && ini_get('exif.encode_unicode')))
+/*#>*/	if (@('UTF-8' !== strtoupper(ini_get('exif.encode_unicode')) && ini_get('exif.encode_unicode')))
 			@ini_set('exif.encode_unicode', 'UTF-8');
 
-/*#>*/	if (@('UTF-8' !== ini_get('exif.encode_jis') && ini_get('exif.encode_jis')))
+/*#>*/	if (@('UTF-8' !== strtoupper(ini_get('exif.encode_jis')) && ini_get('exif.encode_jis')))
 			@ini_set('exif.encode_jis', 'UTF-8');
 /*#>*/}
 
@@ -600,7 +618,7 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 /*#>*/if (function_exists('get_magic_quotes_runtime') && @get_magic_quotes_runtime())
 		@set_magic_quotes_runtime(false);
 
-/*#>*/$h = @(extension_loaded('mbstring') && ini_get('mbstring.encoding_translation') && 'UTF-8' == ini_get('mbstring.http_input'));
+/*#>*/$h = @(extension_loaded('mbstring') && __patchwork_bootstrapper::ini_get_bool('mbstring.encoding_translation') && 'UTF-8' === strtoupper(ini_get('mbstring.http_input')));
 /*#>*/if (!$h || (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc()))
 /*#>*/{
 		$a = array(&$_GET, &$_POST, &$_COOKIE);
@@ -616,7 +634,7 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 				{
 /*#>*/				if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc())
 /*#>*/				{
-/*#>*/					if (@ini_get('magic_quotes_sybase'))
+/*#>*/					if (__patchwork_bootstrapper::ini_get_bool('magic_quotes_sybase'))
 							$v = str_replace("''", "'", $v);
 /*#>*/					else
 							$v = stripslashes($v);
