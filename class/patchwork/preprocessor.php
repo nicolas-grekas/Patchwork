@@ -54,6 +54,7 @@ class patchwork_preprocessor__0
 		'getrandmax' => 'mt_getrandmax',
 
 		'w'            => 'trigger_error',
+		'getcwd'       => 'patchwork_getcwd',
 		'header'       => 'patchwork::header',
 		'setcookie'    => 'patchwork::setcookie',
 		'setrawcookie' => 'patchwork::setrawcookie',
