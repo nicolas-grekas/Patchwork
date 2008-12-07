@@ -101,11 +101,11 @@ function ini_get_bool($a)
 	case 'on':
 	case 'yes':
 	case 'true':
-		return true;
+		return 'assert.active' !== $a;
 
 	case 'stdout':
 	case 'stderr':
-		if ('display_errors' === $a) return true;
+		return 'display_errors' === $a;
 
 	default:
 		return (bool) (int) $b;
@@ -226,7 +226,7 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 	if (false === $level)
 	{
 /*#>*/if ('\\' === DIRECTORY_SEPARATOR)
-		if (isset($file[0]) && ('\\' === $file[0] || (isset($file[1]) && ':' === $file[1]))) return $file;
+		if (isset($file[0]) && ('\\' === $file[0] || false !== strpos($file, ':'))) return $file;
 		if (isset($file[0]) &&  '/'  === $file[0]) return $file;
 
 		$i = 0;
@@ -301,6 +301,22 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 	return false;
 }
 
+function patchwork_getcwd()
+{
+/*#>*/if (function_exists('getcwd') && @getcwd())
+/*#>*/{
+		return getcwd();
+/*#>*/}
+/*#>*/else
+/*#>*/{
+/*#>*/	$a = function_exists('get_included_files') ? @get_included_files() : '';
+/*#>*/	$a = $a ? $a[0] : (!empty($_SERVER['SCRIPT_FILENAME']) ? $_SERVER['SCRIPT_FILENAME'] : '.');
+/*#>*/	$a = dirname($a);
+
+		return /*<*/$a/*>*/;
+/*#>*/}
+}
+
 /*#>*/if (__patchwork_bootstrapper::$buggyRealpath)
 /*#>*/{
 		function realpath_is_buggy() {return true;}
@@ -319,7 +335,7 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 							break;
 						}
 
-						if (isset($a[1]) && ':' === $a[1]) break;
+						if (false !== strpos($a, ':')) break;
 /*#>*/				}
 /*#>*/				else
 /*#>*/				{

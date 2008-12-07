@@ -967,37 +967,9 @@ class
 	/*
 	 * Like mkdir(), but works with multiple level of inexistant directory
 	 */
-	static function makeDir($dir)
+	static function makeDir($dir, $mode = 0700)
 	{
-		$dir = dirname($dir . ' ');
-
-		if (file_exists($dir)) return;
-
-		$dir = preg_split("'[/\\\\]+'u", $dir);
-
-		if (!$dir) return;
-
-		if ('' === $dir[0])
-		{
-			array_shift($dir);
-			if (!$dir) return;
-			$dir[0] = '/' . $dir[0];
-		}
-		else if (!(IS_WINDOWS && ':' === substr($dir[0], -1))) $dir[0] = PATCHWORK_PROJECT_PATH . $dir[0];
-
-		$new = '';
-
-		$e = error_reporting(0);
-
-		foreach ($dir as $dir)
-		{
-			$new .= $dir . '/';
-			file_exists($new) || mkdir($new);
-		}
-
-		error_reporting($e);
-
-		file_exists($new) || mkdir($new);
+		return @mkdir(dirname($dir . ' '), $mode, true);
 	}
 
 	static function fopenX($file, &$readHandle = false)
