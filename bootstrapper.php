@@ -1042,7 +1042,7 @@ patchwork::start();";
 						break;
 					}
 
-					if (isset($a[1]) && ':' === $a[1]) break;
+					if (false !== strpos($a, ':')) break;
 				}
 				else if ('/' === $a[0]) break;
 			}
@@ -1108,11 +1108,11 @@ patchwork::start();";
 		case 'on':
 		case 'yes':
 		case 'true':
-			return true;
+			return 'assert.active' !== $a;
 
 		case 'stdout':
 		case 'stderr':
-			if ('display_errors' === $a) return true;
+			return 'display_errors' === $a;
 
 		default:
 			return (bool) (int) $b;
