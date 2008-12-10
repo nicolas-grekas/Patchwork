@@ -977,7 +977,7 @@ class
 		if ($h = !file_exists($file))
 		{
 			self::makeDir($file);
-			$h = @fopen($file, 'x+b');
+			$h = @fopen($file, 'xb');
 		}
 
 		if ($h) flock($h, LOCK_EX);
