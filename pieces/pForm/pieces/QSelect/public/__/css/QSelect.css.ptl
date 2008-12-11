@@ -1,0 +1,21 @@
+.QSstyle
+{
+	white-space:nowrap;
+}
+
+.QSstyle input, .QSstyle img
+{
+	position:relative;
+	top:2px;
+}
+
+.QSstyle input
+{
+	_top:0px;
+}
+
+.QSstyle img
+{
+	margin-left: -13px;
+	_top:-1px;
+}

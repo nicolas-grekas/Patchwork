@@ -1,23 +1,7 @@
-<!-- INLINE css/style.css -->
+<!--
 
-.QSstyle
-{
-	white-space:nowrap;
-}
+INLINE css/style.css
 
-.QSstyle input, .QSstyle img
-{
-	position:relative;
-	top:2px;
-}
+AGENT 'css/QSelect.css'
 
-.QSstyle input
-{
-	_top:0px;
-}
-
-.QSstyle img
-{
-	margin-left: -13px;
-	_top:-1px;
-}
+-->
