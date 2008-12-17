@@ -576,13 +576,17 @@ class
 			{
 				if (IS_POSTING)
 				{
-					$GLOBALS['_POST_BACKUP'] = $_POST;
-					$_POST = array();
+#>					if (DEBUG) W('Anti CSRF alert: in non-DEBUG mode, $_POST and $_FILES would have been erased.');
+#>					else
+#>					{
+						$GLOBALS['_POST_BACKUP'] = $_POST;
+						$_POST = array();
 
-					$GLOBALS['_FILES_BACKUP'] = $_FILES;
-					$_FILES = array();
+						$GLOBALS['_FILES_BACKUP'] = $_FILES;
+						$_FILES = array();
 
-					patchwork_antiCSRF::postAlert();
+						patchwork_antiCSRF::postAlert();
+#>					}
 				}
 
 				unset($_COOKIE['T$'], $_COOKIE['T$']); // Double unset against a PHP security hole
