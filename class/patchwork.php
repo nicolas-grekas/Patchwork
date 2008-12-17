@@ -572,7 +572,7 @@ class
 		{
 			$new = isset($_COOKIE['T$']) && '1' === substr($_COOKIE['T$'], 0, 1) ? '1' : '2';
 
-			if (!isset(self::$antiCSRFtoken) && $_COOKIE)
+			if (!isset(self::$antiCSRFtoken))
 			{
 				if (IS_POSTING)
 				{
