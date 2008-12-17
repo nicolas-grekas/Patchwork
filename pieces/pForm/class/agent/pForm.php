@@ -11,7 +11,13 @@ class extends agent
 
 		$send = $f->add('submit', 'send');
 
-		$this->composeForm($f, $send);
+		$o = $this->composeForm($o, $f, $send);
+
+		$f = $o->form;
+		$send = $o->f_send;
+		unset($o->form, $o->f_send);
+		$o->form = $f;
+		$o->f_send = $send;
 
 		if ($send->isOn() && $this->formIsOk($f))
 		{
@@ -30,8 +36,9 @@ class extends agent
 		return $o;
 	}
 
-	protected function composeForm($f, $send)
+	protected function composeForm($o, $f, $send)
 	{
+		return $o;
 	}
 
 	protected function formIsOk($f)
