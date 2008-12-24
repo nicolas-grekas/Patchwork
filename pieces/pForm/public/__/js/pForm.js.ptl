@@ -477,7 +477,7 @@ onDOMLoaded.push(function()
 			for ($i = 0; $i < $this.length; ++$i)
 			{
 				$elt = $this[$i];
-				if ($elt.type == 'text'&& $elt.placeholder && /\splaceholder\b/.test($elt.className)) $elt.value = '';
+				if ($elt.type == 'text' && $elt.placeholder && /\splaceholder\b/.test($elt.className)) $elt.value = '';
 			}
 
 			if ($this.UPLOAD_IDENTIFIER && window.loadUpload) loadUpload($this);
@@ -513,7 +513,7 @@ onDOMLoaded.push(function()
 					$elt.onblur = function($event)
 					{
 						var $this = this;
-						if ('' == $this.value || $this.placeholder == $this.value)
+						if ('' == $this.value)
 						{
 							$this.className += ' placeholder';
 							$this.value = $this.placeholder;
