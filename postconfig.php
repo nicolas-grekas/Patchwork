@@ -136,17 +136,34 @@ function __autoload($searched_class)
 function patchworkProcessedPath($file)
 {
 /*#>*/if ('\\' === DIRECTORY_SEPARATOR)
-		if (isset($file[0]) && ('\\' === $file[0] || isset($file[1]) && ':' === $file[1])) return $file;
-		if (isset($file[0]) &&  '/'  === $file[0]) return $file;
+		false !== strpos($file, '\\') && $file = strtr($file, '\\', '/');
+
+	if (false !== strpos('.' . $file, './') || (/*<*/'\\' === DIRECTORY_SEPARATOR/*>*/ && ':' === substr($file, 1, 1)))
+	{
+/*#>*/if (__patchwork_bootstrapper::$buggyRealpath)
+		if ($f = patchwork_realpath($file)) $file = $f;
+/*#>*/else
+		if ($f = realpath($file)) $file = $f;
+
+		$p =& $GLOBALS['patchwork_path'];
+
+		for ($i = /*<*/__patchwork_bootstrapper::$last + 1/*>*/; $i < /*<*/count($patchwork_path)/*>*/; ++$i)
+		{
+			if (substr($file, 0, strlen($p[$i])) === $p[$i])
+			{
+				$file = substr($file, strlen($p[$i]));
+				break;
+			}
+		}
+
+		if (/*<*/count($patchwork_path)/*>*/ === $i) return $f;
+	}
 
 	$file = 'class/' . $file;
 
 	$source = patchworkPath($file, $level);
 
 	if (false === $source) return false;
-
-/*#>*/if ('\\' === DIRECTORY_SEPARATOR)
-		false !== strpos($file, '\\') && $file = strtr($file, '\\', '/');
 
 	$cache = DEBUG . (0>$level ? -$level . '-' : $level);
 	$cache = /*<*/__patchwork_bootstrapper::$cwd . '.'/*>*/ . strtr(str_replace('_', '%2', str_replace('%', '%1', $file)), '/', '_')

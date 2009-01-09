@@ -37,19 +37,9 @@ class extends pForm_QSelect
 
 	function getDbValue()
 	{
-		static $db = false;
-
-		if (!$db)
-		{
-			$db = patchworkPath('data/geodb.sqlite');
-			$db = new SQLiteDatabase($db);
-		}
-
 		if ($this->value)
 		{
-			$sql = "SELECT city_id FROM city WHERE search='" . sqlite_escape_string(lingua::getKeywords($this->value)) . "' LIMIT 1";
-			$value = $db->arrayQuery($sql, SQLITE_NUM);
-			$value = ($value ? $value[0][0] : '0') . ':' . $this->value;
+			$value = geodb::getCityId($this->value) . ':' . $this->value;
 		}
 		else $value = '0:';
 

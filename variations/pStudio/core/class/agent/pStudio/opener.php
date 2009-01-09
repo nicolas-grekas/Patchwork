@@ -47,7 +47,7 @@ class extends agent_pStudio_explorer
 	{
 		if (false !== $a = @file_get_contents($this->realpath))
 		{
-			if (preg_match('/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/', $a))
+			if (preg_match('/[\x00-\x08\x0B\x0E-\x1A\x1C-\x1F]/', substr($a, 0, 512)))
 			{
 				$o->is_binary = true;
 			}
