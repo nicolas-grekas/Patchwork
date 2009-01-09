@@ -574,7 +574,7 @@ class
 
 			if (!isset(self::$antiCSRFtoken))
 			{
-				if (IS_POSTING)
+				if (IS_POSTING && (isset($_POST['T$']) || !empty($_COOKIE)))
 				{
 #>					if (DEBUG) W('Anti CSRF alert: in non-DEBUG mode, $_POST and $_FILES would have been erased.');
 #>					else
