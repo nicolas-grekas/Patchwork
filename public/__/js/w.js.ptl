@@ -1,6 +1,6 @@
 <!--
 
-AGENT 'js/docDomain.js'
-AGENT 'js/patchwork.js'
+AGENT 'js/docDomain'
+AGENT 'js/patchwork'
 
 -->
