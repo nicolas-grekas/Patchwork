@@ -2,6 +2,6 @@
 
 INLINE js/w.js
 
-AGENT 'js/pForm.js'
+AGENT 'js/pForm'
 
 -->
