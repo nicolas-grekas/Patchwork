@@ -77,6 +77,13 @@ class extends self
 		if (1 < func_num_args()) $text = func_get_arg(1);
 		else $text =& $this->_htmlbody;
 
+		foreach ($this->_html_images as $k => &$v)
+		{
+			$k = str_replace('%40', '@', $v['cid']);
+			$text = str_replace($v['cid'], $k, $text);
+			$v['cid'] = $k;
+		}
+
 		$this->_fixEOL($text);
 		$this->optimizeCharset($text, 'html');
 		$text =& parent::_addHtmlPart($obj, $text);

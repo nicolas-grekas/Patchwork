@@ -18,7 +18,9 @@ class extends pMail_mime
 
 	$agent,
 	$args,
-	$lang;
+	$lang,
+
+	$addedImage = array();
 
 
 	static protected $imageCache = array();
@@ -91,6 +93,8 @@ class extends pMail_mime
 	{
 		$url = $m[3];
 
+		if (isset($this->addedImage[$url])) return $m[0];
+
 		if (isset(self::$imageCache[$url])) $data =& self::$imageCache[$url];
 		else
 		{
@@ -114,8 +118,8 @@ class extends pMail_mime
 
 		$this->addHtmlImage($data, $mime, $url, false);
 
-		$a =& $this->_html_images[ count($this->_html_images) - 1 ];
+		$this->addedImage[$url] = true;
 
-		return $m[1] . $m[2] . '="cid:' . $a['cid'] . '"';
+		return $m[0];
 	}
 }
