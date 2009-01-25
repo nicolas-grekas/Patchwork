@@ -177,7 +177,7 @@ class extends loop_agentWrapper
 	protected function get()
 	{
 		$this->agent = 'form/form';
-		$this->keys = '[]';
+		$this->keys = '';
 
 		$a = (object) array(
 			'_hidden' => new pForm_hiddenLoop__($this->hidden),

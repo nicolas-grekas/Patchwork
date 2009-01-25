@@ -53,8 +53,6 @@ class extends loop
 
 						foreach ($a as $k => &$v) $data->$k =& $v;
 
-						array_walk($keys, 'jsquoteRef');
-
 						$data->{'k$'} = implode(',', $keys);
 
 						if (false !== $base)
