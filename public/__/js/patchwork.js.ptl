@@ -278,7 +278,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 		t($a) && ($WobLast ? $WobStack[$WobLast] : $buffer).push($a);
 	}
 
-	function $include($inc, $args, $keys, $c, $i, $j)
+	function $include($inc, $args, $keys, $cache, $i, $j, $k)
 	{
 		if ($args)
 		{
@@ -291,19 +291,18 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 				if ($args.e$) for ($i in $args) $args[$i] = num(str($args[$i]), 1);
 				else          for ($i in $args) $args[$i] = num(    $args[$i] , 1);
 
-				$c = [];
+				$k = [];
 
-				for ($i=0; $i<$keys.length; ++$i)
+				for ($i = 0; $i < $keys.length; ++$i)
 					if (($j = $keys[$i]) && t($args[$j]))
-						$c.push('&amp;' + eUC($j) + '=' + eUC(unesc($args[$j])));
+						$k.push('&amp;' + eUC($j) + '=' + eUC(unesc($args[$j])));
 
-				$c = $c.join('');
+				$k = $k.join('');
 
-				if ($args.e$ && $c) $args.__URI__ += '?' + $c.substr(5);
+				if ($args.e$ && $k) $args.__URI__ += '?' + $k.substr(5);
 				a = $args;
 
-				$inc += $c;
-				$c = 1;
+				$inc += $k;
 			}
 			else
 			{
@@ -333,18 +332,18 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 						g = $args;
 					}
 
-					$include($base + $agent + '?p:=a', $args, $keys, 1)
+					$include($base + $agent + '?p:=a', $args, $keys, 2)
 				}
 
 				$inc += '&amp;p:=k:' + g.__LANG__;
-				$c = 0;
+				$cache = 0;
 			}
 		}
 
-		$lastInclude = $c ? $inc : '';
+		$lastInclude = $cache ? $inc : '';
 
-		return $c && t($includeCache[$inc])
-			? w($includeCache[$inc][0], $includeCache[$inc][1], $WexecLast)
+		return $cache && t($includeCache[$inc])
+			? w($includeCache[$inc][0], $includeCache[$inc][1], $cache - 1 ? 0 : $WexecLast)
 			: ($includeSrc = $inc, !w.w());
 	}
 
@@ -407,7 +406,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 					while ($j = $agent()) $data = $j;
 
 					$agent = $data.a$;
-					$data.k$ ? eval('$keys=['+$data.k$+']') : $keys = [];
+					$keys = $data.k$ ? $data.k$.split(',') : [];
 
 					for ($i in $data) if (!/\$/.test($i)) t($args[$i]) || ($args[$i] = $data[$i])
 
@@ -570,7 +569,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 
 		<!-- IF g$__DEBUG__ -->
 		if (DEBUG) E({
-			'Agent': dUC(('['+$lastInclude.substr(g.__BASE__.length + 2)).replace(/&(amp;)?/g, ', [').replace(/=/g, '] = ')),
+			'Agent': dUC(($lastInclude.substr(g.__BASE__.length)).replace(/(&(amp;)?|\?)/g, ', ').replace(/=/g, '=')),
 			'Arguments': a,
 			'Data': DEBUG-1 ? $context : ''
 		});

@@ -360,7 +360,7 @@ class extends loop_agentWrapper
 	protected function get()
 	{
 		$this->agent = 'form/input';
-		$this->keys = '[]';
+		$this->keys = '';
 
 		$a = (object) array(
 			'_type' => $this->type,
