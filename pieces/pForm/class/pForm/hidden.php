@@ -136,14 +136,16 @@ class extends loop_agentWrapper
 
 			if ($onempty || $onerror)
 			{
-				$this->elementsToCheck[] = array(
-					'name' => $addedElt->getName(),
+				$name = $addedElt->getName();
+
+				$this->elementsToCheck[$name] = array(
+					'name' => $name,
 					'onempty' => $onempty,
 					'onerror' => $onerror,
 				);
 			}
 
-			$onempty && $addedElt->required = true;
+			$addedElt->required = (bool) $onempty;
 		}
 
 		if (isset($this->isOn) && $elements)
