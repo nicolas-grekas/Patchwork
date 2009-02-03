@@ -14,13 +14,13 @@
 
 class
 {
-	protected static $db = false;
+	protected static $db = array();
 
-	static function connect()
+	static function connect($dsn)
 	{
-		if (self::$db) return $db;
+		if (isset(self::$db[$dsn])) return self::$db[$dsn];
 
-		$db = MDB2::factory($CONFIG['DSN']);
+		$db = MDB2::factory($dsn);
 
 		if (PEAR::isError($db))
 		{
@@ -49,23 +49,21 @@ class
 
 		$db->beginTransaction();
 
-		self::$db = $db;
+		self::$db[$dsn] = $db;
 
 		return $db;
 	}
 
-	static function disconnect()
+	static function disconnect($db)
 	{
-		if (self::$db)
-		{
-			self::$db->in_transaction && self::$db->commit();
-			self::$db->disconnect();
-			self::$db = false;
-		}
+		$db->in_transaction && $db->commit();
+		$db->disconnect();
 	}
 
 	static function __destructStatic()
 	{
-		self::disconnect();
+		foreach (self::$db as $db) self::disconnect($db);
+
+		self::$db = array();
 	}
 }

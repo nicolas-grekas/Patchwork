@@ -85,7 +85,7 @@ $_SESSION = new sessionHandler;
 function DB()
 {
 	static $db;
-	isset($db) || $db = adapter_DB::connect();
+	isset($db) || $db = adapter_DB::connect($CONFIG['DSN']);
 	return $db;
 }
 // }}}
