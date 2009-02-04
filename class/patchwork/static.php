@@ -94,7 +94,7 @@ class extends patchwork
 
 					fwrite($h, $pipe);
 					fclose($h);
-					p::writeWatchTable(array('pipe'), $cpipe);
+					p::writeWatchTable('pipe', $cpipe);
 				}
 				else
 				{
