@@ -82,11 +82,13 @@ $_SESSION = new sessionHandler;
 // }}}
 
 // {{{ Database sugar
-function DB($dsn = false)
+function DB($dsn = 0)
 {
-	static $db;
-	isset($db) || $db = adapter_DB::connect(false !== $dsn ? $dsn : $CONFIG['DSN']);
-	return $db;
+	static $db = array();
+
+	isset($db[$dsn]) || $db[$dsn] = adapter_DB::connect(0 == $dsn ? $CONFIG['DSN'] : $dsn);
+
+	return $db[$dsn];
 }
 // }}}
 
