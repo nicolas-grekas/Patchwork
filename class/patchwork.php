@@ -86,7 +86,7 @@ function DB($dsn = 0)
 {
 	static $db = array();
 
-	isset($db[$dsn]) || $db[$dsn] = adapter_DB::connect(0 == $dsn ? $CONFIG['DSN'] : $dsn);
+	isset($db[$dsn]) || $db[$dsn] = adapter_DB::connect(0 === $dsn ? $CONFIG['DSN'] : $dsn);
 
 	return $db[$dsn];
 }
