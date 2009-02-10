@@ -2,7 +2,7 @@
 
 class
 {
-	protected static $db;
+	static $db;
 
 	static function __constructStatic()
 	{
