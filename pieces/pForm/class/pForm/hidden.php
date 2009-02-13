@@ -169,7 +169,7 @@ class extends loop_agentWrapper
 
 		if ('' === $this->status || isset($GLOBALS['_POST_BACKUP']) && $this->form->isPOST()) return $this->isOn = false;
 
-		$error =& $this->form->errormsg;
+		$error = array();
 
 		foreach ($elements as $elt)
 		{
@@ -179,7 +179,7 @@ class extends loop_agentWrapper
 
 			$elt = $elt->checkError($onempty, $onerror);
 
-			if ($elt && true !== $elt) $error[] = $elt;
+			if ($elt && true !== $elt) $this->form->errormsg[] = $error[] = $elt;
 		}
 
 		if ($this->sessionLink && $error) unset($this->sessionLink[$this->name]);

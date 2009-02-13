@@ -5,6 +5,8 @@ abstract class extends loop
 	protected
 
 	$type,
+	$exposeLoopData = false,
+
 	$form,
 	$fromDb,
 	$counter,
@@ -68,7 +70,9 @@ abstract class extends loop
 				$data = (object) array("{$this->type}_id" => '');
 			}
 
-			$a = (object) array('id' => $data->{"{$this->type}_id"});
+			$a = $this->exposeLoopData ? $data : (object) array();
+
+			isset($a->id) || $a->id = $data->{"{$this->type}_id"};
 
 			if (isset($this->deleted[$this->counter])) $a->deleted = $this->counter;
 			else
@@ -81,10 +85,7 @@ abstract class extends loop
 				if ($form->add('submit', "{$this->type}_del")->isOn())
 				{
 					$this->deleted[$this->counter] = true;
-					$a = (object) array(
-						'id' => $a->id,
-						'deleted' => $this->counter
-					);
+					$a->deleted = $this->counter;
 				}
 				else $this->populateForm($a, $data, $this->counter);
 			}
