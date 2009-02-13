@@ -457,7 +457,7 @@ onDOMLoaded.push(function()
 {
 	scrollCntrl = 0;
 
-	var $i = 0, $forms = document.forms, $form, $j, $elt;
+	var $i = 0, $win = window, $forms = document.forms, $form, $j, $elt;
 
 	for (; $i<$forms.length; ++$i)
 	{
@@ -481,6 +481,27 @@ onDOMLoaded.push(function()
 			}
 
 			if ($this.UPLOAD_IDENTIFIER && window.loadUpload) loadUpload($this);
+		}
+
+		$win.v_onbeforeunload = $win.onbeforeunload;
+		$win.onbeforeunload = function($event)
+		{
+			var $i = 0, $j, $form = document.forms, $element;
+
+			for (; $i<$form.length; ++$i)
+			{
+				for ($j = 0; $j < $form[$i].length; ++$j)
+				{
+					$element = $form[$i][$j];
+
+					if ($element.type == 'text' && $element.placeholder && /\splaceholder\b/.test($element.className))
+					{
+						$element.value = '';
+					}
+				}
+			}
+
+			if ($win.v_onbeforeunload) return $win.v_onbeforeunload($event);
 		}
 
 		for ($j = 0; $j < $form.length; ++$j)
@@ -543,7 +564,7 @@ onDOMLoaded.push(function()
 		}
 	}
 
-	$forms = $form = $elt = 0;
+	$win = $forms = $form = $elt = 0;
 });
 
 }
