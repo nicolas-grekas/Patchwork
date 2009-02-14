@@ -273,9 +273,9 @@ if (false !== strpos($a, '/.'))
 /*#>*/
 /*#>*/switch (true)
 /*#>*/{
-/*#>*/case isset($_SERVER['REDIRECT_PATCHWORK_REQUEST']):
 /*#>*/case isset($_SERVER['PATCHWORK_REQUEST'])         :
-/*#>*/case isset($_SERVER['ORIG_PATH_INFO'])            : 
+/*#>*/case isset($_SERVER['REDIRECT_PATCHWORK_REQUEST']):
+/*#>*/case isset($_SERVER['ORIG_PATH_INFO'])            :
 /*#>*/case isset($_SERVER['PATH_INFO'])                 : break;
 /*#>*/
 /*#>*/default:
@@ -304,8 +304,8 @@ if (false !== strpos($a, '/.'))
 /*#>*/{
 		switch (true)
 		{
-		case isset($_SERVER['REDIRECT_PATCHWORK_REQUEST']): $r = $_SERVER['REDIRECT_PATCHWORK_REQUEST']; break;
 		case isset($_SERVER['PATCHWORK_REQUEST'])         : $r = $_SERVER['PATCHWORK_REQUEST']         ; break;
+		case isset($_SERVER['REDIRECT_PATCHWORK_REQUEST']): $r = $_SERVER['REDIRECT_PATCHWORK_REQUEST']; break;
 		case isset($_SERVER['ORIG_PATH_INFO'])            : $r = $_SERVER['ORIG_PATH_INFO']            ; break;
 		case isset($_SERVER['PATH_INFO'])                 : $r = $_SERVER['PATH_INFO']                 ; break;
 
@@ -412,8 +412,8 @@ $a = preg_replace("'/[./]*/'", '/', '/' . $a);
 
 $_SERVER['PATCHWORK_REQUEST'] = (string) substr($r, 1, -1);
 
-isset($_SERVER['REDIRECT_PATCHWORK_BASE']) && $_SERVER['PATCHWORK_BASE'] = $_SERVER['REDIRECT_PATCHWORK_BASE'];
-isset($_SERVER['REDIRECT_PATCHWORK_LANG']) && $_SERVER['PATCHWORK_LANG'] = $_SERVER['REDIRECT_PATCHWORK_LANG'];
+!isset($_SERVER['PATCHWORK_BASE']) && isset($_SERVER['REDIRECT_PATCHWORK_BASE']) && $_SERVER['PATCHWORK_BASE'] = $_SERVER['REDIRECT_PATCHWORK_BASE'];
+!isset($_SERVER['PATCHWORK_LANG']) && isset($_SERVER['REDIRECT_PATCHWORK_LANG']) && $_SERVER['PATCHWORK_LANG'] = $_SERVER['REDIRECT_PATCHWORK_LANG'];
 
 if (isset($_SERVER['PATCHWORK_BASE']))
 {
