@@ -23,8 +23,8 @@ RewriteCond %{REQUEST_FILENAME} -d [OR]
 RewriteCond %{REQUEST_FILENAME} -l
 RewriteRule .+ - [S=1]
 
-RewriteCond %{ENV:REDIRECT_PATCHWORK_REQUEST} ^$
-RewriteRule .* index.php [E=REDIRECT_PATCHWORK_REQUEST:/$0]
+RewriteCond %{ENV:PATCHWORK_REQUEST} ^$
+RewriteRule .* index.php [E=PATCHWORK_REQUEST:/$0]
 </IfModule>
 
 # Here is an other way to get friendly URLs
