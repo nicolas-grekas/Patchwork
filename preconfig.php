@@ -601,6 +601,7 @@ define('UTF8_BOM', /*<*/__patchwork_bootstrapper::UTF8_BOM/*>*/);
 
 				default:
 					$s[$j] = $s[$i];
+				}
 			}
 
 			return substr($s, 0, $j);

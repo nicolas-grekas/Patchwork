@@ -78,7 +78,7 @@ class extends ptlCompiler
 		if (!strncmp($inc, '(isset(', 7))
 		{
 			$inc = substr($inc, 7, strpos($inc, ')', 7) - 7);
-			$this->pushCode("isset($inc)?patchwork_serverside::loadAgent($inc,array($a)," . ($is_exo ? 1 : 0) . "):E('AGENT is undefined: $inc');");
+			$this->pushCode("isset($inc)?patchwork_serverside::loadAgent($inc,array($a)," . ($is_exo ? 1 : 0) . "):trigger_error('AGENT is undefined: $inc');");
 
 			return true;
 		}
