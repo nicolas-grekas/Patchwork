@@ -6,6 +6,7 @@ abstract class extends loop
 
 	$type,
 	$exposeLoopData = false,
+	$allowAddDel = true,
 
 	$form,
 	$fromDb,
@@ -25,16 +26,19 @@ abstract class extends loop
 
 		$this->form = $form;
 
-		$this->submit_add = $this->form->add('submit', "{$this->type}_add");
-		$this->submit_count = $this->form->add('hidden', "{$this->type}_count");
+		if ($this->allowAddDel)
+		{
+			$this->submit_add = $this->form->add('submit', "{$this->type}_add");
+			$this->submit_count = $this->form->add('hidden', "{$this->type}_count");
 
-		$this->count_name = $this->submit_count->getName();
-		$this->count_value = $this->getLength();
+			$this->count_name = $this->submit_count->getName();
+			$this->count_value = $this->getLength();
 
-		$this->submit_count->setValue($this->count_value);
+			$this->submit_count->setValue($this->count_value);
 
 
-		$this->deleted = array_flip((array) @$_POST["deleted_{$this->type}"]);
+			$this->deleted = array_flip((array) @$_POST["deleted_{$this->type}"]);
+		}
 	}
 
 	protected function prepare()
@@ -43,13 +47,19 @@ abstract class extends loop
 		$this->counter = 0;
 		$this->contextIsSet = false;
 
-		$this->length = max(1, $this->loop->getLength());
-
-		if ($this->submit_count->getStatus())
+		if ($this->allowAddDel)
 		{
-			$this->length = $this->submit_count->getValue();
-			if ($this->submit_add->isOn()) $this->length += 1;
+			if ($this->submit_count->getStatus())
+			{
+				$this->length = $this->submit_count->getValue();
+				if ($this->submit_add->isOn()) $this->length += 1;
+			}
+			else
+			{
+				$this->length = max(1, $this->loop->getLength());
+			}
 		}
+		else $this->length = $this->loop->getLength();
 
 		return $this->length;
 	}
@@ -82,7 +92,7 @@ abstract class extends loop
 
 				$form->pushContext($a, $this->type . '_' . $this->counter);
 
-				if ($form->add('submit', "{$this->type}_del")->isOn())
+				if ($this->allowAddDel && $form->add('submit', "{$this->type}_del")->isOn())
 				{
 					$this->deleted[$this->counter] = true;
 					$a->deleted = $this->counter;
@@ -90,8 +100,11 @@ abstract class extends loop
 				else $this->populateForm($a, $data, $this->counter);
 			}
 
-			$a->count_name = $this->count_name;
-			$a->count_value = $this->count_value;
+			if ($this->allowAddDel)
+			{
+				$a->count_name = $this->count_name;
+				$a->count_value = $this->count_value;
+			}
 
 			return $a;
 		}
