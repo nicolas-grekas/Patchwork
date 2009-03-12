@@ -39,7 +39,7 @@ class extends pForm_hidden
 
 	protected function addJsValidation($a)
 	{
-		$a->_valid = new loop_array(array_merge(array($this->valid), $this->valid_args));
+		$a->_valid = new loop_array(array_merge(array($this->valid), $this->validArgs));
 		return $a;
 	}
 }
