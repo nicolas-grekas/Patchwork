@@ -311,6 +311,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 					$base = esc($base);
 					$agent = esc($agent);
 
+					$__0__ += '';
 					$args.__0__ = $__0__;
 					$__0__ = $__0__.split('/');
 					for ($i = 0; $i < $__0__.length; ++$i) $args['__' + ($i+1) + '__'] = $__0__[$i];

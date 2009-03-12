@@ -35,7 +35,9 @@ class extends loop_agentWrapper
 	$type = 'hidden',
 
 	$valid,
-	$valid_args = array(),
+	$validArgs = array(),
+	$validDefaultRx  = '',
+	$validDefaultMsg = '',
 
 	$elements = array(),
 	$elementsToCheck = array(),
@@ -214,7 +216,7 @@ class extends loop_agentWrapper
 				W('Input validation error in ' . get_class($this) . ' element: ' . print_r(array(
 					'name' => $this->name,
 					'value' => $this->value,
-					'valid' => $this->valid, $this->valid_args
+					'valid' => $this->valid, $this->validArgs
 				), true));
 >*/
 
@@ -271,7 +273,20 @@ class extends loop_agentWrapper
 		empty($param['disabled']) || $this->disabled = true;
 		if ($this->disabled || !empty($param['readonly'])) $this->readonly = true;
 
-		$this->valid = isset($param['valid']) ? $param['valid'] : 'char';
+		if (isset($param['valid']))
+		{
+			$this->valid = $param['valid'];
+		}
+		else
+		{
+			$this->valid = 'char';
+
+			if (!isset($param[0]) && '' !== $this->validDefaultRx)
+			{
+				$this->validArgs[] = $this->validDefaultRx;
+				$this->validmsg = T($this->validDefaultMsg);
+			}
+		}
 
 		if (!empty($param['multiple']))
 		{
@@ -282,11 +297,11 @@ class extends loop_agentWrapper
 		isset($param['isdata']) && $this->isdata = (bool) $param['isdata'];
 
 		$i = 0;
-		while(isset($param[$i])) $this->valid_args[] =& $param[$i++];
+		while(isset($param[$i])) $this->validArgs[] =& $param[$i++];
 
 		isset($param['validmsg']) && $this->validmsg = $param['validmsg'];
 		isset($param['validMsg']) && $this->validmsg = $param['validMsg'];
-		$this->validmsg || $this->validmsg = FILTER::getMsg($this->valid, $this->valid_args);
+		$this->validmsg || $this->validmsg = FILTER::getMsg($this->valid, $this->validArgs);
 
 		if (!$this->readonly && isset($this->form->rawValues[$this->name]))
 		{
@@ -325,7 +340,7 @@ class extends loop_agentWrapper
 						if ('' === $value) unset($this->value[$i]);
 						else
 						{
-							$v = FILTER::get($value, $this->valid, $this->valid_args);
+							$v = FILTER::get($value, $this->valid, $this->validArgs);
 
 							if (false === $v) $status = false;
 							else
@@ -349,7 +364,7 @@ class extends loop_agentWrapper
 		else if ('' === (string) $this->value) $this->status = '';
 		else
 		{
-			$this->status = FILTER::get($this->value, $this->valid, $this->valid_args);
+			$this->status = FILTER::get($this->value, $this->valid, $this->validArgs);
 
 			if ('' !== $this->status && false !== $this->status)
 			{

@@ -26,13 +26,13 @@ class extends pForm_text
 		empty($param['disabled']) || $this->disabled = true;
 		if ($this->disabled || !empty($param['readonly'])) $this->readonly = true;
 
-		$this->valid_args[] = $this->maxlength = isset($param['maxlength']) ? (int) $param['maxlength'] : 0;
+		$this->validArgs[] = $this->maxlength = isset($param['maxlength']) ? (int) $param['maxlength'] : 0;
 
 		$this->valid = isset($param['valid']) ? $param['valid'] : '';
 		if (!$this->valid) $this->valid = 'file';
 
 		$i = 0;
-		while(isset($param[$i])) $this->valid_args[] =& $param[$i++];
+		while(isset($param[$i])) $this->validArgs[] =& $param[$i++];
 
 		if (!empty($param['multiple']))
 		{
@@ -63,7 +63,7 @@ class extends pForm_text
 								'size'     => $value['size'    ][$i],
 							);
 
-							$v = FILTER::getFile($v, $this->valid, $this->valid_args);
+							$v = FILTER::getFile($v, $this->valid, $this->validArgs);
 
 							if (false === $v) $status = false;
 							else if ('' !== $v)
@@ -80,7 +80,7 @@ class extends pForm_text
 			}
 			else
 			{
-				$this->status = FILTER::getFile($this->form->filesValues[$this->name], $this->valid, $this->valid_args);
+				$this->status = FILTER::getFile($this->form->filesValues[$this->name], $this->valid, $this->validArgs);
 				$this->value = $this->status;
 			}
 		}
@@ -89,7 +89,7 @@ class extends pForm_text
 
 	protected function addJsValidation($a)
 	{
-		$a->_valid = new loop_array(array('char', isset($this->valid_args[1]) ? $this->valid_args[1] : ''));
+		$a->_valid = new loop_array(array('char', isset($this->validArgs[1]) ? $this->validArgs[1] : ''));
 		return $a;
 	}
 }
