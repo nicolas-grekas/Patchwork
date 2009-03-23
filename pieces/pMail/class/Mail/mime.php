@@ -41,6 +41,7 @@ class extends self
 			'scheme'           => 'B',
 			'input-charset'    => $this->_build_params['head_charset'],
 			'output-charset'   => $this->_build_params['head_charset'],
+			'line-length'      => 900,
 			'line-break-chars' => $this->_eol,
 		);
 
