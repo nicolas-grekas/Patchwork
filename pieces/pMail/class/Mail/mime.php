@@ -164,9 +164,9 @@ class extends self
 			$c = $charset;
 			$a = @iconv('UTF-8', $c, $data);
 
-			if (false === $a && is_string($c))
+			if (false === $a && is_string($enc))
 			{
-				$c = explode(',', $c);
+				$c = explode(',', $enc);
 				unset($c[0]);
 				foreach ($c as $c)
 				{
@@ -177,6 +177,11 @@ class extends self
 						break;
 					}
 				}
+			}
+			else if (null === $a)
+			{
+				iconv('UTF-8', $c, $data); // Should trigger a usefull warning
+				$a = false;
 			}
 
 			if (false !== $a && iconv($c, 'UTF-8', $a) === $data)
