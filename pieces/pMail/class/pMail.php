@@ -68,12 +68,19 @@ EOHTML;
 
 			$headers =& $data['headers'];
 
-			$headers['X-Original-To'] = $headers['To'];
-			isset($headers[ 'Cc']) && $headers['X-Original-Cc' ] = $headers[ 'Cc'];
-			isset($headers['Bcc']) && $headers['X-Original-Bcc'] = $headers['Bcc'];
+			foreach (array('To', 'Cc', 'Bcc') as $sql)
+			{
+				if (isset($headers[$sql]))
+				{
+					$headers['X-Original-' . $sql] = is_array($headers[$sql])
+						? implode(', ', $headers[$sql])
+						: $headers[$sql];
+
+					unset($headers[$sql]);
+				}
+			}
 
 			$headers['To'] = $CONFIG['pMail.debug_email'];
-			unset($headers['Cc'], $headers['Bcc']);
 		}
 
 		$data['cookie']  =& $_COOKIE;
@@ -115,11 +122,11 @@ EOHTML;
 				VALUES('{$base}','{$data}',{$time},{$archive},{$sent})";
 		$sqlite->queryExec($sql);
 
-		$id = $sqlite->lastInsertRowid();
+		$sql = $sqlite->lastInsertRowid();
 
 		$queue->registerQueue();
 
-		return $id;
+		return $sql;
 	}
 
 	protected static function getUrl($data)
