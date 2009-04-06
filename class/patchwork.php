@@ -637,7 +637,7 @@ class
 
 				if (isset(self::$headers[$name])) return;
 
-				if (self::$is_enabled && false !== stripos($string, 'script'))
+				if (self::$is_enabled && (false !== stripos($string, 'javascript') || false !== stripos($string, 'ecmascript')))
 				{
 					if (self::$private) PATCHWORK_TOKEN_MATCH || patchwork_antiCSRF::scriptAlert();
 
