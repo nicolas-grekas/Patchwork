@@ -27,7 +27,7 @@ function QSelectSuggest($data, $separator, $separatorRx)
 
 		$driver.search = function($query, $pushBack, $selectionStart)
 		{
-			if ('*' == $query) return $pushBack($data.slice(0, 15));
+			if ('*' == $query) return $pushBack(QSelectSuggest.limit ? $data.slice(0, QSelectSuggest.limit) : $data);
 
 			var $result = [],
 				$i = 0,
@@ -84,3 +84,5 @@ function QSelectSuggest($data, $separator, $separatorRx)
 		return $driver;
 	}
 }
+
+QSelectSuggest.limit = QSelectSearch.limit;
