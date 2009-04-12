@@ -146,6 +146,7 @@ class extends loop_agentWrapper
 					'onerror' => $onerror,
 				);
 			}
+			else unset($this->elementsToCheck[$name]);
 
 			$addedElt->required = (bool) $onempty;
 		}
