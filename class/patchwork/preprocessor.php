@@ -207,7 +207,6 @@ class patchwork_preprocessor__0
 		extension_loaded('hash') && self::$functionAlias += array(
 			'md5'   => "hash('md5',",
 			'sha1'  => "hash('sha1',",
-			'crc32' => "hash('crc32',",
 		);
 
 		if (!extension_loaded('intl'))

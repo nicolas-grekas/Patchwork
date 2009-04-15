@@ -94,6 +94,12 @@ function DB($dsn = 0)
 
 function jsquote($a, $addDelim = true, $delim = "'")
 {
+	if (is_array($a))
+	{
+		W('jsquote error: can not quote an array');
+		$a = '';
+	}
+
 	if ((string) $a === (string) ($a-0)) return $a-0;
 
 	false !== strpos($a, "\r") && $a = strtr(str_replace("\r\n", "\n", $a), "\r", "\n");
@@ -179,6 +185,7 @@ class
 
 	$is_enabled = false,
 	$ob_starting_level,
+	$ob_has_started = false,
 	$ob_level,
 	$varyEncoding = false,
 	$contentEncoding = false,
@@ -635,7 +642,7 @@ class
 			{
 				$string = substr($string, 14);
 
-				if (isset(self::$headers[$name])) return;
+				if (isset(self::$headers[$name]) && (!$replace || self::$ob_has_started || ob_get_length())) return;
 
 				if (self::$is_enabled && (false !== stripos($string, 'javascript') || false !== stripos($string, 'ecmascript')))
 				{
@@ -1342,6 +1349,8 @@ class
 		static $type = false;
 		false !== $type || $type = isset(self::$headers['content-type']) ? strtolower(substr(self::$headers['content-type'], 14)) : 'html';
 
+		if (PHP_OUTPUT_HANDLER_START & $mode) self::$ob_has_started = true;
+
 		// Anti-XSRF token
 
 		if (false !== strpos($type, 'html'))
@@ -1796,7 +1805,7 @@ class agent
 				: 'application/octet-stream';
 		}
 
-		$this->contentType && p::header('Content-Type: ' . $this->contentType);
+		$this->contentType && p::header('Content-Type: ' . $this->contentType, false);
 	}
 
 	function metaCompose()
