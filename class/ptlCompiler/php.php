@@ -183,7 +183,7 @@ class extends ptlCompiler
 		switch ($type)
 		{
 			case "'":
-				$var = var_export($name, true);
+				$var = var_export((string) $name, true);
 				break;
 
 			case '$':
