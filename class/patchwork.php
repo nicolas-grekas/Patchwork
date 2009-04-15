@@ -185,10 +185,10 @@ class
 
 	$is_enabled = false,
 	$ob_starting_level,
-	$ob_has_started = false,
 	$ob_level,
 	$varyEncoding = false,
 	$contentEncoding = false,
+	$lockedContentType = false,
 	$is304 = false,
 
 	$agentClasses = '',
@@ -304,6 +304,8 @@ class
 		if ('-' === strtr(self::$requestMode, '-tpax', '#----'))
 		{
 			self::header('Content-Type: text/javascript');
+
+			self::$lockedContentType = true;
 
 			if (isset($_GET['v$']) && self::$appId != $_GET['v$'] && 'x' !== self::$requestMode)
 			{
@@ -642,7 +644,7 @@ class
 			{
 				$string = substr($string, 14);
 
-				if (isset(self::$headers[$name]) && (!$replace || self::$ob_has_started || ob_get_length())) return;
+				if (isset(self::$headers[$name]) && self::$lockedContentType) return;
 
 				if (self::$is_enabled && (false !== stripos($string, 'javascript') || false !== stripos($string, 'ecmascript')))
 				{
@@ -1349,7 +1351,7 @@ class
 		static $type = false;
 		false !== $type || $type = isset(self::$headers['content-type']) ? strtolower(substr(self::$headers['content-type'], 14)) : 'html';
 
-		if (PHP_OUTPUT_HANDLER_START & $mode) self::$ob_has_started = true;
+		if (PHP_OUTPUT_HANDLER_START & $mode) self::$lockedContentType = true;
 
 		// Anti-XSRF token
 
@@ -1805,7 +1807,7 @@ class agent
 				: 'application/octet-stream';
 		}
 
-		$this->contentType && p::header('Content-Type: ' . $this->contentType, false);
+		$this->contentType && p::header('Content-Type: ' . $this->contentType);
 	}
 
 	function metaCompose()

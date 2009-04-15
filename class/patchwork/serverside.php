@@ -233,6 +233,8 @@ class extends patchwork
 		$ctemplate = p::getContextualCachePath('templates/' . $template, (p::$binaryMode ? 'bin' : 'html') . '.php');
 		$ftemplate = 'template' . md5($ctemplate);
 
+		p::$lockedContentType = true;
+
 		if (function_exists($ftemplate)) $ftemplate($v, $a, $g);
 		else
 		{

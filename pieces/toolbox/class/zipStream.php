@@ -25,10 +25,19 @@ class zipStream
 	protected $cdr = array(), $dataLen = 0;
 
 
-	function __construct($header = false, $level = self::LEVEL)
+	function __construct($name = '', $level = self::LEVEL)
 	{
 		$this->level = $level;
-		$header && header('Content-Type: ' . self::contentType);
+
+		if ($name)
+		{
+			header('Content-Type: ' . self::contentType);
+
+			$name = p::toASCII($name);
+			$name = str_replace('"', "''", $name);
+
+			header('Content-Disposition: attachment; filename="' . $name . '.zip"');
+		}
 	}
 
 	function __destruct()
