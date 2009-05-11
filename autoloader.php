@@ -22,7 +22,7 @@ class __patchwork_autoloader
 
 	static function autoload($req)
 	{
-		if ($req !== strtr($req, ";'", '--')) return;
+		if ($req !== strtr($req, ";'?", '---')) return;
 
 		$T = PATCHWORK_PATH_TOKEN;
 		$lc_req = strtolower($req);
@@ -120,8 +120,7 @@ class __patchwork_autoloader
 
 		if ($src && !$parent_exists)
 		{
-			$cache = DEBUG . (0>$level ? -$level . '-' : $level);
-			$cache = PATCHWORK_PROJECT_PATH . ".class_{$top}.php.{$cache}.{$T}.zcache.php";
+			$cache = patchwork_class2cache($top . '.php', $level);
 
 			$current_pool = false;
 			$parent_pool =& self::$pool;

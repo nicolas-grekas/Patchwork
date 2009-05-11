@@ -83,6 +83,24 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 /*#>*/}
 
 
+function patchwork_class2cache($class, $level)
+{
+	static $map = array(
+		'__x25' => '%', '__x2B' => '+', '__x2D' => '-',
+		'__x2E' => '.', '__x3D' => '=', '__x7E' => '~',
+	);
+
+	false !== strpos($class, '__x') && $class = strtr($class, $map);
+
+	$cache = (int) DEBUG . (0>$level ? -$level . '-' : $level);
+	$cache = /*<*/__patchwork_bootstrapper::$cwd . '.class_'/*>*/
+			. $class . '.' . $cache
+			. /*<*/'.' . __patchwork_bootstrapper::$token . '.zcache.php'/*>*/;
+
+	return $cache;
+}
+
+
 // __autoload(): the magic part
 
 /*#>*/@copy(__patchwork_bootstrapper::$pwd . 'autoloader.php', __patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')
@@ -159,15 +177,12 @@ function patchworkProcessedPath($file)
 		if (/*<*/count($patchwork_path)/*>*/ === $i) return $f;
 	}
 
-	$file = 'class/' . $file;
-
-	$source = patchworkPath($file, $level);
+	$source = patchworkPath('class/' . $file, $level);
 
 	if (false === $source) return false;
 
-	$cache = DEBUG . (0>$level ? -$level . '-' : $level);
-	$cache = /*<*/__patchwork_bootstrapper::$cwd . '.'/*>*/ . strtr(str_replace('_', '%2', str_replace('%', '%1', $file)), '/', '_')
-		. '.' . $cache . /*<*/'.' . __patchwork_bootstrapper::$token . '.zcache.php'/*>*/;
+	$cache = patchwork_file2class($file);
+	$cache = patchwork_class2cache($cache, $level);
 
 	if (file_exists($cache) && (TURBO || filemtime($cache) > filemtime($source))) return $cache;
 

@@ -111,7 +111,7 @@ class extends loop_agentWrapper
 
 	function getStatus()
 	{
-		return $this->disabled ? '' : $this->status;
+		return $this->status;
 	}
 
 	function attach()

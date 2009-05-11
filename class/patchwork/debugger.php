@@ -47,12 +47,11 @@ class extends patchwork
 				$offset = -12 - strlen(PATCHWORK_PATH_TOKEN);
 
 				$dir = opendir(PATCHWORK_PROJECT_PATH);
-				while (false !== $cache = readdir($dir)) if (preg_match('/^\..+\.[^0][^\.]+\.' . PATCHWORK_PATH_TOKEN . '\.zcache\.php$/D', $cache))
+				while (false !== $cache = readdir($dir)) if (preg_match('/^\.(.+)\.[^0]([^\.]+)\.' . PATCHWORK_PATH_TOKEN . '\.zcache\.php$/D', $cache, $level))
 				{
-					$file = str_replace('%1', '%', str_replace('%2', '_', strtr(substr($cache, 1, $offset), '_', '/')));
-					$level = substr(strrchr($file, '.'), 2);
+					$file = patchwork_class2file($level[1]);
+					$level = $level[2];
 
-					$file = substr($file, 0, -(2 + strlen($level)));
 					if ('-' == substr($level, -1))
 					{
 						$level = -$level;
@@ -276,8 +275,8 @@ function Z()
 
 	static function filename($m)
 	{
-		return '<span title="' . $GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - ((int)($m[3].$m[2]))] . '">.' . DIRECTORY_SEPARATOR
-			. str_replace('%1', '%', str_replace('%2', '_', strtr($m[1], '_', DIRECTORY_SEPARATOR)))
+		return '<span title="' . $GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - ((int)($m[3].$m[2]))] . '">'
+			. patchwork_class2file($m[1])
 			. '</span>';
 	}
 }

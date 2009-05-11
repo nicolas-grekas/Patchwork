@@ -37,32 +37,31 @@ class extends pForm_hidden
 		if (isset($param['firstItem'])) $this->firstItem = $param['firstItem'];
 
 		if (isset($param['item'])) $this->item =& $param['item'];
-		else if (isset($param['sql']))
+		else
 		{
-			$db = DB();
-			$this->item = array();
-			$result =& $db->query($param['sql']);
+			if (isset($param['sql'])) $param['loop'] = new loop_sql($param['sql']);
 
-			$this->length = 0;
-
-			while ($row =& $result->fetchRow())
+			if (isset($param['loop']))
 			{
-				if (isset($param['filter'])) $row = call_user_func_array($param['filter'], array(&$row));
-				if (isset($row->G) && '' !== (string) $row->G)
+				$this->length = 0;
+				$this->item = array();
+
+				while ($v =& $param['loop']->loop())
 				{
-					if (isset($this->item[ $row->G ])) $this->item[ $row->G ][ $row->K ] =& $row->V;
-					else
+					if (!empty($v->G))
 					{
-						$this->item[ $row->G ] = array($row->K => &$row->V);
-						$this->length += 2;
+						if (isset($this->item[$v->G])) $this->item[$v->G][$v->K] =& $v->V;
+						else
+						{
+							$this->item[$v->G] = array($v->K => &$v->V);
+							$this->length += 2;
+						}
 					}
+					else $this->item[$v->K] =& $v->V;
+
+					$this->length += 1;
 				}
-				else $this->item[ $row->K ] =& $row->V;
-
-				$this->length += 1;
 			}
-
-			$result->free();
 		}
 
 		if (!isset($param['valid']))
