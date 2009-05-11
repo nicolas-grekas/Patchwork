@@ -26,7 +26,7 @@ bundle['ptl/js' ] = bundle.js;
 
 if (bundle = bundle[{$language|js}])
 {
-	document.write('<script type="text/javascript" src="http://www.april-child.com/amy/api/embed/amy.php?theme=' + theme + '&amp;bundle=' + bundle + '"><\/script>');
+	document.write('<script type="text/javascript" src="http://www.amyeditor.com/api/embed/amy.php?theme=' + theme + '&amp;bundle=' + bundle + '"><\/script>');
 }
 
 </script >
