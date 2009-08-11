@@ -24,7 +24,7 @@
 * BOARD
 */
 
-var undefined, footerHtml = [], antiCSRF = '';
+var footerHtml = [], antiCSRF = '';
 
 function t($v, $type)
 {

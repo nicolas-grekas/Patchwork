@@ -366,7 +366,7 @@ class patchwork_preprocessor__0
 
 		self::$recursive = $recursive;
 
-		$tmp = PATCHWORK_PROJECT_PATH . uniqid(mt_rand(), true);
+		$tmp = PATCHWORK_PROJECT_PATH . '.~' . uniqid(mt_rand(), true);
 		if (false !== file_put_contents($tmp, $code))
 		{
 			if (IS_WINDOWS)

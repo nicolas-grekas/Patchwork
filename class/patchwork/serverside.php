@@ -243,8 +243,8 @@ class extends patchwork
 			if ($h = p::fopenX($ctemplate))
 			{
 				p::openMeta('agent__template/' . $template, false);
-				$compiler = new ptlCompiler_php(p::$binaryMode);
-				$ftemplate = '<?php function ' . $ftemplate . '(&$v, &$a, &$g){global $a' . PATCHWORK_PATH_TOKEN . ',$c' . PATCHWORK_PATH_TOKEN . ';$d=$v;' . $compiler->compile($template) . '} ' . $ftemplate . '($v, $a, $g);';
+				$compiler = new ptlCompiler_php($template, p::$binaryMode);
+				$ftemplate = '<?php function ' . $ftemplate . '(&$v, &$a, &$g){global $a' . PATCHWORK_PATH_TOKEN . ',$c' . PATCHWORK_PATH_TOKEN . ';$d=$v;' . $compiler->compile() . '} ' . $ftemplate . '($v, $a, $g);';
 				fwrite($h, $ftemplate);
 				fclose($h);
 				list(,,, $watch) = p::closeMeta();

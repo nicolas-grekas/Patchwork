@@ -17,10 +17,18 @@ class extends ptlCompiler
 	protected
 
 	$watch = 'public/templates/php',
-
+	$serverMode = true,
 	$closeModifier = '):0)',
-	$setStack = array();
 
+	$binaryMode;
+
+
+	function __construct($template, $binaryMode)
+	{
+		$this->binaryMode = $binaryMode;
+
+		parent::__construct($template);
+	}
 
 	protected function makeCode(&$code)
 	{
@@ -221,5 +229,17 @@ class extends ptlCompiler
 		$var .= '"\'"\'o';
 
 		return $var;
+	}
+
+	protected function filter($a)
+	{
+		$a = parent::filter($a);
+		$this->binaryMode || $a = preg_replace_callback("/\s{2,}/su", array(__CLASS__, 'filter_callback'), $a);
+		return $a;
+	}
+
+	protected static function filter_callback($m)
+	{
+		return false === strpos($m[0], "\n") ? ' ' : "\n";
 	}
 }

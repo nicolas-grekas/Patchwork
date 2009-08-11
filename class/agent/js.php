@@ -20,6 +20,7 @@ class extends agent
 
 	protected
 
+	$debug = DEBUG,
 	$maxage = -1,
 	$watch = array('public/js');
 
@@ -32,16 +33,20 @@ class extends agent
 		$this->get->source && self::$recursion = 1;
 		self::$recursion && $this->get->source = 1;
 
-		if (DEBUG || $this->get->source)
+		if ($this->debug || $this->get->source)
 		{
+			$dir = substr(get_class($this), 6);
+			$dir = patchwork_class2file($dir);
+
 			$tpl = $this->get->__0__;
 
 			if ($tpl !== '')
 			{
 				if ('.js' !== substr($tpl, -3)) $tpl .= '.js';
 
-				$tpl = str_replace('../', '/', strtr('js/' . $tpl, '\\', '/'));
+				$tpl = str_replace('../', '/', $dir . '/' . strtr($tpl, '\\', '/'));
 			}
+			else $tpl = $dir . '.js';
 
 			$this->template = $tpl;
 		}
@@ -49,21 +54,28 @@ class extends agent
 
 	function compose($o)
 	{
-		if (!DEBUG && !$this->get->source)
-		{
-			++self::$recursion;
-			$source = patchwork_serverside::returnAgent(substr(get_class($this), 6), (array) $this->get);
-			--self::$recursion;
-
-			$parser = new jsqueez;
-			$o->DATA = $parser->squeeze($source);
-		}
-		else
+		if ($this->debug || $this->get->source)
 		{
 			$o->cookie_path     = $CONFIG['session.cookie_path'];
 			$o->cookie_domain   = $CONFIG['session.cookie_domain'];
 			$o->document_domain = $CONFIG['document.domain'];
 			$o->maxage = $CONFIG['maxage'];
+		}
+		else
+		{
+			++self::$recursion;
+			$source = patchwork_class2file(substr(get_class($this), 6));
+			$source = patchwork_serverside::returnAgent($source, (array) $this->get);
+			--self::$recursion;
+
+			$parser = new jsqueez;
+			$o->DATA = p::__URI__();
+			$o->DATA .= (false === strpos($o->DATA, '?') ? '?' : '&') . 'source=1';
+			$o->DATA = "// Copyright & source: {$o->DATA}\n";
+
+			foreach (count_chars($o->DATA, 1) as $k => $w) $parser->charFreq[$k] += $w;
+
+			$o->DATA .= $parser->squeeze($source);
 		}
 
 		return $o;

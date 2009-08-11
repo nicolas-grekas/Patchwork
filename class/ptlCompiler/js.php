@@ -31,9 +31,9 @@ class extends ptlCompiler
 	protected
 
 	$watch = 'public/templates/js',
-
 	$serverMode = false,
-	$setStack = array(),
+	$closeModifier = ')',
+
 	$stack = array(),
 
 	$jscode = array(),
