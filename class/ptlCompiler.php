@@ -14,7 +14,7 @@
 
 abstract class
 {
-	private
+	protected
 
 	$Xlvar = '\\{',
 	$Xrvar = '\\}',
@@ -50,23 +50,21 @@ abstract class
 	$template,
 
 	$offset = 0,
-	$blockStack = array();
-
-
-	protected
+	$blockStack = array(),
+	$setStack = array(),
+	$mode = 'echo',
 
 	$watch,
-	$mode = 'echo',
-	$binaryMode = true,
-	$serverMode = true,
-	$closeModifier = ')';
+	$serverMode,
+	$closeModifier;
 
 
-	function __construct($binaryMode)
+	function __construct($template)
 	{
+		$this->source = $template;
+
 		p::watch($this->watch);
 
-		$this->binaryMode = $binaryMode;
 		$this->Xvar .= $this->XpureVar;
 
 		$dnum = '(?:(?:\d*\.\d+)|(?:\d+\.\d*))';
@@ -83,9 +81,9 @@ abstract class
 		$this->XfullVar = "({$this->Xexpression}|{$this->Xmodifier}(?::(?:{$this->Xexpression})?)+)((?:{$this->XmodifierPipe})*)";
 	}
 
-	final public function compile($template)
+	function compile()
 	{
-		$this->source = $this->load($template);
+		$this->source = $this->load($this->source);
 
 		$this->code = array('');
 		$this->codeLast = 0;
@@ -104,14 +102,14 @@ abstract class
 		return $template;
 	}
 
-	final protected function getLine()
+	protected function getLine()
 	{
 		$a = substr($this->source, 0, $this->offset);
 
 		return substr_count($a, "\n") + substr_count($a, "\r") + 1;
 	}
 
-	private function load($template, $path_idx = 0)
+	protected function load($template, $path_idx = 0)
 	{
 		'.ptl' === strtolower(substr($template, -4)) && $template = substr($template, 0, -4);
 
@@ -257,7 +255,7 @@ abstract class
 	abstract protected function getVar($name, $type, $prefix, $forceType);
 	abstract protected function makeModifier($name);
 
-	final protected function makeVar($name, $forceType = false)
+	protected function makeVar($name, $forceType = false)
 	{
 		$type = $prefix = '';
 		if ("'" === $name[0])
@@ -276,7 +274,7 @@ abstract class
 		return $this->getVar($name, $type, $prefix, $forceType);
 	}
 
-	final protected function pushText($a)
+	protected function pushText($a)
 	{
 		if ('concat' === $this->mode)
 		{
@@ -290,7 +288,7 @@ abstract class
 		}
 	}
 
-	final protected function pushCode($a)
+	protected function pushCode($a)
 	{
 		if ($this->codeLast % 2) $this->code[$this->codeLast] .= $a;
 		else
@@ -301,14 +299,14 @@ abstract class
 	}
 
 
-	private function filter($a)
+	protected function filter($a)
 	{
 		if (false !== strpos($a, "\r")) $a = str_replace("\r", '', $a);
 
-		return $this->binaryMode ? $a : preg_replace_callback("/\s{2,}/su", array(__CLASS__, 'filter_callback'), $a);
+		return $a;
 	}
 
-	private function makeBlocks($a)
+	protected function makeBlocks($a)
 	{
 		$a = preg_split("/({$this->Xlblock}{$this->Xblock}(?>{$this->Xstring}|.)*?{$this->Xrblock})/su", $a, -1, PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_DELIM_CAPTURE);
 
@@ -324,7 +322,7 @@ abstract class
 		}
 	}
 
-	private function makeVars(&$a)
+	protected function makeVars(&$a)
 	{
 		$a = preg_split("/{$this->Xlvar}{$this->XfullVar}{$this->Xrvar}/su", $a, -1, PREG_SPLIT_DELIM_CAPTURE);
 
@@ -339,7 +337,7 @@ abstract class
 		}
 	}
 
-	private function compileBlock(&$a)
+	protected function compileBlock(&$a)
 	{
 		$blockname = false;
 		$limit = 0;
@@ -520,7 +518,7 @@ abstract class
 		else $this->pushText($a);
 	}
 
-	private function compileVar($var, $pipe)
+	protected function compileVar($var, $pipe)
 	{
 		$detail = array();
 
@@ -575,7 +573,7 @@ abstract class
 		else $this->pushCode( $this->getEcho($Estart . $Eend) );
 	}
 
-	private function evalVar($a, $translate = false, $forceType = false)
+	protected function evalVar($a, $translate = false, $forceType = false)
 	{
 		if ( '' === $a) return "''";
 		if ('~' === $a) $a = 'g$__BASE__';
@@ -652,10 +650,9 @@ abstract class
 		return $this->makeVar($a, $forceType);
 	}
 
-	protected static function filter_callback($m) {return false === strpos($m[0], "\n") ? ' ' : "\n";}
-	private function evalVar_callback($m) {return $this->evalVar($m[0]);}
+	protected function evalVar_callback($m) {return $this->evalVar($m[0]);}
 
-	private function endError($unexpected, $expected)
+	protected function endError($unexpected, $expected)
 	{
 		W("Template Parse Error: Unexpected END:$unexpected" . ($expected ? ", expecting END:$expected" : '') . " line " . $this->getLine());
 	}

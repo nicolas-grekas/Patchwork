@@ -246,8 +246,8 @@ EOHTML;
 				if ($h = p::fopenX($ctemplate, $readHandle))
 				{
 					p::openMeta('agent__template/' . $template, false);
-					$compiler = new ptlCompiler_js(p::$binaryMode);
-					echo $template = ',[' . $compiler->compile($template) . '])';
+					$template = new ptlCompiler_js($template);
+					echo $template = ',[' . $template->compile() . '])';
 					fwrite($h, $template);
 					fclose($h);
 					list(,,, $template) = p::closeMeta();

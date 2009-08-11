@@ -1010,7 +1010,7 @@ class
 	 */
 	static function writeFile($filename, &$data, $Dmtime = 0)
 	{
-		$tmpname = dirname($filename) . '/' . uniqid(mt_rand(), true);
+		$tmpname = dirname($filename) . '/.~' . uniqid(mt_rand(), true);
 
 		$h = @fopen($tmpname, 'wb');
 
