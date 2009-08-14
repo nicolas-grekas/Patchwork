@@ -107,8 +107,11 @@ foreach ($a as $a)
 
 	if (file_exists($a))
 	{
+		__patchwork_bootstrapper::$file = $a;
+		ob_start(array('__patchwork_bootstrapper', 'ob_eval'));
 		eval(__patchwork_bootstrapper::staticPass1($a));
 		unset($a, $b);
+		ob_end_flush();
 		__patchwork_bootstrapper::staticPass2($a);
 		__patchwork_bootstrapper::$token = md5(__patchwork_bootstrapper::$token . $a);
 	}
@@ -172,8 +175,11 @@ foreach ($a as $a)
 
 	if (file_exists($a))
 	{
+		__patchwork_bootstrapper::$file = $a;
+		ob_start(array('__patchwork_bootstrapper', 'ob_eval'));
 		eval(__patchwork_bootstrapper::staticPass1($a));
 		unset($a, $b);
+		ob_end_flush();
 		__patchwork_bootstrapper::staticPass2();
 	}
 }
@@ -183,10 +189,10 @@ foreach ($a as $a)
 
 foreach (__patchwork_bootstrapper::$configCode as __patchwork_bootstrapper::$file => $a)
 {
-	ob_start();
+	ob_start(array('__patchwork_bootstrapper', 'ob_eval'));
 	eval($a);
 	unset($a, $b);
-	if ('' !== $a = ob_get_clean()) echo preg_replace('/' . __patchwork_bootstrapper::$selfRx . '\(\d+\) : eval\(\)\'d code/', __patchwork_bootstrapper::$file, $a);
+	ob_end_flush();
 }
 
 unset($a);
@@ -194,8 +200,11 @@ unset($a);
 
 // Setup hook
 
-class p extends patchwork {}
-patchwork_setup::hook();
+if (!ob_get_length())
+{
+	class p extends patchwork {}
+	patchwork_setup::hook();
+}
 
 
 // Save config and release lock
@@ -807,6 +816,13 @@ patchwork::start();";
 		}
 	}
 
+
+	static function ob_eval($buffer)
+	{
+		return '' !== $buffer
+			? preg_replace('/' . self::$selfRx . '\(\d+\) : eval\(\)\'d code/', self::$file, $buffer)
+			: '';
+	}
 
 	static function staticPass1($code)
 	{

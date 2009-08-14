@@ -296,8 +296,10 @@ if (false !== strpos($a, '/.'))
 /*#>*/default:
 /*#>*/	// Check if the webserver supports PATH_INFO
 /*#>*/
+/*#>*/	$a = $_SERVER['SERVER_ADDR'];
+/*#>*/	false !== strpos($a, ':') && $a = '[' . $a . ']';
 /*#>*/	$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
-/*#>*/	$h = fsockopen("{$h}://[{$_SERVER['SERVER_ADDR']}]", $_SERVER['SERVER_PORT'], $errno, $errstr, 30);
+/*#>*/	$h = fsockopen("{$h}://{$a}", $_SERVER['SERVER_PORT'], $errno, $errstr, 30);
 /*#>*/	if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
 /*#>*/
 /*#>*/	$a = strpos($_SERVER['REQUEST_URI'], '?');

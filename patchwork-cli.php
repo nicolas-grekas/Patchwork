@@ -57,8 +57,10 @@ function apache_setenv() {}
 
 if (!file_exists(PATCHWORK_BOOTPATH . '/.patchwork.php'))
 {
+	$url = $_SERVER['SERVER_ADDR'];
+	false !== strpos($url, ':') && $url = '[' . $url . ']';
 	$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
-	$h = fsockopen("{$h}://[{$_SERVER['SERVER_ADDR']}]", $_SERVER['SERVER_PORT'], $errno, $errstr, 30);
+	$h = fsockopen("{$h}://{$url}", $_SERVER['SERVER_PORT'], $errno, $errstr, 30);
 	if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
 
 	$url  = "GET {$_SERVER['REQUEST_URI']} HTTP/1.0\r\n";

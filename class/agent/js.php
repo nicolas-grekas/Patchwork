@@ -16,7 +16,7 @@ class extends agent
 {
 	const contentType = 'text/javascript';
 
-	public $get = array('__0__', 'source:b');
+	public $get = array('__0__', 'src:b');
 
 	protected
 
@@ -30,10 +30,10 @@ class extends agent
 
 	function control()
 	{
-		$this->get->source && self::$recursion = 1;
-		self::$recursion && $this->get->source = 1;
+		$this->get->src && self::$recursion = 1;
+		self::$recursion && $this->get->src = 1;
 
-		if ($this->debug || $this->get->source)
+		if ($this->debug || $this->get->src)
 		{
 			$dir = substr(get_class($this), 6);
 			$dir = patchwork_class2file($dir);
@@ -54,7 +54,7 @@ class extends agent
 
 	function compose($o)
 	{
-		if ($this->debug || $this->get->source)
+		if ($this->debug || $this->get->src)
 		{
 			$o->cookie_path     = $CONFIG['session.cookie_path'];
 			$o->cookie_domain   = $CONFIG['session.cookie_domain'];
@@ -64,18 +64,18 @@ class extends agent
 		else
 		{
 			++self::$recursion;
-			$source = patchwork_class2file(substr(get_class($this), 6));
-			$source = patchwork_serverside::returnAgent($source, (array) $this->get);
+			$src = patchwork_class2file(substr(get_class($this), 6));
+			$src = patchwork_serverside::returnAgent($src, (array) $this->get);
 			--self::$recursion;
 
 			$parser = new jsqueez;
 			$o->DATA = p::__URI__();
-			$o->DATA .= (false === strpos($o->DATA, '?') ? '?' : '&') . 'source=1';
+			$o->DATA .= (false === strpos($o->DATA, '?') ? '?' : '&') . 'src=1';
 			$o->DATA = "// Copyright & source: {$o->DATA}\n";
 
 			foreach (count_chars($o->DATA, 1) as $k => $w) $parser->charFreq[$k] += $w;
 
-			$o->DATA .= $parser->squeeze($source);
+			$o->DATA .= $parser->squeeze($src);
 		}
 
 		return $o;
