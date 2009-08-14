@@ -78,7 +78,11 @@ if (isset($_SERVER['HTTPS']))
 	else unset($_SERVER['HTTPS']);
 }
 
-if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) // Is it problematic to trust this header ?
+/*
+ * Is it problematic to trust this header ?
+ * Yes, because it permits to query a local IP.
+ * Add a whitelist of allowed reverse proxies ?
+if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']))
 {
 	if ('https' === strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'])) $_SERVER['HTTPS'] = 'on';
 	else unset($_SERVER['HTTPS']);
@@ -87,6 +91,7 @@ if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) // Is it problematic to trust thi
 	$_SERVER['SERVER_PORT'] = false !== $a ? (string)(int) substr($a, 1) : (isset($_SERVER['HTTPS']) ? '443' : '80');
 	$_SERVER['SERVER_ADDR'] = $_SERVER['REMOTE_ADDR'];
 }
+ */
 
 
 // Utility functions
