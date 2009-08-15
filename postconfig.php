@@ -15,8 +15,8 @@
 
 /**** Post-configuration stage 0 ****/
 
-$patchwork_appId = (int) /*<*/sprintf('%020d', __patchwork_bootstrapper::$appId)/*>*/;
-define('PATCHWORK_PATH_TOKEN', /*<*/__patchwork_bootstrapper::$token/*>*/);
+$patchwork_appId = (int) /*<*/sprintf('%020d', patchwork_bootstrapper::$appId)/*>*/;
+define('PATCHWORK_PATH_TOKEN', /*<*/patchwork_bootstrapper::$token/*>*/);
 
 
 $CONFIG += array(
@@ -39,7 +39,7 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 // Fix a bug with long file names
 // In debug mode, checks if character case is strict.
 
-/*#>*/if ('\\' === DIRECTORY_SEPARATOR && !__patchwork_bootstrapper::$buggyRealpath)
+/*#>*/if ('\\' === DIRECTORY_SEPARATOR && !patchwork_bootstrapper::$buggyRealpath)
 /*#>*/{
 		if (/*<*/version_compare(PHP_VERSION, '5.2', '<')/*>*/ || DEBUG)
 		{
@@ -93,9 +93,9 @@ function patchwork_class2cache($class, $level)
 	false !== strpos($class, '__x') && $class = strtr($class, $map);
 
 	$cache = (int) DEBUG . (0>$level ? -$level . '-' : $level);
-	$cache = /*<*/__patchwork_bootstrapper::$cwd . '.class_'/*>*/
+	$cache = /*<*/patchwork_bootstrapper::$cwd . '.class_'/*>*/
 			. $class . '.' . $cache
-			. /*<*/'.' . __patchwork_bootstrapper::$token . '.zcache.php'/*>*/;
+			. /*<*/'.' . patchwork_bootstrapper::$token . '.zcache.php'/*>*/;
 
 	return $cache;
 }
@@ -103,13 +103,13 @@ function patchwork_class2cache($class, $level)
 
 // __autoload(): the magic part
 
-/*#>*/@copy(__patchwork_bootstrapper::$pwd . 'autoloader.php', __patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')
-/*#>*/	|| @unlink(__patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php') + copy(__patchwork_bootstrapper::$pwd . 'autoloader.php', __patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php');
+/*#>*/@copy(patchwork_bootstrapper::$pwd . 'autoloader.php', patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')
+/*#>*/	|| @unlink(patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php') + copy(patchwork_bootstrapper::$pwd . 'autoloader.php', patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php');
 /*#>*/
 /*#>*/if ('\\' === DIRECTORY_SEPARATOR)
 /*#>*/{
 /*#>*/	$a = new COM('Scripting.FileSystemObject');
-/*#>*/	$a->GetFile(__patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')->Attributes |= 2; // Set hidden attribute
+/*#>*/	$a->GetFile(patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')->Attributes |= 2; // Set hidden attribute
 /*#>*/}
 
 function __autoload($searched_class)
@@ -122,7 +122,7 @@ function __autoload($searched_class)
 		{
 			$b = $a;
 			unset($a);
-			$a = $b - /*<*/__patchwork_bootstrapper::$offset/*>*/;
+			$a = $b - /*<*/patchwork_bootstrapper::$offset/*>*/;
 
 			$b = $searched_class;
 			$i = strrpos($b, '__');
@@ -131,9 +131,9 @@ function __autoload($searched_class)
 			$a = $b . '.php.' . DEBUG . (0>$a ? -$a . '-' : $a);
 		}
 
-		$a = /*<*/__patchwork_bootstrapper::$cwd . '.class_'/*>*/ . $a . /*<*/'.' . __patchwork_bootstrapper::$token . '.zcache.php'/*>*/;
+		$a = /*<*/patchwork_bootstrapper::$cwd . '.class_'/*>*/ . $a . /*<*/'.' . patchwork_bootstrapper::$token . '.zcache.php'/*>*/;
 
-		$GLOBALS[/*<*/'a' . __patchwork_bootstrapper::$token/*>*/] = false;
+		$GLOBALS[/*<*/'a' . patchwork_bootstrapper::$token/*>*/] = false;
 
 		if (file_exists($a))
 		{
@@ -143,7 +143,7 @@ function __autoload($searched_class)
 		}
 	}
 
-	class_exists('__patchwork_autoloader', false) || require TURBO ? /*<*/__patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php'/*>*/ : /*<*/__patchwork_bootstrapper::$pwd . 'autoloader.php'/*>*/;
+	class_exists('__patchwork_autoloader', false) || require TURBO ? /*<*/patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php'/*>*/ : /*<*/patchwork_bootstrapper::$pwd . 'autoloader.php'/*>*/;
 
 	__patchwork_autoloader::autoload($searched_class);
 }
@@ -158,14 +158,14 @@ function patchworkProcessedPath($file)
 
 	if (false !== strpos('.' . $file, './') || (/*<*/'\\' === DIRECTORY_SEPARATOR/*>*/ && ':' === substr($file, 1, 1)))
 	{
-/*#>*/if (__patchwork_bootstrapper::$buggyRealpath)
+/*#>*/if (patchwork_bootstrapper::$buggyRealpath)
 		if ($f = patchwork_realpath($file)) $file = $f;
 /*#>*/else
 		if ($f = realpath($file)) $file = $f;
 
 		$p =& $GLOBALS['patchwork_path'];
 
-		for ($i = /*<*/__patchwork_bootstrapper::$last + 1/*>*/; $i < /*<*/count($patchwork_path)/*>*/; ++$i)
+		for ($i = /*<*/patchwork_bootstrapper::$last + 1/*>*/; $i < /*<*/count($patchwork_path)/*>*/; ++$i)
 		{
 			if (substr($file, 0, strlen($p[$i])) === $p[$i])
 			{
@@ -210,7 +210,7 @@ $CONFIG += array(
 	'P3P'                   => 'CUR ADM',
 	'xsendfile'             => !empty($_SERVER['PATCHWORK_XSENDFILE']),
 	'document.domain'       => '',
-	'session.save_path'     => /*<*/__patchwork_bootstrapper::$zcache/*>*/,
+	'session.save_path'     => /*<*/patchwork_bootstrapper::$zcache/*>*/,
 	'session.cookie_path'   => '/',
 	'session.cookie_domain' => '',
 	'session.auth_vars'     => array(),
@@ -355,7 +355,7 @@ if (false !== strpos($a, '/.'))
 						if (is_array($v)) $k[$j++] =& $v;
 						else
 						{
-/*#>*/						if (__patchwork_bootstrapper::ini_get_bool('magic_quotes_sybase'))
+/*#>*/						if (patchwork_bootstrapper::ini_get_bool('magic_quotes_sybase'))
 								$v = str_replace("''", "'", $v);
 /*#>*/						else
 								$v = stripslashes($v);

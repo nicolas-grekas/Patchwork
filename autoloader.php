@@ -16,6 +16,7 @@ class __patchwork_autoloader
 {
 	static
 
+	$preproc = false,
 	$cache,
 	$pool = false;
 
@@ -52,6 +53,8 @@ class __patchwork_autoloader
 			$lc_top = substr($lc_req, 0, $i);
 			$level = min(PATCHWORK_PATH_LEVEL, '00' === $level ? -1 : (int) $level);
 		}
+
+		self::$preproc || self::$preproc = 'patchwork_preprocessor' === $lc_top;
 
 
 		// Step 2 - Get source file
@@ -128,7 +131,7 @@ class __patchwork_autoloader
 
 			if (!(file_exists($cache) && (TURBO || filemtime($cache) > filemtime($src))))
 			{
-				if ('patchwork_preprocessor' === $lc_top)
+				if (self::$preproc)
 				{
 					@unlink($cache);
 					copy($src, $cache);
@@ -188,7 +191,9 @@ class __patchwork_autoloader
 			$code && eval($code);
 		}
 
-		if (!TURBO || (class_exists('patchwork_preprocessor', false) && patchwork_preprocessor::isRunning())) return;
+		'patchwork_preprocessor' === $lc_top && self::$preproc = false;
+
+		if (!TURBO || self::$preproc || (class_exists('patchwork_preprocessor', false) && patchwork_preprocessor::isRunning())) return;
 
 		if ($code && isset(self::$cache[$parent]))
 		{
