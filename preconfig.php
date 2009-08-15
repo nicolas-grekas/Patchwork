@@ -23,10 +23,10 @@ define('patchwork', microtime(true));
 error_reporting(E_ALL | E_STRICT);
 setlocale(LC_ALL, 'C');
 
-define('PATCHWORK_PROJECT_PATH', /*<*/__patchwork_bootstrapper::$cwd   /*>*/);
-define('PATCHWORK_ZCACHE',       /*<*/__patchwork_bootstrapper::$zcache/*>*/);
-define('PATCHWORK_PATH_LEVEL',   /*<*/__patchwork_bootstrapper::$last  /*>*/);
-define('PATCHWORK_PATH_OFFSET',  /*<*/__patchwork_bootstrapper::$offset/*>*/);
+define('PATCHWORK_PROJECT_PATH', /*<*/patchwork_bootstrapper::$cwd   /*>*/);
+define('PATCHWORK_ZCACHE',       /*<*/patchwork_bootstrapper::$zcache/*>*/);
+define('PATCHWORK_PATH_LEVEL',   /*<*/patchwork_bootstrapper::$last  /*>*/);
+define('PATCHWORK_PATH_OFFSET',  /*<*/patchwork_bootstrapper::$offset/*>*/);
 
 $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 $CONFIG   = array();
@@ -137,7 +137,7 @@ function patchwork_bad_request($message, $url)
 <head><title>400 Bad Request</title></head>
 <body>
 <h1>400 Bad Request</h1>
-<p>{$message}<br /> Maybe are you trying to reach <a href="{$a}">this URL</a>?</p>
+<p>{$message}<br /> Maybe are you trying to reach <a href="{$url}">this URL</a>?</p>
 </body>
 </html>
 EOHTML;
@@ -235,12 +235,12 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 		if (isset($file[0]) &&  '/'  === $file[0]) return $file;
 
 		$i = 0;
-		$level = /*<*/__patchwork_bootstrapper::$last/*>*/;
+		$level = /*<*/patchwork_bootstrapper::$last/*>*/;
 	}
 	else
 	{
 		0 <= $level && $base = 0;
-		$i = /*<*/__patchwork_bootstrapper::$last/*>*/ - $level - $base;
+		$i = /*<*/patchwork_bootstrapper::$last/*>*/ - $level - $base;
 		0 > $i && $i = 0;
 	}
 
@@ -249,7 +249,7 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 
 	if (0 === $i)
 	{
-		$source = /*<*/__patchwork_bootstrapper::$cwd/*>*/ . $file;
+		$source = /*<*/patchwork_bootstrapper::$cwd/*>*/ . $file;
 
 /*#>*/	if ('\\' === DIRECTORY_SEPARATOR)
 /*#>*/	{
@@ -274,16 +274,16 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 	if ($slash = '/' === substr($file, -1)) $file = substr($file, 0, -1);
 
 
-/*#>*/if ($a = __patchwork_bootstrapper::buildPathCache())
+/*#>*/if ($a = patchwork_bootstrapper::updatedb())
 /*#>*/{
 		static $db;
-		isset($db) || $db = dba_popen(/*<*/__patchwork_bootstrapper::$cwd . '.parentPaths.db'/*>*/, 'rd', /*<*/$a/*>*/);
+		isset($db) || $db = dba_popen(/*<*/patchwork_bootstrapper::$cwd . '.parentPaths.db'/*>*/, 'rd', /*<*/$a/*>*/);
 		$base = dba_fetch($file, $db);
 /*#>*/}
 /*#>*/else
 /*#>*/{
 		$base = md5($file);
-		$base = /*<*/__patchwork_bootstrapper::$zcache/*>*/ . $base[0] . '/' . $base[1] . '/' . substr($base, 2) . '.path.txt';
+		$base = /*<*/patchwork_bootstrapper::$zcache/*>*/ . $base[0] . '/' . $base[1] . '/' . substr($base, 2) . '.path.txt';
 		$base = @file_get_contents($base);
 /*#>*/}
 
@@ -322,7 +322,7 @@ function patchwork_getcwd()
 /*#>*/}
 }
 
-/*#>*/if (__patchwork_bootstrapper::$buggyRealpath)
+/*#>*/if (patchwork_bootstrapper::$buggyRealpath)
 /*#>*/{
 		function realpath_is_buggy() {return true;}
 
@@ -348,10 +348,10 @@ function patchwork_getcwd()
 /*#>*/				}
 				}
 
-/*#>*/			if (true === __patchwork_bootstrapper::$buggyRealpath)
+/*#>*/			if (true === patchwork_bootstrapper::$buggyRealpath)
 					$cwd = getcwd();
 /*#>*/			else
-					$cwd = /*<*/__patchwork_bootstrapper::$buggyRealpath/*>*/;
+					$cwd = /*<*/patchwork_bootstrapper::$buggyRealpath/*>*/;
 
 				$a = $cwd . /*<*/DIRECTORY_SEPARATOR/*>*/ . $a;
 
@@ -484,10 +484,10 @@ if ($a)
 	@(ini_get('date.timezone') || ini_set('date.timezone', 'Universal'));
 
 
-/*#>*/$a = file_get_contents(__patchwork_bootstrapper::$pwd . 'data/utf8/quickChecks.txt');
+/*#>*/$a = file_get_contents(patchwork_bootstrapper::$pwd . 'data/utf8/quickChecks.txt');
 /*#>*/$a = explode("\n", $a);
 define('UTF8_NFC_RX', /*<*/'/' . $a[1] . '/u'/*>*/);
-define('UTF8_BOM', /*<*/__patchwork_bootstrapper::UTF8_BOM/*>*/);
+define('UTF8_BOM', /*<*/patchwork_bootstrapper::UTF8_BOM/*>*/);
 
 
 // Disables mod_deflate who overwrites any custom Vary: header and appends a body to 304 responses.
@@ -497,7 +497,7 @@ define('UTF8_BOM', /*<*/__patchwork_bootstrapper::UTF8_BOM/*>*/);
 		apache_setenv('no-gzip','1');
 
 
-/*#>*/if (__patchwork_bootstrapper::ini_get_bool('zlib.output_compression'))
+/*#>*/if (patchwork_bootstrapper::ini_get_bool('zlib.output_compression'))
 		@ini_set('zlib.output_compression', false);
 
 
@@ -640,7 +640,7 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 /*#>*/if (function_exists('get_magic_quotes_runtime') && @get_magic_quotes_runtime())
 		@set_magic_quotes_runtime(false);
 
-/*#>*/$h = @(extension_loaded('mbstring') && __patchwork_bootstrapper::ini_get_bool('mbstring.encoding_translation') && 'UTF-8' === strtoupper(ini_get('mbstring.http_input')));
+/*#>*/$h = @(extension_loaded('mbstring') && patchwork_bootstrapper::ini_get_bool('mbstring.encoding_translation') && 'UTF-8' === strtoupper(ini_get('mbstring.http_input')));
 /*#>*/if (!$h || (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc()))
 /*#>*/{
 		$a = array(&$_GET, &$_POST, &$_COOKIE);
@@ -656,7 +656,7 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 				{
 /*#>*/				if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc())
 /*#>*/				{
-/*#>*/					if (__patchwork_bootstrapper::ini_get_bool('magic_quotes_sybase'))
+/*#>*/					if (patchwork_bootstrapper::ini_get_bool('magic_quotes_sybase'))
 							$v = str_replace("''", "'", $v);
 /*#>*/					else
 							$v = stripslashes($v);

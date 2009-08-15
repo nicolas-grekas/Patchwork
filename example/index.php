@@ -4,6 +4,6 @@ define('PATCHWORK_BOOTPATH', '../variations/hello'); // XXX: Put the path to you
 
 $a = include file_exists(PATCHWORK_BOOTPATH . '/.patchwork.php')
 	? PATCHWORK_BOOTPATH . '/.patchwork.php'
-	: '../patchwork.php'; // XXX: Put the path to patchwork's patchwork.php here
+	: '../bootstrapper.php'; // XXX: Put the path to patchwork's bootstrapper.php here
 
-$a || die("Failed inclusion of patchwork's patchwork.php");
+$a || die("Failed inclusion of patchwork's bootstrapper.php");

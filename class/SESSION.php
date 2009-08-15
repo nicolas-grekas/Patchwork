@@ -206,8 +206,8 @@ class
 		{
 			$i = false;
 
-			class_exists('__patchwork_bootstrapper', false)
-				&& !__patchwork_bootstrapper::isReleased()
+			class_exists('patchwork_bootstrapper', false)
+				&& !patchwork_bootstrapper::isReleased()
 				&& W("Using SESSION class during bootstraping will destroy user's session");
 		}
 

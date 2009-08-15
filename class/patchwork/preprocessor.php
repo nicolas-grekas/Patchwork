@@ -16,7 +16,7 @@
 defined('T_DIR' ) || define('T_DIR' , -1);
 defined('T_NS_C') || define('T_NS_C', -1);
 
-class patchwork_preprocessor__0
+class patchwork_preprocessor__0 extends patchwork_bootstrapper_preprocessor
 {
 	public
 
@@ -503,7 +503,7 @@ class patchwork_preprocessor__0
 			case T_METHOD_C:
 				if ($class_pool)
 				{
-					// XXX PB AVEC LES INSTRUCTIONS STATIQUES !!!
+					// XXX PB WITH STATIC INSTRUCTIONS !!!
 					$token = "('" . end($class_pool)->classname . "::'.__FUNCTION__)";
 					$type = T_CONSTANT_ENCAPSED_STRING;
 				}
@@ -1122,49 +1122,6 @@ class patchwork_preprocessor__0
 			}
 			else $new_code[] = $token;
 		}
-	}
-
-	static function export($a, $lf = 0)
-	{
-		if (is_array($a))
-		{
-			if ($a)
-			{
-				$b = array();
-				foreach ($a as $k => &$a) $b[] = self::export($k) . '=>' . self::export($a);
-				$b = 'array(' . implode(',', $b) . ')';
-			}
-			else return 'array()';
-		}
-		else if (is_object($a))
-		{
-			$b = array();
-			$v = (array) $a;
-			foreach ($v as $k => &$v)
-			{
-				if ("\0" === substr($k, 0, 1)) $k = substr($k, 3);
-				$b[$k] =& $v;
-			}
-
-			$b = self::export($b);
-			$b = get_class($a) . '::__set_state(' . $b . ')';
-		}
-		else if (is_string($a) && $a !== strtr($a, "\r\n\0", '---'))
-		{
-			$b = '"'. str_replace(
-				array(  "\\",   '"',   '$',  "\r",  "\n",  "\0"),
-				array('\\\\', '\\"', '\\$', '\\r', '\\n', '\\0'),
-				$a
-			) . '"';
-		}
-		else $b = is_string($a) ? "'" . str_replace("'", "\\'", str_replace('\\', '\\\\', $a)) . "'" : (
-			is_bool($a)   ? ($a ? 'true' : 'false') : (
-			is_null($a)   ? 'null' : (string) $a
-		));
-
-		$lf && $b .= str_repeat("\n", $lf);
-
-		return $b;
 	}
 
 	static function error($message, $file, $line, $code = E_USER_ERROR)

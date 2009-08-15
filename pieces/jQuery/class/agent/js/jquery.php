@@ -38,7 +38,7 @@ class extends agent_js
 
 	function compose($o)
 	{
-		if ($this->debug || $this->get->source)
+		if ($this->debug || $this->get->src)
 		{
 			$uiLoad = trim(self::$uiLoad);
 
