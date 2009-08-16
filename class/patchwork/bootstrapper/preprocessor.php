@@ -14,6 +14,8 @@
 
 class patchwork_bootstrapper_preprocessor
 {
+	const UTF8_BOM = "\xEF\xBB\xBF";
+
 	static
 
 	$callerRx,
@@ -37,7 +39,7 @@ class patchwork_bootstrapper_preprocessor
 	static function staticPass1()
 	{
 		$code = file_get_contents(self::$file);
-		patchwork_bootstrapper::UTF8_BOM === substr($code, 0, 3) && $code = substr($code, 3);
+		self::UTF8_BOM === substr($code, 0, 3) && $code = substr($code, 3);
 		false !== strpos($code, "\r") && $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
 		$code = preg_replace('/\?>$/', ';', $code);
 
@@ -184,7 +186,7 @@ class patchwork_bootstrapper_preprocessor
 			if ($a)
 			{
 				$b = array();
-				foreach ($a as $k => &$a) $b[] = self::export($k, true) . '=>' . self::export($a);
+				foreach ($a as $k => &$a) $b[] = self::export($k) . '=>' . self::export($a);
 				$b = 'array(' . implode(',', $b) . ')';
 			}
 			else return 'array()';

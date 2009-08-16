@@ -39,7 +39,7 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 // Fix a bug with long file names
 // In debug mode, checks if character case is strict.
 
-/*#>*/if ('\\' === DIRECTORY_SEPARATOR && !patchwork_bootstrapper::$buggyRealpath)
+/*#>*/if (IS_WINDOWS && !PATCHWORK_BUGGY_REALPATH)
 /*#>*/{
 		if (/*<*/version_compare(PHP_VERSION, '5.2', '<')/*>*/ || DEBUG)
 		{
@@ -106,7 +106,7 @@ function patchwork_class2cache($class, $level)
 /*#>*/@copy(patchwork_bootstrapper::$pwd . 'autoloader.php', patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')
 /*#>*/	|| @unlink(patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php') + copy(patchwork_bootstrapper::$pwd . 'autoloader.php', patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php');
 /*#>*/
-/*#>*/if ('\\' === DIRECTORY_SEPARATOR)
+/*#>*/if (IS_WINDOWS)
 /*#>*/{
 /*#>*/	$a = new COM('Scripting.FileSystemObject');
 /*#>*/	$a->GetFile(patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')->Attributes |= 2; // Set hidden attribute
@@ -153,12 +153,12 @@ function __autoload($searched_class)
 
 function patchworkProcessedPath($file)
 {
-/*#>*/if ('\\' === DIRECTORY_SEPARATOR)
+/*#>*/if (IS_WINDOWS)
 		false !== strpos($file, '\\') && $file = strtr($file, '\\', '/');
 
-	if (false !== strpos('.' . $file, './') || (/*<*/'\\' === DIRECTORY_SEPARATOR/*>*/ && ':' === substr($file, 1, 1)))
+	if (false !== strpos('.' . $file, './') || (/*<*/IS_WINDOWS/*>*/ && ':' === substr($file, 1, 1)))
 	{
-/*#>*/if (patchwork_bootstrapper::$buggyRealpath)
+/*#>*/if (PATCHWORK_BUGGY_REALPATH)
 		if ($f = patchwork_realpath($file)) $file = $f;
 /*#>*/else
 		if ($f = realpath($file)) $file = $f;
@@ -355,7 +355,7 @@ if (false !== strpos($a, '/.'))
 						if (is_array($v)) $k[$j++] =& $v;
 						else
 						{
-/*#>*/						if (patchwork_bootstrapper::ini_get_bool('magic_quotes_sybase'))
+/*#>*/						if (ini_get_bool('magic_quotes_sybase'))
 								$v = str_replace("''", "'", $v);
 /*#>*/						else
 								$v = stripslashes($v);
@@ -409,7 +409,7 @@ if (false !== strpos($a, '/.'))
 $r = preg_replace("'/[./]*/'", '/', '/' . $r . '/');
 $a = preg_replace("'/[./]*/'", '/', '/' . $a);
 
-/*#>*/if ($a && '\\' === DIRECTORY_SEPARATOR)
+/*#>*/if ($a && IS_WINDOWS)
 /*#>*/{
 		// Workaround for http://bugs.php.net/bug.php?id=44001
 

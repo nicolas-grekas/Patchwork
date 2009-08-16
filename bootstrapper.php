@@ -17,29 +17,36 @@ isset($_GET['p:']) && 'exit' === $_GET['p:'] && die('Exit requested');
 error_reporting(E_ALL | E_STRICT);
 @ini_set('display_errors', true); // Only while bootstrapping
 
+
+// Mandatory PHP dependencies
+
 if (!function_exists('version_compare') || version_compare(phpversion(), '5.1.4', '<'))
 {
 	die("PHP 5.1.4 or higher is required.");
 }
-
-require dirname(__FILE__) . '/class/patchwork/bootstrapper/preprocessor.php';
-require dirname(__FILE__) . '/class/patchwork/bootstrapper/inheritance.php';
-require dirname(__FILE__) . '/class/patchwork/bootstrapper/updatedb.php';
-require dirname(__FILE__) . '/class/patchwork/bootstrapper.php';
-
-
-// Mandatory PHP dependencies
-
 function_exists('token_get_all') || die('Patchwork Error: Extension "tokenizer" is needed and not loaded');
 preg_match('/^.$/u', '§')        || die('Patchwork Error: PCRE is not compiled with UTF-8 support');
 isset($_SERVER['REDIRECT_STATUS']) && '200' !== $_SERVER['REDIRECT_STATUS'] && die('Patchwork Error: initialization forbidden (try using the shortest possible URL)');
+
+require dirname(__FILE__) . '/class/patchwork/bootstrapper/preprocessor.php';
+require dirname(__FILE__) . '/class/patchwork/bootstrapper.php';
+
+patchwork_bootstrapper::$file = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'common.php';
+
+if (file_exists(patchwork_bootstrapper::$file))
+{
+	patchwork_bootstrapper::preprocessor_ob_start(__FILE__);
+	eval(patchwork_bootstrapper::preprocessorPass1());
+	eval(patchwork_bootstrapper::preprocessorPass2(true));
+	patchwork_bootstrapper::release();
+}
 
 if (extension_loaded('mbstring'))
 {
 	(@ini_get('mbstring.func_overload') & MB_OVERLOAD_STRING)
 		&& die('Patchwork Error: mbstring is overloading string functions');
 
-	patchwork_bootstrapper::ini_get_bool('mbstring.encoding_translation')
+	ini_get_bool('mbstring.encoding_translation')
 		&& !in_array(strtolower(ini_get('mbstring.http_input')), array('pass', 'utf-8'))
 		&& die('Patchwork Error: mbstring is set to translate input encoding');
 }
@@ -53,11 +60,11 @@ if (!patchwork_bootstrapper::getLock(__FILE__))
 	return;
 }
 
+require dirname(__FILE__) . '/class/patchwork/bootstrapper/inheritance.php';
+require dirname(__FILE__) . '/class/patchwork/bootstrapper/updatedb.php';
 
 $patchwork_path = patchwork_bootstrapper::getPath();
-
 patchwork_bootstrapper::initZcache();
-
 patchwork_bootstrapper::preprocessor_ob_start(__FILE__);
 
 

@@ -112,7 +112,7 @@ class patchwork_bootstrapper_inheritance
 		self::$appId += filemtime($config);
 
 		$source = file_get_contents($config);
-		patchwork_bootstrapper::UTF8_BOM === substr($source, 0, 3) && $source = substr($source, 3);
+		UTF8_BOM === substr($source, 0, 3) && $source = substr($source, 3);
 		false !== strpos($source, "\r") && $source = strtr(str_replace("\r\n", "\n", $source), "\r", "\n");
 		"\n" === $source && $source = '';
 
@@ -162,7 +162,7 @@ class patchwork_bootstrapper_inheritance
 
 			if ('/' !== $a[0] && '\\' !== $a[0] && ':' !== $a[1]) $a = $realpath . $a;
 
-			if ('/*' === substr(strtr($a, '\\', '/'), -2) && $a = patchwork_bootstrapper::realpath(substr($a, 0, -2)))
+			if ('/*' === substr(strtr($a, '\\', '/'), -2) && $a = patchwork_realpath(substr($a, 0, -2)))
 			{
 				$a = rtrim($a, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 				$source = array();
@@ -218,7 +218,7 @@ class patchwork_bootstrapper_inheritance
 			}
 			else
 			{
-				$source = patchwork_bootstrapper::realpath($a);
+				$source = patchwork_realpath($a);
 				if (false === $source) die('Patchwork Error: Missing file ' . rtrim(strtr($a, '\\', '/'), '/') . '/config.patchwork.php');
 				$source = rtrim($source, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
