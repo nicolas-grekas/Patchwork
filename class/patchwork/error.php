@@ -12,13 +12,16 @@
  ***************************************************************************/
 
 
-class extends patchwork
+class patchwork_error
 {
 	static function handle($code, $message, $file, $line)
 	{
-		p::setMaxage(0);
-		p::setExpires('onmaxage');
-		p::$private = true;
+		if (class_exists('patchwork', false))
+		{
+			p::setMaxage(0);
+			p::setExpires('onmaxage');
+			$GLOBALS['patchwork_private'] = true;
+		}
 
 		$callee = '';
 		$context = '';
@@ -109,7 +112,7 @@ class extends patchwork
 		$date = date('d-M-Y H:i:s');
 		$callee && $callee = " calling <b>{$callee}</b>";
 
-		$cid = p::uniqid();
+		$cid = md5(uniqid(mt_rand()));
 		$cid = <<<EOHTML
 <script type="text/javascript">/*<![CDATA[*/
 focus()

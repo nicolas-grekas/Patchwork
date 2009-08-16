@@ -41,7 +41,7 @@ class patchwork_bootstrapper_updatedb
 		fclose($db);
 		$old_db && fclose($old_db) && unlink($cwd . '.parentPaths.old');
 
-		if ('\\' == DIRECTORY_SEPARATOR)
+		if (IS_WINDOWS)
 		{
 			$h = new COM('Scripting.FileSystemObject');
 			$h->GetFile($cwd . '.parentPaths.txt')->Attributes |= 2; // Set hidden attribute
@@ -70,7 +70,7 @@ class patchwork_bootstrapper_updatedb
 
 			dba_close($h);
 
-			if ('\\' == DIRECTORY_SEPARATOR)
+			if (IS_WINDOWS)
 			{
 				$h = new COM('Scripting.FileSystemObject');
 				$h->GetFile($cwd . '.parentPaths.db')->Attributes |= 2; // Set hidden attribute
@@ -105,7 +105,7 @@ class patchwork_bootstrapper_updatedb
 	{
 		// Kind of updatedb with mlocate strategy
 
-		$dir = $root . ('\\' === DIRECTORY_SEPARATOR ? strtr($subdir, '/', '\\') : $subdir);
+		$dir = $root . (IS_WINDOWS ? strtr($subdir, '/', '\\') : $subdir);
 
 		static $old_db_line, $populated = array();
 
@@ -235,7 +235,7 @@ class patchwork_bootstrapper_updatedb
 
 			if ($dirs)
 			{
-				'\\' === DIRECTORY_SEPARATOR || sort($dirs, SORT_STRING);
+				IS_WINDOWS || sort($dirs, SORT_STRING);
 
 				echo '1', implode('/1', $dirs), '/';
 			}
@@ -257,7 +257,7 @@ class patchwork_bootstrapper_updatedb
 	{
 		$len = min(strlen($a), strlen($b));
 
-		if ('\\' === DIRECTORY_SEPARATOR)
+		if (IS_WINDOWS)
 		{
 			$a = strtoupper(strtr($a, '\\', '/'));
 			$b = strtoupper(strtr($b, '\\', '/'));

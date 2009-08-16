@@ -13,8 +13,8 @@
 
 
 // If you want to use your patchwork application in CLI scripts:
-// - first define PATCHWORK_BOOTPATH with your application's path
-// - then define $_SERVER['PATCHWORK_BASE']
+// - set PATCHWORK_BOOTPATH to your patchwork application directory
+// - set $_SERVER['PATCHWORK_BASE'] as needed
 // - for multilanguage applications, set $_SERVER['PATCHWORK_LANG']
 // - and include this present file
 

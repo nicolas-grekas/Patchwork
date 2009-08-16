@@ -164,7 +164,7 @@ class patchwork_preprocessor__0 extends patchwork_bootstrapper_preprocessor
 			);
 		}
 
-		realpath_is_buggy() && self::$functionAlias += array(
+		PATCHWORK_BUGGY_REALPATH && self::$functionAlias += array(
 			'realpath' => 'patchwork_realpath',
 		);
 

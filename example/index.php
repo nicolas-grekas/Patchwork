@@ -1,9 +1,15 @@
 <?php
 
-define('PATCHWORK_BOOTPATH', '../variations/hello'); // XXX: Put the path to your application here
 
-$a = include file_exists(PATCHWORK_BOOTPATH . '/.patchwork.php')
-	? PATCHWORK_BOOTPATH . '/.patchwork.php'
-	: '../bootstrapper.php'; // XXX: Put the path to patchwork's bootstrapper.php here
+// Set the path to your patchwork application directory:
+$a = '../variations/hello';
 
-$a || die("Failed inclusion of patchwork's bootstrapper.php");
+	define('PATCHWORK_BOOTPATH', $a);
+
+
+// Set the path to patchwork's bootstrapper.php file:
+$a = '../bootstrapper.php';
+
+	$a = include file_exists(PATCHWORK_BOOTPATH . '/.patchwork.php')
+		? PATCHWORK_BOOTPATH . '/.patchwork.php' : $a;
+	$a || die("Failed inclusion of patchwork's bootstrapper.php");
