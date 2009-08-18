@@ -21,21 +21,24 @@ class extends agent
 	protected
 
 	$maxage = -1,
-	$watch = array('public/css');
+	$watch = array('public/css'),
+	$extension = '.css';
 
 
 	function control()
 	{
+		$dir = substr(get_class($this), 6);
+		$dir = patchwork_class2file($dir);
+
 		$tpl = $this->get->__0__;
 
 		if ($tpl !== '')
 		{
-			$tpl = str_replace(
-				array('\\', '../'),
-				array('/' , '/'),
-				"css/$tpl.css"
-			);
+			if ($this->extension !== substr($tpl, -3)) $tpl .= $this->extension;
+
+			$tpl = str_replace('../', '/', $dir . '/' . strtr($tpl, '\\', '/'));
 		}
+		else $tpl = $dir . $this->extension;
 
 		$this->template = $tpl;
 	}
