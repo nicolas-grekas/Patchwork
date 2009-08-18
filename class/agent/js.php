@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends agent
+class extends agent_css
 {
 	const contentType = 'text/javascript';
 
@@ -22,7 +22,8 @@ class extends agent
 
 	$debug = DEBUG,
 	$maxage = -1,
-	$watch = array('public/js');
+	$watch = array('public/js'),
+	$extension = '.js';
 
 
 	protected static $recursion = 0;
@@ -33,23 +34,7 @@ class extends agent
 		$this->get->src && self::$recursion = 1;
 		self::$recursion && $this->get->src = 1;
 
-		if ($this->debug || $this->get->src)
-		{
-			$dir = substr(get_class($this), 6);
-			$dir = patchwork_class2file($dir);
-
-			$tpl = $this->get->__0__;
-
-			if ($tpl !== '')
-			{
-				if ('.js' !== substr($tpl, -3)) $tpl .= '.js';
-
-				$tpl = str_replace('../', '/', $dir . '/' . strtr($tpl, '\\', '/'));
-			}
-			else $tpl = $dir . '.js';
-
-			$this->template = $tpl;
-		}
+		if ($this->debug || $this->get->src) parent::control();
 	}
 
 	function compose($o)
