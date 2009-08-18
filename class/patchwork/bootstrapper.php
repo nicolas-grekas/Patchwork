@@ -22,47 +22,61 @@ class patchwork_bootstrapper
 	$zcache,
 	$offset,
 	$last,
-	$appId = 0,
-	$buggyRealpath = false,
+	$appId = 0;
+
+
+	protected static
 
 	$file,
 	$configCode = array(),
 	$configSource = array(),
-	$fSlice, $rSlice;
+	$fSlice, $rSlice,
+	$bootstrapper,
+	$lock = null;
 
 
-	protected static $lock = null;
-
-
-	static function getLock($bootstrapper, $retry = true)
+	static function getLock($caller)
 	{
-		$cwd = defined('PATCHWORK_BOOTPATH') && '' !== PATCHWORK_BOOTPATH ? PATCHWORK_BOOTPATH : '.';
-		self::$cwd = patchwork_realpath($cwd . '/config.patchwork.php');
+		$cwd =& self::$cwd;
 
-		if (!self::$cwd)
+		if ($caller)
 		{
-			'-' !== strtr(substr($cwd, -1), '-/\\', '#--') && $cwd .= DIRECTORY_SEPARATOR;
-			die("Patchwork Error: file {$cwd}config.patchwork.php not found. Did you set PATCHWORK_BOOTPATH correctly?");
-		}
+			$cwd = defined('PATCHWORK_BOOTPATH') && '' !== PATCHWORK_BOOTPATH ? PATCHWORK_BOOTPATH : '.';
+			$cwd = rtrim($cwd, '/\\') . DIRECTORY_SEPARATOR;
 
-		$cwd = self::$cwd = dirname(self::$cwd) . DIRECTORY_SEPARATOR;
+			self::$bootstrapper = $cwd . '.patchwork.php';
+
+			file_exists($cwd . 'config.patchwork.php')
+				|| die("Patchwork Error: file {$cwd}config.patchwork.php not found. Did you set PATCHWORK_BOOTPATH correctly?");
+
+			self::$pwd = dirname($caller) . DIRECTORY_SEPARATOR;
+		}
 
 		if (self::$lock = @fopen($cwd . '.patchwork.lock', 'xb'))
 		{
-			if (file_exists($cwd . '.patchwork.php'))
+			if (file_exists(self::$bootstrapper))
 			{
 				fclose(self::$lock);
 				@unlink($cwd . '.patchwork.lock');
-				if ($retry) die('Patchwork Error: file .patchwork.php exists in PATCHWORK_BOOTPATH. Please fix your public bootstrap file.');
+				if ($caller) die('Patchwork Error: file .patchwork.php exists in PATCHWORK_BOOTPATH. Please fix your public bootstrap file.');
 				else return false;
 			}
 
 			flock(self::$lock, LOCK_EX);
 			ob_start(array(__CLASS__, 'ob_handler'));
 
-			self::$pwd = dirname($bootstrapper) . DIRECTORY_SEPARATOR;
-
 			@set_time_limit(0);
+
+			// Load dependencies
+
+			require self::$pwd . 'class/patchwork/bootstrapper/preprocessor.php';
+			require self::$pwd . 'class/patchwork/bootstrapper/inheritance.php';
+			require self::$pwd . 'class/patchwork/bootstrapper/updatedb.php';
+
+			self::$file = self::$pwd . 'common.php';
+
+			patchwork_bootstrapper_preprocessor__0::$file =& self::$file;
+			patchwork_bootstrapper_preprocessor__0::ob_start($caller);
 
 			return true;
 		}
@@ -71,10 +85,10 @@ class patchwork_bootstrapper
 			usleep(1000);
 			flock($h, LOCK_SH);
 			fclose($h);
-			file_exists($cwd . '.patchwork.php') || sleep(1);
+			file_exists(self::$bootstrapper) || sleep(1);
 		}
 
-		if ($retry && !file_exists($cwd . '.patchwork.php'))
+		if ($caller && !file_exists(self::$bootstrapper))
 		{
 			@unlink($cwd . '.patchwork.lock');
 			return self::getLock(false);
@@ -87,23 +101,28 @@ class patchwork_bootstrapper
 		return !self::$lock;
 	}
 
-	static function releaseLock()
-	{
-		if (self::$lock)
-		{
-			fclose(self::$lock);
-			self::$lock = null;
-		}
-
-		@unlink(self::$cwd . '.patchwork.lock');
-	}
-
 	static function ob_handler($buffer)
 	{
-		if ('' === $buffer)
+		if ('' !== $buffer)
 		{
-			++ob::$in_handler;
+			if (self::$lock)
+			{
+				fclose(self::$lock);
+				self::$lock = null;
+			}
 
+			@unlink(self::$cwd . '.patchwork.lock');
+		}
+
+		return $buffer;
+	}
+
+	static function release()
+	{
+		ob_end_flush();
+
+		if ('' === $buffer = ob_get_clean())
+		{
 			$cwd = self::$cwd;
 			$T = self::$token;
 			$a = array("<?php \$patchwork_autoload_cache = array(); \$c{$T} =& \$patchwork_autoload_cache; \$d{$T} = 1;");
@@ -134,27 +153,23 @@ patchwork::start();";
 				$a->GetFile($cwd . '.patchwork.lock')->Attributes |= 2; // Set hidden attribute
 			}
 
-			rename($cwd . '.patchwork.lock', $cwd . '.patchwork.php');
+			rename($cwd . '.patchwork.lock', self::$bootstrapper);
+
+			self::$lock = self::$configCode = self::$configSource = self::$fSlice = self::$rSlice = null;
 
 			@set_time_limit(ini_get('max_execution_time'));
-
-			--ob::$in_handler;
 		}
-		else self::releaseLock();
-
-		self::$lock = self::$configCode = self::$configSource = null;
-
-		return $buffer;
+		else
+		{
+			die($buffer . "\n<br /><br />\n\n<small>---- Something has been echoed during bootstrap - dying ----</small>");
+		}
 	}
 
-	static function release()
+	static function initInheritance(&$patchwork_path)
 	{
-		$buffer = ob_get_clean();
-		'' !== $buffer && die($buffer . "\n<br /><br />\n\n<small>---- Something has been echoed during bootstrap - dying ----</small>");
-	}
+		self::$cwd = patchwork_realpath(rtrim(self::$cwd, '/\\')) . DIRECTORY_SEPARATOR;
+		self::$bootstrapper = self::$cwd . basename(self::$bootstrapper);
 
-	static function getPath()
-	{
 		// Get include_path
 
 		$patchwork_path = array();
@@ -171,7 +186,7 @@ patchwork::start();";
 
 		// Get linearized application inheritance graph
 
-		$a = patchwork_bootstrapper_inheritance::getLinearizedGraph(self::$pwd, self::$cwd, self::$configSource, self::$appId);
+		$a = patchwork_bootstrapper_inheritance__0::getLinearizedGraph(self::$pwd, self::$cwd, self::$configSource, self::$appId);
 
 		$patchwork_path = array_diff($patchwork_path, $a, array(''));
 		$patchwork_path = array_merge($a, $patchwork_path);
@@ -180,8 +195,6 @@ patchwork::start();";
 		self::$offset = count($patchwork_path) - self::$last;
 		self::$fSlice = array_slice($patchwork_path, 0, self::$last + 1);
 		self::$rSlice = array_reverse(self::$fSlice);
-
-		return $patchwork_path;
 	}
 
 	static function initZcache()
@@ -215,7 +228,7 @@ patchwork::start();";
 
 	static function updatedb()
 	{
-		return patchwork_bootstrapper_updatedb::buildPathCache(
+		return patchwork_bootstrapper_updatedb__0::buildPathCache(
 			$GLOBALS['patchwork_path'],
 			self::$last,
 			self::$cwd,
@@ -223,24 +236,62 @@ patchwork::start();";
 		);
 	}
 
-	static function preprocessor_ob_start($caller_file)
-	{
-		patchwork_bootstrapper_preprocessor::$file =& self::$file;
-		patchwork_bootstrapper_preprocessor::ob_start($caller_file);
-	}
-
 	static function preprocessorPass1()
 	{
-		return patchwork_bootstrapper_preprocessor::staticPass1();
+		return patchwork_bootstrapper_preprocessor__0::staticPass1();
 	}
 
-	static function preprocessorPass2($token = false)
+	static function preprocessorPass2()
 	{
-		$code = patchwork_bootstrapper_preprocessor::staticPass2();
+		$code = patchwork_bootstrapper_preprocessor__0::staticPass2();
 
-		$token && self::$token = md5(self::$token . $code);
+		isset($GLOBALS['patchwork_autoload_cache']) || self::$token = md5(self::$token . $code);
 
 		return self::$configCode[self::$file] = $code;
+	}
+
+	static function getBootstrapper()
+	{
+		return self::$bootstrapper;
+	}
+
+	protected static function loadConfig(&$slice, $name)
+	{
+		do
+		{
+			$file = each($slice);
+
+			if (false === $file)
+			{
+				reset($slice);
+
+				'preconfig' === $name && self::afterPreconfig();
+
+				return false;
+			}
+
+			$file = $file[1] . $name . '.php';
+		}
+		while (!file_exists($file));
+
+		self::$file = $file;
+
+		return true;
+	}
+
+	static function loadConfigFile($type)
+	{
+		return self::loadConfig(self::$rSlice, $type . 'config');
+	}
+
+	static function loadConfigSource()
+	{
+		return self::loadConfig(self::$fSlice, 'config.patchwork');
+	}
+
+	static function getConfigSource()
+	{
+		return self::$configCode[self::$file] =& self::$configSource[self::$file];
 	}
 
 	static function afterPreconfig()

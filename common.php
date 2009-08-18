@@ -21,7 +21,7 @@ define('patchwork', microtime(true));
 error_reporting(E_ALL | E_STRICT);
 setlocale(LC_ALL, 'C');
 
-define('UTF8_BOM', /*<*/patchwork_bootstrapper_preprocessor::UTF8_BOM/*>*/);
+define('UTF8_BOM', "\xEF\xBB\xBF");
 define('IS_WINDOWS', /*<*/'\\' === DIRECTORY_SEPARATOR/*>*/);
 define('IS_POSTING', 'POST' === $_SERVER['REQUEST_METHOD']);
 

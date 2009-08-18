@@ -16,7 +16,7 @@
 defined('T_DIR' ) || define('T_DIR' , -1);
 defined('T_NS_C') || define('T_NS_C', -1);
 
-class patchwork_preprocessor__0 extends patchwork_bootstrapper_preprocessor
+class patchwork_preprocessor__0
 {
 	public
 
@@ -717,7 +717,7 @@ class patchwork_preprocessor__0 extends patchwork_bootstrapper_preprocessor
 					$new_code[$j] = "(({$c})?" . $new_code[$j];
 				}
 
-				new __patchwork_preprocessor_marker($this, true);
+				new patchwork_preprocessor_marker($this, true);
 
 				break;
 
@@ -738,7 +738,7 @@ class patchwork_preprocessor__0 extends patchwork_bootstrapper_preprocessor
 
 						case strtolower($c->classname):
 							$c->construct_source = $c->classname;
-							new __patchwork_preprocessor_construct($this, $c->construct_source);
+							new patchwork_preprocessor_construct($this, $c->construct_source);
 						}
 					}
 
@@ -782,7 +782,7 @@ class patchwork_preprocessor__0 extends patchwork_bootstrapper_preprocessor
 					{
 					case 'patchworkpath':
 						// Append its fourth arg to patchworkPath
-						if (0<=$level) new __patchwork_preprocessor_path($this, true);
+						if (0<=$level) new patchwork_preprocessor_path($this, true);
 						break;
 
 					case 't':
@@ -793,7 +793,7 @@ class patchwork_preprocessor__0 extends patchwork_bootstrapper_preprocessor
 
 							if ('' === $j)
 							{
-								new __patchwork_preprocessor_t($this, true);
+								new patchwork_preprocessor_t($this, true);
 							}
 							else if ($_SERVER['PATCHWORK_LANG'])
 							{
@@ -810,7 +810,7 @@ class patchwork_preprocessor__0 extends patchwork_bootstrapper_preprocessor
 						if (!isset(self::$callback[$type])) break;
 
 						$token = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$token}";
-						$b = new __patchwork_preprocessor_marker($this, true);
+						$b = new patchwork_preprocessor_marker($this, true);
 						$b->curly = -1;
 						$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 
@@ -823,7 +823,7 @@ class patchwork_preprocessor__0 extends patchwork_bootstrapper_preprocessor
 						}
 
 						// For files in the include_path, always set the 2nd arg of class|interface_exists() to true
-						if (0>$level && in_array($type, array('interface_exists', 'class_exists'))) new __patchwork_preprocessor_classExists($this, true);
+						if (0>$level && in_array($type, array('interface_exists', 'class_exists'))) new patchwork_preprocessor_classExists($this, true);
 					}
 				}
 				else switch ($type)
@@ -852,7 +852,7 @@ class patchwork_preprocessor__0 extends patchwork_bootstrapper_preprocessor
 				if ('(' === $code[$i--])
 				{
 					$token = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$token}";
-					$b = new __patchwork_preprocessor_marker($this, true);
+					$b = new patchwork_preprocessor_marker($this, true);
 					$b->curly = -1;
 					$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 				}
@@ -889,13 +889,13 @@ class patchwork_preprocessor__0 extends patchwork_bootstrapper_preprocessor
 						else
 						{
 							$token .= 'patchworkProcessedPath(';
-							new __patchwork_preprocessor_require($this, true);
+							new patchwork_preprocessor_require($this, true);
 						}
 					}
 					else
 					{
 						$token .= "((\$a{$T}=\$b{$T}=\$e{$T})||1?";
-						$b = new __patchwork_preprocessor_require($this, true);
+						$b = new patchwork_preprocessor_require($this, true);
 						$b->close = ':0)';
 						$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 					}
@@ -1124,255 +1124,13 @@ class patchwork_preprocessor__0 extends patchwork_bootstrapper_preprocessor
 		}
 	}
 
+	static function export($a, $lf = 0)
+	{
+		return patchwork_bootstrapper_preprocessor::export($a, $lf);
+	}
+
 	static function error($message, $file, $line, $code = E_USER_ERROR)
 	{
 		patchwork_error::handle($code, $message, $file, $line);
-	}
-}
-
-class __patchwork_preprocessor_bracket__0
-{
-	protected
-
-	$preproc,
-	$registered = false,
-	$first,
-	$position,
-	$bracket;
-
-
-	function __construct($preproc, $autoSetup = false)
-	{
-		$this->preproc = $preproc;
-		$autoSetup && $this->setupFilter();
-	}
-
-	function setupFilter()
-	{
-		$this->popFilter();
-		$this->preproc->pushFilter(array($this, 'filterToken'));
-		$this->first = $this->registered = true;
-		$this->position = 0;
-		$this->bracket = 0;
-	}
-
-	function popFilter()
-	{
-		$this->registered && $this->preproc->popFilter();
-		$this->registered = false;
-	}
-
-	function filterPreBracket($type, $token)
-	{
-		0>=$this->bracket
-			&& T_WHITESPACE != $type && T_COMMENT != $type && T_DOC_COMMENT != $type
-			&& $this->popFilter();
-		return $token;
-	}
-
-	function filterBracket($type, $token) {return $token;}
-	function onStart      ($token) {return $token;}
-	function onReposition ($token) {return $token;}
-	function onClose      ($token) {$this->popFilter(); return $token;}
-
-	function filterToken($type, $token)
-	{
-		if ($this->first) $this->first = false;
-		else switch ($type)
-		{
-		case '(':
-			$token = 1<++$this->bracket ? $this->filterBracket($type, $token) : $this->onStart($token);
-			break;
-
-		case ')':
-			$token = !--$this->bracket ? $this->onClose($token)
-				: (0>$this->bracket ? $this->filterPreBracket($type, $token)
-					: $this->filterBracket($type, $token)
-				);
-			break;
-
-		case ',':
-			if (1 === $this->bracket)
-			{
-				$token = $this->filterBracket($type, $token);
-				++$this->position;
-				$token = $this->onReposition($token);
-				break;
-			}
-
-		default: $token = 0<$this->bracket ? $this->filterBracket($type, $token) : $this->filterPreBracket($type, $token);
-		}
-
-		return $token;
-	}
-}
-
-class __patchwork_preprocessor_construct__0 extends __patchwork_preprocessor_bracket
-{
-	protected
-
-	$source,
-	$proto = '',
-	$args = '',
-	$num_args = 0;
-
-
-	function __construct($preproc, &$source)
-	{
-		$this->source =& $source;
-		parent::__construct($preproc, true);
-	}
-
-	function filterBracket($type, $token)
-	{
-		if (T_VARIABLE === $type)
-		{
-			$this->proto .=  '$a' . $this->num_args;
-			$this->args  .= '&$a' . $this->num_args . ',';
-
-			++$this->num_args;
-		}
-		else $this->proto .= $token;
-
-		return $token;
-	}
-
-	function onClose($token)
-	{
-		$this->source = 'function __construct(' . $this->proto . ')'
-			. '{$a=array(' . $this->args . ');'
-			. 'if(' . $this->num_args . '<func_num_args())$a+=func_get_args();'
-			. 'call_user_func_array(array($this,"' . $this->source . '"),$a);}';
-
-		return parent::onClose($token);
-	}
-}
-
-class __patchwork_preprocessor_path__0 extends __patchwork_preprocessor_bracket
-{
-	function onClose($token)
-	{
-		return parent::onClose(2 === $this->position ? ',' . $this->preproc->level . $token : $token);
-	}
-}
-
-class __patchwork_preprocessor_classExists__0 extends __patchwork_preprocessor_bracket
-{
-	function onReposition($token)
-	{
-		return 1 === $this->position ? $token . '(' : (2 === $this->position ? ')||1' . $token : $token);
-	}
-
-	function onClose($token)
-	{
-		return parent::onClose(1 === $this->position ? ')||1' . $token : $token);
-	}
-}
-
-class __patchwork_preprocessor_t__0 extends __patchwork_preprocessor_bracket
-{
-	function filterBracket($type, $token)
-	{
-		if ('.' === $type) patchwork_preprocessor::error(
-			"Usage of T() is potentially divergent, please use sprintf() instead of string concatenation.",
-			$this->preproc->source, $this->preproc->line
-		);
-
-		return $token;
-	}
-}
-
-class __patchwork_preprocessor_require__0 extends __patchwork_preprocessor_bracket
-{
-	public $close = ')';
-
-	function filterPreBracket($type, $token) {return $this->filter($type, $token);}
-	function filterBracket   ($type, $token) {return $this->filter($type, $token);}
-	function onClose($token)                 {return $this->filter(')'  , $token);}
-
-	function filter($type, $token)
-	{
-		switch ($type)
-		{
-		case '{':
-		case '[':
-		case '?': ++$this->bracket; break;
-		case ',': if ($this->bracket) break;
-		case '}':
-		case ']':
-		case ':': if ($this->bracket--) break;
-		case ')': if (0<=$this->bracket) break;
-		case T_AS: case T_CLOSE_TAG: case ';':
-			$token = $this->close . $token;
-			$this->popFilter();
-		}
-
-		return $token;
-	}
-}
-
-class __patchwork_preprocessor_marker__0 extends __patchwork_preprocessor_require
-{
-	public
-
-	$close = ':0)',
-	$greedy = false,
-	$curly = 0;
-
-
-	function filter($type, $token)
-	{
-		if ($this->greedy) return parent::filter($type, $token);
-
-		if (T_WHITESPACE === $type || T_COMMENT === $type || T_DOC_COMMENT === $type) ;
-		else if (0<=$this->curly) switch ($type)
-		{
-			case '$': break;
-			case '{': ++$this->curly; break;
-			case '}': --$this->curly; break;
-			default: 0<$this->curly || $this->curly = -1;
-		}
-		else
-		{
-			if ('?' === $type) --$this->bracket;
-			$token = parent::filter($type, $token);
-			if (':' === $type) ++$this->bracket;
-
-			if (0<$this->bracket || !$this->registered) return $token;
-
-			switch ($type)
-			{
-			case ')':
-			case '}':
-			case ']':
-			case T_INC:
-			case T_DEC:
-				break;
-
-			case T_OBJECT_OPERATOR:
-				$this->curly = 0;
-
-			case '=':
-			case T_DIV_EQUAL:
-			case T_MINUS_EQUAL:
-			case T_MOD_EQUAL:
-			case T_MUL_EQUAL:
-			case T_PLUS_EQUAL:
-			case T_SL_EQUAL:
-			case T_SR_EQUAL:
-			case T_XOR_EQUAL:
-			case T_AND_EQUAL:
-			case T_OR_EQUAL:
-			case T_CONCAT_EQUAL:
-				$this->greedy = true;
-				break;
-
-			default:
-				$token = $this->close . $token;
-				$this->popFilter();
-			}
-		}
-
-		return $token;
 	}
 }
