@@ -15,6 +15,16 @@
 /**** Pre-configuration stage 1 ****/
 
 
+/*#>*/if (extension_loaded('mbstring'))
+/*#>*/{
+/*#>*/	(@ini_get('mbstring.func_overload') & MB_OVERLOAD_STRING)
+/*#>*/		&& die('Patchwork Error: mbstring is overloading string functions');
+/*#>*/
+/*#>*/	ini_get_bool('mbstring.encoding_translation')
+/*#>*/		&& !in_array(strtolower(ini_get('mbstring.http_input')), array('pass', 'utf-8'))
+/*#>*/		&& die('Patchwork Error: mbstring is set to translate input encoding');
+/*#>*/}
+
 /*#>*/$a = file_get_contents(patchwork_bootstrapper::$pwd . 'data/utf8/quickChecks.txt');
 /*#>*/$a = explode("\n", $a);
 define('UTF8_NFC_RX',            /*<*/'/' . $a[1] . '/u'/*>*/);

@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_bootstrapper_preprocessor
+class patchwork_bootstrapper_preprocessor__0
 {
 	const UTF8_BOM = "\xEF\xBB\xBF";
 
@@ -23,9 +23,9 @@ class patchwork_bootstrapper_preprocessor
 	$code;
 
 
-	static function ob_start($caller_file)
+	static function ob_start($caller)
 	{
-		self::$callerRx = preg_quote($caller_file, '/');
+		self::$callerRx = preg_quote($caller, '/');
 		ob_start(array(__CLASS__, 'ob_eval'));
 	}
 
