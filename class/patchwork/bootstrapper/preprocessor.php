@@ -16,29 +16,27 @@ class patchwork_bootstrapper_preprocessor__0
 {
 	const UTF8_BOM = "\xEF\xBB\xBF";
 
-	static
-
-	$callerRx,
-	$file,
-	$code;
+	static $code;
+	public $file;
+	protected $callerRx;
 
 
-	static function ob_start($caller)
+	function ob_start($caller)
 	{
-		self::$callerRx = preg_quote($caller, '/');
-		ob_start(array(__CLASS__, 'ob_eval'));
+		$this->callerRx = preg_quote($caller, '/');
+		ob_start(array($this, 'ob_eval'));
 	}
 
-	static function ob_eval($buffer)
+	function ob_eval($buffer)
 	{
 		return '' !== $buffer
-			? preg_replace('/' . self::$callerRx . '\(\d+\) : eval\(\)\'d code/', self::$file, $buffer)
+			? preg_replace('/' . $this->callerRx . '\(\d+\) : eval\(\)\'d code/', $this->file, $buffer)
 			: '';
 	}
 
-	static function staticPass1()
+	function staticPass1()
 	{
-		$code = file_get_contents(self::$file);
+		$code = file_get_contents($this->file);
 		self::UTF8_BOM === substr($code, 0, 3) && $code = substr($code, 3);
 		false !== strpos($code, "\r") && $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
 		$code = preg_replace('/\?>$/', ';', $code);
@@ -163,7 +161,7 @@ class patchwork_bootstrapper_preprocessor__0
 		return $code;
 	}
 
-	static function staticPass2($token = false)
+	function staticPass2($token = false)
 	{
 		$code = '?>';
 		$line = 1;

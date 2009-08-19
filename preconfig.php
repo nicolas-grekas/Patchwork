@@ -31,9 +31,9 @@ define('UTF8_NFC_RX',            /*<*/'/' . $a[1] . '/u'/*>*/);
 define('PATCHWORK_PROJECT_PATH', /*<*/patchwork_bootstrapper::$cwd   /*>*/);
 define('PATCHWORK_ZCACHE',       /*<*/patchwork_bootstrapper::$zcache/*>*/);
 define('PATCHWORK_PATH_LEVEL',   /*<*/patchwork_bootstrapper::$last  /*>*/);
-define('PATCHWORK_PATH_OFFSET',  /*<*/patchwork_bootstrapper::$offset/*>*/);
+define('PATCHWORK_PATH_OFFSET',  /*<*/count(patchwork_bootstrapper::$paths) - patchwork_bootstrapper::$last/*>*/);
 
-$patchwork_path = /*<*/$patchwork_path/*>*/;
+$patchwork_path = /*<*/patchwork_bootstrapper::$paths/*>*/;
 $patchwork_abstract = array();
 $patchwork_destructors = array();
 $CONFIG = array();
@@ -295,9 +295,6 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 
 
 // Input normalization
-
-/*#>*/if (function_exists('get_magic_quotes_runtime') && @get_magic_quotes_runtime())
-		@set_magic_quotes_runtime(false);
 
 /*#>*/$h = @(extension_loaded('mbstring') && ini_get_bool('mbstring.encoding_translation') && 'UTF-8' === strtoupper(ini_get('mbstring.http_input')));
 /*#>*/if (!$h || (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc()))
