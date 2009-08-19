@@ -14,41 +14,59 @@
 
 class patchwork_bootstrapper_inheritance__0
 {
-	static
+	public
 
 	$rootPath,
 	$configSource = array(),
-	$appId;
+	$appId = 0;
+
+	protected static $cache;
 
 
-	static function getLinearizedGraph($root_path, $top_path, &$configSource, &$appId)
+	function linearizeGraph($root_path, $top_path)
 	{
-		self::$rootPath     = $root_path;
-		self::$configSource =& $configSource;
-		self::$appId        =& $appId;
+		// Get include_path
+
+		$paths = array();
+
+		foreach (explode(PATH_SEPARATOR, get_include_path()) as $a)
+		{
+			$a = patchwork_realpath($a);
+			if ($a && @opendir($a))
+			{
+				closedir();
+				$paths[] = rtrim($a, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+			}
+		}
+
 
 		// Linearize applications inheritance graph
 
-		$a = self::c3mro($root_path, $top_path);
+		$this->rootPath = $root_path;
+		self::$cache = array();
+		$a = $this->c3mro($root_path, $top_path);
 		$a = array_slice($a, 1);
-		$a[] = $root_path;
+		$a[] = $this->rootPath;
 
-		return $a;
+
+		$paths = array_diff($paths, $a, array(''));
+		$paths = array_merge($a, $paths);
+
+
+		return array(&$paths, count($a) - 1, $this->appId);
 	}
 
 	// C3 Method Resolution Order (like in Python 2.3) for multiple application inheritance
 	// See http://python.org/2.3/mro.html
 
-	protected static function c3mro($realpath, $top_path = false)
+	protected function c3mro($realpath, $top_path = false)
 	{
-		static $cache = array();
-
-		$resultSeq =& $cache[$realpath];
+		$resultSeq =& self::$cache[$realpath];
 
 		// If result is cached, return it
 		if (null !== $resultSeq) return $resultSeq;
 
-		$parent = self::getParentApps($realpath);
+		$parent = $this->getParentApps($realpath);
 
 		// If no parent app, result is trival
 		if (!$parent && !$top_path) return $resultSeq = array($realpath);
@@ -58,7 +76,7 @@ class patchwork_bootstrapper_inheritance__0
 		// Compute C3 MRO
 		$seqs = array_merge(
 			array(array($realpath)),
-			array_map(array(__CLASS__, 'c3mro'), $parent),
+			array_map(array($this, 'c3mro'), $parent),
 			array($parent)
 		);
 		$resultSeq = array();
@@ -68,7 +86,7 @@ class patchwork_bootstrapper_inheritance__0
 		{
 			if (!$seqs)
 			{
-				false !== $top_path && $cache = array();
+				false !== $top_path && self::$cache = array();
 				return $resultSeq;
 			}
 
@@ -98,7 +116,7 @@ class patchwork_bootstrapper_inheritance__0
 		}
 	}
 
-	protected static function getParentApps($realpath)
+	protected function getParentApps($realpath)
 	{
 		$parent = array();
 		$config = $realpath . 'config.patchwork.php';
@@ -109,7 +127,7 @@ class patchwork_bootstrapper_inheritance__0
 		file_exists($config)
 			|| die('Patchwork Error: Missing file ' . $config);
 
-		self::$appId += filemtime($config);
+		$this->appId += filemtime($config);
 
 		$source = file_get_contents($config);
 		UTF8_BOM === substr($source, 0, 3) && $source = substr($source, 3);
@@ -145,10 +163,10 @@ class patchwork_bootstrapper_inheritance__0
 				else if (T_INLINE_HTML == $a[0]) $a[1] .= '<?php ';
 			}
 
-			array_walk($source, array(__CLASS__, 'echoToken'));
+			array_walk($source, array($this, 'echoToken'));
 		}
 
-		self::$configSource[$config] = ob_get_clean();
+		$this->configSource[$config] = ob_get_clean();
 
 
 		// Parent's config file path is relative to the current application's directory
@@ -158,7 +176,7 @@ class patchwork_bootstrapper_inheritance__0
 		{
 			$a =& $parent[$i];
 
-			if ('__patchwork__' == substr($a, 0, 13)) $a = self::$rootPath . substr($a, 13);
+			if ('__patchwork__' == substr($a, 0, 13)) $a = $this->rootPath . substr($a, 13);
 
 			if ('/' !== $a[0] && '\\' !== $a[0] && ':' !== $a[1]) $a = $realpath . $a;
 
@@ -193,9 +211,9 @@ class patchwork_bootstrapper_inheritance__0
 
 				foreach ($source as $source)
 				{
-					if (self::$rootPath != $source)
+					if ($this->rootPath != $source)
 					{
-						foreach (self::c3mro($source) as $a)
+						foreach ($this->c3mro($source) as $a)
 						{
 							if (false !== $a = array_search($a, $p))
 							{
@@ -223,14 +241,14 @@ class patchwork_bootstrapper_inheritance__0
 				$source = rtrim($source, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
 				$a = $source;
-				if (self::$rootPath === $a) unset($parent[$i]);
+				if ($this->rootPath === $a) unset($parent[$i]);
 			}
 		}
 
 		return $parent;
 	}
 
-	protected static function echoToken(&$token)
+	protected function echoToken(&$token)
 	{
 		if (is_array($token))
 		{

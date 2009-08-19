@@ -12,30 +12,32 @@
  ***************************************************************************/
 
 
+// To generate meaningful error messages,
+// this file should be parse error free even in PHP 4.0.
+
+// To keep the global namespace clean, we use only static methods instead of any variable.
+// Be aware that the use of static properties would throw a PHP 4.0 parse error.
+
 isset($_GET['p:']) && 'exit' === $_GET['p:'] && die('Exit requested');
 
 error_reporting(E_ALL | E_STRICT);
 @ini_set('display_errors', true); // Only while bootstrapping
 
-
-// Mandatory PHP dependencies
-
 if (!function_exists('version_compare') || version_compare(phpversion(), '5.1.4', '<'))
 {
 	die("PHP 5.1.4 or higher is required.");
 }
-function_exists('token_get_all') || die('Patchwork Error: Extension "tokenizer" is needed and not loaded');
-preg_match('/^.$/u', '§')        || die('Patchwork Error: PCRE is not compiled with UTF-8 support');
-isset($_SERVER['REDIRECT_STATUS']) && '200' !== $_SERVER['REDIRECT_STATUS'] && die('Patchwork Error: initialization forbidden (try using the shortest possible URL)');
 
 require dirname(__FILE__) . '/class/patchwork/bootstrapper.php';
+
+patchwork_bootstrapper::initialize(__FILE__);
 
 
 // Get lock
 
-if (!patchwork_bootstrapper::getLock(__FILE__))
+if (!patchwork_bootstrapper::getLock())
 {
-	require patchwork_bootstrapper::getBootstrapper();
+	require patchwork_bootstrapper::getCompiledFile();
 	return;
 }
 
@@ -49,7 +51,7 @@ ob_get_length() && ob_flush();
 
 // Initialization
 
-patchwork_bootstrapper::initInheritance($patchwork_path);
+patchwork_bootstrapper::initInheritance();
 patchwork_bootstrapper::initZcache();
 
 
@@ -64,6 +66,8 @@ while (patchwork_bootstrapper::loadConfigFile('pre'))
 
 
 // Load config
+
+patchwork_bootstrapper::initConfig();
 
 while (patchwork_bootstrapper::loadConfigSource())
 {

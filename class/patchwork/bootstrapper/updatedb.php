@@ -14,40 +14,39 @@
 
 class patchwork_bootstrapper_updatedb__0
 {
-	static function buildPathCache($patchwork_path, $last, $cwd, $zcache)
+	function buildPathCache($paths, $last, $cwd, $zcache)
 	{
 		$parentPaths = array();
-
-		$error_level = error_reporting(0);
+		$populated = array();
+		$old_db_line = false;
 
 		if (file_exists($cwd . '.parentPaths.txt'))
 		{
-			rename($cwd . '.parentPaths.txt', $cwd . '.parentPaths.old');
-			$old_db = fopen($cwd . '.parentPaths.old', 'rb');
+			@rename($cwd . '.parentPaths.txt', $cwd . '.parentPaths.old');
+			$old_db = @fopen($cwd . '.parentPaths.old', 'rb');
+			$old_db && $old_db_line = fgets($old_db);
 		}
 		else $old_db = false;
 
-		$db = fopen($cwd . '.parentPaths.txt', 'wb');
+		$db = @fopen($cwd . '.parentPaths.txt', 'wb');
 
-		$path = array_flip($patchwork_path);
-		unset($path[$cwd]);
-		uksort($path, array(__CLASS__, 'dirCmp'));
+		$paths = array_flip($paths);
+		unset($paths[$cwd]);
+		uksort($paths, array($this, 'dirCmp'));
 
-		foreach ($path as $h => $level)
+		foreach ($paths as $h => $level)
 		{
-			self::populatePathCache($old_db, $db, $parentPaths, $path, substr($h, 0, -1), $level, $last);
+			$this->populatePathCache($populated, $old_db, $old_db_line, $db, $parentPaths, $paths, substr($h, 0, -1), $level, $last);
 		}
 
-		fclose($db);
-		$old_db && fclose($old_db) && unlink($cwd . '.parentPaths.old');
+		$db && fclose($db);
+		$old_db && fclose($old_db) && @unlink($cwd . '.parentPaths.old');
 
 		if (IS_WINDOWS)
 		{
 			$h = new COM('Scripting.FileSystemObject');
 			$h->GetFile($cwd . '.parentPaths.txt')->Attributes |= 2; // Set hidden attribute
 		}
-
-		error_reporting($error_level);
 
 		$db = $h = false;
 
@@ -62,10 +61,10 @@ class patchwork_bootstrapper_updatedb__0
 
 		if ($h)
 		{
-			foreach ($parentPaths as $path => &$level)
+			foreach ($parentPaths as $paths => &$level)
 			{
 				sort($level);
-				dba_insert($path, implode(',', $level), $h);
+				dba_insert($paths, implode(',', $level), $h);
 			}
 
 			dba_close($h);
@@ -80,16 +79,16 @@ class patchwork_bootstrapper_updatedb__0
 		{
 			$db = false;
 
-			foreach ($parentPaths as $path => &$level)
+			foreach ($parentPaths as $paths => &$level)
 			{
-				$path = md5($path);
-				$path = $path[0] . '/' . $path[1] . '/' . substr($path, 2) . '.path.txt';
+				$paths = md5($paths);
+				$paths = $paths[0] . '/' . $paths[1] . '/' . substr($paths, 2) . '.path.txt';
 
-				if (false === $h = @fopen($zcache . $path, 'wb'))
+				if (false === $h = @fopen($zcache . $paths, 'wb'))
 				{
-					@mkdir($zcache . $path[0]);
-					@mkdir($zcache . substr($path, 0, 3));
-					$h = fopen($zcache . $path, 'wb');
+					@mkdir($zcache . $paths[0]);
+					@mkdir($zcache . substr($paths, 0, 3));
+					$h = fopen($zcache . $paths, 'wb');
 				}
 
 				sort($level);
@@ -101,13 +100,11 @@ class patchwork_bootstrapper_updatedb__0
 		return $db;
 	}
 
-	protected static function populatePathCache(&$old_db, &$db, &$parentPaths, &$path, $root, $level, $last, $prefix = '', $subdir = '/')
+	protected function populatePathCache(&$populated, &$old_db, &$old_db_line, &$db, &$parentPaths, &$paths, $root, $level, $last, $prefix = '', $subdir = '/')
 	{
 		// Kind of updatedb with mlocate strategy
 
 		$dir = $root . (IS_WINDOWS ? strtr($subdir, '/', '\\') : $subdir);
-
-		static $old_db_line, $populated = array();
 
 		if ('/' === $subdir)
 		{
@@ -122,8 +119,6 @@ class patchwork_bootstrapper_updatedb__0
 			}
 		}
 
-		isset($old_db_line) || $old_db_line = $old_db ? fgets($old_db) : false;
-
 		if (false !== $old_db_line)
 		{
 			do
@@ -131,19 +126,19 @@ class patchwork_bootstrapper_updatedb__0
 				$h = explode('*', $old_db_line, 2);
 				false !== strpos($h[0], '%') && $h[0] = rawurldecode($h[0]);
 
-				if (0 <= $h[0] = self::dirCmp($h[0], $dir))
+				if (0 <= $h[0] = $this->dirCmp($h[0], $dir))
 				{
-					if (0 === $h[0] && max(filemtime($dir), filectime($dir)) === (int) $h[1])
+					if (0 === $h[0] && @max(filemtime($dir), filectime($dir)) === (int) $h[1])
 					{
 						if ('/' !== $subdir && false !== strpos($h[1], '/0config.patchwork.php/'))
 						{
-							if (isset($path[$dir]))
+							if (isset($paths[$dir]))
 							{
 								$populated[$dir] = true;
 
 								$root   = substr($dir, 0, -1);
 								$subdir = '/';
-								$level  = $path[$dir];
+								$level  = $paths[$dir];
 
 								if ($level > $last)
 								{
@@ -155,7 +150,7 @@ class patchwork_bootstrapper_updatedb__0
 							else break;
 						}
 
-						fwrite($db, $old_db_line);
+						$db && fwrite($db, $old_db_line);
 
 						$h = explode('/', $h[1]);
 						unset($h[0], $h[count($h)]);
@@ -167,7 +162,7 @@ class patchwork_bootstrapper_updatedb__0
 							$file = $subdir . substr($file, 1);
 							$parentPaths[substr($prefix . $file, 1)][] = $level;
 
-							$h && self::populatePathCache($old_db, $db, $parentPaths, $path, $root, $level, $last, $prefix, $file . '/');
+							$h && $this->populatePathCache($populated, $old_db, $old_db_line, $db, $parentPaths, $paths, $root, $level, $last, $prefix, $file . '/');
 						}
 
 						return;
@@ -179,7 +174,7 @@ class patchwork_bootstrapper_updatedb__0
 			while (false !== $old_db_line = fgets($old_db));
 		}
 
-		if ($h = opendir($dir))
+		if ($h = @opendir($dir))
 		{
 			static $now;
 			isset($now) || $now = time() - 1;
@@ -189,20 +184,20 @@ class patchwork_bootstrapper_updatedb__0
 
 			while (false !== $file = readdir($h)) if ('.' !== $file[0] && 'zcache' !== $file)
 			{
-				if (is_dir($dir . $file)) $dirs[] = $file;
+				if (@is_dir($dir . $file)) $dirs[] = $file;
 				else
 				{
 					$files[] = $file;
 
 					if ('config.patchwork.php' === $file && '/' !== $subdir)
 					{
-						if (isset($path[$dir]))
+						if (isset($paths[$dir]))
 						{
 							$populated[$dir] = true;
 
 							$root   = substr($dir, 0, -1);
 							$subdir = '/';
-							$level  = $path[$dir];
+							$level  = $paths[$dir];
 
 							if ($level > $last)
 							{
@@ -225,7 +220,7 @@ class patchwork_bootstrapper_updatedb__0
 			ob_start();
 
 			echo strtr($dir, array('%' => '%25', "\r" => '%0D', "\n" => '%0A', '*' => '%2A')),
-				'*', min($now, max(filemtime($dir), filectime($dir))), '/';
+				'*', min($now, @max(filemtime($dir), filectime($dir))), '/';
 
 			foreach ($files as $file)
 			{
@@ -242,18 +237,19 @@ class patchwork_bootstrapper_updatedb__0
 
 			echo "\n";
 
-			fwrite($db, ob_get_clean());
+			$file = ob_get_clean();
+			$db && fwrite($db, $file);
 
 			foreach ($dirs as $file)
 			{
 				$file = $subdir . $file;
 				$parentPaths[substr($prefix . $file, 1)][] = $level;
-				self::populatePathCache($old_db, $db, $parentPaths, $path, $root, $level, $last, $prefix, $file . '/');
+				$this->populatePathCache($populated, $old_db, $old_db_line, $db, $parentPaths, $paths, $root, $level, $last, $prefix, $file . '/');
 			}
 		}
 	}
 
-	static function dirCmp($a, $b)
+	protected function dirCmp($a, $b)
 	{
 		$len = min(strlen($a), strlen($b));
 

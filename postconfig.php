@@ -122,7 +122,7 @@ function __autoload($searched_class)
 		{
 			$b = $a;
 			unset($a);
-			$a = $b - /*<*/patchwork_bootstrapper::$offset/*>*/;
+			$a = $b - /*<*/count(patchwork_bootstrapper::$paths) - patchwork_bootstrapper::$last/*>*/;
 
 			$b = $searched_class;
 			$i = strrpos($b, '__');
@@ -165,7 +165,7 @@ function patchworkProcessedPath($file)
 
 		$p =& $GLOBALS['patchwork_path'];
 
-		for ($i = /*<*/patchwork_bootstrapper::$last + 1/*>*/; $i < /*<*/count($patchwork_path)/*>*/; ++$i)
+		for ($i = /*<*/patchwork_bootstrapper::$last + 1/*>*/; $i < /*<*/count(patchwork_bootstrapper::$paths)/*>*/; ++$i)
 		{
 			if (substr($file, 0, strlen($p[$i])) === $p[$i])
 			{
@@ -174,7 +174,7 @@ function patchworkProcessedPath($file)
 			}
 		}
 
-		if (/*<*/count($patchwork_path)/*>*/ === $i) return $f;
+		if (/*<*/count(patchwork_bootstrapper::$paths)/*>*/ === $i) return $f;
 	}
 
 	$source = patchworkPath('class/' . $file, $level);
