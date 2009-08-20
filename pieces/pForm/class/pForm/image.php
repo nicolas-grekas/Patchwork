@@ -19,7 +19,6 @@ class extends pForm_submit
 	protected function init(&$param)
 	{
 		unset($this->form->rawValues[$this->name]);
-		unset($this->form->rawValues[$this->name]); // Double unset against PHP security hole
 		parent::init($param);
 	}
 }
