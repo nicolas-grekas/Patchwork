@@ -240,10 +240,7 @@ class
 
 #>		patchwork_debugger::execute();
 
-		if (!$CONFIG['clientside'])
-		{
-			unset($_COOKIE['JS'], $_COOKIE['JS']); // Double unset against a PHP security hole
-		}
+		if (!$CONFIG['clientside']) unset($_COOKIE['JS']);
 		else if ('flipside' === self::$requestMode)
 		{
 			preg_match('/[^.]+\.[^\.0-9]+$/', $_SERVER['HTTP_HOST'], $domain);
@@ -600,7 +597,7 @@ class
 #>					}
 				}
 
-				unset($_COOKIE['T$'], $_COOKIE['T$']); // Double unset against a PHP security hole
+				unset($_COOKIE['T$']);
 			}
 
 			self::$antiCSRFtoken = $new . self::strongid();

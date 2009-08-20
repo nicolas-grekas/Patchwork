@@ -375,7 +375,7 @@ if (false !== strpos($a, '/.'))
 
 			reset($_GET);
 			$j = key($_GET);
-			unset($_GET[$j], $_GET[$j]); // Double unset against a PHP security hole
+			unset($_GET[$j]);
 		}
 
 		$j = explode('/', urldecode($r));
