@@ -87,12 +87,25 @@ function ini_get_bool($a)
 	}
 }
 
-/*#>*/$a = '' === pathinfo('§', PATHINFO_BASENAME);
+/*#>*/$a = '' === basename('§');
 
-define('PATCHWORK_BUGGY_PATHINFO', /*<*/$a/*>*/);
+define('PATCHWORK_BUGGY_BASENAME', /*<*/$a/*>*/);
 
 /*#>*/if ($a)
 /*#>*/{
+		function patchwork_basename($path, $suffix = '')
+		{
+			$path = rtrim($path, /*<*/'/' . ('\\' === DIRECTORY_SEPARATOR ? '\\' : '')/*>*/);
+
+			$r = strrpos($path, '/');
+/*#>*/		if ('\\' === DIRECTORY_SEPARATOR)
+				$r = max($r, strrpos($path, '\\'));
+
+			false !== $r && $path = substr($path, $r + 1);
+
+			return substr(basename('.' . $path, $suffix), 1);
+		}
+
 		function patchwork_pathinfo($path, $option = INF)
 		{
 			$path = rawurlencode($path);
@@ -108,6 +121,11 @@ define('PATCHWORK_BUGGY_PATHINFO', /*<*/$a/*>*/);
 /*#>*/}
 /*#>*/else
 /*#>*/{
+		function patchwork_basename($path, $suffix = '')
+		{
+			return basename($path, $suffix);
+		}
+
 		function patchwork_pathinfo($path, $option = INF)
 		{
 			return INF === $option ? pathinfo($path) : pathinfo($path, $option);
