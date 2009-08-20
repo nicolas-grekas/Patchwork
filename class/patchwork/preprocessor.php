@@ -164,9 +164,8 @@ class patchwork_preprocessor__0
 			);
 		}
 
-		PATCHWORK_BUGGY_REALPATH && self::$functionAlias += array(
-			'realpath' => 'patchwork_realpath',
-		);
+		PATCHWORK_BUGGY_REALPATH && self::$functionAlias += array('realpath' => 'patchwork_realpath');
+		PATCHWORK_BUGGY_PATHINFO && self::$functionAlias += array('pathinfo' => 'patchwork_pathinfo');
 
 
 		$v = md5(mt_rand());
