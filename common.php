@@ -87,6 +87,33 @@ function ini_get_bool($a)
 	}
 }
 
+/*#>*/$a = '' === pathinfo('§', PATHINFO_BASENAME);
+
+define('PATCHWORK_BUGGY_PATHINFO', /*<*/$a/*>*/);
+
+/*#>*/if ($a)
+/*#>*/{
+		function patchwork_pathinfo($path, $option = INF)
+		{
+			$path = rawurlencode($path);
+			$path = str_replace('%2F', '/' , $path);
+			$path = str_replace('%5C', '\\', $path);
+
+			$path = INF === $option ? pathinfo($path) : pathinfo($path, $option);
+
+			return is_array($path)
+				? array_map('rawurldecode', $path)
+				: rawurldecode($path);
+		}
+/*#>*/}
+/*#>*/else
+/*#>*/{
+		function patchwork_pathinfo($path, $option = INF)
+		{
+			return INF === $option ? pathinfo($path) : pathinfo($path, $option);
+		}
+/*#>*/}
+
 /*#>*/$a = function_exists('realpath') ? @realpath('.') : false;
 /*#>*/if (!$a || '.' === $a)
 /*#>*/{
