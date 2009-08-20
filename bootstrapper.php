@@ -22,6 +22,7 @@ isset($_GET['p:']) && 'exit' === $_GET['p:'] && die('Exit requested');
 
 error_reporting(E_ALL | E_STRICT);
 @ini_set('display_errors', true); // Only while bootstrapping
+setlocale(LC_ALL, 'C');
 
 if (!function_exists('version_compare') || version_compare(phpversion(), '5.1.4', '<'))
 {
