@@ -253,14 +253,18 @@ class
 	{
 		if (self::$IPlevel)
 		{
-			// TODO : handle ipv6 ?
-			$IPs = (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '')
+			$IPs = '127.0.0.1,' . $_SERVER['REMOTE_ADDR']
 				. ',' . (isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : '')
 				. ',' . (isset($_SERVER['HTTP_CLIENT_IP']) ? $_SERVER['HTTP_CLIENT_IP'] : '');
 
-			preg_match_all('/(?<![\.\d])\d+(?:\.\d+){'.(self::$IPlevel-1).'}/u', $IPs, $IPs);
+			preg_match_all('/(?<![\.\d])\d+(?:\.\d+){' . (self::$IPlevel - 1) . '}/u', $IPs, $IPs);
 
-			$IPs = implode(',', $IPs[0]);
+			sort($IPs[0]) && $IPs[0] = array_unique($IPs[0]);
+
+			$IPs[1] = explode('.', $_SERVER['REMOTE_ADDR'], self::$IPlevel+1);
+			unset($IPs[1][self::$IPlevel]);
+
+			$IPs = implode('.', $IPs[1]) . ',' . implode(',', $IPs[0]);
 		}
 		else $IPs = '';
 
