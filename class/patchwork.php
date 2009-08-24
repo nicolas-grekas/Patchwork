@@ -165,7 +165,7 @@ class
 	$LastModified = 0,
 
 	$host,
-	$lang,
+	$lang = null,
 	$base,
 	$uri,
 
@@ -521,9 +521,7 @@ class
 
 	static function setLang($lang)
 	{
-		if (!isset($CONFIG['i18n.lang_list'][$lang]) || isset(self::$lang) && self::$lang === $lang) return;
-
-		self::$lang = $lang;
+		if (!isset($CONFIG['i18n.lang_list'][$lang]) || isset(self::$lang) && self::$lang === $lang) return $lang;
 
 		$base = $CONFIG['i18n.lang_list'][$lang];
 		$base = implode($base, explode('__', $_SERVER['PATCHWORK_BASE'], 2));
@@ -545,6 +543,11 @@ class
 				? self::$uri = self::$base . self::translateRequest($base[1], $lang)
 				: W('Something is wrong between p::$uri and PATCHWORK_BASE');
 		}
+
+		$base = self::$lang;
+		self::$lang = $lang;
+
+		return $base;
 	}
 
 	static function __HOST__() {return self::$host;}
