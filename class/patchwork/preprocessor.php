@@ -413,6 +413,10 @@ class patchwork_preprocessor__0
 
 	protected function &preprocess(&$code)
 	{
+		$scream = (defined('DEBUG') && DEBUG)
+			&& !empty($GLOBALS['CONFIG']['debug.scream'])
+				|| (defined('DEBUG_SCREAM') && DEBUG_SCREAM);
+
 		$source = $this->source;
 		$level  = $this->level;
 		$class  = $this->class;
@@ -443,19 +447,30 @@ class patchwork_preprocessor__0
 
 		for ($i = 0; $i < $codeLen; ++$i)
 		{
-			$token = $code[$i];
-			if (is_array($token))
+			if (is_array($code[$i]))
 			{
-				$type = $token[0];
-				$token = $token[1];
+				$type  = $code[$i][0];
+				$token = $code[$i][1];
 			}
-			else $type = ($this->inString & 1) && '"' !== $token && '`' !== $token ? T_ENCAPSED_AND_WHITESPACE : $token;
+			else
+			{
+				$token = $code[$i];
+				$type = ($this->inString & 1) && '"' !== $token && '`' !== $token ? T_ENCAPSED_AND_WHITESPACE : $token;
+			}
 
 			// Reduce memory usage
 			unset($code[$i]);
 
 			switch ($type)
 			{
+			case '@':
+				if ($scream)
+				{
+					$code[$i--] = array(T_WHITESPACE, ' ');
+					continue;
+				}
+				else break;
+
 			case T_OPEN_TAG_WITH_ECHO:
 				$line += substr_count($token, "\n");
 				$code[$i--] = array(T_ECHO, 'echo');
