@@ -22,7 +22,8 @@ define('PATCHWORK_PATH_TOKEN', /*<*/patchwork_bootstrapper::$token/*>*/);
 $CONFIG += array(
 	'debug.allowed'  => true,
 	'debug.password' => '',
-	'turbo' => false,
+	'debug.scream'   => false,
+	'turbo'          => false,
 );
 
 defined('DEBUG') || define('DEBUG', $CONFIG['debug.allowed'] && (!$CONFIG['debug.password'] || isset($_COOKIE['debug_password']) && $CONFIG['debug.password'] == $_COOKIE['debug_password']) ? 1 : 0);

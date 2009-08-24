@@ -36,10 +36,17 @@ class patchwork_bootstrapper_preprocessor__0
 
 	function staticPass1()
 	{
+		$scream = (defined('DEBUG') && DEBUG)
+			&& !empty($GLOBALS['CONFIG']['debug.scream'])
+				|| (defined('DEBUG_SCREAM') && DEBUG_SCREAM);
+
 		$code = file_get_contents($this->file);
 		self::UTF8_BOM === substr($code, 0, 3) && $code = substr($code, 3);
 		false !== strpos($code, "\r") && $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
 		$code = preg_replace('/\?>$/', ';', $code);
+
+		$code = token_get_all($code);
+		$codeLen = count($code);
 
 		$mode = 2;
 		$first_isolation = 0;
@@ -51,17 +58,32 @@ class patchwork_bootstrapper_preprocessor__0
 		$new_code = array();
 		$transition = array();
 
-		foreach (token_get_all($code) as $i => $token)
+		for ($i = 0; $i < $codeLen; ++$i)
 		{
-			if (is_array($token))
+			if (is_array($code[$i]))
 			{
-				$type = $token[0];
-				$token = $token[1];
+				$type  = $code[$i][0];
+				$token = $code[$i][1];
 			}
-			else $type = $token;
+			else
+			{
+				$token = $code[$i];
+				$type  = $token;
+			}
+
+			// Reduce memory usage
+			unset($code[$i]);
 
 			switch ($type)
 			{
+			case '@':
+				if ($scream)
+				{
+					$code[$i--] = array(T_WHITESPACE, ' ');
+					continue;
+				}
+				else break;
+
 			case T_OPEN_TAG:
 				$token = '<?php ' . str_repeat("\n", substr_count($token, "\n"));
 				break;

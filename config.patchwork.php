@@ -16,7 +16,8 @@ $CONFIG += array(
 	// General
 #	'debug.allowed'  => true,
 #	'debug.password' => '',
-#	'turbo'          => false,   // Run patchwork at full speed,  at the cost of source code desynchronisation
+#	'debug.scream'   => false,   // Disable the silencing error control operator, defaults to the DEBUG_SCREAM constant if any
+#	'turbo'          => false,   // Run patchwork at full speed, at the cost of source code desynchronisation
 #	'umask'          => umask(), // Set the user file creation mode mask
 
 	// Patchwork
