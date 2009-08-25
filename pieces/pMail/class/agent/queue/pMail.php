@@ -63,9 +63,9 @@ class extends agent_queue_pTask
 
 		try
 		{
-			isset($data->agent)
-				? pMail_mime::sendAgent($data->headers, $data->agent, $data->args, $data->options)
-				: pMail_mime::send($data->headers, $data->body, $data->options);
+			$e = $data->mailer;
+			$e = new $e($data->headers, $data->options);
+			$e->send();
 		}
 		catch (patchwork_exception_forbidden $e) {W("pMail #{$id}: forbidden acces detected" ); $archive = 1;}
 		catch (patchwork_exception_redirect  $e) {W("pMail #{$id}: HTTP redirection detected"); $archive = 1;}

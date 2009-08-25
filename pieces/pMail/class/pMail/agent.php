@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends pMail_mime
+class extends pMail_text
 {
 	protected
 
@@ -26,22 +26,22 @@ class extends pMail_mime
 	static protected $imageCache = array();
 
 
-	function __construct($agent, $args = array(), $options = null)
+	function __construct(&$headers, &$options)
 	{
-		$this->agent = $agent;
-		$this->args = (array) $args;
-		$this->lang = isset($options['lang']) ? $options['lang'] : p::__LANG__();
+		$this->agent = $options['agent'];
+		$this->args  = $options['args'];
+		$this->lang  = isset($options['lang']) ? $options['lang'] : p::__LANG__();
 
-		parent::__construct($options);
+		parent::__construct($headers, $options);
 	}
 
-	protected function doSend()
+	function send()
 	{
 		$html = patchwork_serverside::returnAgent($this->agent, $this->args, $this->lang);
 
-		if (!isset($this->_headers['Subject']) && preg_match("'<title[^>]*>(.*?)</title[^>]*>'isu", $html, $title))
+		if (!isset($this->headers['Subject']) && preg_match("'<title[^>]*>(.*?)</title[^>]*>'isu", $html, $title))
 		{
-			$this->headers(array('Subject' => trim(html_entity_decode($title[1], ENT_COMPAT, 'UTF-8'))));
+			$this->headers['Subject'] = trim(html_entity_decode($title[1], ENT_COMPAT, 'UTF-8'));
 		}
 
 
@@ -70,18 +70,16 @@ class extends pMail_mime
 			);
 		}
 
-		$this->setHTMLBody($html);
+		$this->options['html'] =& $html;
 
 
 		// HTML to text conversion
 
 		$c = new converter_txt_html(78);
-		$html = $c->convertData($html);
+		$this->options['text'] = $c->convertData($html);
 
 
-		$this->setTXTBody($html);
-
-		parent::doSend();
+		parent::send();
 	}
 
 	protected function cleanUrlAttribute($m)
@@ -121,5 +119,19 @@ class extends pMail_mime
 		$this->addedImage[$url] = true;
 
 		return $m[0];
+	}
+
+	function setTestMode()
+	{
+		parent::setTestMode();
+
+		$lang = p::setLang($this->lang);
+
+		$url = p::base($this->agent, true);
+		empty($this->args) || $url .= '?' . http_build_query($this->args);
+
+		p::setLang($lang);
+
+		p::log('&lt;<a href="' . htmlspecialchars($url) . '">Click here to see the email</a>&gt;');
 	}
 }
