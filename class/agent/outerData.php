@@ -12,21 +12,23 @@
  ***************************************************************************/
 
 
-class extends self
+class extends agent
 {
-	function ob_handler($buffer)
+	static
+
+	$outerData = array(),
+	$outerTemplate = 'bin';
+
+	protected $data;
+
+	function control()
 	{
-		parent::ob_handler($buffer);
+		$this->data     = self::$outerData;
+		$this->template = self::$outerTemplate;
+	}
 
-		if ('' !== $buffer && $CONFIG['pMail.debug_email'])
-		{
-			$m = new pMail_text(
-				array('To'   => $CONFIG['pMail.debug_email']),
-				array('text' => &$buffer)
-			);
-			$m->send();
-		}
-
-		return '';
+	function compose($o)
+	{
+		return $this->data;
 	}
 }

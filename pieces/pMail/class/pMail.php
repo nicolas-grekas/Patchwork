@@ -16,90 +16,62 @@ class extends pTask
 {
 	protected $testMode = DEBUG;
 
-	static function send($headers, $body, $options = null)
+	static function send($headers, $text, $options = array())
 	{
-		is_array($headers) || $headers = (array) $headers;
+		is_object($options) && $options = (array) $options;
 
-		return self::pushMail(array(
-			'headers' => &$headers,
-			'options' => &$options,
-			'body' => &$body,
-		));
+		$options['text'] =& $text;
+
+		return self::queueMail('pMail_text', $headers, $options);
 	}
 
-	static function sendAgent($headers, $agent, $args = array(), $options = null)
+	static function sendAgent($headers, $agent, $args = array(), $options = array())
 	{
-		is_array($headers) || $headers = (array) $headers;
-		is_array($args)    || $args    = (array) $args;		
+		is_object($args)    && $args    = (array) $args;
+		is_object($options) && $options = (array) $options;
 
-		return self::pushMail(array(
-			'headers' => &$headers,
-			'options' => &$options,
-			'agent' => &$agent,
-			'args' => &$args,
-		));
+		$options['agent'] = $agent;
+		$options['args']  =& $args;
+
+		return self::queueMail('pMail_agent', $headers, $options);
 	}
 
-	protected static function pushMail($data, $queue = false)
+	static function sendTemplate($headers, $template, $data = array(), $options = array())
+	{
+		is_object($options) && $options = (array) $options;
+
+		$options['template'] = $template;
+		$options['data']     =& $data;
+
+		return self::queueMail('pMail_template', $headers, $options);
+	}
+
+	protected static function queueMail($mailer, &$headers, &$options, $queue = false)
 	{
 		$queue || $queue = new self;
 
-		if ($queue->testMode)
-		{
-			$log = <<<EOHTML
-<script type="text/javascript">/*<![CDATA[*/
-focus()
-L=opener||parent;
-L=L&&L.document.getElementById('debugLink')
-L=L&&L.style
-if(L) L.fontSize='18px'
-//]]></script>
-EOHTML;
+		is_object($headers) && $headers = (array) $headers;
+		is_object($options) && $options = (array) $options;
 
-			if ($url = self::getUrl($data))
-			{
-				p::log($log . '<strong>Sending email</strong> &lt;<a href="' . htmlspecialchars($url) . '">' . htmlspecialchars($data['agent']) . '</a>&gt;');
-			}
-			else p::log($log . '<strong>Sending email</strong>');
+		return $queue->pushMail($mailer, $headers, $options);
+	}
 
-			E($data);
+	protected function pushMail($mailer, &$headers, &$options)
+	{
+		if (isset($options['testMode'])) $this->testMode = $options['testMode'];
+		else if ($this->testMode) $options['testMode'] = 1;
 
-			if (empty($CONFIG['pMail.debug_email'])) return 0;
+		$sent = - (int)(bool) !empty($options['testMode']);
+		$archive = (int) !(empty($options['archive']) && empty($options['testMode']));
 
-			$headers =& $data['headers'];
-
-			foreach (array('To', 'Cc', 'Bcc') as $sql)
-			{
-				if (isset($headers[$sql]))
-				{
-					$headers['X-Original-' . $sql] = is_array($headers[$sql])
-						? implode(', ', $headers[$sql])
-						: $headers[$sql];
-
-					unset($headers[$sql]);
-				}
-			}
-
-			$headers['To'] = $CONFIG['pMail.debug_email'];
-		}
-
-		$data['cookie']  =& $_COOKIE;
-		$data['session'] = class_exists('SESSION', false) ? SESSION::getAll() : array();
-
-
-		$sqlite = $queue->getSqlite();
-
-		$sent = - (int)(bool) $queue->testMode;
-		$archive = (int) (!empty($data['options']['archive']) || $queue->testMode);
-
-		$time = isset($data['options']['time']) ? $data['options']['time'] : 0;
+		$time = isset($options['time']) ? $options['time'] : 0;
 		if ($time < $_SERVER['REQUEST_TIME'] - 366*86400) $time += $_SERVER['REQUEST_TIME'];
 
-		if (!empty($data['options']['attachments']) && is_array($data['options']['attachments']))
+		if (!empty($options['attachments']) && is_array($options['attachments']))
 		{
 			$tmpToken = false;
 
-			foreach ($data['options']['attachments'] as &$file)
+			foreach ($options['attachments'] as &$file)
 			{
 				if (is_uploaded_file($file) || PATCHWORK_ZCACHE === substr($file, 0, strlen(PATCHWORK_ZCACHE)))
 				{
@@ -110,10 +82,20 @@ EOHTML;
 				}
 			}
 
-			unset($file, $data['options']['attachments.tmpToken']);
+			unset($file, $options['attachments.tmpToken']);
 
-			$tmpToken && $data['options']['attachments.tmpToken'] = $tmpToken;
+			$tmpToken && $options['attachments.tmpToken'] = $tmpToken;
 		}
+
+		$data = array(
+			'mailer'  => $mailer,
+			'headers' => &$headers,
+			'options' => &$options,
+			'cookie'  => &$_COOKIE,
+			'session' => class_exists('SESSION', false) ? SESSION::getAll() : array(),
+		);
+
+		$sqlite = $this->getSqlite();
 
 		$base = sqlite_escape_string(p::__BASE__());
 		$data = sqlite_escape_string(serialize($data));
@@ -124,36 +106,10 @@ EOHTML;
 
 		$sql = $sqlite->lastInsertRowid();
 
-		$queue->registerQueue();
+		$this->registerQueue();
 
 		return $sql;
 	}
-
-	protected static function getUrl($data)
-	{
-		if (isset($data['agent']))
-		{
-			if (!empty($data['options']['lang']))
-			{
-				$lang = p::__LANG__();
-				p::setLang($data['options']['lang']);
-			}
-
-			$url = p::base($data['agent'], true);
-			empty($data['args']) || $url .= '?' . http_build_query($data['args']);
-
-			if (!empty($data['options']['lang']))
-			{
-				p::setLang($lang);
-			}
-		}
-		else $url = false;
-
-		Mail_mime::cleanHeaders($data['headers'], 'From|To|Cc|Bcc|Subject');
-
-		return $url;
-	}
-
 
 	protected function doSchedule($time)
 	{

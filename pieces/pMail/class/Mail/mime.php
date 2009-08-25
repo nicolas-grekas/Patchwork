@@ -14,6 +14,28 @@
 
 class extends self
 {
+	function __construct()
+	{
+		$eol = "\r\n";
+
+		if ('smtp' !== $CONFIG['pMail.backend'])
+		{
+			false === strpos(PHP_OS, 'WIN') && $eol = "\n";
+			defined('PHP_EOL') && $eol = PHP_EOL;
+		}
+
+		parent::__construct($eol);
+
+		$this->_build_params['head_charset' ] = 'utf-8';
+
+		$this->_build_params['text_charset' ] = 'utf-8';
+		$this->_build_params['text_encoding'] = 'base64';
+
+		$this->_build_params['html_charset' ] = 'utf-8';
+		$this->_build_params['html_encoding'] = 'base64';
+	}
+
+
 	// The original Mail_mime->_encodeHeaders() is bugged !
 
 	function _encodeHeaders($input)
@@ -96,7 +118,7 @@ class extends self
 
 	function &headers($xtra_headers = null, $overwrite = false)
 	{
-		empty($xtra_headers) || self::cleanHeaders($xtra_headers, 'Return-Path|Errors-To|From|To|Reply-To|Subject|Cc|Bcc');
+		empty($xtra_headers) || self::cleanHeaders($xtra_headers, 'Return-Path|From|To|Reply-To|Subject|Cc|Bcc');
 
 		$xtra_headers =& parent::headers($xtra_headers, $overwrite);
 

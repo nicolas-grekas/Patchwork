@@ -12,21 +12,26 @@
  ***************************************************************************/
 
 
-class extends self
+class extends pMail_agent
 {
-	function ob_handler($buffer)
+	function __construct(&$headers, &$options)
 	{
-		parent::ob_handler($buffer);
+		$options['agent'] = 'outerData';
+		$options['args']  = array();
 
-		if ('' !== $buffer && $CONFIG['pMail.debug_email'])
-		{
-			$m = new pMail_text(
-				array('To'   => $CONFIG['pMail.debug_email']),
-				array('text' => &$buffer)
-			);
-			$m->send();
-		}
+		parent::__construct($headers, $options);
+	}
 
-		return '';
+	function send()
+	{
+		agent_outerData::$outerData     = $this->options['data'];
+		agent_outerData::$outerTemplate = $this->options['template'];
+
+		return parent::send();
+	}
+
+	function setTestMode()
+	{
+		pMail_text::setTestMode();
 	}
 }
