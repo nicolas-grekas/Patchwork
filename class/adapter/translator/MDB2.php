@@ -17,29 +17,67 @@ class extends TRANSLATOR
 	protected
 
 	$db,
-	$table = 'translation';
+	$table = 'translation',
+	$atime = true;
 
 
 	function __construct($options)
 	{
 		$this->db = DB();
 		isset($options['table']) && $this->table = $options['table'];
+
+		if ($this->atime)
+		{
+			$sql = "SHOW COLUMNS FROM {$this->table} LIKE 'atime'";
+			$this->atime = (bool) $this->db->queryRow($sql);
+		}
 	}
 
 	function search($string, $lang)
 	{
-		$string = $this->db->quote($string);
+		$qString = $this->db->quote($string);
 
-		$sql = "SELECT {$lang} FROM {$this->table} WHERE __=BINARY {$string}";
-		if ($row = $this->db->queryRow($sql))
+		$sql = "SELECT {$lang} FROM {$this->table} WHERE __=BINARY {$qString}";
+		if ($row = (array) $this->db->queryRow($sql))
 		{
-			return $row->$lang;
+			if ($this->atime)
+			{
+				$sql = "UPDATE {$this->table} SET atime=NOW() WHERE __=BINARY {$qString}";
+				$this->db->exec($sql);
+			}
 		}
 		else
 		{
-			$sql = "INSERT INTO {$this->table} (__) VALUES ({$string})";
-			$this->db->exec($sql);
-			return '';
+			$row = array('__' => $string, $lang => '');
+
+			if (PATCHWORK_I18N)
+			{
+				$lang_list = $CONFIG['i18n.lang_list'];
+				unset($lang_list['__']);
+
+				$lang_list = array_keys($lang_list);
+
+				$sql = implode(',', $lang_list);
+				$sql = "SELECT * FROM {$this->table} WHERE CAST({$qString} AS BINARY) IN ({$sql})";
+				if ($sql = (array) $this->db->queryRow($sql))
+				{
+					foreach ($lang_list as $lang_list)
+					{
+						if (isset($sql[$lang_list]) && $sql[$lang_list] == $string)
+						{
+							unset($sql['atime']);
+							$row = $sql;
+							$row['__'] = $row[$lang];
+							$row[$lang_list] = '';
+							break;
+						}
+					}
+				}
+			}
+
+			$this->db->autoExecute($this->table, $row);
 		}
+
+		return $row[$lang];
 	}
 }

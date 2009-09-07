@@ -51,7 +51,7 @@ MirrorFrame.prototype = {
     // prompting replace.
     var from = prompt("Enter search string:", ""), to;
     if (from) to = prompt("What should it be replaced with?", "");
-    if (!to) return;
+    if (to == null) return;
 
     var cursor = this.mirror.getSearchCursor(from, false);
     while (cursor.findNext())
@@ -71,10 +71,8 @@ MirrorFrame.prototype = {
 
   macro: function() {
     var name = prompt("Name your constructor:", "");
-    if (name) {
-      if (!this.mirror.replaceSelection("function " + name + "() {\n  \n}\n\n" + name + ".prototype = {\n  \n};\n", true))
-        alert("Place the cursor in the document first.");
-    }
+    if (name)
+      this.mirror.replaceSelection("function " + name + "() {\n  \n}\n\n" + name + ".prototype = {\n  \n};\n");
   },
 
   reindent: function() {

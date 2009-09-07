@@ -1,6 +1,16 @@
-var HTMLMixedParser = Editor.Parser = (function() {
-  if (!(CSSParser && JSParser && XMLParser))
-    throw new Error("CSS, JS, and XML parsers must be loaded for HTML mixed mode to work.");
+/*
+Copyright (c) 2008-2009 Yahoo! Inc. All rights reserved.
+The copyrights embodied in the content of this file are licensed by
+Yahoo! Inc. under the BSD (revised) open source license
+
+@author Dan Vlad Dascalescu <dandv@yahoo-inc.com>
+
+Based on parsehtmlmixed.js by Marijn Haverbeke.
+*/
+
+var PHPHTMLMixedParser = Editor.Parser = (function() {
+  if (!(PHPParser && CSSParser && JSParser && XMLParser))
+    throw new Error("PHP, CSS, JS, and XML parsers must be loaded for PHP+HTML mixed mode to work.");
   XMLParser.configure({useHTMLKludges: true});
 
   function parseMixed(stream) {
@@ -13,6 +23,12 @@ var HTMLMixedParser = Editor.Parser = (function() {
         inTag = true;
       else if (token.style == "xml-tagname" && inTag === true)
         inTag = token.content.toLowerCase();
+      else if (token.type == "xml-processing") {
+        // dispatch on PHP
+        if (token.content == "<?php")
+          iter.next = local(PHPParser, "?>");
+      }
+      // "xml-processing" tokens are ignored, because they should be handled by a specific local parser
       else if (token.content == ">") {
         if (inTag == "script")
           iter.next = local(JSParser, "</script");
@@ -29,7 +45,7 @@ var HTMLMixedParser = Editor.Parser = (function() {
         if (stream.lookAhead(tag, false, false, true)) {
           localParser = null;
           iter.next = top;
-          return top();
+          return top();  // pass the ending tag to the enclosing parser
         }
 
         var token = localParser.next();
