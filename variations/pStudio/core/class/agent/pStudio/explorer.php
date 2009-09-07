@@ -193,6 +193,7 @@ class extends agent
 						'name' => $file,
 						'isTop' => $isTop,
 						'isDir' => $isDir,
+						'path'  => $path . $file,
 						'ancestorsNb' => 0,
 						'depth' => $i,
 						'appname' => pStudio::getAppname($i),
