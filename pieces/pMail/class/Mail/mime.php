@@ -114,35 +114,6 @@ class extends self
 	}
 
 
-	// Fix headers' case
-
-	function &headers($xtra_headers = null, $overwrite = false)
-	{
-		empty($xtra_headers) || self::cleanHeaders($xtra_headers, 'Return-Path|From|To|Reply-To|Subject|Cc|Bcc');
-
-		$xtra_headers =& parent::headers($xtra_headers, $overwrite);
-
-		return $xtra_headers;
-	}
-
-
-	static function cleanHeaders(&$headers, $tpl)
-	{
-		$h = array();
-		foreach ($headers as $k => $v) $h[strtolower($k)] = $k;
-
-		foreach (explode('|', $tpl) as $v)
-		{
-			$k = strtolower(trim($v));
-			if (isset($h[$k]) && $h[$k] !== $v)
-			{
-				$headers[$v] =& $headers[$h[$k]];
-				unset($headers[$h[$k]]);
-			}
-		}
-	}
-
-
 	protected function _fixEOL(&$a)
 	{
 		false !== strpos($a, "\r") && $a = strtr(str_replace("\r\n", "\n", $a), "\r", "\n");

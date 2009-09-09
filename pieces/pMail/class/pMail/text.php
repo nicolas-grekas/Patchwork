@@ -59,9 +59,15 @@ class extends Mail_mime
 	protected function setHeaders()
 	{
 		$headers =& $this->headers;
-		$message_id = 'pM' . p::uniqid();
 
-		self::cleanHeaders($headers, 'Return-Path|From|Sender|Reply-To|Message-Id');
+		self::cleanHeaders($headers, 'Return-Path|From|Sender|Reply-To|Message-Id|To|Cc|Bcc|Subject');
+
+		foreach (array('To', 'Cc', 'Bcc', 'Reply-To') as $sql)
+		{
+			is_array($headers[$sql]) && $headers[$sql] = implode(', ', $headers[$sql]);
+		}
+
+		$message_id = 'pM' . p::uniqid();
 
 		$headers['Message-Id'] = '<' . $message_id . '@' . $_SERVER['HTTP_HOST']. '>';
 
@@ -155,6 +161,23 @@ EOHTML;
 		}
 
 		$headers['To'] = $CONFIG['pMail.debug_email'];
+	}
+
+
+	static function cleanHeaders(&$headers, $tpl)
+	{
+		$h = array();
+		foreach ($headers as $k => $v) $h[strtolower($k)] = $k;
+
+		foreach (explode('|', $tpl) as $v)
+		{
+			$k = strtolower(trim($v));
+			if (isset($h[$k]) && $h[$k] !== $v)
+			{
+				$headers[$v] =& $headers[$h[$k]];
+				unset($headers[$h[$k]]);
+			}
+		}
 	}
 
 	static function unlink($file)
