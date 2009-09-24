@@ -128,12 +128,13 @@ function getCaret($input)
 	if (!t($caretPos) && document.selection)
 	{
 		$caretPos = document.selection.createRange();
+
 		try
 		{
 			$i = $caretPos.duplicate();
 			$i.moveToElementText($input);
 		}
-		catch ($i)
+		catch ($e)
 		{
 			$i = $input.createTextRange();
 		}

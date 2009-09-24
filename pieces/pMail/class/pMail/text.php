@@ -64,7 +64,7 @@ class extends Mail_mime
 
 		foreach (array('To', 'Cc', 'Bcc', 'Reply-To') as $sql)
 		{
-			is_array($headers[$sql]) && $headers[$sql] = implode(', ', $headers[$sql]);
+			isset($headers[$sql]) && is_array($headers[$sql]) && $headers[$sql] = implode(', ', $headers[$sql]);
 		}
 
 		$message_id = 'pM' . p::uniqid();
