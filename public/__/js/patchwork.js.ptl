@@ -113,7 +113,33 @@ function syncCSRF($form)
 
 	if ($antiCSRF && 'post' == $form.method.toLowerCase())
 	{
-		if ((($form.action || location)+ '/').indexOf({g$__BASE__|js})) return;
+		$a = $form.action;
+
+		if ($a && 0 != ($a + '/').indexOf({g$__BASE__|js}))
+		{
+			<!-- IF '' != $cookie_domain || '' != $cookie_path -->
+			$a = $a.match(/^https?:\/\/([^\/:]+)\.?(:[^\/]*)?(\/[^\?#]*)/);
+
+			switch (true)
+			{
+			case !$a: return;
+
+			<!-- IF '' != $cookie_domain -->
+			case ($a[1].length - {$cookie_domain|replace:'^\.?':'.'|length} + 1) == ('.' + $a[1]).indexOf({$cookie_domain|replace:'^\.?':'.'|js}):
+			<!-- END:IF -->
+
+			<!-- IF '' != $cookie_path -->
+			case 0 == ($a[3] + '/').indexOf({$cookie_domain|replace:'/?$':'/'|js}):
+			<!-- END:IF -->
+
+				break;
+
+			default: return;
+			}
+			<!-- ELSE -->
+			return;
+			<!-- END:IF -->
+		}
 
 		if ($form.T$) $form.T$.value = $antiCSRF;
 		else if ($form.firstChild)
@@ -213,8 +239,6 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 
 		a, d, v, g,
 		$AppId = $masterAppId,
-
-		r = {toString: function() {return g.__BASE__}},
 
 		$lastInclude = '',
 		$includeCache = {},
@@ -580,8 +604,10 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 		{
 			$a = $code[$pointer++];
 
-			return 'function' == typeof $a || ($a && eval('$a=$code[$pointer-1]=function(a,d,v,g,z,r){return ' + $a + '}'))
-				? $a(a, d, v, g, z, r)
+			if ('r' == $a) return g.__BASE__;
+
+			return  'function' == typeof $a || ($a && eval('$a=$code[$pointer-1]=function(a,d,v,g,z){return ' + $a + '}'))
+				? $a(a, d, v, g, z)
 				: $a;
 
 			w; // For jsqueez
@@ -677,7 +703,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 		else
 		{
 			// Memory leaks prevention
-			w = r = y = z = w.c = w.k = w.w = w.r = w.x = $loopIterator = 0;
+			w = y = z = w.c = w.k = w.w = w.r = w.x = $loopIterator = 0;
 
 			if ($reloadRequest)
 			{

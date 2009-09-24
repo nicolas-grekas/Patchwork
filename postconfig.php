@@ -212,7 +212,7 @@ $CONFIG += array(
 	'xsendfile'             => !empty($_SERVER['PATCHWORK_XSENDFILE']),
 	'document.domain'       => '',
 	'session.save_path'     => /*<*/patchwork_bootstrapper::$zcache/*>*/,
-	'session.cookie_path'   => '/',
+	'session.cookie_path'   => 'auto',
 	'session.cookie_domain' => '',
 	'session.auth_vars'     => array(),
 	'session.group_vars'    => array(),
@@ -486,3 +486,11 @@ else $_SERVER['PATCHWORK_LANG'] = '';
 
 reset($CONFIG['i18n.lang_list']);
 PATCHWORK_I18N || $_SERVER['PATCHWORK_LANG'] = key($CONFIG['i18n.lang_list']);
+
+if ('auto' === $CONFIG['session.cookie_path'])
+{
+	$a = explode('__', $_SERVER['PATCHWORK_BASE'], 2);
+	$a[1] = strrpos($a[0], '/');
+
+	$CONFIG['session.cookie_path'] = $a[1] ? substr($a[0], 0, $a[1]) : '/';
+}
