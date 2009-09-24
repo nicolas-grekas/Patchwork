@@ -214,7 +214,7 @@ function Z()
 				$S||flush();
 
 				$h = @fopen($error_log, 'r');
-				while (!feof($h))
+				while ($h && !feof($h))
 				{
 					$a = fgets($h);
 

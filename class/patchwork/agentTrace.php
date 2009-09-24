@@ -46,7 +46,7 @@ class extends patchwork
 
 		fwrite($h, $keys);
 		$keys = array();
-		while (!feof($h)) $keys[] = fgets($h);
+		while ($h && !feof($h)) $keys[] = fgets($h);
 		fclose($h);
 
 		$h = '\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'';

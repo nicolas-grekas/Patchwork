@@ -1362,14 +1362,31 @@ class
 			if (PHP_OUTPUT_HANDLER_START & $mode)
 			{
 				$lead = '';
-#>				if ((!PATCHWORK_SYNC_CACHE || IS_POSTING) && !self::$binaryMode) $buffer = patchwork_debugger::getProlog() . $buffer;
+/*<
+				if ((!PATCHWORK_SYNC_CACHE || IS_POSTING) && !self::$binaryMode && false !== strpos($buffer, '<head'))
+				{
+					$buffer = preg_replace("'<head[^>]*>'", '$0' . patchwork_debugger::getProlog(), $buffer);
+				}
+>*/
 			}
 
 			$tail = '';
 
 			if (PHP_OUTPUT_HANDLER_END & $mode)
 			{
-#>				if ((!PATCHWORK_SYNC_CACHE || IS_POSTING) && !self::$binaryMode) $buffer .= patchwork_debugger::getConclusion();
+/*<
+				if ((!PATCHWORK_SYNC_CACHE || IS_POSTING) && !self::$binaryMode)
+				{
+					if (false !== strpos($buffer, '</body'))
+					{
+						$buffer = str_replace('</body', patchwork_debugger::getConclusion() . '</body', $buffer);
+					}
+					else if (false !== strpos($buffer, '</html'))
+					{
+						$buffer = str_replace('</html', '<body>' . patchwork_debugger::getConclusion() . '</body></html', $buffer);
+					}
+				}
+>*/
 			}
 			else
 			{
