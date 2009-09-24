@@ -219,7 +219,7 @@ abstract class
 		'.ptl' === substr($template, -4) && $template = substr($template, 0, -4);
 
 		$a = $template === $this->template;
-		$a = isset($m[2]) ? substr($m[2], 1) : ($a ? -1 : (PATCHWORK_PATH_LEVEL - $this->path_idx));
+		$a = isset($m[2]) ? substr($m[2], 1) : ($a ? -1 : PATCHWORK_PATH_LEVEL);
 		$a = $a < 0 ? $this->path_idx - $a : (PATCHWORK_PATH_LEVEL - $a);
 
 		if ($a < 0)

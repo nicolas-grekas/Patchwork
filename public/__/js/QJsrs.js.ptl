@@ -55,7 +55,7 @@ function $emptyFunction() {};
 
 // Preload the XMLHttp object and detects browser capabilities.
 QJsrs = $window.ScriptEngineMajorVersion;
-if (QJsrs && QJsrs() >= 5) eval('try{QJsrs=new ActiveXObject("Microsoft.XMLHTTP")&&2}catch(QJsrs){QJsrs=1}');
+if (QJsrs && QJsrs() >= 5) eval('try{QJsrs=new ActiveXObject("Microsoft.XMLHTTP")&&2}catch(e){QJsrs=1}');
 else QJsrs = $window.XMLHttpRequest ? new XMLHttpRequest && 3 : 1;
 
 QJsrs = (function()

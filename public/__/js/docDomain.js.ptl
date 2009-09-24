@@ -32,7 +32,7 @@ document.domain = {$document_domain|js};
 			i = w.document.domain;
 			break;
 		}
-		catch (i) {}
+		catch (e) {}
 
 		i = d.indexOf('.');
 		if (i < 0) break;
@@ -42,7 +42,7 @@ document.domain = {$document_domain|js};
 		{
 			$document.domain = d;
 		}
-		catch (i)
+		catch (e)
 		{
 			break;
 		}
