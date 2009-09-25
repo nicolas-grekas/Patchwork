@@ -604,10 +604,8 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 		{
 			$a = $code[$pointer++];
 
-			if ('r' == $a) return g.__BASE__;
-
-			return  'function' == typeof $a || ($a && eval('$a=$code[$pointer-1]=function(a,d,v,g,z){return ' + $a + '}'))
-				? $a(a, d, v, g, z)
+			return 'function' == typeof $a || ($a && eval('$a=$code[$pointer-1]=function(a,d,v,g,z,r){return ' + $a + '}'))
+				? $a(a, d, v, g, z, g.__BASE__)
 				: $a;
 
 			w; // For jsqueez
