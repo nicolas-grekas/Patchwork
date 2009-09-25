@@ -213,7 +213,7 @@ $CONFIG += array(
 	'document.domain'       => '',
 	'session.save_path'     => /*<*/patchwork_bootstrapper::$zcache/*>*/,
 	'session.cookie_path'   => 'auto',
-	'session.cookie_domain' => '',
+	'session.cookie_domain' => 'auto',
 	'session.auth_vars'     => array(),
 	'session.group_vars'    => array(),
 	'translator.adapter'    => false,
@@ -487,10 +487,48 @@ else $_SERVER['PATCHWORK_LANG'] = '';
 reset($CONFIG['i18n.lang_list']);
 PATCHWORK_I18N || $_SERVER['PATCHWORK_LANG'] = key($CONFIG['i18n.lang_list']);
 
-if ('auto' === $CONFIG['session.cookie_path'])
-{
-	$a = explode('__', $_SERVER['PATCHWORK_BASE'], 2);
-	$a[1] = strrpos($a[0], '/');
+$a = 'auto' === $CONFIG['session.cookie_path'];
+$b = 'auto' === $CONFIG['session.cookie_domain'];
 
-	$CONFIG['session.cookie_path'] = $a[1] ? substr($a[0], 0, $a[1]) : '/';
+if ($a || $b)
+{
+	if (preg_match("'^(https?://)([^/:]+)(\.?(?::[^/_]*)?)(/(?:[^?#/]*/)*)'", $_SERVER['PATCHWORK_BASE'], $k))
+	{
+		if ($k[0] = strrpos($k[0], '__'))
+		{
+			$k[0] -= strlen($k[1]);
+			$k[1]  = strlen($k[2]);
+		}
+		else $k[1] = 0;
+
+		if ($a)
+		{
+			if ($k[0] >= $k[1])
+			{
+				$k[4] = substr($k[4], 0, $k[0] - $k[1] - strlen($k[3]));
+				$k[0] = strrpos($k[4], '/');
+				$CONFIG['session.cookie_path'] = $k[0] ? substr($k[4], 0, $k[0]) : '/';
+			}
+			else $CONFIG['session.cookie_path'] = $k[4];
+		}
+
+		if ($b)
+		{
+			if ($k[0] < $k[1])
+			{
+				$k[2] = substr($k[2], $k[0]+2);
+				$k[0] = strpos($k[2], '.');
+				$CONFIG['session.cookie_domain'] = false !== $k[0] ? substr($k[2], $k[0]) : '';
+			}
+			else $CONFIG['session.cookie_domain'] = '';
+		}
+
+		unset($k);
+	}
+	else
+	{
+		$a
+			? ($CONFIG['session.cookie_path']   = '/')
+			: ($CONFIG['session.cookie_domain'] = '' );
+	}
 }
