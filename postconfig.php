@@ -506,8 +506,8 @@ if ($a || $b)
 			if ($k[0] >= $k[1])
 			{
 				$k[4] = substr($k[4], 0, $k[0] - $k[1] - strlen($k[3]));
-				$k[0] = strrpos($k[4], '/');
-				$CONFIG['session.cookie_path'] = $k[0] ? substr($k[4], 0, $k[0]) : '/';
+				$a = strrpos($k[4], '/');
+				$CONFIG['session.cookie_path'] = $a ? substr($k[4], 0, $a) : '/';
 			}
 			else $CONFIG['session.cookie_path'] = $k[4];
 		}
@@ -517,8 +517,8 @@ if ($a || $b)
 			if ($k[0] < $k[1])
 			{
 				$k[2] = substr($k[2], $k[0]+2);
-				$k[0] = strpos($k[2], '.');
-				$CONFIG['session.cookie_domain'] = false !== $k[0] ? substr($k[2], $k[0]) : '';
+				$a = strpos($k[2], '.');
+				$CONFIG['session.cookie_domain'] = false !== $a ? substr($k[2], $a) : '';
 			}
 			else $CONFIG['session.cookie_domain'] = '';
 		}
