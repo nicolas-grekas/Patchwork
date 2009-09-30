@@ -113,32 +113,25 @@ function syncCSRF($form)
 
 	if ($antiCSRF && 'post' == $form.method.toLowerCase())
 	{
-		$a = $form.action;
-
-		if ($a && 0 != ($a + '/').indexOf({g$__BASE__|js}))
+		if ($a = $form.action)
 		{
-			<!-- IF '' != $cookie_domain || '' != $cookie_path -->
 			$a = $a.match(/^https?:\/\/([^\/:]+)\.?(:[^\/]*)?(\/[^\?#]*)/);
 
-			switch (true)
-			{
-			case !$a: return;
+			if (!$a) return;
 
-			<!-- IF '' != $cookie_domain -->
-			case ($a[1].length - {$cookie_domain|replace:'^\.?':'.'|length} + 1) == ('.' + $a[1]).indexOf({$cookie_domain|replace:'^\.?':'.'|js}):
+			<!-- IF '' == $cookie_path -->
+			if (0 != ($a[3] + '/').indexOf(location.pathname.replace(/\/[^\/]*$/, '/'))) return;
+			<!-- ELSEIF '/' != $cookie_path -->
+			if (0 != ($a[3] + '/').indexOf({$cookie_path|replace:'/?$':'/'|js})) return;
 			<!-- END:IF -->
 
-			<!-- IF '' != $cookie_path -->
-			case 0 == ($a[3] + '/').indexOf({$cookie_domain|replace:'/?$':'/'|js}):
-			<!-- END:IF -->
-
-				break;
-
-			default: return;
-			}
+			<!-- IF '' == $cookie_domain -->
+			$a[2] = '.' + location.hostname;
 			<!-- ELSE -->
-			return;
+			$a[2] = {$cookie_domain|replace:'^\.?':'.'|js};
 			<!-- END:IF -->
+
+			if (($a[1].length - $a[2].length + 1) != ('.' + $a[1]).indexOf($a[2])) return;
 		}
 
 		if ($form.T$) $form.T$.value = $antiCSRF;
