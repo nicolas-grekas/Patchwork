@@ -33,7 +33,7 @@ function QSelectLiveAgent($liveAgent, $loop, $key)
 
 						$result = [];
 
-						while ($c = $r()) $result.push($c[$key]);
+						if ($r) while ($c = $r()) $result.push($c[$key]);
 
 						$pushBack($result);
 					}
