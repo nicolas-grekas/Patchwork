@@ -194,7 +194,7 @@ class extends loop_agentWrapper
 	{
 		if ($this->errormsg) return true;
 
-		if ($onempty && '' === $this->status)
+		if ($onempty && '' === $this->status && !$this->readonly)
 		{
 /*<
 			if (  $this->isfile
