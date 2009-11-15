@@ -128,6 +128,12 @@ class extends loop_agentWrapper
 
 			$addedElt = $this->form->getElement($name);
 
+			if (!$addedElt)
+			{
+#>				W("Form's element does not exists: {$name}");
+				continue;
+			}
+
 			$onerror || $onerror = $addedElt->validmsg;
 
 			$elements[] = $this->elements[$name] = array(
