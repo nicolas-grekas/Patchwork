@@ -33,6 +33,8 @@ class patchwork_preprocessor__0
 
 	static
 
+	$scream = false,
+
 	$constant = array(
 		'DEBUG' => DEBUG,
 		'UTF8_BOM' => UTF8_BOM,
@@ -145,6 +147,10 @@ class patchwork_preprocessor__0
 
 	static function __constructStatic()
 	{
+		self::$scream = (defined('DEBUG') && DEBUG)
+			&& !empty($GLOBALS['CONFIG']['debug.scream'])
+				|| (defined('DEBUG_SCREAM') && DEBUG_SCREAM);
+
 		defined('E_RECOVERABLE_ERROR') || self::$constant['E_RECOVERABLE_ERROR'] = E_ERROR;
 
 		if (function_exists('win_file_exists'))
@@ -170,27 +176,28 @@ class patchwork_preprocessor__0
 			'pathinfo' => 'patchwork_pathinfo',
 		);
 
-
-		$v = md5(mt_rand());
-		$a = @ini_set('display_errors', $v);
-
-		if (@ini_get('display_errors') !== $v)
+		if (!self::$scream)
 		{
-			self::$functionAlias += array(
-				'ini_set' => '@ini_set',
-				'ini_get' => '@ini_get',
-				'set_time_limit' => '@set_time_limit',
-			);
-		}
-		else if (ini_get_bool('safe_mode'))
-		{
-			self::$functionAlias += array(
-				'set_time_limit' => '@set_time_limit',
-			);
-		}
+			$v = md5(mt_rand());
+			$a = @ini_set('display_errors', $v);
 
-		@ini_set('display_errors', $a);
+			if (@ini_get('display_errors') !== $v)
+			{
+				self::$functionAlias += array(
+					'ini_set' => '@ini_set',
+					'ini_get' => '@ini_get',
+					'set_time_limit' => '@set_time_limit',
+				);
+			}
+			else if (ini_get_bool('safe_mode'))
+			{
+				self::$functionAlias += array(
+					'set_time_limit' => '@set_time_limit',
+				);
+			}
 
+			@ini_set('display_errors', $a);
+		}
 
 		class_exists('patchwork', false) && self::$functionAlias += array(
 			'header'       => 'patchwork::header',
@@ -228,6 +235,8 @@ class patchwork_preprocessor__0
 			);
 		}
 
+		self::$functionAlias += array('mb_encode_mimeheader' => 'E(\'mb_encode_mimeheader() is bugged. Please use iconv_mime_encode() instead.\',');
+
 		if (!function_exists('mb_stripos'))
 		{
 			self::$functionAlias += array(
@@ -256,7 +265,6 @@ class patchwork_preprocessor__0
 					'mb_convert_encoding'     => 'utf8_mbstring_500::convert_encoding',
 					'mb_decode_mimeheader'    => 'utf8_iconv::mime_decode',
 					'mb_convert_case'         => 'utf8_mbstring_500::convert_case',
-					'mb_encode_mimeheader'    => 'E(\'mb_encode_mimeheader() is bugged. Please use iconv_mime_encode() instead.\',',
 					'mb_internal_encoding'    => 'utf8_mbstring_500::internal_encoding',
 					'mb_list_encodings'       => 'utf8_mbstring_500::list_encodings',
 					'mb_parse_str'            => 'parse_str',
@@ -413,10 +421,6 @@ class patchwork_preprocessor__0
 
 	protected function &preprocess(&$code)
 	{
-		$scream = (defined('DEBUG') && DEBUG)
-			&& !empty($GLOBALS['CONFIG']['debug.scream'])
-				|| (defined('DEBUG_SCREAM') && DEBUG_SCREAM);
-
 		$source = $this->source;
 		$level  = $this->level;
 		$class  = $this->class;
@@ -464,7 +468,7 @@ class patchwork_preprocessor__0
 			switch ($type)
 			{
 			case '@':
-				if ($scream)
+				if (self::$scream)
 				{
 					$code[$i--] = array(T_WHITESPACE, ' ');
 					continue;
