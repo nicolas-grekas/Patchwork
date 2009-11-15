@@ -93,7 +93,7 @@ class patchwork_bootstrapper_preprocessor__0
 
 			case T_DOC_COMMENT:
 			case T_COMMENT:
-				if ($mode1_transition && '/*#>*/' === $token)
+				if ($mode1_transition && '/**/' === $token)
 				{
 					$mode1_transition = false;
 					if (1 !== $mode)

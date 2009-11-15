@@ -40,8 +40,8 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 // Fix a bug with long file names
 // In debug mode, checks if character case is strict.
 
-/*#>*/if (IS_WINDOWS && !PATCHWORK_BUGGY_REALPATH)
-/*#>*/{
+/**/if (IS_WINDOWS && !PATCHWORK_BUGGY_REALPATH)
+/**/{
 		if (/*<*/version_compare(PHP_VERSION, '5.2', '<')/*>*/ || DEBUG)
 		{
 			if (DEBUG)
@@ -81,7 +81,7 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 			function win_is_readable($file)   {return win_file_exists($file) && is_readable($file);}
 			function win_is_writable($file)   {return win_file_exists($file) && is_writable($file);}
 		}
-/*#>*/}
+/**/}
 
 
 function patchwork_class2cache($class, $level)
@@ -104,14 +104,14 @@ function patchwork_class2cache($class, $level)
 
 // __autoload(): the magic part
 
-/*#>*/@copy(patchwork_bootstrapper::$pwd . 'autoloader.php', patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')
-/*#>*/	|| @unlink(patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php') + copy(patchwork_bootstrapper::$pwd . 'autoloader.php', patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php');
-/*#>*/
-/*#>*/if (IS_WINDOWS)
-/*#>*/{
-/*#>*/	$a = new COM('Scripting.FileSystemObject');
-/*#>*/	$a->GetFile(patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')->Attributes |= 2; // Set hidden attribute
-/*#>*/}
+/**/@copy(patchwork_bootstrapper::$pwd . 'autoloader.php', patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')
+/**/	|| @unlink(patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php') + copy(patchwork_bootstrapper::$pwd . 'autoloader.php', patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php');
+/**/
+/**/if (IS_WINDOWS)
+/**/{
+/**/	$a = new COM('Scripting.FileSystemObject');
+/**/	$a->GetFile(patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')->Attributes |= 2; // Set hidden attribute
+/**/}
 
 function __autoload($searched_class)
 {
@@ -154,14 +154,14 @@ function __autoload($searched_class)
 
 function patchworkProcessedPath($file)
 {
-/*#>*/if (IS_WINDOWS)
+/**/if (IS_WINDOWS)
 		false !== strpos($file, '\\') && $file = strtr($file, '\\', '/');
 
 	if (false !== strpos('.' . $file, './') || (/*<*/IS_WINDOWS/*>*/ && ':' === substr($file, 1, 1)))
 	{
-/*#>*/if (PATCHWORK_BUGGY_REALPATH)
+/**/if (PATCHWORK_BUGGY_REALPATH)
 		if ($f = patchwork_realpath($file)) $file = $f;
-/*#>*/else
+/**/else
 		if ($f = realpath($file)) $file = $f;
 
 		$p =& $GLOBALS['patchwork_path'];
@@ -285,41 +285,41 @@ if (false !== strpos($a, '/.'))
 	}
 }
 
-/*#>*/$a = true;
-/*#>*/
-/*#>*/switch (true)
-/*#>*/{
-/*#>*/case isset($_SERVER['REDIRECT_PATCHWORK_REQUEST']):
-/*#>*/case isset($_SERVER['PATCHWORK_REQUEST'])         :
-/*#>*/case isset($_SERVER['ORIG_PATH_INFO'])            :
-/*#>*/case isset($_SERVER['PATH_INFO'])                 : break;
-/*#>*/
-/*#>*/default:
-/*#>*/	// Check if the webserver supports PATH_INFO
-/*#>*/
-/*#>*/	$a = $_SERVER['SERVER_ADDR'];
-/*#>*/	false !== strpos($a, ':') && $a = '[' . $a . ']';
-/*#>*/	$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
-/*#>*/	$h = fsockopen("{$h}://{$a}", $_SERVER['SERVER_PORT'], $errno, $errstr, 30);
-/*#>*/	if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
-/*#>*/
-/*#>*/	$a = strpos($_SERVER['REQUEST_URI'], '?');
-/*#>*/	$a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
-/*#>*/	'/' === substr($a, -1) && $a .= patchwork_basename(isset($_SERVER['ORIG_SCRIPT_NAME']) ? $_SERVER['ORIG_SCRIPT_NAME'] : $_SERVER['SCRIPT_NAME']);
-/*#>*/
-/*#>*/	$a  = "GET {$a}/:?p:=exit HTTP/1.0\r\n";
-/*#>*/	$a .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
-/*#>*/	$a .= "Connection: close\r\n\r\n";
-/*#>*/
-/*#>*/	fwrite($h, $a);
-/*#>*/	$a = fgets($h, 14);
-/*#>*/	fclose($h);
-/*#>*/
-/*#>*/	$a = strpos($a, ' 200');
-/*#>*/}
-/*#>*/
-/*#>*/if ($a)
-/*#>*/{
+/**/$a = true;
+/**/
+/**/switch (true)
+/**/{
+/**/case isset($_SERVER['REDIRECT_PATCHWORK_REQUEST']):
+/**/case isset($_SERVER['PATCHWORK_REQUEST'])         :
+/**/case isset($_SERVER['ORIG_PATH_INFO'])            :
+/**/case isset($_SERVER['PATH_INFO'])                 : break;
+/**/
+/**/default:
+/**/	// Check if the webserver supports PATH_INFO
+/**/
+/**/	$a = $_SERVER['SERVER_ADDR'];
+/**/	false !== strpos($a, ':') && $a = '[' . $a . ']';
+/**/	$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
+/**/	$h = fsockopen("{$h}://{$a}", $_SERVER['SERVER_PORT'], $errno, $errstr, 30);
+/**/	if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
+/**/
+/**/	$a = strpos($_SERVER['REQUEST_URI'], '?');
+/**/	$a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
+/**/	'/' === substr($a, -1) && $a .= patchwork_basename(isset($_SERVER['ORIG_SCRIPT_NAME']) ? $_SERVER['ORIG_SCRIPT_NAME'] : $_SERVER['SCRIPT_NAME']);
+/**/
+/**/	$a  = "GET {$a}/:?p:=exit HTTP/1.0\r\n";
+/**/	$a .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
+/**/	$a .= "Connection: close\r\n\r\n";
+/**/
+/**/	fwrite($h, $a);
+/**/	$a = fgets($h, 14);
+/**/	fclose($h);
+/**/
+/**/	$a = strpos($a, ' 200');
+/**/}
+/**/
+/**/if ($a)
+/**/{
 		switch (true)
 		{
 		case isset($_SERVER['REDIRECT_PATCHWORK_REQUEST']): $r = $_SERVER['REDIRECT_PATCHWORK_REQUEST']; break;
@@ -332,9 +332,9 @@ if (false !== strpos($a, '/.'))
 		}
 
 		$a .= '/';
-/*#>*/}
-/*#>*/else
-/*#>*/{
+/**/}
+/**/else
+/**/{
 		$r = $_SERVER['QUERY_STRING'];
 		$j = strpos($r, '?');
 		false !== $j || $j = strpos($r, '&');
@@ -346,8 +346,8 @@ if (false !== strpos($a, '/.'))
 
 			parse_str($_SERVER['QUERY_STRING'], $_GET);
 
-/*#>*/		if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc())
-/*#>*/		{
+/**/		if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc())
+/**/		{
 				$k = array(&$_GET);
 				for ($i = 0, $j = 1; $i < $j; ++$i)
 				{
@@ -356,9 +356,9 @@ if (false !== strpos($a, '/.'))
 						if (is_array($v)) $k[$j++] =& $v;
 						else
 						{
-/*#>*/						if (ini_get_bool('magic_quotes_sybase'))
+/**/						if (ini_get_bool('magic_quotes_sybase'))
 								$v = str_replace("''", "'", $v);
-/*#>*/						else
+/**/						else
 								$v = stripslashes($v);
 						}
 					}
@@ -368,7 +368,7 @@ if (false !== strpos($a, '/.'))
 				}
 
 				unset($k, $v);
-/*#>*/		}
+/**/		}
 		}
 		else if ('' !== $r)
 		{
@@ -405,13 +405,13 @@ if (false !== strpos($a, '/.'))
 
 			exit;
 		}
-/*#>*/}
+/**/}
 
 $r = preg_replace("'/[./]*/'", '/', '/' . $r . '/');
 $a = preg_replace("'/[./]*/'", '/', '/' . $a);
 
-/*#>*/if ($a && IS_WINDOWS)
-/*#>*/{
+/**/if ($a && IS_WINDOWS)
+/**/{
 		// Workaround for http://bugs.php.net/bug.php?id=44001
 
 		if ('/' !== $r && false !== strpos($a, './') && false === strpos($r, './'))
@@ -426,7 +426,7 @@ $a = preg_replace("'/[./]*/'", '/', '/' . $a);
 			$a = strrev(implode('/', $a));
 			$r = implode('/', $r);
 		}
-/*#>*/}
+/**/}
 
 $_SERVER['PATCHWORK_REQUEST'] = (string) substr($r, 1, -1);
 
@@ -451,9 +451,9 @@ if (isset($_SERVER['PATCHWORK_BASE']))
 		case '/': 
 		case '?': $_SERVER['PATCHWORK_BASE'] .= '__/'; break;
 		default:
-/*#>*/		if ($a)
+/**/		if ($a)
 				$_SERVER['PATCHWORK_BASE'] .= '/__/';
-/*#>*/		else
+/**/		else
 				$_SERVER['PATCHWORK_BASE'] .= '?__/';
 		}
 	}
@@ -462,9 +462,9 @@ else
 {
 	$a = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $a;
 
-/*#>*/if ($a)
+/**/if ($a)
 		$_SERVER['PATCHWORK_BASE'] = substr($a, 0, -strlen($r)) . '/' . (PATCHWORK_I18N ? '__/' : '');
-/*#>*/else
+/**/else
 		$_SERVER['PATCHWORK_BASE'] = $a . '?' . (PATCHWORK_I18N ? '__/' : '');
 }
 
