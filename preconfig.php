@@ -15,18 +15,18 @@
 /**** Pre-configuration stage 1 ****/
 
 
-/*#>*/if (extension_loaded('mbstring'))
-/*#>*/{
-/*#>*/	(@ini_get('mbstring.func_overload') & MB_OVERLOAD_STRING)
-/*#>*/		&& die('Patchwork Error: mbstring is overloading string functions');
-/*#>*/
-/*#>*/	ini_get_bool('mbstring.encoding_translation')
-/*#>*/		&& !in_array(strtolower(ini_get('mbstring.http_input')), array('pass', 'utf-8'))
-/*#>*/		&& die('Patchwork Error: mbstring is set to translate input encoding');
-/*#>*/}
+/**/if (extension_loaded('mbstring'))
+/**/{
+/**/	(@ini_get('mbstring.func_overload') & MB_OVERLOAD_STRING)
+/**/		&& die('Patchwork Error: mbstring is overloading string functions');
+/**/
+/**/	ini_get_bool('mbstring.encoding_translation')
+/**/		&& !in_array(strtolower(ini_get('mbstring.http_input')), array('pass', 'utf-8'))
+/**/		&& die('Patchwork Error: mbstring is set to translate input encoding');
+/**/}
 
-/*#>*/$a = file_get_contents(patchwork_bootstrapper::$pwd . 'data/utf8/quickChecks.txt');
-/*#>*/$a = explode("\n", $a);
+/**/$a = file_get_contents(patchwork_bootstrapper::$pwd . 'data/utf8/quickChecks.txt');
+/**/$a = explode("\n", $a);
 define('UTF8_NFC_RX',            /*<*/'/' . $a[1] . '/u'/*>*/);
 define('PATCHWORK_PROJECT_PATH', /*<*/patchwork_bootstrapper::$cwd   /*>*/);
 define('PATCHWORK_ZCACHE',       /*<*/patchwork_bootstrapper::$zcache/*>*/);
@@ -157,7 +157,7 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 {
 	if (false === $level)
 	{
-/*#>*/if (IS_WINDOWS)
+/**/if (IS_WINDOWS)
 		if (isset($file[0]) && ('\\' === $file[0] || false !== strpos($file, ':'))) return $file;
 		if (isset($file[0]) &&  '/'  === $file[0]) return $file;
 
@@ -171,29 +171,29 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 		0 > $i && $i = 0;
 	}
 
-/*#>*/if (IS_WINDOWS)
+/**/if (IS_WINDOWS)
 		false !== strpos($file, '\\') && $file = strtr($file, '\\', '/');
 
 	if (0 === $i)
 	{
 		$source = /*<*/patchwork_bootstrapper::$cwd/*>*/ . $file;
 
-/*#>*/	if (IS_WINDOWS)
-/*#>*/	{
+/**/	if (IS_WINDOWS)
+/**/	{
 			if (function_exists('win_file_exists') ? win_file_exists($source) :file_exists($source))
 			{
 				$last_level = $level;
 				return false !== strpos($source, '/') ? strtr($source, '/', '\\') : $source;
 			}
-/*#>*/	}
-/*#>*/	else
-/*#>*/	{
+/**/	}
+/**/	else
+/**/	{
 			if (file_exists($source))
 			{
 				$last_level = $level;
 				return $source;
 			}
-/*#>*/	}
+/**/	}
 
 	}
 
@@ -201,18 +201,18 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 	if ($slash = '/' === substr($file, -1)) $file = substr($file, 0, -1);
 
 
-/*#>*/if ($a = patchwork_bootstrapper::updatedb())
-/*#>*/{
+/**/if ($a = patchwork_bootstrapper::updatedb())
+/**/{
 		static $db;
 		isset($db) || $db = dba_popen(/*<*/patchwork_bootstrapper::$cwd . '.parentPaths.db'/*>*/, 'rd', /*<*/$a/*>*/);
 		$base = dba_fetch($file, $db);
-/*#>*/}
-/*#>*/else
-/*#>*/{
+/**/}
+/**/else
+/**/{
 		$base = md5($file);
 		$base = /*<*/patchwork_bootstrapper::$zcache/*>*/ . $base[0] . '/' . $base[1] . '/' . substr($base, 2) . '.path.txt';
 		$base = @file_get_contents($base);
-/*#>*/}
+/**/}
 
 	if (false !== $base)
 	{
@@ -222,7 +222,7 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 			$base = (int) current($base);
 			$last_level = $level - $base + $i;
 
-/*#>*/		if (IS_WINDOWS)
+/**/		if (IS_WINDOWS)
 				false !== strpos($file, '/') && $file = strtr($file, '/', '\\');
 
 			return $GLOBALS['patchwork_path'][$base] . (0<=$last_level ? $file : substr($file, 6)) . ($slash ? /*<*/DIRECTORY_SEPARATOR/*>*/ : '');
@@ -238,7 +238,7 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 
 $patchwork_private = false;
 
-/*#>*/unset($_SERVER['HTTP_IF_NONE_MATCH'], $_SERVER['HTTP_IF_MODIFIED_SINCE']);
+/**/unset($_SERVER['HTTP_IF_NONE_MATCH'], $_SERVER['HTTP_IF_MODIFIED_SINCE']);
 
 $a = isset($_SERVER['HTTP_IF_NONE_MATCH'])
 	? $_SERVER['HTTP_IF_NONE_MATCH']
@@ -274,11 +274,11 @@ if ($a)
 // Disables mod_deflate who overwrites any custom Vary: header and appends a body to 304 responses.
 // Replaced with our own output compression.
 
-/*#>*/if (function_exists('apache_setenv'))
+/**/if (function_exists('apache_setenv'))
 		apache_setenv('no-gzip','1');
 
 
-/*#>*/if (ini_get_bool('zlib.output_compression'))
+/**/if (ini_get_bool('zlib.output_compression'))
 		@ini_set('zlib.output_compression', false);
 
 
@@ -296,9 +296,9 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 
 // Input normalization
 
-/*#>*/$h = @(extension_loaded('mbstring') && ini_get_bool('mbstring.encoding_translation') && 'UTF-8' === strtoupper(ini_get('mbstring.http_input')));
-/*#>*/if (!$h || (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc()))
-/*#>*/{
+/**/$h = @(extension_loaded('mbstring') && ini_get_bool('mbstring.encoding_translation') && 'UTF-8' === strtoupper(ini_get('mbstring.http_input')));
+/**/if (!$h || (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc()))
+/**/{
 		$a = array(&$_GET, &$_POST, &$_COOKIE);
 		foreach ($_FILES as &$v) $a[] = array(&$v['name'], &$v['type']);
 
@@ -310,27 +310,27 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 				if (is_array($v)) $a[$k++] =& $v;
 				else
 				{
-/*#>*/				if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc())
-/*#>*/				{
-/*#>*/					if (ini_get_bool('magic_quotes_sybase'))
+/**/				if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc())
+/**/				{
+/**/					if (ini_get_bool('magic_quotes_sybase'))
 							$v = str_replace("''", "'", $v);
-/*#>*/					else
+/**/					else
 							$v = stripslashes($v);
-/*#>*/				}
+/**/				}
 
-/*#>*/				if (!$h)
-/*#>*/				{
-/*#>*/					if (extension_loaded('iconv') && '§' === @iconv('UTF-8', 'UTF-8//IGNORE', "§\xE0"))
-/*#>*/					{
+/**/				if (!$h)
+/**/				{
+/**/					if (extension_loaded('iconv') && '§' === @iconv('UTF-8', 'UTF-8//IGNORE', "§\xE0"))
+/**/					{
 							$v = iconv('UTF-8', 'UTF-8//IGNORE', $v);
-/*#>*/					}
-/*#>*/					else
-/*#>*/					{
+/**/					}
+/**/					else
+/**/					{
 							# From http://www.w3.org/International/questions/qa-forms-utf-8
 							preg_match_all(/*<*/"/(?:[\\x00-\x7f]|[\xc2-\xdf][\x80-\xbf]|\xe0[\xa0-\xbf][\x80-\xbf]|[\xe1-\xec\xee\xef][\x80-\xbf]{2}|\xed[\x80-\x9f][\x80-\xbf]|\xf0[\x90-\xbf][\x80-\xbf]{2}|[\xf1-\xf3][\x80-\xbf]{3}|\xf4[\x80-\x8f][\x80-\xbf]{2})+/"/*>*/, $v, $b);
 							$v = implode('', $b[0]);
-/*#>*/					}
-/*#>*/				}
+/**/					}
+/**/				}
 				}
 			}
 
@@ -339,4 +339,4 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 		}
 
 		unset($a, $v);
-/*#>*/}
+/**/}

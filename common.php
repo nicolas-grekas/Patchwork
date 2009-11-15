@@ -35,29 +35,29 @@ if (!isset($_SERVER['HTTP_HOST']) || strspn($_SERVER['HTTP_HOST'], 'eiasntroludc
 	die('Invalid HTTP/1.1 Host header');
 }
 
-/*#>*/if (!isset($_SERVER['REQUEST_TIME']))
+/**/if (!isset($_SERVER['REQUEST_TIME']))
 		$_SERVER['REQUEST_TIME'] = time();
 
 
 // Fix some $_SERVER variables under Windows
 
-/*#>*/if ('\\' === DIRECTORY_SEPARATOR)
-/*#>*/{
+/**/if ('\\' === DIRECTORY_SEPARATOR)
+/**/{
 		// IIS compatibility
 
-/*#>*/	if (!isset($_SERVER['REQUEST_URI']))
+/**/	if (!isset($_SERVER['REQUEST_URI']))
 			$_SERVER['REQUEST_URI'] = isset($_SERVER['HTTP_X_REWRITE_URL']) ? $_SERVER['HTTP_X_REWRITE_URL'] : $_SERVER['URL'];
 
-/*#>*/	if (!isset($_SERVER['SERVER_ADDR']))
+/**/	if (!isset($_SERVER['SERVER_ADDR']))
 			$_SERVER['SERVER_ADDR'] = '127.0.0.1';
 
-/*#>*/	if (!isset($_SERVER['QUERY_STRING']))
-/*#>*/	{
+/**/	if (!isset($_SERVER['QUERY_STRING']))
+/**/	{
 			$a = $_SERVER['REQUEST_URI'];
 			$b = strpos($a, '?');
 			$_SERVER['QUERY_STRING'] = false !== $b++ && isset($a[$b]) ? substr($a, $b) : '';
-/*#>*/	}
-/*#>*/}
+/**/	}
+/**/}
 
 
 if (isset($_SERVER['HTTPS']))
@@ -87,18 +87,18 @@ function ini_get_bool($a)
 	}
 }
 
-/*#>*/$a = '' === basename('§');
+/**/$a = '' === basename('§');
 
 define('PATCHWORK_BUGGY_BASENAME', /*<*/$a/*>*/);
 
-/*#>*/if ($a)
-/*#>*/{
+/**/if ($a)
+/**/{
 		function patchwork_basename($path, $suffix = '')
 		{
 			$path = rtrim($path, /*<*/'/' . ('\\' === DIRECTORY_SEPARATOR ? '\\' : '')/*>*/);
 
 			$r = strrpos($path, '/');
-/*#>*/		if ('\\' === DIRECTORY_SEPARATOR)
+/**/		if ('\\' === DIRECTORY_SEPARATOR)
 				$r = max($r, strrpos($path, '\\'));
 
 			false !== $r && $path = substr($path, $r + 1);
@@ -118,9 +118,9 @@ define('PATCHWORK_BUGGY_BASENAME', /*<*/$a/*>*/);
 				? array_map('rawurldecode', $path)
 				: rawurldecode($path);
 		}
-/*#>*/}
-/*#>*/else
-/*#>*/{
+/**/}
+/**/else
+/**/{
 		function patchwork_basename($path, $suffix = '')
 		{
 			return basename($path, $suffix);
@@ -130,49 +130,49 @@ define('PATCHWORK_BUGGY_BASENAME', /*<*/$a/*>*/);
 		{
 			return INF === $option ? pathinfo($path) : pathinfo($path, $option);
 		}
-/*#>*/}
+/**/}
 
-/*#>*/$a = function_exists('realpath') ? @realpath('.') : false;
-/*#>*/if (!$a || '.' === $a)
-/*#>*/{
-/*#>*/	if (function_exists('getcwd') && @getcwd()) $a = true;
-/*#>*/	else
-/*#>*/	{
-/*#>*/		$a = function_exists('get_included_files') ? @get_included_files() : '';
-/*#>*/		$a = $a ? $a[0] : (!empty($_SERVER['SCRIPT_FILENAME']) ? $_SERVER['SCRIPT_FILENAME'] : '.');
-/*#>*/		$a = dirname($a);
-/*#>*/	}
-/*#>*/}
-/*#>*/else $a = false;
+/**/$a = function_exists('realpath') ? @realpath('.') : false;
+/**/if (!$a || '.' === $a)
+/**/{
+/**/	if (function_exists('getcwd') && @getcwd()) $a = true;
+/**/	else
+/**/	{
+/**/		$a = function_exists('get_included_files') ? @get_included_files() : '';
+/**/		$a = $a ? $a[0] : (!empty($_SERVER['SCRIPT_FILENAME']) ? $_SERVER['SCRIPT_FILENAME'] : '.');
+/**/		$a = dirname($a);
+/**/	}
+/**/}
+/**/else $a = false;
 
 define('PATCHWORK_BUGGY_REALPATH', /*<*/(bool) $a/*>*/);
 
 function patchwork_getcwd()
 {
-/*#>*/if (function_exists('getcwd') && @getcwd())
-/*#>*/{
+/**/if (function_exists('getcwd') && @getcwd())
+/**/{
 		return getcwd();
-/*#>*/}
-/*#>*/else if (false === $a)
-/*#>*/{
+/**/}
+/**/else if (false === $a)
+/**/{
 		return realpath('.');
-/*#>*/}
-/*#>*/else
-/*#>*/{
+/**/}
+/**/else
+/**/{
 		return /*<*/$a/*>*/;
-/*#>*/}
+/**/}
 }
 
-/*#>*/if (false !== $a)
-/*#>*/{
+/**/if (false !== $a)
+/**/{
 		function patchwork_realpath($a)
 		{
 			do
 			{
 				if (isset($a[0]))
 				{
-/*#>*/				if ('\\' === DIRECTORY_SEPARATOR)
-/*#>*/				{
+/**/				if ('\\' === DIRECTORY_SEPARATOR)
+/**/				{
 						if ('/' === $a[0] || '\\' === $a[0])
 						{
 							$a = 'c:' . $a;
@@ -180,16 +180,16 @@ function patchwork_getcwd()
 						}
 
 						if (false !== strpos($a, ':')) break;
-/*#>*/				}
-/*#>*/				else
-/*#>*/				{
+/**/				}
+/**/				else
+/**/				{
 						if ('/' === $a[0]) break;
-/*#>*/				}
+/**/				}
 				}
 
-/*#>*/			if (true === $a)
+/**/			if (true === $a)
 					$cwd = getcwd();
-/*#>*/			else
+/**/			else
 					$cwd = /*<*/$a/*>*/;
 
 				$a = $cwd . /*<*/DIRECTORY_SEPARATOR/*>*/ . $a;
@@ -201,18 +201,18 @@ function patchwork_getcwd()
 			if (isset($cwd) && '.' === $cwd) $prefix = '.';
 			else
 			{
-/*#>*/			if ('\\' === DIRECTORY_SEPARATOR)
-/*#>*/			{
+/**/			if ('\\' === DIRECTORY_SEPARATOR)
+/**/			{
 					$prefix = strtoupper($a[0]) . ':\\';
 					$a = substr($a, 2);
-/*#>*/			}
-/*#>*/			else
-/*#>*/			{
+/**/			}
+/**/			else
+/**/			{
 					$prefix = '/';
-/*#>*/			}
+/**/			}
 			}
 
-/*#>*/		if ('\\' === DIRECTORY_SEPARATOR)
+/**/		if ('\\' === DIRECTORY_SEPARATOR)
 				$a = strtr($a, '/', '\\');
 
 			$a = explode(/*<*/DIRECTORY_SEPARATOR/*>*/, $a);
@@ -227,16 +227,16 @@ function patchwork_getcwd()
 
 			$a = $prefix . implode(/*<*/DIRECTORY_SEPARATOR/*>*/, $b);
 
-/*#>*/		if ('\\' === DIRECTORY_SEPARATOR)
+/**/		if ('\\' === DIRECTORY_SEPARATOR)
 				$a = strtolower($a);
 
 			return file_exists($a) ? $a : false;
 		}
-/*#>*/}
-/*#>*/else
-/*#>*/{
+/**/}
+/**/else
+/**/{
 		function patchwork_realpath($a) {return realpath($a);}
-/*#>*/}
+/**/}
 
 
 // Class ob: wrapper for ob_start inserted by the preprocessor
@@ -274,86 +274,86 @@ class ob
 
 // Timezone settings
 
-/*#>*/if (!@ini_get('date.timezone'))
+/**/if (!@ini_get('date.timezone'))
 	@(ini_get('date.timezone') || ini_set('date.timezone', 'Universal'));
 
 
 // Turn off magic_quotes_runtime
 
-/*#>*/if (function_exists('get_magic_quotes_runtime') && @get_magic_quotes_runtime())
-/*#>*/{
-/*#>*/	@set_magic_quotes_runtime(false);
-/*#>*/	@get_magic_quotes_runtime()
-/*#>*/		&& die('Patchwork Error: failed to turn off magic_quotes_runtime');
+/**/if (function_exists('get_magic_quotes_runtime') && @get_magic_quotes_runtime())
+/**/{
+/**/	@set_magic_quotes_runtime(false);
+/**/	@get_magic_quotes_runtime()
+/**/		&& die('Patchwork Error: failed to turn off magic_quotes_runtime');
 
 		@set_magic_quotes_runtime(false);
-/*#>*/}
+/**/}
 
 
 // mbstring configuration
 
-/*#>*/if (extension_loaded('mbstring'))
-/*#>*/{
-/*#>*/	if ('none'  !== mb_substitute_character())
+/**/if (extension_loaded('mbstring'))
+/**/{
+/**/	if ('none'  !== mb_substitute_character())
 			mb_substitute_character('none');
 
-/*#>*/	if ('UTF-8' !== mb_internal_encoding())
+/**/	if ('UTF-8' !== mb_internal_encoding())
 			mb_internal_encoding('UTF-8');
 
-/*#>*/	if ('pass'  !== mb_http_output())
+/**/	if ('pass'  !== mb_http_output())
 			mb_http_output('pass');
 
-/*#>*/	if ('uni'   !== mb_language() && 'neutral' !== mb_language())
+/**/	if ('uni'   !== mb_language() && 'neutral' !== mb_language())
 			mb_language('uni');
-/*#>*/}
+/**/}
 
 
 // iconv configuration
 
-/*#>*/ // See http://php.net/manual/en/function.iconv.php#47428
-/*#>*/if (!function_exists('iconv') && function_exists('libiconv'))
-/*#>*/{
+/**/ // See http://php.net/manual/en/function.iconv.php#47428
+/**/if (!function_exists('iconv') && function_exists('libiconv'))
+/**/{
 		function iconv($in_charset, $out_charset, $str)
 		{
 			return libiconv($in_charset, $out_charset, $str);
 		}
-/*#>*/}
+/**/}
 
-/*#>*/if (extension_loaded('iconv'))
-/*#>*/{
-/*#>*/	if ('UTF-8//IGNORE' !== iconv_get_encoding('input_encoding'))
+/**/if (extension_loaded('iconv'))
+/**/{
+/**/	if ('UTF-8//IGNORE' !== iconv_get_encoding('input_encoding'))
 			iconv_set_encoding('input_encoding'   , 'UTF-8//IGNORE');
 
-/*#>*/	if ('UTF-8//IGNORE' !== iconv_get_encoding('internal_encoding'))
+/**/	if ('UTF-8//IGNORE' !== iconv_get_encoding('internal_encoding'))
 			iconv_set_encoding('internal_encoding', 'UTF-8//IGNORE');
 
-/*#>*/	if ('UTF-8//IGNORE' !== iconv_get_encoding('output_encoding'))
+/**/	if ('UTF-8//IGNORE' !== iconv_get_encoding('output_encoding'))
 			iconv_set_encoding('output_encoding'  , 'UTF-8//IGNORE');
-/*#>*/}
+/**/}
 
 
 // EXIF configuration
 
-/*#>*/if (extension_loaded('exif'))
-/*#>*/{
-/*#>*/	if (@('UTF-8' !== strtoupper(ini_get('exif.encode_unicode')) && ini_get('exif.encode_unicode')))
+/**/if (extension_loaded('exif'))
+/**/{
+/**/	if (@('UTF-8' !== strtoupper(ini_get('exif.encode_unicode')) && ini_get('exif.encode_unicode')))
 			@ini_set('exif.encode_unicode', 'UTF-8');
 
-/*#>*/	if (@('UTF-8' !== strtoupper(ini_get('exif.encode_jis')) && ini_get('exif.encode_jis')))
+/**/	if (@('UTF-8' !== strtoupper(ini_get('exif.encode_jis')) && ini_get('exif.encode_jis')))
 			@ini_set('exif.encode_jis', 'UTF-8');
-/*#>*/}
+/**/}
 
 
 // utf8_encode/decode support
 
-/*#>*/if (!function_exists('utf8_encode'))
-/*#>*/{
-/*#>*/	if (extension_loaded('iconv') && '§' === @iconv('ISO-8859-1', 'UTF-8', "\xA7"))
-/*#>*/	{
+/**/if (!function_exists('utf8_encode'))
+/**/{
+/**/	if (extension_loaded('iconv') && '§' === @iconv('ISO-8859-1', 'UTF-8', "\xA7"))
+/**/	{
 			function utf8_encode($s) {return iconv('ISO-8859-1', 'UTF-8', $s);}
-/*#>*/	}
-/*#>*/	else
-/*#>*/	{
+/**/	}
+/**/	else
+/**/	{
 			function utf8_encode($s)
 			{
 				ob_start();
@@ -368,11 +368,11 @@ class ob
 
 				return ob_get_clean();
 			}
-/*#>*/	}
-/*#>*/}
+/**/	}
+/**/}
 
-/*#>*/if (!function_exists('utf8_decode'))
-/*#>*/{
+/**/if (!function_exists('utf8_decode'))
+/**/{
 		function utf8_decode($s)
 		{
 			$len = strlen($s);
@@ -400,15 +400,15 @@ class ob
 
 			return substr($s, 0, $j);
 		}
-/*#>*/}
+/**/}
 
 
 // Configure PCRE
 
-/*#>*/preg_match('/^.$/u', '§') || die('Patchwork Error: PCRE is not compiled with UTF-8 support');
+/**/preg_match('/^.$/u', '§') || die('Patchwork Error: PCRE is not compiled with UTF-8 support');
 
-/*#>*/if (@ini_get('pcre.backtrack_limit') < 5000000)
+/**/if (@ini_get('pcre.backtrack_limit') < 5000000)
 		@ini_set('pcre.backtrack_limit', 5000000);
 
-/*#>*/if (@ini_get('pcre.recursion_limit') < 10000)
+/**/if (@ini_get('pcre.recursion_limit') < 10000)
 		@ini_set('pcre.recursion_limit', 10000);
