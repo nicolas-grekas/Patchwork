@@ -312,73 +312,78 @@ class extends loop_agentWrapper
 
 		if (!$this->readonly && isset($this->form->rawValues[$this->name]))
 		{
-			$this->value = $this->form->rawValues[$this->name];
+			$value = $this->form->rawValues[$this->name];
 
-			if (is_string($this->value) && false !== strpos($this->value, "\0"))
+			if (is_string($value) && false !== strpos($value, "\0"))
 			{
-				$this->value = str_replace("\0", '', $this->value);
-				$this->form->rawValues[$this->name] = $this->value;
+				$value = str_replace("\0", '', $value);
+				$this->form->rawValues[$this->name] = $value;
 			}
 		}
 		else if (isset($param['default']))
 		{
-			$this->value = $param['default'];
+			$value = $param['default'];
 
-			if ($this->multiple && !is_array($this->value))
+			if ($this->multiple && !is_array($value))
 			{
-				$this->value = explode(',', $this->value);
-				$this->value = array_map('rawurldecode', $this->value);
+				$value = explode(',', $value);
+				$value = array_map('rawurldecode', $value);
 			}
+
+			$this->setValue($value);
+			$value =& $this->value;
 		}
-		else $this->value = '';
+		else $value = '';
 
 		if ($this->multiple)
 		{
 			$this->status = '';
 
-			if ($this->value)
+			if ($value)
 			{
-				if (is_array($this->value))
+				if (is_array($value))
 				{
 					$status = true;
 
-					foreach ($this->value as $i => &$value)
+					foreach ($value as $i => &$v)
 					{
-						if ('' === $value) unset($this->value[$i]);
+						if ('' === $v) unset($value[$i]);
 						else
 						{
-							$v = FILTER::get($value, $this->valid, $this->validArgs);
+							$a = FILTER::get($v, $this->valid, $this->validArgs);
 
-							if (false === $v) $status = false;
+							if (false === $a) $status = false;
 							else
 							{
-								$value = $v;
+								$v = $a;
 								$status = true && $status;
 							}
 						}
 					}
 
-					$this->value && $this->status = $status;
+					$value && $this->status = $status;
 				}
 				else
 				{
 					$this->status = false;
-					$this->value = array();
+					$value = array();
 				}
 			}
-			else $this->value = array();
+			else $value = array();
 		}
-		else if ('' === (string) $this->value) $this->status = '';
+		else if ('' === (string) $value) $this->status = '';
 		else
 		{
-			$this->status = FILTER::get($this->value, $this->valid, $this->validArgs);
+			$this->status = FILTER::get($value, $this->valid, $this->validArgs);
 
 			if ('' !== $this->status && false !== $this->status)
 			{
-				$this->value = $this->status;
+				$value = $this->status;
 				$this->status = true;
 			}
 		}
+
+		$this->setValue($value);
 	}
 
 	protected function get()

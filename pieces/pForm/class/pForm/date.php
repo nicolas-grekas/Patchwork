@@ -19,9 +19,13 @@ class extends pForm_text
 	protected function init(&$param)
 	{
 		isset($param['valid']) || $param['valid'] = 'date';
-		if (isset($param['default']) && '0000-00-00' == $param['default']) unset($param['default']);
 
 		parent::init($param);
+	}
+
+	function setValue($value)
+	{
+		$this->value = 0 === strpos($value, '0000-00-00') ? '' : substr($value, 0, 10);
 	}
 
 	protected function get()
