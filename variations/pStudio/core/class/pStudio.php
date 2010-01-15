@@ -4,6 +4,9 @@ class
 {
 	public static
 
+	$appWhitelist = array(''),
+	$appBlacklist = array(),
+
 	$readWhitelist = array(
 		'^class/',
 		'^public/',
@@ -23,6 +26,15 @@ class
 	$editWhitelist = array(),
 	$editBlacklist = array();
 
+
+	static function isAuthApp($path)
+	{
+		static $cache = array();
+
+		isset($cache[$path]) || $cache[$path] = self::isAuth($path, self::$appWhitelist, self::$appBlacklist);
+
+		return $cache[$path];
+	}
 
 	static function isAuthRead($path)
 	{
