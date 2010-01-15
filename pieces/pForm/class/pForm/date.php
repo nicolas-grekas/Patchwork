@@ -33,6 +33,7 @@ class extends pForm_text
 		$a = parent::get();
 		$a->onchange = 'this.value=valid_date(this.value)';
 		$a->_placeholder = T('jj-mm-aaaa');
+		$a->_class = 'text date';
 		return $a;
 	}
 
