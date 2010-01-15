@@ -6,6 +6,9 @@
 parser = {~|js} + 'codemirror/css/';
 parser = {
 
+	'sql': {file: 'parsesql.js',
+			css : parser + 'sqlcolors.css'},
+
 	'css': {file: 'parsecss.js',
 			css : parser + 'csscolors.css'},
 
@@ -36,7 +39,8 @@ if (parser = parser[{$language|js}])
 		parserfile: parser.file,
 		stylesheet: parser.css,
 		path: {~|js} + 'codemirror/js/',
-		continuousScanning: 500
+		continuousScanning: 500,
+		autoMatchParens: true
 	});
 }
 
