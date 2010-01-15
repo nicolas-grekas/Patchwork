@@ -10,10 +10,14 @@ class extends agent
 	{
 		patchworkPath('zcache/', $o->zcacheDepth);
 
-		$o->apps = new loop_array(
-			$GLOBALS['patchwork_path'],
-			array($this, 'filterApp')
-		);
+		$app = array();
+
+		foreach ($GLOBALS['patchwork_path'] as $k => $v)
+		{
+			pStudio::isAuthApp($v) && $app[$k] = $v;
+		}
+
+		$o->apps = new loop_array($app, array($this, 'filterApp'));
 
 		return $o;
 	}

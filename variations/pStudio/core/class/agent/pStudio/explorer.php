@@ -111,12 +111,22 @@ class extends agent
 		{
 			if (!isset($GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - $high])) return false;
 
-			$realpath = $GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - $high];
-			$depth = $high;
+			do
+			{
+				$realpath = $GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - $high];
+				$depth = $high--;
+			}
+			while ($high >= $low && !pStudio::isAuthApp($realpath));
 		}
 		else
 		{
-			$realpath = patchworkPath($path, $depth, $high, 0);
+			do
+			{
+				$realpath = patchworkPath($path, $depth, $high, 0);
+				$high = $depth - 1;
+			}
+			while ($realpath && $high >= $low && !pStudio::isAuthApp($GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - $depth]));
+
 
 			if (!$realpath || $depth < $low) return false;
 
@@ -125,7 +135,8 @@ class extends agent
 
 		$this->is_auth_edit = pStudio::isAuthEdit($path);
 
-		if ($this->is_auth_edit || pStudio::isAuthRead($path))
+		if (pStudio::isAuthApp($GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - $depth])
+			&& ($this->is_auth_edit || pStudio::isAuthRead($path)))
 		{
 			$this->realpath = $realpath;
 			$this->path = $path;
@@ -145,6 +156,12 @@ class extends agent
 		$isTop = 1;
 		do
 		{
+			if (!pStudio::isAuthApp($GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - $i]))
+			{
+				--$i;
+				continue;
+			}
+
 			if ('' !== $dirpath) $path = patchworkPath($dirpath, $depth, $i, 0);
 			else if ($i < 0)
 			{
