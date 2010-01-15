@@ -63,7 +63,7 @@ IF a$placeholder
 END:IF
 
 SET a$id -->FiD{g+1$GLOBID}<!-- END:SET
-SET a$class -->{a$class|default:a$type}<!-- END:SET
+SET a$class -->{a$class|default:a$_class|default:a$type}<!-- END:SET
 
 IF !a$title
 	SET a$title

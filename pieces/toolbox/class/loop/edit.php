@@ -7,6 +7,7 @@ abstract class extends loop
 	$type,
 	$exposeLoopData = false,
 	$allowAddDel = true,
+	$defaultLength = 1,
 
 	$form,
 	$fromDb,
@@ -56,7 +57,7 @@ abstract class extends loop
 			}
 			else
 			{
-				$this->length = max(1, $this->loop->getLength());
+				$this->length = max($this->defaultLength, $this->loop->getLength());
 			}
 		}
 		else $this->length = $this->loop->getLength();

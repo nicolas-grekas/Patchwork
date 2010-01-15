@@ -211,7 +211,7 @@ patchwork::start();";
 			{
 				$found = $paths[$i] . 'zcache' . DIRECTORY_SEPARATOR;
 
-				if (@touch($i . '.patchwork.writeTest')) @unlink($i . '.patchwork.writeTest');
+				if (@touch($found . '.patchwork.writeTest')) @unlink($found . '.patchwork.writeTest');
 				else $found = false;
 
 				break;
