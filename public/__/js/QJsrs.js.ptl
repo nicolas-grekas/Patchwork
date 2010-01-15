@@ -37,7 +37,7 @@ base = $window.base || function($str, $noId, $master)
 {
 	'undefined' != typeof $str || ($str = '');
 
-	if (!/^https?:\/\//.test($str))
+	if (!/^[a-z][-.+a-z0-9]*:/i.test($str))
 	{
 		$master = {g$__BASE__|js};
 

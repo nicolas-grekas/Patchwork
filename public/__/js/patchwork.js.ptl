@@ -168,7 +168,7 @@ function resyncCSRF()
 	var $resyncCSRF = resyncCSRF,
 		$document = document,
 		$forms = $document.forms,
-		$cookie = $document.cookie.match(/(^|; )T\$=([0-9a-zA-Z]+)/);
+		$cookie = $document.cookie.match(/(^|; )T\$=([-_0-9a-zA-Z]+)/);
 
 	$cookie = $cookie && $cookie[2];
 
@@ -258,7 +258,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 	{
 		t($str) || ($str = '');
 
-		if (!/^https?:\/\//.test($str))
+		if (!/^[a-z][-.+a-z0-9]*:/i.test($str))
 		{
 			$master = $master ? $masterBase : g.__BASE__;
 			$noId = !$str || $noId;

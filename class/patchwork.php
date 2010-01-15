@@ -338,7 +338,7 @@ class
 				|| (isset( $_GET['T$']) && substr($_COOKIE['T$'], 1) === substr( $_GET['T$'], 1))
 			)
 			&& 33 === strlen($_COOKIE['T$'])
-			&& 33 === strspn($_COOKIE['T$'], 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789')
+			&& 33 === strspn($_COOKIE['T$'], '-_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789')
 		) self::$antiCSRFtoken = $_COOKIE['T$'];
 		else self::getAntiCSRFtoken(true);
 
@@ -559,7 +559,7 @@ class
 	{
 		$url = (string) $url;
 
-		if (!preg_match("'^https?://'", $url))
+		if (!preg_match("'^[a-z][-.+a-z0-9]*:'i", $url))
 		{
 			$noId = '' === $url || $noId;
 
@@ -871,25 +871,19 @@ class
 
 	static function strongid($length = 32)
 	{
-		static $chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
-
 		$a = '';
 
 		do
 		{
-			$i = 0;
-			$n = unpack('C*', self::uniqid(true) . self::uniqid(true));
+			$a .= substr(base64_encode(self::uniqid(true)), 0, 21);
 
-			do $a .= $chars[$n[++$i]%57] . $chars[$n[++$i]%57] . $chars[$n[++$i]%57] . $chars[$n[++$i]%57];
-			while ($i < 32);
-
-			$length -= 32;
+			$length -= 21;
 		}
 		while ($length > 0);
 
 		$length && $a = substr($a, 0, $length);
 
-		return $a;
+		return strlen($a) < 16 ? strtr($a, 'IOl10+', '-$%()?') : strtr($a, '+/', '-_');
 	}
 
 	// Basic UTF-8 to ASCII transliteration
