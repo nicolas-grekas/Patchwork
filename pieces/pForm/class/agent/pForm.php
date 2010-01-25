@@ -9,7 +9,9 @@ class extends agent
 		$f = new pForm($o);
 		$f->setDefaults($this->data);
 
+		$f->pushContext($o, substr(p::$agentClass, 6));
 		$send = $f->add('submit', 'send');
+		$f->pullContext();
 
 		$o = $this->composeForm($o, $f, $send);
 

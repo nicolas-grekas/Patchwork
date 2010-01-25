@@ -29,7 +29,7 @@ IF a$required
 END:IF
 
 IF a$placeholder
-	SET a$_placeholder_
+	SET a$_placeholder
 		IF !a$_textarea -->{a$placeholder|replace:'[\\r\\n].*':''}<!-- END:IF
 	END:SET
 	SET a$placeholder --><!-- END:SET
@@ -70,7 +70,7 @@ SET $INPUT
 	lE.gS=function(){return valid(this<!-- LOOP a$_valid -->,{$VALUE|js}<!-- END:LOOP -->)}
 
 	<!-- IF !a$_textarea && a$_placeholder -->
-	lE.placeholder={a$_placeholder|js};
+//	lE.placeholder={a$_placeholder|js}; // TODO: fix then enable
 	<!-- END:IF -->
 
 	lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form)};<!-- IF a$_autofocus -->lE.focus()<!-- END:IF -->//]]></script ><script type="text/javascript" src="{base:a$_src}"></script ><!--
