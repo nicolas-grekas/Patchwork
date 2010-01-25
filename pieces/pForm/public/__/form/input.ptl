@@ -62,7 +62,7 @@ IF a$placeholder
 	SET a$placeholder --><!-- END:SET
 END:IF
 
-SET a$id -->FiD{g+1$GLOBID}<!-- END:SET
+SET a$id -->FiD{g+1$GLOBID}{g$__AGENT__|replace:'[^_a-zA-Z0-9]':'_'}<!-- END:SET
 SET a$class -->{a$class|default:a$_class|default:a$type}<!-- END:SET
 
 IF !a$title
@@ -113,7 +113,7 @@ SET $INPUT
 				--><input {$|htmlArgs:'caption':'selected'} {a$|htmlArgs:'class'} /><!--
 
 				IF $caption || a$_caption_ --><label for="{a$id}" onclick="return IcbC(event,this)" {$|htmlArgs:'value':'caption':'selected':'onclick'}>&nbsp;{$caption|default:a$_caption_}</label><!-- END:IF
-				SET a$id -->FiD{g+1$GLOBID}<!-- END:SET
+				SET a$id -->FiD{g+1$GLOBID}{g$__AGENT__|replace:'[^_a-zA-Z0-9]':'_'}<!-- END:SET
 			END:IF
 		END:LOOP
 

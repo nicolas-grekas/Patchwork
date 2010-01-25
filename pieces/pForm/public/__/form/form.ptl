@@ -35,7 +35,7 @@ ELSEIF a$_mode_ == 'close' --></form><!--
 ELSE
 
 	SET a$action --><!-- IF !a$action -->{g$__URI__}<!-- ELSE -->{base:a$action:1}<!-- END:IF --><!-- END:SET
-	IF !a$id --><!-- SET a$id -->FiD{g+1$GLOBID}<!-- END:SET --><!-- END:IF
+	IF !a$id --><!-- SET a$id -->FiD{g+1$GLOBID}{g$__AGENT__|replace:'[^_a-zA-Z0-9]':'_'}<!-- END:SET --><!-- END:IF
 
 	--><form accept-charset="utf-8" {a$|htmlArgs}><!--
 

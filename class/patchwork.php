@@ -883,7 +883,12 @@ class
 
 		$length && $a = substr($a, 0, $length);
 
-		return strlen($a) < 16 ? strtr($a, 'IOl10+', '-$%()?') : strtr($a, '+/', '-_');
+		return strtr($a, '+/', '-_');
+	}
+
+	static function strongPassword($length = 8)
+	{
+		return strtr(self::strongid($length), 'IOl10+', '-$%()?');
 	}
 
 	// Basic UTF-8 to ASCII transliteration
