@@ -21,7 +21,7 @@ class extends agent
 
 	$get = array(
 		'__1__:i:1',
-		'__2__:c:[0-9a-zA-Z]{32}'
+		'__2__:c:[-_0-9a-zA-Z]{32}'
 	);
 
 

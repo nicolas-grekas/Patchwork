@@ -136,7 +136,7 @@ class extends loop_agentWrapper
 
 			$onerror || $onerror = $addedElt->validmsg;
 
-			$elements[] = $this->elements[$name] = array(
+			$elements[$name] = $this->elements[$name] = array(
 				$addedElt,
 				$onempty,
 				$onerror,
