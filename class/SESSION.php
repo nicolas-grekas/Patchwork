@@ -268,7 +268,7 @@ class
 		}
 		else $IPs = '';
 
-		self::$SID = md5($SID .'-'. $IPs .'-'. (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '') .'-'. substr(p::getAntiCSRFtoken(), 1));
+		self::$SID = md5($SID .'-'. $IPs .'-'. substr(p::getAntiCSRFtoken(), 1));
 	}
 
 	protected static function onIdle()
