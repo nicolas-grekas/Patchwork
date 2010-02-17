@@ -16,7 +16,10 @@ class
 {
 	static
 
-	$IPlevel = 2,
+	// Session <-> IP binding level (IPv4 only)
+	// Not enabled by default because of load-balanced proxy servers,
+	// dropped-and-restored dial-up connections, wireless networks, etc.
+	$IPlevel = 0,
 
 	$maxIdleTime = 0,
 	$maxLifeTime = 43200,
@@ -253,6 +256,8 @@ class
 	{
 		if (self::$IPlevel)
 		{
+			// Session <-> IP binding (IPv4 only)
+
 			$IPs = '127.0.0.1,' . $_SERVER['REMOTE_ADDR']
 				. ',' . (isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : '')
 				. ',' . (isset($_SERVER['HTTP_CLIENT_IP']) ? $_SERVER['HTTP_CLIENT_IP'] : '');

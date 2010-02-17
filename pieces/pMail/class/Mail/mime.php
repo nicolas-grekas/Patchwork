@@ -24,6 +24,8 @@ class extends self
 			defined('PHP_EOL') && $eol = PHP_EOL;
 		}
 
+		$this->_eol = $eol;
+
 		parent::__construct($eol);
 
 		$this->_build_params['head_charset' ] = 'utf-8';
