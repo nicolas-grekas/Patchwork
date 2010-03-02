@@ -1,26 +1,28 @@
 <!--
 
-SET a$page -->{a$page|default:g$p}<!-- END:SET
-SET a$page --><!-- IF a$page > 0 -->{a$page-1}<!-- ELSE -->0<!-- END:IF --><!-- END:SET
-SET a$pages_nb -->{a$results_nb/a$results_per_page}<!-- END:SET
-IF a$results_nb % a$results_per_page --><!-- SET a$pages_nb -->{a$pages_nb+1}<!-- END:SET --><!-- END:IF
+IF a$results_per_page
+	SET $_page -->{a$page|default:g$p}<!-- END:SET
+	SET $_page --><!-- IF $_page > 0 -->{$_page-1}<!-- ELSE -->0<!-- END:IF --><!-- END:SET
+	SET $_pages_nb -->{a$results_nb/a$results_per_page}<!-- END:SET
+	IF a$results_nb % a$results_per_page --><!-- SET $_pages_nb -->{$_pages_nb+1}<!-- END:SET --><!-- END:IF
+END:IF
 
-IF a$pages_nb >= 2
+IF $_pages_nb >= 2
 
-	SET a$url -->{g$__URI__|replace:'\?':''}<!-- END:SET
-	SET a$url
-		IF a$url != g$__URI__
+	SET $_url -->{g$__URI__|replace:'\?':''}<!-- END:SET
+	SET $_url
+		IF $_url != g$__URI__
 			-->{g$__URI__|replace:'((\?)|&amp;)p=[^&]+':'$2'}<!--
 		ELSE
 			-->{g$__URI__}?<!--
 		END:IF
 	END:SET
 
-	SET a$sep -->{a$url|substr:-1}<!-- END:SET
-	SET a$sep
-		IF '?' == a$sep
+	SET $_sep -->{$_url|substr:-1}<!-- END:SET
+	SET $_sep
+		IF '?' == $_sep
 			-->?<!--
-			SET a$url -->{a$url|substr:0:-1}<!-- END:SET
+			SET $_url -->{$_url|substr:0:-1}<!-- END:SET
 		ELSE -->&amp;<!--
 		END:IF
 		-->p=<!--
@@ -30,30 +32,30 @@ IF a$pages_nb >= 2
 
 ‹ <!--
 
-	IF a$page
-		IF a$page > 1 --><a href="{a$url}{a$sep}{a$page}">{"Page précédente"}</a><!--
-		ELSE --><a href="{a$url}">{"Page précédente"}</a><!--
+	IF $_page
+		IF $_page > 1 --><a href="{$_url}{$_sep}{$_page}">{"Page précédente"}</a><!--
+		ELSE --><a href="{$_url}">{"Page précédente"}</a><!--
 		END:IF
 	ELSE -->{"Page précédente"}<!--
 	END:IF
 
 --> | <!--
 
-	LOOP a$pages_nb
+	LOOP $_pages_nb
 
-		IF $iteratorPosition == a$page --> <b>{$iteratorPosition+1}</b> <!--
+		IF $iteratorPosition == d$_page --> <b>{$iteratorPosition+1}</b> <!--
 
 		ELSEIF $iteratorPosition < 3
-			|| $iteratorPosition > a$pages_nb-4
-			|| $iteratorPosition - a$page == 1
-			|| a$page - $iteratorPosition == 1 --> <!--
+			|| $iteratorPosition > d$_pages_nb-4
+			|| $iteratorPosition - d$_page == 1
+			|| d$_page - $iteratorPosition == 1 --> <!--
 
 			IF $iteratorPosition
-				--><a href="{a$url}{a$sep}{$iteratorPosition+1}">{$iteratorPosition+1}</a><!--
+				--><a href="{d$_url}{d$_sep}{$iteratorPosition+1}">{$iteratorPosition+1}</a><!--
 			ELSE
-				--><a href="{a$url}">{$iteratorPosition+1}</a><!--
+				--><a href="{d$_url}">{$iteratorPosition+1}</a><!--
 			END:IF --> <!--
-		ELSE --><a href="{a$url}{a$sep}{$iteratorPosition+1}">.</a><!--
+		ELSE --><a href="{d$_url}{d$_sep}{$iteratorPosition+1}">.</a><!--
 
 		END:IF
 
@@ -61,7 +63,7 @@ IF a$pages_nb >= 2
 
 --> | <!--
 
-	IF a$page + 2 < a$pages_nb --><a href="{a$url}{a$sep}{a$page+2}">{"Suivante"}</a><!--
+	IF $_page + 2 <= $_pages_nb --><a href="{$_url}{$_sep}{$_page+2}">{"Suivante"}</a><!--
 	ELSE -->{"Suivante"}<!--
 	END:IF
 
