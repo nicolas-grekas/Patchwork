@@ -187,7 +187,7 @@ function patchworkProcessedPath($file)
 
 	if (file_exists($cache) && (TURBO || filemtime($cache) > filemtime($source))) return $cache;
 
-	patchwork_preprocessor::execute($source, $cache, $level, false);
+	patchwork_preprocessor::execute($source, $cache, $level, false, true);
 
 	return $cache;
 }

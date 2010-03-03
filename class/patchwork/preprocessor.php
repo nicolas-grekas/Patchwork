@@ -24,6 +24,7 @@ class patchwork_preprocessor__0
 	$line = 1,
 	$level,
 	$class,
+	$isTop,
 	$marker,
 	$inString = 0;
 
@@ -345,7 +346,7 @@ class patchwork_preprocessor__0
 		foreach (self::$constant as &$v) $v = patchwork_preprocessor::export($v);
 	}
 
-	static function execute($source, $destination, $level, $class)
+	static function execute($source, $destination, $level, $class, $is_top)
 	{
 		$source = patchwork_realpath($source);
 
@@ -359,8 +360,9 @@ class patchwork_preprocessor__0
 
 		$preproc = new patchwork_preprocessor;
 		$preproc->source = $source;
-		$preproc->level = $level;
-		$preproc->class = $class;
+		$preproc->level  = $level;
+		$preproc->class  = $class;
+		$preproc->isTop  = $is_top;
 		$preproc->marker = array(
 			'global $a' . PATCHWORK_PATH_TOKEN . ',$c' . PATCHWORK_PATH_TOKEN . ';',
 			'global $a' . PATCHWORK_PATH_TOKEN . ',$b' . PATCHWORK_PATH_TOKEN . ',$c' . PATCHWORK_PATH_TOKEN . ';'
@@ -424,6 +426,7 @@ class patchwork_preprocessor__0
 		$source = $this->source;
 		$level  = $this->level;
 		$class  = $this->class;
+		$is_top = $this->isTop;
 		$line   =& $this->line;
 		$line   = 1;
 
@@ -557,10 +560,11 @@ class patchwork_preprocessor__0
 				$token .= $this->fetchSugar($code, $i);
 
 				$class_pool[$curly_level] = (object) array(
-					'classname' => $c,
-					'classkey'  => strtolower($b),
-					'is_root'   => true,
-					'is_final'  => $final,
+					'classname'   => $c,
+					'classkey'    => strtolower($b),
+					'is_child'    => false,
+					'is_final'    => $final,
+					'is_abstract' => T_ABSTRACT === $prevType,
 					'add_php5_construct'  => T_CLASS === $type && 0>$level,
 					'add_constructStatic' => 0,
 					'add_destructStatic'  => 0,
@@ -578,12 +582,11 @@ class patchwork_preprocessor__0
 
 				if ($c && isset($code[$i]) && is_array($code[$i]) && T_EXTENDS === $code[$i][0])
 				{
-					$class_pool[$curly_level]->is_root = false;
-
 					$token .= $code[$i][1];
 					$token .= $this->fetchSugar($code, $i);
 					if (isset($code[$i]) && is_array($code[$i]))
 					{
+						$class_pool[$curly_level]->is_child = $code[$i][1];
 						$c = 0<=$level && 'self' === $code[$i][1] ? $c . '__' . ($level ? $level-1 : '00') : $code[$i][1];
 						$token .= $c;
 						self::$inlineClass[strtolower($c)] = 1;
@@ -1013,6 +1016,34 @@ class patchwork_preprocessor__0
 					}
 
 					$token .= "\$GLOBALS['c{$T}']['{$c->classkey}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
+
+					if ($is_top)
+					{
+						if (!$c->is_final)
+						{
+							$token .= ($c->is_abstract ? 'abstract ' : '')
+								. "class {$c->classname} extends {$c->classkey} {}"
+								. "\$GLOBALS['c{$T}']['{$j}']=1;";
+						}
+
+						if (!$c->is_child)
+						{
+							1 === $c->add_constructStatic && $token .= "{$j}::__constructStatic();";
+							1 === $c->add_destructStatic  && $token .= "\$GLOBALS['patchwork_destructors'][]='{$j}';";
+						}
+						else
+						{
+							$token .= $c->add_constructStatic
+								? "if('{$j}'==={$j}::__cS{$T})"
+								: "if(defined('{$j}::__cS{$T}')?'{$j}'==={$j}::__cS{$T}:method_exists('{$j}','__constructStatic'))";
+							$token .= "{$j}::__constructStatic();";
+
+							$token .= $c->add_destructStatic
+								? "if('{$j}'==={$j}::__cS{$T})"
+								: "if(defined('{$j}::__cS{$T}')?'{$j}'==={$j}::__cS{$T}:method_exists('{$j}','__destructStatic'))";
+							$token .= "\$GLOBALS['patchwork_destructors'][]='{$j}';";
+						}
+					}
 
 					unset($class_pool[$curly_level]);
 				}
