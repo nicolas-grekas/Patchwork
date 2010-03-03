@@ -208,9 +208,10 @@ class patchwork_preprocessor__0
 
 		foreach (get_declared_classes() as $v)
 		{
+			$v = strtolower($v);
 			if (false !== strpos($v, 'patchwork')) continue;
-			self::$declaredClass[$v] = 1;
 			if ('p' === $v) break;
+			self::$declaredClass[$v] = 1;
 		}
 
 		// As of PHP5.1.2, hash('md5', $str) is a lot faster than md5($str) !
@@ -589,7 +590,16 @@ class patchwork_preprocessor__0
 						$class_pool[$curly_level]->is_child = $code[$i][1];
 						$c = 0<=$level && 'self' === $code[$i][1] ? $c . '__' . ($level ? $level-1 : '00') : $code[$i][1];
 						$token .= $c;
-						self::$inlineClass[strtolower($c)] = 1;
+
+						$c = strtolower($c);
+
+						if (isset(self::$declaredClass[$c]) && 'patchwork' !== $c && 'p' !== $c)
+						{
+							$class_pool[$curly_level]->add_constructStatic = 2;
+							$class_pool[$curly_level]->add_destructStatic = 2;
+						}
+
+						self::$inlineClass[$c] = 1;
 					}
 					else --$i;
 				}
@@ -1033,15 +1043,8 @@ class patchwork_preprocessor__0
 						}
 						else
 						{
-							$token .= $c->add_constructStatic
-								? "if('{$j}'==={$j}::__cS{$T})"
-								: "if(defined('{$j}::__cS{$T}')?'{$j}'==={$j}::__cS{$T}:method_exists('{$j}','__constructStatic'))";
-							$token .= "{$j}::__constructStatic();";
-
-							$token .= $c->add_destructStatic
-								? "if('{$j}'==={$j}::__cS{$T})"
-								: "if(defined('{$j}::__cS{$T}')?'{$j}'==={$j}::__cS{$T}:method_exists('{$j}','__destructStatic'))";
-							$token .= "\$GLOBALS['patchwork_destructors'][]='{$j}';";
+							2 !== $c->add_constructStatic && $token .= "if('{$j}'==={$j}::__cS{$T}){$j}::__constructStatic();";
+							2 !== $c->add_destructStatic  && $token .= "if('{$j}'==={$j}::__dS{$T})\$GLOBALS['patchwork_destructors'][]='{$j}';";
 						}
 					}
 
