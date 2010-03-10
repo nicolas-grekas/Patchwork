@@ -395,10 +395,8 @@ class
 			&& self::$appId == $_COOKIE['cache_reset_id']
 			&& setcookie('cache_reset_id', '', 0, '/'))
 		{
-			self::updateAppId();
 			self::touch('foreignTrace');
-			self::touch('appId');
-
+			self::updateAppId();
 			self::setMaxage(0);
 			self::setPrivate();
 
@@ -416,30 +414,7 @@ class
 /*<
 		if (PATCHWORK_SYNC_CACHE && !self::$binaryMode)
 		{
-			self::updateAppId();
-
-			$a = $CONFIG['i18n.lang_list'][$_SERVER['PATCHWORK_LANG']];
-			$a = implode($a, explode('__', $_SERVER['PATCHWORK_BASE'], 2));
-			$a = preg_replace("'\?.*$'", '', $a);
-			$a = preg_replace("'^https?://[^/]*'i", '', $a);
-			$a = dirname($a . ' ');
-			if (1 === strlen($a)) $a = '';
-
-			self::setcookie('v$', self::$appId, $_SERVER['REQUEST_TIME'] + $CONFIG['maxage'], $a .'/');
-
-			self::touch('');
-
-			for ($i = 0; $i < 16; ++$i) for ($j = 0; $j < 16; ++$j)
-			{
-				$dir = PATCHWORK_ZCACHE . dechex($i) . '/' . dechex($j) . '/';
-
-				if (file_exists($dir))
-				{
-					$h = opendir($dir);
-					while (false !== $file = readdir($h)) '.' !== $file && '..' !== $file && unlink($dir . $file);
-					closedir($h);
-				}
-			}
+			patchwork_debugger::purgeZcache();
 
 			if (!IS_POSTING)
 			{
@@ -464,7 +439,7 @@ class
 	}
 	// }}}
 
-	protected static function updateAppId()
+	static function updateAppId()
 	{
 		// config.patchwork.php's last modification date is used for
 		// version synchronisation with clients and caches.
@@ -497,6 +472,8 @@ class
 		}
 
 		@touch(PATCHWORK_PROJECT_PATH . 'config.patchwork.php', $_SERVER['REQUEST_TIME']);
+
+		self::touch('appId');
 	}
 
 	static function disable($exit = false)
@@ -1261,7 +1238,7 @@ class
 				$args = unserialize(substr($cache, 1));
 #>			}
 
-			if ($cache[0]) $args[] = 'T$';
+			if (!isset($cache[0]) || $cache[0]) $args[] = 'T$';
 		}
 
 		return $args;
@@ -1309,7 +1286,7 @@ class
 			$path = self::getCachePath('watch/' . $message, 'txt');
 			if ($exclusive) self::$watchTable[$path] = (bool) $file;
 
-			if (!$file) continue;
+			if (!$file || PATCHWORK_ZCACHE === $file) continue;
 
 			if ($file_isnew = !file_exists($path)) self::makeDir($path);
 

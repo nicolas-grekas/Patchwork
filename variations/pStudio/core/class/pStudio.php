@@ -87,4 +87,28 @@ class
 
 		return isset($patchwork_path[$depth]) ? basename($patchwork_path[$depth]) : false;
 	}
+
+	static function resetCache($file, $depth)
+	{
+		if (0 === strpos($file, 'public/'))
+		{
+			p::touch('public');
+			p::updateAppId();
+		}
+		else
+		{
+			if (0 === strpos($file, 'class/patchwork/'))
+			{
+				unlink(PATCHWORK_PROJECT_PATH . '.patchwork.php');
+			}
+			else if (0 === strpos($file, 'class/'))
+			{
+				$file = patchwork_file2class(substr($file, 6));
+				$file = patchwork_class2cache($file, $depth);
+				@unlink($file);
+			}
+
+			patchwork_debugger::purgeZcache();
+		}
+	}
 }

@@ -213,6 +213,8 @@ class patchwork_bootstrapper_inheritance__0
 				{
 					if ($this->rootPath != $source)
 					{
+						if ($realpath === $source) die('Patchwork Error: Application can not inherit from itself in ' . $realpath . 'config.patchwork.php');
+
 						foreach ($this->c3mro($source) as $a)
 						{
 							if (false !== $a = array_search($a, $p))
@@ -239,6 +241,7 @@ class patchwork_bootstrapper_inheritance__0
 				$source = patchwork_realpath($a);
 				if (false === $source) die('Patchwork Error: Missing file ' . rtrim(strtr($a, '\\', '/'), '/') . '/config.patchwork.php');
 				$source = rtrim($source, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+				if ($realpath === $source) die('Patchwork Error: Application can not inherit from itself in ' . $realpath . 'config.patchwork.php');
 
 				$a = $source;
 				if ($this->rootPath === $a) unset($parent[$i]);

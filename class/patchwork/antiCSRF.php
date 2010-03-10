@@ -33,11 +33,10 @@ class extends patchwork
 				$h = fopen($cache, 'r+b');
 				if (!$a = fread($h, 1))
 				{
-					p::touch('appId');
-					p::touch('public/templates/js');
-
 					rewind($h);
 					fwrite($h, $a = '1');
+
+					p::touch('public/templates/js');
 
 					p::updateAppId();
 				}
