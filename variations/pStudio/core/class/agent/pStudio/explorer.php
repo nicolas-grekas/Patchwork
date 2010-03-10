@@ -56,6 +56,8 @@ class extends agent
 					unlink($this->realpath);
 					move_uploaded_file($file['tmp_name'], $this->realpath);
 
+					pStudio::resetCache($this->path, $this->depth);
+
 					p::redirect();
 				}
 			}

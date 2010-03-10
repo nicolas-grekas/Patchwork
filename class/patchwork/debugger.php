@@ -77,6 +77,34 @@ class extends patchwork
 		}
 	}
 
+	static function purgeZcache()
+	{
+		self::updateAppId();
+
+		$a = $CONFIG['i18n.lang_list'][$_SERVER['PATCHWORK_LANG']];
+		$a = implode($a, explode('__', $_SERVER['PATCHWORK_BASE'], 2));
+		$a = preg_replace("'\?.*$'", '', $a);
+		$a = preg_replace("'^https?://[^/]*'i", '', $a);
+		$a = dirname($a . ' ');
+		if (1 === strlen($a)) $a = '';
+
+		self::setcookie('v$', self::$appId, $_SERVER['REQUEST_TIME'] + $CONFIG['maxage'], $a .'/');
+
+		self::touch('');
+
+		for ($i = 0; $i < 16; ++$i) for ($j = 0; $j < 16; ++$j)
+		{
+			$dir = PATCHWORK_ZCACHE . dechex($i) . '/' . dechex($j) . '/';
+
+			if (file_exists($dir))
+			{
+				$h = opendir($dir);
+				while (false !== $file = readdir($h)) '.' !== $file && '..' !== $file && unlink($dir . $file);
+				closedir($h);
+			}
+		}
+	}
+
 	static function getProlog()
 	{
 		$QDebug   = p::__BASE__() . 'js/QDebug.js';
