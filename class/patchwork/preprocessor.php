@@ -596,7 +596,7 @@ class patchwork_preprocessor__0
 						if (isset(self::$declaredClass[$c]) && 'patchwork' !== $c && 'p' !== $c)
 						{
 							$class_pool[$curly_level]->add_constructStatic = 2;
-							$class_pool[$curly_level]->add_destructStatic = 2;
+							$class_pool[$curly_level]->add_destructStatic  = 2;
 						}
 
 						self::$inlineClass[$c] = 1;
@@ -608,7 +608,7 @@ class patchwork_preprocessor__0
 					if (T_CLASS === $type)
 					{
 						$class_pool[$curly_level]->add_constructStatic = 2;
-						$class_pool[$curly_level]->add_destructStatic = 2;
+						$class_pool[$curly_level]->add_destructStatic  = 2;
 					}
 
 					--$i;
@@ -838,7 +838,7 @@ class patchwork_preprocessor__0
 						break;
 
 					case 'is_a':
-						if (0>$level) $type = $token = 'patchwork_is_a';
+						if (0 > $level && version_compare(PHP_VERSION, '5.3.0') < 0) $type = $token = 'patchwork_is_a';
 
 					default:
 						if (!isset(self::$callback[$type])) break;
