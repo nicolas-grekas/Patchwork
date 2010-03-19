@@ -78,8 +78,7 @@ class extends Mail_mime
 
 		if (empty($headers['From']))
 		{
-			if ($CONFIG['pMail.from']) $headers['From'] = $CONFIG['pMail.from'];
-			else if (empty($headers['Sender'])) W("Email is likely not to be sent: From header is empty.");
+			if (empty($headers['Sender'])) W("Email is likely not to be sent: From header is empty.");
 			else
 			{
 				$headers['From'] =& $headers['Sender'];
