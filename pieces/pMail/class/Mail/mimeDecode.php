@@ -28,27 +28,31 @@ class extends self
 
 		if (isset($return->body))
 		{
-			$charset = empty($return->ctype_parameters['charset']) ? false : trim($return->ctype_parameters['charset']);
+			$charset = empty($return->ctype_parameters['charset']) ? false : strtolower(trim($return->ctype_parameters['charset']));
 			$ctype = strtolower(isset($return->ctype_primary) ? $return->ctype_primary . '/' . $return->ctype_secondary : $default_ctype);
 
 			if (!$charset) switch ($ctype)
 			{
+			default: return $return;
+
 			case 'text/html':
 			case 'text/plain':
-				$charset = @iconv('UTF-8', 'UTF-8', $return->body) === $return->body ? 'utf-8' : 'iso-8859-1';
+				$charset = @iconv('UTF-8', 'UTF-8', $return->body) === $return->body ? 'utf-8' : 'windows-1252';
 			}
 
-			if ($charset)
+			switch ($charset)
 			{
-				if ('iso-8859-1' === strtolower($charset)) $charset = utf8_encode($return->body);
-				else
-				{
-					$charset = @iconv($charset, 'UTF-8//IGNORE', $return->body);
-					false === $charset && $charset = utf8_encode($return->body);
-				}
+			case 'iso-8859-1':
+			case 'windows-1252':
+				$charset = utf8_encode_1252($return->body);
+				break;
 
-				$return->body = FILTER::get($charset, 'text');
+			default:
+				$charset = @iconv($charset, 'UTF-8//IGNORE', $return->body);
+				false === $charset && $charset = utf8_encode_1252($return->body);
 			}
+
+			$return->body = FILTER::get($charset, 'text');
 		}
 
 		return $return;
