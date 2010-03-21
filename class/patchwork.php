@@ -1286,9 +1286,9 @@ class
 			$path = self::getCachePath('watch/' . $message, 'txt');
 			if ($exclusive) self::$watchTable[$path] = (bool) $file;
 
-			if (!$file || PATCHWORK_ZCACHE === $file) continue;
-
 			if ($file_isnew = !file_exists($path)) self::makeDir($path);
+
+			if (!$file || PATCHWORK_ZCACHE === $file) continue;
 
 			$h = fopen($path, 'ab');
 			fwrite($h, 'U' . $file . "\n");
