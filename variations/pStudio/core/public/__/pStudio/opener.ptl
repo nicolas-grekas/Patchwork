@@ -2,14 +2,21 @@
 
 IF $is_binary
 	-->[{"Binary content"}]<!--
-ELSE
-	IF $is_auth_edit
-		AGENT $form
-		AGENT $f_code style='width: 700px; height: 480px' --><br /><!--
-		AGENT $f_save value="Save"
-		AGENT $form _mode_='close'
+ELSEIF $is_auth_edit
+	-->
 
-		--><script type="text/javascript">
+<!-- AGENT $form style='height: 100%' -->
+<table style="width:100%; height:100%; margin:0; padding:0">
+<tr>
+	<td style="height:100%"><!-- AGENT $f_code style='width: 100%; height: 100%' --></td>
+</tr>
+<tr>
+	<td style="height:30px"><!-- AGENT $f_save value="Save" --></td>
+</tr>
+</table>
+<!-- AGENT $form _mode_='close' -->
+
+<script type="text/javascript">
 
 code_element = document.getElementsByName('f_code')[0];
 code_is_modified = false;
@@ -32,11 +39,11 @@ onbeforeunload = function ()
 	if (code_is_modified && save_element.value) return {"Your document will be saved on the server."|js};
 }
 
-</script><!--
+</script>
+	<!--
 
-	ELSE
-		--><pre>{$text}</pre><!--
-	END:IF
+ELSE
+	--><pre>{$text}</pre><!--
 END:IF
 
 -->

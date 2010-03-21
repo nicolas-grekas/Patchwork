@@ -1422,6 +1422,9 @@ var Editor = (function(){
 
 addEventHandler(window, "load", function() {
   var CodeMirror = window.frameElement.CodeMirror;
-  var e = CodeMirror.editor = new Editor(CodeMirror.options);
-  this.parent.setTimeout(method(CodeMirror, "init"), 0);
+  if (CodeMirror)
+  {
+    var e = CodeMirror.editor = new Editor(CodeMirror.options);
+    this.parent.setTimeout(method(CodeMirror, "init"), 0);
+  }
 });

@@ -1,7 +1,13 @@
 <!--
 
 SET a$head
-	-->{a$head}<!--
+	-->
+	{a$head}
+	<style type="text/css">
+		html, body{ height: 100%;}
+	</style>
+	<!--
+
 	IF g$low != g$high --><meta name="robots" content="noindex, nofollow" /><!-- END:IF
 END:SET
 
