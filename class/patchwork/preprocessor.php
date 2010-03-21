@@ -61,6 +61,8 @@ class patchwork_preprocessor__0
 		'header'       => 'patchwork::header',
 		'setcookie'    => 'patchwork::setcookie',
 		'setrawcookie' => 'patchwork::setrawcookie',
+		'utf8_encode'  => 'utf8_encode_1252',
+		'utf8_decode'  => 'utf8_decode_1252',
 	),
 
 	$variableType = array(
