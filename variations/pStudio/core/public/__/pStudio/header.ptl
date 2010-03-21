@@ -11,6 +11,8 @@ SET a$head
 	IF g$low != g$high --><meta name="robots" content="noindex, nofollow" /><!-- END:IF
 END:SET
 
+SET a$css -->{a$css|default:'css/pStudio'}<!-- END:SET
+
 INLINE header:0
 
 -->

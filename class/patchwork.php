@@ -929,7 +929,7 @@ class
 
 					if (!$wb)
 					{
-						while ($line = fgets($h))
+						while (false !== $line = fgets($h))
 						{
 							$a = $line[0];
 							$line = substr($line, 1, -1);
