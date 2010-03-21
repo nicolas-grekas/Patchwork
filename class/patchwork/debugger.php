@@ -241,41 +241,49 @@ function Z()
 				echo '<b></b>'; // Test the connexion
 				$S||flush();
 
-				$h = @fopen($error_log, 'r');
-				while ($h && !feof($h))
+				if ($h = @fopen($error_log, 'r'))
 				{
-					$a = fgets($h);
-
-					$a = preg_replace_callback(
-						"'" . preg_quote(htmlspecialchars(PATCHWORK_PROJECT_PATH) . '.')
-							. '([^\\\\/]+)\.[01]([0-9]+)(-?)\.' . PATCHWORK_PATH_TOKEN . "\.zcache\.php'",
-						array(__CLASS__, 'filename'),
-						$a
-					);
-
-					if ('' !== $a && '[' == $a[0] && '] PHP ' == substr($a, 21, 6))
+					while (false !== $a = fgets($h))
 					{
-						$b = strpos($a, ':', 28);
-						$a = '<script type="text/javascript">/*<![CDATA[*/
-		focus()
-		L=opener||parent;
-		L=L&&L.document.getElementById(\'debugLink\')
-		L=L&&L.style
-		if(L)
-		{
-		L.backgroundColor=\'red\'
-		L.fontSize=\'18px\'
-		}
-		//]]></script><a href="javascript:;" style="color:red;font-weight:bold" title="' . substr($a, 0, 22) . '">'
-							. substr($a, 23, $b-23)
-							. "</a>\n"
-							. substr($a, $b+2);
+						$a = preg_replace_callback(
+							"'" . preg_quote(htmlspecialchars(PATCHWORK_PROJECT_PATH) . '.')
+								. '([^\\\\/]+)\.[01]([0-9]+)(-?)\.' . PATCHWORK_PATH_TOKEN . "\.zcache\.php'",
+							array(__CLASS__, 'filename'),
+							$a
+						);
+
+						if ('' !== $a && '[' == $a[0] && '] PHP ' == substr($a, 21, 6))
+						{
+							$b = strpos($a, ':', 28);
+							$b = array(
+								substr($a, 0, 22),
+								substr($a, 23, $b-23),
+								substr($a, $b+2),
+							);
+
+							$a = <<<EOHTML
+<script type="text/javascript">/*<![CDATA[*/
+focus()
+L=opener||parent;
+L=L&&L.document.getElementById('debugLink')
+L=L&&L.style
+if(L)
+{
+L.backgroundColor='red'
+L.fontSize='18px'
+}
+//]]></script><a href="javascript:;" style="color:red;font-weight:bold" title="{$b[0]}">{$b[1]}</a>
+{$b[2]}
+EOHTML;
+						}
+
+						echo $a;
+
+						if (connection_aborted()) break;
 					}
 
-					echo $a;
-					if (connection_aborted()) break;
+					fclose($h);
 				}
-				fclose($h);
 
 				echo '<script type="text/javascript">/*<![CDATA[*/Z()//]]></script>';
 				$S||flush();
