@@ -206,6 +206,7 @@ var CodeMirror = (function(){
     prevLine: function(line) {return this.editor.prevLine(line);},
     lineContent: function(line) {return this.editor.lineContent(line);},
     setLineContent: function(line, content) {this.editor.setLineContent(line, content);},
+    removeLine: function(line){this.editor.removeLine(line);},
     insertIntoLine: function(line, position, content) {this.editor.insertIntoLine(line, position, content);},
     selectLines: function(startLine, startOffset, endLine, endOffset) {
       this.win.focus();
@@ -267,7 +268,7 @@ var CodeMirror = (function(){
         var nextNum = 1;
         function update() {
           var target = 50 + Math.max(body.offsetHeight, frame.offsetHeight);
-          while (scroller.offsetHeight < target) {
+          while (scroller.offsetHeight < target && (!scroller.firstChild || scroller.offsetHeight)) {
             scroller.appendChild(document.createElement("DIV"));
             scroller.lastChild.innerHTML = nextNum++;
           }
@@ -276,6 +277,7 @@ var CodeMirror = (function(){
         var onScroll = win.addEventHandler(win, "scroll", update, true),
             onResize = win.addEventHandler(win, "resize", update, true);
         clear = function(){onScroll(); onResize();};
+        update();
       }
       function wrapping() {
         var node, lineNum, next, pos;
@@ -294,7 +296,7 @@ var CodeMirror = (function(){
             addNum(next++);
             for (; node && !win.isBR(node); node = node.nextSibling) {
               var bott = node.offsetTop + node.offsetHeight;
-              while (bott - 3 > pos) addNum("&nbsp;");
+              while (scroller.offsetHeight && bott - 3 > pos) addNum("&nbsp;");
             }
             if (node) node = node.nextSibling;
             if (new Date().getTime() > endTime) {
@@ -304,7 +306,8 @@ var CodeMirror = (function(){
           }
           // While there are un-processed number DIVs, or the scroller is smaller than the frame...
           var target = 50 + Math.max(body.offsetHeight, frame.offsetHeight);
-          while (lineNum || scroller.offsetHeight < target) addNum(next++);
+          while (lineNum || (scroller.offsetHeight < target && (!scroller.firstChild || scroller.offsetHeight)))
+            addNum(next++);
           doScroll();
         }
         function start() {
