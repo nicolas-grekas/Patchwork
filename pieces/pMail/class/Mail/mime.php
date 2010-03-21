@@ -125,7 +125,6 @@ class extends self
 	protected static $charsetCheck = array(
 		'iso-8859-1'   => '1,iso8859-1,latin1',   // Western European
 		'windows-1252' => '1,cp1252',             // Western European - more popular than iso-8859-15
-		'iso-8859-15'  => '1,iso8859-15,latin9',  // Western European
 		'iso-8859-2'   => '1,iso8859-2,latin2',   // Central European
 		'iso-8859-3'   => '1,iso8859-3,latin3',   // South European
 		'iso-8859-4'   => '1,iso8859-4,latin4',   // Baltic

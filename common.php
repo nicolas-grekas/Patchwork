@@ -402,6 +402,42 @@ class ob
 		}
 /**/}
 
+// utf8_encode/decode support enhanced to Windows-1252
+
+function utf8_encode_1252($s)
+{
+	static $map = array(
+		"\xc2\x80" => '€', "\xc2\x82" => '‚', "\xc2\x83" => 'ƒ',
+		"\xc2\x84" => '„', "\xc2\x85" => '…', "\xc2\x86" => '†',
+		"\xc2\x87" => '‡', "\xc2\x88" => 'ˆ', "\xc2\x89" => '‰',
+		"\xc2\x8a" => 'Š', "\xc2\x8b" => '‹', "\xc2\x8c" => 'Œ',
+		"\xc2\x8e" => 'Ž', "\xc2\x91" => '‘', "\xc2\x92" => '’',
+		"\xc2\x93" => '“', "\xc2\x94" => '”', "\xc2\x95" => '•',
+		"\xc2\x96" => '–', "\xc2\x97" => '—', "\xc2\x98" => '˜',
+		"\xc2\x99" => '™', "\xc2\x9a" => 'š', "\xc2\x9b" => '›',
+		"\xc2\x9c" => 'œ', "\xc2\x9e" => 'ž', "\xc2\x9f" => 'Ÿ',
+	);
+
+	return strtr(utf8_encode($s), $map);
+}
+
+function utf8_decode_1252($s)
+{
+	static $map = array(
+		'€' => "\xc2\x80", '‚' => "\xc2\x82", 'ƒ' => "\xc2\x83",
+		'„' => "\xc2\x84", '…' => "\xc2\x85", '†' => "\xc2\x86",
+		'‡' => "\xc2\x87", 'ˆ' => "\xc2\x88", '‰' => "\xc2\x89",
+		'Š' => "\xc2\x8a", '‹' => "\xc2\x8b", 'Œ' => "\xc2\x8c",
+		'Ž' => "\xc2\x8e", '‘' => "\xc2\x91", '’' => "\xc2\x92",
+		'“' => "\xc2\x93", '”' => "\xc2\x94", '•' => "\xc2\x95",
+		'–' => "\xc2\x96", '—' => "\xc2\x97", '˜' => "\xc2\x98",
+		'™' => "\xc2\x99", 'š' => "\xc2\x9a", '›' => "\xc2\x9b",
+		'œ' => "\xc2\x9c", 'ž' => "\xc2\x9e", 'Ÿ' => "\xc2\x9f",
+	);
+
+	return utf8_decode(strtr($s, $map));
+}
+
 
 // Configure PCRE
 

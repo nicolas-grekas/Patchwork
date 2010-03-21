@@ -284,11 +284,11 @@ if ($a)
 
 // Convert ISO-8859-1 URLs to UTF-8 ones
 
-function url_enc_utf8_dec_callback($m) {return urlencode(utf8_encode(urldecode($m[0])));}
+function url_enc_utf8_dec_callback($m) {return urlencode(utf8_encode_1252(urldecode($m[0])));}
 
 if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 {
-	$a = $a !== utf8_decode($a) ? '/' : preg_replace_callback('/(?:%[89a-f][0-9a-f])+/i', 'url_enc_utf8_dec_callback', $a);
+	$a = $a !== utf8_decode_1252($a) ? '/' : preg_replace_callback('/(?:%[89a-f][0-9a-f])+/i', 'url_enc_utf8_dec_callback', $a);
 
 	patchwork_bad_request('Requested URL is not a valid urlencoded UTF-8 string.', $a);
 }
