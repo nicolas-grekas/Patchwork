@@ -31,16 +31,15 @@ parser['ptl'    ] = parser.html;
 parser['ptl/css'] = parser.css;
 parser['ptl/js' ] = parser.js;
 
-
 if (parser = parser[{$language|js}])
 {
 	CodeMirror.fromTextArea(document.getElementsByName('f_code')[0], {
-		height: '350px',
 		parserfile: parser.file,
 		stylesheet: parser.css,
 		path: {~|js} + 'codemirror/js/',
 		continuousScanning: 500,
-		autoMatchParens: true
+		autoMatchParens: true,
+		tabMode: 'shift'
 	});
 }
 
