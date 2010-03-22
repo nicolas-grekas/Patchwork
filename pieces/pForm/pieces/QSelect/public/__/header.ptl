@@ -4,7 +4,7 @@ IF !g$headerNesting
 
 	INLINE header
 
-	--><div id="__QSd1" style="position:absolute;visibility:hidden;display:none;z-index:9;top:0px"><form action="javascript:;"><div id="__QSd2" style="position:absolute"><img alt="" src="{base:'QSelect/tr.png'}" width="5" height="10" /><br /><img alt="" src="{base:'QSelect/r.png'}" width="5" height="5" id="__QSi1" /><br /><img alt="" src="{base:'QSelect/br.png'}" width="5" height="5" /></div><div id="__QSd3" style="position:absolute"><img alt="" src="{base:'QSelect/bl.png'}" width="10" height="5" /><img alt="" src="{base:'QSelect/b.png'}" width="5" height="5" id="__QSi2" /></div><select id="__QSs" size="7"><option value=""></option></select></form></div><script src="{base:'js/QSelect'}"></script ><!--
+	--><div id="__QSd1" style="position:absolute;visibility:hidden;display:none;z-index:9;top:0px"><form action="javascript:;"><div id="__QSd2" style="position:absolute"><div style="width:5px;height:10px;background:url({base:'QSelect/tr.png'})"></div><div style="width:5px;height:5px;background:url({base:'QSelect/r.png'})" id="__QSi1"></div><div style="width:5px;height:5px;background:url({base:'QSelect/br.png'})"></div></div><div id="__QSd3" style="position:absolute"><div style="width:10px;height:5px;background:url({base:'QSelect/bl.png'});float:left"></div><div style="width:5px;height:5px;background:url({base:'QSelect/b.png'});margin-left:10px" id="__QSi2"></div></div><select id="__QSs" size="7"><option value=""></option></select></form></div><script src="{base:'js/QSelect'}"></script ><!--
 
 END:IF
 
