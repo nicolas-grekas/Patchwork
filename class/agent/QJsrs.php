@@ -20,10 +20,10 @@ class extends agent
 
 	function compose($o)
 	{
-		$o->DATA = '/*<script type="text/javascript">/**/q="'
+		$o->DATA = '/*<script>/**/q="'
 			. str_replace(array('\\', '"'), array('\\\\', '\\"'), $this->getJs($this->data))
 			. '"//</script>'
-			. '<script type="text/javascript" src="' . p::__BASE__() . 'js/QJsrsHandler"></script>';
+			. '<script src="' . p::__BASE__() . 'js/QJsrsHandler"></script>';
 
 		return $o;
 	}

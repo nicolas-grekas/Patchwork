@@ -169,7 +169,7 @@ class extends patchwork
 		if (!$appendedHtml)
 		{
 			$appendedHtml = !p::$binaryMode ? 'syncCSRF()' : '(function(){var d=document,f=d.forms;f=f[f.length-1].T$.value=d.cookie.match(/(^|; )T\\$=([-_0-9a-zA-Z]+)/)[2]})()';
-			$appendedHtml = '<input type="hidden" name="T$" value="' . (empty($_COOKIE['JS']) ? self::$antiCSRFtoken : '') . '" /><script type="text/javascript">' . "<!--\n{$appendedHtml}//--></script>";
+			$appendedHtml = '<input type="hidden" name="T$" value="' . (empty($_COOKIE['JS']) ? self::$antiCSRFtoken : '') . "\" /><script>{$appendedHtml}</script>";
 		}
 
 		return $f . $appendedHtml;

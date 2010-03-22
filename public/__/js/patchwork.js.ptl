@@ -682,12 +682,12 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 		$i = !!$src;
 		$i || ($src = $masterBase + 'js/x');
 
-		$src = '<script type="text/javascript" name="w$" src="' + $src + (0<=$src.indexOf('?') ? '&amp;' : '?') + 'v$=' + $AppId + '"></script>';
+		$src = '<script name="w$" src="' + $src + (0<=$src.indexOf('?') ? '&amp;' : '?') + 'v$=' + $AppId + '"></script>';
 
 		if ($i)
 		{
 			if ($trustReferer || /(^|; )T\$=1/.test($document.cookie)) $trustReferer = 1;
-			else $src = '<script type="text/javascript" name="w$">document.cookie="R$="+eUC((""+location).replace(/#.*$/,""))+"; path=/"</script>' + $src;
+			else $src = '<script name="w$">document.cookie="R$="+eUC((""+location).replace(/#.*$/,""))+"; path=/"</script>' + $src;
 
 			$document.write($content + $src);
 		}
@@ -902,7 +902,7 @@ function loadW($window)
 
 		$window.a ? w(a[0], a[1], a[2], a[3]) : w();
 	}
-	else document.write('<script type="text/javascript" src="' + {g$__BASE__|js} + 'js/compat"></script>');
+	else document.write('<script src="' + {g$__BASE__|js} + 'js/compat"></script>');
 }
 
 function P$base($string, $noId)

@@ -110,9 +110,9 @@ class extends patchwork
 		$QDebug   = p::__BASE__() . 'js/QDebug.js';
 
 		return <<<EOHTML
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<script type="text/javascript" src="{$QDebug}"></script>
+<script src="{$QDebug}"></script>
 EOHTML;
 	}
 
@@ -121,11 +121,11 @@ EOHTML;
 		$debugWin = p::__BASE__() . '?p:=debug:stop';
 
 		return <<<EOHTML
-<script type="text/javascript">/*<![CDATA[*/E('Rendering time: ' + (new Date/1 - E.startTime) + ' ms');//]]></script>
+<script>E('Rendering time: ' + (new Date/1 - E.startTime) + ' ms');</script>
 <input type="hidden" name="debugStore" id="debugStore" value="" />
 <div style="position:fixed;_position:absolute;top:0px;right:0px;background-color:white;visibility:hidden;height:100%" id="debugFrame"><iframe src="{$debugWin}" style="width:400px;height:100%"></iframe></div>
 <div style="position:fixed;_position:absolute;top:0px;right:0px;z-index:255;font-family:arial;font-size:9px"><a href="javascript:;" onclick="var f=document.getElementById('debugFrame');if (f) f.style.visibility='hidden'==f.style.visibility?'visible':'hidden',document.getElementById('debugStore').value=f.style.visibility" style="background-color:blue;color:white;text-decoration:none;border:0px;" id="debugLink">Debug</a></div>
-<script type="text/javascript">/*<![CDATA[*/setTimeout(function(){var f=document.getElementById('debugFrame'),s=document.getElementById('debugStore');if (f&&s&&s.value)f.style.visibility=s.value},0)//]]></script>
+<script>setTimeout(function(){var f=document.getElementById('debugFrame'),s=document.getElementById('debugStore');if (f&&s&&s.value)f.style.visibility=s.value},0)</script>
 EOHTML;
 	}
 
@@ -175,8 +175,7 @@ acronym
 	color: silver;
 }
 </style>
-<script type="text/javascript">/*<![CDATA[*/
-
+<script>
 <?php
 
 if ($CONFIG['document.domain']) echo 'document.domain=', jsquote($CONFIG['document.domain']), ';';
@@ -216,7 +215,7 @@ function Z()
 {
 	scrollTo(0, window.innerHeight||(document.documentElement||document.body).scrollHeight);
 }
-//]]></script>
+</script>
 </head>
 <body><?php
 
@@ -262,7 +261,7 @@ function Z()
 							);
 
 							$a = <<<EOHTML
-<script type="text/javascript">/*<![CDATA[*/
+<script>
 focus()
 L=opener||parent;
 L=L&&L.document.getElementById('debugLink')
@@ -272,7 +271,7 @@ if(L)
 L.backgroundColor='red'
 L.fontSize='18px'
 }
-//]]></script><a href="javascript:;" style="color:red;font-weight:bold" title="{$b[0]}">{$b[1]}</a>
+</script><a href="javascript:;" style="color:red;font-weight:bold" title="{$b[0]}">{$b[1]}</a>
 {$b[2]}
 EOHTML;
 						}
@@ -285,7 +284,7 @@ EOHTML;
 					fclose($h);
 				}
 
-				echo '<script type="text/javascript">/*<![CDATA[*/Z()//]]></script>';
+				echo '<script>Z()</script>';
 				$S||flush();
 
 				@unlink($error_log);
@@ -299,7 +298,7 @@ EOHTML;
 
 			if ($S)
 			{
-				echo '<script type="text/javascript">/*<![CDATA[*/scrollTo(0,0);if(window.parent&&parent.E&&parent.E.buffer.length)document.write(parent.E.buffer.join("")),parent.E.buffer=[]//]]></script>';
+				echo '<script>scrollTo(0,0);if(window.parent&&parent.E&&parent.E.buffer.length)document.write(parent.E.buffer.join("")),parent.E.buffer=[]</script>';
 				break;
 			}
 

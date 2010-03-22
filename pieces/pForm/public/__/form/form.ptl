@@ -43,10 +43,10 @@ ELSE
 		--><input type="hidden" name="{$name}" value="{$value}" /><!--
 	END:LOOP
 
-	--><script type="text/javascript">/*<![CDATA[*/
+	--><script>
 lF=document.getElementById({a$id|js});<!--
-IF a$_enterControl_ -->FeC({a$_enterControl_});<!-- END:IF -->//]]></script ><!--
+IF a$_enterControl_ -->FeC({a$_enterControl_});<!-- END:IF --></script ><!--
 
-	IF !g$_UPLOAD && a$_upload --><!-- SET g$_UPLOAD -->1<!-- END:SET --><script type="text/javascript" src="{base:'js/upload'}"></script ><!-- END:IF
+	IF !g$_UPLOAD && a$_upload --><!-- SET g$_UPLOAD -->1<!-- END:SET --><script src="{base:'js/upload'}"></script ><!-- END:IF
 
 END:IF -->
