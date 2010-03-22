@@ -132,13 +132,13 @@ class extends Mail_mime
 		$headers =& $this->headers;
 
 		$log = <<<EOHTML
-<script type="text/javascript">/*<![CDATA[*/
+<script>
 focus()
 L=opener||parent;
 L=L&&L.document.getElementById('debugLink')
 L=L&&L.style
 if(L) L.fontSize='18px'
-//]]></script>
+</script>
 EOHTML;
 
 		p::log($log . '<strong>Constructing email</strong>');

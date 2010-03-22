@@ -43,12 +43,12 @@ class extends patchwork
 		$lang = $lang ? " xml:lang=\"{$lang}\" lang=\"{$lang}\"" : '';
 
 		echo $a =<<<EOHTML
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"{$lang}>
+<!DOCTYPE html>
+<html{$lang}>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<script type="text/javascript" name="w$">/*<![CDATA[*/a=[{$agent},[{$a}],{$appId},{$b}]//]]></script>
-<script type="text/javascript" src="{$base}js/w?{$appId}"></script>
+<script name="w$">a=[{$agent},[{$a}],{$appId},{$b}]</script>
+<script src="{$base}js/w?{$appId}"></script>
 </head>
 </html>
 EOHTML;
@@ -90,7 +90,7 @@ EOHTML;
 			p::$binaryMode = true;
 			header('Content-Type: text/html');
 
-			echo '/*<script type="text/javascript">/**/q="';
+			echo '/*<script>/**/q="';
 		}
 		else echo 'w(';
 
@@ -123,7 +123,7 @@ EOHTML;
 							p::closeMeta();
 
 							echo str_replace(array('\\', '"', '</'), array('\\\\', '\\"', '<\\/'), $data['rawdata']),
-								'"//</script><script type="text/javascript" src="' . p::__BASE__() . 'js/QJsrsHandler"></script>';
+								'"//</script><script src="' . p::__BASE__() . 'js/QJsrsHandler"></script>';
 
 							return;
 						}
@@ -207,7 +207,7 @@ EOHTML;
 			if ($liveAgent)
 			{
 				echo 'false";(window.E||alert)("You must provide an auth token to get this liveAgent:\\n' . jsquote($_SERVER['REQUEST_URI'], false, '"') . '")';
-				echo '//</script><script type="text/javascript" src="' . p::__BASE__() . 'js/QJsrsHandler"></script>';
+				echo '//</script><script src="' . p::__BASE__() . 'js/QJsrsHandler"></script>';
 			}
 			else if ($data->getMessage())
 			{
@@ -224,7 +224,7 @@ EOHTML;
 		if ($liveAgent)
 		{
 			echo str_replace(array('\\', '"', '</'), array('\\\\', '\\"', '<\\/'), $data),
-				'"//</script><script type="text/javascript" src="' . p::__BASE__() . 'js/QJsrsHandler"></script>';
+				'"//</script><script src="' . p::__BASE__() . 'js/QJsrsHandler"></script>';
 		}
 		else echo $data;
 

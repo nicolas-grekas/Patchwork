@@ -14,7 +14,7 @@
 
 IF !a$noIE7
 	SET a$footer
-		-->{a$footer}<!--[if lt IE 7]><script src="{base:'js/ie7/ie7.js'}" type="text/javascript"></script ><![endif]--><!--
+		-->{a$footer}<!--[if lt IE 7]><script src="{base:'js/ie7/ie7.js'}"></script ><![endif]--><!--
 	END:SET
 END:IF
 

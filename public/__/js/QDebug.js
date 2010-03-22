@@ -41,7 +41,7 @@ function E($v, $warn, $max_depth, $level, $expand)
 		return $str.toString(10, $level).replace(/</g, '&lt;').replace(/>/g, '&gt;');
 	}
 
-	if (0 == $level) o(($warn ? '<script type="text/javascript">focus();L=opener||parent;L=L&&L.document.getElementById(\'debugLink\');L=L&&L.style;if(L){L.backgroundColor=\'red\';L.fontSize=\'18px\'}<\/script><pre style="color:red;font-weight:bold">' : '<pre>') + $deltaTime + ' ms : ');
+	if (0 == $level) o(($warn ? '<script>focus();L=opener||parent;L=L&&L.document.getElementById(\'debugLink\');L=L&&L.style;if(L){L.backgroundColor=\'red\';L.fontSize=\'18px\'}<\/script><pre style="color:red;font-weight:bold">' : '<pre>') + $deltaTime + ' ms : ');
 
 	if (t($v, 'object') || t($v, 'array'))
 	{

@@ -20,7 +20,7 @@ This template is called automatically when a form with a file element is submitt
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>{"Envoi en cours"} ...</title>
 
-<style type="text/css">
+<style>
 
 body
 {
@@ -77,8 +77,8 @@ table
 
 <div id="remaining">{"Estimation du temps restant"} ...</div>
 
-<script type="text/javascript" src="{base:'js/liveAgent'}"></script >
-<script type="text/javascript" src="{base:'js/upload'}"></script >
+<script src="{base:'js/liveAgent'}"></script >
+<script src="{base:'js/upload'}"></script >
 
 </body>
 </html>

@@ -114,7 +114,7 @@ class patchwork_error
 
 		$cid = md5(uniqid(mt_rand()));
 		$cid = <<<EOHTML
-<script type="text/javascript">/*<![CDATA[*/
+<script>
 focus()
 L=opener||parent;
 L=L&&L.document.getElementById('debugLink')
@@ -124,7 +124,7 @@ if(L)
 L.backgroundColor='red'
 L.fontSize='18px'
 }
-//]]></script><a href="javascript:;" onclick="var a=document.getElementById('{$cid}');a.style.display=a.style.display?'':'none';" style="color:red;font-weight:bold" title="[{$date}]">{$msg}</a>
+</script><a href="javascript:;" onclick="var a=document.getElementById('{$cid}');a.style.display=a.style.display?'':'none';" style="color:red;font-weight:bold" title="[{$date}]">{$msg}</a>
 in <b>{$file}</b> line <b>{$line}</b>{$callee}:\n{$message}<blockquote id="{$cid}" style="display:none">Context: {$context}</blockquote><br><br>
 EOHTML;
 

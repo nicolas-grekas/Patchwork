@@ -65,10 +65,10 @@ SET $INPUT
 
 	IF !g$_FCKEDITOR
 		SET g$_FCKEDITOR -->1<!-- END:SET
-		--><script type="text/javascript" src="{base:'fckeditor/js'}"></script><!--
+		--><script src="{base:'fckeditor/js'}"></script><!--
 	END:IF
 
-	--><textarea {a$|htmlArgs:'type':'value'}>{a$value|replace:'{/}':g$__HOST__|replace:'{~}':g$__BASE__}</textarea><script type="text/javascript">/*<![CDATA[*/
+	--><textarea {a$|htmlArgs:'type':'value'}>{a$value|replace:'{/}':g$__HOST__|replace:'{~}':g$__BASE__}</textarea><script>
 lE=gLE({a$name|js}<!-- IF a$multiple -->,1<!-- END:IF -->)
 if(lE){
 lE.gS=function(){FCKeditorAPI.GetInstance({a$id|js}).UpdateLinkedField();if (''==this.value.replace(/(<[^>]*|[>\s]+|&(nbsp|#160);)/g,'')) this.value='';return valid(this<!-- LOOP a$_valid -->,{$VALUE|js}<!-- END:LOOP -->)}
@@ -84,7 +84,7 @@ lE.Config.DefaultLanguage={g$__LANG__|js}
 lE.Config[{$KEY|js}]=<!-- IF '[' == a$a -->{$VALUE|js}<!-- ELSE -->{$VALUE|js}<!-- END:IF -->
 <!-- END:LOOP -->
 lE.ReplaceTextarea()
-}//]]></script ><!--
+}</script ><!--
 
 	IF a$required --></span><!-- END:IF
 
