@@ -327,7 +327,7 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 /**/					else
 /**/					{
 							# From http://www.w3.org/International/questions/qa-forms-utf-8
-							preg_match_all(/*<*/"/(?:[\\x00-\x7f]|[\xc2-\xdf][\x80-\xbf]|\xe0[\xa0-\xbf][\x80-\xbf]|[\xe1-\xec\xee\xef][\x80-\xbf]{2}|\xed[\x80-\x9f][\x80-\xbf]|\xf0[\x90-\xbf][\x80-\xbf]{2}|[\xf1-\xf3][\x80-\xbf]{3}|\xf4[\x80-\x8f][\x80-\xbf]{2})+/"/*>*/, $v, $b);
+							preg_match_all(/*<*/"/(?:[\\x00-\x7f]|[\xc2-\xdf][\x80-\xbf]|\xe0[\xa0-\xbf][\x80-\xbf]|[\xe1-\xec\xee\xef][\x80-\xbf]{2}|\xed[\x80-\x9f][\x80-\xbf]|\xf0[\x90-\xbf][\x80-\xbf]{2}|[\xf1-\xf3][\x80-\xbf]{3}|\xf4[\x80-\x8f][\x80-\xbf]{2}){1,50}/"/*>*/, $v, $b);
 							$v = implode('', $b[0]);
 /**/					}
 /**/				}
