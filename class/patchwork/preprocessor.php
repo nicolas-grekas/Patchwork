@@ -145,8 +145,7 @@ class patchwork_preprocessor__0
 
 	$declaredClass = array('self' => 1, 'parent' => 1, 'this' => 1, 'static' => 1, 'p' => 1, 'patchwork' => 1),
 	$inlineClass,
-	$recursive = false,
-	$sourcePool = array();
+	$recursivePool = array();
 
 
 	static function __constructStatic()
@@ -354,19 +353,19 @@ class patchwork_preprocessor__0
 	{
 		$source = patchwork_realpath($source);
 
-		$recursive = self::$recursive;
-
-		if ($recursive && $class) $pool = array();
-		else $pool =& self::$sourcePool;
-
-		$pool[$source] = array($destination, $level, $class, $is_top);
-
-		if (!$recursive)
+		if (!self::$recursivePool || $class)
 		{
-			self::$inlineClass = self::$declaredClass;
-			self::$recursive = true;
+			self::$recursivePool || self::$inlineClass = self::$declaredClass;
+			$pool = array($source => array($destination, $level, $class, $is_top));
+			self::$recursivePool[] =& $pool;
 		}
-		else if (!$class) return;
+		else
+		{
+			$pool =& self::$recursivePool[count(self::$recursivePool)-1];
+			$pool[$source] = array($destination, $level, $class, $is_top);
+
+			return;
+		}
 
 		while (list($source, list($destination, $level, $class, $is_top)) = each($pool))
 		{
@@ -402,16 +401,12 @@ class patchwork_preprocessor__0
 			}
 		}
 
-		if (!$recursive)
-		{
-			$pool = array();
-			self::$recursive = false;
-		}
+		array_pop(self::$recursivePool);
 	}
 
 	static function isRunning()
 	{
-		return self::$recursive;
+		return count(self::$recursivePool);
 	}
 
 	protected function __construct() {}
