@@ -145,7 +145,8 @@ class patchwork_preprocessor__0
 
 	$declaredClass = array('self' => 1, 'parent' => 1, 'this' => 1, 'static' => 1, 'p' => 1, 'patchwork' => 1),
 	$inlineClass,
-	$recursive = false;
+	$recursive = false,
+	$sourcePool = array();
 
 
 	static function __constructStatic()
@@ -355,43 +356,56 @@ class patchwork_preprocessor__0
 
 		$recursive = self::$recursive;
 
+		if ($recursive && $class) $pool = array();
+		else $pool =& self::$sourcePool;
+
+		$pool[$source] = array($destination, $level, $class, $is_top);
+
 		if (!$recursive)
 		{
 			self::$inlineClass = self::$declaredClass;
 			self::$recursive = true;
 		}
+		else if (!$class) return;
 
-		$preproc = new patchwork_preprocessor;
-		$preproc->source = $source;
-		$preproc->level  = $level;
-		$preproc->class  = $class;
-		$preproc->isTop  = $is_top;
-		$preproc->marker = array(
-			'global $a' . PATCHWORK_PATH_TOKEN . ',$c' . PATCHWORK_PATH_TOKEN . ';',
-			'global $a' . PATCHWORK_PATH_TOKEN . ',$b' . PATCHWORK_PATH_TOKEN . ',$c' . PATCHWORK_PATH_TOKEN . ';'
-		);
-
-		$code = file_get_contents($source);
-		UTF8_BOM === substr($code, 0, 3) && $code = substr($code, 3);
-
-		if (!preg_match('//u', $code)) patchwork_preprocessor::error("File encoding is not valid UTF-8.", $source, 0);
-
-		$preproc->antePreprocess($code);
-		$code =& $preproc->preprocess($code);
-
-		self::$recursive = $recursive;
-
-		$tmp = PATCHWORK_PROJECT_PATH . '.~' . uniqid(mt_rand(), true);
-		if (false !== file_put_contents($tmp, $code))
+		while (list($source, list($destination, $level, $class, $is_top)) = each($pool))
 		{
-			if (IS_WINDOWS)
+			$preproc = new patchwork_preprocessor;
+			$preproc->source = $source;
+			$preproc->level  = $level;
+			$preproc->class  = $class;
+			$preproc->isTop  = $is_top;
+			$preproc->marker = array(
+				'global $a' . PATCHWORK_PATH_TOKEN . ',$c' . PATCHWORK_PATH_TOKEN . ';',
+				'global $a' . PATCHWORK_PATH_TOKEN . ',$b' . PATCHWORK_PATH_TOKEN . ',$c' . PATCHWORK_PATH_TOKEN . ';'
+			);
+
+			$code = file_get_contents($source);
+			UTF8_BOM === substr($code, 0, 3) && $code = substr($code, 3);
+
+			if (!preg_match('//u', $code)) patchwork_preprocessor::error("File encoding is not valid UTF-8.", $source, 0);
+
+			$preproc->antePreprocess($code);
+			$code =& $preproc->preprocess($code);
+
+			$tmp = PATCHWORK_PROJECT_PATH . '.~' . uniqid(mt_rand(), true);
+			if (false !== file_put_contents($tmp, $code))
 			{
-				$code = new COM('Scripting.FileSystemObject');
-				$code->GetFile($tmp)->Attributes |= 2; // Set hidden attribute
-				file_exists($destination) && @unlink($destination);
-				@rename($tmp, $destination) || unlink($tmp);
+				if (IS_WINDOWS)
+				{
+					$code = new COM('Scripting.FileSystemObject');
+					$code->GetFile($tmp)->Attributes |= 2; // Set hidden attribute
+					file_exists($destination) && @unlink($destination);
+					@rename($tmp, $destination) || unlink($tmp);
+				}
+				else rename($tmp, $destination);
 			}
-			else rename($tmp, $destination);
+		}
+
+		if (!$recursive)
+		{
+			$pool = array();
+			self::$recursive = false;
 		}
 	}
 
