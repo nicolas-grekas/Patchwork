@@ -16,7 +16,7 @@ IF 1 == g-1$headerNesting
 
 	--><script>footerHtml.length&&document.write(footerHtml.join(''))</script>{a$footer}<!--
 
-	SERVERSIDE --><script defer="defer">onDOMLoaded.go()</script><!-- END:SERVERSIDE
+	SERVERSIDE --><script>onDOMLoaded.go()</script><!-- END:SERVERSIDE
 
 	--></body></html><!--
 

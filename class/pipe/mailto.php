@@ -23,8 +23,8 @@ class
 		'' !== $attributes && $attributes = ' ' . $attributes;
 
 		$email = '<a href="mailto:'
-			. str_replace('@', '[&#97;t]', $email) . '"'
-			. ' onmouseover="this.href=this.href.replace(/\\[at\\]/, \'@\');' . ($email === $string ? 'this.innerHTML=this.href.substr(7);' : '') . 'this.onmouseover=null"'
+			. str_replace('@', '%5b&#97;t%5d', $email) . '"'
+			. ' onmouseover="this.href=this.href.replace(\'%5bat%5d\', \'@\');' . ($email === $string ? 'this.innerHTML=this.href.substr(7);' : '') . 'this.onmouseover=null"'
 			. $attributes . '>'
 			. str_replace('@', '<span style="display:none">@</span>&#64;', $string)
 			. '</a>';
