@@ -110,7 +110,6 @@ class extends patchwork
 		$QDebug   = p::__BASE__() . 'js/QDebug.js';
 
 		return <<<EOHTML
-<!DOCTYPE html>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script src="{$QDebug}"></script>
 EOHTML;

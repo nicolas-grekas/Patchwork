@@ -4,3 +4,5 @@ label{cursor:default;}
 th,td{border:0;}
 fieldset{border:1px solid #BBB;padding:.5em;}
 legend{padding:0 .5em;}
+optgroup{font-weight:bold;background:#FFF;font-style:italic;}
+option{font-weight:normal;font-style:normal;}

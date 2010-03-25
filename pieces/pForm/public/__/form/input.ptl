@@ -123,7 +123,7 @@ SET $INPUT
 
 		--><select {a$|htmlArgs:'type'}><!--
 
-		IF a$_firstItem && !a$multiple --><option value="">{a$_firstCaption}</option><!-- END:IF
+		IF a$_firstItem && !a$multiple --><option value="" class="firstItem">{a$_firstCaption}</option><!-- END:IF
 
 		LOOP a$_option
 			IF $_groupOn
