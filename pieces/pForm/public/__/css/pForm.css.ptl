@@ -2,4 +2,4 @@ textarea {overflow: auto}
 textarea.toomuch {background-color: #FFD2D2}
 .errormsg {color: red}
 .required {font-weight: bold}
-input.placeholder {color: #808080; font-style: italic;}
+input.placeholder,option.firstItem {color: #808080; font-style: italic;}
