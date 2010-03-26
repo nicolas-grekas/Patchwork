@@ -44,5 +44,5 @@
 <!-- SERVERSIDE -->
 </head>
 <!-- END:SERVERSIDE -->
-<body<!-- IF a$class --> class="{a$class}"<!-- END:IF -->>
+<body<!-- IF a$class --> class="{a$class}"<!-- END:IF -->>{a$body}
 <!-- END:IF -->
