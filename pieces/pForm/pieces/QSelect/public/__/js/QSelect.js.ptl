@@ -150,11 +150,7 @@ var $selectRange,
 
 	$select = $getById('__QSs'),
 	$options = $select.options,
-	$div  = $getById('__QSd1'),
-	$imgH = $getById('__QSi1'),
-	$imgW = $getById('__QSi2'),
-	$divH = $getById('__QSd2'),
-	$divW = $getById('__QSd3');
+	$div  = $getById('__QSd');
 
 $select.onfocus = $onfocus;
 $select.onblur = $onblur;
@@ -269,13 +265,10 @@ return function($input, $driver)
 
 			$divStyle.left = $left + 'px';
 			$divStyle.top = ($top+$height) + 'px';
-			$divStyle.width = $divH.style.left = $width + 'px';
+			$divStyle.width = $width + 'px';
 
 			$select.size = $length < 7 ? ($length > 2 ? $length : 2) : 7;
 			$select.style.width = $width + 'px';
-
-			$imgW.width = $width - 10;
-			$imgW.style.width = $width - 10 + 'px';
 
 			$form.precheck = $precheck;
 
@@ -291,10 +284,6 @@ return function($input, $driver)
 			$height = $select.offsetHeight;
 			if ($left < $height && $left < $top - $parent) $divStyle.top = ($top - $height) + 'px';
 			$divStyle.visibility = 'visible';
-
-			$imgH.height = $height - 10;
-			$imgH.style.height = $height - 10 + 'px';
-			$divW.style.top = $height + 'px';
 		}
 		else $this.$hide();
 	}
