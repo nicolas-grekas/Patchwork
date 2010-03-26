@@ -1,0 +1,24 @@
+<!--
+
+SET a$head
+-->{a$head}
+<!--[if lte IE 8 & gt IE 6]>
+<style>
+.QSie-shadow {
+	display: block;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background: #000;
+	filter:progid:DXImageTransform.Microsoft.Blur(PixelRadius=4,MakeShadow=true,ShadowOpacity=.30);
+}
+</style>
+<![endif]-->
+<!--
+END:SET
+
+SET a$body
+--><div id="__QSd" style="position:absolute;visibility:hidden;display:none;z-index:9;top:0"><div class="QSie-shadow"></div><form action="javascript:;"><div class="QSshadow"><select id="__QSs" size="7"><option value=""></option></select></div></form></div><script src="{base:'js/QSelect'}"></script >{a$body}<!--
+END:SET
+
+-->
