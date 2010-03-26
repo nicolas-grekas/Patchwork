@@ -2,9 +2,25 @@
 
 IF !g$headerNesting
 
+	SET a$head
+	-->{a$head}
+<!--[if lte IE 8 & gt IE 6]>
+<style>
+.QSie-shadow {
+	display: block;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background: #000;
+	filter:progid:DXImageTransform.Microsoft.Blur(PixelRadius=4,MakeShadow=true,ShadowOpacity=.30);
+}
+</style>
+<![endif]-->
+	<!--
+	END:SET
 	INLINE header
 
-	--><div id="__QSd1" style="position:absolute;visibility:hidden;display:none;z-index:9;top:0px"><form action="javascript:;"><div id="__QSd2" style="position:absolute"><div style="width:5px;height:10px;background:url({base:'QSelect/tr.png'})"></div><div style="width:5px;height:5px;background:url({base:'QSelect/r.png'})" id="__QSi1"></div><div style="width:5px;height:5px;background:url({base:'QSelect/br.png'})"></div></div><div id="__QSd3" style="position:absolute"><div style="width:10px;height:5px;background:url({base:'QSelect/bl.png'});float:left"></div><div style="width:5px;height:5px;background:url({base:'QSelect/b.png'});margin-left:10px" id="__QSi2"></div></div><select id="__QSs" size="7"><option value=""></option></select></form></div><script src="{base:'js/QSelect'}"></script ><!--
+	--><div id="__QSd" style="position:absolute;visibility:hidden;display:none;z-index:9;top:0"><div class="QSie-shadow"></div><form action="javascript:;"><div class="QSshadow"><select id="__QSs" size="7"><option value=""></option></select></div></form></div><script src="{base:'js/QSelect'}"></script ><!--
 
 END:IF
 

@@ -19,3 +19,23 @@
 	margin-left: -13px;
 	_top:-1px;
 }
+
+#__QSs
+{
+	position: relative;
+	top: 1px;
+	margin: 0;
+}
+
+div.QSshadow
+{
+	position: relative;
+	top: -1px;
+	-moz-box-shadow: 3px 3px 7px #aaa;
+	-webkit-box-shadow: 3px 3px 7px #aaa;
+	box-shadow: 3px 3px 7px #aaa;
+}
+
+.QSie-shadow {
+	display: none;
+}
