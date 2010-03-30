@@ -35,9 +35,6 @@ if (!isset($_SERVER['HTTP_HOST']) || strspn($_SERVER['HTTP_HOST'], 'eiasntroludc
 	die('Invalid HTTP/1.1 Host header');
 }
 
-/**/if (!isset($_SERVER['REQUEST_TIME']))
-		$_SERVER['REQUEST_TIME'] = time();
-
 
 // Fix some $_SERVER variables under Windows
 
