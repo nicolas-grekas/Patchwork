@@ -48,29 +48,12 @@ if (empty($_SERVER['SERVER_PORT']))
 		? (string)(int) substr($h, 1)
 		: (isset($_SERVER['HTTPS']) ? '443' : '80');
 }
-	
+
 empty($_SERVER['SERVER_ADDR' ]) && $_SERVER['SERVER_ADDR' ] = '127.0.0.1';
 empty($_SERVER['REMOTE_ADDR' ]) && $_SERVER['REMOTE_ADDR' ] = '127.0.0.1';
 empty($_SERVER['REQUEST_TIME']) && $_SERVER['REQUEST_TIME'] = time();
 
 function apache_setenv() {}
-
-if (!file_exists(PATCHWORK_BOOTPATH . '/.patchwork.php'))
-{
-	$url = $_SERVER['SERVER_ADDR'];
-	false !== strpos($url, ':') && $url = '[' . $url . ']';
-	$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
-	$h = fsockopen("{$h}://{$url}", $_SERVER['SERVER_PORT'], $errno, $errstr, 30);
-	if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
-
-	$url  = "GET {$_SERVER['REQUEST_URI']} HTTP/1.0\r\n";
-	$url .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
-	$url .= "Connection: close\r\n\r\n";
-
-	fwrite($h, $url);
-	fgets($h, 14);
-	fclose($h);
-}
 
 define('TURBO', false);
 

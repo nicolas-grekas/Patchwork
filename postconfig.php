@@ -297,11 +297,7 @@ if (false !== strpos($a, '/.'))
 /**/default:
 /**/	// Check if the webserver supports PATH_INFO
 /**/
-/**/	$a = $_SERVER['SERVER_ADDR'];
-/**/	false !== strpos($a, ':') && $a = '[' . $a . ']';
-/**/	$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
-/**/	$h = fsockopen("{$h}://{$a}", $_SERVER['SERVER_PORT'], $errno, $errstr, 30);
-/**/	if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
+/**/	$h = patchwork_http_socket($_SERVER['SERVER_ADDR'], $_SERVER['SERVER_PORT'], isset($_SERVER['HTTPS']));
 /**/
 /**/	$a = strpos($_SERVER['REQUEST_URI'], '?');
 /**/	$a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
@@ -412,7 +408,7 @@ $a = preg_replace("'/[./]*/'", '/', '/' . $a);
 
 /**/if ($a && IS_WINDOWS)
 /**/{
-		// Workaround for http://bugs.php.net/bug.php?id=44001
+		// Workaround for http://bugs.php.net/44001
 
 		if ('/' !== $r && false !== strpos($a, './') && false === strpos($r, './'))
 		{

@@ -21,49 +21,30 @@ class
 	{
 		$url = p::base($url, true);
 
-		if (!preg_match("'^(https?)://(.*?)((?::[0-9]+)?)(/.*)$'", $url, $h)) throw new Exception('Illegal URL');
+		if (!preg_match("'^http(s?)://(.*?)((?::[0-9]+)?)(/.*)$'", $url, $h)) throw new Exception('Illegal URL');
 
-		$url = $h[4];
+		$url  = "GET {$h[4]} HTTP/1.0\r\n";
+		$url .= "Host: {$h[2]}\r\n";
+		$url .= "Connection: close\r\n\r\n";
 
-		if ('https' == $h[1])
+		try
 		{
-			$port = '443';
-			$req = 'ssl://';
-		}
-		else
-		{
-			$port = '80';
-			$req = 'tcp://';
-		}
+			$h = patchwork_http_socket($h[2], substr($h[3], 1), $h[1], 5);
 
-		$host = $h[2];
-		$req .= gethostbyname($host);
-
-		if ($h = $h[3])
-		{
-			if (substr($h, 1) != $port) $host .= $h;
-			$port = substr($h, 1);
-		}
-
-		$h = fsockopen($req, $port, $errno, $errstr, 5);
-
-		if (!$h) W("Socket error n°{$errno}: {$errstr}");
-		else
-		{
 			socket_set_blocking($h, 0);
-
-			$req  = "GET {$url} HTTP/1.0\r\n";
-			$req .= "Host: {$host}\r\n";
-			$req .= "Connection: close\r\n\r\n";
 
 			do
 			{
-				$len = fwrite($h, $req);
-				$req = substr($req, $len);
+				$len = fwrite($h, $url);
+				$url = substr($url, $len);
 			}
-			while (false !== $len && false !== $req);
+			while (false !== $len && false !== $url);
 
 			fclose($h);
+		}
+		catch ($h)
+		{
+			W($h);
 		}
 	}
 }
