@@ -42,7 +42,7 @@ class
 
 			fclose($h);
 		}
-		catch ($h)
+		catch (Exception $h)
 		{
 			W($h);
 		}
