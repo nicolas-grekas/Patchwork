@@ -33,11 +33,7 @@ class extends patchwork
 		$agent = p::base($agent, true);
 		$agent = preg_replace("'^.*?://[^/]*'", '', $agent);
 
-		$keys = $_SERVER['SERVER_ADDR'];
-		false !== strpos($keys, ':') && $keys = '[' . $keys . ']';
-		$h = isset($_SERVER['HTTPS']) ? 'ssl' : 'tcp';
-		$h = fsockopen("{$h}://{$keys}", $_SERVER['SERVER_PORT'], $errno, $errstr, 30);
-		if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
+		$h = patchwork_http_socket($_SERVER['SERVER_ADDR'], $_SERVER['SERVER_PORT'], isset($_SERVER['HTTPS']));
 
 		$keys  = p::$lang;
 		$keys  = "GET {$agent}?p:=k:{$keys} HTTP/1.0\r\n";
