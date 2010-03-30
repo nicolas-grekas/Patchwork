@@ -800,7 +800,8 @@ class
 			{
 				$b = $a;
 
-				$a = array_unique( array_merge($a, $group) );
+				$a = array_merge($a, $group);
+				$a = array_keys(array_flip($a));
 				sort($a);
 
 				if ($b != $a && !self::$isGroupStage)
@@ -1274,7 +1275,10 @@ class
 
 		if (!$file && !$exclusive) return;
 
-		foreach (array_unique((array) $message) as $message)
+		// This way because of http://bugs.php.net/47370
+		$message = array_keys(array_flip((array) $message));
+
+		foreach ($message as $message)
 		{
 			if ($file && self::$catchMeta) self::$metaInfo[3][] = $message;
 

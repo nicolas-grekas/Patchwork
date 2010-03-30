@@ -184,7 +184,7 @@ class extends pTask
 			else W("Invalid crontab item: " . $i);
 		}
 
-		$list = array_unique($list);
+		$list = array_keys(array_flip($list));
 		sort($list);
 
 		return $list;
