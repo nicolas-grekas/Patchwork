@@ -462,6 +462,7 @@ function patchwork_http_socket($host, $port, $ssl, $timeout = 30)
 	}
 	else
 	{
+		strspn(substr($host, -1), '0123456789') || $host .= '.';
 		$h = fsockopen("{$ssl}://{$host}", $port, $errno, $errstr, $timeout);
 	}
 
