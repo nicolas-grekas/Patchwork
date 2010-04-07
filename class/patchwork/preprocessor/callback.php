@@ -41,10 +41,6 @@ class extends patchwork_preprocessor_marker
 		'stream_context_set_params' => 0, // callback may be in second arg
 		'stream_filter_register'    => 0,
 		'stream_wrapper_register'   => 0,
-		'xslt_set_sax_handler'      => 0, // callbacks in second arg
-		'xslt_set_sax_handlers'     => 0, // callbacks in second arg
-		'xslt_set_scheme_handler'   => 0, // callbacks in second arg
-		'xslt_set_scheme_handlers'  => 0, // callbacks in second arg
 
 		// Callback in the first parameter
 		'array_map'                    => 1,
