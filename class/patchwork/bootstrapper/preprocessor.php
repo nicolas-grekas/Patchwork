@@ -199,6 +199,30 @@ class patchwork_bootstrapper_preprocessor__0
 		return $code;
 	}
 
+	function aliasFunction($function, $alias, $args, $return_ref = false)
+	{
+		$function = "patchwork_{$function}";
+
+		if ($function === $alias || function_exists($function)) return;
+
+		$args = array($args, array(), array());
+
+		foreach ($args[0] as $k => $v)
+		{
+			$args[1][] = is_string($k) ? "\${$k}=" . self::export($v) : "\${$v}";
+			$args[2][] = is_string($k) ? "\${$k}" : "\${$v}";
+		}
+
+		$args[1] = implode(',', $args[1]);
+		$args[2] = implode(',', $args[2]);
+
+		end(self::$code);
+
+		self::$code[key(self::$code)] .= $return_ref
+			? "function &{$function}({$args[1]}) {\${''}=&{$alias}({$args[2]});return \${''}}"
+			: "function  {$function}({$args[1]}) {return {$alias}({$args[2]});}";
+	}
+
 	static function export($a, $lf = 0)
 	{
 		if (is_array($a))

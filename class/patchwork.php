@@ -644,7 +644,7 @@ class
 		}
 	}
 
-	static function setcookie($name, $value = '', $expires = null, $path = '', $domain = '', $secure = false, $httponly = false)
+	static function setcookie($name, $value = '', $expires = 0, $path = '', $domain = '', $secure = false, $httponly = false)
 	{
 		self::setrawcookie($name, urlencode($value), $expires, $path, $domain, $secure, $httponly);
 	}

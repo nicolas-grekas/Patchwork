@@ -53,15 +53,8 @@ class patchwork_preprocessor__0
 	),
 
 	$functionAlias = array(
-		'ob_start'   => 'ob::start',
-		'rand'       => 'mt_rand',
-		'srand'      => 'mt_srand',
-		'getrandmax' => 'mt_getrandmax',
-
-		'w'            => 'trigger_error',
-		'header'       => 'patchwork::header',
-		'setcookie'    => 'patchwork::setcookie',
-		'setrawcookie' => 'patchwork::setrawcookie',
+		'w' => 'trigger_error',
+		'mb_encode_mimeheader' => 'E(\'mb_encode_mimeheader() is bugged. Please use iconv_mime_encode() instead.\',',
 	),
 
 	$variableType = array(
@@ -164,136 +157,12 @@ class patchwork_preprocessor__0
 			self::$functionAlias[substr($v, 0, 10)] = $v;
 		}
 
-		class_exists('patchwork', false) && self::$functionAlias += array(
-			'header'       => 'patchwork::header',
-			'setcookie'    => 'patchwork::setcookie',
-			'setrawcookie' => 'patchwork::setrawcookie',
-		);
-
 		foreach (get_declared_classes() as $v)
 		{
 			$v = strtolower($v);
 			if (false !== strpos($v, 'patchwork')) continue;
 			if ('p' === $v) break;
 			self::$declaredClass[$v] = 1;
-		}
-
-		if (!extension_loaded('intl'))
-		{
-			self::$functionAlias += array(
-				'normalizer_is_normalized' => 'Normalizer::isNormalized',
-				'normalizer_normalize'     => 'Normalizer::normalize',
-
-				'grapheme_stripos'  => 'u::stripos',
-				'grapheme_stristr'  => 'u::stristr',
-				'grapheme_strlen'   => 'u::strlen',
-				'grapheme_strpos'   => 'u::strpos',
-				'grapheme_strripos' => 'u::strripos',
-				'grapheme_strrpos'  => 'u::strrpos',
-				'grapheme_strstr'   => 'u::strstr',
-				'grapheme_substr'   => 'u::substr',
-			);
-		}
-
-		self::$functionAlias += array('mb_encode_mimeheader' => 'E(\'mb_encode_mimeheader() is bugged. Please use iconv_mime_encode() instead.\',');
-
-		if (!function_exists('mb_stripos'))
-		{
-			self::$functionAlias += array(
-				'mb_stripos'  => 'utf8_mbstring_520::stripos',
-				'mb_stristr'  => 'utf8_mbstring_520::stristr',
-				'mb_strrchr'  => 'utf8_mbstring_520::strrchr',
-				'mb_strrichr' => 'utf8_mbstring_520::strrichr',
-				'mb_strripos' => 'utf8_mbstring_520::strripos',
-				'mb_strrpos'  => 'utf8_mbstring_520::strrpos',
-				'mb_strstr'   => 'utf8_mbstring_520::strstr',
-				'mb_strrpos_500' => 'mb_strrpos',
-			);
-
-			if (!extension_loaded('mbstring'))
-			{
-				self::$constant += array(
-					'MB_OVERLOAD_MAIL'   => 1,
-					'MB_OVERLOAD_STRING' => 2,
-					'MB_OVERLOAD_REGEX'  => 4,
-					'MB_CASE_UPPER' => 0,
-					'MB_CASE_LOWER' => 1,
-					'MB_CASE_TITLE' => 2
-				);
-
-				self::$functionAlias += array(
-					'mb_convert_encoding'     => 'utf8_mbstring_500::convert_encoding',
-					'mb_decode_mimeheader'    => 'utf8_iconv::mime_decode',
-					'mb_convert_case'         => 'utf8_mbstring_500::convert_case',
-					'mb_internal_encoding'    => 'utf8_mbstring_500::internal_encoding',
-					'mb_list_encodings'       => 'utf8_mbstring_500::list_encodings',
-					'mb_parse_str'            => 'parse_str',
-					'mb_strlen'               => extension_loaded('xml') ? 'utf8_mbstring_500::strlen' : 'utf8_mbstring_500::strlen2',
-					'mb_strpos'               => 'utf8_mbstring_500::strpos',
-					'mb_strrpos_500'          => 'utf8_mbstring_500::mb_strrpos',
-					'mb_strtolower'           => 'utf8_mbstring_500::strtolower',
-					'mb_strtoupper'           => 'utf8_mbstring_500::strtoupper',
-					'mb_substitute_character' => 'utf8_mbstring_500::substitute_character',
-					'mb_substr_count'         => 'substr_count',
-					'mb_substr'               => 'utf8_mbstring_500::substr',
-				);
-			}
-		}
-		else if (3 & (int) @ini_get('mbstring.func_overload'))
-		{
-			if (1  & (int) @ini_get('mbstring.func_overload'))
-			{
-				self::$functionAlias['mail'] = 'utf8_mbstring_noOverload::mail';
-			}
-
-			if (2 & (int) @ini_get('mbstring.func_overload'))
-			{
-				self::$functionAlias['strlen']  = 'utf8_mbstring_noOverload::strlen';
-				self::$functionAlias['strpos']  = 'utf8_mbstring_noOverload::strpos';
-				self::$functionAlias['strrpos'] = 'utf8_mbstring_noOverload::strrpos';
-				self::$functionAlias['substr']  = 'utf8_mbstring_noOverload::substr';
-			}
-		}
-
-		if (!extension_loaded('iconv'))
-		{
-			self::$constant += array(
-				'ICONV_IMPL' => '"patchworkiconv"',
-				'ICONV_VERSION' => '1.0',
-				'ICONV_MIME_DECODE_STRICT' => 1,
-				'ICONV_MIME_DECODE_CONTINUE_ON_ERROR' => 2,
-			);
-
-			self::$functionAlias += array(
-				'iconv' => 'utf8_iconv::iconv',
-				'iconv_get_encoding' => 'utf8_iconv::get_encoding',
-				'iconv_set_encoding' => 'utf8_iconv::set_encoding',
-				'iconv_mime_decode'  => 'utf8_iconv::mime_decode',
-				'iconv_mime_encode'  => 'utf8_iconv::mime_encode',
-				'ob_iconv_handler'   => 'utf8_iconv::ob_handler',
-				'iconv_mime_decode_headers' => 'utf8_iconv::mime_decode_headers',
-			);
-
-			if (extension_loaded('mbstring'))
-			{
-				self::$functionAlias += array(
-					'iconv_strlen'  => 'mb_strlen',
-					'iconv_strpos'  => 'mb_strpos',
-					'iconv_strrpos' => 'mb_strrpos',
-					'iconv_substr'  => 'mb_substr',
-				);
-
-				self::$functionAlias['iconv_mime_decode'] = 'mb_decode_mimeheader';
-			}
-			else
-			{
-				self::$functionAlias += array(
-					'iconv_strlen'  => 'utf8_mbstring_500::strlen',
-					'iconv_strpos'  => 'utf8_mbstring_500::strpos',
-					'iconv_strrpos' => 'utf8_mbstring_500::strrpos',
-					'iconv_substr'  => 'utf8_mbstring_500::substr',
-				);
-			}
 		}
 
 		$v = get_defined_constants(true);
