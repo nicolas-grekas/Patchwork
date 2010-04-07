@@ -75,6 +75,14 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 /**/	patchwork_bootstrapper::alias('stream_context_set_params', 'patchwork_alias_stream::context_set_params', array('$context', '$params'));
 /**/}
 
+/**/if (function_exists('ibase_set_event_handler'))
+/**/{
+/**/	patchwork_bootstrapper::alias(
+/**/		'ibase_set_event_handler', 'patchwork_alias_ibase::set_event_handler',
+/**/		array('$h', '$e1', '$e2'=>INF,'$e3'=>INF,'$e4'=>INF,'$e5'=>INF,'$e6'=>INF,'$e7'=>INF,'$e8'=>INF,'$e9'=>INF,'$ea'=>INF,'$eb'=>INF,'$ec'=>INF,'$ed'=>INF,'$ee'=>INF,'$ef'=>INF)
+/**/	);
+/**/}
+
 
 // mbstring configuration
 
