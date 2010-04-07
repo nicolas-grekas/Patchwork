@@ -628,7 +628,7 @@ class patchwork_preprocessor__0
 
 							if (2 === count($j))
 							{
-								$code[$i--] = array(T_WHITESPACE, $c);
+								'' !== $c && $code[$i--] = array(T_WHITESPACE, $c);
 								$code[$i--] = array(T_STRING, $j[1]);
 								$code[$i--] = array(T_DOUBLE_COLON, '::');
 								$code[$i--] = array(T_STRING, $j[0]);
