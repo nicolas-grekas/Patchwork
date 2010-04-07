@@ -281,9 +281,9 @@ patchwork::start();";
 		return $this->getUpdatedb()->buildPathCache($paths, $last, $this->cwd, $zcache);
 	}
 
-	function aliasFunction($function, $alias, $args, $return_ref = false)
+	function alias($function, $alias, $args, $return_ref = false)
 	{
-		$this->preprocessor->aliasFunction($function, $alias, $args, $return_ref);
+		$this->preprocessor->alias($function, $alias, $args, $return_ref);
 	}
 
 
