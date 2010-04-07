@@ -53,7 +53,7 @@ class patchwork_bootstrapper_preprocessor__0
 		$mode1_transition = false;
 
 		$line = 1;
-		$bracket = 0;
+		$bracket = array();
 
 		$new_code = array();
 		$transition = array();
@@ -76,20 +76,33 @@ class patchwork_bootstrapper_preprocessor__0
 
 			switch ($type)
 			{
+			case T_CURLY_OPEN:
+			case T_DOLLAR_OPEN_CURLY_BRACES:
+			case '{': $bracket[] = '}'; break;
+			case '[': $bracket[] = ']'; break;
+			case '(': $bracket[] = ')'; break;
+
+			case ')': case ']': case '}':
+				if (array_pop($bracket) !== $token)
+				{
+					die("Parse error: syntax error, unexpected '{$token}' in {$this->file} on line {$line}");
+				}
+				break;
+			}
+
+			switch ($type)
+			{
 			case '@':
 				if ($scream)
 				{
 					$code[$i--] = array(T_WHITESPACE, ' ');
-					continue;
+					continue 2;
 				}
-				else break;
+				break;
 
 			case T_OPEN_TAG:
 				$token = '<?php ' . str_repeat("\n", substr_count($token, "\n"));
 				break;
-
-			case '(': ++$bracket; break;
-			case ')': --$bracket; break;
 
 			case T_DOC_COMMENT:
 			case T_COMMENT:
@@ -112,7 +125,8 @@ class patchwork_bootstrapper_preprocessor__0
 
 			case T_CLOSE_TAG:
 			case ';':
-				if (1 < $mode && !$bracket && !$first_isolation) $first_isolation = 1;
+				// This can be broken with specially special multi-line for(;;) statements...
+				if (1 < $mode && !$first_isolation) $first_isolation = 1;
 				break;
 
 			default:
@@ -199,18 +213,16 @@ class patchwork_bootstrapper_preprocessor__0
 		return $code;
 	}
 
-	function aliasFunction($function, $alias, $args, $return_ref = false)
+	function alias($function, $alias, $args, $return_ref = false)
 	{
-		$function = "patchwork_{$function}";
-
-		if ($function === $alias || function_exists($function)) return;
+		$function = function_exists($function) ? "__patchwork_{$function}" : $function;
 
 		$args = array($args, array(), array());
 
 		foreach ($args[0] as $k => $v)
 		{
-			$args[1][] = is_string($k) ? "\${$k}=" . self::export($v) : "\${$v}";
-			$args[2][] = is_string($k) ? "\${$k}" : "\${$v}";
+			$args[1][] = is_string($k) ? $k . '=' . self::export($v) : $v;
+			$args[2][] = is_string($k) ? $k : $v;
 		}
 
 		$args[1] = implode(',', $args[1]);
