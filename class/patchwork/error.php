@@ -98,7 +98,7 @@ class patchwork_error
 		switch ($code)
 		{
 		case E_ERROR:             $msg = '<b>Fatal Error</b>';             break;
-		case E_USER_ERROR:        $msg = '<b>Fatal User Error</b>';        break;
+		case E_USER_ERROR:        $msg = '<b>User Error</b>';        break;
 		case E_RECOVERABLE_ERROR: $msg = '<b>Fatal Recoverable Error</b>'; break;
 
 		case E_WARNING:      $msg = '<b>Warning</b>';       break;
@@ -136,7 +136,6 @@ EOHTML;
 		switch ($code)
 		{
 		case E_ERROR:
-		case E_USER_ERROR:
 		case E_RECOVERABLE_ERROR:
 			exit;
 		}
