@@ -221,8 +221,18 @@ class patchwork_bootstrapper_preprocessor__0
 
 		foreach ($args[0] as $k => $v)
 		{
-			$args[1][] = is_string($k) ? $k . '=' . self::export($v) : $v;
-			$args[2][] = is_string($k) ? $k : $v;
+			if (is_string($k))
+			{
+				$k = trim(strtr($k, "\n\r", '  '));
+				$args[1][] = $k . '=' . self::export($v);
+			}
+			else
+			{
+				$k = trim(strtr($v, "\n\r", '  '));
+				$args[1][] = $k;
+			}
+
+			$args[2][] = '&' === substr($k, 0, 1) ? substr($k, 1) : $k;
 		}
 
 		$args[1] = implode(',', $args[1]);
