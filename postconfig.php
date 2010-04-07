@@ -43,13 +43,13 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 /**/{
 		if (/*<*/version_compare(PHP_VERSION, '5.2', '<')/*>*/ || DEBUG)
 		{
-/**/		patchwork_bootstrapper::alias('file_exists',      'patchwork_file_exists',      array('$file'));
-/**/		patchwork_bootstrapper::alias('is_is_file',       'patchwork_is_is_file',       array('$file'));
-/**/		patchwork_bootstrapper::alias('is_is_dir',        'patchwork_is_is_dir',        array('$file'));
-/**/		patchwork_bootstrapper::alias('is_is_link',       'patchwork_is_is_link',       array('$file'));
-/**/		patchwork_bootstrapper::alias('is_is_executable', 'patchwork_is_is_executable', array('$file'));
-/**/		patchwork_bootstrapper::alias('is_is_readable',   'patchwork_is_is_readable',   array('$file'));
-/**/		patchwork_bootstrapper::alias('is_is_writable',   'patchwork_is_is_writable',   array('$file'));
+/**/		patchwork_bootstrapper::alias('file_exists',   'patchwork_file_exists',   array('$file'));
+/**/		patchwork_bootstrapper::alias('is_file',       'patchwork_is_file',       array('$file'));
+/**/		patchwork_bootstrapper::alias('is_dir',        'patchwork_is_dir',        array('$file'));
+/**/		patchwork_bootstrapper::alias('is_link',       'patchwork_is_link',       array('$file'));
+/**/		patchwork_bootstrapper::alias('is_executable', 'patchwork_is_executable', array('$file'));
+/**/		patchwork_bootstrapper::alias('is_readable',   'patchwork_is_readable',   array('$file'));
+/**/		patchwork_bootstrapper::alias('is_writable',   'patchwork_is_writable',   array('$file'));
 
 			if (DEBUG)
 			{
@@ -112,7 +112,8 @@ function patchwork_class2cache($class, $level)
 // __autoload(): the magic part
 
 /**/@copy(patchwork_bootstrapper::$pwd . 'autoloader.php', patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')
-/**/	|| @unlink(patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php') + copy(patchwork_bootstrapper::$pwd . 'autoloader.php', patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php');
+/**/	|| @unlink(patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')
+/**/		+ copy(patchwork_bootstrapper::$pwd . 'autoloader.php', patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php');
 /**/
 /**/if (IS_WINDOWS)
 /**/{
