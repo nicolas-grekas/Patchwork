@@ -61,35 +61,27 @@ class patchwork_preprocessor__0
 
 	// List of native functions that could trigger __autoload()
 	$callback = array(
-		// Unknown or multiple callback parameter position
-		'array_diff_ukey'         => 0,
-		'array_diff_uasso'        => 0,
-		'array_intersect_ukey'    => 0,
-		'array_udiff_assoc'       => 0,
-		'array_udiff_uassoc'      => 0,
-		'array_udiff'             => 0,
-		'array_uintersect_assoc'  => 0,
-		'array_uintersect_uassoc' => 0,
-		'array_uintersect'        => 0,
-		'assert'                  => 0,
-		'constant'                => 0,
-		'curl_setopt'             => 0,
-		'create_function'         => 0,
-		'preg_replace'            => 0,
-		'sqlite_create_aggregate' => 0,
-		'unserialize'             => 0,
+		// No callback parameter involved or complex behaviour
+		'__autoload'        => 0,
+		'class_exists'      => 0,
+		'constant'          => 0,
+		'get_class_methods' => 0,
+		'get_class_vars'    => 0,
+		'get_parent_class'  => 0,
+		'interface_exists'  => 0,
+		'method_exists'     => 0,
+		'preg_replace'      => 0,
+		'property_exists'   => 0,
+		'unserialize'       => 0,
+		'assert_options'    => 0, // callback as second arg, but only if first arg is ASSERT_CALLBACK
+		'curl_setopt'       => 0, // callback as third arg, but only if second arg is CURLOPT_*FUNCTION
+		'curl_setopt_array' => 0, // same as multiple curl_setopt
+		'filter_var'        => 0, // callback in third arg, but only if second arg is FILTER_CALLBACK
+		'filter_var_array'  => 0, // same as multiple filter_var
+		'sqlite_create_function'  => 0, // don't introduce any difference with SQLiteDatabase->createFunction
+		'sqlite_create_aggregate' => 0, // don't introduce any difference with SQLiteDatabase->createAggregate
 
-		// Classname as string in the first parameter
-		'__autoload'        => -1,
-		'class_exists'      => -1,
-		'get_class_methods' => -1,
-		'get_class_vars'    => -1,
-		'get_parent_class'  => -1,
-		'interface_exists'  => -1,
-		'method_exists'     => -1,
-		'property_exists'   => -1,
-
-		// Classname as callback in the first parameter
+		// Callback in the first parameter
 		'array_map'                  => 1,
 		'call_user_func'             => 1,
 		'call_user_func_array'       => 1,
@@ -102,12 +94,11 @@ class patchwork_preprocessor__0
 		'set_error_handler'          => 1,
 		'sybase_set_message_handler' => 1,
 
-		// Classname as callback in the second parameter
+		// Callback in the second parameter
 		'array_filter'                           => 2,
 		'array_reduce'                           => 2,
 		'array_walk'                             => 2,
 		'array_walk_recursive'                   => 2,
-		'assert_options'                         => 2,
 		'pcntl_signal'                           => 2,
 		'preg_replace_callback'                  => 2,
 		'runkit_sandbox_output_handler'          => 2,
@@ -124,9 +115,18 @@ class patchwork_preprocessor__0
 		'xml_set_external_entity_ref_handler'    => 2,
 		'xml_set_unparsed_entity_decl_handler'   => 2,
 
-		// Classname as callback in the third parameter
-		'filter_var'             => 3,
-		'sqlite_create_function' => 3,
+		// Callback in the last parameter
+		'array_diff_ukey'         => -1,
+		'array_diff_uassoc'       => -1,
+		'array_intersect_ukey'    => -1,
+		'array_udiff_assoc'       => -1,
+		'array_udiff'             => -1,
+		'array_uintersect_assoc'  => -1,
+		'array_uintersect'        => -1,
+
+		// Callback in the two last parameter
+		'array_udiff_uassoc'      => -2,
+		'array_uintersect_uassoc' => -2,
 	);
 
 
@@ -643,7 +643,7 @@ class patchwork_preprocessor__0
 					$new_code[$j] = "(({$c})?" . $new_code[$j];
 				}
 
-				new patchwork_preprocessor_marker($this, true);
+				new patchwork_preprocessor_marker($this);
 
 				break;
 
@@ -708,7 +708,7 @@ class patchwork_preprocessor__0
 					{
 					case 'patchworkpath':
 						// Append its fourth arg to patchworkPath
-						if (0<=$level) new patchwork_preprocessor_path($this, true);
+						if (0<=$level) new patchwork_preprocessor_path($this);
 						break;
 
 					case 't':
@@ -719,7 +719,7 @@ class patchwork_preprocessor__0
 
 							if ('' === $j)
 							{
-								new patchwork_preprocessor_t($this, true);
+								new patchwork_preprocessor_t($this);
 							}
 							else if ($_SERVER['PATCHWORK_LANG'])
 							{
@@ -733,7 +733,7 @@ class patchwork_preprocessor__0
 						if (!isset(self::$callback[$type])) break;
 
 						$token = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$token}";
-						$b = new patchwork_preprocessor_marker($this, true);
+						$b = new patchwork_preprocessor_marker($this);
 						$b->curly = -1;
 						$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 
@@ -746,7 +746,7 @@ class patchwork_preprocessor__0
 						}
 
 						// For files in the include_path, always set the 2nd arg of class|interface_exists() to true
-						if (0>$level && in_array($type, array('interface_exists', 'class_exists'))) new patchwork_preprocessor_classExists($this, true);
+						if (0>$level && in_array($type, array('interface_exists', 'class_exists'))) new patchwork_preprocessor_classExists($this);
 					}
 				}
 				else switch ($type)
@@ -775,7 +775,7 @@ class patchwork_preprocessor__0
 				if ('(' === $code[$i--])
 				{
 					$token = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$token}";
-					$b = new patchwork_preprocessor_marker($this, true);
+					$b = new patchwork_preprocessor_marker($this);
 					$b->curly = -1;
 					$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 				}
@@ -812,13 +812,13 @@ class patchwork_preprocessor__0
 						else
 						{
 							$token .= 'patchworkProcessedPath(';
-							new patchwork_preprocessor_require($this, true);
+							new patchwork_preprocessor_require($this);
 						}
 					}
 					else
 					{
 						$token .= "((\$a{$T}=\$b{$T}=\$e{$T})||1?";
-						$b = new patchwork_preprocessor_require($this, true);
+						$b = new patchwork_preprocessor_require($this);
 						$b->close = ':0)';
 						$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 					}

@@ -23,10 +23,10 @@ class
 	$bracket;
 
 
-	function __construct($preproc, $autoSetup = false)
+	function __construct($preproc)
 	{
 		$this->preproc = $preproc;
-		$autoSetup && $this->setupFilter();
+		$this->setupFilter();
 	}
 
 	function setupFilter()
