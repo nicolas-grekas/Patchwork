@@ -400,7 +400,7 @@ class ob
 
 // utf8_encode/decode support enhanced to Windows-1252
 
-function utf8_encode_1252($s)
+function patchwork_utf8_encode($s)
 {
 	static $map = array(
 		"\xc2\x80" => '€', "\xc2\x82" => '‚', "\xc2\x83" => 'ƒ',
@@ -417,7 +417,7 @@ function utf8_encode_1252($s)
 	return strtr(utf8_encode($s), $map);
 }
 
-function utf8_decode_1252($s)
+function patchwork_utf8_decode($s)
 {
 	static $map = array(
 		'€' => "\xc2\x80", '‚' => "\xc2\x82", 'ƒ' => "\xc2\x83",

@@ -36,7 +36,6 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 
 
 // file_exists replacement on Windows
-// Private use for the preprocessor
 // Fix a bug with long file names
 // In debug mode, checks if character case is strict.
 
@@ -46,7 +45,7 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 		{
 			if (DEBUG)
 			{
-				function win_file_exists($file)
+				function patchwork_file_exists($file)
 				{
 					if (file_exists($file) && $realfile = realpath($file))
 					{
@@ -71,15 +70,15 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 			}
 			else
 			{
-				function win_file_exists($file) {return file_exists($file) && (!isset($file[99]) || realpath($file));}
+				function patchwork_file_exists($file) {return file_exists($file) && (!isset($file[99]) || realpath($file));}
 			}
 
-			function win_is_file($file)       {return win_file_exists($file) && is_file($file);}
-			function win_is_dir($file)        {return win_file_exists($file) && is_dir($file);}
-			function win_is_link($file)       {return win_file_exists($file) && is_link($file);}
-			function win_is_executable($file) {return win_file_exists($file) && is_executable($file);}
-			function win_is_readable($file)   {return win_file_exists($file) && is_readable($file);}
-			function win_is_writable($file)   {return win_file_exists($file) && is_writable($file);}
+			function patchwork_is_file($file)       {return patchwork_file_exists($file) && is_file($file);}
+			function patchwork_is_dir($file)        {return patchwork_file_exists($file) && is_dir($file);}
+			function patchwork_is_link($file)       {return patchwork_file_exists($file) && is_link($file);}
+			function patchwork_is_executable($file) {return patchwork_file_exists($file) && is_executable($file);}
+			function patchwork_is_readable($file)   {return patchwork_file_exists($file) && is_readable($file);}
+			function patchwork_is_writable($file)   {return patchwork_file_exists($file) && is_writable($file);}
 		}
 /**/}
 

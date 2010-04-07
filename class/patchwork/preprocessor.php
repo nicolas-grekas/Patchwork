@@ -13,6 +13,8 @@
 
 
 // New tokens since PHP 5.3
+defined('T_GOTO') || define('T_GOTO', -1);
+defined('T_USE' ) || define('T_USE' , -1);
 defined('T_DIR' ) || define('T_DIR' , -1);
 defined('T_NS_C') || define('T_NS_C', -1);
 
@@ -57,12 +59,9 @@ class patchwork_preprocessor__0
 		'getrandmax' => 'mt_getrandmax',
 
 		'w'            => 'trigger_error',
-		'getcwd'       => 'patchwork_getcwd',
 		'header'       => 'patchwork::header',
 		'setcookie'    => 'patchwork::setcookie',
 		'setrawcookie' => 'patchwork::setrawcookie',
-		'utf8_encode'  => 'utf8_encode_1252',
-		'utf8_decode'  => 'utf8_decode_1252',
 	),
 
 	$variableType = array(
@@ -156,50 +155,13 @@ class patchwork_preprocessor__0
 
 		defined('E_RECOVERABLE_ERROR') || self::$constant['E_RECOVERABLE_ERROR'] = E_ERROR;
 
-		if (function_exists('win_file_exists'))
+		$v = get_defined_functions();
+
+		foreach ($v['user'] as $v)
 		{
-			// In debug mode, checks if character case is strict.
-			// Fix a bug with long file names.
-			self::$functionAlias += array(
-				'file_exists'   => 'win_file_exists',
-				'is_file'       => 'win_is_file',
-				'is_dir'        => 'win_is_dir',
-				'is_link'       => 'win_is_link',
-				'is_executable' => 'win_is_executable',
-				'is_readable'   => 'win_is_readable',
-				'is_writable'   => 'win_is_writable',
-				'is_writeable'  => 'win_is_writable',
-				'stat'          => 'win_stat',
-			);
-		}
-
-		PATCHWORK_BUGGY_REALPATH && self::$functionAlias += array('realpath' => 'patchwork_realpath');
-		PATCHWORK_BUGGY_BASENAME && self::$functionAlias += array(
-			'basename' => 'patchwork_basename',
-			'pathinfo' => 'patchwork_pathinfo',
-		);
-
-		if (!self::$scream)
-		{
-			$v = md5(mt_rand());
-			$a = @ini_set('display_errors', $v);
-
-			if (@ini_get('display_errors') !== $v)
-			{
-				self::$functionAlias += array(
-					'ini_set' => '@ini_set',
-					'ini_get' => '@ini_get',
-					'set_time_limit' => '@set_time_limit',
-				);
-			}
-			else if (ini_get_bool('safe_mode'))
-			{
-				self::$functionAlias += array(
-					'set_time_limit' => '@set_time_limit',
-				);
-			}
-
-			@ini_set('display_errors', $a);
+			$v = strtolower($v);
+			if (0 !== strpos($v, 'patchwork_')) continue;
+			self::$functionAlias[substr($v, 0, 10)] = $v;
 		}
 
 		class_exists('patchwork', false) && self::$functionAlias += array(
@@ -215,12 +177,6 @@ class patchwork_preprocessor__0
 			if ('p' === $v) break;
 			self::$declaredClass[$v] = 1;
 		}
-
-		// As of PHP5.1.2, hash('md5', $str) is a lot faster than md5($str) !
-		extension_loaded('hash') && self::$functionAlias += array(
-			'md5'   => "hash('md5',",
-			'sha1'  => "hash('sha1',",
-		);
 
 		if (!extension_loaded('intl'))
 		{
@@ -562,7 +518,7 @@ class patchwork_preprocessor__0
 					if (T_VARIABLE === $prevType && '$' !== $antePrevType)
 					{
 						$b = substr($new_code[$j], 1);
-						$new_code[$j] = "\${is_string(\${$b})&&function_exists(\$v{$T}='patchwork_override_'.\${$b})?'v{$T}':'{$b}'}";
+						$new_code[$j] = "\${is_string(\${$b})&&function_exists(\$v{$T}='patchwork_'.\${$b})?'v{$T}':'{$b}'}";
 					}
 					else
 					{
@@ -592,7 +548,7 @@ class patchwork_preprocessor__0
 						$c && $new_code[$c[0]] = $new_code[$c[1]] = '';
 
 						$new_code[$j] = "\${is_string(\$k{$T}=";
-						$new_code[$new_code_length-1] .= ")&&function_exists(\$v{$T}='patchwork_override_'.\$\$k{$T})?'v{$T}':\$k{$T}}";
+						$new_code[$new_code_length-1] .= ")&&function_exists(\$v{$T}='patchwork_'.\$\$k{$T})?'v{$T}':\$k{$T}}";
 					}
 				}
 				break;
@@ -901,9 +857,6 @@ class patchwork_preprocessor__0
 							}
 						}
 						break;
-
-					case 'is_a':
-						if (0 > $level && version_compare(PHP_VERSION, '5.3.0') < 0) $type = $token = 'patchwork_is_a';
 
 					default:
 						if (!isset(self::$callback[$type])) break;

@@ -43,13 +43,19 @@ class extends self
 			switch ($charset)
 			{
 			case 'iso-8859-1':
-			case 'windows-1252':
-				$charset = utf8_encode_1252($return->body);
+				$charset = utf8_encode($return->body);
 				break;
+
+			case 'windows-1252':
+				if (function_exists('patchwork_utf8_encode'))
+				{
+					$charset = patchwork_utf8_encode($return->body);
+					break;
+				}
 
 			default:
 				$charset = @iconv($charset, 'UTF-8//IGNORE', $return->body);
-				false === $charset && $charset = utf8_encode_1252($return->body);
+				false === $charset && $charset = utf8_encode($return->body);
 			}
 
 			$return->body = FILTER::get($charset, 'text');
