@@ -40,7 +40,7 @@ $CONFIG = array();
 
 function patchwork_include($file)     {global $CONFIG; return include $file;}
 
-/**/if (version_compare(PHP_VERSION, '5.3.0') < 0))
+/**/if (version_compare(PHP_VERSION, '5.3.0') < 0)
 		function patchwork_is_a($obj, $class) {return $obj instanceof $class;}
 
 function patchwork_bad_request($message, $url)
