@@ -624,9 +624,22 @@ class patchwork_preprocessor__0
 
 						if (0 !== stripos($j, $class . '::'))
 						{
-							$token = $j;
-							if (false !== strpos($token, '(')) ++$i && $type = '(';
-							else $type = strtolower($token);
+							$j = explode('::', $j, 2);
+
+							if (2 === count($j))
+							{
+								$code[$i--] = array(T_WHITESPACE, $c);
+								$code[$i--] = array(T_STRING, $j[1]);
+								$code[$i--] = array(T_DOUBLE_COLON, '::');
+								$code[$i--] = array(T_STRING, $j[0]);
+
+								continue 2;
+							}
+							else
+							{
+								$token = $j[0];
+								$type = strtolower($token);
+							}
 						}
 					}
 
