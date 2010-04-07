@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class extends patchwork_preprocessor_marker
 {
 	// List of native functions that could trigger __autoload()
 
@@ -34,12 +34,18 @@ class
 		'curl_setopt_array' => 0, // same as multiple curl_setopt
 		'filter_var'        => 0, // callback in third arg, but only if second arg is FILTER_CALLBACK
 		'filter_var_array'  => 0, // same as multiple filter_var
+		'ibase_set_event_handler'   => 0, // callback as first xor second arg
+		'session_set_save_handler'  => 0, // 6 callback parameters
 		'sqlite_create_function'    => 0, // don't introduce any difference with SQLiteDatabase->createFunction
 		'sqlite_create_aggregate'   => 0, // don't introduce any difference with SQLiteDatabase->createAggregate
 		'stream_context_create'     => 0, // callback may be in second arg
 		'stream_context_set_params' => 0, // callback may be in second arg
 		'stream_filter_register'    => 0,
 		'stream_wrapper_register'   => 0,
+		'xslt_set_sax_handler'      => 0, // callbacks in second arg
+		'xslt_set_sax_handlers'     => 0, // callbacks in second arg
+		'xslt_set_scheme_handler'   => 0, // callbacks in second arg
+		'xslt_set_scheme_handlers'  => 0, // callbacks in second arg
 
 		// Callback in the first parameter
 		'array_map'                    => 1,
@@ -52,7 +58,6 @@ class
 		'readline_completion_function' => 1,
 		'register_shutdown_function'   => 1,
 		'register_tick_function'       => 1,
-		'session_set_save_handler'     => 1,
 		'set_exception_handler'        => 1,
 		'set_error_handler'            => 1,
 		'spl_autoload_register'        => 1,
@@ -82,6 +87,7 @@ class
 		'xml_set_notation_decl_handler'          => 2,
 		'xml_set_external_entity_ref_handler'    => 2,
 		'xml_set_unparsed_entity_decl_handler'   => 2,
+		'xslt_set_error_handler'                 => 2,
 
 		// Callback in the third or fourth parameter
 		'gupnp_control_point_callback_set' => 3,
@@ -103,4 +109,33 @@ class
 		'array_udiff_uassoc'      => -2,
 		'array_uintersect_uassoc' => -2,
 	);
+
+
+	protected $callbackPosition, $k;
+
+	function __construct($preproc, $callback)
+	{
+		$this->k = '$k' . PATCHWORK_PATH_TOKEN;
+		$this->callbackPosition = self::$list[$callback] - 1;
+		parent::__construct($preproc);
+	}
+
+	function onStart($token)
+	{
+		if (0 == $this->callbackPosition) $token .= "is_string({$this->k}=";
+		return parent::onStart($token);
+	}
+
+	function onReposition($token)
+	{
+		if ($this->position == $this->callbackPosition) $token .= "is_string({$this->k}=";
+		else if ($this->position - 1 == $this->callbackPosition) $token = ")&&function_exists('__patchwork_'.{$this->k})?'__patchwork_'.{$this->k}:{$this->k}" . $token;
+		return parent::onReposition($token);
+	}
+
+	function onClose($token)
+	{
+		if ($this->position == $this->callbackPosition) $token = ")&&function_exists('__patchwork_'.{$this->k})?'__patchwork_'.{$this->k}:{$this->k}" . $token;
+		return parent::onClose($token);
+	}
 }

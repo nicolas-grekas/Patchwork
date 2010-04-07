@@ -1,6 +1,6 @@
 <?php /*********************************************************************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2010 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -661,7 +661,7 @@ class patchwork_preprocessor__0
 						break;
 
 					default:
-						if (!isset(self::$callback) && 'patchwork_preprocessor_callback' !== $class)
+						if (!isset(self::$callback) && 0 !== strpos($class, 'patchwork_preprocessor_'))
 						{
 							self::$callback =& patchwork_preprocessor_callback::$list;
 						}
@@ -669,7 +669,7 @@ class patchwork_preprocessor__0
 						if (!isset(self::$callback[$type])) break;
 
 						$token = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$token}";
-						$b = new patchwork_preprocessor_marker($this);
+						$b = new patchwork_preprocessor_callback($this, $type);
 						$b->curly = -1;
 						$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
 
