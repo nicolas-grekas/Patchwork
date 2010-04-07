@@ -551,6 +551,52 @@ class patchwork_preprocessor__0
 				}
 				break;
 
+			case '(':
+				if (   ('}' === $prevType || T_VARIABLE === $prevType)
+					&& !in_array($antePrevType, array(T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON)) )
+				{
+					$j = $new_code_length;
+
+					while (--$j && in_array($new_type[$j], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ;
+
+					if (T_VARIABLE === $prevType && '$' !== $antePrevType)
+					{
+						$b = substr($new_code[$j], 1);
+						$new_code[$j] = "\${is_string(\${$b})&&function_exists(\$v{$T}='patchwork_override_'.\${$b})?'v{$T}':'{$b}'}";
+					}
+					else
+					{
+						if ($b = '}' === $prevType ? 1 : 0)
+						{
+							$c = $j;
+
+							while ($b && --$j) switch ($new_type[$j])
+							{
+							case ';': break 3;
+							case T_CURLY_OPEN:
+							case T_DOLLAR_OPEN_CURLY_BRACES:
+							case '{': --$b; break;
+							case '}': ++$b; break;
+							}
+
+							$c = array($c, $j);
+						}
+						else $c = 0;
+
+						while (--$j && in_array($new_type[$j], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT, '$'))) ;
+
+						if (in_array($new_type[$j], array(T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON))) break;
+
+						while (++$j && in_array($new_type[$j], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT     ))) ;
+
+						$c && $new_code[$c[0]] = $new_code[$c[1]] = '';
+
+						$new_code[$j] = "\${is_string(\$k{$T}=";
+						$new_code[$new_code_length-1] .= ")&&function_exists(\$v{$T}='patchwork_override_'.\$\$k{$T})?'v{$T}':\$k{$T}}";
+					}
+				}
+				break;
+
 			case T_INTERFACE:
 			case T_CLASS:
 				$b = $c = '';
@@ -754,10 +800,12 @@ class patchwork_preprocessor__0
 						if (!$b)
 						{
 							while (--$j && in_array($new_type[$j], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ;
-							if (T_OBJECT_OPERATOR != $new_type[$j] && ++$j) break 2;
+							if (T_OBJECT_OPERATOR !== $new_type[$j] && T_DOUBLE_COLON !== $new_type[$j] && ++$j) break 2;
 						}
 						break;
 
+					case T_CURLY_OPEN:
+					case T_DOLLAR_OPEN_CURLY_BRACES:
 					case '{': case '[': --$b; break;
 					case '}': case ']': ++$b; break;
 					}
