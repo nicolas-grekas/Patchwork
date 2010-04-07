@@ -43,6 +43,22 @@ class patchwork_bootstrapper_bootstrapper__0
 
 		file_exists($cwd . 'config.patchwork.php')
 			|| die("Patchwork Error: file config.patchwork.php not found in {$cwd}. Did you set PATCHWORK_BOOTPATH correctly?");
+
+		if (headers_sent($file, $line) || ob_get_length())
+		{
+			if ($file)
+			{
+				$file = " in {$file} on line {$line}";
+			}
+			else
+			{
+				$file = array_slice(get_included_files(), 0, -3);
+				$line = array_pop($file);
+				$file = ", likely in " . ($file ? implode(', ', $file) . ' or ' : '') . $line;
+			}
+
+			die("Patchwork Error: Something has been echoed before bootstrap{$file} (maybe some white space or a BOM?)");
+		}
 	}
 
 	// Because $this->cwd is a reference, this has to be dynamic
