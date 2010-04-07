@@ -221,7 +221,7 @@ class patchwork_bootstrapper_preprocessor__0
 		return $code;
 	}
 
-	function alias($function, $alias, $args, $return_ref = false)
+	function alias($function, $alias, $args, $return_ref, $marker)
 	{
 		if (function_exists($function))
 		{
@@ -257,9 +257,12 @@ class patchwork_bootstrapper_preprocessor__0
 
 		$inline && $this->alias[1 !== $inline ? substr($function, 12) : $function] = $alias;
 
+		$inline = explode('::', $alias, 2);
+		$inline = 2 === count($inline) ? mt_rand(1, mt_getrandmax()) . strtolower($inline[0]) : '';
+
 		self::$code[key(self::$code)] .= $return_ref
-			? "function &{$function}({$args[1]}) {\${''}=&{$alias}({$args[2]});return \${''}}"
-			: "function  {$function}({$args[1]}) {return {$alias}({$args[2]});}";
+			? "function &{$function}({$args[1]}) {/*{$marker}:{$inline}*/\${''}=&{$alias}({$args[2]});return \${''}}"
+			: "function  {$function}({$args[1]}) {/*{$marker}:{$inline}*/return {$alias}({$args[2]});}";
 	}
 
 	static function export($a, $lf = 0)

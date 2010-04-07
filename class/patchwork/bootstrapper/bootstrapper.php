@@ -16,6 +16,7 @@ class patchwork_bootstrapper_bootstrapper__0
 {
 	protected
 
+	$marker,
 	$caller,
 	$cwd,
 	$token,
@@ -29,6 +30,7 @@ class patchwork_bootstrapper_bootstrapper__0
 
 	function __construct($caller, &$cwd, &$token)
 	{
+		$this->marker = md5(mt_rand(1, mt_getrandmax()));
 		$this->caller =  $caller;
 		$this->cwd    =& $cwd;
 		$this->token  =& $token;
@@ -149,11 +151,25 @@ class patchwork_bootstrapper_bootstrapper__0
 		if ('' === $buffer = ob_get_clean())
 		{
 			$T = $this->token;
-			$a = array("<?php \$patchwork_preprocessor_alias = array(); \$patchwork_autoload_cache = array(); \$c{$T} =& \$patchwork_autoload_cache; \$d{$T} = 1;");
+			$a = array(
+				"<?php \$patchwork_preprocessor_alias=array();",
+				"\$patchwork_autoload_cache=array();",
+				"\$c{$T}=&\$patchwork_autoload_cache;",
+				"\$d{$T}=1;",
+				"(\$e{$T}=\$b{$T}=\$a{$T}=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "')&&\$d{$T}&&0;",
+			);
 
 			foreach ($this->configCode as &$code)
 			{
-				$a[] = "(\$e{$T}=\$b{$T}=\$a{$T}=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "')&&\$d{$T}&&0;";
+				if (false !== strpos($code, "/*{$this->marker}:"))
+				{
+					$code = preg_replace(
+						"#/\\*{$this->marker}:(\d+)(.+?)\\*/#",
+						"global \$a{$T},\$c{$T};isset(\$c{$T}['$2'])||\$a{$T}=__FILE__.'*$1';",
+						str_replace("/*{$this->marker}:*/", '', $code)
+					);
+				}
+
 				$a[] =& $code;
 			}
 
@@ -301,7 +317,7 @@ patchwork::start();";
 
 	function alias($function, $alias, $args, $return_ref = false)
 	{
-		$this->preprocessor->alias($function, $alias, $args, $return_ref);
+		$this->preprocessor->alias($function, $alias, $args, $return_ref, $this->marker);
 	}
 
 
