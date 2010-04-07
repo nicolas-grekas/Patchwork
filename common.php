@@ -571,12 +571,12 @@ function patchwork_http_socket($host, $port, $ssl, $timeout = 30)
 /**/	patchwork_bootstrapper::aliasFunction('normalizer_is_normalized', 'Normalizer::isNormalized', array('s', 'form' => 'NFC'));
 /**/	patchwork_bootstrapper::aliasFunction('normalizer_normalize',     'Normalizer::normalize',    array('s', 'form' => 'NFC'));
 /**/
-/**/	patchwork_bootstrapper::aliasFunction('grapheme_stripos',  'u::stripos',  array('s', 'needle', 'offset' => 0));
-/**/	patchwork_bootstrapper::aliasFunction('grapheme_stristr',  'u::stristr',  array('s', 'needle', 'before_needle' => false));
-/**/	patchwork_bootstrapper::aliasFunction('grapheme_strlen',   'u::strlen',   array('s'));
-/**/	patchwork_bootstrapper::aliasFunction('grapheme_strpos',   'u::strpos',   array('s', 'needle', 'offset' => 0));
-/**/	patchwork_bootstrapper::aliasFunction('grapheme_strripos', 'u::strripos', array('s', 'needle', 'offset' => 0));
-/**/	patchwork_bootstrapper::aliasFunction('grapheme_strrpos',  'u::strrpos',  array('s', 'needle', 'offset' => 0));
-/**/	patchwork_bootstrapper::aliasFunction('grapheme_strstr',   'u::strstr',   array('s', 'needle', 'before_needle' => false));
-/**/	patchwork_bootstrapper::aliasFunction('grapheme_substr',   'u::substr',   array('s', 'start', 'len' => INF));
+/**/	patchwork_bootstrapper::aliasFunction('grapheme_stripos',  'utf8_intl::grapheme_stripos',  array('s', 'needle', 'offset' => 0));
+/**/	patchwork_bootstrapper::aliasFunction('grapheme_stristr',  'utf8_intl::grapheme_stristr',  array('s', 'needle', 'before_needle' => false));
+/**/	patchwork_bootstrapper::aliasFunction('grapheme_strlen',   'utf8_intl::grapheme_strlen',   array('s'));
+/**/	patchwork_bootstrapper::aliasFunction('grapheme_strpos',   'utf8_intl::grapheme_strpos',   array('s', 'needle', 'offset' => 0));
+/**/	patchwork_bootstrapper::aliasFunction('grapheme_strripos', 'utf8_intl::grapheme_strripos', array('s', 'needle', 'offset' => 0));
+/**/	patchwork_bootstrapper::aliasFunction('grapheme_strrpos',  'utf8_intl::grapheme_strrpos',  array('s', 'needle', 'offset' => 0));
+/**/	patchwork_bootstrapper::aliasFunction('grapheme_strstr',   'utf8_intl::grapheme_strstr',   array('s', 'needle', 'before_needle' => false));
+/**/	patchwork_bootstrapper::aliasFunction('grapheme_substr',   'utf8_intl::grapheme_substr',   array('s', 'start', 'len' => INF));
 /**/}
