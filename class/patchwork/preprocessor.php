@@ -52,10 +52,7 @@ class patchwork_preprocessor__0
 		's' => 'SESSION',
 	),
 
-	$functionAlias = array(
-		'w' => 'trigger_error',
-		'mb_encode_mimeheader' => 'E(\'mb_encode_mimeheader() is bugged. Please use iconv_mime_encode() instead.\',',
-	),
+	$functionAlias = array(),
 
 	$variableType = array(
 		T_EVAL, '(', T_LINE, T_FILE, T_DIR, T_FUNC_C, T_CLASS_C, T_METHOD_C, T_NS_C, T_INCLUDE, T_REQUIRE,
@@ -153,7 +150,7 @@ class patchwork_preprocessor__0
 		foreach ($v['user'] as $v)
 		{
 			$v = strtolower($v);
-			if (0 !== strpos($v, 'patchwork_')) continue;
+			if (0 !== strpos($v, '__patchwork_')) continue;
 			self::$functionAlias[substr($v, 0, 10)] = $v;
 		}
 
@@ -387,24 +384,27 @@ class patchwork_preprocessor__0
 					if (T_VARIABLE === $prevType && '$' !== $antePrevType)
 					{
 						$b = substr($new_code[$j], 1);
-						$new_code[$j] = "\${is_string(\${$b})&&function_exists(\$v{$T}='patchwork_'.\${$b})?'v{$T}':'{$b}'}";
+						$new_code[$j] = "\${is_string(\${$b})&&function_exists(\$v{$T}='__patchwork_'.\${$b})?'v{$T}':'{$b}'}";
 					}
 					else
 					{
 						if ($b = '}' === $prevType ? 1 : 0)
 						{
-							$c = $j;
+							$c = array($j, 0);
 
 							while ($b && --$j) switch ($new_type[$j])
 							{
-							case ';': break 3;
 							case T_CURLY_OPEN:
 							case T_DOLLAR_OPEN_CURLY_BRACES:
 							case '{': --$b; break;
 							case '}': ++$b; break;
 							}
 
-							$c = array($c, $j);
+							$c[1] = $j;
+
+							while (--$j && in_array($new_type[$j], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ;
+
+							if ('$' !== $new_type[$j]) break;
 						}
 						else $c = 0;
 
@@ -412,12 +412,12 @@ class patchwork_preprocessor__0
 
 						if (in_array($new_type[$j], array(T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON))) break;
 
-						while (++$j && in_array($new_type[$j], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT     ))) ;
+						while (++$j && in_array($new_type[$j], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ;
 
 						$c && $new_code[$c[0]] = $new_code[$c[1]] = '';
 
 						$new_code[$j] = "\${is_string(\$k{$T}=";
-						$new_code[$new_code_length-1] .= ")&&function_exists(\$v{$T}='patchwork_'.\$\$k{$T})?'v{$T}':\$k{$T}}";
+						$new_code[$new_code_length-1] .= ")&&function_exists(\$v{$T}='__patchwork_'.\$\$k{$T})?'v{$T}':\$k{$T}}";
 					}
 				}
 				break;
