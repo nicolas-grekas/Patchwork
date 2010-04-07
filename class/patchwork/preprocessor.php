@@ -13,10 +13,11 @@
 
 
 // New tokens since PHP 5.3
-defined('T_GOTO') || define('T_GOTO', -1);
-defined('T_USE' ) || define('T_USE' , -1);
-defined('T_DIR' ) || define('T_DIR' , -1);
-defined('T_NS_C') || define('T_NS_C', -1);
+defined('T_GOTO')      || define('T_GOTO', -1);
+defined('T_USE' )      || define('T_USE' , -1);
+defined('T_DIR' )      || define('T_DIR' , -1);
+defined('T_NS_C')      || define('T_NS_C', -1);
+defined('T_NAMESPACE') || define('T_NAMESPACE', -1);
 
 class patchwork_preprocessor__0
 {
@@ -52,89 +53,19 @@ class patchwork_preprocessor__0
 		's' => 'SESSION',
 	),
 
-	$functionAlias = array(),
+	$functionAlias = array();
 
+
+	protected static
+
+	$declaredClass = array('self' => 1, 'parent' => 1, 'this' => 1, 'static' => 1, 'p' => 1, 'patchwork' => 1),
 	$variableType = array(
 		T_EVAL, '(', T_LINE, T_FILE, T_DIR, T_FUNC_C, T_CLASS_C, T_METHOD_C, T_NS_C, T_INCLUDE, T_REQUIRE,
 		T_CURLY_OPEN, T_VARIABLE, '$', T_INCLUDE_ONCE, T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES,
 	),
-
-	// List of native functions that could trigger __autoload()
-	$callback = array(
-		// No callback parameter involved or complex behaviour
-		'__autoload'        => 0,
-		'class_exists'      => 0,
-		'constant'          => 0,
-		'get_class_methods' => 0,
-		'get_class_vars'    => 0,
-		'get_parent_class'  => 0,
-		'interface_exists'  => 0,
-		'method_exists'     => 0,
-		'preg_replace'      => 0,
-		'property_exists'   => 0,
-		'unserialize'       => 0,
-		'assert_options'    => 0, // callback as second arg, but only if first arg is ASSERT_CALLBACK
-		'curl_setopt'       => 0, // callback as third arg, but only if second arg is CURLOPT_*FUNCTION
-		'curl_setopt_array' => 0, // same as multiple curl_setopt
-		'filter_var'        => 0, // callback in third arg, but only if second arg is FILTER_CALLBACK
-		'filter_var_array'  => 0, // same as multiple filter_var
-		'sqlite_create_function'  => 0, // don't introduce any difference with SQLiteDatabase->createFunction
-		'sqlite_create_aggregate' => 0, // don't introduce any difference with SQLiteDatabase->createAggregate
-
-		// Callback in the first parameter
-		'array_map'                  => 1,
-		'call_user_func'             => 1,
-		'call_user_func_array'       => 1,
-		'is_callable'                => 1,
-		'ob_start'                   => 1,
-		'register_shutdown_function' => 1,
-		'register_tick_function'     => 1,
-		'session_set_save_handler'   => 1,
-		'set_exception_handler'      => 1,
-		'set_error_handler'          => 1,
-		'sybase_set_message_handler' => 1,
-
-		// Callback in the second parameter
-		'array_filter'                           => 2,
-		'array_reduce'                           => 2,
-		'array_walk'                             => 2,
-		'array_walk_recursive'                   => 2,
-		'pcntl_signal'                           => 2,
-		'preg_replace_callback'                  => 2,
-		'runkit_sandbox_output_handler'          => 2,
-		'usort'                                  => 2,
-		'uksort'                                 => 2,
-		'uasort'                                 => 2,
-		'xml_set_character_data_handler'         => 2,
-		'xml_set_default_handler'                => 2,
-		'xml_set_element_handler'                => 2,
-		'xml_set_end_namespace_decl_handler'     => 2,
-		'xml_set_processing_instruction_handler' => 2,
-		'xml_set_start_namespace_decl_handler'   => 2,
-		'xml_set_notation_decl_handler'          => 2,
-		'xml_set_external_entity_ref_handler'    => 2,
-		'xml_set_unparsed_entity_decl_handler'   => 2,
-
-		// Callback in the last parameter
-		'array_diff_ukey'         => -1,
-		'array_diff_uassoc'       => -1,
-		'array_intersect_ukey'    => -1,
-		'array_udiff_assoc'       => -1,
-		'array_udiff'             => -1,
-		'array_uintersect_assoc'  => -1,
-		'array_uintersect'        => -1,
-
-		// Callback in the two last parameter
-		'array_udiff_uassoc'      => -2,
-		'array_uintersect_uassoc' => -2,
-	);
-
-
-	private static
-
-	$declaredClass = array('self' => 1, 'parent' => 1, 'this' => 1, 'static' => 1, 'p' => 1, 'patchwork' => 1),
 	$inlineClass,
-	$recursivePool = array();
+	$recursivePool = array(),
+	$callback;
 
 
 	static function __constructStatic()
@@ -730,6 +661,11 @@ class patchwork_preprocessor__0
 						break;
 
 					default:
+						if (!isset(self::$callback) && 'patchwork_preprocessor_callback' !== $class)
+						{
+							self::$callback =& patchwork_preprocessor_callback::$list;
+						}
+
 						if (!isset(self::$callback[$type])) break;
 
 						$token = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$token}";
