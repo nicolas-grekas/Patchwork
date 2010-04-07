@@ -1,6 +1,6 @@
 <?php /*********************************************************************
  *
- *   Copyright : (C) 2006 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2010 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/lgpl.txt GNU/LGPL
  *
@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class utf8_mbstring_noOverload
+class patchwork_alias_mbstring_no
 {
 	static function mail($to, $subject, $message, $additional_headers = '', $additional_parameters = '')
 	{

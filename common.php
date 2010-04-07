@@ -40,23 +40,8 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 
 /**/if (version_compare(PHP_VERSION, '5.2.3') < 0)
 /**/{
-/**/	patchwork_bootstrapper::alias('htmlspecialchars', 'patchwork_htmlspecialchars', array('$s', '$style' => ENT_COMPAT, '$charset' => 'UTF-8', '$double_enc' => true));
-
-		function patchwork_htmlspecialchars($s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true)
-		{
-			return $double_enc || false === strpos($s, '&') || false === strpos($s, ';')
-				? htmlspecialchars($s, $style, $charset)
-				: htmlspecialchars(html_entity_decode($s, $style, $charset), $style, $charset);
-		}
-
-/**/	patchwork_bootstrapper::alias('htmlentities', 'patchwork_htmlentities', array('$s', '$style' => ENT_COMPAT, '$charset' => 'UTF-8', '$double_enc' => true));
-
-		function patchwork_htmlentities($s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true)
-		{
-			return $double_enc || false === strpos($s, '&') || false === strpos($s, ';')
-				? htmlentities($s, $style, $charset)
-				: htmlentities(html_entity_decode($s, $style, $charset), $quote_style, $charset);
-		}
+/**/	patchwork_bootstrapper::alias('htmlspecialchars', 'patchwork_alias_strings::htmlspecialchars', array('$s', '$style' => ENT_COMPAT, '$charset' => 'UTF-8', '$double_enc' => true));
+/**/	patchwork_bootstrapper::alias('htmlentities',     'patchwork_alias_strings::htmlentities',     array('$s', '$style' => ENT_COMPAT, '$charset' => 'UTF-8', '$double_enc' => true));
 /**/}
 /**/else
 /**/{
@@ -69,78 +54,19 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 
 /**/if (function_exists('curl_setopt'))
 /**/{
-/**/	patchwork_bootstrapper::alias('curl_setopt',       'patchwork_curl_setopt',       array('$ch', '$option', '$value'));
-/**/	patchwork_bootstrapper::alias('curl_setopt_array', 'patchwork_curl_setopt_array', array('$ch', '$options'));
-
-		function patchwork_curl_setopt($ch, $option, $value)
-		{
-			return patchwork_curl_setopt_array($ch, array($option => $value));
-		}
-
-		function patchwork_curl_setopt_array($ch, $options)
-		{
-			foreach ($options as $k => &$v)
-			{
-				if (is_string($v)) switch ($k)
-				{
-				case CURLOPT_HEADERFUNCTION:   case CURLOPT_PASSWDFUNCTION:
-				case CURLOPT_PROGRESSFUNCTION: case CURLOPT_READFUNCTION:
-				case CURLOPT_WRITEFUNCTION:
-					function_exists('__patchwork_' . $v) && $v = '__patchwork_' . $v;
-				}
-			}
-
-			return curl_setopt_array($ch, $options);
-		}
+/**/	patchwork_bootstrapper::alias('curl_setopt',       'patchwork_alias_curl::setopt',       array('$ch', '$option', '$value'));
+/**/	patchwork_bootstrapper::alias('curl_setopt_array', 'patchwork_alias_curl::setopt_array', array('$ch', '$options'));
 /**/}
 
 /**/if (function_exists('assert_options'))
 /**/{
-/**/	patchwork_bootstrapper::alias('assert_options', 'patchwork_assert_options', array('$what', '$value' => INF));
-
-		function patchwork_assert_options($what, $value = INF)
-		{
-			if (INF === $value) return assert_options($what);
-
-			return ASSERT_CALLBACK == $value && is_string($value) && function_exists('__patchwork_' . $value)
-				? assert_options($what, '__patchwork_' . $value)
-				: assert_options($what, $value);
-		}
+/**/	patchwork_bootstrapper::alias('assert_options', 'patchwork_alias_assert::options', array('$what', '$value' => INF));
 /**/}
 
 /**/if (function_exists('filter_var'))
 /**/{
-/**/	patchwork_bootstrapper::alias('filter_var',       'patchwork_filter_var',       array('$var', '$filter' => FILTER_DEFAULT, '$opt' => INF));
-/**/	patchwork_bootstrapper::alias('filter_var_array', 'patchwork_filter_var_array', array('$data', '$definition' => INF));
-
-		function patchwork_filter_var($var, $filter = FILTER_DEFAULT, $opt = INF)
-		{
-			if (INF === $opt) return filter_var($var, $filter);
-
-			isset($opt['options'])
-				&& FILTER_CALLBACK == $filter
-				&& is_string($opt['options'])
-				&& function_exists('__patchwork_' . $opt['options'])
-				&& $opt['options'] = '__patchwork_' . $opt['options'];
-
-			return filter_var($var, $filter, $opt);
-		}
-
-		function patchwork_filter_var_array($data, $def = INF)
-		{
-			if (INF === $def) return filter_var_array($data);
-
-			if (is_array($def)) foreach ($def as &$opt)
-			{
-				isset($opt['filter'], $opt['options'])
-					&& FILTER_CALLBACK == $opt['filter']
-					&& is_string($opt['options'])
-					&& function_exists('__patchwork_' . $opt['options'])
-					&& $opt['options'] = '__patchwork_' . $opt['options'];
-			}
-
-			return filter_var_array($data, $def);
-		}
+/**/	patchwork_bootstrapper::alias('filter_var',       'patchwork_alias_filter::filter_var', array('$var', '$filter' => FILTER_DEFAULT, '$opt' => INF));
+/**/	patchwork_bootstrapper::alias('filter_var_array', 'patchwork_alias_filter::var_array',  array('$data', '$definition' => INF));
 /**/}
 
 
@@ -148,29 +74,29 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 
 /**/if (!function_exists('mb_stripos'))
 /**/{
-/**/	patchwork_bootstrapper::alias('mb_stripos',  'utf8_mbstring_520::stripos',    array('$s', '$needle', '$offset' => 0,   '$enc' => INF));
-/**/	patchwork_bootstrapper::alias('mb_stristr',  'utf8_mbstring_520::stristr',    array('$s', '$needle', '$part' => false, '$enc' => INF));
-/**/	patchwork_bootstrapper::alias('mb_strrchr',  'utf8_mbstring_520::strrchr',    array('$s', '$needle', '$part' => false, '$enc' => INF));
-/**/	patchwork_bootstrapper::alias('mb_strrichr', 'utf8_mbstring_520::strrichr',   array('$s', '$needle', '$part' => false, '$enc' => INF));
-/**/	patchwork_bootstrapper::alias('mb_strripos', 'utf8_mbstring_520::strripos',   array('$s', '$needle', '$offset' => 0,   '$enc' => INF));
-/**/	patchwork_bootstrapper::alias('mb_strrpos',  'utf8_mbstring_520::mb_strrpos', array('$s', '$needle', '$offset' => 0,   '$enc' => INF));
-/**/	patchwork_bootstrapper::alias('mb_strstr',   'utf8_mbstring_520::strstr',     array('$s', '$needle', '$part' => false, '$enc' => INF));
+/**/	patchwork_bootstrapper::alias('mb_stripos',  'patchwork_alias_mbstring::stripos',    array('$s', '$needle', '$offset' => 0,   '$enc' => INF));
+/**/	patchwork_bootstrapper::alias('mb_stristr',  'patchwork_alias_mbstring::stristr',    array('$s', '$needle', '$part' => false, '$enc' => INF));
+/**/	patchwork_bootstrapper::alias('mb_strrchr',  'patchwork_alias_mbstring::strrchr',    array('$s', '$needle', '$part' => false, '$enc' => INF));
+/**/	patchwork_bootstrapper::alias('mb_strrichr', 'patchwork_alias_mbstring::strrichr',   array('$s', '$needle', '$part' => false, '$enc' => INF));
+/**/	patchwork_bootstrapper::alias('mb_strripos', 'patchwork_alias_mbstring::strripos',   array('$s', '$needle', '$offset' => 0,   '$enc' => INF));
+/**/	patchwork_bootstrapper::alias('mb_strrpos',  'patchwork_alias_mbstring::strrpos',    array('$s', '$needle', '$offset' => 0,   '$enc' => INF));
+/**/	patchwork_bootstrapper::alias('mb_strstr',   'patchwork_alias_mbstring::strstr',     array('$s', '$needle', '$part' => false, '$enc' => INF));
 /**/
-/**/	patchwork_bootstrapper::alias('mb_strrpos_500', extension_loaded('mbstring') ? 'mb_strrpos' : 'utf8_mbstring_500::strrpos', array('$s', '$needle', '$enc' => INF));
+/**/	patchwork_bootstrapper::alias('mb_strrpos_500', extension_loaded('mbstring') ? 'mb_strrpos' : 'patchwork_alias_mbstring_500::strrpos', array('$s', '$needle', '$enc' => INF));
 /**/}
 /**/else if (3 & (int) @ini_get('mbstring.func_overload'))
 /**/{
 /**/	if (1  & (int) @ini_get('mbstring.func_overload'))
 /**/	{
-/**/		patchwork_bootstrapper::alias('mail', 'utf8_mbstring_noOverload::mail', array('$to', '$subject', '$message', '$headers' => '', '$params' => ''));
+/**/		patchwork_bootstrapper::alias('mail', 'patchwork_alias_mbstring_no::mail', array('$to', '$subject', '$message', '$headers' => '', '$params' => ''));
 /**/	}
 /**/
 /**/	if (2 & (int) @ini_get('mbstring.func_overload'))
 /**/	{
-/**/		patchwork_bootstrapper::alias('strlen',  'utf8_mbstring_noOverload::strlen',  array('$s'));
-/**/		patchwork_bootstrapper::alias('strpos',  'utf8_mbstring_noOverload::strpos',  array('$s', '$needle', '$offset' => 0));
-/**/		patchwork_bootstrapper::alias('strrpos', 'utf8_mbstring_noOverload::strrpos', array('$s', '$needle', '$offset' => 0));
-/**/		patchwork_bootstrapper::alias('substr',  'utf8_mbstring_noOverload::substr',  array('$s', '$start', '$length' => INF));
+/**/		patchwork_bootstrapper::alias('strlen',  'patchwork_alias_mbstring_no::strlen',  array('$s'));
+/**/		patchwork_bootstrapper::alias('strpos',  'patchwork_alias_mbstring_no::strpos',  array('$s', '$needle', '$offset' => 0));
+/**/		patchwork_bootstrapper::alias('strrpos', 'patchwork_alias_mbstring_no::strrpos', array('$s', '$needle', '$offset' => 0));
+/**/		patchwork_bootstrapper::alias('substr',  'patchwork_alias_mbstring_no::substr',  array('$s', '$start', '$length' => INF));
 /**/	}
 /**/}
 
@@ -197,21 +123,20 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 		define('MB_CASE_LOWER', 1);
 		define('MB_CASE_TITLE', 2);
 
-/**/	patchwork_bootstrapper::alias('mb_convert_encoding',     'utf8_mbstring_500::convert_encoding',     array('$s', '$to', '$from' => INF));
-/**/	patchwork_bootstrapper::alias('mb_decode_mimeheader',    'utf8_mbstring_500::decode_mimeheader',    array('$s'));
-/**/	patchwork_bootstrapper::alias('mb_encode_mimeheader',    'utf8_mbstring_500::convert_case',         array('$s', '$charset' => INF, 'transfer_enc' => INF, 'lf' => INF, 'indent' => INF));
-/**/	patchwork_bootstrapper::alias('mb_convert_case',         'utf8_mbstring_500::convert_case',         array('$s', '$mode', '$enc' => INF));
-/**/	patchwork_bootstrapper::alias('mb_internal_encoding',    'utf8_mbstring_500::internal_encoding',    array('$enc' => INF));
-/**/	patchwork_bootstrapper::alias('mb_list_encodings',       'utf8_mbstring_500::list_encodings',       array());
-/**/	patchwork_bootstrapper::alias('mb_parse_str',            'parse_str',                               array('$s', '&$result' => array()));
-/**/	patchwork_bootstrapper::alias('mb_strlen',               'utf8_mbstring_500::strlen',               array('$s', '$enc' => INF));
-/**/	patchwork_bootstrapper::alias('mb_strpos',               'utf8_mbstring_500::strpos',               array('$s', '$needle', '$offset' => 0, '$enc' => INF));
-/**/	patchwork_bootstrapper::alias('mb_strrpos_500',          'utf8_mbstring_500::mb_strrpos',           array('$s', '$needle', '$offset' => 0, '$enc' => INF));
-/**/	patchwork_bootstrapper::alias('mb_strtolower',           'utf8_mbstring_500::strtolower',           array('$s', '$enc' => INF));
-/**/	patchwork_bootstrapper::alias('mb_strtoupper',           'utf8_mbstring_500::strtoupper',           array('$s', '$enc' => INF));
-/**/	patchwork_bootstrapper::alias('mb_substitute_character', 'utf8_mbstring_500::substitute_character', array('$char' => INF));
-/**/	patchwork_bootstrapper::alias('mb_substr_count',         'substr_count',                            array('$s',  '$needle'));
-/**/	patchwork_bootstrapper::alias('mb_substr',               'utf8_mbstring_500::substr',               array('$s', '$start', '$length' => PHP_INT_MAX, '$enc' => INF));
+/**/	patchwork_bootstrapper::alias('mb_convert_encoding',     'patchwork_alias_mbstring_500::convert_encoding',     array('$s', '$to', '$from' => INF));
+/**/	patchwork_bootstrapper::alias('mb_decode_mimeheader',    'patchwork_alias_mbstring_500::decode_mimeheader',    array('$s'));
+/**/	patchwork_bootstrapper::alias('mb_encode_mimeheader',    'patchwork_alias_mbstring_500::convert_case',         array('$s', '$charset' => INF, 'transfer_enc' => INF, 'lf' => INF, 'indent' => INF));
+/**/	patchwork_bootstrapper::alias('mb_convert_case',         'patchwork_alias_mbstring_500::convert_case',         array('$s', '$mode', '$enc' => INF));
+/**/	patchwork_bootstrapper::alias('mb_internal_encoding',    'patchwork_alias_mbstring_500::internal_encoding',    array('$enc' => INF));
+/**/	patchwork_bootstrapper::alias('mb_list_encodings',       'patchwork_alias_mbstring_500::list_encodings',       array());
+/**/	patchwork_bootstrapper::alias('mb_parse_str',            'parse_str',                                          array('$s', '&$result' => array()));
+/**/	patchwork_bootstrapper::alias('mb_strlen',               'patchwork_alias_mbstring_500::strlen',               array('$s', '$enc' => INF));
+/**/	patchwork_bootstrapper::alias('mb_strpos',               'patchwork_alias_mbstring_500::strpos',               array('$s', '$needle', '$offset' => 0, '$enc' => INF));
+/**/	patchwork_bootstrapper::alias('mb_strtolower',           'patchwork_alias_mbstring_500::strtolower',           array('$s', '$enc' => INF));
+/**/	patchwork_bootstrapper::alias('mb_strtoupper',           'patchwork_alias_mbstring_500::strtoupper',           array('$s', '$enc' => INF));
+/**/	patchwork_bootstrapper::alias('mb_substitute_character', 'patchwork_alias_mbstring_500::substitute_character', array('$char' => INF));
+/**/	patchwork_bootstrapper::alias('mb_substr_count',         'substr_count',                                       array('$s',  '$needle'));
+/**/	patchwork_bootstrapper::alias('mb_substr',               'patchwork_alias_mbstring_500::substr',               array('$s', '$start', '$length' => PHP_INT_MAX, '$enc' => INF));
 /**/}
 
 
@@ -278,6 +203,7 @@ define('PATCHWORK_BUGGY_BASENAME', /*<*/$a/*>*/);
 /**/if ($a)
 /**/{
 /**/	patchwork_bootstrapper::alias('basename', 'patchwork_basename', array('$path', '$suffix' => ''));
+/**/	patchwork_bootstrapper::alias('pathinfo', 'patchwork_pathinfo', array('$path', '$option' => INF));
 
 		function patchwork_basename($path, $suffix = '')
 		{
@@ -292,8 +218,6 @@ define('PATCHWORK_BUGGY_BASENAME', /*<*/$a/*>*/);
 
 			return substr(basename('.' . $path, $suffix), 1);
 		}
-
-/**/	patchwork_bootstrapper::alias('pathinfo', 'patchwork_pathinfo', array('$path', '$option' => INF));
 
 		function patchwork_pathinfo($path, $option = INF)
 		{
@@ -513,12 +437,12 @@ class ob
 		define('ICONV_MIME_DECODE_STRICT', 1);
 		define('ICONV_MIME_DECODE_CONTINUE_ON_ERROR', 2);
 
-/**/	patchwork_bootstrapper::alias('iconv', 'utf8_iconv::iconv', array('$from', '$to', '$s'));
-/**/	patchwork_bootstrapper::alias('iconv_get_encoding', 'utf8_iconv::get_encoding', array('$type' => 'all'));
-/**/	patchwork_bootstrapper::alias('iconv_set_encoding', 'utf8_iconv::set_encoding', array('$type', '$charset'));
-/**/	patchwork_bootstrapper::alias('iconv_mime_encode',  'utf8_iconv::mime_encode',  array('$name', '$value', '$pref' => INF));
-/**/	patchwork_bootstrapper::alias('ob_iconv_handler',   'utf8_iconv::ob_handler',   array('$buffer', '$mode'));
-/**/	patchwork_bootstrapper::alias('iconv_mime_decode_headers', 'utf8_iconv::mime_decode_headers', array('$encoded_headers', '$mode' => 2, '$charset' => INF));
+/**/	patchwork_bootstrapper::alias('iconv', 'patchwork_alias_iconv::iconv', array('$from', '$to', '$s'));
+/**/	patchwork_bootstrapper::alias('iconv_get_encoding', 'patchwork_alias_iconv::get_encoding', array('$type' => 'all'));
+/**/	patchwork_bootstrapper::alias('iconv_set_encoding', 'patchwork_alias_iconv::set_encoding', array('$type', '$charset'));
+/**/	patchwork_bootstrapper::alias('iconv_mime_encode',  'patchwork_alias_iconv::mime_encode',  array('$name', '$value', '$pref' => INF));
+/**/	patchwork_bootstrapper::alias('ob_iconv_handler',   'patchwork_alias_iconv::ob_handler',   array('$buffer', '$mode'));
+/**/	patchwork_bootstrapper::alias('iconv_mime_decode_headers', 'patchwork_alias_iconv::mime_decode_headers', array('$encoded_headers', '$mode' => 2, '$charset' => INF));
 /**/
 /**/	if (extension_loaded('mbstring'))
 /**/	{
@@ -531,13 +455,13 @@ class ob
 /**/	else
 /**/	{
 /**/		extension_loaded('xml')
-/**/			? patchwork_bootstrapper::alias('iconv_strlen', 'utf8_iconv::strlen1', array('$s', '$enc' => INF))
-/**/			: patchwork_bootstrapper::alias('iconv_strlen', 'utf8_iconv::strlen2', array('$s', '$enc' => INF));
+/**/			? patchwork_bootstrapper::alias('iconv_strlen', 'patchwork_alias_iconv::strlen1', array('$s', '$enc' => INF))
+/**/			: patchwork_bootstrapper::alias('iconv_strlen', 'patchwork_alias_iconv::strlen2', array('$s', '$enc' => INF));
 /**/
-/**/		patchwork_bootstrapper::alias('iconv_strpos',  'utf8_mbstring_500::strpos',  array('$s', '$needle', '$offset' => 0, '$enc' => INF));
-/**/		patchwork_bootstrapper::alias('iconv_strrpos', 'utf8_mbstring_500::strrpos', array('$s', '$needle',                 '$enc' => INF));
-/**/		patchwork_bootstrapper::alias('iconv_substr',  'utf8_mbstring_500::substr',  array('$s', '$start', '$length' => PHP_INT_MAX, '$enc' => INF));
-/**/		patchwork_bootstrapper::alias('iconv_mime_decode',  'utf8_iconv::mime_decode', array('$encoded_headers', '$mode' => 2, '$charset' => INF));
+/**/		patchwork_bootstrapper::alias('iconv_strpos',  'patchwork_alias_mbstring::strpos',  array('$s', '$needle', '$offset' => 0, '$enc' => INF));
+/**/		patchwork_bootstrapper::alias('iconv_strrpos', 'patchwork_alias_mbstring::strrpos', array('$s', '$needle',                 '$enc' => INF));
+/**/		patchwork_bootstrapper::alias('iconv_substr',  'patchwork_alias_mbstring::substr',  array('$s', '$start', '$length' => PHP_INT_MAX, '$enc' => INF));
+/**/		patchwork_bootstrapper::alias('iconv_mime_decode',  'patchwork_alias_iconv::mime_decode', array('$encoded_headers', '$mode' => 2, '$charset' => INF));
 /**/	}
 /**/}
 
@@ -615,6 +539,7 @@ class ob
 // utf8_encode/decode support enhanced to Windows-1252
 
 /**/patchwork_bootstrapper::alias('utf8_encode', 'patchwork_utf8_encode', array('$s'));
+/**/patchwork_bootstrapper::alias('utf8_decode', 'patchwork_utf8_decode', array('$s'));
 
 function patchwork_utf8_encode($s)
 {
@@ -632,8 +557,6 @@ function patchwork_utf8_encode($s)
 
 	return strtr(utf8_encode($s), $map);
 }
-
-/**/patchwork_bootstrapper::alias('utf8_decode', 'patchwork_utf8_decode', array('$s'));
 
 function patchwork_utf8_decode($s)
 {
@@ -696,12 +619,12 @@ function patchwork_http_socket($host, $port, $ssl, $timeout = 30)
 /**/	patchwork_bootstrapper::alias('normalizer_is_normalized', 'Normalizer::isNormalized', array('$s', '$form' => 'NFC'));
 /**/	patchwork_bootstrapper::alias('normalizer_normalize',     'Normalizer::normalize',    array('$s', '$form' => 'NFC'));
 /**/
-/**/	patchwork_bootstrapper::alias('grapheme_stripos',  'utf8_intl::stripos',  array('$s', '$needle', '$offset' => 0));
-/**/	patchwork_bootstrapper::alias('grapheme_stristr',  'utf8_intl::stristr',  array('$s', '$needle', '$before_needle' => false));
-/**/	patchwork_bootstrapper::alias('grapheme_strlen',   'utf8_intl::strlen',   array('$s'));
-/**/	patchwork_bootstrapper::alias('grapheme_strpos',   'utf8_intl::strpos',   array('$s', '$needle', '$offset' => 0));
-/**/	patchwork_bootstrapper::alias('grapheme_strripos', 'utf8_intl::strripos', array('$s', '$needle', '$offset' => 0));
-/**/	patchwork_bootstrapper::alias('grapheme_strrpos',  'utf8_intl::strrpos',  array('$s', '$needle', '$offset' => 0));
-/**/	patchwork_bootstrapper::alias('grapheme_strstr',   'utf8_intl::strstr',   array('$s', '$needle', '$before_needle' => false));
-/**/	patchwork_bootstrapper::alias('grapheme_substr',   'utf8_intl::substr',   array('$s', '$start', '$len' => INF));
+/**/	patchwork_bootstrapper::alias('grapheme_stripos',  'patchwork_alias_intl::stripos',  array('$s', '$needle', '$offset' => 0));
+/**/	patchwork_bootstrapper::alias('grapheme_stristr',  'patchwork_alias_intl::stristr',  array('$s', '$needle', '$before_needle' => false));
+/**/	patchwork_bootstrapper::alias('grapheme_strlen',   'patchwork_alias_intl::strlen',   array('$s'));
+/**/	patchwork_bootstrapper::alias('grapheme_strpos',   'patchwork_alias_intl::strpos',   array('$s', '$needle', '$offset' => 0));
+/**/	patchwork_bootstrapper::alias('grapheme_strripos', 'patchwork_alias_intl::strripos', array('$s', '$needle', '$offset' => 0));
+/**/	patchwork_bootstrapper::alias('grapheme_strrpos',  'patchwork_alias_intl::strrpos',  array('$s', '$needle', '$offset' => 0));
+/**/	patchwork_bootstrapper::alias('grapheme_strstr',   'patchwork_alias_intl::strstr',   array('$s', '$needle', '$before_needle' => false));
+/**/	patchwork_bootstrapper::alias('grapheme_substr',   'patchwork_alias_intl::substr',   array('$s', '$start', '$len' => INF));
 /**/}
