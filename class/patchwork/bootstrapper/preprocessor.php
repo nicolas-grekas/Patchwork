@@ -18,7 +18,7 @@ class patchwork_bootstrapper_preprocessor__0
 
 	static $code;
 	public $file;
-	protected $callerRx;
+	protected $callerRx, $alias = array();
 
 
 	function ob_start($caller)
@@ -210,12 +210,25 @@ class patchwork_bootstrapper_preprocessor__0
 		'?><?php' === substr($code, 0, 7) && $code = substr($code, 7);
 
 		self::$code = array();
+
+		if ($this->alias)
+		{
+			$code = '$patchwork_preprocessor_alias+=' . self::export($this->alias) . ';' . $code;
+			$this->alias = array();
+		}
+
 		return $code;
 	}
 
 	function alias($function, $alias, $args, $return_ref = false)
 	{
-		$function = function_exists($function) ? "__patchwork_{$function}" : $function;
+		if (function_exists($function))
+		{
+			$inline = $function == $alias ? -1 : 2;
+			$function = "__patchwork_{$function}";
+		}
+		else if ($function == $alias) die("Patchwork Error: circular aliasing of {$alias}");
+		else $inline = 1;
 
 		$args = array($args, array(), array());
 
@@ -225,6 +238,7 @@ class patchwork_bootstrapper_preprocessor__0
 			{
 				$k = trim(strtr($k, "\n\r", '  '));
 				$args[1][] = $k . '=' . self::export($v);
+				0 > $inline && $inline = 0;
 			}
 			else
 			{
@@ -239,6 +253,8 @@ class patchwork_bootstrapper_preprocessor__0
 		$args[2] = implode(',', $args[2]);
 
 		end(self::$code);
+
+		$inline && $this->alias[1 !== $inline ? substr($function, 12) : $function] = $alias;
 
 		self::$code[key(self::$code)] .= $return_ref
 			? "function &{$function}({$args[1]}) {\${''}=&{$alias}({$args[2]});return \${''}}"

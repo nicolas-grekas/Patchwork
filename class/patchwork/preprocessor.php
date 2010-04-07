@@ -151,8 +151,10 @@ class patchwork_preprocessor__0
 		{
 			$v = strtolower($v);
 			if (0 !== strpos($v, '__patchwork_')) continue;
-			self::$functionAlias[substr($v, 0, 10)] = $v;
+			self::$functionAlias[substr($v, 12)] = $v;
 		}
+
+		foreach ($GLOBALS['patchwork_preprocessor_alias'] as $k => $v) self::$functionAlias[$k] = $v;
 
 		foreach (get_declared_classes() as $v)
 		{
