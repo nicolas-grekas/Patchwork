@@ -33,6 +33,9 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 /**/patchwork_bootstrapper::alias('rand',       'mt_rand',       array('$min' => 0, '$max' => mt_getrandmax()));
 /**/patchwork_bootstrapper::alias('getrandmax', 'mt_getrandmax', array());
 
+
+// Changing default charset to UTF-8, adding new $double_encode parameter (since 5.2.3)
+
 /**/patchwork_bootstrapper::alias('html_entity_decode', 'html_entity_decode', array('$s', '$style' => ENT_COMPAT, '$charset' => 'UTF-8'));
 
 /**/if (version_compare(PHP_VERSION, '5.2.3') < 0)
@@ -59,6 +62,85 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 /**/{
 /**/	// No alias for htmlspecialchars() because ISO-8859-1 and UTF-8 are both compatible with ASCII, where the HTML_SPECIALCHARS table lies
 /**/	patchwork_bootstrapper::alias('htmlentities', 'htmlentities', array('$s', '$style' => ENT_COMPAT, '$charset' => 'UTF-8', '$double_enc' => true));
+/**/}
+
+
+// Some aliasing needed to catch $callback arguments
+
+/**/if (function_exists('curl_setopt'))
+/**/{
+/**/	patchwork_bootstrapper::alias('curl_setopt',       'patchwork_curl_setopt',       array('$ch', '$option', '$value'));
+/**/	patchwork_bootstrapper::alias('curl_setopt_array', 'patchwork_curl_setopt_array', array('$ch', '$options'));
+
+		function patchwork_curl_setopt($ch, $option, $value)
+		{
+			return patchwork_curl_setopt_array($ch, array($option => $value));
+		}
+
+		function patchwork_curl_setopt_array($ch, $options)
+		{
+			foreach ($options as $k => &$v)
+			{
+				if (is_string($v)) switch ($k)
+				{
+				case CURLOPT_HEADERFUNCTION:   case CURLOPT_PASSWDFUNCTION:
+				case CURLOPT_PROGRESSFUNCTION: case CURLOPT_READFUNCTION:
+				case CURLOPT_WRITEFUNCTION:
+					function_exists('__patchwork_' . $v) && $v = '__patchwork_' . $v;
+				}
+			}
+
+			return curl_setopt_array($ch, $options);
+		}
+/**/}
+
+/**/if (function_exists('assert_options'))
+/**/{
+/**/	patchwork_bootstrapper::alias('assert_options', 'patchwork_assert_options', array('$what', '$value' => INF));
+
+		function patchwork_assert_options($what, $value = INF)
+		{
+			if (INF === $value) return assert_options($what);
+
+			return ASSERT_CALLBACK == $value && is_string($value) && function_exists('__patchwork_' . $value)
+				? assert_options($what, '__patchwork_' . $value)
+				: assert_options($what, $value);
+		}
+/**/}
+
+/**/if (function_exists('filter_var'))
+/**/{
+/**/	patchwork_bootstrapper::alias('filter_var',       'patchwork_filter_var',       array('$var', '$filter' => FILTER_DEFAULT, '$opt' => INF));
+/**/	patchwork_bootstrapper::alias('filter_var_array', 'patchwork_filter_var_array', array('$data', '$definition' => INF));
+
+		function patchwork_filter_var($var, $filter = FILTER_DEFAULT, $opt = INF)
+		{
+			if (INF === $opt) return filter_var($var, $filter);
+
+			isset($opt['options'])
+				&& FILTER_CALLBACK == $filter
+				&& is_string($opt['options'])
+				&& function_exists('__patchwork_' . $opt['options'])
+				&& $opt['options'] = '__patchwork_' . $opt['options'];
+
+			return filter_var($var, $filter, $opt);
+		}
+
+		function patchwork_filter_var_array($data, $def = INF)
+		{
+			if (INF === $def) return filter_var_array($data);
+
+			if (is_array($def)) foreach ($def as &$opt)
+			{
+				isset($opt['filter'], $opt['options'])
+					&& FILTER_CALLBACK == $opt['filter']
+					&& is_string($opt['options'])
+					&& function_exists('__patchwork_' . $opt['options'])
+					&& $opt['options'] = '__patchwork_' . $opt['options'];
+			}
+
+			return filter_var_array($data, $def);
+		}
 /**/}
 
 

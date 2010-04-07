@@ -83,9 +83,10 @@ class patchwork_bootstrapper_preprocessor__0
 			case '(': $bracket[] = ')'; break;
 
 			case ')': case ']': case '}':
-				if (array_pop($bracket) !== $token)
+				if ($token !== $iLast = array_pop($bracket))
 				{
-					die("Parse error: syntax error, unexpected '{$token}' in {$this->file} on line {$line}");
+					$iLast = $iLast ? ", expecting `{$iLast}'" : '';
+					die("Parse error: syntax error, unexpected `{$token}'{$iLast} in {$this->file} on line {$line}");
 				}
 				break;
 			}
