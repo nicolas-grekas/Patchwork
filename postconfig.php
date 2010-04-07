@@ -527,3 +527,8 @@ if ($a || $b)
 			: ($CONFIG['session.cookie_domain'] = '' );
 	}
 }
+
+/**/patchwork_bootstrapper::aliasFunction('header'      , 'patchwork::header',       array('string', 'replace' => true, 'http_response_code' => null));
+/**/patchwork_bootstrapper::aliasFunction('setcookie'   , 'patchwork::setcookie',    array('name', 'value' => '', 'expires' => 0, 'path' => '', 'domain' => '', 'secure' => false, 'httponly' => false));
+/**/patchwork_bootstrapper::aliasFunction('setcookieraw', 'patchwork::setcookieraw', array('name', 'value' => '', 'expires' => 0, 'path' => '', 'domain' => '', 'secure' => false, 'httponly' => false));
+

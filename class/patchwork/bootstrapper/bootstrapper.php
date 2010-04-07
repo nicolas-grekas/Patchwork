@@ -281,6 +281,11 @@ patchwork::start();";
 		return $this->getUpdatedb()->buildPathCache($paths, $last, $this->cwd, $zcache);
 	}
 
+	function aliasFunction($function, $alias, $args, $return_ref = false)
+	{
+		$this->preprocessor->aliasFunction($function, $alias, $args, $return_ref);
+	}
+
 
 	protected function loadConfig(&$slice, $name)
 	{

@@ -69,4 +69,9 @@ class patchwork_bootstrapper
 	{
 		return self::$bootstrapper->updatedb(self::$paths, self::$last, self::$zcache);
 	}
+
+	static function aliasFunction($function, $alias, $args, $return_ref = false)
+	{
+		self::$bootstrapper->aliasFunction($function, $alias, $args, $return_ref);
+	}
 }
