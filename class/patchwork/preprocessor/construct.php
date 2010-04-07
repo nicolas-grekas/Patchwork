@@ -25,7 +25,7 @@ class extends patchwork_preprocessor_bracket
 	function __construct($preproc, &$source)
 	{
 		$this->source =& $source;
-		parent::__construct($preproc, true);
+		parent::__construct($preproc);
 	}
 
 	function filterBracket($type, $token)
