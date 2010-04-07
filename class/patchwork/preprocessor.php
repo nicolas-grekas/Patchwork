@@ -61,7 +61,7 @@ class patchwork_preprocessor__0
 	$declaredClass = array('self' => 1, 'parent' => 1, 'this' => 1, 'static' => 1, 'p' => 1, 'patchwork' => 1),
 	$variableType = array(
 		T_EVAL, '(', T_LINE, T_FILE, T_DIR, T_FUNC_C, T_CLASS_C, T_METHOD_C, T_NS_C, T_INCLUDE, T_REQUIRE,
-		T_CURLY_OPEN, T_VARIABLE, '$', T_INCLUDE_ONCE, T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES,
+		T_CURLY_OPEN, T_VARIABLE, '$', T_INCLUDE_ONCE, T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES, T_EXIT,
 	),
 	$inlineClass,
 	$recursivePool = array(),
@@ -316,8 +316,10 @@ class patchwork_preprocessor__0
 
 					if (T_VARIABLE === $prevType && '$' !== $antePrevType)
 					{
-						$b = substr($new_code[$j], 1);
-						$new_code[$j] = "\${is_string(\${$b})&&function_exists(\$v{$T}='__patchwork_'.\${$b})?'v{$T}':'{$b}'}";
+						if ('this' !== strtolower($b = substr($new_code[$j], 1)))
+						{
+							$new_code[$j] = "\${is_string(\${$b})&&function_exists(\$v{$T}='__patchwork_'.\${$b})?'v{$T}':'{$b}'}";
+						}
 					}
 					else
 					{
@@ -620,14 +622,7 @@ class patchwork_preprocessor__0
 					{
 						$j = self::$functionAlias[$type];
 
-						if ($j instanceof __patchwork_preprocessor_bracket)
-						{
-							$token .= $c;
-							$c = clone $j;
-							$c->setupFilter();
-							break;
-						}
-						else if (0 !== stripos($j, $class . '::'))
+						if (0 !== stripos($j, $class . '::'))
 						{
 							$token = $j;
 							if (false !== strpos($token, '(')) ++$i && $type = '(';
@@ -646,9 +641,9 @@ class patchwork_preprocessor__0
 						if (0<=$level)
 						{
 							$j = $i;
-							$j = !DEBUG && TURBO ? (string) $this->fetchConstantCode($code, $j, $codeLen, $b) : '';
+							$j = !DEBUG && TURBO ? $this->fetchConstantCode($code, $j, $codeLen, $b) : null;
 
-							if ('' === $j)
+							if (null === $j)
 							{
 								new patchwork_preprocessor_t($this);
 							}
@@ -729,9 +724,9 @@ class patchwork_preprocessor__0
 				{
 					if (0>$level)
 					{
-						$j =  !DEBUG && TURBO ? (string) $this->fetchConstantCode($code, $i, $codeLen, $b) : '';
+						$j = !DEBUG && TURBO ? $this->fetchConstantCode($code, $i, $codeLen, $b) : null;
 
-						if ('' !== $j)
+						if (null !== $j)
 						{
 							$b = patchworkProcessedPath($b);
 
@@ -947,6 +942,7 @@ class patchwork_preprocessor__0
 		$new_code = array();
 		$inString = false;
 		$bracket = 0;
+		$close = 0;
 
 		for ($j = $i+1; $j < $codeLen; ++$j)
 		{
@@ -958,45 +954,46 @@ class patchwork_preprocessor__0
 			}
 			else $type = $inString && '"' !== $token && '`' !== $token ? T_ENCAPSED_AND_WHITESPACE : $token;
 
-			$close = '';
-
 			switch ($type)
 			{
-			case '`': return false;
+			case '`': $close = 2; break;
 
 			case '"':             $inString = !$inString; break;
 			case T_START_HEREDOC: $inString = true;       break;
 			case T_END_HEREDOC:   $inString = false;      break;
-			case T_STRING:   if (!$inString) return;      break;
+			case T_STRING:   if (!$inString) $close = 2;  break;
 
 			case '?': case '(': case '{': case '[':
 				++$bracket;
 				break;
 
 			case ':': case ')': case '}': case ']':
-				$bracket-- || $close = true;
+				$bracket-- || ++$close;
 				break;
 
 			case ',':
-				$bracket   || $close = true;
+				$bracket   || ++$close;
 				break;
 
 			case T_AS:
 			case T_CLOSE_TAG:
 			case ';':
-				$close = true;
+				++$close;
 				break;
 
 			default:
-				if (in_array($type, self::$variableType)) return;
+				if (in_array($type, self::$variableType)) $close = 2;
 			}
 
-			if ($close)
+			if (1 === $close)
 			{
 				$i = $j - 1;
 				$j = implode('', $new_code);
-				if (false === @eval("\$value={$j};")) return;
-				return $j;
+				return false === @eval("\$value={$j};") ? null : $j;
+			}
+			else if (2 === $close)
+			{
+				return;
 			}
 			else $new_code[] = $token;
 		}

@@ -35,7 +35,6 @@ class extends patchwork_preprocessor_marker
 		'filter_var'        => 0, // callback in third arg, but only if second arg is FILTER_CALLBACK
 		'filter_var_array'  => 0, // same as multiple filter_var
 		'ibase_set_event_handler'   => 0, // callback as first xor second arg
-		'session_set_save_handler'  => 0, // 6 callback parameters
 		'sqlite_create_function'    => 0, // don't introduce any difference with SQLiteDatabase->createFunction
 		'sqlite_create_aggregate'   => 0, // don't introduce any difference with SQLiteDatabase->createAggregate
 		'stream_context_create'     => 0, // callback may be in second arg
@@ -108,34 +107,45 @@ class extends patchwork_preprocessor_marker
 		// Callback in the two last parameter
 		'array_udiff_uassoc'      => -2,
 		'array_uintersect_uassoc' => -2,
+
+		'session_set_save_handler' => -6, // 6 callback parameters
 	);
 
 
-	protected $callbackPosition, $k;
+	protected static $lead, $tail;
+
+	static function __constructStatic()
+	{
+		$k = '$k' . PATCHWORK_PATH_TOKEN;
+		self::$lead = "is_string({$k}=";
+		self::$tail = ")?(function_exists('__patchwork_'.{$k})?'__patchwork_'.{$k}:{$k}):(is_array({$k})&&is_string({$k}[0])?{$k}:{$k})";
+	}
+
+
+	protected $callbackPosition;
 
 	function __construct($preproc, $callback)
 	{
-		$this->k = '$k' . PATCHWORK_PATH_TOKEN;
 		$this->callbackPosition = self::$list[$callback] - 1;
 		parent::__construct($preproc);
 	}
 
 	function onStart($token)
 	{
-		if (0 == $this->callbackPosition) $token .= "is_string({$this->k}=";
+		if (0 == $this->callbackPosition) $token .= self::$lead;
 		return parent::onStart($token);
 	}
 
 	function onReposition($token)
 	{
-		if ($this->position == $this->callbackPosition) $token .= "is_string({$this->k}=";
-		else if ($this->position - 1 == $this->callbackPosition) $token = ")&&function_exists('__patchwork_'.{$this->k})?'__patchwork_'.{$this->k}:{$this->k}" . $token;
+		if ($this->position == $this->callbackPosition) $token .= self::$lead;
+		else if ($this->position - 1 == $this->callbackPosition) $token = self::$tail . $token;
 		return parent::onReposition($token);
 	}
 
 	function onClose($token)
 	{
-		if ($this->position == $this->callbackPosition) $token = ")&&function_exists('__patchwork_'.{$this->k})?'__patchwork_'.{$this->k}:{$this->k}" . $token;
+		if ($this->position == $this->callbackPosition) $token = self::$tail . $token;
 		return parent::onClose($token);
 	}
 }
