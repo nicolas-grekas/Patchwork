@@ -106,6 +106,8 @@ class patchwork_bootstrapper_bootstrapper__0
 
 		$a->file = dirname($this->caller) . '/common.php';
 		$a->ob_start($this->caller);
+
+		$GLOBALS['patchwork_preprocessor_alias'] = array();
 	}
 
 	function ob_handler($buffer)
@@ -131,7 +133,7 @@ class patchwork_bootstrapper_bootstrapper__0
 		if ('' === $buffer = ob_get_clean())
 		{
 			$T = $this->token;
-			$a = array("<?php \$patchwork_autoload_cache = array(); \$c{$T} =& \$patchwork_autoload_cache; \$d{$T} = 1;");
+			$a = array("<?php \$patchwork_preprocessor_alias = array(); \$patchwork_autoload_cache = array(); \$c{$T} =& \$patchwork_autoload_cache; \$d{$T} = 1;");
 
 			foreach ($this->configCode as &$code)
 			{
