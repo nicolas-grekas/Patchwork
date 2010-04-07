@@ -16,10 +16,16 @@ class extends patchwork_preprocessor_bracket
 {
 	function filterBracket($type, $token)
 	{
-		if ('.' === $type) patchwork_preprocessor::error(
-			"Usage of T() is potentially divergent, please use sprintf() instead of string concatenation.",
-			$this->preproc->source, $this->preproc->line
-		);
+		switch ($type)
+		{
+		case T_CURLY_OPEN:
+		case T_DOLLAR_OPEN_CURLY_BRACES:
+		case '.':
+			patchwork_preprocessor::error(
+				"Usage of T() is potentially divergent, please use sprintf() instead of string concatenation.",
+				$this->preproc->source, $this->preproc->line
+			);
+		}
 
 		return $token;
 	}
