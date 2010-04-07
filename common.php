@@ -28,6 +28,23 @@ define('IS_POSTING', 'POST' === $_SERVER['REQUEST_METHOD']);
 $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 
 
+// mbstring configuration
+
+/**/if (extension_loaded('mbstring'))
+/**/{
+		mb_internal_encoding('UTF-8');
+
+/**/	if ('none'  !== strtolower(mb_substitute_character()))
+			mb_substitute_character('none');
+
+/**/	if ('pass'  !== strtolower(mb_http_output()))
+			mb_http_output('pass');
+
+/**/	if ('uni'   !== strtolower(mb_language()) && 'neutral' !== strtolower(mb_language()))
+			mb_language('uni');
+/**/}
+
+
 // $_SERVER variables manipulations
 
 if (!isset($_SERVER['HTTP_HOST']) || strspn($_SERVER['HTTP_HOST'], 'eiasntroludcmpghv.fb:-q102yx9jk3548w67z') !== strlen($_SERVER['HTTP_HOST']))
@@ -284,24 +301,6 @@ class ob
 /**/		&& die('Patchwork Error: failed to turn off magic_quotes_runtime');
 
 		@set_magic_quotes_runtime(false);
-/**/}
-
-
-// mbstring configuration
-
-/**/if (extension_loaded('mbstring'))
-/**/{
-/**/	if ('none'  !== mb_substitute_character())
-			mb_substitute_character('none');
-
-/**/	if ('UTF-8' !== mb_internal_encoding())
-			mb_internal_encoding('UTF-8');
-
-/**/	if ('pass'  !== mb_http_output())
-			mb_http_output('pass');
-
-/**/	if ('uni'   !== mb_language() && 'neutral' !== mb_language())
-			mb_language('uni');
 /**/}
 
 

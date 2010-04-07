@@ -17,12 +17,9 @@
 
 /**/if (extension_loaded('mbstring'))
 /**/{
-/**/	(@ini_get('mbstring.func_overload') & MB_OVERLOAD_STRING)
-/**/		&& die('Patchwork Error: mbstring is overloading string functions');
-/**/
 /**/	ini_get_bool('mbstring.encoding_translation')
 /**/		&& !in_array(strtolower(ini_get('mbstring.http_input')), array('pass', 'utf-8'))
-/**/		&& die('Patchwork Error: mbstring is set to translate input encoding');
+/**/		&& die('Patchwork Error: please disable "mbstring.encoding_translation" or set "mbstring.http_input" to "pass" or "utf-8"');
 /**/}
 
 /**/$a = file_get_contents(patchwork_bootstrapper::$pwd . 'data/utf8/quickChecks.txt');

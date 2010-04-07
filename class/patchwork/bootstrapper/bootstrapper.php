@@ -148,7 +148,7 @@ patchwork::start();";
 
 			$a = implode('', $a);
 
-			fwrite($this->lock, $a, strlen($a));
+			fwrite($this->lock, $a);
 			fclose($this->lock);
 
 			$T = $this->getLockFile();

@@ -29,6 +29,9 @@ if (!function_exists('version_compare') || version_compare(phpversion(), '5.1.4'
 	die("PHP 5.1.4 or higher is required.");
 }
 
+function_exists('mb_internal_encoding') && mb_internal_encoding('UTF-8');
+
+
 require dirname(__FILE__) . '/class/patchwork/bootstrapper.php';
 
 patchwork_bootstrapper::initialize(__FILE__);

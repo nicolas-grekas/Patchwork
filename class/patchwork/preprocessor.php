@@ -283,17 +283,23 @@ class patchwork_preprocessor__0
 				);
 			}
 		}
-
-		if (extension_loaded('iconv') && 'fi' === @iconv('UTF-8', 'ASCII//TRANSLIT', 'ﬁ'))
+		else if (3 & (int) @ini_get('mbstring.func_overload'))
 		{
-			// iconv is way faster than mbstring
-			self::$functionAlias['mb_strlen']            = 'iconv_strlen';
-			self::$functionAlias['mb_strpos']            = 'iconv_strpos';
-			self::$functionAlias['mb_strrpos_500']       = 'iconv_strrpos';
-			self::$functionAlias['mb_substr']            = 'iconv_substr';
-			self::$functionAlias['mb_decode_mimeheader'] = 'iconv_mime_decode';
+			if (1  & (int) @ini_get('mbstring.func_overload'))
+			{
+				self::$functionAlias['mail'] = 'utf8_mbstring_noOverload::mail';
+			}
+
+			if (2 & (int) @ini_get('mbstring.func_overload'))
+			{
+				self::$functionAlias['strlen']  = 'utf8_mbstring_noOverload::strlen';
+				self::$functionAlias['strpos']  = 'utf8_mbstring_noOverload::strpos';
+				self::$functionAlias['strrpos'] = 'utf8_mbstring_noOverload::strrpos';
+				self::$functionAlias['substr']  = 'utf8_mbstring_noOverload::substr';
+			}
 		}
-		else
+
+		if (!extension_loaded('iconv'))
 		{
 			self::$constant += array(
 				'ICONV_IMPL' => '"patchworkiconv"',
@@ -834,7 +840,7 @@ class patchwork_preprocessor__0
 						if (0<=$level)
 						{
 							$j = $i;
-							$j = (string) $this->fetchConstantCode($code, $j, $codeLen, $b);
+							$j = !DEBUG && TURBO ? (string) $this->fetchConstantCode($code, $j, $codeLen, $b) : '';
 
 							if ('' === $j)
 							{
@@ -915,7 +921,7 @@ class patchwork_preprocessor__0
 				{
 					if (0>$level)
 					{
-						$j = (string) $this->fetchConstantCode($code, $i, $codeLen, $b);
+						$j =  !DEBUG && TURBO ? (string) $this->fetchConstantCode($code, $i, $codeLen, $b) : '';
 
 						if ('' !== $j)
 						{
@@ -1130,8 +1136,6 @@ class patchwork_preprocessor__0
 
 	protected function fetchConstantCode(&$code, &$i, $codeLen, &$value)
 	{
-		if (DEBUG || !TURBO) return false;
-
 		$new_code = array();
 		$inString = false;
 		$bracket = 0;
