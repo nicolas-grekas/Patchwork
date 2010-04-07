@@ -181,7 +181,7 @@ class extends patchwork
 
 		if (!$table) $table = array_flip(get_html_translation_table(HTML_ENTITIES));
 
-		if (isset($table[$c[0]])) return utf8_encode_1252($table[$c[0]]);
+		if (isset($table[$c[0]])) return utf8_encode($table[$c[0]]);
 
 		$c = strtolower($c[1]);
 

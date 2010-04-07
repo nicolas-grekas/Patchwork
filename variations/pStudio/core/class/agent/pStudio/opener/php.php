@@ -19,7 +19,7 @@ class extends agent_pStudio_opener
 		if (false !== $a)
 		{
 			$a && false !== strpos($a, "\r") && $a = strtr(str_replace("\r\n", "\n", $a), "\r", "\n");
-			u::isUTF8($a) || $a = utf8_encode_1252($a);
+			u::isUTF8($a) || $a = utf8_encode($a);
 
 			$o->code = pStudio_highlighter::highlight($a, $this->language, true);
 		}

@@ -39,7 +39,9 @@ $CONFIG = array();
 // Utility functions
 
 function patchwork_include($file)     {global $CONFIG; return include $file;}
-function patchwork_is_a($obj, $class) {return $obj instanceof $class;}
+
+/**/if (version_compare(PHP_VERSION, '5.3.0') < 0))
+		function patchwork_is_a($obj, $class) {return $obj instanceof $class;}
 
 function patchwork_bad_request($message, $url)
 {
@@ -177,7 +179,7 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 
 /**/	if (IS_WINDOWS)
 /**/	{
-			if (function_exists('win_file_exists') ? win_file_exists($source) :file_exists($source))
+			if (function_exists('patchwork_file_exists') ? patchwork_file_exists($source) : file_exists($source))
 			{
 				$last_level = $level;
 				return false !== strpos($source, '/') ? strtr($source, '/', '\\') : $source;
@@ -281,11 +283,11 @@ if ($a)
 
 // Convert ISO-8859-1 URLs to UTF-8 ones
 
-function url_enc_utf8_dec_callback($m) {return urlencode(utf8_encode_1252(urldecode($m[0])));}
+function url_enc_utf8_dec_callback($m) {return urlencode(patchwork_utf8_encode(urldecode($m[0])));}
 
 if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 {
-	$a = $a !== utf8_decode_1252($a) ? '/' : preg_replace_callback('/(?:%[89a-f][0-9a-f])+/i', 'url_enc_utf8_dec_callback', $a);
+	$a = $a !== patchwork_utf8_decode($a) ? '/' : preg_replace_callback('/(?:%[89a-f][0-9a-f])+/i', 'url_enc_utf8_dec_callback', $a);
 
 	patchwork_bad_request('Requested URL is not a valid urlencoded UTF-8 string.', $a);
 }
@@ -337,3 +339,21 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 
 		unset($a, $v);
 /**/}
+
+
+/**/$a = md5(mt_rand());
+/**/$b = @ini_set('display_errors', $a);
+/**/
+/**/if (@ini_get('display_errors') !== $a)
+/**/{
+		function patchwork_ini_set($k, $v)    {return @ini_set($k, $v);}
+		function patchwork_ini_alter($k, $v)  {return @ini_set($k, $v);}
+		function patchwork_ini_get($k)        {return @ini_get($k);}
+		function patchwork_set_time_limit($s) {return @set_time_limit($s);}
+/**/}
+/**/else if (ini_get_bool('safe_mode'))
+/**/{
+		function patchwork_set_time_limit($a) {return @set_time_limit($s);}
+/**/}
+/**/
+/**/@ini_set('display_errors', $b);
