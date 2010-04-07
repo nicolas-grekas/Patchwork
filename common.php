@@ -69,6 +69,12 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 /**/	patchwork_bootstrapper::alias('filter_var_array', 'patchwork_alias_filter::var_array',  array('$data', '$definition' => INF));
 /**/}
 
+/**/if (function_exists('stream_context_create'))
+/**/{
+/**/	patchwork_bootstrapper::alias('stream_context_create',     'patchwork_alias_stream::context_create',     array('$opt' => array(), '$params' => INF));
+/**/	patchwork_bootstrapper::alias('stream_context_set_params', 'patchwork_alias_stream::context_set_params', array('$context', '$params'));
+/**/}
+
 
 // mbstring configuration
 
