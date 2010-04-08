@@ -16,7 +16,7 @@ class extends Mail_mime
 {
 	protected $headers, $options;
 
-	function __construct(&$headers, &$options)
+	function __construct($headers, $options)
 	{
 		parent::__construct();
 
