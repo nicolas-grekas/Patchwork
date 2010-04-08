@@ -14,7 +14,7 @@
 
 class extends pMail_agent
 {
-	function __construct(&$headers, &$options)
+	function __construct($headers, $options)
 	{
 		$options['agent'] = 'outerData';
 		$options['args']  = array();

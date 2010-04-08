@@ -26,7 +26,7 @@ class extends pMail_text
 	static protected $imageCache = array();
 
 
-	function __construct(&$headers, &$options)
+	function __construct($headers, $options)
 	{
 		$this->agent = $options['agent'];
 		$this->args  = $options['args'];

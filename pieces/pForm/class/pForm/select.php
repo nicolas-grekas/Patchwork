@@ -176,9 +176,9 @@ class loop_pForm_selectOption__ extends loop
 	protected $length;
 	protected $group = false;
 
-	function __construct(&$item, &$value, $length)
+	function __construct($item, $value, $length)
 	{
-		$this->item =& $item;
+		$this->item = $item;
 		$this->value = array_flip((array) $value);
 		$this->length = $length;
 	}
