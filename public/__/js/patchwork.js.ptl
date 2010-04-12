@@ -853,7 +853,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 
 	if (t($baseAgent))
 	{
-		$j = dUC(esc($j).substr({g$__BASE__|length}+$baseAgent.length).split('?', 1)[0]).split('/');
+		$j = esc(dUC($j.substr({g$__BASE__|allowhtml|length}+$baseAgent.length).split('?', 1)[0])).split('/');
 		for ($i=0; $i<$j.length; ++$i) if ($j[$i]) $loopIterator[$loopIterator.length] = g['__'+($loopIterator.length+1)+'__'] = $j[$i];
 		g.__0__ = $loopIterator.join('/');
 
