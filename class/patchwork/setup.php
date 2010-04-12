@@ -20,6 +20,7 @@ class
 {
 	protected static function execute()
 	{
+		p::touch('appId');
 	}
 
 
