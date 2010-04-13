@@ -18,11 +18,13 @@ class
 	{
 		$string = p::string($string);
 
-		return jsquote(str_replace(
+		false !== strpos($string, '&') && $string = str_replace(
 			array('&#039;', '&quot;', '&gt;', '&lt;', '&amp;'),
-			array("'"     , '"'     , '>'   , '<'   , '&'    ),
+			array("'"     , '"'     , '>'   , '<'   , '&'),
 			$string
-		));
+		);
+
+		return jsquote($string);
 	}
 
 	static function js()

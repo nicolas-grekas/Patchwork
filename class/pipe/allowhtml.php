@@ -18,13 +18,13 @@ class
 	{
 		$string = p::string($string);
 
-		$string = str_replace(
+		false !== strpos($string, '&') && $string = str_replace(
 			array('&#039;', '&quot;', '&gt;', '&lt;', '&amp;'),
 			array("'"     , '"'     , '>'   , '<'   , '&'),
 			$string
 		);
 
-		$urlInterpolation && $string = str_replace(
+		$urlInterpolation && false !== strpos($string, '{') && $string = str_replace(
 			array('{/}'        , '{~}'),
 			array(p::__HOST__(), p::__BASE__()),
 			$string

@@ -547,3 +547,7 @@ if ($a || $b)
 /**/patchwork_bootstrapper::alias('setcookie'   , 'patchwork::setcookie',    array('$name', '$value' => '', '$expires' => 0, '$path' => '', '$domain' => '', '$secure' => false, '$httponly' => false));
 /**/patchwork_bootstrapper::alias('setcookieraw', 'patchwork::setcookieraw', array('$name', '$value' => '', '$expires' => 0, '$path' => '', '$domain' => '', '$secure' => false, '$httponly' => false));
 
+if (strtr($_SERVER['PATCHWORK_BASE'], '<>&"', '----') !== $_SERVER['PATCHWORK_BASE'])
+{
+	die('Patchwork Error: base URL can not contain special HTML character (' . htmlspecialchars($_SERVER['PATCHWORK_BASE']) . ')');
+}

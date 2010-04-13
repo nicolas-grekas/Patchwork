@@ -22,7 +22,7 @@ class extends patchwork
 		else $cache[$agent] =& $trace;
 
 		$args = array();
-		$BASE = $base = p::__BASE__();
+		$BASE = p::__BASE__();
 
 		$agent = rawurlencode($agent);
 		$agent = strtr($agent, array(
