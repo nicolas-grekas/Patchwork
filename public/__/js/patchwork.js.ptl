@@ -62,7 +62,7 @@ function esc($str)
 
 function unesc($str)
 {
-	return t($str, 'string')
+	return t($str, 'string') && 0 <= $str.indexOf('&')
 		? $str.replace(
 			/&#039;/g, "'").replace(
 			/&quot;/g, '"').replace(
@@ -237,7 +237,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 		$includeCache = {},
 		$startTime = /(^|; )JS=[01](; |$)/,
 
-		$masterBase = {g$__BASE__|js};
+		$masterBase = esc({g$__BASE__|js});
 
 
 	try
@@ -853,7 +853,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 
 	if (t($baseAgent))
 	{
-		$j = esc(dUC($j.substr({g$__BASE__|allowhtml|length}+$baseAgent.length).split('?', 1)[0])).split('/');
+		$j = esc(dUC($j).substr({g$__BASE__|allowhtml|length}+$baseAgent.length).split('?', 1)[0]).split('/');
 		for ($i=0; $i<$j.length; ++$i) if ($j[$i]) $loopIterator[$loopIterator.length] = g['__'+($loopIterator.length+1)+'__'] = $j[$i];
 		g.__0__ = $loopIterator.join('/');
 
