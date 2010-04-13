@@ -24,21 +24,27 @@ class patchwork_bootstrapper
 	$last,
 	$appId;
 
-	protected static $bootstrapper;
+
+	protected static
+
+	$bootstrapper,
+	$caller;
 
 
-	static function initialize($caller)
+	static function initialize($caller, $cwd = null)
 	{
 		self::$cwd = defined('PATCHWORK_BOOTPATH') && '' !== PATCHWORK_BOOTPATH ? PATCHWORK_BOOTPATH : '.';
+		isset($cwd) && self::$cwd = $cwd;
 		self::$cwd = rtrim(self::$cwd, '/\\') . DIRECTORY_SEPARATOR;
 		self::$pwd = dirname($caller) . DIRECTORY_SEPARATOR;
+		self::$caller = $caller;
 
 		require dirname(__FILE__) . '/bootstrapper/bootstrapper.php';
 
-		self::$bootstrapper = new patchwork_bootstrapper_bootstrapper__0($caller, self::$cwd, self::$token);
+		self::$bootstrapper = new patchwork_bootstrapper_bootstrapper__0(self::$cwd, self::$token);
 	}
 
-	static function getLock()             {return self::$bootstrapper->getLock();}
+	static function getLock()             {return self::$bootstrapper->getLock(self::$caller);}
 	static function isReleased()          {return self::$bootstrapper->isReleased();}
 	static function release()             {return self::$bootstrapper->release();}
 	static function getCompiledFile()     {return self::$bootstrapper->getCompiledFile();}
@@ -73,5 +79,21 @@ class patchwork_bootstrapper
 	static function alias($function, $alias, $args, $return_ref = false)
 	{
 		self::$bootstrapper->alias($function, $alias, $args, $return_ref);
+	}
+
+	static function fixParentPaths($pwd)
+	{
+		self::$paths  = $GLOBALS['patchwork_path'];
+		self::$last   = PATCHWORK_PATH_LEVEL;
+		self::$zcache = PATCHWORK_ZCACHE;
+
+		self::initialize($pwd . '-', PATCHWORK_PROJECT_PATH);
+
+		$db = self::updatedb();
+		$db = dba_popen(PATCHWORK_PROJECT_PATH . '.parentPaths.db'/*>*/, 'rd', $db);
+
+		if (!$db) exit;
+
+		return $db;
 	}
 }

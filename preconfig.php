@@ -206,7 +206,17 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 /**/if ($a = patchwork_bootstrapper::updatedb())
 /**/{
 		static $db;
-		isset($db) || $db = dba_popen(/*<*/patchwork_bootstrapper::$cwd . '.parentPaths.db'/*>*/, 'rd', /*<*/$a/*>*/);
+
+		if (!isset($db))
+		{
+			if (!$db = @dba_popen(/*<*/patchwork_bootstrapper::$cwd . '.parentPaths.db'/*>*/, 'rd', /*<*/$a/*>*/))
+			{
+				require_once /*<*/patchwork_bootstrapper::$pwd . 'class/patchwork/bootstrapper.php'/*>*/;
+
+				$db = patchwork_bootstrapper::fixParentPaths(/*<*/patchwork_bootstrapper::$pwd/*>*/);
+			}
+		}
+
 		$base = dba_fetch($file, $db);
 /**/}
 /**/else

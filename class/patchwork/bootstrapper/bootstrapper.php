@@ -17,7 +17,6 @@ class patchwork_bootstrapper_bootstrapper__0
 	protected
 
 	$marker,
-	$caller,
 	$cwd,
 	$token,
 	$dir,
@@ -28,10 +27,9 @@ class patchwork_bootstrapper_bootstrapper__0
 	$lock = null;
 
 
-	function __construct($caller, &$cwd, &$token)
+	function __construct(&$cwd, &$token)
 	{
 		$this->marker = md5(mt_rand(1, mt_getrandmax()));
-		$this->caller =  $caller;
 		$this->cwd    =& $cwd;
 		$this->token  =& $token;
 		$this->dir    = dirname(__FILE__);
@@ -67,7 +65,7 @@ class patchwork_bootstrapper_bootstrapper__0
 	function getCompiledFile() {return $this->cwd . '.patchwork.php';}
 	function getLockFile()     {return $this->cwd . '.patchwork.lock';}
 
-	function getLock($retry = true)
+	function getLock($caller, $retry = true)
 	{
 		$lock = $this->getLockFile();
 		$file = $this->getCompiledFile();
@@ -89,7 +87,7 @@ class patchwork_bootstrapper_bootstrapper__0
 
 			flock($this->lock, LOCK_EX);
 
-			$this->initialize();
+			$this->initialize($caller);
 
 			return true;
 		}
@@ -104,7 +102,7 @@ class patchwork_bootstrapper_bootstrapper__0
 		if ($retry && !file_exists($file))
 		{
 			@unlink($lock);
-			return $this->getLock(false);
+			return $this->getLock($caller, false);
 		}
 		else return false;
 	}
@@ -114,7 +112,7 @@ class patchwork_bootstrapper_bootstrapper__0
 		return !$this->lock;
 	}
 
-	protected function initialize()
+	protected function initialize($caller)
 	{
 		ob_start(array($this, 'ob_handler'));
 
@@ -122,8 +120,8 @@ class patchwork_bootstrapper_bootstrapper__0
 
 		$this->preprocessor = $a = $this->getPreprocessor();
 
-		$a->file = dirname($this->caller) . '/common.php';
-		$a->ob_start($this->caller);
+		$a->file = dirname($caller) . '/common.php';
+		$a->ob_start($caller);
 
 		$GLOBALS['patchwork_preprocessor_alias'] = array();
 	}
