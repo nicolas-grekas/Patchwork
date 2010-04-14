@@ -39,7 +39,7 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 // Fix a bug with long file names
 // In debug mode, checks if character case is strict.
 
-/**/if (IS_WINDOWS && !PATCHWORK_BUGGY_REALPATH)
+/**/if (IS_WINDOWS && !function_exists('__patchwork_realpath'))
 /**/{
 		if (/*<*/version_compare(PHP_VERSION, '5.2', '<')/*>*/ || DEBUG)
 		{
@@ -172,7 +172,7 @@ function patchworkProcessedPath($file)
 
 	if (false !== strpos('.' . $file, './') || (/*<*/IS_WINDOWS/*>*/ && ':' === substr($file, 1, 1)))
 	{
-/**/if (PATCHWORK_BUGGY_REALPATH)
+/**/if (function_exists('__patchwork_realpath'))
 		if ($f = patchwork_realpath($file)) $file = $f;
 /**/else
 		if ($f = realpath($file)) $file = $f;
