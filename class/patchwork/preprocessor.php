@@ -13,11 +13,12 @@
 
 
 // New tokens since PHP 5.3
-defined('T_GOTO')      || define('T_GOTO', -1);
-defined('T_USE' )      || define('T_USE' , -1);
-defined('T_DIR' )      || define('T_DIR' , -1);
-defined('T_NS_C')      || define('T_NS_C', -1);
-defined('T_NAMESPACE') || define('T_NAMESPACE', -1);
+defined('T_GOTO')         || define('T_GOTO', -1);
+defined('T_USE' )         || define('T_USE' , -1);
+defined('T_DIR' )         || define('T_DIR' , -1);
+defined('T_NS_C')         || define('T_NS_C', -1);
+defined('T_NAMESPACE')    || define('T_NAMESPACE', -1);
+defined('T_NS_SEPARATOR') || define('T_NS_SEPARATOR', -1);
 
 class patchwork_preprocessor__0
 {
