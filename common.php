@@ -210,11 +210,10 @@ function ini_get_bool($a)
 	}
 }
 
-/**/$a = '' === basename('§');
 
-define('PATCHWORK_BUGGY_BASENAME', /*<*/$a/*>*/);
+// basename and pathinfo are locale sensitive, but this is not what we want !
 
-/**/if ($a)
+/**/if ('' === basename('§'))
 /**/{
 /**/	patchwork_bootstrapper::alias('basename', 'patchwork_basename', array('$path', '$suffix' => ''));
 /**/	patchwork_bootstrapper::alias('pathinfo', 'patchwork_pathinfo', array('$path', '$option' => INF));
@@ -259,6 +258,9 @@ define('PATCHWORK_BUGGY_BASENAME', /*<*/$a/*>*/);
 		}
 /**/}
 
+
+// If realpath or getcwd are bugged, enable a workaround
+
 /**/$a = function_exists('realpath') ? @realpath('.') : false;
 /**/if (!$a || '.' === $a)
 /**/{
@@ -271,9 +273,6 @@ define('PATCHWORK_BUGGY_BASENAME', /*<*/$a/*>*/);
 /**/	}
 /**/}
 /**/else $a = false;
-
-define('PATCHWORK_BUGGY_REALPATH', /*<*/(bool) $a/*>*/);
-
 
 /**/if (!function_exists('getcwd') || !@getcwd())
 /**/	patchwork_bootstrapper::alias('getcwd', 'patchwork_getcwd', array());
