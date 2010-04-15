@@ -13,12 +13,12 @@
 
 
 // New tokens since PHP 5.3
-defined('T_GOTO')       || define('T_GOTO', -1);
-defined('T_USE' )       || define('T_USE' , -1);
-defined('T_DIR' )       || define('T_DIR' , -1);
-defined('T_NS_C')       || define('T_NS_C', -1);
-defined('T_NAMESPACE')  || define('T_NAMESPACE', -1);
-defined('NS_SEPARATOR') || define('NS_SEPARATOR', -1);
+defined('T_GOTO')         || define('T_GOTO', -1);
+defined('T_USE' )         || define('T_USE' , -1);
+defined('T_DIR' )         || define('T_DIR' , -1);
+defined('T_NS_C')         || define('T_NS_C', -1);
+defined('T_NAMESPACE')    || define('T_NAMESPACE', -1);
+defined('T_NS_SEPARATOR') || define('NS_SEPARATOR', -1);
 
 class patchwork_preprocessor__0
 {
@@ -682,7 +682,7 @@ class patchwork_preprocessor__0
 
 						$need_marker = true;
 
-						if (self::$callback[$type] > 0) //XXX quid des positions négatives ?
+						if (self::$callback[$type] > 0) //XXX What about negative positions?
 						{
 							$j = $i;
 							$position = 0;
@@ -704,8 +704,8 @@ class patchwork_preprocessor__0
 									$position = $j;
 									$d = $this->fetchConstantCode($code, $j, $codeLen, $b, true);
 
-									//XXX comment détecter array($this, ...) ou array(__CLASS__,...) ?
-									//XXX penser aussi à 'static'
+									//XXX how do we detect array($this, ...) or array(__CLASS__,...)?
+									//XXX what about 'static'?
 
 									if (null !== $d)
 									{
@@ -1055,7 +1055,7 @@ class patchwork_preprocessor__0
 
 			switch ($type)
 			{
-				//XXX ajouter le cas où token === __CLASS__ ; mais comment ? => ajouter un parametre $class ?
+				//XXX add a case when token === __CLASS__ ; but how? => add a $class $parameter?
 			case '`': $close = 2; break;
 
 			case '"':             $inString = !$inString; break;
