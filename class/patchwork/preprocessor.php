@@ -13,12 +13,12 @@
 
 
 // New tokens since PHP 5.3
-defined('T_GOTO')         || define('T_GOTO', -1);
-defined('T_USE' )         || define('T_USE' , -1);
-defined('T_DIR' )         || define('T_DIR' , -1);
-defined('T_NS_C')         || define('T_NS_C', -1);
-defined('T_NAMESPACE')    || define('T_NAMESPACE', -1);
-defined('T_NS_SEPARATOR') || define('T_NS_SEPARATOR', -1);
+defined('T_GOTO')       || define('T_GOTO', -1);
+defined('T_USE' )       || define('T_USE' , -1);
+defined('T_DIR' )       || define('T_DIR' , -1);
+defined('T_NS_C')       || define('T_NS_C', -1);
+defined('T_NAMESPACE')  || define('T_NAMESPACE', -1);
+defined('NS_SEPARATOR') || define('NS_SEPARATOR', -1);
 
 class patchwork_preprocessor__0
 {
@@ -680,17 +680,99 @@ class patchwork_preprocessor__0
 
 						if (!isset(self::$callback[$type])) break;
 
-						$token = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$token}";
-						$b = new patchwork_preprocessor_callback($this, $type);
-						$b->curly = -1;
-						$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
+						$need_marker = true;
 
-						if ('&' === $prevType)
+						if (self::$callback[$type] > 0) //XXX quid des positions négatives ?
 						{
-							$j = $new_code_length;
-							while (--$j && in_array($new_type[$j], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ;
-							$new_code[$j] = ' ';
-							$new_type[$j] = T_WHITESPACE;
+							$j = $i;
+							$position = 0;
+
+							do
+							{
+								$j = $this->seekSugar($code, $j);
+
+								if (++$position === self::$callback[$type])
+								{
+									if (!isset($code[$j])) break;
+
+									if (is_array($code[$j]) ? T_FUNCTION === $code[$j][0] : ')' === $code[$j])
+									{
+										$need_marker = false;
+										break;
+									}
+
+									$position = $j;
+									$d = $this->fetchConstantCode($code, $j, $codeLen, $b, true);
+
+									//XXX comment détecter array($this, ...) ou array(__CLASS__,...) ?
+									//XXX penser aussi à 'static'
+
+									if (null !== $d)
+									{
+										$need_marker = substr_count($d, "\n");
+
+										if (is_array($b) && 2 === count($b))
+										{
+											$b[0] = strtolower($b[0]);
+											if ('self' === $b[0]) $class_pool && $b[0] = end($class_pool)->classname;
+											else empty(self::$classAlias[$b[0]]) || $b[0] = self::$classAlias[$b[0]];
+
+											if (isset(self::$inlineClass[$b[0]])) $b = self::export($b, $need_marker);
+											else
+											{
+												$b[0] = $this->marker($b[0]) . '?' . self::export($b[0]) . ':0';
+												$b[1] = self::export($b[1], $need_marker);
+												$b = "array({$b[0]},{$b[1]})";
+												$curly_marker_last[1] || $curly_marker_last[1] = -1;
+											}
+										}
+										else
+										{
+											if (is_string($b))
+											{
+												$d = strtolower($b);
+
+												if (isset(self::$functionAlias[$d]))
+												{
+													$d = self::$functionAlias[$d];
+													0 !== stripos($d, $class . '::') && $b = $d;
+												}
+											}
+
+											$b = self::export($b, $need_marker);
+										}
+
+										$code[++$position] = array(T_CONSTANT_ENCAPSED_STRING, $b);
+
+										while ($position < $j) $code[++$position] = array(T_WHITESPACE, '');
+
+										$need_marker = false;
+									}
+
+									break;
+								}
+								else
+								{
+									$this->fetchConstantCode($code, $j, $codeLen, $b, true);
+								}
+							}
+							while (isset($code[$j+1]) && ')' !== $code[$j+1]);
+						}
+
+						if ($need_marker)
+						{
+							$token = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$token}";
+							$b = new patchwork_preprocessor_callback($this, $type);
+							$b->curly = -1;
+							$curly_marker_last[1]>0 || $curly_marker_last[1] = 1;
+
+							if ('&' === $prevType)
+							{
+								$j = $new_code_length;
+								while (--$j && in_array($new_type[$j], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT))) ;
+								$new_code[$j] = ' ';
+								$new_type[$j] = T_WHITESPACE;
+							}
 						}
 
 						// For files in the include_path, always set the 2nd arg of class|interface_exists() to true
@@ -954,7 +1036,7 @@ class patchwork_preprocessor__0
 		return $this->extractLF($a[0]);
 	}
 
-	protected function fetchConstantCode(&$code, &$i, $codeLen, &$value)
+	protected function fetchConstantCode(&$code, &$i, $codeLen, &$value, $forward = false)
 	{
 		$new_code = array();
 		$inString = false;
@@ -973,6 +1055,7 @@ class patchwork_preprocessor__0
 
 			switch ($type)
 			{
+				//XXX ajouter le cas où token === __CLASS__ ; mais comment ? => ajouter un parametre $class ?
 			case '`': $close = 2; break;
 
 			case '"':             $inString = !$inString; break;
@@ -1008,12 +1091,19 @@ class patchwork_preprocessor__0
 				$j = implode('', $new_code);
 				return false === @eval("\$value={$j};") ? null : $j;
 			}
-			else if (2 === $close)
+			else if (2 === $close && !$forward)
 			{
+				return;
+			}
+			else if (3 === $close)
+			{
+				$i = $j - 1;
 				return;
 			}
 			else $new_code[] = $token;
 		}
+
+		if ($forward) $i = $j - 1;
 	}
 
 	static function export($a, $lf = 0)
