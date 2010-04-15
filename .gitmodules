@@ -1,3 +1,6 @@
 [submodule "pieces/pForm/pieces/fckeditor/public/__/fckeditor/src"]
 	path = pieces/pForm/pieces/fckeditor/public/__/fckeditor/src
 	url = git@github.com:nicolas-grekas/Patchwork-fckeditor.git
+[submodule "pieces/jQuery"]
+	path = pieces/jQuery
+	url = git@github.com:nicolas-grekas/Patchwork-jQuery.git
