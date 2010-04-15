@@ -1,1 +1,0 @@
-{$code|allowhtml|replace:'@':'<span style="display:none" name="w$">@</span>&#64;'}
