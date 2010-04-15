@@ -4,3 +4,6 @@
 [submodule "pieces/jQuery"]
 	path = pieces/jQuery
 	url = git://github.com/nicolas-grekas/Patchwork-jQuery.git
+[submodule "pieces/pForm/pieces/geodb"]
+	path = pieces/pForm/pieces/geodb
+	url = git://github.com/nicolas-grekas/Patchwork-geodb.git
