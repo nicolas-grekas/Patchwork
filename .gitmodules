@@ -1,0 +1,3 @@
+[submodule "pieces/pForm/pieces/fckeditor/public/__/fckeditor/src"]
+	path = pieces/pForm/pieces/fckeditor/public/__/fckeditor/src
+	url = git@github.com:nicolas-grekas/Patchwork-fckeditor.git
