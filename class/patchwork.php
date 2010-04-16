@@ -451,7 +451,7 @@ class
 		$patchwork_appId += $_SERVER['REQUEST_TIME'] - filemtime(PATCHWORK_PROJECT_PATH . 'config.patchwork.php');
 		self::$appId = abs($patchwork_appId % 10000);
 
-		if (file_exists(PATCHWORK_PROJECT_PATH . '.patchwork.php') && $h = @fopen(PATCHWORK_PROJECT_PATH . '.patchwork.php', 'r+b'))
+		if ($h = @fopen(PATCHWORK_PROJECT_PATH . '.patchwork.php', 'r+b'))
 		{
 			$offset = 0;
 
@@ -920,11 +920,9 @@ class
 
 			$pool = array(self::getCachePath('watch/' . $message, 'txt'));
 
-			$er = error_reporting(0);
-
 			while ($message = array_pop($pool))
 			{
-				if (file_exists($message) && $h = fopen($message, 'rb'))
+				if ($h = @fopen($message, 'rb'))
 				{
 					flock($h, LOCK_EX+LOCK_NB, $wb) || $wb = true;
 
@@ -936,21 +934,19 @@ class
 							$line = substr($line, 1, -1);
 
 							if ('I' === $a) $pool[] = $line;
-							else if (file_exists($line)) unlink($line) && ++$i;
+							else @unlink($line) && ++$i;
 						}
 
-						$wb = !IS_WINDOWS && unlink($message);
+						$wb = !IS_WINDOWS && @unlink($message);
 					}
 
 					fclose($h);
 
-					$wb || unlink($message);
+					$wb || @unlink($message);
 
 					++$i;
 				}
 			}
-
-			error_reporting($er);
 
 #>			E("patchwork::touch('$message'): $i file(s) deleted.");
 		}
