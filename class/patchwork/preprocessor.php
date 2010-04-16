@@ -86,7 +86,10 @@ class patchwork_preprocessor__0
 			self::$functionAlias[substr($v, 12)] = $v;
 		}
 
-		foreach ($GLOBALS['patchwork_preprocessor_alias'] as $k => $v) self::$functionAlias[$k] = $v;
+		foreach ($GLOBALS['patchwork_preprocessor_alias'] as $k => $v)
+		{
+			function_exists('__patchwork_' . $k) && self::$functionAlias[$k] = $v;
+		}
 
 		foreach (get_declared_classes() as $v)
 		{
