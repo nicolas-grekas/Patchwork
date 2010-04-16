@@ -260,6 +260,14 @@ class patchwork_bootstrapper_preprocessor__0
 		$inline = explode('::', $alias, 2);
 		$inline = 2 === count($inline) ? mt_rand(1, mt_getrandmax()) . strtolower($inline[0]) : '';
 
+		//XXX bug when aliasing a user function, this will throw a can not redeclare fatal error!
+		// We need some help from the main preprocessor to rename aliased user functions.
+		// When done, this will mean that aliasing will be perfect for user function
+		// and almost perfect for internal functions: the only uncatchable case would
+		// be when using an internal caller (especially objects) with an internal callback.
+		// This also means that functions aliased to catch their callback could be un aliased,
+		// at least when we are sure that an internal function can not be used as a callback.
+
 		self::$code[key(self::$code)] .= $return_ref
 			? "function &{$function}({$args[1]}) {/*{$marker}:{$inline}*/\${''}=&{$alias}({$args[2]});return \${''}}"
 			: "function  {$function}({$args[1]}) {/*{$marker}:{$inline}*/return {$alias}({$args[2]});}";
