@@ -43,9 +43,9 @@ class extends patchwork_preprocessor_marker
 		'stream_wrapper_register'   => 0,
 
 		// Callback in the first parameter
-		'array_map'                    => 1,
-		'call_user_func'               => 1,
-		'call_user_func_array'         => 1,
+		'array_map'                    => 1, //XXX
+		'call_user_func'               => 1, //XXX
+		'call_user_func_array'         => 1, //XXX
 		'is_callable'                  => 1,
 		'newt_set_help_callback'       => 1,
 		'newt_set_suspend_callback'    => 1,
@@ -61,8 +61,8 @@ class extends patchwork_preprocessor_marker
 		// Callback in the second parameter
 		'array_filter'                           => 2,
 		'array_reduce'                           => 2,
-		'array_walk'                             => 2,
-		'array_walk_recursive'                   => 2,
+		'array_walk'                             => 2, //XXX
+		'array_walk_recursive'                   => 2, //XXX
 		'gupnp_service_info_get_introspection'   => 2,
 		'newt_component_add_callback'            => 2,
 		'newt_entry_set_filter'                  => 2,
