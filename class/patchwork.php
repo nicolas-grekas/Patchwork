@@ -144,12 +144,6 @@ function patchwork_error_handler($code, $message, $file, $line)
 	}
 }
 
-ini_set('log_errors', true);
-ini_set('error_log', PATCHWORK_PROJECT_PATH . 'error.patchwork.log');
-ini_set('display_errors', false);
-
-set_error_handler('patchwork_error_handler');
-
 
 class
 {
@@ -286,6 +280,12 @@ class
 
 	static function start()
 	{
+		ini_set('log_errors', true);
+		ini_set('error_log', PATCHWORK_PROJECT_PATH . 'error.patchwork.log');
+		ini_set('display_errors', false);
+
+		set_error_handler('patchwork_error_handler');
+
 /*<
 		self::log(
 			'<a href="' . htmlspecialchars($_SERVER['REQUEST_URI']) . '" target="_blank">'
@@ -1339,9 +1339,11 @@ class
 			{
 				$lead = '';
 /*<
-				if ((!PATCHWORK_SYNC_CACHE || IS_POSTING) && !self::$binaryMode && false !== strpos($buffer, '<head'))
+				if ((!PATCHWORK_SYNC_CACHE || IS_POSTING) && !self::$binaryMode && 's' !== self::$requestMode)
 				{
-					$buffer = preg_replace("'<head[^>]*>'", '$0' . patchwork_debugger::getProlog(), $buffer);
+					$buffer = false !== strpos($buffer, '<head')
+						? preg_replace("'<head[^>]*>'", '$0' . patchwork_debugger::getProlog(), $buffer)
+						: patchwork_debugger::getProlog() . $buffer;
 				}
 >*/
 			}
@@ -1351,7 +1353,7 @@ class
 			if (PHP_OUTPUT_HANDLER_END & $mode)
 			{
 /*<
-				if ((!PATCHWORK_SYNC_CACHE || IS_POSTING) && !self::$binaryMode)
+				if ((!PATCHWORK_SYNC_CACHE || IS_POSTING) && !self::$binaryMode && 's' !== self::$requestMode)
 				{
 					if (false !== strpos($buffer, '</body'))
 					{
@@ -1361,6 +1363,7 @@ class
 					{
 						$buffer = str_replace('</html', '<body>' . patchwork_debugger::getConclusion() . '</body></html', $buffer);
 					}
+					else $buffer .= patchwork_debugger::getConclusion();
 				}
 >*/
 			}
