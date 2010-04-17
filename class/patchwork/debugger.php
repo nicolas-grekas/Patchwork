@@ -259,7 +259,17 @@ function Z()
 								substr($a, $b+2),
 							);
 
-							$a = <<<EOHTML
+							if (preg_match('/^PHP +(Stack trace|\d+\.)/', $b[1]))
+							{
+								$b[1] = substr($b[1], 3);
+
+								$a = ' Stack trace' === $b[1]
+									? "<i>{$b[1]}</i>{$b[2]}\n"
+									: "{$b[1]}{$b[2]}";
+							}
+							else
+							{
+								$a = <<<EOHTML
 <script>
 focus()
 L=opener||parent;
@@ -273,6 +283,7 @@ L.fontSize='18px'
 </script><a href="javascript:;" style="color:red;font-weight:bold" title="{$b[0]}">{$b[1]}</a>
 {$b[2]}
 EOHTML;
+							}
 						}
 
 						echo $a;
