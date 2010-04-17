@@ -50,40 +50,6 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 /**/}
 
 
-// Some aliasing needed to catch $callback arguments
-
-/**/if (function_exists('curl_setopt'))
-/**/{
-/**/	patchwork_bootstrapper::alias('curl_setopt',       'patchwork_alias_curl::setopt',       array('$ch', '$option', '$value'));
-/**/	patchwork_bootstrapper::alias('curl_setopt_array', 'patchwork_alias_curl::setopt_array', array('$ch', '$options'));
-/**/}
-
-/**/if (function_exists('assert_options'))
-/**/{
-/**/	patchwork_bootstrapper::alias('assert_options', 'patchwork_alias_assert::options', array('$what', '$value' => INF));
-/**/}
-
-/**/if (function_exists('filter_var'))
-/**/{
-/**/	patchwork_bootstrapper::alias('filter_var',       'patchwork_alias_filter::filter_var', array('$var', '$filter' => FILTER_DEFAULT, '$opt' => INF));
-/**/	patchwork_bootstrapper::alias('filter_var_array', 'patchwork_alias_filter::var_array',  array('$data', '$definition' => INF));
-/**/}
-
-/**/if (function_exists('stream_context_create'))
-/**/{
-/**/	patchwork_bootstrapper::alias('stream_context_create',     'patchwork_alias_stream::context_create',     array('$opt' => array(), '$params' => INF));
-/**/	patchwork_bootstrapper::alias('stream_context_set_params', 'patchwork_alias_stream::context_set_params', array('$context', '$params'));
-/**/}
-
-/**/if (function_exists('ibase_set_event_handler'))
-/**/{
-/**/	patchwork_bootstrapper::alias(
-/**/		'ibase_set_event_handler', 'patchwork_alias_ibase::set_event_handler',
-/**/		array('$h', '$e1', '$e2'=>INF,'$e3'=>INF,'$e4'=>INF,'$e5'=>INF,'$e6'=>INF,'$e7'=>INF,'$e8'=>INF,'$e9'=>INF,'$ea'=>INF,'$eb'=>INF,'$ec'=>INF,'$ed'=>INF,'$ee'=>INF,'$ef'=>INF)
-/**/	);
-/**/}
-
-
 // mbstring configuration
 
 /**/if (!function_exists('mb_stripos'))
