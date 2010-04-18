@@ -123,6 +123,7 @@ function patchwork_class2cache($class, $level)
 
 function __autoload($searched_class)
 {
+	$searched_class = ltrim($searched_class, '\\');
 	$a = strtolower($searched_class);
 
 	if (TURBO && $a =& $GLOBALS['patchwork_autoload_cache'][$a])
@@ -133,7 +134,7 @@ function __autoload($searched_class)
 			unset($a);
 			$a = $b - /*<*/count(patchwork_bootstrapper::$paths) - patchwork_bootstrapper::$last/*>*/;
 
-			$b = $searched_class;
+			$b = strtr($searched_class, '\\', '_');
 			$i = strrpos($b, '__');
 			false !== $i && strspn(substr($b, $i+2), '0123456789') === strlen($b)-$i-2 && $b = substr($b, 0, $i);
 
