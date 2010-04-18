@@ -93,12 +93,15 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 
 function patchwork_class2cache($class, $level)
 {
-	static $map = array(
-		'__x25' => '%', '__x2B' => '+', '__x2D' => '-',
-		'__x2E' => '.', '__x3D' => '=', '__x7E' => '~',
-	);
+	if (false !== strpos($class, '__x'))
+	{
+		static $map = array(
+			array('__x25', '__x2B', '__x2D', '__x2E', '__x3D', '__x7E'),
+			array('%',     '+',     '-',     '.',     '=',     '~'    )
+		);
 
-	false !== strpos($class, '__x') && $class = strtr($class, $map);
+		$class = str_replace($map[0], $map[1], $class);
+	}
 
 	$cache = (int) DEBUG . (0>$level ? -$level . '-' : $level);
 	$cache = /*<*/patchwork_bootstrapper::$cwd . '.class_'/*>*/
