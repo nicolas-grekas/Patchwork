@@ -95,33 +95,39 @@ register_shutdown_function('patchwork_shutdown_start');
 
 function patchwork_class2file($class)
 {
-	static $map = array(
-		'//x20' => ' ', '//x21' => '!', '//x23' => '#', '//x24' => '$',
-		'//x25' => '%', '//x26' => '&', '//x27' => '\'','//x28' => '(',
-		'//x29' => ')', '//x2B' => '+', '//x2C' => ',', '//x2D' => '-',
-		'//x2E' => '.', '//x3B' => ';', '//x3D' => '=', '//x40' => '@',
-		'//x5B' => '[', '//x5D' => ']', '//x5E' => '^', '//x5F' => '_',
-		'//x60' => '`', '//x7B' => '{', '//x7D' => '}', '//x7E' => '~',
-	);
+	if (false !== $a = strrpos($class, '\\'))
+	{
+		$a += $b = strspn($class, '\\');
+		$class =  strtr(substr($class, $b, $a), '\\', '/')
+			.'/'. strtr(substr($class, $a+1  ), '_' , '/');
+	}
+	else
+	{
+		$class = strtr($class, '_', '/');
+	}
 
-	$class = strtr($class, '_', '/');
-	false !== strpos($class, '//x') && $class = strtr($class, $map);
+	if (false !== strpos($class, '//x'))
+	{
+/**/	$a = "_/ /!/#/$/%/&/'/(/)/+/,/-/./;/=/@/[/]/^/`/{/}/~";
+/**/	$a = array(array(), explode('/', $a));
+/**/	foreach ($a[1] as $b) $a[0][] = '//x' . strtoupper(dechex(ord($b)));
+
+		static $map = /*<*/$a/*>*/;
+
+		$class = str_replace($map[0], $map[1], $class);
+	}
 
 	return $class;
 }
 
 function patchwork_file2class($file)
 {
-	static $map = array (
-		' ' => '__x20', '!' => '__x21', '#' => '__x23', '$' => '__x24',
-		'%' => '__x25', '&' => '__x26','\'' => '__x27', '(' => '__x28',
-		')' => '__x29', '+' => '__x2B', ',' => '__x2C', '-' => '__x2D',
-		'.' => '__x2E', ';' => '__x3B', '=' => '__x3D', '@' => '__x40',
-		'[' => '__x5B', ']' => '__x5D', '^' => '__x5E', '_' => '__x5F',
-		'`' => '__x60', '{' => '__x7B', '}' => '__x7D', '~' => '__x7E',
-	);
+/**/$a = "_/ /!/#/$/%/&/'/(/)/+/,/-/./;/=/@/[/]/^/`/{/}/~";
+/**/$a = array(explode('/', $a), array());
+/**/foreach ($a[0] as $b) $a[1][] = '__x' . strtoupper(dechex(ord($b)));
 
-	$file = strtr($file, $map);
+	static $map = /*<*/$a/*>*/;
+	$file = str_replace($map[0], $map[1], $file);
 	$file = strtr($file, '/\\', '__');
 
 	return $file;
