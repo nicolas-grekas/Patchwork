@@ -144,6 +144,8 @@ function patchwork_error_handler($code, $message, $file, $line)
 	}
 }
 
+set_error_handler('patchwork_error_handler');
+
 
 class
 {
@@ -283,8 +285,6 @@ class
 		ini_set('log_errors', true);
 		ini_set('error_log', PATCHWORK_PROJECT_PATH . 'error.patchwork.log');
 		ini_set('display_errors', false);
-
-		set_error_handler('patchwork_error_handler');
 
 /*<
 		self::log(
