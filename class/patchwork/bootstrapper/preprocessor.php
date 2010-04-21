@@ -271,8 +271,22 @@ class patchwork_bootstrapper_preprocessor__0
 		{
 			if ($a)
 			{
+				$i = 0;
 				$b = array();
-				foreach ($a as $k => &$a) $b[] = self::export($k) . '=>' . self::export($a);
+
+				foreach ($a as $k => &$a)
+				{
+					if (is_int($k) && $k >= 0)
+					{
+						$b[] = ($k !== $i ? $k . '=>' : '') . self::export($a);
+						$i = $k+1;
+					}
+					else
+					{
+						$b[] = self::export($k) . '=>' . self::export($a);
+					}
+				}
+
 				$b = 'array(' . implode(',', $b) . ')';
 			}
 			else return 'array()';

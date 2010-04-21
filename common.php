@@ -520,38 +520,33 @@ class ob
 /**/patchwork_bootstrapper::alias('utf8_encode', 'patchwork_utf8_encode', array('$s'));
 /**/patchwork_bootstrapper::alias('utf8_decode', 'patchwork_utf8_decode', array('$s'));
 
+/**/$a = array(
+/**/	"\x80 \x82 \x83 \x84 \x85 \x86 \x87 \x88 \x89 \x8a \x8b \x8c \x8e \x91 \x92 \x93 \x94 \x95 \x96 \x97 \x98 \x99 \x9a \x9b \x9c \x9e \x9f",
+/**/	 '€    ‚    ƒ    „    …    †    ‡    ˆ    ‰    Š    ‹    Œ    Ž    ‘    ’    “    ”    •    –    —    ˜    ™    š    ›    œ    ž    Ÿ'
+/**/);
+/**/
+/**/$a[0] = explode('-', "\xc2" . str_replace(' ', "-\xc2", $a[0]));
+/**/$a[1] = explode('    ', $a[1]);
+
 function patchwork_utf8_encode($s)
 {
-	static $map = array(
-		"\xc2\x80" => '€', "\xc2\x82" => '‚', "\xc2\x83" => 'ƒ',
-		"\xc2\x84" => '„', "\xc2\x85" => '…', "\xc2\x86" => '†',
-		"\xc2\x87" => '‡', "\xc2\x88" => 'ˆ', "\xc2\x89" => '‰',
-		"\xc2\x8a" => 'Š', "\xc2\x8b" => '‹', "\xc2\x8c" => 'Œ',
-		"\xc2\x8e" => 'Ž', "\xc2\x91" => '‘', "\xc2\x92" => '’',
-		"\xc2\x93" => '“', "\xc2\x94" => '”', "\xc2\x95" => '•',
-		"\xc2\x96" => '–', "\xc2\x97" => '—', "\xc2\x98" => '˜',
-		"\xc2\x99" => '™', "\xc2\x9a" => 'š', "\xc2\x9b" => '›',
-		"\xc2\x9c" => 'œ', "\xc2\x9e" => 'ž', "\xc2\x9f" => 'Ÿ',
-	);
+	$s = utf8_encode($s);
 
-	return strtr(utf8_encode($s), $map);
+	if (false !== strpos($s, "\xc2"))
+	{
+		static $map = /*<*/$a/*>*/;
+
+		$s = str_replace($map[0], $map[1], $s);
+	}
+
+	return $s;
 }
 
 function patchwork_utf8_decode($s)
 {
-	static $map = array(
-		'€' => "\xc2\x80", '‚' => "\xc2\x82", 'ƒ' => "\xc2\x83",
-		'„' => "\xc2\x84", '…' => "\xc2\x85", '†' => "\xc2\x86",
-		'‡' => "\xc2\x87", 'ˆ' => "\xc2\x88", '‰' => "\xc2\x89",
-		'Š' => "\xc2\x8a", '‹' => "\xc2\x8b", 'Œ' => "\xc2\x8c",
-		'Ž' => "\xc2\x8e", '‘' => "\xc2\x91", '’' => "\xc2\x92",
-		'“' => "\xc2\x93", '”' => "\xc2\x94", '•' => "\xc2\x95",
-		'–' => "\xc2\x96", '—' => "\xc2\x97", '˜' => "\xc2\x98",
-		'™' => "\xc2\x99", 'š' => "\xc2\x9a", '›' => "\xc2\x9b",
-		'œ' => "\xc2\x9c", 'ž' => "\xc2\x9e", 'Ÿ' => "\xc2\x9f",
-	);
+	static $map = /*<*/array($a[1], $a[0])/*>*/;
 
-	return utf8_decode(strtr($s, $map));
+	return utf8_decode(str_replace($map[0], $map[1], $s));
 }
 
 
