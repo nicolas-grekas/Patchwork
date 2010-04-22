@@ -25,10 +25,11 @@ class extends patchwork
 		$BASE = p::__BASE__();
 
 		$agent = rawurlencode($agent);
-		$agent = strtr($agent, array(
-			'%21'=>'!','%7E'=>'~','%2A'=>'*','%28'=>'(','%29'=>')','%2C'=>',',
-			'%2F'=>'/','%3A'=>':','%40'=>'@','%24'=>'$','%3B'=>';'
-		));
+		$agent = str_replace(
+			array('%21','%7E','%2A','%28','%29','%2C','%2F','%3A','%40','%24','%3B'),
+			array('!',  '~',  '*',  '(',  ')',  ',',  '/',  ':',  '@',  '$',  ';'  ),
+			$agent
+		);
 
 		$agent = p::base($agent, true);
 		$agent = preg_replace("'^.*?://[^/]*'", '', $agent);
