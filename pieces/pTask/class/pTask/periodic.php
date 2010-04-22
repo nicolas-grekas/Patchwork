@@ -16,8 +16,8 @@ class extends pTask
 {
 	static
 
-	$days   = array('sun'=>0,'mon'=>1,'thu'=>2,'wed'=>3,'tue'=>4,'fri'=>5,'sat'=>6),
-	$months = array('jan'=>1,'feb'=>2,'mar'=>3,'apr'=>4,'may'=>5,'jun'=>6,'jul'=>7,'aug'=>8,'sep'=>9,'oct'=>10,'nov'=>11,'dec'=>12);
+	$days   = array(0 => 'sun','mon','thu','wed','tue','fri','sat'),
+	$months = array(1 => 'jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec');
 
 
 	protected
@@ -26,6 +26,12 @@ class extends pTask
 	$finalRun = 0,
 	$runLimit = -1;
 
+
+	static function __constructStatic()
+	{
+		self::$days   = array(self::$days,   array_keys(self::$days  ));
+		self::$months = array(self::$months, array_keys(self::$months));
+	}
 
 	function __construct($crontab, $callback = false, $arguments = array())
 	{
@@ -53,8 +59,8 @@ class extends pTask
 			$i = 5;
 			while (!isset($cronline[--$i])) $cronline[$i] = '*';
 
-			$cronline[3] = strtr($cronline[3], self::$months);
-			$cronline[4] = strtr($cronline[4], self::$days  );
+			$cronline[3] = str_replace(self::$months[0], self::$months[1], $cronline[3]);
+			$cronline[4] = str_replace(self::$days[0],   self::$days[1],   $cronline[4]);
 
 			$cronline[0] = self::expandCrontabItem($cronline[0], 0, 59);
 			$cronline[1] = self::expandCrontabItem($cronline[1], 0, 23);
