@@ -210,7 +210,7 @@ onDOMLoaded.go = function()
 }
 
 
-w = function($baseAgent, $keys, $masterAppId, $buffer)
+w = function($baseAgent, $keys, $masterAppId, $buffer, $dataURI)
 {
 	$masterAppId /= 1;
 
@@ -239,6 +239,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 
 		$masterBase = esc({g$__BASE__|js});
 
+	$dataURI = !$dataURI ? $masterBase + 'js/x' : 'data:text/javascript,w.c()';
 
 	try
 	{
@@ -549,7 +550,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 				($loopIterator() && ($pointer -= $code[$pointer])) || ++$pointer;
 				$context = v;
 
-				if (new Date - $startTime > 500) return $include($masterBase + 'js/x');
+				if (new Date - $startTime > 500) return $include($dataURI);
 			}
 		];
 
@@ -658,7 +659,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 				$i += 9;
 				$includeSrc = $src;
 				w.c = w.w;
-				$src = $masterBase + 'js/x';
+				$src = $dataURI;
 				break;
 			}
 
@@ -680,9 +681,11 @@ w = function($baseAgent, $keys, $masterAppId, $buffer)
 			$content = $content.substring(0, $i);
 
 		$i = !!$src;
-		$i || ($src = $masterBase + 'js/x');
+		$i || ($src = $dataURI);
 
-		$src = '<script name="w$" src="' + $src + (0<=$src.indexOf('?') ? '&amp;' : '?') + 'v$=' + $AppId + '"></script>';
+		if ('http' == $src.substring(0,4)) $src += (0 <= $src.indexOf('?') ? '&amp;' : '?') + 'v$=' + $AppId;
+
+		$src = '<script name="w$" src="' + $src + '"></script>';
 
 		if ($i)
 		{
@@ -900,7 +903,7 @@ function loadW($window)
 			}
 		})();
 
-		$window.a ? w(a[0], a[1], a[2], a[3]) : w();
+		$window.a ? w(a[0], a[1], a[2], a[3], a[4]) : w();
 	}
 	else document.write('<script src="' + {g$__BASE__|js} + 'js/compat"></script>');
 }

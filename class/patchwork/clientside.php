@@ -48,6 +48,7 @@ class extends patchwork
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script name="w$">a=[{$agent},[{$a}],{$appId},{$b}]</script>
+<script name="w$" src="data:text/javascript,a[4]=1"></script>
 <script src="{$base}js/w?{$appId}"></script>
 </head>
 </html>
