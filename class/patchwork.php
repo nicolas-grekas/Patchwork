@@ -92,31 +92,38 @@ function DB($dsn = 0)
 }
 // }}}
 
-function jsquote($a, $addDelim = true, $delim = "'")
+function jsquote($a, $delim = "'")
 {
+/*<
 	if (is_array($a))
 	{
 		W('jsquote error: can not quote an array');
 		$a = '';
 	}
+>*/
 
 	if ((string) $a === (string) ($a-0)) return $a-0;
 
-	false !== strpos($a, "\r") && $a = strtr(str_replace("\r\n", "\n", $a), "\r", "\n");
-	false !== strpos($a, '\\') && $a = str_replace('\\', '\\\\', $a);
-	false !== strpos($a, "\n") && $a = str_replace("\n", '\n', $a);
-	false !== strpos($a, '</') && $a = str_replace('</', '<\\/', $a);
-	false !== strpos($a, "\xC2\x85"    ) && $a = str_replace("\xC2\x85"    , '\u0085', $a); // Next Line
-	false !== strpos($a, "\xE2\x80\xA8") && $a = str_replace("\xE2\x80\xA8", '\u2028', $a); // Line Separator
-	false !== strpos($a, "\xE2\x80\xA9") && $a = str_replace("\xE2\x80\xA9", '\u2029', $a); // Paragraph Separator
-	false !== strpos($a, $delim) && $a = str_replace($delim, '\\' . $delim, $a);
+	$a = (string) $a;
 
-	if ($addDelim) $a = $delim . $a . $delim;
+	if (strtr($a, "\\{$delim}\r\n<\x85\xA8\xA9", '--------') !== $a)
+	{
+		static $map = array(
+			array('\\'  ,   "'", "\r\n", "\r", "\n", '</'  , "\xC2\x85", "\xE2\x80\xA8", "\xE2\x80\xA9"),
+			array('\\\\', "\\'", '\n'  , '\n', '\n', '<\\/', '\u0085'  , '\u2028'      , '\u2029'      ),
+		);
 
-	return $a;
+		if ($delim !== $map[0][1])
+		{
+			$map[0][1] = $delim;
+			$map[1][1] = '\\' . $delim;
+		}
+
+		$a = str_replace($map[0], $map[1], $a);
+	}
+
+	return $delim . $a . $delim;
 }
-
-function jsquoteRef(&$a) {$a = jsquote($a);}
 
 function patchwork_error_handler($code, $message, $file, $line)
 {
@@ -1876,17 +1883,12 @@ class loop
 				$data = (object) $data;
 				$i = 0;
 				$len = count($this->filter);
-				while ($i<$len) $data = (object) call_user_func($this->filter[$i++], $data, $this);
+				while ($i < $len) $data = (object) call_user_func($this->filter[$i++], $data, $this);
 			}
 			else $this->loopLength = false;
 		}
 
 		p::$catchMeta = $catchMeta;
-
-		if ($escape && !($this instanceof L_) && $data)
-		{
-			foreach ($data as &$i) is_string($i) && $i = htmlspecialchars($i);
-		}
 
 		return $data;
 	}

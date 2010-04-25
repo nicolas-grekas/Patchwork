@@ -23,8 +23,7 @@ class extends patchwork
 		p::setExpires('onmaxage');
 
 		$a = p::agentArgs($agent);
-		array_walk($a, 'jsquoteRef');
-		$a = implode(',', $a);
+		$a = implode(',', array_map('jsquote', $a));
 
 		$agent = jsquote('agent_index' === $agent ? '' : patchwork_class2file(substr($agent, 6)));
 
@@ -179,9 +178,11 @@ EOHTML;
 				echo '{';
 
 				$comma = '';
-				foreach ($data as $key => &$value)
+				foreach ($data as $key => $value)
 				{
-					echo $comma, "'", jsquote($key, false), "':";
+					$key = jsquote($key);
+					is_string($key) || $key = "'" . $key . "'";
+					echo $comma, $key, ':';
 					if ($value instanceof loop) self::writeAgent($value);
 					else echo jsquote($value);
 					$comma = ',';
@@ -207,7 +208,7 @@ EOHTML;
 		{
 			if ($liveAgent)
 			{
-				echo 'false";(window.E||alert)("You must provide an auth token to get this liveAgent:\\n' . jsquote($_SERVER['REQUEST_URI'], false, '"') . '")';
+				echo 'false";(window.E||alert)("You must provide an auth token to get this liveAgent:\\n"+', jsquote($_SERVER['REQUEST_URI']), ')';
 				echo '//</script><script src="' . p::__BASE__() . 'js/QJsrsHandler"></script>';
 			}
 			else if ($data->getMessage())
@@ -216,7 +217,7 @@ EOHTML;
 			}
 			else
 			{
-				echo ');window.E&&E("You must provide an auth token to get this agent:\\n' . jsquote($_SERVER['REQUEST_URI'], false, '"') . '")';
+				echo ');window.E&&E("You must provide an auth token to get this agent:\\n"+', jsquote($_SERVER['REQUEST_URI']), ')';
 			}
 
 			exit;
@@ -262,7 +263,7 @@ EOHTML;
 
 				$watch[] = 'public/templates/js';
 			}
-			else echo ',[1,"', jsquote(jsquote($template), false, '"'), '",0,0,0])';
+			else echo ',[1,', jsquote(jsquote($template), '"'), ',0,0,0])';
 
 			if ($is_cacheable)
 			{
@@ -308,38 +309,37 @@ EOHTML;
 
 	protected static function writeAgent($loop)
 	{
-		if (!p::string($loop))
+		if ($prevKeys = $loop->__toString())
 		{
-			echo 0;
-			return;
-		}
+			echo "w.x([", $prevKeys, ",[";
 
-		echo "w.x([", $loop, ",[";
+			$prevKeys = array();
 
-		$prevKeyList = '';
-
-		while ($data = $loop->loop())
-		{
-			$data = (array) $data;
-
-			$keyList = array_keys($data);
-			array_walk($keyList, 'jsquoteRef');
-			$keyList = implode(',', $keyList);
-
-			if ($keyList !== $prevKeyList)
+			while ($data = $loop->loop())
 			{
-				echo $prevKeyList ? '],[' : '',  count($data), ',', $keyList;
-				$prevKeyList = $keyList;
+				$data = (array) $data;
+
+				if ($prevKeys !== array_keys($data))
+				{
+					$k = array_keys($data);
+
+					echo $prevKeys ? '],[' : '',
+						count($k), ',',
+						implode(',', array_map('jsquote', $k));
+
+					$prevKeys = $k;
+				}
+
+				foreach ($data as $value)
+				{
+					echo ',';
+					if ($value instanceof loop) self::writeAgent($value);
+					else echo jsquote($value);
+				}
 			}
 
-			foreach ($data as &$value)
-			{
-				echo ',';
-				if ($value instanceof loop) self::writeAgent($value);
-				else echo jsquote($value);
-			}
+			echo ']])';
 		}
-
-		echo ']])';
+		else echo '0';
 	}
 }

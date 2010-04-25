@@ -103,11 +103,11 @@ class extends patchwork
 			$reset_get = false;
 			$_GET =& $args;
 
-			if ($agent instanceof loop && p::string($agent))
+			if ($agent instanceof loop && $agent->__toString())
 			{
 				$agent->autoResolve = false;
 
-				while ($i =& $agent->loop()) $data =& $i;
+				while ($i = $agent->loop()) $data = $i;
 
 				if (!(p::$binaryMode || $agent instanceof L_)) foreach ($data as &$v) is_string($v) && $v = htmlspecialchars($v);
 
@@ -136,7 +136,7 @@ class extends patchwork
 					$k = $CONFIG['i18n.lang_list'][p::__LANG__()];
 					$agent = implode($k, explode('__', $agent, 2)) . '?p:=s';
 
-					foreach ($args as $k => &$v) $agent .= '&' . urlencode($k) . '=' . urlencode(p::string($v));
+					foreach ($args as $k => $v) $agent .= '&' . urlencode($k) . '=' . urlencode(p::string($v));
 
 					if (ini_get_bool('allow_url_fopen')) $agent = file_get_contents($agent);
 					else
@@ -301,17 +301,17 @@ class extends patchwork
 		if (isset($vClone)) self::$cache[$cagent] = array($vClone, $template);
 	}
 
-	protected static function freezeAgent(&$v, &$data)
+	protected static function freezeAgent(&$v, $data)
 	{
-		foreach ($data as $key => &$value)
+		foreach ($data as $key => $value)
 		{
 			if ($value instanceof loop)
 			{
-				if (p::string($value))
+				if ($value->__toString())
 				{
 					$a = array();
 
-					while ($b = $value->loop(!p::$binaryMode))
+					while ($b = $value->loop())
 					{
 						$c = array();
 						$a[] =& $c;
@@ -323,7 +323,7 @@ class extends patchwork
 					unset($a);
 				}
 			}
-			else $v[$key] =& $value;
+			else $v[$key] = is_string($value) && !p::$binaryMode ? htmlspecialchars($value) : $value;
 		}
 	}
 
@@ -370,10 +370,22 @@ class extends patchwork
 		return $a;
 	}
 
-	static function makeLoopByLength(&$length)
+	static function makeLoopByLength($length)
 	{
 		$length = new loop_length_($length);
 		return true;
+	}
+
+	static function getLoopNext($loop)
+	{
+		if (p::$binaryMode || $loop instanceof L_) return $loop->loop();
+
+		if ($loop = $loop->loop())
+		{
+			foreach ($loop as &$i) is_string($i) && $i = htmlspecialchars($i);
+		}
+
+		return $loop;
 	}
 
 	static function ob_htmlspecialchars($a, $mode)

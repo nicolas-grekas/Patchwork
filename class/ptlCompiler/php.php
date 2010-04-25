@@ -136,7 +136,7 @@ class extends ptlCompiler
 					. '&&($p=(object)array(\'$\'=>&$v))'
 					. '&&$v=&$p'
 				. ')while('
-					. '($p=&$v->{\'$\'}&&$v=$p->{\'p$\'}->loop(' . ($this->binaryMode ? '' : 'true') . '))'
+					. '($p=&$v->{\'$\'}&&$v=patchwork_serverside::getLoopNext($p->{\'p$\'}))'
 					. '||($v=&$p&&0)'
 				. '){'
 				. '$v->{\'$\'}=&$p;'
