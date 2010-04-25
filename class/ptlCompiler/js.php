@@ -316,6 +316,6 @@ class extends ptlCompiler
 
 	protected function quote(&$a)
 	{
-		return $a = jsquote($a, true, '"');
+		return $a = jsquote($a, '"');
 	}
 }

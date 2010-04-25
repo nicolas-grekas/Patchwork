@@ -28,19 +28,24 @@ class extends agent
 		return $o;
 	}
 
-	protected function getJs(&$data)
+	protected function getJs($data)
 	{
 		if (is_object($data) || is_array($data))
 		{
 			$a = '{';
 
-			foreach ($data as $k => &$v) $a .= "'" . jsquote($k, false) . "':" . $this->getJs($v) . ',';
+			foreach ($data as $k => $v)
+			{
+				$k = jsquote($k);
+				is_string($k) || $k = "'" . $k . "'";
+				$a .= $k . ':' . $this->getJs($v) . ',';
+			}
 
 			$k = strlen($a);
 			if ($k > 1) $a{strlen($a)-1} = '}';
 			else $a = '{}';
 		}
-		else $a = jsquote((string) $data);
+		else $a = jsquote($data);
 
 		return $a;
 	}

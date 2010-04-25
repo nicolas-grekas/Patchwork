@@ -76,7 +76,7 @@ class extends patchwork
 		preg_match_all('/[a-zA-Z_0-9\x80-\xff]+/', $pipe, $pipe);
 		p::$agentClass = 'agent__pipe/' . implode('_', $pipe[0]);
 
-		foreach ($pipe[0] as &$pipe)
+		foreach ($pipe[0] as $pipe)
 		{
 #>			if (DEBUG) call_user_func(array('pipe_' . $pipe, 'js'));
 #>			else
