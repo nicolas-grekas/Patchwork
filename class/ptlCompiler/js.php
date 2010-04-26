@@ -89,7 +89,7 @@ class extends ptlCompiler
 
 			list($appId, $base, $inc, $keys, $a) = patchwork_agentTrace::resolve($inc);
 
-			$args = array_map('jsquote', $a);
+			$args = array_map('jsquote', $a) + $args;
 
 			if (false !== $base)
 			{
@@ -109,8 +109,7 @@ class extends ptlCompiler
 			}
 			else $meta = 1;
 
-			array_walk($keys, array($this, 'quote'));
-			$keys = implode(',', $keys);
+			$keys = implode(',', array_map('jsquote', $keys));
 
 			$inc = jsquote($inc);
 		}
