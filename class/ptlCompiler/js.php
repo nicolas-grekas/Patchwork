@@ -62,7 +62,7 @@ class extends ptlCompiler
 		{
 			sort($m);
 			$m = implode('.', $m);
-			array_unshift($this->jscode, self::OP_PIPE, $this->quote($m));
+			array_unshift($this->jscode, self::OP_PIPE, jsquote($m));
 		}
 
 		return implode(',', $this->jscode);
@@ -89,7 +89,7 @@ class extends ptlCompiler
 
 			list($appId, $base, $inc, $keys, $a) = patchwork_agentTrace::resolve($inc);
 
-			foreach ($a as $k => &$v) $args[$k] = $this->quote($v);
+			$args = array_map('jsquote', $a);
 
 			if (false !== $base)
 			{
@@ -99,7 +99,7 @@ class extends ptlCompiler
 					exit;
 				}
 
-				$meta = array($appId, $this->quote($base));
+				$meta = array($appId, jsquote($base));
 				$meta = '[' . implode(',', $meta) . ']';
 			}
 			else if ($is_exo)
@@ -117,14 +117,14 @@ class extends ptlCompiler
 
 		$a = '';
 		$comma = '';
-		foreach ($args as $k => &$v)
+		foreach ($args as $k => $v)
 		{
 			$a .= in_array($k, $this->jsreserved) ? "$comma'$k':$v" : "$comma$k:$v";
 			$comma = ',';
 		}
 		$a = '{' . $a . '}';
 
-		array_push($this->jscode, self::OP_AGENT, $this->quote($inc), $this->quote($a), false === $keys ? 0 : "[$keys]", $meta);
+		array_push($this->jscode, self::OP_AGENT, jsquote($inc), jsquote($a), false === $keys ? 0 : "[$keys]", $meta);
 
 		return true;
 	}
@@ -176,7 +176,7 @@ class extends ptlCompiler
 		else
 		{
 			array_push($this->stack, count($this->jscode) + 2);
-			array_push($this->jscode, self::OP_LOOP, $this->quote($var), -1);
+			array_push($this->jscode, self::OP_LOOP, jsquote($var), -1);
 		}
 
 		return true;
@@ -208,7 +208,7 @@ class extends ptlCompiler
 			if ($elseif) $this->addELSE(false);
 
 			array_push($this->stack, count($this->jscode) + 2);
-			array_push($this->jscode, self::OP_IF, $this->quote($expression), $elseif ? -3 : -2);
+			array_push($this->jscode, self::OP_IF, jsquote($expression), $elseif ? -3 : -2);
 		}
 
 		return true;
@@ -247,7 +247,7 @@ class extends ptlCompiler
 		else
 		{
 			$this->pushCode('');
-			array_push($this->jscode, self::OP_EVALECHO, $this->quote($str));
+			array_push($this->jscode, self::OP_EVALECHO, jsquote($str));
 		}
 
 		return '';
@@ -312,10 +312,5 @@ class extends ptlCompiler
 	protected function getJsAccess($name)
 	{
 		return strlen($name) ? ( preg_match('"[^a-zA-Z0-9_\$]"', $name) || in_array($name, $this->jsreserved) ? "['$name']" : ".$name" ) : '';
-	}
-
-	protected function quote(&$a)
-	{
-		return $a = jsquote($a, '"');
 	}
 }
