@@ -263,7 +263,7 @@ EOHTML;
 
 				$watch[] = 'public/templates/js';
 			}
-			else echo ',[1,', jsquote(jsquote($template), '"'), ',0,0,0])';
+			else echo ',[1,', jsquote(jsquote($template)), ',0,0,0])';
 
 			if ($is_cacheable)
 			{

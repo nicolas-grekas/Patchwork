@@ -92,7 +92,7 @@ function DB($dsn = 0)
 }
 // }}}
 
-function jsquote($a, $delim = "'")
+function jsquote($a)
 {
 /*<
 	if (is_array($a))
@@ -106,23 +106,17 @@ function jsquote($a, $delim = "'")
 
 	$a = (string) $a;
 
-	if (strtr($a, "\\{$delim}\r\n<\x85\xA8\xA9", '--------') !== $a)
+	if (strtr($a, "\\'\r\n<\x85\xA8\xA9", '--------') !== $a)
 	{
 		static $map = array(
 			array('\\'  ,   "'", "\r\n", "\r", "\n", '</'  , "\xC2\x85", "\xE2\x80\xA8", "\xE2\x80\xA9"),
 			array('\\\\', "\\'", '\n'  , '\n', '\n', '<\\/', '\u0085'  , '\u2028'      , '\u2029'      ),
 		);
 
-		if ($delim !== $map[0][1])
-		{
-			$map[0][1] = $delim;
-			$map[1][1] = '\\' . $delim;
-		}
-
 		$a = str_replace($map[0], $map[1], $a);
 	}
 
-	return $delim . $a . $delim;
+	return "'{$a}'";
 }
 
 function patchwork_error_handler($code, $message, $file, $line)
