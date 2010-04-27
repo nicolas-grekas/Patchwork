@@ -370,7 +370,7 @@ class extends patchwork
 		return $a;
 	}
 
-	static function makeLoopByLength($length)
+	static function makeLoopByLength(&$length)
 	{
 		$length = new loop_length_($length);
 		return true;
