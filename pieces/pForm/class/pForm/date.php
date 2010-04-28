@@ -25,7 +25,7 @@ class extends pForm_text
 
 	function setValue($value)
 	{
-		$this->value = 0 === strpos($value, '0000-00-00') ? '' : substr($value, 0, 10);
+		$this->value = 0 === strncmp($value, '0000-00-00', 10) ? '' : substr($value, 0, 10);
 	}
 
 	protected function get()

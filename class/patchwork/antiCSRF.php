@@ -71,7 +71,7 @@ class extends patchwork
 			$a = $a[0];
 			$a = trim($a[1] ? $a[2] : ($a[2] . $a[3]));
 
-			if (0 !== strpos($a, p::$base))
+			if (0 !== strncmp($a, p::$base, strlen(p::$base)))
 			{
 				// Decode html encoded chars
 				if (false !== strpos($a, '&')) $a = preg_replace_callback(self::$entitiesRx, array(__CLASS__, 'translateHtmlEntities'), $a);
@@ -85,9 +85,9 @@ class extends patchwork
 				else
 				{
 					$host = substr(p::$host, 7, -1);
-					'/' === substr($host, 0, 1) && $host = substr($host, 1);
+					0 === strncmp($host, '/', 1) && $host = substr($host, 1);
 
-					if ('/' !== substr($a, 0, 1))
+					if (0 !== strncmp($a, '/', 1))
 					{
 						static $uri = false;
 
@@ -139,14 +139,14 @@ class extends patchwork
 
 				if ($b = $CONFIG['session.cookie_domain'])
 				{
-					'.' === substr($b, 0, 1) && $b = substr($b, 1);
+					0 === strncmp($b, '.', 1) && $b = substr($b, 1);
 					if ($host !== $b && substr($host, -1 - strlen($b)) !== '.' . $b) return $f;
 				}
 				else
 				{
 					$b = substr(p::$host, 7, -1);
 
-					'/' === substr($b, 0, 1) && $b = substr($b, 1);
+					0 === strncmp($b, '/', 1) && $b = substr($b, 1);
 					if ($host !== $b) return $f;
 				}
 
@@ -160,7 +160,7 @@ class extends patchwork
 
 				'/' === substr($b, -1) || $b .= '/';
 
-				if (0 !== strpos($a, $b)) return $f;
+				if (0 !== strncmp($a, $b, strlen($b))) return $f;
 			}
 		}
 
@@ -195,10 +195,9 @@ class extends patchwork
 
 		do
 		{
-			$a = substr($c, 0, 2);
-			$c = substr($c, 2);
+			if (0 !== strncmp($c, '00', 2) $r .= chr(hexdec(substr($c, 0, 2)));
 
-			if ('00' != $a) $r .= chr(hexdec($a));
+			$c = substr($c, 2);
 		}
 		while ($c);
 

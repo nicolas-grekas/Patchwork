@@ -66,7 +66,7 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 						{
 							if ($file[$i] != $realfile[$j])
 							{
-								if (strtolower($file[$i]) === strtolower($realfile[$j]) && !(0 === $i && ':' === substr($file, 1, 1))) trigger_error("Character case mismatch between requested file and its real path ({$file} vs {$realfile})");
+								if (0 === strcasecmp($file[$i], $realfile[$j]) && !(0 === $i && ':' === substr($file, 1, 1))) trigger_error("Character case mismatch between requested file and its real path ({$file} vs {$realfile})");
 								break;
 							}
 						}
@@ -185,7 +185,7 @@ function patchworkProcessedPath($file)
 
 		for ($i = /*<*/patchwork_bootstrapper::$last + 1/*>*/; $i < /*<*/count(patchwork_bootstrapper::$paths)/*>*/; ++$i)
 		{
-			if (substr($file, 0, strlen($p[$i])) === $p[$i])
+			if (0 === strncmp($file, $p[$i], strlen($p[$i])))
 			{
 				$file = substr($file, strlen($p[$i]));
 				break;
@@ -448,7 +448,7 @@ isset($_SERVER['REDIRECT_PATCHWORK_LANG']) && $_SERVER['PATCHWORK_LANG'] = $_SER
 
 if (isset($_SERVER['PATCHWORK_BASE']))
 {
-	if ('/' === substr($_SERVER['PATCHWORK_BASE'], 0, 1)) $_SERVER['PATCHWORK_BASE'] = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PATCHWORK_BASE'];
+	if (0 === strncmp($_SERVER['PATCHWORK_BASE'], '/', 1)) $_SERVER['PATCHWORK_BASE'] = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['PATCHWORK_BASE'];
 
 	if (!isset($_SERVER['PATCHWORK_LANG']))
 	{

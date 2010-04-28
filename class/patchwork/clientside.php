@@ -160,7 +160,6 @@ EOHTML;
 				}
 			}
 
-//			ob_start(null, 32768);
 			ob_start();
 			++p::$ob_level;
 

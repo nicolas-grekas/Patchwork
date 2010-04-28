@@ -335,8 +335,8 @@ class
 			isset($_COOKIE['T$'])
 			&& (
 				!IS_POSTING
-				|| (isset($_POST['T$']) && substr($_COOKIE['T$'], 1) === substr($_POST['T$'], 1))
-				|| (isset( $_GET['T$']) && substr($_COOKIE['T$'], 1) === substr( $_GET['T$'], 1))
+				|| (isset($_POST['T$']) && 0 === substr_compare($_COOKIE['T$'], $_POST['T$'], 1))
+				|| (isset( $_GET['T$']) && 0 === substr_compare($_COOKIE['T$'], $_GET['T$'] , 1))
 			)
 			&& 33 === strlen($_COOKIE['T$'])
 			&& 33 === strspn($_COOKIE['T$'], '-_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789')
@@ -344,7 +344,7 @@ class
 		else self::getAntiCSRFtoken(true);
 
 		isset($_GET['T$']) && $GLOBALS['patchwork_private'] = true;
-		define('PATCHWORK_TOKEN_MATCH', isset($_GET['T$']) && substr(self::$antiCSRFtoken, 1) === substr($_GET['T$'], 1));
+		define('PATCHWORK_TOKEN_MATCH', isset($_GET['T$']) && 0 === substr_compare(self::$antiCSRFtoken, $_GET['T$'], 1));
 		if (IS_POSTING) unset($_POST['T$'], $_POST['T$']);
 
 
@@ -410,7 +410,7 @@ class
 			return;
 		}
 
-		self::$binaryMode = 'text/html' !== substr(constant("$agent::contentType"), 0, 9);
+		self::$binaryMode = 0 !== strncasecmp(constant("$agent::contentType"), 'text/html', 9);
 
 /*<
 		if (PATCHWORK_SYNC_CACHE && !self::$binaryMode)
@@ -559,7 +559,7 @@ class
 	{
 		if ($new)
 		{
-			$new = isset($_COOKIE['T$']) && '1' === substr($_COOKIE['T$'], 0, 1) ? '1' : '2';
+			$new = isset($_COOKIE['T$']) && 0 === strncmp($_COOKIE['T$'], '1', 1) ? '1' : '2';
 
 			if (!isset(self::$antiCSRFtoken))
 			{
@@ -600,14 +600,14 @@ class
 
 		if (self::$is_enabled)
 		{
-			if (   0 === stripos($string, 'http/')
-				|| 0 === stripos($string, 'etag')
-				|| 0 === stripos($string, 'expires')
-				|| 0 === stripos($string, 'cache-control')
-				|| 0 === stripos($string, 'content-length')
+			if (   0 === strncasecmp($string, 'http/', 5)
+				|| 0 === strncasecmp($string, 'etag', 4)
+				|| 0 === strncasecmp($string, 'expires', 7)
+				|| 0 === strncasecmp($string, 'cache-control', 13)
+				|| 0 === strncasecmp($string, 'content-length', 14)
 			) return;
 
-			if (0 === stripos($string, 'last-modified'))
+			if (0 === strncasecmp($string, 'last-modified', 13))
 			{
 				self::setLastModified(strtotime(trim(substr($string, 14))));
 				return;
@@ -659,7 +659,7 @@ class
 		{
 			('' === (string) $value) && $expires = 1;
 
-			if ($domain && '.' !== substr($domain, 0, 1)) W('setcookie() RFC incompatibility: $domain must start with a dot.');
+			if ($domain && 0 !== strncmp($domain, '.', 1)) W('setcookie() RFC incompatibility: $domain must start with a dot.');
 
 			$GLOBALS['patchwork_private'] = true;
 			header('P3P: CP="' . $CONFIG['P3P'] . '"');
@@ -1415,7 +1415,7 @@ class
 			$a = substr($buffer, 0, 256);
 			$lt = strpos($a, '<');
 			if (false !== $lt
-				&& !(isset(self::$headers['content-disposition']) && 0 === stripos(self::$headers['content-disposition'], 'attachment'))
+				&& !(isset(self::$headers['content-disposition']) && 0 === strncasecmp(self::$headers['content-disposition'], 'attachment', 10))
 				&& $b = in_array($type, self::$ieSniffedTypes_edit) ? 1 : (in_array($type, self::$ieSniffedTypes_download) ? 2 : 0))
 			{
 				foreach (self::$ieSniffedTags as $tag)
