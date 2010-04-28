@@ -356,7 +356,7 @@ class patchwork_alias_iconv
 	static function strlen1($s, $encoding = INF)
 	{
 		INF === $encoding && $encoding = self::$internal_encoding;
-		'UTF-8' === strtoupper(substr($encoding, 0, 5)) || $s = self::iconv($encoding, 'UTF-8//IGNORE', $s);
+		0 !== strncasecmp($encoding, 'UTF-8', 5) && $s = self::iconv($encoding, 'UTF-8//IGNORE', $s);
 
 		return strlen(utf8_decode($s));
 	}
@@ -364,7 +364,7 @@ class patchwork_alias_iconv
 	static function strlen2($s, $encoding = INF)
 	{
 		INF === $encoding && $encoding = self::$internal_encoding;
-		'UTF-8' === strtoupper(substr($encoding, 0, 5)) || $s = self::iconv($encoding, 'UTF-8//IGNORE', $s);
+		0 !== strncasecmp($encoding, 'UTF-8', 5) && $s = self::iconv($encoding, 'UTF-8//IGNORE', $s);
 
 		$ulen_mask = self::$ulen_mask;
 
@@ -384,7 +384,7 @@ class patchwork_alias_iconv
 	static function strpos($haystack, $needle, $offset = 0, $encoding = INF)
 	{
 		INF === $encoding && $encoding = self::$internal_encoding;
-		'UTF-8' === strtoupper(substr($encoding, 0, 5)) || $s = self::iconv($encoding, 'UTF-8//IGNORE', $s);
+		0 !== strncasecmp($encoding, 'UTF-8', 5) && $s = self::iconv($encoding, 'UTF-8//IGNORE', $s);
 
 		if ($offset = (int) $offset) $haystack = self::substr($haystack, $offset, PHP_INT_MAX, 'UTF-8');
 		$pos = strpos($haystack, $needle);
@@ -394,7 +394,7 @@ class patchwork_alias_iconv
 	static function strrpos($haystack, $needle, $encoding = INF)
 	{
 		INF === $encoding && $encoding = self::$internal_encoding;
-		'UTF-8' === strtoupper(substr($encoding, 0, 5)) || $s = self::iconv($encoding, 'UTF-8//IGNORE', $s);
+		0 !== strncasecmp($encoding, 'UTF-8', 5) && $s = self::iconv($encoding, 'UTF-8//IGNORE', $s);
 
 		$needle = self::substr($needle, 0, 1, 'UTF-8');
 		$pos = strpos(strrev($haystack), strrev($needle));
@@ -404,7 +404,7 @@ class patchwork_alias_iconv
 	static function substr($s, $start, $length = PHP_INT_MAX, $encoding = INF)
 	{
 		INF === $encoding && $encoding = self::$internal_encoding;
-		if ('UTF-8' === strtoupper(substr($encoding, 0, 5))) $encoding = INF;
+		if (0 === strncasecmp($encoding, 'UTF-8', 5)) $encoding = INF;
 		else $s = self::iconv($encoding, 'UTF-8//IGNORE', $s);
 
 		$slen = iconv_strlen($s, 'UTF-8');

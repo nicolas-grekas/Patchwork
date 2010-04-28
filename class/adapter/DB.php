@@ -28,7 +28,7 @@ class
 			p::disable(true);
 		}
 
-		$mysql = 'mysql' === substr($db->phptype, 0, 5);
+		$mysql = 0 === strncmp($db->phptype, 'mysql', 5);
 
 		$db->loadModule('Extended');
 		$db->setErrorHandling(PEAR_ERROR_TRIGGER, E_USER_WARNING);

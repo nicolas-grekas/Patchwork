@@ -44,7 +44,7 @@ class extends loop
 
 		if ($this->count > 0)
 		{
-			if ('mysql' === substr($this->db->phptype, 0, 5)) $sql .= " LIMIT {$this->from},{$this->count}";
+			if (0 === strncmp($this->db->phptype, 'mysql', 5)) $sql .= " LIMIT {$this->from},{$this->count}";
 			else $this->db->setLimit($this->count, $this->from);
 		}
 

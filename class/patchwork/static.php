@@ -185,21 +185,21 @@ class extends patchwork
 
 
 		$gzip   || ob_start();
-		$filter && ob_start(array(__CLASS__, 'ob_filterOutput'), 8192);
+		$filter && ob_start(array(__CLASS__, 'ob_filterOutput'), 32768);
 
 
 		// Transform relative URLs to absolute ones
 		if ($gzip)
 		{
-			if ('text/css' == substr($mime, 0, 8))
+			if (0 === strncasecmp($mime, 'text/css', 8))
 			{
 				self::$filterRx = "@([\s:]url\(\s*[\"']?)(?![/\\\\#\"']|[^\)\n\r:/\"']+?:)@i";
-				ob_start(array(__CLASS__, 'filter'), 8192);
+				ob_start(array(__CLASS__, 'filter'), 32768);
 			}
-			else if ('text/html' == substr($mime, 0, 9) || 'text/x-component' === substr($mime, 0, 16))
+			else if (0 === strncasecmp($mime, 'text/html', 9) || 0 === strncasecmp($mime, 'text/x-component', 16))
 			{
 				self::$filterRx = "@(<[^<>]+?\s(?:href|src)\s*=\s*[\"']?)(?![/\\\\#\"']|[^\n\r:/\"']+?:)@i";
-				ob_start(array(__CLASS__, 'filter'), 8192);
+				ob_start(array(__CLASS__, 'filter'), 32768);
 			}
 		}
 

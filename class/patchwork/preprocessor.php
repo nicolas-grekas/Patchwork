@@ -82,7 +82,7 @@ class patchwork_preprocessor__0
 		foreach ($v['user'] as $v)
 		{
 			$v = strtolower($v);
-			if (0 !== strpos($v, '__patchwork_')) continue;
+			if (0 !== strncmp($v, '__patchwork_', 12)) continue;
 			self::$functionAlias[substr($v, 12)] = $v;
 		}
 
@@ -145,7 +145,7 @@ class patchwork_preprocessor__0
 			);
 
 			$code = file_get_contents($source);
-			UTF8_BOM === substr($code, 0, 3) && $code = substr($code, 3);
+			0 === strncmp($code, UTF8_BOM, 3) && $code = substr($code, 3);
 
 			if (!preg_match('//u', $code)) patchwork_preprocessor::error("File encoding is not valid UTF-8.", $source, 0);
 
@@ -626,7 +626,7 @@ class patchwork_preprocessor__0
 					{
 						$j = self::$functionAlias[$type];
 
-						if (0 !== stripos($j, $class . '::'))
+						if (0 !== strncasecmp($j, $class . '::', strlen($class)+2))
 						{
 							$j = explode('::', $j, 2);
 
@@ -673,7 +673,7 @@ class patchwork_preprocessor__0
 						break;
 
 					default:
-						if (!isset(self::$callback) && 0 !== strpos($class, 'patchwork_preprocessor_'))
+						if (!isset(self::$callback) && 0 !== strncmp($class, 'patchwork_preprocessor_', 23))
 						{
 							self::$callback =& patchwork_preprocessor_callback::$list;
 						}

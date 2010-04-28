@@ -66,7 +66,7 @@ class extends patchwork
 
 			if ('s' === p::$requestMode)
 			{
-				ob_start(array(__CLASS__, 'ob_htmlspecialchars'), 8192);
+				ob_start(array(__CLASS__, 'ob_htmlspecialchars'), 32768);
 				++p::$ob_level;
 				self::$get = (object) $a;
 			}
@@ -118,7 +118,7 @@ class extends patchwork
 			$BASE = p::__BASE__();
 			$agent = p::base($agent, true);
 
-			if (0 === strpos($agent, $BASE))
+			if (0 === strncmp($agent, $BASE, strlen($BASE)))
 			{
 				$agent = substr($agent, strlen($BASE));
 

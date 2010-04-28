@@ -77,11 +77,11 @@ class extends agent
 			if ($KLen == 2)
 			{
 				if (strpos($K1, $K0) === 0) $result .= $this->P($K0, $I0) . $this->S(substr($K1, $K0Len), $I1) . '}';
-				else if (substr($K0, 0, 2) != substr($K1, 0, 2)) $result .= $this->S($K0, $I0) . ',' . $this->S($K1, $I1);
+				else if (0 !== strncmp($K0, $K1, 2)) $result .= $this->S($K0, $I0) . ',' . $this->S($K1, $I1);
 				else
 				{
 					$len = 2;
-					while ($len < $K0Len && substr($K0, 0, $len+1) == substr($K1, 0, $len+1)) ++$len;
+					while ($len < $K0Len && 0 === strncmp($K0, $K1, $len+1)) ++$len;
 
 					$result .= $this->P(substr($K0, 0, $len)) . $this->S(substr($K0, $len), $I0) . ',' . $this->S(substr($K1, $len), $I1) . '}';
 				}
