@@ -187,7 +187,7 @@ class extends patchwork
 
 		if ('x' == $c[0]) $c = hexdec(substr($c, 1));
 
-		$c = sprinf('%08x', (int) $c);
+		$c = sprintf('%08x', (int) $c);
 
 		if (isset($c[8])) return '';
 
@@ -195,7 +195,7 @@ class extends patchwork
 
 		do
 		{
-			if (0 !== strncmp($c, '00', 2) $r .= chr(hexdec(substr($c, 0, 2)));
+			if (0 !== strncmp($c, '00', 2)) $r .= chr(hexdec(substr($c, 0, 2)));
 
 			$c = substr($c, 2);
 		}

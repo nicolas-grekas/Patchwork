@@ -335,8 +335,8 @@ class
 			isset($_COOKIE['T$'])
 			&& (
 				!IS_POSTING
-				|| (isset($_POST['T$']) && 0 === substr_compare($_COOKIE['T$'], $_POST['T$'], 1))
-				|| (isset( $_GET['T$']) && 0 === substr_compare($_COOKIE['T$'], $_GET['T$'] , 1))
+				|| (isset($_POST['T$']) && substr($_COOKIE['T$'], 1) === substr($_POST['T$'], 1))
+				|| (isset( $_GET['T$']) && substr($_COOKIE['T$'], 1) === substr( $_GET['T$'], 1))
 			)
 			&& 33 === strlen($_COOKIE['T$'])
 			&& 33 === strspn($_COOKIE['T$'], '-_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789')
@@ -344,7 +344,7 @@ class
 		else self::getAntiCSRFtoken(true);
 
 		isset($_GET['T$']) && $GLOBALS['patchwork_private'] = true;
-		define('PATCHWORK_TOKEN_MATCH', isset($_GET['T$']) && 0 === substr_compare(self::$antiCSRFtoken, $_GET['T$'], 1));
+		define('PATCHWORK_TOKEN_MATCH', isset($_GET['T$']) && substr(self::$antiCSRFtoken, 1) === substr($_GET['T$'], 1));
 		if (IS_POSTING) unset($_POST['T$'], $_POST['T$']);
 
 
