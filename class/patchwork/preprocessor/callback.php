@@ -114,7 +114,7 @@ class extends patchwork_preprocessor_marker
 	{
 		$k = '$k' . PATCHWORK_PATH_TOKEN;
 		self::$lead = "is_string({$k}=";
-		self::$tail = ")?(function_exists('__patchwork_'.{$k})?'__patchwork_'.{$k}:{$k}):(is_array({$k})&&is_string({$k}[0])?{$k}:{$k})";
+		self::$tail = ")&&function_exists('__patchwork_'.{$k})?'__patchwork_'.{$k}:{$k}";
 	}
 
 
