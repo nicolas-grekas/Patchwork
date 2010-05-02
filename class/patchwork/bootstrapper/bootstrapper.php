@@ -80,7 +80,7 @@ class patchwork_bootstrapper_bootstrapper__0
 				{
 					$file = pathinfo($file);
 
-					die("Patchwork Error: file {$file['basename']} exists in {$file['dirname']}. Please fix your public bootstrap file.");
+					die("Patchwork Error: file {$file['basename']} exists in {$file['dirname']}. Please fix your web bootstrap file.");
 				}
 				else return false;
 			}
@@ -91,12 +91,31 @@ class patchwork_bootstrapper_bootstrapper__0
 
 			return true;
 		}
-		else if ($h = fopen($lock, 'rb'))
+		else if ($h = $retry ? @fopen($lock, 'rb') : fopen($lock, 'rb'))
 		{
 			usleep(1000);
 			flock($h, LOCK_SH);
 			fclose($h);
 			file_exists($file) || sleep(1);
+		}
+		else if ($retry)
+		{
+			$dir = dirname($lock);
+
+			if (@touch($dir . '/.patchwork.writeTest')) @unlink($dir . '/.patchwork.writeTest');
+			else
+			{
+				function_exists('realpath') && $dir = realpath($dir);
+
+				$dir .= DIRECTORY_SEPARATOR;
+
+				if ('.' === $dir[0] && function_exists('getcwd') && @getcwd())
+				{
+					$dir = getcwd() . DIRECTORY_SEPARATOR . $dir;
+				}
+
+				die("Patchwork Error: please change the permissions of the {$dir} directory so that the web server can write in it.");
+			}
 		}
 
 		if ($retry && !file_exists($file))
