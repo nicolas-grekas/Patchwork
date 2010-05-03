@@ -1,4 +1,0 @@
-The zcache/ directory contains 16x16 empty directories.
-This is a template for the cache system to work in safe mode.
-If your are in safe mode, just copy zcache/ in the root
-directory of your application.
