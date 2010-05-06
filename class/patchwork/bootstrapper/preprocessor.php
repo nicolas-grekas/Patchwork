@@ -228,8 +228,15 @@ class patchwork_bootstrapper_preprocessor__0
 			$inline = $function == $alias ? -1 : 2;
 			$function = "__patchwork_{$function}";
 		}
-		else if ($function == $alias) die("Patchwork Error: circular aliasing of {$alias}");
-		else $inline = 1;
+		else
+		{
+			$inline = 1;
+
+			if ($function == $alias)
+			{
+				self::$code[key(self::$code)] .= "die('Patchwork error: Circular aliasing of function {$function}() in ' . __FILE__ . ' on line ' . __LINE__);";
+			}
+		}
 
 		$args = array($args, array(), array());
 

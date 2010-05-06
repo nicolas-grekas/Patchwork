@@ -104,7 +104,7 @@ class patchwork_bootstrapper_inheritance__0
 				else break;
 			}
 
-			if (false === $parent) die('Patchwork Error: Inconsistent application hierarchy in ' . $realpath . 'config.patchwork.php');
+			if (false === $parent) die('Patchwork error: Inconsistent application hierarchy in ' . $realpath . 'config.patchwork.php');
 
 			$resultSeq[] = $parent;
 
@@ -123,9 +123,6 @@ class patchwork_bootstrapper_inheritance__0
 
 
 		// Get config's source and clean it
-
-		file_exists($config)
-			|| die('Patchwork Error: Missing file ' . $config);
 
 		$this->appId += filemtime($config);
 
@@ -211,10 +208,8 @@ class patchwork_bootstrapper_inheritance__0
 
 				foreach ($source as $source)
 				{
-					if ($this->rootPath != $source)
+					if ($this->rootPath !== $source && $realpath !== $source)
 					{
-						if ($realpath === $source) die('Patchwork Error: Application can not inherit from itself in ' . $realpath . 'config.patchwork.php');
-
 						foreach ($this->c3mro($source) as $a)
 						{
 							if (false !== $a = array_search($a, $p))
@@ -239,11 +234,10 @@ class patchwork_bootstrapper_inheritance__0
 			else
 			{
 				$source = patchwork_realpath($a);
-				if (false === $source) die('Patchwork Error: Missing file ' . rtrim(strtr($a, '\\', '/'), '/') . '/config.patchwork.php');
-				$source = rtrim($source, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-				if ($realpath === $source) die('Patchwork Error: Application can not inherit from itself in ' . $realpath . 'config.patchwork.php');
+				if (false === $source) die('Patchwork error: Missing file ' . rtrim(strtr($a, '\\', '/'), '/') . '/config.patchwork.php in ' . $config);
 
-				$a = $source;
+				$a = rtrim($source, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
 				if ($this->rootPath === $a) unset($parent[$i]);
 			}
 		}

@@ -553,5 +553,5 @@ if ($a || $b)
 
 if (strtr($_SERVER['PATCHWORK_BASE'], '<>&"', '----') !== $_SERVER['PATCHWORK_BASE'])
 {
-	die('Patchwork Error: base URL can not contain special HTML character (' . htmlspecialchars($_SERVER['PATCHWORK_BASE']) . ')');
+	die('Patchwork error: Base URL can not contain special HTML character (' . htmlspecialchars($_SERVER['PATCHWORK_BASE']) . ')');
 }

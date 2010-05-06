@@ -35,14 +35,14 @@ class patchwork_bootstrapper_bootstrapper__0
 		$this->dir    = dirname(__FILE__);
 
 		function_exists('token_get_all')
-			|| die('Patchwork Error: Extension "tokenizer" is needed and not loaded');
+			|| die('Patchwork error: Extension "tokenizer" is needed and not loaded');
 
 		isset($_SERVER['REDIRECT_STATUS'])
 			&& '200' !== $_SERVER['REDIRECT_STATUS']
-			&& die('Patchwork Error: initialization forbidden (try using the shortest possible URL)');
+			&& die('Patchwork error: Initialization forbidden (try using the shortest possible URL)');
 
 		file_exists($cwd . 'config.patchwork.php')
-			|| die("Patchwork Error: file config.patchwork.php not found in {$cwd}. Did you set PATCHWORK_BOOTPATH correctly?");
+			|| die("Patchwork error: File config.patchwork.php not found in {$cwd}. Did you set PATCHWORK_BOOTPATH correctly?");
 
 		if (headers_sent($file, $line) || ob_get_length())
 		{
@@ -57,7 +57,7 @@ class patchwork_bootstrapper_bootstrapper__0
 				$file = ", likely in " . ($file ? implode(', ', $file) . ' or ' : '') . $line;
 			}
 
-			die("Patchwork Error: Something has been echoed before bootstrap{$file} (maybe some white space or a BOM?)");
+			die("Patchwork error: Something has been echoed before bootstrap{$file} (maybe some white space or a BOM?)");
 		}
 	}
 
@@ -80,7 +80,7 @@ class patchwork_bootstrapper_bootstrapper__0
 				{
 					$file = pathinfo($file);
 
-					die("Patchwork Error: file {$file['basename']} exists in {$file['dirname']}. Please fix your web bootstrap file.");
+					die("Patchwork error: File {$file['basename']} exists in {$file['dirname']}. Please fix your web bootstrap file.");
 				}
 				else return false;
 			}
@@ -114,7 +114,7 @@ class patchwork_bootstrapper_bootstrapper__0
 					$dir = getcwd() . DIRECTORY_SEPARATOR . $dir;
 				}
 
-				die("Patchwork Error: please change the permissions of the {$dir} directory so that the web server can write in it.");
+				die("Patchwork error: Please change the permissions of the {$dir} directory so that the web server can write in it.");
 			}
 		}
 
