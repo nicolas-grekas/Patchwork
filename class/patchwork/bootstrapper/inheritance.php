@@ -171,7 +171,7 @@ class patchwork_bootstrapper_inheritance__0
 		$len = count($parent);
 		for ($i = 0; $i < $len; ++$i)
 		{
-			$a =& $parent[$i];
+			$a = $parent[$i];
 
 			if ('__patchwork__' == substr($a, 0, 13)) $a = $this->rootPath . substr($a, 13);
 
@@ -183,7 +183,7 @@ class patchwork_bootstrapper_inheritance__0
 				$source = array();
 
 				$p = array($a);
-				unset($a);
+				$parent[$i] = $a;
 
 				$pLen = 1;
 				for ($j = 0; $j < $pLen; ++$j)
@@ -233,12 +233,16 @@ class patchwork_bootstrapper_inheritance__0
 			}
 			else
 			{
-				$source = patchwork_realpath($a);
-				if (false === $source) die('Patchwork error: Missing file ' . rtrim(strtr($a, '\\', '/'), '/') . '/config.patchwork.php in ' . $config);
+				if (!file_exists($a . '/config.patchwork.php'))
+				{
+					die('Patchwork error: Missing file ' . rtrim(strtr($parent[$i], '\\', '/'), '/') . '/config.patchwork.php in ' . $config);
+				}
 
-				$a = rtrim($source, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+				$a = patchwork_realpath($a);
+				$a = rtrim($a, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
 				if ($this->rootPath === $a) unset($parent[$i]);
+				else $parent[$i] = $a;
 			}
 		}
 
