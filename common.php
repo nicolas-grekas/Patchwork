@@ -384,7 +384,7 @@ class ob
 /**/{
 /**/	@set_magic_quotes_runtime(false);
 /**/	@get_magic_quotes_runtime()
-/**/		&& die('Patchwork Error: failed to turn off magic_quotes_runtime');
+/**/		&& die('Patchwork error: Failed to turn off magic_quotes_runtime');
 
 		@set_magic_quotes_runtime(false);
 /**/}
@@ -552,7 +552,7 @@ function patchwork_utf8_decode($s)
 
 // Configure PCRE
 
-/**/preg_match('/^.$/u', '§') || die('Patchwork Error: PCRE is not compiled with UTF-8 support');
+/**/preg_match('/^.$/u', '§') || die('Patchwork error: PCRE is not compiled with UTF-8 support');
 
 /**/if (@ini_get('pcre.backtrack_limit') < 5000000)
 		@ini_set('pcre.backtrack_limit', 5000000);

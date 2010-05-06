@@ -19,7 +19,7 @@
 /**/{
 /**/	ini_get_bool('mbstring.encoding_translation')
 /**/		&& !in_array(strtolower(ini_get('mbstring.http_input')), array('pass', 'utf-8'))
-/**/		&& die('Patchwork Error: please disable "mbstring.encoding_translation" or set "mbstring.http_input" to "pass" or "utf-8"');
+/**/		&& die('Patchwork error: Please disable "mbstring.encoding_translation" or set "mbstring.http_input" to "pass" or "utf-8"');
 /**/}
 
 /**/$a = file_get_contents(patchwork_bootstrapper::$pwd . 'data/utf8/quickChecks.txt');
