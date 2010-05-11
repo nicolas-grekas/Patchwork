@@ -54,10 +54,6 @@ class patchwork_preprocessor__0
 	protected static
 
 	$declaredClass = array('self' => 1, 'parent' => 1, 'this' => 1, 'static' => 1, 'p' => 1, 'patchwork' => 1),
-	$variableType = array(
-		T_EVAL, '(', T_LINE, T_FILE, T_DIR, T_FUNC_C, T_CLASS_C, T_METHOD_C, T_NS_C, T_INCLUDE, T_REQUIRE,
-		T_CURLY_OPEN, T_VARIABLE, '$', T_INCLUDE_ONCE, T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES, T_EXIT,
-	),
 	$inlineClass,
 	$recursivePool = array(),
 	$callback;
@@ -200,7 +196,7 @@ class patchwork_preprocessor__0
 		$is_top = $this->isTop;
 		$line   =& $this->line;
 
-		$tokens = patchwork_tokenizer::getAll($tokens, true);
+		$tokens = patchwork_tokenizer::getAll($tokens);
 		$count = count($tokens);
 
 		// Add dummy tokens to avoid checking for edges
@@ -229,7 +225,7 @@ class patchwork_preprocessor__0
 
 		for ($i = 0; $i < $count; ++$i)
 		{
-			list($type, $code, $line, $sugar) = $tokens[$i];
+			list($type, $code, $line, $deco) = $tokens[$i];
 
 			// Reduce memory usage
 			unset($tokens[$i]);
@@ -569,7 +565,7 @@ class patchwork_preprocessor__0
 							{
 								$tokens[$i--] = array(T_STRING,       $j[1], $line, '');
 								$tokens[$i--] = array(T_DOUBLE_COLON, '::' , $line, '');
-								$tokens[$i--] = array(T_STRING,       $j[0], $line, $sugar);
+								$tokens[$i--] = array(T_STRING,       $j[0], $line, $deco);
 
 								continue 2;
 							}
@@ -592,7 +588,7 @@ class patchwork_preprocessor__0
 						if (0 <= $level)
 						{
 							$j = $i;
-							$j = !DEBUG && TURBO ? $this->fetchConstantCode($tokens, $j, $count, $b) : null;
+							$j = !DEBUG && TURBO ? patchwork_tokenizer::fetchConstantCode($tokens, $j, $count, $b) : null;
 
 							if (null === $j)
 							{
@@ -670,7 +666,7 @@ class patchwork_preprocessor__0
 				{
 					if (0 > $level)
 					{
-						$j = !DEBUG && TURBO ? $this->fetchConstantCode($tokens, $i, $count, $b) : null;
+						$j = !DEBUG && TURBO ? patchwork_tokenizer::fetchConstantCode($tokens, $i, $count, $b) : null;
 
 						if (null !== $j)
 						{
@@ -683,7 +679,7 @@ class patchwork_preprocessor__0
 								$c = patchwork_preprocessor::export($b, $c);
 							}
 
-							$tokens[$i--] = array(T_CONSTANT_ENCAPSED_STRING, $c, $line, $sugar);
+							$tokens[$i--] = array(T_CONSTANT_ENCAPSED_STRING, $c, $line, ' ');
 						}
 						else
 						{
@@ -804,7 +800,7 @@ class patchwork_preprocessor__0
 			$antePrevType = $prevType;
 			$prevType = $type;
 
-			$new_code[] = $sugar;
+			$new_code[] = $deco;
 			$new_code[] = $code;
 			$new_type[] = false;
 			$new_type[] = $type;
@@ -833,57 +829,6 @@ class patchwork_preprocessor__0
 	protected function extractLF_callback($a)
 	{
 		return $this->extractLF($a[0]);
-	}
-
-	protected function fetchConstantCode(&$tokens, &$i, $count, &$value)
-	{
-		$new_code = array();
-		$bracket = 0;
-		$close = 0;
-
-		for ($j = $i+1; $j < $count; ++$j)
-		{
-			list($type, $code) = $tokens[$j];
-
-			switch ($type)
-			{
-			case '`': $close = 2; break;
-			case T_STRING: $close = 2; break;
-
-			case '?': case '(': case '{': case '[':
-				++$bracket;
-				break;
-
-			case ':': case ')': case '}': case ']':
-				$bracket-- || ++$close;
-				break;
-
-			case ',':
-				$bracket   || ++$close;
-				break;
-
-			case T_AS:
-			case T_CLOSE_TAG:
-			case ';':
-				++$close;
-				break;
-
-			default:
-				if (in_array($type, self::$variableType)) $close = 2;
-			}
-
-			if (1 === $close)
-			{
-				$i = $j - 1;
-				$j = implode('', $new_code);
-				return false === @eval("\$value={$j};") ? null : $j;
-			}
-			else if (2 === $close)
-			{
-				return;
-			}
-			else $new_code[] = $code;
-		}
 	}
 
 	static function export($a, $lf = 0)

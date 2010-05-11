@@ -23,12 +23,17 @@ defined('T_NS_SEPARATOR') || define('T_NS_SEPARATOR', -1);
 
 class patchwork_tokenizer__0
 {
-	static function getAll($code, $strip)
+	protected static $variableType = array(
+		T_EVAL, '(', T_LINE, T_FILE, T_DIR, T_FUNC_C, T_CLASS_C, T_METHOD_C, T_NS_C, T_INCLUDE, T_REQUIRE,
+		T_CURLY_OPEN, T_VARIABLE, '$', T_INCLUDE_ONCE, T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES, T_EXIT,
+	);
+
+	static function getAll($code, $strip = true)
 	{
 		$tokens = array();
 		$line = 1;
 		$inString = 0;
-		$sugar = '';
+		$deco = '';
 
 		$code = token_get_all($code);
 		$length = count($code);
@@ -113,9 +118,9 @@ class patchwork_tokenizer__0
 
 			unset($code[$i++]);
 
-			$token[3] = $sugar;
+			$token[3] = $deco;
 			$tokens[] = $token;
-			$sugar = '';
+			$deco = '';
 
 			while ($i < $length && (T_WHITESPACE === $code[$i][0] || T_COMMENT === $code[$i][0] || T_DOC_COMMENT === $code[$i][0]))
 			{
@@ -125,7 +130,7 @@ class patchwork_tokenizer__0
 				{
 					if (T_DOC_COMMENT === $code[$i][0])
 					{
-						$sugar = str_repeat("\n", substr_count($sugar, "\n"));
+						$deco = str_repeat("\n", substr_count($deco, "\n"));
 					}
 					else
 					{
@@ -134,11 +139,64 @@ class patchwork_tokenizer__0
 				}
 
 				$line += $lines;
-				$sugar .= $code[$i][1];
+				$deco .= $code[$i][1];
 				unset($code[$i++]);
 			}
 		}
 
 		return $tokens;
+	}
+
+	static function fetchConstantCode($tokens, &$i, $count, &$value)
+	{
+		$new_code = array();
+		$bracket = 0;
+		$close = 0;
+
+		for ($j = $i+1; $j < $count; ++$j)
+		{
+			list($type, $code, , $deco) = $tokens[$j];
+
+			switch ($type)
+			{
+			case '`':
+			case T_STRING:
+				$close = 2;
+				break;
+
+			case '?': case '(': case '{': case '[':
+				++$bracket;
+				break;
+
+			case ':': case ')': case '}': case ']':
+				$bracket-- || ++$close;
+				break;
+
+			case ',':
+				$bracket   || ++$close;
+				break;
+
+			case T_AS:
+			case T_CLOSE_TAG:
+			case ';':
+				++$close;
+				break;
+
+			default:
+				if (in_array($type, self::$variableType)) $close = 2;
+			}
+
+			if (1 === $close)
+			{
+				$i = $j - 1;
+				$j = implode('', $new_code);
+				return false === @eval("\$value={$j};") ? null : $j;
+			}
+			else if (2 === $close)
+			{
+				return;
+			}
+			else $new_code[] = $deco . $code;
+		}
 	}
 }
