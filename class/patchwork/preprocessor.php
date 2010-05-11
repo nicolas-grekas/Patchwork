@@ -683,7 +683,7 @@ class patchwork_preprocessor__0
 						}
 						else
 						{
-							$code .= 'patchworkProcessedPath(';
+							$code .= ' patchworkProcessedPath(';
 							new patchwork_preprocessor_require($this);
 						}
 					}
