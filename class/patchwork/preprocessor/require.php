@@ -31,7 +31,7 @@ class extends patchwork_preprocessor_bracket
 		case '}':
 		case ']':
 		case ':': if ($this->bracket--) break;
-		case ')': if (0<=$this->bracket) break;
+		case ')': if (0 <= $this->bracket) break;
 		case T_AS: case T_CLOSE_TAG: case ';':
 			$token = $this->close . $token;
 			$this->popFilter();

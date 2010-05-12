@@ -821,14 +821,9 @@ class patchwork_preprocessor__0
 		return ($class ? 'isset($c' . PATCHWORK_PATH_TOKEN . "['" . strtolower($class) . "'])||" : ('$e' . PATCHWORK_PATH_TOKEN . '=$b' . PATCHWORK_PATH_TOKEN . '=')) . '$a' . PATCHWORK_PATH_TOKEN . "=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "'";
 	}
 
-	protected function extractLF($a)
-	{
-		return str_repeat("\n", substr_count($a, "\n"));
-	}
-
 	protected function extractLF_callback($a)
 	{
-		return $this->extractLF($a[0]);
+		return str_repeat("\n", substr_count($a[0], "\n"));
 	}
 
 	static function export($a, $lf = 0)

@@ -63,14 +63,19 @@ class
 		else switch ($type)
 		{
 		case '(':
-			$token = 1<++$this->bracket ? $this->filterBracket($type, $token) : $this->onStart($token);
+			$token = 1 < ++$this->bracket
+				? $this->filterBracket($type, $token)
+				: $this->onStart($token);
 			break;
 
 		case ')':
-			$token = !--$this->bracket ? $this->onClose($token)
-				: (0>$this->bracket ? $this->filterPreBracket($type, $token)
+			$token = --$this->bracket
+				? (
+					0 > $this->bracket
+					? $this->filterPreBracket($type, $token)
 					: $this->filterBracket($type, $token)
-				);
+				)
+				: $this->onClose($token);
 			break;
 
 		case ',':
@@ -82,7 +87,10 @@ class
 				break;
 			}
 
-		default: $token = 0<$this->bracket ? $this->filterBracket($type, $token) : $this->filterPreBracket($type, $token);
+		default:
+			$token = 0 < $this->bracket
+				? $this->filterBracket($type, $token)
+				: $this->filterPreBracket($type, $token);
 		}
 
 		return $token;
