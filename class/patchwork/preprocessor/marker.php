@@ -25,13 +25,16 @@ class extends patchwork_preprocessor_require
 	{
 		if ($this->greedy) return parent::filter($type, $token);
 
-		if (T_WHITESPACE === $type || T_COMMENT === $type || T_DOC_COMMENT === $type) ;
-		else if (0<=$this->curly) switch ($type)
+		if (T_WHITESPACE === $type || T_COMMENT === $type || T_DOC_COMMENT === $type)
+		{
+			// Do nothing
+		}
+		else if (0 <= $this->curly) switch ($type)
 		{
 			case '$': break;
 			case '{': ++$this->curly; break;
 			case '}': --$this->curly; break;
-			default: 0<$this->curly || $this->curly = -1;
+			default: 0 < $this->curly || $this->curly = -1;
 		}
 		else
 		{
@@ -39,7 +42,7 @@ class extends patchwork_preprocessor_require
 			$token = parent::filter($type, $token);
 			if (':' === $type) ++$this->bracket;
 
-			if (0<$this->bracket || !$this->registered) return $token;
+			if (0 < $this->bracket || !$this->registered) return $token;
 
 			switch ($type)
 			{
