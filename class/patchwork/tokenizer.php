@@ -23,17 +23,23 @@ defined('T_NS_SEPARATOR') || define('T_NS_SEPARATOR', -1);
 
 class patchwork_tokenizer
 {
+	const DECO_STRIP = 1;
+	const DECO_ARRAY = 2;
+
 	protected static $variableType = array(
 		T_EVAL, '(', T_LINE, T_FILE, T_DIR, T_FUNC_C, T_CLASS_C, T_METHOD_C, T_NS_C, T_INCLUDE, T_REQUIRE,
 		T_CURLY_OPEN, T_VARIABLE, '$', T_INCLUDE_ONCE, T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES, T_EXIT,
 	);
 
-	static function getAll($code, $strip = true)
+	static function getAll($code, $deco_mode = self::DECO_STRIP)
 	{
+		$strip = self::DECO_STRIP === $deco_mode;
+		$deco_mode = $strip ? '' : array();
+
 		$tokens = array();
 		$line = 1;
 		$inString = 0;
-		$deco = '';
+		$deco = $deco_mode;
 
 		$code = token_get_all($code);
 		$length = count($code);
@@ -120,7 +126,7 @@ class patchwork_tokenizer
 
 			$token[3] = $deco;
 			$tokens[] = $token;
-			$deco = '';
+			$deco = $deco_mode;
 
 			while ($i < $length && in_array($code[$i][0], array(T_WHITESPACE, T_COMMENT, T_DOC_COMMENT), true))
 			{
@@ -136,10 +142,16 @@ class patchwork_tokenizer
 					{
 						$code[$i][1] = $lines ? str_repeat("\n", $lines) : ' ';
 					}
+
+					$deco .= $code[$i][1];
+				}
+				else
+				{
+					$deco[] = $code[$i][1];
 				}
 
 				$line += $lines;
-				$deco .= $code[$i][1];
+
 				unset($code[$i++]);
 			}
 		}
@@ -154,7 +166,7 @@ class patchwork_tokenizer
 		$bracket = 0;
 		$close = 0;
 
-		for ($j = $i+1; $j < $count; ++$j)
+		for ($j = $i; $j < $count; ++$j)
 		{
 			list($type, $code, , $deco) = $tokens[$j];
 
