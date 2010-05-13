@@ -45,7 +45,7 @@ class patchwork_bootstrapper_preprocessor__0
 		false !== strpos($code, "\r") && $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
 		$code = preg_replace('/\?>$/', ';', $code);
 
-		$code = token_get_all($code);
+		$code = patchwork_tokenizer::getAll($code, false);
 		$codeLen = count($code);
 
 		$mode = 2;
@@ -61,24 +61,13 @@ class patchwork_bootstrapper_preprocessor__0
 
 		for ($i = 0; $i < $codeLen; ++$i)
 		{
-			if (is_array($code[$i]))
-			{
-				$type  = $code[$i][0];
-				$token = $code[$i][1];
-			}
-			else
-			{
-				$token = $code[$i];
-				$type  = $token;
-			}
+			list($type, $token, $line) = $code[$i];
 
 			// Reduce memory usage
 			unset($code[$i]);
 
 			if ('' === $error) switch ($type)
 			{
-			case T_CURLY_OPEN:
-			case T_DOLLAR_OPEN_CURLY_BRACES:
 			case '{': $bracket[] = '}'; break;
 			case '[': $bracket[] = ']'; break;
 			case '(': $bracket[] = ')'; break;
@@ -98,11 +87,6 @@ class patchwork_bootstrapper_preprocessor__0
 				if ($scream) continue 2;
 				break;
 
-			case T_OPEN_TAG:
-				$token = '<?php ' . str_repeat("\n", substr_count($token, "\n"));
-				break;
-
-			case T_DOC_COMMENT:
 			case T_COMMENT:
 				if ($mode1_transition && '/**/' === $token)
 				{
@@ -147,7 +131,6 @@ class patchwork_bootstrapper_preprocessor__0
 			}
 
 			$new_code[] = $token;
-			$line += substr_count($token, "\n");
 		}
 
 		$code = '';

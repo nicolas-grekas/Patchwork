@@ -39,6 +39,7 @@ class patchwork_bootstrapper
 		self::$pwd = dirname($caller) . DIRECTORY_SEPARATOR;
 		self::$caller = $caller;
 
+		require dirname(__FILE__) . '/tokenizer.php';
 		require dirname(__FILE__) . '/bootstrapper/bootstrapper.php';
 
 		self::$bootstrapper = new patchwork_bootstrapper_bootstrapper__0(self::$cwd, self::$token);
