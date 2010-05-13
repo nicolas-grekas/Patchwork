@@ -32,6 +32,7 @@ class patchwork_bootstrapper_inheritance__0
 		foreach (explode(PATH_SEPARATOR, get_include_path()) as $a)
 		{
 			$a = patchwork_realpath($a);
+
 			if ($a && @opendir($a))
 			{
 				closedir();
@@ -104,7 +105,10 @@ class patchwork_bootstrapper_inheritance__0
 				else break;
 			}
 
-			if (false === $parent) die('Patchwork error: Inconsistent application hierarchy in ' . $realpath . 'config.patchwork.php');
+			if (false === $parent)
+			{
+				die('Patchwork error: Inconsistent application hierarchy in ' . $realpath . 'config.patchwork.php');
+			}
 
 			$resultSeq[] = $parent;
 
@@ -137,7 +141,7 @@ class patchwork_bootstrapper_inheritance__0
 		{
 			$len = count($source);
 
-			if (T_OPEN_TAG == $source[0][0])
+			if (T_OPEN_TAG === $source[0][0])
 			{
 				$source[0] = '';
 
@@ -145,9 +149,9 @@ class patchwork_bootstrapper_inheritance__0
 				{
 					$a = $source[$i];
 
-					if (is_array($a) && in_array($a[0], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT)))
+					if (in_array($a[0], array(T_WHITESPACE, T_COMMENT, T_DOC_COMMENT), true))
 					{
-						if (T_COMMENT == $a[0] && preg_match('/^#patchwork[ \t]/', $a[1])) $parent[] = trim(substr($a[1], 11));
+						if (T_COMMENT === $a[0] && preg_match('/^#patchwork[ \t]/', $a[1])) $parent[] = trim(substr($a[1], 11));
 					}
 					else break;
 				}
@@ -156,8 +160,8 @@ class patchwork_bootstrapper_inheritance__0
 
 			if (is_array($a = $source[$len - 1]))
 			{
-				if (T_CLOSE_TAG == $a[0]) $a[1] = ';';
-				else if (T_INLINE_HTML == $a[0]) $a[1] .= '<?php ';
+				if (T_CLOSE_TAG === $a[0]) $a[1] = ';';
+				else if (T_INLINE_HTML === $a[0]) $a[1] .= '<?php ';
 			}
 
 			array_walk($source, array($this, 'echoToken'));
@@ -249,11 +253,11 @@ class patchwork_bootstrapper_inheritance__0
 		return $parent;
 	}
 
-	protected function echoToken(&$token)
+	protected function echoToken($token)
 	{
 		if (is_array($token))
 		{
-			if (in_array($token[0], array(T_COMMENT, T_WHITESPACE, T_DOC_COMMENT)))
+			if (in_array($token[0], array(T_WHITESPACE, T_COMMENT), true))
 			{
 				$a = substr_count($token[1], "\n");
 				$token[1] = $a ? str_repeat("\n", $a) : ' ';
