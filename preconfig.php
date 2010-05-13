@@ -22,6 +22,11 @@
 /**/		&& die('Patchwork error: Please disable "mbstring.encoding_translation" or set "mbstring.http_input" to "pass" or "utf-8"');
 /**/}
 
+/**/if (!defined('E_DEPRECATED'))
+/**/{
+		define('E_DEPRECATED', -1);
+/**/}
+
 /**/$a = file_get_contents(patchwork_bootstrapper::$pwd . 'data/utf8/quickChecks.txt');
 /**/$a = explode("\n", $a);
 define('UTF8_NFC_RX',            /*<*/'/' . $a[1] . '/u'/*>*/);
