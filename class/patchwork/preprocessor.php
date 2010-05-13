@@ -222,13 +222,14 @@ class patchwork_preprocessor__0
 		$curly_marker_last =& $curly_marker[0];
 
 		$type = T_INLINE_HTML;
+		$i = 0;
 
-		for ($i = 0; $i < $count; ++$i)
+		while ($i < $count)
 		{
 			list($type, $code, $line, $deco) = $tokens[$i];
 
 			// Reduce memory usage
-			unset($tokens[$i]);
+			unset($tokens[$i++]);
 
 			switch ($type)
 			{
@@ -325,11 +326,11 @@ class patchwork_preprocessor__0
 
 				$final = T_FINAL === $prevType;
 
-				if (T_STRING === $tokens[$i+1][0])
+				if (T_STRING === $tokens[$i][0])
 				{
-					$code .= $tokens[++$i][3];
-
+					$code .= $tokens[$i][3];
 					$b = $c = $tokens[$i][1];
+					unset($tokens[$i++]);
 
 					if ($final) $code .= $c;
 					else $code .= $b = $c . '__' . (0<=$level ? $level : '00');
@@ -362,16 +363,18 @@ class patchwork_preprocessor__0
 
 				self::$inlineClass[strtolower($c)] = 1;
 
-				if ($c && T_EXTENDS === $tokens[$i+1][0])
+				if ($c && T_EXTENDS === $tokens[$i][0])
 				{
-					$code .= $tokens[++$i][3] . $tokens[$i][1];
+					$code .= $tokens[$i][3] . $tokens[$i][1];
+					unset($tokens[$i++]);
 
-					if (T_STRING === $tokens[$i+1][0])
+					if (T_STRING === $tokens[$i][0])
 					{
-						$code .= $tokens[++$i][3];
+						$code .= $tokens[$i][3];
 						$class_pool[$curly_level]->is_child = $tokens[$i][1];
 						$c = 0 <= $level && 'self' === $tokens[$i][1] ? $c . '__' . ($level ? $level - 1 : '00') : $tokens[$i][1];
 						$code .= $c;
+						unset($tokens[$i++]);
 
 						$c = strtolower($c);
 
@@ -411,7 +414,7 @@ class patchwork_preprocessor__0
 				if (isset($class_pool[$curly_level-1]) && !$class_pool[$curly_level-1]->is_final)
 				{
 					// Look backward and forward for the "static" keyword
-					if (T_STATIC === $prevType || T_STATIC === $tokens[$i+1][0])
+					if (T_STATIC === $prevType || T_STATIC === $tokens[$i][0])
 					{
 						$code = 'protected';
 						$type = T_PROTECTED;
@@ -430,9 +433,9 @@ class patchwork_preprocessor__0
 			case T_NEW:
 				$c = '';
 
-				if (T_STRING === $tokens[$i+1][0])
+				if (T_STRING === $tokens[$i][0])
 				{
-					$c = strtolower($tokens[$i+1][0]);
+					$c = strtolower($tokens[$i][0]);
 					empty(self::$classAlias[$c]) || $c = self::$classAlias[$c];
 					if (isset(self::$inlineClass[$c])) break;
 				}
@@ -546,12 +549,12 @@ class patchwork_preprocessor__0
 					break;
 				}
 
-				if (T_NEW === $prevType || T_DOUBLE_COLON === $tokens[$i+1][0])
+				if (T_NEW === $prevType || T_DOUBLE_COLON === $tokens[$i][0])
 				{
 					if ('self' === $type) $class_pool && $code = end($class_pool)->classname; // Replace every self::* by __CLASS__::*
 					else empty(self::$classAlias[$type]) || $code = self::$classAlias[$type];
 				}
-				else if ('(' === $tokens[$i+1][0])
+				else if ('(' === $tokens[$i][0])
 				{
 					if (isset(self::$functionAlias[$type]))
 					{
@@ -563,9 +566,9 @@ class patchwork_preprocessor__0
 
 							if (2 === count($j))
 							{
-								$tokens[$i--] = array(T_STRING,       $j[1], $line, '');
-								$tokens[$i--] = array(T_DOUBLE_COLON, '::' , $line, '');
-								$tokens[$i--] = array(T_STRING,       $j[0], $line, $deco);
+								$tokens[--$i] = array(T_STRING,       $j[1], $line, '');
+								$tokens[--$i] = array(T_DOUBLE_COLON, '::' , $line, '');
+								$tokens[--$i] = array(T_STRING,       $j[0], $line, $deco);
 
 								continue 2;
 							}
@@ -646,7 +649,7 @@ class patchwork_preprocessor__0
 				break;
 
 			case T_EVAL:
-				if ('(' === $tokens[$i+1][0])
+				if ('(' === $tokens[$i][0])
 				{
 					$code = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$code}";
 					$b = new patchwork_preprocessor_marker($this);
@@ -662,7 +665,7 @@ class patchwork_preprocessor__0
 
 				// Every require|include inside files in the include_path
 				// is preprocessed thanks to patchworkProcessedPath().
-				if (false !== $tokens[$i+1][0])
+				if (false !== $tokens[$i][0])
 				{
 					if (0 > $level)
 					{
@@ -679,7 +682,7 @@ class patchwork_preprocessor__0
 								$c = patchwork_preprocessor::export($b, $c);
 							}
 
-							$tokens[$i--] = array(T_CONSTANT_ENCAPSED_STRING, $c, $line, ' ');
+							$tokens[--$i] = array(T_CONSTANT_ENCAPSED_STRING, $c, $line, ' ');
 						}
 						else
 						{
