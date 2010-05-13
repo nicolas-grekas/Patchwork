@@ -195,13 +195,16 @@ class __patchwork_autoloader
 
 		'patchwork_preprocessor' === $lc_top && self::$preproc = false;
 
-		if (!TURBO || self::$preproc || (class_exists('patchwork_preprocessor', false) && patchwork_preprocessor::isRunning())) return;
+		if (!TURBO || self::$preproc) return;
+		if (class_exists('patchwork_preprocessor', false) && patchwork_preprocessor::isRunning()) return;
 
 		if ($code && isset(self::$cache[$parent]))
 		{
 			// Include class declaration in its closest parent
 
-			list($src, $marker, $a) = self::parseMarker(self::$cache[$parent], "\$GLOBALS['c{$T}']['{$parent}']=%marker%;");
+			$src = self::parseMarker(self::$cache[$parent], "\$GLOBALS['c{$T}']['{$parent}']=%marker%;");
+
+			list($src, $marker, $a) = $src;
 
 			if (false !== $a)
 			{
@@ -232,9 +235,14 @@ class __patchwork_autoloader
 
 				$i = '/^' . preg_replace('/__[0-9]+$/', '', $lc_req) . '__[0-9]+$/i';
 
-				foreach ($current_pool as $parent => $src) if ($req instanceof $parent && false === strpos($a[0], $src))
+				foreach ($current_pool as $parent => $src)
 				{
-					$code = substr($code, 0, -2) . (preg_match($i, $parent) ? 'include' : 'include_once') . " '{$src}';?>";
+					if ($req instanceof $parent && false === strpos($a[0], $src))
+					{
+						$code = substr($code, 0, -2)
+							. (preg_match($i, $parent) ? 'include' : 'include_once')
+							. " '{$src}';?>";
+					}
 				}
 
 				if ('<?php ?>' !== $code)
@@ -258,7 +266,8 @@ class __patchwork_autoloader
 					{
 						$GLOBALS['a'.$T] = $bmark;
 						$marker = "isset(\$c{$T}['{$lc_req}'])||{$marker}";
-						$code = addslashes(PATCHWORK_PROJECT_PATH . ".class_{$cache}.{$T}.zcache.php");
+						$code = ".class_{$cache}.{$T}.zcache.php";
+						$code = addslashes(PATCHWORK_PROJECT_PATH . $code);
 						$code = "isset(\$c{$T}['{$lc_req}'])||patchwork_include('{$code}')||1";
 					}
 					else
