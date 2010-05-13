@@ -122,7 +122,7 @@ class patchwork_tokenizer__0
 			$tokens[] = $token;
 			$deco = '';
 
-			while ($i < $length && (T_WHITESPACE === $code[$i][0] || T_COMMENT === $code[$i][0] || T_DOC_COMMENT === $code[$i][0]))
+			while ($i < $length && in_array($code[$i][0], array(T_WHITESPACE, T_COMMENT, T_DOC_COMMENT), true))
 			{
 				$lines = substr_count($code[$i][1], "\n");
 
@@ -149,6 +149,7 @@ class patchwork_tokenizer__0
 
 	static function fetchConstantCode($tokens, &$i, $count, &$value)
 	{
+		$variableType = self::$variableType;
 		$new_code = array();
 		$bracket = 0;
 		$close = 0;
@@ -183,7 +184,7 @@ class patchwork_tokenizer__0
 				break;
 
 			default:
-				if (in_array($type, self::$variableType)) $close = 2;
+				if (in_array($type, $variableType, true)) $close = 2;
 			}
 
 			if (1 === $close)
