@@ -47,18 +47,7 @@ class patchwork_bootstrapper_bootstrapper__0
 
 		if (headers_sent($file, $line) || ob_get_length())
 		{
-			if ($file)
-			{
-				$file = " in {$file} on line {$line}";
-			}
-			else
-			{
-				$file = array_slice(get_included_files(), 0, -3);
-				$line = array_pop($file);
-				$file = ", likely in " . ($file ? implode(', ', $file) . ' or ' : '') . $line;
-			}
-
-			die("Patchwork error: Something has been echoed before bootstrap{$file} (maybe some white space or a BOM?)");
+			die('Patchwork error: ' . $this->getEchoErro($file, $line, ob_get_flush(), 'before bootstrap'));
 		}
 	}
 
@@ -222,7 +211,11 @@ exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not fl
 		}
 		else
 		{
-			die($buffer . "\n<br><br>\n\n<small>---- Something has been echoed during bootstrap - dying ----</small>");
+			echo $buffer;
+
+			$buffer = $this->getEchoError($this->preprocessor->file, 0, $buffer, 'during bootstrap');
+
+			die("\n<br><br>\n\n<small>&mdash; {$buffer}. Dying &mdash;</small>");
 		}
 	}
 
@@ -234,6 +227,8 @@ exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not fl
 	function preprocessorPass2()
 	{
 		$code = $this->preprocessor->staticPass2();
+
+		ob_get_length() && $this->release();
 
 		isset($GLOBALS['patchwork_autoload_cache']) || $this->token = md5($this->token . $code);
 
@@ -339,6 +334,42 @@ exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not fl
 		$this->preprocessor->alias($function, $alias, $args, $return_ref, $this->marker);
 	}
 
+	function getEchoError($file, $line, $what, $when)
+	{
+		if ($len = strlen($what))
+		{
+			if ('' === trim($what))
+			{
+				$what = $len > 1 ? $len . ' bytes of whitespace have' : 'One byte of whitespace has';
+			}
+			else if (0 === strncmp($what, "\xEF\xBB\xBF", 3))
+			{
+				$what = 'An UTF-8 byte order mark (BOM) has';
+			}
+			else
+			{
+				$what = $len > 1 ? $len . ' bytes have' : 'One byte has';
+			}
+		}
+		else $what = 'Something has';
+
+		if ($line)
+		{
+			$line = " in {$file} on line {$line} (maybe some whitespace or a BOM?)";
+		}
+		else if ($file)
+		{
+			$line = " in {$file}";
+		}
+		else
+		{
+			$line = array_slice(get_included_files(), 0, -3);
+			$file = array_pop($line);
+			$line = ' in ' . ($line ? implode(', ', $line) . ' or in ' : '') . $file;
+		}
+
+		return "{$what} been echoed {$when}{$line}";
+	}
 
 	protected function loadConfig(&$slice, $name)
 	{

@@ -21,7 +21,7 @@ defined('T_NAMESPACE')    || define('T_NAMESPACE', -1);
 defined('T_NS_SEPARATOR') || define('T_NS_SEPARATOR', -1);
 
 
-class patchwork_tokenizer__0
+class patchwork_tokenizer
 {
 	protected static $variableType = array(
 		T_EVAL, '(', T_LINE, T_FILE, T_DIR, T_FUNC_C, T_CLASS_C, T_METHOD_C, T_NS_C, T_INCLUDE, T_REQUIRE,

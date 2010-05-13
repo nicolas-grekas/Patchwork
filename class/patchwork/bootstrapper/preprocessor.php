@@ -57,6 +57,7 @@ class patchwork_bootstrapper_preprocessor__0
 
 		$new_code = array();
 		$transition = array();
+		$error = '';
 
 		for ($i = 0; $i < $codeLen; ++$i)
 		{
@@ -74,7 +75,7 @@ class patchwork_bootstrapper_preprocessor__0
 			// Reduce memory usage
 			unset($code[$i]);
 
-			switch ($type)
+			if ('' === $error) switch ($type)
 			{
 			case T_CURLY_OPEN:
 			case T_DOLLAR_OPEN_CURLY_BRACES:
@@ -86,7 +87,7 @@ class patchwork_bootstrapper_preprocessor__0
 				if ($token !== $iLast = array_pop($bracket))
 				{
 					$iLast = $iLast ? ", expecting `{$iLast}'" : '';
-					die("Parse error: syntax error, unexpected `{$token}'{$iLast} in {$this->file} on line {$line}");
+					$error = "Patchwork error: Syntax error, unexpected `{$token}'{$iLast} in {$this->file} on line {$line}";
 				}
 				break;
 			}
@@ -94,11 +95,7 @@ class patchwork_bootstrapper_preprocessor__0
 			switch ($type)
 			{
 			case '@':
-				if ($scream)
-				{
-					$code[$i--] = array(T_WHITESPACE, ' ');
-					continue 2;
-				}
+				if ($scream) continue 2;
 				break;
 
 			case T_OPEN_TAG:
@@ -168,7 +165,7 @@ class patchwork_bootstrapper_preprocessor__0
 			switch ($mode)
 			{
 			case 1: echo $line; break;
-			case 2: echo var_export($line, true); break;
+			case 2: var_export($line); break;
 			case 3: echo $line, ')."', str_repeat('\n', substr_count($line, "\n")), '"'; break;
 			}
 
@@ -188,8 +185,15 @@ class patchwork_bootstrapper_preprocessor__0
 		switch ($mode)
 		{
 		case 1: echo $line; break;
-		case 2: echo var_export($line, true), ';'; break;
+		case 2: var_export($line); echo ';'; break;
 		case 3: echo $line, ')."', str_repeat('\n', substr_count($line, "\n")), '";'; break;
+		}
+
+		if ('' !== $error)
+		{
+			echo 'echo ';
+			var_export($error);
+			echo ';';
 		}
 
 		$code = ob_get_clean();
