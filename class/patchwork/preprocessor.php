@@ -196,7 +196,7 @@ class patchwork_preprocessor__0
 		$is_top = $this->isTop;
 		$line   =& $this->line;
 
-		$tokens = patchwork_tokenizer::getAll($tokens);
+		$tokens = patchwork_tokenizer::getAll($tokens, true);
 		$count = count($tokens);
 
 		// Add dummy tokens to avoid checking for edges
@@ -226,7 +226,7 @@ class patchwork_preprocessor__0
 
 		while ($i < $count)
 		{
-			list($type, $code, $line, $deco) = $tokens[$i];
+			list($type, $code, $line, $deco) = $tokens[$i] + array(3 => '');
 
 			// Reduce memory usage
 			unset($tokens[$i++]);
@@ -291,12 +291,10 @@ class patchwork_preprocessor__0
 						{
 							$c = array($j, 0);
 
-							while ($b && isset($new_type[$j -= 2])) switch ($new_type[$j])
+							while ($b && isset($new_type[$j -= 2]))
 							{
-							case T_CURLY_OPEN:
-							case T_DOLLAR_OPEN_CURLY_BRACES:
-							case '{': --$b; break;
-							case '}': ++$b; break;
+								if ('{' === $new_type[$j]) --$b;
+								else if ('}' === $new_type[$j]) ++$b;
 							}
 
 							$c[1] = $j;
@@ -511,8 +509,6 @@ class patchwork_preprocessor__0
 						}
 						break;
 
-					case T_CURLY_OPEN:
-					case T_DOLLAR_OPEN_CURLY_BRACES:
 					case '{': case '[': --$b; break;
 					case '}': case ']': ++$b; break;
 					}
