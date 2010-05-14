@@ -809,7 +809,7 @@ class patchwork_preprocessor__0
 		if (T_CLOSE_TAG !== $type && T_INLINE_HTML !== $type)
 		{
 			$new_code[] = '';
-			$new_code[] = '?>';
+			$new_code[] = '?'.'>';
 		}
 
 		return $new_code;

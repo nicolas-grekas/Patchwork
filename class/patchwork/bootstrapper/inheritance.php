@@ -137,37 +137,26 @@ class patchwork_bootstrapper_inheritance__0
 
 		ob_start();
 
-		if ($source = token_get_all($source))
+		$source = $this->configSource[$config] = patchwork_tokenizer::getAll($source, false);
+
+		if ($source && T_OPEN_TAG === $source[0][0])
 		{
 			$len = count($source);
 
-			if (T_OPEN_TAG === $source[0][0])
+			for ($i = 1; $i < $len; ++$i)
 			{
-				$source[0] = '';
+				$a = $source[$i];
 
-				for ($i = 1; $i < $len; ++$i)
+				if (in_array($a[0], array(T_WHITESPACE, T_COMMENT, T_DOC_COMMENT), true))
 				{
-					$a = $source[$i];
-
-					if (in_array($a[0], array(T_WHITESPACE, T_COMMENT, T_DOC_COMMENT), true))
+					if (T_COMMENT === $a[0] && '#patchwork' === rtrim(substr($a[1], 0, 11), " \t"))
 					{
-						if (T_COMMENT === $a[0] && preg_match('/^#patchwork[ \t]/', $a[1])) $parent[] = trim(substr($a[1], 11));
+						$parent[] = trim(substr($a[1], 11));
 					}
-					else break;
 				}
+				else break;
 			}
-			else $source[0][1] = '?>' . $source[0][1];
-
-			if (is_array($a = $source[$len - 1]))
-			{
-				if (T_CLOSE_TAG === $a[0]) $a[1] = ';';
-				else if (T_INLINE_HTML === $a[0]) $a[1] .= '<?php ';
-			}
-
-			array_walk($source, array($this, 'echoToken'));
 		}
-
-		$this->configSource[$config] = ob_get_clean();
 
 
 		// Parent's config file path is relative to the current application's directory
@@ -251,20 +240,5 @@ class patchwork_bootstrapper_inheritance__0
 		}
 
 		return $parent;
-	}
-
-	protected function echoToken($token)
-	{
-		if (is_array($token))
-		{
-			if (in_array($token[0], array(T_WHITESPACE, T_COMMENT), true))
-			{
-				$a = substr_count($token[1], "\n");
-				$token[1] = $a ? str_repeat("\n", $a) : ' ';
-			}
-
-			echo $token[1];
-		}
-		else echo $token;
 	}
 }

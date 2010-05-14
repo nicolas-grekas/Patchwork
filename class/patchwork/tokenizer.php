@@ -80,7 +80,7 @@ class patchwork_tokenizer
 
 				case T_CLOSE_TAG: // Normalize PHP close tag
 					$lines = substr_count($token[1], "\n");
-					$token[1] = str_repeat("\n", $lines) . '?>';
+					$token[1] = str_repeat("\n", $lines) . '?'.'>';
 					$line += $lines;
 					break;
 				}

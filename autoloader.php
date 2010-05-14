@@ -227,9 +227,9 @@ class __patchwork_autoloader
 			{
 				// Add an include directive of parent's code in the derivated class
 
-				$code = '<?php ?>';
+				$code = '<?php ?'.'>';
 				$a || $a = file_get_contents($cache);
-				if ('<?php ' != substr($a, 0, 6)) $a = '<?php ?>' . $a;
+				if ('<?php ' != substr($a, 0, 6)) $a = '<?php ?'.'>' . $a;
 				$a = explode("\n", $a, 2);
 				isset($a[1]) || $a[1] = '';
 
@@ -241,11 +241,11 @@ class __patchwork_autoloader
 					{
 						$code = substr($code, 0, -2)
 							. (preg_match($i, $parent) ? 'include' : 'include_once')
-							. " '{$src}';?>";
+							. " '{$src}';?".">";
 					}
 				}
 
-				if ('<?php ?>' !== $code)
+				if ('<?php ?'.'>' !== $code)
 				{
 					$a = substr($code, 0, -2) . substr($a[0], 6) . $a[1];
 					self::write($a, $cache);

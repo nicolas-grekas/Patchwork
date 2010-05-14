@@ -146,7 +146,7 @@ abstract class ptlCompiler
 
 		$source = preg_replace_callback("'" . $this->Xcomment . "'su", array($this, 'preserveLF'), $source);
 		$source = preg_replace_callback(
-			"/({$this->Xlblock}(?:{$this->XblockEnd})?{$this->Xblock})((?>{$this->Xstring}|.)*?)({$this->Xrblock})/su",
+			"/({$this->Xlblock}(?:{$this->XblockEnd})?{$this->Xblock})((?".">{$this->Xstring}|.)*?)({$this->Xrblock})/su",
 			array($this, 'autoSplitBlocks'),
 			$source
 		);
@@ -301,7 +301,7 @@ abstract class ptlCompiler
 
 	protected function makeBlocks($a)
 	{
-		$a = preg_split("/({$this->Xlblock}{$this->Xblock}(?>{$this->Xstring}|.)*?{$this->Xrblock})/su", $a, -1, PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_DELIM_CAPTURE);
+		$a = preg_split("/({$this->Xlblock}{$this->Xblock}(?".">{$this->Xstring}|.)*?{$this->Xrblock})/su", $a, -1, PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_DELIM_CAPTURE);
 
 		$this->makeVars($a[0][0]);
 

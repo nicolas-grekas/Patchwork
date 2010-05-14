@@ -43,7 +43,7 @@ class patchwork_bootstrapper_preprocessor__0
 		$code = file_get_contents($this->file);
 		self::UTF8_BOM === substr($code, 0, 3) && $code = substr($code, 3);
 		false !== strpos($code, "\r") && $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
-		$code = preg_replace('/\?>$/', ';', $code);
+		$code = preg_replace('/\?\>$/', ';', $code);
 
 		$code = patchwork_tokenizer::getAll($code, false);
 		$codeLen = count($code);
@@ -187,7 +187,7 @@ class patchwork_bootstrapper_preprocessor__0
 
 	function staticPass2($token = false)
 	{
-		$code = '?>';
+		$code = '?'.'>';
 		$line = 1;
 		foreach (self::$code as $i => $b)
 		{
@@ -195,7 +195,7 @@ class patchwork_bootstrapper_preprocessor__0
 			$line = $i + substr_count($b, "\n");
 		}
 
-		'?><?php' === substr($code, 0, 7) && $code = substr($code, 7);
+		'?'.'><?php' === substr($code, 0, 7) && $code = substr($code, 7);
 
 		self::$code = array();
 
