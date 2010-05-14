@@ -22,7 +22,8 @@ class patchwork_bootstrapper
 	$paths,
 	$zcache,
 	$last,
-	$appId;
+	$appId,
+	$UTF8_BOM;
 
 
 	protected static
@@ -43,6 +44,7 @@ class patchwork_bootstrapper
 		require dirname(__FILE__) . '/bootstrapper/bootstrapper.php';
 
 		self::$bootstrapper = new patchwork_bootstrapper_bootstrapper__0(self::$cwd, self::$token);
+		self::$UTF8_BOM = patchwork_bootstrapper_bootstrapper__0::UTF8_BOM;
 	}
 
 	static function getLock()             {return self::$bootstrapper->getLock(self::$caller);}
@@ -53,8 +55,6 @@ class patchwork_bootstrapper
 	static function preprocessorPass2()   {return self::$bootstrapper->preprocessorPass2();}
 	static function loadConfigFile($type) {return self::$bootstrapper->loadConfigFile($type);}
 	static function initConfig()          {return self::$bootstrapper->initConfig();}
-	static function loadConfigSource()    {return self::$bootstrapper->loadConfigSource();}
-	static function getConfigSource()     {return self::$bootstrapper->getConfigSource();}
 
 	static function initInheritance()
 	{

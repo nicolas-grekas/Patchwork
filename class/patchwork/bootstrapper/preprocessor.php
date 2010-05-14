@@ -16,8 +16,8 @@ class patchwork_bootstrapper_preprocessor__0
 {
 	const UTF8_BOM = "\xEF\xBB\xBF";
 
-	static $code;
-	public $file;
+	static $src;
+	public $file, $code;
 	protected $callerRx, $alias = array();
 
 
@@ -36,17 +36,16 @@ class patchwork_bootstrapper_preprocessor__0
 
 	function staticPass1()
 	{
+		self::$src = array();
+
+		$code =& $this->code;
+		$codeLen = count($code);
+
+		if (!$code) return '';
+
 		$scream = (defined('DEBUG') && DEBUG)
 			&& !empty($GLOBALS['CONFIG']['debug.scream'])
 				|| (defined('DEBUG_SCREAM') && DEBUG_SCREAM);
-
-		$code = file_get_contents($this->file);
-		self::UTF8_BOM === substr($code, 0, 3) && $code = substr($code, 3);
-		false !== strpos($code, "\r") && $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
-		$code = preg_replace('/\?\>$/', ';', $code);
-
-		$code = patchwork_tokenizer::getAll($code, false);
-		$codeLen = count($code);
 
 		$mode = 2;
 		$first_isolation = 0;
@@ -59,7 +58,7 @@ class patchwork_bootstrapper_preprocessor__0
 		$transition = array();
 		$error = '';
 
-		for ($i = 0; $i < $codeLen; ++$i)
+		for ($i = key($code); $i < $codeLen; ++$i)
 		{
 			list($type, $token, $line) = $code[$i];
 
@@ -133,9 +132,8 @@ class patchwork_bootstrapper_preprocessor__0
 			$new_code[] = $token;
 		}
 
-		$code = '';
 		ob_start();
-		echo __CLASS__, '::$code[1]=';
+		echo __CLASS__, '::$src[1]=';
 
 		$iLast = 0;
 		$mode = 2;
@@ -155,7 +153,7 @@ class patchwork_bootstrapper_preprocessor__0
 			switch ($transition[0])
 			{
 			case 1: echo 2 === $mode ? ';' : ''; break;
-			case 2: echo (3 !== $mode ? (2 === $mode ? ';' : ' ') . __CLASS__ . '::$code[' . $transition[1] . ']=' : '.'); break;
+			case 2: echo (3 !== $mode ? (2 === $mode ? ';' : ' ') . __CLASS__ . '::$src[' . $transition[1] . ']=' : '.'); break;
 			case 3: echo '.', __CLASS__, '::export('; break;
 			}
 
@@ -179,17 +177,16 @@ class patchwork_bootstrapper_preprocessor__0
 			echo ';';
 		}
 
-		$code = ob_get_clean();
-		self::$code = array();
-
-		return $code;
+		return ob_get_clean();
 	}
 
 	function staticPass2($token = false)
 	{
+		if (!self::$src) return '';
+
 		$code = '?'.'>';
 		$line = 1;
-		foreach (self::$code as $i => $b)
+		foreach (self::$src as $i => $b)
 		{
 			$code .= str_repeat("\n", $i - $line) . $b;
 			$line = $i + substr_count($b, "\n");
@@ -197,7 +194,7 @@ class patchwork_bootstrapper_preprocessor__0
 
 		'?'.'><?php' === substr($code, 0, 7) && $code = substr($code, 7);
 
-		self::$code = array();
+		self::$src = array();
 
 		if ($this->alias)
 		{
@@ -221,7 +218,7 @@ class patchwork_bootstrapper_preprocessor__0
 
 			if ($function == $alias)
 			{
-				self::$code[key(self::$code)] .= "die('Patchwork error: Circular aliasing of function {$function}() in ' . __FILE__ . ' on line ' . __LINE__);";
+				self::$src[key(self::$src)] .= "die('Patchwork error: Circular aliasing of function {$function}() in ' . __FILE__ . ' on line ' . __LINE__);";
 			}
 		}
 
@@ -257,14 +254,14 @@ class patchwork_bootstrapper_preprocessor__0
 		$args[1] = implode(',', $args[1]);
 		$args[2] = implode(',', $args[2]);
 
-		end(self::$code);
+		end(self::$src);
 
 		$inline && $this->alias[1 !== $inline ? substr($function, 12) : $function] = $alias;
 
 		$inline = explode('::', $alias, 2);
 		$inline = 2 === count($inline) ? mt_rand(1, mt_getrandmax()) . strtolower($inline[0]) : '';
 
-		self::$code[key(self::$code)] .= $return_ref
+		self::$src[key(self::$src)] .= $return_ref
 			? "function &{$function}({$args[1]}) {/*{$marker}:{$inline}*/\${''}=&{$alias}({$args[2]});return \${''}}"
 			: "function  {$function}({$args[1]}) {/*{$marker}:{$inline}*/return {$alias}({$args[2]});}";
 	}
