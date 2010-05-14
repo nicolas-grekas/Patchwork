@@ -53,7 +53,6 @@ if (!patchwork_bootstrapper::getLock())
 
 eval(patchwork_bootstrapper::preprocessorPass1());
 eval(patchwork_bootstrapper::preprocessorPass2());
-ob_get_length() && ob_flush();
 
 
 // Initialization
@@ -68,7 +67,6 @@ while (patchwork_bootstrapper::loadConfigFile('pre'))
 {
 	eval(patchwork_bootstrapper::preprocessorPass1());
 	eval(patchwork_bootstrapper::preprocessorPass2());
-	ob_get_length() && ob_flush();
 }
 
 
@@ -76,10 +74,10 @@ while (patchwork_bootstrapper::loadConfigFile('pre'))
 
 patchwork_bootstrapper::initConfig();
 
-while (patchwork_bootstrapper::loadConfigSource())
+while (patchwork_bootstrapper::loadConfigFile(true))
 {
-	eval(patchwork_bootstrapper::getConfigSource());
-	ob_get_length() && ob_flush();
+	eval(patchwork_bootstrapper::preprocessorPass1());
+	eval(patchwork_bootstrapper::preprocessorPass2());
 }
 
 
@@ -89,17 +87,13 @@ while (patchwork_bootstrapper::loadConfigFile('post'))
 {
 	eval(patchwork_bootstrapper::preprocessorPass1());
 	eval(patchwork_bootstrapper::preprocessorPass2());
-	ob_get_length() && ob_flush();
 }
 
 
 // Setup hook
 
-if (!ob_get_length())
-{
-	class p extends patchwork {}
-	patchwork_setup::hook();
-}
+class p extends patchwork {}
+patchwork_setup::hook();
 
 
 // Save config and release lock

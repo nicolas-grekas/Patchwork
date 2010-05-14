@@ -17,7 +17,6 @@ class patchwork_bootstrapper_inheritance__0
 	public
 
 	$rootPath,
-	$configSource = array(),
 	$appId = 0;
 
 	protected static $cache;
@@ -131,21 +130,15 @@ class patchwork_bootstrapper_inheritance__0
 		$this->appId += filemtime($config);
 
 		$source = file_get_contents($config);
-		UTF8_BOM === substr($source, 0, 3) && $source = substr($source, 3);
-		false !== strpos($source, "\r") && $source = strtr(str_replace("\r\n", "\n", $source), "\r", "\n");
-		"\n" === $source && $source = '';
 
-		ob_start();
-
-		$source = $this->configSource[$config] = patchwork_tokenizer::getAll($source, false);
-
-		if ($source && T_OPEN_TAG === $source[0][0])
+		if ($source = token_get_all($source))
 		{
+			$i = T_INLINE_HTML === $source[0][0] ? 2 : 1;
 			$len = count($source);
 
-			for ($i = 1; $i < $len; ++$i)
+			while ($i < $len)
 			{
-				$a = $source[$i];
+				$a = $source[$i++];
 
 				if (in_array($a[0], array(T_WHITESPACE, T_COMMENT, T_DOC_COMMENT), true))
 				{

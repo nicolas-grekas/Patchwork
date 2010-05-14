@@ -14,6 +14,8 @@
 
 class patchwork_bootstrapper_bootstrapper__0
 {
+	const UTF8_BOM = "\xEF\xBB\xBF";
+
 	protected
 
 	$marker,
@@ -22,7 +24,6 @@ class patchwork_bootstrapper_bootstrapper__0
 	$dir,
 	$preprocessor,
 	$configCode = array(),
-	$configSource = array(),
 	$fSlice, $rSlice,
 	$lock = null;
 
@@ -127,10 +128,11 @@ class patchwork_bootstrapper_bootstrapper__0
 
 		@set_time_limit(0);
 
-		$this->preprocessor = $a = $this->getPreprocessor();
+		$this->preprocessor = $this->getPreprocessor();
+		$this->preprocessor->ob_start($caller);
 
-		$a->file = dirname($caller) . '/common.php';
-		$a->ob_start($caller);
+		$caller = array(dirname($caller) . '/');
+		$this->loadConfig($caller, 'common');
 
 		$GLOBALS['patchwork_preprocessor_alias'] = array();
 	}
@@ -205,7 +207,7 @@ exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not fl
 
 			rename($T, $this->getCompiledFile());
 
-			$this->lock = $this->configCode = $this->configSource = $this->fSlice = $this->rSlice = null;
+			$this->lock = $this->configCode = $this->fSlice = $this->rSlice = null;
 
 			@set_time_limit(ini_get('max_execution_time'));
 		}
@@ -237,9 +239,7 @@ exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not fl
 
 	function getLinearizedInheritance($pwd)
 	{
-		$a = $this->getInheritance();
-		$a->configSource =& $this->configSource;
-		$a = $a->linearizeGraph($pwd, $this->cwd);
+		$a = $this->getInheritance()->linearizeGraph($pwd, $this->cwd);
 
 		$this->fSlice = array_slice($a[0], 0, $a[1] + 1);
 		$this->rSlice = array_reverse($this->fSlice);
@@ -310,40 +310,9 @@ exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not fl
 
 	function loadConfigFile($type)
 	{
-		return $this->loadConfig($this->rSlice, $type . 'config');
-	}
-
-	function loadConfigSource()
-	{
-		return $this->loadConfig($this->fSlice, 'config.patchwork');
-	}
-
-	function getConfigSource()
-	{
-		$file = $this->preprocessor->file;
-
-		if ($this->configSource[$file])
-		{
-			ob_start();
-
-			echo '?', '>';
-
-			foreach ($this->configSource[$file] as $token)
-			{
-				if (T_WHITESPACE === $token[0] || T_COMMENT === $token[0])
-				{
-					$a = substr_count($token[1], "\n");
-					echo $a ? str_repeat("\n", $a) : ' ';
-				}
-				else echo $token[1];
-			}
-
-			if (T_INLINE_HTML === $token[0]) echo '<?php ';
-
-			return $this->configCode[$file] = ob_get_clean();
-		}
-
-		return '';
+		return true === $type
+			? $this->loadConfig($this->fSlice, 'config.patchwork')
+			: $this->loadConfig($this->rSlice, $type . 'config');
 	}
 
 	function updatedb($paths, $last, $zcache)
@@ -364,7 +333,7 @@ exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not fl
 			{
 				$what = $len > 1 ? $len . ' bytes of whitespace have' : 'One byte of whitespace has';
 			}
-			else if (0 === strncmp($what, "\xEF\xBB\xBF", 3))
+			else if (0 === strncmp($what, self::UTF8_BOM, 3))
 			{
 				$what = 'An UTF-8 byte order mark (BOM) has';
 			}
@@ -409,7 +378,21 @@ exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not fl
 		}
 		while (!file_exists($file));
 
+		$this->preprocessor->code =& $code;
 		$this->preprocessor->file = $file;
+
+		if ($code = file_get_contents($file))
+		{
+			false !== strpos($code, "\r") && $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
+
+			$code = patchwork_tokenizer::getAll($code, false);
+
+			if (self::UTF8_BOM === $code[0][1]) unset($code[0]);
+
+			$file =& $code[count($code) - 1];
+			T_CLOSE_TAG === $file[0] && $file[0] = $file[1] = ';';
+		}
+		else $code = array();
 
 		return true;
 	}
