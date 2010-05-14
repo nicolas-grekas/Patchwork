@@ -24,7 +24,9 @@ class
 
 		if (PEAR::isError($db))
 		{
-			trigger_error($db->getMessage(), E_USER_ERROR);
+			$dsn = $db->getUserInfo();
+			$dsn = $dsn ? ' ** ' . $dsn : '';
+			trigger_error($db->getMessage() . $dsn, E_USER_ERROR);
 			p::disable(true);
 		}
 
