@@ -321,7 +321,29 @@ exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not fl
 	function getConfigSource()
 	{
 		$file = $this->preprocessor->file;
-		return $this->configCode[$file] =& $this->configSource[$file];
+
+		if ($this->configSource[$file])
+		{
+			ob_start();
+
+			echo '?', '>';
+
+			foreach ($this->configSource[$file] as $token)
+			{
+				if (T_WHITESPACE === $token[0] || T_COMMENT === $token[0])
+				{
+					$a = substr_count($token[1], "\n");
+					echo $a ? str_repeat("\n", $a) : ' ';
+				}
+				else echo $token[1];
+			}
+
+			if (T_INLINE_HTML === $token[0]) echo '<?php ';
+
+			return $this->configCode[$file] = ob_get_clean();
+		}
+
+		return '';
 	}
 
 	function updatedb($paths, $last, $zcache)
