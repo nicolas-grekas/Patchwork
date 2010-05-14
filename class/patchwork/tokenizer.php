@@ -196,7 +196,7 @@ class patchwork_tokenizer
 
 			if (1 === $close)
 			{
-				$i = $j - 1;
+				$i = $j;
 				$j = implode('', $new_code);
 				return false === @eval("\$value={$j};") ? null : $j;
 			}
