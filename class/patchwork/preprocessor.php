@@ -36,7 +36,6 @@ class patchwork_preprocessor__0
 
 	$constant = array(
 		'DEBUG' => DEBUG,
-		'UTF8_BOM' => UTF8_BOM,
 		'IS_WINDOWS' => IS_WINDOWS,
 		'PATCHWORK_ZCACHE' => PATCHWORK_ZCACHE,
 		'PATCHWORK_PATH_LEVEL' => PATCHWORK_PATH_LEVEL,
@@ -135,7 +134,6 @@ class patchwork_preprocessor__0
 			);
 
 			$code = file_get_contents($source);
-			0 === strncmp($code, UTF8_BOM, 3) && $code = substr($code, 3);
 
 			if (!preg_match('//u', $code)) patchwork_preprocessor::error("File encoding is not valid UTF-8.", $source, 0);
 
@@ -196,7 +194,7 @@ class patchwork_preprocessor__0
 		$is_top = $this->isTop;
 		$line   =& $this->line;
 
-		$tokens = patchwork_tokenizer::getAll($tokens, true);
+		$tokens = patchwork_tokenizer::getAll($tokens);
 		$count = count($tokens);
 
 		// Add dummy tokens to avoid checking for edges
