@@ -22,8 +22,7 @@ class patchwork_bootstrapper
 	$paths,
 	$zcache,
 	$last,
-	$appId,
-	$UTF8_BOM;
+	$appId;
 
 
 	protected static
@@ -44,7 +43,6 @@ class patchwork_bootstrapper
 		require dirname(__FILE__) . '/bootstrapper/bootstrapper.php';
 
 		self::$bootstrapper = new patchwork_bootstrapper_bootstrapper__0(self::$cwd, self::$token);
-		self::$UTF8_BOM = patchwork_bootstrapper_bootstrapper__0::UTF8_BOM;
 	}
 
 	static function getLock()             {return self::$bootstrapper->getLock(self::$caller);}

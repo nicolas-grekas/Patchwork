@@ -14,8 +14,6 @@
 
 class patchwork_bootstrapper_bootstrapper__0
 {
-	const UTF8_BOM = "\xEF\xBB\xBF";
-
 	protected
 
 	$marker,
@@ -333,7 +331,7 @@ exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not fl
 			{
 				$what = $len > 1 ? $len . ' bytes of whitespace have' : 'One byte of whitespace has';
 			}
-			else if (0 === strncmp($what, self::UTF8_BOM, 3))
+			else if (0 === strncmp($what, "\xEF\xBB\xBF", 3))
 			{
 				$what = 'An UTF-8 byte order mark (BOM) has';
 			}
@@ -378,21 +376,7 @@ exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not fl
 		}
 		while (!file_exists($file));
 
-		$this->preprocessor->code =& $code;
 		$this->preprocessor->file = $file;
-
-		if ($code = file_get_contents($file))
-		{
-			false !== strpos($code, "\r") && $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
-
-			$code = patchwork_tokenizer::getAll($code, false);
-
-			if (self::UTF8_BOM === $code[0][1]) unset($code[0]);
-
-			$file =& $code[count($code) - 1];
-			T_CLOSE_TAG === $file[0] && $file[0] = $file[1] = ';';
-		}
-		else $code = array();
 
 		return true;
 	}
