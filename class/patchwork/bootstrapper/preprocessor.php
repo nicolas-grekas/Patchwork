@@ -14,11 +14,14 @@
 
 class patchwork_bootstrapper_preprocessor__0
 {
-	const UTF8_BOM = "\xEF\xBB\xBF";
-
 	static $src;
-	public $file, $code;
-	protected $callerRx, $alias = array();
+
+	public $file;
+
+	protected
+
+	$callerRx,
+	$alias = array();
 
 
 	function ob_start($caller)
@@ -38,10 +41,19 @@ class patchwork_bootstrapper_preprocessor__0
 	{
 		self::$src = array();
 
-		$code =& $this->code;
-		$codeLen = count($code);
+		if ('' !== $code = file_get_contents($this->file))
+		{
+			strncmp($code, "\xEF\xBB\xBF", 3) || $code = substr($code, 3);
+			false !== strpos($code, "\r") && $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
 
-		if (!$code) return '';
+			$code = patchwork_tokenizer::getAll($code, false);
+			$codeLen = count($code);
+
+			$iLast =& $code[$codeLen - 1];
+			T_CLOSE_TAG === $iLast[0] && $iLast[0] = $iLast[1] = ';';
+			unset($iLast);
+		}
+		else return '';
 
 		$scream = (defined('DEBUG') && DEBUG)
 			&& !empty($GLOBALS['CONFIG']['debug.scream'])
@@ -58,7 +70,7 @@ class patchwork_bootstrapper_preprocessor__0
 		$transition = array();
 		$error = '';
 
-		for ($i = key($code); $i < $codeLen; ++$i)
+		for ($i = 0; $i < $codeLen; ++$i)
 		{
 			list($type, $token, $line) = $code[$i];
 

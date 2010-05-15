@@ -129,7 +129,7 @@ abstract class ptlCompiler
 
 		$template = $a;
 		$source = file_get_contents($a = $source);
-		UTF8_BOM === substr($source, 0, 3) && $source = substr($source, 3);
+		strncmp($source, "\xEF\xBB\xBF", 3) || $source = substr($source, 3); // Remove UTF-8 BOM
 
 		if (!preg_match('//u', $source)) W("Template file {$a}:\nfile encoding is not valid UTF-8. Please convert your source code to UTF-8.");
 
