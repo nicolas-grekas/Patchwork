@@ -24,8 +24,10 @@ defined('T_NS_SEPARATOR') || define('T_NS_SEPARATOR', -1);
 class patchwork_tokenizer
 {
 	protected static $variableType = array(
-		T_EVAL, '(', T_LINE, T_FILE, T_DIR, T_FUNC_C, T_CLASS_C, T_METHOD_C, T_NS_C, T_INCLUDE, T_REQUIRE,
-		T_CURLY_OPEN, T_VARIABLE, '$', T_INCLUDE_ONCE, T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES, T_EXIT,
+		T_EVAL, '(', T_LINE, T_FILE, T_DIR, T_FUNC_C, T_CLASS_C,
+		T_METHOD_C, T_NS_C, T_INCLUDE, T_REQUIRE, T_GOTO,
+		T_CURLY_OPEN, T_VARIABLE, '$', T_INCLUDE_ONCE,
+		T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES, T_EXIT,
 	);
 
 	static function getAll($code, $strip)
@@ -74,7 +76,7 @@ class patchwork_tokenizer
 
 				case T_OPEN_TAG: // Normalize PHP open tag
 					$lines = substr_count($token[1], "\n");
-					$token[1] = '<?php ' . str_repeat("\n", $lines);
+					$token[1] = '<?php' . ($lines ? str_repeat("\n", $lines) : ' ');
 					$line += $lines;
 					break;
 
@@ -126,17 +128,17 @@ class patchwork_tokenizer
 
 			$tokens[] = $token;
 
-			while ($i < $length && in_array($code[$i][0], array(T_WHITESPACE, T_COMMENT, T_DOC_COMMENT), true))
+			while ($i < $length && (
+				   T_WHITESPACE  === $code[$i][0]
+				|| T_COMMENT     === $code[$i][0]
+				|| T_DOC_COMMENT === $code[$i][0]
+			))
 			{
 				$lines = substr_count($code[$i][1], "\n");
 
 				if ($strip)
 				{
-					if (T_DOC_COMMENT === $code[$i][0])
-					{
-						$deco = str_repeat("\n", substr_count($deco, "\n"));
-					}
-					else
+					if (T_DOC_COMMENT !== $code[$i][0])
 					{
 						$code[$i][1] = $lines ? str_repeat("\n", $lines) : ' ';
 					}
@@ -189,6 +191,8 @@ class patchwork_tokenizer
 			case ';':
 				++$close;
 				break;
+
+			case T_WHITESPACE: break;
 
 			default:
 				if (in_array($type, $variableType, true)) $close = 2;
