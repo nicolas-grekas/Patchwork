@@ -23,26 +23,65 @@ defined('T_NS_SEPARATOR') || define('T_NS_SEPARATOR', -1);
 
 class patchwork_tokenizer
 {
-	protected static $variableType = array(
-		T_EVAL, '(', T_LINE, T_FILE, T_DIR, T_FUNC_C, T_CLASS_C,
-		T_METHOD_C, T_NS_C, T_INCLUDE, T_REQUIRE, T_GOTO,
-		T_CURLY_OPEN, T_VARIABLE, '$', T_INCLUDE_ONCE,
-		T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES, T_EXIT,
-	);
+	public $tokens;
 
-	static function getAll($code, $strip)
+	protected
+
+	$code,
+	$position,
+	$tokenRegistry = array(),
+	$callbackRegistry = array();
+
+
+	function register($object, $method)
 	{
-		$tokens = array();
-		$line = 1;
-		$inString = 0;
-		$deco = '';
+		if (is_array($method))
+			foreach ($method as $method => $token)
+				foreach ((array) $token as $token)
+					$this->tokenRegistry[$token][] = array($object, $method);
+		else
+			$this->callbackRegistry[] = array($object, $method);
+	}
 
-		$code = token_get_all($code);
-		$length = count($code);
-		$i = 0;
+	function unregister($object, $method)
+	{
+		if (is_array($method))
+			foreach ($method as $method => $token)
+				foreach ((array) $token as $token)
+					if (isset($this->tokenRegistry[$token]))
+						foreach ($this->tokenRegistry[$token] as $k => $v)
+							if ($v[0] === $object && 0 === strcasecmp($v[1], $method))
+								unset($this->tokenRegistry[$token][$k]);
+		else
+			foreach ($this->callbackRegistry as $k => $v)
+				if ($v[0] === $object && 0 === strcasecmp($v[1], $method))
+					unset($this->callbackRegistry[$k]);
+	}
+
+	function tokenize($code, $strip = true)
+	{
+		$tRegistry =& $this->tokenRegistry;
+		$cRegistry =& $this->callbackRegistry;
+
+		$code   = token_get_all($code);
+		$i      = 0;
+		$tokens = array();
+
+		$this->code     =& $code;
+		$this->position =& $i;
+		$this->tokens   =& $tokens;
+
+		$length   = count($code);
+		$line     = 1;
+		$inString = 0;
+		$deco     = '';
+
+		if (!$length) return $tokens;
 
 		while ($i < $length)
 		{
+			$lines = 0;
+
 			if (is_array($code[$i]))
 			{
 				$token = $code[$i];
@@ -52,10 +91,13 @@ class patchwork_tokenizer
 
 				switch ($token[0])
 				{
+				case T_OPEN_TAG:
+				case T_CLOSE_TAG:
 				case T_INLINE_HTML:
+				case T_OPEN_TAG_WITH_ECHO:
 				case T_CONSTANT_ENCAPSED_STRING:
 				case T_ENCAPSED_AND_WHITESPACE:
-					$line += substr_count($token[1], "\n");
+					$lines = substr_count($token[1], "\n");
 					break;
 
 				case T_CURLY_OPEN:
@@ -64,26 +106,6 @@ class patchwork_tokenizer
 				case T_END_HEREDOC:   --$inString; break;
 				case T_STRING:
 					if ($inString & 1) $token[0] = T_ENCAPSED_AND_WHITESPACE;
-					break;
-
-				case T_OPEN_TAG_WITH_ECHO: // Replace <?= by <?php echo
-					$token[1] = '<?php ' . str_repeat("\n", substr_count($token[1], "\n"));
-					$token[0] = T_OPEN_TAG;
-
-					$code[  $i] = array(T_ECHO, 'echo');
-					$code[--$i] = $token;
-					continue 2;
-
-				case T_OPEN_TAG: // Normalize PHP open tag
-					$lines = substr_count($token[1], "\n");
-					$token[1] = '<?php' . ($lines ? str_repeat("\n", $lines) : ' ');
-					$line += $lines;
-					break;
-
-				case T_CLOSE_TAG: // Normalize PHP close tag
-					$lines = substr_count($token[1], "\n");
-					$token[1] = str_repeat("\n", $lines) . '?'.'>';
-					$line += $lines;
 					break;
 				}
 			}
@@ -120,13 +142,26 @@ class patchwork_tokenizer
 
 			unset($code[$i++]);
 
-			if ('' !== $deco)
+			'' !== $deco && $token[3] = $deco;
+
+			if (isset($tRegistry[$token[0]]))
 			{
-				$token[3] = $deco;
-				$deco = '';
+				foreach ($tRegistry[$token[0]] as $t)
+				{
+					$t[0]->{$t[1]}($token, $this);
+					if (!$token) continue 2;
+				}
+			}
+
+			foreach ($cRegistry as $t)
+			{
+				$t[0]->{$t[1]}($token, $this);
+				if (!$token) continue 2;
 			}
 
 			$tokens[] = $token;
+			$lines += $lines;
+			$deco = '';
 
 			while ($i < $length && (
 				   T_WHITESPACE  === $code[$i][0]
@@ -134,27 +169,60 @@ class patchwork_tokenizer
 				|| T_DOC_COMMENT === $code[$i][0]
 			))
 			{
-				$lines = substr_count($code[$i][1], "\n");
+				$token = $code[$i];
+				unset($code[$i++]);
+
+				$lines = substr_count($token[1], "\n");
+
+				if (isset($tRegistry[$token[0]]))
+				{
+					$strip && $token[3] = $deco;
+
+					foreach ($tRegistry[$token[0]] as $t)
+					{
+						$t[0]->{$t[1]}($token, $this);
+						if (!$token) continue 2;
+					}
+				}
 
 				if ($strip)
 				{
-					if (T_DOC_COMMENT !== $code[$i][0])
+					if (T_DOC_COMMENT !== $token[0])
 					{
-						$code[$i][1] = $lines ? str_repeat("\n", $lines) : ' ';
+						$token[0] = T_WHITESPACE;
+						$token[1] = $lines ? str_repeat("\n", $lines) : ' ';
 					}
 
-					$deco .= $code[$i][1];
+					$deco .= $token[1];
 				}
-				else $tokens[] = $code[$i];
+				else
+				{
+					foreach ($cRegistry as $t)
+					{
+						$t[0]->{$t[1]}($token, $this);
+						if (!$token) continue 2;
+					}
+
+					$tokens[] = $token;
+				}
 
 				$line += $lines;
-
-				unset($code[$i++]);
 			}
 		}
 
+		unset($this->tokens);
+		$this->tokens = array();
+
 		return $tokens;
 	}
+
+
+	protected static $variableType = array(
+		T_EVAL, '(', T_LINE, T_FILE, T_DIR, T_FUNC_C, T_CLASS_C,
+		T_METHOD_C, T_NS_C, T_INCLUDE, T_REQUIRE, T_GOTO,
+		T_CURLY_OPEN, T_VARIABLE, '$', T_INCLUDE_ONCE,
+		T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES, T_EXIT,
+	);
 
 	static function fetchConstantCode($tokens, &$i, $count, &$value)
 	{

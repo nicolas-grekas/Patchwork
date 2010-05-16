@@ -1,6 +1,6 @@
 <?php /*********************************************************************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2010 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -21,7 +21,8 @@ class patchwork_bootstrapper_preprocessor__0
 	protected
 
 	$callerRx,
-	$alias = array();
+	$alias = array(),
+	$error;
 
 
 	function ob_start($caller)
@@ -41,155 +42,28 @@ class patchwork_bootstrapper_preprocessor__0
 	{
 		self::$src = array();
 
-		if ('' !== $code = file_get_contents($this->file))
-		{
-			strncmp($code, "\xEF\xBB\xBF", 3) || $code = substr($code, 3);
-			false !== strpos($code, "\r") && $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
+		if ('' === $code = file_get_contents($this->file)) return '';
 
-			$code = patchwork_tokenizer::getAll($code, false);
-			$codeLen = count($code);
+		$tokenizer = new patchwork_tokenizer_normalizer;
 
-			$iLast =& $code[$codeLen - 1];
-			T_CLOSE_TAG === $iLast[0] && $iLast[0] = $iLast[1] = ';';
-			unset($iLast);
-		}
-		else return '';
+		patchwork_tokenizer_bracket::register($tokenizer, $this->file, $this->error);
 
-		$scream = (defined('DEBUG') && DEBUG)
+		if( (defined('DEBUG') && DEBUG)
 			&& !empty($GLOBALS['CONFIG']['debug.scream'])
-				|| (defined('DEBUG_SCREAM') && DEBUG_SCREAM);
-
-		$mode = 2;
-		$first_isolation = 0;
-		$mode1_transition = false;
-
-		$line = 1;
-		$bracket = array();
-
-		$new_code = array();
-		$transition = array();
-		$error = '';
-
-		for ($i = 0; $i < $codeLen; ++$i)
+				|| (defined('DEBUG_SCREAM') && DEBUG_SCREAM) )
 		{
-			list($type, $token, $line) = $code[$i];
-
-			// Reduce memory usage
-			unset($code[$i]);
-
-			if ('' === $error) switch ($type)
-			{
-			case '{': $bracket[] = '}'; break;
-			case '[': $bracket[] = ']'; break;
-			case '(': $bracket[] = ')'; break;
-
-			case ')': case ']': case '}':
-				if ($token !== $iLast = array_pop($bracket))
-				{
-					$iLast = $iLast ? ", expecting `{$iLast}'" : '';
-					$error = "Patchwork error: Syntax error, unexpected `{$token}'{$iLast} in {$this->file} on line {$line}";
-				}
-				break;
-			}
-
-			switch ($type)
-			{
-			case '@':
-				if ($scream) continue 2;
-				break;
-
-			case T_COMMENT:
-				if ($mode1_transition && '/**/' === $token)
-				{
-					$mode1_transition = false;
-					if (1 !== $mode)
-					{
-						$transition[$i] = array($mode = 1, $line);
-						$first_isolation = 0;
-					}
-				}
-				else if (2 === $mode && '/*<*/' === $token) $transition[$i] = array($mode = 3, $line);
-				else if (3 === $mode && '/*>*/' === $token) $transition[$i] = array($mode = 2, $line);
-
-			case T_WHITESPACE:
-				$token = substr_count($token, "\n");
-				$token = $token ? str_repeat("\n", $token) : ' ';
-				break;
-
-			case T_CLOSE_TAG:
-			case ';':
-				// This can be broken with specially special multi-line for(;;) statements...
-				if (1 < $mode && !$first_isolation) $first_isolation = 1;
-				break;
-
-			default:
-				if (1 < $mode && 2 == $first_isolation)
-				{
-					$transition[$i] = array($mode = 2, $line);
-					$first_isolation = 3;
-				}
-			}
-
-			if (T_WHITESPACE === $type && false !== strpos($token, "\n"))
-			{
-				if (1 < $mode && 1 == $first_isolation) $first_isolation = 2;
-				$mode1_transition = true;
-			}
-			else
-			{
-				$mode1_transition && 1 === $mode && $transition[$i] = array($mode = 2, $line);
-				$mode1_transition = false;
-			}
-
-			$new_code[] = $token;
+			patchwork_tokenizer_scream::register($tokenizer);
 		}
 
-		ob_start();
-		echo __CLASS__, '::$src[1]=';
+		$tokenizer = new patchwork_tokenizer_staticState($tokenizer);
+		$code = $tokenizer->getStaticCode($code, __CLASS__);
 
-		$iLast = 0;
-		$mode = 2;
-		$line = '';
-
-		foreach ($transition as $i => $transition)
+		if ('' !== $this->error)
 		{
-			$line = implode('', array_slice($new_code, $iLast, $i - $iLast));
-
-			switch ($mode)
-			{
-			case 1: echo $line; break;
-			case 2: var_export($line); break;
-			case 3: echo $line, ')."', str_repeat('\n', substr_count($line, "\n")), '"'; break;
-			}
-
-			switch ($transition[0])
-			{
-			case 1: echo 2 === $mode ? ';' : ''; break;
-			case 2: echo (3 !== $mode ? (2 === $mode ? ';' : ' ') . __CLASS__ . '::$src[' . $transition[1] . ']=' : '.'); break;
-			case 3: echo '.', __CLASS__, '::export('; break;
-			}
-
-			$mode = $transition[0];
-			$iLast = $i;
+			$code .= 'die(' . var_export($this->error) . ');';
 		}
 
-		$line = implode('', array_slice($new_code, $iLast));
-
-		switch ($mode)
-		{
-		case 1: echo $line; break;
-		case 2: var_export($line); echo ';'; break;
-		case 3: echo $line, ')."', str_repeat('\n', substr_count($line, "\n")), '";'; break;
-		}
-
-		if ('' !== $error)
-		{
-			echo 'echo ';
-			var_export($error);
-			echo ';';
-		}
-
-		return ob_get_clean();
+		return $code;
 	}
 
 	function staticPass2($token = false)

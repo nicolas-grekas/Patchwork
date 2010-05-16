@@ -13,6 +13,7 @@
 
 
 require_once patchworkPath('class/patchwork/tokenizer.php');
+require_once patchworkPath('class/patchwork/tokenizer/normalizer.php');
 
 
 class patchwork_preprocessor__0
@@ -194,7 +195,8 @@ class patchwork_preprocessor__0
 		$is_top = $this->isTop;
 		$line   =& $this->line;
 
-		$tokens = patchwork_tokenizer::getAll($tokens);
+		$tokenizer = new patchwork_tokenizer_normalizer;
+		$tokens = $tokenizer->tokenize($tokens);
 		$count = count($tokens);
 
 		// Add dummy tokens to avoid checking for edges
