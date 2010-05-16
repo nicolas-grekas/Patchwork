@@ -40,6 +40,10 @@ class patchwork_bootstrapper
 		self::$caller = $caller;
 
 		require dirname(__FILE__) . '/tokenizer.php';
+		require dirname(__FILE__) . '/tokenizer/normalizer.php';
+		require dirname(__FILE__) . '/tokenizer/scream.php';
+		require dirname(__FILE__) . '/tokenizer/bracket.php';
+		require dirname(__FILE__) . '/tokenizer/staticState.php';
 		require dirname(__FILE__) . '/bootstrapper/bootstrapper.php';
 
 		self::$bootstrapper = new patchwork_bootstrapper_bootstrapper__0(self::$cwd, self::$token);
