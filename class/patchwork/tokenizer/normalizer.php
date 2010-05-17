@@ -36,27 +36,25 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 			$this->register($this, array('stripBom' => T_INLINE_HTML));
 		}
 
-		$code = parent::tokenize($code, $strip);
+		return parent::tokenize($code, $strip);
+	}
 
-		if (!$code) return $code;
+	function getTokens($code)
+	{
+		$code = parent::getTokens($code);
 
-		$strip = array_pop($code);
+		$last = array_pop($code);
 
-		if (T_CLOSE_TAG === $strip[0])
+		if (T_CLOSE_TAG === $last[0])
 		{
-			$strip[0] = $strip[1] = ';';
+			$last[0] = $last[1] = ';';
 		}
 
-		$code[] = $strip;
+		$code[] = $last;
 
-		if (T_INLINE_HTML === $strip[0])
+		if (T_INLINE_HTML === $last[0])
 		{
-			$code[] = array(
-				T_OPEN_TAG,
-				'<?php ',
-				$strip[2],
-				str_repeat("\n", substr_count($strip[1], "\n"))
-			);
+			$code[] = array(T_OPEN_TAG, '<?php ');
 		}
 
 		return $code;

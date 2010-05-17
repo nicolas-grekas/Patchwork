@@ -84,7 +84,7 @@ class patchwork_bootstrapper_preprocessor__0
 
 		if ($this->alias)
 		{
-			$code = '$patchwork_preprocessor_alias+=' . self::export($this->alias) . ';' . $code;
+			$code = '$patchwork_preprocessor_alias+=' . patchwork_tokenizer::export($this->alias) . ';' . $code;
 			$this->alias = array();
 		}
 
@@ -115,7 +115,7 @@ class patchwork_bootstrapper_preprocessor__0
 			if (is_string($k))
 			{
 				$k = trim(strtr($k, "\n\r", '  '));
-				$args[1][] = $k . '=' . self::export($v);
+				$args[1][] = $k . '=' . patchwork_tokenizer::export($v);
 				0 > $inline && $inline = 0;
 			}
 			else
@@ -150,63 +150,5 @@ class patchwork_bootstrapper_preprocessor__0
 		self::$src[key(self::$src)] .= $return_ref
 			? "function &{$function}({$args[1]}) {/*{$marker}:{$inline}*/\${''}=&{$alias}({$args[2]});return \${''}}"
 			: "function  {$function}({$args[1]}) {/*{$marker}:{$inline}*/return {$alias}({$args[2]});}";
-	}
-
-	static function export($a, $lf = 0)
-	{
-		if (is_array($a))
-		{
-			if ($a)
-			{
-				$i = 0;
-				$b = array();
-
-				foreach ($a as $k => &$a)
-				{
-					if (is_int($k) && $k >= 0)
-					{
-						$b[] = ($k !== $i ? $k . '=>' : '') . self::export($a);
-						$i = $k+1;
-					}
-					else
-					{
-						$b[] = self::export($k) . '=>' . self::export($a);
-					}
-				}
-
-				$b = 'array(' . implode(',', $b) . ')';
-			}
-			else return 'array()';
-		}
-		else if (is_object($a))
-		{
-			$b = array();
-			$v = (array) $a;
-			foreach ($v as $k => &$v)
-			{
-				if ("\0" === substr($k, 0, 1)) $k = substr($k, 3);
-				$b[$k] =& $v;
-			}
-
-			$b = self::export($b);
-			$b = get_class($a) . '::__set_state(' . $b . ')';
-		}
-		else if (is_string($a) && $a !== strtr($a, "\r\n\0", '---'))
-		{
-			$b = '"'. str_replace(
-				array(  "\\",   '"',   '$',  "\r",  "\n",  "\0"),
-				array('\\\\', '\\"', '\\$', '\\r', '\\n', '\\0'),
-				$a
-			) . '"';
-		}
-		else $b = is_string($a) ? "'" . str_replace("'", "\\'", str_replace('\\', '\\\\', $a)) . "'" : (
-			is_bool($a)   ? ($a ? 'true' : 'false') : (
-			is_null($a)   ? 'null' : (
-			INF === $a    ? 'INF' : (string) $a
-		)));
-
-		$lf && $b .= str_repeat("\n", $lf);
-
-		return $b;
 	}
 }
