@@ -68,7 +68,7 @@ class patchwork_tokenizer_staticState
 				{
 				case 1: echo 2 === $state ? ';' : ''; break;
 				case 2: echo 3 !== $state ? (2 === $state ? ';' : ' ') . $class . '::$src[' . $this->transition[$i][1] . ']=' : '.'; break;
-				case 3: echo '.', $class, '::export('; break;
+				case 3: echo '.patchwork_tokenizer::export('; break;
 				}
 
 				$state = $this->transition[$i][0];

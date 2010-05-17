@@ -101,7 +101,7 @@ class patchwork_preprocessor__0
 
 		foreach ($v as $v) self::$constant += $v;
 
-		foreach (self::$constant as &$v) $v = patchwork_preprocessor::export($v);
+		foreach (self::$constant as &$v) $v = patchwork_tokenizer::export($v);
 	}
 
 	static function execute($source, $destination, $level, $class, $is_top)
@@ -246,12 +246,12 @@ class patchwork_preprocessor__0
 				break;
 
 			case T_FILE:
-				$code = patchwork_preprocessor::export($source);
+				$code = patchwork_tokenizer::export($source);
 				$type = T_CONSTANT_ENCAPSED_STRING;
 				break;
 
 			case T_DIR:
-				$code = patchwork_preprocessor::export(dirname($source));
+				$code = patchwork_tokenizer::export(dirname($source));
 				$type = T_CONSTANT_ENCAPSED_STRING;
 				break;
 
@@ -675,7 +675,7 @@ class patchwork_preprocessor__0
 							else
 							{
 								$c = substr_count($j, "\n");
-								$c = patchwork_preprocessor::export($b, $c);
+								$c = patchwork_tokenizer::export($b, $c);
 							}
 
 							$tokens[--$i] = array(T_CONSTANT_ENCAPSED_STRING, $c, $line, ' ');
@@ -823,11 +823,6 @@ class patchwork_preprocessor__0
 	protected function extractLF_callback($a)
 	{
 		return str_repeat("\n", substr_count($a[0], "\n"));
-	}
-
-	static function export($a, $lf = 0)
-	{
-		return patchwork_bootstrapper_preprocessor::export($a, $lf);
 	}
 
 	static function error($message, $file, $line, $code = E_USER_ERROR)
