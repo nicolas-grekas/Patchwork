@@ -13,13 +13,15 @@
 
 
 // New tokens since PHP 5.3
-defined('T_GOTO')         || define('T_GOTO', -1);
-defined('T_USE' )         || define('T_USE' , -1);
-defined('T_DIR' )         || define('T_DIR' , -1);
-defined('T_NS_C')         || define('T_NS_C', -1);
-defined('T_NAMESPACE')    || define('T_NAMESPACE', -1);
+defined('T_GOTO')         || define('T_GOTO',         -1);
+defined('T_USE' )         || define('T_USE' ,         -1);
+defined('T_DIR' )         || define('T_DIR' ,         -1);
+defined('T_NS_C')         || define('T_NS_C',         -1);
+defined('T_NAMESPACE')    || define('T_NAMESPACE',    -1);
 defined('T_NS_SEPARATOR') || define('T_NS_SEPARATOR', -1);
 
+// New token to match T_CURLY_OPEN and T_DOLLAR_OPEN_CURLY_BRACES
+define('T_CURLY_CLOSE', -2);
 
 class patchwork_tokenizer
 {
@@ -29,41 +31,33 @@ class patchwork_tokenizer
 
 	$code,
 	$position,
-	$tokenRegistry = array(),
-	$callbackRegistry = array();
+	$registry = array();
 
 
 	function register($object, $method)
 	{
-		if (is_array($method))
-			foreach ($method as $method => $token)
-				foreach ((array) $token as $token)
-					$this->tokenRegistry[$token][] = array($object, $method);
-		else
-			$this->callbackRegistry[] = array($object, $method);
+		foreach ($method as $method => $token)
+			foreach ((array) $token as $token)
+				$this->registry[$token][] = array($object, $method);
 	}
 
 	function unregister($object, $method)
 	{
-		if (is_array($method))
-			foreach ($method as $method => $token)
-				foreach ((array) $token as $token)
-					if (isset($this->tokenRegistry[$token]))
-						foreach ($this->tokenRegistry[$token] as $k => $v)
-							if ($v[0] === $object && 0 === strcasecmp($v[1], $method))
-								unset($this->tokenRegistry[$token][$k]);
-		else
-			foreach ($this->callbackRegistry as $k => $v)
-				if ($v[0] === $object && 0 === strcasecmp($v[1], $method))
-					unset($this->callbackRegistry[$k]);
+		foreach ($method as $method => $token)
+			foreach ((array) $token as $token)
+				if (isset($this->registry[$token]))
+					foreach ($this->registry[$token] as $k => $v)
+						if ($v[0] === $object && 0 === strcasecmp($v[1], $method))
+							unset($this->registry[$token][$k]);
 	}
 
 	function tokenize($code, $strip = true)
 	{
-		$tRegistry =& $this->tokenRegistry;
-		$cRegistry =& $this->callbackRegistry;
+		$registry =& $this->registry;
 
-		$code   = token_get_all($code);
+		if ('' === $code) return $code;
+
+		$code   = $this->getTokens($code);
 		$i      = 0;
 		$tokens = array();
 
@@ -75,8 +69,6 @@ class patchwork_tokenizer
 		$line     = 1;
 		$inString = 0;
 		$deco     = '';
-
-		if (!$length) return $tokens;
 
 		while ($i < $length)
 		{
@@ -124,8 +116,10 @@ class patchwork_tokenizer
 				case '}':
 					if ($inString)
 					{
+						// FIXME: This can be broken with a closure definition
+						//   inside an interpolated string. Not very common...
 						--$inString;
-						$token = array(T_ENCAPSED_AND_WHITESPACE, '}', $line);
+						$token = array(T_CURLY_CLOSE, '}', $line);
 					}
 					else $token = array('}', '}', $line);
 
@@ -144,19 +138,13 @@ class patchwork_tokenizer
 
 			'' !== $deco && $token[3] = $deco;
 
-			if (isset($tRegistry[$token[0]]))
+			if (isset($registry[$token[0]]))
 			{
-				foreach ($tRegistry[$token[0]] as $t)
+				foreach ($registry[$token[0]] as $t)
 				{
 					$t[0]->{$t[1]}($token, $this);
 					if (!$token) continue 2;
 				}
-			}
-
-			foreach ($cRegistry as $t)
-			{
-				$t[0]->{$t[1]}($token, $this);
-				if (!$token) continue 2;
 			}
 
 			$tokens[] = $token;
@@ -174,11 +162,11 @@ class patchwork_tokenizer
 
 				$lines = substr_count($token[1], "\n");
 
-				if (isset($tRegistry[$token[0]]))
+				if (isset($registry[$token[0]]))
 				{
 					$strip && $token[3] = $deco;
 
-					foreach ($tRegistry[$token[0]] as $t)
+					foreach ($registry[$token[0]] as $t)
 					{
 						$t[0]->{$t[1]}($token, $this);
 						if (!$token) continue 2;
@@ -195,16 +183,7 @@ class patchwork_tokenizer
 
 					$deco .= $token[1];
 				}
-				else
-				{
-					foreach ($cRegistry as $t)
-					{
-						$t[0]->{$t[1]}($token, $this);
-						if (!$token) continue 2;
-					}
-
-					$tokens[] = $token;
-				}
+				else $tokens[] = $token;
 
 				$line += $lines;
 			}
@@ -216,6 +195,10 @@ class patchwork_tokenizer
 		return $tokens;
 	}
 
+	protected function getTokens($code)
+	{
+		return token_get_all($code);
+	}
 
 	protected static $variableType = array(
 		T_EVAL, '(', T_LINE, T_FILE, T_DIR, T_FUNC_C, T_CLASS_C,
@@ -278,5 +261,74 @@ class patchwork_tokenizer
 			}
 			else $new_code[] = $deco . $code;
 		}
+	}
+
+	static function export($a, $lf = 0)
+	{
+		if (is_array($a))
+		{
+			if ($a)
+			{
+				$i = 0;
+				$b = array();
+
+				foreach ($a as $k => &$a)
+				{
+					if (is_int($k) && $k >= 0)
+					{
+						$b[] = ($k !== $i ? $k . '=>' : '') . self::export($a);
+						$i = $k+1;
+					}
+					else
+					{
+						$b[] = self::export($k) . '=>' . self::export($a);
+					}
+				}
+
+				$b = 'array(' . implode(',', $b) . ')';
+			}
+			else return 'array()';
+		}
+		else if (is_object($a))
+		{
+			$b = array();
+			$v = (array) $a;
+			foreach ($v as $k => &$v)
+			{
+				if ("\0" === substr($k, 0, 1)) $k = substr($k, 3);
+				$b[$k] =& $v;
+			}
+
+			$b = self::export($b);
+			$b = get_class($a) . '::__set_state(' . $b . ')';
+		}
+		else if (is_string($a))
+		{
+			if ($a !== strtr($a, "\r\n\0", '---'))
+			{
+				$b = '"'. str_replace(
+					array(  "\\",   '"',   '$',  "\r",  "\n",  "\0"),
+					array('\\\\', '\\"', '\\$', '\\r', '\\n', '\\0'),
+					$a
+				) . '"';
+			}
+			else
+			{
+				$b = "'" . str_replace(
+					array('\\', "'"),
+					array('\\\\', "\\'"),
+					$a
+				) . "'";
+			}
+		}
+		else if (is_bool($a))
+		{
+			$b = $a ? 'true' : 'false';
+		}
+		else $b = is_null($a) ? 'null' : (string) $a;
+
+		$lf && $b .= str_repeat("\n", $lf);
+
+		return $b;
 	}
 }
