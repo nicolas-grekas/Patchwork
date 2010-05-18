@@ -67,9 +67,9 @@ class patchwork_bootstrapper_bootstrapper__0
 				@unlink($lock);
 				if ($retry)
 				{
-					$file = pathinfo($file);
+					$file = $this->getBestPath($file);
 
-					die("Patchwork error: File {$file['basename']} exists in {$file['dirname']}. Please fix your web bootstrap file.");
+					die("Patchwork error: File {$file} exists. Please fix your web bootstrap file.");
 				}
 				else return false;
 			}
@@ -94,14 +94,7 @@ class patchwork_bootstrapper_bootstrapper__0
 			if (@touch($dir . '/.patchwork.writeTest')) @unlink($dir . '/.patchwork.writeTest');
 			else
 			{
-				function_exists('realpath') && $dir = realpath($dir);
-
-				$dir .= DIRECTORY_SEPARATOR;
-
-				if ('.' === $dir[0] && function_exists('getcwd') && @getcwd())
-				{
-					$dir = getcwd() . DIRECTORY_SEPARATOR . $dir;
-				}
+				$dir = $this->getBestPath($dir);
 
 				die("Patchwork error: Please change the permissions of the {$dir} directory so that the web server can write in it.");
 			}
@@ -323,7 +316,7 @@ exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not fl
 		$this->preprocessor->alias($function, $alias, $args, $return_ref, $this->marker);
 	}
 
-	function getEchoError($file, $line, $what, $when)
+	protected function getEchoError($file, $line, $what, $when)
 	{
 		if ($len = strlen($what))
 		{
@@ -358,6 +351,23 @@ exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not fl
 		}
 
 		return "{$what} been echoed {$when}{$line}";
+	}
+
+	protected function getBestPath($a)
+	{
+		// This function tries to work around very disabled hosts,
+		// to get the best "realpath" for comprehensible error messages.
+
+		function_exists('realpath') && $a = realpath($a);
+
+		is_dir($a) && $a = trim($a, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
+		if ('.' === $a[0] && function_exists('getcwd') && @getcwd())
+		{
+			$a = getcwd() . DIRECTORY_SEPARATOR . $a;
+		}
+
+		return $a;
 	}
 
 	protected function loadConfig(&$slice, $name)
