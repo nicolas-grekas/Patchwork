@@ -20,6 +20,7 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 			'openEchoTag' => T_OPEN_TAG_WITH_ECHO,
 			'openTag'     => T_OPEN_TAG,
 			'closeTag'    => T_CLOSE_TAG,
+			'fixVar'      => T_VAR,
 		));
 	}
 
@@ -85,5 +86,11 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 		$this->unregister($this, array('stripBom' => T_INLINE_HTML));
 		$token[1] = substr($token[1], 3);
 		if ('' === $token[1]) $token = false;
+	}
+
+	function fixVar(&$token, $t)
+	{
+		$t->code[--$t->position] = array(T_PUBLIC, 'public');
+		$token = false;
 	}
 }
