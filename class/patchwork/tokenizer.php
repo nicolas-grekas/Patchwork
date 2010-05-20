@@ -25,35 +25,63 @@ define('T_CURLY_CLOSE', -2);
 
 class patchwork_tokenizer
 {
-	public $tokens;
+	public
+
+	$tokens,
+	$code,
+	$position;
+
 
 	protected
 
-	$code,
-	$position,
-	$registry = array();
+	$registryPosition = 0,
+	$tokenRegistry = array(),
+	$callbackRegistry = array();
 
 
 	function register($object, $method)
 	{
-		foreach ($method as $method => $token)
-			foreach ((array) $token as $token)
-				$this->registry[$token][] = array($object, $method);
+		foreach ((array) $method as $method => $token)
+		{
+			if (is_int($method))
+			{
+				$this->callbackRegistry[++$this->registryPosition] = array($object, $token);
+			}
+			else foreach ((array) $token as $token)
+			{
+				$this->tokenRegistry[$token][++$this->registryPosition] = array($object, $method);
+			}
+		}
 	}
 
 	function unregister($object, $method)
 	{
-		foreach ($method as $method => $token)
-			foreach ((array) $token as $token)
-				if (isset($this->registry[$token]))
-					foreach ($this->registry[$token] as $k => $v)
+		foreach ((array) $method as $method => $token)
+		{
+			if (is_int($method))
+			{
+				foreach ($this->callbackRegistry as $k => $v)
+					if ($v[0] === $object && 0 === strcasecmp($v[1], $token))
+						unset($this->callbackRegistry[$k]);
+			}
+			else foreach ((array) $token as $token)
+			{
+				if (isset($this->tokenRegistry[$token]))
+				{
+					foreach ($this->tokenRegistry[$token] as $k => $v)
 						if ($v[0] === $object && 0 === strcasecmp($v[1], $method))
-							unset($this->registry[$token][$k]);
+							unset($this->tokenRegistry[$token][$k]);
+
+					if (!$this->tokenRegistry[$token]) unset($this->tokenRegistry[$token]);
+				}
+			}
+		}
 	}
 
-	function tokenize($code, $strip = true)
+	function tokenize($code)
 	{
-		$registry =& $this->registry;
+		$tRegistry =& $this->tokenRegistry;
+		$cRegistry =& $this->callbackRegistry;
 
 		if ('' === $code) return $code;
 
@@ -138,9 +166,19 @@ class patchwork_tokenizer
 
 			'' !== $deco && $token[3] = $deco;
 
-			if (isset($registry[$token[0]]))
+			if ($cRegistry || isset($tRegistry[$token[0]]))
 			{
-				foreach ($registry[$token[0]] as $t)
+				if (!$t = $cRegistry)
+				{
+					$t = $tRegistry[$token[0]];
+				}
+				else if (isset($tRegistry[$token[0]]))
+				{
+					$t += $tRegistry[$token[0]];
+					ksort($t);
+				}
+
+				foreach ($t as $t)
 				{
 					$t[0]->{$t[1]}($token, $this);
 					if (!$token) continue 2;
@@ -162,28 +200,18 @@ class patchwork_tokenizer
 
 				$lines = substr_count($token[1], "\n");
 
-				if (isset($registry[$token[0]]))
+				if (isset($tRegistry[$token[0]]))
 				{
-					$strip && $token[3] = $deco;
+					$token[3] = $deco;
 
-					foreach ($registry[$token[0]] as $t)
+					foreach ($tRegistry[$token[0]] as $t)
 					{
 						$t[0]->{$t[1]}($token, $this);
 						if (!$token) continue 2;
 					}
 				}
 
-				if ($strip)
-				{
-					if (T_DOC_COMMENT !== $token[0])
-					{
-						$token[0] = T_WHITESPACE;
-						$token[1] = $lines ? str_repeat("\n", $lines) : ' ';
-					}
-
-					$deco .= $token[1];
-				}
-				else $tokens[] = $token;
+				$deco .= $token[1];
 
 				$line += $lines;
 			}
