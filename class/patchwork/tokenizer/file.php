@@ -29,12 +29,13 @@ class patchwork_tokenizer_file
 		$this->dir  = patchwork_tokenizer::export(dirname($file));
 	}
 
-	function fixFile(&$token, $t)
+	function fixFile($token, $t)
 	{
 		$t->code[--$t->position] = array(
 			T_CONSTANT_ENCAPSED_STRING,
 			T_FILE === $token[0] ? $this->file : $this->dir
 		);
-		$token = false;
+
+		return false;
 	}
 }

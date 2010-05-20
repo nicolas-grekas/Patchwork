@@ -24,7 +24,7 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 		));
 	}
 
-	function tokenize($code, $strip = true)
+	function tokenize($code)
 	{
 		if (false !== strpos($code, "\r"))
 		{
@@ -34,10 +34,10 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 
 		if (0 === strncmp($code, "\xEF\xBB\xBF", 3))
 		{
-			$this->register($this, array('stripBom' => T_INLINE_HTML));
+			$this->register($this, 'stripBom');
 		}
 
-		return parent::tokenize($code, $strip);
+		return parent::tokenize($code);
 	}
 
 	function getTokens($code)
@@ -66,7 +66,7 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 		$this->code[--$this->position] = array(T_ECHO, 'echo');
 		$this->code[--$this->position] = array(T_OPEN_TAG, $token[1]);
 
-		$token = false;
+		return false;
 	}
 
 	function openTag(&$token)
@@ -83,14 +83,15 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 
 	function stripBom(&$token)
 	{
-		$this->unregister($this, array('stripBom' => T_INLINE_HTML));
+		$this->unregister($this, __FUNCTION__);
 		$token[1] = substr($token[1], 3);
-		if ('' === $token[1]) $token = false;
+		if ('' === $token[1]) return false;
 	}
 
-	function fixVar(&$token, $t)
+	function fixVar($token, $t)
 	{
 		$t->code[--$t->position] = array(T_PUBLIC, 'public');
-		$token = false;
+
+		return false;
 	}
 }
