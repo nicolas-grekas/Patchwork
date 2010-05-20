@@ -19,8 +19,8 @@ class patchwork_tokenizer_scream
 		$tokenizer->register(new self, array('cancelToken' => '@'));
 	}
 
-	function cancelToken(&$token)
+	function cancelToken()
 	{
-		$token = false;
+		return false;
 	}
 }
