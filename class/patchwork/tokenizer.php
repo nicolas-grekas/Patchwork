@@ -45,11 +45,11 @@ class patchwork_tokenizer
 		{
 			if (is_int($method))
 			{
-				$this->callbackRegistry[++$this->registryPosition] = array($object, $token);
+				$this->callbackRegistry[++$this->registryPosition] = array($object, $token, '');
 			}
-			else foreach ((array) $token as $token)
+			else foreach ((array) $token as $s => $token)
 			{
-				$this->tokenRegistry[$token][++$this->registryPosition] = array($object, $method);
+				$this->tokenRegistry[$token][++$this->registryPosition] = array($object, $method, is_string($s) ? $s : '');
 			}
 		}
 	}
@@ -61,15 +61,15 @@ class patchwork_tokenizer
 			if (is_int($method))
 			{
 				foreach ($this->callbackRegistry as $k => $v)
-					if ($v[0] === $object && 0 === strcasecmp($v[1], $token))
+					if (array($object, $token, '') === $v)
 						unset($this->callbackRegistry[$k]);
 			}
-			else foreach ((array) $token as $token)
+			else foreach ((array) $token as $s => $token)
 			{
 				if (isset($this->tokenRegistry[$token]))
 				{
 					foreach ($this->tokenRegistry[$token] as $k => $v)
-						if ($v[0] === $object && 0 === strcasecmp($v[1], $method))
+						if (array($object, $method, is_string($s) ? $s : '') === $v)
 							unset($this->tokenRegistry[$token][$k]);
 
 					if (!$this->tokenRegistry[$token]) unset($this->tokenRegistry[$token]);
@@ -180,8 +180,10 @@ class patchwork_tokenizer
 
 				foreach ($t as $t)
 				{
-					$t[0]->{$t[1]}($token, $this);
-					if (!$token) continue 2;
+					if (
+						('' === $t[2] || false !== stripos($token[1], $t[2]))
+						&& false === $t[0]->{$t[1]}($token, $this)
+					) continue 2;
 				}
 			}
 
@@ -206,8 +208,10 @@ class patchwork_tokenizer
 
 					foreach ($tRegistry[$token[0]] as $t)
 					{
-						$t[0]->{$t[1]}($token, $this);
-						if (!$token) continue 2;
+						if (
+							('' === $t[2] || false !== stripos($token[1], $t[2]))
+							&& false === $t[0]->{$t[1]}($token, $this)
+						) continue 2;
 					}
 				}
 

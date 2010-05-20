@@ -19,14 +19,14 @@ class patchwork_tokenizer_staticState
 	$callbacks = array(
 		0 => array(),
 		1 => array(
-			'tagEOState1' => array(T_WHITESPACE, T_COMMENT, T_DOC_COMMENT),
+			'tagEOState1' => array("\n" => T_WHITESPACE),
 		),
 		2 => array(
-			'tagEOState2'     => T_COMMENT,
+			'tagEOState2'     => array('/*<*/' => T_COMMENT, '/**/' => T_COMMENT),
 			'tagEOExpression' => array(T_CLOSE_TAG, ';'),
 		),
 		3 => array(
-			'tagEOState3' => T_COMMENT,
+			'tagEOState3' => array('/*>*/' => T_COMMENT),
 		),
 	),
 	$tokenizer,
@@ -111,7 +111,7 @@ class patchwork_tokenizer_staticState
 		{
 			$this->setState(3, $token[2]);
 		}
-		else if ('/**/' === $token[1] && "\n" === substr($token[3], -1))
+		else if ("\n" === substr($token[3], -1))
 		{
 			$this->setState(1, $token[2]);
 		}
@@ -133,9 +133,6 @@ class patchwork_tokenizer_staticState
 
 	function tagEOState3($token)
 	{
-		if ('/*>*/' === $token[1])
-		{
-			$this->setState(2, $token[2]);
-		}
+		$this->setState(2, $token[2]);
 	}
 }

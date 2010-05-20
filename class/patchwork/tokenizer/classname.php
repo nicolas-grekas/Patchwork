@@ -33,7 +33,7 @@ class patchwork_tokenizer_classname
 		$t->register($this, 'fixClassname');
 	}
 
-	function fixClassname(&$token, $t)
+	function fixClassname($token, $t)
 	{
 		$t->unregister($this, __FUNCTION__);
 
@@ -42,8 +42,10 @@ class patchwork_tokenizer_classname
 			$t->code[--$t->position] = $token;
 			$t->code[--$t->position] = array(T_WHITESPACE, ' ');
 			$t->code[--$t->position] = array(T_STRING, $this->classname);
-			$token = false;
+
 			$t->unregister($this, array('tagClass' => T_CLASS));
+
+			return false;
 		}
 	}
 }
