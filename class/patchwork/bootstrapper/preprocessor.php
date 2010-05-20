@@ -46,7 +46,7 @@ class patchwork_bootstrapper_preprocessor__0
 
 		$tokenizer = new patchwork_tokenizer_normalizer;
 
-		patchwork_tokenizer_bracket::register($tokenizer, $this->file, $this->error);
+		patchwork_tokenizer_bracket::register($tokenizer, $this->error);
 
 		if( (defined('DEBUG') && DEBUG)
 			&& !empty($GLOBALS['CONFIG']['debug.scream'])
@@ -58,9 +58,13 @@ class patchwork_bootstrapper_preprocessor__0
 		$tokenizer = new patchwork_tokenizer_staticState($tokenizer);
 		$code = $tokenizer->getStaticCode($code, __CLASS__);
 
-		if ('' !== $this->error)
+		if ($this->error)
 		{
-			$code .= 'die(' . var_export($this->error) . ');';
+			$e = $this->error;
+			$e->expecting && $e->expecting = ", expecting `{$e->expecting}'";
+			$e->file = addslashes($this->file);
+
+			$code .= "die('Patchwork error: Syntax error, unexpected `{$e->expected}'{$e->expecting} in {$e->file} on line {$e->line}');";
 		}
 
 		return $code;
