@@ -14,6 +14,9 @@
 
 require_once patchworkPath('class/patchwork/tokenizer.php');
 require_once patchworkPath('class/patchwork/tokenizer/normalizer.php');
+require_once patchworkPath('class/patchwork/tokenizer/scream.php');
+require_once patchworkPath('class/patchwork/tokenizer/file.php');
+require_once patchworkPath('class/patchwork/tokenizer/classname.php');
 
 
 class patchwork_preprocessor__0
@@ -196,6 +199,15 @@ class patchwork_preprocessor__0
 		$line   =& $this->line;
 
 		$tokenizer = new patchwork_tokenizer_normalizer;
+		patchwork_tokenizer_file::register($tokenizer, $source);
+
+		self::$scream && patchwork_tokenizer_scream::register($tokenizer);
+
+		if (0 <= $level)
+		{
+			$class && patchwork_tokenizer_classname::register($tokenizer, $class);
+		}
+
 		$tokens = $tokenizer->tokenize($tokens);
 		$count = count($tokens);
 
@@ -233,26 +245,12 @@ class patchwork_preprocessor__0
 
 			switch ($type)
 			{
-			case '@':
-				if (self::$scream) continue 2;
-				break;
-
 			case T_OPEN_TAG:
 				if ($opentag_marker)
 				{
 					$code .= $opentag_marker;
 					$opentag_marker = '';
 				}
-				break;
-
-			case T_FILE:
-				$code = patchwork_tokenizer::export($source);
-				$type = T_CONSTANT_ENCAPSED_STRING;
-				break;
-
-			case T_DIR:
-				$code = patchwork_tokenizer::export(dirname($source));
-				$type = T_CONSTANT_ENCAPSED_STRING;
 				break;
 
 			case T_CLASS_C:
@@ -324,22 +322,14 @@ class patchwork_preprocessor__0
 
 				$final = T_FINAL === $prevType;
 
-				if (T_STRING === $tokens[$i][0])
-				{
-					$code .= $tokens[$i][3];
-					$b = $c = $tokens[$i][1];
-					unset($tokens[$i++]);
+				if (T_STRING !== $tokens[$i][0]) break;
 
-					if ($final) $code .= $c;
-					else $code .= $b = $c . '__' . (0<=$level ? $level : '00');
-				}
-				else if ($class && 0<=$level)
-				{
-					$c = $class;
-					$b = $c . (!$final ? '__' . $level : '');
-					$code .= ' ' . $b;
-				}
-				else patchwork_preprocessor::error("Please specify explicitly the name of the class.", $source, $line);
+				$code .= $tokens[$i][3];
+				$b = $c = $tokens[$i][1];
+				unset($tokens[$i++]);
+
+				if ($final) $code .= $c;
+				else $code .= $b = $c . '__' . (0<=$level ? $level : '00');
 
 				$class_pool[$curly_level] = (object) array(
 					'classname'   => $c,
@@ -392,15 +382,6 @@ class patchwork_preprocessor__0
 						$class_pool[$curly_level]->add_constructStatic = 2;
 						$class_pool[$curly_level]->add_destructStatic  = 2;
 					}
-				}
-
-				break;
-
-			case T_VAR:
-				if (0>$level)
-				{
-					$code = 'public';
-					$type = T_PUBLIC;
 				}
 
 				break;
@@ -699,7 +680,7 @@ class patchwork_preprocessor__0
 
 			case T_VARIABLE:
 
-				if (!$autoglobalize && '$CONFIG' === $code && T_DOUBLE_COLON != $prevType)
+				if (!$autoglobalize && '$CONFIG' === $code && T_DOUBLE_COLON !== $prevType)
 				{
 					$autoglobalize = $curly_starts_function ? 2 : 1;
 				}

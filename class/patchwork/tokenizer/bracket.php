@@ -21,26 +21,24 @@ class patchwork_tokenizer_bracket
 		'popBracket'  => array('}', ']', ')'),
 	);
 
-	static function register($tokenizer, $file, &$error)
+	static function register($tokenizer, &$error = null)
 	{
-		$file = new self($file, $error);
-		$tokenizer->register($file, $file->callbacks);
+		$self = new self($error);
+		$tokenizer->register($self, $self->callbacks);
 	}
 
 
 	protected
 
-	$file,
 	$error,
 	$bracket = array();
 
 
-	function __construct($file, &$error)
+	function __construct(&$error)
 	{
-		$this->file = $file;
 		$this->error =& $error;
 		$this->bracket;
-		$error = '';
+		$error = false;
 	}
 
 	function pushBracket($token)
@@ -53,13 +51,17 @@ class patchwork_tokenizer_bracket
 		}
 	}
 
-	function popBracket($token, $tokenizer)
+	function popBracket($token, $t)
 	{
 		if ($token[0] !== $last = array_pop($this->bracket))
 		{
-			$last = $last ? ", expecting `{$last}'" : '';
-			$this->error = "Patchwork error: Syntax error, unexpected `{$token[1]}'{$last} in {$this->file} on line {$token[2]}";
-			$tokenizer->unregister($this, $this->callbacks);
+			$t->unregister($this, $this->callbacks);
+
+			$this->error = (object) array(
+				'unexpected' => $token[1],
+				'expecting' => $last,
+				'line' => $token[2]
+			);
 		}
 	}
 }
