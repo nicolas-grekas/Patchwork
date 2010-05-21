@@ -111,7 +111,7 @@ class patchwork_tokenizer_staticState
 		{
 			$this->setState(3, $token[2]);
 		}
-		else if ("\n" === substr($token[3], -1))
+		else if ('/**/' === $token[1] && "\n" === substr($token[3], -1))
 		{
 			$this->setState(1, $token[2]);
 		}
@@ -133,6 +133,9 @@ class patchwork_tokenizer_staticState
 
 	function tagEOState3($token)
 	{
-		$this->setState(2, $token[2]);
+		if ('/*>*/' === $token[1])
+		{
+			$this->setState(2, $token[2]);
+		}
 	}
 }
