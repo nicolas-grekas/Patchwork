@@ -34,45 +34,56 @@ class patchwork_tokenizer
 
 	protected
 
+	$parent,
 	$registryPosition = 0,
 	$tokenRegistry = array(),
 	$callbackRegistry = array();
 
 
+	function __construct(patchwork_tokenizer &$parent = null)
+	{
+		$parent || $parent = $this;
+		$this->parent = $parent;
+	}
+
 	function register($object, $method)
 	{
+		$p = $this->parent;
+
 		foreach ((array) $method as $method => $token)
 		{
 			if (is_int($method))
 			{
-				$this->callbackRegistry[++$this->registryPosition] = array($object, $token, '');
+				$p->callbackRegistry[++$p->registryPosition] = array($object, $token, '');
 			}
 			else foreach ((array) $token as $s => $token)
 			{
-				$this->tokenRegistry[$token][++$this->registryPosition] = array($object, $method, is_string($s) ? $s : '');
+				$p->tokenRegistry[$token][++$p->registryPosition] = array($object, $method, is_string($s) ? $s : '');
 			}
 		}
 	}
 
 	function unregister($object, $method)
 	{
+		$p = $this->parent;
+
 		foreach ((array) $method as $method => $token)
 		{
 			if (is_int($method))
 			{
-				foreach ($this->callbackRegistry as $k => $v)
+				foreach ($p->callbackRegistry as $k => $v)
 					if (array($object, $token, '') === $v)
-						unset($this->callbackRegistry[$k]);
+						unset($p->callbackRegistry[$k]);
 			}
 			else foreach ((array) $token as $s => $token)
 			{
-				if (isset($this->tokenRegistry[$token]))
+				if (isset($p->tokenRegistry[$token]))
 				{
-					foreach ($this->tokenRegistry[$token] as $k => $v)
+					foreach ($p->tokenRegistry[$token] as $k => $v)
 						if (array($object, $method, is_string($s) ? $s : '') === $v)
-							unset($this->tokenRegistry[$token][$k]);
+							unset($p->tokenRegistry[$token][$k]);
 
-					if (!$this->tokenRegistry[$token]) unset($this->tokenRegistry[$token]);
+					if (!$p->tokenRegistry[$token]) unset($p->tokenRegistry[$token]);
 				}
 			}
 		}
@@ -80,8 +91,10 @@ class patchwork_tokenizer
 
 	function tokenize($code)
 	{
-		$tRegistry =& $this->tokenRegistry;
-		$cRegistry =& $this->callbackRegistry;
+		$p = $this->parent;
+
+		$tRegistry =& $p->tokenRegistry;
+		$cRegistry =& $p->callbackRegistry;
 
 		if ('' === $code) return $code;
 
@@ -89,9 +102,9 @@ class patchwork_tokenizer
 		$i      = 0;
 		$tokens = array();
 
-		$this->code     =& $code;
-		$this->position =& $i;
-		$this->tokens   =& $tokens;
+		$p->code     =& $code;
+		$p->position =& $i;
+		$p->tokens   =& $tokens;
 
 		$length   = count($code);
 		$line     = 1;
@@ -175,7 +188,7 @@ class patchwork_tokenizer
 				{
 					if (
 						('' === $t[2] || false !== stripos($token[1], $t[2]))
-						&& false === $t[0]->{$t[1]}($token, $this)
+						&& false === $t[0]->{$t[1]}($token, $p)
 					) continue 2;
 				}
 			}
@@ -203,7 +216,7 @@ class patchwork_tokenizer
 					{
 						if (
 							('' === $t[2] || false !== stripos($token[1], $t[2]))
-							&& false === $t[0]->{$t[1]}($token, $this)
+							&& false === $t[0]->{$t[1]}($token, $p)
 						) continue 2;
 					}
 				}
@@ -214,8 +227,8 @@ class patchwork_tokenizer
 			}
 		}
 
-		unset($this->tokens);
-		$this->tokens = array();
+		unset($p->tokens);
+		$p->tokens = array();
 
 		return $tokens;
 	}
