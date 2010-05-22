@@ -14,7 +14,7 @@
 
 class patchwork_tokenizer_file
 {
-	static function register($tokenizer, $file)
+	static function register(patchwork_tokenizer $tokenizer, $file)
 	{
 		$self = new self($file);
 		$tokenizer->register($self, array('fixFile' => array(T_FILE, T_DIR)));

@@ -14,7 +14,7 @@
 
 class patchwork_tokenizer_classname
 {
-	static function register($tokenizer, $classname)
+	static function register(patchwork_tokenizer $tokenizer, $classname)
 	{
 		$self = new self($classname);
 		$tokenizer->register($self, array('tagClass' => T_CLASS));
