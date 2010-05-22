@@ -12,6 +12,9 @@
  ***************************************************************************/
 
 
+// New token to match the end of the source code
+define('T_ENDPHP', -2);
+
 class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 {
 	function __construct(patchwork_tokenizer &$parent = null)
@@ -59,6 +62,8 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 		{
 			$code[] = array(T_OPEN_TAG, '<?php ');
 		}
+
+		$code[] = array(T_ENDPHP, '');
 
 		return $code;
 	}
