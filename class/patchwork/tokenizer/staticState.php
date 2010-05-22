@@ -120,7 +120,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 	function tagEOExpression($token, $t)
 	{
 		$t->unregister($this, array(__FUNCTION__ => $this->callbacks[2][__FUNCTION__]));
-		$t->register($this, $this->callbacks[1]);
+		$t->  register($this, $this->callbacks[1]);
 	}
 
 	function tagEOState1($token, $t)
