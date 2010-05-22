@@ -37,7 +37,6 @@ class patchwork_tokenizer_bracket
 	function __construct(&$error)
 	{
 		$this->error =& $error;
-		$this->bracket;
 		$error = false;
 	}
 

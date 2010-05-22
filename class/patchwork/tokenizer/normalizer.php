@@ -14,8 +14,10 @@
 
 class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 {
-	function __construct()
+	function __construct(patchwork_tokenizer &$parent = null)
 	{
+		parent::__construct($parent);
+
 		$this->register($this, array(
 			'openEchoTag' => T_OPEN_TAG_WITH_ECHO,
 			'openTag'     => T_OPEN_TAG,
@@ -61,10 +63,10 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 		return $code;
 	}
 
-	function openEchoTag(&$token)
+	function openEchoTag(&$token, $t)
 	{
-		$this->code[--$this->position] = array(T_ECHO, 'echo');
-		$this->code[--$this->position] = array(T_OPEN_TAG, $token[1]);
+		$t->code[--$t->position] = array(T_ECHO, 'echo');
+		$t->code[--$t->position] = array(T_OPEN_TAG, $token[1]);
 
 		return false;
 	}
@@ -81,9 +83,9 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 		$token[1] = str_repeat("\n", $token[1]) . '?'.'>';
 	}
 
-	function stripBom(&$token)
+	function stripBom(&$token, $t)
 	{
-		$this->unregister($this, __FUNCTION__);
+		$t->unregister($this, __FUNCTION__);
 		$token[1] = substr($token[1], 3);
 		if ('' === $token[1]) return false;
 	}
