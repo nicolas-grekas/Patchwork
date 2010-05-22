@@ -13,15 +13,15 @@
 
 
 // New tokens since PHP 5.3
-defined('T_GOTO')         || define('T_GOTO',         -1);
-defined('T_USE' )         || define('T_USE' ,         -1);
-defined('T_DIR' )         || define('T_DIR' ,         -1);
-defined('T_NS_C')         || define('T_NS_C',         -1);
-defined('T_NAMESPACE')    || define('T_NAMESPACE',    -1);
-defined('T_NS_SEPARATOR') || define('T_NS_SEPARATOR', -1);
+defined('T_GOTO')         || define('T_GOTO',         0);
+defined('T_USE' )         || define('T_USE' ,         0);
+defined('T_DIR' )         || define('T_DIR' ,         0);
+defined('T_NS_C')         || define('T_NS_C',         0);
+defined('T_NAMESPACE')    || define('T_NAMESPACE',    0);
+defined('T_NS_SEPARATOR') || define('T_NS_SEPARATOR', 0);
 
 // New token to match T_CURLY_OPEN and T_DOLLAR_OPEN_CURLY_BRACES
-define('T_CURLY_CLOSE', -2);
+define('T_CURLY_CLOSE', -1);
 
 class patchwork_tokenizer
 {
@@ -95,19 +95,20 @@ class patchwork_tokenizer
 
 		$length   = count($code);
 		$line     = 1;
-		$inString = 0;
+		$curly    = 0;
+		$strCurly = array();
+		$inString = false;
 		$deco     = '';
 
 		while ($i < $length)
 		{
 			$lines = 0;
+			$token =& $code[$i];
+			unset($code[$i++]);
 
-			if (is_array($code[$i]))
+			if (isset($token[1]))
 			{
-				$token = $code[$i];
-
-				if (isset($token[2])) $line = $token[2];
-				else $token[2] = $line;
+				$token[2] = $line;
 
 				switch ($token[0])
 				{
@@ -122,47 +123,39 @@ class patchwork_tokenizer
 
 				case T_CURLY_OPEN:
 				case T_DOLLAR_OPEN_CURLY_BRACES:
-				case T_START_HEREDOC: ++$inString; break;
-				case T_END_HEREDOC:   --$inString; break;
+					$strCurly[] = $curly;
+					$curly = 0;
+					// break intentionally omitted
+
+				case T_END_HEREDOC:   $inString = false; break;
+				case T_START_HEREDOC: $inString = true ; break;
 				case T_STRING:
-					if ($inString & 1) $token[0] = T_ENCAPSED_AND_WHITESPACE;
+					$inString && $token[0] = T_ENCAPSED_AND_WHITESPACE;
 					break;
 				}
 			}
 			else
 			{
-				switch ($t = $code[$i])
+				$token = array($token, $token, $line);
+
+				switch ($token[0])
 				{
 				case '"':
 				case '`':
-					if ($inString & 1) --$inString;
-					else ++$inString;
-
-					$token = array($t, $t, $line);
-					break;
-
-				case '}':
-					if ($inString)
-					{
-						// FIXME: This can be broken with a closure definition
-						//   inside an interpolated string. Not very common...
-						--$inString;
-						$token = array(T_CURLY_CLOSE, '}', $line);
-					}
-					else $token = array('}', '}', $line);
-
+					$inString = !$inString;
 					break;
 
 				default:
-					$token = array(
-						($inString & 1) ? T_ENCAPSED_AND_WHITESPACE : $t,
-						$t,
-						$line
-					);
+					if ($inString) $token[0] = T_ENCAPSED_AND_WHITESPACE;
+					else if ('{' === $token[0]) ++$curly;
+					else if ('}' === $token[0] && 0 > --$curly)
+					{
+						$token[0] = T_CURLY_CLOSE;
+						$curly    = array_pop($strCurly);
+						$inString = true;
+					}
 				}
 			}
-
-			unset($code[$i++]);
 
 			'' !== $deco && $token[3] = $deco;
 
@@ -187,7 +180,7 @@ class patchwork_tokenizer
 				}
 			}
 
-			$tokens[] = $token;
+			$tokens[] =& $token;
 			$lines += $lines;
 			$deco = '';
 
@@ -197,7 +190,7 @@ class patchwork_tokenizer
 				|| T_DOC_COMMENT === $code[$i][0]
 			))
 			{
-				$token = $code[$i];
+				$token =& $code[$i];
 				unset($code[$i++]);
 
 				$lines = substr_count($token[1], "\n");
