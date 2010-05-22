@@ -17,6 +17,8 @@ require_once patchworkPath('class/patchwork/tokenizer/normalizer.php');
 require_once patchworkPath('class/patchwork/tokenizer/scream.php');
 require_once patchworkPath('class/patchwork/tokenizer/file.php');
 require_once patchworkPath('class/patchwork/tokenizer/classname.php');
+require_once patchworkPath('class/patchwork/tokenizer/scoper.php');
+require_once patchworkPath('class/patchwork/tokenizer/globalizer.php');
 
 
 class patchwork_preprocessor__0
@@ -199,6 +201,7 @@ class patchwork_preprocessor__0
 		$line   =& $this->line;
 
 		$tokenizer = new patchwork_tokenizer_normalizer;
+		$tokenizer = new patchwork_tokenizer_scoper($tokenizer);
 		patchwork_tokenizer_file::register($tokenizer, $source);
 
 		self::$scream && patchwork_tokenizer_scream::register($tokenizer);
@@ -206,6 +209,7 @@ class patchwork_preprocessor__0
 		if (0 <= $level)
 		{
 			$class && patchwork_tokenizer_classname::register($tokenizer, $class);
+			patchwork_tokenizer_globalizer::register($tokenizer, '$CONFIG');
 		}
 
 		$tokens = $tokenizer->tokenize($tokens);
@@ -224,11 +228,10 @@ class patchwork_preprocessor__0
 		$new_code_length = 0;
 
 		$T = PATCHWORK_PATH_TOKEN;
-		$opentag_marker = "if(!isset(\$a{$T})){global \$CONFIG," . substr($this->marker[1], 7) . "}isset(\$e{$T})||\$e{$T}=false;";
+		$opentag_marker = "if(!isset(\$a{$T})){global " . substr($this->marker[1], 7) . "}isset(\$e{$T})||\$e{$T}=false;";
 
 		$curly_level = 0;
 		$curly_starts_function = false;
-		$autoglobalize = 0;
 		$class_pool = array();
 		$curly_marker = array(array(0, 0));
 		$curly_marker_last =& $curly_marker[0];
@@ -406,7 +409,6 @@ class patchwork_preprocessor__0
 
 			case T_FUNCTION:
 				$curly_starts_function = true;
-				$autoglobalize = 0;
 				break;
 
 			case T_NEW:
@@ -678,15 +680,6 @@ class patchwork_preprocessor__0
 
 				break;
 
-			case T_VARIABLE:
-
-				if (!$autoglobalize && '$CONFIG' === $code && T_DOUBLE_COLON !== $prevType)
-				{
-					$autoglobalize = $curly_starts_function ? 2 : 1;
-				}
-
-				break;
-
 			case T_STATIC:
 				$static_instruction = true;
 				break;
@@ -719,8 +712,6 @@ class patchwork_preprocessor__0
 					$curly_marker_last[1] && $new_code[$curly_marker_last[0]] .= $curly_marker_last[1]>0
 						? "{$this->marker[1]}static \$d{$T}=1;(" . $this->marker() . ")&&\$d{$T}&&\$d{$T}=0;"
 						: $this->marker[0];
-
-					1 === $autoglobalize && $new_code[$curly_marker_last[0]] .= 'global $CONFIG;';
 
 					unset($curly_marker[$curly_level]);
 					end($curly_marker);
