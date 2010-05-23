@@ -36,7 +36,10 @@ class patchwork_tokenizer_globalizer
 
 		foreach ((array) $autoglobals as $autoglobals)
 		{
-			$callbacks[$autoglobals] = T_VARIABLE;
+			if (!isset(${substr($autoglobals, 1)}) || '$callbacks' === $autoglobals || '$autoglobals' === $autoglobals)
+			{
+				$callbacks[$autoglobals] = T_VARIABLE;
+			}
 		}
 
 		$this->callbacks['tagAutoglobals'] = $callbacks;
