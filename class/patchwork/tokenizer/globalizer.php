@@ -18,14 +18,15 @@ class patchwork_tokenizer_globalizer
 	{
 		$self = new self($autoglobals);
 		$tokenizer->register($self, $self->callbacks);
-		$tokenizer->scopeStartRegister($self, 'onScopeStart');
-		$tokenizer->scopeCloseRegister($self, 'onScopeClose');
 	}
 
 
 	protected
 
-	$callbacks = array(),
+	$callbacks = array(
+		'tagScopeOpen'  => T_SCOPE_OPEN,
+		'tagScopeClose' => T_SCOPE_CLOSE,
+	),
 	$scope     = array(),
 	$scopes    = array();
 
@@ -45,26 +46,27 @@ class patchwork_tokenizer_globalizer
 		$this->callbacks['tagAutoglobals'] = $callbacks;
 	}
 
-	function onScopeStart($type, &$token)
+	function tagScopeOpen()
 	{
 		$this->scopes[] = $this->scope;
-		$this->scope    = array(&$token, array());
+		$this->scope    = array();
 	}
 
 	function tagAutoglobals($token, $t)
 	{
-		if (   T_DOUBLE_COLON !== $t->tokens[count($t->tokens)-1][0]
+		if ( !isset($this->scope[$token[1]])
+			&& T_DOUBLE_COLON !== $t->tokens[count($t->tokens) - 1][0]
 			&& in_array($token[1], array_keys($this->callbacks['tagAutoglobals'])) )
 		{
-			$this->scope[1][] = $token[1];
+			$this->scope[$token[1]] = 1;
 		}
 	}
 
-	function onScopeClose($type)
+	function tagScopeClose(&$token)
 	{
-		if (isset($this->scope[1][0]) && T_FUNCTION === $type)
+		if ($this->scope && T_FUNCTION === $token[4][4])
 		{
-			$this->scope[0][1] .= 'global ' . implode(',', array_unique($this->scope[1])) . ';';
+			$token[4][1] .= 'global ' . implode(',', array_keys($this->scope)) . ';';
 		}
 
 		$this->scope = array_pop($this->scopes);

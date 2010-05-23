@@ -13,15 +13,15 @@
 
 
 // New tokens since PHP 5.3
-defined('T_GOTO')         || define('T_GOTO',         0);
-defined('T_USE' )         || define('T_USE' ,         0);
-defined('T_DIR' )         || define('T_DIR' ,         0);
-defined('T_NS_C')         || define('T_NS_C',         0);
-defined('T_NAMESPACE')    || define('T_NAMESPACE',    0);
-defined('T_NS_SEPARATOR') || define('T_NS_SEPARATOR', 0);
+defined('T_GOTO')         || patchwork_tokenizer::defineNewToken('T_GOTO');
+defined('T_USE' )         || patchwork_tokenizer::defineNewToken('T_USE');
+defined('T_DIR' )         || patchwork_tokenizer::defineNewToken('T_DIR');
+defined('T_NS_C')         || patchwork_tokenizer::defineNewToken('T_NS_C');
+defined('T_NAMESPACE')    || patchwork_tokenizer::defineNewToken('T_NAMESPACE');
+defined('T_NS_SEPARATOR') || patchwork_tokenizer::defineNewToken('T_NS_SEPARATOR');
 
 // New token to match T_CURLY_OPEN and T_DOLLAR_OPEN_CURLY_BRACES
-define('T_CURLY_CLOSE', -1);
+patchwork_tokenizer::defineNewToken('T_CURLY_CLOSE');
 
 class patchwork_tokenizer
 {
@@ -44,6 +44,12 @@ class patchwork_tokenizer
 	{
 		$parent || $parent = $this;
 		$this->parent = $parent;
+	}
+
+	static function defineNewToken($name)
+	{
+		static $offset = 0;
+		define($name, --$offset);
 	}
 
 	function register($object, $method)
@@ -106,14 +112,12 @@ class patchwork_tokenizer
 		$p->position =& $i;
 		$p->tokens   =& $tokens;
 
-		$length   = count($code);
 		$line     = 1;
 		$curly    = 0;
 		$strCurly = array();
-		$inString = false;
 		$deco     = '';
 
-		while ($i < $length)
+		while (isset($code[$i]))
 		{
 			$lines = 0;
 			$token =& $code[$i];
@@ -138,12 +142,6 @@ class patchwork_tokenizer
 				case T_DOLLAR_OPEN_CURLY_BRACES:
 					$strCurly[] = $curly;
 					$curly = 0;
-					// break intentionally omitted
-
-				case T_END_HEREDOC:   $inString = false; break;
-				case T_START_HEREDOC: $inString = true ; break;
-				case T_STRING:
-					$inString && $token[0] = T_ENCAPSED_AND_WHITESPACE;
 					break;
 				}
 			}
@@ -153,19 +151,12 @@ class patchwork_tokenizer
 
 				switch ($token[0])
 				{
-				case '"':
-				case '`':
-					$inString = !$inString;
-					break;
-
-				default:
-					if ($inString) $token[0] = T_ENCAPSED_AND_WHITESPACE;
-					else if ('{' === $token[0]) ++$curly;
-					else if ('}' === $token[0] && 0 > --$curly)
+				case '{': ++$curly; break;
+				case '}':
+					if (0 > --$curly)
 					{
 						$token[0] = T_CURLY_CLOSE;
 						$curly    = array_pop($strCurly);
-						$inString = true;
 					}
 				}
 			}
@@ -197,7 +188,7 @@ class patchwork_tokenizer
 			$lines += $lines;
 			$deco = '';
 
-			while ($i < $length && (
+			while (isset($code[$i][1]) && (
 				   T_WHITESPACE  === $code[$i][0]
 				|| T_COMMENT     === $code[$i][0]
 				|| T_DOC_COMMENT === $code[$i][0]
