@@ -235,7 +235,7 @@ class patchwork_tokenizer
 
 	protected function getTokens($code)
 	{
-		return token_get_all($code);
+		return $this->parent === $this ? token_get_all($code) : $this->parent->getTokens($code);
 	}
 
 	protected static $variableType = array(
