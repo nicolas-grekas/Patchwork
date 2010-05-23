@@ -46,7 +46,7 @@ class patchwork_bootstrapper_preprocessor__0
 
 		$tokenizer = new patchwork_tokenizer_normalizer;
 
-		patchwork_tokenizer_bracket::register($tokenizer, $this->error);
+		patchwork_tokenizer_bracketVerifier::register($tokenizer, $this->error);
 
 		if( (defined('DEBUG') && DEBUG)
 			&& !empty($GLOBALS['CONFIG']['debug.scream'])

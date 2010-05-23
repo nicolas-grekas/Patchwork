@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_bracket
+class patchwork_tokenizer_bracketVerifier
 {
 	protected
 
@@ -21,7 +21,7 @@ class patchwork_tokenizer_bracket
 		'popBracket'  => array('}', ']', ')'),
 	);
 
-	static function register(patchwork_tokenizer $tokenizer, &$error = null)
+	static function register(patchwork_tokenizer $tokenizer, &$error)
 	{
 		$self = new self($error);
 		$tokenizer->register($self, $self->callbacks);

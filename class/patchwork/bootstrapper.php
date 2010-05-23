@@ -42,7 +42,7 @@ class patchwork_bootstrapper
 		require dirname(__FILE__) . '/tokenizer.php';
 		require dirname(__FILE__) . '/tokenizer/normalizer.php';
 		require dirname(__FILE__) . '/tokenizer/scream.php';
-		require dirname(__FILE__) . '/tokenizer/bracket.php';
+		require dirname(__FILE__) . '/tokenizer/bracketVerifier.php';
 		require dirname(__FILE__) . '/tokenizer/staticState.php';
 		require dirname(__FILE__) . '/bootstrapper/bootstrapper.php';
 
