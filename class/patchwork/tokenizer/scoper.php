@@ -12,16 +12,18 @@
  ***************************************************************************/
 
 
+// New token to match scope edges
+patchwork_tokenizer::defineNewToken('T_SCOPE_OPEN');
+patchwork_tokenizer::defineNewToken('T_SCOPE_CLOSE');
+
 class patchwork_tokenizer_scoper extends patchwork_tokenizer
 {
 	protected
 
 	$scopes    = array(),
 	$nextScope = T_OPEN_TAG,
-	$callbacks = array('tagScopeStart' => T_OPEN_TAG),
-	$curly     = 0,
-	$scopeStartRegistry = array(),
-	$scopeCloseRegistry = array();
+	$callbacks = array('tagScopeOpen' => T_OPEN_TAG),
+	$curly     = 0;
 
 
 	function __construct(patchwork_tokenizer_normalizer &$parent = null)
@@ -29,42 +31,29 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 		parent::__construct($parent);
 
 		$this->register($this, array(
-			'tagScopeStart' => array(T_OPEN_TAG, '{'),
+			'tagScopeOpen'  => array(T_OPEN_TAG, '{'),
 			'tagScopeClose' => array(T_ENDPHP  , '}'),
 			'tagFunction'   => T_FUNCTION,
 			'tagClass'      => T_CLASS,
 		));
 	}
 
-	function scopeStartRegister($object, $method)
-	{
-		$this->scopeStartRegistry[] = array($object, $method);
-	}
-
-	function scopeCloseRegister($object, $method)
-	{
-		$this->scopeCloseRegistry[] = array($object, $method);
-	}
-
-	function tagScopeStart(&$token, $t)
+	function tagScopeOpen($token, $t)
 	{
 		if ($this->nextScope)
 		{
 			$t->unregister($this, $this->callbacks);
 
-			foreach ($this->scopeStartRegistry as $t)
-			{
-				$t[0]->{$t[1]}($this->nextScope, $token);
-			}
+			$t->code[--$t->position] = array(T_SCOPE_OPEN, '', 0, '', $this->nextScope);
 
-			$this->scopes[] = array($this->curly, $this->nextScope, &$token);
+			$this->scopes[] = array($this->curly, &$t->code[$t->position]);
 			$this->curly = 0;
 			$this->nextScope = false;
 		}
 		else ++$this->curly;
 	}
 
-	function tagScopeClose(&$token, $t)
+	function tagScopeClose($token, $t)
 	{
 		if (0 > --$this->curly && $this->scopes)
 		{
@@ -72,19 +61,16 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 			$scope = array_pop($this->scopes);
 			$this->curly = $scope[0];
 
-			foreach ($this->scopeCloseRegistry as $t)
-			{
-				$t[0]->{$t[1]}($scope[1], $scope[2], $token);
-			}
+			$t->code[--$t->position] = array(T_SCOPE_CLOSE, '', 0, '', &$scope[1]);
 		}
 	}
 
-	function tagCurly($token, $t)
+	function tagCurly()
 	{
 		++$this->curly;
 	}
 
-	function tagClass($token, $t)
+	function tagClass()
 	{
 		$this->nextScope = T_CLASS;
 	}
