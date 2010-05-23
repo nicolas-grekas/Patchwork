@@ -13,7 +13,7 @@
 
 
 // New token to match the end of the source code
-define('T_ENDPHP', -2);
+patchwork_tokenizer::defineNewToken('T_ENDPHP');
 
 class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 {
