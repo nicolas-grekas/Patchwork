@@ -390,7 +390,7 @@ class patchwork_preprocessor__0
 				break;
 
 			case T_PRIVATE:
-				// "private static" methods or properties are problematic when considering application inheritance.
+				// "private static" methods or properties are problematic when considering class superposition.
 				// To work around this, we change them to "protected static", and warn about it
 				// (except for files in the include path). Side effects exist but should be rare.
 				if (isset($class_pool[$curly_level-1]) && !$class_pool[$curly_level-1]->is_final)
@@ -608,21 +608,12 @@ class patchwork_preprocessor__0
 						if (0 > $level && in_array($type, array('interface_exists', 'class_exists'))) new patchwork_preprocessor_classExists($this);
 					}
 				}
-				else switch ($type)
+				else if (isset(self::$constant[$code]))
 				{
-				case '__patchwork_level__': if (0 > $level) break;
-					$code = $level;
-					$type = T_LNUMBER;
-					break;
-
-				default:
-					if (isset(self::$constant[$code]))
-					{
-						$code = self::$constant[$code];
-						     if (  is_int($code)) $type = T_LNUMBER;
-						else if (is_float($code)) $type = T_DNUMBER;
-						else if ("'" === $code[0]) $type = T_CONSTANT_ENCAPSED_STRING;
-					}
+					$code = self::$constant[$code];
+						 if (  is_int($code)) $type = T_LNUMBER;
+					else if (is_float($code)) $type = T_DNUMBER;
+					else if ("'" === $code[0]) $type = T_CONSTANT_ENCAPSED_STRING;
 				}
 
 				break;
