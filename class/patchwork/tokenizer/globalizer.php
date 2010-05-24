@@ -12,61 +12,58 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_globalizer
+class patchwork_tokenizer_globalizer extends patchwork_tokenizer_scoper
 {
-	static function register(patchwork_tokenizer_scoper $tokenizer, $autoglobals)
-	{
-		$self = new self($autoglobals);
-		$tokenizer->register($self, $self->callbacks);
-	}
-
-
 	protected
 
-	$callbacks = array(
-		'tagScopeOpen'  => T_SCOPE_OPEN,
-		'tagScopeClose' => T_SCOPE_CLOSE,
-	),
 	$scope     = array(),
-	$scopes    = array();
+	$scopes    = array(),
+	$callbacks = array('tagScopeOpen' => T_SCOPE_OPEN);
 
 
-	function __construct($autoglobals)
+	function __construct(parent $parent, $autoglobals)
 	{
 		$callbacks = array();
 
 		foreach ((array) $autoglobals as $autoglobals)
 		{
-			if (!isset(${substr($autoglobals, 1)}) || '$callbacks' === $autoglobals || '$autoglobals' === $autoglobals)
+			if ( !isset(${substr($autoglobals, 1)})
+				|| '$callbacks'   === $autoglobals
+				|| '$autoglobals' === $autoglobals
+				|| '$parent'      === $autoglobals )
 			{
 				$callbacks[$autoglobals] = T_VARIABLE;
 			}
 		}
 
 		$this->callbacks['tagAutoglobals'] = $callbacks;
+
+		$this->initialize($parent);
 	}
 
-	function tagScopeOpen()
+	protected function tagScopeOpen(&$token)
 	{
 		$this->scopes[] = $this->scope;
 		$this->scope    = array();
+
+		return 'tagScopeClose';
 	}
 
-	function tagAutoglobals($token, $t)
+	protected function tagAutoglobals(&$token)
 	{
 		if ( !isset($this->scope[$token[1]])
-			&& T_DOUBLE_COLON !== $t->tokens[count($t->tokens) - 1][0]
+			&& T_DOUBLE_COLON !== $this->prevType
 			&& in_array($token[1], array_keys($this->callbacks['tagAutoglobals'])) )
 		{
 			$this->scope[$token[1]] = 1;
 		}
 	}
 
-	function tagScopeClose(&$token)
+	protected function tagScopeClose(&$token)
 	{
-		if ($this->scope && T_FUNCTION === $token[4][4])
+		if ($this->scope && T_FUNCTION === $token['scopeType'])
 		{
-			$token[4][1] .= 'global ' . implode(',', array_keys($this->scope)) . ';';
+			$token['scopeToken'][1] .= 'global ' . implode(',', array_keys($this->scope)) . ';';
 		}
 
 		$this->scope = array_pop($this->scopes);

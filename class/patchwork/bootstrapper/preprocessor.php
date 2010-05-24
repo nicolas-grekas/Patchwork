@@ -21,8 +21,7 @@ class patchwork_bootstrapper_preprocessor__0
 	protected
 
 	$callerRx,
-	$alias = array(),
-	$error;
+	$alias = array();
 
 
 	function ob_start($caller)
@@ -45,22 +44,21 @@ class patchwork_bootstrapper_preprocessor__0
 		if ('' === $code = file_get_contents($this->file)) return '';
 
 		$tokenizer = new patchwork_tokenizer_normalizer;
-
-		patchwork_tokenizer_bracketVerifier::register($tokenizer, $this->error);
+		$tokenizer = new patchwork_tokenizer_bracketVerifier($tokenizer);
 
 		if( (defined('DEBUG') && DEBUG)
 			&& !empty($GLOBALS['CONFIG']['debug.scream'])
 				|| (defined('DEBUG_SCREAM') && DEBUG_SCREAM) )
 		{
-			patchwork_tokenizer_scream::register($tokenizer);
+			new patchwork_tokenizer_scream($tokenizer);
 		}
 
 		$tokenizer = new patchwork_tokenizer_staticState($tokenizer);
 		$code = $tokenizer->getStaticCode($code, __CLASS__);
 
-		if ($this->error)
+		if ($tokenizer->bracketError)
 		{
-			$e = $this->error;
+			$e = $tokenizer->bracketError;
 			$e->expecting && $e->expecting = ", expecting `{$e->expecting}'";
 			$e->file = addslashes($this->file);
 
