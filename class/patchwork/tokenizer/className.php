@@ -12,38 +12,37 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_classname
+class patchwork_tokenizer_className extends patchwork_tokenizer
 {
-	static function register(patchwork_tokenizer $tokenizer, $classname)
+	protected
+
+	$className,
+	$callbacks = array('tagClass' => T_CLASS);
+
+
+	function __construct(parent $parent, $className)
 	{
-		$self = new self($classname);
-		$tokenizer->register($self, array('tagClass' => T_CLASS));
+		$this->initialize($parent);
+
+		$this->className = $className;
 	}
 
-
-	protected $classname;
-
-	function __construct($classname)
+	protected function tagClass(&$token)
 	{
-		$this->classname = $classname;
+		$this->register('fixClassName');
 	}
 
-	function tagClass($token, $t)
+	protected function fixClassName(&$token)
 	{
-		$t->register($this, 'fixClassname');
-	}
-
-	function fixClassname($token, $t)
-	{
-		$t->unregister($this, __FUNCTION__);
+		$this->unregister(__FUNCTION__);
 
 		if (T_STRING !== $token[0])
 		{
-			$t->code[--$t->position] = $token;
-			$t->code[--$t->position] = array(T_WHITESPACE, ' ');
-			$t->code[--$t->position] = array(T_STRING, $this->classname);
+			$this->code[--$this->position] =& $token;
+			$this->code[--$this->position] = array(T_WHITESPACE, ' ');
+			$this->code[--$this->position] = array(T_STRING, $this->className);
 
-			$t->unregister($this, array('tagClass' => T_CLASS));
+			$this->unregister();
 
 			return false;
 		}

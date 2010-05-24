@@ -16,7 +16,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 {
 	protected
 
-	$callbacks = array(
+	$stateCallbacks = array(
 		0 => array(),
 		1 => array(
 			'tagEOState1' => array("\n" => T_WHITESPACE),
@@ -30,16 +30,14 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 		),
 	),
 	$state = 0,
-	$transition;
+	$transition = array();
 
 
-	function __construct(patchwork_tokenizer &$parent = null)
+	function __construct(parent $parent = null)
 	{
 		parent::__construct($parent);
 
-		$this->state = 0;
-		$this->transition = array();
-		$this->setState(2, 1, $parent);
+		$this->setState(2, 1);
 	}
 
 	function getStaticCode($code, $class)
@@ -92,50 +90,50 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 		return ob_get_clean();
 	}
 
-	protected function setState($state, $line, $t)
+	protected function setState($state, $line)
 	{
-		$this->transition[count($t->tokens)] = array($state, $line);
+		$this->transition[count($this->tokens)] = array($state, $line);
 
-		if ($this->state === 2) $t->unregister($this, $this->callbacks[1]);
+		if ($this->state === 2) $this->unregister($this->stateCallbacks[1]);
 		if ($this->state === $state) return;
 
-		$t->unregister($this, $this->callbacks[$this->state]);
-		$t->  register($this, $this->callbacks[$state]);
+		$this->unregister($this->stateCallbacks[$this->state]);
+		$this->  register($this->stateCallbacks[$state]);
 
 		$this->state = $state;
 	}
 
-	function tagEOState2($token, $t)
+	protected function tagEOState2(&$token)
 	{
 		if ('/*<*/' === $token[1])
 		{
-			$this->setState(3, $token[2], $t);
+			$this->setState(3, $token[2]);
 		}
 		else if ('/**/' === $token[1] && "\n" === substr($token[3], -1))
 		{
-			$this->setState(1, $token[2], $t);
+			$this->setState(1, $token[2]);
 		}
 	}
 
-	function tagEOExpression($token, $t)
+	protected function tagEOExpression(&$token)
 	{
-		$t->unregister($this, array(__FUNCTION__ => $this->callbacks[2][__FUNCTION__]));
-		$t->  register($this, $this->callbacks[1]);
+		$this->unregister(array(__FUNCTION__ => $this->stateCallbacks[2][__FUNCTION__]));
+		$this->  register($this->stateCallbacks[1]);
 	}
 
-	function tagEOState1($token, $t)
+	protected function tagEOState1(&$token)
 	{
 		if (false !== strpos($token[1], "\n"))
 		{
-			$this->setState(2, $token[2], $t);
+			$this->setState(2, $token[2]);
 		}
 	}
 
-	function tagEOState3($token, $t)
+	protected function tagEOState3(&$token)
 	{
 		if ('/*>*/' === $token[1])
 		{
-			$this->setState(2, $token[2], $t);
+			$this->setState(2, $token[2]);
 		}
 	}
 }

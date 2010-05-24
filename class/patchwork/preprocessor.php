@@ -16,7 +16,7 @@ require_once patchworkPath('class/patchwork/tokenizer.php');
 require_once patchworkPath('class/patchwork/tokenizer/normalizer.php');
 require_once patchworkPath('class/patchwork/tokenizer/scream.php');
 require_once patchworkPath('class/patchwork/tokenizer/file.php');
-require_once patchworkPath('class/patchwork/tokenizer/classname.php');
+require_once patchworkPath('class/patchwork/tokenizer/className.php');
 require_once patchworkPath('class/patchwork/tokenizer/scoper.php');
 require_once patchworkPath('class/patchwork/tokenizer/globalizer.php');
 
@@ -201,16 +201,11 @@ class patchwork_preprocessor__0
 		$line   =& $this->line;
 
 		$tokenizer = new patchwork_tokenizer_normalizer;
+		new patchwork_tokenizer_file($tokenizer, $source);
+		self::$scream && new patchwork_tokenizer_scream($tokenizer);
+		0 <= $level && $class && new patchwork_tokenizer_className($tokenizer, $class);
 		$tokenizer = new patchwork_tokenizer_scoper($tokenizer);
-		patchwork_tokenizer_file::register($tokenizer, $source);
-
-		self::$scream && patchwork_tokenizer_scream::register($tokenizer);
-
-		if (0 <= $level)
-		{
-			$class && patchwork_tokenizer_classname::register($tokenizer, $class);
-			patchwork_tokenizer_globalizer::register($tokenizer, '$CONFIG');
-		}
+		new patchwork_tokenizer_globalizer($tokenizer, '$CONFIG');
 
 		$tokens = $tokenizer->tokenize($tokens);
 		$count = count($tokens);

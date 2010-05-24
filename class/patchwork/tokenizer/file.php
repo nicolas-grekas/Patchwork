@@ -12,26 +12,26 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_file
+class patchwork_tokenizer_file extends patchwork_tokenizer
 {
-	static function register(patchwork_tokenizer $tokenizer, $file)
+	protected
+
+	$file,
+	$dir,
+	$callbacks = array('fixFile' => array(T_FILE, T_DIR));
+
+
+	function __construct(parent $parent, $file)
 	{
-		$self = new self($file);
-		$tokenizer->register($self, array('fixFile' => array(T_FILE, T_DIR)));
+		$this->initialize($parent);
+
+		$this->file = self::export($file);
+		$this->dir  = self::export(dirname($file));
 	}
 
-
-	protected $file, $dir;
-
-	function __construct($file)
+	protected function fixFile(&$token)
 	{
-		$this->file = patchwork_tokenizer::export($file);
-		$this->dir  = patchwork_tokenizer::export(dirname($file));
-	}
-
-	function fixFile($token, $t)
-	{
-		$t->code[--$t->position] = array(
+		$this->code[--$this->position] = array(
 			T_CONSTANT_ENCAPSED_STRING,
 			T_FILE === $token[0] ? $this->file : $this->dir
 		);
