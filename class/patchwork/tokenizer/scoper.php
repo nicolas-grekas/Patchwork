@@ -12,80 +12,88 @@
  ***************************************************************************/
 
 
-// New token to match scope edges
+// New token to match a new scope opening
 patchwork_tokenizer::defineNewToken('T_SCOPE_OPEN');
-patchwork_tokenizer::defineNewToken('T_SCOPE_CLOSE');
 
-class patchwork_tokenizer_scoper extends patchwork_tokenizer
+class patchwork_tokenizer_scoper extends patchwork_tokenizer_normalizer
 {
 	protected
 
+	$curly     = 0,
 	$scopes    = array(),
 	$nextScope = T_OPEN_TAG,
-	$callbacks = array('tagScopeOpen' => T_OPEN_TAG),
-	$curly     = 0;
+	$callbacks = array(
+		'tagScopeOpen'  => array(T_OPEN_TAG, '{'),
+		'tagScopeClose' => array(T_ENDPHP  , '}'),
+		'tagFunction'   => T_FUNCTION,
+		'tagClass'      => array(T_CLASS, T_INTERFACE),
+	);
 
 
-	function __construct(patchwork_tokenizer_normalizer &$parent = null)
-	{
-		parent::__construct($parent);
-
-		$this->register($this, array(
-			'tagScopeOpen'  => array(T_OPEN_TAG, '{'),
-			'tagScopeClose' => array(T_ENDPHP  , '}'),
-			'tagFunction'   => T_FUNCTION,
-			'tagClass'      => T_CLASS,
-		));
-	}
-
-	function tagScopeOpen($token, $t)
+	protected function tagScopeOpen(&$token)
 	{
 		if ($this->nextScope)
 		{
-			$t->unregister($this, $this->callbacks);
+			if (T_OPEN_TAG === $token[0])
+			{
+				$this->unregister(array('tagScopeOpen' => T_OPEN_TAG));
+				$this->callbacks = array();
+			}
 
-			$t->code[--$t->position] = array(T_SCOPE_OPEN, '', 0, '', $this->nextScope);
+			$token['scopeType'] = $this->nextScope;
+			$onClose = array();
 
-			$this->scopes[] = array($this->curly, &$t->code[$t->position]);
+			if (isset($this->tokenRegistry[T_SCOPE_OPEN]))
+			{
+				foreach ($this->tokenRegistry[T_SCOPE_OPEN] as $c)
+					if ($c[1] = $c[0]->{$c[1]}($token))
+						$onClose[] = $c;
+			}
+
+			$this->scopes[] = array($this->curly, &$token, $onClose);
 			$this->curly = 0;
 			$this->nextScope = false;
 		}
 		else ++$this->curly;
 	}
 
-	function tagScopeClose($token, $t)
+	protected function tagScopeClose(&$token)
 	{
 		if (0 > --$this->curly && $this->scopes)
 		{
-			$t->unregister($this, $this->callbacks);
+			$this->unregister();
 			$scope = array_pop($this->scopes);
 			$this->curly = $scope[0];
 
-			$t->code[--$t->position] = array(T_SCOPE_CLOSE, '', 0, '', &$scope[1]);
+			$token['scopeType']  =& $scope[1]['scopeType'];
+			$token['scopeToken'] =& $scope[1];
+
+			foreach ($scope[2] as $c)
+				$c[0]->{$c[1]}($token);
 		}
 	}
 
-	function tagCurly()
+	protected function tagCurly(&$token)
 	{
 		++$this->curly;
 	}
 
-	function tagClass()
+	protected function tagClass(&$token)
 	{
-		$this->nextScope = T_CLASS;
+		$this->nextScope = $token[0];
 	}
 
-	function tagFunction($token, $t)
+	protected function tagFunction(&$token)
 	{
 		$this->nextScope = T_FUNCTION;
-		$t->register($this, $this->callbacks = array(
+		$this->register($this->callbacks = array(
 			'tagSemiColon'  => ';', // For abstracts methods
 		));
 	}
 
-	function tagSemiColon($token, $t)
+	protected function tagSemiColon(&$token)
 	{
-		$t->unregister($this, $this->callbacks);
+		$this->unregister();
 		$this->nextScope = false;
 	}
 }

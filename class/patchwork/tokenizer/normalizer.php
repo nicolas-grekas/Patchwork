@@ -17,17 +17,15 @@ patchwork_tokenizer::defineNewToken('T_ENDPHP');
 
 class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 {
-	function __construct(patchwork_tokenizer &$parent = null)
-	{
-		parent::__construct($parent);
+	protected
 
-		$this->register($this, array(
-			'openEchoTag' => T_OPEN_TAG_WITH_ECHO,
-			'openTag'     => T_OPEN_TAG,
-			'closeTag'    => T_CLOSE_TAG,
-			'fixVar'      => T_VAR,
-		));
-	}
+	$callbacks = array(
+		'openEchoTag' => T_OPEN_TAG_WITH_ECHO,
+		'openTag'     => T_OPEN_TAG,
+		'closeTag'    => T_CLOSE_TAG,
+		'fixVar'      => T_VAR,
+	);
+
 
 	function tokenize($code)
 	{
@@ -39,13 +37,13 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 
 		if (0 === strncmp($code, "\xEF\xBB\xBF", 3))
 		{
-			$this->register($this, 'stripBom');
+			$this->register('stripBom');
 		}
 
 		return parent::tokenize($code);
 	}
 
-	function getTokens($code)
+	protected function getTokens($code)
 	{
 		$code = parent::getTokens($code);
 
@@ -68,36 +66,36 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 		return $code;
 	}
 
-	function openEchoTag(&$token, $t)
+	protected function openEchoTag(&$token)
 	{
-		$t->code[--$t->position] = array(T_ECHO, 'echo');
-		$t->code[--$t->position] = array(T_OPEN_TAG, $token[1]);
+		$this->code[--$this->position] = array(T_ECHO, 'echo');
+		$this->code[--$this->position] = array(T_OPEN_TAG, $token[1]);
 
 		return false;
 	}
 
-	function openTag(&$token)
+	protected function openTag(&$token)
 	{
 		$token[1] = substr_count($token[1], "\n");
 		$token[1] = '<?php' . ($token[1] ? str_repeat("\n", $token[1]) : ' ');
 	}
 
-	function closeTag(&$token)
+	protected function closeTag(&$token)
 	{
 		$token[1] = substr_count($token[1], "\n");
 		$token[1] = str_repeat("\n", $token[1]) . '?'.'>';
 	}
 
-	function stripBom(&$token, $t)
+	protected function stripBom(&$token)
 	{
-		$t->unregister($this, __FUNCTION__);
+		$this->unregister(__FUNCTION__);
 		$token[1] = substr($token[1], 3);
 		if ('' === $token[1]) return false;
 	}
 
-	function fixVar($token, $t)
+	protected function fixVar(&$token)
 	{
-		$t->code[--$t->position] = array(T_PUBLIC, 'public');
+		$this->code[--$this->position] = array(T_PUBLIC, 'public');
 
 		return false;
 	}

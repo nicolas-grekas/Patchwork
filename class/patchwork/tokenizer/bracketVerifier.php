@@ -12,35 +12,21 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_bracketVerifier
+class patchwork_tokenizer_bracketVerifier extends patchwork_tokenizer
 {
+	public $bracketError = false;
+
 	protected
 
+	$bracket = array(),
 	$callbacks = array(
 		'pushBracket' => array('{', '[', '('),
 		'popBracket'  => array('}', ']', ')'),
-	);
-
-	static function register(patchwork_tokenizer $tokenizer, &$error)
-	{
-		$self = new self($error);
-		$tokenizer->register($self, $self->callbacks);
-	}
+	),
+	$shared = 'bracketError';
 
 
-	protected
-
-	$error,
-	$bracket = array();
-
-
-	function __construct(&$error)
-	{
-		$this->error =& $error;
-		$error = false;
-	}
-
-	function pushBracket($token)
+	protected function pushBracket(&$token)
 	{
 		switch ($token[0])
 		{
@@ -50,13 +36,13 @@ class patchwork_tokenizer_bracketVerifier
 		}
 	}
 
-	function popBracket($token, $t)
+	protected function popBracket(&$token)
 	{
 		if ($token[0] !== $last = array_pop($this->bracket))
 		{
-			$t->unregister($this, $this->callbacks);
+			$this->unregister();
 
-			$this->error = (object) array(
+			$this->bracketError = (object) array(
 				'unexpected' => $token[1],
 				'expecting' => $last,
 				'line' => $token[2]

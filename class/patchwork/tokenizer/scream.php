@@ -12,14 +12,11 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_scream
+class patchwork_tokenizer_scream extends patchwork_tokenizer
 {
-	static function register(patchwork_tokenizer $tokenizer)
-	{
-		$tokenizer->register(new self, array('cancelToken' => '@'));
-	}
+	protected $callbacks = array('cancelToken' => '@');
 
-	function cancelToken()
+	protected function cancelToken(&$token)
 	{
 		return false;
 	}
