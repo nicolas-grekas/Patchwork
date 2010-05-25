@@ -14,16 +14,13 @@
 
 class patchwork_tokenizer_bracketVerifier extends patchwork_tokenizer
 {
-	public $bracketError = false;
-
 	protected
 
 	$bracket = array(),
 	$callbacks = array(
 		'pushBracket' => array('{', '[', '('),
 		'popBracket'  => array('}', ']', ')'),
-	),
-	$shared = 'bracketError';
+	);
 
 
 	protected function pushBracket(&$token)
@@ -42,11 +39,9 @@ class patchwork_tokenizer_bracketVerifier extends patchwork_tokenizer
 		{
 			$this->unregister();
 
-			$this->bracketError = (object) array(
-				'unexpected' => $token[1],
-				'expecting' => $last,
-				'line' => $token[2]
-			);
+			$last && $last = ", expecting `{$last}'";
+
+			$this->setError("Syntax error, unexpected `{$token[0]}'{$last}", $token[2]);
 		}
 	}
 }

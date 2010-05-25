@@ -42,6 +42,7 @@ class patchwork_tokenizer
 		'tokens',
 		'prevType',
 		'anteType',
+		'tokenizerError',
 		'registryPosition',
 		'positionRegistry',
 		'tokenRegistry',
@@ -51,6 +52,7 @@ class patchwork_tokenizer
 
 	private
 
+	$tokenizerError = false,
 	$tokenizerOrder,
 	$registryPosition = 0,
 	$positionRegistry = array(0);
@@ -149,6 +151,16 @@ class patchwork_tokenizer
 				}
 			}
 		}
+	}
+
+	protected function setError($message, $line)
+	{
+		$this->tokenizerError || $this->tokenizerError = array($message, $line, get_class($this));
+	}
+
+	function getError()
+	{
+		return $this->tokenizerError;
 	}
 
 	function tokenize($code)
