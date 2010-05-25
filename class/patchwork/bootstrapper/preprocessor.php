@@ -56,13 +56,11 @@ class patchwork_bootstrapper_preprocessor__0
 		$tokenizer = new patchwork_tokenizer_staticState($tokenizer);
 		$code = $tokenizer->getStaticCode($code, __CLASS__);
 
-		if ($tokenizer->bracketError)
+		if ($tokenizer = $tokenizer->getError())
 		{
-			$e = $tokenizer->bracketError;
-			$e->expecting && $e->expecting = ", expecting `{$e->expecting}'";
-			$e->file = addslashes($this->file);
+			$tokenizer = addslashes("{$tokenizer[0]} in {$this->file} on line {$tokenizer[1]}");
 
-			$code .= "die('Patchwork error: Syntax error, unexpected `{$e->expected}'{$e->expecting} in {$e->file} on line {$e->line}');";
+			$code .= "die('Patchwork error: {$tokenizer}');";
 		}
 
 		return $code;
