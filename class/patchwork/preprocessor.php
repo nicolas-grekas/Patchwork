@@ -143,7 +143,6 @@ class patchwork_preprocessor__0
 
 			if (!preg_match('//u', $code)) patchwork_preprocessor::error("File encoding is not valid UTF-8.", $source, 0);
 
-			$preproc->antePreprocess($code);
 			$code =& $preproc->preprocess($code);
 
 			$tmp = PATCHWORK_PROJECT_PATH . '.~' . uniqid(mt_rand(), true);
@@ -178,18 +177,6 @@ class patchwork_preprocessor__0
 	function popFilter()
 	{
 		array_shift($this->tokenFilter);
-	}
-
-	protected function antePreprocess(&$code)
-	{
-		if (false !== strpos($code, "\r")) $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
-		if (false !== strpos($code,  '#>>>')) $code = preg_replace_callback("'^#>>>[^\n]*\n.*?^#<<<[^\n]*'ms", array($this, 'extractLF_callback'), $code);
-
-		if (DEBUG)
-		{
-			if (false !== strpos($code,  '#>')) $code = preg_replace("'^#>([^>\n].*)$'m", '$1', $code);
-			if (false !== strpos($code, '/*<')) $code = preg_replace("'^(/\*<[^\n]*)(\n.*?)^>\*/'ms", '$1*/$2', $code);
-		}
 	}
 
 	protected function &preprocess(&$tokens)

@@ -60,7 +60,8 @@ class patchwork_serverside extends patchwork
 
 		if (false === $args)
 		{
-#>			p::$binaryMode || p::touch('debugSync');
+/**/		if (DEBUG)
+				p::$binaryMode || p::touch('debugSync');
 
 			$reset_get = true;
 			$cache = '';

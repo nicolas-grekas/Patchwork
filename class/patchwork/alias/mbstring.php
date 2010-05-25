@@ -26,18 +26,6 @@ mb_strstr   - Finds first occurrence of a string within another
 
  */
 
-
-if (!function_exists('mb_stripos'))
-{
-	function mb_stripos( $haystack, $needle, $offset = 0,   $encoding = INF) {return patchwork_alias_mbstring::stripos( $haystack, $needle, $offset, $encoding);}
-	function mb_stristr( $haystack, $needle, $part = false, $encoding = INF) {return patchwork_alias_mbstring::stristr( $haystack, $needle, $part,   $encoding);}
-	function mb_strrchr( $haystack, $needle, $part = false, $encoding = INF) {return patchwork_alias_mbstring::strrchr( $haystack, $needle, $part,   $encoding);}
-	function mb_strrichr($haystack, $needle, $part = false, $encoding = INF) {return patchwork_alias_mbstring::strrichr($haystack, $needle, $part,   $encoding);}
-	function mb_strripos($haystack, $needle, $offset = 0,   $encoding = INF) {return patchwork_alias_mbstring::strripos($haystack, $needle, $offset, $encoding);}
-	function mb_strstr(  $haystack, $needle, $part = false, $encoding = INF) {return patchwork_alias_mbstring::strstr(  $haystack, $needle, $part,   $encoding);}
-}
-
-
 class patchwork_alias_mbstring
 {
 	static function stripos($haystack, $needle, $offset = 0, $encoding = INF)
@@ -107,10 +95,21 @@ class patchwork_alias_mbstring
 	}
 }
 
-#>>> For non patchwork code
-function mb_strrpos_500($haystack, $needle, $encoding = INF)
-{
-	INF === $encoding && $encoding = mb_internal_encoding();
-	return iconv_strrpos($haystack, $needle, $encoding);
-}
-#<<<
+/**/if (!function_exists('mb_stripos'))
+/**/{
+		function mb_stripos( $haystack, $needle, $offset = 0,   $encoding = INF) {return patchwork_alias_mbstring::stripos( $haystack, $needle, $offset, $encoding);}
+		function mb_stristr( $haystack, $needle, $part = false, $encoding = INF) {return patchwork_alias_mbstring::stristr( $haystack, $needle, $part,   $encoding);}
+		function mb_strrchr( $haystack, $needle, $part = false, $encoding = INF) {return patchwork_alias_mbstring::strrchr( $haystack, $needle, $part,   $encoding);}
+		function mb_strrichr($haystack, $needle, $part = false, $encoding = INF) {return patchwork_alias_mbstring::strrichr($haystack, $needle, $part,   $encoding);}
+		function mb_strripos($haystack, $needle, $offset = 0,   $encoding = INF) {return patchwork_alias_mbstring::strripos($haystack, $needle, $offset, $encoding);}
+		function mb_strstr(  $haystack, $needle, $part = false, $encoding = INF) {return patchwork_alias_mbstring::strstr(  $haystack, $needle, $part,   $encoding);}
+/**/}
+
+/**/if (!defined('patchwork'))
+/**/{
+		function mb_strrpos_500($haystack, $needle, $encoding = INF)
+		{
+			INF === $encoding && $encoding = mb_internal_encoding();
+			return iconv_strrpos($haystack, $needle, $encoding);
+		}
+/**/}
