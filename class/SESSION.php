@@ -86,7 +86,8 @@ class SESSION
 		{
 			self::regenerateId();
 
-#>			IS_POSTING || W("Trying to modify a variable which is member of SESSION::\$authVars during a GET request.");
+/**/		if (DEBUG)
+				IS_POSTING || W("Trying to modify a variable which is member of SESSION::\$authVars during a GET request.");
 		}
 	}
 

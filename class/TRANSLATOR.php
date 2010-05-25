@@ -27,7 +27,8 @@ class TRANSLATOR
 		$hash = md5($string);
 		$cache = '';
 
-#>		$usecache = false;
+/**/	if (DEBUG)
+			$usecache = false;
 
 		if ($usecache && $id = p::$agentClass)
 		{
@@ -81,7 +82,8 @@ class TRANSLATOR
 	function open() {}
 	function search($string, $lang)
 	{
-#>		return "‘{$string}’";
+/**/	if (DEBUG)
+			return "‘{$string}’";
 		return $string;
 	}
 	function close() {}

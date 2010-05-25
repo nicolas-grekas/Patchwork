@@ -62,13 +62,13 @@ class ptlCompiler_js extends ptlCompiler
 
 		if ($m = array_unique($this->modifiers))
 		{
-#>			if (DEBUG)
-#>			{
-#>				$m = implode('.', $m);
-#>				array_unshift($this->jscode, self::OP_PIPE, jsquote($m));
-#>			}
-#>			else
-#>			{
+/**/		if (DEBUG)
+/**/		{
+				$m = implode('.', $m);
+				array_unshift($this->jscode, self::OP_PIPE, jsquote($m));
+/**/		}
+/**/		else
+/**/		{
 				foreach ($m as $m)
 				{
 					$code .= 'w.P$' . $m . '=';
@@ -88,7 +88,7 @@ class ptlCompiler_js extends ptlCompiler
 						$code .= "function(){return'؟'};";
 					}
 				}
-#>			}
+/**/		}
 		}
 
 		return "(function(w){{$code}return [" . implode(',', $this->jscode) . "]})(window)";

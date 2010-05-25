@@ -83,14 +83,14 @@ class patchwork_static extends patchwork
 		{
 			echo 'w.P$', $pipe, '=';
 
-#>			if (DEBUG)
-#>			{
-#>				ob_start();
-#>				call_user_func(array('pipe_' . $pipe, 'js'));
-#>				echo trim(ob_get_clean(), ';');
-#>			}
-#>			else
-#>			{
+/**/		if (DEBUG)
+/**/		{
+				ob_start();
+				call_user_func(array('pipe_' . $pipe, 'js'));
+				echo trim(ob_get_clean(), ';');
+/**/		}
+/**/		else
+/**/		{
 				$cpipe = p::getContextualCachePath('pipe/' . $pipe, 'js');
 				$readHandle = true;
 				if ($h = p::fopenX($cpipe, $readHandle))
@@ -111,7 +111,7 @@ class patchwork_static extends patchwork
 					fpassthru($readHandle);
 					fclose($readHandle);
 				}
-#>			}
+/**/		}
 
 			echo ';';
 		}

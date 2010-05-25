@@ -94,13 +94,14 @@ function DB($dsn = 0)
 
 function jsquote($a)
 {
-/*<
-	if (is_array($a))
-	{
-		W('jsquote error: can not quote an array');
-		$a = '';
-	}
->*/
+/**/if (DEBUG)
+/**/{
+		if (is_array($a))
+		{
+			W('jsquote error: can not quote an array');
+			$a = '';
+		}
+/**/}
 
 	if (is_object($a)) $a = $a->__toString();
 	if ((string) $a === (string) ($a-0)) return $a-0;
@@ -243,7 +244,8 @@ class patchwork
 			}
 		}
 
-#>		patchwork_debugger::execute();
+/**/	if (DEBUG)
+			patchwork_debugger::execute();
 
 		if (!$CONFIG['clientside']) unset($_COOKIE['JS']);
 		else if ('flipside' === self::$requestMode)
@@ -311,14 +313,15 @@ class patchwork
 
 	static function start()
 	{
-/*<
-		self::log(
-			'<a href="' . htmlspecialchars($_SERVER['REQUEST_URI']) . '" target="_blank">'
-			. htmlspecialchars(rawurldecode(preg_replace("'&v\\\$=[^&]*'", '', $_SERVER['REQUEST_URI'])))
-			. '</a>'
-		);
-		register_shutdown_function(array(__CLASS__, 'log'), '', true);
->*/
+/**/	if (DEBUG)
+/**/	{
+			self::log(
+				'<a href="' . htmlspecialchars($_SERVER['REQUEST_URI']) . '" target="_blank">'
+				. htmlspecialchars(rawurldecode(preg_replace("'&v\\\$=[^&]*'", '', $_SERVER['REQUEST_URI'])))
+				. '</a>'
+			);
+			register_shutdown_function(array(__CLASS__, 'log'), '', true);
+/**/	}
 
 
 		// Cache synchronization
@@ -421,23 +424,24 @@ class patchwork
 
 		self::$binaryMode = 0 !== strncasecmp(constant("$agent::contentType"), 'text/html', 9);
 
-/*<
-		if (PATCHWORK_SYNC_CACHE && !self::$binaryMode)
-		{
-			patchwork_debugger::purgeZcache();
-
-			if (!IS_POSTING)
+/**/	if (DEBUG)
+/**/	{
+			if (PATCHWORK_SYNC_CACHE && !self::$binaryMode)
 			{
-				self::setMaxage(0);
-				self::setPrivate();
+				patchwork_debugger::purgeZcache();
 
-				header('Refresh: 0');
+				if (!IS_POSTING)
+				{
+					self::setMaxage(0);
+					self::setPrivate();
 
-				echo '<script>location.reload()</script>';
-				return;
+					header('Refresh: 0');
+
+					echo '<script>location.reload()</script>';
+					return;
+				}
 			}
-		}
->*/
+/**/	}
 
 		// load agent
 		if (IS_POSTING || self::$binaryMode || empty($_COOKIE['JS']))
@@ -575,10 +579,13 @@ class patchwork
 			if (!isset(self::$antiCSRFtoken))
 			{
 				if (IS_POSTING && (isset($_POST['T$']) || !empty($_COOKIE)))
-				{
-#>					if (DEBUG) W('Anti CSRF alert: in non-DEBUG mode, $_POST and $_FILES would have been erased.');
-#>					else
-#>					{
+/**/			{
+/**/				if (DEBUG)
+/**/				{
+						W('Anti CSRF alert: in non-DEBUG mode, $_POST and $_FILES would have been erased.');
+/**/				}
+/**/				else
+/**/				{
 						$GLOBALS['_POST_BACKUP'] = $_POST;
 						$_POST = array();
 
@@ -586,7 +593,7 @@ class patchwork
 						$_FILES = array();
 
 						patchwork_antiCSRF::postAlert();
-#>					}
+/**/				}
 				}
 
 				unset($_COOKIE['T$']);
@@ -817,7 +824,14 @@ class patchwork
 
 				if ($b != $a && !self::$isGroupStage)
 				{
-#>					W('Misconception: patchwork::setGroup() is called in ' . self::$agentClass . '->compose( ) rather than in ' . self::$agentClass . '->control(). Cache is now disabled for this agent.');
+/**/				if (DEBUG)
+/**/				{
+						W(
+							'Misconception: patchwork::setGroup() is called in '
+							. self::$agentClass . '->compose() rather than in '
+							. self::$agentClass . '->control(). Cache is now disabled for this agent.'
+						);
+/**/				}
 
 					$a = array('private');
 				}
@@ -959,7 +973,8 @@ class patchwork
 				}
 			}
 
-#>			E("patchwork::touch('$message'): $i file(s) deleted.");
+/**/		if (DEBUG)
+				E("patchwork::touch('$message'): $i file(s) deleted.");
 		}
 	}
 
@@ -1233,18 +1248,18 @@ class patchwork
 			$cache = stream_get_contents($readHandle);
 			fclose($readHandle);
 
-#>			if (DEBUG)
-#>			{
-#>				$args = get_class_vars($agent);
-#>				$args =& $args['get'];
-#>
-#>				is_array($args) || $args = (array) $args;
-#>				$args && array_walk($args, array('self', 'stripArgs'));
-#>			}
-#>			else
-#>			{
+/**/		if (DEBUG)
+/**/		{
+				$args = get_class_vars($agent);
+				$args =& $args['get'];
+
+				is_array($args) || $args = (array) $args;
+				$args && array_walk($args, array('self', 'stripArgs'));
+/**/		}
+/**/		else
+/**/		{
 				$args = unserialize(substr($cache, 1));
-#>			}
+/**/		}
 
 			if (!isset($cache[0]) || $cache[0]) $args[] = 'T$';
 		}
@@ -1355,34 +1370,37 @@ class patchwork
 			if (PHP_OUTPUT_HANDLER_START & $mode)
 			{
 				$lead = '';
-/*<
-				if ((!PATCHWORK_SYNC_CACHE || IS_POSTING) && !self::$binaryMode && 's' !== self::$requestMode)
-				{
-					$buffer = false !== strpos($buffer, '<head')
-						? preg_replace("'<head[^>]*>'", '$0' . patchwork_debugger::getProlog(), $buffer)
-						: patchwork_debugger::getProlog() . $buffer;
-				}
->*/
+
+/**/			if (DEBUG)
+/**/			{
+					if ((!PATCHWORK_SYNC_CACHE || IS_POSTING) && !self::$binaryMode && 's' !== self::$requestMode)
+					{
+						$buffer = false !== strpos($buffer, '<head')
+							? preg_replace("'<head[^>]*>'", '$0' . patchwork_debugger::getProlog(), $buffer)
+							: patchwork_debugger::getProlog() . $buffer;
+					}
+/**/			}
 			}
 
 			$tail = '';
 
 			if (PHP_OUTPUT_HANDLER_END & $mode)
 			{
-/*<
-				if ((!PATCHWORK_SYNC_CACHE || IS_POSTING) && !self::$binaryMode && 's' !== self::$requestMode)
-				{
-					if (false !== strpos($buffer, '</body'))
+/**/			if (DEBUG)
+/**/			{
+					if ((!PATCHWORK_SYNC_CACHE || IS_POSTING) && !self::$binaryMode && 's' !== self::$requestMode)
 					{
-						$buffer = str_replace('</body', patchwork_debugger::getConclusion() . '</body', $buffer);
+						if (false !== strpos($buffer, '</body'))
+						{
+							$buffer = str_replace('</body', patchwork_debugger::getConclusion() . '</body', $buffer);
+						}
+						else if (false !== strpos($buffer, '</html'))
+						{
+							$buffer = str_replace('</html', '<body>' . patchwork_debugger::getConclusion() . '</body></html', $buffer);
+						}
+						else $buffer .= patchwork_debugger::getConclusion();
 					}
-					else if (false !== strpos($buffer, '</html'))
-					{
-						$buffer = str_replace('</html', '<body>' . patchwork_debugger::getConclusion() . '</body></html', $buffer);
-					}
-					else $buffer .= patchwork_debugger::getConclusion();
-				}
->*/
+/**/			}
 			}
 			else if (false !== $a = strrpos($buffer, '<'))
 			{

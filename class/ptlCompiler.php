@@ -218,7 +218,8 @@ abstract class ptlCompiler
 
 	protected function INLINEcallback($m)
 	{
-#>		p::watch('debugSync');
+/**/	if (DEBUG)
+			p::watch('debugSync');
 
 		$a = isset($m[2]) ? substr($m[2], 1) : PATCHWORK_PATH_LEVEL;
 		$a = $a < 0 ? end($this->loadedStack) - $a : (PATCHWORK_PATH_LEVEL - $a);
@@ -604,7 +605,8 @@ abstract class ptlCompiler
 				if ($translate)
 				{
 					$a = TRANSLATOR::get($a, p::__LANG__(), false);
-#>					p::watch('debugSync');
+/**/				if (DEBUG)
+						p::watch('debugSync');
 				}
 				else
 				{
@@ -617,7 +619,8 @@ abstract class ptlCompiler
 					if (!$this->concatLast)
 					{
 						$this->concat[0] = TRANSLATOR::get($this->concat[0], p::__LANG__(), false);
-#>						p::watch('debugSync');
+/**/					if (DEBUG)
+							p::watch('debugSync');
 					}
 
 					for ($i = 0; $i<=$this->concatLast; $i+=2)

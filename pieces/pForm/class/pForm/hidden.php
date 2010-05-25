@@ -130,7 +130,8 @@ class pForm_hidden extends loop_agentWrapper
 
 			if (!$addedElt)
 			{
-#>				W("Form's element does not exists: {$name}");
+/**/			if (DEBUG)
+					W("Form's element does not exists: {$name}");
 				continue;
 			}
 
@@ -202,14 +203,15 @@ class pForm_hidden extends loop_agentWrapper
 
 		if ($onempty && '' === $this->status && !$this->readonly)
 		{
-/*<
-			if (  $this->isfile
-				? !isset($this->form->filesValues[$this->name])
-				: !isset($this->form->rawValues[$this->name]))
-			{
-				W("Form's input data do not even mention the [{$this->name}] mandatory field .\nMaybe it is not present in the definition of the form ?");
-			}
->*/
+/**/		if (DEBUG)
+/**/		{
+				if (  $this->isfile
+					? !isset($this->form->filesValues[$this->name])
+					: !isset($this->form->rawValues[$this->name]))
+				{
+					W("Form's input data do not even mention the [{$this->name}] mandatory field .\nMaybe it is not present in the definition of the form ?");
+				}
+/**/		}
 
 			return $this->errormsg = $onempty;
 		}
@@ -219,13 +221,14 @@ class pForm_hidden extends loop_agentWrapper
 			else if ($this->validmsg) $onerror = $this->validmsg;
 			else
 			{
-/*<
-				W('Input validation error in ' . get_class($this) . ' element: ' . print_r(array(
-					'name' => $this->name,
-					'value' => $this->value,
-					'valid' => $this->valid, $this->validArgs
-				), true));
->*/
+/**/			if (DEBUG)
+/**/			{
+					W('Input validation error in ' . get_class($this) . ' element: ' . print_r(array(
+						'name' => $this->name,
+						'value' => $this->value,
+						'valid' => $this->valid, $this->validArgs
+					), true));
+/**/			}
 
 				if ($this->isfile && isset($this->form->filesValues[$this->name]['error']))
 				{

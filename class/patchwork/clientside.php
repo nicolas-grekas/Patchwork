@@ -16,7 +16,8 @@ class patchwork_clientside extends patchwork
 {
 	static function loadAgent($agent)
 	{
-#>		p::touch('debugSync');
+/**/	if (DEBUG)
+			p::touch('debugSync');
 
 		p::setMaxage(-1);
 		p::setPrivate();

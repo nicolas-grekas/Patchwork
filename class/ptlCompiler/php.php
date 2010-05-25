@@ -82,15 +82,16 @@ class ptlCompiler_php extends ptlCompiler
 			$comma = ',';
 		}
 
-/*<
-		if (!strncmp($inc, '(isset(', 7))
-		{
-			$k = substr($inc, 7, strpos($inc, ')', 7) - 7);
-			$this->pushCode("isset($k)?patchwork_serverside::loadAgent($inc,array($a)," . ($is_exo ? 1 : 0) . "):trigger_error('$k is undefined in AGENT name');");
+/**/	if (DEBUG)
+/**/	{
+			if (!strncmp($inc, '(isset(', 7))
+			{
+				$k = substr($inc, 7, strpos($inc, ')', 7) - 7);
+				$this->pushCode("isset($k)?patchwork_serverside::loadAgent($inc,array($a)," . ($is_exo ? 1 : 0) . "):trigger_error('$k is undefined in AGENT name');");
 
-			return true;
-		}
->*/
+				return true;
+			}
+/**/	}
 
 		$this->pushCode("patchwork_serverside::loadAgent($inc,array($a)," . ($is_exo ? 1 : 0) . ");");
 
