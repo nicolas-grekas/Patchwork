@@ -20,13 +20,17 @@ defined('T_NS_C')         || patchwork_tokenizer::defineNewToken('T_NS_C');
 defined('T_NAMESPACE')    || patchwork_tokenizer::defineNewToken('T_NAMESPACE');
 defined('T_NS_SEPARATOR') || patchwork_tokenizer::defineNewToken('T_NS_SEPARATOR');
 
-// New token to match T_CURLY_OPEN and T_DOLLAR_OPEN_CURLY_BRACES
+// Match closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
 patchwork_tokenizer::defineNewToken('T_CURLY_CLOSE');
+
+// Sub-token for multilines T_WHITESPACE, T_COMMENT and T_DOC_COMMENT
+patchwork_tokenizer::defineNewToken('T_MULTILINE');
 
 class patchwork_tokenizer
 {
 	protected
 
+	$line = 0,
 	$code,
 	$position,
 	$tokens,
@@ -37,6 +41,7 @@ class patchwork_tokenizer
 	$callbackRegistry = array(),
 	$parent,
 	$shared = array(
+		'line',
 		'code',
 		'position',
 		'tokens',
@@ -118,7 +123,7 @@ class patchwork_tokenizer
 			else foreach ((array) $token as $s => $token)
 			{
 				isset($sort[$token]) || $sort[$token] =& $this->tokenRegistry[$token];
-				$this->tokenRegistry[$token][++$this->registryPosition] = array($this, $method, is_string($s) ? $s : '');
+				$this->tokenRegistry[$token][++$this->registryPosition] = array($this, $method, $s < 0 ? $s : 0);
 			}
 		}
 
@@ -144,7 +149,7 @@ class patchwork_tokenizer
 				if (isset($this->tokenRegistry[$token]))
 				{
 					foreach ($this->tokenRegistry[$token] as $k => $v)
-						if (array($this, $method, is_string($s) ? $s : '') === $v)
+						if (array($this, $method, $s < 0 ? $s : 0) === $v)
 							unset($this->tokenRegistry[$token][$k]);
 
 					if (!$this->tokenRegistry[$token]) unset($this->tokenRegistry[$token]);
@@ -153,9 +158,12 @@ class patchwork_tokenizer
 		}
 	}
 
-	protected function setError($message, $line)
+	protected function setError($message)
 	{
-		$this->tokenizerError || $this->tokenizerError = array($message, $line, get_class($this));
+		if (!$this->tokenizerError)
+		{
+			$this->tokenizerError = array($message, (int) $this->line, get_class($this));
+		}
 	}
 
 	function getError()
@@ -174,14 +182,15 @@ class patchwork_tokenizer
 
 		$this->code = $this->getTokens($code);
 
+		$line     =& $this->line;
 		$code     =& $this->code;
 		$i        =& $this->position;
 		$tokens   =& $this->tokens;
 		$prevType =& $this->prevType;
 		$anteType =& $this->anteType;
 
-		$i      = 0;
-		$tokens = array();
+		$i        = 0;
+		$tokens   = array();
 		$prevType = false;
 		$anteType = false;
 
@@ -198,8 +207,6 @@ class patchwork_tokenizer
 
 			if (isset($token[1]))
 			{
-				$token[2] = $line;
-
 				switch ($token[0])
 				{
 				case T_OPEN_TAG:
@@ -220,7 +227,7 @@ class patchwork_tokenizer
 			}
 			else
 			{
-				$token = array($token, $token, $line);
+				$token = array($token, $token);
 
 				switch ($token[0])
 				{
@@ -234,7 +241,8 @@ class patchwork_tokenizer
 				}
 			}
 
-			'' !== $deco && $token[3] = $deco;
+			if ('' !== $deco) $token[2] = $deco;
+			else unset($token[2]);
 
 			if ($cRegistry || isset($tRegistry[$token[0]]))
 			{
@@ -251,14 +259,14 @@ class patchwork_tokenizer
 				foreach ($t as $t)
 				{
 					if (
-						('' === $t[2] || false !== stripos($token[1], $t[2]))
+						(0 === $t[2] || empty($token[3]) || $token[3] === $t[2])
 						&& false === $t[0]->{$t[1]}($token)
 					) continue 2;
 				}
 			}
 
 			$tokens[] =& $token;
-			$lines += $lines;
+			$line += $lines;
 			$deco = '';
 
 			$anteType = $prevType;
@@ -274,15 +282,16 @@ class patchwork_tokenizer
 				unset($code[$i++]);
 
 				$lines = substr_count($token[1], "\n");
+				$lines && $token[3] = T_MULTILINE;
 
 				if (isset($tRegistry[$token[0]]))
 				{
-					$token[3] = $deco;
+					$token[2] = $deco;
 
 					foreach ($tRegistry[$token[0]] as $t)
 					{
 						if (
-							('' === $t[2] || false !== stripos($token[1], $t[2]))
+							(0 === $t[2] || empty($token[3]) || $token[3] === $t[2])
 							&& false === $t[0]->{$t[1]}($token)
 						) continue 2;
 					}
@@ -294,10 +303,10 @@ class patchwork_tokenizer
 			}
 		}
 
-		$line = $tokens;
+		$deco = $tokens;
 		$tokens = array();
 
-		return $line;
+		return $deco;
 	}
 
 	protected function getTokens($code)
@@ -321,7 +330,7 @@ class patchwork_tokenizer
 
 		for ($j = $i; $j < $count; ++$j)
 		{
-			list($type, $code, , $deco) = $tokens[$j] + array(3 => '');
+			list($type, $code, $deco) = $tokens[$j] + array(2 => '');
 
 			switch ($type)
 			{
