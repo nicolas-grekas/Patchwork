@@ -345,7 +345,7 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 /**/				{
 /**/					if (extension_loaded('iconv') && '§' === @iconv('UTF-8', 'UTF-8//IGNORE', "§\xE0"))
 /**/					{
-							$v = iconv('UTF-8', 'UTF-8//IGNORE', $v);
+							$v = @iconv('UTF-8', 'UTF-8//IGNORE', $v);
 /**/					}
 /**/					else
 /**/					{
