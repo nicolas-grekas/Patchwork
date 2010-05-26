@@ -131,7 +131,7 @@ SET $INPUT
 			ELSEIF $_groupOff
 				--></optgroup><!--
 			ELSE
-				--><option {$|htmlArgs:'caption':'checked'}>{$caption}</option><!--
+				--><option value="{$value}" {$|htmlArgs:'value':'caption':'checked'}>{$caption}</option><!--
 			END:IF
 		END:LOOP
 
