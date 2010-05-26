@@ -106,11 +106,11 @@ function jsquote($a)
 
 	$a = (string) $a;
 
-	if (strtr($a, "\\'\r\n<\x85\xA8\xA9", '--------') !== $a)
+	if (strtr($a, "\\'\r\n<\xA8\xA9", '--------') !== $a)
 	{
 		static $map = array(
-			array('\\'  ,   "'", "\r\n", "\r", "\n", '</'  , "\xC2\x85", "\xE2\x80\xA8", "\xE2\x80\xA9"),
-			array('\\\\', "\\'", '\n'  , '\n', '\n', '<\\/', '\u0085'  , '\u2028'      , '\u2029'      ),
+			array('\\'  ,   "'", "\r\n", "\r", "\n", '</'  , "\xE2\x80\xA8", "\xE2\x80\xA9"),
+			array('\\\\', "\\'", '\n'  , '\n', '\n', '<\\/', '\u2028'      , '\u2029'      ),
 		);
 
 		$a = str_replace($map[0], $map[1], $a);
