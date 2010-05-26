@@ -19,17 +19,17 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 	$stateCallbacks = array(
 		0 => array(),
 		1 => array(
-			'tagEOState1' => array("\n" => T_WHITESPACE),
+			'tagEOState1' => array(T_MULTILINE => T_WHITESPACE),
 		),
 		2 => array(
-			'tagEOState2'     => array('/*<*/' => T_COMMENT, '/**/' => T_COMMENT),
+			'tagEOState2'     => T_COMMENT,
 			'tagEOExpression' => array(T_CLOSE_TAG, ';'),
 		),
 		3 => array(
-			'tagEOState3' => array('/*>*/' => T_COMMENT),
+			'tagEOState3' => T_COMMENT,
 		),
 	),
-	$state = 0,
+	$state = 2,
 	$transition = array();
 
 
@@ -37,7 +37,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 	{
 		parent::__construct($parent);
 
-		$this->setState(2, 1);
+		$this->register($this->stateCallbacks[2]);
 	}
 
 	function getStaticCode($code, $class)
@@ -75,7 +75,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 				ob_start();
 			}
 
-			echo isset($code[$i][3]) ? $code[$i][3] : '', $code[$i][1];
+			echo isset($code[$i][2]) ? $code[$i][2] : '', $code[$i][1];
 
 			unset($code[$i]);
 		}
@@ -90,9 +90,9 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 		return ob_get_clean();
 	}
 
-	protected function setState($state, $line)
+	protected function setState($state)
 	{
-		$this->transition[count($this->tokens)] = array($state, $line);
+		$this->transition[count($this->tokens)] = array($state, $this->line);
 
 		if ($this->state === 2) $this->unregister($this->stateCallbacks[1]);
 		if ($this->state === $state) return;
@@ -107,11 +107,13 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 	{
 		if ('/*<*/' === $token[1])
 		{
-			$this->setState(3, $token[2]);
+			$this->setState(3);
+			return false;
 		}
-		else if ('/**/' === $token[1] && "\n" === substr($token[3], -1))
+		else if ('/**/' === $token[1] && "\n" === substr($token[2], -1))
 		{
-			$this->setState(1, $token[2]);
+			$this->setState(1);
+			return false;
 		}
 	}
 
@@ -125,7 +127,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 	{
 		if (false !== strpos($token[1], "\n"))
 		{
-			$this->setState(2, $token[2]);
+			$this->setState(2);
 		}
 	}
 
@@ -133,7 +135,8 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 	{
 		if ('/*>*/' === $token[1])
 		{
-			$this->setState(2, $token[2]);
+			$this->setState(2);
+			return false;
 		}
 	}
 }

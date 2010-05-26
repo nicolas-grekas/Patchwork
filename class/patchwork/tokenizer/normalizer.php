@@ -27,7 +27,7 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 	);
 
 
-	function tokenize($code)
+	function tokenize($code, $verify_utf8 = true)
 	{
 		if (false !== strpos($code, "\r"))
 		{
@@ -35,10 +35,19 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 			$code = strtr($code, "\r", "\n");
 		}
 
-		if (0 === strncmp($code, "\xEF\xBB\xBF", 3))
+		if ($verify_utf8)
 		{
-			$this->register('stripBom');
+			if (!preg_match('//u', $code))
+			{
+				$this->setError("File encoding is not valid UTF-8", 0);
+			}
+
+			if (0 === strncmp($code, "\xEF\xBB\xBF", 3))
+			{
+				$this->register('stripBom');
+			}
 		}
+
 
 		return parent::tokenize($code);
 	}

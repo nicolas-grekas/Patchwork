@@ -58,7 +58,7 @@ class patchwork_bootstrapper_preprocessor__0
 
 		if ($tokenizer = $tokenizer->getError())
 		{
-			$tokenizer = addslashes("{$tokenizer[0]} in {$this->file} on line {$tokenizer[1]}");
+			$tokenizer = addslashes("{$tokenizer[0]} in {$this->file}") . ($tokenizer[1] ? " on line {$tokenizer[1]}" : '');
 
 			$code .= "die('Patchwork error: {$tokenizer}');";
 		}

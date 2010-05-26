@@ -11,6 +11,16 @@
  *
  ***************************************************************************/
 
+// TODO tokenizer refactorize:
+// - autoload marker
+// - construct static
+// - construct PHP4
+// - app. inhertiance : intercept includes + patchworkPath() fourth arg
+// - class superpositioner : intercept class_exists / interface_exists
+// - function and class aliasing
+// - translator pre-caching
+// - constant inlining
+
 
 require_once patchworkPath('class/patchwork/tokenizer.php');
 require_once patchworkPath('class/patchwork/tokenizer/normalizer.php');
@@ -19,6 +29,9 @@ require_once patchworkPath('class/patchwork/tokenizer/file.php');
 require_once patchworkPath('class/patchwork/tokenizer/className.php');
 require_once patchworkPath('class/patchwork/tokenizer/scoper.php');
 require_once patchworkPath('class/patchwork/tokenizer/globalizer.php');
+require_once patchworkPath('class/patchwork/tokenizer/stringTagger.php');
+require_once patchworkPath('class/patchwork/tokenizer/classInfo.php');
+require_once patchworkPath('class/patchwork/tokenizer/superPositioner.php');
 
 
 class patchwork_preprocessor__0
@@ -140,9 +153,6 @@ class patchwork_preprocessor__0
 			);
 
 			$code = file_get_contents($source);
-
-			if (!preg_match('//u', $code)) patchwork_preprocessor::error("File encoding is not valid UTF-8.", $source, 0);
-
 			$code =& $preproc->preprocess($code);
 
 			$tmp = PATCHWORK_PROJECT_PATH . '.~' . uniqid(mt_rand(), true);
@@ -181,21 +191,29 @@ class patchwork_preprocessor__0
 
 	protected function &preprocess(&$tokens)
 	{
-		$source = $this->source;
+		$T = PATCHWORK_PATH_TOKEN;
+
 		$level  = $this->level;
 		$class  = $this->class;
 		$is_top = $this->isTop;
-		$line   =& $this->line;
 
 		$tokenizer = new patchwork_tokenizer_normalizer;
-		new patchwork_tokenizer_file($tokenizer, $source);
+		new patchwork_tokenizer_file($tokenizer, $this->source);
 		self::$scream && new patchwork_tokenizer_scream($tokenizer);
 		0 <= $level && $class && new patchwork_tokenizer_className($tokenizer, $class);
 		$tokenizer = new patchwork_tokenizer_scoper($tokenizer);
-		new patchwork_tokenizer_globalizer($tokenizer, '$CONFIG');
+		0 <= $level && new patchwork_tokenizer_globalizer($tokenizer, '$CONFIG');
+		new patchwork_tokenizer_stringTagger($tokenizer);
+		$tokenizer = new patchwork_tokenizer_classInfo($tokenizer);
+		$tokenizer = new patchwork_tokenizer_superPositioner($tokenizer, $level, $is_top ? '$c' . $T : false);
 
 		$tokens = $tokenizer->tokenize($tokens);
 		$count = count($tokens);
+
+		if ($tokenizer = $tokenizer->getError())
+		{
+			patchwork_error::handle(E_USER_ERROR, $tokenizer[0], $this->source, $tokenizer[1]);
+		}
 
 		// Add dummy tokens to avoid checking for edges
 		$tokens[] = array(false);
@@ -209,7 +227,6 @@ class patchwork_preprocessor__0
 		$new_type = array();
 		$new_code_length = 0;
 
-		$T = PATCHWORK_PATH_TOKEN;
 		$opentag_marker = "if(!isset(\$a{$T})){global " . substr($this->marker[1], 7) . "}isset(\$e{$T})||\$e{$T}=false;";
 
 		$curly_level = 0;
@@ -223,7 +240,7 @@ class patchwork_preprocessor__0
 
 		while ($i < $count)
 		{
-			list($type, $code, $line, $deco) = $tokens[$i] + array(3 => '');
+			list($type, $code) = $token = $tokens[$i] + array(2 => '', 0);
 
 			// Reduce memory usage
 			unset($tokens[$i++]);
@@ -235,23 +252,6 @@ class patchwork_preprocessor__0
 				{
 					$code .= $opentag_marker;
 					$opentag_marker = '';
-				}
-				break;
-
-			case T_CLASS_C:
-				if ($class_pool)
-				{
-					$code = "'" . end($class_pool)->classname . "'";
-					$type = T_CONSTANT_ENCAPSED_STRING;
-				}
-				break;
-
-			case T_METHOD_C:
-				if ($class_pool)
-				{
-					// XXX PB WITH STATIC INSTRUCTIONS !!!
-					$code = "('" . end($class_pool)->classname . "::'.__FUNCTION__)";
-					$type = T_CONSTANT_ENCAPSED_STRING;
 				}
 				break;
 
@@ -305,48 +305,34 @@ class patchwork_preprocessor__0
 			case T_CLASS:
 				$b = $c = '';
 
-				$final = T_FINAL === $prevType;
-
 				if (T_STRING !== $tokens[$i][0]) break;
 
-				$code .= $tokens[$i][3];
-				$b = $c = $tokens[$i][1];
+				$code .= $tokens[$i][2] . $tokens[$i][1];
 				unset($tokens[$i++]);
 
-				if ($final) $code .= $c;
-				else $code .= $b = $c . '__' . (0<=$level ? $level : '00');
-
 				$class_pool[$curly_level] = (object) array(
-					'classname'   => $c,
-					'classkey'    => strtolower($b),
-					'is_child'    => false,
-					'is_final'    => $final,
-					'is_abstract' => T_ABSTRACT === $prevType,
+					'classname'   => $token['className'],
+					'classkey'    => $token['classKey'],
+					'is_child'    => $token['classExtends'],
+					'is_final'    => $token['classIsFinal'],
+					'is_abstract' => $token['classIsAbstract'],
 					'add_php5_construct'  => T_CLASS === $type && 0 > $level,
 					'add_constructStatic' => 0,
 					'add_destructStatic'  => 0,
 					'construct_source'    => '',
 				);
 
-				if (T_ABSTRACT === $prevType)
-				{
-					$j = $new_code_length - 1;
-					$new_code[$j] = "\$GLOBALS['patchwork_abstract']['{$class_pool[$curly_level]->classkey}']=1;" . $new_code[$j];
-				}
+				self::$inlineClass[strtolower($token['className'])] = 1;
 
-				self::$inlineClass[strtolower($c)] = 1;
-
-				if ($c && T_EXTENDS === $tokens[$i][0])
+				if (T_EXTENDS === $tokens[$i][0])
 				{
-					$code .= $tokens[$i][3] . $tokens[$i][1];
+					$code .= $tokens[$i][2] . $tokens[$i][1];
 					unset($tokens[$i++]);
 
 					if (T_STRING === $tokens[$i][0])
 					{
-						$code .= $tokens[$i][3];
-						$class_pool[$curly_level]->is_child = $tokens[$i][1];
-						$c = 0 <= $level && 'self' === $tokens[$i][1] ? $c . '__' . ($level ? $level - 1 : '00') : $tokens[$i][1];
-						$code .= $c;
+						$code .= $tokens[$i][2];
+						$code .= $c = $tokens[$i][1];
 						unset($tokens[$i++]);
 
 						$c = strtolower($c);
@@ -366,24 +352,6 @@ class patchwork_preprocessor__0
 					{
 						$class_pool[$curly_level]->add_constructStatic = 2;
 						$class_pool[$curly_level]->add_destructStatic  = 2;
-					}
-				}
-
-				break;
-
-			case T_PRIVATE:
-				// "private static" methods or properties are problematic when considering class superposition.
-				// To work around this, we change them to "protected static", and warn about it
-				// (except for files in the include path). Side effects exist but should be rare.
-				if (isset($class_pool[$curly_level-1]) && !$class_pool[$curly_level-1]->is_final)
-				{
-					// Look backward and forward for the "static" keyword
-					if (T_STATIC === $prevType || T_STATIC === $tokens[$i][0])
-					{
-						$code = 'protected';
-						$type = T_PROTECTED;
-
-						if (0 <= $level) patchwork_preprocessor::error("Private static methods or properties are banned, please use protected static ones instead.", $source, $line);
 					}
 				}
 
@@ -487,12 +455,12 @@ class patchwork_preprocessor__0
 				break;
 
 			case T_STRING:
-				if (T_DOUBLE_COLON === $prevType || T_OBJECT_OPERATOR === $prevType) break;
-
 				$type = strtolower($code);
 
-				if (T_FUNCTION === $prevType || ('&' === $prevType && T_FUNCTION === $antePrevType))
+				switch ($token[3])
 				{
+				case T_USE_METHOD: break 2;
+				case T_NAME_FUNCTION:
 					if (isset($class_pool[$curly_level-1]) && $c = $class_pool[$curly_level-1])
 					{
 						switch ($type)
@@ -508,15 +476,12 @@ class patchwork_preprocessor__0
 					}
 
 					break;
-				}
 
-				if (T_NEW === $prevType || T_DOUBLE_COLON === $tokens[$i][0])
-				{
-					if ('self' === $type) $class_pool && $code = end($class_pool)->classname; // Replace every self::* by __CLASS__::*
-					else empty(self::$classAlias[$type]) || $code = self::$classAlias[$type];
-				}
-				else if ('(' === $tokens[$i][0])
-				{
+				case T_USE_CLASS:
+					empty(self::$classAlias[$type]) || $code = self::$classAlias[$type];
+					break;
+
+				case T_USE_FUNCTION:
 					if (isset(self::$functionAlias[$type]))
 					{
 						$j = self::$functionAlias[$type];
@@ -527,11 +492,11 @@ class patchwork_preprocessor__0
 
 							if (2 === count($j))
 							{
-								$tokens[--$i] = array(T_STRING,       $j[1], $line, '');
-								$tokens[--$i] = array(T_DOUBLE_COLON, '::' , $line, '');
-								$tokens[--$i] = array(T_STRING,       $j[0], $line, $deco);
+								$tokens[--$i] = array(T_STRING, $j[1], '', T_USE_METHOD);
+								$tokens[--$i] = array(T_DOUBLE_COLON, '::');
+								$tokens[--$i] = array(T_STRING, $j[0], $token[2], T_USE_CLASS);
 
-								continue 2;
+								continue 3;
 							}
 							else
 							{
@@ -556,7 +521,7 @@ class patchwork_preprocessor__0
 
 							if (null === $j)
 							{
-								new patchwork_preprocessor_t($this);
+								// new patchwork_preprocessor_t($this); // TODO: update then re-enable me
 							}
 							else if ($_SERVER['PATCHWORK_LANG'])
 							{
@@ -589,13 +554,17 @@ class patchwork_preprocessor__0
 						// For files in the include_path, always set the 2nd arg of class|interface_exists() to true
 						if (0 > $level && in_array($type, array('interface_exists', 'class_exists'))) new patchwork_preprocessor_classExists($this);
 					}
-				}
-				else if (isset(self::$constant[$code]))
-				{
-					$code = self::$constant[$code];
-						 if (  is_int($code)) $type = T_LNUMBER;
-					else if (is_float($code)) $type = T_DNUMBER;
-					else if ("'" === $code[0]) $type = T_CONSTANT_ENCAPSED_STRING;
+
+					break;
+
+				case T_USE_CONSTANT:
+					if (isset(self::$constant[$code]))
+					{
+						$code = self::$constant[$code];
+							 if (  is_int($code)) $type = T_LNUMBER;
+						else if (is_float($code)) $type = T_DNUMBER;
+						else if ("'" === $code[0]) $type = T_CONSTANT_ENCAPSED_STRING;
+					}
 				}
 
 				break;
@@ -634,7 +603,7 @@ class patchwork_preprocessor__0
 								$c = patchwork_tokenizer::export($b, $c);
 							}
 
-							$tokens[--$i] = array(T_CONSTANT_ENCAPSED_STRING, $c, $line, ' ');
+							$tokens[--$i] = array(T_CONSTANT_ENCAPSED_STRING, $c, ' ');
 						}
 						else
 						{
@@ -698,7 +667,7 @@ class patchwork_preprocessor__0
 					$c = $class_pool[$curly_level];
 					$j = strtolower($c->classname);
 
-					if ($c->add_php5_construct) $code = $c->construct_source . '}';
+					if ($c->add_php5_construct) $code = $c->construct_source . $code;
 
 					if ($c->add_constructStatic)
 					{
@@ -714,13 +683,6 @@ class patchwork_preprocessor__0
 
 					if ($is_top && strtolower($class) === $j)
 					{
-						if (!$c->is_final)
-						{
-							$code .= ($c->is_abstract ? 'abstract ' : '')
-								. "class {$c->classname} extends {$c->classkey} {}"
-								. "\$GLOBALS['c{$T}']['{$j}']=1;";
-						}
-
 						if (!$c->is_child)
 						{
 							1 === $c->add_constructStatic && $code .= "{$j}::__constructStatic();";
@@ -744,7 +706,7 @@ class patchwork_preprocessor__0
 			$antePrevType = $prevType;
 			$prevType = $type;
 
-			$new_code[] = $deco;
+			$new_code[] = $token[2];
 			$new_code[] = $code;
 			$new_type[] = false;
 			$new_type[] = $type;
@@ -768,10 +730,5 @@ class patchwork_preprocessor__0
 	protected function extractLF_callback($a)
 	{
 		return str_repeat("\n", substr_count($a[0], "\n"));
-	}
-
-	static function error($message, $file, $line, $code = E_USER_ERROR)
-	{
-		patchwork_error::handle($code, $message, $file, $line);
 	}
 }
