@@ -125,10 +125,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 
 	protected function tagEOState1(&$token)
 	{
-		if (false !== strpos($token[1], "\n"))
-		{
-			$this->setState(2);
-		}
+		$this->setState(2);
 	}
 
 	protected function tagEOState3(&$token)
