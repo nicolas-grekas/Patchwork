@@ -16,27 +16,26 @@ class patchwork_tokenizer_globalizer extends patchwork_tokenizer_scoper
 {
 	protected
 
-	$scope     = array(),
-	$scopes    = array(),
-	$callbacks = array('tagScopeOpen' => T_SCOPE_OPEN);
+	$scope       = array(),
+	$scopes      = array(),
+	$autoglobals = array(),
+	$callbacks   = array(
+		'tagScopeOpen'   => T_SCOPE_OPEN,
+		'tagAutoglobals' => T_VARIABLE,
+	);
 
 
 	function __construct(parent $parent, $autoglobals)
 	{
-		$callbacks = array();
-
 		foreach ((array) $autoglobals as $autoglobals)
 		{
 			if ( !isset(${substr($autoglobals, 1)})
-				|| '$callbacks'   === $autoglobals
 				|| '$autoglobals' === $autoglobals
 				|| '$parent'      === $autoglobals )
 			{
-				$callbacks[$autoglobals] = T_VARIABLE;
+				$this->autoglobals[$autoglobals] = 1;
 			}
 		}
-
-		$this->callbacks['tagAutoglobals'] = $callbacks;
 
 		$this->initialize($parent);
 	}
@@ -51,9 +50,7 @@ class patchwork_tokenizer_globalizer extends patchwork_tokenizer_scoper
 
 	protected function tagAutoglobals(&$token)
 	{
-		if ( !isset($this->scope[$token[1]])
-			&& T_DOUBLE_COLON !== $this->prevType
-			&& in_array($token[1], array_keys($this->callbacks['tagAutoglobals'])) )
+		if (isset($this->autoglobals[$token[1]]) && T_DOUBLE_COLON !== $this->prevType)
 		{
 			$this->scope[$token[1]] = 1;
 		}

@@ -41,7 +41,7 @@ class patchwork_tokenizer_bracketVerifier extends patchwork_tokenizer
 
 			$last && $last = ", expecting `{$last}'";
 
-			$this->setError("Syntax error, unexpected `{$token[0]}'{$last}", $token[2]);
+			$this->setError("Syntax error, unexpected `{$token[0]}'{$last}");
 		}
 	}
 }
