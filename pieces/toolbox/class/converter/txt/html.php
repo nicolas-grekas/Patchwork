@@ -35,6 +35,15 @@ class extends converter_abstract
 
 	function convertData($html)
 	{
+		// Style according to the Netiquette
+		$html = preg_replace('#<(?:b|strong)\b[^>]*>(\s*)#iu' , '$1*', $html);
+		$html = preg_replace('#(\s*)</(?:b|strong)\b[^>]*>#iu', '*$1', $html);
+		$html = preg_replace('#<u\b[^>]*>(\s*)#iu' , '$1_', $html);
+		$html = preg_replace('#(\s*)</u\b[^>]*>#iu', '_$1', $html);
+
+		// Remove <sub> and <sup> tags
+		$html = preg_replace('#<(/?)su[bp]\b([^>]*)>#iu' , '<$1span$2>', $html);
+
 		// Inline URLs
 		$html = preg_replace_callback(
 			'#<a\b[^>]*\shref="([^"]*)"[^>]*>(.*?)</a\b[^>]*>#isu',
@@ -42,16 +51,15 @@ class extends converter_abstract
 			$html
 		);
 
-		// Remove <sub> and <sup> tags
-		$html = preg_replace('#<(/?)su[bp]\b([^>]*)>#iu' , '<$1span$2>', $html);
+		// Convert html-entities to UTF-8 for w3m
+		$html = str_replace(
+			array('&quot;',     '&lt;',     '&gt;',     '&#039;',     '"',      '<',    '>',    "'"),
+			array('&amp;quot;', '&amp;lt;', '&amp;gt;', '&amp;#039;', '&quot;', '&lt;', '&gt;', '&#039;'),
+			FILTER::get($html, 'text')
+		);
+		$html = html_entity_decode($html, ENT_COMPAT, 'UTF-8');
 
-		// Style according to the Netiquette
-		$html = preg_replace('#<(?:b|strong)\b[^>]*>(\s*)#iu' , '$1*', $html);
-		$html = preg_replace('#(\s*)</(?:b|strong)\b[^>]*>#iu', '*$1', $html);
-		$html = preg_replace('#<u\b[^>]*>(\s*)#iu' , '$1_', $html);
-		$html = preg_replace('#(\s*)</u\b[^>]*>#iu', '_$1', $html);
-
-		$file = tempnam('.', 'converter');
+		$file = tempnam(PATCHWORK_ZCACHE, 'converter');
 
 		p::writeFile($file, $html);
 
@@ -64,7 +72,7 @@ class extends converter_abstract
 
 		unlink($file);
 
-		return FILTER::get($html, 'text');
+		return $html;
 	}
 
 	function convertFile($file)
@@ -91,8 +99,9 @@ class extends converter_abstract
 
 		self::$textAnchor[$c] = $b;
 
-		if (false === stripos($a, $m)) $a .= " &lt;{$c}&gt;";
-		else $a = str_ireplace($m, $c, $a);
+		if ('' === trim($a)) {}
+		else if (false === stripos($a, $m)) $a .= " &lt;{$c}&gt;";
+		else $a = str_ireplace($m, $c, " {$a} ");
 
 		return $a;
 	}
