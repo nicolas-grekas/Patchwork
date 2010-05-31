@@ -46,7 +46,7 @@ class patchwork_bootstrapper_bootstrapper__0
 
 		if (headers_sent($file, $line) || ob_get_length())
 		{
-			die('Patchwork error: ' . $this->getEchoErro($file, $line, ob_get_flush(), 'before bootstrap'));
+			die('Patchwork error: ' . $this->getEchoError($file, $line, ob_get_flush(), 'before bootstrap'));
 		}
 	}
 
