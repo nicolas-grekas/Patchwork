@@ -39,6 +39,7 @@ class patchwork_tokenizer
 
 	$tokenRegistry    = array(),
 	$callbackRegistry = array(),
+
 	$parent,
 	$shared = array(
 		'line',
@@ -47,20 +48,18 @@ class patchwork_tokenizer
 		'tokens',
 		'prevType',
 		'anteType',
-		'tokenizerError',
-		'registryPosition',
-		'positionRegistry',
 		'tokenRegistry',
 		'callbackRegistry',
+		'tokenizerError',
+		'nextRegistryPosition',
 	);
 
 
 	private
 
-	$tokenizerError = false,
-	$tokenizerOrder,
-	$registryPosition = 0,
-	$positionRegistry = array(0);
+	$tokenizerError       = false,
+	$registryPosition     = 0,
+	$nextRegistryPosition = 0;
 
 
 	function __construct(self $parent = null)
@@ -84,8 +83,8 @@ class patchwork_tokenizer
 				$this->parent->shared =& $this->shared;
 			}
 
-			$this->tokenizerOrder = ++$this->positionRegistry[0];
-			$this->positionRegistry[$this->tokenizerOrder] = $this->registryPosition + 100000;
+			$this->registryPosition = $this->nextRegistryPosition;
+			$this->nextRegistryPosition += 100000;
 
 			empty($this->callbacks) || $this->register();
 		}
@@ -109,8 +108,6 @@ class patchwork_tokenizer
 	{
 		null === $method && $method = $this->callbacks;
 
-		$this->registryPosition = $this->positionRegistry[$this->tokenizerOrder];
-
 		$sort = array();
 
 		foreach ((array) $method as $method => $token)
@@ -128,8 +125,6 @@ class patchwork_tokenizer
 		}
 
 		foreach ($sort as &$sort) ksort($sort);
-
-		$this->positionRegistry[$this->tokenizerOrder] = $this->registryPosition;
 	}
 
 	protected function unregister($method = null)

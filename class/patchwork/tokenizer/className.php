@@ -17,7 +17,7 @@ class patchwork_tokenizer_className extends patchwork_tokenizer
 	protected
 
 	$className,
-	$callbacks = array('tagClass' => T_CLASS);
+	$callbacks = array('tagClass' => array(T_CLASS, T_INTERFACE));
 
 
 	function __construct(parent $parent, $className)
