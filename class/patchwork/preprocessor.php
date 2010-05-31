@@ -205,7 +205,7 @@ class patchwork_preprocessor__0
 		0 <= $level && new patchwork_tokenizer_globalizer($tokenizer, '$CONFIG');
 		new patchwork_tokenizer_stringTagger($tokenizer);
 		$tokenizer = new patchwork_tokenizer_classInfo($tokenizer);
-		$tokenizer = new patchwork_tokenizer_superPositioner($tokenizer, $level, $is_top ? '$c' . $T : false);
+		$tokenizer = new patchwork_tokenizer_superPositioner($tokenizer, $level, $is_top ? 'c' . $T : false);
 
 		$tokens = $tokenizer->tokenize($tokens);
 		$count = count($tokens);
