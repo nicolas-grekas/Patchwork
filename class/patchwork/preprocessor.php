@@ -19,7 +19,6 @@
 // - class superpositioner : intercept class_exists / interface_exists
 // - function and class aliasing
 // - translator pre-caching
-// - constant inlining
 
 
 require_once patchworkPath('class/patchwork/tokenizer.php');
@@ -29,9 +28,10 @@ require_once patchworkPath('class/patchwork/tokenizer/file.php');
 require_once patchworkPath('class/patchwork/tokenizer/className.php');
 require_once patchworkPath('class/patchwork/tokenizer/scoper.php');
 require_once patchworkPath('class/patchwork/tokenizer/globalizer.php');
-require_once patchworkPath('class/patchwork/tokenizer/stringTagger.php');
 require_once patchworkPath('class/patchwork/tokenizer/classInfo.php');
 require_once patchworkPath('class/patchwork/tokenizer/superPositioner.php');
+require_once patchworkPath('class/patchwork/tokenizer/stringTagger.php');
+require_once patchworkPath('class/patchwork/tokenizer/constantInliner.php');
 
 
 class patchwork_preprocessor__0
@@ -53,12 +53,10 @@ class patchwork_preprocessor__0
 
 	$scream = false,
 
-	$constant = array(
-		'DEBUG' => DEBUG,
-		'IS_WINDOWS' => IS_WINDOWS,
-		'PATCHWORK_ZCACHE' => PATCHWORK_ZCACHE,
-		'PATCHWORK_PATH_LEVEL' => PATCHWORK_PATH_LEVEL,
-		'PATCHWORK_PATH_OFFSET' => PATCHWORK_PATH_OFFSET,
+	$constants = array(
+		'DEBUG', 'IS_WINDOWS', 'PATCHWORK_ZCACHE',
+		'PATCHWORK_PATH_LEVEL', 'PATCHWORK_PATH_OFFSET',
+		'E_DEPRECATED', 'E_USER_DEPRECATED', 'E_RECOVERABLE_ERROR',
 	),
 
 	$classAlias = array(
@@ -83,8 +81,6 @@ class patchwork_preprocessor__0
 			&& !empty($GLOBALS['CONFIG']['debug.scream'])
 				|| (defined('DEBUG_SCREAM') && DEBUG_SCREAM);
 
-		defined('E_RECOVERABLE_ERROR') || self::$constant['E_RECOVERABLE_ERROR'] = E_ERROR;
-
 		$v = get_defined_functions();
 
 		foreach ($v['user'] as $v)
@@ -106,20 +102,6 @@ class patchwork_preprocessor__0
 			if ('p' === $v) break;
 			self::$declaredClass[$v] = 1;
 		}
-
-		$v = get_defined_constants(true);
-		unset(
-			$v['user'],
-			$v['standard']['INF'],
-			$v['internal']['TRUE'],
-			$v['internal']['FALSE'],
-			$v['internal']['NULL'],
-			$v['internal']['PHP_EOL']
-		);
-
-		foreach ($v as $v) self::$constant += $v;
-
-		foreach (self::$constant as &$v) $v = patchwork_tokenizer::export($v);
 	}
 
 	static function execute($source, $destination, $level, $class, $is_top)
@@ -203,9 +185,11 @@ class patchwork_preprocessor__0
 		0 <= $level && $class && new patchwork_tokenizer_className($tokenizer, $class);
 		$tokenizer = new patchwork_tokenizer_scoper($tokenizer);
 		0 <= $level && new patchwork_tokenizer_globalizer($tokenizer, '$CONFIG');
-		new patchwork_tokenizer_stringTagger($tokenizer);
 		$tokenizer = new patchwork_tokenizer_classInfo($tokenizer);
 		$tokenizer = new patchwork_tokenizer_superPositioner($tokenizer, $level, $is_top ? 'c' . $T : false);
+		$tokenizer = new patchwork_tokenizer_stringTagger($tokenizer);
+		new patchwork_tokenizer_constantInliner($tokenizer, self::$constants);
+
 
 		$tokens = $tokenizer->tokenize($tokens);
 		$count = count($tokens);
@@ -556,15 +540,6 @@ class patchwork_preprocessor__0
 					}
 
 					break;
-
-				case T_USE_CONSTANT:
-					if (isset(self::$constant[$code]))
-					{
-						$code = self::$constant[$code];
-							 if (  is_int($code)) $type = T_LNUMBER;
-						else if (is_float($code)) $type = T_DNUMBER;
-						else if ("'" === $code[0]) $type = T_CONSTANT_ENCAPSED_STRING;
-					}
 				}
 
 				break;
