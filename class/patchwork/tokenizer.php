@@ -79,8 +79,8 @@ class patchwork_tokenizer
 				foreach ($this->parent->shared as $parent)
 					$this->$parent =& $this->parent->$parent;
 
-				$this->shared = array_unique(array_merge((array) $this->shared, $this->parent->shared));
-				$this->parent->shared =& $this->shared;
+				$this->parent->shared = array_unique(array_merge((array) $this->shared, $this->parent->shared));
+				$this->shared =& $this->parent->shared;
 			}
 
 			$this->registryPosition = $this->nextRegistryPosition;
