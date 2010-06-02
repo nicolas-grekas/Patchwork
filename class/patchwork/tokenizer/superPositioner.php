@@ -18,6 +18,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 
 	$level,
 	$isTop,
+	$privateToken,
 	$callbacks = array(
 		'tagClass'       => array(T_CLASS, T_INTERFACE),
 		'tagSelf'        => T_STRING,
@@ -43,9 +44,12 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 
 		if ($token['classIsFinal'])
 		{
-			$token =& $this->tokens[count($this->tokens) - 1];
-			$token[0] = T_WHITESPACE;
-			$token[1] = '';
+			$final = array_pop($this->tokens);
+
+			if (isset($final[2]))
+			{
+				$token[2] = $final[2] . (isset($token[2]) ? $token[2] : '');
+			}
 		}
 	}
 
@@ -114,7 +118,11 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 
 		// Look backward and forward for the "static" keyword
 		if (T_STATIC === $this->prevType) $this->fixPrivate($token);
-		else $this->register('tagStatic');
+		else
+		{
+			$this->privateToken =& $token;
+			$this->register('tagStatic');
+		}
 	}
 
 	protected function tagStatic(&$token)
@@ -123,8 +131,10 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 
 		if (T_STATIC === $token[0])
 		{
-			$this->fixPrivate($this->tokens[count($this->tokens) - 1]);
+			$this->fixPrivate($this->privateToken);
 		}
+
+		unset($this->privateToken);
 	}
 
 	protected function fixPrivate(&$token)
