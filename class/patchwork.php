@@ -221,6 +221,11 @@ class
 
 	static function __constructStatic()
 	{
+		ini_set('error_log', PATCHWORK_PROJECT_PATH . 'error.patchwork.log');
+		ini_set('log_errors', true);
+		ini_set('display_errors', false);
+		set_error_handler('patchwork_error_handler');
+
 		if (isset($_GET['p:']))
 		{
 			list(self::$requestMode, self::$requestArg) = explode(':', $_GET['p:'], 2) + array(1 => '');
@@ -283,11 +288,6 @@ class
 
 	static function start()
 	{
-		ini_set('error_log', PATCHWORK_PROJECT_PATH . 'error.patchwork.log');
-		ini_set('log_errors', true);
-		ini_set('display_errors', false);
-		set_error_handler('patchwork_error_handler');
-
 /*<
 		self::log(
 			'<a href="' . htmlspecialchars($_SERVER['REQUEST_URI']) . '" target="_blank">'
