@@ -443,7 +443,11 @@ class patchwork_preprocessor__0
 
 				switch ($token[3])
 				{
-				case T_USE_METHOD: break 2;
+				case T_USE_PROPERTY:
+				case T_USE_METHOD:
+				case T_USE_CONST:
+					break 2;
+
 				case T_NAME_FUNCTION:
 					if (isset($class_pool[$curly_level-1]) && $c = $class_pool[$curly_level-1])
 					{
