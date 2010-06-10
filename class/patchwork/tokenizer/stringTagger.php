@@ -13,22 +13,26 @@
 
 
 // Sub-tokens to tag T_STRING variants
-patchwork_tokenizer::defineNewToken('T_NAME_CLASS');
-patchwork_tokenizer::defineNewToken('T_NAME_FUNCTION');
-patchwork_tokenizer::defineNewToken('T_NAME_INTERFACE');
-patchwork_tokenizer::defineNewToken('T_USE_CLASS');
-patchwork_tokenizer::defineNewToken('T_USE_FUNCTION');
-patchwork_tokenizer::defineNewToken('T_USE_METHOD');
-patchwork_tokenizer::defineNewToken('T_USE_CONSTANT');
+patchwork_tokenizer::defineNewToken('T_NAME_CLASS');     // class FOOBAR {}; interface FOOBAR {}
+patchwork_tokenizer::defineNewToken('T_NAME_FUNCTION');  // function FOOBAR()
+patchwork_tokenizer::defineNewToken('T_NAME_CONST');     // class foo {const BAR}
+patchwork_tokenizer::defineNewToken('T_USE_CLASS');      // new FOO; BAR::...
+patchwork_tokenizer::defineNewToken('T_USE_METHOD');     // foo::BAR(); $foo->BAR()
+patchwork_tokenizer::defineNewToken('T_USE_PROPERTY');   // $foo->BAR
+patchwork_tokenizer::defineNewToken('T_USE_FUNCTION');   // FOOBAR()
+patchwork_tokenizer::defineNewToken('T_USE_CONST');      // foo::BAR
+patchwork_tokenizer::defineNewToken('T_USE_CONSTANT');   // $foo = BAR
 
 
 class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 {
 	protected
 
+	$inConst   = false,
 	$inExtends = false,
 	$callbacks = array(
 		'tagString'  => T_STRING,
+		'tagConst'   => T_CONST,
 		'tagExtends' => array(T_EXTENDS, T_IMPLEMENTS),
 	);
 
@@ -39,35 +43,32 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 		{
 		case T_CLASS:        $token[3] = T_NAME_CLASS;     break;
 		case T_FUNCTION:     $token[3] = T_NAME_FUNCTION;  break;
-		case T_INTERFACE:    $token[3] = T_NAME_INTERFACE; break;
-
-		case T_OBJECT_OPERATOR:
-		case T_DOUBLE_COLON: $token[3] = T_USE_METHOD;     break;
+		case T_CONST:        $token[3] = T_NAME_CONST;     break;
 
 		case T_NEW:
 		case T_EXTENDS:
 		case T_IMPLEMENTS:
 		case T_INSTANCEOF:   $token[3] = T_USE_CLASS;      break;
 
-		case '&':
-			if (T_FUNCTION === $this->anteType)
+		case ',':
+			if ($this->inConst)
 			{
-				$token[3] = T_NAME_FUNCTION;
-				break;
+				$token[3] = T_NAME_CONST;    break;
+			}
+			else if ($this->inExtends)
+			{
+				$token[3] = T_USE_CLASS;     break;
 			}
 			// No break;
 
-		case ',':
-			if ($this->inExtends)
+		case '&':
+			if (T_FUNCTION === $this->anteType && '&' === $this->prevType)
 			{
-				$token[3] = T_USE_CLASS;
-				break;
+				$token[3] = T_NAME_FUNCTION; break;
 			}
 			// No break;
 
 		default:
-			$token[3] = T_USE_CONSTANT;
-
 			$i = $this->position;
 
 			while (isset($this->code[$i][1]) && (
@@ -85,10 +86,37 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 				if ('(' !== $this->prevType && ',' !== $this->prevType) break;
 				// No break
 
-			case T_DOUBLE_COLON: $token[3] = T_USE_CLASS;    break;
-			case '(':            $token[3] = T_USE_FUNCTION; break;
+			case T_DOUBLE_COLON: $token[3] = T_USE_CLASS; break;
+
+			case '(':
+				switch ($this->prevType)
+				{
+				case T_OBJECT_OPERATOR:
+				case T_DOUBLE_COLON: $token[3] = T_USE_METHOD;   break;
+				default:             $token[3] = T_USE_FUNCTION; break;
+				}
+
+			default:
+				switch ($this->prevType)
+				{
+				case T_OBJECT_OPERATOR: $token[3] = T_USE_PROPERTY; break;
+				case T_DOUBLE_COLON:    $token[3] = T_USE_CONST;    break;
+				default:                $token[3] = T_USE_CONSTANT; break;
+				}
 			}
 		}
+	}
+
+	protected function tagConst(&$token)
+	{
+		$this->inConst = true;
+		$this->register(array('tagConstEnd' => ';'));
+	}
+
+	protected function tagConstEnd(&$token)
+	{
+		$this->inConst = false;
+		$this->unregister(array('tagConstEnd' => ';'));
 	}
 
 	protected function tagExtends(&$token)
@@ -100,9 +128,6 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 	protected function tagExtendsEnd(&$token)
 	{
 		$this->inExtends = false;
-		$this->unregister(array(
-			'tagExtendsEnd' => '{',
-			'tagExtends'    => array(T_EXTENDS, T_IMPLEMENTS),
-		));
+		$this->unregister(array('tagExtendsEnd' => '{'));
 	}
 }
