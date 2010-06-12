@@ -23,8 +23,8 @@ defined('T_NS_SEPARATOR') || patchwork_tokenizer::defineNewToken('T_NS_SEPARATOR
 // Match closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
 patchwork_tokenizer::defineNewToken('T_CURLY_CLOSE');
 
-// Sub-token for multilines T_WHITESPACE, T_COMMENT and T_DOC_COMMENT
-patchwork_tokenizer::defineNewToken('T_MULTILINE');
+// Match multilines T_WHITESPACE
+patchwork_tokenizer::defineNewToken('T_WHITESPACE_MULTILINE');
 
 class patchwork_tokenizer
 {
@@ -277,7 +277,7 @@ class patchwork_tokenizer
 				unset($code[$i++]);
 
 				$lines = substr_count($token[1], "\n");
-				$lines && $token[3] = T_MULTILINE;
+				$lines && T_WHITESPACE  === $token[0] && $token[0] = T_WHITESPACE_MULTILINE;
 
 				if (isset($tRegistry[$token[0]]))
 				{
