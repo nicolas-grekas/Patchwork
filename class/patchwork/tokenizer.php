@@ -276,8 +276,16 @@ class patchwork_tokenizer
 				$token =& $code[$i];
 				unset($code[$i++]);
 
-				$lines = substr_count($token[1], "\n");
-				$lines && T_WHITESPACE  === $token[0] && $token[0] = T_WHITESPACE_MULTILINE;
+				if (' ' === $token[1])
+				{
+					// µ-optimization
+					$lines = 0;
+				}
+				else
+				{
+					$lines = substr_count($token[1], "\n");
+					$lines && T_WHITESPACE  === $token[0] && $token[0] = T_WHITESPACE_MULTILINE;
+				}
 
 				if (isset($tRegistry[$token[0]]))
 				{
