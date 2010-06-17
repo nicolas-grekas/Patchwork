@@ -23,11 +23,16 @@ class extends pForm_hidden
 	protected function init(&$param)
 	{
 		parent::init($param);
-		if (isset($param['maxlength']) && $param['maxlength'] > 0) $this->maxlength = (int) $param['maxlength'];
 
-		if (false !== strpos($this->value, "\r")) $this->value = strtr(str_replace("\r\n", "\n", $this->value), "\r", "\n");
+		if (isset($param['maxlength']) && $param['maxlength'] > 0)
+		{
+			$this->maxlength = (int) $param['maxlength'];
+		}
 
-		if (mb_strlen($this->value) > $this->maxlength) $this->value = mb_substr($this->value, 0, $this->maxlength);
+		if (mb_strlen($this->value) > $this->maxlength)
+		{
+			$this->value = mb_substr($this->value, 0, $this->maxlength);
+		}
 	}
 
 	protected function get()

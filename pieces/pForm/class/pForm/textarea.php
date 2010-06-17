@@ -16,13 +16,7 @@ class extends pForm_text
 {
 	protected
 
+	$valid = 'text',
 	$type = 'textarea',
 	$maxlength = 65535;
-
-
-	protected function init(&$param)
-	{
-		isset($param['valid']) || $param['valid'] = 'text';
-		return parent::init($param);
-	}
 }

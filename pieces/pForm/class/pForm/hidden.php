@@ -284,7 +284,7 @@ class extends loop_agentWrapper
 		{
 			$this->valid = $param['valid'];
 		}
-		else
+		else if (!isset($this->valid))
 		{
 			$this->valid = 'char';
 
