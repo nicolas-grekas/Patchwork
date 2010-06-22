@@ -160,6 +160,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 		{
 			if ($this->isTop)
 			{
+				// FIXME: same fix as commit b87854 needed
 				$token[1] .= ($class['classIsAbstract'] ? 'abstract ' : '')
 					. "{$class['classType']} {$class['className']} extends {$class['classKey']} {}"
 					. "\$GLOBALS['{$this->isTop}']['" . strtolower($class['className']) . "']=1;";
