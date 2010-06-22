@@ -864,7 +864,7 @@ class patchwork_preprocessor__0
 
 					$token .= "\$GLOBALS['c{$T}']['{$c->classkey}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
 
-					if ($is_top)
+					if ($is_top && strtolower($class) === $j)
 					{
 						if (!$c->is_final)
 						{
