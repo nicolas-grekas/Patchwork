@@ -20,11 +20,8 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 	$isTop,
 	$privateToken,
 	$callbacks = array(
-		'tagClass'       => array(T_CLASS, T_INTERFACE),
-		'tagSelf'        => T_STRING,
-		'tagClassConst'  => T_CLASS_C,
-		'tagMethodConst' => T_METHOD_C,
-		'tagPrivate'     => T_PRIVATE,
+		'tagClass'   => array(T_CLASS, T_INTERFACE),
+		'tagPrivate' => T_PRIVATE,
 	);
 
 
@@ -58,56 +55,25 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 		$this->unregister(array('tagClassName' => T_STRING));
 		$token[1] .= '__' . (0 <= $this->level ? $this->level : '00');
 		$this->class[0]['classKey'] = strtolower($token[1]);
+		0 <= $this->level && $this->register(array('tagSelfName' => T_STRING));
+	}
+
+	protected function tagSelfName(&$token)
+	{
+		if (0 === strcasecmp($this->class[0]['className'], $token[1]))
+		{
+			$token[1] .= '__' . ($this->level ? $this->level - 1 : '00');
+		}
 	}
 
 	protected function tagScopeOpen(&$token)
 	{
-		$this->unregister(array('tagScopeOpen' => T_SCOPE_OPEN));
-		$this->inExtends = false;
+		$this->unregister(array(
+			'tagSelfName'  => T_STRING,
+			'tagScopeOpen' => T_SCOPE_OPEN,
+		));
 
 		return 'tagScopeClose';
-	}
-
-	protected function tagSelf(&$token)
-	{
-		if ('self' === $token[1] && !empty($this->class[0]['className']))
-		{
-			$token[1] = $this->class[0]['className'];
-
-			if ( empty($this->class[0]['classScope'])
-				&& 0 <= $this->level
-				&& !empty($this->class[0]['classExtends']) )
-			{
-				$token[1] .= '__' . ($this->level ? $this->level - 1 : '00');
-			}
-		}
-	}
-
-	protected function tagClassConst(&$token)
-	{
-		if (!empty($this->class[0]))
-		{
-			$this->code[--$this->position] = array(
-				T_CONSTANT_ENCAPSED_STRING,
-				"'" . $this->class[0]['className'] . "'",
-			);
-
-			return false;
-		}
-	}
-
-	protected function tagMethodConst(&$token)
-	{
-		if (!empty($this->class[0]))
-		{
-			// FIXME: This doesn't work when a constant expression is needed
-			$this->code[--$this->position] = array(
-				T_CONSTANT_ENCAPSED_STRING,
-				"('" .  $this->class[0]['className'] . "::'.__FUNCTION__)",
-			);
-
-			return false;
-		}
 	}
 
 	protected function tagPrivate(&$token)
