@@ -24,7 +24,6 @@
 require_once patchworkPath('class/patchwork/tokenizer.php');
 require_once patchworkPath('class/patchwork/tokenizer/normalizer.php');
 require_once patchworkPath('class/patchwork/tokenizer/scream.php');
-require_once patchworkPath('class/patchwork/tokenizer/file.php');
 require_once patchworkPath('class/patchwork/tokenizer/className.php');
 require_once patchworkPath('class/patchwork/tokenizer/scoper.php');
 require_once patchworkPath('class/patchwork/tokenizer/globalizer.php');
@@ -180,15 +179,14 @@ class patchwork_preprocessor__0
 		$is_top = $this->isTop;
 
 		$tokenizer = new patchwork_tokenizer_normalizer;
-		new patchwork_tokenizer_file($tokenizer, $this->source);
 		self::$scream && new patchwork_tokenizer_scream($tokenizer);
 		0 <= $level && $class && new patchwork_tokenizer_className($tokenizer, $class);
+		new patchwork_tokenizer_stringTagger($tokenizer);
 		$tokenizer = new patchwork_tokenizer_scoper($tokenizer);
 		0 <= $level && new patchwork_tokenizer_globalizer($tokenizer, '$CONFIG');
+		new patchwork_tokenizer_constantInliner($tokenizer, $this->source, self::$constants);
 		$tokenizer = new patchwork_tokenizer_classInfo($tokenizer);
 		$tokenizer = new patchwork_tokenizer_superPositioner($tokenizer, $level, $is_top ? 'c' . $T : false);
-		$tokenizer = new patchwork_tokenizer_stringTagger($tokenizer);
-		new patchwork_tokenizer_constantInliner($tokenizer, self::$constants);
 
 
 		$tokens = $tokenizer->tokenize($tokens);
