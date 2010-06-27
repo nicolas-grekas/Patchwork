@@ -14,7 +14,6 @@
 // TODO tokenizer refactorize:
 // - autoload marker
 // - construct static
-// - construct PHP4
 // - app. inhertiance : intercept includes + patchworkPath() fourth arg
 // - class superpositioner : intercept class_exists / interface_exists
 // - function and class aliasing
@@ -25,12 +24,13 @@ require_once patchworkPath('class/patchwork/tokenizer.php');
 require_once patchworkPath('class/patchwork/tokenizer/normalizer.php');
 require_once patchworkPath('class/patchwork/tokenizer/scream.php');
 require_once patchworkPath('class/patchwork/tokenizer/className.php');
+require_once patchworkPath('class/patchwork/tokenizer/stringTagger.php');
 require_once patchworkPath('class/patchwork/tokenizer/scoper.php');
 require_once patchworkPath('class/patchwork/tokenizer/globalizer.php');
-require_once patchworkPath('class/patchwork/tokenizer/classInfo.php');
-require_once patchworkPath('class/patchwork/tokenizer/superPositioner.php');
-require_once patchworkPath('class/patchwork/tokenizer/stringTagger.php');
 require_once patchworkPath('class/patchwork/tokenizer/constantInliner.php');
+require_once patchworkPath('class/patchwork/tokenizer/classInfo.php');
+require_once patchworkPath('class/patchwork/tokenizer/constructor4to5.php');
+require_once patchworkPath('class/patchwork/tokenizer/superPositioner.php');
 
 
 class patchwork_preprocessor__0
@@ -186,6 +186,7 @@ class patchwork_preprocessor__0
 		0 <= $level && new patchwork_tokenizer_globalizer($tokenizer, '$CONFIG');
 		new patchwork_tokenizer_constantInliner($tokenizer, $this->source, self::$constants);
 		$tokenizer = new patchwork_tokenizer_classInfo($tokenizer);
+		0 > $level && new patchwork_tokenizer_constructor4to5($tokenizer);
 		$tokenizer = new patchwork_tokenizer_superPositioner($tokenizer, $level, $is_top ? 'c' . $T : false);
 
 
@@ -298,10 +299,8 @@ class patchwork_preprocessor__0
 					'is_child'    => $token['classExtends'],
 					'is_final'    => $token['classIsFinal'],
 					'is_abstract' => $token['classIsAbstract'],
-					'add_php5_construct'  => T_CLASS === $type && 0 > $level,
 					'add_constructStatic' => 0,
 					'add_destructStatic'  => 0,
-					'construct_source'    => '',
 				);
 
 				self::$inlineClass[strtolower($token['className'])] = 1;
@@ -453,11 +452,6 @@ class patchwork_preprocessor__0
 						{
 						case '__constructstatic': $c->add_constructStatic = 1 ; break;
 						case '__destructstatic' : $c->add_destructStatic  = 1 ; break;
-						case '__construct'      : $c->add_php5_construct  = false; break;
-
-						case strtolower($c->classname):
-							$c->construct_source = $c->classname;
-							new patchwork_preprocessor_construct($this, $c->construct_source);
 						}
 					}
 
@@ -643,8 +637,6 @@ class patchwork_preprocessor__0
 				{
 					$c = $class_pool[$curly_level];
 					$j = strtolower($c->classname);
-
-					if ($c->add_php5_construct) $code = $c->construct_source . $code;
 
 					if ($c->add_constructStatic)
 					{
