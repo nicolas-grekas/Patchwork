@@ -21,7 +21,7 @@ class extends agent
 		$o->form = $f;
 		$o->f_send = $send;
 
-		if ($send->isOn() && $this->formIsOk($f))
+		if ($send->isOn() && $this->formIsOk($f) && $send->isOn())
 		{
 			$a = $this->data ? 'save' : 'create';
 
