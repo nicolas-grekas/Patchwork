@@ -154,7 +154,7 @@ class extends loop_agentWrapper
 			}
 			else unset($this->elementsToCheck[$name]);
 
-			$addedElt->required = (bool) $onempty;
+			$addedElt->required || $addedElt->required = (bool) $onempty;
 		}
 
 		if (isset($this->isOn) && $elements)
