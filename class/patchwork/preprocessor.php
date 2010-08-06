@@ -31,6 +31,7 @@ require_once patchworkPath('class/patchwork/tokenizer/constantInliner.php');
 require_once patchworkPath('class/patchwork/tokenizer/classInfo.php');
 require_once patchworkPath('class/patchwork/tokenizer/constructor4to5.php');
 require_once patchworkPath('class/patchwork/tokenizer/superPositioner.php');
+require_once patchworkPath('class/patchwork/tokenizer/marker.php');
 
 
 class patchwork_preprocessor__0
@@ -41,8 +42,7 @@ class patchwork_preprocessor__0
 	$line,
 	$level,
 	$class,
-	$isTop,
-	$marker;
+	$isTop;
 
 
 	protected $tokenFilter = array();
@@ -128,10 +128,6 @@ class patchwork_preprocessor__0
 			$preproc->level  = $level;
 			$preproc->class  = $class;
 			$preproc->isTop  = $is_top;
-			$preproc->marker = array(
-				'global $a' . PATCHWORK_PATH_TOKEN . ',$c' . PATCHWORK_PATH_TOKEN . ';',
-				'global $a' . PATCHWORK_PATH_TOKEN . ',$b' . PATCHWORK_PATH_TOKEN . ',$c' . PATCHWORK_PATH_TOKEN . ';'
-			);
 
 			$code = file_get_contents($source);
 			$code =& $preproc->preprocess($code);
@@ -188,6 +184,7 @@ class patchwork_preprocessor__0
 		$tokenizer = new patchwork_tokenizer_classInfo($tokenizer);
 		0 > $level && new patchwork_tokenizer_constructor4to5($tokenizer);
 		$tokenizer = new patchwork_tokenizer_superPositioner($tokenizer, $level, $is_top ? 'c' . $T : false);
+		new patchwork_tokenizer_marker($tokenizer, $T);
 
 
 		$tokens = $tokenizer->tokenize($tokens);
@@ -210,8 +207,6 @@ class patchwork_preprocessor__0
 		$new_type = array();
 		$new_code_length = 0;
 
-		$opentag_marker = "if(!isset(\$a{$T})){global " . substr($this->marker[1], 7) . "}isset(\$e{$T})||\$e{$T}=false;";
-
 		$curly_level = 0;
 		$curly_starts_function = false;
 		$class_pool = array();
@@ -230,14 +225,6 @@ class patchwork_preprocessor__0
 
 			switch ($type)
 			{
-			case T_OPEN_TAG:
-				if ($opentag_marker)
-				{
-					$code .= $opentag_marker;
-					$opentag_marker = '';
-				}
-				break;
-
 			case '(':
 				if (   ('}' === $prevType || T_VARIABLE === $prevType)
 					&& !in_array($antePrevType, array(T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON)) )
@@ -621,8 +608,8 @@ class patchwork_preprocessor__0
 				if (isset($curly_marker[$curly_level]))
 				{
 					$curly_marker_last[1] && $new_code[$curly_marker_last[0]] .= $curly_marker_last[1]>0
-						? "{$this->marker[1]}static \$d{$T}=1;(" . $this->marker() . ")&&\$d{$T}&&\$d{$T}=0;"
-						: $this->marker[0];
+						? "global \$a{$T},\$b{$T},\$c{$T};static \$d{$T}=1;(" . $this->marker() . ")&&\$d{$T}&&\$d{$T}=0;"
+						: "global \$a{$T},\$c{$T};";
 
 					unset($curly_marker[$curly_level]);
 					end($curly_marker);
