@@ -20,6 +20,7 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer_normalizer
 	protected
 
 	$curly     = 0,
+	$scope     = false,
 	$scopes    = array(),
 	$nextScope = T_OPEN_TAG,
 	$callbacks = array(
@@ -27,7 +28,8 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer_normalizer
 		'tagScopeClose' => array(T_ENDPHP  , '}'),
 		'tagFunction'   => T_FUNCTION,
 		'tagClass'      => array(T_CLASS, T_INTERFACE),
-	);
+	),
+	$shared = 'scope';
 
 
 	protected function tagScopeOpen(&$token)
@@ -40,7 +42,12 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer_normalizer
 				$this->callbacks = array();
 			}
 
-			$token['scopeType'] = $this->nextScope;
+			$this->scope = (object) array(
+				'parent'    => $this->scope,
+				'type'      => $this->nextScope,
+				'token' => &$token,
+			);
+
 			$onClose = array();
 
 			if (isset($this->tokenRegistry[T_SCOPE_OPEN]))
@@ -50,7 +57,7 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer_normalizer
 						$onClose[] = $c;
 			}
 
-			$this->scopes[] = array($this->curly, &$token, $onClose);
+			$this->scopes[] = array($this->curly, $onClose);
 			$this->curly = 0;
 			$this->nextScope = false;
 		}
@@ -62,14 +69,12 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer_normalizer
 		if (0 > --$this->curly && $this->scopes)
 		{
 			$this->unregister();
-			$scope = array_pop($this->scopes);
-			$this->curly = $scope[0];
+			list($this->curly, $onClose) = array_pop($this->scopes);
 
-			$token['scopeType']  =& $scope[1]['scopeType'];
-			$token['scopeToken'] =& $scope[1];
-
-			foreach ($scope[2] as $c)
+			foreach (array_reverse($onClose) as $c)
 				$c[0]->{$c[1]}($token);
+
+			$this->scope = $this->scope->parent;
 		}
 	}
 

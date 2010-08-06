@@ -133,7 +133,7 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer_scoper
 
 	protected function tagScopeClose(&$token)
 	{
-		switch ($token['scopeType'])
+		switch ($this->scope->type)
 		{
 		case T_CLASS:    array_pop($this->class);    break;
 		case T_FUNCTION: array_pop($this->function); break;

@@ -39,7 +39,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 			'tagScopeOpen' => T_SCOPE_OPEN,
 		));
 
-		if ($token['classIsFinal'])
+		if ($this->class->isFinal)
 		{
 			$final = array_pop($this->tokens);
 
@@ -54,13 +54,13 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 	{
 		$this->unregister(array('tagClassName' => T_STRING));
 		$token[1] .= '__' . (0 <= $this->level ? $this->level : '00');
-		$this->class[0]['classKey'] = strtolower($token[1]);
+		$this->class->realName = strtolower($token[1]);
 		0 <= $this->level && $this->register(array('tagSelfName' => T_STRING));
 	}
 
 	protected function tagSelfName(&$token)
 	{
-		if (0 === strcasecmp($this->class[0]['className'], $token[1]))
+		if (0 === strcasecmp($this->class->name, $token[1]))
 		{
 			$token[1] .= '__' . ($this->level ? $this->level - 1 : '00');
 		}
@@ -116,25 +116,25 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 
 	protected function tagScopeClose(&$token)
 	{
-		$class =& $token['class'];
+		$c = $this->class;
 
-		if ($class['classIsFinal'])
+		if ($c->isFinal)
 		{
-			$token[1] .= "final {$class['classType']} {$class['className']} extends {$class['classKey']} {}";
+			$token[1] .= "final {$c->type} {$c->name} extends {$c->realName} {}";
 		}
 		else
 		{
 			if ($this->isTop)
 			{
 				// FIXME: same fix as commit b87854 needed
-				$token[1] .= ($class['classIsAbstract'] ? 'abstract ' : '')
-					. "{$class['classType']} {$class['className']} extends {$class['classKey']} {}"
-					. "\$GLOBALS['{$this->isTop}']['" . strtolower($class['className']) . "']=1;";
+				$token[1] .= ($c->isAbstract ? 'abstract ' : '')
+					. "{$c->type} {$c->name} extends {$c->realName} {}"
+					. "\$GLOBALS['{$this->isTop}']['" . strtolower($c->name) . "']=1;";
 			}
 
-			if ($class['classIsAbstract'])
+			if ($c->isAbstract)
 			{
-				$token[1] .= "\$GLOBALS['patchwork_abstract']['{$class['classKey']}']=1;";
+				$token[1] .= "\$GLOBALS['patchwork_abstract']['{$c->realName}']=1;";
 			}
 		}
 	}
