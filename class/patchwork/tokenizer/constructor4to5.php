@@ -16,31 +16,25 @@ class patchwork_tokenizer_constructor4to5 extends patchwork_tokenizer_classInfo
 {
 	protected
 
-	$bracket,
-	$scopes    = array(false),
-	$callbacks = array(
-		'tagScopeOpen' => T_SCOPE_OPEN,
-		'tagFunction'  => T_FUNCTION,
-	);
+	$bracket   = 0,
+	$signature = '',
+	$arguments = array(),
+	$callbacks = array('tagScopeOpen' => T_SCOPE_OPEN);
 
 
 	protected function tagScopeOpen(&$token)
 	{
-		$this->scopes[]  = $this->scopes[0];
-		$this->scopes[0] = array();
-
-		if (T_CLASS === $token['scopeType'])
+		if (T_CLASS === $this->scope->type)
 		{
-			$this->scopes[0]['className'] = $this->class[0]['className'];
-			$this->scopes[0]['classKey' ] = strtolower($this->class[0]['className']);
+			$this->unregister();
+			$this->register(array('tagFunction' => T_FUNCTION));
+			return 'tagScopeClose';
 		}
-
-		return 'tagScopeClose';
 	}
 
 	protected function tagFunction(&$token)
 	{
-		if ($this->scopes[0]) $this->register('tagFunctionName');
+		$this->register('tagFunctionName');
 	}
 
 	protected function tagFunctionName(&$token)
@@ -51,43 +45,46 @@ class patchwork_tokenizer_constructor4to5 extends patchwork_tokenizer_classInfo
 
 		switch (strtolower($token[1]))
 		{
-		case '__construct': $this->scopes[0] = array(); break;
-		case $this->scopes[0]['classKey']:
-			$this->scopes[0]['constructorSignature'] = '';
-			$this->scopes[0]['constructorArguments'] = array();
-			$this->bracket = 0;
-			$this->register('catchConstructorSignature');
+		case '__construct':
+			$this->signature = '';
+			$this->unregister('tagFunction');
+			break;
+
+		case strtolower($this->class->name):
+			$this->register('catchSignature');
+			break;
 		}
 	}
 
-	protected function catchConstructorSignature(&$token)
+	protected function catchSignature(&$token)
 	{
-		if ('(' === $token[0]) ++$this->bracket;
-		else if (')' === $token[0]) --$this->bracket;
-		else if (T_VARIABLE === $token[0])
+		if (T_VARIABLE === $token[0])
 		{
-			$this->scopes[0]['constructorArguments'][] = '&' . $token[1];
+			$this->arguments[] = '&' . $token[1];
 		}
+		else if ('(' === $token[0]) ++$this->bracket;
+		else if (')' === $token[0]) --$this->bracket;
 
-		$this->scopes[0]['constructorSignature'] .= $token[1];
+		$this->signature .= $token[1];
 
 		$this->bracket <= 0 && $this->unregister(__FUNCTION__);
 	}
 
 	protected function tagScopeClose(&$token)
 	{
-		if (isset($this->scopes[0]['constructorSignature']))
+		if ('' !== $this->signature)
 		{
-			$s = (object) $this->scopes[0];
+			$token[1] = 'function __construct' . $this->signature
+				. '{${""}=array(' . implode(',', $this->arguments) . ');'
+				. 'if(' . count($this->arguments) . '<func_num_args())${""}+=func_get_args();'
+				. 'call_user_func_array(array($this,"' . $this->class->name . '"),${""});}'
+				. $token[1];
 
-			$token[1] = 'function __construct' . $s->constructorSignature
-			. '{${""}=array(' . implode(',', $s->constructorArguments) . ');'
-			. 'if(' . count($s->constructorArguments) . '<func_num_args())${""}+=func_get_args();'
-			. 'call_user_func_array(array($this,"' . $s->className . '"),${""});}'
-			. $token[1];
+			$this->bracket   = 0;
+			$this->signature = '';
+			$this->arguments = array();
 		}
 
-		$this->scopes[0] = $this->scopes[count($this->scopes) - 1];
-		array_pop($this->scopes);
+		$this->register();
 	}
 }

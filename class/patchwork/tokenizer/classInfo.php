@@ -16,7 +16,7 @@ class patchwork_tokenizer_classInfo extends patchwork_tokenizer_scoper
 {
 	protected
 
-	$class = array(array()),
+	$class = false,
 	$callbacks = array(
 		'tagClass' => array(T_CLASS, T_INTERFACE),
 	),
@@ -25,17 +25,16 @@ class patchwork_tokenizer_classInfo extends patchwork_tokenizer_scoper
 
 	protected function tagClass(&$token)
 	{
-		$this->class[]  =& $this->class[0];
-		$this->class[0] =& $token;
-
-		$token += array(
-			'classType'       => $token[1],
-			'className'       => false,
-			'classExtends'    => false,
-			'classIsFinal'    => T_FINAL    === $this->prevType,
-			'classIsAbstract' => T_ABSTRACT === $this->prevType,
-			'classScope'      => false,
+		$this->class = (object) array(
+			'type'       => $token[1],
+			'name'       => false,
+			'extends'    => false,
+			'isFinal'    => T_FINAL    === $this->prevType,
+			'isAbstract' => T_ABSTRACT === $this->prevType,
+			'scope'      => false,
 		);
+
+		$token['class'] = $this->class;
 
 		$this->callbacks = array(
 			'tagClassName' => T_STRING,
@@ -49,28 +48,25 @@ class patchwork_tokenizer_classInfo extends patchwork_tokenizer_scoper
 	protected function tagClassName(&$token)
 	{
 		$this->unregister(array('tagClassName' => T_STRING));
-		$this->class[0]['className'] = $token[1];
+		$this->class->name = $token[1];
 	}
 
 	protected function tagExtends(&$token)
 	{
-		$this->class[0]['classExtends'] = true;
+		$this->class->extends = true;
 	}
 
 	protected function tagScopeOpen(&$token)
 	{
 		$this->unregister();
 
-		$token['class'] =& $this->class[0];
-		$this->class[0]['classScope'] =& $token;
+		$this->class->scope = $this->scope;
 
 		return 'tagScopeClose';
 	}
 
 	protected function tagScopeClose(&$token)
 	{
-		$token['class'] =& $this->class[0];
-		$this->class[0] =& $this->class[count($this->class) - 1];
-		array_pop($this->class);
+		$this->class = false;
 	}
 }
