@@ -195,7 +195,8 @@ class patchwork_bootstrapper_bootstrapper__0
 			$a[] = "
 DEBUG || file_exists('{$T}') && include '{$T}';
 class p extends patchwork {}
-patchwork::start();";
+patchwork::start();
+exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not flushed...
 
 			$a = implode('', $a);
 
