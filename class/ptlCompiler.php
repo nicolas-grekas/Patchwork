@@ -46,12 +46,10 @@ abstract class
 	$concatLast,
 	$source,
 
-	$path_idx,
-	$template,
-
 	$offset = 0,
-	$blockStack = array(),
-	$setStack = array(),
+	$blockStack  = array(),
+	$setStack    = array(),
+	$loadedStack = array(),
 	$mode = 'echo',
 
 	$watch,
@@ -111,31 +109,34 @@ abstract class
 
 	protected function load($template, $path_idx = 0)
 	{
-		'.ptl' === strtolower(substr($template, -4)) && $template = substr($template, 0, -4);
+		$a = IS_WINDOWS ? strtolower($template) : $template;
+		$a = preg_replace("'[\\/]+'", '/', $a);
 
-		$this->template = IS_WINDOWS ? strtolower($template) : $template;
-		$this->template = preg_replace("'[\\/]+'", '/', $this->template);
+		if (isset($this->loadedStack[$a]) && $this->loadedStack[$a] >= $path_idx)
+		{
+			$path_idx = $this->loadedStack[$a] + 1;
+		}
 
 		$source = p::resolvePublicPath($template . '.ptl', $path_idx);
 
-		if ($source) $template = $source;
-		else
+		if (!$source && 0 !== strcasecmp('.ptl', substr($template, -4)))
 		{
 			$path_idx = 0;
-			$template = p::resolvePublicPath($template, $path_idx);
+			$source = p::resolvePublicPath($template, $path_idx);
 		}
 
-		if (!$template) return '{$DATA}';
+		if (!$source) return '{$DATA}';
 
-		$source = file_get_contents($template);
+		$template = $a;
+		$source = file_get_contents($a = $source);
 		UTF8_BOM === substr($source, 0, 3) && $source = substr($source, 3);
 
-		if (!preg_match('//u', $source)) W("Template file {$template}:\nfile encoding is not valid UTF-8. Please convert your source code to UTF-8.");
+		if (!preg_match('//u', $source)) W("Template file {$a}:\nfile encoding is not valid UTF-8. Please convert your source code to UTF-8.");
 
 		$source = rtrim($source);
 		if (false !== strpos($source, "\r")) $source = strtr(str_replace("\r\n", "\n", $source), "\r", "\n");
 
-		if ('.ptl' !== strtolower(substr($template, -4)))
+		if ('.ptl' !== strtolower(substr($a, -4)))
 		{
 			$source = preg_replace("'(?:{$this->Xlvar}|{$this->Xlblock})'" , "{'$0'}", $source);
 
@@ -178,13 +179,17 @@ abstract class
 			);
 		}
 
-		$this->path_idx = $path_idx;
-		$rx = '[-_a-zA-Z\d\x80-\xffffffff][-_a-zA-Z\d\x80-\xffffffff\.]*';
+		unset($this->loadedStack[$template]);
+		$this->loadedStack[$template] = $path_idx;
+
+		$a = '[-_a-zA-Z\d\x80-\xffffffff][-_a-zA-Z\d\x80-\xffffffff\.]*';
 		false !== strpos($source, 'INLINE') && $source = preg_replace_callback(
-			"'{$this->Xlblock}INLINE\s+($rx(?:[\\/]$rx)*)(:-?\d+)?\s*{$this->Xrblock}'su",
+			"'{$this->Xlblock}INLINE\s+($a(?:[\\/]$a)*)(:-?\d+)?\s*{$this->Xrblock}'su",
 			array($this, 'INLINEcallback'),
 			$source
 		);
+
+		unset($this->loadedStack[$template]);
 
 		return $source;
 	}
@@ -214,13 +219,8 @@ abstract class
 	{
 #>		p::watch('debugSync');
 
-		$template = IS_WINDOWS ? strtolower($m[1]) : $m[1];
-		$template = preg_replace("'[\\/]+'", '/', $template);
-		'.ptl' === substr($template, -4) && $template = substr($template, 0, -4);
-
-		$a = $template === $this->template;
-		$a = isset($m[2]) ? substr($m[2], 1) : ($a ? -1 : PATCHWORK_PATH_LEVEL);
-		$a = $a < 0 ? $this->path_idx - $a : (PATCHWORK_PATH_LEVEL - $a);
+		$a = isset($m[2]) ? substr($m[2], 1) : PATCHWORK_PATH_LEVEL;
+		$a = $a < 0 ? end($this->loadedStack) - $a : (PATCHWORK_PATH_LEVEL - $a);
 
 		if ($a < 0)
 		{
@@ -231,15 +231,7 @@ abstract class
 		{
 			if ($a > PATCHWORK_PATH_LEVEL) $a = PATCHWORK_PATH_LEVEL;
 
-			$template = $this->template;
-			$path_idx = $this->path_idx;
-
-			$a = $this->load($m[1], $a);
-
-			$this->template = $template;
-			$this->path_idx = $path_idx;
-
-			return $a;
+			return $this->load($m[1], $a);
 		}
 	}
 
