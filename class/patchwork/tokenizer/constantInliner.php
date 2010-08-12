@@ -19,7 +19,9 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer_scoper
 	$file,
 	$dir,
 	$constants,
+	$nextScope = '',
 	$callbacks = array(
+		'tagScopeOpen' => T_SCOPE_OPEN,
 		'tagConstant'  => array(T_USE_CONSTANT => T_STRING),
 		'tagFileC'     => array(T_FILE, T_DIR),
 		'tagLineC'     => T_LINE,
@@ -27,10 +29,7 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer_scoper
 		'tagClassC'    => T_CLASS_C,
 		'tagMethodC'   => T_METHOD_C,
 		'tagFuncC'     => T_FUNC_C,
-		'tagSelfC'     => array(T_USE_CLASS => T_STRING),
-	),
-	$class    = array(''),
-	$function = array('');
+	);
 
 	protected static $internalConstants = array();
 
@@ -67,8 +66,6 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer_scoper
 		$this->constants += self::$internalConstants;
 
 		$this->initialize($parent);
-
-		$this->callbacks = array('tagScopeOpen' => T_SCOPE_OPEN);
 	}
 
 	protected function tagConstant(&$token)
@@ -99,7 +96,6 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer_scoper
 
 	protected function tagScopeName(&$token)
 	{
-		$this->nextScope = $token[0];
 		$this->register('catchScopeName');
 	}
 
@@ -107,64 +103,47 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer_scoper
 	{
 		$this->unregister(__FUNCTION__);
 
-		if (T_STRING === $token[0])
-		{
-			switch ($this->nextScope)
-			{
-			case T_CLASS:    $this->class[]    = $token[1]; break;
-			case T_FUNCTION: $this->function[] = $token[1]; break;
-			}
-		}
-		else if (T_FUNCTION === $this->nextScope)
-		{
-			$this->function[] = '{closure}';
-		}
-		else return;
-
-		$this->register();
+		T_STRING === $token[0] && $this->nextScope = $token[1];
 	}
 
 	protected function tagScopeOpen(&$token)
 	{
-		$this->unregister();
-
-		return 'tagScopeClose';
-	}
-
-	protected function tagScopeClose(&$token)
-	{
-		switch ($this->scope->type)
+		if ($this->scope->parent)
 		{
-		case T_CLASS:    array_pop($this->class);    break;
-		case T_FUNCTION: array_pop($this->function); break;
+			$this->scope->classC = $this->scope->parent->classC;
+			$this->scope->funcC  = $this->scope->parent->funcC ;
+
+			switch ($this->scope->type)
+			{
+			case T_CLASS:    $this->scope->classC = $this->nextScope; break;
+			case T_FUNCTION: $this->scope->funcC  = '' !== $this->nextScope ? $this->nextScope : '{closure}'; break;
+			}
 		}
+		else
+		{
+			$this->scope->classC = $this->scope->funcC  = '';
+		}
+
+		$this->nextScope = '';
 	}
 
 	protected function tagClassC(&$token)
 	{
-		return $this->replaceCode(T_CONSTANT_ENCAPSED_STRING, "'" . end($this->class) . "'");
+		return $this->replaceCode(T_CONSTANT_ENCAPSED_STRING, "'{$this->scope->classC}'");
 	}
 
 	protected function tagMethodC(&$token)
 	{
-		$token = array(end($this->class), end($this->function));
-		$token = $token[0] && $token[1] ? "'" . $token[0] . '::' . $token[1] . "'" : "''";
+		$token = $this->scope->classC && $this->scope->funcC
+			? "'{$this->scope->classC}::{$this->scope->funcC}'"
+			: "''";
 
 		return $this->replaceCode(T_CONSTANT_ENCAPSED_STRING, $token);
 	}
 
 	protected function tagFuncC(&$token)
 	{
-		return $this->replaceCode(T_CONSTANT_ENCAPSED_STRING, "'" . end($this->function) . "'");
-	}
-
-	protected function tagSelfC(&$token)
-	{
-		if ('self' === $token[1])
-		{
-			$token[1] = end($this->class);
-			$token[1] || $token[1] = 'self';
-		}
+		return $this->replaceCode(T_CONSTANT_ENCAPSED_STRING, "'{$this->scope->funcC}'");
 	}
 
 	protected function replaceCode($type, $code)
