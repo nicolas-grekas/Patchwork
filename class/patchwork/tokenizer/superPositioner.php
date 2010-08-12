@@ -20,6 +20,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 	$isTop,
 	$privateToken,
 	$callbacks = array(
+		'tagSelf'    => array(T_USE_CLASS => T_STRING),
 		'tagClass'   => array(T_CLASS, T_INTERFACE),
 		'tagPrivate' => T_PRIVATE,
 	);
@@ -30,6 +31,14 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 		$this->initialize($parent);
 		$this->level = $level;
 		$this->isTop = $isTop;
+	}
+
+	protected function tagSelf(&$token)
+	{
+		if ('self' === $token[1] && !empty($this->class->name))
+		{
+			$token[1] = $this->class->name;
+		}
 	}
 
 	protected function tagClass(&$token)
@@ -52,7 +61,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 
 	protected function tagClassName(&$token)
 	{
-		$this->unregister(array('tagClassName' => T_STRING));
+		$this->unregister(array(__FUNCTION__ => T_STRING));
 		$token[1] .= '__' . (0 <= $this->level ? $this->level : '00');
 		$this->class->realName = strtolower($token[1]);
 		0 <= $this->level && $this->register(array('tagSelfName' => T_STRING));
@@ -69,8 +78,8 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 	protected function tagScopeOpen(&$token)
 	{
 		$this->unregister(array(
-			'tagSelfName'  => T_STRING,
-			'tagScopeOpen' => T_SCOPE_OPEN,
+			'tagSelfName' => T_STRING,
+			__FUNCTION__  => T_SCOPE_OPEN,
 		));
 
 		return 'tagScopeClose';
