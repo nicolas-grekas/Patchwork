@@ -17,7 +17,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 	protected
 
 	$level,
-	$isTop,
+	$topClass,
 	$privateToken,
 	$callbacks = array(
 		'tagSelf'    => array(T_USE_CLASS => T_STRING),
@@ -26,11 +26,11 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 	);
 
 
-	function __construct(parent $parent, $level, $isTop)
+	function __construct(parent $parent, $level, $topClass)
 	{
 		$this->initialize($parent);
-		$this->level = $level;
-		$this->isTop = $isTop;
+		$this->level    = $level;
+		$this->topClass = $topClass;
 	}
 
 	protected function tagSelf(&$token)
@@ -133,12 +133,9 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 		}
 		else
 		{
-			if ($this->isTop)
+			if ($this->topClass && 0 === strcasecmp($this->topClass, $c->name))
 			{
-				// FIXME: same fix as commit b87854 needed
-				$token[1] .= ($c->isAbstract ? 'abstract ' : '')
-					. "{$c->type} {$c->name} extends {$c->realName} {}"
-					. "\$GLOBALS['{$this->isTop}']['" . strtolower($c->name) . "']=1;";
+				$token[1] .= ($c->isAbstract ? 'abstract ' : '') . "{$c->type} {$c->name} extends {$c->realName} {}";
 			}
 
 			if ($c->isAbstract)

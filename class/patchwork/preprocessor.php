@@ -183,7 +183,7 @@ class patchwork_preprocessor__0
 		new patchwork_tokenizer_constantInliner($tokenizer, $this->source, self::$constants);
 		$tokenizer = new patchwork_tokenizer_classInfo($tokenizer);
 		0 > $level && new patchwork_tokenizer_constructor4to5($tokenizer);
-		$tokenizer = new patchwork_tokenizer_superPositioner($tokenizer, $level, $is_top ? 'c' . $T : false);
+		$tokenizer = new patchwork_tokenizer_superPositioner($tokenizer, $level, $is_top ? $class : false);
 		new patchwork_tokenizer_marker($tokenizer, $T);
 
 
@@ -637,6 +637,8 @@ class patchwork_preprocessor__0
 
 					if ($is_top && strtolower($class) === $j)
 					{
+						$code .= "\$GLOBALS['c{$T}']['{$j}']=1;";
+
 						if (!$c->extends)
 						{
 							1 === $c->addConstructStatic && $code .= "{$j}::__constructStatic();";
