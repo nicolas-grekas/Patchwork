@@ -295,7 +295,7 @@ class __patchwork_autoloader
 		$a = PATCHWORK_PROJECT_PATH . '.~' . uniqid(mt_rand(), true);
 		if (false !== file_put_contents($a, $data))
 		{
-			touch($a, filemtime($to));
+			touch($a, filemtime($to) + 1); // +1 to notify the change to opcode caches
 
 			if (IS_WINDOWS)
 			{
