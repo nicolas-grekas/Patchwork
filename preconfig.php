@@ -23,9 +23,10 @@
 /**/}
 
 /**/if (!defined('E_DEPRECATED'))
-/**/{
 		define('E_DEPRECATED', -1);
-/**/}
+
+/**/if (!defined('E_USER_DEPRECATED'))
+		define('E_USER_DEPRECATED', -1);
 
 /**/$a = file_get_contents(patchwork_bootstrapper::$pwd . 'data/utf8/quickChecks.txt');
 /**/$a = explode("\n", $a);
