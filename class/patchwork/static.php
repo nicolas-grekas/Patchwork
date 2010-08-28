@@ -137,7 +137,7 @@ class extends patchwork
 
 		$head = 'HEAD' == $_SERVER['REQUEST_METHOD'];
 		$gzip = p::gzipAllowed($mime);
-		$filter = $gzip || $head || !$CONFIG['xsendfile'] || in_array($mime, p::$ieSniffedTypes);
+		$filter = $gzip || $head || !$CONFIG['xsendfile'] || in_array($mime, self::$ieSniffedTypes_edit) || in_array($mime, p::$ieSniffedTypes_download);
 
 		header('Content-Type: ' . $mime);
 
@@ -145,6 +145,12 @@ class extends patchwork
 		{
 			$filename = basename(true === $filename ? $_SERVER['PATCHWORK_REQUEST'] : $filename);
 			$size = false;
+
+			if (!$filter)
+			{
+				// Force IE>=8 to respect attachment content disposition
+				header('X-Download-Options: noopen');
+			}
 
 			// It seems that IE assumes that filename is represented in its local system charset...
 			// But we don't want to introduce "Vary: User-Agent" just because of this.
