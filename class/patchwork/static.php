@@ -169,7 +169,7 @@ class extends patchwork
 
 			$size || header('Content-Disposition: attachment; filename="' . str_replace('"', "''", $filename) . '"');
 
-			// If only RFC 2184 were in use...
+			// If only RFC 2231 were in use... See http://greenbytes.de/tech/tc2231/
 			//header('Content-Disposition: attachment; filename*=utf-8''" . rawurlencode($filename));
 		}
 		else false !== strpos($mime, 'html') && header('P3P: CP="' . $CONFIG['P3P'] . '"');
@@ -228,7 +228,7 @@ class extends patchwork
 
 		if (!$head)
 		{
-			if ($starting_data && $CONFIG['xsendfile']) header('X-Sendfile: ' . $file);
+			if ($starting_data && $CONFIG['xsendfile']) header(sprintf($CONFIG['xsendfile'], $file));
 			else
 			{
 				if ($range = $starting_data && !$gzip)
