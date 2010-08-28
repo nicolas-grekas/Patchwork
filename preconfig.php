@@ -83,6 +83,9 @@ EOHTML;
 
 function patchwork_shutdown_start()
 {
+/**/if (function_exists('fastcgi_finish_request'))
+		fastcgi_finish_request();
+
 	register_shutdown_function('patchwork_shutdown_end');
 }
 

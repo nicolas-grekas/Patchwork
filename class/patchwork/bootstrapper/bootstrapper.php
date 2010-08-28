@@ -38,6 +38,7 @@ class patchwork_bootstrapper_bootstrapper__0
 			|| die('Patchwork error: Extension "tokenizer" is needed and not loaded');
 
 		isset($_SERVER['REDIRECT_STATUS'])
+			&& false !== strpos(php_sapi_name(), 'apache');
 			&& '200' !== $_SERVER['REDIRECT_STATUS']
 			&& die('Patchwork error: Initialization forbidden (try using the shortest possible URL)');
 
