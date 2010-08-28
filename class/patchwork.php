@@ -1331,6 +1331,12 @@ class
 
 		if (PHP_OUTPUT_HANDLER_START & $mode) self::$lockedContentType = true;
 
+		if (isset(self::$headers['content-disposition']) && 0 === strncasecmp(self::$headers['content-disposition'], 'attachment', 10))
+		{
+			// Force IE>=8 to respect attachment content disposition
+			header('X-Download-Options: noopen');
+		}
+
 		// Anti-XSRF token
 
 		if (false !== strpos($type, 'html'))
@@ -1415,10 +1421,14 @@ class
 
 			$a = substr($buffer, 0, 256);
 			$lt = strpos($a, '<');
+
 			if (false !== $lt
-				&& !(isset(self::$headers['content-disposition']) && 0 === strncasecmp(self::$headers['content-disposition'], 'attachment', 10))
+				&& !(isset(self::$headers['x-download-options']) && 'noopen' === self::$headers['x-download-options'])
 				&& $b = in_array($type, self::$ieSniffedTypes_edit) ? 1 : (in_array($type, self::$ieSniffedTypes_download) ? 2 : 0))
 			{
+				// Opt-out from sniffing for IE>=8
+				header('X-Content-Type-Options: nosniff');
+
 				foreach (self::$ieSniffedTags as $tag)
 				{
 					$tail = stripos($a, '<' . $tag, $lt);
