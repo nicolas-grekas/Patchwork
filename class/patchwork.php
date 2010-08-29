@@ -125,9 +125,11 @@ function patchwork_error_handler($code, $message, $file, $line)
 	{
 		switch ($code)
 		{
+		case E_DEPRECATED:
+#>			if (!DEBUG)
+				return;
 		case E_NOTICE:
 		case E_STRICT:
-		case E_DEPRECATED:
 			if (strpos($message, '__00::')) return;
 
 			static $offset = 0;
