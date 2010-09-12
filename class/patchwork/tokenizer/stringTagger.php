@@ -41,14 +41,15 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 	{
 		switch ($this->prevType)
 		{
-		case T_CLASS:        $token[3] = T_NAME_CLASS;    break;
-		case T_FUNCTION:     $token[3] = T_NAME_FUNCTION; break;
-		case T_CONST:        $token[3] = T_NAME_CONST;    break;
+		case T_INTERFACE:
+		case T_CLASS:      $token[3] = T_NAME_CLASS;    break;
+		case T_FUNCTION:   $token[3] = T_NAME_FUNCTION; break;
+		case T_CONST:      $token[3] = T_NAME_CONST;    break;
 
 		case T_NEW:
 		case T_EXTENDS:
 		case T_IMPLEMENTS:
-		case T_INSTANCEOF:   $token[3] = T_USE_CLASS;     break;
+		case T_INSTANCEOF: $token[3] = T_USE_CLASS;     break;
 
 		case ',':
 			if ($this->inConst)

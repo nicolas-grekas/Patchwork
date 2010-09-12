@@ -43,9 +43,9 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer_normalizer
 			}
 
 			$this->scope = (object) array(
-				'parent'    => $this->scope,
-				'type'      => $this->nextScope,
-				'token' => &$token,
+				'parent' => $this->scope,
+				'type'   => $this->nextScope,
+				'token'  => &$token,
 			);
 
 			$onClose = array();

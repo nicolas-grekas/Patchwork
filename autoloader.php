@@ -177,16 +177,16 @@ class __patchwork_autoloader
 
 			if ($isTop)
 			{
-				$a = "{$parent}::__cS{$T}";
+				$a = "{$parent}::__c_s";
 				if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__constructStatic'))
 				{
 					$code .= "{$parent}::__constructStatic();";
 				}
 
-				$a = "{$parent}::__dS{$T}";
+				$a = "{$parent}::__d_s";
 				if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__destructStatic'))
 				{
-					$code .= "\$GLOBALS['patchwork_destructors'][]='{$parent}';";
+					$code .= "\$GLOBALS['_patchwork_destruct'][]='{$parent}';";
 				}
 			}
 
@@ -324,4 +324,4 @@ class __patchwork_autoloader
 	}
 }
 
-__patchwork_autoloader::$cache =& $GLOBALS['patchwork_autoload_cache'];
+__patchwork_autoloader::$cache =& $GLOBALS['_patchwork_autoloaded'];

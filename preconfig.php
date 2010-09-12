@@ -38,8 +38,8 @@ define('PATCHWORK_PATH_LEVEL',   /*<*/patchwork_bootstrapper::$last  /*>*/);
 define('PATCHWORK_PATH_OFFSET',  /*<*/count(patchwork_bootstrapper::$paths) - patchwork_bootstrapper::$last/*>*/);
 
 $patchwork_path = /*<*/patchwork_bootstrapper::$paths/*>*/;
-$patchwork_abstract = array();
-$patchwork_destructors = array();
+$_patchwork_abstract = array();
+$_patchwork_destruct = array();
 $CONFIG = array();
 
 
@@ -92,9 +92,9 @@ function patchwork_shutdown_start()
 
 function patchwork_shutdown_end()
 {
-	if ($GLOBALS['patchwork_destructors'])
+	if ($GLOBALS['_patchwork_destruct'])
 	{
-		$class = array_shift($GLOBALS['patchwork_destructors']);
+		$class = array_shift($GLOBALS['_patchwork_destruct']);
 		register_shutdown_function('patchwork_shutdown_end');
 		call_user_func(array($class, '__destructStatic'));
 	}
