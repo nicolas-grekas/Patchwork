@@ -19,22 +19,22 @@ class patchwork_tokenizer_constructor4to5 extends patchwork_tokenizer_classInfo
 	$bracket   = 0,
 	$signature = '',
 	$arguments = array(),
-	$callbacks = array('tagScopeOpen' => T_SCOPE_OPEN);
+	$callbacks = array('tagClassOpen' => T_SCOPE_OPEN);
 
 
-	protected function tagScopeOpen(&$token)
+	protected function tagClassOpen(&$token)
 	{
 		if (T_CLASS === $this->scope->type)
 		{
 			$this->unregister();
 			$this->register(array('tagFunction' => T_FUNCTION));
-			return 'tagScopeClose';
+			return 'tagClassClose';
 		}
 	}
 
 	protected function tagFunction(&$token)
 	{
-		$this->register('tagFunctionName');
+		T_CLASS === $this->scope->type && $this->register('tagFunctionName');
 	}
 
 	protected function tagFunctionName(&$token)
@@ -70,7 +70,7 @@ class patchwork_tokenizer_constructor4to5 extends patchwork_tokenizer_classInfo
 		$this->bracket <= 0 && $this->unregister(__FUNCTION__);
 	}
 
-	protected function tagScopeClose(&$token)
+	protected function tagClassClose(&$token)
 	{
 		if ('' !== $this->signature)
 		{

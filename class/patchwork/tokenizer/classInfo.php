@@ -39,7 +39,7 @@ class patchwork_tokenizer_classInfo extends patchwork_tokenizer_scoper
 		$this->callbacks = array(
 			'tagClassName' => T_STRING,
 			'tagExtends'   => T_EXTENDS,
-			'tagScopeOpen' => T_SCOPE_OPEN,
+			'tagClassOpen' => T_SCOPE_OPEN,
 		);
 
 		$this->register();
@@ -47,25 +47,32 @@ class patchwork_tokenizer_classInfo extends patchwork_tokenizer_scoper
 
 	protected function tagClassName(&$token)
 	{
-		$this->unregister(array('tagClassName' => T_STRING));
+		$this->unregister(array(__FUNCTION__ => T_STRING));
 		$this->class->name = $token[1];
 	}
 
 	protected function tagExtends(&$token)
 	{
 		$this->class->extends = true;
+		$this->register('tagExtendsName');
 	}
 
-	protected function tagScopeOpen(&$token)
+	protected function tagExtendsName(&$token)
+	{
+		$this->unregister(__FUNCTION__);
+		T_STRING === $token[0] && $this->class->extends = $token[1];
+	}
+
+	protected function tagClassOpen(&$token)
 	{
 		$this->unregister();
 
 		$this->class->scope = $this->scope;
 
-		return 'tagScopeClose';
+		return 'tagClassClose';
 	}
 
-	protected function tagScopeClose(&$token)
+	protected function tagClassClose(&$token)
 	{
 		$this->class = false;
 	}

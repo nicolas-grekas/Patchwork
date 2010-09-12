@@ -129,7 +129,7 @@ function __autoload($searched_class)
 	$searched_class = ltrim($searched_class, '\\');
 	$a = strtolower($searched_class);
 
-	if (TURBO && $a =& $GLOBALS['patchwork_autoload_cache'][$a])
+	if (TURBO && $a =& $GLOBALS['_patchwork_autoloaded'][$a])
 	{
 		if (is_int($a))
 		{

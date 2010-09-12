@@ -153,8 +153,8 @@ class patchwork_bootstrapper_bootstrapper__0
 			$T = $this->token;
 			$a = array(
 				"<?php \$patchwork_preprocessor_alias=array();",
-				"\$patchwork_autoload_cache=array();",
-				"\$c{$T}=&\$patchwork_autoload_cache;",
+				"\$_patchwork_autoloaded=array();",
+				"\$c{$T}=&\$_patchwork_autoloaded;",
 				"\$d{$T}=1;",
 				"(\$e{$T}=\$b{$T}=\$a{$T}=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "')&&\$d{$T}&&0;",
 			);
@@ -223,7 +223,7 @@ exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not fl
 
 		ob_get_length() && $this->release();
 
-		isset($GLOBALS['patchwork_autoload_cache']) || $this->token = md5($this->token . $code);
+		isset($GLOBALS['_patchwork_autoloaded']) || $this->token = md5($this->token . $code);
 
 		return $this->configCode[$this->preprocessor->file] = $code;
 	}
@@ -294,8 +294,8 @@ exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not fl
 		
 		// Autoload markers
 
-		$GLOBALS['patchwork_autoload_cache'] = array();
-		$GLOBALS['c' . $T] =& $GLOBALS['patchwork_autoload_cache'];
+		$GLOBALS['_patchwork_autoloaded'] = array();
+		$GLOBALS['c' . $T] =& $GLOBALS['_patchwork_autoloaded'];
 		$GLOBALS['b' . $T] = $GLOBALS['a' . $T] = false;
 	}
 
