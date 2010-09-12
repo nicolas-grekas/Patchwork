@@ -13,8 +13,7 @@
 
 // TODO tokenizer refactorize:
 // - autoload marker
-// - construct static
-// - app. inhertiance : intercept includes + patchworkPath() fourth arg
+// - app. inheritance : intercept includes + patchworkPath() fourth arg
 // - class superpositioner : intercept class_exists / interface_exists
 // - function and class aliasing
 // - translator pre-caching
@@ -29,6 +28,7 @@ require_once patchworkPath('class/patchwork/tokenizer/scoper.php');
 require_once patchworkPath('class/patchwork/tokenizer/globalizer.php');
 require_once patchworkPath('class/patchwork/tokenizer/constantInliner.php');
 require_once patchworkPath('class/patchwork/tokenizer/classInfo.php');
+require_once patchworkPath('class/patchwork/tokenizer/constructorStatic.php');
 require_once patchworkPath('class/patchwork/tokenizer/constructor4to5.php');
 require_once patchworkPath('class/patchwork/tokenizer/superPositioner.php');
 require_once patchworkPath('class/patchwork/tokenizer/marker.php');
@@ -182,6 +182,7 @@ class patchwork_preprocessor__0
 		0 <= $level && new patchwork_tokenizer_globalizer($tokenizer, '$CONFIG');
 		new patchwork_tokenizer_constantInliner($tokenizer, $this->source, self::$constants);
 		$tokenizer = new patchwork_tokenizer_classInfo($tokenizer);
+		new patchwork_tokenizer_constructorStatic($tokenizer, self::$declaredClass, $is_top ? $class : false);
 		0 > $level && new patchwork_tokenizer_constructor4to5($tokenizer);
 		$tokenizer = new patchwork_tokenizer_superPositioner($tokenizer, $level, $is_top ? $class : false);
 		new patchwork_tokenizer_marker($tokenizer, $T);
@@ -273,22 +274,14 @@ class patchwork_preprocessor__0
 
 			case T_INTERFACE:
 			case T_CLASS:
-				$b = $c = '';
-
 				if (T_STRING !== $tokens[$i][0]) break;
 
 				$code .= $tokens[$i][2] . $tokens[$i][1];
 				unset($tokens[$i++]);
 
-				$c = $token['class'];
-				$c->addConstructStatic = 0;
-				$c->addDestructStatic  = 0;
+				$class_pool[$curly_level] = $token['class'];
 
-				$class_pool[$curly_level] = $c;
-
-				self::$inlineClass[strtolower($c->name)] = 1;
-
-				$c = '';
+				self::$inlineClass[strtolower($token['class']->name)] = 1;
 
 				if (T_EXTENDS === $tokens[$i][0])
 				{
@@ -301,23 +294,7 @@ class patchwork_preprocessor__0
 						$code .= $c = $tokens[$i][1];
 						unset($tokens[$i++]);
 
-						$c = strtolower($c);
-
-						if (isset(self::$declaredClass[$c]) && 'patchwork' !== $c && 'p' !== $c)
-						{
-							$class_pool[$curly_level]->addConstructStatic = 2;
-							$class_pool[$curly_level]->addDestructStatic  = 2;
-						}
-
-						self::$inlineClass[$c] = 1;
-					}
-				}
-				else
-				{
-					if (T_CLASS === $type)
-					{
-						$class_pool[$curly_level]->addConstructStatic = 2;
-						$class_pool[$curly_level]->addDestructStatic  = 2;
+						self::$inlineClass[strtolower($c)] = 1;
 					}
 				}
 
@@ -429,18 +406,6 @@ class patchwork_preprocessor__0
 				case T_USE_METHOD:
 				case T_USE_CONST:
 					break 2;
-
-				case T_NAME_FUNCTION:
-					if (isset($class_pool[$curly_level-1]) && $c = $class_pool[$curly_level-1])
-					{
-						switch ($type)
-						{
-						case '__constructstatic': $c->addConstructStatic = 1 ; break;
-						case '__destructstatic' : $c->addDestructStatic  = 1 ; break;
-						}
-					}
-
-					break;
 
 				case T_USE_CLASS:
 					empty(self::$classAlias[$type]) || $code = self::$classAlias[$type];
@@ -620,36 +585,7 @@ class patchwork_preprocessor__0
 
 				if (isset($class_pool[$curly_level]))
 				{
-					$c = $class_pool[$curly_level];
-					$j = strtolower($c->name);
-
-					if ($c->addConstructStatic)
-					{
-						$code = "const __cS{$T}=" . (1 === $c->addConstructStatic ? "'{$j}';" : "'';static function __constructStatic(){}") . $code;
-					}
-
-					if ($c->addDestructStatic)
-					{
-						$code = "const __dS{$T}=" . (1 === $c->addDestructStatic  ? "'{$j}';" : "'';static function __destructStatic() {}") . $code;
-					}
-
-					$code .= "\$GLOBALS['c{$T}']['{$c->realName}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
-
-					if ($is_top && strtolower($class) === $j)
-					{
-						$code .= "\$GLOBALS['c{$T}']['{$j}']=1;";
-
-						if (!$c->extends)
-						{
-							1 === $c->addConstructStatic && $code .= "{$j}::__constructStatic();";
-							1 === $c->addDestructStatic  && $code .= "\$GLOBALS['patchwork_destructors'][]='{$j}';";
-						}
-						else
-						{
-							2 !== $c->addConstructStatic && $code .= "if('{$j}'==={$j}::__cS{$T}){$j}::__constructStatic();";
-							2 !== $c->addDestructStatic  && $code .= "if('{$j}'==={$j}::__dS{$T})\$GLOBALS['patchwork_destructors'][]='{$j}';";
-						}
-					}
+					$code .= "\$GLOBALS['c{$T}']['{$class_pool[$curly_level]->realName}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
 
 					unset($class_pool[$curly_level]);
 				}
