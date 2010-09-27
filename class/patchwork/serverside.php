@@ -158,7 +158,18 @@ class extends patchwork
 				return;
 			}
 
-			$agent = p::resolveAgentClass($agent, $args);
+
+			try
+			{
+				$agent = p::resolveAgentClass($agent, $args);
+			}
+			catch (patchwork_exception_static $agent)
+			{
+				readfile($agent->getMessage());
+				$_GET =& $a;
+				return;
+			}
+
 			self::$args = (object) $args;
 		}
 

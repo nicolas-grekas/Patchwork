@@ -383,6 +383,12 @@ class
 		{
 			$a->redirect('-' === strtr(self::$requestMode, '-tpax', '#----'));
 		}
+		catch (patchwork_exception_static $a)
+		{
+			self::setMaxage(-1);
+			self::writeWatchTable('public/static', PATCHWORK_ZCACHE);
+			self::readfile($a->getMessage(), true, false);
+		}
 
 		while (self::$ob_level)
 		{
@@ -1138,11 +1144,7 @@ class
 			{
 				if ($i === $agentLength && ($a = p::resolvePublicPath(substr($a, 1))) && !is_dir($a))
 				{
-					p::setMaxage(-1);
-					p::writeWatchTable('public/static', PATCHWORK_ZCACHE);
-					p::readfile($a, true, false);
-
-					exit;
+					throw new patchwork_exception_static($a);
 				}
 
 				$param = implode('/', array_slice($agent, $offset)) . ('' !== $param ? '/' . $param : '');
@@ -1842,6 +1844,7 @@ class agent
 		}
 		catch (patchwork_exception_forbidden   $agent) {W("Forbidden acces detected" );}
 		catch (patchwork_exception_redirection $agent) {W("HTTP redirection detected");}
+		catch (patchwork_exception_static      $agent) {}
 
 		return $o;
 	}
@@ -1921,3 +1924,4 @@ class loop
 }
 
 class patchwork_exception_private extends Exception {}
+class patchwork_exception_static  extends Exception {}
