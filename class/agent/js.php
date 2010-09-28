@@ -35,6 +35,7 @@ class extends agent_css
 		self::$recursion && $this->get->src = 1;
 
 		if ($this->debug || $this->get->src) parent::control();
+		else $this->template = 'bin';
 	}
 
 	function compose($o)
