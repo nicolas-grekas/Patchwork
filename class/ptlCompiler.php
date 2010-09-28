@@ -138,7 +138,8 @@ abstract class
 
 		if ('.ptl' !== strtolower(substr($a, -4)))
 		{
-			$source = preg_replace("'(?:{$this->Xlvar}|{$this->Xlblock})'" , "{'$0'}", $source);
+			$a = stripslashes($this->Xlvar . "'$0'" . $this->Xrvar);
+			$source = preg_replace("'(?:{$this->Xlvar}|{$this->Xlblock})'", $a, $source);
 
 			return $source;
 		}
