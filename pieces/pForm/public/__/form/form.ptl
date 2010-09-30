@@ -26,7 +26,7 @@ IF a$_mode_ == 'errormsg'
 
 	IF a$_errormsg
 		--><div class="errormsg"><!--
-		LOOP a$_errormsg -->{$VALUE}<br /><!-- END:LOOP
+		LOOP a$_errormsg -->{$VALUE}<br><!-- END:LOOP
 		--></div><!--
 	END:IF
 
@@ -40,7 +40,7 @@ ELSE
 	--><form accept-charset="utf-8" {a$|htmlArgs}><!--
 
 	LOOP a$_hidden
-		--><input type="hidden" name="{$name}" value="{$value}" /><!--
+		--><input type="hidden" name="{$name}" value="{$value}"><!--
 	END:LOOP
 
 	--><script>

@@ -30,13 +30,13 @@ You can control it with the additional arguments:
 
 *}
 
-IF a$autofocus
-	SET a$autofocus -->autofocus<!-- END:SET
-END:IF
+SET a$_autofocus -->{a$autofocus|test:1:a$_autofocus}<!--  END:SET
+SET a$autofocus  -->{a$_autofocus|test:'autofocus':''}<!-- END:SET
 
-IF a$required
-	SET a$required -->required<!-- END:SET
-END:IF
+SET a$_required -->{a$required|test:1:a$_autofocus}<!--  END:SET
+SET a$required  -->{a$_required|test:'_required':''}<!-- END:SET
+
+SET a$placeholder -->{a$placeholder|default:a$_placeholder}<!-- END:SET
 
 SET a$id -->FiD{g+1$GLOBID}<!-- END:SET
 SET a$class -->{a$class|default:a$type}<!-- END:SET

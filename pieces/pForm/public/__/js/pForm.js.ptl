@@ -168,6 +168,13 @@ function setSel($input, $selectionStart, $selectionEnd)
 * Form's control extension
 */
 
+IgCS = document.createElement('input');
+pForm_is_available = {
+	placeholder: 'placeholder' in IgCS,
+	required   : 'required'    in IgCS,
+	autofocus  : 'autofocus'   in IgCS
+}
+
 getCheckStatus = IgCS = function()
 {
 	var $this = this,
@@ -227,7 +234,7 @@ checkElementStatus = IcES = function($msgs, $form, $preserveScroll)
 			}
 		}
 
-		if ($element.type == 'text' && $element.placeholder && /\splaceholder\b/.test($element.className))
+		if (!pForm_is_available.placeholder && $element.placeholder && /\splaceholder\b/.test($element.className))
 		{
 			$element.value = '';
 			$status = $element.gS();
@@ -475,10 +482,13 @@ onDOMLoaded.push(function()
 
 			if (!$event && 'false' == ''+$event) return false;
 
-			for ($i = 0; $i < $this.length; ++$i)
+			if (!pForm_is_available.placeholder)
 			{
-				$elt = $this[$i];
-				if ($elt.type == 'text' && $elt.placeholder && /\splaceholder\b/.test($elt.className)) $elt.value = '';
+				for ($i = 0; $i < $this.length; ++$i)
+				{
+					$elt = $this[$i];
+					if ($elt.placeholder && /\splaceholder\b/.test($elt.className)) $elt.value = '';
+				}
 			}
 
 			if ($this.UPLOAD_IDENTIFIER && window.loadUpload) loadUpload($this);
@@ -487,17 +497,20 @@ onDOMLoaded.push(function()
 		$win.v_onbeforeunload = $win.onbeforeunload;
 		$win.onbeforeunload = function($event)
 		{
-			var $i = 0, $j, $form = document.forms, $element;
-
-			for (; $i<$form.length; ++$i)
+			if (!pForm_is_available.placeholder)
 			{
-				for ($j = 0; $j < $form[$i].length; ++$j)
-				{
-					$element = $form[$i][$j];
+				var $i = 0, $j, $form = document.forms, $element;
 
-					if ($element.type == 'text' && $element.placeholder && /\splaceholder\b/.test($element.className))
+				for (; $i<$form.length; ++$i)
+				{
+					for ($j = 0; $j < $form[$i].length; ++$j)
 					{
-						$element.value = '';
+						$element = $form[$i][$j];
+
+						if ($element.placeholder && /\splaceholder\b/.test($element.className))
+						{
+							$element.value = '';
+						}
 					}
 				}
 			}
@@ -514,7 +527,7 @@ onDOMLoaded.push(function()
 			{
 				$elt.v_onfocus = $elt.onfocus;
 
-				if ($elt.type == 'text' && $elt.placeholder)
+				if (!pForm_is_available.placeholder && $elt.placeholder)
 				{
 					$elt.onfocus = function($event)
 					{
@@ -549,7 +562,8 @@ onDOMLoaded.push(function()
 						if (!$event && 'false' == ''+$event) return false;
 					}
 
-					$elt.onblur();
+					if (document.activeElement && document.activeElement == $elt) $elt.onfocus();
+					else setTimeout($elt.onblur, 100);
 				}
 				else
 				{

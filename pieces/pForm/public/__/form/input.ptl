@@ -36,15 +36,11 @@ Question : should I add a label attribute to every <option> tag ?
 
 *}
 
-IF a$autofocus
-	SET a$_autofocus -->1<!-- END:SET
-	SET a$autofocus --><!-- END:SET
-END:IF
+SET a$_autofocus -->{a$autofocus|test:1:a$_autofocus}<!--  END:SET
+SET a$autofocus  -->{a$_autofocus|test:'autofocus':''}<!-- END:SET
 
-IF a$required
-	SET a$_required -->1<!-- END:SET
-	SET a$required --><!-- END:SET
-END:IF
+SET a$_required -->{a$required|test:1:a$_required}<!--  END:SET
+SET a$required  -->{a$_required|test:'required':''}<!-- END:SET
 
 IF a$_type == 'check'
 	SET a$_check -->1<!-- END:SET
@@ -56,11 +52,10 @@ END:IF
 IF !a$type --><!-- SET a$type -->{a$_type}<!-- END:SET --><!-- END:IF
 
 IF a$placeholder
-	SET a$_placeholder
-		IF a$type == 'text' -->{a$placeholder|replace:'[\\r\\n].*':''}<!-- END:IF
-	END:SET
-	SET a$placeholder --><!-- END:SET
+	SET a$_placeholder -->{a$placeholder|replace:'[\\r\\n].*':''}<!-- END:SET
 END:IF
+
+SET a$placeholder -->{a$_placeholder}<!-- END:SET
 
 SET a$id -->FiD{g+1$GLOBID}{g$__AGENT__|replace:'[^_a-zA-Z0-9]':'_'}<!-- END:SET
 SET a$class -->{a$class|default:a$_class|default:a$type}<!-- END:SET
@@ -106,11 +101,11 @@ SET $INPUT
 			ELSEIF $_groupOff
 				--></fieldset><!--
 			ELSE
-				IF a+1$_i -->{a$_glue_|default:g$checkboxGlue|default:'<br />'}<!-- END:IF
+				IF a+1$_i -->{a$_glue_|default:g$checkboxGlue|default:'<br>'}<!-- END:IF
 
 				SET $class -->{$class|default:a$class}<!-- END:SET
 
-				--><input {$|htmlArgs:'caption':'selected'} {a$|htmlArgs:'class'} /><!--
+				--><input {$|htmlArgs:'caption':'selected'} {a$|htmlArgs:'class'}><!--
 
 				IF $caption || a$_caption_ --><label for="{a$id}" onclick="return IcbC(event,this)" {$|htmlArgs:'value':'caption':'selected':'onclick'}>&nbsp;{$caption|default:a$_caption_}</label><!-- END:IF
 				SET a$id -->FiD{g+1$GLOBID}{g$__AGENT__|replace:'[^_a-zA-Z0-9]':'_'}<!-- END:SET
@@ -140,7 +135,7 @@ SET $INPUT
 	ELSE
 
 		IF a$type == 'file' && a$maxlength
-			--><input type="hidden" name="MAX_FILE_SIZE" value="{a$maxlength}" /><input {a$|htmlArgs} /><!--
+			--><input type="hidden" name="MAX_FILE_SIZE" value="{a$maxlength}"><input {a$|htmlArgs}><!--
 
 		ELSEIF a$type == 'textarea'
 			--><textarea {a$|htmlArgs:'type':'value'}>{a$value}</textarea><!--
@@ -149,7 +144,7 @@ SET $INPUT
 			IF a$type == 'image'
 				SET a$src -->{a$src|base}<!-- END:SET
 			END:IF
-			--><input {a$|htmlArgs} /><!--
+			--><input {a$|htmlArgs}><!--
 		END:IF
 
 		-->{a$_JsStart}<!--
@@ -162,14 +157,14 @@ SET $INPUT
 		ELSE
 			-->lE.gS=function(){return valid(this<!-- LOOP a$_valid -->,{$VALUE|js}<!-- END:LOOP -->)};<!--
 
-			IF a$type == 'text' && a$_placeholder
-				-->lE.placeholder={a$_placeholder|js};<!--
+			IF a$_placeholder
+				-->if(!pForm_is_available.placeholder)lE.placeholder={a$_placeholder|js};<!--
 			END:IF
 		END:IF
 
 	END:IF
 
-	-->lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form,{a$_preserveScroll_|test:1:0})};<!-- IF a$_autofocus -->lEF=lE;setTimeout('lEF.focus()',100);<!-- END:IF -->{a$_JsEnd}<!--
+	-->lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form,{a$_preserveScroll_|test:1:0})};<!-- IF a$_autofocus -->if(!pForm_is_available.autofocus)lEF=lE;setTimeout('lEF.focus()',100);<!-- END:IF -->{a$_JsEnd}<!--
 
 	IF a$_required --></span><!-- END:IF
 
