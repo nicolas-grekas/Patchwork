@@ -59,7 +59,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 				{
 				case 1: ob_end_flush(); break;
 				case 2: var_export(ob_get_clean()); break;
-				case 3: echo ')."', str_repeat('\n', substr_count(ob_get_flush(), "\n")), '"';
+				case 3: echo ')."', str_repeat('\n', substr_count(ob_get_flush(), "\n")), '"'; break;
 				}
 
 				switch ($this->transition[$i][0])
