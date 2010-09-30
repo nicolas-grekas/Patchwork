@@ -54,11 +54,11 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 		case ',':
 			if ($this->inConst)
 			{
-				$token[3] = T_NAME_CONST;    break;
+				$token[3] = T_NAME_CONST; break;
 			}
 			else if ($this->inExtends)
 			{
-				$token[3] = T_USE_CLASS;     break;
+				$token[3] = T_USE_CLASS;  break;
 			}
 			// No break;
 
@@ -96,6 +96,8 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 				case T_DOUBLE_COLON: $token[3] = T_USE_METHOD;   break;
 				default:             $token[3] = T_USE_FUNCTION; break;
 				}
+
+				break;
 
 			default:
 				switch ($this->prevType)
