@@ -28,6 +28,7 @@ require_once patchworkPath('class/patchwork/tokenizer/scoper.php');
 require_once patchworkPath('class/patchwork/tokenizer/globalizer.php');
 require_once patchworkPath('class/patchwork/tokenizer/constantInliner.php');
 require_once patchworkPath('class/patchwork/tokenizer/classInfo.php');
+require_once patchworkPath('class/patchwork/tokenizer/aliasing.php');
 require_once patchworkPath('class/patchwork/tokenizer/constructorStatic.php');
 require_once patchworkPath('class/patchwork/tokenizer/constructor4to5.php');
 require_once patchworkPath('class/patchwork/tokenizer/superPositioner.php');
@@ -61,14 +62,12 @@ class patchwork_preprocessor__0
 	$classAlias = array(
 		'p' => 'patchwork',
 		's' => 'SESSION',
-	),
-
-	$functionAlias = array();
+	);
 
 
 	protected static
 
-	$declaredClass = array('self' => 1, 'parent' => 1, 'this' => 1, 'static' => 1, 'p' => 1, 'patchwork' => 1),
+	$declaredClass = array('self' => 1, 'parent' => 1, 'static' => 1, 'p' => 1, 'patchwork' => 1),
 	$inlineClass,
 	$recursivePool = array(),
 	$callback;
@@ -79,20 +78,6 @@ class patchwork_preprocessor__0
 		self::$scream = (defined('DEBUG') && DEBUG)
 			&& !empty($GLOBALS['CONFIG']['debug.scream'])
 				|| (defined('DEBUG_SCREAM') && DEBUG_SCREAM);
-
-		$v = get_defined_functions();
-
-		foreach ($v['user'] as $v)
-		{
-			$v = strtolower($v);
-			if (0 !== strncmp($v, '__patchwork_', 12)) continue;
-			self::$functionAlias[substr($v, 12)] = $v;
-		}
-
-		foreach ($GLOBALS['patchwork_preprocessor_alias'] as $k => $v)
-		{
-			function_exists('__patchwork_' . $k) && self::$functionAlias[$k] = $v;
-		}
 
 		foreach (get_declared_classes() as $v)
 		{
@@ -182,6 +167,7 @@ class patchwork_preprocessor__0
 		0 <= $level && new patchwork_tokenizer_globalizer($tokenizer, '$CONFIG');
 		new patchwork_tokenizer_constantInliner($tokenizer, $this->source, self::$constants);
 		$tokenizer = new patchwork_tokenizer_classInfo($tokenizer);
+		new patchwork_tokenizer_aliasing($tokenizer, $GLOBALS['patchwork_preprocessor_alias']);
 		new patchwork_tokenizer_constructorStatic($tokenizer, self::$declaredClass, $is_top ? $class : false);
 		0 > $level && new patchwork_tokenizer_constructor4to5($tokenizer);
 		$tokenizer = new patchwork_tokenizer_superPositioner($tokenizer, $level, $is_top ? $class : false);
@@ -226,52 +212,6 @@ class patchwork_preprocessor__0
 
 			switch ($type)
 			{
-			case '(':
-				if (   ('}' === $prevType || T_VARIABLE === $prevType)
-					&& !in_array($antePrevType, array(T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON)) )
-				{
-					$j = $new_code_length - 1;
-
-					if (T_VARIABLE === $prevType && '$' !== $antePrevType)
-					{
-						if ('this' !== strtolower($b = substr($new_code[$j], 1)))
-						{
-							$new_code[$j] = "\${is_string(\${$b})&&function_exists(\$v{$T}='__patchwork_'.\${$b})?'v{$T}':'{$b}'}";
-						}
-					}
-					else
-					{
-						if ($b = '}' === $prevType ? 1 : 0)
-						{
-							$c = array($j, 0);
-
-							while ($b && isset($new_type[$j -= 2]))
-							{
-								if ('{' === $new_type[$j]) --$b;
-								else if ('}' === $new_type[$j]) ++$b;
-							}
-
-							$c[1] = $j;
-							$j -= 2;
-
-							if ('$' !== $new_type[$j]) break;
-						}
-						else $c = 0;
-
-						while (isset($new_type[$j -= 2]) && '$' === $new_type[$j]) ;
-
-						if (in_array($new_type[$j], array(T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON))) break;
-
-						$j += 2;
-
-						$c && $new_code[$c[0]] = $new_code[$c[1]] = '';
-
-						$new_code[$j] = "\${is_string(\$k{$T}=";
-						$new_code[$new_code_length-1] .= ")&&function_exists(\$v{$T}='__patchwork_'.\$\$k{$T})?'v{$T}':\$k{$T}}";
-					}
-				}
-				break;
-
 			case T_INTERFACE:
 			case T_CLASS:
 				if (T_STRING !== $tokens[$i][0]) break;
@@ -402,40 +342,11 @@ class patchwork_preprocessor__0
 
 				switch ($token[3])
 				{
-				case T_USE_PROPERTY:
-				case T_USE_METHOD:
-				case T_USE_CONST:
-					break 2;
-
 				case T_USE_CLASS:
 					empty(self::$classAlias[$type]) || $code = self::$classAlias[$type];
 					break;
 
 				case T_USE_FUNCTION:
-					if (isset(self::$functionAlias[$type]))
-					{
-						$j = self::$functionAlias[$type];
-
-						if (0 !== strncasecmp($j, $class . '::', strlen($class)+2))
-						{
-							$j = explode('::', $j, 2);
-
-							if (2 === count($j))
-							{
-								$tokens[--$i] = array(T_STRING, $j[1], '', T_USE_METHOD);
-								$tokens[--$i] = array(T_DOUBLE_COLON, '::');
-								$tokens[--$i] = array(T_STRING, $j[0], $token[2], T_USE_CLASS);
-
-								continue 3;
-							}
-							else
-							{
-								$code = $j[0];
-								$type = strtolower($code);
-							}
-						}
-					}
-
 					switch ($type)
 					{
 					case 'patchworkpath':
