@@ -38,14 +38,14 @@ class patchwork_tokenizer_globalizer extends patchwork_tokenizer_scoper
 		$this->initialize($parent);
 	}
 
-	protected function tagScopeOpen(&$token)
+	function tagScopeOpen(&$token)
 	{
 		$this->scope->autoglobals = array();
 
 		return 'tagScopeClose';
 	}
 
-	protected function tagAutoglobals(&$token)
+	function tagAutoglobals(&$token)
 	{
 		if (isset($this->autoglobals[$token[1]]) && T_DOUBLE_COLON !== $this->prevType)
 		{
@@ -53,7 +53,7 @@ class patchwork_tokenizer_globalizer extends patchwork_tokenizer_scoper
 		}
 	}
 
-	protected function tagScopeClose(&$token)
+	function tagScopeClose(&$token)
 	{
 		if ($this->scope->autoglobals && T_FUNCTION === $this->scope->type)
 		{

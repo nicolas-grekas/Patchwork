@@ -31,7 +31,7 @@ class patchwork_tokenizer_constructorStatic extends patchwork_tokenizer_classInf
 		$this->topClass           = $topClass;
 	}
 
-	protected function tagClassOpen(&$token)
+	function tagClassOpen(&$token)
 	{
 		if (T_CLASS === $this->scope->type)
 		{
@@ -44,12 +44,12 @@ class patchwork_tokenizer_constructorStatic extends patchwork_tokenizer_classInf
 		}
 	}
 
-	protected function tagFunction(&$token)
+	function tagFunction(&$token)
 	{
 		T_CLASS === $this->scope->type && $this->register('tagFunctionName');
 	}
 
-	protected function tagFunctionName(&$token)
+	function tagFunctionName(&$token)
 	{
 		if ('&' === $token[0]) return;
 		$this->unregister(__FUNCTION__);
@@ -62,7 +62,7 @@ class patchwork_tokenizer_constructorStatic extends patchwork_tokenizer_classInf
 		}
 	}
 
-	protected function tagClassClose(&$token)
+	function tagClassClose(&$token)
 	{
 		$this->unregister('tagFunction');
 		$this->register();

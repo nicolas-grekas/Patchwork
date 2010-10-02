@@ -23,7 +23,7 @@ class patchwork_tokenizer_classInfo extends patchwork_tokenizer_scoper
 	$shared = 'class';
 
 
-	protected function tagClass(&$token)
+	function tagClass(&$token)
 	{
 		$this->class = (object) array(
 			'type'       => $token[1],
@@ -45,25 +45,25 @@ class patchwork_tokenizer_classInfo extends patchwork_tokenizer_scoper
 		$this->register();
 	}
 
-	protected function tagClassName(&$token)
+	function tagClassName(&$token)
 	{
 		$this->unregister(array(__FUNCTION__ => T_STRING));
 		$this->class->name = $token[1];
 	}
 
-	protected function tagExtends(&$token)
+	function tagExtends(&$token)
 	{
 		$this->class->extends = true;
 		$this->register('tagExtendsName');
 	}
 
-	protected function tagExtendsName(&$token)
+	function tagExtendsName(&$token)
 	{
 		$this->unregister(__FUNCTION__);
 		T_STRING === $token[0] && $this->class->extends = $token[1];
 	}
 
-	protected function tagClassOpen(&$token)
+	function tagClassOpen(&$token)
 	{
 		$this->unregister();
 
@@ -72,7 +72,7 @@ class patchwork_tokenizer_classInfo extends patchwork_tokenizer_scoper
 		return 'tagClassClose';
 	}
 
-	protected function tagClassClose(&$token)
+	function tagClassClose(&$token)
 	{
 		$this->class = false;
 	}

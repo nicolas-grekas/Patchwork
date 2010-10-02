@@ -90,7 +90,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 		return ob_get_clean();
 	}
 
-	protected function setState($state)
+	function setState($state)
 	{
 		$this->transition[count($this->tokens)] = array($state, $this->line);
 
@@ -103,7 +103,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 		$this->state = $state;
 	}
 
-	protected function tagEOState2(&$token)
+	function tagEOState2(&$token)
 	{
 		if ('/*<*/' === $token[1])
 		{
@@ -117,18 +117,18 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 		}
 	}
 
-	protected function tagEOExpression(&$token)
+	function tagEOExpression(&$token)
 	{
 		$this->unregister(array(__FUNCTION__ => $this->stateCallbacks[2][__FUNCTION__]));
 		$this->  register($this->stateCallbacks[1]);
 	}
 
-	protected function tagEOState1(&$token)
+	function tagEOState1(&$token)
 	{
 		$this->setState(2);
 	}
 
-	protected function tagEOState3(&$token)
+	function tagEOState3(&$token)
 	{
 		if ('/*>*/' === $token[1])
 		{

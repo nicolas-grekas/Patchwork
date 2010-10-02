@@ -22,7 +22,7 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer_scoper
 	$nextScope = '',
 	$callbacks = array(
 		'tagScopeOpen' => T_SCOPE_OPEN,
-		'tagConstant'  => array(T_USE_CONSTANT => T_STRING),
+		'tagConstant'  => array(T_USE_CONSTANT),
 		'tagFileC'     => array(T_FILE, T_DIR),
 		'tagLineC'     => T_LINE,
 		'tagScopeName' => array(T_CLASS, T_FUNCTION),
@@ -68,7 +68,7 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer_scoper
 		$this->initialize($parent);
 	}
 
-	protected function tagConstant(&$token)
+	function tagConstant(&$token)
 	{
 		if (isset($this->constants[$token[1]]))
 		{
@@ -81,7 +81,7 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer_scoper
 		}
 	}
 
-	protected function tagFileC(&$token)
+	function tagFileC(&$token)
 	{
 		return $this->replaceCode(
 			T_CONSTANT_ENCAPSED_STRING,
@@ -89,24 +89,24 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer_scoper
 		);
 	}
 
-	protected function tagLineC(&$token)
+	function tagLineC(&$token)
 	{
 		return $this->replaceCode(T_LNUMBER, $this->line);
 	}
 
-	protected function tagScopeName(&$token)
+	function tagScopeName(&$token)
 	{
 		$this->register('catchScopeName');
 	}
 
-	protected function catchScopeName(&$token)
+	function catchScopeName(&$token)
 	{
 		$this->unregister(__FUNCTION__);
 
 		T_STRING === $token[0] && $this->nextScope = $token[1];
 	}
 
-	protected function tagScopeOpen(&$token)
+	function tagScopeOpen(&$token)
 	{
 		if ($this->scope->parent)
 		{
@@ -127,12 +127,12 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer_scoper
 		$this->nextScope = '';
 	}
 
-	protected function tagClassC(&$token)
+	function tagClassC(&$token)
 	{
 		return $this->replaceCode(T_CONSTANT_ENCAPSED_STRING, "'{$this->scope->classC}'");
 	}
 
-	protected function tagMethodC(&$token)
+	function tagMethodC(&$token)
 	{
 		$token = $this->scope->classC && $this->scope->funcC
 			? "'{$this->scope->classC}::{$this->scope->funcC}'"
@@ -141,12 +141,12 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer_scoper
 		return $this->replaceCode(T_CONSTANT_ENCAPSED_STRING, $token);
 	}
 
-	protected function tagFuncC(&$token)
+	function tagFuncC(&$token)
 	{
 		return $this->replaceCode(T_CONSTANT_ENCAPSED_STRING, "'{$this->scope->funcC}'");
 	}
 
-	protected function replaceCode($type, $code)
+	function replaceCode($type, $code)
 	{
 		$this->code[--$this->position] = array($type, $code);
 

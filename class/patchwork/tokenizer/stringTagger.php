@@ -37,7 +37,7 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 	);
 
 
-	protected function tagString(&$token)
+	function tagString(&$token)
 	{
 		switch ($this->prevType)
 		{
@@ -108,27 +108,38 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 				}
 			}
 		}
+
+		if (isset($this->tokenRegistry[$token[3]]))
+		{
+			foreach ($this->tokenRegistry[$token[3]] as $c)
+			{
+				if (0 === $c[2] || 0 === strcasecmp($token[1], $c[2]))
+				{
+					if (false === $c[0]->{$c[1]}($token)) return false;
+				}
+			}
+		}
 	}
 
-	protected function tagConst(&$token)
+	function tagConst(&$token)
 	{
 		$this->inConst = true;
 		$this->register(array('tagConstEnd' => ';'));
 	}
 
-	protected function tagConstEnd(&$token)
+	function tagConstEnd(&$token)
 	{
 		$this->inConst = false;
 		$this->unregister(array('tagConstEnd' => ';'));
 	}
 
-	protected function tagExtends(&$token)
+	function tagExtends(&$token)
 	{
 		$this->inExtends = true;
 		$this->register(array('tagExtendsEnd' => '{'));
 	}
 
-	protected function tagExtendsEnd(&$token)
+	function tagExtendsEnd(&$token)
 	{
 		$this->inExtends = false;
 		$this->unregister(array('tagExtendsEnd' => '{'));

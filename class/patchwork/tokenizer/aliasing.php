@@ -19,7 +19,7 @@ class patchwork_tokenizer_aliasing extends patchwork_tokenizer_classInfo
 	$functionAlias = array(),
 	$callbacks = array(
 		'tagVariableFunction' => '(',
-		'tagFunctionCall'     => array(T_USE_FUNCTION => T_STRING),
+		'tagFunctionCall'     => array(T_USE_FUNCTION),
 	);
 
 
@@ -46,7 +46,7 @@ class patchwork_tokenizer_aliasing extends patchwork_tokenizer_classInfo
 		}
 	}
 
-	protected function tagVariableFunction(&$token)
+	function tagVariableFunction(&$token)
 	{
 		if (   ('}' === $this->prevType || T_VARIABLE === $this->prevType)
 			&& !in_array($this->anteType, array(T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON)) )
@@ -95,7 +95,7 @@ class patchwork_tokenizer_aliasing extends patchwork_tokenizer_classInfo
 		}
 	}
 
-	protected function tagFunctionCall(&$token)
+	function tagFunctionCall(&$token)
 	{
 		$a = strtolower($token[1]);
 
