@@ -16,7 +16,6 @@ class patchwork_tokenizer_constructorStatic extends patchwork_tokenizer_classInf
 {
 	protected
 
-	$preExistingClasses = array(),
 	$topClass,
 
 	$construct,
@@ -24,11 +23,10 @@ class patchwork_tokenizer_constructorStatic extends patchwork_tokenizer_classInf
 	$callbacks = array('tagClassOpen' => T_SCOPE_OPEN);
 
 
-	function __construct(parent $parent, $preExistingClasses, $topClass)
+	function __construct(parent $parent, $topClass)
 	{
 		$this->initialize($parent);
-		$this->preExistingClasses = $preExistingClasses;
-		$this->topClass           = $topClass;
+		$this->topClass = $topClass;
 	}
 
 	function tagClassOpen(&$token)
@@ -38,7 +36,11 @@ class patchwork_tokenizer_constructorStatic extends patchwork_tokenizer_classInf
 			$this->unregister();
 			$this->register(array('tagFunction' => T_FUNCTION));
 
-			$this->construct = $this->destruct = (int) (!$this->class->extends || isset($this->preExistingClasses[strtolower($this->class->extends)]));
+			$this->construct = $this->destruct = (int) !(
+				   $this->class->extends
+				&& class_exists($this->class->extends, false)
+				&& defined("{$this->class->extends}::__c_s")
+			);
 
 			return 'tagClassClose';
 		}

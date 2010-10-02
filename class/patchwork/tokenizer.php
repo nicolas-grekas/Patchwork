@@ -40,7 +40,7 @@ class patchwork_tokenizer
 	$tokenRegistry    = array(),
 	$callbackRegistry = array(),
 
-	$parent,
+	$parent = '',
 	$shared = array(
 		'line',
 		'code',
@@ -70,10 +70,12 @@ class patchwork_tokenizer
 
 	protected function initialize(self $parent)
 	{
-		$this->parent = $parent;
-
-		if ($this instanceof $parent || is_subclass_of($parent, get_parent_class($this)))
+		if (   ($this instanceof $this->parent)
+			|| ($this instanceof $parent)
+			|| is_subclass_of($parent, get_parent_class($this)))
 		{
+			$this->parent = $parent;
+
 			if ($this !== $parent)
 			{
 				foreach (array_keys($this->parent->shared) as $parent)
@@ -91,6 +93,8 @@ class patchwork_tokenizer
 		}
 		else
 		{
+			$this->parent = $parent;
+
 			trigger_error('Argument 1 passed to '
 				. get_class($this) . '::initialize() must be an instance of '
 				. get_parent_class($this) . ', instance of '
@@ -121,7 +125,7 @@ class patchwork_tokenizer
 			else foreach ((array) $token as $s => $token)
 			{
 				isset($sort[$token]) || $sort[$token] =& $this->tokenRegistry[$token];
-				$this->tokenRegistry[$token][++$this->registryPosition] = array($this, $method, $s < 0 ? $s : 0);
+				$this->tokenRegistry[$token][++$this->registryPosition] = array($this, $method, 0 === $s || (0 < $s && is_int($s))  ? 0 : $s);
 			}
 		}
 
@@ -145,7 +149,7 @@ class patchwork_tokenizer
 				if (isset($this->tokenRegistry[$token]))
 				{
 					foreach ($this->tokenRegistry[$token] as $k => $v)
-						if (array($this, $method, $s < 0 ? $s : 0) === $v)
+						if (array($this, $method, 0 === $s || (0 < $s && is_int($s))  ? 0 : $s) === $v)
 							unset($this->tokenRegistry[$token][$k]);
 
 					if (!$this->tokenRegistry[$token]) unset($this->tokenRegistry[$token]);
@@ -240,33 +244,37 @@ class patchwork_tokenizer
 			if ('' !== $deco) $token[2] = $deco;
 			else unset($token[2]);
 
-			if ($cRegistry || isset($tRegistry[$token[0]]))
+			do
 			{
-				if (!$c = $cRegistry)
+				if ($cRegistry || isset($tRegistry[$token[0]]))
 				{
-					$c = $tRegistry[$token[0]];
-				}
-				else if (isset($tRegistry[$token[0]]))
-				{
-					$c += $tRegistry[$token[0]];
-					ksort($c);
-				}
-
-				foreach ($c as $c)
-				{
-					if (0 === $c[2] || (isset($token[3]) && $token[3] === $c[2]))
+					if (!$c = $cRegistry)
 					{
-						if (false === $c[0]->{$c[1]}($token)) continue 2;
+						$c = $tRegistry[$token[0]];
+					}
+					else if (isset($tRegistry[$token[0]]))
+					{
+						$c += $tRegistry[$token[0]];
+						ksort($c);
+					}
+
+					foreach ($c as $c)
+					{
+						if (0 === $c[2] || (isset($token[3]) && $token[3] === $c[2]))
+						{
+							if (false === $c[0]->{$c[1]}($token)) break 2;
+						}
 					}
 				}
+
+				$tokens[] =& $token;
+				$line += $lines;
+				$deco = '';
+
+				$anteType = $prevType;
+				$prevType = $token[0];
 			}
-
-			$tokens[] =& $token;
-			$line += $lines;
-			$deco = '';
-
-			$anteType = $prevType;
-			$prevType = $token[0];
+			while(0);
 
 			while (isset($code[$i][1]) && (
 				   T_WHITESPACE  === $code[$i][0]
@@ -316,69 +324,6 @@ class patchwork_tokenizer
 	protected function getTokens($code)
 	{
 		return $this->parent === $this ? token_get_all($code) : $this->parent->getTokens($code);
-	}
-
-	protected static $variableType = array(
-		T_EVAL, '(', T_LINE, T_FILE, T_DIR, T_FUNC_C, T_CLASS_C,
-		T_METHOD_C, T_NS_C, T_INCLUDE, T_REQUIRE, T_GOTO,
-		T_CURLY_OPEN, T_VARIABLE, '$', T_INCLUDE_ONCE,
-		T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES, T_EXIT,
-	);
-
-	static function fetchConstantCode($tokens, &$i, $count, &$value)
-	{
-		$variableType = self::$variableType;
-		$new_code = array();
-		$bracket = 0;
-		$close = 0;
-
-		for ($j = $i; $j < $count; ++$j)
-		{
-			list($type, $code, $deco) = $tokens[$j] + array(2 => '');
-
-			switch ($type)
-			{
-			case '`':
-			case T_STRING:
-				$close = 2;
-				break;
-
-			case '?': case '(': case '{': case '[':
-				++$bracket;
-				break;
-
-			case ':': case ')': case '}': case ']':
-				$bracket-- || ++$close;
-				break;
-
-			case ',':
-				$bracket   || ++$close;
-				break;
-
-			case T_AS:
-			case T_CLOSE_TAG:
-			case ';':
-				++$close;
-				break;
-
-			case T_WHITESPACE: break;
-
-			default:
-				if (in_array($type, $variableType, true)) $close = 2;
-			}
-
-			if (1 === $close)
-			{
-				$i = $j;
-				$j = implode('', $new_code);
-				return false === @eval("\$value={$j};") ? null : $j;
-			}
-			else if (2 === $close)
-			{
-				return;
-			}
-			else $new_code[] = $deco . $code;
-		}
 	}
 
 	static function export($a, $lf = 0)
