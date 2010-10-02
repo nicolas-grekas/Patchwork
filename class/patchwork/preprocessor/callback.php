@@ -21,6 +21,7 @@ class extends patchwork_preprocessor_marker
 		'__autoload'        => 0,
 		'class_exists'      => 0,
 		'constant'          => 0,
+		'defined'           => 0,
 		'get_class_methods' => 0,
 		'get_class_vars'    => 0,
 		'get_parent_class'  => 0,
