@@ -32,7 +32,7 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer_normalizer
 	$shared = 'scope';
 
 
-	protected function tagScopeOpen(&$token)
+	function tagScopeOpen(&$token)
 	{
 		if ($this->nextScope)
 		{
@@ -64,7 +64,7 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer_normalizer
 		else ++$this->curly;
 	}
 
-	protected function tagScopeClose(&$token)
+	function tagScopeClose(&$token)
 	{
 		if (0 > --$this->curly && $this->scopes)
 		{
@@ -78,17 +78,17 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer_normalizer
 		}
 	}
 
-	protected function tagCurly(&$token)
+	function tagCurly(&$token)
 	{
 		++$this->curly;
 	}
 
-	protected function tagClass(&$token)
+	function tagClass(&$token)
 	{
 		$this->nextScope = $token[0];
 	}
 
-	protected function tagFunction(&$token)
+	function tagFunction(&$token)
 	{
 		$this->nextScope = T_FUNCTION;
 		$this->register($this->callbacks = array(
@@ -96,7 +96,7 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer_normalizer
 		));
 	}
 
-	protected function tagSemiColon(&$token)
+	function tagSemiColon(&$token)
 	{
 		$this->unregister();
 		$this->nextScope = false;

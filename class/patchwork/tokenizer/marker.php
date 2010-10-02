@@ -26,7 +26,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_normalizer
 		$this->tag = $tag;
 	}
 
-	protected function tagOpenTag(&$token)
+	function tagOpenTag(&$token)
 	{
 		$this->unregister(array(__FUNCTION__ => T_OPEN_TAG));
 

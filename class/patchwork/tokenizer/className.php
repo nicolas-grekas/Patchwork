@@ -27,12 +27,12 @@ class patchwork_tokenizer_className extends patchwork_tokenizer
 		$this->className = $className;
 	}
 
-	protected function tagClass(&$token)
+	function tagClass(&$token)
 	{
 		$this->register('fixClassName');
 	}
 
-	protected function fixClassName(&$token)
+	function fixClassName(&$token)
 	{
 		$this->unregister(__FUNCTION__);
 
