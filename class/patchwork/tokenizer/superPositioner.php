@@ -20,7 +20,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 	$topClass,
 	$privateToken,
 	$callbacks = array(
-		'tagSelf'    => array(T_USE_CLASS => T_STRING),
+		'tagSelf'    => array('self' => T_USE_CLASS),
 		'tagClass'   => array(T_CLASS, T_INTERFACE),
 		'tagPrivate' => T_PRIVATE,
 	);
@@ -33,7 +33,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 		$this->topClass = $topClass;
 	}
 
-	protected function tagSelf(&$token)
+	function tagSelf(&$token)
 	{
 		if ('self' === $token[1] && !empty($this->class->name))
 		{
@@ -41,7 +41,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 		}
 	}
 
-	protected function tagClass(&$token)
+	function tagClass(&$token)
 	{
 		$this->register(array(
 			'tagClassName' => T_STRING,
@@ -59,7 +59,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 		}
 	}
 
-	protected function tagClassName(&$token)
+	function tagClassName(&$token)
 	{
 		$this->unregister(array(__FUNCTION__ => T_STRING));
 		$token[1] .= '__' . (0 <= $this->level ? $this->level : '00');
@@ -67,7 +67,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 		0 <= $this->level && $this->register(array('tagSelfName' => T_STRING));
 	}
 
-	protected function tagSelfName(&$token)
+	function tagSelfName(&$token)
 	{
 		if (0 === strcasecmp($this->class->name, $token[1]))
 		{
@@ -75,7 +75,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 		}
 	}
 
-	protected function tagClassOpen(&$token)
+	function tagClassOpen(&$token)
 	{
 		$this->unregister(array(
 			'tagSelfName' => T_STRING,
@@ -85,7 +85,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 		return 'tagClassClose';
 	}
 
-	protected function tagPrivate(&$token)
+	function tagPrivate(&$token)
 	{
 		// "private static" methods or properties are problematic when considering class superposition.
 		// To work around this, we change them to "protected static", and warn about it
@@ -100,7 +100,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 		}
 	}
 
-	protected function tagStatic(&$token)
+	function tagStatic(&$token)
 	{
 		$this->unregister(__FUNCTION__);
 
@@ -112,7 +112,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 		unset($this->privateToken);
 	}
 
-	protected function fixPrivate(&$token)
+	function fixPrivate(&$token)
 	{
 		$token[1] = 'protected';
 		$token[0] = T_PROTECTED;
@@ -123,7 +123,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 		}
 	}
 
-	protected function tagClassClose(&$token)
+	function tagClassClose(&$token)
 	{
 		$c = $this->class;
 

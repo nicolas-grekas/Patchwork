@@ -20,10 +20,10 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 	protected
 
 	$callbacks = array(
-		'openEchoTag' => T_OPEN_TAG_WITH_ECHO,
-		'openTag'     => T_OPEN_TAG,
-		'closeTag'    => T_CLOSE_TAG,
-		'fixVar'      => T_VAR,
+		'tagOpenEchoTag' => T_OPEN_TAG_WITH_ECHO,
+		'tagOpenTag'     => T_OPEN_TAG,
+		'tagCloseTag'    => T_CLOSE_TAG,
+		'fixVar'         => T_VAR,
 	);
 
 
@@ -75,7 +75,7 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 		return $code;
 	}
 
-	protected function openEchoTag(&$token)
+	function tagOpenEchoTag(&$token)
 	{
 		$this->code[--$this->position] = array(T_ECHO, 'echo');
 		$this->code[--$this->position] = array(T_OPEN_TAG, $token[1]);
@@ -83,26 +83,26 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 		return false;
 	}
 
-	protected function openTag(&$token)
+	function tagOpenTag(&$token)
 	{
 		$token[1] = substr_count($token[1], "\n");
 		$token[1] = '<?php' . ($token[1] ? str_repeat("\n", $token[1]) : ' ');
 	}
 
-	protected function closeTag(&$token)
+	function tagCloseTag(&$token)
 	{
 		$token[1] = substr_count($token[1], "\n");
 		$token[1] = str_repeat("\n", $token[1]) . '?'.'>';
 	}
 
-	protected function stripBom(&$token)
+	function stripBom(&$token)
 	{
 		$this->unregister(__FUNCTION__);
 		$token[1] = substr($token[1], 3);
 		if ('' === $token[1]) return false;
 	}
 
-	protected function fixVar(&$token)
+	function fixVar(&$token)
 	{
 		$this->code[--$this->position] = array(T_PUBLIC, 'public');
 

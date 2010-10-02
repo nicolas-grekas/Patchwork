@@ -23,7 +23,7 @@ class patchwork_tokenizer_bracketVerifier extends patchwork_tokenizer
 	);
 
 
-	protected function pushBracket(&$token)
+	function pushBracket(&$token)
 	{
 		switch ($token[0])
 		{
@@ -33,7 +33,7 @@ class patchwork_tokenizer_bracketVerifier extends patchwork_tokenizer
 		}
 	}
 
-	protected function popBracket(&$token)
+	function popBracket(&$token)
 	{
 		if ($token[0] !== $last = array_pop($this->bracket))
 		{

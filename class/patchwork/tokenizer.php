@@ -242,21 +242,21 @@ class patchwork_tokenizer
 
 			if ($cRegistry || isset($tRegistry[$token[0]]))
 			{
-				if (!$t = $cRegistry)
+				if (!$c = $cRegistry)
 				{
-					$t = $tRegistry[$token[0]];
+					$c = $tRegistry[$token[0]];
 				}
 				else if (isset($tRegistry[$token[0]]))
 				{
-					$t += $tRegistry[$token[0]];
-					ksort($t);
+					$c += $tRegistry[$token[0]];
+					ksort($c);
 				}
 
-				foreach ($t as $t)
+				foreach ($c as $c)
 				{
-					if (0 === $t[2] || (isset($token[3]) && $token[3] === $t[2]))
+					if (0 === $c[2] || (isset($token[3]) && $token[3] === $c[2]))
 					{
-						if (false === $t[0]->{$t[1]}($token)) continue 2;
+						if (false === $c[0]->{$c[1]}($token)) continue 2;
 					}
 				}
 			}
@@ -292,11 +292,11 @@ class patchwork_tokenizer
 				{
 					$token[2] = $deco;
 
-					foreach ($tRegistry[$token[0]] as $t)
+					foreach ($tRegistry[$token[0]] as $c)
 					{
-						if (0 === $t[2] || (isset($token[3]) && $token[3] === $t[2]))
+						if (0 === $c[2] || (isset($token[3]) && $token[3] === $c[2]))
 						{
-							if (false === $t[0]->{$t[1]}($token)) continue 2;
+							if (false === $c[0]->{$c[1]}($token)) continue 2;
 						}
 					}
 				}
