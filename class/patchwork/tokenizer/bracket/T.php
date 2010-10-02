@@ -1,6 +1,6 @@
 <?php /*********************************************************************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2010 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -12,10 +12,15 @@
  ***************************************************************************/
 
 
-class extends patchwork_preprocessor_bracket
+class patchwork_tokenizer_bracket_T extends patchwork_tokenizer_bracket
 {
-	function onClose($token)
+	protected $onOpenCallbacks = array(
+		'tagConcatenation' => array(T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES, '.'),
+	);
+
+	function tagConcatenation(&$token)
 	{
-		return parent::onClose(2 === $this->position ? ',' . $this->preproc->level . $token : $token);
+		$this->setError("Usage of T() is potentially divergent, please avoid string concatenation.");
+		$this->unregister();
 	}
 }

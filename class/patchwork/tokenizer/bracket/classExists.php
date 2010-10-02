@@ -1,6 +1,6 @@
 <?php /*********************************************************************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2010 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -12,21 +12,16 @@
  ***************************************************************************/
 
 
-class extends patchwork_preprocessor_bracket
+class patchwork_tokenizer_bracket_classExists extends patchwork_tokenizer_bracket
 {
-	function filterBracket($type, $token)
+	function onReposition(&$token)
 	{
-		switch ($type)
-		{
-		case T_CURLY_OPEN:
-		case T_DOLLAR_OPEN_CURLY_BRACES:
-		case '.':
-			patchwork_preprocessor::error(
-				"Usage of T() is potentially divergent, please use sprintf() instead of string concatenation.",
-				$this->preproc->source, $this->preproc->line
-			);
-		}
+		if (1 === $this->bracketPosition) $token[1] .= '(';
+		if (2 === $this->bracketPosition) $token[1] = ')||1' . $token[1];
+	}
 
-		return $token;
+	function onClose(&$token)
+	{
+		if (1 === $this->bracketPosition) $token[1] = ')||1' . $token[1];
 	}
 }

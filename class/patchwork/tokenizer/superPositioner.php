@@ -20,14 +20,26 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 	$topClass,
 	$privateToken,
 	$callbacks = array(
-		'tagSelf'    => array('self' => T_USE_CLASS),
-		'tagClass'   => array(T_CLASS, T_INTERFACE),
-		'tagPrivate' => T_PRIVATE,
+		'tagSelf'          => array('self' => T_USE_CLASS),
+		'tagClass'         => array(T_CLASS, T_INTERFACE),
+		'tagPrivate'       => T_PRIVATE,
+		'tagRequire'       => array(T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
+		'tagPatchworkPath' => array('patchworkPath' => T_USE_FUNCTION),
+		'tagClassExists'   => array(
+			'class_exists'     => T_USE_FUNCTION,
+			'interface_exists' => T_USE_FUNCTION,
+		)
 	);
 
 
 	function __construct(parent $parent, $level, $topClass)
 	{
+		if (0 <= $level)
+		{
+			unset($this->callbacks['tagRequire']);
+			unset($this->callbacks['tagClassExists']);
+		}
+
 		$this->initialize($parent);
 		$this->level    = $level;
 		$this->topClass = $topClass;
@@ -143,5 +155,28 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 				$token[1] .= "\$GLOBALS['patchwork_abstract']['{$c->realName}']=1;";
 			}
 		}
+	}
+
+	function tagRequire(&$token)
+	{
+		// TODO: fetch constant code and use it to inline processed paths
+
+		// Every require|include inside files in the include_path
+		// is preprocessed thanks to patchworkProcessedPath().
+
+		$token[1] .= ' patchworkProcessedPath(';
+		new patchwork_tokenizer_closeExpression($this, ')');
+	}
+
+	function tagPatchworkPath(&$token)
+	{
+		// Append its fourth arg to patchworkPath
+		new patchwork_tokenizer_bracket_patchworkPath($this, $this->level);
+	}
+
+	function tagClassExists(&$token)
+	{
+		// For files in the include_path, always set the 2nd arg of class|interface_exists() to true
+		new patchwork_tokenizer_bracket_classExists($this);
 	}
 }

@@ -1,6 +1,6 @@
 <?php /*********************************************************************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2010 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -12,15 +12,26 @@
  ***************************************************************************/
 
 
-class extends patchwork_preprocessor_bracket
+class patchwork_tokenizer_bracket_patchworkPath extends patchwork_tokenizer_bracket
 {
-	function onReposition($token)
+	protected $level;
+
+	function __construct(patchwork_tokenizer $parent, $level)
 	{
-		return 1 === $this->position ? $token . '(' : (2 === $this->position ? ')||1' . $token : $token);
+		$this->level = (string) (int) $level;
+
+		$this->initialize($parent);
 	}
 
-	function onClose($token)
+	function onClose(&$token)
 	{
-		return parent::onClose(1 === $this->position ? ')||1' . $token : $token);
+		if (2 === $this->bracketPosition)
+		{
+			$this->code[--$this->position] = ')';
+			$this->code[--$this->position] = array(T_LNUMBER, $this->level);
+			$this->code[--$this->position] = ',';
+
+			return false;
+		}
 	}
 }

@@ -13,10 +13,7 @@
 
 // TODO tokenizer refactorize:
 // - autoload marker
-// - app. inheritance : intercept includes + patchworkPath() fourth arg
-// - class superpositioner : intercept class_exists / interface_exists
-// - function and class aliasing
-// - translator pre-caching
+// - class & callback aliasing
 
 
 require_once patchworkPath('class/patchwork/tokenizer.php');
@@ -24,6 +21,7 @@ require_once patchworkPath('class/patchwork/tokenizer/normalizer.php');
 require_once patchworkPath('class/patchwork/tokenizer/scream.php');
 require_once patchworkPath('class/patchwork/tokenizer/className.php');
 require_once patchworkPath('class/patchwork/tokenizer/stringTagger.php');
+require_once patchworkPath('class/patchwork/tokenizer/T.php');
 require_once patchworkPath('class/patchwork/tokenizer/scoper.php');
 require_once patchworkPath('class/patchwork/tokenizer/globalizer.php');
 require_once patchworkPath('class/patchwork/tokenizer/constantInliner.php');
@@ -163,12 +161,13 @@ class patchwork_preprocessor__0
 		self::$scream && new patchwork_tokenizer_scream($tokenizer);
 		0 <= $level && $class && new patchwork_tokenizer_className($tokenizer, $class);
 		new patchwork_tokenizer_stringTagger($tokenizer);
+		new patchwork_tokenizer_T($tokenizer);
 		$tokenizer = new patchwork_tokenizer_scoper($tokenizer);
 		0 <= $level && new patchwork_tokenizer_globalizer($tokenizer, '$CONFIG');
 		new patchwork_tokenizer_constantInliner($tokenizer, $this->source, self::$constants);
 		$tokenizer = new patchwork_tokenizer_classInfo($tokenizer);
 		new patchwork_tokenizer_aliasing($tokenizer, $GLOBALS['patchwork_preprocessor_alias']);
-		new patchwork_tokenizer_constructorStatic($tokenizer, self::$declaredClass, $is_top ? $class : false);
+		new patchwork_tokenizer_constructorStatic($tokenizer, $is_top ? $class : false);
 		0 > $level && new patchwork_tokenizer_constructor4to5($tokenizer);
 		$tokenizer = new patchwork_tokenizer_superPositioner($tokenizer, $level, $is_top ? $class : false);
 		new patchwork_tokenizer_marker($tokenizer, $T);
@@ -347,56 +346,24 @@ class patchwork_preprocessor__0
 					break;
 
 				case T_USE_FUNCTION:
-					switch ($type)
+					if (!isset(self::$callback) && 0 !== strncmp($class, 'patchwork_preprocessor_', 23))
 					{
-					case 'patchworkpath':
-						// Append its fourth arg to patchworkPath
-						if (0 <= $level) new patchwork_preprocessor_path($this);
-						break;
-
-					case 't':
-						if (0 <= $level)
-						{
-							$j = $i;
-							$j = !DEBUG && TURBO ? patchwork_tokenizer::fetchConstantCode($tokens, $j, $count, $b) : null;
-
-							if (null === $j)
-							{
-								// new patchwork_preprocessor_t($this); // TODO: update then re-enable me
-							}
-							else if ($_SERVER['PATCHWORK_LANG'])
-							{
-								// Add the string to the translation table
-								TRANSLATOR::get($b, $_SERVER['PATCHWORK_LANG'], false);
-							}
-						}
-						break;
-
-					default:
-						if (!isset(self::$callback) && 0 !== strncmp($class, 'patchwork_preprocessor_', 23))
-						{
-							self::$callback =& patchwork_preprocessor_callback::$list;
-						}
-
-						if (!isset(self::$callback[$type])) break;
-
-						$code = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$code}";
-						$b = new patchwork_preprocessor_callback($this, $type);
-						$b->curly = -1;
-						0 < $curly_marker_last[1] || $curly_marker_last[1] = 1;
-
-						if ('&' === $prevType)
-						{
-							$j = $new_code_length - 1;
-							$new_code[$j] = ' ';
-							$new_type[$j] = T_WHITESPACE;
-						}
-
-						// For files in the include_path, always set the 2nd arg of class|interface_exists() to true
-						if (0 > $level && in_array($type, array('interface_exists', 'class_exists'))) new patchwork_preprocessor_classExists($this);
+						self::$callback =& patchwork_preprocessor_callback::$list;
 					}
 
-					break;
+					if (!isset(self::$callback[$type])) break;
+
+					$code = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$code}";
+					$b = new patchwork_preprocessor_callback($this, $type);
+					$b->curly = -1;
+					0 < $curly_marker_last[1] || $curly_marker_last[1] = 1;
+
+					if ('&' === $prevType)
+					{
+						$j = $new_code_length - 1;
+						$new_code[$j] = ' ';
+						$new_type[$j] = T_WHITESPACE;
+					}
 				}
 
 				break;
@@ -415,43 +382,13 @@ class patchwork_preprocessor__0
 			case T_INCLUDE_ONCE:
 			case T_REQUIRE:
 			case T_INCLUDE:
-
-				// Every require|include inside files in the include_path
-				// is preprocessed thanks to patchworkProcessedPath().
-				if (false !== $tokens[$i][0])
+				if (false !== $tokens[$i][0] && 0 <= $level)
 				{
-					if (0 > $level)
-					{
-						$j = !DEBUG && TURBO ? patchwork_tokenizer::fetchConstantCode($tokens, $i, $count, $b) : null;
-
-						if (null !== $j)
-						{
-							$b = patchworkProcessedPath($b);
-
-							if (false === $b) $c = "patchworkProcessedPath({$j})";
-							else
-							{
-								$c = substr_count($j, "\n");
-								$c = patchwork_tokenizer::export($b, $c);
-							}
-
-							$tokens[--$i] = array(T_CONSTANT_ENCAPSED_STRING, $c, ' ');
-						}
-						else
-						{
-							$code .= ' patchworkProcessedPath(';
-							new patchwork_preprocessor_require($this);
-						}
-					}
-					else
-					{
-						$code .= "((\$a{$T}=\$b{$T}=\$e{$T})||1?";
-						$b = new patchwork_preprocessor_require($this);
-						$b->close = ':0)';
-						0 < $curly_marker_last[1] || $curly_marker_last[1] = 1;
-					}
+					$code .= "((\$a{$T}=\$b{$T}=\$e{$T})||1?";
+					$b = new patchwork_preprocessor_require($this);
+					$b->close = ':0)';
+					0 < $curly_marker_last[1] || $curly_marker_last[1] = 1;
 				}
-
 				break;
 
 			case T_STATIC:
