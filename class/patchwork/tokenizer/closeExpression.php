@@ -44,7 +44,7 @@ class patchwork_tokenizer_closeExpression extends patchwork_tokenizer
 		{
 		case ',': if ($this->level) break;
 
-		case ')'
+		case ')':
 		case '}':
 		case ']':
 		case ':': if ($this->level--) break;
