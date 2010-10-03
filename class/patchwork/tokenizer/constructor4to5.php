@@ -27,7 +27,8 @@ class patchwork_tokenizer_constructor4to5 extends patchwork_tokenizer_classInfo
 		if (T_CLASS === $this->scope->type)
 		{
 			$this->unregister();
-			$this->register(array('tagFunction' => T_FUNCTION));
+			$this->callbacks = array('tagFunction' => T_FUNCTION);
+			$this->register();
 			return 'tagClassClose';
 		}
 	}
@@ -47,7 +48,7 @@ class patchwork_tokenizer_constructor4to5 extends patchwork_tokenizer_classInfo
 		{
 		case '__construct':
 			$this->signature = '';
-			$this->unregister('tagFunction');
+			$this->unregister();
 			break;
 
 		case strtolower($this->class->name):
@@ -72,6 +73,8 @@ class patchwork_tokenizer_constructor4to5 extends patchwork_tokenizer_classInfo
 
 	function tagClassClose(&$token)
 	{
+		$this->unregister();
+
 		if ('' !== $this->signature)
 		{
 			$token[1] = 'function __construct' . $this->signature
@@ -85,6 +88,7 @@ class patchwork_tokenizer_constructor4to5 extends patchwork_tokenizer_classInfo
 			$this->arguments = array();
 		}
 
+		$this->callbacks = array('tagClassOpen' => T_SCOPE_OPEN);
 		$this->register();
 	}
 }

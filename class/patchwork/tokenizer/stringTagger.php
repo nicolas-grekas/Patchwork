@@ -78,15 +78,11 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 				|| T_DOC_COMMENT === $this->code[$i][0]
 			)) ++$i;
 
-			if (!isset($this->code[$i])) break;
+			if (!isset($this->code[$i])) return;
 
 			switch ($this->code[$i][0])
 			{
-			case '&':
 			case T_VARIABLE:
-				if ('(' !== $this->prevType && ',' !== $this->prevType) break;
-				// No break
-
 			case T_DOUBLE_COLON: $token[3] = T_USE_CLASS; break;
 
 			case '(':
@@ -104,7 +100,36 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 				{
 				case T_OBJECT_OPERATOR: $token[3] = T_USE_PROPERTY; break;
 				case T_DOUBLE_COLON:    $token[3] = T_USE_CONST;    break;
-				default:                $token[3] = T_USE_CONSTANT; break;
+
+				case '(':
+				case ',':
+					if ('&' === $this->code[$i][0])
+					{
+						// Here, we have to decide between
+						// "&" as binary operator (T_USE_CONSTANT)
+						// and "&" as by ref parameter declaration (T_USE_CLASS)
+
+						$i = count($this->tokens);
+						$b = 1;
+
+						while (isset($this->tokens[--$i]))
+						{
+							switch ($this->tokens[$i][0])
+							{
+							case ')': ++$b; break;
+							case '(': if (0 === --$b) break 2;
+							}
+						}
+
+						if (isset($this->tokens[--$i][3]) && T_NAME_FUNCTION === $this->tokens[$i][3])
+						{
+							$token[3] = T_USE_CLASS;
+							break;
+						}
+					}
+					// No break;
+
+				default: $token[3] = T_USE_CONSTANT;
 				}
 			}
 		}
