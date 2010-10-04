@@ -30,6 +30,7 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 
 	$inConst   = false,
 	$inExtends = false,
+	$inParam   = 0,
 	$callbacks = array(
 		'tagString'  => T_STRING,
 		'tagConst'   => T_CONST,
@@ -39,37 +40,41 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 
 	function tagString(&$token)
 	{
-		switch ($this->prevType)
+		do
 		{
-		case T_INTERFACE:
-		case T_CLASS:      $token[3] = T_NAME_CLASS;    break;
-		case T_FUNCTION:   $token[3] = T_NAME_FUNCTION; break;
-		case T_CONST:      $token[3] = T_NAME_CONST;    break;
-
-		case T_NEW:
-		case T_EXTENDS:
-		case T_IMPLEMENTS:
-		case T_INSTANCEOF: $token[3] = T_USE_CLASS;     break;
-
-		case ',':
-			if ($this->inConst)
+			switch ($this->prevType)
 			{
-				$token[3] = T_NAME_CONST; break;
-			}
-			else if ($this->inExtends)
-			{
-				$token[3] = T_USE_CLASS;  break;
-			}
-			// No break;
+			case T_INTERFACE:
+			case T_CLASS:      $token[3] = T_NAME_CLASS;    break 2;
+			case T_FUNCTION:   $token[3] = T_NAME_FUNCTION; break 2;
+			case T_CONST:      $token[3] = T_NAME_CONST;    break 2;
 
-		case '&':
-			if (T_FUNCTION === $this->anteType && '&' === $this->prevType)
-			{
-				$token[3] = T_NAME_FUNCTION; break;
-			}
-			// No break;
+			case T_NEW:
+			case T_EXTENDS:
+			case T_IMPLEMENTS:
+			case T_INSTANCEOF: $token[3] = T_USE_CLASS;     break 2;
 
-		default:
+			case ',':
+				if ($this->inConst)
+				{
+					$token[3] = T_NAME_CONST; break 2;
+				}
+				else if ($this->inExtends)
+				{
+					$token[3] = T_USE_CLASS;  break 2;
+				}
+
+				break;
+
+			case '&':
+				if (T_FUNCTION === $this->anteType)
+				{
+					$token[3] = T_NAME_FUNCTION; break 2;
+				}
+
+				break;
+			}
+
 			$i = $this->position;
 
 			while (isset($this->code[$i][1]) && (
@@ -83,55 +88,42 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 			switch ($this->code[$i][0])
 			{
 			case T_VARIABLE:
-			case T_DOUBLE_COLON: $token[3] = T_USE_CLASS; break;
+			case T_DOUBLE_COLON: $token[3] = T_USE_CLASS; break 2;
 
 			case '(':
 				switch ($this->prevType)
 				{
 				case T_OBJECT_OPERATOR:
-				case T_DOUBLE_COLON: $token[3] = T_USE_METHOD;   break;
-				default:             $token[3] = T_USE_FUNCTION; break;
+				case T_DOUBLE_COLON: $token[3] = T_USE_METHOD;   break 3;
+				default:             $token[3] = T_USE_FUNCTION; break 3;
 				}
-
-				break;
 
 			default:
 				switch ($this->prevType)
 				{
-				case T_OBJECT_OPERATOR: $token[3] = T_USE_PROPERTY; break;
-				case T_DOUBLE_COLON:    $token[3] = T_USE_CONST;    break;
+				case T_OBJECT_OPERATOR: $token[3] = T_USE_PROPERTY; break 3;
+				case T_DOUBLE_COLON:    $token[3] = T_USE_CONST;    break 3;
 
 				case '(':
 				case ',':
-					if ('&' === $this->code[$i][0])
+					if (1 === $this->inParam && '&' === $this->code[$i][0])
 					{
-						// Here, we have to decide between
-						// "&" as binary operator (T_USE_CONSTANT)
-						// and "&" as by ref parameter declaration (T_USE_CLASS)
-
-						$i = count($this->tokens);
-						$b = 1;
-
-						while (isset($this->tokens[--$i]))
-						{
-							switch ($this->tokens[$i][0])
-							{
-							case ')': ++$b; break;
-							case '(': if (0 === --$b) break 2;
-							}
-						}
-
-						if (isset($this->tokens[--$i][3]) && T_NAME_FUNCTION === $this->tokens[$i][3])
-						{
-							$token[3] = T_USE_CLASS;
-							break;
-						}
+						$token[3] = T_USE_CLASS; break 3;
 					}
 					// No break;
 
-				default: $token[3] = T_USE_CONSTANT;
+				default: $token[3] = T_USE_CONSTANT; break 3;
 				}
 			}
+		}
+		while (0);
+
+		if (T_NAME_FUNCTION === $token[3])
+		{
+			$this->register(array(
+				'tagParamOpenBracket'  => '(',
+				'tagParamCloseBracket' => ')',
+			));
 		}
 
 		if (isset($this->tokenRegistry[$token[3]]))
@@ -155,7 +147,7 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 	function tagConstEnd(&$token)
 	{
 		$this->inConst = false;
-		$this->unregister(array('tagConstEnd' => ';'));
+		$this->unregister(array(__FUNCTION__ => ';'));
 	}
 
 	function tagExtends(&$token)
@@ -167,6 +159,23 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 	function tagExtendsEnd(&$token)
 	{
 		$this->inExtends = false;
-		$this->unregister(array('tagExtendsEnd' => '{'));
+		$this->unregister(array(__FUNCTION__ => '{'));
+	}
+
+	function tagParamOpenBracket(&$token)
+	{
+		++$this->inParam;
+	}
+
+	function tagParamCloseBracket(&$token)
+	{
+		if (0 >= --$this->inParam)
+		{
+			$this->inParam = 0;
+			$this->unregister(array(
+				'tagParamOpenBracket'  => '(',
+				'tagParamCloseBracket' => ')',
+			));
+		}
 	}
 }
