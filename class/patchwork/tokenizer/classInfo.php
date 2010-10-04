@@ -12,15 +12,14 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_classInfo extends patchwork_tokenizer_scoper
+class patchwork_tokenizer_classInfo extends patchwork_tokenizer
 {
 	protected
 
-	$class = false,
-	$callbacks = array(
-		'tagClass' => array(T_CLASS, T_INTERFACE),
-	),
-	$shared = 'class';
+	$class     = false,
+	$callbacks = array('tagClass' => array(T_CLASS, T_INTERFACE)),
+	$shared    = 'class',
+	$depends   = 'patchwork_tokenizer_scoper';
 
 
 	function tagClass(&$token)

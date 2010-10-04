@@ -21,8 +21,7 @@ class patchwork_tokenizer_closeExpression extends patchwork_tokenizer
 	$callbacks = array(
 		'incLevel' => array('(', '{', '[', '?'),
 		'decLevel' => array(')', '}', ']', ':', ',', T_AS, T_CLOSE_TAG, ';'),
-	),
-	$parent = 'patchwork_tokenizer';
+	);
 
 
 	function __construct(patchwork_tokenizer $parent, $close)

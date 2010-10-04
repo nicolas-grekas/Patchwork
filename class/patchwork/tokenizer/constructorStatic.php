@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_constructorStatic extends patchwork_tokenizer_classInfo
+class patchwork_tokenizer_constructorStatic extends patchwork_tokenizer
 {
 	protected
 
@@ -20,7 +20,11 @@ class patchwork_tokenizer_constructorStatic extends patchwork_tokenizer_classInf
 
 	$construct,
 	$destruct,
-	$callbacks = array('tagClassOpen' => T_SCOPE_OPEN);
+	$callbacks = array('tagClassOpen' => T_SCOPE_OPEN),
+	$depends   = array(
+		'patchwork_tokenizer_classInfo',
+		'patchwork_tokenizer_scoper',
+	);
 
 
 	function __construct(parent $parent, $topClass)

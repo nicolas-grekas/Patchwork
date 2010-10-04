@@ -12,12 +12,13 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_marker extends patchwork_tokenizer_normalizer
+class patchwork_tokenizer_marker extends patchwork_tokenizer
 {
 	protected
 
 	$tag,
-	$callbacks = array('tagOpenTag' => T_OPEN_TAG);
+	$callbacks = array('tagOpenTag' => T_OPEN_TAG),
+	$depends   = 'patchwork_tokenizer_normalizer';
 
 
 	function __construct(parent $parent = null, $tag)
