@@ -213,28 +213,12 @@ class patchwork_preprocessor__0
 			{
 			case T_INTERFACE:
 			case T_CLASS:
-				if (T_STRING !== $tokens[$i][0]) break;
-
-				$code .= $tokens[$i][2] . $tokens[$i][1];
-				unset($tokens[$i++]);
-
-				$class_pool[$curly_level] = $token['class'];
-
-				self::$inlineClass[strtolower($token['class']->name)] = 1;
-
-				if (T_EXTENDS === $tokens[$i][0])
+				if (!empty($token['class']))
 				{
-					$code .= $tokens[$i][2] . $tokens[$i][1];
-					unset($tokens[$i++]);
+					$class_pool[$curly_level] = $c = $token['class'];
 
-					if (T_STRING === $tokens[$i][0])
-					{
-						$code .= $tokens[$i][2];
-						$code .= $c = $tokens[$i][1];
-						unset($tokens[$i++]);
-
-						self::$inlineClass[strtolower($c)] = 1;
-					}
+					self::$inlineClass[strtolower($c->name)] = 1;
+					$c->extends && self::$inlineClass[strtolower($c->extends)] = 1;
 				}
 
 				break;
