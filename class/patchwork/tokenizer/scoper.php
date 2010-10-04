@@ -15,7 +15,7 @@
 // New token to match a new scope opening
 patchwork_tokenizer::defineNewToken('T_SCOPE_OPEN');
 
-class patchwork_tokenizer_scoper extends patchwork_tokenizer_normalizer
+class patchwork_tokenizer_scoper extends patchwork_tokenizer
 {
 	protected
 
@@ -29,7 +29,8 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer_normalizer
 		'tagFunction'   => T_FUNCTION,
 		'tagClass'      => array(T_CLASS, T_INTERFACE),
 	),
-	$shared = 'scope';
+	$shared  = 'scope',
+	$depends = 'patchwork_tokenizer_normalizer';
 
 
 	function tagScopeOpen(&$token)

@@ -12,14 +12,18 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_constructor4to5 extends patchwork_tokenizer_classInfo
+class patchwork_tokenizer_constructor4to5 extends patchwork_tokenizer
 {
 	protected
 
 	$bracket   = 0,
 	$signature = '',
 	$arguments = array(),
-	$callbacks = array('tagClassOpen' => T_SCOPE_OPEN);
+	$callbacks = array('tagClassOpen' => T_SCOPE_OPEN),
+	$depends   = array(
+		'patchwork_tokenizer_classInfo',
+		'patchwork_tokenizer_scoper',
+	);
 
 
 	function tagClassOpen(&$token)

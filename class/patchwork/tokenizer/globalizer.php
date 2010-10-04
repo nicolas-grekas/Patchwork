@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_globalizer extends patchwork_tokenizer_scoper
+class patchwork_tokenizer_globalizer extends patchwork_tokenizer
 {
 	protected
 
@@ -20,7 +20,8 @@ class patchwork_tokenizer_globalizer extends patchwork_tokenizer_scoper
 	$callbacks   = array(
 		'tagScopeOpen'   => T_SCOPE_OPEN,
 		'tagAutoglobals' => T_VARIABLE,
-	);
+	),
+	$depends = 'patchwork_tokenizer_scoper';
 
 
 	function __construct(parent $parent, $autoglobals)

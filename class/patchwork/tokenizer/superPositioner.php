@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
+class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 {
 	protected
 
@@ -29,6 +29,11 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer_classInfo
 			'class_exists'     => T_USE_FUNCTION,
 			'interface_exists' => T_USE_FUNCTION,
 		)
+	),
+	$depends = array(
+		'patchwork_tokenizer_classInfo',
+		'patchwork_tokenizer_scoper',
+		'patchwork_tokenizer_stringTagger',
 	);
 
 

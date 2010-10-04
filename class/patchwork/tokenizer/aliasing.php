@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_aliasing extends patchwork_tokenizer_classInfo
+class patchwork_tokenizer_aliasing extends patchwork_tokenizer
 {
 	protected
 
@@ -20,6 +20,10 @@ class patchwork_tokenizer_aliasing extends patchwork_tokenizer_classInfo
 	$callbacks = array(
 		'tagVariableFunction' => '(',
 		'tagFunctionCall'     => array(T_USE_FUNCTION),
+	),
+	$depends = array(
+		'patchwork_tokenizer_classInfo',
+		'patchwork_tokenizer_stringTagger',
 	);
 
 
