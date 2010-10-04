@@ -40,10 +40,12 @@ class patchwork_tokenizer
 	$tokenRegistry    = array(),
 	$callbackRegistry = array(),
 
-	$parent = '',
+	$parent,
+	$depends = array(),
 	$shared = array(
 		'line',
 		'code',
+		'depends',
 		'position',
 		'tokens',
 		'prevType',
@@ -70,37 +72,46 @@ class patchwork_tokenizer
 
 	protected function initialize(self $parent)
 	{
-		if (   ($this instanceof $this->parent)
-			|| ($this instanceof $parent)
-			|| is_subclass_of($parent, get_parent_class($this)))
+		$this->parent = $parent;
+		is_array($this->depends) || $this->depends = (array) $this->depends;
+
+		foreach ($this->depends as $parent)
 		{
-			$this->parent = $parent;
-
-			if ($this !== $parent)
+			if (!isset($this->parent->depends[$parent]))
 			{
-				foreach (array_keys($this->parent->shared) as $parent)
-					$this->$parent =& $this->parent->$parent;
-
-				$this->parent->shared += array_flip((array) $this->shared);
-				$this->shared =& $this->parent->shared;
+				trigger_error(get_class($this) . ' tokenizer depends on a not initialized one: ' . $parent);
+				return;
 			}
-			else $this->shared = array_flip((array) $this->shared);
+		}
 
-			$this->registryPosition = $this->nextRegistryPosition;
-			$this->nextRegistryPosition += 100000;
+		$this->depends = array_flip($this->depends);
+		$parent = get_class($this);
 
-			empty($this->callbacks) || $this->register();
+		while (!isset($this->depends[$parent]) && false !== $parent)
+		{
+			$this->depends[$parent] = 1;
+			$parent = get_parent_class($parent);
+		}
+
+		if ($this !== $this->parent)
+		{
+			$this->parent->depends += $this->depends;
+
+			foreach (array_keys($this->parent->shared) as $parent)
+				$this->$parent =& $this->parent->$parent;
+
+			$this->parent->shared += array_flip((array) $this->shared);
+			$this->shared =& $this->parent->shared;
 		}
 		else
 		{
-			$this->parent = $parent;
-
-			trigger_error('Argument 1 passed to '
-				. get_class($this) . '::initialize() must be an instance of '
-				. get_parent_class($this) . ', instance of '
-				. get_class($parent) . ' given'
-			);
+			$this->shared = array_flip((array) $this->shared);
 		}
+
+		$this->registryPosition = $this->nextRegistryPosition;
+		$this->nextRegistryPosition += 100000;
+
+		empty($this->callbacks) || $this->register();
 	}
 
 	static function defineNewToken($name)

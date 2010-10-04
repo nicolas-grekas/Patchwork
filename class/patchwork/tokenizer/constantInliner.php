@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_constantInliner extends patchwork_tokenizer_scoper
+class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 {
 	protected
 
@@ -29,6 +29,10 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer_scoper
 		'tagClassC'    => T_CLASS_C,
 		'tagMethodC'   => T_METHOD_C,
 		'tagFuncC'     => T_FUNC_C,
+	),
+	$depends = array(
+		'patchwork_tokenizer_scoper',
+		'patchwork_tokenizer_stringTagger',
 	);
 
 	protected static $internalConstants = array();

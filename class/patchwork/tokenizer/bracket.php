@@ -25,7 +25,7 @@ abstract class patchwork_tokenizer_bracket extends patchwork_tokenizer
 		'tagPosition' => ',',
 		'tagClose'    => array(')'),
 	),
-	$parent = 'patchwork_tokenizer';
+	$depends = 'patchwork_tokenizer';
 
 
 	// Abstract methods
