@@ -20,10 +20,10 @@ defined('T_NS_C')         || patchwork_tokenizer::defineNewToken('T_NS_C');
 defined('T_NAMESPACE')    || patchwork_tokenizer::defineNewToken('T_NAMESPACE');
 defined('T_NS_SEPARATOR') || patchwork_tokenizer::defineNewToken('T_NS_SEPARATOR');
 
-// Match closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
+// New primary token matching closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
 patchwork_tokenizer::defineNewToken('T_CURLY_CLOSE');
 
-// Match multilines T_WHITESPACE
+// Sub-token matching multilines T_WHITESPACE
 patchwork_tokenizer::defineNewToken('T_WHITESPACE_MULTILINE');
 
 class patchwork_tokenizer
@@ -304,7 +304,7 @@ class patchwork_tokenizer
 				else
 				{
 					$lines = substr_count($token[1], "\n");
-					$lines && T_WHITESPACE  === $token[0] && $token[0] = T_WHITESPACE_MULTILINE;
+					$lines && T_WHITESPACE  === $token[0] && $token[3] = T_WHITESPACE_MULTILINE;
 				}
 
 				if (isset($tRegistry[$token[0]]))

@@ -19,7 +19,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 	$stateCallbacks = array(
 		0 => array(),
 		1 => array(
-			'tagEOState1' => array(T_WHITESPACE_MULTILINE),
+			'tagEOState1' => array(T_WHITESPACE_MULTILINE => T_WHITESPACE),
 		),
 		2 => array(
 			'tagEOState2'     => T_COMMENT,
