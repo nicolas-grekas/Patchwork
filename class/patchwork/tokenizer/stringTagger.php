@@ -32,9 +32,10 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 	$inExtends = false,
 	$inParam   = 0,
 	$callbacks = array(
-		'tagString'  => T_STRING,
-		'tagConst'   => T_CONST,
-		'tagExtends' => array(T_EXTENDS, T_IMPLEMENTS),
+		'tagString'   => T_STRING,
+		'tagConst'    => T_CONST,
+		'tagExtends'  => array(T_EXTENDS, T_IMPLEMENTS),
+		'tagFunction' => T_FUNCTION,
 	);
 
 
@@ -118,14 +119,6 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 		}
 		while (0);
 
-		if (T_NAME_FUNCTION === $token[3])
-		{
-			$this->register(array(
-				'tagParamOpenBracket'  => '(',
-				'tagParamCloseBracket' => ')',
-			));
-		}
-
 		if (isset($this->tokenRegistry[$token[3]]))
 		{
 			foreach ($this->tokenRegistry[$token[3]] as $c)
@@ -160,6 +153,14 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 	{
 		$this->inExtends = false;
 		$this->unregister(array(__FUNCTION__ => '{'));
+	}
+
+	function tagFunction(&$token)
+	{
+		$this->register(array(
+			'tagParamOpenBracket'  => '(',
+			'tagParamCloseBracket' => ')',
+		));
 	}
 
 	function tagParamOpenBracket(&$token)
