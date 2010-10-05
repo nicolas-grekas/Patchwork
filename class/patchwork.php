@@ -261,6 +261,26 @@ class
 
 		self::$appId = abs($GLOBALS['patchwork_appId'] % 10000);
 
+
+		// Anti Cross-Site-Request-Forgery / Javascript-Hijacking token
+
+		if (
+			isset($_COOKIE['T$'])
+			&& (
+				!IS_POSTING
+				|| (isset($_POST['T$']) && substr($_COOKIE['T$'], 1) === substr($_POST['T$'], 1))
+				|| (isset( $_GET['T$']) && substr($_COOKIE['T$'], 1) === substr( $_GET['T$'], 1))
+			)
+			&& 33 === strlen($_COOKIE['T$'])
+			&& 33 === strspn($_COOKIE['T$'], '-_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789')
+		) self::$antiCSRFtoken = $_COOKIE['T$'];
+		else self::getAntiCSRFtoken(true);
+
+		isset($_GET['T$']) && $GLOBALS['patchwork_private'] = true;
+		define('PATCHWORK_TOKEN_MATCH', isset($_GET['T$']) && substr(self::$antiCSRFtoken, 1) === substr($_GET['T$'], 1));
+		if (IS_POSTING) unset($_POST['T$'], $_POST['T$']);
+
+
 		// Language controller
 
 		switch (self::$requestMode)
@@ -330,25 +350,6 @@ class
 			self::setcookie('v$', self::$appId, $_SERVER['REQUEST_TIME'] + $CONFIG['maxage'], $a .'/');
 			$GLOBALS['patchwork_private'] = true;
 		}
-
-
-		// Anti Cross-Site-Request-Forgery / Javascript-Hijacking token
-
-		if (
-			isset($_COOKIE['T$'])
-			&& (
-				!IS_POSTING
-				|| (isset($_POST['T$']) && substr($_COOKIE['T$'], 1) === substr($_POST['T$'], 1))
-				|| (isset( $_GET['T$']) && substr($_COOKIE['T$'], 1) === substr( $_GET['T$'], 1))
-			)
-			&& 33 === strlen($_COOKIE['T$'])
-			&& 33 === strspn($_COOKIE['T$'], '-_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789')
-		) self::$antiCSRFtoken = $_COOKIE['T$'];
-		else self::getAntiCSRFtoken(true);
-
-		isset($_GET['T$']) && $GLOBALS['patchwork_private'] = true;
-		define('PATCHWORK_TOKEN_MATCH', isset($_GET['T$']) && substr(self::$antiCSRFtoken, 1) === substr($_GET['T$'], 1));
-		if (IS_POSTING) unset($_POST['T$'], $_POST['T$']);
 
 
 		// Start output
