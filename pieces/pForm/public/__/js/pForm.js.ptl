@@ -562,8 +562,29 @@ onDOMLoaded.push(function()
 						if (!$event && 'false' == ''+$event) return false;
 					}
 
-					if (document.activeElement && document.activeElement == $elt) $elt.onfocus();
-					else setTimeout($elt.onblur, 100);
+					if (document.activeElement && document.activeElement == $elt)
+					{
+						$elt.form.v_lastFocusedElt = $elt;
+					}
+					else
+					{
+						window.onload = (function($onload, $elt)
+						{
+							return function()
+							{
+								if (document.activeElement != $elt
+									&& '' == $elt.value
+									&& !/\splaceholder\b/.test($elt.className))
+								{
+									$elt.className += ' placeholder';
+									$elt.value = $elt.placeholder;
+								}
+
+								$onload && $onload();
+								$onload = $elt = 0;
+							}
+						})(window.onload, $elt);
+					}
 				}
 				else
 				{
