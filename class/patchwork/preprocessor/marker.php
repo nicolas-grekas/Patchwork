@@ -12,19 +12,20 @@
  ***************************************************************************/
 
 
-class extends patchwork_preprocessor_require
+class extends patchwork_preprocessor_bracket
 {
 	public
 
-	$close = ':0)',
 	$greedy = false,
 	$curly = 0;
 
 
+	function filterPreBracket($type, $token) {return $this->filter($type, $token);}
+	function filterBracket   ($type, $token) {return $this->filter($type, $token);}
+	function onClose($token)                 {return $this->filter(')'  , $token);}
+
 	function filter($type, $token)
 	{
-		if ($this->greedy) return parent::filter($type, $token);
-
 		if (T_WHITESPACE === $type || T_COMMENT === $type || T_DOC_COMMENT === $type)
 		{
 			// Do nothing
@@ -38,11 +39,27 @@ class extends patchwork_preprocessor_require
 		}
 		else
 		{
-			if ('?' === $type) --$this->bracket;
-			$token = parent::filter($type, $token);
-			if (':' === $type) ++$this->bracket;
+			if (!$this->greedy &&'?' === $type) --$this->bracket;
 
-			if (0 < $this->bracket || !$this->registered) return $token;
+			switch ($type)
+			{
+			case '{':
+			case '[':
+			case '?': ++$this->bracket; break;
+			case ',': if ($this->bracket) break;
+			case '}':
+			case ']':
+			case ':': if ($this->bracket--) break;
+			case ')': if (0 <= $this->bracket) break;
+			case T_AS: case T_CLOSE_TAG: case ';':
+				$token = ':0)' . $token;
+				$this->popFilter();
+				return $token;
+			}
+
+			if ($this->greedy) return $token;
+			if (':' === $type) ++$this->bracket;
+			if (0 < $this->bracket) return $token;
 
 			switch ($type)
 			{
@@ -72,7 +89,7 @@ class extends patchwork_preprocessor_require
 				break;
 
 			default:
-				$token = $this->close . $token;
+				$token = ':0)' . $token;
 				$this->popFilter();
 			}
 		}
