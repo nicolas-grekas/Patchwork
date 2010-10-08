@@ -19,7 +19,6 @@ class patchwork_tokenizer_bracket_patchworkPath extends patchwork_tokenizer_brac
 	function __construct(patchwork_tokenizer $parent, $level)
 	{
 		$this->level = (string) (int) $level;
-
 		$this->initialize($parent);
 	}
 
