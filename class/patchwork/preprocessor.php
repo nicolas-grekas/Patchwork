@@ -13,7 +13,6 @@
 
 // TODO tokenizer refactorize:
 // - autoload marker
-// - class aliasing
 
 
 require_once patchworkPath('class/patchwork/tokenizer.php');
@@ -165,7 +164,7 @@ class patchwork_preprocessor__0
 		0 <= $level && new patchwork_tokenizer_globalizer($tokenizer, '$CONFIG');
 		new patchwork_tokenizer_constantInliner($tokenizer, $this->source, self::$constants);
 		$tokenizer = new patchwork_tokenizer_classInfo($tokenizer);
-		new patchwork_tokenizer_aliasing($tokenizer, $GLOBALS['patchwork_preprocessor_alias']);
+		new patchwork_tokenizer_aliasing($tokenizer, $GLOBALS['patchwork_preprocessor_alias'], self::$classAlias);
 		new patchwork_tokenizer_constructorStatic($tokenizer, $is_top ? $class : false);
 		0 > $level && new patchwork_tokenizer_constructor4to5($tokenizer);
 		$tokenizer = new patchwork_tokenizer_superPositioner($tokenizer, $level, $is_top ? $class : false);
@@ -231,8 +230,7 @@ class patchwork_preprocessor__0
 
 				if (T_STRING === $tokens[$i][0])
 				{
-					$c = strtolower($tokens[$i][0]);
-					empty(self::$classAlias[$c]) || $c = self::$classAlias[$c];
+					$c = strtolower($tokens[$i][1]);
 					if (isset(self::$inlineClass[$c])) break;
 				}
 
@@ -322,22 +320,13 @@ class patchwork_preprocessor__0
 			case T_STRING:
 				$type = strtolower($code);
 
-				switch ($token[3])
+				if (T_USE_FUNCTION === $token[3] && isset(patchwork_tokenizer_aliasing::$autoloader[$type]))
 				{
-				case T_USE_CLASS:
-					empty(self::$classAlias[$type]) || $code = self::$classAlias[$type];
-					break;
-
-				case T_USE_FUNCTION:
-					if (isset(patchwork_tokenizer_aliasing::$autoloader[$type]))
-					{
-						$code = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$code}";
-						$b = new patchwork_preprocessor_marker($this);
-						$b->curly = -1;
-						0 < $curly_marker_last[1] || $curly_marker_last[1] = 1;
-					}
+					$code = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$code}";
+					$b = new patchwork_preprocessor_marker($this);
+					$b->curly = -1;
+					0 < $curly_marker_last[1] || $curly_marker_last[1] = 1;
 				}
-
 				break;
 
 			case T_EVAL:

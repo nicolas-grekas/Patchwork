@@ -17,9 +17,10 @@ class patchwork_tokenizer_aliasing extends patchwork_tokenizer
 	protected
 
 	$functionAlias = array(),
-	$callbacks = array(
+	$classAlias    = array(),
+	$callbacks     = array(
 		'tagVariableFunction' => '(',
-		'tagFunctionCall'     => array(T_USE_FUNCTION),
+		'tagUseFunction'      => T_USE_FUNCTION,
 	),
 	$depends = array(
 		'patchwork_tokenizer_classInfo',
@@ -122,8 +123,13 @@ class patchwork_tokenizer_aliasing extends patchwork_tokenizer
 	);
 
 
-	function __construct(parent $parent, $alias_map)
+	function __construct(parent $parent, $function_map, $class_map)
 	{
+		foreach ($class_map as $k => $v)
+		{
+			$this->classAlias[strtolower($k)] = $v;
+		}
+
 		$v = get_defined_functions();
 
 		foreach ($v['user'] as $v)
@@ -135,13 +141,14 @@ class patchwork_tokenizer_aliasing extends patchwork_tokenizer
 			}
 		}
 
-		if (!$this->functionAlias) return;
+		if (!$this->functionAlias) $this->callbacks = array();
+		if ($this->classAlias) $this->callbacks['tagUseClass'] = T_USE_CLASS;
 
 		$this->initialize($parent);
 
-		foreach ($alias_map as $k => $v)
+		foreach ($function_map as $k => $v)
 		{
-			function_exists('__patchwork_' . $k) && $this->functionAlias[$k] = $v;
+			function_exists('__patchwork_' . $k) && $this->functionAlias[strtolower($k)] = $v;
 		}
 	}
 
@@ -194,7 +201,7 @@ class patchwork_tokenizer_aliasing extends patchwork_tokenizer
 		}
 	}
 
-	function tagFunctionCall(&$token)
+	function tagUseFunction(&$token)
 	{
 		$a = strtolower($token[1]);
 
@@ -223,6 +230,14 @@ class patchwork_tokenizer_aliasing extends patchwork_tokenizer
 				$this->tokens[$a][0] = T_WHITESPACE;
 				$this->tokens[$a][1] = ' ';
 			}
+		}
+	}
+
+	function tagUseClass(&$token)
+	{
+		if (isset($this->classAlias[strtolower($token[1])]))
+		{
+			$token[1] = $this->classAlias[strtolower($token[1])];
 		}
 	}
 }

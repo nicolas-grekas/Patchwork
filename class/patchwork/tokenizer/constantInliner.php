@@ -22,7 +22,7 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 	$nextScope = '',
 	$callbacks = array(
 		'tagScopeOpen' => T_SCOPE_OPEN,
-		'tagConstant'  => array(T_USE_CONSTANT),
+		'tagConstant'  => T_USE_CONSTANT,
 		'tagFileC'     => array(T_FILE, T_DIR),
 		'tagLineC'     => T_LINE,
 		'tagScopeName' => array(T_CLASS, T_FUNCTION),
