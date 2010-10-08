@@ -13,7 +13,7 @@
 
 // TODO tokenizer refactorize:
 // - autoload marker
-// - class & callback aliasing
+// - class aliasing
 
 
 require_once patchworkPath('class/patchwork/tokenizer.php');
@@ -67,8 +67,7 @@ class patchwork_preprocessor__0
 
 	$declaredClass = array('self' => 1, 'parent' => 1, 'static' => 1, 'p' => 1, 'patchwork' => 1),
 	$inlineClass,
-	$recursivePool = array(),
-	$callback;
+	$recursivePool = array();
 
 
 	static function __constructStatic()
@@ -330,23 +329,12 @@ class patchwork_preprocessor__0
 					break;
 
 				case T_USE_FUNCTION:
-					if (!isset(self::$callback) && 0 !== strncmp($class, 'patchwork_preprocessor_', 23))
+					if (isset(patchwork_tokenizer_aliasing::$autoloader[$type]))
 					{
-						self::$callback =& patchwork_preprocessor_callback::$list;
-					}
-
-					if (!isset(self::$callback[$type])) break;
-
-					$code = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$code}";
-					$b = new patchwork_preprocessor_callback($this, $type);
-					$b->curly = -1;
-					0 < $curly_marker_last[1] || $curly_marker_last[1] = 1;
-
-					if ('&' === $prevType)
-					{
-						$j = $new_code_length - 1;
-						$new_code[$j] = ' ';
-						$new_type[$j] = T_WHITESPACE;
+						$code = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$code}";
+						$b = new patchwork_preprocessor_marker($this);
+						$b->curly = -1;
+						0 < $curly_marker_last[1] || $curly_marker_last[1] = 1;
 					}
 				}
 
