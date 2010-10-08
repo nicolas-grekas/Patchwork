@@ -43,6 +43,7 @@ class patchwork_tokenizer_aliasing extends patchwork_tokenizer
 		'method_exists'     => 0,
 		'preg_replace'      => 0,
 		'property_exists'   => 0,
+		'spl_autoload'      => 0,
 		'unserialize'       => 0,
 		'assert_options'    => 0, // callback as second arg, but only if first arg is ASSERT_CALLBACK
 		'curl_setopt'       => 0, // callback as third arg, but only if second arg is CURLOPT_*FUNCTION
