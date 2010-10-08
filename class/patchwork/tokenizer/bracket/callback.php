@@ -12,7 +12,10 @@
  ***************************************************************************/
 
 
-// TODO: handle when $callbackPosition < 0
+// FIXME: handle when $callbackPosition < 0
+// TODO: enable class aliasing by detecting array('classname', ...)
+// TODO: fetch constant callback parameter and use it to do static aliasing
+// (See legacy experiment in commit 5779ba)
 
 class patchwork_tokenizer_bracket_callback extends patchwork_tokenizer_bracket
 {
