@@ -346,8 +346,7 @@ class patchwork_preprocessor__0
 				if (false !== $tokens[$i][0] && 0 <= $level)
 				{
 					$code .= "((\$a{$T}=\$b{$T}=\$e{$T})||1?";
-					$b = new patchwork_preprocessor_require($this);
-					$b->close = ':0)';
+					$b = new patchwork_preprocessor_marker($this);
 					0 < $curly_marker_last[1] || $curly_marker_last[1] = 1;
 				}
 				break;
