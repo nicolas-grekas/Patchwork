@@ -24,7 +24,7 @@ class patchwork_tokenizer_closeExpression extends patchwork_tokenizer
 	);
 
 
-	function __construct(patchwork_tokenizer $parent, $close)
+	function __construct(parent $parent, $close)
 	{
 		if ('' !== $this->close = (string) $close)
 		{
