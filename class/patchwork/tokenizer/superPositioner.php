@@ -131,13 +131,14 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 
 	function fixPrivate(&$token)
 	{
-		$token[1] = 'protected';
-		$token[0] = T_PROTECTED;
+		$this->code[--$this->position] = array(T_PROTECTED, 'protected');
 
 		if (0 <= $this->level)
 		{
 			$this->setError("Private static methods or properties are banned, please use protected static ones instead");
 		}
+
+		return false;
 	}
 
 	function tagClassClose(&$token)
