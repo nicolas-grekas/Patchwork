@@ -168,7 +168,7 @@ class patchwork_preprocessor__0
 		new patchwork_tokenizer_constructorStatic($tokenizer, $is_top ? $class : false);
 		0 > $level && new patchwork_tokenizer_constructor4to5($tokenizer);
 		$tokenizer = new patchwork_tokenizer_superPositioner($tokenizer, $level, $is_top ? $class : false);
-		new patchwork_tokenizer_marker($tokenizer, $T);
+		new patchwork_tokenizer_marker($tokenizer);
 
 
 		$tokens = $tokenizer->tokenize($tokens);
@@ -318,37 +318,20 @@ class patchwork_preprocessor__0
 				break;
 
 			case T_STRING:
-				$type = strtolower($code);
-
-				if (T_USE_FUNCTION === $token[3] && isset(patchwork_tokenizer_aliasing::$autoloader[$type]))
-				{
-					$code = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$code}";
-					$b = new patchwork_preprocessor_marker($this);
-					$b->curly = -1;
-					0 < $curly_marker_last[1] || $curly_marker_last[1] = 1;
-				}
-				break;
-
 			case T_EVAL:
-				if ('(' === $tokens[$i][0])
-				{
-					$code = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$code}";
-					$b = new patchwork_preprocessor_marker($this);
-					$b->curly = -1;
-					0 < $curly_marker_last[1] || $curly_marker_last[1] = 1;
-				}
-				break;
-
 			case T_REQUIRE_ONCE:
 			case T_INCLUDE_ONCE:
 			case T_REQUIRE:
 			case T_INCLUDE:
-				if (false !== $tokens[$i][0] && 0 <= $level)
+				$type = explode('?', $code, 2);
+
+				if (isset($type[1]))
 				{
-					$code .= "((\$a{$T}=\$b{$T}=\$e{$T})||1?";
-					$b = new patchwork_preprocessor_marker($this);
+					$type[0] = $type[1];
 					0 < $curly_marker_last[1] || $curly_marker_last[1] = 1;
 				}
+
+				$type = strtolower($type[0]);
 				break;
 
 			case T_STATIC:
@@ -391,12 +374,7 @@ class patchwork_preprocessor__0
 
 				--$curly_level;
 
-				if (isset($class_pool[$curly_level]))
-				{
-					$code .= "\$GLOBALS['c{$T}']['{$class_pool[$curly_level]->realName}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
-
-					unset($class_pool[$curly_level]);
-				}
+				unset($class_pool[$curly_level]);
 
 				break;
 			}
@@ -425,10 +403,5 @@ class patchwork_preprocessor__0
 	protected function marker($class = '')
 	{
 		return ($class ? 'isset($c' . PATCHWORK_PATH_TOKEN . "['" . strtolower($class) . "'])||" : ('$e' . PATCHWORK_PATH_TOKEN . '=$b' . PATCHWORK_PATH_TOKEN . '=')) . '$a' . PATCHWORK_PATH_TOKEN . "=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "'";
-	}
-
-	protected function extractLF_callback($a)
-	{
-		return str_repeat("\n", substr_count($a[0], "\n"));
 	}
 }
