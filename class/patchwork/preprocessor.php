@@ -64,8 +64,7 @@ class patchwork_preprocessor__0
 
 	protected static
 
-	$declaredClass = array('self' => 1, 'parent' => 1, 'static' => 1, 'p' => 1, 'patchwork' => 1),
-	$inlineClass,
+	$declaredClass = array('p', 'patchwork'),
 	$recursivePool = array();
 
 
@@ -80,7 +79,7 @@ class patchwork_preprocessor__0
 			$v = strtolower($v);
 			if (false !== strpos($v, 'patchwork')) continue;
 			if ('p' === $v) break;
-			self::$declaredClass[$v] = 1;
+			self::$declaredClass[] = $v;
 		}
 	}
 
@@ -90,7 +89,6 @@ class patchwork_preprocessor__0
 
 		if (!self::$recursivePool || $class)
 		{
-			self::$recursivePool || self::$inlineClass = self::$declaredClass;
 			$pool = array($source => array($destination, $level, $class, $is_top));
 			self::$recursivePool[] =& $pool;
 		}
@@ -168,7 +166,7 @@ class patchwork_preprocessor__0
 		new patchwork_tokenizer_constructorStatic($tokenizer, $is_top ? $class : false);
 		0 > $level && new patchwork_tokenizer_constructor4to5($tokenizer);
 		$tokenizer = new patchwork_tokenizer_superPositioner($tokenizer, $level, $is_top ? $class : false);
-		new patchwork_tokenizer_marker($tokenizer);
+		new patchwork_tokenizer_marker($tokenizer, self::$declaredClass);
 
 
 		$tokens = $tokenizer->tokenize($tokens);
@@ -184,7 +182,6 @@ class patchwork_preprocessor__0
 		$tokens[] = array(false);
 		$tokens[] = array(false);
 
-		$static_instruction = false;
 		$antePrevType = false;
 		$prevType = false;
 		$new_code = array();
@@ -193,7 +190,6 @@ class patchwork_preprocessor__0
 
 		$curly_level = 0;
 		$curly_starts_function = false;
-		$class_pool = array();
 		$curly_marker = array(array(0, 0));
 		$curly_marker_last =& $curly_marker[0];
 
@@ -209,32 +205,14 @@ class patchwork_preprocessor__0
 
 			switch ($type)
 			{
-			case T_INTERFACE:
-			case T_CLASS:
-				if (!empty($token['class']))
-				{
-					$class_pool[$curly_level] = $c = $token['class'];
-
-					self::$inlineClass[strtolower($c->name)] = 1;
-					$c->extends && self::$inlineClass[strtolower($c->extends)] = 1;
-				}
-
-				break;
-
 			case T_FUNCTION:
 				$curly_starts_function = true;
 				break;
 
 			case T_NEW:
-				$c = '';
+				if (!isset($token['marker'])) break;
 
-				if (T_STRING === $tokens[$i][0])
-				{
-					$c = strtolower($tokens[$i][1]);
-					if (isset(self::$inlineClass[$c])) break;
-				}
-
-				if ('' === $c)
+				if ('' === $c = $token['marker'])
 				{
 					0 < $curly_marker_last[1] || $curly_marker_last[1] =  1;
 					$c = "\$a{$T}=\$b{$T}=\$e{$T}";
@@ -266,15 +244,11 @@ class patchwork_preprocessor__0
 			case T_DOUBLE_COLON:
 				if (T_DOUBLE_COLON === $type)
 				{
-					if (strspn($antePrevType, '(,') // To not break pass by ref, isset, unset and list
-						|| $static_instruction
-						|| isset($class_pool[$curly_level-1])
-						|| isset(self::$inlineClass[$prevType])
-					) break;
+					if (empty($token['marker'])) break;
 
 					$curly_marker_last[1] || $curly_marker_last[1] = -1;
-					$c = $this->marker($prevType);
 					$j = $new_code_length - 1;
+					$c = $this->marker($new_code[$j]);
 
 					if ('&' === $antePrevType)
 					{
@@ -323,30 +297,18 @@ class patchwork_preprocessor__0
 			case T_INCLUDE_ONCE:
 			case T_REQUIRE:
 			case T_INCLUDE:
-				$type = explode('?', $code, 2);
-
-				if (isset($type[1]))
+				if (false !== strpos($code, '?'))
 				{
-					$type[0] = $type[1];
 					0 < $curly_marker_last[1] || $curly_marker_last[1] = 1;
 				}
-
-				$type = strtolower($type[0]);
-				break;
-
-			case T_STATIC:
-				$static_instruction = true;
 				break;
 
 			case ';':
 				$curly_starts_function = false;
-				$static_instruction = false;
 				$new_type = array($new_code_length - 1 => false);
 				break;
 
 			case '{':
-				isset($class_pool[$curly_level-1]) && $static_instruction = false;
-
 				++$curly_level;
 
 				if ($curly_starts_function)
@@ -373,8 +335,6 @@ class patchwork_preprocessor__0
 				}
 
 				--$curly_level;
-
-				unset($class_pool[$curly_level]);
 
 				break;
 			}
