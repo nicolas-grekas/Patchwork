@@ -16,10 +16,15 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer
 {
 	protected
 
+	$inStatic = false,
+	$inlineClass = array('self' => 1, 'parent' => 1, 'static' => 1),
 	$callbacks = array(
-		'tagOpenTag'    => T_OPEN_TAG,
-		'tagAutoloader' => array(T_USE_FUNCTION, T_EVAL, T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
-		'tagScopeOpen'  => T_SCOPE_OPEN,
+		'tagOpenTag'     => T_OPEN_TAG,
+		'tagAutoloader'  => array(T_USE_FUNCTION, T_EVAL, T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
+		'tagScopeOpen'   => T_SCOPE_OPEN,
+		'tagStatic'      => T_STATIC,
+		'tagNew'         => T_NEW,
+		'tagDoubleColon' => T_DOUBLE_COLON,
 	),
 	$depends   = array(
 		'patchwork_tokenizer_classInfo',
@@ -29,8 +34,13 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer
 	);
 
 
-	function __construct(parent $parent = null)
+	function __construct(parent $parent = null, $inlineClass)
 	{
+		foreach ($inlineClass as $inlineClass)
+		{
+			$this->inlineClass[strtolower($inlineClass)] = 1;
+		}
+
 		$this->initialize($parent);
 	}
 
@@ -60,7 +70,67 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer
 
 	function tagScopeOpen(&$token)
 	{
-		if (T_CLASS === $this->scope->type) return 'tagClassClose';
+		$this->inStatic = false;
+
+		if (T_CLASS === $this->scope->type)
+		{
+			$this->inlineClass[strtolower($this->class->name)] = 1;
+			$this->class->extends && $this->inlineClass[strtolower($this->class->extends)] = 1;
+			return 'tagClassClose';
+		}
+	}
+
+	function tagStatic(&$token)
+	{
+		if (T_FUNCTION === $this->scope->type)
+		{
+			$this->inStatic = true;
+			$this->register(array('tagStaticEnd' => ';'));
+		}
+	}
+
+	function tagStaticEnd(&$token)
+	{
+		$this->inStatic = false;
+		$this->unregister(array(__FUNCTION__ => ';'));
+	}
+
+	function tagNew(&$token)
+	{
+		$i = $this->position;
+
+		while (isset($this->code[$i][1]) && (
+			   T_WHITESPACE  === $this->code[$i][0]
+			|| T_COMMENT     === $this->code[$i][0]
+			|| T_DOC_COMMENT === $this->code[$i][0]
+		)) ++$i;
+
+		if (!isset($this->code[$i])) return;
+
+		if (T_STRING === $this->code[$i][0])
+		{
+			$c = strtolower($this->code[$i][1]);
+			if (isset($this->inlineClass[$c])) return;
+		}
+		else $c = '';
+
+		$token['marker'] = $c;
+	}
+
+	function tagDoubleColon(&$token)
+	{
+		if (   $this->inStatic
+			|| T_CLASS === $this->scope->type
+			|| strspn($this->anteType, '(,') // To not break pass by ref, isset, unset and list
+		) return;
+
+		if (T_STRING === $this->prevType)
+		{
+			$c = $this->tokens[count($this->tokens) - 1][1];
+			if (isset($this->inlineClass[strtolower($c)])) return;
+		}
+
+		$token['marker'] = 1;
 	}
 
 	function tagClassClose(&$token)
