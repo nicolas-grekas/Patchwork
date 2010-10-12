@@ -72,6 +72,12 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer
 	{
 		$this->inStatic = false;
 
+		if (T_FUNCTION === $this->scope->type)
+		{
+			$token['marker'] = 1;
+			return 'tagFunctionClose';
+		}
+
 		if (T_CLASS === $this->scope->type)
 		{
 			$this->inlineClass[strtolower($this->class->name)] = 1;
@@ -130,6 +136,11 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer
 			if (isset($this->inlineClass[strtolower($c)])) return;
 		}
 
+		$token['marker'] = 1;
+	}
+
+	function tagFunctionClose(&$token)
+	{
 		$token['marker'] = 1;
 	}
 
