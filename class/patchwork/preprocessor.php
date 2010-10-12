@@ -11,9 +11,6 @@
  *
  ***************************************************************************/
 
-// TODO tokenizer refactorize:
-// - autoload marker
-
 
 require_once patchworkPath('class/patchwork/tokenizer.php');
 require_once patchworkPath('class/patchwork/tokenizer/normalizer.php');
@@ -34,28 +31,14 @@ require_once patchworkPath('class/patchwork/tokenizer/marker.php');
 
 class patchwork_preprocessor__0
 {
-	public
-
-	$source,
-	$line,
-	$level,
-	$class,
-	$isTop;
-
-
-	protected $tokenFilter = array();
-
-
 	static
 
 	$scream = false,
-
 	$constants = array(
 		'DEBUG', 'IS_WINDOWS', 'PATCHWORK_ZCACHE',
 		'PATCHWORK_PATH_LEVEL', 'PATCHWORK_PATH_OFFSET',
 		'E_DEPRECATED', 'E_USER_DEPRECATED', 'E_RECOVERABLE_ERROR',
 	),
-
 	$classAlias = array(
 		'p' => 'patchwork',
 		's' => 'SESSION',
@@ -103,13 +86,8 @@ class patchwork_preprocessor__0
 		while (list($source, list($destination, $level, $class, $is_top)) = each($pool))
 		{
 			$preproc = new patchwork_preprocessor;
-			$preproc->source = $source;
-			$preproc->level  = $level;
-			$preproc->class  = $class;
-			$preproc->isTop  = $is_top;
 
-			$code = file_get_contents($source);
-			$code =& $preproc->preprocess($code);
+			$code = $preproc->preprocess($source, $level, $class, $is_top);
 
 			$tmp = PATCHWORK_PROJECT_PATH . '.~' . uniqid(mt_rand(), true);
 			if (false !== file_put_contents($tmp, $code))
@@ -135,24 +113,8 @@ class patchwork_preprocessor__0
 
 	protected function __construct() {}
 
-	function pushFilter($filter)
+	protected function preprocess($source, $level, $class, $is_top)
 	{
-		array_unshift($this->tokenFilter, $filter);
-	}
-
-	function popFilter()
-	{
-		array_shift($this->tokenFilter);
-	}
-
-	protected function &preprocess(&$tokens)
-	{
-		$T = PATCHWORK_PATH_TOKEN;
-
-		$level  = $this->level;
-		$class  = $this->class;
-		$is_top = $this->isTop;
-
 		$tokenizer = new patchwork_tokenizer_normalizer;
 		self::$scream && new patchwork_tokenizer_scream($tokenizer);
 		0 <= $level && $class && new patchwork_tokenizer_className($tokenizer, $class);
@@ -160,7 +122,7 @@ class patchwork_preprocessor__0
 		new patchwork_tokenizer_T($tokenizer);
 		$tokenizer = new patchwork_tokenizer_scoper($tokenizer);
 		0 <= $level && new patchwork_tokenizer_globalizer($tokenizer, '$CONFIG');
-		new patchwork_tokenizer_constantInliner($tokenizer, $this->source, self::$constants);
+		new patchwork_tokenizer_constantInliner($tokenizer, $source, self::$constants);
 		$tokenizer = new patchwork_tokenizer_classInfo($tokenizer);
 		new patchwork_tokenizer_aliasing($tokenizer, $GLOBALS['patchwork_preprocessor_alias'], self::$classAlias);
 		new patchwork_tokenizer_constructorStatic($tokenizer, $is_top ? $class : false);
@@ -168,170 +130,23 @@ class patchwork_preprocessor__0
 		$tokenizer = new patchwork_tokenizer_superPositioner($tokenizer, $level, $is_top ? $class : false);
 		new patchwork_tokenizer_marker($tokenizer, self::$declaredClass);
 
-
+		$tokens = file_get_contents($source);
 		$tokens = $tokenizer->tokenize($tokens);
-		$count = count($tokens);
 
 		if ($tokenizer = $tokenizer->getError())
 		{
-			patchwork_error::handle(E_USER_ERROR, $tokenizer[0], $this->source, $tokenizer[1]);
+			patchwork_error::handle(E_USER_ERROR, $tokenizer[0], $source, $tokenizer[1]);
 		}
 
-		$antePrevType = false;
-		$prevType = false;
-		$new_code = array();
-		$new_type = array();
-		$new_code_length = 0;
-
-		$curly_marker = array(array(0, 0));
-		$curly_marker_last =& $curly_marker[0];
-
-		$type = T_INLINE_HTML;
 		$i = 0;
+		$count = count($tokens);
 
 		while ($i < $count)
 		{
-			list($type, $code) = $token = $tokens[$i] + array(2 => '', 0);
-
-			// Reduce memory usage
-			unset($tokens[$i++]);
-
-			switch ($type)
-			{
-			case T_NEW:
-				if (!isset($token['marker'])) break;
-
-				if ('' === $c = $token['marker'])
-				{
-					0 < $curly_marker_last[1] || $curly_marker_last[1] =  1;
-					$c = "\$a{$T}=\$b{$T}=\$e{$T}";
-				}
-				else
-				{
-					$curly_marker_last[1] || $curly_marker_last[1] = -1;
-					$c = $this->marker($c);
-				}
-
-				if ('&' === $prevType)
-				{
-					$j = $new_code_length - 1;
-
-					if ('=' === $antePrevType)
-					{
-						$j -= 4;
-						$antePrevType = '&';
-					}
-					else
-					{
-						$new_type[$j] = $prevType = T_WHITESPACE;
-						$new_code[$j] = ' ';
-						$code = "(({$c})?" . $code;
-					}
-				}
-				else $code = "(({$c})?" . $code;
-
-			case T_DOUBLE_COLON:
-				if (T_DOUBLE_COLON === $type)
-				{
-					if (empty($token['marker'])) break;
-
-					$curly_marker_last[1] || $curly_marker_last[1] = -1;
-					$j = $new_code_length - 1;
-					$c = $this->marker($new_code[$j]);
-
-					if ('&' === $antePrevType)
-					{
-						$j -= 4;
-						if ('=' !== $new_type[$j]) break;
-						$j -= 2;
-					}
-					else
-					{
-						while (isset($new_type[$j -= 2]) && in_array($new_type[$j], array(T_DEC, T_INC))) ;
-						$j += 2;
-						$new_code[$j] = "(({$c})?" . $new_code[$j];
-					}
-				}
-
-				if ('&' === $antePrevType)
-				{
-					$b = 0;
-
-					do switch ($new_type[$j])
-					{
-					case '$': if (!$b && $j += 2) while (isset($new_type[$j -= 2]) && '$' === $new_type[$j]) ;
-					case T_VARIABLE:
-						if (!$b)
-						{
-							$j -= 2;
-							if (T_OBJECT_OPERATOR !== $new_type[$j] && T_DOUBLE_COLON !== $new_type[$j] && $j += 2) break 2;
-						}
-						break;
-
-					case '{': case '[': --$b; break;
-					case '}': case ']': ++$b; break;
-					}
-					while (isset($new_type[$j -= 2]));
-
-					$new_code[$j] = "(({$c})?" . $new_code[$j];
-				}
-
-				new patchwork_preprocessor_marker($this);
-
-				break;
-
-			case T_STRING:
-			case T_EVAL:
-			case T_REQUIRE_ONCE:
-			case T_INCLUDE_ONCE:
-			case T_REQUIRE:
-			case T_INCLUDE:
-				if (false !== strpos($code, '?'))
-				{
-					0 < $curly_marker_last[1] || $curly_marker_last[1] = 1;
-				}
-				break;
-
-			case '{':
-				if (isset($token['marker']))
-				{
-					$curly_marker_last =& $curly_marker[];
-					$curly_marker_last = array($new_code_length + 1, 0);
-				}
-
-				break;
-
-			case '}':
-				if (isset($token['marker']))
-				{
-					$curly_marker_last[1] && $new_code[$curly_marker_last[0]] .= $curly_marker_last[1]>0
-						? "global \$a{$T},\$b{$T},\$c{$T};static \$d{$T}=1;(" . $this->marker() . ")&&\$d{$T}&&\$d{$T}=0;"
-						: "global \$a{$T},\$c{$T};";
-
-					array_pop($curly_marker);
-					$curly_marker_last =& $curly_marker[count($curly_marker) - 1];
-				}
-
-				break;
-			}
-
-			foreach ($this->tokenFilter as $filter) $code = call_user_func($filter, $type, $code);
-
-			$antePrevType = $prevType;
-			$prevType = $type;
-
-			$new_code[] = $token[2];
-			$new_code[] = $code;
-			$new_type[] = false;
-			$new_type[] = $type;
-			$new_code_length += 2;
+			$tokens[$i] = (isset($tokens[$i][2]) ? $tokens[$i][2] : '') . $tokens[$i][1];
+			++$i;
 		}
 
-		return $new_code;
-	}
-
-	protected function marker($class = '')
-	{
-		return ($class ? 'isset($c' . PATCHWORK_PATH_TOKEN . "['" . strtolower($class) . "'])||" : ('$e' . PATCHWORK_PATH_TOKEN . '=$b' . PATCHWORK_PATH_TOKEN . '=')) . '$a' . PATCHWORK_PATH_TOKEN . "=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "'";
+		return implode('', $tokens);
 	}
 }
