@@ -66,15 +66,17 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer
 		$T = PATCHWORK_PATH_TOKEN;
 		$token[1] = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$token[1]}";
 		new patchwork_tokenizer_closeMarker($this, $curly);
+
+		0 < $this->scope->markerState || $this->scope->markerState = 1;
 	}
 
 	function tagScopeOpen(&$token)
 	{
 		$this->inStatic = false;
+		$this->scope->markerState = 0;
 
 		if (T_FUNCTION === $this->scope->type)
 		{
-			$token['marker'] = 1;
 			return 'tagFunctionClose';
 		}
 
@@ -117,10 +119,21 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer
 		{
 			$c = strtolower($this->code[$i][1]);
 			if (isset($this->inlineClass[$c])) return;
+			$c = $this->getMarker($c);
+			$this->scope->markerState || $this->scope->markerState = -1;
 		}
-		else $c = '';
+		else
+		{
+			$T = PATCHWORK_PATH_TOKEN;
+			$c = "\$a{$T}=\$b{$T}=\$e{$T}";
+			0 < $this->scope->markerState || $this->scope->markerState = 1;
+		}
 
-		$token['marker'] = $c;
+		$c = '&' === $this->prevType ? "patchwork_autoload_marker({$c}," : "(({$c})?";
+
+		$token[1] = $c . $token[1];
+
+		new patchwork_tokenizer_closeMarker($this, 0, '&' === $this->prevType ? ')' : ':0)');
 	}
 
 	function tagDoubleColon(&$token)
@@ -130,18 +143,50 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer
 			|| strspn($this->anteType, '(,') // To not break pass by ref, isset, unset and list
 		) return;
 
+		$i = count($this->tokens) - 1;
+
 		if (T_STRING === $this->prevType)
 		{
-			$c = $this->tokens[count($this->tokens) - 1][1];
-			if (isset($this->inlineClass[strtolower($c)])) return;
+			$c = strtolower($this->tokens[$i][1]);
+			if (isset($this->inlineClass[$c])) return;
+			$c = $this->getMarker($c);
+			$this->scope->markerState || $this->scope->markerState = -1;
+		}
+		else
+		{
+			// TODO: handle the else case. Since PHP 5.3, vars are allowed here
+			return;
 		}
 
-		$token['marker'] = 1;
+		if ('&' === $this->anteType)
+		{
+			$token[1] = "patchwork_autoload_marker({$c}," . $token[1];
+		}
+		else
+		{
+			while (isset($this->tokens[--$i]))
+			{
+				if (T_DEC !== $this->tokens[$i][0] && T_INC !== $this->tokens[$i][0])
+				{
+					break;
+				}
+			}
+
+			$this->tokens[++$i][1] = "(({$c})?" . $this->tokens[$i][1];
+		}
+
+		new patchwork_tokenizer_closeMarker($this, 0, '&' === $this->anteType ? ')' : ':0)');
 	}
 
 	function tagFunctionClose(&$token)
 	{
-		$token['marker'] = 1;
+		if ($this->scope->markerState)
+		{
+			$T = PATCHWORK_PATH_TOKEN;
+			$this->scope->token[1] .= 0 < $this->scope->markerState
+				? "global \$a{$T},\$b{$T},\$c{$T};static \$d{$T}=1;(" . $this->getMarker() . ")&&\$d{$T}&&\$d{$T}=0;"
+				: "global \$a{$T},\$c{$T};";
+		}
 	}
 
 	function tagClassClose(&$token)
@@ -149,5 +194,12 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer
 		$T = PATCHWORK_PATH_TOKEN;
 		$c = isset($this->class->realName) ? $this->class->realName : $this->class->name;
 		$token[1] .= "\$GLOBALS['c{$T}']['{$c}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
+	}
+
+	protected function getMarker($class = '')
+	{
+		$T = PATCHWORK_PATH_TOKEN;
+		$class = '' !== $class ? "isset(\$c{$T}['{$class}'])||" : "\$e{$T}=\$b{$T}=";
+		return $class . "\$a{$T}=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "'";
 	}
 }
