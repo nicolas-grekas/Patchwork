@@ -177,19 +177,12 @@ class patchwork_preprocessor__0
 			patchwork_error::handle(E_USER_ERROR, $tokenizer[0], $this->source, $tokenizer[1]);
 		}
 
-		// Add dummy tokens to avoid checking for edges
-		$tokens[] = array(false);
-		$tokens[] = array(false);
-		$tokens[] = array(false);
-
 		$antePrevType = false;
 		$prevType = false;
 		$new_code = array();
 		$new_type = array();
 		$new_code_length = 0;
 
-		$curly_level = 0;
-		$curly_starts_function = false;
 		$curly_marker = array(array(0, 0));
 		$curly_marker_last =& $curly_marker[0];
 
@@ -205,10 +198,6 @@ class patchwork_preprocessor__0
 
 			switch ($type)
 			{
-			case T_FUNCTION:
-				$curly_starts_function = true;
-				break;
-
 			case T_NEW:
 				if (!isset($token['marker'])) break;
 
@@ -219,7 +208,7 @@ class patchwork_preprocessor__0
 				}
 				else
 				{
-					$curly_marker_last[1]   || $curly_marker_last[1] = -1;
+					$curly_marker_last[1] || $curly_marker_last[1] = -1;
 					$c = $this->marker($c);
 				}
 
@@ -303,38 +292,25 @@ class patchwork_preprocessor__0
 				}
 				break;
 
-			case ';':
-				$curly_starts_function = false;
-				$new_type = array($new_code_length - 1 => false);
-				break;
-
 			case '{':
-				++$curly_level;
-
-				if ($curly_starts_function)
+				if (isset($token['marker']))
 				{
-					$curly_starts_function = false;
-					$curly_marker_last =& $curly_marker[$curly_level];
+					$curly_marker_last =& $curly_marker[];
 					$curly_marker_last = array($new_code_length + 1, 0);
 				}
 
 				break;
 
 			case '}':
-				$curly_starts_function = false;
-
-				if (isset($curly_marker[$curly_level]))
+				if (isset($token['marker']))
 				{
 					$curly_marker_last[1] && $new_code[$curly_marker_last[0]] .= $curly_marker_last[1]>0
 						? "global \$a{$T},\$b{$T},\$c{$T};static \$d{$T}=1;(" . $this->marker() . ")&&\$d{$T}&&\$d{$T}=0;"
 						: "global \$a{$T},\$c{$T};";
 
-					unset($curly_marker[$curly_level]);
-					end($curly_marker);
-					$curly_marker_last =& $curly_marker[key($curly_marker)];
+					array_pop($curly_marker);
+					$curly_marker_last =& $curly_marker[count($curly_marker) - 1];
 				}
-
-				--$curly_level;
 
 				break;
 			}
@@ -349,12 +325,6 @@ class patchwork_preprocessor__0
 			$new_type[] = false;
 			$new_type[] = $type;
 			$new_code_length += 2;
-		}
-
-		if (T_CLOSE_TAG !== $type && T_INLINE_HTML !== $type)
-		{
-			$new_code[] = '';
-			$new_code[] = '?'.'>';
 		}
 
 		return $new_code;
