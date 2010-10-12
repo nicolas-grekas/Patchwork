@@ -18,7 +18,7 @@ class patchwork_tokenizer_closeMarker extends patchwork_tokenizer
 {
 	protected
 
-	$close = ':0)',
+	$close,
 	$greedy = false,
 	$bracket = 0,
 	$curly = 0,
@@ -26,9 +26,10 @@ class patchwork_tokenizer_closeMarker extends patchwork_tokenizer
 	$registered = true;
 
 
-	function __construct(parent $parent, $curly)
+	function __construct(parent $parent, $curly, $close = ':0)')
 	{
 		$this->curly = $curly;
+		$this->close = $close;
 		$this->initialize($parent);
 	}
 

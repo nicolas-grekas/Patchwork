@@ -166,6 +166,11 @@ function __autoload($searched_class)
 	__patchwork_autoloader::autoload($searched_class);
 }
 
+function &patchwork_autoload_marker($marker, &$ref)
+{
+	return $ref;
+}
+
 
 // patchworkProcessedPath(): private use for the preprocessor (in files in the include_path)
 
