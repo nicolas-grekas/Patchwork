@@ -12,25 +12,16 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_closeExpression extends patchwork_tokenizer
+class patchwork_tokenizer_closeBracket extends patchwork_tokenizer
 {
 	protected
 
-	$close = '',
-	$level = 0,
+	$level = -1,
 	$callbacks = array(
 		'incLevel' => array('(', '{', '[', '?'),
 		'decLevel' => array(')', '}', ']', ':', ',', T_AS, T_CLOSE_TAG, ';'),
 	);
 
-
-	function __construct(parent $parent, $close)
-	{
-		if ('' !== $this->close = (string) $close)
-		{
-			$this->initialize($parent);
-		}
-	}
 
 	function incLevel(&$token)
 	{
@@ -51,8 +42,10 @@ class patchwork_tokenizer_closeExpression extends patchwork_tokenizer
 		case ';':
 		case T_AS:
 		case T_CLOSE_TAG:
-			$token[1] = $this->close . $token[1];
+			$this->code[--$this->position] = $token;
+			$this->code[--$this->position] = ')';
 			$this->unregister();
+			return false;
 		}
 	}
 }
