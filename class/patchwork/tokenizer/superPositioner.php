@@ -170,8 +170,11 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		// Every require|include inside files in the include_path
 		// is preprocessed thanks to patchworkProcessedPath().
 
-		$token[1] .= ' patchworkProcessedPath(';
-		new patchwork_tokenizer_closeExpression($this, ')');
+		$this->code[--$this->position] = '(';
+		$this->code[--$this->position] = array(T_STRING, 'patchworkProcessedPath');
+		$this->code[--$this->position] = array(T_WHITESPACE, ' ');
+
+		new patchwork_tokenizer_closeBracket($this);
 	}
 
 	function tagPatchworkPath(&$token)
