@@ -12,23 +12,6 @@
  ***************************************************************************/
 
 
-require_once patchworkPath('class/patchwork/tokenizer.php');
-require_once patchworkPath('class/patchwork/tokenizer/normalizer.php');
-require_once patchworkPath('class/patchwork/tokenizer/scream.php');
-require_once patchworkPath('class/patchwork/tokenizer/className.php');
-require_once patchworkPath('class/patchwork/tokenizer/stringTagger.php');
-require_once patchworkPath('class/patchwork/tokenizer/T.php');
-require_once patchworkPath('class/patchwork/tokenizer/scoper.php');
-require_once patchworkPath('class/patchwork/tokenizer/globalizer.php');
-require_once patchworkPath('class/patchwork/tokenizer/constantInliner.php');
-require_once patchworkPath('class/patchwork/tokenizer/classInfo.php');
-require_once patchworkPath('class/patchwork/tokenizer/aliasing.php');
-require_once patchworkPath('class/patchwork/tokenizer/constructorStatic.php');
-require_once patchworkPath('class/patchwork/tokenizer/constructor4to5.php');
-require_once patchworkPath('class/patchwork/tokenizer/superPositioner.php');
-require_once patchworkPath('class/patchwork/tokenizer/marker.php');
-
-
 class patchwork_preprocessor__0
 {
 	static
@@ -115,22 +98,52 @@ class patchwork_preprocessor__0
 
 	protected function preprocess($source, $level, $class, $is_top)
 	{
-		$tokenizer = new patchwork_tokenizer_normalizer;
-		self::$scream && new patchwork_tokenizer_scream($tokenizer);
-		0 <= $level && $class && new patchwork_tokenizer_className($tokenizer, $class);
-		new patchwork_tokenizer_stringTagger($tokenizer);
-		new patchwork_tokenizer_T($tokenizer);
-		$tokenizer = new patchwork_tokenizer_scoper($tokenizer);
-		0 <= $level && new patchwork_tokenizer_globalizer($tokenizer, '$CONFIG');
-		new patchwork_tokenizer_constantInliner($tokenizer, $source, self::$constants);
-		$tokenizer = new patchwork_tokenizer_classInfo($tokenizer);
-		new patchwork_tokenizer_aliasing($tokenizer, $GLOBALS['patchwork_preprocessor_alias'], self::$classAlias);
-		new patchwork_tokenizer_constructorStatic($tokenizer, $is_top ? $class : false);
-		0 > $level && new patchwork_tokenizer_constructor4to5($tokenizer);
-		$tokenizer = new patchwork_tokenizer_superPositioner($tokenizer, $level, $is_top ? $class : false);
-		new patchwork_tokenizer_marker($tokenizer, self::$declaredClass);
-
 		$tokens = file_get_contents($source);
+
+		if (   'patchwork_tokenizer' === $class
+			|| 'patchwork_tokenizer_normalizer' === $class) return $tokens;
+
+		$tokenizer = new patchwork_tokenizer_normalizer;
+
+		$i = array(
+			'scream'            => self::$scream,
+			'className'         => 0 <= $level && $class,
+			'stringTagger'      => true,
+			'T'                 => true,
+			'scoper'            => true,
+			'globalizer'        => 0 <= $level,
+			'constantInliner'   => true,
+			'classInfo'         => true,
+			'aliasing'          => true,
+			'constructorStatic' => true,
+			'constructor4to5'   => 0 > $level,
+			'superPositioner'   => true,
+			'marker'            => true,
+		);
+
+		foreach ($i as $count => $i)
+		{
+			if (!$i) continue;
+			if ($class === $i = 'patchwork_tokenizer_' . $count) break;
+
+			switch ($count)
+			{
+			case 'T':                 new $i($tokenizer); break;
+			case 'scream':            new $i($tokenizer); break;
+			case 'stringTagger':      new $i($tokenizer); break;
+			case 'constructor4to5':   new $i($tokenizer); break;
+			case 'className':         new $i($tokenizer, $class); break;
+			case 'globalizer':        new $i($tokenizer, '$CONFIG'); break;
+			case 'marker':            new $i($tokenizer, self::$declaredClass); break;
+			case 'constructorStatic': new $i($tokenizer, $is_top ? $class : false); break;
+			case 'constantInliner':   new $i($tokenizer, $source, self::$constants); break;
+			case 'aliasing':          new $i($tokenizer, $GLOBALS['patchwork_preprocessor_alias'], self::$classAlias); break;
+			case 'scoper':            $tokenizer = new $i($tokenizer); break;
+			case 'classInfo':         $tokenizer = new $i($tokenizer); break;
+			case 'superPositioner':   $tokenizer = new $i($tokenizer, $level, $is_top ? $class : false); break;
+			}
+		}
+
 		$tokens = $tokenizer->tokenize($tokens);
 
 		if ($tokenizer = $tokenizer->getError())
