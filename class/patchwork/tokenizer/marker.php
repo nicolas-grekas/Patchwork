@@ -158,22 +158,17 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer
 			return;
 		}
 
-		if ('&' === $this->anteType)
+		while (isset($this->tokens[--$i]))
 		{
-			$token[1] = "patchwork_autoload_marker({$c}," . $token[1];
-		}
-		else
-		{
-			while (isset($this->tokens[--$i]))
+			if (T_DEC !== $this->tokens[$i][0] && T_INC !== $this->tokens[$i][0])
 			{
-				if (T_DEC !== $this->tokens[$i][0] && T_INC !== $this->tokens[$i][0])
-				{
-					break;
-				}
+				break;
 			}
-
-			$this->tokens[++$i][1] = "(({$c})?" . $this->tokens[$i][1];
 		}
+
+		$c = '&' === $this->anteType ? "patchwork_autoload_marker({$c}," : "(({$c})?";
+
+		$this->tokens[++$i][1] = $c . $this->tokens[$i][1];
 
 		new patchwork_tokenizer_closeMarker($this, 0, '&' === $this->anteType ? ')' : ':0)');
 	}
