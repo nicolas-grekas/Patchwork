@@ -147,13 +147,13 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 
 		if ($c->isFinal)
 		{
-			$token[1] .= "final {$c->type} {$c->name} extends {$c->realName} {}";
+			$token[1] = "}final {$c->type} {$c->name} extends {$c->realName} {" . $token[1];
 		}
 		else
 		{
 			if ($this->topClass && 0 === strcasecmp($this->topClass, $c->name))
 			{
-				$token[1] .= ($c->isAbstract ? 'abstract ' : '') . "{$c->type} {$c->name} extends {$c->realName} {}";
+				$token[1] = '}' . ($c->isAbstract ? 'abstract ' : '') . "{$c->type} {$c->name} extends {$c->realName} {" . $token[1];
 			}
 
 			if ($c->isAbstract)
