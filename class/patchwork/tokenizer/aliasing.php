@@ -138,7 +138,7 @@ class patchwork_tokenizer_aliasing extends patchwork_tokenizer
 			if (0 === strncasecmp($v, '__patchwork_', 12))
 			{
 				$v = strtolower($v);
-				$this->functionAlias[substr($v, 12)] = $v;
+				$this->functionAlias[substr_replace($v, '', 0, 12)] = $v;
 			}
 		}
 
@@ -164,7 +164,7 @@ class patchwork_tokenizer_aliasing extends patchwork_tokenizer
 
 			if (T_VARIABLE === $this->prevType && '$' !== $this->anteType)
 			{
-				if ('this' !== $a = substr($t[$i][1], 1))
+				if ('this' !== $a = substr_replace($t[$i][1], '', 0, 1))
 				{
 					$t[$i][1] = "\${is_string(\${$a})&&function_exists(\$v{$T}='__patchwork_'.\${$a})?'v{$T}':'{$a}'}";
 				}
