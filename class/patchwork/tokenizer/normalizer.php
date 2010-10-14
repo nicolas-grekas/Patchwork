@@ -98,7 +98,7 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 	function stripBom(&$token)
 	{
 		$this->unregister(__FUNCTION__);
-		$token[1] = substr($token[1], 3);
+		$token[1] = substr_replace($token[1], '', 0, 3);
 		if ('' === $token[1]) return false;
 	}
 

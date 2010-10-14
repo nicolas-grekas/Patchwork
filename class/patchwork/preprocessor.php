@@ -106,18 +106,18 @@ class patchwork_preprocessor__0
 		$tokenizer = new patchwork_tokenizer_normalizer;
 
 		$i = array(
-			'scream'            => self::$scream,
 			'className'         => 0 <= $level && $class,
 			'stringTagger'      => true,
-			'T'                 => true,
 			'scoper'            => true,
-			'globalizer'        => 0 <= $level,
 			'constantInliner'   => true,
 			'classInfo'         => true,
 			'aliasing'          => true,
+			'superPositioner'   => true,
 			'constructorStatic' => true,
 			'constructor4to5'   => 0 > $level,
-			'superPositioner'   => true,
+			'globalizer'        => 0 <= $level,
+			'scream'            => self::$scream,
+			'T'                 => true,
 			'marker'            => true,
 		);
 
