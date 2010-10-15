@@ -117,8 +117,8 @@ class patchwork_preprocessor__0
 			'constructor4to5'   => 0 > $level,
 			'globalizer'        => 0 <= $level,
 			'scream'            => self::$scream,
-			'T'                 => true,
-			'marker'            => true,
+			'T'                 => DEBUG,
+			'marker'            => !DEBUG,
 		);
 
 		foreach ($i as $count => $i)
