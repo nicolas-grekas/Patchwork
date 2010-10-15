@@ -45,6 +45,7 @@ class patchwork_bootstrapper_preprocessor__0
 
 		$tokenizer = new patchwork_tokenizer_normalizer;
 		$tokenizer = new patchwork_tokenizer_bracketVerifier($tokenizer);
+		$tokenizer = new patchwork_tokenizer_staticState($tokenizer);
 
 		if( (defined('DEBUG') && DEBUG)
 			&& !empty($GLOBALS['CONFIG']['debug.scream'])
@@ -53,7 +54,7 @@ class patchwork_bootstrapper_preprocessor__0
 			new patchwork_tokenizer_scream($tokenizer);
 		}
 
-		$tokenizer = new patchwork_tokenizer_staticState($tokenizer);
+		$code = $tokenizer->tokenize($code);
 		$code = $tokenizer->getStaticCode($code, __CLASS__);
 
 		if ($tokenizer = $tokenizer->getError())

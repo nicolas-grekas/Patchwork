@@ -42,14 +42,11 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 
 	function getStaticCode($code, $class)
 	{
-		$code   = $this->tokenize($code);
 		$length = count($code);
 		$state  = 2;
 
-		ob_start();
-		echo $class, '::$src[1]=';
-
-		ob_start();
+		$O = $class . '::$src[1]=';
+		$o = '';
 
 		for ($i = 0; $i < $length; ++$i)
 		{
@@ -57,37 +54,37 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 			{
 				switch ($state)
 				{
-				case 1: ob_end_flush(); break;
-				case 2: var_export(ob_get_clean()); break;
-				case 3: echo ')."', str_repeat('\n', substr_count(ob_get_flush(), "\n")), '"'; break;
+				case 1: $O .= $o; break;
+				case 2: $O .= self::export($o); break;
+				case 3: $O .= $o . ')."' . str_repeat('\n', substr_count($o, "\n")) . '"'; break;
 				}
 
 				switch ($this->transition[$i][0])
 				{
-				case 1: echo 2 === $state ? ';' : ''; break;
-				case 2: echo 3 !== $state ? (2 === $state ? ';' : ' ') . $class . '::$src[' . $this->transition[$i][1] . ']=' : '.'; break;
-				case 3: echo '.patchwork_tokenizer::export('; break;
+				case 1: 2 === $state && $O .= ';'; break;
+				case 2: $O .= 3 !== $state ? (2 === $state ? ';' : ' ') . $class . '::$src[' . $this->transition[$i][1] . ']=' : '.'; break;
+				case 3: $O .= '.patchwork_tokenizer::export('; break;
 				}
 
 				$state = $this->transition[$i][0];
 				unset($this->transition[$i]);
 
-				ob_start();
+				$o = '';
 			}
 
-			echo isset($code[$i][2]) ? $code[$i][2] : '', $code[$i][1];
+			$o .= (isset($code[$i][2]) ? $code[$i][2] : '') . $code[$i][1];
 
 			unset($code[$i]);
 		}
 
 		switch ($state)
 		{
-		case 1: ob_end_flush(); break;
-		case 2: var_export(ob_get_clean()); echo ';'; break;
-		case 3: echo ')."', str_repeat('\n', substr_count(ob_get_flush(), "\n")), '";'; break;
+		case 1: $O .= $o; break;
+		case 2: $O .= self::export($o) . ';'; break;
+		case 3: $O .= $o . ')."' . str_repeat('\n', substr_count($o, "\n")) . '";'; break;
 		}
 
-		return ob_get_clean();
+		return $O;
 	}
 
 	function setState($state)
