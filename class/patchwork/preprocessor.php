@@ -128,19 +128,14 @@ class patchwork_preprocessor__0
 
 			switch ($count)
 			{
-			case 'T':                 new $i($tokenizer); break;
-			case 'scream':            new $i($tokenizer); break;
-			case 'stringTagger':      new $i($tokenizer); break;
-			case 'constructor4to5':   new $i($tokenizer); break;
-			case 'className':         new $i($tokenizer, $class); break;
-			case 'globalizer':        new $i($tokenizer, '$CONFIG'); break;
-			case 'marker':            new $i($tokenizer, self::$declaredClass); break;
-			case 'constructorStatic': new $i($tokenizer, $is_top ? $class : false); break;
-			case 'constantInliner':   new $i($tokenizer, $source, self::$constants); break;
-			case 'aliasing':          new $i($tokenizer, $GLOBALS['patchwork_preprocessor_alias'], self::$classAlias); break;
-			case 'scoper':            $tokenizer = new $i($tokenizer); break;
-			case 'classInfo':         $tokenizer = new $i($tokenizer); break;
+			default:                  $tokenizer = new $i($tokenizer); break;
+			case 'className':         $tokenizer = new $i($tokenizer, $class); break;
+			case 'globalizer':        $tokenizer = new $i($tokenizer, '$CONFIG'); break;
+			case 'marker':            $tokenizer = new $i($tokenizer, self::$declaredClass); break;
+			case 'constructorStatic': $tokenizer = new $i($tokenizer, $is_top ? $class : false); break;
+			case 'constantInliner':   $tokenizer = new $i($tokenizer, $source, self::$constants); break;
 			case 'superPositioner':   $tokenizer = new $i($tokenizer, $level, $is_top ? $class : false); break;
+			case 'aliasing':          $tokenizer = new $i($tokenizer, $GLOBALS['patchwork_preprocessor_alias'], self::$classAlias); break;
 			}
 		}
 
