@@ -994,7 +994,7 @@ class
 	 */
 	static function writeFile($filename, &$data, $Dmtime = 0)
 	{
-		$tmpname = dirname($filename) . '/.~' . uniqid(mt_rand(), true);
+		$tmpname = dirname($filename) . DIRECTORY_SEPARATOR . '.~' . uniqid(mt_rand(), true);
 
 		$h = @fopen($tmpname, 'wb');
 
@@ -1029,7 +1029,7 @@ class
 		if ('' !== (string) $extension) $extension = '.' . $extension;
 
 		$hash = md5($filename . $extension . '.' . $key);
-		$hash = $hash[0] . '/' . $hash[1] . '/' . substr($hash, 2);
+		$hash = $hash[0] . DIRECTORY_SEPARATOR . $hash[1] . DIRECTORY_SEPARATOR . substr($hash, 2);
 
 		$filename = rawurlencode(str_replace('/', '.', $filename));
 		$filename = substr($filename, 0, 224 - strlen($extension));

@@ -82,12 +82,11 @@ class patchwork_bootstrapper_updatedb__0
 			foreach ($parentPaths as $paths => &$level)
 			{
 				$paths = md5($paths);
-				$paths = $paths[0] . '/' . $paths[1] . '/' . substr($paths, 2) . '.path.txt';
+				$paths = $paths[0] . DIRECTORY_SEPARATOR . $paths[1] . DIRECTORY_SEPARATOR . substr($paths, 2) . '.path.txt';
 
 				if (false === $h = @fopen($zcache . $paths, 'wb'))
 				{
-					@mkdir($zcache . $paths[0]);
-					@mkdir($zcache . substr($paths, 0, 3));
+					@mkdir($zcache . substr($paths, 0, 3), 0700, true);
 					$h = fopen($zcache . $paths, 'wb');
 				}
 
