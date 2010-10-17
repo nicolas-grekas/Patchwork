@@ -1,15 +1,13 @@
 <?php
 
 
-// Import basic pieces of patchwork.
+// Basic pieces of patchwork
 
-#patchwork pieces/pForm/pieces/*
-#patchwork pieces/lingua
-#patchwork pieces/pMail
+#patchwork pieces/pForm
 #patchwork pieces/toolbox
 
 
-/* All default settings */
+// Default settings
 
 $CONFIG += array(
 
