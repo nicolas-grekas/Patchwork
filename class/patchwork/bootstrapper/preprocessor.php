@@ -321,8 +321,9 @@ class patchwork_bootstrapper_preprocessor__0
 		}
 		else $b = is_string($a) ? "'" . str_replace("'", "\\'", str_replace('\\', '\\\\', $a)) . "'" : (
 			is_bool($a)   ? ($a ? 'true' : 'false') : (
-			is_null($a)   ? 'null' : (string) $a
-		));
+			is_null($a)   ? 'null' : (
+			INF === $a    ? 'INF' : (string) $a
+		)));
 
 		$lf && $b .= str_repeat("\n", $lf);
 
