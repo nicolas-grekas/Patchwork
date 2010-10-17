@@ -606,3 +606,18 @@ function patchwork_http_socket($host, $port, $ssl, $timeout = 30)
 /**/	patchwork_bootstrapper::alias('grapheme_strstr',   'patchwork_alias_intl::strstr',   array('$s', '$needle', '$before_needle' => false));
 /**/	patchwork_bootstrapper::alias('grapheme_substr',   'patchwork_alias_intl::substr',   array('$s', '$start', '$len' => INF));
 /**/}
+
+
+/**/if ('\\' === DIRECTORY_SEPARATOR && version_compare(PHP_VERSION, '5.2', '<'))
+/**/{
+/**/	patchwork_bootstrapper::alias('mkdir', 'patchwork_mkdir', array('$pathname', '$mode' => 0777, '$recursive' => false, '$context' => INF));
+
+		function patchwork_mkdir($pathname, $mode = 0777, $recursive = false, $context = INF)
+		{
+			// Workaround for http://bugs.php.net/33140
+
+			return INF === $context
+				? mkdir(strtr($pathname, '/', '\\'), $mode, $recursive)
+				: mkdir($pathname, $mode, $recursive, $context);
+		}
+/**/}
