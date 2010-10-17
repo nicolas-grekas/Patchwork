@@ -395,11 +395,11 @@ class patchwork_tokenizer
 				) . "'";
 			}
 		}
-		else if (is_bool($a))
-		{
-			$b = $a ? 'true' : 'false';
-		}
-		else $b = is_null($a) ? 'null' : (string) $a;
+		else if (true  === $a) $b = 'true';
+		else if (false === $a) $b = 'false';
+		else if (null  === $a) $b = 'null';
+		else if (INF   === $a) $b = 'INF';
+		else $b = (string) $a;
 
 		$lf && $b .= str_repeat("\n", $lf);
 
