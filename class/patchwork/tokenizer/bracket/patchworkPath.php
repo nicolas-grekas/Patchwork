@@ -26,11 +26,7 @@ class patchwork_tokenizer_bracket_patchworkPath extends patchwork_tokenizer_brac
 	{
 		if (2 === $this->bracketPosition)
 		{
-			$this->code[--$this->position] = ')';
-			$this->code[--$this->position] = array(T_LNUMBER, $this->level);
-			$this->code[--$this->position] = ',';
-
-			return false;
+			$token[1] = ',' . $this->level . $token[1];
 		}
 	}
 }
