@@ -103,7 +103,7 @@ class patchwork_preprocessor__0
 		if (   'patchwork_tokenizer' === $class
 			|| 'patchwork_tokenizer_normalizer' === $class) return $tokens;
 
-		$tokenizer = new patchwork_tokenizer_normalizer;
+		$t = new patchwork_tokenizer_normalizer;
 
 		$i = array(
 			'className'         => 0 <= $level && $class,
@@ -121,35 +121,35 @@ class patchwork_preprocessor__0
 			'marker'            => !DEBUG,
 		);
 
-		foreach ($i as $count => $i)
+		foreach ($i as $c => $i)
 		{
 			if (!$i) continue;
-			if ($class === $i = 'patchwork_tokenizer_' . $count) break;
+			if ($class === $i = 'patchwork_tokenizer_' . $c) break;
 
-			switch ($count)
+			switch ($c)
 			{
-			default:                  $tokenizer = new $i($tokenizer); break;
-			case 'className':         $tokenizer = new $i($tokenizer, $class); break;
-			case 'globalizer':        $tokenizer = new $i($tokenizer, '$CONFIG'); break;
-			case 'marker':            $tokenizer = new $i($tokenizer, self::$declaredClass); break;
-			case 'constructorStatic': $tokenizer = new $i($tokenizer, $is_top ? $class : false); break;
-			case 'constantInliner':   $tokenizer = new $i($tokenizer, $source, self::$constants); break;
-			case 'superPositioner':   $tokenizer = new $i($tokenizer, $level, $is_top ? $class : false); break;
-			case 'aliasing':          $tokenizer = new $i($tokenizer, $GLOBALS['patchwork_preprocessor_alias'], self::$classAlias); break;
+			default:                  $t = new $i($t); break;
+			case 'className':         $t = new $i($t, $class); break;
+			case 'globalizer':        $t = new $i($t, '$CONFIG'); break;
+			case 'marker':            $t = new $i($t, self::$declaredClass); break;
+			case 'constructorStatic': $t = new $i($t, $is_top ? $class : false); break;
+			case 'constantInliner':   $t = new $i($t, $source, self::$constants); break;
+			case 'superPositioner':   $t = new $i($t, $level, $is_top ? $class : false); break;
+			case 'aliasing':          $t = new $i($t, $GLOBALS['patchwork_preprocessor_alias'], self::$classAlias); break;
 			}
 		}
 
-		$tokens = $tokenizer->tokenize($tokens);
+		$tokens = $t->tokenize($tokens);
 
-		if ($tokenizer = $tokenizer->getError())
+		if ($t = $t->getError())
 		{
-			patchwork_error::handle(E_USER_ERROR, $tokenizer[0], $source, $tokenizer[1]);
+			patchwork_error::handle(E_USER_ERROR, $t[0], $source, $t[1]);
 		}
 
 		$i = 0;
-		$count = count($tokens);
+		$c = count($tokens);
 
-		while ($i < $count)
+		while ($i < $c)
 		{
 			$tokens[$i] = (isset($tokens[$i][2]) ? $tokens[$i][2] : '') . $tokens[$i][1];
 			++$i;

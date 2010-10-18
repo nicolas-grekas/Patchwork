@@ -405,4 +405,9 @@ class patchwork_tokenizer
 
 		return $b;
 	}
+
+	function __call($method, $args)
+	{
+		return call_user_func_array(array($this->parent, $method), $args);
+	}
 }
