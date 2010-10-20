@@ -24,7 +24,6 @@
 	<meta name="generator" content="Patchwork" />
 
 	<!--[if lt IE 7]>
-	<script>document.createElement('abbr');</script >
 	<style>body{behavior:url("{base:'fix/hover.htc'}")} select{behavior:url("{base:'fix/select.htc'}")} img,input{behavior:url("{base:'fix/png.htc'}");}</style>
 	<![endif]-->
 

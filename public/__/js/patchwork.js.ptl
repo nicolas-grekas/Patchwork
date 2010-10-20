@@ -24,6 +24,10 @@
 * BOARD
 */
 
+/*@cc_on
+if (@_jscript_version<=5.8) {<!-- INLINE js/html5shiv.js -->}
+@*/
+
 var footerHtml = [], antiCSRF = '';
 
 function t($v, $type)
