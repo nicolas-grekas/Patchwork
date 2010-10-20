@@ -1,23 +1,17 @@
 .QSstyle
 {
-	white-space:nowrap;
+	white-space: nowrap;
 }
 
 .QSstyle input, .QSstyle img
 {
-	position:relative;
-	top:2px;
-}
-
-.QSstyle input
-{
-	_top:0px;
+	position: relative;
+	top: 2px;
 }
 
 .QSstyle img
 {
 	margin-left: -13px;
-	_top:-1px;
 }
 
 #__QSs
@@ -36,6 +30,28 @@ div.QSshadow
 	box-shadow: 3px 3px 7px #aaa;
 }
 
-.QSie-shadow {
+.QSie-shadow
+{
+<!-- IF 6 < g$ie && g$ie <= 8 -->
+	display: block;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background: #000;
+	filter:progid:DXImageTransform.Microsoft.Blur(PixelRadius=4,MakeShadow=true,ShadowOpacity=.30);
+<!-- ELSE -->
 	display: none;
+<!-- END:IF -->
 }
+
+<!-- IF g$ie == 6 -->
+.QSstyle input
+{
+	top: 0;
+}
+
+.QSstyle img
+{
+	top: -1px;
+}
+<!-- END:IF -->
