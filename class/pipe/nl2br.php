@@ -25,7 +25,7 @@ class
 
 P$nl2br = function($string)
 {
-	return str($string).replace(/\n/g, '<br />\n');
+	return str($string).replace(/\n/g, '<br>\n');
 }
 
 <?php	}

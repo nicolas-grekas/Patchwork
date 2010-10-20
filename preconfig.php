@@ -72,7 +72,7 @@ function patchwork_bad_request($message, $url)
 <head><title>400 Bad Request</title></head>
 <body>
 <h1>400 Bad Request</h1>
-<p>{$message}<br /> Maybe are you trying to reach <a href="{$url}">this URL</a>?</p>
+<p>{$message}<br> Maybe are you trying to reach <a href="{$url}">this URL</a>?</p>
 </body>
 </html>
 EOHTML;

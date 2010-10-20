@@ -110,7 +110,7 @@ class extends patchwork
 		$QDebug   = p::__BASE__() . 'js/QDebug.js';
 
 		return <<<EOHTML
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <script src="{$QDebug}"></script>
 EOHTML;
 	}
@@ -121,7 +121,7 @@ EOHTML;
 
 		return <<<EOHTML
 <script>E('Rendering time: ' + (new Date/1 - E.startTime) + ' ms');</script>
-<input type="hidden" name="debugStore" id="debugStore" value="" />
+<input type="hidden" name="debugStore" id="debugStore" value="">
 <div style="position:fixed;_position:absolute;top:0px;right:0px;background-color:white;visibility:hidden;height:100%" id="debugFrame"><iframe src="{$debugWin}" style="width:400px;height:100%"></iframe></div>
 <div style="position:fixed;_position:absolute;top:0px;right:0px;z-index:255;font-family:arial;font-size:9px"><a href="javascript:;" onclick="var f=document.getElementById('debugFrame');if (f) f.style.visibility='hidden'==f.style.visibility?'visible':'hidden',document.getElementById('debugStore').value=f.style.visibility" style="background-color:blue;color:white;text-decoration:none;border:0px;" id="debugLink">Debug</a></div>
 <script>setTimeout(function(){var f=document.getElementById('debugFrame'),s=document.getElementById('debugStore');if (f&&s&&s.value)f.style.visibility=s.value},0)</script>
@@ -138,13 +138,13 @@ EOHTML;
 
 		?><html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<title>Debug Window</title>
-<style type="text/css">
+<style>
 body
 {
-	margin: 0px;
-	padding: 0px;
+	margin: 0;
+	padding: 0;
 }
 pre
 {
