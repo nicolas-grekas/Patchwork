@@ -42,6 +42,8 @@ class extends agent_css
 	{
 		if ($this->debug || $this->get->src)
 		{
+			$o = parent::compose($o);
+
 			$o->cookie_path     = $CONFIG['session.cookie_path'];
 			$o->cookie_domain   = $CONFIG['session.cookie_domain'];
 			$o->document_domain = $CONFIG['document.domain'];

@@ -137,8 +137,8 @@ class
 			{
 				$result = preg_replace("'[ \t]+$'m"  , ''    ,        trim($result));
 				$result = preg_replace("'\n{3,}'"    , "\n\n",             $result);
-				$result = preg_replace("'(?<!>)\n\n'", "<br />\n<br />\n", $result);
-				$result = preg_replace("'(?<!>)\n'"  , "<br />\n",         $result);
+				$result = preg_replace("'(?<!>)\n\n'", "<br>\n<br>\n", $result);
+				$result = preg_replace("'(?<!>)\n'"  , "<br>\n",         $result);
 
 				$result = str_replace(
 					array('{~}'     , '{/}'     , p::__BASE__(), p::__HOST__()),

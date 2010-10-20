@@ -379,7 +379,7 @@ class ob
 // Timezone settings
 
 /**/if (!@ini_get('date.timezone'))
-	@(ini_get('date.timezone') || ini_set('date.timezone', 'Universal'));
+	date_default_timezone_set(@date_default_timezone_get());
 
 
 // Turn off magic_quotes_runtime

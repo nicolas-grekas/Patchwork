@@ -2,6 +2,6 @@
 	<td style="color:<!-- IF a$test == a$expect -->green<!-- ELSE -->red<!-- END:IF -->">
 	{a$pipe}
 	</td>
-	<td><pre><!-- IF a$test == a$expect -->OK<!-- ELSE -->{a$test|replace:'&':'&amp;'|replace:'<':'&lt;'|replace:'>':'&gt;'|replace:'"':'&quot;'}<hr />{a$expect|replace:'&':'&amp;'|replace:'<':'&lt;'|replace:'>':'&gt;'|replace:'"':'&quot;'}</pre><!-- END:IF --></td>
+	<td><pre><!-- IF a$test == a$expect -->OK<!-- ELSE -->{a$test|replace:'&':'&amp;'|replace:'<':'&lt;'|replace:'>':'&gt;'|replace:'"':'&quot;'}<hr>{a$expect|replace:'&':'&amp;'|replace:'<':'&lt;'|replace:'>':'&gt;'|replace:'"':'&quot;'}</pre><!-- END:IF --></td>
 </tr>
 

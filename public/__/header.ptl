@@ -15,25 +15,25 @@
 <!DOCTYPE html>
 <html<!-- IF g$__LANG__ --> xml:lang="{g$__LANG__}" lang="{g$__LANG__}"<!-- END:IF -->>
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<script src="{base:'js/w'}"></script>
 <!-- END:SERVERSIDE -->
 
 	<title>{a$title|replace:'<[^>]*':''|replace:'>':''}</title>
 
-	<meta name="generator" content="Patchwork" />
+	<meta name="generator" content="Patchwork">
 
 	<!--[if lt IE 7]>
 	<style>body{behavior:url("{base:'fix/hover.htc'}")} select{behavior:url("{base:'fix/select.htc'}")} img,input{behavior:url("{base:'fix/png.htc'}");}</style>
 	<![endif]-->
 
-	<link rel="stylesheet" type="text/css" href="{a$css|default:'css/style'|base}" />
+	<link rel="stylesheet" type="text/css" href="{a$css|default:'css/style'|base}">
 
 	<!--
 
 	LOOP g$__LANG_ALT__
 		IF $lang != g$__LANG__
-			--><link rel="alternate" type="text/html" href="{$href}" title="{$title}" hreflang="{$lang}" lang="{$lang}" xml:lang="{$lang}" /><!--
+			--><link rel="alternate" type="text/html" href="{$href}" title="{$title}" hreflang="{$lang}" lang="{$lang}"><!--
 		END:IF
 	END:LOOP
 

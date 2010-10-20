@@ -5,7 +5,7 @@
 <table border="1">
 <tr>
 	<th>&nbsp;</th>
-	<th>got<br />expected</th>
+	<th>got<br>expected</th>
 </tr><!--
 
 
@@ -106,9 +106,9 @@ SET a$test -->{'This program is free software;
 it under the terms of the GNU
 the Free Software Foundation
 (at your option).'|nl2br}<!-- END:SET
-SET a$expect -->This program is free software;<br />
-it under the terms of the GNU<br />
-the Free Software Foundation<br />
+SET a$expect -->This program is free software;<br>
+it under the terms of the GNU<br>
+the Free Software Foundation<br>
 (at your option).<!-- END:SET
 AGENT 'helper/pipeLine' pipe='nl2br' test=a$test expect=a$expect
 

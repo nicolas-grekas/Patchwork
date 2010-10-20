@@ -17,7 +17,7 @@ This template is called automatically when a form with a file element is submitt
 *}
 <html lang="{g$__LANG__}">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<title>{"Envoi en cours"} ...</title>
 
 <style>
@@ -62,15 +62,15 @@ table
 
 <table border="0" cellspacing="0" cellpadding="0">
 <tr>
-	<td rowspan="3"><img src="{base:'img/upload/l.png'}" width="2" height="29" /></td>
-	<td background="img/upload/t.gif"><img src="{base:'img/upload/t.gif'}" width="1" height="3" /></td>
-	<td rowspan="3"><img src="{base:'img/upload/r.png'}" width="5" height="29" /></td>
+	<td rowspan="3"><img src="{base:'img/upload/l.png'}" width="2" height="29"></td>
+	<td background="img/upload/t.gif"><img src="{base:'img/upload/t.gif'}" width="1" height="3"></td>
+	<td rowspan="3"><img src="{base:'img/upload/r.png'}" width="5" height="29"></td>
 </tr>
 <tr>
-	<td width="100%"><div id="detail"></div><div id="progress"><img src="{base:'img/upload/i.gif'}" id="unit" width="8" height="20" /></div></td>
+	<td width="100%"><div id="detail"></div><div id="progress"><img src="{base:'img/upload/i.gif'}" id="unit" width="8" height="20"></div></td>
 </tr>
 <tr>
-	<td id="b" background="{base:'img/upload/b.png'}" style="filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src={base:'img/upload/b.png'|js},sizingMethod='scale')"><img src="{base:'img/blank.gif'}" width="1" height="6" /></td>
+	<td id="b" background="{base:'img/upload/b.png'}" style="filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src={base:'img/upload/b.png'|js},sizingMethod='scale')"><img src="{base:'img/blank.gif'}" width="1" height="6"></td>
 </tr>
 </table>
 

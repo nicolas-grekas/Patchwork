@@ -222,7 +222,7 @@ exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not fl
 		}
 		else
 		{
-			die($buffer . "\n<br /><br />\n\n<small>---- Something has been echoed during bootstrap - dying ----</small>");
+			die($buffer . "\n<br><br>\n\n<small>---- Something has been echoed during bootstrap - dying ----</small>");
 		}
 	}
 
