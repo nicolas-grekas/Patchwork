@@ -6,3 +6,9 @@ fieldset{border:1px solid #BBB;padding:.5em;}
 legend{padding:0 .5em;}
 optgroup{font-weight:bold;background:#FFF;font-style:italic;}
 option{font-weight:normal;font-style:normal;}
+
+<!-- IF g$ie && g$ie < 7 -->
+body{behavior:url("{base:'fix/hover.htc'}");}
+select{behavior:url("{base:'fix/select.htc'}");}
+img,input{behavior:url("{base:'fix/png.htc'}");}
+<!-- END:IF -->
