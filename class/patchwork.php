@@ -443,10 +443,12 @@ class
 		// load agent
 		if (IS_POSTING || self::$binaryMode || !isset($_COOKIE['JS']) || !$_COOKIE['JS'])
 		{
-			self::$binaryMode || self::setPrivate();
 			patchwork_serverside::loadAgent($agent, false, false);
 		}
-		else patchwork_clientside::loadAgent($agent);
+		else
+		{
+			patchwork_clientside::loadAgent($agent);
+		}
 	}
 	// }}}
 
