@@ -64,6 +64,15 @@ class patchwork_tokenizer
 	$nextRegistryPosition = 0;
 
 
+	protected static
+
+	$sugar = array(
+		T_WHITESPACE  => 1,
+		T_COMMENT     => 1,
+		T_DOC_COMMENT => 1,
+	);
+
+
 	function __construct(self $parent = null)
 	{
 		$parent || $parent = $this;
@@ -252,7 +261,7 @@ class patchwork_tokenizer
 				}
 			}
 
-			if ('' !== $deco) $token[2] = $deco;
+			if (isset($deco[0])) $token[2] = $deco;
 			else unset($token[2]);
 
 			do
@@ -285,13 +294,9 @@ class patchwork_tokenizer
 				$anteType = $prevType;
 				$prevType = $token[0];
 			}
-			while(0);
+			while (0);
 
-			while (isset($code[$i][1]) && (
-				   T_WHITESPACE  === $code[$i][0]
-				|| T_COMMENT     === $code[$i][0]
-				|| T_DOC_COMMENT === $code[$i][0]
-			))
+			while (isset($code[$i][1], self::$sugar[$code[$i][0]]))
 			{
 				$token =& $code[$i];
 				unset($code[$i++]);
@@ -301,10 +306,9 @@ class patchwork_tokenizer
 					// µ-optimization
 					$lines = 0;
 				}
-				else
+				else if ($lines = substr_count($token[1], "\n"))
 				{
-					$lines = substr_count($token[1], "\n");
-					$lines && T_WHITESPACE  === $token[0] && $token[3] = T_WHITESPACE_MULTILINE;
+					T_WHITESPACE === $token[0] && $token[3] = T_WHITESPACE_MULTILINE;
 				}
 
 				if (isset($tRegistry[$token[0]]))
@@ -326,6 +330,7 @@ class patchwork_tokenizer
 			}
 		}
 
+		// Reduce memory usage thanks to copy-on-write
 		$deco = $tokens;
 		$tokens = array();
 

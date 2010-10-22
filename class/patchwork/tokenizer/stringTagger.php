@@ -78,11 +78,7 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 
 			$i = $this->position;
 
-			while (isset($this->code[$i][1]) && (
-				   T_WHITESPACE  === $this->code[$i][0]
-				|| T_COMMENT     === $this->code[$i][0]
-				|| T_DOC_COMMENT === $this->code[$i][0]
-			)) ++$i;
+			while (isset($this->code[$i][1], self::$sugar[$this->code[$i][0]])) ++$i;
 
 			if (!isset($this->code[$i])) return;
 
