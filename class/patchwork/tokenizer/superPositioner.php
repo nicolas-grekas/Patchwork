@@ -20,7 +20,8 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 	$topClass,
 	$privateToken,
 	$callbacks = array(
-		'tagSelf'          => array('self' => T_USE_CLASS),
+		'tagSelf'          => array('self'   => T_USE_CLASS),
+		'tagParent'        => array('parent' => T_USE_CLASS),
 		'tagClass'         => array(T_CLASS, T_INTERFACE),
 		'tagPrivate'       => T_PRIVATE,
 		'tagRequire'       => array(T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
@@ -55,6 +56,15 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		if ('self' === $token[1] && !empty($this->class->name))
 		{
 			$token[1] = $this->class->name;
+		}
+	}
+
+	function tagParent(&$token)
+	{
+		if ('parent' === $token[1] && !empty($this->class->extends))
+		{
+			$token[1] = $this->class->extends;
+			$this->tagSelfName($token);
 		}
 	}
 
