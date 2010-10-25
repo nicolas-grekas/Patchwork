@@ -40,7 +40,7 @@ class patchwork_tokenizer_constructorStatic extends patchwork_tokenizer
 			$this->unregister();
 			$this->register(array('tagFunction' => T_FUNCTION));
 
-			$this->construct = $this->destruct = (int) 0 !== strcasecmp($this->class->name, $this->class->extends);
+			$this->construct = $this->destruct = (int) empty($this->class->extendsSelf);
 
 			return 'tagClassClose';
 		}

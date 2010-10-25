@@ -64,7 +64,6 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		if ('parent' === $token[1] && !empty($this->class->extends))
 		{
 			$token[1] = $this->class->extends;
-			$this->tagSelfName($token);
 		}
 	}
 
@@ -91,22 +90,24 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		$this->unregister(array(__FUNCTION__ => T_STRING));
 		$token[1] .= '__' . (0 <= $this->level ? $this->level : '00');
 		$this->class->realName = strtolower($token[1]);
-		0 <= $this->level && $this->register(array('tagSelfName' => T_STRING));
+		0 <= $this->level && $this->register(array('tagExtendsSelf' => T_STRING));
 	}
 
-	function tagSelfName(&$token)
+	function tagExtendsSelf(&$token)
 	{
 		if (0 === strcasecmp($this->class->name, $token[1]))
 		{
 			$token[1] .= '__' . ($this->level ? $this->level - 1 : '00');
+			$this->class->extends = $token[1];
+			$this->class->extendsSelf = true;
 		}
 	}
 
 	function tagClassOpen(&$token)
 	{
 		$this->unregister(array(
-			'tagSelfName' => T_STRING,
-			__FUNCTION__  => T_SCOPE_OPEN,
+			'tagExtendsSelf' => T_STRING,
+			__FUNCTION__     => T_SCOPE_OPEN,
 		));
 
 		return 'tagClassClose';

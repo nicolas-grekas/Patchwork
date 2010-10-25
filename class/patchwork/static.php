@@ -130,7 +130,7 @@ class patchwork_static extends patchwork
 
 		if (!$h || !file_exists($h) || is_dir($h))
 		{
-			W(__CLASS__ . '::' . __METHOD__ . "(..): invalid file ({$file})");
+			W(__METHOD__ . "(..): invalid file ({$file})");
 			return;
 		}
 
