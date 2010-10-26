@@ -33,6 +33,7 @@ class extends patchwork
 		'.jpg'  => 'image/jpeg',
 		'.jpeg' => 'image/jpeg',
 		'.ico'  => 'image/x-icon',
+		'.svg'  => 'image/svg+xml',
 
 		'.doc'  => 'application/msword',
 		'.pdf'  => 'application/pdf',
