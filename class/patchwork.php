@@ -1817,8 +1817,8 @@ class agent
 		if (!$this->contentType
 			&& '' !== $a = strtolower(pathinfo(patchwork_class2file($class), PATHINFO_EXTENSION)))
 		{
-			$this->contentType = isset(patchwork_static::$contentType[$a])
-				? patchwork_static::$contentType[$a]
+			$this->contentType = isset(patchwork_static::$contentType['.' . $a])
+				? patchwork_static::$contentType['.' . $a]
 				: 'application/octet-stream';
 		}
 
