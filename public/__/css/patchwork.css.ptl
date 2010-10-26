@@ -6,8 +6,12 @@ fieldset{border:1px solid #bbb;padding:.5em;}
 legend{padding:0 .5em;}
 optgroup{font-weight:bold;background:#fff;font-style:italic;}
 option{font-weight:normal;font-style:normal;}
-<!-- IF g$ie && g$ie < 7 -->
+<!-- IF g$ie -->
+<!-- IF g$ie < 8 -->
 body{behavior:url("{base:'fix/hover.htc'}");}
+<!-- END:IF -->
+<!-- IF g$ie < 7 -->
 select{behavior:url("{base:'fix/select.htc'}");}
 img,input{behavior:url("{base:'fix/png.htc'}");}
+<!-- END:IF -->
 <!-- END:IF -->
