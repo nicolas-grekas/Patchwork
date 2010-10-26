@@ -1,0 +1,4 @@
+<public:component lightWeight="true">
+<public:attach event="ondocumentready" onevent="CSSHover()" />
+<script><!-- AGENT 'js/csshover3' --></script>
+</public:component>
