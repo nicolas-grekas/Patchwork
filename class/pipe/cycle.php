@@ -38,7 +38,7 @@ class
 function($name)
 {
 	$name = str($name);
-	var $args = P$cycle.arguments,
+	var $args = arguments,
 		$pool = cyclePool;
 
 	if (t($pool[$name]))

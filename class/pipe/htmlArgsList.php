@@ -36,7 +36,7 @@ class
 
 function()
 {
-	var $result = '', $a = P$htmlArgsList.arguments, $i = 0, $v;
+	var $result = '', $a = arguments, $i = 0, $v;
 
 	for ($i = 0; $i < $a.length; $i += 2)
 	{

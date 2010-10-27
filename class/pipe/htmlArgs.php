@@ -41,7 +41,7 @@ class
 function($pool)
 {
 	if (!$pool) return '';
-	var $result = '', $args = P$htmlArgs.arguments, $i = $args.length, $except = [];
+	var $result = '', $args = arguments, $i = $args.length, $except = [];
 
 	while (--$i) $except[$i] = $args[$i];
 	$except = new RegExp('^(|' + $except.join('|') + ')$');

@@ -14,7 +14,7 @@ class
 
 function($index)
 {
-	return P$inArgs.arguments[$index + 1] || '';
+	return arguments[$index + 1] || '';
 }
 
 <?php	}
