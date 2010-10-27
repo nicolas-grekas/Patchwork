@@ -36,7 +36,7 @@ class
 	{
 		?>/*<script>*/
 
-P$mailto = function($string, $email, $attributes)
+function($string, $email, $attributes)
 {
 	$string = esc(str($string));
 	$email  = esc(str($email)) || $string;

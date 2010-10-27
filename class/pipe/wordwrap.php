@@ -25,7 +25,7 @@ class
 
 		?>/*<script>*/
 
-P$wordwrap = function($string, $width, $break, $cut)
+function($string, $width, $break, $cut)
 {
 	$cut = str($cut, 1);
 	$break = str($break, '\n');

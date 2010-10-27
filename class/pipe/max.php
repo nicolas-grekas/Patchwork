@@ -23,7 +23,7 @@ class
 	{
 		?>/*<script>*/
 
-P$max = function($a, $b)
+function($a, $b)
 {
 	return num(str($a), 1) < num(str($b), 1) ? $b : $a;
 }

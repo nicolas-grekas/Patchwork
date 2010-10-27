@@ -28,7 +28,7 @@ class
 	{
 		?>/*<script>*/
 
-P$random = function($min, $max)
+function($min, $max)
 {
 	if (!t($max))) $max = 32767;
 

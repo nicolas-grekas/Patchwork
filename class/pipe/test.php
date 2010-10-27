@@ -23,7 +23,7 @@ class
 	{
 		?>/*<script>*/
 
-P$test = function($test, $ifData, $elseData)
+function($test, $ifData, $elseData)
 {
 	return num(str($test), 1) ? $ifData : $elseData;
 }

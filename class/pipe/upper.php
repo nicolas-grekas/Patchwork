@@ -23,7 +23,7 @@ class
 	{
 		?>/*<script>*/
 
-P$upper = function($string)
+function($string)
 {
 	return str($string).toUpperCase();
 }

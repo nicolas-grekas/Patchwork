@@ -23,7 +23,7 @@ class
 	{
 		?>/*<script>*/
 
-P$urlencode = function($str)
+function($str)
 {
 	return eUC(str($str));
 }

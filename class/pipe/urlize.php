@@ -43,7 +43,7 @@ class
 	{
 		?>/*<script>*/
 
-P$urlize = function($string)
+function($string)
 {
 	return (' '+$string).replace(
 		<?php echo self::mailRx?>g, '$1<a href="mailto:$2@$3">$2@$3</a>'

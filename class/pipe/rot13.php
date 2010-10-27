@@ -23,7 +23,7 @@ class
 	{
 		?>/*<script>*/
 
-P$rot13 = function($string)
+function($string)
 {
 	$string = str($string);
 

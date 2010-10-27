@@ -12,7 +12,7 @@ class
 	{
 		?>/*<script>*/
 
-P$inSet = function($index, $set)
+function($index, $set)
 {
 	$set = $set.split($set.charAt(0));
 	return $set[$index + 1] || '';

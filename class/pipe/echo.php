@@ -49,7 +49,7 @@ class
 	{
 		?>/*<script>*/
 
-P$echo = function($format)
+function($format)
 {
 	var $i = 1, $args = P$echo.arguments;
 	$format = str($format);

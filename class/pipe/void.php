@@ -23,7 +23,7 @@ class
 	{
 		?>/*<script>*/
 
-P$void = function()
+function()
 {
 	return '';
 }

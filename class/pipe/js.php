@@ -31,7 +31,7 @@ class
 	{
 		?>/*<script>*/
 
-P$js = function($string, $forceString)
+function($string, $forceString)
 {
 	$string = str($string);
 

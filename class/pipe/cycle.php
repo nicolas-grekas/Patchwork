@@ -35,7 +35,7 @@ class
 	{
 		?>/*<script>*/
 
-P$cycle = function($name)
+function($name)
 {
 	$name = str($name);
 	var $args = P$cycle.arguments,

@@ -30,7 +30,7 @@ class
 	{
 		?>/*<script>*/
 
-P$geo = function($geo, $latlong)
+function($geo, $latlong)
 {
 	if ($geo = str($geo))
 	{

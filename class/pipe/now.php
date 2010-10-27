@@ -25,7 +25,7 @@ class
 	{
 		?>/*<script>*/
 
-P$now = function()
+function()
 {
 	return parseInt(new Date/1000);
 }

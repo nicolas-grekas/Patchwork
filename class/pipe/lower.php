@@ -23,7 +23,7 @@ class
 	{
 		?>/*<script>*/
 
-P$lower = function($string)
+function($string)
 {
 	return str($string).toLowerCase();
 }

@@ -23,7 +23,7 @@ class
 	{
 		?>/*<script>*/
 
-P$nl2br = function($string)
+function($string)
 {
 	return str($string).replace(/\n/g, '<br>\n');
 }

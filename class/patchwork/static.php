@@ -57,7 +57,7 @@ class extends patchwork
 		{
 			p::openMeta('agent__template/' . $template, false);
 			$template = new ptlCompiler_js($template);
-			echo $template = ',[' . $template->compile() . '])';
+			echo $template = ',' . $template->compile() . ')';
 			fwrite($h, $template);
 			fclose($h);
 			list(,,, $watch) = p::closeMeta();
@@ -79,7 +79,12 @@ class extends patchwork
 
 		foreach ($pipe[0] as $pipe)
 		{
-#>			if (DEBUG) call_user_func(array('pipe_' . $pipe, 'js'));
+#>			if (DEBUG)
+#>			{
+#>				ob_start();
+#>				call_user_func(array('pipe_' . $pipe, 'js'));
+#>				echo 'P$' . $pipe . '=' . trim(ob_get_clean(), ';') . ';';
+#>			}
 #>			else
 #>			{
 				$cpipe = p::getContextualCachePath('pipe/' . $pipe, 'js');
@@ -88,10 +93,10 @@ class extends patchwork
 				{
 					ob_start();
 					call_user_func(array('pipe_' . $pipe, 'js'));
-					$pipe = ob_get_clean();
 
 					$parser = new jsqueez;
-					echo $pipe = $parser->squeeze($pipe);
+					$parser = $parser->squeeze(ob_get_clean());
+					echo $pipe = 'P$' . $pipe . '=' . trim($parser, ';') . ';';
 
 					fwrite($h, $pipe);
 					fclose($h);
