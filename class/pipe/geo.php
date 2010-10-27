@@ -41,5 +41,6 @@ function($geo, $latlong)
 
 	return $geo;
 }
+
 <?php 	}
 }

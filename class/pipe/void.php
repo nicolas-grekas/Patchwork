@@ -23,9 +23,7 @@ class
 	{
 		?>/*<script>*/
 
-function()
-{
-	return '';
-}
+function() {return '';}
+
 <?php 	}
 }

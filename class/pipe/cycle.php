@@ -35,22 +35,24 @@ class
 	{
 		?>/*<script>*/
 
-function($name)
+(function()
 {
-	$name = str($name);
-	var $args = arguments,
-		$pool = cyclePool;
+	var $pool = [];
 
-	if (t($pool[$name]))
+	return function($name)
 	{
-		if (++$pool[$name] >= $args.length) $pool[$name] = 1;
+		$name = str($name);
+		var $args = arguments;
+
+		if (t($pool[$name]))
+		{
+			if (++$pool[$name] >= $args.length) $pool[$name] = 1;
+		}
+		else $pool[$name] = 1;
+
+		return str($args[$pool[$name]]);
 	}
-	else $pool[$name] = 1;
-
-	return str($args[$pool[$name]]);
-}
-
-cyclePool = [];
+})()
 
 <?php	}
 }

@@ -23,7 +23,7 @@ class
 	{
 		?>/*<script>*/
 
-	/\s/.test('\xA0')
+/\s/.test('\xA0')
 	? function($a) {return str($a).replace(/^\s+/      , '').replace(/\s+$/      , '');}
 	: function($a) {return str($a).replace(/^[\s\xA0]+/, '').replace(/[\s\xA0]+$/, '');};
 

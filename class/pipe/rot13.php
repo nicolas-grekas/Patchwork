@@ -47,5 +47,6 @@ function($string)
 
 	return $result;
 }
+
 <?php 	}
 }
