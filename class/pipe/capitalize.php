@@ -46,5 +46,6 @@ function($string)
 
 	return $string.join('');
 }
+
 <?php 	}
 }
