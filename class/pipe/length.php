@@ -23,7 +23,7 @@ class
 	{
 		?>/*<script>*/
 
-P$length = function($string)
+function($string)
 {
 	return str($string).length;
 }

@@ -23,7 +23,7 @@ class
 	{
 		?>/*<script>*/
 
-P$capitalize = function($string)
+function($string)
 {
 	$string = str($string).split(/\b/g);
 

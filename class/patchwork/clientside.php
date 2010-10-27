@@ -249,7 +249,7 @@ EOHTML;
 				{
 					p::openMeta('agent__template/' . $template, false);
 					$template = new ptlCompiler_js($template);
-					echo $template = ',[' . $template->compile() . '])';
+					echo $template = ',' . $template->compile() . ')';
 					fwrite($h, $template);
 					fclose($h);
 					list(,,, $template) = p::closeMeta();

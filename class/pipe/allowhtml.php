@@ -37,7 +37,7 @@ class
 	{
 		?>/*<script>*/
 
-P$allowhtml = function($string, $urlInterpolation)
+function($string, $urlInterpolation)
 {
 	var $base = base();
 

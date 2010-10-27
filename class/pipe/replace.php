@@ -25,7 +25,7 @@ class
 	{
 		?>/*<script>*/
 
-P$replace = function($string, $search, $replace, $caseInsensitive)
+function($string, $search, $replace, $caseInsensitive)
 {
 	$search = new RegExp(str($search), 'g' + (str($caseInsensitive) ? 'i' : ''));
 	return str($string).replace($search, str($replace));

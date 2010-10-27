@@ -24,7 +24,7 @@ class
 	{
 		?>/*<script>*/
 
-P$set = function($pool, $key, $value)
+function($pool, $key, $value)
 {
 	if ($pool) $pool[$key] = $value;
 	return '';

@@ -36,7 +36,7 @@ class
 	{
 		?>/*<script>*/
 
-P$linkto = function($text, $url, $attributes)
+function($text, $url, $attributes)
 {
 	$text = str($text);
 	$url = str($url);

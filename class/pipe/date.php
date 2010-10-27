@@ -34,7 +34,7 @@ class
 	{
 		?>/*<script>*/
 
-P$date = function($time, $format)
+function($time, $format)
 {
 	if (t($format))
 	{
@@ -263,8 +263,7 @@ P$date = function($time, $format)
 		};
 
 	$local[4] = $time.getDate();
-	$local[5] = (''+$time).match(/ (\d\d\d\d)/);
-	$local[5] = $local[5][1];
+	$local[5] = (''+$time).match(/ (\d\d\d\d)/)[1];
 
 	while ($i < $len)
 	{

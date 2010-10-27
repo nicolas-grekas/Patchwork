@@ -12,7 +12,7 @@ class
 	{
 		?>/*<script>*/
 
-P$inArgs = function($index)
+function($index)
 {
 	return P$inArgs.arguments[$index + 1] || '';
 }

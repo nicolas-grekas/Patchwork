@@ -27,7 +27,7 @@ class
 	{
 		?>/*<script>*/
 
-P$rgb = function($r, $g, $b)
+function($r, $g, $b)
 {
 	$r = ($r/1 || 0).toString(16);
 	$g = ($g/1 || 0).toString(16);

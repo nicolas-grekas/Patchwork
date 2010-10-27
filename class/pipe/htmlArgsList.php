@@ -34,7 +34,7 @@ class
 	{
 		?>/*<script>*/
 
-P$htmlArgsList = function()
+function()
 {
 	var $result = '', $a = P$htmlArgsList.arguments, $i = 0, $v;
 

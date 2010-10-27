@@ -26,7 +26,7 @@ class
 		?>/*<script>*/
 // Original version: http://jan.moesen.nu/code/javascript/sprintf-and-printf-in-javascript/
 
-P$printf = function($format)
+function($format)
 {
 	$format = str($format);
 

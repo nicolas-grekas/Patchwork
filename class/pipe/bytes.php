@@ -35,7 +35,7 @@ class
 	{
 		?>/*<script>*/
 
-P$bytes = function($byte)
+function($byte)
 {
 	$byte = str($byte);
 	var $suffix = ' Kio', $div;

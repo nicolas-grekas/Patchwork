@@ -38,7 +38,7 @@ class
 	{
 		?>/*<script>*/
 
-P$htmlArgs = function($pool)
+function($pool)
 {
 	if (!$pool) return '';
 	var $result = '', $args = P$htmlArgs.arguments, $i = $args.length, $except = [];

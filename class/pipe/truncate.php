@@ -38,7 +38,7 @@ class
 	{
 		?>/*<script>*/
 
-P$truncate = function($string, $length, $etc, $break_words)
+function($string, $length, $etc, $break_words)
 {
 	$string = str($string);
 	$length = str($length, 80);

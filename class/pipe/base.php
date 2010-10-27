@@ -25,7 +25,7 @@ class
 	{
 		?>/*<script>*/
 
-P$base = function($string, $noId)
+function($string, $noId)
 {
 	return base(str($string), $noId);
 }

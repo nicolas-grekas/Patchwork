@@ -23,7 +23,7 @@ class
 	{
 		?>/*<script>*/
 
-P$default = function($string, $default)
+function($string, $default)
 {
 	return $string>''||$string<0 ? $string : $default;
 }

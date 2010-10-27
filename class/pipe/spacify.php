@@ -24,7 +24,7 @@ class
 	{
 		?>/*<script>*/
 
-P$spacify = function($string, $spacify_char)
+function($string, $spacify_char)
 {
 	return str($string).split('').join(str($spacify_char, ' '));
 }

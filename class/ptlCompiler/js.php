@@ -58,14 +58,30 @@ class extends ptlCompiler
 
 	protected function makeCode(&$code)
 	{
-		if ($m = array_unique($this->modifiers))
+		$code = '';
+
+		foreach (array_unique($this->modifiers) as $m)
 		{
-			sort($m);
-			$m = implode('.', $m);
-			array_unshift($this->jscode, self::OP_PIPE, jsquote($m));
+			if (class_exists('pipe_' . $m))
+			{
+				ob_start();
+				call_user_func(array('pipe_' . $m, 'js'));
+
+#>				if (DEBUG)
+#>				{
+#>					$parser = ob_get_clean();
+#>				}
+#>				else
+#>				{
+					$parser = new jsqueez;
+					$parser = $parser->squeeze(ob_get_clean());
+#>				}
+
+				$code .= 'w.P$' . $m . '=' . trim($parser, ';') . ';';
+			}
 		}
 
-		return implode(',', $this->jscode);
+		return "(function(w){{$code}return [" . implode(',', $this->jscode) . "]})(window)";
 	}
 
 	protected function makeModifier($name)

@@ -25,7 +25,7 @@ class
 	{
 		?>/*<script>*/
 
-P$substr = function($string, $start, $length)
+function($string, $start, $length)
 {
 	$string = str($string);
 

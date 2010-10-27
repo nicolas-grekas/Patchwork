@@ -23,7 +23,7 @@ class
 	{
 		?>/*<script>*/
 
-P$repeat = function($string, $num)
+function($string, $num)
 {
 	var $str = '';
 	$string = str($string);

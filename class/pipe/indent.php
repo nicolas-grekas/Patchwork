@@ -25,7 +25,7 @@ class
 	{
 		?>/*<script>*/
 
-P$indent = function($string, $chars, $char)
+function($string, $chars, $char)
 {
 	$string = str($string);
 	$chars = str($chars, 4);
