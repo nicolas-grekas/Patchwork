@@ -33,6 +33,7 @@ function($format)
 	var $rx = /^([^%]*)%((%%)*)((\d+)\$)?(-)?('[\s\S]|[0\x20])?(-)?(\d*)(\.(\d*))?([%bcdeufFosxX]?)([\s\S]*)$/,
 		    //  1       2       5        6   7                 8   9       11     12               13
 		$str = '',
+		$args = arguments,
 		$idCounter = 0,
 		$match, $type, $Math = Math;
 
@@ -47,7 +48,7 @@ function($format)
 		else if ($type)
 		{
 			var $base = 0,
-				$param = str(P$printf.arguments[ $match[4] ? $match[5]-0 : ++$idCounter ]),
+				$param = str($args[ $match[4] ? $match[5]-0 : ++$idCounter ]),
 				$iParam = parseInt($param) || 0;
 
 			switch ($type)

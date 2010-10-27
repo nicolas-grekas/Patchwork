@@ -51,14 +51,23 @@ class
 
 function($format)
 {
-	var $i = 1, $args = P$echo.arguments;
+	var $i = 1, $args = arguments;
 	$format = str($format);
 
 	if ($format != '')
 	{
-		P$echo.$args = $args;
-		$format = $format.replace(/(%+)([0-9]?)/g, P$echo.$replace_callback);
-		P$echo.$args = 0;
+		$i = function($m0, $m1, $m2)
+		{
+			if (1 == $m1.length % 2)
+			{
+				$m1 = $m1.substr(1);
+				$m2 = '' != $m2 ? str($args[$m2-0+1]) : '%';
+			}
+
+			return $m1.substr(0, $m1.length>>1) + $m2;
+		}
+
+		$format = $format.replace(/(%+)([0-9]?)/g, $i);
 	}
 	else
 	{
@@ -68,17 +77,6 @@ function($format)
 	}
 
 	return $format;
-}
-
-P$echo.$replace_callback = function($m0, $m1, $m2)
-{
-	if (1 == $m1.length % 2)
-	{
-		$m1 = $m1.substr(1);
-		$m2 = '' != $m2 ? str(P$echo.$args[$m2-0+1]) : '%';
-	}
-
-	return $m1.substr(0, $m1.length>>1) + $m2;
 }
 
 <?php	}

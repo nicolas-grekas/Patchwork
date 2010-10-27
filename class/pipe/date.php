@@ -87,7 +87,7 @@ function($time, $format)
 			c: function()
 			{
 				// ISO 8601 date (Ex. 2004-02-12T15:19:21+00:00)
-				return P$date($time/1000, 'Y-m-d\\TH:i:s') + $zone[2] + ':' + $zone[3];
+				return arguments.callee($time/1000, 'Y-m-d\\TH:i:s') + $zone[2] + ':' + $zone[3];
 			},
 
 			d: function()
@@ -189,7 +189,7 @@ function($time, $format)
 			r: function()
 			{
 				// RFC 2822 formatted date Example: Thu, 21 Dec 2000 16:01:07 +0200
-				return P$date($time/1000, 'D, d M Y H:i:s O');
+				return arguments.callee($time/1000, 'D, d M Y H:i:s O');
 			},
 
 			s: function()
