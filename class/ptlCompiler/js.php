@@ -60,25 +60,35 @@ class extends ptlCompiler
 	{
 		$code = '';
 
-		foreach (array_unique($this->modifiers) as $m)
+		if ($m = array_unique($this->modifiers))
 		{
-			if (class_exists('pipe_' . $m))
-			{
-				ob_start();
-				call_user_func(array('pipe_' . $m, 'js'));
+#>			if (DEBUG)
+#>			{
+#>				$m = implode('.', $m);
+#>				array_unshift($this->jscode, self::OP_PIPE, jsquote($m));
+#>			}
+#>			else
+#>			{
+				foreach ($m as $m)
+				{
+					$code .= 'w.P$' . $m . '=';
 
-#>				if (DEBUG)
-#>				{
-#>					$parser = ob_get_clean();
-#>				}
-#>				else
-#>				{
-					$parser = new jsqueez;
-					$parser = $parser->squeeze(ob_get_clean());
-#>				}
+					if (class_exists('pipe_' . $m))
+					{
+						ob_start();
+						call_user_func(array('pipe_' . $m, 'js'));
 
-				$code .= 'w.P$' . $m . '=' . trim($parser, ';') . ';';
-			}
+						$m = new jsqueez;
+						$m = $m->squeeze(ob_get_clean());
+						$code .= trim($m, ';') . ';';
+					}
+					else
+					{
+						W('PTL Modifier Not Found: ' . $m);
+						$code .= "function(){return '؟'};";
+					}
+				}
+#>			}
 		}
 
 		return "(function(w){{$code}return [" . implode(',', $this->jscode) . "]})(window)";

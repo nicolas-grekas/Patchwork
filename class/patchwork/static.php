@@ -77,13 +77,17 @@ class extends patchwork
 		preg_match_all('/[a-zA-Z_0-9\x80-\xff]+/', $pipe, $pipe);
 		p::$agentClass = 'agent__pipe/' . implode('_', $pipe[0]);
 
+		echo '(function(w){';
+
 		foreach ($pipe[0] as $pipe)
 		{
+			echo 'w.P$', $pipe, '=';
+
 #>			if (DEBUG)
 #>			{
 #>				ob_start();
 #>				call_user_func(array('pipe_' . $pipe, 'js'));
-#>				echo 'P$' . $pipe . '=' . trim(ob_get_clean(), ';') . ';';
+#>				echo trim(ob_get_clean(), ';');
 #>			}
 #>			else
 #>			{
@@ -94,9 +98,9 @@ class extends patchwork
 					ob_start();
 					call_user_func(array('pipe_' . $pipe, 'js'));
 
-					$parser = new jsqueez;
-					$parser = $parser->squeeze(ob_get_clean());
-					echo $pipe = 'P$' . $pipe . '=' . trim($parser, ';') . ';';
+					$pipe = new jsqueez;
+					$pipe = $pipe->squeeze(ob_get_clean());
+					echo $pipe = trim($pipe, ';');
 
 					fwrite($h, $pipe);
 					fclose($h);
@@ -109,10 +113,10 @@ class extends patchwork
 				}
 #>			}
 
-			echo "\n";
+			echo ';';
 		}
 
-		echo 'w()';
+		echo '})(window);w()';
 
 		p::setMaxage(-1);
 	}
