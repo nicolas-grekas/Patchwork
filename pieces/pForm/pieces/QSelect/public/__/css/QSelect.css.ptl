@@ -32,26 +32,18 @@ div.QSshadow
 
 .QSie-shadow
 {
-<!-- IF 6 < g$ie && g$ie <= 8 -->
+	display: none;
+}
+
+.ie7 .QSie-shadow, .ie8 .QSie-shadow
+{
 	display: block;
 	position: absolute;
 	width: 100%;
 	height: 100%;
 	background: #000;
 	filter:progid:DXImageTransform.Microsoft.Blur(PixelRadius=4,MakeShadow=true,ShadowOpacity=.30);
-<!-- ELSE -->
-	display: none;
-<!-- END:IF -->
 }
 
-<!-- IF g$ie == 6 -->
-.QSstyle input
-{
-	top: 0;
-}
-
-.QSstyle img
-{
-	top: -1px;
-}
-<!-- END:IF -->
+.ie6 .QSstyle input {top: 0;}
+.ie6 .QSstyle img   {top: -1px;}

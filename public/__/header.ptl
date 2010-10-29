@@ -12,10 +12,16 @@
  ***************************************************************************}
 <!-- IF !g+1$headerNesting -->
 <!-- SERVERSIDE -->
+<!-- SET $_lang --><!-- IF g$__LANG__ --> lang="{g$__LANG__}"<!-- END:IF --><!-- END:SET -->
 <!DOCTYPE html>
-<html<!-- IF g$__LANG__ --> lang="{g$__LANG__}"<!-- END:IF -->>
+<!--[if lt IE 7]><html{$_lang} class="no-js ie6"><![endif]-->
+<!--[if IE 7]><html{$_lang} class="no-js ie7"><![endif]-->
+<!--[if IE 8]><html{$_lang} class="no-js ie8"><![endif]-->
+<!--[if gt IE 8]><html{$_lang} class="no-js ie9"><![endif]-->
+<!--[if !IE]><!--><html{$_lang} class="no-js"><!--<![endif]-->
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 	<script src="{base:'js/w'}"></script>
 <!-- END:SERVERSIDE -->
 
@@ -23,12 +29,7 @@
 
 	<meta name="generator" content="Patchwork">
 
-	<!-- SET $_css --><link rel="stylesheet" type="text/css" href="{a$css|default:'css/style'|base}"><!-- END:SET -->
-	<!--[if IE 6]>{$_css|replace:'">':'&ie=6">'}<![endif]-->
-	<!--[if IE 7]>{$_css|replace:'">':'&ie=7">'}<![endif]-->
-	<!--[if IE 8]>{$_css|replace:'">':'&ie=8">'}<![endif]-->
-	<!--[if IE 9]>{$_css|replace:'">':'&ie=9">'}<![endif]-->
-	<!--[if !IE]>-->{$_css}<!--<![endif]-->
+	<link rel="stylesheet" type="text/css" href="{a$css|default:'css/style'|base}">
 
 	<!--
 
