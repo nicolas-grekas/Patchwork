@@ -413,9 +413,9 @@ class
 
 			header('Refresh: 0');
 
-			echo '<html><head><script>location.',
+			echo '<script>location.',
 				IS_POSTING ? 'replace(location)' : 'reload()',
-				'</script></head></html>';
+				'</script>';
 
 			return;
 		}
@@ -434,7 +434,7 @@ class
 
 				header('Refresh: 0');
 
-				echo '<html><head><script>location.reload()</script></head></html>';
+				echo '<script>location.reload()</script>';
 				return;
 			}
 		}

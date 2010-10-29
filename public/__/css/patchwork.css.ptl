@@ -6,12 +6,18 @@ fieldset{border:1px solid #bbb;padding:.5em;}
 legend{padding:0 .5em;}
 optgroup{font-weight:bold;background:#fff;font-style:italic;}
 option{font-weight:normal;font-style:normal;}
-<!-- IF g$ie -->
-<!-- IF g$ie < 8 -->
-body{behavior:url("{base:'fix/hover.htc'}");}
-<!-- END:IF -->
-<!-- IF g$ie < 7 -->
-select{behavior:url("{base:'fix/select.htc'}");}
-img,input{behavior:url("{base:'fix/png.htc'}");}
-<!-- END:IF -->
-<!-- END:IF -->
+
+/* IE specific fixes */
+.ie6 body, .ie7 body {behavior:url("{base:'fix/hover.htc'}");}
+.ie6 select {behavior:url("{base:'fix/select.htc'}");}
+.ie6 img, .ie6 input {behavior:url("{base:'fix/png.htc'}");}
+
+/* Borrowed from HTML5 ✰ Boilerplate */
+.ie7 img {-ms-interpolation-mode:bicubic;}
+button,input,select,textarea {margin:0;}
+a:hover, a:active {outline:none;}
+pre {white-space:pre;white-space:pre-wrap;white-space:pre-line;word-wrap:break-word;}
+button {width:auto;overflow:visible;}
+.clearfix:before, .clearfix:after {content:"\0020";display:block;height:0;visibility:hidden;}
+.clearfix:after {clear:both;}
+.clearfix {zoom:1;}

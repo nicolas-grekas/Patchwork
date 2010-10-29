@@ -883,6 +883,11 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataURI)
 
 function loadW($window)
 {
+	if ($window = document.documentElement)
+	{
+		$window.className = $window.className.replace(/\bno-js\b/, '') + ' js';
+	}
+
 	$window = window;
 
 	if ($window.encodeURI)
