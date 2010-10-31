@@ -212,7 +212,7 @@ class patchwork_tokenizer_aliasing extends patchwork_tokenizer
 			$a = explode('::', $a, 2);
 
 			if (1 === count($a)) $token[1] = $a[0];
-			else if (empty($this->class->name) || strcasecmp($a[0], $this->class->name))
+			else if (empty($this->class->name) || strcasecmp($a[0], $this->class->nsName))
 			{
 				$this->code[--$this->position] = array(T_STRING, $a[1]);
 				$this->code[--$this->position] = array(T_DOUBLE_COLON, '::');

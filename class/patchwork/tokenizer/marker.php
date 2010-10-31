@@ -183,7 +183,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer
 	function tagClassClose(&$token)
 	{
 		$T = PATCHWORK_PATH_TOKEN;
-		$c = isset($this->class->realName) ? $this->class->realName : $this->class->name;
+		$c = strtolower($this->namespace . (isset($this->class->realName) ? $this->class->realName : $this->class->name));
 		$token[1] .= "\$GLOBALS['c{$T}']['{$c}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
 	}
 

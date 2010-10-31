@@ -29,8 +29,10 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 		'tagClassC'    => T_CLASS_C,
 		'tagMethodC'   => T_METHOD_C,
 		'tagFuncC'     => T_FUNC_C,
+		'tagNsC'       => T_NS_C,
 	),
 	$depends = array(
+		'patchwork_tokenizer_namespaceInfo',
 		'patchwork_tokenizer_scoper',
 		'patchwork_tokenizer_stringTagger',
 	);
@@ -119,8 +121,15 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 
 			switch ($this->scope->type)
 			{
-			case T_CLASS:    $this->scope->classC = $this->nextScope; break;
-			case T_FUNCTION: $this->scope->funcC  = '' !== $this->nextScope ? $this->nextScope : '{closure}'; break;
+			case T_CLASS:
+				$this->scope->classC = $this->namespace . $this->nextScope;
+				break;
+
+			case T_FUNCTION:
+				$this->scope->funcC = '' !== $this->nextScope
+					? ($this->scope->classC ? '' : $this->namespace) . $this->nextScope
+					: ($this->namespace . '{closure}');
+				break;
 			}
 		}
 		else
@@ -148,6 +157,11 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 	function tagFuncC(&$token)
 	{
 		return $this->replaceCode(T_CONSTANT_ENCAPSED_STRING, "'{$this->scope->funcC}'");
+	}
+
+	function tagNsC(&$token)
+	{
+		return $this->replaceCode(T_CONSTANT_ENCAPSED_STRING, "'" . substr($this->namespace, 0, -1) . "'");
 	}
 
 	function replaceCode($type, $code)

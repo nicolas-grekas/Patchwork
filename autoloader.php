@@ -162,35 +162,55 @@ class __patchwork_autoloader
 			? class_exists($parent) || interface_exists($parent)
 			: ((class_exists($req, false) || interface_exists($req, false)) && !isset(self::$cache[$lc_req]))  )
 		{
+			if (false !== $a = strpos($req, '\\'))
+			{
+				$ns     = substr($req, 0, $a + 1);
+				$req    = substr($req,    $a + 1);
+				$parent = substr($parent, $a + 1);
+				$lc_req = substr($lc_req, $a + 1);
+				$lc_ns  = strtolower($ns);
+			}
+			else $ns = $lc_ns = '';
+
 			if ($parent)
 			{
-				$code = (class_exists($parent) ? 'class' : 'interface') . " {$req} extends {$parent}{}\$GLOBALS['c{$T}']['{$lc_req}']=1;";
+				$code = (class_exists($ns . $parent) ? 'class' : 'interface') . " {$req} extends {$parent}{}\$GLOBALS['c{$T}']['{$lc_ns}{$lc_req}']=1;";
 				$parent = strtolower($parent);
 
-				if (isset($GLOBALS['patchwork_abstract'][$parent]))
+				if (isset($GLOBALS['patchwork_abstract'][$lc_ns . $parent]))
 				{
 					$code = 'abstract ' . $code;
-					$GLOBALS['patchwork_abstract'][$lc_req] = 1;
+					$GLOBALS['patchwork_abstract'][$lc_ns . $lc_req] = 1;
 				}
 			}
 			else $parent = $lc_req;
 
 			if ($isTop)
 			{
-				$a = "{$parent}::__c_s";
+				$a = "{$ns}{$parent}::__c_s";
 				if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__constructStatic'))
 				{
 					$code .= "{$parent}::__constructStatic();";
 				}
 
-				$a = "{$parent}::__d_s";
+				$a = "{$ns}{$parent}::__d_s";
 				if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__destructStatic'))
 				{
-					$code .= "\$GLOBALS['_patchwork_destruct'][]='{$parent}';";
+					$code .= "\$GLOBALS['_patchwork_destruct'][]='{$lc_ns}{$parent}';";
 				}
 			}
 
-			$code && eval($code);
+			if ($ns)
+			{
+				$req    = $ns . $req;
+				$parent = $lc_ns . $parent;
+				$lc_req = $lc_ns . $lc_req;
+
+				$ns = substr($ns, 0, -1);
+				$ns = "namespace {$ns};";
+			}
+
+			$code && eval($ns . $code);
 		}
 
 		'patchwork_preprocessor' === $lc_top && self::$preproc = false;
