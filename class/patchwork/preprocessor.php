@@ -106,6 +106,7 @@ class patchwork_preprocessor__0
 		$t = new patchwork_tokenizer_normalizer;
 
 		$i = array(
+			'namespaceInfo'     => true,
 			'className'         => 0 <= $level && $class,
 			'stringTagger'      => true,
 			'scoper'            => true,
@@ -124,7 +125,7 @@ class patchwork_preprocessor__0
 		foreach ($i as $c => $i)
 		{
 			if (!$i) continue;
-			if ($class === $i = 'patchwork_tokenizer_' . $c) break;
+			if (!class_exists($i = 'patchwork_tokenizer_' . $c, true)) break;
 
 			switch ($c)
 			{
