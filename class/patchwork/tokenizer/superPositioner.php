@@ -162,14 +162,15 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		}
 		else
 		{
-			if ($this->topClass && 0 === strcasecmp($this->topClass, $c->name))
+			if ($this->topClass && 0 === strcasecmp($this->topClass, $c->nsName))
 			{
 				$token[1] = '}' . ($c->isAbstract ? 'abstract ' : '') . "{$c->type} {$c->name} extends {$c->realName} {" . $token[1];
 			}
 
 			if ($c->isAbstract)
 			{
-				$token[1] .= "\$GLOBALS['patchwork_abstract']['{$c->realName}']=1;";
+				$c = strtolower($this->namespace . $c->realName);
+				$token[1] .= "\$GLOBALS['patchwork_abstract']['{$c}']=1;";
 			}
 		}
 	}

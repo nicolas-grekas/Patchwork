@@ -19,7 +19,10 @@ class patchwork_tokenizer_classInfo extends patchwork_tokenizer
 	$class     = false,
 	$callbacks = array('tagClass' => array(T_CLASS, T_INTERFACE)),
 	$shared    = 'class',
-	$depends   = 'patchwork_tokenizer_scoper';
+	$depends   = array(
+		'patchwork_tokenizer_namespaceInfo',
+		'patchwork_tokenizer_scoper',
+	);
 
 
 	function tagClass(&$token)
@@ -27,6 +30,7 @@ class patchwork_tokenizer_classInfo extends patchwork_tokenizer
 		$this->class = (object) array(
 			'type'       => $token[1],
 			'name'       => false,
+			'nsName'     => false,
 			'extends'    => false,
 			'isFinal'    => T_FINAL    === $this->prevType,
 			'isAbstract' => T_ABSTRACT === $this->prevType,
@@ -47,7 +51,8 @@ class patchwork_tokenizer_classInfo extends patchwork_tokenizer
 	function tagClassName(&$token)
 	{
 		$this->unregister(array(__FUNCTION__ => T_STRING));
-		$this->class->name = $token[1];
+		$this->class->name   = $token[1];
+		$this->class->nsName = $this->namespace . $token[1];
 	}
 
 	function tagExtends(&$token)

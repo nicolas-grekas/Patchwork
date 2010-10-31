@@ -105,7 +105,7 @@ function patchwork_class2cache($class, $level)
 
 	$cache = (int) DEBUG . (0>$level ? -$level . '-' : $level);
 	$cache = /*<*/patchwork_bootstrapper::$cwd . '.class_'/*>*/
-			. $class . '.' . $cache
+			. strtr($class, '\\', '_') . '.' . $cache
 			. /*<*/'.' . patchwork_bootstrapper::$token . '.zcache.php'/*>*/;
 
 	return $cache;
@@ -126,7 +126,6 @@ function patchwork_class2cache($class, $level)
 
 function __autoload($searched_class)
 {
-	$searched_class = ltrim($searched_class, '\\');
 	$a = strtolower($searched_class);
 
 	if (TURBO && $a =& $GLOBALS['_patchwork_autoloaded'][$a])
