@@ -188,7 +188,11 @@ class extends patchwork
 			// If only RFC 2231 were in use... See http://greenbytes.de/tech/tc2231/
 			//header('Content-Disposition: attachment; filename*=utf-8''" . rawurlencode($filename));
 		}
-		else false !== strpos($mime, 'html') && header('P3P: CP="' . $CONFIG['P3P'] . '"');
+		else if (false !== strpos($mime, 'html'))
+		{
+			header('P3P: CP="' . $CONFIG['P3P'] . '"');
+			header('X-XSS-Protection: 1; mode=block');
+		}
 
 		$size = filesize($file);
 		p::$ETag = $size .'-'. p::$LastModified .'-'. fileinode($file);
