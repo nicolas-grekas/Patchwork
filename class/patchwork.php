@@ -413,9 +413,7 @@ class
 
 			header('Refresh: 0');
 
-			echo '<script>location.',
-				IS_POSTING ? 'replace(location)' : 'reload()',
-				'</script>';
+			echo '<script>location.', IS_POSTING ? 'replace(location)' : 'reload()', '</script>';
 
 			return;
 		}
@@ -1638,7 +1636,12 @@ class
 
 		if (!$is304)
 		{
-			stripos(self::$headers['content-type'], 'html') && header('P3P: CP="' . $CONFIG['P3P'] . '"');
+			if (false !== stripos(self::$headers['content-type'], 'html'))
+			{
+				header('P3P: CP="' . $CONFIG['P3P'] . '"');
+				header('X-XSS-Protection: 1; mode=block');
+			}
+
 			self::$is_enabled && header('Content-Length: ' . strlen($buffer));
 			'' !== $buffer && self::$contentEncoding && header('Content-Encoding: ' . self::$contentEncoding);
 		}
