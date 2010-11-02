@@ -18,7 +18,6 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 
 	$level,
 	$topClass,
-	$privateToken,
 	$callbacks = array(
 		'tagSelf'          => array('self'   => T_USE_CLASS),
 		'tagParent'        => array('parent' => T_USE_CLASS),
@@ -120,36 +119,21 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		// (except for files in the include path). Side effects exist but should be rare.
 
 		// Look backward and forward for the "static" keyword
-		if (T_STATIC === $this->prevType) $this->fixPrivate($token);
-		else
+		if (T_STATIC !== $this->prevType)
 		{
-			$this->privateToken =& $token;
-			$this->register('tagStatic');
-		}
-	}
+			$token =& $this->getNextToken();
 
-	function tagStatic(&$token)
-	{
-		$this->unregister(__FUNCTION__);
-
-		if (T_STATIC === $token[0])
-		{
-			$this->fixPrivate($this->privateToken);
+			if (T_STATIC !== $token[0]) return;
 		}
 
-		unset($this->privateToken);
-	}
-
-	function fixPrivate(&$token)
-	{
-		$this->code[--$this->position] = array(T_PROTECTED, 'protected');
+		$token = array(T_PROTECTED, 'protected');
 
 		if (0 <= $this->level)
 		{
 			$this->setError("Private static methods or properties are banned, please use protected static ones instead");
 		}
 
-		return false;
+		return T_STATIC !== $this->prevType;
 	}
 
 	function tagClassClose(&$token)

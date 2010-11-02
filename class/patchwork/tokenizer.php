@@ -411,6 +411,18 @@ class patchwork_tokenizer
 		return $b;
 	}
 
+	protected function &getNextToken($offset = 0)
+	{
+		$i = $this->position;
+
+		do while (isset($this->code[$i][1], self::$sugar[$this->code[$i][0]])) ++$i;
+		while ($offset-- > 0);
+
+		isset($this->code[$i]) || $this->code[$i] = array(T_WHITESPACE, '');
+
+		return $this->code[$i];
+	}
+
 	function __call($method, $args)
 	{
 		return call_user_func_array(array($this->parent, $method), $args);
