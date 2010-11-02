@@ -13,15 +13,15 @@
 
 
 // Sub-tokens to tag T_STRING variants
-patchwork_tokenizer::defineNewToken('T_NAME_CLASS');     // class FOOBAR {}; interface FOOBAR {}
-patchwork_tokenizer::defineNewToken('T_NAME_FUNCTION');  // function FOOBAR()
-patchwork_tokenizer::defineNewToken('T_NAME_CONST');     // class foo {const BAR}
-patchwork_tokenizer::defineNewToken('T_USE_CLASS');      // new FOO; BAR::...
-patchwork_tokenizer::defineNewToken('T_USE_METHOD');     // foo::BAR(); $foo->BAR()
-patchwork_tokenizer::defineNewToken('T_USE_PROPERTY');   // $foo->BAR
-patchwork_tokenizer::defineNewToken('T_USE_FUNCTION');   // FOOBAR()
-patchwork_tokenizer::defineNewToken('T_USE_CONST');      // foo::BAR
-patchwork_tokenizer::defineNewToken('T_USE_CONSTANT');   // $foo = BAR
+patchwork_tokenizer::defineNewToken('T_NAME_CLASS');    // class FOOBAR {}; interface FOOBAR {}
+patchwork_tokenizer::defineNewToken('T_NAME_FUNCTION'); // function FOOBAR()
+patchwork_tokenizer::defineNewToken('T_NAME_CONST');    // class foo {const BAR}
+patchwork_tokenizer::defineNewToken('T_USE_CLASS');     // new FOO; BAR::...
+patchwork_tokenizer::defineNewToken('T_USE_METHOD');    // foo::BAR(); $foo->BAR()
+patchwork_tokenizer::defineNewToken('T_USE_PROPERTY');  // $foo->BAR
+patchwork_tokenizer::defineNewToken('T_USE_FUNCTION');  // FOOBAR()
+patchwork_tokenizer::defineNewToken('T_USE_CONST');     // foo::BAR
+patchwork_tokenizer::defineNewToken('T_USE_CONSTANT');  // $foo = BAR
 
 
 class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
@@ -76,13 +76,9 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 				break;
 			}
 
-			$i = $this->position;
+			$t = $this->getNextToken();
 
-			while (isset($this->code[$i][1], self::$sugar[$this->code[$i][0]])) ++$i;
-
-			if (!isset($this->code[$i])) return;
-
-			switch ($this->code[$i][0])
+			switch ($t[0])
 			{
 			case T_VARIABLE:
 			case T_DOUBLE_COLON: $token[3] = T_USE_CLASS; break 2;
@@ -103,7 +99,7 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 
 				case '(':
 				case ',':
-					if (1 === $this->inParam && '&' === $this->code[$i][0])
+					if (1 === $this->inParam && '&' === $t[0])
 					{
 						$token[3] = T_USE_CLASS; break 3;
 					}

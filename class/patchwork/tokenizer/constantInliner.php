@@ -102,14 +102,9 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 
 	function tagScopeName(&$token)
 	{
-		$this->register('catchScopeName');
-	}
+		$t = $this->getNextToken();
 
-	function catchScopeName(&$token)
-	{
-		$this->unregister(__FUNCTION__);
-
-		T_STRING === $token[0] && $this->nextScope = $token[1];
+		T_STRING === $t[0] && $this->nextScope = $t[1];
 	}
 
 	function tagScopeOpen(&$token)

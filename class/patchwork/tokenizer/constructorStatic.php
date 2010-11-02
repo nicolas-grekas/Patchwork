@@ -48,25 +48,22 @@ class patchwork_tokenizer_constructorStatic extends patchwork_tokenizer
 
 	function tagFunction(&$token)
 	{
-		T_CLASS === $this->scope->type && $this->register('tagFunctionName');
-	}
-
-	function tagFunctionName(&$token)
-	{
-		if ('&' === $token[0]) return;
-		$this->unregister(__FUNCTION__);
-		if (T_STRING !== $token[0]) return;
-
-		switch (strtolower($token[1]))
+		if (T_CLASS === $this->scope->type)
 		{
-			case '__constructstatic': $this->construct = 2; break;
-			case '__destructstatic' : $this->destruct  = 2; break;
+			$t = $this->getNextToken();
+			if ('&' === $t[0]) $t = $this->getNextToken(1);
+
+			if (T_STRING === $t[0]) switch (strtolower($t[1]))
+			{
+				case '__constructstatic': $this->construct = 2; break;
+				case '__destructstatic' : $this->destruct  = 2; break;
+			}
 		}
 	}
 
 	function tagClassClose(&$token)
 	{
-		$this->unregister('tagFunction');
+		$this->unregister(array('tagFunction' => T_FUNCTION));
 		$this->register();
 
 		$class = strtolower($this->class->nsName);

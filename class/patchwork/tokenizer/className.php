@@ -29,22 +29,12 @@ class patchwork_tokenizer_className extends patchwork_tokenizer
 
 	function tagClass(&$token)
 	{
-		$this->register('fixClassName');
-	}
+		$t = $this->getNextToken();
 
-	function fixClassName(&$token)
-	{
-		$this->unregister(__FUNCTION__);
-
-		if (T_STRING !== $token[0])
+		if (T_STRING !== $t[0])
 		{
-			$this->code[--$this->position] =& $token;
-			$this->code[--$this->position] = array(T_WHITESPACE, ' ');
 			$this->code[--$this->position] = array(T_STRING, $this->className);
-
-			$this->unregister();
-
-			return false;
+			$this->code[--$this->position] = array(T_WHITESPACE, ' ');
 		}
 	}
 }
