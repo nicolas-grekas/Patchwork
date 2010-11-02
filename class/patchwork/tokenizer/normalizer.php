@@ -44,7 +44,8 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 
 			if (0 === strncmp($code, "\xEF\xBB\xBF", 3))
 			{
-				$this->register('stripBom');
+				// substr_replace() is for mbstring overloading resistance
+				$code = substr_replace($code, '', 0, 3);
 			}
 		}
 
@@ -93,14 +94,6 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 	{
 		$token[1] = substr_count($token[1], "\n");
 		$token[1] = str_repeat("\n", $token[1]) . '?'.'>';
-	}
-
-	function stripBom(&$token)
-	{
-		$this->unregister(__FUNCTION__);
-		// substr_replace() is for mbstring overloading resistance
-		$token[1] = substr_replace($token[1], '', 0, 3);
-		if ('' === $token[1]) return false;
 	}
 
 	function fixVar(&$token)

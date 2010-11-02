@@ -23,23 +23,18 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 
 	function tagNs(&$token)
 	{
-		$this->register('tagNsStart');
-	}
+		$t = $this->getNextToken();
 
-	function tagNsStart(&$token)
-	{
-		$this->unregister(__FUNCTION__);
-
-		if (T_STRING === $token[0])
+		if (T_STRING === $t[0])
 		{
-			$this->namespace = $token[1] . '\\';
+			$this->namespace = '';
 
 			$this->register($this->callbacks = array(
 				'tagNsName' => T_STRING,
 				'tagNsEnd'  => array('{', ';'),
 			));
 		}
-		else if ('{' === $token[0])
+		else if ('{' === $t[0])
 		{
 			$this->namespace = '';
 		}

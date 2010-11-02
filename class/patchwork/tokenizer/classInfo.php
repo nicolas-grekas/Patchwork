@@ -57,14 +57,8 @@ class patchwork_tokenizer_classInfo extends patchwork_tokenizer
 
 	function tagExtends(&$token)
 	{
-		$this->class->extends = true;
-		$this->register('tagExtendsName');
-	}
-
-	function tagExtendsName(&$token)
-	{
-		$this->unregister(__FUNCTION__);
-		T_STRING === $token[0] && $this->class->extends = $token[1];
+		$t = $this->getNextToken();
+		T_STRING === $t[0] && $this->class->extends = $t[1];
 	}
 
 	function tagClassOpen(&$token)
