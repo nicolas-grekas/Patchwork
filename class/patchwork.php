@@ -1380,25 +1380,20 @@ class
 				}
 >*/
 			}
-			else
+			else if (false !== $a = strrpos($buffer, '<'))
 			{
-				$a = strrpos($buffer, '<');
-				if (false !== $a)
-				{
-					$tail = strrpos($buffer, '>');
-					if (false !== $tail && $tail > $a) $a = $tail;
+				$tail = strrpos($buffer, '>');
+				if (false !== $tail && $tail > $a) $a = $tail;
 
-					$tail = substr($buffer, $a);
-					$buffer = substr($buffer, 0, $a);
-				}
+				$tail = substr($buffer, $a);
+				$buffer = substr($buffer, 0, $a);
 			}
 
 			$buffer = $lead . $buffer;
 			$lead = $tail;
 
 
-			$a = stripos($buffer, '<form');
-			if (false !== $a)
+			if (false !== $a = stripos($buffer, '<form'))
 			{
 				$a = preg_replace_callback(
 					'#<form\s(?:[^>]+?\s)?method\s*=\s*(["\']?)post\1.*?>#iu',
@@ -1413,7 +1408,7 @@ class
 					$buffer = $a;
 				}
 
-				unset($a);
+				$a = '';
 			}
 		}
 		else if (PHP_OUTPUT_HANDLER_START & $mode)
@@ -1471,17 +1466,17 @@ class
 
 					if ($mode)
 					{
-						$algo = array(
+						$a = array(
 							'deflate'  => 'gzdeflate',
 							'gzip'     => 'gzencode',
 							'compress' => 'gzcompress',
 						);
 
-						foreach ($algo as $encoding => $algo) if (false !== stripos($mode, $encoding))
+						foreach ($a as $encoding => $a) if (false !== stripos($mode, $encoding))
 						{
 							self::$contentEncoding = $encoding;
 							self::$is_enabled || header('Content-Encoding: ' . $encoding);
-							$buffer = $algo($buffer);
+							$buffer = $a($buffer);
 							break;
 						}
 					}
