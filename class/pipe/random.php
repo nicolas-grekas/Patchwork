@@ -30,7 +30,7 @@ class
 
 function($min, $max)
 {
-	if (!t($max))) $max = 32767;
+	if (!t($max)) $max = 32767;
 
 	$min = ($min-0) || 0;
 	$max -= 0;
