@@ -613,7 +613,6 @@ class
 			if (   0 === strncasecmp($string, 'http/', 5)
 				|| 0 === strncasecmp($string, 'etag', 4)
 				|| 0 === strncasecmp($string, 'expires', 7)
-				|| 0 === strncasecmp($string, 'cache-control', 13)
 				|| 0 === strncasecmp($string, 'content-length', 14)
 			) return;
 
@@ -1600,7 +1599,8 @@ class
 			));
 			header(
 				'Cache-Control: max-age=' . self::$maxage
-				. (self::$private ? ',private,must' : ',public,proxy') . '-revalidate'
+				. (self::$private ? ',private,must' : ',public,proxy') . '-revalidate',
+				false
 			);
 
 			if ($is304)
