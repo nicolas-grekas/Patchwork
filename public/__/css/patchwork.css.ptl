@@ -1,6 +1,5 @@
 html{background:transparent;}
 body{background:#fff;}
-label{cursor:default;}
 th,td{border:0;}
 fieldset{border:1px solid #bbb;padding:.5em;}
 legend{padding:0 .5em;}
