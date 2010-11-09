@@ -19,7 +19,7 @@ abbr,dfn {border-bottom:0;}
 a:hover, a:active {outline:none;}
 pre {white-space:pre;white-space:pre-wrap;white-space:pre-line;word-wrap:break-word;}
 button {width:auto;overflow:visible;}
-label,input[type=button],input[type=submit],input[type=image],button {cursor:pointer;}
+label,input[type="button"],input[type="submit"],input[type="image"],button {cursor:pointer;}
 .clearfix:before, .clearfix:after {content:"\0020";display:block;height:0;visibility:hidden;}
 .clearfix:after {clear:both;}
 .clearfix {zoom:1;}
