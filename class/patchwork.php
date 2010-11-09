@@ -439,7 +439,7 @@ class
 >*/
 
 		// load agent
-		if (IS_POSTING || self::$binaryMode || !isset($_COOKIE['JS']) || !$_COOKIE['JS'])
+		if (IS_POSTING || self::$binaryMode || empty($_COOKIE['JS']))
 		{
 			patchwork_serverside::loadAgent($agent, false, false);
 		}
