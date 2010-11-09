@@ -133,7 +133,6 @@ class patchwork_preprocessor__0
 			case 'className':         $t = new $i($t, $class); break;
 			case 'globalizer':        $t = new $i($t, '$CONFIG'); break;
 			case 'marker':            $t = new $i($t, self::$declaredClass); break;
-			case 'constructorStatic': $t = new $i($t, $is_top ? $class : false); break;
 			case 'constantInliner':   $t = new $i($t, $source, self::$constants); break;
 			case 'superPositioner':   $t = new $i($t, $level, $is_top ? $class : false); break;
 			case 'aliasing':          $t = new $i($t, $GLOBALS['patchwork_preprocessor_alias'], self::$classAlias); break;
