@@ -331,8 +331,9 @@ class patchwork_tokenizer
 		}
 
 		// Reduce memory usage thanks to copy-on-write
-		$deco = $tokens;
+		$deco   = $tokens;
 		$tokens = array();
+		$line   = 0;
 
 		return $deco;
 	}
@@ -351,7 +352,7 @@ class patchwork_tokenizer
 				$i = 0;
 				$b = array();
 
-				foreach ($a as $k => &$a)
+				foreach ($a as $k => $a)
 				{
 					if (is_int($k) && $k >= 0)
 					{
@@ -372,10 +373,10 @@ class patchwork_tokenizer
 		{
 			$b = array();
 			$v = (array) $a;
-			foreach ($v as $k => &$v)
+			foreach ($v as $k => $v)
 			{
 				if ("\0" === substr($k, 0, 1)) $k = substr($k, 3);
-				$b[$k] =& $v;
+				$b[$k] = $v;
 			}
 
 			$b = self::export($b);
