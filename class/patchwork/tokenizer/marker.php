@@ -105,19 +105,16 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer
 
 	function tagNew(&$token)
 	{
-		$i = $this->position;
+		$c = $this->getNextToken();
 
-		while (isset($this->code[$i][1], self::$sugar[$this->code[$i][0]])) ++$i;
-
-		if (!isset($this->code[$i])) return;
-
-		if (T_STRING === $this->code[$i][0])
+		if (T_STRING === $c[0])
 		{
-			$c = strtolower($this->code[$i][1]);
+			$c = strtolower($c[1]);
 			if (isset($this->inlineClass[$c])) return;
 			$c = $this->getMarker($c);
 			$this->scope->markerState || $this->scope->markerState = -1;
 		}
+		else if (T_WHITESPACE === $c[0]) return;
 		else
 		{
 			$T = PATCHWORK_PATH_TOKEN;
