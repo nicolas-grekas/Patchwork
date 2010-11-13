@@ -106,9 +106,9 @@ class patchwork_preprocessor__0
 		$t = new patchwork_tokenizer_normalizer;
 
 		$i = array(
-			'namespaceInfo'     => true,
 			'className'         => 0 <= $level && $class,
-			'stringTagger'      => true,
+			'stringInfo'        => true,
+			'namespaceInfo'     => true,
 			'scoper'            => true,
 			'constantInliner'   => true,
 			'classInfo'         => true,

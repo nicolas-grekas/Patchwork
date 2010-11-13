@@ -29,7 +29,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer
 	$depends   = array(
 		'patchwork_tokenizer_classInfo',
 		'patchwork_tokenizer_scoper',
-		'patchwork_tokenizer_stringTagger',
+		'patchwork_tokenizer_stringInfo',
 		'patchwork_tokenizer_normalizer',
 	);
 
