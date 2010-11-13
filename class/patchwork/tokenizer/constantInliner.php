@@ -34,7 +34,7 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 	$depends = array(
 		'patchwork_tokenizer_namespaceInfo',
 		'patchwork_tokenizer_scoper',
-		'patchwork_tokenizer_stringTagger',
+		'patchwork_tokenizer_stringInfo',
 	);
 
 	protected static $internalConstants = array();

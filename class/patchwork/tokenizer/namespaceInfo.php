@@ -16,37 +16,118 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 {
 	protected
 
-	$namespace = '',
-	$callbacks = array('tagNs' => T_NAMESPACE),
-	$shared    = 'namespace';
+	$namespace  = '',
+	$nsResolved = '',
+	$nsAliases  = array(),
+	$nsUse      = array(),
+	$callbacks  = array(
+		'tagNs'        => array(T_NAME_NS => T_NAMESPACE),
+		'tagUse'       => T_USE,
+		'tagNsResolve' => array(T_USE_CLASS, T_USE_FUNCTION, T_USE_CONSTANT),
+	),
+	$shared  = array('namespace', 'nsResolved'),
+	$depends = 'patchwork_tokenizer_stringInfo';
+
+
+	protected static
+
+	$nsCallbacks  = array(
+		'tagNsName' => array(T_STRING, T_NS_SEPARATOR),
+		'tagNsEnd'  => array('{', ';'),
+	),
+	$useCallbacks = array(
+		'tagUseAs'  => array(T_STRING, T_NS_SEPARATOR),
+		'tagUseEnd' => ';',
+	);
 
 
 	function tagNs(&$token)
 	{
-		$t = $this->getNextToken();
-
-		if (T_STRING === $t[0])
-		{
-			$this->namespace = '';
-
-			$this->register($this->callbacks = array(
-				'tagNsName' => T_STRING,
-				'tagNsEnd'  => array('{', ';'),
-			));
-		}
-		else if ('{' === $t[0])
-		{
-			$this->namespace = '';
-		}
+		$this->namespace = '';
+		$this->nsAliases = array();
+		$this->register(self::$nsCallbacks);
 	}
 
 	function tagNsName(&$token)
 	{
-		$this->namespace .= $token[1] . '\\';
+		$this->namespace .= $token[1];
 	}
 
 	function tagNsEnd(&$token)
 	{
-		$this->unregister();
+		'' !== $this->namespace && $this->namespace .= '\\';
+		$this->unregister(self::$nsCallbacks);
+	}
+
+	function tagUse(&$token)
+	{
+		if (')' !== $this->prevType)
+		{
+			$this->register(self::$useCallbacks);
+		}
+	}
+
+	function tagUseAs(&$token)
+	{
+		if (T_AS === $this->prevType)
+		{
+			$this->nsAliases[$token[1]] = implode($this->nsUse);
+			$this->nsUse = array();
+		}
+		else
+		{
+			$this->nsUse[] = $token[1];
+		}
+	}
+
+	function tagUseEnd(&$token)
+	{
+		if ($this->nsUse)
+		{
+			$this->nsAliases[end($this->nsUse)] = implode($this->nsUse);
+			$this->nsUse = array();
+		}
+
+		$this->unregister(self::$useCallbacks);
+	}
+
+	function tagNsResolve(&$token)
+	{
+		$this->nsResolved = $this->nsPrefix . $token[1];
+
+		if ('' === $this->nsPrefix)
+		{
+			if (T_USE_CLASS === $token[3])
+			{
+				$this->nsResolved = '\\' . (empty($this->nsAliases[$token[1]])
+					? $this->namespace . $token[1]
+					: $this->nsAliases[$token[1]]
+				);
+			}
+			else if ('' === $this->namespace)
+			{
+				$this->nsResolved = '\\' . $this->nsResolved;
+			}
+		}
+		else if ('\\' !== $this->nsPrefix[0])
+		{
+			$a = explode('\\', $this->nsPrefix . $token[1], 2);
+
+			if ('namespace' === $a[0])
+			{
+				if ('' === $this->namespace) unset($a[0]);
+				else $a[0] = $this->namespace;
+			}
+			else if (isset($this->nsAliases[$a[0]]))
+			{
+				$a[0] = $this->nsAliases[$a[0]];
+			}
+			else if ('' !== $this->namespace)
+			{
+				array_unshift($a, $this->namespace);
+			}
+
+			$this->nsResolved = '\\' . implode('\\', $a);
+		}
 	}
 }

@@ -26,7 +26,7 @@ patchwork_tokenizer::defineNewToken('T_USE_CONST');     // foo::BAR
 patchwork_tokenizer::defineNewToken('T_USE_CONSTANT');  // $foo = BAR
 
 
-class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
+class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 {
 	protected
 
@@ -44,6 +44,7 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 		'tagFunction' => T_FUNCTION,
 		'tagNs'       => T_NAMESPACE,
 		'tagUse'      => T_USE,
+		'tagNsSep'    => T_NS_SEPARATOR,
 	),
 	$shared = 'nsPrefix';
 
@@ -93,7 +94,7 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 			if (T_NS_SEPARATOR === $t[0])
 			{
 				$this->nsPreType || $this->nsPreType = $this->prevType;
-				$this->nsPrefix .= $token[1] . '\\';
+				$this->nsPrefix .= $token[1];
 				$token[3] = T_USE_NS;
 			}
 			else if (!isset($token[3]))
@@ -203,13 +204,18 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 	{
 		$t = $this->getNextToken();
 
-		if (T_STRING === $t[0])
+		switch ($t[0])
 		{
+		case T_STRING:
 			$this->inNs = true;
 			$this->register(array('tagNsEnd' => array('{', ';')));
-		}
-		else if (T_NS_SEPARATOR === $t[0])
-		{
+			// No break;
+
+		case '{':
+			$token[3] = T_NAME_NS;
+			break;
+
+		case T_NS_SEPARATOR:
 			$this->tagString($token);
 		}
 	}
@@ -222,7 +228,7 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 
 	function tagUse(&$token)
 	{
-		if (';' === $this->prevType)
+		if (')' !== $this->prevType)
 		{
 			$this->inUse = true;
 			$this->register(array('tagUseEnd' => ';'));
@@ -233,5 +239,10 @@ class patchwork_tokenizer_stringTagger extends patchwork_tokenizer
 	{
 		$this->inUse = false;
 		$this->unregister(array(__FUNCTION__ => ';'));
+	}
+
+	function tagNsSep(&$token)
+	{
+		isset($this->nsPrefix[0]) && $this->nsPrefix .= '\\';
 	}
 }

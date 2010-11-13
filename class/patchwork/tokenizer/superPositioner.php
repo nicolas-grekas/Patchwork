@@ -33,7 +33,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 	$depends = array(
 		'patchwork_tokenizer_classInfo',
 		'patchwork_tokenizer_scoper',
-		'patchwork_tokenizer_stringTagger',
+		'patchwork_tokenizer_stringInfo',
 	);
 
 
