@@ -34,7 +34,6 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 	$depends = array(
 		'patchwork_tokenizer_namespaceInfo',
 		'patchwork_tokenizer_scoper',
-		'patchwork_tokenizer_stringInfo',
 	);
 
 	protected static $internalConstants = array();
@@ -78,11 +77,11 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 	{
 		if (isset($this->constants[$token[1]]))
 		{
-			$token = $this->constants[$token[1]];
+			$c = $this->constants[$token[1]];
 
 			return $this->replaceCode(
-				is_int($token) ? T_LNUMBER : (is_float($token) ? T_DNUMBER : T_CONSTANT_ENCAPSED_STRING),
-				$token
+				is_int($c) ? T_LNUMBER : (is_float($c) ? T_DNUMBER : T_CONSTANT_ENCAPSED_STRING),
+				$c
 			);
 		}
 	}
@@ -142,11 +141,11 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 
 	function tagMethodC(&$token)
 	{
-		$token = $this->scope->classC && $this->scope->funcC
+		$c = $this->scope->classC && $this->scope->funcC
 			? "'{$this->scope->classC}::{$this->scope->funcC}'"
 			: "''";
 
-		return $this->replaceCode(T_CONSTANT_ENCAPSED_STRING, $token);
+		return $this->replaceCode(T_CONSTANT_ENCAPSED_STRING, $c);
 	}
 
 	function tagFuncC(&$token)

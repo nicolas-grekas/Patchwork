@@ -34,10 +34,7 @@ class patchwork_tokenizer_classInfo extends patchwork_tokenizer
 			'extends'    => false,
 			'isFinal'    => T_FINAL    === $this->prevType,
 			'isAbstract' => T_ABSTRACT === $this->prevType,
-			'scope'      => false,
 		);
-
-		$token['class'] = $this->class;
 
 		$this->callbacks = array(
 			'tagClassName' => T_STRING,
@@ -57,15 +54,18 @@ class patchwork_tokenizer_classInfo extends patchwork_tokenizer
 
 	function tagExtends(&$token)
 	{
-		$t = $this->getNextToken();
-		T_STRING === $t[0] && $this->class->extends = $t[1];
+		$this->register(array('tagExtendsName' => T_USE_CLASS));
+	}
+
+	function tagExtendsName(&$token)
+	{
+		$this->unregister(array(__FUNCTION__ => T_USE_CLASS));
+		$this->class->extends = $this->nsResolved;
 	}
 
 	function tagClassOpen(&$token)
 	{
 		$this->unregister();
-
-		$this->class->scope = $this->scope;
 
 		return 'tagClassClose';
 	}

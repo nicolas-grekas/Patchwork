@@ -32,12 +32,13 @@ class patchwork_tokenizer_constantExpression
 
 		for ($j = $i; $j < $count; ++$j)
 		{
-			list($type, $code, $deco) = $tokens[$j] + array(2 => '');
+			list($type, $code, $sugar) = $tokens[$j] + array(2 => '');
 
 			switch ($type)
 			{
 			case '`':
 			case T_STRING:
+			case T_NS_SEPARATOR:
 				$close = 2;
 				break;
 
@@ -75,7 +76,7 @@ class patchwork_tokenizer_constantExpression
 			{
 				return;
 			}
-			else $new_code[] = $deco . $code;
+			else $new_code[] = $sugar . $code;
 		}
 	}
 }

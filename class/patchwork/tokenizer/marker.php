@@ -19,7 +19,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer
 	$inStatic = false,
 	$inlineClass = array('self' => 1, 'parent' => 1, 'static' => 1),
 	$callbacks = array(
-		'tagOpenTag'     => T_OPEN_TAG,
+		'tagOpenTag'     => array(T_OPEN_TAG, ';', '{'),
 		'tagAutoloader'  => array(T_USE_FUNCTION, T_EVAL, T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
 		'tagScopeOpen'   => T_SCOPE_OPEN,
 		'tagStatic'      => T_STATIC,
@@ -28,8 +28,6 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer
 	),
 	$depends   = array(
 		'patchwork_tokenizer_classInfo',
-		'patchwork_tokenizer_scoper',
-		'patchwork_tokenizer_stringInfo',
 		'patchwork_tokenizer_normalizer',
 	);
 
@@ -46,7 +44,11 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer
 
 	function tagOpenTag(&$token)
 	{
-		$this->unregister(array(__FUNCTION__ => T_OPEN_TAG));
+		$T = $this->getNextToken();
+
+		if (T_NAMESPACE === $T[0] || T_DECLARE === $T[0]) return;
+
+		$this->unregister(array(__FUNCTION__ => array(T_OPEN_TAG, ';', '{')));
 
 		$T = PATCHWORK_PATH_TOKEN;
 
@@ -58,7 +60,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer
 		switch ($token[0])
 		{
 		case T_STRING:
-			if (!isset(patchwork_tokenizer_aliasing::$autoloader[strtolower($token[1])])) return;
+			if (!isset(patchwork_tokenizer_aliasing::$autoloader[strtolower(ltrim($this->nsResolved, '\\'))])) return;
 		case T_EVAL: $curly = -1; break;
 		default:     $curly =  0; break;
 		}
@@ -83,7 +85,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer
 		if (T_CLASS === $this->scope->type)
 		{
 			$this->inlineClass[strtolower($this->class->name)] = 1;
-			$this->class->extends && $this->inlineClass[strtolower($this->class->extends)] = 1;
+			$this->class->extends && $this->inlineClass[strtolower(ltrim($this->class->extends, '\\'))] = 1;
 			return 'tagClassClose';
 		}
 	}
