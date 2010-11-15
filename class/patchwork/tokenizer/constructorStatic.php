@@ -19,10 +19,7 @@ class patchwork_tokenizer_constructorStatic extends patchwork_tokenizer
 	$construct,
 	$destruct,
 	$callbacks = array('tagClassOpen' => T_SCOPE_OPEN),
-	$depends   = array(
-		'patchwork_tokenizer_classInfo',
-		'patchwork_tokenizer_scoper',
-	);
+	$depends   = 'patchwork_tokenizer_classInfo';
 
 
 	function tagClassOpen(&$token)

@@ -245,4 +245,25 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 	{
 		isset($this->nsPrefix[0]) && $this->nsPrefix .= '\\';
 	}
+
+	function removeNsPrefix(&$token)
+	{
+		isset($token[2]) || $token[2] = '';
+
+		$i = count($this->tokens);
+
+		while ($i--)
+		{
+			if (T_NS_SEPARATOR === $this->tokens[$i] || T_STRING === $this->tokens[$i])
+			{
+				empty($this->tokens[$i][2]) || $token[2] = $this->tokens[$i][2] . $token[2];
+				unset($this->tokens[$i]);
+			}
+			else break;
+		}
+
+		if ('' === $token[2]) unset($token[2]);
+
+		$this->nsPrefix = '';
+	}
 }

@@ -30,11 +30,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 			'interface_exists' => T_USE_FUNCTION,
 		)
 	),
-	$depends = array(
-		'patchwork_tokenizer_classInfo',
-		'patchwork_tokenizer_scoper',
-		'patchwork_tokenizer_stringInfo',
-	);
+	$depends = 'patchwork_tokenizer_classInfo';
 
 
 	function __construct(parent $parent, $level, $topClass)
@@ -52,17 +48,19 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 
 	function tagSelf(&$token)
 	{
-		if ('self' === $token[1] && !empty($this->class->name))
+		if ('self' === $token[1] && !empty($this->class->name) && empty($this->nsPrefix))
 		{
 			$token[1] = $this->class->name;
+			$this->nsResolved = '\\' . $this->class->nsName;
 		}
 	}
 
 	function tagParent(&$token)
 	{
-		if ('parent' === $token[1] && !empty($this->class->extends))
+		if ('parent' === $token[1] && !empty($this->class->extends) && empty($this->nsPrefix))
 		{
-			$token[1] = $this->class->extends;
+			$token[1] = $this->nsResolved = $this->class->extends;
+			'' === $this->namespace && $token[1] = ltrim($token[1], '\\');
 		}
 	}
 
@@ -89,23 +87,25 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		$this->unregister(array(__FUNCTION__ => T_STRING));
 		$token[1] .= '__' . (0 <= $this->level ? $this->level : '00');
 		$this->class->realName = strtolower($token[1]);
-		0 <= $this->level && $this->register(array('tagExtendsSelf' => T_STRING));
+		0 <= $this->level && $this->register(array('tagExtendsSelf' => T_USE_CLASS));
 	}
 
 	function tagExtendsSelf(&$token)
 	{
-		if (0 === strcasecmp($this->class->name, $token[1]))
+		if (0 === strcasecmp('\\' . $this->class->nsName, $this->nsResolved))
 		{
-			$token[1] .= '__' . ($this->level ? $this->level - 1 : '00');
-			$this->class->extends = $token[1];
+			$token[1] = $this->class->name . '__' . ($this->level ? $this->level - 1 : '00');
+			$this->class->extends = $this->nsResolved = '\\' . $this->namespace . $token[1];
 			$this->class->extendsSelf = true;
+
+			empty($this->nsPrefix) || $this->removeNsPrefix($token);
 		}
 	}
 
 	function tagClassOpen(&$token)
 	{
 		$this->unregister(array(
-			'tagExtendsSelf' => T_STRING,
+			'tagExtendsSelf' => T_USE_CLASS,
 			__FUNCTION__     => T_SCOPE_OPEN,
 		));
 
@@ -173,13 +173,19 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 
 	function tagPatchworkPath(&$token)
 	{
-		// Append its fourth arg to patchworkPath
-		new patchwork_tokenizer_bracket_patchworkPath($this, $this->level);
+		if (!isset($this->nsPrefix[0]) || '\\' === $this->nsPrefix[0])
+		{
+			// Append its fourth arg to patchworkPath()
+			new patchwork_tokenizer_bracket_patchworkPath($this, $this->level);
+		}
 	}
 
 	function tagClassExists(&$token)
 	{
-		// For files in the include_path, always set the 2nd arg of class|interface_exists() to true
-		new patchwork_tokenizer_bracket_classExists($this);
+		if (!isset($this->nsPrefix[0]) || '\\' === $this->nsPrefix[0])
+		{
+			// For files in the include_path, always set the 2nd arg of class|interface_exists() to true
+			new patchwork_tokenizer_bracket_classExists($this);
+		}
 	}
 }

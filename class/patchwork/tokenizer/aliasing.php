@@ -22,10 +22,7 @@ class patchwork_tokenizer_aliasing extends patchwork_tokenizer
 		'tagVariableFunction' => '(',
 		'tagUseFunction'      => T_USE_FUNCTION,
 	),
-	$depends = array(
-		'patchwork_tokenizer_classInfo',
-		'patchwork_tokenizer_stringInfo',
-	);
+	$depends = 'patchwork_tokenizer_classInfo';
 
 
 	// List of native functions that could trigger __autoload()
