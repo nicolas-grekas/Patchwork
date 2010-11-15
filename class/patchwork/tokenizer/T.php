@@ -22,7 +22,10 @@ class patchwork_tokenizer_T extends patchwork_tokenizer
 
 	function tagT(&$token)
 	{
-		// TODO: fetch constant code and add it to the translation table
-		new patchwork_tokenizer_bracket_T($this);
+		if (!isset($this->nsPrefix[0]) || '\\' === $this->nsPrefix[0])
+		{
+			// TODO: fetch constant code and add it to the translation table
+			new patchwork_tokenizer_bracket_T($this);
+		}
 	}
 }

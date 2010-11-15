@@ -49,8 +49,6 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 				'token'  => &$token,
 			);
 
-			$token['scope'] = $this->scope;
-
 			$onClose = array();
 
 			if (isset($this->tokenRegistry[T_SCOPE_OPEN]))
@@ -73,8 +71,6 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 		{
 			$this->unregister();
 			list($this->curly, $onClose) = array_pop($this->scopes);
-
-			$token['scope'] = $this->scope;
 
 			foreach (array_reverse($onClose) as $c)
 				$c[0]->{$c[1]}($token);
