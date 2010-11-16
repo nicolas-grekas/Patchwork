@@ -62,8 +62,11 @@ SET a$class -->{a$class|default:a$_class|default:a$type}<!-- END:SET
 
 IF !a$title
 	SET a$title
-		-->{a$_validmsg|default:a$_caption_|replace:'<[^>]*>':''}<!--
+		-->{a$_validmsg|default:a$_caption_|replace:'<[^>]*>':''|default:a$_placeholder}<!--
 	END:SET
+	IF a$_placeholder && a$_placeholder != a$title
+		SET a$title-->{a$title} ({a$_placeholder})<!-- END:SET
+	END:IF
 END:IF
 
 
