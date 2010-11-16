@@ -75,6 +75,7 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 
 	function tagConstant(&$token)
 	{
+		// TODO: NS support
 		if (isset($this->constants[$token[1]]))
 		{
 			$c = $this->constants[$token[1]];
