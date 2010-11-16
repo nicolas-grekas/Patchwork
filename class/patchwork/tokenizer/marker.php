@@ -109,6 +109,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer
 	{
 		$c = $this->getNextToken();
 
+		// TODO: NS support
 		if (T_STRING === $c[0])
 		{
 			$c = strtolower($c[1]);
@@ -140,6 +141,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer
 
 		$i = count($this->tokens) - 1;
 
+		// TODO: NS support
 		if (T_STRING === $this->prevType)
 		{
 			$c = strtolower($this->tokens[$i][1]);

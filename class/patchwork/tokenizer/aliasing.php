@@ -201,6 +201,7 @@ class patchwork_tokenizer_aliasing extends patchwork_tokenizer
 
 	function tagUseFunction(&$token)
 	{
+		// TODO: NS support
 		$a = strtolower($token[1]);
 
 		if (isset($this->functionAlias[$a]))
@@ -233,6 +234,7 @@ class patchwork_tokenizer_aliasing extends patchwork_tokenizer
 
 	function tagUseClass(&$token)
 	{
+		// TODO: NS support
 		if (isset($this->classAlias[strtolower($token[1])]))
 		{
 			$token[1] = $this->classAlias[strtolower($token[1])];
