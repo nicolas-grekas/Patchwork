@@ -93,7 +93,7 @@ function $onkeydown($e)
 
 	if (13==$e || 9==$e)
 	{
-		$this.sync($this.$listedValue, 1);
+		$this.sync($this.$listedValue, 9==$e);
 
 		if ('visible'==$this.$div.style.visibility)
 		{
@@ -320,7 +320,7 @@ return function($input, $driver)
 
 	$this.sync = function($value, $onlock)
 	{
-		if (!$onlock || ($this.$listedValue || $input.lock))
+		if (!$onlock || $this.$listedValue != $value || $input.lock)
 			$input.value = $this.$value = $this.$listedValue = $value;
 	}
 }

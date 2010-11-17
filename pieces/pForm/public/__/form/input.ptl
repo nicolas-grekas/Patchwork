@@ -65,7 +65,8 @@ IF !a$title
 		-->{a$_validmsg|default:a$_caption_|replace:'<[^>]*>':''|default:a$_placeholder}<!--
 	END:SET
 	IF a$_placeholder && a$_placeholder != a$title
-		SET a$title-->{a$title} ({a$_placeholder})<!-- END:SET
+		SET a$title-->{a$title} ({a$_placeholder|replace:'^\\(.*\\)$':''})<!-- END:SET
+		SET a$title-->{a$title|replace:' \\(\\)$':''}<!-- END:SET
 	END:IF
 END:IF
 

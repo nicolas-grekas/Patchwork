@@ -44,6 +44,10 @@ class extends converter_abstract
 		// Remove <sub> and <sup> tags
 		$html = preg_replace('#<(/?)su[bp]\b([^>]*)>#iu' , '<$1span$2>', $html);
 
+		// Fill empty alt attributes with whitespace, clear src attributes
+		$html = preg_replace('#(<[^>]+\balt=")"#iu', '$1 "', $html);
+		$html = preg_replace('#(<[^>]+\bsrc=")(?:[^"]*)"#iu', '$1"', $html);
+
 		// Inline URLs
 		$html = preg_replace_callback(
 			'#<a\b[^>]*\shref="([^"]*)"[^>]*>(.*?)</a\b[^>]*>#isu',
