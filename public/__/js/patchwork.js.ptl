@@ -233,7 +233,7 @@ else if (document.attachEvent)
 	document.attachEvent('onreadystatechange', onDOMLoaded.go);
 }
 
-w = function($baseAgent, $keys, $masterAppId, $buffer, $dataURI)
+w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 {
 	$masterAppId /= 1;
 
@@ -262,7 +262,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataURI)
 
 		$masterBase = esc({g$__BASE__|js});
 
-	$dataURI = !$dataURI ? $masterBase + 'js/x' : 'data:text/javascript,w.c()';
+	$dataUri = !$dataUri ? $masterBase + 'js/x' : 'data:text/javascript,w.c()';
 
 	try
 	{
@@ -573,7 +573,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataURI)
 				($loopIterator() && ($pointer -= $code[$pointer])) || ++$pointer;
 				$context = v;
 
-				if (new Date - $startTime > 500) return $include($dataURI);
+				if (new Date - $startTime > 500) return $include($dataUri);
 			}
 		];
 
@@ -687,7 +687,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataURI)
 					$offset = $rx.lastIndex;
 					$includeSrc = $includeSrc || $src;
 					w.c = w.w;
-					$src = $dataURI;
+					$src = $dataUri;
 
 					continue;
 				}
@@ -701,6 +701,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataURI)
 			$i = $content.search(/<script\b/i);
 
 			if (0 <= $i)
+				$src = $src || $dataUri,
 				$offset = $i,
 				$inlineJs = 1;
 		}
