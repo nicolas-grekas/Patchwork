@@ -191,9 +191,19 @@ function resyncCSRF()
 resyncCSRF.$formsLength = 0;
 
 onDOMLoaded = [];
-onDOMLoaded.go = function()
+onDOMLoaded.go = function($i, $pool)
 {
-	var $i, $pool;
+	if (document.addEventListener)
+	{
+		document.removeEventListener('DOMContentLoaded', onDOMLoaded.go, false);
+	}
+	else if (document.attachEvent)
+	{
+		if (1 != $i && document.readyState != 'complete') return;
+		document.detachEvent('onreadystatechange', onDOMLoaded.go);
+	}
+
+	if (1 == $i) return;
 
 	resyncCSRF();
 
@@ -206,13 +216,22 @@ onDOMLoaded.go = function()
 		while ($i--) $pool[$i].parentNode.removeChild($pool[$i]);
 	}
 
-	$pool = onDOMLoaded;
-	for ($i = 0; $i < $pool.length; ++$i) $pool[$i](), $pool[$i]=0;
+	$i = 0, $pool = onDOMLoaded;
 
-	onDOMLoaded = [];
-	onDOMLoaded.go = function() {};
+	while ($i < $pool.length) $pool[$i](), $pool[$i++]=0;
+
+	$pool.length = 0;
+	$pool.go = function() {};
 }
 
+if (document.addEventListener)
+{
+	document.addEventListener('DOMContentLoaded', onDOMLoaded.go, false);
+}
+else if (document.attachEvent)
+{
+	document.attachEvent('onreadystatechange', onDOMLoaded.go);
+}
 
 w = function($baseAgent, $keys, $masterAppId, $buffer, $dataURI)
 {
@@ -708,21 +727,13 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataURI)
 
 			if ($reloadRequest)
 			{
+				onDOMLoaded.go(1);
 				$document.close();
 				$document = 0;
 				location.reload($reloadNoCache);
 			}
 			else
 			{
-				w = {c: function()
-				{
-					$i = ($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/)) && $i[2]/1 != $masterAppId;
-
-					w = w.c = $document = 0;
-
-					$i ? location.reload() : onDOMLoaded.go();
-				}};
-
 				$i = $content.search(/<\/body\b/i);
 
 				if (0 <= $i)
@@ -731,6 +742,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataURI)
 
 				$document.write($content + $src);
 				$document.close();
+				onDOMLoaded.go();
 			}
 		}
 	}
