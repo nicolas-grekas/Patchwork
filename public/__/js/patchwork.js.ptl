@@ -79,7 +79,7 @@ function unesc($str)
 function setcookie($name, $value, $expires, $path, $domain)
 {
 	<!-- IF $DEBUG -->
-	if ($domain && '.' != $domain.charAt(0)) alert('setcookie() RFC incompatibility: $domain must start with a dot.');
+	if ($domain && '.' != $domain.charAt(0)) E('setcookie() RFC incompatibility: $domain must start with a dot.', 1);
 	<!-- END:IF -->
 
 	document.cookie = $name + '=' + eUC($value)
@@ -99,7 +99,7 @@ function parseurl($param, $delim, $rx, $array)
 		$i = $param.shift();
 		if ($rx) $i = $i.replace($rx, '');
 		$delim = $i.indexOf('=');
-		if ( $delim>0 ) $array[ dUC( $i.substring(0, $delim) ) ] = num(esc(dUC( $i.substring($delim+1) )), 1);
+		if ( $delim>0 ) $array[ dUC( $i.substr(0, $delim) ) ] = num(esc(dUC( $i.substr($delim+1) )), 1);
 	}
 
 	return $array;
@@ -647,52 +647,55 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataURI)
 
 		var $src = $includeSrc,
 			$content = $reloadRequest ? '' : $buffer.join(''),
-			$offset = 0,
-			$i = $content.search(/<\/script\b/i);
+			$rx = /(<script(\s[\s\S]*?[^-\]])>\s*)?<\/script\s*>\s*/ig,
+			$offset = $rx.lastIndex = 0,
+			$i;
 
 		$includeSrc = '';
 		w.c = w;
 		$buffer = [];
 
-		while ($i>=0)
+		while ($i = $rx.exec($content))
 		{
 			$inlineJs = 0;
 
-			if ('>' == $content.charAt($offset + $i + 8) && $offset + $i != $content.length - 9)
+			if ($i[1])
 			{
-				$i += 9;
-				$includeSrc = $src;
-				w.c = w.w;
-				$src = $dataURI;
-				break;
+				$i[1] = $i[1].replace(/\s*=\s*([^\s<>"']*|(['"])[\s\S]*?\2)\s*/g, ' ');
+
+				if (/\s(src)\b/i.test($i[1]) && ($offset ? $offset == $i.index : !/\s(async|defer)\b/i.test($i[1])))
+				{
+					$offset = $rx.lastIndex;
+					$includeSrc = $includeSrc || $src;
+					w.c = w.w;
+					$src = $dataURI;
+
+					continue;
+				}
 			}
 
-			$offset += $i + 8;
-			$i = $content.substr($offset).search(/<\/script\b/i);
+			if ($offset) break;
 		}
 
-		if ($i>=0) ;
-		else if ($inlineJs) $i = 0;
-		else
+		if (!$inlineJs && !$offset)
 		{
-			$i = $content.substr($offset).search(/<script\b/i);
-			if ($i>=0) $inlineJs = 1;
+			$i = $content.search(/<script\b/i);
+
+			if (0 <= $i)
+				$offset = $i,
+				$inlineJs = 1;
 		}
 
-		if (0<=$i)
-			$i += $offset,
-			$buffer = [$content.substr($i)],
-			$content = $content.substring(0, $i);
+		if (0 < $offset && $offset < $content.length)
+			$buffer = [$content.substr($offset)],
+			$content = $content.substr(0, $offset);
 
-		$i = !!$src;
-		$i || ($src = $dataURI);
-
-		if ('http' == $src.substring(0,4)) $src += (0 <= $src.indexOf('?') ? '&amp;' : '?') + 'v$=' + $AppId;
-
-		$src = '<script name="w$" src="' + $src + '"></script>';
-
-		if ($i)
+		if ($src)
 		{
+			if ('http' == $src.substr(0, 4)) $src += (0 <= $src.indexOf('?') ? '&amp;' : '?') + 'v$=' + $AppId;
+
+			$src = '<script name="w$" src="' + $src + '"></script>';
+
 			if ($trustReferer || /(^|; )T\$=1/.test($document.cookie)) $trustReferer = 1;
 			else $src = '<script name="w$">document.cookie="R$="+eUC((""+location).replace(/#.*$/,""))+"; path=/"</script>' + $src;
 
@@ -721,7 +724,8 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataURI)
 				}};
 
 				$i = $content.search(/<\/body\b/i);
-				if (0<=$i)
+
+				if (0 <= $i)
 					$src += $content.substr($i),
 					$content = $content.substr(0, $i);
 
@@ -843,7 +847,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataURI)
 
 	$j = location;
 
-	g = parseurl($j.search.replace(/\+/g, '%20').substring(1), '&', /^amp;/);
+	g = parseurl($j.search.replace(/\+/g, '%20').substr(1), '&', /^amp;/);
 
 	$j = ('' + $j).replace(/#.*$/, '');
 
@@ -861,7 +865,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataURI)
 	if (t($baseAgent))
 	{
 		$j = esc(dUC($j).substr({g$__BASE__|allowhtml|length}+$baseAgent.length).split('?', 1)[0]).split('/');
-		for ($i=0; $i<$j.length; ++$i) if ($j[$i]) $loopIterator[$loopIterator.length] = g['__'+($loopIterator.length+1)+'__'] = $j[$i];
+		for ($i = 0; $i < $j.length; ++$i) if ($j[$i]) $loopIterator[$loopIterator.length] = g['__'+($loopIterator.length+1)+'__'] = $j[$i];
 		g.__0__ = $loopIterator.join('/');
 
 		$j = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/);
