@@ -674,13 +674,15 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 		w.c = w;
 		$buffer = [];
 
+		/*@cc_on
+		  @if (1)
 		while ($i = $rx.exec($content))
 		{
 			$inlineJs = 0;
 
 			if ($i[1])
 			{
-				$i[1] = $i[1].replace(/\s*=\s*([^\s<>"']*|(['"])[\s\S]*?\2)\s*/g, ' ');
+				$i[1] = $i[1].replace(/(?:\s*=\s*([^\s<>"']*|(['"])[\s\S]*?\2)\s*)/g, ' ');
 
 				if (/\s(src)\b/i.test($i[1]) && ($offset ? $offset == $i.index : !/\s(async|defer)\b/i.test($i[1])))
 				{
@@ -695,6 +697,9 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 
 			if ($offset) break;
 		}
+		  @else @*/
+		$inlineJs = $inlineJs && !$rx.test($content);
+		/*@end @*/
 
 		if (!$inlineJs && !$offset)
 		{
