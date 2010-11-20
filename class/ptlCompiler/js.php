@@ -85,7 +85,7 @@ class extends ptlCompiler
 					else
 					{
 						W('PTL Modifier Not Found: ' . $m);
-						$code .= "function(){return '؟'};";
+						$code .= "function(){return'؟'};";
 					}
 				}
 #>			}
@@ -125,8 +125,7 @@ class extends ptlCompiler
 					exit;
 				}
 
-				$meta = array($appId, jsquote($base));
-				$meta = '[' . implode(',', $meta) . ']';
+				$meta = "[{$appId}," . jsquote($base) . ']';
 			}
 			else if ($is_exo)
 			{
@@ -149,7 +148,14 @@ class extends ptlCompiler
 		}
 		$a = '{' . $a . '}';
 
-		array_push($this->jscode, self::OP_AGENT, jsquote($inc), jsquote($a), false === $keys ? 0 : "[$keys]", $meta);
+		array_push(
+			$this->jscode,
+			self::OP_AGENT,
+			3 === $meta || 2 === $meta ? "function(a,d,v,g,z,r){return {$inc}}" : $inc,
+			"function(a,d,v,g,z,r){return {$a}}",
+			false === $keys ? 0 : "[$keys]",
+			$meta
+		);
 
 		return true;
 	}
@@ -201,7 +207,7 @@ class extends ptlCompiler
 		else
 		{
 			array_push($this->stack, count($this->jscode) + 2);
-			array_push($this->jscode, self::OP_LOOP, jsquote($var), -1);
+			array_push($this->jscode, self::OP_LOOP, "function(a,d,v,g,z,r){return {$var}}", -1);
 		}
 
 		return true;
@@ -233,7 +239,7 @@ class extends ptlCompiler
 			if ($elseif) $this->addELSE(false);
 
 			array_push($this->stack, count($this->jscode) + 2);
-			array_push($this->jscode, self::OP_IF, jsquote($expression), $elseif ? -3 : -2);
+			array_push($this->jscode, self::OP_IF, "function(a,d,v,g,z,r){return {$expression}}", $elseif ? -3 : -2);
 		}
 
 		return true;
@@ -272,7 +278,7 @@ class extends ptlCompiler
 		else
 		{
 			$this->pushCode('');
-			array_push($this->jscode, self::OP_EVALECHO, jsquote($str));
+			array_push($this->jscode, self::OP_EVALECHO, "function(a,d,v,g,z,r){return {$str}}");
 		}
 
 		return '';

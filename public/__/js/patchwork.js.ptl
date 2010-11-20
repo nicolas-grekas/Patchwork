@@ -425,8 +425,8 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 			// 1: agent
 			function($code)
 			{
-				var $agent = $evalNext($code),
-					$args = $evalNext($code),
+				var $agent = $getNext($code),
+					$args = $getNext($code),
 					$keys = $code[$pointer++],
 					$meta = $code[$pointer++],
 					$data, $i, $j;
@@ -519,7 +519,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 			// 3: eval echo
 			function($code)
 			{
-				$echo( $evalNext($code) );
+				$echo( $getNext($code) );
 			},
 
 			// 4: set
@@ -556,13 +556,13 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 			// 7: if
 			function($code)
 			{
-				($evalNext($code) && ++$pointer) || ($pointer += $code[$pointer]);
+				($getNext($code) && ++$pointer) || ($pointer += $code[$pointer]);
 			},
 
 			// 8: loop
 			function($code)
 			{
-				var $i = $evalNext($code);
+				var $i = $getNext($code);
 				($i && (t($i, 'function') || ($i = y($i/1))) && $i()() && ++$pointer) || ($pointer += $code[$pointer]);
 				$context = v;
 			},
@@ -617,15 +617,11 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 		});
 		<!-- END:IF -->
 
-		function $evalNext($code, $a)
+		function $getNext($code, $a)
 		{
 			$a = $code[$pointer++];
 
-			return 'function' == typeof $a || ($a && eval('$a=$code[$pointer-1]=function(a,d,v,g,z,r){return ' + $a + '}'))
-				? $a(a, d, v, g, z, g.__BASE__)
-				: $a;
-
-			w; // For jsqueez
+			return 'function' == typeof $a ? $a(a, d, v, g, z, g.__BASE__) : $a;
 		}
 
 		$WexecStack[++$WexecLast] = function()
@@ -888,16 +884,14 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 
 		$j = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/);
 
-		$baseAgent = '"' + $baseAgent + '"';
-
 		w(
 			0,
 			  $j && $j[2]/1 != $masterAppId
 			? [3, 'w(w.r())']
 			: (
 			/Safari/.test(navigator.userAgent)
-				? [4, 1, $baseAgent, 'g', $keys, 1, 5, 1, 'b', 3, 'g.b'] // Block load, 2 steps : generating, then displaying.
-				: [   1, $baseAgent, 'g', $keys, 1] // Dynamic load, 1 step : generating and displaying at the same time.
+				? [4, 1, $baseAgent, g, $keys, 1, 5, 1, 'b', 3, function() {return g.b;}] // Block load, 2 steps : generating, then displaying.
+				: [   1, $baseAgent, g, $keys, 1] // Dynamic load, 1 step : generating and displaying at the same time.
 			)
 		);
 	}
