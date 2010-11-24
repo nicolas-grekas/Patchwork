@@ -94,7 +94,7 @@ function $QJsrsContext($name)
 
 		// For GET requests, we prefer direct <script> tag creation rather than XMLHttpRequest:
 		// this prevents a caching bug in Firefox < 1.5 and works in IE even when ActiveX is disabled
-		if (!($XMLHttpPreferred && $local && $XMLHttp) && !$post && ('Gecko' == navigator.product || 'object' == typeof $document.onreadystatechange) && $document.createElement)
+		if (!($XMLHttpPreferred && $local && $XMLHttp) && !$post && ('Gecko' == navigator.product || 'object' == typeof $document.onreadystatechange))
 			$container = $QJsrs.$withScript($this.q[0] + $this.q[1], function() {$this.$driver($this.$release);});
 		else if ($local && $XMLHttp)
 		{
@@ -115,18 +115,14 @@ function $QJsrsContext($name)
 		else if ($html) $win.frames[$name].location.replace($url);
 		else
 		{
-			if (!$div) $div = $document.getElementById ? $document.getElementById('divQJsrs') : $document.all.divQJsrs;
+			if (!$div) $div = $document.getElementById('divQJsrs');
 
-			if ($div.insertBefore && (!$win.ScriptEngine || 5.5 <= ScriptEngineMajorVersion() + ScriptEngineMinorVersion() / 10))
-			{
-				$html = $document.createElement('iframe');
-				$html.name = $name;
-				$html.src = $url;
-				$html.width = $html.height = $html.frameBorder = 0;
-				$html.tabIndex = -1;
-				$div.insertBefore($html, $div.firstChild);
-			}
-			else $div.innerHTML += '<iframe name="'+ $name +'" src="'+ $url.replace(/"/g, '&quot;') +'" width="0" height="0" frameborder="0" tabindex="-1"></iframe>',
+			$html = $document.createElement('iframe');
+			$html.name = $name;
+			$html.src = $url;
+			$html.width = $html.height = $html.frameBorder = 0;
+			$html.tabIndex = -1;
+			$div.insertBefore($html, $div.firstChild);
 
 			$html = 1;
 		}
@@ -151,7 +147,7 @@ $window.loadQJsrs = function($context, $result)
 {
 	$context = $contextPool[ parseInt($context.name ? $context.name.substr(1) : $context) ];
 
-	if ($result >= '') $QJsrs.$setTimeout(function() {$context.$driver($context.$release, $result);}, 0); // The timeout is a workaround for a bug with relative directories
+	if ($result >= '') setTimeout(function() {$context.$driver($context.$release, $result);}, 0); // The timeout is a workaround for a bug with relative directories
 
 	return $context;
 }
@@ -253,15 +249,13 @@ function $QJsrs($URL, $POST, $antiCSRF, $XMLHttpPreferred)
 
 		$callback = $context = $context.$driver = 0;
 
-		$localTimer = $QJsrs.$setTimeout($QJsrs.onloaded, 10);
-		if (!$loadCounter) $masterTimer = $QJsrs.$setTimeout($this.onloaded, 10);
+		$localTimer = setTimeout($QJsrs.onloaded, 10);
+		if (!$loadCounter) $masterTimer = setTimeout($this.onloaded, 10);
 	}
 
 	$this.onloading = $this.onloaded = $emptyFunction;
 }
 
-$QJsrs.$setTimeoutId = 0;
-$QJsrs.$setTimeoutPool = [];
 $QJsrs.onloading = $QJsrs.onloaded = $emptyFunction;
 $QJsrs.setCallback = function($function)
 {
@@ -272,13 +266,6 @@ $QJsrs.setCallback = function($function)
 return $QJsrs;
 
 })();
-
-QJsrs.$setTimeout = function($function, $timeout, $i)
-{
-	$i = ++QJsrs.$setTimeoutId;
-	QJsrs.$setTimeoutPool[$i] = $function;
-	return setTimeout('QJsrs.$setTimeoutPool['+$i+']();QJsrs.$setTimeoutPool['+$i+']=null', $timeout);
-}
 
 QJsrs.$withScript = function($url, $callback)
 {
@@ -303,7 +290,7 @@ QJsrs.$withScript = function($url, $callback)
 			)
 			|| 'loaded'   == $event.readyState
 			|| 'complete' == $event.readyState
-		) $callback();
+		) $callback = $callback && $callback() && 0;
 	}
 
 	$url = document.getElementsByTagName('head')[0];

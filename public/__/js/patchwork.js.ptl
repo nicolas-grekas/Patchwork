@@ -139,7 +139,7 @@ function syncCSRF($form)
 		}
 
 		if ($form.T$) $form.T$.value = $antiCSRF;
-		else if ($form.firstChild)
+		else
 		{
 			$a = document.createElement('input');
 
@@ -150,7 +150,6 @@ function syncCSRF($form)
 			$form.T$ = $a; // Workaround for a bug in IE
 			$form.insertBefore($a, $form.firstChild);
 		}
-		else $form.innerHTML += '<input type="hidden" name="T$" value="' + $antiCSRF + '">';
 
 		if (!$form.syncCSRF)
 		{
@@ -193,38 +192,33 @@ resyncCSRF.$formsLength = 0;
 onDOMLoaded = [];
 onDOMLoaded.go = function($i, $pool)
 {
+	$pool = onDOMLoaded;
+
 	if (document.addEventListener)
 	{
-		document.removeEventListener('DOMContentLoaded', onDOMLoaded.go, false);
+		document.removeEventListener('DOMContentLoaded', $pool.go, false);
 	}
 	else if (document.attachEvent)
 	{
 		if (1 != $i && document.readyState != 'complete') return;
-		document.detachEvent('onreadystatechange', onDOMLoaded.go);
+		document.detachEvent('onreadystatechange', $pool.go);
 	}
 
-	$pool = onDOMLoaded;
+	$pool.go = function() {};
 
 	if (1 != $i)
 	{
 		resyncCSRF();
 
-		if (window.scrollCntrl) scrollCntrl(), scrollCntrl = 0;
-
-		if (document.removeChild)
-		{
-			$pool = document.getElementsByName('w$');
-			$i = $pool.length;
-			while ($i--) $pool[$i].parentNode.removeChild($pool[$i]);
-		}
-
 		$i = 0;
-
 		while ($i < $pool.length) setTimeout($pool[$i], 1), $pool[$i++]=0;
+
+		$pool = document.getElementsByName('w$');
+		$i = $pool.length;
+		while ($i--) $pool[$i].parentNode.removeChild($pool[$i]);
 	}
 
-	$pool.length = 0;
-	$pool.go = function() {};
+	onDOMLoaded.length = 0;
 }
 
 if (document.addEventListener)
@@ -753,7 +747,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 
 				$document.write($content + $src);
 				$document.close();
-				setTimeout('onDOMLoaded.go()', 1);
+				setTimeout(onDOMLoaded.go, 1);
 			}
 		}
 	}
@@ -896,7 +890,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 		w(
 			0,
 			  $j && $j[2]/1 != $masterAppId
-			? [3, 'w(w.r())']
+			? [3, function() {w(w.r())}]
 			: (
 			/Safari/.test(navigator.userAgent)
 				? [4, 1, $baseAgent, g, $keys, 1, 5, 1, 'b', 3, function() {return g.b;}] // Block load, 2 steps : generating, then displaying.
@@ -906,45 +900,13 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 	}
 }
 
-function loadW($window)
-{
-	if ($window = document.documentElement)
-	{
-		$window.className = $window.className.replace(/\bno-js\b/, '') + ' js';
-	}
-
-	$window = window;
-
-	if ($window.encodeURI)
-	{
-		$window.dUC = decodeURIComponent;
-		$window.eUC = encodeURIComponent;
-
-		(function($scrollPos)
-		{
-			if ($scrollPos = location.hash.match(/@([0-9]+),([0-9]+)$/))
-			{
-				($window.scrollCntrl = function()
-				{
-					var $body = document.documentElement || document.body,
-						$left = Math.min($scrollPos[1], $body.scrollWidth),
-						$top  = Math.min($scrollPos[2], $body.scrollHeight);
-
-					$body && scrollTo($left, $top);
-
-					if ($left != $body.scrollLeft || $top != $body.scrollTop) setTimeout('scrollCntrl&&scrollCntrl()', 100);
-				})();
-			}
-		})();
-
-		$window.a ? w(a[0], a[1], a[2], a[3], a[4]) : w();
-	}
-	else document.write('<script src="' + {g$__BASE__|js} + 'js/compat"></script>');
-}
 
 function P$base($string, $noId)
 {
 	return base(str($string), $noId);
 }
 
-loadW();
+document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/, '') + ' js';
+dUC = decodeURIComponent;
+eUC = encodeURIComponent;
+window.a ? w(a[0], a[1], a[2], a[3], a[4]) : w();

@@ -84,7 +84,7 @@ lE.Config.DefaultLanguage={g$__LANG__|js}
 lE.Config[{$KEY|js}]=<!-- IF '[' == a$a -->{$VALUE|js}<!-- ELSE -->{$VALUE|js}<!-- END:IF -->
 <!-- END:LOOP -->
 lE.ReplaceTextarea()
-}</script ><!--
+}</script><!--
 
 	IF a$required --></span><!-- END:IF
 

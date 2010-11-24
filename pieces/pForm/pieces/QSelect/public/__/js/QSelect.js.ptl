@@ -16,8 +16,6 @@ if (!window.QSelect)
 
 <!-- AGENT 'js/accents' -->
 
-$getById = document.getElementById ? function($id) {return document.getElementById($id)} : function($id) {return document.all[$id]};
-
 function $onfocus($this)
 {
 	this.$focus = 1;
@@ -36,7 +34,7 @@ function $onblur($this)
 	$this.$lastFocused = 0;
 	$this.$select.onchange = null;
 
-	QSelect.$setTimeout(function()
+	setTimeout(function()
 	{
 		if (!$this.$lastFocused) $this.$hide();
 		$this.sync($this.$listedValue, 1);
@@ -49,7 +47,7 @@ function $onmouseup($e)
 
 	$e = $e || event;
 	if (!$e.srcElement && $e.target && 'SELECT'==$e.target.tagName) return;
-	QSelect.$setTimeout(function()
+	setTimeout(function()
 	{
 		if ($this.$setValue()) $this.$hide();
 	}, 1);
@@ -72,7 +70,7 @@ function $onkeyup($e)
 	$this.$value = this.value;
 	$this.$listedValue = '';
 
-	QSelect.$setTimeout(function()
+	setTimeout(function()
 	{
 		if ($this.$lastKeyupid!=$keyupid) return;
 
@@ -112,7 +110,7 @@ function $onkeydown($e)
 		if ('visible'==$this.$div.style.visibility)
 		{
 			$select.focus();
-			if (-1==$select.selectedIndex) QSelect.$setTimeout(function(){$select.selectedIndex = 0}, 1);
+			if (-1==$select.selectedIndex) setTimeout(function(){$select.selectedIndex = 0}, 1);
 		}
 	}
 }
@@ -140,7 +138,6 @@ QSelect = (function()
 var $selectRange,
 
 	$win = window,
-	$getById = $win.$getById,
 	$onfocus = $win.$onfocus,
 	$onblur = $win.$onblur,
 	$onmouseup = $win.$onmouseup,
@@ -148,9 +145,9 @@ var $selectRange,
 	$onkeydown = $win.$onkeydown,
 	$precheck = $win.$precheck,
 
-	$select = $getById('__QSs'),
+	$select = document.getElementById('__QSs'),
 	$options = $select.options,
-	$div  = $getById('__QSd');
+	$div  = document.getElementById('__QSd');
 
 $select.onfocus = $onfocus;
 $select.onblur = $onblur;
@@ -164,7 +161,7 @@ return function($input, $driver)
 	var $this = {},
 		$form = $input.form,
 		$id = ($input.__QSt||'') + $input.name,
-		$imgB = $getById('__QSb' + $id) || {},
+		$imgB = document.getElementById('__QSb' + $id) || {},
 
 		$length = 0,
 
@@ -325,18 +322,6 @@ return function($input, $driver)
 	}
 }
 })();
-
-QSelect.$setTimeoutId = 0;
-QSelect.$setTimeoutPool = [];
-QSelect.$setTimeout = function($function, $timeout, $i)
-{
-	if ($function)
-	{
-		$i = ++QSelect.$setTimeoutId;
-		QSelect.$setTimeoutPool[$i] = $function;
-		return setTimeout('QSelect.$setTimeoutPool['+$i+']();QSelect.$setTimeoutPool['+$i+']=null', $timeout);
-	}
-}
 
 function QSelectSearch($data)
 {
