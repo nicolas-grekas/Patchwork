@@ -75,10 +75,10 @@ table
 </table>
 
 
-<div id="remaining">{"Estimation du temps restant"} ...</div>
+<div id="remaining">{"Estimation du temps restant"}...</div>
 
-<script src="{base:'js/liveAgent'}"></script >
-<script src="{base:'js/upload'}"></script >
+<script defer src="{base:'js/liveAgent'}"></script>
+<script defer src="{base:'js/upload'}"></script>
 
 </body>
 </html>
