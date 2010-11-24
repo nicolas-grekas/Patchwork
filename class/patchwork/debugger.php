@@ -212,7 +212,7 @@ while (1)
 
 function Z()
 {
-	scrollTo(0, window.innerHeight||(document.documentElement||document.body).scrollHeight);
+	scrollTo(0, window.innerHeight||document.documentElement.scrollHeight);
 }
 </script>
 </head>

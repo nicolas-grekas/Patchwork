@@ -461,9 +461,26 @@ onDOMLoaded.push(function()
 	}
 });
 
+(function($scrollPos)
+{
+	if ($scrollPos = location.hash.match(/@([0-9]+),([0-9]+)$/))
+	{
+		(window.scrollCntrl = function()
+		{
+			var $body = document.documentElement,
+				$left = Math.min($scrollPos[1], $body.scrollWidth),
+				$top  = Math.min($scrollPos[2], $body.scrollHeight);
+
+			$body && scrollTo($left, $top);
+
+			if ($left != $body.scrollLeft || $top != $body.scrollTop) setTimeout('scrollCntrl&&scrollCntrl()', 100);
+		})();
+	}
+})();
+
 onDOMLoaded.push(function()
 {
-	scrollCntrl = 0;
+	if (window.scrollCntrl) scrollCntrl(), scrollCntrl = 0;
 
 	var $i = 0, $win = window, $forms = document.forms, $form, $j, $elt;
 
