@@ -203,6 +203,8 @@ onDOMLoaded.go = function($i, $pool)
 		document.detachEvent('onreadystatechange', onDOMLoaded.go);
 	}
 
+	$pool = onDOMLoaded;
+
 	if (1 != $i)
 	{
 		resyncCSRF();
@@ -216,9 +218,9 @@ onDOMLoaded.go = function($i, $pool)
 			while ($i--) $pool[$i].parentNode.removeChild($pool[$i]);
 		}
 
-		$i = 0, $pool = onDOMLoaded;
+		$i = 0;
 
-		while ($i < $pool.length) $pool[$i](), $pool[$i++]=0;
+		while ($i < $pool.length) setTimeout($pool[$i], 1), $pool[$i++]=0;
 	}
 
 	$pool.length = 0;
@@ -661,7 +663,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 	{
 		var $src = $includeSrc,
 			$content = $reloadRequest ? '' : $buffer.join(''),
-			$rx = /*@cc_on!@*/false ? /(<script(\s[\s\S]*?[^-\]])>\s*)?<\/script\s*>\s*/ig : /<\/script\s*>\s*/ig,
+			$rx = /*@cc_on!@*/0 ? /(<script(\s[\s\S]*?[^-\]])>\s*)?<\/script\s*>\s*/ig : /<\/script\s*>\s*/ig,
 			$offset = 0,
 			$split = -1,
 			$i;
