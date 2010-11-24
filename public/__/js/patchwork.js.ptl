@@ -203,22 +203,23 @@ onDOMLoaded.go = function($i, $pool)
 		document.detachEvent('onreadystatechange', onDOMLoaded.go);
 	}
 
-	if (1 == $i) return;
-
-	resyncCSRF();
-
-	if (window.scrollCntrl) scrollCntrl(), scrollCntrl = 0;
-
-	if (document.removeChild)
+	if (1 != $i)
 	{
-		$pool = document.getElementsByName('w$');
-		$i = $pool.length;
-		while ($i--) $pool[$i].parentNode.removeChild($pool[$i]);
+		resyncCSRF();
+
+		if (window.scrollCntrl) scrollCntrl(), scrollCntrl = 0;
+
+		if (document.removeChild)
+		{
+			$pool = document.getElementsByName('w$');
+			$i = $pool.length;
+			while ($i--) $pool[$i].parentNode.removeChild($pool[$i]);
+		}
+
+		$i = 0, $pool = onDOMLoaded;
+
+		while ($i < $pool.length) $pool[$i](), $pool[$i++]=0;
 	}
-
-	$i = 0, $pool = onDOMLoaded;
-
-	while ($i < $pool.length) $pool[$i](), $pool[$i++]=0;
 
 	$pool.length = 0;
 	$pool.go = function() {};
@@ -658,67 +659,73 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 
 	w.w = function()
 	{
-		// Any optimization to save some request here is likely to break IE ...
-
 		var $src = $includeSrc,
 			$content = $reloadRequest ? '' : $buffer.join(''),
-			$rx = /(<script(\s[\s\S]*?[^-\]])>\s*)?<\/script\s*>\s*/ig,
-			$offset = $rx.lastIndex = 0,
+			$rx = /*@cc_on!@*/false ? /(<script(\s[\s\S]*?[^-\]])>\s*)?<\/script\s*>\s*/ig : /<\/script\s*>\s*/ig,
+			$offset = 0,
+			$split = -1,
 			$i;
 
+		$rx.lastIndex = 0;
 		$includeSrc = '';
-		w.c = w;
 		$buffer = [];
+		w.c = w;
 
-		/*@cc_on
-		  @if (1)
 		while ($i = $rx.exec($content))
 		{
 			$inlineJs = 0;
+			$offset = $rx.lastIndex;
 
 			if ($i[1])
 			{
+				// IE loads scripts in parallel when using document.write, but we may want serialized loading
+
 				$i[1] = $i[1].replace(/(?:\s*=\s*([^\s<>"']*|(['"])[\s\S]*?\2)\s*)/g, ' ');
 
-				if (/\s(src)\b/i.test($i[1]) && ($offset ? $offset == $i.index : !/\s(async|defer)\b/i.test($i[1])))
+				if (/\s(src)\b/i.test($i[1]) && ($split >= 0 ? $split == $i.index : !/\s(async|defer)\b/i.test($i[1])))
 				{
-					$offset = $rx.lastIndex;
-					$includeSrc = $includeSrc || $src;
-					w.c = w.w;
-					$src = $dataUri;
-
+					$split = $offset;
 					continue;
 				}
 			}
 
-			if ($offset) break;
+			if ($split >= 0) break;
 		}
-		  @else @*/
-		$inlineJs = $inlineJs && !$rx.test($content);
-		/*@end @*/
 
-		if (!$inlineJs && !$offset)
+		if (0 <= $split && $split < $content.length)
 		{
-			$i = $content.search(/<script\b/i);
+			$includeSrc = $src;
+			$src = $dataUri;
+			w.c = w.w;
+		}
+		else if ($inlineJs) $split = 0;
+		else if ($src)
+		{
+			$i = $content.substr($offset).search(/<script\b/i);
 
 			if (0 <= $i)
-				$src = $src || $dataUri,
-				$offset = $i,
+				$split = $i + $offset,
 				$inlineJs = 1;
 		}
+		else $split = -1;
 
-		if (0 < $offset && $offset < $content.length)
-			$buffer = [$content.substr($offset)],
-			$content = $content.substr(0, $offset);
+		if (0 <= $split)
+			$buffer = [$content.substr($split)],
+			$content = $content.substr(0, $split);
 
 		if ($src)
 		{
-			if ('http' == $src.substr(0, 4)) $src += (0 <= $src.indexOf('?') ? '&amp;' : '?') + 'v$=' + $AppId;
+			$i = '';
 
-			$src = '<script name="w$" src="' + $src + '"></script>';
+			if ('http' == $src.substr(0, 4))
+			{
+				$src += (0 <= $src.indexOf('?') ? '&amp;' : '?') + 'v$=' + $AppId;
 
-			if ($trustReferer || /(^|; )T\$=1/.test($document.cookie)) $trustReferer = 1;
-			else $src = '<script name="w$">document.cookie="R$="+eUC((""+location).replace(/#.*$/,""))+"; path=/"</script>' + $src;
+				if ($trustReferer || /(^|; )T\$=1/.test($document.cookie)) $trustReferer = 1;
+				else $i = '<script name="w$">document.cookie="R$="+eUC((""+location).replace(/#.*$/,""))+"; path=/"</script>';
+			}
+
+			$src = $i + '<script name="w$" src="' + $src + '"></script>';
 
 			$document.write($content + $src);
 		}
@@ -744,7 +751,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 
 				$document.write($content + $src);
 				$document.close();
-				onDOMLoaded.go();
+				setTimeout('onDOMLoaded.go()', 1);
 			}
 		}
 	}
