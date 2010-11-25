@@ -421,7 +421,7 @@ class patchwork_tokenizer
 		$i = $this->position;
 
 		do while (isset($this->code[$i][1], self::$sugar[$this->code[$i][0]])) ++$i;
-		while ($offset-- > 0);
+		while ($offset-- > 0 && ++$i);
 
 		isset($this->code[$i]) || $this->code[$i] = array(T_WHITESPACE, '');
 
