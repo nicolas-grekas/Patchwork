@@ -13,19 +13,20 @@
 
 
 // FIXME: handle when $callbackPosition < 0
-// TODO: enable class aliasing by detecting array('classname', ...)
 // TODO: fetch constant callback parameter and use it to do static aliasing
 // (See legacy experiment in commit 5779ba)
 
 class patchwork_tokenizer_bracket_callback extends patchwork_tokenizer_bracket
 {
-	protected $callbackPosition;
+	protected $callbackPosition, $lead, $tail;
 
 
-	function __construct(patchwork_tokenizer $parent, $callbackPosition)
+	function __construct(patchwork_tokenizer $parent, $callbackPosition, $lead, $tail)
 	{
 		if (0 < $callbackPosition)
 		{
+			$this->lead = $lead;
+			$this->tail = $tail;
 			$this->callbackPosition = $callbackPosition - 1;
 			$this->initialize($parent);
 		}
@@ -33,27 +34,19 @@ class patchwork_tokenizer_bracket_callback extends patchwork_tokenizer_bracket
 
 	function onOpen(&$token)
 	{
-		if (0 === $this->callbackPosition) $token[1] .= self::$lead;
+		if (0 === $this->callbackPosition) $token[1] .= $this->lead;
 	}
 
 	function onReposition(&$token)
 	{
-		     if ($this->bracketPosition === $this->callbackPosition    ) $token[1] .= self::$lead;
-		else if ($this->bracketPosition === $this->callbackPosition + 1) $token[1] = self::$tail . $token[1];
+		     if ($this->bracketPosition === $this->callbackPosition    ) $token[1] .= $this->lead;
+		else if ($this->bracketPosition === $this->callbackPosition + 1) $token[1] = $this->tail . $token[1];
 	}
 
 	function onClose(&$token)
 	{
-		if ($this->bracketPosition === $this->callbackPosition) $token[1] = self::$tail . $token[1];
+		if ($this->bracketPosition === $this->callbackPosition) $token[1] = $this->tail . $token[1];
 	}
 
 
-	protected static $lead, $tail;
-
-	static function __constructStatic()
-	{
-		$k = '$k' . PATCHWORK_PATH_TOKEN;
-		self::$lead = "is_string({$k}=";
-		self::$tail = ")&&function_exists('__patchwork_'.{$k})?'__patchwork_'.{$k}:{$k}";
-	}
 }

@@ -12,22 +12,26 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_aliasing extends patchwork_tokenizer
+class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 {
 	protected
 
-	$functionAlias = array(),
-	$classAlias    = array(),
-	$callbacks     = array(
-		'tagVariableFunction' => '(',
-		'tagUseFunction'      => T_USE_FUNCTION,
+	$alias     = array(),
+	$callbacks = array(
+		'tagVariableVar' => '(',
+		'tagUseFunction' => T_USE_FUNCTION,
 	),
-	$depends = 'patchwork_tokenizer_classInfo';
+	$depends = 'patchwork_tokenizer_classInfo',
+
+	$varVarLead,
+	$varVarTail;
 
 
 	// List of native functions that could trigger __autoload()
 
-	static $autoloader = array(
+	protected static
+
+	$autoloader = array(
 		// No callback parameter involved or complex behaviour
 		'__autoload'        => 0,
 		'class_exists'      => 0,
@@ -118,15 +122,22 @@ class patchwork_tokenizer_aliasing extends patchwork_tokenizer
 		'array_uintersect_uassoc' => -2,
 
 		'session_set_save_handler' => -6, // 6 callback parameters
-	);
+	),
+	$vVL = '${is_string($k%T=',
+	$vVT = ")&&function_exists(\$v%T='__patchwork_'.\$k%T)?'v%T':'k%T'}";
 
 
-	function __construct(parent $parent, $function_map, $class_map)
+	static function __constructStatic()
 	{
-		foreach ($class_map as $k => $v)
-		{
-			$this->classAlias[strtolower($k)] = $v;
-		}
+		self::$vVL = str_replace('%T', PATCHWORK_PATH_TOKEN, self::$vVL);
+		self::$vVT = str_replace('%T', PATCHWORK_PATH_TOKEN, self::$vVT);
+	}
+
+
+	function __construct(parent $parent, $function_map)
+	{
+		$this->varVarLead = self::$vVL;
+		$this->varVarTail = self::$vVT;
 
 		$v = get_defined_functions();
 
@@ -135,35 +146,33 @@ class patchwork_tokenizer_aliasing extends patchwork_tokenizer
 			if (0 === strncasecmp($v, '__patchwork_', 12))
 			{
 				$v = strtolower($v);
-				$this->functionAlias[substr($v, 12)] = $v;
+				$this->alias[substr($v, 12)] = $v;
 			}
 		}
 
-		if (!$this->functionAlias) $this->callbacks = array();
-		if ($this->classAlias) $this->callbacks['tagUseClass'] = T_USE_CLASS;
+		if (!$this->alias) $this->callbacks = array();
 
 		$this->initialize($parent);
 
 		foreach ($function_map as $k => $v)
 		{
-			function_exists('__patchwork_' . $k) && $this->functionAlias[strtolower($k)] = $v;
+			function_exists('__patchwork_' . $k) && $this->alias[strtolower($k)] = $v;
 		}
 	}
 
-	function tagVariableFunction(&$token)
+	function tagVariableVar(&$token)
 	{
 		if (   ('}' === $this->prevType || T_VARIABLE === $this->prevType)
 			&& !in_array($this->anteType, array(T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON)) )
 		{
-			$T = PATCHWORK_PATH_TOKEN;
 			$t =& $this->tokens;
 			$i = count($t) - 1;
 
 			if (T_VARIABLE === $this->prevType && '$' !== $this->anteType)
 			{
-				if ('this' !== $a = substr($t[$i][1], 1))
+				if ('$this' !== $a = $t[$i][1])
 				{
-					$t[$i][1] = "\${is_string(\${$a})&&function_exists(\$v{$T}='__patchwork_'.\${$a})?'v{$T}':'{$a}'}";
+					$t[$i][1] = $this->varVarLead . $a . $this->varVarTail;
 				}
 			}
 			else
@@ -193,8 +202,8 @@ class patchwork_tokenizer_aliasing extends patchwork_tokenizer
 
 				$b && $t[$b[0]][1] = $t[$b[1]][1] = '';
 
-				$t[$i][1] = "\${is_string(\$k{$T}=";
-				$t[count($t)-1] .= ")&&function_exists(\$v{$T}='__patchwork_'.\$\$k{$T})?'v{$T}':\$k{$T}}";
+				$t[$i][1] = $this->varVarLead;
+				$t[count($t)-1] .= $this->varVarTail;
 			}
 		}
 	}
@@ -204,9 +213,9 @@ class patchwork_tokenizer_aliasing extends patchwork_tokenizer
 		// TODO: NS support
 		$a = strtolower($token[1]);
 
-		if (isset($this->functionAlias[$a]))
+		if (isset($this->alias[$a]))
 		{
-			$a = $this->functionAlias[$a];
+			$a = $this->alias[$a];
 			$a = explode('::', $a, 2);
 
 			if (1 === count($a)) $token[1] = $a[0];
@@ -221,7 +230,7 @@ class patchwork_tokenizer_aliasing extends patchwork_tokenizer
 		}
 		else if (isset(self::$autoloader[$a]))
 		{
-			new patchwork_tokenizer_bracket_callback($this, self::$autoloader[$a]);
+			new patchwork_tokenizer_bracket_callback($this, self::$autoloader[$a], $this->varVarLead, $this->varVarTail);
 
 			if ('&' === $this->prevType)
 			{
@@ -229,15 +238,6 @@ class patchwork_tokenizer_aliasing extends patchwork_tokenizer
 				$this->tokens[$a][0] = T_WHITESPACE;
 				$this->tokens[$a][1] = ' ';
 			}
-		}
-	}
-
-	function tagUseClass(&$token)
-	{
-		// TODO: NS support
-		if (isset($this->classAlias[strtolower($token[1])]))
-		{
-			$token[1] = $this->classAlias[strtolower($token[1])];
 		}
 	}
 }
