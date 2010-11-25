@@ -21,10 +21,6 @@ class patchwork_preprocessor__0
 		'DEBUG', 'IS_WINDOWS', 'PATCHWORK_ZCACHE', 'PATCHWORK_PATH_TOKEN',
 		'PATCHWORK_PATH_LEVEL', 'PATCHWORK_PATH_OFFSET', 'PATCHWORK_PROJECT_PATH',
 		'E_DEPRECATED', 'E_USER_DEPRECATED', 'E_RECOVERABLE_ERROR',
-	),
-	$classAlias = array(
-		'p' => 'patchwork',
-		's' => 'SESSION',
 	);
 
 
@@ -112,7 +108,7 @@ class patchwork_preprocessor__0
 			'scoper'            => true,
 			'constantInliner'   => true,
 			'classInfo'         => true,
-			'aliasing'          => true,
+			'functionAliasing'  => true,
 			'superPositioner'   => true,
 			'constructorStatic' => true,
 			'constructor4to5'   => 0 > $level,
@@ -129,13 +125,13 @@ class patchwork_preprocessor__0
 
 			switch ($c)
 			{
-			default:                  $t = new $i($t); break;
-			case 'className':         $t = new $i($t, $class); break;
-			case 'globalizer':        $t = new $i($t, '$CONFIG'); break;
-			case 'marker':            $t = new $i($t, self::$declaredClass); break;
-			case 'constantInliner':   $t = new $i($t, $source, self::$constants); break;
-			case 'superPositioner':   $t = new $i($t, $level, $is_top ? $class : false); break;
-			case 'aliasing':          $t = new $i($t, $GLOBALS['patchwork_preprocessor_alias'], self::$classAlias); break;
+			default:                 $t = new $i($t); break;
+			case 'className':        $t = new $i($t, $class); break;
+			case 'globalizer':       $t = new $i($t, '$CONFIG'); break;
+			case 'marker':           $t = new $i($t, self::$declaredClass); break;
+			case 'constantInliner':  $t = new $i($t, $source, self::$constants); break;
+			case 'superPositioner':  $t = new $i($t, $level, $is_top ? $class : false); break;
+			case 'functionAliasing': $t = new $i($t, $GLOBALS['patchwork_preprocessor_alias']); break;
 			}
 		}
 

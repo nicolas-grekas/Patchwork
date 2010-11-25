@@ -33,7 +33,7 @@ class patchwork_debugger extends patchwork
 	{
 		$GLOBALS['patchwork_appId'] = -$GLOBALS['patchwork_appId'];
 
-		if ('debug' === p::$requestMode) self::sendDebugInfo();
+		if ('debug' === patchwork::$requestMode) self::sendDebugInfo();
 		else if (PATCHWORK_SYNC_CACHE)
 		{
 			if ($h = @fopen(PATCHWORK_PROJECT_PATH . '.debugLock', 'xb'))
@@ -107,7 +107,7 @@ class patchwork_debugger extends patchwork
 
 	static function getProlog()
 	{
-		$QDebug   = p::__BASE__() . 'js/QDebug.js';
+		$QDebug   = patchwork::__BASE__() . 'js/QDebug.js';
 
 		return <<<EOHTML
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -117,7 +117,7 @@ EOHTML;
 
 	static function getConclusion()
 	{
-		$debugWin = p::__BASE__() . '?p:=debug:stop';
+		$debugWin = patchwork::__BASE__() . '?p:=debug:stop';
 
 		return <<<EOHTML
 <style>@media print { #debugWin {display:none;} }</style>
@@ -132,7 +132,7 @@ EOHTML;
 
 	static function sendDebugInfo()
 	{
-		$S = 'stop' === p::$requestArg;
+		$S = 'stop' === patchwork::$requestArg;
 		$S && ob_start('ob_gzhandler', 8192);
 
 		header('Content-Type: text/html; charset=utf-8');
