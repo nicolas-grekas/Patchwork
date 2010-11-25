@@ -1,7 +1,7 @@
 <!--
 
 SET a$body
---><div id="__QSd" style="position:absolute;visibility:hidden;display:none;z-index:9;top:0"><div class="QSie-shadow"></div><form action="javascript:;"><div class="QSshadow"><select id="__QSs" size="7"><option value=""></option></select></div></form></div><script src="{base:'js/QSelect'}"></script>{a$body}<!--
+--><div id="__QSd" style="position:absolute;visibility:hidden;display:none;z-index:9;top:0"><div class="QSie-shadow"></div><form action="javascript:;"><div class="QSshadow"><select id="__QSs" size="7"><option value=""></option></select></div></form></div><script async src="{base:'js/QSelect'}"></script>{a$body}<!--
 END:SET
 
 -->
