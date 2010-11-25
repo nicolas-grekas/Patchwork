@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_marker extends patchwork_tokenizer
+class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 {
 	protected
 
@@ -60,7 +60,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer
 		switch ($token[0])
 		{
 		case T_STRING:
-			if (!isset(patchwork_tokenizer_aliasing::$autoloader[strtolower(ltrim($this->nsResolved, '\\'))])) return;
+			if (!isset(self::$autoloader[strtolower(ltrim($this->nsResolved, '\\'))])) return;
 		case T_EVAL: $curly = -1; break;
 		default:     $curly =  0; break;
 		}
