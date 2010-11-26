@@ -32,7 +32,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 	);
 
 
-	function __construct(parent $parent = null, $inlineClass)
+	function __construct(patchwork_tokenizer $parent = null, $inlineClass)
 	{
 		foreach ($inlineClass as $inlineClass)
 		{
@@ -149,11 +149,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 			$c = $this->getMarker($c);
 			$this->scope->markerState || $this->scope->markerState = -1;
 		}
-		else
-		{
-			// TODO: handle the else case. Since PHP 5.3, vars are allowed here
-			return;
-		}
+		else return;
 
 		while (isset($this->tokens[--$i]))
 		{
