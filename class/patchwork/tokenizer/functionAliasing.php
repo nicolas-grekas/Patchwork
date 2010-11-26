@@ -230,36 +230,7 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 		}
 		else if (isset(self::$autoloader[$a]))
 		{
-			$t = $this->getNextToken(1);
-
-			if (T_CONSTANT_ENCAPSED_STRING === $t[0])
-			{
-				$t[0] = $this->getNextToken(2);
-
-				if (',' === $t[0][0] || ')' === $t[0][0])
-				{
-					$t = strtolower(substr($t[1], 1, -1));
-
-					if (isset($this->alias[$t]))
-					{
-						$token[1] = $t;
-						if (false === $this->tagUseFunction($token)) return false;
-						$token[1] = "'{$token[1]}'";
-					}
-
-					return;
-				}
-			}
-			else if (T_FUNCTION === $t[0])
-			{
-				return; // Closure
-			}
-			else if (T_ARRAY === $t[0])
-			{
-				// TODO: verify that this is really an array, ie look for a bracket or a comma after its closing bracket
-			}
-
-			new patchwork_tokenizer_bracket_callback($this, self::$autoloader[$a], $this->varVarLead, $this->varVarTail);
+			new patchwork_tokenizer_bracket_callback($this, self::$autoloader[$a], $this->varVarLead, $this->varVarTail, $this->alias);
 
 			if ('&' === $this->prevType)
 			{
