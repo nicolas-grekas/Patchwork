@@ -16,15 +16,19 @@
 
 class patchwork_tokenizer_bracket_callback extends patchwork_tokenizer_bracket
 {
-	protected $callbackPosition, $lead, $tail, $nextTail = '', $alias;
+	protected
+
+	$callbackPosition,
+	$lead = 'patchwork_alias::resolve(',
+	$tail = ')',
+	$nextTail = '',
+	$alias = array();
 
 
-	function __construct(patchwork_tokenizer $parent, $callbackPosition, $lead, $tail, $alias)
+	function __construct(patchwork_tokenizer $parent, $callbackPosition, $alias = array())
 	{
 		if (0 < $callbackPosition)
 		{
-			$this->lead = $lead;
-			$this->tail = $tail;
 			$this->alias = $alias;
 			$this->callbackPosition = $callbackPosition - 1;
 			$this->initialize($parent);
