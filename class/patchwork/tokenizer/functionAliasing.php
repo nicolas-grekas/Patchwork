@@ -23,8 +23,8 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 	),
 	$depends = 'patchwork_tokenizer_classInfo',
 
-	$varVarLead,
-	$varVarTail;
+	$varVarLead = '${patchwork_alias::scopedResolve(',
+	$varVarTail = ",\${'?'})}";
 
 
 	// List of native functions that could trigger __autoload()
@@ -122,23 +122,11 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 		'array_uintersect_uassoc' => -2,
 
 		'session_set_save_handler' => -6, // 6 callback parameters
-	),
-	$vVL = '${is_string($k%T=',
-	$vVT = ")&&function_exists(\$v%T='__patchwork_'.\$k%T)?'v%T':'k%T'}";
-
-
-	static function __constructStatic()
-	{
-		self::$vVL = str_replace('%T', PATCHWORK_PATH_TOKEN, self::$vVL);
-		self::$vVT = str_replace('%T', PATCHWORK_PATH_TOKEN, self::$vVT);
-	}
+	);
 
 
 	function __construct(parent $parent, $function_map)
 	{
-		$this->varVarLead = self::$vVL;
-		$this->varVarTail = self::$vVT;
-
 		$v = get_defined_functions();
 
 		foreach ($v['user'] as $v)
@@ -230,7 +218,7 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 		}
 		else if (isset(self::$autoloader[$a]))
 		{
-			new patchwork_tokenizer_bracket_callback($this, self::$autoloader[$a], $this->varVarLead, $this->varVarTail, $this->alias);
+			new patchwork_tokenizer_bracket_callback($this, self::$autoloader[$a], $this->alias);
 
 			if ('&' === $this->prevType)
 			{
