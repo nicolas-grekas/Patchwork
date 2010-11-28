@@ -44,25 +44,32 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 		$this->file = self::export($file);
 		$this->dir  = self::export(dirname($file));
 
-		$this->constants['__DIR__'] = $this->dir;
+		foreach ((array) $constants as $constants) if (defined($constants))
+		{
+			if (false !== $c = strrpos($constants, '\\'))
+			{
+				$constants = 0 !== $c
+					? strtolower(substr($constants, 1, $c)) . substr($constants, $c)
+					: substr($constants, 1);
+			}
 
-		foreach ((array) $constants as $constants)
-			if (defined($constants))
-				$this->constants[$constants] = self::export(constant($constants));
+			$this->constants[$constants] = self::export(constant($constants));
+		}
 
 		if (!self::$internalConstants)
 		{
 			$constants = get_defined_constants(true);
-			unset(
-				$constants['user'],
-				$constants['standard']['INF'],
-				$constants['internal']['TRUE'],
-				$constants['internal']['FALSE'],
-				$constants['internal']['NULL'],
-				$constants['internal']['PHP_EOL']
-			);
+			unset($constants['user']);
 
 			foreach ($constants as $constants) self::$internalConstants += $constants;
+
+			unset( // Idempotent constants
+				self::$internalConstants['TRUE'],
+				self::$internalConstants['FALSE'],
+				self::$internalConstants['NULL'],
+				self::$internalConstants['INF'],
+				self::$internalConstants['NAN']
+			);
 
 			foreach (self::$internalConstants as &$constants)
 				$constants = self::export($constants);
@@ -75,12 +82,33 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 
 	function tagConstant(&$token)
 	{
-		// TODO: NS support
-		if (isset($this->constants[$token[1]]))
+		if ('\\' === $this->nsResolved[0])
 		{
-			$c = $this->constants[$token[1]];
+			$c = strrpos($this->nsResolved, '\\');
+			$c = 0 !== $c
+				? strtolower(substr($this->nsResolved, 1, $c)) . substr($this->nsResolved, $c)
+				: substr($this->nsResolved, 1);
 
-			return $this->replaceCode(T_CONSTANT_ENCAPSED_STRING, $c);
+			if (isset($this->constants[$c]))
+			{
+				$token[0] = T_CONSTANT_ENCAPSED_STRING;
+				$token[1] = $this->constants[$token[1]];
+				$this->code[--$this->position] = $token;
+
+				if ($this->nsPrefix)
+				{
+					$this->nsPrefix  = '';
+					$token =& $this->tokens;
+					$c = count($token);
+
+					while (isset($token[--$c]) && (T_STRING === $token[$c][0] || T_NS_SEPARATOR === $token[$c][0]))
+					{
+						$token[$c][1] = '';
+					}
+				}
+
+				return false;
+			}
 		}
 	}
 
