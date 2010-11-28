@@ -80,10 +80,7 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 		{
 			$c = $this->constants[$token[1]];
 
-			return $this->replaceCode(
-				is_int($c) ? T_LNUMBER : (is_float($c) ? T_DNUMBER : T_CONSTANT_ENCAPSED_STRING),
-				$c
-			);
+			return $this->replaceCode(T_CONSTANT_ENCAPSED_STRING, $c);
 		}
 	}
 
