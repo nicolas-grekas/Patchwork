@@ -30,7 +30,10 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 			'interface_exists' => T_USE_FUNCTION,
 		)
 	),
-	$depends = 'patchwork_tokenizer_classInfo';
+	$depends = array(
+		'patchwork_tokenizer_classInfo',
+		'patchwork_tokenizer_constantExpression',
+	);
 
 
 	function __construct(parent $parent, $level, $topClass)
@@ -159,14 +162,26 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 
 	function tagRequire(&$token)
 	{
-		// TODO: fetch constant code and use it to inline processed paths
-
 		// Every require|include inside files in the include_path
 		// is preprocessed thanks to patchworkProcessedPath().
 
-		$this->code[--$this->position] = '(';
-		$this->code[--$this->position] = array(T_STRING, 'patchworkProcessedPath');
-		$this->code[--$this->position] = array(T_WHITESPACE, ' ');
+		$token['no-autoload-marker'] = true;
+
+		if (!DEBUG && TURBO && $this->nextExpressionIsConstant())
+		{
+			$a = patchworkProcessedPath($this->expressionValue);
+			$token =& $this->code[$this->position][1];
+
+			$token = false === $a
+				? "patchworkProcessedPath({$token})"
+				: self::export($a, substr_count($token, "\n"));
+		}
+		else
+		{
+			$this->code[--$this->position] = '(';
+			$this->code[--$this->position] = array(T_STRING, 'patchworkProcessedPath');
+			$this->code[--$this->position] = array(T_WHITESPACE, ' ');
+		}
 
 		new patchwork_tokenizer_closeBracket($this);
 	}
