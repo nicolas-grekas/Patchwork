@@ -17,15 +17,32 @@ class patchwork_tokenizer_T extends patchwork_tokenizer
 	protected
 
 	$callbacks = array('tagT' => array('T' => T_USE_FUNCTION)),
-	$depends   = 'patchwork_tokenizer_stringInfo';
+	$depends   = array(
+		'patchwork_tokenizer_stringInfo',
+		'patchwork_tokenizer_constantExpression',
+	);
 
 
 	function tagT(&$token)
 	{
 		if (!isset($this->nsPrefix[0]) || '\\' === $this->nsPrefix[0])
 		{
-			// TODO: fetch constant code and add it to the translation table
-			new patchwork_tokenizer_bracket_T($this);
+			++$this->position;
+
+			if ($this->nextExpressionIsConstant())
+			{
+				if ($_SERVER['PATCHWORK_LANG'])
+				{
+					// Add the string to the translation table
+					TRANSLATOR::get($this->expressionValue, $_SERVER['PATCHWORK_LANG'], false);
+				}
+			}
+			else
+			{
+				new patchwork_tokenizer_bracket_T($this);
+			}
+
+			--$this->position;
 		}
 	}
 }

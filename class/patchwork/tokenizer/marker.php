@@ -57,6 +57,8 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 
 	function tagAutoloader(&$token)
 	{
+		if (!empty($token['no-autoload-marker'])) return;
+
 		switch ($token[0])
 		{
 		case T_STRING:

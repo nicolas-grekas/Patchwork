@@ -12,29 +12,34 @@
  ***************************************************************************/
 
 
-// TODO: refactor to re-enable this feature
-
-class patchwork_tokenizer_constantExpression
+class patchwork_tokenizer_constantExpression extends patchwork_tokenizer
 {
+	protected
+
+	$expressionValue,
+	$shared = 'expressionValue';
+
+
 	protected static $variableType = array(
 		T_EVAL, T_LINE, T_FILE, T_DIR, T_FUNC_C, T_CLASS_C,
 		T_METHOD_C, T_NS_C, T_INCLUDE, T_REQUIRE, T_GOTO,
 		T_CURLY_OPEN, T_VARIABLE, '$', T_INCLUDE_ONCE,
 		T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES, T_EXIT,
+		T_COMMENT, T_DOC_COMMENT, T_FUNCTION,
 	);
 
 
-	static function fetch($tokens, &$i, $count, &$value)
+	protected function nextExpressionIsConstant()
 	{
-		$new_code = array();
+		$j = $this->position;
+		$code =& $this->code;
+		$const_code = array();
 		$bracket = 0;
 		$close = 0;
 
-		for ($j = $i; $j < $count; ++$j)
+		while (isset($code[$j]))
 		{
-			list($type, $code, $sugar) = $tokens[$j] + array(2 => '');
-
-			switch ($type)
+			switch ($code[$j][0])
 			{
 			case '`':
 			case T_STRING:
@@ -63,20 +68,41 @@ class patchwork_tokenizer_constantExpression
 			case T_WHITESPACE: break;
 
 			default:
-				if (in_array($type, self::$variableType, true)) $close = 2;
+				if (in_array($code[$j][0], self::$variableType, true)) $close = 2;
 			}
 
 			if (1 === $close)
 			{
-				$i = $j;
-				$j = implode('', $new_code);
-				return false === @eval("\$value={$j};") ? null : $j;
+				$const_code = implode('', $const_code);
+
+				if (false !== @eval("\$close=({$const_code});"))
+				{
+					$const_code = substr_count($const_code, "\n");
+
+					$this->code[--$j] = array(
+						T_CONSTANT_ENCAPSED_STRING,
+						self::export($close, $const_code)
+					);
+
+					if ($j > $this->position)
+					{
+						$this->code = array_slice($this->code, $j - $this->position);
+						$this->position = 0;
+					}
+
+					$this->expressionValue = $close;
+
+					return true;
+				}
+				else return false;
 			}
 			else if (2 === $close)
 			{
-				return;
+				return false;
 			}
-			else $new_code[] = $sugar . $code;
+			else $const_code[] = is_array($code[$j]) ? $code[$j][1] : $code[$j];
+
+			++$j;
 		}
 	}
 }
