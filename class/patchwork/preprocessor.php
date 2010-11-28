@@ -102,20 +102,21 @@ class patchwork_preprocessor__0
 		$t = new patchwork_tokenizer_normalizer;
 
 		$i = array(
-			'className'         => 0 <= $level && $class,
-			'stringInfo'        => true,
-			'namespaceInfo'     => true,
-			'scoper'            => true,
-			'constantInliner'   => true,
-			'classInfo'         => true,
-			'superPositioner'   => true,
-			'constructorStatic' => true,
-			'constructor4to5'   => 0 > $level,
-			'functionAliasing'  => true,
-			'globalizer'        => 0 <= $level,
-			'scream'            => self::$scream,
-			'T'                 => DEBUG,
-			'marker'            => !DEBUG,
+			'className'          => 0 <= $level && $class,
+			'stringInfo'         => true,
+			'namespaceInfo'      => true,
+			'scoper'             => true,
+			'constantInliner'    => true,
+			'classInfo'          => true,
+			'constantExpression' => true,
+			'superPositioner'    => true,
+			'constructorStatic'  => true,
+			'constructor4to5'    => 0 > $level,
+			'functionAliasing'   => true,
+			'globalizer'         => 0 <= $level,
+			'scream'             => self::$scream,
+			'T'                  => DEBUG,
+			'marker'             => !DEBUG,
 		);
 
 		foreach ($i as $c => $i)
