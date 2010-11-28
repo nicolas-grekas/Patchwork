@@ -144,7 +144,9 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 
 		foreach ($function_map as $k => $v)
 		{
-			function_exists('__patchwork_' . $k) && $this->alias[strtolower($k)] = $v;
+			'\\' === $k[0] && $k = substr($k, 1);
+			'\\' === $v[0] && $v = substr($v, 1);
+			function_exists('__patchwork_' . strtr($k, '\\', '_')) && $this->alias[strtolower($k)] = $v;
 		}
 	}
 
@@ -199,7 +201,8 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 	function tagUseFunction(&$token)
 	{
 		// TODO: NS support
-		$a = strtolower($token[1]);
+		$a = strtolower($this->nsResolved);
+		'\\' === $a[0] && $a = substr($a, 1);
 
 		if (isset($this->alias[$a]))
 		{
@@ -211,10 +214,38 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 			{
 				$this->code[--$this->position] = array(T_STRING, $a[1]);
 				$this->code[--$this->position] = array(T_DOUBLE_COLON, '::');
-				$this->code[--$this->position] = array(T_STRING, $a[0]);
 
-				return false;
+				if (T_USE > 0)
+				{
+					$a = explode('\\', $a[0]);
+
+					foreach (array_reverse($a) as $a)
+					{
+						$this->code[--$this->position] = array(T_STRING, $a);
+						$this->code[--$this->position] = array(T_NS_SEPARATOR, '\\');
+					}
+				}
+				else
+				{
+					$this->code[--$this->position] = array(T_STRING, $a[0]);
+				}
+
+				$a = false;
 			}
+
+			if ($this->nsPrefix)
+			{
+				$this->nsPrefix  = '';
+				$token =& $this->tokens;
+				$c = count($token);
+
+				while (isset($token[--$c]) && (T_STRING === $token[$c][0] || T_NS_SEPARATOR === $token[$c][0]))
+				{
+					$token[$c][1] = '';
+				}
+			}
+
+			return $a;
 		}
 		else if (isset(self::$autoloader[$a]))
 		{
