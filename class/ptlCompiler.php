@@ -481,27 +481,47 @@ abstract class
 					$testCode
 				);
 
-				$i = @eval("($testCode);");
-				if (false !== $i) while (--$j) if (isset(${'a'.$j.'b'})) $i = false;
+				set_error_handler(array(__CLASS__, 'nullErrorHandler'));
+				ini_set('display_errors', true);
+				ini_set('log_errors', false);
+				ob_start();
+
+				if (false !== eval("($testCode);"))
+				{
+					ob_end_clean();
+					$i = false;
+					while (--$j) if (isset(${'a'.$j.'b'})) $i = "unexpected '='";
+				}
+				else
+				{
+					$i = ob_get_clean();
+					$i = preg_match("/^Parse error: syntax error, (.*?) in/",  $i, $i) ? $i[1] : 'syntax error';
+				}
+
+				ini_set('log_errors', true);
+				ini_set('display_errors', false);
+				restore_error_handler();
 
 				if (false !== $i)
 				{
-					$block = preg_split('/(\\$a\d+b) /su', $testCode, -1, PREG_SPLIT_DELIM_CAPTURE);
-
-					$expression = $block[0];
-
-					$i = 1;
-					$len = count($block);
-					while ($i < $len)
-					{
-						$expression .= $this->evalVar($var[ $block[$i++] ], false, 'unified');
-						$expression .= $block[$i++];
-					}
-
-					if (!$this->addIF($limit, 'ELSEIF' === $blockname, $expression)) $this->pushText($a);
-					else if ('ELSEIF' !== $blockname) $this->blockStack[] = $blockname;
+					W("PTL parse error: {$i} on line " . $this->getLine());
 				}
-				else $this->pushText($a);
+
+				$block = preg_split('/(\\$a\d+b) /su', $testCode, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+				$expression = $block[0];
+
+				$i = 1;
+				$len = count($block);
+				while ($i < $len)
+				{
+					$expression .= $this->evalVar($var[ $block[$i++] ], false, 'unified');
+					$expression .= $block[$i++];
+				}
+
+				if (!$this->addIF($limit, 'ELSEIF' === $blockname, $expression)) $this->pushText($a);
+				else if ('ELSEIF' !== $blockname) $this->blockStack[] = $blockname;
+
 				break;
 
 			default:
@@ -647,6 +667,11 @@ abstract class
 
 	protected function endError($unexpected, $expected)
 	{
-		W("Template Parse Error: Unexpected END:$unexpected" . ($expected ? ", expecting END:$expected" : '') . " line " . $this->getLine());
+		W("PTL parse error: unexpected END:$unexpected" . ($expected ? ", expecting END:$expected" : '') . " on line " . $this->getLine());
+	}
+
+	static function nullErrorHandler()
+	{
+		// Nothing here
 	}
 }
