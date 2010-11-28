@@ -24,6 +24,7 @@ patchwork_tokenizer::defineNewToken('T_USE_PROPERTY');  // $foo->BAR
 patchwork_tokenizer::defineNewToken('T_USE_FUNCTION');  // FOOBAR()
 patchwork_tokenizer::defineNewToken('T_USE_CONST');     // foo::BAR
 patchwork_tokenizer::defineNewToken('T_USE_CONSTANT');  // $foo = BAR
+patchwork_tokenizer::defineNewToken('T_GOTO_LABEL');    // goto FOO; or FOO: {...}
 
 
 class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
@@ -38,16 +39,24 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 	$nsPrefix  = '',
 	$nsPreType = 0,
 	$callbacks = array(
-		'tagString'   => T_STRING,
 		'tagConst'    => T_CONST,
 		'tagExtends'  => array(T_EXTENDS, T_IMPLEMENTS),
 		'tagFunction' => T_FUNCTION,
 		'tagNs'       => T_NAMESPACE,
 		'tagUse'      => T_USE,
 		'tagNsSep'    => T_NS_SEPARATOR,
+		'tagNsSep52'  => '\\',
 	),
 	$shared = 'nsPrefix';
 
+
+	function __construct(patchwork_tokenizer $parent)
+	{
+		// fix for pre-PHP5.3 tokens
+		$this->callbacks[T_USE > 0 ? 'tagString' : 'tagString52'] = T_STRING;
+
+		parent::__construct($parent);
+	}
 
 	function tagString(&$token)
 	{
@@ -55,6 +64,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		{
 		case T_INTERFACE:
 		case T_CLASS: $token[3] = T_NAME_CLASS; break;
+		case T_GOTO:  $token[3] = T_GOTO_LABEL; break;
 
 		case '&': if (T_FUNCTION !== $this->anteType) break;
 		case T_FUNCTION: $token[3] = T_NAME_FUNCTION; break;
@@ -112,6 +122,12 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 					default:             $token[3] = T_USE_FUNCTION; break 2;
 					}
 
+				case ':':
+					if ('{' === $this->prevType || ';' === $this->prevType)
+					{
+						$token[3] = T_GOTO_LABEL; break 2;
+					}
+					// No break;
 				default:
 					switch ($this->prevType)
 					{
@@ -265,5 +281,32 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		if ('' === $token[2]) unset($token[2]);
 
 		$this->nsPrefix = '';
+	}
+
+
+	// fix for pre-PHP5.3 tokens
+
+	function tagString52(&$token)
+	{
+		switch ($token[1])
+		{
+		case 'goto':          $token[0] = T_GOTO;      break;
+		case '__DIR__':       $token[0] = T_DIR;       break;
+		case 'use':           $token[0] = T_USE;       break;
+		case '__NAMESPACE__': $token[0] = T_NS_C;      break;
+		case 'namespace':     $token[0] = T_NAMESPACE; break;
+
+		default: return parent::tagString($token);
+		}
+
+		$this->code[--$this->position] = $token;
+		return false;
+	}
+
+	function tagNsSep52(&$token)
+	{
+		$token[0] = T_NS_SEPARATOR;
+		$this->code[--$this->position] = $token;
+		return false;
 	}
 }
