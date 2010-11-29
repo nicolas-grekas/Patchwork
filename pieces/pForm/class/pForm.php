@@ -132,8 +132,23 @@ class extends loop_agentWrapper
 		$type = 'pForm_' . preg_replace('"[^a-zA-Z0-9\x80-\xff]+"', '_', $type);
 		$elt = $this->elt[$fullname] = new $type($this, $fullname, $param, $this->sessionLink);
 
-		if ('pForm_hidden' == $type) $this->hidden[$fullname] = $elt;
-		else if ($autoPopulate && $this->agentData) $this->agentData->{$this->agentPrefix . $name} = $elt;
+		if ($autoPopulate && $this->agentData)
+		{
+			if ('pForm_hidden' == $type)
+			{
+				$this->hidden[$fullname] = $elt;
+				unset($this->agentData->{$this->agentPrefix . $name});
+			}
+			else
+			{
+				unset($this->hidden[$fullname]);
+				$this->agentData->{$this->agentPrefix . $name} = $elt;
+			}
+		}
+		else if ('pForm_hidden' == $type)
+		{
+			$this->hidden[$fullname] = $elt;
+		}
 
 		return $elt;
 	}
