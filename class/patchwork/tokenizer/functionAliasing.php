@@ -233,17 +233,7 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 				$a = false;
 			}
 
-			if ($this->nsPrefix)
-			{
-				$this->nsPrefix  = '';
-				$token =& $this->tokens;
-				$c = count($token);
-
-				while (isset($token[--$c]) && (T_STRING === $token[$c][0] || T_NS_SEPARATOR === $token[$c][0]))
-				{
-					$token[$c][1] = '';
-				}
-			}
+			empty($this->nsPrefix) || $this->removeNsPrefix($token);
 
 			return $a;
 		}

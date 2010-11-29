@@ -273,7 +273,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 			if (T_NS_SEPARATOR === $this->tokens[$i] || T_STRING === $this->tokens[$i])
 			{
 				empty($this->tokens[$i][2]) || $token[2] = $this->tokens[$i][2] . $token[2];
-				unset($this->tokens[$i]);
+				array_pop($this->tokens);
 			}
 			else break;
 		}

@@ -95,17 +95,7 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 				$token[1] = $this->constants[$token[1]];
 				$this->code[--$this->position] = $token;
 
-				if ($this->nsPrefix)
-				{
-					$this->nsPrefix  = '';
-					$token =& $this->tokens;
-					$c = count($token);
-
-					while (isset($token[--$c]) && (T_STRING === $token[$c][0] || T_NS_SEPARATOR === $token[$c][0]))
-					{
-						$token[$c][1] = '';
-					}
-				}
+				empty($this->nsPrefix) || $this->removeNsPrefix($token);
 
 				return false;
 			}
