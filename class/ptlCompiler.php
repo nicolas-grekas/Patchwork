@@ -481,26 +481,33 @@ abstract class
 					$testCode
 				);
 
-				set_error_handler(array(__CLASS__, 'nullErrorHandler'));
-				ini_set('display_errors', true);
-				ini_set('log_errors', false);
-				ob_start();
-
-				if (false !== eval("($testCode);"))
+				if (preg_match("'[^=!]=[^=]'", $testCode))
 				{
-					ob_end_clean();
-					$i = false;
-					while (--$j) if (isset(${'a'.$j.'b'})) $i = "unexpected '='";
+					$i = "unexpected '='";
 				}
 				else
 				{
-					$i = ob_get_clean();
-					$i = preg_match("/^Parse error: syntax error, (.*?) in/",  $i, $i) ? $i[1] : 'syntax error';
-				}
+					set_error_handler(array(__CLASS__, 'nullErrorHandler'));
+					ini_set('display_errors', true);
+					ini_set('log_errors', false);
+					ob_start();
 
-				ini_set('log_errors', true);
-				ini_set('display_errors', false);
-				restore_error_handler();
+					if (false !== eval("($testCode);"))
+					{
+						ob_end_clean();
+						$i = false;
+						while (--$j) if (isset(${'a'.$j.'b'})) $i = "unexpected '='";
+					}
+					else
+					{
+						$i = ob_get_clean();
+						$i = preg_match("/^Parse error: syntax error, (.*?) in/",  $i, $i) ? $i[1] : 'syntax error';
+					}
+
+					ini_set('log_errors', true);
+					ini_set('display_errors', false);
+					restore_error_handler();
+				}
 
 				if (false !== $i)
 				{
