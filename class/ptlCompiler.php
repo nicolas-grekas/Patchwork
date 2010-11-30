@@ -481,7 +481,7 @@ abstract class
 					$testCode
 				);
 
-				if (preg_match("'[^=!]=[^=]'", $testCode))
+				if (preg_match("'[^=!<>]=[^=]'", $testCode))
 				{
 					$i = "unexpected '='";
 				}
@@ -492,26 +492,17 @@ abstract class
 					ini_set('log_errors', false);
 					ob_start();
 
-					if (false !== eval("($testCode);"))
-					{
-						ob_end_clean();
-						$i = false;
-						while (--$j) if (isset(${'a'.$j.'b'})) $i = "unexpected '='";
-					}
-					else
+					if (false === eval("($testCode);"))
 					{
 						$i = ob_get_clean();
-						$i = preg_match("/^Parse error: syntax error, (.*?) in/",  $i, $i) ? $i[1] : 'syntax error';
+						$i = preg_match("/^Parse error: syntax error, (.*?) in /",  $i, $i) ? $i[1] : 'syntax error';
+						W("PTL parse error: {$i} on line " . $this->getLine());
 					}
+					else ob_end_clean();
 
 					ini_set('log_errors', true);
 					ini_set('display_errors', false);
 					restore_error_handler();
-				}
-
-				if (false !== $i)
-				{
-					W("PTL parse error: {$i} on line " . $this->getLine());
 				}
 
 				$block = preg_split('/(\\$a\d+b) /su', $testCode, -1, PREG_SPLIT_DELIM_CAPTURE);
