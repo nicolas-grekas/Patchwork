@@ -57,13 +57,18 @@ class extends agent_css
 			--self::$recursion;
 
 			$parser = new jsqueez;
-			$o->DATA = p::__URI__();
-			$o->DATA .= (false === strpos($o->DATA, '?') ? '?' : '&') . 'src=1';
-			$o->DATA = "// Copyright & source: {$o->DATA}\n";
 
-			foreach (count_chars($o->DATA, 1) as $k => $w) $parser->charFreq[$k] += $w;
+			if ('/*!' != substr(ltrim(substr($src, 0, 512)), 0, 3))
+			{
+				$o->DATA = p::__URI__();
+				$o->DATA .= (false === strpos($o->DATA, '?') ? '?' : '&') . 'src=1';
+				$o->DATA = "// Copyright & source: {$o->DATA}\n";
 
-			$o->DATA .= $parser->squeeze($src);
+				foreach (count_chars($o->DATA, 1) as $k => $w) $parser->charFreq[$k] += $w;
+
+				$o->DATA .= $parser->squeeze($src);
+			}
+			else $o->DATA = $parser->squeeze($src);
 		}
 
 		return $o;
