@@ -182,7 +182,7 @@ getCheckStatus = IgCS = function()
 		$disabledCounter = 0,
 		$e;
 
-	if ($this.disabled || this.readOnly || ((''+$this.value).length && $this.checked)) return 1;
+	if ($this.disabled || $this.readOnly || ((''+$this.value).length && $this.checked)) return 1;
 
 	for (; $i<$this.length; ++$i)
 	{
@@ -377,7 +377,7 @@ function enterControl($form)
 		$all = document.getElementsByTagName('*'),
 		$len = $all.length;
 
-	while (++$i < $len && $all[$i] != $form.v_lastFocusedElt);
+	while (++$i < $len && $all[$i] != $form.v_lastFocusedElt) {}
 	while (++$i < $len)
 	{
 		$elt = $all[$i];
