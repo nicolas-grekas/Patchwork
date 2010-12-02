@@ -388,8 +388,6 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 
 	w = function($context, $code, $WexecLastLimit)
 	{
-		0&&c&&r&&x; // Workaround for a bug in Firefox 1.0 + jsqueez
-
 		$code = $code || [];
 		$WexecLastLimit = $WexecLastLimit || 0;
 
@@ -755,7 +753,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 	w.r = function($now, $noCache)
 	{
 		if ($masterBase != g.__BASE__) setcookie('cache_reset_id', $masterAppId, 0, '/');
-		$reloadRequest = true;
+		$reloadRequest = 1;
 		$reloadNoCache = $reloadNoCache || !!$noCache;
 		if ($now) $WexecLast = $WexecStack.length = 0;
 	}
