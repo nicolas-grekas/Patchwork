@@ -85,6 +85,7 @@ END:SET
 SET $INPUT
 IF 'hidden' == a$type
 
+	SET a$_format_ -->{a$_format_|default:'%1%2'}<!-- END:SET
 	SET d$INPUT -->input {a$|htmlArgs:'class':'title':'autofocus':'placeholder':'value':'required'}<!-- END:SET
 	IF a$_check || a$_type == 'select'
 		LOOP a$_option
