@@ -876,7 +876,7 @@ class
 
 	static function strongPassword($length = 8)
 	{
-		return strtr(self::strongid($length), 'IOl10+', '-$%()?');
+		return strtr(self::strongid($length), 'IOl10r', '+$%?=&');
 	}
 
 	// Basic UTF-8 to ASCII transliteration

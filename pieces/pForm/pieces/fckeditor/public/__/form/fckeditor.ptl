@@ -38,7 +38,9 @@ SET a$required  -->{a$_required|test:'_required':''}<!-- END:SET
 
 SET a$placeholder -->{a$placeholder|default:a$_placeholder}<!-- END:SET
 
-SET a$id -->FiD{g+1$GLOBID}<!-- END:SET
+IF !a$id
+	SET a$id -->FiD{g+1$GLOBID}<!-- END:SET
+END:IF
 SET a$class -->{a$class|default:a$type}<!-- END:SET
 
 IF !a$title

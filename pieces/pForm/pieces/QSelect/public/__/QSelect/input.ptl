@@ -26,7 +26,7 @@ SET a$required  -->{a$_required|test:'_required':''}<!-- END:SET
 
 SET a$placeholder -->{a$placeholder|default:a$_placeholder}<!-- END:SET
 
-SET a$id -->{a$name}<!-- END:SET
+SET a$id -->{a$id|default:a$name}<!-- END:SET
 SET a$class -->{a$class|default:'QSelect'}<!-- END:SET
 
 IF !a$title
