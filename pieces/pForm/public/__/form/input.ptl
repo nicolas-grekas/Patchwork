@@ -57,7 +57,10 @@ END:IF
 
 SET a$placeholder -->{a$_placeholder}<!-- END:SET
 
-SET a$id -->FiD{g+1$GLOBID}{g$__AGENT__|replace:'[^_a-zA-Z0-9]':'_'}<!-- END:SET
+IF !a$id
+	SET a$id -->FiD{g+1$GLOBID}{g$__AGENT__|replace:'[^-_a-zA-Z0-9]':'_'}<!-- END:SET
+END:IF
+
 SET a$class -->{a$class|default:a$_class|default:a$type}<!-- END:SET
 
 IF !a$title
