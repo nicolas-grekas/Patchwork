@@ -447,7 +447,7 @@ onDOMLoaded.push(function()
 		{
 			if ($t.getAttribute('maxlength')) $t.onkeyup = $t.checkMaxlength;
 
-			if ('visible' == (window.getComputedStyle && document.defaultView.getComputedStyle($t, null).getPropertyValue('overflow')) || ($t.currentStyle && $t.currentStyle.overflow) || $t.style.overflow)
+			if (/\bautofit\b/.test($t.className))
 			{
 				$t.style.overflow = 'hidden';
 				$t.v_offsetHeight = $t.offsetHeight;
