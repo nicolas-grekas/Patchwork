@@ -743,9 +743,8 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 					$src += $content.substr($i),
 					$content = $content.substr(0, $i);
 
-				$document.write($content + $src);
+				$document.write($content + '<script>onDOMLoaded.go()<\/script>' + $src);
 				$document.close();
-				setTimeout(onDOMLoaded.go, 1);
 			}
 		}
 	}
