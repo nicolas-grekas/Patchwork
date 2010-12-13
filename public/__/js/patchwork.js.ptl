@@ -236,7 +236,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 
 	var $document = document,
 
-		$inlineJs = 0,
+		$inlineTag = '',
 		$includeSrc = '',
 		$trustReferer = 0,
 		$reloadRequest = 0,
@@ -665,10 +665,18 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 		$buffer = [];
 		w.c = w;
 
-		while ($i = $rx.exec($content))
+		if ('tyle' == $inlineTag)
 		{
-			$inlineJs = 0;
-			$offset = $rx.lastIndex;
+			$rx = /<\/style\s*>\s*/i;
+
+			if ($rx.exec($content))
+				$split = $rx.lastIndex,
+				$inlineTag = '';
+		}
+		else while ($i = $rx.exec($content))
+		{
+			$offset = $rx.lastIndex,
+			$inlineTag = '';
 
 			if ($i[1])
 			{
@@ -692,14 +700,12 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 			$src = $dataUri;
 			w.c = w.w;
 		}
-		else if ($inlineJs) $split = 0;
+		else if ($inlineTag) $split = 0;
 		else if ($src)
 		{
-			$i = $content.substr($offset).search(/<script\b/i);
-
-			if (0 <= $i)
-				$split = $i + $offset,
-				$inlineJs = 1;
+			if ($i = /<s(cript|tyle)\b/i.exec($content.substr($offset)))
+				$split = $i.index + $offset,
+				$inlineTag = $i[1];
 		}
 		else $split = -1;
 
