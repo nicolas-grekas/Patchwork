@@ -236,7 +236,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 
 	var $document = document,
 
-		$inlineTag = '',
+		$insideTag = '',
 		$includeSrc = '',
 		$trustReferer = 0,
 		$reloadRequest = 0,
@@ -655,43 +655,57 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 	{
 		var $src = $includeSrc,
 			$content = $reloadRequest ? '' : $buffer.join(''),
-			$rx = /*@cc_on!@*/0 ? /(<script(\s[\s\S]*?[^-\]])>\s*)?<\/script\s*>\s*/ig : /<\/script\s*>\s*/ig,
+			$rx,
 			$offset = 0,
 			$split = -1,
 			$i;
 
-		$rx.lastIndex = 0;
+		if ($insideTag)
+		{
+			$rx = '!--' == $insideTag
+				? /-->\s*/
+				: new RegExp('<\\/' + $insideTag + '\\s*>\\s*' + (/*@cc_on!@*/0 ? '(?:<!\\[endif\\](?:--)?>\\s*)*' : ''), 'i');
+
+			if ($rx.exec($content))
+			{
+				$offset = $rx.lastIndex;
+				$insideTag = '';
+			}
+		}
+
 		$includeSrc = '';
 		$buffer = [];
 		w.c = w;
 
-		if ('tyle' == $inlineTag)
+		if (!$insideTag)
 		{
-			$rx = /<\/style\s*>\s*/i;
+			$rx = /*@cc_on!@*/0
+				? /<(?:(script(\s[\s\S]*?[^-\]])>\s*<)?\/(script|style|noscript|title|textarea|iframe)\s*|--)>\s*(?:<!\[endif\](?:--)?>\s*)*/ig
+				:                                 /<(?:\/(script|style|noscript|title|textarea|iframe)\s*|--)>\s*/ig;
+			$rx.lastIndex = $offset;
 
-			if ($rx.exec($content))
-				$split = $rx.lastIndex,
-				$inlineTag = '';
-		}
-		else while ($i = $rx.exec($content))
-		{
-			$offset = $rx.lastIndex,
-			$inlineTag = '';
-
-			if ($i[1])
+			while ($i = $rx.exec($content))
 			{
-				// IE loads scripts in parallel when using document.write, but we may want serialized loading
+				$offset = $rx.lastIndex;
 
-				$i[1] = $i[1].replace(/(?:\s*=\s*([^\s<>"']*|(['"])[\s\S]*?\2)\s*)/g, ' ');
-
-				if (/\s(src)\b/i.test($i[1]) && ($split >= 0 ? $split == $i.index : !/\s(async|defer)\b/i.test($i[1])))
+				if (/*@cc_on!@*/0)
 				{
-					$split = $offset;
-					continue;
+					if ('script' == $i[2] && $i[1])
+					{
+						// IE loads scripts in parallel when using document.write, but we may want serialized loading
+
+						$i[1] = $i[1].replace(/(?:\s*=\s*([^\s<>"']*|(['"])[\s\S]*?\2)\s*)/g, ' ');
+
+						if (/\ssrc\b/i.test($i[1]) && ($split >= 0 ? $split == $i.index : !/\s(async|defer)\b/i.test($i[1])))
+						{
+							$split = $offset;
+							continue;
+						}
+					}
+
+					if (0 <= $split) break;
 				}
 			}
-
-			if ($split >= 0) break;
 		}
 
 		if (0 <= $split && $split < $content.length)
@@ -700,12 +714,17 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 			$src = $dataUri;
 			w.c = w.w;
 		}
-		else if ($inlineTag) $split = 0;
+		else if ($insideTag) $split = 0;
 		else if ($src)
 		{
-			if ($i = /<s(cript|tyle)\b/i.exec($content.substr($offset)))
-				$split = $i.index + $offset,
-				$inlineTag = $i[1];
+			$rx = /*@cc_on!@*/0
+				? /<(?:!(?:--)?\[if\s[^\]>]*\]>\s*<)*((script|style|noscript|title|textarea|iframe)\b|!--)/ig
+				:                                  /<((script|style|noscript|title|textarea|iframe)\b|!--)/ig;
+			$rx.lastIndex = $offset;
+
+			if ($i = $rx.exec($content))
+				$split = $i.index,
+				$insideTag = $i[1];
 		}
 		else $split = -1;
 
