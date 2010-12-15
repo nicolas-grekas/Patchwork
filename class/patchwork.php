@@ -1461,7 +1461,24 @@ class
 					self::$varyEncoding = true;
 					self::$is_enabled || header('Vary: Accept-Encoding', false);
 
-					$mode = isset($_SERVER['HTTP_ACCEPT_ENCODING']) ? $_SERVER['HTTP_ACCEPT_ENCODING'] : '';
+					switch (true)
+					{
+					// Try to serve compressed content even when Accept-Encoding is missing
+					// See http://developer.yahoo.com/blogs/ydn/posts/2010/12/pushing-beyond-gzipping/
+					case isset($_SERVER[$mode = 'HTTP_ACCEPT_ENCODING']):
+					case isset($_SERVER[$mode = 'HTTP_ACCEPT_ENCODXNG']):
+					case isset($_SERVER[$mode = 'HTTP_X_CEPT_ENCODING']):
+						$mode = $_SERVER[$mode];
+						break;
+
+					case isset($_SERVER[$mode = 'HTTP_XXXXXXXXXXXXXXX']):
+					case isset($_SERVER[$mode = 'HTTP________________']):
+						$mode = $_SERVER[$mode];
+						isset($mode[0]) && str_repeat($mode[0], 13) === $mode && $mode = 'gzip, deflate';
+						break;
+
+					default: $mode = '';
+					}
 
 					if ($mode)
 					{
@@ -1615,7 +1632,7 @@ class
 
 				if ('' !== $buffer)
 				{
-					header('Accept-Ranges: bytes');
+					strlen($buffer) > 32768 && header('Accept-Ranges: bytes');
 					self::$varyEncoding && header('Vary: Accept-Encoding', false);
 
 					if ($range = isset($_SERVER['HTTP_RANGE'])
