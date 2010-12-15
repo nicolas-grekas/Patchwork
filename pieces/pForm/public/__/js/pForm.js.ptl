@@ -465,7 +465,7 @@ onDOMLoaded.push(function()
 {
 	if ($scrollPos = location.hash.match(/@([0-9]+),([0-9]+)$/))
 	{
-		(function()
+		(window.scrollCntrl = function()
 		{
 			var $body = document.documentElement,
 				$left = Math.min($scrollPos[1], $body.scrollWidth),
@@ -473,7 +473,7 @@ onDOMLoaded.push(function()
 
 			$body && scrollTo($left, $top);
 
-			if ($left != $body.scrollLeft || $top != $body.scrollTop) setTimeout(arguments.callee, 100);
+			if ($left != $body.scrollLeft || $top != $body.scrollTop) setTimeout(scrollCntrl, 100);
 		})();
 	}
 })();
@@ -615,6 +615,7 @@ onDOMLoaded.push(function()
 		}
 	}
 
+	$win.scrollCntrl = function() {};
 	$win = $forms = $form = $elt = 0;
 });
 
