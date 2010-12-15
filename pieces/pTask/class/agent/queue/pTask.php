@@ -145,8 +145,9 @@ class extends agent
 
 			$data['task']->run();
 		}
-		catch (patchwork_exception_forbidden $e) {W("pTask #{$id}: forbidden acces detected" ); $time = false;}
-		catch (patchwork_exception_redirect  $e) {W("pTask #{$id}: HTTP redirection detected"); $time = false;}
+		catch (patchwork_exception_forbidden $e) {W("pTask #{$id}: forbidden acces detected"    ); $time = false;}
+		catch (patchwork_exception_redirect  $e) {W("pTask #{$id}: HTTP redirection detected"   ); $time = false;}
+		catch (Exception $e)                     {W("pTask #{$id}: an exception has been thrown"); $time = false;}
 
 		if ($time > 0)
 		{

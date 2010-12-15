@@ -2,17 +2,20 @@
 
 for I in `locate /config.patchwork.php | grep -v \\\.svn -v 2> /dev/null`
 do
-    I=`dirname $I`
-    rm -f $I/.*.zcache.php 2> /dev/null
+	if test -f $I
+	then
+		I=`dirname $I`
+		rm -f $I/.*.zcache.php 2> /dev/null
 
-    if test -d $I/zcache
-    then
-        rm -Rf $I/zcache/*/*/
-    fi
+		if test -d $I/zcache
+		then
+			rm -Rf $I/zcache/*/*/
+		fi
 
-    touch $I/config.patchwork.php
-    rm -f $I/.*.zcache.php   2> /dev/null
-    rm -f $I/.parentPaths.db 2> /dev/null
-    rm -f $I/.patchwork.lock 2> /dev/null
-    rm -f $I/.patchwork.php  2> /dev/null
+		touch $I/config.patchwork.php
+		rm -f $I/.*.zcache.php   2> /dev/null
+		rm -f $I/.parentPaths.db 2> /dev/null
+		rm -f $I/.patchwork.lock 2> /dev/null
+		rm -f $I/.patchwork.php  2> /dev/null
+	fi
 done
