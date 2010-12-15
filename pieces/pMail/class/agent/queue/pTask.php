@@ -20,9 +20,23 @@ class extends self
 
 		if ('' !== $buffer && $CONFIG['pMail.debug_email'])
 		{
+			$m = debug_backtrace();
+			$m['_SERVER'] = $_SERVER;
+			$m = serialize($m);
+			$m = <<<EOTXT
+pTask output
+============
+{$buffer}
+
+
+pTask serialized backtrace
+==========================
+{$m}
+EOTXT;
+
 			$m = new pMail_text(
 				array('To'   => $CONFIG['pMail.debug_email']),
-				array('text' => &$buffer)
+				array('text' => $m)
 			);
 			$m->send();
 		}
