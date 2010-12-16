@@ -67,8 +67,12 @@ class extends agent_queue_pTask
 			$e = new $e($data->headers, $data->options);
 			$e->send();
 		}
-		catch (patchwork_exception_forbidden $e) {W("pMail #{$id}: forbidden acces detected" ); $archive = 1;}
-		catch (patchwork_exception_redirect  $e) {W("pMail #{$id}: HTTP redirection detected"); $archive = 1;}
+		catch (Exception $e)
+		{
+			echo "Exception on pMail #{$id}:\n\n";
+			print_r($e);
+			$archive = 1;
+		}
 
 		$sql = $archive
 			? "UPDATE queue SET sent_time={$_SERVER['REQUEST_TIME']}, send_time=0 WHERE OID={$id}"

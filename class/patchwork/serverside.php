@@ -40,7 +40,8 @@ class extends patchwork
 		self::$get =& $f;
 
 		ob_start();
-		self::loadAgent(p::resolveAgentClass($agent, $_GET), false, false);
+		try {self::loadAgent(p::resolveAgentClass($agent, $_GET), false, false);}
+		catch (Exception $e) {ob_end_clean(); throw $e;}
 		$agent = ob_get_clean();
 
 		$_GET =& $a;

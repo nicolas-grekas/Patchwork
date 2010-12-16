@@ -75,7 +75,9 @@ class extends agent
 		$this->releaseLock();
 		$this->queueNext();
 
-		return $buffer;
+		'' !== $buffer && W($buffer);
+
+		return '';
 	}
 
 	protected function queueNext()
@@ -145,9 +147,12 @@ class extends agent
 
 			$data['task']->run();
 		}
-		catch (patchwork_exception_forbidden $e) {W("pTask #{$id}: forbidden acces detected"    ); $time = false;}
-		catch (patchwork_exception_redirect  $e) {W("pTask #{$id}: HTTP redirection detected"   ); $time = false;}
-		catch (Exception $e)                     {W("pTask #{$id}: an exception has been thrown"); $time = false;}
+		catch (Exception $e)
+		{
+			echo "Exception on pTask #{$id}:\n\n";
+			print_r($e);
+			$time = false;
+		}
 
 		if ($time > 0)
 		{
