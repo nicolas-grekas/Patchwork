@@ -89,7 +89,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 	{
 		$this->unregister(array(__FUNCTION__ => T_STRING));
 		$token[1] .= '__' . (0 <= $this->level ? $this->level : '00');
-		$this->class->realName = strtolower($token[1]);
+		$this->class->realName = $token[1];
 		0 <= $this->level && $this->register(array('tagExtendsSelf' => T_USE_CLASS));
 	}
 
@@ -124,9 +124,9 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		// Look backward and forward for the "static" keyword
 		if (T_STATIC !== $this->prevType)
 		{
-			$token =& $this->getNextToken();
+			$t = $this->getNextToken();
 
-			if (T_STATIC !== $token[0]) return;
+			if (T_STATIC !== $t[0]) return;
 		}
 
 		$token = array(T_PROTECTED, 'protected');
@@ -136,7 +136,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 			$this->setError("Private static methods or properties are banned, please use protected static ones instead");
 		}
 
-		return T_STATIC !== $this->prevType;
+		return false;
 	}
 
 	function tagClassClose(&$token)
