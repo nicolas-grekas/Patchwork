@@ -71,7 +71,7 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 	{
 		if (T_AS === $this->prevType)
 		{
-			$this->nsAliases[$token[1]] = implode($this->nsUse);
+			$this->nsAliases[$token[1]] = implode('', $this->nsUse);
 			$this->nsUse = array();
 		}
 		else
@@ -84,7 +84,7 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 	{
 		if ($this->nsUse)
 		{
-			$this->nsAliases[end($this->nsUse)] = implode($this->nsUse);
+			$this->nsAliases[end($this->nsUse)] = implode('', $this->nsUse);
 			$this->nsUse = array();
 		}
 
@@ -99,10 +99,9 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 		{
 			if (T_USE_CLASS === $token[3])
 			{
-				$this->nsResolved = '\\' . (empty($this->nsAliases[$token[1]])
-					? $this->namespace . $token[1]
-					: $this->nsAliases[$token[1]]
-				);
+				$this->nsResolved = empty($this->nsAliases[$token[1]])
+					? '\\' . $this->namespace . $token[1]
+					: $this->nsAliases[$token[1]];
 			}
 			else if ('' === $this->namespace)
 			{
@@ -115,19 +114,18 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 
 			if ('namespace' === $a[0])
 			{
-				if ('' === $this->namespace) unset($a[0]);
-				else $a[0] = $this->namespace;
+				$a[0] = '' !== $this->namespace ? '\\' . $this->namespace : '';
 			}
 			else if (isset($this->nsAliases[$a[0]]))
 			{
 				$a[0] = $this->nsAliases[$a[0]];
 			}
-			else if ('' !== $this->namespace)
+			else
 			{
-				array_unshift($a, $this->namespace);
+				$a[0] = '\\' . ('' !== $this->namespace ? $this->namespace . '\\' : '') . $a[0];
 			}
 
-			$this->nsResolved = '\\' . implode('\\', $a);
+			$this->nsResolved = implode('\\', $a);
 		}
 	}
 }
