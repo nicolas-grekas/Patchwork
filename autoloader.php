@@ -162,7 +162,7 @@ class __patchwork_autoloader
 			? class_exists($parent) || interface_exists($parent)
 			: ((class_exists($req, false) || interface_exists($req, false)) && !isset(self::$cache[$lc_req]))  )
 		{
-			if (false !== $a = strpos($req, '\\'))
+			if (false !== $a = strrpos($req, '\\'))
 			{
 				$ns     = substr($req, 0, $a + 1);
 				$req    = substr($req,    $a + 1);
