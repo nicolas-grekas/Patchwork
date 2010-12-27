@@ -215,7 +215,7 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 				$this->code[--$this->position] = array(T_STRING, $a[1]);
 				$this->code[--$this->position] = array(T_DOUBLE_COLON, '::');
 
-				if (T_USE > 0)
+				if (T_NAMESPACE > 0)
 				{
 					$a = explode('\\', $a[0]);
 
