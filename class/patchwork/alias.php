@@ -24,6 +24,6 @@ class patchwork_alias
 	static function scopedResolve($c, &$v)
 	{
 		$v = self::resolve($c);
-		return '?';
+		return '';
 	}
 }
