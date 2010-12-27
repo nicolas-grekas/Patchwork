@@ -109,7 +109,7 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 
 /**/	patchwork_bootstrapper::alias('mb_convert_encoding',     'patchwork_alias_mbstring_500::convert_encoding',     array('$s', '$to', '$from' => INF));
 /**/	patchwork_bootstrapper::alias('mb_decode_mimeheader',    'patchwork_alias_mbstring_500::decode_mimeheader',    array('$s'));
-/**/	patchwork_bootstrapper::alias('mb_encode_mimeheader',    'patchwork_alias_mbstring_500::convert_case',         array('$s', '$charset' => INF, 'transfer_enc' => INF, 'lf' => INF, 'indent' => INF));
+/**/	patchwork_bootstrapper::alias('mb_encode_mimeheader',    'patchwork_alias_mbstring_500::convert_case',         array('$s', '$charset' => INF, '$transfer_enc' => INF, '$lf' => INF, '$indent' => INF));
 /**/	patchwork_bootstrapper::alias('mb_convert_case',         'patchwork_alias_mbstring_500::convert_case',         array('$s', '$mode', '$enc' => INF));
 /**/	patchwork_bootstrapper::alias('mb_internal_encoding',    'patchwork_alias_mbstring_500::internal_encoding',    array('$enc' => INF));
 /**/	patchwork_bootstrapper::alias('mb_list_encodings',       'patchwork_alias_mbstring_500::list_encodings',       array());

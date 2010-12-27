@@ -254,7 +254,17 @@ class patchwork_bootstrapper_preprocessor__0
 				$args[1][] = $k;
 			}
 
-			$args[2][] = '&' === substr($k, 0, 1) ? substr($k, 1) : $k;
+			$v = '[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*';
+			$v = "'^(?:(?:(?: *\\\\ *)?{$v})+(?:&| +&?)|&?) *(\\\${$v})$'D";
+
+			if (!preg_match($v, $k, $v))
+			{
+				1 !== $inline && $function = substr($function, 12);
+				self::$src[key(self::$src)] .= "die('Patchwork error: Invalid parameter for {$function}()\'s alias ({$alias}: {$k}) in ' . __FILE__);";
+				return;
+			}
+
+			$args[2][] = $v[1];
 		}
 
 		$args[1] = implode(',', $args[1]);
