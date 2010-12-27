@@ -14,7 +14,6 @@
 
 // New tokens since PHP 5.3
 defined('T_GOTO')         || patchwork_tokenizer::defineNewToken('T_GOTO');
-defined('T_USE' )         || patchwork_tokenizer::defineNewToken('T_USE');
 defined('T_DIR' )         || patchwork_tokenizer::defineNewToken('T_DIR');
 defined('T_NS_C')         || patchwork_tokenizer::defineNewToken('T_NS_C');
 defined('T_NAMESPACE')    || patchwork_tokenizer::defineNewToken('T_NAMESPACE');

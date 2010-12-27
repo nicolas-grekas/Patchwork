@@ -53,7 +53,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 	function __construct(patchwork_tokenizer $parent)
 	{
 		// fix for pre-PHP5.3 tokens
-		$this->callbacks[T_USE > 0 ? 'tagString' : 'tagString52'] = T_STRING;
+		$this->callbacks[T_NAMESPACE > 0 ? 'tagString' : 'tagString52'] = T_STRING;
 
 		parent::__construct($parent);
 	}
@@ -292,11 +292,10 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		{
 		case 'goto':          $token[0] = T_GOTO;      break;
 		case '__DIR__':       $token[0] = T_DIR;       break;
-		case 'use':           $token[0] = T_USE;       break;
 		case '__NAMESPACE__': $token[0] = T_NS_C;      break;
 		case 'namespace':     $token[0] = T_NAMESPACE; break;
 
-		default: return parent::tagString($token);
+		default: return $this->tagString($token);
 		}
 
 		$this->code[--$this->position] = $token;
@@ -305,8 +304,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 
 	function tagNsSep52(&$token)
 	{
-		$token[0] = T_NS_SEPARATOR;
-		$this->code[--$this->position] = $token;
+		$this->code[--$this->position] = array(T_NS_SEPARATOR, '\\');
 		return false;
 	}
 }
