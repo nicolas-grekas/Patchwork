@@ -46,11 +46,11 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 
 		foreach ((array) $constants as $constants) if (defined($constants))
 		{
+			if ('\\' === substr($constants, 0, 1)) $constants = substr($constants, 1);
+
 			if (false !== $c = strrpos($constants, '\\'))
 			{
-				$constants = 0 !== $c
-					? strtolower(substr($constants, 1, $c)) . substr($constants, $c)
-					: substr($constants, 1);
+				$constants = strtolower(substr($constants, 0, $c - 1)) . substr($constants, $c);
 			}
 
 			$this->constants[$constants] = self::export(constant($constants));
@@ -82,6 +82,8 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 
 	function tagConstant(&$token)
 	{
+		// Inline constants only if they are fully namespace resolved
+
 		if ('\\' === $this->nsResolved[0])
 		{
 			$c = strrpos($this->nsResolved, '\\');

@@ -20,7 +20,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 	$inStatic = false,
 	$inlineClass = array('self' => 1, 'parent' => 1, 'static' => 1),
 	$callbacks = array(
-		'tagOpenTag'     => array(T_OPEN_TAG, ';', '{'),
+		'tagOpenTag'     => T_SCOPE_OPEN,
 		'tagAutoloader'  => array(T_USE_FUNCTION, T_EVAL, T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
 		'tagScopeOpen'   => T_SCOPE_OPEN,
 		'tagStatic'      => T_STATIC,
@@ -45,14 +45,8 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 
 	function tagOpenTag(&$token)
 	{
-		$T = $this->getNextToken();
-
-		if (T_NAMESPACE === $T[0] || T_DECLARE === $T[0]) return;
-
-		$this->unregister(array(__FUNCTION__ => array(T_OPEN_TAG, ';', '{')));
-
+		$this->unregister(array(__FUNCTION__ => T_SCOPE_OPEN));
 		$T = PATCHWORK_PATH_TOKEN;
-
 		$token[1] .= "if(!isset(\$a{$T})){global \$a{$T},\$b{$T},\$c{$T};}isset(\$e{$T})||\$e{$T}=false;";
 	}
 

@@ -48,7 +48,7 @@ class patchwork_tokenizer_closeMarker extends patchwork_tokenizer
 			case '$': break;
 			case '{': ++$this->curly; break;
 			case '}': --$this->curly; break;
-			default: 0<$this->curly || $this->curly = -1;
+			default: 0 < $this->curly || $this->curly = -1;
 		}
 		else
 		{
@@ -65,6 +65,8 @@ class patchwork_tokenizer_closeMarker extends patchwork_tokenizer
 			case ']':
 			case T_INC:
 			case T_DEC:
+			case T_STRING:
+			case T_NS_SEPARATOR:
 				break;
 
 			case T_OBJECT_OPERATOR:
