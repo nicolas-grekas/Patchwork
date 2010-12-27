@@ -24,8 +24,9 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 	$scopes    = array(),
 	$nextScope = T_OPEN_TAG,
 	$callbacks = array(
-		'tagScopeOpen'  => array(T_OPEN_TAG, '{'),
+		'tagFirstScope' => array(T_OPEN_TAG, ';', '{'),
 		'tagScopeClose' => array(T_ENDPHP  , '}'),
+		'tagNamespace'  => T_NAMESPACE,
 		'tagFunction'   => T_FUNCTION,
 		'tagClass'      => array(T_CLASS, T_INTERFACE),
 	),
@@ -33,16 +34,23 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 	$depends = 'patchwork_tokenizer_normalizer';
 
 
+	function tagFirstScope(&$token)
+	{
+		$t = $this->getNextToken();
+
+		if (T_NAMESPACE === $t[0] || T_DECLARE === $t[0]) return;
+
+		$this->unregister(array(__FUNCTION__ => array(T_OPEN_TAG, ';', '{')));
+		$this->register(array('tagScopeOpen' => '{'));
+		$this->callbacks = array();
+
+		$this->tagScopeOpen($token);
+	}
+
 	function tagScopeOpen(&$token)
 	{
 		if ($this->nextScope)
 		{
-			if (T_OPEN_TAG === $token[0])
-			{
-				$this->unregister(array('tagScopeOpen' => T_OPEN_TAG));
-				$this->callbacks = array();
-			}
-
 			$this->scope = (object) array(
 				'parent' => $this->scope,
 				'type'   => $this->nextScope,
@@ -79,11 +87,6 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 		}
 	}
 
-	function tagCurly(&$token)
-	{
-		++$this->curly;
-	}
-
 	function tagClass(&$token)
 	{
 		$this->nextScope = $token[0];
@@ -95,6 +98,16 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 		$this->register($this->callbacks = array(
 			'tagSemiColon'  => ';', // For abstracts methods
 		));
+	}
+
+	function tagNamespace(&$token)
+	{
+		if (!$this->scope)
+		{
+			$t = $this->getNextToken();
+			if (T_STRING === $t[0] || '{' === $t[0])
+				$this->nextScope = T_NAMESPACE;
+		}
 	}
 
 	function tagSemiColon(&$token)

@@ -24,7 +24,7 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 	$depends = 'patchwork_tokenizer_classInfo',
 
 	$varVarLead = '${patchwork_alias::scopedResolve(',
-	$varVarTail = ",\${'?'})}";
+	$varVarTail = ",\${''})}";
 
 
 	// List of native functions that could trigger __autoload()
