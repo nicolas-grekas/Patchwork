@@ -1474,7 +1474,9 @@ class
 					case isset($_SERVER[$mode = 'HTTP_XXXXXXXXXXXXXXX']):
 					case isset($_SERVER[$mode = 'HTTP________________']):
 						$mode = $_SERVER[$mode];
-						isset($mode[0]) && str_repeat($mode[0], 13) === $mode && $mode = 'gzip, deflate';
+						(13 === strlen($mode) || 4 === strlen($mode))
+							&& '' === trim($mode, $mode[0])
+							&& $mode = 'gzip';
 						break;
 
 					default: $mode = '';

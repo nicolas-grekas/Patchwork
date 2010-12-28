@@ -97,18 +97,17 @@ class patchwork_error
 
 		switch ($code)
 		{
-		case E_ERROR:             $msg = '<b>Fatal Error</b>';             break;
-		case E_USER_ERROR:        $msg = '<b>User Error</b>';              break;
+		case E_ERROR:
+		case E_USER_ERROR:        $msg = '<b>Fatal Error</b>';   break;
+		case E_WARNING:
+		case E_USER_WARNING:      $msg = '<b>Warning</b>';       break;
+		case E_NOTICE:
+		case E_USER_NOTICE:       $msg = '<b>Notice</b>';        break;
+		case E_STRICT:            $msg = '<b>Strict Notice</b>'; break;
+		case E_DEPRECATED:
+		case E_USER_DEPRECATED:   $msg = '<b>Deprecated</b>';    break;
 		case E_RECOVERABLE_ERROR: $msg = '<b>Fatal Recoverable Error</b>'; break;
-
-		case E_WARNING:           $msg = '<b>Warning</b>';                 break;
-		case E_USER_WARNING:      $msg = '<b>User Warning</b>';            break;
-		case E_NOTICE:            $msg = '<b>Notice</b>';                  break;
-		case E_USER_NOTICE:       $msg = '<b>User Notice</b>';             break;
-		case E_STRICT:            $msg = '<b>Strict Notice</b>';           break;
-		case E_DEPRECATED:        $msg = '<b>Deprecated</b>';              break;
-		case E_USER_DEPRECATED:   $msg = '<b>USer Deprecated</b>';         break;
-		default:                  $msg = '<b>Unknown Error (#'.$code.')</b>';
+		default:                  $msg = '<b>Unknown Error (#' . $code . ')</b>';
 		}
 
 		$date = date('d-M-Y H:i:s');
@@ -138,6 +137,7 @@ EOHTML;
 		switch ($code)
 		{
 		case E_ERROR:
+		case E_USER_ERROR:
 		case E_RECOVERABLE_ERROR:
 			exit;
 		}
