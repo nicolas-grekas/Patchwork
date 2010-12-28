@@ -63,21 +63,21 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		switch ($this->prevType)
 		{
 		case T_INTERFACE:
-		case T_CLASS: $token[3] = T_NAME_CLASS; break;
-		case T_GOTO:  $token[3] = T_GOTO_LABEL; break;
+		case T_CLASS: $stype = T_NAME_CLASS; break;
+		case T_GOTO:  $stype = T_GOTO_LABEL; break;
 
 		case '&': if (T_FUNCTION !== $this->anteType) break;
-		case T_FUNCTION: $token[3] = T_NAME_FUNCTION; break;
+		case T_FUNCTION: $stype = T_NAME_FUNCTION; break;
 
 		case ',': if (!$this->inConst) break;
-		case T_CONST: $token[3] = T_NAME_CONST; break;
+		case T_CONST: $stype = T_NAME_CONST; break;
 
 		default:
-			if ($this->inNs ) $token[3] = T_NAME_NS;
-			if ($this->inUse) $token[3] = T_USE_NS;
+			if ($this->inNs ) $stype = T_NAME_NS;
+			if ($this->inUse) $stype = T_USE_NS;
 		}
 
-		if (!isset($token[3]))
+		if (empty($stype))
 		{
 			if (T_NS_SEPARATOR === $t = $this->prevType)
 			{
@@ -96,7 +96,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 			case T_NEW:
 			case T_EXTENDS:
 			case T_IMPLEMENTS:
-			case T_INSTANCEOF: $token[3] = T_USE_CLASS;
+			case T_INSTANCEOF: $stype = T_USE_CLASS;
 			}
 
 			$t = $this->getNextToken();
@@ -105,53 +105,55 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 			{
 				$this->nsPreType || $this->nsPreType = $this->prevType;
 				$this->nsPrefix .= $token[1];
-				$token[3] = T_USE_NS;
+				$stype = T_USE_NS;
 			}
-			else if (!isset($token[3]))
+			else if (empty($stype))
 			{
 				switch ($t[0])
 				{
 				case T_VARIABLE:
-				case T_DOUBLE_COLON: $token[3] = T_USE_CLASS; break;
+				case T_DOUBLE_COLON: $stype = T_USE_CLASS; break;
 
 				case '(':
 					switch ($this->prevType)
 					{
 					case T_OBJECT_OPERATOR:
-					case T_DOUBLE_COLON: $token[3] = T_USE_METHOD;   break 2;
-					default:             $token[3] = T_USE_FUNCTION; break 2;
+					case T_DOUBLE_COLON: $stype = T_USE_METHOD;   break 2;
+					default:             $stype = T_USE_FUNCTION; break 2;
 					}
 
 				case ':':
 					if ('{' === $this->prevType || ';' === $this->prevType)
 					{
-						$token[3] = T_GOTO_LABEL; break 2;
+						$stype = T_GOTO_LABEL; break 2;
 					}
 					// No break;
 				default:
 					switch ($this->prevType)
 					{
-					case T_OBJECT_OPERATOR: $token[3] = T_USE_PROPERTY; break 2;
-					case T_DOUBLE_COLON:    $token[3] = T_USE_CONST;    break 2;
+					case T_OBJECT_OPERATOR: $stype = T_USE_PROPERTY; break 2;
+					case T_DOUBLE_COLON:    $stype = T_USE_CONST;    break 2;
 
 					case '(':
 					case ',':
 						if (1 === $this->inParam && '&' === $t[0])
 						{
-							$token[3] = T_USE_CLASS; break 2;
+							$stype = T_USE_CLASS; break 2;
 						}
 
 						// No break;
 
-					default: $token[3] = T_USE_CONSTANT; break 2;
+					default: $stype = T_USE_CONSTANT; break 2;
 					}
 				}
 			}
 		}
 
-		if (isset($this->tokenRegistry[$token[3]]))
+		$token[2] = $stype;
+
+		if (isset($this->tokenRegistry[$stype]))
 		{
-			foreach ($this->tokenRegistry[$token[3]] as $c)
+			foreach ($this->tokenRegistry[$stype] as $c)
 			{
 				if (0 === $c[2] || 0 === strcasecmp($token[1], $c[2]))
 				{
@@ -160,7 +162,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 			}
 		}
 
-		if ($this->nsPrefix && T_USE_NS !== $token[3])
+		if ($this->nsPrefix && T_USE_NS !== $stype)
 		{
 			$this->nsPrefix  = '';
 			$this->nsPreType = 0;
@@ -228,7 +230,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 			// No break;
 
 		case '{':
-			$token[3] = T_NAME_NS;
+			$token[2] = T_NAME_NS;
 			break;
 
 		case T_NS_SEPARATOR:
@@ -264,7 +266,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 
 	function removeNsPrefix(&$token)
 	{
-		isset($token[2]) || $token[2] = '';
+		isset($token[-1]) || $token[-1] = '';
 
 		$i = count($this->tokens);
 
@@ -272,13 +274,13 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		{
 			if (T_NS_SEPARATOR === $this->tokens[$i] || T_STRING === $this->tokens[$i])
 			{
-				empty($this->tokens[$i][2]) || $token[2] = $this->tokens[$i][2] . $token[2];
+				isset($this->tokens[$i][-1][0]) && $token[-1] = $this->tokens[$i][-1] . $token[-1];
 				array_pop($this->tokens);
 			}
 			else break;
 		}
 
-		if ('' === $token[2]) unset($token[2]);
+		if ('' === $token[-1]) unset($token[-1]);
 
 		$this->nsPrefix = '';
 	}

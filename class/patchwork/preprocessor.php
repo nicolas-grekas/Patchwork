@@ -148,7 +148,7 @@ class patchwork_preprocessor__0
 
 		while ($i < $c)
 		{
-			$tokens[$i] = (isset($tokens[$i][2]) ? $tokens[$i][2] : '') . $tokens[$i][1];
+			$tokens[$i] = (isset($tokens[$i][-1]) ? $tokens[$i][-1] : '') . $tokens[$i][1];
 			++$i;
 		}
 

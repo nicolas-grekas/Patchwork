@@ -77,11 +77,10 @@ class patchwork_tokenizer_constantExpression extends patchwork_tokenizer
 
 				if (false !== @eval("\$close=({$const_code});"))
 				{
-					$const_code = substr_count($const_code, "\n");
-
 					$this->code[--$j] = array(
 						T_CONSTANT_ENCAPSED_STRING,
-						self::export($close, $const_code)
+						self::export($close)
+							. str_repeat("\n", substr_count($const_code, "\n"))
 					);
 
 					if ($j > $this->position)

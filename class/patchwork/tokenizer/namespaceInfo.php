@@ -97,7 +97,7 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 
 		if ('' === $this->nsPrefix)
 		{
-			if (T_USE_CLASS === $token[3])
+			if (T_USE_CLASS === $token[2])
 			{
 				$this->nsResolved = empty($this->nsAliases[$token[1]])
 					? '\\' . $this->namespace . $token[1]
