@@ -78,9 +78,9 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		{
 			$final = array_pop($this->tokens);
 
-			if (isset($final[2]))
+			if (isset($final[-1]))
 			{
-				$token[2] = $final[2] . (isset($token[2]) ? $token[2] : '');
+				$token[-1] = $final[-1] . (isset($token[-1]) ? $token[-1] : '');
 			}
 		}
 	}
@@ -174,7 +174,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 
 			$token = false === $a
 				? "patchworkProcessedPath({$token})"
-				: self::export($a, substr_count($token, "\n"));
+				: (self::export($a) . str_repeat("\n", substr_count($token, "\n")));
 		}
 		else
 		{

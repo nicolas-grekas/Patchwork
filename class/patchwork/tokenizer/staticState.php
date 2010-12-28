@@ -19,7 +19,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 	$stateCallbacks = array(
 		0 => array(),
 		1 => array(
-			'tagEOState1' => array(T_WHITESPACE_MULTILINE => T_WHITESPACE),
+			'tagEOState1' => array(T_MULTILINE_SUGAR => T_WHITESPACE),
 		),
 		2 => array(
 			'tagEOState2'     => T_COMMENT,
@@ -72,7 +72,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 				$o = '';
 			}
 
-			$o .= (isset($code[$i][2]) ? $code[$i][2] : '') . $code[$i][1];
+			$o .= (isset($code[$i][-1]) ? $code[$i][-1] : '') . $code[$i][1];
 
 			unset($code[$i]);
 		}
@@ -107,7 +107,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 			$this->setState(3);
 			return false;
 		}
-		else if ('/**/' === $token[1] && "\n" === substr($token[2], -1))
+		else if ('/**/' === $token[1] && "\n" === substr($token[-1], -1))
 		{
 			$this->setState(1);
 			return false;

@@ -22,8 +22,8 @@ defined('T_NS_SEPARATOR') || patchwork_tokenizer::defineNewToken('T_NS_SEPARATOR
 // New primary token matching closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
 patchwork_tokenizer::defineNewToken('T_CURLY_CLOSE');
 
-// Sub-token matching multilines T_WHITESPACE
-patchwork_tokenizer::defineNewToken('T_WHITESPACE_MULTILINE');
+// Sub-token matching multilines sugar tokens (T_WHITESPACE, T_COMMENT and T_DOC_COMMENT)
+patchwork_tokenizer::defineNewToken('T_MULTILINE_SUGAR');
 
 class patchwork_tokenizer
 {
@@ -144,7 +144,7 @@ class patchwork_tokenizer
 			else foreach ((array) $type as $s => $type)
 			{
 				isset($sort[$type]) || $sort[$type] =& $this->tokenRegistry[$type];
-				$this->tokenRegistry[$type][++$this->registryPosition] = array($this, $method, 0 === $s || (0 < $s && is_int($s))  ? 0 : $s);
+				$this->tokenRegistry[$type][++$this->registryPosition] = array($this, $method, 0 === $s || (0 < $s && is_int($s)) ? 0 : $s);
 			}
 		}
 
@@ -168,7 +168,7 @@ class patchwork_tokenizer
 				if (isset($this->tokenRegistry[$type]))
 				{
 					foreach ($this->tokenRegistry[$type] as $k => $v)
-						if (array($this, $method, 0 === $s || (0 < $s && is_int($s))  ? 0 : $s) === $v)
+						if (array($this, $method, 0 === $s || (0 < $s && is_int($s)) ? 0 : $s) === $v)
 							unset($this->tokenRegistry[$type][$k]);
 
 					if (!$this->tokenRegistry[$type]) unset($this->tokenRegistry[$type]);
@@ -201,6 +201,7 @@ class patchwork_tokenizer
 
 		$this->code = $this->getTokens($code);
 
+		$isSugar  =& self::$sugar;
 		$line     =& $this->line;
 		$code     =& $this->code;
 		$i        =& $this->position;
@@ -228,17 +229,17 @@ class patchwork_tokenizer
 			{
 				switch ($token[0])
 				{
-				case T_OPEN_TAG:
-				case T_CLOSE_TAG:
-				case T_INLINE_HTML:
-				case T_OPEN_TAG_WITH_ECHO:
 				case T_CONSTANT_ENCAPSED_STRING:
 				case T_ENCAPSED_AND_WHITESPACE:
+				case T_OPEN_TAG_WITH_ECHO:
+				case T_INLINE_HTML:
+				case T_CLOSE_TAG:
+				case T_OPEN_TAG:
 					$lines = substr_count($token[1], "\n");
 					break;
 
-				case T_CURLY_OPEN:
 				case T_DOLLAR_OPEN_CURLY_BRACES:
+				case T_CURLY_OPEN:
 					$strCurly[] = $curly;
 					$curly = 0;
 					break;
@@ -260,8 +261,8 @@ class patchwork_tokenizer
 				}
 			}
 
-			if (isset($sugar[0])) $token[2] = $sugar;
-			else unset($token[2]);
+			if (isset($sugar[0])) $token[-1] = $sugar;
+			else unset($token[-1]);
 
 			do
 			{
@@ -279,11 +280,11 @@ class patchwork_tokenizer
 
 					foreach ($c as $c)
 					{
-						if (0 === $c[2] || (isset($token[3]) && $token[3] === $c[2]))
+						if (0 === $c[2] || (isset($token[2]) && $token[2] === $c[2]))
 						{
 							if (false === $c[0]->{$c[1]}($token))
 							{
-								isset($token[2]) && $sugar = $token[2];
+								isset($token[-1]) && $sugar = $token[-1];
 								break 2;
 							}
 						}
@@ -299,28 +300,20 @@ class patchwork_tokenizer
 			}
 			while (0);
 
-			while (isset($code[$i][1], self::$sugar[$code[$i][0]]))
+			while (isset($code[$i][1], $isSugar[$code[$i][0]]))
 			{
 				$token =& $code[$i];
 				unset($code[$i++]);
 
-				if (' ' === $token[1])
-				{
-					// µ-optimization
-					$lines = 0;
-				}
-				else if ($lines = substr_count($token[1], "\n"))
-				{
-					T_WHITESPACE === $token[0] && $token[3] = T_WHITESPACE_MULTILINE;
-				}
+				$lines = substr_count($token[1], "\n");
 
 				if (isset($tRegistry[$token[0]]))
 				{
-					$token[2] = $sugar;
+					$token[-1] = $sugar;
 
 					foreach ($tRegistry[$token[0]] as $c)
 					{
-						if (0 === $c[2] || (isset($token[3]) && $token[3] === $c[2]))
+						if (0 === $c[2] || ($lines && T_MULTILINE_SUGAR === $c[2]))
 						{
 							if (false === $c[0]->{$c[1]}($token)) continue 2;
 						}
@@ -346,7 +339,7 @@ class patchwork_tokenizer
 		return $this->parent === $this ? token_get_all($code) : $this->parent->getTokens($code);
 	}
 
-	static function export($a, $lf = 0)
+	static function export($a)
 	{
 		if (is_array($a))
 		{
@@ -410,8 +403,6 @@ class patchwork_tokenizer
 		else if (INF   === $a) $b = 'INF';
 		else if (NAN   === $a) $b = 'NAN';
 		else $b = (string) $a;
-
-		$lf && $b .= str_repeat("\n", $lf);
 
 		return $b;
 	}
