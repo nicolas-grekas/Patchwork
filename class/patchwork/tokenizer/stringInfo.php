@@ -266,19 +266,19 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 
 	function removeNsPrefix()
 	{
-		$t =& $this->tokens;
-		end($t[0]);
+		$t =& $this->type;
+		end($t);
 
-		while (null !== $i = key($t[0]))
+		while (null !== $i = key($t))
 		{
-			if (T_NS_SEPARATOR === $t[0][$i] || T_STRING === $t[0][$i])
+			if (T_NS_SEPARATOR === $t[$i] || T_STRING === $t[$i])
 			{
-				$t[1][$i] = '';
-				unset($t[0][$i]);
+				$this->code[$i] = '';
+				unset($t[$i]);
 			}
 			else break;
 
-			prev($t[0]);
+			prev($t);
 		}
 
 		$this->nsPrefix = '';
@@ -299,13 +299,11 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		default: return $this->tagString($token);
 		}
 
-		$this->code[--$this->position] = $token;
-		return false;
+		return $this->tokenUnshift($token);
 	}
 
 	function tagNsSep52(&$token)
 	{
-		$this->code[--$this->position] = array(T_NS_SEPARATOR, '\\');
-		return false;
+		return $this->tokenUnshift(array(T_NS_SEPARATOR, '\\'));
 	}
 }

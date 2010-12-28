@@ -18,12 +18,12 @@ abstract class patchwork_tokenizer_bracket extends patchwork_tokenizer
 
 	$onOpenCallbacks = array(),
 
-	$bracketLevel    = 0,
-	$bracketPosition = 0,
+	$bracketLevel = 0,
+	$bracketIndex = 0,
 	$callbacks = array(
-		'tagOpen'     => array('('),
-		'tagPosition' => ',',
-		'tagClose'    => array(')'),
+		'tagOpen'  => array('('),
+		'tagIndex' => ',',
+		'tagClose' => array(')'),
 	),
 	$depends = 'patchwork_tokenizer';
 
@@ -52,15 +52,15 @@ abstract class patchwork_tokenizer_bracket extends patchwork_tokenizer
 		}
 	}
 
-	function tagPosition(&$token)
+	function tagIndex(&$token)
 	{
 		if (1 === $this->bracketLevel)
 		{
-			++$this->bracketPosition;
+			++$this->bracketIndex;
 
 			if (false === $this->onReposition($token))
 			{
-				--$this->bracketPosition;
+				--$this->bracketIndex;
 				return false;
 			}
 		}
