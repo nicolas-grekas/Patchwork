@@ -152,26 +152,27 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 		) return;
 
 		$token =& $this->tokens;
-		$i = count($token) - 1;
+		end($token);
 
 		$c = strtolower(substr($this->nsResolved, 1));
 		if (isset($this->inlineClass[$c])) return;
 
-		while (isset($token[--$i])) switch ($token[$i][0])
+		do switch (prev($token[0]))
 		{
-		default: break 2;
-		case '(':
-		case ',': return; // To not break pass by ref, isset, unset and list
+		case '(': case ',': return; // To not break pass by ref, isset, unset and list
 		case T_DEC: case T_INC: case T_STRING: case T_NS_SEPARATOR:
+			continue 2;
 		}
+		while (0);
 
 		$c = $this->getMarker($c);
-		$c = '&' === $token[$i][0] ? "patchwork_autoload_marker({$c}," : "(({$c})?";
+		$c = '&' === pos($token[0]) ? "patchwork_autoload_marker({$c}," : "(({$c})?";
 		$this->scope->markerState || $this->scope->markerState = -1;
 
-		new patchwork_tokenizer_closeMarker($this, 0, '&' === $token[$i][0] ? ')' : ':0)');
+		new patchwork_tokenizer_closeMarker($this, 0, '&' === pos($token[0]) ? ')' : ':0)');
 
-		$token[++$i][1] = $c . $token[$i][1];
+		next($token[0]);
+		$token[1][key($token[0])] = $c . $token[1][key($token[0])];
 	}
 
 	function tagFunctionClose(&$token)

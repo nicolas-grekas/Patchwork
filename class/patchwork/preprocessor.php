@@ -143,15 +143,6 @@ class patchwork_preprocessor__0
 			patchwork_error::handle(E_USER_ERROR, $t[0], $source, $t[1]);
 		}
 
-		$i = 0;
-		$c = count($tokens);
-
-		while ($i < $c)
-		{
-			$tokens[$i] = (isset($tokens[$i][-1]) ? $tokens[$i][-1] : '') . $tokens[$i][1];
-			++$i;
-		}
-
 		return implode('', $tokens);
 	}
 }

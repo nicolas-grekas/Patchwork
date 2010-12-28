@@ -76,12 +76,11 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 
 		if ($this->class->isFinal)
 		{
-			$final = array_pop($this->tokens);
-
-			if (isset($final[-1]))
-			{
-				$token[-1] = $final[-1] . (isset($token[-1]) ? $token[-1] : '');
-			}
+			$token =& $this->tokens;
+			end($token[0]);
+			$i = key($token[0]);
+			$token[1][$i] = '';
+			unset($token[0][$i]);
 		}
 	}
 
@@ -101,7 +100,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 			$this->class->extends = $this->nsResolved = '\\' . $this->namespace . $token[1];
 			$this->class->extendsSelf = true;
 
-			empty($this->nsPrefix) || $this->removeNsPrefix($token);
+			empty($this->nsPrefix) || $this->removeNsPrefix();
 		}
 	}
 

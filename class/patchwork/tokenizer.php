@@ -143,8 +143,11 @@ class patchwork_tokenizer
 			}
 			else foreach ((array) $type as $s => $type)
 			{
-				isset($sort[$type]) || $sort[$type] =& $this->tokenRegistry[$type];
-				$this->tokenRegistry[$type][++$this->registryPosition] = array($this, $method, 0 === $s || (0 < $s && is_int($s)) ? 0 : $s);
+				foreach ((array) $type as $type)
+				{
+					isset($sort[$type]) || $sort[$type] =& $this->tokenRegistry[$type];
+					$this->tokenRegistry[$type][++$this->registryPosition] = array($this, $method, 0 === $s || (0 < $s && is_int($s)) ? 0 : $s);
+				}
 			}
 		}
 
@@ -165,13 +168,16 @@ class patchwork_tokenizer
 			}
 			else foreach ((array) $type as $s => $type)
 			{
-				if (isset($this->tokenRegistry[$type]))
+				foreach ((array) $type as $type)
 				{
-					foreach ($this->tokenRegistry[$type] as $k => $v)
-						if (array($this, $method, 0 === $s || (0 < $s && is_int($s)) ? 0 : $s) === $v)
-							unset($this->tokenRegistry[$type][$k]);
+					if (isset($this->tokenRegistry[$type]))
+					{
+						foreach ($this->tokenRegistry[$type] as $k => $v)
+							if (array($this, $method, 0 === $s || (0 < $s && is_int($s)) ? 0 : $s) === $v)
+								unset($this->tokenRegistry[$type][$k]);
 
-					if (!$this->tokenRegistry[$type]) unset($this->tokenRegistry[$type]);
+						if (!$this->tokenRegistry[$type]) unset($this->tokenRegistry[$type]);
+					}
 				}
 			}
 		}
@@ -202,22 +208,16 @@ class patchwork_tokenizer
 		$this->code = $this->getTokens($code);
 
 		$isSugar  =& self::$sugar;
-		$line     =& $this->line;
 		$code     =& $this->code;
-		$i        =& $this->position;
-		$tokens   =& $this->tokens;
-		$prevType =& $this->prevType;
-		$anteType =& $this->anteType;
+		$line     =& $this->line;     $line     = 1;
+		$i        =& $this->position; $i        = 0;
+		$tokens   =& $this->tokens;   $tokens   = array(array(), array(''));
+		$prevType =& $this->prevType; $prevType = false;
+		$anteType =& $this->anteType; $anteType = false;
 
-		$i        = 0;
-		$tokens   = array();
-		$prevType = false;
-		$anteType = false;
-
-		$line     = 1;
+		$j        = 0;
 		$curly    = 0;
 		$strCurly = array();
-		$sugar    = '';
 
 		while (isset($code[$i]))
 		{
@@ -261,9 +261,6 @@ class patchwork_tokenizer
 				}
 			}
 
-			if (isset($sugar[0])) $token[-1] = $sugar;
-			else unset($token[-1]);
-
 			do
 			{
 				if ($cRegistry || isset($tRegistry[$token[0]]))
@@ -282,18 +279,14 @@ class patchwork_tokenizer
 					{
 						if (0 === $c[2] || (isset($token[2]) && $token[2] === $c[2]))
 						{
-							if (false === $c[0]->{$c[1]}($token))
-							{
-								isset($token[-1]) && $sugar = $token[-1];
-								break 2;
-							}
+							if (false === $c[0]->{$c[1]}($token)) break 2;
 						}
 					}
 				}
 
-				$tokens[] =& $token;
+				$tokens[0][++$j] =& $token[0];
+				$tokens[1][  $j] =& $token[1];
 				$line += $lines;
-				$sugar = '';
 
 				$anteType = $prevType;
 				$prevType = $token[0];
@@ -309,8 +302,6 @@ class patchwork_tokenizer
 
 				if (isset($tRegistry[$token[0]]))
 				{
-					$token[-1] = $sugar;
-
 					foreach ($tRegistry[$token[0]] as $c)
 					{
 						if (0 === $c[2] || ($lines && T_MULTILINE_SUGAR === $c[2]))
@@ -320,18 +311,18 @@ class patchwork_tokenizer
 					}
 				}
 
-				$sugar .= $token[1];
+				$tokens[1][++$j] =& $token[1];
 
 				$line += $lines;
 			}
 		}
 
-		// Reduce memory usage thanks to copy-on-write
-		$sugar  = $tokens;
+		// Free memory thanks to copy-on-write
+		$j      = $tokens[1];
 		$tokens = array();
 		$line   = 0;
 
-		return $sugar;
+		return $j;
 	}
 
 	protected function getTokens($code)
