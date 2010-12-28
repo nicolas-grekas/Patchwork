@@ -156,44 +156,48 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 			&& !in_array($this->anteType, array(T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON)) )
 		{
 			$t =& $this->tokens;
-			$i = count($t) - 1;
+			end($t[0]);
+			$i = key($t[0]);
 
 			if (T_VARIABLE === $this->prevType && '$' !== $this->anteType)
 			{
-				if ('$this' !== $a = $t[$i][1])
+				if ('$this' !== $a = $t[1][$i])
 				{
-					$t[$i][1] = $this->varVarLead . $a . $this->varVarTail;
+					$t[1][$i] = $this->varVarLead . $a . $this->varVarTail;
 				}
 			}
 			else
 			{
-				if ($a = '}' === $this->prevType ? 1 : 0)
+				if ('}' === $this->prevType)
 				{
+					$a = 1;
 					$b = array($i, 0);
+					prev($t[0]);
 
-					while ($a > 0 && isset($t[--$i]))
+					while ($a > 0 && null !== $i = key($t[0]))
 					{
-						if ('{' === $t[$i][0]) --$a;
-						else if ('}' === $t[$i][0]) ++$a;
+						if ('{' === $t[0][$i]) --$a;
+						else if ('}' === $t[0][$i]) ++$a;
+						prev($t[0]);
 					}
 
 					$b[1] = $i;
-					--$i;
 
-					if ('$' !== $t[$i][0]) return;
+					if ('$' !== prev($t[0])) return;
 				}
-				else $b = 0;
+				else $a = $b = 0;
 
-				while (isset($t[--$i]) && '$' === $t[$i][0]) ;
+				do {} while ('$' === prev($t[0]));
 
-				if (in_array($t[$i][0], array(T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON))) return;
-
-				++$i;
+				if (in_array(pos($t[0]), array(T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON))) return;
 
 				$b && $t[$b[0]][1] = $t[$b[1]][1] = '';
 
-				$t[$i][1] = $this->varVarLead;
-				$t[count($t)-1] .= $this->varVarTail;
+				next($t[0]);
+				$t[1][key($t[0])] = $this->varVarLead;
+
+				end($t[0]);
+				$t[1][key($t[0])] .= $this->varVarTail;
 			}
 		}
 	}
@@ -233,7 +237,7 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 				$a = false;
 			}
 
-			empty($this->nsPrefix) || $this->removeNsPrefix($token);
+			empty($this->nsPrefix) || $this->removeNsPrefix();
 
 			return $a;
 		}
@@ -243,9 +247,11 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 
 			if ('&' === $this->prevType)
 			{
-				$a = count($this->tokens) - 1;
-				$this->tokens[$a][0] = T_WHITESPACE;
-				$this->tokens[$a][1] = ' ';
+				$token =& $this->tokens;
+				end($token[0]);
+				$a = key($token[0]);
+				$token[1][$a] = '';
+				unset($token[0][$a]);
 			}
 		}
 	}

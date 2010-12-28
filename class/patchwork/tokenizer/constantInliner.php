@@ -97,7 +97,7 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 				$token[1] = $this->constants[$token[1]];
 				$this->code[--$this->position] = $token;
 
-				empty($this->nsPrefix) || $this->removeNsPrefix($token);
+				empty($this->nsPrefix) || $this->removeNsPrefix();
 
 				return false;
 			}

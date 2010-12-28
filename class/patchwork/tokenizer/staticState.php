@@ -19,7 +19,8 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 	$stateCallbacks = array(
 		0 => array(),
 		1 => array(
-			'tagEOState1' => array(T_MULTILINE_SUGAR => T_WHITESPACE),
+			'tagEOState1'  => array(T_MULTILINE_SUGAR => T_WHITESPACE),
+			'tagEOState1b' => array(T_MULTILINE_SUGAR => T_COMMENT   ),
 		),
 		2 => array(
 			'tagEOState2'     => T_COMMENT,
@@ -40,12 +41,12 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 		$this->register($this->stateCallbacks[2]);
 	}
 
-	function getStaticCode($code, $class)
+	function getStaticCode($code, $codeVarname)
 	{
 		$length = count($code);
 		$state  = 2;
 
-		$O = $class . '::$src[1]=';
+		$O = $codeVarname . '[1]=';
 		$o = '';
 
 		for ($i = 0; $i < $length; ++$i)
@@ -62,7 +63,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 				switch ($this->transition[$i][0])
 				{
 				case 1: 2 === $state && $O .= ';'; break;
-				case 2: $O .= 3 !== $state ? (2 === $state ? ';' : ' ') . $class . '::$src[' . $this->transition[$i][1] . ']=' : '.'; break;
+				case 2: $O .= 3 !== $state ? (2 === $state ? ';' : ' ') . $codeVarname . '[' . $this->transition[$i][1] . ']=' : '.'; break;
 				case 3: $O .= '.patchwork_tokenizer::export('; break;
 				}
 
@@ -72,7 +73,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 				$o = '';
 			}
 
-			$o .= (isset($code[$i][-1]) ? $code[$i][-1] : '') . $code[$i][1];
+			$o .= $code[$i];
 
 			unset($code[$i]);
 		}
@@ -89,7 +90,8 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 
 	function setState($state)
 	{
-		$this->transition[count($this->tokens)] = array($state, $this->line);
+		end($this->tokens[0]);
+		$this->transition[key($this->tokens[0])+1] = array($state, $this->line);
 
 		if ($this->state === 2) $this->unregister($this->stateCallbacks[1]);
 		if ($this->state === $state) return;
@@ -107,7 +109,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 			$this->setState(3);
 			return false;
 		}
-		else if ('/**/' === $token[1] && "\n" === substr($token[-1], -1))
+		else if ('/**/' === $token[1] && "\n" === substr(end($this->tokens[1]), -1))
 		{
 			$this->setState(1);
 			return false;
@@ -120,10 +122,8 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 		$this->  register($this->stateCallbacks[1]);
 	}
 
-	function tagEOState1(&$token)
-	{
-		$this->setState(2);
-	}
+	function tagEOState1 (&$token) {$this->setState(2);}
+	function tagEOState1b(&$token) {"\n" === substr($token[1], -1) && $this->setState(2);}
 
 	function tagEOState3(&$token)
 	{
