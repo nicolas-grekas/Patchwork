@@ -14,7 +14,7 @@
 
 class patchwork_tokenizer_scream extends patchwork_tokenizer
 {
-	protected $callbacks = array('cancelToken' => '@');
+	protected $callbacks = array('cancelToken' => T_SILENCE);
 
 	function cancelToken(&$token)
 	{

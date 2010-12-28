@@ -19,10 +19,13 @@ defined('T_NS_C')         || patchwork_tokenizer::defineNewToken('T_NS_C');
 defined('T_NAMESPACE')    || patchwork_tokenizer::defineNewToken('T_NAMESPACE');
 defined('T_NS_SEPARATOR') || patchwork_tokenizer::defineNewToken('T_NS_SEPARATOR');
 
-// New primary token matching closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
+// Primary token matching closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
 patchwork_tokenizer::defineNewToken('T_CURLY_CLOSE');
 
-// Sub-token matching multilines sugar tokens (T_WHITESPACE, T_COMMENT and T_DOC_COMMENT)
+// Primary token matching the @-operator
+patchwork_tokenizer::defineNewToken('T_SILENCE');
+
+// Sub-token matching multilines sugar tokens (T_WHITESPACE, T_COMMENT, T_DOC_COMMENT and T_SILENCE)
 patchwork_tokenizer::defineNewToken('T_MULTILINE_SUGAR');
 
 class patchwork_tokenizer
@@ -66,9 +69,9 @@ class patchwork_tokenizer
 	protected static
 
 	$sugar = array(
-		T_WHITESPACE  => 1,
-		T_COMMENT     => 1,
-		T_DOC_COMMENT => 1,
+		T_WHITESPACE => 1,
+		T_COMMENT    => 1, T_DOC_COMMENT => 1,
+		T_SILENCE    => 1, '@'           => 1,
 	);
 
 
@@ -231,6 +234,7 @@ class patchwork_tokenizer
 				case T_WHITESPACE:
 				case T_COMMENT:
 				case T_DOC_COMMENT:
+				case T_SILENCE:
 					$lines = substr_count($token[1], "\n");
 
 					if (isset($tRegistry[$token[0]]))
@@ -274,6 +278,10 @@ class patchwork_tokenizer
 						$token[0] = T_CURLY_CLOSE;
 						$curly    = array_pop($strCurly);
 					}
+					break;
+				case '@':
+					$code[--$i] = array(T_SILENCE, '@');
+					continue 2;
 				}
 			}
 
@@ -387,7 +395,7 @@ class patchwork_tokenizer
 	{
 		$i = $this->position;
 
-		do while (isset($this->code[$i][1], self::$sugar[$this->code[$i][0]])) ++$i;
+		do while (isset($this->code[$i], self::$sugar[$this->code[$i][0]])) ++$i;
 		while ($offset-- > 0 && ++$i);
 
 		isset($this->code[$i]) || $this->code[$i] = array(T_WHITESPACE, '');
