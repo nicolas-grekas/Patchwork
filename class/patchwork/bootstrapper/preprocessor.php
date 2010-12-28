@@ -54,7 +54,7 @@ class patchwork_bootstrapper_preprocessor__0
 			new patchwork_tokenizer_scream($tokenizer);
 		}
 
-		$code = $tokenizer->tokenize($code);
+		$code = $tokenizer->parse($code);
 		$code = $tokenizer->getStaticCode($code, __CLASS__ . '::$src');
 
 		if ($tokenizer = $tokenizer->getError())

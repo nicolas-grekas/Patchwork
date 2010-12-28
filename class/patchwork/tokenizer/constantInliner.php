@@ -95,7 +95,7 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 			{
 				$token[0] = T_CONSTANT_ENCAPSED_STRING;
 				$token[1] = $this->constants[$token[1]];
-				$this->code[--$this->position] = $token;
+				$this->tokenUnshift($token);
 
 				empty($this->nsPrefix) || $this->removeNsPrefix();
 
@@ -106,15 +106,15 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 
 	function tagFileC(&$token)
 	{
-		return $this->replaceCode(
+		return $this->tokenUnshift(array(
 			T_CONSTANT_ENCAPSED_STRING,
 			T_FILE === $token[0] ? $this->file : $this->dir
-		);
+		));
 	}
 
 	function tagLineC(&$token)
 	{
-		return $this->replaceCode(T_LNUMBER, $this->line);
+		return $this->tokenUnshift(array(T_LNUMBER, $this->line));
 	}
 
 	function tagScopeName(&$token)
@@ -154,7 +154,7 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 
 	function tagClassC(&$token)
 	{
-		return $this->replaceCode(T_CONSTANT_ENCAPSED_STRING, "'{$this->scope->classC}'");
+		return $this->tokenUnshift(array(T_CONSTANT_ENCAPSED_STRING, "'{$this->scope->classC}'"));
 	}
 
 	function tagMethodC(&$token)
@@ -163,23 +163,16 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 			? "'{$this->scope->classC}::{$this->scope->funcC}'"
 			: "''";
 
-		return $this->replaceCode(T_CONSTANT_ENCAPSED_STRING, $c);
+		return $this->tokenUnshift(array(T_CONSTANT_ENCAPSED_STRING, $c));
 	}
 
 	function tagFuncC(&$token)
 	{
-		return $this->replaceCode(T_CONSTANT_ENCAPSED_STRING, "'{$this->scope->funcC}'");
+		return $this->tokenUnshift(array(T_CONSTANT_ENCAPSED_STRING, "'{$this->scope->funcC}'"));
 	}
 
 	function tagNsC(&$token)
 	{
-		return $this->replaceCode(T_CONSTANT_ENCAPSED_STRING, "'" . substr($this->namespace, 0, -1) . "'");
-	}
-
-	function replaceCode($type, $code)
-	{
-		$this->code[--$this->position] = array($type, $code);
-
-		return false;
+		return $this->tokenUnshift(array(T_CONSTANT_ENCAPSED_STRING, "'" . substr($this->namespace, 0, -1) . "'"));
 	}
 }

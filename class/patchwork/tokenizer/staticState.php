@@ -90,8 +90,8 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 
 	function setState($state)
 	{
-		end($this->tokens[0]);
-		$this->transition[key($this->tokens[0])+1] = array($state, $this->line);
+		end($this->type);
+		$this->transition[key($this->type)+1] = array($state, $this->line);
 
 		if ($this->state === 2) $this->unregister($this->stateCallbacks[1]);
 		if ($this->state === $state) return;
@@ -109,7 +109,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 			$this->setState(3);
 			return false;
 		}
-		else if ('/**/' === $token[1] && "\n" === substr(end($this->tokens[1]), -1))
+		else if ('/**/' === $token[1] && "\n" === substr(end($this->code), -1))
 		{
 			$this->setState(1);
 			return false;

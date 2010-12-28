@@ -31,15 +31,15 @@ class patchwork_tokenizer_constantExpression extends patchwork_tokenizer
 
 	protected function nextExpressionIsConstant()
 	{
-		$j = $this->position;
-		$code =& $this->code;
+		$j = $this->index;
+		$token =& $this->token;
 		$const_code = array();
 		$bracket = 0;
 		$close = 0;
 
-		while (isset($code[$j]))
+		while (isset($token[$j]))
 		{
-			switch ($code[$j][0])
+			switch ($token[$j][0])
 			{
 			case '`':
 			case T_STRING:
@@ -68,7 +68,7 @@ class patchwork_tokenizer_constantExpression extends patchwork_tokenizer
 			case T_WHITESPACE: break;
 
 			default:
-				if (in_array($code[$j][0], self::$variableType, true)) $close = 2;
+				if (in_array($token[$j][0], self::$variableType, true)) $close = 2;
 			}
 
 			if (1 === $close)
@@ -77,16 +77,16 @@ class patchwork_tokenizer_constantExpression extends patchwork_tokenizer
 
 				if (false !== @eval("\$close=({$const_code});"))
 				{
-					$this->code[--$j] = array(
+					$token[--$j] = array(
 						T_CONSTANT_ENCAPSED_STRING,
 						self::export($close)
 							. str_repeat("\n", substr_count($const_code, "\n"))
 					);
 
-					if ($j > $this->position)
+					if ($j > $this->index)
 					{
-						$this->code = array_slice($this->code, $j - $this->position);
-						$this->position = 0;
+						$token = array_slice($token, $j - $this->index);
+						$this->index = 0;
 					}
 
 					$this->expressionValue = $close;
@@ -99,7 +99,7 @@ class patchwork_tokenizer_constantExpression extends patchwork_tokenizer
 			{
 				return false;
 			}
-			else $const_code[] = is_array($code[$j]) ? $code[$j][1] : $code[$j];
+			else $const_code[] = isset($token[$j][1]) ? $token[$j][1] : $token[$j];
 
 			++$j;
 		}

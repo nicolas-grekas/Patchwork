@@ -33,8 +33,10 @@ class patchwork_tokenizer_className extends patchwork_tokenizer
 
 		if (T_STRING !== $t[0])
 		{
-			$this->code[--$this->position] = array(T_STRING, $this->className);
-			$this->code[--$this->position] = array(T_WHITESPACE, ' ');
+			$this->tokenUnshift(
+				array(T_STRING, $this->className),
+				array(T_WHITESPACE, ' ')
+			);
 		}
 	}
 }

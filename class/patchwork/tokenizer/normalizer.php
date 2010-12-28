@@ -27,7 +27,7 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 	);
 
 
-	function tokenize($code, $verify_utf8 = true)
+	function parse($code, $verify_utf8 = true)
 	{
 		if (false !== strpos($code, "\r"))
 		{
@@ -50,7 +50,7 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 		}
 
 
-		return parent::tokenize($code);
+		return parent::parse($code);
 	}
 
 	protected function getTokens($code)
@@ -78,10 +78,10 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 
 	function tagOpenEchoTag(&$token)
 	{
-		$this->code[--$this->position] = array(T_ECHO, 'echo');
-		$this->code[--$this->position] = array(T_OPEN_TAG, $token[1]);
-
-		return false;
+		return $this->tokenUnshift(
+			array(T_ECHO, 'echo'),
+			array(T_OPEN_TAG, $token[1])
+		);
 	}
 
 	function tagOpenTag(&$token)
@@ -98,8 +98,6 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 
 	function fixVar(&$token)
 	{
-		$this->code[--$this->position] = array(T_PUBLIC, 'public');
-
-		return false;
+		return $this->tokenUnshift(array(T_PUBLIC, 'public'));
 	}
 }
