@@ -43,40 +43,40 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 
 	function getStaticCode($code, $codeVarname)
 	{
-		$length = count($code);
 		$state  = 2;
-
 		$O = $codeVarname . '[1]=';
 		$o = '';
+		$j = 0;
 
-		for ($i = 0; $i < $length; ++$i)
+		foreach ($this->transition as $i => $transition)
 		{
-			if (isset($this->transition[$i]))
+			do
 			{
-				switch ($state)
-				{
-				case 1: $O .= $o; break;
-				case 2: $O .= self::export($o); break;
-				case 3: $O .= $o . ')."' . str_repeat('\n', substr_count($o, "\n")) . '"'; break;
-				}
+				$o .= $code[$j];
+				unset($code[$j]);
+			}
+			while (++$j < $i);
 
-				switch ($this->transition[$i][0])
-				{
-				case 1: 2 === $state && $O .= ';'; break;
-				case 2: $O .= 3 !== $state ? (2 === $state ? ';' : ' ') . $codeVarname . '[' . $this->transition[$i][1] . ']=' : '.'; break;
-				case 3: $O .= '.patchwork_tokenizer::export('; break;
-				}
-
-				$state = $this->transition[$i][0];
-				unset($this->transition[$i]);
-
-				$o = '';
+			switch ($state)
+			{
+			case 1: $O .= $o; break;
+			case 2: $O .= self::export($o); break;
+			case 3: $O .= $o . ')."' . str_repeat('\n', substr_count($o, "\n")) . '"'; break;
 			}
 
-			$o .= $code[$i];
+			switch ($transition[0])
+			{
+			case 1: 2 === $state && $O .= ';'; break;
+			case 2: $O .= 3 !== $state ? (2 === $state ? ';' : ' ') . $codeVarname . '[' . $transition[1] . ']=' : '.'; break;
+			case 3: $O .= '.patchwork_tokenizer::export('; break;
+			}
 
-			unset($code[$i]);
+			$state = $transition[0];
+			$o = '';
 		}
+
+		$this->transition = array();
+		$o = implode('', $code);
 
 		switch ($state)
 		{
