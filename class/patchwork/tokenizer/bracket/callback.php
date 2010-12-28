@@ -12,43 +12,43 @@
  ***************************************************************************/
 
 
-// FIXME: handle when $callbackPosition < 0
+// FIXME: handle when $callbackIndex < 0
 
 class patchwork_tokenizer_bracket_callback extends patchwork_tokenizer_bracket
 {
 	protected
 
-	$callbackPosition,
+	$callbackIndex,
 	$lead = 'patchwork_alias::resolve(',
 	$tail = ')',
 	$nextTail = '',
 	$alias = array();
 
 
-	function __construct(patchwork_tokenizer $parent, $callbackPosition, $alias = array())
+	function __construct(patchwork_tokenizer $parent, $callbackIndex, $alias = array())
 	{
-		if (0 < $callbackPosition)
+		if (0 < $callbackIndex)
 		{
 			$this->alias = $alias;
-			$this->callbackPosition = $callbackPosition - 1;
+			$this->callbackIndex = $callbackIndex - 1;
 			$this->initialize($parent);
 		}
 	}
 
 	function onOpen(&$token)
 	{
-		if (0 === $this->callbackPosition) $this->addLead($token[1]);
+		if (0 === $this->callbackIndex) $this->addLead($token[1]);
 	}
 
 	function onReposition(&$token)
 	{
-		if ($this->bracketPosition === $this->callbackPosition    ) $this->addLead($token[1]);
-		if ($this->bracketPosition === $this->callbackPosition + 1) $this->addTail($token[1]);
+		if ($this->bracketIndex === $this->callbackIndex    ) $this->addLead($token[1]);
+		if ($this->bracketIndex === $this->callbackIndex + 1) $this->addTail($token[1]);
 	}
 
 	function onClose(&$token)
 	{
-		if ($this->bracketPosition === $this->callbackPosition) $this->addTail($token[1]);
+		if ($this->bracketIndex === $this->callbackIndex) $this->addTail($token[1]);
 	}
 
 	protected function addLead(&$token)
@@ -72,11 +72,11 @@ class patchwork_tokenizer_bracket_callback extends patchwork_tokenizer_bracket
 					else if (empty($this->class->name) || strcasecmp($a[0], $this->class->nsName))
 					{
 						$t = ')';
-						$this->code[--$this->position] = array(T_CONSTANT_ENCAPSED_STRING, "'{$a[1]}'");
-						$this->code[--$this->position] = ',';
-						$this->code[--$this->position] = array(T_CONSTANT_ENCAPSED_STRING, "'{$a[0]}'");
-						$this->code[--$this->position] = '(';
-						$this->code[--$this->position] = array(T_ARRAY, 'array');
+						$this->tokenUnshift(
+							array(T_CONSTANT_ENCAPSED_STRING, "'{$a[1]}'"), ',',
+							array(T_CONSTANT_ENCAPSED_STRING, "'{$a[0]}'"), '(',
+							array(T_ARRAY, 'array')
+						);
 					}
 				}
 
@@ -89,8 +89,8 @@ class patchwork_tokenizer_bracket_callback extends patchwork_tokenizer_bracket
 		}
 		else if (T_ARRAY === $t[0])
 		{
-			$i = $this->position;
-			$t =& $this->code;
+			$i = $this->index;
+			$t =& $this->token;
 			$b = 0;
 
 			while (isset($t[++$i]))

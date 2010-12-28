@@ -94,10 +94,10 @@ class patchwork_preprocessor__0
 
 	protected function preprocess($source, $level, $class, $is_top)
 	{
-		$tokens = file_get_contents($source);
+		$code = file_get_contents($source);
 
 		if (   'patchwork_tokenizer' === $class
-			|| 'patchwork_tokenizer_normalizer' === $class) return $tokens;
+			|| 'patchwork_tokenizer_normalizer' === $class) return $code;
 
 		$t = new patchwork_tokenizer_normalizer;
 
@@ -136,13 +136,13 @@ class patchwork_preprocessor__0
 			}
 		}
 
-		$tokens = $t->tokenize($tokens);
+		$code = $t->parse($code);
 
 		if ($t = $t->getError())
 		{
 			patchwork_error::handle(E_USER_ERROR, $t[0], $source, $t[1]);
 		}
 
-		return implode('', $tokens);
+		return implode('', $code);
 	}
 }

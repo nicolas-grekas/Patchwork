@@ -76,11 +76,10 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 
 		if ($this->class->isFinal)
 		{
-			$token =& $this->tokens;
-			end($token[0]);
-			$i = key($token[0]);
-			$token[1][$i] = '';
-			unset($token[0][$i]);
+			$a =& $this->type;
+			end($a);
+			$this->code[key($a)] = '';
+			unset($a[key($a)]);
 		}
 	}
 
@@ -169,7 +168,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		if (!DEBUG && TURBO && $this->nextExpressionIsConstant())
 		{
 			$a = patchworkProcessedPath($this->expressionValue);
-			$token =& $this->code[$this->position][1];
+			$token =& $this->getNextToken();
 
 			$token = false === $a
 				? "patchworkProcessedPath({$token})"
@@ -177,9 +176,11 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		}
 		else
 		{
-			$this->code[--$this->position] = '(';
-			$this->code[--$this->position] = array(T_STRING, 'patchworkProcessedPath');
-			$this->code[--$this->position] = array(T_WHITESPACE, ' ');
+			$this->tokenUnshift(
+				'(',
+				array(T_STRING, 'patchworkProcessedPath'),
+				array(T_WHITESPACE, ' ')
+			);
 		}
 
 		new patchwork_tokenizer_closeBracket($this);

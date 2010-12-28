@@ -32,10 +32,11 @@ class patchwork_tokenizer
 {
 	protected
 
-	$line = 0,
-	$code,
-	$position,
-	$tokens,
+	$line  = 0,
+	$token = array(),
+	$index = 0,
+	$type  = array(),
+	$code  = array(),
 	$prevType,
 	$anteType,
 
@@ -46,24 +47,25 @@ class patchwork_tokenizer
 	$depends = array(),
 	$shared = array(
 		'line',
-		'code',
+		'token',
 		'depends',
-		'position',
-		'tokens',
+		'index',
+		'type',
+		'code',
 		'prevType',
 		'anteType',
 		'tokenRegistry',
 		'callbackRegistry',
 		'tokenizerError',
-		'nextRegistryPosition',
+		'nextRegistryIndex',
 	);
 
 
 	private
 
-	$tokenizerError       = false,
-	$registryPosition     = 0,
-	$nextRegistryPosition = 0;
+	$tokenizerError    = false,
+	$registryIndex     = 0,
+	$nextRegistryIndex = 0;
 
 
 	protected static
@@ -119,8 +121,8 @@ class patchwork_tokenizer
 			$this->shared = array_flip((array) $this->shared);
 		}
 
-		$this->registryPosition = $this->nextRegistryPosition;
-		$this->nextRegistryPosition += 100000;
+		$this->registryIndex = $this->nextRegistryIndex;
+		$this->nextRegistryIndex += 100000;
 
 		empty($this->callbacks) || $this->register();
 	}
@@ -142,14 +144,14 @@ class patchwork_tokenizer
 			if (is_int($method))
 			{
 				isset($sort['']) || $sort[''] =& $this->callbackRegistry;
-				$this->callbackRegistry[++$this->registryPosition] = array($this, $type, 0);
+				$this->callbackRegistry[++$this->registryIndex] = array($this, $type, 0);
 			}
 			else foreach ((array) $type as $s => $type)
 			{
 				foreach ((array) $type as $type)
 				{
 					isset($sort[$type]) || $sort[$type] =& $this->tokenRegistry[$type];
-					$this->tokenRegistry[$type][++$this->registryPosition] = array($this, $method, 0 === $s || (0 < $s && is_int($s)) ? 0 : $s);
+					$this->tokenRegistry[$type][++$this->registryIndex] = array($this, $method, 0 === $s || (0 < $s && is_int($s)) ? 0 : $s);
 				}
 			}
 		}
@@ -199,21 +201,22 @@ class patchwork_tokenizer
 		return $this->tokenizerError;
 	}
 
-	function tokenize($code)
+	function parse($code)
 	{
-		if ($this->parent !== $this) return $this->parent->tokenize($code);
+		if ($this->parent !== $this) return $this->parent->parse($code);
 
 		if ('' === $code) return $code;
 
 		$tRegistry =& $this->tokenRegistry;
 		$cRegistry =& $this->callbackRegistry;
 
-		$this->code = $this->getTokens($code);
+		$this->token = $this->getTokens($code);
 
-		$code     =& $this->code;
 		$line     =& $this->line;     $line     = 1;
-		$i        =& $this->position; $i        = 0;
-		$tokens   =& $this->tokens;   $tokens   = array(array(), array(''));
+		$token    =& $this->token;
+		$i        =& $this->index;    $i        = 0;
+		$type     =& $this->type;     $type     = array();
+		$code     =& $this->code;     $code     = array('');
 		$prevType =& $this->prevType; $prevType = false;
 		$anteType =& $this->anteType; $anteType = false;
 
@@ -221,30 +224,30 @@ class patchwork_tokenizer
 		$curly    = 0;
 		$strCurly = array();
 
-		while (isset($code[$i]))
+		while (isset($token[$i]))
 		{
 			$lines = 0;
-			$token =& $code[$i];
-			unset($code[$i++]);
+			$t =& $token[$i];
+			unset($token[$i++]);
 
-			if (isset($token[1]))
+			if (isset($t[1]))
 			{
-				switch ($token[0])
+				switch ($t[0])
 				{
 				case T_WHITESPACE:
 				case T_COMMENT:
 				case T_DOC_COMMENT:
 				case T_SILENCE:
-					$lines = substr_count($token[1], "\n");
+					$lines = substr_count($t[1], "\n");
 
-					if (isset($tRegistry[$token[0]]))
+					if (isset($tRegistry[$t[0]]))
 					{
-						foreach ($tRegistry[$token[0]] as $c)
+						foreach ($tRegistry[$t[0]] as $c)
 							if (0 === $c[2] || ($lines && T_MULTILINE_SUGAR === $c[2]))
-								if (false === $c[0]->{$c[1]}($token)) continue 3;
+								if (false === $c[0]->{$c[1]}($t)) continue 3;
 					}
 
-					$tokens[1][++$j] =& $token[1];
+					$code[++$j] =& $t[1];
 
 					$line += $lines;
 					continue 2;
@@ -255,7 +258,7 @@ class patchwork_tokenizer
 				case T_INLINE_HTML:
 				case T_CLOSE_TAG:
 				case T_OPEN_TAG:
-					$lines = substr_count($token[1], "\n");
+					$lines = substr_count($t[1], "\n");
 					break;
 
 				case T_DOLLAR_OPEN_CURLY_BRACES:
@@ -267,53 +270,53 @@ class patchwork_tokenizer
 			}
 			else
 			{
-				$token = array($token, $token);
+				$t = array($t, $t);
 
-				switch ($token[0])
+				switch ($t[0])
 				{
 				case '{': ++$curly; break;
 				case '}':
 					if (0 > --$curly)
 					{
-						$token[0] = T_CURLY_CLOSE;
+						$t[0] = T_CURLY_CLOSE;
 						$curly    = array_pop($strCurly);
 					}
 					break;
 				case '@':
-					$code[--$i] = array(T_SILENCE, '@');
+					$token[--$i] = array(T_SILENCE, '@');
 					continue 2;
 				}
 			}
 
-			if ($cRegistry || isset($tRegistry[$token[0]]))
+			if ($cRegistry || isset($tRegistry[$t[0]]))
 			{
 				if (!$c = $cRegistry)
 				{
-					$c = $tRegistry[$token[0]];
+					$c = $tRegistry[$t[0]];
 				}
-				else if (isset($tRegistry[$token[0]]))
+				else if (isset($tRegistry[$t[0]]))
 				{
-					$c += $tRegistry[$token[0]];
+					$c += $tRegistry[$t[0]];
 					ksort($c);
 				}
 
 				foreach ($c as $c)
-					if (0 === $c[2] || (isset($token[2]) && $token[2] === $c[2]))
-						if (false === $c[0]->{$c[1]}($token)) continue 2;
+					if (0 === $c[2] || (isset($t[2]) && $t[2] === $c[2]))
+						if (false === $c[0]->{$c[1]}($t)) continue 2;
 			}
 
-			$tokens[0][++$j] =& $token[0];
-			$tokens[1][  $j] =& $token[1];
+			$type[++$j] =& $t[0];
+			$code[  $j] =& $t[1];
 			$line += $lines;
 
 			$anteType = $prevType;
-			$prevType = $token[0];
+			$prevType = $t[0];
 		}
 
 		// Free memory thanks to copy-on-write
-		$j      = $tokens[1];
-		$tokens = array();
-		$line   = 0;
+		$j    = $code;
+		$type = $code = array();
+		$line = 0;
 
 		return $j;
 	}
@@ -393,14 +396,22 @@ class patchwork_tokenizer
 
 	protected function &getNextToken($offset = 0)
 	{
-		$i = $this->position;
+		$i = $this->index;
 
-		do while (isset($this->code[$i], self::$sugar[$this->code[$i][0]])) ++$i;
+		do while (isset($this->token[$i], self::$sugar[$this->token[$i][0]])) ++$i;
 		while ($offset-- > 0 && ++$i);
 
-		isset($this->code[$i]) || $this->code[$i] = array(T_WHITESPACE, '');
+		isset($this->token[$i]) || $this->token[$i] = array(T_WHITESPACE, '');
 
-		return $this->code[$i];
+		return $this->token[$i];
+	}
+
+	protected function tokenUnshift()
+	{
+		foreach (func_get_args() as $token)
+			$this->token[--$this->index] = $token;
+
+		return false;
 	}
 
 	function __call($method, $args)

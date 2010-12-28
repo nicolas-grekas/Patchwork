@@ -16,12 +16,12 @@ class patchwork_tokenizer_bracket_classExists extends patchwork_tokenizer_bracke
 {
 	function onReposition(&$token)
 	{
-		if (1 === $this->bracketPosition) $token[1] .= '(';
-		if (2 === $this->bracketPosition) $token[1] = ')||1' . $token[1];
+		if (1 === $this->bracketIndex) $token[1] .= '(';
+		if (2 === $this->bracketIndex) $token[1] = ')||1' . $token[1];
 	}
 
 	function onClose(&$token)
 	{
-		if (1 === $this->bracketPosition) $token[1] = ')||1' . $token[1];
+		if (1 === $this->bracketIndex) $token[1] = ')||1' . $token[1];
 	}
 }

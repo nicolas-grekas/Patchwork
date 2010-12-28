@@ -24,7 +24,7 @@ class patchwork_tokenizer_bracket_patchworkPath extends patchwork_tokenizer_brac
 
 	function onClose(&$token)
 	{
-		if (2 === $this->bracketPosition)
+		if (2 === $this->bracketIndex)
 		{
 			$token[1] = ',' . $this->level . $token[1];
 		}

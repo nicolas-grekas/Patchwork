@@ -27,7 +27,7 @@ class patchwork_tokenizer_T extends patchwork_tokenizer
 	{
 		if (!isset($this->nsPrefix[0]) || '\\' === $this->nsPrefix[0])
 		{
-			++$this->position;
+			++$this->index;
 
 			if ($this->nextExpressionIsConstant())
 			{
@@ -42,7 +42,7 @@ class patchwork_tokenizer_T extends patchwork_tokenizer
 				new patchwork_tokenizer_bracket_T($this);
 			}
 
-			--$this->position;
+			--$this->index;
 		}
 	}
 }
