@@ -28,6 +28,7 @@ patchwork_tokenizer::defineNewToken('T_SILENCE');
 // Sub-token matching multilines sugar tokens (T_WHITESPACE, T_COMMENT, T_DOC_COMMENT and T_SILENCE)
 patchwork_tokenizer::defineNewToken('T_MULTILINE_SUGAR');
 
+
 class patchwork_tokenizer
 {
 	protected
@@ -416,6 +417,23 @@ class patchwork_tokenizer
 
 	function __call($method, $args)
 	{
-		return call_user_func_array(array($this->parent, $method), $args);
+		$parent = $this->parent;
+
+		while (!method_exists($parent, $method))
+		{
+			if ($parent->parent === $parent)
+			{
+				$parent = debug_backtrace(0);
+				$parent = $parent[1];
+				$args   = get_class($this);
+
+				trigger_error("Call to undefined method {$args}::{$method}() in {$parent['file']} on line {$parent['line']} - ", E_USER_ERROR);
+				exit;
+			}
+
+			$parent = $parent->parent;
+		}
+
+		return call_user_func_array(array($parent, $method), $args);
 	}
 }
