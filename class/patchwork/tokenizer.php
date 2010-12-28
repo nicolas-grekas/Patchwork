@@ -207,7 +207,6 @@ class patchwork_tokenizer
 
 		$this->code = $this->getTokens($code);
 
-		$isSugar  =& self::$sugar;
 		$code     =& $this->code;
 		$line     =& $this->line;     $line     = 1;
 		$i        =& $this->position; $i        = 0;
@@ -229,6 +228,23 @@ class patchwork_tokenizer
 			{
 				switch ($token[0])
 				{
+				case T_WHITESPACE:
+				case T_COMMENT:
+				case T_DOC_COMMENT:
+					$lines = substr_count($token[1], "\n");
+
+					if (isset($tRegistry[$token[0]]))
+					{
+						foreach ($tRegistry[$token[0]] as $c)
+							if (0 === $c[2] || ($lines && T_MULTILINE_SUGAR === $c[2]))
+								if (false === $c[0]->{$c[1]}($token)) continue 3;
+					}
+
+					$tokens[1][++$j] =& $token[1];
+
+					$line += $lines;
+					continue 2;
+
 				case T_CONSTANT_ENCAPSED_STRING:
 				case T_ENCAPSED_AND_WHITESPACE:
 				case T_OPEN_TAG_WITH_ECHO:
@@ -261,60 +277,29 @@ class patchwork_tokenizer
 				}
 			}
 
-			do
+			if ($cRegistry || isset($tRegistry[$token[0]]))
 			{
-				if ($cRegistry || isset($tRegistry[$token[0]]))
+				if (!$c = $cRegistry)
 				{
-					if (!$c = $cRegistry)
-					{
-						$c = $tRegistry[$token[0]];
-					}
-					else if (isset($tRegistry[$token[0]]))
-					{
-						$c += $tRegistry[$token[0]];
-						ksort($c);
-					}
-
-					foreach ($c as $c)
-					{
-						if (0 === $c[2] || (isset($token[2]) && $token[2] === $c[2]))
-						{
-							if (false === $c[0]->{$c[1]}($token)) break 2;
-						}
-					}
+					$c = $tRegistry[$token[0]];
+				}
+				else if (isset($tRegistry[$token[0]]))
+				{
+					$c += $tRegistry[$token[0]];
+					ksort($c);
 				}
 
-				$tokens[0][++$j] =& $token[0];
-				$tokens[1][  $j] =& $token[1];
-				$line += $lines;
-
-				$anteType = $prevType;
-				$prevType = $token[0];
+				foreach ($c as $c)
+					if (0 === $c[2] || (isset($token[2]) && $token[2] === $c[2]))
+						if (false === $c[0]->{$c[1]}($token)) continue 2;
 			}
-			while (0);
 
-			while (isset($code[$i][1], $isSugar[$code[$i][0]]))
-			{
-				$token =& $code[$i];
-				unset($code[$i++]);
+			$tokens[0][++$j] =& $token[0];
+			$tokens[1][  $j] =& $token[1];
+			$line += $lines;
 
-				$lines = substr_count($token[1], "\n");
-
-				if (isset($tRegistry[$token[0]]))
-				{
-					foreach ($tRegistry[$token[0]] as $c)
-					{
-						if (0 === $c[2] || ($lines && T_MULTILINE_SUGAR === $c[2]))
-						{
-							if (false === $c[0]->{$c[1]}($token)) continue 2;
-						}
-					}
-				}
-
-				$tokens[1][++$j] =& $token[1];
-
-				$line += $lines;
-			}
+			$anteType = $prevType;
+			$prevType = $token[0];
 		}
 
 		// Free memory thanks to copy-on-write
