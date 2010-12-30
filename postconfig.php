@@ -152,7 +152,7 @@ function __autoload($searched_class)
 		{
 			patchwork_include($a);
 
-			if (class_exists($searched_class, false)) return;
+			if (class_exists($searched_class, false) || interface_exists($searched_class, false)) return;
 		}
 	}
 
