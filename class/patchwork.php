@@ -1171,8 +1171,9 @@ class
 		{
 			if (false === $agentLevel)
 			{
-				$agentLevel = '' !== pathinfo($existingAgent, PATHINFO_EXTENSION) ? 'const contentType="";' : '';
-				eval("class {$agent} extends agentTemplate {{$agentLevel}}");
+				$agentLevel = '' !== pathinfo($existingAgent, PATHINFO_EXTENSION) ? 'Octetstream' : 'Template';
+
+				eval("class {$agent} extends agent{$agentLevel} {}");
 			}
 			else $GLOBALS['patchwork_autoload_cache'][$agent] = $agentLevel + PATCHWORK_PATH_OFFSET;
 		}
@@ -1879,6 +1880,11 @@ class agentTemplate extends agent
 
 
 	function control() {}
+}
+
+class agentOctetstream extends agentTemplate
+{
+	const contentType = '';
 }
 
 class loop
