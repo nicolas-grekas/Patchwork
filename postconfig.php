@@ -43,13 +43,13 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 /**/{
 		if (/*<*/version_compare(PHP_VERSION, '5.2', '<')/*>*/ || DEBUG)
 		{
-/**/		patchwork_bootstrapper::alias('file_exists',   'patchwork_file_exists',   array('$file'));
-/**/		patchwork_bootstrapper::alias('is_file',       'patchwork_is_file',       array('$file'));
-/**/		patchwork_bootstrapper::alias('is_dir',        'patchwork_is_dir',        array('$file'));
-/**/		patchwork_bootstrapper::alias('is_link',       'patchwork_is_link',       array('$file'));
-/**/		patchwork_bootstrapper::alias('is_executable', 'patchwork_is_executable', array('$file'));
-/**/		patchwork_bootstrapper::alias('is_readable',   'patchwork_is_readable',   array('$file'));
-/**/		patchwork_bootstrapper::alias('is_writable',   'patchwork_is_writable',   array('$file'));
+/**/		/*<*/patchwork_bootstrapper::alias('file_exists',   'patchwork_file_exists',   array('$file'))/*>*/;
+/**/		/*<*/patchwork_bootstrapper::alias('is_file',       'patchwork_is_file',       array('$file'))/*>*/;
+/**/		/*<*/patchwork_bootstrapper::alias('is_dir',        'patchwork_is_dir',        array('$file'))/*>*/;
+/**/		/*<*/patchwork_bootstrapper::alias('is_link',       'patchwork_is_link',       array('$file'))/*>*/;
+/**/		/*<*/patchwork_bootstrapper::alias('is_executable', 'patchwork_is_executable', array('$file'))/*>*/;
+/**/		/*<*/patchwork_bootstrapper::alias('is_readable',   'patchwork_is_readable',   array('$file'))/*>*/;
+/**/		/*<*/patchwork_bootstrapper::alias('is_writable',   'patchwork_is_writable',   array('$file'))/*>*/;
 
 			if (DEBUG)
 			{
@@ -550,10 +550,10 @@ if ($a || $b)
 	}
 }
 
-/**/patchwork_bootstrapper::alias('w', 'trigger_error', array('$msg', '$type' => E_USER_NOTICE));
-/**/patchwork_bootstrapper::alias('header'      , 'patchwork::header',       array('$s', '$replace' => true, '$response_code' => null));
-/**/patchwork_bootstrapper::alias('setcookie'   , 'patchwork::setcookie',    array('$name', '$value' => '', '$expires' => 0, '$path' => '', '$domain' => '', '$secure' => false, '$httponly' => false));
-/**/patchwork_bootstrapper::alias('setcookieraw', 'patchwork::setcookieraw', array('$name', '$value' => '', '$expires' => 0, '$path' => '', '$domain' => '', '$secure' => false, '$httponly' => false));
+/**/ /*<*/patchwork_bootstrapper::alias('w', 'trigger_error', array('$msg', '$type' => E_USER_NOTICE))/*>*/;
+/**/ /*<*/patchwork_bootstrapper::alias('header'      , 'patchwork::header',       array('$s', '$replace' => true, '$response_code' => null))/*>*/;
+/**/ /*<*/patchwork_bootstrapper::alias('setcookie'   , 'patchwork::setcookie',    array('$name', '$value' => '', '$expires' => 0, '$path' => '', '$domain' => '', '$secure' => false, '$httponly' => false))/*>*/;
+/**/ /*<*/patchwork_bootstrapper::alias('setcookieraw', 'patchwork::setcookieraw', array('$name', '$value' => '', '$expires' => 0, '$path' => '', '$domain' => '', '$secure' => false, '$httponly' => false))/*>*/;
 
 if (strtr($_SERVER['PATCHWORK_BASE'], '<>&"', '----') !== $_SERVER['PATCHWORK_BASE'])
 {

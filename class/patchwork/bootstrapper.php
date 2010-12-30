@@ -81,7 +81,7 @@ class patchwork_bootstrapper
 
 	static function alias($function, $alias, $args, $return_ref = false)
 	{
-		self::$bootstrapper->alias($function, $alias, $args, $return_ref);
+		return self::$bootstrapper->alias($function, $alias, $args, $return_ref);
 	}
 
 	static function fixParentPaths($pwd)

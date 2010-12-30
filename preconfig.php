@@ -49,7 +49,7 @@ function patchwork_include($file)     {global $CONFIG; return include $file;}
 
 /**/if (version_compare(PHP_VERSION, '5.3.0') < 0)
 /**/{
-/**/	patchwork_bootstrapper::alias('is_a', 'patchwork_is_a', array('$obj', '$class'));
+/**/	/*<*/patchwork_bootstrapper::alias('is_a', 'patchwork_is_a', array('$obj', '$class'))/*>*/;
 		function patchwork_is_a($obj, $class) {return $obj instanceof $class;}
 /**/}
 
@@ -375,10 +375,10 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 /**/
 /**/if (@ini_get('display_errors') !== $a)
 /**/{
-/**/	patchwork_bootstrapper::alias('ini_set',        'patchwork_ini_set', array('$k', '$v'));
-/**/	patchwork_bootstrapper::alias('ini_alter',      'patchwork_ini_set', array('$k', '$v'));
-/**/	patchwork_bootstrapper::alias('ini_get',        'patchwork_ini_get', array('$k'));
-/**/	patchwork_bootstrapper::alias('set_time_limit', 'patchwork_set_time_limit', array('$s'));
+/**/	/*<*/patchwork_bootstrapper::alias('ini_set',        'patchwork_ini_set', array('$k', '$v'))/*>*/;
+/**/	/*<*/patchwork_bootstrapper::alias('ini_alter',      'patchwork_ini_set', array('$k', '$v'))/*>*/;
+/**/	/*<*/patchwork_bootstrapper::alias('ini_get',        'patchwork_ini_get', array('$k'))/*>*/;
+/**/	/*<*/patchwork_bootstrapper::alias('set_time_limit', 'patchwork_set_time_limit', array('$s'))/*>*/;
 
 		function patchwork_ini_set($k, $v)    {return @ini_set($k, $v);}
 		function patchwork_ini_get($k)        {return @ini_get($k);}
@@ -386,7 +386,7 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 /**/}
 /**/else if (ini_get_bool('safe_mode'))
 /**/{
-/**/	patchwork_bootstrapper::alias('set_time_limit', 'patchwork_set_time_limit', array('$s'));
+/**/	/*<*/patchwork_bootstrapper::alias('set_time_limit', 'patchwork_set_time_limit', array('$s'))/*>*/;
 		function patchwork_set_time_limit($a) {return @set_time_limit($s);}
 /**/}
 /**/
