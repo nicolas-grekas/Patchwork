@@ -14,14 +14,13 @@
 
 class patchwork_bootstrapper_preprocessor__0
 {
-	static $src;
-
 	public $file;
 
 	protected
 
 	$callerRx,
-	$alias = array();
+	$alias = array(),
+	$tokenizer;
 
 
 	function ob_start($caller)
@@ -39,8 +38,6 @@ class patchwork_bootstrapper_preprocessor__0
 
 	function staticPass1()
 	{
-		self::$src = array();
-
 		if ('' === $code = file_get_contents($this->file)) return '';
 
 		$tokenizer = new patchwork_tokenizer_normalizer;
@@ -55,7 +52,8 @@ class patchwork_bootstrapper_preprocessor__0
 		}
 
 		$code = $tokenizer->parse($code);
-		$code = $tokenizer->getStaticCode($code, __CLASS__ . '::$src');
+		$code = $tokenizer->getStaticCode($code);
+		$this->tokenizer = $tokenizer;
 
 		if ($tokenizer = $tokenizer->getError())
 		{
@@ -67,27 +65,14 @@ class patchwork_bootstrapper_preprocessor__0
 		return $code;
 	}
 
-	function staticPass2($token = false)
+	function staticPass2()
 	{
-		if (!self::$src) return '';
+		if (empty($this->tokenizer)) return '';
 
-		$code = '?'.'>';
-		$line = 1;
-		foreach (self::$src as $i => $b)
-		{
-			$code .= str_repeat("\n", $i - $line) . $b;
-			$line = $i + substr_count($b, "\n");
-		}
-
-		'?'.'><?php' === substr($code, 0, 7) && $code = substr($code, 7);
-
-		self::$src = array();
-
-		if ($this->alias)
-		{
-			$code = '$patchwork_preprocessor_alias+=' . patchwork_tokenizer::export($this->alias) . ';' . $code;
-			$this->alias = array();
-		}
+		$code = $this->alias ? '$patchwork_preprocessor_alias+=' . patchwork_tokenizer::export($this->alias) . ';' : '';
+		$code .= substr($this->tokenizer->getRuntimeCode(), 5);
+		$this->alias = array();
+		$this->tokenizer = null;
 
 		return $code;
 	}
@@ -105,7 +90,7 @@ class patchwork_bootstrapper_preprocessor__0
 
 			if ($function == $alias)
 			{
-				self::$src[key(self::$src)] .= "die('Patchwork error: Circular aliasing of function {$function}() in ' . __FILE__ . ' on line ' . __LINE__);";
+				return "die('Patchwork error: Circular aliasing of function {$function}() in ' . __FILE__ . ' on line ' . __LINE__);";
 			}
 		}
 
@@ -131,8 +116,7 @@ class patchwork_bootstrapper_preprocessor__0
 			if (!preg_match($v, $k, $v))
 			{
 				1 !== $inline && $function = substr($function, 12);
-				self::$src[key(self::$src)] .= "die('Patchwork error: Invalid parameter for {$function}()\'s alias ({$alias}: {$k}) in ' . __FILE__);";
-				return;
+				return "die('Patchwork error: Invalid parameter for {$function}()\'s alias ({$alias}: {$k}) in ' . __FILE__);";
 			}
 
 			$args[2][] = $v[1];
@@ -140,8 +124,6 @@ class patchwork_bootstrapper_preprocessor__0
 
 		$args[1] = implode(',', $args[1]);
 		$args[2] = implode(',', $args[2]);
-
-		end(self::$src);
 
 		$inline && $this->alias[1 !== $inline ? substr($function, 12) : $function] = $alias;
 
@@ -156,7 +138,7 @@ class patchwork_bootstrapper_preprocessor__0
 		// This also means that functions with callback could be untracked,
 		// at least when we are sure that an internal function will not be used as a callback.
 
-		self::$src[key(self::$src)] .= $return_ref
+		return $return_ref
 			? "function &{$function}({$args[1]}) {/*{$marker}:{$inline}*/\${''}=&{$alias}({$args[2]});return \${''}}"
 			: "function  {$function}({$args[1]}) {/*{$marker}:{$inline}*/return {$alias}({$args[2]});}";
 	}

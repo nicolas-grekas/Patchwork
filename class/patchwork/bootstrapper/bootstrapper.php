@@ -313,7 +313,7 @@ exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not fl
 
 	function alias($function, $alias, $args, $return_ref = false)
 	{
-		$this->preprocessor->alias($function, $alias, $args, $return_ref, $this->marker);
+		return $this->preprocessor->alias($function, $alias, $args, $return_ref, $this->marker);
 	}
 
 	protected function getEchoError($file, $line, $what, $when)
