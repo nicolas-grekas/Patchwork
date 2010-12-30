@@ -17,10 +17,10 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 	protected
 
 	$stateCallbacks = array(
-		0 => array(),
+		0 => array('tagTransition', 'tagTransition' => T_SILENCE),
 		1 => array(
-			'tagEOState1'  => array(T_MULTILINE_SUGAR => T_WHITESPACE),
-			'tagEOState1b' => array(T_MULTILINE_SUGAR => T_COMMENT   ),
+			'tagEOState1'  => T_COMMENT,
+			'tagEOState1b' => array(T_MULTILINE_SUGAR => T_WHITESPACE),
 		),
 		2 => array(
 			'tagEOState2'     => T_COMMENT,
@@ -29,22 +29,33 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 		3 => array(
 			'tagEOState3' => T_COMMENT,
 		),
+		4 => array(
+			'tagEOState4' => T_COMMENT,
+		),
 	),
 	$state = 2,
-	$transition = array();
+	$transition = array(),
+	$nextState,
+	$runtimeKey;
+
+	static $runtimeCode = array();
 
 
 	function __construct(parent $parent = null)
 	{
 		parent::__construct($parent);
-
 		$this->register($this->stateCallbacks[2]);
+		$this->runtimeKey = mt_rand(1, mt_getrandmax());
 	}
 
-	function getStaticCode($code, $codeVarname)
+	function getStaticCode($code)
 	{
-		$state  = 2;
-		$O = $codeVarname . '[1]=';
+		$var = '$§' . $this->runtimeKey;
+
+		$O = $this->transition ? end($this->transition) : array(1 => 1);
+		$O = "{$var}=&" . __CLASS__ . "::\$runtimeCode[{$this->runtimeKey}];{$var}=array(array(1,(";
+
+		$state = 2;
 		$o = '';
 		$j = 0;
 
@@ -57,18 +68,13 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 			}
 			while (++$j < $i);
 
-			switch ($state)
-			{
-			case 1: $O .= $o; break;
-			case 2: $O .= self::export($o); break;
-			case 3: $O .= $o . ')."' . str_repeat('\n', substr_count($o, "\n")) . '"'; break;
-			}
+			$O .= (2 === $state ? self::export($o) . str_repeat("\n", substr_count($o, "\n")) : $o)
+				. (1 !== $state ? ')))' . (3 !== $state ? ';' : '') : '');
 
-			switch ($transition[0])
+			if (1 !== $transition[0])
 			{
-			case 1: 2 === $state && $O .= ';'; break;
-			case 2: $O .= 3 !== $state ? (2 === $state ? ';' : ' ') . $codeVarname . '[' . $transition[1] . ']=' : '.'; break;
-			case 3: $O .= '.patchwork_tokenizer::export('; break;
+				$O .= "({$var}[]=array({$transition[1]},"
+					. (4 === $transition[0] ? 'patchwork_tokenizer::export(' : '(');
 			}
 
 			$state = $transition[0];
@@ -78,41 +84,68 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 		$this->transition = array();
 		$o = implode('', $code);
 
-		switch ($state)
-		{
-		case 1: $O .= $o; break;
-		case 2: $O .= self::export($o) . ';'; break;
-		case 3: $O .= $o . ')."' . str_repeat('\n', substr_count($o, "\n")) . '";'; break;
-		}
-
-		return $O;
+		return $O
+			. (2 === $state ? self::export($o) . str_repeat("\n", substr_count($o, "\n")) : $o)
+			. (1 !== $state ? ')))' . (3 !== $state ? ';' : '') : '')
+			. "unset({$var});";
 	}
 
-	function setState($state)
+	function getRuntimeCode()
 	{
-		end($this->type);
-		$this->transition[key($this->type)+1] = array($state, $this->line);
+		$code =& self::$runtimeCode[$this->runtimeKey];
+
+		if (empty($code)) return '';
+
+		$line = 1;
+
+		foreach ($code as $k => &$v)
+		{
+			$v[1] = str_repeat("\n", $v[0] - $line) . $v[1];
+			$line += substr_count($v[1], "\n");
+			$v = $v[1];
+		}
+
+		$code = implode('', $code);
+		unset(self::$runtimeCode[$this->runtimeKey]);
+
+		return $code;
+	}
+
+	function setState($state, &$token = array(0, ''))
+	{
+		empty($this->nextState) && $this->register($this->stateCallbacks[0]);
+		$this->nextState = $state;
+
+		if (2 !== $state || 2 < $this->state) $this->tagTransition($token);
 
 		if ($this->state === 2) $this->unregister($this->stateCallbacks[1]);
-		if ($this->state === $state) return;
+		if ($this->state === $state) return false;
 
 		$this->unregister($this->stateCallbacks[$this->state]);
 		$this->  register($this->stateCallbacks[$state]);
 
 		$this->state = $state;
+
+		return false;
+	}
+
+	function tagTransition(&$token)
+	{
+		$this->unregister($this->stateCallbacks[0]);
+		end($this->code);
+		$this->transition[key($this->code)+1] = array($this->nextState, $this->line + substr_count($token[1], "\n"));
+		unset($this->nextState);
 	}
 
 	function tagEOState2(&$token)
 	{
 		if ('/*<*/' === $token[1])
 		{
-			$this->setState(3);
-			return false;
+			return $this->setState(4);
 		}
 		else if ('/**/' === $token[1] && "\n" === substr(end($this->code), -1))
 		{
-			$this->setState(1);
-			return false;
+			return $this->setState(1);
 		}
 	}
 
@@ -122,15 +155,25 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 		$this->  register($this->stateCallbacks[1]);
 	}
 
-	function tagEOState1 (&$token) {$this->setState(2);}
-	function tagEOState1b(&$token) {"\n" === substr($token[1], -1) && $this->setState(2);}
+	function tagEOState1(&$token)
+	{
+		if ('/*<*/' === $token[1]) return $this->setState(3);
+
+		"\n" === substr($token[1], -1) && $this->setState(2, $token);
+	}
+
+	function tagEOState1b(&$token)
+	{
+		$this->setState(2, $token);
+	}
 
 	function tagEOState3(&$token)
 	{
-		if ('/*>*/' === $token[1])
-		{
-			$this->setState(2);
-			return false;
-		}
+		if ('/*>*/' === $token[1]) return $this->setState(1);
+	}
+
+	function tagEOState4(&$token)
+	{
+		if ('/*>*/' === $token[1]) return $this->setState(2);
 	}
 }
