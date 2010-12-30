@@ -105,6 +105,8 @@ class extends loop_agentWrapper
 			$this->eltnameSuffix .= '_' . $eltnameSuffix;
 		}
 		else $this->agentData = false;
+
+		$this->defaults = array();
 	}
 
 	function pullContext()
