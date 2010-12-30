@@ -17,7 +17,6 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 	protected
 
 	$stateCallbacks = array(
-		0 => array('tagTransition', 'tagTransition' => T_SILENCE),
 		1 => array(
 			'tagEOState1'  => T_COMMENT,
 			'tagEOState1b' => array(T_MULTILINE_SUGAR => T_WHITESPACE),
@@ -113,7 +112,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 
 	function setState($state, &$token = array(0, ''))
 	{
-		empty($this->nextState) && $this->register($this->stateCallbacks[0]);
+		empty($this->nextState) && $this->register('tagTransition');
 		$this->nextState = $state;
 
 		if (2 !== $state || 2 < $this->state) $this->tagTransition($token);
@@ -131,7 +130,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 
 	function tagTransition(&$token)
 	{
-		$this->unregister($this->stateCallbacks[0]);
+		$this->unregister(__FUNCTION__);
 		end($this->code);
 		$this->transition[key($this->code)+1] = array($this->nextState, $this->line + substr_count($token[1], "\n"));
 		unset($this->nextState);
