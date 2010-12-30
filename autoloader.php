@@ -108,7 +108,7 @@ class __patchwork_autoloader
 		if ($level > $a)
 		{
 			do $parent = $top . '__' . (0 <= --$level ? $level : '00');
-			while (!($parent_exists = class_exists($parent, false)) && $level > $a);
+			while (!($parent_exists = class_exists($parent, false) || interface_exists($parent, false)) && $level > $a);
 		}
 		else
 		{
@@ -149,7 +149,7 @@ class __patchwork_autoloader
 
 			patchwork_include($cache);
 
-			if ($parent && class_exists($req, false)) $parent = false;
+			if ($parent && (class_exists($req, false) || interface_exists($req, false))) $parent = false;
 			if (false !== $parent_pool) $parent_pool[$parent ? $parent : $req] = $cache;
 		}
 
@@ -158,11 +158,13 @@ class __patchwork_autoloader
 
 		$code = '';
 
-		if ($parent ? class_exists($parent) : (class_exists($req, false) && !isset(self::$cache[$lc_req])))
+		if (  $parent
+			? class_exists($parent) || interface_exists($parent)
+			: ((class_exists($req, false) || interface_exists($req, false)) && !isset(self::$cache[$lc_req]))  )
 		{
 			if ($parent)
 			{
-				$code = "class {$req} extends {$parent}{}\$GLOBALS['c{$T}']['{$lc_req}']=1;";
+				$code = (class_exists($parent) ? 'class' : 'interface') . " {$req} extends {$parent}{}\$GLOBALS['c{$T}']['{$lc_req}']=1;";
 				$parent = strtolower($parent);
 
 				if (isset($GLOBALS['patchwork_abstract'][$parent]))
