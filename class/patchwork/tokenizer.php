@@ -22,10 +22,7 @@ defined('T_NS_SEPARATOR') || patchwork_tokenizer::defineNewToken('T_NS_SEPARATOR
 // Primary token matching closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
 patchwork_tokenizer::defineNewToken('T_CURLY_CLOSE');
 
-// Primary token matching the @-operator
-patchwork_tokenizer::defineNewToken('T_SILENCE');
-
-// Sub-token matching multilines sugar tokens (T_WHITESPACE, T_COMMENT, T_DOC_COMMENT and T_SILENCE)
+// Sub-token matching multilines sugar tokens (T_WHITESPACE, T_COMMENT and T_DOC_COMMENT)
 patchwork_tokenizer::defineNewToken('T_MULTILINE_SUGAR');
 
 
@@ -72,9 +69,9 @@ class patchwork_tokenizer
 	protected static
 
 	$sugar = array(
-		T_WHITESPACE => 1,
-		T_COMMENT    => 1, T_DOC_COMMENT => 1,
-		T_SILENCE    => 1, '@'           => 1,
+		T_WHITESPACE  => 1,
+		T_COMMENT     => 1,
+		T_DOC_COMMENT => 1,
 	);
 
 
@@ -238,7 +235,6 @@ class patchwork_tokenizer
 				case T_WHITESPACE:
 				case T_COMMENT:
 				case T_DOC_COMMENT:
-				case T_SILENCE:
 					$lines = substr_count($t[1], "\n");
 
 					if (isset($tRegistry[$t[0]]))
@@ -283,9 +279,6 @@ class patchwork_tokenizer
 						$curly    = array_pop($strCurly);
 					}
 					break;
-				case '@':
-					$token[--$i] = array(T_SILENCE, '@');
-					continue 2;
 				}
 			}
 
