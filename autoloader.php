@@ -210,7 +210,11 @@ class __patchwork_autoloader
 				$ns = "namespace {$ns};";
 			}
 
-			$code && eval($ns . $code);
+			if ($code)
+			{
+				if ($isTop || /*<*/!function_exists('class_alias')/*>*/) eval($ns . $code);
+				else class_alias($parent, $req);
+			}
 		}
 
 		'patchwork_preprocessor' === $lc_top && self::$preproc = false;
