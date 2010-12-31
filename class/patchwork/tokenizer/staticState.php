@@ -16,6 +16,11 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 {
 	protected
 
+	$bracket = array(),
+	$callbacks = array(
+		'pushBracket' => array('{', '[', '('),
+		'popBracket'  => array('}', ']', ')'),
+	),
 	$stateCallbacks = array(
 		1 => array(
 			'tagEOState1'  => T_COMMENT,
@@ -108,6 +113,32 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 		unset(self::$runtimeCode[$this->runtimeKey]);
 
 		return $code;
+	}
+
+	function pushBracket(&$token)
+	{
+		$s = empty($this->nextState) ? $this->state : $this->nextState;
+
+		switch ($token[0])
+		{
+		case '{': $this->bracket[] = array($s, '}'); break;
+		case '[': $this->bracket[] = array($s, ']'); break;
+		case '(': $this->bracket[] = array($s, ')'); break;
+		}
+	}
+
+	function popBracket(&$token)
+	{
+		$s = empty($this->nextState) ? $this->state : $this->nextState;
+
+		if (array($s, $token[0]) !== $last = array_pop($this->bracket))
+		{
+			$this->unregister();
+
+			$last = $last && $s === $last[0] ? ", expecting `{$last[1]}'" : '';
+
+			$this->setError("Syntax error, unexpected `{$token[0]}'{$last}");
+		}
 	}
 
 	function setState($state, &$token = array(0, ''))

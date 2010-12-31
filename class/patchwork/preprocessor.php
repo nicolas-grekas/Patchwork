@@ -117,6 +117,7 @@ class patchwork_preprocessor__0
 			'scream'             => self::$scream,
 			'T'                  => DEBUG,
 			'marker'             => !DEBUG,
+			'staticState'        => 0 <= $level,
 		);
 
 		foreach ($i as $c => $i)
@@ -138,11 +139,22 @@ class patchwork_preprocessor__0
 
 		$code = $t->parse($code);
 
-		if ($t = $t->getError())
+		if ($c = $t->getError())
 		{
-			patchwork_error::handle(E_USER_ERROR, $t[0], $source, $t[1]);
+			patchwork_error::handle(E_USER_ERROR, $c[0], $source, $c[1]);
+		}
+
+		if ($t instanceof patchwork_tokenizer_staticState)
+		{
+			self::evalbox($t->getStaticCode($code));
+			return $t->getRuntimeCode();
 		}
 
 		return implode('', $code);
+	}
+
+	protected static function evalbox($code)
+	{
+		return eval('unset($code);' . $code);
 	}
 }
