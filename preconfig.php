@@ -45,7 +45,7 @@ $CONFIG = array();
 
 // Utility functions
 
-function patchwork_include($file)     {global $CONFIG; return include $file;}
+function patchwork_include($file) {return include $file;}
 
 /**/if (version_compare(PHP_VERSION, '5.3.0') < 0)
 /**/{

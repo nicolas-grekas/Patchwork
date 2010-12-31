@@ -42,7 +42,6 @@ class patchwork_bootstrapper
 		require dirname(__FILE__) . '/tokenizer.php';
 		require dirname(__FILE__) . '/tokenizer/normalizer.php';
 		require dirname(__FILE__) . '/tokenizer/scream.php';
-		require dirname(__FILE__) . '/tokenizer/bracketVerifier.php';
 		require dirname(__FILE__) . '/tokenizer/staticState.php';
 		require dirname(__FILE__) . '/bootstrapper/bootstrapper.php';
 
@@ -93,7 +92,7 @@ class patchwork_bootstrapper
 		self::initialize($pwd . '-', PATCHWORK_PROJECT_PATH);
 
 		$db = self::updatedb();
-		$db = dba_popen(PATCHWORK_PROJECT_PATH . '.parentPaths.db'/*>*/, 'rd', $db);
+		$db = dba_popen(PATCHWORK_PROJECT_PATH . '.parentPaths.db', 'rd', $db);
 
 		if (!$db) exit;
 

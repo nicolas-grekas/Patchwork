@@ -41,7 +41,6 @@ class patchwork_bootstrapper_preprocessor__0
 		if ('' === $code = file_get_contents($this->file)) return '';
 
 		$tokenizer = new patchwork_tokenizer_normalizer;
-		$tokenizer = new patchwork_tokenizer_bracketVerifier($tokenizer);
 		$tokenizer = new patchwork_tokenizer_staticState($tokenizer);
 
 		if( (defined('DEBUG') && DEBUG)
