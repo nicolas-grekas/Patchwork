@@ -25,6 +25,7 @@ patchwork_tokenizer::defineNewToken('T_USE_FUNCTION');  // FOOBAR()
 patchwork_tokenizer::defineNewToken('T_USE_CONST');     // foo::BAR
 patchwork_tokenizer::defineNewToken('T_USE_CONSTANT');  // $foo = BAR
 patchwork_tokenizer::defineNewToken('T_GOTO_LABEL');    // goto FOO; or FOO: {...}
+patchwork_tokenizer::defineNewToken('T_TYPE_HINT');     // instanceof FOO; function f(BAR $a)
 
 
 class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
@@ -95,8 +96,8 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 			case ',': if (!$this->inExtends) break;
 			case T_NEW:
 			case T_EXTENDS:
-			case T_IMPLEMENTS:
-			case T_INSTANCEOF: $stype = T_USE_CLASS;
+			case T_IMPLEMENTS: $stype = T_USE_CLASS; break;
+			case T_INSTANCEOF: $stype = T_TYPE_HINT; break;
 			}
 
 			$t = $this->getNextToken();
@@ -111,8 +112,8 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 			{
 				switch ($t[0])
 				{
-				case T_VARIABLE:
 				case T_DOUBLE_COLON: $stype = T_USE_CLASS; break;
+				case T_VARIABLE:     $stype = T_TYPE_HINT; break;
 
 				case '(':
 					switch ($this->prevType)
@@ -138,7 +139,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 					case ',':
 						if (1 === $this->inParam && '&' === $t[0])
 						{
-							$stype = T_USE_CLASS; break 2;
+							$stype = T_TYPE_HINT; break 2;
 						}
 
 						// No break;
