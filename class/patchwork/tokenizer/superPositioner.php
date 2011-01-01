@@ -19,8 +19,8 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 	$level,
 	$topClass,
 	$callbacks = array(
-		'tagSelf'          => array('self'   => T_USE_CLASS),
-		'tagParent'        => array('parent' => T_USE_CLASS),
+		'tagSelf'          => array('self'   => array(T_USE_CLASS, T_TYPE_HINT)),
+		'tagParent'        => array('parent' => array(T_USE_CLASS, T_TYPE_HINT)),
 		'tagClass'         => array(T_CLASS, T_INTERFACE),
 		'tagPrivate'       => T_PRIVATE,
 		'tagRequire'       => array(T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
