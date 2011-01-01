@@ -23,7 +23,7 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 	$callbacks  = array(
 		'tagNs'        => array(T_NAME_NS => T_NAMESPACE),
 		'tagUse'       => T_USE,
-		'tagNsResolve' => array(T_USE_CLASS, T_USE_FUNCTION, T_USE_CONSTANT),
+		'tagNsResolve' => array(T_USE_CLASS, T_USE_FUNCTION, T_USE_CONSTANT, T_TYPE_HINT),
 	),
 	$shared  = array('namespace', 'nsResolved'),
 	$depends = 'patchwork_tokenizer_stringInfo';
@@ -97,7 +97,7 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 
 		if ('' === $this->nsPrefix)
 		{
-			if (T_USE_CLASS === $token[2])
+			if (T_USE_CLASS === $token[2] || T_TYPE_HINT === $token[2])
 			{
 				$this->nsResolved = empty($this->nsAliases[$token[1]])
 					? '\\' . $this->namespace . $token[1]
