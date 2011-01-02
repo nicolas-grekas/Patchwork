@@ -206,9 +206,20 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 
 	function tagUseFunction(&$token)
 	{
-		// TODO: NS support
+		// Alias functions only if they are fully namespace resolved
+
 		$a = strtolower($this->nsResolved);
-		'\\' === $a[0] && $a = substr($a, 1);
+
+		if ('\\' !== $this->nsResolved[0])
+		{
+			$e = isset($this->alias[$a]) || isset(self::$autoloader[$a]);
+			$e || $a = substr(strtolower($this->namespace) . $a, 1);
+			$e = $e || isset($this->alias[$a]) || isset(self::$autoloader[$a]);
+			$e && $this->setError("Unresolved namespaced function call ({$this->nsResolved}), skipping aliasing.", E_USER_WARNING);
+			return;
+		}
+
+		$a = substr($a, 1);
 
 		if (isset($this->alias[$a]))
 		{
