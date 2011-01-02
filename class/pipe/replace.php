@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pipe_replace
 {
 	static function php($string, $search, $replace, $caseInsensitive = false)
 	{

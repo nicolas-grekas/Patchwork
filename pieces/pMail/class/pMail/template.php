@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends pMail_agent
+class pMail_template extends pMail_agent
 {
 	function __construct($headers, $options)
 	{

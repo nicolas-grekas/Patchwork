@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pipe_repeat
 {
 	static function php($string, $num)
 	{

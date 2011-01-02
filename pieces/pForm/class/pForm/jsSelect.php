@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends pForm_select
+class pForm_jsSelect extends pForm_select
 {
 	protected $src;
 

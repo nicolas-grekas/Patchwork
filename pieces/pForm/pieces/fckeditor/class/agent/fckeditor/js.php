@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends agent
+class agent_fckeditor_js extends agent
 {
 	const contentType = 'text/javascript';
 

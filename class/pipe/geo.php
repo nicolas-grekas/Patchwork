@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pipe_geo
 {
 	static function php($geo, $latlong)
 	{

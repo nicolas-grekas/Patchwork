@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pipe_stripAccents
 {
 	static function php($str, $case = 0)
 	{

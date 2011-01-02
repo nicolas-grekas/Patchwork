@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends agent_fckeditor_browser
+class agent_fckeditor_upload extends agent_fckeditor_browser
 {
 	public $get = 'Type:c:File|Image|Flash|Media';
 

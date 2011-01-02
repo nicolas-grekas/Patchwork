@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pipe_htmlArgsList
 {
 	static function php()
 	{

@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends pTask
+class pTask_periodic extends pTask
 {
 	static
 

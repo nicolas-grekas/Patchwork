@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends self
+class Mail_mime extends self
 {
 	function __construct()
 	{

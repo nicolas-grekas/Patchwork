@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pipe_date
 {
 	static function php($time, $format = false)
 	{

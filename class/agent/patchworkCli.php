@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends agent
+class agent_patchworkCli extends agent
 {
 	const contentType = '';
 

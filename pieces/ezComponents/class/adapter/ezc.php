@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class adapter_ezc
 {
 	static function getAutoload($className)
 	{

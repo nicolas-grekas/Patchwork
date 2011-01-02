@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pipe_default
 {
 	static function php($string, $default = '')
 	{

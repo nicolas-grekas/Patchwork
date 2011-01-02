@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends loop
+class loop_agentWrapper extends loop
 {
 	public $autoResolve = true;
 

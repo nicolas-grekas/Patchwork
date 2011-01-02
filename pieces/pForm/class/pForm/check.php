@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends pForm_select
+class pForm_check extends pForm_select
 {
 	protected $type = 'check';
 }

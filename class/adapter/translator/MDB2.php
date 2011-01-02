@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends TRANSLATOR
+class adapter_translator_MDB2 extends TRANSLATOR
 {
 	protected
 

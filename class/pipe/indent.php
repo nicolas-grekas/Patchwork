@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pipe_indent
 {
 	static function php($string, $chars = 4, $char = ' ')
 	{

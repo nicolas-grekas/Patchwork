@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pipe_linkto
 {
 	static function php($text, $url = '', $attributes = '')
 	{

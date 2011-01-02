@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pipe_mailto
 {
 	static function php($string, $email = '', $attributes = '')
 	{

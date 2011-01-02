@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends patchwork
+class patchwork_static extends patchwork
 {
 	// Map from extensions to content-types
 	// This list doesn't have to be exhaustive:

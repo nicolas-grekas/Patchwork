@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends pForm_hidden
+class pForm_text extends pForm_hidden
 {
 	protected
 

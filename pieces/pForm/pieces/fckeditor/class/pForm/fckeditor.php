@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends pForm_textarea
+class pForm_fckeditor extends pForm_textarea
 {
 	protected
 

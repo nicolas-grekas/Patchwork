@@ -13,7 +13,7 @@
 
 
 /* interface is out of date
-class extends pForm_text
+class pForm_time extends pForm_text
 {
 	protected $maxlength = 2;
 	protected $maxint = 23;

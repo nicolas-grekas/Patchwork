@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends loop
+class loop_sql_MDB2_mysqli extends loop
 {
 	protected
 

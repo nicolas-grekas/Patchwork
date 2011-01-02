@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends agent_css
+class agent_js extends agent_css
 {
 	const contentType = 'text/javascript';
 

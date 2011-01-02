@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-abstract class
+abstract class ptlCompiler
 {
 	protected
 

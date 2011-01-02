@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends loop
+class loop_tag extends loop
 {
 	protected
 

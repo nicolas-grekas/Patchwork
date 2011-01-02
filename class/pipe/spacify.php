@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pipe_spacify
 {
 	static function php($string, $spacify_char = ' ')
 	{

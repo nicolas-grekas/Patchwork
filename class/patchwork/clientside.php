@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends patchwork
+class patchwork_clientside extends patchwork
 {
 	static function loadAgent($agent)
 	{

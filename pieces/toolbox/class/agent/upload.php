@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends agent
+class agent_upload extends agent
 {
 	public $get = 'id';
 

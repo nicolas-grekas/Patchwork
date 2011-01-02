@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends loop
+class loop_sql_MDB2 extends loop
 {
 	protected
 

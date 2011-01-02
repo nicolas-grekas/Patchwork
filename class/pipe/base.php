@@ -14,7 +14,7 @@
 
 // This pipe is duplicated in js/w
 
-class
+class pipe_base
 {
 	static function php($string = '', $noId = false)
 	{

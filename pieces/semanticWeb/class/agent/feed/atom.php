@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends agent
+class agent_feed_atom extends agent
 {
 	const contentType = 'application/atom+xml';
 

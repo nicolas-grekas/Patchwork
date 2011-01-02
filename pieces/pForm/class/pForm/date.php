@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends pForm_text
+class pForm_date extends pForm_text
 {
 	protected $maxlength = 10;
 

@@ -12,6 +12,6 @@
  ***************************************************************************/
 
 
-class extends agentTemplate
+class agent_header extends agentTemplate
 {
 }
