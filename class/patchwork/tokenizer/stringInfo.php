@@ -70,8 +70,9 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		case '&': if (T_FUNCTION !== $this->anteType) break;
 		case T_FUNCTION: $stype = T_NAME_FUNCTION; break;
 
-		case ',': if (!$this->inConst) break;
-		case T_CONST: $stype = T_NAME_CONST; break;
+		case ',':
+		case T_CONST:
+			if ($this->inConst) $stype = T_NAME_CONST;
 
 		default:
 			if ($this->inNs ) $stype = T_NAME_NS;

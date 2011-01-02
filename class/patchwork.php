@@ -128,6 +128,7 @@ function patchwork_error_handler($code, $message, $file, $line)
 		switch ($code)
 		{
 		case E_DEPRECATED:
+		case E_USER_DEPRECATED:
 /**/		if (!DEBUG)
 				return;
 		case E_NOTICE:
