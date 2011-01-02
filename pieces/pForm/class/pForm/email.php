@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends pForm_text
+class pForm_email extends pForm_text
 {
 	protected function init(&$param)
 	{

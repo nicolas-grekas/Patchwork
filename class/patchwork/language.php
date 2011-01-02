@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class patchwork_language
 {
 	static function HTTP_Negociate($lang_list)
 	{

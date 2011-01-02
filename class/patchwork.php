@@ -150,7 +150,7 @@ function patchwork_error_handler($code, $message, $file, $line)
 
 
 
-class
+class patchwork
 {
 	static
 

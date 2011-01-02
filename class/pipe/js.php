@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pipe_js
 {
 	static function php($string, $forceString = false)
 	{

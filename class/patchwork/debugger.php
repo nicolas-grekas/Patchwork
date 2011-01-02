@@ -21,7 +21,7 @@ define(
 	|| (isset($_SERVER['HTTP_CACHE_CONTROL']) && 'no-cache' == $_SERVER['HTTP_CACHE_CONTROL'])
 );
 
-class extends patchwork
+class patchwork_debugger extends patchwork
 {
 	static
 

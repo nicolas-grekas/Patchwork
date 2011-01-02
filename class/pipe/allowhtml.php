@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pipe_allowhtml
 {
 	static function php($string, $urlInterpolation = false)
 	{

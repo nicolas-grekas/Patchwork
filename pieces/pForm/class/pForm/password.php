@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends pForm_text
+class pForm_password extends pForm_text
 {
 	protected $type = 'password';
 

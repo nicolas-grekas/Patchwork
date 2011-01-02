@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pipe_test
 {
 	static function php($test, $ifData, $elseData = '')
 	{

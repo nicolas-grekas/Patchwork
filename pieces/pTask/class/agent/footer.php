@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends self
+class agent_footer extends self
 {
 	function compose($o)
 	{

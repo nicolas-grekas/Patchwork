@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends ptlCompiler
+class ptlCompiler_js extends ptlCompiler
 {
 	const
 

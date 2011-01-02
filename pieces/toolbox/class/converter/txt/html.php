@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends converter_abstract
+class converter_txt_html extends converter_abstract
 {
 	protected
 

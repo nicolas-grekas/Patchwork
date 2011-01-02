@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends patchwork
+class patchwork_agentTrace extends patchwork
 {
 	static function resolve($agent)
 	{

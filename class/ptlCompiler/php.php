@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends ptlCompiler
+class ptlCompiler_php extends ptlCompiler
 {
 	protected
 

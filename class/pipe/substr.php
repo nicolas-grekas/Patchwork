@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pipe_substr
 {
 	static function php($string, $start, $length = null)
 	{

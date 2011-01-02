@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends loop_agentWrapper
+class pForm extends loop_agentWrapper
 {
 	public
 

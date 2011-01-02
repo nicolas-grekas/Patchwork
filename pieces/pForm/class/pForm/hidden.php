@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends loop_agentWrapper
+class pForm_hidden extends loop_agentWrapper
 {
 	protected
 

@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends agent
+class agent_QJsrs extends agent
 {
 	const contentType = '';
 

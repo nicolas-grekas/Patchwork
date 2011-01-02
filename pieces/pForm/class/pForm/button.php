@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends pForm_submit
+class pForm_button extends pForm_submit
 {
 	protected $type = 'button';
 }

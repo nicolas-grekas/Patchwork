@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pForm_magicDb
 {
 	static function populate($table, $form, $save = false, $rxFilter = false)
 	{

@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends loop_array
+class loop_reverse extends loop_array
 {
 	function __construct($loop)
 	{

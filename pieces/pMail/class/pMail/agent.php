@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends pMail_text
+class pMail_agent extends pMail_text
 {
 	protected
 

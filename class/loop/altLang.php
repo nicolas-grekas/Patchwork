@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends loop
+class loop_altLang extends loop
 {
 	protected $lang, $alt;
 

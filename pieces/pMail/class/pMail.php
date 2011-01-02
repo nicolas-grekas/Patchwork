@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends pTask
+class pMail extends pTask
 {
 	protected $testMode = DEBUG;
 

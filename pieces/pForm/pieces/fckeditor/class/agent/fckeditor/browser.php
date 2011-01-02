@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends agent
+class agent_fckeditor_browser extends agent
 {
 	const contentType = '';
 

@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class patchwork_httpRange
 {
 	static function negociate($filesize, $ETag, $LastModified)
 	{

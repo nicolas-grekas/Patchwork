@@ -12,23 +12,14 @@
  ***************************************************************************/
 
 
-class extends self
+class FILTER extends self
 {
-	# config of HTMLPurifier
-	protected static function get_html(&$value, &$args)
+	protected static function sanitizeHtml($html)
 	{
-		$a = array();
+		static $parser;
 
-		if ($result = self::get_text($value, $a))
-		{
-			static $parser;
-			isset($parser) || $parser = new HTMLPurifier;
+		if (!isset($parser)) $parser = new HTMLPurifier;
 
-			$result = $parser->purify($result, isset($args[0]) ? $args[0] : null);
-			$result = str_replace(p::__BASE__(), '{~}', $result);
-			$result = str_replace(p::__HOST__(), '{/}', $result);
-		}
-
-		return $result;
+		return $parser->purify($html);
 	}
 }

@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends agent_queue_pTask
+class agent_queue_pMail extends agent_queue_pTask
 {
 	protected
 

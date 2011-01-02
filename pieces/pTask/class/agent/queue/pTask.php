@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends agent
+class agent_queue_pTask extends agent
 {
 	const contentType = 'image/gif';
 

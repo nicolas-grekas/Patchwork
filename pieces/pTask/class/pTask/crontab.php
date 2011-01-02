@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends pTask
+class pTask_crontab extends pTask
 {
 	static function getCrontab()
 	{

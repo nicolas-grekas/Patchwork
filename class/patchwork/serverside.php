@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends patchwork
+class patchwork_serverside extends patchwork
 {
 	protected static
 

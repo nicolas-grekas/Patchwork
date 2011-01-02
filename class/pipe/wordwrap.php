@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pipe_wordwrap
 {
 	static function php($string, $width = 75, $break = "\n", $cut = true)
 	{

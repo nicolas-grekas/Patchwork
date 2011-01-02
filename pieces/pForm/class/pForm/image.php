@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends pForm_submit
+class pForm_image extends pForm_submit
 {
 	protected $type = 'image';
 

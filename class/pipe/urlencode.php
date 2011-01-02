@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pipe_urlencode
 {
 	static function php($str)
 	{

@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pipe_length
 {
 	static function php($string)
 	{

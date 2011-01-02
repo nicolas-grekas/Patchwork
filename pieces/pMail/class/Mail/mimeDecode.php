@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends self
+class Mail_mimeDecode extends self
 {
 	function _decodeHeader($input)
 	{

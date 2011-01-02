@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pipe_set
 {
 	static function php($pool, $key, $value)
 	{

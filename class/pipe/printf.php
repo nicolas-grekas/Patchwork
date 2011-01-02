@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pipe_printf
 {
 	static function php($format)
 	{

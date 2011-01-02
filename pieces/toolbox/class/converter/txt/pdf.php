@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends converter_abstract
+class converter_txt_pdf extends converter_abstract
 {
 	function convertFile($file)
 	{

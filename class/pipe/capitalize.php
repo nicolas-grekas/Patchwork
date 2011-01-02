@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pipe_capitalize
 {
 	static function php($string)
 	{

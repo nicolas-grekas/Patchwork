@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends pForm_text
+class pForm_file extends pForm_text
 {
 	protected
 

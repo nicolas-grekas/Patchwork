@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class tool_url
 {
 	/**
 	 * Sends the request to the webserver but don't wait for the response.

@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends agent
+class agent_QSelect extends agent
 {
 	const contentType = 'text/javascript';
 

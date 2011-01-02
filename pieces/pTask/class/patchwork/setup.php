@@ -16,7 +16,7 @@
  * Hook executed only once, when application is initialized
  */
 
-class extends self
+class patchwork_setup extends self
 {
 	protected static function execute()
 	{

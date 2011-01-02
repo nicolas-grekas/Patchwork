@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pipe_truncate
 {
 	static function php($string, $length = 80, $etc = '…', $break_words = false)
 	{

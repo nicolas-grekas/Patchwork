@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends Mail_mime
+class pMail_text extends Mail_mime
 {
 	protected $headers, $options;
 

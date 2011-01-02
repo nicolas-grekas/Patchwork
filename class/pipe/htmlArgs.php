@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class
+class pipe_htmlArgs
 {
 	static function php($pool)
 	{

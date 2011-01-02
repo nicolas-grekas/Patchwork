@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-abstract class
+abstract class converter_abstract
 {
 	abstract function convertFile($file);
 

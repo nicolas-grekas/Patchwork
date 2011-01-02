@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class extends self
+class agent_queue_pTask extends self
 {
 	function ob_handler($buffer)
 	{
