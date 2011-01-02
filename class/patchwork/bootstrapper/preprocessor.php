@@ -20,7 +20,7 @@ class patchwork_bootstrapper_preprocessor__0
 
 	$callerRx,
 	$alias = array(),
-	$tokenizer;
+	$t;
 
 
 	function ob_start($caller)
@@ -40,25 +40,26 @@ class patchwork_bootstrapper_preprocessor__0
 	{
 		if ('' === $code = file_get_contents($this->file)) return '';
 
-		$tokenizer = new patchwork_tokenizer_normalizer;
-		$tokenizer = new patchwork_tokenizer_staticState($tokenizer);
+		$t = new patchwork_tokenizer_normalizer;
+		$t = new patchwork_tokenizer_staticState($t);
 
 		if( (defined('DEBUG') && DEBUG)
 			&& !empty($GLOBALS['CONFIG']['debug.scream'])
 				|| (defined('DEBUG_SCREAM') && DEBUG_SCREAM) )
 		{
-			new patchwork_tokenizer_scream($tokenizer);
+			new patchwork_tokenizer_scream($t);
 		}
 
-		$code = $tokenizer->parse($code);
-		$code = $tokenizer->getStaticCode($code);
-		$this->tokenizer = $tokenizer;
+		$code = $t->parse($code);
+		$code = $t->getStaticCode($code);
+		$this->tokenizer = $t;
 
-		if ($tokenizer = $tokenizer->getError())
+		if ($t = $t->getErrors())
 		{
-			$tokenizer = addslashes("{$tokenizer[0]} in {$this->file}") . ($tokenizer[1] ? " on line {$tokenizer[1]}" : '');
+			$t = $t[0];
+			$t = addslashes("{$t[0]} in {$this->file}") . ($t[1] ? " on line {$t[1]}" : '');
 
-			$code .= "die('Patchwork error: {$tokenizer}');";
+			$code .= "die('Patchwork error: {$t}');";
 		}
 
 		return $code;
