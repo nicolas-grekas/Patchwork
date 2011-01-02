@@ -41,8 +41,7 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 		if (T_NAMESPACE === $t[0] || T_DECLARE === $t[0]) return;
 
 		$this->unregister(array(__FUNCTION__ => array(T_OPEN_TAG, ';', '{')));
-		$this->register(array('tagScopeOpen' => '{'));
-		$this->callbacks = array();
+		$this->  register(array('tagScopeOpen'  => '{'));
 
 		$this->tagScopeOpen($token);
 	}
@@ -77,7 +76,6 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 	{
 		if (0 > --$this->curly && $this->scopes)
 		{
-			$this->unregister();
 			list($this->curly, $onClose) = array_pop($this->scopes);
 
 			foreach (array_reverse($onClose) as $c)
@@ -95,24 +93,35 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 	function tagFunction(&$token)
 	{
 		$this->nextScope = T_FUNCTION;
-		$this->register($this->callbacks = array(
-			'tagSemiColon'  => ';', // For abstracts methods
-		));
+		$this->register(array('tagSemiColon'  => ';')); // For abstracts methods
 	}
 
 	function tagNamespace(&$token)
 	{
-		if (!$this->scope)
+		switch ($this->prevType)
 		{
+		default: return;
+		case ';':
+		case '}':
+		case T_OPEN_TAG:
 			$t = $this->getNextToken();
 			if (T_STRING === $t[0] || '{' === $t[0])
+			{
 				$this->nextScope = T_NAMESPACE;
+
+				if ($this->scope)
+				{
+					$this->tagScopeClose($token);
+					$this->  register(array('tagFirstScope' => array(';', '{')));
+					$this->unregister(array('tagScopeOpen'  => '{'));
+				}
+			}
 		}
 	}
 
 	function tagSemiColon(&$token)
 	{
-		$this->unregister();
+		$this->unregister(array(__FUNCTION__ => ';'));
 		$this->nextScope = false;
 	}
 }
