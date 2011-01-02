@@ -1,4 +1,16 @@
-<?php
+<?php /*********************************************************************
+ *
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
+ *   Email     : p@tchwork.org
+ *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
+ *
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU Affero General Public License as
+ *   published by the Free Software Foundation, either version 3 of the
+ *   License, or (at your option) any later version.
+ *
+ ***************************************************************************/
+
 
 class patchwork_alias
 {
@@ -8,7 +20,7 @@ class patchwork_alias
 		{
 			if ('\\' === $c[0])
 			{
-				if (!isset($c[1]) || '\\' === $c[1]) return $c;
+				if (empty($c[1]) || '\\' === $c[1]) return $c;
 				$c = substr($c, 1);
 			}
 
@@ -16,6 +28,9 @@ class patchwork_alias
 			{
 				return '__patchwork_' . strtr($c, '\\', '_');
 			}
+
+/**/		if (version_compare(PHP_VERSION, '5.2.3') < 0)
+				strpos($c, '::') && $c = explode('::', $c, 2);
 		}
 
 		return $c;
@@ -24,6 +39,8 @@ class patchwork_alias
 	static function scopedResolve($c, &$v)
 	{
 		$v = self::resolve($c);
+/**/	if (version_compare(PHP_VERSION, '5.2.3') < 0)
+			is_array($v) && is_string($c) && $v = implode('', $v);
 		return '';
 	}
 }
