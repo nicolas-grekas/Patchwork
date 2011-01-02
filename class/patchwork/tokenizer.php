@@ -61,7 +61,7 @@ class patchwork_tokenizer
 
 	private
 
-	$tokenizerError    = false,
+	$tokenizerError    = array(),
 	$registryIndex     = 0,
 	$nextRegistryIndex = 0;
 
@@ -188,13 +188,10 @@ class patchwork_tokenizer
 
 	protected function setError($message, $type = E_USER_ERROR)
 	{
-		if (!$this->tokenizerError)
-		{
-			$this->tokenizerError = array($message, (int) $this->line, get_class($this), $type);
-		}
+		$this->tokenizerError[] = array($message, (int) $this->line, get_class($this), $type);
 	}
 
-	function getError()
+	function getErrors()
 	{
 		return $this->tokenizerError;
 	}
