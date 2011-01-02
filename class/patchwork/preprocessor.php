@@ -106,12 +106,14 @@ class patchwork_preprocessor__0
 			'stringInfo'         => true,
 			'namespaceInfo'      => true,
 			'scoper'             => true,
+			'constFuncDisabler'  => 0 <= $level,
 			'constantInliner'    => true,
 			'classInfo'          => true,
 			'constantExpression' => true,
 			'superPositioner'    => true,
 			'constructorStatic'  => true,
 			'constructor4to5'    => 0 > $level,
+			'constFuncResolver'  => true,
 			'functionAliasing'   => true,
 			'globalizer'         => 0 <= $level,
 			'scream'             => self::$scream,
@@ -139,9 +141,10 @@ class patchwork_preprocessor__0
 
 		$code = $t->parse($code);
 
-		if ($c = $t->getError())
+		if ($c = $t->getErrors())
 		{
-			patchwork_error::handle($c[3], $c[0], $source, $c[1]);
+			foreach ($c as $c)
+				patchwork_error::handle($c[3], $c[0], $source, $c[1]);
 		}
 
 		if ($t instanceof patchwork_tokenizer_staticState)
