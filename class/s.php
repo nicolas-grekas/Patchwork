@@ -1,3 +1,3 @@
 <?php
 
-class extends SESSION {}
+class s extends SESSION {}

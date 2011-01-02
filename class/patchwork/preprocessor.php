@@ -102,7 +102,7 @@ class patchwork_preprocessor__0
 		$t = new patchwork_tokenizer_normalizer;
 
 		$i = array(
-			'className'          => 0 <= $level && $class,
+			'classAutoname'      => 0 <= $level && $class,
 			'stringInfo'         => true,
 			'namespaceInfo'      => true,
 			'scoper'             => true,
@@ -128,7 +128,7 @@ class patchwork_preprocessor__0
 			switch ($c)
 			{
 			default:                 $t = new $i($t); break;
-			case 'className':        $t = new $i($t, $class); break;
+			case 'classAutoname':    $t = new $i($t, $class); break;
 			case 'globalizer':       $t = new $i($t, '$CONFIG'); break;
 			case 'marker':           $t = new $i($t, self::$declaredClass); break;
 			case 'constantInliner':  $t = new $i($t, $source, self::$constants); break;
@@ -141,7 +141,7 @@ class patchwork_preprocessor__0
 
 		if ($c = $t->getError())
 		{
-			patchwork_error::handle(E_USER_ERROR, $c[0], $source, $c[1]);
+			patchwork_error::handle($c[3], $c[0], $source, $c[1]);
 		}
 
 		if ($t instanceof patchwork_tokenizer_staticState)

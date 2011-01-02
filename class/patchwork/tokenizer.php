@@ -186,11 +186,11 @@ class patchwork_tokenizer
 		}
 	}
 
-	protected function setError($message)
+	protected function setError($message, $type = E_USER_ERROR)
 	{
 		if (!$this->tokenizerError)
 		{
-			$this->tokenizerError = array($message, (int) $this->line, get_class($this));
+			$this->tokenizerError = array($message, (int) $this->line, get_class($this), $type);
 		}
 	}
 
