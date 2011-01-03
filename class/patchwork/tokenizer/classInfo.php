@@ -19,10 +19,7 @@ class patchwork_tokenizer_classInfo extends patchwork_tokenizer
 	$class     = false,
 	$callbacks = array('tagClass' => array(T_CLASS, T_INTERFACE)),
 	$shared    = 'class',
-	$depends   = array(
-		'patchwork_tokenizer_namespaceInfo',
-		'patchwork_tokenizer_scoper',
-	);
+	$depends   = array('namespaceInfo', 'scoper');
 
 
 	function tagClass(&$token)
