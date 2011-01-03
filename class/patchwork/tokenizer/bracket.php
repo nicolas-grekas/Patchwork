@@ -24,8 +24,7 @@ abstract class patchwork_tokenizer_bracket extends patchwork_tokenizer
 		'tagOpen'  => array('('),
 		'tagIndex' => ',',
 		'tagClose' => array(')'),
-	),
-	$depends = 'patchwork_tokenizer';
+	);
 
 
 	// Abstract methods

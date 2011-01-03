@@ -128,6 +128,8 @@ function __autoload($searched_class)
 {
 	$a = strtolower($searched_class);
 
+	if ($a !== strtr($a, ";'?.$", '-----')) return;
+
 	if (TURBO && $a =& $GLOBALS['_patchwork_autoloaded'][$a])
 	{
 		if (is_int($a))

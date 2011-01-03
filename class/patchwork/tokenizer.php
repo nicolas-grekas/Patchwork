@@ -86,8 +86,9 @@ class patchwork_tokenizer
 		$this->parent = $parent;
 		is_array($this->depends) || $this->depends = (array) $this->depends;
 
-		foreach ($this->depends as $parent)
+		foreach ($this->depends as &$parent)
 		{
+			$parent = __CLASS__ . '_' . $parent;
 			if (!isset($this->parent->depends[$parent]))
 			{
 				trigger_error(get_class($this) . ' tokenizer depends on a not initialized one: ' . $parent);
@@ -95,6 +96,7 @@ class patchwork_tokenizer
 			}
 		}
 
+		unset($parent);
 		$this->depends = array_flip($this->depends);
 		$parent = get_class($this);
 

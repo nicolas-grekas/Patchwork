@@ -26,7 +26,7 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 		'tagNsResolve' => array(T_USE_CLASS, T_USE_FUNCTION, T_USE_CONSTANT, T_TYPE_HINT),
 	),
 	$shared  = array('namespace', 'nsResolved'),
-	$depends = 'patchwork_tokenizer_stringInfo';
+	$depends = 'stringInfo';
 
 
 	protected static

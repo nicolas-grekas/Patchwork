@@ -27,10 +27,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 		'tagNew'         => T_NEW,
 		'tagDoubleColon' => T_DOUBLE_COLON,
 	),
-	$depends   = array(
-		'patchwork_tokenizer_classInfo',
-		'patchwork_tokenizer_normalizer',
-	);
+	$depends = array('classInfo', 'normalizer');
 
 
 	function __construct(patchwork_tokenizer $parent = null, $inlineClass)
