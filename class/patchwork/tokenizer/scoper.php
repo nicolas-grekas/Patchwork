@@ -31,7 +31,7 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 		'tagClass'      => array(T_CLASS, T_INTERFACE),
 	),
 	$shared  = 'scope',
-	$depends = 'patchwork_tokenizer_normalizer';
+	$depends = 'normalizer';
 
 
 	function tagFirstScope(&$token)

@@ -21,7 +21,7 @@ class patchwork_tokenizer_globalizer extends patchwork_tokenizer
 		'tagScopeOpen'   => T_SCOPE_OPEN,
 		'tagAutoglobals' => T_VARIABLE,
 	),
-	$depends = 'patchwork_tokenizer_scoper';
+	$depends = 'scoper';
 
 
 	function __construct(parent $parent, $autoglobals)

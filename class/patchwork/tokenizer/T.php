@@ -17,10 +17,7 @@ class patchwork_tokenizer_T extends patchwork_tokenizer
 	protected
 
 	$callbacks = array('tagT' => array('T' => T_USE_FUNCTION)),
-	$depends   = array(
-		'patchwork_tokenizer_stringInfo',
-		'patchwork_tokenizer_constantExpression',
-	);
+	$depends   = array('stringInfo', 'constantExpression');
 
 
 	function tagT(&$token)

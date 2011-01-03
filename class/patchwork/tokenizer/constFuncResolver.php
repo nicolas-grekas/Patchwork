@@ -19,10 +19,7 @@ class patchwork_tokenizer_constFuncResolver extends patchwork_tokenizer
 	$openTag,
 	$nsLoadSrc = false,
 	$callbacks = array('tagOpenTag' => T_SCOPE_OPEN),
-	$depends   = array(
-		'patchwork_tokenizer_scoper',
-		'patchwork_tokenizer_namespaceInfo',
-	);
+	$depends   = array('scoper', 'namespaceInfo');
 
 
 	function tagOpenTag(&$token)

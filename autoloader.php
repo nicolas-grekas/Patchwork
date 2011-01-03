@@ -23,8 +23,6 @@ class __patchwork_autoloader
 
 	static function autoload($req)
 	{
-		if ($req !== strtr($req, ";'?", '---')) return;
-
 		$T = PATCHWORK_PATH_TOKEN;
 		$lc_req = strtolower($req);
 

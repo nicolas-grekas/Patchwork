@@ -30,10 +30,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 			'interface_exists' => T_USE_FUNCTION,
 		)
 	),
-	$depends = array(
-		'patchwork_tokenizer_classInfo',
-		'patchwork_tokenizer_constantExpression',
-	);
+	$depends = array('classInfo', 'constantExpression');
 
 
 	function __construct(parent $parent, $level, $topClass)
