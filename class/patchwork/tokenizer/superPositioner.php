@@ -19,8 +19,8 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 	$level,
 	$topClass,
 	$callbacks = array(
-		'tagSelf'          => array('self'   => array(T_USE_CLASS, T_TYPE_HINT)),
-		'tagParent'        => array('parent' => array(T_USE_CLASS, T_TYPE_HINT)),
+		'tagSelf'          => T_SELF,
+		'tagParent'        => T_PARENT,
 		'tagClass'         => array(T_CLASS, T_INTERFACE),
 		'tagPrivate'       => T_PRIVATE,
 		'tagRequire'       => array(T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
@@ -48,7 +48,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 
 	function tagSelf(&$token)
 	{
-		if ('self' === $token[1] && !empty($this->class->name) && empty($this->nsPrefix))
+		if (!empty($this->class->name) && empty($this->nsPrefix))
 		{
 			$token[1] = $this->class->name;
 			$this->nsResolved = '\\' . $this->class->nsName;
@@ -57,7 +57,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 
 	function tagParent(&$token)
 	{
-		if ('parent' === $token[1] && !empty($this->class->extends) && empty($this->nsPrefix))
+		if (!empty($this->class->extends) && empty($this->nsPrefix))
 		{
 			$token[1] = $this->nsResolved = $this->class->extends;
 			'' === $this->namespace && $token[1] = ltrim($token[1], '\\');
@@ -85,7 +85,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		$this->unregister(array(__FUNCTION__ => T_STRING));
 		$token[1] .= '__' . (0 <= $this->level ? $this->level : '00');
 		$this->class->realName = $token[1];
-		0 <= $this->level && $this->register(array('tagExtendsSelf' => T_USE_CLASS));
+		0 <= $this->level && $this->register(array('tagExtendsSelf' => array(T_USE_CLASS, T_SELF)));
 	}
 
 	function tagExtendsSelf(&$token)
@@ -103,7 +103,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 	function tagClassOpen(&$token)
 	{
 		$this->unregister(array(
-			'tagExtendsSelf' => T_USE_CLASS,
+			'tagExtendsSelf' => array(T_USE_CLASS, T_SELF),
 			__FUNCTION__     => T_SCOPE_OPEN,
 		));
 
