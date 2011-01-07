@@ -175,11 +175,10 @@ class patchwork_bootstrapper_bootstrapper__0
 
 			patchworkPath('class/patchwork.php', $level);
 			$T = addslashes($this->cwd . ".class_patchwork.php.0{$level}.{$T}.zcache.php");
-			$a[] = "
-DEBUG || file_exists('{$T}') && include '{$T}';
-class p extends patchwork {}
-patchwork::start();
-exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not flushed...
+			$a[] = "DEBUG || file_exists('{$T}') && include '{$T}';";
+			$a[] = function_exists('class_alias') ? "class_alias('patchwork','p');" : "class p extends patchwork {}";
+			$a[] = "patchwork::start();";
+			$a[] = "exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not flushed...
 
 			$a = implode('', $a);
 
