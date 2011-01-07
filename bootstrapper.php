@@ -92,7 +92,8 @@ while (patchwork_bootstrapper::loadConfigFile('post'))
 
 // Setup hook
 
-class p extends patchwork {}
+if (function_exists('class_alias')) class_alias('patchwork', 'p');
+else {class p extends patchwork {}}
 patchwork_setup::hook();
 
 
