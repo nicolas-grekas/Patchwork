@@ -26,6 +26,11 @@ patchwork_tokenizer::defineNewToken('T_USE_CONST');     // foo::BAR
 patchwork_tokenizer::defineNewToken('T_USE_CONSTANT');  // $foo = BAR
 patchwork_tokenizer::defineNewToken('T_GOTO_LABEL');    // goto FOO; or FOO: {...}
 patchwork_tokenizer::defineNewToken('T_TYPE_HINT');     // instanceof FOO; function f(BAR $a)
+patchwork_tokenizer::defineNewToken('T_PARENT');        // parent
+patchwork_tokenizer::defineNewToken('T_SELF');          // self
+patchwork_tokenizer::defineNewToken('T_TRUE');          // true
+patchwork_tokenizer::defineNewToken('T_FALSE');         // false
+patchwork_tokenizer::defineNewToken('T_NULL');          // null
 
 
 class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
@@ -77,6 +82,15 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		default:
 			if ($this->inNs ) $stype = T_NAME_NS;
 			if ($this->inUse) $stype = T_USE_NS;
+		}
+
+		if (empty($token[1][6])) switch (strtolower($token[1]))
+		{
+		case 'true':   $stype = T_TRUE;   break;
+		case 'false':  $stype = T_FALSE;  break;
+		case 'null':   $stype = T_NULL;   break;
+		case 'self':   'self'   === $token[1] && $stype = T_SELF;   break;
+		case 'parent': 'parent' === $token[1] && $stype = T_PARENT; break;
 		}
 
 		if (empty($stype))
