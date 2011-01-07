@@ -146,6 +146,11 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 
 			$token[1] = "}{$a} {$c->type} {$c->name} extends {$c->realName} {" . $token[1]
 				. "\$GLOBALS['_patchwork_autoloaded']['" . strtolower($c->nsName) . "']=1;";
+
+			if ($c->name === $c->nsName && strpos($c->name, '_') && function_exists('class_alias'))
+			{
+				$token[1] .= "class_alias('{$c->name}','" . preg_replace("'([^_])_((?:__)*[^_])'", '$1\\\\$2', $c->name) . "');";
+			}
 		}
 
 		if ($c->isAbstract)

@@ -185,6 +185,11 @@ class __patchwork_autoloader
 
 			if ($isTop)
 			{
+				if (!$ns && strpos($req, '_') && function_exists('class_alias'))
+				{
+					$code .= "class_alias('{$req}','" . preg_replace("'([^_])_((?:__)*[^_])'", '$1\\\\$2', $req) . "');";
+				}
+
 				$a = "{$ns}{$parent}::__c_s";
 				if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__constructStatic'))
 				{
