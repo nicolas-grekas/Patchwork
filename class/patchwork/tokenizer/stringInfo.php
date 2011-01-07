@@ -297,7 +297,9 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 			prev($t);
 		}
 
-		$this->nsPrefix = '';
+		$this->prevType  = $this->nsPreType;
+		$this->nsPrefix  = '';
+		$this->nsPreType = 0;
 	}
 
 
