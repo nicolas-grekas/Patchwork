@@ -126,6 +126,14 @@ function patchwork_class2cache($class, $level)
 
 function __autoload($searched_class)
 {
+	$a = strtr($searched_class, '\\', '_');
+
+	if ($a !== $searched_class && (class_exists($a, false) || interface_exists($a, false)))
+	{
+		class_alias($a, $searched_class);
+		return;
+	}
+
 	$a = strtolower($searched_class);
 
 	if ($a !== strtr($a, ";'?.$", '-----')) return;
