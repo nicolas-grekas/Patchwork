@@ -36,8 +36,9 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 		'tagNsEnd'  => array('{', ';'),
 	),
 	$useCallbacks = array(
-		'tagUseAs'  => array(T_STRING, T_NS_SEPARATOR),
-		'tagUseEnd' => ';',
+		'tagUseAs'   => T_STRING,
+		'tagUseNext' => array(',', ';'),
+		'tagUseEnd'  => ';',
 	);
 
 
@@ -71,7 +72,7 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 	{
 		if (T_AS === $this->prevType)
 		{
-			$this->nsAliases[$token[1]] = implode('', $this->nsUse);
+			$this->nsAliases[$token[1]] = '\\' . implode('\\', $this->nsUse);
 			$this->nsUse = array();
 		}
 		else
@@ -80,14 +81,17 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 		}
 	}
 
-	function tagUseEnd(&$token)
+	function tagUseNext(&$token)
 	{
 		if ($this->nsUse)
 		{
-			$this->nsAliases[end($this->nsUse)] = implode('', $this->nsUse);
+			$this->nsAliases[end($this->nsUse)] = '\\' . implode('\\', $this->nsUse);
 			$this->nsUse = array();
 		}
+	}
 
+	function tagUseEnd(&$token)
+	{
 		$this->unregister(self::$useCallbacks);
 	}
 
@@ -114,7 +118,7 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 
 			if ('namespace' === $a[0])
 			{
-				$a[0] = '' !== $this->namespace ? '\\' . $this->namespace : '';
+				$a[0] = '' !== $this->namespace ? substr('\\' . $this->namespace, 0, -1) : '';
 			}
 			else if (isset($this->nsAliases[$a[0]]))
 			{
@@ -122,7 +126,7 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 			}
 			else
 			{
-				$a[0] = '\\' . ('' !== $this->namespace ? $this->namespace . '\\' : '') . $a[0];
+				$a[0] = '\\' . $this->namespace . $a[0];
 			}
 
 			$this->nsResolved = implode('\\', $a);
