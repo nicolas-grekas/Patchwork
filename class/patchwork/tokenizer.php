@@ -22,9 +22,6 @@ defined('T_NS_SEPARATOR') || patchwork_tokenizer::defineNewToken('T_NS_SEPARATOR
 // Primary token matching closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
 patchwork_tokenizer::defineNewToken('T_CURLY_CLOSE');
 
-// Sub-token matching multilines sugar tokens (T_WHITESPACE, T_COMMENT and T_DOC_COMMENT)
-patchwork_tokenizer::defineNewToken('T_MULTILINE_SUGAR');
-
 
 class patchwork_tokenizer
 {
@@ -144,15 +141,12 @@ class patchwork_tokenizer
 			if (is_int($method))
 			{
 				isset($sort['']) || $sort[''] =& $this->callbackRegistry;
-				$this->callbackRegistry[++$this->registryIndex] = array($this, $type, 0);
+				$this->callbackRegistry[++$this->registryIndex] = array($this, $type);
 			}
-			else foreach ((array) $type as $s => $type)
+			else foreach ((array) $type as $type)
 			{
-				foreach ((array) $type as $type)
-				{
-					isset($sort[$type]) || $sort[$type] =& $this->tokenRegistry[$type];
-					$this->tokenRegistry[$type][++$this->registryIndex] = array($this, $method, 0 === $s || (0 < $s && is_int($s)) ? 0 : $s);
-				}
+				isset($sort[$type]) || $sort[$type] =& $this->tokenRegistry[$type];
+				$this->tokenRegistry[$type][++$this->registryIndex] = array($this, $method);
 			}
 		}
 
@@ -168,21 +162,18 @@ class patchwork_tokenizer
 			if (is_int($method))
 			{
 				foreach ($this->callbackRegistry as $k => $v)
-					if (array($this, $type, 0) === $v)
+					if (array($this, $type) === $v)
 						unset($this->callbackRegistry[$k]);
 			}
-			else foreach ((array) $type as $s => $type)
+			else foreach ((array) $type as $type)
 			{
-				foreach ((array) $type as $type)
+				if (isset($this->tokenRegistry[$type]))
 				{
-					if (isset($this->tokenRegistry[$type]))
-					{
-						foreach ($this->tokenRegistry[$type] as $k => $v)
-							if (array($this, $method, 0 === $s || (0 < $s && is_int($s)) ? 0 : $s) === $v)
-								unset($this->tokenRegistry[$type][$k]);
+					foreach ($this->tokenRegistry[$type] as $k => $v)
+						if (array($this, $method) === $v)
+							unset($this->tokenRegistry[$type][$k]);
 
-						if (!$this->tokenRegistry[$type]) unset($this->tokenRegistry[$type]);
-					}
+					if (!$this->tokenRegistry[$type]) unset($this->tokenRegistry[$type]);
 				}
 			}
 		}
@@ -239,8 +230,7 @@ class patchwork_tokenizer
 					if (isset($tRegistry[$t[0]]))
 					{
 						foreach ($tRegistry[$t[0]] as $c)
-							if (0 === $c[2] || ($lines && T_MULTILINE_SUGAR === $c[2]))
-								if (false === $c[0]->{$c[1]}($t)) continue 3;
+							if (false === $c[0]->{$c[1]}($t)) continue 3;
 					}
 
 					$code[++$j] =& $t[1];
@@ -294,8 +284,7 @@ class patchwork_tokenizer
 				}
 
 				foreach ($c as $c)
-					if (0 === $c[2] || (isset($t[2]) && $t[2] === $c[2]))
-						if (false === $c[0]->{$c[1]}($t)) continue 2;
+					if (false === $c[0]->{$c[1]}($t)) continue 2;
 			}
 
 			$type[++$j] =& $t[0];
