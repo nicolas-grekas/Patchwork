@@ -21,9 +21,9 @@ abstract class patchwork_tokenizer_bracket extends patchwork_tokenizer
 	$bracketLevel = 0,
 	$bracketIndex = 0,
 	$callbacks = array(
-		'tagOpen'  => array('('),
+		'tagOpen'  => '(',
 		'tagIndex' => ',',
-		'tagClose' => array(')'),
+		'tagClose' => ')',
 	);
 
 

@@ -23,8 +23,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 	),
 	$stateCallbacks = array(
 		1 => array(
-			'tagEOState1'  => T_COMMENT,
-			'tagEOState1b' => array(T_MULTILINE_SUGAR => T_WHITESPACE),
+			'tagEOState1' => array(T_COMMENT, T_WHITESPACE),
 		),
 		2 => array(
 			'tagEOState2'     => T_COMMENT,
@@ -189,12 +188,9 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 	{
 		if ('/*<*/' === $token[1]) return $this->setState(3);
 
-		"\n" === substr($token[1], -1) && $this->setState(2, $token);
-	}
-
-	function tagEOState1b(&$token)
-	{
-		$this->setState(2, $token);
+		false !== strpos($token[1], "\n")
+			&& '/*' !== substr($token[1], 0, 2)
+			&& $this->setState(2, $token);
 	}
 
 	function tagEOState3(&$token)
