@@ -52,7 +52,7 @@ class patchwork_tokenizer_constructor4to5 extends patchwork_tokenizer
 			$this->unregister();
 			break;
 
-		case strtolower($this->class->name):
+		case strtolower($this->class->nsName):
 			$this->register('catchSignature');
 			break;
 		}
@@ -81,7 +81,7 @@ class patchwork_tokenizer_constructor4to5 extends patchwork_tokenizer
 			$token[1] = 'function __construct' . $this->signature
 				. '{${""}=array(' . implode(',', $this->arguments) . ');'
 				. 'if(' . count($this->arguments) . '<func_num_args())${""}+=func_get_args();'
-				. 'call_user_func_array(array($this,"' . $this->class->name . '"),${""});}'
+				. 'call_user_func_array(array($this,"' . $this->class->nsName . '"),${""});}'
 				. $token[1];
 
 			$this->bracket   = 0;

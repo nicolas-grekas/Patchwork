@@ -34,7 +34,7 @@ class patchwork_tokenizer_classInfo extends patchwork_tokenizer
 		);
 
 		$this->callbacks = array(
-			'tagClassName' => T_STRING,
+			'tagClassName' => T_NAME_CLASS,
 			'tagExtends'   => T_EXTENDS,
 			'tagClassOpen' => T_SCOPE_OPEN,
 		);
@@ -44,7 +44,7 @@ class patchwork_tokenizer_classInfo extends patchwork_tokenizer
 
 	function tagClassName(&$token)
 	{
-		$this->unregister(array(__FUNCTION__ => T_STRING));
+		$this->unregister(array(__FUNCTION__ => T_NAME_CLASS));
 		$this->class->name   = $token[1];
 		$this->class->nsName = $this->namespace . $token[1];
 	}
@@ -57,7 +57,7 @@ class patchwork_tokenizer_classInfo extends patchwork_tokenizer
 	function tagExtendsName(&$token)
 	{
 		$this->unregister(array(__FUNCTION__ => T_USE_CLASS));
-		$this->class->extends = $this->nsResolved;
+		$this->class->extends = substr($this->nsResolved, 1);
 	}
 
 	function tagClassOpen(&$token)
