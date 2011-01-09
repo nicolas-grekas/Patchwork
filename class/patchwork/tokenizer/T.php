@@ -16,13 +16,13 @@ class patchwork_tokenizer_T extends patchwork_tokenizer
 {
 	protected
 
-	$callbacks = array('tagT' => array('T' => T_USE_FUNCTION)),
+	$callbacks = array('tagT' => T_USE_FUNCTION),
 	$depends   = array('namespaceInfo', 'constantExpression');
 
 
 	function tagT(&$token)
 	{
-		if ('\\T' === strtoupper($this->nsResolved))
+		if ('\T' === strtoupper($this->nsResolved))
 		{
 			++$this->index;
 

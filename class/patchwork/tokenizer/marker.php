@@ -78,8 +78,8 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 
 		if (T_CLASS === $this->scope->type)
 		{
-			$this->inlineClass[strtolower($this->class->name)] = 1;
-			$this->class->extends && $this->inlineClass[strtolower(ltrim($this->class->extends, '\\'))] = 1;
+			$this->inlineClass[strtolower($this->class->nsName)] = 1;
+			$this->class->extends && $this->inlineClass[strtolower($this->class->extends)] = 1;
 			return 'tagClassClose';
 		}
 	}
