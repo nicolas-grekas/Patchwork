@@ -21,7 +21,7 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 	$nsAliases  = array(),
 	$nsUse      = array(),
 	$callbacks  = array(
-		'tagNs'        => array(T_NAME_NS => T_NAMESPACE),
+		'tagNs'        => T_NAMESPACE,
 		'tagUse'       => T_USE,
 		'tagNsResolve' => array(T_USE_CLASS, T_USE_FUNCTION, T_USE_CONSTANT, T_TYPE_HINT),
 	),
@@ -44,9 +44,12 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 
 	function tagNs(&$token)
 	{
-		$this->namespace = '';
-		$this->nsAliases = array();
-		$this->register(self::$nsCallbacks);
+		if (T_NAME_NS === $token[2])
+		{
+			$this->namespace = '';
+			$this->nsAliases = array();
+			$this->register(self::$nsCallbacks);
+		}
 	}
 
 	function tagNsName(&$token)
