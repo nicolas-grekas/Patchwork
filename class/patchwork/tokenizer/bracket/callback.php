@@ -69,7 +69,7 @@ class patchwork_tokenizer_bracket_callback extends patchwork_tokenizer_bracket
 					$a = explode('::', $a, 2);
 
 					if (1 === count($a)) $t[1] = "'{$a[0]}'";
-					else if (empty($this->class->name) || strcasecmp($a[0], $this->class->nsName))
+					else if (empty($this->class->nsName) || strcasecmp($a[0], $this->class->nsName))
 					{
 						$t = ')';
 						$this->tokenUnshift(

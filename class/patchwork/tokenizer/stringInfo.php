@@ -69,31 +69,31 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		switch ($this->prevType)
 		{
 		case T_INTERFACE:
-		case T_CLASS: $stype = T_NAME_CLASS; break;
-		case T_GOTO:  $stype = T_GOTO_LABEL; break;
+		case T_CLASS: $t2 = T_NAME_CLASS; break;
+		case T_GOTO:  $t2 = T_GOTO_LABEL; break;
 
 		case '&': if (T_FUNCTION !== $this->anteType) break;
-		case T_FUNCTION: $stype = T_NAME_FUNCTION; break;
+		case T_FUNCTION: $t2 = T_NAME_FUNCTION; break;
 
 		case ',':
 		case T_CONST:
-			if ($this->inConst) $stype = T_NAME_CONST;
+			if ($this->inConst) $t2 = T_NAME_CONST;
 
 		default:
-			if ($this->inNs ) $stype = T_NAME_NS;
-			if ($this->inUse) $stype = T_USE_NS;
+			if ($this->inNs ) $t2 = T_NAME_NS;
+			if ($this->inUse) $t2 = T_USE_NS;
 		}
 
 		if (empty($token[1][6])) switch (strtolower($token[1]))
 		{
-		case 'true':   $stype = T_TRUE;   break;
-		case 'false':  $stype = T_FALSE;  break;
-		case 'null':   $stype = T_NULL;   break;
-		case 'self':   'self'   === $token[1] && $stype = T_SELF;   break;
-		case 'parent': 'parent' === $token[1] && $stype = T_PARENT; break;
+		case 'true':   $t2 = T_TRUE;   break;
+		case 'false':  $t2 = T_FALSE;  break;
+		case 'null':   $t2 = T_NULL;   break;
+		case 'self':   'self'   === $token[1] && $t2 = T_SELF;   break;
+		case 'parent': 'parent' === $token[1] && $t2 = T_PARENT; break;
 		}
 
-		if (empty($stype))
+		if (empty($t2))
 		{
 			if (T_NS_SEPARATOR === $t = $this->prevType)
 			{
@@ -105,14 +105,19 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 
 				$t = $this->nsPreType;
 			}
+			else
+			{
+				$this->nsPrefix  = '';
+				$this->nsPreType = 0;
+			}
 
 			switch ($t)
 			{
 			case ',': if (!$this->inExtends) break;
 			case T_NEW:
 			case T_EXTENDS:
-			case T_IMPLEMENTS: $stype = T_USE_CLASS; break;
-			case T_INSTANCEOF: $stype = T_TYPE_HINT; break;
+			case T_IMPLEMENTS: $t2 = T_USE_CLASS; break;
+			case T_INSTANCEOF: $t2 = T_TYPE_HINT; break;
 			}
 
 			$t = $this->getNextToken();
@@ -121,68 +126,55 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 			{
 				$this->nsPreType || $this->nsPreType = $this->prevType;
 				$this->nsPrefix .= $token[1];
-				$stype = T_USE_NS;
+				$t2 = T_USE_NS;
 			}
-			else if (empty($stype))
+			else if (empty($t2))
 			{
 				switch ($t[0])
 				{
-				case T_DOUBLE_COLON: $stype = T_USE_CLASS; break;
-				case T_VARIABLE:     $stype = T_TYPE_HINT; break;
+				case T_DOUBLE_COLON: $t2 = T_USE_CLASS; break;
+				case T_VARIABLE:     $t2 = T_TYPE_HINT; break;
 
 				case '(':
 					switch ($this->prevType)
 					{
 					case T_OBJECT_OPERATOR:
-					case T_DOUBLE_COLON: $stype = T_USE_METHOD;   break 2;
-					default:             $stype = T_USE_FUNCTION; break 2;
+					case T_DOUBLE_COLON: $t2 = T_USE_METHOD;   break 2;
+					default:             $t2 = T_USE_FUNCTION; break 2;
 					}
 
 				case ':':
 					if ('{' === $this->prevType || ';' === $this->prevType)
 					{
-						$stype = T_GOTO_LABEL; break 2;
+						$t2 = T_GOTO_LABEL; break 2;
 					}
 					// No break;
 				default:
 					switch ($this->prevType)
 					{
-					case T_OBJECT_OPERATOR: $stype = T_USE_PROPERTY; break 2;
-					case T_DOUBLE_COLON:    $stype = T_USE_CONST;    break 2;
+					case T_OBJECT_OPERATOR: $t2 = T_USE_PROPERTY; break 2;
+					case T_DOUBLE_COLON:    $t2 = T_USE_CONST;    break 2;
 
 					case '(':
 					case ',':
 						if (1 === $this->inParam && '&' === $t[0])
 						{
-							$stype = T_TYPE_HINT; break 2;
+							$t2 = T_TYPE_HINT; break 2;
 						}
 
 						// No break;
 
-					default: $stype = T_USE_CONSTANT; break 2;
+					default: $t2 = T_USE_CONSTANT; break 2;
 					}
 				}
 			}
 		}
 
-		$token[2] = $stype;
+		$token[2] = $t2;
 
-		if (isset($this->tokenRegistry[$stype]))
-		{
-			foreach ($this->tokenRegistry[$stype] as $c)
-			{
-				if (0 === $c[2] || 0 === strcasecmp($token[1], $c[2]))
-				{
-					if (false === $c[0]->{$c[1]}($token)) return false;
-				}
-			}
-		}
-
-		if ($this->nsPrefix && T_USE_NS !== $stype)
-		{
-			$this->nsPrefix  = '';
-			$this->nsPreType = 0;
-		}
+		if (isset($this->tokenRegistry[$t2]))
+			foreach ($this->tokenRegistry[$t2] as $c)
+				if (false === $c[0]->{$c[1]}($token)) return false;
 	}
 
 	function tagConst(&$token)

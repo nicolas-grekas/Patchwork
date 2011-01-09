@@ -19,27 +19,20 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 	$level,
 	$topClass,
 	$callbacks = array(
-		'tagSelf'          => T_SELF,
-		'tagParent'        => T_PARENT,
-		'tagClass'         => array(T_CLASS, T_INTERFACE),
-		'tagPrivate'       => T_PRIVATE,
-		'tagRequire'       => array(T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
-		'tagPatchworkPath' => array('patchworkPath' => T_USE_FUNCTION),
-		'tagClassExists'   => array(
-			'class_exists'     => T_USE_FUNCTION,
-			'interface_exists' => T_USE_FUNCTION,
-		)
+		'tagSelf'        => T_SELF,
+		'tagParent'      => T_PARENT,
+		'tagClass'       => array(T_CLASS, T_INTERFACE),
+		'tagClassName'   => T_NAME_CLASS,
+		'tagPrivate'     => T_PRIVATE,
+		'tagRequire'     => array(T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
+		'tagSpecialFunc' => T_USE_FUNCTION,
 	),
 	$depends = array('classInfo', 'constantExpression');
 
 
 	function __construct(parent $parent, $level, $topClass)
 	{
-		if (0 <= $level)
-		{
-			unset($this->callbacks['tagRequire']);
-			unset($this->callbacks['tagClassExists']);
-		}
+		if (0 <= $level) unset($this->callbacks['tagRequire']);
 
 		$this->initialize($parent);
 		$this->level    = $level;
@@ -50,8 +43,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 	{
 		if (!empty($this->class->name) && empty($this->nsPrefix))
 		{
-			$token[1] = $this->class->name;
-			$this->nsResolved = '\\' . $this->class->nsName;
+			return $this->tokenUnshift(array(T_STRING, $this->class->name));
 		}
 	}
 
@@ -59,17 +51,16 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 	{
 		if (!empty($this->class->extends) && empty($this->nsPrefix))
 		{
-			$token[1] = $this->nsResolved = $this->class->extends;
-			'' === $this->namespace && $token[1] = ltrim($token[1], '\\');
+			return $this->tokenUnshift(
+				array(T_STRING, $this->class->extends),
+				array(T_NS_SEPARATOR, '\\')
+			);
 		}
 	}
 
 	function tagClass(&$token)
 	{
-		$this->register(array(
-			'tagClassName' => T_STRING,
-			'tagClassOpen' => T_SCOPE_OPEN,
-		));
+		$this->register(array('tagClassOpen' => T_SCOPE_OPEN));
 
 		if ($this->class->isFinal)
 		{
@@ -82,7 +73,6 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 
 	function tagClassName(&$token)
 	{
-		$this->unregister(array(__FUNCTION__ => T_STRING));
 		$token[1] .= '__' . (0 <= $this->level ? $this->level : '00');
 		$this->class->realName = $token[1];
 		0 <= $this->level && $this->register(array('tagExtendsSelf' => array(T_USE_CLASS, T_SELF)));
@@ -93,8 +83,9 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		if (0 === strcasecmp('\\' . $this->class->nsName, $this->nsResolved))
 		{
 			$token[1] = $this->class->name . '__' . ($this->level ? $this->level - 1 : '00');
-			$this->class->extends = $this->nsResolved = '\\' . $this->namespace . $token[1];
+			$this->class->extends = $this->namespace . $token[1];
 			$this->class->extendsSelf = true;
+			$this->nsResolved = '\\' . $this->class->extends;
 
 			empty($this->nsPrefix) || $this->removeNsPrefix();
 		}
@@ -188,21 +179,21 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		new patchwork_tokenizer_closeBracket($this);
 	}
 
-	function tagPatchworkPath(&$token)
+	function tagSpecialFunc(&$token)
 	{
-		if (!isset($this->nsPrefix[0]) || '\\' === $this->nsPrefix[0])
+		switch (strtolower($this->nsResolved))
 		{
+		case '\patchworkpath':
 			// Append its fourth arg to patchworkPath()
 			new patchwork_tokenizer_bracket_patchworkPath($this, $this->level);
-		}
-	}
+			break;
 
-	function tagClassExists(&$token)
-	{
-		if (!isset($this->nsPrefix[0]) || '\\' === $this->nsPrefix[0])
-		{
+		case '\class_exists':
+		case '\interface_exists':
 			// For files in the include_path, always set the 2nd arg of class|interface_exists() to true
+			if (0 <= $this->level) return;
 			new patchwork_tokenizer_bracket_classExists($this);
+			break;
 		}
 	}
 }
