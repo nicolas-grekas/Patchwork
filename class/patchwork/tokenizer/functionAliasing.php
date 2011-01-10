@@ -35,6 +35,8 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 		// No callback parameter involved or complex behaviour
 		'__autoload'        => 0,
 		'class_exists'      => 0,
+		'class_parents'     => 0,
+		'class_implements'  => 0,
 		'constant'          => 0,
 		'defined'           => 0,
 		'get_class_methods' => 0,

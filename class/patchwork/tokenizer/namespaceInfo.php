@@ -59,7 +59,7 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 
 	function tagNsEnd(&$token)
 	{
-		'' !== $this->namespace && $this->namespace .= '\\';
+		$this->namespace && $this->namespace .= '\\';
 		$this->unregister(self::$nsCallbacks);
 	}
 
@@ -110,7 +110,7 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 					? '\\' . $this->namespace . $token[1]
 					: $this->nsAliases[$token[1]];
 			}
-			else if ('' === $this->namespace)
+			else if (!$this->namespace)
 			{
 				$this->nsResolved = '\\' . $this->nsResolved;
 			}
@@ -121,7 +121,7 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 
 			if ('namespace' === $a[0])
 			{
-				$a[0] = '' !== $this->namespace ? substr('\\' . $this->namespace, 0, -1) : '';
+				$a[0] = $this->namespace ? substr('\\' . $this->namespace, 0, -1) : '';
 			}
 			else if (isset($this->nsAliases[$a[0]]))
 			{

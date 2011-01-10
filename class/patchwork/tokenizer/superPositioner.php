@@ -43,7 +43,10 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 	{
 		if (!empty($this->class->name) && empty($this->nsPrefix))
 		{
-			return $this->tokenUnshift(array(T_STRING, $this->class->name));
+			return $this->tokenUnshift(
+				array(T_STRING, $this->class->nsName),
+				array(T_NS_SEPARATOR, '\\')
+			);
 		}
 	}
 
@@ -73,28 +76,31 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 
 	function tagClassName(&$token)
 	{
-		$token[1] .= '__' . (0 <= $this->level ? $this->level : '00');
-		$this->class->realName = $token[1];
-		0 <= $this->level && $this->register(array('tagExtendsSelf' => array(T_USE_CLASS, T_SELF)));
+		$this->class->suffix = '__' . (0 <= $this->level ? $this->level : '00');
+		$token[1] .= $this->class->suffix;
+		0 <= $this->level && $this->register(array('tagExtendsSelf' => T_USE_CLASS));
 	}
 
 	function tagExtendsSelf(&$token)
 	{
 		if (0 === strcasecmp('\\' . $this->class->nsName, $this->nsResolved))
 		{
-			$token[1] = $this->class->name . '__' . ($this->level ? $this->level - 1 : '00');
-			$this->class->extends = $this->namespace . $token[1];
 			$this->class->extendsSelf = true;
-			$this->nsResolved = '\\' . $this->class->extends;
+			$this->class->extends = $this->class->nsName . '__' . ($this->level ? $this->level - 1 : '00');
 
 			empty($this->nsPrefix) || $this->removeNsPrefix();
+
+			return $this->tokenUnshift(
+				array(T_STRING, $this->class->extends),
+				array(T_NS_SEPARATOR, '\\')
+			);
 		}
 	}
 
 	function tagClassOpen(&$token)
 	{
 		$this->unregister(array(
-			'tagExtendsSelf' => array(T_USE_CLASS, T_SELF),
+			'tagExtendsSelf' => T_USE_CLASS,
 			__FUNCTION__     => T_SCOPE_OPEN,
 		));
 
@@ -135,10 +141,10 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 			$c->isAbstract && $a = 'abstract';
 			$c->isFinal    && $a = 'final';
 
-			$token[1] = "}{$a} {$c->type} {$c->name} extends {$c->realName} {" . $token[1]
+			$token[1] = "}{$a} {$c->type} {$c->name} extends {$c->name}{$c->suffix} {" . $token[1]
 				. "\$GLOBALS['_patchwork_autoloaded']['" . strtolower($c->nsName) . "']=1;";
 
-			if ($c->name === $c->nsName && strpos($c->name, '_') && function_exists('class_alias'))
+			if (!$this->namespace && strpos($c->name, '_') && function_exists('class_alias'))
 			{
 				$token[1] .= "class_alias('{$c->name}','" . preg_replace("'([^_])_((?:__)*[^_])'", '$1\\\\$2', $c->name) . "');";
 			}
@@ -146,7 +152,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 
 		if ($c->isAbstract)
 		{
-			$a = strtolower($this->namespace . $c->realName);
+			$a = strtolower($c->nsName . $c->suffix);
 			$token[1] .= "\$GLOBALS['patchwork_abstract']['{$a}']=1;";
 		}
 	}
