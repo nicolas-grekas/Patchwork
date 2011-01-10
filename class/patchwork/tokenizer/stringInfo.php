@@ -66,6 +66,8 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 
 	function tagString(&$token)
 	{
+		if (T_NS_SEPARATOR !== $p = $this->prevType) $this->nsPrefix = '';
+
 		if (empty($token[1][6])) switch (strtolower($token[1]))
 		{
 		case 'true':   return T_TRUE;
@@ -75,7 +77,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		case 'parent': if ('parent' === $token[1]) return T_PARENT; break;
 		}
 
-		switch ($this->prevType)
+		switch ($p)
 		{
 		case T_INTERFACE:
 		case T_CLASS: return T_NAME_CLASS;
@@ -93,32 +95,24 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 			if ($this->inUse) return T_USE_NS;
 		}
 
-		if (T_NS_SEPARATOR === $p = $this->prevType)
-		{
-			if (!$this->nsPreType)
-			{
-				$this->nsPrefix = '\\';
-				$this->nsPreType = $this->anteType;
-			}
-
-			$p = $this->nsPreType;
-		}
-		else
-		{
-			$this->nsPrefix  = '';
-			$this->nsPreType = 0;
-		}
-
 		$n = $this->getNextToken();
 
 		if (T_NS_SEPARATOR === $n = $n[0])
 		{
-			$this->nsPreType || $this->nsPreType = $p;
-			$this->nsPrefix .= $token[1];
+			if (T_NS_SEPARATOR === $p)
+			{
+				$this->nsPrefix .= $token[1];
+			}
+			else
+			{
+				$this->nsPrefix  = $token[1];
+				$this->nsPreType = $p;
+			}
+
 			return T_USE_NS;
 		}
 
-		switch ($p)
+		switch (empty($this->nsPrefix) ? $p : $this->nsPreType)
 		{
 		case ',': if (!$this->inExtends) break;
 		case T_NEW:
@@ -251,17 +245,30 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 
 	function tagNsSep(&$token)
 	{
-		isset($this->nsPrefix[0]) && $this->nsPrefix .= '\\';
+		if (T_STRING === $this->prevType)
+		{
+			$this->nsPrefix .= '\\';
+		}
+		else
+		{
+			$this->nsPrefix  = '\\';
+			$this->nsPreType = $this->prevType;
+		}
 	}
 
 	function removeNsPrefix()
 	{
+		if (empty($this->nsPrefix)) return;
+
 		$t =& $this->type;
 		end($t);
 
+		$p = array(T_STRING, T_NS_SEPARATOR);
+		$j = 0;
+
 		while (null !== $i = key($t))
 		{
-			if (T_NS_SEPARATOR === $t[$i] || T_STRING === $t[$i])
+			if ($p[++$j%2] === $t[$i])
 			{
 				$this->code[$i] = '';
 				unset($t[$i]);
@@ -271,9 +278,8 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 			prev($t);
 		}
 
-		$this->prevType  = $this->nsPreType;
-		$this->nsPrefix  = '';
-		$this->nsPreType = 0;
+		$this->nsPrefix = '';
+		$this->prevType = $this->nsPreType;
 	}
 
 
