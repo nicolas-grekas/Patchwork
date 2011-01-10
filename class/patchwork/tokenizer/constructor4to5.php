@@ -25,7 +25,7 @@ class patchwork_tokenizer_constructor4to5 extends patchwork_tokenizer
 
 	function tagClassOpen(&$token)
 	{
-		if ('' === $this->namespace && T_CLASS === $this->scope->type)
+		if (!$this->namespace && T_CLASS === $this->scope->type)
 		{
 			$this->unregister();
 			$this->callbacks = array('tagFunction' => T_FUNCTION);
