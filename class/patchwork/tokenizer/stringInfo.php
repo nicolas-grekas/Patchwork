@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-// Sub-tokens to tag T_STRING variants
+// Match T_STRING variants
 patchwork_tokenizer::defineNewToken('T_NAME_NS');       // namespace FOO\BAR;
 patchwork_tokenizer::defineNewToken('T_NAME_CLASS');    // class FOOBAR {}; interface FOOBAR {}
 patchwork_tokenizer::defineNewToken('T_NAME_FUNCTION'); // function FOOBAR()
@@ -66,115 +66,98 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 
 	function tagString(&$token)
 	{
+		if (empty($token[1][6])) switch (strtolower($token[1]))
+		{
+		case 'true':   return T_TRUE;
+		case 'false':  return T_FALSE;
+		case 'null':   return T_NULL;
+		case 'self':   if ('self'   === $token[1]) return T_SELF;   break;
+		case 'parent': if ('parent' === $token[1]) return T_PARENT; break;
+		}
+
 		switch ($this->prevType)
 		{
 		case T_INTERFACE:
-		case T_CLASS: $t2 = T_NAME_CLASS; break;
-		case T_GOTO:  $t2 = T_GOTO_LABEL; break;
+		case T_CLASS: return T_NAME_CLASS;
+		case T_GOTO:  return T_GOTO_LABEL;
 
 		case '&': if (T_FUNCTION !== $this->anteType) break;
-		case T_FUNCTION: $t2 = T_NAME_FUNCTION; break;
+		case T_FUNCTION: return T_NAME_FUNCTION;
 
 		case ',':
 		case T_CONST:
-			if ($this->inConst) $t2 = T_NAME_CONST;
+			if ($this->inConst) return T_NAME_CONST;
 
 		default:
-			if ($this->inNs ) $t2 = T_NAME_NS;
-			if ($this->inUse) $t2 = T_USE_NS;
+			if ($this->inNs ) return T_NAME_NS;
+			if ($this->inUse) return T_USE_NS;
 		}
 
-		if (empty($token[1][6])) switch (strtolower($token[1]))
+		if (T_NS_SEPARATOR === $p = $this->prevType)
 		{
-		case 'true':   $t2 = T_TRUE;   break;
-		case 'false':  $t2 = T_FALSE;  break;
-		case 'null':   $t2 = T_NULL;   break;
-		case 'self':   'self'   === $token[1] && $t2 = T_SELF;   break;
-		case 'parent': 'parent' === $token[1] && $t2 = T_PARENT; break;
-		}
+			if (!$this->nsPreType)
+			{
+				$this->nsPrefix = '\\';
+				$this->nsPreType = $this->anteType;
+			}
 
-		if (empty($t2))
+			$p = $this->nsPreType;
+		}
+		else
 		{
-			if (T_NS_SEPARATOR === $t = $this->prevType)
-			{
-				if (!$this->nsPreType)
-				{
-					$this->nsPrefix = '\\';
-					$this->nsPreType = $this->anteType;
-				}
+			$this->nsPrefix  = '';
+			$this->nsPreType = 0;
+		}
 
-				$t = $this->nsPreType;
+		$n = $this->getNextToken();
+
+		if (T_NS_SEPARATOR === $n = $n[0])
+		{
+			$this->nsPreType || $this->nsPreType = $p;
+			$this->nsPrefix .= $token[1];
+			return T_USE_NS;
+		}
+
+		switch ($p)
+		{
+		case ',': if (!$this->inExtends) break;
+		case T_NEW:
+		case T_EXTENDS:
+		case T_IMPLEMENTS: return T_USE_CLASS;
+		case T_INSTANCEOF: return T_TYPE_HINT;
+		}
+
+		switch ($n)
+		{
+		case T_DOUBLE_COLON: return T_USE_CLASS;
+		case T_VARIABLE:     return T_TYPE_HINT;
+
+		case '(':
+			switch ($p)
+			{
+			case T_OBJECT_OPERATOR:
+			case T_DOUBLE_COLON: return T_USE_METHOD;
+			default:             return T_USE_FUNCTION;
 			}
-			else
+
+		case ':':
+			if ('{' === $p || ';' === $p) return T_GOTO_LABEL;
+			// No break;
+
+		default:
+			switch ($p)
 			{
-				$this->nsPrefix  = '';
-				$this->nsPreType = 0;
-			}
+			case T_OBJECT_OPERATOR: return T_USE_PROPERTY;
+			case T_DOUBLE_COLON:    return T_USE_CONST;
 
-			switch ($t)
-			{
-			case ',': if (!$this->inExtends) break;
-			case T_NEW:
-			case T_EXTENDS:
-			case T_IMPLEMENTS: $t2 = T_USE_CLASS; break;
-			case T_INSTANCEOF: $t2 = T_TYPE_HINT; break;
-			}
-
-			$t = $this->getNextToken();
-
-			if (T_NS_SEPARATOR === $t[0])
-			{
-				$this->nsPreType || $this->nsPreType = $this->prevType;
-				$this->nsPrefix .= $token[1];
-				$t2 = T_USE_NS;
-			}
-			else if (empty($t2))
-			{
-				switch ($t[0])
-				{
-				case T_DOUBLE_COLON: $t2 = T_USE_CLASS; break;
-				case T_VARIABLE:     $t2 = T_TYPE_HINT; break;
-
-				case '(':
-					switch ($this->prevType)
-					{
-					case T_OBJECT_OPERATOR:
-					case T_DOUBLE_COLON: $t2 = T_USE_METHOD;   break 2;
-					default:             $t2 = T_USE_FUNCTION; break 2;
-					}
-
-				case ':':
-					if ('{' === $this->prevType || ';' === $this->prevType)
-					{
-						$t2 = T_GOTO_LABEL; break 2;
-					}
-					// No break;
-				default:
-					switch ($this->prevType)
-					{
-					case T_OBJECT_OPERATOR: $t2 = T_USE_PROPERTY; break 2;
-					case T_DOUBLE_COLON:    $t2 = T_USE_CONST;    break 2;
-
-					case '(':
-					case ',':
-						if (1 === $this->inParam && '&' === $t[0])
-						{
-							$t2 = T_TYPE_HINT; break 2;
-						}
-
-						// No break;
-
-					default: $t2 = T_USE_CONSTANT; break 2;
-					}
-				}
+			case '(':
+			case ',':
+				if (1 === $this->inParam && '&' === $n) return T_TYPE_HINT;
+				// No break;
 			}
 		}
 
-		$token[2] = $t2;
-
-		if (isset($this->tokenRegistry[$t2]))
-			foreach ($this->tokenRegistry[$t2] as $c)
-				if (false === $c[0]->{$c[1]}($token)) return false;
+		return T_USE_CONSTANT;
 	}
 
 	function tagConst(&$token)
@@ -238,8 +221,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 			// No break;
 
 		case '{':
-			$token[2] = T_NAME_NS;
-			break;
+			return T_NAME_NS;
 
 		case T_NS_SEPARATOR:
 			$this->tagString($token);

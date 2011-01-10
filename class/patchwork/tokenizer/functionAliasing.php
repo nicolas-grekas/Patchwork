@@ -256,7 +256,7 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 
 			empty($this->nsPrefix) || $this->removeNsPrefix();
 
-			return $a;
+			if (false === $a) return false;
 		}
 		else if (isset(self::$autoloader[$a]))
 		{
