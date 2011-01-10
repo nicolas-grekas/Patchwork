@@ -44,7 +44,7 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 
 	function tagNs(&$token)
 	{
-		if (T_NAME_NS === $token[2])
+		if (in_array(T_NAME_NS, $token[2]))
 		{
 			$this->namespace = '';
 			$this->nsAliases = array();
@@ -104,7 +104,7 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 
 		if ('' === $this->nsPrefix)
 		{
-			if (T_USE_CLASS === $token[2] || T_TYPE_HINT === $token[2])
+			if (in_array(T_USE_CLASS, $token[2]) || in_array(T_TYPE_HINT, $token[2]))
 			{
 				$this->nsResolved = empty($this->nsAliases[$token[1]])
 					? '\\' . $this->namespace . $token[1]

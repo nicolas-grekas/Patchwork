@@ -12,8 +12,9 @@
  ***************************************************************************/
 
 
-// New token to match a new scope opening
+// Match a new scope opening
 patchwork_tokenizer::defineNewToken('T_SCOPE_OPEN');
+
 
 class patchwork_tokenizer_scoper extends patchwork_tokenizer
 {
