@@ -19,7 +19,7 @@ defined('T_NS_C')         || patchwork_tokenizer::defineNewToken('T_NS_C');
 defined('T_NAMESPACE')    || patchwork_tokenizer::defineNewToken('T_NAMESPACE');
 defined('T_NS_SEPARATOR') || patchwork_tokenizer::defineNewToken('T_NS_SEPARATOR');
 
-// Primary token matching closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
+// Match closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
 patchwork_tokenizer::defineNewToken('T_CURLY_CLOSE');
 
 
@@ -214,9 +214,11 @@ class patchwork_tokenizer
 
 		while (isset($token[$i]))
 		{
-			$lines = 0;
 			$t =& $token[$i];
 			unset($token[$i++]);
+
+			$lines = 0;
+			$typed = 1;
 
 			if (isset($t[1]))
 			{
@@ -225,18 +227,8 @@ class patchwork_tokenizer
 				case T_WHITESPACE:
 				case T_COMMENT:
 				case T_DOC_COMMENT:
-					$lines = substr_count($t[1], "\n");
-
-					if (isset($tRegistry[$t[0]]))
-					{
-						foreach ($tRegistry[$t[0]] as $c)
-							if (false === $c[0]->{$c[1]}($t)) continue 3;
-					}
-
-					$code[++$j] =& $t[1];
-
-					$line += $lines;
-					continue 2;
+					$typed = 0;
+					// No break;
 
 				case T_CONSTANT_ENCAPSED_STRING:
 				case T_ENCAPSED_AND_WHITESPACE:
@@ -264,35 +256,53 @@ class patchwork_tokenizer
 				case '}':
 					if (0 > --$curly)
 					{
-						$t[0] = T_CURLY_CLOSE;
-						$curly    = array_pop($strCurly);
+						$t[0]  = T_CURLY_CLOSE;
+						$curly = array_pop($strCurly);
 					}
 					break;
 				}
 			}
 
-			if ($cRegistry || isset($tRegistry[$t[0]]))
+			if (isset($tRegistry[$t[0]]) || ($cRegistry && $typed))
 			{
-				if (!$c = $cRegistry)
-				{
-					$c = $tRegistry[$t[0]];
-				}
-				else if (isset($tRegistry[$t[0]]))
-				{
-					$c += $tRegistry[$t[0]];
-					ksort($c);
-				}
+				$t[2] = array($k = $t[0]);
 
-				foreach ($c as $c)
-					if (false === $c[0]->{$c[1]}($t)) continue 2;
+				if (empty($tRegistry[$k])) $callbacks = $cRegistry;
+				else if ($cRegistry && $typed)
+				{
+					$callbacks = $cRegistry + $tRegistry[$k];
+					ksort($callbacks);
+				}
+				else $callbacks = $tRegistry[$k];
+
+				do
+				{
+					foreach ($callbacks as $k => $c)
+					{
+						unset($callbacks[$k]);
+
+						if (false === $k = $c[0]->{$c[1]}($t)) continue 3;
+						else if (null !== $k && isset($tRegistry[$t[2][] = $k]))
+						{
+							$callbacks += $tRegistry[$k];
+							ksort($callbacks);
+							continue 2;
+						}
+					}
+
+					break;
+				}
+				while (1);
 			}
 
-			$type[++$j] =& $t[0];
-			$code[  $j] =& $t[1];
+			$code[++$j] =& $t[1];
 			$line += $lines;
 
-			$anteType = $prevType;
-			$prevType = $t[0];
+			if ($typed)
+			{
+				$anteType = $prevType;
+				$type[$j] = $prevType = $t[0];
+			}
 		}
 
 		// Free memory thanks to copy-on-write
