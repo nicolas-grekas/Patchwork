@@ -60,14 +60,13 @@ class patchwork_tokenizer_classInfo extends patchwork_tokenizer
 		$this->class->extends = substr($this->nsResolved, 1);
 	}
 
-	function tagClassOpen(&$token)
+	protected function tagClassOpen(&$token)
 	{
 		$this->unregister();
-
-		return 'tagClassClose';
+		$this->register(array('tagClassClose' => T_SCOPE_CLOSE));
 	}
 
-	function tagClassClose(&$token)
+	protected function tagClassClose(&$token)
 	{
 		$this->class = false;
 	}

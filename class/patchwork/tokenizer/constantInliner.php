@@ -121,7 +121,7 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 		T_STRING === $t[0] && $this->nextScope = $t[1];
 	}
 
-	function tagScopeOpen(&$token)
+	protected function tagScopeOpen(&$token)
 	{
 		if ($this->scope->parent)
 		{

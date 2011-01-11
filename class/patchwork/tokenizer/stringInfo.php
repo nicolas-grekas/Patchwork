@@ -244,7 +244,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 			return T_NAME_NS;
 
 		case T_NS_SEPARATOR:
-			$this->tagString($token);
+			return $this->tagString($token);
 		}
 	}
 

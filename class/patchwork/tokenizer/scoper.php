@@ -15,6 +15,9 @@
 // Match a new scope opening
 patchwork_tokenizer::defineNewToken('T_SCOPE_OPEN');
 
+// Match a scope closing. Has to be registered during its corresponding T_SCOPE_OPEN
+patchwork_tokenizer::defineNewToken('T_SCOPE_CLOSE');
+
 
 class patchwork_tokenizer_scoper extends patchwork_tokenizer
 {
@@ -44,7 +47,7 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 		$this->unregister(array(__FUNCTION__ => array(T_OPEN_TAG, ';', '{')));
 		$this->  register(array('tagScopeOpen'  => '{'));
 
-		$this->tagScopeOpen($token);
+		return $this->tagScopeOpen($token);
 	}
 
 	protected function tagScopeOpen(&$token)
@@ -57,33 +60,52 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 				'token'  => &$token,
 			);
 
-			$onClose = array();
+			$this->nextScope = false;
+			$this->scopes[] = array($this->curly, array());
+			$this->curly = 0;
 
 			if (isset($this->tokenRegistry[T_SCOPE_OPEN]))
 			{
-				foreach ($this->tokenRegistry[T_SCOPE_OPEN] as $c)
-					if ($c[1] = $c[0]->{$c[1]}($token))
-						$onClose[] = $c;
+				$this->tokenUnshift(array(T_WHITESPACE, ''));
+				$this->register(array('tagAfterScopeOpen' => T_WHITESPACE));
+				return T_SCOPE_OPEN;
 			}
-
-			$this->scopes[] = array($this->curly, $onClose);
-			$this->curly = 0;
-			$this->nextScope = false;
 		}
 		else ++$this->curly;
+	}
+
+	protected function tagAfterScopeOpen(&$token)
+	{
+		$this->unregister(array(__FUNCTION__ => T_WHITESPACE));
+
+		if (empty($this->tokenRegistry[T_SCOPE_CLOSE])) return;
+
+		$this->scopes[count($this->scopes) - 1][1] = $this->tokenRegistry[T_SCOPE_CLOSE];
+		unset($this->tokenRegistry[T_SCOPE_CLOSE]);
 	}
 
 	protected function tagScopeClose(&$token)
 	{
 		if (0 > --$this->curly && $this->scopes)
 		{
-			list($this->curly, $onClose) = array_pop($this->scopes);
+			list($this->curly, $c) = array_pop($this->scopes);
 
-			foreach (array_reverse($onClose) as $c)
-				$c[0]->{$c[1]}($token);
+			if ($c)
+			{
+				$this->tokenRegistry[T_SCOPE_CLOSE] = array_reverse($c);
+				$this->tokenRegistry[T_SCOPE_CLOSE][] = array($this, 'tagAfterScopeClose');
+
+				return T_SCOPE_CLOSE;
+			}
 
 			$this->scope = $this->scope->parent;
 		}
+	}
+
+	protected function tagAfterScopeClose(&$token)
+	{
+		unset($this->tokenRegistry[T_SCOPE_CLOSE]);
+		$this->scope = $this->scope->parent;
 	}
 
 	protected function tagClass(&$token)
@@ -112,9 +134,9 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 
 				if ($this->scope)
 				{
-					$this->tagScopeClose($token);
 					$this->  register(array('tagFirstScope' => array(';', '{')));
 					$this->unregister(array('tagScopeOpen'  => '{'));
+					return $this->tagScopeClose($token);
 				}
 			}
 		}
