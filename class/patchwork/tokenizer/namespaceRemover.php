@@ -22,10 +22,10 @@ class patchwork_tokenizer_namespaceRemover extends patchwork_tokenizer
 		'tagNsUse'  => array(T_USE_CLASS, T_USE_FUNCTION, T_USE_CONSTANT, T_TYPE_HINT),
 		'tagNsName' => array(T_NAME_CLASS, T_NAME_FUNCTION),
 	),
-	$depends = array('constFuncResolver', 'namespaceResolver', 'classInfo');
+	$dependencies = array('constFuncResolver', 'namespaceResolver', 'classInfo');
 
 
-	function tagNs(&$token)
+	protected function tagNs(&$token)
 	{
 		if (in_array(T_NAME_NS, $token[2]))
 		{
@@ -34,7 +34,7 @@ class patchwork_tokenizer_namespaceRemover extends patchwork_tokenizer
 		}
 	}
 
-	function tagNsEnd(&$token)
+	protected function tagNsEnd(&$token)
 	{
 		switch ($token[0])
 		{
@@ -49,20 +49,20 @@ class patchwork_tokenizer_namespaceRemover extends patchwork_tokenizer
 		$token[1] = '';
 	}
 
-	function tagNsSep(&$token)
+	protected function tagNsSep(&$token)
 	{
 		if (T_STRING === $this->prevType) $token[1] = strtr($token[1], '\\', '_');
 		else if (T_NS_SEPARATOR !== $this->prevType) $token[1] = '';
 	}
 
-	function tagNsUse(&$token)
+	protected function tagNsUse(&$token)
 	{
 		$token[1] = strtr($token[1], '\\', '_');
 		$this->nsResolved = strtr($this->nsResolved, '\\', '_');
 		'_' === substr($this->nsResolved, 0, 1) && $this->nsResolved[0] = '\\';
 	}
 
-	function tagNsName(&$token)
+	protected function tagNsName(&$token)
 	{
 		if ($this->namespace && T_CLASS !== $this->scope->type && T_INTERFACE !== $this->scope->type)
 		{
