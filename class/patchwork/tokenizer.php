@@ -126,66 +126,6 @@ class patchwork_tokenizer
 		empty($this->callbacks) || $this->register();
 	}
 
-	static function defineNewToken($name)
-	{
-		static $offset = 0;
-		define($name, --$offset);
-	}
-
-	protected function register($method = null)
-	{
-		null === $method && $method = $this->callbacks;
-
-		$sort = array();
-
-		foreach ((array) $method as $method => $type)
-		{
-			if (is_int($method))
-			{
-				isset($sort['']) || $sort[''] =& $this->callbackRegistry;
-				$this->callbackRegistry[++$this->registryIndex] = array($this, $type);
-			}
-			else foreach ((array) $type as $type)
-			{
-				isset($sort[$type]) || $sort[$type] =& $this->tokenRegistry[$type];
-				$this->tokenRegistry[$type][++$this->registryIndex] = array($this, $method);
-			}
-		}
-
-		foreach ($sort as &$sort) ksort($sort);
-	}
-
-	protected function unregister($method = null)
-	{
-		null === $method && $method = $this->callbacks;
-
-		foreach ((array) $method as $method => $type)
-		{
-			if (is_int($method))
-			{
-				foreach ($this->callbackRegistry as $k => $v)
-					if (array($this, $type) === $v)
-						unset($this->callbackRegistry[$k]);
-			}
-			else foreach ((array) $type as $type)
-			{
-				if (isset($this->tokenRegistry[$type]))
-				{
-					foreach ($this->tokenRegistry[$type] as $k => $v)
-						if (array($this, $method) === $v)
-							unset($this->tokenRegistry[$type][$k]);
-
-					if (!$this->tokenRegistry[$type]) unset($this->tokenRegistry[$type]);
-				}
-			}
-		}
-	}
-
-	protected function setError($message, $type = E_USER_ERROR)
-	{
-		$this->tokenizerError[] = array($message, (int) $this->line, get_class($this), $type);
-	}
-
 	function getErrors()
 	{
 		return $this->tokenizerError;
@@ -315,9 +255,89 @@ class patchwork_tokenizer
 		return $j;
 	}
 
+	protected function setError($message, $type = E_USER_ERROR)
+	{
+		$this->tokenizerError[] = array($message, (int) $this->line, get_class($this), $type);
+	}
+
+	protected function register($method = null)
+	{
+		null === $method && $method = $this->callbacks;
+
+		$sort = array();
+
+		foreach ((array) $method as $method => $type)
+		{
+			if (is_int($method))
+			{
+				isset($sort['']) || $sort[''] =& $this->callbackRegistry;
+				$this->callbackRegistry[++$this->registryIndex] = array($this, $type);
+			}
+			else foreach ((array) $type as $type)
+			{
+				isset($sort[$type]) || $sort[$type] =& $this->tokenRegistry[$type];
+				$this->tokenRegistry[$type][++$this->registryIndex] = array($this, $method);
+			}
+		}
+
+		foreach ($sort as &$sort) ksort($sort);
+	}
+
+	protected function unregister($method = null)
+	{
+		null === $method && $method = $this->callbacks;
+
+		foreach ((array) $method as $method => $type)
+		{
+			if (is_int($method))
+			{
+				foreach ($this->callbackRegistry as $k => $v)
+					if (array($this, $type) === $v)
+						unset($this->callbackRegistry[$k]);
+			}
+			else foreach ((array) $type as $type)
+			{
+				if (isset($this->tokenRegistry[$type]))
+				{
+					foreach ($this->tokenRegistry[$type] as $k => $v)
+						if (array($this, $method) === $v)
+							unset($this->tokenRegistry[$type][$k]);
+
+					if (!$this->tokenRegistry[$type]) unset($this->tokenRegistry[$type]);
+				}
+			}
+		}
+	}
+
+	protected function &getNextToken($offset = 0)
+	{
+		$i = $this->index;
+
+		do while (isset($this->token[$i], self::$sugar[$this->token[$i][0]])) ++$i;
+		while ($offset-- > 0 && ++$i);
+
+		isset($this->token[$i]) || $this->token[$i] = array(T_WHITESPACE, '');
+
+		return $this->token[$i];
+	}
+
+	protected function tokenUnshift()
+	{
+		foreach (func_get_args() as $token)
+			$this->token[--$this->index] = $token;
+
+		return false;
+	}
+
 	protected function getTokens($code)
 	{
 		return $this->parent === $this ? token_get_all($code) : $this->parent->getTokens($code);
+	}
+
+	static function defineNewToken($name)
+	{
+		static $offset = 0;
+		define($name, --$offset);
 	}
 
 	static function export($a)
@@ -386,25 +406,5 @@ class patchwork_tokenizer
 		else $b = (string) $a;
 
 		return $b;
-	}
-
-	protected function &getNextToken($offset = 0)
-	{
-		$i = $this->index;
-
-		do while (isset($this->token[$i], self::$sugar[$this->token[$i][0]])) ++$i;
-		while ($offset-- > 0 && ++$i);
-
-		isset($this->token[$i]) || $this->token[$i] = array(T_WHITESPACE, '');
-
-		return $this->token[$i];
-	}
-
-	protected function tokenUnshift()
-	{
-		foreach (func_get_args() as $token)
-			$this->token[--$this->index] = $token;
-
-		return false;
 	}
 }
