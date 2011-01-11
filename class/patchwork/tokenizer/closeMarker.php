@@ -39,7 +39,7 @@ class patchwork_tokenizer_closeMarker extends patchwork_tokenizer
 		$this->registered = null !== $method;
 	}
 
-	function filterToken(&$token)
+	protected function filterToken(&$token)
 	{
 		if ($this->greedy) return $this->greedyFilter($token);
 

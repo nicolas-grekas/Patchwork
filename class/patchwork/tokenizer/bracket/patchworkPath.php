@@ -22,7 +22,7 @@ class patchwork_tokenizer_bracket_patchworkPath extends patchwork_tokenizer_brac
 		$this->initialize($parent);
 	}
 
-	function onClose(&$token)
+	protected function onClose(&$token)
 	{
 		if (2 === $this->bracketIndex)
 		{

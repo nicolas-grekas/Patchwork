@@ -31,11 +31,11 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 		'tagFunction'   => T_FUNCTION,
 		'tagClass'      => array(T_CLASS, T_INTERFACE),
 	),
-	$shared  = 'scope',
-	$depends = 'normalizer';
+	$shared = 'scope',
+	$dependencies = 'normalizer';
 
 
-	function tagFirstScope(&$token)
+	protected function tagFirstScope(&$token)
 	{
 		$t = $this->getNextToken();
 
@@ -47,7 +47,7 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 		$this->tagScopeOpen($token);
 	}
 
-	function tagScopeOpen(&$token)
+	protected function tagScopeOpen(&$token)
 	{
 		if ($this->nextScope)
 		{
@@ -73,7 +73,7 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 		else ++$this->curly;
 	}
 
-	function tagScopeClose(&$token)
+	protected function tagScopeClose(&$token)
 	{
 		if (0 > --$this->curly && $this->scopes)
 		{
@@ -86,18 +86,18 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 		}
 	}
 
-	function tagClass(&$token)
+	protected function tagClass(&$token)
 	{
 		$this->nextScope = $token[0];
 	}
 
-	function tagFunction(&$token)
+	protected function tagFunction(&$token)
 	{
 		$this->nextScope = T_FUNCTION;
 		$this->register(array('tagSemiColon'  => ';')); // For abstracts methods
 	}
 
-	function tagNamespace(&$token)
+	protected function tagNamespace(&$token)
 	{
 		switch ($this->prevType)
 		{
@@ -120,7 +120,7 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 		}
 	}
 
-	function tagSemiColon(&$token)
+	protected function tagSemiColon(&$token)
 	{
 		$this->unregister(array(__FUNCTION__ => ';'));
 		$this->nextScope = false;

@@ -39,11 +39,12 @@ class patchwork_tokenizer
 	$callbackRegistry = array(),
 
 	$parent,
-	$depends = array(),
+	$dependencies = array(),
+	$parents = array(),
 	$shared = array(
 		'line',
 		'token',
-		'depends',
+		'parents',
 		'index',
 		'type',
 		'code',
@@ -81,32 +82,33 @@ class patchwork_tokenizer
 	protected function initialize(self $parent)
 	{
 		$this->parent = $parent;
-		is_array($this->depends) || $this->depends = (array) $this->depends;
+		$this->parents =& $this->parent->parents;
+		$this->dependencies = (array) $this->dependencies;
 
-		foreach ($this->depends as &$parent)
+		foreach ($this->dependencies as $k => $parent)
 		{
-			$parent = __CLASS__ . '_' . $parent;
-			if (!isset($this->parent->depends[$parent]))
+			unset($this->dependencies[$k]);
+
+			$k = strtolower('\\' !== $parent[0] ? __CLASS__ . '_' . $parent : substr($parent, 1));
+
+			if (!isset($this->parents[$k]))
 			{
-				trigger_error(get_class($this) . ' tokenizer depends on a not initialized one: ' . $parent);
-				return;
+				return trigger_error(get_class($this) . ' tokenizer depends on a not initialized one: ' . $parent);
 			}
+
+			$this->dependencies[$parent] = $this->parents[$k];
 		}
 
-		unset($parent);
-		$this->depends = array_flip($this->depends);
-		$parent = get_class($this);
+		$parent = strtolower(get_class($this));
 
-		while (!isset($this->depends[$parent]) && false !== $parent)
+		while (!isset($this->parents[$parent]) && false !== $parent)
 		{
-			$this->depends[$parent] = 1;
-			$parent = get_parent_class($parent);
+			$this->parents[$parent] = $this;
+			$parent = strtolower(get_parent_class($parent));
 		}
 
 		if ($this !== $this->parent)
 		{
-			$this->parent->depends += $this->depends;
-
 			foreach (array_keys($this->parent->shared) as $parent)
 				$this->$parent =& $this->parent->$parent;
 
@@ -404,27 +406,5 @@ class patchwork_tokenizer
 			$this->token[--$this->index] = $token;
 
 		return false;
-	}
-
-	function __call($method, $args)
-	{
-		$parent = $this->parent;
-
-		while (!method_exists($parent, $method))
-		{
-			if ($parent->parent === $parent)
-			{
-				$parent = debug_backtrace(0);
-				$parent = $parent[1];
-				$args   = get_class($this);
-
-				trigger_error("Call to undefined method {$args}::{$method}() in {$parent['file']} on line {$parent['line']} - ", E_USER_ERROR);
-				exit;
-			}
-
-			$parent = $parent->parent;
-		}
-
-		return call_user_func_array(array($parent, $method), $args);
 	}
 }

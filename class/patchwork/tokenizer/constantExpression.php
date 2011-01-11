@@ -29,7 +29,7 @@ class patchwork_tokenizer_constantExpression extends patchwork_tokenizer
 	);
 
 
-	protected function nextExpressionIsConstant()
+	function nextExpressionIsConstant()
 	{
 		$j = $this->index;
 		$token =& $this->token;

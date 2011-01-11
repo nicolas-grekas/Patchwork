@@ -35,18 +35,18 @@ class patchwork_tokenizer_bracket_callback extends patchwork_tokenizer_bracket
 		}
 	}
 
-	function onOpen(&$token)
+	protected function onOpen(&$token)
 	{
 		if (0 === $this->callbackIndex) $this->addLead($token[1]);
 	}
 
-	function onReposition(&$token)
+	protected function onReposition(&$token)
 	{
 		if ($this->bracketIndex === $this->callbackIndex    ) $this->addLead($token[1]);
 		if ($this->bracketIndex === $this->callbackIndex + 1) $this->addTail($token[1]);
 	}
 
-	function onClose(&$token)
+	protected function onClose(&$token)
 	{
 		if ($this->bracketIndex === $this->callbackIndex) $this->addTail($token[1]);
 	}

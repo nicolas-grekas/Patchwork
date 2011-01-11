@@ -19,12 +19,12 @@ class patchwork_tokenizer_constFuncResolver extends patchwork_tokenizer
 	$openTag,
 	$nsLoadSrc = false,
 	$callbacks = array('tagOpenTag' => T_SCOPE_OPEN),
-	$depends   = array('scoper', 'namespaceInfo');
+	$dependencies = array('scoper', 'namespaceInfo');
 
 
 	function tagOpenTag(&$token)
 	{
-		if (T_NAMESPACE === $this->scope->type && '\\' !== $this->namespace)
+		if (T_NAMESPACE === $this->scope->type && $this->namespace)
 		{
 			$this->openTag =& $token;
 			$this->register($this->callbacks = array(
@@ -47,12 +47,12 @@ class patchwork_tokenizer_constFuncResolver extends patchwork_tokenizer
 		}
 	}
 
-	function tagFunction(&$token)
+	protected function tagFunction(&$token)
 	{
 		return T_NS_SEPARATOR !== $this->prevType ? $this->resolveConstFunc($token, 'function_exists') : null;
 	}
 
-	function tagConstant(&$token)
+	protected function tagConstant(&$token)
 	{
 		return T_NS_SEPARATOR !== $this->prevType ? $this->resolveConstFunc($token, 'defined') : null;
 	}

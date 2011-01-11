@@ -31,7 +31,7 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 		'tagFuncC'     => T_FUNC_C,
 		'tagNsC'       => T_NS_C,
 	),
-	$depends = array('namespaceInfo', 'scoper');
+	$dependencies = array('stringInfo', 'namespaceInfo', 'scoper');
 
 	protected static $internalConstants = array();
 
@@ -77,7 +77,7 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 		$this->initialize($parent);
 	}
 
-	function tagConstant(&$token)
+	protected function tagConstant(&$token)
 	{
 		// Inline constants only if they are fully namespace resolved
 
@@ -94,14 +94,14 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 				$token[1] = $this->constants[$token[1]];
 				$this->tokenUnshift($token);
 
-				empty($this->nsPrefix) || $this->removeNsPrefix();
+				$this->dependencies['stringInfo']->removeNsPrefix();
 
 				return false;
 			}
 		}
 	}
 
-	function tagFileC(&$token)
+	protected function tagFileC(&$token)
 	{
 		return $this->tokenUnshift(array(
 			T_CONSTANT_ENCAPSED_STRING,
@@ -109,12 +109,12 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 		));
 	}
 
-	function tagLineC(&$token)
+	protected function tagLineC(&$token)
 	{
 		return $this->tokenUnshift(array(T_LNUMBER, $this->line));
 	}
 
-	function tagScopeName(&$token)
+	protected function tagScopeName(&$token)
 	{
 		$t = $this->getNextToken();
 
@@ -149,12 +149,12 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 		$this->nextScope = '';
 	}
 
-	function tagClassC(&$token)
+	protected function tagClassC(&$token)
 	{
 		return $this->tokenUnshift(array(T_CONSTANT_ENCAPSED_STRING, "'{$this->scope->classC}'"));
 	}
 
-	function tagMethodC(&$token)
+	protected function tagMethodC(&$token)
 	{
 		$c = $this->scope->classC && $this->scope->funcC
 			? "'{$this->scope->classC}::{$this->scope->funcC}'"
@@ -163,12 +163,12 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 		return $this->tokenUnshift(array(T_CONSTANT_ENCAPSED_STRING, $c));
 	}
 
-	function tagFuncC(&$token)
+	protected function tagFuncC(&$token)
 	{
 		return $this->tokenUnshift(array(T_CONSTANT_ENCAPSED_STRING, "'{$this->scope->funcC}'"));
 	}
 
-	function tagNsC(&$token)
+	protected function tagNsC(&$token)
 	{
 		return $this->tokenUnshift(array(T_CONSTANT_ENCAPSED_STRING, "'" . substr($this->namespace, 0, -1) . "'"));
 	}

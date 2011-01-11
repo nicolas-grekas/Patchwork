@@ -27,7 +27,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		'tagRequire'     => array(T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
 		'tagSpecialFunc' => T_USE_FUNCTION,
 	),
-	$depends = array('classInfo', 'constantExpression');
+	$dependencies = array('stringInfo', 'classInfo', 'constantExpression');
 
 
 	function __construct(parent $parent, $level, $topClass)
@@ -39,29 +39,25 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		$this->topClass = $topClass;
 	}
 
-	function tagSelf(&$token)
+	protected function tagSelf(&$token)
 	{
-		if (!empty($this->class->name) && empty($this->nsPrefix))
+		if (!empty($this->class->name))
 		{
-			return $this->tokenUnshift(
-				array(T_STRING, $this->class->nsName),
-				array(T_NS_SEPARATOR, '\\')
-			);
+			$this->tokenUnshift(array(T_STRING, $this->class->nsName));
+			return $this->namespace && $this->tokenUnshift(array(T_NS_SEPARATOR, '\\'));
 		}
 	}
 
-	function tagParent(&$token)
+	protected function tagParent(&$token)
 	{
-		if (!empty($this->class->extends) && empty($this->nsPrefix))
+		if (!empty($this->class->extends))
 		{
-			return $this->tokenUnshift(
-				array(T_STRING, $this->class->extends),
-				array(T_NS_SEPARATOR, '\\')
-			);
+			$this->tokenUnshift(array(T_STRING, $this->class->extends));
+			return $this->namespace && $this->tokenUnshift(array(T_NS_SEPARATOR, '\\'));
 		}
 	}
 
-	function tagClass(&$token)
+	protected function tagClass(&$token)
 	{
 		$this->register(array('tagClassOpen' => T_SCOPE_OPEN));
 
@@ -74,26 +70,24 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		}
 	}
 
-	function tagClassName(&$token)
+	protected function tagClassName(&$token)
 	{
 		$this->class->suffix = '__' . (0 <= $this->level ? $this->level : '00');
 		$token[1] .= $this->class->suffix;
 		0 <= $this->level && $this->register(array('tagExtendsSelf' => T_USE_CLASS));
 	}
 
-	function tagExtendsSelf(&$token)
+	protected function tagExtendsSelf(&$token)
 	{
 		if (0 === strcasecmp('\\' . $this->class->nsName, $this->nsResolved))
 		{
 			$this->class->extendsSelf = true;
 			$this->class->extends = $this->class->nsName . '__' . ($this->level ? $this->level - 1 : '00');
 
-			empty($this->nsPrefix) || $this->removeNsPrefix();
+			$this->dependencies['stringInfo']->removeNsPrefix();
 
-			return $this->tokenUnshift(
-				array(T_STRING, $this->class->extends),
-				array(T_NS_SEPARATOR, '\\')
-			);
+			$this->tokenUnshift(array(T_STRING, $this->class->extends));
+			return $this->namespace && $this->tokenUnshift(array(T_NS_SEPARATOR, '\\'));
 		}
 	}
 
@@ -107,7 +101,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		return 'tagClassClose';
 	}
 
-	function tagPrivate(&$token)
+	protected function tagPrivate(&$token)
 	{
 		// "private static" methods or properties are problematic when considering class superposition.
 		// To work around this, we change them to "protected static", and warn about it
@@ -157,14 +151,14 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		}
 	}
 
-	function tagRequire(&$token)
+	protected function tagRequire(&$token)
 	{
 		// Every require|include inside files in the include_path
 		// is preprocessed thanks to patchworkProcessedPath().
 
 		$token['no-autoload-marker'] = true;
 
-		if (!DEBUG && TURBO && $this->nextExpressionIsConstant())
+		if (!DEBUG && TURBO && $this->dependencies['constantExpression']->nextExpressionIsConstant())
 		{
 			$a = patchworkProcessedPath($this->expressionValue);
 			$token =& $this->getNextToken();
@@ -178,14 +172,14 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 			$this->tokenUnshift(
 				'(',
 				array(T_STRING, 'patchworkProcessedPath'),
-				array(T_WHITESPACE, ' ')
+				$this->namespace ? array(T_NS_SEPARATOR, '\\') : array(T_WHITESPACE, ' ')
 			);
 		}
 
 		new patchwork_tokenizer_closeBracket($this);
 	}
 
-	function tagSpecialFunc(&$token)
+	protected function tagSpecialFunc(&$token)
 	{
 		switch (strtolower($this->nsResolved))
 		{

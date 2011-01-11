@@ -35,6 +35,8 @@ patchwork_tokenizer::defineNewToken('T_NULL');          // null
 
 class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 {
+	public $nsPrefix = '';
+
 	protected
 
 	$inConst   = false,
@@ -42,7 +44,6 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 	$inParam   = 0,
 	$inNs      = false,
 	$inUse     = false,
-	$nsPrefix  = '',
 	$nsPreType = 0,
 	$callbacks = array(
 		'tagConst'    => T_CONST,
@@ -52,11 +53,10 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		'tagUse'      => T_USE,
 		'tagNsSep'    => T_NS_SEPARATOR,
 		'tagNsSep52'  => '\\',
-	),
-	$shared = 'nsPrefix';
+	);
 
 
-	function __construct(patchwork_tokenizer $parent)
+	function __construct(parent $parent)
 	{
 		// fix for pre-PHP5.3 tokens
 		$this->callbacks[T_NAMESPACE > 0 ? 'tagString' : 'tagString52'] = T_STRING;
@@ -64,7 +64,33 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		parent::__construct($parent);
 	}
 
-	function tagString(&$token)
+	function removeNsPrefix()
+	{
+		if (empty($this->nsPrefix)) return;
+
+		$t =& $this->type;
+		end($t);
+
+		$p = array(T_STRING, T_NS_SEPARATOR);
+		$j = 0;
+
+		while (null !== $i = key($t))
+		{
+			if ($p[++$j%2] === $t[$i])
+			{
+				$this->code[$i] = '';
+				unset($t[$i]);
+			}
+			else break;
+
+			prev($t);
+		}
+
+		$this->nsPrefix = '';
+		$this->prevType = $this->nsPreType;
+	}
+
+	protected function tagString(&$token)
 	{
 		if (T_NS_SEPARATOR !== $p = $this->prevType) $this->nsPrefix = '';
 
@@ -73,8 +99,8 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		case 'true':   return T_TRUE;
 		case 'false':  return T_FALSE;
 		case 'null':   return T_NULL;
-		case 'self':   if ('self'   === $token[1]) return T_SELF;   break;
-		case 'parent': if ('parent' === $token[1]) return T_PARENT; break;
+		case 'self':   if ('self'   === $token[1] && !$this->nsPrefix) return T_SELF;   break;
+		case 'parent': if ('parent' === $token[1] && !$this->nsPrefix) return T_PARENT; break;
 		}
 
 		switch ($p)
@@ -154,31 +180,31 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		return T_USE_CONSTANT;
 	}
 
-	function tagConst(&$token)
+	protected function tagConst(&$token)
 	{
 		$this->inConst = true;
 		$this->register(array('tagConstEnd' => ';'));
 	}
 
-	function tagConstEnd(&$token)
+	protected function tagConstEnd(&$token)
 	{
 		$this->inConst = false;
 		$this->unregister(array(__FUNCTION__ => ';'));
 	}
 
-	function tagExtends(&$token)
+	protected function tagExtends(&$token)
 	{
 		$this->inExtends = true;
 		$this->register(array('tagExtendsEnd' => '{'));
 	}
 
-	function tagExtendsEnd(&$token)
+	protected function tagExtendsEnd(&$token)
 	{
 		$this->inExtends = false;
 		$this->unregister(array(__FUNCTION__ => '{'));
 	}
 
-	function tagFunction(&$token)
+	protected function tagFunction(&$token)
 	{
 		$this->register(array(
 			'tagParamOpenBracket'  => '(',
@@ -186,12 +212,12 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		));
 	}
 
-	function tagParamOpenBracket(&$token)
+	protected function tagParamOpenBracket(&$token)
 	{
 		++$this->inParam;
 	}
 
-	function tagParamCloseBracket(&$token)
+	protected function tagParamCloseBracket(&$token)
 	{
 		if (0 >= --$this->inParam)
 		{
@@ -203,7 +229,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		}
 	}
 
-	function tagNs(&$token)
+	protected function tagNs(&$token)
 	{
 		$t = $this->getNextToken();
 
@@ -222,13 +248,13 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		}
 	}
 
-	function tagNsEnd(&$token)
+	protected function tagNsEnd(&$token)
 	{
 		$this->inNs = false;
 		$this->unregister(array(__FUNCTION__ => array('{', ';')));
 	}
 
-	function tagUse(&$token)
+	protected function tagUse(&$token)
 	{
 		if (')' !== $this->prevType)
 		{
@@ -237,13 +263,13 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		}
 	}
 
-	function tagUseEnd(&$token)
+	protected function tagUseEnd(&$token)
 	{
 		$this->inUse = false;
 		$this->unregister(array(__FUNCTION__ => ';'));
 	}
 
-	function tagNsSep(&$token)
+	protected function tagNsSep(&$token)
 	{
 		if (T_STRING === $this->prevType)
 		{
@@ -256,36 +282,10 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		}
 	}
 
-	function removeNsPrefix()
-	{
-		if (empty($this->nsPrefix)) return;
-
-		$t =& $this->type;
-		end($t);
-
-		$p = array(T_STRING, T_NS_SEPARATOR);
-		$j = 0;
-
-		while (null !== $i = key($t))
-		{
-			if ($p[++$j%2] === $t[$i])
-			{
-				$this->code[$i] = '';
-				unset($t[$i]);
-			}
-			else break;
-
-			prev($t);
-		}
-
-		$this->nsPrefix = '';
-		$this->prevType = $this->nsPreType;
-	}
-
 
 	// fix for pre-PHP5.3 tokens
 
-	function tagString52(&$token)
+	protected function tagString52(&$token)
 	{
 		switch ($token[1])
 		{
@@ -300,7 +300,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		return $this->tokenUnshift($token);
 	}
 
-	function tagNsSep52(&$token)
+	protected function tagNsSep52(&$token)
 	{
 		return $this->tokenUnshift(array(T_NS_SEPARATOR, '\\'));
 	}
