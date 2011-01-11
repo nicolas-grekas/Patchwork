@@ -77,7 +77,7 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 		return $code;
 	}
 
-	function tagOpenEchoTag(&$token)
+	protected function tagOpenEchoTag(&$token)
 	{
 		return $this->tokenUnshift(
 			array(T_ECHO, 'echo'),
@@ -85,19 +85,19 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 		);
 	}
 
-	function tagOpenTag(&$token)
+	protected function tagOpenTag(&$token)
 	{
 		$token[1] = substr_count($token[1], "\n");
 		$token[1] = '<?php' . ($token[1] ? str_repeat("\n", $token[1]) : ' ');
 	}
 
-	function tagCloseTag(&$token)
+	protected function tagCloseTag(&$token)
 	{
 		$token[1] = substr_count($token[1], "\n");
 		$token[1] = str_repeat("\n", $token[1]) . '?'.'>';
 	}
 
-	function fixVar(&$token)
+	protected function fixVar(&$token)
 	{
 		return $this->tokenUnshift(array(T_PUBLIC, 'public'));
 	}

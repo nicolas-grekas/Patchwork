@@ -18,7 +18,7 @@ class patchwork_tokenizer_bracket_T extends patchwork_tokenizer_bracket
 		'tagConcatenation' => array(T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES, '.'),
 	);
 
-	function tagConcatenation(&$token)
+	protected function tagConcatenation(&$token)
 	{
 		$this->setError("Usage of T() is potentially divergent, please avoid string concatenation.");
 		$this->unregister();

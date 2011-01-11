@@ -27,7 +27,7 @@ class patchwork_tokenizer_classAutoname extends patchwork_tokenizer
 		$this->className = $className;
 	}
 
-	function tagClass(&$token)
+	protected function tagClass(&$token)
 	{
 		$t = $this->getNextToken();
 

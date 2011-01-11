@@ -114,7 +114,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 		return $code;
 	}
 
-	function pushBracket(&$token)
+	protected function pushBracket(&$token)
 	{
 		$s = empty($this->nextState) ? $this->state : $this->nextState;
 
@@ -126,7 +126,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 		}
 	}
 
-	function popBracket(&$token)
+	protected function popBracket(&$token)
 	{
 		$s = empty($this->nextState) ? $this->state : $this->nextState;
 
@@ -140,7 +140,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 		}
 	}
 
-	function setState($state, &$token = array(0, ''))
+	protected function setState($state, &$token = array(0, ''))
 	{
 		empty($this->nextState) && $this->register('tagTransition');
 		$this->nextState = $state;
@@ -158,7 +158,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 		return false;
 	}
 
-	function tagTransition(&$token)
+	protected function tagTransition(&$token)
 	{
 		$this->unregister(__FUNCTION__);
 		end($this->code);
@@ -166,7 +166,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 		unset($this->nextState);
 	}
 
-	function tagEOState2(&$token)
+	protected function tagEOState2(&$token)
 	{
 		if ('/*<*/' === $token[1])
 		{
@@ -178,13 +178,13 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 		}
 	}
 
-	function tagEOExpression(&$token)
+	protected function tagEOExpression(&$token)
 	{
 		$this->unregister(array(__FUNCTION__ => $this->stateCallbacks[2][__FUNCTION__]));
 		$this->  register($this->stateCallbacks[1]);
 	}
 
-	function tagEOState1(&$token)
+	protected function tagEOState1(&$token)
 	{
 		if ('/*<*/' === $token[1]) return $this->setState(3);
 
@@ -193,12 +193,12 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 			&& $this->setState(2, $token);
 	}
 
-	function tagEOState3(&$token)
+	protected function tagEOState3(&$token)
 	{
 		if ('/*>*/' === $token[1]) return $this->setState(1);
 	}
 
-	function tagEOState4(&$token)
+	protected function tagEOState4(&$token)
 	{
 		if ('/*>*/' === $token[1]) return $this->setState(2);
 	}

@@ -19,10 +19,10 @@ class patchwork_tokenizer_classInfo extends patchwork_tokenizer
 	$class     = false,
 	$callbacks = array('tagClass' => array(T_CLASS, T_INTERFACE)),
 	$shared    = 'class',
-	$depends   = array('namespaceInfo', 'scoper');
+	$dependencies = array('namespaceInfo', 'scoper');
 
 
-	function tagClass(&$token)
+	protected function tagClass(&$token)
 	{
 		$this->class = (object) array(
 			'type'       => $token[1],
@@ -42,19 +42,19 @@ class patchwork_tokenizer_classInfo extends patchwork_tokenizer
 		$this->register();
 	}
 
-	function tagClassName(&$token)
+	protected function tagClassName(&$token)
 	{
 		$this->unregister(array(__FUNCTION__ => T_NAME_CLASS));
 		$this->class->name   = $token[1];
 		$this->class->nsName = $this->namespace . $token[1];
 	}
 
-	function tagExtends(&$token)
+	protected function tagExtends(&$token)
 	{
 		$this->register(array('tagExtendsName' => T_USE_CLASS));
 	}
 
-	function tagExtendsName(&$token)
+	protected function tagExtendsName(&$token)
 	{
 		$this->unregister(array(__FUNCTION__ => T_USE_CLASS));
 		$this->class->extends = substr($this->nsResolved, 1);

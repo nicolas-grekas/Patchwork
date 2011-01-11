@@ -27,13 +27,13 @@ abstract class patchwork_tokenizer_bracket extends patchwork_tokenizer
 	);
 
 
-	// Abstract methods
-	function onOpen      (&$token) {}
-	function onReposition(&$token) {}
-	function onClose     (&$token) {}
+	// "Abstract" methods
+	protected function onOpen      (&$token) {}
+	protected function onReposition(&$token) {}
+	protected function onClose     (&$token) {}
 
 
-	function tagOpen(&$token)
+	protected function tagOpen(&$token)
 	{
 		if (1 === ++$this->bracketLevel)
 		{
@@ -51,7 +51,7 @@ abstract class patchwork_tokenizer_bracket extends patchwork_tokenizer
 		}
 	}
 
-	function tagIndex(&$token)
+	protected function tagIndex(&$token)
 	{
 		if (1 === $this->bracketLevel)
 		{
@@ -65,7 +65,7 @@ abstract class patchwork_tokenizer_bracket extends patchwork_tokenizer
 		}
 	}
 
-	function tagClose(&$token)
+	protected function tagClose(&$token)
 	{
 		if (1 === $this->bracketLevel)
 		{
