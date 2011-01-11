@@ -23,14 +23,15 @@ class patchwork_tokenizer_constructor4to5 extends patchwork_tokenizer
 	$dependencies = 'classInfo';
 
 
-	function tagClassOpen(&$token)
+	protected function tagClassOpen(&$token)
 	{
 		if (!$this->namespace && T_CLASS === $this->scope->type)
 		{
 			$this->unregister();
-			$this->callbacks = array('tagFunction' => T_FUNCTION);
-			$this->register();
-			return 'tagClassClose';
+			$this->register($this->callbacks = array(
+				'tagFunction'   => T_FUNCTION,
+				'tagClassClose' => T_SCOPE_CLOSE,
+			));
 		}
 	}
 
@@ -72,7 +73,7 @@ class patchwork_tokenizer_constructor4to5 extends patchwork_tokenizer
 		$this->bracket <= 0 && $this->unregister(__FUNCTION__);
 	}
 
-	function tagClassClose(&$token)
+	protected function tagClassClose(&$token)
 	{
 		$this->unregister();
 
