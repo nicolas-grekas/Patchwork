@@ -20,10 +20,10 @@ class patchwork_tokenizer_namespaceResolver extends patchwork_tokenizer
 		'tagUse'       => T_USE,
 		'tagNsResolve' => array(T_USE_CLASS, T_USE_FUNCTION, T_USE_CONSTANT, T_TYPE_HINT),
 	),
-	$depends = 'namespaceInfo';
+	$dependencies = array('stringInfo', 'namespaceInfo');
 
 
-	function tagUse(&$token)
+	protected function tagUse(&$token)
 	{
 		if (')' !== $this->prevType)
 		{
@@ -32,7 +32,7 @@ class patchwork_tokenizer_namespaceResolver extends patchwork_tokenizer
 		}
 	}
 
-	function tagUseEnd(&$token)
+	protected function tagUseEnd(&$token)
 	{
 		switch ($token[0])
 		{
@@ -45,15 +45,17 @@ class patchwork_tokenizer_namespaceResolver extends patchwork_tokenizer
 		$token[1] = '';
 	}
 
-	function tagNsResolve(&$token)
+	protected function tagNsResolve(&$token)
 	{
+		$s = $this->dependencies['stringInfo'];
+
 		if ('\\' !== $this->nsResolved[0])
 		{
 			$this->setError("Unresolved namespaced identifier ({$this->nsResolved}).", E_USER_WARNING);
 		}
-		else if (isset($this->nsPrefix[0]) ? '\\' !== $this->nsPrefix[0] : $this->namespace)
+		else if (isset($s->nsPrefix[0]) ? '\\' !== $s->nsPrefix[0] : $this->namespace)
 		{
-			empty($this->nsPrefix) || $this->removeNsPrefix();
+			$s->removeNsPrefix();
 
 			return $this->tokenUnshift(
 				array(T_STRING, substr($this->nsResolved, 1)),
