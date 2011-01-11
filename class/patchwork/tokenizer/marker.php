@@ -40,7 +40,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 		$this->initialize($parent);
 	}
 
-	function tagOpenTag(&$token)
+	protected function tagOpenTag(&$token)
 	{
 		$this->unregister(array(__FUNCTION__ => T_SCOPE_OPEN));
 		$T = PATCHWORK_PATH_TOKEN;
@@ -66,21 +66,20 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 		0 < $this->scope->markerState || $this->scope->markerState = 1;
 	}
 
-	function tagScopeOpen(&$token)
+	protected function tagScopeOpen(&$token)
 	{
 		$this->inStatic = false;
 		$this->scope->markerState = 0;
 
 		if (T_FUNCTION === $this->scope->type)
 		{
-			return 'tagFunctionClose';
+			$this->register(array('tagFunctionClose' => T_SCOPE_CLOSE));
 		}
-
-		if (T_CLASS === $this->scope->type)
+		else if (T_CLASS === $this->scope->type)
 		{
 			$this->inlineClass[strtolower($this->class->nsName)] = 1;
 			$this->class->extends && $this->inlineClass[strtolower($this->class->extends)] = 1;
-			return 'tagClassClose';
+			$this->register(array('tagClassClose' => T_SCOPE_CLOSE));
 		}
 	}
 
@@ -108,9 +107,9 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 		$token['prevType'] = $this->prevType;
 		$this->newToken =& $token;
 
-		T_STRING === $c[0] || '\\' === $c[0]
-			? $this->register(array('tagNewClass' => T_USE_CLASS))
-			: $this->tagNewClass();
+		if (T_STRING !== $c[0] && '\\' !== $c[0]) return $this->tagNewClass();
+
+		$this->register(array('tagNewClass' => T_USE_CLASS));
 	}
 
 	protected function tagNewClass($token = false)
@@ -172,7 +171,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 		$this->code[key($t)] = $c . $this->code[key($t)];
 	}
 
-	function tagFunctionClose(&$token)
+	protected function tagFunctionClose(&$token)
 	{
 		if ($this->scope->markerState)
 		{
@@ -183,7 +182,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 		}
 	}
 
-	function tagClassClose(&$token)
+	protected function tagClassClose(&$token)
 	{
 		$T = PATCHWORK_PATH_TOKEN;
 		$c = strtolower($this->nsName . (isset($this->class->suffix) ? $this->class->suffix : ''));

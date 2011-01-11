@@ -91,14 +91,13 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		}
 	}
 
-	function tagClassOpen(&$token)
+	protected function tagClassOpen(&$token)
 	{
 		$this->unregister(array(
 			'tagExtendsSelf' => T_USE_CLASS,
 			__FUNCTION__     => T_SCOPE_OPEN,
 		));
-
-		return 'tagClassClose';
+		$this->register(array('tagClassClose' => T_SCOPE_CLOSE));
 	}
 
 	protected function tagPrivate(&$token)
@@ -125,7 +124,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		return false;
 	}
 
-	function tagClassClose(&$token)
+	protected function tagClassClose(&$token)
 	{
 		$c = $this->class;
 

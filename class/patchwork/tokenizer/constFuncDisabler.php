@@ -20,21 +20,15 @@ class patchwork_tokenizer_constFuncDisabler extends patchwork_tokenizer
 	$dependencies = array('scoper', 'namespaceInfo');
 
 
-	function tagOpenTag(&$token)
+	protected function tagOpenTag(&$token)
 	{
 		if (T_NAMESPACE === $this->scope->type && '\\' !== $this->namespace)
 		{
 			$this->register($this->callbacks = array(
-				'tagConstFunc' => array(T_NAME_FUNCTION, T_NAME_CONST)
+				'tagConstFunc'  => array(T_NAME_FUNCTION, T_NAME_CONST),
+				'tagScopeClose' => T_SCOPE_CLOSE,
 			));
-
-			return 'tagScopeClose';
 		}
-	}
-
-	function tagScopeClose(&$token)
-	{
-		$this->unregister();
 	}
 
 	protected function tagConstFunc(&$token)
@@ -43,5 +37,10 @@ class patchwork_tokenizer_constFuncDisabler extends patchwork_tokenizer
 		{
 			$this->setError("Namespaced functions and constants have been deprecated. Please use static methods and class constants.");
 		}
+	}
+
+	protected function tagScopeClose(&$token)
+	{
+		$this->unregister();
 	}
 }
