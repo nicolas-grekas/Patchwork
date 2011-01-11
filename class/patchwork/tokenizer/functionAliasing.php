@@ -21,7 +21,7 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 		'tagVariableVar' => '(',
 		'tagUseFunction' => T_USE_FUNCTION,
 	),
-	$depends = 'classInfo',
+	$dependencies = array('stringInfo', 'classInfo'),
 
 	$varVarLead = '${patchwork_alias::scopedResolve(',
 	$varVarTail = ",\${''})}";
@@ -152,7 +152,7 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 		}
 	}
 
-	function tagVariableVar(&$token)
+	protected function tagVariableVar(&$token)
 	{
 		if (   ('}' === $this->prevType || T_VARIABLE === $this->prevType)
 			&& !in_array($this->anteType, array(T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON)) )
@@ -206,7 +206,7 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 		}
 	}
 
-	function tagUseFunction(&$token)
+	protected function tagUseFunction(&$token)
 	{
 		// Alias functions only if they are fully namespace resolved
 
@@ -233,30 +233,14 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 			{
 				$this->tokenUnshift(
 					array(T_STRING, $a[1]),
-					array(T_DOUBLE_COLON, '::')
+					array(T_DOUBLE_COLON, '::'),
+					array(T_STRING, $a[0])
 				);
 
-				if (T_NAMESPACE > 0)
-				{
-					$a = explode('\\', $a[0]);
-
-					foreach (array_reverse($a) as $a)
-					{
-						$this->tokenUnshift(
-							array(T_STRING, $a),
-							array(T_NS_SEPARATOR, '\\')
-						);
-					}
-				}
-				else
-				{
-					$this->tokenUnshift(array(T_STRING, $a[0]));
-				}
-
-				$a = false;
+				$a = $this->namespace && $this->tokenUnshift(array(T_NS_SEPARATOR, '\\'));
 			}
 
-			empty($this->nsPrefix) || $this->removeNsPrefix();
+			$this->dependencies['stringInfo']->removeNsPrefix();
 
 			if (false === $a) return false;
 		}

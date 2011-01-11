@@ -23,12 +23,12 @@ class patchwork_tokenizer_closeBracket extends patchwork_tokenizer
 	);
 
 
-	function incLevel(&$token)
+	protected function incLevel(&$token)
 	{
 		++$this->level;
 	}
 
-	function decLevel(&$token)
+	protected function decLevel(&$token)
 	{
 		switch ($token[0])
 		{

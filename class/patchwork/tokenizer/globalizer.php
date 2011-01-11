@@ -21,7 +21,7 @@ class patchwork_tokenizer_globalizer extends patchwork_tokenizer
 		'tagScopeOpen'   => T_SCOPE_OPEN,
 		'tagAutoglobals' => T_VARIABLE,
 	),
-	$depends = 'scoper';
+	$dependencies = 'scoper';
 
 
 	function __construct(parent $parent, $autoglobals)
@@ -46,7 +46,7 @@ class patchwork_tokenizer_globalizer extends patchwork_tokenizer
 		return 'tagScopeClose';
 	}
 
-	function tagAutoglobals(&$token)
+	protected function tagAutoglobals(&$token)
 	{
 		if (isset($this->autoglobals[$token[1]]) && T_DOUBLE_COLON !== $this->prevType)
 		{

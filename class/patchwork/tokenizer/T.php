@@ -17,16 +17,16 @@ class patchwork_tokenizer_T extends patchwork_tokenizer
 	protected
 
 	$callbacks = array('tagT' => T_USE_FUNCTION),
-	$depends   = array('namespaceInfo', 'constantExpression');
+	$dependencies = array('namespaceInfo', 'constantExpression');
 
 
-	function tagT(&$token)
+	protected function tagT(&$token)
 	{
 		if ('\T' === strtoupper($this->nsResolved))
 		{
 			++$this->index;
 
-			if ($this->nextExpressionIsConstant())
+			if ($this->dependencies['constantExpression']->nextExpressionIsConstant())
 			{
 				if ($_SERVER['PATCHWORK_LANG'])
 				{

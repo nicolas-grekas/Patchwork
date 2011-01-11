@@ -27,7 +27,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 		'tagNew'         => T_NEW,
 		'tagDoubleColon' => T_DOUBLE_COLON,
 	),
-	$depends = array('classInfo', 'normalizer');
+	$dependencies = array('classInfo', 'normalizer');
 
 
 	function __construct(patchwork_tokenizer $parent = null, $inlineClass)
@@ -47,7 +47,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 		$token[1] .= "if(!isset(\$a{$T})){global \$a{$T},\$b{$T},\$c{$T};}isset(\$e{$T})||\$e{$T}=false;";
 	}
 
-	function tagAutoloader(&$token)
+	protected function tagAutoloader(&$token)
 	{
 		if (!empty($token['no-autoload-marker'])) return;
 
@@ -84,7 +84,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 		}
 	}
 
-	function tagStatic(&$token)
+	protected function tagStatic(&$token)
 	{
 		if (T_FUNCTION === $this->scope->type)
 		{
@@ -93,13 +93,13 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 		}
 	}
 
-	function tagStaticEnd(&$token)
+	protected function tagStaticEnd(&$token)
 	{
 		$this->inStatic = false;
 		$this->unregister(array(__FUNCTION__ => ';'));
 	}
 
-	function tagNew(&$token)
+	protected function tagNew(&$token)
 	{
 		$c = $this->getNextToken();
 
@@ -113,7 +113,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 			: $this->tagNewClass();
 	}
 
-	function tagNewClass($token = false)
+	protected function tagNewClass($token = false)
 	{
 		if ($token)
 		{
@@ -141,7 +141,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 		unset($this->newToken['prevType'], $this->newToken);
 	}
 
-	function tagDoubleColon(&$token)
+	protected function tagDoubleColon(&$token)
 	{
 		if (   $this->inStatic
 			|| T_STRING !== $this->prevType
