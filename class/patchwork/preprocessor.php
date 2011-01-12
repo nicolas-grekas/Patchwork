@@ -94,12 +94,11 @@ class patchwork_preprocessor__0
 
 	protected function preprocess($source, $level, $class, $is_top)
 	{
-		$code = file_get_contents($source);
-
 		if (   'patchwork_tokenizer' === $class
-			|| 'patchwork_tokenizer_normalizer' === $class) return $code;
+			|| 'patchwork_tokenizer_normalizer' === $class) return file_get_contents($source);
 
 		$t = new patchwork_tokenizer_normalizer;
+		$p = array('normalizer' => $t);
 
 		$i = array(
 			'classAutoname'      => 0 <= $level && $class,
@@ -137,9 +136,11 @@ class patchwork_preprocessor__0
 			case 'superPositioner':  $t = new $i($t, $level, $is_top ? $class : false); break;
 			case 'functionAliasing': $t = new $i($t, $GLOBALS['patchwork_preprocessor_alias']); break;
 			}
+
+			$p[$c] = $t;
 		}
 
-		$code = $t->parse($code);
+		$code = $p['normalizer']->parse(file_get_contents($source));
 
 		if ($c = $t->getErrors())
 		{
@@ -147,10 +148,10 @@ class patchwork_preprocessor__0
 				patchwork_error::handle($c[3], $c[0], $source, $c[1]);
 		}
 
-		if ($t instanceof patchwork_tokenizer_staticState)
+		if (isset($p['staticState']))
 		{
-			self::evalbox($t->getStaticCode($code));
-			return $t->getRuntimeCode();
+			self::evalbox($p['staticState']->getStaticCode($code));
+			return $p['staticState']->getRuntimeCode();
 		}
 
 		return implode('', $code);
