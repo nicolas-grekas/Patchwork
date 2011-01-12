@@ -22,6 +22,9 @@ defined('T_NS_SEPARATOR') || patchwork_tokenizer::defineNewToken('T_NS_SEPARATOR
 // Match closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
 patchwork_tokenizer::defineNewToken('T_CURLY_CLOSE');
 
+// Match data after T_HALT_COMPILER
+patchwork_tokenizer::defineNewToken('T_COMPILER_HALTED');
+
 
 class patchwork_tokenizer
 {
@@ -179,6 +182,31 @@ class patchwork_tokenizer
 				case T_CURLY_OPEN:
 					$strCurly[] = $curly;
 					$curly = 0;
+					break;
+
+				case T_HALT_COMPILER:
+					$lines = 2;
+					$curly = $i;
+
+					// Skip 3 tokens: "(", ")" then ";" or T_CLOSE_TAG
+					do while (isset($token[$i], self::$sugar[$token[$i][0]])) ++$i;
+					while ($lines-- > 0 && ++$i);
+
+					$lines = $i + 1;
+					$strCurly = array();
+
+					// Everything after is merged into one T_COMPILER_HALTED
+					while (isset($token[++$i]))
+					{
+						$strCurly[] = isset($token[$i][1]) ? $token[$i][1] : $token[$i];
+						unset($token[$i]);
+					}
+
+					$strCurly && $token[$lines] = array(T_COMPILER_HALTED, implode('', $strCurly));
+
+					$i = $curly;
+					$curly = $lines = 0;
+					$strCurly = array();
 					break;
 				}
 			}
