@@ -30,7 +30,7 @@ class patchwork_tokenizer_closeMarker extends patchwork_tokenizer
 	{
 		$this->curly = $curly;
 		$this->close = $close;
-		$this->initialize($parent);
+		parent::__construct($parent);
 	}
 
 	protected function unregister($method = null)

@@ -142,7 +142,7 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 
 		if (!$this->alias) $this->callbacks = array();
 
-		$this->initialize($parent);
+		parent::__construct($parent);
 
 		foreach ($function_map as $k => $v)
 		{

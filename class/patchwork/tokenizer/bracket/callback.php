@@ -31,7 +31,7 @@ class patchwork_tokenizer_bracket_callback extends patchwork_tokenizer_bracket
 		{
 			$this->alias = $alias;
 			$this->callbackIndex = $callbackIndex - 1;
-			$this->initialize($parent);
+			parent::__construct($parent);
 		}
 	}
 

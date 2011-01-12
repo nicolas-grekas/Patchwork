@@ -40,7 +40,6 @@ class patchwork_tokenizer
 
 	$parent,
 	$dependencies = array(),
-	$parents = array(),
 	$shared = array(
 		'line',
 		'token',
@@ -59,6 +58,7 @@ class patchwork_tokenizer
 
 	private
 
+	$parents           = array(),
 	$tokenizerError    = array(),
 	$registryIndex     = 0,
 	$nextRegistryIndex = 0;
@@ -75,13 +75,7 @@ class patchwork_tokenizer
 
 	function __construct(self $parent = null)
 	{
-		$parent || $parent = $this;
-		$this->initialize($parent);
-	}
-
-	protected function initialize(self $parent)
-	{
-		$this->parent = $parent;
+		$this->parent = $parent ? $parent : $this;
 		$this->parents =& $this->parent->parents;
 		$this->dependencies = (array) $this->dependencies;
 
@@ -93,7 +87,7 @@ class patchwork_tokenizer
 
 			if (!isset($this->parents[$k]))
 			{
-				return trigger_error(get_class($this) . ' tokenizer depends on a not initialized one: ' . $parent);
+				return trigger_error(get_class($this) . ' failed dependency: ' . $parent);
 			}
 
 			$this->dependencies[$parent] = $this->parents[$k];
@@ -120,8 +114,8 @@ class patchwork_tokenizer
 			$this->shared = array_flip((array) $this->shared);
 		}
 
+		$this->nextRegistryIndex += 65536;
 		$this->registryIndex = $this->nextRegistryIndex;
-		$this->nextRegistryIndex += 100000;
 
 		empty($this->callbacks) || $this->register();
 	}
