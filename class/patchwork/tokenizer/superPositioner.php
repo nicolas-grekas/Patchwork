@@ -34,7 +34,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 	{
 		if (0 <= $level) unset($this->callbacks['tagRequire']);
 
-		$this->initialize($parent);
+		parent::__construct($parent);
 		$this->level    = $level;
 		$this->topClass = $topClass;
 	}

@@ -37,7 +37,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 			$this->inlineClass[strtolower($inlineClass)] = 1;
 		}
 
-		$this->initialize($parent);
+		parent::__construct($parent);
 	}
 
 	protected function tagOpenTag(&$token)

@@ -74,7 +74,7 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 
 		$this->constants += self::$internalConstants;
 
-		$this->initialize($parent);
+		parent::__construct($parent);
 	}
 
 	protected function tagConstant(&$token)

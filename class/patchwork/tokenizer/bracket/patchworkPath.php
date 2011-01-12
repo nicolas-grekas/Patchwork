@@ -19,14 +19,11 @@ class patchwork_tokenizer_bracket_patchworkPath extends patchwork_tokenizer_brac
 	function __construct(patchwork_tokenizer $parent, $level)
 	{
 		$this->level = (string) (int) $level;
-		$this->initialize($parent);
+		parent::__construct($parent);
 	}
 
 	protected function onClose(&$token)
 	{
-		if (2 === $this->bracketIndex)
-		{
-			$token[1] = ',' . $this->level . $token[1];
-		}
+		2 === $this->bracketIndex && $token[1] = ',' . $this->level . $token[1];
 	}
 }
