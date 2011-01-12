@@ -22,7 +22,7 @@ class patchwork_tokenizer_constFuncDisabler extends patchwork_tokenizer
 
 	protected function tagOpenTag(&$token)
 	{
-		if (T_NAMESPACE === $this->scope->type && '\\' !== $this->namespace)
+		if (T_NAMESPACE === $this->scope->type && $this->namespace)
 		{
 			$this->register($this->callbacks = array(
 				'tagConstFunc'  => array(T_NAME_FUNCTION, T_NAME_CONST),
