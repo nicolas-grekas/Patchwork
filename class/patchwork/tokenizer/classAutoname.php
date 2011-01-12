@@ -22,7 +22,7 @@ class patchwork_tokenizer_classAutoname extends patchwork_tokenizer
 
 	function __construct(parent $parent, $className)
 	{
-		$this->initialize($parent);
+		parent::__construct($parent);
 
 		$this->className = $className;
 	}

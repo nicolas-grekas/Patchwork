@@ -36,7 +36,7 @@ class patchwork_tokenizer_globalizer extends patchwork_tokenizer
 			}
 		}
 
-		$this->initialize($parent);
+		parent::__construct($parent);
 	}
 
 	protected function tagScopeOpen(&$token)
