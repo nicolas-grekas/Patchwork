@@ -41,7 +41,6 @@ class patchwork_tokenizer
 	$tokenRegistry    = array(),
 	$callbackRegistry = array(),
 
-	$parent,
 	$dependencies = array(),
 	$shared = array(
 		'line',
@@ -61,6 +60,7 @@ class patchwork_tokenizer
 
 	private
 
+	$parent,
 	$parents           = array(),
 	$tokenizerError    = array(),
 	$registryIndex     = 0,
@@ -130,9 +130,7 @@ class patchwork_tokenizer
 
 	function parse($code)
 	{
-		if ($this->parent !== $this) return $this->parent->parse($code);
-
-		if ('' === $code) return $code;
+		if ('' === $code) return array();
 
 		$tRegistry =& $this->tokenRegistry;
 		$cRegistry =& $this->callbackRegistry;
@@ -353,7 +351,7 @@ class patchwork_tokenizer
 
 	protected function getTokens($code)
 	{
-		return $this->parent === $this ? token_get_all($code) : $this->parent->getTokens($code);
+		return token_get_all($code);
 	}
 
 	static function defineNewToken($name)
