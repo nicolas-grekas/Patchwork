@@ -128,19 +128,17 @@ class patchwork_preprocessor__0
 
 			switch ($c)
 			{
-			default:                 $t = new $i($t); break;
-			case 'classAutoname':    $t = new $i($t, $class); break;
-			case 'globalizer':       $t = new $i($t, '$CONFIG'); break;
-			case 'marker':           $t = new $i($t, self::$declaredClass); break;
-			case 'constantInliner':  $t = new $i($t, $source, self::$constants); break;
-			case 'superPositioner':  $t = new $i($t, $level, $is_top ? $class : false); break;
-			case 'functionAliasing': $t = new $i($t, $GLOBALS['patchwork_preprocessor_alias']); break;
+			default:                 $p[$c] = new $i($t); break;
+			case 'classAutoname':    $p[$c] = new $i($t, $class); break;
+			case 'globalizer':       $p[$c] = new $i($t, '$CONFIG'); break;
+			case 'marker':           $p[$c] = new $i($t, self::$declaredClass); break;
+			case 'constantInliner':  $p[$c] = new $i($t, $source, self::$constants); break;
+			case 'superPositioner':  $p[$c] = new $i($t, $level, $is_top ? $class : false); break;
+			case 'functionAliasing': $p[$c] = new $i($t, $GLOBALS['patchwork_preprocessor_alias']); break;
 			}
-
-			$p[$c] = $t;
 		}
 
-		$code = $p['normalizer']->parse(file_get_contents($source));
+		$code = $t->parse(file_get_contents($source));
 
 		if ($c = $t->getErrors())
 		{

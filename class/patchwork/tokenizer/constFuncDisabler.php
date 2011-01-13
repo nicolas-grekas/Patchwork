@@ -17,7 +17,7 @@ class patchwork_tokenizer_constFuncDisabler extends patchwork_tokenizer
 	protected
 
 	$callbacks = array('tagOpenTag' => T_SCOPE_OPEN),
-	$dependencies = array('scoper', 'namespaceInfo');
+	$dependencies = array('namespaceInfo' => 'namespace', 'scoper' => 'scope');
 
 
 	protected function tagOpenTag(&$token)
