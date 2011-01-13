@@ -61,6 +61,8 @@ class patchwork_tokenizer
 		T_DOC_COMMENT => 1,
 	);
 
+	private static $tokenNames = array();
+
 
 	function __construct(self $parent = null)
 	{
@@ -327,12 +329,12 @@ class patchwork_tokenizer
 		}
 	}
 
-	protected function &getNextToken($offset = 0)
+	protected function &getNextToken($skip = 0)
 	{
 		$i = $this->index;
 
 		do while (isset($this->tokens[$i], self::$sugar[$this->tokens[$i][0]])) ++$i;
-		while ($offset-- > 0 && ++$i);
+		while ($skip-- > 0 && ++$i);
 
 		isset($this->tokens[$i]) || $this->tokens[$i] = array(T_WHITESPACE, '');
 
@@ -354,8 +356,15 @@ class patchwork_tokenizer
 
 	static function defineNewToken($name)
 	{
-		static $offset = 0;
-		define($name, --$offset);
+		static $type = 0;
+		define($name, --$type);
+		self::$tokenNames[$type] = $name;
+	}
+
+	static function getTokenName($type)
+	{
+		if (is_string($type)) return $type;
+		return isset(self::$tokenNames[$type]) ? self::$tokenNames[$type] : token_name($type);
 	}
 
 	static function export($a)
