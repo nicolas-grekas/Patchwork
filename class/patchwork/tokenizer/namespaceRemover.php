@@ -72,7 +72,7 @@ class patchwork_tokenizer_namespaceRemover extends patchwork_tokenizer
 				$this->class->name   = $this->class->nsName;
 			}
 
-			$this->code[count($this->code) - 1] .= $this->namespace;
+			$this->texts[count($this->texts) - 1] .= $this->namespace;
 		}
 	}
 }
