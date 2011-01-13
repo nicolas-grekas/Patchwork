@@ -35,7 +35,7 @@ class patchwork_tokenizer_classAutoname extends patchwork_tokenizer
 		{
 			$this->setError("Class auto-naming is deprecated ({$this->className})", E_USER_DEPRECATED);
 
-			$this->tokenUnshift(
+			$this->tokensUnshift(
 				array(T_STRING, $this->className),
 				array(T_WHITESPACE, ' ')
 			);

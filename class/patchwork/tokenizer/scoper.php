@@ -66,7 +66,7 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 			if (isset($this->tokenRegistry[T_SCOPE_OPEN]))
 			{
 				unset($this->tokenRegistry[T_SCOPE_CLOSE]);
-				$this->tokenUnshift(array(T_WHITESPACE, ''));
+				$this->tokensUnshift(array(T_WHITESPACE, ''));
 				$this->register(array('tagAfterScopeOpen' => T_WHITESPACE));
 				return T_SCOPE_OPEN;
 			}
@@ -93,7 +93,7 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 			if ($c)
 			{
 				$this->tokenRegistry[T_SCOPE_CLOSE] = array_reverse($c);
-				$this->tokenUnshift(array(T_WHITESPACE, ''));
+				$this->tokensUnshift(array(T_WHITESPACE, ''));
 				$this->register(array('tagAfterScopeClose' => T_WHITESPACE));
 				return T_SCOPE_CLOSE;
 			}

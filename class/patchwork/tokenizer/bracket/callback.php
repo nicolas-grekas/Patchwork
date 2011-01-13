@@ -72,7 +72,7 @@ class patchwork_tokenizer_bracket_callback extends patchwork_tokenizer_bracket
 					else if (empty($this->class->nsName) || strcasecmp($a[0], $this->class->nsName))
 					{
 						$t = ')';
-						$this->tokenUnshift(
+						$this->tokensUnshift(
 							array(T_CONSTANT_ENCAPSED_STRING, "'{$a[1]}'"), ',',
 							array(T_CONSTANT_ENCAPSED_STRING, "'{$a[0]}'"), '(',
 							array(T_ARRAY, 'array')
@@ -90,7 +90,7 @@ class patchwork_tokenizer_bracket_callback extends patchwork_tokenizer_bracket
 		else if (T_ARRAY === $t[0])
 		{
 			$i = $this->index;
-			$t =& $this->token;
+			$t =& $this->tokens;
 			$b = 0;
 
 			while (isset($t[++$i]))

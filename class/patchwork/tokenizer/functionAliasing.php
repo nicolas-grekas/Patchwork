@@ -157,15 +157,15 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 		if (   ('}' === $this->prevType || T_VARIABLE === $this->prevType)
 			&& !in_array($this->anteType, array(T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON)) )
 		{
-			$t =& $this->type;
+			$t =& $this->types;
 			end($t);
 			$i = key($t);
 
 			if (T_VARIABLE === $this->prevType && '$' !== $this->anteType)
 			{
-				if ('$this' !== $a = $this->code[$i])
+				if ('$this' !== $a = $this->texts[$i])
 				{
-					$this->code[$i] = $this->varVarLead . $a . $this->varVarTail;
+					$this->texts[$i] = $this->varVarLead . $a . $this->varVarTail;
 				}
 			}
 			else
@@ -193,7 +193,7 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 
 				if (in_array(pos($t), array(T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON))) return;
 
-				$a =& $this->code;
+				$a =& $this->texts;
 
 				$b && $a[$b[0]] = $a[$b[1]] = '';
 
@@ -231,13 +231,13 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 			if (1 === count($a)) $token[1] = $a[0];
 			else if (empty($this->class->nsName) || strcasecmp($a[0], $this->class->nsName))
 			{
-				$this->tokenUnshift(
+				$this->tokensUnshift(
 					array(T_STRING, $a[1]),
 					array(T_DOUBLE_COLON, '::'),
 					array(T_STRING, $a[0])
 				);
 
-				$a = $this->namespace && $this->tokenUnshift(array(T_NS_SEPARATOR, '\\'));
+				$a = $this->namespace && $this->tokensUnshift(array(T_NS_SEPARATOR, '\\'));
 			}
 
 			$this->dependencies['stringInfo']->removeNsPrefix();
@@ -250,9 +250,9 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 
 			if ('&' === $this->prevType)
 			{
-				$a =& $this->type;
+				$a =& $this->types;
 				end($a);
-				$this->code[key($a)] = '';
+				$this->texts[key($a)] = '';
 				unset($a[key($a)]);
 			}
 		}
