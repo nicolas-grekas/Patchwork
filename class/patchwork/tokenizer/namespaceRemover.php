@@ -22,7 +22,7 @@ class patchwork_tokenizer_namespaceRemover extends patchwork_tokenizer
 		'tagNsUse'  => array(T_USE_CLASS, T_USE_FUNCTION, T_USE_CONSTANT, T_TYPE_HINT),
 		'tagNsName' => array(T_NAME_CLASS, T_NAME_FUNCTION),
 	),
-	$dependencies = array('constFuncResolver', 'namespaceResolver', 'classInfo');
+	$dependencies = array('constFuncResolver', 'namespaceResolver', 'classInfo' => array('class', 'scope', 'namespace', 'nsResolved'));
 
 
 	protected function tagNs(&$token)
