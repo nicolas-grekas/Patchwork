@@ -41,11 +41,11 @@ class patchwork_tokenizer
 	$tokenRegistry    = array(),
 	$callbackRegistry = array(),
 
+	$dependencyName = null,
 	$dependencies = array(),
 	$shared = array(
 		'line',
 		'token',
-		'parents',
 		'index',
 		'type',
 		'code',
@@ -60,7 +60,6 @@ class patchwork_tokenizer
 
 	private
 
-	$parent,
 	$parents           = array(),
 	$tokenizerError    = array(),
 	$registryIndex     = 0,
@@ -78,39 +77,34 @@ class patchwork_tokenizer
 
 	function __construct(self $parent = null)
 	{
-		$this->parent = $parent ? $parent : $this;
-		$this->parents =& $this->parent->parents;
+		$parent ? $this->parents =& $parent->parents : $parent = $this;
+		$this->dependencyName || $this->dependencyName = get_class($this);
 		$this->dependencies = (array) $this->dependencies;
 
-		foreach ($this->dependencies as $k => $parent)
+		foreach ($this->dependencies as $k => $v)
 		{
 			unset($this->dependencies[$k]);
 
-			$k = strtolower('\\' !== $parent[0] ? __CLASS__ . '_' . $parent : substr($parent, 1));
+			$k = strtolower('\\' !== $v[0] ? __CLASS__ . '_' . $v : substr($v, 1));
 
 			if (!isset($this->parents[$k]))
 			{
-				return trigger_error(get_class($this) . ' failed dependency: ' . $parent);
+				return trigger_error(get_class($this) . ' failed dependency: ' . $v);
 			}
 
-			$this->dependencies[$parent] = $this->parents[$k];
+			$this->dependencies[$v] = $this->parents[$k];
 		}
 
-		$parent = strtolower(get_class($this));
+		$k = strtolower($this->dependencyName);
+		$this->parents[$k] = $this;
 
-		while (!isset($this->parents[$parent]) && false !== $parent)
+		if ($this !== $parent)
 		{
-			$this->parents[$parent] = $this;
-			$parent = strtolower(get_parent_class($parent));
-		}
+			foreach (array_keys($parent->shared) as $v)
+				$this->$v =& $parent->$v;
 
-		if ($this !== $this->parent)
-		{
-			foreach (array_keys($this->parent->shared) as $parent)
-				$this->$parent =& $this->parent->$parent;
-
-			$this->parent->shared += array_flip((array) $this->shared);
-			$this->shared =& $this->parent->shared;
+			$parent->shared += array_flip((array) $this->shared);
+			$this->shared =& $parent->shared;
 		}
 		else
 		{
@@ -227,7 +221,7 @@ class patchwork_tokenizer
 
 			if (isset($tRegistry[$t[0]]) || ($cRegistry && $typed))
 			{
-				$t[2] = array($k = $t[0]);
+				$t[2] = array($k = $t[0] => 1);
 
 				if (empty($tRegistry[$k])) $callbacks = $cRegistry;
 				else if ($cRegistry && $typed)
@@ -244,7 +238,7 @@ class patchwork_tokenizer
 						unset($callbacks[$k]);
 
 						if (false === $k = $c[0]->{$c[1]}($t)) continue 3;
-						else if (null !== $k && isset($tRegistry[$t[2][] = $k]))
+						else if (null !== $k && ($t[2][$k] = 1) && isset($tRegistry[$k]))
 						{
 							$callbacks += $tRegistry[$k];
 							ksort($callbacks);
