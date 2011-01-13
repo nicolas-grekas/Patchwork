@@ -35,8 +35,6 @@ patchwork_tokenizer::defineNewToken('T_NULL');          // null
 
 class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 {
-	public $nsPrefix = '';
-
 	protected
 
 	$inConst   = false,
@@ -44,6 +42,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 	$inParam   = 0,
 	$inNs      = false,
 	$inUse     = false,
+	$nsPrefix  = '',
 	$nsPreType = 0,
 	$callbacks = array(
 		'tagConst'    => T_CONST,
