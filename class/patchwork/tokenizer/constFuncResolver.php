@@ -47,7 +47,7 @@ class patchwork_tokenizer_constFuncResolver extends patchwork_tokenizer
 
 	protected function resolveConstFunc(&$token, $exists)
 	{
-		$this->tokenUnshift($token, '\\');
+		$this->tokensUnshift($token, '\\');
 
 		if (  !$exists($token[1])
 			|| $exists($this->namespace . $token[1])
@@ -55,7 +55,7 @@ class patchwork_tokenizer_constFuncResolver extends patchwork_tokenizer
 			|| $exists($this->namespace . $token[1])  )
 		{
 			$this->nsLoadSrc = self::nsLoadSrc(substr($this->namespace, 0, -1));
-			$this->tokenUnshift(array(T_NAMESPACE, 'namespace'));
+			$this->tokensUnshift(array(T_NAMESPACE, 'namespace'));
 		}
 
 		return false;

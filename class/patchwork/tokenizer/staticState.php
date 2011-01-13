@@ -161,8 +161,8 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 	protected function tagTransition(&$token)
 	{
 		$this->unregister(__FUNCTION__);
-		end($this->code);
-		$this->transition[key($this->code)+1] = array($this->nextState, $this->line + substr_count($token[1], "\n"));
+		end($this->texts);
+		$this->transition[key($this->texts)+1] = array($this->nextState, $this->line + substr_count($token[1], "\n"));
 		unset($this->nextState);
 	}
 
@@ -172,7 +172,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 		{
 			return $this->setState(4);
 		}
-		else if ('/**/' === $token[1] && "\n" === substr(end($this->code), -1))
+		else if ('/**/' === $token[1] && "\n" === substr(end($this->texts), -1))
 		{
 			return $this->setState(1);
 		}

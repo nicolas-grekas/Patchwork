@@ -43,8 +43,8 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 	{
 		if (!empty($this->class->name))
 		{
-			$this->tokenUnshift(array(T_STRING, $this->class->nsName));
-			return $this->namespace && $this->tokenUnshift(array(T_NS_SEPARATOR, '\\'));
+			$this->tokensUnshift(array(T_STRING, $this->class->nsName));
+			return $this->namespace && $this->tokensUnshift(array(T_NS_SEPARATOR, '\\'));
 		}
 	}
 
@@ -52,8 +52,8 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 	{
 		if (!empty($this->class->extends))
 		{
-			$this->tokenUnshift(array(T_STRING, $this->class->extends));
-			return $this->namespace && $this->tokenUnshift(array(T_NS_SEPARATOR, '\\'));
+			$this->tokensUnshift(array(T_STRING, $this->class->extends));
+			return $this->namespace && $this->tokensUnshift(array(T_NS_SEPARATOR, '\\'));
 		}
 	}
 
@@ -63,9 +63,9 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 
 		if ($this->class->isFinal)
 		{
-			$a =& $this->type;
+			$a =& $this->types;
 			end($a);
-			$this->code[key($a)] = '';
+			$this->texts[key($a)] = '';
 			unset($a[key($a)]);
 		}
 	}
@@ -86,8 +86,8 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 
 			$this->dependencies['stringInfo']->removeNsPrefix();
 
-			$this->tokenUnshift(array(T_STRING, $this->class->extends));
-			return $this->namespace && $this->tokenUnshift(array(T_NS_SEPARATOR, '\\'));
+			$this->tokensUnshift(array(T_STRING, $this->class->extends));
+			return $this->namespace && $this->tokensUnshift(array(T_NS_SEPARATOR, '\\'));
 		}
 	}
 
@@ -168,7 +168,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		}
 		else
 		{
-			$this->tokenUnshift(
+			$this->tokensUnshift(
 				'(',
 				array(T_STRING, 'patchworkProcessedPath'),
 				$this->namespace ? array(T_NS_SEPARATOR, '\\') : array(T_WHITESPACE, ' ')

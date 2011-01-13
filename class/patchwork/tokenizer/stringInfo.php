@@ -68,7 +68,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 	{
 		if (empty($this->nsPrefix)) return;
 
-		$t =& $this->type;
+		$t =& $this->types;
 		end($t);
 
 		$p = array(T_STRING, T_NS_SEPARATOR);
@@ -78,7 +78,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		{
 			if ($p[++$j%2] === $t[$i])
 			{
-				$this->code[$i] = '';
+				$this->texts[$i] = '';
 				unset($t[$i]);
 			}
 			else break;
@@ -297,11 +297,11 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		default: return $this->tagString($token);
 		}
 
-		return $this->tokenUnshift($token);
+		return $this->tokensUnshift($token);
 	}
 
 	protected function tagNsSep52(&$token)
 	{
-		return $this->tokenUnshift(array(T_NS_SEPARATOR, '\\'));
+		return $this->tokensUnshift(array(T_NS_SEPARATOR, '\\'));
 	}
 }
