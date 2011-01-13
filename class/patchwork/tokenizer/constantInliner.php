@@ -92,7 +92,7 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 			{
 				$token[0] = T_CONSTANT_ENCAPSED_STRING;
 				$token[1] = $this->constants[$token[1]];
-				$this->tokenUnshift($token);
+				$this->tokensUnshift($token);
 
 				$this->dependencies['stringInfo']->removeNsPrefix();
 
@@ -103,7 +103,7 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 
 	protected function tagFileC(&$token)
 	{
-		return $this->tokenUnshift(array(
+		return $this->tokensUnshift(array(
 			T_CONSTANT_ENCAPSED_STRING,
 			T_FILE === $token[0] ? $this->file : $this->dir
 		));
@@ -111,7 +111,7 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 
 	protected function tagLineC(&$token)
 	{
-		return $this->tokenUnshift(array(T_LNUMBER, $this->line));
+		return $this->tokensUnshift(array(T_LNUMBER, $this->line));
 	}
 
 	protected function tagScopeName(&$token)
@@ -151,7 +151,7 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 
 	protected function tagClassC(&$token)
 	{
-		return $this->tokenUnshift(array(T_CONSTANT_ENCAPSED_STRING, "'{$this->scope->classC}'"));
+		return $this->tokensUnshift(array(T_CONSTANT_ENCAPSED_STRING, "'{$this->scope->classC}'"));
 	}
 
 	protected function tagMethodC(&$token)
@@ -160,16 +160,16 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 			? "'{$this->scope->classC}::{$this->scope->funcC}'"
 			: "''";
 
-		return $this->tokenUnshift(array(T_CONSTANT_ENCAPSED_STRING, $c));
+		return $this->tokensUnshift(array(T_CONSTANT_ENCAPSED_STRING, $c));
 	}
 
 	protected function tagFuncC(&$token)
 	{
-		return $this->tokenUnshift(array(T_CONSTANT_ENCAPSED_STRING, "'{$this->scope->funcC}'"));
+		return $this->tokensUnshift(array(T_CONSTANT_ENCAPSED_STRING, "'{$this->scope->funcC}'"));
 	}
 
 	protected function tagNsC(&$token)
 	{
-		return $this->tokenUnshift(array(T_CONSTANT_ENCAPSED_STRING, "'" . substr($this->namespace, 0, -1) . "'"));
+		return $this->tokensUnshift(array(T_CONSTANT_ENCAPSED_STRING, "'" . substr($this->namespace, 0, -1) . "'"));
 	}
 }

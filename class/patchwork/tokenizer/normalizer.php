@@ -82,7 +82,7 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 	{
 		$this->tagOpenTag($token);
 
-		return $this->tokenUnshift(
+		return $this->tokensUnshift(
 			array(T_ECHO, 'echo'),
 			array(T_OPEN_TAG, $token[1])
 		);
@@ -102,12 +102,12 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 
 	protected function fixVar(&$token)
 	{
-		return $this->tokenUnshift(array(T_PUBLIC, 'public'));
+		return $this->tokensUnshift(array(T_PUBLIC, 'public'));
 	}
 
 	protected function tagHaltCompiler(&$token)
 	{
 		$this->unregister(array(__FUNCTION__ => T_HALT_COMPILER));
-		return $this->tokenUnshift(';', array(T_ENDPHP, ''));
+		return $this->tokensUnshift(';', array(T_ENDPHP, ''));
 	}
 }

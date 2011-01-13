@@ -33,11 +33,11 @@ class patchwork_tokenizer
 	$dependencyName = null,
 	$dependencies = array(),
 
-	$line  = 0,
-	$token = array(),
-	$index = 0,
-	$type  = array(),
-	$code  = array(),
+	$line   = 0,
+	$tokens = array(),
+	$index  = 0,
+	$types  = array(),
+	$codes  = array(),
 	$prevType,
 	$anteType,
 	$tokenRegistry    = array(),
@@ -46,8 +46,8 @@ class patchwork_tokenizer
 
 	private
 
-	$parents           = array(),
-	$tokenizerError    = array(),
+	$parents = array(),
+	$errors  = array(),
 	$nextRegistryIndex = 0,
 
 	$registryIndex     = 0;
@@ -71,16 +71,16 @@ class patchwork_tokenizer
 		{
 			$v = array(
 				'line',
-				'token',
+				'tokens',
 				'index',
-				'type',
-				'code',
+				'types',
+				'texts',
 				'prevType',
 				'anteType',
 				'tokenRegistry',
 				'callbackRegistry',
 				'parents',
-				'tokenizerError',
+				'errors',
 				'nextRegistryIndex',
 			);
 
@@ -122,7 +122,7 @@ class patchwork_tokenizer
 
 	function getErrors()
 	{
-		return $this->tokenizerError;
+		return $this->errors;
 	}
 
 	function parse($code)
@@ -132,13 +132,14 @@ class patchwork_tokenizer
 		$tRegistry =& $this->tokenRegistry;
 		$cRegistry =& $this->callbackRegistry;
 
-		$this->token = $this->getTokens($code);
+		$this->tokens = $this->getTokens($code);
+		unset($code);
 
 		$line     =& $this->line;     $line     = 1;
-		$token    =& $this->token;
+		$tokens   =& $this->tokens;
 		$i        =& $this->index;    $i        = 0;
-		$type     =& $this->type;     $type     = array();
-		$code     =& $this->code;     $code     = array('');
+		$types    =& $this->types;    $types    = array();
+		$texts    =& $this->texts;    $texts    = array('');
 		$prevType =& $this->prevType; $prevType = false;
 		$anteType =& $this->anteType; $anteType = false;
 
@@ -146,10 +147,10 @@ class patchwork_tokenizer
 		$curly    = 0;
 		$strCurly = array();
 
-		while (isset($token[$i]))
+		while (isset($tokens[$i]))
 		{
-			$t =& $token[$i];
-			unset($token[$i++]);
+			$t =& $tokens[$i];
+			unset($tokens[$i++]);
 
 			$lines = 0;
 			$typed = 1;
@@ -184,20 +185,20 @@ class patchwork_tokenizer
 					$curly = $i;
 
 					// Skip 3 tokens: "(", ")" then ";" or T_CLOSE_TAG
-					do while (isset($token[$i], self::$sugar[$token[$i][0]])) ++$i;
+					do while (isset($tokens[$i], self::$sugar[$tokens[$i][0]])) ++$i;
 					while ($lines-- > 0 && ++$i);
 
 					$lines = $i + 1;
 					$strCurly = array();
 
 					// Everything after is merged into one T_COMPILER_HALTED
-					while (isset($token[++$i]))
+					while (isset($tokens[++$i]))
 					{
-						$strCurly[] = isset($token[$i][1]) ? $token[$i][1] : $token[$i];
-						unset($token[$i]);
+						$strCurly[] = isset($tokens[$i][1]) ? $tokens[$i][1] : $tokens[$i];
+						unset($tokens[$i]);
 					}
 
-					$strCurly && $token[$lines] = array(T_COMPILER_HALTED, implode('', $strCurly));
+					$strCurly && $tokens[$lines] = array(T_COMPILER_HALTED, implode('', $strCurly));
 
 					$i = $curly;
 					$curly = $lines = 0;
@@ -254,19 +255,19 @@ class patchwork_tokenizer
 				while (1);
 			}
 
-			$code[++$j] =& $t[1];
+			$texts[++$j] =& $t[1];
 			$line += $lines;
 
 			if ($typed)
 			{
-				$anteType = $prevType;
-				$type[$j] = $prevType = $t[0];
+				$anteType  = $prevType;
+				$types[$j] = $prevType = $t[0];
 			}
 		}
 
 		// Free memory thanks to copy-on-write
-		$j    = $code;
-		$type = $code = array();
+		$j     = $texts;
+		$types = $texts = array();
 		$line = 0;
 
 		return $j;
@@ -274,7 +275,7 @@ class patchwork_tokenizer
 
 	protected function setError($message, $type = E_USER_ERROR)
 	{
-		$this->tokenizerError[] = array($message, (int) $this->line, get_class($this), $type);
+		$this->errors[] = array($message, (int) $this->line, get_class($this), $type);
 	}
 
 	protected function register($method = null)
@@ -330,18 +331,18 @@ class patchwork_tokenizer
 	{
 		$i = $this->index;
 
-		do while (isset($this->token[$i], self::$sugar[$this->token[$i][0]])) ++$i;
+		do while (isset($this->tokens[$i], self::$sugar[$this->tokens[$i][0]])) ++$i;
 		while ($offset-- > 0 && ++$i);
 
-		isset($this->token[$i]) || $this->token[$i] = array(T_WHITESPACE, '');
+		isset($this->tokens[$i]) || $this->tokens[$i] = array(T_WHITESPACE, '');
 
-		return $this->token[$i];
+		return $this->tokens[$i];
 	}
 
-	protected function tokenUnshift()
+	protected function tokensUnshift()
 	{
 		foreach (func_get_args() as $token)
-			$this->token[--$this->index] = $token;
+			$this->tokens[--$this->index] = $token;
 
 		return false;
 	}
@@ -359,69 +360,52 @@ class patchwork_tokenizer
 
 	static function export($a)
 	{
-		if (is_array($a))
+		switch (true)
 		{
-			if ($a)
-			{
-				$i = 0;
-				$b = array();
-
-				foreach ($a as $k => $a)
-				{
-					if (is_int($k) && $k >= 0)
-					{
-						$b[] = ($k !== $i ? $k . '=>' : '') . self::export($a);
-						$i = $k+1;
-					}
-					else
-					{
-						$b[] = self::export($k) . '=>' . self::export($a);
-					}
-				}
-
-				$b = 'array(' . implode(',', $b) . ')';
-			}
-			else return 'array()';
-		}
-		else if (is_object($a))
-		{
+		case is_array($a):
+			$i = 0;
 			$b = array();
-			$v = (array) $a;
-			foreach ($v as $k => $v)
+
+			foreach ($a as $k => $a)
 			{
-				if ("\0" === substr($k, 0, 1)) $k = substr($k, 3);
-				$b[$k] = $v;
+				if (is_int($k) && 0 <= $k)
+				{
+					$b[] = ($k !== $i ? $k . '=>' : '') . self::export($a);
+					$i = $k + 1;
+				}
+				else
+				{
+					$b[] = self::export($k) . '=>' . self::export($a);
+				}
 			}
 
-			$b = self::export($b);
-			$b = get_class($a) . '::__set_state(' . $b . ')';
-		}
-		else if (is_string($a))
-		{
+			return 'array(' . implode(',', $b) . ')';
+
+		case is_object($a):
+			return 'unserialize(' . self::export(serialize($a)) . ')';
+
+		case is_string($a):
 			if ($a !== strtr($a, "\r\n\0", '---'))
 			{
-				$b = '"'. str_replace(
+				return '"'. str_replace(
 					array(  "\\",   '"',   '$',  "\r",  "\n",  "\0"),
 					array('\\\\', '\\"', '\\$', '\\r', '\\n', '\\0'),
 					$a
 				) . '"';
 			}
-			else
-			{
-				$b = "'" . str_replace(
-					array('\\', "'"),
-					array('\\\\', "\\'"),
-					$a
-				) . "'";
-			}
-		}
-		else if (true  === $a) $b = 'true';
-		else if (false === $a) $b = 'false';
-		else if (null  === $a) $b = 'null';
-		else if (INF   === $a) $b = 'INF';
-		else if (NAN   === $a) $b = 'NAN';
-		else $b = (string) $a;
 
-		return $b;
+			return "'" . str_replace(
+				array(  '\\',   "'"),
+				array('\\\\', "\\'"),
+				$a
+			) . "'";
+
+		case true  === $a: return 'true';
+		case false === $a: return 'false';
+		case null  === $a: return 'null';
+		case INF   === $a: return 'INF';
+		case NAN   === $a: return 'NAN';
+		default:           return (string) $a;
+		}
 	}
 }

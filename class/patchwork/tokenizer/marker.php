@@ -147,7 +147,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 			|| T_CLASS === $this->scope->type
 		) return;
 
-		$t =& $this->type;
+		$t =& $this->types;
 		end($t);
 
 		$c = strtolower(substr($this->nsResolved, 1));
@@ -168,7 +168,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 		new patchwork_tokenizer_closeMarker($this, 0, '&' === pos($t) ? ')' : ':0)');
 
 		next($t);
-		$this->code[key($t)] = $c . $this->code[key($t)];
+		$this->texts[key($t)] = $c . $this->texts[key($t)];
 	}
 
 	protected function tagFunctionClose(&$token)

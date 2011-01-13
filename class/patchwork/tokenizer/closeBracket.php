@@ -43,7 +43,7 @@ class patchwork_tokenizer_closeBracket extends patchwork_tokenizer
 		case T_AS:
 		case T_CLOSE_TAG:
 			$this->unregister();
-			return $this->tokenUnshift($token, ')');
+			return $this->tokensUnshift($token, ')');
 		}
 	}
 }
