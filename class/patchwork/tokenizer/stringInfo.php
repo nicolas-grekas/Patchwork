@@ -32,6 +32,13 @@ patchwork_tokenizer::defineNewToken('T_TRUE');          // true
 patchwork_tokenizer::defineNewToken('T_FALSE');         // false
 patchwork_tokenizer::defineNewToken('T_NULL');          // null
 
+// New tokens since PHP 5.3
+defined('T_GOTO')         || patchwork_tokenizer::defineNewToken('T_GOTO');
+defined('T_DIR' )         || patchwork_tokenizer::defineNewToken('T_DIR');
+defined('T_NS_C')         || patchwork_tokenizer::defineNewToken('T_NS_C');
+defined('T_NAMESPACE')    || patchwork_tokenizer::defineNewToken('T_NAMESPACE');
+defined('T_NS_SEPARATOR') || patchwork_tokenizer::defineNewToken('T_NS_SEPARATOR');
+
 
 class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 {
@@ -45,6 +52,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 	$nsPrefix  = '',
 	$nsPreType = 0,
 	$callbacks = array(
+		'tagString'   => T_STRING,
 		'tagConst'    => T_CONST,
 		'tagExtends'  => array(T_EXTENDS, T_IMPLEMENTS),
 		'tagFunction' => T_FUNCTION,
@@ -54,14 +62,6 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		'tagNsSep52'  => '\\',
 	);
 
-
-	function __construct(parent $parent)
-	{
-		// fix for pre-PHP5.3 tokens
-		$this->callbacks[T_NAMESPACE > 0 ? 'tagString' : 'tagString52'] = T_STRING;
-
-		parent::__construct($parent);
-	}
 
 	function removeNsPrefix()
 	{
@@ -93,13 +93,21 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 	{
 		if (T_NS_SEPARATOR !== $p = $this->prevType) $this->nsPrefix = '';
 
-		if (empty($token[1][6])) switch (strtolower($token[1]))
+		switch ($token[1])
+		{
+		case 'self':          if (!$this->nsPrefix) return T_SELF;   break;
+		case 'parent':        if (!$this->nsPrefix) return T_PARENT; break;
+		case 'goto':          return $this->tokensUnshift(array(T_GOTO,      $token[1]));
+		case '__DIR__':       return $this->tokensUnshift(array(T_DIR,       $token[1]));
+		case '__NAMESPACE__': return $this->tokensUnshift(array(T_NS_C,      $token[1]));
+		case 'namespace':     return $this->tokensUnshift(array(T_NAMESPACE, $token[1]));
+		}
+
+		switch (strtolower($token[1]))
 		{
 		case 'true':   return T_TRUE;
 		case 'false':  return T_FALSE;
 		case 'null':   return T_NULL;
-		case 'self':   if ('self'   === $token[1] && !$this->nsPrefix) return T_SELF;   break;
-		case 'parent': if ('parent' === $token[1] && !$this->nsPrefix) return T_PARENT; break;
 		}
 
 		switch ($p)
@@ -279,24 +287,6 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 			$this->nsPrefix  = '\\';
 			$this->nsPreType = $this->prevType;
 		}
-	}
-
-
-	// fix for pre-PHP5.3 tokens
-
-	protected function tagString52(&$token)
-	{
-		switch ($token[1])
-		{
-		case 'goto':          $token[0] = T_GOTO;      break;
-		case '__DIR__':       $token[0] = T_DIR;       break;
-		case '__NAMESPACE__': $token[0] = T_NS_C;      break;
-		case 'namespace':     $token[0] = T_NAMESPACE; break;
-
-		default: return $this->tagString($token);
-		}
-
-		return $this->tokensUnshift($token);
 	}
 
 	protected function tagNsSep52(&$token)

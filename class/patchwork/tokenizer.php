@@ -12,13 +12,6 @@
  ***************************************************************************/
 
 
-// New tokens since PHP 5.3
-defined('T_GOTO')         || patchwork_tokenizer::defineNewToken('T_GOTO');
-defined('T_DIR' )         || patchwork_tokenizer::defineNewToken('T_DIR');
-defined('T_NS_C')         || patchwork_tokenizer::defineNewToken('T_NS_C');
-defined('T_NAMESPACE')    || patchwork_tokenizer::defineNewToken('T_NAMESPACE');
-defined('T_NS_SEPARATOR') || patchwork_tokenizer::defineNewToken('T_NS_SEPARATOR');
-
 // Match closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
 patchwork_tokenizer::defineNewToken('T_CURLY_CLOSE');
 
@@ -116,7 +109,7 @@ class patchwork_tokenizer
 		$k = strtolower($this->dependencyName);
 		$this->parents[$k] = $this;
 
-		$this->nextRegistryIndex += 65536;
+		$this->nextRegistryIndex += 1 << (PHP_INT_SIZE << 2) >> 1;
 		$this->registryIndex = $this->nextRegistryIndex;
 
 		empty($this->callbacks) || $this->register();
@@ -131,8 +124,8 @@ class patchwork_tokenizer
 	{
 		if ('' === $code) return array();
 
-		$tRegistry =& $this->tokenRegistry;
-		$cRegistry =& $this->callbackRegistry;
+		$tkReg =& $this->tokenRegistry;
+		$cbReg =& $this->callbackRegistry;
 
 		$this->tokens = $this->getTokens($code);
 		unset($code);
@@ -225,31 +218,28 @@ class patchwork_tokenizer
 				}
 			}
 
-			if (isset($tRegistry[$t[0]]) || ($cRegistry && $typed))
+			if (isset($tkReg[$t[0]]) || ($cbReg && $typed))
 			{
-				$t[2] = array($k = $t[0] => 1);
-
-				if (empty($tRegistry[$k])) $callbacks = $cRegistry;
-				else if ($cRegistry && $typed)
-				{
-					$callbacks = $cRegistry + $tRegistry[$k];
-					ksort($callbacks);
-				}
-				else $callbacks = $tRegistry[$k];
+				$t[2] = array();
+				$k = $t[0];
+				$callbacks = $typed ? $cbReg : array();
 
 				do
 				{
+					$t[2][$k] = 1;
+
+					if (isset($tkReg[$k]))
+					{
+						$callbacks += $tkReg[$k];
+						ksort($callbacks);
+					}
+
 					foreach ($callbacks as $k => $c)
 					{
 						unset($callbacks[$k]);
 
 						if (false === $k = $c[0]->{$c[1]}($t)) continue 3;
-						else if (null !== $k && ($t[2][$k] = 1) && isset($tRegistry[$k]))
-						{
-							$callbacks += $tRegistry[$k];
-							ksort($callbacks);
-							continue 2;
-						}
+						else if (null !== $k && empty($t[2][$k])) continue 2;
 					}
 
 					break;
