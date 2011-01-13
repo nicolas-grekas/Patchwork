@@ -14,10 +14,7 @@
 
 class patchwork_tokenizer_constantExpression extends patchwork_tokenizer
 {
-	protected
-
-	$expressionValue,
-	$shared = 'expressionValue';
+	protected $expressionValue;
 
 
 	protected static $variableType = array(

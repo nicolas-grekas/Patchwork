@@ -25,8 +25,7 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 		'tagUse'       => T_USE,
 		'tagNsResolve' => array(T_USE_CLASS, T_USE_FUNCTION, T_USE_CONSTANT, T_TYPE_HINT),
 	),
-	$shared = array('namespace', 'nsResolved'),
-	$dependencies = 'stringInfo';
+	$dependencies = array('stringInfo' => 'nsPrefix');
 
 
 	protected static
@@ -100,10 +99,9 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 
 	protected function tagNsResolve(&$token)
 	{
-		$nsPrefix = $this->dependencies['stringInfo']->nsPrefix;
-		$this->nsResolved = $nsPrefix . $token[1];
+		$this->nsResolved = $this->nsPrefix . $token[1];
 
-		if ('' === $nsPrefix)
+		if ('' === $this->nsPrefix)
 		{
 			if (isset($token[2][T_USE_CLASS]) || isset($token[2][T_TYPE_HINT]))
 			{
@@ -116,9 +114,9 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 				$this->nsResolved = '\\' . $this->nsResolved;
 			}
 		}
-		else if ('\\' !== $nsPrefix[0])
+		else if ('\\' !== $this->nsPrefix[0])
 		{
-			$a = explode('\\', $nsPrefix . $token[1], 2);
+			$a = explode('\\', $this->nsPrefix . $token[1], 2);
 
 			if ('namespace' === $a[0])
 			{
