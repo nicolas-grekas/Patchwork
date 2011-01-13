@@ -55,7 +55,7 @@ class patchwork_tokenizer_namespaceResolver extends patchwork_tokenizer
 		{
 			$this->dependencies['stringInfo']->removeNsPrefix();
 
-			return $this->tokenUnshift(
+			return $this->tokensUnshift(
 				array(T_STRING, substr($this->nsResolved, 1)),
 				array(T_NS_SEPARATOR, '\\')
 			);
