@@ -20,7 +20,7 @@ class patchwork_tokenizer_constructor4to5 extends patchwork_tokenizer
 	$signature = '',
 	$arguments = array(),
 	$callbacks = array('tagClassOpen' => T_SCOPE_OPEN),
-	$dependencies = 'classInfo';
+	$dependencies = array('classInfo' => array('class', 'namespace', 'scope'));
 
 
 	protected function tagClassOpen(&$token)

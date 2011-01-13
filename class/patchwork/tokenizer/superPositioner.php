@@ -27,7 +27,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		'tagRequire'     => array(T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
 		'tagSpecialFunc' => T_USE_FUNCTION,
 	),
-	$dependencies = array('stringInfo', 'classInfo', 'constantExpression');
+	$dependencies = array('stringInfo', 'classInfo' => array('class', 'namespace', 'nsResolved'), 'constantExpression' => 'expressionValue');
 
 
 	function __construct(parent $parent, $level, $topClass)

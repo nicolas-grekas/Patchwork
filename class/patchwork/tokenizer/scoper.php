@@ -34,7 +34,6 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 		'tagFunction'   => T_FUNCTION,
 		'tagClass'      => array(T_CLASS, T_INTERFACE),
 	),
-	$shared = 'scope',
 	$dependencies = 'normalizer';
 
 

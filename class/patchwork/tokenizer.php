@@ -30,6 +30,9 @@ class patchwork_tokenizer
 {
 	protected
 
+	$dependencyName = null,
+	$dependencies = array(),
+
 	$line  = 0,
 	$token = array(),
 	$index = 0,
@@ -37,33 +40,17 @@ class patchwork_tokenizer
 	$code  = array(),
 	$prevType,
 	$anteType,
-
 	$tokenRegistry    = array(),
-	$callbackRegistry = array(),
-
-	$dependencyName = null,
-	$dependencies = array(),
-	$shared = array(
-		'line',
-		'token',
-		'index',
-		'type',
-		'code',
-		'prevType',
-		'anteType',
-		'tokenRegistry',
-		'callbackRegistry',
-		'tokenizerError',
-		'nextRegistryIndex',
-	);
+	$callbackRegistry = array();
 
 
 	private
 
 	$parents           = array(),
 	$tokenizerError    = array(),
-	$registryIndex     = 0,
-	$nextRegistryIndex = 0;
+	$nextRegistryIndex = 0,
+
+	$registryIndex     = 0;
 
 
 	protected static
@@ -77,13 +64,40 @@ class patchwork_tokenizer
 
 	function __construct(self $parent = null)
 	{
-		$parent ? $this->parents =& $parent->parents : $parent = $this;
 		$this->dependencyName || $this->dependencyName = get_class($this);
 		$this->dependencies = (array) $this->dependencies;
+
+		if ($parent)
+		{
+			$v = array(
+				'line',
+				'token',
+				'index',
+				'type',
+				'code',
+				'prevType',
+				'anteType',
+				'tokenRegistry',
+				'callbackRegistry',
+				'parents',
+				'tokenizerError',
+				'nextRegistryIndex',
+			);
+
+			foreach ($v as $v) $this->$v =& $parent->$v;
+		}
+		else $parent = $this;
 
 		foreach ($this->dependencies as $k => $v)
 		{
 			unset($this->dependencies[$k]);
+
+			if (is_string($k))
+			{
+				$c = (array) $v;
+				$v = $k;
+			}
+			else $c = array();
 
 			$k = strtolower('\\' !== $v[0] ? __CLASS__ . '_' . $v : substr($v, 1));
 
@@ -93,23 +107,12 @@ class patchwork_tokenizer
 			}
 
 			$this->dependencies[$v] = $this->parents[$k];
+
+			foreach ($c as $c) $this->$c =& $this->parents[$k]->$c;
 		}
 
 		$k = strtolower($this->dependencyName);
 		$this->parents[$k] = $this;
-
-		if ($this !== $parent)
-		{
-			foreach (array_keys($parent->shared) as $v)
-				$this->$v =& $parent->$v;
-
-			$parent->shared += array_flip((array) $this->shared);
-			$this->shared =& $parent->shared;
-		}
-		else
-		{
-			$this->shared = array_flip((array) $this->shared);
-		}
 
 		$this->nextRegistryIndex += 65536;
 		$this->registryIndex = $this->nextRegistryIndex;

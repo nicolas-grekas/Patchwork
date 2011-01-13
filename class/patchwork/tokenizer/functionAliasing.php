@@ -21,7 +21,7 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 		'tagVariableVar' => '(',
 		'tagUseFunction' => T_USE_FUNCTION,
 	),
-	$dependencies = array('stringInfo', 'classInfo'),
+	$dependencies = array('stringInfo', 'classInfo' => array('class', 'namespace', 'nsResolved')),
 
 	$varVarLead = '${patchwork_alias::scopedResolve(',
 	$varVarTail = ",\${''})}";

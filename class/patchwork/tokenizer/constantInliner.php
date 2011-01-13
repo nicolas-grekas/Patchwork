@@ -31,7 +31,7 @@ class patchwork_tokenizer_constantInliner extends patchwork_tokenizer
 		'tagFuncC'     => T_FUNC_C,
 		'tagNsC'       => T_NS_C,
 	),
-	$dependencies = array('stringInfo', 'namespaceInfo', 'scoper');
+	$dependencies = array('stringInfo', 'namespaceInfo' => array('namespace', 'nsResolved'), 'scoper' => 'scope');
 
 	protected static $internalConstants = array();
 
