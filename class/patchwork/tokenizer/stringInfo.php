@@ -13,25 +13,25 @@
 
 
 // Match T_STRING variants
-patchwork_tokenizer::defineNewToken('T_NAME_NS');       // namespace FOO\BAR;
-patchwork_tokenizer::defineNewToken('T_NAME_CLASS');    // class FOOBAR {}; interface FOOBAR {}
-patchwork_tokenizer::defineNewToken('T_NAME_FUNCTION'); // function FOOBAR()
-patchwork_tokenizer::defineNewToken('T_NAME_CONST');    // class foo {const BAR}
-patchwork_tokenizer::defineNewToken('T_USE_NS');        // FOO\bar
-patchwork_tokenizer::defineNewToken('T_USE_CLASS');     // new FOO; BAR::...
-patchwork_tokenizer::defineNewToken('T_USE_METHOD');    // foo::BAR(); $foo->BAR()
-patchwork_tokenizer::defineNewToken('T_USE_PROPERTY');  // $foo->BAR
-patchwork_tokenizer::defineNewToken('T_USE_FUNCTION');  // FOOBAR()
-patchwork_tokenizer::defineNewToken('T_USE_CONST');     // foo::BAR
-patchwork_tokenizer::defineNewToken('T_USE_CONSTANT');  // $foo = BAR
-patchwork_tokenizer::defineNewToken('T_GOTO_LABEL');    // goto FOO; or FOO: {...}
-patchwork_tokenizer::defineNewToken('T_TYPE_HINT');     // instanceof FOO; function f(BAR $a)
+patchwork_tokenizer::defineNewToken('T_NAME_NS');       // namespace FOO\BAR    - namespace declaration
+patchwork_tokenizer::defineNewToken('T_NAME_CLASS');    // class FOO {}         - class or interface declaration
+patchwork_tokenizer::defineNewToken('T_NAME_FUNCTION'); // function FOO()       - function or method declaration
+patchwork_tokenizer::defineNewToken('T_NAME_CONST');    // const FOO            - class or namespaced const declaration
+patchwork_tokenizer::defineNewToken('T_USE_NS');        // FOO\bar              - namespace prefix or "use" aliasing
+patchwork_tokenizer::defineNewToken('T_USE_CLASS');     // new foo\BAR - FOO::  - class usage
+patchwork_tokenizer::defineNewToken('T_USE_METHOD');    // $a->FOO() - a::BAR() - method call
+patchwork_tokenizer::defineNewToken('T_USE_PROPERTY');  // $a->BAR              - property access
+patchwork_tokenizer::defineNewToken('T_USE_FUNCTION');  // foo\BAR()            - function call
+patchwork_tokenizer::defineNewToken('T_USE_CONST');     // foo::BAR             - class constant access
+patchwork_tokenizer::defineNewToken('T_USE_CONSTANT');  // FOO - foo\BAR        - global or namespaced constant access
+patchwork_tokenizer::defineNewToken('T_GOTO_LABEL');    // goto FOO - BAR:{}    - goto label
+patchwork_tokenizer::defineNewToken('T_IN_STRING');     // "$foo[BAR]"          - array access in interpolated string
+patchwork_tokenizer::defineNewToken('T_TYPE_HINT');     // instanceof foo\BAR - function(foo\BAR $a) - type hint
 patchwork_tokenizer::defineNewToken('T_PARENT');        // parent
 patchwork_tokenizer::defineNewToken('T_SELF');          // self
 patchwork_tokenizer::defineNewToken('T_TRUE');          // true
 patchwork_tokenizer::defineNewToken('T_FALSE');         // false
 patchwork_tokenizer::defineNewToken('T_NULL');          // null
-patchwork_tokenizer::defineNewToken('T_IN_STRING');     // "$foo[BAR]"
 
 // New tokens since PHP 5.3
 defined('T_GOTO')         || patchwork_tokenizer::defineNewToken('T_GOTO');
