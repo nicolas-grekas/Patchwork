@@ -31,6 +31,7 @@ patchwork_tokenizer::defineNewToken('T_SELF');          // self
 patchwork_tokenizer::defineNewToken('T_TRUE');          // true
 patchwork_tokenizer::defineNewToken('T_FALSE');         // false
 patchwork_tokenizer::defineNewToken('T_NULL');          // null
+patchwork_tokenizer::defineNewToken('T_IN_STRING');     // "$foo[BAR]"
 
 // New tokens since PHP 5.3
 defined('T_GOTO')         || patchwork_tokenizer::defineNewToken('T_GOTO');
@@ -91,6 +92,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 
 	protected function tagString(&$token)
 	{
+		if ($this->inString & 1) return T_IN_STRING;
 		if (T_NS_SEPARATOR !== $p = $this->prevType) $this->nsPrefix = '';
 
 		switch ($token[1])
