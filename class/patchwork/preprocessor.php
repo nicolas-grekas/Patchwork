@@ -135,6 +135,7 @@ class patchwork_preprocessor__0
 			case 'globalizer':       $p[$c] = new $i($t, '$CONFIG'); break;
 			case 'marker':           $p[$c] = new $i($t, self::$declaredClass); break;
 			case 'constantInliner':  $p[$c] = new $i($t, $source, self::$constants); break;
+			case 'namespaceRemover': $p[$c] = new $i($t, 'patchwork_alias_class::add'); break;
 			case 'superPositioner':  $p[$c] = new $i($t, $level, $is_top ? $class : false); break;
 			case 'functionAliasing': $p[$c] = new $i($t, $GLOBALS['patchwork_preprocessor_alias']); break;
 			}
