@@ -16,6 +16,8 @@ class patchwork_tokenizer_namespaceRemover extends patchwork_tokenizer
 {
 	protected
 
+	$namespaceBackup,
+	$aliasAdd   = false,
 	$callbacks  = array(
 		'tagNs'     => T_NAMESPACE,
 		'tagNsSep'  => T_NS_SEPARATOR,
@@ -25,9 +27,15 @@ class patchwork_tokenizer_namespaceRemover extends patchwork_tokenizer
 	$dependencies = array('constFuncResolver', 'namespaceResolver', 'classInfo' => array('class', 'scope', 'namespace', 'nsResolved'));
 
 
+	function __construct(parent $parent, $aliasAdd = false)
+	{
+		$this->aliasAdd = $aliasAdd;
+		parent::__construct($parent);
+	}
+
 	protected function tagNs(&$token)
 	{
-		if (in_array(T_NAME_NS, $token[2]))
+		if (isset($token[2][T_NAME_NS]))
 		{
 			$this->register('tagNsEnd');
 			$token[1] = ' ';
@@ -41,6 +49,7 @@ class patchwork_tokenizer_namespaceRemover extends patchwork_tokenizer
 		case '{':
 		case ';':
 		case $this->prevType:
+			$this->namespaceBackup = $this->namespace;
 			$this->namespace = strtr($this->namespace, '\\', '_');
 			$this->unregister(__FUNCTION__);
 			if (';' !== $token[0]) return;
@@ -66,9 +75,10 @@ class patchwork_tokenizer_namespaceRemover extends patchwork_tokenizer
 	{
 		if ($this->namespace && T_CLASS !== $this->scope->type && T_INTERFACE !== $this->scope->type)
 		{
-			if (in_array(T_NAME_CLASS, $token[2]))
+			if (isset($token[2][T_NAME_CLASS]))
 			{
 				$this->class->nsName = strtr($this->class->nsName, '\\', '_');
+				$this->aliasAdd && $this->scope->token[1] .= "{$this->aliasAdd}('{$this->namespaceBackup}{$this->class->name}','{$this->class->nsName}');";
 				$this->class->name   = $this->class->nsName;
 			}
 
