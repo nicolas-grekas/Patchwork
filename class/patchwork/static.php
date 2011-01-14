@@ -11,6 +11,7 @@
  *
  ***************************************************************************/
 
+use patchwork as p;
 
 class patchwork_static extends patchwork
 {

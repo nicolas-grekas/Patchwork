@@ -11,6 +11,7 @@
  *
  ***************************************************************************/
 
+use patchwork as p;
 
 /**
  * Hook executed only once, when application is initialized

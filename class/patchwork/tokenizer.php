@@ -26,9 +26,10 @@ class patchwork_tokenizer
 	$dependencyName = null,
 	$dependencies = array(),
 
+	$inString = 0,
 	$line   = 0,
-	$tokens = array(),
 	$index  = 0,
+	$tokens = array(),
 	$types  = array(),
 	$codes  = array(),
 	$prevType,
@@ -124,19 +125,19 @@ class patchwork_tokenizer
 	{
 		if ('' === $code) return array();
 
-		$tkReg =& $this->tokenRegistry;
-		$cbReg =& $this->callbackRegistry;
-
 		$this->tokens = $this->getTokens($code);
 		unset($code);
 
+		$inString =& $this->inString; $inString = 0;
 		$line     =& $this->line;     $line     = 1;
-		$tokens   =& $this->tokens;
 		$i        =& $this->index;    $i        = 0;
 		$types    =& $this->types;    $types    = array();
 		$texts    =& $this->texts;    $texts    = array('');
 		$prevType =& $this->prevType; $prevType = false;
 		$anteType =& $this->anteType; $anteType = false;
+		$tokens   =& $this->tokens;
+		$tkReg    =& $this->tokenRegistry;
+		$cbReg    =& $this->callbackRegistry;
 
 		$j        = 0;
 		$curly    = 0;
@@ -173,7 +174,14 @@ class patchwork_tokenizer
 				case T_CURLY_OPEN:
 					$strCurly[] = $curly;
 					$curly = 0;
-					break;
+					// No break;
+
+				case T_START_HEREDOC: ++$inString; break;
+				case T_END_HEREDOC:   --$inString; break;
+
+				case T_STRING:          if (($inString & 1) && '['        !== $types[$j]) $t[0] = T_ENCAPSED_AND_WHITESPACE; break;
+				case T_OBJECT_OPERATOR: if (($inString & 1) && T_VARIABLE !== $types[$j]) $t[0] = T_ENCAPSED_AND_WHITESPACE; break;
+				case T_CHARACTER: $t[0] = T_ENCAPSED_AND_WHITESPACE; break;
 
 				case T_HALT_COMPILER:
 					$lines = 2;
@@ -205,12 +213,23 @@ class patchwork_tokenizer
 			{
 				$t = array($t, $t);
 
-				switch ($t[0])
+				if ($inString & 1) switch ($t[0])
 				{
+				case '"':
+				case '`': --$inString; break;
+				case '[': if (T_VARIABLE !== $types[$j]) $t[0] = T_ENCAPSED_AND_WHITESPACE; break;
+				case ']': if (T_STRING   !== $types[$j]) $t[0] = T_ENCAPSED_AND_WHITESPACE; break;
+				default: $t[0] = T_ENCAPSED_AND_WHITESPACE;
+				}
+				else switch ($t[0])
+				{
+				case '`':
+				case '"': ++$inString; break;
 				case '{': ++$curly; break;
 				case '}':
 					if (0 > --$curly)
 					{
+						--$inString;
 						$t[0]  = T_CURLY_CLOSE;
 						$curly = array_pop($strCurly);
 					}

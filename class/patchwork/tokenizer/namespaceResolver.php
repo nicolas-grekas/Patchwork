@@ -51,14 +51,12 @@ class patchwork_tokenizer_namespaceResolver extends patchwork_tokenizer
 		{
 			$this->setError("Unresolved namespaced identifier ({$this->nsResolved}).", E_USER_WARNING);
 		}
-		else if (isset($this->nsPrefix[0]) ? '\\' !== $this->nsPrefix[0] : $this->namespace)
+		else if (isset($this->nsPrefix[0]) ? '\\' !== $this->nsPrefix[0] : ($this->namespace || $token[1] !== substr($this->nsResolved, 1)))
 		{
 			$this->dependencies['stringInfo']->removeNsPrefix();
 
-			return $this->tokensUnshift(
-				array(T_STRING, substr($this->nsResolved, 1)),
-				array(T_NS_SEPARATOR, '\\')
-			);
+			$this->tokensUnshift(array(T_STRING, substr($this->nsResolved, 1)));
+			return $this->namespace && $this->tokensUnshift(array(T_NS_SEPARATOR, '\\'));
 		}
 	}
 }
