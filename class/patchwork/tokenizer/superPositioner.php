@@ -75,6 +75,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		$this->class->suffix = '__' . (0 <= $this->level ? $this->level : '00');
 		$token[1] .= $this->class->suffix;
 		0 <= $this->level && $this->register(array('tagExtendsSelf' => T_USE_CLASS));
+		$this->class->isTop = $this->topClass && 0 === strcasecmp($this->topClass, $this->class->nsName);
 	}
 
 	protected function tagExtendsSelf(&$token)
@@ -128,7 +129,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 	{
 		$c = $this->class;
 
-		if ($c->isFinal || ($this->topClass && 0 === strcasecmp($this->topClass, $c->nsName)))
+		if ($c->isFinal || $c->isTop)
 		{
 			$a = '';
 			$c->isAbstract && $a = 'abstract';
