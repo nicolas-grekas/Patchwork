@@ -13,6 +13,7 @@ option {font-weight:normal;font-style:normal;}
 
 /* Borrowed from HTML5 ✰ Boilerplate */
 .ie7 img {-ms-interpolation-mode:bicubic;}
+sub, sup {line-height:0;}
 button, input, select, textarea {margin:0;}
 abbr, dfn {border-bottom:0;}
 .ie6 abbr, .ie6 dfn, abbr[title], dfn[title] {border-bottom:1px dotted;cursor:help;}
