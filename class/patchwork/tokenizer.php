@@ -139,9 +139,9 @@ class patchwork_tokenizer
 		$tkReg    =& $this->tokenRegistry;
 		$cbReg    =& $this->callbackRegistry;
 
-		$j        = 0;
-		$curly    = 0;
-		$strCurly = array();
+		$j         = 0;
+		$curly     = 0;
+		$curlyPool = array();
 
 		while (isset($tokens[$i]))
 		{
@@ -172,7 +172,7 @@ class patchwork_tokenizer
 
 				case T_DOLLAR_OPEN_CURLY_BRACES:
 				case T_CURLY_OPEN:
-					$strCurly[] = $curly;
+					$curlyPool[] = $curly;
 					$curly = 0;
 					// No break;
 
@@ -192,20 +192,20 @@ class patchwork_tokenizer
 					while ($lines-- > 0 && ++$i);
 
 					$lines = $i + 1;
-					$strCurly = array();
+					$curlyPool = array();
 
 					// Everything after is merged into one T_COMPILER_HALTED
 					while (isset($tokens[++$i]))
 					{
-						$strCurly[] = isset($tokens[$i][1]) ? $tokens[$i][1] : $tokens[$i];
+						$curlyPool[] = isset($tokens[$i][1]) ? $tokens[$i][1] : $tokens[$i];
 						unset($tokens[$i]);
 					}
 
-					$strCurly && $tokens[$lines] = array(T_COMPILER_HALTED, implode('', $strCurly));
+					$curlyPool && $tokens[$lines] = array(T_COMPILER_HALTED, implode('', $curlyPool));
 
 					$i = $curly;
 					$curly = $lines = 0;
-					$strCurly = array();
+					$curlyPool = array();
 					break;
 				}
 			}
@@ -231,7 +231,7 @@ class patchwork_tokenizer
 					{
 						--$inString;
 						$t[0]  = T_CURLY_CLOSE;
-						$curly = array_pop($strCurly);
+						$curly = array_pop($curlyPool);
 					}
 					break;
 				}
