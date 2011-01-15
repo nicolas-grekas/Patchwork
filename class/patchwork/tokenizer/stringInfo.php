@@ -25,7 +25,7 @@ patchwork_tokenizer::defineNewToken('T_USE_FUNCTION');  // foo\BAR()            
 patchwork_tokenizer::defineNewToken('T_USE_CONST');     // foo::BAR             - class constant access
 patchwork_tokenizer::defineNewToken('T_USE_CONSTANT');  // FOO - foo\BAR        - global or namespaced constant access
 patchwork_tokenizer::defineNewToken('T_GOTO_LABEL');    // goto FOO - BAR:{}    - goto label
-patchwork_tokenizer::defineNewToken('T_IN_STRING');     // "$foo[BAR]"          - array access in interpolated string
+patchwork_tokenizer::defineNewToken('T_KEY_STRING');    // "$foo[BAR]"          - array access in interpolated string
 patchwork_tokenizer::defineNewToken('T_TYPE_HINT');     // instanceof foo\BAR - function(foo\BAR $a) - type hint
 patchwork_tokenizer::defineNewToken('T_PARENT');        // parent
 patchwork_tokenizer::defineNewToken('T_SELF');          // self
@@ -92,7 +92,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 
 	protected function tagString(&$token)
 	{
-		if ($this->inString & 1) return T_IN_STRING;
+		if ($this->inString & 1) return T_KEY_STRING;
 		if (T_NS_SEPARATOR !== $p = $this->prevType) $this->nsPrefix = '';
 
 		switch ($token[1])
