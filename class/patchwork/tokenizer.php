@@ -1,6 +1,6 @@
 <?php /*********************************************************************
  *
- *   Copyright : (C) 2010 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -12,11 +12,8 @@
  ***************************************************************************/
 
 
-// Match closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
-patchwork_tokenizer::defineNewToken('T_CURLY_CLOSE');
-
-// Match data after T_HALT_COMPILER
-patchwork_tokenizer::defineNewToken('T_COMPILER_HALTED');
+patchwork_tokenizer::defineNewToken('T_CURLY_CLOSE');     // closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
+patchwork_tokenizer::defineNewToken('T_COMPILER_HALTED'); // data after T_HALT_COMPILER
 
 
 class patchwork_tokenizer
@@ -257,7 +254,7 @@ class patchwork_tokenizer
 					{
 						unset($callbacks[$k]);
 
-						if (false === $k = $c[0]->{$c[1]}($t)) continue 3;
+						if (false === $k = $c[0]->$c[1]($t)) continue 3;
 						else if (null !== $k && empty($t[2][$k])) continue 2;
 					}
 
@@ -293,23 +290,20 @@ class patchwork_tokenizer
 	{
 		null === $method && $method = $this->callbacks;
 
-		$sort = array();
-
 		foreach ((array) $method as $method => $type)
 		{
 			if (is_int($method))
 			{
-				isset($sort['']) || $sort[''] =& $this->callbackRegistry;
+				isset($sort) || $sort = 1;
 				$this->callbackRegistry[++$this->registryIndex] = array($this, $type);
 			}
 			else foreach ((array) $type as $type)
 			{
-				isset($sort[$type]) || $sort[$type] =& $this->tokenRegistry[$type];
 				$this->tokenRegistry[$type][++$this->registryIndex] = array($this, $method);
 			}
 		}
 
-		foreach ($sort as &$sort) ksort($sort);
+		isset($sort) && ksort($this->callbackRegistry);
 	}
 
 	protected function unregister($method = null)
