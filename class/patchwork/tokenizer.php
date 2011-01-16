@@ -145,8 +145,7 @@ class patchwork_tokenizer
 			$t =& $tokens[$i];
 			unset($tokens[$i++]);
 
-			$lines = 0;
-			$typed = 1;
+			$sugar = 0;
 
 			if (isset($t[1]))
 			{
@@ -154,56 +153,12 @@ class patchwork_tokenizer
 				{
 				case T_WHITESPACE:
 				case T_COMMENT:
-				case T_DOC_COMMENT:
-					$typed = 0;
-					// No break;
-
-				case T_CONSTANT_ENCAPSED_STRING:
-				case T_ENCAPSED_AND_WHITESPACE:
-				case T_OPEN_TAG_WITH_ECHO:
-				case T_INLINE_HTML:
-				case T_CLOSE_TAG:
-				case T_OPEN_TAG:
-					$lines = substr_count($t[1], "\n");
+				case T_DOC_COMMENT: $sugar = 1;
 					break;
 
-				case T_DOLLAR_OPEN_CURLY_BRACES:
-				case T_CURLY_OPEN:
-					$curlyPool[] = $curly;
-					$curly = 0;
-					// No break;
-
-				case T_START_HEREDOC: ++$inString; break;
-				case T_END_HEREDOC:   --$inString; break;
-
-				case T_STRING:          if (($inString & 1) && '['        !== $types[$j]) $t[0] = T_ENCAPSED_AND_WHITESPACE; break;
-				case T_OBJECT_OPERATOR: if (($inString & 1) && T_VARIABLE !== $types[$j]) $t[0] = T_ENCAPSED_AND_WHITESPACE; break;
-				case T_CHARACTER: $t[0] = T_ENCAPSED_AND_WHITESPACE; break;
-
-				case T_HALT_COMPILER:
-					$lines = 2;
-					$curly = $i;
-
-					// Skip 3 tokens: "(", ")" then ";" or T_CLOSE_TAG
-					do while (isset($tokens[$i], self::$sugar[$tokens[$i][0]])) ++$i;
-					while ($lines-- > 0 && ++$i);
-
-					$lines = $i + 1;
-					$curlyPool = array();
-
-					// Everything after is merged into one T_COMPILER_HALTED
-					while (isset($tokens[++$i]))
-					{
-						$curlyPool[] = isset($tokens[$i][1]) ? $tokens[$i][1] : $tokens[$i];
-						unset($tokens[$i]);
-					}
-
-					$curlyPool && $tokens[$lines] = array(T_COMPILER_HALTED, implode('', $curlyPool));
-
-					$i = $curly;
-					$curly = $lines = 0;
-					$curlyPool = array();
-					break;
+				case T_OBJECT_OPERATOR: if ($prevType === T_VARIABLE) break;
+				case T_STRING:          if ($prevType === '[' && T_STRING === $t[0]) break;
+				case T_CHARACTER:       if ($inString & 1) $t[0] = T_ENCAPSED_AND_WHITESPACE;
 				}
 			}
 			else
@@ -213,32 +168,19 @@ class patchwork_tokenizer
 				if ($inString & 1) switch ($t[0])
 				{
 				case '"':
-				case '`': --$inString; break;
-				case '[': if (T_VARIABLE !== $types[$j]) $t[0] = T_ENCAPSED_AND_WHITESPACE; break;
-				case ']': if (T_STRING   !== $types[$j]) $t[0] = T_ENCAPSED_AND_WHITESPACE; break;
-				default: $t[0] = T_ENCAPSED_AND_WHITESPACE;
+				case '`': break;
+				case '[': if ($prevType === T_VARIABLE) break;
+				case ']': if ($prevType === T_STRING && ']' === $t[0]) break;
+				default:  $t[0] = T_ENCAPSED_AND_WHITESPACE;
 				}
-				else switch ($t[0])
-				{
-				case '`':
-				case '"': ++$inString; break;
-				case '{': ++$curly; break;
-				case '}':
-					if (0 > --$curly)
-					{
-						--$inString;
-						$t[0]  = T_CURLY_CLOSE;
-						$curly = array_pop($curlyPool);
-					}
-					break;
-				}
+				else if ('}' === $t[0] && !$curly) $t[0] = T_CURLY_CLOSE;
 			}
 
-			if (isset($tkReg[$t[0]]) || ($cbReg && $typed))
+			if (isset($tkReg[$t[0]]) || ($cbReg && !$sugar))
 			{
 				$t[2] = array();
 				$k = $t[0];
-				$callbacks = $typed ? $cbReg : array();
+				$callbacks = $sugar ? array() : $cbReg;
 
 				do
 				{
@@ -264,12 +206,65 @@ class patchwork_tokenizer
 			}
 
 			$texts[++$j] =& $t[1];
-			$line += $lines;
 
-			if ($typed)
+			if ($sugar)
 			{
-				$anteType  = $prevType;
-				$types[$j] = $prevType = $t[0];
+				$line += substr_count($t[1], "\n");
+				continue;
+			}
+
+			$anteType  = $prevType;
+			$types[$j] = $prevType = $t[0];
+
+			if (isset($prevType[0])) switch ($prevType)
+			{
+			case '{': ++$curly; break;
+			case '}': --$curly; break;
+			case '"':
+			case '`': $inString += ($inString & 1) ? -1 : 1;
+			}
+			else switch ($prevType)
+			{
+			case T_CONSTANT_ENCAPSED_STRING:
+			case T_ENCAPSED_AND_WHITESPACE:
+			case T_OPEN_TAG_WITH_ECHO:
+			case T_INLINE_HTML:
+			case T_CLOSE_TAG:
+			case T_OPEN_TAG:
+				$line += substr_count($t[1], "\n");
+				break;
+
+			case T_DOLLAR_OPEN_CURLY_BRACES:
+			case T_CURLY_OPEN:    $curlyPool[] = $curly; $curly = 0;
+			case T_START_HEREDOC: ++$inString; break;
+
+			case T_CURLY_CLOSE:   $curly = array_pop($curlyPool);
+			case T_END_HEREDOC:   --$inString; break;
+
+			case T_HALT_COMPILER:
+				$sugar = 2;
+				$curly = $i;
+
+				// Skip 3 tokens: "(", ")" then ";" or T_CLOSE_TAG
+				do while (isset($tokens[$i], self::$sugar[$tokens[$i][0]])) ++$i;
+				while ($sugar-- > 0 && ++$i);
+
+				$sugar = $i + 1;
+				$curlyPool = array();
+
+				// Everything after is merged into one T_COMPILER_HALTED
+				while (isset($tokens[++$i]))
+				{
+					$curlyPool[] = isset($tokens[$i][1]) ? $tokens[$i][1] : $tokens[$i];
+					unset($tokens[$i]);
+				}
+
+				$curlyPool && $tokens[$sugar] = array(T_COMPILER_HALTED, implode('', $curlyPool));
+
+				$i = $curly;
+				$curly = 0;
+				$curlyPool = array();
+				break;
 			}
 		}
 

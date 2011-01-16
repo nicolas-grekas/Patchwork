@@ -28,8 +28,6 @@ class patchwork_tokenizer_curlyDollarNormalizer extends patchwork_tokenizer
 
 		if (!isset($t[$i], $t[$i+1]) || T_STRING_VARNAME !== $t[$i][0]) return;
 
-		$token = array(T_CURLY_OPEN, '{');
-
 		if ('}' === $t[$i+1][0] || '[' === $t[$i+1][0])
 		{
 			$t[$i] = array(T_VARIABLE, '$' . $t[$i][1]);
@@ -47,6 +45,8 @@ class patchwork_tokenizer_curlyDollarNormalizer extends patchwork_tokenizer
 			$this->curlyPool[] = $this->curly;
 			$this->curly = 0;
 		}
+
+		return $this->tokensUnshift(array(T_CURLY_OPEN, '{'));
 	}
 
 	protected function incCurly(&$token)
