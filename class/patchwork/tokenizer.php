@@ -149,16 +149,22 @@ class patchwork_tokenizer
 
 			if (isset($t[1]))
 			{
-				switch ($t[0])
+				if ($inString & 1) switch ($t[0])
+				{
+				case T_VARIABLE:
+				case T_CURLY_OPEN:
+				case T_END_HEREDOC:
+				case T_DOLLAR_OPEN_CURLY_BRACES: break;
+				case T_STRING:
+				case T_NUM_STRING: if ('[' === $prevType) break;
+				case T_OBJECT_OPERATOR: if (T_VARIABLE === $prevType) break;
+				default: $t[0] = T_ENCAPSED_AND_WHITESPACE;
+				}
+				else switch ($t[0])
 				{
 				case T_WHITESPACE:
 				case T_COMMENT:
 				case T_DOC_COMMENT: $sugar = 1;
-					break;
-
-				case T_OBJECT_OPERATOR: if ($prevType === T_VARIABLE) break;
-				case T_STRING:          if ($prevType === '[' && T_STRING === $t[0]) break;
-				case T_CHARACTER:       if ($inString & 1) $t[0] = T_ENCAPSED_AND_WHITESPACE;
 				}
 			}
 			else
@@ -169,9 +175,9 @@ class patchwork_tokenizer
 				{
 				case '"':
 				case '`': break;
-				case '[': if ($prevType === T_VARIABLE) break;
-				case ']': if ($prevType === T_STRING && ']' === $t[0]) break;
-				default:  $t[0] = T_ENCAPSED_AND_WHITESPACE;
+				case ']': if (T_STRING   === $prevType || T_NUM_STRING === $prevType) break;
+				case '[': if (T_VARIABLE === $prevType && '[' === $t[0]) break;
+				default: $t[0] = T_ENCAPSED_AND_WHITESPACE;
 				}
 				else if ('}' === $t[0] && !$curly) $t[0] = T_CURLY_CLOSE;
 			}
