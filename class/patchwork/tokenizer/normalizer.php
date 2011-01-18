@@ -12,8 +12,7 @@
  ***************************************************************************/
 
 
-// Match the end of the source code
-patchwork_tokenizer::defineNewToken('T_ENDPHP');
+patchwork_tokenizer::createToken('T_ENDPHP'); // end of the source code
 
 
 class patchwork_tokenizer_normalizer extends patchwork_tokenizer
@@ -61,18 +60,8 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 
 		$last = array_pop($code);
 
-		if (T_CLOSE_TAG === $last[0])
-		{
-			$last[0] = $last[1] = ';';
-		}
-
-		$code[] = $last;
-
-		if (T_INLINE_HTML === $last[0])
-		{
-			$code[] = array(T_OPEN_TAG, '<?php ');
-		}
-
+		$code[] = T_CLOSE_TAG === $last[0] ? ';' : $last;
+		T_INLINE_HTML === $last[0] && $code[] = array(T_OPEN_TAG, '<?php ');
 		$code[] = array(T_ENDPHP, '');
 
 		return $code;
