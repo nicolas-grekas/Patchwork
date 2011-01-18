@@ -13,32 +13,32 @@
 
 
 // Match T_STRING variants
-patchwork_tokenizer::defineNewToken('T_NAME_NS');       // namespace FOO\BAR    - namespace declaration
-patchwork_tokenizer::defineNewToken('T_NAME_CLASS');    // class FOO {}         - class or interface declaration
-patchwork_tokenizer::defineNewToken('T_NAME_FUNCTION'); // function FOO()       - function or method declaration
-patchwork_tokenizer::defineNewToken('T_NAME_CONST');    // const FOO            - class or namespaced const declaration
-patchwork_tokenizer::defineNewToken('T_USE_NS');        // FOO\bar              - namespace prefix or "use" aliasing
-patchwork_tokenizer::defineNewToken('T_USE_CLASS');     // new foo\BAR - FOO::  - class usage
-patchwork_tokenizer::defineNewToken('T_USE_METHOD');    // $a->FOO() - a::BAR() - method call
-patchwork_tokenizer::defineNewToken('T_USE_PROPERTY');  // $a->BAR              - property access
-patchwork_tokenizer::defineNewToken('T_USE_FUNCTION');  // foo\BAR()            - function call
-patchwork_tokenizer::defineNewToken('T_USE_CONST');     // foo::BAR             - class constant access
-patchwork_tokenizer::defineNewToken('T_USE_CONSTANT');  // FOO - foo\BAR        - global or namespaced constant access
-patchwork_tokenizer::defineNewToken('T_GOTO_LABEL');    // goto FOO - BAR:{}    - goto label
-patchwork_tokenizer::defineNewToken('T_KEY_STRING');    // "$foo[BAR]"          - array access in interpolated string
-patchwork_tokenizer::defineNewToken('T_TYPE_HINT');     // instanceof foo\BAR - function(foo\BAR $a) - type hint
-patchwork_tokenizer::defineNewToken('T_PARENT');        // parent
-patchwork_tokenizer::defineNewToken('T_SELF');          // self
-patchwork_tokenizer::defineNewToken('T_TRUE');          // true
-patchwork_tokenizer::defineNewToken('T_FALSE');         // false
-patchwork_tokenizer::defineNewToken('T_NULL');          // null
+patchwork_tokenizer::createToken('T_NAME_NS');       // namespace FOO\BAR    - namespace declaration
+patchwork_tokenizer::createToken('T_NAME_CLASS');    // class FOO {}         - class or interface declaration
+patchwork_tokenizer::createToken('T_NAME_FUNCTION'); // function FOO()       - function or method declaration
+patchwork_tokenizer::createToken('T_NAME_CONST');    // const FOO            - class or namespaced const declaration
+patchwork_tokenizer::createToken('T_USE_NS');        // FOO\bar              - namespace prefix or "use" aliasing
+patchwork_tokenizer::createToken('T_USE_CLASS');     // new foo\BAR - FOO::  - class usage
+patchwork_tokenizer::createToken('T_USE_METHOD');    // $a->FOO() - a::BAR() - method call
+patchwork_tokenizer::createToken('T_USE_PROPERTY');  // $a->BAR              - property access
+patchwork_tokenizer::createToken('T_USE_FUNCTION');  // foo\BAR()            - function call
+patchwork_tokenizer::createToken('T_USE_CONST');     // foo::BAR             - class constant access
+patchwork_tokenizer::createToken('T_USE_CONSTANT');  // FOO - foo\BAR        - global or namespaced constant access
+patchwork_tokenizer::createToken('T_GOTO_LABEL');    // goto FOO - BAR:{}    - goto label
+patchwork_tokenizer::createToken('T_KEY_STRING');    // "$foo[BAR]"          - array access in interpolated string
+patchwork_tokenizer::createToken('T_TYPE_HINT');     // instanceof foo\BAR - function(foo\BAR $a) - type hint
+patchwork_tokenizer::createToken('T_PARENT');        // parent
+patchwork_tokenizer::createToken('T_SELF');          // self
+patchwork_tokenizer::createToken('T_TRUE');          // true
+patchwork_tokenizer::createToken('T_FALSE');         // false
+patchwork_tokenizer::createToken('T_NULL');          // null
 
 // New tokens since PHP 5.3
-defined('T_GOTO')         || patchwork_tokenizer::defineNewToken('T_GOTO');
-defined('T_DIR' )         || patchwork_tokenizer::defineNewToken('T_DIR');
-defined('T_NS_C')         || patchwork_tokenizer::defineNewToken('T_NS_C');
-defined('T_NAMESPACE')    || patchwork_tokenizer::defineNewToken('T_NAMESPACE');
-defined('T_NS_SEPARATOR') || patchwork_tokenizer::defineNewToken('T_NS_SEPARATOR');
+defined('T_GOTO')         || patchwork_tokenizer::createToken('T_GOTO');
+defined('T_DIR' )         || patchwork_tokenizer::createToken('T_DIR');
+defined('T_NS_C')         || patchwork_tokenizer::createToken('T_NS_C');
+defined('T_NAMESPACE')    || patchwork_tokenizer::createToken('T_NAMESPACE');
+defined('T_NS_SEPARATOR') || patchwork_tokenizer::createToken('T_NS_SEPARATOR');
 
 
 class patchwork_tokenizer_stringInfo extends patchwork_tokenizer

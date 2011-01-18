@@ -18,7 +18,7 @@ class patchwork_tokenizer_curlyDollarNormalizer extends patchwork_tokenizer
 
 	$curly      = null,
 	$curlyPool  = array(),
-	$callbacks  = array('tagDollarCurly'  => T_DOLLAR_OPEN_CURLY_BRACES);
+	$callbacks  = array('tagDollarCurly' => T_DOLLAR_OPEN_CURLY_BRACES);
 
 
 	protected function tagDollarCurly(&$token)
