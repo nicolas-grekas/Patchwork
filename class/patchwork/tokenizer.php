@@ -12,8 +12,8 @@
  ***************************************************************************/
 
 
-patchwork_tokenizer::defineNewToken('T_CURLY_CLOSE');     // closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
-patchwork_tokenizer::defineNewToken('T_COMPILER_HALTED'); // data after T_HALT_COMPILER
+patchwork_tokenizer::createToken('T_CURLY_CLOSE');     // closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
+patchwork_tokenizer::createToken('T_COMPILER_HALTED'); // data after T_HALT_COMPILER
 
 
 class patchwork_tokenizer
@@ -352,7 +352,7 @@ class patchwork_tokenizer
 		return token_get_all($code);
 	}
 
-	static function defineNewToken($name)
+	static function createToken($name)
 	{
 		static $type = 0;
 		define($name, --$type);

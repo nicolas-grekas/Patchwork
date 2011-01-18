@@ -12,11 +12,8 @@
  ***************************************************************************/
 
 
-// Match a new scope opening
-patchwork_tokenizer::defineNewToken('T_SCOPE_OPEN');
-
-// Match a scope closing. Has to be registered during its corresponding T_SCOPE_OPEN
-patchwork_tokenizer::defineNewToken('T_SCOPE_CLOSE');
+patchwork_tokenizer::createToken('T_SCOPE_OPEN');  // new scope opening
+patchwork_tokenizer::createToken('T_SCOPE_CLOSE'); // scope closing - has to be registered within its corresponding T_SCOPE_OPEN
 
 
 class patchwork_tokenizer_scoper extends patchwork_tokenizer
