@@ -23,12 +23,11 @@ class __patchwork_autoloader
 
 	static function autoload($req)
 	{
-		$T = PATCHWORK_PATH_TOKEN;
 		$lc_req = strtolower($req);
 
-		$amark = $GLOBALS['a'.$T];
-		$GLOBALS['a'.$T] = false;
-		$bmark = $GLOBALS['b'.$T];
+		$amark = $GLOBALS["a\xF7"];
+		$GLOBALS["a\xF7"] = false;
+		$bmark = $GLOBALS["b\xF7"];
 
 
 		// Step 1 - Get basic info
@@ -172,7 +171,7 @@ class __patchwork_autoloader
 
 			if ($parent)
 			{
-				$code = (class_exists($ns . $parent) ? 'class' : 'interface') . " {$req} extends {$parent}{}\$GLOBALS['c{$T}']['{$lc_ns}{$lc_req}']=1;";
+				$code = (class_exists($ns . $parent) ? 'class' : 'interface') . " {$req} extends {$parent}{}\$GLOBALS['c\xF7']['{$lc_ns}{$lc_req}']=1;";
 				$parent = strtolower($parent);
 
 				if (isset($GLOBALS['patchwork_abstract'][$lc_ns . $parent]))
@@ -191,13 +190,13 @@ class __patchwork_autoloader
 					$code .= "class_exists('{$a}',0)||class_alias('{$req}','{$a}');";
 				}
 
-				$a = "{$ns}{$parent}::__c_s";
+				$a = "{$ns}{$parent}::c\xF7";
 				if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__constructStatic'))
 				{
 					$code .= "{$parent}::__constructStatic();";
 				}
 
-				$a = "{$ns}{$parent}::__d_s";
+				$a = "{$ns}{$parent}::d\xF7";
 				if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__destructStatic'))
 				{
 					$code .= "\$GLOBALS['_patchwork_destruct'][]='{$lc_ns}{$parent}';";
@@ -230,7 +229,7 @@ class __patchwork_autoloader
 		{
 			// Include class declaration in its closest parent
 
-			$src = self::parseMarker(self::$cache[$parent], "\$GLOBALS['c{$T}']['{$parent}']=%marker%;");
+			$src = self::parseMarker(self::$cache[$parent], "\$GLOBALS['c\xF7']['{$parent}']=%marker%;");
 
 			list($src, $marker, $a) = $src;
 
@@ -280,34 +279,34 @@ class __patchwork_autoloader
 				}
 			}
 
-			$cache = substr($cache, strlen(PATCHWORK_PROJECT_PATH) + 7, -12-strlen($T));
+			$cache = substr($cache, strlen(PATCHWORK_PROJECT_PATH) + 7, -12 - strlen(PATCHWORK_PATH_TOKEN));
 
 			if ($amark)
 			{
 				// Marker substitution
 
-				list($src, $marker, $a) = self::parseMarker($amark, "\$a{$T}=%marker%");
+				list($src, $marker, $a) = self::parseMarker($amark, "\$a\xF7=%marker%");
 
 				if (false !== $a)
 				{
 					if ($amark != $bmark)
 					{
-						$GLOBALS['a'.$T] = $bmark;
-						$marker = "isset(\$c{$T}['{$lc_req}'])||{$marker}";
-						$code = ".class_{$cache}.{$T}.zcache.php";
+						$GLOBALS["a\xF7"] = $bmark;
+						$marker = "isset(\$c\xF7['{$lc_req}'])||{$marker}";
+						$code = ".class_{$cache}." . PATCHWORK_PATH_TOKEN . ".zcache.php";
 						$code = addslashes(PATCHWORK_PROJECT_PATH . $code);
-						$code = "isset(\$c{$T}['{$lc_req}'])||patchwork_include('{$code}')||1";
+						$code = "isset(\$c\xF7['{$lc_req}'])||patchwork_include('{$code}')||1";
 					}
 					else
 					{
-						$marker = "\$e{$T}=\$b{$T}={$marker}";
+						$marker = "\$e\xF7=\$b\xF7={$marker}";
 						$i = (string) mt_rand(1, mt_getrandmax());
-						$GLOBALS['a'.$T] = $GLOBALS['b'.$T] = $src . '*' . $i;
+						$GLOBALS["a\xF7"] = $GLOBALS["b\xF7"] = $src . '*' . $i;
 						$i = substr($marker, 0, strrpos($marker, '*') + 1) . $i . "'";
-						$marker = "({$marker})&&\$d{$T}&&";
+						$marker = "({$marker})&&\$d\xF7&&";
 						$code = $customSrc ? "'{$cache}'" : ($level + PATCHWORK_PATH_OFFSET);
-						$code = "\$c{$T}['{$lc_req}']={$code}";
-						$code = "({$i})&&\$d{$T}&&({$code})&&";
+						$code = "\$c\xF7['{$lc_req}']={$code}";
+						$code = "({$i})&&\$d\xF7&&({$code})&&";
 					}
 
 					$a = str_replace($marker, $code, $a);

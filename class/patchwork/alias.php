@@ -52,6 +52,6 @@ class patchwork_alias
 		$v = self::resolve($c);
 /**/	if (version_compare(PHP_VERSION, '5.2.3') < 0)
 			is_array($v) && is_string($c) && $v = implode('', $v);
-		return '';
+		return "\xF7";
 	}
 }
