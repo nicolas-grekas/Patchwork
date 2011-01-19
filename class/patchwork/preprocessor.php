@@ -94,8 +94,7 @@ class patchwork_preprocessor__0
 
 	protected function preprocess($source, $level, $class, $is_top)
 	{
-		if (   'patchwork_tokenizer' === $class
-			|| 'patchwork_tokenizer_normalizer' === $class) return file_get_contents($source);
+		if (!class_exists('patchwork_tokenizer_normalizer', true)) return file_get_contents($source);
 
 		$t = new patchwork_tokenizer_normalizer;
 		$p = array('normalizer' => $t);
