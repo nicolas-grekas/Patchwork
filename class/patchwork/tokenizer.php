@@ -32,7 +32,7 @@ class patchwork_tokenizer
 	$prevType,
 	$anteType,
 	$tokenRegistry    = array(),
-	$callbackRegistry = array();
+	$catchallRegistry = array();
 
 
 	private
@@ -71,7 +71,7 @@ class patchwork_tokenizer
 				'prevType',
 				'anteType',
 				'tokenRegistry',
-				'callbackRegistry',
+				'catchallRegistry',
 				'parents',
 				'errors',
 				'nextRegistryIndex',
@@ -134,7 +134,7 @@ class patchwork_tokenizer
 		$anteType =& $this->anteType; $anteType = false;
 		$tokens   =& $this->tokens;
 		$tkReg    =& $this->tokenRegistry;
-		$cbReg    =& $this->callbackRegistry;
+		$caReg    =& $this->catchallRegistry;
 
 		$j         = 0;
 		$curly     = 0;
@@ -182,11 +182,11 @@ class patchwork_tokenizer
 				else if ('}' === $t[0] && !$curly) $t[0] = T_CURLY_CLOSE;
 			}
 
-			if (isset($tkReg[$t[0]]) || ($cbReg && !$sugar))
+			if (isset($tkReg[$t[0]]) || ($caReg && !$sugar))
 			{
 				$t[2] = array();
 				$k = $t[0];
-				$callbacks = $sugar ? array() : $cbReg;
+				$callbacks = $sugar ? array() : $caReg;
 
 				do
 				{
@@ -296,7 +296,7 @@ class patchwork_tokenizer
 			if (is_int($method))
 			{
 				isset($sort) || $sort = 1;
-				$this->callbackRegistry[++$this->registryIndex] = array($this, $type);
+				$this->catchallRegistry[++$this->registryIndex] = array($this, $type);
 			}
 			else foreach ((array) $type as $type)
 			{
@@ -304,7 +304,7 @@ class patchwork_tokenizer
 			}
 		}
 
-		isset($sort) && ksort($this->callbackRegistry);
+		isset($sort) && ksort($this->catchallRegistry);
 	}
 
 	protected function unregister($method = null)
@@ -315,9 +315,9 @@ class patchwork_tokenizer
 		{
 			if (is_int($method))
 			{
-				foreach ($this->callbackRegistry as $k => $v)
+				foreach ($this->catchallRegistry as $k => $v)
 					if (array($this, $type) === $v)
-						unset($this->callbackRegistry[$k]);
+						unset($this->catchallRegistry[$k]);
 			}
 			else foreach ((array) $type as $type)
 			{
