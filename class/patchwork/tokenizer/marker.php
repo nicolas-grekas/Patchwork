@@ -16,6 +16,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 {
 	protected
 
+	$tag = "\xF7",
 	$newToken,
 	$inStatic = false,
 	$inlineClass = array('self' => 1, 'parent' => 1, 'static' => 1),
@@ -30,7 +31,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 	$dependencies = array('normalizer', 'classInfo' => array('class', 'scope', 'nsResolved'));
 
 
-	function __construct(patchwork_tokenizer $parent = null, $inlineClass)
+	function __construct(patchwork_tokenizer $parent, $inlineClass)
 	{
 		foreach ($inlineClass as $inlineClass)
 			$this->inlineClass[strtolower($inlineClass)] = 1;
@@ -41,7 +42,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 	protected function tagOpenTag(&$token)
 	{
 		$this->unregister(array(__FUNCTION__ => T_SCOPE_OPEN));
-		$T = PATCHWORK_PATH_TOKEN;
+		$T = $this->tag;
 		$token[1] .= "if(!isset(\$a{$T})){global \$a{$T},\$b{$T},\$c{$T};}isset(\$e{$T})||\$e{$T}=false;";
 	}
 
@@ -76,7 +77,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 		default:     $curly =  0; break;
 		}
 
-		$T = PATCHWORK_PATH_TOKEN;
+		$T = $this->tag;
 		$t = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$t}";
 		new patchwork_tokenizer_closeMarker($this, $curly);
 
@@ -142,7 +143,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 		}
 		else
 		{
-			$T = PATCHWORK_PATH_TOKEN;
+			$T = $this->tag;
 			$c = "\$a{$T}=\$b{$T}=\$e{$T}";
 			0 < $this->scope->markerState || $this->scope->markerState = 1;
 		}
@@ -192,7 +193,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 	{
 		if ($this->scope->markerState)
 		{
-			$T = PATCHWORK_PATH_TOKEN;
+			$T = $this->tag;
 			$this->scope->token[1] .= 0 < $this->scope->markerState
 				? "global \$a{$T},\$b{$T},\$c{$T};static \$d{$T}=1;(" . $this->getMarker() . ")&&\$d{$T}&&\$d{$T}=0;"
 				: "global \$a{$T},\$c{$T};";
@@ -201,14 +202,13 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 
 	protected function tagClassClose(&$token)
 	{
-		$T = PATCHWORK_PATH_TOKEN;
 		$c = strtolower($this->class->nsName . (isset($this->class->suffix) ? $this->class->suffix : ''));
-		$token[1] .= "\$GLOBALS['c{$T}']['{$c}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
+		$token[1] .= "\$GLOBALS['c{$this->tag}']['{$c}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
 	}
 
 	protected function getMarker($class = '')
 	{
-		$T = PATCHWORK_PATH_TOKEN;
+		$T = $this->tag;
 		$class = '' !== $class ? "isset(\$c{$T}['{$class}'])||" : "\$e{$T}=\$b{$T}=";
 		return $class . "\$a{$T}=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "'";
 	}

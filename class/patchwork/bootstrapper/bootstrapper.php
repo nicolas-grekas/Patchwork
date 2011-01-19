@@ -150,13 +150,12 @@ class patchwork_bootstrapper_bootstrapper__0
 
 		if ('' === $buffer = ob_get_clean())
 		{
-			$T = $this->token;
 			$a = array(
 				"<?php \$patchwork_preprocessor_alias=array();",
 				"\$_patchwork_autoloaded=array();",
-				"\$c{$T}=&\$_patchwork_autoloaded;",
-				"\$d{$T}=1;",
-				"(\$e{$T}=\$b{$T}=\$a{$T}=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "')&&\$d{$T}&&0;",
+				"\$c\xF7=&\$_patchwork_autoloaded;",
+				"\$d\xF7=1;",
+				"(\$e\xF7=\$b\xF7=\$a\xF7=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "')&&\$d\xF7&&0;",
 			);
 
 			foreach ($this->configCode as &$code)
@@ -165,7 +164,7 @@ class patchwork_bootstrapper_bootstrapper__0
 				{
 					$code = preg_replace(
 						"#/\\*{$this->marker}:(\d+)(.+?)\\*/#",
-						"global \$a{$T},\$c{$T};isset(\$c{$T}['$2'])||\$a{$T}=__FILE__.'*$1';",
+						"global \$a\xF7,\$c\xF7;isset(\$c\xF7['$2'])||\$a\xF7=__FILE__.'*$1';",
 						str_replace("/*{$this->marker}:*/", '', $code)
 					);
 				}
@@ -174,8 +173,8 @@ class patchwork_bootstrapper_bootstrapper__0
 			}
 
 			patchworkPath('class/patchwork.php', $level);
-			$T = addslashes($this->cwd . ".class_patchwork.php.0{$level}.{$T}.zcache.php");
-			$a[] = "DEBUG || file_exists('{$T}') && include '{$T}';";
+			$b = addslashes("{$this->cwd}.class_patchwork.php.0{$level}.{$this->token}.zcache.php");
+			$a[] = "DEBUG || file_exists('{$b}') && include '{$b}';";
 			$a[] = function_exists('class_alias') ? "class_alias('patchwork','p');" : "class p extends patchwork {}";
 			$a[] = "patchwork::start();";
 			$a[] = "exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not flushed...
@@ -185,17 +184,17 @@ class patchwork_bootstrapper_bootstrapper__0
 			fwrite($this->lock, $a);
 			fclose($this->lock);
 
-			$T = $this->getLockFile();
+			$b = $this->getLockFile();
 
-			touch($T, $_SERVER['REQUEST_TIME'] + 1);
+			touch($b, $_SERVER['REQUEST_TIME'] + 1);
 
 			if (IS_WINDOWS)
 			{
 				$a = new COM('Scripting.FileSystemObject');
-				$a->GetFile($T)->Attributes |= 2; // Set hidden attribute
+				$a->GetFile($b)->Attributes |= 2; // Set hidden attribute
 			}
 
-			rename($T, $this->getCompiledFile());
+			rename($b, $this->getCompiledFile());
 
 			$this->lock = $this->configCode = $this->fSlice = $this->rSlice = null;
 
@@ -270,9 +269,7 @@ class patchwork_bootstrapper_bootstrapper__0
 	{
 		// Set $token and purge old code files
 
-		$T = $this->token = substr($this->token, 0, 4);
-
-		$a = $this->cwd . '.' . $T . '.zcache.php';
+		$a = $this->cwd . '.' . substr($this->token, 0, 4) . '.zcache.php';
 		if (!file_exists($a))
 		{
 			touch($a);
@@ -294,8 +291,8 @@ class patchwork_bootstrapper_bootstrapper__0
 		// Autoload markers
 
 		$GLOBALS['_patchwork_autoloaded'] = array();
-		$GLOBALS['c' . $T] =& $GLOBALS['_patchwork_autoloaded'];
-		$GLOBALS['b' . $T] = $GLOBALS['a' . $T] = false;
+		$GLOBALS["c\xF7"] =& $GLOBALS['_patchwork_autoloaded'];
+		$GLOBALS["b\xF7"] = $GLOBALS["a\xF7"] = false;
 	}
 
 	function loadConfigFile($type)

@@ -45,8 +45,8 @@ class ptlCompiler_php extends ptlCompiler
 
 	protected function makeModifier($name)
 	{
-		return '((isset($c' . PATCHWORK_PATH_TOKEN . "['" . strtolower($name)
-			. "'])||\$a" . PATCHWORK_PATH_TOKEN . "=__FILE__.'*" . mt_rand() . "')?pipe_{$name}::php";
+		return "((isset(\$c\xFF['" . strtolower($name)
+			. "'])||\$a\xFF=__FILE__.'*" . mt_rand() . "')?pipe_{$name}::php";
 	}
 
 	protected function addAGENT($limit, $inc, &$args, $is_exo)

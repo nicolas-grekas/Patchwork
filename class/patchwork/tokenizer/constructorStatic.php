@@ -16,6 +16,7 @@ class patchwork_tokenizer_constructorStatic extends patchwork_tokenizer
 {
 	protected
 
+	$tag = "\xF7",
 	$construct,
 	$destruct,
 	$callbacks = array('tagClassOpen' => T_SCOPE_OPEN),
@@ -57,15 +58,15 @@ class patchwork_tokenizer_constructorStatic extends patchwork_tokenizer
 
 		$class = strtolower($this->class->nsName);
 
-		$this->construct && $token[1] = "const __c_s=" . (2 === $this->construct ? "__CLASS__;" : "'';static function __constructStatic(){}") . $token[1];
-		$this->destruct  && $token[1] = "const __d_s=" . (2 === $this->destruct  ? "__CLASS__;" : "'';static function __destructStatic() {}") . $token[1];
+		$this->construct && $token[1] = "const c{$this->tag}=" . (2 === $this->construct ? "__CLASS__;" : "'';static function __constructStatic(){}") . $token[1];
+		$this->destruct  && $token[1] = "const d{$this->tag}=" . (2 === $this->destruct  ? "__CLASS__;" : "'';static function __destructStatic() {}") . $token[1];
 
 		if (isset($this->class->isTop) && false === $this->class->isTop) return;
 
 		if ($this->class->extends)
 		{
-			1 !== $this->construct && $token[1] .= "if('{$class}'==={$this->class->name}::__c_s){$this->class->name}::__constructStatic();";
-			1 !== $this->destruct  && $token[1] .= "if('{$class}'==={$this->class->name}::__d_s)\$GLOBALS['_patchwork_destruct'][]='{$class}';";
+			1 !== $this->construct && $token[1] .= "if('{$class}'==={$this->class->name}::c{$this->tag}){$this->class->name}::__constructStatic();";
+			1 !== $this->destruct  && $token[1] .= "if('{$class}'==={$this->class->name}::c{$this->tag})\$GLOBALS['_patchwork_destruct'][]='{$class}';";
 		}
 		else
 		{
