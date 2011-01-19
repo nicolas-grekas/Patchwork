@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-// FIXME: handle when $callbackIndex < 0
+// FIXME: handle when $callbackIndex <= 0
 
 class patchwork_tokenizer_bracket_callback extends patchwork_tokenizer_bracket
 {
