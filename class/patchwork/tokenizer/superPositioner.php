@@ -163,9 +163,9 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 			$a = patchworkProcessedPath($this->expressionValue);
 			$token =& $this->getNextToken();
 
-			$token = false === $a
-				? "patchworkProcessedPath({$token})"
-				: (self::export($a) . str_repeat("\n", substr_count($token, "\n")));
+			$token[1] = false === $a
+				? "patchworkProcessedPath({$token[1]})"
+				: (self::export($a) . str_repeat("\n", substr_count($token[1], "\n")));
 		}
 		else
 		{

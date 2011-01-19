@@ -27,15 +27,13 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 		'tagNew'         => T_NEW,
 		'tagDoubleColon' => T_DOUBLE_COLON,
 	),
-	$dependencies = array('normalizer', 'classInfo' => array('class', 'nsResolved'));
+	$dependencies = array('normalizer', 'classInfo' => array('class', 'scope', 'nsResolved'));
 
 
 	function __construct(patchwork_tokenizer $parent = null, $inlineClass)
 	{
 		foreach ($inlineClass as $inlineClass)
-		{
 			$this->inlineClass[strtolower($inlineClass)] = 1;
-		}
 
 		patchwork_tokenizer::__construct($parent);
 	}
@@ -49,18 +47,37 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 
 	protected function tagAutoloader(&$token)
 	{
-		if (!empty($token['no-autoload-marker'])) return;
+		if (isset($token['no-autoload-marker'])) return;
+
+		$t =& $token[1];
 
 		switch ($token[0])
 		{
 		case T_STRING:
-			if (!isset(self::$autoloader[strtolower(ltrim($this->nsResolved, '\\'))])) return;
+			if (!isset(self::$autoloader[strtolower(substr($this->nsResolved, 1))])) return;
+			if (T_NS_SEPARATOR == $this->prevType)
+			{
+				$t =& $this->types;
+				end($t);
+
+				do switch (prev($t))
+				{
+				default: break 2;
+				case T_STRING: case T_NS_SEPARATOR:
+					continue 2;
+				}
+				while (1);
+
+				next($t);
+				$t =& $this->texts[key($t)];
+			}
+
 		case T_EVAL: $curly = -1; break;
 		default:     $curly =  0; break;
 		}
 
 		$T = PATCHWORK_PATH_TOKEN;
-		$token[1] = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$token[1]}";
+		$t = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$t}";
 		new patchwork_tokenizer_closeMarker($this, $curly);
 
 		0 < $this->scope->markerState || $this->scope->markerState = 1;
@@ -130,12 +147,11 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 			0 < $this->scope->markerState || $this->scope->markerState = 1;
 		}
 
-		$T = $this->newToken['prevType'];
-		$c = '&' === $T ? "patchwork_autoload_marker({$c}," : "(({$c})?";
+		$c = '&' === $this->newToken['prevType'] ? "patchwork_autoload_marker({$c}," : "(({$c})?";
 
 		$this->newToken[1] = $c . $this->newToken[1];
 
-		new patchwork_tokenizer_closeMarker($this, $token ? -1 : 0, '&' === $T ? ')' : ':0)');
+		new patchwork_tokenizer_closeMarker($this, $token ? -1 : 0, '&' === $this->newToken['prevType'] ? ')' : ':0)');
 
 		unset($this->newToken['prevType'], $this->newToken);
 	}
@@ -155,11 +171,12 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 
 		do switch (prev($t))
 		{
+		default: break 2;
 		case '(': case ',': return; // To not break pass by ref, isset, unset and list
 		case T_DEC: case T_INC: case T_STRING: case T_NS_SEPARATOR:
 			continue 2;
 		}
-		while (0);
+		while (1);
 
 		$c = $this->getMarker($c);
 		$c = '&' === pos($t) ? "patchwork_autoload_marker({$c}," : "(({$c})?";
@@ -185,7 +202,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 	protected function tagClassClose(&$token)
 	{
 		$T = PATCHWORK_PATH_TOKEN;
-		$c = strtolower($this->nsName . (isset($this->class->suffix) ? $this->class->suffix : ''));
+		$c = strtolower($this->class->nsName . (isset($this->class->suffix) ? $this->class->suffix : ''));
 		$token[1] .= "\$GLOBALS['c{$T}']['{$c}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
 	}
 
