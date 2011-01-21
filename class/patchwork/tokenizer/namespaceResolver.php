@@ -53,7 +53,8 @@ class patchwork_tokenizer_namespaceResolver extends patchwork_tokenizer
 		}
 		else if (isset($this->nsPrefix[0]) ? '\\' !== $this->nsPrefix[0] : ($this->namespace || $token[1] !== substr($this->nsResolved, 1)))
 		{
-			$this->dependencies['stringInfo']->removeNsPrefix();
+			if ($this->nsPrefix) $this->dependencies['stringInfo']->removeNsPrefix();
+			else if (('self' === $token[1] || 'parent' === $token[1]) && (isset($token[2][T_USE_CLASS]) || isset($token[2][T_TYPE_HINT]))) return;
 
 			$this->tokensUnshift(array(T_STRING, substr($this->nsResolved, 1)));
 			return $this->namespace && $this->tokensUnshift(array(T_NS_SEPARATOR, '\\'));

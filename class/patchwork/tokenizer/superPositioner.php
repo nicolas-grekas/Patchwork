@@ -40,10 +40,10 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 
 	protected function tagSelfParent(&$token)
 	{
-		switch ($this->nsResolved)
+		switch ($token[1])
 		{
-		case '\\self':   if (empty($this->class->name   )) return; $c = $this->class->nsName;  break;
-		case '\\parent': if (empty($this->class->extends)) return; $c = $this->class->extends; break;
+		case 'self':   if (empty($this->class->name   )) return; $c = $this->class->nsName;  break;
+		case 'parent': if (empty($this->class->extends)) return; $c = $this->class->extends; break;
 		}
 
 		if (empty($c) || $this->nsPrefix) return;
