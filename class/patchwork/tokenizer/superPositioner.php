@@ -19,15 +19,14 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 	$level,
 	$topClass,
 	$callbacks = array(
-		'tagSelf'        => T_SELF,
-		'tagParent'      => T_PARENT,
+		'tagSelfParent'  => array(T_USE_CLASS, T_TYPE_HINT),
 		'tagClass'       => array(T_CLASS, T_INTERFACE),
 		'tagClassName'   => T_NAME_CLASS,
 		'tagPrivate'     => T_PRIVATE,
 		'tagRequire'     => array(T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
 		'tagSpecialFunc' => T_USE_FUNCTION,
 	),
-	$dependencies = array('stringInfo', 'classInfo' => array('class', 'namespace', 'nsResolved'), 'constantExpression' => 'expressionValue');
+	$dependencies = array('stringInfo' => 'nsPrefix', 'classInfo' => array('class', 'namespace', 'nsResolved'), 'constantExpression' => 'expressionValue');
 
 
 	function __construct(parent $parent, $level, $topClass)
@@ -39,22 +38,17 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		$this->topClass = $topClass;
 	}
 
-	protected function tagSelf(&$token)
+	protected function tagSelfParent(&$token)
 	{
-		if (!empty($this->class->name))
+		switch ($this->nsResolved)
 		{
-			$this->tokensUnshift(array(T_STRING, $this->class->nsName));
-			return $this->namespace && $this->tokensUnshift(array(T_NS_SEPARATOR, '\\'));
+		case '\\self':   if (empty($this->class->name   )) return; $c = $this->class->nsName;  break;
+		case '\\parent': if (empty($this->class->extends)) return; $c = $this->class->extends; break;
 		}
-	}
 
-	protected function tagParent(&$token)
-	{
-		if (!empty($this->class->extends))
-		{
-			$this->tokensUnshift(array(T_STRING, $this->class->extends));
-			return $this->namespace && $this->tokensUnshift(array(T_NS_SEPARATOR, '\\'));
-		}
+		if (empty($c) || $this->nsPrefix) return;
+		$this->tokensUnshift(array(T_STRING, $c));
+		return $this->namespace && $this->tokensUnshift(array(T_NS_SEPARATOR, '\\'));
 	}
 
 	protected function tagClass(&$token)
