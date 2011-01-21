@@ -130,7 +130,8 @@ function __autoload($searched_class)
 
 	if ($a !== $searched_class && (class_exists($a, false) || interface_exists($a, false)))
 	{
-		class_alias($a, $searched_class);
+/**/	if (function_exists('class_alias'))
+			class_alias($a, $searched_class);
 		return;
 	}
 

@@ -355,7 +355,7 @@ class patchwork_tokenizer
 
 	protected function getTokens($code)
 	{
-		return token_get_all($code);
+		return @token_get_all($code);
 	}
 
 	static function createToken($name)
