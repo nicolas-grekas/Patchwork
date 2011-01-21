@@ -100,6 +100,7 @@ class patchwork_preprocessor__0
 		$p = array('normalizer' => $t);
 
 		$i = array(
+			'backport53'         => 0 > version_compare(PHP_VERSION, '5.3.0'),
 			'classAutoname'      => 0 <= $level && $class,
 			'stringInfo'         => true,
 			'namespaceInfo'      => true,
@@ -130,6 +131,7 @@ class patchwork_preprocessor__0
 			switch ($c)
 			{
 			default:                 $p[$c] = new $i($t); break;
+			case 'backport53':       $t = $p[$c] = new $i($t); break;
 			case 'classAutoname':    $p[$c] = new $i($t, $class); break;
 			case 'globalizer':       $p[$c] = new $i($t, '$CONFIG'); break;
 			case 'marker':           $p[$c] = new $i($t, self::$declaredClass); break;
