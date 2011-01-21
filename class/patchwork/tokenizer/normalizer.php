@@ -40,16 +40,16 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 		{
 			if (!preg_match('//u', $code))
 			{
-				$this->setError("File encoding is not valid UTF-8", 0);
+				$this->setError("File encoding is not valid UTF-8");
 			}
 
 			if (0 === strncmp($code, "\xEF\xBB\xBF", 3))
 			{
 				// substr_replace() is for mbstring overloading resistance
 				$code = substr_replace($code, '', 0, 3);
+				$this->setError("Stripping UTF-8 Byte Order Mark", E_USER_NOTICE);
 			}
 		}
-
 
 		return parent::parse($code);
 	}
