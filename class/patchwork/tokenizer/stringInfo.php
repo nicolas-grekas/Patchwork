@@ -27,8 +27,6 @@ patchwork_tokenizer::createToken('T_USE_CONSTANT');  // FOO - foo\BAR        - g
 patchwork_tokenizer::createToken('T_GOTO_LABEL');    // goto FOO - BAR:{}    - goto label
 patchwork_tokenizer::createToken('T_KEY_STRING');    // "$foo[BAR]"          - array access in interpolated string
 patchwork_tokenizer::createToken('T_TYPE_HINT');     // instanceof foo\BAR - function(foo\BAR $a) - type hint
-patchwork_tokenizer::createToken('T_PARENT');        // parent
-patchwork_tokenizer::createToken('T_SELF');          // self
 patchwork_tokenizer::createToken('T_TRUE');          // true
 patchwork_tokenizer::createToken('T_FALSE');         // false
 patchwork_tokenizer::createToken('T_NULL');          // null
@@ -97,8 +95,6 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 
 		switch ($token[1])
 		{
-		case 'self':          if (!$this->nsPrefix) return T_SELF;   break;
-		case 'parent':        if (!$this->nsPrefix) return T_PARENT; break;
 		case 'goto':          return $this->tokensUnshift(array(T_GOTO,      $token[1]));
 		case '__DIR__':       return $this->tokensUnshift(array(T_DIR,       $token[1]));
 		case '__NAMESPACE__': return $this->tokensUnshift(array(T_NS_C,      $token[1]));
