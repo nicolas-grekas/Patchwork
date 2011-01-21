@@ -153,9 +153,9 @@ class patchwork_bootstrapper_bootstrapper__0
 			$a = array(
 				"<?php \$patchwork_preprocessor_alias=array();",
 				"\$_patchwork_autoloaded=array();",
-				"\$c\xF7=&\$_patchwork_autoloaded;",
-				"\$d\xF7=1;",
-				"(\$e\xF7=\$b\xF7=\$a\xF7=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "')&&\$d\xF7&&0;",
+				"\$c\x9D=&\$_patchwork_autoloaded;",
+				"\$d\x9D=1;",
+				"(\$e\x9D=\$b\x9D=\$a\x9D=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "')&&\$d\x9D&&0;",
 			);
 
 			foreach ($this->configCode as &$code)
@@ -164,7 +164,7 @@ class patchwork_bootstrapper_bootstrapper__0
 				{
 					$code = preg_replace(
 						"#/\\*{$this->marker}:(\d+)(.+?)\\*/#",
-						"global \$a\xF7,\$c\xF7;isset(\$c\xF7['$2'])||\$a\xF7=__FILE__.'*$1';",
+						"global \$a\x9D,\$c\x9D;isset(\$c\x9D['$2'])||\$a\x9D=__FILE__.'*$1';",
 						str_replace("/*{$this->marker}:*/", '', $code)
 					);
 				}
@@ -291,8 +291,8 @@ class patchwork_bootstrapper_bootstrapper__0
 		// Autoload markers
 
 		$GLOBALS['_patchwork_autoloaded'] = array();
-		$GLOBALS["c\xF7"] =& $GLOBALS['_patchwork_autoloaded'];
-		$GLOBALS["b\xF7"] = $GLOBALS["a\xF7"] = false;
+		$GLOBALS["c\x9D"] =& $GLOBALS['_patchwork_autoloaded'];
+		$GLOBALS["b\x9D"] = $GLOBALS["a\x9D"] = false;
 	}
 
 	function loadConfigFile($type)
