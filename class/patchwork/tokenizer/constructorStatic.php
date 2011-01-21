@@ -16,7 +16,7 @@ class patchwork_tokenizer_constructorStatic extends patchwork_tokenizer
 {
 	protected
 
-	$tag = "\xF7",
+	$tag = "\x9D",
 	$construct,
 	$destruct,
 	$callbacks = array('tagClassOpen' => T_SCOPE_OPEN),

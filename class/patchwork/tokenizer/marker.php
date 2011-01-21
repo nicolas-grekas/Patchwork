@@ -16,7 +16,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 {
 	protected
 
-	$tag = "\xF7",
+	$tag = "\x9D",
 	$newToken,
 	$inStatic = false,
 	$inlineClass = array('self' => 1, 'parent' => 1, 'static' => 1),
