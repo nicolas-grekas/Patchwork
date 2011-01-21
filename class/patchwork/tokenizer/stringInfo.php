@@ -31,13 +31,6 @@ patchwork_tokenizer::createToken('T_TRUE');          // true
 patchwork_tokenizer::createToken('T_FALSE');         // false
 patchwork_tokenizer::createToken('T_NULL');          // null
 
-// New tokens since PHP 5.3
-defined('T_GOTO')         || patchwork_tokenizer::createToken('T_GOTO');
-defined('T_DIR' )         || patchwork_tokenizer::createToken('T_DIR');
-defined('T_NS_C')         || patchwork_tokenizer::createToken('T_NS_C');
-defined('T_NAMESPACE')    || patchwork_tokenizer::createToken('T_NAMESPACE');
-defined('T_NS_SEPARATOR') || patchwork_tokenizer::createToken('T_NS_SEPARATOR');
-
 
 class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 {
