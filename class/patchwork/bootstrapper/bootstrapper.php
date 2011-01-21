@@ -268,9 +268,9 @@ class patchwork_bootstrapper_bootstrapper__0
 	function initConfig()
 	{
 		// Set $token and purge old code files
+		$this->token = substr($this->token, 0, 4);
 
-		$a = $this->cwd . '.' . substr($this->token, 0, 4) . '.zcache.php';
-		if (!file_exists($a))
+		if (!file_exists($a = "{$this->cwd}.{$this->token}.zcache.php"))
 		{
 			touch($a);
 

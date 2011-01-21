@@ -49,7 +49,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 	$inNs      = false,
 	$inUse     = false,
 	$nsPrefix  = '',
-	$nsPreType = 0,
+	$preNsType = 0,
 	$callbacks = array(
 		'tagString'   => T_STRING,
 		'tagConst'    => T_CONST,
@@ -85,7 +85,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		}
 
 		$this->nsPrefix = '';
-		$this->prevType = $this->nsPreType;
+		$this->prevType = $this->preNsType;
 	}
 
 	protected function tagString(&$token)
@@ -137,13 +137,13 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 			else
 			{
 				$this->nsPrefix  = $token[1];
-				$this->nsPreType = $p;
+				$this->preNsType = $p;
 			}
 
 			return T_USE_NS;
 		}
 
-		switch (empty($this->nsPrefix) ? $p : $this->nsPreType)
+		switch (empty($this->nsPrefix) ? $p : $this->preNsType)
 		{
 		case ',': if (!$this->inExtends) break;
 		case T_NEW:
@@ -283,7 +283,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		else
 		{
 			$this->nsPrefix  = '\\';
-			$this->nsPreType = $this->prevType;
+			$this->preNsType = $this->prevType;
 		}
 	}
 
