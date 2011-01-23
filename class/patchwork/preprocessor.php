@@ -131,7 +131,6 @@ class patchwork_preprocessor__0
 			switch ($c)
 			{
 			default:                 $p[$c] = new $i($t); break;
-			case 'backport53':       $t = $p[$c] = new $i($t); break;
 			case 'classAutoname':    $p[$c] = new $i($t, $class); break;
 			case 'globalizer':       $p[$c] = new $i($t, '$CONFIG'); break;
 			case 'marker':           $p[$c] = new $i($t, self::$declaredClass); break;
@@ -139,6 +138,8 @@ class patchwork_preprocessor__0
 			case 'namespaceRemover': $p[$c] = new $i($t, 'patchwork_alias_class::add'); break;
 			case 'superPositioner':  $p[$c] = new $i($t, $level, $is_top ? $class : false); break;
 			case 'functionAliasing': $p[$c] = new $i($t, $GLOBALS['patchwork_preprocessor_alias']); break;
+			case 'backport53':
+			case 'staticState': $t = $p[$c] = new $i($t); break;
 			}
 		}
 
@@ -150,17 +151,6 @@ class patchwork_preprocessor__0
 				patchwork_error::handle($c[3], $c[0], $source, $c[1]);
 		}
 
-		if (isset($p['staticState']))
-		{
-			self::evalbox($p['staticState']->getStaticCode($code));
-			return $p['staticState']->getRuntimeCode();
-		}
-
-		return implode('', $code);
-	}
-
-	protected static function evalbox($code)
-	{
-		return eval('unset($code);' . $code);
+		return $code;
 	}
 }

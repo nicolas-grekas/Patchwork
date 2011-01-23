@@ -40,18 +40,17 @@ class patchwork_bootstrapper_preprocessor__0
 	{
 		if ('' === $code = file_get_contents($this->file)) return '';
 
-		$p = new patchwork_tokenizer_normalizer;
-		$this->tokenizer = $t = new patchwork_tokenizer_staticState($p);
+		$t = new patchwork_tokenizer_normalizer;
+		$t = $this->tokenizer = new patchwork_tokenizer_staticState($t);
 
 		if( (defined('DEBUG') && DEBUG)
 			&& !empty($GLOBALS['CONFIG']['debug.scream'])
 				|| (defined('DEBUG_SCREAM') && DEBUG_SCREAM) )
 		{
-			new patchwork_tokenizer_scream($p);
+			new patchwork_tokenizer_scream($t);
 		}
 
-		$code = $p->parse($code);
-		$code = $t->getStaticCode($code);
+		$code = $t->getRunonceCode($code);
 
 		if ($t = $t->getErrors())
 		{
