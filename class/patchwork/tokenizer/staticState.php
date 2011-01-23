@@ -54,7 +54,25 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 	function parse($code)
 	{
 		$code = $this->getRunonceCode($code);
-		self::evalbox($code);
+
+		function_exists('error_get_last') && $e = array(
+			@ini_set('error_log',      false),
+			@ini_set('display_errors', false),
+		);
+
+		set_error_handler(array($this, 'errorHandler'));
+
+		if (false === self::evalbox($code) && isset($e))
+		{
+			ini_set('error_log',      $e[0]);
+			ini_set('display_errors', $e[1]);
+			$e = error_get_last();
+			$this->line = $e['line'];
+			$this->setError($e['message'], E_USER_ERROR);
+		}
+
+		restore_error_handler();
+
 		return $this->getRuntimeCode();
 	}
 
@@ -215,5 +233,11 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 	protected static function evalbox($code)
 	{
 		return eval('unset($code);' . $code);
+	}
+
+	function errorHandler($no, $message, $file, $line)
+	{
+		$this->line = $line;
+		$this->setError($message, $no);
 	}
 }
