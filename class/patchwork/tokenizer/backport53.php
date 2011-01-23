@@ -22,7 +22,10 @@ defined('T_NS_SEPARATOR') || patchwork_tokenizer::createToken('T_NS_SEPARATOR');
 
 class patchwork_tokenizer_backport53 extends patchwork_tokenizer
 {
-	protected $callbacks = array(
+	protected
+
+	$tag = "\x90",
+	$callbacks = array(
 		'tagString' => T_STRING,
 		'tagNew'    => T_NEW,
 	);
@@ -32,8 +35,9 @@ class patchwork_tokenizer_backport53 extends patchwork_tokenizer
 	{
 		if (false !== strpos($code, '\\') && 0 > version_compare(PHP_VERSION, '5.3.0'))
 		{
-			// FIXME: do not break source code containing "~\x90\\"
-			$code = preg_replace("/([^\\\\])(\\\\[^\\\\$'\"])/", "$1~\x90$2", $code);
+			while (false !== strpos($code, '~' . $this->tag)) $this->tag = $this->tag[0] . mt_rand();
+
+			$code = preg_replace("/([^\\\\])(\\\\[^\\\\$'\"])/", "$1~{$this->tag}$2", $code);
 
 			$this->register(array(
 				'tagNsSep' => '~',
@@ -59,6 +63,8 @@ class patchwork_tokenizer_backport53 extends patchwork_tokenizer
 
 	protected function tagNew(&$token)
 	{
+		// TODO: new ${...}, new $foo[...] and new $foo->...
+
 		$t =& $this->getNextToken();
 
 		if (T_VARIABLE === $t[0])
@@ -77,7 +83,7 @@ class patchwork_tokenizer_backport53 extends patchwork_tokenizer
 		$t =& $this->tokens;
 		$i =& $this->index;
 
-		if (!isset($t[$i][1]) || "\x90" !== $t[$i][1]) return;
+		if (!isset($t[$i][1]) || $this->tag !== $t[$i][1]) return;
 
 		$t[$i] = array(T_NS_SEPARATOR, '\\');
 
@@ -86,7 +92,7 @@ class patchwork_tokenizer_backport53 extends patchwork_tokenizer
 
 	protected function fixNsSep(&$token)
 	{
-		$token[1] = str_replace("~\x90\\", '\\', $token[1]);
+		$token[1] = str_replace("~{$this->tag}\\", '\\', $token[1]);
 	}
 
 	protected function fixNsSep522(&$token)
@@ -96,7 +102,7 @@ class patchwork_tokenizer_backport53 extends patchwork_tokenizer
 		$t =& $this->tokens;
 		$i =& $this->index;
 
-		if (!isset($t[$i][1], $t[$i+1][1][0]) || "\x90" !== $t[$i][1] || '\\' !== $t[$i+1][1][0]) return;
+		if (!isset($t[$i][1], $t[$i+1][1][0]) || $this->tag !== $t[$i][1] || '\\' !== $t[$i+1][1][0]) return;
 
 		if ('~' === $token[1]) unset($t[$i++]);
 		else $t[$i] = array(T_ENCAPSED_AND_WHITESPACE, substr($token[1], 0, -1));
