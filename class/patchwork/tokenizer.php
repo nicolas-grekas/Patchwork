@@ -118,7 +118,10 @@ class patchwork_tokenizer
 
 	function getErrors()
 	{
-		return $this->errors;
+		ksort($this->errors);
+		$e = array();
+		foreach ($this->errors as $v) foreach ($v as $e[]) {}
+		return $e;
 	}
 
 	function parse($code)
@@ -293,7 +296,7 @@ class patchwork_tokenizer
 
 	protected function setError($message, $type = E_USER_ERROR)
 	{
-		$this->errors[] = array($message, (int) $this->line, get_class($this), $type);
+		$this->errors[(int) $this->line][] = array($message, (int) $this->line, get_class($this), $type);
 	}
 
 	protected function register($method = null)
