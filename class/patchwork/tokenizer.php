@@ -123,9 +123,8 @@ class patchwork_tokenizer
 
 	function parse($code)
 	{
-		if ('' === $code) return array();
 		$this->tokens = $this->getTokens($code);
-		return $this->parseTokens();
+		return implode('', $this->parseTokens());
 	}
 
 	protected function getTokens($code)
@@ -135,7 +134,7 @@ class patchwork_tokenizer
 
 	protected function parseTokens()
 	{
-		if ($this->parent !== $this)  return $this->parent->parseTokens();
+		if ($this->parent !== $this) return $this->parent->parseTokens();
 
 		$inString =& $this->inString; $inString = 0;
 		$line     =& $this->line;     $line     = 1;
@@ -287,10 +286,8 @@ class patchwork_tokenizer
 		}
 
 		// Free memory thanks to copy-on-write
-		$j     = $texts;
+		$j = $texts;
 		$types = $texts = $tokens = $tkReg = $caReg = $this->parents = array();
-		$line = 0;
-
 		return $j;
 	}
 
