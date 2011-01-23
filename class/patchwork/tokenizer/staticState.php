@@ -51,8 +51,17 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 		$this->runtimeKey = mt_rand(1, mt_getrandmax());
 	}
 
-	function getStaticCode($code)
+	function parse($code)
 	{
+		$code = $this->getRunonceCode($code);
+		self::evalbox($code);
+		return $this->getRuntimeCode();
+	}
+
+	function getRunonceCode($code)
+	{
+		$this->tokens = $this->getTokens($code);
+		$code = $this->parseTokens();
 		$var = '$§' . $this->runtimeKey;
 
 		$O = $this->transition ? end($this->transition) : array(1 => 1);
@@ -201,5 +210,10 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 	protected function tagEOState4(&$token)
 	{
 		if ('/*>*/' === $token[1]) return $this->setState(2);
+	}
+
+	protected static function evalbox($code)
+	{
+		return eval('unset($code);' . $code);
 	}
 }
