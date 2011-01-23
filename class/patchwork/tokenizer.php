@@ -22,14 +22,13 @@ class patchwork_tokenizer
 
 	$dependencyName = null,
 	$dependencies = array(),
-	$parent,
 
 	$inString = 0,
-	$line   = 0,
-	$index  = 0,
-	$tokens = array(),
-	$types  = array(),
-	$codes  = array(),
+	$line     = 0,
+	$index    = 0,
+	$tokens   = array(),
+	$types    = array(),
+	$codes    = array(),
 	$prevType,
 	$anteType,
 	$tokenRegistry    = array(),
@@ -42,7 +41,8 @@ class patchwork_tokenizer
 	$errors  = array(),
 	$nextRegistryIndex = 0,
 
-	$registryIndex     = 0;
+	$parent,
+	$registryIndex = 0;
 
 
 	protected static
@@ -124,9 +124,18 @@ class patchwork_tokenizer
 	function parse($code)
 	{
 		if ('' === $code) return array();
-
 		$this->tokens = $this->getTokens($code);
-		unset($code);
+		return $this->parseTokens();
+	}
+
+	protected function getTokens($code)
+	{
+		return $this->parent !== $this ? $this->parent->getTokens($code) : @token_get_all($code);
+	}
+
+	protected function parseTokens()
+	{
+		if ($this->parent !== $this)  return $this->parent->parseTokens();
 
 		$inString =& $this->inString; $inString = 0;
 		$line     =& $this->line;     $line     = 1;
@@ -354,11 +363,6 @@ class patchwork_tokenizer
 			$this->tokens[--$this->index] = $token;
 
 		return false;
-	}
-
-	function getTokens($code)
-	{
-		return @token_get_all($code);
 	}
 
 	static function createToken($name)

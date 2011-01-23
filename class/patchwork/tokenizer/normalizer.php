@@ -19,6 +19,9 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 {
 	protected
 
+	$lfLineEndings = true,
+	$checkUtf8     = true,
+	$stripUtf8Bom  = true,
 	$callbacks = array(
 		'tagOpenEchoTag'  => T_OPEN_TAG_WITH_ECHO,
 		'tagOpenTag'      => T_OPEN_TAG,
@@ -28,35 +31,27 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 	);
 
 
-	function parse($code, $verify_utf8 = true)
+	protected function getTokens($code)
 	{
-		if (false !== strpos($code, "\r"))
+		if ($this->lfLineEndings && false !== strpos($code, "\r"))
 		{
 			$code = str_replace("\r\n", "\n", $code);
 			$code = strtr($code, "\r", "\n");
 		}
 
-		if ($verify_utf8)
+		if ($this->checkUtf8 && !preg_match('//u', $code))
 		{
-			if (!preg_match('//u', $code))
-			{
-				$this->setError("File encoding is not valid UTF-8", E_USER_WARNING);
-			}
-
-			if (0 === strncmp($code, "\xEF\xBB\xBF", 3))
-			{
-				// substr_replace() is for mbstring overloading resistance
-				$code = substr_replace($code, '', 0, 3);
-				$this->setError("Stripping UTF-8 Byte Order Mark", E_USER_NOTICE);
-			}
+			$this->setError("File encoding is not valid UTF-8", E_USER_WARNING);
 		}
 
-		return $this->parent->parse($code);
-	}
+		if ($this->stripUtf8Bom && 0 === strncmp($code, "\xEF\xBB\xBF", 3))
+		{
+			// substr_replace() is for mbstring overloading resistance
+			$code = substr_replace($code, '', 0, 3);
+			$this->setError("Stripping UTF-8 Byte Order Mark", E_USER_NOTICE);
+		}
 
-	function getTokens($code)
-	{
-		$code = $this->parent->getTokens($code);
+		$code = parent::getTokens($code);
 
 		$last = array_pop($code);
 
