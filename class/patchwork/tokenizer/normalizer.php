@@ -40,7 +40,7 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 		{
 			if (!preg_match('//u', $code))
 			{
-				$this->setError("File encoding is not valid UTF-8");
+				$this->setError("File encoding is not valid UTF-8", E_USER_WARNING);
 			}
 
 			if (0 === strncmp($code, "\xEF\xBB\xBF", 3))
@@ -51,12 +51,12 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 			}
 		}
 
-		return parent::parse($code);
+		return $this->parent->parse($code);
 	}
 
-	protected function getTokens($code)
+	function getTokens($code)
 	{
-		$code = parent::getTokens($code);
+		$code = $this->parent->getTokens($code);
 
 		$last = array_pop($code);
 

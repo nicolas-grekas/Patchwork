@@ -22,6 +22,7 @@ class patchwork_tokenizer
 
 	$dependencyName = null,
 	$dependencies = array(),
+	$parent,
 
 	$inString = 0,
 	$line   = 0,
@@ -60,7 +61,9 @@ class patchwork_tokenizer
 		$this->dependencyName || $this->dependencyName = get_class($this);
 		$this->dependencies = (array) $this->dependencies;
 
-		if ($parent)
+		$parent || $parent = __CLASS__ === get_class($this) ? $this : new self;
+
+		if ($parent !== $this)
 		{
 			$v = array(
 				'line',
@@ -79,7 +82,6 @@ class patchwork_tokenizer
 
 			foreach ($v as $v) $this->$v =& $parent->$v;
 		}
-		else $parent = $this;
 
 		foreach ($this->dependencies as $k => $v)
 		{
@@ -109,6 +111,7 @@ class patchwork_tokenizer
 
 		$this->nextRegistryIndex += 1 << (PHP_INT_SIZE << 2) >> 1;
 		$this->registryIndex = $this->nextRegistryIndex;
+		$this->parent = $parent;
 
 		empty($this->callbacks) || $this->register();
 	}
@@ -353,7 +356,7 @@ class patchwork_tokenizer
 		return false;
 	}
 
-	protected function getTokens($code)
+	function getTokens($code)
 	{
 		return @token_get_all($code);
 	}
