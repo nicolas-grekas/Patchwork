@@ -28,7 +28,7 @@ class patchwork_tokenizer_backport53 extends patchwork_tokenizer
 	);
 
 
-	protected function getTokens($code)
+	function getTokens($code)
 	{
 		if (false !== strpos($code, '\\') && 0 > version_compare(PHP_VERSION, '5.3.0'))
 		{
@@ -43,7 +43,7 @@ class patchwork_tokenizer_backport53 extends patchwork_tokenizer
 			$this->register(array(0 > version_compare(PHP_VERSION, '5.2.3') ? 'fixNsSep522' : 'fixNsSep' => T_ENCAPSED_AND_WHITESPACE));
 		}
 
-		return parent::getTokens($code);
+		return $this->parent->getTokens($code);
 	}
 
 	protected function tagString(&$token)
@@ -59,8 +59,6 @@ class patchwork_tokenizer_backport53 extends patchwork_tokenizer
 
 	protected function tagNew(&$token)
 	{
-		if (!$this->namespace) return;
-
 		$t =& $this->getNextToken();
 
 		if (T_VARIABLE === $t[0])
