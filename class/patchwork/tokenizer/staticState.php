@@ -64,14 +64,18 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 
 		if (false === self::evalbox($code) && isset($e))
 		{
-			ini_set('error_log',      $e[0]);
-			ini_set('display_errors', $e[1]);
-			$e = error_get_last();
-			$this->line = $e['line'];
-			$this->setError($e['message'], E_USER_ERROR);
+			$code = error_get_last();
+			$this->line = $code['line'];
+			$this->setError($code['message'], E_USER_ERROR);
 		}
 
 		restore_error_handler();
+
+		if (isset($e))
+		{
+			@ini_set('display_errors', $e[1]);
+			@ini_set('error_log',      $e[0]);
+		}
 
 		return $this->getRuntimeCode();
 	}
