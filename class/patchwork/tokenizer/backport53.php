@@ -52,7 +52,7 @@ class patchwork_tokenizer_backport53 extends patchwork_tokenizer
 
 	protected function tagString(&$token)
 	{
-		if (!($this->inString & 1)) switch ($token[1])
+		switch ($token[1])
 		{
 		case 'goto':          return $this->tokensUnshift(array(T_GOTO,      $token[1]));
 		case 'namespace':     return $this->tokensUnshift(array(T_NAMESPACE, $token[1]));

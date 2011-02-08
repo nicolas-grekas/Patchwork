@@ -47,7 +47,7 @@ class patchwork_tokenizer_globalizer extends patchwork_tokenizer
 
 	protected function tagAutoglobals(&$token)
 	{
-		if (isset($this->autoglobals[$token[1]]) && T_DOUBLE_COLON !== $this->prevType)
+		if (isset($this->autoglobals[$token[1]]) && T_DOUBLE_COLON !== $this->lastType)
 		{
 			$this->scope->autoglobals[$token[1]] = 1;
 		}

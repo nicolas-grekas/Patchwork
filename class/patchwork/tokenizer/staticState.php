@@ -84,7 +84,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 	{
 		$this->tokens = $this->getTokens($code);
 		$code = $this->parseTokens();
-		$var = '$§' . $this->runtimeKey;
+		$var = "$\x9D" . $this->runtimeKey;
 
 		$O = $this->transition ? end($this->transition) : array(1 => 1);
 		$O = "{$var}=&" . __CLASS__ . "::\$runtimeCode[{$this->runtimeKey}];{$var}=array(array(1,(";
