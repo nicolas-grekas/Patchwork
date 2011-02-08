@@ -28,8 +28,8 @@ class patchwork_tokenizer_classInfo extends patchwork_tokenizer
 			'name'       => false,
 			'nsName'     => false,
 			'extends'    => false,
-			'isFinal'    => T_FINAL    === $this->prevType,
-			'isAbstract' => T_ABSTRACT === $this->prevType,
+			'isFinal'    => T_FINAL    === $this->lastType,
+			'isAbstract' => T_ABSTRACT === $this->lastType,
 		);
 
 		$this->callbacks = array(

@@ -119,7 +119,7 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
 
 	protected function tagNamespace(&$token)
 	{
-		switch ($this->prevType)
+		switch ($this->lastType)
 		{
 		default: return;
 		case ';':

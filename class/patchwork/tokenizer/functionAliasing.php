@@ -154,14 +154,14 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 
 	protected function tagVariableVar(&$token)
 	{
-		if (   ('}' === $this->prevType || T_VARIABLE === $this->prevType)
-			&& !in_array($this->anteType, array(T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON)) )
+		if (   ('}' === $this->lastType || T_VARIABLE === $this->lastType)
+			&& !in_array($this->penuType, array(T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON)) )
 		{
 			$t =& $this->types;
 			end($t);
 			$i = key($t);
 
-			if (T_VARIABLE === $this->prevType && '$' !== $this->anteType)
+			if (T_VARIABLE === $this->lastType && '$' !== $this->penuType)
 			{
 				if ('$this' !== $a = $this->texts[$i])
 				{
@@ -170,7 +170,7 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 			}
 			else
 			{
-				if ('}' === $this->prevType)
+				if ('}' === $this->lastType)
 				{
 					$a = 1;
 					$b = array($i, 0);
@@ -248,7 +248,7 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 		{
 			new patchwork_tokenizer_bracket_callback($this, self::$autoloader[$a], $this->alias);
 
-			if ('&' === $this->prevType)
+			if ('&' === $this->lastType)
 			{
 				$a =& $this->types;
 				end($a);

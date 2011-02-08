@@ -102,7 +102,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		// (except for files in the include path). Side effects exist but should be rare.
 
 		// Look backward and forward for the "static" keyword
-		if (T_STATIC !== $this->prevType)
+		if (T_STATIC !== $this->lastType)
 		{
 			$t = $this->getNextToken();
 

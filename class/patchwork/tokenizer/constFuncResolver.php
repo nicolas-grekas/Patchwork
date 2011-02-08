@@ -37,12 +37,12 @@ class patchwork_tokenizer_constFuncResolver extends patchwork_tokenizer
 
 	protected function tagFunction(&$token)
 	{
-		return T_NS_SEPARATOR !== $this->prevType ? $this->resolveConstFunc($token, 'function_exists') : null;
+		return T_NS_SEPARATOR !== $this->lastType ? $this->resolveConstFunc($token, 'function_exists') : null;
 	}
 
 	protected function tagConstant(&$token)
 	{
-		return T_NS_SEPARATOR !== $this->prevType ? $this->resolveConstFunc($token, 'defined') : null;
+		return T_NS_SEPARATOR !== $this->lastType ? $this->resolveConstFunc($token, 'defined') : null;
 	}
 
 	protected function resolveConstFunc(&$token, $exists)

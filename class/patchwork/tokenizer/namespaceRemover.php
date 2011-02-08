@@ -48,7 +48,7 @@ class patchwork_tokenizer_namespaceRemover extends patchwork_tokenizer
 		{
 		case '{':
 		case ';':
-		case $this->prevType:
+		case $this->lastType:
 			$this->namespaceBackup = $this->namespace;
 			$this->namespace = strtr($this->namespace, '\\', '_');
 			$this->unregister(__FUNCTION__);
@@ -60,8 +60,8 @@ class patchwork_tokenizer_namespaceRemover extends patchwork_tokenizer
 
 	protected function tagNsSep(&$token)
 	{
-		if (T_STRING === $this->prevType) $token[1] = strtr($token[1], '\\', '_');
-		else if (T_NS_SEPARATOR !== $this->prevType) $token[1] = '';
+		if (T_STRING === $this->lastType) $token[1] = strtr($token[1], '\\', '_');
+		else if (T_NS_SEPARATOR !== $this->lastType) $token[1] = '';
 	}
 
 	protected function tagNsUse(&$token)
