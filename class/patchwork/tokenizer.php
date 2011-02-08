@@ -12,27 +12,31 @@
  ***************************************************************************/
 
 
-patchwork_tokenizer::createToken('T_CURLY_CLOSE');     // closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
-patchwork_tokenizer::createToken('T_COMPILER_HALTED'); // data after T_HALT_COMPILER
+patchwork_tokenizer::createToken('T_CURLY_CLOSE');     // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
+patchwork_tokenizer::createToken('T_COMPILER_HALTED'); // Data after T_HALT_COMPILER
+patchwork_tokenizer::createToken('T_KEY_STRING');      // Array access in interpolated string
 
 
 class patchwork_tokenizer
 {
 	protected
 
-	$dependencyName = null,
-	$dependencies = array(),
+	// Declarations used by __construct()
+	$dependencyName = null,    // Fully qualified class identifier, defaults to get_class($this)
+	$dependencies   = array(), // (dependencyName => shared properties) map before instanciation, then (dependencyName => dependency object) map
+	$callbacks      = array(), // Callbacks to be registered
 
-	$inString = 0,
-	$line     = 0,
-	$index    = 0,
-	$tokens   = array(),
-	$types    = array(),
-	$codes    = array(),
-	$prevType,
-	$anteType,
-	$tokenRegistry    = array(),
-	$catchallRegistry = array();
+	// Parse time read-only (or know what you do) properties
+	$line     = 0,               // Line number of the current token
+	$index    = 0,               // Index of the next token in $this->tokens
+	$inString = 0,               // Odd/even when outside/inside string interpolation context
+	$tokens   = array(),         // To be parsed tokens, as returned by token_get_all()
+	$types    = array(),         // Types of already parsed tokens, excluding sugar tokens
+	$texts    = array(),         // Texts of already parsed tokens, including sugar tokens
+	$lastType,                   // The last token type in $this->types
+	$penuType,                   // The penultimate token type in $this->types
+	$tokenRegistry    = array(), // (Token type => callbacks) map
+	$catchallRegistry = array(); // List of catch-all (excluding sugar tokens) callbacks
 
 
 	private
@@ -48,9 +52,9 @@ class patchwork_tokenizer
 	protected static
 
 	$sugar = array(
-		T_WHITESPACE  => 1,
-		T_COMMENT     => 1,
-		T_DOC_COMMENT => 1,
+		T_WHITESPACE  => T_WHITESPACE,
+		T_COMMENT     => T_COMMENT,
+		T_DOC_COMMENT => T_DOC_COMMENT,
 	);
 
 	private static $tokenNames = array();
@@ -58,21 +62,25 @@ class patchwork_tokenizer
 
 	function __construct(self $parent = null)
 	{
+		$parent || $parent = __CLASS__ === get_class($this) ? $this : new self;
+
 		$this->dependencyName || $this->dependencyName = get_class($this);
 		$this->dependencies = (array) $this->dependencies;
+		$this->parent = $parent;
 
-		$parent || $parent = __CLASS__ === get_class($this) ? $this : new self;
+		// Link shared properties of $parent and $this by reference
 
 		if ($parent !== $this)
 		{
 			$v = array(
 				'line',
 				'tokens',
+				'inString',
 				'index',
 				'types',
 				'texts',
-				'prevType',
-				'anteType',
+				'lastType',
+				'penuType',
 				'tokenRegistry',
 				'catchallRegistry',
 				'parents',
@@ -82,6 +90,8 @@ class patchwork_tokenizer
 
 			foreach ($v as $v) $this->$v =& $parent->$v;
 		}
+
+		// Verify and set $this->dependencies to the (dependencyName => dependency object) map
 
 		foreach ($this->dependencies as $k => $v)
 		{
@@ -106,12 +116,13 @@ class patchwork_tokenizer
 			foreach ($c as $c) $this->$c =& $this->parents[$k]->$c;
 		}
 
+		// Private state
+
 		$k = strtolower($this->dependencyName);
 		$this->parents[$k] = $this;
 
 		$this->nextRegistryIndex += 1 << (PHP_INT_SIZE << 2) >> 1;
 		$this->registryIndex = $this->nextRegistryIndex;
-		$this->parent = $parent;
 
 		empty($this->callbacks) || $this->register();
 	}
@@ -132,20 +143,26 @@ class patchwork_tokenizer
 
 	protected function getTokens($code)
 	{
+		// Return token_get_all() after recursively traversing the inheritance chain defined by $this->parent
+
 		return $this->parent !== $this ? $this->parent->getTokens($code) : @token_get_all($code);
 	}
 
 	protected function parseTokens()
 	{
+		// Parse raw tokens already loaded in $this->tokens after recursively traversing the inheritance chain defined by $this->parent
+
 		if ($this->parent !== $this) return $this->parent->parseTokens();
 
-		$inString =& $this->inString; $inString = 0;
+		// Alias properties to local variables, initialize them
+
 		$line     =& $this->line;     $line     = 1;
 		$i        =& $this->index;    $i        = 0;
+		$inString =& $this->inString; $inString = 0;
 		$types    =& $this->types;    $types    = array();
 		$texts    =& $this->texts;    $texts    = array('');
-		$prevType =& $this->prevType; $prevType = false;
-		$anteType =& $this->anteType; $anteType = false;
+		$lastType =& $this->lastType; $lastType = false;
+		$penuType =& $this->penuType; $penuType = false;
 		$tokens   =& $this->tokens;
 		$tkReg    =& $this->tokenRegistry;
 		$caReg    =& $this->catchallRegistry;
@@ -156,8 +173,10 @@ class patchwork_tokenizer
 
 		while (isset($tokens[$i]))
 		{
-			$t =& $tokens[$i];
-			unset($tokens[$i++]);
+			$t =& $tokens[$i];    // Get the next token
+			unset($tokens[$i++]); // Free memory and move $this->index forward
+
+			// Analyse parsing context related to sugar tokens and string interpolation
 
 			$sugar = 0;
 
@@ -166,12 +185,14 @@ class patchwork_tokenizer
 				if ($inString & 1) switch ($t[0])
 				{
 				case T_VARIABLE:
+				case T_KEY_STRING:
 				case T_CURLY_OPEN:
+				case T_CURLY_CLOSE:
 				case T_END_HEREDOC:
 				case T_DOLLAR_OPEN_CURLY_BRACES: break;
-				case T_STRING:
-				case T_NUM_STRING: if ('[' === $prevType) break;
-				case T_OBJECT_OPERATOR: if (T_VARIABLE === $prevType) break;
+				case T_STRING:     if ('[' === $lastType) $t[0] = T_KEY_STRING;
+				case T_NUM_STRING: if ('[' === $lastType) break;
+				case T_OBJECT_OPERATOR: if (T_VARIABLE === $lastType) break;
 				default: $t[0] = T_ENCAPSED_AND_WHITESPACE;
 				}
 				else switch ($t[0])
@@ -189,12 +210,14 @@ class patchwork_tokenizer
 				{
 				case '"':
 				case '`': break;
-				case ']': if (T_STRING   === $prevType || T_NUM_STRING === $prevType) break;
-				case '[': if (T_VARIABLE === $prevType && '[' === $t[0]) break;
+				case ']': if (T_KEY_STRING === $lastType || T_NUM_STRING === $lastType) break;
+				case '[': if (T_VARIABLE   === $lastType && '[' === $t[0]) break;
 				default: $t[0] = T_ENCAPSED_AND_WHITESPACE;
 				}
 				else if ('}' === $t[0] && !$curly) $t[0] = T_CURLY_CLOSE;
 			}
+
+			// Trigger callbacks
 
 			if (isset($tkReg[$t[0]]) || ($caReg && !$sugar))
 			{
@@ -204,11 +227,15 @@ class patchwork_tokenizer
 
 				do
 				{
-					$t[2][$k] = 1;
+					$t[2][$k] = $k;
 
 					if (isset($tkReg[$k]))
 					{
 						$callbacks += $tkReg[$k];
+
+						// Callbacks triggering are always ordered:
+						// - first by tokenizers' instanciation order
+						// - then by callbacks' registration order
 						ksort($callbacks);
 					}
 
@@ -216,14 +243,31 @@ class patchwork_tokenizer
 					{
 						unset($callbacks[$k]);
 
-						if (false === $k = $c[0]->$c[1]($t)) continue 3;
-						else if (null !== $k && empty($t[2][$k])) continue 2;
+						// $t is the current token:
+						// $t = array(
+						//     0 => token's main type - a single character or a T_* constant, as returned by token_get_all()
+						//     1 => token's text      - its source code excerpt as a string
+						//     2 => an array of token's types and subtypes
+						// )
+
+						$k = $c[0]->$c[1]($t);
+
+						// A callback can return:
+						// - false, which cancels the current token
+						// - a new token type, which is added to $t[2] and loads the
+						//   related callbacks in the current callbacks stack
+						// - or nothing (null)
+
+						if (false === $k) continue 3;
+						if ($k && empty($t[2][$k])) continue 2;
 					}
 
 					break;
 				}
 				while (1);
 			}
+
+			// Commit to $this->texts
 
 			$texts[++$j] =& $t[1];
 
@@ -233,17 +277,21 @@ class patchwork_tokenizer
 				continue;
 			}
 
-			$anteType  = $prevType;
-			$types[$j] = $prevType = $t[0];
+			// For non-sugar tokens only: populate $this->types, $this->lastType and $this->penuType
 
-			if (isset($prevType[0])) switch ($prevType)
+			$penuType  = $lastType;
+			$types[$j] = $lastType = $t[0];
+
+			// Further parsing context analysis related to string interpolation and __halt_compiler()
+
+			if (isset($lastType[0])) switch ($lastType)
 			{
 			case '{': ++$curly; break;
 			case '}': --$curly; break;
 			case '"':
 			case '`': $inString += ($inString & 1) ? -1 : 1;
 			}
-			else switch ($prevType)
+			else switch ($lastType)
 			{
 			case T_CONSTANT_ENCAPSED_STRING:
 			case T_ENCAPSED_AND_WHITESPACE:
@@ -405,20 +453,15 @@ class patchwork_tokenizer
 			return 'unserialize(' . self::export(serialize($a)) . ')';
 
 		case is_string($a):
-			if ($a !== strtr($a, "\r\n\0", '---'))
-			{
-				return '"'. str_replace(
-					array(  "\\",   '"',   '$',  "\r",  "\n",  "\0"),
-					array('\\\\', '\\"', '\\$', '\\r', '\\n', '\\0'),
-					$a
-				) . '"';
-			}
-
-			return "'" . str_replace(
-				array(  '\\',   "'"),
-				array('\\\\', "\\'"),
-				$a
-			) . "'";
+			return $a === strtr($a, "\r\n\0", '---')
+				? ("'" . str_replace(
+						array(  '\\',   "'"),
+						array('\\\\', "\\'"), $a
+					) . "'")
+				: ('"' . str_replace(
+						array(  "\\",   '"',   '$',  "\r",  "\n",  "\0"),
+						array('\\\\', '\\"', '\\$', '\\r', '\\n', '\\0'), $a
+					) . '"');
 
 		case true  === $a: return 'true';
 		case false === $a: return 'false';

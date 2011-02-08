@@ -25,7 +25,6 @@ patchwork_tokenizer::createToken('T_USE_FUNCTION');  // foo\BAR()            - f
 patchwork_tokenizer::createToken('T_USE_CONST');     // foo::BAR             - class constant access
 patchwork_tokenizer::createToken('T_USE_CONSTANT');  // FOO - foo\BAR        - global or namespaced constant access
 patchwork_tokenizer::createToken('T_GOTO_LABEL');    // goto FOO - BAR:{}    - goto label
-patchwork_tokenizer::createToken('T_KEY_STRING');    // "$foo[BAR]"          - array access in interpolated string
 patchwork_tokenizer::createToken('T_TYPE_HINT');     // instanceof foo\BAR - function(foo\BAR $a) - type hint
 patchwork_tokenizer::createToken('T_TRUE');          // true
 patchwork_tokenizer::createToken('T_FALSE');         // false
@@ -78,13 +77,12 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		}
 
 		$this->nsPrefix = '';
-		$this->prevType = $this->preNsType;
+		$this->lastType = $this->preNsType;
 	}
 
 	protected function tagString(&$token)
 	{
-		if ($this->inString & 1) return T_KEY_STRING;
-		if (T_NS_SEPARATOR !== $p = $this->prevType) $this->nsPrefix = '';
+		if (T_NS_SEPARATOR !== $p = $this->lastType) $this->nsPrefix = '';
 
 		switch ($token[1])
 		{
@@ -107,7 +105,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		case T_CLASS: return T_NAME_CLASS;
 		case T_GOTO:  return T_GOTO_LABEL;
 
-		case '&': if (T_FUNCTION !== $this->anteType) break;
+		case '&': if (T_FUNCTION !== $this->penuType) break;
 		case T_FUNCTION: return T_NAME_FUNCTION;
 
 		case ',':
@@ -254,7 +252,7 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 
 	protected function tagUse(&$token)
 	{
-		if (')' !== $this->prevType)
+		if (')' !== $this->lastType)
 		{
 			$this->inUse = true;
 			$this->register(array('tagUseEnd' => ';'));
@@ -269,14 +267,14 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 
 	protected function tagNsSep(&$token)
 	{
-		if (T_STRING === $this->prevType)
+		if (T_STRING === $this->lastType)
 		{
 			$this->nsPrefix .= '\\';
 		}
 		else
 		{
 			$this->nsPrefix  = '\\';
-			$this->preNsType = $this->prevType;
+			$this->preNsType = $this->lastType;
 		}
 	}
 

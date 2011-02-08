@@ -56,7 +56,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 		{
 		case T_STRING:
 			if (!isset(self::$autoloader[strtolower(substr($this->nsResolved, 1))])) return;
-			if (T_NS_SEPARATOR == $this->prevType)
+			if (T_NS_SEPARATOR == $this->lastType)
 			{
 				$t =& $this->types;
 				end($t);
@@ -122,7 +122,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 
 		if (T_WHITESPACE === $c[0]) return;
 
-		$token['prevType'] = $this->prevType;
+		$token['lastType'] = $this->lastType;
 		$this->newToken =& $token;
 
 		if (T_STRING !== $c[0] && '\\' !== $c[0]) return $this->tagNewClass();
@@ -148,19 +148,19 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 			0 < $this->scope->markerState || $this->scope->markerState = 1;
 		}
 
-		$c = '&' === $this->newToken['prevType'] ? "patchwork_autoload_marker({$c}," : "(({$c})?";
+		$c = '&' === $this->newToken['lastType'] ? "patchwork_autoload_marker({$c}," : "(({$c})?";
 
 		$this->newToken[1] = $c . $this->newToken[1];
 
-		new patchwork_tokenizer_closeMarker($this, $token ? -1 : 0, '&' === $this->newToken['prevType'] ? ')' : ':0)');
+		new patchwork_tokenizer_closeMarker($this, $token ? -1 : 0, '&' === $this->newToken['lastType'] ? ')' : ':0)');
 
-		unset($this->newToken['prevType'], $this->newToken);
+		unset($this->newToken['lastType'], $this->newToken);
 	}
 
 	protected function tagDoubleColon(&$token)
 	{
 		if (   $this->inStatic
-			|| T_STRING !== $this->prevType
+			|| T_STRING !== $this->lastType
 			|| T_CLASS === $this->scope->type
 		) return;
 

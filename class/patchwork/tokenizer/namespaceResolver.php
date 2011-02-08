@@ -25,7 +25,7 @@ class patchwork_tokenizer_namespaceResolver extends patchwork_tokenizer
 
 	protected function tagUse(&$token)
 	{
-		if (')' !== $this->prevType)
+		if (')' !== $this->lastType)
 		{
 			$this->register('tagUseEnd');
 			$token[1] = ' ';
@@ -37,7 +37,7 @@ class patchwork_tokenizer_namespaceResolver extends patchwork_tokenizer
 		switch ($token[0])
 		{
 		case ';':
-		case $this->prevType:
+		case $this->lastType:
 			$this->unregister(__FUNCTION__);
 			if (';' !== $token[0]) return;
 		}

@@ -64,7 +64,7 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 
 	protected function tagUse(&$token)
 	{
-		if (')' !== $this->prevType)
+		if (')' !== $this->lastType)
 		{
 			$this->register(self::$useCallbacks);
 		}
@@ -72,7 +72,7 @@ class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 
 	protected function tagUseAs(&$token)
 	{
-		if (T_AS === $this->prevType)
+		if (T_AS === $this->lastType)
 		{
 			$this->nsAliases[$token[1]] = '\\' . implode('\\', $this->nsUse);
 			$this->nsUse = array();
