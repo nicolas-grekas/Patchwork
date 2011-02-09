@@ -430,6 +430,11 @@ class patchwork_tokenizer
 	{
 		switch (true)
 		{
+		case is_float($a):
+			$b = sprintf('%.14F', $a);
+			$a = sprintf('%.17F', $a);
+			return rtrim((float) $b === (float) $a ? $b : $a, '.0');
+
 		case is_array($a):
 			$i = 0;
 			$b = array();
