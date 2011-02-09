@@ -215,7 +215,7 @@ function patchworkProcessedPath($file)
 
 
 
-function E($msg = '__Δms') {return patchwork::log($msg, false, false);}
+function E() {$a = func_get_args(); $a ? patchwork::log(isset($a[1]) ? $a : $a[0], 0, 0) : patchwork::log(0, 0, 0, 0);}
 function strlencmp($a, $b) {return strlen($b) - strlen($a);}
 
 

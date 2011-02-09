@@ -102,6 +102,7 @@ function jsquote($a)
 	}
 >*/
 
+	if (is_object($a)) $a = $a->__toString();
 	if ((string) $a === (string) ($a-0)) return $a-0;
 
 	$a = (string) $a;
@@ -1041,23 +1042,28 @@ class patchwork
 		return self::getCachePath($filename, $extension, self::$base .'-'. self::$lang .'-'. DEBUG .'-'. PATCHWORK_PROJECT_PATH .'-'. $key);
 	}
 
-	static function log($message, $is_end = false, $raw_html = true)
+	static function log($message, $is_end = false, $raw_html = true, $log = true)
 	{
 		static $prev_time = patchwork;
 		self::$total_time += $a = 1000*(microtime(true) - $prev_time);
 
-		if ('__Δms' !== $message)
+		if ($log)
 		{
-			$mem = function_exists('memory_get_peak_usage') ? round(memory_get_peak_usage(true)/104857.6)/10 . 'M' : '';
+			$mem = memory_get_usage(true) / 1048576;
 
-			if (DEBUG && $is_end) $a = sprintf('<div>Total: %.01f ms%s</div></pre><pre>', self::$total_time, $mem ? ' - ' . $mem : '');
+			if (DEBUG && $is_end)
+			{
+				if (function_exists('memory_get_peak_usage'))
+					$mem = memory_get_peak_usage(true) / 1048576;
+				$a = sprintf('<div>Total: %.1F ms - %.1FM</div></pre><pre>', self::$total_time, $mem);
+			}
 			else
 			{
 				$b = ob::$in_handler ? serialize($message) : print_r($message, true);
 
 				if (!$raw_html) $b = htmlspecialchars($b);
 
-				$a = '<span title="Date: ' . date("d-m-Y H:i:s", $_SERVER['REQUEST_TIME']) . ($mem ? ' - Memory: ' . $mem : '') . '">' . sprintf('%.01f ms', $a) . '</span> ' . $b . "\n";
+				$a = sprintf("<span title=\"Date: %s - Memory: %.1FM\">%.1F ms</span> %s\n", date("d-m-Y H:i:s", $_SERVER['REQUEST_TIME']), $mem, $a, $b);
 			}
 
 			static $error_log;
@@ -1074,8 +1080,6 @@ class patchwork
 		}
 
 		$prev_time = microtime(true);
-
-		return $a;
 	}
 
 	static function resolveAgentClass($agent, &$args)
