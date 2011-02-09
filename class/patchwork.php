@@ -1069,7 +1069,7 @@ class patchwork
 
 			if (DEBUG && $is_end)
 			{
-				if (function_exists('memory_get_peak_usage'))
+/**/			if (function_exists('memory_get_peak_usage'))
 					$mem = memory_get_peak_usage(true) / 1048576;
 				$a = sprintf('<div>Total: %.1F ms - %.1FM</div></pre><pre>', self::$total_time, $mem);
 			}
