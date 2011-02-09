@@ -27,7 +27,31 @@ class patchwork_preprocessor__0
 	protected static
 
 	$declaredClass = array('p', 'patchwork'),
-	$recursivePool = array();
+	$recursivePool = array(),
+	$tokenizers    = array(
+		'normalizer'         => true,
+		'backport53'         => '5.3.0',
+		'classAutoname'      => true,
+		'stringInfo'         => true,
+		'namespaceInfo'      => true,
+		'scoper'             => true,
+		'constFuncDisabler'  => true,
+		'constFuncResolver'  => true,
+		'namespaceResolver'  => '5.3.0',
+		'constantInliner'    => true,
+		'classInfo'          => true,
+		'namespaceRemover'   => '5.3.0',
+		'constantExpression' => true,
+		'superPositioner'    => true,
+		'constructorStatic'  => true,
+		'constructor4to5'    => true,
+		'functionAliasing'   => true,
+		'globalizer'         => true,
+		'scream'             => true,
+		'T'                  => true,
+		'marker'             => true,
+		'staticState'        => true,
+	);
 
 
 	static function __constructStatic()
@@ -42,6 +66,12 @@ class patchwork_preprocessor__0
 			if (false !== strpos($v, 'patchwork')) continue;
 			if ('p' === $v) break;
 			self::$declaredClass[] = $v;
+		}
+
+		foreach (self::$tokenizers as $k => $v)
+		{
+			is_string($v) && $v = self::$tokenizers[$k] = 0 > version_compare(PHP_VERSION, $v);
+			$v && class_exists('patchwork_tokenizer_' . $k, true);
 		}
 	}
 
@@ -94,63 +124,40 @@ class patchwork_preprocessor__0
 
 	protected function preprocess($source, $level, $class, $is_top)
 	{
-		if (!class_exists('patchwork_tokenizer_normalizer', true)) return file_get_contents($source);
-
-		$t = new patchwork_tokenizer_normalizer;
-		$p = array('normalizer' => $t);
-
-		$i = array(
-			'backport53'         => 0 > version_compare(PHP_VERSION, '5.3.0'),
-			'classAutoname'      => 0 <= $level && $class,
-			'stringInfo'         => true,
-			'namespaceInfo'      => true,
-			'scoper'             => true,
-			'constFuncDisabler'  => 0 <= $level,
-			'constFuncResolver'  => true,
-			'namespaceResolver'  => 0 > version_compare(PHP_VERSION, '5.3.0'),
-			'constantInliner'    => true,
-			'classInfo'          => true,
-			'namespaceRemover'   => 0 > version_compare(PHP_VERSION, '5.3.0'),
-			'constantExpression' => true,
-			'superPositioner'    => true,
-			'constructorStatic'  => true,
-			'constructor4to5'    => 0 > $level,
-			'functionAliasing'   => true,
-			'globalizer'         => 0 <= $level,
-			'scream'             => self::$scream,
-			'T'                  => DEBUG,
-			'marker'             => !DEBUG,
-			'staticState'        => 0 <= $level,
-		);
-
-		foreach ($i as $c => $i)
+		foreach (self::$tokenizers as $c => $t)
 		{
-			if (!$i) continue;
-			if (!class_exists($i = 'patchwork_tokenizer_' . $c, true)) break;
+			if (!$t) continue;
+			if (!class_exists($t = 'patchwork_tokenizer_' . $c, true)) break;
 
 			switch ($c)
 			{
-			default:                 $p[$c] = new $i($t); break;
-			case 'classAutoname':    $p[$c] = new $i($t, $class); break;
-			case 'globalizer':       $p[$c] = new $i($t, '$CONFIG'); break;
-			case 'marker':           $p[$c] = new $i($t, self::$declaredClass); break;
-			case 'constantInliner':  $p[$c] = new $i($t, $source, self::$constants); break;
-			case 'namespaceRemover': $p[$c] = new $i($t, 'patchwork_alias_class::add'); break;
-			case 'superPositioner':  $p[$c] = new $i($t, $level, $is_top ? $class : false); break;
-			case 'functionAliasing': $p[$c] = new $i($t, $GLOBALS['patchwork_preprocessor_alias']); break;
+			case 'normalizer':  $p = new $t; break;
+			default:                 new $t($p); break;
 			case 'backport53':
-			case 'staticState': $t = $p[$c] = new $i($t); break;
+			case 'staticState':       if (0 <= $level) $p = new $t($p); break;
+			case 'classAutoname':     if (0 <= $level && $class) new $t($p, $class); break;
+			case 'scream':            if (self::$scream) new $t($p); break;
+			case 'constFuncDisabler': if (0 <= $level)   new $t($p); break;
+			case 'constructor4to5':   if (0 > $level)    new $t($p); break;
+			case 'globalizer':        if (0 <= $level)   new $t($p, '$CONFIG'); break;
+			case 'T':                 if (DEBUG)         new $t($p); break;
+			case 'marker':            if (!DEBUG)        new $t($p, self::$declaredClass); break;
+			case 'constantInliner':   new $t($p, $source, self::$constants); break;
+			case 'namespaceRemover':  new $t($p, 'patchwork_alias_class::add'); break;
+			case 'superPositioner':   new $t($p, $level, $is_top ? $class : false); break;
+			case 'functionAliasing':  new $t($p, $GLOBALS['patchwork_preprocessor_alias']); break;
 			}
 		}
 
-		$code = $t->parse(file_get_contents($source));
+		if (empty($p)) return file_get_contents($source);
+		$t = $p->parse(file_get_contents($source));
 
-		if ($c = $t->getErrors())
+		if ($c = $p->getErrors())
 		{
 			foreach ($c as $c)
 				patchwork_error::handle($c[3], $c[0], $source, $c[1]);
 		}
 
-		return $code;
+		return $t;
 	}
 }

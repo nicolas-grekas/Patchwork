@@ -338,7 +338,7 @@ class patchwork_tokenizer
 
 		// Free memory thanks to copy-on-write
 		$j = $texts;
-		$types = $texts = $tokens = $tkReg = $caReg = $this->parents = array();
+		$types = $texts = $tokens = $tkReg = $caReg = $this->parents = $this->parent = null;
 		return $j;
 	}
 
