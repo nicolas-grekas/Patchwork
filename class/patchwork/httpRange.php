@@ -11,7 +11,6 @@
  *
  ***************************************************************************/
 
-use patchwork as p;
 
 class patchwork_httpRange
 {
@@ -136,7 +135,7 @@ class patchwork_httpRange
 		}
 		else
 		{
-			$boundary = substr(p::uniqid(), -16);
+			$boundary = substr(patchwork::uniqid(), -16);
 			$len = strlen($boundary);
 			$lenOffset = 49 + $len + strlen($mime) + strlen((string) $size);
 			$len += 8;

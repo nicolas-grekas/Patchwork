@@ -16,9 +16,9 @@ class pipe_indent
 {
 	static function php($string, $chars = 4, $char = ' ')
 	{
-		$chars = str_repeat(p::string($char), p::string($chars));
+		$chars = str_repeat(patchwork::string($char), patchwork::string($chars));
 
-		return $chars . str_replace("\n", "\n$chars", p::string($string));
+		return $chars . str_replace("\n", "\n$chars", patchwork::string($string));
 	}
 
 	static function js()

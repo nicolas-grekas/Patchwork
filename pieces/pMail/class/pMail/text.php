@@ -67,7 +67,7 @@ class pMail_text extends Mail_mime
 			isset($headers[$sql]) && is_array($headers[$sql]) && $headers[$sql] = implode(', ', $headers[$sql]);
 		}
 
-		$message_id = 'pM' . p::uniqid();
+		$message_id = 'pM' . patchwork::uniqid();
 
 		$headers['Message-Id'] = '<' . $message_id . '@' . $_SERVER['HTTP_HOST']. '>';
 
@@ -141,7 +141,7 @@ if(L) L.fontSize='18px'
 </script>
 EOHTML;
 
-		p::log($log . '<strong>Constructing email</strong>');
+		patchwork::log($log . '<strong>Constructing email</strong>');
 
 		E(array('headers' => &$headers, 'options' => &$this->options));
 

@@ -23,7 +23,7 @@ class agent_QJsrs extends agent
 		$o->DATA = '/*<script>/**/q="'
 			. str_replace(array('\\', '"'), array('\\\\', '\\"'), $this->getJs($this->data))
 			. '"//</script>'
-			. '<script src="' . p::__BASE__() . 'js/QJsrsHandler"></script>';
+			. '<script src="' . patchwork::__BASE__() . 'js/QJsrsHandler"></script>';
 
 		return $o;
 	}

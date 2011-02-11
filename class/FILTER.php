@@ -141,7 +141,7 @@ class FILTER
 				$result = preg_replace("'(?<!>)\n'"  , "<br>\n",         $result);
 
 				$result = str_replace(
-					array('{~}'     , '{/}'     , p::__BASE__(), p::__HOST__()),
+					array('{~}'     , '{/}'     , patchwork::__BASE__(), patchwork::__HOST__()),
 					array('{&#126;}', '{&#047;}', '{~}'        , '{/}'),
 					$result
 				);

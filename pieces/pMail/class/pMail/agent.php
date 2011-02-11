@@ -11,6 +11,7 @@
  *
  ***************************************************************************/
 
+use patchwork as p;
 
 class pMail_agent extends pMail_text
 {

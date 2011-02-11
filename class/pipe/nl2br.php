@@ -16,7 +16,7 @@ class pipe_nl2br
 {
 	static function php($string)
 	{
-		return nl2br(p::string($string));
+		return nl2br(patchwork::string($string));
 	}
 
 	static function js()

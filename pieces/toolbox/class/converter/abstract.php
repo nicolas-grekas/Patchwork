@@ -20,7 +20,7 @@ abstract class converter_abstract
 	{
 		$file = tempnam('.', 'converter');
 
-		p::writeFile($file, $data);
+		patchwork::writeFile($file, $data);
 
 		$data = $this->convertFile($file);
 

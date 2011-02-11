@@ -21,6 +21,7 @@ class patchwork_antiCSRF extends patchwork
 	static function scriptAlert()
 	{
 		p::setMaxage(0);
+
 		if (p::$catchMeta) p::$metaInfo[1] = array('private');
 
 		if ('-' === strtr(self::$requestMode, '-tpax', '#----'))

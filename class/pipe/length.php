@@ -16,7 +16,7 @@ class pipe_length
 {
 	static function php($string)
 	{
-		return mb_strlen(p::string($string));
+		return mb_strlen(patchwork::string($string));
 	}
 
 	static function js()

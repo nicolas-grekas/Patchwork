@@ -16,8 +16,8 @@ class pipe_spacify
 {
 	static function php($string, $spacify_char = ' ')
 	{
-		preg_match_all('/./u', p::string($string), $string);
-		return implode(p::string($spacify_char), $string[0]);
+		preg_match_all('/./u', patchwork::string($string), $string);
+		return implode(patchwork::string($spacify_char), $string[0]);
 	}
 
 	static function js()
