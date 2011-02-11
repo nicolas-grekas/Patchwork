@@ -85,17 +85,20 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 
 /**/if (extension_loaded('mbstring'))
 /**/{
-		mb_internal_encoding('UTF-8');
 		mb_regex_encoding('UTF-8');
+		@ini_set('mbstring.script_encoding', 'pass');
+
+/**/	if ('utf-8' !== strtolower(mb_internal_encoding()))
+			mb_internal_encoding('UTF-8')   + @ini_set('mbstring.internal_encoding', 'UTF-8');
 
 /**/	if ('none'  !== strtolower(mb_substitute_character()))
-			mb_substitute_character('none');
+			mb_substitute_character('none') + @ini_set('mbstring.substitute_character', 'none');
 
 /**/	if ('pass'  !== strtolower(mb_http_output()))
-			mb_http_output('pass');
+			mb_http_output('pass')          + @ini_set('mbstring.http_output', 'pass');
 
 /**/	if ('uni'   !== strtolower(mb_language()) && 'neutral' !== strtolower(mb_language()))
-			mb_language('uni');
+			mb_language('uni')              + @ini_set('mbstring.language', 'uni');
 /**/}
 /**/else
 /**/{
@@ -404,13 +407,13 @@ class ob
 /**/if (extension_loaded('iconv'))
 /**/{
 /**/	if ('UTF-8//IGNORE' !== iconv_get_encoding('input_encoding'))
-			iconv_set_encoding('input_encoding'   , 'UTF-8//IGNORE');
+			iconv_set_encoding('input_encoding'   , 'UTF-8//IGNORE') + @ini_set('iconv.input_encoding',    'UTF-8//IGNORE');
 
 /**/	if ('UTF-8//IGNORE' !== iconv_get_encoding('internal_encoding'))
-			iconv_set_encoding('internal_encoding', 'UTF-8//IGNORE');
+			iconv_set_encoding('internal_encoding', 'UTF-8//IGNORE') + @ini_set('iconv.internal_encoding', 'UTF-8//IGNORE');
 
 /**/	if ('UTF-8//IGNORE' !== iconv_get_encoding('output_encoding'))
-			iconv_set_encoding('output_encoding'  , 'UTF-8//IGNORE');
+			iconv_set_encoding('output_encoding'  , 'UTF-8//IGNORE') + @ini_set('iconv.output_encoding',   'UTF-8//IGNORE');
 /**/}
 /**/else
 /**/{
@@ -637,3 +640,9 @@ function patchwork_http_socket($host, $port, $ssl, $timeout = 30)
 			return $o->__spl_object_hash__;
 		}
 /**/}
+
+
+// Default serialize precision is 100, but 17 is enough
+
+/**/if (17 != @ini_get('serialize_precision'))
+		@ini_set('serialize_precision', 17);
