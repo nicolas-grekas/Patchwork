@@ -39,7 +39,7 @@ class patchwork_alias
 		{
 /**/		if (version_compare(PHP_VERSION, '5.3.0') < 0)
 /**/		{
-				if (is_array($c) && isset($c[0]))
+				if (is_array($c) && isset($c[0]) && is_string($c[0]))
 					$c[0] = strtr($c[0], '\\', '_');
 /**/		}
 		}

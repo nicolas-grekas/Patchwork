@@ -158,8 +158,8 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 			$token =& $this->getNextToken();
 
 			$token[1] = false === $a
-				? "patchworkProcessedPath({$token[1]})"
-				: (self::export($a) . str_repeat("\n", substr_count($token[1], "\n")));
+				? " patchworkProcessedPath({$token[1]})"
+				: (' ' . self::export($a) . str_repeat("\n", substr_count($token[1], "\n")));
 		}
 		else
 		{
@@ -168,9 +168,9 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 				array(T_STRING, 'patchworkProcessedPath'),
 				$this->namespace ? array(T_NS_SEPARATOR, '\\') : array(T_WHITESPACE, ' ')
 			);
-		}
 
-		new patchwork_tokenizer_closeBracket($this);
+			new patchwork_tokenizer_closeBracket($this);
+		}
 	}
 
 	protected function tagSpecialFunc(&$token)

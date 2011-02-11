@@ -22,12 +22,12 @@
 /**/		&& die('Patchwork error: Please disable "mbstring.encoding_translation" or set "mbstring.http_input" to "pass" or "utf-8"');
 /**/}
 
-/**/if (!defined('E_DEPRECATED'))
-		define('E_DEPRECATED', -1);
-/**/if (!defined('E_USER_DEPRECATED'))
-		define('E_USER_DEPRECATED', -1);
 /**/if (!defined('E_RECOVERABLE_ERROR'))
-		define('E_RECOVERABLE_ERROR', -1);
+		define('E_RECOVERABLE_ERROR', 4096);
+/**/if (!defined('E_DEPRECATED'))
+		define('E_DEPRECATED',        8192);
+/**/if (!defined('E_USER_DEPRECATED'))
+		define('E_USER_DEPRECATED',  16384);
 
 /**/$a = file_get_contents(patchwork_bootstrapper::$pwd . 'data/utf8/quickChecks.txt');
 /**/$a = explode("\n", $a);
