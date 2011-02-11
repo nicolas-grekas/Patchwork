@@ -24,7 +24,7 @@ class patchwork_tokenizer_backport53 extends patchwork_tokenizer
 {
 	protected
 
-	$tag = "\x90",
+	$tag = "\x01",
 	$callbacks = array(
 		'tagString' => T_STRING,
 		'tagNew'    => T_NEW,

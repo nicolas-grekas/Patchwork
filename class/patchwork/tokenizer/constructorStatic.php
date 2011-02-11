@@ -58,8 +58,8 @@ class patchwork_tokenizer_constructorStatic extends patchwork_tokenizer
 
 		$class = strtolower($this->class->nsName);
 
-		$this->construct && $token[1] = "const c{$this->tag}=" . (2 === $this->construct ? "__CLASS__;" : "'';static function __constructStatic(){}") . $token[1];
-		$this->destruct  && $token[1] = "const d{$this->tag}=" . (2 === $this->destruct  ? "__CLASS__;" : "'';static function __destructStatic() {}") . $token[1];
+		$this->construct && $token[1] = "const c{$this->tag}=" . (2 === $this->construct ? "'{$class}';" : "'';static function __constructStatic(){}") . $token[1];
+		$this->destruct  && $token[1] = "const d{$this->tag}=" . (2 === $this->destruct  ? "'{$class}';" : "'';static function __destructStatic() {}") . $token[1];
 
 		if (isset($this->class->isTop) && false === $this->class->isTop) return;
 

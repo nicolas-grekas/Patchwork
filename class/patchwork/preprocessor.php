@@ -154,8 +154,17 @@ class patchwork_preprocessor__0
 
 		if ($c = $p->getErrors())
 		{
-			foreach ($c as $c)
-				patchwork_error::handle($c[3], $c[0], $source, $c[1]);
+			if (class_exists('patchwork_error', true))
+			{
+				foreach ($c as $c)
+					patchwork_error::handle($c[3], $c[0], $source, $c[1]);
+			}
+			else
+			{
+				echo "Early preprocessor error in {$source}:\n";
+				print_r($c);
+				echo "\n";
+			}
 		}
 
 		return $t;
