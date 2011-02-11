@@ -18,8 +18,8 @@ class pipe_random
 	{
 		if ($max === '') $max = 32767;
 
-		$min = (int) p::string($min);
-		$max = (int) p::string($max);
+		$min = (int) patchwork::string($min);
+		$max = (int) patchwork::string($max);
 
 		return mt_rand($min, $max);
 	}

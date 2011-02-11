@@ -61,7 +61,7 @@ abstract class ptlCompiler
 	{
 		$this->source = $template;
 
-		p::watch($this->watch);
+		patchwork::watch($this->watch);
 
 		$this->Xvar .= $this->XpureVar;
 
@@ -117,12 +117,12 @@ abstract class ptlCompiler
 			$path_idx = $this->loadedStack[$a] + 1;
 		}
 
-		$source = p::resolvePublicPath($template . '.ptl', $path_idx);
+		$source = patchwork::resolvePublicPath($template . '.ptl', $path_idx);
 
 		if (!$source && 0 !== strcasecmp('.ptl', substr($template, -4)))
 		{
 			$path_idx = 0;
-			$source = p::resolvePublicPath($template, $path_idx);
+			$source = patchwork::resolvePublicPath($template, $path_idx);
 		}
 
 		if (!$source) return '{$DATA}';
@@ -219,7 +219,7 @@ abstract class ptlCompiler
 	protected function INLINEcallback($m)
 	{
 /**/	if (DEBUG)
-			p::watch('debugSync');
+			patchwork::watch('debugSync');
 
 		$a = isset($m[2]) ? substr($m[2], 1) : PATCHWORK_PATH_LEVEL;
 		$a = $a < 0 ? end($this->loadedStack) - $a : (PATCHWORK_PATH_LEVEL - $a);
@@ -604,9 +604,9 @@ abstract class ptlCompiler
 			{
 				if ($translate)
 				{
-					$a = TRANSLATOR::get($a, p::__LANG__(), false);
+					$a = TRANSLATOR::get($a, patchwork::__LANG__(), false);
 /**/				if (DEBUG)
-						p::watch('debugSync');
+						patchwork::watch('debugSync');
 				}
 				else
 				{
@@ -618,9 +618,9 @@ abstract class ptlCompiler
 
 					if (!$this->concatLast)
 					{
-						$this->concat[0] = TRANSLATOR::get($this->concat[0], p::__LANG__(), false);
+						$this->concat[0] = TRANSLATOR::get($this->concat[0], patchwork::__LANG__(), false);
 /**/					if (DEBUG)
-							p::watch('debugSync');
+							patchwork::watch('debugSync');
 					}
 
 					for ($i = 0; $i<=$this->concatLast; $i+=2)

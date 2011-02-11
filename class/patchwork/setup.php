@@ -11,7 +11,6 @@
  *
  ***************************************************************************/
 
-use patchwork as p;
 
 /**
  * Hook executed only once, when application is initialized
@@ -21,7 +20,7 @@ class patchwork_setup
 {
 	protected static function execute()
 	{
-		p::touch('appId');
+		patchwork::touch('appId');
 	}
 
 

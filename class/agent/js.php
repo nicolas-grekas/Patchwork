@@ -60,7 +60,7 @@ class agent_js extends agent_css
 
 			if ('/*!' != substr(ltrim(substr($src, 0, 512)), 0, 3))
 			{
-				$o->DATA = p::__URI__();
+				$o->DATA = patchwork::__URI__();
 				$o->DATA .= (false === strpos($o->DATA, '?') ? '?' : '&') . 'src=1';
 				$o->DATA = "// Copyright & source: {$o->DATA}\n";
 

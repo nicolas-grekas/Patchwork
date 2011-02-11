@@ -18,7 +18,7 @@ class pipe_base
 {
 	static function php($string = '', $noId = false)
 	{
-		return p::base(p::string($string), $noId);
+		return patchwork::base(patchwork::string($string), $noId);
 	}
 
 	static function js()

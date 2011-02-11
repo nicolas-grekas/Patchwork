@@ -16,7 +16,7 @@ class pipe_js
 {
 	static function php($string, $forceString = false)
 	{
-		$string = p::string($string);
+		$string = patchwork::string($string);
 
 		false !== strpos($string, '&') && $string = str_replace(
 			array('&#039;', '&quot;', '&gt;', '&lt;', '&amp;'),

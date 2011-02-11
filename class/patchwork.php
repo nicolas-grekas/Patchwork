@@ -17,7 +17,7 @@ if ($_SERVER['PATCHWORK_LANG'])
 {
 	function T($string, $lang = false)
 	{
-		if (!$lang) $lang = p::__LANG__();
+		if (!$lang) $lang = patchwork::__LANG__();
 		return TRANSLATOR::get($string, $lang, true);
 	}
 }
@@ -535,7 +535,7 @@ class patchwork
 
 			preg_match($base, self::$uri, $base)
 				? self::$uri = self::$base . self::translateRequest($base[1], $lang)
-				: W('Something is wrong between p::$uri and PATCHWORK_BASE');
+				: W('Something is wrong between patchwork::$uri and PATCHWORK_BASE');
 		}
 
 		$base = self::$lang;
@@ -1162,7 +1162,7 @@ class patchwork
 
 			if ($offset < $agentLength)
 			{
-				if ($i === $agentLength && ($a = p::resolvePublicPath(substr($a, 1))) && !is_dir($a))
+				if ($i === $agentLength && ($a = self::resolvePublicPath(substr($a, 1))) && !is_dir($a))
 				{
 					throw new patchwork_exception_static($a);
 				}
@@ -1539,7 +1539,7 @@ class patchwork
 
 	static function ob_sendHeaders($buffer)
 	{
-		p::header(
+		self::header(
 			isset(self::$headers['content-type'])
 				? self::$headers['content-type']
 				: 'Content-Type: text/html'
@@ -1799,7 +1799,7 @@ class agent
 				|| ((false !== $tail = substr($class, $tail+2)) && strspn($tail, '0123456789') !== strlen($tail)))
 			{
 				$template = patchwork_class2file(substr($class, 6));
-				if (p::resolvePublicPath($template . '.ptl')) return $template;
+				if (patchwork::resolvePublicPath($template . '.ptl')) return $template;
 			}
 		}
 		while (__CLASS__ !== $class = get_parent_class($class));
@@ -1863,15 +1863,15 @@ class agent
 				: 'application/octet-stream';
 		}
 
-		$this->contentType && p::header('Content-Type: ' . $this->contentType);
+		$this->contentType && patchwork::header('Content-Type: ' . $this->contentType);
 	}
 
 	function metaCompose()
 	{
-		p::setMaxage($this->maxage);
-		p::setExpires($this->expires);
-		p::watch($this->watch);
-		if ($this->canPost) p::canPost();
+		patchwork::setMaxage($this->maxage);
+		patchwork::setExpires($this->expires);
+		patchwork::watch($this->watch);
+		if ($this->canPost) patchwork::canPost();
 	}
 
 
@@ -1881,7 +1881,7 @@ class agent
 
 		try
 		{
-			$agent = p::resolveAgentClass($agent, $args);
+			$agent = patchwork::resolveAgentClass($agent, $args);
 			$agent = new $agent($args);
 			$o = $agent->compose($o);
 			$agent->metaCompose();
@@ -1928,8 +1928,8 @@ class loop
 
 	final public function &loop($escape = false)
 	{
-		$catchMeta = p::$catchMeta;
-		p::$catchMeta = true;
+		$catchMeta = patchwork::$catchMeta;
+		patchwork::$catchMeta = true;
 
 		if ($this->loopLength === false) $this->loopLength = (int) $this->prepare();
 
@@ -1947,7 +1947,7 @@ class loop
 			else $this->loopLength = false;
 		}
 
-		p::$catchMeta = $catchMeta;
+		patchwork::$catchMeta = $catchMeta;
 
 		return $data;
 	}
@@ -1956,12 +1956,12 @@ class loop
 
 	final public function __toString()
 	{
-		$catchMeta = p::$catchMeta;
-		p::$catchMeta = true;
+		$catchMeta = patchwork::$catchMeta;
+		patchwork::$catchMeta = true;
 
 		if ($this->loopLength === false) $this->loopLength = (int) $this->prepare();
 
-		p::$catchMeta = $catchMeta;
+		patchwork::$catchMeta = $catchMeta;
 
 		return (string) $this->loopLength;
 	}

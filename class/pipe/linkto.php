@@ -16,8 +16,8 @@ class pipe_linkto
 {
 	static function php($text, $url = '', $attributes = '')
 	{
-		$text = p::string($text);
-		$url  = p::string($url);
+		$text = patchwork::string($text);
+		$url  = patchwork::string($url);
 
 		$a = strpos($url, '#');
 		if (false !== $a)
@@ -27,9 +27,9 @@ class pipe_linkto
 		}
 		else $hash = '';
 
-		return $url == htmlspecialchars(substr(p::__HOST__() . substr($_SERVER['REQUEST_URI'], 1), strlen(p::__BASE__())))
+		return $url == htmlspecialchars(substr(patchwork::__HOST__() . substr($_SERVER['REQUEST_URI'], 1), strlen(patchwork::__BASE__())))
 			? ('<b class="linkloop">' . $text . '</b>')
-			: ('<a href="' . p::base($url, true) . $hash . '" ' . p::string($attributes) . '>' . $text . '</a>');
+			: ('<a href="' . patchwork::base($url, true) . $hash . '" ' . patchwork::string($attributes) . '>' . $text . '</a>');
 	}
 
 	static function js()

@@ -11,6 +11,7 @@
  *
  ***************************************************************************/
 
+use patchwork as p;
 
 class agent_fckeditor_browser extends agent
 {

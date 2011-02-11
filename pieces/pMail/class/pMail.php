@@ -75,8 +75,8 @@ class pMail extends pTask
 			{
 				if (is_uploaded_file($file) || PATCHWORK_ZCACHE === substr($file, 0, strlen(PATCHWORK_ZCACHE)))
 				{
-					$tmpToken || $tmpToken = p::strongid(8);
-					$base = PATCHWORK_ZCACHE . p::strongid(8) . '~' . $tmpToken;
+					$tmpToken || $tmpToken = patchwork::strongid(8);
+					$base = PATCHWORK_ZCACHE . patchwork::strongid(8) . '~' . $tmpToken;
 					copy($file, $base);
 					$file = $base;
 				}
@@ -97,7 +97,7 @@ class pMail extends pTask
 
 		$sqlite = $this->getSqlite();
 
-		$base = sqlite_escape_string(p::__BASE__());
+		$base = sqlite_escape_string(patchwork::__BASE__());
 		$data = sqlite_escape_string(serialize($data));
 
 		$sql = "INSERT INTO queue (base, data, send_time, archive, sent_time)

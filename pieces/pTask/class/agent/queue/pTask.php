@@ -99,9 +99,9 @@ class agent_queue_pTask extends agent
 				$this->sqlite->changes() && tool_url::touch("{$data['base']}queue/pTask/{$data['OID']}/" . $this->getToken());
 
 				$sql = "SELECT run_time FROM queue WHERE run_time>{$time} ORDER BY run_time LIMIT 1";
-				if ($data = $this->sqlite->arrayQuery($sql, SQLITE_NUM)) p::setMaxage(min($this->maxage, $data[0][0] - $time));
+				if ($data = $this->sqlite->arrayQuery($sql, SQLITE_NUM)) patchwork::setMaxage(min($this->maxage, $data[0][0] - $time));
 			}
-			else p::setMaxage(min($this->maxage, $data['run_time'] - $time));
+			else patchwork::setMaxage(min($this->maxage, $data['run_time'] - $time));
 		}
 	}
 
@@ -182,7 +182,7 @@ class agent_queue_pTask extends agent
 
 		if ($session)
 		{
-			foreach ($session as $k => &$v) s::set($k, $v);
+			foreach ($session as $k => &$v) SESSION::set($k, $v);
 			SESSION::regenerateId(false, false);
 		}
 	}
@@ -221,7 +221,7 @@ class agent_queue_pTask extends agent
 		$token = patchworkPath($this->queueFolder) . $this->queueName . '.token';
 
 		//XXX user right problem?
-		file_exists($token) || file_put_contents($token, p::strongid());
+		file_exists($token) || file_put_contents($token, patchwork::strongid());
 
 		return trim(file_get_contents($token));
 	}
