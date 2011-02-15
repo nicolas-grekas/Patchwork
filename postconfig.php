@@ -570,3 +570,81 @@ if (strtr($_SERVER['PATCHWORK_BASE'], '<>&"', '----') !== $_SERVER['PATCHWORK_BA
 {
 	die('Patchwork error: Base URL can not contain special HTML character (' . htmlspecialchars($_SERVER['PATCHWORK_BASE']) . ')');
 }
+
+
+// Database sugar
+function DB($dsn = 0)
+{
+	static $db = array();
+
+	isset($db[$dsn]) || $db[$dsn] = adapter_DB::connect(0 === $dsn ? $CONFIG['DSN'] : $dsn);
+
+	return $db[$dsn];
+}
+
+// PHP session mechanism overloading
+class sessionHandler implements ArrayAccess
+{
+	function offsetGet($k)     {$_SESSION = SESSION::getAll(); return $_SESSION[$k];}
+	function offsetSet($k, $v) {$_SESSION = SESSION::getAll(); $_SESSION[$k] =& $v;}
+	function offsetExists($k)  {$_SESSION = SESSION::getAll(); return isset($_SESSION[$k]);}
+	function offsetUnset($k)   {$_SESSION = SESSION::getAll(); unset($_SESSION[$k]);}
+
+	static $id;
+
+	static function close()   {return true;}
+	static function gc($life) {return true;}
+
+	static function open($path, $name)
+	{
+		session_cache_limiter('');
+		ini_set('session.use_only_cookies', true);
+		ini_set('session.use_cookies', false);
+		ini_set('session.use_trans_sid', false);
+		return true;
+	}
+
+	static function read($id)
+	{
+		$_SESSION = SESSION::getAll();
+		self::$id = $id;
+		return '';
+	}
+
+	static function write($id, $data)
+	{
+		if (self::$id != $id) SESSION::regenerateId();
+		return true;
+	}
+
+	static function destroy($id)
+	{
+		SESSION::regenerateId(true);
+		return true;
+	}
+}
+
+session_set_save_handler(
+	array($k = 'sessionHandler', 'open'),
+	array($k, 'close'),
+	array($k, 'read'),
+	array($k, 'write'),
+	array($k, 'destroy'),
+	array($k, 'gc')
+);
+
+$_SESSION = new sessionHandler;
+
+// Shortcut for applications developers
+if ($_SERVER['PATCHWORK_LANG'])
+{
+	function T($string, $lang = false)
+	{
+		if (!$lang) $lang = patchwork::__LANG__();
+		return TRANSLATOR::get($string, $lang, true);
+	}
+}
+else
+{
+	function T($string) {return $string;}
+}
