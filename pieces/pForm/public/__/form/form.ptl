@@ -30,20 +30,19 @@ IF a$_mode_ == 'errormsg'
 		--></div><!--
 	END:IF
 
-ELSEIF a$_mode_ == 'close' --></form><!--
+ELSEIF a$_mode_ == 'close'
+
+	LOOP a$_hidden
+		--><input type="hidden" name="{$name}" value="{$value}"><!--
+	END:LOOP
+	--></form><!--
 
 ELSE
 
 	SET a$action --><!-- IF !a$action -->{g$__URI__}<!-- ELSE -->{base:a$action:1}<!-- END:IF --><!-- END:SET
 	IF !a$id --><!-- SET a$id -->FiD{g+1$GLOBID}{g$__AGENT__|replace:'[^_a-zA-Z0-9]':'_'}<!-- END:SET --><!-- END:IF
 
-	--><form accept-charset="utf-8" {a$|htmlArgs}><!--
-
-	LOOP a$_hidden
-		--><input type="hidden" name="{$name}" value="{$value}"><!--
-	END:LOOP
-
-	--><script>
+	--><form accept-charset="utf-8" {a$|htmlArgs}><script>
 lF=document.getElementById({a$id|js});<!--
 IF a$_enterControl_ -->FeC({a$_enterControl_});<!-- END:IF --></script><!--
 
