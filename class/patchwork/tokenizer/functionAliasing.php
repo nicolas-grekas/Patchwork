@@ -217,7 +217,7 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 			$e = isset($this->alias[$a]) || isset(self::$autoloader[$a]);
 			$e || $a = substr(strtolower($this->namespace) . $a, 1);
 			$e = $e || isset($this->alias[$a]) || isset(self::$autoloader[$a]);
-			$e && $this->setError("Unresolved namespaced function call ({$this->nsResolved}), skipping aliasing.", E_USER_WARNING);
+			$e && $this->setError("Unresolved namespaced function call ({$this->nsResolved}), skipping aliasing", E_USER_WARNING);
 			return;
 		}
 

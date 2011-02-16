@@ -113,7 +113,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 
 		if (0 <= $this->level)
 		{
-			$this->setError("Private static methods or properties are banned, please use protected static ones instead");
+			$this->setError("Private statics do not work with class superposition, please use protected statics instead");
 		}
 
 		return false;
