@@ -1,6 +1,6 @@
 <?php /*********************************************************************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -17,6 +17,13 @@
 
 // To keep the global namespace clean, we use only static methods instead of any variable.
 // Be aware that the use of static properties would throw a PHP 4.0 parse error.
+
+defined('PATCHWORK_BOOTPATH') || define('PATCHWORK_BOOTPATH', '.');
+
+if (file_exists((PATCHWORK_BOOTPATH ? PATCHWORK_BOOTPATH : '.') . '/.patchwork.php'))
+{
+	return require (PATCHWORK_BOOTPATH ? PATCHWORK_BOOTPATH : '.') . '/.patchwork.php';
+}
 
 isset($_GET['p:']) && 'exit' === $_GET['p:'] && die('Exit requested');
 
@@ -37,7 +44,7 @@ function_exists('mb_internal_encoding') && mb_internal_encoding('UTF-8');
 
 require dirname(__FILE__) . '/class/patchwork/bootstrapper.php';
 
-patchwork_bootstrapper::initialize(__FILE__);
+patchwork_bootstrapper::initialize(__FILE__, PATCHWORK_BOOTPATH);
 
 
 // Get lock
@@ -104,3 +111,4 @@ patchwork_bootstrapper::release();
 // Let's go
 
 patchwork::start();
+exit;

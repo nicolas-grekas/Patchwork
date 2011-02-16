@@ -31,10 +31,9 @@ class patchwork_bootstrapper
 	$caller;
 
 
-	static function initialize($caller, $cwd = null)
+	static function initialize($caller, $cwd)
 	{
-		self::$cwd = defined('PATCHWORK_BOOTPATH') && '' !== PATCHWORK_BOOTPATH ? PATCHWORK_BOOTPATH : '.';
-		isset($cwd) && self::$cwd = $cwd;
+		self::$cwd = empty($cwd) ? '.' : $cwd;
 		self::$cwd = rtrim(self::$cwd, '/\\') . DIRECTORY_SEPARATOR;
 		self::$pwd = dirname($caller) . DIRECTORY_SEPARATOR;
 		self::$caller = $caller;
