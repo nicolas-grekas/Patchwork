@@ -167,7 +167,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
 
 			$last = $last && $s === $last[0] ? ", expecting `{$last[1]}'" : '';
 
-			$this->setError("Syntax error, unexpected `{$token[0]}'{$last}");
+			$this->setError("Syntax error, unexpected `{$token[0]}'{$last}", E_USER_ERROR);
 		}
 	}
 

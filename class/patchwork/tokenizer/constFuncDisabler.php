@@ -35,7 +35,7 @@ class patchwork_tokenizer_constFuncDisabler extends patchwork_tokenizer
 	{
 		if (T_CLASS !== $this->scope->type)
 		{
-			$this->setError("Namespaced functions and constants have been deprecated. Please use static methods and class constants.");
+			$this->setError("Namespaced functions and constants have been deprecated, please use static methods and class constants instead", E_USER_DEPRECATED);
 		}
 	}
 

@@ -573,16 +573,10 @@ if (strtr($_SERVER['PATCHWORK_BASE'], '<>&"', '----') !== $_SERVER['PATCHWORK_BA
 
 
 // Database sugar
-function DB($dsn = 0)
+function DB($dsn = null)
 {
 	static $db = array();
-
-	if (empty($db[$dsn]))
-	{
-		global $CONFIG;
-		$db[$dsn] = adapter_DB::connect(0 === $dsn ? $CONFIG['DSN'] : $dsn);
-	}
-
+	empty($db[$dsn]) && $db[$dsn] = adapter_DB::connect(null === $dsn ? $GLOBALS['CONFIG']['DSN'] : $dsn);
 	return $db[$dsn];
 }
 

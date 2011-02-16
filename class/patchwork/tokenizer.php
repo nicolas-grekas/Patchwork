@@ -11,6 +11,8 @@
  *
  ***************************************************************************/
 
+// We want tokenizers to be able to trigger E_USER_DEPRECATED even in PHP < 5.3
+defined('E_USER_DEPRECATED') || define('E_USER_DEPRECATED', 16384);
 
 patchwork_tokenizer::createToken('T_CURLY_CLOSE');     // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
 patchwork_tokenizer::createToken('T_COMPILER_HALTED'); // Data after T_HALT_COMPILER
@@ -23,7 +25,7 @@ class patchwork_tokenizer
 
 	// Declarations used by __construct()
 	$dependencyName = null,    // Fully qualified class identifier, defaults to get_class($this)
-	$dependencies   = array(), // (dependencyName => shared properties) map before instanciation, then (dependencyName => dependency object) map
+	$dependencies   = array(), // (dependencyName => shared properties) map before instanciation, then (dependencyName => dependency object) map after
 	$callbacks      = array(), // Callbacks to be registered
 
 	// Parse time read-only (or know what you do) properties
@@ -35,8 +37,8 @@ class patchwork_tokenizer
 	$texts    = array(),         // Texts of already parsed tokens, including sugar tokens
 	$lastType,                   // The last token type in $this->types
 	$penuType,                   // The penultimate token type in $this->types
-	$tokenRegistry    = array(), // (Token type => callbacks) map
-	$catchallRegistry = array(); // List of catch-all (excluding sugar tokens) callbacks
+	$tokenRegistry    = array(), // (token type => callbacks) map
+	$catchallRegistry = array(); // List of catch-all-excluding-sugar-tokens callbacks
 
 
 	private
@@ -150,7 +152,7 @@ class patchwork_tokenizer
 
 	protected function parseTokens()
 	{
-		// Parse raw tokens already loaded in $this->tokens after recursively traversing the inheritance chain defined by $this->parent
+		// Parse raw tokens already loaded in $this->tokens after recursively traversing $this->parent
 
 		if ($this->parent !== $this) return $this->parent->parseTokens();
 
@@ -176,7 +178,7 @@ class patchwork_tokenizer
 			$t =& $tokens[$i];    // Get the next token
 			unset($tokens[$i++]); // Free memory and move $this->index forward
 
-			// Analyse parsing context related to sugar tokens and string interpolation
+			// Set parsing context related to sugar tokens and string interpolation
 
 			$sugar = 0;
 
@@ -282,7 +284,7 @@ class patchwork_tokenizer
 			$penuType  = $lastType;
 			$types[$j] = $lastType = $t[0];
 
-			// Further parsing context analysis related to string interpolation and __halt_compiler()
+			// Parsing context analysis related to string interpolation and __halt_compiler()
 
 			if (isset($lastType[0])) switch ($lastType)
 			{
@@ -342,7 +344,8 @@ class patchwork_tokenizer
 		return $j;
 	}
 
-	protected function setError($message, $type = E_USER_ERROR)
+
+	protected function setError($message, $type)
 	{
 		$this->errors[(int) $this->line][] = array($message, (int) $this->line, get_class($this), $type);
 	}
@@ -412,6 +415,7 @@ class patchwork_tokenizer
 
 		return false;
 	}
+
 
 	static function createToken($name)
 	{

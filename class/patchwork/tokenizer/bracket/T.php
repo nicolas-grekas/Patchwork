@@ -20,7 +20,7 @@ class patchwork_tokenizer_bracket_T extends patchwork_tokenizer_bracket
 
 	protected function tagConcatenation(&$token)
 	{
-		$this->setError("Usage of T() is potentially divergent, please avoid string concatenation.");
+		$this->setError("Usage of T() is potentially divergent, please avoid string concatenation", E_USER_NOTICE);
 		$this->unregister();
 	}
 }
