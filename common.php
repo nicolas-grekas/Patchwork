@@ -17,13 +17,12 @@
 
 /*<*/PHP_VERSION/*>*/;
 
-// Only while bootstrapping
-@ini_set('display_errors', true);
-@ini_set('log_errors', false);
-
 define('patchwork', microtime(true));
 error_reporting(E_ALL | E_STRICT);
 setlocale(LC_ALL, 'C');
+
+// Only while bootstrapping
+@ini_set('display_errors', true);
 
 define('IS_WINDOWS', /*<*/'\\' === DIRECTORY_SEPARATOR/*>*/);
 define('IS_POSTING', 'POST' === $_SERVER['REQUEST_METHOD']);
