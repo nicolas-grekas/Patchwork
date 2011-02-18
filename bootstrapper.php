@@ -18,27 +18,23 @@
 // To keep the global namespace clean, we use only static methods instead of any variable.
 // Be aware that the use of static properties would throw a PHP 4.0 parse error.
 
-defined('PATCHWORK_BOOTPATH') || define('PATCHWORK_BOOTPATH', '.');
-
-if (file_exists((PATCHWORK_BOOTPATH ? PATCHWORK_BOOTPATH : '.') . '/.patchwork.php'))
-{
-	return require (PATCHWORK_BOOTPATH ? PATCHWORK_BOOTPATH : '.') . '/.patchwork.php';
-}
-
-isset($_GET['p:']) && 'exit' === $_GET['p:'] && die('Exit requested');
-
 // Only while bootstrapping
 @ini_set('display_errors', true);
-@ini_set('log_errors', false);
 
 error_reporting(E_ALL | E_STRICT);
-setlocale(LC_ALL, 'C');
+defined('PATCHWORK_BOOTPATH') || define('PATCHWORK_BOOTPATH', '.');
 
-if (!function_exists('version_compare') || version_compare(phpversion(), '5.1.4', '<'))
+switch (true)
 {
+case file_exists((PATCHWORK_BOOTPATH ? PATCHWORK_BOOTPATH : '.') . '/.patchwork.php'):
+	return require (PATCHWORK_BOOTPATH ? PATCHWORK_BOOTPATH : '.') . '/.patchwork.php';
+case isset($_GET['p:']) && 'exit' === $_GET['p:']:
+	die('Exit requested');
+case !function_exists('version_compare') || version_compare(phpversion(), '5.1.4', '<'):
 	die("PHP 5.1.4 or higher is required.");
 }
 
+setlocale(LC_ALL, 'C');
 function_exists('mb_internal_encoding') && mb_internal_encoding('UTF-8');
 
 
