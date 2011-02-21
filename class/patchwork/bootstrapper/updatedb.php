@@ -216,28 +216,22 @@ class patchwork_bootstrapper_updatedb__0
 
 			closedir($h);
 
-			ob_start();
-
-			echo strtr($dir, array('%' => '%25', "\r" => '%0D', "\n" => '%0A', '*' => '%2A')),
-				'*', min($now, @max(filemtime($dir), filectime($dir))), '/';
+			$h = strtr($dir, array('%' => '%25', "\r" => '%0D', "\n" => '%0A', '*' => '%2A'))
+					. '*' . min($now, @max(filemtime($dir), filectime($dir))) . '/';
 
 			foreach ($files as $file)
 			{
-				echo '0', $file, '/';
+				$h .= '0' . $file . '/';
 				$parentPaths[substr($prefix . $subdir . $file, 1)][] = $level;
 			}
 
 			if ($dirs)
 			{
 				IS_WINDOWS || sort($dirs, SORT_STRING);
-
-				echo '1', implode('/1', $dirs), '/';
+				$h .= '1' . implode('/1', $dirs) . '/';
 			}
 
-			echo "\n";
-
-			$file = ob_get_clean();
-			$db && fwrite($db, $file);
+			$db && fwrite($db, $h . "\n");
 
 			foreach ($dirs as $file)
 			{
