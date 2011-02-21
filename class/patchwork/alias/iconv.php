@@ -105,15 +105,8 @@ class patchwork_alias_iconv
 		if ('utf-8' !== $in_charset)
 		{
 			// Convert input to UTF-8
-
-			ob_start();
-
-			$str = 2 === count($in_map)
-				? call_user_func_array($in_map, array(&$str, $IGNORE, $in_charset))
-				: self::map_to_utf8($in_map, $str, $IGNORE);
-
-			$str = !$str && ob_end_clean() || 1 ? false : ob_get_clean();
-
+			$result = '';
+			$str = self::map_to_utf8($result, $in_map, $str, $IGNORE) ? $result : false;
 			self::$is_valid_utf8 = true;
 		}
 		else
@@ -129,7 +122,6 @@ class patchwork_alias_iconv
 			if ('utf-8' === $out_charset)
 			{
 				// UTF-8 validation
-
 				$str = self::utf8_to_utf8($str, $IGNORE);
 			}
 		}
@@ -137,17 +129,10 @@ class patchwork_alias_iconv
 		if ('utf-8' !== $out_charset && false !== $str)
 		{
 			// Convert output to UTF-8
-
-			ob_start();
-
-			$str = 2 === count($out_map)
-				? call_user_func_array($out_map, array(&$str, $IGNORE, $TRANSLIT, $out_charset))
-				: self::map_from_utf8($out_map, $str, $IGNORE, $TRANSLIT);
-
-			$str = !$str && ob_end_clean() || 1 ? false : ob_get_clean();
+			$result = '';
+			return self::map_from_utf8($result, $out_map, $str, $IGNORE, $TRANSLIT) ? $result : false;
 		}
-
-		return $str;
+		else return $str;
 	}
 
 	static function mime_decode_headers($str, $mode = ICONV_MIME_DECODE_CONTINUE_ON_ERROR, $charset = INF)
@@ -188,9 +173,7 @@ class patchwork_alias_iconv
 		$str = preg_replace('/[ \t]*\n[ \t]+/', ' ', rtrim($str[0]));
 		$str = preg_split('/=\?([^?]+)\?([bqBQ])\?(.*)\?=/', $str, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-		ob_start();
-
-		echo self::iconv('UTF-8', $charset, $str[0]);
+		$result = self::iconv('UTF-8', $charset, $str[0]);
 
 		$i = 1;
 		$len = count($str);
@@ -204,12 +187,12 @@ class patchwork_alias_iconv
 			$str[$i+2] = self::iconv($str[$i], $charset, $str[$i+2]);
 			$str[$i+3] = self::iconv('UTF-8' , $charset, $str[$i+3]);
 
-			echo $str[$i+2], '' === trim($str[$i+3]) ? '' : $str[$i+3];
+			$result .= $str[$i+2] . ('' === trim($str[$i+3]) ? '' : $str[$i+3]);
 
 			$i += 4;
 		}
 
-		return ob_get_clean();
+		return $result;
 	}
 
 	static function get_encoding($type = 'all')
@@ -400,28 +383,19 @@ class patchwork_alias_iconv
 
 	protected static function loadMap($type, $charset, &$map)
 	{
-		$map =& self::$convert_map[$type . $charset];
-
-		if (INF === $map)
+		if (!isset(self::$convert_map[$type . $charset]))
 		{
-			$map = patchworkPath('data/utf8/charset/' . $type . $charset . '.ser');
-
-			if (false === $map)
+			if (false === $map = patchworkPath('data/utf8/charset/' . $type . $charset . '.ser'))
 			{
-				$rev_type = 'to.' === $type ? 'from.' : 'to.';
-				$rev_map = patchworkPath('data/utf8/charset/' . $rev_type . $charset . '.ser');
+				$map = 'to.' === $type && self::loadMap('from.', $charset, $map) ? array_reverse($map) : array();
 
-				if (false !== $rev_map)
-				{
-					$rev_map = unserialize(file_get_contents($rev_map));
-					self::$convert_map[$rev_type . $charset] =& $rev_map;
-					if (2 === count($rev_map)) return false;
-					else $map = array_reverse($rev_map);
-				}
-				else return false;
+				if (!$map) return false;
 			}
 			else $map = unserialize(file_get_contents($map));
+
+			self::$convert_map[$type . $charset] = $map;
 		}
+		else $map = self::$convert_map[$type . $charset];
 
 		return true;
 	}
@@ -431,21 +405,20 @@ class patchwork_alias_iconv
 		$ulen_mask = self::$ulen_mask;
 		$valid     = self::$is_valid_utf8;
 
-		ob_start();
-
-		$i = 0;
+		$u = $str;
+		$i = $j = 0;
 		$len = strlen($str);
 
 		while ($i < $len)
 		{
-			if ($str[$i] < "\x80") echo $str[$i++];
+			if ($str[$i] < "\x80") $u[$j++] = $str[$i++];
 			else
 			{
 				$ulen = $s[$i] & "\xF0";
 				$ulen = isset($ulen_mask[$ulen]) ? $ulen_mask[$ulen] : 1;
 				$uchr = substr($str, $i, $ulen);
 
-				if (1 === $ulen || !($valid || preg_match('//u', $uchr)))
+				if (1 === $ulen || !($valid || preg_match('/^.$/us', $uchr)))
 				{
 					if ($IGNORE)
 					{
@@ -453,26 +426,29 @@ class patchwork_alias_iconv
 						continue;
 					}
 
-					ob_end_clean();
 					trigger_error(self::ERROR_ILLEGAL_CHARACTER);
 					return false;
 				}
 				else $i += $ulen;
 
-				echo $uchr;
+				$u[$j++] = $uchr[0];
+
+				   isset($uchr[1]) && 0 !== ($u[$j++] = $uchr[1])
+				&& isset($uchr[2]) && 0 !== ($u[$j++] = $uchr[2])
+				&& isset($uchr[3]) && 0 !== ($u[$j++] = $uchr[3]);
 			}
 		}
 
-		return ob_get_clean();
+		return substr($u, 0, $j);
 	}
 
-	protected static function map_to_utf8(&$map, &$str, $IGNORE)
+	protected static function map_to_utf8(&$result, &$map, &$str, $IGNORE)
 	{
 		$len = strlen($str);
 		for ($i = 0; $i < $len; ++$i)
 		{
-			if (isset($map[$str[$i]])) echo $map[$str[$i]];
-			else if (isset($map[$str[$i] . $str[$i+1]])) echo $map[$str[$i] . $str[++$i]];
+			if (isset($map[$str[$i]])) $result .= $map[$str[$i]];
+			else if (isset($map[$str[$i] . $str[$i+1]])) $result .= $map[$str[$i] . $str[++$i]];
 			else if (!$IGNORE)
 			{
 				trigger_error(self::ERROR_ILLEGAL_CHARACTER);
@@ -483,7 +459,7 @@ class patchwork_alias_iconv
 		return true;
 	}
 
-	protected static function map_from_utf8(&$map, &$str, $IGNORE, $TRANSLIT)
+	protected static function map_from_utf8(&$result, &$map, &$str, $IGNORE, $TRANSLIT)
 	{
 		$ulen_mask = self::$ulen_mask;
 		$valid     = self::$is_valid_utf8;
@@ -504,7 +480,7 @@ class patchwork_alias_iconv
 				$ulen = isset($ulen_mask[$ulen]) ? $ulen_mask[$ulen] : 1;
 				$uchr = substr($str, $i, $ulen);
 
-				if ($IGNORE && (1 === $ulen || !($valid || preg_match('//u', $uchr))))
+				if ($IGNORE && (1 === $ulen || !($valid || preg_match('/^.$/us', $uchr))))
 				{
 					++$i;
 					continue;
@@ -514,7 +490,7 @@ class patchwork_alias_iconv
 
 			if (isset($map[$uchr]))
 			{
-				echo $map[$uchr];
+				$result .= $map[$uchr];
 			}
 			else if ($TRANSLIT && isset($translit_map[$uchr]))
 			{
@@ -522,9 +498,9 @@ class patchwork_alias_iconv
 
 				if (isset($map[$uchr]))
 				{
-					echo $map[$uchr];
+					$result .= $map[$uchr];
 				}
-				else if (!self::map_from_utf8($map, $uchr, $IGNORE, true))
+				else if (!self::map_from_utf8($result, $map, $uchr, $IGNORE, true))
 				{
 					return false;
 				}

@@ -154,11 +154,7 @@ if (!isset($_SERVER['HTTP_HOST']) || strspn($_SERVER['HTTP_HOST'], 'eiasntroludc
 /**/}
 
 
-if (isset($_SERVER['HTTPS']))
-{
-	if ('on' === strtolower($_SERVER['HTTPS']) || '1' == $_SERVER['HTTPS']) $_SERVER['HTTPS'] = 'on';
-	else unset($_SERVER['HTTPS']);
-}
+$_SERVER['HTTPS'] = isset($_SERVER['HTTPS']) && ('on' === strtolower($_SERVER['HTTPS']) || '1' == $_SERVER['HTTPS']) ? 'on' : null;
 
 
 // Utility functions
@@ -474,17 +470,17 @@ class ob
 /**/	{
 			function utf8_encode($s)
 			{
-				ob_start();
 				$len = strlen($s);
+				$e = $s . $s;
 
-				for ($i = 0; $i < $len; ++$i)
+				for ($i = 0, $j = 0; $i < $len; ++$i, ++$j)
 				{
-					if ($s[$i] < "\x80") echo $s[$i];
-					else if ($s[$i] < "\xc0") echo "\xc2", $s[$i];
-					else echo "\xc3", chr(ord($s[$i]) - 64);
+					if ($s[$i] < "\x80") $e[$j] = $s[$i];
+					else if ($s[$i] < "\xc0") {$e[$j] = "\xc2"; $e[++$j] = $s[$i];}
+					else {$e[$j] = "\xc3"; $e[++$j] = chr(ord($s[$i]) - 64);}
 				}
 
-				return ob_get_clean();
+				return substr($e, 0, $j);
 			}
 /**/	}
 /**/}
