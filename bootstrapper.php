@@ -35,7 +35,10 @@ case !function_exists('version_compare') || version_compare(phpversion(), '5.1.4
 }
 
 setlocale(LC_ALL, 'C');
-function_exists('mb_internal_encoding') && mb_internal_encoding('UTF-8');
+
+function_exists('mb_internal_encoding')
+	&& !in_array(strtolower(mb_internal_encoding()), array('pass', '8bit'))
+	&& mb_internal_encoding('8bit'); // if mbstring overloading is enabled
 
 
 require dirname(__FILE__) . '/class/patchwork/bootstrapper.php';

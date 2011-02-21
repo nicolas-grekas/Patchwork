@@ -93,10 +93,10 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 /**/	if ('none'  !== strtolower(mb_substitute_character()))
 			mb_substitute_character('none') + @ini_set('mbstring.substitute_character', 'none');
 
-/**/	if ('pass'  !== strtolower(mb_http_output()))
+/**/	if (!in_array(strtolower(mb_http_output()), array('pass', '8bit')))
 			mb_http_output('pass')          + @ini_set('mbstring.http_output', 'pass');
 
-/**/	if ('uni'   !== strtolower(mb_language()) && 'neutral' !== strtolower(mb_language()))
+/**/	if (!in_array(strtolower(mb_language()), array('uni', 'neutral')))
 			mb_language('uni')              + @ini_set('mbstring.language', 'uni');
 /**/}
 /**/else
