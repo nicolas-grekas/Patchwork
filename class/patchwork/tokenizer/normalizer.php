@@ -92,6 +92,6 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 	protected function tagHaltCompiler(&$token)
 	{
 		$this->unregister(array(__FUNCTION__ => T_HALT_COMPILER));
-		return $this->tokensUnshift(';', array(T_ENDPHP, ''));
+		return $this->tokensUnshift($token, ';', array(T_ENDPHP, ''));
 	}
 }
