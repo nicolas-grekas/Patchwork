@@ -57,6 +57,7 @@ class patchwork_tokenizer
 		T_WHITESPACE  => T_WHITESPACE,
 		T_COMMENT     => T_COMMENT,
 		T_DOC_COMMENT => T_DOC_COMMENT,
+		// T_COMPILER_HALTED is also a sugar token
 	);
 
 	private static $tokenNames = array();
@@ -219,6 +220,9 @@ class patchwork_tokenizer
 				else if ('}' === $t[0] && !$curly) $t[0] = T_CURLY_CLOSE;
 			}
 
+			if (isset($halt) && 0 === $halt)        // After T_HALT_COMPILER, set the type
+				$sugar = $t[0] = T_COMPILER_HALTED; // of data tokens to T_COMPILER_HALTED
+
 			// Trigger callbacks
 
 			if (isset($tkReg[$t[0]]) || ($caReg && !$sugar))
@@ -286,7 +290,8 @@ class patchwork_tokenizer
 
 			// Parsing context analysis related to string interpolation and __halt_compiler()
 
-			if (isset($lastType[0])) switch ($lastType)
+			if (isset($halt)) --$halt;
+			else if (isset($lastType[0])) switch ($lastType)
 			{
 			case '{': ++$curly; break;
 			case '}': --$curly; break;
@@ -311,30 +316,7 @@ class patchwork_tokenizer
 			case T_CURLY_CLOSE:   $curly = array_pop($curlyPool);
 			case T_END_HEREDOC:   --$inString; break;
 
-			case T_HALT_COMPILER:
-				$sugar = 2;
-				$curly = $i;
-
-				// Skip 3 tokens: "(", ")" then ";" or T_CLOSE_TAG
-				do while (isset($tokens[$i], self::$sugar[$tokens[$i][0]])) ++$i;
-				while ($sugar-- > 0 && ++$i);
-
-				$sugar = $i + 1;
-				$curlyPool = array();
-
-				// Everything after is merged into one T_COMPILER_HALTED
-				while (isset($tokens[++$i]))
-				{
-					$curlyPool[] = isset($tokens[$i][1]) ? $tokens[$i][1] : $tokens[$i];
-					unset($tokens[$i]);
-				}
-
-				$curlyPool && $tokens[$sugar] = array(T_COMPILER_HALTED, implode('', $curlyPool));
-
-				$i = $curly;
-				$curly = 0;
-				$curlyPool = array();
-				break;
+			case T_HALT_COMPILER: $halt = 3; break; // Skip 3 tokens: "(", ")" then ";" or T_CLOSE_TAG
 			}
 		}
 
