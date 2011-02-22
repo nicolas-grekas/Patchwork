@@ -473,11 +473,11 @@ class ob
 				$len = strlen($s);
 				$e = $s . $s;
 
-				for ($i = 0, $j = 0; $i < $len; ++$i, ++$j)
+				for ($i = 0, $j = 0; $i < $len; ++$i, ++$j) switch (true)
 				{
-					if ($s[$i] < "\x80") $e[$j] = $s[$i];
-					else if ($s[$i] < "\xc0") {$e[$j] = "\xc2"; $e[++$j] = $s[$i];}
-					else {$e[$j] = "\xc3"; $e[++$j] = chr(ord($s[$i]) - 64);}
+				case $s[$i] < "\x80": $e[$j] = $s[$i]; break;
+				case $s[$i] < "\xc0": $e[$j] = "\xc2"; $e[++$j] = $s[$i]; break;
+				default:              $e[$j] = "\xc3"; $e[++$j] = chr(ord($s[$i]) - 64); break;
 				}
 
 				return substr($e, 0, $j);
