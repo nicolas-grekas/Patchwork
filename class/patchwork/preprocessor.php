@@ -20,7 +20,6 @@ class patchwork_preprocessor__0
 	$constants = array(
 		'DEBUG', 'IS_WINDOWS', 'PATCHWORK_ZCACHE', 'PATCHWORK_PATH_TOKEN',
 		'PATCHWORK_PATH_LEVEL', 'PATCHWORK_PATH_OFFSET', 'PATCHWORK_PROJECT_PATH',
-		'E_DEPRECATED', 'E_USER_DEPRECATED', 'E_RECOVERABLE_ERROR',
 	);
 
 
@@ -30,17 +29,17 @@ class patchwork_preprocessor__0
 	$recursivePool = array(),
 	$tokenizers    = array(
 		'normalizer'         => true,
-		'backport53'         => '5.3.0',
+		'backport53'         => 50300,
 		'classAutoname'      => true,
 		'stringInfo'         => true,
 		'namespaceInfo'      => true,
 		'scoper'             => true,
 		'constFuncDisabler'  => true,
 		'constFuncResolver'  => true,
-		'namespaceResolver'  => '5.3.0',
+		'namespaceResolver'  => 50300,
 		'constantInliner'    => true,
 		'classInfo'          => true,
-		'namespaceRemover'   => '5.3.0',
+		'namespaceRemover'   => 50300,
 		'constantExpression' => true,
 		'superPositioner'    => true,
 		'constructorStatic'  => true,
@@ -70,7 +69,7 @@ class patchwork_preprocessor__0
 
 		foreach (self::$tokenizers as $k => $v)
 		{
-			is_string($v) && $v = self::$tokenizers[$k] = 0 > version_compare(PHP_VERSION, $v);
+			$v > 1 && $v = self::$tokenizers[$k] = PHP_VERSION_ID < $v;
 			$v && class_exists('patchwork_tokenizer_' . $k, true);
 		}
 	}

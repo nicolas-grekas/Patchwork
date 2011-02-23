@@ -47,7 +47,7 @@ $CONFIG = array();
 
 function patchwork_include($file) {return include $file;}
 
-/**/if (version_compare(PHP_VERSION, '5.3.0') < 0)
+/**/if (PHP_VERSION_ID < 50300)
 /**/{
 /**/	/*<*/patchwork_bootstrapper::alias('class_implements',        'patchwork_alias_class::class_implements',        array('$class', '$autoload' => true))/*>*/;
 /**/	/*<*/patchwork_bootstrapper::alias('class_parents',           'patchwork_alias_class::class_parents',           array('$class', '$autoload' => true))/*>*/;
