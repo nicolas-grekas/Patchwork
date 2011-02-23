@@ -43,7 +43,9 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 	{
 		$this->unregister(array(__FUNCTION__ => T_SCOPE_OPEN));
 		$T = $this->tag;
-		$token[1] .= "if(!isset(\$a{$T})){global \$a{$T},\$b{$T},\$c{$T};}isset(\$e{$T})||\$e{$T}=false;";
+		$token[1] .= "if(!isset(\$a{$T})){global \$a{$T},\$b{$T},\$c{$T};}isset(\$e{$T})||\$e{$T}=";
+		// Add some tokens for tokenizer/staticState
+		$this->tokensUnshift(';', array(T_COMMENT, '/*>*/'), array(T_WHITESPACE, "\$e{$T}=false"), array(T_COMMENT, '/*<*/'));
 	}
 
 	protected function tagAutoloader(&$token)
