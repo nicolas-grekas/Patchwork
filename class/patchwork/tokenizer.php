@@ -392,7 +392,10 @@ class patchwork_tokenizer
 
 	protected function tokensUnshift()
 	{
-		foreach (func_get_args() as $token)
+		$token = func_get_args();
+		isset($token[1]) && $token = array_reverse($token);
+
+		foreach ($token as $token)
 			$this->tokens[--$this->index] = $token;
 
 		return false;

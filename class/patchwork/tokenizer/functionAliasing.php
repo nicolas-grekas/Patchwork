@@ -232,9 +232,9 @@ class patchwork_tokenizer_functionAliasing extends patchwork_tokenizer
 			else if (empty($this->class->nsName) || strcasecmp($a[0], $this->class->nsName))
 			{
 				$this->tokensUnshift(
-					array(T_STRING, $a[1]),
+					array(T_STRING, $a[0]),
 					array(T_DOUBLE_COLON, '::'),
-					array(T_STRING, $a[0])
+					array(T_STRING, $a[1])
 				);
 
 				$a = $this->namespace && $this->tokensUnshift(array(T_NS_SEPARATOR, '\\'));

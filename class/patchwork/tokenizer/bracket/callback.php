@@ -73,9 +73,9 @@ class patchwork_tokenizer_bracket_callback extends patchwork_tokenizer_bracket
 					{
 						$t = ')';
 						$this->tokensUnshift(
-							array(T_CONSTANT_ENCAPSED_STRING, "'{$a[1]}'"), ',',
-							array(T_CONSTANT_ENCAPSED_STRING, "'{$a[0]}'"), '(',
-							array(T_ARRAY, 'array')
+							array(T_ARRAY, 'array'), '(',
+							array(T_CONSTANT_ENCAPSED_STRING, "'{$a[0]}'"), ',',
+							array(T_CONSTANT_ENCAPSED_STRING, "'{$a[1]}'")
 						);
 					}
 				}

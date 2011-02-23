@@ -164,9 +164,8 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 		else
 		{
 			$this->tokensUnshift(
-				'(',
-				array(T_STRING, 'patchworkProcessedPath'),
-				$this->namespace ? array(T_NS_SEPARATOR, '\\') : array(T_WHITESPACE, ' ')
+				$this->namespace ? array(T_NS_SEPARATOR, '\\') : array(T_WHITESPACE, ' '),
+				array(T_STRING, 'patchworkProcessedPath'), '('
 			);
 
 			new patchwork_tokenizer_closeBracket($this);
