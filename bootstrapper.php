@@ -30,7 +30,7 @@ case file_exists((PATCHWORK_BOOTPATH ? PATCHWORK_BOOTPATH : '.') . '/.patchwork.
 	return require (PATCHWORK_BOOTPATH ? PATCHWORK_BOOTPATH : '.') . '/.patchwork.php';
 case isset($_GET['p:']) && 'exit' === $_GET['p:']:
 	die('Exit requested');
-case !function_exists('version_compare') || version_compare(phpversion(), '5.1.4', '<'):
+case !function_exists('version_compare') || version_compare(phpversion(), '5.1.4') < 0:
 	die("PHP 5.1.4 or higher is required.");
 }
 

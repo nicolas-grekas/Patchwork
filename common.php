@@ -14,9 +14,6 @@
 
 /**** Pre-configuration stage 0 ****/
 
-
-/*<*/PHP_VERSION/*>*/;
-
 define('patchwork', microtime(true));
 error_reporting(E_ALL | E_STRICT);
 setlocale(LC_ALL, 'C');
@@ -29,6 +26,26 @@ define('IS_POSTING', 'POST' === $_SERVER['REQUEST_METHOD']);
 
 $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 
+/**/if (!defined('PHP_VERSION_ID'))
+/**/{
+/**/	$a = explode('-', PHP_VERSION, 2);
+/**/	define('PHP_EXTRA_VERSION',   /*<*/isset($a[1]) ? $a[1] : ''/*>*/);
+/**/	$a = explode('.', $a[0]);
+/**/	define('PHP_VERSION_ID',      /*<*/(10000 * $a[0] + 100 * $a[1] + $a[2])/*>*/);
+/**/	define('PHP_MAJOR_VERSION',   /*<*/(int) $a[0]/*>*/);
+/**/	define('PHP_MINOR_VERSION',   /*<*/(int) $a[1]/*>*/);
+/**/	define('PHP_RELEASE_VERSION', /*<*/(int) $a[2]/*>*/);
+
+		if (!defined('PHP_VERSION_ID'))
+		{
+			define('PHP_EXTRA_VERSION',   /*<*/PHP_EXTRA_VERSION  /*>*/);
+			define('PHP_VERSION_ID',      /*<*/PHP_VERSION_ID     /*>*/);
+			define('PHP_MAJOR_VERSION',   /*<*/PHP_MAJOR_VERSION  /*>*/);
+			define('PHP_MINOR_VERSION',   /*<*/PHP_MINOR_VERSION  /*>*/);
+			define('PHP_RELEASE_VERSION', /*<*/PHP_RELEASE_VERSION/*>*/);
+		}
+/**/}
+
 
 // basic aliasing
 
@@ -40,7 +57,7 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 
 /**/ /*<*/patchwork_bootstrapper::alias('html_entity_decode', 'html_entity_decode', array('$s', '$style' => ENT_COMPAT, '$charset' => 'UTF-8'))/*>*/;
 
-/**/if (version_compare(PHP_VERSION, '5.2.3') < 0)
+/**/if (PHP_VERSION_ID < 50203)
 /**/{
 /**/	/*<*/patchwork_bootstrapper::alias('htmlspecialchars', 'patchwork_alias_strings::htmlspecialchars', array('$s', '$style' => ENT_COMPAT, '$charset' => 'UTF-8', '$double_enc' => true))/*>*/;
 /**/	/*<*/patchwork_bootstrapper::alias('htmlentities',     'patchwork_alias_strings::htmlentities',     array('$s', '$style' => ENT_COMPAT, '$charset' => 'UTF-8', '$double_enc' => true))/*>*/;
@@ -50,6 +67,11 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 /**/	// No alias for htmlspecialchars() because ISO-8859-1 and UTF-8 are both compatible with ASCII, where the HTML_SPECIALCHARS table lies
 /**/	/*<*/patchwork_bootstrapper::alias('htmlentities', 'htmlentities', array('$s', '$style' => ENT_COMPAT, '$charset' => 'UTF-8', '$double_enc' => true))/*>*/;
 /**/}
+
+
+// Fix 5.2.9 array_unique default sort flag
+/**/if (PHP_VERSION_ID == 50209)
+/**/ /*<*/patchwork_bootstrapper::alias('array_unique', 'array_unique', array('$array', '$sort_flags' => SORT_STRING))/*>*/;
 
 
 // mbstring configuration
@@ -605,7 +627,7 @@ function patchwork_http_socket($host, $port, $ssl, $timeout = 30)
 /**/}
 
 
-/**/if ('\\' === DIRECTORY_SEPARATOR && version_compare(PHP_VERSION, '5.2', '<'))
+/**/if ('\\' === DIRECTORY_SEPARATOR && PHP_VERSION_ID < 50200)
 /**/{
 /**/	/*<*/patchwork_bootstrapper::alias('mkdir', 'patchwork_mkdir', array('$pathname', '$mode' => 0777, '$recursive' => false, '$context' => INF))/*>*/;
 

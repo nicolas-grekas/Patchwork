@@ -41,7 +41,7 @@ isset($CONFIG['umask']) && umask($CONFIG['umask']);
 
 /**/if (IS_WINDOWS && !function_exists('__patchwork_realpath'))
 /**/{
-		if (/*<*/version_compare(PHP_VERSION, '5.2', '<')/*>*/ || DEBUG)
+		if (/*<*/PHP_VERSION_ID < 50200/*>*/ || DEBUG)
 		{
 /**/		/*<*/patchwork_bootstrapper::alias('file_exists',   'patchwork_file_exists',   array('$file'))/*>*/;
 /**/		/*<*/patchwork_bootstrapper::alias('is_file',       'patchwork_is_file',       array('$file'))/*>*/;

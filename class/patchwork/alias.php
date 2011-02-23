@@ -29,15 +29,15 @@ class patchwork_alias
 				return '__patchwork_' . strtr($c, '\\', '_');
 			}
 
-/**/		if (version_compare(PHP_VERSION, '5.3.0') < 0)
+/**/		if (PHP_VERSION_ID < 50300)
 				$c = strtr($c, '\\', '_');
 
-/**/		if (version_compare(PHP_VERSION, '5.2.3') < 0)
+/**/		if (PHP_VERSION_ID < 50203)
 				strpos($c, '::') && $c = explode('::', $c, 2);
 		}
 		else
 		{
-/**/		if (version_compare(PHP_VERSION, '5.3.0') < 0)
+/**/		if (PHP_VERSION_ID < 50300)
 /**/		{
 				if (is_array($c) && isset($c[0]) && is_string($c[0]))
 					$c[0] = strtr($c[0], '\\', '_');
@@ -50,7 +50,7 @@ class patchwork_alias
 	static function scopedResolve($c, &$v)
 	{
 		$v = self::resolve($c);
-/**/	if (version_compare(PHP_VERSION, '5.2.3') < 0)
+/**/	if (PHP_VERSION_ID < 50203)
 			is_array($v) && is_string($c) && $v = implode('', $v);
 		return "\x9D";
 	}

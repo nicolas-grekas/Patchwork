@@ -33,7 +33,7 @@ class patchwork_tokenizer_backport53 extends patchwork_tokenizer
 
 	protected function getTokens($code)
 	{
-		if (false !== strpos($code, '\\') && 0 > version_compare(PHP_VERSION, '5.3.0'))
+		if (false !== strpos($code, '\\') && version_compare(PHP_VERSION, '5.3.0') < 0)
 		{
 			while (false !== strpos($code, '~' . $this->tag)) $this->tag = $this->tag[0] . mt_rand();
 
@@ -44,7 +44,7 @@ class patchwork_tokenizer_backport53 extends patchwork_tokenizer
 				'fixNsSep' => array(T_COMMENT, T_DOC_COMMENT, T_CONSTANT_ENCAPSED_STRING, T_INLINE_HTML, T_COMPILER_HALTED),
 			));
 
-			$this->register(array(0 > version_compare(PHP_VERSION, '5.2.3') ? 'fixNsSep522' : 'fixNsSep' => T_ENCAPSED_AND_WHITESPACE));
+			$this->register(array(version_compare(PHP_VERSION, '5.2.3') < 0 ? 'fixNsSep522' : 'fixNsSep' => T_ENCAPSED_AND_WHITESPACE));
 		}
 
 		return parent::getTokens($code);
