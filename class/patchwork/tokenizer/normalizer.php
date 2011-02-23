@@ -67,8 +67,8 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 		$this->tagOpenTag($token);
 
 		return $this->tokensUnshift(
-			array(T_ECHO, 'echo'),
-			array(T_OPEN_TAG, $token[1])
+			array(T_OPEN_TAG, $token[1]),
+			array(T_ECHO, 'echo')
 		);
 	}
 
@@ -92,6 +92,6 @@ class patchwork_tokenizer_normalizer extends patchwork_tokenizer
 	protected function tagHaltCompiler(&$token)
 	{
 		$this->unregister(array(__FUNCTION__ => T_HALT_COMPILER));
-		return $this->tokensUnshift($token, ';', array(T_ENDPHP, ''));
+		return $this->tokensUnshift(array(T_ENDPHP, ''), ';', $token);
 	}
 }

@@ -47,7 +47,7 @@ class patchwork_tokenizer_constFuncResolver extends patchwork_tokenizer
 
 	protected function resolveConstFunc(&$token, $exists)
 	{
-		$this->tokensUnshift($token, '\\');
+		$this->tokensUnshift('\\', $token);
 
 		if (  !$exists($token[1])
 			|| $exists($this->namespace . $token[1])

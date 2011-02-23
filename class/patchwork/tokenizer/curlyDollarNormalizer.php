@@ -35,7 +35,7 @@ class patchwork_tokenizer_curlyDollarNormalizer extends patchwork_tokenizer
 		else
 		{
 			$t[$i] = array(T_CONSTANT_ENCAPSED_STRING, "'{$t[$i][1]}'");
-			$this->tokensUnshift('{', '$');
+			$this->tokensUnshift('$', '{');
 
 			$this->curlyPool || $this->register($this->callbacks = array(
 				'incCurly' => '{',
