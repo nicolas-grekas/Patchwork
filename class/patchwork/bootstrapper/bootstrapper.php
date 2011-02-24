@@ -367,6 +367,8 @@ class patchwork_bootstrapper_bootstrapper__0
 
 	protected function loadConfig(&$slice, $name)
 	{
+		ob_flush();
+
 		do
 		{
 			$file = each($slice);
