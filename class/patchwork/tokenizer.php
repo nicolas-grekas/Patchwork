@@ -425,7 +425,8 @@ class patchwork_tokenizer
 		case true  === $a: return 'true';
 		case false === $a: return 'false';
 		case null  === $a: return 'null';
-		case INF   === $a: return 'INF';
+		case  INF  === $a: return  'INF';
+		case -INF  === $a: return '-INF';
 		case NAN   === $a: return 'NAN';
 
 		case is_string($a):
