@@ -37,19 +37,19 @@ xxtea = {
 
 		while ($q-- > 0)
 		{
-			$sum = $sum + $delta & 0xffffffff;
+			$sum = $sum + $delta & 0xFFFFFFFF;
 			$e = $sum >>> 2 & 3;
 
 			for ($p = 0; $p < $n; ++$p)
 			{
 				$y = $v[$p + 1];
 				$mx = ($z >>> 5 ^ $y << 2) + ($y >>> 3 ^ $z << 4) ^ ($sum ^ $y) + ($k[$p & 3 ^ $e] ^ $z);
-				$z = $v[$p] = $v[$p] + $mx & 0xffffffff;
+				$z = $v[$p] = $v[$p] + $mx & 0xFFFFFFFF;
 			}
 
 			$y = $v[0];
 			$mx = ($z >>> 5 ^ $y << 2) + ($y >>> 3 ^ $z << 4) ^ ($sum ^ $y) + ($k[$p & 3 ^ $e] ^ $z);
-			$z = $v[$p] = $v[$p] + $mx & 0xffffffff;
+			$z = $v[$p] = $v[$p] + $mx & 0xFFFFFFFF;
 		}
 
 		return xxtea.$long2str($v, 0);
@@ -71,7 +71,7 @@ xxtea = {
 
 			$mx, $e, $p,
 			$q = Math.floor(6 + 52 / ($n + 1)),
-			$sum = $q * $delta & 0xffffffff;
+			$sum = $q * $delta & 0xFFFFFFFF;
 
 		while ($sum != 0)
 		{
@@ -81,14 +81,14 @@ xxtea = {
 			{
 				$z = $v[$p - 1];
 				$mx = ($z >>> 5 ^ $y << 2) + ($y >>> 3 ^ $z << 4) ^ ($sum ^ $y) + ($k[$p & 3 ^ $e] ^ $z);
-				$y = $v[$p] = $v[$p] - $mx & 0xffffffff;
+				$y = $v[$p] = $v[$p] - $mx & 0xFFFFFFFF;
 			}
 
 			$z = $v[$n];
 			$mx = ($z >>> 5 ^ $y << 2) + ($y >>> 3 ^ $z << 4) ^ ($sum ^ $y) + ($k[$p & 3 ^ $e] ^ $z);
-			$y = $v[$p] = $v[$p] - $mx & 0xffffffff;
+			$y = $v[$p] = $v[$p] - $mx & 0xFFFFFFFF;
 
-			$sum = $sum - $delta & 0xffffffff;
+			$sum = $sum - $delta & 0xFFFFFFFF;
 		}
 
 		$str = xxtea.$long2str($v, 1);
@@ -99,14 +99,14 @@ xxtea = {
 	$long2str: function($v, $w)
 	{
 		var $vl = $v.length,
-			$sl = $v[$vl - 1] & 0xffffffff,
+			$sl = $v[$vl - 1] & 0xFFFFFFFF,
 			$i = 0;
 
 		for (; $i < $vl; ++$i) $v[$i] = String.fromCharCode(
-			$v[$i] & 0xff,
-			$v[$i] >>> 8 & 0xff,
-			$v[$i] >>> 16 & 0xff,
-			$v[$i] >>> 24 & 0xff
+			$v[$i] & 0xFF,
+			$v[$i] >>> 8 & 0xFF,
+			$v[$i] >>> 16 & 0xFF,
+			$v[$i] >>> 24 & 0xFF
 		);
 
 		$v = $v.join('');

@@ -22,7 +22,7 @@ ACCENT_RX = [];
 $i = ACCENT.length;
 while ($i--) ACCENT_RX[$i] = new RegExp('['+ACCENT[$i]+']', 'g');
 
-ACCENT_ALPHANUM = '0-9a-zA-Z\xcc\xa8\xcc\xb1ÆǼǢæǽǣßŒœʤʣʥﬀﬃﬄﬁﬂƕƢƣﬆﬅʨʦƻ' + ACCENT.join('');
+ACCENT_ALPHANUM = '0-9a-zA-Z\xCC\xA8\xCC\xB1ÆǼǢæǽǣßŒœʤʣʥﬀﬃﬄﬁﬂƕƢƣﬆﬅʨʦƻ' + ACCENT.join('');
 
 RegExp.quote = function($str, $accent)
 {

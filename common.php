@@ -495,8 +495,8 @@ class ob
 				for ($i = 0, $j = 0; $i < $len; ++$i, ++$j) switch (true)
 				{
 				case $s[$i] < "\x80": $e[$j] = $s[$i]; break;
-				case $s[$i] < "\xc0": $e[$j] = "\xc2"; $e[++$j] = $s[$i]; break;
-				default:              $e[$j] = "\xc3"; $e[++$j] = chr(ord($s[$i]) - 64); break;
+				case $s[$i] < "\xC0": $e[$j] = "\xC2"; $e[++$j] = $s[$i]; break;
+				default:              $e[$j] = "\xC3"; $e[++$j] = chr(ord($s[$i]) - 64); break;
 				}
 
 				return substr($e, 0, $j);
@@ -512,16 +512,16 @@ class ob
 
 			for ($i = 0, $j = 0; $i < $len; ++$i, ++$j)
 			{
-				switch ($s[$i] & "\xf0")
+				switch ($s[$i] & "\xF0")
 				{
-				case "\xc0":
-				case "\xd0":
-					$c = (ord($s[$i] & "\x1f") << 6) | ord($s[++$i] & "\x3f");
+				case "\xC0":
+				case "\xD0":
+					$c = (ord($s[$i] & "\x1F") << 6) | ord($s[++$i] & "\x3F");
 					$s[$j] = $c < 256 ? chr($c) : '?';
 					break;
 
-				case "\xf0": ++$i;
-				case "\xe0":
+				case "\xF0": ++$i;
+				case "\xE0":
 					$s[$j] = '?';
 					$i += 2;
 					break;
@@ -541,18 +541,18 @@ class ob
 /**/ /*<*/patchwork_bootstrapper::alias('utf8_decode', 'patchwork_utf8_decode', array('$s'))/*>*/;
 
 /**/$a = array(
-/**/	"\x80 \x82 \x83 \x84 \x85 \x86 \x87 \x88 \x89 \x8a \x8b \x8c \x8e \x91 \x92 \x93 \x94 \x95 \x96 \x97 \x98 \x99 \x9a \x9b \x9c \x9e \x9f",
+/**/	"\x80 \x82 \x83 \x84 \x85 \x86 \x87 \x88 \x89 \x8A \x8B \x8C \x8E \x91 \x92 \x93 \x94 \x95 \x96 \x97 \x98 \x99 \x9A \x9B \x9C \x9E \x9F",
 /**/	 '€    ‚    ƒ    „    …    †    ‡    ˆ    ‰    Š    ‹    Œ    Ž    ‘    ’    “    ”    •    –    —    ˜    ™    š    ›    œ    ž    Ÿ'
 /**/);
 /**/
-/**/$a[0] = explode('-', "\xc2" . str_replace(' ', "-\xc2", $a[0]));
+/**/$a[0] = explode('-', "\xC2" . str_replace(' ', "-\xC2", $a[0]));
 /**/$a[1] = explode('    ', $a[1]);
 
 function patchwork_utf8_encode($s)
 {
 	$s = utf8_encode($s);
 
-	if (false !== strpos($s, "\xc2"))
+	if (false !== strpos($s, "\xC2"))
 	{
 		static $map = /*<*/$a/*>*/;
 

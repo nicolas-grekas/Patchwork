@@ -75,7 +75,7 @@ class patchwork_static extends patchwork
 
 	static function sendPipe($pipe)
 	{
-		preg_match_all('/[a-zA-Z_0-9\x80-\xff]+/', $pipe, $pipe);
+		preg_match_all('/[a-zA-Z_0-9\x80-\xFF]+/', $pipe, $pipe);
 		p::$agentClass = 'agent__pipe/' . implode('_', $pipe[0]);
 
 		echo '(function(w){';

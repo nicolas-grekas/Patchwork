@@ -108,7 +108,7 @@ class patchwork_bootstrapper_preprocessor__0
 				$args[1][] = $k;
 			}
 
-			$v = '[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*';
+			$v = '[a-zA-Z_\x7F-\xFF][a-zA-Z0-9_\x7F-\xFF]*';
 			$v = "'^(?:(?:(?: *\\\\ *)?{$v})+(?:&| +&?)|&?) *(\\\${$v})$'D";
 
 			if (!preg_match($v, $k, $v))

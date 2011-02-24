@@ -131,7 +131,7 @@ class pForm extends loop_agentWrapper
 		if (!isset($param['default']) && isset($this->defaults[$name])) $param['default'] = $this->defaults[$name];
 
 		$fullname = $this->agentPrefix . $name . $this->eltnameSuffix;
-		$type = 'pForm_' . preg_replace('"[^a-zA-Z0-9\x80-\xff]+"', '_', $type);
+		$type = 'pForm_' . preg_replace('"[^a-zA-Z0-9\x80-\xFF]+"', '_', $type);
 		$elt = $this->elt[$fullname] = new $type($this, $fullname, $param, $this->sessionLink);
 
 		if ($autoPopulate && $this->agentData)

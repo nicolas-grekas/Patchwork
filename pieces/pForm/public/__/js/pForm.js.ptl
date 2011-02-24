@@ -55,7 +55,7 @@ valid_char = function($value, $args)
 
 valid_text = function($value, $args)
 {
-	$value = $value.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]+/g, '');
+	$value = $value.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/g, '');
 
 	if ($args[0])
 	{
