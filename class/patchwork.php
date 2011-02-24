@@ -986,7 +986,10 @@ class patchwork
 
 		if ($log)
 		{
-			$mem = memory_get_usage(true) / 1048576;
+/**/		if (function_exists('memory_get_usage'))
+				$mem = memory_get_usage(true);
+/**/		else
+				$mem = 0;
 
 			if (DEBUG && $is_end)
 			{
