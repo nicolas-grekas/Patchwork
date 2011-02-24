@@ -1030,7 +1030,7 @@ class patchwork
 		{
 			$agent = preg_replace("'/[./]*(?:/|$)'", '/', '/' . $agent . '/');
 
-			preg_match('"^((?:/[- !#$%&\'()+,.;=@[\]^_`{}~a-zA-Z0-9\x80-\xff]+)*)(?<!\.(?i)ptl)/"', $agent, $a);
+			preg_match('"^((?:/[- !#$%&\'()+,.;=@[\]^_`{}~a-zA-Z0-9\x80-\xFF]+)*)(?<!\.(?i)ptl)/"', $agent, $a);
 
 			$param = (string) substr($agent, strlen($a[0]), -1);
 			$agent = (string) substr($a[1], 1);

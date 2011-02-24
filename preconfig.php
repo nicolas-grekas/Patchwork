@@ -328,7 +328,7 @@ function url_enc_utf8_dec_callback($m) {return urlencode(patchwork_utf8_encode(u
 
 if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 {
-	$a = $a !== patchwork_utf8_decode($a) ? '/' : preg_replace_callback('/(?:%[89a-f][0-9a-f])+/i', 'url_enc_utf8_dec_callback', $a);
+	$a = $a !== patchwork_utf8_decode($a) ? '/' : preg_replace_callback('/(?:%[89A-F][0-9A-F])+/i', 'url_enc_utf8_dec_callback', $a);
 
 	patchwork_bad_request('Requested URL is not a valid urlencoded UTF-8 string.', $a);
 }
@@ -367,7 +367,7 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 /**/					else
 /**/					{
 							# From http://www.w3.org/International/questions/qa-forms-utf-8
-							preg_match_all(/*<*/"/(?:[\\x00-\x7f]|[\xc2-\xdf][\x80-\xbf]|\xe0[\xa0-\xbf][\x80-\xbf]|[\xe1-\xec\xee\xef][\x80-\xbf]{2}|\xed[\x80-\x9f][\x80-\xbf]|\xf0[\x90-\xbf][\x80-\xbf]{2}|[\xf1-\xf3][\x80-\xbf]{3}|\xf4[\x80-\x8f][\x80-\xbf]{2}){1,50}/"/*>*/, $v, $b);
+							preg_match_all("/(?:[\\x00-\x7F]|[\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][\x80-\xBF]|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}|\xED[\x80-\x9F][\x80-\xBF]|\xF0[\x90-\xBF][\x80-\xBF]{2}|[\xF1-\xF3][\x80-\xBF]{3}|\xF4[\x80-\x8F][\x80-\xBF]{2}){1,50}/", $v, $b);
 							$v = implode('', $b[0]);
 /**/					}
 /**/				}

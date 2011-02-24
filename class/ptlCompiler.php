@@ -25,7 +25,7 @@ abstract class ptlCompiler
 	$Xcomment = '\\{\*.*?\*\\}\n?',
 
 	$Xvar = '(?:(?:[dag][-+]\d+|\\$*|[dag])?\\$)',
-	$XpureVar = '[a-zA-Z_\x80-\xffffffff][a-zA-Z_\d\x80-\xffffffff]*',
+	$XpureVar = '[a-zA-Z_\x80-\xFFFFFFFF][a-zA-Z_\d\x80-\xFFFFFFFF]*',
 
 	$Xblock = '[A-Z]+\b',
 	$XblockBegin = 'BEGIN:',
@@ -183,7 +183,7 @@ abstract class ptlCompiler
 		unset($this->loadedStack[$template]);
 		$this->loadedStack[$template] = $path_idx;
 
-		$a = '[-_a-zA-Z\d\x80-\xffffffff][-_a-zA-Z\d\x80-\xffffffff\.]*';
+		$a = '[-_a-zA-Z\d\x80-\xFFFFFFFF][-_a-zA-Z\d\x80-\xFFFFFFFF\.]*';
 		false !== strpos($source, 'INLINE') && $source = preg_replace_callback(
 			"'{$this->Xlblock}INLINE\s+($a(?:[\\/]$a)*)(:-?\d+)?\s*{$this->Xrblock}'su",
 			array($this, 'INLINEcallback'),
@@ -472,7 +472,7 @@ abstract class ptlCompiler
 					$testCode
 				);
 				$testCode = preg_replace(
-					array('/<<+/', '/>>+/', '/[a-zA-Z_0-9\xf7-\xff]\(/'),
+					array('/<<+/', '/>>+/', '/[a-zA-Z_0-9\xF7-\xFF]\(/'),
 					array(';'    , ';'    , ';'),
 					$testCode
 				);

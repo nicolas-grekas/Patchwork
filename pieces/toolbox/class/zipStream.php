@@ -82,12 +82,12 @@ class zipStream
 			. pack('v', $nlen) // length of filename
 			. pack('v', 0);    // extra field length
 
-		echo "\x50\x4b\x03\x04", $h, $n, $data;
+		echo "\x50\x4B\x03\x04", $h, $n, $data;
 
 		$dlen = $this->dataLen;
 		$this->dataLen += 4 + strlen($h) + $nlen + $zlen;
 
-		$this->cdr[] = "\x50\x4b\x01\x02"
+		$this->cdr[] = "\x50\x4B\x01\x02"
 			. "\x00\x00"       // version made by
 			. $h
 			. pack('v', 0)     // comment length
@@ -124,7 +124,7 @@ class zipStream
 			unset($this->cdr[$i]);
 		}
 
-		echo "\x50\x4b\x05\x06\x00\x00\x00\x00",
+		echo "\x50\x4B\x05\x06\x00\x00\x00\x00",
 			pack('v', $cdrCount),      // total # of entries "on this disk"
 			pack('v', $cdrCount),      // total # of entries overall
 			pack('V', $cdrLen),        // size of central dir
