@@ -18,11 +18,10 @@
 // To keep the global namespace clean, we use only static methods instead of any variable.
 // Be aware that the use of static properties would throw a PHP 4.0 parse error.
 
-// Only while bootstrapping
-@ini_set('display_errors', true);
-
-error_reporting(E_ALL | E_STRICT);
+defined('patchwork') || define('patchwork', microtime(true));
 defined('PATCHWORK_BOOTPATH') || define('PATCHWORK_BOOTPATH', '.');
+@ini_set('display_errors', true);
+error_reporting(E_ALL | E_NOTICE);
 
 switch (true)
 {
@@ -35,6 +34,7 @@ case !function_exists('version_compare') || version_compare(phpversion(), '5.1.4
 }
 
 setlocale(LC_ALL, 'C');
+error_reporting(E_ALL | E_NOTICE | E_STRICT);
 
 function_exists('mb_internal_encoding')
 	&& !in_array(strtolower(mb_internal_encoding()), array('pass', '8bit', 'utf-8'))

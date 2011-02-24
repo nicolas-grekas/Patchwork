@@ -14,12 +14,9 @@
 
 /**** Pre-configuration stage 0 ****/
 
-define('patchwork', microtime(true));
-error_reporting(E_ALL | E_STRICT);
+defined('patchwork') || define('patchwork', microtime(true));
+error_reporting(E_ALL | E_NOTICE | E_STRICT);
 setlocale(LC_ALL, 'C');
-
-// Only while bootstrapping
-@ini_set('display_errors', true);
 
 define('IS_WINDOWS', /*<*/'\\' === DIRECTORY_SEPARATOR/*>*/);
 define('IS_POSTING', 'POST' === $_SERVER['REQUEST_METHOD']);
@@ -28,13 +25,13 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 
 /**/if (!defined('PHP_VERSION_ID'))
 /**/{
-/**/	$a = explode('-', PHP_VERSION, 2);
-/**/	define('PHP_EXTRA_VERSION',   /*<*/isset($a[1]) ? $a[1] : ''/*>*/);
-/**/	$a = explode('.', $a[0]);
-/**/	define('PHP_VERSION_ID',      /*<*/(10000 * $a[0] + 100 * $a[1] + $a[2])/*>*/);
-/**/	define('PHP_MAJOR_VERSION',   /*<*/(int) $a[0]/*>*/);
-/**/	define('PHP_MINOR_VERSION',   /*<*/(int) $a[1]/*>*/);
-/**/	define('PHP_RELEASE_VERSION', /*<*/(int) $a[2]/*>*/);
+/**/	$a = array_map('intval', explode('.', PHP_VERSION, 3));
+/**/	define('PHP_VERSION_ID',      (10000 * $a[0] + 100 * $a[1] + $a[2]));
+/**/	define('PHP_MAJOR_VERSION',   $a[0]);
+/**/	define('PHP_MINOR_VERSION',   $a[1]);
+/**/	define('PHP_RELEASE_VERSION', $a[2]);
+/**/	$a = substr(PHP_VERSION, strlen(implode('.', $a)));
+/**/	define('PHP_EXTRA_VERSION', false !== $a ? $a : '');
 
 		if (!defined('PHP_VERSION_ID'))
 		{
@@ -47,7 +44,7 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 /**/}
 
 
-// basic aliasing
+// Basic aliasing
 
 /**/ /*<*/patchwork_bootstrapper::alias('rand',       'mt_rand',       array('$min' => 0, '$max' => mt_getrandmax()))/*>*/;
 /**/ /*<*/patchwork_bootstrapper::alias('getrandmax', 'mt_getrandmax', array())/*>*/;
