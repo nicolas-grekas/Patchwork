@@ -419,10 +419,22 @@ class patchwork_tokenizer
 	{
 		switch (true)
 		{
-		case is_float($a):
-			$b = sprintf('%.14F', $a);
-			$a = sprintf('%.17F', $a);
-			return rtrim((float) $b === (float) $a ? $b : $a, '.0');
+		case true  === $a: return 'true';
+		case false === $a: return 'false';
+		case null  === $a: return 'null';
+		case INF   === $a: return 'INF';
+		case NAN   === $a: return 'NAN';
+
+		case is_string($a):
+			return $a === strtr($a, "\r\n\0", '---')
+				? ("'" . str_replace(
+						array(  '\\',   "'"),
+						array('\\\\', "\\'"), $a
+					) . "'")
+				: ('"' . str_replace(
+						array(  "\\",   '"',   '$',  "\r",  "\n",  "\0"),
+						array('\\\\', '\\"', '\\$', '\\r', '\\n', '\\0'), $a
+					) . '"');
 
 		case is_array($a):
 			$i = 0;
@@ -446,22 +458,11 @@ class patchwork_tokenizer
 		case is_object($a):
 			return 'unserialize(' . self::export(serialize($a)) . ')';
 
-		case is_string($a):
-			return $a === strtr($a, "\r\n\0", '---')
-				? ("'" . str_replace(
-						array(  '\\',   "'"),
-						array('\\\\', "\\'"), $a
-					) . "'")
-				: ('"' . str_replace(
-						array(  "\\",   '"',   '$',  "\r",  "\n",  "\0"),
-						array('\\\\', '\\"', '\\$', '\\r', '\\n', '\\0'), $a
-					) . '"');
+		case is_float($a):
+			$b = sprintf('%.14F', $a);
+			$a = sprintf('%.17F', $a);
+			return rtrim((float) $b === (float) $a ? $b : $a, '.0');
 
-		case true  === $a: return 'true';
-		case false === $a: return 'false';
-		case null  === $a: return 'null';
-		case INF   === $a: return 'INF';
-		case NAN   === $a: return 'NAN';
 		default:           return (string) $a;
 		}
 	}
