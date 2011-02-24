@@ -316,7 +316,10 @@ class patchwork_tokenizer
 			case T_CURLY_CLOSE:   $curly = array_pop($curlyPool);
 			case T_END_HEREDOC:   --$inString; break;
 
-			case T_HALT_COMPILER: $halt = 3; break; // Skip 3 tokens: "(", ")" then ";" or T_CLOSE_TAG
+			case T_HALT_COMPILER:
+				$halt = 3; // Skip 3 tokens: "(", ")" then ";" or T_CLOSE_TAG
+				$this->setError("Binary data after __halt_compiler() may be corrupted (see http://bugs.php.net/54089)", E_USER_WARNING);
+				break;
 			}
 		}
 
