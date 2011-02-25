@@ -17,7 +17,6 @@ defined('T_GOTO')         || patchwork_tokenizer::createToken('T_GOTO');
 defined('T_DIR' )         || patchwork_tokenizer::createToken('T_DIR');
 defined('T_NS_C')         || patchwork_tokenizer::createToken('T_NS_C');
 defined('T_NAMESPACE')    || patchwork_tokenizer::createToken('T_NAMESPACE');
-defined('T_NS_SEPARATOR') || patchwork_tokenizer::createToken('T_NS_SEPARATOR');
 
 
 class patchwork_tokenizer_backport53 extends patchwork_tokenizer
@@ -30,25 +29,6 @@ class patchwork_tokenizer_backport53 extends patchwork_tokenizer
 		'tagNew'    => T_NEW,
 	);
 
-
-	protected function getTokens($code)
-	{
-		if (false !== strpos($code, '\\') && version_compare(PHP_VERSION, '5.3.0') < 0)
-		{
-			while (false !== strpos($code, '~' . $this->tag)) $this->tag = $this->tag[0] . mt_rand();
-
-			$code = preg_replace("/([^\\\\])(\\\\[^\\\\$'\"])/", "$1~{$this->tag}$2", $code);
-
-			$this->register(array(
-				'tagNsSep' => '~',
-				'fixNsSep' => array(T_COMMENT, T_DOC_COMMENT, T_CONSTANT_ENCAPSED_STRING, T_INLINE_HTML, T_COMPILER_HALTED),
-			));
-
-			$this->register(array(version_compare(PHP_VERSION, '5.2.3') < 0 ? 'fixNsSep522' : 'fixNsSep' => T_ENCAPSED_AND_WHITESPACE));
-		}
-
-		return parent::getTokens($code);
-	}
 
 	protected function tagString(&$token)
 	{
@@ -63,6 +43,7 @@ class patchwork_tokenizer_backport53 extends patchwork_tokenizer
 
 	protected function tagNew(&$token)
 	{
+		// Fix `new $foo`, when $foo = 'ns\class';
 		// TODO: new ${...}, new $foo[...] and new $foo->...
 
 		$t =& $this->getNextToken();
@@ -76,37 +57,5 @@ class patchwork_tokenizer_backport53 extends patchwork_tokenizer
 				$t[1] = "\${is_string($\x9D={$t[1]})&&($\x9D=strtr($\x9D,'\\\\','_'))?\"\x9D\":\"\x9D\"}";
 			}
 		}
-	}
-
-	protected function tagNsSep(&$token)
-	{
-		$t =& $this->tokens;
-		$i =& $this->index;
-
-		if (!isset($t[$i][1]) || $this->tag !== $t[$i][1]) return;
-
-		$t[$i] = array(T_NS_SEPARATOR, '\\');
-
-		return false;
-	}
-
-	protected function fixNsSep(&$token)
-	{
-		$token[1] = str_replace("~{$this->tag}\\", '\\', $token[1]);
-	}
-
-	protected function fixNsSep522(&$token)
-	{
-		if ('~' !== substr($token[1], -1)) return;
-
-		$t =& $this->tokens;
-		$i =& $this->index;
-
-		if (!isset($t[$i][1], $t[$i+1][1][0]) || $this->tag !== $t[$i][1] || '\\' !== $t[$i+1][1][0]) return;
-
-		if ('~' === $token[1]) unset($t[$i++]);
-		else $t[$i] = array(T_ENCAPSED_AND_WHITESPACE, substr($token[1], 0, -1));
-
-		return false;
 	}
 }

@@ -11,12 +11,14 @@
  *
  ***************************************************************************/
 
-// We want tokenizers to be able to trigger E_USER_DEPRECATED even in PHP < 5.3
+// We want tokenizers E_USER_DEPRECATED and T_NS_SEPARATOR even in PHP < 5.3
 defined('E_USER_DEPRECATED') || define('E_USER_DEPRECATED', 16384);
+defined('T_NS_SEPARATOR')    || patchwork_tokenizer::createToken('T_NS_SEPARATOR');
 
 patchwork_tokenizer::createToken('T_CURLY_CLOSE');     // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
 patchwork_tokenizer::createToken('T_COMPILER_HALTED'); // Data after T_HALT_COMPILER
 patchwork_tokenizer::createToken('T_KEY_STRING');      // Array access in interpolated string
+patchwork_tokenizer::createToken('T_UNEXPECTED');      // Unexpected character in input
 
 
 class patchwork_tokenizer
@@ -148,7 +150,47 @@ class patchwork_tokenizer
 	{
 		// Return token_get_all() after recursively traversing the inheritance chain defined by $this->parent
 
-		return $this->parent !== $this ? $this->parent->getTokens($code) : @token_get_all($code);
+		if ($this->parent !== $this) return $this->parent->getTokens($code);
+
+		// As token_get_all() is not binary safe, check for unexpected characters (see http://bugs.php.net/54089)
+
+		if (!$bin = version_compare(PHP_VERSION, '5.3.0') < 0 && strpos($code, '\\'))
+		{
+			for ($i = 0; $i < 32; ++$i)
+				if ($i !== 0x09 && $i !== 0x0A && $i !== 0x0D && strpos($code, chr($i)))
+					break $bin = true;
+		}
+
+		if (!$bin) return token_get_all($code);
+
+		if (function_exists('mb_internal_encoding'))
+		{
+			// Workaround mbstring overloading
+			$bin = @mb_internal_encoding();
+			@mb_internal_encoding('8bit');
+		}
+
+		$t0     = @token_get_all($code);
+		$t1     = array($t0[0]);
+		$offset = strlen($t0[0][1]);
+		$i      = 0;
+
+		while (isset($t0[++$i]))
+		{
+			$t = isset($t0[$i][1]) ? $t0[$i][1] : $t0[$i];
+			$l = strlen($t);
+
+			while (0 !== substr_compare($code, $t, $offset, $l))
+				$t1[] = array('\\' === $code[$offset] ? T_NS_SEPARATOR : T_UNEXPECTED, $code[$offset++]);
+
+			$t1[] = $t0[$i];
+			$offset += $l;
+			unset($t0[$i]);
+		}
+
+		function_exists('mb_internal_encoding') && mb_internal_encoding($bin);
+
+		return $t1;
 	}
 
 	protected function parseTokens()
@@ -316,10 +358,7 @@ class patchwork_tokenizer
 			case T_CURLY_CLOSE:   $curly = array_pop($curlyPool);
 			case T_END_HEREDOC:   --$inString; break;
 
-			case T_HALT_COMPILER:
-				$halt = 3; // Skip 3 tokens: "(", ")" then ";" or T_CLOSE_TAG
-				$this->setError("Binary data after __halt_compiler() may be corrupted (see http://bugs.php.net/54089)", E_USER_WARNING);
-				break;
+			case T_HALT_COMPILER: $halt = 3; break; // Skip 3 tokens: "(", ")" then ";" or T_CLOSE_TAG
 			}
 		}
 
