@@ -11,13 +11,10 @@
  *
  ***************************************************************************/
 
-// We want tokenizers to be able to use E_USER_DEPRECATED even in PHP < 5.3
-defined('E_USER_DEPRECATED') || define('E_USER_DEPRECATED', 16384);
-
 patchwork_tokenizer::createToken('T_CURLY_CLOSE');     // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
-patchwork_tokenizer::createToken('T_COMPILER_HALTED'); // Data after T_HALT_COMPILER
 patchwork_tokenizer::createToken('T_KEY_STRING');      // Array access in interpolated string
 patchwork_tokenizer::createToken('T_UNEXPECTED');      // Unexpected character in input
+patchwork_tokenizer::createToken('T_COMPILER_HALTED'); // Data after T_HALT_COMPILER
 
 
 class patchwork_tokenizer
