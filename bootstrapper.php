@@ -21,7 +21,7 @@
 defined('patchwork') || define('patchwork', microtime(true));
 defined('PATCHWORK_BOOTPATH') || define('PATCHWORK_BOOTPATH', '.');
 @ini_set('display_errors', true);
-error_reporting(E_ALL | E_NOTICE);
+error_reporting(E_ALL);
 
 switch (true)
 {
@@ -34,7 +34,7 @@ case !function_exists('version_compare') || version_compare(phpversion(), '5.1.4
 }
 
 setlocale(LC_ALL, 'C');
-error_reporting(E_ALL | E_NOTICE | E_STRICT);
+error_reporting(E_ALL | E_STRICT);
 
 function_exists('mb_internal_encoding')
 	&& !in_array(strtolower(mb_internal_encoding()), array('pass', '8bit', 'utf-8'))
