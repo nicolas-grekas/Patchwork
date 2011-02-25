@@ -17,15 +17,15 @@ defined('T_GOTO')         || patchwork_tokenizer::createToken('T_GOTO');
 defined('T_DIR' )         || patchwork_tokenizer::createToken('T_DIR');
 defined('T_NS_C')         || patchwork_tokenizer::createToken('T_NS_C');
 defined('T_NAMESPACE')    || patchwork_tokenizer::createToken('T_NAMESPACE');
+defined('T_NS_SEPARATOR') || patchwork_tokenizer::createToken('T_NS_SEPARATOR');
 
 
 class patchwork_tokenizer_backport53 extends patchwork_tokenizer
 {
 	protected
 
-	$tag = "\x7F",
 	$callbacks = array(
-		'tagString' => T_STRING,
+		'tagString' => array(T_STRING, T_UNEXPECTED),
 		'tagNew'    => T_NEW,
 	);
 
@@ -34,10 +34,11 @@ class patchwork_tokenizer_backport53 extends patchwork_tokenizer
 	{
 		switch ($token[1])
 		{
-		case 'goto':          return $this->tokensUnshift(array(T_GOTO,      $token[1]));
-		case 'namespace':     return $this->tokensUnshift(array(T_NAMESPACE, $token[1]));
-		case '__DIR__':       return $this->tokensUnshift(array(T_DIR,       $token[1]));
-		case '__NAMESPACE__': return $this->tokensUnshift(array(T_NS_C,      $token[1]));
+		case '\\':            return $this->tokensUnshift(array(T_NS_SEPARATOR, $token[1]));
+		case 'goto':          return $this->tokensUnshift(array(T_GOTO,         $token[1]));
+		case 'namespace':     return $this->tokensUnshift(array(T_NAMESPACE,    $token[1]));
+		case '__DIR__':       return $this->tokensUnshift(array(T_DIR,          $token[1]));
+		case '__NAMESPACE__': return $this->tokensUnshift(array(T_NS_C,         $token[1]));
 		}
 	}
 

@@ -11,9 +11,8 @@
  *
  ***************************************************************************/
 
-// We want tokenizers E_USER_DEPRECATED and T_NS_SEPARATOR even in PHP < 5.3
+// We want tokenizers to be able to use E_USER_DEPRECATED even in PHP < 5.3
 defined('E_USER_DEPRECATED') || define('E_USER_DEPRECATED', 16384);
-defined('T_NS_SEPARATOR')    || patchwork_tokenizer::createToken('T_NS_SEPARATOR');
 
 patchwork_tokenizer::createToken('T_CURLY_CLOSE');     // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
 patchwork_tokenizer::createToken('T_COMPILER_HALTED'); // Data after T_HALT_COMPILER
@@ -181,7 +180,7 @@ class patchwork_tokenizer
 			$l = strlen($t);
 
 			while (0 !== substr_compare($code, $t, $offset, $l))
-				$t1[] = array('\\' === $code[$offset] ? T_NS_SEPARATOR : T_UNEXPECTED, $code[$offset++]);
+				$t1[] = array(T_UNEXPECTED, $code[$offset++]);
 
 			$t1[] = $t0[$i];
 			$offset += $l;
@@ -461,6 +460,7 @@ class patchwork_tokenizer
 	{
 		switch (true)
 		{
+		default:           return (string) $a;
 		case true  === $a: return 'true';
 		case false === $a: return 'false';
 		case null  === $a: return 'null';
@@ -505,8 +505,6 @@ class patchwork_tokenizer
 			$b = sprintf('%.14F', $a);
 			$a = sprintf('%.17F', $a);
 			return rtrim((float) $b === (float) $a ? $b : $a, '.0');
-
-		default:           return (string) $a;
 		}
 	}
 }
