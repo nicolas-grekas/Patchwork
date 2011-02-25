@@ -99,13 +99,8 @@ class patchwork_tokenizer_bracket_callback extends patchwork_tokenizer_bracket
 				else if (')' === $t[$i][0] && --$b <= 0)
 				{
 					++$i;
-					while (isset($t[$i], self::$sugar[$t[$i][0]])) ++$i;
-
-					if ($b < 0 || !isset($t[$i]) || ',' === $t[$i][0] || ')' === $t[$i][0])
-					{
-						return;
-					}
-
+					$this->getNextToken(0, $i);
+					if ($b < 0 || ',' === $t[$i][0] || ')' === $t[$i][0]) return;
 					break;
 				}
 			}
