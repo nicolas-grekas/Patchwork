@@ -53,11 +53,11 @@ class patchwork_tokenizer_bracket_callback extends patchwork_tokenizer_bracket
 
 	protected function addLead(&$token)
 	{
-		$t =& $this->getNextToken();
+		$t =& $this->getNextToken($a);
 
 		if (T_CONSTANT_ENCAPSED_STRING === $t[0])
 		{
-			$a = $this->getNextToken(1);
+			$a = $this->getNextToken($a);
 
 			if (',' === $a[0] || ')' === $a[0])
 			{
@@ -89,18 +89,18 @@ class patchwork_tokenizer_bracket_callback extends patchwork_tokenizer_bracket
 		}
 		else if (T_ARRAY === $t[0])
 		{
-			$i = $this->index;
+			$a = $this->index;
 			$t =& $this->tokens;
 			$b = 0;
 
-			while (isset($t[++$i]))
+			while (isset($t[$a])) switch ($t[$a++][0])
 			{
-				if ('(' === $t[$i][0]) ++$b;
-				else if (')' === $t[$i][0] && --$b <= 0)
+			case '(': ++$b; break;
+			case ')':
+				if (0 >= --$b)
 				{
-					++$i;
-					$this->getNextToken(0, $i);
-					if ($b < 0 || ',' === $t[$i][0] || ')' === $t[$i][0]) return;
+					$c = $this->getNextToken($a);
+					if (0 > $b || ',' === $c[0] || ')' === $c[0]) return;
 					break;
 				}
 			}
