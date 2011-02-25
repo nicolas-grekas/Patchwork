@@ -15,7 +15,7 @@
 /**** Pre-configuration stage 0 ****/
 
 defined('patchwork') || define('patchwork', microtime(true));
-error_reporting(E_ALL | E_NOTICE | E_STRICT);
+error_reporting(E_ALL | E_STRICT);
 setlocale(LC_ALL, 'C');
 
 define('IS_WINDOWS', /*<*/'\\' === DIRECTORY_SEPARATOR/*>*/);
