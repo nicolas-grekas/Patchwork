@@ -52,15 +52,6 @@ class patchwork_tokenizer
 	$registryIndex = 0;
 
 
-	protected static
-
-	$sugar = array(
-		T_WHITESPACE  => T_WHITESPACE,
-		T_COMMENT     => T_COMMENT,
-		T_DOC_COMMENT => T_DOC_COMMENT,
-		// T_COMPILER_HALTED is also a sugar token
-	);
-
 	private static $tokenNames = array();
 
 
@@ -173,6 +164,7 @@ class patchwork_tokenizer
 		$t1     = array($t0[0]);
 		$offset = strlen($t0[0][1]);
 		$i      = 0;
+		$code .= ' '; // Workaround http://bugs.php.net/37394
 
 		while (isset($t0[++$i]))
 		{
@@ -241,9 +233,11 @@ class patchwork_tokenizer
 				}
 				else switch ($t[0])
 				{
-				case T_WHITESPACE:
+				case T_WHITESPACE: // Here are all "sugar tokens"
 				case T_COMMENT:
-				case T_DOC_COMMENT: $sugar = 1;
+				case T_DOC_COMMENT:
+				case T_UNEXPECTED:
+				case T_COMPILER_HALTED: $sugar = 1;
 				}
 			}
 			else
@@ -419,11 +413,13 @@ class patchwork_tokenizer
 		}
 	}
 
-	protected function &getNextToken($skip = 0)
+	protected function &getNextToken($skip = 0, &$i = null)
 	{
-		$i = $this->index;
+		null === $i && $i = $this->index;
 
-		do while (isset($this->tokens[$i], self::$sugar[$this->tokens[$i][0]])) ++$i;
+		static $sugar = array(T_WHITESPACE => 1, T_COMMENT => 1, T_DOC_COMMENT => 1, T_UNEXPECTED => 1, T_COMPILER_HALTED => 1);
+
+		do while (isset($this->tokens[$i], $sugar[$this->tokens[$i][0]])) ++$i;
 		while ($skip-- > 0 && ++$i);
 
 		isset($this->tokens[$i]) || $this->tokens[$i] = array(T_WHITESPACE, '');
