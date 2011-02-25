@@ -22,24 +22,27 @@ defined('T_NS_SEPARATOR') || patchwork_tokenizer::createToken('T_NS_SEPARATOR');
 
 class patchwork_tokenizer_backport53 extends patchwork_tokenizer
 {
-	protected
-
-	$callbacks = array(
-		'tagString' => array(T_STRING, T_UNEXPECTED),
-		'tagNew'    => T_NEW,
-	);
+	protected $callbacks = array('tagNew' => T_NEW);
 
 
-	protected function tagString(&$token)
+	protected function getTokens($code)
 	{
-		switch ($token[1])
+		$code = parent::getTokens($code);
+		$i = 0;
+
+		while (isset($code[++$i]))
 		{
-		case '\\':            return $this->tokensUnshift(array(T_NS_SEPARATOR, $token[1]));
-		case 'goto':          return $this->tokensUnshift(array(T_GOTO,         $token[1]));
-		case 'namespace':     return $this->tokensUnshift(array(T_NAMESPACE,    $token[1]));
-		case '__DIR__':       return $this->tokensUnshift(array(T_DIR,          $token[1]));
-		case '__NAMESPACE__': return $this->tokensUnshift(array(T_NS_C,         $token[1]));
+			if (isset($code[$i][1])) switch ($code[$i][1])
+			{
+			case 'goto':          $code[$i][0] = T_GOTO;      break;
+			case 'namespace':     $code[$i][0] = T_NAMESPACE; break;
+			case '__DIR__':       $code[$i][0] = T_DIR;       break;
+			case '__NAMESPACE__': $code[$i][0] = T_NS_C;      break;
+			}
+			else if ('\\' === $code[$i]) $code[$i] = array(T_NS_SEPARATOR, '\\'); break;
 		}
+
+		return $code;
 	}
 
 	protected function tagNew(&$token)

@@ -29,7 +29,7 @@ class patchwork_preprocessor__0
 	$recursivePool = array(),
 	$tokenizers    = array(
 		'normalizer'         => true,
-		'backport53'         => 50300,
+		'backport53'         => 50300, // Load this only _before_ 5.3.0
 		'classAutoname'      => true,
 		'stringInfo'         => true,
 		'namespaceInfo'      => true,
