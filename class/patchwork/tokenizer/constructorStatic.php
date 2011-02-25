@@ -40,8 +40,8 @@ class patchwork_tokenizer_constructorStatic extends patchwork_tokenizer
 	{
 		if (T_CLASS === $this->scope->type)
 		{
-			$t = $this->getNextToken();
-			if ('&' === $t[0]) $t = $this->getNextToken(1);
+			$t = $this->getNextToken($i);
+			if ('&' === $t[0]) $t = $this->getNextToken($i);
 
 			if (T_STRING === $t[0]) switch (strtolower($t[1]))
 			{

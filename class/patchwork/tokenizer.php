@@ -413,18 +413,15 @@ class patchwork_tokenizer
 		}
 	}
 
-	protected function &getNextToken($skip = 0, &$i = null)
+	protected function &getNextToken(&$i = null)
 	{
-		null === $i && $i = $this->index;
-
 		static $sugar = array(T_WHITESPACE => 1, T_COMMENT => 1, T_DOC_COMMENT => 1, T_UNEXPECTED => 1, T_COMPILER_HALTED => 1);
 
-		do while (isset($this->tokens[$i], $sugar[$this->tokens[$i][0]])) ++$i;
-		while ($skip-- > 0 && ++$i);
-
+		null === $i && $i = $this->index;
+		while (isset($this->tokens[$i], $sugar[$this->tokens[$i][0]])) ++$i;
 		isset($this->tokens[$i]) || $this->tokens[$i] = array(T_WHITESPACE, '');
 
-		return $this->tokens[$i];
+		return $this->tokens[$i++];
 	}
 
 	protected function tokensUnshift()
