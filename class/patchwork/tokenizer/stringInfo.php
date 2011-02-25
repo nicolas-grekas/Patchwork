@@ -50,7 +50,6 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 		'tagNs'       => T_NAMESPACE,
 		'tagUse'      => T_USE,
 		'tagNsSep'    => T_NS_SEPARATOR,
-		'tagNsSep52'  => '\\',
 	);
 
 
@@ -83,14 +82,6 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 	protected function tagString(&$token)
 	{
 		if (T_NS_SEPARATOR !== $p = $this->lastType) $this->nsPrefix = '';
-
-		switch ($token[1])
-		{
-		case 'goto':          return $this->tokensUnshift(array(T_GOTO,      $token[1]));
-		case '__DIR__':       return $this->tokensUnshift(array(T_DIR,       $token[1]));
-		case '__NAMESPACE__': return $this->tokensUnshift(array(T_NS_C,      $token[1]));
-		case 'namespace':     return $this->tokensUnshift(array(T_NAMESPACE, $token[1]));
-		}
 
 		switch (strtolower($token[1]))
 		{
@@ -276,10 +267,5 @@ class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
 			$this->nsPrefix  = '\\';
 			$this->preNsType = $this->lastType;
 		}
-	}
-
-	protected function tagNsSep52(&$token)
-	{
-		return $this->tokensUnshift(array(T_NS_SEPARATOR, '\\'));
 	}
 }
