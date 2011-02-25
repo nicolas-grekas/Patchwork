@@ -27,4 +27,11 @@ class patchwork_alias_strings
 			? htmlentities($s, $style, $charset)
 			: htmlentities(html_entity_decode($s, $style, $charset), $quote_style, $charset);
 	}
+
+	static function substr_compare($main_str, $str, $offset, $length = INF, $case_insensitivity = false)
+	{
+		if (INF === $length) return substr_compare($main_str, $str, $offset);
+		$main_str = substr($main_str, $offset, $length);
+		return $case_insensitivity ? strcasecmp($main_str, $str) : strcmp($main_str, $str);
+	}
 }

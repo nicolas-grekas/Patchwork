@@ -68,7 +68,11 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 
 // Fix 5.2.9 array_unique default sort flag
 /**/if (PHP_VERSION_ID == 50209)
-/**/ /*<*/patchwork_bootstrapper::alias('array_unique', 'array_unique', array('$array', '$sort_flags' => SORT_STRING))/*>*/;
+/**/	/*<*/patchwork_bootstrapper::alias('array_unique', 'array_unique', array('$array', '$sort_flags' => SORT_STRING))/*>*/;
+
+// Workaround http://bugs.php.net/37394
+/**/if (PHP_VERSION_ID < 50200)
+/**/	/*<*/patchwork_bootstrapper::alias('substr_compare', 'patchwork_alias_strings::substr_compare', array('$main_str', '$str', '$offset', '$length' => INF, '$case_insensitivity' => false))/*>*/;
 
 
 // mbstring configuration
