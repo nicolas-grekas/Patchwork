@@ -47,11 +47,11 @@ class patchwork_tokenizer_backport53 extends patchwork_tokenizer
 		// Fix `new $foo`, when $foo = 'ns\class';
 		// TODO: new ${...}, new $foo[...] and new $foo->...
 
-		$t =& $this->getNextToken();
+		$t =& $this->getNextToken($n);
 
 		if (T_VARIABLE === $t[0])
 		{
-			$n = $this->getNextToken(1);
+			$n = $this->getNextToken($n);
 
 			if ('[' !== $n[0] && T_OBJECT_OPERATOR !== $n[0])
 			{
