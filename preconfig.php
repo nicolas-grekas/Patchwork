@@ -283,64 +283,6 @@ class ob
 /**/}
 
 
-// utf8_encode/decode support
-
-/**/if (!function_exists('utf8_encode'))
-/**/{
-/**/	if (extension_loaded('iconv') && '§' === @iconv('ISO-8859-1', 'UTF-8', "\xA7"))
-/**/	{
-			function utf8_encode($s) {return iconv('ISO-8859-1', 'UTF-8', $s);}
-/**/	}
-/**/	else
-/**/	{
-			function utf8_encode($s)
-			{
-				$len = strlen($s);
-				$e = $s . $s;
-
-				for ($i = 0, $j = 0; $i < $len; ++$i, ++$j) switch (true)
-				{
-				case $s[$i] < "\x80": $e[$j] = $s[$i]; break;
-				case $s[$i] < "\xC0": $e[$j] = "\xC2"; $e[++$j] = $s[$i]; break;
-				default:              $e[$j] = "\xC3"; $e[++$j] = chr(ord($s[$i]) - 64); break;
-				}
-
-				return substr($e, 0, $j);
-			}
-/**/	}
-/**/}
-
-/**/if (!function_exists('utf8_decode'))
-/**/{
-		function utf8_decode($s)
-		{
-			$len = strlen($s);
-
-			for ($i = 0, $j = 0; $i < $len; ++$i, ++$j)
-			{
-				switch ($s[$i] & "\xF0")
-				{
-				case "\xC0":
-				case "\xD0":
-					$c = (ord($s[$i] & "\x1F") << 6) | ord($s[++$i] & "\x3F");
-					$s[$j] = $c < 256 ? chr($c) : '?';
-					break;
-
-				case "\xF0": ++$i;
-				case "\xE0":
-					$s[$j] = '?';
-					$i += 2;
-					break;
-
-				default:
-					$s[$j] = $s[$i];
-				}
-			}
-
-			return substr($s, 0, $j);
-		}
-/**/}
-
 // utf8_encode/decode support enhanced to Windows-1252
 
 /**/ /*<*/patchwork_bootstrapper::alias('utf8_encode', 'patchwork_utf8_encode', array('$s'))/*>*/;
@@ -356,13 +298,32 @@ class ob
 
 function patchwork_utf8_encode($s)
 {
-	$s = utf8_encode($s);
+/**/if (function_exists('utf8_encode'))
+/**/{
+		$s = utf8_encode($s);
+/**/}
+/**/else if (extension_loaded('iconv') && '§' === @iconv('ISO-8859-1', 'UTF-8', "\xA7"))
+/**/{
+		$s = iconv('ISO-8859-1', 'UTF-8', $s);
+/**/}
+/**/else
+/**/{
+		$len = strlen($s);
+		$e = $s . $s;
+
+		for ($i = 0, $j = 0; $i < $len; ++$i, ++$j) switch (true)
+		{
+		case $s[$i] < "\x80": $e[$j] = $s[$i]; break;
+		case $s[$i] < "\xC0": $e[$j] = "\xC2"; $e[++$j] = $s[$i]; break;
+		default:              $e[$j] = "\xC3"; $e[++$j] = chr(ord($s[$i]) - 64); break;
+		}
+
+		$s = substr($e, 0, $j);
+/**/}
 
 	if (false !== strpos($s, "\xC2"))
 	{
-		static $map = /*<*/$a/*>*/;
-
-		$s = str_replace($map[0], $map[1], $s);
+		$s = str_replace(/*<*/$a[0]/*>*/, /*<*/$a[1]/*>*/, $s);
 	}
 
 	return $s;
@@ -370,9 +331,39 @@ function patchwork_utf8_encode($s)
 
 function patchwork_utf8_decode($s)
 {
-	static $map = /*<*/array($a[1], $a[0])/*>*/;
+	$s = str_replace(/*<*/$a[1]/*>*/, /*<*/$a[0]/*>*/, $s);
 
-	return utf8_decode(str_replace($map[0], $map[1], $s));
+/**/if (function_exists('utf8_decode'))
+/**/{
+		return utf8_decode($s);
+/**/}
+/**/else
+/**/{
+		$len = strlen($s);
+
+		for ($i = 0, $j = 0; $i < $len; ++$i, ++$j)
+		{
+			switch ($s[$i] & "\xF0")
+			{
+			case "\xC0":
+			case "\xD0":
+				$c = (ord($s[$i] & "\x1F") << 6) | ord($s[++$i] & "\x3F");
+				$s[$j] = $c < 256 ? chr($c) : '?';
+				break;
+
+			case "\xF0": ++$i;
+			case "\xE0":
+				$s[$j] = '?';
+				$i += 2;
+				break;
+
+			default:
+				$s[$j] = $s[$i];
+			}
+		}
+
+		return substr($s, 0, $j);
+/**/}
 }
 
 
@@ -561,9 +552,7 @@ function patchwork_class2file($class)
 /**/	$a = array(array(), explode('/', $a));
 /**/	foreach ($a[1] as $b) $a[0][] = '//x' . strtoupper(dechex(ord($b)));
 
-		static $map = /*<*/$a/*>*/;
-
-		$class = str_replace($map[0], $map[1], $class);
+		$class = str_replace(/*<*/$a[0]/*>*/, /*<*/$a[1]/*>*/, $class);
 	}
 
 	return $class;
@@ -575,8 +564,7 @@ function patchwork_file2class($file)
 /**/$a = array(explode('/', $a), array());
 /**/foreach ($a[0] as $b) $a[1][] = '__x' . strtoupper(dechex(ord($b)));
 
-	static $map = /*<*/$a/*>*/;
-	$file = str_replace($map[0], $map[1], $file);
+	$file = str_replace(/*<*/$a[0]/*>*/, /*<*/$a[1]/*>*/, $file);
 	$file = strtr($file, '/\\', '__');
 
 	return $file;
