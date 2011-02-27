@@ -91,7 +91,7 @@ class patchwork_bootstrapper
 		self::initialize($pwd . '-', PATCHWORK_PROJECT_PATH);
 
 		$db = self::updatedb();
-		$db = dba_popen(PATCHWORK_PROJECT_PATH . '.parentPaths.db', 'rd', $db);
+		$db = dba_popen(PATCHWORK_PROJECT_PATH . '.patchwork.paths.db', 'rd', $db);
 
 		if (!$db) exit;
 
