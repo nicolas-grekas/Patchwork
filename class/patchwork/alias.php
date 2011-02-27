@@ -25,9 +25,7 @@ class patchwork_alias
 			}
 
 			if (function_exists('__patchwork_' . strtr($c, '\\', '_')))
-			{
 				return '__patchwork_' . strtr($c, '\\', '_');
-			}
 
 /**/		if (PHP_VERSION_ID < 50300)
 				$c = strtr($c, '\\', '_');
