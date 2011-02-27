@@ -20,15 +20,15 @@ class patchwork_bootstrapper_updatedb__0
 		$populated = array();
 		$old_db_line = false;
 
-		if (file_exists($cwd . '.parentPaths.txt'))
+		if (file_exists($cwd . '.patchwork.paths.txt'))
 		{
-			@rename($cwd . '.parentPaths.txt', $cwd . '.parentPaths.old');
-			$old_db = @fopen($cwd . '.parentPaths.old', 'rb');
+			@rename($cwd . '.patchwork.paths.txt', $cwd . '.patchwork.paths.old');
+			$old_db = @fopen($cwd . '.patchwork.paths.old', 'rb');
 			$old_db && $old_db_line = fgets($old_db);
 		}
 		else $old_db = false;
 
-		$db = @fopen($cwd . '.parentPaths.txt', 'wb');
+		$db = @fopen($cwd . '.patchwork.paths.txt', 'wb');
 
 		$paths = array_flip($paths);
 		unset($paths[$cwd]);
@@ -40,12 +40,12 @@ class patchwork_bootstrapper_updatedb__0
 		}
 
 		$db && fclose($db);
-		$old_db && fclose($old_db) && @unlink($cwd . '.parentPaths.old');
+		$old_db && fclose($old_db) && @unlink($cwd . '.patchwork.paths.old');
 
 		if (IS_WINDOWS)
 		{
 			$h = new COM('Scripting.FileSystemObject');
-			$h->GetFile($cwd . '.parentPaths.txt')->Attributes |= 2; // Set hidden attribute
+			$h->GetFile($cwd . '.patchwork.paths.txt')->Attributes |= 2; // Set hidden attribute
 		}
 
 		$db = $h = false;
@@ -55,8 +55,8 @@ class patchwork_bootstrapper_updatedb__0
 			$h = array('cdb','db2','db3','db4','qdbm','gdbm','ndbm','dbm','flatfile','inifile');
 			$h = array_intersect($h, dba_handlers());
 			$h || $h = dba_handlers();
-			@unlink($cwd . '.parentPaths.db');
-			if ($h) foreach ($h as $db) if ($h = @dba_open($cwd . '.parentPaths.db', 'nd', $db, 0600)) break;
+			@unlink($cwd . '.patchwork.paths.db');
+			if ($h) foreach ($h as $db) if ($h = @dba_open($cwd . '.patchwork.paths.db', 'nd', $db, 0600)) break;
 		}
 
 		if ($h)
@@ -72,7 +72,7 @@ class patchwork_bootstrapper_updatedb__0
 			if (IS_WINDOWS)
 			{
 				$h = new COM('Scripting.FileSystemObject');
-				$h->GetFile($cwd . '.parentPaths.db')->Attributes |= 2; // Set hidden attribute
+				$h->GetFile($cwd . '.patchwork.paths.db')->Attributes |= 2; // Set hidden attribute
 			}
 		}
 		else

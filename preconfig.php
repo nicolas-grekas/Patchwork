@@ -574,7 +574,7 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 
 		if (!isset($db))
 		{
-			if (!$db = @dba_popen(/*<*/patchwork_bootstrapper::$cwd . '.parentPaths.db'/*>*/, 'rd', /*<*/$a/*>*/))
+			if (!$db = @dba_popen(/*<*/patchwork_bootstrapper::$cwd . '.patchwork.paths.db'/*>*/, 'rd', /*<*/$a/*>*/))
 			{
 				require_once /*<*/patchwork_bootstrapper::$pwd . 'class/patchwork/bootstrapper.php'/*>*/;
 
