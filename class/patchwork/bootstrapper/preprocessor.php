@@ -14,31 +14,15 @@
 
 class patchwork_bootstrapper_preprocessor__0
 {
-	public $file;
-
 	protected
 
-	$callerRx,
 	$alias = array(),
-	$t;
+	$tokenizer;
 
 
-	function ob_start($caller)
+	function staticPass1($file)
 	{
-		$this->callerRx = preg_quote($caller, '/');
-		ob_start(array($this, 'ob_eval'));
-	}
-
-	function ob_eval($buffer)
-	{
-		return '' !== $buffer
-			? preg_replace('/' . $this->callerRx . '\(\d+\) : eval\(\)\'d code/', $this->file, $buffer)
-			: '';
-	}
-
-	function staticPass1()
-	{
-		if ('' === $code = file_get_contents($this->file)) return '';
+		if ('' === $code = file_get_contents($file)) return '';
 
 		$t = new patchwork_tokenizer_normalizer;
 		$t = $this->tokenizer = new patchwork_tokenizer_staticState($t);
@@ -55,7 +39,7 @@ class patchwork_bootstrapper_preprocessor__0
 		if ($t = $t->getErrors())
 		{
 			$t = $t[0];
-			$t = addslashes("{$t[0]} in {$this->file}") . ($t[1] ? " on line {$t[1]}" : '');
+			$t = addslashes("{$t[0]} in {$file}") . ($t[1] ? " on line {$t[1]}" : '');
 
 			$code .= "die('Patchwork error: {$t}');";
 		}
@@ -129,12 +113,11 @@ class patchwork_bootstrapper_preprocessor__0
 		$inline = 2 === count($inline) ? mt_rand(1, mt_getrandmax()) . strtolower($inline[0]) : '';
 
 		// FIXME: when aliasing a user function, this will throw a can not redeclare fatal error!
-		// We need some help from the main preprocessor to rename aliased user functions.
-		// When done, this will mean that aliasing will be perfect for user function
-		// and almost perfect for internal functions: the only uncatchable case would
-		// be when using an internal caller (especially objects) with an internal callback.
-		// This also means that functions with callback could be untracked,
-		// at least when we are sure that an internal function will not be used as a callback.
+		// Some help is required from the main preprocessor to rename aliased user functions.
+		// When done, aliasing will be perfect for user functions. For internal functions,
+		// the only uncatchable case would be when using an internal caller (especially objects)
+		// with an internal callback. This also means that functions with callback could be left
+		// untracked, at least when we are sure that an internal function will not be used as a callback.
 
 		return $return_ref
 			? "function &{$function}({$args[1]}) {/*{$marker}:{$inline}*/\${''}=&{$alias}({$args[2]});return \${''}}"

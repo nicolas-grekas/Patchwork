@@ -23,7 +23,9 @@ class patchwork_bootstrapper_bootstrapper__0
 	$preprocessor,
 	$configCode = array(),
 	$fSlice, $rSlice,
-	$lock = null;
+	$lock = null,
+	$file,
+	$callerRx;
 
 
 	function __construct(&$cwd, &$token)
@@ -115,20 +117,27 @@ class patchwork_bootstrapper_bootstrapper__0
 
 	protected function initialize($caller)
 	{
-		ob_start(array($this, 'ob_handler'));
-
 		@set_time_limit(0);
 
-		$this->preprocessor = $this->getPreprocessor();
-		$this->preprocessor->ob_start($caller);
+		$this->callerRx = preg_quote($caller, '/');
+		ob_start(array($this, 'ob_lock'));
+		ob_start(array($this, 'ob_eval'));
 
 		$caller = array(dirname($caller) . '/');
 		$this->loadConfig($caller, 'common');
+		$this->preprocessor = $this->getPreprocessor();
 
-		$GLOBALS['patchwork_preprocessor_alias'] = array();
+		$this->alias = $GLOBALS['patchwork_preprocessor_alias'] = array();
 	}
 
-	function ob_handler($buffer)
+	function ob_eval($buffer)
+	{
+		return '' !== $buffer
+			? preg_replace("/{$this->callerRx}\(\d+\) : eval\(\)\'d code/", $this->file, $buffer)
+			: '';
+	}
+
+	function ob_lock($buffer)
 	{
 		if ('' !== $buffer)
 		{
@@ -203,7 +212,7 @@ class patchwork_bootstrapper_bootstrapper__0
 		{
 			echo $buffer;
 
-			$buffer = $this->getEchoError($this->preprocessor->file, 0, $buffer, 'during bootstrap');
+			$buffer = $this->getEchoError($this->file, 0, $buffer, 'during bootstrap');
 
 			die("\n<br><br>\n\n<small>&mdash; {$buffer}. Dying &mdash;</small>");
 		}
@@ -211,7 +220,7 @@ class patchwork_bootstrapper_bootstrapper__0
 
 	function preprocessorPass1()
 	{
-		return $this->preprocessor->staticPass1();
+		return $this->preprocessor->staticPass1($this->file);
 	}
 
 	function preprocessorPass2()
@@ -222,7 +231,7 @@ class patchwork_bootstrapper_bootstrapper__0
 
 		isset($GLOBALS['_patchwork_autoloaded']) || $this->token = md5($this->token . $code);
 
-		return $this->configCode[$this->preprocessor->file] = $code;
+		return $this->configCode[$this->file] = $code;
 	}
 
 	function getLinearizedInheritance($pwd)
@@ -245,9 +254,9 @@ class patchwork_bootstrapper_bootstrapper__0
 		{
 			if (file_exists($paths[$i] . 'zcache/'))
 			{
-				$found = $paths[$i] . 'zcache' . DIRECTORY_SEPARATOR;
+				$found = "{$paths[$i]}zcache" . DIRECTORY_SEPARATOR;
 
-				if (@touch($found . '.patchwork.writeTest')) @unlink($found . '.patchwork.writeTest');
+				if (@touch("{$found}.patchwork.writeTest")) @unlink("{$found}.patchwork.writeTest");
 				else $found = false;
 
 				break;
@@ -256,7 +265,7 @@ class patchwork_bootstrapper_bootstrapper__0
 
 		if (!$found)
 		{
-			$found = $paths[0] . 'zcache' . DIRECTORY_SEPARATOR;
+			$found = "{$paths[0]}zcache" . DIRECTORY_SEPARATOR;
 			file_exists($found) || mkdir($found);
 		}
 
@@ -282,7 +291,7 @@ class patchwork_bootstrapper_bootstrapper__0
 			$h = opendir($this->cwd);
 			while (false !== $a = readdir($h))
 			{
-				if ('.zcache.php' == substr($a, -11) && '.' == $a[0]) @unlink($this->cwd . $a);
+				if ('.zcache.php' === substr($a, -11) && '.' === $a[0]) @unlink($this->cwd . $a);
 			}
 			closedir($h);
 		}
@@ -317,7 +326,7 @@ class patchwork_bootstrapper_bootstrapper__0
 		{
 			if ('' === trim($what))
 			{
-				$what = $len > 1 ? $len . ' bytes of whitespace have' : 'One byte of whitespace has';
+				$what = $len > 1 ? "{$len} bytes of whitespace have" : 'One byte of whitespace has';
 			}
 			else if (0 === strncmp($what, "\xEF\xBB\xBF", 3))
 			{
@@ -325,7 +334,7 @@ class patchwork_bootstrapper_bootstrapper__0
 			}
 			else
 			{
-				$what = $len > 1 ? $len . ' bytes have' : 'One byte has';
+				$what = $len > 1 ? "{$len} bytes have" : 'One byte has';
 			}
 		}
 		else $what = 'Something has';
@@ -383,7 +392,7 @@ class patchwork_bootstrapper_bootstrapper__0
 		}
 		while (!file_exists($file));
 
-		$this->preprocessor->file = $file;
+		$this->file = $file;
 
 		return true;
 	}
