@@ -168,7 +168,7 @@ class patchwork_tokenizer
 			$t = isset($t0[$i][1]) ? $t0[$i][1] : $t0[$i];
 			$l = strlen($t);
 
-			while (0 !== substr_compare($code, $t, $offset, $l))
+			while (substr_compare($code, $t, $offset, $l))
 				$t1[] = array(T_UNEXPECTED, $code[$offset++]);
 
 			$t1[] = $t0[$i];
