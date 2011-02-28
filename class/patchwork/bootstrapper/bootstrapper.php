@@ -25,6 +25,7 @@ class patchwork_bootstrapper_bootstrapper__0
 	$fSlice, $rSlice,
 	$lock = null,
 	$file,
+	$alias,
 	$callerRx;
 
 
@@ -127,7 +128,8 @@ class patchwork_bootstrapper_bootstrapper__0
 		$this->loadConfig($caller, 'common');
 		$this->preprocessor = $this->getPreprocessor();
 
-		$this->alias = $GLOBALS['patchwork_preprocessor_alias'] = array();
+		$this->alias =& $GLOBALS['patchwork_preprocessor_alias'];
+		$this->alias = array();
 	}
 
 	function ob_eval($buffer)
@@ -159,15 +161,16 @@ class patchwork_bootstrapper_bootstrapper__0
 
 		if ('' === $buffer = ob_get_clean())
 		{
+			file_put_contents("{$this->cwd}.patchwork.alias.ser", serialize($this->alias));
+
 			$a = array(
-				"<?php \$patchwork_preprocessor_alias=array();",
-				"\$_patchwork_autoloaded=array();",
-				"\$c\x9D=&\$_patchwork_autoloaded;",
+				"<?php \$c\x9D=&\$_patchwork_autoloaded;",
+				"\$c\x9D=array();",
 				"\$d\x9D=1;",
 				"(\$e\x9D=\$b\x9D=\$a\x9D=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "')&&\$d\x9D&&0;",
 			);
 
-			foreach ($this->configCode as &$code)
+			foreach ($this->configCode as $code)
 			{
 				if (false !== strpos($code, "/*{$this->marker}:"))
 				{
@@ -178,7 +181,7 @@ class patchwork_bootstrapper_bootstrapper__0
 					);
 				}
 
-				$a[] =& $code;
+				$a[] = $code;
 			}
 
 			patchworkPath('class/patchwork.php', $level);
@@ -317,7 +320,67 @@ class patchwork_bootstrapper_bootstrapper__0
 
 	function alias($function, $alias, $args, $return_ref = false)
 	{
-		return $this->preprocessor->alias($function, $alias, $args, $return_ref, $this->marker);
+		if (function_exists($function))
+		{
+			$inline = $function == $alias ? -1 : 2;
+			$function = "__patchwork_{$function}";
+		}
+		else
+		{
+			$inline = 1;
+
+			if ($function == $alias)
+			{
+				return "die('Patchwork error: Circular aliasing of function {$function}() in ' . __FILE__ . ' on line ' . __LINE__);";
+			}
+		}
+
+		$args = array($args, array(), array());
+
+		foreach ($args[0] as $k => $v)
+		{
+			if (is_string($k))
+			{
+				$k = trim(strtr($k, "\n\r", '  '));
+				$args[1][] = $k . '=' . patchwork_tokenizer::export($v);
+				0 > $inline && $inline = 0;
+			}
+			else
+			{
+				$k = trim(strtr($v, "\n\r", '  '));
+				$args[1][] = $k;
+			}
+
+			$v = '[a-zA-Z_\x7F-\xFF][a-zA-Z0-9_\x7F-\xFF]*';
+			$v = "'^(?:(?:(?: *\\\\ *)?{$v})+(?:&| +&?)|&?) *(\\\${$v})$'D";
+
+			if (!preg_match($v, $k, $v))
+			{
+				1 !== $inline && $function = substr($function, 12);
+				return "die('Patchwork error: Invalid parameter for {$function}()\'s alias ({$alias}: {$k}) in ' . __FILE__);";
+			}
+
+			$args[2][] = $v[1];
+		}
+
+		$args[1] = implode(',', $args[1]);
+		$args[2] = implode(',', $args[2]);
+
+		$inline && $this->alias[1 !== $inline ? substr($function, 12) : $function] = $alias;
+
+		$inline = explode('::', $alias, 2);
+		$inline = 2 === count($inline) ? mt_rand(1, mt_getrandmax()) . strtolower($inline[0]) : '';
+
+		// FIXME: when aliasing a user function, this will throw a can not redeclare fatal error!
+		// Some help is required from the main preprocessor to rename aliased user functions.
+		// When done, aliasing will be perfect for user functions. For internal functions,
+		// the only uncatchable case would be when using an internal caller (especially objects)
+		// with an internal callback. This also means that functions with callback could be left
+		// untracked, at least when we are sure that an internal function will not be used as a callback.
+
+		return $return_ref
+			? "function &{$function}({$args[1]}) {/*{$this->marker}:{$inline}*/\${''}=&{$alias}({$args[2]});return \${''}}"
+			: "function  {$function}({$args[1]}) {/*{$this->marker}:{$inline}*/return {$alias}({$args[2]});}";
 	}
 
 	protected function getEchoError($file, $line, $what, $when)

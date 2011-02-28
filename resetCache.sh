@@ -13,9 +13,10 @@ do
 		fi
 
 		touch $I/config.patchwork.php
-		rm -f $I/.*.zcache.php       2> /dev/null
-		rm -f $I/.patchwork.paths.db 2> /dev/null
-		rm -f $I/.patchwork.lock     2> /dev/null
-		rm -f $I/.patchwork.php      2> /dev/null
+		rm -f $I/.*.zcache.php        2> /dev/null
+		rm -f $I/.patchwork.paths.db  2> /dev/null
+		rm -f $I/.patchwork.alias.ser 2> /dev/null
+		rm -f $I/.patchwork.lock      2> /dev/null
+		rm -f $I/.patchwork.php       2> /dev/null
 	fi
 done

@@ -25,6 +25,7 @@ class patchwork_preprocessor__0
 
 	protected static
 
+	$alias,
 	$declaredClass = array('p', 'patchwork'),
 	$recursivePool = array(),
 	$tokenizers    = array(
@@ -55,6 +56,9 @@ class patchwork_preprocessor__0
 
 	static function __constructStatic()
 	{
+		self::$alias =& $GLOBALS['patchwork_preprocessor_alias'];
+		null === self::$alias && self::$alias = unserialize(file_get_contents(PATCHWORK_PROJECT_PATH . ".patchwork.alias.ser"));
+
 		self::$scream = (defined('DEBUG') && DEBUG)
 			&& !empty($GLOBALS['CONFIG']['debug.scream'])
 				|| (defined('DEBUG_SCREAM') && DEBUG_SCREAM);
@@ -144,7 +148,7 @@ class patchwork_preprocessor__0
 			case 'constantInliner':   new $t($p, $source, self::$constants); break;
 			case 'namespaceRemover':  new $t($p, 'patchwork_alias_class::add'); break;
 			case 'superPositioner':   new $t($p, $level, $is_top ? $class : false); break;
-			case 'functionAliasing':  new $t($p, $GLOBALS['patchwork_preprocessor_alias']); break;
+			case 'functionAliasing':  new $t($p, self::$alias); break;
 			}
 		}
 
