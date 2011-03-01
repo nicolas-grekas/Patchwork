@@ -161,18 +161,17 @@ class patchwork_tokenizer
 		$t1     = array($t0[0]);
 		$offset = strlen($t0[0][1]);
 		$i      = 0;
-		$code .= ' '; // Workaround http://bugs.php.net/37394
 
 		while (isset($t0[++$i]))
 		{
 			$t = isset($t0[$i][1]) ? $t0[$i][1] : $t0[$i];
-			$l = strlen($t);
 
-			while (substr_compare($code, $t, $offset, $l))
-				$t1[] = array(T_UNEXPECTED, $code[$offset++]);
+			if (isset($t[0]))
+				while ($t[0] !== $code[$offset])
+					$t1[] = array(T_UNEXPECTED, $code[$offset++]);
 
+			$offset += strlen($t);
 			$t1[] = $t0[$i];
-			$offset += $l;
 			unset($t0[$i]);
 		}
 
