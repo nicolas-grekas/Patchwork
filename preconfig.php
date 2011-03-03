@@ -23,6 +23,32 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 /**/ /*<*/patchwork_bootstrapper::alias('getrandmax', 'mt_getrandmax', array())/*>*/;
 
 
+// Aliases to backport namespaces to PHP pre-5.3
+
+/**/if (PHP_VERSION_ID < 50300)
+/**/{
+/**/    /*<*/patchwork_bootstrapper::alias('class_implements',        'patchwork_PHP_class::class_implements',        array('$class', '$autoload' => true))/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('class_parents',           'patchwork_PHP_class::class_parents',           array('$class', '$autoload' => true))/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('class_exists',            'patchwork_PHP_class::class_exists',            array('$class', '$autoload' => true))/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('get_class_methods',       'patchwork_PHP_class::get_class_methods',       array('$class'))/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('get_class_vars',          'patchwork_PHP_class::get_class_vars',          array('$class'))/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('get_class',               'patchwork_PHP_class::get_class',               array('$obj'))/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('get_declared_classes',    'patchwork_PHP_class::get_declared_classes',    array())/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('get_declared_interfaces', 'patchwork_PHP_class::get_declared_interfaces', array())/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('get_parent_class',        'patchwork_PHP_class::get_parent_class',        array('$class'))/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('interface_exists',        'patchwork_PHP_class::interface_exists',        array('$class', '$autoload' => true))/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('is_a',                    'patchwork_PHP_class::is_a',                    array('$obj', '$class'))/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('is_subclass_of',          'patchwork_PHP_class::is_subclass_of',          array('$obj', '$class'))/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('method_exists',           'patchwork_PHP_class::method_exists',           array('$class', '$method'))/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('property_exists',         'patchwork_PHP_class::property_exists',         array('$class', '$property'))/*>*/;
+/**/}
+
+/**/if (!function_exists('spl_object_hash'))
+/**/{
+/**/    /*<*/patchwork_bootstrapper::alias('spl_object_hash',   'patchwork_PHP_class::spl_object_hash',   array('$object'))/*>*/;
+/**/}
+
+
 // Changing default charset to UTF-8, adding new $double_encode parameter (since 5.2.3)
 
 /**/ /*<*/patchwork_bootstrapper::alias('html_entity_decode', 'html_entity_decode', array('$s', '$style' => ENT_COMPAT, '$charset' => 'UTF-8'))/*>*/;
@@ -357,11 +383,6 @@ function patchwork_http_socket($host, $port, $ssl, $timeout = 30)
         }
 /**/}
 
-/**/if (!function_exists('spl_object_hash'))
-/**/{
-/**/    /*<*/patchwork_bootstrapper::alias('spl_object_hash',   'patchwork_PHP_class::spl_object_hash',   array('$object'))/*>*/;
-/**/}
-
 
 // Default serialize precision is 100, but 17 is enough
 
@@ -386,24 +407,6 @@ $CONFIG = array();
 // Utility functions
 
 function patchwork_include($file) {return include $file;}
-
-/**/if (PHP_VERSION_ID < 50300)
-/**/{
-/**/    /*<*/patchwork_bootstrapper::alias('class_implements',        'patchwork_PHP_class::class_implements',        array('$class', '$autoload' => true))/*>*/;
-/**/    /*<*/patchwork_bootstrapper::alias('class_parents',           'patchwork_PHP_class::class_parents',           array('$class', '$autoload' => true))/*>*/;
-/**/    /*<*/patchwork_bootstrapper::alias('class_exists',            'patchwork_PHP_class::class_exists',            array('$class', '$autoload' => true))/*>*/;
-/**/    /*<*/patchwork_bootstrapper::alias('get_class_methods',       'patchwork_PHP_class::get_class_methods',       array('$class'))/*>*/;
-/**/    /*<*/patchwork_bootstrapper::alias('get_class_vars',          'patchwork_PHP_class::get_class_vars',          array('$class'))/*>*/;
-/**/    /*<*/patchwork_bootstrapper::alias('get_class',               'patchwork_PHP_class::get_class',               array('$obj'))/*>*/;
-/**/    /*<*/patchwork_bootstrapper::alias('get_declared_classes',    'patchwork_PHP_class::get_declared_classes',    array())/*>*/;
-/**/    /*<*/patchwork_bootstrapper::alias('get_declared_interfaces', 'patchwork_PHP_class::get_declared_interfaces', array())/*>*/;
-/**/    /*<*/patchwork_bootstrapper::alias('get_parent_class',        'patchwork_PHP_class::get_parent_class',        array('$class'))/*>*/;
-/**/    /*<*/patchwork_bootstrapper::alias('interface_exists',        'patchwork_PHP_class::interface_exists',        array('$class', '$autoload' => true))/*>*/;
-/**/    /*<*/patchwork_bootstrapper::alias('is_a',                    'patchwork_PHP_class::is_a',                    array('$obj', '$class'))/*>*/;
-/**/    /*<*/patchwork_bootstrapper::alias('is_subclass_of',          'patchwork_PHP_class::is_subclass_of',          array('$obj', '$class'))/*>*/;
-/**/    /*<*/patchwork_bootstrapper::alias('method_exists',           'patchwork_PHP_class::method_exists',           array('$class', '$method'))/*>*/;
-/**/    /*<*/patchwork_bootstrapper::alias('property_exists',         'patchwork_PHP_class::property_exists',         array('$class', '$property'))/*>*/;
-/**/}
 
 function patchwork_bad_request($message, $url)
 {

@@ -110,14 +110,16 @@ function patchwork_class2cache($class, $level)
 }
 
 
-// __autoload(): the magic part
+// patchwork_autoload(): the magic part
 
 /**/@copy(patchwork_bootstrapper::$pwd . 'autoloader.php', patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')
 /**/    || @unlink(patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')
 /**/        + copy(patchwork_bootstrapper::$pwd . 'autoloader.php', patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php');
 /**/win_hide_file(patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php');
 
-function __autoload($searched_class)
+spl_autoload_register('patchwork_autoload');
+
+function patchwork_autoload($searched_class)
 {
     $a = strtr($searched_class, '\\', '_');
 

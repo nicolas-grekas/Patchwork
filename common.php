@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-/**** Pre-configuration stage 0 ****/
+// General pre-configuration
 
 defined('patchwork') || define('patchwork', microtime(true));
 define('IS_WINDOWS', /*<*/'\\' === DIRECTORY_SEPARATOR/*>*/);
@@ -233,4 +233,28 @@ function patchwork_getcwd()
 /**/else
 /**/{
         function patchwork_realpath($a) {return realpath($a);}
+/**/}
+
+
+// Setup class loading mechanism
+
+@ini_set('unserialize_callback_func', 'spl_autoload_call');
+
+/**/if (PHP_VERSION_ID < 50300 || !function_exists('spl_autoload_call'))
+/**/{
+/**/    // Even if SPL is loaded, overwrite it before PHP 5.3 to
+/**/    // backport spl_autoload_register()'s $prepend argument
+/**/    // and workaround http://bugs.php.net/44144
+/**/
+/**/    /*<*/patchwork_bootstrapper::alias('__autoload',              'patchwork_alias_spl_autoload::call',       array('$class'))/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_call',       'patchwork_alias_spl_autoload::call',       array('$class'))/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_functions',  'patchwork_alias_spl_autoload::functions',  array())/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_register',   'patchwork_alias_spl_autoload::register',   array('$callback', '$throw' => true, '$prepend' => false))/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_unregister', 'patchwork_alias_spl_autoload::unregister', array('$callback'))/*>*/;
+
+        require /*<*/dirname(__FILE__) . '/class/patchwork/alias/spl/autoload.php'/*>*/;
+/**/}
+/**/else
+/**/{
+/**/    /*<*/patchwork_bootstrapper::alias('__autoload', 'spl_autoload_call', array('$class'))/*>*/;
 /**/}
