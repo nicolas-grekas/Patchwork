@@ -16,7 +16,6 @@
 /**** Post-configuration stage 0 ****/
 
 $patchwork_appId = (int) /*<*/sprintf('%020d', patchwork_bootstrapper::$appId)/*>*/;
-define('PATCHWORK_PATH_TOKEN', /*<*/patchwork_bootstrapper::$token/*>*/);
 
 
 $CONFIG += array(
@@ -105,8 +104,7 @@ function patchwork_class2cache($class, $level)
 
     $cache = (int) DEBUG . (0>$level ? -$level . '-' : $level);
     $cache = /*<*/patchwork_bootstrapper::$cwd . '.class_'/*>*/
-            . strtr($class, '\\', '_') . '.' . $cache
-            . /*<*/'.' . patchwork_bootstrapper::$token . '.zcache.php'/*>*/;
+            . strtr($class, '\\', '_') . ".{$cache}.zcache.php";
 
     return $cache;
 }
@@ -154,9 +152,9 @@ function __autoload($searched_class)
             $a = $b . '.php.' . DEBUG . (0>$a ? -$a . '-' : $a);
         }
 
-        $a = /*<*/patchwork_bootstrapper::$cwd . '.class_'/*>*/ . $a . /*<*/'.' . patchwork_bootstrapper::$token . '.zcache.php'/*>*/;
+        $a = /*<*/patchwork_bootstrapper::$cwd/*>*/ . ".class_{$a}.zcache.php";
 
-        $GLOBALS[/*<*/'a' . patchwork_bootstrapper::$token/*>*/] = false;
+        $GLOBALS["a\x9D"] = false;
 
         if (file_exists($a))
         {

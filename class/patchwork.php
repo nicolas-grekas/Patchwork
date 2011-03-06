@@ -54,12 +54,7 @@ function patchwork_error_handler($code, $message, $file, $line)
         case E_NOTICE:
         case E_STRICT:
             if (strpos($message, '__00::')) return;
-
-            static $offset = 0;
-            $offset || $offset = -13 - strlen(PATCHWORK_PATH_TOKEN);
-
-            if ('-' === substr($file, $offset, 1)) return;
-
+            if ('-' === substr($file, -12, 1)) return;
             break;
 
         case E_WARNING:

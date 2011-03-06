@@ -44,10 +44,8 @@ class patchwork_debugger extends patchwork
 
                 global $patchwork_path;
 
-                $offset = -12 - strlen(PATCHWORK_PATH_TOKEN);
-
                 $dir = opendir(PATCHWORK_PROJECT_PATH);
-                while (false !== $cache = readdir($dir)) if (preg_match('/^\.(.+)\.[^0]([^\.]+)\.' . PATCHWORK_PATH_TOKEN . '\.zcache\.php$/D', $cache, $level))
+                while (false !== $cache = readdir($dir)) if (preg_match('/^\.(.+)\.[^0]([^\.]+)\.zcache\.php$/D', $cache, $level))
                 {
                     $file = patchwork_class2file($level[1]);
                     $level = $level[2];
@@ -247,7 +245,7 @@ function Z()
                     {
                         $a = preg_replace_callback(
                             "'" . preg_quote(htmlspecialchars(PATCHWORK_PROJECT_PATH) . '.')
-                                . '([^\\\\/]+)\.[01]([0-9]+)(-?)\.' . PATCHWORK_PATH_TOKEN . "\.zcache\.php'",
+                                . "([^\\\\/]+)\.[01]([0-9]+)(-?)\.zcache\.php'",
                             array(__CLASS__, 'filename'),
                             $a
                         );

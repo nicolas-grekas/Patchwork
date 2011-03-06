@@ -279,7 +279,7 @@ class __patchwork_autoloader
                 }
             }
 
-            $cache = substr($cache, strlen(PATCHWORK_PROJECT_PATH) + 7, -12 - strlen(PATCHWORK_PATH_TOKEN));
+            $cache = substr($cache, strlen(PATCHWORK_PROJECT_PATH) + 7, -11);
 
             if ($amark)
             {
@@ -293,7 +293,7 @@ class __patchwork_autoloader
                     {
                         $GLOBALS["a\x9D"] = $bmark;
                         $marker = "isset(\$c\x9D['{$lc_req}'])||{$marker}";
-                        $code = ".class_{$cache}." . PATCHWORK_PATH_TOKEN . ".zcache.php";
+                        $code = ".class_{$cache}.zcache.php";
                         $code = addslashes(PATCHWORK_PROJECT_PATH . $code);
                         $code = "isset(\$c\x9D['{$lc_req}'])||patchwork_include('{$code}')||1";
                     }
