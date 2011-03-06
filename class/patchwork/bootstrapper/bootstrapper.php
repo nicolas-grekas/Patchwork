@@ -18,7 +18,6 @@ class patchwork_bootstrapper_bootstrapper__0
 
     $marker,
     $cwd,
-    $token,
     $dir,
     $preprocessor,
     $configCode = array(),
@@ -29,11 +28,10 @@ class patchwork_bootstrapper_bootstrapper__0
     $callerRx;
 
 
-    function __construct(&$cwd, &$token)
+    function __construct(&$cwd)
     {
         $this->marker = md5(mt_rand(1, mt_getrandmax()));
         $this->cwd    =& $cwd;
-        $this->token  =& $token;
         $this->dir    = dirname(__FILE__);
 
         function_exists('token_get_all')
@@ -185,7 +183,7 @@ class patchwork_bootstrapper_bootstrapper__0
             }
 
             patchworkPath('class/patchwork.php', $level);
-            $b = addslashes("{$this->cwd}.class_patchwork.php.0{$level}.{$this->token}.zcache.php");
+            $b = addslashes("{$this->cwd}.class_patchwork.php.0{$level}.zcache.php");
             $a[] = "DEBUG || file_exists('{$b}') && include '{$b}';";
             $a[] = "patchwork::start();";
             $a[] = "exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not flushed...
@@ -229,11 +227,7 @@ class patchwork_bootstrapper_bootstrapper__0
     function preprocessorPass2()
     {
         $code = $this->preprocessor->staticPass2();
-
         ob_get_length() && $this->release();
-
-        isset($GLOBALS['_patchwork_autoloaded']) || $this->token = md5($this->token . $code);
-
         return $this->configCode[$this->file] = $code;
     }
 
@@ -278,10 +272,9 @@ class patchwork_bootstrapper_bootstrapper__0
 
     function initConfig()
     {
-        // Set $token and purge old code files
-        $this->token = substr($this->token, 0, 4);
+        // Purge old code files
 
-        if (!file_exists($a = "{$this->cwd}.{$this->token}.zcache.php"))
+        if (!file_exists($a = "{$this->cwd}.zcache.php"))
         {
             touch($a);
 
