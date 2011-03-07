@@ -22,6 +22,7 @@ abstract class loop_edit extends loop
 	$defaultLength = 1,
 
 	$form,
+	$loop,
 	$fromDb,
 	$counter,
 	$contextIsSet,
@@ -32,9 +33,8 @@ abstract class loop_edit extends loop
 
 	function __construct($form, $loop)
 	{
-		$this->loop = $loop;
-
 		$this->form = $form;
+		$this->loop = $loop;
 
 		if ($this->allowAddDel)
 		{
