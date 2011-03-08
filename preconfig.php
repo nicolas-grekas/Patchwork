@@ -13,7 +13,7 @@
 
 
 define('IS_POSTING', 'POST' === $_SERVER['REQUEST_METHOD']);
-
+$patchwork_appId = (int) /*<*/sprintf('%020d', patchwork_bootstrapper::$appId)/*>*/;
 $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 
 
@@ -407,6 +407,8 @@ $CONFIG = array();
 // Utility functions
 
 function patchwork_include($file) {return include $file;}
+function &patchwork_autoload_marker($marker, &$ref) {return $ref;}
+function strlencmp($a, $b) {return strlen($b) - strlen($a);}
 
 function patchwork_bad_request($message, $url)
 {
@@ -497,6 +499,25 @@ function patchwork_file2class($file)
     $file = strtr($file, '/\\', '__');
 
     return $file;
+}
+
+function patchwork_class2cache($class, $level)
+{
+    if (false !== strpos($class, '__x'))
+    {
+        static $map = array(
+            array('__x25', '__x2B', '__x2D', '__x2E', '__x3D', '__x7E'),
+            array('%',     '+',     '-',     '.',     '=',     '~'    )
+        );
+
+        $class = str_replace($map[0], $map[1], $class);
+    }
+
+    $cache = (int) DEBUG . (0>$level ? -$level . '-' : $level);
+    $cache = /*<*/patchwork_bootstrapper::$cwd . '.class_'/*>*/
+            . strtr($class, '\\', '_') . ".{$cache}.zcache.php";
+
+    return $cache;
 }
 
 

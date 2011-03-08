@@ -47,7 +47,7 @@ setlocale(LC_ALL, 'C');
         define('E_USER_DEPRECATED',  16384);
 
 
-// Boolean version of ini_get
+// Boolean version of ini_get()
 
 function ini_get_bool($a)
 {
@@ -124,7 +124,7 @@ function win_hide_file($file)
 }
 
 
-// If realpath or getcwd are bugged, enable a workaround
+// If realpath() or getcwd() are bugged, enable a workaround
 
 /**/$a = function_exists('realpath') ? @realpath('.') : false;
 /**/if (!$a || '.' === $a)
@@ -233,6 +233,19 @@ function patchwork_getcwd()
 /**/else
 /**/{
         function patchwork_realpath($a) {return realpath($a);}
+
+/**/    if ('\\' === DIRECTORY_SEPARATOR && PHP_VERSION_ID < 50200)
+/**/    {
+/**/        // Replace file_exists() on Windows to fix a bug with long file names
+/**/
+/**/        /*<*/patchwork_bootstrapper::alias('file_exists',   'patchwork_alias_winfs::file_exists',   array('$file'))/*>*/;
+/**/        /*<*/patchwork_bootstrapper::alias('is_file',       'patchwork_alias_winfs::is_file',       array('$file'))/*>*/;
+/**/        /*<*/patchwork_bootstrapper::alias('is_dir',        'patchwork_alias_winfs::is_dir',        array('$file'))/*>*/;
+/**/        /*<*/patchwork_bootstrapper::alias('is_link',       'patchwork_alias_winfs::is_link',       array('$file'))/*>*/;
+/**/        /*<*/patchwork_bootstrapper::alias('is_executable', 'patchwork_alias_winfs::is_executable', array('$file'))/*>*/;
+/**/        /*<*/patchwork_bootstrapper::alias('is_readable',   'patchwork_alias_winfs::is_readable',   array('$file'))/*>*/;
+/**/        /*<*/patchwork_bootstrapper::alias('is_writable',   'patchwork_alias_winfs::is_writable',   array('$file'))/*>*/;
+/**/    }
 /**/}
 
 

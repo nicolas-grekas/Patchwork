@@ -12,104 +12,6 @@
  ***************************************************************************/
 
 
-
-/**** Post-configuration stage 0 ****/
-
-$patchwork_appId = (int) /*<*/sprintf('%020d', patchwork_bootstrapper::$appId)/*>*/;
-
-
-$CONFIG += array(
-    'debug.allowed'  => true,
-    'debug.password' => '',
-    'debug.scream'   => false,
-    'turbo'          => false,
-);
-
-defined('DEBUG') || define('DEBUG', $CONFIG['debug.allowed'] && (!$CONFIG['debug.password'] || isset($_COOKIE['debug_password']) && $CONFIG['debug.password'] == $_COOKIE['debug_password']) ? 1 : 0);
-defined('TURBO') || define('TURBO', !DEBUG && $CONFIG['turbo']);
-
-unset($CONFIG['debug.allowed'], $CONFIG['debug.password'], $CONFIG['turbo']);
-
-
-isset($CONFIG['umask']) && umask($CONFIG['umask']);
-
-
-// file_exists replacement on Windows
-// Fix a bug with long file names
-// In debug mode, checks if character case is strict.
-
-/**/if (IS_WINDOWS && !function_exists('__patchwork_realpath'))
-/**/{
-        if (/*<*/PHP_VERSION_ID < 50200/*>*/ || DEBUG)
-        {
-/**/        /*<*/patchwork_bootstrapper::alias('file_exists',   'patchwork_file_exists',   array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_file',       'patchwork_is_file',       array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_dir',        'patchwork_is_dir',        array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_link',       'patchwork_is_link',       array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_executable', 'patchwork_is_executable', array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_readable',   'patchwork_is_readable',   array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_writable',   'patchwork_is_writable',   array('$file'))/*>*/;
-
-            if (DEBUG)
-            {
-                function patchwork_file_exists($file)
-                {
-                    if (file_exists($file) && $realfile = realpath($file))
-                    {
-                        $file = strtr($file, '/', '\\');
-
-                        $i = strlen($file);
-                        $j = strlen($realfile);
-
-                        while ($i-- && $j--)
-                        {
-                            if ($file[$i] != $realfile[$j])
-                            {
-                                if (0 === strcasecmp($file[$i], $realfile[$j]) && !(0 === $i && ':' === substr($file, 1, 1))) trigger_error("Character case mismatch between requested file and its real path ({$file} vs {$realfile})");
-                                break;
-                            }
-                        }
-
-                        return true;
-                    }
-                    else return false;
-                }
-            }
-            else
-            {
-                function patchwork_file_exists($file) {return file_exists($file) && (!isset($file[99]) || realpath($file));}
-            }
-
-            function patchwork_is_file($file)       {return patchwork_file_exists($file) && is_file($file);}
-            function patchwork_is_dir($file)        {return patchwork_file_exists($file) && is_dir($file);}
-            function patchwork_is_link($file)       {return patchwork_file_exists($file) && is_link($file);}
-            function patchwork_is_executable($file) {return patchwork_file_exists($file) && is_executable($file);}
-            function patchwork_is_readable($file)   {return patchwork_file_exists($file) && is_readable($file);}
-            function patchwork_is_writable($file)   {return patchwork_file_exists($file) && is_writable($file);}
-        }
-/**/}
-
-
-function patchwork_class2cache($class, $level)
-{
-    if (false !== strpos($class, '__x'))
-    {
-        static $map = array(
-            array('__x25', '__x2B', '__x2D', '__x2E', '__x3D', '__x7E'),
-            array('%',     '+',     '-',     '.',     '=',     '~'    )
-        );
-
-        $class = str_replace($map[0], $map[1], $class);
-    }
-
-    $cache = (int) DEBUG . (0>$level ? -$level . '-' : $level);
-    $cache = /*<*/patchwork_bootstrapper::$cwd . '.class_'/*>*/
-            . strtr($class, '\\', '_') . ".{$cache}.zcache.php";
-
-    return $cache;
-}
-
-
 // patchwork_autoload(): the magic part
 
 /**/@copy(patchwork_bootstrapper::$pwd . 'autoloader.php', patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')
@@ -171,11 +73,6 @@ function patchwork_autoload($searched_class)
     __patchwork_autoloader::autoload($searched_class);
 }
 
-function &patchwork_autoload_marker($marker, &$ref)
-{
-    return $ref;
-}
-
 
 // patchworkProcessedPath(): private use for the preprocessor (in files in the include_path)
 
@@ -219,34 +116,7 @@ function patchworkProcessedPath($file, $lazy = false)
     return $cache;
 }
 
-
-
-/**** Post-configuration stage 1 ****/
-
-
-
 function E() {$a = func_get_args(); $a ? patchwork::log(isset($a[1]) ? $a : $a[0], 0, 0) : patchwork::log(0, 0, 0, 0);}
-function strlencmp($a, $b) {return strlen($b) - strlen($a);}
-
-
-// Fix config
-
-$CONFIG += array(
-    'clientside'            => true,
-    'i18n.lang_list'        => array(),
-    'maxage'                => 2678400,
-    'P3P'                   => 'CUR ADM',
-    'xsendfile'             => isset($_SERVER['PATCHWORK_XSENDFILE']) ? $_SERVER['PATCHWORK_XSENDFILE'] : false,
-    'document.domain'       => '',
-    'X-UA-Compatible'       => 'IE=edge,chrome=1',
-    'session.save_path'     => /*<*/patchwork_bootstrapper::$zcache/*>*/,
-    'session.cookie_path'   => 'auto',
-    'session.cookie_domain' => 'auto',
-    'session.auth_vars'     => array(),
-    'session.group_vars'    => array(),
-    'translator.adapter'    => false,
-    'translator.options'    => array(),
-);
 
 
 // Prepare for I18N
@@ -557,10 +427,11 @@ if ($a || $b)
     }
 }
 
-/**/ /*<*/patchwork_bootstrapper::alias('w', 'trigger_error', array('$msg', '$type' => E_USER_NOTICE))/*>*/;
-/**/ /*<*/patchwork_bootstrapper::alias('header'      , 'patchwork::header',       array('$s', '$replace' => true, '$response_code' => null))/*>*/;
-/**/ /*<*/patchwork_bootstrapper::alias('setcookie'   , 'patchwork::setcookie',    array('$name', '$value' => '', '$expires' => 0, '$path' => '', '$domain' => '', '$secure' => false, '$httponly' => false))/*>*/;
-/**/ /*<*/patchwork_bootstrapper::alias('setcookieraw', 'patchwork::setcookieraw', array('$name', '$value' => '', '$expires' => 0, '$path' => '', '$domain' => '', '$secure' => false, '$httponly' => false))/*>*/;
+/**/ $a = array('$name', '$value' => '', '$expires' => 0, '$path' => '', '$domain' => '', '$secure' => false, '$httponly' => false);
+/**/ /*<*/patchwork_bootstrapper::alias('setcookie',    'patchwork::setcookie',    $a)/*>*/;
+/**/ /*<*/patchwork_bootstrapper::alias('setcookieraw', 'patchwork::setcookieraw', $a)/*>*/;
+/**/ /*<*/patchwork_bootstrapper::alias('header',       'patchwork::header',       array('$s', '$replace' => true, '$response_code' => null))/*>*/;
+/**/ /*<*/patchwork_bootstrapper::alias('w',            'trigger_error',           array('$msg', '$type' => E_USER_NOTICE))/*>*/;
 
 if (strtr($_SERVER['PATCHWORK_BASE'], '<>&"', '----') !== $_SERVER['PATCHWORK_BASE'])
 {
