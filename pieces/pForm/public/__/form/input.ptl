@@ -90,14 +90,14 @@ IF 'hidden' == a$type
 
 	SET a$_format_ -->{a$_format_|default:'%1%2'}<!-- END:SET
 	SET d$INPUT -->input {a$|htmlArgs:'class':'title':'autofocus':'placeholder':'value':'required'}<!-- END:SET
-	IF a$_check || a$_type == 'select'
+	IF a$value
+		--><{d$INPUT} value="{a$value}"><!--
+	ELSE
 		LOOP a$_option
 			IF $selected && !$_groupOn && !$_groupOff
 				--><{d$INPUT} {$|htmlArgs:'caption':'selected':'checked'}><!--
 			END:IF
 		END:LOOP
-	ELSE
-		--><{d$INPUT} value="{a$value}"><!--
 	END:IF
 
 ELSE
