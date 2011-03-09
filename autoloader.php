@@ -139,7 +139,7 @@ class __patchwork_autoloader
 						$code->GetFile($cache)->Attributes |= 2; // Set hidden attribute
 					}
 				}
-				else patchwork_preprocessor::execute($src, $cache, $level, $top, $isTop);
+				else patchwork_preprocessor::execute($src, $cache, $level, $top, $isTop, false);
 			}
 
 			$current_pool = array();

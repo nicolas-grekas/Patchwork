@@ -184,7 +184,7 @@ function &patchwork_autoload_marker($marker, &$ref)
 
 // patchworkProcessedPath(): private use for the preprocessor (in files in the include_path)
 
-function patchworkProcessedPath($file)
+function patchworkProcessedPath($file, $lazy = false)
 {
 /**/if (IS_WINDOWS)
 		false !== strpos($file, '\\') && $file = strtr($file, '\\', '/');
@@ -219,7 +219,7 @@ function patchworkProcessedPath($file)
 
 	if (file_exists($cache) && (TURBO || filemtime($cache) > filemtime($source))) return $cache;
 
-	patchwork_preprocessor::execute($source, $cache, $level, false, true);
+	patchwork_preprocessor::execute($source, $cache, $level, false, true, $lazy);
 
 	return $cache;
 }
