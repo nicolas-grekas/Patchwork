@@ -154,7 +154,7 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 
 		if (!DEBUG && TURBO && $this->dependencies['constantExpression']->nextExpressionIsConstant())
 		{
-			$a = patchworkProcessedPath($this->expressionValue);
+			$a = patchworkProcessedPath($this->expressionValue, true);
 			$token =& $this->getNextToken();
 
 			$token[1] = false === $a

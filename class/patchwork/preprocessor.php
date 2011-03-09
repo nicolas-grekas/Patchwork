@@ -78,24 +78,21 @@ class patchwork_preprocessor__0
 		}
 	}
 
-	static function execute($source, $destination, $level, $class, $is_top)
+	static function execute($source, $destination, $level, $class, $is_top, $lazy)
 	{
 		$source = patchwork_realpath($source);
 
-		if (!self::$recursivePool || $class)
-		{
-			$pool = array($source => array($destination, $level, $class, $is_top));
-			self::$recursivePool[] =& $pool;
-		}
-		else
+		if (self::$recursivePool && $lazy)
 		{
 			$pool =& self::$recursivePool[count(self::$recursivePool)-1];
-			$pool[$source] = array($destination, $level, $class, $is_top);
-
+			$pool[] = array($source, $destination, $level, $class, $is_top);
 			return;
 		}
 
-		while (list($source, list($destination, $level, $class, $is_top)) = each($pool))
+		$pool = array(array($source, $destination, $level, $class, $is_top));
+		self::$recursivePool[] =& $pool;
+
+		while (list($source, $destination, $level, $class, $is_top) = array_shift($pool))
 		{
 			$preproc = new patchwork_preprocessor;
 
