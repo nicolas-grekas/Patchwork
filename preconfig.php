@@ -444,12 +444,11 @@ function patchwork_shutdown_start()
 
 function patchwork_shutdown_end()
 {
-	if ($GLOBALS['_patchwork_destruct'])
-	{
-		$class = array_shift($GLOBALS['_patchwork_destruct']);
-		register_shutdown_function('patchwork_shutdown_end');
-		call_user_func(array($class, '__destructStatic'));
-	}
+	if (empty($GLOBALS['_patchwork_destruct'])) return;
+
+	$class = array_shift($GLOBALS['_patchwork_destruct']);
+	register_shutdown_function('patchwork_shutdown_end');
+	call_user_func(array($class, '__destructStatic'));
 }
 
 register_shutdown_function('patchwork_shutdown_start');
