@@ -66,7 +66,7 @@ class patchwork_tokenizer_constructorStatic extends patchwork_tokenizer
 		if ($this->class->extends)
 		{
 			1 !== $this->construct && $token[1] .= "if('{$class}'==={$this->class->name}::c{$this->tag}){$this->class->name}::__constructStatic();";
-			1 !== $this->destruct  && $token[1] .= "if('{$class}'==={$this->class->name}::c{$this->tag})\$GLOBALS['_patchwork_destruct'][]='{$class}';";
+			1 !== $this->destruct  && $token[1] .= "if('{$class}'==={$this->class->name}::d{$this->tag})\$GLOBALS['_patchwork_destruct'][]='{$class}';";
 		}
 		else
 		{
