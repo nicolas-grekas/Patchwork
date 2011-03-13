@@ -253,10 +253,20 @@ function patchwork_getcwd()
 
 @ini_set('unserialize_callback_func', 'spl_autoload_call');
 
-/**/if (PHP_VERSION_ID < 50300 || !function_exists('spl_autoload_call'))
+/**/if (function_exists('__autoload'))
 /**/{
-/**/    // Even if SPL is loaded, overwrite it before PHP 5.3 to
-/**/    // backport spl_autoload_register()'s $prepend argument
+/**/    if (!function_exists('spl_autoload_register'))
+/**/    {
+            // Trigger a "Cannot redeclare" fatal error: autoloading is already locked
+            function __autoload($class) {}
+/**/    }
+
+        spl_autoload_register('__autoload');
+/**/}
+
+/**/if (PHP_VERSION_ID < 50300 || !function_exists('spl_autoload_register'))
+/**/{
+/**/    // Before PHP 5.3, backport spl_autoload_register()'s $prepend argument
 /**/    // and workaround http://bugs.php.net/44144
 /**/
 /**/    /*<*/patchwork_bootstrapper::alias('__autoload',              'patchwork_alias_spl_autoload::call',       array('$class'))/*>*/;

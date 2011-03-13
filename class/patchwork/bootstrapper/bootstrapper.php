@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_bootstrapper_bootstrapper__0
+class patchwork_bootstrapper_bootstrapper
 {
     protected
 
@@ -446,20 +446,20 @@ class patchwork_bootstrapper_bootstrapper__0
     {
         require $this->dir . '/preprocessor.php';
 
-        return new patchwork_bootstrapper_preprocessor__0;
+        return new patchwork_bootstrapper_preprocessor;
     }
 
     protected function getInheritance()
     {
         require $this->dir . '/inheritance.php';
 
-        return new patchwork_bootstrapper_inheritance__0;
+        return new patchwork_bootstrapper_inheritance;
     }
 
     protected function getUpdatedb()
     {
         require $this->dir . '/updatedb.php';
 
-        return new patchwork_bootstrapper_updatedb__0;
+        return new patchwork_bootstrapper_updatedb;
     }
 }

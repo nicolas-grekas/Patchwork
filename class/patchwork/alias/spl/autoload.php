@@ -14,19 +14,22 @@
 
 class patchwork_alias_spl_autoload
 {
-    protected static $stack = false;
+    protected static
+
+    $canonicStack = false,
+    $loweredStack = false;
 
 
     static function call($class)
     {
-        if (false === self::$stack)
+        if (false === self::$canonicStack)
         {
             throw new LogicException("Class {$class} could not be loaded");
         }
 
         $ne = !class_exists($class, false);
 
-        foreach (self::$stack as $c)
+        foreach (self::$canonicStack as $c)
         {
             call_user_func($c, $class);
             if ($ne && class_exists($class, false)) return;
@@ -35,40 +38,65 @@ class patchwork_alias_spl_autoload
 
     static function functions()
     {
-        return self::$stack;
+        return self::$canonicStack;
     }
 
-    static function register($callback, $throw = true, $prepend = false)
+    static function register($c, $throw = true, $prepend = false)
     {
-        if (array() !== @array_map($callback, array()))
+        if (array() !== @array_map($c, array()))
         {
             if ($throw) throw new LogicException('Invalid callback');
             else return false;
         }
 
-        if (false === self::$stack)
+        $l = $c;
+
+        if (is_string($l)) $l = strtolower($l);
+        else if (is_array($l))
         {
-            self::$stack = array($callback);
+            $l[1] = strtolower($l[1]);
+            is_string($l[0]) && $l[0] = strtolower($l[0]);
         }
-        else if (false === array_search($callback, self::$stack, true))
+
+        if (false === self::$canonicStack)
         {
-            $prepend
-                ? array_unshift(self::$stack, $callback)
-                : array_push   (self::$stack, $callback);
+            self::$canonicStack = array($c);
+            self::$loweredStack = array($l);
+        }
+        else if (false === array_search($l, self::$loweredStack, true))
+        {
+            if ($prepend)
+            {
+                array_unshift(self::$canonicStack, $c);
+                array_unshift(self::$loweredStack, $l);
+            }
+            else
+            {
+                array_push(self::$canonicStack, $c);
+                array_push(self::$loweredStack, $l);
+            }
         }
 
         return true;
     }
 
-    static function unregister($callback)
+    static function unregister($c)
     {
-        if (false !== self::$stack && false !== $i = array_search($callback, self::$stack, true))
+        if (false !== self::$canonicStack) return false;
+
+        if (is_string($c)) $c = strtolower($c);
+        else if (is_array($c) && isset($c[0], $c[1]))
         {
-            array_splice(self::$stack, $i, 1);
-            return true;
+            is_string($c[1]) && $c[1] = strtolower($c[1]);
+            is_string($c[0]) && $c[0] = strtolower($c[0]);
         }
 
-        return false;
+        if (false === $c = array_search($c, self::$loweredStack, true)) return false;
+
+        array_splice(self::$canonicStack, $c, 1);
+        array_splice(self::$loweredStack, $c, 1);
+
+        return true;
     }
 }
 
@@ -81,6 +109,6 @@ class patchwork_alias_spl_autoload
 
         function spl_autoload_call($class)          {return patchwork_alias_spl::spl_autoload_call($class);}
         function spl_autoload_functions()           {return patchwork_alias_spl::spl_autoload_functions();}
-        function spl_autoload_register($callback, $throw = true, $prepend = false) {return patchwork_alias_spl::spl_autoload_register($callback, $throw, $prepend);}
         function spl_autoload_unregister($callback) {return patchwork_alias_spl::spl_autoload_unregister($callback);}
+        function spl_autoload_register($callback, $throw = true, $prepend = false) {return patchwork_alias_spl::spl_autoload_register($callback, $throw, $prepend);}
 /**/}

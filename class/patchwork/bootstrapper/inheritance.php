@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_bootstrapper_inheritance__0
+class patchwork_bootstrapper_inheritance
 {
     public
 

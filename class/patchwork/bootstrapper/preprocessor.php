@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_bootstrapper_preprocessor__0
+class patchwork_bootstrapper_preprocessor
 {
     protected $parser;
 

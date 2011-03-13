@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_preprocessor__0
+class patchwork_preprocessor
 {
     static
 

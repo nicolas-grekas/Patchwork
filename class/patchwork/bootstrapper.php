@@ -43,7 +43,7 @@ class patchwork_bootstrapper
         require dirname(__FILE__) . '/PHP/Parser/staticState.php';
         require dirname(__FILE__) . '/bootstrapper/bootstrapper.php';
 
-        self::$bootstrapper = new patchwork_bootstrapper_bootstrapper__0(self::$cwd);
+        self::$bootstrapper = new patchwork_bootstrapper_bootstrapper(self::$cwd);
     }
 
     static function getLock()             {return self::$bootstrapper->getLock(self::$caller);}
