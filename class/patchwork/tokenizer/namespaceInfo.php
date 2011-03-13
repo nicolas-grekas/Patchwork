@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2010 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,124 +14,124 @@
 
 class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
 {
-	protected
+    protected
 
-	$namespace  = '',
-	$nsResolved = '',
-	$nsAliases  = array(),
-	$nsUse      = array(),
-	$callbacks  = array(
-		'tagNs'        => T_NAMESPACE,
-		'tagUse'       => T_USE,
-		'tagNsResolve' => array(T_USE_CLASS, T_USE_FUNCTION, T_USE_CONSTANT, T_TYPE_HINT),
-	),
-	$dependencies = array('stringInfo' => 'nsPrefix');
-
-
-	protected static
-
-	$nsCallbacks  = array(
-		'tagNsName' => array(T_STRING, T_NS_SEPARATOR),
-		'tagNsEnd'  => array('{', ';'),
-	),
-	$useCallbacks = array(
-		'tagUseAs'   => T_STRING,
-		'tagUseNext' => array(',', ';'),
-		'tagUseEnd'  => ';',
-	);
+    $namespace  = '',
+    $nsResolved = '',
+    $nsAliases  = array(),
+    $nsUse      = array(),
+    $callbacks  = array(
+        'tagNs'        => T_NAMESPACE,
+        'tagUse'       => T_USE,
+        'tagNsResolve' => array(T_USE_CLASS, T_USE_FUNCTION, T_USE_CONSTANT, T_TYPE_HINT),
+    ),
+    $dependencies = array('stringInfo' => 'nsPrefix');
 
 
-	protected function tagNs(&$token)
-	{
-		if (isset($token[2][T_NAME_NS]))
-		{
-			$this->namespace = '';
-			$this->nsAliases = array();
-			$this->register(self::$nsCallbacks);
-		}
-	}
+    protected static
 
-	protected function tagNsName(&$token)
-	{
-		$this->namespace .= $token[1];
-	}
+    $nsCallbacks  = array(
+        'tagNsName' => array(T_STRING, T_NS_SEPARATOR),
+        'tagNsEnd'  => array('{', ';'),
+    ),
+    $useCallbacks = array(
+        'tagUseAs'   => T_STRING,
+        'tagUseNext' => array(',', ';'),
+        'tagUseEnd'  => ';',
+    );
 
-	protected function tagNsEnd(&$token)
-	{
-		$this->namespace && $this->namespace .= '\\';
-		$this->unregister(self::$nsCallbacks);
-	}
 
-	protected function tagUse(&$token)
-	{
-		if (')' !== $this->lastType)
-		{
-			$this->register(self::$useCallbacks);
-		}
-	}
+    protected function tagNs(&$token)
+    {
+        if (isset($token[2][T_NAME_NS]))
+        {
+            $this->namespace = '';
+            $this->nsAliases = array();
+            $this->register(self::$nsCallbacks);
+        }
+    }
 
-	protected function tagUseAs(&$token)
-	{
-		if (T_AS === $this->lastType)
-		{
-			$this->nsAliases[$token[1]] = '\\' . implode('\\', $this->nsUse);
-			$this->nsUse = array();
-		}
-		else
-		{
-			$this->nsUse[] = $token[1];
-		}
-	}
+    protected function tagNsName(&$token)
+    {
+        $this->namespace .= $token[1];
+    }
 
-	protected function tagUseNext(&$token)
-	{
-		if ($this->nsUse)
-		{
-			$this->nsAliases[end($this->nsUse)] = '\\' . implode('\\', $this->nsUse);
-			$this->nsUse = array();
-		}
-	}
+    protected function tagNsEnd(&$token)
+    {
+        $this->namespace && $this->namespace .= '\\';
+        $this->unregister(self::$nsCallbacks);
+    }
 
-	protected function tagUseEnd(&$token)
-	{
-		$this->unregister(self::$useCallbacks);
-	}
+    protected function tagUse(&$token)
+    {
+        if (')' !== $this->lastType)
+        {
+            $this->register(self::$useCallbacks);
+        }
+    }
 
-	protected function tagNsResolve(&$token)
-	{
-		$this->nsResolved = $this->nsPrefix . $token[1];
+    protected function tagUseAs(&$token)
+    {
+        if (T_AS === $this->lastType)
+        {
+            $this->nsAliases[$token[1]] = '\\' . implode('\\', $this->nsUse);
+            $this->nsUse = array();
+        }
+        else
+        {
+            $this->nsUse[] = $token[1];
+        }
+    }
 
-		if ('' === $this->nsPrefix)
-		{
-			if (isset($token[2][T_USE_CLASS]) || isset($token[2][T_TYPE_HINT]))
-			{
-				$this->nsResolved = empty($this->nsAliases[$token[1]])
-					? '\\' . $this->namespace . $token[1]
-					: $this->nsAliases[$token[1]];
-			}
-			else if (!$this->namespace)
-			{
-				$this->nsResolved = '\\' . $this->nsResolved;
-			}
-		}
-		else if ('\\' !== $this->nsPrefix[0])
-		{
-			$a = explode('\\', $this->nsPrefix . $token[1], 2);
+    protected function tagUseNext(&$token)
+    {
+        if ($this->nsUse)
+        {
+            $this->nsAliases[end($this->nsUse)] = '\\' . implode('\\', $this->nsUse);
+            $this->nsUse = array();
+        }
+    }
 
-			if ('namespace' === $a[0])
-			{
-				$a[0] = $this->namespace ? substr('\\' . $this->namespace, 0, -1) : '';
-			}
-			else if (isset($this->nsAliases[$a[0]]))
-			{
-				$a[0] = $this->nsAliases[$a[0]];
-			}
-			else
-			{
-				$a[0] = '\\' . $this->namespace . $a[0];
-			}
+    protected function tagUseEnd(&$token)
+    {
+        $this->unregister(self::$useCallbacks);
+    }
 
-			$this->nsResolved = implode('\\', $a);
-		}
-	}
+    protected function tagNsResolve(&$token)
+    {
+        $this->nsResolved = $this->nsPrefix . $token[1];
+
+        if ('' === $this->nsPrefix)
+        {
+            if (isset($token[2][T_USE_CLASS]) || isset($token[2][T_TYPE_HINT]))
+            {
+                $this->nsResolved = empty($this->nsAliases[$token[1]])
+                    ? '\\' . $this->namespace . $token[1]
+                    : $this->nsAliases[$token[1]];
+            }
+            else if (!$this->namespace)
+            {
+                $this->nsResolved = '\\' . $this->nsResolved;
+            }
+        }
+        else if ('\\' !== $this->nsPrefix[0])
+        {
+            $a = explode('\\', $this->nsPrefix . $token[1], 2);
+
+            if ('namespace' === $a[0])
+            {
+                $a[0] = $this->namespace ? substr('\\' . $this->namespace, 0, -1) : '';
+            }
+            else if (isset($this->nsAliases[$a[0]]))
+            {
+                $a[0] = $this->nsAliases[$a[0]];
+            }
+            else
+            {
+                $a[0] = '\\' . $this->namespace . $a[0];
+            }
+
+            $this->nsResolved = implode('\\', $a);
+        }
+    }
 }

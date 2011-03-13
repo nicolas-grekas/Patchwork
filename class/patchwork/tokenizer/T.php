@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2010 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,32 +14,32 @@
 
 class patchwork_tokenizer_T extends patchwork_tokenizer
 {
-	protected
+    protected
 
-	$callbacks = array('tagT' => T_USE_FUNCTION),
-	$dependencies = array('namespaceInfo' => 'nsResolved', 'constantExpression' => 'expressionValue');
+    $callbacks = array('tagT' => T_USE_FUNCTION),
+    $dependencies = array('namespaceInfo' => 'nsResolved', 'constantExpression' => 'expressionValue');
 
 
-	protected function tagT(&$token)
-	{
-		if ('\T' === strtoupper($this->nsResolved))
-		{
-			++$this->index;
+    protected function tagT(&$token)
+    {
+        if ('\T' === strtoupper($this->nsResolved))
+        {
+            ++$this->index;
 
-			if ($this->dependencies['constantExpression']->nextExpressionIsConstant())
-			{
-				if ($_SERVER['PATCHWORK_LANG'])
-				{
-					// Add the string to the translation table
-					TRANSLATOR::get($this->expressionValue, $_SERVER['PATCHWORK_LANG'], false);
-				}
-			}
-			else
-			{
-				new patchwork_tokenizer_bracket_T($this);
-			}
+            if ($this->dependencies['constantExpression']->nextExpressionIsConstant())
+            {
+                if ($_SERVER['PATCHWORK_LANG'])
+                {
+                    // Add the string to the translation table
+                    TRANSLATOR::get($this->expressionValue, $_SERVER['PATCHWORK_LANG'], false);
+                }
+            }
+            else
+            {
+                new patchwork_tokenizer_bracket_T($this);
+            }
 
-			--$this->index;
-		}
-	}
+            --$this->index;
+        }
+    }
 }

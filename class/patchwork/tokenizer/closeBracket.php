@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2010 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,36 +14,36 @@
 
 class patchwork_tokenizer_closeBracket extends patchwork_tokenizer
 {
-	protected
+    protected
 
-	$level = -1,
-	$callbacks = array(
-		'incLevel' => array('(', '{', '[', '?'),
-		'decLevel' => array(')', '}', ']', ':', ',', T_AS, T_CLOSE_TAG, ';'),
-	);
+    $level = -1,
+    $callbacks = array(
+        'incLevel' => array('(', '{', '[', '?'),
+        'decLevel' => array(')', '}', ']', ':', ',', T_AS, T_CLOSE_TAG, ';'),
+    );
 
 
-	protected function incLevel(&$token)
-	{
-		++$this->level;
-	}
+    protected function incLevel(&$token)
+    {
+        ++$this->level;
+    }
 
-	protected function decLevel(&$token)
-	{
-		switch ($token[0])
-		{
-		case ',': if ($this->level) break;
+    protected function decLevel(&$token)
+    {
+        switch ($token[0])
+        {
+        case ',': if ($this->level) break;
 
-		case ')':
-		case '}':
-		case ']':
-		case ':': if ($this->level--) break;
+        case ')':
+        case '}':
+        case ']':
+        case ':': if ($this->level--) break;
 
-		case ';':
-		case T_AS:
-		case T_CLOSE_TAG:
-			$this->unregister();
-			return $this->tokensUnshift(')', $token);
-		}
-	}
+        case ';':
+        case T_AS:
+        case T_CLOSE_TAG:
+            $this->unregister();
+            return $this->tokensUnshift(')', $token);
+        }
+    }
 }
