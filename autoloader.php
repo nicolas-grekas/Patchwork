@@ -132,12 +132,7 @@ class __patchwork_autoloader
                 {
                     @unlink($cache);
                     copy($src, $cache);
-
-                    if (IS_WINDOWS)
-                    {
-                        $code = new COM('Scripting.FileSystemObject');
-                        $code->GetFile($cache)->Attributes |= 2; // Set hidden attribute
-                    }
+                    win_hide_file($cache);
                 }
                 else patchwork_preprocessor::execute($src, $cache, $level, $top, $isTop, false);
             }
@@ -337,10 +332,8 @@ class __patchwork_autoloader
                 ? touch($a, filemtime($to)    )
                 : touch($a, filemtime($to) + 1); // +1 to notify the change to opcode caches
 
-            if (IS_WINDOWS)
+            if (win_hide_file($a))
             {
-                $h = new COM('Scripting.FileSystemObject');
-                $h->GetFile($a)->Attributes |= 2; // Set hidden attribute
                 file_exists($to) && @unlink($to);
                 @rename($a, $to) || unlink($a);
             }

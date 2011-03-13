@@ -41,14 +41,9 @@ class patchwork_bootstrapper_updatedb__0
 
         $db && fclose($db);
         $old_db && fclose($old_db) && @unlink($cwd . '.patchwork.paths.old');
-
-        if (IS_WINDOWS)
-        {
-            $h = new COM('Scripting.FileSystemObject');
-            $h->GetFile($cwd . '.patchwork.paths.txt')->Attributes |= 2; // Set hidden attribute
-        }
-
         $db = $h = false;
+
+        win_hide_file($cwd . '.patchwork.paths.txt');
 
         if (function_exists('dba_handlers'))
         {
@@ -69,11 +64,7 @@ class patchwork_bootstrapper_updatedb__0
 
             dba_close($h);
 
-            if (IS_WINDOWS)
-            {
-                $h = new COM('Scripting.FileSystemObject');
-                $h->GetFile($cwd . '.patchwork.paths.db')->Attributes |= 2; // Set hidden attribute
-            }
+            win_hide_file($cwd . '.patchwork.paths.db');
         }
         else
         {
