@@ -115,12 +115,7 @@ function patchwork_class2cache($class, $level)
 /**/@copy(patchwork_bootstrapper::$pwd . 'autoloader.php', patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')
 /**/    || @unlink(patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')
 /**/        + copy(patchwork_bootstrapper::$pwd . 'autoloader.php', patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php');
-/**/
-/**/if (IS_WINDOWS)
-/**/{
-/**/    $a = new COM('Scripting.FileSystemObject');
-/**/    $a->GetFile(patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')->Attributes |= 2; // Set hidden attribute
-/**/}
+/**/win_hide_file(patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php');
 
 function __autoload($searched_class)
 {

@@ -101,10 +101,8 @@ class patchwork_preprocessor__0
             $tmp = PATCHWORK_PROJECT_PATH . '.~' . uniqid(mt_rand(), true);
             if (false !== file_put_contents($tmp, $code))
             {
-                if (IS_WINDOWS)
+                if (win_hide_file($tmp))
                 {
-                    $code = new COM('Scripting.FileSystemObject');
-                    $code->GetFile($tmp)->Attributes |= 2; // Set hidden attribute
                     file_exists($destination) && @unlink($destination);
                     @rename($tmp, $destination) || unlink($tmp);
                 }

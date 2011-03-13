@@ -196,13 +196,7 @@ class patchwork_bootstrapper_bootstrapper__0
             $b = $this->getLockFile();
 
             touch($b, $_SERVER['REQUEST_TIME'] + 1);
-
-            if (IS_WINDOWS)
-            {
-                $a = new COM('Scripting.FileSystemObject');
-                $a->GetFile($b)->Attributes |= 2; // Set hidden attribute
-            }
-
+            win_hide_file($b);
             rename($b, $this->getCompiledFile());
 
             $this->lock = $this->configCode = $this->fSlice = $this->rSlice = null;
@@ -277,12 +271,7 @@ class patchwork_bootstrapper_bootstrapper__0
         if (!file_exists($a = "{$this->cwd}.zcache.php"))
         {
             touch($a);
-
-            if (IS_WINDOWS)
-            {
-                $h = new COM('Scripting.FileSystemObject');
-                $h->GetFile($a)->Attributes |= 2; // Set hidden attribute
-            }
+            win_hide_file($a);
 
             $h = opendir($this->cwd);
             while (false !== $a = readdir($h))
