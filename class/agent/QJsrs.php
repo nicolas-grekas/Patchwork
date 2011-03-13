@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,39 +14,39 @@
 
 class agent_QJsrs extends agent
 {
-	const contentType = '';
+    const contentType = '';
 
-	protected $data = array();
+    protected $data = array();
 
-	function compose($o)
-	{
-		$o->DATA = '/*<script>/**/q="'
-			. str_replace(array('\\', '"'), array('\\\\', '\\"'), $this->getJs($this->data))
-			. '"//</script>'
-			. '<script src="' . patchwork::__BASE__() . 'js/QJsrsHandler"></script>';
+    function compose($o)
+    {
+        $o->DATA = '/*<script>/**/q="'
+            . str_replace(array('\\', '"'), array('\\\\', '\\"'), $this->getJs($this->data))
+            . '"//</script>'
+            . '<script src="' . patchwork::__BASE__() . 'js/QJsrsHandler"></script>';
 
-		return $o;
-	}
+        return $o;
+    }
 
-	protected function getJs($data)
-	{
-		if (is_object($data) || is_array($data))
-		{
-			$a = '{';
+    protected function getJs($data)
+    {
+        if (is_object($data) || is_array($data))
+        {
+            $a = '{';
 
-			foreach ($data as $k => $v)
-			{
-				$k = jsquote($k);
-				is_string($k) || $k = "'" . $k . "'";
-				$a .= $k . ':' . $this->getJs($v) . ',';
-			}
+            foreach ($data as $k => $v)
+            {
+                $k = jsquote($k);
+                is_string($k) || $k = "'" . $k . "'";
+                $a .= $k . ':' . $this->getJs($v) . ',';
+            }
 
-			$k = strlen($a);
-			if ($k > 1) $a{strlen($a)-1} = '}';
-			else $a = '{}';
-		}
-		else $a = jsquote($data);
+            $k = strlen($a);
+            if ($k > 1) $a{strlen($a)-1} = '}';
+            else $a = '{}';
+        }
+        else $a = jsquote($data);
 
-		return $a;
-	}
+        return $a;
+    }
 }

@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,70 +14,70 @@
 
 class pipe_echo
 {
-	protected static $args;
+    protected static $args;
 
-	static function php($format = '')
-	{
-		$args = func_get_args();
-		self::$args =& $args;
+    static function php($format = '')
+    {
+        $args = func_get_args();
+        self::$args =& $args;
 
-		if ('' !== $format) 
-		{
-			$args = preg_replace_callback(
-				"'(%+)([0-9]?)'",
-				array(__CLASS__, 'replace_callback'),
-				patchwork::string($format)
-			);
-		}
-		else $args = implode('', $args);
+        if ('' !== $format) 
+        {
+            $args = preg_replace_callback(
+                "'(%+)([0-9]?)'",
+                array(__CLASS__, 'replace_callback'),
+                patchwork::string($format)
+            );
+        }
+        else $args = implode('', $args);
 
-		return $args;
-	}
+        return $args;
+    }
 
-	protected static function replace_callback($m)
-	{
-		if (1 === strlen($m[1]) % 2)
-		{
-			$m[1] = substr($m[1], 1);
-			$m[2] = '' !== $m[2] ? (isset(self::$args[$m[2]+1]) ? patchwork::string(self::$args[$m[2]+1]) : '') : '%';
-		}
+    protected static function replace_callback($m)
+    {
+        if (1 === strlen($m[1]) % 2)
+        {
+            $m[1] = substr($m[1], 1);
+            $m[2] = '' !== $m[2] ? (isset(self::$args[$m[2]+1]) ? patchwork::string(self::$args[$m[2]+1]) : '') : '%';
+        }
 
-		return substr($m[1], 0, strlen($m[1])>>1) . $m[2];
-	}
+        return substr($m[1], 0, strlen($m[1])>>1) . $m[2];
+    }
 
-	static function js()
-	{
-		?>/*<script>*/
+    static function js()
+    {
+        ?>/*<script>*/
 
 function($format)
 {
-	var $i = 1, $args = arguments;
-	$format = str($format);
+    var $i = 1, $args = arguments;
+    $format = str($format);
 
-	if ($format != '')
-	{
-		$i = function($m0, $m1, $m2)
-		{
-			if (1 == $m1.length % 2)
-			{
-				$m1 = $m1.substr(1);
-				$m2 = '' != $m2 ? str($args[$m2-0+1]) : '%';
-			}
+    if ($format != '')
+    {
+        $i = function($m0, $m1, $m2)
+        {
+            if (1 == $m1.length % 2)
+            {
+                $m1 = $m1.substr(1);
+                $m2 = '' != $m2 ? str($args[$m2-0+1]) : '%';
+            }
 
-			return $m1.substr(0, $m1.length>>1) + $m2;
-		}
+            return $m1.substr(0, $m1.length>>1) + $m2;
+        }
 
-		$format = $format.replace(/(%+)([0-9]?)/g, $i);
-	}
-	else
-	{
-		$format = [];
-		for (; $i<$args.length; ++$i) $format[$i] = $args[$i];
-		$format = $format.join('');
-	}
+        $format = $format.replace(/(%+)([0-9]?)/g, $i);
+    }
+    else
+    {
+        $format = [];
+        for (; $i<$args.length; ++$i) $format[$i] = $args[$i];
+        $format = $format.join('');
+    }
 
-	return $format;
+    return $format;
 }
 
-<?php	}
+<?php   }
 }

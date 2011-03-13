@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,75 +14,75 @@
 
 class pForm_magicDb
 {
-	static function populate($table, $form, $save = false, $rxFilter = false)
-	{
-		$sql = 'SHOW COLUMNS FROM ' . $table;
-		$result = DB()->query($sql);
+    static function populate($table, $form, $save = false, $rxFilter = false)
+    {
+        $sql = 'SHOW COLUMNS FROM ' . $table;
+        $result = DB()->query($sql);
 
-		$onempty = '';
-		$onerror = T('Input validation error');
+        $onempty = '';
+        $onerror = T('Input validation error');
 
-		while ($row = $result->fetchRow())
-		{
-			if ($rxFilter && !preg_match($rxFilter, $row->Field)) continue;
+        while ($row = $result->fetchRow())
+        {
+            if ($rxFilter && !preg_match($rxFilter, $row->Field)) continue;
 
-			$type = strpos($row->Type, '(');
-			$type = false === $type ? $row->Type : substr($row->Type, 0, $type);
+            $type = strpos($row->Type, '(');
+            $type = false === $type ? $row->Type : substr($row->Type, 0, $type);
 
-			$continue = false;
-			$param = array();
+            $continue = false;
+            $param = array();
 
-			switch ($type)
-			{
-				case 'char':
-				case 'varchar':
-					$type = 'text';
-					$param['maxlength'] = (int) substr($type, strlen($type) + 1);
-					break;
+            switch ($type)
+            {
+                case 'char':
+                case 'varchar':
+                    $type = 'text';
+                    $param['maxlength'] = (int) substr($type, strlen($type) + 1);
+                    break;
 
-				case 'longtext':   $type  = 8;
-				case 'mediumtext': $type += 8;
-				case 'text':       $type += 8;
-				case 'tinytext':   $type += 8;
-					$param['maxlength'] = (1 << $type) - 1;
-					$type = 'textarea';
-					break;
+                case 'longtext':   $type  = 8;
+                case 'mediumtext': $type += 8;
+                case 'text':       $type += 8;
+                case 'tinytext':   $type += 8;
+                    $param['maxlength'] = (1 << $type) - 1;
+                    $type = 'textarea';
+                    break;
 
-				case 'tinyint':
-				case 'bool':
-					$type = 'check';
-					$param['item'] = array(1 => T('Yes'), 0 => T('No'));
-					break;
+                case 'tinyint':
+                case 'bool':
+                    $type = 'check';
+                    $param['item'] = array(1 => T('Yes'), 0 => T('No'));
+                    break;
 
-				case 'date':
-					$type = 'text';
-					$param['valid'] = 'date';
-					break;
+                case 'date':
+                    $type = 'text';
+                    $param['valid'] = 'date';
+                    break;
 
-				case 'float':
-				case 'double':
-				case 'decimal':
-					$type = 'text';
-					$param['valid'] = 'float';
-					break;
+                case 'float':
+                case 'double':
+                case 'decimal':
+                    $type = 'text';
+                    $param['valid'] = 'float';
+                    break;
 
-				case 'set':
-				case 'enum':
-					$i = eval('return array' . substr($row->Type, strlen($type)) . ';');
-					$param['item'] = array_combine($i, $i);
+                case 'set':
+                case 'enum':
+                    $i = eval('return array' . substr($row->Type, strlen($type)) . ';');
+                    $param['item'] = array_combine($i, $i);
 
-					if ('set' == $type) $param['isdata'] = $param['multiple'] = true;
+                    if ('set' == $type) $param['isdata'] = $param['multiple'] = true;
 
-					$type = 'check';
-					break;
+                    $type = 'check';
+                    break;
 
-				default: $continue = true; break;
-			}
+                default: $continue = true; break;
+            }
 
-			if ($continue) continue;
+            if ($continue) continue;
 
-			$form->add($type, $row->Field, $param);
-			if ($save) $save->attach($row->Field, $onempty, $onerror);
-		}
-	}
+            $form->add($type, $row->Field, $param);
+            if ($save) $save->attach($row->Field, $onempty, $onerror);
+        }
+    }
 }

@@ -1,6 +1,6 @@
-/***************************************************************************
+/***** vi: set encoding=utf-8 expandtab shiftwidth=4: **********************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -15,49 +15,49 @@
 
 function liveAgent($AGENT, $POST, $antiCSRF, $BASE, $XMLHttpPreferred)
 {
-	$BASE = $BASE || base();
-	$AGENT = $BASE + encodeURI($AGENT).replace(/\?/g, '%3F') + '?p:=x';
+    $BASE = $BASE || base();
+    $AGENT = $BASE + encodeURI($AGENT).replace(/\?/g, '%3F') + '?p:=x';
 
-	var $QJsrs = new QJsrs($AGENT, $POST, $antiCSRF, $XMLHttpPreferred),
-		$originalDriver = $QJsrs.driver,
-		w = {x: liveAgent.$iteratorFactory};
+    var $QJsrs = new QJsrs($AGENT, $POST, $antiCSRF, $XMLHttpPreferred),
+        $originalDriver = $QJsrs.driver,
+        w = {x: liveAgent.$iteratorFactory};
 
-	$QJsrs.driver = function($callback, $text, $raw)
-	{
-		var $originalW = window.w;
-		window.w = w;
+    $QJsrs.driver = function($callback, $text, $raw)
+    {
+        var $originalW = window.w;
+        window.w = w;
 
-		$originalDriver($callback, $text, $raw);
+        $originalDriver($callback, $text, $raw);
 
-		window.w = $originalW;
-	}
+        window.w = $originalW;
+    }
 
-	return $QJsrs;
+    return $QJsrs;
 }
 
 liveAgent.$iteratorFactory = function($data)
 {
-	var $dataLen = $data.length, $block = 1, $offset = 0;
+    var $dataLen = $data.length, $block = 1, $offset = 0;
 
-	function $next()
-	{
-		var $blockData = $data[$block],
-			$blockLen = $blockData.length,
-			$v = {}, $i = 1,
-			$j = $blockData[0];
+    function $next()
+    {
+        var $blockData = $data[$block],
+            $blockLen = $blockData.length,
+            $v = {}, $i = 1,
+            $j = $blockData[0];
 
-		$offset += $j;
+        $offset += $j;
 
-		if ($offset + $j >= $blockLen) return $offset = 0, ++$block < $dataLen ? $next() : ($block = 1, 0);
+        if ($offset + $j >= $blockLen) return $offset = 0, ++$block < $dataLen ? $next() : ($block = 1, 0);
 
-		for (; $i <= $j; ++$i) $v[ $blockData[$i] ] = $blockData[$i + $offset];
+        for (; $i <= $j; ++$i) $v[ $blockData[$i] ] = $blockData[$i + $offset];
 
-		return $v;
-	}
+        return $v;
+    }
 
-	$data[1][0] || ($next = function() {return 0});
+    $data[1][0] || ($next = function() {return 0});
 
-	$next.toString = function() {return ''+$data[0]};
+    $next.toString = function() {return ''+$data[0]};
 
-	return $next;
+    return $next;
 }

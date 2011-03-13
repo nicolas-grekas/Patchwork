@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,61 +14,61 @@
 
 class loop_altLang extends loop
 {
-	protected $lang, $alt;
+    protected $lang, $alt;
 
-	protected static $nativeLang = array(
-		'fr' => 'Français',
-		'en' => 'English',
-		'es' => 'Español',
-		'de' => 'Deutsch',
-	);
+    protected static $nativeLang = array(
+        'fr' => 'Français',
+        'en' => 'English',
+        'es' => 'Español',
+        'de' => 'Deutsch',
+    );
 
 
-	protected function prepare()
-	{
-		if (PATCHWORK_I18N)
-		{
-			$this->lang = patchwork::__LANG__();
+    protected function prepare()
+    {
+        if (PATCHWORK_I18N)
+        {
+            $this->lang = patchwork::__LANG__();
 
-			if (!isset($this->alt))
-			{
-				$a = array();
+            if (!isset($this->alt))
+            {
+                $a = array();
 
-				$base = preg_quote($_SERVER['PATCHWORK_BASE'], "'");
-				$base = explode('__', $base, 2);
-				$base[1] = '/' === $base[1] ? '[^?/]+(/?)' : ".+?({$base[1]})";
-				$base = "'^({$base[0]}){$base[1]}(.*)$'D";
+                $base = preg_quote($_SERVER['PATCHWORK_BASE'], "'");
+                $base = explode('__', $base, 2);
+                $base[1] = '/' === $base[1] ? '[^?/]+(/?)' : ".+?({$base[1]})";
+                $base = "'^({$base[0]}){$base[1]}(.*)$'D";
 
-				if (preg_match($base, patchwork::__URI__(), $base))
-				{
-					unset($base[0]);
+                if (preg_match($base, patchwork::__URI__(), $base))
+                {
+                    unset($base[0]);
 
-					foreach ($GLOBALS['CONFIG']['i18n.lang_list'] as $k => $v)
-					{
-						if ('' === $k) continue;
+                    foreach ($GLOBALS['CONFIG']['i18n.lang_list'] as $k => $v)
+                    {
+                        if ('' === $k) continue;
 
-						$v = $base[1] . $v . $base[2] . ($this->lang === $k ? $base[3] : patchwork::translateRequest($base[3], $k));
+                        $v = $base[1] . $v . $base[2] . ($this->lang === $k ? $base[3] : patchwork::translateRequest($base[3], $k));
 
-						$a[] = (object) array(
-							'lang' => $k,
-							'title' => isset(self::$nativeLang[$k]) ? self::$nativeLang[$k] : $k,
-							'href'  => $v,
-						);
-					}
-				}
-				else W('Something is wrong between patchwork::__URI__() and PATCHWORK_BASE');
+                        $a[] = (object) array(
+                            'lang' => $k,
+                            'title' => isset(self::$nativeLang[$k]) ? self::$nativeLang[$k] : $k,
+                            'href'  => $v,
+                        );
+                    }
+                }
+                else W('Something is wrong between patchwork::__URI__() and PATCHWORK_BASE');
 
-				$this->alt =& $a;
-			}
+                $this->alt =& $a;
+            }
 
-			return count($this->alt);
-		}
-		else return 0;
-	}
+            return count($this->alt);
+        }
+        else return 0;
+    }
 
-	protected function next()
-	{
-		if (list(, $a) = each($this->alt)) return $a;
-		else reset($this->alt);
-	}
+    protected function next()
+    {
+        if (list(, $a) = each($this->alt)) return $a;
+        else reset($this->alt);
+    }
 }

@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,10 +14,10 @@
 
 class Mail_mail extends self
 {
-	function send($recipients, $headers, $body)
-	{
-		$this->_sanitizeHeaders($headers);
-		isset($headers['From']) && ini_set('sendmail_from', $headers['From']);
-		return parent::send($recipients, $headers, $body);
-	}
+    function send($recipients, $headers, $body)
+    {
+        $this->_sanitizeHeaders($headers);
+        isset($headers['From']) && ini_set('sendmail_from', $headers['From']);
+        return parent::send($recipients, $headers, $body);
+    }
 }

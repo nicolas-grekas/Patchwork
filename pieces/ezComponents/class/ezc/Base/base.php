@@ -1,5 +1,5 @@
-<?php
-/**
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
+ *
  * Extending the ezcBase class for patchwork integration
  *
  * @copyright Copyright (C) 2005, 2006 eZ systems as. All rights reserved.
@@ -8,38 +8,38 @@
 
 class ezcBase extends self
 {
-	static function getAutoload($className)
-	{
-		if (isset(self::$autoloadArray[$className])) return 'ezc/' . self::$autoloadArray[$className];
+    static function getAutoload($className)
+    {
+        if (isset(self::$autoloadArray[$className])) return 'ezc/' . self::$autoloadArray[$className];
 
-		if (preg_match( "/^([a-z]*)([A-Z][a-z0-9]*)([A-Z][a-z0-9]*)?/", $className, $matches ))
-		{
-			switch (sizeof($matches))
-			{
-				case 4:
-					$autoload = strtolower("class/ezc/autoload/{$matches[2]}_{$matches[3]}_autoload.php");
-					if ($autoload = patchworkPath($autoload))
-					{
-						$autoload = require $autoload;
-						self::$autoloadArray = array_merge(self::$autoloadArray, $autoload);
-						break;
-					}
+        if (preg_match( "/^([a-z]*)([A-Z][a-z0-9]*)([A-Z][a-z0-9]*)?/", $className, $matches ))
+        {
+            switch (sizeof($matches))
+            {
+                case 4:
+                    $autoload = strtolower("class/ezc/autoload/{$matches[2]}_{$matches[3]}_autoload.php");
+                    if ($autoload = patchworkPath($autoload))
+                    {
+                        $autoload = require $autoload;
+                        self::$autoloadArray = array_merge(self::$autoloadArray, $autoload);
+                        break;
+                    }
 
-				case 3:
-					$autoload = strtolower("class/ezc/autoload/{$matches[2]}_autoload.php");
-					if ($autoload = patchworkPath($autoload))
-					{
-						$autoload = require $autoload;
-						self::$autoloadArray = array_merge(self::$autoloadArray, $autoload);
-					}
+                case 3:
+                    $autoload = strtolower("class/ezc/autoload/{$matches[2]}_autoload.php");
+                    if ($autoload = patchworkPath($autoload))
+                    {
+                        $autoload = require $autoload;
+                        self::$autoloadArray = array_merge(self::$autoloadArray, $autoload);
+                    }
 
-					break;
-			}
-		}
+                    break;
+            }
+        }
 
-		return isset(self::$autoloadArray[$className])
-			? 'ezc/' . self::$autoloadArray[$className]
-			: false;
-	}
+        return isset(self::$autoloadArray[$className])
+            ? 'ezc/' . self::$autoloadArray[$className]
+            : false;
+    }
 
 }

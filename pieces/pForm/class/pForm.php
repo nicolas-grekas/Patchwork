@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,225 +14,225 @@
 
 class pForm extends loop_agentWrapper
 {
-	public
+    public
 
-	$rawValues,
-	$filesValues = array(),
-	$errormsg = array(),
-	$sessionLink = false,
-	$action = false;
-
-
-	protected
-
-	$elt = array(),
-	$hidden = array(),
-	$POST,
-	$eltnameSuffix = '',
-
-	$agentData = false,
-	$agentPrefix = 'f_',
-
-	$hasfile = false,
-	$enterControl = false,
-	$firstName = -1,
-
-	$contextPool = array(),
-	$defaults = array();
+    $rawValues,
+    $filesValues = array(),
+    $errormsg = array(),
+    $sessionLink = false,
+    $action = false;
 
 
-	function __construct($agentData, $sessionLink = '', $POST = true, $formVarname = 'form')
-	{
-		if ($agentData)
-		{
-			if ($formVarname)
-			{
-				if (isset($agentData->$formVarname))
-				{
-					W(__CLASS__ . ": Overwriting existing \$agentData->{$formVarname}! If this is the intended behavior, unset(\$agentData->{$formVarname}) to remove this warning.");
-				}
+    protected
 
-				$agentData->$formVarname = $this;
-			}
+    $elt = array(),
+    $hidden = array(),
+    $POST,
+    $eltnameSuffix = '',
 
-			$this->agentData = $agentData;
-		}
-		else $this->agentData = false;
+    $agentData = false,
+    $agentPrefix = 'f_',
 
-		$this->POST = (bool) $POST;
-		if ($this->POST)
-		{
-			patchwork::canPost();
+    $hasfile = false,
+    $enterControl = false,
+    $firstName = -1,
 
-			if (isset($_POST['_POST_BACKUP']))
-			{
-				// This should only be used for field persistence, not as valid input
-				$this->rawValues   =& $GLOBALS['_POST_BACKUP'];
-//				$this->filesValues =& $GLOBALS['_FILES_BACKUP'];
-			}
-			else
-			{
-				$this->rawValues   =& $_POST;
-				$this->filesValues =& $_FILES;
-			}
-		}
-		else $this->rawValues =& $_GET;
+    $contextPool = array(),
+    $defaults = array();
 
-		if ($sessionLink)
-		{
-			SESSION::bind($sessionLink, $this->sessionLink);
-			if (!$this->sessionLink) $this->sessionLink = array(0);
-		}
-	}
 
-	function setPrefix($prefix)
-	{
-		$this->agentPrefix = $prefix;
-	}
+    function __construct($agentData, $sessionLink = '', $POST = true, $formVarname = 'form')
+    {
+        if ($agentData)
+        {
+            if ($formVarname)
+            {
+                if (isset($agentData->$formVarname))
+                {
+                    W(__CLASS__ . ": Overwriting existing \$agentData->{$formVarname}! If this is the intended behavior, unset(\$agentData->{$formVarname}) to remove this warning.");
+                }
 
-	function pushContext($agentData, $eltnameSuffix = '')
-	{
-		$this->contextPool[] = array(
-			$this->agentData,
-			$this->agentPrefix,
-			$this->eltnameSuffix,
-			$this->defaults
-		);
+                $agentData->$formVarname = $this;
+            }
 
-		if ($agentData)
-		{
-			$this->agentData = $agentData;
-			$this->eltnameSuffix .= '_' . $eltnameSuffix;
-		}
-		else $this->agentData = false;
+            $this->agentData = $agentData;
+        }
+        else $this->agentData = false;
 
-		$this->defaults = array();
-	}
+        $this->POST = (bool) $POST;
+        if ($this->POST)
+        {
+            patchwork::canPost();
 
-	function pullContext()
-	{
-		list(
-			$this->agentData,
-			$this->agentPrefix,
-			$this->eltnameSuffix,
-			$this->defaults
-		) = array_pop($this->contextPool);
-	}
+            if (isset($_POST['_POST_BACKUP']))
+            {
+                // This should only be used for field persistence, not as valid input
+                $this->rawValues   =& $GLOBALS['_POST_BACKUP'];
+//              $this->filesValues =& $GLOBALS['_FILES_BACKUP'];
+            }
+            else
+            {
+                $this->rawValues   =& $_POST;
+                $this->filesValues =& $_FILES;
+            }
+        }
+        else $this->rawValues =& $_GET;
 
-	function setDefaults($data)
-	{
-		$this->defaults = array_merge($this->defaults, (array) $data);
-	}
+        if ($sessionLink)
+        {
+            SESSION::bind($sessionLink, $this->sessionLink);
+            if (!$this->sessionLink) $this->sessionLink = array(0);
+        }
+    }
 
-	function add($type, $name, $param = array(), $autoPopulate = true)
-	{
-		is_array($param) || $param = (array) $param;
+    function setPrefix($prefix)
+    {
+        $this->agentPrefix = $prefix;
+    }
 
-		if (!isset($param['default']) && isset($this->defaults[$name])) $param['default'] = $this->defaults[$name];
+    function pushContext($agentData, $eltnameSuffix = '')
+    {
+        $this->contextPool[] = array(
+            $this->agentData,
+            $this->agentPrefix,
+            $this->eltnameSuffix,
+            $this->defaults
+        );
 
-		$fullname = $this->agentPrefix . $name . $this->eltnameSuffix;
-		$type = 'pForm_' . preg_replace('"[^a-zA-Z0-9\x80-\xFF]+"', '_', $type);
-		$elt = $this->elt[$fullname] = new $type($this, $fullname, $param, $this->sessionLink);
+        if ($agentData)
+        {
+            $this->agentData = $agentData;
+            $this->eltnameSuffix .= '_' . $eltnameSuffix;
+        }
+        else $this->agentData = false;
 
-		if ($autoPopulate && $this->agentData)
-		{
-			if ('pForm_hidden' == $type)
-			{
-				$this->hidden[$fullname] = $elt;
-				unset($this->agentData->{$this->agentPrefix . $name});
-			}
-			else
-			{
-				unset($this->hidden[$fullname]);
-				$this->agentData->{$this->agentPrefix . $name} = $elt;
-			}
-		}
-		else if ('pForm_hidden' == $type)
-		{
-			$this->hidden[$fullname] = $elt;
-		}
+        $this->defaults = array();
+    }
 
-		return $elt;
-	}
+    function pullContext()
+    {
+        list(
+            $this->agentData,
+            $this->agentPrefix,
+            $this->eltnameSuffix,
+            $this->defaults
+        ) = array_pop($this->contextPool);
+    }
 
-	function setError($eltname, $message)
-	{
-		$this->getElement($eltname)->setError($message);
-	}
+    function setDefaults($data)
+    {
+        $this->defaults = array_merge($this->defaults, (array) $data);
+    }
 
-	function getElement($name)
-	{
-		$name = $this->agentPrefix . $name . $this->eltnameSuffix;
-		return isset($this->elt[$name]) ? $this->elt[$name] : false;
-	}
+    function add($type, $name, $param = array(), $autoPopulate = true)
+    {
+        is_array($param) || $param = (array) $param;
 
-	function setFile($isfile)
-	{
-		if ($isfile && !$this->hasfile)
-		{
-			$this->hasfile = true;
+        if (!isset($param['default']) && isset($this->defaults[$name])) $param['default'] = $this->defaults[$name];
 
-			if (function_exists('upload_progress_meter_get_info') || function_exists('uploadprogress_get_info'))
-			{
-				$elt = $this->elt['UPLOAD_IDENTIFIER'] = new pForm_hidden($this, 'UPLOAD_IDENTIFIER', array(), $this->sessionLink);
-				$elt->setValue(patchwork::uniqid());
-				array_unshift($this->hidden, $elt);
-			}
-		}
-	}
+        $fullname = $this->agentPrefix . $name . $this->eltnameSuffix;
+        $type = 'pForm_' . preg_replace('"[^a-zA-Z0-9\x80-\xFF]+"', '_', $type);
+        $elt = $this->elt[$fullname] = new $type($this, $fullname, $param, $this->sessionLink);
 
-	function setEnterControl($name = '')
-	{
-		if ($this->firstName === -1) $this->firstName = $name;
-		else if ($name != $this->firstName) $this->enterControl = true;
-	}
+        if ($autoPopulate && $this->agentData)
+        {
+            if ('pForm_hidden' == $type)
+            {
+                $this->hidden[$fullname] = $elt;
+                unset($this->agentData->{$this->agentPrefix . $name});
+            }
+            else
+            {
+                unset($this->hidden[$fullname]);
+                $this->agentData->{$this->agentPrefix . $name} = $elt;
+            }
+        }
+        else if ('pForm_hidden' == $type)
+        {
+            $this->hidden[$fullname] = $elt;
+        }
 
-	function isPOST()
-	{
-		return $this->POST;
-	}
+        return $elt;
+    }
 
-	protected function get()
-	{
-		$this->agent = 'form/form';
-		$this->keys = '';
+    function setError($eltname, $message)
+    {
+        $this->getElement($eltname)->setError($message);
+    }
 
-		$a = (object) array(
-			'_hidden' => new pForm_hiddenLoop__($this->hidden),
-			'_errormsg' => new loop_array($this->errormsg)
-		);
+    function getElement($name)
+    {
+        $name = $this->agentPrefix . $name . $this->eltnameSuffix;
+        return isset($this->elt[$name]) ? $this->elt[$name] : false;
+    }
 
-		if ($this->POST) $a->method = 'post';
-		if ($this->action) $a->action = $this->action;
-		if ($this->enterControl) $a->_enterControl_ = 1;
-		if ($this->hasfile)
-		{
-			$a->enctype = 'multipart/form-data';
-			if (isset($this->elt['UPLOAD_IDENTIFIER'])) $a->_upload = 1;
-		}
+    function setFile($isfile)
+    {
+        if ($isfile && !$this->hasfile)
+        {
+            $this->hasfile = true;
 
-		return $a;
-	}
+            if (function_exists('upload_progress_meter_get_info') || function_exists('uploadprogress_get_info'))
+            {
+                $elt = $this->elt['UPLOAD_IDENTIFIER'] = new pForm_hidden($this, 'UPLOAD_IDENTIFIER', array(), $this->sessionLink);
+                $elt->setValue(patchwork::uniqid());
+                array_unshift($this->hidden, $elt);
+            }
+        }
+    }
+
+    function setEnterControl($name = '')
+    {
+        if ($this->firstName === -1) $this->firstName = $name;
+        else if ($name != $this->firstName) $this->enterControl = true;
+    }
+
+    function isPOST()
+    {
+        return $this->POST;
+    }
+
+    protected function get()
+    {
+        $this->agent = 'form/form';
+        $this->keys = '';
+
+        $a = (object) array(
+            '_hidden' => new pForm_hiddenLoop__($this->hidden),
+            '_errormsg' => new loop_array($this->errormsg)
+        );
+
+        if ($this->POST) $a->method = 'post';
+        if ($this->action) $a->action = $this->action;
+        if ($this->enterControl) $a->_enterControl_ = 1;
+        if ($this->hasfile)
+        {
+            $a->enctype = 'multipart/form-data';
+            if (isset($this->elt['UPLOAD_IDENTIFIER'])) $a->_upload = 1;
+        }
+
+        return $a;
+    }
 }
 
 class pForm_hiddenLoop__ extends loop
 {
-	protected $array;
+    protected $array;
 
-	function __construct(&$array) {$this->array =& $array;}
-	protected function prepare() {return count($this->array);}
-	protected function next()
-	{
-		if (list(, $value) = each($this->array))
-		{
-			$result = $value->loop();
-			$value->loop();
-			return $result;
-		}
-		else
-		{
-			reset($this->array);
-			return false;
-		}
-	}
+    function __construct(&$array) {$this->array =& $array;}
+    protected function prepare() {return count($this->array);}
+    protected function next()
+    {
+        if (list(, $value) = each($this->array))
+        {
+            $result = $value->loop();
+            $value->loop();
+            return $result;
+        }
+        else
+        {
+            reset($this->array);
+            return false;
+        }
+    }
 }

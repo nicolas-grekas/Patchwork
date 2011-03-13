@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,21 +14,21 @@
 
 class agent_outerData extends agent
 {
-	static
+    static
 
-	$outerData = array(),
-	$outerTemplate = 'bin';
+    $outerData = array(),
+    $outerTemplate = 'bin';
 
-	protected $data;
+    protected $data;
 
-	function control()
-	{
-		$this->data     = self::$outerData;
-		$this->template = self::$outerTemplate;
-	}
+    function control()
+    {
+        $this->data     = self::$outerData;
+        $this->template = self::$outerTemplate;
+    }
 
-	function compose($o)
-	{
-		return $this->data;
-	}
+    function compose($o)
+    {
+        return $this->data;
+    }
 }

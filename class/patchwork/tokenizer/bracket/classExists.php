@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2010 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,14 +14,14 @@
 
 class patchwork_tokenizer_bracket_classExists extends patchwork_tokenizer_bracket
 {
-	protected function onReposition(&$token)
-	{
-		if (1 === $this->bracketIndex) $token[1] .= '(';
-		if (2 === $this->bracketIndex) $token[1] = ')||1' . $token[1];
-	}
+    protected function onReposition(&$token)
+    {
+        if (1 === $this->bracketIndex) $token[1] .= '(';
+        if (2 === $this->bracketIndex) $token[1] = ')||1' . $token[1];
+    }
 
-	protected function onClose(&$token)
-	{
-		if (1 === $this->bracketIndex) $token[1] = ')||1' . $token[1];
-	}
+    protected function onClose(&$token)
+    {
+        if (1 === $this->bracketIndex) $token[1] = ')||1' . $token[1];
+    }
 }

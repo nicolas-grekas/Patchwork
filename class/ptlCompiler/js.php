@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,334 +14,334 @@
 
 class ptlCompiler_js extends ptlCompiler
 {
-	const
+    const
 
-	OP_PIPE      = 0,
-	OP_AGENT     = 1,
-	OP_ECHO      = 2,
-	OP_EVALECHO  = 3,
-	OP_SET       = 4,
-	OP_ENDSET    = 5,
-	OP_JUMP      = 6,
-	OP_IF        = 7,
-	OP_LOOP      = 8,
-	OP_NEXT      = 9;
-
-
-	protected
-
-	$watch = 'public/templates/js',
-	$serverMode = false,
-	$closeModifier = ')',
-
-	$stack = array(),
-
-	$jscode = array(),
-	$modifiers = array(),
-	$jsreserved = array(
-		'abstract','boolean','break','byte',
-		'case','catch','char','class',
-		'const','continue','default','delete',
-		'do','double','else','export',
-		'extends','false','final','finally',
-		'float','for','function','goto',
-		'if','implements','in','instanceof',
-		'int','long','native','new',
-		'null','package','private','protected',
-		'public','return','short','static',
-		'super','switch','synchronized','this',
-		'throw','throws','transient','true',
-		'try','typeof','var','void',
-		'while','with',
-	);
+    OP_PIPE      = 0,
+    OP_AGENT     = 1,
+    OP_ECHO      = 2,
+    OP_EVALECHO  = 3,
+    OP_SET       = 4,
+    OP_ENDSET    = 5,
+    OP_JUMP      = 6,
+    OP_IF        = 7,
+    OP_LOOP      = 8,
+    OP_NEXT      = 9;
 
 
-	protected function makeCode(&$code)
-	{
-		$code = '';
+    protected
 
-		if ($m = array_unique($this->modifiers))
-		{
-/**/		if (DEBUG)
-/**/		{
-				$m = implode('.', $m);
-				array_unshift($this->jscode, self::OP_PIPE, jsquote($m));
-/**/		}
-/**/		else
-/**/		{
-				foreach ($m as $m)
-				{
-					$code .= 'w.P$' . $m . '=';
+    $watch = 'public/templates/js',
+    $serverMode = false,
+    $closeModifier = ')',
 
-					if (class_exists('pipe_' . $m))
-					{
-						ob_start();
-						call_user_func(array('pipe_' . $m, 'js'));
+    $stack = array(),
 
-						$m = new jsqueez;
-						$m = $m->squeeze(ob_get_clean());
-						$code .= trim($m, ';') . ';';
-					}
-					else
-					{
-						W('PTL Modifier Not Found: ' . $m);
-						$code .= "function(){return'؟'};";
-					}
-				}
-/**/		}
-		}
+    $jscode = array(),
+    $modifiers = array(),
+    $jsreserved = array(
+        'abstract','boolean','break','byte',
+        'case','catch','char','class',
+        'const','continue','default','delete',
+        'do','double','else','export',
+        'extends','false','final','finally',
+        'float','for','function','goto',
+        'if','implements','in','instanceof',
+        'int','long','native','new',
+        'null','package','private','protected',
+        'public','return','short','static',
+        'super','switch','synchronized','this',
+        'throw','throws','transient','true',
+        'try','typeof','var','void',
+        'while','with',
+    );
 
-		return "(function(w){{$code}return [" . implode(',', $this->jscode) . "]})(window)";
-	}
 
-	protected function makeModifier($name)
-	{
-		$this->modifiers[] = $name;
-		return 'P$' . $name;
-	}
+    protected function makeCode(&$code)
+    {
+        $code = '';
 
-	protected function addAGENT($limit, $inc, &$args, $is_exo)
-	{
-		if ($limit) return false;
+        if ($m = array_unique($this->modifiers))
+        {
+/**/        if (DEBUG)
+/**/        {
+                $m = implode('.', $m);
+                array_unshift($this->jscode, self::OP_PIPE, jsquote($m));
+/**/        }
+/**/        else
+/**/        {
+                foreach ($m as $m)
+                {
+                    $code .= 'w.P$' . $m . '=';
 
-		$this->pushCode('');
+                    if (class_exists('pipe_' . $m))
+                    {
+                        ob_start();
+                        call_user_func(array('pipe_' . $m, 'js'));
 
-		$keys = false;
-		$meta = $is_exo ? 3 : 2;
+                        $m = new jsqueez;
+                        $m = $m->squeeze(ob_get_clean());
+                        $code .= trim($m, ';') . ';';
+                    }
+                    else
+                    {
+                        W('PTL Modifier Not Found: ' . $m);
+                        $code .= "function(){return'؟'};";
+                    }
+                }
+/**/        }
+        }
 
-		if (preg_match('/^\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'$/s', $inc))
-		{
-			eval("\$inc=$inc;");
+        return "(function(w){{$code}return [" . implode(',', $this->jscode) . "]})(window)";
+    }
 
-			list($appId, $base, $inc, $keys, $a) = patchwork_agentTrace::resolve($inc);
+    protected function makeModifier($name)
+    {
+        $this->modifiers[] = $name;
+        return 'P$' . $name;
+    }
 
-			$args = array_map('jsquote', $a) + $args;
+    protected function addAGENT($limit, $inc, &$args, $is_exo)
+    {
+        if ($limit) return false;
 
-			if (false !== $base)
-			{
-				if (!$is_exo)
-				{
-					W("Template Security Restriction Error: an EXOAGENT ({$base}{$inc}) is called with AGENT on line " . $this->getLine());
-					exit;
-				}
+        $this->pushCode('');
 
-				$meta = "[{$appId}," . jsquote($base) . ']';
-			}
-			else if ($is_exo)
-			{
-				W("Template Security Restriction Error: an AGENT ({$inc}) is called with EXOAGENT on line " . $this->getLine());
-				exit;
-			}
-			else $meta = 1;
+        $keys = false;
+        $meta = $is_exo ? 3 : 2;
 
-			$keys = implode(',', array_map('jsquote', $keys));
+        if (preg_match('/^\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'$/s', $inc))
+        {
+            eval("\$inc=$inc;");
 
-			$inc = jsquote($inc);
-		}
+            list($appId, $base, $inc, $keys, $a) = patchwork_agentTrace::resolve($inc);
 
-		$a = '';
-		$comma = '';
-		foreach ($args as $k => $v)
-		{
-			$a .= in_array($k, $this->jsreserved) ? "$comma'$k':$v" : "$comma$k:$v";
-			$comma = ',';
-		}
-		$a = '{' . $a . '}';
+            $args = array_map('jsquote', $a) + $args;
 
-		array_push(
-			$this->jscode,
-			self::OP_AGENT,
-			3 === $meta || 2 === $meta ? "function(a,d,v,g,z,r){return {$inc}}" : $inc,
-			"function(a,d,v,g,z,r){return {$a}}",
-			false === $keys ? 0 : "[$keys]",
-			$meta
-		);
+            if (false !== $base)
+            {
+                if (!$is_exo)
+                {
+                    W("Template Security Restriction Error: an EXOAGENT ({$base}{$inc}) is called with AGENT on line " . $this->getLine());
+                    exit;
+                }
 
-		return true;
-	}
+                $meta = "[{$appId}," . jsquote($base) . ']';
+            }
+            else if ($is_exo)
+            {
+                W("Template Security Restriction Error: an AGENT ({$inc}) is called with EXOAGENT on line " . $this->getLine());
+                exit;
+            }
+            else $meta = 1;
 
-	protected function addSET($limit, $name, $type)
-	{
-		$this->pushCode('');
+            $keys = implode(',', array_map('jsquote', $keys));
 
-		if ($limit > 0)
-		{
-			$type = array_pop($this->setStack);
-			$name = $type[0];
-			$type = $type[1];
+            $inc = jsquote($inc);
+        }
 
-			switch ($type)
-			{
-			case 'd': $type = 2; break;
-			case 'g': $type = 1; break;
-			case 'a': $type = 0; break;
-			default: $type = strlen($type) + 3;
-			}
+        $a = '';
+        $comma = '';
+        foreach ($args as $k => $v)
+        {
+            $a .= in_array($k, $this->jsreserved) ? "$comma'$k':$v" : "$comma$k:$v";
+            $comma = ',';
+        }
+        $a = '{' . $a . '}';
 
-			array_push($this->jscode, self::OP_ENDSET, $type, "'" . $name . "'");
-		}
-		else
-		{
-			array_push($this->setStack, array($name, $type));
-			array_push($this->jscode, self::OP_SET);
-		}
+        array_push(
+            $this->jscode,
+            self::OP_AGENT,
+            3 === $meta || 2 === $meta ? "function(a,d,v,g,z,r){return {$inc}}" : $inc,
+            "function(a,d,v,g,z,r){return {$a}}",
+            false === $keys ? 0 : "[$keys]",
+            $meta
+        );
 
-		return true;
-	}
+        return true;
+    }
 
-	protected function addLOOP($limit, $var)
-	{
-		$this->pushCode('');
+    protected function addSET($limit, $name, $type)
+    {
+        $this->pushCode('');
 
-		if ($limit > 0)
-		{
-			$a = array_pop($this->stack);
-			$b = count($this->jscode) - $a;
-			if (-1 === $this->jscode[$a])
-			{
-				array_push($this->jscode, self::OP_NEXT, $b);
-				$this->jscode[$a] = $b + 2;
-			}
-			else $this->jscode[$a] = $b;
-		}
-		else
-		{
-			array_push($this->stack, count($this->jscode) + 2);
-			array_push($this->jscode, self::OP_LOOP, "function(a,d,v,g,z,r){return {$var}}", -1);
-		}
+        if ($limit > 0)
+        {
+            $type = array_pop($this->setStack);
+            $name = $type[0];
+            $type = $type[1];
 
-		return true;
-	}
+            switch ($type)
+            {
+            case 'd': $type = 2; break;
+            case 'g': $type = 1; break;
+            case 'a': $type = 0; break;
+            default: $type = strlen($type) + 3;
+            }
 
-	protected function addIF($limit, $elseif, $expression)
-	{
-		if ($elseif && $limit) return false;
+            array_push($this->jscode, self::OP_ENDSET, $type, "'" . $name . "'");
+        }
+        else
+        {
+            array_push($this->setStack, array($name, $type));
+            array_push($this->jscode, self::OP_SET);
+        }
 
-		$this->pushCode('');
+        return true;
+    }
 
-		if ($limit > 0)
-		{
-			$a = array_pop($this->stack);
-			$b = count($this->jscode) - $a;
-			if (-3 === $this->jscode[$a]) do
-			{
-				$this->jscode[$a] = $b;
-				$b += $a;
-				$a = array_pop($this->stack);
-				$b -= $a;
-			}
-			while (-3 === $this->jscode[$a]);
+    protected function addLOOP($limit, $var)
+    {
+        $this->pushCode('');
 
-			$this->jscode[$a] = $b;
-		}
-		else
-		{
-			if ($elseif) $this->addELSE(false);
+        if ($limit > 0)
+        {
+            $a = array_pop($this->stack);
+            $b = count($this->jscode) - $a;
+            if (-1 === $this->jscode[$a])
+            {
+                array_push($this->jscode, self::OP_NEXT, $b);
+                $this->jscode[$a] = $b + 2;
+            }
+            else $this->jscode[$a] = $b;
+        }
+        else
+        {
+            array_push($this->stack, count($this->jscode) + 2);
+            array_push($this->jscode, self::OP_LOOP, "function(a,d,v,g,z,r){return {$var}}", -1);
+        }
 
-			array_push($this->stack, count($this->jscode) + 2);
-			array_push($this->jscode, self::OP_IF, "function(a,d,v,g,z,r){return {$expression}}", $elseif ? -3 : -2);
-		}
+        return true;
+    }
 
-		return true;
-	}
+    protected function addIF($limit, $elseif, $expression)
+    {
+        if ($elseif && $limit) return false;
 
-	protected function addELSE($limit)
-	{
-		if ($limit) return false;
+        $this->pushCode('');
 
-		$this->pushCode('');
+        if ($limit > 0)
+        {
+            $a = array_pop($this->stack);
+            $b = count($this->jscode) - $a;
+            if (-3 === $this->jscode[$a]) do
+            {
+                $this->jscode[$a] = $b;
+                $b += $a;
+                $a = array_pop($this->stack);
+                $b -= $a;
+            }
+            while (-3 === $this->jscode[$a]);
 
-		$a = array_pop($this->stack);
-		$b = count($this->jscode) - $a;
-		if (-1 === $this->jscode[$a])
-		{
-			array_push($this->stack, $a + $b + 3);
-			array_push($this->jscode, self::OP_NEXT, $b, self::OP_JUMP, -2);
-			$this->jscode[$a] = $b + 4;
-		}
-		else
-		{
-			array_push($this->stack, $a + $b + 1);
-			array_push($this->jscode, self::OP_JUMP, $this->jscode[$a]);
-			$this->jscode[$a] = $b + 2;
-		}
+            $this->jscode[$a] = $b;
+        }
+        else
+        {
+            if ($elseif) $this->addELSE(false);
 
-		return true;
-	}
+            array_push($this->stack, count($this->jscode) + 2);
+            array_push($this->jscode, self::OP_IF, "function(a,d,v,g,z,r){return {$expression}}", $elseif ? -3 : -2);
+        }
 
-	protected function getEcho($str)
-	{
-		if ("'" === $str[0] || (string) $str === (string) ($str-0))
-		{
-			if ("''" !== $str) array_push($this->jscode, self::OP_ECHO, $str);
-		}
-		else
-		{
-			$this->pushCode('');
-			array_push($this->jscode, self::OP_EVALECHO, "function(a,d,v,g,z,r){return {$str}}");
-		}
+        return true;
+    }
 
-		return '';
-	}
+    protected function addELSE($limit)
+    {
+        if ($limit) return false;
 
-	protected function getConcat($array)
-	{
-		return implode('+', $array);
-	}
+        $this->pushCode('');
 
-	protected function getRawString($str)
-	{
-		$str = substr($str, 1, -1);
+        $a = array_pop($this->stack);
+        $b = count($this->jscode) - $a;
+        if (-1 === $this->jscode[$a])
+        {
+            array_push($this->stack, $a + $b + 3);
+            array_push($this->jscode, self::OP_NEXT, $b, self::OP_JUMP, -2);
+            $this->jscode[$a] = $b + 4;
+        }
+        else
+        {
+            array_push($this->stack, $a + $b + 1);
+            array_push($this->jscode, self::OP_JUMP, $this->jscode[$a]);
+            $this->jscode[$a] = $b + 2;
+        }
 
-		false !== strpos($str, "\\'")  && $str = str_replace("\\'" , "'" , $str);
-		false !== strpos($str, '<\\/') && $str = str_replace('<\\/', '</', $str);
-		false !== strpos($str, '\n')   && $str = str_replace('\n'  , "\n", $str);
-		false !== strpos($str, '\\\\') && $str = str_replace('\\\\', '\\', $str);
+        return true;
+    }
 
-		return $str;
-	}
+    protected function getEcho($str)
+    {
+        if ("'" === $str[0] || (string) $str === (string) ($str-0))
+        {
+            if ("''" !== $str) array_push($this->jscode, self::OP_ECHO, $str);
+        }
+        else
+        {
+            $this->pushCode('');
+            array_push($this->jscode, self::OP_EVALECHO, "function(a,d,v,g,z,r){return {$str}}");
+        }
 
-	protected function getVar($name, $type, $prefix, $forceType)
-	{
-		if ((string) $name === (string) ($name-0)) return $name;
+        return '';
+    }
 
-		switch ($type)
-		{
-			case "'":
-				$result = jsquote($name);
-				break;
+    protected function getConcat($array)
+    {
+        return implode('+', $array);
+    }
 
-			case '$':
-				$result = 'v' . str_repeat('.$', substr_count($prefix, '$')) . $this->getJsAccess($name);
-				break;
+    protected function getRawString($str)
+    {
+        $str = substr($str, 1, -1);
 
-			case 'd':
-			case 'a':
-			case 'g':
-				$result = '' !== (string) $prefix ? "z('$name',$prefix" . ('g' === $type ? ',1' : '') . ')' : ($type . $this->getJsAccess($name));
-				if ('g.__BASE__' === $result) $result = 'r';
-				break;
+        false !== strpos($str, "\\'")  && $str = str_replace("\\'" , "'" , $str);
+        false !== strpos($str, '<\\/') && $str = str_replace('<\\/', '</', $str);
+        false !== strpos($str, '\n')   && $str = str_replace('\n'  , "\n", $str);
+        false !== strpos($str, '\\\\') && $str = str_replace('\\\\', '\\', $str);
 
-			case '':
-				$result = 'v' . $this->getJsAccess($name);
-				break;
+        return $str;
+    }
 
-			default:
-				$result = $type . $this->getJsAccess($name);
-		}
+    protected function getVar($name, $type, $prefix, $forceType)
+    {
+        if ((string) $name === (string) ($name-0)) return $name;
 
-		switch ($forceType)
-		{
-		case 'number' : $result = "'" === $result[0] ? ($result-0) : "num($result)"  ; break;
-		case 'unified': $result = "'" === $result[0] ?  $result    : "num($result,1)"; break;
-		default: if ('concat' === $this->mode && "'" !== $result[0]) $result = "str($result)";
-		}
+        switch ($type)
+        {
+            case "'":
+                $result = jsquote($name);
+                break;
 
-		return $result;
-	}
+            case '$':
+                $result = 'v' . str_repeat('.$', substr_count($prefix, '$')) . $this->getJsAccess($name);
+                break;
 
-	protected function getJsAccess($name)
-	{
-		return strlen($name) ? ( preg_match('"[^a-zA-Z0-9_\$]"', $name) || in_array($name, $this->jsreserved) ? "['$name']" : ".$name" ) : '';
-	}
+            case 'd':
+            case 'a':
+            case 'g':
+                $result = '' !== (string) $prefix ? "z('$name',$prefix" . ('g' === $type ? ',1' : '') . ')' : ($type . $this->getJsAccess($name));
+                if ('g.__BASE__' === $result) $result = 'r';
+                break;
+
+            case '':
+                $result = 'v' . $this->getJsAccess($name);
+                break;
+
+            default:
+                $result = $type . $this->getJsAccess($name);
+        }
+
+        switch ($forceType)
+        {
+        case 'number' : $result = "'" === $result[0] ? ($result-0) : "num($result)"  ; break;
+        case 'unified': $result = "'" === $result[0] ?  $result    : "num($result,1)"; break;
+        default: if ('concat' === $this->mode && "'" !== $result[0]) $result = "str($result)";
+        }
+
+        return $result;
+    }
+
+    protected function getJsAccess($name)
+    {
+        return strlen($name) ? ( preg_match('"[^a-zA-Z0-9_\$]"', $name) || in_array($name, $this->jsreserved) ? "['$name']" : ".$name" ) : '';
+    }
 }

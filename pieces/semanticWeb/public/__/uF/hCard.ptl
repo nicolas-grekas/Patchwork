@@ -1,6 +1,6 @@
-{***************************************************************************
+{***** vi: set encoding=utf-8 expandtab shiftwidth=4: **********************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -11,56 +11,56 @@
  *
  ***************************************************************************}
 <div class="vcard" {a$attributes}>
-	<!-- IF a$given_name || a$family_name -->
-	<div class="<!-- IF a$family_name -->fn <!-- END:IF -->n">
-		<!-- IF a$given_name --><span class="given-name">{a$given_name}</span>
-			<!-- IF a$additional_name --><span class="additional-name">{a$additional_name}</span><!-- END:IF -->
-		<!-- END:IF -->
+    <!-- IF a$given_name || a$family_name -->
+    <div class="<!-- IF a$family_name -->fn <!-- END:IF -->n">
+        <!-- IF a$given_name --><span class="given-name">{a$given_name}</span>
+            <!-- IF a$additional_name --><span class="additional-name">{a$additional_name}</span><!-- END:IF -->
+        <!-- END:IF -->
 
-		<!-- IF a$family_name --><span class="family-name">{a$family_name}</span><!-- END:IF -->
-	</div>
-	<!-- END:IF -->
+        <!-- IF a$family_name --><span class="family-name">{a$family_name}</span><!-- END:IF -->
+    </div>
+    <!-- END:IF -->
 
-	<!-- IF a$organization -->
-	<div class="<!-- IF !a$family_name -->fn <!-- END:IF -->org">
-		<!-- IF a$organization_title || a$organization_role || a$organization_unit -->
-			<!-- IF a$organization_title --><span class="organization-title">{a$organization_title}</span><!-- END:IF -->
-			<!-- IF a$organization_role --><span class="organization-role">{a$organization_role}</span><!-- END:IF -->
-			<!-- IF a$organization_title || a$organization_role -->,<!-- END:IF -->
-			<!-- IF a$organization_unit --><span class="organization-unit">{a$organization_unit}</span>,<!-- END:IF -->
-			<span class="organization-name">{a$organization}</span>
-		<!-- ELSE -->{a$organization}
-		<!-- END:IF -->
-	</div>
-	<!-- END:IF -->
+    <!-- IF a$organization -->
+    <div class="<!-- IF !a$family_name -->fn <!-- END:IF -->org">
+        <!-- IF a$organization_title || a$organization_role || a$organization_unit -->
+            <!-- IF a$organization_title --><span class="organization-title">{a$organization_title}</span><!-- END:IF -->
+            <!-- IF a$organization_role --><span class="organization-role">{a$organization_role}</span><!-- END:IF -->
+            <!-- IF a$organization_title || a$organization_role -->,<!-- END:IF -->
+            <!-- IF a$organization_unit --><span class="organization-unit">{a$organization_unit}</span>,<!-- END:IF -->
+            <span class="organization-name">{a$organization}</span>
+        <!-- ELSE -->{a$organization}
+        <!-- END:IF -->
+    </div>
+    <!-- END:IF -->
 
-	<!-- INLINE uF/adr -->
-	<!-- INLINE uF/geo -->
+    <!-- INLINE uF/adr -->
+    <!-- INLINE uF/geo -->
 
-	<!--
-	
-	IF a$EMAIL
-		LOOP a$EMAIL --><div class="email"><span class="type">{$type}</span>: {$email|mailto:$email:'class="value"'}</div> <!-- END:LOOP
-	ELSEIF a$email --><div class="email">{a$email|mailto}</div><!--
-	END:IF
+    <!--
+    
+    IF a$EMAIL
+        LOOP a$EMAIL --><div class="email"><span class="type">{$type}</span>: {$email|mailto:$email:'class="value"'}</div> <!-- END:LOOP
+    ELSEIF a$email --><div class="email">{a$email|mailto}</div><!--
+    END:IF
 
-	-->
+    -->
 
-	<!--
-	
-	IF a$TEL
-		LOOP a$TEL --><div class="tel"><span class="type">{$type}</span>: <span class="value">{$value}</span></div> <!-- END:LOOP
-	ELSEIF a$tel --><div class="tel">{a$tel}</div><!--
-	END:IF
+    <!--
+    
+    IF a$TEL
+        LOOP a$TEL --><div class="tel"><span class="type">{$type}</span>: <span class="value">{$value}</span></div> <!-- END:LOOP
+    ELSEIF a$tel --><div class="tel">{a$tel}</div><!--
+    END:IF
 
-	-->
+    -->
 
-	<!--
-	
-	IF a$URL
-		LOOP a$URL --><div class="url"><a href="{$href}">{$label}</a></div> <!-- END:LOOP
-	ELSEIF a$url --><div class="url"><a href="{a$url}">{a$url}</a></div><!--
-	END:IF
+    <!--
+    
+    IF a$URL
+        LOOP a$URL --><div class="url"><a href="{$href}">{$label}</a></div> <!-- END:LOOP
+    ELSEIF a$url --><div class="url"><a href="{a$url}">{a$url}</a></div><!--
+    END:IF
 
-	-->
+    -->
 </div>

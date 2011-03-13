@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,87 +14,87 @@
 
 class patchwork_bootstrapper
 {
-	static
+    static
 
-	$pwd,
-	$cwd,
-	$token = '',
-	$paths,
-	$zcache,
-	$last,
-	$appId;
-
-
-	protected static
-
-	$bootstrapper,
-	$caller;
+    $pwd,
+    $cwd,
+    $token = '',
+    $paths,
+    $zcache,
+    $last,
+    $appId;
 
 
-	static function initialize($caller, $cwd)
-	{
-		self::$cwd = empty($cwd) ? '.' : $cwd;
-		self::$cwd = rtrim(self::$cwd, '/\\') . DIRECTORY_SEPARATOR;
-		self::$pwd = dirname($caller) . DIRECTORY_SEPARATOR;
-		self::$caller = $caller;
+    protected static
 
-		require dirname(__FILE__) . '/tokenizer.php';
-		require dirname(__FILE__) . '/tokenizer/normalizer.php';
-		require dirname(__FILE__) . '/tokenizer/scream.php';
-		require dirname(__FILE__) . '/tokenizer/staticState.php';
-		require dirname(__FILE__) . '/bootstrapper/bootstrapper.php';
+    $bootstrapper,
+    $caller;
 
-		self::$bootstrapper = new patchwork_bootstrapper_bootstrapper__0(self::$cwd, self::$token);
-	}
 
-	static function getLock()             {return self::$bootstrapper->getLock(self::$caller);}
-	static function isReleased()          {return self::$bootstrapper->isReleased();}
-	static function release()             {return self::$bootstrapper->release();}
-	static function getCompiledFile()     {return self::$bootstrapper->getCompiledFile();}
-	static function preprocessorPass1()   {return self::$bootstrapper->preprocessorPass1();}
-	static function preprocessorPass2()   {return self::$bootstrapper->preprocessorPass2();}
-	static function loadConfigFile($type) {return self::$bootstrapper->loadConfigFile($type);}
-	static function initConfig()          {return self::$bootstrapper->initConfig();}
+    static function initialize($caller, $cwd)
+    {
+        self::$cwd = empty($cwd) ? '.' : $cwd;
+        self::$cwd = rtrim(self::$cwd, '/\\') . DIRECTORY_SEPARATOR;
+        self::$pwd = dirname($caller) . DIRECTORY_SEPARATOR;
+        self::$caller = $caller;
 
-	static function initInheritance()
-	{
-		self::$cwd = rtrim(patchwork_realpath(self::$cwd), '/\\') . DIRECTORY_SEPARATOR;
+        require dirname(__FILE__) . '/tokenizer.php';
+        require dirname(__FILE__) . '/tokenizer/normalizer.php';
+        require dirname(__FILE__) . '/tokenizer/scream.php';
+        require dirname(__FILE__) . '/tokenizer/staticState.php';
+        require dirname(__FILE__) . '/bootstrapper/bootstrapper.php';
 
-		$a = self::$bootstrapper->getLinearizedInheritance(self::$pwd);
+        self::$bootstrapper = new patchwork_bootstrapper_bootstrapper__0(self::$cwd, self::$token);
+    }
 
-		self::$paths =& $a[0];
-		self::$last  =  $a[1];
-		self::$appId =  $a[2];
-	}
+    static function getLock()             {return self::$bootstrapper->getLock(self::$caller);}
+    static function isReleased()          {return self::$bootstrapper->isReleased();}
+    static function release()             {return self::$bootstrapper->release();}
+    static function getCompiledFile()     {return self::$bootstrapper->getCompiledFile();}
+    static function preprocessorPass1()   {return self::$bootstrapper->preprocessorPass1();}
+    static function preprocessorPass2()   {return self::$bootstrapper->preprocessorPass2();}
+    static function loadConfigFile($type) {return self::$bootstrapper->loadConfigFile($type);}
+    static function initConfig()          {return self::$bootstrapper->initConfig();}
 
-	static function initZcache()
-	{
-		self::$zcache = self::$bootstrapper->getZcache(self::$paths, self::$last);
-	}
+    static function initInheritance()
+    {
+        self::$cwd = rtrim(patchwork_realpath(self::$cwd), '/\\') . DIRECTORY_SEPARATOR;
 
-	static function updatedb()
-	{
-		return self::$bootstrapper->updatedb(self::$paths, self::$last, self::$zcache);
-	}
+        $a = self::$bootstrapper->getLinearizedInheritance(self::$pwd);
 
-	static function alias($function, $alias, $args, $return_ref = false)
-	{
-		return self::$bootstrapper->alias($function, $alias, $args, $return_ref);
-	}
+        self::$paths =& $a[0];
+        self::$last  =  $a[1];
+        self::$appId =  $a[2];
+    }
 
-	static function fixParentPaths($pwd)
-	{
-		self::$paths  = $GLOBALS['patchwork_path'];
-		self::$last   = PATCHWORK_PATH_LEVEL;
-		self::$zcache = PATCHWORK_ZCACHE;
+    static function initZcache()
+    {
+        self::$zcache = self::$bootstrapper->getZcache(self::$paths, self::$last);
+    }
 
-		self::initialize($pwd . '-', PATCHWORK_PROJECT_PATH);
+    static function updatedb()
+    {
+        return self::$bootstrapper->updatedb(self::$paths, self::$last, self::$zcache);
+    }
 
-		$db = self::updatedb();
-		$db = dba_popen(PATCHWORK_PROJECT_PATH . '.patchwork.paths.db', 'rd', $db);
+    static function alias($function, $alias, $args, $return_ref = false)
+    {
+        return self::$bootstrapper->alias($function, $alias, $args, $return_ref);
+    }
 
-		if (!$db) exit;
+    static function fixParentPaths($pwd)
+    {
+        self::$paths  = $GLOBALS['patchwork_path'];
+        self::$last   = PATCHWORK_PATH_LEVEL;
+        self::$zcache = PATCHWORK_ZCACHE;
 
-		return $db;
-	}
+        self::initialize($pwd . '-', PATCHWORK_PROJECT_PATH);
+
+        $db = self::updatedb();
+        $db = dba_popen(PATCHWORK_PROJECT_PATH . '.patchwork.paths.db', 'rd', $db);
+
+        if (!$db) exit;
+
+        return $db;
+    }
 }

@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,21 +14,21 @@
 
 class pipe_set
 {
-	static function php($pool, $key, $value)
-	{
-		$pool && $pool->$key = $value;
-		return '';
-	}
+    static function php($pool, $key, $value)
+    {
+        $pool && $pool->$key = $value;
+        return '';
+    }
 
-	static function js()
-	{
-		?>/*<script>*/
+    static function js()
+    {
+        ?>/*<script>*/
 
 function($pool, $key, $value)
 {
-	if ($pool) $pool[$key] = $value;
-	return '';
+    if ($pool) $pool[$key] = $value;
+    return '';
 }
 
-<?php	}
+<?php   }
 }

@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,11 +14,11 @@
 
 class pForm_image extends pForm_submit
 {
-	protected $type = 'image';
+    protected $type = 'image';
 
-	protected function init(&$param)
-	{
-		unset($this->form->rawValues[$this->name]);
-		parent::init($param);
-	}
+    protected function init(&$param)
+    {
+        unset($this->form->rawValues[$this->name]);
+        parent::init($param);
+    }
 }

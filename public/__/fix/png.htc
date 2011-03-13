@@ -12,29 +12,29 @@ function afterPrint()     {if (!fix  ) {fix = 1; fixPng()}}
 
 function fixPng()
 {
-	if (/\.png$/i.test(element.src))
-	{
-		var img = element.width || element.height ? new Image(element.width, element.height) : new Image;
+    if (/\.png$/i.test(element.src))
+    {
+        var img = element.width || element.height ? new Image(element.width, element.height) : new Image;
 
-		img.onload = function()
-		{
-			element.width  = img.width;
-			element.height = img.height;
-			img = 0;
-		};
+        img.onload = function()
+        {
+            element.width  = img.width;
+            element.height = img.height;
+            img = 0;
+        };
 
-		img.src = pngSrc = element.src;
+        img.src = pngSrc = element.src;
 
-		fix = 0;
-		element.src = blank;
-		element.runtimeStyle.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + pngSrc + "',sizingMethod='scale')";
-		fix = 1;
-	}
-	else if (pngSrc)
-	{
-		element.runtimeStyle.filter = '';
-		pngSrc = '';
-	}
+        fix = 0;
+        element.src = blank;
+        element.runtimeStyle.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + pngSrc + "',sizingMethod='scale')";
+        fix = 1;
+    }
+    else if (pngSrc)
+    {
+        element.runtimeStyle.filter = '';
+        pngSrc = '';
+    }
 }
 
 fixPng();

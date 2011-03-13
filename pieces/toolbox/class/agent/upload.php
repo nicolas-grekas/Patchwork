@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,28 +14,28 @@
 
 class agent_upload extends agent
 {
-	public $get = 'id';
+    public $get = 'id';
 
-	function control() {}
+    function control() {}
 
-	function compose($o)
-	{
-		if ($this->get->id)
-		{
-			$this->expires = 'onmaxage';
-			patchwork::setPrivate();
+    function compose($o)
+    {
+        if ($this->get->id)
+        {
+            $this->expires = 'onmaxage';
+            patchwork::setPrivate();
 
-			if (function_exists('upload_progress_meter_get_info'))
-			{
-				$o = (object) @upload_progress_meter_get_info($this->get->id);
-			}
-			else if (function_exists('uploadprogress_get_info'))
-			{
-				$o = (object) @uploadprogress_get_info($this->get->id);
-			}
-		}
-		else $this->maxage = -1;
+            if (function_exists('upload_progress_meter_get_info'))
+            {
+                $o = (object) @upload_progress_meter_get_info($this->get->id);
+            }
+            else if (function_exists('uploadprogress_get_info'))
+            {
+                $o = (object) @uploadprogress_get_info($this->get->id);
+            }
+        }
+        else $this->maxage = -1;
 
-		return $o;
-	}
+        return $o;
+    }
 }

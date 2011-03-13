@@ -1,6 +1,6 @@
-{***************************************************************************
+{***** vi: set encoding=utf-8 expandtab shiftwidth=4: **********************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -13,11 +13,11 @@
 <!--
 
 IF a$id - 0
-	SET a$id -->{g$feedId}#{a$id}<!-- END:SET
+    SET a$id -->{g$feedId}#{a$id}<!-- END:SET
 END:IF
 
 IF a$updated - 0
-	SET a$updated -->{a$updated|date:'Y-m-d\\TH:i:sP'}<!-- END:SET
+    SET a$updated -->{a$updated|date:'Y-m-d\\TH:i:sP'}<!-- END:SET
 END:IF
 
 AGENT 'feed/atom/tag/title'   value=a$title   type=a$title_type  required=a$required

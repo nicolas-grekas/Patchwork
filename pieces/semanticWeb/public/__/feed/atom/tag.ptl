@@ -1,6 +1,6 @@
-{***************************************************************************
+{***** vi: set encoding=utf-8 expandtab shiftwidth=4: **********************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,20 +14,20 @@
 
 IF a$required || a$value
 
-	SET a$a
-		IF a$type    --> type="{a$type}"<!--       END:IF -->{* Must be "text", "html" or "xhtml" *}<!--
-		IF a$src     --> src="{a$src}"<!--         END:IF -->{* Only for content *}<!--
-		IF a$uri     --> uri="{a$uri}"<!--         END:IF -->{* Only for generator *}<!--
-		IF a$version --> version="{a$version}"<!-- END:IF -->{* Only for generator *}<!--
-	END:SET
+    SET a$a
+        IF a$type    --> type="{a$type}"<!--       END:IF -->{* Must be "text", "html" or "xhtml" *}<!--
+        IF a$src     --> src="{a$src}"<!--         END:IF -->{* Only for content *}<!--
+        IF a$uri     --> uri="{a$uri}"<!--         END:IF -->{* Only for generator *}<!--
+        IF a$version --> version="{a$version}"<!-- END:IF -->{* Only for generator *}<!--
+    END:SET
 
-	--><{a$__1__}{a$a}><!--
+    --><{a$__1__}{a$a}><!--
 
-	IF 'xhtml' == a$type --><div xmlns="http://www.w3.org/1999/xhtml">{a$value}</div><!--
-	ELSE -->{a$value}<!--
-	END:IF
+    IF 'xhtml' == a$type --><div xmlns="http://www.w3.org/1999/xhtml">{a$value}</div><!--
+    ELSE -->{a$value}<!--
+    END:IF
 
-	--></{a$__1__}><!--
+    --></{a$__1__}><!--
 
 END:IF
 

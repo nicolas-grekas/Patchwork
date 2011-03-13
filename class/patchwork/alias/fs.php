@@ -1,4 +1,4 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
  *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
@@ -14,30 +14,30 @@
 
 class patchwork_alias_fs
 {
-	static function basename($path, $suffix = '')
-	{
-		$path = rtrim($path, /*<*/'/' . ('\\' === DIRECTORY_SEPARATOR ? '\\' : '')/*>*/);
+    static function basename($path, $suffix = '')
+    {
+        $path = rtrim($path, /*<*/'/' . ('\\' === DIRECTORY_SEPARATOR ? '\\' : '')/*>*/);
 
-/**/	if ('\\' === DIRECTORY_SEPARATOR)
-			$r = strrpos(strtr($path, '\\', '/'), '/');
-/**/	else
-			$r = strrpos($path, '/');
+/**/    if ('\\' === DIRECTORY_SEPARATOR)
+            $r = strrpos(strtr($path, '\\', '/'), '/');
+/**/    else
+            $r = strrpos($path, '/');
 
-		false !== $r && $path = substr($path, $r + 1);
+        false !== $r && $path = substr($path, $r + 1);
 
-		return substr(basename('.' . $path, $suffix), 1);
-	}
+        return substr(basename('.' . $path, $suffix), 1);
+    }
 
-	static function pathinfo($path, $option = INF)
-	{
-		$path = rawurlencode($path);
-		$path = str_replace('%2F', '/' , $path);
-		$path = str_replace('%5C', '\\', $path);
+    static function pathinfo($path, $option = INF)
+    {
+        $path = rawurlencode($path);
+        $path = str_replace('%2F', '/' , $path);
+        $path = str_replace('%5C', '\\', $path);
 
-		$path = INF === $option ? pathinfo($path) : pathinfo($path, $option);
+        $path = INF === $option ? pathinfo($path) : pathinfo($path, $option);
 
-		return is_array($path)
-			? array_map('rawurldecode', $path)
-			: rawurldecode($path);
-	}
+        return is_array($path)
+            ? array_map('rawurldecode', $path)
+            : rawurldecode($path);
+    }
 }

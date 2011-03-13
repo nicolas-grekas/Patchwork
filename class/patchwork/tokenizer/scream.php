@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2010 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,10 +14,10 @@
 
 class patchwork_tokenizer_scream extends patchwork_tokenizer
 {
-	protected $callbacks = array('cancelToken' => '@');
+    protected $callbacks = array('cancelToken' => '@');
 
-	protected function cancelToken(&$token)
-	{
-		return false;
-	}
+    protected function cancelToken(&$token)
+    {
+        return false;
+    }
 }

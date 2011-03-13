@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,19 +14,19 @@
 
 class pipe_test
 {
-	static function php($test, $ifData, $elseData = '')
-	{
-		return patchwork::string($test) ? $ifData : $elseData;
-	}
+    static function php($test, $ifData, $elseData = '')
+    {
+        return patchwork::string($test) ? $ifData : $elseData;
+    }
 
-	static function js()
-	{
-		?>/*<script>*/
+    static function js()
+    {
+        ?>/*<script>*/
 
 function($test, $ifData, $elseData)
 {
-	return num(str($test), 1) ? $ifData : $elseData;
+    return num(str($test), 1) ? $ifData : $elseData;
 }
 
-<?php	}
+<?php   }
 }

@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,36 +14,36 @@
 
 class pipe_random
 {
-	static function php($min = '', $max = '')
-	{
-		if ($max === '') $max = 32767;
+    static function php($min = '', $max = '')
+    {
+        if ($max === '') $max = 32767;
 
-		$min = (int) patchwork::string($min);
-		$max = (int) patchwork::string($max);
+        $min = (int) patchwork::string($min);
+        $max = (int) patchwork::string($max);
 
-		return mt_rand($min, $max);
-	}
+        return mt_rand($min, $max);
+    }
 
-	static function js()
-	{
-		?>/*<script>*/
+    static function js()
+    {
+        ?>/*<script>*/
 
 function($min, $max)
 {
-	if (!t($max)) $max = 32767;
+    if (!t($max)) $max = 32767;
 
-	$min = ($min-0) || 0;
-	$max -= 0;
+    $min = ($min-0) || 0;
+    $max -= 0;
 
-	if ($min > $max)
-	{
-		var $tmp = $min;
-		$min = $max;
-		$max = $tmp;
-	}
+    if ($min > $max)
+    {
+        var $tmp = $min;
+        $min = $max;
+        $max = $tmp;
+    }
 
-	return $min + parseInt(Math.random() * ($max+1));
+    return $min + parseInt(Math.random() * ($max+1));
 }
 
-<?php	}
+<?php   }
 }

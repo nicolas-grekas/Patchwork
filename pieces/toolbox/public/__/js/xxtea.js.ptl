@@ -1,6 +1,6 @@
-/***************************************************************************
+/***** vi: set encoding=utf-8 expandtab shiftwidth=4: **********************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -16,118 +16,118 @@
 
 
 xxtea = {
-	encrypt: function($str, $key)
-	{
-		if ('' == $str) return '';
+    encrypt: function($str, $key)
+    {
+        if ('' == $str) return '';
 
-		$key = unescape(encodeURI($key));
-		$str = unescape(encodeURI($str));
+        $key = unescape(encodeURI($key));
+        $str = unescape(encodeURI($str));
 
-		var $v = xxtea.$str2long($str, 1),
-			$k = xxtea.$str2long($key, 0),
-			$n = $v.length - 1,
+        var $v = xxtea.$str2long($str, 1),
+            $k = xxtea.$str2long($key, 0),
+            $n = $v.length - 1,
 
-			$z = $v[$n],
-			$y = $v[0],
-			$delta = 0x9E3779B9,
+            $z = $v[$n],
+            $y = $v[0],
+            $delta = 0x9E3779B9,
 
-			$mx, $e, $p,
-			$q = Math.floor(6 + 52 / ($n + 1)),
-			$sum = 0;
+            $mx, $e, $p,
+            $q = Math.floor(6 + 52 / ($n + 1)),
+            $sum = 0;
 
-		while ($q-- > 0)
-		{
-			$sum = $sum + $delta & 0xFFFFFFFF;
-			$e = $sum >>> 2 & 3;
+        while ($q-- > 0)
+        {
+            $sum = $sum + $delta & 0xFFFFFFFF;
+            $e = $sum >>> 2 & 3;
 
-			for ($p = 0; $p < $n; ++$p)
-			{
-				$y = $v[$p + 1];
-				$mx = ($z >>> 5 ^ $y << 2) + ($y >>> 3 ^ $z << 4) ^ ($sum ^ $y) + ($k[$p & 3 ^ $e] ^ $z);
-				$z = $v[$p] = $v[$p] + $mx & 0xFFFFFFFF;
-			}
+            for ($p = 0; $p < $n; ++$p)
+            {
+                $y = $v[$p + 1];
+                $mx = ($z >>> 5 ^ $y << 2) + ($y >>> 3 ^ $z << 4) ^ ($sum ^ $y) + ($k[$p & 3 ^ $e] ^ $z);
+                $z = $v[$p] = $v[$p] + $mx & 0xFFFFFFFF;
+            }
 
-			$y = $v[0];
-			$mx = ($z >>> 5 ^ $y << 2) + ($y >>> 3 ^ $z << 4) ^ ($sum ^ $y) + ($k[$p & 3 ^ $e] ^ $z);
-			$z = $v[$p] = $v[$p] + $mx & 0xFFFFFFFF;
-		}
+            $y = $v[0];
+            $mx = ($z >>> 5 ^ $y << 2) + ($y >>> 3 ^ $z << 4) ^ ($sum ^ $y) + ($k[$p & 3 ^ $e] ^ $z);
+            $z = $v[$p] = $v[$p] + $mx & 0xFFFFFFFF;
+        }
 
-		return xxtea.$long2str($v, 0);
-	},
+        return xxtea.$long2str($v, 0);
+    },
 
-	decrypt: function($str, $key)
-	{
-		if ('' == $str) return '';
+    decrypt: function($str, $key)
+    {
+        if ('' == $str) return '';
 
-		$key = unescape(encodeURI($key));
+        $key = unescape(encodeURI($key));
 
-		var $v = xxtea.$str2long($str, 0),
-			$k = xxtea.$str2long($key, 0),
-			$n = $v.length - 1,
+        var $v = xxtea.$str2long($str, 0),
+            $k = xxtea.$str2long($key, 0),
+            $n = $v.length - 1,
 
-			$z = $v[$n - 1],
-			$y = $v[0],
-			$delta = 0x9E3779B9,
+            $z = $v[$n - 1],
+            $y = $v[0],
+            $delta = 0x9E3779B9,
 
-			$mx, $e, $p,
-			$q = Math.floor(6 + 52 / ($n + 1)),
-			$sum = $q * $delta & 0xFFFFFFFF;
+            $mx, $e, $p,
+            $q = Math.floor(6 + 52 / ($n + 1)),
+            $sum = $q * $delta & 0xFFFFFFFF;
 
-		while ($sum != 0)
-		{
-			$e = $sum >>> 2 & 3;
+        while ($sum != 0)
+        {
+            $e = $sum >>> 2 & 3;
 
-			for ($p = $n; $p > 0; --$p)
-			{
-				$z = $v[$p - 1];
-				$mx = ($z >>> 5 ^ $y << 2) + ($y >>> 3 ^ $z << 4) ^ ($sum ^ $y) + ($k[$p & 3 ^ $e] ^ $z);
-				$y = $v[$p] = $v[$p] - $mx & 0xFFFFFFFF;
-			}
+            for ($p = $n; $p > 0; --$p)
+            {
+                $z = $v[$p - 1];
+                $mx = ($z >>> 5 ^ $y << 2) + ($y >>> 3 ^ $z << 4) ^ ($sum ^ $y) + ($k[$p & 3 ^ $e] ^ $z);
+                $y = $v[$p] = $v[$p] - $mx & 0xFFFFFFFF;
+            }
 
-			$z = $v[$n];
-			$mx = ($z >>> 5 ^ $y << 2) + ($y >>> 3 ^ $z << 4) ^ ($sum ^ $y) + ($k[$p & 3 ^ $e] ^ $z);
-			$y = $v[$p] = $v[$p] - $mx & 0xFFFFFFFF;
+            $z = $v[$n];
+            $mx = ($z >>> 5 ^ $y << 2) + ($y >>> 3 ^ $z << 4) ^ ($sum ^ $y) + ($k[$p & 3 ^ $e] ^ $z);
+            $y = $v[$p] = $v[$p] - $mx & 0xFFFFFFFF;
 
-			$sum = $sum - $delta & 0xFFFFFFFF;
-		}
+            $sum = $sum - $delta & 0xFFFFFFFF;
+        }
 
-		$str = xxtea.$long2str($v, 1);
+        $str = xxtea.$long2str($v, 1);
 
-		return decodeURIComponent(escape($str));
-	},
+        return decodeURIComponent(escape($str));
+    },
 
-	$long2str: function($v, $w)
-	{
-		var $vl = $v.length,
-			$sl = $v[$vl - 1] & 0xFFFFFFFF,
-			$i = 0;
+    $long2str: function($v, $w)
+    {
+        var $vl = $v.length,
+            $sl = $v[$vl - 1] & 0xFFFFFFFF,
+            $i = 0;
 
-		for (; $i < $vl; ++$i) $v[$i] = String.fromCharCode(
-			$v[$i] & 0xFF,
-			$v[$i] >>> 8 & 0xFF,
-			$v[$i] >>> 16 & 0xFF,
-			$v[$i] >>> 24 & 0xFF
-		);
+        for (; $i < $vl; ++$i) $v[$i] = String.fromCharCode(
+            $v[$i] & 0xFF,
+            $v[$i] >>> 8 & 0xFF,
+            $v[$i] >>> 16 & 0xFF,
+            $v[$i] >>> 24 & 0xFF
+        );
 
-		$v = $v.join('');
+        $v = $v.join('');
 
-		return $w ? $v.substring(0, $sl) : $v;
-	},
+        return $w ? $v.substring(0, $sl) : $v;
+    },
 
-	$str2long: function($s, $w)
-	{
-		var $len = $s.length,
-			$v = [];
-			$i = 0;
+    $str2long: function($s, $w)
+    {
+        var $len = $s.length,
+            $v = [];
+            $i = 0;
 
-		for (; $i < $len; $i += 4)
-			$v[$i >> 2] = $s.charCodeAt($i)
-				| $s.charCodeAt($i + 1) << 8
-				| $s.charCodeAt($i + 2) << 16
-				| $s.charCodeAt($i + 3) << 24;
+        for (; $i < $len; $i += 4)
+            $v[$i >> 2] = $s.charCodeAt($i)
+                | $s.charCodeAt($i + 1) << 8
+                | $s.charCodeAt($i + 2) << 16
+                | $s.charCodeAt($i + 3) << 24;
 
-		$w && $v.push($len);
+        $w && $v.push($len);
 
-		return $v;
-	}
+        return $v;
+    }
 }

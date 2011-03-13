@@ -1,6 +1,6 @@
-{***************************************************************************
+{***** vi: set encoding=utf-8 expandtab shiftwidth=4: **********************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -20,28 +20,28 @@
 <!--[if gt IE 8]><html{$_lang} class="no-js ie9"><![endif]-->
 <!--[if !IE]><!--><html{$_lang} class="no-js"><!--<![endif]-->
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	<script src="{base:'js/w'}"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <script src="{base:'js/w'}"></script>
 <!-- END:SERVERSIDE -->
 
-	<title>{a$title|replace:'<[^>]*':''|replace:'>':''}</title>
+    <title>{a$title|replace:'<[^>]*':''|replace:'>':''}</title>
 
-	<meta name="generator" content="Patchwork">
+    <meta name="generator" content="Patchwork">
 
-	<link rel="stylesheet" type="text/css" href="{a$css|default:'css/style'|base}">
+    <link rel="stylesheet" type="text/css" href="{a$css|default:'css/style'|base}">
 
-	<!--
+    <!--
 
-	LOOP g$__LANG_ALT__
-		IF $lang != g$__LANG__
-			--><link rel="alternate" type="text/html" href="{$href}" title="{$title}" hreflang="{$lang}" lang="{$lang}"><!--
-		END:IF
-	END:LOOP
+    LOOP g$__LANG_ALT__
+        IF $lang != g$__LANG__
+            --><link rel="alternate" type="text/html" href="{$href}" title="{$title}" hreflang="{$lang}" lang="{$lang}"><!--
+        END:IF
+    END:LOOP
 
-	-->
+    -->
 
-	{a$head}
+    {a$head}
 <!-- SERVERSIDE -->
 </head>
 <!-- END:SERVERSIDE -->

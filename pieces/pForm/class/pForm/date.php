@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,40 +14,40 @@
 
 class pForm_date extends pForm_text
 {
-	protected $maxlength = 10;
+    protected $maxlength = 10;
 
-	protected function init(&$param)
-	{
-		isset($param['valid']) || $param['valid'] = 'date';
+    protected function init(&$param)
+    {
+        isset($param['valid']) || $param['valid'] = 'date';
 
-		parent::init($param);
-	}
+        parent::init($param);
+    }
 
-	function setValue($value)
-	{
-		$this->value = 0 === strncmp($value, '0000-00-00', 10) ? '' : substr($value, 0, 10);
-	}
+    function setValue($value)
+    {
+        $this->value = 0 === strncmp($value, '0000-00-00', 10) ? '' : substr($value, 0, 10);
+    }
 
-	protected function get()
-	{
-		$a = parent::get();
-		$a->onchange = 'this.value=valid_date(this.value)';
-		$a->_placeholder = T('jj-mm-aaaa');
-		$a->_class = 'text date';
-		return $a;
-	}
+    protected function get()
+    {
+        $a = parent::get();
+        $a->onchange = 'this.value=valid_date(this.value)';
+        $a->_placeholder = T('jj-mm-aaaa');
+        $a->_class = 'text date';
+        return $a;
+    }
 
-	function getDbValue()
-	{
-		if ($v = $this->getValue())
-		{
-			if (preg_match("'^(\d{2})-(\d{2})-(\d{4})$'", $v, $v))
-			{
-				$v = $v[3] . '-' . $v[2] . '-' . $v[1];
-			}
-			else $v = '';
-		}
+    function getDbValue()
+    {
+        if ($v = $this->getValue())
+        {
+            if (preg_match("'^(\d{2})-(\d{2})-(\d{4})$'", $v, $v))
+            {
+                $v = $v[3] . '-' . $v[2] . '-' . $v[1];
+            }
+            else $v = '';
+        }
 
-		return (string) $v;
-	}
+        return (string) $v;
+    }
 }

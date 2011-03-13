@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,35 +14,35 @@
 
 class pForm_fckeditor extends pForm_textarea
 {
-	protected
+    protected
 
-	$toolbarSet,
-	$config;
+    $toolbarSet,
+    $config;
 
 
-	protected function init(&$param)
-	{
-		if (isset($this->form->rawValues[$this->name]))
-		{
-			$value =& $this->form->rawValues[$this->name];
-			$value = FILTER::get($value, 'html');
-		}
+    protected function init(&$param)
+    {
+        if (isset($this->form->rawValues[$this->name]))
+        {
+            $value =& $this->form->rawValues[$this->name];
+            $value = FILTER::get($value, 'html');
+        }
 
-		parent::init($param);
+        parent::init($param);
 
-		if (isset($param['toolbarSet'])) $this->toolbarSet = $param['toolbarSet'];
-		if (isset($param['config'])) $this->config = $param['config'];
-	}
+        if (isset($param['toolbarSet'])) $this->toolbarSet = $param['toolbarSet'];
+        if (isset($param['config'])) $this->config = $param['config'];
+    }
 
-	protected function get()
-	{
-		$a = parent::get();
+    protected function get()
+    {
+        $a = parent::get();
 
-		$this->agent = 'form/fckeditor';
+        $this->agent = 'form/fckeditor';
 
-		if (isset($this->toolbarSet)) $a->_toolbarSet = $this->toolbarSet;
-		if (isset($this->config)) $a->_config = $this->config;
+        if (isset($this->toolbarSet)) $a->_toolbarSet = $this->toolbarSet;
+        if (isset($this->config)) $a->_config = $this->config;
 
-		return $a;
-	}
+        return $a;
+    }
 }

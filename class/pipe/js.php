@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,43 +14,43 @@
 
 class pipe_js
 {
-	static function php($string, $forceString = false)
-	{
-		$string = patchwork::string($string);
+    static function php($string, $forceString = false)
+    {
+        $string = patchwork::string($string);
 
-		false !== strpos($string, '&') && $string = str_replace(
-			array('&#039;', '&quot;', '&gt;', '&lt;', '&amp;'),
-			array("'"     , '"'     , '>'   , '<'   , '&'),
-			$string
-		);
+        false !== strpos($string, '&') && $string = str_replace(
+            array('&#039;', '&quot;', '&gt;', '&lt;', '&amp;'),
+            array("'"     , '"'     , '>'   , '<'   , '&'),
+            $string
+        );
 
-		return jsquote($string);
-	}
+        return jsquote($string);
+    }
 
-	static function js()
-	{
-		?>/*<script>*/
+    static function js()
+    {
+        ?>/*<script>*/
 
 function($string, $forceString)
 {
-	$string = str($string);
+    $string = str($string);
 
-	return $forceString || (''+$string/1 != $string)
-		? ("'" + $string.replace(
-				/&#039;/g, "'").replace(
-				/&quot;/g, '"').replace(
-				/&gt;/g  , '>').replace(
-				/&lt;/g  , '<').replace(
-				/&amp;/g , '&').replace(
-				/\\/g , '\\\\').replace(
-				/'/g  , "\\'").replace(
-				/\r/g , '\\r').replace(
-				/\n/g , '\\n').replace(
-				/<\//g, '<\\\/'
-			) + "'"
-		)
-		: $string/1;
+    return $forceString || (''+$string/1 != $string)
+        ? ("'" + $string.replace(
+                /&#039;/g, "'").replace(
+                /&quot;/g, '"').replace(
+                /&gt;/g  , '>').replace(
+                /&lt;/g  , '<').replace(
+                /&amp;/g , '&').replace(
+                /\\/g , '\\\\').replace(
+                /'/g  , "\\'").replace(
+                /\r/g , '\\r').replace(
+                /\n/g , '\\n').replace(
+                /<\//g, '<\\\/'
+            ) + "'"
+        )
+        : $string/1;
 }
 
-<?php	}
+<?php   }
 }

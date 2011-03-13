@@ -1,6 +1,6 @@
-/***************************************************************************
+/***** vi: set encoding=utf-8 expandtab shiftwidth=4: **********************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -16,104 +16,104 @@ if (!window.valid)
 
 valid = function($element, $type, $args)
 {
-	if ($element.disabled || $element.readOnly) return 1;
-	if ('' == $element.value) return '';
+    if ($element.disabled || $element.readOnly) return 1;
+    if ('' == $element.value) return '';
 
-	$args = [$args];
-	for (var i=3, $argv = valid.arguments; i<$argv.length; i++) $args[$args.length] = $argv[i];
-	return window['valid_'+$type] ? window['valid_'+$type]($element.value, $args) : 1;
+    $args = [$args];
+    for (var i=3, $argv = valid.arguments; i<$argv.length; i++) $args[$args.length] = $argv[i];
+    return window['valid_'+$type] ? window['valid_'+$type]($element.value, $args) : 1;
 }
 
 valid_int = function($value, $args)
 {
-	$value = $value.replace(/[,\. ']+/g, '');
-	if (!/^\s*[+-]?[0-9]+\s*$/.test($value)) return false;
+    $value = $value.replace(/[,\. ']+/g, '');
+    if (!/^\s*[+-]?[0-9]+\s*$/.test($value)) return false;
 
-	$value -= 0;
-	if (t($args[0]) && $value<$args[0]) return false;
-	if (t($args[1]) && $value>$args[1]) return false;
-	return true;
+    $value -= 0;
+    if (t($args[0]) && $value<$args[0]) return false;
+    if (t($args[1]) && $value>$args[1]) return false;
+    return true;
 }
 
 valid_float = function($value, $args)
 {
-	$value = $value.replace(/ '/g, '').replace(/,/g, '.');
-	$value = parseFloat($value);
+    $value = $value.replace(/ '/g, '').replace(/,/g, '.');
+    $value = parseFloat($value);
 
-	if (isNaN($value)) return false;
-	if (t($args[0]) && $value<$args[0]) return false;
-	if (t($args[1]) && $value>$args[1]) return false;
-	return true;
+    if (isNaN($value)) return false;
+    if (t($args[0]) && $value<$args[0]) return false;
+    if (t($args[1]) && $value>$args[1]) return false;
+    return true;
 }
 
 valid_char = function($value, $args)
 {
-	$value = (' '+$value+' ').replace(/[ \t\r\n]+/g, ' ');
-	$value = $value.substr(1, $value.length - 2);
-	return valid_text($value, $args);
+    $value = (' '+$value+' ').replace(/[ \t\r\n]+/g, ' ');
+    $value = $value.substr(1, $value.length - 2);
+    return valid_text($value, $args);
 }
 
 valid_text = function($value, $args)
 {
-	$value = $value.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/g, '');
+    $value = $value.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/g, '');
 
-	if ($args[0])
-	{
-		$args = (' ' + $args.join(':')).replace(/([^\\](\\\\)*)\./g, '$1[\\s\\S]');
-		$args = new RegExp('^(' + $args + ')$');
-		if (!$args.test(' ' + $value)) return false;
-	}
+    if ($args[0])
+    {
+        $args = (' ' + $args.join(':')).replace(/([^\\](\\\\)*)\./g, '$1[\\s\\S]');
+        $args = new RegExp('^(' + $args + ')$');
+        if (!$args.test(' ' + $value)) return false;
+    }
 
-	return true;
+    return true;
 }
 
 valid_email = function ($value, $args)
 {
-	if (/^\s*$/.test($value)) return true;
-	$value = $value.toLowerCase();
-	return /^\s*[-!#-&*+\/-9=?A-Z^-~]+(\.[-!#-&*+\/-9=?A-Z^-~]+)*@[-a-zA-Z0-9]+(\.[-a-zA-Z0-9]+)*\s*$/.test($value) ? $value : false;
+    if (/^\s*$/.test($value)) return true;
+    $value = $value.toLowerCase();
+    return /^\s*[-!#-&*+\/-9=?A-Z^-~]+(\.[-!#-&*+\/-9=?A-Z^-~]+)*@[-a-zA-Z0-9]+(\.[-a-zA-Z0-9]+)*\s*$/.test($value) ? $value : false;
 }
 
 valid_phone = function($value, $args)
 {
-	$value = $value.replace(/[^+0-9]+/g, '').replace(/^00/, '+');
-	return /^\+?[0-9]{4,}$/.test($value) && (!$args[0] || $value.indexOf('+')==0);
+    $value = $value.replace(/[^+0-9]+/g, '').replace(/^00/, '+');
+    return /^\+?[0-9]{4,}$/.test($value) && (!$args[0] || $value.indexOf('+')==0);
 }
 
 valid_date = function($value, $args)
 {
-	var Y = new Date();
-	Y = Y.getFullYear();
+    var Y = new Date();
+    Y = Y.getFullYear();
 
-	$value = $value.replace(/^[^0-9]+/, '');
-	$value = $value.replace(/[^0-9]+$/, '');
-	$value = $value.split(/[^0-9]+/);
-	if ($value.length==2) $value[2] = Y;
-	else if (1 == $value.length)
-	{
-		$value = $value[0];
-		if (4 == $value.length || 6 == $value.length || 8 == $value.length)
-		{
-			$value = [
-				$value.substr(0, 2),
-				$value.substr(2, 2),
-				($value.substr(4)-0) || Y
-			];
-		}
-		else $value = '';
-	}
-	if ($value.length!=3) return '';
-	$value[2] -= 0;
-	if ($value[2]<100)
-	{
-		$value[2] += 1900;
-		if (Y-$value[2]>80) $value[2] += 100;
-	}
-	$args = new Date($value[2], $value[1]-1, $value[0]);
-	$value[2] = $args.getFullYear();
-	$value[1] = $args.getMonth()+1; if ($value[1]<10) $value[1] = '0'+$value[1];
-	$value[0] = $args.getDate(); if ($value[0]<10) $value[0] = '0'+$value[0];
-	return $value.join('-');
+    $value = $value.replace(/^[^0-9]+/, '');
+    $value = $value.replace(/[^0-9]+$/, '');
+    $value = $value.split(/[^0-9]+/);
+    if ($value.length==2) $value[2] = Y;
+    else if (1 == $value.length)
+    {
+        $value = $value[0];
+        if (4 == $value.length || 6 == $value.length || 8 == $value.length)
+        {
+            $value = [
+                $value.substr(0, 2),
+                $value.substr(2, 2),
+                ($value.substr(4)-0) || Y
+            ];
+        }
+        else $value = '';
+    }
+    if ($value.length!=3) return '';
+    $value[2] -= 0;
+    if ($value[2]<100)
+    {
+        $value[2] += 1900;
+        if (Y-$value[2]>80) $value[2] += 100;
+    }
+    $args = new Date($value[2], $value[1]-1, $value[0]);
+    $value[2] = $args.getFullYear();
+    $value[1] = $args.getMonth()+1; if ($value[1]<10) $value[1] = '0'+$value[1];
+    $value[0] = $args.getDate(); if ($value[0]<10) $value[0] = '0'+$value[0];
+    return $value.join('-');
 }
 
 
@@ -123,44 +123,44 @@ valid_date = function($value, $args)
 
 function getCaret($input)
 {
-	var $i, $caretPos = $input.selectionStart;
+    var $i, $caretPos = $input.selectionStart;
 
-	if (!t($caretPos) && document.selection)
-	{
-		$caretPos = document.selection.createRange();
+    if (!t($caretPos) && document.selection)
+    {
+        $caretPos = document.selection.createRange();
 
-		try
-		{
-			$i = $caretPos.duplicate();
-			$i.moveToElementText($input);
-		}
-		catch ($e)
-		{
-			$i = $input.createTextRange();
-		}
+        try
+        {
+            $i = $caretPos.duplicate();
+            $i.moveToElementText($input);
+        }
+        catch ($e)
+        {
+            $i = $input.createTextRange();
+        }
 
-		$i.setEndPoint('EndToStart', $caretPos);
+        $i.setEndPoint('EndToStart', $caretPos);
 
-		$caretPos = $i.text.length;
-	}
+        $caretPos = $i.text.length;
+    }
 
-	return $caretPos >= '' ? $caretPos : $input.value.length;
+    return $caretPos >= '' ? $caretPos : $input.value.length;
 }
 
 function setSel($input, $selectionStart, $selectionEnd)
 {
-	if ($input.setSelectionRange) $input.setSelectionRange($selectionStart, $selectionEnd);
-	else if ($input.createTextRange)
-	{
-		$input = $input.createTextRange();
-		$input.collapse(true);
-		$input.moveEnd('character', $selectionEnd);
-		$input.moveStart('character', $selectionStart);
-		$input.select();
-	}
-	else return 0;
+    if ($input.setSelectionRange) $input.setSelectionRange($selectionStart, $selectionEnd);
+    else if ($input.createTextRange)
+    {
+        $input = $input.createTextRange();
+        $input.collapse(true);
+        $input.moveEnd('character', $selectionEnd);
+        $input.moveStart('character', $selectionStart);
+        $input.select();
+    }
+    else return 0;
 
-	return 1;
+    return 1;
 }
 
 
@@ -170,453 +170,453 @@ function setSel($input, $selectionStart, $selectionEnd)
 
 IgCS = document.createElement('input');
 pForm_is_available = {
-	placeholder: 'placeholder' in IgCS,
-	required   : 'required'    in IgCS,
-	autofocus  : 'autofocus'   in IgCS
+    placeholder: 'placeholder' in IgCS,
+    required   : 'required'    in IgCS,
+    autofocus  : 'autofocus'   in IgCS
 }
 
 getCheckStatus = IgCS = function()
 {
-	var $this = this,
-		$i = 0,
-		$disabledCounter = 0,
-		$e;
+    var $this = this,
+        $i = 0,
+        $disabledCounter = 0,
+        $e;
 
-	if ($this.disabled || $this.readOnly || ((''+$this.value).length && $this.checked)) return 1;
+    if ($this.disabled || $this.readOnly || ((''+$this.value).length && $this.checked)) return 1;
 
-	for (; $i<$this.length; ++$i)
-	{
-		$e = $this[$i];
-		if ($e.disabled || $e.readOnly) ++$disabledCounter;
-		else if ((''+$e.value).length && $e.checked) return 1;
-	}
+    for (; $i<$this.length; ++$i)
+    {
+        $e = $this[$i];
+        if ($e.disabled || $e.readOnly) ++$disabledCounter;
+        else if ((''+$e.value).length && $e.checked) return 1;
+    }
 
-	return ($i && $disabledCounter == $this.length) ? 1 : '';
+    return ($i && $disabledCounter == $this.length) ? 1 : '';
 }
 
 getSelectStatus = IgSS = function()
 {
-	var $this = this;
-	return ($this.disabled || $this.readOnly
-		|| !$this.options.length
-		|| ($this.selectedIndex >= 0 && (''+$this.options[$this.selectedIndex].value).length)
-	) ? 1 : '';
+    var $this = this;
+    return ($this.disabled || $this.readOnly
+        || !$this.options.length
+        || ($this.selectedIndex >= 0 && (''+$this.options[$this.selectedIndex].value).length)
+    ) ? 1 : '';
 }
 
 checkElementStatus = IcES = function($msgs, $form, $preserveScroll)
 {
-	var $i = 1, $element, $status, $onempty, $onerror;
+    var $i = 1, $element, $status, $onempty, $onerror;
 
-	while ($i<$msgs.length)
-	{
-		$element = $form[ ''+$msgs[$i] ];
+    while ($i<$msgs.length)
+    {
+        $element = $form[ ''+$msgs[$i] ];
 
-		$onempty = $msgs[++$i];
-		$onerror = $msgs[++$i];
-		++$i;
+        $onempty = $msgs[++$i];
+        $onerror = $msgs[++$i];
+        ++$i;
 
-		if (!$element) continue;
+        if (!$element) continue;
 
-		if (!$element.gS)
-		{
-			switch ($element.type || $element[0].type)
-			{
-				case 'radio':
-				case 'checkbox':
-					$element.gS = IgCS;
-					break;
+        if (!$element.gS)
+        {
+            switch ($element.type || $element[0].type)
+            {
+                case 'radio':
+                case 'checkbox':
+                    $element.gS = IgCS;
+                    break;
 
-				case 'select':
-					$element.gS = IgSS;
-					break;
+                case 'select':
+                    $element.gS = IgSS;
+                    break;
 
-				default: $element.gS = function() {return 1;}
-			}
-		}
+                default: $element.gS = function() {return 1;}
+            }
+        }
 
-		if (!pForm_is_available.placeholder && $element.placeholder && /\splaceholder\b/.test($element.className))
-		{
-			$element.value = '';
-			$status = $element.gS();
-			$element.value = $element.placeholder;
-		}
-		else $status = $element.gS();
+        if (!pForm_is_available.placeholder && $element.placeholder && /\splaceholder\b/.test($element.className))
+        {
+            $element.value = '';
+            $status = $element.gS();
+            $element.value = $element.placeholder;
+        }
+        else $status = $element.gS();
 
-		if ($status) continue;
+        if ($status) continue;
 
-		$status = '' + $status;
-		$status = $status ? $onerror : $onempty;
+        $status = '' + $status;
+        $status = $status ? $onerror : $onempty;
 
-		if ($status)
-		{
-			alert($status);
+        if ($status)
+        {
+            alert($status);
 
-			$element = $element.type ? $element : $element[0];
-			if ($element.type != 'hidden')
-			{
-				if ($element.focus) $element.focus();
-				if ($element.select) $element.select();
-			}
+            $element = $element.type ? $element : $element[0];
+            if ($element.type != 'hidden')
+            {
+                if ($element.focus) $element.focus();
+                if ($element.select) $element.select();
+            }
 
-			return $form = $element = false;
-		}
-	}
+            return $form = $element = false;
+        }
+    }
 
-	if ($preserveScroll)
-	{
-		$preserveScroll = document;
-		$preserveScroll = $preserveScroll.documentElement || $preserveScroll.body;
+    if ($preserveScroll)
+    {
+        $preserveScroll = document;
+        $preserveScroll = $preserveScroll.documentElement || $preserveScroll.body;
 
-		$element = $form.action;
-		$element = 0>$element.indexOf('#') ? ($element += '#') : $element.replace(/@([0-9]+),([0-9]+)$/, '');
-		$element += '@' + $preserveScroll.scrollLeft + ',' + $preserveScroll.scrollTop;
+        $element = $form.action;
+        $element = 0>$element.indexOf('#') ? ($element += '#') : $element.replace(/@([0-9]+),([0-9]+)$/, '');
+        $element += '@' + $preserveScroll.scrollLeft + ',' + $preserveScroll.scrollTop;
 
-		if ('@0,0' != $element.substr(-4)) $form.action = $element;
-	}
+        if ('@0,0' != $element.substr(-4)) $form.action = $element;
+    }
 
-	return $form = $preserveScroll = true;
+    return $form = $preserveScroll = true;
 }
 
 labelClick = IlC = function($elt)
 {
-	$elt = document.getElementById($elt.htmlFor);
+    $elt = document.getElementById($elt.htmlFor);
 
-	if (!$elt.type && $elt[0])
-	{
-		var $i = 0;
-		while ($i+1<$elt.length && ($elt[$i].disabled || $elt[$i].readOnly)) ++$i;
-		$elt = $elt[$i];
-	}
+    if (!$elt.type && $elt[0])
+    {
+        var $i = 0;
+        while ($i+1<$elt.length && ($elt[$i].disabled || $elt[$i].readOnly)) ++$i;
+        $elt = $elt[$i];
+    }
 
-	$elt && !$elt.disabled && !$elt.readOnly && $elt.focus();
-	return false;
+    $elt && !$elt.disabled && !$elt.readOnly && $elt.focus();
+    return false;
 }
 
 lastCheckbox = 0;
 checkboxClick = IcbC = function($event, $elt)
 {
-	$event = $event || event;
+    $event = $event || event;
 
-	if ($elt)
-		$elt = $elt.form[$elt.htmlFor],
-		$elt = $elt[0] || $elt;
+    if ($elt)
+        $elt = $elt.form[$elt.htmlFor],
+        $elt = $elt[0] || $elt;
 
-	var $lC = lastCheckbox,
-		$this = $elt || this,
-		$node = $this.form[ $this.name ],
-		$i = 0,
-		$trigger = 0,
-		$currNode;
+    var $lC = lastCheckbox,
+        $this = $elt || this,
+        $node = $this.form[ $this.name ],
+        $i = 0,
+        $trigger = 0,
+        $currNode;
 
-	if ($this.readOnly || $this.disabled) return;
+    if ($this.readOnly || $this.disabled) return;
 
-	if ($elt)
-	{
-		$elt.focus();
+    if ($elt)
+    {
+        $elt.focus();
 
-		if ($elt.type=='checkbox') $elt.click();
-		else return $elt.click(), false;
-	}
+        if ($elt.type=='checkbox') $elt.click();
+        else return $elt.click(), false;
+    }
 
 
-	lastCheckbox = $this;
+    lastCheckbox = $this;
 
-	if ($event.shiftKey && $node.length && $lC && $lC != $this)
-	{
-		for (; $i < $node.length; ++$i)
-		{
-			$currNode = $node[$i];
-			if ($trigger && !$currNode.readOnly && !$currNode.disabled) $currNode.checked = $lC.checked;
-			if ($currNode==$this || $currNode==$lC) $trigger = $trigger ? 0 : 1;
-		}
+    if ($event.shiftKey && $node.length && $lC && $lC != $this)
+    {
+        for (; $i < $node.length; ++$i)
+        {
+            $currNode = $node[$i];
+            if ($trigger && !$currNode.readOnly && !$currNode.disabled) $currNode.checked = $lC.checked;
+            if ($currNode==$this || $currNode==$lC) $trigger = $trigger ? 0 : 1;
+        }
 
-		setTimeout(function() {lastCheckbox.checked = $lC.checked;}, 1);
-	}
+        setTimeout(function() {lastCheckbox.checked = $lC.checked;}, 1);
+    }
 
-	if ($elt) return false;
+    if ($elt) return false;
 }
 
 formStack = [];
 
 function gLE($name, $multiple, $stack)
 {
-		var $lastElement;
+        var $lastElement;
 
-		if ($name)
-		{
-			<!-- IF g$__DEBUG__ -->
-			if (!window.lF) E('Last form can not be found. Please double check your template.', 1);
-			<!-- END:IF -->
+        if ($name)
+        {
+            <!-- IF g$__DEBUG__ -->
+            if (!window.lF) E('Last form can not be found. Please double check your template.', 1);
+            <!-- END:IF -->
 
-			if (t(lF[$name])) $lastElement = lF[$name];
-			else
-			{
-				$lastElement = document.getElementsByName($name);
-				if ($lastElement.length) $lastElement = $lastElement[$lastElement.length-1];
-				lF[$name] = $lastElement;
-			}
+            if (t(lF[$name])) $lastElement = lF[$name];
+            else
+            {
+                $lastElement = document.getElementsByName($name);
+                if ($lastElement.length) $lastElement = $lastElement[$lastElement.length-1];
+                lF[$name] = $lastElement;
+            }
 
-			if ($multiple) lF[$name.substr(0, $name.length-2)] = $lastElement;
-			if ($stack) formStack.push($lastElement);
-		}
+            if ($multiple) lF[$name.substr(0, $name.length-2)] = $lastElement;
+            if ($stack) formStack.push($lastElement);
+        }
 
-		return $lastElement || false;
+        return $lastElement || false;
 }
 
 function FeC($mode)
 {
-	document.write(
-		'<input type="image" width="1" height="1" src="' + base('img/blank.gif', 1, 1) + '" alt="" style="position:absolute;top:0;left:0;border:0;" onclick="return '
-		+ ($mode == 2 ? 'enterControl(this.form)' : 'false') + '">'
-	);
+    document.write(
+        '<input type="image" width="1" height="1" src="' + base('img/blank.gif', 1, 1) + '" alt="" style="position:absolute;top:0;left:0;border:0;" onclick="return '
+        + ($mode == 2 ? 'enterControl(this.form)' : 'false') + '">'
+    );
 }
 
 function enterControl($form)
 {
-	var $i = 0, $elt,
-		$all = document.getElementsByTagName('*'),
-		$len = $all.length;
+    var $i = 0, $elt,
+        $all = document.getElementsByTagName('*'),
+        $len = $all.length;
 
-	while (++$i < $len && $all[$i] != $form.v_lastFocusedElt) {}
-	while (++$i < $len)
-	{
-		$elt = $all[$i];
-		if ($elt.form == $form && /^(submit|image)$/.test($elt.type))
-		{
-			$elt.click();
-			break;
-		}
-	}
+    while (++$i < $len && $all[$i] != $form.v_lastFocusedElt) {}
+    while (++$i < $len)
+    {
+        $elt = $all[$i];
+        if ($elt.form == $form && /^(submit|image)$/.test($elt.type))
+        {
+            $elt.click();
+            break;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 function maxlengthTextarea()
 {
-	var $this = this, $maxlength = $this.getAttribute('maxlength'), $valueLength = $this.value, $rx = /\stoomuch(\s|$)/;
+    var $this = this, $maxlength = $this.getAttribute('maxlength'), $valueLength = $this.value, $rx = /\stoomuch(\s|$)/;
 
-	if ($maxlength)
-	{
-		$valueLength = $valueLength.replace(/\r\n?/g, '\n').length;
+    if ($maxlength)
+    {
+        $valueLength = $valueLength.replace(/\r\n?/g, '\n').length;
 
-		if ($rx.test($this.className)) $valueLength > $maxlength || ($this.className = $this.className.replace($rx, '$1'));
-		else if ($valueLength > $maxlength) $this.className += ' toomuch';
-	}
+        if ($rx.test($this.className)) $valueLength > $maxlength || ($this.className = $this.className.replace($rx, '$1'));
+        else if ($valueLength > $maxlength) $this.className += ' toomuch';
+    }
 }
 
 function autofitTextarea()
 {
-	var $this = this, $this_style = $this.style, $ghost, $ghost_style;
+    var $this = this, $this_style = $this.style, $ghost, $ghost_style;
 
-	$this.checkMaxlength();
+    $this.checkMaxlength();
 
-	if ($this.autofitEnabled && 'hidden' == $this.style.overflow)
-	{
-		$ghost = document.createElement('textarea');
-		$ghost_style = $ghost.style;
-		$ghost.value = $this.value;
+    if ($this.autofitEnabled && 'hidden' == $this.style.overflow)
+    {
+        $ghost = document.createElement('textarea');
+        $ghost_style = $ghost.style;
+        $ghost.value = $this.value;
 
-		$ghost_style.visibility = 'hidden';
-		$ghost_style.position = 'absolute';
-		$ghost_style.top  = '0px';
-		$ghost_style.left = '0px';
-		$ghost_style.height = $this.v_offsetHeight + 'px';
-		$ghost_style.width  = $this.v_offsetWidth  + 'px';
+        $ghost_style.visibility = 'hidden';
+        $ghost_style.position = 'absolute';
+        $ghost_style.top  = '0px';
+        $ghost_style.left = '0px';
+        $ghost_style.height = $this.v_offsetHeight + 'px';
+        $ghost_style.width  = $this.v_offsetWidth  + 'px';
 
-		$this.parentNode.appendChild($ghost);
+        $this.parentNode.appendChild($ghost);
 
-		$this_style.height = $ghost.offsetHeight < $ghost.scrollHeight ? $ghost.scrollHeight + 'px' : $ghost_style.height;
-		$this_style.width  = $ghost.offsetWidth  < $ghost.scrollWidth  ? $ghost.scrollWidth  + 'px' : $ghost_style.width ;
+        $this_style.height = $ghost.offsetHeight < $ghost.scrollHeight ? $ghost.scrollHeight + 'px' : $ghost_style.height;
+        $this_style.width  = $ghost.offsetWidth  < $ghost.scrollWidth  ? $ghost.scrollWidth  + 'px' : $ghost_style.width ;
 
-		$this.parentNode.removeChild($ghost);
-	}
+        $this.parentNode.removeChild($ghost);
+    }
 }
-	
+    
 onDOMLoaded.push(function()
 {
-	var $i = 0, $t, $T = document.getElementsByTagName('textarea');
+    var $i = 0, $t, $T = document.getElementsByTagName('textarea');
 
-	for (; $i < $T.length; ++$i)
-	{
-		$t = $T[$i];
+    for (; $i < $T.length; ++$i)
+    {
+        $t = $T[$i];
 
-		$t.checkMaxlength = maxlengthTextarea;
-		$t.autofit = autofitTextarea;
+        $t.checkMaxlength = maxlengthTextarea;
+        $t.autofit = autofitTextarea;
 
-		if (!$t.onkeyup)
-		{
-			if ($t.getAttribute('maxlength')) $t.onkeyup = $t.checkMaxlength;
+        if (!$t.onkeyup)
+        {
+            if ($t.getAttribute('maxlength')) $t.onkeyup = $t.checkMaxlength;
 
-			if (/\bautofit\b/.test($t.className))
-			{
-				$t.style.overflow = 'hidden';
-				$t.v_offsetHeight = $t.offsetHeight;
-				$t.v_offsetWidth = $t.offsetWidth;
-				$t.onkeyup = $t.autofit;
-				$t.autofitEnabled = 1;
-			}
+            if (/\bautofit\b/.test($t.className))
+            {
+                $t.style.overflow = 'hidden';
+                $t.v_offsetHeight = $t.offsetHeight;
+                $t.v_offsetWidth = $t.offsetWidth;
+                $t.onkeyup = $t.autofit;
+                $t.autofitEnabled = 1;
+            }
 
-			$t.onkeyup && $t.onkeyup();
-		}
-	}
+            $t.onkeyup && $t.onkeyup();
+        }
+    }
 });
 
 (function($scrollPos)
 {
-	if ($scrollPos = location.hash.match(/@([0-9]+),([0-9]+)$/))
-	{
-		(window.scrollCntrl = function()
-		{
-			var $body = document.documentElement,
-				$left = Math.min($scrollPos[1], $body.scrollWidth),
-				$top  = Math.min($scrollPos[2], $body.scrollHeight);
+    if ($scrollPos = location.hash.match(/@([0-9]+),([0-9]+)$/))
+    {
+        (window.scrollCntrl = function()
+        {
+            var $body = document.documentElement,
+                $left = Math.min($scrollPos[1], $body.scrollWidth),
+                $top  = Math.min($scrollPos[2], $body.scrollHeight);
 
-			$body && scrollTo($left, $top);
+            $body && scrollTo($left, $top);
 
-			if ($left != $body.scrollLeft || $top != $body.scrollTop) setTimeout(scrollCntrl, 100);
-		})();
-	}
+            if ($left != $body.scrollLeft || $top != $body.scrollTop) setTimeout(scrollCntrl, 100);
+        })();
+    }
 })();
 
 onDOMLoaded.push(function()
 {
-	var $i = 0, $win = window, $forms = document.forms, $form, $j, $elt;
+    var $i = 0, $win = window, $forms = document.forms, $form, $j, $elt;
 
-	for (; $i<$forms.length; ++$i)
-	{
-		$form = $forms[$i];
+    for (; $i<$forms.length; ++$i)
+    {
+        $form = $forms[$i];
 
-		$form.v_onsubmit = $form.onsubmit;
-		$form.onsubmit = function($event)
-		{
-			var $this = this, $i, $elt;
+        $form.v_onsubmit = $form.onsubmit;
+        $form.onsubmit = function($event)
+        {
+            var $this = this, $i, $elt;
 
-			if ($this.precheck && !$this.precheck($event)) return false;
+            if ($this.precheck && !$this.precheck($event)) return false;
 
-			$event = $this.v_onsubmit && $this.v_onsubmit($event);
+            $event = $this.v_onsubmit && $this.v_onsubmit($event);
 
-			if (!$event && 'false' == ''+$event) return false;
+            if (!$event && 'false' == ''+$event) return false;
 
-			if (!pForm_is_available.placeholder)
-			{
-				for ($i = 0; $i < $this.length; ++$i)
-				{
-					$elt = $this[$i];
-					if ($elt.placeholder && /\splaceholder\b/.test($elt.className)) $elt.value = '';
-				}
-			}
+            if (!pForm_is_available.placeholder)
+            {
+                for ($i = 0; $i < $this.length; ++$i)
+                {
+                    $elt = $this[$i];
+                    if ($elt.placeholder && /\splaceholder\b/.test($elt.className)) $elt.value = '';
+                }
+            }
 
-			if ($this.UPLOAD_IDENTIFIER && window.loadUpload) loadUpload($this);
-		}
+            if ($this.UPLOAD_IDENTIFIER && window.loadUpload) loadUpload($this);
+        }
 
-		$win.v_onbeforeunload = $win.onbeforeunload;
-		$win.onbeforeunload = function($event)
-		{
-			if (!pForm_is_available.placeholder)
-			{
-				var $i = 0, $j, $form = document.forms, $element;
+        $win.v_onbeforeunload = $win.onbeforeunload;
+        $win.onbeforeunload = function($event)
+        {
+            if (!pForm_is_available.placeholder)
+            {
+                var $i = 0, $j, $form = document.forms, $element;
 
-				for (; $i<$form.length; ++$i)
-				{
-					for ($j = 0; $j < $form[$i].length; ++$j)
-					{
-						$element = $form[$i][$j];
+                for (; $i<$form.length; ++$i)
+                {
+                    for ($j = 0; $j < $form[$i].length; ++$j)
+                    {
+                        $element = $form[$i][$j];
 
-						if ($element.placeholder && /\splaceholder\b/.test($element.className))
-						{
-							$element.value = '';
-						}
-					}
-				}
-			}
+                        if ($element.placeholder && /\splaceholder\b/.test($element.className))
+                        {
+                            $element.value = '';
+                        }
+                    }
+                }
+            }
 
-			if ($win.v_onbeforeunload) return $win.v_onbeforeunload($event);
-		}
+            if ($win.v_onbeforeunload) return $win.v_onbeforeunload($event);
+        }
 
-		for ($j = 0; $j < $form.length; ++$j)
-		{
-			$elt = $form[$j];
-			if ($elt.type == 'checkbox') $elt.onclick = $elt.onclick || checkboxClick;
+        for ($j = 0; $j < $form.length; ++$j)
+        {
+            $elt = $form[$j];
+            if ($elt.type == 'checkbox') $elt.onclick = $elt.onclick || checkboxClick;
 
-			if ($elt.type != 'submit' && $elt.type != 'image')
-			{
-				$elt.v_onfocus = $elt.onfocus;
+            if ($elt.type != 'submit' && $elt.type != 'image')
+            {
+                $elt.v_onfocus = $elt.onfocus;
 
-				if (!pForm_is_available.placeholder && $elt.placeholder)
-				{
-					$elt.onfocus = function($event)
-					{
-						var $this = this;
-						$this.form.v_lastFocusedElt = $this;
+                if (!pForm_is_available.placeholder && $elt.placeholder)
+                {
+                    $elt.onfocus = function($event)
+                    {
+                        var $this = this;
+                        $this.form.v_lastFocusedElt = $this;
 
-						if (/\splaceholder\b/.test($this.className))
-						{
-							$this.value = '';
-							$this.className = $this.className.replace(/\splaceholder\b/g, '');
-						}
+                        if (/\splaceholder\b/.test($this.className))
+                        {
+                            $this.value = '';
+                            $this.className = $this.className.replace(/\splaceholder\b/g, '');
+                        }
 
-						$event = $this.v_onfocus && $this.v_onfocus($event);
-						if (!$event && 'false' == ''+$event) return false;
-					}
+                        $event = $this.v_onfocus && $this.v_onfocus($event);
+                        if (!$event && 'false' == ''+$event) return false;
+                    }
 
-					$elt.v_onblur = $elt.onblur;
-					$elt.onblur = function($event)
-					{
-						var $this = this;
-						if ('' == $this.value)
-						{
-							$this.className += ' placeholder';
-							$this.value = $this.placeholder;
-						}
-						else
-						{
-							$this.className = $this.className.replace(/\splaceholder\b/g, '');
-						}
+                    $elt.v_onblur = $elt.onblur;
+                    $elt.onblur = function($event)
+                    {
+                        var $this = this;
+                        if ('' == $this.value)
+                        {
+                            $this.className += ' placeholder';
+                            $this.value = $this.placeholder;
+                        }
+                        else
+                        {
+                            $this.className = $this.className.replace(/\splaceholder\b/g, '');
+                        }
 
-						$event = $this.v_onblur && $this.v_onblur($event);
-						if (!$event && 'false' == ''+$event) return false;
-					}
+                        $event = $this.v_onblur && $this.v_onblur($event);
+                        if (!$event && 'false' == ''+$event) return false;
+                    }
 
-					if (document.activeElement && document.activeElement == $elt)
-					{
-						$elt.form.v_lastFocusedElt = $elt;
-					}
-					else
-					{
-						window.onload = (function($onload, $elt)
-						{
-							return function()
-							{
-								if (document.activeElement != $elt
-									&& '' == $elt.value
-									&& !/\splaceholder\b/.test($elt.className))
-								{
-									$elt.className += ' placeholder';
-									$elt.value = $elt.placeholder;
-								}
+                    if (document.activeElement && document.activeElement == $elt)
+                    {
+                        $elt.form.v_lastFocusedElt = $elt;
+                    }
+                    else
+                    {
+                        window.onload = (function($onload, $elt)
+                        {
+                            return function()
+                            {
+                                if (document.activeElement != $elt
+                                    && '' == $elt.value
+                                    && !/\splaceholder\b/.test($elt.className))
+                                {
+                                    $elt.className += ' placeholder';
+                                    $elt.value = $elt.placeholder;
+                                }
 
-								$onload && $onload();
-								$onload = $elt = 0;
-							}
-						})(window.onload, $elt);
-					}
-				}
-				else
-				{
-					$elt.onfocus = function($event)
-					{
-						var $this = this;
-						$this.form.v_lastFocusedElt = $this;
-						$event = $this.v_onfocus && $this.v_onfocus($event);
-						if (!$event && 'false' == ''+$event) return false;
-					}
-				}
-			}
-		}
-	}
+                                $onload && $onload();
+                                $onload = $elt = 0;
+                            }
+                        })(window.onload, $elt);
+                    }
+                }
+                else
+                {
+                    $elt.onfocus = function($event)
+                    {
+                        var $this = this;
+                        $this.form.v_lastFocusedElt = $this;
+                        $event = $this.v_onfocus && $this.v_onfocus($event);
+                        if (!$event && 'false' == ''+$event) return false;
+                    }
+                }
+            }
+        }
+    }
 
-	$win.scrollCntrl = function() {};
-	$win = $forms = $form = $elt = 0;
+    $win.scrollCntrl = function() {};
+    $win = $forms = $form = $elt = 0;
 });
 
 }

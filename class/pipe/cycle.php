@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,45 +14,45 @@
 
 class pipe_cycle
 {
-	static $pool = array();
+    static $pool = array();
 
-	static function php($name)
-	{
-		$name = patchwork::string($name);
-		$args = func_get_args();
-		$key =& self::$pool[$name];
+    static function php($name)
+    {
+        $name = patchwork::string($name);
+        $args = func_get_args();
+        $key =& self::$pool[$name];
 
-		if (is_int($key))
-		{
-			if (++$key >= count($args)) $key = 1;
-		}
-		else $key = 1;
+        if (is_int($key))
+        {
+            if (++$key >= count($args)) $key = 1;
+        }
+        else $key = 1;
 
-		return patchwork::string($args[$key]);
-	}
+        return patchwork::string($args[$key]);
+    }
 
-	static function js()
-	{
-		?>/*<script>*/
+    static function js()
+    {
+        ?>/*<script>*/
 
 (function()
 {
-	var $pool = [];
+    var $pool = [];
 
-	return function($name)
-	{
-		$name = str($name);
-		var $args = arguments;
+    return function($name)
+    {
+        $name = str($name);
+        var $args = arguments;
 
-		if (t($pool[$name]))
-		{
-			if (++$pool[$name] >= $args.length) $pool[$name] = 1;
-		}
-		else $pool[$name] = 1;
+        if (t($pool[$name]))
+        {
+            if (++$pool[$name] >= $args.length) $pool[$name] = 1;
+        }
+        else $pool[$name] = 1;
 
-		return str($args[$pool[$name]]);
-	}
+        return str($args[$pool[$name]]);
+    }
 })()
 
-<?php	}
+<?php   }
 }

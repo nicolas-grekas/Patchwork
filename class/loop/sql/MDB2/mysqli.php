@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,50 +14,50 @@
 
 class loop_sql_MDB2_mysqli extends loop
 {
-	protected
+    protected
 
-	$db = false,
-	$sql,
-	$result = false,
-	$from = 0,
-	$count = 0;
+    $db = false,
+    $sql,
+    $result = false,
+    $from = 0,
+    $count = 0;
 
 
-	function __construct($sql, $filter = '', $from = 0, $count = 0)
-	{
-		$this->sql = $sql;
-		$this->from = (int) $from;
-		$this->count = (int) $count;
-		$this->addFilter($filter);
-	}
+    function __construct($sql, $filter = '', $from = 0, $count = 0)
+    {
+        $this->sql = $sql;
+        $this->from = (int) $from;
+        $this->count = (int) $count;
+        $this->addFilter($filter);
+    }
 
-	function setLimit($from, $count)
-	{
-		$this->from  = (int) $from;
-		$this->count = (int) $count;
-	}
+    function setLimit($from, $count)
+    {
+        $this->from  = (int) $from;
+        $this->count = (int) $count;
+    }
 
-	protected function prepare()
-	{
-		if (!$this->result)
-		{
-			$sql = $this->sql;
-			if ($this->count > 0) $sql .= " LIMIT {$this->from},{$this->count}";
+    protected function prepare()
+    {
+        if (!$this->result)
+        {
+            $sql = $this->sql;
+            if ($this->count > 0) $sql .= " LIMIT {$this->from},{$this->count}";
 
-			$this->db || $this->db = DB()->connection;
-			$this->result = $this->db->query($sql);
+            $this->db || $this->db = DB()->connection;
+            $this->result = $this->db->query($sql);
 
-			if (!$this->result) W("MySQL Error ({$sql}) : {$this->db->error}");
-		}
+            if (!$this->result) W("MySQL Error ({$sql}) : {$this->db->error}");
+        }
 
-		return $this->result ? $this->result->num_rows : false;
-	}
+        return $this->result ? $this->result->num_rows : false;
+    }
 
-	protected function next()
-	{
-		$a = $this->result->fetch_object();
+    protected function next()
+    {
+        $a = $this->result->fetch_object();
 
-		if ($a) return $a;
-		else $this->result->data_seek(0);
-	}
+        if ($a) return $a;
+        else $this->result->data_seek(0);
+    }
 }

@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -29,7 +29,7 @@ $url = implode($_SERVER['PATCHWORK_LANG'], $url);
 
 if (!preg_match("'^http(s?)://([-.:a-z0-9]+)(/(?:\?|.+[/\?])?)$'D", $url, $url))
 {
-	throw new Exception("Invalid \$_SERVER['PATCHWORK_BASE']");
+    throw new Exception("Invalid \$_SERVER['PATCHWORK_BASE']");
 }
 
 if ($url[1]) $_SERVER['HTTPS'] = 'on';
@@ -43,10 +43,10 @@ $_SERVER['REQUEST_METHOD'] = 'GET';
 
 if (empty($_SERVER['SERVER_PORT']))
 {
-	$h = strstr($_SERVER['HTTP_HOST'], ':');
-	$_SERVER['SERVER_PORT'] = false !== $h
-		? (string)(int) substr($h, 1)
-		: (isset($_SERVER['HTTPS']) ? '443' : '80');
+    $h = strstr($_SERVER['HTTP_HOST'], ':');
+    $_SERVER['SERVER_PORT'] = false !== $h
+        ? (string)(int) substr($h, 1)
+        : (isset($_SERVER['HTTPS']) ? '443' : '80');
 }
 
 empty($_SERVER['SERVER_ADDR' ]) && $_SERVER['SERVER_ADDR' ] = '127.0.0.1';

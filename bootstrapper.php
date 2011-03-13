@@ -1,4 +1,4 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
  *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
@@ -26,20 +26,20 @@ error_reporting(E_ALL);
 switch (true)
 {
 case file_exists((PATCHWORK_BOOTPATH ? PATCHWORK_BOOTPATH : '.') . '/.patchwork.php'):
-	return require (PATCHWORK_BOOTPATH ? PATCHWORK_BOOTPATH : '.') . '/.patchwork.php';
+    return require (PATCHWORK_BOOTPATH ? PATCHWORK_BOOTPATH : '.') . '/.patchwork.php';
 case isset($_GET['p:']) && 'exit' === $_GET['p:']:
-	die('Exit requested');
+    die('Exit requested');
 case !function_exists('version_compare') || version_compare(phpversion(), '5.1.4') < 0:
-	die("PHP 5.1.4 or higher is required.");
+    die("PHP 5.1.4 or higher is required.");
 }
 
 setlocale(LC_ALL, 'C');
 error_reporting(E_ALL | E_STRICT);
 
 function_exists('mb_internal_encoding')
-	&& !in_array(strtolower(mb_internal_encoding()), array('pass', '8bit', 'utf-8'))
-	&& mb_internal_encoding('8bit') // if mbstring overloading is enabled
-	&& @ini_set('mbstring.internal_encoding', '8bit');
+    && !in_array(strtolower(mb_internal_encoding()), array('pass', '8bit', 'utf-8'))
+    && mb_internal_encoding('8bit') // if mbstring overloading is enabled
+    && @ini_set('mbstring.internal_encoding', '8bit');
 
 
 require dirname(__FILE__) . '/class/patchwork/bootstrapper.php';
@@ -51,8 +51,8 @@ patchwork_bootstrapper::initialize(__FILE__, PATCHWORK_BOOTPATH);
 
 if (!patchwork_bootstrapper::getLock())
 {
-	require patchwork_bootstrapper::getCompiledFile();
-	return;
+    require patchwork_bootstrapper::getCompiledFile();
+    return;
 }
 
 
@@ -72,8 +72,8 @@ patchwork_bootstrapper::initZcache();
 
 while (patchwork_bootstrapper::loadConfigFile('pre'))
 {
-	eval(patchwork_bootstrapper::preprocessorPass1());
-	eval(patchwork_bootstrapper::preprocessorPass2());
+    eval(patchwork_bootstrapper::preprocessorPass1());
+    eval(patchwork_bootstrapper::preprocessorPass2());
 }
 
 
@@ -83,8 +83,8 @@ patchwork_bootstrapper::initConfig();
 
 while (patchwork_bootstrapper::loadConfigFile(true))
 {
-	eval(patchwork_bootstrapper::preprocessorPass1());
-	eval(patchwork_bootstrapper::preprocessorPass2());
+    eval(patchwork_bootstrapper::preprocessorPass1());
+    eval(patchwork_bootstrapper::preprocessorPass2());
 }
 
 
@@ -92,8 +92,8 @@ while (patchwork_bootstrapper::loadConfigFile(true))
 
 while (patchwork_bootstrapper::loadConfigFile('post'))
 {
-	eval(patchwork_bootstrapper::preprocessorPass1());
-	eval(patchwork_bootstrapper::preprocessorPass2());
+    eval(patchwork_bootstrapper::preprocessorPass1());
+    eval(patchwork_bootstrapper::preprocessorPass2());
 }
 
 

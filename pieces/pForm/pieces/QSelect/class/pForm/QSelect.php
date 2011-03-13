@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,43 +14,43 @@
 
 class pForm_QSelect extends pForm_text
 {
-	protected
+    protected
 
-	$src = '',
-	$lock = 0,
-	$textarea = 0;
+    $src = '',
+    $lock = 0,
+    $textarea = 0;
 
 
-	protected function init(&$param)
-	{
-		isset($param['src'])  && $this->src  = $param['src'];
-		empty($param['lock']) || $this->lock = 1;
+    protected function init(&$param)
+    {
+        isset($param['src'])  && $this->src  = $param['src'];
+        empty($param['lock']) || $this->lock = 1;
 
-		if (isset($param['textarea']))
-		{
-			$this->textarea = (int) (bool) $param['textarea'];
-		}
-		else if (isset($param['valid']) && 'text' === strtolower($param['valid'])) $this->textarea = 1;
+        if (isset($param['textarea']))
+        {
+            $this->textarea = (int) (bool) $param['textarea'];
+        }
+        else if (isset($param['valid']) && 'text' === strtolower($param['valid'])) $this->textarea = 1;
 
-		if ($this->textarea)
-		{
-			$this->maxlength = 65635;
-			isset($param['valid']) || $param['valid'] = 'text';
-		}
+        if ($this->textarea)
+        {
+            $this->maxlength = 65635;
+            isset($param['valid']) || $param['valid'] = 'text';
+        }
 
-		parent::init($param);
-	}
+        parent::init($param);
+    }
 
-	protected function get()
-	{
-		$a = parent::get();
+    protected function get()
+    {
+        $a = parent::get();
 
-		$this->agent = 'QSelect/input';
+        $this->agent = 'QSelect/input';
 
-		$a->_src = $this->src;
-		$this->textarea && $a->_textarea = 1;
-		$this->lock     && $a->_lock     = 1;
+        $a->_src = $this->src;
+        $this->textarea && $a->_textarea = 1;
+        $this->lock     && $a->_lock     = 1;
 
-		return $a;
-	}
+        return $a;
+    }
 }

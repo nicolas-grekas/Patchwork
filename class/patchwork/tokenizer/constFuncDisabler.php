@@ -1,4 +1,4 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
  *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
@@ -14,33 +14,33 @@
 
 class patchwork_tokenizer_constFuncDisabler extends patchwork_tokenizer
 {
-	protected
+    protected
 
-	$callbacks = array('tagOpenTag' => T_SCOPE_OPEN),
-	$dependencies = array('namespaceInfo' => 'namespace', 'scoper' => 'scope');
+    $callbacks = array('tagOpenTag' => T_SCOPE_OPEN),
+    $dependencies = array('namespaceInfo' => 'namespace', 'scoper' => 'scope');
 
 
-	protected function tagOpenTag(&$token)
-	{
-		if (T_NAMESPACE === $this->scope->type && $this->namespace)
-		{
-			$this->register($this->callbacks = array(
-				'tagConstFunc'  => array(T_NAME_FUNCTION, T_NAME_CONST),
-				'tagScopeClose' => T_SCOPE_CLOSE,
-			));
-		}
-	}
+    protected function tagOpenTag(&$token)
+    {
+        if (T_NAMESPACE === $this->scope->type && $this->namespace)
+        {
+            $this->register($this->callbacks = array(
+                'tagConstFunc'  => array(T_NAME_FUNCTION, T_NAME_CONST),
+                'tagScopeClose' => T_SCOPE_CLOSE,
+            ));
+        }
+    }
 
-	protected function tagConstFunc(&$token)
-	{
-		if (T_CLASS !== $this->scope->type)
-		{
-			$this->setError("Namespaced functions and constants have been deprecated, please use static methods and class constants instead", E_USER_DEPRECATED);
-		}
-	}
+    protected function tagConstFunc(&$token)
+    {
+        if (T_CLASS !== $this->scope->type)
+        {
+            $this->setError("Namespaced functions and constants have been deprecated, please use static methods and class constants instead", E_USER_DEPRECATED);
+        }
+    }
 
-	protected function tagScopeClose(&$token)
-	{
-		$this->unregister();
-	}
+    protected function tagScopeClose(&$token)
+    {
+        $this->unregister();
+    }
 }

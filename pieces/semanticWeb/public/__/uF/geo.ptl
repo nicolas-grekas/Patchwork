@@ -1,6 +1,6 @@
-{***************************************************************************
+{***** vi: set encoding=utf-8 expandtab shiftwidth=4: **********************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -12,7 +12,7 @@
  ***************************************************************************}
 <!-- IF a$latitude || a$longitude -->
 <div class="geo">{"Lat./Long.:"}
-	<!-- IF a$latitude  --><abbr class="latitude"  title="{a$latitude}" >{a$latitude|geo:'latitude'}</abbr>{a$longitude|test:', '}<!-- END:IF -->
-	<!-- IF a$longitude --><abbr class="longitude" title="{a$longitude}">{a$longitude|geo:'longitude'}</abbr><!-- END:IF -->
+    <!-- IF a$latitude  --><abbr class="latitude"  title="{a$latitude}" >{a$latitude|geo:'latitude'}</abbr>{a$longitude|test:', '}<!-- END:IF -->
+    <!-- IF a$longitude --><abbr class="longitude" title="{a$longitude}">{a$longitude|geo:'longitude'}</abbr><!-- END:IF -->
 </div>
 <!-- END:IF -->

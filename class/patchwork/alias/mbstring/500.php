@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2006 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/lgpl.txt GNU/LGPL
  *
@@ -75,217 +75,217 @@ mb_substr               - Get part of string
 
 class patchwork_alias_mbstring_500
 {
-	protected static $internal_encoding = 'UTF-8';
+    protected static $internal_encoding = 'UTF-8';
 
 
-	static function convert_encoding($s, $to_encoding, $from_encoding = INF)
-	{
-		INF === $from_encoding && $from_encoding = self::$internal_encoding;
+    static function convert_encoding($s, $to_encoding, $from_encoding = INF)
+    {
+        INF === $from_encoding && $from_encoding = self::$internal_encoding;
 
-		if ('base64' === $to_encoding) return 'base64' === $from_encoding ? $s : base64_encode($s);
+        if ('base64' === $to_encoding) return 'base64' === $from_encoding ? $s : base64_encode($s);
 
-		if ('base64' === $from_encoding)
-		{
-			$s = base64_decode($s);
-			$from_encoding = $to_encoding;
-		}
+        if ('base64' === $from_encoding)
+        {
+            $s = base64_decode($s);
+            $from_encoding = $to_encoding;
+        }
 
-		if ('html-entities' === $to_encoding)
-		{
-			'html-entities' === $from_encoding && $from_encoding = 'ISO-8859-1';
-			'utf-8' === $from_encoding || $s = iconv($from_encoding, 'UTF-8//IGNORE', $s);
-			return preg_replace_callback('/[\x80-\xFF]+/', array(__CLASS__, 'html_encoding_callback'), $s);
-		}
+        if ('html-entities' === $to_encoding)
+        {
+            'html-entities' === $from_encoding && $from_encoding = 'ISO-8859-1';
+            'utf-8' === $from_encoding || $s = iconv($from_encoding, 'UTF-8//IGNORE', $s);
+            return preg_replace_callback('/[\x80-\xFF]+/', array(__CLASS__, 'html_encoding_callback'), $s);
+        }
 
-		if ('html-entities' === $from_encoding)
-		{
-			$s = html_entity_decode($s, ENT_COMPAT, 'UTF-8');
-			$from_encoding = 'UTF-8';
-		}
+        if ('html-entities' === $from_encoding)
+        {
+            $s = html_entity_decode($s, ENT_COMPAT, 'UTF-8');
+            $from_encoding = 'UTF-8';
+        }
 
-		return iconv($from_encoding, $to_encoding . '//IGNORE', $s);
-	}
+        return iconv($from_encoding, $to_encoding . '//IGNORE', $s);
+    }
 
-	static function decode_mimeheader($s)
-	{
-		return iconv_mime_decode($s, 2, self::$internal_encoding . '//IGNORE');
-	}
+    static function decode_mimeheader($s)
+    {
+        return iconv_mime_decode($s, 2, self::$internal_encoding . '//IGNORE');
+    }
 
-	static function encode_mimeheader($s, $charset = INF, $transfer_encoding = INF, $linefeed = INF, $indent = INF)
-	{
-		trigger_error('mb_encode_mimeheader() is bugged. Please use iconv_mime_encode() instead.');
-	}
-
-
-	static function convert_case($s, $mode, $encoding = INF)
-	{
-		if ('' === $s) return '';
-
-		INF === $encoding && $encoding = self::$internal_encoding;
-		if ('UTF-8' === strtoupper($encoding)) $encoding = INF;
-		else $s = iconv($encoding, 'UTF-8//IGNORE', $s);
-
-		switch ($mode)
-		{
-		case MB_CASE_TITLE:
-			$s = preg_replace_callback('/\b\p{Ll}/u', array(__CLASS__, 'title_case_callback'), $s);
-			return INF === $encoding ? $s : iconv('UTF-8', $encoding, $s);
-
-		case MB_CASE_UPPER:
-			static $upper;
-			isset($upper) || $upper = self::loadCaseTable(1);
-			$map =& $upper;
-			break;
-
-		case MB_CASE_LOWER:
-		default:
-			static $lower;
-			isset($lower) || $lower = self::loadCaseTable(0);
-			$map =& $lower;
-		}
-
-		static $ulen_mask = array("\xC0" => 2, "\xD0" => 2, "\xE0" => 3, "\xF0" => 4);
-
-		$i = 0;
-		$len = strlen($s);
-
-		while ($i < $len)
-		{
-			$ulen = $s[$i] < "\x80" ? 1 : $ulen_mask[$s[$i] & "\xF0"];
-			$uchr = substr($s, $i, $ulen);
-			$i += $ulen;
-
-			if (isset($map[$uchr]))
-			{
-				$uchr = $map[$uchr];
-				$nlen = strlen($uchr);
-
-				if ($nlen == $ulen)
-				{
-					$nlen = $i;
-					do $s[--$nlen] = $uchr[--$ulen];
-					while ($ulen);
-				}
-				else
-				{
-					$s = substr_replace($s, $uchr, $i, $ulen);
-					$len += $nlen - $ulen;
-					$i   += $nlen - $ulen;
-				}
-			}
-		}
-
-		return INF === $encoding ? $s : iconv('UTF-8', $encoding, $s);
-	}
-
-	static function internal_encoding($encoding = INF)
-	{
-		if (INF === $encoding) return self::$internal_encoding;
-
-		if ('UTF-8' === strtoupper($encoding) || false !== @iconv($encoding, $encoding, ' '))
-		{
-			self::$internal_encoding = $encoding;
-			return true;
-		}
-
-		return false;
-	}
-
-	static function list_encodings()
-	{
-		return array('UTF-8');
-	}
-
-	static function strlen($s, $encoding = INF)
-	{
-		INF === $encoding && $encoding = self::$internal_encoding;
-		return iconv_strlen($s, $encoding . '//IGNORE');
-	}
-
-	static function strpos ($haystack, $needle, $offset = 0, $encoding = INF)
-	{
-		INF === $encoding && $encoding = self::$internal_encoding;
-		return iconv_strpos($haystack, $needle, $offset, $encoding . '//IGNORE');
-	}
-
-	static function strrpos($haystack, $needle, $encoding = INF)
-	{
-		INF === $encoding && $encoding = self::$internal_encoding;
-		return iconv_strrpos($haystack, $needle, $encoding . '//IGNORE');
-	}
-
-	static function strtolower($s, $encoding = INF)
-	{
-		return self::convert_case($s, MB_CASE_LOWER, $encoding);
-	}
-
-	static function strtoupper($s, $encoding = INF)
-	{
-		return self::convert_case($s, MB_CASE_UPPER, $encoding);
-	}
-
-	static function substitute_character($c = INF)
-	{
-		return INF !== $c ? false : 'none';
-	}
-
-	static function substr($s, $start, $length = PHP_INT_MAX, $encoding = INF)
-	{
-		INF === $encoding && $encoding = self::$internal_encoding;
-		return iconv_substr($s, $start, $length, $encoding . '//IGNORE');
-	}
+    static function encode_mimeheader($s, $charset = INF, $transfer_encoding = INF, $linefeed = INF, $indent = INF)
+    {
+        trigger_error('mb_encode_mimeheader() is bugged. Please use iconv_mime_encode() instead.');
+    }
 
 
-	protected static function loadCaseTable($upper)
-	{
-		return unserialize(file_get_contents(
-			$upper
-				? patchworkPath('data/utf8/upperCase.ser')
-				: patchworkPath('data/utf8/lowerCase.ser')
-		));
-	}
+    static function convert_case($s, $mode, $encoding = INF)
+    {
+        if ('' === $s) return '';
 
-	protected static function html_encoding_callback($m)
-	{
-		return htmlentities($m, ENT_COMPAT, 'UTF-8');
-	}
+        INF === $encoding && $encoding = self::$internal_encoding;
+        if ('UTF-8' === strtoupper($encoding)) $encoding = INF;
+        else $s = iconv($encoding, 'UTF-8//IGNORE', $s);
 
-	protected static function title_case_callback($s)
-	{
-		$s = self::convert_case($s[0], MB_CASE_UPPER, 'UTF-8');
+        switch ($mode)
+        {
+        case MB_CASE_TITLE:
+            $s = preg_replace_callback('/\b\p{Ll}/u', array(__CLASS__, 'title_case_callback'), $s);
+            return INF === $encoding ? $s : iconv('UTF-8', $encoding, $s);
 
-		$len = strlen($s);
-		for ($i = 1; $i < $len && $s[$i] < "\x80"; ++$i) $s[$i] = strtolower($s[$i]);
+        case MB_CASE_UPPER:
+            static $upper;
+            isset($upper) || $upper = self::loadCaseTable(1);
+            $map =& $upper;
+            break;
 
-		return $s;
-	}
+        case MB_CASE_LOWER:
+        default:
+            static $lower;
+            isset($lower) || $lower = self::loadCaseTable(0);
+            $map =& $lower;
+        }
+
+        static $ulen_mask = array("\xC0" => 2, "\xD0" => 2, "\xE0" => 3, "\xF0" => 4);
+
+        $i = 0;
+        $len = strlen($s);
+
+        while ($i < $len)
+        {
+            $ulen = $s[$i] < "\x80" ? 1 : $ulen_mask[$s[$i] & "\xF0"];
+            $uchr = substr($s, $i, $ulen);
+            $i += $ulen;
+
+            if (isset($map[$uchr]))
+            {
+                $uchr = $map[$uchr];
+                $nlen = strlen($uchr);
+
+                if ($nlen == $ulen)
+                {
+                    $nlen = $i;
+                    do $s[--$nlen] = $uchr[--$ulen];
+                    while ($ulen);
+                }
+                else
+                {
+                    $s = substr_replace($s, $uchr, $i, $ulen);
+                    $len += $nlen - $ulen;
+                    $i   += $nlen - $ulen;
+                }
+            }
+        }
+
+        return INF === $encoding ? $s : iconv('UTF-8', $encoding, $s);
+    }
+
+    static function internal_encoding($encoding = INF)
+    {
+        if (INF === $encoding) return self::$internal_encoding;
+
+        if ('UTF-8' === strtoupper($encoding) || false !== @iconv($encoding, $encoding, ' '))
+        {
+            self::$internal_encoding = $encoding;
+            return true;
+        }
+
+        return false;
+    }
+
+    static function list_encodings()
+    {
+        return array('UTF-8');
+    }
+
+    static function strlen($s, $encoding = INF)
+    {
+        INF === $encoding && $encoding = self::$internal_encoding;
+        return iconv_strlen($s, $encoding . '//IGNORE');
+    }
+
+    static function strpos ($haystack, $needle, $offset = 0, $encoding = INF)
+    {
+        INF === $encoding && $encoding = self::$internal_encoding;
+        return iconv_strpos($haystack, $needle, $offset, $encoding . '//IGNORE');
+    }
+
+    static function strrpos($haystack, $needle, $encoding = INF)
+    {
+        INF === $encoding && $encoding = self::$internal_encoding;
+        return iconv_strrpos($haystack, $needle, $encoding . '//IGNORE');
+    }
+
+    static function strtolower($s, $encoding = INF)
+    {
+        return self::convert_case($s, MB_CASE_LOWER, $encoding);
+    }
+
+    static function strtoupper($s, $encoding = INF)
+    {
+        return self::convert_case($s, MB_CASE_UPPER, $encoding);
+    }
+
+    static function substitute_character($c = INF)
+    {
+        return INF !== $c ? false : 'none';
+    }
+
+    static function substr($s, $start, $length = PHP_INT_MAX, $encoding = INF)
+    {
+        INF === $encoding && $encoding = self::$internal_encoding;
+        return iconv_substr($s, $start, $length, $encoding . '//IGNORE');
+    }
+
+
+    protected static function loadCaseTable($upper)
+    {
+        return unserialize(file_get_contents(
+            $upper
+                ? patchworkPath('data/utf8/upperCase.ser')
+                : patchworkPath('data/utf8/lowerCase.ser')
+        ));
+    }
+
+    protected static function html_encoding_callback($m)
+    {
+        return htmlentities($m, ENT_COMPAT, 'UTF-8');
+    }
+
+    protected static function title_case_callback($s)
+    {
+        $s = self::convert_case($s[0], MB_CASE_UPPER, 'UTF-8');
+
+        $len = strlen($s);
+        for ($i = 1; $i < $len && $s[$i] < "\x80"; ++$i) $s[$i] = strtolower($s[$i]);
+
+        return $s;
+    }
 }
 
 /**/if (!function_exists('mb_strlen'))
 /**/{
-		define('MB_OVERLOAD_MAIL',   1);
-		define('MB_OVERLOAD_STRING', 2);
-		define('MB_OVERLOAD_REGEX',  4);
-		define('MB_CASE_UPPER', 0);
-		define('MB_CASE_LOWER', 1);
-		define('MB_CASE_TITLE', 2);
+        define('MB_OVERLOAD_MAIL',   1);
+        define('MB_OVERLOAD_STRING', 2);
+        define('MB_OVERLOAD_REGEX',  4);
+        define('MB_CASE_UPPER', 0);
+        define('MB_CASE_LOWER', 1);
+        define('MB_CASE_TITLE', 2);
 
 
-		function mb_convert_encoding($str, $to_encoding, $from_encoding = INF) {return patchwork_alias_mbstring_500::convert_encoding($str, $to_encoding, $from_encoding);}
-		function mb_decode_mimeheader($str) {return patchwork_alias_mbstring_500::decode_mimeheader($str);}
-		function mb_encode_mimeheader($str, $charset = INF, $transfer_encoding = INF, $linefeed = INF, $indent = INF)
-		{
-			return patchwork_alias_mbstring_500::encode_mimeheader($str, $charset, $transfer_encoding, $linefeed, $indent);
-		}
+        function mb_convert_encoding($str, $to_encoding, $from_encoding = INF) {return patchwork_alias_mbstring_500::convert_encoding($str, $to_encoding, $from_encoding);}
+        function mb_decode_mimeheader($str) {return patchwork_alias_mbstring_500::decode_mimeheader($str);}
+        function mb_encode_mimeheader($str, $charset = INF, $transfer_encoding = INF, $linefeed = INF, $indent = INF)
+        {
+            return patchwork_alias_mbstring_500::encode_mimeheader($str, $charset, $transfer_encoding, $linefeed, $indent);
+        }
 
-		function mb_convert_case($str, $mode, $encoding = INF) {return patchwork_alias_mbstring_500::convert_case($str, $mode, $encoding);}
-		function mb_internal_encoding($encoding = INF)         {return patchwork_alias_mbstring_500::internal_encoding($encoding);}
-		function mb_list_encodings()                           {return patchwork_alias_mbstring_500::list_encodings();}
-		function mb_strlen($str, $encoding = INF)              {return patchwork_alias_mbstring_500::strlen($str, $encoding);}
-		function mb_strpos ($haystack, $needle, $offset = 0, $encoding = INF)    {return patchwork_alias_mbstring_500::strpos ($haystack, $needle, $offset, $encoding);}
-		function mb_strrpos($haystack, $needle, $offset = 0, $encoding = INF)    {return patchwork_alias_mbstring::strrpos($haystack, $needle, $offset, $encoding);}
-		function mb_strtolower($str, $encoding = INF)                            {return patchwork_alias_mbstring_500::strtolower($str, $encoding);}
-		function mb_strtoupper($str, $encoding = INF)                            {return patchwork_alias_mbstring_500::strtoupper($str, $encoding);}
-		function mb_substitute_character($char = INF)                            {return patchwork_alias_mbstring_500::substitute_character($char);}
-		function mb_substr($str, $start, $length = PHP_INT_MAX, $encoding = INF) {return patchwork_alias_mbstring_500::substr($str, $start, $length, $encoding);}
+        function mb_convert_case($str, $mode, $encoding = INF) {return patchwork_alias_mbstring_500::convert_case($str, $mode, $encoding);}
+        function mb_internal_encoding($encoding = INF)         {return patchwork_alias_mbstring_500::internal_encoding($encoding);}
+        function mb_list_encodings()                           {return patchwork_alias_mbstring_500::list_encodings();}
+        function mb_strlen($str, $encoding = INF)              {return patchwork_alias_mbstring_500::strlen($str, $encoding);}
+        function mb_strpos ($haystack, $needle, $offset = 0, $encoding = INF)    {return patchwork_alias_mbstring_500::strpos ($haystack, $needle, $offset, $encoding);}
+        function mb_strrpos($haystack, $needle, $offset = 0, $encoding = INF)    {return patchwork_alias_mbstring::strrpos($haystack, $needle, $offset, $encoding);}
+        function mb_strtolower($str, $encoding = INF)                            {return patchwork_alias_mbstring_500::strtolower($str, $encoding);}
+        function mb_strtoupper($str, $encoding = INF)                            {return patchwork_alias_mbstring_500::strtoupper($str, $encoding);}
+        function mb_substitute_character($char = INF)                            {return patchwork_alias_mbstring_500::substitute_character($char);}
+        function mb_substr($str, $start, $length = PHP_INT_MAX, $encoding = INF) {return patchwork_alias_mbstring_500::substr($str, $start, $length, $encoding);}
 /**/}

@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -15,22 +15,22 @@
 /* interface is out of date
 class pForm_time extends pForm_text
 {
-	protected $maxlength = 2;
-	protected $maxint = 23;
-	protected $minute;
+    protected $maxlength = 2;
+    protected $maxint = 23;
+    protected $minute;
 
-	protected function init(&$param)
-	{
-		$param['valid'] = 'int';
-		$param[0] = 0; $param[1] = 23;
-		parent::init($param);
+    protected function init(&$param)
+    {
+        $param['valid'] = 'int';
+        $param[0] = 0; $param[1] = 23;
+        parent::init($param);
 
-		$this->minute = $form->add('minute', $name.'_minute', array('valid'=>'int', 0, 59));
-	}
+        $this->minute = $form->add('minute', $name.'_minute', array('valid'=>'int', 0, 59));
+    }
 
-	function getValue()
-	{
-		return $this->status ? 60*(60*$this->value + ($this->minute->status ? $this->minute->value : 0)) : 0;
-	}
+    function getValue()
+    {
+        return $this->status ? 60*(60*$this->value + ($this->minute->status ? $this->minute->value : 0)) : 0;
+    }
 }
 */

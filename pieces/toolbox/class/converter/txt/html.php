@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,104 +14,104 @@
 
 class converter_txt_html extends converter_abstract
 {
-	protected
+    protected
 
-	$cols = 78;
-
-
-	protected static
-
-	$charMap = array(
-		array('┼','├','┬','┌','┤','│','┐','┴','└','─','┘','┼','┠','┯','┏','┨','┃','┓','┷','┗','━','┛','•','□','☆','○','■','★','◎','●','△','●','○','□','●','≪ ↑ ↓ ' ),
-		array('+','|','-','+','|','|','+','-','+','-','+','+','|','-','+','|','|','+','-','+','-','+','*','+','o','#','@','-','=','x','%','*','o','#','#','<=UpDn ')
-	),
-	$textAnchor = array();
+    $cols = 78;
 
 
-	function __construct($cols = false)
-	{
-		$cols && $this->cols = (int) $cols;
-	}
+    protected static
 
-	function convertData($html)
-	{
-		// Style according to the Netiquette
-		$html = preg_replace('#<(?:b|strong)\b[^>]*>(\s*)#iu' , '$1*', $html);
-		$html = preg_replace('#(\s*)</(?:b|strong)\b[^>]*>#iu', '*$1', $html);
-		$html = preg_replace('#<u\b[^>]*>(\s*)#iu' , '$1_', $html);
-		$html = preg_replace('#(\s*)</u\b[^>]*>#iu', '_$1', $html);
+    $charMap = array(
+        array('┼','├','┬','┌','┤','│','┐','┴','└','─','┘','┼','┠','┯','┏','┨','┃','┓','┷','┗','━','┛','•','□','☆','○','■','★','◎','●','△','●','○','□','●','≪ ↑ ↓ ' ),
+        array('+','|','-','+','|','|','+','-','+','-','+','+','|','-','+','|','|','+','-','+','-','+','*','+','o','#','@','-','=','x','%','*','o','#','#','<=UpDn ')
+    ),
+    $textAnchor = array();
 
-		// Remove <sub> and <sup> tags
-		$html = preg_replace('#<(/?)su[bp]\b([^>]*)>#iu' , '<$1span$2>', $html);
 
-		// Fill empty alt attributes with whitespace, clear src attributes
-		$html = preg_replace('#(<[^>]+\balt=")"#iu', '$1 "', $html);
-		$html = preg_replace('#(<[^>]+\bsrc=")(?:[^"]*)"#iu', '$1"', $html);
+    function __construct($cols = false)
+    {
+        $cols && $this->cols = (int) $cols;
+    }
 
-		// Inline URLs
-		$html = preg_replace_callback(
-			'#<a\b[^>]*\shref="([^"]*)"[^>]*>(.*?)</a\b[^>]*>#isu',
-			array(__CLASS__, 'buildTextAnchor'),
-			$html
-		);
+    function convertData($html)
+    {
+        // Style according to the Netiquette
+        $html = preg_replace('#<(?:b|strong)\b[^>]*>(\s*)#iu' , '$1*', $html);
+        $html = preg_replace('#(\s*)</(?:b|strong)\b[^>]*>#iu', '*$1', $html);
+        $html = preg_replace('#<u\b[^>]*>(\s*)#iu' , '$1_', $html);
+        $html = preg_replace('#(\s*)</u\b[^>]*>#iu', '_$1', $html);
 
-		// Convert html-entities to UTF-8 for w3m
-		$html = str_replace(
-			array('&quot;',     '&lt;',     '&gt;',     '&#039;',     '"',      '<',    '>',    "'"),
-			array('&amp;quot;', '&amp;lt;', '&amp;gt;', '&amp;#039;', '&quot;', '&lt;', '&gt;', '&#039;'),
-			FILTER::get($html, 'text')
-		);
-		$html = html_entity_decode($html, ENT_COMPAT, 'UTF-8');
+        // Remove <sub> and <sup> tags
+        $html = preg_replace('#<(/?)su[bp]\b([^>]*)>#iu' , '<$1span$2>', $html);
 
-		$file = tempnam(PATCHWORK_ZCACHE, 'converter');
+        // Fill empty alt attributes with whitespace, clear src attributes
+        $html = preg_replace('#(<[^>]+\balt=")"#iu', '$1 "', $html);
+        $html = preg_replace('#(<[^>]+\bsrc=")(?:[^"]*)"#iu', '$1"', $html);
 
-		patchwork::writeFile($file, $html);
+        // Inline URLs
+        $html = preg_replace_callback(
+            '#<a\b[^>]*\shref="([^"]*)"[^>]*>(.*?)</a\b[^>]*>#isu',
+            array(__CLASS__, 'buildTextAnchor'),
+            $html
+        );
 
-		$html = escapeshellarg($file);
-		$html = `w3m -dump -cols {$this->cols} -T text/html -I UTF-8 -O UTF-8 {$html}`;
-		$html = str_replace(self::$charMap[0], self::$charMap[1], $html);
+        // Convert html-entities to UTF-8 for w3m
+        $html = str_replace(
+            array('&quot;',     '&lt;',     '&gt;',     '&#039;',     '"',      '<',    '>',    "'"),
+            array('&amp;quot;', '&amp;lt;', '&amp;gt;', '&amp;#039;', '&quot;', '&lt;', '&gt;', '&#039;'),
+            FILTER::get($html, 'text')
+        );
+        $html = html_entity_decode($html, ENT_COMPAT, 'UTF-8');
 
-		$html = strtr($html, self::$textAnchor);
-		self::$textAnchor = array();
+        $file = tempnam(PATCHWORK_ZCACHE, 'converter');
 
-		unlink($file);
+        patchwork::writeFile($file, $html);
 
-		return $html;
-	}
+        $html = escapeshellarg($file);
+        $html = `w3m -dump -cols {$this->cols} -T text/html -I UTF-8 -O UTF-8 {$html}`;
+        $html = str_replace(self::$charMap[0], self::$charMap[1], $html);
 
-	function convertFile($file)
-	{
-		$html = file_get_contents($file);
+        $html = strtr($html, self::$textAnchor);
+        self::$textAnchor = array();
 
-		return $this->convertData($html);
-	}
+        unlink($file);
 
-	protected static function buildTextAnchor($m)
-	{
-		$a = $m[2];
-		$m = trim($m[1]);
-		$m = preg_replace('"^mailto:\s*"i', '', $m);
+        return $html;
+    }
 
-		$b = false !== strpos($m, '&') ? html_entity_decode($m, ENT_COMPAT, 'UTF-8') : $m;
-		$b = preg_replace_callback('"[^-a-zA-Z0-9_.~,/?:@&=+$#%]+"', array(__CLASS__, 'rawurlencodeCallback'), $b);
-		$len = strlen($b);
+    function convertFile($file)
+    {
+        $html = file_get_contents($file);
 
-		$c = '';
-		do $c .= md5(mt_rand());
-		while (strlen($c) < $len);
-		$c = substr($c, 0, $len);
+        return $this->convertData($html);
+    }
 
-		self::$textAnchor[$c] = $b;
+    protected static function buildTextAnchor($m)
+    {
+        $a = $m[2];
+        $m = trim($m[1]);
+        $m = preg_replace('"^mailto:\s*"i', '', $m);
 
-		if ('' === trim($a)) {}
-		else if (false === stripos($a, $m)) $a .= " &lt;{$c}&gt;";
-		else $a = str_ireplace($m, $c, " {$a} ");
+        $b = false !== strpos($m, '&') ? html_entity_decode($m, ENT_COMPAT, 'UTF-8') : $m;
+        $b = preg_replace_callback('"[^-a-zA-Z0-9_.~,/?:@&=+$#%]+"', array(__CLASS__, 'rawurlencodeCallback'), $b);
+        $len = strlen($b);
 
-		return $a;
-	}
+        $c = '';
+        do $c .= md5(mt_rand());
+        while (strlen($c) < $len);
+        $c = substr($c, 0, $len);
 
-	protected static function rawurlencodeCallback($m)
-	{
-		return rawurlencode($m[0]);
-	}
+        self::$textAnchor[$c] = $b;
+
+        if ('' === trim($a)) {}
+        else if (false === stripos($a, $m)) $a .= " &lt;{$c}&gt;";
+        else $a = str_ireplace($m, $c, " {$a} ");
+
+        return $a;
+    }
+
+    protected static function rawurlencodeCallback($m)
+    {
+        return rawurlencode($m[0]);
+    }
 }

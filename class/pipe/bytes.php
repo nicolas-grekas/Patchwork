@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,42 +14,42 @@
 
 class pipe_bytes
 {
-	static function php($byte)
-	{
-		$byte = patchwork::string($byte);
+    static function php($byte)
+    {
+        $byte = patchwork::string($byte);
 
-		$suffix = ' Kio';
+        $suffix = ' Kio';
 
-		if ($byte >= ($div=1073741824)) $suffix = ' Gio';
-		else if ($byte >= ($div=1048576)) $suffix = ' Mio';
-		else $div = 1024;
+        if ($byte >= ($div=1073741824)) $suffix = ' Gio';
+        else if ($byte >= ($div=1048576)) $suffix = ' Mio';
+        else $div = 1024;
 
-		$byte /= $div;
-		$div = $byte < 10 ? 100 : 1;
-		$byte = intval($div*$byte)/$div;
+        $byte /= $div;
+        $div = $byte < 10 ? 100 : 1;
+        $byte = intval($div*$byte)/$div;
 
-		return $byte . $suffix;
-	}
+        return $byte . $suffix;
+    }
 
-	static function js()
-	{
-		?>/*<script>*/
+    static function js()
+    {
+        ?>/*<script>*/
 
 function($byte)
 {
-	$byte = str($byte);
-	var $suffix = ' Kio', $div;
+    $byte = str($byte);
+    var $suffix = ' Kio', $div;
 
-	if ($byte >= ($div=1073741824)) $suffix = ' Gio';
-	else if ($byte >= ($div=1048576)) $suffix = ' Mio';
-	else $div = 1024;
+    if ($byte >= ($div=1073741824)) $suffix = ' Gio';
+    else if ($byte >= ($div=1048576)) $suffix = ' Mio';
+    else $div = 1024;
 
-	$byte /= $div;
-	$div = $byte < 10 ? 100 : 1;
-	$byte = parseInt($div*$byte)/$div;
+    $byte /= $div;
+    $div = $byte < 10 ? 100 : 1;
+    $byte = parseInt($div*$byte)/$div;
 
-	return $byte + $suffix;
+    return $byte + $suffix;
 }
 
-<?php	}
+<?php   }
 }

@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,24 +14,24 @@
 
 class pMail_template extends pMail_agent
 {
-	function __construct($headers, $options)
-	{
-		$options['agent'] = 'outerData';
-		$options['args']  = array();
+    function __construct($headers, $options)
+    {
+        $options['agent'] = 'outerData';
+        $options['args']  = array();
 
-		parent::__construct($headers, $options);
-	}
+        parent::__construct($headers, $options);
+    }
 
-	function send()
-	{
-		agent_outerData::$outerData     = $this->options['data'];
-		agent_outerData::$outerTemplate = $this->options['template'];
+    function send()
+    {
+        agent_outerData::$outerData     = $this->options['data'];
+        agent_outerData::$outerTemplate = $this->options['template'];
 
-		return parent::send();
-	}
+        return parent::send();
+    }
 
-	function setTestMode()
-	{
-		pMail_text::setTestMode();
-	}
+    function setTestMode()
+    {
+        pMail_text::setTestMode();
+    }
 }

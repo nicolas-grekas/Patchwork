@@ -1,6 +1,6 @@
-/***************************************************************************
+/***** vi: set encoding=utf-8 expandtab shiftwidth=4: **********************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -15,32 +15,32 @@
 
 function QSelectLiveAgent($liveAgent, $loop, $key)
 {
-	$liveAgent = new liveAgent($liveAgent);
+    $liveAgent = new liveAgent($liveAgent);
 
-	return function($this, $input, $select, $options)
-	{
-		var $driver = QSelectSearch()($this, $input, $select, $options);
+    return function($this, $input, $select, $options)
+    {
+        var $driver = QSelectSearch()($this, $input, $select, $options);
 
-		$driver.search = function($query, $pushBack)
-		{
-			$liveAgent.replace(
-				{q: $query},
-				function($result)
-				{
-					if ($result)
-					{
-						var $r = $result[$loop], $c;
+        $driver.search = function($query, $pushBack)
+        {
+            $liveAgent.replace(
+                {q: $query},
+                function($result)
+                {
+                    if ($result)
+                    {
+                        var $r = $result[$loop], $c;
 
-						$result = [];
+                        $result = [];
 
-						if ($r) while ($c = $r()) $result.push($c[$key]);
+                        if ($r) while ($c = $r()) $result.push($c[$key]);
 
-						$pushBack($result);
-					}
-				}
-			);
-		}
+                        $pushBack($result);
+                    }
+                }
+            );
+        }
 
-		return $driver;
-	}
+        return $driver;
+    }
 }

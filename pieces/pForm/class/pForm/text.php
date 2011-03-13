@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,37 +14,37 @@
 
 class pForm_text extends pForm_hidden
 {
-	protected
+    protected
 
-	$type = 'text',
-	$maxlength = 255;
+    $type = 'text',
+    $maxlength = 255;
 
 
-	protected function init(&$param)
-	{
-		parent::init($param);
+    protected function init(&$param)
+    {
+        parent::init($param);
 
-		if (isset($param['maxlength']) && $param['maxlength'] > 0)
-		{
-			$this->maxlength = (int) $param['maxlength'];
-		}
+        if (isset($param['maxlength']) && $param['maxlength'] > 0)
+        {
+            $this->maxlength = (int) $param['maxlength'];
+        }
 
-		if (mb_strlen($this->value) > $this->maxlength)
-		{
-			$this->value = mb_substr($this->value, 0, $this->maxlength);
-		}
-	}
+        if (mb_strlen($this->value) > $this->maxlength)
+        {
+            $this->value = mb_substr($this->value, 0, $this->maxlength);
+        }
+    }
 
-	protected function get()
-	{
-		$a = parent::get();
-		if ($this->maxlength) $a->maxlength = $this->maxlength;
-		return $a;
-	}
+    protected function get()
+    {
+        $a = parent::get();
+        if ($this->maxlength) $a->maxlength = $this->maxlength;
+        return $a;
+    }
 
-	protected function addJsValidation($a)
-	{
-		$a->_valid = new loop_array(array_merge(array($this->valid), $this->validArgs));
-		return $a;
-	}
+    protected function addJsValidation($a)
+    {
+        $a->_valid = new loop_array(array_merge(array($this->valid), $this->validArgs));
+        return $a;
+    }
 }

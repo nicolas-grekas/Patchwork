@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,33 +14,33 @@
 
 class pipe_geo
 {
-	static function php($geo, $latlong)
-	{
-		if ($geo = patchwork::string($geo))
-		{
-			$geo = round(100 * $geo);
-			$geo = substr($geo, 0, -2) . '.' . substr($geo, -2);
-		}
-		else $geo = '0.00';
+    static function php($geo, $latlong)
+    {
+        if ($geo = patchwork::string($geo))
+        {
+            $geo = round(100 * $geo);
+            $geo = substr($geo, 0, -2) . '.' . substr($geo, -2);
+        }
+        else $geo = '0.00';
 
-		return $geo;
-	}
+        return $geo;
+    }
 
-	static function js()
-	{
-		?>/*<script>*/
+    static function js()
+    {
+        ?>/*<script>*/
 
 function($geo, $latlong)
 {
-	if ($geo = str($geo))
-	{
-		$geo = '' + Math.round(100*$geo);
-		$geo = $geo.substr(0, $geo.length - 2) + '.' + $geo.substr(-2);
-	}
-	else $geo = '0.00';
+    if ($geo = str($geo))
+    {
+        $geo = '' + Math.round(100*$geo);
+        $geo = $geo.substr(0, $geo.length - 2) + '.' + $geo.substr(-2);
+    }
+    else $geo = '0.00';
 
-	return $geo;
+    return $geo;
 }
 
-<?php 	}
+<?php   }
 }

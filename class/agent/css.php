@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,32 +14,32 @@
 
 class agent_css extends agent
 {
-	const contentType = 'text/css';
+    const contentType = 'text/css';
 
-	public $get = '__0__';
+    public $get = '__0__';
 
-	protected
+    protected
 
-	$maxage = -1,
-	$watch = array('public/css'),
-	$extension = '.css';
+    $maxage = -1,
+    $watch = array('public/css'),
+    $extension = '.css';
 
 
-	function control()
-	{
-		$dir = substr(get_class($this), 6);
-		$dir = patchwork_class2file($dir);
+    function control()
+    {
+        $dir = substr(get_class($this), 6);
+        $dir = patchwork_class2file($dir);
 
-		$tpl = $this->get->__0__;
+        $tpl = $this->get->__0__;
 
-		if ($tpl !== '')
-		{
-			if ($this->extension !== substr($tpl, -3)) $tpl .= $this->extension;
+        if ($tpl !== '')
+        {
+            if ($this->extension !== substr($tpl, -3)) $tpl .= $this->extension;
 
-			$tpl = str_replace('../', '/', $dir . '/' . strtr($tpl, '\\', '/'));
-		}
-		else $tpl = $dir . $this->extension;
+            $tpl = str_replace('../', '/', $dir . '/' . strtr($tpl, '\\', '/'));
+        }
+        else $tpl = $dir . $this->extension;
 
-		$this->template = $tpl;
-	}
+        $this->template = $tpl;
+    }
 }

@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -18,10 +18,10 @@
 
 class patchwork_setup extends self
 {
-	protected static function execute()
-	{
-		parent::execute();
+    protected static function execute()
+    {
+        parent::execute();
 
-		pTask_crontab::setup();
-	}
+        pTask_crontab::setup();
+    }
 }
