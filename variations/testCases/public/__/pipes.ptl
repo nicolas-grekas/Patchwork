@@ -4,8 +4,8 @@
 
 <table border="1">
 <tr>
-	<th>&nbsp;</th>
-	<th>got<br>expected</th>
+    <th>&nbsp;</th>
+    <th>got<br>expected</th>
 </tr><!--
 
 
@@ -96,8 +96,8 @@ AGENT 'helper/pipeLine' pipe='lower' test=a$test expect=a$expect
 
 SET a$test -->{mailto:'foo@bar.com'}<!-- END:SET
 SET a$expect
-	CLIENTSIDE --><a href="mailto:foo@bar.com">foo@bar.com</a><!-- END:CLIENTSIDE
-	SERVERSIDE -->???<!-- END:SERVERSIDE
+    CLIENTSIDE --><a href="mailto:foo@bar.com">foo@bar.com</a><!-- END:CLIENTSIDE
+    SERVERSIDE -->???<!-- END:SERVERSIDE
 END:SET
 AGENT 'helper/pipeLine' pipe='mailto' test=a$test expect=a$expect
 

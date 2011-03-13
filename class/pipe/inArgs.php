@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2010 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,20 +14,20 @@
 
 class pipe_inArgs
 {
-	static function php($index)
-	{
-		$a = func_get_args();
-		return isset($a[$index + 1]) ? $a[$index + 1] : '';
-	}
+    static function php($index)
+    {
+        $a = func_get_args();
+        return isset($a[$index + 1]) ? $a[$index + 1] : '';
+    }
 
-	static function js()
-	{
-		?>/*<script>*/
+    static function js()
+    {
+        ?>/*<script>*/
 
 function($index)
 {
-	return arguments[$index + 1] || '';
+    return arguments[$index + 1] || '';
 }
 
-<?php	}
+<?php   }
 }

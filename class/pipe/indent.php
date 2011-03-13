@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,28 +14,28 @@
 
 class pipe_indent
 {
-	static function php($string, $chars = 4, $char = ' ')
-	{
-		$chars = str_repeat(patchwork::string($char), patchwork::string($chars));
+    static function php($string, $chars = 4, $char = ' ')
+    {
+        $chars = str_repeat(patchwork::string($char), patchwork::string($chars));
 
-		return $chars . str_replace("\n", "\n$chars", patchwork::string($string));
-	}
+        return $chars . str_replace("\n", "\n$chars", patchwork::string($string));
+    }
 
-	static function js()
-	{
-		?>/*<script>*/
+    static function js()
+    {
+        ?>/*<script>*/
 
 function($string, $chars, $char)
 {
-	$string = str($string);
-	$chars = str($chars, 4);
-	$char = str($char, ' ');
+    $string = str($string);
+    $chars = str($chars, 4);
+    $char = str($char, ' ');
 
-	var $char_repeated = $char;
-	while (--$chars) $char_repeated += $char;
+    var $char_repeated = $char;
+    while (--$chars) $char_repeated += $char;
 
-	return $char_repeated + $string.replace(/\n/g, '\n' + $char_repeated);
+    return $char_repeated + $string.replace(/\n/g, '\n' + $char_repeated);
 }
 
-<?php	}
+<?php   }
 }

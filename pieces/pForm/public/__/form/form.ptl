@@ -1,6 +1,6 @@
-{***************************************************************************
+{***** vi: set encoding=utf-8 expandtab shiftwidth=4: **********************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -24,28 +24,28 @@ a$_enterControl_ : 0 to keep the browser's behaviour,
 
 IF a$_mode_ == 'errormsg'
 
-	IF a$_errormsg
-		--><div class="errormsg"><!--
-		LOOP a$_errormsg -->{$VALUE}<br><!-- END:LOOP
-		--></div><!--
-	END:IF
+    IF a$_errormsg
+        --><div class="errormsg"><!--
+        LOOP a$_errormsg -->{$VALUE}<br><!-- END:LOOP
+        --></div><!--
+    END:IF
 
 ELSEIF a$_mode_ == 'close'
 
-	LOOP a$_hidden
-		--><input type="hidden" name="{$name}" value="{$value}"><!--
-	END:LOOP
-	--></form><!--
+    LOOP a$_hidden
+        --><input type="hidden" name="{$name}" value="{$value}"><!--
+    END:LOOP
+    --></form><!--
 
 ELSE
 
-	SET a$action --><!-- IF !a$action -->{g$__URI__}<!-- ELSE -->{base:a$action:1}<!-- END:IF --><!-- END:SET
-	IF !a$id --><!-- SET a$id -->FiD{g+1$GLOBID}{g$__AGENT__|replace:'[^_a-zA-Z0-9]':'_'}<!-- END:SET --><!-- END:IF
+    SET a$action --><!-- IF !a$action -->{g$__URI__}<!-- ELSE -->{base:a$action:1}<!-- END:IF --><!-- END:SET
+    IF !a$id --><!-- SET a$id -->FiD{g+1$GLOBID}{g$__AGENT__|replace:'[^_a-zA-Z0-9]':'_'}<!-- END:SET --><!-- END:IF
 
-	--><form accept-charset="utf-8" {a$|htmlArgs}><script>
+    --><form accept-charset="utf-8" {a$|htmlArgs}><script>
 lF=document.getElementById({a$id|js});<!--
 IF a$_enterControl_ -->FeC({a$_enterControl_});<!-- END:IF --></script><!--
 
-	IF !g$_UPLOAD && a$_upload --><!-- SET g$_UPLOAD -->1<!-- END:SET --><script async src="{base:'js/upload'}"></script><!-- END:IF
+    IF !g$_UPLOAD && a$_upload --><!-- SET g$_UPLOAD -->1<!-- END:SET --><script async src="{base:'js/upload'}"></script><!-- END:IF
 
 END:IF -->

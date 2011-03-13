@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,70 +14,70 @@
 
 class loop_agentWrapper extends loop
 {
-	public $autoResolve = true;
+    public $autoResolve = true;
 
-	protected
+    protected
 
-	$agent,
-	$keys;
-
-
-	private
-
-	$data,
-	$firstCall = true;
+    $agent,
+    $keys;
 
 
-	function __construct($agent, $keys = false)
-	{
-		$this->agent = $agent;
-		if (false !== $keys) $this->keys = $keys;
-	}
+    private
 
-	final protected function prepare() {return 1;}
-	final protected function next()
-	{
-		if ($this->firstCall)
-		{
-			$this->firstCall = false;
-			if (!isset($this->data))
-			{
-				$data = $this->get();
-				$data->{'a$'} = $this->agent;
+    $data,
+    $firstCall = true;
 
-				if ($this->autoResolve)
-				{
-					if (!isset($this->keys) || preg_match("'^(/|https?://)'", $this->agent))
-					{
-						list($appId, $base, $data->{'a$'}, $keys, $a) = patchwork_agentTrace::resolve($this->agent);
 
-						foreach ($a as $k => &$v) $data->$k =& $v;
+    function __construct($agent, $keys = false)
+    {
+        $this->agent = $agent;
+        if (false !== $keys) $this->keys = $keys;
+    }
 
-						$data->{'k$'} = implode(',', $keys);
+    final protected function prepare() {return 1;}
+    final protected function next()
+    {
+        if ($this->firstCall)
+        {
+            $this->firstCall = false;
+            if (!isset($this->data))
+            {
+                $data = $this->get();
+                $data->{'a$'} = $this->agent;
 
-						if (false !== $base)
-						{
-							$data->{'v$'} = $appId;
-							$data->{'r$'} = $base;
-						}
-					}
-					else $data->{'k$'} = $this->keys;
-				}
+                if ($this->autoResolve)
+                {
+                    if (!isset($this->keys) || preg_match("'^(/|https?://)'", $this->agent))
+                    {
+                        list($appId, $base, $data->{'a$'}, $keys, $a) = patchwork_agentTrace::resolve($this->agent);
 
-				$this->data = $data;
-			}
+                        foreach ($a as $k => &$v) $data->$k =& $v;
 
-			return clone $this->data;
-		}
-		else
-		{
-			$this->firstCall = true;
-			return false;
-		}
-	}
+                        $data->{'k$'} = implode(',', $keys);
 
-	protected function get()
-	{
-		return (object) array();
-	}
+                        if (false !== $base)
+                        {
+                            $data->{'v$'} = $appId;
+                            $data->{'r$'} = $base;
+                        }
+                    }
+                    else $data->{'k$'} = $this->keys;
+                }
+
+                $this->data = $data;
+            }
+
+            return clone $this->data;
+        }
+        else
+        {
+            $this->firstCall = true;
+            return false;
+        }
+    }
+
+    protected function get()
+    {
+        return (object) array();
+    }
 }

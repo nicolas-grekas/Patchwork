@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,17 +14,17 @@
 
 class agent_fckeditor_upload extends agent_fckeditor_browser
 {
-	public $get = 'Type:c:File|Image|Flash|Media';
+    public $get = 'Type:c:File|Image|Flash|Media';
 
-	function compose($o)
-	{
-		$this->get->Command = 'FileUpload';
-		$this->get->CurrentFolder = '/';
+    function compose($o)
+    {
+        $this->get->Command = 'FileUpload';
+        $this->get->CurrentFolder = '/';
 
-		$o = parent::compose($o);
+        $o = parent::compose($o);
 
-		if (isset($o->currentUrl)) $o->url = $o->currentUrl . $o->filename;
+        if (isset($o->currentUrl)) $o->url = $o->currentUrl . $o->filename;
 
-		return $o;
-	}
+        return $o;
+    }
 }

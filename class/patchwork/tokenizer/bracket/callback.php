@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2010 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -16,103 +16,103 @@
 
 class patchwork_tokenizer_bracket_callback extends patchwork_tokenizer_bracket
 {
-	protected
+    protected
 
-	$callbackIndex,
-	$lead = 'patchwork_alias::resolve(',
-	$tail = ')',
-	$nextTail = '',
-	$alias = array();
+    $callbackIndex,
+    $lead = 'patchwork_alias::resolve(',
+    $tail = ')',
+    $nextTail = '',
+    $alias = array();
 
 
-	function __construct(patchwork_tokenizer $parent, $callbackIndex, $alias = array())
-	{
-		if (0 < $callbackIndex)
-		{
-			$this->alias = $alias;
-			$this->callbackIndex = $callbackIndex - 1;
-			parent::__construct($parent);
-		}
-	}
+    function __construct(patchwork_tokenizer $parent, $callbackIndex, $alias = array())
+    {
+        if (0 < $callbackIndex)
+        {
+            $this->alias = $alias;
+            $this->callbackIndex = $callbackIndex - 1;
+            parent::__construct($parent);
+        }
+    }
 
-	protected function onOpen(&$token)
-	{
-		if (0 === $this->callbackIndex) $this->addLead($token[1]);
-	}
+    protected function onOpen(&$token)
+    {
+        if (0 === $this->callbackIndex) $this->addLead($token[1]);
+    }
 
-	protected function onReposition(&$token)
-	{
-		if ($this->bracketIndex === $this->callbackIndex    ) $this->addLead($token[1]);
-		if ($this->bracketIndex === $this->callbackIndex + 1) $this->addTail($token[1]);
-	}
+    protected function onReposition(&$token)
+    {
+        if ($this->bracketIndex === $this->callbackIndex    ) $this->addLead($token[1]);
+        if ($this->bracketIndex === $this->callbackIndex + 1) $this->addTail($token[1]);
+    }
 
-	protected function onClose(&$token)
-	{
-		if ($this->bracketIndex === $this->callbackIndex) $this->addTail($token[1]);
-	}
+    protected function onClose(&$token)
+    {
+        if ($this->bracketIndex === $this->callbackIndex) $this->addTail($token[1]);
+    }
 
-	protected function addLead(&$token)
-	{
-		$t =& $this->getNextToken($a);
+    protected function addLead(&$token)
+    {
+        $t =& $this->getNextToken($a);
 
-		if (T_CONSTANT_ENCAPSED_STRING === $t[0])
-		{
-			$a = $this->getNextToken($a);
+        if (T_CONSTANT_ENCAPSED_STRING === $t[0])
+        {
+            $a = $this->getNextToken($a);
 
-			if (',' === $a[0] || ')' === $a[0])
-			{
-				$a = strtolower(substr($t[1], 1, -1));
+            if (',' === $a[0] || ')' === $a[0])
+            {
+                $a = strtolower(substr($t[1], 1, -1));
 
-				if (isset($this->alias[$a]))
-				{
-					$a = $this->alias[$a];
-					$a = explode('::', $a, 2);
+                if (isset($this->alias[$a]))
+                {
+                    $a = $this->alias[$a];
+                    $a = explode('::', $a, 2);
 
-					if (1 === count($a)) $t[1] = "'{$a[0]}'";
-					else if (empty($this->class->nsName) || strcasecmp($a[0], $this->class->nsName))
-					{
-						$t = ')';
-						$this->tokensUnshift(
-							array(T_ARRAY, 'array'), '(',
-							array(T_CONSTANT_ENCAPSED_STRING, "'{$a[0]}'"), ',',
-							array(T_CONSTANT_ENCAPSED_STRING, "'{$a[1]}'")
-						);
-					}
-				}
+                    if (1 === count($a)) $t[1] = "'{$a[0]}'";
+                    else if (empty($this->class->nsName) || strcasecmp($a[0], $this->class->nsName))
+                    {
+                        $t = ')';
+                        $this->tokensUnshift(
+                            array(T_ARRAY, 'array'), '(',
+                            array(T_CONSTANT_ENCAPSED_STRING, "'{$a[0]}'"), ',',
+                            array(T_CONSTANT_ENCAPSED_STRING, "'{$a[1]}'")
+                        );
+                    }
+                }
 
-				return;
-			}
-		}
-		else if (T_FUNCTION === $t[0])
-		{
-			return; // Closure
-		}
-		else if (T_ARRAY === $t[0])
-		{
-			$a = $this->index;
-			$t =& $this->tokens;
-			$b = 0;
+                return;
+            }
+        }
+        else if (T_FUNCTION === $t[0])
+        {
+            return; // Closure
+        }
+        else if (T_ARRAY === $t[0])
+        {
+            $a = $this->index;
+            $t =& $this->tokens;
+            $b = 0;
 
-			while (isset($t[$a])) switch ($t[$a++][0])
-			{
-			case '(': ++$b; break;
-			case ')':
-				if (0 >= --$b)
-				{
-					$c = $this->getNextToken($a);
-					if (0 > $b || ',' === $c[0] || ')' === $c[0]) return;
-					break;
-				}
-			}
-		}
+            while (isset($t[$a])) switch ($t[$a++][0])
+            {
+            case '(': ++$b; break;
+            case ')':
+                if (0 >= --$b)
+                {
+                    $c = $this->getNextToken($a);
+                    if (0 > $b || ',' === $c[0] || ')' === $c[0]) return;
+                    break;
+                }
+            }
+        }
 
-		$token .= $this->lead;
-		$this->nextTail = $this->tail;
-	}
+        $token .= $this->lead;
+        $this->nextTail = $this->tail;
+    }
 
-	protected function addTail(&$token)
-	{
-		$token = $this->nextTail . $token;
-		$this->nextTail = '';
-	}
+    protected function addTail(&$token)
+    {
+        $token = $this->nextTail . $token;
+        $this->nextTail = '';
+    }
 }

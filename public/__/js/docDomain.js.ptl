@@ -1,6 +1,6 @@
-/***************************************************************************
+/***** vi: set encoding=utf-8 expandtab shiftwidth=4: **********************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -20,33 +20,33 @@ document.domain = {$document_domain|js};
 
 (function()
 {
-	var $document = document,
-		d = $document.domain,
-		w = window.opener || window.parent,
-		i;
+    var $document = document,
+        d = $document.domain,
+        w = window.opener || window.parent,
+        i;
 
-	while (1)
-	{
-		try
-		{
-			i = w.document.domain;
-			break;
-		}
-		catch (e) {}
+    while (1)
+    {
+        try
+        {
+            i = w.document.domain;
+            break;
+        }
+        catch (e) {}
 
-		i = d.indexOf('.');
-		if (i < 0) break;
-		d = d.substr(i+1);
+        i = d.indexOf('.');
+        if (i < 0) break;
+        d = d.substr(i+1);
 
-		try
-		{
-			$document.domain = d;
-		}
-		catch (e)
-		{
-			break;
-		}
-	}
+        try
+        {
+            $document.domain = d;
+        }
+        catch (e)
+        {
+            break;
+        }
+    }
 })();
 
 <!-- END:IF -->

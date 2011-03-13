@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,21 +14,21 @@
 
 class pipe_now
 {
-	static function php($string)
-	{
-		patchwork::setMaxage(1);
-		patchwork::setExpires('onmaxage');
-		return $_SERVER['REQUEST_TIME'];
-	}
+    static function php($string)
+    {
+        patchwork::setMaxage(1);
+        patchwork::setExpires('onmaxage');
+        return $_SERVER['REQUEST_TIME'];
+    }
 
-	static function js()
-	{
-		?>/*<script>*/
+    static function js()
+    {
+        ?>/*<script>*/
 
 function()
 {
-	return parseInt(new Date/1000);
+    return parseInt(new Date/1000);
 }
 
-<?php	}
+<?php   }
 }

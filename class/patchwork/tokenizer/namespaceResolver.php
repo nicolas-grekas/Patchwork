@@ -1,4 +1,4 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
  *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
@@ -14,50 +14,50 @@
 
 class patchwork_tokenizer_namespaceResolver extends patchwork_tokenizer
 {
-	protected
+    protected
 
-	$callbacks  = array(
-		'tagUse'       => T_USE,
-		'tagNsResolve' => array(T_USE_CLASS, T_USE_FUNCTION, T_USE_CONSTANT, T_TYPE_HINT),
-	),
-	$dependencies = array('stringInfo' => 'nsPrefix', 'namespaceInfo' => array('namespace', 'nsResolved'));
+    $callbacks  = array(
+        'tagUse'       => T_USE,
+        'tagNsResolve' => array(T_USE_CLASS, T_USE_FUNCTION, T_USE_CONSTANT, T_TYPE_HINT),
+    ),
+    $dependencies = array('stringInfo' => 'nsPrefix', 'namespaceInfo' => array('namespace', 'nsResolved'));
 
 
-	protected function tagUse(&$token)
-	{
-		if (')' !== $this->lastType)
-		{
-			$this->register('tagUseEnd');
-			$token[1] = ' ';
-		}
-	}
+    protected function tagUse(&$token)
+    {
+        if (')' !== $this->lastType)
+        {
+            $this->register('tagUseEnd');
+            $token[1] = ' ';
+        }
+    }
 
-	protected function tagUseEnd(&$token)
-	{
-		switch ($token[0])
-		{
-		case ';':
-		case $this->lastType:
-			$this->unregister(__FUNCTION__);
-			if (';' !== $token[0]) return;
-		}
+    protected function tagUseEnd(&$token)
+    {
+        switch ($token[0])
+        {
+        case ';':
+        case $this->lastType:
+            $this->unregister(__FUNCTION__);
+            if (';' !== $token[0]) return;
+        }
 
-		$token[1] = '';
-	}
+        $token[1] = '';
+    }
 
-	protected function tagNsResolve(&$token)
-	{
-		if ('\\' !== $this->nsResolved[0])
-		{
-			$this->setError("Unresolved namespaced identifier ({$this->nsResolved})", E_USER_WARNING);
-		}
-		else if (isset($this->nsPrefix[0]) ? '\\' !== $this->nsPrefix[0] : ($this->namespace || $token[1] !== substr($this->nsResolved, 1)))
-		{
-			if ($this->nsPrefix) $this->dependencies['stringInfo']->removeNsPrefix();
-			else if (('self' === $token[1] || 'parent' === $token[1]) && (isset($token[2][T_USE_CLASS]) || isset($token[2][T_TYPE_HINT]))) return;
+    protected function tagNsResolve(&$token)
+    {
+        if ('\\' !== $this->nsResolved[0])
+        {
+            $this->setError("Unresolved namespaced identifier ({$this->nsResolved})", E_USER_WARNING);
+        }
+        else if (isset($this->nsPrefix[0]) ? '\\' !== $this->nsPrefix[0] : ($this->namespace || $token[1] !== substr($this->nsResolved, 1)))
+        {
+            if ($this->nsPrefix) $this->dependencies['stringInfo']->removeNsPrefix();
+            else if (('self' === $token[1] || 'parent' === $token[1]) && (isset($token[2][T_USE_CLASS]) || isset($token[2][T_TYPE_HINT]))) return;
 
-			$this->tokensUnshift(array(T_STRING, substr($this->nsResolved, 1)));
-			return $this->namespace && $this->tokensUnshift(array(T_NS_SEPARATOR, '\\'));
-		}
-	}
+            $this->tokensUnshift(array(T_STRING, substr($this->nsResolved, 1)));
+            return $this->namespace && $this->tokensUnshift(array(T_NS_SEPARATOR, '\\'));
+        }
+    }
 }

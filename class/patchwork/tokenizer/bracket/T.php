@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2010 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,13 +14,13 @@
 
 class patchwork_tokenizer_bracket_T extends patchwork_tokenizer_bracket
 {
-	protected $onOpenCallbacks = array(
-		'tagConcatenation' => array(T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES, '.'),
-	);
+    protected $onOpenCallbacks = array(
+        'tagConcatenation' => array(T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES, '.'),
+    );
 
-	protected function tagConcatenation(&$token)
-	{
-		$this->setError("Usage of T() is potentially divergent, please avoid string concatenation", E_USER_NOTICE);
-		$this->unregister();
-	}
+    protected function tagConcatenation(&$token)
+    {
+        $this->setError("Usage of T() is potentially divergent, please avoid string concatenation", E_USER_NOTICE);
+        $this->unregister();
+    }
 }

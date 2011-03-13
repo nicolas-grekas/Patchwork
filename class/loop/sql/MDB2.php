@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,50 +14,50 @@
 
 class loop_sql_MDB2 extends loop
 {
-	protected
+    protected
 
-	$db = false,
-	$sql,
-	$result,
-	$from = 0,
-	$count = 0;
+    $db = false,
+    $sql,
+    $result,
+    $from = 0,
+    $count = 0;
 
 
-	function __construct($sql, $filter = '', $from = 0, $count = 0)
-	{
-		$this->sql = $sql;
-		$this->from = $from;
-		$this->count = $count;
-		$this->addFilter($filter);
-	}
+    function __construct($sql, $filter = '', $from = 0, $count = 0)
+    {
+        $this->sql = $sql;
+        $this->from = $from;
+        $this->count = $count;
+        $this->addFilter($filter);
+    }
 
-	function setLimit($from, $count)
-	{
-		$this->from = $from;
-		$this->count = $count;
-	}
+    function setLimit($from, $count)
+    {
+        $this->from = $from;
+        $this->count = $count;
+    }
 
-	protected function prepare()
-	{
-		$sql = $this->sql;
-		$this->db || $this->db = DB();
+    protected function prepare()
+    {
+        $sql = $this->sql;
+        $this->db || $this->db = DB();
 
-		if ($this->count > 0)
-		{
-			if (0 === strncmp($this->db->phptype, 'mysql', 5)) $sql .= " LIMIT {$this->from},{$this->count}";
-			else $this->db->setLimit($this->count, $this->from);
-		}
+        if ($this->count > 0)
+        {
+            if (0 === strncmp($this->db->phptype, 'mysql', 5)) $sql .= " LIMIT {$this->from},{$this->count}";
+            else $this->db->setLimit($this->count, $this->from);
+        }
 
-		$this->result = $this->db->query($sql);
+        $this->result = $this->db->query($sql);
 
-		return @PEAR::isError($this->result) ? false : $this->result->numRows();
-	}
+        return @PEAR::isError($this->result) ? false : $this->result->numRows();
+    }
 
-	protected function next()
-	{
-		$a = $this->result->fetchRow();
+    protected function next()
+    {
+        $a = $this->result->fetchRow();
 
-		if ($a) return $a;
-		else $this->result->free();
-	}
+        if ($a) return $a;
+        else $this->result->free();
+    }
 }

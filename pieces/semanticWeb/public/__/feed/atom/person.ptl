@@ -1,6 +1,6 @@
-{***************************************************************************
+{***** vi: set encoding=utf-8 expandtab shiftwidth=4: **********************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -11,7 +11,7 @@
  *
  ***************************************************************************}
 <{a$__1__}><!--
-	AGENT 'feed/atom/tag/name'  value=a$name required=1
-	AGENT 'feed/atom/tag/uri'   value=a$uri
-	AGENT 'feed/atom/tag/email' value=a$email
+    AGENT 'feed/atom/tag/name'  value=a$name required=1
+    AGENT 'feed/atom/tag/uri'   value=a$uri
+    AGENT 'feed/atom/tag/email' value=a$email
 --></{a$__1__}>

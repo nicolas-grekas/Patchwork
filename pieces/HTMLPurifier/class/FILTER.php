@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,12 +14,12 @@
 
 class FILTER extends self
 {
-	protected static function sanitizeHtml($html)
-	{
-		static $parser;
+    protected static function sanitizeHtml($html)
+    {
+        static $parser;
 
-		if (!isset($parser)) $parser = new HTMLPurifier;
+        if (!isset($parser)) $parser = new HTMLPurifier;
 
-		return $parser->purify($html);
-	}
+        return $parser->purify($html);
+    }
 }

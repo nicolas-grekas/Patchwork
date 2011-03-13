@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -21,50 +21,50 @@ setlocale(LC_ALL, 'C');
 
 /**/if (!defined('PHP_VERSION_ID'))
 /**/{
-/**/	$a = array_map('intval', explode('.', PHP_VERSION, 3));
-/**/	define('PHP_VERSION_ID',      (10000 * $a[0] + 100 * $a[1] + $a[2]));
-/**/	define('PHP_MAJOR_VERSION',   $a[0]);
-/**/	define('PHP_MINOR_VERSION',   $a[1]);
-/**/	define('PHP_RELEASE_VERSION', $a[2]);
-/**/	$a = substr(PHP_VERSION, strlen(implode('.', $a)));
-/**/	define('PHP_EXTRA_VERSION', false !== $a ? $a : '');
+/**/    $a = array_map('intval', explode('.', PHP_VERSION, 3));
+/**/    define('PHP_VERSION_ID',      (10000 * $a[0] + 100 * $a[1] + $a[2]));
+/**/    define('PHP_MAJOR_VERSION',   $a[0]);
+/**/    define('PHP_MINOR_VERSION',   $a[1]);
+/**/    define('PHP_RELEASE_VERSION', $a[2]);
+/**/    $a = substr(PHP_VERSION, strlen(implode('.', $a)));
+/**/    define('PHP_EXTRA_VERSION', false !== $a ? $a : '');
 
-		if (!defined('PHP_VERSION_ID'))
-		{
-			define('PHP_EXTRA_VERSION',   /*<*/PHP_EXTRA_VERSION  /*>*/);
-			define('PHP_VERSION_ID',      /*<*/PHP_VERSION_ID     /*>*/);
-			define('PHP_MAJOR_VERSION',   /*<*/PHP_MAJOR_VERSION  /*>*/);
-			define('PHP_MINOR_VERSION',   /*<*/PHP_MINOR_VERSION  /*>*/);
-			define('PHP_RELEASE_VERSION', /*<*/PHP_RELEASE_VERSION/*>*/);
-		}
+        if (!defined('PHP_VERSION_ID'))
+        {
+            define('PHP_EXTRA_VERSION',   /*<*/PHP_EXTRA_VERSION  /*>*/);
+            define('PHP_VERSION_ID',      /*<*/PHP_VERSION_ID     /*>*/);
+            define('PHP_MAJOR_VERSION',   /*<*/PHP_MAJOR_VERSION  /*>*/);
+            define('PHP_MINOR_VERSION',   /*<*/PHP_MINOR_VERSION  /*>*/);
+            define('PHP_RELEASE_VERSION', /*<*/PHP_RELEASE_VERSION/*>*/);
+        }
 /**/}
 
 /**/if (!defined('E_RECOVERABLE_ERROR'))
-		define('E_RECOVERABLE_ERROR', 4096);
+        define('E_RECOVERABLE_ERROR', 4096);
 /**/if (!defined('E_DEPRECATED'))
-		define('E_DEPRECATED',        8192);
+        define('E_DEPRECATED',        8192);
 /**/if (!defined('E_USER_DEPRECATED'))
-		define('E_USER_DEPRECATED',  16384);
+        define('E_USER_DEPRECATED',  16384);
 
 
 // Boolean version of ini_get
 
 function ini_get_bool($a)
 {
-	switch ($b = strtolower(@ini_get($a)))
-	{
-	case 'on':
-	case 'yes':
-	case 'true':
-		return 'assert.active' !== $a;
+    switch ($b = strtolower(@ini_get($a)))
+    {
+    case 'on':
+    case 'yes':
+    case 'true':
+        return 'assert.active' !== $a;
 
-	case 'stdout':
-	case 'stderr':
-		return 'display_errors' === $a;
+    case 'stdout':
+    case 'stderr':
+        return 'display_errors' === $a;
 
-	default:
-		return (bool) (int) $b;
-	}
+    default:
+        return (bool) (int) $b;
+    }
 }
 
 
@@ -73,108 +73,108 @@ function ini_get_bool($a)
 /**/$a = function_exists('realpath') ? @realpath('.') : false;
 /**/if (!$a || '.' === $a)
 /**/{
-/**/	if (function_exists('getcwd') && @getcwd()) $a = true;
-/**/	else
-/**/	{
-/**/		$a = function_exists('get_included_files') ? @get_included_files() : '';
-/**/		$a = $a ? $a[0] : (!empty($_SERVER['SCRIPT_FILENAME']) ? $_SERVER['SCRIPT_FILENAME'] : '.');
-/**/		$a = dirname($a);
-/**/	}
+/**/    if (function_exists('getcwd') && @getcwd()) $a = true;
+/**/    else
+/**/    {
+/**/        $a = function_exists('get_included_files') ? @get_included_files() : '';
+/**/        $a = $a ? $a[0] : (!empty($_SERVER['SCRIPT_FILENAME']) ? $_SERVER['SCRIPT_FILENAME'] : '.');
+/**/        $a = dirname($a);
+/**/    }
 /**/}
 /**/else $a = false;
 
 /**/if (!function_exists('getcwd') || !@getcwd())
-/**/	/*<*/patchwork_bootstrapper::alias('getcwd', 'patchwork_getcwd', array())/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('getcwd', 'patchwork_getcwd', array())/*>*/;
 
 function patchwork_getcwd()
 {
 /**/if (function_exists('getcwd') && @getcwd())
 /**/{
-		return getcwd();
+        return getcwd();
 /**/}
 /**/else if (false === $a)
 /**/{
-		return realpath('.');
+        return realpath('.');
 /**/}
 /**/else
 /**/{
-		return /*<*/$a/*>*/;
+        return /*<*/$a/*>*/;
 /**/}
 }
 
 /**/if (false !== $a)
 /**/{
-/**/	/*<*/patchwork_bootstrapper::alias('realpath', 'patchwork_realpath', array('$path'))/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('realpath', 'patchwork_realpath', array('$path'))/*>*/;
 
-		function patchwork_realpath($a)
-		{
-			do
-			{
-				if (isset($a[0]))
-				{
-/**/				if ('\\' === DIRECTORY_SEPARATOR)
-/**/				{
-						if ('/' === $a[0] || '\\' === $a[0])
-						{
-							$a = 'c:' . $a;
-							break;
-						}
+        function patchwork_realpath($a)
+        {
+            do
+            {
+                if (isset($a[0]))
+                {
+/**/                if ('\\' === DIRECTORY_SEPARATOR)
+/**/                {
+                        if ('/' === $a[0] || '\\' === $a[0])
+                        {
+                            $a = 'c:' . $a;
+                            break;
+                        }
 
-						if (false !== strpos($a, ':')) break;
-/**/				}
-/**/				else
-/**/				{
-						if ('/' === $a[0]) break;
-/**/				}
-				}
+                        if (false !== strpos($a, ':')) break;
+/**/                }
+/**/                else
+/**/                {
+                        if ('/' === $a[0]) break;
+/**/                }
+                }
 
-/**/			if (true === $a)
-					$cwd = getcwd();
-/**/			else
-					$cwd = /*<*/$a/*>*/;
+/**/            if (true === $a)
+                    $cwd = getcwd();
+/**/            else
+                    $cwd = /*<*/$a/*>*/;
 
-				$a = $cwd . /*<*/DIRECTORY_SEPARATOR/*>*/ . $a;
+                $a = $cwd . /*<*/DIRECTORY_SEPARATOR/*>*/ . $a;
 
-				break;
-			}
-			while (0);
+                break;
+            }
+            while (0);
 
-			if (isset($cwd) && '.' === $cwd) $prefix = '.';
-			else
-			{
-/**/			if ('\\' === DIRECTORY_SEPARATOR)
-/**/			{
-					$prefix = strtoupper($a[0]) . ':\\';
-					$a = substr($a, 2);
-/**/			}
-/**/			else
-/**/			{
-					$prefix = '/';
-/**/			}
-			}
+            if (isset($cwd) && '.' === $cwd) $prefix = '.';
+            else
+            {
+/**/            if ('\\' === DIRECTORY_SEPARATOR)
+/**/            {
+                    $prefix = strtoupper($a[0]) . ':\\';
+                    $a = substr($a, 2);
+/**/            }
+/**/            else
+/**/            {
+                    $prefix = '/';
+/**/            }
+            }
 
-/**/		if ('\\' === DIRECTORY_SEPARATOR)
-				$a = strtr($a, '/', '\\');
+/**/        if ('\\' === DIRECTORY_SEPARATOR)
+                $a = strtr($a, '/', '\\');
 
-			$a = explode(/*<*/DIRECTORY_SEPARATOR/*>*/, $a);
-			$b = array();
+            $a = explode(/*<*/DIRECTORY_SEPARATOR/*>*/, $a);
+            $b = array();
 
-			foreach ($a as $a)
-			{
-				if (!isset($a[0]) || '.' === $a) continue;
-				if ('..' === $a) $b && array_pop($b);
-				else $b[]= $a;
-			}
+            foreach ($a as $a)
+            {
+                if (!isset($a[0]) || '.' === $a) continue;
+                if ('..' === $a) $b && array_pop($b);
+                else $b[]= $a;
+            }
 
-			$a = $prefix . implode(/*<*/DIRECTORY_SEPARATOR/*>*/, $b);
+            $a = $prefix . implode(/*<*/DIRECTORY_SEPARATOR/*>*/, $b);
 
-/**/		if ('\\' === DIRECTORY_SEPARATOR)
-				$a = strtolower($a);
+/**/        if ('\\' === DIRECTORY_SEPARATOR)
+                $a = strtolower($a);
 
-			return file_exists($a) ? $a : false;
-		}
+            return file_exists($a) ? $a : false;
+        }
 /**/}
 /**/else
 /**/{
-		function patchwork_realpath($a) {return realpath($a);}
+        function patchwork_realpath($a) {return realpath($a);}
 /**/}

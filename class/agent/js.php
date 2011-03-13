@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,63 +14,63 @@
 
 class agent_js extends agent_css
 {
-	const contentType = 'text/javascript';
+    const contentType = 'text/javascript';
 
-	public $get = array('__0__', 'src:b');
+    public $get = array('__0__', 'src:b');
 
-	protected
+    protected
 
-	$debug = DEBUG,
-	$maxage = -1,
-	$watch = array('public/js'),
-	$extension = '.js';
-
-
-	protected static $recursion = 0;
+    $debug = DEBUG,
+    $maxage = -1,
+    $watch = array('public/js'),
+    $extension = '.js';
 
 
-	function control()
-	{
-		$this->get->src && self::$recursion = 1;
-		self::$recursion && $this->get->src = 1;
+    protected static $recursion = 0;
 
-		if ($this->debug || $this->get->src) parent::control();
-		else $this->template = 'bin';
-	}
 
-	function compose($o)
-	{
-		if ($this->debug || $this->get->src)
-		{
-			$o = parent::compose($o);
+    function control()
+    {
+        $this->get->src && self::$recursion = 1;
+        self::$recursion && $this->get->src = 1;
 
-			$o->cookie_path     = $CONFIG['session.cookie_path'];
-			$o->cookie_domain   = $CONFIG['session.cookie_domain'];
-			$o->document_domain = $CONFIG['document.domain'];
-			$o->maxage = $CONFIG['maxage'];
-		}
-		else
-		{
-			++self::$recursion;
-			$src = patchwork_class2file(substr(get_class($this), 6));
-			$src = patchwork_serverside::returnAgent($src, (array) $this->get);
-			--self::$recursion;
+        if ($this->debug || $this->get->src) parent::control();
+        else $this->template = 'bin';
+    }
 
-			$parser = new jsqueez;
+    function compose($o)
+    {
+        if ($this->debug || $this->get->src)
+        {
+            $o = parent::compose($o);
 
-			if ('/*!' != substr(ltrim(substr($src, 0, 512)), 0, 3))
-			{
-				$o->DATA = patchwork::__URI__();
-				$o->DATA .= (false === strpos($o->DATA, '?') ? '?' : '&') . 'src=1';
-				$o->DATA = "// Copyright & source: {$o->DATA}\n";
+            $o->cookie_path     = $CONFIG['session.cookie_path'];
+            $o->cookie_domain   = $CONFIG['session.cookie_domain'];
+            $o->document_domain = $CONFIG['document.domain'];
+            $o->maxage = $CONFIG['maxage'];
+        }
+        else
+        {
+            ++self::$recursion;
+            $src = patchwork_class2file(substr(get_class($this), 6));
+            $src = patchwork_serverside::returnAgent($src, (array) $this->get);
+            --self::$recursion;
 
-				foreach (count_chars($o->DATA, 1) as $k => $w) $parser->charFreq[$k] += $w;
+            $parser = new jsqueez;
 
-				$o->DATA .= $parser->squeeze($src);
-			}
-			else $o->DATA = $parser->squeeze($src);
-		}
+            if ('/*!' != substr(ltrim(substr($src, 0, 512)), 0, 3))
+            {
+                $o->DATA = patchwork::__URI__();
+                $o->DATA .= (false === strpos($o->DATA, '?') ? '?' : '&') . 'src=1';
+                $o->DATA = "// Copyright & source: {$o->DATA}\n";
 
-		return $o;
-	}
+                foreach (count_chars($o->DATA, 1) as $k => $w) $parser->charFreq[$k] += $w;
+
+                $o->DATA .= $parser->squeeze($src);
+            }
+            else $o->DATA = $parser->squeeze($src);
+        }
+
+        return $o;
+    }
 }

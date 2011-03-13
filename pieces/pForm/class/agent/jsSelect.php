@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,25 +14,25 @@
 
 class agent_jsSelect extends agent
 {
-	const contentType = 'text/javascript';
+    const contentType = 'text/javascript';
 
-	protected
+    protected
 
-	$maxage = -1,
-	$template = 'form/jsSelect.js',
+    $maxage = -1,
+    $template = 'form/jsSelect.js',
 
-	$param = array();
+    $param = array();
 
 
-	function compose($o)
-	{
-		unset($this->param['valid']);
-		unset($this->param['firstItem']);
-		unset($this->param['multiple']);
+    function compose($o)
+    {
+        unset($this->param['valid']);
+        unset($this->param['firstItem']);
+        unset($this->param['multiple']);
 
-		$this->form = new pForm($o, '', true, '');
-		$this->form->add('select', 'select', $this->param);
+        $this->form = new pForm($o, '', true, '');
+        $this->form->add('select', 'select', $this->param);
 
-		return $o;
-	}
+        return $o;
+    }
 }

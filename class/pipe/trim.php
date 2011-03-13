@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,18 +14,18 @@
 
 class pipe_trim
 {
-	static function php($a)
-	{
-		return trim( patchwork::string($a) );
-	}
+    static function php($a)
+    {
+        return trim( patchwork::string($a) );
+    }
 
-	static function js()
-	{
-		?>/*<script>*/
+    static function js()
+    {
+        ?>/*<script>*/
 
 /\s/.test('\xA0')
-	? function($a) {return str($a).replace(/^\s+/      , '').replace(/\s+$/      , '');}
-	: function($a) {return str($a).replace(/^[\s\xA0]+/, '').replace(/[\s\xA0]+$/, '');};
+    ? function($a) {return str($a).replace(/^\s+/      , '').replace(/\s+$/      , '');}
+    : function($a) {return str($a).replace(/^[\s\xA0]+/, '').replace(/[\s\xA0]+$/, '');};
 
-<?php	}
+<?php   }
 }

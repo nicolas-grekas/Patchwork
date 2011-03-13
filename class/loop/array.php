@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,35 +14,35 @@
 
 class loop_array extends loop
 {
-	protected
+    protected
 
-	$array,
-	$isAssociative = true;
+    $array,
+    $isAssociative = true;
 
 
-	function __construct($array, $filter = '', $isAssociative = null)
-	{
-		$this->array =& $array;
-		if ($filter) $this->addFilter($filter);
-		$this->isAssociative = $isAssociative!==null ? $isAssociative : $filter!==false;
-	}
+    function __construct($array, $filter = '', $isAssociative = null)
+    {
+        $this->array =& $array;
+        if ($filter) $this->addFilter($filter);
+        $this->isAssociative = $isAssociative!==null ? $isAssociative : $filter!==false;
+    }
 
-	protected function prepare() {return count($this->array);}
+    protected function prepare() {return count($this->array);}
 
-	protected function next()
-	{
-		if (list($key, $value) = each($this->array))
-		{
-			$data = array('VALUE' => &$value);
-			if ($this->isAssociative) $data['KEY'] =& $key;
+    protected function next()
+    {
+        if (list($key, $value) = each($this->array))
+        {
+            $data = array('VALUE' => &$value);
+            if ($this->isAssociative) $data['KEY'] =& $key;
 
-			return (object) $data;
-		}
-		else reset($this->array);
-	}
+            return (object) $data;
+        }
+        else reset($this->array);
+    }
 }
 
 function filter_rawArray($data)
 {
-	return $data->VALUE;
+    return $data->VALUE;
 }

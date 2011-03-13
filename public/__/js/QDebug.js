@@ -1,6 +1,6 @@
-/**************************************************************************
+/***** vi: set encoding=utf-8 expandtab shiftwidth=4: **********************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -13,89 +13,89 @@
 
 function t($v, $type)
 {
-	return $type ? (typeof $v == $type) : (typeof $v != 'undefined');
+    return $type ? (typeof $v == $type) : (typeof $v != 'undefined');
 }
 
 function E($v, $warn, $max_depth, $level, $expand)
 {
-	var $startTime = new Date/1,
-		$deltaTime = $startTime - E.lastTime,
-		$key;
+    var $startTime = new Date/1,
+        $deltaTime = $startTime - E.lastTime,
+        $key;
 
-	$max_depth = t($max_depth) ? $max_depth : E.max_depth;
-	$level = $level || 0;
-	$expand = $expand || 0;
+    $max_depth = t($max_depth) ? $max_depth : E.max_depth;
+    $level = $level || 0;
+    $expand = $expand || 0;
 
-	function o($str, $r)
-	{
-		if (!t($r) || $r>0)
-		{
-			E.buffer.push($str);
-			$r = $r || 0;
-			for (var $i=0; $i<$r; ++$i) E.buffer.push($str);
-		}
-	}
+    function o($str, $r)
+    {
+        if (!t($r) || $r>0)
+        {
+            E.buffer.push($str);
+            $r = $r || 0;
+            for (var $i=0; $i<$r; ++$i) E.buffer.push($str);
+        }
+    }
 
-	function p($str)
-	{
-		return $str.toString(10, $level).replace(/</g, '&lt;').replace(/>/g, '&gt;');
-	}
+    function p($str)
+    {
+        return $str.toString(10, $level).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
 
-	if (0 == $level) o(($warn ? '<script>focus();L=opener||parent;L=L&&L.document.getElementById(\'debugLink\');L=L&&L.style;if(L){L.backgroundColor=\'red\';L.fontSize=\'18px\'}<\/script><pre style="color:red;font-weight:bold">' : '<pre>') + $deltaTime + ' ms : ');
+    if (0 == $level) o(($warn ? '<script>focus();L=opener||parent;L=L&&L.document.getElementById(\'debugLink\');L=L&&L.style;if(L){L.backgroundColor=\'red\';L.fontSize=\'18px\'}<\/script><pre style="color:red;font-weight:bold">' : '<pre>') + $deltaTime + ' ms : ');
 
-	if (t($v, 'object') || t($v, 'array'))
-	{
-		if ($max_depth && $level>=$max_depth) return o('### Max Depth Reached ###\n');
+    if (t($v, 'object') || t($v, 'array'))
+    {
+        if ($max_depth && $level>=$max_depth) return o('### Max Depth Reached ###\n');
 
-		if ($level) o('<a href="#" onclick="return parent.QDebug_toggle(document, ' + (++E.counter) + ')">');
-		o(t($v, 'object') ? 'Object\n' : 'Array\n');
-		if ($level) o('</a><span id="QDebugId' + E.counter + '"'+($expand && !--$expand ? '' : ' style="display: none;"')+'>');
-		o(' ', 8*$level);
-		o('(\n');
-		for ($key in $v) if (!E.hiddenList[$key])
-		{
-			o(' ',  8*$level);
-			o('    ['+p($key)+'] => ');
-			E($v[$key], 0, $max_depth, $level+1, $expand);
-		}
-		o(' ', 8*$level);
-		o(')\n\n');
-		if ($level) o('</span>');
-	}
-	else if (t($v)) o(p($v)+'\n');
-	else o('<i>undefined</i>\n');
+        if ($level) o('<a href="#" onclick="return parent.QDebug_toggle(document, ' + (++E.counter) + ')">');
+        o(t($v, 'object') ? 'Object\n' : 'Array\n');
+        if ($level) o('</a><span id="QDebugId' + E.counter + '"'+($expand && !--$expand ? '' : ' style="display: none;"')+'>');
+        o(' ', 8*$level);
+        o('(\n');
+        for ($key in $v) if (!E.hiddenList[$key])
+        {
+            o(' ',  8*$level);
+            o('    ['+p($key)+'] => ');
+            E($v[$key], 0, $max_depth, $level+1, $expand);
+        }
+        o(' ', 8*$level);
+        o(')\n\n');
+        if ($level) o('</span>');
+    }
+    else if (t($v)) o(p($v)+'\n');
+    else o('<i>undefined</i>\n');
 
-	if (0 == $level) o('</pre>');
+    if (0 == $level) o('</pre>');
 
-	if (0 == $level)
-	{
-		E.startTime += (E.lastTime = new Date/1) - $startTime;
+    if (0 == $level)
+    {
+        E.startTime += (E.lastTime = new Date/1) - $startTime;
 
-		return $deltaTime;
-	}
+        return $deltaTime;
+    }
 }
 
 E.max_depth = 5;
 E.buffer = [];
 E.hide = function($key)
 {
-	if (!t($key, 'string')) for (var $i in $key) if (t($key[$i], 'string')) E.hiddenList[$key[$i]] = true;
-	else E.hiddenList[$key] = true;
+    if (!t($key, 'string')) for (var $i in $key) if (t($key[$i], 'string')) E.hiddenList[$key[$i]] = true;
+    else E.hiddenList[$key] = true;
 }
 
 E.hiddenList = {
-	'_AdblockData' : true,
-	'ownerDocument' : true,
-	'top' : true,
-	'parent' : true,
-	'parentNode' : true,
-	'document' : true
+    '_AdblockData' : true,
+    'ownerDocument' : true,
+    'top' : true,
+    'parent' : true,
+    'parentNode' : true,
+    'document' : true
 };
 E.lastTime = E.startTime = new Date/1;
 E.counter = 0;
 QDebug_toggle = function($d, $e)
 {
-	$e = $d.getElementById('QDebugId' + $e).style;
-	$e.display = 'none' == $e.display ? '' : 'none';
-	return false;
+    $e = $d.getElementById('QDebugId' + $e).style;
+    $e.display = 'none' == $e.display ? '' : 'none';
+    return false;
 }

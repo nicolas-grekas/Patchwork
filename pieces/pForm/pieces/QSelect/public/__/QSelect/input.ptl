@@ -1,6 +1,6 @@
-{***************************************************************************
+{***** vi: set encoding=utf-8 expandtab shiftwidth=4: **********************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -30,43 +30,43 @@ SET a$id -->{a$id|default:a$name}<!-- END:SET
 SET a$class -->{a$class|default:'QSelect'}<!-- END:SET
 
 IF !a$title
-	SET a$title
-		-->{a$_validmsg|default:a$_caption_|replace:'<[^>]*>':''}<!--
-	END:SET
+    SET a$title
+        -->{a$_validmsg|default:a$_caption_|replace:'<[^>]*>':''}<!--
+    END:SET
 END:IF
 
 
 SET $CAPTION
-	IF a$_caption_
-		--><label for="{a$id}" class="{a$class}" onclick="return IlC(this)"><!--
-		IF a$_required --><span class="required"><!-- END:IF
-		-->{a$_caption_}<!--
-		IF a$_required --></span><!-- END:IF
-		--></label><!--
-	END:IF
+    IF a$_caption_
+        --><label for="{a$id}" class="{a$class}" onclick="return IlC(this)"><!--
+        IF a$_required --><span class="required"><!-- END:IF
+        -->{a$_caption_}<!--
+        IF a$_required --></span><!-- END:IF
+        --></label><!--
+    END:IF
 END:SET
 
 
 SET $INPUT
 
-	SET $INPUT -->{base:|urlencode}<!-- END:SET
-	IF a$_required --><span class="required"><!-- END:IF
+    SET $INPUT -->{base:|urlencode}<!-- END:SET
+    IF a$_required --><span class="required"><!-- END:IF
 
-	--><span class="QSstyle"><!-- IF a$_textarea --><textarea {a$|htmlArgs:'value'}>{a$value}</textarea><!-- ELSE --><input autocomplete="off" {a$|htmlArgs}><!-- END:IF --><img src="{base:'QSelect/b.gif'}" id="__QSb{$INPUT}{a$name}" onmouseover="this.src={base:'QSelect/bh.gif'|js}" onmouseout="this.src={base:'QSelect/b.gif'|js}" onmousedown="this.src={base:'QSelect/bp.gif'|js}" onmouseup="this.onmouseover()" alt=" " title=""/></span><script>
+    --><span class="QSstyle"><!-- IF a$_textarea --><textarea {a$|htmlArgs:'value'}>{a$value}</textarea><!-- ELSE --><input autocomplete="off" {a$|htmlArgs}><!-- END:IF --><img src="{base:'QSelect/b.gif'}" id="__QSb{$INPUT}{a$name}" onmouseover="this.src={base:'QSelect/bh.gif'|js}" onmouseout="this.src={base:'QSelect/b.gif'|js}" onmousedown="this.src={base:'QSelect/bp.gif'|js}" onmouseup="this.onmouseover()" alt=" " title=""/></span><script>
 
-	lE=gLE({a$name|js},0,1)
-	lE.__QSt={$INPUT|js}
-	lE.lock={a$_lock|js}
-	lE.gS=function(){return valid(this<!-- LOOP a$_valid -->,{$VALUE|js}<!-- END:LOOP -->)}
-	lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form)};<!-- IF a$_autofocus -->if(!pForm_is_available.autofocus)lEF=lE;setTimeout(function(){lEF.focus()},100);<!-- END:IF --></script><script src="{base:a$_src}"></script><!--
+    lE=gLE({a$name|js},0,1)
+    lE.__QSt={$INPUT|js}
+    lE.lock={a$_lock|js}
+    lE.gS=function(){return valid(this<!-- LOOP a$_valid -->,{$VALUE|js}<!-- END:LOOP -->)}
+    lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form)};<!-- IF a$_autofocus -->if(!pForm_is_available.autofocus)lEF=lE;setTimeout(function(){lEF.focus()},100);<!-- END:IF --></script><script src="{base:a$_src}"></script><!--
 
-	IF a$_required --></span><!-- END:IF
+    IF a$_required --></span><!-- END:IF
 
 END:SET
 
 
 SET $ERROR
-	IF a$_errormsg -->{a$_beforeError_|default:g$inputBeforeError}<span class="errormsg">{a$_errormsg}</span>{a$_afterError_|default:g$inputAfterError}<!-- END:IF
+    IF a$_errormsg -->{a$_beforeError_|default:g$inputBeforeError}<span class="errormsg">{a$_errormsg}</span>{a$_afterError_|default:g$inputAfterError}<!-- END:IF
 END:SET
 
 

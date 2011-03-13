@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,38 +14,38 @@
 
 class pipe_htmlArgsList
 {
-	static function php()
-	{
-		$a = func_get_args();
-		count($a) % 2 && $a[] = '';
-		$len = count($a);
+    static function php()
+    {
+        $a = func_get_args();
+        count($a) % 2 && $a[] = '';
+        $len = count($a);
 
-		$result = '';
-		for ($i = 0; $i < $len; $i += 2)
-		{
-			$v = patchwork::string($a[$i+1]);
-			'' !== $v && $result .= patchwork::string($a[$i]) . '="' . $v . '" ';
-		}
+        $result = '';
+        for ($i = 0; $i < $len; $i += 2)
+        {
+            $v = patchwork::string($a[$i+1]);
+            '' !== $v && $result .= patchwork::string($a[$i]) . '="' . $v . '" ';
+        }
 
-		return $result;
-	}
+        return $result;
+    }
 
-	static function js()
-	{
-		?>/*<script>*/
+    static function js()
+    {
+        ?>/*<script>*/
 
 function()
 {
-	var $result = '', $a = arguments, $i = 0, $v;
+    var $result = '', $a = arguments, $i = 0, $v;
 
-	for ($i = 0; $i < $a.length; $i += 2)
-	{
-		$v = str($a[$i+1]);
-		if ('' != $v) $result += str($a[$i]) + '="' + $v + '" ';
-	}
+    for ($i = 0; $i < $a.length; $i += 2)
+    {
+        $v = str($a[$i+1]);
+        if ('' != $v) $result += str($a[$i]) + '="' + $v + '" ';
+    }
 
-	return $result;
+    return $result;
 }
 
-<?php	}
+<?php   }
 }

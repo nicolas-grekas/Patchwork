@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,11 +14,11 @@
 
 class agentTemplate extends agent
 {
-	protected
+    protected
 
-	$maxage = -1,
-	$watch = array('public/templates');
+    $maxage = -1,
+    $watch = array('public/templates');
 
 
-	function control() {}
+    function control() {}
 }

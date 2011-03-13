@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,62 +14,62 @@
 
 class loop
 {
-	private
+    private
 
-	$loopLength = false,
-	$filter = array();
+    $loopLength = false,
+    $filter = array();
 
 
-	function __construct($filter = '')
-	{
-		$filter && $this->addFilter($filter);
-	}
+    function __construct($filter = '')
+    {
+        $filter && $this->addFilter($filter);
+    }
 
-	protected function prepare() {}
-	protected function next() {}
+    protected function prepare() {}
+    protected function next() {}
 
-	final public function &loop($escape = false)
-	{
-		$catchMeta = patchwork::$catchMeta;
-		patchwork::$catchMeta = true;
+    final public function &loop($escape = false)
+    {
+        $catchMeta = patchwork::$catchMeta;
+        patchwork::$catchMeta = true;
 
-		if ($this->loopLength === false) $this->loopLength = (int) $this->prepare();
+        if ($this->loopLength === false) $this->loopLength = (int) $this->prepare();
 
-		if (!$this->loopLength) $data = false;
-		else
-		{
-			$data = $this->next();
-			if ($data || is_array($data))
-			{
-				$data = (object) $data;
-				$i = 0;
-				$len = count($this->filter);
-				while ($i < $len) $data = (object) call_user_func($this->filter[$i++], $data, $this);
-			}
-			else $this->loopLength = false;
-		}
+        if (!$this->loopLength) $data = false;
+        else
+        {
+            $data = $this->next();
+            if ($data || is_array($data))
+            {
+                $data = (object) $data;
+                $i = 0;
+                $len = count($this->filter);
+                while ($i < $len) $data = (object) call_user_func($this->filter[$i++], $data, $this);
+            }
+            else $this->loopLength = false;
+        }
 
-		patchwork::$catchMeta = $catchMeta;
+        patchwork::$catchMeta = $catchMeta;
 
-		return $data;
-	}
+        return $data;
+    }
 
-	final public function addFilter($filter) {if ($filter) $this->filter[] = $filter;}
+    final public function addFilter($filter) {if ($filter) $this->filter[] = $filter;}
 
-	final public function __toString()
-	{
-		$catchMeta = patchwork::$catchMeta;
-		patchwork::$catchMeta = true;
+    final public function __toString()
+    {
+        $catchMeta = patchwork::$catchMeta;
+        patchwork::$catchMeta = true;
 
-		if ($this->loopLength === false) $this->loopLength = (int) $this->prepare();
+        if ($this->loopLength === false) $this->loopLength = (int) $this->prepare();
 
-		patchwork::$catchMeta = $catchMeta;
+        patchwork::$catchMeta = $catchMeta;
 
-		return (string) $this->loopLength;
-	}
+        return (string) $this->loopLength;
+    }
 
-	final public function getLength()
-	{
-		return (int) $this->__toString();
-	}
+    final public function getLength()
+    {
+        return (int) $this->__toString();
+    }
 }

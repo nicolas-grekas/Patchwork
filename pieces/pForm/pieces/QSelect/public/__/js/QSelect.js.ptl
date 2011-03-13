@@ -1,6 +1,6 @@
-/***************************************************************************
+/***** vi: set encoding=utf-8 expandtab shiftwidth=4: **********************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -18,116 +18,116 @@ if (!window.QSelect)
 
 function $onfocus($this)
 {
-	this.$focus = 1;
+    this.$focus = 1;
 
-	$this = this.$QSelect;
-	$this.$select.$QSelect = $this.$form.$QSelect = this.$QSelect;
-	$this.$select.onchange = $this.$onchange;
-	$this.$lastFocused = this;
+    $this = this.$QSelect;
+    $this.$select.$QSelect = $this.$form.$QSelect = this.$QSelect;
+    $this.$select.onchange = $this.$onchange;
+    $this.$lastFocused = this;
 }
 
 function $onblur($this)
 {
-	this.$focus = 0;
+    this.$focus = 0;
 
-	$this = this.$QSelect;
-	$this.$lastFocused = 0;
-	$this.$select.onchange = null;
+    $this = this.$QSelect;
+    $this.$lastFocused = 0;
+    $this.$select.onchange = null;
 
-	setTimeout(function()
-	{
-		if (!$this.$lastFocused) $this.$hide();
-		$this.sync($this.$listedValue, 1);
-	}, 1);
+    setTimeout(function()
+    {
+        if (!$this.$lastFocused) $this.$hide();
+        $this.sync($this.$listedValue, 1);
+    }, 1);
 }
 
 function $onmouseup($e)
 {
-	var $this = this.$QSelect;
+    var $this = this.$QSelect;
 
-	$e = $e || event;
-	if (!$e.srcElement && $e.target && 'SELECT'==$e.target.tagName) return;
-	setTimeout(function()
-	{
-		if ($this.$setValue()) $this.$hide();
-	}, 1);
+    $e = $e || event;
+    if (!$e.srcElement && $e.target && 'SELECT'==$e.target.tagName) return;
+    setTimeout(function()
+    {
+        if ($this.$setValue()) $this.$hide();
+    }, 1);
 }
 
 function $onkeyup($e)
 {
-	var $this = this.$QSelect,
-		$keyupid = $this.$lastKeyupid, $i,
-		$caretPos = getCaret(this);
+    var $this = this.$QSelect,
+        $keyupid = $this.$lastKeyupid, $i,
+        $caretPos = getCaret(this);
 
-	this.autofit && this.autofit();
+    this.autofit && this.autofit();
 
-	$e = ($e || event).keyCode;
+    $e = ($e || event).keyCode;
 
-	$selectRange = $e && $e != 8 && $e != 46;
+    $selectRange = $e && $e != 8 && $e != 46;
 
-	if ($this.$value == this.value) return;
+    if ($this.$value == this.value) return;
 
-	$this.$value = this.value;
-	$this.$listedValue = '';
+    $this.$value = this.value;
+    $this.$listedValue = '';
 
-	setTimeout(function()
-	{
-		if ($this.$lastKeyupid!=$keyupid) return;
+    setTimeout(function()
+    {
+        if ($this.$lastKeyupid!=$keyupid) return;
 
-		$this.$search($this.$value, $this.$onkeyup, $caretPos);
-	}, 50);
+        $this.$search($this.$value, $this.$onkeyup, $caretPos);
+    }, 50);
 }
 
 function $onkeydown($e)
 {
-	var $this = this.$QSelect,
-		$select = $this.$select;
+    var $this = this.$QSelect,
+        $select = $this.$select;
 
-	++$this.$lastKeyupid;
+    ++$this.$lastKeyupid;
 
-	if ($select.$focus) return;
+    if ($select.$focus) return;
 
-	$e = ($e || event).keyCode;
+    $e = ($e || event).keyCode;
 
-	if (13==$e || 9==$e)
-	{
-		$this.sync($this.$listedValue, 9==$e);
+    if (13==$e || 9==$e)
+    {
+        $this.sync($this.$listedValue, 9==$e);
 
-		if ('visible'==$this.$div.style.visibility)
-		{
-			$this.$setValue();
-			$this.$hide();
-			if (13==$e || $this.$fixTab) return false;
-		}
-	}
-	else if (27==$e || (8==$e && ''==$this.$value)) $this.$hide();
-	else if (38==$e || 57373==$e || 40==$e || 57374==$e || 33==$e || 57371==$e || 34==$e || 57372==$e)
-	{
-		if ('TEXTAREA' == this.tagName && 'visible'!=$this.$div.style.visibility) return;
+        if ('visible'==$this.$div.style.visibility)
+        {
+            $this.$setValue();
+            $this.$hide();
+            if (13==$e || $this.$fixTab) return false;
+        }
+    }
+    else if (27==$e || (8==$e && ''==$this.$value)) $this.$hide();
+    else if (38==$e || 57373==$e || 40==$e || 57374==$e || 33==$e || 57371==$e || 34==$e || 57372==$e)
+    {
+        if ('TEXTAREA' == this.tagName && 'visible'!=$this.$div.style.visibility) return;
 
-		$this.$show();
+        $this.$show();
 
-		if ('visible'==$this.$div.style.visibility)
-		{
-			$select.focus();
-			if (-1==$select.selectedIndex) setTimeout(function(){$select.selectedIndex = 0}, 1);
-		}
-	}
+        if ('visible'==$this.$div.style.visibility)
+        {
+            $select.focus();
+            if (-1==$select.selectedIndex) setTimeout(function(){$select.selectedIndex = 0}, 1);
+        }
+    }
 }
 
 function $precheck()
 {
-	var $this = this.$QSelect;
+    var $this = this.$QSelect;
 
-	if ($this.$lastFocused)
-	{
-		$this.$hide();
-		$this.$lastFocused.focus();
-	}
+    if ($this.$lastFocused)
+    {
+        $this.$hide();
+        $this.$lastFocused.focus();
+    }
 
-	this.precheck = 0;
+    this.precheck = 0;
 
-	return false;
+    return false;
 }
 
 QSelectInit = window.QSelectInit || function ($input, $driver) {QSelect($input, $driver);}
@@ -137,17 +137,17 @@ QSelect = (function()
 
 var $selectRange,
 
-	$win = window,
-	$onfocus = $win.$onfocus,
-	$onblur = $win.$onblur,
-	$onmouseup = $win.$onmouseup,
-	$onkeyup = $win.$onkeyup,
-	$onkeydown = $win.$onkeydown,
-	$precheck = $win.$precheck,
+    $win = window,
+    $onfocus = $win.$onfocus,
+    $onblur = $win.$onblur,
+    $onmouseup = $win.$onmouseup,
+    $onkeyup = $win.$onkeyup,
+    $onkeydown = $win.$onkeydown,
+    $precheck = $win.$precheck,
 
-	$select = document.getElementById('__QSs'),
-	$options = $select.options,
-	$div  = document.getElementById('__QSd');
+    $select = document.getElementById('__QSs'),
+    $options = $select.options,
+    $div  = document.getElementById('__QSd');
 
 $select.onfocus = $onfocus;
 $select.onblur = $onblur;
@@ -158,218 +158,218 @@ $options.length = 0;
 
 return function($input, $driver)
 {
-	var $this = {},
-		$form = $input.form,
-		$id = ($input.__QSt||'') + $input.name,
-		$imgB = document.getElementById('__QSb' + $id) || {},
+    var $this = {},
+        $form = $input.form,
+        $id = ($input.__QSt||'') + $input.name,
+        $imgB = document.getElementById('__QSb' + $id) || {},
 
-		$length = 0,
+        $length = 0,
 
-		$driver = $driver($this, $input, $select, $options);
+        $driver = $driver($this, $input, $select, $options);
 
-	$this.$search = $driver.search;
-	$this.$setValue = $driver.setValue;
-	$this.$fixTab = $driver.fixTab;
-	$this.$value = $input.value;
-	$this.$listedValue = $input.value;
-	$this.$div = $div;
-	$this.$lastKeyupid = 0;
+    $this.$search = $driver.search;
+    $this.$setValue = $driver.setValue;
+    $this.$fixTab = $driver.fixTab;
+    $this.$value = $input.value;
+    $this.$listedValue = $input.value;
+    $this.$div = $div;
+    $this.$lastKeyupid = 0;
 
-	$this.$select = $select;
-	$this.$form = $form;
-	$this.$onchange = $driver.onchange;
+    $this.$select = $select;
+    $this.$form = $form;
+    $this.$onchange = $driver.onchange;
 
-	$input.$QSelect = $this;
-	$input.onfocus = $onfocus;
-	$input.onblur  = $onblur;
-	$input.onkeyup = $onkeyup;
-	$input.onkeydown = $onkeydown;
-	$input.onkeypress = $onkeydown;
+    $input.$QSelect = $this;
+    $input.onfocus = $onfocus;
+    $input.onblur  = $onblur;
+    $input.onkeyup = $onkeyup;
+    $input.onkeydown = $onkeydown;
+    $input.onkeypress = $onkeydown;
 
-	$this.$onkeyup = function($result, $listedValue, $selectionStart, $selectionLength, $displayedValue)
-	{
-		$select.selectedIndex = -1;
-		$length = 0;
+    $this.$onkeyup = function($result, $listedValue, $selectionStart, $selectionLength, $displayedValue)
+    {
+        $select.selectedIndex = -1;
+        $length = 0;
 
-		var $j = '[^' + ACCENT_ALPHANUM + ']+',
-			$i = ACCENT.length - 1,
-			$query = $input.value;
+        var $j = '[^' + ACCENT_ALPHANUM + ']+',
+            $i = ACCENT.length - 1,
+            $query = $input.value;
 
-		$query = $query.replace(new RegExp($j, 'g'), '#');
+        $query = $query.replace(new RegExp($j, 'g'), '#');
 
-		if ('#' == $query || '' == $query) $query = /^$/g;
-		else
-		{
-			do $query = $query.replace(ACCENT_RX[$i], '['+ACCENT[$i]+']');
-			while (--$i);
+        if ('#' == $query || '' == $query) $query = /^$/g;
+        else
+        {
+            do $query = $query.replace(ACCENT_RX[$i], '['+ACCENT[$i]+']');
+            while (--$i);
 
-			$query = new RegExp('^' + $query.replace(/#/g, $j), 'i');
-		}
+            $query = new RegExp('^' + $query.replace(/#/g, $j), 'i');
+        }
 
-		for ($i in $result) if ('function' != typeof $result[$i])
-		{
-			$i = ''+$result[$i];
-			$options[$length++] = new Option($i, $i);
+        for ($i in $result) if ('function' != typeof $result[$i])
+        {
+            $i = ''+$result[$i];
+            $options[$length++] = new Option($i, $i);
 
-			if (!$listedValue && ($j = $i.match($query)))
-			{
-				$listedValue = $i;
-				$j = $j[0].length;
-				$selectionStart = $input.value;
-				$displayedValue = $selectionStart + $i.substr($j);
-				$selectionStart = $selectionStart.length;
-			}
-		}
+            if (!$listedValue && ($j = $i.match($query)))
+            {
+                $listedValue = $i;
+                $j = $j[0].length;
+                $selectionStart = $input.value;
+                $displayedValue = $selectionStart + $i.substr($j);
+                $selectionStart = $selectionStart.length;
+            }
+        }
 
-		while ($options.length > $length) $options[--$options.length] = null;
+        while ($options.length > $length) $options[--$options.length] = null;
 
-		if (t($listedValue)) $this.$listedValue = $listedValue;
-		if (!t($displayedValue)) $displayedValue = $listedValue;
+        if (t($listedValue)) $this.$listedValue = $listedValue;
+        if (!t($displayedValue)) $displayedValue = $listedValue;
 
-		if ($selectRange && $displayedValue)
-		{
-			$selectionLength = t($selectionLength) ? $selectionStart + $selectionLength : $displayedValue.length;
+        if ($selectRange && $displayedValue)
+        {
+            $selectionLength = t($selectionLength) ? $selectionStart + $selectionLength : $displayedValue.length;
 
-			$this.$value = $input.value = $displayedValue;
+            $this.$value = $input.value = $displayedValue;
 
-			if (!setSel($input, $selectionStart, $selectionLength))
-			{
-				$this.$value = $input.value = $displayedValue.substr(0, $selectionStart);
-				if ($this.$value != $this.$listedValue) $this.$listedValue = '';
-			}
-		}
+            if (!setSel($input, $selectionStart, $selectionLength))
+            {
+                $this.$value = $input.value = $displayedValue.substr(0, $selectionStart);
+                if ($this.$value != $this.$listedValue) $this.$listedValue = '';
+            }
+        }
 
-		$this.$show();
-	}
+        $this.$show();
+    }
 
-	$this.$show = function()
-	{
-		if ($length>0)
-		{
-			var $left = $input.offsetLeft,
-				$top = $input.offsetTop,
-				$width = $input.offsetWidth,
-				$height = $input.offsetHeight - 1,
-				$parent = $input.offsetParent,
-				$divStyle = $div.style;
+    $this.$show = function()
+    {
+        if ($length>0)
+        {
+            var $left = $input.offsetLeft,
+                $top = $input.offsetTop,
+                $width = $input.offsetWidth,
+                $height = $input.offsetHeight - 1,
+                $parent = $input.offsetParent,
+                $divStyle = $div.style;
 
-			while ($parent)
-			{
-				$left += $parent.offsetLeft;
-				$top += $parent.offsetTop;
-				$parent = $parent.offsetParent;
-			}
+            while ($parent)
+            {
+                $left += $parent.offsetLeft;
+                $top += $parent.offsetTop;
+                $parent = $parent.offsetParent;
+            }
 
-			$divStyle.left = $left + 'px';
-			$divStyle.top = ($top+$height) + 'px';
-			$divStyle.width = $width + 'px';
+            $divStyle.left = $left + 'px';
+            $divStyle.top = ($top+$height) + 'px';
+            $divStyle.width = $width + 'px';
 
-			$select.size = $length < 7 ? ($length > 2 ? $length : 2) : 7;
-			$select.style.width = $width + 'px';
+            $select.size = $length < 7 ? ($length > 2 ? $length : 2) : 7;
+            $select.style.width = $width + 'px';
 
-			$form.precheck = $precheck;
+            $form.precheck = $precheck;
 
-			$left = document;
-			$left = $left.documentElement || $left.body;
+            $left = document;
+            $left = $left.documentElement || $left.body;
 
-			$parent = $left.scrollTop;
-			$left = $parent + $parent + ($win.innerHeight || $left.clientHeight) - $input.offsetHeight - $top;
+            $parent = $left.scrollTop;
+            $left = $parent + $parent + ($win.innerHeight || $left.clientHeight) - $input.offsetHeight - $top;
 
-			$divStyle.visibility = 'hidden';
-			$divStyle.display = '';
+            $divStyle.visibility = 'hidden';
+            $divStyle.display = '';
 
-			$height = $select.offsetHeight;
-			if ($left < $height && $left < $top - $parent) $divStyle.top = ($top - $height) + 'px';
-			$divStyle.visibility = 'visible';
-		}
-		else $this.$hide();
-	}
+            $height = $select.offsetHeight;
+            if ($left < $height && $left < $top - $parent) $divStyle.top = ($top - $height) + 'px';
+            $divStyle.visibility = 'visible';
+        }
+        else $this.$hide();
+    }
 
-	$this.$hide = function()
-	{
-		var $divStyle = $div.style;
+    $this.$hide = function()
+    {
+        var $divStyle = $div.style;
 
-		if ('hidden'==$divStyle.visibility) return;
+        if ('hidden'==$divStyle.visibility) return;
 
-		$select.selectedIndex = -1;
-		$divStyle.visibility = 'hidden';
-		$divStyle.display = 'none';
+        $select.selectedIndex = -1;
+        $divStyle.visibility = 'hidden';
+        $divStyle.display = 'none';
 
-		$form.precheck = 0;
-	}
+        $form.precheck = 0;
+    }
 
-	$imgB.$onmousedown = $imgB.onmousedown;
-	$imgB.onmousedown = function()
-	{
-		this.$QSelectVisible = 'visible'==$div.style.visibility;
-		this.$onmousedown();
-	}
+    $imgB.$onmousedown = $imgB.onmousedown;
+    $imgB.onmousedown = function()
+    {
+        this.$QSelectVisible = 'visible'==$div.style.visibility;
+        this.$onmousedown();
+    }
 
-	$imgB.onclick = function()
-	{
-		$input.select();
-		$input.focus();
+    $imgB.onclick = function()
+    {
+        $input.select();
+        $input.focus();
 
-		this.$QSelectVisible ? $this.$hide() : $this.$search('*', $this.$onkeyup);
-	}
+        this.$QSelectVisible ? $this.$hide() : $this.$search('*', $this.$onkeyup);
+    }
 
-	$imgB = 0;
+    $imgB = 0;
 
-	$this.sync = function($value, $onlock)
-	{
-		if (!$onlock || $this.$listedValue != $value || $input.lock)
-			$input.value = $this.$value = $this.$listedValue = $value;
-	}
+    $this.sync = function($value, $onlock)
+    {
+        if (!$onlock || $this.$listedValue != $value || $input.lock)
+            $input.value = $this.$value = $this.$listedValue = $value;
+    }
 }
 })();
 
 function QSelectSearch($data)
 {
-	if ($data && 0 == $data[$data.length-1] - 0) $data.length--;
+    if ($data && 0 == $data[$data.length-1] - 0) $data.length--;
 
-	return function($this, $input, $select, $options)
-	{
-		return {
-			fixTab: 0,
+    return function($this, $input, $select, $options)
+    {
+        return {
+            fixTab: 0,
 
-			search: function($query, $pushBack)
-			{
-				if ('*' == $query) return $pushBack(QSelectSearch.limit ? $data.slice(0, QSelectSearch.limit) : $data);
+            search: function($query, $pushBack)
+            {
+                if ('*' == $query) return $pushBack(QSelectSearch.limit ? $data.slice(0, QSelectSearch.limit) : $data);
 
-				var $result = [],
-					$i = 0,
-					$qLen = $query.length;
+                var $result = [],
+                    $i = 0,
+                    $qLen = $query.length;
 
-				if ($query)
-				{
-					$query = RegExp.quote($query, 1);
-					$query = new RegExp('(^|[^0-9a-z'+ACCENT.join('')+'])' + $query, 'i');
+                if ($query)
+                {
+                    $query = RegExp.quote($query, 1);
+                    $query = new RegExp('(^|[^0-9a-z'+ACCENT.join('')+'])' + $query, 'i');
 
-					for (; $i < $data.length; ++$i) if ($query.test((''+$data[$i]).replace(/@[-._a-z0-9]+/gi, ''))) $result[$result.length] = $data[$i];
-				}
+                    for (; $i < $data.length; ++$i) if ($query.test((''+$data[$i]).replace(/@[-._a-z0-9]+/gi, ''))) $result[$result.length] = $data[$i];
+                }
 
-				$pushBack($result);
-			},
+                $pushBack($result);
+            },
 
-			onchange: function() {$input.select(); $input.focus()},
+            onchange: function() {$input.select(); $input.focus()},
 
-			setValue: function()
-			{
-				var $idx = $select.selectedIndex;
+            setValue: function()
+            {
+                var $idx = $select.selectedIndex;
 
-				if ($idx>=0)
-				{
-					$this.sync($options[$idx].text);
-					$input.select();
-					$input.focus();
+                if ($idx>=0)
+                {
+                    $this.sync($options[$idx].text);
+                    $input.select();
+                    $input.focus();
 
-					return 1;
-				}
+                    return 1;
+                }
 
-				return 0;
-			}
-		};
-	}
+                return 0;
+            }
+        };
+    }
 }
 
 QSelectSearch.limit = 15;

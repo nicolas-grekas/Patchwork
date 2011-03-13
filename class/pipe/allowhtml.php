@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,43 +14,43 @@
 
 class pipe_allowhtml
 {
-	static function php($string, $urlInterpolation = false)
-	{
-		$string = patchwork::string($string);
+    static function php($string, $urlInterpolation = false)
+    {
+        $string = patchwork::string($string);
 
-		false !== strpos($string, '&') && $string = str_replace(
-			array('&#039;', '&quot;', '&gt;', '&lt;', '&amp;'),
-			array("'"     , '"'     , '>'   , '<'   , '&'),
-			$string
-		);
+        false !== strpos($string, '&') && $string = str_replace(
+            array('&#039;', '&quot;', '&gt;', '&lt;', '&amp;'),
+            array("'"     , '"'     , '>'   , '<'   , '&'),
+            $string
+        );
 
-		$urlInterpolation && false !== strpos($string, '{') && $string = str_replace(
-			array('{/}'        , '{~}'),
-			array(patchwork::__HOST__(), patchwork::__BASE__()),
-			$string
-		);
+        $urlInterpolation && false !== strpos($string, '{') && $string = str_replace(
+            array('{/}'        , '{~}'),
+            array(patchwork::__HOST__(), patchwork::__BASE__()),
+            $string
+        );
 
-		return $string;
-	}
+        return $string;
+    }
 
-	static function js()
-	{
-		?>/*<script>*/
+    static function js()
+    {
+        ?>/*<script>*/
 
 function($string, $urlInterpolation)
 {
-	var $base = base();
+    var $base = base();
 
-	$string = str($string);
+    $string = str($string);
 
-	return ''+$string/1 == $string
-		? $string/1
-		: (
-			$urlInterpolation
-			? unesc($string).replace(/{\/}/g, $base.substr(0, $base.indexOf('/', 8)+1)).replace(/{~}/g, $base)
-			: unesc($string)
-		);
+    return ''+$string/1 == $string
+        ? $string/1
+        : (
+            $urlInterpolation
+            ? unesc($string).replace(/{\/}/g, $base.substr(0, $base.indexOf('/', 8)+1)).replace(/{~}/g, $base)
+            : unesc($string)
+        );
 }
 
-<?php	}
+<?php   }
 }

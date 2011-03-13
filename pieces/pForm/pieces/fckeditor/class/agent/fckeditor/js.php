@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,15 +14,15 @@
 
 class agent_fckeditor_js extends agent
 {
-	const contentType = 'text/javascript';
+    const contentType = 'text/javascript';
 
-	protected $maxage = -1;
+    protected $maxage = -1;
 
-	function control() {}
+    function control() {}
 
-	function compose($o)
-	{
-		$o->DATA = file_get_contents(patchworkPath('public/__/fckeditor/src/fckeditor.js'));
-		return $o;
-	}
+    function compose($o)
+    {
+        $o->DATA = file_get_contents(patchworkPath('public/__/fckeditor/src/fckeditor.js'));
+        return $o;
+    }
 }

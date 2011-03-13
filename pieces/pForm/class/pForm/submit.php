@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,45 +14,45 @@
 
 class pForm_submit extends pForm_hidden
 {
-	protected
+    protected
 
-	$type = 'submit',
-	$isdata = false;
+    $type = 'submit',
+    $isdata = false;
 
 
-	protected function init(&$param)
-	{
-		empty($param['disabled']) || $this->disabled = true;
-		if ($this->disabled || !empty($param['readonly'])) $this->readonly = true;
+    protected function init(&$param)
+    {
+        empty($param['disabled']) || $this->disabled = true;
+        if ($this->disabled || !empty($param['readonly'])) $this->readonly = true;
 
-		if ($this->readonly) {}
-		else if (isset($this->form->rawValues[$this->name])) $this->status = true;
-		else if (isset($this->form->rawValues[$this->name . '_x']) && isset($this->form->rawValues[$this->name . '_y']))
-		{
-			$x =& $this->form->rawValues;
+        if ($this->readonly) {}
+        else if (isset($this->form->rawValues[$this->name])) $this->status = true;
+        else if (isset($this->form->rawValues[$this->name . '_x']) && isset($this->form->rawValues[$this->name . '_y']))
+        {
+            $x =& $this->form->rawValues;
 
-			$this->value = array(
-				isset($x[$this->name . '_x']) ? (int) $x[$this->name . '_x'] : 0,
-				isset($x[$this->name . '_y']) ? (int) $x[$this->name . '_y'] : 0,
-			);
+            $this->value = array(
+                isset($x[$this->name . '_x']) ? (int) $x[$this->name . '_x'] : 0,
+                isset($x[$this->name . '_y']) ? (int) $x[$this->name . '_y'] : 0,
+            );
 
-			unset($x);
+            unset($x);
 
-			$x = $this->value[0];
-			$y = $this->value[1];
+            $x = $this->value[0];
+            $y = $this->value[1];
 
-			$this->status = false !== $x && false !== $y;
-			$this->value = $this->status ? array($x, $y) : array();
-		}
-		else $this->status = '';
+            $this->status = false !== $x && false !== $y;
+            $this->value = $this->status ? array($x, $y) : array();
+        }
+        else $this->status = '';
 
-		$this->form->setEnterControl($this->name);
-	}
+        $this->form->setEnterControl($this->name);
+    }
 
-	protected function get()
-	{
-		$a = parent::get();
-		unset($a->value);
-		return $a;
-	}
+    protected function get()
+    {
+        $a = parent::get();
+        unset($a->value);
+        return $a;
+    }
 }

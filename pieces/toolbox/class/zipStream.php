@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2009 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,141 +14,141 @@
 
 class zipStream
 {
-	const
+    const
 
-	LEVEL = -1,
-	contentType = 'application/zip';
-
-
-	public $level;
-
-	protected $cdr = array(), $dataLen = 0;
+    LEVEL = -1,
+    contentType = 'application/zip';
 
 
-	function __construct($name = '', $level = self::LEVEL)
-	{
-		$this->level = $level;
+    public $level;
 
-		if ($name)
-		{
-			header('Content-Type: ' . self::contentType);
-
-			$name = patchwork::toASCII($name);
-			$name = str_replace('"', "''", $name);
-
-			header('Content-Disposition: attachment; filename="' . $name . '.zip"');
-		}
-	}
-
-	function __destruct()
-	{
-		$this->dataLen && $this->close();
-	}
+    protected $cdr = array(), $dataLen = 0;
 
 
-	function streamData($data, $name, $time = 0, $level = -1)
-	{
-		$time = $this->dosTime($time);
+    function __construct($name = '', $level = self::LEVEL)
+    {
+        $this->level = $level;
 
-		$crc  = crc32($data);
-		$dlen = strlen($data);
+        if ($name)
+        {
+            header('Content-Type: ' . self::contentType);
 
-		$level < 0 && $level = (int) $this->level;
-		$level < 0 && $level = self::LEVEL;
+            $name = patchwork::toASCII($name);
+            $name = str_replace('"', "''", $name);
 
-		$data = gzdeflate($data, $level);
-		$zlen = strlen($data);
+            header('Content-Disposition: attachment; filename="' . $name . '.zip"');
+        }
+    }
 
-		$name = strtr($name, '\\', '/');
-		$n = @iconv('UTF-8', 'CP850', $name);
+    function __destruct()
+    {
+        $this->dataLen && $this->close();
+    }
 
-		// If CP850 can not represent the filename, use unicode
-		if ($name !== @iconv('CP850', 'UTF-8', $n))
-		{
-			$n = $name;
-			$h = "\x00\x08";
-		}
-		else $h = "\x00\x00";
 
-		$nlen = strlen($n);
+    function streamData($data, $name, $time = 0, $level = -1)
+    {
+        $time = $this->dosTime($time);
 
-		$h =  "\x14\x00"       // version needed to extract
-			. $h               // general purpose bit flag
-			. "\x08\x00"       // compression method
-			. pack('V', $time) // mtime
-			. pack('V', $crc)  // crc32
-			. pack('V', $zlen) // compressed size
-			. pack('V', $dlen) // uncompressed size
-			. pack('v', $nlen) // length of filename
-			. pack('v', 0);    // extra field length
+        $crc  = crc32($data);
+        $dlen = strlen($data);
 
-		echo "\x50\x4B\x03\x04", $h, $n, $data;
+        $level < 0 && $level = (int) $this->level;
+        $level < 0 && $level = self::LEVEL;
 
-		$dlen = $this->dataLen;
-		$this->dataLen += 4 + strlen($h) + $nlen + $zlen;
+        $data = gzdeflate($data, $level);
+        $zlen = strlen($data);
 
-		$this->cdr[] = "\x50\x4B\x01\x02"
-			. "\x00\x00"       // version made by
-			. $h
-			. pack('v', 0)     // comment length
-			. pack('v', 0)     // disk number start
-			. pack('v', 0)     // internal file attributes
-			. pack('V', 32)    // external file attributes - "archive" bit set
-			. pack('V', $dlen) // relative offset of local header
-			. $n;
-	}
+        $name = strtr($name, '\\', '/');
+        $n = @iconv('UTF-8', 'CP850', $name);
 
-	function streamFile($file, $name = '', $level = -1)
-	{
-		$name || $name = basename($file);
+        // If CP850 can not represent the filename, use unicode
+        if ($name !== @iconv('CP850', 'UTF-8', $n))
+        {
+            $n = $name;
+            $h = "\x00\x08";
+        }
+        else $h = "\x00\x00";
 
-		$this->streamData(
-			file_get_contents($file),
-			$name,
-			filemtime($file),
-			$level
-		);
-	}
+        $nlen = strlen($n);
 
-	function close()
-	{
-		if (!$this->dataLen) return;
+        $h =  "\x14\x00"       // version needed to extract
+            . $h               // general purpose bit flag
+            . "\x08\x00"       // compression method
+            . pack('V', $time) // mtime
+            . pack('V', $crc)  // crc32
+            . pack('V', $zlen) // compressed size
+            . pack('V', $dlen) // uncompressed size
+            . pack('v', $nlen) // length of filename
+            . pack('v', 0);    // extra field length
 
-		$cdrCount = count($this->cdr);
-		$cdrLen = 0;
+        echo "\x50\x4B\x03\x04", $h, $n, $data;
 
-		for ($i = 0; $i < $cdrCount; ++$i)
-		{
-			$cdrLen += strlen($this->cdr[$i]);
-			echo $this->cdr[$i];
-			unset($this->cdr[$i]);
-		}
+        $dlen = $this->dataLen;
+        $this->dataLen += 4 + strlen($h) + $nlen + $zlen;
 
-		echo "\x50\x4B\x05\x06\x00\x00\x00\x00",
-			pack('v', $cdrCount),      // total # of entries "on this disk"
-			pack('v', $cdrCount),      // total # of entries overall
-			pack('V', $cdrLen),        // size of central dir
-			pack('V', $this->dataLen), // offset to start of central dir
-			"\x00\x00";                // general file comment length
+        $this->cdr[] = "\x50\x4B\x01\x02"
+            . "\x00\x00"       // version made by
+            . $h
+            . pack('v', 0)     // comment length
+            . pack('v', 0)     // disk number start
+            . pack('v', 0)     // internal file attributes
+            . pack('V', 32)    // external file attributes - "archive" bit set
+            . pack('V', $dlen) // relative offset of local header
+            . $n;
+    }
 
-		$this->dataLen = 0;
-	}
+    function streamFile($file, $name = '', $level = -1)
+    {
+        $name || $name = basename($file);
 
-	protected function dosTime($time)
-	{
-		$time || $time = $_SERVER['REQUEST_TIME'];
+        $this->streamData(
+            file_get_contents($file),
+            $name,
+            filemtime($file),
+            $level
+        );
+    }
 
-		$time = getdate($time);
+    function close()
+    {
+        if (!$this->dataLen) return;
 
-		if ($time['year'] < 1980) return 0x210000;
+        $cdrCount = count($this->cdr);
+        $cdrLen = 0;
 
-		$time['year'] -= 1980;
+        for ($i = 0; $i < $cdrCount; ++$i)
+        {
+            $cdrLen += strlen($this->cdr[$i]);
+            echo $this->cdr[$i];
+            unset($this->cdr[$i]);
+        }
 
-		return ($time['year']    << 25)
-			 | ($time['mon']     << 21)
-			 | ($time['mday']    << 16)
-			 | ($time['hours']   << 11)
-			 | ($time['minutes'] <<  5)
-			 | ($time['seconds'] >>  1);
-	}
+        echo "\x50\x4B\x05\x06\x00\x00\x00\x00",
+            pack('v', $cdrCount),      // total # of entries "on this disk"
+            pack('v', $cdrCount),      // total # of entries overall
+            pack('V', $cdrLen),        // size of central dir
+            pack('V', $this->dataLen), // offset to start of central dir
+            "\x00\x00";                // general file comment length
+
+        $this->dataLen = 0;
+    }
+
+    protected function dosTime($time)
+    {
+        $time || $time = $_SERVER['REQUEST_TIME'];
+
+        $time = getdate($time);
+
+        if ($time['year'] < 1980) return 0x210000;
+
+        $time['year'] -= 1980;
+
+        return ($time['year']    << 25)
+             | ($time['mon']     << 21)
+             | ($time['mday']    << 16)
+             | ($time['hours']   << 11)
+             | ($time['minutes'] <<  5)
+             | ($time['seconds'] >>  1);
+    }
 }

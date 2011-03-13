@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,24 +14,24 @@
 
 class loop_reverse extends loop_array
 {
-	function __construct($loop)
-	{
-		$array = $this->getArray($loop, true);
+    function __construct($loop)
+    {
+        $array = $this->getArray($loop, true);
 
-		parent::__construct($array, 'filter_rawArray');
-	}
+        parent::__construct($array, 'filter_rawArray');
+    }
 
-	function getArray($loop, $unshift = false)
-	{
-		$array = array();
+    function getArray($loop, $unshift = false)
+    {
+        $array = array();
 
-		while ($a = $loop->loop())
-		{
-			foreach ($a as &$v) if ($v instanceof loop) $v = new loop_array($this->getArray($v), 'filter_rawArray');
+        while ($a = $loop->loop())
+        {
+            foreach ($a as &$v) if ($v instanceof loop) $v = new loop_array($this->getArray($v), 'filter_rawArray');
 
-			$unshift ? array_unshift($array, $a) : ($array[] = $a);
-		}
+            $unshift ? array_unshift($array, $a) : ($array[] = $a);
+        }
 
-		return $array;
-	}
+        return $array;
+    }
 }

@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,11 +14,11 @@
 
 class converter_txt_pdf extends converter_abstract
 {
-	function convertFile($file)
-	{
-		$file = escapeshellarg($file);
-		$file = `pdftotext -enc UTF-8 {$file} -`;
+    function convertFile($file)
+    {
+        $file = escapeshellarg($file);
+        $file = `pdftotext -enc UTF-8 {$file} -`;
 
-		return FILTER::get($file, 'text');
-	}
+        return FILTER::get($file, 'text');
+    }
 }

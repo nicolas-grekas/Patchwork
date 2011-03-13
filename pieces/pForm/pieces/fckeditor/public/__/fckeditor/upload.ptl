@@ -1,6 +1,6 @@
-{***************************************************************************
+{***** vi: set encoding=utf-8 expandtab shiftwidth=4: **********************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -16,25 +16,25 @@ D = document, d = D.domain, w = window.top.opener;
 
 while (1)
 {
-	try
-	{
-		t = w.document.domain;
-		break;
-	}
-	catch (t) {}
+    try
+    {
+        t = w.document.domain;
+        break;
+    }
+    catch (t) {}
 
-	t = d.indexOf('.');
-	if (t < 0) break;
-	d = d.substr(t+1);
+    t = d.indexOf('.');
+    if (t < 0) break;
+    d = d.substr(t+1);
 
-	try
-	{
-		D.domain = d;
-	}
-	catch (t)
-	{
-		break;
-	}
+    try
+    {
+        D.domain = d;
+    }
+    catch (t)
+    {
+        break;
+    }
 }
 
 window.parent.OnUploadCompleted({$number|js},{$url|js},{$filename|js},{$text|js})

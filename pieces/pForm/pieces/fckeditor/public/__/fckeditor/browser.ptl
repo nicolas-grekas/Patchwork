@@ -1,6 +1,6 @@
-{***************************************************************************
+{***** vi: set encoding=utf-8 expandtab shiftwidth=4: **********************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,34 +14,34 @@
 
 IF $fileUpload
 
-	--><script type="text/javascript">window.parent.frames.frmUpload.OnUploadCompleted({$number|js},{$filename|js})</script><!--
+    --><script type="text/javascript">window.parent.frames.frmUpload.OnUploadCompleted({$number|js},{$filename|js})</script><!--
 
 ELSE
 
-	--><?xml version="1.0" encoding="utf-8" ?><!--
+    --><?xml version="1.0" encoding="utf-8" ?><!--
 
-	IF $command
-		--><Connector command="{$command}" resourceType="{$resourceType}">
+    IF $command
+        --><Connector command="{$command}" resourceType="{$resourceType}">
 <CurrentFolder path="{$currentFolder}" url="{base:$currentUrl:1}" /><!--
 
-		IF $FOLDERS
-			--><Folders><!--
-			LOOP $FOLDERS --><Folder name="{$VALUE}" /><!-- END:LOOP
-			--></Folders><!--
-		END:IF
+        IF $FOLDERS
+            --><Folders><!--
+            LOOP $FOLDERS --><Folder name="{$VALUE}" /><!-- END:LOOP
+            --></Folders><!--
+        END:IF
 
-		IF $FILES
-			--><Files><!--
-			LOOP $FILES --><File name="{$KEY}" size="{$VALUE}" /><!-- END:LOOP
-			--></Files><!--
-		END:IF
+        IF $FILES
+            --><Files><!--
+            LOOP $FILES --><File name="{$KEY}" size="{$VALUE}" /><!-- END:LOOP
+            --></Files><!--
+        END:IF
 
-		--></Connector><!--
+        --></Connector><!--
 
-	ELSE
-		--><Connector><Error {$|htmlArgs} /></Connector><!--
+    ELSE
+        --><Connector><Error {$|htmlArgs} /></Connector><!--
 
-	END:IF
+    END:IF
 
 END:IF
 

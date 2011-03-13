@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2010 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,31 +14,31 @@
 
 class patchwork_tokenizer_classAutoname extends patchwork_tokenizer
 {
-	protected
+    protected
 
-	$className,
-	$callbacks = array('tagClass' => array(T_CLASS, T_INTERFACE));
+    $className,
+    $callbacks = array('tagClass' => array(T_CLASS, T_INTERFACE));
 
 
-	function __construct(parent $parent, $className)
-	{
-		parent::__construct($parent);
+    function __construct(parent $parent, $className)
+    {
+        parent::__construct($parent);
 
-		$this->className = $className;
-	}
+        $this->className = $className;
+    }
 
-	protected function tagClass(&$token)
-	{
-		$t = $this->getNextToken();
+    protected function tagClass(&$token)
+    {
+        $t = $this->getNextToken();
 
-		if (T_STRING !== $t[0])
-		{
-			$this->setError("Class auto-naming is deprecated ({$this->className})", E_USER_DEPRECATED);
+        if (T_STRING !== $t[0])
+        {
+            $this->setError("Class auto-naming is deprecated ({$this->className})", E_USER_DEPRECATED);
 
-			$this->tokensUnshift(
-				array(T_WHITESPACE, ' '),
-				array(T_STRING, $this->className)
-			);
-		}
-	}
+            $this->tokensUnshift(
+                array(T_WHITESPACE, ' '),
+                array(T_STRING, $this->className)
+            );
+        }
+    }
 }

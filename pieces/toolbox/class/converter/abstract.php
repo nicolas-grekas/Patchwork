@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,18 +14,18 @@
 
 abstract class converter_abstract
 {
-	abstract function convertFile($file);
+    abstract function convertFile($file);
 
-	function convertData($data)
-	{
-		$file = tempnam('.', 'converter');
+    function convertData($data)
+    {
+        $file = tempnam('.', 'converter');
 
-		patchwork::writeFile($file, $data);
+        patchwork::writeFile($file, $data);
 
-		$data = $this->convertFile($file);
+        $data = $this->convertFile($file);
 
-		unlink($file);
+        unlink($file);
 
-		return $data;
-	}
+        return $data;
+    }
 }

@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -18,19 +18,19 @@
 
 class patchwork_setup
 {
-	protected static function execute()
-	{
-		patchwork::touch('appId');
-	}
+    protected static function execute()
+    {
+        patchwork::touch('appId');
+    }
 
 
-	static function hook()
-	{
-		$G = $_GET; $P = $_POST; $C = $_COOKIE; $F = $_FILES;
-		$_GET = $_POST = $_COOKIE = $_FILES = array();
+    static function hook()
+    {
+        $G = $_GET; $P = $_POST; $C = $_COOKIE; $F = $_FILES;
+        $_GET = $_POST = $_COOKIE = $_FILES = array();
 
-		self::execute();
+        self::execute();
 
-		$_GET = $G; $_POST = $P; $_COOKIE = $C; $_FILES = $F;
-	}
+        $_GET = $G; $_POST = $P; $_COOKIE = $C; $_FILES = $F;
+    }
 }

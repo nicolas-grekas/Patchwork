@@ -1,6 +1,6 @@
-/***************************************************************************
+/***** vi: set encoding=utf-8 expandtab shiftwidth=4: **********************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -20,50 +20,50 @@
 */
 function setboard($name, $value)
 {
-	if (t($name, 'object')) for ($value in $name) setboard($value, $name[$value]);
-	else
-	{
-		$window = setboard.topwin;
+    if (t($name, 'object')) for ($value in $name) setboard($value, $name[$value]);
+    else
+    {
+        $window = setboard.topwin;
 
-		$name = '%K' + eUC(document.domain + 0 + $name) + '%V';
+        $name = '%K' + eUC(document.domain + 0 + $name) + '%V';
 
-		var $winName = $window.name,
-			$varIdx = $winName.indexOf($name),
-			$varEndIdx;
+        var $winName = $window.name,
+            $varIdx = $winName.indexOf($name),
+            $varEndIdx;
 
-		if ($varIdx>=0)
-		{
-			$varEndIdx = $winName.indexOf('%K', $varIdx + $name.length);
-			$winName = $winName.substring(0, $varIdx) + ( $varEndIdx>=0 ? $winName.substring($varEndIdx) : '' );
-		}
+        if ($varIdx>=0)
+        {
+            $varEndIdx = $winName.indexOf('%K', $varIdx + $name.length);
+            $winName = $winName.substring(0, $varIdx) + ( $varEndIdx>=0 ? $winName.substring($varEndIdx) : '' );
+        }
 
-		$window.name = $winName + $name + eUC($value);
-	}
+        $window.name = $winName + $name + eUC($value);
+    }
 }
 
 
 window.BOARD || (function()
 {
-	var $board = window, $i, $h = document.domain + 0;
+    var $board = window, $i, $h = document.domain + 0;
 
-	// This eval avoids a parse error with browsers not supporting exceptions.
-	t($board.Error) && eval('try{while((($i=$board.parent)!=$board)&&t($i.name))$board=$i}catch($i){}');
+    // This eval avoids a parse error with browsers not supporting exceptions.
+    t($board.Error) && eval('try{while((($i=$board.parent)!=$board)&&t($i.name))$board=$i}catch($i){}');
 
-	setboard.topwin = $board;
-	$board = $board.name;
+    setboard.topwin = $board;
+    $board = $board.name;
 
-	window.BOARD = {};
-	$i = $board.indexOf('%K');
+    window.BOARD = {};
+    $i = $board.indexOf('%K');
 
-	if (0 <= $i)
-	{
-		$board = parseurl(
-			$board.substr($i).replace(
-				/%K/g, '&').replace(
-				/%V/g, '=')
-			, '&'
-		);
+    if (0 <= $i)
+    {
+        $board = parseurl(
+            $board.substr($i).replace(
+                /%K/g, '&').replace(
+                /%V/g, '=')
+            , '&'
+        );
 
-		for ($i in $board) $i.indexOf($h) || (BOARD[ $i.substr($h.length) ] = $board[$i]);
-	}
+        for ($i in $board) $i.indexOf($h) || (BOARD[ $i.substr($h.length) ] = $board[$i]);
+    }
 })();

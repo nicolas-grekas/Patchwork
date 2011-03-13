@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -15,77 +15,77 @@ use patchwork as p;
 
 class TRANSLATOR
 {
-	protected static
+    protected static
 
-	$adapter,
-	$cache;
-
-
-	static function get($string, $lang, $usecache)
-	{
-		if ('' === $string || '__' == $lang) return $string;
-
-		$hash = md5($string);
-		$cache = '';
-
-/**/	if (DEBUG)
-			$usecache = false;
-
-		if ($usecache && $id = p::$agentClass)
-		{
-			$id = p::getContextualCachePath('lang/' . substr($id, 6), 'ser');
-			if (!isset(self::$cache[$id]))
-			{
-				if (file_exists($id)) $cache = unserialize(file_get_contents($id));
-
-				self::$cache[$id] = $cache ? array(false, false, &$cache) : array(false, true, array());
-			}
-
-			$cache =& self::$cache[$id][$hash];
-
-			if ('' !== (string) $cache) return $cache;
-			else self::$cache[$id][0] = true;
-		}
-
-		$cache = self::$adapter->search($string, $lang);
-
-		if ('' === (string) $cache) $cache = $string;
-
-		return $cache;
-	}
+    $adapter,
+    $cache;
 
 
-	static function __constructStatic()
-	{
-		self::$cache = array();
+    static function get($string, $lang, $usecache)
+    {
+        if ('' === $string || '__' == $lang) return $string;
 
-		$adapter = $CONFIG['translator.adapter'] ? 'adapter_translator_' . $CONFIG['translator.adapter'] : __CLASS__;
-		self::$adapter = new $adapter($CONFIG['translator.options']);
-		self::$adapter->open();
-	}
+        $hash = md5($string);
+        $cache = '';
 
-	static function __destructStatic()
-	{
-		self::$adapter->close();
+/**/    if (DEBUG)
+            $usecache = false;
 
-		foreach (self::$cache as $file => &$cache) if ($cache[0])
-		{
-			$data = serialize($cache[2]);
+        if ($usecache && $id = p::$agentClass)
+        {
+            $id = p::getContextualCachePath('lang/' . substr($id, 6), 'ser');
+            if (!isset(self::$cache[$id]))
+            {
+                if (file_exists($id)) $cache = unserialize(file_get_contents($id));
 
-			p::writeFile($file, $data);
-			if ($cache[1]) p::writeWatchTable('translator', $file, false);
-		}
-	}
+                self::$cache[$id] = $cache ? array(false, false, &$cache) : array(false, true, array());
+            }
+
+            $cache =& self::$cache[$id][$hash];
+
+            if ('' !== (string) $cache) return $cache;
+            else self::$cache[$id][0] = true;
+        }
+
+        $cache = self::$adapter->search($string, $lang);
+
+        if ('' === (string) $cache) $cache = $string;
+
+        return $cache;
+    }
 
 
-	/* Adapter interface */
+    static function __constructStatic()
+    {
+        self::$cache = array();
 
-	function open() {}
-	function search($string, $lang)
-	{
-/**/	if (DEBUG)
-			return "‘{$string}’";
-		return $string;
-	}
-	function close() {}
+        $adapter = $CONFIG['translator.adapter'] ? 'adapter_translator_' . $CONFIG['translator.adapter'] : __CLASS__;
+        self::$adapter = new $adapter($CONFIG['translator.options']);
+        self::$adapter->open();
+    }
+
+    static function __destructStatic()
+    {
+        self::$adapter->close();
+
+        foreach (self::$cache as $file => &$cache) if ($cache[0])
+        {
+            $data = serialize($cache[2]);
+
+            p::writeFile($file, $data);
+            if ($cache[1]) p::writeWatchTable('translator', $file, false);
+        }
+    }
+
+
+    /* Adapter interface */
+
+    function open() {}
+    function search($string, $lang)
+    {
+/**/    if (DEBUG)
+            return "‘{$string}’";
+        return $string;
+    }
+    function close() {}
 }

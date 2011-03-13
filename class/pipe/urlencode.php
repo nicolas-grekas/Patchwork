@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,19 +14,19 @@
 
 class pipe_urlencode
 {
-	static function php($str)
-	{
-		return rawurlencode(patchwork::string($str));
-	}
+    static function php($str)
+    {
+        return rawurlencode(patchwork::string($str));
+    }
 
-	static function js()
-	{
-		?>/*<script>*/
+    static function js()
+    {
+        ?>/*<script>*/
 
 function($str)
 {
-	return eUC(str($str));
+    return eUC(str($str));
 }
 
-<?php	}
+<?php   }
 }

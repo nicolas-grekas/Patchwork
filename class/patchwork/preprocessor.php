@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2010 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,159 +14,159 @@
 
 class patchwork_preprocessor__0
 {
-	static
+    static
 
-	$scream = false,
-	$constants = array(
-		'DEBUG', 'IS_WINDOWS', 'PATCHWORK_ZCACHE', 'PATCHWORK_PATH_TOKEN',
-		'PATCHWORK_PATH_LEVEL', 'PATCHWORK_PATH_OFFSET', 'PATCHWORK_PROJECT_PATH',
-	);
-
-
-	protected static
-
-	$alias,
-	$declaredClass = array('p', 'patchwork'),
-	$recursivePool = array(),
-	$tokenizers    = array(
-		'normalizer'         => true,
-		'backport53'         => 50300, // Load this only _before_ 5.3.0
-		'classAutoname'      => true,
-		'stringInfo'         => true,
-		'namespaceInfo'      => true,
-		'scoper'             => true,
-		'constFuncDisabler'  => true,
-		'constFuncResolver'  => true,
-		'namespaceResolver'  => 50300,
-		'constantInliner'    => true,
-		'classInfo'          => true,
-		'namespaceRemover'   => 50300,
-		'constantExpression' => true,
-		'superPositioner'    => true,
-		'constructorStatic'  => true,
-		'constructor4to5'    => true,
-		'functionAliasing'   => true,
-		'globalizer'         => true,
-		'scream'             => true,
-		'T'                  => true,
-		'marker'             => true,
-		'staticState'        => true,
-	);
+    $scream = false,
+    $constants = array(
+        'DEBUG', 'IS_WINDOWS', 'PATCHWORK_ZCACHE', 'PATCHWORK_PATH_TOKEN',
+        'PATCHWORK_PATH_LEVEL', 'PATCHWORK_PATH_OFFSET', 'PATCHWORK_PROJECT_PATH',
+    );
 
 
-	static function __constructStatic()
-	{
-		self::$alias =& $GLOBALS['patchwork_preprocessor_alias'];
-		null === self::$alias && self::$alias = unserialize(file_get_contents(PATCHWORK_PROJECT_PATH . ".patchwork.alias.ser"));
+    protected static
 
-		self::$scream = (defined('DEBUG') && DEBUG)
-			&& !empty($GLOBALS['CONFIG']['debug.scream'])
-				|| (defined('DEBUG_SCREAM') && DEBUG_SCREAM);
+    $alias,
+    $declaredClass = array('p', 'patchwork'),
+    $recursivePool = array(),
+    $tokenizers    = array(
+        'normalizer'         => true,
+        'backport53'         => 50300, // Load this only _before_ 5.3.0
+        'classAutoname'      => true,
+        'stringInfo'         => true,
+        'namespaceInfo'      => true,
+        'scoper'             => true,
+        'constFuncDisabler'  => true,
+        'constFuncResolver'  => true,
+        'namespaceResolver'  => 50300,
+        'constantInliner'    => true,
+        'classInfo'          => true,
+        'namespaceRemover'   => 50300,
+        'constantExpression' => true,
+        'superPositioner'    => true,
+        'constructorStatic'  => true,
+        'constructor4to5'    => true,
+        'functionAliasing'   => true,
+        'globalizer'         => true,
+        'scream'             => true,
+        'T'                  => true,
+        'marker'             => true,
+        'staticState'        => true,
+    );
 
-		foreach (get_declared_classes() as $v)
-		{
-			$v = strtolower($v);
-			if (false !== strpos($v, 'patchwork')) continue;
-			if ('p' === $v) break;
-			self::$declaredClass[] = $v;
-		}
 
-		foreach (self::$tokenizers as $k => $v)
-		{
-			$v > 1 && $v = self::$tokenizers[$k] = PHP_VERSION_ID < $v;
-			$v && class_exists('patchwork_tokenizer_' . $k, true);
-		}
-	}
+    static function __constructStatic()
+    {
+        self::$alias =& $GLOBALS['patchwork_preprocessor_alias'];
+        null === self::$alias && self::$alias = unserialize(file_get_contents(PATCHWORK_PROJECT_PATH . ".patchwork.alias.ser"));
 
-	static function execute($source, $destination, $level, $class, $is_top, $lazy)
-	{
-		$source = patchwork_realpath($source);
+        self::$scream = (defined('DEBUG') && DEBUG)
+            && !empty($GLOBALS['CONFIG']['debug.scream'])
+                || (defined('DEBUG_SCREAM') && DEBUG_SCREAM);
 
-		if (self::$recursivePool && $lazy)
-		{
-			$pool =& self::$recursivePool[count(self::$recursivePool)-1];
-			$pool[] = array($source, $destination, $level, $class, $is_top);
-			return;
-		}
+        foreach (get_declared_classes() as $v)
+        {
+            $v = strtolower($v);
+            if (false !== strpos($v, 'patchwork')) continue;
+            if ('p' === $v) break;
+            self::$declaredClass[] = $v;
+        }
 
-		$pool = array(array($source, $destination, $level, $class, $is_top));
-		self::$recursivePool[] =& $pool;
+        foreach (self::$tokenizers as $k => $v)
+        {
+            $v > 1 && $v = self::$tokenizers[$k] = PHP_VERSION_ID < $v;
+            $v && class_exists('patchwork_tokenizer_' . $k, true);
+        }
+    }
 
-		while (list($source, $destination, $level, $class, $is_top) = array_shift($pool))
-		{
-			$preproc = new patchwork_preprocessor;
+    static function execute($source, $destination, $level, $class, $is_top, $lazy)
+    {
+        $source = patchwork_realpath($source);
 
-			$code = $preproc->preprocess($source, $level, $class, $is_top);
+        if (self::$recursivePool && $lazy)
+        {
+            $pool =& self::$recursivePool[count(self::$recursivePool)-1];
+            $pool[] = array($source, $destination, $level, $class, $is_top);
+            return;
+        }
 
-			$tmp = PATCHWORK_PROJECT_PATH . '.~' . uniqid(mt_rand(), true);
-			if (false !== file_put_contents($tmp, $code))
-			{
-				if (IS_WINDOWS)
-				{
-					$code = new COM('Scripting.FileSystemObject');
-					$code->GetFile($tmp)->Attributes |= 2; // Set hidden attribute
-					file_exists($destination) && @unlink($destination);
-					@rename($tmp, $destination) || unlink($tmp);
-				}
-				else rename($tmp, $destination);
-			}
-		}
+        $pool = array(array($source, $destination, $level, $class, $is_top));
+        self::$recursivePool[] =& $pool;
 
-		array_pop(self::$recursivePool);
-	}
+        while (list($source, $destination, $level, $class, $is_top) = array_shift($pool))
+        {
+            $preproc = new patchwork_preprocessor;
 
-	static function isRunning()
-	{
-		return count(self::$recursivePool);
-	}
+            $code = $preproc->preprocess($source, $level, $class, $is_top);
 
-	protected function __construct() {}
+            $tmp = PATCHWORK_PROJECT_PATH . '.~' . uniqid(mt_rand(), true);
+            if (false !== file_put_contents($tmp, $code))
+            {
+                if (IS_WINDOWS)
+                {
+                    $code = new COM('Scripting.FileSystemObject');
+                    $code->GetFile($tmp)->Attributes |= 2; // Set hidden attribute
+                    file_exists($destination) && @unlink($destination);
+                    @rename($tmp, $destination) || unlink($tmp);
+                }
+                else rename($tmp, $destination);
+            }
+        }
 
-	protected function preprocess($source, $level, $class, $is_top)
-	{
-		foreach (self::$tokenizers as $c => $t)
-		{
-			if (!$t) continue;
-			if (!class_exists($t = 'patchwork_tokenizer_' . $c, true)) break;
+        array_pop(self::$recursivePool);
+    }
 
-			switch ($c)
-			{
-			case 'normalizer':  $p = new $t; break;
-			default:                 new $t($p); break;
-			case 'backport53':
-			case 'staticState':       if (0 <= $level) $p = new $t($p); break;
-			case 'classAutoname':     if (0 <= $level && $class) new $t($p, $class); break;
-			case 'scream':            if (self::$scream) new $t($p); break;
-			case 'constFuncDisabler': if (0 <= $level)   new $t($p); break;
-			case 'constructor4to5':   if (0 > $level)    new $t($p); break;
-			case 'globalizer':        if (0 <= $level)   new $t($p, '$CONFIG'); break;
-			case 'T':                 if (DEBUG)         new $t($p); break;
-			case 'marker':            if (!DEBUG)        new $t($p, self::$declaredClass); break;
-			case 'constantInliner':   new $t($p, $source, self::$constants); break;
-			case 'namespaceRemover':  new $t($p, 'patchwork_alias_class::add'); break;
-			case 'superPositioner':   new $t($p, $level, $is_top ? $class : false); break;
-			case 'functionAliasing':  new $t($p, self::$alias); break;
-			}
-		}
+    static function isRunning()
+    {
+        return count(self::$recursivePool);
+    }
 
-		if (empty($p)) return file_get_contents($source);
-		$t = $p->parse(file_get_contents($source));
+    protected function __construct() {}
 
-		if ($c = $p->getErrors())
-		{
-			if (class_exists('patchwork_error', true))
-			{
-				foreach ($c as $c)
-					patchwork_error::handle($c[3], $c[0], $source, $c[1]);
-			}
-			else
-			{
-				echo "Early preprocessor error in {$source}:\n";
-				print_r($c);
-				echo "\n";
-			}
-		}
+    protected function preprocess($source, $level, $class, $is_top)
+    {
+        foreach (self::$tokenizers as $c => $t)
+        {
+            if (!$t) continue;
+            if (!class_exists($t = 'patchwork_tokenizer_' . $c, true)) break;
 
-		return $t;
-	}
+            switch ($c)
+            {
+            case 'normalizer':  $p = new $t; break;
+            default:                 new $t($p); break;
+            case 'backport53':
+            case 'staticState':       if (0 <= $level) $p = new $t($p); break;
+            case 'classAutoname':     if (0 <= $level && $class) new $t($p, $class); break;
+            case 'scream':            if (self::$scream) new $t($p); break;
+            case 'constFuncDisabler': if (0 <= $level)   new $t($p); break;
+            case 'constructor4to5':   if (0 > $level)    new $t($p); break;
+            case 'globalizer':        if (0 <= $level)   new $t($p, '$CONFIG'); break;
+            case 'T':                 if (DEBUG)         new $t($p); break;
+            case 'marker':            if (!DEBUG)        new $t($p, self::$declaredClass); break;
+            case 'constantInliner':   new $t($p, $source, self::$constants); break;
+            case 'namespaceRemover':  new $t($p, 'patchwork_alias_class::add'); break;
+            case 'superPositioner':   new $t($p, $level, $is_top ? $class : false); break;
+            case 'functionAliasing':  new $t($p, self::$alias); break;
+            }
+        }
+
+        if (empty($p)) return file_get_contents($source);
+        $t = $p->parse(file_get_contents($source));
+
+        if ($c = $p->getErrors())
+        {
+            if (class_exists('patchwork_error', true))
+            {
+                foreach ($c as $c)
+                    patchwork_error::handle($c[3], $c[0], $source, $c[1]);
+            }
+            else
+            {
+                echo "Early preprocessor error in {$source}:\n";
+                print_r($c);
+                echo "\n";
+            }
+        }
+
+        return $t;
+    }
 }

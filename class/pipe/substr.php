@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,30 +14,30 @@
 
 class pipe_substr
 {
-	static function php($string, $start, $length = null)
-	{
-		return null === $length
-			? mb_substr(patchwork::string($string), (int) patchwork::string($start))
-			: mb_substr(patchwork::string($string), (int) patchwork::string($start), (int) patchwork::string($length));
-	}
+    static function php($string, $start, $length = null)
+    {
+        return null === $length
+            ? mb_substr(patchwork::string($string), (int) patchwork::string($start))
+            : mb_substr(patchwork::string($string), (int) patchwork::string($start), (int) patchwork::string($length));
+    }
 
-	static function js()
-	{
-		?>/*<script>*/
+    static function js()
+    {
+        ?>/*<script>*/
 
 function($string, $start, $length)
 {
-	$string = str($string);
+    $string = str($string);
 
-	$start /= 1;
-	if ($start < 0) $start += $string.length;
-	if ($start < 0) $start  = 0;
+    $start /= 1;
+    if ($start < 0) $start += $string.length;
+    if ($start < 0) $start  = 0;
 
-	$length = t($length) ? $length/1 : $string.length;
-	if ($length < 0) $length += $string.length - $start;
+    $length = t($length) ? $length/1 : $string.length;
+    if ($length < 0) $length += $string.length - $start;
 
-	return $string.substr($start, $length);
+    return $string.substr($start, $length);
 }
 
-<?php	}
+<?php   }
 }

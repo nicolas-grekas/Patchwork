@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2010 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,64 +14,64 @@
 
 abstract class patchwork_tokenizer_bracket extends patchwork_tokenizer
 {
-	protected
+    protected
 
-	$onOpenCallbacks = array(),
+    $onOpenCallbacks = array(),
 
-	$bracketLevel = 0,
-	$bracketIndex = 0,
-	$callbacks = array(
-		'tagOpen'  => '(',
-		'tagIndex' => ',',
-		'tagClose' => ')',
-	);
-
-
-	// "Abstract" methods
-	protected function onOpen      (&$token) {}
-	protected function onReposition(&$token) {}
-	protected function onClose     (&$token) {}
+    $bracketLevel = 0,
+    $bracketIndex = 0,
+    $callbacks = array(
+        'tagOpen'  => '(',
+        'tagIndex' => ',',
+        'tagClose' => ')',
+    );
 
 
-	protected function tagOpen(&$token)
-	{
-		if (1 === ++$this->bracketLevel)
-		{
-			if (false === $this->onOpen($token))
-			{
-				--$this->bracketLevel;
-				return false;
-			}
+    // "Abstract" methods
+    protected function onOpen      (&$token) {}
+    protected function onReposition(&$token) {}
+    protected function onClose     (&$token) {}
 
-			if ($this->onOpenCallbacks)
-			{
-				$this->register($this->onOpenCallbacks);
-				$this->callbacks += $this->onOpenCallbacks;
-			}
-		}
-	}
 
-	protected function tagIndex(&$token)
-	{
-		if (1 === $this->bracketLevel)
-		{
-			++$this->bracketIndex;
+    protected function tagOpen(&$token)
+    {
+        if (1 === ++$this->bracketLevel)
+        {
+            if (false === $this->onOpen($token))
+            {
+                --$this->bracketLevel;
+                return false;
+            }
 
-			if (false === $this->onReposition($token))
-			{
-				--$this->bracketIndex;
-				return false;
-			}
-		}
-	}
+            if ($this->onOpenCallbacks)
+            {
+                $this->register($this->onOpenCallbacks);
+                $this->callbacks += $this->onOpenCallbacks;
+            }
+        }
+    }
 
-	protected function tagClose(&$token)
-	{
-		if (1 === $this->bracketLevel)
-		{
-			if (false === $this->onClose($token)) return false;
-		}
+    protected function tagIndex(&$token)
+    {
+        if (1 === $this->bracketLevel)
+        {
+            ++$this->bracketIndex;
 
-		0 >= --$this->bracketLevel && $this->unregister();
-	}
+            if (false === $this->onReposition($token))
+            {
+                --$this->bracketIndex;
+                return false;
+            }
+        }
+    }
+
+    protected function tagClose(&$token)
+    {
+        if (1 === $this->bracketLevel)
+        {
+            if (false === $this->onClose($token)) return false;
+        }
+
+        0 >= --$this->bracketLevel && $this->unregister();
+    }
 }

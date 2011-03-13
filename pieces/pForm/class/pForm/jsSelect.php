@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,31 +14,31 @@
 
 class pForm_jsSelect extends pForm_select
 {
-	protected $src;
+    protected $src;
 
-	protected function init(&$param)
-	{
-		unset($param['item']);
-		unset($param['sql']);
-		isset($param['valid']) || $param['valid'] = 'char';
+    protected function init(&$param)
+    {
+        unset($param['item']);
+        unset($param['sql']);
+        isset($param['valid']) || $param['valid'] = 'char';
 
-		parent::init($param);
+        parent::init($param);
 
-		isset($param['src']) && $this->src = $param['src'];
-	}
+        isset($param['src']) && $this->src = $param['src'];
+    }
 
-	protected function get()
-	{
-		$a = parent::get();
+    protected function get()
+    {
+        $a = parent::get();
 
-		$this->agent = 'form/jsSelect';
+        $this->agent = 'form/jsSelect';
 
-		if (isset($this->src)) $a->_src_ = $this->src;
+        if (isset($this->src)) $a->_src_ = $this->src;
 
-		if ($this->status) $a->_value = new loop_array((array) $this->value, false);
+        if ($this->status) $a->_value = new loop_array((array) $this->value, false);
 
-		unset($a->_type);
+        unset($a->_type);
 
-		return $a;
-	}
+        return $a;
+    }
 }

@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,20 +14,20 @@
 
 class agent_feed_atom extends agent
 {
-	const contentType = 'application/atom+xml';
+    const contentType = 'application/atom+xml';
 
-	protected $template = 'feed/atom';
+    protected $template = 'feed/atom';
 
 
-	function compose($o)
-	{
-		isset($o->entries) && $o->entries->addFilter(array($this, 'filterEntry'));
+    function compose($o)
+    {
+        isset($o->entries) && $o->entries->addFilter(array($this, 'filterEntry'));
 
-		return $o;
-	}
+        return $o;
+    }
 
-	function filterEntry($o)
-	{
-		return $o;
-	}
+    function filterEntry($o)
+    {
+        return $o;
+    }
 }

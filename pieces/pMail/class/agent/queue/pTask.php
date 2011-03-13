@@ -1,6 +1,6 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -14,19 +14,19 @@
 
 class agent_queue_pTask extends self
 {
-	function ob_handler($buffer)
-	{
-		parent::ob_handler($buffer);
+    function ob_handler($buffer)
+    {
+        parent::ob_handler($buffer);
 
-		if ('' !== $buffer && $CONFIG['pMail.debug_email'])
-		{
-			$m = new pMail_text(
-				array('To'   => $CONFIG['pMail.debug_email']),
-				array('text' => $buffer)
-			);
-			$m->send();
-		}
+        if ('' !== $buffer && $CONFIG['pMail.debug_email'])
+        {
+            $m = new pMail_text(
+                array('To'   => $CONFIG['pMail.debug_email']),
+                array('text' => $buffer)
+            );
+            $m->send();
+        }
 
-		return '';
-	}
+        return '';
+    }
 }

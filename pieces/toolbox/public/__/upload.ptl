@@ -1,6 +1,6 @@
-{***************************************************************************
+{***** vi: set encoding=utf-8 expandtab shiftwidth=4: **********************
  *
- *   Copyright : (C) 2007 Nicolas Grekas. All rights reserved.
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
  *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
  *
@@ -18,40 +18,40 @@ This template is called automatically when a form with a file element is submitt
 <html lang="{g$__LANG__}">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<title>{"Envoi en cours"} ...</title>
+    <title>{"Envoi en cours"}...</title>
 
 <style>
 
 body
 {
-	margin: 10px;
-	padding: 0;
+    margin: 10px;
+    padding: 0;
 }
 
 body, td
 {
-	background-color: #EEEEEE;
-	font-size: 12px;
-	font-family: Verdana;
+    background-color: #EEEEEE;
+    font-size: 12px;
+    font-family: Verdana;
 }
 
 #progress
 {
-	width: 100%;
-	background-color: white;
+    width: 100%;
+    background-color: white;
 }
 
 #detail
 {
-	position: absolute;
-	width: 100%;
-	text-align: center;
-	padding: 2px;
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    padding: 2px;
 }
 
 table
 {
-	margin: 5px;
+    margin: 5px;
 }
 
 </style>
@@ -62,15 +62,15 @@ table
 
 <table border="0" cellspacing="0" cellpadding="0">
 <tr>
-	<td rowspan="3"><img src="{base:'img/upload/l.png'}" width="2" height="29"></td>
-	<td background="img/upload/t.gif"><img src="{base:'img/upload/t.gif'}" width="1" height="3"></td>
-	<td rowspan="3"><img src="{base:'img/upload/r.png'}" width="5" height="29"></td>
+    <td rowspan="3"><img src="{base:'img/upload/l.png'}" width="2" height="29"></td>
+    <td background="img/upload/t.gif"><img src="{base:'img/upload/t.gif'}" width="1" height="3"></td>
+    <td rowspan="3"><img src="{base:'img/upload/r.png'}" width="5" height="29"></td>
 </tr>
 <tr>
-	<td width="100%"><div id="detail"></div><div id="progress"><img src="{base:'img/upload/i.gif'}" id="unit" width="8" height="20"></div></td>
+    <td width="100%"><div id="detail"></div><div id="progress"><img src="{base:'img/upload/i.gif'}" id="unit" width="8" height="20"></div></td>
 </tr>
 <tr>
-	<td id="b" background="{base:'img/upload/b.png'}" style="filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src={base:'img/upload/b.png'|js},sizingMethod='scale')"><img src="{base:'img/blank.gif'}" width="1" height="6"></td>
+    <td id="b" background="{base:'img/upload/b.png'}" style="filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src={base:'img/upload/b.png'|js},sizingMethod='scale')"><img src="{base:'img/blank.gif'}" width="1" height="6"></td>
 </tr>
 </table>
 

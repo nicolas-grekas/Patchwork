@@ -1,4 +1,4 @@
-<?php /*********************************************************************
+<?php /***** vi: set encoding=utf-8 expandtab shiftwidth=4: ****************
  *
  *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
@@ -14,53 +14,53 @@
 
 class patchwork_tokenizer_curlyDollarNormalizer extends patchwork_tokenizer
 {
-	protected
+    protected
 
-	$curly      = null,
-	$curlyPool  = array(),
-	$callbacks  = array('tagDollarCurly' => T_DOLLAR_OPEN_CURLY_BRACES);
+    $curly      = null,
+    $curlyPool  = array(),
+    $callbacks  = array('tagDollarCurly' => T_DOLLAR_OPEN_CURLY_BRACES);
 
 
-	protected function tagDollarCurly(&$token)
-	{
-		$t =& $this->tokens;
-		$i =  $this->index;
+    protected function tagDollarCurly(&$token)
+    {
+        $t =& $this->tokens;
+        $i =  $this->index;
 
-		if (!isset($t[$i], $t[$i+1]) || T_STRING_VARNAME !== $t[$i][0]) return;
+        if (!isset($t[$i], $t[$i+1]) || T_STRING_VARNAME !== $t[$i][0]) return;
 
-		if ('}' === $t[$i+1][0] || '[' === $t[$i+1][0])
-		{
-			$t[$i] = array(T_VARIABLE, '$' . $t[$i][1]);
-		}
-		else
-		{
-			$t[$i] = array(T_CONSTANT_ENCAPSED_STRING, "'{$t[$i][1]}'");
-			$this->tokensUnshift('$', '{');
+        if ('}' === $t[$i+1][0] || '[' === $t[$i+1][0])
+        {
+            $t[$i] = array(T_VARIABLE, '$' . $t[$i][1]);
+        }
+        else
+        {
+            $t[$i] = array(T_CONSTANT_ENCAPSED_STRING, "'{$t[$i][1]}'");
+            $this->tokensUnshift('$', '{');
 
-			$this->curlyPool || $this->register($this->callbacks = array(
-				'incCurly' => '{',
-				'decCurly' => '}',
-			));
+            $this->curlyPool || $this->register($this->callbacks = array(
+                'incCurly' => '{',
+                'decCurly' => '}',
+            ));
 
-			$this->curlyPool[] = $this->curly;
-			$this->curly = 0;
-		}
+            $this->curlyPool[] = $this->curly;
+            $this->curly = 0;
+        }
 
-		return $this->tokensUnshift(array(T_CURLY_OPEN, '{'));
-	}
+        return $this->tokensUnshift(array(T_CURLY_OPEN, '{'));
+    }
 
-	protected function incCurly(&$token)
-	{
-		++$this->curly;
-	}
+    protected function incCurly(&$token)
+    {
+        ++$this->curly;
+    }
 
-	protected function decCurly(&$token)
-	{
-		if (0 === --$this->curly)
-		{
-			$this->tokensUnshift('}');
-			$this->curly = array_pop($this->curlyPool);
-			if (null === $this->curly) $this->unregister();
-		}
-	}
+    protected function decCurly(&$token)
+    {
+        if (0 === --$this->curly)
+        {
+            $this->tokensUnshift('}');
+            $this->curly = array_pop($this->curlyPool);
+            if (null === $this->curly) $this->unregister();
+        }
+    }
 }
