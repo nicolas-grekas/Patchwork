@@ -33,4 +33,41 @@ class patchwork_setup
 
         $_GET = $G; $_POST = $P; $_COOKIE = $C; $_FILES = $F;
     }
+
+
+    static $isPathInfoSUpported = null;
+
+    static function __constructStatic()
+    {
+        self::$isPathInfoSUpported = self::isPathInfoSupported();
+    }
+
+    protected static function isPathInfoSupported()
+    {
+        switch (true)
+        {
+        case isset($_SERVER['REDIRECT_PATCHWORK_REQUEST']):
+        case isset($_SERVER['PATCHWORK_REQUEST']):
+        case isset($_SERVER['ORIG_PATH_INFO']):
+        case isset($_SERVER['PATH_INFO']): return true;
+        }
+
+        // Check if the webserver supports PATH_INFO
+
+        $h = patchwork_http_socket($_SERVER['SERVER_ADDR'], $_SERVER['SERVER_PORT'], isset($_SERVER['HTTPS']));
+
+        $a = strpos($_SERVER['REQUEST_URI'], '?');
+        $a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
+        '/' === substr($a, -1) && $a .= basename(isset($_SERVER['ORIG_SCRIPT_NAME']) ? $_SERVER['ORIG_SCRIPT_NAME'] : $_SERVER['SCRIPT_NAME']);
+
+        $a  = "GET {$a}/:?p:=exit HTTP/1.0\r\n";
+        $a .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
+        $a .= "Connection: close\r\n\r\n";
+
+        fwrite($h, $a);
+        $a = fgets($h, 14);
+        fclose($h);
+
+        return (bool) strpos($a, ' 200');
+    }
 }

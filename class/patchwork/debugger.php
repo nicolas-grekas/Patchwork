@@ -86,7 +86,7 @@ class patchwork_debugger extends patchwork
         $a = dirname($a . ' ');
         if (1 === strlen($a)) $a = '';
 
-        self::setcookie('v$', self::$appId, $_SERVER['REQUEST_TIME'] + $CONFIG['maxage'], $a .'/');
+        setcookie('v$', self::$appId, $_SERVER['REQUEST_TIME'] + $CONFIG['maxage'], $a .'/');
 
         self::touch('');
 

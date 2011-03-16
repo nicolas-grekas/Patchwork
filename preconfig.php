@@ -19,6 +19,7 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 
 // Basic aliasing
 
+/**/ /*<*/patchwork_bootstrapper::alias('w',          'trigger_error', array('$msg', '$type' => E_USER_NOTICE))/*>*/;
 /**/ /*<*/patchwork_bootstrapper::alias('rand',       'mt_rand',       array('$min' => 0, '$max' => mt_getrandmax()))/*>*/;
 /**/ /*<*/patchwork_bootstrapper::alias('getrandmax', 'mt_getrandmax', array())/*>*/;
 
@@ -72,6 +73,14 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 // Workaround http://bugs.php.net/37394
 /**/if (PHP_VERSION_ID < 50200)
 /**/    /*<*/patchwork_bootstrapper::alias('substr_compare', 'patchwork_PHP_strings::substr_compare', array('$main_str', '$str', '$offset', '$length' => INF, '$case_insensitivity' => false))/*>*/;
+
+// Backport $httpOnly parameter
+/**/if (PHP_VERSION_ID < 50200)
+/**/{
+/**/    $a = array('$name', '$value' => '', '$expires' => 0, '$path' => '', '$domain' => '', '$secure' => false, '$httponly' => false);
+/**/    /*<*/patchwork_bootstrapper::alias('setcookie',    'patchwork_alias_strings::setcookie',    $a)/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('setcookieraw', 'patchwork_alias_strings::setcookieraw', $a)/*>*/;
+/**/}
 
 
 // mbstring configuration
@@ -768,3 +777,197 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 /**/}
 /**/
 /**/@ini_set('display_errors', $b);
+
+
+// Setup class loading mechanism
+
+@ini_set('unserialize_callback_func', 'spl_autoload_call');
+
+/**/if (function_exists('__autoload'))
+/**/{
+/**/    if (!function_exists('spl_autoload_register'))
+/**/    {
+            // Trigger a "Cannot redeclare" fatal error: autoloading is already locked
+            function __autoload($class) {}
+/**/    }
+
+        spl_autoload_register('__autoload');
+/**/}
+
+/**/if (PHP_VERSION_ID < 50300 || !function_exists('spl_autoload_register'))
+/**/{
+/**/    // Before PHP 5.3, backport spl_autoload_register()'s $prepend argument
+/**/    // and workaround http://bugs.php.net/44144
+/**/
+/**/    /*<*/patchwork_bootstrapper::alias('__autoload',              'patchwork_alias_spl_autoload::call',       array('$class'))/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_call',       'patchwork_alias_spl_autoload::call',       array('$class'))/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_functions',  'patchwork_alias_spl_autoload::functions',  array())/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_register',   'patchwork_alias_spl_autoload::register',   array('$callback', '$throw' => true, '$prepend' => false))/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_unregister', 'patchwork_alias_spl_autoload::unregister', array('$callback'))/*>*/;
+
+        require /*<*/dirname(__FILE__) . '/class/patchwork/alias/spl/autoload.php'/*>*/;
+/**/}
+/**/else
+/**/{
+/**/    /*<*/patchwork_bootstrapper::alias('__autoload', 'spl_autoload_call', array('$class'))/*>*/;
+/**/}
+
+
+// patchwork_autoload(): the magic part
+
+/**/@copy(patchwork_bootstrapper::$pwd . 'autoloader.php', patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')
+/**/    || @unlink(patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')
+/**/        + copy(patchwork_bootstrapper::$pwd . 'autoloader.php', patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php');
+/**/win_hide_file(patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php');
+
+spl_autoload_register('patchwork_autoload');
+
+function patchwork_autoload($searched_class)
+{
+    $a = strtr($searched_class, '\\', '_');
+
+    if ($a !== $searched_class && (class_exists($a, false) || interface_exists($a, false)))
+    {
+/**/    if (function_exists('class_alias'))
+            class_alias($a, $searched_class);
+        return;
+    }
+
+    $a = strtolower($searched_class);
+
+    if ($a !== strtr($a, ";'?.$", '-----')) return;
+
+    if (TURBO && $a =& $GLOBALS['_patchwork_autoloaded'][$a])
+    {
+        if (is_int($a))
+        {
+            $b = $a;
+            unset($a);
+            $a = $b - /*<*/count(patchwork_bootstrapper::$paths) - patchwork_bootstrapper::$last/*>*/;
+
+            $b = strtr($searched_class, '\\', '_');
+            $i = strrpos($b, '__');
+            false !== $i && isset($b[$i+2]) && '' === trim(substr($b, $i+2), '0123456789') && $b = substr($b, 0, $i);
+
+            $a = $b . '.php.' . DEBUG . (0>$a ? -$a . '-' : $a);
+        }
+
+        $a = /*<*/patchwork_bootstrapper::$cwd/*>*/ . ".class_{$a}.zcache.php";
+
+        $GLOBALS["a\x9D"] = false;
+
+        if (file_exists($a))
+        {
+            patchwork_include($a);
+
+            if (class_exists($searched_class, false) || interface_exists($searched_class, false)) return;
+        }
+    }
+
+    if (!class_exists('__patchwork_autoloader', false))
+    {
+        require TURBO
+            ? /*<*/patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php'/*>*/
+            : /*<*/patchwork_bootstrapper::$pwd . 'autoloader.php'/*>*/;
+    }
+
+    __patchwork_autoloader::autoload($searched_class);
+}
+
+
+// patchworkProcessedPath(): private use for the preprocessor (in files in the include_path)
+
+function patchworkProcessedPath($file, $lazy = false)
+{
+/**/if (IS_WINDOWS)
+        false !== strpos($file, '\\') && $file = strtr($file, '\\', '/');
+
+    if (false !== strpos('.' . $file, './') || (/*<*/IS_WINDOWS/*>*/ && ':' === substr($file, 1, 1)))
+    {
+/**/if (function_exists('__patchwork_realpath'))
+        if ($f = patchwork_realpath($file)) $file = $f;
+/**/else
+        if ($f = realpath($file)) $file = $f;
+
+        $p =& $GLOBALS['patchwork_path'];
+
+        for ($i = /*<*/patchwork_bootstrapper::$last + 1/*>*/; $i < /*<*/count(patchwork_bootstrapper::$paths)/*>*/; ++$i)
+        {
+            if (0 === strncmp($file, $p[$i], strlen($p[$i])))
+            {
+                $file = substr($file, strlen($p[$i]));
+                break;
+            }
+        }
+
+        if (/*<*/count(patchwork_bootstrapper::$paths)/*>*/ === $i) return $f;
+    }
+
+    $source = patchworkPath('class/' . $file, $level);
+
+    if (false === $source) return false;
+
+    $cache = patchwork_file2class($file);
+    $cache = patchwork_class2cache($cache, $level);
+
+    if (file_exists($cache) && (TURBO || filemtime($cache) > filemtime($source))) return $cache;
+
+    patchwork_preprocessor::execute($source, $cache, $level, false, true, $lazy);
+
+    return $cache;
+}
+
+
+// PHP session mechanism overloading
+
+class sessionHandler implements ArrayAccess
+{
+    function offsetGet($k)     {$_SESSION = SESSION::getAll(); return $_SESSION[$k];}
+    function offsetSet($k, $v) {$_SESSION = SESSION::getAll(); $_SESSION[$k] =& $v;}
+    function offsetExists($k)  {$_SESSION = SESSION::getAll(); return isset($_SESSION[$k]);}
+    function offsetUnset($k)   {$_SESSION = SESSION::getAll(); unset($_SESSION[$k]);}
+
+    static $id;
+
+    static function close()   {return true;}
+    static function gc($life) {return true;}
+
+    static function open($path, $name)
+    {
+        session_cache_limiter('');
+        ini_set('session.use_only_cookies', true);
+        ini_set('session.use_cookies', false);
+        ini_set('session.use_trans_sid', false);
+        return true;
+    }
+
+    static function read($id)
+    {
+        $_SESSION = SESSION::getAll();
+        self::$id = $id;
+        return '';
+    }
+
+    static function write($id, $data)
+    {
+        if (self::$id != $id) SESSION::regenerateId();
+        return true;
+    }
+
+    static function destroy($id)
+    {
+        SESSION::regenerateId(true);
+        return true;
+    }
+}
+
+session_set_save_handler(
+    array($k = 'sessionHandler', 'open'),
+    array($k, 'close'),
+    array($k, 'read'),
+    array($k, 'write'),
+    array($k, 'destroy'),
+    array($k, 'gc')
+);
+
+$_SESSION = new sessionHandler;

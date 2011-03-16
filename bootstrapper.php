@@ -88,15 +88,6 @@ while (patchwork_bootstrapper::loadConfigFile(true))
 }
 
 
-// Load postconfig
-
-while (patchwork_bootstrapper::loadConfigFile('post'))
-{
-    eval(patchwork_bootstrapper::preprocessorPass1());
-    eval(patchwork_bootstrapper::preprocessorPass2());
-}
-
-
 // Setup hook
 
 class_exists('patchwork', true);

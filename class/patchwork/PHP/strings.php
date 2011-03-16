@@ -51,6 +51,30 @@ class patchwork_PHP_strings
         return $case_insensitivity ? strcasecmp($main_str, $str) : strcmp($main_str, $str);
     }
 
+    static function setcookie($name, $value = '', $expires = 0, $path = '', $domain = '', $secure = false, $httponly = false)
+    {
+        self::setrawcookie($name, urlencode($value), $expires, $path, $domain, $secure, $httponly);
+    }
+
+    static function setrawcookie($name, $value = '', $expires = 0, $path = '', $domain = '', $secure = false, $httponly = false)
+    {
+        if ($value !== strtr($value, ",; \t\r\n\013\014", '--------')) setrawcookie($name, $value, $expires, $path, $domain, $secure);
+        else
+        {
+            ('' === (string) $value) && $expires = 1;
+
+            header(
+                "Set-Cookie: {$name}={$value}" .
+                    ($expires  ? '; expires=' . date('D, d-M-Y H:i:s T', $expires) : '') .
+                    ($path     ? '; path='   . $path   : '') .
+                    ($domain   ? '; domain=' . $domain : '') .
+                    ($secure   ? '; secure'   : '') .
+                    ($httponly ? '; HttpOnly' : ''),
+                false
+            );
+        }
+    }
+
 
     // utf8_encode/decode support enhanced to Windows-1252
 

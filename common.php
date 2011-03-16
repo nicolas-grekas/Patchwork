@@ -247,37 +247,3 @@ function patchwork_getcwd()
 /**/        /*<*/patchwork_bootstrapper::alias('is_writable',   'patchwork_alias_winfs::is_writable',   array('$file'))/*>*/;
 /**/    }
 /**/}
-
-
-// Setup class loading mechanism
-
-@ini_set('unserialize_callback_func', 'spl_autoload_call');
-
-/**/if (function_exists('__autoload'))
-/**/{
-/**/    if (!function_exists('spl_autoload_register'))
-/**/    {
-            // Trigger a "Cannot redeclare" fatal error: autoloading is already locked
-            function __autoload($class) {}
-/**/    }
-
-        spl_autoload_register('__autoload');
-/**/}
-
-/**/if (PHP_VERSION_ID < 50300 || !function_exists('spl_autoload_register'))
-/**/{
-/**/    // Before PHP 5.3, backport spl_autoload_register()'s $prepend argument
-/**/    // and workaround http://bugs.php.net/44144
-/**/
-/**/    /*<*/patchwork_bootstrapper::alias('__autoload',              'patchwork_alias_spl_autoload::call',       array('$class'))/*>*/;
-/**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_call',       'patchwork_alias_spl_autoload::call',       array('$class'))/*>*/;
-/**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_functions',  'patchwork_alias_spl_autoload::functions',  array())/*>*/;
-/**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_register',   'patchwork_alias_spl_autoload::register',   array('$callback', '$throw' => true, '$prepend' => false))/*>*/;
-/**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_unregister', 'patchwork_alias_spl_autoload::unregister', array('$callback'))/*>*/;
-
-        require /*<*/dirname(__FILE__) . '/class/patchwork/alias/spl/autoload.php'/*>*/;
-/**/}
-/**/else
-/**/{
-/**/    /*<*/patchwork_bootstrapper::alias('__autoload', 'spl_autoload_call', array('$class'))/*>*/;
-/**/}
