@@ -44,6 +44,8 @@ $CONFIG += array(
 
 // Setup patchwork's environment
 
+/**/ /*<*/patchwork_bootstrapper::alias('header', 'patchwork::header', array('$s', '$replace' => true, '$response_code' => null))/*>*/;
+
 defined('DEBUG') || define('DEBUG', $CONFIG['debug.allowed'] && (!$CONFIG['debug.password'] || isset($_COOKIE['debug_password']) && $CONFIG['debug.password'] == $_COOKIE['debug_password']) ? 1 : 0);
 defined('TURBO') || define('TURBO', !DEBUG && $CONFIG['turbo']);
 
