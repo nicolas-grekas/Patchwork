@@ -14,30 +14,30 @@
 
 class patchwork_bootstrapper_preprocessor__0
 {
-    protected $tokenizer;
+    protected $parser;
 
     function staticPass1($file)
     {
         if ('' === $code = file_get_contents($file)) return '';
 
-        $t = new patchwork_tokenizer_normalizer;
-        $t = $this->tokenizer = new patchwork_tokenizer_staticState($t);
+        $p = new patchwork_PHP_Parser_normalizer;
+        $p = $this->parser = new patchwork_PHP_Parser_staticState($p);
 
         if( (defined('DEBUG') && DEBUG)
             && !empty($GLOBALS['CONFIG']['debug.scream'])
                 || (defined('DEBUG_SCREAM') && DEBUG_SCREAM) )
         {
-            new patchwork_tokenizer_scream($t);
+            new patchwork_PHP_Parser_scream($p);
         }
 
-        $code = $t->getRunonceCode($code);
+        $code = $p->getRunonceCode($code);
 
-        if ($t = $t->getErrors())
+        if ($p = $p->getErrors())
         {
-            $t = $t[0];
-            $t = addslashes("{$t[0]} in {$file}") . ($t[1] ? " on line {$t[1]}" : '');
+            $p = $p[0];
+            $p = addslashes("{$p[0]} in {$file}") . ($p[1] ? " on line {$p[1]}" : '');
 
-            $code .= "die('Patchwork error: {$t}');";
+            $code .= "die('Patchwork error: {$p}');";
         }
 
         return $code;
@@ -45,9 +45,9 @@ class patchwork_bootstrapper_preprocessor__0
 
     function staticPass2()
     {
-        if (empty($this->tokenizer)) return '';
-        $code = substr($this->tokenizer->getRuntimeCode(), 5);
-        $this->tokenizer = null;
+        if (empty($this->parser)) return '';
+        $code = substr($this->parser->getRuntimeCode(), 5);
+        $this->parser = null;
         return $code;
     }
 }
