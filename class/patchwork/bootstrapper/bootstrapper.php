@@ -342,7 +342,7 @@ class patchwork_bootstrapper_bootstrapper__0
             if (is_string($k))
             {
                 $k = trim(strtr($k, "\n\r", '  '));
-                $args[1][] = $k . '=' . patchwork_tokenizer::export($v);
+                $args[1][] = $k . '=' . patchwork_PHP_Parser::export($v);
                 0 > $inline && $inline = 0;
             }
             else
