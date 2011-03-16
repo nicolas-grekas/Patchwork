@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_constFuncDisabler extends patchwork_tokenizer
+class patchwork_PHP_Parser_constFuncDisabler extends patchwork_PHP_Parser
 {
     protected
 

@@ -12,11 +12,11 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_bracket_patchworkPath extends patchwork_tokenizer_bracket
+class patchwork_PHP_Parser_bracket_patchworkPath extends patchwork_PHP_Parser_bracket
 {
     protected $level;
 
-    function __construct(patchwork_tokenizer $parent, $level)
+    function __construct(patchwork_PHP_Parser $parent, $level)
     {
         $this->level = (string) (int) $level;
         parent::__construct($parent);

@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_classAutoname extends patchwork_tokenizer
+class patchwork_PHP_Parser_classAutoname extends patchwork_PHP_Parser
 {
     protected
 
@@ -35,7 +35,7 @@ class patchwork_tokenizer_classAutoname extends patchwork_tokenizer
         {
             $this->setError("Class auto-naming is deprecated ({$this->className})", E_USER_DEPRECATED);
 
-            $this->tokensUnshift(
+            $this->unshiftTokens(
                 array(T_WHITESPACE, ' '),
                 array(T_STRING, $this->className)
             );

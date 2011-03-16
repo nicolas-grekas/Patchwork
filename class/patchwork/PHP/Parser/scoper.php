@@ -12,11 +12,11 @@
  ***************************************************************************/
 
 
-patchwork_tokenizer::createToken('T_SCOPE_OPEN');  // new scope opening
-patchwork_tokenizer::createToken('T_SCOPE_CLOSE'); // scope closing - has to be registered within its corresponding T_SCOPE_OPEN
+patchwork_PHP_Parser::createToken('T_SCOPE_OPEN');  // new scope opening
+patchwork_PHP_Parser::createToken('T_SCOPE_CLOSE'); // scope closing - has to be registered within its corresponding T_SCOPE_OPEN
 
 
-class patchwork_tokenizer_scoper extends patchwork_tokenizer
+class patchwork_PHP_Parser_scoper extends patchwork_PHP_Parser
 {
     protected
 
@@ -63,7 +63,7 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
             if (isset($this->tokenRegistry[T_SCOPE_OPEN]))
             {
                 unset($this->tokenRegistry[T_SCOPE_CLOSE]);
-                $this->tokensUnshift(array(T_WHITESPACE, ''));
+                $this->unshiftTokens(array(T_WHITESPACE, ''));
                 $this->register(array('tagAfterScopeOpen' => T_WHITESPACE));
                 return T_SCOPE_OPEN;
             }
@@ -90,7 +90,7 @@ class patchwork_tokenizer_scoper extends patchwork_tokenizer
             if ($c)
             {
                 $this->tokenRegistry[T_SCOPE_CLOSE] = array_reverse($c);
-                $this->tokensUnshift(array(T_WHITESPACE, ''));
+                $this->unshiftTokens(array(T_WHITESPACE, ''));
                 $this->register(array('tagAfterScopeClose' => T_WHITESPACE));
                 return T_SCOPE_CLOSE;
             }

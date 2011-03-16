@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_constFuncResolver extends patchwork_tokenizer
+class patchwork_PHP_Parser_constFuncResolver extends patchwork_PHP_Parser
 {
     protected
 
@@ -47,7 +47,7 @@ class patchwork_tokenizer_constFuncResolver extends patchwork_tokenizer
 
     protected function resolveConstFunc(&$token, $exists)
     {
-        $this->tokensUnshift(array(T_NS_SEPARATOR, '\\'), $token);
+        $this->unshiftTokens(array(T_NS_SEPARATOR, '\\'), $token);
 
         if (  !$exists($token[1])
             || $exists($this->namespace . $token[1])
@@ -55,7 +55,7 @@ class patchwork_tokenizer_constFuncResolver extends patchwork_tokenizer
             || $exists($this->namespace . $token[1])  )
         {
             $this->nsLoadSrc = self::nsLoadSrc(substr($this->namespace, 0, -1));
-            $this->tokensUnshift(array(T_NAMESPACE, 'namespace'));
+            $this->unshiftTokens(array(T_NAMESPACE, 'namespace'));
         }
 
         return false;

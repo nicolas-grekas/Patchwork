@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_bracket_classExists extends patchwork_tokenizer_bracket
+class patchwork_PHP_Parser_bracket_classExists extends patchwork_PHP_Parser_bracket
 {
     protected function onReposition(&$token)
     {

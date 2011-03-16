@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
+class patchwork_PHP_Parser_marker extends patchwork_PHP_Parser_functionAliasing
 {
     protected
 
@@ -31,12 +31,12 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
     $dependencies = array('normalizer', 'classInfo' => array('class', 'scope', 'nsResolved'));
 
 
-    function __construct(patchwork_tokenizer $parent, $inlineClass)
+    function __construct(patchwork_PHP_Parser $parent, $inlineClass)
     {
         foreach ($inlineClass as $inlineClass)
             $this->inlineClass[strtolower($inlineClass)] = 1;
 
-        patchwork_tokenizer::__construct($parent);
+        patchwork_PHP_Parser::__construct($parent);
     }
 
     protected function tagOpenTag(&$token)
@@ -44,8 +44,8 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
         $this->unregister(array(__FUNCTION__ => T_SCOPE_OPEN));
         $T = $this->tag;
         $token[1] .= "if(!isset(\$a{$T})){global \$a{$T},\$b{$T},\$c{$T};}isset(\$e{$T})||\$e{$T}=";
-        // Add some tokens for tokenizer/staticState
-        $this->tokensUnshift(array(T_COMMENT, '/*<*/'), array(T_WHITESPACE, "\$e{$T}=false"), array(T_COMMENT, '/*>*/'), ';');
+        // Add some tokens for the staticState PHP parser
+        $this->unshiftTokens(array(T_COMMENT, '/*<*/'), array(T_WHITESPACE, "\$e{$T}=false"), array(T_COMMENT, '/*>*/'), ';');
     }
 
     protected function tagAutoloader(&$token)
@@ -81,7 +81,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 
         $T = $this->tag;
         $t = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$t}";
-        new patchwork_tokenizer_closeMarker($this, $curly);
+        new patchwork_PHP_Parser_closeMarker($this, $curly);
 
         0 < $this->scope->markerState || $this->scope->markerState = 1;
     }
@@ -154,7 +154,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
 
         $this->newToken[1] = $c . $this->newToken[1];
 
-        new patchwork_tokenizer_closeMarker($this, $token ? -1 : 0, '&' === $this->newToken['lastType'] ? ')' : ':0)');
+        new patchwork_PHP_Parser_closeMarker($this, $token ? -1 : 0, '&' === $this->newToken['lastType'] ? ')' : ':0)');
 
         unset($this->newToken['lastType'], $this->newToken);
     }
@@ -185,7 +185,7 @@ class patchwork_tokenizer_marker extends patchwork_tokenizer_functionAliasing
         $c = '&' === pos($t) ? "patchwork_autoload_marker({$c}," : "(({$c})?";
         $this->scope->markerState || $this->scope->markerState = -1;
 
-        new patchwork_tokenizer_closeMarker($this, 0, '&' === pos($t) ? ')' : ':0)');
+        new patchwork_PHP_Parser_closeMarker($this, 0, '&' === pos($t) ? ')' : ':0)');
 
         next($t);
         $this->texts[key($t)] = $c . $this->texts[key($t)];

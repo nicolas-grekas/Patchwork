@@ -12,12 +12,15 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_scream extends patchwork_tokenizer
+class patchwork_PHP_Parser_bracket_T extends patchwork_PHP_Parser_bracket
 {
-    protected $callbacks = array('cancelToken' => '@');
+    protected $onOpenCallbacks = array(
+        'tagConcatenation' => array(T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES, '.'),
+    );
 
-    protected function cancelToken(&$token)
+    protected function tagConcatenation(&$token)
     {
-        return false;
+        $this->setError("Usage of T() is potentially divergent, please avoid string concatenation", E_USER_NOTICE);
+        $this->unregister();
     }
 }

@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_T extends patchwork_tokenizer
+class patchwork_PHP_Parser_T extends patchwork_PHP_Parser
 {
     protected
 
@@ -36,7 +36,7 @@ class patchwork_tokenizer_T extends patchwork_tokenizer
             }
             else
             {
-                new patchwork_tokenizer_bracket_T($this);
+                new patchwork_PHP_Parser_bracket_T($this);
             }
 
             --$this->index;

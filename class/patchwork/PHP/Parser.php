@@ -11,13 +11,13 @@
  *
  ***************************************************************************/
 
-patchwork_tokenizer::createToken('T_CURLY_CLOSE');     // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
-patchwork_tokenizer::createToken('T_KEY_STRING');      // Array access in interpolated string
-patchwork_tokenizer::createToken('T_UNEXPECTED');      // Unexpected character in input
-patchwork_tokenizer::createToken('T_COMPILER_HALTED'); // Data after T_HALT_COMPILER
+patchwork_PHP_Parser::createToken('T_CURLY_CLOSE');     // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
+patchwork_PHP_Parser::createToken('T_KEY_STRING');      // Array access in interpolated string
+patchwork_PHP_Parser::createToken('T_UNEXPECTED');      // Unexpected character in input
+patchwork_PHP_Parser::createToken('T_COMPILER_HALTED'); // Data after T_HALT_COMPILER
 
 
-class patchwork_tokenizer
+class patchwork_PHP_Parser
 {
     protected
 
@@ -271,7 +271,7 @@ class patchwork_tokenizer
                         $callbacks += $tkReg[$k];
 
                         // Callbacks triggering are always ordered:
-                        // - first by tokenizers' instanciation order
+                        // - first by parsers' instanciation order
                         // - then by callbacks' registration order
                         ksort($callbacks);
                     }
@@ -420,7 +420,7 @@ class patchwork_tokenizer
         return $this->tokens[$i++];
     }
 
-    protected function tokensUnshift()
+    protected function unshiftTokens()
     {
         $token = func_get_args();
         isset($token[1]) && $token = array_reverse($token);

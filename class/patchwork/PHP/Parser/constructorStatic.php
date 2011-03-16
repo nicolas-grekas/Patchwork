@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_constructorStatic extends patchwork_tokenizer
+class patchwork_PHP_Parser_constructorStatic extends patchwork_PHP_Parser
 {
     protected
 

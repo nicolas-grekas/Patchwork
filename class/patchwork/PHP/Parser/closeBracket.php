@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_closeBracket extends patchwork_tokenizer
+class patchwork_PHP_Parser_closeBracket extends patchwork_PHP_Parser
 {
     protected
 
@@ -43,7 +43,7 @@ class patchwork_tokenizer_closeBracket extends patchwork_tokenizer
         case T_AS:
         case T_CLOSE_TAG:
             $this->unregister();
-            return $this->tokensUnshift(')', $token);
+            return $this->unshiftTokens(')', $token);
         }
     }
 }

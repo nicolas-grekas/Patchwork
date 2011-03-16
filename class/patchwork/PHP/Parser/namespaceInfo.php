@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_namespaceInfo extends patchwork_tokenizer
+class patchwork_PHP_Parser_namespaceInfo extends patchwork_PHP_Parser
 {
     protected
 

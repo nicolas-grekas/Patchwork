@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
+class patchwork_PHP_Parser_superPositioner extends patchwork_PHP_Parser
 {
     protected
 
@@ -47,8 +47,8 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
         }
 
         if (empty($c) || $this->nsPrefix) return;
-        $this->tokensUnshift(array(T_STRING, $c));
-        return $this->namespace && $this->tokensUnshift(array(T_NS_SEPARATOR, '\\'));
+        $this->unshiftTokens(array(T_STRING, $c));
+        return $this->namespace && $this->unshiftTokens(array(T_NS_SEPARATOR, '\\'));
     }
 
     protected function tagClass(&$token)
@@ -81,8 +81,8 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
 
             $this->dependencies['stringInfo']->removeNsPrefix();
 
-            $this->tokensUnshift(array(T_STRING, $this->class->extends));
-            return $this->namespace && $this->tokensUnshift(array(T_NS_SEPARATOR, '\\'));
+            $this->unshiftTokens(array(T_STRING, $this->class->extends));
+            return $this->namespace && $this->unshiftTokens(array(T_NS_SEPARATOR, '\\'));
         }
     }
 
@@ -163,12 +163,12 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
         }
         else
         {
-            $this->tokensUnshift(
+            $this->unshiftTokens(
                 $this->namespace ? array(T_NS_SEPARATOR, '\\') : array(T_WHITESPACE, ' '),
                 array(T_STRING, 'patchworkProcessedPath'), '('
             );
 
-            new patchwork_tokenizer_closeBracket($this);
+            new patchwork_PHP_Parser_closeBracket($this);
         }
     }
 
@@ -178,14 +178,14 @@ class patchwork_tokenizer_superPositioner extends patchwork_tokenizer
         {
         case '\patchworkpath':
             // Append its fourth arg to patchworkPath()
-            new patchwork_tokenizer_bracket_patchworkPath($this, $this->level);
+            new patchwork_PHP_Parser_bracket_patchworkPath($this, $this->level);
             break;
 
         case '\class_exists':
         case '\interface_exists':
             // For files in the include_path, always set the 2nd arg of class|interface_exists() to true
             if (0 <= $this->level) return;
-            new patchwork_tokenizer_bracket_classExists($this);
+            new patchwork_PHP_Parser_bracket_classExists($this);
             break;
         }
     }

@@ -13,14 +13,14 @@
 
 
 // New tokens since PHP 5.3
-defined('T_GOTO')         || patchwork_tokenizer::createToken('T_GOTO');
-defined('T_DIR' )         || patchwork_tokenizer::createToken('T_DIR');
-defined('T_NS_C')         || patchwork_tokenizer::createToken('T_NS_C');
-defined('T_NAMESPACE')    || patchwork_tokenizer::createToken('T_NAMESPACE');
-defined('T_NS_SEPARATOR') || patchwork_tokenizer::createToken('T_NS_SEPARATOR');
+defined('T_GOTO')         || patchwork_PHP_Parser::createToken('T_GOTO');
+defined('T_DIR' )         || patchwork_PHP_Parser::createToken('T_DIR');
+defined('T_NS_C')         || patchwork_PHP_Parser::createToken('T_NS_C');
+defined('T_NAMESPACE')    || patchwork_PHP_Parser::createToken('T_NAMESPACE');
+defined('T_NS_SEPARATOR') || patchwork_PHP_Parser::createToken('T_NS_SEPARATOR');
 
 
-class patchwork_tokenizer_backport53 extends patchwork_tokenizer
+class patchwork_PHP_Parser_backport53 extends patchwork_PHP_Parser
 {
     protected $callbacks = array('tagNew' => T_NEW);
 

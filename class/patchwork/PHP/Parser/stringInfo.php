@@ -13,25 +13,25 @@
 
 
 // Match T_STRING variants
-patchwork_tokenizer::createToken('T_NAME_NS');       // namespace FOO\BAR    - namespace declaration
-patchwork_tokenizer::createToken('T_NAME_CLASS');    // class FOO {}         - class or interface declaration
-patchwork_tokenizer::createToken('T_NAME_FUNCTION'); // function FOO()       - function or method declaration
-patchwork_tokenizer::createToken('T_NAME_CONST');    // const FOO            - class or namespaced const declaration
-patchwork_tokenizer::createToken('T_USE_NS');        // FOO\bar              - namespace prefix or "use" aliasing
-patchwork_tokenizer::createToken('T_USE_CLASS');     // new foo\BAR - FOO::  - class usage
-patchwork_tokenizer::createToken('T_USE_METHOD');    // $a->FOO() - a::BAR() - method call
-patchwork_tokenizer::createToken('T_USE_PROPERTY');  // $a->BAR              - property access
-patchwork_tokenizer::createToken('T_USE_FUNCTION');  // foo\BAR()            - function call
-patchwork_tokenizer::createToken('T_USE_CONST');     // foo::BAR             - class constant access
-patchwork_tokenizer::createToken('T_USE_CONSTANT');  // FOO - foo\BAR        - global or namespaced constant access
-patchwork_tokenizer::createToken('T_GOTO_LABEL');    // goto FOO - BAR:{}    - goto label
-patchwork_tokenizer::createToken('T_TYPE_HINT');     // instanceof foo\BAR - function(foo\BAR $a) - type hint
-patchwork_tokenizer::createToken('T_TRUE');          // true
-patchwork_tokenizer::createToken('T_FALSE');         // false
-patchwork_tokenizer::createToken('T_NULL');          // null
+patchwork_PHP_Parser::createToken('T_NAME_NS');       // namespace FOO\BAR    - namespace declaration
+patchwork_PHP_Parser::createToken('T_NAME_CLASS');    // class FOO {}         - class or interface declaration
+patchwork_PHP_Parser::createToken('T_NAME_FUNCTION'); // function FOO()       - function or method declaration
+patchwork_PHP_Parser::createToken('T_NAME_CONST');    // const FOO            - class or namespaced const declaration
+patchwork_PHP_Parser::createToken('T_USE_NS');        // FOO\bar              - namespace prefix or "use" aliasing
+patchwork_PHP_Parser::createToken('T_USE_CLASS');     // new foo\BAR - FOO::  - class usage
+patchwork_PHP_Parser::createToken('T_USE_METHOD');    // $a->FOO() - a::BAR() - method call
+patchwork_PHP_Parser::createToken('T_USE_PROPERTY');  // $a->BAR              - property access
+patchwork_PHP_Parser::createToken('T_USE_FUNCTION');  // foo\BAR()            - function call
+patchwork_PHP_Parser::createToken('T_USE_CONST');     // foo::BAR             - class constant access
+patchwork_PHP_Parser::createToken('T_USE_CONSTANT');  // FOO - foo\BAR        - global or namespaced constant access
+patchwork_PHP_Parser::createToken('T_GOTO_LABEL');    // goto FOO - BAR:{}    - goto label
+patchwork_PHP_Parser::createToken('T_TYPE_HINT');     // instanceof foo\BAR - function(foo\BAR $a) - type hint
+patchwork_PHP_Parser::createToken('T_TRUE');          // true
+patchwork_PHP_Parser::createToken('T_FALSE');         // false
+patchwork_PHP_Parser::createToken('T_NULL');          // null
 
 
-class patchwork_tokenizer_stringInfo extends patchwork_tokenizer
+class patchwork_PHP_Parser_stringInfo extends patchwork_PHP_Parser
 {
     protected
 

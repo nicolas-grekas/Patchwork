@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_constantExpression extends patchwork_tokenizer
+class patchwork_PHP_Parser_constantExpression extends patchwork_PHP_Parser
 {
     protected $expressionValue;
 

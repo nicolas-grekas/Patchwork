@@ -14,18 +14,18 @@
 
 // FIXME: handle when $callbackIndex <= 0
 
-class patchwork_tokenizer_bracket_callback extends patchwork_tokenizer_bracket
+class patchwork_PHP_Parser_bracket_callback extends patchwork_PHP_Parser_bracket
 {
     protected
 
     $callbackIndex,
-    $lead = 'patchwork_alias::resolve(',
+    $lead = 'patchwork_PHP_Alias::resolve(',
     $tail = ')',
     $nextTail = '',
     $alias = array();
 
 
-    function __construct(patchwork_tokenizer $parent, $callbackIndex, $alias = array())
+    function __construct(patchwork_PHP_Parser $parent, $callbackIndex, $alias = array())
     {
         if (0 < $callbackIndex)
         {
@@ -72,7 +72,7 @@ class patchwork_tokenizer_bracket_callback extends patchwork_tokenizer_bracket
                     else if (empty($this->class->nsName) || strcasecmp($a[0], $this->class->nsName))
                     {
                         $t = ')';
-                        $this->tokensUnshift(
+                        $this->unshiftTokens(
                             array(T_ARRAY, 'array'), '(',
                             array(T_CONSTANT_ENCAPSED_STRING, "'{$a[0]}'"), ',',
                             array(T_CONSTANT_ENCAPSED_STRING, "'{$a[1]}'")

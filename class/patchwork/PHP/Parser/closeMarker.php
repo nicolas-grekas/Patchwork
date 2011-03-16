@@ -14,7 +14,7 @@
 
 // TODO: replace this catch-all filterToken by fine grained token registration
 
-class patchwork_tokenizer_closeMarker extends patchwork_tokenizer
+class patchwork_PHP_Parser_closeMarker extends patchwork_PHP_Parser
 {
     protected
 

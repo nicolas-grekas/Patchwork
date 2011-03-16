@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class patchwork_tokenizer_staticState extends patchwork_tokenizer
+class patchwork_PHP_Parser_staticState extends patchwork_PHP_Parser
 {
     protected
 
@@ -108,7 +108,7 @@ class patchwork_tokenizer_staticState extends patchwork_tokenizer
             if (1 !== $transition[0])
             {
                 $O .= "({$var}[]=array({$transition[1]},"
-                    . (4 === $transition[0] ? 'patchwork_tokenizer::export(' : '(');
+                    . (4 === $transition[0] ? 'patchwork_PHP_Parser::export(' : '(');
             }
 
             $state = $transition[0];
