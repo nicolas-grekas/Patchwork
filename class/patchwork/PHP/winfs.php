@@ -14,7 +14,7 @@
 
 // For MS-Windows only
 
-class patchwork_alias_winfs
+class patchwork_PHP_winfs
 {
     static function file_exists($file)
     {

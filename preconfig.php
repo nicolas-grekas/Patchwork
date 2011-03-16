@@ -78,8 +78,8 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 /**/if (PHP_VERSION_ID < 50200)
 /**/{
 /**/    $a = array('$name', '$value' => '', '$expires' => 0, '$path' => '', '$domain' => '', '$secure' => false, '$httponly' => false);
-/**/    /*<*/patchwork_bootstrapper::alias('setcookie',    'patchwork_alias_strings::setcookie',    $a)/*>*/;
-/**/    /*<*/patchwork_bootstrapper::alias('setcookieraw', 'patchwork_alias_strings::setcookieraw', $a)/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('setcookie',    'patchwork_PHP_strings::setcookie',    $a)/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('setcookieraw', 'patchwork_PHP_strings::setcookieraw', $a)/*>*/;
 /**/}
 
 
@@ -799,11 +799,11 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 /**/    // Before PHP 5.3, backport spl_autoload_register()'s $prepend argument
 /**/    // and workaround http://bugs.php.net/44144
 /**/
-/**/    /*<*/patchwork_bootstrapper::alias('__autoload',              'patchwork_alias_spl_autoload::call',       array('$class'))/*>*/;
-/**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_call',       'patchwork_alias_spl_autoload::call',       array('$class'))/*>*/;
-/**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_functions',  'patchwork_alias_spl_autoload::functions',  array())/*>*/;
-/**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_register',   'patchwork_alias_spl_autoload::register',   array('$callback', '$throw' => true, '$prepend' => false))/*>*/;
-/**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_unregister', 'patchwork_alias_spl_autoload::unregister', array('$callback'))/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('__autoload',              'patchwork_PHP_spl_autoload::call',       array('$class'))/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_call',       'patchwork_PHP_spl_autoload::call',       array('$class'))/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_functions',  'patchwork_PHP_spl_autoload::functions',  array())/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_register',   'patchwork_PHP_spl_autoload::register',   array('$callback', '$throw' => true, '$prepend' => false))/*>*/;
+/**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_unregister', 'patchwork_PHP_spl_autoload::unregister', array('$callback'))/*>*/;
 
         require /*<*/dirname(__FILE__) . '/class/patchwork/alias/spl/autoload.php'/*>*/;
 /**/}

@@ -238,12 +238,12 @@ function patchwork_getcwd()
 /**/    {
 /**/        // Replace file_exists() on Windows to fix a bug with long file names
 /**/
-/**/        /*<*/patchwork_bootstrapper::alias('file_exists',   'patchwork_alias_winfs::file_exists',   array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_file',       'patchwork_alias_winfs::is_file',       array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_dir',        'patchwork_alias_winfs::is_dir',        array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_link',       'patchwork_alias_winfs::is_link',       array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_executable', 'patchwork_alias_winfs::is_executable', array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_readable',   'patchwork_alias_winfs::is_readable',   array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_writable',   'patchwork_alias_winfs::is_writable',   array('$file'))/*>*/;
+/**/        /*<*/patchwork_bootstrapper::alias('file_exists',   'patchwork_PHP_winfs::file_exists',   array('$file'))/*>*/;
+/**/        /*<*/patchwork_bootstrapper::alias('is_file',       'patchwork_PHP_winfs::is_file',       array('$file'))/*>*/;
+/**/        /*<*/patchwork_bootstrapper::alias('is_dir',        'patchwork_PHP_winfs::is_dir',        array('$file'))/*>*/;
+/**/        /*<*/patchwork_bootstrapper::alias('is_link',       'patchwork_PHP_winfs::is_link',       array('$file'))/*>*/;
+/**/        /*<*/patchwork_bootstrapper::alias('is_executable', 'patchwork_PHP_winfs::is_executable', array('$file'))/*>*/;
+/**/        /*<*/patchwork_bootstrapper::alias('is_readable',   'patchwork_PHP_winfs::is_readable',   array('$file'))/*>*/;
+/**/        /*<*/patchwork_bootstrapper::alias('is_writable',   'patchwork_PHP_winfs::is_writable',   array('$file'))/*>*/;
 /**/    }
 /**/}
