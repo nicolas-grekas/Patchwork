@@ -70,7 +70,7 @@ patchwork_bootstrapper::initZcache();
 
 // Load preconfig
 
-while (patchwork_bootstrapper::loadConfigFile('pre'))
+while (patchwork_bootstrapper::loadConfigFile('bootup'))
 {
     eval(patchwork_bootstrapper::preprocessorPass1());
     eval(patchwork_bootstrapper::preprocessorPass2());
@@ -81,7 +81,7 @@ while (patchwork_bootstrapper::loadConfigFile('pre'))
 
 patchwork_bootstrapper::initConfig();
 
-while (patchwork_bootstrapper::loadConfigFile(true))
+while (patchwork_bootstrapper::loadConfigFile('config'))
 {
     eval(patchwork_bootstrapper::preprocessorPass1());
     eval(patchwork_bootstrapper::preprocessorPass2());

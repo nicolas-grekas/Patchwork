@@ -319,9 +319,9 @@ class patchwork_bootstrapper_bootstrapper
 
     function loadConfigFile($type)
     {
-        return true === $type
-            ? $this->loadConfig($this->fSlice, 'config.patchwork')
-            : $this->loadConfig($this->rSlice, $type . 'config');
+        return 'bootup' === $type
+            ? $this->loadConfig($this->fSlice, $type)
+            : $this->loadConfig($this->rSlice, $type);
     }
 
     function updatedb($paths, $last, $zcache)
@@ -462,7 +462,7 @@ class patchwork_bootstrapper_bootstrapper
                 return false;
             }
 
-            $file = $file[1] . $name . '.php';
+            $file = $file[1] . $name . '.patchwork.php';
         }
         while (!file_exists($file));
 
