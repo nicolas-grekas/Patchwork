@@ -14,7 +14,6 @@
 patchwork_PHP_Parser::createToken('T_CURLY_CLOSE');     // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
 patchwork_PHP_Parser::createToken('T_KEY_STRING');      // Array access in interpolated string
 patchwork_PHP_Parser::createToken('T_UNEXPECTED');      // Unexpected character in input
-patchwork_PHP_Parser::createToken('T_COMPILER_HALTED'); // Data after T_HALT_COMPILER
 
 
 class patchwork_PHP_Parser
@@ -232,8 +231,7 @@ class patchwork_PHP_Parser
                 case T_WHITESPACE: // Here are all "sugar tokens"
                 case T_COMMENT:
                 case T_DOC_COMMENT:
-                case T_UNEXPECTED:
-                case T_COMPILER_HALTED: $sugar = 1;
+                case T_UNEXPECTED: $sugar = 1;
                 }
             }
             else
@@ -250,9 +248,6 @@ class patchwork_PHP_Parser
                 }
                 else if ('}' === $t[0] && !$curly) $t[0] = T_CURLY_CLOSE;
             }
-
-            if (isset($halt) && 0 === $halt)        // After T_HALT_COMPILER, set the type
-                $sugar = $t[0] = T_COMPILER_HALTED; // of data tokens to T_COMPILER_HALTED
 
             // Trigger callbacks
 
@@ -319,10 +314,9 @@ class patchwork_PHP_Parser
             $penuType  = $lastType;
             $types[$j] = $lastType = $t[0];
 
-            // Parsing context analysis related to string interpolation and __halt_compiler()
+            // Parsing context analysis related to string interpolation
 
-            if (isset($halt)) --$halt;
-            else if (isset($lastType[0])) switch ($lastType)
+            if (isset($lastType[0])) switch ($lastType)
             {
             case '{': ++$curly; break;
             case '}': --$curly; break;
@@ -347,7 +341,7 @@ class patchwork_PHP_Parser
             case T_CURLY_CLOSE:   $curly = array_pop($curlyPool);
             case T_END_HEREDOC:   --$inString; break;
 
-            case T_HALT_COMPILER: $halt = 3; break; // Skip 3 tokens: "(", ")" then ";" or T_CLOSE_TAG
+            case T_HALT_COMPILER: break 2; // See http://bugs.php.net/54089
             }
         }
 
@@ -411,7 +405,7 @@ class patchwork_PHP_Parser
 
     protected function &getNextToken(&$i = null)
     {
-        static $sugar = array(T_WHITESPACE => 1, T_COMMENT => 1, T_DOC_COMMENT => 1, T_UNEXPECTED => 1, T_COMPILER_HALTED => 1);
+        static $sugar = array(T_WHITESPACE => 1, T_COMMENT => 1, T_DOC_COMMENT => 1, T_UNEXPECTED => 1);
 
         null === $i && $i = $this->index;
         while (isset($this->tokens[$i], $sugar[$this->tokens[$i][0]])) ++$i;
