@@ -320,8 +320,8 @@ class patchwork_bootstrapper_bootstrapper
     function loadConfigFile($type)
     {
         return 'bootup' === $type
-            ? $this->loadConfig($this->fSlice, $type)
-            : $this->loadConfig($this->rSlice, $type);
+            ? $this->loadConfig($this->rSlice, $type)
+            : $this->loadConfig($this->fSlice, $type);
     }
 
     function updatedb($paths, $last, $zcache)

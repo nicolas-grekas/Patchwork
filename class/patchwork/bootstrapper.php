@@ -49,8 +49,8 @@ class patchwork_bootstrapper
     static function getLock()             {return self::$bootstrapper->getLock(self::$caller);}
     static function isReleased()          {return self::$bootstrapper->isReleased();}
     static function isPathInfoSupported() {return self::$bootstrapper->isPathInfoSupported();}
-    static function release()             {return self::$bootstrapper->release();}
-    static function getCompiledFile()     {return self::$bootstrapper->getCompiledFile();}
+    static function release()             {return self::free(self::$bootstrapper->release());}
+    static function getCompiledFile()     {return self::free(self::$bootstrapper->getCompiledFile());}
     static function preprocessorPass1()   {return self::$bootstrapper->preprocessorPass1();}
     static function preprocessorPass2()   {return self::$bootstrapper->preprocessorPass2();}
     static function loadConfigFile($type) {return self::$bootstrapper->loadConfigFile($type);}
@@ -96,5 +96,11 @@ class patchwork_bootstrapper
         if (!$db) exit;
 
         return $db;
+    }
+
+    protected static function free($return)
+    {
+        self::$pwd = self::$cwd = self::$paths = self::$zcache = self::$last = self::$appId = self::$bootstrapper = self::$caller = null;
+        return $return;
     }
 }
