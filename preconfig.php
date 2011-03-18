@@ -451,9 +451,8 @@ function patchwork_shutdown_end()
     }
     else
     {
-        $class = array_shift($GLOBALS['_patchwork_destruct']);
-        register_shutdown_function('patchwork_shutdown_end');
-        call_user_func(array($class, '__destructStatic'));
+        call_user_func(array(array_shift($GLOBALS['_patchwork_destruct']), '__destructStatic'));
+        register_shutdown_function(__FUNCTION__);
     }
 }
 
