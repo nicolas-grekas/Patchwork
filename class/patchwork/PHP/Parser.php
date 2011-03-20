@@ -11,9 +11,9 @@
  *
  ***************************************************************************/
 
-patchwork_PHP_Parser::createToken('T_CURLY_CLOSE');     // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
-patchwork_PHP_Parser::createToken('T_KEY_STRING');      // Array access in interpolated string
-patchwork_PHP_Parser::createToken('T_UNEXPECTED');      // Unexpected character in input
+patchwork_PHP_Parser::createToken('T_CURLY_CLOSE');          // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
+patchwork_PHP_Parser::createToken('T_KEY_STRING');           // Array access in interpolated string
+patchwork_PHP_Parser::createToken('T_UNEXPECTED_CHARACTER'); // Unexpected character in input
 
 
 class patchwork_PHP_Parser
@@ -167,7 +167,7 @@ class patchwork_PHP_Parser
 
             if (isset($t[0]))
                 while ($t[0] !== $code[$offset])
-                    $t1[] = array(T_UNEXPECTED, $code[$offset++]);
+                    $t1[] = array(T_UNEXPECTED_CHARACTER, $code[$offset++]);
 
             $offset += strlen($t);
             $t1[] = $t0[$i];
@@ -231,7 +231,7 @@ class patchwork_PHP_Parser
                 case T_WHITESPACE: // Here are all "sugar tokens"
                 case T_COMMENT:
                 case T_DOC_COMMENT:
-                case T_UNEXPECTED: $sugar = 1;
+                case T_UNEXPECTED_CHARACTER: $sugar = 1;
                 }
             }
             else
@@ -405,7 +405,7 @@ class patchwork_PHP_Parser
 
     protected function &getNextToken(&$i = null)
     {
-        static $sugar = array(T_WHITESPACE => 1, T_COMMENT => 1, T_DOC_COMMENT => 1, T_UNEXPECTED => 1);
+        static $sugar = array(T_WHITESPACE => 1, T_COMMENT => 1, T_DOC_COMMENT => 1, T_UNEXPECTED_CHARACTER => 1);
 
         null === $i && $i = $this->index;
         while (isset($this->tokens[$i], $sugar[$this->tokens[$i][0]])) ++$i;
