@@ -28,20 +28,6 @@ function DB($dsn = null)
     return $db[$dsn];
 }
 
-// Shortcut for applications developers
-if ($_SERVER['PATCHWORK_LANG'])
-{
-    function T($string, $lang = false)
-    {
-        if (!$lang) $lang = patchwork::__LANG__();
-        return TRANSLATOR::get($string, $lang, true);
-    }
-}
-else
-{
-    function T($string) {return $string;}
-}
-
 // Javascript-encode for scalars
 function jsquote($a)
 {

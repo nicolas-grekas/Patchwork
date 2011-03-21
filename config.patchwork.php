@@ -376,3 +376,17 @@ if (strtr($_SERVER['PATCHWORK_BASE'], '<>&"', '----') !== $_SERVER['PATCHWORK_BA
 {
     die('Patchwork error: Base URL can not contain special HTML character (' . htmlspecialchars($_SERVER['PATCHWORK_BASE']) . ')');
 }
+
+// Shortcut for applications developers
+if ($_SERVER['PATCHWORK_LANG'])
+{
+    function T($string, $lang = false)
+    {
+        if (!$lang) $lang = patchwork::__LANG__();
+        return TRANSLATOR::get($string, $lang, true);
+    }
+}
+else
+{
+    function T($string) {return $string;}
+}
