@@ -34,12 +34,12 @@ class patchwork_PHP_Parser_backport53 extends patchwork_PHP_Parser
         {
             if (isset($code[$i][1])) switch ($code[$i][1])
             {
-            case 'goto':          $code[$i][0] = T_GOTO;      break;
-            case 'namespace':     $code[$i][0] = T_NAMESPACE; break;
-            case '__DIR__':       $code[$i][0] = T_DIR;       break;
-            case '__NAMESPACE__': $code[$i][0] = T_NS_C;      break;
+            case 'goto':          $code[$i][0] = T_GOTO;         break;
+            case 'namespace':     $code[$i][0] = T_NAMESPACE;    break;
+            case '__DIR__':       $code[$i][0] = T_DIR;          break;
+            case '__NAMESPACE__': $code[$i][0] = T_NS_C;         break;
+            case '\\'             $code[$i][0] = T_NS_SEPARATOR; break;
             }
-            else if ('\\' === $code[$i]) $code[$i] = array(T_NS_SEPARATOR, '\\'); break;
         }
 
         return $code;

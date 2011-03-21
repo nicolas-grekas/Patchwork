@@ -187,7 +187,7 @@ class __patchwork_autoloader
                 if (!$ns && strpos($req, '_') && function_exists('class_alias'))
                 {
                     $a = preg_replace("'([^_])_((?:__)*[^_])'", '$1\\\\$2', $req);
-                    $code .= "class_exists('{$a}',0)||class_alias('{$req}','{$a}');";
+                    $code .= "class_exists('{$a}',0)||interface_exists('{$a}',0)||class_alias('{$req}','{$a}');";
                 }
 
                 $a = "{$ns}{$parent}::c\x9D";
