@@ -58,7 +58,7 @@ class patchwork_PHP_Parser_marker extends patchwork_PHP_Parser_functionAliasing
         {
         case T_STRING:
             if (!isset(self::$autoloader[strtolower(substr($this->nsResolved, 1))])) return;
-            if (T_NS_SEPARATOR == $this->lastType)
+            if (T_NS_SEPARATOR === $this->lastType)
             {
                 $t =& $this->types;
                 end($t);
