@@ -48,7 +48,6 @@ class patchwork_bootstrapper
 
     static function getLock()             {return self::$bootstrapper->getLock(self::$caller);}
     static function isReleased()          {return self::$bootstrapper->isReleased();}
-    static function isPathInfoSupported() {return self::$bootstrapper->isPathInfoSupported();}
     static function release()             {return self::free(self::$bootstrapper->release());}
     static function getCompiledFile()     {return self::free(self::$bootstrapper->getCompiledFile());}
     static function preprocessorPass1()   {return self::$bootstrapper->preprocessorPass1();}

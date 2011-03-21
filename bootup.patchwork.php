@@ -805,7 +805,7 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 /**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_register',   'patchwork_PHP_spl_autoload::register',   array('$callback', '$throw' => true, '$prepend' => false))/*>*/;
 /**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_unregister', 'patchwork_PHP_spl_autoload::unregister', array('$callback'))/*>*/;
 
-        require /*<*/dirname(__FILE__) . '/class/patchwork/alias/spl/autoload.php'/*>*/;
+        require /*<*/dirname(__FILE__) . '/class/patchwork/PHP/spl/autoload.php'/*>*/;
 /**/}
 /**/else
 /**/{
