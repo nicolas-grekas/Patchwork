@@ -805,7 +805,10 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 /**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_register',   'patchwork_PHP_spl_autoload::register',   array('$callback', '$throw' => true, '$prepend' => false))/*>*/;
 /**/    /*<*/patchwork_bootstrapper::alias('spl_autoload_unregister', 'patchwork_PHP_spl_autoload::unregister', array('$callback'))/*>*/;
 
-        require /*<*/dirname(__FILE__) . '/class/patchwork/PHP/spl/autoload.php'/*>*/;
+/**/    @unlink(patchwork_bootstrapper::$cwd . '.patchwork.spl_autoload.php');
+/**/    copy(patchwork_bootstrapper::$pwd . 'class/patchwork/PHP/spl/autoload.php', patchwork_bootstrapper::$cwd . '.patchwork.spl_autoload.php');
+
+        require /*<*/patchwork_bootstrapper::$cwd . '.patchwork.spl_autoload.php'/*>*/;
 /**/}
 /**/else
 /**/{
@@ -815,9 +818,8 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 
 // patchwork_autoload(): the magic part
 
-/**/@copy(patchwork_bootstrapper::$pwd . 'autoloader.php', patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')
-/**/    || @unlink(patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php')
-/**/        + copy(patchwork_bootstrapper::$pwd . 'autoloader.php', patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php');
+/**/@unlink(patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php');
+/**/copy(patchwork_bootstrapper::$pwd . 'class/patchwork/autoloader.php', patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php');
 /**/win_hide_file(patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php');
 
 spl_autoload_register('patchwork_autoload');
@@ -864,14 +866,12 @@ function patchwork_autoload($searched_class)
         }
     }
 
-    if (!class_exists('__patchwork_autoloader', false))
+    if (!class_exists('patchwork_autoloader', false))
     {
-        require TURBO
-            ? /*<*/patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php'/*>*/
-            : /*<*/patchwork_bootstrapper::$pwd . 'autoloader.php'/*>*/;
+        require /*<*/patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php'/*>*/;
     }
 
-    __patchwork_autoloader::autoload($searched_class);
+    patchwork_autoloader::autoload($searched_class);
 }
 
 

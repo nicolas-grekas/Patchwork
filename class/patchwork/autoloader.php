@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class __patchwork_autoloader
+class patchwork_autoloader
 {
     static
 
@@ -344,4 +344,4 @@ class __patchwork_autoloader
     }
 }
 
-__patchwork_autoloader::$cache =& $GLOBALS['_patchwork_autoloaded'];
+patchwork_autoloader::$cache =& $GLOBALS['_patchwork_autoloaded'];
