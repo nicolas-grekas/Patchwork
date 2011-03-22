@@ -11,6 +11,7 @@
  *
  ***************************************************************************/
 
+use patchwork as p;
 
 class pMail_text extends Mail_mime
 {
@@ -43,8 +44,8 @@ class pMail_text extends Mail_mime
                 is_int($name) && $name = '';
 
                 $c_type = strtolower(strrchr($name ? $name : $file, '.'));
-                $c_type = isset(patchwork_static::$contentType[$c_type])
-                    ? patchwork_static::$contentType[$c_type]
+                $c_type = isset(p\StaticResource::$contentType[$c_type])
+                    ? p\StaticResource::$contentType[$c_type]
                     : 'application/octet-stream';
 
                 $this->addAttachment($file, $c_type, $name);
@@ -67,7 +68,7 @@ class pMail_text extends Mail_mime
             isset($headers[$sql]) && is_array($headers[$sql]) && $headers[$sql] = implode(', ', $headers[$sql]);
         }
 
-        $message_id = 'pM' . patchwork::uniqid();
+        $message_id = 'pM' . p::uniqid();
 
         $headers['Message-Id'] = '<' . $message_id . '@' . $_SERVER['HTTP_HOST']. '>';
 
@@ -141,7 +142,7 @@ if(L) L.fontSize='18px'
 </script>
 EOHTML;
 
-        patchwork::log($log . '<strong>Constructing email</strong>');
+        p::log($log . '<strong>Constructing email</strong>');
 
         E(array('headers' => &$headers, 'options' => &$this->options));
 

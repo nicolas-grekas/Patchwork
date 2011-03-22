@@ -11,6 +11,7 @@
  *
  ***************************************************************************/
 
+use patchwork as p;
 
 // Debug trace
 function E()
@@ -179,7 +180,7 @@ class patchwork
         }
 
 /**/    if (DEBUG)
-            patchwork_debugger::execute();
+            p\debugger::execute();
 
         if (!$CONFIG['clientside']) unset($_COOKIE['JS']);
         else if ('flipside' === self::$requestMode)
@@ -228,7 +229,7 @@ class patchwork
             {
                 $_SERVER['PATCHWORK_LANG'] = isset($CONFIG['i18n.lang_list'][self::$requestArg])
                     ? self::$requestArg
-                    : patchwork_language::getBest(array_keys($CONFIG['i18n.lang_list']), self::$requestArg);
+                    : p\language::getBest(array_keys($CONFIG['i18n.lang_list']), self::$requestArg);
             }
 
             self::setLang($_SERVER['PATCHWORK_LANG']);
@@ -238,7 +239,7 @@ class patchwork
         case '':
             if ('' === $_SERVER['PATCHWORK_LANG'] && '' !== key($CONFIG['i18n.lang_list']))
             {
-                patchwork_language::HTTP_Negociate($CONFIG['i18n.lang_list']);
+                p\language::HTTP_Negociate($CONFIG['i18n.lang_list']);
             }
 
         default: self::setLang($_SERVER['PATCHWORK_LANG']);
@@ -309,11 +310,11 @@ class patchwork
 
             switch (self::$requestMode)
             {
-            case 't': patchwork_static::sendTemplate($agent);        break;
-            case 'p': patchwork_static::sendPipe(self::$requestArg); break;
-            case 'a': patchwork_clientside::render($agent, false);   break;
-            case 'x': patchwork_clientside::render($agent, true);    break;
-            case 'k': patchwork_agentTrace::send($agent);            break;
+            case 't': p\StaticResource::sendTemplate($agent);        break;
+            case 'p': p\StaticResource::sendPipe(self::$requestArg); break;
+            case 'a': p\clientside::render($agent, false);   break;
+            case 'x': p\clientside::render($agent, true);    break;
+            case 'k': p\agentTrace::send($agent);            break;
             case 's': isset($_COOKIE['JS']) && $_COOKIE['JS'] = '0';
             case '' : self::servePublicRequest($agent);
             }
@@ -362,7 +363,7 @@ class patchwork
 /**/    {
             if (PATCHWORK_SYNC_CACHE && !self::$binaryMode)
             {
-                patchwork_debugger::purgeZcache();
+                p\debugger::purgeZcache();
 
                 if (!IS_POSTING)
                 {
@@ -380,11 +381,11 @@ class patchwork
         // load agent
         if (IS_POSTING || self::$binaryMode || empty($_COOKIE['JS']))
         {
-            patchwork_serverside::loadAgent($agent, false, false);
+            p\serverside::loadAgent($agent, false, false);
         }
         else
         {
-            patchwork_clientside::loadAgent($agent);
+            p\clientside::loadAgent($agent);
         }
     }
     // }}}
@@ -526,7 +527,7 @@ class patchwork
                         $GLOBALS['_FILES_BACKUP'] = $_FILES;
                         $_FILES = array();
 
-                        patchwork_antiCSRF::postAlert();
+                        p\antiCSRF::postAlert();
 /**/                }
                 }
 
@@ -577,7 +578,7 @@ class patchwork
 
                 if (self::$is_enabled && (false !== stripos($string, 'javascript') || false !== stripos($string, 'ecmascript')))
                 {
-                    if (self::$private) PATCHWORK_TOKEN_MATCH || patchwork_antiCSRF::scriptAlert();
+                    if (self::$private) PATCHWORK_TOKEN_MATCH || p\antiCSRF::scriptAlert();
 
                     self::$detectCSRF = true;
                 }
@@ -616,7 +617,7 @@ class patchwork
 
     static function readfile($file, $mime = true, $filename = true)
     {
-        return patchwork_static::readfile($file, $mime, $filename);
+        return p\StaticResource::readfile($file, $mime, $filename);
     }
 
     /*
@@ -709,8 +710,8 @@ class patchwork
 
         if (!$group) return;
 
-        if (self::$privateDetectionMode) throw new patchwork_exception_private;
-        else if (self::$detectCSRF) PATCHWORK_TOKEN_MATCH || patchwork_antiCSRF::scriptAlert();
+        if (self::$privateDetectionMode) throw new p\exception_private;
+        else if (self::$detectCSRF) PATCHWORK_TOKEN_MATCH || p\antiCSRF::scriptAlert();
 
         self::$private = true;
 
@@ -1256,7 +1257,7 @@ class patchwork
 
     protected static function appendToken($f)
     {
-        return patchwork_antiCSRF::appendToken($f);
+        return p\antiCSRF::appendToken($f);
     }
 
     static function ob_filterOutput($buffer, $mode)
@@ -1289,8 +1290,8 @@ class patchwork
                     if ((!PATCHWORK_SYNC_CACHE || IS_POSTING) && !self::$binaryMode && 's' !== self::$requestMode)
                     {
                         $buffer = false !== strpos($buffer, '<!DOCTYPE')
-                            ? preg_replace("'<!DOCTYPE[^>]*>'", '$0' . patchwork_debugger::getProlog(), $buffer)
-                            : patchwork_debugger::getProlog() . $buffer;
+                            ? preg_replace("'<!DOCTYPE[^>]*>'", '$0' . p\debugger::getProlog(), $buffer)
+                            : p\debugger::getProlog() . $buffer;
                     }
 /**/            }
             }
@@ -1305,13 +1306,13 @@ class patchwork
                     {
                         if (false !== strpos($buffer, '</body'))
                         {
-                            $buffer = str_replace('</body', patchwork_debugger::getConclusion() . '</body', $buffer);
+                            $buffer = str_replace('</body', p\debugger::getConclusion() . '</body', $buffer);
                         }
                         else if (false !== strpos($buffer, '</html'))
                         {
-                            $buffer = str_replace('</html', '<body>' . patchwork_debugger::getConclusion() . '</body></html', $buffer);
+                            $buffer = str_replace('</html', '<body>' . p\debugger::getConclusion() . '</body></html', $buffer);
                         }
-                        else $buffer .= patchwork_debugger::getConclusion();
+                        else $buffer .= p\debugger::getConclusion();
                     }
 /**/            }
             }
@@ -1584,11 +1585,11 @@ class patchwork
                     self::$varyEncoding && header('Vary: Accept-Encoding', false);
 
                     if ($range = isset($_SERVER['HTTP_RANGE'])
-                        ? patchwork_httpRange::negociate(strlen($buffer), $ETag, $LastModified)
+                        ? p\httpRange::negociate(strlen($buffer), $ETag, $LastModified)
                         : false)
                     {
                         self::$is_enabled = false;
-                        patchwork_httpRange::sendChunks($range, $buffer, self::$headers['content-type'], 0);
+                        p\httpRange::sendChunks($range, $buffer, self::$headers['content-type'], 0);
                     }
                 }
             }

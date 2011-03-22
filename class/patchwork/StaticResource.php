@@ -13,7 +13,7 @@
 
 use patchwork as p;
 
-class patchwork_static extends patchwork
+class patchwork_StaticResource extends p
 {
     // Map from extensions to content-types
     // This list doesn't have to be exhaustive:

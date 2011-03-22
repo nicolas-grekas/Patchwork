@@ -11,6 +11,7 @@
  *
  ***************************************************************************/
 
+use patchwork as p;
 
 class agent
 {
@@ -44,7 +45,7 @@ class agent
                 || ((false !== $tail = substr($class, $tail+2)) && '' !== trim($tail, '0123456789')))
             {
                 $template = patchwork_class2file(substr($class, 6));
-                if (patchwork::resolvePublicPath($template . '.ptl')) return $template;
+                if (p::resolvePublicPath($template . '.ptl')) return $template;
             }
         }
         while (__CLASS__ !== $class = get_parent_class($class));
@@ -103,20 +104,20 @@ class agent
         if (!$this->contentType
             && '' !== $a = strtolower(pathinfo(patchwork_class2file($class), PATHINFO_EXTENSION)))
         {
-            $this->contentType = isset(patchwork_static::$contentType['.' . $a])
-                ? patchwork_static::$contentType['.' . $a]
+            $this->contentType = isset(p\StaticResource::$contentType['.' . $a])
+                ? p\StaticResource::$contentType['.' . $a]
                 : 'application/octet-stream';
         }
 
-        $this->contentType && patchwork::header('Content-Type: ' . $this->contentType);
+        $this->contentType && header('Content-Type: ' . $this->contentType);
     }
 
     function metaCompose()
     {
-        patchwork::setMaxage($this->maxage);
-        patchwork::setExpires($this->expires);
-        patchwork::watch($this->watch);
-        if ($this->canPost) patchwork::canPost();
+        p::setMaxage($this->maxage);
+        p::setExpires($this->expires);
+        p::watch($this->watch);
+        if ($this->canPost) p::canPost();
     }
 
 
@@ -126,7 +127,7 @@ class agent
 
         try
         {
-            $agent = patchwork::resolveAgentClass($agent, $args);
+            $agent = p::resolveAgentClass($agent, $args);
             $agent = new $agent($args);
             $o = $agent->compose($o);
             $agent->metaCompose();
