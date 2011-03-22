@@ -333,7 +333,7 @@ if (false !== strpos($a, '/.'))
 /**/
 /**/    $a = strpos($_SERVER['REQUEST_URI'], '?');
 /**/    $a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
-/**/    '/' === substr($a, -1) && $a .= patchwork_basename(isset($_SERVER['ORIG_SCRIPT_NAME']) ? $_SERVER['ORIG_SCRIPT_NAME'] : $_SERVER['SCRIPT_NAME']);
+/**/    '/' === substr($a, -1) && $a .= basename(isset($_SERVER['ORIG_SCRIPT_NAME']) ? $_SERVER['ORIG_SCRIPT_NAME'] : $_SERVER['SCRIPT_NAME']);
 /**/
 /**/    $a  = "GET {$a}/:?p:=exit HTTP/1.0\r\n";
 /**/    $a .= "Host: {$_SERVER['HTTP_HOST']}\r\n";
@@ -355,7 +355,7 @@ if (false !== strpos($a, '/.'))
         case isset($_SERVER['ORIG_PATH_INFO'])            : $r = $_SERVER['ORIG_PATH_INFO']            ; break;
         case isset($_SERVER['PATH_INFO'])                 : $r = $_SERVER['PATH_INFO']                 ; break;
 
-        case '/' === substr($a, -1): $a .= patchwork_basename(isset($_SERVER['ORIG_SCRIPT_NAME']) ? $_SERVER['ORIG_SCRIPT_NAME'] : $_SERVER['SCRIPT_NAME']);
+        case '/' === substr($a, -1): $a .= basename(isset($_SERVER['ORIG_SCRIPT_NAME']) ? $_SERVER['ORIG_SCRIPT_NAME'] : $_SERVER['SCRIPT_NAME']);
         default: $r = '';
         }
 
