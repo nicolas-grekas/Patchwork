@@ -38,7 +38,7 @@ class patchwork_PHP_Parser_backport53 extends patchwork_PHP_Parser
             case 'namespace':     $code[$i][0] = T_NAMESPACE;    break;
             case '__DIR__':       $code[$i][0] = T_DIR;          break;
             case '__NAMESPACE__': $code[$i][0] = T_NS_C;         break;
-            case '\\'             $code[$i][0] = T_NS_SEPARATOR; break;
+            case '\\':            $code[$i][0] = T_NS_SEPARATOR; break;
             }
         }
 
