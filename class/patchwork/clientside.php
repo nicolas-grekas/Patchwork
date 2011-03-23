@@ -11,9 +11,10 @@
  *
  ***************************************************************************/
 
-use patchwork as p;
+use patchwork           as p;
+use patchwork\Exception as e;
 
-class patchwork_clientside extends patchwork
+class patchwork_clientside extends p
 {
     static function loadAgent($agent)
     {
@@ -101,7 +102,7 @@ EOHTML;
 
         try
         {
-            if (isset($_GET['T$']) && !PATCHWORK_TOKEN_MATCH) throw new patchwork_exception_private;
+            if (isset($_GET['T$']) && !PATCHWORK_TOKEN_MATCH) throw new e\PrivateResource;
 
             $a = new $agent($_GET);
 
@@ -122,7 +123,7 @@ EOHTML;
                             p::setMaxage($data['maxage']);
                             p::setExpires($data['expires']);
                             p::writeWatchTable($data['watch']);
-                            array_map(array('patchwork', 'header'), $data['headers']);
+                            array_map('header', $data['headers']);
                             p::closeMeta();
 
                             echo str_replace(array('\\', '"', '</'), array('\\\\', '\\"', '<\\/'), $data['rawdata']),
@@ -147,7 +148,7 @@ EOHTML;
                             p::setMaxage($data['maxage']);
                             p::setExpires($data['expires']);
                             p::writeWatchTable($data['watch']);
-                            array_map(array('patchwork', 'header'), $data['headers']);
+                            array_map('header', $data['headers']);
                             p::closeMeta();
 
                             echo $data['rawdata'];
@@ -193,7 +194,7 @@ EOHTML;
 
                 echo '}';
             }
-            catch (patchwork_exception_private $data)
+            catch (e\PrivateResource $data)
             {
                 ob_end_clean();
                 --p::$ob_level;
@@ -207,7 +208,7 @@ EOHTML;
             $a->metaCompose();
             list($maxage, $group, $expires, $watch, $headers) = p::closeMeta();
         }
-        catch (patchwork_exception_private $data)
+        catch (e\PrivateResource $data)
         {
             if ($liveAgent)
             {

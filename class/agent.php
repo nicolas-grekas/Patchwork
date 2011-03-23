@@ -11,7 +11,8 @@
  *
  ***************************************************************************/
 
-use patchwork as p;
+use patchwork           as p;
+use patchwork\Exception as e;
 
 class agent
 {
@@ -132,9 +133,9 @@ class agent
             $o = $agent->compose($o);
             $agent->metaCompose();
         }
-        catch (patchwork_exception_forbidden   $agent) {W("Forbidden acces detected" );}
-        catch (patchwork_exception_redirection $agent) {W("HTTP redirection detected");}
-        catch (patchwork_exception_static      $agent) {}
+        catch (e\Forbidden      $agent) {W("Forbidden acces detected" );}
+        catch (e\Redirection    $agent) {W("HTTP redirection detected");}
+        catch (e\StaticResource $agent) {}
 
         return $o;
     }

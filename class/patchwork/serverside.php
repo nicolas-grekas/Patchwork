@@ -11,9 +11,10 @@
  *
  ***************************************************************************/
 
-use patchwork as p;
+use patchwork           as p;
+use patchwork\Exception as e;
 
-class patchwork_serverside extends patchwork
+class patchwork_serverside extends p
 {
     protected static
 
@@ -166,7 +167,7 @@ class patchwork_serverside extends patchwork
             {
                 $agent = p::resolveAgentClass($agent, $args);
             }
-            catch (patchwork_exception_static $agent)
+            catch (e\StaticResource $agent)
             {
                 readfile($agent->getMessage());
                 $_GET =& $a;
@@ -357,7 +358,7 @@ class patchwork_serverside extends patchwork
                 p::setMaxage($data['maxage']);
                 p::setExpires($data['expires']);
                 p::writeWatchTable($data['watch']);
-                array_map(array('patchwork', 'header'), $data['headers']);
+                array_map('header', $data['headers']);
 
                 echo $data['rawdata'];
 

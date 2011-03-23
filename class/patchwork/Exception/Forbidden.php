@@ -11,8 +11,9 @@
  *
  ***************************************************************************/
 
+namespace patchwork\Exception
 
-class patchwork_exception_forbidden extends patchwork_exception_redirection
+class Forbidden extends Redirection
 {
     function __construct()
     {

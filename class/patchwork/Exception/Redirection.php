@@ -11,15 +11,18 @@
  *
  ***************************************************************************/
 
+namespace patchwork\Exception;
 
-class patchwork_exception_redirection extends Exception
+use patchwork as p;
+
+class Redirection extends \Exception
 {
     protected $url;
 
     function __construct($url)
     {
         $url = (string) $url;
-        $url = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'", $url) ? $url : (patchwork::__BASE__() . ('index' === $url ? '' : $url)));
+        $url = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'", $url) ? $url : (p::__BASE__() . ('index' === $url ? '' : $url)));
 
         if ('.' === substr($url, 0, 1)) W('Current redirection behaviour with relative URLs may change in a future version of Patchwork. As long as this notice appears, using relative URLs is strongly discouraged.');
 
@@ -28,7 +31,7 @@ class patchwork_exception_redirection extends Exception
 
     function redirect($javascript)
     {
-        patchwork::disable();
+        p::disable();
 
         $url = $this->url;
 

@@ -11,7 +11,8 @@
  *
  ***************************************************************************/
 
-use patchwork as p;
+use patchwork           as p;
+use patchwork\Exception as e;
 
 // Debug trace
 function E()
@@ -83,9 +84,6 @@ function patchwork_error_handler($code, $message, $file, $line)
         patchwork_error::handle($code, $message, $file, $line);
     }
 }
-
-class patchwork_exception_private extends Exception {}
-class patchwork_exception_static  extends Exception {}
 
 class patchwork
 {
@@ -319,11 +317,11 @@ class patchwork
             case '' : self::servePublicRequest($agent);
             }
         }
-        catch (patchwork_exception_redirection $a)
+        catch (e\Redirection $a)
         {
             $a->redirect('-' === strtr(self::$requestMode, '-tpax', '#----'));
         }
-        catch (patchwork_exception_static $a)
+        catch (e\StaticResource $a)
         {
             self::setMaxage(-1);
             self::writeWatchTable('public/static', PATCHWORK_ZCACHE);
@@ -625,12 +623,12 @@ class patchwork
      */
     static function redirect($url = '')
     {
-        throw new patchwork_exception_redirection($url);
+        throw new e\Redirection($url);
     }
 
     static function forbidden()
     {
-        throw new patchwork_exception_forbidden();
+        throw new e\Forbidden();
     }
 
     protected static function openMeta($agentClass, $is_trace = true)
@@ -710,7 +708,7 @@ class patchwork
 
         if (!$group) return;
 
-        if (self::$privateDetectionMode) throw new p\exception_private;
+        if (self::$privateDetectionMode) throw new e\PrivateResource;
         else if (self::$detectCSRF) PATCHWORK_TOKEN_MATCH || p\antiCSRF::scriptAlert();
 
         self::$private = true;
@@ -1077,7 +1075,7 @@ class patchwork
             {
                 if ($i === $agentLength && ($a = self::resolvePublicPath(substr($a, 1))) && !is_dir($a))
                 {
-                    throw new patchwork_exception_static($a);
+                    throw new e\StaticResource($a);
                 }
 
                 $param = implode('/', array_slice($agent, $offset)) . ('' !== $param ? '/' . $param : '');
@@ -1139,11 +1137,11 @@ class patchwork
             {
                 new $agent instanceof agent || W("Class {$agent} does not inherit from class agent");
             }
-            catch (patchwork_exception_private $d)
+            catch (e\PrivateResource $d)
             {
                 $private = '1';
             }
-            catch (patchwork_exception_redirection $d)
+            catch (e\Redirection $d)
             {
             }
 
@@ -1690,3 +1688,9 @@ class patchwork
         }
     }
 }
+
+
+namespace patchwork\Exception;
+
+class PrivateResource extends \Exception {}
+class StaticResource  extends \Exception {}
