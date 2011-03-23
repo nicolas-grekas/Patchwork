@@ -63,15 +63,11 @@ class patchwork_PHP_Parser_stringInfo extends patchwork_PHP_Parser
         $p = array(T_STRING, T_NS_SEPARATOR);
         $j = 0;
 
-        while (null !== $i = key($t))
+        while (null !== ($i = key($t)) && $p[++$j%2] === $t[$i])
         {
-            if ($p[++$j%2] === $t[$i])
-            {
-                $this->texts[$i] = '';
-                unset($t[$i]);
-                end($t);
-            }
-            else break;
+            $this->texts[$i] = '';
+            unset($t[$i]);
+            end($t);
         }
 
         $this->nsPrefix = '';
