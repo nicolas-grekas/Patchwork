@@ -69,10 +69,9 @@ class patchwork_PHP_Parser_stringInfo extends patchwork_PHP_Parser
             {
                 $this->texts[$i] = '';
                 unset($t[$i]);
+                end($t);
             }
             else break;
-
-            prev($t);
         }
 
         $this->nsPrefix = '';
