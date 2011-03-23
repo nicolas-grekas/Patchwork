@@ -226,7 +226,7 @@ class patchwork_PHP_Parser_stringInfo extends patchwork_PHP_Parser
             $this->register(array('tagNsEnd' => array('{', ';')));
             // No break;
 
-        case '{':
+        case '{': case ';':
             return T_NAME_NS;
 
         case T_NS_SEPARATOR:

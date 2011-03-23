@@ -33,6 +33,7 @@ class patchwork_preprocessor
         'backport53'         => 50300, // Load this only _before_ 5.3.0
         'classAutoname'      => true,
         'stringInfo'         => true,
+        'namespaceBracketer' => true,
         'namespaceInfo'      => true,
         'scoper'             => true,
         'constFuncDisabler'  => true,
