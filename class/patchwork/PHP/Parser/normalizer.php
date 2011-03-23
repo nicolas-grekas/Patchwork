@@ -51,12 +51,29 @@ class patchwork_PHP_Parser_normalizer extends patchwork_PHP_Parser
             $this->setError("Stripping UTF-8 Byte Order Mark", E_USER_NOTICE);
         }
 
+        if ('' === $code) return array();
+
+        $a = "\r" === $code[0]
+            ? (isset($code[1]) && "\n" === $code[1] ? '\r\n' : '\r')
+            : ("\n" === $code[0] ? '\n' : '');
+
+        // Ensure that the first token is always a T_OPEN_TAG
+
+        $code = '<?php ' . ($a ? "echo'{$a}'" : '') . '?'.">{$code}";
         $code = parent::getTokens($code);
 
-        $last = array_pop($code);
+        if (!$a && (T_OPEN_TAG === $code[2][0] || T_OPEN_TAG_WITH_ECHO === $code[2][0]))
+        {
+            $code[0] = $code[2];
+            $code[1] = $code[2] = array(T_WHITESPACE, ' ');
+        }
 
-        $code[] = T_CLOSE_TAG === $last[0] ? ';' : $last;
-        T_INLINE_HTML === $last[0] && $code[] = array(T_OPEN_TAG, '<?php ');
+        // Ensure that the last valid PHP code position is tagged with a T_ENDPHP
+
+        $a = array_pop($code);
+
+        $code[] = T_CLOSE_TAG === $a[0] ? ';' : $a;
+        T_INLINE_HTML === $a[0] && $code[] = array(T_OPEN_TAG, '<?php ');
         $code[] = array(T_ENDPHP, '');
 
         return $code;
@@ -68,7 +85,8 @@ class patchwork_PHP_Parser_normalizer extends patchwork_PHP_Parser
 
         return $this->unshiftTokens(
             array(T_OPEN_TAG, $token[1]),
-            array(T_ECHO, 'echo')
+            array(T_ECHO, 'echo'),
+            array(T_WHITESPACE, ' ')
         );
     }
 
@@ -81,7 +99,7 @@ class patchwork_PHP_Parser_normalizer extends patchwork_PHP_Parser
     protected function tagCloseTag(&$token)
     {
         $token[1] = substr_count($token[1], "\n");
-        $token[1] = str_repeat("\n", $token[1]) . '?'.'>';
+        $token[1] = '?'.'>' . str_repeat("\n", $token[1]);
     }
 
     protected function fixVar(&$token)
