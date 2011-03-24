@@ -45,8 +45,8 @@ class ptlCompiler_php extends ptlCompiler
 
     protected function makeModifier($name)
     {
-        return "((isset(\$c\xFF['" . strtolower($name)
-            . "'])||\$a\xFF=__FILE__.'*" . mt_rand() . "')?pipe_{$name}::php";
+        return "((isset(\$c\x9D['" . strtolower($name)
+            . "'])||\$a\x9D=__FILE__.'*" . mt_rand() . "')?pipe_{$name}::php";
     }
 
     protected function addAGENT($limit, $inc, &$args, $is_exo)
