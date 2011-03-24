@@ -19,7 +19,7 @@ class patchwork_PHP_Parser_bracket_callback extends patchwork_PHP_Parser_bracket
     protected
 
     $callbackIndex,
-    $lead = 'patchwork_PHP_Alias::resolve(',
+    $lead = 'patchwork_alias_resolve(',
     $tail = ')',
     $nextTail = '',
     $alias = array();
