@@ -34,7 +34,7 @@ class patchwork_PHP_Parser_marker extends patchwork_PHP_Parser_functionAliasing
     function __construct(patchwork_PHP_Parser $parent, $inlineClass)
     {
         foreach ($inlineClass as $inlineClass)
-            $this->inlineClass[strtolower($inlineClass)] = 1;
+            $this->inlineClass[strtolower(strtr($inlineClass, '\\', '_'))] = 1;
 
         patchwork_PHP_Parser::__construct($parent);
     }
@@ -57,7 +57,7 @@ class patchwork_PHP_Parser_marker extends patchwork_PHP_Parser_functionAliasing
         switch ($token[0])
         {
         case T_STRING:
-            if (!isset(self::$autoloader[strtolower(substr($this->nsResolved, 1))])) return;
+            if (!isset(self::$autoloader[strtolower(strtr(substr($this->nsResolved, 1), '\\', '_'))])) return;
             if (T_NS_SEPARATOR === $this->lastType)
             {
                 $t =& $this->types;
@@ -97,8 +97,8 @@ class patchwork_PHP_Parser_marker extends patchwork_PHP_Parser_functionAliasing
         }
         else if (T_CLASS === $this->scope->type)
         {
-            $this->inlineClass[strtolower($this->class->nsName)] = 1;
-            $this->class->extends && $this->inlineClass[strtolower($this->class->extends)] = 1;
+            $this->inlineClass[strtolower(strtr($this->class->nsName, '\\', '_'))] = 1;
+            $this->class->extends && $this->inlineClass[strtolower(strtr($this->class->extends, '\\', '_'))] = 1;
             $this->register(array('tagClassClose' => T_SCOPE_CLOSE));
         }
     }
@@ -138,7 +138,7 @@ class patchwork_PHP_Parser_marker extends patchwork_PHP_Parser_functionAliasing
         {
             $this->unregister(array(__FUNCTION__ => T_USE_CLASS));
 
-            $c = strtolower(substr($this->nsResolved, 1));
+            $c = strtolower(strtr(substr($this->nsResolved, 1), '\\', '_'));
             if (isset($this->inlineClass[$c])) return;
             $c = $this->getMarker($c);
             $this->scope->markerState || $this->scope->markerState = -1;
@@ -169,7 +169,7 @@ class patchwork_PHP_Parser_marker extends patchwork_PHP_Parser_functionAliasing
         $t =& $this->types;
         end($t);
 
-        $c = strtolower(substr($this->nsResolved, 1));
+        $c = strtolower(strtr(substr($this->nsResolved, 1), '\\', '_'));
         if (isset($this->inlineClass[$c])) return;
 
         do switch (prev($t))
@@ -204,7 +204,7 @@ class patchwork_PHP_Parser_marker extends patchwork_PHP_Parser_functionAliasing
 
     protected function tagClassClose(&$token)
     {
-        $c = strtolower($this->class->nsName . (isset($this->class->suffix) ? $this->class->suffix : ''));
+        $c = strtolower(strtr($this->class->nsName . (isset($this->class->suffix) ? $this->class->suffix : ''), '\\', '_'));
         $token[1] .= "\$GLOBALS['c{$this->tag}']['{$c}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
     }
 
