@@ -23,7 +23,7 @@ class patchwork_PHP_Parser_functionAliasing extends patchwork_PHP_Parser
     ),
     $dependencies = array('stringInfo', 'classInfo' => array('class', 'namespace', 'nsResolved')),
 
-    $varVarLead = '${patchwork_PHP_Alias::scopedResolve(',
+    $varVarLead = '${patchwork_alias_resolve_ref(',
     $varVarTail = ",\$\x9D)}";
 
 
