@@ -141,7 +141,7 @@ class patchwork_PHP_Parser_superPositioner extends patchwork_PHP_Parser
         if ($c->isAbstract)
         {
             $a = strtolower($c->nsName . $c->suffix);
-            $token[1] .= "\$GLOBALS['patchwork_abstract']['{$a}']=1;";
+            $token[1] .= "\$GLOBALS['_patchwork_abstract']['{$a}']=1;";
         }
     }
 
