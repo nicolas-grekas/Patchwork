@@ -156,7 +156,7 @@ class __patchwork_autoloader
         $code = '';
 
         if (  $parent
-            ? class_exists($parent) || interface_exists($parent)
+            ? class_exists($parent, true) || interface_exists($parent, false)
             : ((class_exists($req, false) || interface_exists($req, false)) && !isset(self::$cache[$lc_req]))  )
         {
             if (false !== $a = strrpos($req, '\\'))
@@ -174,10 +174,10 @@ class __patchwork_autoloader
                 $code = (class_exists($ns . $parent) ? 'class' : 'interface') . " {$req} extends {$parent}{}\$GLOBALS['c\x9D']['{$lc_ns}{$lc_req}']=1;";
                 $parent = strtolower($parent);
 
-                if (isset($GLOBALS['patchwork_abstract'][$lc_ns . $parent]))
+                if (isset($GLOBALS['_patchwork_abstract'][$lc_ns . $parent]))
                 {
                     $code = 'abstract ' . $code;
-                    $GLOBALS['patchwork_abstract'][$lc_ns . $lc_req] = 1;
+                    $GLOBALS['_patchwork_abstract'][$lc_ns . $lc_req] = 1;
                 }
             }
             else $parent = $lc_req;
