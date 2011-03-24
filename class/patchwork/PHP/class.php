@@ -14,16 +14,12 @@
 
 class patchwork_PHP_class
 {
-    protected static
-
-    $ns2us = array(),
-    $us2ns = array();
+    protected static $us2ns = array();
 
 
     static function add($ns, $us)
     {
-        self::$ns2us[strtolower($ns)] = $us;
-        self::$us2ns[strtolower($us)] = $ns;
+        self::$us2ns[strtolower(strtr($ns, '\\', '_'))] = $ns;
     }
 
     static function spl_object_hash($o)
@@ -41,7 +37,7 @@ class patchwork_PHP_class
 
     static function class_implements($c, $autoload = true)
     {
-        is_string($c) && isset(self::$ns2us[$a = ltrim(strtolower($c), '\\')]) && $c = self::$ns2us[$a];
+        is_string($c) && $c = strtr(ltrim($c), '\\', '_');
         $autoload = class_implements($c, $autoload);
         foreach ($autoload as $c) isset(self::$us2ns[$a = strtolower($c)]) && $autoload[$c] = self::$us2ns[$a];
         return $autoload;
@@ -49,7 +45,7 @@ class patchwork_PHP_class
 
     static function class_parents($c, $autoload = true)
     {
-        is_string($c) && isset(self::$ns2us[$a = ltrim(strtolower($c), '\\')]) && $c = self::$ns2us[$a];
+        is_string($c) && $c = strtr(ltrim($c), '\\', '_');
         $autoload = class_parents($c, $autoload);
         foreach ($autoload as $c) isset(self::$us2ns[$a = strtolower($c)]) && $autoload[$c] = self::$us2ns[$a];
         return $autoload;
@@ -57,20 +53,18 @@ class patchwork_PHP_class
 
     static function class_exists($c, $autoload = true)
     {
-        isset(self::$ns2us[$a = ltrim(strtolower($c), '\\')]) && $c = self::$ns2us[$a];
-        return class_exists($c, $autoload);
+        return class_exists(strtr(ltrim($c), '\\', '_'), $autoload);
     }
 
     static function get_class_methods($c)
     {
-        is_string($c) && isset(self::$ns2us[$a = ltrim(strtolower($c), '\\')]) && $c = self::$ns2us[$a];
+        is_string($c) && $c = strtr(ltrim($c), '\\', '_');
         return get_class_methods($c);
     }
 
     static function get_class_vars($c)
     {
-        isset(self::$ns2us[$a = ltrim(strtolower($c), '\\')]) && $c = self::$ns2us[$a];
-        return get_class_vars($c);
+        return get_class_vars(strtr(ltrim($c), '\\', '_'));
     }
 
     static function get_class($c)
@@ -96,7 +90,7 @@ class patchwork_PHP_class
 
     static function get_parent_class($c)
     {
-        is_string($c) && isset(self::$ns2us[$a = ltrim(strtolower($c), '\\')]) && $c = self::$ns2us[$a];
+        is_string($c) && $c = strtr(ltrim($c), '\\', '_');
         $c = get_parent_class($c);
         isset(self::$us2ns[$a = strtolower($c)]) && $c = self::$us2ns[$a];
         return $c;
@@ -104,32 +98,30 @@ class patchwork_PHP_class
 
     static function interface_exists($c, $autoload = true)
     {
-        isset(self::$ns2us[$a = ltrim(strtolower($c), '\\')]) && $c = self::$ns2us[$a];
-        return interface_exists($c, $autoload);
+        return interface_exists(strtr(ltrim($c), '\\', '_'), $autoload);
     }
 
     static function is_a($o, $c)
     {
-        isset(self::$ns2us[$a = ltrim(strtolower($c), '\\')]) && $c = self::$ns2us[$a];
+        $c = strtr(ltrim($c), '\\', '_');
         return $o instanceof $c;
     }
 
     static function is_subclass_of($o, $c)
     {
-        isset(self::$ns2us[$a = ltrim(strtolower($c), '\\')]) && $c = self::$ns2us[$a];
-        is_string($o) && isset(self::$ns2us[$a = ltrim(strtolower($o), '\\')]) && $o = self::$ns2us[$a];
-        return is_subclass_of($o, $c);
+        is_string($o) && $o = strtr(ltrim($o), '\\', '_');
+        return is_subclass_of($o, strtr(ltrim($c), '\\', '_'));
     }
 
     static function method_exists($c, $m)
     {
-        is_string($c) && isset(self::$ns2us[$a = ltrim(strtolower($c), '\\')]) && $c = self::$ns2us[$a];
+        is_string($c) && $c = strtr(ltrim($c), '\\', '_');
         return method_exists($c, $m);
     }
 
     static function property_exists($c, $p)
     {
-        is_string($c) && isset(self::$ns2us[$a = ltrim(strtolower($c), '\\')]) && $c = self::$ns2us[$a];
+        is_string($c) && $c = strtr(ltrim($c), '\\', '_');
         return property_exists($c, $p);
     }
 }

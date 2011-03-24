@@ -229,7 +229,7 @@ class patchwork_PHP_Parser_functionAliasing extends patchwork_PHP_Parser
             $a = explode('::', $a, 2);
 
             if (1 === count($a)) $token[1] = $a[0];
-            else if (empty($this->class->nsName) || strcasecmp($a[0], $this->class->nsName))
+            else if (empty($this->class->nsName) || strcasecmp(strtr($a[0], '\\', '_'), strtr($this->class->nsName, '\\', '_')))
             {
                 $this->unshiftTokens(
                     array(T_STRING, $a[0]),

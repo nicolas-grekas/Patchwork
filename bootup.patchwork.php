@@ -824,22 +824,33 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 
 spl_autoload_register('patchwork_autoload');
 
-function patchwork_autoload($searched_class)
+function patchwork_is_autoloaded($class, $autoload = false)
 {
-    $a = strtr($searched_class, '\\', '_');
+    if (class_exists($class, $autoload) || interface_exists($class, false)) return true;
 
-    if ($a !== $searched_class && (class_exists($a, false) || interface_exists($a, false)))
-    {
-/**/    if (function_exists('class_alias'))
-            class_alias($a, $searched_class);
-        return;
-    }
+/**/if (function_exists('class_alias'))
+/**/{
+        $a = strtr($class, '\\', '_');
 
-    $a = strtolower($searched_class);
+        if (class_exists($a, false) || interface_exists($a, false))
+        {
+            class_alias($a, $class);
+            return true;
+        }
+/**/}
+
+    return false;
+}
+
+function patchwork_autoload($class)
+{
+    if (patchwork_is_autoloaded($class)) return;
+
+    $a = strtolower(strtr($class, '\\', ''));
 
     if ($a !== strtr($a, ";'?.$", '-----')) return;
 
-    if (TURBO && $a =& $GLOBALS['_patchwork_autoloaded'][$a])
+    if (TURBO && $a =& $GLOBALS["c\x9D"][$a])
     {
         if (is_int($a))
         {
@@ -847,7 +858,7 @@ function patchwork_autoload($searched_class)
             unset($a);
             $a = $b - /*<*/count(patchwork_bootstrapper::$paths) - patchwork_bootstrapper::$last/*>*/;
 
-            $b = strtr($searched_class, '\\', '_');
+            $b = strtr($class, '\\', '_');
             $i = strrpos($b, '__');
             false !== $i && isset($b[$i+2]) && '' === trim(substr($b, $i+2), '0123456789') && $b = substr($b, 0, $i);
 
@@ -862,7 +873,7 @@ function patchwork_autoload($searched_class)
         {
             patchwork_include($a);
 
-            if (class_exists($searched_class, false) || interface_exists($searched_class, false)) return;
+            if (patchwork_is_autoloaded($class)) return;
         }
     }
 
@@ -871,7 +882,7 @@ function patchwork_autoload($searched_class)
         require /*<*/patchwork_bootstrapper::$cwd . '.patchwork.autoloader.php'/*>*/;
     }
 
-    patchwork_autoloader::autoload($searched_class);
+    patchwork_autoloader::autoload($class);
 }
 
 

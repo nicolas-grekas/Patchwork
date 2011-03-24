@@ -78,7 +78,7 @@ class patchwork_PHP_Parser_namespaceRemover extends patchwork_PHP_Parser
             if (isset($token[2][T_NAME_CLASS]))
             {
                 $this->class->nsName = strtr($this->class->nsName, '\\', '_');
-                $this->aliasAdd && $this->scope->token[1] .= "{$this->aliasAdd}('{$this->namespaceBackup}{$this->class->name}','{$this->class->nsName}');";
+                $this->aliasAdd && $this->scope->token[1] .= "{$this->aliasAdd}('{$this->namespaceBackup}{$this->class->name}');";
                 $this->class->name   = $this->class->nsName;
             }
 

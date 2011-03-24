@@ -162,8 +162,7 @@ class patchwork_bootstrapper_bootstrapper
             file_put_contents("{$this->cwd}.patchwork.alias.ser", serialize($this->alias));
 
             $a = array(
-                "<?php \$c\x9D=&\$_patchwork_autoloaded;",
-                "\$c\x9D=array();",
+                "<?php \$c\x9D=array();",
                 "\$d\x9D=1;",
                 "(\$e\x9D=\$b\x9D=\$a\x9D=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "')&&\$d\x9D&&0;",
             );
@@ -283,8 +282,7 @@ class patchwork_bootstrapper_bootstrapper
         
         // Autoload markers
 
-        $GLOBALS['_patchwork_autoloaded'] = array();
-        $GLOBALS["c\x9D"] =& $GLOBALS['_patchwork_autoloaded'];
+        $GLOBALS["c\x9D"] = array();
         $GLOBALS["b\x9D"] = $GLOBALS["a\x9D"] = false;
     }
 
@@ -351,7 +349,7 @@ class patchwork_bootstrapper_bootstrapper
         $inline && $this->alias[1 !== $inline ? substr($function, 12) : $function] = $alias;
 
         $inline = explode('::', $alias, 2);
-        $inline = 2 === count($inline) ? mt_rand(1, mt_getrandmax()) . strtolower($inline[0]) : '';
+        $inline = 2 === count($inline) ? mt_rand(1, mt_getrandmax()) . strtolower(strtr($inline[0], '\\', '_')) : '';
 
         // FIXME: when aliasing a user function, this will throw a can not redeclare fatal error!
         // Some help is required from the main preprocessor to rename aliased user functions.

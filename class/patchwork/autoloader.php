@@ -23,7 +23,7 @@ class patchwork_autoloader
 
     static function autoload($req)
     {
-        $lc_req = strtolower($req);
+        $lc_req = strtolower(strtr($req, '\\', '_'));
 
         $amark = $GLOBALS["a\x9D"];
         $GLOBALS["a\x9D"] = false;
@@ -105,7 +105,7 @@ class patchwork_autoloader
         if ($level > $a)
         {
             do $parent = $top . '__' . (0 <= --$level ? $level : '00');
-            while (!($parent_exists = class_exists($parent, false) || interface_exists($parent, false)) && $level > $a);
+            while (!($parent_exists = patchwork_is_autoloaded($parent)) && $level > $a);
         }
         else
         {
@@ -141,7 +141,7 @@ class patchwork_autoloader
 
             patchwork_include($cache);
 
-            if ($parent && (class_exists($req, false) || interface_exists($req, false))) $parent = false;
+            if ($parent && patchwork_is_autoloaded($req)) $parent = false;
             if (false !== $parent_pool) $parent_pool[$parent ? $parent : $req] = $cache;
         }
 
@@ -151,8 +151,8 @@ class patchwork_autoloader
         $code = '';
 
         if (  $parent
-            ? class_exists($parent, true) || interface_exists($parent, false)
-            : ((class_exists($req, false) || interface_exists($req, false)) && !isset(self::$cache[$lc_req]))  )
+            ? patchwork_is_autoloaded($parent, true)
+            : (patchwork_is_autoloaded($req) && !isset(self::$cache[$lc_req]))  )
         {
             if (false !== $a = strrpos($req, '\\'))
             {
@@ -160,14 +160,19 @@ class patchwork_autoloader
                 $req    = substr($req,    $a + 1);
                 $parent = substr($parent, $a + 1);
                 $lc_req = substr($lc_req, $a + 1);
-                $lc_ns  = strtolower($ns);
+                $lc_ns  = strtolower(strtr($ns, '\\', '_'));
             }
             else $ns = $lc_ns = '';
 
             if ($parent)
             {
-                $code = (class_exists($ns . $parent) ? 'class' : 'interface') . " {$req} extends {$parent}{}\$GLOBALS['c\x9D']['{$lc_ns}{$lc_req}']=1;";
+                $code = (class_exists($ns . $parent, false) ? 'class' : 'interface') . " {$req} extends {$parent}{}\$GLOBALS['c\x9D']['{$lc_ns}{$lc_req}']=1;";
                 $parent = strtolower($parent);
+
+                if ($ns && function_exists('class_alias'))
+                {
+                    $code .= "\\class_alias('{$ns}{$req}','{$lc_ns}{$lc_req}');";
+                }
 
                 if (isset($GLOBALS['_patchwork_abstract'][$lc_ns . $parent]))
                 {
@@ -179,12 +184,6 @@ class patchwork_autoloader
 
             if ($isTop)
             {
-                if (!$ns && strpos($req, '_') && function_exists('class_alias'))
-                {
-                    $a = preg_replace("'([^_])_((?:__)*[^_])'", '$1\\\\$2', $req);
-                    $code .= "class_exists('{$a}',0)||interface_exists('{$a}',0)||class_alias('{$req}','{$a}');";
-                }
-
                 $a = "{$ns}{$parent}::c\x9D";
                 if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__constructStatic'))
                 {
@@ -208,11 +207,7 @@ class patchwork_autoloader
                 $ns = "namespace {$ns};";
             }
 
-            if ($code)
-            {
-                if ($isTop || /*<*/!function_exists('class_alias')/*>*/) eval($ns . $code);
-                else class_alias($parent, $req);
-            }
+            if ($code) eval($ns . $code);
         }
 
         'patchwork_preprocessor' === $lc_top && self::$preproc = false;
@@ -344,4 +339,4 @@ class patchwork_autoloader
     }
 }
 
-patchwork_autoloader::$cache =& $GLOBALS['_patchwork_autoloaded'];
+patchwork_autoloader::$cache =& $GLOBALS["c\x9D"];

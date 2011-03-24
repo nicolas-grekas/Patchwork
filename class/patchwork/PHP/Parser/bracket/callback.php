@@ -69,7 +69,7 @@ class patchwork_PHP_Parser_bracket_callback extends patchwork_PHP_Parser_bracket
                     $a = explode('::', $a, 2);
 
                     if (1 === count($a)) $t[1] = "'{$a[0]}'";
-                    else if (empty($this->class->nsName) || strcasecmp($a[0], $this->class->nsName))
+                    else if (empty($this->class->nsName) || strcasecmp(strtr($a[0], '\\', '_'), strtr($this->class->nsName, '\\', '_')))
                     {
                         $t = ')';
                         $this->unshiftTokens(

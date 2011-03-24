@@ -1106,7 +1106,7 @@ class patchwork
 
                 eval("class {$agent} extends agent{$agentLevel} {}");
             }
-            else $GLOBALS['_patchwork_autoloaded'][$agent] = $agentLevel + PATCHWORK_PATH_OFFSET;
+            else $GLOBALS["c\x9D"][$agent] = $agentLevel + PATCHWORK_PATH_OFFSET;
         }
 
         return $agent;

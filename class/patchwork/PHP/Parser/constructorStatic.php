@@ -56,7 +56,7 @@ class patchwork_PHP_Parser_constructorStatic extends patchwork_PHP_Parser
         $this->unregister(array('tagFunction' => T_FUNCTION));
         $this->register();
 
-        $class = strtolower($this->class->nsName);
+        $class = strtolower(strtr($this->class->nsName, '\\', '_'));
 
         $this->construct && $token[1] = "const c{$this->tag}=" . (2 === $this->construct ? "'{$class}';" : "'';static function __constructStatic(){}") . $token[1];
         $this->destruct  && $token[1] = "const d{$this->tag}=" . (2 === $this->destruct  ? "'{$class}';" : "'';static function __destructStatic() {}") . $token[1];
