@@ -68,7 +68,7 @@ class pMail_text extends Mail_mime
             isset($headers[$sql]) && is_array($headers[$sql]) && $headers[$sql] = implode(', ', $headers[$sql]);
         }
 
-        $message_id = 'pM' . p::uniqid();
+        $message_id = 'pM' . p::uniqId();
 
         $headers['Message-Id'] = '<' . $message_id . '@' . $_SERVER['HTTP_HOST']. '>';
 

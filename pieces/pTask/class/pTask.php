@@ -11,6 +11,8 @@
  *
  ***************************************************************************/
 
+use patchwork as p;
+use SESSION   as s;
 
 class pTask
 {
@@ -73,11 +75,11 @@ class pTask
 
         if ($time < $_SERVER['REQUEST_TIME'] - 366*86400) $time += $_SERVER['REQUEST_TIME'];
 
-        $base = sqlite_escape_string(patchwork::__BASE__());
+        $base = sqlite_escape_string(p::__BASE__());
         $data = array(
             'task' => $this,
             'cookie' => &$_COOKIE,
-            'session' => class_exists('SESSION', false) ? SESSION::getAll() : array()
+            'session' => class_exists('SESSION', false) ? s::getAll() : array()
         );
         $data = sqlite_escape_string(serialize($data));
 

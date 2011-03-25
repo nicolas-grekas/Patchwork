@@ -53,7 +53,7 @@ class agent_js extends agent_css
         {
             ++self::$recursion;
             $src = patchwork_class2file(substr(get_class($this), 6));
-            $src = patchwork_serverside::returnAgent($src, (array) $this->get);
+            $src = patchwork\serverside::returnAgent($src, (array) $this->get);
             --self::$recursion;
 
             $parser = new jsqueez;

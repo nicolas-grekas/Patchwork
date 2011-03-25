@@ -11,6 +11,8 @@
  *
  ***************************************************************************/
 
+use patchwork as p;
+use SESSION   as s;
 
 class agent_queue_pTask extends agent
 {
@@ -99,9 +101,9 @@ class agent_queue_pTask extends agent
                 $this->sqlite->changes() && tool_url::touch("{$data['base']}queue/pTask/{$data['OID']}/" . $this->getToken());
 
                 $sql = "SELECT run_time FROM queue WHERE run_time>{$time} ORDER BY run_time LIMIT 1";
-                if ($data = $this->sqlite->arrayQuery($sql, SQLITE_NUM)) patchwork::setMaxage(min($this->maxage, $data[0][0] - $time));
+                if ($data = $this->sqlite->arrayQuery($sql, SQLITE_NUM)) p::setMaxage(min($this->maxage, $data[0][0] - $time));
             }
-            else patchwork::setMaxage(min($this->maxage, $data['run_time'] - $time));
+            else p::setMaxage(min($this->maxage, $data['run_time'] - $time));
         }
     }
 
@@ -156,7 +158,7 @@ class agent_queue_pTask extends agent
 
         if ($time > 0)
         {
-            $data['session'] = class_exists('SESSION', false) ? SESSION::getAll() : array();
+            $data['session'] = class_exists('SESSION', false) ? s::getAll() : array();
 
             if ($data_serialized !== $data = serialize($data))
             {
@@ -182,7 +184,7 @@ class agent_queue_pTask extends agent
         {
             $_COOKIE = array();
             foreach ($session as $k => &$v) s::set($k, $v);
-            SESSION::regenerateId(false, false);
+            s::regenerateId(false, false);
         }
 
         $_COOKIE =& $cookie;
@@ -222,7 +224,7 @@ class agent_queue_pTask extends agent
         $token = patchworkPath($this->queueFolder) . $this->queueName . '.token';
 
         //XXX user right problem?
-        file_exists($token) || file_put_contents($token, patchwork::strongid());
+        file_exists($token) || file_put_contents($token, p::strongId());
 
         return trim(file_get_contents($token));
     }

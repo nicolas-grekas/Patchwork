@@ -38,7 +38,7 @@ class pMail_agent extends pMail_text
 
     function send()
     {
-        $html = patchwork_serverside::returnAgent($this->agent, $this->args, $this->lang);
+        $html = p\serverside::returnAgent($this->agent, $this->args, $this->lang);
 
         if (!isset($this->headers['Subject']) && preg_match("'<title[^>]*>(.*?)</title[^>]*>'isu", $html, $title))
         {

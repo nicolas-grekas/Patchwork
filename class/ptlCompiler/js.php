@@ -113,7 +113,7 @@ class ptlCompiler_js extends ptlCompiler
         {
             eval("\$inc=$inc;");
 
-            list($appId, $base, $inc, $keys, $a) = patchwork_agentTrace::resolve($inc);
+            list($appId, $base, $inc, $keys, $a) = patchwork\agentTrace::resolve($inc);
 
             $args = array_map('jsquote', $a) + $args;
 

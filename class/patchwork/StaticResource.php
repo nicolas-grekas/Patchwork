@@ -12,6 +12,7 @@
  ***************************************************************************/
 
 use patchwork as p;
+use SESSION   as s;
 
 class patchwork_StaticResource extends p
 {
@@ -57,7 +58,7 @@ class patchwork_StaticResource extends p
         if ($h = p::fopenX($ctemplate, $readHandle))
         {
             p::openMeta('agent__template/' . $template, false);
-            $template = new ptlCompiler_js($template);
+            $template = new \ptlCompiler_js($template);
             echo $template = ',' . $template->compile() . ')';
             fwrite($h, $template);
             fclose($h);
@@ -99,7 +100,7 @@ class patchwork_StaticResource extends p
                     ob_start();
                     call_user_func(array('pipe_' . $pipe, 'js'));
 
-                    $pipe = new jsqueez;
+                    $pipe = new \jsqueez;
                     $pipe = $pipe->squeeze(ob_get_clean());
                     echo $pipe = trim($pipe, ';');
 
@@ -201,8 +202,8 @@ class patchwork_StaticResource extends p
         p::$binaryMode = true;
         p::disable();
 
-        class_exists('SESSION'   , false) && SESSION::close();
-        class_exists('adapter_DB', false) && adapter_DB::__destructStatic();
+        class_exists('SESSION'   , false) && s::close();
+        class_exists('adapter_DB', false) && \adapter_DB::__destructStatic();
 
 
         $gzip   || ob_start();
@@ -228,7 +229,7 @@ class patchwork_StaticResource extends p
         if ($filter)
         {
             $h = fopen($file, 'rb');
-            echo $starting_data = fread($h, 256); // For patchwork::ob_filterOutput to fix IE
+            echo $starting_data = fread($h, 256); // For p::ob_filterOutput to fix IE
 
             if ($gzip)
             {
@@ -256,7 +257,7 @@ class patchwork_StaticResource extends p
                 {
                     header('Accept-Ranges: bytes');
 
-                    $range = isset($_SERVER['HTTP_RANGE']) ? patchwork_httpRange::negociate($size, p::$ETag, p::$LastModified) : false;
+                    $range = isset($_SERVER['HTTP_RANGE']) ? p\httpRange::negociate($size, p::$ETag, p::$LastModified) : false;
                 }
                 else header('Accept-Ranges: none');
 
@@ -266,7 +267,7 @@ class patchwork_StaticResource extends p
                 if ($range)
                 {
                     unset(p::$headers['content-type']);
-                    patchwork_httpRange::sendChunks($range, $h, $mime, $size);
+                    p\httpRange::sendChunks($range, $h, $mime, $size);
                 }
                 else
                 {

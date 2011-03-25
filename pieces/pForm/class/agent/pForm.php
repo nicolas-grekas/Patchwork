@@ -11,6 +11,8 @@
  *
  ***************************************************************************/
 
+use patchwork as p;
+use SESSION   as s;
 
 class agent_pForm extends agent
 {
@@ -21,7 +23,7 @@ class agent_pForm extends agent
         $f = new pForm($o);
         $f->setDefaults($this->data);
 
-        $f->pushContext($o, substr(patchwork::$agentClass, 6));
+        $f->pushContext($o, substr(p::$agentClass, 6));
         $send = $f->add('submit', 'send');
         $f->pullContext();
 
@@ -42,8 +44,8 @@ class agent_pForm extends agent
             if (null === $send) W(get_class($this) . '->save() result must be non-null');
             else if (false !== $send)
             {
-                $b && SESSION::flash('headerMessage', true !== $b ? $b : $a);
-                patchwork::redirect($send);
+                $b && s::flash('headerMessage', true !== $b ? $b : $a);
+                p::redirect($send);
             }
         }
 

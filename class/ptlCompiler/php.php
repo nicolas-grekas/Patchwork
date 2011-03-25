@@ -57,7 +57,7 @@ class ptlCompiler_php extends ptlCompiler
         {
             eval("\$base=$inc;");
 
-            list(, $base, $limit) = patchwork_agentTrace::resolve($base);
+            list(, $base, $limit) = patchwork\agentTrace::resolve($base);
 
             if (false !== $base)
             {

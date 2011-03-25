@@ -11,6 +11,8 @@
  *
  ***************************************************************************/
 
+use patchwork as p;
+use SESSION   as s;
 
 class pForm extends loop_agentWrapper
 {
@@ -62,7 +64,7 @@ class pForm extends loop_agentWrapper
         $this->POST = (bool) $POST;
         if ($this->POST)
         {
-            patchwork::canPost();
+            p::canPost();
 
             if (isset($_POST['_POST_BACKUP']))
             {
@@ -80,7 +82,7 @@ class pForm extends loop_agentWrapper
 
         if ($sessionLink)
         {
-            SESSION::bind($sessionLink, $this->sessionLink);
+            s::bind($sessionLink, $this->sessionLink);
             if (!$this->sessionLink) $this->sessionLink = array(0);
         }
     }
@@ -175,7 +177,7 @@ class pForm extends loop_agentWrapper
             if (function_exists('upload_progress_meter_get_info') || function_exists('uploadprogress_get_info'))
             {
                 $elt = $this->elt['UPLOAD_IDENTIFIER'] = new pForm_hidden($this, 'UPLOAD_IDENTIFIER', array(), $this->sessionLink);
-                $elt->setValue(patchwork::uniqid());
+                $elt->setValue(p::uniqId());
                 array_unshift($this->hidden, $elt);
             }
         }

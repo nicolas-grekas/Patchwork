@@ -12,29 +12,33 @@
  ***************************************************************************/
 
 
-// Major browsers send a "Cache-Control: no-cache" only and only if a page is reloaded with
-// CTRL+F5, CTRL+SHIFT+R or location.reload(true). Usefull to trigger synchronization events.
-define(
-    'PATCHWORK_SYNC_CACHE',
-    file_exists(PATCHWORK_PROJECT_PATH . '.patchwork.php')
-    && filemtime(PATCHWORK_PROJECT_PATH . 'config.patchwork.php') > filemtime(PATCHWORK_PROJECT_PATH . '.patchwork.php')
-    || (isset($_SERVER['HTTP_CACHE_CONTROL']) && 'no-cache' == $_SERVER['HTTP_CACHE_CONTROL'])
-);
+use patchwork as p;
 
 class patchwork_debugger extends patchwork
 {
     static
 
+    $syncCache = false,
     $sleep = 500, // (ms)
     $period = 5;  // (s)
 
+
+    static function __constructStatic()
+    {
+        // Major browsers send a "Cache-Control: no-cache" only and only if a page is reloaded with
+        // CTRL+F5, CTRL+SHIFT+R or location.reload(true). Usefull to trigger synchronization events.
+
+        self::$syncCache = file_exists(PATCHWORK_PROJECT_PATH . '.patchwork.php')
+            && filemtime(PATCHWORK_PROJECT_PATH . 'config.patchwork.php') > filemtime(PATCHWORK_PROJECT_PATH . '.patchwork.php')
+                || (isset($_SERVER['HTTP_CACHE_CONTROL']) && 'no-cache' == $_SERVER['HTTP_CACHE_CONTROL']);
+    }
 
     static function execute()
     {
         $GLOBALS['patchwork_appId'] = -$GLOBALS['patchwork_appId'];
 
-        if ('debug' === patchwork::$requestMode) self::sendDebugInfo();
-        else if (PATCHWORK_SYNC_CACHE)
+        if ('debug' === p::$requestMode) self::sendDebugInfo();
+        else if (self::$syncCache)
         {
             if ($h = @fopen(PATCHWORK_PROJECT_PATH . '.debugLock', 'xb'))
             {
@@ -77,7 +81,7 @@ class patchwork_debugger extends patchwork
 
     static function purgeZcache()
     {
-        self::updateAppId();
+        p::updateAppId();
 
         $a = $CONFIG['i18n.lang_list'][$_SERVER['PATCHWORK_LANG']];
         $a = implode($a, explode('__', $_SERVER['PATCHWORK_BASE'], 2));
@@ -86,9 +90,9 @@ class patchwork_debugger extends patchwork
         $a = dirname($a . ' ');
         if (1 === strlen($a)) $a = '';
 
-        setcookie('v$', self::$appId, $_SERVER['REQUEST_TIME'] + $CONFIG['maxage'], $a .'/');
+        setcookie('v$', p::$appId, $_SERVER['REQUEST_TIME'] + $CONFIG['maxage'], $a .'/');
 
-        self::touch('');
+        p::touch('');
 
         for ($i = 0; $i < 16; ++$i) for ($j = 0; $j < 16; ++$j)
         {
@@ -105,7 +109,7 @@ class patchwork_debugger extends patchwork
 
     static function getProlog()
     {
-        $QDebug   = patchwork::__BASE__() . 'js/QDebug.js';
+        $QDebug   = p::__BASE__() . 'js/QDebug.js';
 
         return <<<EOHTML
 <script src="{$QDebug}"></script>
@@ -114,7 +118,7 @@ EOHTML;
 
     static function getConclusion()
     {
-        $debugWin = patchwork::__BASE__() . '?p:=debug:stop';
+        $debugWin = p::__BASE__() . '?p:=debug:stop';
 
         return <<<EOHTML
 <style>@media print { #debugWin {display:none;} }</style>
@@ -129,7 +133,7 @@ EOHTML;
 
     static function sendDebugInfo()
     {
-        $S = 'stop' === patchwork::$requestArg;
+        $S = 'stop' === p::$requestArg;
         $S && function_exists('ob_gzhandler') && ob_start('ob_gzhandler', 1<<14);
 
         header('Content-Type: text/html; charset=utf-8');

@@ -11,6 +11,7 @@
  *
  ***************************************************************************/
 
+use patchwork as p;
 
 class patchwork_error
 {
@@ -18,8 +19,8 @@ class patchwork_error
     {
         if (class_exists('patchwork', false))
         {
-            patchwork::setMaxage(0);
-            patchwork::setExpires('onmaxage');
+            p::setMaxage(0);
+            p::setExpires('onmaxage');
             $GLOBALS['patchwork_private'] = true;
         }
 

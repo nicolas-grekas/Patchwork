@@ -13,6 +13,7 @@
 
 use patchwork           as p;
 use patchwork\Exception as e;
+use SESSION             as s;
 
 class patchwork_clientside extends p
 {
@@ -37,7 +38,7 @@ class patchwork_clientside extends p
         if (PATCHWORK_I18N)
         {
             ob_start();
-            self::writeAgent(new loop_altLang);
+            self::writeAgent(new \loop_altLang);
             $b = substr(ob_get_clean(), 4, -1);
         }
         else $b = '0';
@@ -77,12 +78,12 @@ EOHTML;
                 if (class_exists('SESSION', false))
                 {
                     $_COOKIE['T$'] = '1';
-                    SESSION::regenerateId();
+                    s::regenerateId();
                 }
                 else
                 {
-                    self::$antiCSRFtoken[0] = '1';
-                    setcookie('T$', self::$antiCSRFtoken, 0, $CONFIG['session.cookie_path'], $CONFIG['session.cookie_domain']);
+                    self::$antiCsrfToken[0] = '1';
+                    setcookie('T$', self::$antiCsrfToken, 0, $CONFIG['session.cookie_path'], $CONFIG['session.cookie_domain']);
                 }
             }
         }
@@ -102,7 +103,7 @@ EOHTML;
 
         try
         {
-            if (isset($_GET['T$']) && !PATCHWORK_TOKEN_MATCH) throw new e\PrivateResource;
+            if (isset($_GET['T$']) && !p::$antiCsrfMatch) throw new e\PrivateResource;
 
             $a = new $agent($_GET);
 
@@ -252,7 +253,7 @@ EOHTML;
                 if ($h = p::fopenX($ctemplate, $readHandle))
                 {
                     p::openMeta('agent__template/' . $template, false);
-                    $template = new ptlCompiler_js($template);
+                    $template = new \ptlCompiler_js($template);
                     echo $template = ',' . $template->compile() . ')';
                     fwrite($h, $template);
                     fclose($h);

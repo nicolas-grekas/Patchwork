@@ -135,17 +135,17 @@ class SESSION
 
         if ($initSession) self::$DATA = array();
 
-        // Generate a new antiCSRF token
-        p::getAntiCSRFtoken(true);
+        // Generate a new anti-CSRF token
+        p::getAntiCsrfToken(true);
 
         if (!$initSession || $restartNew)
         {
-            $sid = p::strongid();
+            $sid = p::strongId();
             $sid[0] = dechex(mt_rand(0, 15));
-            self::$sslid = (isset($_SERVER['HTTPS']) ? '' : '-') . p::strongid();
+            self::$sslid = (isset($_SERVER['HTTPS']) ? '' : '-') . p::strongId();
             self::setSID($sid);
 
-            self::$adapter = new SESSION(self::$SID);
+            self::$adapter = new self(self::$SID);
 
             self::$lastseen = self::$birthtime = $_SERVER['REQUEST_TIME'];
         }
@@ -188,7 +188,7 @@ class SESSION
 
         if (mt_rand(1, self::$gcProbabilityDenominator) <= self::$gcProbabilityNumerator)
         {
-            $adapter = new SESSION('0lastGC');
+            $adapter = new self('0lastGC');
             $i = $adapter->read();
             $j = max(self::$maxIdleTime, self::$maxLifeTime);
 
@@ -204,7 +204,7 @@ class SESSION
         if (isset($_COOKIE['SID']))
         {
             self::setSID($_COOKIE['SID']);
-            self::$adapter = new SESSION(self::$SID);
+            self::$adapter = new self(self::$SID);
             $i = self::$adapter->read();
         }
         else $i = false;
@@ -238,7 +238,7 @@ class SESSION
 
                 if ('-' == self::$sslid[0] && isset($_SERVER['HTTPS']))
                 {
-                    self::$sslid = p::strongid();
+                    self::$sslid = p::strongId();
                     setcookie('SSL', self::$sslid, 0, self::$cookiePath, self::$cookieDomain, true , true);
                     unset($_SERVER['HTTP_IF_NONE_MATCH'], $_SERVER['HTTP_IF_MODIFIED_SINCE']);
                 }

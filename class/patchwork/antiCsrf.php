@@ -14,7 +14,7 @@
 use patchwork           as p;
 use patchwork\Exception as e;
 
-class patchwork_antiCSRF extends p
+class patchwork_antiCsrf extends p
 {
     protected static $entitiesRx = "'&(nbsp|iexcl|cent|pound|curren|yen|euro|brvbar|sect|[AEIOUYaeiouy]?(?:uml|acute)|copy|ordf|laquo|not|shy|reg|macr|deg|plusmn|sup[123]|micro|para|middot|[Cc]?cedil|ordm|raquo|frac(?:14|12|34)|iquest|[AEIOUaeiou](?:grave|circ)|[ANOano]tilde|[Aa]ring|(?:AE|ae|sz)lig|ETH|times|[Oo]slash|THORN|eth|divide|thorn|quot|lt|gt|amp|[xX][0-9a-fA-F]+|[0-9]+);'";
 
@@ -64,7 +64,7 @@ class patchwork_antiCSRF extends p
     {
         $f = $f[0];
 
-        // AntiCSRF token is appended only to local application's form
+        // Anti-CSRF token is appended only to local application's form
 
         // Extract the action attribute
         if (1 < preg_match_all('#\saction\s*=\s*(["\']?)(.*?)\1([^>]*)>#iu', $f, $a, PREG_SET_ORDER)) return $f;
@@ -138,7 +138,7 @@ class patchwork_antiCSRF extends p
                 '/' !== substr($a, -1) && $a .= '/';
 
 
-                // Check if action is in our antiCSRF cookie area
+                // Check if action is in our anti-CSRF cookie area
 
                 if ($b = $CONFIG['session.cookie_domain'])
                 {
@@ -172,7 +172,7 @@ class patchwork_antiCSRF extends p
         if (!$appendedHtml)
         {
             $appendedHtml = !p::$binaryMode ? 'syncCSRF()' : '(function(){var d=document,f=d.forms;f=f[f.length-1].T$.value=d.cookie.match(/(^|; )T\\$=([-_0-9a-zA-Z]+)/)[2]})()';
-            $appendedHtml = '<input type="hidden" name="T$" value="' . (empty($_COOKIE['JS']) ? self::$antiCSRFtoken : '') . "\"><script>{$appendedHtml}</script>";
+            $appendedHtml = '<input type="hidden" name="T$" value="' . (empty($_COOKIE['JS']) ? self::$antiCsrfToken : '') . "\"><script>{$appendedHtml}</script>";
         }
 
         return $f . $appendedHtml;

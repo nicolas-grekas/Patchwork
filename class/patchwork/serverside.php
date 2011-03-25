@@ -94,7 +94,7 @@ class patchwork_serverside extends p
             self::$get->__AGENT__ = 'agent_index' === $agent ? '' : (patchwork_class2file(substr($agent, 6)) . '/');
             self::$get->__URI__ = htmlspecialchars(p::$uri);
             self::$get->__REFERER__ = isset($_SERVER['HTTP_REFERER']) ? htmlspecialchars($_SERVER['HTTP_REFERER']) : '';
-            self::$get->__LANG_ALT__ = new loop_altLang;
+            self::$get->__LANG_ALT__ = new \loop_altLang;
 
             self::$args = self::$get;
 
@@ -113,7 +113,7 @@ class patchwork_serverside extends p
 
                 while ($i = $agent->loop()) $data = $i;
 
-                if (!(p::$binaryMode || $agent instanceof L_)) foreach ($data as &$v) is_string($v) && $v = htmlspecialchars($v);
+                if (!(p::$binaryMode || $agent instanceof LoopFreezed)) foreach ($data as &$v) is_string($v) && $v = htmlspecialchars($v);
 
                 $agent = $data->{'a$'};
                 $args = array_merge((array) $data, $args);
@@ -145,7 +145,7 @@ class patchwork_serverside extends p
                     if (ini_get_bool('allow_url_fopen')) $agent = file_get_contents($agent);
                     else
                     {
-                        $agent = new HTTP_Request($agent);
+                        $agent = new \HTTP_Request($agent);
                         $agent->sendRequest();
                         $agent = $agent->getResponseBody();
                     }
@@ -258,7 +258,7 @@ class patchwork_serverside extends p
             if ($h = p::fopenX($ctemplate))
             {
                 p::openMeta('agent__template/' . $template, false);
-                $compiler = new ptlCompiler_php($template, p::$binaryMode);
+                $compiler = new \ptlCompiler_php($template, p::$binaryMode);
                 $ftemplate = "<?php function {$ftemplate}(&\$v,&\$a,&\$g){global \$a\x9D,\$c\x9D;\$d=\$v;" . $compiler->compile() . "} {$ftemplate}(\$v,\$a,\$g);";
                 fwrite($h, $ftemplate);
                 fclose($h);
@@ -334,7 +334,7 @@ class patchwork_serverside extends p
                         unset($c);
                     }
 
-                    $v[$key] = new L_($a);
+                    $v[$key] = new LoopFreezed($a);
                     unset($a);
                 }
             }
@@ -387,13 +387,13 @@ class patchwork_serverside extends p
 
     static function makeLoopByLength(&$length)
     {
-        $length = new loop_length_($length);
+        $length = new LoopLength($length);
         return true;
     }
 
     static function getLoopNext($loop)
     {
-        if (p::$binaryMode || $loop instanceof L_) return $loop->loop();
+        if (p::$binaryMode || $loop instanceof LoopFreezed) return $loop->loop();
 
         if ($loop = $loop->loop())
         {
@@ -411,7 +411,7 @@ class patchwork_serverside extends p
     }
 }
 
-class L_ extends loop
+class LoopFreezed extends \loop
 {
     protected
 
@@ -437,7 +437,7 @@ class L_ extends loop
     }
 }
 
-class loop_length_ extends loop
+class LoopLength extends \loop
 {
     protected
 

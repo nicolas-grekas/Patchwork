@@ -127,8 +127,9 @@ class patchwork
 
     $agentClasses = '',
     $privateDetectionMode = false,
-    $antiCSRFtoken,
-    $detectCSRF = false,
+    $antiCsrfToken,
+    $antiCsrfMatch = false,
+    $detectCsrf    = false,
     $total_time = 0,
 
     $allowGzip = array(
@@ -209,11 +210,11 @@ class patchwork
             )
             && 33 === strlen($_COOKIE['T$'])
             && 33 === strspn($_COOKIE['T$'], '-_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789')
-        ) self::$antiCSRFtoken = $_COOKIE['T$'];
-        else self::getAntiCSRFtoken(true);
+        ) self::$antiCsrfToken = $_COOKIE['T$'];
+        else self::getAntiCsrfToken(true);
 
         isset($_GET['T$']) && $GLOBALS['patchwork_private'] = true;
-        define('PATCHWORK_TOKEN_MATCH', isset($_GET['T$']) && substr(self::$antiCSRFtoken, 1) === substr($_GET['T$'], 1));
+        self::$antiCsrfMatch =  isset($_GET['T$']) && substr(self::$antiCsrfToken, 1) === substr($_GET['T$'], 1);
         if (IS_POSTING) unset($_POST['T$'], $_POST['T$']);
 
 
@@ -359,7 +360,7 @@ class patchwork
 
 /**/    if (DEBUG)
 /**/    {
-            if (PATCHWORK_SYNC_CACHE && !self::$binaryMode)
+            if (p\debugger::$syncCache && !self::$binaryMode)
             {
                 p\debugger::purgeZcache();
 
@@ -503,19 +504,19 @@ class patchwork
         return $req;
     }
 
-    static function getAntiCSRFtoken($new = false)
+    static function getAntiCsrfToken($new = false)
     {
         if ($new)
         {
             $new = isset($_COOKIE['T$']) && 0 === strncmp($_COOKIE['T$'], '1', 1) ? '1' : '2';
 
-            if (!isset(self::$antiCSRFtoken))
+            if (!isset(self::$antiCsrfToken))
             {
                 if (IS_POSTING && (isset($_POST['T$']) || !empty($_COOKIE)))
                 {
 /**/                if (DEBUG)
 /**/                {
-                        W('Anti CSRF alert: in non-DEBUG mode, $_POST and $_FILES would have been erased.');
+                        W('Anti-CSRF alert: in non-DEBUG mode, $_POST and $_FILES would have been erased.');
 /**/                }
 /**/                else
 /**/                {
@@ -525,20 +526,20 @@ class patchwork
                         $GLOBALS['_FILES_BACKUP'] = $_FILES;
                         $_FILES = array();
 
-                        p\antiCSRF::postAlert();
+                        p\antiCsrf::postAlert();
 /**/                }
                 }
 
                 unset($_COOKIE['T$']);
             }
 
-            self::$antiCSRFtoken = $new . self::strongid();
+            self::$antiCsrfToken = $new . self::strongId();
 
-            setcookie('T$', self::$antiCSRFtoken, 0, $CONFIG['session.cookie_path'], $CONFIG['session.cookie_domain']);
+            setcookie('T$', self::$antiCsrfToken, 0, $CONFIG['session.cookie_path'], $CONFIG['session.cookie_domain']);
             $GLOBALS['patchwork_private'] = true;
         }
 
-        return self::$antiCSRFtoken;
+        return self::$antiCsrfToken;
     }
 
     /*
@@ -576,9 +577,9 @@ class patchwork
 
                 if (self::$is_enabled && (false !== stripos($string, 'javascript') || false !== stripos($string, 'ecmascript')))
                 {
-                    if (self::$private) PATCHWORK_TOKEN_MATCH || p\antiCSRF::scriptAlert();
+                    if (self::$private && !self::$antiCsrfMatch) p\antiCsrf::scriptAlert();
 
-                    self::$detectCSRF = true;
+                    self::$detectCsrf = true;
                 }
 
                 // Any non registered mime type is treated as application/octet-stream.
@@ -709,7 +710,7 @@ class patchwork
         if (!$group) return;
 
         if (self::$privateDetectionMode) throw new e\PrivateResource;
-        else if (self::$detectCSRF) PATCHWORK_TOKEN_MATCH || p\antiCSRF::scriptAlert();
+        else if (self::$detectCsrf && !self::$antiCsrfMatch) p\antiCsrf::scriptAlert();
 
         self::$private = true;
 
@@ -773,7 +774,7 @@ class patchwork
         return is_object($a) ? $a->__toString() : (string) $a;
     }
 
-    static function uniqid($raw = false)
+    static function uniqId($raw = false)
     {
 /**/    if (is_readable('/dev/urandom'))
             return md5(file_get_contents('/dev/urandom', false, null, -1, 16) . uniqid(mt_rand() . pack('d', lcg_value()), true), $raw);
@@ -781,13 +782,13 @@ class patchwork
             return md5(uniqid(mt_rand() . pack('d', lcg_value()), true), $raw);
     }
 
-    static function strongid($length = 32)
+    static function strongId($length = 32)
     {
         $a = '';
 
         do
         {
-            $a .= substr(base64_encode(self::uniqid(true)), 0, 21);
+            $a .= substr(base64_encode(self::uniqId(true)), 0, 21);
 
             $length -= 21;
         }
@@ -800,7 +801,7 @@ class patchwork
 
     static function strongPassword($length = 8)
     {
-        return strtr(self::strongid($length), 'IOl10r', '+$%?=&');
+        return strtr(self::strongId($length), 'IOl10r', '+$%?=&');
     }
 
     // Basic UTF-8 to ASCII transliteration
@@ -824,7 +825,7 @@ class patchwork
 
     static function saltedHash($pwd)
     {
-        $salt = self::strongid(self::$saltLength);
+        $salt = self::strongId(self::$saltLength);
         return substr($salt . md5($pwd . $salt), 0, self::$saltedHashTruncation);
     }
 
@@ -1127,7 +1128,7 @@ class patchwork
             $args && array_walk($args, array('self', 'stripArgs'));
 
 
-            // autodetect private data for antiCSRF
+            // autodetect private data for anti-CSRF
 
             $private = '0';
 
@@ -1255,7 +1256,7 @@ class patchwork
 
     protected static function appendToken($f)
     {
-        return p\antiCSRF::appendToken($f);
+        return p\antiCsrf::appendToken($f);
     }
 
     static function ob_filterOutput($buffer, $mode)
@@ -1285,7 +1286,7 @@ class patchwork
 
 /**/            if (DEBUG)
 /**/            {
-                    if ((!PATCHWORK_SYNC_CACHE || IS_POSTING) && !self::$binaryMode && 's' !== self::$requestMode)
+                    if ((!p\debugger::$syncCache || IS_POSTING) && !self::$binaryMode && 's' !== self::$requestMode)
                     {
                         $buffer = false !== strpos($buffer, '<!DOCTYPE')
                             ? preg_replace("'<!DOCTYPE[^>]*>'", '$0' . p\debugger::getProlog(), $buffer)
@@ -1300,7 +1301,7 @@ class patchwork
             {
 /**/            if (DEBUG)
 /**/            {
-                    if ((!PATCHWORK_SYNC_CACHE || IS_POSTING) && !self::$binaryMode && 's' !== self::$requestMode)
+                    if ((!p\debugger::$syncCache || IS_POSTING) && !self::$binaryMode && 's' !== self::$requestMode)
                     {
                         if (false !== strpos($buffer, '</body'))
                         {
