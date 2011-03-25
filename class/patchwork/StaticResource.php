@@ -11,10 +11,12 @@
  *
  ***************************************************************************/
 
+namespace patchwork;
+
 use patchwork as p;
 use SESSION   as s;
 
-class patchwork_StaticResource extends p
+class StaticResource extends p
 {
     // Map from extensions to content-types
     // This list doesn't have to be exhaustive:

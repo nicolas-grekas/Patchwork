@@ -11,11 +11,13 @@
  *
  ***************************************************************************/
 
+namespace patchwork;
+
 use patchwork           as p;
 use patchwork\Exception as e;
 use SESSION             as s;
 
-class patchwork_clientside extends p
+class clientside extends p
 {
     static function loadAgent($agent)
     {
@@ -188,7 +190,7 @@ EOHTML;
                     $key = jsquote($key);
                     is_string($key) || $key = "'" . $key . "'";
                     echo $comma, $key, ':';
-                    if ($value instanceof loop) self::writeAgent($value);
+                    if ($value instanceof \loop) self::writeAgent($value);
                     else echo jsquote($value);
                     $comma = ',';
                 }
@@ -338,7 +340,7 @@ EOHTML;
                 foreach ($data as $value)
                 {
                     echo ',';
-                    if ($value instanceof loop) self::writeAgent($value);
+                    if ($value instanceof \loop) self::writeAgent($value);
                     else echo jsquote($value);
                 }
             }

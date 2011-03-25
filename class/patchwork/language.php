@@ -11,8 +11,9 @@
  *
  ***************************************************************************/
 
+namespace patchwork;
 
-class patchwork_language
+class language
 {
     static function HTTP_Negociate($lang_list)
     {

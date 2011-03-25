@@ -11,10 +11,11 @@
  *
  ***************************************************************************/
 
+namespace patchwork;
 
 use patchwork as p;
 
-class patchwork_debugger extends patchwork
+class debugger extends p
 {
     static
 

@@ -11,9 +11,11 @@
  *
  ***************************************************************************/
 
+namespace patchwork;
+
 use patchwork as p;
 
-class patchwork_agentTrace extends patchwork
+class agentTrace extends p
 {
     static function resolve($agent)
     {

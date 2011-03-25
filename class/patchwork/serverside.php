@@ -11,10 +11,12 @@
  *
  ***************************************************************************/
 
+namespace patchwork;
+
 use patchwork           as p;
 use patchwork\Exception as e;
 
-class patchwork_serverside extends p
+class serverside extends p
 {
     protected static
 
@@ -107,7 +109,7 @@ class patchwork_serverside extends p
             $reset_get = false;
             $_GET =& $args;
 
-            if ($agent instanceof loop && $agent->__toString())
+            if ($agent instanceof \loop && $agent->__toString())
             {
                 $agent->autoResolve = false;
 
@@ -320,7 +322,7 @@ class patchwork_serverside extends p
     {
         foreach ($data as $key => $value)
         {
-            if ($value instanceof loop)
+            if ($value instanceof \loop)
             {
                 if ($value->__toString())
                 {

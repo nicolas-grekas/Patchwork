@@ -11,8 +11,9 @@
  *
  ***************************************************************************/
 
+namespace patchwork;
 
-class patchwork_httpRange
+class httpRange
 {
     static function negociate($filesize, $ETag, $LastModified)
     {
