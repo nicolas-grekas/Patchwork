@@ -74,7 +74,7 @@ class Patchwork_Preprocessor
 
         foreach (self::$parsers as $k => $v)
         {
-            is_bool($v) || $v = self::$parsers[$k] = 0 > $v ? PHP_VERSION_ID < $v : PHP_VERSION_ID >= $v;
+            is_bool($v) || $v = self::$parsers[$k] = 0 > $v ? PHP_VERSION_ID < -$v : PHP_VERSION_ID >= $v;
             $v && class_exists('Patchwork_PHP_Parser_' . $k, true);
         }
     }
