@@ -28,25 +28,25 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 
 /**/if (PHP_VERSION_ID < 50300)
 /**/{
-/**/    /*<*/Patchwork_Bootstrapper::alias('class_implements',        'Patchwork_PHP_Overlay_Class::class_implements',        array('$class', '$autoload' => true))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('class_parents',           'Patchwork_PHP_Overlay_Class::class_parents',           array('$class', '$autoload' => true))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('class_exists',            'Patchwork_PHP_Overlay_Class::class_exists',            array('$class', '$autoload' => true))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('get_class_methods',       'Patchwork_PHP_Overlay_Class::get_class_methods',       array('$class'))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('get_class_vars',          'Patchwork_PHP_Overlay_Class::get_class_vars',          array('$class'))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('get_class',               'Patchwork_PHP_Overlay_Class::get_class',               array('$obj'))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('get_declared_classes',    'Patchwork_PHP_Overlay_Class::get_declared_classes',    array())/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('get_declared_interfaces', 'Patchwork_PHP_Overlay_Class::get_declared_interfaces', array())/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('get_parent_class',        'Patchwork_PHP_Overlay_Class::get_parent_class',        array('$class'))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('interface_exists',        'Patchwork_PHP_Overlay_Class::interface_exists',        array('$class', '$autoload' => true))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('is_a',                    'Patchwork_PHP_Overlay_Class::is_a',                    array('$obj', '$class'))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('is_subclass_of',          'Patchwork_PHP_Overlay_Class::is_subclass_of',          array('$obj', '$class'))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('method_exists',           'Patchwork_PHP_Overlay_Class::method_exists',           array('$class', '$method'))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('property_exists',         'Patchwork_PHP_Overlay_Class::property_exists',         array('$class', '$property'))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('class_implements',        ':Class:', array('$class', '$autoload' => true))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('class_parents',           ':Class:', array('$class', '$autoload' => true))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('class_exists',            ':Class:', array('$class', '$autoload' => true))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('get_class_methods',       ':Class:', array('$class'))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('get_class_vars',          ':Class:', array('$class'))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('get_class',               ':Class:', array('$obj'))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('get_declared_classes',    ':Class:', array())/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('get_declared_interfaces', ':Class:', array())/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('get_parent_class',        ':Class:', array('$class'))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('interface_exists',        ':Class:', array('$class', '$autoload' => true))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('is_a',                    ':Class:', array('$obj', '$class'))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('is_subclass_of',          ':Class:', array('$obj', '$class'))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('method_exists',           ':Class:', array('$class', '$method'))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('property_exists',         ':Class:', array('$class', '$property'))/*>*/;
 /**/}
 
 /**/if (!function_exists('spl_object_hash'))
 /**/{
-/**/    /*<*/Patchwork_Bootstrapper::alias('spl_object_hash',   'Patchwork_PHP_Overlay_Class::spl_object_hash',   array('$object'))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('spl_object_hash',   ':Class:', array('$object'))/*>*/;
 /**/}
 
 
@@ -56,8 +56,8 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 
 /**/if (PHP_VERSION_ID < 50203)
 /**/{
-/**/    /*<*/Patchwork_Bootstrapper::alias('htmlspecialchars', 'Patchwork_PHP_Overlay_Strings::htmlspecialchars', array('$s', '$style' => ENT_COMPAT, '$charset' => 'UTF-8', '$double_enc' => true))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('htmlentities',     'Patchwork_PHP_Overlay_Strings::htmlentities',     array('$s', '$style' => ENT_COMPAT, '$charset' => 'UTF-8', '$double_enc' => true))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('htmlspecialchars', ':Strings:', array('$s', '$style' => ENT_COMPAT, '$charset' => 'UTF-8', '$double_enc' => true))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('htmlentities',     ':Strings:', array('$s', '$style' => ENT_COMPAT, '$charset' => 'UTF-8', '$double_enc' => true))/*>*/;
 /**/}
 /**/else
 /**/{
@@ -72,14 +72,14 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 
 // Workaround http://bugs.php.net/37394
 /**/if (PHP_VERSION_ID < 50200)
-/**/    /*<*/Patchwork_Bootstrapper::alias('substr_compare', 'Patchwork_PHP_Overlay_Strings::substr_compare', array('$main_str', '$str', '$offset', '$length' => INF, '$case_insensitivity' => false))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('substr_compare', ':Strings:', array('$main_str', '$str', '$offset', '$length' => INF, '$case_insensitivity' => false))/*>*/;
 
 // Backport $httpOnly parameter
 /**/if (PHP_VERSION_ID < 50200)
 /**/{
 /**/    $a = array('$name', '$value' => '', '$expires' => 0, '$path' => '', '$domain' => '', '$secure' => false, '$httponly' => false);
-/**/    /*<*/Patchwork_Bootstrapper::alias('setcookie',    'Patchwork_PHP_Overlay_Strings::setcookie',    $a)/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('setcookieraw', 'Patchwork_PHP_Overlay_Strings::setcookieraw', $a)/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('setcookie',    ':Strings:',    $a)/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('setcookieraw', ':Strings:', $a)/*>*/;
 /**/}
 
 
@@ -108,23 +108,23 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 
 /**/    if (MB_OVERLOAD_MAIL & (int) @ini_get('mbstring.func_overload'))
 /**/    {
-/**/        /*<*/Patchwork_Bootstrapper::alias('mail', 'Patchwork_PHP_Overlay_Mbstring8bit::mail', array('$to', '$subject', '$message', '$headers' => '', '$params' => ''))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('mail', ':Mbstring8bit:', array('$to', '$subject', '$message', '$headers' => '', '$params' => ''))/*>*/;
 /**/    }
 /**/
 /**/    if (MB_OVERLOAD_STRING & (int) @ini_get('mbstring.func_overload'))
 /**/    {
-/**/        /*<*/Patchwork_Bootstrapper::alias('strlen',  'Patchwork_PHP_Overlay_Mbstring8bit::strlen',  array('$s'))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::alias('strpos',  'Patchwork_PHP_Overlay_Mbstring8bit::strpos',  array('$s', '$needle', '$offset' => 0))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::alias('strrpos', 'Patchwork_PHP_Overlay_Mbstring8bit::strrpos', array('$s', '$needle', '$offset' => 0))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::alias('substr',  'Patchwork_PHP_Overlay_Mbstring8bit::substr',  array('$s', '$start', '$length' => INF))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('strlen',  ':Mbstring8bit:', array('$s'))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('strpos',  ':Mbstring8bit:', array('$s', '$needle', '$offset' => 0))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('strrpos', ':Mbstring8bit:', array('$s', '$needle', '$offset' => 0))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('substr',  ':Mbstring8bit:', array('$s', '$start', '$length' => INF))/*>*/;
 /**/
 /**/        if (PHP_VERSION_ID >= 50200)
 /**/        {
-/**/            /*<*/Patchwork_Bootstrapper::alias('stripos',  'Patchwork_PHP_Overlay_Mbstring8bit::stripos',  array('$s', '$needle', '$offset' => 0,   '$enc' => INF))/*>*/;
-/**/            /*<*/Patchwork_Bootstrapper::alias('stristr',  'Patchwork_PHP_Overlay_Mbstring8bit::stristr',  array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
-/**/            /*<*/Patchwork_Bootstrapper::alias('strrchr',  'Patchwork_PHP_Overlay_Mbstring8bit::strrchr',  array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
-/**/            /*<*/Patchwork_Bootstrapper::alias('strripos', 'Patchwork_PHP_Overlay_Mbstring8bit::strripos', array('$s', '$needle', '$offset' => 0,   '$enc' => INF))/*>*/;
-/**/            /*<*/Patchwork_Bootstrapper::alias('strstr',   'Patchwork_PHP_Overlay_Mbstring8bit::strstr',   array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
+/**/            /*<*/Patchwork_Bootstrapper::alias('stripos',  ':Mbstring8bit:', array('$s', '$needle', '$offset' => 0,   '$enc' => INF))/*>*/;
+/**/            /*<*/Patchwork_Bootstrapper::alias('stristr',  ':Mbstring8bit:', array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
+/**/            /*<*/Patchwork_Bootstrapper::alias('strrchr',  ':Mbstring8bit:', array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
+/**/            /*<*/Patchwork_Bootstrapper::alias('strripos', ':Mbstring8bit:', array('$s', '$needle', '$offset' => 0,   '$enc' => INF))/*>*/;
+/**/            /*<*/Patchwork_Bootstrapper::alias('strstr',   ':Mbstring8bit:', array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
 /**/        }
 /**/    }
 /**/}
@@ -137,33 +137,33 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
         define('MB_CASE_LOWER', 1);
         define('MB_CASE_TITLE', 2);
 
-/**/    /*<*/Patchwork_Bootstrapper::alias('mb_convert_encoding',     'Patchwork_PHP_Overlay_Mbstring50::convert_encoding',  array('$s', '$to', '$from' => INF))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('mb_decode_mimeheader',    'Patchwork_PHP_Overlay_Mbstring50::decode_mimeheader', array('$s'))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('mb_encode_mimeheader',    'Patchwork_PHP_Overlay_Mbstring50::convert_case',      array('$s', '$charset' => INF, '$transfer_enc' => INF, '$lf' => INF, '$indent' => INF))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('mb_convert_case',         'Patchwork_PHP_Overlay_Mbstring50::convert_case',      array('$s', '$mode', '$enc' => INF))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('mb_internal_encoding',    'Patchwork_PHP_Overlay_Mbstring50::internal_encoding', array('$enc' => INF))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('mb_list_encodings',       'Patchwork_PHP_Overlay_Mbstring50::list_encodings',    array())/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('mb_parse_str',            'parse_str',                                           array('$s', '&$result' => array()))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('mb_strlen',               'Patchwork_PHP_Overlay_Mbstring50::strlen',            array('$s', '$enc' => INF))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('mb_strpos',               'Patchwork_PHP_Overlay_Mbstring50::strpos',            array('$s', '$needle', '$offset' => 0, '$enc' => INF))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('mb_strtolower',           'Patchwork_PHP_Overlay_Mbstring50::strtolower',        array('$s', '$enc' => INF))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('mb_strtoupper',           'Patchwork_PHP_Overlay_Mbstring50::strtoupper',        array('$s', '$enc' => INF))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('mb_substitute_character', 'Patchwork_PHP_Overlay_Mbstring50::substitute_character', array('$char' => INF))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('mb_substr_count',         'substr_count',                                        array('$s',  '$needle'))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('mb_substr',               'Patchwork_PHP_Overlay_Mbstring50::substr',            array('$s', '$start', '$length' => PHP_INT_MAX, '$enc' => INF))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('mb_convert_encoding',     ':Mbstring50:', array('$s', '$to', '$from' => INF))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('mb_decode_mimeheader',    ':Mbstring50:', array('$s'))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('mb_encode_mimeheader',    ':Mbstring50:', array('$s', '$charset' => INF, '$transfer_enc' => INF, '$lf' => INF, '$indent' => INF))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('mb_convert_case',         ':Mbstring50:', array('$s', '$mode', '$enc' => INF))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('mb_internal_encoding',    ':Mbstring50:', array('$enc' => INF))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('mb_list_encodings',       ':Mbstring50:', array())/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('mb_parse_str',            'parse_str',    array('$s', '&$result' => array()))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('mb_strlen',               ':Mbstring50:', array('$s', '$enc' => INF))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('mb_strpos',               ':Mbstring50:', array('$s', '$needle', '$offset' => 0, '$enc' => INF))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('mb_strtolower',           ':Mbstring50:', array('$s', '$enc' => INF))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('mb_strtoupper',           ':Mbstring50:', array('$s', '$enc' => INF))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('mb_substitute_character', ':Mbstring50:', array('$char' => INF))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('mb_substr_count',         'substr_count', array('$s',  '$needle'))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('mb_substr',               ':Mbstring50:', array('$s', '$start', '$length' => PHP_INT_MAX, '$enc' => INF))/*>*/;
 /**/}
 
 /**/if (!extension_loaded('mbstring') || PHP_VERSION_ID < 50200)
 /**/{
-/**/    /*<*/Patchwork_Bootstrapper::alias('mb_stripos',  'Patchwork_PHP_Overlay_Mbstring52::stripos',  array('$s', '$needle', '$offset' => 0,   '$enc' => INF))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('mb_stristr',  'Patchwork_PHP_Overlay_Mbstring52::stristr',  array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('mb_strrchr',  'Patchwork_PHP_Overlay_Mbstring52::strrchr',  array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('mb_strrichr', 'Patchwork_PHP_Overlay_Mbstring52::strrichr', array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('mb_strripos', 'Patchwork_PHP_Overlay_Mbstring52::strripos', array('$s', '$needle', '$offset' => 0,   '$enc' => INF))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('mb_strrpos',  'Patchwork_PHP_Overlay_Mbstring52::strrpos',  array('$s', '$needle', '$offset' => 0,   '$enc' => INF))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('mb_strstr',   'Patchwork_PHP_Overlay_Mbstring52::strstr',   array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('mb_stripos',  ':Mbstring52:', array('$s', '$needle', '$offset' => 0,   '$enc' => INF))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('mb_stristr',  ':Mbstring52:', array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('mb_strrchr',  ':Mbstring52:', array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('mb_strrichr', ':Mbstring52:', array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('mb_strripos', ':Mbstring52:', array('$s', '$needle', '$offset' => 0,   '$enc' => INF))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('mb_strrpos',  ':Mbstring52:', array('$s', '$needle', '$offset' => 0,   '$enc' => INF))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('mb_strstr',   ':Mbstring52:', array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
 /**/
-/**/    /*<*/Patchwork_Bootstrapper::alias('mb_strrpos50', extension_loaded('mbstring') ? 'mb_strrpos' : 'Patchwork_PHP_Overlay_Mbstring50::strrpos', array('$s', '$needle', '$enc' => INF))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('mb_strrpos50', extension_loaded('mbstring') ? 'mb_strrpos' : ':Mbstring50:', array('$s', '$needle', '$enc' => INF))/*>*/;
 /**/}
 
 
@@ -200,8 +200,8 @@ $_SERVER['HTTPS'] = isset($_SERVER['HTTPS']) && ('on' === strtolower($_SERVER['H
 
 /**/if ('' === basename('§'))
 /**/{
-/**/    /*<*/Patchwork_Bootstrapper::alias('basename', 'Patchwork_PHP_Overlay_Fs::basename', array('$path', '$suffix' => ''))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('pathinfo', 'Patchwork_PHP_Overlay_Fs::pathinfo', array('$path', '$option' => INF))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('basename', ':Fs:', array('$path', '$suffix' => ''))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('pathinfo', ':Fs:', array('$path', '$option' => INF))/*>*/;
 /**/}
 
 
@@ -284,12 +284,12 @@ class ob
         define('ICONV_MIME_DECODE_STRICT', 1);
         define('ICONV_MIME_DECODE_CONTINUE_ON_ERROR', 2);
 
-/**/    /*<*/Patchwork_Bootstrapper::alias('iconv', 'Patchwork_PHP_Overlay_Iconv::iconv', array('$from', '$to', '$s'))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('iconv_get_encoding', 'Patchwork_PHP_Overlay_Iconv::get_encoding', array('$type' => 'all'))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('iconv_set_encoding', 'Patchwork_PHP_Overlay_Iconv::set_encoding', array('$type', '$charset'))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('iconv_mime_encode',  'Patchwork_PHP_Overlay_Iconv::mime_encode',  array('$name', '$value', '$pref' => INF))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('ob_iconv_handler',   'Patchwork_PHP_Overlay_Iconv::ob_handler',   array('$buffer', '$mode'))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('iconv_mime_decode_headers', 'Patchwork_PHP_Overlay_Iconv::mime_decode_headers', array('$encoded_headers', '$mode' => 2, '$charset' => INF))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('iconv',                     ':Iconv:', array('$from', '$to', '$s'))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('iconv_get_encoding',        ':Iconv:', array('$type' => 'all'))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('iconv_set_encoding',        ':Iconv:', array('$type', '$charset'))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('iconv_mime_encode',         ':Iconv:', array('$name', '$value', '$pref' => INF))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('ob_iconv_handler',          ':Iconv:', array('$buffer', '$mode'))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('iconv_mime_decode_headers', ':Iconv:', array('$encoded_headers', '$mode' => 2, '$charset' => INF))/*>*/;
 /**/
 /**/    if (extension_loaded('mbstring'))
 /**/    {
@@ -302,13 +302,13 @@ class ob
 /**/    else
 /**/    {
 /**/        extension_loaded('xml')
-/**/            ? /*<*/Patchwork_Bootstrapper::alias('iconv_strlen', 'Patchwork_PHP_Overlay_Iconv::strlen1', array('$s', '$enc' => INF))/*>*/
-/**/            : /*<*/Patchwork_Bootstrapper::alias('iconv_strlen', 'Patchwork_PHP_Overlay_Iconv::strlen2', array('$s', '$enc' => INF))/*>*/;
+/**/            ? /*<*/Patchwork_Bootstrapper::alias('iconv_strlen', ':Iconv::strlen1', array('$s', '$enc' => INF))/*>*/
+/**/            : /*<*/Patchwork_Bootstrapper::alias('iconv_strlen', ':Iconv::strlen2', array('$s', '$enc' => INF))/*>*/;
 /**/
-/**/        /*<*/Patchwork_Bootstrapper::alias('iconv_strpos',  'Patchwork_PHP_Overlay_Mbstring52::strpos',  array('$s', '$needle', '$offset' => 0, '$enc' => INF))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::alias('iconv_strrpos', 'Patchwork_PHP_Overlay_Mbstring52::strrpos', array('$s', '$needle',                 '$enc' => INF))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::alias('iconv_substr',  'Patchwork_PHP_Overlay_Mbstring52::substr',  array('$s', '$start', '$length' => PHP_INT_MAX, '$enc' => INF))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::alias('iconv_mime_decode',  'Patchwork_PHP_Overlay_Iconv::mime_decode', array('$encoded_headers', '$mode' => 2, '$charset' => INF))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('iconv_strpos',  ':Mbstring52:', array('$s', '$needle', '$offset' => 0, '$enc' => INF))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('iconv_strrpos', ':Mbstring52:', array('$s', '$needle',                 '$enc' => INF))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('iconv_substr',  ':Mbstring52:', array('$s', '$start', '$length' => PHP_INT_MAX, '$enc' => INF))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('iconv_mime_decode',  ':Iconv:', array('$encoded_headers', '$mode' => 2, '$charset' => INF))/*>*/;
 /**/    }
 /**/}
 
@@ -327,8 +327,8 @@ class ob
 
 // utf8_encode/decode support enhanced to Windows-1252
 
-/**/ /*<*/Patchwork_Bootstrapper::alias('utf8_encode', 'Patchwork_PHP_Overlay_Strings::utf8_encode', array('$s'))/*>*/;
-/**/ /*<*/Patchwork_Bootstrapper::alias('utf8_decode', 'Patchwork_PHP_Overlay_Strings::utf8_decode', array('$s'))/*>*/;
+/**/ /*<*/Patchwork_Bootstrapper::alias('utf8_encode', ':Strings:', array('$s'))/*>*/;
+/**/ /*<*/Patchwork_Bootstrapper::alias('utf8_decode', ':Strings:', array('$s'))/*>*/;
 
 
 // Configure PCRE
@@ -374,14 +374,14 @@ function patchwork_http_socket($host, $port, $ssl, $timeout = 30)
 /**/    /*<*/Patchwork_Bootstrapper::alias('normalizer_is_normalized', 'Normalizer::isNormalized', array('$s', '$form' => 'NFC'))/*>*/;
 /**/    /*<*/Patchwork_Bootstrapper::alias('normalizer_normalize',     'Normalizer::normalize',    array('$s', '$form' => 'NFC'))/*>*/;
 /**/
-/**/    /*<*/Patchwork_Bootstrapper::alias('grapheme_stripos',  'Patchwork_PHP_Overlay_Intl::stripos',  array('$s', '$needle', '$offset' => 0))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('grapheme_stristr',  'Patchwork_PHP_Overlay_Intl::stristr',  array('$s', '$needle', '$before_needle' => false))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('grapheme_strlen',   'Patchwork_PHP_Overlay_Intl::strlen',   array('$s'))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('grapheme_strpos',   'Patchwork_PHP_Overlay_Intl::strpos',   array('$s', '$needle', '$offset' => 0))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('grapheme_strripos', 'Patchwork_PHP_Overlay_Intl::strripos', array('$s', '$needle', '$offset' => 0))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('grapheme_strrpos',  'Patchwork_PHP_Overlay_Intl::strrpos',  array('$s', '$needle', '$offset' => 0))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('grapheme_strstr',   'Patchwork_PHP_Overlay_Intl::strstr',   array('$s', '$needle', '$before_needle' => false))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('grapheme_substr',   'Patchwork_PHP_Overlay_Intl::substr',   array('$s', '$start', '$len' => INF))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('grapheme_stripos',  ':Intl:', array('$s', '$needle', '$offset' => 0))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('grapheme_stristr',  ':Intl:', array('$s', '$needle', '$before_needle' => false))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('grapheme_strlen',   ':Intl:', array('$s'))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('grapheme_strpos',   ':Intl:', array('$s', '$needle', '$offset' => 0))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('grapheme_strripos', ':Intl:', array('$s', '$needle', '$offset' => 0))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('grapheme_strrpos',  ':Intl:', array('$s', '$needle', '$offset' => 0))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('grapheme_strstr',   ':Intl:', array('$s', '$needle', '$before_needle' => false))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('grapheme_substr',   ':Intl:', array('$s', '$start', '$len' => INF))/*>*/;
 /**/}
 
 
@@ -806,11 +806,11 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 /**/    // Before PHP 5.3, backport spl_autoload_register()'s $prepend argument
 /**/    // and workaround http://bugs.php.net/44144
 /**/
-/**/    /*<*/Patchwork_Bootstrapper::alias('__autoload',              'Patchwork_PHP_Overlay_SplAutoload::call',       array('$class'))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('spl_autoload_call',       'Patchwork_PHP_Overlay_SplAutoload::call',       array('$class'))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('spl_autoload_functions',  'Patchwork_PHP_Overlay_SplAutoload::functions',  array())/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('spl_autoload_register',   'Patchwork_PHP_Overlay_SplAutoload::register',   array('$callback', '$throw' => true, '$prepend' => false))/*>*/;
-/**/    /*<*/Patchwork_Bootstrapper::alias('spl_autoload_unregister', 'Patchwork_PHP_Overlay_SplAutoload::unregister', array('$callback'))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('__autoload',              ':SplAutoload::spl_autoload_call', array('$class'))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('spl_autoload_call',       ':SplAutoload:', array('$class'))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('spl_autoload_functions',  ':SplAutoload:', array())/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('spl_autoload_register',   ':SplAutoload:', array('$callback', '$throw' => true, '$prepend' => false))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('spl_autoload_unregister', ':SplAutoload:', array('$callback'))/*>*/;
 
 /**/    @unlink(Patchwork_Bootstrapper::$cwd . '.patchwork.spl-autoload.php');
 /**/    copy(Patchwork_Bootstrapper::$pwd . 'class/Patchwork/PHP/Overlay/SplAutoload.php', Patchwork_Bootstrapper::$cwd . '.patchwork.spl-autoload.php');

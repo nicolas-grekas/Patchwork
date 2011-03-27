@@ -28,45 +28,45 @@ mb_strstr   - Finds first occurrence of a string within another
 
 class Patchwork_PHP_Overlay_Mbstring52
 {
-    static function stripos($haystack, $needle, $offset = 0, $encoding = INF)
+    static function mb_stripos($haystack, $needle, $offset = 0, $encoding = INF)
     {
         INF === $encoding && $encoding = mb_internal_encoding();
         return mb_strpos(mb_strtolower($haystack, $encoding), mb_strtolower($needle, $encoding), $offset, $encoding);
     }
 
-    static function stristr($haystack, $needle, $part = false, $encoding = INF)
+    static function mb_stristr($haystack, $needle, $part = false, $encoding = INF)
     {
-        $pos = self::stripos($haystack, $needle, $encoding);
+        $pos = self::mb_stripos($haystack, $needle, $encoding);
         return self::getSubpart($pos, $part, $haystack, $encoding);
     }
 
-    static function strrchr($haystack, $needle, $part = false, $encoding = INF)
-    {
-        $needle = mb_substr($needle, 0, 1, $encoding);
-        $pos = self::strrpos($haystack, $needle, 0, $encoding);
-        return self::getSubpart($pos, $part, $haystack, $encoding);
-    }
-
-    static function strrichr($haystack, $needle, $part = false, $encoding = INF)
+    static function mb_strrchr($haystack, $needle, $part = false, $encoding = INF)
     {
         $needle = mb_substr($needle, 0, 1, $encoding);
-        $pos = self::strripos($haystack, $needle, $encoding);
+        $pos = self::mb_strrpos($haystack, $needle, 0, $encoding);
         return self::getSubpart($pos, $part, $haystack, $encoding);
     }
 
-    static function strripos($haystack, $needle, $offset = 0, $encoding = INF)
+    static function mb_strrichr($haystack, $needle, $part = false, $encoding = INF)
+    {
+        $needle = mb_substr($needle, 0, 1, $encoding);
+        $pos = self::mb_strripos($haystack, $needle, $encoding);
+        return self::getSubpart($pos, $part, $haystack, $encoding);
+    }
+
+    static function mb_strripos($haystack, $needle, $offset = 0, $encoding = INF)
     {
         INF === $encoding && $encoding = mb_internal_encoding();
-        return self::strrpos(mb_strtolower($haystack, $encoding), mb_strtolower($needle, $encoding), $offset, $encoding);
+        return self::mb_strrpos(mb_strtolower($haystack, $encoding), mb_strtolower($needle, $encoding), $offset, $encoding);
     }
 
-    static function strstr($haystack, $needle, $part = false, $encoding = INF)
+    static function mb_strstr($haystack, $needle, $part = false, $encoding = INF)
     {
         $pos = strpos($haystack, $needle);
         return false === $pos ? false : ($part ? substr($haystack, 0, $pos) : substr($haystack, $pos));
     }
 
-    static function strrpos($haystack, $needle, $offset = 0, $encoding = INF)
+    static function mb_strrpos($haystack, $needle, $offset = 0, $encoding = INF)
     {
         INF === $encoding && $encoding = mb_internal_encoding();
 
@@ -99,15 +99,15 @@ class Patchwork_PHP_Overlay_Mbstring52
 
 /**/if (!function_exists('mb_stripos'))
 /**/{
-        function mb_stripos( $haystack, $needle, $offset = 0,   $encoding = INF) {return Patchwork_PHP_Overlay_Mbstring52::stripos( $haystack, $needle, $offset, $encoding);}
-        function mb_stristr( $haystack, $needle, $part = false, $encoding = INF) {return Patchwork_PHP_Overlay_Mbstring52::stristr( $haystack, $needle, $part,   $encoding);}
-        function mb_strrchr( $haystack, $needle, $part = false, $encoding = INF) {return Patchwork_PHP_Overlay_Mbstring52::strrchr( $haystack, $needle, $part,   $encoding);}
-        function mb_strrichr($haystack, $needle, $part = false, $encoding = INF) {return Patchwork_PHP_Overlay_Mbstring52::strrichr($haystack, $needle, $part,   $encoding);}
-        function mb_strripos($haystack, $needle, $offset = 0,   $encoding = INF) {return Patchwork_PHP_Overlay_Mbstring52::strripos($haystack, $needle, $offset, $encoding);}
-        function mb_strstr(  $haystack, $needle, $part = false, $encoding = INF) {return Patchwork_PHP_Overlay_Mbstring52::strstr(  $haystack, $needle, $part,   $encoding);}
+        function mb_stripos( $haystack, $needle, $offset = 0,   $encoding = INF) {return Patchwork_PHP_Overlay_Mbstring52::mb_stripos( $haystack, $needle, $offset, $encoding);}
+        function mb_stristr( $haystack, $needle, $part = false, $encoding = INF) {return Patchwork_PHP_Overlay_Mbstring52::mb_stristr( $haystack, $needle, $part,   $encoding);}
+        function mb_strrchr( $haystack, $needle, $part = false, $encoding = INF) {return Patchwork_PHP_Overlay_Mbstring52::mb_strrchr( $haystack, $needle, $part,   $encoding);}
+        function mb_strrichr($haystack, $needle, $part = false, $encoding = INF) {return Patchwork_PHP_Overlay_Mbstring52::mb_strrichr($haystack, $needle, $part,   $encoding);}
+        function mb_strripos($haystack, $needle, $offset = 0,   $encoding = INF) {return Patchwork_PHP_Overlay_Mbstring52::mb_strripos($haystack, $needle, $offset, $encoding);}
+        function mb_strstr(  $haystack, $needle, $part = false, $encoding = INF) {return Patchwork_PHP_Overlay_Mbstring52::mb_strstr(  $haystack, $needle, $part,   $encoding);}
 /**/}
 
-/**/if (!defined('PATCHWORK_MICROTIME'))
+/**/if (!function_exists('mb_strrpos50'))
 /**/{
         function mb_strrpos50($haystack, $needle, $encoding = INF)
         {

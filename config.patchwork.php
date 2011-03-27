@@ -58,13 +58,13 @@ empty($CONFIG['xsendfile']) && isset($_SERVER['PATCHWORK_XSENDFILE']) && $CONFIG
         {
 /**/        // Replace file_exists() on Windows to check if character case is strict
 /**/
-/**/        /*<*/Patchwork_Bootstrapper::alias('file_exists',   'Patchwork_PHP_Overlay_Winfs::file_exists',   array('$file'))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::alias('is_file',       'Patchwork_PHP_Overlay_Winfs::is_file',       array('$file'))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::alias('is_dir',        'Patchwork_PHP_Overlay_Winfs::is_dir',        array('$file'))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::alias('is_link',       'Patchwork_PHP_Overlay_Winfs::is_link',       array('$file'))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::alias('is_executable', 'Patchwork_PHP_Overlay_Winfs::is_executable', array('$file'))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::alias('is_readable',   'Patchwork_PHP_Overlay_Winfs::is_readable',   array('$file'))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::alias('is_writable',   'Patchwork_PHP_Overlay_Winfs::is_writable',   array('$file'))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('file_exists',   ':Winfs:', array('$file'))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('is_file',       ':Winfs:', array('$file'))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('is_dir',        ':Winfs:', array('$file'))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('is_link',       ':Winfs:', array('$file'))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('is_executable', ':Winfs:', array('$file'))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('is_readable',   ':Winfs:', array('$file'))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('is_writable',   ':Winfs:', array('$file'))/*>*/;
         }
 /**/}
 

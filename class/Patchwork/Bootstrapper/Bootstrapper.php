@@ -300,16 +300,20 @@ class Patchwork_Bootstrapper_Bootstrapper
 
     function alias($function, $alias, $args, $return_ref = false)
     {
+        ':' === substr($alias, 0, 1) && $alias = 'Patchwork_PHP_Overlay_' . substr($alias, 1);
+        ':' === substr($alias, -1)   && $alias .= ':' . $function;
+        $alias = ltrim($alias, '\\');
+
         if (function_exists($function))
         {
-            $inline = $function == $alias ? -1 : 2;
+            $inline = 0 === strcasecmp($function, $alias) ? -1 : 2;
             $function = "__patchwork_{$function}";
         }
         else
         {
             $inline = 1;
 
-            if ($function == $alias)
+            if (0 === strcasecmp($function, $alias))
             {
                 return "die('Patchwork error: Circular aliasing of function {$function}() in ' . __FILE__ . ' on line ' . __LINE__);";
             }

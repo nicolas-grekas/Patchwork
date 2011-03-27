@@ -135,7 +135,7 @@ class Patchwork_PHP_Overlay_Iconv
         else return $str;
     }
 
-    static function mime_decode_headers($str, $mode = ICONV_MIME_DECODE_CONTINUE_ON_ERROR, $charset = INF)
+    static function iconv_mime_decode_headers($str, $mode = ICONV_MIME_DECODE_CONTINUE_ON_ERROR, $charset = INF)
     {
         INF === $charset && $charset = self::$internal_encoding;
 
@@ -147,7 +147,7 @@ class Patchwork_PHP_Overlay_Iconv
         $str = preg_split('/\n(?![ \t])/', $str[0]);
         foreach ($str as $str)
         {
-            $str = self::mime_decode($str, $mode, $charset);
+            $str = self::iconv_mime_decode($str, $mode, $charset);
             $str = explode(':', $str, 2);
 
             if (2 === count($str))
@@ -164,7 +164,7 @@ class Patchwork_PHP_Overlay_Iconv
         return $headers;
     }
 
-    static function mime_decode($str, $mode = ICONV_MIME_DECODE_CONTINUE_ON_ERROR, $charset = INF)
+    static function iconv_mime_decode($str, $mode = ICONV_MIME_DECODE_CONTINUE_ON_ERROR, $charset = INF)
     {
         INF === $charset && $charset = self::$internal_encoding;
 
@@ -195,7 +195,7 @@ class Patchwork_PHP_Overlay_Iconv
         return $result;
     }
 
-    static function get_encoding($type = 'all')
+    static function iconv_get_encoding($type = 'all')
     {
         switch ($type)
         {
@@ -211,7 +211,7 @@ class Patchwork_PHP_Overlay_Iconv
         );
     }
 
-    static function set_encoding($type, $charset)
+    static function iconv_set_encoding($type, $charset)
     {
         switch ($type)
         {
@@ -225,7 +225,7 @@ class Patchwork_PHP_Overlay_Iconv
         return true;
     }
 
-    static function mime_encode($field_name, $field_value, $pref = INF)
+    static function iconv_mime_encode($field_name, $field_value, $pref = INF)
     {
         is_array($pref) || $pref = array();
 
@@ -292,12 +292,12 @@ class Patchwork_PHP_Overlay_Iconv
         return $field_name . ': ' . implode($pref['line-break-chars'] . ' ', $field_value);
     }
 
-    static function ob_handler($buffer, $mode)
+    static function ob_iconv_handler($buffer, $mode)
     {
         return self::iconv(self::$internal_encoding, self::$output_encoding, $buffer);
     }
 
-    static function strlen($s, $encoding = INF)
+    static function iconv_strlen($s, $encoding = INF)
     {
         static $xml = null; null === $xml && $xml = extension_loaded('xml');
         return $xml
@@ -333,27 +333,27 @@ class Patchwork_PHP_Overlay_Iconv
         return $j;
     }
 
-    static function strpos($haystack, $needle, $offset = 0, $encoding = INF)
+    static function iconv_strpos($haystack, $needle, $offset = 0, $encoding = INF)
     {
         INF === $encoding && $encoding = self::$internal_encoding;
         0 !== strncasecmp($encoding, 'UTF-8', 5) && $s = self::iconv($encoding, 'UTF-8//IGNORE', $s);
 
-        if ($offset = (int) $offset) $haystack = self::substr($haystack, $offset, PHP_INT_MAX, 'UTF-8');
+        if ($offset = (int) $offset) $haystack = self::iconv_substr($haystack, $offset, PHP_INT_MAX, 'UTF-8');
         $pos = strpos($haystack, $needle);
         return false === $pos ? false : ($offset + ($pos ? iconv_strlen(substr($haystack, 0, $pos), 'UTF-8') : 0));
     }
 
-    static function strrpos($haystack, $needle, $encoding = INF)
+    static function iconv_strrpos($haystack, $needle, $encoding = INF)
     {
         INF === $encoding && $encoding = self::$internal_encoding;
         0 !== strncasecmp($encoding, 'UTF-8', 5) && $s = self::iconv($encoding, 'UTF-8//IGNORE', $s);
 
-        $needle = self::substr($needle, 0, 1, 'UTF-8');
+        $needle = self::iconv_substr($needle, 0, 1, 'UTF-8');
         $pos = strpos(strrev($haystack), strrev($needle));
         return false === $pos ? false : iconv_strlen($pos ? substr($haystack, 0, -$pos) : $haystack, 'UTF-8');
     }
 
-    static function substr($s, $start, $length = PHP_INT_MAX, $encoding = INF)
+    static function iconv_substr($s, $start, $length = PHP_INT_MAX, $encoding = INF)
     {
         INF === $encoding && $encoding = self::$internal_encoding;
         if (0 === strncasecmp($encoding, 'UTF-8', 5)) $encoding = INF;
@@ -544,15 +544,15 @@ class Patchwork_PHP_Overlay_Iconv
 
 
         function iconv($in_charset, $out_charset, $str) {return Patchwork_PHP_Overlay_Iconv::iconv($in_charset, $out_charset, $str);}
-        function iconv_mime_decode_headers($encoded_headers, $mode = 2, $charset = INF) {return Patchwork_PHP_Overlay_Iconv::mime_decode_headers($encoded_headers, $mode, $charset);}
-        function iconv_mime_decode        ($encoded_headers, $mode = 2, $charset = INF) {return Patchwork_PHP_Overlay_Iconv::mime_decode        ($encoded_headers, $mode, $charset);}
-        function iconv_get_encoding($type = 'all')   {return Patchwork_PHP_Overlay_Iconv::get_encoding($type);}
-        function iconv_set_encoding($type, $charset) {return Patchwork_PHP_Overlay_Iconv::set_encoding($type, $charset);}
-        function iconv_mime_encode($field_name, $field_value, $pref = INF) {return Patchwork_PHP_Overlay_Iconv::mime_encode($field_name, $field_value, $pref);}
-        function ob_iconv_handler($buffer, $mode)  {return Patchwork_PHP_Overlay_Iconv::ob_handler($buffer, $mode);}
-        function iconv_strpos ($haystack, $needle, $offset = 0, $encoding = INF) {return Patchwork_PHP_Overlay_Iconv::strpos ($haystack, $needle, $offset, $encoding);}
-        function iconv_strrpos($haystack, $needle,              $encoding = INF) {return Patchwork_PHP_Overlay_Iconv::strrpos($haystack, $needle,          $encoding);}
-        function iconv_substr($s, $start, $length = PHP_INT_MAX, $encoding = INF) {return Patchwork_PHP_Overlay_Iconv::substr($s, $start, $length, $encoding);}
+        function iconv_mime_decode_headers($encoded_headers, $mode = 2, $charset = INF) {return Patchwork_PHP_Overlay_Iconv::iconv_mime_decode_headers($encoded_headers, $mode, $charset);}
+        function iconv_mime_decode        ($encoded_headers, $mode = 2, $charset = INF) {return Patchwork_PHP_Overlay_Iconv::iconv_mime_decode        ($encoded_headers, $mode, $charset);}
+        function iconv_get_encoding($type = 'all')   {return Patchwork_PHP_Overlay_Iconv::iconv_get_encoding($type);}
+        function iconv_set_encoding($type, $charset) {return Patchwork_PHP_Overlay_Iconv::iconv_set_encoding($type, $charset);}
+        function iconv_mime_encode($field_name, $field_value, $pref = INF) {return Patchwork_PHP_Overlay_Iconv::iconv_mime_encode($field_name, $field_value, $pref);}
+        function ob_iconv_handler($buffer, $mode)  {return Patchwork_PHP_Overlay_Iconv::ob_iconv_handler($buffer, $mode);}
+        function iconv_strpos ($haystack, $needle, $offset = 0, $encoding = INF) {return Patchwork_PHP_Overlay_Iconv::iconv_strpos ($haystack, $needle, $offset, $encoding);}
+        function iconv_strrpos($haystack, $needle,              $encoding = INF) {return Patchwork_PHP_Overlay_Iconv::iconv_strrpos($haystack, $needle,          $encoding);}
+        function iconv_substr($s, $start, $length = PHP_INT_MAX, $encoding = INF) {return Patchwork_PHP_Overlay_Iconv::iconv_substr($s, $start, $length, $encoding);}
 
         if (extension_loaded('xml'))
         {

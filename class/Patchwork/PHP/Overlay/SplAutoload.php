@@ -20,7 +20,7 @@ class Patchwork_PHP_Overlay_SplAutoload
     $loweredStack = false;
 
 
-    static function call($class)
+    static function spl_autoload_call($class)
     {
         if (false === self::$canonicStack)
         {
@@ -36,12 +36,12 @@ class Patchwork_PHP_Overlay_SplAutoload
         }
     }
 
-    static function functions()
+    static function spl_autoload_functions()
     {
         return self::$canonicStack;
     }
 
-    static function register($c, $throw = true, $prepend = false)
+    static function spl_autoload_register($c, $throw = true, $prepend = false)
     {
         if (array() !== @array_map($c, array()))
         {
@@ -80,7 +80,7 @@ class Patchwork_PHP_Overlay_SplAutoload
         return true;
     }
 
-    static function unregister($c)
+    static function spl_autoload_unregister($c)
     {
         if (false !== self::$canonicStack) return false;
 
@@ -107,8 +107,8 @@ class Patchwork_PHP_Overlay_SplAutoload
             class LogicException extends Exception {}
 /**/    }
 
-        function spl_autoload_call($class)          {return Patchwork_PHP_spl::spl_autoload_call($class);}
-        function spl_autoload_functions()           {return Patchwork_PHP_spl::spl_autoload_functions();}
-        function spl_autoload_unregister($callback) {return Patchwork_PHP_spl::spl_autoload_unregister($callback);}
-        function spl_autoload_register($callback, $throw = true, $prepend = false) {return Patchwork_PHP_spl::spl_autoload_register($callback, $throw, $prepend);}
+        function spl_autoload_call($class)          {return Patchwork_PHP_Overlay_SplAutoload::spl_autoload_call($class);}
+        function spl_autoload_functions()           {return Patchwork_PHP_Overlay_SplAutoload::spl_autoload_functions();}
+        function spl_autoload_unregister($callback) {return Patchwork_PHP_Overlay_SplAutoload::spl_autoload_unregister($callback);}
+        function spl_autoload_register($callback, $throw = true, $prepend = false) {return Patchwork_PHP_Overlay_SplAutoload::spl_autoload_register($callback, $throw, $prepend);}
 /**/}
