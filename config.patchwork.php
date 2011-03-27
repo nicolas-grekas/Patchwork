@@ -44,7 +44,7 @@ $CONFIG += array(
 
 // Setup patchwork's environment
 
-/**/ /*<*/patchwork_bootstrapper::alias('header', 'patchwork::header', array('$s', '$replace' => true, '$response_code' => null))/*>*/;
+/**/ /*<*/Patchwork_Bootstrapper::alias('header', 'Patchwork::header', array('$s', '$replace' => true, '$response_code' => null))/*>*/;
 
 defined('DEBUG') || define('DEBUG', $CONFIG['debug.allowed'] && (!$CONFIG['debug.password'] || isset($_COOKIE['debug_password']) && $CONFIG['debug.password'] == $_COOKIE['debug_password']) ? 1 : 0);
 defined('TURBO') || define('TURBO', !DEBUG && $CONFIG['turbo']);
@@ -58,13 +58,13 @@ empty($CONFIG['xsendfile']) && isset($_SERVER['PATCHWORK_XSENDFILE']) && $CONFIG
         {
 /**/        // Replace file_exists() on Windows to check if character case is strict
 /**/
-/**/        /*<*/patchwork_bootstrapper::alias('file_exists',   'patchwork_PHP_winfs::file_exists',   array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_file',       'patchwork_PHP_winfs::is_file',       array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_dir',        'patchwork_PHP_winfs::is_dir',        array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_link',       'patchwork_PHP_winfs::is_link',       array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_executable', 'patchwork_PHP_winfs::is_executable', array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_readable',   'patchwork_PHP_winfs::is_readable',   array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_writable',   'patchwork_PHP_winfs::is_writable',   array('$file'))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('file_exists',   'Patchwork_PHP_Overlay_Winfs::file_exists',   array('$file'))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('is_file',       'Patchwork_PHP_Overlay_Winfs::is_file',       array('$file'))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('is_dir',        'Patchwork_PHP_Overlay_Winfs::is_dir',        array('$file'))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('is_link',       'Patchwork_PHP_Overlay_Winfs::is_link',       array('$file'))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('is_executable', 'Patchwork_PHP_Overlay_Winfs::is_executable', array('$file'))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('is_readable',   'Patchwork_PHP_Overlay_Winfs::is_readable',   array('$file'))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('is_writable',   'Patchwork_PHP_Overlay_Winfs::is_writable',   array('$file'))/*>*/;
         }
 /**/}
 
@@ -382,7 +382,7 @@ if ($_SERVER['PATCHWORK_LANG'])
 {
     function T($string, $lang = false)
     {
-        if (!$lang) $lang = patchwork::__LANG__();
+        if (!$lang) $lang = Patchwork::__LANG__();
         return TRANSLATOR::get($string, $lang, true);
     }
 }

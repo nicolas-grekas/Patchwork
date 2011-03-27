@@ -16,8 +16,8 @@ class pipe_now
 {
     static function php($string)
     {
-        patchwork::setMaxage(1);
-        patchwork::setExpires('onmaxage');
+        Patchwork::setMaxage(1);
+        Patchwork::setExpires('onmaxage');
         return $_SERVER['REQUEST_TIME'];
     }
 

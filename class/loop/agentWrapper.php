@@ -49,7 +49,7 @@ class loop_agentWrapper extends loop
                 {
                     if (!isset($this->keys) || preg_match("'^(/|https?://)'", $this->agent))
                     {
-                        list($appId, $base, $data->{'a$'}, $keys, $a) = patchwork\agentTrace::resolve($this->agent);
+                        list($appId, $base, $data->{'a$'}, $keys, $a) = Patchwork\AgentTrace::resolve($this->agent);
 
                         foreach ($a as $k => &$v) $data->$k =& $v;
 

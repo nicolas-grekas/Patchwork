@@ -16,7 +16,7 @@ class pipe_trim
 {
     static function php($a)
     {
-        return trim( patchwork::string($a) );
+        return trim( Patchwork::string($a) );
     }
 
     static function js()

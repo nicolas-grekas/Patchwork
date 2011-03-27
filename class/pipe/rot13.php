@@ -16,7 +16,7 @@ class pipe_rot13
 {
     static function php($string)
     {
-        return str_rot13(patchwork::string($string));
+        return str_rot13(Patchwork::string($string));
     }
 
     static function js()

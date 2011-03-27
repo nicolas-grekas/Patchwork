@@ -26,7 +26,7 @@ class pipe_htmlArgs
         {
             if ('_' !== substr($k, 0, 1) && 'iteratorPosition' !== $k && false === strpos($k, '$') && !in_array($k, $except))
             {
-                $v = patchwork::string($v);
+                $v = Patchwork::string($v);
                 '' !== $v && $result .= $k . '="' . $v . '" ';
             }
         }

@@ -16,9 +16,9 @@ class pipe_rgb
 {
     static function php($r, $g, $b)
     {
-        $r = patchwork::string($r) - 0;
-        $g = patchwork::string($g) - 0;
-        $b = patchwork::string($b) - 0;
+        $r = Patchwork::string($r) - 0;
+        $g = Patchwork::string($g) - 0;
+        $b = Patchwork::string($b) - 0;
 
         return sprintf('#%02x%02x%02x', $r, $g, $b);
     }

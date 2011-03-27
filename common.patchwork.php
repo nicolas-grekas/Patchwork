@@ -14,7 +14,7 @@
 
 // General pre-configuration
 
-defined('patchwork') || define('patchwork', microtime(true));
+defined('PATCHWORK_MICROTIME') || define('PATCHWORK_MICROTIME', microtime(true));
 define('IS_WINDOWS', /*<*/'\\' === DIRECTORY_SEPARATOR/*>*/);
 error_reporting(E_ALL | E_STRICT);
 setlocale(LC_ALL, 'C');
@@ -140,7 +140,7 @@ function win_hide_file($file)
 /**/else $a = false;
 
 /**/if (!function_exists('getcwd') || !@getcwd())
-/**/    /*<*/patchwork_bootstrapper::alias('getcwd', 'patchwork_getcwd', array())/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('getcwd', 'patchwork_getcwd', array())/*>*/;
 
 function patchwork_getcwd()
 {
@@ -160,7 +160,7 @@ function patchwork_getcwd()
 
 /**/if (false !== $a)
 /**/{
-/**/    /*<*/patchwork_bootstrapper::alias('realpath', 'patchwork_realpath', array('$path'))/*>*/;
+/**/    /*<*/Patchwork_Bootstrapper::alias('realpath', 'patchwork_realpath', array('$path'))/*>*/;
 
         function patchwork_realpath($a)
         {
@@ -238,12 +238,12 @@ function patchwork_getcwd()
 /**/    {
 /**/        // Replace file_exists() on Windows to fix a bug with long file names
 /**/
-/**/        /*<*/patchwork_bootstrapper::alias('file_exists',   'patchwork_PHP_winfs::file_exists',   array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_file',       'patchwork_PHP_winfs::is_file',       array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_dir',        'patchwork_PHP_winfs::is_dir',        array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_link',       'patchwork_PHP_winfs::is_link',       array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_executable', 'patchwork_PHP_winfs::is_executable', array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_readable',   'patchwork_PHP_winfs::is_readable',   array('$file'))/*>*/;
-/**/        /*<*/patchwork_bootstrapper::alias('is_writable',   'patchwork_PHP_winfs::is_writable',   array('$file'))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('file_exists',   'Patchwork_PHP_Overlay_Winfs::file_exists',   array('$file'))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('is_file',       'Patchwork_PHP_Overlay_Winfs::is_file',       array('$file'))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('is_dir',        'Patchwork_PHP_Overlay_Winfs::is_dir',        array('$file'))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('is_link',       'Patchwork_PHP_Overlay_Winfs::is_link',       array('$file'))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('is_executable', 'Patchwork_PHP_Overlay_Winfs::is_executable', array('$file'))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('is_readable',   'Patchwork_PHP_Overlay_Winfs::is_readable',   array('$file'))/*>*/;
+/**/        /*<*/Patchwork_Bootstrapper::alias('is_writable',   'Patchwork_PHP_Overlay_Winfs::is_writable',   array('$file'))/*>*/;
 /**/    }
 /**/}

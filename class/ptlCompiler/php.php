@@ -57,7 +57,7 @@ class ptlCompiler_php extends ptlCompiler
         {
             eval("\$base=$inc;");
 
-            list(, $base, $limit) = patchwork\agentTrace::resolve($base);
+            list(, $base, $limit) = Patchwork\AgentTrace::resolve($base);
 
             if (false !== $base)
             {
@@ -87,13 +87,13 @@ class ptlCompiler_php extends ptlCompiler
             if (!strncmp($inc, '(isset(', 7))
             {
                 $k = substr($inc, 7, strpos($inc, ')', 7) - 7);
-                $this->pushCode("isset($k)?patchwork_serverside::loadAgent($inc,array($a)," . ($is_exo ? 1 : 0) . "):trigger_error('$k is undefined in AGENT name');");
+                $this->pushCode("isset($k)?Patchwork_Serverside::loadAgent($inc,array($a)," . ($is_exo ? 1 : 0) . "):trigger_error('$k is undefined in AGENT name');");
 
                 return true;
             }
 /**/    }
 
-        $this->pushCode("patchwork_serverside::loadAgent($inc,array($a)," . ($is_exo ? 1 : 0) . ");");
+        $this->pushCode("Patchwork_Serverside::loadAgent($inc,array($a)," . ($is_exo ? 1 : 0) . ");");
 
         return true;
     }
@@ -131,13 +131,13 @@ class ptlCompiler_php extends ptlCompiler
         {
             $this->pushCode(
                 'unset($p);$p=' . $var . ';if('
-                    . '($p instanceof loop||(0<($p=(int)$p)&&patchwork_serverside::makeLoopByLength($p)))'
-                    . '&&patchwork::string($v->{\'p$\'}=$p)'
+                    . '($p instanceof loop||(0<($p=(int)$p)&&Patchwork_Serverside::makeLoopByLength($p)))'
+                    . '&&Patchwork::string($v->{\'p$\'}=$p)'
                     . '&&($v->{\'iteratorPosition$\'}=-1)'
                     . '&&($p=(object)array(\'$\'=>&$v))'
                     . '&&$v=&$p'
                 . ')while('
-                    . '($p=&$v->{\'$\'}&&$v=patchwork_serverside::getLoopNext($p->{\'p$\'}))'
+                    . '($p=&$v->{\'$\'}&&$v=Patchwork_Serverside::getLoopNext($p->{\'p$\'}))'
                     . '||($v=&$p&&0)'
                 . '){'
                 . '$v->{\'$\'}=&$p;'
@@ -202,7 +202,7 @@ class ptlCompiler_php extends ptlCompiler
             case 'd':
             case 'a':
             case 'g':
-                $var = '' !== (string) $prefix ? "patchwork_serverside::increment('$name',$prefix,\$$type)" : "@\${$type}->$name";
+                $var = '' !== (string) $prefix ? "Patchwork_Serverside::increment('$name',$prefix,\$$type)" : "@\${$type}->$name";
                 break;
 
             case '':
@@ -218,12 +218,12 @@ class ptlCompiler_php extends ptlCompiler
             if (!strlen($name))
             {
                 $var = substr($var, 0, -2);
-                if ($forceType) $var = "patchwork::string($var)";
+                if ($forceType) $var = "Patchwork::string($var)";
             }
             else if ('@' === $var[0])
             {
                 $var = substr($var, 1);
-                $var = "(isset($var)?" . ($forceType ? "patchwork::string($var)" : $var) . ":'')";
+                $var = "(isset($var)?" . ($forceType ? "Patchwork::string($var)" : $var) . ":'')";
             }
         }
 

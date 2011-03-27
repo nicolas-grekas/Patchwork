@@ -30,8 +30,8 @@ class loop
 
     final public function &loop($escape = false)
     {
-        $catchMeta = patchwork::$catchMeta;
-        patchwork::$catchMeta = true;
+        $catchMeta = Patchwork::$catchMeta;
+        Patchwork::$catchMeta = true;
 
         if ($this->loopLength === false) $this->loopLength = (int) $this->prepare();
 
@@ -49,7 +49,7 @@ class loop
             else $this->loopLength = false;
         }
 
-        patchwork::$catchMeta = $catchMeta;
+        Patchwork::$catchMeta = $catchMeta;
 
         return $data;
     }
@@ -58,12 +58,12 @@ class loop
 
     final public function __toString()
     {
-        $catchMeta = patchwork::$catchMeta;
-        patchwork::$catchMeta = true;
+        $catchMeta = Patchwork::$catchMeta;
+        Patchwork::$catchMeta = true;
 
         if ($this->loopLength === false) $this->loopLength = (int) $this->prepare();
 
-        patchwork::$catchMeta = $catchMeta;
+        Patchwork::$catchMeta = $catchMeta;
 
         return (string) $this->loopLength;
     }

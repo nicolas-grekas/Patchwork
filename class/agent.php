@@ -11,8 +11,8 @@
  *
  ***************************************************************************/
 
-use patchwork           as p;
-use patchwork\Exception as e;
+use Patchwork           as p;
+use Patchwork\Exception as e;
 
 class agent
 {

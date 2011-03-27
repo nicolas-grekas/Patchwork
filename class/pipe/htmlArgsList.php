@@ -23,8 +23,8 @@ class pipe_htmlArgsList
         $result = '';
         for ($i = 0; $i < $len; $i += 2)
         {
-            $v = patchwork::string($a[$i+1]);
-            '' !== $v && $result .= patchwork::string($a[$i]) . '="' . $v . '" ';
+            $v = Patchwork::string($a[$i+1]);
+            '' !== $v && $result .= Patchwork::string($a[$i]) . '="' . $v . '" ';
         }
 
         return $result;

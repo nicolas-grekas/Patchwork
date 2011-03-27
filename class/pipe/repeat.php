@@ -16,7 +16,7 @@ class pipe_repeat
 {
     static function php($string, $num)
     {
-        return str_repeat(patchwork::string($string), patchwork::string($num));
+        return str_repeat(Patchwork::string($string), Patchwork::string($num));
     }
 
     static function js()

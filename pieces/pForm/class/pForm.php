@@ -11,7 +11,7 @@
  *
  ***************************************************************************/
 
-use patchwork as p;
+use Patchwork as p;
 use SESSION   as s;
 
 class pForm extends loop_agentWrapper

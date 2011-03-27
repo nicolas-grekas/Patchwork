@@ -18,8 +18,8 @@
 // To keep the global namespace clean, we use only static methods instead of any variable.
 // Be aware that the use of static properties would throw a PHP 4.0 parse error.
 
-defined('patchwork') || define('patchwork', microtime(true));
-defined('PATCHWORK_BOOTPATH') || define('PATCHWORK_BOOTPATH', '.');
+defined('PATCHWORK_MICROTIME') || define('PATCHWORK_MICROTIME', microtime(true));
+defined('PATCHWORK_BOOTPATH')  || define('PATCHWORK_BOOTPATH', '.');
 @ini_set('display_errors', true);
 error_reporting(E_ALL);
 
@@ -42,64 +42,64 @@ function_exists('mb_internal_encoding')
     && @ini_set('mbstring.internal_encoding', '8bit');
 
 
-require dirname(__FILE__) . '/class/patchwork/bootstrapper.php';
+require dirname(__FILE__) . '/class/Patchwork/Bootstrapper.php';
 
-patchwork_bootstrapper::initialize(__FILE__, PATCHWORK_BOOTPATH);
+Patchwork_Bootstrapper::initialize(__FILE__, PATCHWORK_BOOTPATH);
 
 
 // Get lock
 
-if (!patchwork_bootstrapper::getLock())
+if (!Patchwork_Bootstrapper::getLock())
 {
-    require patchwork_bootstrapper::getCompiledFile();
+    require Patchwork_Bootstrapper::getCompiledFile();
     return;
 }
 
 
 // Parse and load common.php
 
-eval(patchwork_bootstrapper::preprocessorPass1());
-eval(patchwork_bootstrapper::preprocessorPass2());
+eval(Patchwork_Bootstrapper::preprocessorPass1());
+eval(Patchwork_Bootstrapper::preprocessorPass2());
 
 
 // Initialization
 
-patchwork_bootstrapper::initInheritance();
-patchwork_bootstrapper::initZcache();
+Patchwork_Bootstrapper::initInheritance();
+Patchwork_Bootstrapper::initZcache();
 
 
 // Load preconfig
 
-while (patchwork_bootstrapper::loadConfigFile('bootup'))
+while (Patchwork_Bootstrapper::loadConfigFile('bootup'))
 {
-    eval(patchwork_bootstrapper::preprocessorPass1());
-    eval(patchwork_bootstrapper::preprocessorPass2());
+    eval(Patchwork_Bootstrapper::preprocessorPass1());
+    eval(Patchwork_Bootstrapper::preprocessorPass2());
 }
 
 
 // Load config
 
-patchwork_bootstrapper::initConfig();
+Patchwork_Bootstrapper::initConfig();
 
-while (patchwork_bootstrapper::loadConfigFile('config'))
+while (Patchwork_Bootstrapper::loadConfigFile('config'))
 {
-    eval(patchwork_bootstrapper::preprocessorPass1());
-    eval(patchwork_bootstrapper::preprocessorPass2());
+    eval(Patchwork_Bootstrapper::preprocessorPass1());
+    eval(Patchwork_Bootstrapper::preprocessorPass2());
 }
 
 
 // Setup hook
 
-class_exists('patchwork', true);
-patchwork_setup::hook();
+class_exists('Patchwork', true);
+Patchwork_Setup::hook();
 
 
 // Save config and release lock
 
-patchwork_bootstrapper::release();
+Patchwork_Bootstrapper::release();
 
 
 // Let's go
 
-patchwork::start();
+Patchwork::start();
 exit;

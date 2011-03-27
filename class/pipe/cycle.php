@@ -18,7 +18,7 @@ class pipe_cycle
 
     static function php($name)
     {
-        $name = patchwork::string($name);
+        $name = Patchwork::string($name);
         $args = func_get_args();
         $key =& self::$pool[$name];
 
@@ -28,7 +28,7 @@ class pipe_cycle
         }
         else $key = 1;
 
-        return patchwork::string($args[$key]);
+        return Patchwork::string($args[$key]);
     }
 
     static function js()

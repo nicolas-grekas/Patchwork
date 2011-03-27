@@ -11,7 +11,7 @@
  *
  ***************************************************************************/
 
-use patchwork as p;
+use Patchwork as p;
 
 class pMail_text extends Mail_mime
 {

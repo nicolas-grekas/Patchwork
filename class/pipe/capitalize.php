@@ -16,7 +16,7 @@ class pipe_capitalize
 {
     static function php($string)
     {
-        return mb_convert_case(patchwork::string($string), MB_CASE_TITLE, 'UTF-8');
+        return mb_convert_case(Patchwork::string($string), MB_CASE_TITLE, 'UTF-8');
     }
 
     static function js()

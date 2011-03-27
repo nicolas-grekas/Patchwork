@@ -28,7 +28,7 @@ class loop_altLang extends loop
     {
         if (PATCHWORK_I18N)
         {
-            $this->lang = patchwork::__LANG__();
+            $this->lang = Patchwork::__LANG__();
 
             if (!isset($this->alt))
             {
@@ -39,7 +39,7 @@ class loop_altLang extends loop
                 $base[1] = '/' === $base[1] ? '[^?/]+(/?)' : ".+?({$base[1]})";
                 $base = "'^({$base[0]}){$base[1]}(.*)$'D";
 
-                if (preg_match($base, patchwork::__URI__(), $base))
+                if (preg_match($base, Patchwork::__URI__(), $base))
                 {
                     unset($base[0]);
 
@@ -47,7 +47,7 @@ class loop_altLang extends loop
                     {
                         if ('' === $k) continue;
 
-                        $v = $base[1] . $v . $base[2] . ($this->lang === $k ? $base[3] : patchwork::translateRequest($base[3], $k));
+                        $v = $base[1] . $v . $base[2] . ($this->lang === $k ? $base[3] : Patchwork::translateRequest($base[3], $k));
 
                         $a[] = (object) array(
                             'lang' => $k,
@@ -56,7 +56,7 @@ class loop_altLang extends loop
                         );
                     }
                 }
-                else W('Something is wrong between patchwork::__URI__() and PATCHWORK_BASE');
+                else W('Something is wrong between Patchwork::__URI__() and PATCHWORK_BASE');
 
                 $this->alt =& $a;
             }

@@ -16,7 +16,7 @@ class pipe_bytes
 {
     static function php($byte)
     {
-        $byte = patchwork::string($byte);
+        $byte = Patchwork::string($byte);
 
         $suffix = ' Kio';
 

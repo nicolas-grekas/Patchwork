@@ -53,14 +53,14 @@ class agent_js extends agent_css
         {
             ++self::$recursion;
             $src = patchwork_class2file(substr(get_class($this), 6));
-            $src = patchwork\serverside::returnAgent($src, (array) $this->get);
+            $src = Patchwork\Serverside::returnAgent($src, (array) $this->get);
             --self::$recursion;
 
             $parser = new jsqueez;
 
             if ('/*!' != substr(ltrim(substr($src, 0, 512)), 0, 3))
             {
-                $o->DATA = patchwork::__URI__();
+                $o->DATA = Patchwork::__URI__();
                 $o->DATA .= (false === strpos($o->DATA, '?') ? '?' : '&') . 'src=1';
                 $o->DATA = "// Copyright & source: {$o->DATA}\n";
 

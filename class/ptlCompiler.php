@@ -61,7 +61,7 @@ abstract class ptlCompiler
     {
         $this->source = $template;
 
-        patchwork::watch($this->watch);
+        Patchwork::watch($this->watch);
 
         $this->Xvar .= $this->XpureVar;
 
@@ -117,12 +117,12 @@ abstract class ptlCompiler
             $path_idx = $this->loadedStack[$a] + 1;
         }
 
-        $source = patchwork::resolvePublicPath($template . '.ptl', $path_idx);
+        $source = Patchwork::resolvePublicPath($template . '.ptl', $path_idx);
 
         if (!$source && 0 !== strcasecmp('.ptl', substr($template, -4)))
         {
             $path_idx = 0;
-            $source = patchwork::resolvePublicPath($template, $path_idx);
+            $source = Patchwork::resolvePublicPath($template, $path_idx);
         }
 
         if (!$source) return '{$DATA}';
@@ -219,7 +219,7 @@ abstract class ptlCompiler
     protected function INLINEcallback($m)
     {
 /**/    if (DEBUG)
-            patchwork::watch('debugSync');
+            Patchwork::watch('debugSync');
 
         $a = isset($m[2]) ? substr($m[2], 1) : PATCHWORK_PATH_LEVEL;
         $a = $a < 0 ? end($this->loadedStack) - $a : (PATCHWORK_PATH_LEVEL - $a);
@@ -604,9 +604,9 @@ abstract class ptlCompiler
             {
                 if ($translate)
                 {
-                    $a = TRANSLATOR::get($a, patchwork::__LANG__(), false);
+                    $a = TRANSLATOR::get($a, Patchwork::__LANG__(), false);
 /**/                if (DEBUG)
-                        patchwork::watch('debugSync');
+                        Patchwork::watch('debugSync');
                 }
                 else
                 {
@@ -618,9 +618,9 @@ abstract class ptlCompiler
 
                     if (!$this->concatLast)
                     {
-                        $this->concat[0] = TRANSLATOR::get($this->concat[0], patchwork::__LANG__(), false);
+                        $this->concat[0] = TRANSLATOR::get($this->concat[0], Patchwork::__LANG__(), false);
 /**/                    if (DEBUG)
-                            patchwork::watch('debugSync');
+                            Patchwork::watch('debugSync');
                     }
 
                     for ($i = 0; $i<=$this->concatLast; $i+=2)

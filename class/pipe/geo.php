@@ -16,7 +16,7 @@ class pipe_geo
 {
     static function php($geo, $latlong)
     {
-        if ($geo = patchwork::string($geo))
+        if ($geo = Patchwork::string($geo))
         {
             $geo = round(100 * $geo);
             $geo = substr($geo, 0, -2) . '.' . substr($geo, -2);

@@ -22,7 +22,7 @@ class pipe_urlize
 
     static function php($string)
     {
-        $string = ' ' . patchwork::string($string);
+        $string = ' ' . Patchwork::string($string);
 
         $string = preg_replace(
             self::mailRx . 'u',

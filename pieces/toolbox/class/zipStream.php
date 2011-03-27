@@ -33,7 +33,7 @@ class zipStream
         {
             header('Content-Type: ' . self::contentType);
 
-            $name = patchwork::toASCII($name);
+            $name = Patchwork::toASCII($name);
             $name = str_replace('"', "''", $name);
 
             header('Content-Disposition: attachment; filename="' . $name . '.zip"');

@@ -16,7 +16,7 @@ class pipe_test
 {
     static function php($test, $ifData, $elseData = '')
     {
-        return patchwork::string($test) ? $ifData : $elseData;
+        return Patchwork::string($test) ? $ifData : $elseData;
     }
 
     static function js()

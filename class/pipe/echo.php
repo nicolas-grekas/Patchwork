@@ -26,7 +26,7 @@ class pipe_echo
             $args = preg_replace_callback(
                 "'(%+)([0-9]?)'",
                 array(__CLASS__, 'replace_callback'),
-                patchwork::string($format)
+                Patchwork::string($format)
             );
         }
         else $args = implode('', $args);
@@ -39,7 +39,7 @@ class pipe_echo
         if (1 === strlen($m[1]) % 2)
         {
             $m[1] = substr($m[1], 1);
-            $m[2] = '' !== $m[2] ? (isset(self::$args[$m[2]+1]) ? patchwork::string(self::$args[$m[2]+1]) : '') : '%';
+            $m[2] = '' !== $m[2] ? (isset(self::$args[$m[2]+1]) ? Patchwork::string(self::$args[$m[2]+1]) : '') : '%';
         }
 
         return substr($m[1], 0, strlen($m[1])>>1) . $m[2];

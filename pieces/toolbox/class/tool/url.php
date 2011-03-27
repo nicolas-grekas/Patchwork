@@ -19,7 +19,7 @@ class tool_url
      */
     static function touch($url)
     {
-        $url = patchwork::base($url, true);
+        $url = Patchwork::base($url, true);
 
         if (!preg_match("'^http(s?)://(.*?)((?::[0-9]+)?)(/.*)$'", $url, $h)) throw new Exception('Illegal URL');
 

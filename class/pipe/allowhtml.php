@@ -16,7 +16,7 @@ class pipe_allowhtml
 {
     static function php($string, $urlInterpolation = false)
     {
-        $string = patchwork::string($string);
+        $string = Patchwork::string($string);
 
         false !== strpos($string, '&') && $string = str_replace(
             array('&#039;', '&quot;', '&gt;', '&lt;', '&amp;'),
@@ -26,7 +26,7 @@ class pipe_allowhtml
 
         $urlInterpolation && false !== strpos($string, '{') && $string = str_replace(
             array('{/}'        , '{~}'),
-            array(patchwork::__HOST__(), patchwork::__BASE__()),
+            array(Patchwork::__HOST__(), Patchwork::__BASE__()),
             $string
         );
 

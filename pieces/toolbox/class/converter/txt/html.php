@@ -65,7 +65,7 @@ class converter_txt_html extends converter_abstract
 
         $file = tempnam(PATCHWORK_ZCACHE, 'converter');
 
-        patchwork::writeFile($file, $html);
+        Patchwork::writeFile($file, $html);
 
         $html = escapeshellarg($file);
         $html = `w3m -dump -cols {$this->cols} -T text/html -I UTF-8 -O UTF-8 {$html}`;
