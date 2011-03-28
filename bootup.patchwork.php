@@ -406,9 +406,6 @@ function patchwork_http_socket($host, $port, $ssl, $timeout = 30)
         @ini_set('serialize_precision', 17);
 
 
-/**/$a = file_get_contents(Patchwork_Bootstrapper::$pwd . 'data/utf8/quickChecks.txt');
-/**/$a = explode("\n", $a);
-define('UTF8_NFC_RX',            /*<*/'/' . $a[1] . '/u'/*>*/);
 define('PATCHWORK_PROJECT_PATH', /*<*/Patchwork_Bootstrapper::$cwd   /*>*/);
 define('PATCHWORK_ZCACHE',       /*<*/Patchwork_Bootstrapper::$zcache/*>*/);
 define('PATCHWORK_PATH_LEVEL',   /*<*/Patchwork_Bootstrapper::$last  /*>*/);

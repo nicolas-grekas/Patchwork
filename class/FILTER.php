@@ -168,9 +168,7 @@ class FILTER
 
         $result = preg_replace('/[\x00-\x08\x0B\x0E-\x1A\x1C-\x1F]+/', '', $value);
         false !== strpos($result, "\r") && $result = strtr(str_replace("\r\n", "\n", $result), "\r", "\n");
-        preg_match('/[^\x00-\x{2ff}]/u', $result)
-            && preg_match(UTF8_NFC_RX, $result)
-            && $result = Normalizer::normalize($result);
+        Normalizer::isNormalized($result) || $result = Normalizer::normalize($result);
 
         if (isset($args[0]))
         {

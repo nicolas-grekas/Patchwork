@@ -134,14 +134,14 @@ class Patchwork_PHP_Overlay_Mbstring50
         case MB_CASE_UPPER:
             static $upper;
             isset($upper) || $upper = self::loadCaseTable(1);
-            $map =& $upper;
+            $map = $upper;
             break;
 
         case MB_CASE_LOWER:
         default:
             static $lower;
             isset($lower) || $lower = self::loadCaseTable(0);
-            $map =& $lower;
+            $map = $lower;
         }
 
         static $ulen_mask = array("\xC0" => 2, "\xD0" => 2, "\xE0" => 3, "\xF0" => 4);
