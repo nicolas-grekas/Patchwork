@@ -39,6 +39,8 @@ class patchwork_PHP_Parser_classAutoname extends patchwork_PHP_Parser
                 array(T_WHITESPACE, ' '),
                 array(T_STRING, strtr(ltrim($this->className, '\\'), '\\', '_'))
             );
+
+            $this->unregister();
         }
     }
 }
