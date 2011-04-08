@@ -81,6 +81,7 @@ class patchwork_PHP_Parser
 
             foreach ($v as $v) $this->$v =& $parent->$v;
         }
+        else $this->nextRegistryIndex = -1 - PHP_INT_MAX;
 
         // Verify and set $this->dependencies to the (dependencyName => dependency object) map
 
@@ -107,13 +108,15 @@ class patchwork_PHP_Parser
             foreach ($c as $c) $this->$c =& $this->parents[$k]->$c;
         }
 
-        // Private state
+        // Keep track of parents chained parsers
 
         $k = strtolower($this->dependencyName);
         $this->parents[$k] = $this;
 
-        $this->nextRegistryIndex += 1 << (PHP_INT_SIZE << 2) >> 1;
+        // Keep parsers chaining order for callbacks ordering
+
         $this->registryIndex = $this->nextRegistryIndex;
+        $this->nextRegistryIndex += 1 << (PHP_INT_SIZE << 2);
 
         empty($this->callbacks) || $this->register();
     }
