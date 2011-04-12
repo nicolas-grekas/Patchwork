@@ -19,17 +19,17 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
     protected
 
     $callbackIndex,
-    $lead = 'patchwork_alias_resolve(',
+    $lead = 'patchwork_override_resolve(',
     $tail = ')',
     $nextTail = '',
-    $alias = array();
+    $overrides = array();
 
 
-    function __construct(Patchwork_PHP_Parser $parent, $callbackIndex, $alias = array())
+    function __construct(Patchwork_PHP_Parser $parent, $callbackIndex, $overrides = array())
     {
         if (0 < $callbackIndex)
         {
-            $this->alias = $alias;
+            $this->overrides = $overrides;
             $this->callbackIndex = $callbackIndex - 1;
             parent::__construct($parent);
         }
@@ -63,9 +63,9 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
             {
                 $a = strtolower(substr($t[1], 1, -1));
 
-                if (isset($this->alias[$a]))
+                if (isset($this->overrides[$a]))
                 {
-                    $a = $this->alias[$a];
+                    $a = $this->overrides[$a];
                     $a = explode('::', $a, 2);
 
                     if (1 === count($a)) $t[1] = "'{$a[0]}'";

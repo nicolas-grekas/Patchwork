@@ -25,7 +25,7 @@ class Patchwork_Preprocessor
 
     protected static
 
-    $alias,
+    $overrides,
     $declaredClass = array('patchwork'),
     $recursivePool = array(),
     $parsers       = array(
@@ -46,7 +46,7 @@ class Patchwork_Preprocessor
         'SuperPositioner'    => true,
         'ConstructorStatic'  => true,
         'Constructor4to5'    => true,
-        'FunctionAliasing'   => true,
+        'FunctionOverriding' => true,
         'Globalizer'         => true,
         'Scream'             => true,
         'T'                  => true,
@@ -57,8 +57,8 @@ class Patchwork_Preprocessor
 
     static function __constructStatic()
     {
-        self::$alias =& $GLOBALS['patchwork_preprocessor_alias'];
-        null === self::$alias && self::$alias = unserialize(file_get_contents(PATCHWORK_PROJECT_PATH . ".patchwork.alias.ser"));
+        self::$overrides =& $GLOBALS['patchwork_preprocessor_overrides'];
+        null === self::$overrides && self::$overrides = unserialize(file_get_contents(PATCHWORK_PROJECT_PATH . ".patchwork.overrides.ser"));
 
         self::$scream = (defined('DEBUG') && DEBUG)
             && !empty($GLOBALS['CONFIG']['debug.scream'])
@@ -130,21 +130,21 @@ class Patchwork_Preprocessor
 
             switch ($c)
             {
-            case 'Normalizer':  $p = new $t; break;
-            default:                 new $t($p); break;
+            case 'Normalizer':    $p = new $t; break;
+            default:                   new $t($p); break;
             case 'Backport53':
-            case 'StaticState':       if (0 <= $level) $p = new $t($p); break;
-            case 'ClassAutoname':     if (0 <= $level && $class) new $t($p, $class); break;
-            case 'Scream':            if (self::$scream) new $t($p); break;
-            case 'ConstFuncDisabler': if (0 <= $level)   new $t($p); break;
-            case 'Constructor4to5':   if (0 > $level)    new $t($p); break;
-            case 'Globalizer':        if (0 <= $level)   new $t($p, '$CONFIG'); break;
-            case 'T':                 if (DEBUG)         new $t($p); break;
-            case 'Marker':            if (!DEBUG)        new $t($p, self::$declaredClass); break;
-            case 'ConstantInliner':   new $t($p, $source, self::$constants); break;
-            case 'NamespaceRemover':  new $t($p, 'Patchwork_PHP_Overlay_Class::add'); break;
-            case 'SuperPositioner':   new $t($p, $level, $is_top ? $class : false); break;
-            case 'FunctionAliasing':  new $t($p, self::$alias); break;
+            case 'StaticState':        if (0 <= $level) $p = new $t($p); break;
+            case 'ClassAutoname':      if (0 <= $level && $class) new $t($p, $class); break;
+            case 'Scream':             if (self::$scream) new $t($p); break;
+            case 'ConstFuncDisabler':  if (0 <= $level)   new $t($p); break;
+            case 'Constructor4to5':    if (0 > $level)    new $t($p); break;
+            case 'Globalizer':         if (0 <= $level)   new $t($p, '$CONFIG'); break;
+            case 'T':                  if (DEBUG)         new $t($p); break;
+            case 'Marker':             if (!DEBUG)        new $t($p, self::$declaredClass); break;
+            case 'ConstantInliner':    new $t($p, $source, self::$constants); break;
+            case 'NamespaceRemover':   new $t($p, 'Patchwork_PHP_Override_Class::add'); break;
+            case 'SuperPositioner':    new $t($p, $level, $is_top ? $class : false); break;
+            case 'FunctionOverriding': new $t($p, self::$overrides); break;
             }
         }
 
