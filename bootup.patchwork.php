@@ -373,7 +373,12 @@ function patchwork_http_socket($host, $port, $ssl, $timeout = 30)
 /**/{
 /**/    /*<*/Patchwork_Bootstrapper::override('normalizer_is_normalized', 'Normalizer::isNormalized', array('$s', '$form' => 'NFC'))/*>*/;
 /**/    /*<*/Patchwork_Bootstrapper::override('normalizer_normalize',     'Normalizer::normalize',    array('$s', '$form' => 'NFC'))/*>*/;
-/**/
+
+        define('GRAPHEME_EXTR_COUNT',    0);
+        define('GRAPHEME_EXTR_MAXBYTES', 1);
+        define('GRAPHEME_EXTR_MAXCHARS', 2);
+
+/**/    /*<*/Patchwork_Bootstrapper::override('grapheme_extract',  ':Intl:', array('$s', '$size', '$type' => 0, '$start' => 0, '&$next' => 0))/*>*/;
 /**/    /*<*/Patchwork_Bootstrapper::override('grapheme_stripos',  ':Intl:', array('$s', '$needle', '$offset' => 0))/*>*/;
 /**/    /*<*/Patchwork_Bootstrapper::override('grapheme_stristr',  ':Intl:', array('$s', '$needle', '$before_needle' => false))/*>*/;
 /**/    /*<*/Patchwork_Bootstrapper::override('grapheme_strlen',   ':Intl:', array('$s'))/*>*/;
