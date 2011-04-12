@@ -76,9 +76,9 @@ class Patchwork_Bootstrapper
         return self::$bootstrapper->updatedb(self::$paths, self::$last, self::$zcache);
     }
 
-    static function alias($function, $alias, $args, $return_ref = false)
+    static function override($function, $override, $args, $return_ref = false)
     {
-        return self::$bootstrapper->alias($function, $alias, $args, $return_ref);
+        return self::$bootstrapper->override($function, $override, $args, $return_ref);
     }
 
     static function fixParentPaths($pwd)

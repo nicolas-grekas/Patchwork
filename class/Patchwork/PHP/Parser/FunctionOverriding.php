@@ -12,18 +12,18 @@
  ***************************************************************************/
 
 
-class Patchwork_PHP_Parser_FunctionAliasing extends Patchwork_PHP_Parser
+class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
 {
     protected
 
-    $alias     = array(),
+    $overrides  = array(),
     $callbacks = array(
         'tagVariableVar' => '(',
         'tagUseFunction' => T_USE_FUNCTION,
     ),
     $dependencies = array('StringInfo', 'ClassInfo' => array('class', 'namespace', 'nsResolved')),
 
-    $varVarLead = '${patchwork_alias_resolve_ref(',
+    $varVarLead = '${patchwork_override_resolve_ref(',
     $varVarTail = ",\$\x9D)}";
 
 
@@ -136,11 +136,11 @@ class Patchwork_PHP_Parser_FunctionAliasing extends Patchwork_PHP_Parser
             if (0 === strncasecmp($v, '__patchwork_', 12))
             {
                 $v = strtolower($v);
-                $this->alias[substr($v, 12)] = $v;
+                $this->overrides[substr($v, 12)] = $v;
             }
         }
 
-        if (!$this->alias) $this->callbacks = array();
+        if (!$this->overrides) $this->callbacks = array();
 
         parent::__construct($parent);
 
@@ -148,7 +148,7 @@ class Patchwork_PHP_Parser_FunctionAliasing extends Patchwork_PHP_Parser
         {
             '\\' === $k[0] && $k = substr($k, 1);
             '\\' === $v[0] && $v = substr($v, 1);
-            function_exists('__patchwork_' . strtr($k, '\\', '_')) && $this->alias[strtolower($k)] = $v;
+            function_exists('__patchwork_' . strtr($k, '\\', '_')) && $this->overrides[strtolower($k)] = $v;
         }
     }
 
@@ -208,24 +208,24 @@ class Patchwork_PHP_Parser_FunctionAliasing extends Patchwork_PHP_Parser
 
     protected function tagUseFunction(&$token)
     {
-        // Alias functions only if they are fully namespace resolved
+        // Override functions only if they are fully namespace resolved
 
         $a = strtolower($this->nsResolved);
 
         if ('\\' !== $this->nsResolved[0])
         {
-            $e = isset($this->alias[$a]) || isset(self::$autoloader[$a]);
+            $e = isset($this->overrides[$a]) || isset(self::$autoloader[$a]);
             $e || $a = substr(strtolower($this->namespace) . $a, 1);
-            $e = $e || isset($this->alias[$a]) || isset(self::$autoloader[$a]);
-            $e && $this->setError("Unresolved namespaced function call ({$this->nsResolved}), skipping aliasing", E_USER_WARNING);
+            $e = $e || isset($this->overrides[$a]) || isset(self::$autoloader[$a]);
+            $e && $this->setError("Unresolved namespaced function call ({$this->nsResolved}), skipping overriding", E_USER_WARNING);
             return;
         }
 
         $a = substr($a, 1);
 
-        if (isset($this->alias[$a]))
+        if (isset($this->overrides[$a]))
         {
-            $a = $this->alias[$a];
+            $a = $this->overrides[$a];
             $a = explode('::', $a, 2);
 
             if (1 === count($a)) $token[1] = $a[0];
@@ -246,7 +246,7 @@ class Patchwork_PHP_Parser_FunctionAliasing extends Patchwork_PHP_Parser
         }
         else if (isset(self::$autoloader[$a]))
         {
-            new Patchwork_PHP_Parser_Bracket_Callback($this, self::$autoloader[$a], $this->alias);
+            new Patchwork_PHP_Parser_Bracket_Callback($this, self::$autoloader[$a], $this->overrides);
 
             if ('&' === $this->lastType)
             {

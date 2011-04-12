@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class Patchwork_PHP_Overlay_SplAutoload
+class Patchwork_PHP_Override_SplAutoload
 {
     protected static
 
@@ -107,8 +107,8 @@ class Patchwork_PHP_Overlay_SplAutoload
             class LogicException extends Exception {}
 /**/    }
 
-        function spl_autoload_call($class)          {return Patchwork_PHP_Overlay_SplAutoload::spl_autoload_call($class);}
-        function spl_autoload_functions()           {return Patchwork_PHP_Overlay_SplAutoload::spl_autoload_functions();}
-        function spl_autoload_unregister($callback) {return Patchwork_PHP_Overlay_SplAutoload::spl_autoload_unregister($callback);}
-        function spl_autoload_register($callback, $throw = true, $prepend = false) {return Patchwork_PHP_Overlay_SplAutoload::spl_autoload_register($callback, $throw, $prepend);}
+        function spl_autoload_call($class)          {return Patchwork_PHP_Override_SplAutoload::spl_autoload_call($class);}
+        function spl_autoload_functions()           {return Patchwork_PHP_Override_SplAutoload::spl_autoload_functions();}
+        function spl_autoload_unregister($callback) {return Patchwork_PHP_Override_SplAutoload::spl_autoload_unregister($callback);}
+        function spl_autoload_register($callback, $throw = true, $prepend = false) {return Patchwork_PHP_Override_SplAutoload::spl_autoload_register($callback, $throw, $prepend);}
 /**/}

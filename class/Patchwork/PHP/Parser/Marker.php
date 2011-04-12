@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionAliasing
+class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionOverriding
 {
     protected
 

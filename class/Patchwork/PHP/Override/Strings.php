@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class Patchwork_PHP_Overlay_Strings
+class Patchwork_PHP_Override_Strings
 {
     static $cp1252, $utf8;
 

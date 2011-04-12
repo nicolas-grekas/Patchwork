@@ -73,7 +73,7 @@ mb_substr               - Get part of string
 
  */
 
-class Patchwork_PHP_Overlay_Mbstring50
+class Patchwork_PHP_Override_Mbstring50
 {
     protected static $internal_encoding = 'UTF-8';
 
@@ -271,21 +271,21 @@ class Patchwork_PHP_Overlay_Mbstring50
         define('MB_CASE_TITLE', 2);
 
 
-        function mb_convert_encoding($str, $to_encoding, $from_encoding = INF) {return Patchwork_PHP_Overlay_Mbstring50::mb_convert_encoding($str, $to_encoding, $from_encoding);}
-        function mb_decode_mimeheader($str) {return Patchwork_PHP_Overlay_Mbstring50::mb_decode_mimeheader($str);}
+        function mb_convert_encoding($str, $to_encoding, $from_encoding = INF) {return Patchwork_PHP_Override_Mbstring50::mb_convert_encoding($str, $to_encoding, $from_encoding);}
+        function mb_decode_mimeheader($str) {return Patchwork_PHP_Override_Mbstring50::mb_decode_mimeheader($str);}
         function mb_encode_mimeheader($str, $charset = INF, $transfer_encoding = INF, $linefeed = INF, $indent = INF)
         {
-            return Patchwork_PHP_Overlay_Mbstring50::mb_encode_mimeheader($str, $charset, $transfer_encoding, $linefeed, $indent);
+            return Patchwork_PHP_Override_Mbstring50::mb_encode_mimeheader($str, $charset, $transfer_encoding, $linefeed, $indent);
         }
 
-        function mb_convert_case($str, $mode, $encoding = INF) {return Patchwork_PHP_Overlay_Mbstring50::mb_convert_case($str, $mode, $encoding);}
-        function mb_internal_encoding($encoding = INF)         {return Patchwork_PHP_Overlay_Mbstring50::mb_internal_encoding($encoding);}
-        function mb_list_encodings()                           {return Patchwork_PHP_Overlay_Mbstring50::mb_list_encodings();}
-        function mb_strlen($str, $encoding = INF)              {return Patchwork_PHP_Overlay_Mbstring50::mb_strlen($str, $encoding);}
-        function mb_strpos ($haystack, $needle, $offset = 0, $encoding = INF)    {return Patchwork_PHP_Overlay_Mbstring50::mb_strpos ($haystack, $needle, $offset, $encoding);}
-        function mb_strrpos($haystack, $needle, $offset = 0, $encoding = INF)    {return Patchwork_PHP_Overlay_Mbstring52::mb_strrpos($haystack, $needle, $offset, $encoding);}
-        function mb_strtolower($str, $encoding = INF)                            {return Patchwork_PHP_Overlay_Mbstring50::mb_strtolower($str, $encoding);}
-        function mb_strtoupper($str, $encoding = INF)                            {return Patchwork_PHP_Overlay_Mbstring50::mb_strtoupper($str, $encoding);}
-        function mb_substitute_character($char = INF)                            {return Patchwork_PHP_Overlay_Mbstring50::mb_substitute_character($char);}
-        function mb_substr($str, $start, $length = PHP_INT_MAX, $encoding = INF) {return Patchwork_PHP_Overlay_Mbstring50::mb_substr($str, $start, $length, $encoding);}
+        function mb_convert_case($str, $mode, $encoding = INF) {return Patchwork_PHP_Override_Mbstring50::mb_convert_case($str, $mode, $encoding);}
+        function mb_internal_encoding($encoding = INF)         {return Patchwork_PHP_Override_Mbstring50::mb_internal_encoding($encoding);}
+        function mb_list_encodings()                           {return Patchwork_PHP_Override_Mbstring50::mb_list_encodings();}
+        function mb_strlen($str, $encoding = INF)              {return Patchwork_PHP_Override_Mbstring50::mb_strlen($str, $encoding);}
+        function mb_strpos ($haystack, $needle, $offset = 0, $encoding = INF)    {return Patchwork_PHP_Override_Mbstring50::mb_strpos ($haystack, $needle, $offset, $encoding);}
+        function mb_strrpos($haystack, $needle, $offset = 0, $encoding = INF)    {return Patchwork_PHP_Override_Mbstring52::mb_strrpos($haystack, $needle, $offset, $encoding);}
+        function mb_strtolower($str, $encoding = INF)                            {return Patchwork_PHP_Override_Mbstring50::mb_strtolower($str, $encoding);}
+        function mb_strtoupper($str, $encoding = INF)                            {return Patchwork_PHP_Override_Mbstring50::mb_strtoupper($str, $encoding);}
+        function mb_substitute_character($char = INF)                            {return Patchwork_PHP_Override_Mbstring50::mb_substitute_character($char);}
+        function mb_substr($str, $start, $length = PHP_INT_MAX, $encoding = INF) {return Patchwork_PHP_Override_Mbstring50::mb_substr($str, $start, $length, $encoding);}
 /**/}

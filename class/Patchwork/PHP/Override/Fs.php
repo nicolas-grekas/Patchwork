@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class Patchwork_PHP_Overlay_Fs
+class Patchwork_PHP_Override_Fs
 {
     static function basename($path, $suffix = '')
     {

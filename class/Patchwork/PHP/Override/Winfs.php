@@ -14,7 +14,7 @@
 
 // For MS-Windows only
 
-class Patchwork_PHP_Overlay_Winfs
+class Patchwork_PHP_Override_Winfs
 {
     static function file_exists($file)
     {

@@ -24,7 +24,7 @@ class Patchwork_Bootstrapper_Bootstrapper
     $fSlice, $rSlice,
     $lock = null,
     $file,
-    $alias,
+    $overrides,
     $callerRx;
 
 
@@ -126,8 +126,8 @@ class Patchwork_Bootstrapper_Bootstrapper
         $this->loadConfig($caller, 'common');
         $this->preprocessor = $this->getPreprocessor();
 
-        $this->alias =& $GLOBALS['patchwork_preprocessor_alias'];
-        $this->alias = array();
+        $this->overrides =& $GLOBALS['patchwork_preprocessor_overrides'];
+        $this->overrides = array();
     }
 
     function ob_eval($buffer)
@@ -159,7 +159,7 @@ class Patchwork_Bootstrapper_Bootstrapper
 
         if ('' === $buffer = ob_get_clean())
         {
-            file_put_contents("{$this->cwd}.patchwork.alias.ser", serialize($this->alias));
+            file_put_contents("{$this->cwd}.patchwork.overrides.ser", serialize($this->overrides));
 
             $a = array(
                 "<?php \$c\x9D=array();",
@@ -298,24 +298,24 @@ class Patchwork_Bootstrapper_Bootstrapper
         return $this->getUpdatedb()->buildPathCache($paths, $last, $this->cwd, $zcache);
     }
 
-    function alias($function, $alias, $args, $return_ref = false)
+    function override($function, $override, $args, $return_ref = false)
     {
-        ':' === substr($alias, 0, 1) && $alias = 'Patchwork_PHP_Overlay_' . substr($alias, 1);
-        ':' === substr($alias, -1)   && $alias .= ':' . $function;
-        $alias = ltrim($alias, '\\');
+        ':' === substr($override, 0, 1) && $override = 'Patchwork_PHP_Override_' . substr($override, 1);
+        ':' === substr($override, -1)   && $override .= ':' . $function;
+        $override = ltrim($override, '\\');
 
         if (function_exists($function))
         {
-            $inline = 0 === strcasecmp($function, $alias) ? -1 : 2;
+            $inline = 0 === strcasecmp($function, $override) ? -1 : 2;
             $function = "__patchwork_{$function}";
         }
         else
         {
             $inline = 1;
 
-            if (0 === strcasecmp($function, $alias))
+            if (0 === strcasecmp($function, $override))
             {
-                return "die('Patchwork error: Circular aliasing of function {$function}() in ' . __FILE__ . ' on line ' . __LINE__);";
+                return "die('Patchwork error: Circular overriding of function {$function}() in ' . __FILE__ . ' on line ' . __LINE__);";
             }
         }
 
@@ -341,7 +341,7 @@ class Patchwork_Bootstrapper_Bootstrapper
             if (!preg_match($v, $k, $v))
             {
                 1 !== $inline && $function = substr($function, 12);
-                return "die('Patchwork error: Invalid parameter for {$function}()\'s alias ({$alias}: {$k}) in ' . __FILE__);";
+                return "die('Patchwork error: Invalid parameter for {$function}()\'s override ({$override}: {$k}) in ' . __FILE__);";
             }
 
             $args[2][] = $v[1];
@@ -350,21 +350,21 @@ class Patchwork_Bootstrapper_Bootstrapper
         $args[1] = implode(',', $args[1]);
         $args[2] = implode(',', $args[2]);
 
-        $inline && $this->alias[1 !== $inline ? substr($function, 12) : $function] = $alias;
+        $inline && $this->overrides[1 !== $inline ? substr($function, 12) : $function] = $override;
 
-        $inline = explode('::', $alias, 2);
+        $inline = explode('::', $override, 2);
         $inline = 2 === count($inline) ? mt_rand(1, mt_getrandmax()) . strtolower(strtr($inline[0], '\\', '_')) : '';
 
-        // FIXME: when aliasing a user function, this will throw a can not redeclare fatal error!
-        // Some help is required from the main preprocessor to rename aliased user functions.
-        // When done, aliasing will be perfect for user functions. For internal functions,
+        // FIXME: when overriding a user function, this will throw a can not redeclare fatal error!
+        // Some help is required from the main preprocessor to rename overridden user functions.
+        // When done, overriding will be perfect for user functions. For internal functions,
         // the only uncatchable case would be when using an internal caller (especially objects)
         // with an internal callback. This also means that functions with callback could be left
         // untracked, at least when we are sure that an internal function will not be used as a callback.
 
         return $return_ref
-            ? "function &{$function}({$args[1]}) {/*{$this->marker}:{$inline}*/\${''}=&{$alias}({$args[2]});return \${''}}"
-            : "function  {$function}({$args[1]}) {/*{$this->marker}:{$inline}*/return {$alias}({$args[2]});}";
+            ? "function &{$function}({$args[1]}) {/*{$this->marker}:{$inline}*/\${''}=&{$override}({$args[2]});return \${''}}"
+            : "function  {$function}({$args[1]}) {/*{$this->marker}:{$inline}*/return {$override}({$args[2]});}";
     }
 
     protected function getEchoError($file, $line, $what, $when)

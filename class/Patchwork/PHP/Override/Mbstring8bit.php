@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class Patchwork_PHP_Overlay_Mbstring8bit
+class Patchwork_PHP_Override_Mbstring8bit
 {
     static function mail($to, $subject, $message, $additional_headers = '', $additional_parameters = '')
     {
