@@ -11,6 +11,8 @@
  *
  ***************************************************************************/
 
+require dirname(__FILE__) . '/Bootstrapper/Bootstrapper.php';
+
 
 class Patchwork_Bootstrapper
 {
@@ -26,34 +28,25 @@ class Patchwork_Bootstrapper
 
     protected static
 
-    $bootstrapper,
-    $caller;
+    $bootstrapper;
 
 
-    static function initialize($caller, $cwd)
+    static function initLock($caller, $cwd)
     {
         self::$cwd = empty($cwd) ? '.' : $cwd;
         self::$cwd = rtrim(self::$cwd, '/\\') . DIRECTORY_SEPARATOR;
         self::$pwd = dirname($caller) . DIRECTORY_SEPARATOR;
-        self::$caller = $caller;
-
-        require dirname(__FILE__) . '/PHP/Parser.php';
-        require dirname(__FILE__) . '/PHP/Parser/Normalizer.php';
-        require dirname(__FILE__) . '/PHP/Parser/Scream.php';
-        require dirname(__FILE__) . '/PHP/Parser/StaticState.php';
-        require dirname(__FILE__) . '/Bootstrapper/Bootstrapper.php';
-
         self::$bootstrapper = new Patchwork_Bootstrapper_Bootstrapper(self::$cwd);
+
+        return self::$bootstrapper->initLock($caller);
     }
 
-    static function getLock()             {return self::$bootstrapper->getLock(self::$caller);}
-    static function isReleased()          {return self::$bootstrapper->isReleased();}
-    static function release()             {return self::free(self::$bootstrapper->release());}
-    static function getCompiledFile()     {return self::free(self::$bootstrapper->getCompiledFile());}
+    static function getBootstrapper()     {return self::free(self::$bootstrapper->getBootstrapper());}
+    static function loadNextStep()        {return self::$bootstrapper->loadNextStep();}
     static function preprocessorPass1()   {return self::$bootstrapper->preprocessorPass1();}
     static function preprocessorPass2()   {return self::$bootstrapper->preprocessorPass2();}
-    static function loadConfigFile($type) {return self::$bootstrapper->loadConfigFile($type);}
     static function initConfig()          {return self::$bootstrapper->initConfig();}
+    static function release()             {return self::free(self::$bootstrapper->release());}
 
     static function initInheritance()
     {
@@ -81,25 +74,9 @@ class Patchwork_Bootstrapper
         return self::$bootstrapper->override($function, $override, $args, $return_ref);
     }
 
-    static function fixParentPaths($pwd)
-    {
-        self::$paths  = $GLOBALS['patchwork_path'];
-        self::$last   = PATCHWORK_PATH_LEVEL;
-        self::$zcache = PATCHWORK_ZCACHE;
-
-        self::initialize($pwd . '-', PATCHWORK_PROJECT_PATH);
-
-        $db = self::updatedb();
-        $db = dba_popen(PATCHWORK_PROJECT_PATH . '.patchwork.paths.db', 'rd', $db);
-
-        if (!$db) exit;
-
-        return $db;
-    }
-
     protected static function free($return)
     {
-        self::$pwd = self::$cwd = self::$paths = self::$zcache = self::$last = self::$appId = self::$bootstrapper = self::$caller = null;
+        self::$pwd = self::$cwd = self::$paths = self::$zcache = self::$last = self::$appId = self::$bootstrapper = null;
         return $return;
     }
 }

@@ -11,14 +11,19 @@
  *
  ***************************************************************************/
 
+require dirname(dirname(__FILE__)) . '/PHP/Parser.php';
+require dirname(dirname(__FILE__)) . '/PHP/Parser/Normalizer.php';
+require dirname(dirname(__FILE__)) . '/PHP/Parser/Scream.php';
+require dirname(dirname(__FILE__)) . '/PHP/Parser/StaticState.php';
+
 
 class Patchwork_Bootstrapper_Preprocessor
 {
     protected $parser;
 
-    function staticPass1($file)
+    function staticPass1($code, $file)
     {
-        if ('' === $code = file_get_contents($file)) return '';
+        if ('' === $code) return '';
 
         $p = new Patchwork_PHP_Parser_Normalizer;
         $p = $this->parser = new Patchwork_PHP_Parser_StaticState($p);

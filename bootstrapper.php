@@ -23,15 +23,16 @@ defined('PATCHWORK_BOOTPATH')  || define('PATCHWORK_BOOTPATH', '.');
 @ini_set('display_errors', true);
 error_reporting(E_ALL);
 
-switch (true)
-{
-case file_exists((PATCHWORK_BOOTPATH ? PATCHWORK_BOOTPATH : '.') . '/.patchwork.php'):
-    return require (PATCHWORK_BOOTPATH ? PATCHWORK_BOOTPATH : '.') . '/.patchwork.php';
-case isset($_GET['p:']) && 'exit' === $_GET['p:']:
+PATCHWORK_BOOTPATH || die('Patchwork error: PATCHWORK_BOOTPATH is empty');
+
+if (file_exists(PATCHWORK_BOOTPATH . '/.patchwork.php'))
+    return require PATCHWORK_BOOTPATH . '/.patchwork.php';
+
+if (isset($_GET['p:']) && 'exit' === $_GET['p:'])
     die('Exit requested');
-case !function_exists('version_compare') || version_compare(phpversion(), '5.1.4') < 0:
-    die("PHP 5.1.4 or higher is required.");
-}
+
+if (!function_exists('version_compare') || version_compare(phpversion(), '5.1.4') < 0)
+    die("PHP 5.1.4 or higher is required");
 
 setlocale(LC_ALL, 'C');
 error_reporting(E_ALL | E_STRICT);
@@ -41,60 +42,28 @@ function_exists('mb_internal_encoding')
     && mb_internal_encoding('8bit') // if mbstring overloading is enabled
     && @ini_set('mbstring.internal_encoding', '8bit');
 
-
 require dirname(__FILE__) . '/class/Patchwork/Bootstrapper.php';
 
-Patchwork_Bootstrapper::initialize(__FILE__, PATCHWORK_BOOTPATH);
 
+// Initialize and get lock
 
-// Get lock
-
-if (!Patchwork_Bootstrapper::getLock())
+if (!Patchwork_Bootstrapper::initLock(__FILE__, PATCHWORK_BOOTPATH))
 {
-    require Patchwork_Bootstrapper::getCompiledFile();
+    require Patchwork_Bootstrapper::getBootstrapper();
     return;
 }
 
 
-// Parse and load common.php
+// Bootup steps evaluated in the global scope
 
-eval(Patchwork_Bootstrapper::preprocessorPass1());
-eval(Patchwork_Bootstrapper::preprocessorPass2());
-
-
-// Initialization
-
-Patchwork_Bootstrapper::initInheritance();
-Patchwork_Bootstrapper::initZcache();
-
-
-// Load preconfig
-
-while (Patchwork_Bootstrapper::loadConfigFile('bootup'))
+while (Patchwork_Bootstrapper::loadNextStep())
 {
     eval(Patchwork_Bootstrapper::preprocessorPass1());
     eval(Patchwork_Bootstrapper::preprocessorPass2());
 }
 
 
-// Load config
-
-Patchwork_Bootstrapper::initConfig();
-
-while (Patchwork_Bootstrapper::loadConfigFile('config'))
-{
-    eval(Patchwork_Bootstrapper::preprocessorPass1());
-    eval(Patchwork_Bootstrapper::preprocessorPass2());
-}
-
-
-// Setup hook
-
-class_exists('Patchwork', true);
-Patchwork_Setup::hook();
-
-
-// Save config and release lock
+// Cache and release lock
 
 Patchwork_Bootstrapper::release();
 
