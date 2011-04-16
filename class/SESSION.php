@@ -207,14 +207,7 @@ class SESSION
             self::$adapter = new SESSION(self::$SID);
             $i = self::$adapter->read();
         }
-        else
-        {
-            $i = false;
-
-            class_exists('patchwork_bootstrapper', false)
-                && !patchwork_bootstrapper::isReleased()
-                && W("Using SESSION class during bootstraping will destroy user's session");
-        }
+        else $i = false;
 
         if ($i)
         {
@@ -275,7 +268,7 @@ class SESSION
         }
         else $IPs = '';
 
-        self::$SID = md5($SID .'-'. $IPs .'-'. substr(p::getAntiCSRFtoken(), 1));
+        self::$SID = md5($SID .'-'. $IPs);
     }
 
     protected static function onIdle()
