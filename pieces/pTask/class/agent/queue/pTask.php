@@ -178,13 +178,14 @@ class agent_queue_pTask extends agent
 
     protected function restoreContext(&$cookie, &$session)
     {
-        $_COOKIE =& $cookie;
-
         if ($session)
         {
-            foreach ($session as $k => &$v) SESSION::set($k, $v);
+            $_COOKIE = array();
+            foreach ($session as $k => &$v) s::set($k, $v);
             SESSION::regenerateId(false, false);
         }
+
+        $_COOKIE =& $cookie;
     }
 
     protected function getLock()
