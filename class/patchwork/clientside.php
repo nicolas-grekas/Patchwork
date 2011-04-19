@@ -50,13 +50,9 @@ class patchwork_clientside extends patchwork
 <!--[if IE 8]><html{$lang} class="ie8"><![endif]-->
 <!--[if gt IE 8]><html{$lang} class="ie9"><![endif]-->
 <!--[if !IE]><!--><html{$lang}><!--<![endif]-->
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 <script name="w$">a=[{$agent},[{$a}],{$appId},{$b}]</script>
 <!--[if !IE]><!--><script name="w$" src="data:text/javascript,a[4]=1"></script><!--<![endif]-->
 <script src="{$base}js/w?{$appId}"></script>
-</head>
 </html>
 EOHTML;
     }
