@@ -49,8 +49,7 @@ require dirname(__FILE__) . '/class/Patchwork/Bootstrapper.php';
 
 if (!Patchwork_Bootstrapper::initLock(__FILE__, PATCHWORK_BOOTPATH))
 {
-    require Patchwork_Bootstrapper::getBootstrapper();
-    return;
+    return require Patchwork_Bootstrapper::getFile();
 }
 
 

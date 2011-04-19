@@ -53,13 +53,13 @@ class Patchwork_Bootstrapper_Bootstrapper
     }
 
     // Because $this->cwd is a reference, this has to be dynamic
-    function getBootstrapper() {return $this->cwd . '.patchwork.php';}
-    function getLockFile()     {return $this->cwd . '.patchwork.lock';}
+    function getFile() {return $this->cwd . '.patchwork.php';}
+    function getLock() {return $this->cwd . '.patchwork.lock';}
 
     function initLock($caller, $retry = true)
     {
-        $lock = $this->getLockFile();
-        $file = $this->getBootstrapper();
+        $lock = $this->getLock();
+        $file = $this->getFile();
 
         if ($this->lock = @fopen($lock, 'xb'))
         {
@@ -133,6 +133,12 @@ class Patchwork_Bootstrapper_Bootstrapper
         ob_start(array($this, 'ob_eval'));
     }
 
+    function loadNextStep()
+    {
+        ob_flush();
+        return null !== $this->nextStep = array_shift($this->step);
+    }
+
     function ob_eval($buffer)
     {
         return '' !== $buffer
@@ -150,16 +156,10 @@ class Patchwork_Bootstrapper_Bootstrapper
                 $this->lock = null;
             }
 
-            @unlink($this->getLockFile());
+            @unlink($this->getLock());
         }
 
         return $buffer;
-    }
-
-    function loadNextStep()
-    {
-        ob_flush();
-        return null !== $this->nextStep = array_shift($this->step);
     }
 
     function release()
@@ -201,11 +201,11 @@ class Patchwork_Bootstrapper_Bootstrapper
             fwrite($this->lock, $a);
             fclose($this->lock);
 
-            $b = $this->getLockFile();
+            $b = $this->getLock();
 
             touch($b, $_SERVER['REQUEST_TIME'] + 1);
             win_hide_file($b);
-            rename($b, $this->getBootstrapper());
+            rename($b, $this->getFile());
 
             $this->lock = $this->code = null;
 
@@ -283,7 +283,6 @@ class Patchwork_Bootstrapper_Bootstrapper
 
         return $found;
     }
-
 
     function initConfig()
     {

@@ -41,12 +41,12 @@ class Patchwork_Bootstrapper
         return self::$bootstrapper->initLock($caller);
     }
 
-    static function getBootstrapper()     {return self::free(self::$bootstrapper->getBootstrapper());}
-    static function loadNextStep()        {return self::$bootstrapper->loadNextStep();}
-    static function preprocessorPass1()   {return self::$bootstrapper->preprocessorPass1();}
-    static function preprocessorPass2()   {return self::$bootstrapper->preprocessorPass2();}
-    static function initConfig()          {return self::$bootstrapper->initConfig();}
-    static function release()             {return self::free(self::$bootstrapper->release());}
+    static function getFile()           {return self::free(self::$bootstrapper->getFile());}
+    static function loadNextStep()      {return self::$bootstrapper->loadNextStep();}
+    static function preprocessorPass1() {return self::$bootstrapper->preprocessorPass1();}
+    static function preprocessorPass2() {return self::$bootstrapper->preprocessorPass2();}
+    static function initConfig()        {return self::$bootstrapper->initConfig();}
+    static function release()           {return self::free(self::$bootstrapper->release());}
 
     static function initInheritance()
     {
