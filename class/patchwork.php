@@ -1295,8 +1295,8 @@ class patchwork
 /**/            {
                     if ((!PATCHWORK_SYNC_CACHE || IS_POSTING) && !self::$binaryMode && 's' !== self::$requestMode)
                     {
-                        $buffer = false !== strpos($buffer, '<head')
-                            ? preg_replace("'<head[^>]*>'", '$0' . patchwork_debugger::getProlog(), $buffer)
+                        $buffer = false !== strpos($buffer, '<!DOCTYPE')
+                            ? preg_replace("'<!DOCTYPE[^>]*>'", '$0' . patchwork_debugger::getProlog(), $buffer)
                             : patchwork_debugger::getProlog() . $buffer;
                     }
 /**/            }
@@ -1596,6 +1596,7 @@ class patchwork
             if (false !== stripos(self::$headers['content-type'], 'html'))
             {
                 header('P3P: CP="' . $CONFIG['P3P'] . '"');
+                header('X-UA-Compatible: IE=edge,chrome=1');
                 header('X-XSS-Protection: 1; mode=block');
             }
 

@@ -108,7 +108,6 @@ class patchwork_debugger extends patchwork
         $QDebug   = patchwork::__BASE__() . 'js/QDebug.js';
 
         return <<<EOHTML
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <script src="{$QDebug}"></script>
 EOHTML;
     }
@@ -136,9 +135,9 @@ EOHTML;
         header('Content-Type: text/html; charset=utf-8');
         header('Cache-Control: max-age=0,private,must-revalidate');
 
-        ?><html>
+        ?><!DOCTYPE html>
+<html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Debug Window</title>
 <style>
 body
@@ -315,7 +314,7 @@ EOHTML;
             usleep($sleep);
         }
 
-        exit;
+        die('</body></html>');
     }
 
     static function filename($m)
