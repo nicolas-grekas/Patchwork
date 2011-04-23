@@ -11,72 +11,30 @@
  *
  ***************************************************************************/
 
-require dirname(__FILE__) . '/Bootstrapper/Bootstrapper.php';
-
 
 class Patchwork_Bootstrapper
 {
     static
 
-    $pwd,
-    $cwd,
-    $paths,
-    $zcache,
-    $last,
-    $appId;
-
-
-    protected static
-
-    $bootstrapper;
+    $class   = __CLASS__,
+    $manager = 'Manager';
 
 
     static function initLock($caller, $cwd)
     {
-        self::$cwd = empty($cwd) ? '.' : $cwd;
-        self::$cwd = rtrim(self::$cwd, '/\\') . DIRECTORY_SEPARATOR;
-        self::$pwd = dirname($caller) . DIRECTORY_SEPARATOR;
-        self::$bootstrapper = new Patchwork_Bootstrapper_Bootstrapper(self::$cwd);
-
-        return self::$bootstrapper->initLock($caller);
+        $pwd = dirname($caller) . DIRECTORY_SEPARATOR;
+        $cls = call_user_func(array(self::$class, 'load'), self::$manager, $pwd);
+        self::$manager = new $cls(self::$class, $pwd, $cwd);
+        return self::$manager->lock($caller);
     }
 
-    static function getFile()           {return self::free(self::$bootstrapper->getFile());}
-    static function loadNextStep()      {return self::$bootstrapper->loadNextStep();}
-    static function preprocessorPass1() {return self::$bootstrapper->preprocessorPass1();}
-    static function preprocessorPass2() {return self::$bootstrapper->preprocessorPass2();}
-    static function initConfig()        {return self::$bootstrapper->initConfig();}
-    static function release()           {return self::free(self::$bootstrapper->release());}
+    static function getNextStep() {return self::$manager->getNextStep();}
+    static function release()     {return self::$manager = self::$manager->release();}
 
-    static function initInheritance()
+    static function load($class, $dir)
     {
-        self::$cwd = rtrim(patchwork_realpath(self::$cwd), '/\\') . DIRECTORY_SEPARATOR;
-
-        $a = self::$bootstrapper->getLinearizedInheritance(self::$pwd);
-
-        self::$paths =& $a[0];
-        self::$last  =  $a[1];
-        self::$appId =  $a[2];
-    }
-
-    static function initZcache()
-    {
-        self::$zcache = self::$bootstrapper->getZcache(self::$paths, self::$last);
-    }
-
-    static function updatedb()
-    {
-        return self::$bootstrapper->updatedb(self::$paths, self::$last, self::$zcache);
-    }
-
-    static function override($function, $override, $args, $return_ref = false)
-    {
-        return self::$bootstrapper->override($function, $override, $args, $return_ref);
-    }
-
-    protected static function free($return)
-    {
-        self::$pwd = self::$cwd = self::$paths = self::$zcache = self::$last = self::$appId = self::$bootstrapper = null;
-        return $return;
+        $class = self::$class . '_' . $class;
+        require $dir . 'class/' . strtr($class, '_', DIRECTORY_SEPARATOR) . '.php';
+        return $class;
     }
 }

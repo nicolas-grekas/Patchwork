@@ -44,7 +44,7 @@ $CONFIG += array(
 
 // Setup patchwork's environment
 
-/**/ /*<*/Patchwork_Bootstrapper::override('header', 'Patchwork::header', array('$s', '$replace' => true, '$response_code' => null))/*>*/;
+/**/ /*<*/boot::$manager->override('header', 'Patchwork::header', array('$s', '$replace' => true, '$response_code' => null))/*>*/;
 
 defined('DEBUG') || define('DEBUG', $CONFIG['debug.allowed'] && (!$CONFIG['debug.password'] || isset($_COOKIE['debug_password']) && $CONFIG['debug.password'] == $_COOKIE['debug_password']) ? 1 : 0);
 defined('TURBO') || define('TURBO', !DEBUG && $CONFIG['turbo']);
@@ -58,13 +58,13 @@ empty($CONFIG['xsendfile']) && isset($_SERVER['PATCHWORK_XSENDFILE']) && $CONFIG
         {
 /**/        // Replace file_exists() on Windows to check if character case is strict
 /**/
-/**/        /*<*/Patchwork_Bootstrapper::override('file_exists',   ':Winfs:', array('$file'))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::override('is_file',       ':Winfs:', array('$file'))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::override('is_dir',        ':Winfs:', array('$file'))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::override('is_link',       ':Winfs:', array('$file'))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::override('is_executable', ':Winfs:', array('$file'))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::override('is_readable',   ':Winfs:', array('$file'))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::override('is_writable',   ':Winfs:', array('$file'))/*>*/;
+/**/        /*<*/boot::$manager->override('file_exists',   ':Winfs:', array('$file'))/*>*/;
+/**/        /*<*/boot::$manager->override('is_file',       ':Winfs:', array('$file'))/*>*/;
+/**/        /*<*/boot::$manager->override('is_dir',        ':Winfs:', array('$file'))/*>*/;
+/**/        /*<*/boot::$manager->override('is_link',       ':Winfs:', array('$file'))/*>*/;
+/**/        /*<*/boot::$manager->override('is_executable', ':Winfs:', array('$file'))/*>*/;
+/**/        /*<*/boot::$manager->override('is_readable',   ':Winfs:', array('$file'))/*>*/;
+/**/        /*<*/boot::$manager->override('is_writable',   ':Winfs:', array('$file'))/*>*/;
         }
 /**/}
 

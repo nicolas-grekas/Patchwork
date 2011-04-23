@@ -12,31 +12,45 @@
  ***************************************************************************/
 
 
-class Patchwork_Bootstrapper_Bootstrapper
+class Patchwork_Bootstrapper_Manager
 {
+    public
+
+    $pwd,
+    $cwd,
+    $paths,
+    $zcache,
+    $last,
+    $appId;
+
     protected
 
+    $bootstrapper,
     $marker,
-    $cwd,
-    $dir,
     $preprocessor,
     $step = array(),
     $code = array(),
-    $nextStep,
     $lock = null,
     $file,
     $overrides,
     $callerRx;
 
 
-    function __construct(&$cwd)
+    function __construct($bootstrapper, $pwd, $cwd)
     {
+        $cwd = (empty($cwd) ? '.' : rtrim($cwd, '/\\')) . DIRECTORY_SEPARATOR;
+
+        $this->bootstrapper = $bootstrapper;
         $this->marker = md5(mt_rand(1, mt_getrandmax()));
-        $this->cwd    =& $cwd;
-        $this->dir    = dirname(__FILE__);
+        $this->pwd = $pwd;
+        $this->cwd = $cwd;
 
         function_exists('token_get_all')
             || die('Patchwork error: Extension "tokenizer" is needed and not loaded');
+
+        function_exists('mb_internal_encoding')
+            && mb_internal_encoding('8bit') // if mbstring overloading is enabled
+            && @ini_set('mbstring.internal_encoding', '8bit');
 
         isset($_SERVER['REDIRECT_STATUS'])
             && false !== strpos(php_sapi_name(), 'apache')
@@ -47,19 +61,13 @@ class Patchwork_Bootstrapper_Bootstrapper
             || die("Patchwork error: File config.patchwork.php not found in {$cwd}. Did you set PATCHWORK_BOOTPATH correctly?");
 
         if (headers_sent($file, $line) || ob_get_length())
-        {
             die('Patchwork error: ' . $this->getEchoError($file, $line, ob_get_flush(), 'before bootstrap'));
-        }
     }
 
-    // Because $this->cwd is a reference, this has to be dynamic
-    function getFile() {return $this->cwd . '.patchwork.php';}
-    function getLock() {return $this->cwd . '.patchwork.lock';}
-
-    function initLock($caller, $retry = true)
+    function lock($caller, $retry = true)
     {
-        $lock = $this->getLock();
-        $file = $this->getFile();
+        $lock = $this->cwd . '.patchwork.lock';
+        $file = $this->cwd . '.patchwork.php';
 
         if ($this->lock = @fopen($lock, 'xb'))
         {
@@ -105,14 +113,9 @@ class Patchwork_Bootstrapper_Bootstrapper
         if ($retry && !file_exists($file))
         {
             @unlink($lock);
-            return $this->initLock($caller, false);
+            return $this->lock($caller, false);
         }
         else return false;
-    }
-
-    function isReleased()
-    {
-        return !$this->lock;
     }
 
     protected function initialize($caller)
@@ -121,22 +124,16 @@ class Patchwork_Bootstrapper_Bootstrapper
 
         $this->callerRx = preg_quote($caller, '/');
 
-        $this->preprocessor = $this->getPreprocessor();
+        $this->preprocessor = $this->load('Preprocessor');
 
         $this->overrides =& $GLOBALS['patchwork_preprocessor_overrides'];
         $this->overrides = array();
 
         $this->step[] = array(null, dirname($caller) . '/' . 'common.patchwork.php');
-        $this->step[] = array("<?php \n/**/Patchwork_Bootstrapper::initInheritance();Patchwork_Bootstrapper::initZcache();\n", null);
+        $this->step[] = array("<?php \n/**/{$this->bootstrapper}::\$manager->initInheritance();{$this->bootstrapper}::\$manager->initZcache();\n", null);
 
         ob_start(array($this, 'ob_lock'));
         ob_start(array($this, 'ob_eval'));
-    }
-
-    function loadNextStep()
-    {
-        ob_flush();
-        return null !== $this->nextStep = array_shift($this->step);
     }
 
     function ob_eval($buffer)
@@ -156,14 +153,26 @@ class Patchwork_Bootstrapper_Bootstrapper
                 $this->lock = null;
             }
 
-            @unlink($this->getLock());
+            @unlink($this->cwd . '.patchwork.lock');
         }
 
         return $buffer;
     }
 
+    function getNextStep()
+    {
+        if (null === $nextStep = array_shift($this->step)) return '';
+        ob_flush();
+        list($code, $this->file) = $nextStep;
+        null === $code && $code = file_get_contents($this->file);
+        $code = $this->preprocessor->staticPass1($code, $this->file);
+        return $code . ";eval({$this->bootstrapper}::\$manager->preprocessorPass2());";
+    }
+
     function release()
     {
+        if (!$this->lock) return $this->cwd . '.patchwork.php';
+
         ob_end_flush();
 
         if ('' === $buffer = ob_get_clean())
@@ -201,15 +210,20 @@ class Patchwork_Bootstrapper_Bootstrapper
             fwrite($this->lock, $a);
             fclose($this->lock);
 
-            $b = $this->getLock();
+            $b = $this->cwd . '.patchwork.lock';
 
             touch($b, $_SERVER['REQUEST_TIME'] + 1);
             win_hide_file($b);
-            rename($b, $this->getFile());
+            rename($b, $this->cwd . '.patchwork.php');
 
             $this->lock = $this->code = null;
 
             @set_time_limit(ini_get('max_execution_time'));
+
+
+            // Let's go
+            Patchwork::start();
+            exit;
         }
         else
         {
@@ -221,13 +235,6 @@ class Patchwork_Bootstrapper_Bootstrapper
         }
     }
 
-    function preprocessorPass1()
-    {
-        list($code, $this->file) = $this->nextStep;
-        null === $code && $code = file_get_contents($this->file);
-        return $this->preprocessor->staticPass1($code, $this->file);
-    }
-
     function preprocessorPass2()
     {
         $code = $this->preprocessor->staticPass2();
@@ -235,9 +242,11 @@ class Patchwork_Bootstrapper_Bootstrapper
         return $this->code[] = $code;
     }
 
-    function getLinearizedInheritance($pwd)
+    function initInheritance()
     {
-        $a = $this->getInheritance()->linearizeGraph($pwd, $this->cwd);
+        $this->cwd = rtrim(patchwork_realpath($this->cwd), '/\\') . DIRECTORY_SEPARATOR;
+
+        $a = $this->load('Inheritance')->linearizeGraph($this->pwd, $this->cwd);
 
         $b = array_slice($a[0], 0, $a[1] + 1);
 
@@ -245,7 +254,7 @@ class Patchwork_Bootstrapper_Bootstrapper
             if (file_exists($c .= 'bootup.patchwork.php'))
                 $this->step[] = array(null, $c);
 
-        $this->step[] = array("<?php \n/**/Patchwork_Bootstrapper::initConfig();\n", null);
+        $this->step[] = array("<?php \n/**/{$this->bootstrapper}::\$manager->initConfig();\n", null);
 
         foreach ($b as $c)
             if (file_exists($c .= 'config.patchwork.php'))
@@ -253,35 +262,37 @@ class Patchwork_Bootstrapper_Bootstrapper
 
         $this->step[] = array("<?php \n/**/class_exists('Patchwork', true);Patchwork_Setup::hook();\n", null);
 
-        return $a;
+        $this->paths = $a[0];
+        $this->last  = $a[1];
+        $this->appId = $a[2];
     }
 
-    function getZcache(&$paths, $last)
+    function initZcache()
     {
         // Get zcache's location
 
-        $found = false;
+        $zc = false;
 
-        for ($i = 0; $i <= $last; ++$i)
+        for ($i = 0; $i <= $this->last; ++$i)
         {
-            if (file_exists($paths[$i] . 'zcache/'))
+            if (file_exists($this->paths[$i] . 'zcache/'))
             {
-                $found = "{$paths[$i]}zcache" . DIRECTORY_SEPARATOR;
+                $zc = "{$this->paths[$i]}zcache" . DIRECTORY_SEPARATOR;
 
-                if (@touch("{$found}.patchwork.writeTest")) @unlink("{$found}.patchwork.writeTest");
-                else $found = false;
+                if (@touch("{$zc}.patchwork.writeTest")) @unlink("{$zc}.patchwork.writeTest");
+                else $zc = false;
 
                 break;
             }
         }
 
-        if (!$found)
+        if (!$zc)
         {
-            $found = "{$paths[0]}zcache" . DIRECTORY_SEPARATOR;
-            file_exists($found) || mkdir($found);
+            $zc = "{$this->paths[0]}zcache" . DIRECTORY_SEPARATOR;
+            file_exists($zc) || mkdir($zc);
         }
 
-        return $found;
+        $this->zcache = $zc;
     }
 
     function initConfig()
@@ -307,9 +318,9 @@ class Patchwork_Bootstrapper_Bootstrapper
         $GLOBALS["b\x9D"] = $GLOBALS["a\x9D"] = false;
     }
 
-    function updatedb($paths, $last, $zcache)
+    function updatedb()
     {
-        return $this->getUpdatedb()->buildPathCache($paths, $last, $this->cwd, $zcache);
+        return $this->load('Updatedb')->buildPathCache($this->paths, $this->last, $this->cwd, $this->zcache);
     }
 
     function override($function, $override, $args, $return_ref = false)
@@ -435,24 +446,9 @@ class Patchwork_Bootstrapper_Bootstrapper
         return $a;
     }
 
-    protected function getPreprocessor()
+    protected function load($class)
     {
-        require $this->dir . '/Preprocessor.php';
-
-        return new Patchwork_Bootstrapper_Preprocessor;
-    }
-
-    protected function getInheritance()
-    {
-        require $this->dir . '/Inheritance.php';
-
-        return new Patchwork_Bootstrapper_Inheritance;
-    }
-
-    protected function getUpdatedb()
-    {
-        require $this->dir . '/Updatedb.php';
-
-        return new Patchwork_Bootstrapper_Updatedb;
+        $class = call_user_func(array($this->bootstrapper, 'load'), $class, $this->pwd);
+        return new $class;
     }
 }
