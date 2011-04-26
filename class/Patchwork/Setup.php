@@ -27,6 +27,8 @@ class Setup
 
     static function hook()
     {
+        class_exists('Patchwork', true);
+
         $G = $_GET; $P = $_POST; $C = $_COOKIE; $F = $_FILES;
         $_GET = $_POST = $_COOKIE = $_FILES = array();
 

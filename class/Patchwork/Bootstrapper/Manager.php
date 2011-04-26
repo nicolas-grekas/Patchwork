@@ -28,9 +28,10 @@ class Patchwork_Bootstrapper_Manager
     $bootstrapper,
     $marker,
     $preprocessor,
-    $step = array(),
     $code = array(),
     $lock = null,
+    $steps = array(),
+    $substeps = array(),
     $file,
     $overrides,
     $callerRx;
@@ -51,11 +52,6 @@ class Patchwork_Bootstrapper_Manager
         function_exists('mb_internal_encoding')
             && mb_internal_encoding('8bit') // if mbstring overloading is enabled
             && @ini_set('mbstring.internal_encoding', '8bit');
-
-        isset($_SERVER['REDIRECT_STATUS'])
-            && false !== strpos(php_sapi_name(), 'apache')
-            && '200' !== $_SERVER['REDIRECT_STATUS']
-            && die('Patchwork error: Initialization forbidden (try using the shortest possible URL)');
 
         file_exists($cwd . 'config.patchwork.php')
             || die("Patchwork error: File config.patchwork.php not found in {$cwd}. Did you set PATCHWORK_BOOTPATH correctly?");
@@ -95,7 +91,7 @@ class Patchwork_Bootstrapper_Manager
             usleep(1000);
             flock($h, LOCK_SH);
             fclose($h);
-            file_exists($file) || sleep(1);
+            file_exists($file) || usleep(1000);
         }
         else if ($retry)
         {
@@ -129,11 +125,46 @@ class Patchwork_Bootstrapper_Manager
         $this->overrides =& $GLOBALS['patchwork_preprocessor_overrides'];
         $this->overrides = array();
 
-        $this->step[] = array(null, dirname($caller) . '/' . 'common.patchwork.php');
-        $this->step[] = array("<?php \n/**/{$this->bootstrapper}::\$manager->initInheritance();{$this->bootstrapper}::\$manager->initZcache();\n", null);
+        $this->steps[] = array(null, dirname($caller) . '/' . 'common.patchwork.php');
+        $this->steps[] = array(array($this, 'initInheritance'), null);
+        $this->steps[] = array(array($this, 'initZcache'     ), null);
 
         ob_start(array($this, 'ob_lock'));
         ob_start(array($this, 'ob_eval'));
+    }
+
+    function getNextStep()
+    {
+        ob_flush();
+
+        if ($this->substeps)
+        {
+            $this->steps = array_merge($this->substeps, $this->steps);
+            $this->substeps = array();
+        }
+
+        while (null !== $step = array_shift($this->steps))
+        {
+            list($code, $this->file) = $step;
+
+            if (null !== $this->file)
+            {
+                null === $code && $code = file_get_contents($this->file);
+                $code = $this->preprocessor->staticPass1($code, $this->file);
+                return $code . ";return eval({$this->bootstrapper}::\$manager->preprocessorPass2());";
+            }
+            else call_user_func($code);
+        }
+
+        return '';
+    }
+
+    function preprocessorPass2()
+    {
+        $code = $this->preprocessor->staticPass2();
+        '' === $code && $code = ' ';
+        ob_get_length() && $this->release();
+        return $this->code[] = $code;
     }
 
     function ob_eval($buffer)
@@ -157,16 +188,6 @@ class Patchwork_Bootstrapper_Manager
         }
 
         return $buffer;
-    }
-
-    function getNextStep()
-    {
-        if (null === $nextStep = array_shift($this->step)) return '';
-        ob_flush();
-        list($code, $this->file) = $nextStep;
-        null === $code && $code = file_get_contents($this->file);
-        $code = $this->preprocessor->staticPass1($code, $this->file);
-        return $code . ";eval({$this->bootstrapper}::\$manager->preprocessorPass2());";
     }
 
     function release()
@@ -235,14 +256,7 @@ class Patchwork_Bootstrapper_Manager
         }
     }
 
-    function preprocessorPass2()
-    {
-        $code = $this->preprocessor->staticPass2();
-        ob_get_length() && $this->release();
-        return $this->code[] = $code;
-    }
-
-    function initInheritance()
+    protected function initInheritance()
     {
         $this->cwd = rtrim(patchwork_realpath($this->cwd), '/\\') . DIRECTORY_SEPARATOR;
 
@@ -252,22 +266,22 @@ class Patchwork_Bootstrapper_Manager
 
         foreach (array_reverse($b) as $c)
             if (file_exists($c .= 'bootup.patchwork.php'))
-                $this->step[] = array(null, $c);
+                $this->steps[] = array(null, $c);
 
-        $this->step[] = array("<?php \n/**/{$this->bootstrapper}::\$manager->initConfig();\n", null);
+        $this->steps[] = array(array($this, 'initConfig'), null);
 
         foreach ($b as $c)
             if (file_exists($c .= 'config.patchwork.php'))
-                $this->step[] = array(null, $c);
+                $this->steps[] = array(null, $c);
 
-        $this->step[] = array("<?php \n/**/class_exists('Patchwork', true);Patchwork_Setup::hook();\n", null);
+        $this->steps[] = array(array('Patchwork_Setup', 'hook'), null);
 
         $this->paths = $a[0];
         $this->last  = $a[1];
         $this->appId = $a[2];
     }
 
-    function initZcache()
+    protected function initZcache()
     {
         // Get zcache's location
 
@@ -295,7 +309,7 @@ class Patchwork_Bootstrapper_Manager
         $this->zcache = $zc;
     }
 
-    function initConfig()
+    protected function initConfig()
     {
         // Purge old code files
 
@@ -316,6 +330,11 @@ class Patchwork_Bootstrapper_Manager
 
         $GLOBALS["c\x9D"] = array();
         $GLOBALS["b\x9D"] = $GLOBALS["a\x9D"] = false;
+    }
+
+    function pushFile($file)
+    {
+        $this->substeps[] = array(null, $file);
     }
 
     function updatedb()

@@ -108,6 +108,11 @@ $b = '(' . implode('|', $b) . ')';
 *   $_SERVER['PATCHWORK_LANG']: lang (ex. en) if application is internationalized
 */
 
+/**/isset($_SERVER['REDIRECT_STATUS'])
+/**/    && false !== strpos(php_sapi_name(), 'apache')
+/**/    && '200' !== $_SERVER['REDIRECT_STATUS']
+/**/    && die('Patchwork error: Initialization forbidden (try using the shortest possible URL)');
+
 $a = strpos($_SERVER['REQUEST_URI'], '?');
 $a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
 $a = rawurldecode($a);

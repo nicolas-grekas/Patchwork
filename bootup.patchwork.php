@@ -228,11 +228,11 @@ class ob
         $this->callback = $callback;
     }
 
-    function &callback(&$buffer, $mode)
+    function callback($buffer, $mode)
     {
         $a = self::$in_handler++;
         self::$clear && $buffer = '';
-        $buffer = call_user_func_array($this->callback, array(&$buffer, $mode));
+        $buffer = call_user_func($this->callback, $buffer, $mode);
         self::$in_handler = $a;
         self::$clear = false;
         return $buffer;
@@ -796,7 +796,7 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 /**/{
 /**/    if (!function_exists('spl_autoload_register'))
 /**/    {
-            // Trigger a "Cannot redeclare" fatal error: autoloading is already locked
+            // "Cannot redeclare" fatal error: autoloading is registered and can't be replaced
             function __autoload($class) {}
 /**/    }
 
@@ -814,10 +814,7 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 /**/    /*<*/boot::$manager->override('spl_autoload_register',   ':SplAutoload:', array('$callback', '$throw' => true, '$prepend' => false))/*>*/;
 /**/    /*<*/boot::$manager->override('spl_autoload_unregister', ':SplAutoload:', array('$callback'))/*>*/;
 
-/**/    @unlink(boot::$manager->cwd . '.patchwork.spl-autoload.php');
-/**/    copy(boot::$manager->pwd . 'class/Patchwork/PHP/Override/SplAutoload.php', boot::$manager->cwd . '.patchwork.spl-autoload.php');
-
-        require /*<*/boot::$manager->cwd . '.patchwork.spl-autoload.php'/*>*/;
+/**/    boot::$manager->pushFile(boot::$manager->pwd . 'class/Patchwork/PHP/Override/SplAutoload.php');
 /**/}
 /**/else
 /**/{

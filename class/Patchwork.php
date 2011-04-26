@@ -843,7 +843,7 @@ class Patchwork
      */
     static function touch($message)
     {
-        if (is_array($message)) foreach ($message as &$message) self::touch($message);
+        if (is_array($message)) foreach ($message as $message) self::touch($message);
         else
         {
             $message = preg_split("'[\\\\/]+'u", $message, -1, PREG_SPLIT_NO_EMPTY);
@@ -917,7 +917,7 @@ class Patchwork
     /*
      * Creates the full directory path to $filename, then writes $data to the file
      */
-    static function writeFile($filename, &$data, $Dmtime = 0)
+    static function writeFile($filename, $data, $Dmtime = 0)
     {
         $tmpname = dirname($filename) . DIRECTORY_SEPARATOR . '.~' . uniqid(mt_rand(), true);
 
