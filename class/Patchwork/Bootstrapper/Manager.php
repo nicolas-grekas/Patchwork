@@ -97,8 +97,7 @@ class Patchwork_Bootstrapper_Manager
         {
             $dir = dirname($lock);
 
-            if (@touch($dir . '/.patchwork.writeTest')) @unlink($dir . '/.patchwork.writeTest');
-            else
+            if (@!(touch($dir . '/.patchwork.touch') && unlink($dir . '/.patchwork.touch')))
             {
                 $dir = $this->getBestPath($dir);
 
@@ -119,18 +118,29 @@ class Patchwork_Bootstrapper_Manager
         @set_time_limit(0);
 
         $this->callerRx = preg_quote($caller, '/');
-
         $this->preprocessor = $this->load('Preprocessor');
-
         $this->overrides =& $GLOBALS['patchwork_preprocessor_overrides'];
         $this->overrides = array();
 
-        $this->steps[] = array(null, dirname($caller) . '/' . 'common.patchwork.php');
+        $this->steps[] = array(null, $this->pwd . 'common.patchwork.php');
         $this->steps[] = array(array($this, 'initInheritance'), null);
         $this->steps[] = array(array($this, 'initZcache'     ), null);
 
         ob_start(array($this, 'ob_lock'));
         ob_start(array($this, 'ob_eval'));
+
+        // Purge code cache files
+
+        $h = opendir($this->cwd);
+        while (false !== $caller = readdir($h))
+            if ('.zcache.php' === substr($caller, -11) && '.' === $caller[0])
+                @unlink($this->cwd . $caller);
+        closedir($h);
+
+        // Autoload markers
+
+        $GLOBALS["c\x9D"] = array();
+        $GLOBALS["b\x9D"] = $GLOBALS["a\x9D"] = false;
     }
 
     function getNextStep()
@@ -268,8 +278,6 @@ class Patchwork_Bootstrapper_Manager
             if (file_exists($c .= 'bootup.patchwork.php'))
                 $this->steps[] = array(null, $c);
 
-        $this->steps[] = array(array($this, 'initConfig'), null);
-
         foreach ($b as $c)
             if (file_exists($c .= 'config.patchwork.php'))
                 $this->steps[] = array(null, $c);
@@ -291,45 +299,19 @@ class Patchwork_Bootstrapper_Manager
         {
             if (file_exists($this->paths[$i] . 'zcache/'))
             {
-                $zc = "{$this->paths[$i]}zcache" . DIRECTORY_SEPARATOR;
-
-                if (@touch("{$zc}.patchwork.writeTest")) @unlink("{$zc}.patchwork.writeTest");
-                else $zc = false;
-
+                $zc = $this->paths[$i] . 'zcache' . DIRECTORY_SEPARATOR;
+                @(touch($zc . '/.patchwork.touch') && unlink($zc . '/.patchwork.touch')) || $zc = false;
                 break;
             }
         }
 
         if (!$zc)
         {
-            $zc = "{$this->paths[0]}zcache" . DIRECTORY_SEPARATOR;
+            $zc = $this->cwd . 'zcache' . DIRECTORY_SEPARATOR;
             file_exists($zc) || mkdir($zc);
         }
 
         $this->zcache = $zc;
-    }
-
-    protected function initConfig()
-    {
-        // Purge old code files
-
-        if (!file_exists($a = "{$this->cwd}.zcache.php"))
-        {
-            touch($a);
-            win_hide_file($a);
-
-            $h = opendir($this->cwd);
-            while (false !== $a = readdir($h))
-            {
-                if ('.zcache.php' === substr($a, -11) && '.' === $a[0]) @unlink($this->cwd . $a);
-            }
-            closedir($h);
-        }
-        
-        // Autoload markers
-
-        $GLOBALS["c\x9D"] = array();
-        $GLOBALS["b\x9D"] = $GLOBALS["a\x9D"] = false;
     }
 
     function pushFile($file)
