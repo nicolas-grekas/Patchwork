@@ -786,7 +786,10 @@ class patchwork
 
     static function uniqid($raw = false)
     {
-        return md5(uniqid(mt_rand() . pack('d', lcg_value()), true), $raw);
+/**/    if (is_readable('/dev/urandom'))
+            return md5(file_get_contents('/dev/urandom', false, null, -1, 16) . uniqid(mt_rand() . pack('d', lcg_value()), true), $raw);
+/**/    else
+            return md5(uniqid(mt_rand() . pack('d', lcg_value()), true), $raw);
     }
 
     static function strongid($length = 32)
