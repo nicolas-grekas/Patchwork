@@ -140,7 +140,7 @@ function win_hide_file($file)
 /**/else $a = false;
 
 /**/if (!function_exists('getcwd') || !@getcwd())
-/**/    /*<*/Patchwork_Bootstrapper::override('getcwd', 'patchwork_getcwd', array())/*>*/;
+/**/    /*<*/boot::$manager->override('getcwd', 'patchwork_getcwd', array())/*>*/;
 
 function patchwork_getcwd()
 {
@@ -160,7 +160,7 @@ function patchwork_getcwd()
 
 /**/if (false !== $a)
 /**/{
-/**/    /*<*/Patchwork_Bootstrapper::override('realpath', 'patchwork_realpath', array('$path'))/*>*/;
+/**/    /*<*/boot::$manager->override('realpath', 'patchwork_realpath', array('$path'))/*>*/;
 
         function patchwork_realpath($a)
         {
@@ -233,17 +233,4 @@ function patchwork_getcwd()
 /**/else
 /**/{
         function patchwork_realpath($a) {return realpath($a);}
-
-/**/    if ('\\' === DIRECTORY_SEPARATOR && PHP_VERSION_ID < 50200)
-/**/    {
-/**/        // Replace file_exists() on Windows to fix a bug with long file names
-/**/
-/**/        /*<*/Patchwork_Bootstrapper::override('file_exists',   ':Winfs:', array('$file'))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::override('is_file',       ':Winfs:', array('$file'))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::override('is_dir',        ':Winfs:', array('$file'))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::override('is_link',       ':Winfs:', array('$file'))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::override('is_executable', ':Winfs:', array('$file'))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::override('is_readable',   ':Winfs:', array('$file'))/*>*/;
-/**/        /*<*/Patchwork_Bootstrapper::override('is_writable',   ':Winfs:', array('$file'))/*>*/;
-/**/    }
 /**/}

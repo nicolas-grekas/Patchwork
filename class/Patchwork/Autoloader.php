@@ -293,7 +293,7 @@ class Patchwork_Autoloader
                         $GLOBALS["a\x9D"] = $GLOBALS["b\x9D"] = $src . '*' . $i;
                         $i = substr($marker, 0, strrpos($marker, '*') + 1) . $i . "'";
                         $marker = "({$marker})&&\$d\x9D&&";
-                        $code = $customSrc ? "'{$cache}'" : ($level + PATCHWORK_PATH_OFFSET);
+                        $code = $customSrc ? "'{$cache}'" : ($level + count($GLOBALS['patchwork_path']) - PATCHWORK_PATH_LEVEL);
                         $code = "\$c\x9D['{$lc_req}']={$code}";
                         $code = "({$i})&&\$d\x9D&&({$code})&&";
                     }

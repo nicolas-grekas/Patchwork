@@ -14,16 +14,14 @@
 
 class Patchwork_Bootstrapper_Manager
 {
-    public
+    protected
 
     $pwd,
     $cwd,
     $paths,
     $zcache,
     $last,
-    $appId;
-
-    protected
+    $appId,
 
     $bootstrapper,
     $marker,
@@ -122,9 +120,10 @@ class Patchwork_Bootstrapper_Manager
         $this->overrides =& $GLOBALS['patchwork_preprocessor_overrides'];
         $this->overrides = array();
 
-        $this->steps[] = array(null, $this->pwd . 'common.patchwork.php');
+        $this->steps[] = array(null, $this->pwd . 'bootup.patchwork.php');
         $this->steps[] = array(array($this, 'initInheritance'), null);
         $this->steps[] = array(array($this, 'initZcache'     ), null);
+        $this->steps[] = array(array($this, 'exportPathData' ), null);
 
         ob_start(array($this, 'ob_lock'));
         ob_start(array($this, 'ob_eval'));
@@ -230,9 +229,7 @@ class Patchwork_Bootstrapper_Manager
                 $a[] = $code;
             }
 
-            patchworkPath('class/Patchwork.php', $level);
-            $b = addslashes("{$this->cwd}.class_Patchwork.php.0{$level}.zcache.php");
-            $a[] = "DEBUG || file_exists('{$b}') && include '{$b}';";
+            $a[] = "DEBUG||isset(\$c\x9D['patchwork'])||\$a\x9D=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
             $a[] = "Patchwork::start();";
             $a[] = "exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not flushed...
 
@@ -266,17 +263,33 @@ class Patchwork_Bootstrapper_Manager
         }
     }
 
+    protected function exportPathData()
+    {
+        array_unshift($this->steps, array(
+            '<?php
+            $patchwork_appId = (int) ' . $this->export(sprintf('%020d', $this->appId)) . ';
+            define(\'PATCHWORK_PROJECT_PATH\', ' . $this->export($this->cwd) . ');
+            define(\'PATCHWORK_ZCACHE\',       ' . $this->export($this->zcache) . ');
+            define(\'PATCHWORK_PATH_LEVEL\',   ' . $this->export($this->last) . ');
+            $patchwork_path = ' . $this->export($this->paths) . ';',
+            __FILE__
+        ));
+    }
+
     protected function initInheritance()
     {
         $this->cwd = rtrim(patchwork_realpath($this->cwd), '/\\') . DIRECTORY_SEPARATOR;
 
         $a = $this->load('Inheritance')->linearizeGraph($this->pwd, $this->cwd);
 
-        $b = array_slice($a[0], 0, $a[1] + 1);
+        $b = array_slice($a[0], 0, $a[1]);
 
         foreach (array_reverse($b) as $c)
             if (file_exists($c .= 'bootup.patchwork.php'))
                 $this->steps[] = array(null, $c);
+
+        $this->steps[] = array('<?php $CONFIG = array();', __FILE__);
+        $b[] = $this->pwd;
 
         foreach ($b as $c)
             if (file_exists($c .= 'config.patchwork.php'))
@@ -316,12 +329,12 @@ class Patchwork_Bootstrapper_Manager
 
     function pushFile($file)
     {
-        $this->substeps[] = array(null, $file);
+        $this->substeps[] = array(null, dirname($this->file) . DIRECTORY_SEPARATOR . $file);
     }
 
-    function updatedb()
+    function getCurrentDir()
     {
-        return $this->load('Updatedb')->buildPathCache($this->paths, $this->last, $this->cwd, $this->zcache);
+        return dirname($this->file) . DIRECTORY_SEPARATOR;
     }
 
     function override($function, $override, $args, $return_ref = false)
@@ -352,7 +365,7 @@ class Patchwork_Bootstrapper_Manager
             if (is_string($k))
             {
                 $k = trim(strtr($k, "\n\r", '  '));
-                $args[1][] = $k . '=' . Patchwork_PHP_Parser::export($v);
+                $args[1][] = $k . '=' . $this->export($v);
                 0 > $inline && $inline = 0;
             }
             else
@@ -451,5 +464,10 @@ class Patchwork_Bootstrapper_Manager
     {
         $class = call_user_func(array($this->bootstrapper, 'load'), $class, $this->pwd);
         return new $class;
+    }
+
+    protected function export($a)
+    {
+        return Patchwork_PHP_Parser::export($a);
     }
 }

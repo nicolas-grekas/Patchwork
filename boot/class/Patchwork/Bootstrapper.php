@@ -22,7 +22,7 @@ class Patchwork_Bootstrapper
 
     static function initLock($caller, $cwd)
     {
-        $pwd = dirname($caller) . DIRECTORY_SEPARATOR;
+        $pwd = dirname($caller) . DIRECTORY_SEPARATOR . 'boot' . DIRECTORY_SEPARATOR;
         $cls = call_user_func(array(self::$class, 'load'), self::$manager, $pwd);
         self::$manager = new $cls(self::$class, $pwd, $cwd);
         return self::$manager->lock($caller);

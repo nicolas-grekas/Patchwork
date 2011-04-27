@@ -1107,7 +1107,7 @@ class Patchwork
 
                 eval("class {$agent} extends agent{$agentLevel} {}");
             }
-            else $GLOBALS["c\x9D"][$agent] = $agentLevel + PATCHWORK_PATH_OFFSET;
+            else $GLOBALS["c\x9D"][$agent] = $agentLevel + /*<*/count($GLOBALS['patchwork_path']) - PATCHWORK_PATH_LEVEL/*>*/;
         }
 
         return $agent;

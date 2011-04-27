@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class Patchwork_Bootstrapper_Updatedb
+class Patchwork_Updatedb
 {
     function buildPathCache($paths, $last, $cwd, $zcache)
     {

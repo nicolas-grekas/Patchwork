@@ -13,8 +13,9 @@
 
 
 define('IS_POSTING', 'POST' === $_SERVER['REQUEST_METHOD']);
-$patchwork_appId = (int) /*<*/sprintf('%020d', boot::$manager->appId)/*>*/;
 $_REQUEST = array(); // $_REQUEST is an open door to security problems.
+$_patchwork_abstract = array();
+$_patchwork_destruct = array();
 
 
 // Basic overriding
@@ -47,6 +48,20 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 /**/if (!function_exists('spl_object_hash'))
 /**/{
 /**/    /*<*/boot::$manager->override('spl_object_hash',   ':Class:', array('$object'))/*>*/;
+/**/}
+
+
+// Replace file_exists() on Windows to fix a bug with long file names
+
+/**/if ('\\' === DIRECTORY_SEPARATOR && PHP_VERSION_ID < 50200)
+/**/{
+/**/    /*<*/boot::$manager->override('file_exists',   ':Winfs:', array('$file'))/*>*/;
+/**/    /*<*/boot::$manager->override('is_file',       ':Winfs:', array('$file'))/*>*/;
+/**/    /*<*/boot::$manager->override('is_dir',        ':Winfs:', array('$file'))/*>*/;
+/**/    /*<*/boot::$manager->override('is_link',       ':Winfs:', array('$file'))/*>*/;
+/**/    /*<*/boot::$manager->override('is_executable', ':Winfs:', array('$file'))/*>*/;
+/**/    /*<*/boot::$manager->override('is_readable',   ':Winfs:', array('$file'))/*>*/;
+/**/    /*<*/boot::$manager->override('is_writable',   ':Winfs:', array('$file'))/*>*/;
 /**/}
 
 
@@ -411,17 +426,6 @@ function patchwork_http_socket($host, $port, $ssl, $timeout = 30)
         @ini_set('serialize_precision', 17);
 
 
-define('PATCHWORK_PROJECT_PATH', /*<*/boot::$manager->cwd   /*>*/);
-define('PATCHWORK_ZCACHE',       /*<*/boot::$manager->zcache/*>*/);
-define('PATCHWORK_PATH_LEVEL',   /*<*/boot::$manager->last  /*>*/);
-define('PATCHWORK_PATH_OFFSET',  /*<*/count(boot::$manager->paths) - boot::$manager->last/*>*/);
-
-$patchwork_path = /*<*/boot::$manager->paths/*>*/;
-$_patchwork_abstract = array();
-$_patchwork_destruct = array();
-$CONFIG = array();
-
-
 // Utility functions
 
 function patchwork_include($file) {return include $file;}
@@ -532,7 +536,7 @@ function patchwork_class2cache($class, $level)
     }
 
     $cache = (int) DEBUG . (0>$level ? -$level . '-' : $level);
-    $cache = /*<*/boot::$manager->cwd . '.class_'/*>*/
+    $cache = /*<*/PATCHWORK_PROJECT_PATH . '.class_'/*>*/
             . strtr($class, '\\', '_') . ".{$cache}.zcache.php";
 
     return $cache;
@@ -575,12 +579,12 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
         if (isset($file[0]) &&  '/'  === $file[0]) return $file;
 
         $i = 0;
-        $level = /*<*/boot::$manager->last/*>*/;
+        $level = /*<*/PATCHWORK_PATH_LEVEL/*>*/;
     }
     else
     {
         0 <= $level && $base = 0;
-        $i = /*<*/boot::$manager->last/*>*/ - $level - $base;
+        $i = /*<*/PATCHWORK_PATH_LEVEL/*>*/ - $level - $base;
         0 > $i && $i = 0;
     }
 
@@ -589,7 +593,7 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 
     if (0 === $i)
     {
-        $source = /*<*/boot::$manager->cwd/*>*/ . $file;
+        $source = /*<*/PATCHWORK_PROJECT_PATH/*>*/ . $file;
 
 /**/    if (IS_WINDOWS)
 /**/    {
@@ -607,22 +611,24 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
                 return $source;
             }
 /**/    }
-
     }
-
 
     if ($slash = '/' === substr($file, -1)) $file = substr($file, 0, -1);
 
+/**/require boot::$manager->getCurrentDir() . 'class/Patchwork/Updatedb.php';
+/**/$a = new Patchwork_Updatedb;
+/**/$a = $a->buildPathCache($GLOBALS['patchwork_path'], PATCHWORK_PATH_LEVEL, PATCHWORK_PROJECT_PATH, PATCHWORK_ZCACHE);
 
-/**/if ($a = boot::$manager->updatedb())
+/**/if ($a)
 /**/{
         static $db;
 
         if (!isset($db))
         {
-            if (!$db = @dba_popen(/*<*/boot::$manager->cwd . '.patchwork.paths.db'/*>*/, 'rd', /*<*/$a/*>*/))
+            if (!$db = @dba_popen(/*<*/PATCHWORK_PROJECT_PATH . '.patchwork.paths.db'/*>*/, 'rd', /*<*/$a/*>*/))
             {
-                $db = new Patchwork_Bootstrapper_Updatedb;
+                require /*<*/boot::$manager->getCurrentDir() . 'class/Patchwork/Updatedb.php'/*>*/;
+                $db = new Patchwork_Updatedb;
                 $db = $db->buildPathCache($GLOBALS['patchwork_path'], PATCHWORK_PATH_LEVEL, PATCHWORK_PROJECT_PATH, PATCHWORK_ZCACHE);
                 if (!$db = dba_popen(PATCHWORK_PROJECT_PATH . '.patchwork.paths.db', 'rd', $db)) exit;
             }
@@ -633,7 +639,7 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 /**/else
 /**/{
         $base = md5($file);
-        $base = /*<*/boot::$manager->zcache/*>*/ . $base[0] . '/' . $base[1] . '/' . substr($base, 2) . '.path.txt';
+        $base = /*<*/PATCHWORK_ZCACHE/*>*/ . $base[0] . '/' . $base[1] . '/' . substr($base, 2) . '.path.txt';
         $base = @file_get_contents($base);
 /**/}
 
@@ -814,7 +820,7 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 /**/    /*<*/boot::$manager->override('spl_autoload_register',   ':SplAutoload:', array('$callback', '$throw' => true, '$prepend' => false))/*>*/;
 /**/    /*<*/boot::$manager->override('spl_autoload_unregister', ':SplAutoload:', array('$callback'))/*>*/;
 
-/**/    boot::$manager->pushFile(boot::$manager->pwd . 'class/Patchwork/PHP/Override/SplAutoload.php');
+/**/    boot::$manager->pushFile('class/Patchwork/PHP/Override/SplAutoload.php');
 /**/}
 /**/else
 /**/{
@@ -824,9 +830,9 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 
 // patchwork_autoload(): the magic part
 
-/**/@unlink(boot::$manager->cwd . '.patchwork.autoloader.php');
-/**/copy(boot::$manager->pwd . 'class/Patchwork/Autoloader.php', boot::$manager->cwd . '.patchwork.autoloader.php');
-/**/win_hide_file(boot::$manager->cwd . '.patchwork.autoloader.php');
+/**/@unlink(PATCHWORK_PROJECT_PATH . '.patchwork.autoloader.php');
+/**/copy(boot::$manager->getCurrentDir() . 'class/Patchwork/Autoloader.php', PATCHWORK_PROJECT_PATH . '.patchwork.autoloader.php');
+/**/win_hide_file(PATCHWORK_PROJECT_PATH . '.patchwork.autoloader.php');
 
 spl_autoload_register('patchwork_autoload');
 
@@ -862,7 +868,7 @@ function patchwork_autoload($class)
         {
             $b = $a;
             unset($a);
-            $a = $b - /*<*/count(boot::$manager->paths) - boot::$manager->last/*>*/;
+            $a = $b - /*<*/count($GLOBALS['patchwork_path']) - PATCHWORK_PATH_LEVEL/*>*/;
 
             $b = strtr($class, '\\', '_');
             $i = strrpos($b, '__');
@@ -871,7 +877,7 @@ function patchwork_autoload($class)
             $a = $b . '.php.' . DEBUG . (0>$a ? -$a . '-' : $a);
         }
 
-        $a = /*<*/boot::$manager->cwd/*>*/ . ".class_{$a}.zcache.php";
+        $a = /*<*/PATCHWORK_PROJECT_PATH  . '.class_'/*>*/ . $a . '.zcache.php';
 
         $GLOBALS["a\x9D"] = false;
 
@@ -885,7 +891,7 @@ function patchwork_autoload($class)
 
     if (!class_exists('Patchwork_Autoloader', false))
     {
-        require /*<*/boot::$manager->cwd . '.patchwork.autoloader.php'/*>*/;
+        require /*<*/PATCHWORK_PROJECT_PATH . '.patchwork.autoloader.php'/*>*/;
     }
 
     Patchwork_Autoloader::autoload($class);
@@ -906,9 +912,9 @@ function patchworkProcessedPath($file, $lazy = false)
 /**/else
         if ($f = realpath($file)) $file = $f;
 
-        $p =& $GLOBALS['patchwork_path'];
+        $p = $GLOBALS['patchwork_path'];
 
-        for ($i = /*<*/boot::$manager->last + 1/*>*/; $i < /*<*/count(boot::$manager->paths)/*>*/; ++$i)
+        for ($i = /*<*/PATCHWORK_PATH_LEVEL + 1/*>*/; $i < /*<*/count($GLOBALS['patchwork_path'])/*>*/; ++$i)
         {
             if (0 === strncmp($file, $p[$i], strlen($p[$i])))
             {
@@ -917,7 +923,7 @@ function patchworkProcessedPath($file, $lazy = false)
             }
         }
 
-        if (/*<*/count(boot::$manager->paths)/*>*/ === $i) return $f;
+        if (/*<*/count($GLOBALS['patchwork_path'])/*>*/ === $i) return $f;
     }
 
     $source = patchworkPath('class/' . $file, $level);

@@ -159,7 +159,7 @@ class Patchwork_Bootstrapper_Inheritance
         {
             $a = $parent[$i];
 
-            if ('__patchwork__' == substr($a, 0, 13)) $a = $this->rootPath . substr($a, 13);
+            if ('__patchwork__' == substr($a, 0, 13)) $a = dirname($this->rootPath) . DIRECTORY_SEPARATOR . substr($a, 13);
 
             if ('/' !== $a[0] && '\\' !== $a[0] && ':' !== $a[1]) $a = $realpath . $a;
 
