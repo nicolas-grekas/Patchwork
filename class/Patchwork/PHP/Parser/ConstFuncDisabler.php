@@ -11,6 +11,7 @@
  *
  ***************************************************************************/
 
+// TODO: allow local usage of inline declared consts, functions and define()
 
 class Patchwork_PHP_Parser_ConstFuncDisabler extends Patchwork_PHP_Parser
 {
