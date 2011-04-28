@@ -11,13 +11,14 @@
  *
  ***************************************************************************/
 
+// TODO: parse for inline consts, functions and define()
 
 class Patchwork_PHP_Parser_ConstFuncResolver extends Patchwork_PHP_Parser
 {
     protected
 
     $openTag,
-    $nsLoadSrc = false,
+    $nsLoadCode = false,
     $callbacks = array('tagOpenTag' => T_SCOPE_OPEN),
     $dependencies = array('NamespaceInfo' => 'namespace', 'Scoper' => 'scope');
 
@@ -54,7 +55,7 @@ class Patchwork_PHP_Parser_ConstFuncResolver extends Patchwork_PHP_Parser
             || self::nsLoad(substr($this->namespace, 0, -1))
             || $exists($this->namespace . $token[1])  )
         {
-            $this->nsLoadSrc = self::nsLoadSrc(substr($this->namespace, 0, -1));
+            $this->nsLoadCode = self::nsLoadCode(substr($this->namespace, 0, -1));
             $this->unshiftTokens(array(T_NAMESPACE, 'namespace'));
         }
 
@@ -65,10 +66,10 @@ class Patchwork_PHP_Parser_ConstFuncResolver extends Patchwork_PHP_Parser
     {
         $this->unregister();
 
-        if (false !== $this->nsLoadSrc)
+        if (false !== $this->nsLoadCode)
         {
-            $this->openTag[1] .= $this->nsLoadSrc . ';';
-            $this->nsLoadSrc = false;
+            $this->openTag[1] .= $this->nsLoadCode . ';';
+            $this->nsLoadCode = false;
         }
     }
 
@@ -79,7 +80,7 @@ class Patchwork_PHP_Parser_ConstFuncResolver extends Patchwork_PHP_Parser
         return false;
     }
 
-    static protected function nsLoadSrc($ns)
+    static protected function nsLoadCode($ns)
     {
         //return "class_exists('{$ns}', true)";
         return false;
