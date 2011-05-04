@@ -46,9 +46,16 @@ class Clientside extends p
         else $b = '0';
 
         $lang = $lang ? " lang=\"{$lang}\"" : '';
+        $uri  = p::__URI__();
+        $uri .= (false === strpos($uri, '?') ? '?' : '&') . 'p:=serverside';
+        false !== strpos($uri, '<') && $uri = str_replace('<', '%3C', $uri);
+        false !== strpos($uri, '>') && $uri = str_replace('>', '%3E', $uri);
 
         echo $a =<<<EOHTML
 <!DOCTYPE html>
+<!--
+For server-side generated source code, see {$uri}
+-->
 <!--[if lt IE 7]><html{$lang} class="ie6"><![endif]-->
 <!--[if IE 7]><html{$lang} class="ie7"><![endif]-->
 <!--[if IE 8]><html{$lang} class="ie8"><![endif]-->
