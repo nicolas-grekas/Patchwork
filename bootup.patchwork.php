@@ -18,6 +18,13 @@ $_patchwork_abstract = array();
 $_patchwork_destruct = array();
 
 
+// Autoload markers
+
+/**/$GLOBALS["c\x9D"] = array();
+/**/$GLOBALS["b\x9D"] = $GLOBALS["a\x9D"] = false;
+/**//*<*/"\$c\x9D=array();\$d\x9D=1;(\$e\x9D=\$b\x9D=\$a\x9D=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "')&&\$d\x9D&&0;"/*>*/;
+
+
 // Basic overriding
 
 /**/ /*<*/boot::$manager->override('w',          'trigger_error', array('$msg', '$type' => E_USER_NOTICE))/*>*/;

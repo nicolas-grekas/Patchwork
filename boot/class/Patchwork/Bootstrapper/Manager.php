@@ -24,9 +24,8 @@ class Patchwork_Bootstrapper_Manager
     $appId,
 
     $bootstrapper,
-    $marker,
     $preprocessor,
-    $code = array(),
+    $code = array('<?php '),
     $lock = null,
     $steps = array(),
     $substeps = array(),
@@ -43,7 +42,6 @@ class Patchwork_Bootstrapper_Manager
         $cwd = (empty($cwd) ? '.' : rtrim($cwd, '/\\')) . DIRECTORY_SEPARATOR;
 
         $this->bootstrapper = $bootstrapper;
-        $this->marker = md5(mt_rand(1, mt_getrandmax()));
         $this->pwd = $pwd;
         $this->cwd = $cwd;
 
@@ -138,11 +136,6 @@ class Patchwork_Bootstrapper_Manager
             if ('.zcache.php' === substr($caller, -11) && '.' === $caller[0])
                 @unlink($this->cwd . $caller);
         closedir($h);
-
-        // Autoload markers
-
-        $GLOBALS["c\x9D"] = array();
-        $GLOBALS["b\x9D"] = $GLOBALS["a\x9D"] = false;
     }
 
     function getNextStep()
@@ -212,36 +205,13 @@ class Patchwork_Bootstrapper_Manager
         {
             file_put_contents("{$this->cwd}.patchwork.overrides.ser", serialize($this->overrides));
 
-            $a = array(
-                "<?php \$c\x9D=array();",
-                "\$d\x9D=1;",
-                "(\$e\x9D=\$b\x9D=\$a\x9D=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "')&&\$d\x9D&&0;",
-            );
-
-            foreach ($this->code as $code)
-            {
-                if (false !== strpos($code, "/*{$this->marker}:"))
-                {
-                    $code = preg_replace(
-                        "#/\\*{$this->marker}:(\d+)(.+?)\\*/#",
-                        "global \$a\x9D,\$c\x9D;isset(\$c\x9D['$2'])||\$a\x9D=__FILE__.'*$1';",
-                        str_replace("/*{$this->marker}:*/", '', $code)
-                    );
-                }
-
-                $a[] = $code;
-            }
-
-            $a = implode('', $a);
-
-            fwrite($this->lock, $a);
+            foreach ($this->code as $a) fwrite($this->lock, $a);
             fclose($this->lock);
 
-            $b = $this->cwd . '.patchwork.lock';
-
-            touch($b, $_SERVER['REQUEST_TIME'] + 1);
-            win_hide_file($b);
-            rename($b, $this->cwd . '.patchwork.php');
+            $a = $this->cwd . '.patchwork.lock';
+            touch($a, $_SERVER['REQUEST_TIME'] + 1);
+            win_hide_file($a);
+            rename($a, $this->cwd . '.patchwork.php');
 
             $this->lock = $this->code = null;
 
@@ -385,9 +355,6 @@ class Patchwork_Bootstrapper_Manager
 
         $inline && $this->overrides[1 !== $inline ? substr($function, 12) : $function] = $override;
 
-        $inline = explode('::', $override, 2);
-        $inline = 2 === count($inline) ? mt_rand(1, mt_getrandmax()) . strtolower(strtr($inline[0], '\\', '_')) : '';
-
         // FIXME: when overriding a user function, this will throw a can not redeclare fatal error!
         // Some help is required from the main preprocessor to rename overridden user functions.
         // When done, overriding will be perfect for user functions. For internal functions,
@@ -396,8 +363,8 @@ class Patchwork_Bootstrapper_Manager
         // untracked, at least when we are sure that an internal function will not be used as a callback.
 
         return $return_ref
-            ? "function &{$function}({$args[1]}) {/*{$this->marker}:{$inline}*/\${''}=&{$override}({$args[2]});return \${''}}"
-            : "function  {$function}({$args[1]}) {/*{$this->marker}:{$inline}*/return {$override}({$args[2]});}";
+            ? "function &{$function}({$args[1]}) {\${''}=&{$override}({$args[2]});return \${''}}"
+            : "function  {$function}({$args[1]}) {return {$override}({$args[2]});}";
     }
 
     protected function getEchoError($file, $line, $what, $when)
