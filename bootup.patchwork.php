@@ -581,7 +581,7 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 {
     if (false === $level)
     {
-/**/if (IS_WINDOWS)
+/**/if ('\\' === DIRECTORY_SEPARATOR)
         if (isset($file[0]) && ('\\' === $file[0] || false !== strpos($file, ':'))) return $file;
         if (isset($file[0]) &&  '/'  === $file[0]) return $file;
 
@@ -595,14 +595,14 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
         0 > $i && $i = 0;
     }
 
-/**/if (IS_WINDOWS)
+/**/if ('\\' === DIRECTORY_SEPARATOR)
         false !== strpos($file, '\\') && $file = strtr($file, '\\', '/');
 
     if (0 === $i)
     {
         $source = /*<*/PATCHWORK_PROJECT_PATH/*>*/ . $file;
 
-/**/    if (IS_WINDOWS)
+/**/    if ('\\' === DIRECTORY_SEPARATOR)
 /**/    {
             if (function_exists('patchwork_file_exists') ? patchwork_file_exists($source) : file_exists($source))
             {
@@ -658,7 +658,7 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
             $base = (int) current($base);
             $last_level = $level - $base + $i;
 
-/**/        if (IS_WINDOWS)
+/**/        if ('\\' === DIRECTORY_SEPARATOR)
                 false !== strpos($file, '/') && $file = strtr($file, '/', '\\');
 
             return $GLOBALS['patchwork_path'][$base] . (0<=$last_level ? $file : substr($file, 6)) . ($slash ? /*<*/DIRECTORY_SEPARATOR/*>*/ : '');
@@ -909,10 +909,10 @@ function patchwork_autoload($class)
 
 function patchworkProcessedPath($file, $lazy = false)
 {
-/**/if (IS_WINDOWS)
+/**/if ('\\' === DIRECTORY_SEPARATOR)
         false !== strpos($file, '\\') && $file = strtr($file, '\\', '/');
 
-    if (false !== strpos('.' . $file, './') || (/*<*/IS_WINDOWS/*>*/ && ':' === substr($file, 1, 1)))
+    if (false !== strpos('.' . $file, './') || (/*<*/'\\' === DIRECTORY_SEPARATOR/*>*/ && ':' === substr($file, 1, 1)))
     {
 /**/if (function_exists('__patchwork_realpath'))
         if ($f = patchwork_realpath($file)) $file = $f;

@@ -44,7 +44,7 @@ defined('TURBO') || define('TURBO', !DEBUG && $CONFIG['turbo']);
 empty($CONFIG['umask']) || umask($CONFIG['umask']);
 empty($CONFIG['xsendfile']) && isset($_SERVER['PATCHWORK_XSENDFILE']) && $CONFIG['xsendfile'] = $_SERVER['PATCHWORK_XSENDFILE'];
 
-/**/if (IS_WINDOWS && !function_exists('__patchwork_file_exists'))
+/**/if ('\\' === DIRECTORY_SEPARATOR && !function_exists('__patchwork_file_exists'))
 /**/{
         if (DEBUG)
         {
@@ -246,7 +246,7 @@ if (false !== strpos($a, '/.'))
 $r = preg_replace("'/[./]*/'", '/', '/' . $r . '/');
 $a = preg_replace("'/[./]*/'", '/', '/' . $a);
 
-/**/if ($a && IS_WINDOWS)
+/**/if ($a && '\\' === DIRECTORY_SEPARATOR)
 /**/{
         // Workaround for http://bugs.php.net/44001
 

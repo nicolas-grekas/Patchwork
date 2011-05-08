@@ -872,7 +872,7 @@ class Patchwork
                             else @unlink($line) && ++$i;
                         }
 
-                        $wb = !IS_WINDOWS && @unlink($message);
+                        $wb = '\\' !== DIRECTORY_SEPARATOR && @unlink($message);
                     }
 
                     fclose($h);
@@ -934,12 +934,15 @@ class Patchwork
             fwrite($h, $data);
             fclose($h);
 
-            if (IS_WINDOWS)
-            {
+/**/        if ('\\' === DIRECTORY_SEPARATOR)
+/**/        {
                 file_exists($filename) && unlink($filename);
                 rename($tmpname, $filename) || unlink($tmpname);
-            }
-            else rename($tmpname, $filename);
+/**/        }
+/**/        else
+/**/        {
+                rename($tmpname, $filename);
+/**/        }
 
             if ($Dmtime) touch($filename, $_SERVER['REQUEST_TIME'] + $Dmtime);
 

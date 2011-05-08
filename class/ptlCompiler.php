@@ -109,7 +109,7 @@ abstract class ptlCompiler
 
     protected function load($template, $path_idx = 0)
     {
-        $a = IS_WINDOWS ? strtolower($template) : $template;
+        $a = '\\' === DIRECTORY_SEPARATOR ? strtolower($template) : $template;
         $a = preg_replace("'[\\/]+'", '/', $a);
 
         if (isset($this->loadedStack[$a]) && $this->loadedStack[$a] >= $path_idx)

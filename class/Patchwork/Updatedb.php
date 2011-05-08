@@ -94,7 +94,7 @@ class Patchwork_Updatedb
     {
         // Kind of updatedb with mlocate strategy
 
-        $dir = $root . (IS_WINDOWS ? strtr($subdir, '/', '\\') : $subdir);
+        $dir = $root . ('\\' === DIRECTORY_SEPARATOR ? strtr($subdir, '/', '\\') : $subdir);
 
         if ('/' === $subdir)
         {
@@ -218,7 +218,7 @@ class Patchwork_Updatedb
 
             if ($dirs)
             {
-                IS_WINDOWS || sort($dirs, SORT_STRING);
+                '\\' === DIRECTORY_SEPARATOR || sort($dirs, SORT_STRING);
                 $h .= '1' . implode('/1', $dirs) . '/';
             }
 
@@ -237,7 +237,7 @@ class Patchwork_Updatedb
     {
         $len = min(strlen($a), strlen($b));
 
-        if (IS_WINDOWS)
+        if ('\\' === DIRECTORY_SEPARATOR)
         {
             $a = strtoupper(strtr($a, '\\', '/'));
             $b = strtoupper(strtr($b, '\\', '/'));

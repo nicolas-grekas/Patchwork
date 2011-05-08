@@ -15,7 +15,6 @@
 // General pre-configuration
 
 defined('PATCHWORK_MICROTIME') || define('PATCHWORK_MICROTIME', microtime(true));
-define('IS_WINDOWS', /*<*/'\\' === DIRECTORY_SEPARATOR/*>*/);
 error_reporting(E_ALL | E_STRICT);
 setlocale(LC_ALL, 'C');
 
