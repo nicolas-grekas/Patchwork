@@ -18,8 +18,10 @@ class Patchwork_Preprocessor
 
     $scream = false,
     $constants = array(
-        'DEBUG', 'IS_WINDOWS', 'PATCHWORK_ZCACHE',
-        'PATCHWORK_PATH_LEVEL', 'PATCHWORK_PROJECT_PATH',
+        'DEBUG',
+        'PATCHWORK_ZCACHE',
+        'PATCHWORK_PATH_LEVEL',
+        'PATCHWORK_PROJECT_PATH',
     );
 
 
