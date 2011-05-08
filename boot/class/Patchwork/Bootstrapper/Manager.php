@@ -37,6 +37,9 @@ class Patchwork_Bootstrapper_Manager
 
     function __construct($bootstrapper, $pwd, $cwd)
     {
+        if (isset($_GET['p:']) && 'exit' === $_GET['p:'])
+            die('Exit requested');
+
         $cwd = (empty($cwd) ? '.' : rtrim($cwd, '/\\')) . DIRECTORY_SEPARATOR;
 
         $this->bootstrapper = $bootstrapper;
@@ -229,10 +232,6 @@ class Patchwork_Bootstrapper_Manager
                 $a[] = $code;
             }
 
-            $a[] = "DEBUG||isset(\$c\x9D['patchwork'])||\$a\x9D=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
-            $a[] = "Patchwork::start();";
-            $a[] = "exit;"; // When php.ini's output_buffering is on, the buffer is sometimes not flushed...
-
             $a = implode('', $a);
 
             fwrite($this->lock, $a);
@@ -247,11 +246,6 @@ class Patchwork_Bootstrapper_Manager
             $this->lock = $this->code = null;
 
             @set_time_limit(ini_get('max_execution_time'));
-
-
-            // Let's go
-            Patchwork::start();
-            exit;
         }
         else
         {

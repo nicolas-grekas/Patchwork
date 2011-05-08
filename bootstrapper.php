@@ -28,9 +28,6 @@ PATCHWORK_BOOTPATH || die('Patchwork error: PATCHWORK_BOOTPATH is empty');
 if (file_exists(PATCHWORK_BOOTPATH . '/.patchwork.php'))
     return require PATCHWORK_BOOTPATH . '/.patchwork.php';
 
-if (isset($_GET['p:']) && 'exit' === $_GET['p:'])
-    die('Exit requested');
-
 if (!function_exists('version_compare') || version_compare(phpversion(), '5.1.4') < 0)
     die("Patchwork error: PHP 5.1.4 or higher is required");
 
