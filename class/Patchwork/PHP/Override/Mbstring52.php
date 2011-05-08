@@ -97,16 +97,6 @@ class Patchwork_PHP_Override_Mbstring52
     }
 }
 
-/**/if (!function_exists('mb_stripos'))
-/**/{
-        function mb_stripos( $haystack, $needle, $offset = 0,   $encoding = INF) {return Patchwork_PHP_Override_Mbstring52::mb_stripos( $haystack, $needle, $offset, $encoding);}
-        function mb_stristr( $haystack, $needle, $part = false, $encoding = INF) {return Patchwork_PHP_Override_Mbstring52::mb_stristr( $haystack, $needle, $part,   $encoding);}
-        function mb_strrchr( $haystack, $needle, $part = false, $encoding = INF) {return Patchwork_PHP_Override_Mbstring52::mb_strrchr( $haystack, $needle, $part,   $encoding);}
-        function mb_strrichr($haystack, $needle, $part = false, $encoding = INF) {return Patchwork_PHP_Override_Mbstring52::mb_strrichr($haystack, $needle, $part,   $encoding);}
-        function mb_strripos($haystack, $needle, $offset = 0,   $encoding = INF) {return Patchwork_PHP_Override_Mbstring52::mb_strripos($haystack, $needle, $offset, $encoding);}
-        function mb_strstr(  $haystack, $needle, $part = false, $encoding = INF) {return Patchwork_PHP_Override_Mbstring52::mb_strstr(  $haystack, $needle, $part,   $encoding);}
-/**/}
-
 /**/if (!function_exists('mb_strrpos50'))
 /**/{
         function mb_strrpos50($haystack, $needle, $encoding = INF)
