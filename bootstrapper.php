@@ -34,6 +34,7 @@ if (!function_exists('version_compare') || version_compare(phpversion(), '5.1.4'
 setlocale(LC_ALL, 'C');
 error_reporting(E_ALL | E_STRICT);
 
+require dirname(__FILE__) . '/boot/class/Patchwork/Bootstrapper/Manager.php';
 require dirname(__FILE__) . '/boot/class/Patchwork/Bootstrapper.php';
 class boot extends Patchwork_Bootstrapper {}
 

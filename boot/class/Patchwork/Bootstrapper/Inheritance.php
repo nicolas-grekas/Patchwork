@@ -11,8 +11,6 @@
  *
  ***************************************************************************/
 
-require dirname(dirname(__FILE__)) . '/C3mro.php';
-
 
 class Patchwork_Bootstrapper_Inheritance
 {

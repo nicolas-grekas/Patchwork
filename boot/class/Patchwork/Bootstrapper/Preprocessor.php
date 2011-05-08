@@ -11,11 +11,6 @@
  *
  ***************************************************************************/
 
-require dirname(dirname(__FILE__)) . '/PHP/Parser.php';
-require dirname(dirname(__FILE__)) . '/PHP/Parser/Normalizer.php';
-require dirname(dirname(__FILE__)) . '/PHP/Parser/Scream.php';
-require dirname(dirname(__FILE__)) . '/PHP/Parser/StaticState.php';
-
 
 class Patchwork_Bootstrapper_Preprocessor
 {

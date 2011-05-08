@@ -435,7 +435,6 @@ function patchwork_http_socket($host, $port, $ssl, $timeout = 30)
 
 // Utility functions
 
-function patchwork_include($file) {return include $file;}
 function &patchwork_autoload_marker($marker, &$ref) {return $ref;}
 function strlencmp($a, $b) {return strlen($b) - strlen($a);}
 

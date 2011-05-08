@@ -12,9 +12,9 @@
  ***************************************************************************/
 
 
-/**/boot::$manager->pushFile('bootup/spl-autoload.php');
 /**/boot::$manager->pushFile('bootup/override.php');
 defined('PATCHWORK_MICROTIME') || define('PATCHWORK_MICROTIME', microtime(true));
+@ini_set('unserialize_callback_func', 'spl_autoload_call');
 error_reporting(E_ALL | E_STRICT);
 setlocale(LC_ALL, 'C');
 
@@ -23,9 +23,9 @@ setlocale(LC_ALL, 'C');
 /**/if (!defined('PHP_VERSION_ID'))
 /**/{
 /**/    $a = array_map('intval', explode('.', PHP_VERSION, 3));
-        define('PHP_VERSION_ID',      /*<*/(10000 * $a[0] + 100 * $a[1] + $a[2])     /*>*/);
-        define('PHP_MAJOR_VERSION',   /*<*/$a[0]  /*>*/);
-        define('PHP_MINOR_VERSION',   /*<*/$a[1]  /*>*/);
+        define('PHP_VERSION_ID',      /*<*/(10000 * $a[0] + 100 * $a[1] + $a[2])/*>*/);
+        define('PHP_MAJOR_VERSION',   /*<*/$a[0]/*>*/);
+        define('PHP_MINOR_VERSION',   /*<*/$a[1]/*>*/);
         define('PHP_RELEASE_VERSION', /*<*/$a[2]/*>*/);
 
 /**/    $a = substr(PHP_VERSION, strlen(implode('.', $a)));
