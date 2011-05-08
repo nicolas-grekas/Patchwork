@@ -836,17 +836,17 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 
 spl_autoload_register('patchwork_autoload');
 
-function patchwork_is_autoloaded($class, $autoload = false)
+function patchwork_is_loaded($class, $autoload = false)
 {
     if (class_exists($class, $autoload) || interface_exists($class, false)) return true;
 
 /**/if (function_exists('class_alias'))
 /**/{
-        $a = strtr($class, '\\', '_');
+        $c = strtr($class, '\\', '_');
 
-        if (class_exists($a, false) || interface_exists($a, false))
+        if (class_exists($c, false) || interface_exists($c, false))
         {
-            class_alias($a, $class);
+            class_alias($c, $class);
             return true;
         }
 /**/}
@@ -856,7 +856,7 @@ function patchwork_is_autoloaded($class, $autoload = false)
 
 function patchwork_autoload($class)
 {
-    if (patchwork_is_autoloaded($class)) return;
+    if (patchwork_is_loaded($class)) return;
 
     $a = strtolower(strtr($class, '\\', ''));
 
@@ -885,7 +885,7 @@ function patchwork_autoload($class)
         {
             patchwork_include($a);
 
-            if (patchwork_is_autoloaded($class)) return;
+            if (patchwork_is_loaded($class)) return;
         }
     }
 
