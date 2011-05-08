@@ -34,7 +34,7 @@ class Patchwork_Bootstrapper
     static function load($class, $dir)
     {
         $class = self::$class . '_' . $class;
-        require $dir . 'class/' . strtr($class, '_', DIRECTORY_SEPARATOR) . '.php';
+        require $dir . 'class/' . strtr($class, '\\_', '//') . '.php';
         return $class;
     }
 }

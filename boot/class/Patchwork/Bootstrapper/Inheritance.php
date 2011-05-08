@@ -11,19 +11,24 @@
  *
  ***************************************************************************/
 
+require dirname(dirname(__FILE__)) . '/C3mro.php';
+
 
 class Patchwork_Bootstrapper_Inheritance
 {
-    public
+    protected
 
+    $c3mro,
     $rootPath,
+    $topPath,
     $appId = 0;
-
-    protected static $cache;
 
 
     function linearizeGraph($root_path, $top_path)
     {
+        $this->rootPath = $root_path;
+        $this->topPath  = $top_path;
+
         // Get include_path
 
         $paths = array();
@@ -39,87 +44,28 @@ class Patchwork_Bootstrapper_Inheritance
             }
         }
 
-
         // Linearize applications inheritance graph
 
-        $this->rootPath = $root_path;
-        self::$cache = array();
-        $a = $this->c3mro($root_path, $top_path);
+        try
+        {
+            $this->c3mro = new Patchwork_C3mro(array($this, 'getParentApps'));
+            $a = $this->c3mro->linearize($root_path);
+        }
+        catch (Patchwork_C3mro_InconsistentHierarchyException $e)
+        {
+            die('Patchwork error: Inconsistent application hierarchy in ' . $e->getMessage() . 'config.patchwork.php');
+        }
+
         $a = array_slice($a, 1);
         $a[] = $this->rootPath;
-
 
         $paths = array_diff($paths, $a, array('', patchwork_realpath('.')));
         $paths = array_merge($a, $paths);
 
-
-        return array(&$paths, count($a) - 1, $this->appId);
+        return array($paths, count($a) - 1, $this->appId);
     }
 
-    // C3 Method Resolution Order (like in Python 2.3) for multiple application inheritance
-    // See http://python.org/2.3/mro.html
-
-    protected function c3mro($realpath, $top_path = false)
-    {
-        $resultSeq =& self::$cache[$realpath];
-
-        // If result is cached, return it
-        if (null !== $resultSeq) return $resultSeq;
-
-        $parent = $this->getParentApps($realpath);
-
-        // If no parent app, result is trival
-        if (!$parent && !$top_path) return $resultSeq = array($realpath);
-
-        if ($top_path) array_unshift($parent, $top_path);
-
-        // Compute C3 MRO
-        $seqs = array_merge(
-            array(array($realpath)),
-            array_map(array($this, 'c3mro'), $parent),
-            array($parent)
-        );
-        $resultSeq = array();
-        $parent = false;
-
-        while (1)
-        {
-            if (!$seqs)
-            {
-                false !== $top_path && self::$cache = array();
-                return $resultSeq;
-            }
-
-            unset($seq);
-            $notHead = array();
-            foreach ($seqs as $seq)
-                foreach (array_slice($seq, 1) as $seq)
-                    $notHead[$seq] = 1;
-
-            foreach ($seqs as &$seq)
-            {
-                $parent = reset($seq);
-
-                if (isset($notHead[$parent])) $parent = false;
-                else break;
-            }
-
-            if (false === $parent)
-            {
-                die('Patchwork error: Inconsistent application hierarchy in ' . $realpath . 'config.patchwork.php');
-            }
-
-            $resultSeq[] = $parent;
-
-            foreach ($seqs as $k => &$seq)
-            {
-                if ($parent === current($seq)) unset($seqs[$k][key($seq)]);
-                if (!$seqs[$k]) unset($seqs[$k]);
-            }
-        }
-    }
-
-    protected function getParentApps($realpath)
+    function getParentApps($realpath)
     {
         $parent = array();
         $config = $realpath . 'config.patchwork.php';
@@ -196,7 +142,7 @@ class Patchwork_Bootstrapper_Inheritance
                 {
                     if ($this->rootPath !== $source && $realpath !== $source)
                     {
-                        foreach ($this->c3mro($source) as $a)
+                        foreach ($this->c3mro->linearize($source) as $a)
                         {
                             if (false !== $a = array_search($a, $p))
                             {
@@ -231,6 +177,8 @@ class Patchwork_Bootstrapper_Inheritance
                 else $parent[$i] = $a;
             }
         }
+
+        $this->rootPath === $realpath && array_unshift($parent, $this->topPath);
 
         return $parent;
     }
