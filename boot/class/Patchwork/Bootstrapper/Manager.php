@@ -227,19 +227,6 @@ class Patchwork_Bootstrapper_Manager
         }
     }
 
-    protected function exportPathData()
-    {
-        array_unshift($this->steps, array(
-            '<?php
-            $patchwork_appId = (int) ' . $this->export(sprintf('%020d', $this->appId)) . ';
-            define(\'PATCHWORK_PROJECT_PATH\', ' . $this->export($this->cwd) . ');
-            define(\'PATCHWORK_ZCACHE\',       ' . $this->export($this->zcache) . ');
-            define(\'PATCHWORK_PATH_LEVEL\',   ' . $this->export($this->last) . ');
-            $patchwork_path = ' . $this->export($this->paths) . ';',
-            __FILE__
-        ));
-    }
-
     protected function initInheritance()
     {
         $this->cwd = rtrim(patchwork_realpath($this->cwd), '/\\') . DIRECTORY_SEPARATOR;
@@ -289,6 +276,19 @@ class Patchwork_Bootstrapper_Manager
         }
 
         $this->zcache = $zc;
+    }
+
+    protected function exportPathData()
+    {
+        array_unshift($this->steps, array(
+            '<?php
+            $patchwork_appId = (int) ' . $this->export(sprintf('%020d', $this->appId)) . ';
+            define(\'PATCHWORK_PROJECT_PATH\', ' . $this->export($this->cwd) . ');
+            define(\'PATCHWORK_ZCACHE\',       ' . $this->export($this->zcache) . ');
+            define(\'PATCHWORK_PATH_LEVEL\',   ' . $this->export($this->last) . ');
+            $patchwork_path = ' . $this->export($this->paths) . ';',
+            __FILE__
+        ));
     }
 
     function pushFile($file)

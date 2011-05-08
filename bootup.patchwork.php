@@ -801,40 +801,6 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 /**/@ini_set('display_errors', $b);
 
 
-// Setup class loading mechanism
-
-@ini_set('unserialize_callback_func', 'spl_autoload_call');
-
-/**/if (function_exists('__autoload'))
-/**/{
-/**/    if (!function_exists('spl_autoload_register'))
-/**/    {
-            // "Cannot redeclare" fatal error: autoloading is registered and can't be replaced
-            function __autoload($class) {}
-/**/    }
-
-        spl_autoload_register('__autoload');
-/**/}
-
-/**/if (PHP_VERSION_ID < 50300 || !function_exists('spl_autoload_register'))
-/**/{
-/**/    // Before PHP 5.3, backport spl_autoload_register()'s $prepend argument
-/**/    // and workaround http://bugs.php.net/44144
-/**/
-/**/    /*<*/boot::$manager->override('__autoload',              ':SplAutoload::spl_autoload_call', array('$class'))/*>*/;
-/**/    /*<*/boot::$manager->override('spl_autoload_call',       ':SplAutoload:', array('$class'))/*>*/;
-/**/    /*<*/boot::$manager->override('spl_autoload_functions',  ':SplAutoload:', array())/*>*/;
-/**/    /*<*/boot::$manager->override('spl_autoload_register',   ':SplAutoload:', array('$callback', '$throw' => true, '$prepend' => false))/*>*/;
-/**/    /*<*/boot::$manager->override('spl_autoload_unregister', ':SplAutoload:', array('$callback'))/*>*/;
-
-/**/    boot::$manager->pushFile('class/Patchwork/PHP/Override/SplAutoload.php');
-/**/}
-/**/else
-/**/{
-/**/    /*<*/boot::$manager->override('__autoload', 'spl_autoload_call', array('$class'))/*>*/;
-/**/}
-
-
 // patchwork_autoload(): the magic part
 
 /**/@unlink(PATCHWORK_PROJECT_PATH . '.patchwork.autoloader.php');

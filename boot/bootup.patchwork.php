@@ -12,6 +12,7 @@
  ***************************************************************************/
 
 
+/**/boot::$manager->pushFile('bootup/spl-autoload.php');
 /**/boot::$manager->pushFile('bootup/override.php');
 defined('PATCHWORK_MICROTIME') || define('PATCHWORK_MICROTIME', microtime(true));
 error_reporting(E_ALL | E_STRICT);
