@@ -310,8 +310,6 @@ class Patchwork_Bootstrapper_Manager
             if (file_exists($c .= 'config.patchwork.php'))
                 $this->steps[] = array(null, $c);
 
-        $this->steps[] = array(array('Patchwork_Setup', 'hook'), null);
-
         $this->paths = $a[0];
         $this->last  = $a[1];
         $this->appId = $a[2];
