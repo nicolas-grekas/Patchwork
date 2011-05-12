@@ -30,7 +30,8 @@ class Patchwork_Bootstrapper_Manager
     $substeps = array(),
     $file,
     $overrides,
-    $callerRx;
+    $callerRx,
+    $autoloadDisabled;
 
 
     function __construct($bootstrapper, $pwd, $cwd)
@@ -56,6 +57,9 @@ class Patchwork_Bootstrapper_Manager
 
         if (headers_sent($file, $line) || ob_get_length())
             die('Patchwork error: ' . $this->getEchoError($file, $line, ob_get_flush(), 'before bootstrap'));
+
+        if (function_exists('__autoload') && !function_exists('spl_autoload_register'))
+            die('Patchwork error: __autoload() is enabled and spl_autoload_register() is not available');
     }
 
     function lock($caller, $retry = true)
@@ -120,19 +124,10 @@ class Patchwork_Bootstrapper_Manager
         $this->overrides =& $GLOBALS['patchwork_preprocessor_overrides'];
         $this->overrides = array();
 
-        if (function_exists('__autoload'))
-        {
-            if (!function_exists('spl_autoload_register'))
-            {
-                // "Cannot redeclare" fatal error: autoloading is registered and can't be replaced
-                function __autoload($class) {}
-            }
-
-            $this->steps[] = array('spl_autoload_register(\'__autoload\');', __FILE__);
-        }
-
         $h = array_map('intval', explode('.', PHP_VERSION, 3));
-        $h = (10000 * $h[0] + 100 * $h[1] + $h[2]);
+        $h = 10000 * $h[0] + 100 * $h[1] + $h[2];
+
+        function_exists('__autoload') && $this->steps[] = array("spl_autoload_register('__autoload');", __FILE__);
 
         if ($h < 50300 || !function_exists('spl_autoload_register'))
         {
@@ -145,22 +140,23 @@ class Patchwork_Bootstrapper_Manager
                 $this->override('spl_autoload_call',       ':SplAutoload:', array('$class')) .
                 $this->override('spl_autoload_functions',  ':SplAutoload:', array()) .
                 $this->override('spl_autoload_register',   ':SplAutoload:', array('$callback', '$throw' => true, '$prepend' => false)) .
-                $this->override('spl_autoload_unregister', ':SplAutoload:', array('$callback')) .
-                (class_exists('LogicException') ? '' : 'class LogicException extends Exception {}') .
-                'function patchwork_include($file) {return include $file;}',
+                $this->override('spl_autoload_unregister', ':SplAutoload:', array('$callback')),
                 __FILE__
             );
+
+            class_exists('LogicException') || $this->steps[] = array('class LogicException extends Exception {}', __FILE__);
+            function_exists('spl_autoload_register') && $this->steps[] = array("spl_autoload_register(array('Patchwork_PHP_Override_SplAutoload','spl_autoload_call'));", __FILE__);
         }
         else
         {
             $this->steps[] = array(
-                $this->override('__autoload', 'spl_autoload_call', array('$class')) .
-                'function patchwork_include($file) {return include $file;}',
+                $this->override('__autoload', 'spl_autoload_call', array('$class')),
                 __FILE__
             );
         }
 
-        $this->steps[] = array(array($this, 'initPreprocessor'), null);
+        $this->steps[] = array('function patchwork_include($file) {return include $file;}', __FILE__);
+        $this->steps[] = array(array($this, 'initAutoloader'), null);
         $this->steps[] = array(null, $this->pwd . 'bootup.patchwork.php');
         $this->steps[] = array(array($this, 'initInheritance' ), null);
         $this->steps[] = array(array($this, 'initZcache'      ), null);
@@ -190,7 +186,7 @@ class Patchwork_Bootstrapper_Manager
 
         while (null !== $step = array_shift($this->steps))
         {
-            function_exists('patchwork_include') && spl_autoload_register(array($this, 'autoload'));
+            $this->autoloadDisabled = false;
 
             list($code, $this->file) = $step;
 
@@ -221,13 +217,14 @@ class Patchwork_Bootstrapper_Manager
         $code = $this->preprocessor->staticPass2();
         '' === $code && $code = ' ';
         ob_get_length() && $this->release();
-        spl_autoload_unregister(array($this, 'autoload'));
+        $this->autoloadDisabled = true;
         fwrite($this->lock, $code);
         return $code;
     }
 
     function autoload($class)
     {
+        if ($this->autoloadDisabled) return;
         $class = $this->pwd . 'class/' . strtr($class, '\\_', '//') . '.php';
         file_exists($class) && patchwork_include($class);
     }
@@ -235,7 +232,7 @@ class Patchwork_Bootstrapper_Manager
     function ob_eval($buffer)
     {
         return '' !== $buffer
-            ? preg_replace("/{$this->callerRx}\(\d+\) : eval\(\)\'d code/", $this->file, $buffer)
+            ? preg_replace("/{$this->callerRx}\(\d+\) : eval\(\)'d code/", $this->file, $buffer)
             : '';
     }
 
@@ -285,8 +282,9 @@ class Patchwork_Bootstrapper_Manager
         spl_autoload_unregister(array($this, 'autoload'));
     }
 
-    protected function initPreprocessor()
+    protected function initAutoloader()
     {
+        spl_autoload_register(array($this, 'autoload'));
         $p = $this->bootstrapper . '_Preprocessor';
         $this->preprocessor = new $p;
     }
@@ -347,10 +345,10 @@ class Patchwork_Bootstrapper_Manager
     protected function exportPathData()
     {
         array_unshift($this->steps, array(
-            '$patchwork_appId = (int) ' . var_export(sprintf('%020d', $this->appId), true) . ';
-            define(\'PATCHWORK_PROJECT_PATH\', ' . var_export($this->cwd, true) . ');
-            define(\'PATCHWORK_ZCACHE\',       ' . var_export($this->zcache, true) . ');
-            define(\'PATCHWORK_PATH_LEVEL\',   ' . var_export($this->last, true) . ');
+            '$patchwork_appId = (int) ' . var_export(sprintf('%020d', $this->appId), true) . ";
+            define('PATCHWORK_PROJECT_PATH', " . var_export($this->cwd, true) . ");
+            define('PATCHWORK_ZCACHE',       " . var_export($this->zcache, true) . ");
+            define('PATCHWORK_PATH_LEVEL',   " . var_export($this->last, true) . ');
             $patchwork_path = ' . var_export($this->paths, true) . ';',
             __FILE__
         ));
