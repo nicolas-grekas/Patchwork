@@ -18,7 +18,7 @@ class Patchwork_PHP_Parser_ConstantInliner extends Patchwork_PHP_Parser
 
     $file,
     $dir,
-    $constants,
+    $constants = array(),
     $nextScope = '',
     $callbacks = array(
         'tagScopeOpen' => T_SCOPE_OPEN,
