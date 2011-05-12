@@ -25,7 +25,6 @@ class Patchwork_Bootstrapper_Manager
 
     $bootstrapper,
     $preprocessor,
-    $code = array('<?php '),
     $lock = null,
     $steps = array(),
     $substeps = array(),
@@ -115,6 +114,7 @@ class Patchwork_Bootstrapper_Manager
     protected function initialize($caller)
     {
         @set_time_limit(0);
+        fwrite($this->lock, '<?php ');
 
         $this->callerRx = preg_quote($caller, '/');
         $this->overrides =& $GLOBALS['patchwork_preprocessor_overrides'];
@@ -128,7 +128,7 @@ class Patchwork_Bootstrapper_Manager
                 function __autoload($class) {}
             }
 
-            spl_autoload_register('__autoload');
+            $this->steps[] = array('spl_autoload_register(\'__autoload\');', __FILE__);
         }
 
         $h = array_map('intval', explode('.', PHP_VERSION, 3));
@@ -140,7 +140,7 @@ class Patchwork_Bootstrapper_Manager
             // and workaround http://bugs.php.net/44144
 
             $this->steps[] = array(null, $this->pwd . 'class/Patchwork/PHP/Override/SplAutoload.php');
-            $this->steps[] = array('<?php ' .
+            $this->steps[] = array(
                 $this->override('__autoload',              ':SplAutoload::spl_autoload_call', array('$class')) .
                 $this->override('spl_autoload_call',       ':SplAutoload:', array('$class')) .
                 $this->override('spl_autoload_functions',  ':SplAutoload:', array()) .
@@ -153,7 +153,7 @@ class Patchwork_Bootstrapper_Manager
         }
         else
         {
-            $this->steps[] = array('<?php ' .
+            $this->steps[] = array(
                 $this->override('__autoload', 'spl_autoload_call', array('$class')) .
                 'function patchwork_include($file) {return include $file;}',
                 __FILE__
@@ -196,12 +196,19 @@ class Patchwork_Bootstrapper_Manager
 
             if (null !== $this->file)
             {
-                null === $code && $code = file_get_contents($this->file);
-
-                return empty($this->preprocessor)
-                    ? $this->code[] = substr($code, 5)
-                    : $this->preprocessor->staticPass1($code, $this->file) .
+                if (empty($this->preprocessor))
+                {
+                    null === $code && $code = substr(file_get_contents($this->file), 5);
+                    fwrite($this->lock, $code);
+                }
+                else
+                {
+                    $code = null !== $code ? '<?php ' . $code : file_get_contents($this->file);
+                    $code = $this->preprocessor->staticPass1($code, $this->file) .
                         ";return eval({$this->bootstrapper}::\$manager->preprocessorPass2());";
+                }
+
+                return $code;
             }
             else call_user_func($code);
         }
@@ -215,7 +222,8 @@ class Patchwork_Bootstrapper_Manager
         '' === $code && $code = ' ';
         ob_get_length() && $this->release();
         spl_autoload_unregister(array($this, 'autoload'));
-        return $this->code[] = $code;
+        fwrite($this->lock, $code);
+        return $code;
     }
 
     function autoload($class)
@@ -256,16 +264,14 @@ class Patchwork_Bootstrapper_Manager
         if ('' === $buffer = ob_get_clean())
         {
             file_put_contents("{$this->cwd}.patchwork.overrides.ser", serialize($this->overrides));
-
-            foreach ($this->code as $a) fwrite($this->lock, $a);
             fclose($this->lock);
 
             $a = $this->cwd . '.patchwork.lock';
             touch($a, $_SERVER['REQUEST_TIME'] + 1);
-            win_hide_file($a);
             rename($a, $this->cwd . '.patchwork.php');
+            win_hide_file($a);
 
-            $this->lock = $this->code = null;
+            $this->lock = null;
 
             @set_time_limit(ini_get('max_execution_time'));
         }
@@ -299,7 +305,7 @@ class Patchwork_Bootstrapper_Manager
             if (file_exists($c .= 'bootup.patchwork.php'))
                 $this->steps[] = array(null, $c);
 
-        $this->steps[] = array('<?php $CONFIG = array();', __FILE__);
+        $this->steps[] = array('$CONFIG = array();', __FILE__);
         $b[] = $this->pwd;
 
         foreach ($b as $c)
@@ -341,8 +347,7 @@ class Patchwork_Bootstrapper_Manager
     protected function exportPathData()
     {
         array_unshift($this->steps, array(
-            '<?php
-            $patchwork_appId = (int) ' . var_export(sprintf('%020d', $this->appId), true) . ';
+            '$patchwork_appId = (int) ' . var_export(sprintf('%020d', $this->appId), true) . ';
             define(\'PATCHWORK_PROJECT_PATH\', ' . var_export($this->cwd, true) . ');
             define(\'PATCHWORK_ZCACHE\',       ' . var_export($this->zcache, true) . ');
             define(\'PATCHWORK_PATH_LEVEL\',   ' . var_export($this->last, true) . ');
