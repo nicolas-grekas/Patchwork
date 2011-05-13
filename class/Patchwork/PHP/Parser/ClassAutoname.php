@@ -40,7 +40,7 @@ class Patchwork_PHP_Parser_ClassAutoname extends Patchwork_PHP_Parser
                 array(T_STRING, strtr(ltrim($this->className, '\\'), '\\', '_'))
             );
 
-            $this->unregister();
+            $this->unregister($this->callbacks);
         }
     }
 }

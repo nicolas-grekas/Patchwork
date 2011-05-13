@@ -126,7 +126,7 @@ class Patchwork_PHP_Parser
         $this->registryIndex = $this->nextRegistryIndex;
         $this->nextRegistryIndex += 1 << (PHP_INT_SIZE << 2);
 
-        empty($this->callbacks) || $this->register();
+        $this->register($this->callbacks);
     }
 
     function getErrors()
@@ -368,10 +368,8 @@ class Patchwork_PHP_Parser
         $this->errors[(int) $this->line][] = array($message, (int) $this->line, get_class($this), $type);
     }
 
-    protected function register($method = null)
+    protected function register($method)
     {
-        null === $method && $method = $this->callbacks;
-
         foreach ((array) $method as $method => $type)
         {
             if (is_int($method))
@@ -388,10 +386,8 @@ class Patchwork_PHP_Parser
         isset($sort) && ksort($this->catchallRegistry);
     }
 
-    protected function unregister($method = null)
+    protected function unregister($method)
     {
-        null === $method && $method = $this->callbacks;
-
         foreach ((array) $method as $method => $type)
         {
             if (is_int($method))

@@ -33,12 +33,6 @@ class Patchwork_PHP_Parser_CloseMarker extends Patchwork_PHP_Parser
         parent::__construct($parent);
     }
 
-    protected function unregister($method = null)
-    {
-        parent::unregister($method);
-        $this->registered = null !== $method;
-    }
-
     protected function filterToken(&$token)
     {
         if ($this->greedy) return $this->greedyFilter($token);
@@ -89,7 +83,7 @@ class Patchwork_PHP_Parser_CloseMarker extends Patchwork_PHP_Parser
 
             default:
                 $token[1] = $this->close . $token[1];
-                $this->unregister();
+                $this->unregister($this->callbacks);
             }
         }
     }
@@ -109,7 +103,8 @@ class Patchwork_PHP_Parser_CloseMarker extends Patchwork_PHP_Parser
         case ':': if ($this->bracket--) break;
         case T_AS: case T_CLOSE_TAG: case ';':
             $token[1] = $this->close . $token[1];
-            $this->unregister();
+            $this->unregister($this->callbacks);
+            $this->registered = false;
         }
     }
 }

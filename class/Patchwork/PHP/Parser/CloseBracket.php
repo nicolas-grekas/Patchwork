@@ -42,7 +42,7 @@ class Patchwork_PHP_Parser_CloseBracket extends Patchwork_PHP_Parser
         case ';':
         case T_AS:
         case T_CLOSE_TAG:
-            $this->unregister();
+            $this->unregister($this->callbacks);
             return $this->unshiftTokens(')', $token);
         }
     }

@@ -32,13 +32,11 @@ class Patchwork_PHP_Parser_ClassInfo extends Patchwork_PHP_Parser
             'isAbstract' => T_ABSTRACT === $this->lastType,
         );
 
-        $this->callbacks = array(
+        $this->register($this->callbacks = array(
             'tagClassName' => T_NAME_CLASS,
             'tagExtends'   => T_EXTENDS,
             'tagClassOpen' => T_SCOPE_OPEN,
-        );
-
-        $this->register();
+        ));
     }
 
     protected function tagClassName(&$token)
@@ -61,7 +59,7 @@ class Patchwork_PHP_Parser_ClassInfo extends Patchwork_PHP_Parser
 
     protected function tagClassOpen(&$token)
     {
-        $this->unregister();
+        $this->unregister($this->callbacks);
         $this->register(array('tagClassClose' => T_SCOPE_CLOSE));
     }
 

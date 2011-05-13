@@ -72,6 +72,6 @@ abstract class Patchwork_PHP_Parser_Bracket extends Patchwork_PHP_Parser
             if (false === $this->onClose($token)) return false;
         }
 
-        0 >= --$this->bracketLevel && $this->unregister();
+        0 >= --$this->bracketLevel && $this->unregister($this->callbacks);
     }
 }

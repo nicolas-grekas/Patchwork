@@ -60,7 +60,7 @@ class Patchwork_PHP_Parser_CurlyDollarNormalizer extends Patchwork_PHP_Parser
         {
             $this->unshiftTokens('}');
             $this->curly = array_pop($this->curlyPool);
-            if (null === $this->curly) $this->unregister();
+            if (null === $this->curly) $this->unregister($this->callbacks);
         }
     }
 }
