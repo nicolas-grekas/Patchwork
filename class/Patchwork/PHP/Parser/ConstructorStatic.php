@@ -27,7 +27,7 @@ class Patchwork_PHP_Parser_ConstructorStatic extends Patchwork_PHP_Parser
     {
         if (T_CLASS === $this->scope->type)
         {
-            $this->unregister();
+            $this->unregister($this->callbacks);
             $this->construct = $this->destruct = (int) empty($this->class->extendsSelf);
             $this->register(array(
                 'tagFunction'   => T_FUNCTION,
@@ -54,7 +54,7 @@ class Patchwork_PHP_Parser_ConstructorStatic extends Patchwork_PHP_Parser
     protected function tagClassClose(&$token)
     {
         $this->unregister(array('tagFunction' => T_FUNCTION));
-        $this->register();
+        $this->register($this->callbacks);
 
         $class = strtolower(strtr($this->class->nsName, '\\', '_'));
 

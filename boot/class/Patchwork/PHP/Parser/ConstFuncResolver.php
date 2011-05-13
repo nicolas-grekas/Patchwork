@@ -64,7 +64,7 @@ class Patchwork_PHP_Parser_ConstFuncResolver extends Patchwork_PHP_Parser
 
     protected function tagScopeClose(&$token)
     {
-        $this->unregister();
+        $this->unregister($this->callbacks);
 
         if (false !== $this->nsLoadCode)
         {

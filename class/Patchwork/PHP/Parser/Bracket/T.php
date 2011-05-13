@@ -21,6 +21,6 @@ class Patchwork_PHP_Parser_Bracket_T extends Patchwork_PHP_Parser_Bracket
     protected function tagConcatenation(&$token)
     {
         $this->setError("Usage of T() is potentially divergent, please avoid string concatenation", E_USER_NOTICE);
-        $this->unregister();
+        $this->unregister($this->callbacks);
     }
 }

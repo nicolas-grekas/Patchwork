@@ -163,7 +163,7 @@ class Patchwork_PHP_Parser_StaticState extends Patchwork_PHP_Parser
 
         if (array($s, $token[0]) !== $last = array_pop($this->bracket))
         {
-            $this->unregister();
+            $this->unregister($this->callbacks);
 
             $last = $last && $s === $last[0] ? ", expecting `{$last[1]}'" : '';
 

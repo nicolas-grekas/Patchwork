@@ -42,6 +42,6 @@ class Patchwork_PHP_Parser_ConstFuncDisabler extends Patchwork_PHP_Parser
 
     protected function tagScopeClose(&$token)
     {
-        $this->unregister();
+        $this->unregister($this->callbacks);
     }
 }

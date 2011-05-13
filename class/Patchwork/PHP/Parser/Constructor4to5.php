@@ -27,7 +27,7 @@ class Patchwork_PHP_Parser_Constructor4to5 extends Patchwork_PHP_Parser
     {
         if (!$this->namespace && T_CLASS === $this->scope->type)
         {
-            $this->unregister();
+            $this->unregister($this->callbacks);
             $this->register($this->callbacks = array(
                 'tagFunction'   => T_FUNCTION,
                 'tagClassClose' => T_SCOPE_CLOSE,
@@ -49,7 +49,7 @@ class Patchwork_PHP_Parser_Constructor4to5 extends Patchwork_PHP_Parser
         if (0 === strcasecmp($token[1], '__construct'))
         {
             $this->signature = '';
-            $this->unregister();
+            $this->unregister($this->callbacks);
         }
         else if (empty($this->class->suffix)) {}
         else if (0 === strcasecmp($token[1], $this->class->nsName))
@@ -78,7 +78,7 @@ class Patchwork_PHP_Parser_Constructor4to5 extends Patchwork_PHP_Parser
 
     protected function tagClassClose(&$token)
     {
-        $this->unregister();
+        $this->unregister($this->callbacks);
 
         if ('' !== $this->signature)
         {
@@ -96,6 +96,6 @@ class Patchwork_PHP_Parser_Constructor4to5 extends Patchwork_PHP_Parser
         }
 
         $this->callbacks = array('tagClassOpen' => T_SCOPE_OPEN);
-        $this->register();
+        $this->register($this->callbacks);
     }
 }
