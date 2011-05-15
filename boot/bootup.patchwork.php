@@ -59,19 +59,6 @@ function ini_get_bool($a)
     }
 }
 
-// Set hidden flag on a file on MS-Windows
-
-function win_hide_file($file)
-{
-/**/if ('\\' === DIRECTORY_SEPARATOR)
-/**/{
-        static $h;
-        empty($h) && $h = new COM('Scripting.FileSystemObject');
-        $h->GetFile($file)->Attributes |= 2; // Set hidden attribute
-        return true;
-/**/}
-}
-
 // If realpath() or getcwd() are bugged, enable a workaround
 
 /**/$a = function_exists('realpath') ? @realpath('.') : false;

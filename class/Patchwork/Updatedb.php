@@ -43,8 +43,6 @@ class Patchwork_Updatedb
         $old_db && fclose($old_db) && @unlink($cwd . '.patchwork.paths.old');
         $db = $h = false;
 
-        win_hide_file($cwd . '.patchwork.paths.txt');
-
         if (function_exists('dba_handlers'))
         {
             $h = array('cdb','db2','db3','db4','qdbm','gdbm','ndbm','dbm','flatfile','inifile');
@@ -63,8 +61,6 @@ class Patchwork_Updatedb
             }
 
             dba_close($h);
-
-            win_hide_file($cwd . '.patchwork.paths.db');
         }
         else
         {

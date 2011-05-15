@@ -131,7 +131,6 @@ class Patchwork_Autoloader
                 {
                     @unlink($cache);
                     copy($src, $cache);
-                    win_hide_file($cache);
                 }
                 else Patchwork_Preprocessor::execute($src, $cache, $level, $top, $isTop, false);
             }

@@ -270,7 +270,6 @@ class Patchwork_Bootstrapper_Manager
         $a = $this->cwd . '.patchwork.lock';
         touch($a, $_SERVER['REQUEST_TIME'] + 1);
         rename($a, $this->cwd . '.patchwork.php');
-        win_hide_file($a);
 
         $this->lock = null;
 

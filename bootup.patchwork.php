@@ -804,7 +804,6 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 
 /**/@unlink(PATCHWORK_PROJECT_PATH . '.patchwork.autoloader.php');
 /**/copy(boot::$manager->getCurrentDir() . 'class/Patchwork/Autoloader.php', PATCHWORK_PROJECT_PATH . '.patchwork.autoloader.php');
-/**/win_hide_file(PATCHWORK_PROJECT_PATH . '.patchwork.autoloader.php');
 
 function patchwork_is_loaded($class, $autoload = false)
 {
