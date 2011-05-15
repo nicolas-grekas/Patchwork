@@ -30,8 +30,7 @@ class Patchwork_Bootstrapper_Manager
     $substeps = array(),
     $file,
     $overrides,
-    $callerRx,
-    $autoloadDisabled;
+    $callerRx;
 
 
     function __construct($bootstrapper, $pwd, $cwd)
@@ -140,23 +139,20 @@ class Patchwork_Bootstrapper_Manager
                 $this->override('spl_autoload_call',       ':SplAutoload:', array('$class')) .
                 $this->override('spl_autoload_functions',  ':SplAutoload:', array()) .
                 $this->override('spl_autoload_register',   ':SplAutoload:', array('$callback', '$throw' => true, '$prepend' => false)) .
-                $this->override('spl_autoload_unregister', ':SplAutoload:', array('$callback')),
+                $this->override('spl_autoload_unregister', ':SplAutoload:', array('$callback')) .
+                (function_exists('spl_autoload_register')
+                    ? "spl_autoload_register(array('Patchwork_PHP_Override_SplAutoload','spl_autoload_call'));"
+                    : 'class LogicException extends Exception {}'),
                 __FILE__
             );
-
-            class_exists('LogicException') || $this->steps[] = array('class LogicException extends Exception {}', __FILE__);
-            function_exists('spl_autoload_register') && $this->steps[] = array("spl_autoload_register(array('Patchwork_PHP_Override_SplAutoload','spl_autoload_call'));", __FILE__);
         }
         else
         {
-            $this->steps[] = array(
-                $this->override('__autoload', 'spl_autoload_call', array('$class')),
-                __FILE__
-            );
+            $this->steps[] = array($this->override('__autoload', 'spl_autoload_call', array('$class')), __FILE__);
         }
 
         $this->steps[] = array('function patchwork_include($file) {return include $file;}', __FILE__);
-        $this->steps[] = array(array($this, 'initAutoloader'), null);
+        $this->steps[] = array(array($this, 'initPreprocessor'), null);
         $this->steps[] = array(null, $this->pwd . 'bootup.patchwork.php');
         $this->steps[] = array(array($this, 'initInheritance' ), null);
         $this->steps[] = array(array($this, 'initZcache'      ), null);
@@ -186,7 +182,9 @@ class Patchwork_Bootstrapper_Manager
 
         while (null !== $step = array_shift($this->steps))
         {
-            $this->autoloadDisabled = false;
+            $code = 'spl_autoload_register';
+            function_exists('__patchwork_' . $code) && $code = '__patchwork_' . $code;
+            function_exists('patchwork_include') && $code(array($this, 'autoload'));
 
             list($code, $this->file) = $step;
 
@@ -216,15 +214,16 @@ class Patchwork_Bootstrapper_Manager
     {
         $code = $this->preprocessor->staticPass2();
         '' === $code && $code = ' ';
-        ob_get_length() && $this->release();
-        $this->autoloadDisabled = true;
         fwrite($this->lock, $code);
+        ob_get_length() && $this->release();
+        $a = 'spl_autoload_unregister';
+        function_exists('__patchwork_' . $a) && $a = '__patchwork_' . $a;
+        $a(array($this, 'autoload'));
         return $code;
     }
 
     function autoload($class)
     {
-        if ($this->autoloadDisabled) return;
         $class = $this->pwd . 'class/' . strtr($class, '\\_', '//') . '.php';
         file_exists($class) && patchwork_include($class);
     }
@@ -258,33 +257,32 @@ class Patchwork_Bootstrapper_Manager
 
         ob_end_flush();
 
-        if ('' === $buffer = ob_get_clean())
-        {
-            file_put_contents("{$this->cwd}.patchwork.overrides.ser", serialize($this->overrides));
-            fclose($this->lock);
-
-            $a = $this->cwd . '.patchwork.lock';
-            touch($a, $_SERVER['REQUEST_TIME'] + 1);
-            rename($a, $this->cwd . '.patchwork.php');
-            win_hide_file($a);
-
-            $this->lock = null;
-
-            @set_time_limit(ini_get('max_execution_time'));
-        }
-        else
+        if ('' !== $buffer = ob_get_clean())
         {
             echo $buffer;
             $buffer = $this->getEchoError($this->file, 0, $buffer, 'during bootstrap');
             die("\n<br><br>\n\n<small>&mdash; {$buffer}. Dying &mdash;</small>");
         }
 
-        spl_autoload_unregister(array($this, 'autoload'));
+        file_put_contents("{$this->cwd}.patchwork.overrides.ser", serialize($this->overrides));
+        fclose($this->lock);
+
+        $a = $this->cwd . '.patchwork.lock';
+        touch($a, $_SERVER['REQUEST_TIME'] + 1);
+        rename($a, $this->cwd . '.patchwork.php');
+        win_hide_file($a);
+
+        $this->lock = null;
+
+        $a = 'spl_autoload_unregister';
+        function_exists('__patchwork_' . $a) && $a = '__patchwork_' . $a;
+        function_exists($a) && spl_autoload_unregister(array($this, 'autoload'));
+
+        @set_time_limit(ini_get('max_execution_time'));
     }
 
-    protected function initAutoloader()
+    protected function initPreprocessor()
     {
-        spl_autoload_register(array($this, 'autoload'));
         $p = $this->bootstrapper . '_Preprocessor';
         $this->preprocessor = new $p;
     }

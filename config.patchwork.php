@@ -392,3 +392,5 @@ else
 {
     function T($string) {return $string;}
 }
+
+spl_autoload_register('patchwork_autoload');

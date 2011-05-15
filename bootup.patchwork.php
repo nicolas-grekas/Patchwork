@@ -806,8 +806,6 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 /**/copy(boot::$manager->getCurrentDir() . 'class/Patchwork/Autoloader.php', PATCHWORK_PROJECT_PATH . '.patchwork.autoloader.php');
 /**/win_hide_file(PATCHWORK_PROJECT_PATH . '.patchwork.autoloader.php');
 
-spl_autoload_register('patchwork_autoload');
-
 function patchwork_is_loaded($class, $autoload = false)
 {
     if (class_exists($class, $autoload) || interface_exists($class, false)) return true;
