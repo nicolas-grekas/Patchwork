@@ -104,12 +104,15 @@ class Patchwork_Preprocessor
             $tmp = PATCHWORK_PROJECT_PATH . '.~' . uniqid(mt_rand(), true);
             if (false !== file_put_contents($tmp, $code))
             {
-                if (win_hide_file($tmp))
-                {
+/**/            if ('\\' === DIRECTORY_SEPARATOR)
+/**/            {
                     file_exists($destination) && @unlink($destination);
                     @rename($tmp, $destination) || unlink($tmp);
-                }
-                else rename($tmp, $destination);
+/**/            }
+/**/            else
+/**/            {
+                    rename($tmp, $destination);
+/**/            }
             }
         }
 
