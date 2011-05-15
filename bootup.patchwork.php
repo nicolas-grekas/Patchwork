@@ -805,6 +805,14 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 /**/@unlink(PATCHWORK_PROJECT_PATH . '.patchwork.autoloader.php');
 /**/copy(boot::$manager->getCurrentDir() . 'class/Patchwork/Autoloader.php', PATCHWORK_PROJECT_PATH . '.patchwork.autoloader.php');
 
+/**/ // Purge code cache files
+/**/
+/**/$a = opendir(PATCHWORK_PROJECT_PATH);
+/**/while (false !== $b = readdir($a))
+/**/    if ('.zcache.php' === substr($b, -11) && '.' === $b[0])
+/**/        @unlink(PATCHWORK_PROJECT_PATH . $b);
+/**/closedir($a);
+
 function patchwork_is_loaded($class, $autoload = false)
 {
     if (class_exists($class, $autoload) || interface_exists($class, false)) return true;

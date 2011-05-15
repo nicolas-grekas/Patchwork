@@ -33,35 +33,53 @@ class Patchwork_Bootstrapper_Manager
     $callerRx;
 
 
-    function __construct($bootstrapper, $pwd, $cwd)
+    function __construct($bootstrapper, $caller, $pwd, $cwd)
     {
-        if (isset($_GET['p:']) && 'exit' === $_GET['p:'])
-            die('Exit requested');
-
         $cwd = (empty($cwd) ? '.' : rtrim($cwd, '/\\')) . DIRECTORY_SEPARATOR;
 
         $this->bootstrapper = $bootstrapper;
+        $this->overrides =& $GLOBALS['patchwork_preprocessor_overrides'];
+        $this->overrides = array();
+        $this->callerRx = preg_quote($caller, '/');
         $this->pwd = $pwd;
         $this->cwd = $cwd;
 
-        function_exists('token_get_all')
-            || die('Patchwork error: Extension "tokenizer" is needed and not loaded');
-
-        function_exists('mb_internal_encoding')
-            && mb_internal_encoding('8bit') // if mbstring overloading is enabled
-            && @ini_set('mbstring.internal_encoding', '8bit');
-
-        file_exists($cwd . 'config.patchwork.php')
-            || die("Patchwork error: File config.patchwork.php not found in {$cwd}. Did you set PATCHWORK_BOOTPATH correctly?");
-
-        if (headers_sent($file, $line) || ob_get_length())
-            die('Patchwork error: ' . $this->getEchoError($file, $line, ob_get_flush(), 'before bootstrap'));
-
-        if (function_exists('__autoload') && !function_exists('spl_autoload_register'))
+        switch (true)
+        {
+        case isset($_GET['p:']) && 'exit' === $_GET['p:']:
+            die('Exit requested');
+        case !function_exists('token_get_all'):
+            die('Patchwork error: Extension "tokenizer" is needed and not loaded');
+        case !file_exists($cwd . 'config.patchwork.php'):
+            die("Patchwork error: File config.patchwork.php not found in {$cwd}. Did you set PATCHWORK_BOOTPATH correctly?");
+        case function_exists('__autoload') && !function_exists('spl_autoload_register'):
             die('Patchwork error: __autoload() is enabled and spl_autoload_register() is not available');
+        case headers_sent($file, $line) || ob_get_length():
+            die($this->getEchoError($file, $line, ob_get_flush(), 'before bootstrap'));
+        case function_exists('mb_internal_encoding'):
+            mb_internal_encoding('8bit'); // if mbstring overloading is enabled
+            @ini_set('mbstring.internal_encoding', '8bit');
+        }
+
+        if ($this->getLock(true))
+        {
+            $this->steps[] = array(array($this, 'initAutoloader'  ), null);
+            $this->steps[] = array(array($this, 'initPreprocessor'), null);
+            $this->steps[] = array(null, $this->pwd . 'bootup.patchwork.php');
+            $this->steps[] = array(array($this, 'initInheritance' ), null);
+            $this->steps[] = array(array($this, 'initZcache'      ), null);
+            $this->steps[] = array(array($this, 'exportPathData'  ), null);
+
+            @set_time_limit(0);
+            ob_start(array($this, 'ob_eval'));
+        }
+        else
+        {
+            $this->steps[] = array("require {$this->cwd}.patchwork.php; return false;", __FILE__);
+        }
     }
 
-    function lock($caller, $retry = true)
+    protected function getLock($retry)
     {
         $lock = $this->cwd . '.patchwork.lock';
         $file = $this->cwd . '.patchwork.php';
@@ -71,19 +89,19 @@ class Patchwork_Bootstrapper_Manager
             if (file_exists($file))
             {
                 fclose($this->lock);
+                $this->lock = null;
                 @unlink($lock);
                 if ($retry)
                 {
                     $file = $this->getBestPath($file);
 
-                    die("Patchwork error: File {$file} exists. Please fix your web bootstrap file.");
+                    die("Patchwork error: File {$file} exists. Please fix your front bootstrap file.");
                 }
                 else return false;
             }
 
             flock($this->lock, LOCK_EX);
-
-            $this->initialize($caller);
+            fwrite($this->lock, '<?php ');
 
             return true;
         }
@@ -102,112 +120,62 @@ class Patchwork_Bootstrapper_Manager
             {
                 $dir = $this->getBestPath($dir);
 
-                die("Patchwork error: Please change the permissions of the {$dir} directory so that the web server can write in it.");
+                die("Patchwork error: Please change the permissions of the {$dir} directory so that the current process can write in it.");
             }
         }
 
         if ($retry && !file_exists($file))
         {
             @unlink($lock);
-            return $this->lock($caller, false);
+            return $this->getLock(false);
         }
         else return false;
     }
 
-    protected function initialize($caller)
-    {
-        @set_time_limit(0);
-        fwrite($this->lock, '<?php ');
-
-        $this->callerRx = preg_quote($caller, '/');
-        $this->overrides =& $GLOBALS['patchwork_preprocessor_overrides'];
-        $this->overrides = array();
-
-        $h = array_map('intval', explode('.', PHP_VERSION, 3));
-        $h = 10000 * $h[0] + 100 * $h[1] + $h[2];
-
-        function_exists('__autoload') && $this->steps[] = array("spl_autoload_register('__autoload');", __FILE__);
-
-        if ($h < 50300 || !function_exists('spl_autoload_register'))
-        {
-            // Before PHP 5.3, backport spl_autoload_register()'s $prepend argument
-            // and workaround http://bugs.php.net/44144
-
-            $this->steps[] = array(null, $this->pwd . 'class/Patchwork/PHP/Override/SplAutoload.php');
-            $this->steps[] = array(
-                $this->override('__autoload',              ':SplAutoload::spl_autoload_call', array('$class')) .
-                $this->override('spl_autoload_call',       ':SplAutoload:', array('$class')) .
-                $this->override('spl_autoload_functions',  ':SplAutoload:', array()) .
-                $this->override('spl_autoload_register',   ':SplAutoload:', array('$callback', '$throw' => true, '$prepend' => false)) .
-                $this->override('spl_autoload_unregister', ':SplAutoload:', array('$callback')) .
-                (function_exists('spl_autoload_register')
-                    ? "spl_autoload_register(array('Patchwork_PHP_Override_SplAutoload','spl_autoload_call'));"
-                    : 'class LogicException extends Exception {}'),
-                __FILE__
-            );
-        }
-        else
-        {
-            $this->steps[] = array($this->override('__autoload', 'spl_autoload_call', array('$class')), __FILE__);
-        }
-
-        $this->steps[] = array('function patchwork_include($file) {return include $file;}', __FILE__);
-        $this->steps[] = array(array($this, 'initPreprocessor'), null);
-        $this->steps[] = array(null, $this->pwd . 'bootup.patchwork.php');
-        $this->steps[] = array(array($this, 'initInheritance' ), null);
-        $this->steps[] = array(array($this, 'initZcache'      ), null);
-        $this->steps[] = array(array($this, 'exportPathData'  ), null);
-
-        ob_start(array($this, 'ob_lock'));
-        ob_start(array($this, 'ob_eval'));
-
-        // Purge code cache files
-
-        $h = opendir($this->cwd);
-        while (false !== $caller = readdir($h))
-            if ('.zcache.php' === substr($caller, -11) && '.' === $caller[0])
-                @unlink($this->cwd . $caller);
-        closedir($h);
-    }
-
     function getNextStep()
     {
-        ob_flush();
-
-        if ($this->substeps)
+        while (1)
         {
-            $this->steps = array_merge($this->substeps, $this->steps);
-            $this->substeps = array();
-        }
-
-        while (null !== $step = array_shift($this->steps))
-        {
-            $code = 'spl_autoload_register';
-            function_exists('__patchwork_' . $code) && $code = '__patchwork_' . $code;
-            function_exists('patchwork_include') && $code(array($this, 'autoload'));
-
-            list($code, $this->file) = $step;
-
-            if (null !== $this->file)
+            if ($this->substeps)
             {
-                if (empty($this->preprocessor))
-                {
-                    null === $code && $code = substr(file_get_contents($this->file), 5);
-                    fwrite($this->lock, $code);
-                }
-                else
-                {
-                    $code = null !== $code ? '<?php ' . $code : file_get_contents($this->file);
-                    $code = $this->preprocessor->staticPass1($code, $this->file) .
-                        ";return eval({$this->bootstrapper}::\$manager->preprocessorPass2());";
-                }
-
-                return $code;
+                $this->steps = array_merge($this->substeps, $this->steps);
+                $this->substeps = array();
             }
-            else call_user_func($code);
-        }
+            else if (!$this->steps)
+            {
+                $this->release();
+                return '';
+            }
 
-        return '';
+            if (function_exists('patchwork_include'))
+            {
+                ob_flush();
+                $code = 'spl_autoload_register';
+                function_exists('__patchwork_' . $code) && $code = '__patchwork_' . $code;
+                $code(array($this, 'autoload'));
+            }
+
+            list($code, $this->file) = array_shift($this->steps);
+
+            if (null === $this->file)
+            {
+                call_user_func($code);
+                continue;
+            }
+            else if (empty($this->preprocessor))
+            {
+                null === $code && $code = substr(file_get_contents($this->file), 5);
+                $this->lock && fwrite($this->lock, $code);
+            }
+            else
+            {
+                $code = null !== $code ? '<?php ' . $code : file_get_contents($this->file);
+                $code = $this->preprocessor->staticPass1($code, $this->file) .
+                    ";return eval({$this->bootstrapper}::\$manager->preprocessorPass2());";
+            }
+
+            return $code;
+        }
     }
 
     function preprocessorPass2()
@@ -230,54 +198,59 @@ class Patchwork_Bootstrapper_Manager
 
     function ob_eval($buffer)
     {
-        return '' !== $buffer
-            ? preg_replace("/{$this->callerRx}\(\d+\) : eval\(\)'d code/", $this->file, $buffer)
-            : '';
+        return preg_replace("/{$this->callerRx}\(\d+\) : eval\(\)'d code/", $this->file, $buffer);
     }
 
-    function ob_lock($buffer)
+    protected function release()
     {
-        if ('' !== $buffer)
-        {
-            if ($this->lock)
-            {
-                fclose($this->lock);
-                $this->lock = null;
-            }
-
-            @unlink($this->cwd . '.patchwork.lock');
-        }
-
-        return $buffer;
-    }
-
-    function release()
-    {
-        if (!$this->lock) return $this->cwd . '.patchwork.php';
-
-        ob_end_flush();
-
         if ('' !== $buffer = ob_get_clean())
-        {
-            echo $buffer;
-            $buffer = $this->getEchoError($this->file, 0, $buffer, 'during bootstrap');
-            die("\n<br><br>\n\n<small>&mdash; {$buffer}. Dying &mdash;</small>");
-        }
+            die($this->getEchoError($this->file, 0, $buffer, 'during bootstrap'));
 
         file_put_contents("{$this->cwd}.patchwork.overrides.ser", serialize($this->overrides));
         fclose($this->lock);
+        $this->lock = null;
 
         $a = $this->cwd . '.patchwork.lock';
         touch($a, $_SERVER['REQUEST_TIME'] + 1);
         rename($a, $this->cwd . '.patchwork.php');
-
-        $this->lock = null;
 
         $a = 'spl_autoload_unregister';
         function_exists('__patchwork_' . $a) && $a = '__patchwork_' . $a;
         function_exists($a) && spl_autoload_unregister(array($this, 'autoload'));
 
         @set_time_limit(ini_get('max_execution_time'));
+    }
+
+    protected function initAutoloader()
+    {
+        function_exists('__autoload') && $this->substeps[] = array("spl_autoload_register('__autoload');", __FILE__);
+
+        $h = array_map('intval', explode('.', PHP_VERSION, 3));
+        $h = 10000 * $h[0] + 100 * $h[1] + $h[2];
+        if ($h < 50300 || !function_exists('spl_autoload_register'))
+        {
+            // Before PHP 5.3, backport spl_autoload_register()'s $prepend argument
+            // and workaround http://bugs.php.net/44144
+
+            $this->substeps[] = array(null, $this->pwd . 'class/Patchwork/PHP/Override/SplAutoload.php');
+            $this->substeps[] = array(
+                $this->override('__autoload',              ':SplAutoload::spl_autoload_call', array('$class')) .
+                $this->override('spl_autoload_call',       ':SplAutoload:', array('$class')) .
+                $this->override('spl_autoload_functions',  ':SplAutoload:', array()) .
+                $this->override('spl_autoload_register',   ':SplAutoload:', array('$callback', '$throw' => true, '$prepend' => false)) .
+                $this->override('spl_autoload_unregister', ':SplAutoload:', array('$callback')) .
+                (function_exists('spl_autoload_register')
+                    ? "spl_autoload_register(array('Patchwork_PHP_Override_SplAutoload','spl_autoload_call'));"
+                    : 'class LogicException extends Exception {}'),
+                __FILE__
+            );
+        }
+        else
+        {
+            $this->substeps[] = array($this->override('__autoload', 'spl_autoload_call', array('$class')), __FILE__);
+        }
+
+        $this->substeps[] = array('function patchwork_include($file) {return include $file;}', __FILE__);
     }
 
     protected function initPreprocessor()
@@ -339,14 +312,14 @@ class Patchwork_Bootstrapper_Manager
 
     protected function exportPathData()
     {
-        array_unshift($this->steps, array(
+        $this->substeps[] = array(
             '$patchwork_appId = (int) ' . var_export(sprintf('%020d', $this->appId), true) . ";
             define('PATCHWORK_PROJECT_PATH', " . var_export($this->cwd, true) . ");
             define('PATCHWORK_ZCACHE',       " . var_export($this->zcache, true) . ");
             define('PATCHWORK_PATH_LEVEL',   " . var_export($this->last, true) . ');
             $patchwork_path = ' . var_export($this->paths, true) . ';',
             __FILE__
-        ));
+        );
     }
 
     function pushFile($file)
@@ -427,22 +400,24 @@ class Patchwork_Bootstrapper_Manager
 
     protected function getEchoError($file, $line, $what, $when)
     {
-        if ($len = strlen($what))
+        // Try to build a nice error message about early echos
+
+        if ($type = strlen($what))
         {
             if ('' === trim($what))
             {
-                $what = $len > 1 ? "{$len} bytes of whitespace have" : 'One byte of whitespace has';
+                $type = $type > 1 ? "{$type} bytes of whitespace have" : 'One byte of whitespace has';
             }
             else if (0 === strncmp($what, "\xEF\xBB\xBF", 3))
             {
-                $what = 'An UTF-8 byte order mark (BOM) has';
+                $type = 'An UTF-8 byte order mark (BOM) has';
             }
             else
             {
-                $what = $len > 1 ? "{$len} bytes have" : 'One byte has';
+                $type = $type > 1 ? "{$type} bytes have" : 'One byte has';
             }
         }
-        else $what = 'Something has';
+        else $type = 'Something has';
 
         if ($line)
         {
@@ -459,7 +434,7 @@ class Patchwork_Bootstrapper_Manager
             $line = ' in ' . ($line ? implode(', ', $line) . ' or in ' : '') . $file;
         }
 
-        return "{$what} been echoed {$when}{$line}";
+        return "Patchwork error: {$type} been echoed {$when}{$line}\n\n-- See below this line --\n{$what}";
     }
 
     protected function getBestPath($a)

@@ -13,15 +13,15 @@
 
 
 // To generate meaningful error messages,
-// this file should be parse error free even in PHP 4.0.
+// this file should be parse error free even in PHP 4.
 
 // To keep the global namespace clean, we use only static methods instead of any variable.
-// Be aware that the use of static properties would throw a PHP 4.0 parse error.
+// Be aware that the use of static properties would throw a PHP 4 parse error.
 
 defined('PATCHWORK_MICROTIME') || define('PATCHWORK_MICROTIME', microtime(true));
 defined('PATCHWORK_BOOTPATH')  || define('PATCHWORK_BOOTPATH', '.');
-@ini_set('display_errors', true);
-error_reporting(E_ALL);
+@ini_set('display_errors', true); // Ease with early errors for now
+error_reporting(E_ALL); // E_STRICT is not defined in PHP 4
 
 PATCHWORK_BOOTPATH || die('Patchwork error: PATCHWORK_BOOTPATH is empty');
 
@@ -36,14 +36,8 @@ error_reporting(E_ALL | E_STRICT);
 
 require dirname(__FILE__) . '/boot/class/Patchwork/Bootstrapper/Manager.php';
 require dirname(__FILE__) . '/boot/class/Patchwork/Bootstrapper.php';
+
+// Bootup steps: alias, initialize then eval in the global scope
 class boot extends Patchwork_Bootstrapper {}
-
-// Initialize and get lock
-if (!boot::initLock(__FILE__, PATCHWORK_BOOTPATH))
-    return require boot::release();
-
-// Bootup steps evaluated in the global scope
+boot::initialize(__FILE__, PATCHWORK_BOOTPATH);
 while (false !== eval(boot::getNextStep())) {}
-
-// Cache and release lock
-boot::release();

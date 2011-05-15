@@ -20,14 +20,15 @@ class Patchwork_Bootstrapper
     $manager = 'Manager';
 
 
-    static function initLock($caller, $cwd)
+    static function initialize($caller, $cwd)
     {
+        $manager = self::$class . '_' . self::$manager;
         $pwd = dirname($caller) . DIRECTORY_SEPARATOR . 'boot' . DIRECTORY_SEPARATOR;
-        $cls = self::$class . '_' . self::$manager;
-        self::$manager = new $cls(self::$class, $pwd, $cwd);
-        return self::$manager->lock($caller);
+        self::$manager = new $manager(self::$class, $caller, $pwd, $cwd);
     }
 
-    static function getNextStep() {return self::$manager->getNextStep();}
-    static function release()     {return self::$manager = self::$manager->release();}
+    static function getNextStep()
+    {
+        return self::$manager->getNextStep();
+    }
 }

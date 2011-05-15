@@ -14,8 +14,8 @@
 
 /**/boot::$manager->pushFile('bootup/override.php');
 defined('PATCHWORK_MICROTIME') || define('PATCHWORK_MICROTIME', microtime(true));
-@ini_set('unserialize_callback_func', 'spl_autoload_call');
-error_reporting(E_ALL | E_STRICT);
+@ini_set('unserialize_callback_func', /*<*/function_exists('__patchwork_spl_autoload_call') ? '__patchwork_spl_autoload_call' : 'spl_autoload_call'/*>*/);
+error_reporting(/*<*/E_ALL | E_STRICT/*>*/);
 setlocale(LC_ALL, 'C');
 
 // Backport some usefull basic constants
