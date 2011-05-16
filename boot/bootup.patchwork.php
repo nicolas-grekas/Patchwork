@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-/**/boot::$manager->pushFile('bootup/override.php');
+/**/boot::$manager->pushFile('bootup.override.php');
 defined('PATCHWORK_MICROTIME') || define('PATCHWORK_MICROTIME', microtime(true));
 @ini_set('unserialize_callback_func', /*<*/function_exists('__patchwork_spl_autoload_call') ? '__patchwork_spl_autoload_call' : 'spl_autoload_call'/*>*/);
 error_reporting(/*<*/E_ALL | E_STRICT/*>*/);
@@ -38,6 +38,26 @@ setlocale(LC_ALL, 'C');
         define('E_DEPRECATED',        8192);
 /**/if (!defined('E_USER_DEPRECATED'))
         define('E_USER_DEPRECATED',  16384);
+
+// Verify that ini_set() and ini_get() work as expected
+
+/**/$a = md5(mt_rand());
+/**/$b = @ini_set('display_errors', $a);
+/**/if (@ini_get('display_errors') !== $a)
+/**/{
+/**/    /*<*/boot::$manager->override('ini_set',        'patchwork_ini_set', array('$k', '$v'))/*>*/;
+/**/    /*<*/boot::$manager->override('ini_alter',      'patchwork_ini_set', array('$k', '$v'))/*>*/;
+/**/    /*<*/boot::$manager->override('ini_get',        'patchwork_ini_get', array('$k'))/*>*/;
+
+        function patchwork_ini_set($k, $v) {return @ini_set($k, $v);}
+        function patchwork_ini_get($k)     {return @ini_get($k);}
+/**/}
+/**/@ini_set('display_errors', $b);
+
+// Silence set_time_limit() in the case of safe mode beeing enabled
+
+/**/ /*<*/boot::$manager->override('set_time_limit', 'patchwork_set_time_limit', array('$s'))/*>*/;
+function patchwork_set_time_limit($a) {return @set_time_limit($s);}
 
 // Boolean version of ini_get()
 
@@ -95,7 +115,7 @@ function patchwork_getcwd()
 
 /**/if (false !== $a)
 /**/{
-/**/    boot::$manager->pushFile('bootup/realpath.php');
+/**/    boot::$manager->pushFile('bootup.realpath.php');
 /**/    /*<*/boot::$manager->override('realpath', 'patchwork_realpath', array('$path'))/*>*/;
 /**/}
 /**/else

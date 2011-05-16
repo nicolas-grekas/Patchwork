@@ -1,5 +1,8 @@
 <?php // vi: set fenc=utf-8 ts=4 sw=4 et:
 
+#patchwork boot/utf8
+
+
 // Default settings
 
 $CONFIG += array(
