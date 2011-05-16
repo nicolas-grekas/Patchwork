@@ -1599,7 +1599,7 @@ class patchwork
             if (false !== stripos(self::$headers['content-type'], 'html'))
             {
                 header('P3P: CP="' . $CONFIG['P3P'] . '"');
-                header('X-UA-Compatible: IE=edge,chrome=1');
+                header('X-UA-Compatible: ' . $CONFIG['X-UA-Compatible']);
                 header('X-XSS-Protection: 1; mode=block');
             }
 

@@ -23,9 +23,10 @@ $CONFIG += array(
 #   'clientside' => true,    // Enable browser-side page rendering when available
 #   'i18n.lang_list' => '',  // List of available languages ('en|fr' for example)
 #   'maxage' => 2678400,     // Max age (in seconds) for HTTP ressources caching
-#   'P3P => 'CUR ADM',       // P3P - Platform for Privacy Preferences
+#   'P3P' => 'CUR ADM',      // P3P - Platform for Privacy Preferences
 #   'xsendfile' => false,    // If your server is "X-Sendfile" enabled,  turn this to true
 #   'document.domain' => '', // Value of document.domain for clientside cross subdomain communication
+#   'X-UA-Compatible' => 'IE=edge,chrome=1', // X-UA-Compatible - by default use chrome frame or latest IE engine
 
     // Session
 #   'session.save_path'     => PATCHWORK_ZCACHE,

@@ -236,6 +236,7 @@ $CONFIG += array(
     'P3P'                   => 'CUR ADM',
     'xsendfile'             => isset($_SERVER['PATCHWORK_XSENDFILE']) ? $_SERVER['PATCHWORK_XSENDFILE'] : false,
     'document.domain'       => '',
+    'X-UA-Compatible'       => 'IE=edge,chrome=1',
     'session.save_path'     => /*<*/patchwork_bootstrapper::$zcache/*>*/,
     'session.cookie_path'   => 'auto',
     'session.cookie_domain' => 'auto',
