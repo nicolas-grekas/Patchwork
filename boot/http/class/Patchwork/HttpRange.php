@@ -15,32 +15,34 @@ namespace Patchwork;
 
 class HttpRange
 {
-    static function negociate($filesize, $ETag, $LastModified)
+    static function negociate($filesize, $ETag, $LastModified, $request = null)
     {
-        if (!isset($_SERVER['HTTP_RANGE'])) return false;
+        isset($request) || $request = $_SERVER;
 
-        $range = str_replace(' ', '', $_SERVER['HTTP_RANGE']);
+        if (!isset($request['HTTP_RANGE'])) return false;
+
+        $range = str_replace(' ', '', $request['HTTP_RANGE']);
         if (!preg_match('/^bytes=(?:\d+-\d*|-\d+)(?:,(?:\d+-\d*|-\d+))*$/', $range)) return false;
 
 
-        $if_range = isset($_SERVER['HTTP_IF_RANGE']);
+        $if_range = isset($request['HTTP_IF_RANGE']);
 
         if ($if_range
-            && $_SERVER['HTTP_IF_RANGE'] != $ETag
-            && $_SERVER['HTTP_IF_RANGE'] != $LastModified
+            && $request['HTTP_IF_RANGE'] != $ETag
+            && $request['HTTP_IF_RANGE'] != $LastModified
         ) return false;
 
-        if (isset($_SERVER['HTTP_UNLESS_MODIFIED_SINCE'])
-            && !isset($_SERVER['HTTP_IF_UNMODIFIED_SINCE'])
-        ) $_SERVER['HTTP_IF_UNMODIFIED_SINCE'] = $_SERVER['HTTP_UNLESS_MODIFIED_SINCE'];
+        if (isset($request['HTTP_UNLESS_MODIFIED_SINCE'])
+            && !isset($request['HTTP_IF_UNMODIFIED_SINCE'])
+        ) $request['HTTP_IF_UNMODIFIED_SINCE'] = $request['HTTP_UNLESS_MODIFIED_SINCE'];
 
-        if (isset($_SERVER['HTTP_IF_UNMODIFIED_SINCE']))
+        if (isset($request['HTTP_IF_UNMODIFIED_SINCE']))
         {
-            $r = explode(';', $_SERVER['HTTP_IF_UNMODIFIED_SINCE'], 2);
-            if (strtotime($r[0]) != $LastModified) $_SERVER['HTTP_IF_MATCH'] = '';
+            $r = explode(';', $request['HTTP_IF_UNMODIFIED_SINCE'], 2);
+            if (strtotime($r[0]) != $LastModified) $request['HTTP_IF_MATCH'] = '';
         }
 
-        if (isset($_SERVER['HTTP_IF_MATCH']) && $_SERVER['HTTP_IF_MATCH'] != $ETag)
+        if (isset($request['HTTP_IF_MATCH']) && $request['HTTP_IF_MATCH'] != $ETag)
         {
             return $if_range
                 ? false

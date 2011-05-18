@@ -1,6 +1,7 @@
 <?php // vi: set fenc=utf-8 ts=4 sw=4 et:
 
-#patchwork boot/utf8
+#patchwork boot/http
+#patchwork boot/superloader
 
 
 // Default settings
@@ -8,10 +9,6 @@
 $CONFIG += array(
 
     // General
-    'debug.allowed'  => true,
-    'debug.password' => '',
-    'debug.scream'   => false, // Disable the silencing error control operator, defaults to the DEBUG_SCREAM constant if any
-    'turbo'          => false, // Run patchwork at full speed, at the cost of source code desynchronisation
     'umask'          => false, // Set the user file creation mode mask
 
     // Patchwork
@@ -40,9 +37,6 @@ $CONFIG += array(
 // Setup patchwork's environment
 
 /**/ /*<*/boot::$manager->override('header', 'Patchwork::header', array('$s', '$replace' => true, '$response_code' => null))/*>*/;
-
-defined('DEBUG') || define('DEBUG', $CONFIG['debug.allowed'] && (!$CONFIG['debug.password'] || isset($_COOKIE['debug_password']) && $CONFIG['debug.password'] == $_COOKIE['debug_password']) ? 1 : 0);
-defined('TURBO') || define('TURBO', !DEBUG && $CONFIG['turbo']);
 
 empty($CONFIG['umask']) || umask($CONFIG['umask']);
 empty($CONFIG['xsendfile']) && isset($_SERVER['PATCHWORK_XSENDFILE']) && $CONFIG['xsendfile'] = $_SERVER['PATCHWORK_XSENDFILE'];
@@ -129,13 +123,11 @@ if (false !== strpos($a, '/.'))
     {
         $r = '/' . ($r ? implode('/', $r) . ('.' === $j || '..' === $j ? '/' : '') : '');
         '' !== $_SERVER['QUERY_STRING'] && $r .= '?' . $_SERVER['QUERY_STRING'];
-        patchwork_bad_request("Please resolve references to '.' and '..' before issuing your request.", $r);
+        patchwork_http_bad_request("Please resolve references to '.' and '..' before issuing your request.", $r);
     }
 }
 
-/**/$a = true;
-/**/
-/**/switch (true)
+/**/switch ($a = true)
 /**/{
 /**/case isset($_SERVER['REDIRECT_PATCHWORK_REQUEST']):
 /**/case isset($_SERVER['PATCHWORK_REQUEST']):
@@ -395,5 +387,3 @@ else
 {
     function T($string) {return $string;}
 }
-
-spl_autoload_register('patchwork_autoload');

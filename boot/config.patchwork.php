@@ -2,4 +2,4 @@
 
 #patchwork compat
 
-/**/Patchwork_Setup::hook();
+/**/class_exists('Patchwork_Setup', true) && Patchwork_Setup::hook();
