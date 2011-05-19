@@ -20,18 +20,6 @@ setlocale(LC_ALL, 'C');
 
 // Backport some usefull basic constants
 
-/**/if (!defined('PHP_VERSION_ID'))
-/**/{
-/**/    $a = array_map('intval', explode('.', PHP_VERSION, 3));
-        define('PHP_VERSION_ID',      /*<*/(10000 * $a[0] + 100 * $a[1] + $a[2])/*>*/);
-        define('PHP_MAJOR_VERSION',   /*<*/$a[0]/*>*/);
-        define('PHP_MINOR_VERSION',   /*<*/$a[1]/*>*/);
-        define('PHP_RELEASE_VERSION', /*<*/$a[2]/*>*/);
-
-/**/    $a = substr(PHP_VERSION, strlen(implode('.', $a)));
-        define('PHP_EXTRA_VERSION',   /*<*/false !== $a ? $a : ''/*>*/);
-/**/}
-
 /**/if (!defined('E_RECOVERABLE_ERROR'))
         define('E_RECOVERABLE_ERROR', 4096);
 /**/if (!defined('E_DEPRECATED'))

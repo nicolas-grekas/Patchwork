@@ -68,18 +68,6 @@
 /**/}
 
 
-// Turn off magic quotes runtime
-
-/**/if (function_exists('get_magic_quotes_runtime') && @get_magic_quotes_runtime())
-/**/{
-/**/    @set_magic_quotes_runtime(false);
-/**/    @get_magic_quotes_runtime()
-/**/        && die('Patchwork error: Failed to turn off magic_quotes_runtime');
-
-        set_magic_quotes_runtime(false);
-/**/}
-
-
 // Workaround for http://bugs.php.net/33140
 
 /**/if ('\\' === DIRECTORY_SEPARATOR && PHP_VERSION_ID < 50200)

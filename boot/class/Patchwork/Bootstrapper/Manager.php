@@ -63,6 +63,36 @@ class Patchwork_Bootstrapper_Manager
 
         if ($this->getLock(true))
         {
+            $s = '';
+
+            // Turn off magic quotes runtime
+
+            if (function_exists('get_magic_quotes_runtime') && @get_magic_quotes_runtime())
+            {
+                @set_magic_quotes_runtime(false);
+                @get_magic_quotes_runtime()
+                    && die('Patchwork error: Failed to turn off magic_quotes_runtime');
+
+                $s .= "set_magic_quotes_runtime(false);";
+            }
+
+            // Backport PHP_VERSION_ID and co.
+
+            if (!defined('PHP_VERSION_ID'))
+            {
+                $v = array_map('intval', explode('.', PHP_VERSION, 3));
+                $s .= "define('PHP_VERSION_ID',"      . (10000 * $v[0] + 100 * $v[1] + $v[2]) . ");";
+                $s .= "define('PHP_MAJOR_VERSION',"   . $v[0] . ");";
+                $s .= "define('PHP_MINOR_VERSION',"   . $v[1] . ");";
+                $s .= "define('PHP_RELEASE_VERSION'," . $v[2] . ");";
+
+                $v = substr(PHP_VERSION, strlen(implode('.', $v)));
+                $s .= "define('PHP_EXTRA_VERSION','" . addslashes(false !== $v ? $v : '') . "');";
+            }
+
+            // Register the next steps
+
+            $s && $this->steps[] = array($s, __FILE__);
             $this->steps[] = array(array($this, 'initAutoloader'  ), null);
             $this->steps[] = array(array($this, 'initPreprocessor'), null);
             $this->steps[] = array(null, $this->pwd . 'bootup.patchwork.php');
@@ -225,9 +255,7 @@ class Patchwork_Bootstrapper_Manager
     {
         function_exists('__autoload') && $this->substeps[] = array("spl_autoload_register('__autoload');", __FILE__);
 
-        $h = array_map('intval', explode('.', PHP_VERSION, 3));
-        $h = 10000 * $h[0] + 100 * $h[1] + $h[2];
-        if ($h < 50300 || !function_exists('spl_autoload_register'))
+        if (PHP_VERSION_ID < 50300 || !function_exists('spl_autoload_register'))
         {
             // Before PHP 5.3, backport spl_autoload_register()'s $prepend argument
             // and workaround http://bugs.php.net/44144
