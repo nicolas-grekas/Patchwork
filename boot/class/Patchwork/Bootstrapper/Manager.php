@@ -49,13 +49,13 @@ class Patchwork_Bootstrapper_Manager
         case isset($_GET['p:']) && 'exit' === $_GET['p:']:
             die('Exit requested');
         case !function_exists('token_get_all'):
-            die('Patchwork error: Extension "tokenizer" is needed and not loaded');
+            throw $this->error('Extension "tokenizer" is needed and not loaded');
         case !file_exists($cwd . 'config.patchwork.php'):
-            die("Patchwork error: File config.patchwork.php not found in {$cwd}. Did you set PATCHWORK_BOOTPATH correctly?");
+            throw $this->error("File config.patchwork.php not found in {$cwd}. Did you set PATCHWORK_BOOTPATH correctly?");
         case function_exists('__autoload') && !function_exists('spl_autoload_register'):
-            die('Patchwork error: __autoload() is enabled and spl_autoload_register() is not available');
+            throw $this->error('__autoload() is enabled and spl_autoload_register() is not available');
         case headers_sent($file, $line) || ob_get_length():
-            die($this->getEchoError($file, $line, ob_get_flush(), 'before bootstrap'));
+            throw $this->getEchoError($file, $line, ob_get_flush(), 'before bootstrap');
         case function_exists('mb_internal_encoding'):
             mb_internal_encoding('8bit'); // if mbstring overloading is enabled
             @ini_set('mbstring.internal_encoding', '8bit');
@@ -70,8 +70,8 @@ class Patchwork_Bootstrapper_Manager
             if (function_exists('get_magic_quotes_runtime') && @get_magic_quotes_runtime())
             {
                 @set_magic_quotes_runtime(false);
-                @get_magic_quotes_runtime()
-                    && die('Patchwork error: Failed to turn off magic_quotes_runtime');
+                if (@get_magic_quotes_runtime())
+                    throw $this->error('Failed to turn off magic_quotes_runtime');
 
                 $s .= "set_magic_quotes_runtime(false);";
             }
@@ -125,7 +125,7 @@ class Patchwork_Bootstrapper_Manager
                 {
                     $file = $this->getBestPath($file);
 
-                    die("Patchwork error: File {$file} exists. Please fix your front bootstrap file.");
+                    throw $this->error("File {$file} exists. Please fix your front bootstrap file.");
                 }
                 else return false;
             }
@@ -150,7 +150,7 @@ class Patchwork_Bootstrapper_Manager
             {
                 $dir = $this->getBestPath($dir);
 
-                die("Patchwork error: Please change the permissions of the {$dir} directory so that the current process can write in it.");
+                throw $this->error("Please change the permissions of the {$dir} directory so that the current process can write in it.");
             }
         }
 
@@ -234,7 +234,7 @@ class Patchwork_Bootstrapper_Manager
     protected function release()
     {
         if ('' !== $buffer = ob_get_clean())
-            die($this->getEchoError($this->file, 0, $buffer, 'during bootstrap'));
+            throw $this->getEchoError($this->file, 0, $buffer, 'during bootstrap');
 
         file_put_contents("{$this->cwd}.patchwork.overrides.ser", serialize($this->overrides));
         fclose($this->lock);
@@ -350,6 +350,12 @@ class Patchwork_Bootstrapper_Manager
         );
     }
 
+    function error($msg)
+    {
+        $e = $this->bootstrapper . '_Exception';
+        return new $e($msg);
+    }
+
     function pushFile($file)
     {
         $this->substeps[] = array(null, dirname($this->file) . DIRECTORY_SEPARATOR . $file);
@@ -377,7 +383,7 @@ class Patchwork_Bootstrapper_Manager
 
             if (0 === strcasecmp($function, $override))
             {
-                return "die('Patchwork error: Circular overriding of function {$function}() in ' . __FILE__ . ' on line ' . __LINE__);";
+                return "throw {$this->bootstrapper}::\$manager->error('Circular overriding of function {$function}()');";
             }
         }
 
@@ -403,7 +409,7 @@ class Patchwork_Bootstrapper_Manager
             if (!preg_match($v, $k, $v))
             {
                 1 !== $inline && $function = substr($function, 12);
-                return "die('Patchwork error: Invalid parameter for {$function}()\'s override ({$override}: {$k}) in ' . __FILE__);";
+                return "throw {$this->bootstrapper}::\$manager->error('Invalid parameter for {$function}()\'s override ({$override}: {$k})');";
             }
 
             $args[2][] = $v[1];
@@ -449,7 +455,7 @@ class Patchwork_Bootstrapper_Manager
 
         if ($line)
         {
-            $line = " in {$file} on line {$line} (maybe some whitespace or a BOM?)";
+            $line = " in {$file} on line {$line} or before";
         }
         else if ($file)
         {
@@ -462,7 +468,7 @@ class Patchwork_Bootstrapper_Manager
             $line = ' in ' . ($line ? implode(', ', $line) . ' or in ' : '') . $file;
         }
 
-        return "Patchwork error: {$type} been echoed {$when}{$line}\n\n-- See below this line --\n{$what}";
+        return $this->error("{$type} been echoed {$when}{$line}");
     }
 
     protected function getBestPath($a)
@@ -482,3 +488,5 @@ class Patchwork_Bootstrapper_Manager
         return $a;
     }
 }
+
+class Patchwork_Bootstrapper_Exception extends Exception {}

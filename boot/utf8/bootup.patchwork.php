@@ -41,9 +41,8 @@
 
 /**/if (extension_loaded('mbstring'))
 /**/{
-/**/    ini_get_bool('mbstring.encoding_translation')
-/**/        && !in_array(strtolower(ini_get('mbstring.http_input')), array('pass', '8bit', 'utf-8'))
-/**/        && die('Patchwork error: Please disable "mbstring.encoding_translation" or set "mbstring.http_input" to "pass" or "utf-8"');
+/**/    if (ini_get_bool('mbstring.encoding_translation') && !in_array(strtolower(ini_get('mbstring.http_input')), array('pass', '8bit', 'utf-8')))
+/**/        throw boot::$manager->error('Please disable "mbstring.encoding_translation" or set "mbstring.http_input" to "pass" or "utf-8"');
 
         mb_regex_encoding('UTF-8');
         ini_set('mbstring.script_encoding', 'pass');
@@ -196,7 +195,7 @@
 
 // Check PCRE
 
-/**/preg_match('/^.$/u', '§') || die('Patchwork error: PCRE is not compiled with UTF-8 support');
+/**/if (!preg_match('/^.$/u', '§')) throw boot::$manager->error('PCRE is not compiled with UTF-8 support');
 
 
 // intl configuration

@@ -39,12 +39,11 @@ class Patchwork_Bootstrapper_Preprocessor
         $code = $p->getRunonceCode($code);
 
         if ($p = $p->getErrors())
-        {
-            $p = $p[0];
-            $p = addslashes("{$p[0]} in {$file}") . ($p[1] ? " on line {$p[1]}" : '');
-
-            $code .= "die('Patchwork error: {$p}');";
-        }
+            foreach ($p as $p)
+                $code .= "trigger_error('"
+                    . addslashes("{$p[0]} in {$file}")
+                    . ($p[1] ? " on line {$p[1]}" : '')
+                    . "',{$p[3]});";
 
         return $code;
     }
