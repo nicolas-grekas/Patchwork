@@ -54,8 +54,6 @@ class Patchwork_Bootstrapper_Manager
             throw $this->error("File config.patchwork.php not found in {$cwd}. Did you set PATCHWORK_BOOTPATH correctly?");
         case function_exists('__autoload') && !function_exists('spl_autoload_register'):
             throw $this->error('__autoload() is enabled and spl_autoload_register() is not available');
-        case headers_sent($file, $line) || ob_get_length():
-            throw $this->getEchoError($file, $line, ob_get_flush(), 'before bootstrap');
         case function_exists('mb_internal_encoding'):
             mb_internal_encoding('8bit'); // if mbstring overloading is enabled
             @ini_set('mbstring.internal_encoding', '8bit');
@@ -101,6 +99,10 @@ class Patchwork_Bootstrapper_Manager
             $this->steps[] = array(array($this, 'exportPathData'  ), null);
 
             @set_time_limit(0);
+
+            if (headers_sent($file, $line) || ob_get_length())
+                throw $this->error($this->buildEchoErrorMsg($file, $line, ob_get_flush(), 'before bootstrap'));
+
             ob_start(array($this, 'ob_eval'));
         }
         else
@@ -179,7 +181,6 @@ class Patchwork_Bootstrapper_Manager
 
             if (function_exists('patchwork_include'))
             {
-                ob_flush();
                 $code = 'spl_autoload_register';
                 function_exists('__patchwork_' . $code) && $code = '__patchwork_' . $code;
                 $code(array($this, 'autoload'));
@@ -233,8 +234,8 @@ class Patchwork_Bootstrapper_Manager
 
     protected function release()
     {
-        if ('' !== $buffer = ob_get_clean())
-            throw $this->getEchoError($this->file, 0, $buffer, 'during bootstrap');
+        if ('' !== $buffer = ob_get_flush())
+            throw $this->error($this->buildEchoErrorMsg($this->file, 0, $buffer, 'during bootstrap'));
 
         file_put_contents("{$this->cwd}.patchwork.overrides.ser", serialize($this->overrides));
         fclose($this->lock);
@@ -350,10 +351,12 @@ class Patchwork_Bootstrapper_Manager
         );
     }
 
-    function error($msg)
+    function error($msg, $severity = E_USER_ERROR)
     {
+        $t = new Exception;
+        $t = $t->getTrace();
         $e = $this->bootstrapper . '_Exception';
-        return new $e($msg);
+        return new $e($msg, 0, $severity, $t[1]['file'], $t[1]['line']);
     }
 
     function pushFile($file)
@@ -432,7 +435,7 @@ class Patchwork_Bootstrapper_Manager
             : "function  {$function}({$args[1]}) {return {$override}({$args[2]});}";
     }
 
-    protected function getEchoError($file, $line, $what, $when)
+    protected function buildEchoErrorMsg($file, $line, $what, $when)
     {
         // Try to build a nice error message about early echos
 
@@ -451,7 +454,7 @@ class Patchwork_Bootstrapper_Manager
                 $type = $type > 1 ? "{$type} bytes have" : 'One byte has';
             }
         }
-        else $type = 'Something has';
+        else $type = 'Some bytes have';
 
         if ($line)
         {
@@ -468,7 +471,7 @@ class Patchwork_Bootstrapper_Manager
             $line = ' in ' . ($line ? implode(', ', $line) . ' or in ' : '') . $file;
         }
 
-        return $this->error("{$type} been echoed {$when}{$line}");
+        return "{$type} been echoed {$when}{$line}";
     }
 
     protected function getBestPath($a)
@@ -489,4 +492,4 @@ class Patchwork_Bootstrapper_Manager
     }
 }
 
-class Patchwork_Bootstrapper_Exception extends Exception {}
+class Patchwork_Bootstrapper_Exception extends ErrorException {}
