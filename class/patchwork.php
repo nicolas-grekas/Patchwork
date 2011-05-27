@@ -611,6 +611,9 @@ class patchwork
 
     static function gzipAllowed($type)
     {
+/**/    if (!function_exists('ob_gzhandler'))
+            return false;
+
         $type = explode(';', $type);
         $type = strtolower($type[0]);
         $len  = strlen($type);

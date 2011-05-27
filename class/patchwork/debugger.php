@@ -130,7 +130,7 @@ EOHTML;
     static function sendDebugInfo()
     {
         $S = 'stop' === patchwork::$requestArg;
-        $S && ob_start('ob_gzhandler', 8192);
+        $S && function_exists('ob_gzhandler') && ob_start('ob_gzhandler', 1<<14);
 
         header('Content-Type: text/html; charset=utf-8');
         header('Cache-Control: max-age=0,private,must-revalidate');
