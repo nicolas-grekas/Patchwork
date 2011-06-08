@@ -10,6 +10,6 @@
 [submodule "variations/pStudio"]
 	path = variations/pStudio
 	url = git://github.com/nicolas-grekas/Patchwork-pStudio.git
-[submodule "pieces/doctrine-dbal"]
-	path = pieces/doctrine-dbal
-	url = git://github.com/nicolas-grekas/Patchwork-Doctrine-DBAL.git
+[submodule "pieces/doctrine"]
+	path = pieces/doctrine
+	url = git://github.com/nicolas-grekas/Patchwork-Doctrine.git
