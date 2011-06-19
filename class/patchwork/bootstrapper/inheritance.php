@@ -49,7 +49,7 @@ class patchwork_bootstrapper_inheritance__0
         $a[] = $this->rootPath;
 
 
-        $paths = array_diff($paths, $a, array(''));
+        $paths = array_diff($paths, $a, array('', patchwork_realpath('.')));
         $paths = array_merge($a, $paths);
 
 
