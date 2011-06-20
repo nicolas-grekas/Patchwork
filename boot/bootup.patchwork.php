@@ -46,7 +46,7 @@ setlocale(LC_ALL, 'C');
 // Silence set_time_limit() in the case of safe mode beeing enabled
 
 /**/ /*<*/boot::$manager->override('set_time_limit', 'patchwork_set_time_limit', array('$s'))/*>*/;
-function patchwork_set_time_limit($a) {return @set_time_limit($s);}
+function patchwork_set_time_limit($s) {return @set_time_limit($s);}
 
 // Boolean version of ini_get()
 
