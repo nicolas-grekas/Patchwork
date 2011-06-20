@@ -56,7 +56,7 @@ class agent_js extends agent_css
             $src = Patchwork\Serverside::returnAgent($src, (array) $this->get);
             --self::$recursion;
 
-            $parser = new jsqueez;
+            $parser = new JSqueeze;
 
             if ('/*!' != substr(ltrim(substr($src, 0, 512)), 0, 3))
             {

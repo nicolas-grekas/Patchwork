@@ -102,7 +102,7 @@ class StaticResource extends p
                     ob_start();
                     call_user_func(array('pipe_' . $pipe, 'js'));
 
-                    $pipe = new \jsqueez;
+                    $pipe = new \JSqueeze;
                     $pipe = $pipe->squeeze(ob_get_clean());
                     echo $pipe = trim($pipe, ';');
 

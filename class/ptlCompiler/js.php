@@ -78,7 +78,7 @@ class ptlCompiler_js extends ptlCompiler
                         ob_start();
                         call_user_func(array('pipe_' . $m, 'js'));
 
-                        $m = new jsqueez;
+                        $m = new JSqueeze;
                         $m = $m->squeeze(ob_get_clean());
                         $code .= trim($m, ';') . ';';
                     }

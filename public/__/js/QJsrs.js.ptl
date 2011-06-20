@@ -176,7 +176,7 @@ function $QJsrs($URL, $POST, $antiCSRF, $XMLHttpPreferred)
     {
         if ($text>='')
         {
-            if ($raw) eval('$text=' + $text.replace(/<\/.*/, '').substr(16)), w; // w is for jsqueez
+            if ($raw) eval('$text=' + $text.replace(/<\/.*/, '').substr(16)), w; // w is for JSqueeze
         }
         else $text = window.q;
 
