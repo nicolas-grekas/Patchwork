@@ -66,16 +66,10 @@ class patchwork_PHP_Parser_superPositioner extends patchwork_PHP_Parser
 
     protected function tagClassName(&$token)
     {
-        $c = $this->class;
+        $this->class->suffix = '__' . (0 <= $this->level ? $this->level : '00');
+        $token[1] .= $this->class->suffix;
         0 <= $this->level && $this->register(array('tagExtendsSelf' => T_USE_CLASS));
-        $c->isTop = $this->topClass && 0 === strcasecmp($this->topClass, $c->nsName);
-
-        if (!$c->isFinal && !$c->isTop)
-        {
-            $c->suffix = '__' . (0 <= $this->level ? $this->level : '00');
-            $token[1] .= $c->suffix;
-        }
-        else $c->suffix = '';
+        $this->class->isTop = $this->topClass && 0 === strcasecmp($this->topClass, $this->class->nsName);
     }
 
     protected function tagExtendsSelf(&$token)
@@ -131,7 +125,12 @@ class patchwork_PHP_Parser_superPositioner extends patchwork_PHP_Parser
 
         if ($c->isFinal || $c->isTop)
         {
-            $token[1] .= "\$GLOBALS['_patchwork_autoloaded']['" . strtolower($c->nsName) . "']=1;";
+            $a = '';
+            $c->isAbstract && $a = 'abstract';
+            $c->isFinal    && $a = 'final';
+
+            $token[1] = "}{$a} {$c->type} {$c->name} extends {$c->name}{$c->suffix} {" . $token[1]
+                . "\$GLOBALS['_patchwork_autoloaded']['" . strtolower($c->nsName) . "']=1;";
 
             if (!$this->namespace && strpos($c->name, '_') && function_exists('class_alias'))
             {

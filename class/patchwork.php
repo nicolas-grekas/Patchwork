@@ -53,8 +53,6 @@ function patchwork_error_handler($code, $message, $file, $line)
                 return;
         case E_NOTICE:
         case E_STRICT:
-/**/        if (PHP_VERSION_ID < 50303) // http://bugs.php.net/52160 workaround
-                if (0 === strpos($message, 'Redefining already defined constructor for class ')) return;
             if (strpos($message, '__00::')) return;
             if ('-' === substr($file, -12, 1)) return;
             break;
