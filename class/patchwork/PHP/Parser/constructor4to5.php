@@ -46,16 +46,19 @@ class patchwork_PHP_Parser_constructor4to5 extends patchwork_PHP_Parser
         $this->unregister(__FUNCTION__);
         if (T_STRING !== $token[0]) return;
 
-        switch (strtolower($token[1]))
+        if (0 === strcasecmp($token[1], '__construct'))
         {
-        case '__construct':
             $this->signature = '';
             $this->unregister();
-            break;
-
-        case strtolower($this->class->nsName):
+        }
+        else if (empty($this->class->suffix)) {}
+        else if (0 === strcasecmp($token[1], $this->class->nsName))
+        {
             $this->register('catchSignature');
-            break;
+        }
+        else if (0 === strcasecmp($token[1], $this->class->nsName . $this->class->suffix))
+        {
+            $this->setError("Class superpositioning constructor collision: __construct() must be defined and before {$token[1]}() in class {$this->class->nsName}", E_USER_ERROR);
         }
     }
 
@@ -79,11 +82,13 @@ class patchwork_PHP_Parser_constructor4to5 extends patchwork_PHP_Parser
 
         if ('' !== $this->signature)
         {
-            $token[1] = 'function __construct' . $this->signature
-                . '{${""}=array(' . implode(',', $this->arguments) . ');'
-                . 'if(' . count($this->arguments) . '<func_num_args())${""}+=func_get_args();'
-                . 'call_user_func_array(array($this,"' . $this->class->nsName . '"),${""});}'
-                . $token[1];
+            $this->scope->token[1] .= 'function __construct' . $this->signature . '{'
+                . 'if(' . count($this->arguments) . '<func_num_args()){'
+                .   '${""}=array(' . implode(',', $this->arguments) . ')+func_get_args();'
+                .   'call_user_func_array(array($this,"' . $this->class->nsName . '"),${""});'
+                . '}else{'
+                .   '$this->' . $this->class->nsName . '(' . str_replace('&', '', implode(',', $this->arguments)) . ');'
+                . '}}';
 
             $this->bracket   = 0;
             $this->signature = '';
