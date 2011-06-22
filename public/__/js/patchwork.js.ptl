@@ -267,7 +267,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
     }
     catch ($i) {}
 
-    $j = /(MSIE [0-5]|Firefox\/4)\./.test(navigator.userAgent) ? 0 : 1;
+    $j = /(MSIE [0-5]|Firefox\/[456789])\./.test(navigator.userAgent) ? 0 : 1;
     $i = location.host.match(/[^.]+\.[^\.0-9]+$/);
     $i = $i ? '.' + $i[0] : 0;
     setcookie('JS', $j, new Date({$maxage+0|js}000+new Date()/1), '/', $i);
