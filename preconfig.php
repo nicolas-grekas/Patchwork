@@ -127,7 +127,7 @@ $_REQUEST = array(); // $_REQUEST is an open door to security problems.
 
 // Fix some $_SERVER variables
 
-if (!isset($_SERVER['HTTP_HOST']) || strspn($_SERVER['HTTP_HOST'], 'eiasntroludcmpghv.fb:-q102yx9jk3548w67z') !== strlen($_SERVER['HTTP_HOST']))
+if (!isset($_SERVER['HTTP_HOST']) || '' !== trim($_SERVER['HTTP_HOST'], 'eiasntroludcmpghv.fb:-q102yx9jk3548w67z'))
 {
     die('Invalid HTTP/1.1 Host header');
 }

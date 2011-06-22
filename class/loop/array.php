@@ -22,7 +22,8 @@ class loop_array extends loop
 
     function __construct($array, $filter = '', $isAssociative = null)
     {
-        $this->array =& $array;
+        reset($array);
+        $this->array = $array;
         if ($filter) $this->addFilter($filter);
         $this->isAssociative = $isAssociative!==null ? $isAssociative : $filter!==false;
     }

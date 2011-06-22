@@ -34,7 +34,7 @@ class __patchwork_autoloader
 
         $i = strrpos($req, '__');
         $level = false !== $i ? substr($req, $i+2) : false;
-        $isTop = false === $level || '' === $level || strspn($level, '0123456789') !== strlen($level);
+        $isTop = false === $level || '' !== trim($level, '0123456789');
 
         if ($isTop)
         {

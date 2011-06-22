@@ -41,7 +41,7 @@ class agent
         do
         {
             if ((false === $tail = strrpos($class, '__'))
-                || ((false !== $tail = substr($class, $tail+2)) && strspn($tail, '0123456789') !== strlen($tail)))
+                || ((false !== $tail = substr($class, $tail+2)) && '' !== trim($tail, '0123456789')))
             {
                 $template = patchwork_class2file(substr($class, 6));
                 if (patchwork::resolvePublicPath($template . '.ptl')) return $template;

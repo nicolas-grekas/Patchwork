@@ -142,7 +142,7 @@ function __autoload($searched_class)
 
             $b = strtr($searched_class, '\\', '_');
             $i = strrpos($b, '__');
-            false !== $i && strspn(substr($b, $i+2), '0123456789') === strlen($b)-$i-2 && $b = substr($b, 0, $i);
+            false !== $i && isset($b[$i+2]) && '' === trim(substr($b, $i+2), '0123456789') && $b = substr($b, 0, $i);
 
             $a = $b . '.php.' . DEBUG . (0>$a ? -$a . '-' : $a);
         }
