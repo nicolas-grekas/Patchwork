@@ -207,6 +207,22 @@ class patchwork_PHP_Parser_superPositioner extends patchwork_PHP_Parser
             if (0 <= $this->level) return;
             new patchwork_PHP_Parser_bracket_classExists($this);
             break;
+
+        case '\get_class':
+            if (empty($this->class)) break;
+
+            $this->getNextToken($i); // eat the next opening bracket
+            $t = $this->getNextToken($i);
+
+            if (T_STRING === $t[0] && 0 === strcasecmp('null', $t[1]))
+                $t = $this->getNextToken($i);
+
+            if (')' === $t[0])
+            {
+                $this->dependencies['stringInfo']->removeNsPrefix();
+                while ($this->index < $i) unset($this->tokens[$this->index++]);
+                return $this->unshiftTokens(array(T_CONSTANT_ENCAPSED_STRING, "'" . $this->class->nsName . "'"));
+            }
         }
     }
 }
