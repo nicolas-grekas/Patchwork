@@ -19,7 +19,7 @@ class patchwork_PHP_Parser_superPositioner extends patchwork_PHP_Parser
     $level,
     $topClass,
     $callbacks = array(
-        'tagSelfParent'  => array(T_USE_CLASS, T_TYPE_HINT),
+        'tagClassUsage'  => array(T_USE_CLASS, T_TYPE_HINT),
         'tagClass'       => array(T_CLASS, T_INTERFACE),
         'tagClassName'   => T_NAME_CLASS,
         'tagPrivate'     => T_PRIVATE,
@@ -38,7 +38,7 @@ class patchwork_PHP_Parser_superPositioner extends patchwork_PHP_Parser
         $this->topClass = $topClass;
     }
 
-    protected function tagSelfParent(&$token)
+    protected function tagClassUsage(&$token)
     {
         switch ($token[1])
         {
@@ -46,9 +46,29 @@ class patchwork_PHP_Parser_superPositioner extends patchwork_PHP_Parser
         case 'parent': if (empty($this->class->extends)) return; $c = $this->class->extends; break;
         }
 
-        if (empty($c) || $this->nsPrefix) return;
-        $this->unshiftTokens(array(T_STRING, $c));
-        return $this->namespace && $this->unshiftTokens(array(T_NS_SEPARATOR, '\\'));
+        if (empty($c) || $this->nsPrefix)
+        {
+            if (isset($token[2][T_USE_CLASS])
+                && 0 === strcasecmp('\ReflectionClass', $this->nsResolved)
+                && (!$this->class || strcasecmp('Patchwork\ReflectionClass', $this->class->nsName)))
+            {
+                $this->unshiftTokens(
+                    array(T_STRING, 'patchwork'),
+                    array(T_NS_SEPARATOR, '\\'),
+                    array(T_STRING, 'ReflectionClass')
+                );
+
+                $this->namespace && $this->unshiftTokens(array(T_NS_SEPARATOR, '\\'));
+                $this->dependencies['stringInfo']->removeNsPrefix();
+
+                return false;
+            }
+        }
+        else
+        {
+            $this->unshiftTokens(array(T_STRING, $c));
+            return $this->namespace && $this->unshiftTokens(array(T_NS_SEPARATOR, '\\'));
+        }
     }
 
     protected function tagClass(&$token)
