@@ -11,7 +11,7 @@
  *
  ***************************************************************************/
 
-namespace Patchwork;
+namespace Patchwork\PHP;
 
 class ReflectionClass extends \ReflectionClass
 {
