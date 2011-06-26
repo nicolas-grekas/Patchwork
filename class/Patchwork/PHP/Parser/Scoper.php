@@ -12,8 +12,10 @@
  ***************************************************************************/
 
 
-Patchwork_PHP_Parser::createToken('T_SCOPE_OPEN');  // new scope opening
-Patchwork_PHP_Parser::createToken('T_SCOPE_CLOSE'); // scope closing - has to be registered within its corresponding T_SCOPE_OPEN
+Patchwork_PHP_Parser::createToken(
+    'T_SCOPE_OPEN', // new scope opening
+    'T_SCOPE_CLOSE' // scope closing - has to be registered within its corresponding T_SCOPE_OPEN
+);
 
 
 class Patchwork_PHP_Parser_Scoper extends Patchwork_PHP_Parser
