@@ -11,11 +11,14 @@
  *
  ***************************************************************************/
 
-define('T_SEMANTIC',     0);                                 // Primary type for semantic tokens
-define('T_NON_SEMANTIC', 1);                                 // Primary type for non-semantic tokens (whitespace and comment)
-Patchwork_PHP_Parser::createToken('T_CURLY_CLOSE');          // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
-Patchwork_PHP_Parser::createToken('T_KEY_STRING');           // Array access in interpolated string
-Patchwork_PHP_Parser::createToken('T_UNEXPECTED_CHARACTER'); // Unexpected character in input
+define('T_SEMANTIC',     0); // Primary type for semantic tokens
+define('T_NON_SEMANTIC', 1); // Primary type for non-semantic tokens (whitespace and comment)
+
+Patchwork_PHP_Parser::createToken(
+    'T_CURLY_CLOSE', // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
+    'T_KEY_STRING',  // Array access in interpolated string
+    'T_UNEXPECTED_CHARACTER' // Unexpected character in input
+);
 
 
 class Patchwork_PHP_Parser
@@ -24,8 +27,9 @@ class Patchwork_PHP_Parser
 
     // Declarations used by __construct()
     $dependencyName = null,    // Fully qualified class identifier, defaults to get_class($this)
-    $dependencies   = array(), // (dependencyName => shared properties) map before instanciation, then (dependencyName => dependency object) map after
-    $callbacks      = array(), // Callbacks to be registered
+    $dependencies   = array(   // (dependencyName => shared properties) map before instanciation
+                            ), // (dependencyName => dependency object) map after
+    $callbacks      = array(), // Callbacks to register
 
     // Parse time state
     $index    = 0,             // Index of the next token to be parsed
@@ -100,7 +104,7 @@ class Patchwork_PHP_Parser
 
             if (!isset($this->parents[$k]))
             {
-                trigger_error(get_class($this) . " failed dependency: {$v}", E_USER_WARNING);
+                user_error(get_class($this) . " failed dependency: {$v}", E_USER_WARNING);
                 return;
             }
 
@@ -110,9 +114,8 @@ class Patchwork_PHP_Parser
             {
                 is_int($c) && $c = $k;
 
-                property_exists($parent, $c)
-                    ? $this->$k =& $parent->$c
-                    : trigger_error(get_class($this) . " undefined property: {$v}->{$c}", E_USER_NOTICE);
+                if (property_exists($parent, $c)) $this->$k =& $parent->$c;
+                else user_error(get_class($this) . " undefined property: {$v}->{$c}", E_USER_NOTICE);
             }
         }
 
@@ -129,6 +132,16 @@ class Patchwork_PHP_Parser
         $this->register($this->callbacks);
     }
 
+    // Parse PHP source code
+
+    function parse($code)
+    {
+        $this->tokens = $this->getTokens($code);
+        return implode('', $this->parseTokens());
+    }
+
+    // Get the errors emitted while parsing
+
     function getErrors()
     {
         ksort($this->errors);
@@ -137,19 +150,15 @@ class Patchwork_PHP_Parser
         return $e;
     }
 
-    function parse($code)
-    {
-        $this->tokens = $this->getTokens($code);
-        return implode('', $this->parseTokens());
-    }
+    // Enhanced token_get_all()
 
     protected function getTokens($code)
     {
-        // Return token_get_all() after recursively traversing the inheritance chain defined by $this->parent
+        // Recursively traverse the inheritance chain defined by $this->parent
 
         if ($this->parent !== $this) return $this->parent->getTokens($code);
 
-        // As token_get_all() is not binary safe, check for unexpected characters (see http://bugs.php.net/54089)
+        // For binary safeness, check for unexpected characters (see http://bugs.php.net/54089)
 
         if (!$bin = version_compare(PHP_VERSION, '5.3.0') < 0 && strpos($code, '\\'))
         {
@@ -172,6 +181,8 @@ class Patchwork_PHP_Parser
         $offset = strlen($t0[0][1]);
         $i      = 0;
 
+        // Re-insert characters removed by token_get_all() as T_UNEXPECTED_CHARACTER tokens
+
         while (isset($t0[++$i]))
         {
             $t = isset($t0[$i][1]) ? $t0[$i][1] : $t0[$i];
@@ -190,9 +201,11 @@ class Patchwork_PHP_Parser
         return $t1;
     }
 
+    // Parse raw tokens already loaded in $this->tokens
+
     protected function parseTokens()
     {
-        // Parse raw tokens already loaded in $this->tokens after recursively traversing $this->parent
+        // Recursively traverse the inheritance chain defined by $this->parent
 
         if ($this->parent !== $this) return $this->parent->parseTokens();
 
@@ -218,6 +231,20 @@ class Patchwork_PHP_Parser
             unset($tokens[$i++]); // Free memory and move $this->index forward
 
             // Set primary type and fix string interpolation context
+            //
+            // String interpolation is hard, especially before PHP 5.2.3.
+            // See this thread on the PHP internals mailing-list for detailed background:
+            // http://www.mail-archive.com/internals@lists.php.net/msg27154.html
+            //
+            // Since PHP before 5.2.3 is supported, many tokens have to be tagged
+            // as T_ENCAPSED_AND_WHITESPACE when inside interpolated strings.
+            //
+            // Further than that, two gotchas remain inside string interpolation:
+            // - tag closing braces as T_CURLY_CLOSE when they are opened with curly braces
+            //   tagged as T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES, to make
+            //   them easy to distinguish from regular code "{" / "}" pairs.
+            // - mimic T_NUM_STRING usage for numerical array indexes and tag string indexes
+            //   as T_KEY_STRING rather than T_STRING in "$array[key]".
 
             $priType = 0; // T_SEMANTIC
 
@@ -287,8 +314,9 @@ class Patchwork_PHP_Parser
 
                         // $t is the current token:
                         // $t = array(
-                        //     0 => token's main type - a single character or a T_* constant, as returned by token_get_all()
-                        //     1 => token's text      - its source code excerpt as a string
+                        //     0 => token's main type - a single character or a T_* constant,
+                        //          as returned by token_get_all()
+                        //     1 => token's text - its source code excerpt as a string
                         //     2 => an array of token's types and subtypes
                         // )
 
@@ -324,7 +352,7 @@ class Patchwork_PHP_Parser
             $penuType  = $lastType;
             $types[$j] = $lastType = $t[0];
 
-            // Parsing context analysis related to string interpolation
+            // Parsing context analysis related to string interpolation and line numbering
 
             if (isset($lastType[0])) switch ($lastType)
             {
@@ -362,13 +390,55 @@ class Patchwork_PHP_Parser
     }
 
 
+    // Set an error on input code inside parsers.
+
     protected function setError($message, $type)
     {
-        $this->errors[(int) $this->line][] = array($message, (int) $this->line, get_class($this), $type);
+        $this->errors[(int) $this->line][] = array(
+            $message,
+            (int) $this->line,
+            get_class($this),
+            $type
+        );
     }
+
+    // Register/unregister callbacks for the next tokens
 
     protected function   register($method) {$this->registryApply($method, true );}
     protected function unregister($method) {$this->registryApply($method, false);}
+
+    // Read-ahead the input token stream
+
+    protected function &getNextToken(&$i = null)
+    {
+        static $ns = array( // Non-semantic types
+            T_COMMENT => 1,
+            T_WHITESPACE => 1,
+            T_DOC_COMMENT => 1,
+            T_UNEXPECTED_CHARACTER => 1
+        );
+
+        null === $i && $i = $this->index;
+        while (isset($this->tokens[$i], $ns[$this->tokens[$i][0]])) ++$i;
+        isset($this->tokens[$i]) || $this->tokens[$i] = array(T_WHITESPACE, '');
+
+        return $this->tokens[$i++];
+    }
+
+    // Inject tokens in the input stream
+
+    protected function unshiftTokens()
+    {
+        $token = func_get_args();
+        isset($token[1]) && $token = array_reverse($token);
+
+        foreach ($token as $token)
+            $this->tokens[--$this->index] = $token;
+
+        return false;
+    }
+
+    // Internal use for $this->register/unregister() factorization
 
     private function registryApply($method, $reg)
     {
@@ -403,41 +473,34 @@ class Patchwork_PHP_Parser
         isset($s1) && ksort($this->tokenRegistry[1]); // T_NON_SEMANTIC
     }
 
-    protected function &getNextToken(&$i = null)
-    {
-        static $ns = array(T_WHITESPACE => 1, T_COMMENT => 1, T_DOC_COMMENT => 1, T_UNEXPECTED_CHARACTER => 1); // Non-semantic types
 
-        null === $i && $i = $this->index;
-        while (isset($this->tokens[$i], $ns[$this->tokens[$i][0]])) ++$i;
-        isset($this->tokens[$i]) || $this->tokens[$i] = array(T_WHITESPACE, '');
-
-        return $this->tokens[$i++];
-    }
-
-    protected function unshiftTokens()
-    {
-        $token = func_get_args();
-        isset($token[1]) && $token = array_reverse($token);
-
-        foreach ($token as $token)
-            $this->tokens[--$this->index] = $token;
-
-        return false;
-    }
-
+    // Create new sub-token types
 
     static function createToken($name)
     {
         static $type = 0;
-        define($name, --$type);
-        self::$tokenNames[$type] = $name;
+        $name = func_get_args();
+        foreach ($name as $name)
+        {
+            define($name, --$type);
+            self::$tokenNames[$type] = $name;
+        }
     }
+
+    // Get the symbolic name of a given PHP token or sub-token as created by self::createToken
 
     static function getTokenName($type)
     {
         if (is_string($type)) return $type;
         return isset(self::$tokenNames[$type]) ? self::$tokenNames[$type] : token_name($type);
     }
+
+
+    // Returns a parsable string representation of a variable.
+    // Similar to var_export() with two main differencies:
+    // - it can be used inside output buffering callbacks,
+    // - it always returns a single ligne of code,
+    //   even for arrays or when the input contains CR/LF.
 
     static function export($a)
     {
