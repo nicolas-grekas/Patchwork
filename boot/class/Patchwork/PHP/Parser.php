@@ -53,7 +53,10 @@ class Patchwork_PHP_Parser
     $registryIndex = 0;
 
 
-    private static $tokenNames = array();
+    private static $tokenNames = array(
+        0 => 'T_SEMANTIC',
+        1 => 'T_NON_SEMANTIC',
+    );
 
 
     function __construct(self $parent = null)
