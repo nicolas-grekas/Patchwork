@@ -21,7 +21,7 @@ class Patchwork_PHP_Parser_Globalizer extends Patchwork_PHP_Parser
         'tagScopeOpen'   => T_SCOPE_OPEN,
         'tagAutoglobals' => T_VARIABLE,
     ),
-    $dependencies = array('Scoper' => 'scope');
+    $dependencies = array('ScopeInfo' => 'scope');
 
 
     function __construct(parent $parent, $autoglobals)

@@ -31,7 +31,7 @@ class Patchwork_PHP_Parser_ConstantInliner extends Patchwork_PHP_Parser
         'tagFuncC'     => T_FUNC_C,
         'tagNsC'       => T_NS_C,
     ),
-    $dependencies = array('StringInfo', 'NamespaceInfo' => array('namespace', 'nsResolved'), 'Scoper' => 'scope');
+    $dependencies = array('ScopeInfo' => array('scope', 'namespace', 'nsResolved'));
 
     protected static $internalConstants = array();
 
@@ -94,7 +94,7 @@ class Patchwork_PHP_Parser_ConstantInliner extends Patchwork_PHP_Parser
                 $token[1] = $this->constants[$token[1]];
                 $this->unshiftTokens($token);
 
-                $this->dependencies['StringInfo']->removeNsPrefix();
+                $this->dependencies['ScopeInfo']->removeNsPrefix();
 
                 return false;
             }

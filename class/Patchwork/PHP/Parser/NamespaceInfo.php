@@ -41,6 +41,11 @@ class Patchwork_PHP_Parser_NamespaceInfo extends Patchwork_PHP_Parser
     );
 
 
+    function removeNsPrefix()
+    {
+        empty($this->nsPrefix) || $this->dependencies['StringInfo']->removeNsPrefix();
+    }
+
     protected function tagNs(&$token)
     {
         if (isset($token[2][T_NAME_NS]))

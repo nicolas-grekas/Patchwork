@@ -18,7 +18,7 @@ Patchwork_PHP_Parser::createToken(
 );
 
 
-class Patchwork_PHP_Parser_Scoper extends Patchwork_PHP_Parser
+class Patchwork_PHP_Parser_ScopeInfo extends Patchwork_PHP_Parser
 {
     protected
 
@@ -33,8 +33,16 @@ class Patchwork_PHP_Parser_Scoper extends Patchwork_PHP_Parser
         'tagFunction'   => T_FUNCTION,
         'tagClass'      => array(T_CLASS, T_INTERFACE),
     ),
-    $dependencies = 'Normalizer';
+    $dependencies = array(
+        'NamespaceInfo' => array('namespace', 'nsResolved', 'nsPrefix'),
+        'Normalizer',
+    );
 
+
+    function removeNsPrefix()
+    {
+        empty($this->nsPrefix) || $this->dependencies['NamespaceInfo']->removeNsPrefix();
+    }
 
     protected function tagFirstScope(&$token)
     {

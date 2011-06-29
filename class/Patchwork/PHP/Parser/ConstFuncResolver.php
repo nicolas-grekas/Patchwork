@@ -20,7 +20,7 @@ class Patchwork_PHP_Parser_ConstFuncResolver extends Patchwork_PHP_Parser
     $openTag,
     $nsLoadCode = false,
     $callbacks = array('tagOpenTag' => T_SCOPE_OPEN),
-    $dependencies = array('NamespaceInfo' => 'namespace', 'Scoper' => 'scope');
+    $dependencies = array('ScopeInfo' => array('scope', 'namespace'));
 
 
     protected function tagOpenTag(&$token)

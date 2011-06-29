@@ -24,7 +24,11 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
         'tagNsUse'  => array(T_USE_CLASS, T_USE_FUNCTION, T_USE_CONSTANT, T_TYPE_HINT),
         'tagNsName' => array(T_NAME_CLASS, T_NAME_FUNCTION),
     ),
-    $dependencies = array('ConstFuncResolver', 'NamespaceResolver', 'ClassInfo' => array('class', 'scope', 'namespace', 'nsResolved'));
+    $dependencies = array(
+        'ConstFuncResolver',
+        'ClassInfo' => array('class', 'scope', 'namespace', 'nsResolved'),
+        'NamespaceResolver',
+    );
 
 
     function __construct(parent $parent, $aliasAdd = false)

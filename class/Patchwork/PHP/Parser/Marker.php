@@ -28,7 +28,7 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionOverridin
         'tagNew'         => T_NEW,
         'tagDoubleColon' => T_DOUBLE_COLON,
     ),
-    $dependencies = array('Normalizer', 'ClassInfo' => array('class', 'scope', 'nsResolved'));
+    $dependencies = array('ClassInfo' => array('class', 'scope', 'nsResolved'));
 
 
     function __construct(Patchwork_PHP_Parser $parent, $inlineClass)

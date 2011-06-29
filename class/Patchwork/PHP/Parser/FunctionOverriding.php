@@ -21,7 +21,7 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
         'tagVariableVar' => '(',
         'tagUseFunction' => T_USE_FUNCTION,
     ),
-    $dependencies = array('StringInfo', 'ClassInfo' => array('class', 'namespace', 'nsResolved')),
+    $dependencies = array('ClassInfo' => array('class', 'namespace', 'nsResolved')),
 
     $varVarLead = '${patchwork_override_resolve_ref(',
     $varVarTail = ",\$\x9D)}";
@@ -240,7 +240,7 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
                 $a = $this->namespace && $this->unshiftTokens(array(T_NS_SEPARATOR, '\\'));
             }
 
-            $this->dependencies['StringInfo']->removeNsPrefix();
+            $this->dependencies['ClassInfo']->removeNsPrefix();
 
             if (false === $a) return false;
         }

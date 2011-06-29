@@ -26,7 +26,10 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
         'tagRequire'     => array(T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
         'tagSpecialFunc' => T_USE_FUNCTION,
     ),
-    $dependencies = array('StringInfo' => 'nsPrefix', 'ClassInfo' => array('class', 'namespace', 'nsResolved'), 'ConstantExpression' => 'expressionValue');
+    $dependencies = array(
+        'ClassInfo' => array('class', 'namespace', 'nsResolved', 'nsPrefix'),
+        'ConstantExpression' => 'expressionValue',
+    );
 
 
     function __construct(parent $parent, $level, $topClass)
@@ -61,7 +64,7 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
                 );
 
                 $this->namespace && $this->unshiftTokens(array(T_NS_SEPARATOR, '\\'));
-                $this->dependencies['StringInfo']->removeNsPrefix();
+                $this->dependencies['ClassInfo']->removeNsPrefix();
 
                 return false;
             }
@@ -101,7 +104,7 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
             $this->class->extendsSelf = true;
             $this->class->extends = $this->class->nsName . '__' . ($this->level ? $this->level - 1 : '00');
 
-            $this->dependencies['StringInfo']->removeNsPrefix();
+            $this->dependencies['ClassInfo']->removeNsPrefix();
 
             $this->unshiftTokens(array(T_STRING, $this->class->extends));
             return $this->namespace && $this->unshiftTokens(array(T_NS_SEPARATOR, '\\'));
@@ -223,7 +226,7 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
 
             if (')' === $t[0])
             {
-                $this->dependencies['StringInfo']->removeNsPrefix();
+                $this->dependencies['ClassInfo']->removeNsPrefix();
                 while ($this->index < $i) unset($this->tokens[$this->index++]);
                 return $this->unshiftTokens(array(T_CONSTANT_ENCAPSED_STRING, "'" . $this->class->nsName . "'"));
             }

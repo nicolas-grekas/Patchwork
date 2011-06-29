@@ -17,7 +17,10 @@ class Patchwork_PHP_Parser_T extends Patchwork_PHP_Parser
     protected
 
     $callbacks = array('tagT' => T_USE_FUNCTION),
-    $dependencies = array('NamespaceInfo' => 'nsResolved', 'ConstantExpression' => 'expressionValue');
+    $dependencies = array(
+        'NamespaceInfo' => 'nsResolved',
+        'ConstantExpression' => 'expressionValue',
+    );
 
 
     protected function tagT(&$token)

@@ -22,7 +22,7 @@ class Patchwork_PHP_Parser_NamespaceBracketer extends Patchwork_PHP_Parser
         'tagNs'      => T_NAMESPACE,
         'tagEnd'     => T_ENDPHP,
     ),
-    $dependencies = array('Normalizer', 'StringInfo');
+    $dependencies = array('StringInfo', 'Normalizer');
 
 
     protected function tagOpenTag()
