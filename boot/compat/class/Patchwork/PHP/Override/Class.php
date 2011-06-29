@@ -37,7 +37,7 @@ class Patchwork_PHP_Override_Class
 
     static function class_implements($c, $autoload = true)
     {
-        is_string($c) && $c = strtr(ltrim($c), '\\', '_');
+        is_string($c) && $c = strtr(ltrim($c, '\\'), '\\', '_');
         $autoload = class_implements($c, $autoload);
         foreach ($autoload as $c) isset(self::$us2ns[$a = strtolower($c)]) && $autoload[$c] = self::$us2ns[$a];
         return $autoload;
@@ -45,7 +45,7 @@ class Patchwork_PHP_Override_Class
 
     static function class_parents($c, $autoload = true)
     {
-        is_string($c) && $c = strtr(ltrim($c), '\\', '_');
+        is_string($c) && $c = strtr(ltrim($c, '\\'), '\\', '_');
         $autoload = class_parents($c, $autoload);
         foreach ($autoload as $c) isset(self::$us2ns[$a = strtolower($c)]) && $autoload[$c] = self::$us2ns[$a];
         return $autoload;
@@ -53,18 +53,18 @@ class Patchwork_PHP_Override_Class
 
     static function class_exists($c, $autoload = true)
     {
-        return class_exists(strtr(ltrim($c), '\\', '_'), $autoload);
+        return class_exists(strtr(ltrim($c, '\\'), '\\', '_'), $autoload);
     }
 
     static function get_class_methods($c)
     {
-        is_string($c) && $c = strtr(ltrim($c), '\\', '_');
+        is_string($c) && $c = strtr(ltrim($c, '\\'), '\\', '_');
         return get_class_methods($c);
     }
 
     static function get_class_vars($c)
     {
-        return get_class_vars(strtr(ltrim($c), '\\', '_'));
+        return get_class_vars(strtr(ltrim($c, '\\'), '\\', '_'));
     }
 
     static function get_class($c)
@@ -90,7 +90,7 @@ class Patchwork_PHP_Override_Class
 
     static function get_parent_class($c)
     {
-        is_string($c) && $c = strtr(ltrim($c), '\\', '_');
+        is_string($c) && $c = strtr(ltrim($c, '\\'), '\\', '_');
         $c = get_parent_class($c);
         isset(self::$us2ns[$a = strtolower($c)]) && $c = self::$us2ns[$a];
         return $c;
@@ -98,30 +98,31 @@ class Patchwork_PHP_Override_Class
 
     static function interface_exists($c, $autoload = true)
     {
-        return interface_exists(strtr(ltrim($c), '\\', '_'), $autoload);
+        return interface_exists(strtr(ltrim($c, '\\'), '\\', '_'), $autoload);
     }
 
     static function is_a($o, $c)
     {
-        $c = strtr(ltrim($c), '\\', '_');
+        $c = strtr(ltrim($c, '\\'), '\\', '_');
         return $o instanceof $c;
     }
 
     static function is_subclass_of($o, $c)
     {
-        is_string($o) && $o = strtr(ltrim($o), '\\', '_');
-        return is_subclass_of($o, strtr(ltrim($c), '\\', '_'));
+        is_string($o) && $o = strtr(ltrim($o, '\\'), '\\', '_');
+        $c = strtr(ltrim($c, '\\'), '\\', '_');
+        return is_subclass_of($o, $c) && class_exists($c, false); // See also http://bugs.php.net/53727
     }
 
     static function method_exists($c, $m)
     {
-        is_string($c) && $c = strtr(ltrim($c), '\\', '_');
+        is_string($c) && $c = strtr(ltrim($c, '\\'), '\\', '_');
         return method_exists($c, $m);
     }
 
     static function property_exists($c, $p)
     {
-        is_string($c) && $c = strtr(ltrim($c), '\\', '_');
+        is_string($c) && $c = strtr(ltrim($c, '\\'), '\\', '_');
         return property_exists($c, $p);
     }
 }
