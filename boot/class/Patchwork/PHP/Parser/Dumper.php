@@ -20,18 +20,19 @@ class Patchwork_PHP_Parser_Dumper extends Patchwork_PHP_Parser
     protected
 
     $token,
+    $nextIndex = 0,
     $callbacks = 'startDumper';
 
 
     function startDumper($t)
     {
-        echo $p = sprintf("% 4s: % -26s: % -{$this->codeWidth}s %s\n",
+        echo $p = sprintf("% 4s % {$this->codeWidth}s % -{$this->codeWidth}s %s\n",
             'Line',
-            'Token type',
+            'Source code',
             'Parsed code',
-            'Sub-types'
+            'Token type(s)'
         );
-        echo str_repeat('=', strlen($p)), "\n";
+        echo str_repeat('=', mb_strlen($p, 'UTF-8')), "\n";
 
         $this->unregister(__FUNCTION__);
         $this->register('dumpTokenStart');
@@ -47,7 +48,11 @@ class Patchwork_PHP_Parser_Dumper extends Patchwork_PHP_Parser
 
     function dumpTokenStart($t)
     {
-        if (null !== $this->token) $this->dumpTokenEnd($this->token, true);
+        null !== $this->token && $this->dumpTokenEnd($this->token, true);
+
+        $this->index <= $this->nextIndex
+            ? $t[1] = ' --- inserted --- '
+            : $this->nextIndex = $this->index;
 
         $t['line'] = $this->line;
         $this->token = $t;
@@ -65,27 +70,33 @@ class Patchwork_PHP_Parser_Dumper extends Patchwork_PHP_Parser
 
         $w = $this->codeWidth;
 
-        if (strlen($t[1]) > $w && mb_strlen($t[1], 'UTF-8') > $w)
+        if (strlen($this->token[1]) > $w && mb_strlen($this->token[1], 'UTF-8') > $w)
         {
-            $t[1] = mb_substr($t[1], 0, $w - 1) . '…';
+            $this->token[1] = mb_substr($this->token[1], 0, $w - 1, 'UTF-8') . '…';
         }
 
         if ($canceled)
         {
-            $canceled = '--- Canceled ---';
+            $t[1] = ' --- canceled --- ';
+            $canceled = self::getTokenName($t[0]);
         }
         else
         {
+            if (strlen($t[1]) > $w && mb_strlen($t[1], 'UTF-8') > $w)
+            {
+                $t[1] = mb_substr($t[1], 0, $w - 1, 'UTF-8') . '…';
+            }
+
             $canceled = '';
-            $s = array_slice($t[2], 2);
+            $s = array_slice($t[2], 1);
             foreach ($s as $s) $canceled .= self::getTokenName($s) . ', ';
             '' !== $canceled && $canceled = substr($canceled, 0, -2);
         }
 
-        echo sprintf("% 4s: % -26s: % -{$w}s %s\n",
+        echo sprintf("% 4s % {$w}s % -{$w}s %s\n",
             $this->token['line'],
-            self::getTokenName($t[0]),
-            $t[1],
+            $this->token[1],
+            $this->token[1] !== $t[1] ? $t[1] : '',
             $canceled
         );
 
