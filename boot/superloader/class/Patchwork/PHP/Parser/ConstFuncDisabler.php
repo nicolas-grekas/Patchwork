@@ -18,7 +18,7 @@ class Patchwork_PHP_Parser_ConstFuncDisabler extends Patchwork_PHP_Parser
     protected
 
     $callbacks = array('tagOpenTag' => T_SCOPE_OPEN),
-    $dependencies = array('NamespaceInfo' => 'namespace', 'Scoper' => 'scope');
+    $dependencies = array('ScopeInfo' => array('scope', 'namespace'));
 
 
     protected function tagOpenTag(&$token)

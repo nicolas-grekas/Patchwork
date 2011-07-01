@@ -23,7 +23,7 @@ class Patchwork_Bootstrapper_Preprocessor
         $p = new Patchwork_PHP_Parser_Normalizer;
         new Patchwork_PHP_Parser_StringInfo($p);
         new Patchwork_PHP_Parser_NamespaceInfo($p);
-        new Patchwork_PHP_Parser_Scoper($p);
+        new Patchwork_PHP_Parser_ScopeInfo($p);
         new Patchwork_PHP_Parser_ConstantInliner($p, $file, array());
         new Patchwork_PHP_Parser_ClassInfo($p);
         new Patchwork_PHP_Parser_FunctionOverriding($p, $GLOBALS['patchwork_preprocessor_overrides']);

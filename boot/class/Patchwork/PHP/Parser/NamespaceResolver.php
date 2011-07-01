@@ -20,7 +20,7 @@ class Patchwork_PHP_Parser_NamespaceResolver extends Patchwork_PHP_Parser
         'tagUse'       => T_USE,
         'tagNsResolve' => array(T_USE_CLASS, T_USE_FUNCTION, T_USE_CONSTANT, T_TYPE_HINT),
     ),
-    $dependencies = array('StringInfo' => 'nsPrefix', 'NamespaceInfo' => array('namespace', 'nsResolved'));
+    $dependencies = array('NamespaceInfo' => array('namespace', 'nsResolved', 'nsPrefix'));
 
 
     protected function tagUse(&$token)
@@ -53,7 +53,7 @@ class Patchwork_PHP_Parser_NamespaceResolver extends Patchwork_PHP_Parser
         }
         else if (isset($this->nsPrefix[0]) ? '\\' !== $this->nsPrefix[0] : ($this->namespace || $token[1] !== substr($this->nsResolved, 1)))
         {
-            if ($this->nsPrefix) $this->dependencies['StringInfo']->removeNsPrefix();
+            empty($this->nsPrefix) || $this->dependencies['NamespaceInfo']->removeNsPrefix();
             else if (('self' === $token[1] || 'parent' === $token[1]) && (isset($token[2][T_USE_CLASS]) || isset($token[2][T_TYPE_HINT]))) return;
 
             $this->unshiftTokens(array(T_STRING, substr($this->nsResolved, 1)));

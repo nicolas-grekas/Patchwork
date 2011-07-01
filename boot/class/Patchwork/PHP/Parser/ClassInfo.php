@@ -18,8 +18,13 @@ class Patchwork_PHP_Parser_ClassInfo extends Patchwork_PHP_Parser
 
     $class     = false,
     $callbacks = array('tagClass' => array(T_CLASS, T_INTERFACE)),
-    $dependencies = array('NamespaceInfo' => array('namespace', 'nsResolved'), 'Scoper' => 'scope');
+    $dependencies = array('ScopeInfo' => array('scope', 'namespace', 'nsResolved', 'nsPrefix'));
 
+
+    function removeNsPrefix()
+    {
+        empty($this->nsPrefix) || $this->dependencies['ScopeInfo']->removeNsPrefix();
+    }
 
     protected function tagClass(&$token)
     {

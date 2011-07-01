@@ -37,7 +37,7 @@ class Patchwork_Preprocessor
         'StringInfo'         => true,
         'NamespaceBracketer' => +50300, // Load this only for 5.3.0 and up
         'NamespaceInfo'      => true,
-        'Scoper'             => true,
+        'ScopeInfo'          => true,
         'ConstFuncDisabler'  => true,
         'ConstFuncResolver'  => true,
         'NamespaceResolver'  => -50300,
