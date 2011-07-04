@@ -93,12 +93,16 @@ class Patchwork_PHP_Parser_Dumper extends Patchwork_PHP_Parser
             '' !== $canceled && $canceled = substr($canceled, 0, -2);
         }
 
-        echo sprintf("% 4s % {$w}s % -{$w}s %s\n",
-            $this->token['line'],
-            $this->token[1],
-            $this->token[1] !== $t[1] ? $t[1] : '',
-            $canceled
-        );
+        echo str_replace(
+            array("\r\n", "\n", "\r"),
+            array('⏎', '⏎', '⏎'),
+                sprintf("% 4s % {$w}s % -{$w}s %s",
+                $this->token['line'],
+                $this->token[1],
+                $this->token[1] !== $t[1] ? $t[1] : '',
+                $canceled
+            )
+        ) . "\n";
 
         $this->token = null;
     }
