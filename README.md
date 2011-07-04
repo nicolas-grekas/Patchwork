@@ -3,7 +3,7 @@ Patchwork PHP Parser
 
 Patchwork PHP Parser is a wrapper around PHP's tokenizer extension.
 It is aimed at building high-performance tools for transforming and analysing PHP code.
-It is written in PHP, works starting from PHP 5.1.4 and knows everything about PHP 5.3 and namespaces.
+It is written in PHP, runs in PHP 5.1.4+ and knows everything about PHP 5.3 and namespaces.
 Here, high-performance means:
 
 * fast,
@@ -19,4 +19,7 @@ It can be used for example to:
 * build an aspect weaver,
 * etc.
 
-See `example/`.
+This code is extracted from the [Patchwork](http://pa.tchwork.com/) framework,
+where it has been proven stable and flexible enough to implement many kind of code transformations.
+
+It is released here standalone in the hope that it can be used in a different context successfully!
