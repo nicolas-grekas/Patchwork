@@ -13,6 +13,7 @@ Here, high-performance means:
 It can be used for example to:
 
 * compute static code analysis,
+* verify coding practices for QA,
 * backport some language features,
 * extend the PHP language,
 * build a code preprocessor,
