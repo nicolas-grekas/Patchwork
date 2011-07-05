@@ -24,9 +24,8 @@ $file = empty($argv[1])
 file_exists($file) || die("File not found: {$file}\n");
 
 
-$parser = new Patchwork_PHP_Parser;
-new Patchwork_PHP_Parser_Dumper($parser);
-new Patchwork_PHP_Parser_Normalizer($parser);
+$parser = new Patchwork_PHP_Parser_Dumper;
+$parser = new Patchwork_PHP_Parser_Normalizer($parser);
 new Patchwork_PHP_Parser_StringInfo($parser);
 new Patchwork_PHP_Parser_NamespaceInfo($parser);
 new Patchwork_PHP_Parser_ScopeInfo($parser);
@@ -38,9 +37,12 @@ new Patchwork_PHP_Parser_Scream($parser);
 $code = file_get_contents($file);
 $code = $parser->parse($code);
 
+echo "Resulting code\n==============\n";
+echo $code, "\n";
+
 if ($errors = $parser->getErrors())
 {
-    echo "\n--- Parser reported errors ---\n\n";
+    echo "Reported errors\n===============\n";
 
     foreach ($errors as $e)
     {
