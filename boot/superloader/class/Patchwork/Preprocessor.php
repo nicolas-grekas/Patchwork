@@ -32,7 +32,7 @@ class Patchwork_Preprocessor
     $recursivePool = array(),
     $parsers       = array(
         'Normalizer'         => true,
-        'Backport53'         => -50300, // Load this only before 5.3.0
+        'Backport53Tokens'   => -50300, // Load this only before 5.3.0
         'ClassAutoname'      => true,
         'StringInfo'         => true,
         'NamespaceBracketer' => +50300, // Load this only for 5.3.0 and up
@@ -137,7 +137,6 @@ class Patchwork_Preprocessor
             {
             case 'Normalizer':    $p = new $t; break;
             default:                   new $t($p); break;
-            case 'Backport53':
             case 'StaticState':        if (0 <= $level) $p = new $t($p); break;
             case 'ClassAutoname':      if (0 <= $level && $class) new $t($p, $class); break;
             case 'Scream':             if (self::$scream) new $t($p); break;

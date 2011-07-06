@@ -2,10 +2,10 @@
  *
  *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
- *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
+ *   License   : http://www.gnu.org/licenses/lgpl.txt GNU/LGPL
  *
  *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU Affero General Public License as
+ *   it under the terms of the GNU Lesser General Public License as
  *   published by the Free Software Foundation, either version 3 of the
  *   License, or (at your option) any later version.
  *
@@ -53,19 +53,33 @@ class Patchwork_PHP_Parser_Normalizer extends Patchwork_PHP_Parser
 
         if ('' === $code) return array();
 
-        $a = "\r" === $code[0]
-            ? (isset($code[1]) && "\n" === $code[1] ? '\r\n' : '\r')
-            : ("\n" === $code[0] ? '\n' : '');
+        $code = parent::getTokens($code);
 
         // Ensure that the first token is always a T_OPEN_TAG
 
-        $code = '<?php ' . ($a ? "echo'{$a}'" : '') . '?'.">{$code}";
-        $code = parent::getTokens($code);
-
-        if (!$a && (T_OPEN_TAG === $code[2][0] || T_OPEN_TAG_WITH_ECHO === $code[2][0]))
+        if (T_INLINE_HTML === $code[0][0])
         {
-            $code[0] = $code[2];
-            $code[1] = $code[2] = array(T_WHITESPACE, ' ');
+            $a = $code[0][1];
+            $a = "\r" === $a[0]
+                ? (isset($a[1]) && "\n" === $a[1] ? '\r\n' : '\r')
+                : ("\n" === $a[0] ? '\n' : '');
+
+            if ($a)
+            {
+                array_unshift($code,
+                    array(T_OPEN_TAG, '<?php '),
+                    array(T_ECHO, 'echo'),
+                    array(T_ENCAPSED_AND_WHITESPACE, "\"{$a}\""),
+                    array(T_CLOSE_TAG, '?>')
+                );
+            }
+            else
+            {
+                array_unshift($code,
+                    array(T_OPEN_TAG, '<?php '),
+                    array(T_CLOSE_TAG, '?>')
+                );
+            }
         }
 
         // Ensure that the last valid PHP code position is tagged with a T_ENDPHP

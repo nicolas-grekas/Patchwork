@@ -2,10 +2,10 @@
  *
  *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
- *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
+ *   License   : http://www.gnu.org/licenses/lgpl.txt GNU/LGPL
  *
  *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU Affero General Public License as
+ *   it under the terms of the GNU Lesser General Public License as
  *   published by the Free Software Foundation, either version 3 of the
  *   License, or (at your option) any later version.
  *
@@ -54,11 +54,13 @@ class Patchwork_PHP_Parser_Constructor4to5 extends Patchwork_PHP_Parser
         else if (empty($this->class->suffix)) {}
         else if (0 === strcasecmp($token[1], $this->class->nsName))
         {
+            $this->signature = $token[1];
+            $token[1] = '__construct';
             $this->register('catchSignature');
         }
         else if (0 === strcasecmp($token[1], $this->class->nsName . $this->class->suffix))
         {
-            $this->setError("Class superpositioning constructor collision: __construct() must be defined and before {$token[1]}() in class {$this->class->nsName}", E_USER_ERROR);
+            $this->setError("Constructor collision: __construct() must be defined and before {$token[1]}() in class {$this->class->nsName}", E_USER_ERROR);
         }
     }
 
@@ -82,13 +84,14 @@ class Patchwork_PHP_Parser_Constructor4to5 extends Patchwork_PHP_Parser
 
         if ('' !== $this->signature)
         {
-            $this->scope->token[1] .= 'function __construct' . $this->signature . '{'
+            $token[1] = 'function ' . $this->signature . '{'
                 . 'if(' . count($this->arguments) . '<func_num_args()){'
                 .   '${""}=array(' . implode(',', $this->arguments) . ')+func_get_args();'
-                .   'call_user_func_array(array($this,"' . $this->class->nsName . '"),${""});'
+                .   'call_user_func_array(array($this,"__construct"),${""});'
                 . '}else{'
-                .   '$this->' . $this->class->nsName . '(' . str_replace('&', '', implode(',', $this->arguments)) . ');'
-                . '}}';
+                .   '$this->__construct(' . str_replace('&', '', implode(',', $this->arguments)) . ');'
+                . '}}'
+                . $token[1];
 
             $this->bracket   = 0;
             $this->signature = '';

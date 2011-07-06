@@ -2,10 +2,10 @@
  *
  *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
- *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
+ *   License   : http://www.gnu.org/licenses/lgpl.txt GNU/LGPL
  *
  *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU Affero General Public License as
+ *   it under the terms of the GNU Lesser General Public License as
  *   published by the Free Software Foundation, either version 3 of the
  *   License, or (at your option) any later version.
  *
@@ -19,6 +19,8 @@ Patchwork_PHP_Parser::createToken(
     'T_KEY_STRING',  // Array access in interpolated string
     'T_UNEXPECTED_CHARACTER' // Unexpected character in input
 );
+
+defined('T_NS_SEPARATOR') || Patchwork_PHP_Parser::createToken('T_NS_SEPARATOR');
 
 
 class Patchwork_PHP_Parser
@@ -192,7 +194,7 @@ class Patchwork_PHP_Parser
 
             if (isset($t[0]))
                 while ($t[0] !== $code[$offset])
-                    $t1[] = array(T_UNEXPECTED_CHARACTER, $code[$offset++]);
+                    $t1[] = array('\\' === $code[$offset] ? T_NS_SEPARATOR : T_UNEXPECTED_CHARACTER, $code[$offset++]);
 
             $offset += strlen($t);
             $t1[] = $t0[$i];

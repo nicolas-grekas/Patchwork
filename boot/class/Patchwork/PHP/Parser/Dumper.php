@@ -2,10 +2,10 @@
  *
  *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
- *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
+ *   License   : http://www.gnu.org/licenses/lgpl.txt GNU/LGPL
  *
  *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU Affero General Public License as
+ *   it under the terms of the GNU Lesser General Public License as
  *   published by the Free Software Foundation, either version 3 of the
  *   License, or (at your option) any later version.
  *
@@ -15,7 +15,10 @@ Patchwork_PHP_Parser::createToken('T_DUMPER_START');
 
 class Patchwork_PHP_Parser_Dumper extends Patchwork_PHP_Parser
 {
-    public $codeWidth = 30;
+    public
+
+    $codeWidth = 30,
+    $encoding = 'UTF-8';
 
     protected
 
@@ -32,7 +35,7 @@ class Patchwork_PHP_Parser_Dumper extends Patchwork_PHP_Parser
             'Parsed code',
             'Token type(s)'
         );
-        echo str_repeat('=', mb_strlen($p, 'UTF-8')), "\n";
+        echo str_repeat('=', mb_strlen($p, $this->encoding)), "\n";
 
         $this->unregister(__FUNCTION__);
         $this->register('dumpTokenStart');
@@ -70,9 +73,9 @@ class Patchwork_PHP_Parser_Dumper extends Patchwork_PHP_Parser
 
         $w = $this->codeWidth;
 
-        if (strlen($this->token[1]) > $w && mb_strlen($this->token[1], 'UTF-8') > $w)
+        if (strlen($this->token[1]) > $w && mb_strlen($this->token[1], $this->encoding) > $w)
         {
-            $this->token[1] = mb_substr($this->token[1], 0, $w - 1, 'UTF-8') . '…';
+            $this->token[1] = mb_substr($this->token[1], 0, $w - 1, $this->encoding) . '…';
         }
 
         if ($canceled)
@@ -82,9 +85,9 @@ class Patchwork_PHP_Parser_Dumper extends Patchwork_PHP_Parser
         }
         else
         {
-            if (strlen($t[1]) > $w && mb_strlen($t[1], 'UTF-8') > $w)
+            if (strlen($t[1]) > $w && mb_strlen($t[1], $this->encoding) > $w)
             {
-                $t[1] = mb_substr($t[1], 0, $w - 1, 'UTF-8') . '…';
+                $t[1] = mb_substr($t[1], 0, $w - 1, $this->encoding) . '…';
             }
 
             $canceled = '';
@@ -93,13 +96,21 @@ class Patchwork_PHP_Parser_Dumper extends Patchwork_PHP_Parser
             '' !== $canceled && $canceled = substr($canceled, 0, -2);
         }
 
+        $w = array(
+            $w, $this->token[1],
+            $w, $this->token[1] !== $t[1] ? ('' === trim($t[1]) ? ('' === $t[1] ? '∅' : str_replace(' ', '␣', $t[1])) : $t[1]) : '',
+        );
+
+        $w[0] += strlen($w[1]) - mb_strlen($w[1], $this->encoding);
+        $w[2] += strlen($w[3]) - mb_strlen($w[3], $this->encoding);
+
         echo str_replace(
             array("\r\n", "\n", "\r"),
             array('⏎', '⏎', '⏎'),
-                sprintf("% 4s % {$w}s % -{$w}s %s",
+                sprintf("% 4s % {$w[0]}s % -{$w[2]}s %s",
                 $this->token['line'],
-                $this->token[1],
-                $this->token[1] !== $t[1] ? $t[1] : '',
+                $w[1],
+                $w[3],
                 $canceled
             )
         ) . "\n";

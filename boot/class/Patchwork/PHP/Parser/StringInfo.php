@@ -2,10 +2,10 @@
  *
  *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
- *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
+ *   License   : http://www.gnu.org/licenses/lgpl.txt GNU/LGPL
  *
  *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU Affero General Public License as
+ *   it under the terms of the GNU Lesser General Public License as
  *   published by the Free Software Foundation, either version 3 of the
  *   License, or (at your option) any later version.
  *
@@ -26,10 +26,7 @@ Patchwork_PHP_Parser::createToken(
     'T_USE_CONST',     // foo::BAR             - class constant access
     'T_USE_CONSTANT',  // FOO / foo\BAR        - global or namespaced constant access
     'T_GOTO_LABEL',    // goto FOO / BAR:{}    - goto label
-    'T_TYPE_HINT',     // instanceof foo\BAR / function(foo\BAR $a) - type hint
-    'T_TRUE',          // true
-    'T_FALSE',         // false
-    'T_NULL'           // null
+    'T_TYPE_HINT'      // instanceof foo\BAR / function(foo\BAR $a) - type hint
 );
 
 
@@ -79,13 +76,6 @@ class Patchwork_PHP_Parser_StringInfo extends Patchwork_PHP_Parser
     protected function tagString(&$token)
     {
         if (T_NS_SEPARATOR !== $p = $this->lastType) $this->nsPrefix = '';
-
-        switch (strtolower($token[1]))
-        {
-        case 'true':   return T_TRUE;
-        case 'false':  return T_FALSE;
-        case 'null':   return T_NULL;
-        }
 
         switch ($p)
         {

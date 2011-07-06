@@ -2,10 +2,10 @@
  *
  *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
  *   Email     : p@tchwork.org
- *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
+ *   License   : http://www.gnu.org/licenses/lgpl.txt GNU/LGPL
  *
  *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU Affero General Public License as
+ *   it under the terms of the GNU Lesser General Public License as
  *   published by the Free Software Foundation, either version 3 of the
  *   License, or (at your option) any later version.
  *
@@ -53,7 +53,7 @@ class Patchwork_PHP_Parser_NamespaceResolver extends Patchwork_PHP_Parser
         }
         else if (isset($this->nsPrefix[0]) ? '\\' !== $this->nsPrefix[0] : ($this->namespace || $token[1] !== substr($this->nsResolved, 1)))
         {
-            empty($this->nsPrefix) || $this->dependencies['NamespaceInfo']->removeNsPrefix();
+            if (empty($this->nsPrefix)) $this->dependencies['NamespaceInfo']->removeNsPrefix();
             else if (('self' === $token[1] || 'parent' === $token[1]) && (isset($token[2][T_USE_CLASS]) || isset($token[2][T_TYPE_HINT]))) return;
 
             $this->unshiftTokens(array(T_STRING, substr($this->nsResolved, 1)));
