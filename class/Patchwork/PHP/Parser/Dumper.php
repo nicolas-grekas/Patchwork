@@ -98,7 +98,7 @@ class Patchwork_PHP_Parser_Dumper extends Patchwork_PHP_Parser
 
         $w = array(
             $w, $this->token[1],
-            $w, $this->token[1] !== $t[1] ? ('' === trim($t[1]) ? $t[1] . '∅' : $t[1]) : '',
+            $w, $this->token[1] !== $t[1] ? ('' === trim($t[1]) ? ('' === $t[1] ? '∅' : str_replace(' ', '␣', $t[1])) : $t[1]) : '',
         );
 
         $w[0] += strlen($w[1]) - mb_strlen($w[1], $this->encoding);

@@ -37,7 +37,7 @@ new Patchwork_PHP_Parser_Scream($parser);
 $code = file_get_contents($file);
 $code = $parser->parse($code);
 
-echo "Resulting code\n==============\n";
+echo "\nResulting code\n==============\n";
 echo $code, "\n";
 
 if ($errors = $parser->getErrors())

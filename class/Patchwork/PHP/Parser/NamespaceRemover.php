@@ -23,6 +23,7 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
         'tagNsSep'  => T_NS_SEPARATOR,
         'tagNsUse'  => array(T_USE_CLASS, T_USE_FUNCTION, T_USE_CONSTANT, T_TYPE_HINT),
         'tagNsName' => array(T_NAME_CLASS, T_NAME_FUNCTION),
+        'tagNew'    => T_NEW,
     ),
     $dependencies = array(
         'ConstFuncResolver',
@@ -91,6 +92,24 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
             }
 
             $this->texts[count($this->texts) - 1] .= $this->namespace;
+        }
+    }
+
+    protected function tagNew(&$token)
+    {
+        // Fix `new $foo`, when $foo = 'ns\class';
+        // TODO: new ${...}, new $foo[...] and new $foo->...
+
+        $t =& $this->getNextToken($n);
+
+        if (T_VARIABLE === $t[0])
+        {
+            $n = $this->getNextToken($n);
+
+            if ('[' !== $n[0] && T_OBJECT_OPERATOR !== $n[0])
+            {
+                $t[1] = "\${is_string($\x9D={$t[1]})&&($\x9D=strtr($\x9D,'\\\\','_'))?\"\x9D\":\"\x9D\"}";
+            }
         }
     }
 }

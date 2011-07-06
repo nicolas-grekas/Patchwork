@@ -20,6 +20,8 @@ Patchwork_PHP_Parser::createToken(
     'T_UNEXPECTED_CHARACTER' // Unexpected character in input
 );
 
+defined('T_NS_SEPARATOR') || Patchwork_PHP_Parser::createToken('T_NS_SEPARATOR');
+
 
 class Patchwork_PHP_Parser
 {
@@ -192,7 +194,7 @@ class Patchwork_PHP_Parser
 
             if (isset($t[0]))
                 while ($t[0] !== $code[$offset])
-                    $t1[] = array(T_UNEXPECTED_CHARACTER, $code[$offset++]);
+                    $t1[] = array('\\' === $code[$offset] ? T_NS_SEPARATOR : T_UNEXPECTED_CHARACTER, $code[$offset++]);
 
             $offset += strlen($t);
             $t1[] = $t0[$i];
