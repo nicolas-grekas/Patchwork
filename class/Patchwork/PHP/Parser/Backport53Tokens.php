@@ -13,10 +13,10 @@
 
 
 // New tokens since PHP 5.3
-defined('T_GOTO')         || Patchwork_PHP_Parser::createToken('T_GOTO');
-defined('T_DIR' )         || Patchwork_PHP_Parser::createToken('T_DIR');
-defined('T_NS_C')         || Patchwork_PHP_Parser::createToken('T_NS_C');
-defined('T_NAMESPACE')    || Patchwork_PHP_Parser::createToken('T_NAMESPACE');
+defined('T_GOTO')      || Patchwork_PHP_Parser::createToken('T_GOTO');
+defined('T_DIR' )      || Patchwork_PHP_Parser::createToken('T_DIR');
+defined('T_NS_C')      || Patchwork_PHP_Parser::createToken('T_NS_C');
+defined('T_NAMESPACE') || Patchwork_PHP_Parser::createToken('T_NAMESPACE');
 
 
 class Patchwork_PHP_Parser_Backport53Tokens extends Patchwork_PHP_Parser

@@ -18,7 +18,8 @@ class Patchwork_PHP_Parser_Dumper extends Patchwork_PHP_Parser
     public
 
     $codeWidth = 30,
-    $encoding = 'UTF-8';
+    $encoding = 'UTF-8',
+    $placeholders = array('…', '∅', '␣', '⏎');
 
     protected
 
@@ -72,10 +73,11 @@ class Patchwork_PHP_Parser_Dumper extends Patchwork_PHP_Parser
         }
 
         $w = $this->codeWidth;
+        $p = $this->placeholders;
 
         if (strlen($this->token[1]) > $w && mb_strlen($this->token[1], $this->encoding) > $w)
         {
-            $this->token[1] = mb_substr($this->token[1], 0, $w - 1, $this->encoding) . '…';
+            $this->token[1] = mb_substr($this->token[1], 0, $w - 1, $this->encoding) . $p[0];
         }
 
         if ($canceled)
@@ -87,7 +89,7 @@ class Patchwork_PHP_Parser_Dumper extends Patchwork_PHP_Parser
         {
             if (strlen($t[1]) > $w && mb_strlen($t[1], $this->encoding) > $w)
             {
-                $t[1] = mb_substr($t[1], 0, $w - 1, $this->encoding) . '…';
+                $t[1] = mb_substr($t[1], 0, $w - 1, $this->encoding) . $p[0];
             }
 
             $canceled = '';
@@ -98,7 +100,7 @@ class Patchwork_PHP_Parser_Dumper extends Patchwork_PHP_Parser
 
         $w = array(
             $w, $this->token[1],
-            $w, $this->token[1] !== $t[1] ? ('' === trim($t[1]) ? ('' === $t[1] ? '∅' : str_replace(' ', '␣', $t[1])) : $t[1]) : '',
+            $w, $this->token[1] !== $t[1] ? ('' === trim($t[1]) ? ('' === $t[1] ? $p[1] : str_replace(' ', $p[2], $t[1])) : $t[1]) : '',
         );
 
         $w[0] += strlen($w[1]) - mb_strlen($w[1], $this->encoding);
@@ -106,7 +108,7 @@ class Patchwork_PHP_Parser_Dumper extends Patchwork_PHP_Parser
 
         echo str_replace(
             array("\r\n", "\n", "\r"),
-            array('⏎', '⏎', '⏎'),
+            array($p[3], $p[3], $p[3]),
                 sprintf("% 4s % {$w[0]}s % -{$w[2]}s %s",
                 $this->token['line'],
                 $w[1],
