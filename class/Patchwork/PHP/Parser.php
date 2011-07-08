@@ -502,10 +502,11 @@ class Patchwork_PHP_Parser
 
 
     // Returns a parsable string representation of a variable.
-    // Similar to var_export() with two main differencies:
+    // Similar to var_export() with these differencies:
     // - it can be used inside output buffering callbacks,
     // - it always returns a single ligne of code,
     //   even for arrays or when the input contains CR/LF.
+    // - but it doesn't detect recursive structures
 
     static function export($a)
     {
