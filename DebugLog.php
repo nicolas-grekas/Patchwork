@@ -65,7 +65,7 @@ class DebugLog
     {
         if (false === $logger = self::getLogger()) return;
 
-        if (function_exists('error_get_last') && $e = error_get_last())
+        if ($e = self::popLastError())
         {
             switch ($e['type'])
             {
@@ -75,6 +75,21 @@ class DebugLog
                 $logger->logError($e['type'], $e['message'], $e['file'], $e['line'], array(), 1);
             }
         }
+    }
+
+    static function popLastError()
+    {
+        if (!function_exists('error_get_last')) return false;
+        $e = error_get_last();
+        set_error_handler(array(__CLASS__, 'falseError'));
+        user_error('', E_USER_NOTICE);
+        restore_error_handler();
+        return $e;
+    }
+
+    static function falseError()
+    {
+        return false;
     }
 
 
@@ -160,16 +175,17 @@ class DebugLog
 
     function log($type, array $context = array())
     {
-        $k = microtime(true);
+        $log_time = microtime(true);
 
         $this->prevTime
             || ($this->prevTime = $this->startTime)
-            || ($this->prevTime = $this->startTime = $k);
+            || ($this->prevTime = $this->startTime = $log_time);
 
-        $delta_time = 1000*($k - $this->prevTime);
-        $peak_time  = 1000*($k - $this->startTime);
+        $delta_time = sprintf('%0.3f', 1000*($log_time - $this->prevTime));
+        $total_time = sprintf('%0.3f', 1000*($log_time - $this->startTime));
         $delta_mem  = isset($this->prevMemory) ? memory_get_usage(true) - $this->prevMemory : 0;
         $peak_mem   = memory_get_peak_usage(true);
+        $log_time   = date('c', $log_time) . sprintf(' %06dus', 100000*($log_time - floor($log_time)));
 
         if (null === $this->token)
         {
@@ -205,10 +221,11 @@ class DebugLog
             <<<EOTXT
 <event:{$v}>
   type: {$type}
-  peak-memory: {$peak_mem}
-  peak-time-ms: {$peak_time}
-  delta-memory: {$delta_mem}
-  delta-time-ms: {$delta_time}
+  log-time: {$log_time}
+  peak-mem: {$peak_mem}
+  delta-ms: {$delta_time}
+  total-ms: {$total_time}
+  delta-mem: {$delta_mem}
   ---{$context}
 </event:{$v}>\n
 
