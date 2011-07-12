@@ -65,7 +65,7 @@ class DebugLog
     {
         if (false === $logger = self::getLogger()) return;
 
-        if ($e = self::popLastError())
+        if ($e = self::getLastError())
         {
             switch ($e['type'])
             {
@@ -73,24 +73,24 @@ class DebugLog
             case E_ERROR: case E_PARSE: case E_CORE_ERROR:
             case E_COMPILE_ERROR: case E_COMPILE_WARNING:
                 $logger->logError($e['type'], $e['message'], $e['file'], $e['line'], array(), 1);
+                self::resetLastError();
             }
         }
     }
 
-    static function popLastError()
+    static function getLastError()
     {
-        if ( function_exists('error_get_last')
-            && ($e = error_get_last())
-            && !empty($e['message']) )
-        {
-            set_error_handler(array(__CLASS__, 'falseError'));
-            $r = error_reporting(0);
-            user_error('', E_USER_NOTICE);
-            error_reporting($r);
-            restore_error_handler();
-            return $e;
-        }
-        else return false;
+        return function_exists('error_get_last') && ($e = error_get_last()) && !empty($e['message'])
+            ? $e : false;
+    }
+
+    static function resetLastError()
+    {
+        set_error_handler(array(__CLASS__, 'falseError'));
+        $r = error_reporting(0);
+        user_error('', E_USER_NOTICE);
+        error_reporting($r);
+        restore_error_handler();
     }
 
     static function falseError()
