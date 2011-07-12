@@ -79,12 +79,18 @@ class DebugLog
 
     static function popLastError()
     {
-        if (!function_exists('error_get_last')) return false;
-        $e = error_get_last();
-        set_error_handler(array(__CLASS__, 'falseError'));
-        user_error('', E_USER_NOTICE);
-        restore_error_handler();
-        return $e;
+        if ( function_exists('error_get_last')
+            && ($e = error_get_last())
+            && !empty($e['message']) )
+        {
+            set_error_handler(array(__CLASS__, 'falseError'));
+            $r = error_reporting(0);
+            user_error('', E_USER_NOTICE);
+            error_reporting($r);
+            restore_error_handler();
+            return $e;
+        }
+        else return false;
     }
 
     static function falseError()
@@ -181,11 +187,11 @@ class DebugLog
             || ($this->prevTime = $this->startTime)
             || ($this->prevTime = $this->startTime = $log_time);
 
-        $delta_time = sprintf('%0.3f', 1000*($log_time - $this->prevTime));
-        $total_time = sprintf('%0.3f', 1000*($log_time - $this->startTime));
-        $delta_mem  = isset($this->prevMemory) ? memory_get_usage(true) - $this->prevMemory : 0;
-        $peak_mem   = memory_get_peak_usage(true);
-        $log_time   = date('c', $log_time) . sprintf(' %06dus', 100000*($log_time - floor($log_time)));
+        $delta_ms  = sprintf('%0.3f', 1000*($log_time - $this->prevTime));
+        $total_ms  = sprintf('%0.3f', 1000*($log_time - $this->startTime));
+        $delta_mem = isset($this->prevMemory) ? memory_get_usage(true) - $this->prevMemory : 0;
+        $peak_mem  = memory_get_peak_usage(true);
+        $log_time  = date('c', $log_time) . sprintf(' %06dus', 100000*($log_time - floor($log_time)));
 
         if (null === $this->token)
         {
@@ -223,17 +229,17 @@ class DebugLog
   type: {$type}
   log-time: {$log_time}
   peak-mem: {$peak_mem}
-  delta-ms: {$delta_time}
-  total-ms: {$total_time}
+  delta-ms: {$delta_ms}
+  total-ms: {$total_ms}
   delta-mem: {$delta_mem}
   ---{$context}
-</event:{$v}>\n
+</event:{$v}>
+
 
 EOTXT
         );
 
-        unset($type, $context, $k, $v, $delta_time, $delta_mem, $peak_mem);
-
+        $context = '';
         $this->prevMemory = memory_get_usage(true);
         $this->prevTime = microtime(true);
     }
