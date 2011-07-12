@@ -206,25 +206,7 @@ class DebugLog
 
         foreach ($context as $k => $v)
         {
-            // serialize() is the only native way to get a string representation
-            // of complex variables while both dealing with recursivity in data structures
-            // and working in output buffering handlers.
-            // Objects implementing the magic __sleep() method or the Serializable interface
-            // may fail, especially internal ones (PDO, etc.)
-            // Resources are also casted to null integers.
-
-            try
-            {
-                $v = serialize($v);
-            }
-            catch (\Exception $v)
-            {
-                $v = serialize(
-                    "*** Failed to serialize: `" . get_class($v)
-                    . "` exception with message `{$v->getMessage()}` thrown in {$v->getFile()} on line {$v->getLine()} ***\n"
-                    . $v->getTraceAsString()
-                );
-            }
+            $v = $this->serialize($v);
 
             if (strcspn($v, "\r\n\0") !== strlen($v))
             {
@@ -268,5 +250,28 @@ EOTXT
         $context = '';
         $this->prevMemory = memory_get_usage(true);
         $this->prevTime = microtime(true);
+    }
+
+    function serialize($v)
+    {
+        // serialize() is the only native way to get a string representation
+        // of complex variables while both dealing with recursivity in data structures
+        // and working in output buffering handlers.
+        // Objects implementing the magic __sleep() method or the Serializable interface
+        // may fail, especially internal ones (PDO, etc.)
+        // Resources are also casted to null integers.
+
+        try
+        {
+            return serialize($v);
+        }
+        catch (\Exception $v)
+        {
+            return serialize(
+                "*** Failed to serialize: `" . get_class($v)
+                . "` exception with message `{$v->getMessage()}` thrown in {$v->getFile()} on line {$v->getLine()} ***\n"
+                . $v->getTraceAsString()
+            );
+        }
     }
 }
