@@ -45,6 +45,7 @@ class DebugLog
         ini_set('ignore_repeated_errors', true);
         ini_set('ignore_repeated_source', false);
 
+        // Fatal errors can be catched at shutdown time
         if (function_exists('error_get_last'))
             register_shutdown_function(array(__CLASS__, 'shutdown'));
 
@@ -69,7 +70,7 @@ class DebugLog
         {
             switch ($e['type'])
             {
-            // Get the last fatal error and format it appropriately!
+            // Get the last fatal error and format it appropriately
             case E_ERROR: case E_PARSE: case E_CORE_ERROR:
             case E_COMPILE_ERROR: case E_COMPILE_WARNING:
                 $logger->logError($e['type'], $e['message'], $e['file'], $e['line'], array(), 1);
@@ -86,6 +87,7 @@ class DebugLog
 
     static function resetLastError()
     {
+        // Reset error_get_last() by triggering a silenced user notice
         set_error_handler(array(__CLASS__, 'falseError'));
         $r = error_reporting(0);
         user_error('', E_USER_NOTICE);
@@ -125,6 +127,7 @@ class DebugLog
 
     function logError($code, $msg, $file, $line, $context, $trace_offset = 0)
     {
+        // Do not log duplicate errors
         $k = md5("{$code}/{$line}/{$file}\x00{$msg}", true);
         if (isset($this->seenErrors[$k])) return;
         $this->seenErrors[$k] = 1;
@@ -132,6 +135,7 @@ class DebugLog
         if (isset($context['GLOBALS']))
         {
             // Exclude auto-globals from $context
+            // especially $GLOBALS, which is a recursive array
 
             $trace = array();
 
@@ -151,8 +155,8 @@ class DebugLog
             $context = $trace;
         }
 
+        // Get backtrace and exclude irrelevant items
         $trace = debug_backtrace(false);
-
         do unset($trace[$trace_offset]);
         while ($trace_offset--);
 
@@ -181,6 +185,13 @@ class DebugLog
 
     function log($type, array $context = array())
     {
+        if (null === $this->token)
+        {
+            return user_error('This ' . __CLASS__ . ' object has been unregistered', E_USER_WARNING);
+        }
+
+        // Get time and memory profiling information
+
         $log_time = microtime(true);
 
         $this->prevTime
@@ -193,17 +204,32 @@ class DebugLog
         $peak_mem  = memory_get_peak_usage(true);
         $log_time  = date('c', $log_time) . sprintf(' %06dus', 100000*($log_time - floor($log_time)));
 
-        if (null === $this->token)
-        {
-            return user_error('This ' . __CLASS__ . ' object has been unregistered', E_USER_WARNING);
-        }
-
         foreach ($context as $k => $v)
         {
-            $v = serialize($v);
+            // serialize() is the only native way to get a string representation
+            // of complex variables while both dealing with recursivity in data structures
+            // and working in output buffering handlers.
+            // Objects implementing the magic __sleep() method or the Serializable interface
+            // may fail, especially internal ones (PDO, etc.)
+            // Resources are also casted to null integers.
+
+            try
+            {
+                $v = serialize($v);
+            }
+            catch (\Exception $v)
+            {
+                $v = serialize(
+                    "*** Failed to serialize: `" . get_class($v)
+                    . "` exception with message `{$v->getMessage()}` thrown in {$v->getFile()} on line {$v->getLine()} ***\n"
+                    . $v->getTraceAsString()
+                );
+            }
 
             if (strcspn($v, "\r\n\0") !== strlen($v))
             {
+                // Encode CR and LF using the null character as
+                // escape character and get a single line string
                 $v = str_replace(
                     array(  "\0",  "\r",  "\n"),
                     array("\0\0", "\0r", "\0n"),
