@@ -125,38 +125,16 @@ class DebugLog
         }
     }
 
-    function logError($code, $msg, $file, $line, $context, $trace_offset = 0)
+    function logError($code, $msg, $file, $line, $trace, $trace_offset = 0)
     {
         // Do not log duplicate errors
         $k = md5("{$code}/{$line}/{$file}\x00{$msg}", true);
         if (isset($this->seenErrors[$k])) return;
         $this->seenErrors[$k] = 1;
 
-        if (isset($context['GLOBALS']))
-        {
-            // Exclude auto-globals from $context
-            // especially $GLOBALS, which is a recursive array
-
-            $trace = array();
-
-            foreach ($context as $k => $v)
-            {
-                switch ($k)
-                {
-                default: $trace[$k] = $v; break;
-                case 'GLOBALS': case '_SERVER': case '_GET': case '_POST':
-                case '_FILES': case '_REQUEST': case '_SESSION': case '_ENV':
-                case '_COOKIE': case 'php_errormsg': case 'HTTP_RAW_POST_DATA':
-                case 'http_response_header': case 'argc': case 'argv':
-                }
-            }
-
-            unset($context);
-            $context = $trace;
-        }
-
         // Get backtrace and exclude irrelevant items
-        $trace = debug_backtrace(false);
+        $trace = new \Exception;
+        $trace = explode("\n", $trace->getTraceAsString());
         do unset($trace[$trace_offset]);
         while ($trace_offset--);
 
@@ -165,21 +143,19 @@ class DebugLog
             'message' => $msg,
             'file'    => $file,
             'line'    => $line,
-            'context' => $context,
-            'trace'   => $trace,
+            'trace'   => implode("\n", $trace),
         ));
     }
 
     function logException(\Exception $e)
     {
         $this->log('php-exception', array(
-            'class'    => get_class($e),
-            'code'     => $e->getCode(),
-            'message'  => $e->getMessage(),
-            'file'     => $e->getFile(),
-            'line'     => $e->getLine(),
-            'traceStr' => $e->getTraceAsString(),
-            'trace'    => $e->getTrace(),
+            'class'   => get_class($e),
+            'code'    => $e->getCode(),
+            'message' => $e->getMessage(),
+            'file'    => $e->getFile(),
+            'line'    => $e->getLine(),
+            'trace'   => $e->getTraceAsString(),
         ));
     }
 
