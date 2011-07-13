@@ -73,7 +73,7 @@ class DebugLog
             // Get the last fatal error and format it appropriately
             case E_ERROR: case E_PARSE: case E_CORE_ERROR:
             case E_COMPILE_ERROR: case E_COMPILE_WARNING:
-                $logger->logError($e['type'], $e['message'], $e['file'], $e['line'], array(), 1);
+                $logger->logError($e['type'], $e['message'], $e['file'], $e['line'], array(), -1);
                 self::resetLastError();
             }
         }
@@ -132,16 +132,33 @@ class DebugLog
         if (isset($this->seenErrors[$k])) return;
         $this->seenErrors[$k] = 1;
 
-        // Get backtrace and exclude irrelevant items
-        $trace = debug_backtrace(false);
+        $trace = null;
 
-        if (isset($trace[++$trace_offset]['function']))
+        // Do not log the backtrace for these levels
+        if (0 === $trace_offset) switch ($code)
         {
-            $k = $trace[$trace_offset]['function'];
-            if ('user_error' === $k || 'trigger_error' === $k) ++$trace_offset;
+            case E_NOTICE:
+            case E_STRICT:
+            case E_USER_NOTICE:
+            case E_DEPRECATED:
+            case E_USER_DEPRECATED:
+                $trace_offset = -1;
+                break;
         }
 
-        array_splice($trace, 0, $trace_offset);
+        // Get backtrace and exclude irrelevant items
+        if (0 <= $trace_offset)
+        {
+            $trace = debug_backtrace(false);
+
+            if (isset($trace[++$trace_offset]['function']))
+            {
+                $k = $trace[$trace_offset]['function'];
+                if ('user_error' === $k || 'trigger_error' === $k) ++$trace_offset;
+            }
+
+            array_splice($trace, 0, $trace_offset);
+        }
 
         $this->log('php-error', array(
             'code'    => $code,

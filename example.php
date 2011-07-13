@@ -17,7 +17,7 @@ Patchwork\PHP\DebugLog::start('./output')->log(
 
 register_shutdown_function('log_shutdown');
 
-user_error('user triggered warning');
+user_error('user triggered warning', E_USER_WARNING);
 echo $a; // undefined variable
 eval('a()'); // non-fatal parse error
 eval('a();'); // undefined function fatal error
