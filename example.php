@@ -1,5 +1,7 @@
 <?php
 
+use Patchwork\PHP as p;
+
 header('Content-type: text/plain');
 error_reporting(E_ALL | E_STRICT);
 ini_set('display_errors', true);
@@ -7,7 +9,7 @@ ini_set('display_errors', true);
 include 'Dumper.php';
 include 'DebugLog.php';
 
-Patchwork\PHP\DebugLog::start('./output')->log(
+p\DebugLog::start('./output')->log(
     'debug-start',
     array(
         'start-time' => date('c'),
@@ -24,5 +26,5 @@ eval('a();'); // undefined function fatal error
 
 function log_shutdown()
 {
-    Patchwork\PHP\DebugLog::getLogger()->log('debug-shutdown');
+    p\DebugLog::getLogger()->log('debug-shutdown');
 }
