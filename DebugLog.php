@@ -133,17 +133,22 @@ class DebugLog
         $this->seenErrors[$k] = 1;
 
         // Get backtrace and exclude irrelevant items
-        $trace = new \Exception;
-        $trace = explode("\n", $trace->getTraceAsString());
-        do unset($trace[$trace_offset]);
-        while ($trace_offset--);
+        $trace = debug_backtrace(false);
+
+        if (isset($trace[++$trace_offset]['function']))
+        {
+            $k = $trace[$trace_offset]['function'];
+            if ('user_error' === $k || 'trigger_error' === $k) ++$trace_offset;
+        }
+
+        array_splice($trace, 0, $trace_offset);
 
         $this->log('php-error', array(
             'code'    => $code,
             'message' => $msg,
             'file'    => $file,
             'line'    => $line,
-            'trace'   => implode("\n", $trace),
+            'trace'   => $trace,
         ));
     }
 
@@ -155,11 +160,11 @@ class DebugLog
             'message' => $e->getMessage(),
             'file'    => $e->getFile(),
             'line'    => $e->getLine(),
-            'trace'   => $e->getTraceAsString(),
+            'trace'   => $e->getTrace(),
         ));
     }
 
-    function log($type, array $context = array())
+    function log($type, array $data = array())
     {
         if (null === $this->token)
         {
@@ -174,33 +179,16 @@ class DebugLog
             || ($this->prevTime = $this->startTime)
             || ($this->prevTime = $this->startTime = $log_time);
 
-        $delta_ms  = sprintf('%0.3f', 1000*($log_time - $this->prevTime));
-        $total_ms  = sprintf('%0.3f', 1000*($log_time - $this->startTime));
-        $delta_mem = isset($this->prevMemory) ? memory_get_usage(true) - $this->prevMemory : 0;
-        $peak_mem  = memory_get_peak_usage(true);
-        $log_time  = date('c', $log_time) . sprintf(' %06dus', 100000*($log_time - floor($log_time)));
-
-        foreach ($context as $k => $v)
-        {
-            $v = $this->serialize($v);
-
-            if (strcspn($v, "\r\n\0") !== strlen($v))
-            {
-                // Encode CR and LF using the null character as
-                // escape character and get a single line string
-                $v = str_replace(
-                    array(  "\0",  "\r",  "\n"),
-                    array("\0\0", "\0r", "\0n"),
-                    $v
-                );
-            }
-
-            $context[$k] = "\n  " . strtr($k, "\r\n:", '---') . ': ' . $v;
-        }
-
-        $v = self::$session . ':' . $this->token . ':' . mt_rand();
-        $context = implode('', $context);
         $type = strtr($type, "\r\n", '--');
+        $v = self::$session . ':' . $this->token . ':' . mt_rand();
+        $data = array(
+            'delta-ms' => sprintf('%0.3f', 1000*($log_time - $this->prevTime)),
+            'total-ms' => sprintf('%0.3f', 1000*($log_time - $this->startTime)),
+            'delta-mem' => isset($this->prevMemory) ? memory_get_usage(true) - $this->prevMemory : 0,
+            'peak_mem' => memory_get_peak_usage(true),
+            'log-time' => date('c', $log_time) . sprintf(' %06dus', 100000*($log_time - floor($log_time))),
+            'log-data' => $data,
+        );
 
         isset($this->logStream)
             || ($this->logStream = self::$logFileStream)
@@ -209,45 +197,21 @@ class DebugLog
         fwrite(
             $this->logStream,
             <<<EOTXT
-<event:{$v}>
-  type: {$type}
-  log-time: {$log_time}
-  peak-mem: {$peak_mem}
-  delta-ms: {$delta_ms}
-  total-ms: {$total_ms}
-  delta-mem: {$delta_mem}
-  ---{$context}
+<event:{$v} type="{$type}">
+{$this->serialize($data)}
 </event:{$v}>
 
 
 EOTXT
         );
 
-        $context = '';
+        $data = '';
         $this->prevMemory = memory_get_usage(true);
         $this->prevTime = microtime(true);
     }
 
     function serialize($v)
     {
-        // serialize() is the only native way to get a string representation
-        // of complex variables while both dealing with recursivity in data structures
-        // and working in output buffering handlers.
-        // Objects implementing the magic __sleep() method or the Serializable interface
-        // may fail, especially internal ones (PDO, etc.)
-        // Resources are also casted to null integers.
-
-        try
-        {
-            return serialize($v);
-        }
-        catch (\Exception $v)
-        {
-            return serialize(
-                "*** Failed to serialize: `" . get_class($v)
-                . "` exception with message `{$v->getMessage()}` thrown in {$v->getFile()} on line {$v->getLine()} ***\n"
-                . $v->getTraceAsString()
-            );
-        }
+        return Dumper::dumpVar($v);
     }
 }
