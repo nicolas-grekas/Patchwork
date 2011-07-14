@@ -13,7 +13,7 @@ p\DebugLog::start('./output')->log(
     'debug-start',
     array(
         'start-time' => date('c'),
-        'server-context' => $_SERVER,
+        'request-context' => $_SERVER,
     )
 );
 
@@ -26,5 +26,7 @@ eval('a();'); // undefined function fatal error
 
 function log_shutdown()
 {
-    p\DebugLog::getLogger()->log('debug-shutdown');
+    p\DebugLog::getLogger()->log('debug-shutdown', array(
+        'response-headers' => headers_list(),
+    ));
 }
