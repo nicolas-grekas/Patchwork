@@ -25,6 +25,7 @@ class DebugLog
     protected
 
     $token,
+    $index      = 0,
     $startTime  = 0,
     $prevTime   = 0,
     $prevMemory = 0,
@@ -107,6 +108,7 @@ class DebugLog
         set_error_handler(array($this, 'logError'));
         self::$loggers[] = $this;
         $this->token = mt_rand();
+        $this->index = 0;
         $this->startTime = microtime(true);
     }
 
@@ -197,7 +199,7 @@ class DebugLog
             || ($this->prevTime = $this->startTime = $log_time);
 
         $type = strtr($type, "\r\n", '--');
-        $v = self::$session . ':' . $this->token . ':' . mt_rand();
+        $v = self::$session . ':' . $this->token . ':' . ++$this->index;
         $data = array(
             'delta-ms' => sprintf('%0.3f', 1000*($log_time - $this->prevTime)),
             'total-ms' => sprintf('%0.3f', 1000*($log_time - $this->startTime)),
@@ -215,7 +217,7 @@ class DebugLog
             $this->logStream,
             <<<EOTXT
 <event:{$v} type="{$type}">
-{$this->serialize($data)}
+{$this->dump($data)}
 </event:{$v}>
 
 
@@ -227,8 +229,8 @@ EOTXT
         $this->prevTime = microtime(true);
     }
 
-    function serialize($v)
+    function dump(&$v)
     {
-        return Dumper::dumpVar($v);
+        return Dumper::dump($v, false);
     }
 }
