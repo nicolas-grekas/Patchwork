@@ -15,6 +15,16 @@ namespace Patchwork\PHP;
 
 class DebugLog
 {
+    public
+
+    $traceDisabledErrors = array(
+        E_NOTICE => E_NOTICE,
+        E_STRICT => E_STRICT,
+        E_USER_NOTICE => E_USER_NOTICE,
+        E_DEPRECATED => E_DEPRECATED,
+        E_USER_DEPRECATED => E_USER_DEPRECATED,
+    );
+
     protected static
 
     $session,
@@ -134,21 +144,14 @@ class DebugLog
         if (isset($this->seenErrors[$k])) return;
         $this->seenErrors[$k] = 1;
 
+        // Get backtrace and exclude irrelevant items
         $trace = null;
 
-        // Do not log the backtrace for these levels
-        if (0 === $trace_offset) switch ($code)
+        if (0 === $trace_offset && isset($this->traceDisabledErrors[$code]))
         {
-            case E_NOTICE:
-            case E_STRICT:
-            case E_USER_NOTICE:
-            case E_DEPRECATED:
-            case E_USER_DEPRECATED:
-                $trace_offset = -1;
-                break;
+            $trace_offset = -1;
         }
 
-        // Get backtrace and exclude irrelevant items
         if (0 <= $trace_offset)
         {
             $trace = debug_backtrace(false);
@@ -162,13 +165,16 @@ class DebugLog
             array_splice($trace, 0, $trace_offset);
         }
 
-        $this->log('php-error', array(
+        $k = array(
             'code'    => $code,
             'message' => $msg,
             'file'    => $file,
             'line'    => $line,
-            'trace'   => $trace,
-        ));
+        );
+
+        if (null !== $trace) $k['trace'] = $trace;
+
+        $this->log('php-error', $k);
     }
 
     function logException(\Exception $e)
