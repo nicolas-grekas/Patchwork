@@ -126,7 +126,7 @@ EOHTML;
 <script>E('Rendering time: ' + (new Date/1 - E.startTime) + ' ms');</script>
 <div id="debugWin">
 <input type="hidden" name="debugStore" id="debugStore" value="">
-<div style="position:fixed;_position:absolute;top:0;right:0;z-index:254;background-color:white;visibility:hidden;height:100%" id="debugFrame"><iframe src="{$debugWin}" style="width:400px;height:100%" name="debugFrame"></iframe></div>
+<div style="position:fixed;_position:absolute;top:0;right:0;z-index:254;background-color:white;visibility:hidden;width:100%; height: 50%" id="debugFrame"><iframe src="{$debugWin}" style="width:100%;height:100%" name="debugFrame"></iframe></div>
 <div style="position:fixed;_position:absolute;top:0;right:0;z-index:255;font-family:arial;font-size:9px"><a href="javascript:;" onclick="var f=document.getElementById('debugFrame');if (f) f.style.visibility='hidden'==f.style.visibility?'visible':'hidden',document.getElementById('debugStore').value=f.style.visibility" style="background-color:blue;color:white;text-decoration:none;border:0;" id="debugLink">Debug</a></div>
 <script>setTimeout(function(){var f=document.getElementById('debugFrame'),s=document.getElementById('debugStore');if (f&&s&&s.value)f.style.visibility=s.value},0)</script>
 EOHTML;
@@ -152,7 +152,7 @@ body
 }
 pre
 {
-    font-family: Arial;
+    font-family: Arial,sans-serif;
     font-size: 10px;
     border-top: 1px solid black;
     margin: 0;
@@ -176,6 +176,10 @@ acronym
     border-bottom: 0;
     font-style: italic;
     color: silver;
+}
+.mono
+{
+    font-family: monospace;
 }
 </style>
 <script>
@@ -240,40 +244,44 @@ function Z()
             clearstatcache();
             if (is_file($error_log))
             {
-                echo '<b></b>'; // Test the connexion
+                echo '<span></span>'; // Test the connexion
                 $S||flush();
 
                 if ($h = @fopen($error_log, 'r'))
                 {
                     while (false !== $a = fgets($h))
                     {
-                        $a = preg_replace_callback(
-                            "'" . preg_quote(htmlspecialchars(PATCHWORK_PROJECT_PATH) . '.')
-                                . "([^\\\\/]+)\.[01]([0-9]+)(-?)\.zcache\.php'",
-                            array(__CLASS__, 'filename'),
-                            $a
-                        );
-
-                        if ('' !== $a && '[' == $a[0] && '] PHP ' == substr($a, 21, 6))
+                        if ('' !== $a && '[' === $a[0] && '] PHP ' === substr($a, 21, 6))
                         {
                             $b = strpos($a, ':', 28);
                             $b = array(
-                                substr($a, 0, 22),
-                                substr($a, 23, $b-23),
-                                substr($a, $b+2),
+                                'date' => substr($a, 1, 20),
+                                'type' => substr($a, 23, $b-23),
+                                'message' => rtrim(substr($a, $b+3)),
+                                'file' => '',
+                                'line' => 0,
                             );
 
-                            if (preg_match('/^PHP +(Stack trace|\d+\.)/', $b[1]))
-                            {
-                                $b[1] = substr($b[1], 3);
+                            $a = explode(' on line ', $b['message']);
+                            $b['line'] = array_pop($a);
 
-                                $a = ' Stack trace' === $b[1]
-                                    ? "<i>{$b[1]}</i>{$b[2]}\n"
-                                    : "{$b[1]}{$b[2]}";
-                            }
-                            else
+                            $a = explode(' in ', implode(' on line ', $a), 2);
+                            $b['message'] = $a[0];
+                            $b['file'] = $a[1];
+
+                            $b = array_map('htmlspecialchars', $b);
+
+                            if (false !== strpos($b['file'], '.zcache.php'))
                             {
-                                $a = <<<EOHTML
+                                $b['file'] = preg_replace_callback(
+                                    "'" . preg_quote(htmlspecialchars(PATCHWORK_PROJECT_PATH) . '.')
+                                        . "([^\\\\/]+)\.[01]([0-9]+)(-?)\.zcache\.php'",
+                                    array(__CLASS__, 'filename'),
+                                    $b['file']
+                                );
+                            }
+
+                            $a = <<<EOHTML
 <script>
 focus()
 L=opener||parent;
@@ -284,13 +292,32 @@ if(L)
 L.backgroundColor='red'
 L.fontSize='18px'
 }
-</script><a href="javascript:;" style="color:red;font-weight:bold" title="{$b[0]}">{$b[1]}</a>
-{$b[2]}
+</script><a href="javascript:;" style="color:red;font-weight:bold" title="{$b['date']}">{$b['type']}</a>
+{$b['message']} in {$b['file']} on line {$b['line']}.
+
+
 EOHTML;
+
+                            echo $a;
+                        }
+                        else
+                        {
+                            $a = htmlspecialchars($a);
+
+                            if (false !== strpos($a, '.zcache.php'))
+                            {
+                                $a = preg_replace_callback(
+                                    "'" . preg_quote(htmlspecialchars(PATCHWORK_PROJECT_PATH) . '.')
+                                        . "([^\\\\/]+)\.[01]([0-9]+)(-?)\.zcache\.php'",
+                                    array(__CLASS__, 'filename'),
+                                    $a
+                                );
                             }
+
+                            $a = preg_replace("'^(\s+)(&quot;.*&quot; =&gt; )?'", '<span class="mono">$1$2</span>', $a);
+                            echo $a;
                         }
 
-                        echo $a;
 
                         if (connection_aborted()) break;
                     }
@@ -306,7 +333,7 @@ EOHTML;
             else if (!--$i)
             {
                 $i = $period;
-                echo '<b></b>'; // Test the connexion
+                echo '<span></span>'; // Test the connexion
                 $S||flush();
             }
 

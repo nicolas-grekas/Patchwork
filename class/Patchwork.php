@@ -18,8 +18,7 @@ use Patchwork\Exception as e;
 function E()
 {
     $a = func_get_args();
-    $a ? p::log(isset($a[1]) ? $a : $a[0], 0, 0)
-       : p::log(0, 0, 0, 0);
+    p::log('E', $a);
 }
 
 // Database sugar
@@ -60,30 +59,6 @@ function jsquote($a)
     return "'{$a}'";
 }
 
-function patchwork_error_handler($code, $message, $file, $line)
-{
-    if (error_reporting())
-    {
-        switch ($code)
-        {
-        case E_DEPRECATED:
-        case E_USER_DEPRECATED:
-/**/        if (!DEBUG)
-                return;
-        case E_NOTICE:
-        case E_STRICT:
-            if (strpos($message, '__00::')) return;
-            if ('-' === substr($file, -12, 1)) return;
-            break;
-
-        case E_WARNING:
-            if (stripos($message, 'safe mode')) return;
-        }
-
-        class_exists('Patchwork_ErrorHandler', false) || __autoload('Patchwork_ErrorHandler'); // http://bugs.php.net/42098 workaround
-        p\ErrorHandler::handle($code, $message, $file, $line);
-    }
-}
 
 class Patchwork
 {
@@ -120,6 +95,7 @@ class Patchwork
     $is_enabled = false,
     $ob_starting_level,
     $ob_level,
+    $ob_clean = false,
     $varyEncoding = false,
     $contentEncoding = false,
     $lockedContentType = false,
@@ -159,10 +135,7 @@ class Patchwork
 
     static function __constructStatic()
     {
-        ini_set('error_log', PATCHWORK_PROJECT_PATH . 'error.patchwork.log');
-        ini_set('log_errors', true);
-        ini_set('display_errors', false);
-        set_error_handler('patchwork_error_handler');
+        p\PHP\DebugLog::start(PATCHWORK_PROJECT_PATH . 'error.patchwork.log', new p\ErrorHandler);
 
         if (isset($_GET['p:']))
         {
@@ -249,12 +222,12 @@ class Patchwork
     {
 /**/    if (DEBUG)
 /**/    {
-            self::log(
-                '<a href="' . htmlspecialchars($_SERVER['REQUEST_URI']) . '" target="_blank">'
-                . htmlspecialchars(rawurldecode(preg_replace("'&v\\\$=[^&]*'", '', $_SERVER['REQUEST_URI'])))
-                . '</a>'
-            );
-            register_shutdown_function(array(__CLASS__, 'log'), '', true);
+            self::log('debug-start', array(
+                'request-uri' => $_SERVER['REQUEST_URI'],
+                'request-context' => $_SERVER,
+            ));
+
+            register_shutdown_function(array(__CLASS__, 'log'), 'debug-shutdown', array());
 /**/    }
 
 
@@ -430,11 +403,11 @@ class Patchwork
     {
         if (self::$is_enabled && ob_get_level() === self::$ob_starting_level + self::$ob_level)
         {
-            while (self::$ob_level-- > 2) {ob::$clear = true; ob_end_clean();}
+            while (self::$ob_level-- > 2) {self::$ob_clean = true; ob_end_clean();}
 
-            ob::$clear = true; ob_end_clean();
+            self::$ob_clean = true; ob_end_clean();
             self::$is_enabled = false;
-            ob::$clear = true; ob_end_clean();
+            self::$ob_clean = true; ob_end_clean();
             self::$ob_level = 0;
 
             if (self::$is304) exit;
@@ -884,7 +857,7 @@ class Patchwork
             }
 
 /**/        if (DEBUG)
-                E("Patchwork::touch('$message'): $i file(s) deleted.");
+                self::log('patchwork-touch', array('deleted-files' => $i));
         }
     }
 
@@ -970,47 +943,9 @@ class Patchwork
         return self::getCachePath($filename, $extension, self::$base .'-'. self::$lang .'-'. DEBUG .'-'. PATCHWORK_PROJECT_PATH .'-'. $key);
     }
 
-    static function log($message, $is_end = false, $raw_html = true, $log = true)
+    static function log($message, array $data)
     {
-        static $prev_time = PATCHWORK_MICROTIME;
-        self::$total_time += $a = 1000*(microtime(true) - $prev_time);
-
-        if ($log)
-        {
-/**/        if (function_exists('memory_get_usage'))
-                $mem = memory_get_usage(true);
-/**/        else
-                $mem = 0;
-
-            if (DEBUG && $is_end)
-            {
-/**/            if (function_exists('memory_get_peak_usage'))
-                    $mem = memory_get_peak_usage(true) / 1048576;
-                $a = sprintf('<div>Total: %.1F ms - %.1FM</div></pre><pre>', self::$total_time, $mem);
-            }
-            else
-            {
-                $b = ob::$in_handler ? serialize($message) : print_r($message, true);
-
-                if (!$raw_html) $b = htmlspecialchars($b);
-
-                $a = sprintf("<span title=\"Date: %s - Memory: %.1FM\">%.1F ms</span> %s\n", date("d-m-Y H:i:s", $_SERVER['REQUEST_TIME']), $mem, $a, $b);
-            }
-
-            static $error_log;
-
-            if (!isset($error_log))
-            {
-                $error_log = ini_get('error_log');
-                $error_log || $error_log = PATCHWORK_PROJECT_PATH . 'error.patchwork.log';
-            }
-
-            $b = fopen($error_log, 'ab');
-            fwrite($b, $a);
-            fclose($b);
-        }
-
-        $prev_time = microtime(true);
+        p\PHP\DebugLog::getLogger()->log($message, $data);
     }
 
     static function resolveAgentClass($agent, &$args)
@@ -1264,6 +1199,8 @@ class Patchwork
 
     static function ob_filterOutput($buffer, $mode)
     {
+        self::$ob_clean && $buffer = self::$ob_clean = '';
+
         $one_chunk = $mode === (PHP_OUTPUT_HANDLER_START | PHP_OUTPUT_HANDLER_END);
 
         static $type = false;
@@ -1454,6 +1391,8 @@ class Patchwork
 
     static function ob_sendHeaders($buffer)
     {
+        self::$ob_clean && $buffer = self::$ob_clean = '';
+
         self::header(
             isset(self::$headers['content-type'])
                 ? self::$headers['content-type']
@@ -1692,7 +1631,6 @@ class Patchwork
         }
     }
 }
-
 
 namespace Patchwork\Exception;
 

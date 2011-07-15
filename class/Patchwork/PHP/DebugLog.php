@@ -60,7 +60,7 @@ class DebugLog
     $logStream;
 
 
-    static function start($log_file, self $logger = null)
+    static function start($log_file, self $logger = null, $session = null)
     {
         null === $logger && $logger = new self;
 
@@ -249,7 +249,9 @@ class DebugLog
 
     function dumpEvent($type, $data)
     {
-        $type = "{$this->index}:{$type}:{$this->token}\n";
+        class_exists('Patchwork\PHP\Dumper', true) || __autoload('Patchwork\PHP\Dumper'); // http://bugs.php.net/42098 workaround
+        return Dumper::dump($v, false);
+    }
 
         fwrite($this->logStream, "event-start:{$type}");
 

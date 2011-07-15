@@ -24,7 +24,7 @@ class pMail_text extends Mail_mime
         $this->headers =& $headers;
         $this->options =& $options;
 
-        empty($options['testMode']) || $this->setTestMode();
+        empty($options['testMode']) || p::log('pMail-construct', $this->setTestMode());
 
         $this->setHeaders();
 
@@ -132,19 +132,10 @@ class pMail_text extends Mail_mime
     {
         $headers =& $this->headers;
 
-        $log = <<<EOHTML
-<script>
-focus()
-L=opener||parent;
-L=L&&L.document.getElementById('debugLink')
-L=L&&L.style
-if(L) L.fontSize='18px'
-</script>
-EOHTML;
-
-        p::log($log . '<strong>Constructing email</strong>');
-
-        E(array('headers' => &$headers, 'options' => &$this->options));
+        $log = array(
+            'headers' => &$headers,
+            'options' => &$this->options,
+        );
 
         self::cleanHeaders($headers, 'To|Cc|Bcc');
 
@@ -161,6 +152,8 @@ EOHTML;
         }
 
         $headers['To'] = $CONFIG['pMail.debug_email'];
+
+        return $log;
     }
 
 

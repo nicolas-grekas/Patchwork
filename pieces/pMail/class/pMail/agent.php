@@ -124,15 +124,15 @@ class pMail_agent extends pMail_text
 
     function setTestMode()
     {
-        parent::setTestMode();
-
+        $log = parent::setTestMode();
         $lang = p::setLang($this->lang);
 
         $url = p::base($this->agent, true);
         empty($this->args) || $url .= '?' . http_build_query($this->args);
 
         p::setLang($lang);
+        $log['test-url'] = $url;
 
-        p::log('&lt;<a href="' . htmlspecialchars($url) . '">Click here to see the email</a>&gt;');
+        return $log;
     }
 }

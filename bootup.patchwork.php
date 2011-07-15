@@ -22,41 +22,6 @@ define('IS_POSTING', 'POST' === $_SERVER['REQUEST_METHOD']);
 /**/ /*<*/boot::$manager->override('getrandmax', 'mt_getrandmax', array())/*>*/;
 
 
-// Class ob: wrapper for ob_start()
-
-/**/ /*<*/boot::$manager->override('ob_start', 'ob::start', array('$callback' => null, '$chunk_size' => null, '$erase' => true))/*>*/;
-
-class ob
-{
-    static
-
-    $in_handler = 0,
-    $clear = false;
-
-
-    static function start($callback = null, $chunk_size = null, $erase = true)
-    {
-        null !== $callback && $callback = array(new ob($callback), 'callback');
-        return ob_start($callback, $chunk_size, $erase);
-    }
-
-    protected function __construct($callback)
-    {
-        $this->callback = $callback;
-    }
-
-    function callback($buffer, $mode)
-    {
-        $a = self::$in_handler++;
-        self::$clear && $buffer = '';
-        $buffer = call_user_func($this->callback, $buffer, $mode);
-        self::$in_handler = $a;
-        self::$clear = false;
-        return $buffer;
-    }
-}
-
-
 // Timezone settings
 
 /**/if (!ini_get('date.timezone'))
