@@ -56,9 +56,8 @@ class DebugLog
         ini_set('ignore_repeated_errors', true);
         ini_set('ignore_repeated_source', false);
 
-        // Fatal errors can be catched at shutdown time
-        if (function_exists('error_get_last'))
-            register_shutdown_function(array(__CLASS__, 'shutdown'));
+        // Some fatal errors can be catched at shutdown time
+        register_shutdown_function(array(__CLASS__, 'shutdown'));
 
         self::$session = $session;
         self::$logFile = $log_file;
@@ -92,8 +91,8 @@ class DebugLog
 
     static function getLastError()
     {
-        return function_exists('error_get_last') && ($e = error_get_last()) && !empty($e['message'])
-            ? $e : false;
+        $e = error_get_last();
+        return empty($e['message']) ? false : $e;
     }
 
     static function resetLastError()
@@ -137,32 +136,18 @@ class DebugLog
         }
     }
 
-    function logError($code, $msg, $file, $line, $trace, $trace_offset = 0)
+    function logError($code, $msg, $file, $line, $k, $trace_offset = 0)
     {
+        $log_time = microtime(true);
+
         // Do not log duplicate errors
         $k = md5("{$code}/{$line}/{$file}\x00{$msg}", true);
         if (isset($this->seenErrors[$k])) return;
         $this->seenErrors[$k] = 1;
 
-        // Get backtrace and exclude irrelevant items
-        $trace = null;
-
         if (0 === $trace_offset && isset($this->traceDisabledErrors[$code]))
         {
             $trace_offset = -1;
-        }
-
-        if (0 <= $trace_offset)
-        {
-            $trace = debug_backtrace(false);
-
-            if (isset($trace[++$trace_offset]['function']))
-            {
-                $k = $trace[$trace_offset]['function'];
-                if ('user_error' === $k || 'trigger_error' === $k) ++$trace_offset;
-            }
-
-            array_splice($trace, 0, $trace_offset);
         }
 
         $k = array(
@@ -172,24 +157,26 @@ class DebugLog
             'line'    => $line,
         );
 
-        if (null !== $trace) $k['trace'] = $trace;
+        if (0 <= $trace_offset) $k['trace'] = $this->getTrace(++$trace_offset);
 
-        $this->log('php-error', $k);
+        $this->log('php-error', $k, $log_time);
     }
 
     function logException(\Exception $e)
     {
+        $log_time = microtime(true);
+
         $this->log('php-exception', array(
             'class'   => get_class($e),
             'code'    => $e->getCode(),
             'message' => $e->getMessage(),
             'file'    => $e->getFile(),
             'line'    => $e->getLine(),
-            'trace'   => $e->getTrace(),
-        ));
+            'trace'   => $this->getTrace($e),
+        ), $log_time);
     }
 
-    function log($type, array $data = array())
+    function log($type, array $data = array(), $log_time = null)
     {
         if (null === $this->token)
         {
@@ -198,7 +185,7 @@ class DebugLog
 
         // Get time and memory profiling information
 
-        $log_time = microtime(true);
+        null === $log_time && $log_time = microtime(true);
 
         $this->prevTime
             || ($this->prevTime = $this->startTime)
@@ -238,5 +225,24 @@ EOTXT
     function dump(&$v)
     {
         return Dumper::dump($v, false);
+    }
+
+    function getTrace($offset)
+    {
+        // Get backtrace and exclude irrelevant items
+
+        if ($offset instanceof \Exception) return $offset->getTrace();
+
+        $trace = debug_backtrace();
+
+        if (isset($trace[++$offset]['function']))
+        {
+            $k = $trace[$offset]['function'];
+            if ('user_error' === $k || 'trigger_error' === $k) ++$offset;
+        }
+
+        array_splice($trace, 0, $offset);
+
+        return $trace;
     }
 }
