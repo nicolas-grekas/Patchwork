@@ -45,6 +45,7 @@ class DebugLog
         E_DEPRECATED => 'E_DEPRECATED',
         E_USER_DEPRECATED => 'E_USER_DEPRECATED',
     ),
+    $session,
     $logFile,
     $logFileStream = null,
     $loggers = array();
