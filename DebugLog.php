@@ -157,7 +157,7 @@ class DebugLog
             'line'    => $line,
         );
 
-        if (0 <= $trace_offset) $k['trace'] = $this->getTrace(++$trace_offset);
+        if (0 <= $trace_offset) $k['trace'] = $this->filterTrace(debug_backtrace(), ++$trace_offset);
 
         $this->log('php-error', $k, $log_time);
     }
@@ -172,7 +172,7 @@ class DebugLog
             'message' => $e->getMessage(),
             'file'    => $e->getFile(),
             'line'    => $e->getLine(),
-            'trace'   => $this->getTrace($e),
+            'trace'   => $this->filterTrace($e->getTrace(), 0),
         ), $log_time);
     }
 
@@ -227,21 +227,18 @@ EOTXT
         return Dumper::dump($v, false);
     }
 
-    function getTrace($offset)
+    function filterTrace($trace, $offset)
     {
-        // Get backtrace and exclude irrelevant items
-
-        if ($offset instanceof \Exception) return $offset->getTrace();
-
-        $trace = debug_backtrace();
-
-        if (isset($trace[++$offset]['function']))
+        if (0 < $offset)
         {
-            $k = $trace[$offset]['function'];
-            if ('user_error' === $k || 'trigger_error' === $k) ++$offset;
-        }
+            if (isset($trace[$offset]['function']))
+            {
+                $k = $trace[$offset]['function'];
+                if ('user_error' === $k || 'trigger_error' === $k) ++$offset;
+            }
 
-        array_splice($trace, 0, $offset);
+            array_splice($trace, 0, $offset);
+        }
 
         return $trace;
     }
