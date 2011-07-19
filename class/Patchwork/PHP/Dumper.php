@@ -132,11 +132,7 @@ class Dumper
 
         $line .= $ref . $open;
 
-        if ($this->depth === $this->maxDepth && 0 < $this->maxDepth)
-        {
-            $line .= '...' . $close;
-            return;
-        }
+            return $ref . "[\n{$k}" . implode("\n{$k}", $b) . "\n" . substr($k, 2) . ']';
 
         ++$this->depth;
         $i = 0;
@@ -156,7 +152,13 @@ class Dumper
             }
             else
             {
-                if ('' === $ref)
+                self::$objectStack[$h] = ++self::$refCount;
+                $ref .= ('' !== $ref ? ' ' : '') . '#' . self::$objectStack[$h] . '{';
+
+                $h = null;
+                $c = array($c => $c) + class_parents($a) + class_implements($a) + array('*' => '*');
+
+                foreach ($c as $c)
                 {
                     if (isset($k[0]) && "\0" === $k[0]) $k = implode(':', explode("\0", substr($k, 1), 2));
                     else if (false !== strpos($k, ':')) $k = ':' . $k;
