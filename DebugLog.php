@@ -197,7 +197,7 @@ class DebugLog
             'delta-ms' => sprintf('%0.3f', 1000*($log_time - $this->prevTime)),
             'total-ms' => sprintf('%0.3f', 1000*($log_time - $this->startTime)),
             'delta-mem' => isset($this->prevMemory) ? memory_get_usage(true) - $this->prevMemory : 0,
-            'peak_mem' => memory_get_peak_usage(true),
+            'peak-mem' => memory_get_peak_usage(true),
             'log-time' => date('c', $log_time) . sprintf(' %06dus', 100000*($log_time - floor($log_time))),
             'log-data' => $data,
         );
