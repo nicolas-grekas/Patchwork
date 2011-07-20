@@ -178,7 +178,8 @@ acronym
     color: silver;
 }
 
-.indent
+.indent,
+.key
 {
     font-family: monospace;
 }
@@ -190,7 +191,7 @@ acronym
 
 .string
 {
-    color: red;
+    color: purple;
     background-color: #F9F9F9;
 }
 
@@ -206,6 +207,26 @@ acronym
 {
     color: gray;
     font-style: italic;
+}
+
+.key
+{
+    background-color: transparent;
+}
+
+.public
+{
+    color: green;
+}
+
+.protected
+{
+    color: orange;
+}
+
+.private
+{
+    color: salmon;
 }
 </style>
 <script>
@@ -386,151 +407,44 @@ EOHTML;
         if ("\n" === $a) return "\n";
         if ('<' === $a[0]) return htmlspecialchars($a);
 
-        $token = self::tokenizeDumpLine($a);
+        static $parser;
+
+        isset($parser) || $parser = new p\PHP\DumperParser;
+
+        $token = $parser->tokenizeLine($a);
 
         $a = array();
 
         foreach ($token as $token)
         {
-            switch ($token[0])
-            {
-            case 'string': if ('' === $token[1]) $token[0] .= ' empty';
-            case 'const':
-                $token[0] .= ' data';
-                break;
+            $data = array_pop($token);
+            $title = array();
 
-            default:
-                $token[0] .= ' punct';
+            if (isset($token['private-class']))
+            {
+                $title[] = 'Private (' . $token['private-class'] . ')';
+                unset($token['private-class']);
+            }
+            else if (isset($token['public']))
+            {
+                $title[] = 'Public';
+            }
+            else if (isset($token['protected']))
+            {
+                $title[] = 'Protected';
             }
 
-            $a[] = '<span class="' . $token[0] . '">' . htmlspecialchars($token[1]) . '</span>';
+            if (isset($token['string']))
+            {
+                $title[] = 'length: ' . strlen($data);
+            }
+
+            $token = implode(' ', $token);
+            $title = $title ? ' title="' . htmlspecialchars(implode(", \n", $title)) . '"' : '';
+
+            $a[] = '<span class="' . $token . '"' . $title . '>' . htmlspecialchars($data) . '</span>';
         }
 
         return implode('', $a) . "\n";
-    }
-
-    static function tokenizeDumpLine($a)
-    {
-        static $indent = 0, $in_string = false;
-
-        $token = array();
-        $a = substr($a, 0, -1);
-
-        if ($in_string)
-        {
-            $token[] = array('indent', substr($a, 0, $indent+2));
-
-            $a = substr($a, $indent+2);
-
-            if ('"""' === substr($a, -3))
-            {
-                $a = substr($a, 0, -3);
-                $in_string = false;
-            }
-
-            $token[] = array('string', $a);
-        }
-        else
-        {
-            if (0 !== $indent)
-            {
-                $a = substr($a, $indent-2);
-
-                if ($a !== ltrim($a, ']}')) $indent -= 2;
-                else $a = substr($a, 2);
-
-                $indent && $token[] = array('indent', str_repeat(' ', $indent));
-            }
-
-            if ('"' === $a[0])
-            {
-                $i = strpos($a, '" => "', 1);
-                false === $i && $i = strrpos($a, '"', 1);
-
-                $kv = array(substr($a, 0, $i+1));
-
-                if (false !== $i = strpos($a, ' => ', $i+1))
-                {
-                    $kv[1] = substr($a, $i+4);
-                }
-            }
-            else $kv = explode(' => ', $a);
-
-            foreach ($kv as $a => $kv)
-            {
-                if (1 === $a)
-                {
-                    $token[] = array('arrow', ' ⇨ ');
-                }
-
-                preg_match(
-                    '/^
-                    (?:
-                         #1
-                         (".*)
-                         #2
-                        |([-\d].*)
-                         #3#4           #5#6
-                        |((\#\d+)?[\[\{]((\#\d+|\.\.\.)?[\}\]])?)
-                         #7
-                        |([\]\}]\)?)
-                         #8         #9           #10
-                        |(Resource(\ \#\d+)\ \(.*([\)\[]))
-                         #11
-                        |(\.\.\.)
-                         #12#13      #14#15
-                        |(.*(\ \#\d+)?\{((\#\d+|\.\.\.)?\})?)
-                         #17
-                        |(.*)
-                    )$
-                    /x',
-                    $kv,
-                    $a
-                );
-
-                if ('' !== $a[1])
-                {
-                    if ('"""' === $a[1]) $in_string = true;
-                    else
-                    {
-                        $a[1] = stripcslashes(substr($a[1], 1, -1));
-                        $token[] = array('string', $a[1]);
-                    }
-                }
-                else if ('' !== $a[2])
-                {
-                    $token[] = array('const', $a[2]);
-                }
-                else if ('' !== $a[3])
-                {
-                    $token[] = array('bracket', $a[3]);
-                    empty($a[5]) && $indent += 2;
-                }
-                else if ('' !== $a[7])
-                {
-                    $token[] = array('bracket', $a[7]);
-                }
-                else if ('' !== $a[8])
-                {
-                    $token[] = array('resource', $a[8]);
-                    if (!empty($a[10]) && '[' === $a[10]) $indent += 2;
-                }
-                else if ('' !== $a[11])
-                {
-                    $token[] = array('truncation', $a[11]);
-                }
-                else if ('' !== $a[12])
-                {
-                    $token[] = array('object', $a[12]);
-                    empty($a[14]) && $indent += 2;
-                }
-                else
-                {
-                    $token[] = array('const', $a[16]);
-                }
-            }
-        }
-
-        return $token;
     }
 }

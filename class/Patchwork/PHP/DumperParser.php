@@ -61,9 +61,8 @@ class DumperParser
 
             if ('"' === $a[0])
             {
-                $i = strrpos($a, '"', 1);
-                $kv = strpos(substr($a, 1, $i - 1), '" => "');
-                false !== $kv && $i = $kv + 1;
+                $i = strpos($a, '" => "', 1);
+                false === $i && $i = strrpos($a, '"', 1);
 
                 $kv = array(substr($a, 0, $i+1));
 
@@ -74,7 +73,7 @@ class DumperParser
             }
             else $kv = explode(' => ', $a);
 
-            $i = isset($kv[1]) ? ' key ' . end($this->indentStack) : '';
+            $i = isset($a[1]) ? ' key ' . end($this->indentStack) : '';
 
             foreach ($kv as $a => $kv)
             {
@@ -92,13 +91,13 @@ class DumperParser
                          #2
                         |([-\d].*)
                          #3#4     #5      #6#7
-                        |((\#\d+)?([\[\{])((\#\d+|\.\.\.)?[\}\]])?)
+                        |((\#\d+)?([\[\{])((\#\d+|\.\.\.)?\5)?)
                          #8
                         |([\]\}]\)?)
                          #9       #10          #11 #12
                         |(Resource(\ \#\d+)\ \((.*)([\)\[]))
                          #13
-                        |(\.\.\.(?:"\d+)?)
+                        |(\.\.\.)
                          #14#15#16        #17#18
                         |((.*)(\ \#\d+)?\{((\#\d+|\.\.\.)?\})?)
                          #19
