@@ -24,7 +24,6 @@ class Dumper
     protected
 
     $lines,
-    $callback,
     $token,
     $depth,
     $refId,
@@ -46,6 +45,7 @@ class Dumper
     static function dump(&$a, $ref = true)
     {
         $d = new self;
+        $d->setCallback('line', array($d, 'dumpLine'));
         $d->dumpLines($a, $ref);
         return implode('', $d->lines);
     }
@@ -53,11 +53,11 @@ class Dumper
     function dumpLines(&$a, $ref = true)
     {
         $this->token = "\x9D" . md5(mt_rand(), true);
-        $this->refCount = $this->depth = 0;
+        $this->refId = $this->depth = 0;
 
         $line = '';
         $this->refDump($line, $a, $ref ? '1' : '');
-        '' !== $line && $this->dumpLine($line . "\n");
+        '' !== $line && call_user_func($this->callbacks['line'], $line . "\n");
 
         foreach ($this->arrayStack as &$a) unset($a[$this->token]);
 
@@ -101,14 +101,14 @@ class Dumper
         {
             $i = 0;
             $line .= '"""' . "\n";
-            $this->dumpLine($line);
+            call_user_func($this->callbacks['line'], $line);
 
             $pre = str_repeat('  ', $this->depth+1);
 
             do
             {
                 $line = $pre . addcslashes(substr($a, $i, $j - $i + 1), '\\"');
-                $this->dumpLine($line);
+                call_user_func($this->callbacks['line'], $line);
                 $i = $j + 1;
             }
             while (false !== $j = strpos($a, "\n", $i));
@@ -125,7 +125,7 @@ class Dumper
         if ($ref)
         {
             if (isset($a[$this->token])) return $line .= "{$open}#{$a[$this->token]}{$close}";
-            $a[$this->token] = ++$this->refCount;
+            $a[$this->token] = ++$this->refId;
             $ref = '#' . $a[$this->token];
             $this->arrayStack[] =& $a;
         }
@@ -146,7 +146,7 @@ class Dumper
         {
             if ($this->token === $k) continue;
 
-            $this->dumpLine($line . "\n");
+            call_user_func($this->callbacks['line'], $line . "\n");
             $line = $pre;
 
             if ($j === $this->maxLength)
@@ -175,7 +175,7 @@ class Dumper
             ++$j;
         }
 
-        $this->dumpLine($line . "\n");
+        call_user_func($this->callbacks['line'], $line . "\n");
         $line = substr($pre, 0, -2) . $close;
         --$this->depth;
     }
@@ -188,7 +188,7 @@ class Dumper
 
         if (isset($this->objectStack[$h])) return $line .= '{#' . $this->objectStack[$h] . '}';
 
-        $this->objectStack[$h] = ++$this->refCount;
+        $this->objectStack[$h] = ++$this->refId;
         $line .= ('stdClass' !== $c ? ' ' : '') . '#' . $this->objectStack[$h];
 
         $h = null;
@@ -250,5 +250,10 @@ class Dumper
         else foreach ($c as $p => &$c) $a['use']['$' . $p] =& $c;
 
         return $a;
+    }
+
+    static function echoLine($line)
+    {
+        echo $line;
     }
 }
