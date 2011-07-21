@@ -24,6 +24,7 @@ class Dumper
     protected
 
     $lines,
+    $callback,
     $token,
     $depth,
     $refId,
@@ -46,16 +47,17 @@ class Dumper
     {
         $d = new self;
         $d->dumpLines($a, $ref);
+        return implode('', $d->lines);
     }
 
     function dumpLines(&$a, $ref = true)
     {
         $this->token = "\x9D" . md5(mt_rand(), true);
-        $this->refId = $this->depth = 0;
+        $this->refCount = $this->depth = 0;
 
         $line = '';
         $this->refDump($line, $a, $ref ? '1' : '');
-        '' !== $line && call_user_func($this->callbacks['line'], $line . "\n");
+        '' !== $line && $this->dumpLine($line . "\n");
 
         foreach ($this->arrayStack as &$a) unset($a[$this->token]);
 
@@ -65,6 +67,11 @@ class Dumper
     function setCallback($type, $callback)
     {
         $this->callbacks[strtolower($type)] = $callback;
+    }
+
+    protected function dumpLine($line)
+    {
+        $this->lines[] = $line;
     }
 
     protected function refDump(&$line, &$a, $ref = '1')
@@ -90,34 +97,26 @@ class Dumper
 
     protected function dumpString(&$line, $a)
     {
-        if (0 < $this->maxData && $this->maxData < strlen($a))
-        {
-            $tail = '"' . strlen($a);
-            $a = substr($a, 0, $this->maxData - 3) . '...';
-        }
-        else $tail = '';
-
         if (false !== $j = strpos($a, "\n"))
         {
             $i = 0;
             $line .= '"""' . "\n";
-            call_user_func($this->callbacks['line'], $line);
+            $this->dumpLine($line);
 
             $pre = str_repeat('  ', $this->depth+1);
 
             do
             {
                 $line = $pre . addcslashes(substr($a, $i, $j - $i + 1), '\\"');
-                call_user_func($this->callbacks['line'], $line);
+                $this->dumpLine($line);
                 $i = $j + 1;
             }
             while (false !== $j = strpos($a, "\n", $i));
 
-            if (++self::$depth === self::$maxDepth)
-            {
-                --self::$depth;
-                return $ref . '[...]';
-            }
+            $line = $pre . addcslashes(substr($a, $i), '\\"') . '"""';
+        }
+        else $line .= '"' . addcslashes($a, '\\"') . '"';
+    }
 
     protected function dumpArray(&$line, &$a, $ref, $open = '[', $close = ']')
     {
@@ -126,40 +125,43 @@ class Dumper
         if ($ref)
         {
             if (isset($a[$this->token])) return $line .= "{$open}#{$a[$this->token]}{$close}";
-            $a[$this->token] = ++$this->refId;
+            $a[$this->token] = ++$this->refCount;
             $ref = '#' . $a[$this->token];
             $this->arrayStack[] =& $a;
         }
 
         $line .= $ref . $open;
 
-            return $ref . "[\n{$k}" . implode("\n{$k}", $b) . "\n" . substr($k, 2) . ']';
+        if ($this->depth === $this->maxDepth)
+        {
+            $line .= '...' . $close;
+            return;
+        }
 
         ++$this->depth;
-        $i = 0;
+        $i = $j = 0;
         $pre = str_repeat('  ', $this->depth);
 
         foreach ($a as $k => &$v)
         {
             if ($this->token === $k) continue;
 
-            call_user_func($this->callbacks['line'], $line . "\n");
+            $this->dumpLine($line . "\n");
             $line = $pre;
 
-            if ($i === $this->maxLength && 0 < $this->maxLength)
+            if ($j === $this->maxLength)
             {
-                $line .= '..."' . (count($a) - 1);
+                $line .= '...';
                 break;
+            }
+            else if (is_int($k) && 0 <= $k)
+            {
+                $k !== $i && $line .= $k . ' => ';
+                $i = $k + 1;
             }
             else
             {
-                self::$objectStack[$h] = ++self::$refCount;
-                $ref .= ('' !== $ref ? ' ' : '') . '#' . self::$objectStack[$h] . '{';
-
-                $h = null;
-                $c = array($c => $c) + class_parents($a) + class_implements($a) + array('*' => '*');
-
-                foreach ($c as $c)
+                if ('' === $ref)
                 {
                     if (isset($k[0]) && "\0" === $k[0]) $k = implode(':', explode("\0", substr($k, 1), 2));
                     else if (false !== strpos($k, ':')) $k = ':' . $k;
@@ -170,10 +172,10 @@ class Dumper
             }
 
             $this->refDump($line, $v);
-            ++$i;
+            ++$j;
         }
 
-        call_user_func($this->callbacks['line'], $line . "\n");
+        $this->dumpLine($line . "\n");
         $line = substr($pre, 0, -2) . $close;
         --$this->depth;
     }
@@ -186,7 +188,7 @@ class Dumper
 
         if (isset($this->objectStack[$h])) return $line .= '{#' . $this->objectStack[$h] . '}';
 
-        $this->objectStack[$h] = ++$this->refId;
+        $this->objectStack[$h] = ++$this->refCount;
         $line .= ('stdClass' !== $c ? ' ' : '') . '#' . $this->objectStack[$h];
 
         $h = null;
@@ -248,10 +250,5 @@ class Dumper
         else foreach ($c as $p => &$c) $a['use']['$' . $p] =& $c;
 
         return $a;
-    }
-
-    static function echoLine($line)
-    {
-        echo $line;
     }
 }
