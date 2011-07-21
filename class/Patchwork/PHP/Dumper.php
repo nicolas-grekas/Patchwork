@@ -113,10 +113,11 @@ class Dumper
             }
             while (false !== $j = strpos($a, "\n", $i));
 
-            $line = $pre . addcslashes(substr($a, $i), '\\"') . $tail . '"""';
-        }
-        else $line .= '"' . addcslashes($a, '\\"') . $tail . '"';
-    }
+            if (++self::$depth === self::$maxDepth)
+            {
+                --self::$depth;
+                return $ref . '[...]';
+            }
 
     protected function dumpArray(&$line, &$a, $ref, $open = '[', $close = ']')
     {

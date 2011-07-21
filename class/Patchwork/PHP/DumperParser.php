@@ -73,7 +73,7 @@ class DumperParser
             }
             else $kv = explode(' => ', $a);
 
-            $i = isset($a[1]) ? ' key ' . end($this->indentStack) : '';
+            $i = isset($kv[1]) ? ' key ' . end($this->indentStack) : '';
 
             foreach ($kv as $a => $kv)
             {
@@ -91,7 +91,7 @@ class DumperParser
                          #2
                         |([-\d].*)
                          #3#4     #5      #6#7
-                        |((\#\d+)?([\[\{])((\#\d+|\.\.\.)?\5)?)
+                        |((\#\d+)?([\[\{])((\#\d+|\.\.\.)?[\}\]])?)
                          #8
                         |([\]\}]\)?)
                          #9       #10          #11 #12
