@@ -45,9 +45,7 @@ class Dumper
     static function dump(&$a, $ref = true)
     {
         $d = new self;
-        $d->setCallback('line', array($d, 'dumpLine'));
         $d->dumpLines($a, $ref);
-        return implode('', $d->lines);
     }
 
     function dumpLines(&$a, $ref = true)
@@ -67,11 +65,6 @@ class Dumper
     function setCallback($type, $callback)
     {
         $this->callbacks[strtolower($type)] = $callback;
-    }
-
-    protected function dumpLine($line)
-    {
-        $this->lines[] = $line;
     }
 
     protected function refDump(&$line, &$a, $ref = '1')

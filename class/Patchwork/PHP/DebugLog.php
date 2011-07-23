@@ -52,6 +52,7 @@ class DebugLog
 
     protected
 
+    $lines = array(),
     $token,
     $index      = 0,
     $startTime  = 0,
@@ -251,7 +252,17 @@ class DebugLog
     function dumpEvent($type, $data)
     {
         class_exists('Patchwork\PHP\Dumper', true) || __autoload('Patchwork\PHP\Dumper'); // http://bugs.php.net/42098 workaround
-        return Dumper::dump($v, false);
+        $d = new Dumper;
+        $d->setCallback('line', array($this, 'dumpLine'));
+        $d->dumpLines($v, false);
+        $d = $this->lines;
+        $this->lines = array();
+        return implode('', $d);
+    }
+
+    function dumpLine($line)
+    {
+        $this->lines[] = $line;
     }
 
         fwrite($this->logStream, "event-start:{$type}");
