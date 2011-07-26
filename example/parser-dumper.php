@@ -8,7 +8,9 @@ $file = dirname(dirname(__FILE__));
 
 require $file . '/class/Patchwork/PHP/Parser.php';
 require $file . '/class/Patchwork/PHP/Parser/Dumper.php';
+require $file . '/class/Patchwork/PHP/Parser/ShortOpenEcho.php';
 require $file . '/class/Patchwork/PHP/Parser/Normalizer.php';
+require $file . '/class/Patchwork/PHP/Parser/ShortArray.php';
 require $file . '/class/Patchwork/PHP/Parser/StringInfo.php';
 require $file . '/class/Patchwork/PHP/Parser/NamespaceInfo.php';
 require $file . '/class/Patchwork/PHP/Parser/ScopeInfo.php';
@@ -25,7 +27,9 @@ file_exists($file) || die("File not found: {$file}\n");
 
 
 $parser = new Patchwork_PHP_Parser_Dumper;
+$parser = new Patchwork_PHP_Parser_ShortOpenEcho($parser);
 $parser = new Patchwork_PHP_Parser_Normalizer($parser);
+new Patchwork_PHP_Parser_ShortArray($parser);
 new Patchwork_PHP_Parser_StringInfo($parser);
 new Patchwork_PHP_Parser_NamespaceInfo($parser);
 new Patchwork_PHP_Parser_ScopeInfo($parser);
