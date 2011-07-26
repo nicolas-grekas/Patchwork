@@ -16,8 +16,7 @@ define('T_NON_SEMANTIC', 1); // Primary type for non-semantic tokens (whitespace
 
 Patchwork_PHP_Parser::createToken(
     'T_CURLY_CLOSE', // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
-    'T_KEY_STRING',  // Array access in interpolated string
-    'T_UNEXPECTED_CHARACTER' // Unexpected character in input
+    'T_KEY_STRING'   // Array access in interpolated string
 );
 
 defined('T_NS_SEPARATOR') || Patchwork_PHP_Parser::createToken('T_NS_SEPARATOR');
@@ -186,7 +185,7 @@ class Patchwork_PHP_Parser
         $offset = strlen($t0[0][1]);
         $i      = 0;
 
-        // Re-insert characters removed by token_get_all() as T_UNEXPECTED_CHARACTER tokens
+        // Re-insert characters removed by token_get_all() as T_BAD_CHARACTER tokens
 
         while (isset($t0[++$i]))
         {
@@ -194,7 +193,7 @@ class Patchwork_PHP_Parser
 
             if (isset($t[0]))
                 while ($t[0] !== $code[$offset])
-                    $t1[] = array('\\' === $code[$offset] ? T_NS_SEPARATOR : T_UNEXPECTED_CHARACTER, $code[$offset++]);
+                    $t1[] = array('\\' === $code[$offset] ? T_NS_SEPARATOR : T_BAD_CHARACTER, $code[$offset++]);
 
             $offset += strlen($t);
             $t1[] = $t0[$i];
@@ -273,7 +272,7 @@ class Patchwork_PHP_Parser
                 case T_WHITESPACE:
                 case T_COMMENT:
                 case T_DOC_COMMENT:
-                case T_UNEXPECTED_CHARACTER: $priType = 1; // T_NON_SEMANTIC
+                case T_BAD_CHARACTER: $priType = 1; // T_NON_SEMANTIC
                 }
             }
             else
@@ -420,7 +419,7 @@ class Patchwork_PHP_Parser
             T_COMMENT => 1,
             T_WHITESPACE => 1,
             T_DOC_COMMENT => 1,
-            T_UNEXPECTED_CHARACTER => 1
+            T_BAD_CHARACTER => 1
         );
 
         null === $i && $i = $this->index;
