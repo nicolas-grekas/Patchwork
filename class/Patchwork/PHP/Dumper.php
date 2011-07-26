@@ -90,6 +90,8 @@ class Dumper
 
     protected function dumpString(&$line, $a)
     {
+        if (strlen($a) > $this->maxData && 0 < $this->maxData) $a = substr($a, 0, $this->maxData - 3) . '...';
+
         if (false !== $j = strpos($a, "\n"))
         {
             $i = 0;
@@ -125,7 +127,7 @@ class Dumper
 
         $line .= $ref . $open;
 
-        if ($this->depth === $this->maxDepth)
+        if ($this->depth === $this->maxDepth && 0 < $this->maxDepth)
         {
             $line .= '...' . $close;
             return;
@@ -142,7 +144,7 @@ class Dumper
             call_user_func($this->callbacks['line'], $line . "\n");
             $line = $pre;
 
-            if ($j === $this->maxLength)
+            if ($j === $this->maxLength && 0 < $this->maxLength)
             {
                 $line .= '...';
                 break;
