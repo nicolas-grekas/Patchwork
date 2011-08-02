@@ -17,7 +17,7 @@ class ErrorHandler extends PHP\DebugLog
 {
     function logError($code, $message, $file, $line, $context, $trace_offset = 1)
     {
-        if (error_reporting())
+        if (error_reporting() & $code)
         {
             switch ($code)
             {
