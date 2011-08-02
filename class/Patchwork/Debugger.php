@@ -406,14 +406,17 @@ EOHTML;
     {
         if ("\n" === $a) return "\n";
         if ('<' === $a[0]) return htmlspecialchars($a);
+        if ('event-' === substr($a, 0, 6)) return $a;
 
-        static $parser;
+        $token = substr($a, 0, 10);
 
-        isset($parser) || $parser = new p\PHP\DumperParser;
+        static $parser = array();
 
-        $token = $parser->tokenizeLine($a);
+        isset($parser[$token]) || $parser[$token] = new p\PHP\DumperParser;
 
-        $a = array();
+        $token = $parser[$token]->tokenizeLine(substr($a, 11));
+
+        $a = array('<span class="indent">' . substr($a, 0, 10) . ': </span>');
 
         foreach ($token as $token)
         {

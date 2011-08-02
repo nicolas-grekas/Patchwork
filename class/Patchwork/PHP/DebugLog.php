@@ -52,7 +52,6 @@ class DebugLog
 
     protected
 
-    $lines = array(),
     $token,
     $index      = 0,
     $startTime  = 0,
@@ -133,7 +132,7 @@ class DebugLog
         set_exception_handler(array($this, 'logException'));
         set_error_handler(array($this, 'logError'));
         self::$loggers[] = $this;
-        $this->token = sprintf('%010d', substr(mt_rand(), -10));
+        $this->token = sprintf('%0' . strlen(mt_getrandmax()) . 'd', mt_rand());
         $this->index = 0;
         $this->startTime = microtime(true);
     }
@@ -239,30 +238,26 @@ class DebugLog
         ++$this->index;
 
         $type = strtr($type, "\r\n", '--');
+        $type = "{$this->index}:{$type}:{$this->token}:" . self::$session . "\n";
 
-        $this->lock && flock($this->logStream, LOCK_EX);
-        $this->dumpEvent($type, $data);
-        $this->lock && flock($this->logStream, LOCK_UN);
+        fwrite($this->logStream, "event-start:{$type}");
+
+        class_exists('Patchwork\PHP\Dumper', true) || __autoload('Patchwork\PHP\Dumper'); // http://bugs.php.net/42098 workaround
+
+        $d = new Dumper;
+        $d->setCallback('line', array($this, 'dumpLine'));
+        $d->dumpLines($data, false);
+
+        fwrite($this->logStream, "event-end:{$type}");
 
         $data = array();
         $this->prevMemory = memory_get_usage(true);
         $this->prevTime = microtime(true);
     }
 
-    function dumpEvent($type, $data)
-    {
-        class_exists('Patchwork\PHP\Dumper', true) || __autoload('Patchwork\PHP\Dumper'); // http://bugs.php.net/42098 workaround
-        $d = new Dumper;
-        $d->setCallback('line', array($this, 'dumpLine'));
-        $d->dumpLines($v, false);
-        $d = $this->lines;
-        $this->lines = array();
-        return implode('', $d);
-    }
-
     function dumpLine($line)
     {
-        $this->lines[] = $line;
+        fwrite($this->logStream, "{$this->token}:{$line}");
     }
 
         fwrite($this->logStream, "event-start:{$type}");
