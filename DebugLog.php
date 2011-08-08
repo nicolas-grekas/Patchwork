@@ -27,7 +27,23 @@ class DebugLog
 
     protected static
 
-    $session,
+    $errorCodes = array(
+        E_ERROR => 'E_ERROR',
+        E_WARNING => 'E_WARNING',
+        E_PARSE => 'E_PARSE',
+        E_NOTICE => 'E_NOTICE',
+        E_CORE_ERROR => 'E_CORE_ERROR',
+        E_CORE_WARNING => 'E_CORE_WARNING',
+        E_COMPILE_ERROR => 'E_COMPILE_ERROR',
+        E_COMPILE_WARNING => 'E_COMPILE_WARNING',
+        E_USER_ERROR => 'E_USER_ERROR',
+        E_USER_WARNING => 'E_USER_WARNING',
+        E_USER_NOTICE => 'E_USER_NOTICE',
+        E_STRICT => 'E_STRICT',
+        E_RECOVERABLE_ERROR => 'E_RECOVERABLE_ERROR',
+        E_DEPRECATED => 'E_DEPRECATED',
+        E_USER_DEPRECATED => 'E_USER_DEPRECATED',
+    ),
     $logFile,
     $logFileStream = null,
     $loggers = array();
@@ -43,13 +59,12 @@ class DebugLog
     $logStream;
 
 
-    static function start($log_file, $session = null, self $logger = null)
+    static function start($log_file, self $logger = null)
     {
         null === $logger && $logger = new self;
-        null === $session && $session = empty(self::$session) ? mt_rand() : self::$session;
 
-        // Too bad: formatting errors with html_errors, error_prepend_string
-        // or error_append_string only works with display_errors=1
+        // Too bad: formatting errors with html_errors, error_prepend_string or
+        // error_append_string only works with displayed errors, not logged ones.
         ini_set('display_errors', false);
         ini_set('log_errors', true);
         ini_set('error_log', $log_file);
@@ -59,7 +74,6 @@ class DebugLog
         // Some fatal errors can be catched at shutdown time
         register_shutdown_function(array(__CLASS__, 'shutdown'));
 
-        self::$session = $session;
         self::$logFile = $log_file;
 
         $logger->register();
@@ -116,7 +130,7 @@ class DebugLog
         set_exception_handler(array($this, 'logException'));
         set_error_handler(array($this, 'logError'));
         self::$loggers[] = $this;
-        $this->token = mt_rand();
+        $this->token = sprintf('%0' . strlen(mt_getrandmax()) . 'd', mt_rand());
         $this->index = 0;
         $this->startTime = microtime(true);
     }
@@ -145,10 +159,12 @@ class DebugLog
         if (isset($this->seenErrors[$k])) return;
         $this->seenErrors[$k] = 1;
 
-        if (0 === $trace_offset && isset($this->traceDisabledErrors[$code]))
+        if (0 === $trace_offset && (isset($this->traceDisabledErrors[$code]) || isset($this->traceDisabledErrors[E_ALL])))
         {
             $trace_offset = -1;
         }
+
+        $code .= ' - ' . (isset(self::$errorCodes[$code]) ? self::$errorCodes[$code] : 'E_UNKNOWN');
 
         $k = array(
             'code'    => $code,
@@ -157,7 +173,20 @@ class DebugLog
             'line'    => $line,
         );
 
-        if (0 <= $trace_offset) $k['trace'] = $this->filterTrace(debug_backtrace(), ++$trace_offset);
+        if (0 <= $trace_offset++)
+        {
+            $trace = debug_backtrace();
+
+            if (isset($trace[$trace_offset]['function']))
+            {
+                $msg = $trace[$trace_offset]['function'];
+                if ('user_error' === $msg || 'trigger_error' === $msg) ++$trace_offset;
+            }
+
+            array_splice($trace, 0, $trace_offset);
+
+            $k['trace'] = $trace;
+        }
 
         $this->log('php-error', $k, $log_time);
     }
@@ -172,7 +201,7 @@ class DebugLog
             'message' => $e->getMessage(),
             'file'    => $e->getFile(),
             'line'    => $e->getLine(),
-            'trace'   => $this->filterTrace($e->getTrace(), 0),
+            'trace'   => $e->getTrace(),
         ), $log_time);
     }
 
@@ -191,8 +220,6 @@ class DebugLog
             || ($this->prevTime = $this->startTime)
             || ($this->prevTime = $this->startTime = $log_time);
 
-        $type = strtr($type, "\r\n", '--');
-        $v = self::$session . ':' . $this->token . ':' . ++$this->index;
         $data = array(
             'delta-ms' => sprintf('%0.3f', 1000*($log_time - $this->prevTime)),
             'total-ms' => sprintf('%0.3f', 1000*($log_time - $this->startTime)),
@@ -206,40 +233,28 @@ class DebugLog
             || ($this->logStream = self::$logFileStream)
             || ($this->logStream = self::$logFileStream = fopen(self::$logFile, 'ab'));
 
-        fwrite(
-            $this->logStream,
-            <<<EOTXT
-<event:{$v} type="{$type}">
-{$this->dump($data)}
-</event:{$v}>
+        ++$this->index;
 
+        $type = strtr($type, "\r\n", '--');
+        $type = "{$this->index}:{$type}:{$this->token}\n";
 
-EOTXT
-        );
+        fwrite($this->logStream, "event-start:{$type}");
 
-        $data = '';
+        class_exists('Patchwork\PHP\Dumper', true) || __autoload('Patchwork\PHP\Dumper'); // http://bugs.php.net/42098 workaround
+
+        $d = new Dumper;
+        $d->setCallback('line', array($this, 'dumpLine'));
+        $d->dumpLines($data, false);
+
+        fwrite($this->logStream, "event-end:{$type}");
+
+        $data = array();
         $this->prevMemory = memory_get_usage(true);
         $this->prevTime = microtime(true);
     }
 
-    function dump(&$v)
+    function dumpLine($line)
     {
-        return Dumper::dump($v, false);
-    }
-
-    function filterTrace($trace, $offset)
-    {
-        if (0 < $offset)
-        {
-            if (isset($trace[$offset]['function']))
-            {
-                $k = $trace[$offset]['function'];
-                if ('user_error' === $k || 'trigger_error' === $k) ++$offset;
-            }
-
-            array_splice($trace, 0, $offset);
-        }
-
-        return $trace;
+        fwrite($this->logStream, "{$this->token}:{$line}");
     }
 }
