@@ -45,7 +45,6 @@ class DebugLog
         E_DEPRECATED => 'E_DEPRECATED',
         E_USER_DEPRECATED => 'E_USER_DEPRECATED',
     ),
-    $session,
     $logFile,
     $logFileStream = null,
     $loggers = array();
@@ -61,7 +60,7 @@ class DebugLog
     $logStream;
 
 
-    static function start($log_file, self $logger = null, $session = null)
+    static function start($log_file, self $logger = null)
     {
         null === $logger && $logger = new self;
 
@@ -238,7 +237,7 @@ class DebugLog
         ++$this->index;
 
         $type = strtr($type, "\r\n", '--');
-        $type = "{$this->index}:{$type}:{$this->token}:" . self::$session . "\n";
+        $type = "{$this->index}:{$type}:{$this->token}\n";
 
         fwrite($this->logStream, "event-start:{$type}");
 
@@ -258,20 +257,5 @@ class DebugLog
     function dumpLine($line)
     {
         fwrite($this->logStream, "{$this->token}:{$line}");
-    }
-
-        fwrite($this->logStream, "event-start:{$type}");
-
-        class_exists('Patchwork\PHP\Dumper', true) || __autoload('Patchwork\PHP\Dumper'); // http://bugs.php.net/42098 workaround
-        $d = new Dumper;
-        $d->setCallback('line', array($this, 'dumpLine'));
-        $d->dumpLines($data, false);
-
-        fwrite($this->logStream, "event-end:{$type}");
-    }
-
-    function dumpLine($line)
-    {
-        fwrite($this->logStream, "{$this->token}: {$line}");
     }
 }
