@@ -439,7 +439,12 @@ EOHTML;
 
             if (isset($token['string']))
             {
-                $title[] = 'length: ' . strlen($data);
+                if (false !== strpos($data, '..."') && preg_match('/^(.*)\.\.\."(\d+)$/D', $data, $data))
+                {
+                    $title[] = 'length: ' . $data[2];
+                    $data = $data[1] . '…';
+                }
+                else $title[] = 'length: ' . strlen($data);
             }
 
             $token = implode(' ', $token);

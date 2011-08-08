@@ -61,8 +61,9 @@ class DumperParser
 
             if ('"' === $a[0])
             {
-                $i = strpos($a, '" => "', 1);
-                false === $i && $i = strrpos($a, '"', 1);
+                $i = strrpos($a, '"', 1);
+                $kv = strpos(substr($a, 1, $i - 1), '" => "');
+                false !== $kv && $i = $kv + 1;
 
                 $kv = array(substr($a, 0, $i+1));
 
@@ -97,7 +98,7 @@ class DumperParser
                          #9       #10          #11 #12
                         |(Resource(\ \#\d+)\ \((.*)([\)\[]))
                          #13
-                        |(\.\.\.)
+                        |(\.\.\.(?:"\d+)?)
                          #14#15#16        #17#18
                         |((.*)(\ \#\d+)?\{((\#\d+|\.\.\.)?\})?)
                          #19

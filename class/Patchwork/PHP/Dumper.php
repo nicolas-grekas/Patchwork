@@ -90,7 +90,12 @@ class Dumper
 
     protected function dumpString(&$line, $a)
     {
-        if (strlen($a) > $this->maxData && 0 < $this->maxData) $a = substr($a, 0, $this->maxData - 3) . '...';
+        if (0 < $this->maxData && $this->maxData < strlen($a))
+        {
+            $tail = '"' . strlen($a);
+            $a = substr($a, 0, $this->maxData - 3) . '...';
+        }
+        else $tail = '';
 
         if (false !== $j = strpos($a, "\n"))
         {
@@ -108,9 +113,9 @@ class Dumper
             }
             while (false !== $j = strpos($a, "\n", $i));
 
-            $line = $pre . addcslashes(substr($a, $i), '\\"') . '"""';
+            $line = $pre . addcslashes(substr($a, $i), '\\"') . $tail . '"""';
         }
-        else $line .= '"' . addcslashes($a, '\\"') . '"';
+        else $line .= '"' . addcslashes($a, '\\"') . $tail . '"';
     }
 
     protected function dumpArray(&$line, &$a, $ref, $open = '[', $close = ']')
@@ -134,7 +139,7 @@ class Dumper
         }
 
         ++$this->depth;
-        $i = $j = 0;
+        $i = 0;
         $pre = str_repeat('  ', $this->depth);
 
         foreach ($a as $k => &$v)
@@ -144,15 +149,10 @@ class Dumper
             call_user_func($this->callbacks['line'], $line . "\n");
             $line = $pre;
 
-            if ($j === $this->maxLength && 0 < $this->maxLength)
+            if ($i === $this->maxLength && 0 < $this->maxLength)
             {
-                $line .= '...';
+                $line .= '..."' . (count($a) - 1);
                 break;
-            }
-            else if (is_int($k) && 0 <= $k)
-            {
-                $k !== $i && $line .= $k . ' => ';
-                $i = $k + 1;
             }
             else
             {
@@ -167,7 +167,7 @@ class Dumper
             }
 
             $this->refDump($line, $v);
-            ++$j;
+            ++$i;
         }
 
         call_user_func($this->callbacks['line'], $line . "\n");
