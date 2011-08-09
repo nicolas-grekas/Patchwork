@@ -360,9 +360,15 @@ function Z()
     {
         if ('' !== $line && '[' === $line[0] && '] PHP ' === substr($line, 21, 6))
         {
-            $line = self::parseRawError($line);
-            $line = array_map('htmlspecialchars', $line);
-            $line = <<<EOHTML
+            if (false === strpos($line, ' on line '))
+            {
+                self::$buffer[''][] = htmlspecialchars(substr($line, 27));
+            }
+            else
+            {
+                $line = self::parseRawError($line);
+                $line = array_map('htmlspecialchars', $line);
+                $line = <<<EOHTML
 <script>
 focus()
 L=opener||parent;
@@ -374,11 +380,11 @@ L.backgroundColor='red'
 L.fontSize='18px'
 }
 </script><a href="javascript:;" style="color:red;font-weight:bold" title="{$line['date']}">{$line['type']}</a>
-{$line['message']} in {$line['file']} on line {$line['line']}.
-
+<strong>{$line['message']}</strong> in <strong>{$line['file']}</strong> on line <strong>{$line['line']}</strong>.
 
 EOHTML;
-            self::$buffer[''][] = $line;
+                self::$buffer[''][] = $line;
+            }
 
             if ('[' !== $next_line[0] || '] PHP ' !== substr($next_line, 21, 6)) self::$buffer[''][] = false;
         }
@@ -439,12 +445,17 @@ EOHTML;
 
             if ('event-end' === $a[0])
             {
-                self::$buffer[$a[3]][] = implode(':', $a) . "\n";
+                self::$buffer[$a[3]][] = "</span></span>\n";
                 self::$buffer[$a[3]][] = false;
             }
             else if ('event-start' === $a[0])
             {
-                self::$buffer[$a[3]][] = implode(':', $a) . "\n";
+                self::$buffer[$a[3]][] = '<span class="event '
+                    . htmlspecialchars($a[2])
+                    . '" title="' . $a[1] . ':' . $a[3] . '">'
+                    . '<a href="javascript:;" onclick="var s=this.nextSibling.style; s.display=\'\'==s.display?\'none\':\'\';">'
+                    . htmlspecialchars($a[2])
+                    . '</a><span class="event-data" style="display:none"> ';
             }
 
             return;
@@ -460,7 +471,7 @@ EOHTML;
 
         $token = $parser[$token]->tokenizeLine($a[1]);
 
-        $a = array('<span class="indent">' . substr($a, 0, 10) . ': </span>');
+        $a = array();
 
         foreach ($token as $token)
         {
