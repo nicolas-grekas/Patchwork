@@ -23,6 +23,8 @@ class Debugger extends p
     $sleep = 500, // (ms)
     $period = 5;  // (s)
 
+    protected static $buffer = array();
+
 
     static function __constructStatic()
     {
@@ -296,38 +298,33 @@ function Z()
 
                 if ($h = @fopen($error_log, 'r'))
                 {
-                    while (false !== $a = fgets($h))
+                    $next_line = fgets($h);
+
+                    while (false !== $line = $next_line)
                     {
-                        if ('' !== $a && '[' === $a[0] && '] PHP ' === substr($a, 21, 6))
+                        $next_line = fgets($h);
+
+                        self::parseLine($line, $next_line);
+
+                        while (1)
                         {
-                            $b = self::parseRawError($a);
-                            $b = array_map('htmlspecialchars', $b);
-                            $b['file'] = self::parseZcachefile($b['file']);
+                            if (false !== $line = reset(self::$buffer))
+                            {
+                                echo self::parseZcachefile(implode('', $line));
 
-                            $a = <<<EOHTML
-<script>
-focus()
-L=opener||parent;
-L=L&&L.document.getElementById('debugLink')
-L=L&&L.style
-if(L)
-{
-L.backgroundColor='red'
-L.fontSize='18px'
-}
-</script><a href="javascript:;" style="color:red;font-weight:bold" title="{$b['date']}">{$b['type']}</a>
-{$b['message']} in {$b['file']} on line {$b['line']}.
+                                if ($line && false === end($line))
+                                {
+                                    unset(self::$buffer[key(self::$buffer)]);
+                                    continue;
+                                }
+                                else
+                                {
+                                    self::$buffer[key(self::$buffer)] = array();
+                                }
+                            }
 
-
-EOHTML;
+                            break;
                         }
-                        else
-                        {
-                            $a = self::htmlDumpLine($a);
-                            $a = self::parseZcachefile($a);
-                        }
-
-                        echo $a;
 
                         if (connection_aborted()) break;
                     }
@@ -357,6 +354,38 @@ EOHTML;
         }
 
         die('</body></html>');
+    }
+
+    static function parseLine($line, $next_line)
+    {
+        if ('' !== $line && '[' === $line[0] && '] PHP ' === substr($line, 21, 6))
+        {
+            $line = self::parseRawError($line);
+            $line = array_map('htmlspecialchars', $line);
+            $line = <<<EOHTML
+<script>
+focus()
+L=opener||parent;
+L=L&&L.document.getElementById('debugLink')
+L=L&&L.style
+if(L)
+{
+L.backgroundColor='red'
+L.fontSize='18px'
+}
+</script><a href="javascript:;" style="color:red;font-weight:bold" title="{$line['date']}">{$line['type']}</a>
+{$line['message']} in {$line['file']} on line {$line['line']}.
+
+
+EOHTML;
+            self::$buffer[''][] = $line;
+
+            if ('[' !== $next_line[0] || '] PHP ' !== substr($next_line, 21, 6)) self::$buffer[''][] = false;
+        }
+        else
+        {
+            self::htmlDumpLine($line);
+        }
     }
 
     static function parseRawError($a)
@@ -404,17 +433,31 @@ EOHTML;
 
     static function htmlDumpLine($a)
     {
-        if ("\n" === $a) return "\n";
-        if ('<' === $a[0]) return htmlspecialchars($a);
-        if ('event-' === substr($a, 0, 6)) return $a;
+        if ('event-' === substr($a, 0, 6))
+        {
+            $a = explode(':', substr($a, 0, -1), 4);
+
+            if ('event-end' === $a[0])
+            {
+                self::$buffer[$a[3]][] = implode(':', $a) . "\n";
+                self::$buffer[$a[3]][] = false;
+            }
+            else if ('event-start' === $a[0])
+            {
+                self::$buffer[$a[3]][] = implode(':', $a) . "\n";
+            }
+
+            return;
+        }
 
         $token = substr($a, 0, 10);
+        self::$buffer[$token][] =& $a;
 
         static $parser = array();
 
         isset($parser[$token]) || $parser[$token] = new p\PHP\DumperParser;
 
-        $token = $parser[$token]->tokenizeLine(substr($a, 11));
+        $token = $parser[$token]->tokenizeLine(substr($a, 12));
 
         $a = array('<span class="indent">' . substr($a, 0, 10) . ': </span>');
 
@@ -453,6 +496,6 @@ EOHTML;
             $a[] = '<span class="' . $token . '"' . $title . '>' . htmlspecialchars($data) . '</span>';
         }
 
-        return implode('', $a) . "\n";
+        $a = implode('', $a) . "\n";
     }
 }

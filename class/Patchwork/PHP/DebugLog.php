@@ -256,6 +256,6 @@ class DebugLog
 
     function dumpLine($line)
     {
-        fwrite($this->logStream, "{$this->token}:{$line}");
+        fwrite($this->logStream, "{$this->token}: {$line}");
     }
 }
