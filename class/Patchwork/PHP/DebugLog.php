@@ -131,7 +131,7 @@ class DebugLog
         set_exception_handler(array($this, 'logException'));
         set_error_handler(array($this, 'logError'));
         self::$loggers[] = $this;
-        $this->token = sprintf('%0' . strlen(mt_getrandmax()) . 'd', mt_rand());
+        $this->token = sprintf('%010d', substr(mt_rand(), -10));
         $this->index = 0;
         $this->startTime = microtime(true);
     }

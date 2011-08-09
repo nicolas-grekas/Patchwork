@@ -450,14 +450,15 @@ EOHTML;
             return;
         }
 
-        $token = substr($a, 0, 10);
+        $a = explode(': ', $a, 2);
+        $token = $a[0];
         self::$buffer[$token][] =& $a;
 
         static $parser = array();
 
         isset($parser[$token]) || $parser[$token] = new p\PHP\DumperParser;
 
-        $token = $parser[$token]->tokenizeLine(substr($a, 12));
+        $token = $parser[$token]->tokenizeLine($a[1]);
 
         $a = array('<span class="indent">' . substr($a, 0, 10) . ': </span>');
 
