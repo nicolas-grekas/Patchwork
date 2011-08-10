@@ -168,7 +168,7 @@ class Patchwork_PHP_Parser
         {
             for ($i = 0; $i < 32; ++$i)
                 if ($i !== 0x09 && $i !== 0x0A && $i !== 0x0D && strpos($code, chr($i)))
-                    break $bin = true;
+                    if ($bin = true) break;
         }
 
         if (!$bin) return token_get_all($code);
