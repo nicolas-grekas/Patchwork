@@ -24,7 +24,21 @@ class Patchwork_PHP_Parser_ShortArray extends Patchwork_PHP_Parser
 
     protected function openBracket(&$token)
     {
-        if ($this->stack[] = T_VARIABLE !== $this->lastType)
+        $is_array = true;
+
+        switch ($this->lastType)
+        {
+        case '}':
+            $token =& $this->types;
+            end($token);
+            while ('}' === current($token)) prev($token);
+            switch (current($token)) {case ';': case '{': break 2;}
+
+        case ')': case ']': case T_VARIABLE:
+            $is_array = false;
+        }
+
+        if ($this->stack[] = $is_array)
             return $this->unshiftTokens(array(T_ARRAY, 'array'), '(');
     }
 
