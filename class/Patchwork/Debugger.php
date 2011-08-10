@@ -360,33 +360,57 @@ function Z()
     {
         if ('' !== $line && '[' === $line[0] && '] PHP ' === substr($line, 21, 6))
         {
-            if (false === strpos($line, ' on line '))
+            if (preg_match("' on line \d+$'", $line))
             {
-                self::$buffer[''][] = htmlspecialchars(substr($line, 27));
+                self::htmlDumpLine("event-start:0:php-raw-error:0000000000\n");
+                $line = self::parseRawError($line);
+
+                $line = array(
+                    '[',
+                    '  "log-time" => "' . $line['date'] . '"',
+                    '  "log-data" => #1[',
+                    '    "code" => "' . $line['type'] . '"',
+                    '    "message" => "' . addcslashes($line['message'], '\\"') . '"',
+                    '    "file" => "' . addcslashes($line['file'], '\\"') . '"',
+                    '    "line" => ' . $line['line'],
+                );
+
+                foreach ($line as $line)
+                {
+                    self::htmlDumpLine('0000000000: ' . $line . "\n");
+                }
             }
             else
             {
-                $line = self::parseRawError($line);
-                $line = array_map('htmlspecialchars', $line);
-                $line = <<<EOHTML
-<script>
-focus()
-L=opener||parent;
-L=L&&L.document.getElementById('debugLink')
-L=L&&L.style
-if(L)
-{
-L.backgroundColor='red'
-L.fontSize='18px'
-}
-</script><a href="javascript:;" style="color:red;font-weight:bold" title="{$line['date']}">{$line['type']}</a>
-<strong>{$line['message']}</strong> in <strong>{$line['file']}</strong> on line <strong>{$line['line']}</strong>.
+                // Xdebug inserted stack trace
 
-EOHTML;
-                self::$buffer[''][] = $line;
+                $line = substr(rtrim($line), 27);
+
+                if ("Stack trace:" === $line)
+                {
+                    $line = '    "trace" => #2[';
+                }
+                else
+                {
+                    $line = explode('. ', $line, 2);
+
+                    $line = '      ' . $line[0] . ' => "' . addcslashes($line[1], '\\"') . '"';
+                }
+
+                self::htmlDumpLine('0000000000: ' . $line . "\n");
+
+                if ('[' !== $next_line[0] || '] PHP ' !== substr($next_line, 21, 6) || preg_match("' on line \d+$'", $next_line))
+                {
+                    self::htmlDumpLine("0000000000:     ]\n");
+                }
             }
 
-            if ('[' !== $next_line[0] || '] PHP ' !== substr($next_line, 21, 6)) self::$buffer[''][] = false;
+            if ('[' !== $next_line[0] || '] PHP ' !== substr($next_line, 21, 6) || preg_match("' on line \d+$'", $next_line))
+            {
+                self::htmlDumpLine("0000000000:   ]\n");
+                self::htmlDumpLine("0000000000: ]\n");
+                self::htmlDumpLine("event-end:0:php-raw-error:0000000000\n");
+            }
         }
         else
         {
@@ -399,11 +423,28 @@ EOHTML;
         $b = strpos($a, ':', 28);
         $b = array(
             'date' => substr($a, 1, 20),
-            'type' => substr($a, 23, $b-23),
+            'type' => substr($a, 27, $b-27),
             'message' => rtrim(substr($a, $b+3)),
             'file' => '',
             'line' => 0,
         );
+
+        $b['date'] = date('c 000000\u\s', strtotime($b['date']));
+
+        static $msg_map = array(
+            'Notice' => 'E_NOTICE',
+            'Warning' => 'E_WARNING',
+            'Deprecated' => 'E_DEPRECATED',
+            'Fatal error' => 'E_ERROR',
+            'Parse error' => 'E_PARSE',
+            'Strict Standards' => 'E_STRICT',
+            'Catchable fatal error' => 'E_RECOVERABLE_ERROR',
+        );
+
+        if (isset($msg_map[$b['type']]))
+        {
+            $b['type'] = constant($msg_map[$b['type']]) . ' - ' . $msg_map[$b['type']];
+        }
 
         $a = explode(' on line ', $b['message']);
         $b['line'] = array_pop($a);
