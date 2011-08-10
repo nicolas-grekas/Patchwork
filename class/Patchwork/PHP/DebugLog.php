@@ -237,21 +237,28 @@ class DebugLog
         ++$this->index;
 
         $type = strtr($type, "\r\n", '--');
+
+        $this->lock && flock($this->logStream, LOCK_EX);
+        $this->dumpEvent($type, $data);
+        $this->lock && flock($this->logStream, LOCK_UN);
+
+        $data = array();
+        $this->prevMemory = memory_get_usage(true);
+        $this->prevTime = microtime(true);
+    }
+
+    function dumpEvent($type, $data)
+    {
         $type = "{$this->index}:{$type}:{$this->token}\n";
 
         fwrite($this->logStream, "event-start:{$type}");
 
         class_exists('Patchwork\PHP\Dumper', true) || __autoload('Patchwork\PHP\Dumper'); // http://bugs.php.net/42098 workaround
-
         $d = new Dumper;
         $d->setCallback('line', array($this, 'dumpLine'));
         $d->dumpLines($data, false);
 
         fwrite($this->logStream, "event-end:{$type}");
-
-        $data = array();
-        $this->prevMemory = memory_get_usage(true);
-        $this->prevTime = microtime(true);
     }
 
     function dumpLine($line)

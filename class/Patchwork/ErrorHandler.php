@@ -15,6 +15,8 @@ namespace Patchwork;
 
 class ErrorHandler extends PHP\DebugLog
 {
+    public $lock = false;
+
     function logError($code, $message, $file, $line, $context, $trace_offset = 1)
     {
         if (error_reporting() & $code)
