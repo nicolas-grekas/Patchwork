@@ -105,6 +105,8 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
                 }
             }
         }
+        else if (')' === $t[0]) return;
+        else if (',' === $t[0]) return;
 
         $token .= $this->lead;
         $this->nextTail = $this->tail;
