@@ -180,6 +180,25 @@ acronym
     color: silver;
 }
 
+.event-compact,
+.event-expanded
+{
+    font-size: 11px;
+}
+
+.event-compact
+{
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.event-expanded
+{
+    white-space: pre;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
 .indent,
 .key
 {
@@ -271,9 +290,39 @@ function Z()
 {
     scrollTo(0, window.innerHeight||document.documentElement.scrollHeight);
 }
+
+function classifyEvents()
+{
+    var t, e, events = document.getElementById('events'), c = events.childNodes, i = c.length;
+
+    while (i--)
+    {
+        e = c[i];
+        events.removeChild(e);
+
+        if (e.tagName !== 'DIV') continue;
+
+        switch (e.className)
+        {
+        case 'event php-raw-error':
+        case 'event php-error': t = 'php-errors'; break;
+        case 'event E': t = 'E'; break;
+        default: t = 'requests'; break;
+        }
+
+        document.getElementById(t).appendChild(e);
+    }
+}
 </script>
 </head>
-<body><?php
+<body>
+<div id="console">
+<div id="php-errors"><h2>PHP Errors</h2></div>
+<div id="E"><h2>E()</h2></div>
+<div id="requests"><h2>Requests</h2></div>
+</div>
+<div id="events">
+<?php
 
         ignore_user_abort($S);
         set_time_limit(0);
@@ -281,8 +330,6 @@ function Z()
         ini_set('error_log', PATCHWORK_PROJECT_PATH . 'error.patchwork.log');
         $error_log = ini_get('error_log');
         $error_log || $error_log = PATCHWORK_PROJECT_PATH . 'error.patchwork.log';
-        echo str_repeat(' ', 512), // special MSIE
-            '<pre>';
         $S||flush();
 
         $sleep = max(100, (int) self::$sleep);
@@ -353,7 +400,7 @@ function Z()
             usleep($sleep);
         }
 
-        die('</body></html>');
+        die('</div></body></html>');
     }
 
     static function parseLine($line, $next_line)
@@ -486,17 +533,17 @@ function Z()
 
             if ('event-end' === $a[0])
             {
-                self::$buffer[$a[3]][] = "</span></span>\n";
+                self::$buffer[$a[3]][] = "</span></div><script>classifyEvents()</script>\n";
                 self::$buffer[$a[3]][] = false;
             }
             else if ('event-start' === $a[0])
             {
-                self::$buffer[$a[3]][] = '<span class="event '
+                self::$buffer[$a[3]][] = '<div class="event '
                     . htmlspecialchars($a[2])
                     . '" title="' . $a[1] . ':' . $a[3] . '">'
-                    . '<a href="javascript:;" onclick="var s=this.nextSibling.style; s.display=\'\'==s.display?\'none\':\'\';">'
+                    . '<a href="javascript:;" onclick="var s=this.nextSibling; s.className=\'event-compact\'==s.className?\'event-expanded\':\'event-compact\';">'
                     . htmlspecialchars($a[2])
-                    . '</a><span class="event-data" style="display:none"> ';
+                    . '</a><span class="event-compact"> ';
             }
 
             return;
