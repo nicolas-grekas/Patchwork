@@ -413,25 +413,27 @@ function classifyEvents()
     {
         if ('' !== $line && '[' === $line[0] && '] PHP ' === substr($line, 21, 6))
         {
+            static $raw_token, $raw_index = 0;
+
+            if (empty($raw_token)) $raw_token = substr(mt_rand(), -10);
+
             if (preg_match("' on line \d+$'", $line))
             {
-                self::htmlDumpLine("event-start:0:php-raw-error:0000000000\n");
+                ++$raw_index;
+
+                self::htmlDumpLine("event-start:{$raw_index}:php-raw-error:{$raw_token}\n");
                 $line = self::parseRawError($line);
 
                 $line = array(
                     '[',
                     '  "log-time" => "' . $line['date'] . '"',
                     '  "log-data" => #1[',
-                    '    "code" => "' . $line['type'] . '"',
-                    '    "message" => "' . addcslashes($line['message'], '\\"') . '"',
-                    '    "file" => "' . addcslashes($line['file'], '\\"') . '"',
-                    '    "line" => ' . $line['line'],
+                    '    "mesg" => "' . addcslashes($line['message'], '\\"') . '"',
+                    '    "code" => "' . $line['type'] . ' on line ' . $line['line'] . ' in ' . addcslashes($line['file'], '\\"') . '"',
                 );
 
                 foreach ($line as $line)
-                {
-                    self::htmlDumpLine('0000000000: ' . $line . "\n");
-                }
+                    self::htmlDumpLine("{$raw_token}: {$line}\n");
             }
             else
             {
@@ -450,19 +452,19 @@ function classifyEvents()
                     $line = '      ' . $line[0] . ' => "' . addcslashes($line[1], '\\"') . '"';
                 }
 
-                self::htmlDumpLine('0000000000: ' . $line . "\n");
+                self::htmlDumpLine("{$raw_token}: {$line}\n");
 
                 if ('[' !== $next_line[0] || '] PHP ' !== substr($next_line, 21, 6) || preg_match("' on line \d+$'", $next_line))
                 {
-                    self::htmlDumpLine("0000000000:     ]\n");
+                    self::htmlDumpLine("{$raw_token}:     ]\n");
                 }
             }
 
             if ('[' !== $next_line[0] || '] PHP ' !== substr($next_line, 21, 6) || preg_match("' on line \d+$'", $next_line))
             {
-                self::htmlDumpLine("0000000000:   ]\n");
-                self::htmlDumpLine("0000000000: ]\n");
-                self::htmlDumpLine("event-end:0:php-raw-error:0000000000\n");
+                self::htmlDumpLine("{$raw_token}:   ]\n");
+                self::htmlDumpLine("{$raw_token}: ]\n");
+                self::htmlDumpLine("event-end:0:php-raw-error:{$raw_token}\n");
             }
         }
         else
@@ -496,7 +498,7 @@ function classifyEvents()
 
         if (isset($msg_map[$b['type']]))
         {
-            $b['type'] = constant($msg_map[$b['type']]) . ' - ' . $msg_map[$b['type']];
+            $b['type'] = $msg_map[$b['type']];
         }
 
         $a = explode(' on line ', $b['message']);
@@ -544,9 +546,11 @@ function classifyEvents()
             }
             else if ('event-start' === $a[0])
             {
+                static $index = 0; ++$index;
+
                 self::$buffer[$a[3]][] = '<div class="event '
                     . htmlspecialchars($a[2])
-                    . '" title="' . $a[1] . ':' . $a[3] . '">'
+                    . '" id="event-' . $index . '-' . $a[1] . '-' . $a[3] . '">'
                     . '<a href="javascript:;" onclick="var s=this.nextSibling; s.className=\'event-compact\'==s.className?\'event-expanded\':\'event-compact\';">'
                     . htmlspecialchars($a[2])
                     . '</a><span class="event-compact"> ';

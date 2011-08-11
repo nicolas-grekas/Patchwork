@@ -185,18 +185,19 @@ class DebugLog
         $log_time || $log_time = microtime(true);
 
         $data = array(
-            'class'   => get_class($e),
-            'code'    => $e->getCode(),
-            'message' => $e->getMessage(),
-            'file'    => $e->getFile(),
-            'line'    => $e->getLine(),
-            'trace'   => $e->getTrace(),
+            'type' => get_class($e),
+            'mesg' => $e->getMessage(),
+            'code' => $e->getCode() . ' on line ' . $e->getLine() . ' in ' . $e->getFile(),
+            'trace' => $e->getTrace(),
         );
 
         if ($e instanceof ErrorException)
         {
-            unset($data['class']);
-            isset(self::$errorCodes[$data['code']]) && $data['code'] .= ' - ' . self::$errorCodes[$data['code']];
+            unset($data['type']);
+            $data['code'] = explode(' ', $data['code'], 2);
+            $data['code'] = isset(self::$errorCodes[$data['code'][0]])
+                ? self::$errorCodes[$data['code'][0]] . ' ' . $data['code'][1]
+                : $data['code'][0] . ' ' . $data['code'][1];
 
             $e->logTime && $log_time = $e->logTime;
 
@@ -210,11 +211,19 @@ class DebugLog
 
                 $e && array_splice($data['trace'], 0, $e);
             }
-            else $data['trace'] = array();
+            else unset($data['trace']);
 
             $e = 'php-error';
         }
         else $e = 'php-exception';
+
+        if (isset($data['trace'])) foreach ($data['trace'] as &$t)
+        {
+            $t = array(
+                'call' => (isset($t['class']) ? $t['class'] . $t['type'] : '') . $t['function'] . '() on line ' . $t['line'] . ' in ' . $t['file'],
+                'args' => isset($t['args']) ? $t['args'] : false,
+            );
+        }
 
         $this->log($e, $data, $log_time);
     }
