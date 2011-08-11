@@ -19,10 +19,11 @@ class DebugLog
 
     $lock = true,
     $traceDisabledErrors = array(
-        E_NOTICE => E_NOTICE,
+        E_PARSE => E_PARSE,
         E_STRICT => E_STRICT,
-        E_USER_NOTICE => E_USER_NOTICE,
+        E_NOTICE => E_NOTICE,
         E_DEPRECATED => E_DEPRECATED,
+        E_USER_NOTICE => E_USER_NOTICE,
         E_USER_DEPRECATED => E_USER_DEPRECATED,
     );
 
@@ -98,7 +99,7 @@ class DebugLog
             // Get the last fatal error and format it appropriately
             case E_ERROR: case E_PARSE: case E_CORE_ERROR:
             case E_COMPILE_ERROR: case E_COMPILE_WARNING:
-                $logger->logError($e['type'], $e['message'], $e['file'], $e['line'], array(), -1);
+                $logger->logLastError($e['type'], $e['message'], $e['file'], $e['line']);
                 self::resetLastError();
             }
         }
@@ -151,62 +152,79 @@ class DebugLog
         }
     }
 
-    function logError($code, $msg, $file, $line, $k, $trace_offset = 0)
+    function logError($code, $msg, $file, $line, $k, $trace_offset = 0, $log_time = 0)
     {
-        $log_time = microtime(true);
+        $log_time || $log_time = microtime(true);
 
-        // Do not log duplicate errors
-        $k = md5("{$code}/{$line}/{$file}\x00{$msg}", true);
-        if (isset($this->seenErrors[$k])) return;
-        $this->seenErrors[$k] = 1;
-
-        if (0 === $trace_offset && (isset($this->traceDisabledErrors[$code]) || isset($this->traceDisabledErrors[E_ALL])))
+        if (0 <= $trace_offset)
         {
-            $trace_offset = -1;
-        }
+            ++$trace_offset;
 
-        $code .= ' - ' . (isset(self::$errorCodes[$code]) ? self::$errorCodes[$code] : 'E_UNKNOWN');
+            // For duplicate errors, log the trace only once
+            $k = md5("{$code}/{$line}/{$file}\x00{$msg}", true);
 
-        $k = array(
-            'code'    => $code,
-            'message' => $msg,
-            'file'    => $file,
-            'line'    => $line,
-        );
-
-        if (0 <= $trace_offset++)
-        {
-            $trace = debug_backtrace();
-
-            if (isset($trace[$trace_offset]['function']))
+            if ( isset($this->traceDisabledErrors[$code])
+              || isset($this->traceDisabledErrors[E_ALL])
+              || isset($this->seenErrors[$k]) )
             {
-                $msg = $trace[$trace_offset]['function'];
-                if ('user_error' === $msg || 'trigger_error' === $msg) ++$trace_offset;
+                $trace_offset = -1;
             }
-
-            array_splice($trace, 0, $trace_offset);
-
-            $k['trace'] = $trace;
+            else $this->seenErrors[$k] = 1;
         }
 
-        $this->log('php-error', $k, $log_time);
+        $k = new ErrorException($msg, $code, 0, $file, $line);
+        $k->traceOffset = $trace_offset;
+        $k->logTime = $log_time;
+
+        if (E_RECOVERABLE_ERROR === $code) throw $k;
+        else $this->logException($k, $log_time);
     }
 
-    function logException(\Exception $e)
+    function logException(\Exception $e, $log_time = 0)
     {
-        $log_time = microtime(true);
+        $log_time || $log_time = microtime(true);
 
-        $this->log('php-exception', array(
+        $data = array(
             'class'   => get_class($e),
             'code'    => $e->getCode(),
             'message' => $e->getMessage(),
             'file'    => $e->getFile(),
             'line'    => $e->getLine(),
             'trace'   => $e->getTrace(),
-        ), $log_time);
+        );
+
+        if ($e instanceof ErrorException)
+        {
+            unset($data['class']);
+            isset(self::$errorCodes[$data['code']]) && $data['code'] .= ' - ' . self::$errorCodes[$data['code']];
+
+            $e->logTime && $log_time = $e->logTime;
+
+            if (0 <= $e = $e->traceOffset)
+            {
+                if (isset($data['trace'][$e]['function']))
+                {
+                    $f = $data['trace'][$e]['function'];
+                    if ('user_error' === $f || 'trigger_error' === $f) ++$e;
+                }
+
+                $e && array_splice($data['trace'], 0, $e);
+            }
+            else $data['trace'] = array();
+
+            $e = 'php-error';
+        }
+        else $e = 'php-exception';
+
+        $this->log($e, $data, $log_time);
     }
 
-    function log($type, array $data = array(), $log_time = null)
+    function logLastError($code, $message, $file, $line)
+    {
+        $this->logError($code, $message, $file, $line, array(), -1);
+    }
+
+    function log($type, array $data = array(), $log_time = 0)
     {
         if (null === $this->token)
         {
@@ -215,7 +233,7 @@ class DebugLog
 
         // Get time and memory profiling information
 
-        null === $log_time && $log_time = microtime(true);
+        $log_time || $log_time = microtime(true);
 
         $this->prevTime
             || ($this->prevTime = $this->startTime)
@@ -253,7 +271,7 @@ class DebugLog
 
         fwrite($this->logStream, "event-start:{$type}");
 
-        class_exists('Patchwork\PHP\Dumper', true) || __autoload('Patchwork\PHP\Dumper'); // http://bugs.php.net/42098 workaround
+        class_exists('Patchwork\PHP\Dumper') || __autoload('Patchwork\PHP\Dumper'); // http://bugs.php.net/42098 workaround
         $d = new Dumper;
         $d->setCallback('line', array($this, 'dumpLine'));
         $d->dumpLines($data, false);
@@ -265,4 +283,9 @@ class DebugLog
     {
         fwrite($this->logStream, "{$this->token}: {$line}");
     }
+}
+
+class ErrorException extends \ErrorException
+{
+    public $traceOffset = 0, $logTime = 0;
 }

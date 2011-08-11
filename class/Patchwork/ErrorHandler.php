@@ -13,14 +13,19 @@
 
 namespace Patchwork;
 
+class_exists('Patchwork\PHP\DebugLog') || __autoload('Patchwork\PHP\DebugLog'); // http://bugs.php.net/42098 workaround
+
 class ErrorHandler extends PHP\DebugLog
 {
     public $lock = false;
 
-    function logError($code, $message, $file, $line, $context, $trace_offset = 1)
+    function logError($code, $message, $file, $line, $context, $trace_offset = 0, $log_time = 0)
     {
         if (error_reporting() & $code)
         {
+            $log_time || $log_time = microtime(true);
+            0 <= $trace_offset && ++$trace_offset;
+
             switch ($code)
             {
             case E_DEPRECATED:
@@ -41,7 +46,7 @@ class ErrorHandler extends PHP\DebugLog
             \Patchwork::setExpires('onmaxage');
             $GLOBALS['patchwork_private'] = true;
 
-            parent::logError($code, $message, $file, $line, $context, $trace_offset);
+            parent::logError($code, $message, $file, $line, $context, $trace_offset, $log_time);
 
             switch ($code)
             {
@@ -52,5 +57,10 @@ class ErrorHandler extends PHP\DebugLog
             }
         }
         else return false;
+    }
+
+    function logLastError($code, $message, $file, $line)
+    {
+        // Do not duplicate the last error
     }
 }

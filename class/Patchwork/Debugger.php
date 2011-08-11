@@ -180,6 +180,11 @@ acronym
     color: silver;
 }
 
+#events
+{
+    display: none;
+}
+
 .event-compact,
 .event-expanded
 {
@@ -304,6 +309,7 @@ function classifyEvents()
 
         switch (e.className)
         {
+        case 'event php-exception':
         case 'event php-raw-error':
         case 'event php-error': t = 'php-errors'; break;
         case 'event E': t = 'E'; break;
