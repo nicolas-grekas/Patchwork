@@ -19,7 +19,6 @@ class DebugLog
 
     $lock = true,
     $traceDisabledErrors = array(
-        E_PARSE => E_PARSE,
         E_STRICT => E_STRICT,
         E_NOTICE => E_NOTICE,
         E_DEPRECATED => E_DEPRECATED,
@@ -52,16 +51,15 @@ class DebugLog
 
     protected
 
-    $token,
-    $index      = 0,
     $startTime  = 0,
     $prevTime   = 0,
     $prevMemory = 0,
     $seenErrors = array(),
-    $logStream;
+    $logStream,
+    $lineFormat = "%s\n";
 
 
-    static function start($log_file, self $logger = null)
+    static function start($log_file = 'php://stderr', self $logger = null)
     {
         null === $logger && $logger = new self;
 
@@ -132,8 +130,6 @@ class DebugLog
         set_exception_handler(array($this, 'logException'));
         set_error_handler(array($this, 'logError'));
         self::$loggers[] = $this;
-        $this->token = sprintf('%010d', substr(mt_rand(), -10));
-        $this->index = 0;
         $this->startTime = microtime(true);
     }
 
@@ -141,7 +137,6 @@ class DebugLog
     {
         if ($this === end(self::$loggers))
         {
-            $this->token = null;
             array_pop(self::$loggers);
             restore_error_handler();
             restore_exception_handler();
@@ -230,16 +225,11 @@ class DebugLog
 
     function logLastError($code, $message, $file, $line)
     {
-        $this->logError($code, $message, $file, $line, array(), -1);
+        // This serves as a hook if a derivated class wants to catch the last fatal error
     }
 
     function log($type, array $data = array(), $log_time = 0)
     {
-        if (null === $this->token)
-        {
-            return user_error('This ' . __CLASS__ . ' object has been unregistered', E_USER_WARNING);
-        }
-
         // Get time and memory profiling information
 
         $log_time || $log_time = microtime(true);
@@ -248,25 +238,23 @@ class DebugLog
             || ($this->prevTime = $this->startTime)
             || ($this->prevTime = $this->startTime = $log_time);
 
-        $data = array(
-            'delta-ms' => sprintf('%0.3f', 1000*($log_time - $this->prevTime)),
-            'total-ms' => sprintf('%0.3f', 1000*($log_time - $this->startTime)),
-            'delta-mem' => isset($this->prevMemory) ? memory_get_usage(true) - $this->prevMemory : 0,
-            'peak-mem' => memory_get_peak_usage(true),
-            'log-time' => date('c', $log_time) . sprintf(' %06dus', 100000*($log_time - floor($log_time))),
-            'log-data' => $data,
+        $meta = array(
+            'type' => $type,
+            'time' => date('c', $log_time) . sprintf(
+                ' %06dus - %0.3fms - %0.3fms',
+                100000 * ($log_time - floor($log_time)),
+                  1000 * ($log_time - $this->startTime),
+                  1000 * ($log_time - $this->prevTime)
+            ),
+            'mem'  => memory_get_peak_usage(true) . ' - ' . (memory_get_usage(true) - $this->prevMemory),
         );
 
         isset($this->logStream)
             || ($this->logStream = self::$logFileStream)
             || ($this->logStream = self::$logFileStream = fopen(self::$logFile, 'ab'));
 
-        ++$this->index;
-
-        $type = strtr($type, "\r\n", '--');
-
         $this->lock && flock($this->logStream, LOCK_EX);
-        $this->dumpEvent($type, $data);
+        $this->dumpEvent($meta, $data);
         $this->lock && flock($this->logStream, LOCK_UN);
 
         $data = array();
@@ -274,23 +262,27 @@ class DebugLog
         $this->prevTime = microtime(true);
     }
 
-    function dumpEvent($type, $data)
+    function dumpEvent($meta, $data)
     {
-        $type = "{$this->index}:{$type}:{$this->token}\n";
+        fprintf($this->logStream, $this->lineFormat, "*** {$meta['type']} ***");
+        unset($meta['type']);
 
-        fwrite($this->logStream, "event-start:{$type}");
+        foreach ($meta as $d => $meta) fprintf(
+            $this->logStream,
+            $this->lineFormat,
+            "- {$d}: " . strtr($meta, "\r\n", '  ')
+        );
 
-        class_exists('Patchwork\PHP\Dumper') || __autoload('Patchwork\PHP\Dumper'); // http://bugs.php.net/42098 workaround
         $d = new Dumper;
         $d->setCallback('line', array($this, 'dumpLine'));
         $d->dumpLines($data, false);
 
-        fwrite($this->logStream, "event-end:{$type}");
+        fprintf($this->logStream, $this->lineFormat, '***');
     }
 
     function dumpLine($line)
     {
-        fwrite($this->logStream, "{$this->token}: {$line}");
+        fprintf($this->logStream, $this->lineFormat, $line);
     }
 }
 

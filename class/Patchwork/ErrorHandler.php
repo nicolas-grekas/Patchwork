@@ -13,11 +13,13 @@
 
 namespace Patchwork;
 
-class_exists('Patchwork\PHP\DebugLog') || __autoload('Patchwork\PHP\DebugLog'); // http://bugs.php.net/42098 workaround
+// http://bugs.php.net/42098 workaround
+class_exists('Patchwork\PHP\DebugLog') || __autoload('Patchwork\PHP\DebugLog');
 
 class ErrorHandler extends PHP\DebugLog
 {
     public $lock = false;
+    protected $lineFormat;
 
     function logError($code, $message, $file, $line, $context, $trace_offset = 0, $log_time = 0)
     {
@@ -47,20 +49,15 @@ class ErrorHandler extends PHP\DebugLog
             $GLOBALS['patchwork_private'] = true;
 
             parent::logError($code, $message, $file, $line, $context, $trace_offset, $log_time);
-
-            switch ($code)
-            {
-            case E_ERROR:
-            case E_USER_ERROR:
-            case E_RECOVERABLE_ERROR:
-                exit;
-            }
         }
         else return false;
     }
 
-    function logLastError($code, $message, $file, $line)
+    function dumpEvent($meta, $data)
     {
-        // Do not duplicate the last error
+        isset($this->lineFormat) || $this->lineFormat = sprintf('%010d', substr(mt_rand(), -10)) . ": %s\n";
+        // http://bugs.php.net/42098 workaround
+        class_exists('Patchwork\PHP\Dumper') || __autoload('Patchwork\PHP\Dumper');
+        parent::dumpEvent($meta, $data);
     }
 }

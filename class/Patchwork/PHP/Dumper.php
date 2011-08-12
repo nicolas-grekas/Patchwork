@@ -55,7 +55,7 @@ class Dumper
 
         $line = '';
         $this->refDump($line, $a, $ref ? '1' : '');
-        '' !== $line && call_user_func($this->callbacks['line'], $line . "\n");
+        '' !== $line && call_user_func($this->callbacks['line'], $line);
 
         foreach ($this->arrayStack as &$a) unset($a[$this->token]);
 
@@ -100,14 +100,14 @@ class Dumper
         if (false !== $j = strpos($a, "\n"))
         {
             $i = 0;
-            $line .= '"""' . "\n";
+            $line .= '"""';
             call_user_func($this->callbacks['line'], $line);
 
             $pre = str_repeat('  ', $this->depth+1);
 
             do
             {
-                $line = $pre . addcslashes(substr($a, $i, $j - $i + 1), '\\"');
+                $line = $pre . addcslashes(substr($a, $i, $j - $i), '\\"');
                 call_user_func($this->callbacks['line'], $line);
                 $i = $j + 1;
             }
@@ -146,7 +146,7 @@ class Dumper
         {
             if ($this->token === $k) continue;
 
-            call_user_func($this->callbacks['line'], $line . "\n");
+            call_user_func($this->callbacks['line'], $line);
             $line = $pre;
 
             if ($i === $this->maxLength && 0 < $this->maxLength)
@@ -170,7 +170,7 @@ class Dumper
             ++$i;
         }
 
-        call_user_func($this->callbacks['line'], $line . "\n");
+        call_user_func($this->callbacks['line'], $line);
         $line = substr($pre, 0, -2) . $close;
         --$this->depth;
     }
@@ -249,6 +249,6 @@ class Dumper
 
     static function echoLine($line)
     {
-        echo $line;
+        echo $line, "\n";
     }
 }

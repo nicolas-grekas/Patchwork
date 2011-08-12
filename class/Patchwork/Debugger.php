@@ -413,27 +413,20 @@ function classifyEvents()
     {
         if ('' !== $line && '[' === $line[0] && '] PHP ' === substr($line, 21, 6))
         {
-            static $raw_token, $raw_index = 0;
-
-            if (empty($raw_token)) $raw_token = substr(mt_rand(), -10);
+            static $raw_token; empty($raw_token) && $raw_token = substr(mt_rand(), -10);
 
             if (preg_match("' on line \d+$'", $line))
             {
-                ++$raw_index;
-
-                self::htmlDumpLine("event-start:{$raw_index}:php-raw-error:{$raw_token}\n");
                 $line = self::parseRawError($line);
-
                 $line = array(
+                    '*** php-raw-error ***',
+                    "- time: {$line['date']} -",
                     '[',
-                    '  "log-time" => "' . $line['date'] . '"',
-                    '  "log-data" => #1[',
-                    '    "mesg" => "' . addcslashes($line['message'], '\\"') . '"',
-                    '    "code" => "' . $line['type'] . ' on line ' . $line['line'] . ' in ' . addcslashes($line['file'], '\\"') . '"',
+                    '  "mesg" => "' . addcslashes($line['message'], '\\"') . '"',
+                    '  "code" => "' . $line['type'] . ' on line ' . $line['line'] . ' in ' . addcslashes($line['file'], '\\"') . '"',
                 );
 
-                foreach ($line as $line)
-                    self::htmlDumpLine("{$raw_token}: {$line}\n");
+                foreach ($line as $line) self::htmlDumpLine("{$raw_token}: {$line}\n");
             }
             else
             {
@@ -443,28 +436,26 @@ function classifyEvents()
 
                 if ("Stack trace:" === $line)
                 {
-                    $line = '    "trace" => #2[';
+                    $line = '  "trace" => #2[';
                 }
                 else
                 {
                     $line = explode('. ', $line, 2);
-
-                    $line = '      ' . $line[0] . ' => "' . addcslashes($line[1], '\\"') . '"';
+                    $line = '    ' . $line[0] . ' => "' . addcslashes($line[1], '\\"') . '"';
                 }
 
                 self::htmlDumpLine("{$raw_token}: {$line}\n");
 
                 if ('[' !== $next_line[0] || '] PHP ' !== substr($next_line, 21, 6) || preg_match("' on line \d+$'", $next_line))
                 {
-                    self::htmlDumpLine("{$raw_token}:     ]\n");
+                    self::htmlDumpLine("{$raw_token}:   ]\n");
                 }
             }
 
             if ('[' !== $next_line[0] || '] PHP ' !== substr($next_line, 21, 6) || preg_match("' on line \d+$'", $next_line))
             {
-                self::htmlDumpLine("{$raw_token}:   ]\n");
                 self::htmlDumpLine("{$raw_token}: ]\n");
-                self::htmlDumpLine("event-end:0:php-raw-error:{$raw_token}\n");
+                self::htmlDumpLine("{$raw_token}: ***\n");
             }
         }
         else
@@ -535,77 +526,75 @@ function classifyEvents()
 
     static function htmlDumpLine($a)
     {
-        if ('event-' === substr($a, 0, 6))
+        list($token, $a) = explode(': ', substr($a, 0, -1) , 2);
+        $b =& self::$buffer[$token];
+
+        if ('*** ' === substr($a, 0, 4))
         {
-            $a = explode(':', substr($a, 0, -1), 4);
+            static $index = 0; ++$index;
 
-            if ('event-end' === $a[0])
-            {
-                self::$buffer[$a[3]][] = "</span></div><script>classifyEvents()</script>\n";
-                self::$buffer[$a[3]][] = false;
-            }
-            else if ('event-start' === $a[0])
-            {
-                static $index = 0; ++$index;
+            $a = substr($a, 4, -4);
 
-                self::$buffer[$a[3]][] = '<div class="event '
-                    . htmlspecialchars($a[2])
-                    . '" id="event-' . $index . '-' . $a[1] . '-' . $a[3] . '">'
-                    . '<a href="javascript:;" onclick="var s=this.nextSibling; s.className=\'event-compact\'==s.className?\'event-expanded\':\'event-compact\';">'
-                    . htmlspecialchars($a[2])
-                    . '</a><span class="event-compact"> ';
-            }
-
-            return;
+            $b[] = '<div class="event '
+                . htmlspecialchars($a)
+                . '" id="event-' . $index . '-' . $token . '">'
+                . '<a href="javascript:;" onclick="var s=this.nextSibling; s.className=\'event-compact\'==s.className?\'event-expanded\':\'event-compact\';">'
+                . htmlspecialchars($a)
+                . '</a><span class="event-compact"> ';
         }
-
-        $a = explode(': ', $a, 2);
-        $token = $a[0];
-        self::$buffer[$token][] =& $a;
-
-        static $parser = array();
-
-        isset($parser[$token]) || $parser[$token] = new p\PHP\DumperParser;
-
-        $token = $parser[$token]->tokenizeLine($a[1]);
-
-        $a = array();
-
-        foreach ($token as $token)
+        else if ('- ' === substr($a, 0, 2))
         {
-            $data = array_pop($token);
-            $title = array();
+            // TODO: metadata
+        }
+        else if ('***' === $a)
+        {
+            $b[] = "</span></div><script>classifyEvents()</script>\n";
+            $b[] = false;
+        }
+        else
+        {
+            static $parser = array();
 
-            if (isset($token['private-class']))
-            {
-                $title[] = 'Private (' . $token['private-class'] . ')';
-                unset($token['private-class']);
-            }
-            else if (isset($token['public']))
-            {
-                $title[] = 'Public';
-            }
-            else if (isset($token['protected']))
-            {
-                $title[] = 'Protected';
-            }
+            isset($parser[$token]) || $parser[$token] = new p\PHP\DumperParser;
 
-            if (isset($token['string']))
+            $token = $parser[$token]->tokenizeLine($a);
+
+            foreach ($token as $token)
             {
-                if (false !== strpos($data, '..."') && preg_match('/^(.*)\.\.\."(\d+)$/D', $data, $data))
+                $data = array_pop($token);
+                $title = array();
+
+                if (isset($token['private-class']))
                 {
-                    $title[] = 'length: ' . $data[2];
-                    $data = $data[1] . '…';
+                    $title[] = 'Private (' . $token['private-class'] . ')';
+                    unset($token['private-class']);
                 }
-                else $title[] = 'length: ' . strlen($data);
+                else if (isset($token['public']))
+                {
+                    $title[] = 'Public';
+                }
+                else if (isset($token['protected']))
+                {
+                    $title[] = 'Protected';
+                }
+
+                if (isset($token['string']))
+                {
+                    if (false !== strpos($data, '..."') && preg_match('/^(.*)\.\.\."(\d+)$/D', $data, $data))
+                    {
+                        $title[] = 'length: ' . $data[2];
+                        $data = $data[1] . '…';
+                    }
+                    else $title[] = 'length: ' . strlen($data);
+                }
+
+                $token = implode(' ', $token);
+                $title = $title ? ' title="' . htmlspecialchars(implode(", \n", $title)) . '"' : '';
+
+                $b[] = '<span class="' . $token . '"' . $title . '>' . htmlspecialchars($data) . '</span>';
             }
 
-            $token = implode(' ', $token);
-            $title = $title ? ' title="' . htmlspecialchars(implode(", \n", $title)) . '"' : '';
-
-            $a[] = '<span class="' . $token . '"' . $title . '>' . htmlspecialchars($data) . '</span>';
+            $b[] = "\n";
         }
-
-        $a = implode('', $a) . "\n";
     }
 }
