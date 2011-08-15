@@ -41,7 +41,8 @@ class DebugLog
     ),
     $logFile,
     $logFileStream = null,
-    $loggers = array();
+    $loggers = array(),
+    $shutdown = false;
 
     protected
 
@@ -82,6 +83,10 @@ class DebugLog
 
     static function shutdown()
     {
+        // At shutdown time, no exception can be thrown or you will get a cryptic
+        // Fatal error: Exception thrown without a stack frame in Unknown on line 0
+        self::$shutdown = true;
+
         if (false === $logger = self::getLogger()) return;
 
         if ($e = self::getLastError())
@@ -146,8 +151,7 @@ class DebugLog
         $log_time || $log_time = microtime(true);
 
         if ( !(error_reporting() & $code)
-          && E_RECOVERABLE_ERROR !== $code
-          && E_USER_ERROR !== $code )
+          && ((E_RECOVERABLE_ERROR !== $code && E_USER_ERROR !== $code) || self::$shutdown) )
             return false;
 
         if (0 <= $trace_offset)
@@ -169,8 +173,10 @@ class DebugLog
         $k->traceOffset = $trace_offset;
         $k->logTime = $log_time;
 
-        if (E_RECOVERABLE_ERROR === $code) throw $k;
-        else if (  E_USER_ERROR === $code) throw $k;
+        if (E_RECOVERABLE_ERROR === $code || E_USER_ERROR === $code)
+            if (!self::$shutdown)
+                throw $k;
+
         $this->logException($k, $log_time);
     }
 
@@ -217,7 +223,7 @@ class DebugLog
         if (isset($data['trace'])) foreach ($data['trace'] as &$t)
         {
             $t = array(
-                'call' => (isset($t['class']) ? $t['class'] . $t['type'] : '') . $t['function'] . '() on line ' . $t['line'] . ' in ' . $t['file'],
+                'call' => (isset($t['class']) ? $t['class'] . $t['type'] : '') . $t['function'] . '()' . (isset($t['line']) ? ' on line ' . $t['line'] . ' in ' . $t['file'] : ''),
                 'args' => isset($t['args']) ? $t['args'] : false,
             );
         }
