@@ -18,13 +18,7 @@ class DebugLog
     public
 
     $lock = true,
-    $traceDisabledErrors = array(
-        E_STRICT => E_STRICT,
-        E_NOTICE => E_NOTICE,
-        E_DEPRECATED => E_DEPRECATED,
-        E_USER_NOTICE => E_USER_NOTICE,
-        E_USER_DEPRECATED => E_USER_DEPRECATED,
-    );
+    $traceDisabledErrors = 0x6c08; // E_STRICT | E_NOTICE | E_USER_NOTICE | E_DEPRECATED | E_USER_DEPRECATED
 
     protected static
 
@@ -68,7 +62,7 @@ class DebugLog
         ini_set('display_errors', false);
         ini_set('log_errors', true);
         ini_set('error_log', $log_file);
-        ini_set('ignore_repeated_errors', true);
+        ini_set('ignore_repeated_errors', false);
         ini_set('ignore_repeated_source', false);
 
         // Some fatal errors can be catched at shutdown time
@@ -111,7 +105,7 @@ class DebugLog
 
     static function resetLastError()
     {
-        // Reset error_get_last() by triggering a silenced user notice
+        // Reset error_get_last() by triggering a silenced empty user notice
         set_error_handler(array(__CLASS__, 'falseError'));
         $r = error_reporting(0);
         user_error('', E_USER_NOTICE);
@@ -125,10 +119,10 @@ class DebugLog
     }
 
 
-    function register()
+    function register($error_types = -1)
     {
         set_exception_handler(array($this, 'logException'));
-        set_error_handler(array($this, 'logError'));
+        set_error_handler(array($this, 'logError'), $error_types);
         self::$loggers[] = $this;
         $this->startTime = microtime(true);
     }
@@ -151,6 +145,11 @@ class DebugLog
     {
         $log_time || $log_time = microtime(true);
 
+        if ( !(error_reporting() & $code)
+          && E_RECOVERABLE_ERROR !== $code
+          && E_USER_ERROR !== $code )
+            return false;
+
         if (0 <= $trace_offset)
         {
             ++$trace_offset;
@@ -158,8 +157,7 @@ class DebugLog
             // For duplicate errors, log the trace only once
             $k = md5("{$code}/{$line}/{$file}\x00{$msg}", true);
 
-            if ( isset($this->traceDisabledErrors[$code])
-              || isset($this->traceDisabledErrors[E_ALL])
+            if ( ($this->traceDisabledErrors & $code)
               || isset($this->seenErrors[$k]) )
             {
                 $trace_offset = -1;
@@ -172,7 +170,8 @@ class DebugLog
         $k->logTime = $log_time;
 
         if (E_RECOVERABLE_ERROR === $code) throw $k;
-        else $this->logException($k, $log_time);
+        else if (  E_USER_ERROR === $code) throw $k;
+        $this->logException($k, $log_time);
     }
 
     function logException(\Exception $e, $log_time = 0)
@@ -190,6 +189,9 @@ class DebugLog
         {
             unset($data['type']);
             $data['code'] = explode(' ', $data['code'], 2);
+
+            if (!($data['code'][0] & error_reporting())) return;
+
             $data['code'] = isset(self::$errorCodes[$data['code'][0]])
                 ? self::$errorCodes[$data['code'][0]] . ' ' . $data['code'][1]
                 : $data['code'][0] . ' ' . $data['code'][1];
