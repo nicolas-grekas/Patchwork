@@ -100,7 +100,7 @@ class DumperParser
                          #13
                         |(\.\.\.(?:"\d+)?)
                          #14#15#16        #17#18
-                        |((.*)(\ \#\d+)?\{((\#\d+|\.\.\.)?\})?)
+                        |((.+?)(\ \#\d+)?\{((\#\d+|\.\.\.)?\})?)
                          #19
                         |(.*)
                     )$
@@ -124,8 +124,20 @@ class DumperParser
                 }
                 else if ('' !== $kv[3])
                 {
-                    $this->push('bracket', $kv[3]);
-                    if (empty($kv[6]))
+                    isset($kv[4]) && $this->push('ref', $kv[4]);
+
+                    $this->push('bracket' . (isset($kv[6]) ? '' : ' open'), $kv[5]);
+
+                    if (isset($kv[6]))
+                    {
+                        if (isset($kv[7]))
+                        {
+                            $this->push('...' === $kv[7] ? 'punct' : 'ref', $kv[7]);
+                        }
+
+                        $this->push('bracket', substr($kv[6], -1));
+                    }
+                    else
                     {
                         $this->indentLevel += 2;
                         $this->indentStack[] = '[' === $kv[5] ? 'array' : 'object';
@@ -133,7 +145,7 @@ class DumperParser
                 }
                 else if ('' !== $kv[8])
                 {
-                    $this->push('bracket', $kv[8]);
+                    $this->push('bracket close', $kv[8]);
                 }
                 else if ('' !== $kv[9])
                 {
@@ -150,8 +162,20 @@ class DumperParser
                 }
                 else if ('' !== $kv[14])
                 {
-                    $this->push('class', $kv[14]);
-                    if (empty($kv[17]))
+                    $this->push('class', $kv[15]);
+                    isset($kv[16]) && $this->push('ref', $kv[16]);
+                    $this->push('bracket' . (isset($kv[17]) ? '' : ' open'), '{');
+
+                    if (isset($kv[17]))
+                    {
+                        if (isset($kv[18]))
+                        {
+                            $this->push('...' === $kv[18] ? 'punct' : 'ref', $kv[18]);
+                        }
+
+                        $this->push('bracket', '}');
+                    }
+                    else
                     {
                         $this->indentLevel += 2;
                         $this->indentStack[] = 'object';

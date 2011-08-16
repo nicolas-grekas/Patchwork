@@ -185,23 +185,24 @@ acronym
     display: none;
 }
 
-.event-compact,
-.event-expanded
+.event-data
 {
     font-size: 11px;
 }
 
-.event-compact
+.event
 {
     white-space: nowrap;
-    overflow: hidden;
 }
 
-.event-expanded
+.array-compact
+{
+    white-space: nowrap;
+}
+
+.array-expanded
 {
     white-space: pre;
-    white-space: pre-wrap;
-    word-wrap: break-word;
 }
 
 .indent,
@@ -323,9 +324,9 @@ function classifyEvents()
 </head>
 <body>
 <div id="console">
-<div id="php-errors"><h2>PHP Errors</h2></div>
-<div id="E"><h2>E()</h2></div>
-<div id="requests"><h2>Requests</h2></div>
+<div id="php-errors"><h3>PHP Errors</h3></div>
+<div id="E"><h3>E()</h3></div>
+<div id="requests"><h3>Requests</h3></div>
 </div>
 <div id="events">
 <?php
@@ -538,9 +539,9 @@ function classifyEvents()
             $b[] = '<div class="event '
                 . htmlspecialchars($a)
                 . '" id="event-' . $index . '-' . $token . '">'
-                . '<a href="javascript:;" onclick="var s=this.nextSibling; s.className=\'event-compact\'==s.className?\'event-expanded\':\'event-compact\';">'
+                . '<span class="event-type">'
                 . htmlspecialchars($a)
-                . '</a><span class="event-compact"> ';
+                . '</span><span class="event-data"> ';
         }
         else if ('- ' === substr($a, 0, 2))
         {
@@ -588,10 +589,24 @@ function classifyEvents()
                     else $title[] = 'length: ' . strlen($data);
                 }
 
-                $token = implode(' ', $token);
-                $title = $title ? ' title="' . htmlspecialchars(implode(", \n", $title)) . '"' : '';
+                $title = $title ? ' title="' . htmlspecialchars(implode(", ", $title)) . '"' : '';
 
-                $b[] = '<span class="' . $token . '"' . $title . '>' . htmlspecialchars($data) . '</span>';
+                $title = '<span class="' . implode(' ', $token) . '"' . $title . '>' . htmlspecialchars($data) . '</span>';
+
+                if (isset($token['bracket']))
+                {
+                    if (isset($token['open']))
+                    {
+                        $title = '<span class="array-compact">' . $title
+                            . '<a href="javascript:;" onclick="var s=this.parentNode; s.className=\'array-compact\'==s.className?\'array-expanded\':\'array-compact\';">...</a>';
+                    }
+                    else if (isset($token['close']))
+                    {
+                        $title .= '</span>';
+                    }
+                }
+
+                $b[] = $title;
             }
 
             $b[] = "\n";
