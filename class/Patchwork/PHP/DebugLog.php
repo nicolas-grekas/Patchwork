@@ -129,16 +129,24 @@ class DebugLog
 
     function unregister()
     {
-        if ($this === end(self::$loggers))
+        $ok = array(
+            $this === end(self::$loggers),
+            array($this, 'logError') === set_error_handler(array(__CLASS__, 'falseError')),
+            array($this, 'logException') === set_exception_handler(array(__CLASS__, 'falseError')),
+        );
+
+        if ($ok = array(true, true, true) === $ok)
         {
             array_pop(self::$loggers);
             restore_error_handler();
             restore_exception_handler();
         }
-        else
-        {
-            user_error(__CLASS__ . ' objects have to be unregistered in the exact reverse order they have been registered', E_USER_WARNING);
-        }
+        else user_error('Failed to unregister: the current error or exception handler is not me', E_USER_WARNING);
+
+        restore_error_handler();
+        restore_exception_handler();
+
+        return $ok;
     }
 
     function logError($code, $mesg, $file, $line, $k, $trace_offset = 0, $log_time = 0)
