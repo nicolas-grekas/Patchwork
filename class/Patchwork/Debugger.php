@@ -195,9 +195,28 @@ acronym
     white-space: nowrap;
 }
 
-.array-compact
+.event a
+{
+    color: blue;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.array-compact,
+.array-compact .array-expanded
 {
     white-space: nowrap;
+}
+
+.array-compact a
+{
+    display: none;
+}
+
+.event-data>.array-compact>a,
+.array-expanded>.array-compact>a
+{
+    display: inline;
 }
 
 .array-expanded
@@ -318,6 +337,22 @@ function classifyEvents()
         }
 
         document.getElementById(t).appendChild(e);
+    }
+}
+
+function arrayToggle(a)
+{
+    var s = a.parentNode;
+
+    if ('array-compact' == s.className)
+    {
+        a.innerHTML = ' ⊟ ';
+        s.className = 'array-expanded';
+    }
+    else
+    {
+        a.innerHTML = ' ⊞ ';
+        s.className = 'array-compact';
     }
 }
 </script>
@@ -597,8 +632,7 @@ function classifyEvents()
                 {
                     if (isset($token['open']))
                     {
-                        $title = '<span class="array-compact">' . $title
-                            . '<a href="javascript:;" onclick="var s=this.parentNode; s.className=\'array-compact\'==s.className?\'array-expanded\':\'array-compact\';">...</a>';
+                        $title = '<span class="array-compact">' . $title . '<a onclick="arrayToggle(this)"> ⊞ </a>';
                     }
                     else if (isset($token['close']))
                     {
