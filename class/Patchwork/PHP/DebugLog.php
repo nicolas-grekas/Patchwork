@@ -41,15 +41,14 @@ class DebugLog
     ),
     $logFile,
     $logFileStream = null,
-    $loggers = array(),
-    $shutdown = false;
+    $loggers = array();
 
     protected
 
-    $startTime  = 0,
-    $prevTime   = 0,
+    $prevTime = 0,
+    $startTime = 0,
     $prevMemory = 0,
-    $seenErrors = array(),
+    $loggedTraces = array(),
     $logStream,
     $lineFormat = "%s\n";
 
@@ -83,10 +82,6 @@ class DebugLog
 
     static function shutdown()
     {
-        // At shutdown time, no exception can be thrown or you will get a cryptic
-        // Fatal error: Exception thrown without a stack frame in Unknown on line 0
-        self::$shutdown = true;
-
         if (false === $logger = self::getLogger()) return;
 
         if ($e = self::getLastError())
@@ -146,94 +141,95 @@ class DebugLog
         }
     }
 
-    function logError($code, $msg, $file, $line, $k, $trace_offset = 0, $log_time = 0)
+    function logError($code, $mesg, $file, $line, $k, $trace_offset = 0, $log_time = 0)
     {
-        $log_time || $log_time = microtime(true);
+        $log_error = error_reporting() & $code;
 
-        if ( !(error_reporting() & $code)
-          && ((E_RECOVERABLE_ERROR !== $code && E_USER_ERROR !== $code) || self::$shutdown) )
-            return false;
-
-        if (0 <= $trace_offset)
+        if ($log_error || E_RECOVERABLE_ERROR === $code || E_USER_ERROR === $code)
         {
-            ++$trace_offset;
+            $log_time || $log_time = microtime(true);
 
-            // For duplicate errors, log the trace only once
-            $k = md5("{$code}/{$line}/{$file}\x00{$msg}", true);
-
-            if ( ($this->traceDisabledErrors & $code)
-              || isset($this->seenErrors[$k]) )
+            if (0 <= $trace_offset)
             {
-                $trace_offset = -1;
+                ++$trace_offset;
+
+                // For duplicate errors, log the trace only once
+                $k = md5("{$code}/{$line}/{$file}\x00{$mesg}", true);
+
+                if (($this->traceDisabledErrors & $code) || isset($this->loggedTraces[$k])) $trace_offset = -1;
+                else if ($log_error) $this->loggedTraces[$k] = 1;
             }
-            else $this->seenErrors[$k] = 1;
+
+            if ($log_error)
+            {
+                $k = array(
+                    'mesg' => $mesg,
+                    'code' => self::$errorCodes[$code] . ' on line ' . $line . ' in ' . $file,
+                );
+
+                if (0 <= $trace_offset)
+                    $k['trace'] = $this->filterTrace(debug_backtrace(), $trace_offset);
+
+                $this->log('php-error', $k, $log_time);
+            }
+
+            if (E_RECOVERABLE_ERROR === $code || E_USER_ERROR === $code)
+            {
+                $k = new CatchableErrorException($mesg, $code, 0, $file, $line);
+                $k->traceOffset = $log_error ? -1 : $trace_offset;
+                throw $k;
+            }
         }
 
-        $k = new ErrorException($msg, $code, 0, $file, $line);
-        $k->traceOffset = $trace_offset;
-        $k->logTime = $log_time;
-
-        if (E_RECOVERABLE_ERROR === $code || E_USER_ERROR === $code)
-            if (!self::$shutdown)
-                throw $k;
-
-        $this->logException($k, $log_time);
+        return $log_error;
     }
 
     function logException(\Exception $e, $log_time = 0)
     {
         $log_time || $log_time = microtime(true);
 
-        $data = array(
+        $e = array(
             'type' => get_class($e),
             'mesg' => $e->getMessage(),
             'code' => $e->getCode() . ' on line ' . $e->getLine() . ' in ' . $e->getFile(),
-            'trace' => $e->getTrace(),
+            'trace' => $this->filterTrace($e->getTrace(), $e instanceof ExceptionWithTraceOffset ? $e->traceOffset : 0),
         );
 
-        if ($e instanceof ErrorException)
-        {
-            unset($data['type']);
-            $data['code'] = explode(' ', $data['code'], 2);
+        if (null === $e['trace']) unset($e['trace']);
 
-            if (!($data['code'][0] & error_reporting())) return;
-
-            $data['code'] = isset(self::$errorCodes[$data['code'][0]])
-                ? self::$errorCodes[$data['code'][0]] . ' ' . $data['code'][1]
-                : $data['code'][0] . ' ' . $data['code'][1];
-
-            $e->logTime && $log_time = $e->logTime;
-
-            if (0 <= $e = $e->traceOffset)
-            {
-                if (isset($data['trace'][$e]['function']))
-                {
-                    $f = $data['trace'][$e]['function'];
-                    if ('user_error' === $f || 'trigger_error' === $f) ++$e;
-                }
-
-                $e && array_splice($data['trace'], 0, $e);
-            }
-            else unset($data['trace']);
-
-            $e = 'php-error';
-        }
-        else $e = 'php-exception';
-
-        if (isset($data['trace'])) foreach ($data['trace'] as &$t)
-        {
-            $t = array(
-                'call' => (isset($t['class']) ? $t['class'] . $t['type'] : '') . $t['function'] . '()' . (isset($t['line']) ? ' on line ' . $t['line'] . ' in ' . $t['file'] : ''),
-                'args' => isset($t['args']) ? $t['args'] : false,
-            );
-        }
-
-        $this->log($e, $data, $log_time);
+        $this->log('php-exception', $e, $log_time);
     }
 
     function logLastError($code, $message, $file, $line)
     {
         // This serves as a hook if a derivated class wants to catch the last fatal error
+    }
+
+    function filterTrace($trace, $offset)
+    {
+        if (0 > $offset) return null;
+
+        if (isset($trace[$offset]['function']))
+        {
+            $t = $trace[$offset]['function'];
+            if ('user_error' === $t || 'trigger_error' === $t) ++$offset;
+        }
+
+        $offset && array_splice($trace, 0, $offset);
+
+        foreach ($trace as &$t)
+        {
+            $t = array(
+                'call' => (isset($t['class']) ? $t['class'] . $t['type'] : '')
+                    . $t['function'] . '()'
+                    . (isset($t['line']) ? ' on line ' . $t['line'] . ' in ' . $t['file'] : ''),
+                'args' => isset($t['args']) ? $t['args'] : null,
+            );
+
+            if (null === $t['args']) unset($t['args']);
+        }
+
+        return $trace;
     }
 
     function log($type, array $data = array(), $log_time = 0)
@@ -294,7 +290,9 @@ class DebugLog
     }
 }
 
-class ErrorException extends \ErrorException
+class CatchableErrorException extends \ErrorException implements ExceptionWithTraceOffset
 {
-    public $traceOffset = 0, $logTime = 0;
+    public $traceOffset = 0;
 }
+
+interface ExceptionWithTraceOffset {}
