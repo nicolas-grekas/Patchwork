@@ -146,216 +146,8 @@ EOHTML;
 <html>
 <head>
     <title>Debug Window</title>
-<style>
-body
-{
-    margin: 0;
-    padding: 0;
-}
-pre
-{
-    font-family: Arial,sans-serif;
-    font-size: 10px;
-    border-top: 1px solid black;
-    margin: 0;
-    padding: 5px;
-}
-pre:hover
-{
-    background-color: #D9E4EC;
-}
-div
-{
-    clear: both;
-}
-acronym
-{
-    width: 50px;
-    text-align: right;
-    float: left;
-    clear: both;
-    text-decoration: none;
-    border-bottom: 0;
-    font-style: italic;
-    color: silver;
-}
-
-#events
-{
-    display: none;
-}
-
-.event-data
-{
-    font-size: 11px;
-}
-
-.event
-{
-    white-space: nowrap;
-}
-
-.event a
-{
-    color: blue;
-    cursor: pointer;
-    text-decoration: none;
-}
-
-.array-compact,
-.array-compact .array-expanded
-{
-    white-space: nowrap;
-}
-
-.array-compact a
-{
-    display: none;
-}
-
-.event-data>.array-compact>a,
-.array-expanded>.array-compact>a
-{
-    display: inline;
-}
-
-.array-expanded
-{
-    white-space: pre;
-}
-
-.indent,
-.key
-{
-    font-family: monospace;
-}
-
-.const
-{
-    color: blue;
-}
-
-.string
-{
-    color: purple;
-    background-color: #F9F9F9;
-}
-
-.string.empty:after
-{
-    display: inline-block;
-    width: 2px;
-    height: 1em;
-    content: " ";
-}
-
-.punct
-{
-    color: gray;
-    font-style: italic;
-}
-
-.key
-{
-    background-color: transparent;
-}
-
-.public
-{
-    color: green;
-}
-
-.protected
-{
-    color: orange;
-}
-
-.private
-{
-    color: salmon;
-}
-</style>
-<script>
-<?php
-
-if ($CONFIG['document.domain']) echo 'document.domain=', jsquote($CONFIG['document.domain']), ';';
-else
-{
-?>
-D = document, d = D.domain, w = window.opener || window.parent;
-
-while (1)
-{
-    try
-    {
-        t = w.document.domain;
-        break;
-    }
-    catch (t) {}
-
-    t = d.indexOf('.');
-    if (t < 0) break;
-    d = d.substr(t+1);
-
-    try
-    {
-        D.domain = d;
-    }
-    catch (t)
-    {
-        break;
-    }
-}
-<?php
-}
-
-?>
-
-function Z()
-{
-    scrollTo(0, window.innerHeight||document.documentElement.scrollHeight);
-}
-
-function classifyEvents()
-{
-    var t, e, events = document.getElementById('events'), c = events.childNodes, i = c.length;
-
-    while (i--)
-    {
-        e = c[i];
-        events.removeChild(e);
-
-        if (e.tagName !== 'DIV') continue;
-
-        switch (e.className)
-        {
-        case 'event php-exception':
-        case 'event php-raw-error':
-        case 'event php-error': t = 'php-errors'; break;
-        case 'event E': t = 'E'; break;
-        default: t = 'requests'; break;
-        }
-
-        document.getElementById(t).appendChild(e);
-    }
-}
-
-function arrayToggle(a)
-{
-    var s = a.parentNode;
-
-    if ('array-compact' == s.className)
-    {
-        a.innerHTML = ' ⊟ ';
-        s.className = 'array-expanded';
-    }
-    else
-    {
-        a.innerHTML = ' ⊞ ';
-        s.className = 'array-compact';
-    }
-}
-</script>
+    <link type="text/css" rel="stylesheet" href="<?php echo p::__BASE__() . 'css/debug-console.css';?>">
+    <script src="<?php echo p::__BASE__() . 'js/debug-console.js';?>"></script>
 </head>
 <body>
 <div id="console">
@@ -363,7 +155,7 @@ function arrayToggle(a)
 <div id="E"><h3>E()</h3></div>
 <div id="requests"><h3>Requests</h3></div>
 </div>
-<div id="events">
+<pre id="events">
 <?php
 
         ignore_user_abort($S);
@@ -442,7 +234,7 @@ function arrayToggle(a)
             usleep($sleep);
         }
 
-        die('</div></body></html>');
+        die('</pre></body></html>');
     }
 
     static function parseLine($line, $next_line)

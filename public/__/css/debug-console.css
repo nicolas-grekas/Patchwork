@@ -1,0 +1,127 @@
+body
+{
+    margin: 0;
+    padding: 0;
+}
+pre
+{
+    font-family: Arial,sans-serif;
+    font-size: 10px;
+    border-top: 1px solid black;
+    margin: 0;
+    padding: 5px;
+}
+pre:hover
+{
+    background-color: #D9E4EC;
+}
+div
+{
+    clear: both;
+}
+acronym
+{
+    width: 50px;
+    text-align: right;
+    float: left;
+    clear: both;
+    text-decoration: none;
+    border-bottom: 0;
+    font-style: italic;
+    color: silver;
+}
+
+#events
+{
+    display: none;
+}
+
+.event-data
+{
+    font-size: 11px;
+}
+
+.event
+{
+    white-space: nowrap;
+}
+
+.event a
+{
+    color: blue;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.array-expanded
+{
+    white-space: pre;
+}
+
+.array-compact,
+.array-compact .array-expanded
+{
+    white-space: nowrap;
+}
+
+.array-expanded>.array-compact>a
+{
+    display: inline;
+}
+
+.array-compact .array-compact>a,
+.array-compact .array-expanded>a
+{
+    display: none;
+}
+
+.indent,
+.key
+{
+    font-family: monospace;
+}
+
+.const
+{
+    color: blue;
+}
+
+.string
+{
+    color: purple;
+    background-color: #F9F9F9;
+}
+
+.string.empty:after
+{
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    content: " ";
+}
+
+.punct
+{
+    color: gray;
+    font-style: italic;
+}
+
+.key
+{
+    background-color: transparent;
+}
+
+.public
+{
+    color: green;
+}
+
+.protected
+{
+    color: orange;
+}
+
+.private
+{
+    color: salmon;
+}
