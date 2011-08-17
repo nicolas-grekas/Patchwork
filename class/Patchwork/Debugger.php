@@ -253,8 +253,6 @@ EOHTML;
                     '  "mesg" => "' . addcslashes($line['message'], '\\"') . '"',
                     '  "code" => "' . $line['type'] . ' on line ' . $line['line'] . ' in ' . addcslashes($line['file'], '\\"') . '"',
                 );
-
-                foreach ($line as $line) self::htmlDumpLine("{$raw_token}: {$line}\n");
             }
             else
             {
@@ -264,27 +262,35 @@ EOHTML;
 
                 if ("Stack trace:" === $line)
                 {
-                    $line = '  "trace" => #2[';
+                    $line = array('  "trace" => #2[');
                 }
                 else
                 {
-                    $line = explode('. ', $line, 2);
-                    $line = '    ' . $line[0] . ' => "' . addcslashes($line[1], '\\"') . '"';
-                }
+                    // TODO: more extensive parsing of dumped arguments using token_get_all()
 
-                self::htmlDumpLine("{$raw_token}: {$line}\n");
+                    preg_match("' +(\d+)\. (.+?)\((.*)\) (.*)$'", $line, $line);
+
+                    $line = array(
+                        "    {$line[1]} => [",
+                        '      "call" => "' . addcslashes($line[2] . '() ' . $line[4], '\\"') . '"',
+                        '' !== $line[3] ? '      "args" => "' . addcslashes($line[3], '\\"') . '"' : null,
+                        '    ]'
+                    );
+                }
 
                 if ('[' !== $next_line[0] || '] PHP ' !== substr($next_line, 21, 6) || preg_match("' on line \d+$'", $next_line))
                 {
-                    self::htmlDumpLine("{$raw_token}:   ]\n");
+                    $line[] = '  ]';
                 }
             }
 
             if ('[' !== $next_line[0] || '] PHP ' !== substr($next_line, 21, 6) || preg_match("' on line \d+$'", $next_line))
             {
-                self::htmlDumpLine("{$raw_token}: ]\n");
-                self::htmlDumpLine("{$raw_token}: ***\n");
+                $line[] = ']';
+                $line[] = '***';
             }
+
+            foreach ($line as $line) null !== $line && self::htmlDumpLine("{$raw_token}: {$line}\n");
         }
         else
         {
@@ -365,10 +371,7 @@ EOHTML;
 
             $b[] = '<div class="event '
                 . htmlspecialchars($a)
-                . '" id="event-' . $index . '-' . $token . '">'
-                . '<span class="event-type">'
-                . htmlspecialchars($a)
-                . '</span><span class="event-data"> ';
+                . '" id="event-' . $index . '-' . $token . '">';
         }
         else if ('- ' === substr($a, 0, 2))
         {
@@ -376,7 +379,7 @@ EOHTML;
         }
         else if ('***' === $a)
         {
-            $b[] = "</span></div><script>classifyEvents()</script>\n";
+            $b[] = "</div><script>classifyEvents()</script>";
             $b[] = false;
         }
         else
@@ -435,7 +438,7 @@ EOHTML;
                 $b[] = $title;
             }
 
-            $b[] = "\n";
+            $b[] = "<span class=\"lf\">\n</span>";
         }
     }
 }

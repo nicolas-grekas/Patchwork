@@ -36,13 +36,9 @@ acronym
     display: none;
 }
 
-.event-data
-{
-    font-size: 11px;
-}
-
 .event
 {
+    font-size: 11px;
     white-space: nowrap;
 }
 
@@ -51,6 +47,28 @@ acronym
     color: blue;
     cursor: pointer;
     text-decoration: none;
+}
+
+.array-compact .key,
+.array-compact .arrow
+{
+    display: none;
+}
+
+.array-compact .lf:before
+{
+    content: ",";
+}
+
+.array-compact a+.lf:before
+{
+    content: "";
+}
+
+.string.key,
+.string.key+.arrow
+{
+    display: inline !important;
 }
 
 .array-expanded
@@ -124,4 +142,14 @@ acronym
 .private
 {
     color: salmon;
+}
+
+.ref
+{
+    display: none; /* TODO: use .ref appropriately */
+}
+
+.bracket+.ref
+{
+    display: inline;
 }

@@ -176,7 +176,7 @@ class DebugLog
                 );
 
                 if (0 <= $trace_offset)
-                    $k['trace'] = $this->filterTrace(debug_backtrace(), $trace_offset);
+                    $k['trace'] = $this->filterTrace(debug_backtrace(false), $trace_offset);
 
                 $this->log('php-error', $k, $log_time);
             }
@@ -230,17 +230,16 @@ class DebugLog
             $t = array(
                 'call' => (isset($t['class']) ? $t['class'] . $t['type'] : '')
                     . $t['function'] . '()'
-                    . (isset($t['line']) ? ' on line ' . $t['line'] . ' in ' . $t['file'] : ''),
-                'args' => isset($t['args']) ? $t['args'] : null,
-            );
+                    . (isset($t['line']) ? " {$t['file']}:{$t['line']}" : '')
+            ) + $t;
 
-            if (null === $t['args']) unset($t['args']);
+            unset($t['class'], $t['type'], $t['function'], $t['file'], $t['line']);
         }
 
         return $trace;
     }
 
-    function log($type, array $data = array(), $log_time = 0)
+    function log($type, $data, $log_time = 0)
     {
         // Get time and memory profiling information
 
@@ -269,7 +268,6 @@ class DebugLog
         $this->dumpEvent($meta, $data);
         $this->lock && flock($this->logStream, LOCK_UN);
 
-        $data = array();
         $this->prevMemory = memory_get_usage(true);
         $this->prevTime = microtime(true);
     }

@@ -183,7 +183,7 @@ class DumperParser
                 }
                 else
                 {
-                    $this->push('const', $kv[19]);
+                    $this->push('const' . $i, $kv[19]);
                 }
             }
         }

@@ -18,7 +18,7 @@ use Patchwork\Exception as e;
 function E()
 {
     $a = func_get_args();
-    p::log('E', $a);
+    foreach ($a as $a) p::log('E', $a);
 }
 
 // Database sugar
@@ -943,7 +943,7 @@ class Patchwork
         return self::getCachePath($filename, $extension, self::$base .'-'. self::$lang .'-'. DEBUG .'-'. PATCHWORK_PROJECT_PATH .'-'. $key);
     }
 
-    static function log($message, array $data)
+    static function log($message, $data)
     {
         p\PHP\DebugLog::getLogger()->log($message, $data);
     }
