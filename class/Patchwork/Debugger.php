@@ -155,7 +155,7 @@ EOHTML;
 <div id="E"><h3>E()</h3></div>
 <div id="requests"><h3>Requests</h3></div>
 </div>
-<pre id="events">
+<div id="events">
 <?php
 
         ignore_user_abort($S);
@@ -234,7 +234,7 @@ EOHTML;
             usleep($sleep);
         }
 
-        die('</pre></body></html>');
+        die('</div></body></html>');
     }
 
     static function parseLine($line, $next_line)
@@ -248,11 +248,17 @@ EOHTML;
                 $line = self::parseRawError($line);
                 $line = array(
                     '*** php-raw-error ***',
-                    "- time: {$line['date']} -",
-                    '[',
-                    '  "mesg" => "' . addcslashes($line['message'], '\\"') . '"',
-                    '  "code" => "' . $line['type'] . ' on line ' . $line['line'] . ' in ' . addcslashes($line['file'], '\\"') . '"',
+                    '{',
+                    '  "time": ' . self::dumpString($line['date']) . ',',
+                    '  "data": {',
+                    '    "mesg": ' . self::dumpString($line['message']) . ',',
+                    '    "code": ' . self::dumpString($line['file'] . ':' . $line['line']),
                 );
+
+                if ("Stack trace:" === substr(rtrim($next_line), 27))
+                {
+                    $line[count($line) - 1] .= ',';
+                }
             }
             else
             {
@@ -262,7 +268,7 @@ EOHTML;
 
                 if ("Stack trace:" === $line)
                 {
-                    $line = array('  "trace" => #2[');
+                    $line = array('    "trace": {');
                 }
                 else
                 {
@@ -271,22 +277,27 @@ EOHTML;
                     preg_match("' +(\d+)\. (.+?)\((.*)\) (.*)$'", $line, $line);
 
                     $line = array(
-                        "    {$line[1]} => [",
-                        '      "call" => "' . addcslashes($line[2] . '() ' . $line[4], '\\"') . '"',
-                        '' !== $line[3] ? '      "args" => "' . addcslashes($line[3], '\\"') . '"' : null,
-                        '    ]'
+                        '      "' . $line[1] . '": {',
+                        '        "call": ' . self::dumpString($line[2] . '() ' . $line[4]) . ('' !== $line[3] ? ',' : ''),
+                        '' !== $line[3] ? '        "args": ' . self::dumpString($line[3]) : null,
+                        '      }'
                     );
-                }
 
-                if ('[' !== $next_line[0] || '] PHP ' !== substr($next_line, 21, 6) || preg_match("' on line \d+$'", $next_line))
-                {
-                    $line[] = '  ]';
+                    if ('[' !== $next_line[0] || '] PHP ' !== substr($next_line, 21, 6) || preg_match("' on line \d+$'", $next_line))
+                    {
+                        $line[] = '    }';
+                    }
+                    else
+                    {
+                        $line[count($line) - 1] .= ',';
+                    }
                 }
             }
 
             if ('[' !== $next_line[0] || '] PHP ' !== substr($next_line, 21, 6) || preg_match("' on line \d+$'", $next_line))
             {
-                $line[] = ']';
+                $line[] = '  }';
+                $line[] = '}    ';
                 $line[] = '***';
             }
 
@@ -309,7 +320,7 @@ EOHTML;
             'line' => 0,
         );
 
-        $b['date'] = date('c 000000\u\s', strtotime($b['date']));
+        $b['date'] = date('c', strtotime($b['date']));
 
         static $msg_map = array(
             'Notice' => 'E_NOTICE',
@@ -353,9 +364,7 @@ EOHTML;
 
     static function filename($m)
     {
-        return '<span title="' . $GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - ((int)($m[3].$m[2]))] . '">'
-            . patchwork_class2file($m[1])
-            . '</span>';
+        return $GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - ((int)($m[3].$m[2]))] . '/' . patchwork_class2file($m[1]);
     }
 
     static function htmlDumpLine($a)
@@ -369,76 +378,28 @@ EOHTML;
 
             $a = substr($a, 4, -4);
 
-            $b[] = '<div class="event '
+            $b[] = '<pre class="event '
                 . htmlspecialchars($a)
                 . '" id="event-' . $index . '-' . $token . '">';
         }
-        else if ('- ' === substr($a, 0, 2))
-        {
-            // TODO: metadata
-        }
         else if ('***' === $a)
         {
-            $b[] = "</div><script>classifyEvents()</script>";
+            $b[] = "</pre><script>classifyEvents()</script>";
             $b[] = false;
         }
         else
         {
-            static $parser = array();
-
-            isset($parser[$token]) || $parser[$token] = new p\PHP\DumperParser;
-
-            $token = $parser[$token]->tokenizeLine($a);
-
-            foreach ($token as $token)
-            {
-                $data = array_pop($token);
-                $title = array();
-
-                if (isset($token['private-class']))
-                {
-                    $title[] = 'Private (' . $token['private-class'] . ')';
-                    unset($token['private-class']);
-                }
-                else if (isset($token['public']))
-                {
-                    $title[] = 'Public';
-                }
-                else if (isset($token['protected']))
-                {
-                    $title[] = 'Protected';
-                }
-
-                if (isset($token['string']))
-                {
-                    if (false !== strpos($data, '..."') && preg_match('/^(.*)\.\.\."(\d+)$/D', $data, $data))
-                    {
-                        $title[] = 'length: ' . $data[2];
-                        $data = $data[1] . '…';
-                    }
-                    else $title[] = 'length: ' . strlen($data);
-                }
-
-                $title = $title ? ' title="' . htmlspecialchars(implode(", ", $title)) . '"' : '';
-
-                $title = '<span class="' . implode(' ', $token) . '"' . $title . '>' . htmlspecialchars($data) . '</span>';
-
-                if (isset($token['bracket']))
-                {
-                    if (isset($token['open']))
-                    {
-                        $title = '<span class="array-compact">' . $title . '<a onclick="arrayToggle(this)"> ⊞ </a>';
-                    }
-                    else if (isset($token['close']))
-                    {
-                        $title .= '</span>';
-                    }
-                }
-
-                $b[] = $title;
-            }
-
-            $b[] = "<span class=\"lf\">\n</span>";
+            $b[] = htmlspecialchars($a) . "\n";
         }
+    }
+
+    static function dumpString($a)
+    {
+        if ('' === $a) return '""';
+
+        if (!preg_match("''u", $a)) $a = 'b`' . utf8_encode($a);
+        else if (false !== strpos($a, '`')) $a = 'u`' . $a;
+
+        return '"' . str_replace(array('\\', '"', '</'), array('\\\\', '\\"', '<\\/'), $a) . '"';
     }
 }

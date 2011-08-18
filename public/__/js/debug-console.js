@@ -12,7 +12,7 @@ function classifyEvents()
         e = c[i];
         events.removeChild(e);
 
-        if (e.tagName !== 'DIV') continue;
+        if (e.tagName !== 'PRE') continue;
 
         switch (e.className)
         {

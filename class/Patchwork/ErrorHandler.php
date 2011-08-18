@@ -53,11 +53,11 @@ class ErrorHandler extends PHP\DebugLog
         else return false;
     }
 
-    function dumpEvent($meta, $data)
+    function dumpEvent($type, $data)
     {
         isset($this->lineFormat) || $this->lineFormat = sprintf('%010d', substr(mt_rand(), -10)) . ": %s\n";
         // http://bugs.php.net/42098 workaround
         class_exists('Patchwork\PHP\Dumper') || __autoload('Patchwork\PHP\Dumper');
-        parent::dumpEvent($meta, $data);
+        parent::dumpEvent($type, $data);
     }
 }

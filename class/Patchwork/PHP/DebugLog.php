@@ -172,7 +172,7 @@ class DebugLog
             {
                 $k = array(
                     'mesg' => $mesg,
-                    'code' => self::$errorCodes[$code] . ' on line ' . $line . ' in ' . $file,
+                    'code' => self::$errorCodes[$code] . ' ' . $file . ':' . $line,
                 );
 
                 if (0 <= $trace_offset)
@@ -199,7 +199,7 @@ class DebugLog
         $e = array(
             'type' => get_class($e),
             'mesg' => $e->getMessage(),
-            'code' => $e->getCode() . ' on line ' . $e->getLine() . ' in ' . $e->getFile(),
+            'code' => $e->getCode() . ' ' . $e->getFile() . ':' . $e->getLine(),
             'trace' => $this->filterTrace($e->getTrace(), $e instanceof ExceptionWithTraceOffset ? $e->traceOffset : 0),
         );
 
@@ -249,8 +249,7 @@ class DebugLog
             || ($this->prevTime = $this->startTime)
             || ($this->prevTime = $this->startTime = $log_time);
 
-        $meta = array(
-            'type' => $type,
+        $data = array(
             'time' => date('c', $log_time) . sprintf(
                 ' %06dus - %0.3fms - %0.3fms',
                 100000 * ($log_time - floor($log_time)),
@@ -258,6 +257,7 @@ class DebugLog
                   1000 * ($log_time - $this->prevTime)
             ),
             'mem'  => memory_get_peak_usage(true) . ' - ' . (memory_get_usage(true) - $this->prevMemory),
+            'data' => $data,
         );
 
         isset($this->logStream)
@@ -265,27 +265,20 @@ class DebugLog
             || ($this->logStream = self::$logFileStream = fopen(self::$logFile, 'ab'));
 
         $this->lock && flock($this->logStream, LOCK_EX);
-        $this->dumpEvent($meta, $data);
+        $this->dumpEvent($type, $data);
         $this->lock && flock($this->logStream, LOCK_UN);
 
         $this->prevMemory = memory_get_usage(true);
         $this->prevTime = microtime(true);
     }
 
-    function dumpEvent($meta, $data)
+    function dumpEvent($type, $data)
     {
-        fprintf($this->logStream, $this->lineFormat, "*** {$meta['type']} ***");
-        unset($meta['type']);
-
-        foreach ($meta as $d => $meta) fprintf(
-            $this->logStream,
-            $this->lineFormat,
-            "- {$d}: " . strtr($meta, "\r\n", '  ')
-        );
+        fprintf($this->logStream, $this->lineFormat, "*** {$type} ***");
 
         $d = new Dumper;
         $d->setCallback('line', array($this, 'dumpLine'));
-        $d->dumpLines($data, false);
+        $d->dumpLines($data);
 
         fprintf($this->logStream, $this->lineFormat, '***');
     }
