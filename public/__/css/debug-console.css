@@ -118,7 +118,10 @@ acronym
     content: " ";
 }
 
-.punct
+.bracket,
+.arrow,
+.array-compact .lf:before,
+.ref.id /* TODO: use .ref appropriately */
 {
     color: gray;
     font-style: italic;
@@ -142,14 +145,4 @@ acronym
 .private
 {
     color: salmon;
-}
-
-.ref
-{
-    display: none; /* TODO: use .ref appropriately */
-}
-
-.bracket+.ref
-{
-    display: inline;
 }

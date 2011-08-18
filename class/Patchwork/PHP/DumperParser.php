@@ -41,7 +41,7 @@ class DumperParser
             }
             // TODO: ...""" => ...
 
-            $this->push('string', $a);
+            $this->push('string', "'{$a}'");
         }
         else
         {
@@ -84,106 +84,25 @@ class DumperParser
                     $this->push('arrow', ' ⇨ ');
                 }
 
-                preg_match(
-                    '/^
-                    (?:
-                         #1
-                         (".*)
-                         #2
-                        |([-\d].*)
-                         #3#4     #5      #6#7
-                        |((\#\d+)?([\[\{])((\#\d+|\.\.\.)?[\}\]])?)
-                         #8
-                        |([\]\}]\)?)
-                         #9       #10          #11 #12
-                        |(Resource(\ \#\d+)\ \((.*)([\)\[]))
-                         #13
-                        |(\.\.\.(?:"\d+)?)
-                         #14#15#16        #17#18
-                        |((.+?)(\ \#\d+)?\{((\#\d+|\.\.\.)?\})?)
-                         #19
-                        |(.*)
-                    )$
-                    /x',
-                    $kv,
-                    $kv
+                $grammar = array(
+                     '(".*)' => array('string' . $i),
+                     '([-\d].*)' => array('const' . $i),
+                     '([\]\}])(\)?)' => array('bracket close', 'bracket'),
+                     '(\.\.\.(?:"\d+)?)' => array('cut'),
+                     '(Resource)( )(#\d+)( )(\()(.*)(?:(\))|(\[))' => array('res txt', 's', 'ref id', 's', 'bracket', 'res type', 'bracket', 'bracket open'),
+                     '(?:([^# \[\{]+)( ?))?(#\d+)?(?:([\[\{])(?:(#\d+)|(\.\.\.))?([\}\]])|([\[\{]))' => array('class', 's', 'ref id', 'bracket', 'ref to', 'cut', 'bracket', 'bracket open'),
+                     '(.*)' => array('const' . $i),
                 );
 
-                if ('' !== $kv[1])
+                foreach ($grammar as $a => $grammar)
                 {
-                    if ('"""' === $kv[1]) $this->inString = true;
-                    else
+                    if (preg_match("/^{$a}$/", $kv, $a))
                     {
-                        $kv[1] = stripcslashes(substr($kv[1], 1, -1));
-                        $this->push('string' . $i, $kv[1]);
+                        foreach ($grammar as $i => $grammar)
+                            if (isset($a[++$i]) && '' !== $a[$i])
+                                $this->push($grammar, $a[$i]);
+                        break;
                     }
-                }
-                else if ('' !== $kv[2])
-                {
-                    $this->push('const' . $i, $kv[2]);
-                }
-                else if ('' !== $kv[3])
-                {
-                    isset($kv[4]) && $this->push('ref', $kv[4]);
-
-                    $this->push('bracket' . (isset($kv[6]) ? '' : ' open'), $kv[5]);
-
-                    if (isset($kv[6]))
-                    {
-                        if (isset($kv[7]))
-                        {
-                            $this->push('...' === $kv[7] ? 'punct' : 'ref', $kv[7]);
-                        }
-
-                        $this->push('bracket', substr($kv[6], -1));
-                    }
-                    else
-                    {
-                        $this->indentLevel += 2;
-                        $this->indentStack[] = '[' === $kv[5] ? 'array' : 'object';
-                    }
-                }
-                else if ('' !== $kv[8])
-                {
-                    $this->push('bracket close', $kv[8]);
-                }
-                else if ('' !== $kv[9])
-                {
-                    $this->push('resource', $kv[9]);
-                    if ('[' === $kv[12])
-                    {
-                        $this->indentLevel += 2;
-                        $this->indentStack[] = 'array';
-                    }
-                }
-                else if ('' !== $kv[13])
-                {
-                    $this->push('truncation', $kv[13]);
-                }
-                else if ('' !== $kv[14])
-                {
-                    $this->push('class', $kv[15]);
-                    isset($kv[16]) && $this->push('ref', $kv[16]);
-                    $this->push('bracket' . (isset($kv[17]) ? '' : ' open'), '{');
-
-                    if (isset($kv[17]))
-                    {
-                        if (isset($kv[18]))
-                        {
-                            $this->push('...' === $kv[18] ? 'punct' : 'ref', $kv[18]);
-                        }
-
-                        $this->push('bracket', '}');
-                    }
-                    else
-                    {
-                        $this->indentLevel += 2;
-                        $this->indentStack[] = 'object';
-                    }
-                }
-                else
-                {
-                    $this->push('const' . $i, $kv[19]);
                 }
             }
         }
@@ -195,15 +114,26 @@ class DumperParser
     {
         $t = array();
 
-        foreach (explode(' ', $tag) as $tag)
-        {
-            $t[$tag] = $tag;
+        foreach (explode(' ', $tag) as $tag) $t[$tag] = $tag;
 
-            if ('string' === $tag && '' === $data) $t['empty'] = 'empty';
+        if (isset($t['string']))
+        {
+            if ('"""' === $data)
+            {
+                $this->inString = true;
+                return;
+            }
+
+            $data = stripcslashes(substr($data, 1, -1));
+
+            if ('' === $data) $t['empty'] = 'empty';
         }
 
-        if (isset($t['string']) || isset($t['const'])) $t['data'] = 'data';
-        else $t['punct'] = 'punct';
+        if (isset($t['open']))
+        {
+            $this->indentLevel += 2;
+            $this->indentStack[] = '[' === $data ? 'array' : 'object';
+        }
 
         if (isset($t['key'], $t['object']))
         {
