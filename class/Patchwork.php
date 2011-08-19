@@ -224,6 +224,17 @@ class Patchwork
 /**/    {
             self::log('debug-start', array(
                 'request-uri' => $_SERVER['REQUEST_URI'],
+                'patchwork' => array(
+                    'app' => PATCHWORK_PROJECT_PATH,
+                    'i18n' => PATCHWORK_I18N,
+                    'debug' => DEBUG,
+                    'turbo' => TURBO,
+                    'utime' => PATCHWORK_MICROTIME,
+                    'level' => PATCHWORK_PATH_LEVEL,
+                    'zcache' => PATCHWORK_ZCACHE,
+                    'paths' => $GLOBALS['patchwork_path'],
+                    'config' => $CONFIG,
+                ),
                 'request-context' => $_SERVER,
             ));
 
