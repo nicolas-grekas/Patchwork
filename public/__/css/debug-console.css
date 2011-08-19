@@ -93,9 +93,9 @@ acronym
     content: " ";
 }
 
+.lf,
 .bracket,
 .arrow,
-.array-compact .lf:before,
 .ref.id /* TODO: use .ref appropriately */
 {
     color: gray;
@@ -120,4 +120,9 @@ acronym
 .private
 {
     color: salmon;
+}
+
+.array-expanded>.lf
+{
+    visibility: hidden;
 }

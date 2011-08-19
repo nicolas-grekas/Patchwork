@@ -112,7 +112,7 @@ class Debugger extends p
 
     static function getProlog()
     {
-        $QDebug   = p::__BASE__() . 'js/QDebug.js';
+        $QDebug   = p::__BASE__() . 'js/QDebug.js?' . $GLOBALS['patchwork_appId'];
 
         return <<<EOHTML
 <script src="{$QDebug}"></script>
@@ -146,8 +146,8 @@ EOHTML;
 <html>
 <head>
     <title>Debug Window</title>
-    <link type="text/css" rel="stylesheet" href="<?php echo p::__BASE__() . 'css/debug-console.css';?>">
-    <script src="<?php echo p::__BASE__() . 'js/debug-console.js';?>"></script>
+    <link type="text/css" rel="stylesheet" href="<?php echo p::__BASE__() . 'css/debug-console.css?' . $GLOBALS['patchwork_appId'];?>">
+    <script src="<?php echo p::__BASE__() . 'js/debug-console.js?' . $GLOBALS['patchwork_appId'];?>"></script>
 </head>
 <body>
 <div id="console">
@@ -249,10 +249,10 @@ EOHTML;
                 $line = array(
                     '*** php-raw-error ***',
                     '{',
-                    '  "time": ' . self::dumpString($line['date']) . ',',
+                    '  "time": ' . self::jsonString($line['date']) . ',',
                     '  "data": {',
-                    '    "mesg": ' . self::dumpString($line['message']) . ',',
-                    '    "code": ' . self::dumpString($line['file'] . ':' . $line['line']),
+                    '    "mesg": ' . self::jsonString($line['message']) . ',',
+                    '    "code": ' . self::jsonString($line['file'] . ':' . $line['line']),
                 );
 
                 if ("Stack trace:" === substr(rtrim($next_line), 27))
@@ -278,8 +278,8 @@ EOHTML;
 
                     $line = array(
                         '      "' . $line[1] . '": {',
-                        '        "call": ' . self::dumpString($line[2] . '() ' . $line[4]) . ('' !== $line[3] ? ',' : ''),
-                        '' !== $line[3] ? '        "args": ' . self::dumpString($line[3]) : null,
+                        '        "call": ' . self::jsonString($line[2] . '() ' . $line[4]) . ('' !== $line[3] ? ',' : ''),
+                        '' !== $line[3] ? '        "args": ' . self::jsonString($line[3]) : null,
                         '      }'
                     );
 
@@ -352,7 +352,7 @@ EOHTML;
         if (false !== strpos($a, '.zcache.php'))
         {
             $a = preg_replace_callback(
-                "'" . preg_quote(htmlspecialchars(PATCHWORK_PROJECT_PATH) . '.')
+                "'" . preg_quote(PATCHWORK_PROJECT_PATH . '.')
                     . "([^\\\\/]+)\.[01]([0-9]+)(-?)\.zcache\.php'",
                 array(__CLASS__, 'filename'),
                 $a
@@ -378,22 +378,22 @@ EOHTML;
 
             $a = substr($a, 4, -4);
 
-            $b[] = '<pre class="event '
-                . htmlspecialchars($a)
-                . '" id="event-' . $index . '-' . $token . '">';
+            $b[] = '<script>classifyEvent(' . $index . ','
+                . self::jsonString($token) . ','
+                . self::jsonString($a) . ',';
         }
         else if ('***' === $a)
         {
-            $b[] = "</pre><script>classifyEvents()</script>";
+            $b[] = ")</script>";
             $b[] = false;
         }
         else
         {
-            $b[] = htmlspecialchars($a) . "\n";
+            $b[] = $a . "\n";
         }
     }
 
-    static function dumpString($a)
+    static function jsonString($a)
     {
         if ('' === $a) return '""';
 

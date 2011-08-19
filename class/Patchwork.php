@@ -233,7 +233,6 @@ class Patchwork
                     'level' => PATCHWORK_PATH_LEVEL,
                     'zcache' => PATCHWORK_ZCACHE,
                     'paths' => $GLOBALS['patchwork_path'],
-                    'config' => $CONFIG,
                 ),
                 'request-context' => $_SERVER,
             ));
