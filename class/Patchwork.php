@@ -18,7 +18,7 @@ use Patchwork\Exception as e;
 function E()
 {
     $a = func_get_args();
-    foreach ($a as $a) p::log('E', $a);
+    foreach ($a as $a) p::log('server-dump', $a);
 }
 
 // Database sugar

@@ -3,7 +3,7 @@ function Z()
     scrollTo(0, window.innerHeight || document.documentElement.scrollHeight);
 }
 
-function classifyEvent(index, token, type, data)
+function classifyEvent(token, type, data)
 {
     var target = 'requests', div = document.createElement('DIV');
 
@@ -12,7 +12,8 @@ function classifyEvent(index, token, type, data)
     case 'php-error':
     case 'php-exception':
     case 'php-raw-error': target = 'php-errors'; break
-    case 'E': target = 'E'; break
+    case 'client-dump':
+    case 'server-dump': target = 'E'; break
     }
 
     var state = {
@@ -20,7 +21,7 @@ function classifyEvent(index, token, type, data)
         buffer: []
     };
 
-    // TODO: use index, token, type, data.time and data.mem
+    // TODO: use token, type, data.time and data.mem
 
     div.className = 'event';
     div.innerHTML = htmlizeEvent(data.data);
@@ -119,7 +120,7 @@ function htmlizeEvent(data)
                 e = parseInt(i);
                 if ('' + e === i) i = e;
                 htmlizeData(i, ' key'); // TODO: handle object properties
-                push(' => ', 'arrow');
+                push(' ⇨ ', 'arrow');
                 htmlizeData(data[i]);
                 push(',\n', 'lf');
                 e = 0;

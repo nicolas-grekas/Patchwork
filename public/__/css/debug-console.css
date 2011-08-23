@@ -61,7 +61,7 @@ acronym
     display: inline;
 }
 
-.array-compact .lf>br, /* Hide chrome inserted BRs */
+.array-compact br, /* Hide chrome inserted BRs */
 .array-compact .array-compact>a,
 .array-compact .array-expanded>a
 {

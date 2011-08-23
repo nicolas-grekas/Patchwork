@@ -227,7 +227,12 @@ EOHTML;
 
             if ($S)
             {
-                echo '<script>scrollTo(0,0);if(window.parent&&parent.E&&parent.E.buffer.length)document.write(parent.E.buffer.join("")),parent.E.buffer=[]</script>';
+                echo '<script>
+                scrollTo(0,0);
+                var i, b = window.parent && parent.E && parent.E.buffer;
+                for (i in b) classifyEvent("0000000000", "client-dump", b[i]);
+                parent.E.buffer = [];
+                </script>';
                 break;
             }
 
@@ -375,11 +380,9 @@ EOHTML;
 
         if ('*** ' === substr($a, 0, 4))
         {
-            static $index = 0; ++$index;
-
             $a = substr($a, 4, -4);
 
-            $b[] = '<script>classifyEvent(' . $index . ','
+            $b[] = '<script>classifyEvent('
                 . self::jsonString($token) . ','
                 . self::jsonString($a) . ',';
         }
