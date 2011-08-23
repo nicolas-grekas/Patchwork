@@ -24,7 +24,6 @@ acronym
 .event
 {
     font-size: 11px;
-    white-space: pre; /* TODO: nowrap here */
 }
 
 .event a
@@ -62,6 +61,7 @@ acronym
     display: inline;
 }
 
+.array-compact .lf>br, /* Hide chrome inserted BRs */
 .array-compact .array-compact>a,
 .array-compact .array-expanded>a
 {

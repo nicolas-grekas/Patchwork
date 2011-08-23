@@ -351,6 +351,7 @@ EOHTML;
     {
         if (false !== strpos($a, '.zcache.php'))
         {
+            // TODO: be more robust here: input and output are json-encoded, not plain text
             $a = preg_replace_callback(
                 "'" . preg_quote(PATCHWORK_PROJECT_PATH . '.')
                     . "([^\\\\/]+)\.[01]([0-9]+)(-?)\.zcache\.php'",

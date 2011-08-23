@@ -74,7 +74,7 @@ function htmlizeEvent(data)
 
             switch (data[0].charAt(data[0].length - 1))
             {
-                case 'f': push(data[0], 'const' + tags); return;
+                case 'f': push(data[1], 'const' + tags); return;
                 case 'b': tags += ' bin';
                 case 'u': tags = 'string' + tags;
             }
@@ -143,7 +143,7 @@ function htmlizeEvent(data)
             }
             else
             {
-                buffer[buffer.length - 1] = '\n';
+                buffer[buffer.length - 1] = '';
                 push('\n', 'lf');
                 if (1 < depth) buffer.push('<span class="indent">' + new Array(depth).join(' ') + '</span>')
                 push(']', 'bracket close');
