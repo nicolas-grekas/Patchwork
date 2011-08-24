@@ -26,7 +26,7 @@ class pipe_urlize
 
         $string = preg_replace(
             self::mailRx . 'u',
-            '$1<a href="mailto:$2[&#97;t]$3"><span style="display:none">@</span>&#64;$3</a>',
+            '$1<a href="mailto:$2[&#97;t]$3">$2<span style="display:none">@</span>&#64;$3</a>',
             $string
         );
 
