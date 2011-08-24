@@ -43,14 +43,15 @@ function htmlizeEvent(data)
 
     function push(data, tags, title)
     {
-        if (title) tags += '" title="' + title + '"';
+        if (title && title.length) tags += '" title="' + title.join(', ');
         buffer.push('<span class="' + tags + '">' + escape(data) + '</span>');
     }
 
-    function htmlizeData(data, tags)
+    function htmlizeData(data, tags, title)
     {
-        var i, e;
+        var i, e, t, b;
 
+        title = title || [];
         tags = tags || '';
 
         switch (true)
@@ -59,13 +60,14 @@ function htmlizeEvent(data)
         case true === data:
         case false === data:
         case null === data:
-            push(data, 'const' + tags);
+            push(data, 'const' + tags, title);
             break;
 
         case 'string' === typeof data:
             if ('' === data)
             {
-                push('""', 'string empty' + tags, 'Empty string');
+                title.push('Empty string');
+                push('""', 'string empty' + tags, title);
                 return;
             }
 
@@ -75,79 +77,153 @@ function htmlizeEvent(data)
 
             switch (data[0].charAt(data[0].length - 1))
             {
-                case 'f': push(data[1], 'const' + tags); return;
+                case 'f': push(data[1], 'const' + tags, title); return;
                 case 'b': tags += ' bin';
                 case 'u': tags = 'string' + tags;
             }
 
-            // TODO: indent multi-line strings
-
             i = parseInt(data[0]);
 
-            if (0 < i)
+            title.push('Length: ' + (0 < i ? i : data[1].length));
+
+            data = data[1].split(/\r?\n/g);
+
+            if (data.length > 1)
             {
-                push(data[1], tags, 'Length: ' + i);
-                push('...', 'cut');
+                for (e = 0; e < data.length; ++e)
+                {
+                    push('\n', 'lf');
+                    buffer.push('<span class="indent">' + new Array(depth + 2).join(' ') + '</span>')
+                    push(data[e], tags + ('' === data[e] ? ' empty' : ''), title);
+                }
             }
-            else
-            {
-                push(data[1], tags, 'Length: ' + data[1].length);
-            }
+            else push(data[0], tags, title);
+
+            if (0 < i) push('...', 'cut');
 
             break;
 
         case 'object' === typeof data:
 
-            // TODO: use info from data['_']
+            e = 1;
+            depth += 2;
+            b = ['[', ']'];
+            t = data['_'] ? data['_'].split(':') : [];
+
+            if (t.length)
+            {
+                if ('array' === t[0])
+                {
+                    t.type = 'array';
+                    t.ref = t[1];
+                    t.len = t[3];
+                    t.isRef = '' === t[4];
+                }
+                else if ('resource' === t[0] && ('' + parseInt(t[1])) !== t[1])
+                {
+                    t.type = 'resource:' + t[1];
+                    t.ref = t[2];
+                    t.isRef = '' === t[3];
+
+                    push(t.type, 'class');
+                }
+                else
+                {
+                    t.type = 'class';
+                    t.ref = t[1];
+                    t.isRef = '' === t[2];
+                    t.class = t[0];
+
+                    if ('stdClass' !== t.class) push(t.class, 'class');
+                    if (t.ref && !t.isRef) push('#' + t.ref, 'ref id');
+
+                    b = ['{', '}'];
+                }
+            }
 
             if (undefined !== data.__maxDepth)
             {
-                push('[', 'bracket');
+                push(b[0], 'bracket');
                 push('...', 'cut', 'Max-depth reached');
-                push(']', 'bracket');
+                push(b[1], 'bracket');
                 return;
             }
 
-            e = 1;
-            depth += 2;
             buffer.push('<span class="array-compact">');
-            push('[', 'bracket open');
+            push(b[0], 'bracket open');
             buffer.push('<a onclick="arrayToggle(this)"> ⊞ </a>\n');
+
             for (i in data)
             {
                 if ('_' === i || '__maxLength' === i) continue;
+
+                title = [];
+                tags = ' key';
                 buffer.push('<span class="indent">' + new Array(depth).join(' ') + '</span>')
                 e = parseInt(i);
-                if ('' + e === i) i = e;
-                htmlizeData(i, ' key'); // TODO: handle object properties
+
+                if ('' + e !== i)
+                {
+                    e = i.indexOf(':');
+                    e = -1 === e ? ['', i] : [i.substr(0, e), i.substr(e+1)];
+
+                    if (t.class)
+                    {
+                        if ('' === e[0])
+                        {
+                            title.push('Public property');
+                            tags += ' public';
+                        }
+                        else switch (e[0].charAt(e[0].length - 1))
+                        {
+                        case '`': title.push('Public property'); tags += ' public'; break;
+                        case '*': title.push('Protected property'); tags += ' protected'; break;
+                        default:
+                            title.push('Private property from class ' + e[0].replace(/^[^`]*`/, ''));
+                            tags += ' private';
+                            break;
+                        }
+                    }
+
+                    e = e[0].replace(/[^`]+$/, '') + e[1];
+                }
+
+                htmlizeData(e, tags, title);
                 push(' ⇨ ', 'arrow');
                 htmlizeData(data[i]);
                 push(',\n', 'lf');
                 e = 0;
             }
-            depth -= 2;
 
-            if (data.maxLength)
+            if (data.__maxLength)
             {
                 e = 0;
                 buffer.push('<span class="indent">' + new Array(depth).join(' ') + '</span>')
-                push('...', 'cut', 'Max-length reached, cut by: ' + data.maxLength);
+                push('...', 'cut', ['Max-length reached, cut by ' + data.__maxLength]);
                 push(',\n', 'lf');
             }
+
+            depth -= 2;
+            buffer[buffer.length - 1] = '';
 
             if (e)
             {
                 buffer[buffer.length - 3] = '';
                 buffer[buffer.length - 2] = '';
-                buffer[buffer.length - 1] = '';
-                push('[]', 'bracket');
+
+                if (t.isRef)
+                {
+                    push(b[0], 'bracket');
+                    push('#' + t.ref, 'ref');
+                    push(b[1], 'bracket');
+                }
+                else push(b[0] + b[1], 'bracket');
             }
             else
             {
-                buffer[buffer.length - 1] = '';
                 push('\n', 'lf');
                 if (1 < depth) buffer.push('<span class="indent">' + new Array(depth).join(' ') + '</span>')
-                push(']', 'bracket close');
+                push(b[1], 'bracket close');
                 buffer.push('</span>');
             }
 
