@@ -28,13 +28,19 @@ E.clone = function(data)
 
     if (typeof data !== 'object' || data === null)
     {
+        // TODO: special case for template loops, whose typeof is 'function'.
+        //       See $loop.toString in js/patchwork.js.ptl
         return data;
     }
 
-    var i, k, clone = {};
+    var k,
+        i = Object.prototype.toString.apply(data).match(/^\[object (.+)\]$/),
+        clone = {'_': (i[1] || '') + ':'};
 
     for (i in data)
     {
+        if (i in E.hiddenList) continue;
+
         k = i;
 
         if (typeof k === 'string') switch (true)
@@ -48,8 +54,9 @@ E.clone = function(data)
 
         if (data[i] === data)
         {
-            // TODO: test for farther recursivity
-            clone[E.clone(k)] = {'_': '::'}; // TODO: point to the referenced object
+            // TODO: test for farther recursivity and add ref indexes
+            i = Object.prototype.toString.apply(data[i]).match(/^\[object (.+)\]$/);
+            clone[E.clone(k)] = {'_': (i[1] || '') + '::'};
         }
         else
         {
@@ -59,6 +66,15 @@ E.clone = function(data)
 
     return clone;
 }
+
+E.hiddenList = {
+    '_AdblockData' : 1,
+    'ownerDocument' : 1,
+    'top' : 1,
+    'parent' : 1,
+    'parentNode' : 1,
+    'document' : 1
+};
 
 E.buffer = [];
 E.lastTime = E.startTime = new Date/1;
