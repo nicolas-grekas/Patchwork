@@ -18,13 +18,7 @@ class DebugLog
     public
 
     $lock = true,
-    $traceDisabledErrors = array(
-        E_NOTICE => E_NOTICE,
-        E_STRICT => E_STRICT,
-        E_USER_NOTICE => E_USER_NOTICE,
-        E_DEPRECATED => E_DEPRECATED,
-        E_USER_DEPRECATED => E_USER_DEPRECATED,
-    );
+    $traceDisabledErrors = 0x6c08; // E_STRICT | E_NOTICE | E_USER_NOTICE | E_DEPRECATED | E_USER_DEPRECATED
 
     protected static
 
@@ -51,16 +45,15 @@ class DebugLog
 
     protected
 
-    $token,
-    $index      = 0,
-    $startTime  = 0,
-    $prevTime   = 0,
+    $prevTime = 0,
+    $startTime = 0,
     $prevMemory = 0,
-    $seenErrors = array(),
-    $logStream;
+    $loggedTraces = array(),
+    $logStream,
+    $lineFormat = "%s\n";
 
 
-    static function start($log_file, self $logger = null)
+    static function start($log_file = 'php://stderr', self $logger = null)
     {
         null === $logger && $logger = new self;
 
@@ -69,7 +62,7 @@ class DebugLog
         ini_set('display_errors', false);
         ini_set('log_errors', true);
         ini_set('error_log', $log_file);
-        ini_set('ignore_repeated_errors', true);
+        ini_set('ignore_repeated_errors', false);
         ini_set('ignore_repeated_source', false);
 
         // Some fatal errors can be catched at shutdown time
@@ -98,7 +91,7 @@ class DebugLog
             // Get the last fatal error and format it appropriately
             case E_ERROR: case E_PARSE: case E_CORE_ERROR:
             case E_COMPILE_ERROR: case E_COMPILE_WARNING:
-                $logger->logError($e['type'], $e['message'], $e['file'], $e['line'], array(), -1);
+                $logger->logLastError($e['type'], $e['message'], $e['file'], $e['line']);
                 self::resetLastError();
             }
         }
@@ -112,7 +105,7 @@ class DebugLog
 
     static function resetLastError()
     {
-        // Reset error_get_last() by triggering a silenced user notice
+        // Reset error_get_last() by triggering a silenced empty user notice
         set_error_handler(array(__CLASS__, 'falseError'));
         $r = error_reporting(0);
         user_error('', E_USER_NOTICE);
@@ -126,143 +119,179 @@ class DebugLog
     }
 
 
-    function register()
+    function register($error_types = -1)
     {
         set_exception_handler(array($this, 'logException'));
-        set_error_handler(array($this, 'logError'));
+        set_error_handler(array($this, 'logError'), $error_types);
         self::$loggers[] = $this;
-        $this->token = sprintf('%010d', substr(mt_rand(), -10));
-        $this->index = 0;
         $this->startTime = microtime(true);
     }
 
     function unregister()
     {
-        if ($this === end(self::$loggers))
+        $ok = array(
+            $this === end(self::$loggers),
+            array($this, 'logError') === set_error_handler(array(__CLASS__, 'falseError')),
+            array($this, 'logException') === set_exception_handler(array(__CLASS__, 'falseError')),
+        );
+
+        if ($ok = array(true, true, true) === $ok)
         {
-            $this->token = null;
             array_pop(self::$loggers);
             restore_error_handler();
             restore_exception_handler();
         }
-        else
-        {
-            user_error(__CLASS__ . ' objects have to be unregistered in the exact reverse order they have been registered', E_USER_WARNING);
-        }
+        else user_error('Failed to unregister: the current error or exception handler is not me', E_USER_WARNING);
+
+        restore_error_handler();
+        restore_exception_handler();
+
+        return $ok;
     }
 
-    function logError($code, $msg, $file, $line, $k, $trace_offset = 0)
+    function logError($code, $mesg, $file, $line, $k, $trace_offset = 0, $log_time = 0)
     {
-        $log_time = microtime(true);
+        $log_error = error_reporting() & $code;
 
-        // Do not log duplicate errors
-        $k = md5("{$code}/{$line}/{$file}\x00{$msg}", true);
-        if (isset($this->seenErrors[$k])) return;
-        $this->seenErrors[$k] = 1;
-
-        if (0 === $trace_offset && (isset($this->traceDisabledErrors[$code]) || isset($this->traceDisabledErrors[E_ALL])))
+        if ($log_error || E_RECOVERABLE_ERROR === $code || E_USER_ERROR === $code)
         {
-            $trace_offset = -1;
-        }
+            $log_time || $log_time = microtime(true);
 
-        $code .= ' - ' . (isset(self::$errorCodes[$code]) ? self::$errorCodes[$code] : 'E_UNKNOWN');
-
-        $k = array(
-            'code'    => $code,
-            'message' => $msg,
-            'file'    => $file,
-            'line'    => $line,
-        );
-
-        if (0 <= $trace_offset++)
-        {
-            $trace = debug_backtrace();
-
-            if (isset($trace[$trace_offset]['function']))
+            if (0 <= $trace_offset)
             {
-                $msg = $trace[$trace_offset]['function'];
-                if ('user_error' === $msg || 'trigger_error' === $msg) ++$trace_offset;
+                ++$trace_offset;
+
+                // For duplicate errors, log the trace only once
+                $k = md5("{$code}/{$line}/{$file}\x00{$mesg}", true);
+
+                if (($this->traceDisabledErrors & $code) || isset($this->loggedTraces[$k])) $trace_offset = -1;
+                else if ($log_error) $this->loggedTraces[$k] = 1;
             }
 
-            array_splice($trace, 0, $trace_offset);
+            if ($log_error)
+            {
+                $k = array(
+                    'mesg' => $mesg,
+                    'code' => self::$errorCodes[$code] . ' ' . $file . ':' . $line,
+                );
 
-            $k['trace'] = $trace;
+                if (0 <= $trace_offset)
+                    $k['trace'] = $this->filterTrace(debug_backtrace(false), $trace_offset);
+
+                $this->log('php-error', $k, $log_time);
+            }
+
+            if (E_RECOVERABLE_ERROR === $code || E_USER_ERROR === $code)
+            {
+                $k = new CatchableErrorException($mesg, $code, 0, $file, $line);
+                $k->traceOffset = $log_error ? -1 : $trace_offset;
+                throw $k;
+            }
         }
 
-        $this->log('php-error', $k, $log_time);
+        return $log_error;
     }
 
-    function logException(\Exception $e)
+    function logException(\Exception $e, $log_time = 0)
     {
-        $log_time = microtime(true);
+        $log_time || $log_time = microtime(true);
 
-        $this->log('php-exception', array(
-            'class'   => get_class($e),
-            'code'    => $e->getCode(),
-            'message' => $e->getMessage(),
-            'file'    => $e->getFile(),
-            'line'    => $e->getLine(),
-            'trace'   => $e->getTrace(),
-        ), $log_time);
+        $e = array(
+            'type' => get_class($e),
+            'mesg' => $e->getMessage(),
+            'code' => $e->getCode() . ' ' . $e->getFile() . ':' . $e->getLine(),
+            'trace' => $this->filterTrace($e->getTrace(), $e instanceof ExceptionWithTraceOffset ? $e->traceOffset : 0),
+        );
+
+        if (null === $e['trace']) unset($e['trace']);
+
+        $this->log('php-exception', $e, $log_time);
     }
 
-    function log($type, array $data = array(), $log_time = null)
+    function logLastError($code, $message, $file, $line)
     {
-        if (null === $this->token)
+        // This serves as a hook if a derivated class wants to catch the last fatal error
+    }
+
+    function filterTrace($trace, $offset)
+    {
+        if (0 > $offset) return null;
+
+        if (isset($trace[$offset]['function']))
         {
-            return user_error('This ' . __CLASS__ . ' object has been unregistered', E_USER_WARNING);
+            $t = $trace[$offset]['function'];
+            if ('user_error' === $t || 'trigger_error' === $t) ++$offset;
         }
 
+        $offset && array_splice($trace, 0, $offset);
+
+        foreach ($trace as &$t)
+        {
+            $t = array(
+                'call' => (isset($t['class']) ? $t['class'] . $t['type'] : '')
+                    . $t['function'] . '()'
+                    . (isset($t['line']) ? " {$t['file']}:{$t['line']}" : '')
+            ) + $t;
+
+            unset($t['class'], $t['type'], $t['function'], $t['file'], $t['line']);
+        }
+
+        return $trace;
+    }
+
+    function log($type, $data, $log_time = 0)
+    {
         // Get time and memory profiling information
 
-        null === $log_time && $log_time = microtime(true);
+        $log_time || $log_time = microtime(true);
 
         $this->prevTime
             || ($this->prevTime = $this->startTime)
             || ($this->prevTime = $this->startTime = $log_time);
 
         $data = array(
-            'delta-ms' => sprintf('%0.3f', 1000*($log_time - $this->prevTime)),
-            'total-ms' => sprintf('%0.3f', 1000*($log_time - $this->startTime)),
-            'delta-mem' => isset($this->prevMemory) ? memory_get_usage(true) - $this->prevMemory : 0,
-            'peak-mem' => memory_get_peak_usage(true),
-            'log-time' => date('c', $log_time) . sprintf(' %06dus', 100000*($log_time - floor($log_time))),
-            'log-data' => $data,
+            'time' => date('c', $log_time) . sprintf(
+                ' %06dus - %0.3fms - %0.3fms',
+                100000 * ($log_time - floor($log_time)),
+                  1000 * ($log_time - $this->startTime),
+                  1000 * ($log_time - $this->prevTime)
+            ),
+            'mem'  => memory_get_peak_usage(true) . ' - ' . (memory_get_usage(true) - $this->prevMemory),
+            'data' => $data,
         );
 
         isset($this->logStream)
             || ($this->logStream = self::$logFileStream)
             || ($this->logStream = self::$logFileStream = fopen(self::$logFile, 'ab'));
 
-        ++$this->index;
-
-        $type = strtr($type, "\r\n", '--');
-
         $this->lock && flock($this->logStream, LOCK_EX);
         $this->dumpEvent($type, $data);
         $this->lock && flock($this->logStream, LOCK_UN);
 
-        $data = array();
         $this->prevMemory = memory_get_usage(true);
         $this->prevTime = microtime(true);
     }
 
     function dumpEvent($type, $data)
     {
-        $type = "{$this->index}:{$type}:{$this->token}\n";
+        fprintf($this->logStream, $this->lineFormat, "*** {$type} ***");
 
-        fwrite($this->logStream, "event-start:{$type}");
-
-        class_exists('Patchwork\PHP\Dumper', true) || __autoload('Patchwork\PHP\Dumper'); // http://bugs.php.net/42098 workaround
         $d = new Dumper;
         $d->setCallback('line', array($this, 'dumpLine'));
-        $d->dumpLines($data, false);
+        $d->dumpLines($data);
 
-        fwrite($this->logStream, "event-end:{$type}");
+        fprintf($this->logStream, $this->lineFormat, '***');
     }
 
     function dumpLine($line)
     {
-        fwrite($this->logStream, "{$this->token}: {$line}");
+        fprintf($this->logStream, $this->lineFormat, $line);
     }
 }
+
+class CatchableErrorException extends \ErrorException implements ExceptionWithTraceOffset
+{
+    public $traceOffset = 0;
+}
+
+interface ExceptionWithTraceOffset {}
