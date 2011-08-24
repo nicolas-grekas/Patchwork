@@ -34,7 +34,7 @@ class Patchwork_PHP_Parser_ShortArray extends Patchwork_PHP_Parser
             while ('}' === current($token)) prev($token);
             switch (current($token)) {case ';': case '{': break 2;}
 
-        case ')': case ']': case T_VARIABLE:
+        case ')': case ']': case T_VARIABLE: case T_STRING:
             $is_array = false;
         }
 
