@@ -17,11 +17,7 @@ use Patchwork as p;
 
 class Debugger extends p
 {
-    static
-
-    $syncCache = false,
-    $sleep = 500, // (ms)
-    $period = 5;  // (s)
+    static $syncCache = false;
 
     protected static $buffer = array();
 
@@ -136,13 +132,19 @@ EOHTML;
 
     static function sendDebugInfo()
     {
-        $S = 'stop' === p::$requestArg;
-        $S && function_exists('ob_gzhandler') && ob_start('ob_gzhandler', 1<<14);
+        ob_start(function_exists('ob_gzhandler') ? 'ob_gzhandler' : null, 1<<14);
 
         header('Content-Type: text/html; charset=utf-8');
         header('Cache-Control: max-age=0,private,must-revalidate');
 
-        ?><!DOCTYPE html>
+        set_time_limit(0);
+        ignore_user_abort(false);
+        ini_set('error_log', PATCHWORK_PROJECT_PATH . 'error.patchwork.log');
+        $error_log = ini_get('error_log');
+        $error_log || $error_log = PATCHWORK_PROJECT_PATH . 'error.patchwork.log';
+
+        ?>
+<!DOCTYPE html>
 <html>
 <head>
     <title>Debug Window</title>
@@ -158,29 +160,12 @@ EOHTML;
 <div id="events">
 <?php
 
-        ignore_user_abort($S);
-        set_time_limit(0);
-
-        ini_set('error_log', PATCHWORK_PROJECT_PATH . 'error.patchwork.log');
-        $error_log = ini_get('error_log');
-        $error_log || $error_log = PATCHWORK_PROJECT_PATH . 'error.patchwork.log';
-        $S||flush();
-
-        $sleep = max(100, (int) self::$sleep);
-        $i = $period = max(1, (int) 1000*self::$period / $sleep);
-        $sleep *= 1000;
-        while (1)
+        if (is_file($error_log))
         {
-            clearstatcache();
-            if (is_file($error_log))
+            if ($h = @fopen($error_log, 'r'))
             {
-                echo '<span></span>'; // Test the connexion
-                $S||flush();
-
-                if ($h = @fopen($error_log, 'r'))
+                while (false !== $next_line = fgets($h))
                 {
-                    $next_line = fgets($h);
-
                     while (false !== $line = $next_line)
                     {
                         $next_line = fgets($h);
@@ -210,36 +195,25 @@ EOHTML;
                         if (connection_aborted()) break;
                     }
 
-                    fclose($h);
+                    usleep(100000); // Wait 100ms
                 }
 
-                echo '<script>Z()</script>';
-                $S||flush();
-
-                @unlink($error_log);
-            }
-            else if (!--$i)
-            {
-                $i = $period;
-                echo '<span></span>'; // Test the connexion
-                $S||flush();
+                fclose($h);
             }
 
-            if ($S)
-            {
-                echo '<script>
-                scrollTo(0,0);
-                var i, b = window.parent && parent.E && parent.E.buffer;
-                for (i in b) classifyEvent("0000000000", "client-dump", b[i]);
-                parent.E.buffer = [];
-                </script>';
-                break;
-            }
-
-            usleep($sleep);
+            @unlink($error_log);
         }
 
-        die('</div></body></html>');
+        ?>
+<script>
+scrollTo(0,0);
+var i, b = window.parent && parent.E && parent.E.buffer;
+for (i in b) classifyEvent("0000000000", "client-dump", b[i]);
+parent.E.buffer = [];
+</script></div></body></html>
+<?php
+
+        exit;
     }
 
     static function parseLine($line, $next_line)
