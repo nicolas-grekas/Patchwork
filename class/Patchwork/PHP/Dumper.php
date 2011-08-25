@@ -17,8 +17,9 @@ class Dumper
 {
     public
 
-    $maxData   = 1000,
-    $maxLength = 100,
+    $arrayDecycle = true,
+    $maxData   = 100000,
+    $maxLength = 1000,
     $maxDepth  = 10;
 
     protected
@@ -121,14 +122,19 @@ class Dumper
     {
         if (empty($a)) return $line .= '[]';
 
-        if (empty($a[$this->token]))
+        if ($this->arrayDecycle)
         {
-            $new = true;
-            $a[$this->token] = ++$this->refId;
-            $this->arrayStack[] =& $a;
-        }
+            if (empty($a[$this->token]))
+            {
+                $new = true;
+                $a[$this->token] = ++$this->refId;
+                $this->arrayStack[] =& $a;
+            }
 
-        $line .= '{"_":"array:' . $a[$this->token] . ':len:' . (count($a) - 1);
+            $line .= '{"_":"array:' . $a[$this->token] . ':len:' . (count($a) - 1);
+        }
+        else $line .= '{"_":"array::len:' . count($a);
+
         if (isset($new)) $this->dumpMap($line, $a, false);
         else $line .= ':"}';
     }
