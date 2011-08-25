@@ -50,6 +50,6 @@ if ($errors = $parser->getErrors())
 
     foreach ($errors as $e)
     {
-        echo "Line {$e[1]}: {$e[0]}\n";
+        echo "Line {$e['line']}: {$e['message']}\n";
     }
 }
