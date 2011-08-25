@@ -21,6 +21,11 @@ function E(data)
 
 E.clone = function(data)
 {
+    if (typeof data.cloneForDebug === 'function')
+    {
+        return data.cloneForDebug();
+    }
+
     if (typeof data === 'string' && -1 != data.indexOf('`'))
     {
         data = 'u`' + data;
@@ -28,14 +33,12 @@ E.clone = function(data)
 
     if (typeof data !== 'object' || data === null)
     {
-        // TODO: special case for template loops, whose typeof is 'function'.
-        //       See $loop.toString in js/patchwork.js.ptl
         return data;
     }
 
     var k,
-        i = Object.prototype.toString.apply(data).match(/^\[object (.+)\]$/),
-        clone = {'_': (i[1] || '') + ':'};
+        i = Object.prototype.toString.apply(data).match(/^\[object ((Object)|(.+))\]$/),
+        clone = {'_': (i[3] || '') + ':'};
 
     for (i in data)
     {
@@ -55,8 +58,8 @@ E.clone = function(data)
         if (data[i] === data)
         {
             // TODO: test for farther recursivity and add ref indexes
-            i = Object.prototype.toString.apply(data[i]).match(/^\[object (.+)\]$/);
-            clone[E.clone(k)] = {'_': (i[1] || '') + '::'};
+            i = Object.prototype.toString.apply(data[i]).match(/^\[object ((Object)|(.+))\]$/);
+            clone[E.clone(k)] = {'_': (i[3] || '') + '::'};
         }
         else
         {

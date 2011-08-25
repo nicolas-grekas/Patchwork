@@ -815,11 +815,11 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
                 $loopIterator = $next;
         }
 
-        <!-- IF g$__DEBUG__ -->
-        $loop.toString = function($a, $level)
-        {
-            if (!$level) return ''+$data[0];
+        $loop.toString = function() {return ''+$data[0]};
 
+        <!-- IF g$__DEBUG__ -->
+        $loop.cloneForDebug = function()
+        {
             var $d = [], $e = 5;
 
             $a = $loop();
@@ -829,7 +829,6 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
                 {
                     v = v.$;
                     $loopIterator = $parentLoop;
-                    $d.push('[...]');
                     break;
                 }
 
@@ -837,11 +836,12 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
                 $d.push(v);
             }
 
-            E($d, 0, 0, $level, 2);
-            return '';
+            $d = E.clone($d);
+            $d._ = $d._.replace(/^[^:]*/, 'ptl-loop');
+            if (!$e) $d.__maxLength = $data[0] > 4 ? $data[0] - 4 : -1;
+
+            return $d;
         }
-        <!-- ELSE -->
-        $loop.toString = function() {return ''+$data[0]};
         <!-- END:IF -->
 
         return $loop;

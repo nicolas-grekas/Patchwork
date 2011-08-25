@@ -199,7 +199,7 @@ function htmlizeEvent(data)
             {
                 e = 0;
                 buffer.push('<span class="indent">' + new Array(depth).join(' ') + '</span>')
-                push('...', 'cut', ['Max-length reached, cut by ' + data.__maxLength]);
+                push('...', 'cut', ['Max-length reached' + (data.__maxLength > 0 ? ', cut by ' + data.__maxLength : '')]);
                 push(',\n', 'lf');
             }
 
