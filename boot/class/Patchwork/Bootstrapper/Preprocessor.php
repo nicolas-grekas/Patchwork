@@ -39,11 +39,21 @@ class Patchwork_Bootstrapper_Preprocessor
         $code = $p->getRunonceCode($code);
 
         if ($p = $p->getErrors())
+        {
             foreach ($p as $p)
-                $code .= "trigger_error('"
-                    . addslashes("{$p[0]} in {$file}")
-                    . ($p[1] ? " on line {$p[1]}" : '')
-                    . "',{$p[3]});";
+            {
+                switch ($p['code'])
+                {
+                default:
+                case E_ERROR: $p['code'] = E_USER_ERROR; break;
+                case E_NOTICE: $p['code'] = E_USER_NOTICE; break;
+                case E_WARNING: $p['code'] = E_USER_WARNING; break;
+                case E_DEPRECATED: $p['code'] = E_USER_DEPRECATED; break;
+                }
+
+                $code .= "user_error('" . addslashes("{$p['message']} in {$file}:{$p['line']} as parsed by {$p['parser']}") . "', {$p[3]});";
+            }
+        }
 
         return $code;
     }

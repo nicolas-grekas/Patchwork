@@ -157,16 +157,18 @@ class Patchwork_Preprocessor
 
         if ($c = $p->getErrors())
         {
-            if (class_exists('Patchwork_ErrorHandler', true))
+            foreach ($c as $c)
             {
-                foreach ($c as $c)
-                    Patchwork_ErrorHandler::handle($c[3], $c[0], $source, $c[1]);
-            }
-            else
-            {
-                echo "Early preprocessor error in {$source}:\n";
-                print_r($c);
-                echo "\n";
+                switch ($c['code'])
+                {
+                default:
+                case E_ERROR: $c['code'] = E_USER_ERROR; break;
+                case E_NOTICE: $c['code'] = E_USER_NOTICE; break;
+                case E_WARNING: $c['code'] = E_USER_WARNING; break;
+                case E_DEPRECATED: $c['code'] = E_USER_DEPRECATED; break;
+                }
+
+                user_error("{$c['message']} in {$source}:{$c['line']} as parsed by {$c['parser']}", $c['code']);
             }
         }
 
