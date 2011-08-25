@@ -57,13 +57,12 @@ class DebugLog
     {
         null === $logger && $logger = new self;
 
-        // Too bad: formatting errors with html_errors, error_prepend_string or
+        // See also error_reporting and log_errors_max_len
+        // Formatting errors with html_errors, error_prepend_string or
         // error_append_string only works with displayed errors, not logged ones.
         ini_set('display_errors', false);
         ini_set('log_errors', true);
         ini_set('error_log', $log_file);
-        ini_set('ignore_repeated_errors', false);
-        ini_set('ignore_repeated_source', false);
 
         // Some fatal errors can be catched at shutdown time
         register_shutdown_function(array(__CLASS__, 'shutdown'));
@@ -168,25 +167,16 @@ class DebugLog
                 else if ($log_error) $this->loggedTraces[$k] = 1;
             }
 
+            $k = new CatchableErrorException($mesg, $code, 0, $file, $line);
+            $k->traceOffset = $trace_offset;
+
             if ($log_error)
             {
-                $k = array(
-                    'mesg' => $mesg,
-                    'code' => self::$errorCodes[$code] . ' ' . $file . ':' . $line,
-                );
-
-                if (0 <= $trace_offset)
-                    $k['trace'] = $this->filterTrace(debug_backtrace(false), $trace_offset);
-
-                $this->log('php-error', $k, $log_time);
+                $this->log('php-error', $this->castException($k), $log_time);
+                $k->traceOffset = -1;
             }
 
-            if (E_RECOVERABLE_ERROR === $code || E_USER_ERROR === $code)
-            {
-                $k = new CatchableErrorException($mesg, $code, 0, $file, $line);
-                $k->traceOffset = $log_error ? -1 : $trace_offset;
-                throw $k;
-            }
+            if (E_RECOVERABLE_ERROR === $code || E_USER_ERROR === $code) throw $k;
         }
 
         return $log_error;
@@ -194,17 +184,6 @@ class DebugLog
 
     function logException(\Exception $e, $log_time = 0)
     {
-        $log_time || $log_time = microtime(true);
-
-        $e = array(
-            'type' => get_class($e),
-            'mesg' => $e->getMessage(),
-            'code' => $e->getCode() . ' ' . $e->getFile() . ':' . $e->getLine(),
-            'trace' => $this->filterTrace($e->getTrace(), $e instanceof ExceptionWithTraceOffset ? $e->traceOffset : 0),
-        );
-
-        if (null === $e['trace']) unset($e['trace']);
-
         $this->log('php-exception', $e, $log_time);
     }
 
@@ -213,8 +192,29 @@ class DebugLog
         // This serves as a hook if a derivated class wants to catch the last fatal error
     }
 
-    function filterTrace($trace, $offset)
+    function castException($e)
     {
+        $a = array(
+            'mesg' => $e->getMessage(),
+            'code' => $e->getCode() . ' ' . $e->getFile() . ':' . $e->getLine(),
+            'trace' => $this->filterExceptionTrace($e),
+        ) + (array) $e;
+
+        if (null === $a['trace']) unset($a['trace']);
+        if ($e instanceof CatchableErrorException) unset($a['traceOffset']);
+        if (empty($a["\0Exception\0previous"])) unset($a["\0Exception\0previous"]);
+        if ($e instanceof \ErrorException && empty($a["\0*\0severity"])) unset($a["\0*\0severity"]);
+        unset($a["\0*\0message"], $a["\0Exception\0string"], $a["\0*\0code"], $a["\0*\0file"], $a["\0*\0line"], $a["\0Exception\0trace"], $a['xdebug_message']);
+
+        return $a;
+    }
+
+    function filterExceptionTrace($trace)
+    {
+        $offset = $trace instanceof ExceptionWithTraceOffset ? $trace->traceOffset : 0;
+        $trace = (array) $trace;
+        $trace = $trace["\0Exception\0trace"];
+
         if (0 > $offset) return null;
 
         if (isset($trace[$offset]['function']))
@@ -278,6 +278,7 @@ class DebugLog
 
         $d = new Dumper;
         $d->setCallback('line', array($this, 'dumpLine'));
+        $d->setCallback('o:exception', array($this, 'castException'));
         $d->dumpLines($data);
 
         fprintf($this->logStream, $this->lineFormat, '***');
