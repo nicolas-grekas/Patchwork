@@ -49,8 +49,9 @@ E.clone = function(data)
         if (typeof k === 'string') switch (true)
         {
         case '_' === k:
-        case '__maxLength' === k:
         case '__maxDepth' === k:
+        case '__maxLength' === k:
+        case '__cyclicRefs' === k:
         case -1 != k.indexOf(':'):
             k = ':' + k;
         }

@@ -24,16 +24,18 @@ function classifyEvent(token, type, data)
     // TODO: use token, type, data.time and data.mem, data.patchwork and data._SERVER when available
 
     div.className = 'event';
-    div.innerHTML = htmlizeEvent(data.data);
+    div.innerHTML = htmlizeEvent(data.data, data.__cyclicRefs);
 
     document.getElementById(target).appendChild(div);
 }
 
-function htmlizeEvent(data)
+function htmlizeEvent(data, cycles)
 {
     var depth = 1,
         buffer = [],
         span = document.createElement('SPAN');
+
+    cycles = cycles || '';
 
     function escape(s)
     {
@@ -139,7 +141,7 @@ function htmlizeEvent(data)
                     b = ['{', '}'];
                 }
 
-                if (t.ref && !t.isRef) push('#' + t.ref, 'ref id');
+                if (t.ref && !t.isRef && 0 <= cycles.indexOf('-' + t.ref + '-')) push('#' + t.ref, 'ref id');
             }
 
             if (undefined !== data.__maxDepth)
@@ -156,7 +158,7 @@ function htmlizeEvent(data)
 
             for (i in data)
             {
-                if ('_' === i || '__maxLength' === i) continue;
+                if ('_' === i || '__maxLength' === i || '__cyclicRefs' === i) continue;
 
                 title = [];
                 tags = ' key';

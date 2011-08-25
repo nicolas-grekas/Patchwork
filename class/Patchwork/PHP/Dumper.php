@@ -27,10 +27,11 @@ class Dumper
     $token,
     $depth,
     $refId,
+    $cycles = array(),
     $resStack = array(),
     $arrayStack = array(),
     $objectStack = array(),
-    $reserved = array('_' => 1, '__maxLength' => 1, '__maxDepth' => 1, '__proto__' => 1),
+    $reserved = array('_' => 1, '__maxLength' => 1, '__maxDepth' => 1, '__proto__' => 1, '__cyclicRefs' => 1),
     $callbacks = array(
         'line'      => array(__CLASS__, 'echoLine'),
         'o:closure' => array(__CLASS__, 'castClosure'),
@@ -60,7 +61,7 @@ class Dumper
 
         foreach ($this->arrayStack as &$a) unset($a[$this->token]);
 
-        $this->resStack = $this->arrayStack = $this->objectStack = array();
+        $this->cycles = $this->resStack = $this->arrayStack = $this->objectStack = array();
     }
 
     function setCallback($type, $callback)
@@ -130,6 +131,7 @@ class Dumper
                 $a[$this->token] = ++$this->refId;
                 $this->arrayStack[] =& $a;
             }
+            else $this->cycles[$a[$this->token]] = 1;
 
             $line .= '{"_":"array:' . $a[$this->token] . ':len:' . (count($a) - 1);
         }
@@ -149,6 +151,7 @@ class Dumper
             $new = true;
             $this->objectStack[$h] = ++$this->refId;
         }
+        else $this->cycles[$this->objectStack[$h]] = 1;
 
         $line .= '{"_":"' . str_replace('\\', '\\\\', $c) . ':' . $this->objectStack[$h];
 
@@ -177,13 +180,13 @@ class Dumper
 
     protected function dumpResource(&$line, $a)
     {
-        $ref = substr((string) $a, 13);
+        $ref = (int) substr((string) $a, 13);
         $type = get_resource_type($a);
-        $line .= "{\"_\":\"resource:{$type}:{$ref}";
 
         if (empty($this->resStack[$ref]))
         {
-            $this->resStack[$ref] = 1;
+            $this->resStack[$ref] = ++$this->refId;
+            $line .= "{\"_\":\"resource:{$type}:{$this->refId}";
 
             if (isset($this->callbacks[$type = 'r:' . strtolower($type)]))
             {
@@ -191,7 +194,11 @@ class Dumper
                 $this->dumpMap($line, $type, false);
             }
         }
-        else $line .= ':"}';
+        else
+        {
+            $this->cycles[$this->resStack[$ref]] = 1;
+            $line .= "{\"_\":\"resource:{$type}:{$ref}:\"}";
+        }
     }
 
     protected function dumpMap(&$line, array &$a, $is_object)
@@ -229,9 +236,9 @@ class Dumper
         }
 
         if ($len -= $i) $line .= '"__maxLength": ' . $len;
+        if (0 === --$this->depth && $this->cycles) $line .= ', "__cyclicRefs": "-' . implode('-', array_keys($this->cycles)) . '-"';
         call_user_func($this->callbacks['line'], $line);
         $line = substr($pre, 0, -2) . '}';
-        --$this->depth;
     }
 
     static function castClosure($c)

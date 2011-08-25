@@ -30,7 +30,6 @@ acronym
 }
 
 #events,
-.event>.ref,
 .array-compact .key,
 .array-compact .arrow
 {
@@ -38,8 +37,7 @@ acronym
 }
 
 .string.key,
-.string.key+.arrow,
-.event>.class+.ref
+.string.key+.arrow
 {
     display: inline !important;
 }
@@ -95,7 +93,7 @@ acronym
 .lf,
 .bracket,
 .arrow,
-.ref.id /* TODO: use .ref appropriately */
+.ref.id
 {
     color: gray;
     font-style: italic;
