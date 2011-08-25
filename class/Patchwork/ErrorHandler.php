@@ -55,7 +55,24 @@ class ErrorHandler extends PHP\DebugLog
 
     function dumpEvent($type, $data)
     {
-        isset($this->lineFormat) || $this->lineFormat = sprintf('%010d', substr(mt_rand(), -10)) . ": %s\n";
+        if (empty($this->lineFormat))
+        {
+            $this->lineFormat = sprintf('%010d', substr(mt_rand(), -10)) . ": %s\n";
+
+            $data['patchwork'] = array(
+                'app' => PATCHWORK_PROJECT_PATH,
+                'i18n' => PATCHWORK_I18N,
+                'debug' => DEBUG,
+                'turbo' => TURBO,
+                'utime' => PATCHWORK_MICROTIME,
+                'stime' => $this->startTime,
+                'level' => PATCHWORK_PATH_LEVEL,
+                'zcache' => PATCHWORK_ZCACHE,
+                'paths' => $GLOBALS['patchwork_path'],
+            );
+            $data['_SERVER'] = $_SERVER;
+        }
+
         // http://bugs.php.net/42098 workaround
         class_exists('Patchwork\PHP\Dumper') || __autoload('Patchwork\PHP\Dumper');
         parent::dumpEvent($type, $data);

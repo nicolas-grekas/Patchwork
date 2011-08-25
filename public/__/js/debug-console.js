@@ -21,7 +21,7 @@ function classifyEvent(token, type, data)
         buffer: []
     };
 
-    // TODO: use token, type, data.time and data.mem
+    // TODO: use token, type, data.time and data.mem, data.patchwork and data._SERVER when available
 
     div.className = 'event';
     div.innerHTML = htmlizeEvent(data.data);
