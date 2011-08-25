@@ -16,14 +16,10 @@ acronym
     color: silver;
 }
 
-#events
-{
-    display: none;
-}
-
 .event
 {
     font-size: 11px;
+    white-space: nowrap;
 }
 
 .event a
@@ -33,6 +29,8 @@ acronym
     text-decoration: none;
 }
 
+#events,
+.event>.ref,
 .array-compact .key,
 .array-compact .arrow
 {
@@ -40,7 +38,8 @@ acronym
 }
 
 .string.key,
-.string.key+.arrow
+.string.key+.arrow,
+.event>.class+.ref
 {
     display: inline !important;
 }

@@ -135,10 +135,11 @@ function htmlizeEvent(data)
                     t.class = t[0];
 
                     if ('stdClass' !== t.class) push(t.class, 'class');
-                    if (t.ref && !t.isRef) push('#' + t.ref, 'ref id');
 
                     b = ['{', '}'];
                 }
+
+                if (t.ref && !t.isRef) push('#' + t.ref, 'ref id');
             }
 
             if (undefined !== data.__maxDepth)
