@@ -18,6 +18,7 @@ class DebugLog
     public
 
     $lock = true,
+    $recoverableErrors = 0x1100,   // E_RECOVERABLE_ERROR | E_USER_ERROR
     $traceDisabledErrors = 0x6c08; // E_STRICT | E_NOTICE | E_USER_NOTICE | E_DEPRECATED | E_USER_DEPRECATED
 
     protected static
@@ -152,7 +153,7 @@ class DebugLog
     {
         $log_error = error_reporting() & $code;
 
-        if ($log_error || E_RECOVERABLE_ERROR === $code || E_USER_ERROR === $code)
+        if ($log_error || ($this->recoverableErrors & $code))
         {
             $log_time || $log_time = microtime(true);
 
@@ -167,7 +168,7 @@ class DebugLog
                 else if ($log_error) $this->loggedTraces[$k] = 1;
             }
 
-            $k = new CatchableErrorException($mesg, $code, 0, $file, $line);
+            $k = new RecoverableErrorException($mesg, $code, 0, $file, $line);
             $k->traceOffset = $trace_offset;
 
             if ($log_error)
@@ -176,7 +177,7 @@ class DebugLog
                 $k->traceOffset = -1;
             }
 
-            if (E_RECOVERABLE_ERROR === $code || E_USER_ERROR === $code) throw $k;
+            if ($this->recoverableErrors & $code) throw $k;
         }
 
         return $log_error;
@@ -201,7 +202,7 @@ class DebugLog
         ) + (array) $e;
 
         if (null === $a['trace']) unset($a['trace']);
-        if ($e instanceof CatchableErrorException) unset($a['traceOffset']);
+        if ($e instanceof RecoverableErrorException) unset($a['traceOffset']);
         if (empty($a["\0Exception\0previous"])) unset($a["\0Exception\0previous"]);
         if ($e instanceof \ErrorException && empty($a["\0*\0severity"])) unset($a["\0*\0severity"]);
         unset($a["\0*\0message"], $a["\0Exception\0string"], $a["\0*\0code"], $a["\0*\0file"], $a["\0*\0line"], $a["\0Exception\0trace"], $a['xdebug_message']);
@@ -290,7 +291,7 @@ class DebugLog
     }
 }
 
-class CatchableErrorException extends \ErrorException implements ExceptionWithTraceOffset
+class RecoverableErrorException extends \ErrorException implements ExceptionWithTraceOffset
 {
     public $traceOffset = 0;
 }
