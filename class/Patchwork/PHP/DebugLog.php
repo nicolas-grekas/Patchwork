@@ -173,11 +173,22 @@ class DebugLog
 
             if ($log_error)
             {
-                $this->log('php-error', $this->castException($k), $log_time);
-                $k->traceOffset = -1;
+                $k = array(
+                    'mesg' => $mesg,
+                    'code' => self::$errorCodes[$code] . ' ' . $file . ':' . $line,
+                );
+
+                if (0 <= $trace_offset) $k['trace'] = $this->filterTrace(debug_backtrace(false), $trace_offset);
+
+                $this->log('php-error', $k, $log_time);
             }
 
-            if ($this->recoverableErrors & $code) throw $k;
+            if ($this->recoverableErrors & $code)
+            {
+                $k = new RecoverableErrorException($mesg, $code, 0, $file, $line);
+                $k->traceOffset = $log_error ? -1 : $trace_offset;
+                throw $k;
+            }
         }
 
         return $log_error;
@@ -198,11 +209,11 @@ class DebugLog
         $a = array(
             'mesg' => $e->getMessage(),
             'code' => $e->getCode() . ' ' . $e->getFile() . ':' . $e->getLine(),
-            'trace' => $this->filterExceptionTrace($e),
+            'trace' => $this->filterTrace($e->getTrace(), $e instanceof ExceptionWithTraceOffset ? $e->traceOffset : 0),
         ) + (array) $e;
 
         if (null === $a['trace']) unset($a['trace']);
-        if ($e instanceof RecoverableErrorException) unset($a['traceOffset']);
+        if ($e instanceof ExceptionWithTraceOffset) unset($a['traceOffset']);
         if (empty($a["\0Exception\0previous"])) unset($a["\0Exception\0previous"]);
         if ($e instanceof \ErrorException && empty($a["\0*\0severity"])) unset($a["\0*\0severity"]);
         unset($a["\0*\0message"], $a["\0Exception\0string"], $a["\0*\0code"], $a["\0*\0file"], $a["\0*\0line"], $a["\0Exception\0trace"], $a['xdebug_message']);
@@ -210,12 +221,8 @@ class DebugLog
         return $a;
     }
 
-    function filterExceptionTrace($trace)
+    function filterTrace($trace, $offset)
     {
-        $offset = $trace instanceof ExceptionWithTraceOffset ? $trace->traceOffset : 0;
-        $trace = (array) $trace;
-        $trace = $trace["\0Exception\0trace"];
-
         if (0 > $offset) return null;
 
         if (isset($trace[$offset]['function']))

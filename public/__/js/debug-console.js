@@ -80,7 +80,7 @@ function htmlizeEvent(data, cycles)
             switch (data[0].charAt(data[0].length - 1))
             {
                 case 'f': push(data[1], 'const' + tags, title); return;
-                case 'b': tags += ' bin';
+                case 'b': tags += ' bin'; title.push('Binary');
                 case 'u': tags = 'string' + tags;
             }
 
@@ -141,7 +141,7 @@ function htmlizeEvent(data, cycles)
                     b = ['{', '}'];
                 }
 
-                if (t.ref && !t.isRef && 0 <= cycles.indexOf('-' + t.ref + '-')) push('#' + t.ref, 'ref id');
+                if (t.ref && !t.isRef && 0 <= cycles.indexOf('#' + t.ref + '#')) push('#' + t.ref, 'ref id');
             }
 
             if (undefined !== data.__maxDepth)

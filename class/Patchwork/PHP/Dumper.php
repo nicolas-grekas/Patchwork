@@ -134,11 +134,12 @@ class Dumper
             else $this->cycles[$a[$this->token]] = 1;
 
             $line .= '{"_":"array:' . $a[$this->token] . ':len:' . (count($a) - 1);
+
+            if (empty($new)) return $line .= ':"}';
         }
         else $line .= '{"_":"array::len:' . count($a);
 
-        if (isset($new)) $this->dumpMap($line, $a, false);
-        else $line .= ':"}';
+        $this->dumpMap($line, $a, false);
     }
 
     protected function dumpObject(&$line, $a)
@@ -180,23 +181,24 @@ class Dumper
 
     protected function dumpResource(&$line, $a)
     {
-        $ref = (int) substr((string) $a, 13);
+        $ref =& $this->resStack[(int) substr((string) $a, 13)];
         $type = get_resource_type($a);
 
-        if (empty($this->resStack[$ref]))
+        if (empty($ref))
         {
-            $this->resStack[$ref] = ++$this->refId;
-            $line .= "{\"_\":\"resource:{$type}:{$this->refId}";
+            $ref = ++$this->refId;
+            $line .= "{\"_\":\"resource:{$type}:{$ref}";
 
             if (isset($this->callbacks[$type = 'r:' . strtolower($type)]))
             {
                 $type = call_user_func($this->callbacks[$type], $a);
                 $this->dumpMap($line, $type, false);
             }
+            else $line .= '"}';
         }
         else
         {
-            $this->cycles[$this->resStack[$ref]] = 1;
+            $this->cycles[$ref] = 1;
             $line .= "{\"_\":\"resource:{$type}:{$ref}:\"}";
         }
     }
@@ -236,7 +238,7 @@ class Dumper
         }
 
         if ($len -= $i) $line .= '"__maxLength": ' . $len;
-        if (0 === --$this->depth && $this->cycles) $line .= ', "__cyclicRefs": "-' . implode('-', array_keys($this->cycles)) . '-"';
+        if (0 === --$this->depth && $this->cycles) $line .= ', "__cyclicRefs": "#' . implode('#', array_keys($this->cycles)) . '#"';
         call_user_func($this->callbacks['line'], $line);
         $line = substr($pre, 0, -2) . '}';
     }
@@ -257,8 +259,6 @@ class Dumper
         }
 
         $a['use'] = array();
-
-        if (method_exists($c, 'getClosureThis')) $a['this'] = $c->getClosureThis();
 
         if (false === $a['file'] = $c->getFileName()) unset($a['file']);
         else $a['lines'] = $c->getStartLine() . '-' . $c->getEndLine();
