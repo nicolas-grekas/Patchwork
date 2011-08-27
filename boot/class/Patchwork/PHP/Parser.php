@@ -15,8 +15,9 @@ define('T_SEMANTIC',     0); // Primary type for semantic tokens
 define('T_NON_SEMANTIC', 1); // Primary type for non-semantic tokens (whitespace and comment)
 
 Patchwork_PHP_Parser::createToken(
-    'T_CURLY_CLOSE', // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
-    'T_KEY_STRING'   // Array access in interpolated string
+    'T_CURLY_CLOSE',       // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
+    'T_KEY_STRING',        // Array access in interpolated string
+    'T_HALT_COMPILER_DATA' // Data after T_HALT_COMPILER
 );
 
 defined('T_NS_SEPARATOR') || Patchwork_PHP_Parser::createToken('T_NS_SEPARATOR');
@@ -51,7 +52,8 @@ class Patchwork_PHP_Parser
     $nextRegistryIndex = 0,
 
     $parent,
-    $registryIndex = 0;
+    $registryIndex = 0,
+    $haltCompilerTail = 4;
 
 
     private static $tokenNames = array(
@@ -140,8 +142,19 @@ class Patchwork_PHP_Parser
 
     function parse($code)
     {
+        // Workaround mbstring overloading
+        if (function_exists('mb_internal_encoding'))
+        {
+            $enc = mb_internal_encoding();
+            mb_internal_encoding('8bit');
+        }
+
         $this->tokens = $this->getTokens($code);
-        return implode('', $this->parseTokens());
+        $code = implode('', $this->parseTokens());
+
+        function_exists('mb_internal_encoding') && mb_internal_encoding($enc);
+
+        return $code;
     }
 
     // Get the errors emitted while parsing
@@ -171,36 +184,47 @@ class Patchwork_PHP_Parser
                     if ($bin = true) break;
         }
 
-        if (!$bin) return token_get_all($code);
-
-        if (function_exists('mb_internal_encoding'))
+        if ($bin)
         {
-            // Workaround mbstring overloading
-            $bin = @mb_internal_encoding();
-            @mb_internal_encoding('8bit');
+            // Re-insert characters removed by token_get_all() as T_BAD_CHARACTER tokens
+
+            $t0     = @token_get_all($code);
+            $t1     = array($t0[0]);
+            $offset = strlen($t0[0][1]);
+            $i      = 0;
+
+            while (isset($t0[++$i]))
+            {
+                $t = isset($t0[$i][1]) ? $t0[$i][1] : $t0[$i];
+
+                if (isset($t[0]))
+                    while ($t[0] !== $code[$offset])
+                        $t1[] = array('\\' === $code[$offset] ? T_NS_SEPARATOR : T_BAD_CHARACTER, $code[$offset++]);
+
+                $offset += strlen($t);
+                $t1[] = $t0[$i];
+                unset($t0[$i]);
+            }
         }
+        else $t1 = token_get_all($code);
 
-        $t0     = @token_get_all($code);
-        $t1     = array($t0[0]);
-        $offset = strlen($t0[0][1]);
-        $i      = 0;
+        // Restore data after __halt_compiler()
+        // workaround http://bugs.php.net/54089 last comments
 
-        // Re-insert characters removed by token_get_all() as T_BAD_CHARACTER tokens
+        $bin = end($t1);
 
-        while (isset($t0[++$i]))
+        if (isset($bin[1]) && T_HALT_COMPILER === $bin[0])
         {
-            $t = isset($t0[$i][1]) ? $t0[$i][1] : $t0[$i];
+            $bin = 0;
+            foreach ($t1 as $t0) $bin += isset($t0[1]) ? strlen($t0[1]) : 1;
 
-            if (isset($t[0]))
-                while ($t[0] !== $code[$offset])
-                    $t1[] = array('\\' === $code[$offset] ? T_NS_SEPARATOR : T_BAD_CHARACTER, $code[$offset++]);
-
-            $offset += strlen($t);
-            $t1[] = $t0[$i];
-            unset($t0[$i]);
+            if (isset($code[$bin]))
+            {
+                $code = $this->getTokens('<?php ' . substr($code, $bin));
+                array_splice($code, 0, 1, $t1);
+                $t1 = $code;
+            }
         }
-
-        function_exists('mb_internal_encoding') && mb_internal_encoding($bin);
 
         return $t1;
     }
@@ -383,7 +407,9 @@ class Patchwork_PHP_Parser
             case T_CURLY_CLOSE:   $curly = array_pop($curlyPool);
             case T_END_HEREDOC:   --$inString; break;
 
-            case T_HALT_COMPILER: break 2; // See http://bugs.php.net/54089
+            case T_HALT_COMPILER:
+                4 === $this->haltCompilerTail && $this->register('tagHaltCompilerData');
+                break;
             }
         }
 
@@ -442,6 +468,20 @@ class Patchwork_PHP_Parser
         return false;
     }
 
+    // Skip 3 tokens: "(", ")" then ";" or T_CLOSE_TAG
+    // then merge the remaining data in a single T_HALT_COMPILER_DATA token
+
+    private function tagHaltCompilerData()
+    {
+        if (0 === --$this->haltCompilerTail)
+        {
+            $this->unregister(__FUNCTION__);
+            $tokens =& $this->tokens;
+            foreach ($tokens as &$t) isset($t[1]) && $t = $t[1];
+            $tokens = array($this->index => array(T_HALT_COMPILER_DATA, implode('', $tokens)));
+        }
+    }
+
     // Internal use for $this->register/unregister() factorization
 
     private function registryApply($method, $reg)
@@ -477,7 +517,6 @@ class Patchwork_PHP_Parser
         isset($s1) && ksort($this->tokenRegistry[1]); // T_NON_SEMANTIC
     }
 
-
     // Create new sub-token types
 
     static function createToken($name)
@@ -505,7 +544,7 @@ class Patchwork_PHP_Parser
     // - it can be used inside output buffering callbacks,
     // - it always returns a single ligne of code,
     //   even for arrays or when the input contains CR/LF.
-    // - but it doesn't detect recursive structures
+    // - but it fails on recursive arrays
 
     static function export($a)
     {
@@ -533,6 +572,11 @@ class Patchwork_PHP_Parser
         case is_array($a):
             $i = 0;
             $b = array();
+            static $depth = -1;
+
+            // For recursive arrays, rather than an infinite loop,
+            // trigger a "PHP Fatal error: Nesting level too deep"
+            ++$depth || $a === $a;
 
             foreach ($a as $k => $a)
             {
@@ -546,6 +590,8 @@ class Patchwork_PHP_Parser
                     $b[] = self::export($k) . '=>' . self::export($a);
                 }
             }
+
+            --$depth;
 
             return 'array(' . implode(',', $b) . ')';
 

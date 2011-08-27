@@ -197,7 +197,7 @@ class Patchwork
         {
         case 'k':
 
-            if ('' !== $_SERVER['PATCHWORK_LANG'])
+            if (PATCHWORK_I18N)
             {
                 $_SERVER['PATCHWORK_LANG'] = isset($CONFIG['i18n.lang_list'][self::$requestArg])
                     ? self::$requestArg
@@ -413,13 +413,16 @@ class Patchwork
 
     static function setLang($lang)
     {
-        if (!isset($CONFIG['i18n.lang_list'][$lang]) || isset(self::$lang) && self::$lang === $lang) return $lang;
+        if (isset(self::$lang) && self::$lang === $lang) return $lang;
 
-        $base = $CONFIG['i18n.lang_list'][$lang];
-        $base = implode($base, explode('__', $_SERVER['PATCHWORK_BASE'], 2));
+        if (isset($CONFIG['i18n.lang_list'][$lang]))
+        {
+            $base = $CONFIG['i18n.lang_list'][$lang];
+            $base = implode($base, explode('__', $_SERVER['PATCHWORK_BASE'], 2));
+        }
+        else $base = $_SERVER['PATCHWORK_BASE'];
 
         self::$base = $base;
-
         self::$host = strtr($base, '#?', '//');
         self::$host = substr($base, 0, strpos(self::$host, '/', 8)+1);
 
