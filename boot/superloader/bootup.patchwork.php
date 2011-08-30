@@ -23,34 +23,88 @@ $_patchwork_destruct = array();
 /**//*<*/"\$c\x9D=array();\$d\x9D=1;(\$e\x9D=\$b\x9D=\$a\x9D=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "')&&\$d\x9D&&0;"/*>*/;
 
 
-// Utility functions
+// Shutdown control
 
-function &patchwork_autoload_marker($marker, &$ref) {return $ref;}
+/**//*<*/boot::$manager->override('register_shutdown_function', 'patchwork_shutdown_register', array('$c'))/*>*/;
+patchwork_shutdown_register('patchwork_shutdown_start');
+
+function patchwork_shutdown_register($c)
+{
+    $c = array(error_reporting(0), array() !== array_map($c, array()));
+    error_reporting($c[0]);
+
+    if ($c[1])
+    {
+        user_error('Invalid shutdown callback', E_USER_WARNING);
+        return;
+    }
+
+    $c = func_get_args();
+    register_shutdown_function('patchwork_shutdown_execute', $c);
+}
+
+function patchwork_shutdown_execute($c)
+{
+    try
+    {
+        call_user_func_array(array_shift($c), $c);
+    }
+    catch (Exception $e)
+    {
+        $c = set_exception_handler('var_dump');
+        restore_exception_handler();
+        if (null !== $c) call_user_func($c, $e);
+        else user_error("Uncaught exception '" . get_class($e) . "' in {$e->getFile()}:{$e->getLine()}", E_USER_WARNING);
+        exit(1);
+    }
+}
 
 function patchwork_shutdown_start()
 {
+    $GLOBALS['patchwork_shutdown_time'] = true;
+
+    // See http://bugs.php.net/54114
+    while (ob_get_level()) ob_end_flush();
+    ob_start('patchwork_ob_shutdown');
+
 /**/if (function_exists('fastcgi_finish_request'))
         fastcgi_finish_request();
 
-    register_shutdown_function('patchwork_shutdown_end');
+    patchwork_shutdown_register('patchwork_shutdown_end');
+}
+
+function patchwork_ob_shutdown($buffer)
+{
+    if ('' !== $buffer) user_error("Cancelling shutdown time output", E_USER_WARNING);
+    return '';
 }
 
 function patchwork_shutdown_end()
 {
+    // See http://bugs.php.net/54157
+    patchwork_shutdown_register('session_write_close');
+    patchwork_shutdown_register('patchwork_shutdown_destruct');
+
+}
+
+function patchwork_shutdown_destruct()
+{
     if (empty($GLOBALS['_patchwork_destruct']))
     {
-        // See http://bugs.php.net/54157
-        register_shutdown_function('session_write_close');
+        while (ob_get_level()) ob_end_flush();
+        ob_start('patchwork_ob_shutdown');
     }
     else
     {
         call_user_func(array(array_shift($GLOBALS['_patchwork_destruct']), '__destructStatic'));
-        register_shutdown_function(__FUNCTION__);
+        patchwork_shutdown_register(__FUNCTION__);
     }
 }
 
-register_shutdown_function('patchwork_shutdown_start');
 
+// Utility functions
+
+function &patchwork_autoload_marker($marker, &$ref) {return $ref;}
 
 function patchwork_class2file($class)
 {

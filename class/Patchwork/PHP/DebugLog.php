@@ -58,7 +58,7 @@ class DebugLog
     {
         null === $logger && $logger = new self;
 
-        // See also error_reporting and log_errors_max_len
+        // See also http://php.net/error_reporting
         // Formatting errors with html_errors, error_prepend_string or
         // error_append_string only works with displayed errors, not logged ones.
         ini_set('display_errors', false);
@@ -91,7 +91,7 @@ class DebugLog
             // Get the last fatal error and format it appropriately
             case E_ERROR: case E_PARSE: case E_CORE_ERROR:
             case E_COMPILE_ERROR: case E_COMPILE_WARNING:
-                $logger->logLastError($e['type'], $e['message'], $e['file'], $e['line']);
+                $logger->logFatalError($e['type'], $e['message'], $e['file'], $e['line']);
                 self::resetLastError();
             }
         }
@@ -196,12 +196,17 @@ class DebugLog
 
     function logException(\Exception $e, $log_time = 0)
     {
+        // Do not consider error_reporting level, uncatched exception are always logged.
         $this->log('php-exception', $e, $log_time);
     }
 
-    function logLastError($code, $message, $file, $line)
+    function logFatalError($code, $mesg, $file, $line)
     {
-        // This serves as a hook if a derivated class wants to catch the last fatal error
+        if (!(error_reporting() & $code))
+        {
+            // Log fatal errors when they have not been logged by the native PHP error handler
+            $this->logError($code, $mesg, $file, $line, array(), -1);
+        }
     }
 
     function castException($e)
