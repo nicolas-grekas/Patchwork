@@ -164,6 +164,9 @@ class Patchwork_Preprocessor
             {
                 switch ($c['code'])
                 {
+                case E_USER_NOTICE;
+                case E_USER_WARNING;
+                case E_USER_DEPRECATED; break;
                 default:
                 case E_ERROR: $c['code'] = E_USER_ERROR; break;
                 case E_NOTICE: $c['code'] = E_USER_NOTICE; break;

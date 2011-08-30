@@ -43,8 +43,12 @@ class Patchwork_PHP_Override_SplAutoload
 
     static function spl_autoload_register($c, $throw = true, $prepend = false)
     {
-        if (array() !== @array_map($c, array()))
+        $l = array(error_reporting(0), array() !== array_map($c, array()));
+        error_reporting($l[0]);
+
+        if ($l[1])
         {
+
             if ($throw) throw new LogicException('Invalid callback');
             else return false;
         }

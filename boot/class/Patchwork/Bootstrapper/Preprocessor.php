@@ -44,6 +44,9 @@ class Patchwork_Bootstrapper_Preprocessor
             {
                 switch ($p['code'])
                 {
+                case E_USER_NOTICE;
+                case E_USER_WARNING;
+                case E_USER_DEPRECATED; break;
                 default:
                 case E_ERROR: $p['code'] = E_USER_ERROR; break;
                 case E_NOTICE: $p['code'] = E_USER_NOTICE; break;

@@ -106,9 +106,6 @@ function htmlizeEvent(data, cycles)
             break;
 
         case 'object' === typeof data:
-
-            e = 1;
-            depth += 2;
             b = ['[', ']'];
             t = data['_'] ? data['_'].split(':') : [];
 
@@ -147,11 +144,13 @@ function htmlizeEvent(data, cycles)
             if (undefined !== data.__maxDepth)
             {
                 push(b[0], 'bracket');
-                push('...', 'cut', 'Max-depth reached');
+                push('...', 'cut', ['Max-depth reached']);
                 push(b[1], 'bracket');
                 return;
             }
 
+            e = 1;
+            depth += 2;
             buffer.push('<span class="array-compact">');
             push(b[0], 'bracket open');
             buffer.push('<a onclick="arrayToggle(this)"> ⊞ </a>\n');
