@@ -65,7 +65,9 @@ class DebugLog
         ini_set('log_errors', true);
         ini_set('error_log', $log_file);
 
-        // Some fatal errors can be catched at shutdown time
+        // Some fatal errors can be catched at shutdown time!
+        // Then, any fatal error is really fatal: remaining shutdown
+        // functions, output buffering handlers or destructors are not called!
         register_shutdown_function(array(__CLASS__, 'shutdown'));
 
         self::$logFile = $log_file;
@@ -202,11 +204,13 @@ class DebugLog
 
     function logFatalError($code, $mesg, $file, $line)
     {
-        if (!(error_reporting() & $code))
+        if (!($code & $e = error_reporting(E_ALL)))
         {
             // Log fatal errors when they have not been logged by the native PHP error handler
             $this->logError($code, $mesg, $file, $line, array(), -1);
         }
+
+        error_reporting($e);
     }
 
     function castException($e)
