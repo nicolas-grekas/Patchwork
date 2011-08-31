@@ -231,7 +231,7 @@ parent.E.buffer = [];
                     '  "time": ' . self::jsonString($line['date']) . ',',
                     '  "data": {',
                     '    "mesg": ' . self::jsonString($line['message']) . ',',
-                    '    "code": ' . self::jsonString($line['file'] . ':' . $line['line']),
+                    '    "code": ' . self::jsonString("{$line['type']} {$line['file']}:{$line['line']}"),
                 );
 
                 if ("Stack trace:" === substr(rtrim($next_line), 27))
