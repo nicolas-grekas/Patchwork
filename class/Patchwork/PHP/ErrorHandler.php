@@ -18,7 +18,8 @@ class ErrorHandler
     public
 
     $recoverableErrors = 0x1100, // E_RECOVERABLE_ERROR | E_USER_ERROR
-    $traceDisabledErrors = 0x6c08; // E_STRICT | E_NOTICE | E_USER_NOTICE | E_DEPRECATED | E_USER_DEPRECATED
+    $scopedErrors = 0x0202, // E_WARNING | E_USER_WARNING
+    $tracedErrors = 0x1302; // E_RECOVERABLE_ERROR | E_USER_ERROR | E_WARNING | E_USER_WARNING
 
     protected
 
@@ -128,7 +129,7 @@ class ErrorHandler
         return $ok;
     }
 
-    function handleError($code, $message, $file, $line, $k, $trace_offset = 0, $log_time = 0)
+    function handleError($code, $message, $file, $line, $scope, $trace_offset = 0, $log_time = 0)
     {
         $log_error = error_reporting() & $code;
 
@@ -141,34 +142,28 @@ class ErrorHandler
                 ++$trace_offset;
 
                 // For duplicate errors, log the trace only once
-                $k = md5("{$code}/{$line}/{$file}\x00{$message}", true);
+                $e = md5("{$code}/{$line}/{$file}\x00{$message}", true);
 
-                if (($this->traceDisabledErrors & $code) || isset($this->loggedTraces[$k])) $trace_offset = -1;
-                else if ($log_error) $this->loggedTraces[$k] = 1;
+                if (isset($this->loggedTraces[$e]) || !($this->tracedErrors & $code)) $trace_offset = -1;
+                else if ($log_error) $this->loggedTraces[$e] = 1;
             }
-
-            $k = new RecoverableErrorException($message, $code, 0, $file, $line);
-            $k->traceOffset = $trace_offset;
 
             if ($log_error)
             {
-                $k = array(
-                    'code' => $code,
-                    'message' => $message,
-                    'file' => $file,
-                    'line' => $line,
-                );
+                $e = array('code' => $code, 'message' => $message, 'file' => $file, 'line' => $line);
 
-                if (0 <= $trace_offset) $k['trace'] = debug_backtrace(false);
+                if ($this->scopedErrors & $code) $e['scope'] = $scope;
+                if (0 <= $trace_offset) $e['trace'] = debug_backtrace(false);
 
-                $this->getLogger()->logError($k, $trace_offset, $log_time);
+                $this->getLogger()->logError($e, $trace_offset, $log_time);
             }
 
             if ($this->recoverableErrors & $code)
             {
-                $k = new RecoverableErrorException($message, $code, 0, $file, $line);
-                $k->traceOffset = $log_error ? -1 : $trace_offset;
-                throw $k;
+                $e = new RecoverableErrorException($message, $code, 0, $file, $line);
+                $log_error || $e->traceOffset = $trace_offset;
+                $e->scope = $scope;
+                throw $e;
             }
         }
 
@@ -196,9 +191,9 @@ class ErrorHandler
     }
 }
 
-class RecoverableErrorException extends \ErrorException implements ExceptionWithTraceOffset
+class RecoverableErrorException extends \ErrorException implements RecoverableErrorInterface
 {
-    public $traceOffset = 0;
+    public $traceOffset = -1, $scope = array();
 }
 
-interface ExceptionWithTraceOffset {}
+interface RecoverableErrorInterface {}

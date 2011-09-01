@@ -58,10 +58,10 @@ function htmlizeEvent(data, cycles)
 
         switch (true)
         {
-        default:
+        case null === data: data = 'null';
         case true === data:
         case false === data:
-        case null === data:
+        default:
             push(data, 'const' + tags, title);
             break;
 
