@@ -14,14 +14,11 @@
 namespace Patchwork;
 
 // http://bugs.php.net/42098 workaround
-class_exists('Patchwork\PHP\DebugLog') || __autoload('Patchwork\PHP\DebugLog');
+class_exists('Patchwork\PHP\ErrorHandler') || __autoload('Patchwork\PHP\ErrorHandler');
 
-class ErrorHandler extends PHP\DebugLog
+class ErrorHandler extends PHP\ErrorHandler
 {
-    public $lock = false;
-    protected $lineFormat;
-
-    function logError($code, $message, $file, $line, $context, $trace_offset = 0, $log_time = 0)
+    function handleError($code, $message, $file, $line, $context, $trace_offset = 0, $log_time = 0)
     {
         if (error_reporting() & $code)
         {
@@ -48,33 +45,22 @@ class ErrorHandler extends PHP\DebugLog
             \Patchwork::setExpires('onmaxage');
             $GLOBALS['patchwork_private'] = true;
 
-            parent::logError($code, $message, $file, $line, $context, $trace_offset, $log_time);
+            parent::handleError($code, $message, $file, $line, $context, $trace_offset, $log_time);
         }
         else return false;
     }
 
-    function dumpEvent($type, $data)
+    function getLogger()
     {
-        if (empty($this->lineFormat))
-        {
-            $this->lineFormat = sprintf('%010d', substr(mt_rand(), -10)) . ": %s\n";
-
-            $data['patchwork'] = array(
-                'app' => PATCHWORK_PROJECT_PATH,
-                'i18n' => PATCHWORK_I18N,
-                'debug' => DEBUG,
-                'turbo' => TURBO,
-                'utime' => PATCHWORK_MICROTIME,
-                'stime' => $this->startTime,
-                'level' => PATCHWORK_PATH_LEVEL,
-                'zcache' => PATCHWORK_ZCACHE,
-                'paths' => $GLOBALS['patchwork_path'],
-            );
-            $data['_SERVER'] = $_SERVER;
-        }
+        if (isset($this->logger)) return $this->logger;
+        isset(self::$logStream) || self::$logStream = fopen(self::$logFile, 'ab');
 
         // http://bugs.php.net/42098 workaround
-        class_exists('Patchwork\PHP\Dumper') || __autoload('Patchwork\PHP\Dumper');
-        parent::dumpEvent($type, $data);
+        class_exists('Patchwork\Logger') || __autoload('Patchwork\Logger');
+        $l = new Logger(self::$logStream);
+        $l->lock = false;
+        $l->lineFormat = sprintf('%010d', substr(mt_rand(), -10)) . ": %s\n";
+
+        return $this->logger = $l;
     }
 }

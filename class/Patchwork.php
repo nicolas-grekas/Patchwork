@@ -135,7 +135,7 @@ class Patchwork
 
     static function __constructStatic()
     {
-        p\PHP\DebugLog::start(PATCHWORK_PROJECT_PATH . 'error.patchwork.log', new p\ErrorHandler);
+        p\ErrorHandler::start(PATCHWORK_PROJECT_PATH . 'error.patchwork.log', new p\ErrorHandler);
 
         if (isset($_GET['p:']))
         {
@@ -940,7 +940,7 @@ class Patchwork
 
     static function log($message, $data)
     {
-        p\PHP\DebugLog::getLogger()->log($message, $data);
+        p\ErrorHandler::getHandler()->getLogger()->log($message, $data);
     }
 
     static function resolveAgentClass($agent, &$args)
