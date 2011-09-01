@@ -301,9 +301,9 @@ class DebugLog
         fprintf($this->logStream, $this->lineFormat, '***');
     }
 
-    function dumpLine($line)
+    function dumpLine($line, $depth)
     {
-        fprintf($this->logStream, $this->lineFormat, $line);
+        fprintf($this->logStream, $this->lineFormat, str_repeat('  ', $depth) . $line);
     }
 }
 
