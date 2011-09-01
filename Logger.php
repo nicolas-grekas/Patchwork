@@ -88,8 +88,7 @@ class Logger
         ) + $e;
 
         unset($e['message'], $e['file'], $e['line']);
-        if (isset($e['trace']) && 0 <= $trace_offset) $e['trace'] = $this->filterTrace($e['trace'], $trace_offset);
-        else unset($e['trace']);
+        if (0 <= $trace_offset) $e['trace'] = $this->filterTrace($e['trace'], $trace_offset);
 
         $this->log('php-error', $e, $log_time);
     }
@@ -104,11 +103,12 @@ class Logger
         $a = array(
             'mesg' => $e->getMessage(),
             'code' => $e->getCode() . ' ' . $e->getFile() . ':' . $e->getLine(),
-            'trace' => $this->filterTrace($e->getTrace(), $e instanceof ExceptionWithTraceOffset ? $e->traceOffset : 0),
         ) + (array) $e;
 
+        $a['trace'] = $this->filterTrace($a["\0Exception\0trace"], $e instanceof RecoverableErrorInterface ? $e->traceOffset : 0);
+
         if (null === $a['trace']) unset($a['trace']);
-        if ($e instanceof ExceptionWithTraceOffset) unset($a['traceOffset']);
+        if ($e instanceof RecoverableErrorInterface) unset($a['traceOffset']);
         if (empty($a["\0Exception\0previous"])) unset($a["\0Exception\0previous"]);
         if ($e instanceof \ErrorException && empty($a["\0*\0severity"])) unset($a["\0*\0severity"]);
         unset($a["\0*\0message"], $a["\0Exception\0string"], $a["\0*\0code"], $a["\0*\0file"], $a["\0*\0line"], $a["\0Exception\0trace"], $a['xdebug_message']);
