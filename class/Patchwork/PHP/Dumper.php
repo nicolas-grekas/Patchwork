@@ -27,6 +27,7 @@ class Dumper
     $token,
     $depth,
     $refId,
+    $lines = array(),
     $cycles = array(),
     $resStack = array(),
     $arrayStack = array(),
@@ -40,15 +41,18 @@ class Dumper
     );
 
 
-    static function dumpConst($a)
-    {
-        self::dump($a, false);
-    }
-
     static function dump(&$a)
     {
         $d = new self;
         $d->dumpLines($a);
+    }
+
+    static function get(&$a)
+    {
+        $d = new self;
+        $d->setCallback('line', array($d, 'pushLine'));
+        $d->dumpLines($a);
+        return implode("\n", $d->lines);
     }
 
     function dumpLines(&$a)
@@ -272,5 +276,10 @@ class Dumper
     static function echoLine($line, $depth)
     {
         echo str_repeat('  ', $depth), $line, "\n";
+    }
+
+    protected function pushLine($line, $depth)
+    {
+        $this->lines[] = str_repeat('  ', $depth) . $line;
     }
 }

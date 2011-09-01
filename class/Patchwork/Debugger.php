@@ -225,13 +225,14 @@ parent.E.buffer = [];
             if (preg_match("' on line \d+$'", $line))
             {
                 $line = self::parseRawError($line);
+                $line['type'] .= " {$line['file']}:{$line['line']}";
                 $line = array(
                     '*** php-raw-error ***',
                     '{',
-                    '  "time": ' . self::jsonString($line['date']) . ',',
+                    '  "time": ' . p\PHP\Dumper::get($line['date']) . ',',
                     '  "data": {',
-                    '    "mesg": ' . self::jsonString($line['message']) . ',',
-                    '    "code": ' . self::jsonString("{$line['type']} {$line['file']}:{$line['line']}"),
+                    '    "mesg": ' . p\PHP\Dumper::get($line['message']) . ',',
+                    '    "code": ' . p\PHP\Dumper::get($line['type']),
                 );
 
                 if ("Stack trace:" === substr(rtrim($next_line), 27))
@@ -255,10 +256,11 @@ parent.E.buffer = [];
 
                     preg_match("' +(\d+)\. (.+?)\((.*)\) (.*)$'", $line, $line);
 
+                    $line[2] .= '() ' . $line[4];
                     $line = array(
                         '      "' . $line[1] . '": {',
-                        '        "call": ' . self::jsonString($line[2] . '() ' . $line[4]) . ('' !== $line[3] ? ',' : ''),
-                        '' !== $line[3] ? '        "args": ' . self::jsonString($line[3]) : null,
+                        '        "call": ' . p\PHP\Dumper::get($line[2]) . ('' !== $line[3] ? ',' : ''),
+                        '' !== $line[3] ? '        "args": ' . p\PHP\Dumper::get($line[3]) : null,
                         '      }'
                     );
 
@@ -357,8 +359,8 @@ parent.E.buffer = [];
             $a = substr($a, 4, -4);
 
             $b[] = '<script>classifyEvent('
-                . self::jsonString($token) . ','
-                . self::jsonString($a) . ',';
+                . p\PHP\Dumper::get($token) . ','
+                . p\PHP\Dumper::get($a) . ',';
         }
         else if ('***' === $a)
         {
@@ -369,15 +371,5 @@ parent.E.buffer = [];
         {
             $b[] = $a . "\n";
         }
-    }
-
-    static function jsonString($a)
-    {
-        if ('' === $a) return '""';
-
-        if (!preg_match("''u", $a)) $a = 'b`' . utf8_encode($a);
-        else if (false !== strpos($a, '`')) $a = 'u`' . $a;
-
-        return '"' . str_replace(array('\\', '"', '</'), array('\\\\', '\\"', '<\\/'), $a) . '"';
     }
 }
