@@ -30,6 +30,7 @@ class ErrorHandler
 
     $logFile,
     $logStream,
+    $shuttingDown = false,
     $handlers = array();
 
 
@@ -63,6 +64,8 @@ class ErrorHandler
 
     static function shutdown()
     {
+        self::$shuttingDown = true;
+
         if (false === $handler = end(self::$handlers)) return;
 
         if ($e = self::getLastError())
@@ -131,11 +134,14 @@ class ErrorHandler
 
     function handleError($code, $message, $file, $line, $scope, $trace_offset = 0, $log_time = 0)
     {
-        $log_error = error_reporting() & $code;
-
-        if ($log_error || ($this->recoverableErrors & $code))
+        if ($log_error = (error_reporting() | $this->recoverableErrors) & $code)
         {
             $log_time || $log_time = microtime(true);
+
+            // To prevent logging of catched exceptions and
+            // to remove duplicate logged and uncatched exception messages,
+            // do not log recoverable errors except at shutdown time.
+            self::$shuttingDown || $log_error &= ~$this->recoverableErrors;
 
             if (0 <= $trace_offset)
             {
@@ -144,7 +150,7 @@ class ErrorHandler
                 // For duplicate errors, log the trace only once
                 $e = md5("{$code}/{$line}/{$file}\x00{$message}", true);
 
-                if (isset($this->loggedTraces[$e]) || !($this->tracedErrors & $code)) $trace_offset = -1;
+                if (!($this->tracedErrors & $code) || isset($this->loggedTraces[$e])) $trace_offset = -1;
                 else if ($log_error) $this->loggedTraces[$e] = 1;
             }
 
