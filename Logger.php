@@ -146,7 +146,7 @@ class Logger
     {
         fprintf($this->logStream, $this->lineFormat, "*** {$type} ***");
 
-        $d = new Dumper;
+        $d = new JsonDumper;
         $d->setCallback('line', array($this, 'writeLine'));
         $d->setCallback('o:exception', array($this, 'castException'));
         $d->dumpLines($data);

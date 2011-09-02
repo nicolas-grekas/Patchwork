@@ -6,7 +6,7 @@ header('Content-type: text/plain');
 error_reporting(E_ALL | E_STRICT);
 ini_set('display_errors', true);
 
-include 'Dumper.php';
+include 'JsonDumper.php';
 include 'Logger.php';
 include 'ErrorHandler.php';
 
