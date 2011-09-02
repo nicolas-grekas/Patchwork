@@ -29,7 +29,7 @@ class Logger
 
     public static
 
-    $errorCodes = array(
+    $errorTypes = array(
         E_ERROR => 'E_ERROR',
         E_WARNING => 'E_WARNING',
         E_PARSE => 'E_PARSE',
@@ -84,7 +84,7 @@ class Logger
     {
         $e = array(
             'mesg' => $e['message'],
-            'code' => self::$errorCodes[$e['code']] . ' ' . $e['file'] . ':' . $e['line'],
+            'type' => self::$errorTypes[$e['type']] . ' ' . $e['file'] . ':' . $e['line'],
         ) + $e;
 
         unset($e['message'], $e['file'], $e['line']);
