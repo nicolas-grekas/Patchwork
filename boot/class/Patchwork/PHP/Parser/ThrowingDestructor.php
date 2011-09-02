@@ -52,7 +52,7 @@ class Patchwork_PHP_Parser_ThrowingDestructor extends Patchwork_PHP_Parser
         ));
 
         $token[1] = '}catch(' .( T_NS_SEPARATOR > 0 ? '\\' : '' ). 'Exception $e){'
-            . 'if((E_USER_WARNING|E_USER_WARNING)&error_reporting()){'
+            . 'if((E_WARNING|E_USER_WARNING)&error_reporting()){'
             . 'user_error("Throwing destructors should be avoided, please catch your exceptions",E_USER_WARNING);'
             . '$e=array($e,set_exception_handler("var_dump"));'
             . 'restore_exception_handler();'

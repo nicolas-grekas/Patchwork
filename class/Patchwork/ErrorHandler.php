@@ -20,32 +20,19 @@ class ErrorHandler extends PHP\ErrorHandler
 {
     function handleError($type, $message, $file, $line, $context, $trace_offset = 0, $log_time = 0)
     {
-        if (error_reporting() & $type)
+        if ((error_reporting() | $this->recoverableErrors) & $type)
         {
             $log_time || $log_time = microtime(true);
             0 <= $trace_offset && ++$trace_offset;
 
-            switch ($type)
+            if ((E_NOTICE | E_STRICT) & $type & ~$this->recoverableErrors)
             {
-            case E_DEPRECATED:
-            case E_USER_DEPRECATED:
-/**/            if (!DEBUG)
-                    return;
-            case E_NOTICE:
-            case E_STRICT:
+                // Hide strict and non-strict notices for classes and files coming from include_path
                 if (strpos($message, '__00::')) return;
                 if ('-' === substr($file, -12, 1)) return;
-                break;
-
-            case E_WARNING:
-                if (stripos($message, 'safe mode')) return;
             }
 
-            \Patchwork::setMaxage(0);
-            \Patchwork::setExpires('onmaxage');
-            $GLOBALS['patchwork_private'] = true;
-
-            parent::handleError($type, $message, $file, $line, $context, $trace_offset, $log_time);
+            return parent::handleError($type, $message, $file, $line, $context, $trace_offset, $log_time);
         }
         else return false;
     }

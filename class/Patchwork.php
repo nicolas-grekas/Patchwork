@@ -14,6 +14,11 @@
 use Patchwork           as p;
 use Patchwork\Exception as e;
 
+/**/if (!DEBUG)
+/**/{
+        error_reporting(/*<*/error_reporting() ^ E_DEPRECATED ^ E_USER_DEPRECATED/*>*/);
+/**/}
+
 // Debug trace
 function E()
 {

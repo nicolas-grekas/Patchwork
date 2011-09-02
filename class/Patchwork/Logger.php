@@ -22,6 +22,13 @@ class Logger extends PHP\Logger
 
     function writeEvent($type, $data)
     {
+        if ('php-error' === $type || 'php-exception' === $type)
+        {
+            \Patchwork::setMaxage(0);
+            \Patchwork::setExpires('onmaxage');
+            $GLOBALS['patchwork_private'] = true;
+        }
+
         if ($this->firstEvent)
         {
             $this->firstEvent = false;
