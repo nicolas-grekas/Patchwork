@@ -18,14 +18,14 @@ class_exists('Patchwork\PHP\ErrorHandler') || __autoload('Patchwork\PHP\ErrorHan
 
 class ErrorHandler extends PHP\ErrorHandler
 {
-    function handleError($code, $message, $file, $line, $context, $trace_offset = 0, $log_time = 0)
+    function handleError($type, $message, $file, $line, $context, $trace_offset = 0, $log_time = 0)
     {
-        if (error_reporting() & $code)
+        if (error_reporting() & $type)
         {
             $log_time || $log_time = microtime(true);
             0 <= $trace_offset && ++$trace_offset;
 
-            switch ($code)
+            switch ($type)
             {
             case E_DEPRECATED:
             case E_USER_DEPRECATED:
@@ -45,7 +45,7 @@ class ErrorHandler extends PHP\ErrorHandler
             \Patchwork::setExpires('onmaxage');
             $GLOBALS['patchwork_private'] = true;
 
-            parent::handleError($code, $message, $file, $line, $context, $trace_offset, $log_time);
+            parent::handleError($type, $message, $file, $line, $context, $trace_offset, $log_time);
         }
         else return false;
     }

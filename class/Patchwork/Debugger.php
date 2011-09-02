@@ -229,10 +229,10 @@ parent.E.buffer = [];
                 $line = array(
                     '*** php-raw-error ***',
                     '{',
-                    '  "time": ' . p\PHP\Dumper::get($line['date']) . ',',
+                    '  "time": ' . p\PHP\JsonDumper::get($line['date']) . ',',
                     '  "data": {',
-                    '    "mesg": ' . p\PHP\Dumper::get($line['message']) . ',',
-                    '    "code": ' . p\PHP\Dumper::get($line['type']),
+                    '    "mesg": ' . p\PHP\JsonDumper::get($line['message']) . ',',
+                    '    "code": ' . p\PHP\JsonDumper::get($line['type']),
                 );
 
                 if ("Stack trace:" === substr(rtrim($next_line), 27))
@@ -259,8 +259,8 @@ parent.E.buffer = [];
                     $line[2] .= '() ' . $line[4];
                     $line = array(
                         '      "' . $line[1] . '": {',
-                        '        "call": ' . p\PHP\Dumper::get($line[2]) . ('' !== $line[3] ? ',' : ''),
-                        '' !== $line[3] ? '        "args": ' . p\PHP\Dumper::get($line[3]) : null,
+                        '        "call": ' . p\PHP\JsonDumper::get($line[2]) . ('' !== $line[3] ? ',' : ''),
+                        '' !== $line[3] ? '        "args": ' . p\PHP\JsonDumper::get($line[3]) : null,
                         '      }'
                     );
 
@@ -359,8 +359,8 @@ parent.E.buffer = [];
             $a = substr($a, 4, -4);
 
             $b[] = '<script>classifyEvent('
-                . p\PHP\Dumper::get($token) . ','
-                . p\PHP\Dumper::get($a) . ',';
+                . p\PHP\JsonDumper::get($token) . ','
+                . p\PHP\JsonDumper::get($a) . ',';
         }
         else if ('***' === $a)
         {

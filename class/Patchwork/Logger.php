@@ -27,7 +27,7 @@ class Logger extends PHP\Logger
             $this->firstEvent = false;
 
             // http://bugs.php.net/42098 workaround
-            class_exists('Patchwork\PHP\Dumper') || __autoload('Patchwork\PHP\Dumper');
+            class_exists('Patchwork\PHP\JsonDumper') || __autoload('Patchwork\PHP\JsonDumper');
 
             $data['patchwork'] = array(
                 'app' => PATCHWORK_PROJECT_PATH,

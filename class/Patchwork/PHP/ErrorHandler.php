@@ -75,7 +75,7 @@ class ErrorHandler
             // Get the last fatal error and format it appropriately
             case E_ERROR: case E_PARSE: case E_CORE_ERROR:
             case E_COMPILE_ERROR: case E_COMPILE_WARNING:
-                $handler->handleFatalError($e['type'], $e['message'], $e['file'], $e['line']);
+                $handler->handleFatalError($e);
                 self::resetLastError();
             }
         }
@@ -132,9 +132,9 @@ class ErrorHandler
         return $ok;
     }
 
-    function handleError($code, $message, $file, $line, $scope, $trace_offset = 0, $log_time = 0)
+    function handleError($type, $message, $file, $line, $scope, $trace_offset = 0, $log_time = 0)
     {
-        if ($log_error = (error_reporting() | $this->recoverableErrors) & $code)
+        if ($log_error = (error_reporting() | $this->recoverableErrors) & $type)
         {
             $log_time || $log_time = microtime(true);
 
@@ -148,25 +148,25 @@ class ErrorHandler
                 ++$trace_offset;
 
                 // For duplicate errors, log the trace only once
-                $e = md5("{$code}/{$line}/{$file}\x00{$message}", true);
+                $e = md5("{$type}/{$line}/{$file}\x00{$message}", true);
 
-                if (!($this->tracedErrors & $code) || isset($this->loggedTraces[$e])) $trace_offset = -1;
+                if (!($this->tracedErrors & $type) || isset($this->loggedTraces[$e])) $trace_offset = -1;
                 else if ($log_error) $this->loggedTraces[$e] = 1;
             }
 
             if ($log_error)
             {
-                $e = array('code' => $code, 'message' => $message, 'file' => $file, 'line' => $line);
+                $e = array('type' => $type, 'message' => $message, 'file' => $file, 'line' => $line);
 
-                if ($this->scopedErrors & $code) $e['scope'] = $scope;
+                if ($this->scopedErrors & $type) $e['scope'] = $scope;
                 if (0 <= $trace_offset) $e['trace'] = debug_backtrace(false);
 
                 $this->getLogger()->logError($e, $trace_offset, $log_time);
             }
 
-            if ($this->recoverableErrors & $code)
+            if ($this->recoverableErrors & $type)
             {
-                $e = new RecoverableErrorException($message, $code, 0, $file, $line);
+                $e = new RecoverableErrorException($message, $type, 0, $file, $line);
                 $log_error || $e->traceOffset = $trace_offset;
                 $e->scope = $scope;
                 throw $e;
@@ -182,11 +182,11 @@ class ErrorHandler
         $this->getLogger()->logException($e, $log_time);
     }
 
-    function handleFatalError($code, $message, $file, $line)
+    function handleFatalError($e)
     {
         // Log fatal errors when they have not been logged by the native PHP error handler
-        if (error_reporting() & $code) return;
-        $this->getLogger()->logError(array('code' => $code, 'message' => $message, 'file' => $file, 'line' => $line), -1, 0);
+        if (error_reporting() & $e['type']) return;
+        $this->getLogger()->logError($e, -1, 0);
     }
 
     function getLogger()
