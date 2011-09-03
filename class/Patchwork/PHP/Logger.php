@@ -88,7 +88,8 @@ class Logger
         ) + $e;
 
         unset($e['message'], $e['file'], $e['line']);
-        if (0 <= $trace_offset) $e['trace'] = $this->filterTrace($e['trace'], $trace_offset);
+        if (0 > $trace_offset) unset($e['trace']);
+        else if (!empty($e['trace'])) $e['trace'] = $this->filterTrace($e['trace'], $trace_offset);
 
         $this->log('php-error', $e, $log_time);
     }

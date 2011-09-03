@@ -22,6 +22,12 @@ acronym
     white-space: nowrap;
 }
 
+.event.silenced .array-compact span
+{
+    color: silver;
+    background-color: transparent;
+}
+
 .event a
 {
     color: blue;

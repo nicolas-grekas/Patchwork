@@ -225,6 +225,7 @@ parent.E.buffer = [];
             if (preg_match("' on line \d+$'", $line))
             {
                 $line = self::parseRawError($line);
+                $line['level'] = constant($line['type']) . '/-1';
                 $line['type'] .= " {$line['file']}:{$line['line']}";
                 $line = array(
                     '*** php-raw-error ***',
@@ -232,7 +233,8 @@ parent.E.buffer = [];
                     '  "time": ' . p\PHP\JsonDumper::get($line['date']) . ',',
                     '  "data": {',
                     '    "mesg": ' . p\PHP\JsonDumper::get($line['message']) . ',',
-                    '    "code": ' . p\PHP\JsonDumper::get($line['type']),
+                    '    "code": ' . p\PHP\JsonDumper::get($line['type']) . ',',
+                    '    "level": ' . p\PHP\JsonDumper::get($line['level']),
                 );
 
                 if ("Stack trace:" === substr(rtrim($next_line), 27))
@@ -309,6 +311,7 @@ parent.E.buffer = [];
             'Deprecated' => 'E_DEPRECATED',
             'Fatal error' => 'E_ERROR',
             'Parse error' => 'E_PARSE',
+            'Strict standards' => 'E_STRICT', // From Xdebug
             'Strict Standards' => 'E_STRICT',
             'Catchable fatal error' => 'E_RECOVERABLE_ERROR',
         );

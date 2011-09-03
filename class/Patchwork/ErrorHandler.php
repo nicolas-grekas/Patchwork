@@ -18,23 +18,20 @@ class_exists('Patchwork\PHP\ErrorHandler') || __autoload('Patchwork\PHP\ErrorHan
 
 class ErrorHandler extends PHP\ErrorHandler
 {
+    public $scream = /*<*/DEBUG/*>*/;
+
     function handleError($type, $message, $file, $line, $context, $trace_offset = 0, $log_time = 0)
     {
-        if ((error_reporting() | $this->recoverableErrors) & $type)
-        {
-            $log_time || $log_time = microtime(true);
-            0 <= $trace_offset && ++$trace_offset;
+        // Silence strict and deprecated notices for classes and files coming from include_path
+        if (/*<*/(E_NOTICE | E_STRICT | E_DEPRECATED | E_USER_DEPRECATED)/*>*/ & $type)
+            if (strpos($message, '__00::') || '-' === substr($file, -12, 1))
+                $e = error_reporting(0);
 
-            if ((E_NOTICE | E_STRICT) & $type & ~$this->recoverableErrors)
-            {
-                // Hide strict and non-strict notices for classes and files coming from include_path
-                if (strpos($message, '__00::')) return;
-                if ('-' === substr($file, -12, 1)) return;
-            }
+        0 <= $trace_offset && ++$trace_offset;
+        parent::handleError($type, $message, $file, $line, $context, $trace_offset, $log_time);
+        empty($e) || error_reporting($e);
 
-            return parent::handleError($type, $message, $file, $line, $context, $trace_offset, $log_time);
-        }
-        else return false;
+        return (bool) (error_reporting() & $type);
     }
 
     function getLogger()

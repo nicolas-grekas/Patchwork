@@ -7,13 +7,24 @@ function classifyEvent(token, type, data)
 {
     var target = 'requests', div = document.createElement('DIV');
 
+    div.className = 'event';
+
     switch (type)
     {
     case 'php-error':
     case 'php-exception':
-    case 'php-raw-error': target = 'php-errors'; break
+    case 'php-raw-error':
+        target = 'php-errors';
+        if (data.data.level)
+        {
+            type = data.data.level.split('/');
+            if (!(type[0] & type[1])) div.className += ' silenced';
+            delete data.data.level; // TODO: use data.data.level
+        }
+        break;
+
     case 'client-dump':
-    case 'server-dump': target = 'E'; break
+    case 'server-dump': target = 'E'; break;
     }
 
     var state = {
@@ -23,7 +34,6 @@ function classifyEvent(token, type, data)
 
     // TODO: use token, type, data.time and data.mem, data.patchwork and data._SERVER when available
 
-    div.className = 'event';
     div.innerHTML = htmlizeEvent(data.data, data.__cyclicRefs);
 
     document.getElementById(target).appendChild(div);
