@@ -60,7 +60,7 @@ class ob
 // Timezone settings
 
 /**/if (!ini_get('date.timezone'))
-    date_default_timezone_set(@date_default_timezone_get());
+    @date_default_timezone_set(date_default_timezone_get());
 
 
 // Configure PCRE

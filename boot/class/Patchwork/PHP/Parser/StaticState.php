@@ -56,8 +56,8 @@ class Patchwork_PHP_Parser_StaticState extends Patchwork_PHP_Parser
         $code = $this->getRunonceCode($code);
 
         function_exists('error_get_last') && $e = array(
-            @ini_set('error_log',      false),
-            @ini_set('display_errors', false),
+            ini_set('error_log',      false),
+            ini_set('display_errors', false),
         );
 
         set_error_handler(array($this, 'errorHandler'));
@@ -73,8 +73,8 @@ class Patchwork_PHP_Parser_StaticState extends Patchwork_PHP_Parser
 
         if (isset($e))
         {
-            @ini_set('display_errors', $e[1]);
-            @ini_set('error_log',      $e[0]);
+            ini_set('display_errors', $e[1]);
+            ini_set('error_log',      $e[0]);
         }
 
         return $this->getRuntimeCode();

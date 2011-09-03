@@ -56,7 +56,7 @@ class Patchwork_Bootstrapper_Manager
             throw $this->error('__autoload() is enabled and spl_autoload_register() is not available');
         case function_exists('mb_internal_encoding'):
             mb_internal_encoding('8bit'); // if mbstring overloading is enabled
-            @ini_set('mbstring.internal_encoding', '8bit');
+            ini_set('mbstring.internal_encoding', '8bit');
         }
 
         if ($this->getLock(true))
@@ -71,7 +71,7 @@ class Patchwork_Bootstrapper_Manager
                 if (@get_magic_quotes_runtime())
                     throw $this->error('Failed to turn off magic_quotes_runtime');
 
-                $s .= "set_magic_quotes_runtime(false);";
+                $s .= "@set_magic_quotes_runtime(false);";
             }
 
             // Backport PHP_VERSION_ID and co.
