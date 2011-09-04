@@ -53,7 +53,8 @@ class ErrorHandler
 
         self::$logFile = $log_file;
 
-        $handler->register();
+        // Register the handler and top it to the current error_reporting() level
+        $handler->register(error_reporting());
 
         return $handler;
     }
