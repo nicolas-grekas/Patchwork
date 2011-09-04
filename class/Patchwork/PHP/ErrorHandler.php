@@ -20,7 +20,7 @@ class ErrorHandler
     $scream = false,
     $recoverableErrors = 0x1100, // E_RECOVERABLE_ERROR | E_USER_ERROR
     $scopedErrors = 0x0202, // E_WARNING | E_USER_WARNING
-    $tracedErrors = 0x1302; // E_RECOVERABLE_ERROR | E_USER_ERROR | E_WARNING | E_USER_WARNING
+    $tracedErrors = 0x1306; // E_RECOVERABLE_ERROR | E_USER_ERROR | E_WARNING | E_USER_WARNING | E_PARSE
 
     protected
 
@@ -171,7 +171,7 @@ class ErrorHandler
 
                 if ($log)
                 {
-                    if ($this->scopedErrors & $type) $e['scope'] = $scope;
+                    if ($this->scopedErrors & $type) null !== $scope && $e['scope'] = $scope;
                     if (0 <= $trace_offset) $e['trace'] = debug_backtrace(false);
                 }
 

@@ -102,9 +102,27 @@ function patchwork_shutdown_destruct()
 }
 
 
-// Utility functions
+// Private use for the preprocessor
 
 function &patchwork_autoload_marker($marker, &$ref) {return $ref;}
+
+function patchwork_error_voicer($e, $r)
+{
+    error_reporting($e);
+
+    if (false === $r)
+    {
+        $h = set_error_handler('var_dump');
+        restore_error_handler();
+        if (null === $h || null === $e = error_get_last()) return $r;
+        call_user_func_array($h, $e + array(null, 2));
+    }
+
+    return $r;
+}
+
+
+// Utility functions
 
 function patchwork_class2file($class)
 {

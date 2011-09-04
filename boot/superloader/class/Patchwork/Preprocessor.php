@@ -56,6 +56,7 @@ class Patchwork_Preprocessor
         'Scream'             => true,
         'T'                  => true,
         'Marker'             => true,
+        'ErrorVoicer'        => -50200,
         'StaticState'        => true,
     );
 
@@ -145,11 +146,12 @@ class Patchwork_Preprocessor
             case 'ClassAutoname':      if (0 <= $level && $class) new $t($p, $class); break;
             case 'Scream':             if (self::$scream) new $t($p); break;
             case 'ThrowingDestructor':
-            case 'ConstFuncDisabler':  if (0 <= $level)   new $t($p); break;
-            case 'Constructor4to5':    if (0 > $level)    new $t($p); break;
-            case 'Globalizer':         if (0 <= $level)   new $t($p, '$CONFIG'); break;
-            case 'T':                  if (DEBUG)         new $t($p); break;
-            case 'Marker':             if (!DEBUG)        new $t($p, self::$declaredClass); break;
+            case 'ConstFuncDisabler':  if (0 <= $level) new $t($p); break;
+            case 'Constructor4to5':    if (0 >  $level) new $t($p); break;
+            case 'Globalizer':         if (0 <= $level) new $t($p, '$CONFIG'); break;
+            case 'T':
+            case 'ErrorVoicer':        if ( DEBUG) new $t($p); break;
+            case 'Marker':             if (!DEBUG) new $t($p, self::$declaredClass); break;
             case 'ConstantInliner':    new $t($p, $source, self::$constants); break;
             case 'NamespaceRemover':   new $t($p, 'Patchwork_PHP_Override_Class::add'); break;
             case 'SuperPositioner':    new $t($p, $level, $is_top ? $class : false); break;
