@@ -18,8 +18,6 @@ class_exists('Patchwork\PHP\Logger') || __autoload('Patchwork\PHP\Logger');
 
 class Logger extends PHP\Logger
 {
-    protected $firstEvent = true;
-
     function writeEvent($type, $data)
     {
         if ('php-error' === $type || 'php-exception' === $type)
@@ -29,10 +27,8 @@ class Logger extends PHP\Logger
             $GLOBALS['patchwork_private'] = true;
         }
 
-        if ($this->firstEvent)
+        if ($this->isFirstEvent)
         {
-            $this->firstEvent = false;
-
             // http://bugs.php.net/42098 workaround
             class_exists('Patchwork\PHP\JsonDumper') || __autoload('Patchwork\PHP\JsonDumper');
 
@@ -47,7 +43,6 @@ class Logger extends PHP\Logger
                 'zcache' => PATCHWORK_ZCACHE,
                 'paths' => $GLOBALS['patchwork_path'],
             );
-            $data['_SERVER'] = $_SERVER;
         }
 
         return parent::writeEvent($type, $data);

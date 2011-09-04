@@ -32,7 +32,7 @@ function classifyEvent(token, type, data)
         buffer: []
     };
 
-    // TODO: use token, type, data.time and data.mem, data.patchwork and data._SERVER when available
+    // TODO: use token, type, data.time and data.mem, data.patchwork and data.globals when available
 
     div.innerHTML = htmlizeEvent(data.data, data.__cyclicRefs);
 

@@ -73,10 +73,11 @@ class ErrorHandler
         {
             switch ($e['type'])
             {
-            // Get the last fatal error and format it appropriately
-            case E_ERROR: case E_PARSE: case E_CORE_ERROR:
+            // Get the last uncatchable error
+            case E_ERROR: case E_PARSE:
+            case E_CORE_ERROR: case E_CORE_WARNING:
             case E_COMPILE_ERROR: case E_COMPILE_WARNING:
-                $handler->handleFatalError($e);
+                $handler->handleLastError($e);
                 self::resetLastError();
             }
         }
@@ -196,10 +197,12 @@ class ErrorHandler
         $this->getLogger()->logException($e, $log_time);
     }
 
-    function handleFatalError($e)
+    function handleLastError($e)
     {
-        // Log fatal errors when they have not been logged by the native PHP error handler
-        if (error_reporting() & $e['type']) return;
+        // Be sure to log fatal errors when they have not been logged by the native PHP error handler.
+        // If this event is the first one log it also with its associated context data if any.
+        // Otherwise, do not duplicate it.
+        if (isset($this->logger) && (error_reporting() & $e['type'])) return;
         $e['level'] = $type . '/' . error_reporting();
         $this->getLogger()->logError($e, -1, 0);
     }

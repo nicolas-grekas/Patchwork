@@ -18,14 +18,16 @@ class Logger
     public
 
     $writeLock = true,
-    $lineFormat = "%s\n";
+    $lineFormat = "%s\n",
+    $loggedGlobals = array('_SERVER');
 
     protected
 
     $logStream,
     $prevTime = 0,
     $startTime = 0,
-    $prevMemory = 0;
+    $prevMemory = 0,
+    $isFirstEvent = true;
 
     public static
 
@@ -72,12 +74,20 @@ class Logger
             'data' => $data,
         );
 
+        if ($this->isFirstEvent && $this->loggedGlobals)
+        {
+            $data['globals'] = array();
+            foreach ($this->loggedGlobals as $log_time)
+                $data['globals'][$log_time] = isset($GLOBALS[$log_time]) ? $GLOBALS[$log_time] : null;
+        }
+
         $this->writeLock && flock($this->logStream, LOCK_EX);
         $this->writeEvent($type, $data);
         $this->writeLock && flock($this->logStream, LOCK_UN);
 
         $this->prevMemory = memory_get_usage(true);
         $this->prevTime = microtime(true);
+        $this->isFirstEvent = false;
     }
 
     function logError($e, $trace_offset = -1, $log_time = 0)
@@ -119,13 +129,12 @@ class Logger
 
     function filterTrace($trace, $offset)
     {
-        if (0 > $offset) return null;
+        if (0 > $offset || empty($trace[$offset])) return null;
+        else $t = $trace[$offset];
 
-        if (isset($trace[$offset]['function']))
-        {
-            $t = $trace[$offset]['function'];
-            if ('user_error' === $t || 'trigger_error' === $t) ++$offset;
-        }
+        if (empty($t['class']) && isset($t['function']))
+            if ('user_error' === $t['function'] || 'trigger_error' === $t['function'])
+                ++$offset;
 
         $offset && array_splice($trace, 0, $offset);
 
