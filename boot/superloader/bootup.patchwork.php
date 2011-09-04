@@ -114,8 +114,10 @@ function patchwork_error_voicer($e, $r)
     {
         $h = set_error_handler('var_dump');
         restore_error_handler();
-        if (null === $h || null === $e = error_get_last()) return $r;
-        call_user_func_array($h, $e + array(null, 2));
+        null !== $h
+            && (null ==! $e = error_get_last())
+            && /*<*/E_PARSE | E_CORE_WARNING | E_COMPILE_WARNING/*>*/ & $e['type']
+            && call_user_func_array($h, $e + array(null, 2));
     }
 
     return $r;

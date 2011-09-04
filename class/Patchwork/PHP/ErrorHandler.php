@@ -142,7 +142,6 @@ class ErrorHandler
         if ($log || $throw || $scream = $this->scream & $type)
         {
             $log_time || $log_time = microtime(true);
-            $level = $type . '/' . error_reporting();
 
             if ($throw)
             {
@@ -150,8 +149,8 @@ class ErrorHandler
                 // to remove logged and uncaught exception messages duplication and
                 // to dismiss any cryptic "Exception thrown without a stack frame"
                 // recoverable errors are logged but only at shutdown time.
-                $log = self::$shuttingDown;
-                $scream = 0;
+                $throw = new RecoverableErrorException($message, 0, $type, $file, $line);
+                $scream = self::$shuttingDown ? 1 : $log = 0;
             }
 
             if (0 <= $trace_offset)
@@ -167,12 +166,14 @@ class ErrorHandler
 
             if ($log || $scream)
             {
-                $e = compact('type', 'message', 'file', 'line', 'level');
+                $e = compact('type', 'message', 'file', 'line');
+                $e['level'] = $type . '/' . error_reporting();
 
                 if ($log)
                 {
                     if ($this->scopedErrors & $type) null !== $scope && $e['scope'] = $scope;
-                    if (0 <= $trace_offset) $e['trace'] = debug_backtrace(false);
+                    if ($throw && 0 <= $trace_offset) $e['trace'] = $throw->getTrace();
+                    else if (0 <= $trace_offset) $e['trace'] = debug_backtrace(false);
                 }
 
                 $this->getLogger()->logError($e, $trace_offset, $log_time);
@@ -180,11 +181,9 @@ class ErrorHandler
 
             if ($throw)
             {
-                $e = new RecoverableErrorException($message, $type, 0, $file, $line);
-                $e->level = $level;
-                $log || $e->traceOffset = $trace_offset;
-                $e->scope = $scope;
-                throw $e;
+                $throw->scope = $scope;
+                $log || $throw->traceOffset = $trace_offset;
+                throw $throw;
             }
         }
 
@@ -200,7 +199,7 @@ class ErrorHandler
         $this->handleError(
             E_WARNING, "Uncaught exception '" . get_class($e) . "'",
             $e->getFile(), $e->getLine(),
-            array('uncaughtException' => $e),
+            array('uncaught-exception' => $e),
             -1, $log_time
         );
         list($this->recoverableErrors, $this->scream) = $s;
@@ -212,7 +211,7 @@ class ErrorHandler
         // If this event is the first one log it also with its associated context data if any.
         // Otherwise, do not duplicate it.
         if (isset($this->logger) && (error_reporting() & $e['type'])) return;
-        $e['level'] = $type . '/' . error_reporting();
+        $e['level'] = $e['type'] . '/' . error_reporting();
         $this->getLogger()->logError($e, -1, 0);
     }
 
@@ -226,7 +225,7 @@ class ErrorHandler
 
 class RecoverableErrorException extends \ErrorException implements RecoverableErrorInterface
 {
-    public $level = 0, $traceOffset = -1, $scope = array();
+    public $traceOffset = -1, $scope = array();
 }
 
 interface RecoverableErrorInterface {}

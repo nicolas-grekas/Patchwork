@@ -51,8 +51,13 @@ class Patchwork_PHP_Parser_ThrowingDestructor extends Patchwork_PHP_Parser
             'tagDestructClose' => T_SCOPE_CLOSE,
         ));
 
-        $token[1] = '}catch(' .( T_NS_SEPARATOR > 0 ? '\\' : '' ). 'Exception $uncaughtException){'
-            . 'user_error("Throwing destructors should be avoided, please catch your exceptions",E_USER_WARNING);'
-            . 'throw $uncaughtException;}' . $token[1];
+        $token[1] = '}catch(' .( T_NS_SEPARATOR > 0 ? '\\' : '' ). 'Exception $e){'
+            . 'if(empty($e->__destructorException)){'
+            . '$h=set_error_handler("var_dump");restore_error_handler();'
+            . 'if(null!==$h)call_user_func($h,E_WARNING,'
+            . '"Throwing destructors should be avoided, please catch your exceptions",'
+            . '__FILE__,__LINE__,array("uncaught-exception"=>$e),-1);'
+            . '$e->__destructorException=true;'
+            . '}throw $e;}' . $token[1];
     }
 }

@@ -106,18 +106,14 @@ class Logger
 
     function castException($e)
     {
-        $a = array(
-            'mesg' => $e->getMessage(),
-            'code' => $e->getCode() . ' ' . $e->getFile() . ':' . $e->getLine(),
-        ) + (array) $e;
+        $a = (array) $e;
 
-        $a['trace'] = $this->filterTrace($a["\0Exception\0trace"], $e instanceof RecoverableErrorInterface ? $e->traceOffset : 0);
-
-        if (null === $a['trace']) unset($a['trace']);
+        $a["\0Exception\0trace"] = $this->filterTrace($a["\0Exception\0trace"], $e instanceof RecoverableErrorInterface ? $e->traceOffset : 0);
+        if (null === $a["\0Exception\0trace"]) unset($a["\0Exception\0trace"]);
         if ($e instanceof RecoverableErrorInterface) unset($a['traceOffset']);
         if (empty($a["\0Exception\0previous"])) unset($a["\0Exception\0previous"]);
-        if ($e instanceof \ErrorException && empty($a["\0*\0severity"])) unset($a["\0*\0severity"]);
-        unset($a["\0*\0message"], $a["\0Exception\0string"], $a["\0*\0code"], $a["\0*\0file"], $a["\0*\0line"], $a["\0Exception\0trace"], $a['xdebug_message']);
+        if ($e instanceof \ErrorException && isset(self::$errorTypes[$a["\0*\0severity"]])) $a["\0*\0severity"] = self::$errorTypes[$a["\0*\0severity"]];
+        unset($a["\0Exception\0string"], $a['xdebug_message']);
 
         return $a;
     }
