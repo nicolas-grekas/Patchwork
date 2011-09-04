@@ -17,7 +17,7 @@ class ErrorHandler
 {
     public
 
-    $scream = false,
+    $scream = 0x51, // E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR,
     $recoverableErrors = 0x1100, // E_RECOVERABLE_ERROR | E_USER_ERROR
     $scopedErrors = 0x0202, // E_WARNING | E_USER_WARNING
     $tracedErrors = 0x1306; // E_RECOVERABLE_ERROR | E_USER_ERROR | E_WARNING | E_USER_WARNING | E_PARSE
@@ -31,7 +31,7 @@ class ErrorHandler
 
     $logFile,
     $logStream,
-    $shuttingDown = false,
+    $shuttingDown = 0,
     $handlers = array();
 
 
@@ -46,7 +46,7 @@ class ErrorHandler
         ini_set('log_errors', true);
         ini_set('error_log', $log_file);
 
-        // Some fatal errors can be catched at shutdown time!
+        // Some fatal errors can be caught at shutdown time!
         // Then, any fatal error is really fatal: remaining shutdown
         // functions, output buffering handlers or destructors are not called!
         register_shutdown_function(array(__CLASS__, 'shutdown'));
@@ -65,7 +65,7 @@ class ErrorHandler
 
     static function shutdown()
     {
-        self::$shuttingDown = true;
+        self::$shuttingDown = 1;
 
         if (false === $handler = end(self::$handlers)) return;
 
@@ -139,19 +139,19 @@ class ErrorHandler
         $throw = $this->recoverableErrors & $type;
         $log = error_reporting() & $type;
 
-        if ($log || $throw || $scream = $this->scream)
+        if ($log || $throw || $scream = $this->scream & $type)
         {
             $log_time || $log_time = microtime(true);
             $level = $type . '/' . error_reporting();
 
             if ($throw)
             {
-                // To prevent extra logging of catched RecoverableErrorException and
-                // to remove logged and uncatched exception duplicate messages and
+                // To prevent extra logging of caught RecoverableErrorException and
+                // to remove logged and uncaught exception messages duplication and
                 // to dismiss any cryptic "Exception thrown without a stack frame"
                 // recoverable errors are logged but only at shutdown time.
                 $log = self::$shuttingDown;
-                $scream = false;
+                $scream = 0;
             }
 
             if (0 <= $trace_offset)
@@ -193,8 +193,17 @@ class ErrorHandler
 
     function handleException(\Exception $e, $log_time = 0)
     {
-        // Do not consider error_reporting level: uncatched exception are always logged
-        $this->getLogger()->logException($e, $log_time);
+        // Force logging of uncathed exceptions
+        $s = array($this->recoverableErrors, $this->scream);
+        $this->scream |= E_WARNING;
+        $this->recoverableErrors &= ~E_WARNING;
+        $this->handleError(
+            E_WARNING, "Uncaught exception '" . get_class($e) . "'",
+            $e->getFile(), $e->getLine(),
+            array('uncaughtException' => $e),
+            -1, $log_time
+        );
+        list($this->recoverableErrors, $this->scream) = $s;
     }
 
     function handleLastError($e)

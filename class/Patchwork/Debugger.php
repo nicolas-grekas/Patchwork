@@ -228,7 +228,7 @@ parent.E.buffer = [];
                 $line['level'] = constant($line['type']) . '/-1';
                 $line['type'] .= " {$line['file']}:{$line['line']}";
                 $line = array(
-                    '*** php-raw-error ***',
+                    '*** php-error ***',
                     '{',
                     '  "time": ' . p\PHP\JsonDumper::get($line['date']) . ',',
                     '  "data": {',

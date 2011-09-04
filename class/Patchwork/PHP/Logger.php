@@ -104,11 +104,6 @@ class Logger
         $this->log('php-error', $e, $log_time);
     }
 
-    function logException(\Exception $e, $log_time = 0)
-    {
-        $this->log('php-exception', $e, $log_time);
-    }
-
     function castException($e)
     {
         $a = array(

@@ -12,8 +12,6 @@ function classifyEvent(token, type, data)
     switch (type)
     {
     case 'php-error':
-    case 'php-exception':
-    case 'php-raw-error':
         target = 'php-errors';
         if (data.data.level)
         {
