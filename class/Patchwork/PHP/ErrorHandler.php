@@ -19,7 +19,7 @@ class ErrorHandler
 
     $scream = 0x51, // E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR,
     $recoverableErrors = 0x1100, // E_RECOVERABLE_ERROR | E_USER_ERROR
-    $scopedErrors = 0x0202, // E_WARNING | E_USER_WARNING
+    $scopedErrors = 0x0203, // E_ERROR | E_WARNING | E_USER_WARNING
     $tracedErrors = 0x1306; // E_RECOVERABLE_ERROR | E_USER_ERROR | E_WARNING | E_USER_WARNING | E_PARSE
 
     protected
@@ -193,27 +193,22 @@ class ErrorHandler
 
     function handleException(\Exception $e, $log_time = 0)
     {
-        // Force logging of uncathed exceptions
-        $s = array($this->recoverableErrors, $this->scream);
-        $this->scream |= E_WARNING;
-        $this->recoverableErrors &= ~E_WARNING;
+        $this->recoverableErrors &= ~E_ERROR; // Prevent any accidental rethrow
         $this->handleError(
-            E_WARNING, "Uncaught exception '" . get_class($e) . "'",
+            E_ERROR, "Uncaught exception '" . get_class($e) . "'",
             $e->getFile(), $e->getLine(),
             array('uncaught-exception' => $e),
             -1, $log_time
         );
-        list($this->recoverableErrors, $this->scream) = $s;
     }
 
     function handleLastError($e)
     {
-        // Be sure to log fatal errors when they have not been logged by the native PHP error handler.
-        // If this event is the first one log it also with its associated context data if any.
+        // Handle errors when they have not been logged by the native PHP error handler.
+        // If this is the first event, handle it also to log any context data with it.
         // Otherwise, do not duplicate it.
         if (isset($this->logger) && (error_reporting() & $e['type'])) return;
-        $e['level'] = $e['type'] . '/' . error_reporting();
-        $this->getLogger()->logError($e, -1, 0);
+        call_user_func_array(array($this, 'handleError'), $e + array(null, -1));
     }
 
     function getLogger()

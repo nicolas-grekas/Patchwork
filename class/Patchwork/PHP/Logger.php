@@ -113,7 +113,7 @@ class Logger
         if ($e instanceof RecoverableErrorInterface) unset($a['traceOffset']);
         if (empty($a["\0Exception\0previous"])) unset($a["\0Exception\0previous"]);
         if ($e instanceof \ErrorException && isset(self::$errorTypes[$a["\0*\0severity"]])) $a["\0*\0severity"] = self::$errorTypes[$a["\0*\0severity"]];
-        unset($a["\0Exception\0string"], $a['xdebug_message']);
+        unset($a["\0Exception\0string"], $a['xdebug_message'], $a['__destructorException']);
 
         return $a;
     }

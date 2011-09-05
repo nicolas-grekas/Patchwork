@@ -40,7 +40,7 @@ class Patchwork_Preprocessor
         'NamespaceBracketer' => +50300, // Load this only for 5.3.0 and up
         'NamespaceInfo'      => true,
         'ScopeInfo'          => true,
-        'ThrowingDestructor' => true,
+        'DestructorCatcher'  => true,
         'ConstFuncDisabler'  => true,
         'ConstFuncResolver'  => true,
         'NamespaceResolver'  => -50300,
@@ -145,7 +145,6 @@ class Patchwork_Preprocessor
             case 'StaticState':        if (0 <= $level) $p = new $t($p); break;
             case 'ClassAutoname':      if (0 <= $level && $class) new $t($p, $class); break;
             case 'Scream':             if (self::$scream) new $t($p); break;
-            case 'ThrowingDestructor':
             case 'ConstFuncDisabler':  if (0 <= $level) new $t($p); break;
             case 'Constructor4to5':    if (0 >  $level) new $t($p); break;
             case 'Globalizer':         if (0 <= $level) new $t($p, '$CONFIG'); break;

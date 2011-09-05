@@ -55,7 +55,7 @@ function patchwork_shutdown_execute($c)
         restore_exception_handler();
         if (null !== $c) call_user_func($c, $e);
         else user_error("Uncaught exception '" . get_class($e) . "' in {$e->getFile()}:{$e->getLine()}", E_USER_WARNING);
-        exit(1);
+        exit(255);
     }
 }
 

@@ -18,6 +18,8 @@ class_exists('Patchwork\PHP\Logger') || __autoload('Patchwork\PHP\Logger');
 
 class Logger extends PHP\Logger
 {
+    public $writeLock = false;
+
     function writeEvent($type, $data)
     {
         if ('php-error' === $type || 'php-exception' === $type)
