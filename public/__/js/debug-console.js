@@ -57,12 +57,13 @@ function htmlizeEvent(data, cycles)
         buffer.push('<span class="' + tags + '">' + escape(data) + '</span>');
     }
 
-    function htmlizeData(data, tags, title)
+    function htmlizeData(data, tags, title, toggle)
     {
         var i, e, t, b;
 
         title = title || [];
         tags = tags || '';
+        toggle = toggle || 'compact';
 
         switch (true)
         {
@@ -157,11 +158,26 @@ function htmlizeEvent(data, cycles)
                 return;
             }
 
-            e = 1;
+            e = 0;
+            for (i in data) if ('_' !== i && '__maxLength' !== i && '__cyclicRefs' !== i && 2 === ++e) break;
+
+            if (!e)
+            {
+                if (t.isRef)
+                {
+                    push(b[0], 'bracket');
+                    push('#' + t.ref, 'ref');
+                    push(b[1], 'bracket');
+                }
+                else push(b[0] + b[1], 'bracket');
+                return;
+            }
+
             depth += 2;
-            buffer.push('<span class="array-compact">');
+            buffer.push('<span class="array-' + toggle + '">');
             push(b[0], 'bracket open');
-            buffer.push('<a onclick="arrayToggle(this)"> ⊞ </a>\n');
+            buffer.push(('compact' == toggle ? '<a onclick="arrayToggle(this)"> ⊞ </a>' : '') + '\n');
+            toggle = 1 === e ? 'expanded' : 'compact';
 
             for (i in data)
             {
@@ -200,14 +216,12 @@ function htmlizeEvent(data, cycles)
 
                 htmlizeData(e, tags, title);
                 push(' ⇨ ', 'arrow');
-                htmlizeData(data[i]);
+                htmlizeData(data[i], '', [], toggle);
                 push(',\n', 'lf');
-                e = 0;
             }
 
             if (data.__maxLength)
             {
-                e = 0;
                 buffer.push('<span class="indent">' + new Array(depth).join(' ') + '</span>')
                 push('...', 'cut', ['Max-length reached' + (data.__maxLength > 0 ? ', cut by ' + data.__maxLength : '')]);
                 push(',\n', 'lf');
@@ -215,27 +229,10 @@ function htmlizeEvent(data, cycles)
 
             depth -= 2;
             buffer[buffer.length - 1] = '';
-
-            if (e)
-            {
-                buffer[buffer.length - 3] = '';
-                buffer[buffer.length - 2] = '';
-
-                if (t.isRef)
-                {
-                    push(b[0], 'bracket');
-                    push('#' + t.ref, 'ref');
-                    push(b[1], 'bracket');
-                }
-                else push(b[0] + b[1], 'bracket');
-            }
-            else
-            {
-                push('\n', 'lf');
-                if (1 < depth) buffer.push('<span class="indent">' + new Array(depth).join(' ') + '</span>')
-                push(b[1], 'bracket close');
-                buffer.push('</span>');
-            }
+            push('\n', 'lf');
+            if (1 < depth) buffer.push('<span class="indent">' + new Array(depth).join(' ') + '</span>')
+            push(b[1], 'bracket close');
+            buffer.push('</span>');
 
             break;
         }
