@@ -422,12 +422,12 @@ class Patchwork_PHP_Parser
 
     // Set an error on input code inside parsers.
 
-    protected function setError($message, $code)
+    protected function setError($message, $type)
     {
         $this->errors[(int) $this->line][] = array(
+            'type' => $type,
             'message' => $message,
             'line' => (int) $this->line,
-            'code' => $code,
             'parser' => get_class($this),
         );
     }
