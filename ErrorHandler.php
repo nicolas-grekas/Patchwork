@@ -17,9 +17,10 @@ class ErrorHandler
 {
     public
 
+    $scream = 0x51, // E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR,
     $recoverableErrors = 0x1100, // E_RECOVERABLE_ERROR | E_USER_ERROR
-    $scopedErrors = 0x0202, // E_WARNING | E_USER_WARNING
-    $tracedErrors = 0x1302; // E_RECOVERABLE_ERROR | E_USER_ERROR | E_WARNING | E_USER_WARNING
+    $scopedErrors = 0x0203, // E_ERROR | E_WARNING | E_USER_WARNING
+    $tracedErrors = 0x1306; // E_RECOVERABLE_ERROR | E_USER_ERROR | E_WARNING | E_USER_WARNING | E_PARSE
 
     protected
 
@@ -30,7 +31,7 @@ class ErrorHandler
 
     $logFile,
     $logStream,
-    $shuttingDown = false,
+    $shuttingDown = 0,
     $handlers = array();
 
 
@@ -45,14 +46,15 @@ class ErrorHandler
         ini_set('log_errors', true);
         ini_set('error_log', $log_file);
 
-        // Some fatal errors can be catched at shutdown time!
+        // Some fatal errors can be caught at shutdown time!
         // Then, any fatal error is really fatal: remaining shutdown
         // functions, output buffering handlers or destructors are not called!
         register_shutdown_function(array(__CLASS__, 'shutdown'));
 
         self::$logFile = $log_file;
 
-        $handler->register();
+        // Register the handler and top it to the current error_reporting() level
+        $handler->register(error_reporting());
 
         return $handler;
     }
@@ -64,7 +66,7 @@ class ErrorHandler
 
     static function shutdown()
     {
-        self::$shuttingDown = true;
+        self::$shuttingDown = 1;
 
         if (false === $handler = end(self::$handlers)) return;
 
@@ -72,10 +74,11 @@ class ErrorHandler
         {
             switch ($e['type'])
             {
-            // Get the last fatal error and format it appropriately
-            case E_ERROR: case E_PARSE: case E_CORE_ERROR:
+            // Get the last uncatchable error
+            case E_ERROR: case E_PARSE:
+            case E_CORE_ERROR: case E_CORE_WARNING:
             case E_COMPILE_ERROR: case E_COMPILE_WARNING:
-                $handler->handleFatalError($e);
+                $handler->handleLastError($e);
                 self::resetLastError();
             }
         }
@@ -134,14 +137,22 @@ class ErrorHandler
 
     function handleError($type, $message, $file, $line, $scope, $trace_offset = 0, $log_time = 0)
     {
-        if ($log_error = (error_reporting() | $this->recoverableErrors) & $type)
+        $throw = $this->recoverableErrors & $type;
+        $log = error_reporting() & $type;
+
+        if ($log || $throw || $scream = $this->scream & $type)
         {
             $log_time || $log_time = microtime(true);
 
-            // To prevent logging of catched exceptions and
-            // to remove duplicate logged and uncatched exception messages,
-            // do not log recoverable errors except at shutdown time.
-            self::$shuttingDown || $log_error &= ~$this->recoverableErrors;
+            if ($throw)
+            {
+                // To prevent extra logging of caught RecoverableErrorException and
+                // to remove logged and uncaught exception messages duplication and
+                // to dismiss any cryptic "Exception thrown without a stack frame"
+                // recoverable errors are logged but only at shutdown time.
+                $throw = new RecoverableErrorException($message, 0, $type, $file, $line);
+                $scream = self::$shuttingDown ? 1 : $log = 0;
+            }
 
             if (0 <= $trace_offset)
             {
@@ -151,42 +162,53 @@ class ErrorHandler
                 $e = md5("{$type}/{$line}/{$file}\x00{$message}", true);
 
                 if (!($this->tracedErrors & $type) || isset($this->loggedTraces[$e])) $trace_offset = -1;
-                else if ($log_error) $this->loggedTraces[$e] = 1;
+                else if ($log) $this->loggedTraces[$e] = 1;
             }
 
-            if ($log_error)
+            if ($log || $scream)
             {
-                $e = array('type' => $type, 'message' => $message, 'file' => $file, 'line' => $line);
+                $e = compact('type', 'message', 'file', 'line');
+                $e['level'] = $type . '/' . error_reporting();
 
-                if ($this->scopedErrors & $type) $e['scope'] = $scope;
-                if (0 <= $trace_offset) $e['trace'] = debug_backtrace(false);
+                if ($log)
+                {
+                    if ($this->scopedErrors & $type) null !== $scope && $e['scope'] = $scope;
+                    if ($throw && 0 <= $trace_offset) $e['trace'] = $throw->getTrace();
+                    else if (0 <= $trace_offset) $e['trace'] = debug_backtrace(false);
+                }
 
                 $this->getLogger()->logError($e, $trace_offset, $log_time);
             }
 
-            if ($this->recoverableErrors & $type)
+            if ($throw)
             {
-                $e = new RecoverableErrorException($message, $type, 0, $file, $line);
-                $log_error || $e->traceOffset = $trace_offset;
-                $e->scope = $scope;
-                throw $e;
+                $throw->scope = $scope;
+                $log || $throw->traceOffset = $trace_offset;
+                throw $throw;
             }
         }
 
-        return $log_error;
+        return (bool) $log;
     }
 
     function handleException(\Exception $e, $log_time = 0)
     {
-        // Do not consider error_reporting level: uncatched exception are always logged
-        $this->getLogger()->logException($e, $log_time);
+        $this->recoverableErrors &= ~E_ERROR; // Prevent any accidental rethrow
+        $this->handleError(
+            E_ERROR, "Uncaught exception '" . get_class($e) . "'",
+            $e->getFile(), $e->getLine(),
+            array('uncaught-exception' => $e),
+            -1, $log_time
+        );
     }
 
-    function handleFatalError($e)
+    function handleLastError($e)
     {
-        // Log fatal errors when they have not been logged by the native PHP error handler
-        if (error_reporting() & $e['type']) return;
-        $this->getLogger()->logError($e, -1, 0);
+        // Handle errors when they have not been logged by the native PHP error handler.
+        // If this is the first event, handle it also to log any context data with it.
+        // Otherwise, do not duplicate it.
+        if (isset($this->logger) && (error_reporting() & $e['type'])) return;
+        call_user_func_array(array($this, 'handleError'), $e + array(null, -1));
     }
 
     function getLogger()
