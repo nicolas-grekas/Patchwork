@@ -94,7 +94,7 @@ class ErrorHandler
     {
         // Reset error_get_last() by triggering a silenced empty user notice
         set_error_handler(array(__CLASS__, 'falseError'));
-        $r = error_reporting(0);
+        $r = error_reporting(81);
         user_error('', E_USER_NOTICE);
         error_reporting($r);
         restore_error_handler();

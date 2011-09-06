@@ -30,7 +30,7 @@ patchwork_shutdown_register('patchwork_shutdown_start');
 
 function patchwork_shutdown_register($c)
 {
-    $c = array(error_reporting(0), array() !== array_map($c, array()));
+    $c = array(error_reporting(81), array() !== array_map($c, array()));
     error_reporting($c[0]);
 
     if ($c[1])

@@ -43,7 +43,7 @@ class Patchwork_PHP_Override_SplAutoload
 
     static function spl_autoload_register($c, $throw = true, $prepend = false)
     {
-        $l = array(error_reporting(0), array() !== array_map($c, array()));
+        $l = array(error_reporting(81), array() !== array_map($c, array()));
         error_reporting($l[0]);
 
         if ($l[1])

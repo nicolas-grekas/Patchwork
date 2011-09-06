@@ -188,7 +188,7 @@ class Patchwork_PHP_Parser
         {
             // Re-insert characters removed by token_get_all() as T_BAD_CHARACTER tokens
 
-            $i = error_reporting(0);
+            $i = error_reporting(81);
             $t0 = token_get_all($code);
             error_reporting($i);
             $i = 0;
