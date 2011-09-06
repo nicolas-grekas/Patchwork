@@ -34,6 +34,7 @@ class Patchwork_Preprocessor
         'Normalizer'         => true,
         'ShortOpenEcho'      => -50400,
         'ShortArray'         => -50400,
+        'BinaryNumber'       => -50400,
         'Backport53Tokens'   => -50300, // Load this only before 5.3.0
         'ClassAutoname'      => true,
         'StringInfo'         => true,
@@ -139,7 +140,9 @@ class Patchwork_Preprocessor
 
             switch ($c)
             {
+
             case 'Normalizer':    $p = new $t; break;
+            case 'BinaryNumber':
             case 'ShortOpenEcho': $p = new $t($p); break;
             default:                   new $t($p); break;
             case 'StaticState':        if (0 <= $level) $p = new $t($p); break;
@@ -165,19 +168,19 @@ class Patchwork_Preprocessor
         {
             foreach ($c as $c)
             {
-                switch ($c['code'])
+                switch ($c['type'])
                 {
                 case E_USER_NOTICE;
                 case E_USER_WARNING;
                 case E_USER_DEPRECATED; break;
                 default:
-                case E_ERROR: $c['code'] = E_USER_ERROR; break;
-                case E_NOTICE: $c['code'] = E_USER_NOTICE; break;
-                case E_WARNING: $c['code'] = E_USER_WARNING; break;
-                case E_DEPRECATED: $c['code'] = E_USER_DEPRECATED; break;
+                case E_ERROR: $c['type'] = E_USER_ERROR; break;
+                case E_NOTICE: $c['type'] = E_USER_NOTICE; break;
+                case E_WARNING: $c['type'] = E_USER_WARNING; break;
+                case E_DEPRECATED: $c['type'] = E_USER_DEPRECATED; break;
                 }
 
-                user_error("{$c['message']} in {$source}:{$c['line']} as parsed by {$c['parser']}", $c['code']);
+                user_error("{$c['message']} in {$source}:{$c['line']} as parsed by {$c['parser']}", $c['type']);
             }
         }
 

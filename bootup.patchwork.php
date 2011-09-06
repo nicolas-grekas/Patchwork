@@ -25,7 +25,7 @@ define('IS_POSTING', 'POST' === $_SERVER['REQUEST_METHOD']);
 // Timezone settings
 
 /**/if (!ini_get('date.timezone'))
-    date_default_timezone_set(@date_default_timezone_get());
+    @date_default_timezone_set(date_default_timezone_get());
 
 
 // Configure PCRE

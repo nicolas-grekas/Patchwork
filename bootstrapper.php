@@ -20,10 +20,10 @@
 
 defined('PATCHWORK_MICROTIME') || define('PATCHWORK_MICROTIME', microtime(true));
 defined('PATCHWORK_BOOTPATH')  || define('PATCHWORK_BOOTPATH', '.');
-header('Content-Type: text/plain; charset=utf-8');  // Ease with early error messages
-@ini_set('html_errors', false);                     //  "
-@ini_set('display_errors', true);                   //  "
-error_reporting(E_ALL);                             // E_STRICT is not defined in PHP 4
+header('Content-Type: text/plain; charset=utf-8'); // Ease with early error messages
+ini_set('html_errors', false);                     //  "
+ini_set('display_errors', true);                   //  "
+error_reporting(E_ALL);                            // E_STRICT is not defined in PHP 4
 
 PATCHWORK_BOOTPATH || die('Patchwork error: PATCHWORK_BOOTPATH is empty');
 

@@ -42,19 +42,19 @@ class Patchwork_Bootstrapper_Preprocessor
         {
             foreach ($p as $p)
             {
-                switch ($p['code'])
+                switch ($p['type'])
                 {
                 case E_USER_NOTICE;
                 case E_USER_WARNING;
                 case E_USER_DEPRECATED; break;
                 default:
-                case E_ERROR: $p['code'] = E_USER_ERROR; break;
-                case E_NOTICE: $p['code'] = E_USER_NOTICE; break;
-                case E_WARNING: $p['code'] = E_USER_WARNING; break;
-                case E_DEPRECATED: $p['code'] = E_USER_DEPRECATED; break;
+                case E_ERROR: $p['type'] = E_USER_ERROR; break;
+                case E_NOTICE: $p['type'] = E_USER_NOTICE; break;
+                case E_WARNING: $p['type'] = E_USER_WARNING; break;
+                case E_DEPRECATED: $p['type'] = E_USER_DEPRECATED; break;
                 }
 
-                $code .= "user_error('" . addslashes("{$p['message']} in {$file}:{$p['line']} as parsed by {$p['parser']}") . "', {$p[3]});";
+                $code .= "user_error('" . addslashes("{$p['message']} in {$file}:{$p['line']} as parsed by {$p['parser']}") . "', {$p['type']});";
             }
         }
 
