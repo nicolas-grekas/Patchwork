@@ -137,7 +137,7 @@ class Patchwork_Autoloader
 
             $current_pool = array();
 
-            patchwork_include($cache);
+            patchwork_include_voicer($cache, error_reporting());
 
             if ($parent && patchwork_is_loaded($req)) $parent = false;
             if (false !== $parent_pool) $parent_pool[$parent ? $parent : $req] = $cache;
@@ -283,7 +283,7 @@ class Patchwork_Autoloader
                         $marker = "isset(\$c\x9D['{$lc_req}'])||{$marker}";
                         $code = ".class_{$cache}.zcache.php";
                         $code = addslashes(PATCHWORK_PROJECT_PATH . $code);
-                        $code = "isset(\$c\x9D['{$lc_req}'])||patchwork_include('{$code}')||1";
+                        $code = "isset(\$c\x9D['{$lc_req}'])||patchwork_include_voicer('{$code}',error_reporting())||1";
                     }
                     else
                     {

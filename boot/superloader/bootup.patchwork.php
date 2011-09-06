@@ -106,6 +106,26 @@ function patchwork_shutdown_destruct()
 
 function &patchwork_autoload_marker($marker, &$ref) {return $ref;}
 
+function patchwork_include_voicer()
+{
+    try
+    {
+        return patchwork_error_voicer(
+            error_reporting(
+                error_reporting()
+                & /*<*/~(E_PARSE | E_CORE_WARNING | E_COMPILE_WARNING)/*>*/
+                | /*<*/(E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR)/*>*/
+            ),
+            include func_get_arg(0)
+        );
+    }
+    catch (Exception $e)
+    {
+        error_reporting(func_get_arg(1));
+        throw $e;
+    }
+}
+
 function patchwork_error_voicer($e, $r)
 {
     error_reporting($e);
@@ -363,7 +383,7 @@ function patchwork_autoload($class)
 
         if (file_exists($a))
         {
-            patchwork_include($a);
+            patchwork_include_voicer($a, error_reporting());
 
             if (patchwork_is_loaded($class)) return;
         }

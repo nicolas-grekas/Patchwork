@@ -49,7 +49,7 @@ class Patchwork_PHP_Parser_DestructorCatcher extends Patchwork_PHP_Parser
                     . '$e[0]->__destructorException=isset($e[1][0]["line"])||!isset($e[1][0]["class"])||strcasecmp("__destruct",$e[1][0]["function"])?1:$e[1][0]["class"];'
                     . '$e=$e[0];'
                 . '}'
-                . 'if(isset($e->__destructorException)&&__CLASS__===$e->__destructorException&&1===count(debug_backtrace(' . $t . '))'
+                . 'if(isset($e->__destructorException)&&__CLASS__===$e->__destructorException&&1===count(debug_backtrace(' . $t . ')))'
                 . '{'
                     . '$e=array($e,set_exception_handler("var_dump"));'
                     . 'restore_exception_handler();'
