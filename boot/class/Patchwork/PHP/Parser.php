@@ -427,9 +427,9 @@ class Patchwork_PHP_Parser
     protected function setError($message, $type)
     {
         $this->errors[(int) $this->line][] = array(
+            'type' => $type,
             'message' => $message,
             'line' => (int) $this->line,
-            'code' => $code,
             'parser' => get_class($this),
         );
     }

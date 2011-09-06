@@ -12,14 +12,14 @@
  ***************************************************************************/
 
 
-// New tokens since PHP 5.3
-defined('T_GOTO') || Patchwork_PHP_Parser::createToken('T_GOTO');
-defined('T_DIR') || Patchwork_PHP_Parser::createToken('T_DIR');
-defined('T_NAMESPACE') || Patchwork_PHP_Parser::createToken('T_NAMESPACE');
-defined('T_NS_C') || Patchwork_PHP_Parser::createToken('T_NS_C');
+// New tokens since PHP 5.4
+defined('T_TRAIT') || Patchwork_PHP_Parser::createToken('T_TRAIT');
+defined('T_CALLABLE') || Patchwork_PHP_Parser::createToken('T_CALLABLE');
+defined('T_INSTEADOF') || Patchwork_PHP_Parser::createToken('T_INSTEADOF');
+defined('T_TRAIT_C') || Patchwork_PHP_Parser::createToken('T_TRAIT_C');
 
 
-class Patchwork_PHP_Parser_Backport53Tokens extends Patchwork_PHP_Parser
+class Patchwork_PHP_Parser_Backport54Tokens extends Patchwork_PHP_Parser
 {
     protected $callbacks = array('tagString' => T_STRING);
 
@@ -27,10 +27,10 @@ class Patchwork_PHP_Parser_Backport53Tokens extends Patchwork_PHP_Parser
     {
         switch (strtolower($token[1]))
         {
-        case 'goto': $token[0] = T_GOTO; break;
-        case '__dir__': $token[0] = T_DIR; break;
-        case 'namespace': $token[0] = T_NAMESPACE; break;
-        case '__namespace__': $token[0] = T_NS_C; break;
+        case 'trait': $token[0] = T_TRAIT; break;
+        case 'callable': $token[0] = T_CALLABLE; break;
+        case 'insteadof': $token[0] = T_INSTEADOF; break;
+        case '__trait__': $token[0] = T_TRAIT_C; break;
         default: return;
         }
 

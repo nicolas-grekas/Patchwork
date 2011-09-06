@@ -41,9 +41,9 @@ class Patchwork_Bootstrapper_Preprocessor
         if ($p = $p->getErrors())
             foreach ($p as $p)
                 $code .= "trigger_error('"
-                    . addslashes("{$p[0]} in {$file}")
-                    . ($p[1] ? " on line {$p[1]}" : '')
-                    . "',{$p[3]});";
+                    . addslashes("{$p['message']} in {$file}")
+                    . ($p['line'] ? " on line {$p['line']}" : '')
+                    . "',{$p['type']});";
 
         return $code;
     }

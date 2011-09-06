@@ -166,7 +166,7 @@ class Patchwork_Preprocessor
             if (class_exists('Patchwork_ErrorHandler', true))
             {
                 foreach ($c as $c)
-                    Patchwork_ErrorHandler::handle($c[3], $c[0], $source, $c[1]);
+                    Patchwork_ErrorHandler::handle($c['type'], $c['message'], $source, $c['line']);
             }
             else
             {
