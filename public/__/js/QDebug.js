@@ -51,7 +51,7 @@ E.clone = function(data)
         case '_' === k:
         case '__maxDepth' === k:
         case '__maxLength' === k:
-        case '__cyclicRefs' === k:
+        case '__refs' === k:
         case -1 != k.indexOf(':'):
             k = ':' + k;
         }
@@ -60,7 +60,7 @@ E.clone = function(data)
         {
             // TODO: test for farther recursivity and add ref indexes
             i = Object.prototype.toString.apply(data[i]).match(/^\[object ((Object)|(.+))\]$/);
-            clone[E.clone(k)] = {'_': (i[3] || '') + '::'};
+            clone[E.clone(k)] = {'_': '0:' + (i[3] || '')};
         }
         else
         {

@@ -32,18 +32,28 @@ function classifyEvent(token, type, data)
 
     // TODO: use token, type, data.time and data.mem, data.patchwork and data.globals when available
 
-    div.innerHTML = htmlizeEvent(data.data, data.__cyclicRefs);
+    div.innerHTML = htmlizeEvent(data.data, data.__refs);
 
     document.getElementById(target).appendChild(div);
 }
 
-function htmlizeEvent(data, cycles)
+function htmlizeEvent(data, refs)
 {
-    var depth = 1,
+    var iRefs = {},
+        depth,
+        counter,
         buffer = [],
         span = document.createElement('SPAN');
 
-    cycles = cycles || '';
+    refs = refs || {};
+    for (counter in refs)
+        for (depth in refs[counter])
+            iRefs[refs[counter][depth]] = counter;
+
+    depth = 1;
+    counter = data._ ? parseInt(data._) - 1 : 0;
+
+    console.log(counter, refs, iRefs);
 
     function escape(s)
     {
@@ -61,9 +71,13 @@ function htmlizeEvent(data, cycles)
     {
         var i, e, t, b;
 
+        ++counter;
         title = title || [];
         tags = tags || '';
         toggle = toggle || 'compact';
+
+        console.log(counter);
+        if (refs[counter]) push('#' + counter + ' ', 'ref id');
 
         switch (true)
         {
@@ -85,9 +99,12 @@ function htmlizeEvent(data, cycles)
             i = data.indexOf('`');
             if (-1 == i) data = ['u', data];
             else data = [data.substr(0, i), data.substr(i+1)];
+            i = data[0].charAt(data[0].length - 1);
 
-            switch (data[0].charAt(data[0].length - 1))
+            switch (i)
             {
+                case 'R':
+                case 'r': push('#' + iRefs[counter] + i, 'ref'); return;
                 case 'f': push(data[1], 'const' + tags, title); return;
                 case 'b': tags += ' bin'; title.push('Binary');
                 case 'u': tags = 'string' + tags;
@@ -116,38 +133,23 @@ function htmlizeEvent(data, cycles)
 
         case 'object' === typeof data:
             b = ['[', ']'];
-            t = data['_'] ? data['_'].split(':') : [];
+            t = data['_'] ? data['_'].split(':') : [0];
 
-            if (t.length)
+            if (undefined === t[1]) {}
+            else if (undefined === t[2])
             {
-                if ('array' === t[0])
-                {
-                    t.type = 'array';
-                    t.ref = t[1];
-                    t.len = t[3];
-                    t.isRef = '' === t[4];
-                }
-                else if ('resource' === t[0] && ('' + parseInt(t[1])) !== t[1])
-                {
-                    t.type = 'resource:' + t[1];
-                    t.ref = t[2];
-                    t.isRef = '' === t[3];
-
-                    push(t.type, 'class');
-                }
-                else
-                {
-                    t.type = 'class';
-                    t.ref = t[1];
-                    t.isRef = '' === t[2];
-                    t.class = t[0];
-
-                    if ('stdClass' !== t.class) push(t.class, 'class');
-
-                    b = ['{', '}'];
-                }
-
-                if (t.ref && !t.isRef && 0 <= cycles.indexOf('#' + t.ref + '#')) push('#' + t.ref, 'ref id');
+                t.isObject = 1;
+                if ('stdClass' !== t[1]) push(t[1], 'class');
+                b = ['{', '}'];
+            }
+            else if ('resource' === t[1])
+            {
+                t.isResource = 1;
+                push('resource:' + t[2], 'class');
+            }
+            else if ('array' === t[1])
+            {
+                t.isArray = 1;
             }
 
             if (undefined !== data.__maxDepth)
@@ -159,19 +161,9 @@ function htmlizeEvent(data, cycles)
             }
 
             e = 0;
-            for (i in data) if ('_' !== i && '__maxLength' !== i && '__cyclicRefs' !== i && 2 === ++e) break;
+            for (i in data) if ('_' !== i && '__maxLength' !== i && '__refs' !== i && 2 === ++e) break;
 
-            if (!e)
-            {
-                if (t.isRef)
-                {
-                    push(b[0], 'bracket');
-                    push('#' + t.ref, 'ref');
-                    push(b[1], 'bracket');
-                }
-                else push(b[0] + b[1], 'bracket');
-                return;
-            }
+            if (!e) return push(b[0] + b[1], 'bracket');
 
             depth += 2;
             buffer.push('<span class="array-' + toggle + '">');
@@ -181,7 +173,7 @@ function htmlizeEvent(data, cycles)
 
             for (i in data)
             {
-                if ('_' === i || '__maxLength' === i || '__cyclicRefs' === i) continue;
+                if ('_' === i || '__maxLength' === i || '__refs' === i) continue;
 
                 title = [];
                 tags = ' key';
@@ -193,7 +185,7 @@ function htmlizeEvent(data, cycles)
                     e = i.indexOf(':');
                     e = -1 === e ? ['', i] : [i.substr(0, e), i.substr(e+1)];
 
-                    if (t.class)
+                    if (t.isObject)
                     {
                         if ('' === e[0])
                         {
@@ -214,7 +206,10 @@ function htmlizeEvent(data, cycles)
                     e = e[0].replace(/[^`]+$/, '') + e[1];
                 }
 
+                t[0] = counter;
+                counter = -1;
                 htmlizeData(e, tags, title);
+                counter = t[0];
                 push(' ⇨ ', 'arrow');
                 htmlizeData(data[i], '', [], toggle);
                 push(',\n', 'lf');
