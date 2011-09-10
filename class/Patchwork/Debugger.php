@@ -225,16 +225,14 @@ parent.E.buffer = [];
             if (preg_match("' on line \d+$'", $line))
             {
                 $line = self::parseRawError($line);
-                $line['level'] = constant($line['type']) . '/-1';
-                $line['type'] .= " {$line['file']}:{$line['line']}";
                 $line = array(
                     '*** php-error ***',
                     '{',
                     '  "time": ' . p\PHP\JsonDumper::get($line['date']) . ',',
                     '  "data": {',
                     '    "mesg": ' . p\PHP\JsonDumper::get($line['message']) . ',',
-                    '    "code": ' . p\PHP\JsonDumper::get($line['type']) . ',',
-                    '    "level": ' . p\PHP\JsonDumper::get($line['level']),
+                    '    "code": ' . p\PHP\JsonDumper::get("{$line['type']} {$line['file']}:{$line['line']}") . ',',
+                    '    "level": ' . p\PHP\JsonDumper::get(constant($line['type']) . '/-1'),
                 );
 
                 if ("Stack trace:" === substr(rtrim($next_line), 27))
@@ -254,14 +252,13 @@ parent.E.buffer = [];
                 }
                 else
                 {
-                    // TODO: more extensive parsing of dumped arguments using token_get_all()
+                    // TODO: more extensive parsing of dumped arguments using token_get_all() / client-side parsing?
 
                     preg_match("' +(\d+)\. (.+?)\((.*)\) (.*)$'", $line, $line);
 
-                    $line[2] .= '() ' . $line[4];
                     $line = array(
                         '      "' . $line[1] . '": {',
-                        '        "call": ' . p\PHP\JsonDumper::get($line[2]) . ('' !== $line[3] ? ',' : ''),
+                        '        "call": ' . p\PHP\JsonDumper::get("{$line[2]}() {$line[4]}") . ('' !== $line[3] ? ',' : ''),
                         '' !== $line[3] ? '        "args": ' . p\PHP\JsonDumper::get($line[3]) : null,
                         '      }'
                     );
@@ -359,11 +356,9 @@ parent.E.buffer = [];
 
         if ('*** ' === substr($a, 0, 4))
         {
-            $a = substr($a, 4, -4);
-
             $b[] = '<script>classifyEvent('
                 . p\PHP\JsonDumper::get($token) . ','
-                . p\PHP\JsonDumper::get($a) . ',';
+                . p\PHP\JsonDumper::get(substr($a, 4, -4)) . ',';
         }
         else if ('***' === $a)
         {
