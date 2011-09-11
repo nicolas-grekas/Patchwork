@@ -53,8 +53,6 @@ function htmlizeEvent(data, refs)
     depth = 1;
     counter = data._ ? parseInt(data._) - 1 : 0;
 
-    console.log(counter, refs, iRefs);
-
     function escape(s)
     {
         span.innerText = span.textContent = s;
@@ -76,7 +74,6 @@ function htmlizeEvent(data, refs)
         tags = tags || '';
         toggle = toggle || 'compact';
 
-        console.log(counter);
         if (refs[counter]) push('#' + counter + ' ', 'ref id');
 
         switch (true)
@@ -92,7 +89,7 @@ function htmlizeEvent(data, refs)
             if ('' === data)
             {
                 title.push('Empty string');
-                push('""', 'string empty' + tags, title);
+                push('', 'string empty' + tags, title);
                 return;
             }
 

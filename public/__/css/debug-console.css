@@ -129,3 +129,8 @@ acronym
 {
     visibility: hidden;
 }
+
+.array-compact .lf
+{
+    visibility: visible;
+}
