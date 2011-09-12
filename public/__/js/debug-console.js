@@ -15,9 +15,9 @@ function classifyEvent(token, type, data)
         target = 'php-errors';
         if (data.data.level)
         {
-            type = data.data.level.split('/');
+            type = data.data.level.split('/'); // TODO: report more info about data.data.level
             if (!(type[0] & type[1])) div.className += ' silenced';
-            delete data.data.level; // TODO: use data.data.level
+            data.data.level = undefined; // Tag as do not display
         }
         break;
 
@@ -171,6 +171,7 @@ function htmlizeEvent(data, refs)
             for (i in data)
             {
                 if ('_' === i || '__maxLength' === i || '__refs' === i) continue;
+                if (undefined === data[i] && ++counter) continue;
 
                 title = [];
                 tags = ' key';

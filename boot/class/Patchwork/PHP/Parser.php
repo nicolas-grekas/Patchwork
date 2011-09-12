@@ -558,7 +558,6 @@ class Patchwork_PHP_Parser
         case null  === $a: return 'null';
         case  INF  === $a: return  'INF';
         case -INF  === $a: return '-INF';
-        case NAN   === $a: return 'NAN';
 
         case is_string($a):
             return $a === strtr($a, "\r\n\0", '---')
@@ -601,6 +600,7 @@ class Patchwork_PHP_Parser
             return 'unserialize(' . self::export(serialize($a)) . ')';
 
         case is_float($a):
+            if (is_nan($a)) return 'NAN';
             $b = sprintf('%.14F', $a);
             $a = sprintf('%.17F', $a);
             return rtrim((float) $b === (float) $a ? $b : $a, '.0');
