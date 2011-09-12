@@ -188,10 +188,12 @@ class Patchwork_PHP_Parser
         {
             // Re-insert characters removed by token_get_all() as T_BAD_CHARACTER tokens
 
-            $t0     = @token_get_all($code);
-            $t1     = array($t0[0]);
+            $i = error_reporting(81);
+            $t0 = token_get_all($code);
+            error_reporting($i);
+            $i = 0;
+            $t1 = array($t0[0]);
             $offset = strlen($t0[0][1]);
-            $i      = 0;
 
             while (isset($t0[++$i]))
             {
@@ -556,7 +558,6 @@ class Patchwork_PHP_Parser
         case null  === $a: return 'null';
         case  INF  === $a: return  'INF';
         case -INF  === $a: return '-INF';
-        case NAN   === $a: return 'NAN';
 
         case is_string($a):
             return $a === strtr($a, "\r\n\0", '---')
@@ -599,6 +600,7 @@ class Patchwork_PHP_Parser
             return 'unserialize(' . self::export(serialize($a)) . ')';
 
         case is_float($a):
+            if (is_nan($a)) return 'NAN';
             $b = sprintf('%.14F', $a);
             $a = sprintf('%.17F', $a);
             return rtrim((float) $b === (float) $a ? $b : $a, '.0');
