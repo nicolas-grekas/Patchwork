@@ -210,19 +210,37 @@ class Patchwork_PHP_Parser
         }
         else $t1 = token_get_all($code);
 
-        // Restore data after __halt_compiler()
-        // workaround http://bugs.php.net/54089 last comments
+        if (empty($t1)) return $t1;
 
+        // Restore data after __halt_compiler()
+        // workaround http://bugs.php.net/54089
+
+        static $halt_cutoff;
         $bin = end($t1);
 
-        if (isset($bin[1]) && T_HALT_COMPILER === $bin[0])
+        if (empty($halt_cutoff))
         {
-            $bin = 0;
-            foreach ($t1 as $t0) $bin += isset($t0[1]) ? strlen($t0[1]) : 1;
+            $halt_cutoff = token_get_all('<?php __halt_compiler();X');
+            $halt_cutoff = end($halt_cutoff);
+            $halt_cutoff = $halt_cutoff[0];
+        }
 
-            if (isset($code[$bin]))
+        switch (true)
+        {
+        case T_HALT_COMPILER === $halt_cutoff && T_HALT_COMPILER === $bin[0]:
+        case ';' === $halt_cutoff && (';' === $bin[0] || T_CLOSE_TAG === $bin[0]) && stripos($code, '__halt_compiler'):
+
+            if (!isset($offset) && !$offset = 0)
+                foreach ($t1 as $t0) $offset += isset($t0[1]) ? strlen($t0[1]) : 1;
+
+            if (!isset($code[$offset])) {}
+            else if (';' === $halt_cutoff)
             {
-                $code = $this->getTokens('<?php ' . substr($code, $bin));
+                $t1[] = array(T_HALT_COMPILER_DATA, substr($code, $offset));
+            }
+            else
+            {
+                $code = $this->getTokens('<?php ' . substr($code, $offset));
                 array_splice($code, 0, 1, $t1);
                 $t1 = $code;
             }
