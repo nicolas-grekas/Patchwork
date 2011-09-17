@@ -1074,13 +1074,14 @@ class Patchwork
 
             try
             {
+                ob_start();
                 new $agent instanceof \agent || W("Class {$agent} does not inherit from class agent");
             }
             catch (e\PrivateResource $d)
             {
                 $private = '1';
             }
-            catch (e\Redirection $d)
+            catch (\Exception $d)
             {
             }
 
@@ -1091,6 +1092,7 @@ class Patchwork
             fclose($h);
 
             self::$privateDetectionMode = false;
+            ob_end_clean();
 
             if ($private) $args[] = 'T$';
         }
