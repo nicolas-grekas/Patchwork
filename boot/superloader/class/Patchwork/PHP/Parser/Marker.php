@@ -63,13 +63,12 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionOverridin
                 $t =& $this->types;
                 end($t);
 
-                do switch (prev($t))
+                for (;;) switch (prev($t))
                 {
                 default: break 2;
                 case T_STRING: case T_NS_SEPARATOR:
                     continue 2;
                 }
-                while (1);
 
                 next($t);
                 $t =& $this->texts[key($t)];
@@ -172,14 +171,13 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionOverridin
         $c = strtolower(strtr(substr($this->nsResolved, 1), '\\', '_'));
         if (isset($this->inlineClass[$c])) return;
 
-        do switch (prev($t))
+        for (;;) switch (prev($t))
         {
         default: break 2;
         case '(': case ',': return; // To not break pass by ref, isset, unset and list
         case T_DEC: case T_INC: case T_STRING: case T_NS_SEPARATOR:
             continue 2;
         }
-        while (1);
 
         $c = $this->getMarker($c);
         $c = '&' === pos($t) ? "patchwork_autoload_marker({$c}," : "(({$c})?";

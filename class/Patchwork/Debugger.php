@@ -172,7 +172,7 @@ EOHTML;
 
                         self::parseLine($line, $next_line);
 
-                        while (1)
+                        for (;;)
                         {
                             if (false !== $line = reset(self::$buffer))
                             {

@@ -183,7 +183,7 @@ class agent_fckeditor_browser extends agent
             {
                 $i = 0;
 
-                do
+                for (;;)
                 {
                     $filepath = $path . $o->filename;
 
@@ -201,7 +201,6 @@ class agent_fckeditor_browser extends agent
                         break;
                     }
                 }
-                while (true);
             }
             else $o->number = 202;
         }

@@ -166,7 +166,7 @@ class Patchwork_Bootstrapper_Manager
 
     function getNextStep()
     {
-        while (1)
+        for (;;)
         {
             if ($this->substeps)
             {

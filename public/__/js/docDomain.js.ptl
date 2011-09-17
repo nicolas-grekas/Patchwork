@@ -25,7 +25,7 @@ document.domain = {$document_domain|js};
         w = window.opener || window.parent,
         i;
 
-    while (1)
+    for (;;)
     {
         try
         {

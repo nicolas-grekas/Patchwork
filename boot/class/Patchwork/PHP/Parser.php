@@ -342,7 +342,7 @@ class Patchwork_PHP_Parser
                 $t[2] = array($priType => $priType);
                 $callbacks = isset($reg[$priType]) ? $reg[$priType] : array();
 
-                do
+                for (;;)
                 {
                     $t[2][$k] = $k;
 
@@ -382,7 +382,6 @@ class Patchwork_PHP_Parser
 
                     break;
                 }
-                while (1);
             }
 
             // Commit to $this->texts

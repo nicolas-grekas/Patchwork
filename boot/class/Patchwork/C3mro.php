@@ -45,7 +45,7 @@ class Patchwork_C3mro
         $resultSeq = array();
         $parent = false;
 
-        while (1)
+        for (;;)
         {
             if (!$seqs) return $resultSeq;
 

@@ -10,11 +10,11 @@
  *   License, or (at your option) any later version.
  *
  ***************************************************************************}
-<script type="text/javascript">
+<script>
 
 D = document, d = D.domain, w = window.top.opener;
 
-while (1)
+for (;;)
 {
     try
     {
