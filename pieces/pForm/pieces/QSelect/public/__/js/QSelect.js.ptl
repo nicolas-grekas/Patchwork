@@ -11,12 +11,9 @@
  *
  ***************************************************************************/
 
-if (!window.QSelect)
-{
-
 <!-- AGENT 'js/accents' -->
 
-function $onfocus($this)
+var $onfocus = function($this)
 {
     this.$focus = 1;
 
@@ -24,9 +21,9 @@ function $onfocus($this)
     $this.$select.$QSelect = $this.$form.$QSelect = this.$QSelect;
     $this.$select.onchange = $this.$onchange;
     $this.$lastFocused = this;
-}
+};
 
-function $onblur($this)
+var $onblur = function($this)
 {
     this.$focus = 0;
 
@@ -39,9 +36,9 @@ function $onblur($this)
         if (!$this.$lastFocused) $this.$hide();
         $this.sync($this.$listedValue, 1);
     }, 1);
-}
+};
 
-function $onmouseup($e)
+var $onmouseup = function($e)
 {
     var $this = this.$QSelect;
 
@@ -51,9 +48,9 @@ function $onmouseup($e)
     {
         if ($this.$setValue()) $this.$hide();
     }, 1);
-}
+};
 
-function $onkeyup($e)
+var $onkeyup = function($e)
 {
     var $this = this.$QSelect,
         $keyupid = $this.$lastKeyupid, $i,
@@ -76,9 +73,9 @@ function $onkeyup($e)
 
         $this.$search($this.$value, $this.$onkeyup, $caretPos);
     }, 50);
-}
+};
 
-function $onkeydown($e)
+var $onkeydown = function($e)
 {
     var $this = this.$QSelect,
         $select = $this.$select;
@@ -110,12 +107,12 @@ function $onkeydown($e)
         if ('visible'==$this.$div.style.visibility)
         {
             $select.focus();
-            if (-1==$select.selectedIndex) setTimeout(function(){$select.selectedIndex = 0}, 1);
+            if (-1 == $select.selectedIndex) setTimeout(function() {$select.selectedIndex = 0}, 1);
         }
     }
-}
+};
 
-function $precheck()
+var $precheck = function()
 {
     var $this = this.$QSelect;
 
@@ -128,11 +125,11 @@ function $precheck()
     this.precheck = 0;
 
     return false;
-}
+};
 
-QSelectInit = window.QSelectInit || function ($input, $driver) {QSelect($input, $driver);}
+var QSelectInit = window.QSelectInit || function($input, $driver) {QSelect($input, $driver);}
 
-QSelect = (function()
+var QSelect = (function()
 {
 
 var $selectRange,
@@ -323,7 +320,7 @@ return function($input, $driver)
 }
 })();
 
-function QSelectSearch($data)
+var QSelectSearch = function($data)
 {
     if ($data && 0 == $data[$data.length-1] - 0) $data.length--;
 
@@ -370,8 +367,6 @@ function QSelectSearch($data)
             }
         };
     }
-}
+};
 
 QSelectSearch.limit = 15;
-
-}

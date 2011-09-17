@@ -35,7 +35,7 @@ function($string, $forceString)
 {
     $string = str($string);
 
-    return $forceString || (''+$string/1 != $string)
+    return $forceString || +$string + ''  != $string
         ? ("'" + $string.replace(
                 /&#039;/g, "'").replace(
                 /&quot;/g, '"').replace(
@@ -49,7 +49,7 @@ function($string, $forceString)
                 /<\//g, '<\\\/'
             ) + "'"
         )
-        : $string/1;
+        : +$string;
 }
 
 <?php   }

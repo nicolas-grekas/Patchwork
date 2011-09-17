@@ -14,19 +14,19 @@
 
 <!-- AGENT 'js/docDomain' -->
 
-$window = window;
-$parent = parent;
-$document = document;
+var $window = window,
+    $parent = parent,
+    $document = document;
 
 /* push */
 if (!([].push && [].push(0))) Array.prototype.push = function()
 {
-    var $this = this, $argv = $this.push.arguments, $i = 0;
+    var $this = this, $argv = arguments, $i = 0;
     for (; $i < $argv.length ; ++$i) $this[$this.length] = $argv[$i];
     return $this.length;
 }
 
-$decodeURIComponent = $window.decodeURIComponent || function($string)
+var $decodeURIComponent = $window.decodeURIComponent || function($string)
 {
     var $dec = [],
         $len = $string.length,
@@ -62,7 +62,7 @@ $decodeURIComponent = $window.decodeURIComponent || function($string)
     return $dec.join('');
 }
 
-$encodeURIComponent = $window.encodeURIComponent || function($string)
+var $encodeURIComponent = $window.encodeURIComponent || function($string)
 {
     var $c, $s, $i = 0, $enc = [], $preserved = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.!~*'()";
 
@@ -110,8 +110,8 @@ $encodeURIComponent = $window.encodeURIComponent || function($string)
     return $string.join('');
 }
 
-$glue = 'Z%Y';
-$name = $window.name.split($glue);
+var $glue = 'Z%Y';
+var $name = $window.name.split($glue);
 
 if (3 == $name.length && 'undefined' != typeof $window.q)
 {
@@ -123,13 +123,13 @@ else if ($parent && $parent.loadQJsrs)
     if (4 == $name.length)
     {
         $window.name = $decodeURIComponent($name[1]);
-        q = $decodeURIComponent($name[3]);
+        var q = $decodeURIComponent($name[3]);
     }
 
     if ('undefined' != typeof $window.q) $parent.loadQJsrs($window, q);
     else
     {
-        q = $parent.loadQJsrs($window).q;
+        var q = $parent.loadQJsrs($window).q;
 
         if (q && q.length)
         {

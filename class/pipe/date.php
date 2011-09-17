@@ -34,17 +34,17 @@ class pipe_date
     {
         ?>/*<script>*/
 
-function($time, $format)
+function php_date($time, $format)
 {
     if (t($format))
     {
         $format = str($format);
-        $time = t($time) ? $time-0||0 : null;
+        $time = t($time) ? +$time||0 : null;
     }
     else
     {
         $format = str($time);
-        $time = new Date()/1000;
+        $time = new Date/1000;
     }
 
     $time = new Date(1000*$time);
@@ -81,19 +81,19 @@ function($time, $format)
             B: function()
             {
                 // Internet Swatch Time 000 to 999
-                return (''+parseInt(((60*(60*($GMT[1]/1+1) + $GMT[2]/1) + $GMT[3]/1)%86400)/86.4+1000)).substr(1);
+                return (''+parseInt(((60*(60*(+$GMT[1]+1) + +$GMT[2]) + +$GMT[3])%86400)/86.4+1000)).substr(1);
             },
 
             c: function()
             {
                 // ISO 8601 date (Ex. 2004-02-12T15:19:21+00:00)
-                return arguments.callee($time/1000, 'Y-m-d\\TH:i:s') + $zone[2] + ':' + $zone[3];
+                return php_date($time/1000, 'Y-m-d\\TH:i:s') + $zone[2] + ':' + $zone[3];
             },
 
             d: function()
             {
                 // Day of the month, 2 digits with leading zeros 01 to 31
-                return $local[4] < 10 ? '0' + $local[4]/1 : $local[4];
+                return $local[4] < 10 ? '0' + +$local[4] : $local[4];
             },
 
             D: function()
@@ -117,7 +117,7 @@ function($time, $format)
             G: function()
             {
                 // 24-hour format of an hour without leading zeros 0 through 23
-                return $local[1]/1;
+                return +$local[1];
             },
 
             h: function()
@@ -141,13 +141,13 @@ function($time, $format)
             I: function()
             {
                 // Whether or not the date is in daylights savings time 1 if Daylight Savings Time, 0 otherwise.
-                return $time.getTimezoneOffset() == -60 * $zone[2] + $zone[3]/1 ? 0 : 1;
+                return $time.getTimezoneOffset() == -60 * $zone[2] + +$zone[3] ? 0 : 1;
             },
 
             j: function()
             {
                 // Day of the month without leading zeros 1 to 31
-                return $local[4]/1;
+                return +$local[4];
             },
 
             l: function()
@@ -189,7 +189,7 @@ function($time, $format)
             r: function()
             {
                 // RFC 2822 formatted date Example: Thu, 21 Dec 2000 16:01:07 +0200
-                return arguments.callee($time/1000, 'D, d M Y H:i:s O');
+                return php_date($time/1000, 'D, d M Y H:i:s O');
             },
 
             s: function()

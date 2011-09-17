@@ -81,4 +81,4 @@ E.hiddenList = {
 };
 
 E.buffer = [];
-E.lastTime = E.startTime = new Date/1;
+E.lastTime = E.startTime = +new Date;

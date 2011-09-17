@@ -29,9 +29,9 @@ class pipe_rgb
 
 function($r, $g, $b)
 {
-    $r = ($r/1 || 0).toString(16);
-    $g = ($g/1 || 0).toString(16);
-    $b = ($b/1 || 0).toString(16);
+    $r = (+$r || 0).toString(16);
+    $g = (+$g || 0).toString(16);
+    $b = (+$b || 0).toString(16);
 
     if ($r.length < 2) $r = '0' + $r;
     if ($g.length < 2) $g = '0' + $g;

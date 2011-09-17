@@ -29,11 +29,11 @@ function($string, $start, $length)
 {
     $string = str($string);
 
-    $start /= 1;
+    $start -= 0;
     if ($start < 0) $start += $string.length;
-    if ($start < 0) $start  = 0;
+    if ($start < 0) $start = 0;
 
-    $length = t($length) ? $length/1 : $string.length;
+    $length = t($length) ? +$length : $string.length;
     if ($length < 0) $length += $string.length - $start;
 
     return $string.substr($start, $length);

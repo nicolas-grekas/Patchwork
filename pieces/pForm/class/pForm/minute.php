@@ -23,7 +23,7 @@ class pForm_minute extends pForm_text
     protected function get()
     {
         $a = parent::get();
-        $a->onchange = "this.value=this.value/1||'';if(this.value<0||this.value>{$this->maxint})this.value=''";
+        $a->onchange = "this.value=+this.value||'';if(this.value<0||this.value>{$this->maxint})this.value=''";
         return $a;
     }
 }

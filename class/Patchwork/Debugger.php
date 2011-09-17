@@ -121,7 +121,7 @@ EOHTML;
 
         return <<<EOHTML
 <style>@media print { #debugWin {display:none;} }</style>
-<script>E('Rendering time: ' + (new Date/1 - E.startTime) + ' ms');</script>
+<script>E('Rendering time: ' + (+new Date - E.startTime) + ' ms');</script>
 <div id="debugWin">
 <input type="hidden" name="debugStore" id="debugStore" value="">
 <div style="position:fixed;_position:absolute;top:0;right:0;z-index:254;background-color:white;visibility:hidden;width:100%; height: 50%" id="debugFrame"><iframe src="{$debugWin}" style="width:100%;height:100%" name="debugFrame"></iframe></div>

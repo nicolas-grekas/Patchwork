@@ -32,7 +32,7 @@ function($min, $max)
 {
     if (!t($max)) $max = 32767;
 
-    $min = ($min-0) || 0;
+    $min = +$min || 0;
     $max -= 0;
 
     if ($min > $max)

@@ -11,7 +11,6 @@
  *
  ***************************************************************************/
 
-
 /*
 * eUC
 * dUC
@@ -46,8 +45,8 @@ function num($str, $weak)
         ? (
               t($str)
             ? (
-                  t($str, 'string') && ''+$str/1==$str
-                ? $str/1
+                  t($str, 'string') && +$str + ''==$str
+                ? +$str
                 : $str
             ) : ''
         ) : (parseFloat($str) || 0);
@@ -189,7 +188,7 @@ function resyncCSRF()
 
 resyncCSRF.$formsLength = 0;
 
-onDOMLoaded = [];
+var onDOMLoaded = [];
 onDOMLoaded.go = function($i, $pool)
 {
     $pool = onDOMLoaded;
@@ -230,7 +229,7 @@ else if (document.attachEvent)
     document.attachEvent('onreadystatechange', onDOMLoaded.go);
 }
 
-w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
+var w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 {
     $masterAppId /= 1;
 
@@ -267,10 +266,10 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
     }
     catch ($i) {}
 
-    $j = /(MSIE [0-5]|Firefox\/[456789])\./.test(navigator.userAgent) ? 0 : 1;
+    $j = /MSIE [0-5]\./.test(navigator.userAgent) ? 0 : 1;
     $i = location.host.match(/[^.]+\.[^\.0-9]+$/);
     $i = $i ? '.' + $i[0] : 0;
-    setcookie('JS', $j, new Date({$maxage+0|js}000+new Date()/1), '/', $i);
+    setcookie('JS', $j, new Date(+new Date + {$maxage+0|js}000), '/', $i);
     $startTime.test($document.cookie) || setcookie('JS', $j, 0, '/', $i);
 
     window.base = function($str, $noId, $master)
@@ -354,7 +353,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 
                     if ($base != g.__BASE__)
                     {
-                        $AppId = $id/1;
+                        $AppId = +$id;
 
                         $args.__DEBUG__    = g.__DEBUG__;
                         $args.__LANG__     = g.__LANG__;
@@ -482,7 +481,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
                     }
                     else if (1 != $meta)
                     {
-                        $AppId = $meta[0]/1;
+                        $AppId = +$meta[0];
 
                         $args.__DEBUG__    = g.__DEBUG__;
                         $args.__LANG__     = g.__LANG__;
@@ -556,7 +555,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
             function($code)
             {
                 var $i = $getNext($code);
-                ($i && (t($i, 'function') || ($i = y($i/1))) && $i()() && ++$pointer) || ($pointer += $code[$pointer]);
+                ($i && (t($i, 'function') || ($i = y(+$i))) && $i()() && ++$pointer) || ($pointer += $code[$pointer]);
                 $context = v;
             },
 
@@ -578,7 +577,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 
             if ($masterBase == g.__BASE__
                 && ($i = $document.cookie.match(/(^|; )v\$=([0-9]+)(; |$)/))
-                && ($i = $i[2]/1) != $masterAppId
+                && ($i = +$i[2]) != $masterAppId
             )
                 $masterAppId = $AppId = $localAppId = $i,
                 $code = [],
@@ -820,9 +819,8 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
         <!-- IF g$__DEBUG__ -->
         $loop.cloneForDebug = function()
         {
-            var $d = [], $e = 5;
+            var $d = [], $e = 5, $a = $loop();
 
-            $a = $loop();
             while ($a())
             {
                 if (!--$e)
@@ -865,7 +863,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
         $j = $global ? g : a;
 
         if (!t($j[$a])) $j[$a] = 0;
-        $i = $j[$a]/1 || 0;
+        $i = +$j[$a] || 0;
         $j[$a] += $b;
 
         return $i;
@@ -909,7 +907,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 
         w(
             0,
-              $j && $j[2]/1 != $masterAppId
+              $j && +$j[2] != $masterAppId
             ? [3, function() {w(w.r())}]
             : (
             /Safari/.test(navigator.userAgent)
@@ -927,6 +925,5 @@ function P$base($string, $noId)
 }
 
 document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/, '') + ' js';
-dUC = decodeURIComponent;
-eUC = encodeURIComponent;
+var dUC = decodeURIComponent, eUC = encodeURIComponent;
 window.a ? w(a[0], a[1], a[2], a[3], a[4]) : w();

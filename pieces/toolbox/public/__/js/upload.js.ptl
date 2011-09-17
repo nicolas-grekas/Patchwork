@@ -15,7 +15,7 @@ if (window.lF)
 {
     if (!window.pLuL)
     {
-        function loadUpload($form)
+        var loadUpload = function($form)
         {
             window.UPID = $form.UPLOAD_IDENTIFIER.value;
 
@@ -30,7 +30,7 @@ if (window.lF)
             );
         }
 
-        pLuL=[
+        window.pLuL = [
             'img/blank.gif',
             'img/upload/b.png',
             'img/upload/i.gif',
@@ -44,18 +44,16 @@ if (window.lF)
 }
 else
 {
-    var $sending, $progress, $remaining, $detail, $unitWidth, $maxWidth, $unitHtml, $liveAgent, $bytes_total;
+    var $Done = {"Téléchargement terminé !"|js}
+        $Minutes = {"minutes"|js},
+        $Minute = {"minute"|js},
+        $Secondes = {"secondes"|js},
+        $Seconde = {"seconde"|js},
+        $Remainings = {"restantes"|js},
+        $Remaining = {"restante"|js},
+        $At = {"à"|js};
 
-    $Done = {"Téléchargement terminé !"|js};
-    $Minutes = {"minutes"|js};
-    $Minute = {"minute"|js};
-    $Secondes = {"secondes"|js};
-    $Seconde = {"seconde"|js};
-    $Remainings = {"restantes"|js};
-    $Remaining = {"restante"|js};
-    $At = {"à"|js};
-
-    UPID = opener && opener.UPID;
+    var UPID = opener && opener.UPID;
 
     function $bytes($byte)
     {
@@ -111,17 +109,17 @@ else
         }
     }
 
-    $sending = document.getElementById('sending');
-    $progress = document.getElementById('progress');
-    $remaining = document.getElementById('remaining');
-    $detail = document.getElementById('detail');
+    var $sending = document.getElementById('sending'),
+        $progress = document.getElementById('progress'),
+        $remaining = document.getElementById('remaining'),
+        $detail = document.getElementById('detail'),
 
-    $unitWidth = document.getElementById('unit').offsetWidth;
-    $maxWidth  = $progress.offsetWidth;
-    $unitHtml = $progress.innerHTML;
+        $unitWidth = document.getElementById('unit').offsetWidth,
+        $maxWidth  = $progress.offsetWidth,
+        $unitHtml = $progress.innerHTML,
 
-    $liveAgent = new liveAgent('upload', 0, 1, 0, 1);
-    $bytes_total = 0;
+        $liveAgent = new liveAgent('upload', 0, 1, 0, 1),
+        $bytes_total = 0;
 
     if (window.ScriptEngine) document.getElementById('b').background = '';
 

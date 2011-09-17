@@ -30,10 +30,7 @@
 
 $window = window;
 
-if (!$window.QJsrs)
-{
-
-base = $window.base || function($str, $noId, $master)
+$window.base = $window.base || function($str, $noId, $master)
 {
     'undefined' != typeof $str || ($str = '');
 
@@ -54,8 +51,8 @@ base = $window.base || function($str, $noId, $master)
 function $emptyFunction() {};
 
 // Preload the XMLHttp object and detects browser capabilities.
-QJsrs = $window.ScriptEngineMajorVersion;
-if (QJsrs && QJsrs() >= 5) eval('try{QJsrs=new ActiveXObject("Microsoft.XMLHTTP")&&2}catch(e){QJsrs=1}');
+var QJsrs = $window.ScriptEngineMajorVersion;
+if (QJsrs && QJsrs() >= 5) try {QJsrs = new ActiveXObject("Microsoft.XMLHTTP") && 2;} catch (e) {QJsrs = 1;}
 else QJsrs = $window.XMLHttpRequest ? new XMLHttpRequest && 3 : 1;
 
 QJsrs = (function()
@@ -298,6 +295,4 @@ QJsrs.$withScript = function($url, $callback)
     $url = 0;
 
     return $script;
-}
-
 }

@@ -11,20 +11,17 @@
  *
  ***************************************************************************/
 
-if (!window.valid)
-{
-
-valid = function($element, $type, $args)
+function valid($element, $type, $args)
 {
     if ($element.disabled || $element.readOnly) return 1;
     if ('' == $element.value) return '';
 
     $args = [$args];
-    for (var i=3, $argv = valid.arguments; i<$argv.length; i++) $args[$args.length] = $argv[i];
+    for (var i=3, $argv = arguments; i<$argv.length; i++) $args[$args.length] = $argv[i];
     return window['valid_'+$type] ? window['valid_'+$type]($element.value, $args) : 1;
 }
 
-valid_int = function($value, $args)
+function valid_int($value, $args)
 {
     $value = $value.replace(/[,\. ']+/g, '');
     if (!/^\s*[+-]?[0-9]+\s*$/.test($value)) return false;
@@ -35,7 +32,7 @@ valid_int = function($value, $args)
     return true;
 }
 
-valid_float = function($value, $args)
+function valid_float($value, $args)
 {
     $value = $value.replace(/ '/g, '').replace(/,/g, '.');
     $value = parseFloat($value);
@@ -46,14 +43,14 @@ valid_float = function($value, $args)
     return true;
 }
 
-valid_char = function($value, $args)
+function valid_char($value, $args)
 {
     $value = (' '+$value+' ').replace(/[ \t\r\n]+/g, ' ');
     $value = $value.substr(1, $value.length - 2);
     return valid_text($value, $args);
 }
 
-valid_text = function($value, $args)
+function valid_text($value, $args)
 {
     $value = $value.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/g, '');
 
@@ -67,22 +64,22 @@ valid_text = function($value, $args)
     return true;
 }
 
-valid_email = function ($value, $args)
+function valid_email($value, $args)
 {
     if (/^\s*$/.test($value)) return true;
     $value = $value.toLowerCase();
     return /^\s*[-!#-&*+\/-9=?A-Z^-~]+(\.[-!#-&*+\/-9=?A-Z^-~]+)*@[-a-zA-Z0-9]+(\.[-a-zA-Z0-9]+)*\s*$/.test($value) ? $value : false;
 }
 
-valid_phone = function($value, $args)
+function valid_phone($value, $args)
 {
     $value = $value.replace(/[^+0-9]+/g, '').replace(/^00/, '+');
     return /^\+?[0-9]{4,}$/.test($value) && (!$args[0] || $value.indexOf('+')==0);
 }
 
-valid_date = function($value, $args)
+function valid_date($value, $args)
 {
-    var Y = new Date();
+    var Y = new Date;
     Y = Y.getFullYear();
 
     $value = $value.replace(/^[^0-9]+/, '');
@@ -97,7 +94,7 @@ valid_date = function($value, $args)
             $value = [
                 $value.substr(0, 2),
                 $value.substr(2, 2),
-                ($value.substr(4)-0) || Y
+                +$value.substr(4) || Y
             ];
         }
         else $value = '';
@@ -168,14 +165,13 @@ function setSel($input, $selectionStart, $selectionEnd)
 * Form's control extension
 */
 
-IgCS = document.createElement('input');
-pForm_is_available = {
+var IgCS = document.createElement('input'), pForm_is_available = {
     placeholder: 'placeholder' in IgCS,
     required   : 'required'    in IgCS,
     autofocus  : 'autofocus'   in IgCS
-}
+};
 
-getCheckStatus = IgCS = function()
+var getCheckStatus = IgCS = function()
 {
     var $this = this,
         $i = 0,
@@ -192,18 +188,18 @@ getCheckStatus = IgCS = function()
     }
 
     return ($i && $disabledCounter == $this.length) ? 1 : '';
-}
+};
 
-getSelectStatus = IgSS = function()
+var IgSS, getSelectStatus = IgSS = function()
 {
     var $this = this;
     return ($this.disabled || $this.readOnly
         || !$this.options.length
         || ($this.selectedIndex >= 0 && (''+$this.options[$this.selectedIndex].value).length)
     ) ? 1 : '';
-}
+};
 
-checkElementStatus = IcES = function($msgs, $form, $preserveScroll)
+var IcES, checkElementStatus = IcES = function($msgs, $form, $preserveScroll)
 {
     var $i = 1, $element, $status, $onempty, $onerror;
 
@@ -275,9 +271,9 @@ checkElementStatus = IcES = function($msgs, $form, $preserveScroll)
     }
 
     return $form = $preserveScroll = true;
-}
+};
 
-labelClick = IlC = function($elt)
+var IlC, labelClick = IlC = function($elt)
 {
     $elt = document.getElementById($elt.htmlFor);
 
@@ -290,10 +286,10 @@ labelClick = IlC = function($elt)
 
     $elt && !$elt.disabled && !$elt.readOnly && $elt.focus();
     return false;
-}
+};
 
-lastCheckbox = 0;
-checkboxClick = IcbC = function($event, $elt)
+var lastCheckbox = 0;
+var IcbC, checkboxClick = IcbC = function($event, $elt)
 {
     $event = $event || event;
 
@@ -334,9 +330,9 @@ checkboxClick = IcbC = function($event, $elt)
     }
 
     if ($elt) return false;
-}
+};
 
-formStack = [];
+var formStack = [];
 
 function gLE($name, $multiple, $stack)
 {
@@ -618,5 +614,3 @@ onDOMLoaded.push(function()
     $win.scrollCntrl = function() {};
     $win = $forms = $form = $elt = 0;
 });
-
-}

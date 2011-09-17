@@ -48,7 +48,7 @@ function($format)
         else if ($type)
         {
             var $base = 0,
-                $param = str($args[ $match[4] ? $match[5]-0 : ++$idCounter ]),
+                $param = str($args[ $match[4] ? +$match[5] : ++$idCounter ]),
                 $iParam = parseInt($param) || 0;
 
             switch ($type)
@@ -64,7 +64,7 @@ function($format)
                     $match[11] = 5;
                 case 'f':
                 case 'F':
-                    $base = $match[11] ? $match[11]-0 : 6;
+                    $base = $match[11] ? +$match[11] : 6;
                     $param = $Math.round($param * $Math.pow(10, $base)) || (''+$Math.pow(10, $base+1)).substr(1);
                     $param = '' + $param;
                     if ($base) $base = $param.length - $base, $param = ($param.substr(0, $base)||0) + '.' + $param.substr($base);

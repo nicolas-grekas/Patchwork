@@ -61,7 +61,7 @@ function($format)
             if (1 == $m1.length % 2)
             {
                 $m1 = $m1.substr(1);
-                $m2 = '' != $m2 ? str($args[$m2-0+1]) : '%';
+                $m2 = '' != $m2 ? str($args[+$m2+1]) : '%';
             }
 
             return $m1.substr(0, $m1.length>>1) + $m2;
