@@ -184,14 +184,15 @@ class Patchwork_PHP_Parser
                     if ($bin = true) break;
         }
 
+        $i = error_reporting(81);
+        $t1 = token_get_all($code);
+        error_reporting($i);
+
         if ($bin)
         {
             // Re-insert characters removed by token_get_all() as T_BAD_CHARACTER tokens
-
-            $i = error_reporting(81);
-            $t0 = token_get_all($code);
-            error_reporting($i);
             $i = 0;
+            $t0 = $t1;
             $t1 = array($t0[0]);
             $offset = strlen($t0[0][1]);
 
@@ -208,7 +209,6 @@ class Patchwork_PHP_Parser
                 unset($t0[$i]);
             }
         }
-        else $t1 = token_get_all($code);
 
         // Restore data after __halt_compiler()
         // workaround http://bugs.php.net/54089 last comments
