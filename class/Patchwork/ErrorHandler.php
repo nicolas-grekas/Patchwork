@@ -34,13 +34,6 @@ class ErrorHandler extends PHP\ErrorHandler
         return (bool) (error_reporting() & $type);
     }
 
-    function handleLastError($e)
-    {
-        // These have already been caught by patchwork's error voicer
-        if (/*<*/E_PARSE | E_CORE_WARNING | E_COMPILE_WARNING/*>*/ & $e['type']) return;
-        parent::handleLastError($e);
-    }
-
     function getLogger()
     {
         if (isset($this->logger)) return $this->logger;
