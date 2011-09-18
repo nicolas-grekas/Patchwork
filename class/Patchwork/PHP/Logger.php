@@ -150,7 +150,7 @@ class Logger
         $d = new JsonDumper;
         $d->setCallback('line', array($this, 'writeLine'));
         $d->setCallback('o:exception', array($this, 'castException'));
-        $d->dumpLines($data);
+        $d->walk($data);
 
         fprintf($this->logStream, $this->lineFormat, '***');
     }

@@ -184,14 +184,15 @@ class Patchwork_PHP_Parser
                     if ($bin = true) break;
         }
 
+        $i = error_reporting(81);
+        $t1 = token_get_all($code);
+        error_reporting($i);
+
         if ($bin)
         {
             // Re-insert characters removed by token_get_all() as T_BAD_CHARACTER tokens
-
-            $i = error_reporting(81);
-            $t0 = token_get_all($code);
-            error_reporting($i);
             $i = 0;
+            $t0 = $t1;
             $t1 = array($t0[0]);
             $offset = strlen($t0[0][1]);
 
@@ -208,7 +209,6 @@ class Patchwork_PHP_Parser
                 unset($t0[$i]);
             }
         }
-        else $t1 = token_get_all($code);
 
         if (empty($t1)) return $t1;
 
@@ -575,7 +575,6 @@ class Patchwork_PHP_Parser
         case null  === $a: return 'null';
         case  INF  === $a: return  'INF';
         case -INF  === $a: return '-INF';
-        case NAN   === $a: return 'NAN';
 
         case is_string($a):
             return $a === strtr($a, "\r\n\0", '---')
@@ -618,6 +617,7 @@ class Patchwork_PHP_Parser
             return 'unserialize(' . self::export(serialize($a)) . ')';
 
         case is_float($a):
+            if (is_nan($a)) return 'NAN';
             $b = sprintf('%.14F', $a);
             $a = sprintf('%.17F', $a);
             return rtrim((float) $b === (float) $a ? $b : $a, '.0');

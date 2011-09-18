@@ -28,14 +28,15 @@ class Patchwork_PHP_Parser_ErrorVoicer extends Patchwork_PHP_Parser
 
     protected function tagVoices(&$token)
     {
+        $e = T_EVAL === $token[0];
         $this->unregister($this->callbacks);
         $this->register($this->bracketCallbacks);
         $token[1] = (T_NS_SEPARATOR > 0 ? '\\' : '')
             . 'patchwork_error_voicer(error_reporting(error_reporting()&'
-            . ~(E_PARSE | E_CORE_WARNING | E_COMPILE_WARNING) . '|'
-            . (E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR)
+            . ~(($e ? E_PARSE : 0) | E_CORE_WARNING | E_COMPILE_WARNING) . '|'
+            .  (($e ? 0 : E_PARSE) | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR)
             . '),' . $token[1];
-        $this->level = T_EVAL === $token[0] ? 0 : -1;
+        $this->level = $e ? 0 : -1;
     }
 
     protected function incLevel(&$token)

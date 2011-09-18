@@ -32,6 +32,8 @@ class Logger extends PHP\Logger
         if ($this->isFirstEvent)
         {
             // http://bugs.php.net/42098 workaround
+            class_exists('Patchwork\PHP\Walker') || __autoload('Patchwork\PHP\Walker');
+            class_exists('Patchwork\PHP\Dumper') || __autoload('Patchwork\PHP\Dumper');
             class_exists('Patchwork\PHP\JsonDumper') || __autoload('Patchwork\PHP\JsonDumper');
 
             $data['patchwork'] = array(

@@ -13,99 +13,80 @@
 
 namespace Patchwork\PHP;
 
-class JsonDumper
+class JsonDumper extends Dumper
 {
     public
 
-    $arrayDecycle = true,
-    $maxData   = 100000,
-    $maxLength = 1000,
-    $maxDepth  = 10;
+    $maxString = 100000;
 
     protected
 
-    $token,
-    $depth,
-    $refId,
+    $line = '',
     $lines = array(),
-    $cycles = array(),
-    $resStack = array(),
-    $arrayStack = array(),
-    $objectStack = array(),
-    $reserved = array('_' => 1, '__maxLength' => 1, '__maxDepth' => 1, '__proto__' => 1, '__cyclicRefs' => 1),
-    $callbacks = array(
-        'line' => array(__CLASS__, 'echoLine'),
-        'o:closure' => array(__CLASS__, 'castClosure'),
-        'r:stream' => 'stream_get_meta_data',
-        'r:process' => 'proc_get_status',
-    );
+    $hashCounter;
 
 
     static function dump(&$a)
     {
         $d = new self;
-        $d->dumpLines($a);
+        $d->setCallback('line', array($d, 'echoLine'));
+        $d->walk($a);
     }
 
-    static function get(&$a)
+    static function get($a)
     {
         $d = new self;
-        $d->setCallback('line', array($d, 'pushLine'));
-        $d->dumpLines($a);
+        $d->setCallback('line', array($d, 'stackLine'));
+        $d->walk($a);
         return implode("\n", $d->lines);
     }
 
-    function dumpLines(&$a)
+
+    function walk(&$a)
     {
-        $this->token = "\x9D" . md5(mt_rand(), true);
-        $this->refId = $this->depth = 0;
-
-        $line = '';
-        $this->refDump($line, $a);
-        '' !== $line && call_user_func($this->callbacks['line'], $line, $this->depth);
-
-        foreach ($this->arrayStack as &$a) unset($a[$this->token]);
-
-        $this->cycles = $this->resStack = $this->arrayStack = $this->objectStack = array();
+        $this->line = '';
+        parent::walk($a);
+        '' !== $this->line && $this->dumpLine(0);
     }
 
-    function setCallback($type, $callback)
+    protected function dumpLine($depth_offset)
     {
-        $this->callbacks[strtolower($type)] = $callback;
+        call_user_func($this->callbacks['line'], $this->line, $this->depth + $depth_offset);
+        $this->line = '';
     }
 
-    protected function refDump(&$line, &$a)
+    protected function dumpRef($is_soft)
+    {
+        $this->line .= $is_soft ? '"r`"' : '"R`"';
+    }
+
+    protected function dumpScalar($a)
     {
         switch (true)
         {
-        case null === $a: $line .= 'null'; return;
-        case true === $a: $line .= 'true'; return;
-        case false === $a: $line .= 'false'; return;
-        case NAN === $a: $line .= '"f`NAN"'; return;
-        case INF === $a: $line .= '"f`INF"'; return;
-        case -INF === $a: $line .= '"f`-INF"'; return;
-
-        case is_array($a): $this->dumpArray($line, $a); return;
-        case is_string($a): $this->dumpString($line, $a); return;
-        case is_object($a): $this->dumpObject($line, $a); return;
-        case is_resource($a): $this->dumpResource($line, $a); return;
-
-        // float and integer
-        default: $line .= (string) $a;
+        case null === $a: $this->line .= 'null'; break;
+        case true === $a: $this->line .= 'true'; break;
+        case false === $a: $this->line .= 'false'; break;
+        case INF === $a: $this->line .= '"f`INF"'; break;
+        case -INF === $a: $this->line .= '"f`-INF"'; break;
+        case is_nan($a): $this->line .= '"f`NAN"'; break;
+        default: $this->line .= (string) $a; break;
         }
     }
 
-    protected function dumpString(&$line, $a)
+    protected function dumpString($a, $is_key = '')
     {
-        if ('' === $a) return $line .= '""';
+        if ($is_key) $this->dumpLine(-($this->hashCounter === $this->counter), $this->line .= ',');
+
+        if ('' === $a) return $this->line .= '""' . $is_key;
 
         if (!preg_match("''u", $a)) $a = 'b`' . utf8_encode($a);
         else if (false !== strpos($a, '`')) $a = 'u`' . $a;
 
-        if (0 < $this->maxData && $this->maxData < $len = iconv_strlen($a, 'UTF-8') - 1)
-            $a = $len . ('`' !== substr($a, 1, 1) ? 'u`' : '') . substr($a, 0, $this->maxData + 1);
+        if (0 < $this->maxString && $this->maxString < $len = iconv_strlen($a, 'UTF-8') - 1)
+            $a = $len . ('`' !== substr($a, 1, 1) ? 'u`' : '') . substr($a, 0, $this->maxString + 1);
 
-        $line .= '"' . str_replace(
+        $this->line .= '"' . str_replace(
             array(
                   '\\', '"', '</',
                   "\x00",  "\x01",  "\x02",  "\x03",  "\x04",  "\x05",  "\x06",  "\x07",
@@ -121,165 +102,38 @@ class JsonDumper
                 '\u0018','\u0019','\u001A','\u001B','\u001C','\u001D','\u001E','\u001F',
             ),
             $a
-        ) . '"';
+        ) . '"' . $is_key;
     }
 
-    protected function dumpArray(&$line, &$a)
+    protected function walkHash($type, &$a)
     {
-        if (empty($a)) return $line .= '[]';
-
-        if ($this->arrayDecycle)
-        {
-            if (empty($a[$this->token]))
-            {
-                $new = true;
-                $a[$this->token] = ++$this->refId;
-                $this->arrayStack[] =& $a;
-            }
-            else $this->cycles[$a[$this->token]] = 1;
-
-            $line .= '{"_":"array:' . $a[$this->token] . ':len:' . (count($a) - 1);
-
-            if (empty($new)) return $line .= ':"}';
-        }
-        else $line .= '{"_":"array::len:' . count($a);
-
-        $this->dumpMap($line, $a, false);
-    }
-
-    protected function dumpObject(&$line, $a)
-    {
-        $h = spl_object_hash($a);
-        $c = get_class($a);
-
-        if (empty($this->objectStack[$h]))
-        {
-            $new = true;
-            $this->objectStack[$h] = ++$this->refId;
-        }
-        else $this->cycles[$this->objectStack[$h]] = 1;
-
-        $line .= '{"_":"' . str_replace('\\', '\\\\', $c) . ':' . $this->objectStack[$h];
-
-        if (isset($new))
-        {
-            $h = null;
-            $c = array($c => $c) + class_parents($a) + class_implements($a) + array('*' => '*');
-
-            foreach ($c as $c)
-            {
-                if (isset($this->callbacks[$c = 'o:' . strtolower($c)]))
-                {
-                    $c = $this->callbacks[$c];
-                    if (false !== $c) $h = call_user_func($c, $a);
-                    else $h = false;
-                    break;
-                }
-            }
-
-            if (null === $h) $h = (array) $a;
-            if (false === $h) $line .= '", "__maxDepth": -1}';
-            else $this->dumpMap($line, $h, true);
-        }
-        else $line .= ':"}';
-    }
-
-    protected function dumpResource(&$line, $a)
-    {
-        $ref =& $this->resStack[(int) substr((string) $a, 13)];
-        $type = get_resource_type($a);
-
-        if (empty($ref))
-        {
-            $ref = ++$this->refId;
-            $line .= "{\"_\":\"resource:{$type}:{$ref}";
-
-            if (isset($this->callbacks[$type = 'r:' . strtolower($type)]))
-            {
-                $type = call_user_func($this->callbacks[$type], $a);
-                $this->dumpMap($line, $type, false);
-            }
-            else $line .= '"}';
-        }
+        if ('array:0' === $type) $this->line .= '[]';
         else
         {
-            $this->cycles[$ref] = 1;
-            $line .= "{\"_\":\"resource:{$type}:{$ref}:\"}";
+            $this->line .= '{"_":';
+            $this->hashCounter = $this->counter;
+            $this->dumpString($this->counter . ':' . $type);
+
+            if ($type = parent::walkHash($type, $a))
+            {
+                $this->line .= ', "__refs": {';
+                foreach ($type as $k => &$a) $a = '"' . $k . '":[' . implode(',', $a) . ']';
+                $this->line .= implode(',', $type) . '}';
+            }
+
+            if ($this->counter !== $this->hashCounter) $this->dumpLine(1);
+
+            $this->line .= '}';
         }
     }
 
-    protected function dumpMap(&$line, array &$a, $is_object)
-    {
-        if (!$a) return $line .= '"}';
-
-        $len = count($a);
-        isset($a[$this->token]) && --$len;
-        $line .= '"';
-
-        if ($this->depth === $this->maxDepth && 0 < $this->maxDepth)
-            return $line .= ', "__maxDepth": ' . $len . '}';
-
-        $i = 0;
-
-        foreach ($a as $k => &$v)
-        {
-            if ($this->token === $k) continue;
-
-            call_user_func($this->callbacks['line'], $line . ',', $this->depth);
-            if (0 === $i) ++$this->depth;
-            $line = '';
-
-            if ($i === $this->maxLength && 0 < $this->maxLength) break;
-
-            if ($is_object && isset($k[0]) && "\0" === $k[0]) $k = implode(':', explode("\0", substr($k, 1), 2));
-            else if (isset($this->reserved[$k]) || false !== strpos($k, ':')) $k = ':' . $k;
-
-            $this->dumpString($line, $k);
-            $line .= ': ';
-
-            $this->refDump($line, $v);
-            ++$i;
-        }
-
-        if ($i && $len -= $i) $line .= '"__maxLength": ' . $len;
-        if (1 === $this->depth && $this->cycles) $line .= ', "__cyclicRefs": "#' . implode('#', array_keys($this->cycles)) . '#"';
-        call_user_func($this->callbacks['line'], $line, $this->depth);
-        $i && --$this->depth;
-        $line = '}';
-    }
-
-    static function castClosure($c)
-    {
-        $a = array();
-        if (!class_exists('ReflectionFunction', false)) return $a;
-        $c = new \ReflectionFunction($c);
-        $c->returnsReference() && $a[] = '&';
-
-        foreach ($c->getParameters() as $p)
-        {
-            $n = ($p->isPassedByReference() ? '&$' : '$') . $p->getName();
-
-            if ($p->isDefaultValueAvailable()) $a[$n] = $p->getDefaultValue();
-            else $a[] = $n;
-        }
-
-        $a['use'] = array();
-
-        if (false === $a['file'] = $c->getFileName()) unset($a['file']);
-        else $a['lines'] = $c->getStartLine() . '-' . $c->getEndLine();
-
-        if (!$c = $c->getStaticVariables()) unset($a['use']);
-        else foreach ($c as $p => &$c) $a['use']['$' . $p] =& $c;
-
-        return $a;
-    }
 
     static function echoLine($line, $depth)
     {
         echo str_repeat('  ', $depth), $line, "\n";
     }
 
-    protected function pushLine($line, $depth)
+    protected function stackLine($line, $depth)
     {
         $this->lines[] = str_repeat('  ', $depth) . $line;
     }

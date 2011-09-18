@@ -20,7 +20,7 @@ class ErrorHandler extends PHP\ErrorHandler
 {
     public $scream = /*<*/DEBUG ? -1 : 0/*>*/;
 
-    function handleError($type, $message, $file, $line, $context, $trace_offset = 0, $log_time = 0)
+    function handleError($type, $message, $file, $line, $scope, $trace_offset = 0, $log_time = 0)
     {
         // Silence strict and deprecated notices for classes and files coming from include_path
         if (/*<*/(E_NOTICE | E_STRICT | E_DEPRECATED | E_USER_DEPRECATED)/*>*/ & $type)
@@ -28,17 +28,10 @@ class ErrorHandler extends PHP\ErrorHandler
                 $e = error_reporting(81);
 
         0 <= $trace_offset && ++$trace_offset;
-        parent::handleError($type, $message, $file, $line, $context, $trace_offset, $log_time);
+        parent::handleError($type, $message, $file, $line, $scope, $trace_offset, $log_time);
         empty($e) || error_reporting($e);
 
         return (bool) (error_reporting() & $type);
-    }
-
-    function handleLastError($e)
-    {
-        // These have already been caught by patchwork's error voicer
-        if (/*<*/E_PARSE | E_CORE_WARNING | E_COMPILE_WARNING/*>*/ & $e['type']) return;
-        parent::handleLastError($e);
     }
 
     function getLogger()

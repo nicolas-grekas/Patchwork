@@ -113,8 +113,8 @@ function patchwork_include_voicer()
         return patchwork_error_voicer(
             error_reporting(
                 error_reporting()
-                & /*<*/~(E_PARSE | E_CORE_WARNING | E_COMPILE_WARNING)/*>*/
-                | /*<*/(E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR)/*>*/
+                & /*<*/~(E_CORE_WARNING | E_COMPILE_WARNING)/*>*/
+                | /*<*/(E_PARSE | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR)/*>*/
             ),
             include func_get_arg(0)
         );
@@ -128,19 +128,25 @@ function patchwork_include_voicer()
 
 function patchwork_error_voicer($e, $r)
 {
-    error_reporting($e);
+    $p = error_get_last();
 
-    if (false === $r)
+    if (null !== $p && /*<*/E_PARSE | E_CORE_WARNING | E_COMPILE_WARNING/*>*/ & $p['type'])
     {
-        $h = set_error_handler('var_dump');
+        $h = set_error_handler('patchwork_false_voicer');
+        error_reporting(0);
+        user_error('erase last error', /*<*/E_USER_NOTICE/*>*/);
+        error_reporting($e);
         restore_error_handler();
-        null !== $h
-            && (null ==! $e = error_get_last())
-            && /*<*/E_PARSE | E_CORE_WARNING | E_COMPILE_WARNING/*>*/ & $e['type']
-            && call_user_func_array($h, $e + array(null, 2));
+        if (null !== $h) call_user_func_array($h, $p + array(null, 2));
     }
+    else error_reporting($e);
 
     return $r;
+}
+
+function patchwork_false_voicer()
+{
+    return false;
 }
 
 

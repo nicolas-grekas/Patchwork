@@ -25,7 +25,8 @@ class ErrorHandler
     protected
 
     $logger,
-    $loggedTraces = array();
+    $loggedTraces = array(),
+    $registeredErrors = 0;
 
     protected static
 
@@ -108,6 +109,7 @@ class ErrorHandler
 
     function register($error_types = -1)
     {
+        $this->registeredErrors = $error_types;
         set_exception_handler(array($this, 'handleException'));
         set_error_handler(array($this, 'handleError'), $error_types);
         self::$handlers[] = $this;
@@ -126,6 +128,7 @@ class ErrorHandler
             array_pop(self::$handlers);
             restore_error_handler();
             restore_exception_handler();
+            $this->registeredErrors = 0;
         }
         else user_error('Failed to unregister: the current error or exception handler is not me', E_USER_WARNING);
 
