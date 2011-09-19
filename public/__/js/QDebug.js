@@ -21,7 +21,7 @@ function E(data)
 
 E.clone = function(data)
 {
-    if (typeof data.cloneForDebug === 'function')
+    if (data && typeof data.cloneForDebug === 'function')
     {
         return data.cloneForDebug();
     }

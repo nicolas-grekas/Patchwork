@@ -609,11 +609,13 @@ var w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
         });
         <!-- END:IF -->
 
-        function $getNext($code, $a)
+        function $getNext($code)
         {
-            $a = $code[$pointer++];
+            ''.in; // I don't know why, but without this, Firefox' JIT breaks the code
 
-            return 'function' == typeof $a ? $a(a, d, v, g, z, g.__BASE__) : $a;
+            $code = $code[$pointer++];
+
+            return typeof $code == 'function' ? $code(a, d, v, g, z, g.__BASE__) : $code;
         }
 
         $WexecStack[++$WexecLast] = function()
