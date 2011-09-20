@@ -283,7 +283,7 @@ class Patchwork_Autoloader
                         $marker = "isset(\$c\x9D['{$lc_req}'])||{$marker}";
                         $code = ".class_{$cache}.zcache.php";
                         $code = addslashes(PATCHWORK_PROJECT_PATH . $code);
-                        $code = "isset(\$c\x9D['{$lc_req}'])||patchwork_include_voicer('{$code}',error_reporting())||1";
+                        $code = "isset(\$c\x9D['{$lc_req}'])||patchwork_include_voicer('{$code}',null)||1";
                     }
                     else
                     {

@@ -106,47 +106,22 @@ function patchwork_shutdown_destruct()
 
 function &patchwork_autoload_marker($marker, &$ref) {return $ref;}
 
-function patchwork_include_voicer()
+function patchwork_include_voicer($file, $voices)
 {
+    if (null === $voices) return include $file;
+
     try
     {
-        return patchwork_error_voicer(
-            error_reporting(
-                error_reporting()
-                & /*<*/~(E_CORE_WARNING | E_COMPILE_WARNING)/*>*/
-                | /*<*/(E_PARSE | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR)/*>*/
-            ),
-            include func_get_arg(0)
-        );
+        error_reporting($voices | /*<*/(E_PARSE | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR)/*>*/);
+        $file = include $file;
+        error_reporting($voices);
+        return $file;
     }
     catch (Exception $e)
     {
-        error_reporting(func_get_arg(1));
+        error_reporting($voices);
         throw $e;
     }
-}
-
-function patchwork_error_voicer($e, $r)
-{
-    $p = error_get_last();
-
-    if (null !== $p && /*<*/E_PARSE | E_CORE_WARNING | E_COMPILE_WARNING/*>*/ & $p['type'])
-    {
-        $h = set_error_handler('patchwork_false_voicer');
-        error_reporting(0);
-        user_error('erase last error', /*<*/E_USER_NOTICE/*>*/);
-        error_reporting($e);
-        restore_error_handler();
-        if (null !== $h) call_user_func_array($h, $p + array(null, 2));
-    }
-    else error_reporting($e);
-
-    return $r;
-}
-
-function patchwork_false_voicer()
-{
-    return false;
 }
 
 
@@ -389,7 +364,7 @@ function patchwork_autoload($class)
 
         if (file_exists($a))
         {
-            patchwork_include_voicer($a, error_reporting());
+            patchwork_include_voicer($a, null);
 
             if (patchwork_is_loaded($class)) return;
         }
