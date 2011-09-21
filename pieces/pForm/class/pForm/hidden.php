@@ -75,6 +75,8 @@ class pForm_hidden extends loop_agentWrapper
 
     function setValue($value)
     {
+        true === $value && $value = 1;
+        false === $value && $value = 0;
         $this->value = $value;
     }
 
