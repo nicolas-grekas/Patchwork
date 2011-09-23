@@ -16,25 +16,25 @@
 
 /**/if (PHP_VERSION_ID < 50300)
 /**/{
-/**/    /*<*/boot::$manager->override('class_implements',        ':Class:', array('$class', '$autoload' => true))/*>*/;
-/**/    /*<*/boot::$manager->override('class_parents',           ':Class:', array('$class', '$autoload' => true))/*>*/;
-/**/    /*<*/boot::$manager->override('class_exists',            ':Class:', array('$class', '$autoload' => true))/*>*/;
-/**/    /*<*/boot::$manager->override('get_class_methods',       ':Class:', array('$class'))/*>*/;
-/**/    /*<*/boot::$manager->override('get_class_vars',          ':Class:', array('$class'))/*>*/;
-/**/    /*<*/boot::$manager->override('get_class',               ':Class:', array('$obj'))/*>*/;
-/**/    /*<*/boot::$manager->override('get_declared_classes',    ':Class:', array())/*>*/;
-/**/    /*<*/boot::$manager->override('get_declared_interfaces', ':Class:', array())/*>*/;
-/**/    /*<*/boot::$manager->override('get_parent_class',        ':Class:', array('$class'))/*>*/;
-/**/    /*<*/boot::$manager->override('interface_exists',        ':Class:', array('$class', '$autoload' => true))/*>*/;
-/**/    /*<*/boot::$manager->override('is_a',                    ':Class:', array('$obj', '$class'))/*>*/;
-/**/    /*<*/boot::$manager->override('is_subclass_of',          ':Class:', array('$obj', '$class'))/*>*/;
-/**/    /*<*/boot::$manager->override('method_exists',           ':Class:', array('$class', '$method'))/*>*/;
-/**/    /*<*/boot::$manager->override('property_exists',         ':Class:', array('$class', '$property'))/*>*/;
+/**/    /*<*/boot::$manager->override('class_implements',        ':530:', array('$class', '$autoload' => true))/*>*/;
+/**/    /*<*/boot::$manager->override('class_parents',           ':530:', array('$class', '$autoload' => true))/*>*/;
+/**/    /*<*/boot::$manager->override('class_exists',            ':530:', array('$class', '$autoload' => true))/*>*/;
+/**/    /*<*/boot::$manager->override('get_class_methods',       ':530:', array('$class'))/*>*/;
+/**/    /*<*/boot::$manager->override('get_class_vars',          ':530:', array('$class'))/*>*/;
+/**/    /*<*/boot::$manager->override('get_class',               ':530:', array('$obj'))/*>*/;
+/**/    /*<*/boot::$manager->override('get_declared_classes',    ':530:', array())/*>*/;
+/**/    /*<*/boot::$manager->override('get_declared_interfaces', ':530:', array())/*>*/;
+/**/    /*<*/boot::$manager->override('get_parent_class',        ':530:', array('$class'))/*>*/;
+/**/    /*<*/boot::$manager->override('interface_exists',        ':530:', array('$class', '$autoload' => true))/*>*/;
+/**/    /*<*/boot::$manager->override('is_a',                    ':530:', array('$obj', '$class', '$allow_string' => false))/*>*/;
+/**/    /*<*/boot::$manager->override('is_subclass_of',          ':530:', array('$obj', '$class', '$allow_string' => true))/*>*/;
+/**/    /*<*/boot::$manager->override('method_exists',           ':530:', array('$class', '$method'))/*>*/;
+/**/    /*<*/boot::$manager->override('property_exists',         ':530:', array('$class', '$property'))/*>*/;
 /**/}
-
-/**/if (!function_exists('spl_object_hash'))
+/**/else if (PHP_VERSION_ID < 50309)
 /**/{
-/**/    /*<*/boot::$manager->override('spl_object_hash',   ':Class:', array('$object'))/*>*/;
+/**/    /*<*/boot::$manager->override('is_a',           ':539:', array('$obj', '$class', '$allow_string' => false))/*>*/;
+/**/    /*<*/boot::$manager->override('is_subclass_of', ':539:', array('$obj', '$class', '$allow_string' => true))/*>*/;
 /**/}
 
 
@@ -65,6 +65,11 @@
 /**/    $a = array('$name', '$value' => '', '$expires' => 0, '$path' => '', '$domain' => '', '$secure' => false, '$httponly' => false);
 /**/    /*<*/boot::$manager->override('setcookie',    ':520:', $a)/*>*/;
 /**/    /*<*/boot::$manager->override('setcookieraw', ':520:', $a)/*>*/;
+/**/}
+
+/**/if (!function_exists('spl_object_hash'))
+/**/{
+/**/    /*<*/boot::$manager->override('spl_object_hash', ':520:', array('$object'))/*>*/;
 /**/}
 
 

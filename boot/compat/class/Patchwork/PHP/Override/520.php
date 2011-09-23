@@ -44,4 +44,17 @@ class Patchwork_PHP_Override_520
             );
         }
     }
+
+    static function spl_object_hash($o)
+    {
+        if (!is_object($o))
+        {
+            trigger_error("spl_object_hash() expects parameter 1 to be object, " . gettype($o) . " given", E_USER_WARNING);
+            return null;
+        }
+
+        isset($o->__spl_object_hash__) || $o->__spl_object_hash__ = md5(mt_rand() . 'spl_object_hash');
+
+        return $o->__spl_object_hash__;
+    }
 }

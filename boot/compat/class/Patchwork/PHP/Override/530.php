@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class Patchwork_PHP_Override_Class
+class Patchwork_PHP_Override_530
 {
     protected static $us2ns = array();
 
@@ -20,19 +20,6 @@ class Patchwork_PHP_Override_Class
     static function add($ns)
     {
         self::$us2ns[strtolower(strtr($ns, '\\', '_'))] = $ns;
-    }
-
-    static function spl_object_hash($o)
-    {
-        if (!is_object($o))
-        {
-            trigger_error("spl_object_hash() expects parameter 1 to be object, " . gettype($o) . " given", E_USER_WARNING);
-            return null;
-        }
-
-        isset($o->__spl_object_hash__) || $o->__spl_object_hash__ = md5(mt_rand() . 'spl_object_hash');
-
-        return $o->__spl_object_hash__;
     }
 
     static function class_implements($c, $autoload = true)
@@ -101,17 +88,34 @@ class Patchwork_PHP_Override_Class
         return interface_exists(strtr(ltrim($c, '\\'), '\\', '_'), $autoload);
     }
 
-    static function is_a($o, $c)
+    static function is_a($o, $c, $allow_string = false)
     {
         $c = strtr(ltrim($c, '\\'), '\\', '_');
-        return $o instanceof $c;
+
+        if ($o instanceof $c) return true;
+
+        if ($allow_string && !is_object($o))
+        {
+            $o = strtr(ltrim($o, '\\'), '\\', '_');
+            if (is_subclass_of($o, $c)) return true;
+            if (0 === strcasecmp(ltrim($o, '\\'), ltrim($c, '\\'))) return true;
+
+            // Work around http://bugs.php.net/53727
+            if (interface_exists($c, false))
+                foreach (class_implements($o, false) as $o)
+                    if (0 === strcasecmp($o, ltrim($c, '\\')))
+                        return true;
+        }
+
+        return false;
     }
 
-    static function is_subclass_of($o, $c)
+    static function is_subclass_of($o, $c, $allow_string = true)
     {
-        is_string($o) && $o = strtr(ltrim($o, '\\'), '\\', '_');
         $c = strtr(ltrim($c, '\\'), '\\', '_');
-        return is_subclass_of($o, $c) && class_exists($c, false); // See also http://bugs.php.net/53727
+        if (!self::is_a($o, $c, $allow_string)) return false;
+        $o = is_object($o) ? get_class($o) : strtr(ltrim($o, '\\'), '\\', '_');
+        return 0 !== strcasecmp($o, $c);
     }
 
     static function method_exists($c, $m)
