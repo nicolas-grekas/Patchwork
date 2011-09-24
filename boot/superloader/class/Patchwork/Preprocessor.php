@@ -57,7 +57,7 @@ class Patchwork_Preprocessor
         'Scream'             => true,
         'T'                  => true,
         'Marker'             => true,
-//        'ErrorVoicer'        => +50200, // Drawback: throwing out off silenced code makes silencing persistent
+//        'ErrorVoicer'        => true, // Drawback: throwing out off silenced code makes silencing persistent
         'StaticState'        => true,
     );
 

@@ -14,14 +14,10 @@
 
 class pipe_random
 {
-    static function php($min = '', $max = '')
+    static function php($min = 0, $max = false)
     {
-        if ($max === '') $max = 32767;
-
-        $min = (int) Patchwork::string($min);
-        $max = (int) Patchwork::string($max);
-
-        return mt_rand($min, $max);
+        if (false === $max) $max = '32767';
+        return mt_rand((string) $min, (string) $max);
     }
 
     static function js()

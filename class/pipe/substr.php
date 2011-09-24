@@ -17,8 +17,8 @@ class pipe_substr
     static function php($string, $start, $length = null)
     {
         return null === $length
-            ? mb_substr(Patchwork::string($string), (int) Patchwork::string($start))
-            : mb_substr(Patchwork::string($string), (int) Patchwork::string($start), (int) Patchwork::string($length));
+            ? mb_substr($string, (string) $start)
+            : mb_substr($string, (string) $start, (string) $length);
     }
 
     static function js()

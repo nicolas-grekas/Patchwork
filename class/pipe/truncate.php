@@ -16,10 +16,8 @@ class pipe_truncate
 {
     static function php($string, $length = 80, $etc = '…', $break_words = false)
     {
-        $string = Patchwork::string($string);
-        $length = Patchwork::string($length);
-        $etc = Patchwork::string($etc);
-        $break_words = Patchwork::string($break_words);
+        $string = (string) $string);
+        $length = (string) $length);
 
         if (!$length) return '';
 

@@ -132,7 +132,7 @@ class ptlCompiler_php extends ptlCompiler
             $this->pushCode(
                 'unset($p);$p=' . $var . ';if('
                     . '($p instanceof loop||(0<($p=(int)$p)&&Patchwork_Serverside::makeLoopByLength($p)))'
-                    . '&&Patchwork::string($v->{\'p$\'}=$p)'
+                    . '&&((string)$v->{\'p$\'}=$p)'
                     . '&&($v->{\'iteratorPosition$\'}=-1)'
                     . '&&($p=(object)array(\'$\'=>&$v))'
                     . '&&$v=&$p'
@@ -218,12 +218,12 @@ class ptlCompiler_php extends ptlCompiler
             if (!strlen($name))
             {
                 $var = substr($var, 0, -2);
-                if ($forceType) $var = "Patchwork::string($var)";
+                if ($forceType) $var = "(string)$var";
             }
             else if ('@' === $var[0])
             {
                 $var = substr($var, 1);
-                $var = "(isset($var)?" . ($forceType ? "Patchwork::string($var)" : $var) . ":'')";
+                $var = "(isset($var)?" . ($forceType ? "(string)$var" : $var) . ":'')";
             }
         }
 

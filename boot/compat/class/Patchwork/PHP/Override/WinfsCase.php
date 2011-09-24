@@ -14,45 +14,33 @@
 
 // For MS-Windows only
 
-class Patchwork_PHP_Override_Winfs
+class Patchwork_PHP_Override_WinfsCase
 {
     static function file_exists($file)
     {
-/**/    if (DEBUG)
-/**/    {
-            // In debug mode, check if character case is strict
+        // Check if character case is strict
 
-            if (!file_exists($file) || !$realfile = realpath($file)) return false;
+        if (!file_exists($file) || !$realfile = realpath($file)) return false;
 
-            $file = strtr($file, '/', '\\');
+        $file = strtr($file, '/', '\\');
 
-            $i = strlen($file);
-            $j = strlen($realfile);
+        $i = strlen($file);
+        $j = strlen($realfile);
 
-            while ($i-- && $j--)
+        while ($i-- && $j--)
+        {
+            if ($file[$i] != $realfile[$j])
             {
-                if ($file[$i] != $realfile[$j])
+                if (0 === strcasecmp($file[$i], $realfile[$j]) && !(0 === $i && ':' === substr($file, 1, 1)))
                 {
-                    if (0 === strcasecmp($file[$i], $realfile[$j]) && !(0 === $i && ':' === substr($file, 1, 1)))
-                    {
-                        trigger_error("Character case mismatch between requested file and its real path ({$file} vs {$realfile})", E_USER_NOTICE);
-                    }
-
-                    break;
+                    trigger_error("Character case mismatch between requested file and its real path ({$file} vs {$realfile})", E_USER_NOTICE);
                 }
-            }
 
-            return true;
-/**/    }
-/**/    else if (/*<*/PHP_VERSION_ID < 50200/*>*/)
-/**/    {
-            // Fix a bug with long file names
-            return file_exists($file) && (!isset($file[99]) || realpath($file));
-/**/    }
-/**/    else
-/**/    {
-            return file_exists($file);
-/**/    }
+                break;
+            }
+        }
+
+        return true;
     }
 
     static function is_file($file)       {return self::file_exists($file) && is_file($file);}

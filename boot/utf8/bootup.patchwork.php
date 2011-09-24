@@ -66,19 +66,15 @@
 /**/
 /**/    if (MB_OVERLOAD_STRING & (int) ini_get('mbstring.func_overload'))
 /**/    {
-/**/        /*<*/boot::$manager->override('strlen',  ':Mbstring8bit:', array('$s'))/*>*/;
-/**/        /*<*/boot::$manager->override('strpos',  ':Mbstring8bit:', array('$s', '$needle', '$offset' => 0))/*>*/;
-/**/        /*<*/boot::$manager->override('strrpos', ':Mbstring8bit:', array('$s', '$needle', '$offset' => 0))/*>*/;
-/**/        /*<*/boot::$manager->override('substr',  ':Mbstring8bit:', array('$s', '$start', '$length' => INF))/*>*/;
-/**/
-/**/        if (PHP_VERSION_ID >= 50200)
-/**/        {
-/**/            /*<*/boot::$manager->override('stripos',  ':Mbstring8bit:', array('$s', '$needle', '$offset' => 0,   '$enc' => INF))/*>*/;
-/**/            /*<*/boot::$manager->override('stristr',  ':Mbstring8bit:', array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
-/**/            /*<*/boot::$manager->override('strrchr',  ':Mbstring8bit:', array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
-/**/            /*<*/boot::$manager->override('strripos', ':Mbstring8bit:', array('$s', '$needle', '$offset' => 0,   '$enc' => INF))/*>*/;
-/**/            /*<*/boot::$manager->override('strstr',   ':Mbstring8bit:', array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
-/**/        }
+/**/        /*<*/boot::$manager->override('strlen',   ':Mbstring8bit:', array('$s'))/*>*/;
+/**/        /*<*/boot::$manager->override('strpos',   ':Mbstring8bit:', array('$s', '$needle', '$offset' => 0))/*>*/;
+/**/        /*<*/boot::$manager->override('strrpos',  ':Mbstring8bit:', array('$s', '$needle', '$offset' => 0))/*>*/;
+/**/        /*<*/boot::$manager->override('substr',   ':Mbstring8bit:', array('$s', '$start', '$length' => INF))/*>*/;
+/**/        /*<*/boot::$manager->override('stripos',  ':Mbstring8bit:', array('$s', '$needle', '$offset' => 0,   '$enc' => INF))/*>*/;
+/**/        /*<*/boot::$manager->override('stristr',  ':Mbstring8bit:', array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
+/**/        /*<*/boot::$manager->override('strrchr',  ':Mbstring8bit:', array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
+/**/        /*<*/boot::$manager->override('strripos', ':Mbstring8bit:', array('$s', '$needle', '$offset' => 0,   '$enc' => INF))/*>*/;
+/**/        /*<*/boot::$manager->override('strstr',   ':Mbstring8bit:', array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
 /**/    }
 /**/}
 /**/else
@@ -104,17 +100,13 @@
 /**/    /*<*/boot::$manager->override('mb_substitute_character', ':Mbstring50:', array('$char' => INF))/*>*/;
 /**/    /*<*/boot::$manager->override('mb_substr_count',         'substr_count', array('$s',  '$needle'))/*>*/;
 /**/    /*<*/boot::$manager->override('mb_substr',               ':Mbstring50:', array('$s', '$start', '$length' => PHP_INT_MAX, '$enc' => INF))/*>*/;
-/**/}
-
-/**/if (!extension_loaded('mbstring') || PHP_VERSION_ID < 50200)
-/**/{
-/**/    /*<*/boot::$manager->override('mb_stripos',  ':Mbstring52:', array('$s', '$needle', '$offset' => 0,   '$enc' => INF))/*>*/;
-/**/    /*<*/boot::$manager->override('mb_stristr',  ':Mbstring52:', array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
-/**/    /*<*/boot::$manager->override('mb_strrchr',  ':Mbstring52:', array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
-/**/    /*<*/boot::$manager->override('mb_strrichr', ':Mbstring52:', array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
-/**/    /*<*/boot::$manager->override('mb_strripos', ':Mbstring52:', array('$s', '$needle', '$offset' => 0,   '$enc' => INF))/*>*/;
-/**/    /*<*/boot::$manager->override('mb_strrpos',  ':Mbstring52:', array('$s', '$needle', '$offset' => 0,   '$enc' => INF))/*>*/;
-/**/    /*<*/boot::$manager->override('mb_strstr',   ':Mbstring52:', array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
+/**/    /*<*/boot::$manager->override('mb_stripos',              ':Mbstring52:', array('$s', '$needle', '$offset' => 0,   '$enc' => INF))/*>*/;
+/**/    /*<*/boot::$manager->override('mb_stristr',              ':Mbstring52:', array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
+/**/    /*<*/boot::$manager->override('mb_strrchr',              ':Mbstring52:', array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
+/**/    /*<*/boot::$manager->override('mb_strrichr',             ':Mbstring52:', array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
+/**/    /*<*/boot::$manager->override('mb_strripos',             ':Mbstring52:', array('$s', '$needle', '$offset' => 0,   '$enc' => INF))/*>*/;
+/**/    /*<*/boot::$manager->override('mb_strrpos',              ':Mbstring52:', array('$s', '$needle', '$offset' => 0,   '$enc' => INF))/*>*/;
+/**/    /*<*/boot::$manager->override('mb_strstr',               ':Mbstring52:', array('$s', '$needle', '$part' => false, '$enc' => INF))/*>*/;
 /**/
 /**/    /*<*/boot::$manager->override('mb_strrpos50', extension_loaded('mbstring') ? 'mb_strrpos' : ':Mbstring50:', array('$s', '$needle', '$enc' => INF))/*>*/;
 /**/}

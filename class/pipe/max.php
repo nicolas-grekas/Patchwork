@@ -16,7 +16,7 @@ class pipe_max
 {
     static function php($a, $b)
     {
-        return Patchwork::string($a) < Patchwork::string($b) ? $b : $a;
+        return (string) $a < (string) $b ? $b : $a;
     }
 
     static function js()

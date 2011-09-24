@@ -142,7 +142,7 @@ class Serverside extends p
                     $k = $CONFIG['i18n.lang_list'][p::__LANG__()];
                     $agent = implode($k, explode('__', $agent, 2)) . '?p:=s';
 
-                    foreach ($args as $k => $v) $agent .= '&' . urlencode($k) . '=' . urlencode(p::string($v));
+                    foreach ($args as $k => $v) $agent .= '&' . urlencode($k) . '=' . urlencode($v);
 
                     if (ini_get_bool('allow_url_fopen')) $agent = file_get_contents($agent);
                     else

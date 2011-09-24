@@ -489,20 +489,12 @@ abstract class ptlCompiler
                 else
                 {
                     set_error_handler(array(__CLASS__, 'nullErrorHandler'));
-                    ini_set('display_errors', true);
-                    ini_set('log_errors', false);
-                    ob_start();
+                    $len = error_reporting(81);
 
-                    if (false === eval("($testCode);"))
-                    {
-                        $i = ob_get_clean();
-                        $i = preg_match("/^Parse error: syntax error, (.*?) in /",  $i, $i) ? $i[1] : 'syntax error';
-                        W("PTL parse error: {$i} on line " . $this->getLine());
-                    }
-                    else ob_end_clean();
+                    if (false === eval("($testCode);") && $i = error_get_last())
+                        user_error("PTL parse error: {$i['message']} on line " . $this->getLine());
 
-                    ini_set('log_errors', true);
-                    ini_set('display_errors', false);
+                    error_reporting($len);
                     restore_error_handler();
                 }
 

@@ -37,55 +37,15 @@
 /**/    /*<*/boot::$manager->override('is_subclass_of', ':539:', array('$obj', '$class', '$allow_string' => true))/*>*/;
 /**/}
 
-
-// Replace file_exists() on Windows to fix a bug with long file names
-
-/**/if ('\\' === DIRECTORY_SEPARATOR && PHP_VERSION_ID < 50200)
+/**/if (!function_exists('spl_object_hash'))
 /**/{
-/**/    /*<*/boot::$manager->override('file_exists',   ':Winfs:', array('$file'))/*>*/;
-/**/    /*<*/boot::$manager->override('is_file',       ':Winfs:', array('$file'))/*>*/;
-/**/    /*<*/boot::$manager->override('is_dir',        ':Winfs:', array('$file'))/*>*/;
-/**/    /*<*/boot::$manager->override('is_link',       ':Winfs:', array('$file'))/*>*/;
-/**/    /*<*/boot::$manager->override('is_executable', ':Winfs:', array('$file'))/*>*/;
-/**/    /*<*/boot::$manager->override('is_readable',   ':Winfs:', array('$file'))/*>*/;
-/**/    /*<*/boot::$manager->override('is_writable',   ':Winfs:', array('$file'))/*>*/;
+/**/    /*<*/boot::$manager->override('spl_object_hash', ':530:', array('$object'))/*>*/;
 /**/}
 
 
 /**/ // Fix 5.2.9 array_unique() default sort flag
 /**/if (PHP_VERSION_ID == 50209)
 /**/    /*<*/boot::$manager->override('array_unique', 'array_unique', array('$array', '$sort_flags' => SORT_STRING))/*>*/;
-
-/**/if (PHP_VERSION_ID < 50200)
-/**/{
-/**/    // Workaround http://bugs.php.net/37394
-/**/    /*<*/boot::$manager->override('substr_compare', ':520:', array('$main_str', '$str', '$offset', '$length' => INF, '$case_insensitivity' => false))/*>*/;
-
-/**/    // Backport $httpOnly parameter
-/**/    $a = array('$name', '$value' => '', '$expires' => 0, '$path' => '', '$domain' => '', '$secure' => false, '$httponly' => false);
-/**/    /*<*/boot::$manager->override('setcookie',    ':520:', $a)/*>*/;
-/**/    /*<*/boot::$manager->override('setcookieraw', ':520:', $a)/*>*/;
-/**/}
-
-/**/if (!function_exists('spl_object_hash'))
-/**/{
-/**/    /*<*/boot::$manager->override('spl_object_hash', ':520:', array('$object'))/*>*/;
-/**/}
-
-
-// Workaround for http://bugs.php.net/33140
-
-/**/if ('\\' === DIRECTORY_SEPARATOR && PHP_VERSION_ID < 50200)
-/**/{
-/**/    /*<*/boot::$manager->override('mkdir', 'patchwork_mkdir', array('$pathname', '$mode' => 0777, '$recursive' => false, '$context' => INF))/*>*/;
-
-        function patchwork_mkdir($pathname, $mode = 0777, $recursive = false, $context = INF)
-        {
-            return INF === $context
-                ? mkdir(strtr($pathname, '/', '\\'), $mode, $recursive)
-                : mkdir($pathname, $mode, $recursive, $context);
-        }
-/**/}
 
 
 // Default serialize precision is 100, but 17 is enough

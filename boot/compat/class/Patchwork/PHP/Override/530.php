@@ -24,16 +24,46 @@ class Patchwork_PHP_Override_530
 
     static function class_implements($c, $autoload = true)
     {
-        is_string($c) && $c = strtr(ltrim($c, '\\'), '\\', '_');
-        $autoload = class_implements($c, $autoload);
-        foreach ($autoload as $c) isset(self::$us2ns[$a = strtolower($c)]) && $autoload[$c] = self::$us2ns[$a];
-        return $autoload;
+        if (is_object($c)) $class = get_class($c);
+        else if (!class_exists($c, $autoload) && !interface_exists($c, false))
+        {
+            user_error(__FUNCTION__ . '(): Class ' . $c . ' does not exist and could not be loaded', E_USER_WARNING);
+            return false;
+        }
+        else $c = strtr(ltrim($c, '\\'), '\\', '_');
+
+/**/    if (function_exists('class_implements'))
+/**/    {
+            $autoload = class_implements($c, false);
+            foreach ($autoload as $c) isset(self::$us2ns[$a = strtolower($c)]) && $autoload[$c] = self::$us2ns[$a];
+            return $autoload;
+/**/    }
+/**/    else
+/**/    {
+            return array(); // TODO
+/**/    }
     }
 
     static function class_parents($c, $autoload = true)
     {
-        is_string($c) && $c = strtr(ltrim($c, '\\'), '\\', '_');
-        $autoload = class_parents($c, $autoload);
+        if (is_object($c)) $class = get_class($c);
+        else if (!class_exists($c, $autoload) && !interface_exists($c, false))
+        {
+            user_error(__FUNCTION__ . '(): Class ' . $c . ' does not exist and could not be loaded', E_USER_WARNING);
+            return false;
+        }
+        else $c = strtr(ltrim($c, '\\'), '\\', '_');
+
+/**/    if (!function_exists('class_parents'))
+/**/    {
+            $autoload = array();
+            while (false !== $class = get_parent_class($class)) $autoload[$class] = $class;
+/**/    }
+/**/    else
+/**/    {
+            $autoload = class_parents($c, false);
+/**/    }
+
         foreach ($autoload as $c) isset(self::$us2ns[$a = strtolower($c)]) && $autoload[$c] = self::$us2ns[$a];
         return $autoload;
     }
@@ -102,7 +132,7 @@ class Patchwork_PHP_Override_530
 
             // Work around http://bugs.php.net/53727
             if (interface_exists($c, false))
-                foreach (class_implements($o, false) as $o)
+                foreach (self::class_implements($o, false) as $o)
                     if (0 === strcasecmp($o, ltrim($c, '\\')))
                         return true;
         }
@@ -128,5 +158,18 @@ class Patchwork_PHP_Override_530
     {
         is_string($c) && $c = strtr(ltrim($c, '\\'), '\\', '_');
         return property_exists($c, $p);
+    }
+
+    static function spl_object_hash($o)
+    {
+        if (!is_object($o))
+        {
+            trigger_error("spl_object_hash() expects parameter 1 to be object, " . gettype($o) . " given", E_USER_WARNING);
+            return null;
+        }
+
+        isset($o->__spl_object_hash__) || $o->__spl_object_hash__ = md5(mt_rand() . 'spl_object_hash');
+
+        return $o->__spl_object_hash__;
     }
 }

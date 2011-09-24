@@ -16,7 +16,7 @@ class pipe_upper
 {
     static function php($string)
     {
-        return mb_strtoupper(Patchwork::string($string));
+        return mb_strtoupper($string);
     }
 
     static function js()

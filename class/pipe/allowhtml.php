@@ -16,7 +16,7 @@ class pipe_allowhtml
 {
     static function php($string, $urlInterpolation = false)
     {
-        $string = Patchwork::string($string);
+        $string = (string) $string;
 
         false !== strpos($string, '&') && $string = str_replace(
             array('&#039;', '&quot;', '&gt;', '&lt;', '&amp;'),

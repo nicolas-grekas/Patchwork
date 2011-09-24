@@ -16,7 +16,7 @@ class pipe_lower
 {
     static function php($string)
     {
-        return mb_strtolower(Patchwork::string($string));
+        return mb_strtolower($string);
     }
 
     static function js()

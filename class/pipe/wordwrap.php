@@ -17,7 +17,7 @@ class pipe_wordwrap
 {
     static function php($string, $width = 75, $break = "\n", $cut = true)
     {
-        return u::wordwrap(Patchwork::string($string), Patchwork::string($width), Patchwork::string($break), Patchwork::string($cut));
+        return u::wordwrap((string) $string, (string) $width, (string) $break, $cut);
     }
 
     static function js()

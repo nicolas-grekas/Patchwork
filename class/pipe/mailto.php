@@ -16,10 +16,10 @@ class pipe_mailto
 {
     static function php($string, $email = '', $attributes = '')
     {
-        $string = htmlspecialchars(Patchwork::string($string));
-        $email  = htmlspecialchars(Patchwork::string($email));
+        $string = htmlspecialchars($string);
+        $email  = htmlspecialchars($email);
         $email || $email = $string;
-        $attributes = Patchwork::string($attributes);
+        $attributes = (string) $attributes;
         '' !== $attributes && $attributes = ' ' . $attributes;
 
         $email = '<a href="mailto:'

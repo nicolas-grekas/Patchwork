@@ -18,13 +18,13 @@ class pipe_date
     {
         if (false === $format)
         {
-            $format = Patchwork::string($time);
+            $format = (string) $time;
             $time = $_SERVER['REQUEST_TIME'];
         }
         else
         {
-            $time = (int) Patchwork::string($time);
-            $format = Patchwork::string($format);
+            $time = (string) $time;
+            $format = (string) $format;
         }
 
         return date($format, $time);

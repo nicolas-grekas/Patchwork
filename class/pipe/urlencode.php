@@ -16,7 +16,7 @@ class pipe_urlencode
 {
     static function php($str)
     {
-        return rawurlencode(Patchwork::string($str));
+        return rawurlencode($str);
     }
 
     static function js()

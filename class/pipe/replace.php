@@ -16,9 +16,9 @@ class pipe_replace
 {
     static function php($string, $search, $replace, $caseInsensitive = false)
     {
-        $search = preg_replace("/(?<!\\\\)((?:\\\\\\\\)*)@/", '$1\\@', Patchwork::string($search));
-        $caseInsensitive = Patchwork::string($caseInsensitive) ? 'i' : '';
-        return preg_replace("@{$search}@su{$caseInsensitive}", Patchwork::string($replace), Patchwork::string($string));
+        $search = preg_replace("/(?<!\\\\)((?:\\\\\\\\)*)@/", '$1\\@', (string) $search);
+        $caseInsensitive = (string) $caseInsensitive ? 'i' : '';
+        return preg_replace("@{$search}@su{$caseInsensitive}", $replace, $string);
     }
 
     static function js()
