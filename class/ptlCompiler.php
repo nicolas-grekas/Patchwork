@@ -131,7 +131,7 @@ abstract class ptlCompiler
         $source = file_get_contents($a = $source);
         strncmp($source, "\xEF\xBB\xBF", 3) || $source = substr($source, 3); // Remove UTF-8 BOM
 
-        if (!preg_match('//u', $source)) W("Template file {$a}:\nfile encoding is not valid UTF-8. Please convert your source code to UTF-8.");
+        if (!preg_match('//u', $source)) user_error("Template file {$a}:\nfile encoding is not valid UTF-8. Please convert your source code to UTF-8.");
 
         $source = rtrim($source);
         if (false !== strpos($source, "\r")) $source = strtr(str_replace("\r\n", "\n", $source), "\r", "\n");
@@ -226,7 +226,7 @@ abstract class ptlCompiler
 
         if ($a < 0)
         {
-            W("Template error: Invalid level (resolved to $a) in \"{$m[0]}\"");
+            user_error("Template error: Invalid level (resolved to $a) in \"{$m[0]}\"");
             return $m[0];
         }
         else
@@ -544,7 +544,7 @@ abstract class ptlCompiler
         $i = count($detail);
         while (--$i)
         {
-            class_exists('pipe_' . $detail[$i][0]) || W("Template warning: pipe_{$detail[$i][0]} does not exist");
+            class_exists('pipe_' . $detail[$i][0]) || user_error("Template warning: pipe_{$detail[$i][0]} does not exist");
             $Estart .= $this->makeModifier($detail[$i][0]) . '(';
             $Eend = $this->closeModifier . $Eend;
 
@@ -560,7 +560,7 @@ abstract class ptlCompiler
             while (--$j) $Eend = ',' . $this->evalVar($detail[0][$j], true) . $Eend;
 
             $Eend[0] = '(';
-            class_exists('pipe_' . $detail[0][0]) || W("Template warning: pipe_{$detail[0][0]} does not exist");
+            class_exists('pipe_' . $detail[0][0]) || user_error("Template warning: pipe_{$detail[0][0]} does not exist");
             $Estart .= $this->makeModifier($detail[0][0]);
         }
         else $Estart .= $this->evalVar($detail[0][0], true);
@@ -660,7 +660,7 @@ abstract class ptlCompiler
 
     protected function endError($unexpected, $expected)
     {
-        W("PTL parse error: unexpected END:$unexpected" . ($expected ? ", expecting END:$expected" : '') . " on line " . $this->getLine());
+        user_error("PTL parse error: unexpected END:$unexpected" . ($expected ? ", expecting END:$expected" : '') . " on line " . $this->getLine());
     }
 
     static function nullErrorHandler()

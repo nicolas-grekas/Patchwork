@@ -41,7 +41,7 @@ class agent_pForm extends agent
 
             list($send, $b) = (array) $this->save($send->getData()) + array(null, null);
 
-            if (null === $send) W(get_class($this) . '->save() result must be non-null');
+            if (null === $send) user_error(get_class($this) . '->save() result must be non-null');
             else if (false !== $send)
             {
                 $b && s::flash('headerMessage', true !== $b ? $b : $a);

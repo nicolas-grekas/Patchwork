@@ -77,7 +77,7 @@ class agent_queue_pTask extends agent
         $this->releaseLock();
         $this->queueNext();
 
-        '' !== $buffer && W($buffer);
+        '' !== $buffer && user_error($buffer);
 
         return '';
     }

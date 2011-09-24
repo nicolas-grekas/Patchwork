@@ -46,7 +46,7 @@ class pForm_hidden extends loop_agentWrapper
 
     function __construct($form, $name, $param, &$sessionLink = false)
     {
-        empty($form) && W(get_class($this) . ': $form parameter is empty');
+        empty($form) && user_error(get_class($this) . ': $form parameter is empty');
 
         $this->form = $form;
         $this->sessionLink =& $sessionLink;
@@ -133,7 +133,7 @@ class pForm_hidden extends loop_agentWrapper
             if (!$addedElt)
             {
 /**/            if (DEBUG)
-                    W("Form's element does not exists: {$name}");
+                    user_error("Form's element does not exists: {$name}");
                 continue;
             }
 
@@ -211,7 +211,7 @@ class pForm_hidden extends loop_agentWrapper
                     ? !isset($this->form->filesValues[$this->name])
                     : !isset($this->form->rawValues[$this->name]))
                 {
-                    W("Form's input data do not even mention the [{$this->name}] mandatory field .\nMaybe it is not present in the definition of the form ?");
+                    user_error("Form's input data do not even mention the [{$this->name}] mandatory field .\nMaybe it is not present in the definition of the form ?");
                 }
 /**/        }
 
@@ -225,7 +225,7 @@ class pForm_hidden extends loop_agentWrapper
             {
 /**/            if (DEBUG)
 /**/            {
-                    W('Input validation error in ' . get_class($this) . ' element: ' . print_r(array(
+                    user_error('Input validation error in ' . get_class($this) . ' element: ' . print_r(array(
                         'name' => $this->name,
                         'value' => $this->value,
                         'valid' => $this->valid, $this->validArgs
@@ -266,7 +266,7 @@ class pForm_hidden extends loop_agentWrapper
     function setError($message = '')
     {
         $message || $message = $this->validmsg;
-        $message || W(get_class($this) . ': empty error $message');
+        $message || user_error(get_class($this) . ': empty error $message');
         $this->status = false;
         $this->form->errormsg[] = $this->errormsg = $message;
     }

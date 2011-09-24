@@ -15,13 +15,6 @@
 define('IS_POSTING', 'POST' === $_SERVER['REQUEST_METHOD']);
 
 
-// Basic overriding
-
-/**/ /*<*/boot::$manager->override('w',          'trigger_error', array('$msg', '$type' => E_USER_NOTICE))/*>*/;
-/**/ /*<*/boot::$manager->override('rand',       'mt_rand',       array('$min' => 0, '$max' => mt_getrandmax()))/*>*/;
-/**/ /*<*/boot::$manager->override('getrandmax', 'mt_getrandmax', array())/*>*/;
-
-
 // Timezone settings
 
 /**/if (!ini_get('date.timezone'))

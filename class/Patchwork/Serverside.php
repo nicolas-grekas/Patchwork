@@ -130,7 +130,7 @@ class Serverside extends p
 
                 if ($is_exo)
                 {
-                    W("Patchwork Security Restriction Error: an AGENT ({$agent}) is called with EXOAGENT");
+                    user_error("Patchwork Security Restriction Error: an AGENT ({$agent}) is called with EXOAGENT");
                     $_GET =& $a;
                     return;
                 }
@@ -158,7 +158,7 @@ class Serverside extends p
                         $agent
                     );
                 }
-                else W("Patchwork Security Restriction Error: an EXOAGENT ({$agent}) is called with AGENT");
+                else user_error("Patchwork Security Restriction Error: an EXOAGENT ({$agent}) is called with AGENT");
 
                 $_GET =& $a;
                 return;

@@ -41,7 +41,7 @@ function jsquote($a)
 /**/{
         if (is_array($a))
         {
-            W('jsquote error: can not quote an array');
+            user_error('jsquote error: can not quote an array');
             $a = '';
         }
 /**/}
@@ -441,7 +441,7 @@ class Patchwork
 
             preg_match($base, self::$uri, $base)
                 ? self::$uri = self::$base . self::translateRequest($base[1], $lang)
-                : W('Something is wrong between Patchwork::$uri and PATCHWORK_BASE');
+                : user_error('Something is wrong between Patchwork::$uri and PATCHWORK_BASE');
         }
 
         $base = self::$lang;
@@ -489,7 +489,7 @@ class Patchwork
                 {
 /**/                if (DEBUG)
 /**/                {
-                        W('Anti-CSRF alert: in non-DEBUG mode, $_POST and $_FILES would have been erased.');
+                        user_error('Anti-CSRF alert: in non-DEBUG mode, $_POST and $_FILES would have been erased.');
 /**/                }
 /**/                else
 /**/                {
@@ -706,7 +706,7 @@ class Patchwork
                 {
 /**/                if (DEBUG)
 /**/                {
-                        W(
+                        user_error(
                             'Misconception: Patchwork::setGroup() is called in '
                             . self::$agentClass . '->compose() rather than in '
                             . self::$agentClass . '->control(). Cache is now disabled for this agent.'
@@ -1076,7 +1076,7 @@ class Patchwork
             try
             {
                 ob_start();
-                new $agent instanceof \agent || W("Class {$agent} does not inherit from class agent");
+                new $agent instanceof \agent || user_error("Class {$agent} does not inherit from class agent");
             }
             catch (e\PrivateResource $d)
             {

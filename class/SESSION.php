@@ -88,7 +88,7 @@ class SESSION
             self::regenerateId();
 
 /**/        if (DEBUG)
-                IS_POSTING || W("Trying to modify a variable which is member of SESSION::\$authVars during a GET request.");
+                IS_POSTING || user_error("Trying to modify a variable which is member of SESSION::\$authVars during a GET request.");
         }
     }
 
@@ -184,7 +184,7 @@ class SESSION
         self::$authVars  = array_flip(self::$authVars);
         self::$groupVars = array_flip(self::$groupVars);
 
-        if (self::$maxIdleTime<1 && self::$maxLifeTime<1) W('At least one of the SESSION::$max*Time variables must be strictly positive.');
+        if (self::$maxIdleTime<1 && self::$maxLifeTime<1) user_error('At least one of the SESSION::$max*Time variables must be strictly positive.');
 
         if (mt_rand(1, self::$gcProbabilityDenominator) <= self::$gcProbabilityNumerator)
         {

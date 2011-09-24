@@ -63,13 +63,13 @@ class ptlCompiler_php extends ptlCompiler
             {
                 if (!$is_exo)
                 {
-                    W("Template Security Restriction Error: an EXOAGENT ({$base}{$limit}) is called with AGENT on line " . $this->getLine());
+                    user_error("Template Security Restriction Error: an EXOAGENT ({$base}{$limit}) is called with AGENT on line " . $this->getLine());
                     exit;
                 }
             }
             else if ($is_exo)
             {
-                W("Template Security Restriction Error: an AGENT ({$limit}) is called with EXOAGENT on line " . $this->getLine());
+                user_error("Template Security Restriction Error: an AGENT ({$limit}) is called with EXOAGENT on line " . $this->getLine());
                 exit;
             }
         }

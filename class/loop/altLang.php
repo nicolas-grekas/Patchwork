@@ -56,7 +56,7 @@ class loop_altLang extends loop
                         );
                     }
                 }
-                else W('Something is wrong between Patchwork::__URI__() and PATCHWORK_BASE');
+                else user_error('Something is wrong between Patchwork::__URI__() and PATCHWORK_BASE');
 
                 $this->alt =& $a;
             }

@@ -44,7 +44,7 @@ class tool_url
         }
         catch (Exception $h)
         {
-            W($h);
+            user_error($h->getMessage());
         }
     }
 }

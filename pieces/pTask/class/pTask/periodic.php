@@ -187,7 +187,7 @@ class pTask_periodic extends pTask
                 }
                 else $list[] = $item[1];
             }
-            else W("Invalid crontab item: " . $i);
+            else user_error("Invalid crontab item: " . $i);
         }
 
         $list = array_keys(array_flip($list));

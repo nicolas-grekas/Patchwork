@@ -133,8 +133,8 @@ class agent
             $o = $agent->compose($o);
             $agent->metaCompose();
         }
-        catch (e\Forbidden      $agent) {W("Forbidden acces detected" );}
-        catch (e\Redirection    $agent) {W("HTTP redirection detected");}
+        catch (e\Forbidden      $agent) {user_error("Forbidden acces detected" );}
+        catch (e\Redirection    $agent) {user_error("HTTP redirection detected");}
         catch (e\StaticResource $agent) {}
 
         return $o;

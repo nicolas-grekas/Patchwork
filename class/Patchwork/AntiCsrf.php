@@ -52,14 +52,14 @@ class AntiCsrf extends p
             throw new e\PrivateResource($a);
         }
 
-        W('Potential JavaScript-Hijacking. Stopping !');
+        user_error('Potential JavaScript-Hijacking. Stopping !');
 
         p::disable(true);
     }
 
     static function postAlert()
     {
-        W('Potential Cross Site Request Forgery. $_POST and $_FILES are not reliable. Erasing !');
+        user_error('Potential Cross Site Request Forgery. $_POST and $_FILES are not reliable. Erasing !');
     }
 
     static function appendToken($f)

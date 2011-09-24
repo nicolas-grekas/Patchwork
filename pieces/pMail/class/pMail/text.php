@@ -37,7 +37,7 @@ class pMail_text extends Mail_mime
             {
                 if (!file_exists($file))
                 {
-                    W(__CLASS__ . ': file attachment not found (' . $file . ')');
+                    user_error(__CLASS__ . ': file attachment not found (' . $file . ')');
                     continue;
                 }
 
@@ -79,7 +79,7 @@ class pMail_text extends Mail_mime
 
         if (empty($headers['From']))
         {
-            if (empty($headers['Sender'])) W("Email is likely not to be sent: From header is empty.");
+            if (empty($headers['Sender'])) user_error("Email is likely not to be sent: From header is empty.");
             else
             {
                 $headers['From'] =& $headers['Sender'];

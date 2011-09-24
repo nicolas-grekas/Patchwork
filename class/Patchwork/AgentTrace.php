@@ -54,7 +54,7 @@ class AgentTrace extends p
 
         if (!preg_match($h, implode('', $keys), $keys))
         {
-            W('Error while getting meta info data for ' . htmlspecialchars($agent));
+            user_error('Error while getting meta info data for ' . htmlspecialchars($agent));
             p::disable(true);
         }
 

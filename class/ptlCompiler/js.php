@@ -84,7 +84,7 @@ class ptlCompiler_js extends ptlCompiler
                     }
                     else
                     {
-                        W('PTL Modifier Not Found: ' . $m);
+                        user_error('PTL Modifier Not Found: ' . $m);
                         $code .= "function(){return'؟'};";
                     }
                 }
@@ -121,7 +121,7 @@ class ptlCompiler_js extends ptlCompiler
             {
                 if (!$is_exo)
                 {
-                    W("Template Security Restriction Error: an EXOAGENT ({$base}{$inc}) is called with AGENT on line " . $this->getLine());
+                    user_error("Template Security Restriction Error: an EXOAGENT ({$base}{$inc}) is called with AGENT on line " . $this->getLine());
                     exit;
                 }
 
@@ -129,7 +129,7 @@ class ptlCompiler_js extends ptlCompiler
             }
             else if ($is_exo)
             {
-                W("Template Security Restriction Error: an AGENT ({$inc}) is called with EXOAGENT on line " . $this->getLine());
+                user_error("Template Security Restriction Error: an AGENT ({$inc}) is called with EXOAGENT on line " . $this->getLine());
                 exit;
             }
             else $meta = 1;

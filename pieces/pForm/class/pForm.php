@@ -51,7 +51,7 @@ class pForm extends loop_agentWrapper
             {
                 if (isset($agentData->$formVarname))
                 {
-                    W(__CLASS__ . ": Overwriting existing \$agentData->{$formVarname}! If this is the intended behavior, unset(\$agentData->{$formVarname}) to remove this warning.");
+                    user_error(__CLASS__ . ": Overwriting existing \$agentData->{$formVarname}! If this is the intended behavior, unset(\$agentData->{$formVarname}) to remove this warning.");
                 }
 
                 $agentData->$formVarname = $this;

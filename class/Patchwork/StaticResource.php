@@ -134,7 +134,7 @@ class StaticResource extends p
 
         if (!$h || !file_exists($h) || is_dir($h))
         {
-            W(__METHOD__ . "(..): invalid file ({$file})");
+            user_error(__METHOD__ . "(..): invalid file ({$file})");
             return;
         }
 

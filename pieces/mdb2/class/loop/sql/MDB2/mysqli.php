@@ -47,7 +47,7 @@ class loop_sql_MDB2_mysqli extends loop
             $this->db || $this->db = DB()->connection;
             $this->result = $this->db->query($sql);
 
-            if (!$this->result) W("MySQL Error ({$sql}) : {$this->db->error}");
+            if (!$this->result) user_error("MySQL Error ({$sql}): {$this->db->error}");
         }
 
         return $this->result ? $this->result->num_rows : false;
