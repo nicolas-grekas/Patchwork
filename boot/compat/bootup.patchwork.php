@@ -48,6 +48,13 @@
 /**/    /*<*/boot::$manager->override('array_unique', 'array_unique', array('$array', '$sort_flags' => SORT_STRING))/*>*/;
 
 
+/**/if (!function_exists('memory_get_usage'))
+    function memory_get_usage($real = false) {return 0;}
+
+/**/if (!function_exists('memory_get_peak_usage'))
+    function memory_get_peak_usage($real = false) {return 0;}
+
+
 // Default serialize precision is 100, but 17 is enough
 
 /**/if (17 != ini_get('serialize_precision'))

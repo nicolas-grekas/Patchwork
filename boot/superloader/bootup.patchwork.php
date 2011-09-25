@@ -337,11 +337,11 @@ function patchwork_is_loaded($class, $autoload = false)
 
 function patchwork_autoload($class)
 {
-    if (patchwork_is_loaded($class)) return;
+    $class = ltrim($class, '\\');
 
-    $a = strtolower(strtr($class, '\\', ''));
+    if (patchwork_is_loaded($class) || !is_callable($class, true)) return;
 
-    if ($a !== strtr($a, ";'?.$", '-----')) return;
+    $a = strtolower(strtr($class, '\\', '_'));
 
     if (TURBO && $a =& $GLOBALS["c\x9D"][$a])
     {

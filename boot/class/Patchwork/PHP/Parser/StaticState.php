@@ -157,7 +157,7 @@ class Patchwork_PHP_Parser_StaticState extends Patchwork_PHP_Parser
 
             $last = $last && $s === $last[0] ? ", expecting `{$last[1]}'" : '';
 
-            $this->setError("Syntax error, unexpected `{$token[0]}'{$last}", E_USER_ERROR);
+            $this->setError("Syntax error, unexpected `{$token[0]}'{$last}", E_USER_WARNING);
         }
     }
 
