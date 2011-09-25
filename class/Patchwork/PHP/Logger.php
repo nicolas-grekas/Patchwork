@@ -90,7 +90,7 @@ class Logger
         $this->isFirstEvent = false;
     }
 
-    function logError($e, $trace_offset = -1, $log_time = 0)
+    function logError($e, $trace_offset = -1, $trace_args = 0, $log_time = 0)
     {
         $e = array(
             'mesg' => $e['message'],
@@ -99,7 +99,7 @@ class Logger
 
         unset($e['message'], $e['file'], $e['line']);
         if (0 > $trace_offset) unset($e['trace']);
-        else if (!empty($e['trace'])) $e['trace'] = $this->filterTrace($e['trace'], $trace_offset);
+        else if (!empty($e['trace'])) $e['trace'] = $this->filterTrace($e['trace'], $trace_offset, $trace_args);
 
         $this->log('php-error', $e, $log_time);
     }
@@ -108,7 +108,7 @@ class Logger
     {
         $a = (array) $e;
 
-        $a["\0Exception\0trace"] = $this->filterTrace($a["\0Exception\0trace"], $e instanceof RecoverableErrorInterface ? $e->traceOffset : 0);
+        $a["\0Exception\0trace"] = $this->filterTrace($a["\0Exception\0trace"], $e instanceof RecoverableErrorInterface ? $e->traceOffset : 0, 1);
         if (null === $a["\0Exception\0trace"]) unset($a["\0Exception\0trace"]);
         if ($e instanceof RecoverableErrorInterface) unset($a['traceOffset']);
         if (empty($a["\0Exception\0previous"])) unset($a["\0Exception\0previous"]);
@@ -118,7 +118,7 @@ class Logger
         return $a;
     }
 
-    function filterTrace($trace, $offset)
+    function filterTrace($trace, $offset, $args)
     {
         if (0 > $offset || empty($trace[$offset])) return null;
         else $t = $trace[$offset];
@@ -138,6 +138,7 @@ class Logger
             ) + $t;
 
             unset($t['class'], $t['type'], $t['function'], $t['file'], $t['line']);
+            if (isset($t['args']) && !$args) unset($t['args']);
         }
 
         return $trace;
