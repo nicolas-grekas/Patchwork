@@ -181,7 +181,7 @@ class agent_queue_pTask extends agent
         if ($session)
         {
             $_COOKIE = array();
-            foreach ($session as $k => &$v) s::set($k, $v);
+            foreach ($session as $k => &$v) SESSION::set($k, $v);
             SESSION::regenerateId(false, false);
         }
 

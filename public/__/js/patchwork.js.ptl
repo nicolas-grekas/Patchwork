@@ -267,7 +267,7 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
     }
     catch ($i) {}
 
-    $j = /(MSIE [0-5]|Firefox\/[456789])\./.test(navigator.userAgent) ? 0 : 1;
+    $j = /MSIE [0-5]\./.test(navigator.userAgent) ? 0 : 1;
     $i = location.host.match(/[^.]+\.[^\.0-9]+$/);
     $i = $i ? '.' + $i[0] : 0;
     setcookie('JS', $j, new Date({$maxage+0|js}000+new Date()/1), '/', $i);
@@ -610,11 +610,13 @@ w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
         });
         <!-- END:IF -->
 
-        function $getNext($code, $a)
+        function $getNext($code)
         {
-            $a = $code[$pointer++];
+            ''.in; // I don't know why, but without this, Firefox' JIT breaks the code
 
-            return 'function' == typeof $a ? $a(a, d, v, g, z, g.__BASE__) : $a;
+            $code = $code[$pointer++];
+
+            return typeof $code == 'function' ? $code(a, d, v, g, z, g.__BASE__) : $code;
         }
 
         $WexecStack[++$WexecLast] = function()
