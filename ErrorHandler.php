@@ -17,10 +17,10 @@ class ErrorHandler
 {
     public
 
-    $scream = 0x51, // E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR,
+    $scream = 0x51, // E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR
     $recoverableErrors = 0x1100, // E_RECOVERABLE_ERROR | E_USER_ERROR
     $scopedErrors = 0x0203, // E_ERROR | E_WARNING | E_USER_WARNING
-    $tracedErrors = 0x1306; // E_RECOVERABLE_ERROR | E_USER_ERROR | E_WARNING | E_USER_WARNING | E_PARSE
+    $tracedErrors = 0x1302; // E_RECOVERABLE_ERROR | E_USER_ERROR | E_WARNING | E_USER_WARNING
 
     protected
 
