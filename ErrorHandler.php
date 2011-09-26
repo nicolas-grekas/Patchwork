@@ -172,15 +172,21 @@ class ErrorHandler
             {
                 $e = compact('type', 'message', 'file', 'line');
                 $e['level'] = $type . '/' . error_reporting();
+                $line = 0; // Read $trace_args
 
                 if ($log)
                 {
-                    if ($this->scopedErrors & $type) null !== $scope && $e['scope'] = $scope;
-                    if ($throw && 0 <= $trace_offset) $e['trace'] = $throw->getTrace();
-                    else if (0 <= $trace_offset) $e['trace'] = debug_backtrace(false);
+                    if ($this->scopedErrors & $type)
+                    {
+                        null !== $scope && $e['scope'] = $scope;
+                        0 <= $trace_offset && $e['trace'] = debug_backtrace(true); // DEBUG_BACKTRACE_PROVIDE_OBJECT
+                        $line = 1;
+                    }
+                    else if ($throw && 0 <= $trace_offset) $e['trace'] = $throw->getTrace();
+                    else if (0 <= $trace_offset) $e['trace'] = debug_backtrace(/*<*/PHP_VERSION_ID >= 50306 ? DEBUG_BACKTRACE_IGNORE_ARGS : false/*>*/);
                 }
 
-                $this->getLogger()->logError($e, $trace_offset, $log_time);
+                $this->getLogger()->logError($e, $trace_offset, $line, $log_time);
             }
 
             if ($throw)
