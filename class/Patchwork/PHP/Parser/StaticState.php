@@ -55,27 +55,17 @@ class Patchwork_PHP_Parser_StaticState extends Patchwork_PHP_Parser
     {
         $code = $this->getRunonceCode($code);
 
-        function_exists('error_get_last') && $e = array(
-            ini_set('error_log',      false),
-            ini_set('display_errors', false),
-        );
-
+        $e = error_reporting(81);
         set_error_handler(array($this, 'errorHandler'));
 
-        if (false === self::evalbox($code) && isset($e))
+        if (false === self::evalbox($code) && $code = error_get_last())
         {
-            $code = error_get_last();
             $this->line = $code['line'];
             $this->setError($code['message'], E_USER_ERROR);
         }
 
         restore_error_handler();
-
-        if (isset($e))
-        {
-            ini_set('display_errors', $e[1]);
-            ini_set('error_log',      $e[0]);
-        }
+        error_reporting($e);
 
         return $this->getRuntimeCode();
     }
@@ -167,7 +157,7 @@ class Patchwork_PHP_Parser_StaticState extends Patchwork_PHP_Parser
 
             $last = $last && $s === $last[0] ? ", expecting `{$last[1]}'" : '';
 
-            $this->setError("Syntax error, unexpected `{$token[0]}'{$last}", E_USER_ERROR);
+            $this->setError("Syntax error, unexpected `{$token[0]}'{$last}", E_USER_WARNING);
         }
     }
 

@@ -12,6 +12,10 @@
  ***************************************************************************/
 
 
+// TODO:
+// An invalid sequence like "([)]" is currently transformed to a valid "(array())".
+// This should instead trigger a parse error.
+
 class Patchwork_PHP_Parser_ShortArray extends Patchwork_PHP_Parser
 {
     protected
