@@ -611,7 +611,7 @@ var w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 
         function $getNext($code)
         {
-            ''.in; // I don't know why, but without this, Firefox' JIT breaks the code
+            ('')['in']; // I don't know why, but without this, Firefox' JIT breaks the code
 
             $code = $code[$pointer++];
 
