@@ -99,7 +99,7 @@ acronym
 .lf,
 .bracket,
 .arrow,
-.ref.id
+.ref
 {
     color: gray;
     font-style: italic;

@@ -74,7 +74,9 @@ function htmlizeEvent(data, refs)
         tags = tags || '';
         toggle = toggle || 'compact';
 
-        if (refs[counter]) push('#' + counter + ' ', 'ref id');
+        if (refs[counter]) push('#' + counter, 'ref target');
+        else if (iRefs[counter]) push('r' + iRefs[counter], 'ref soft');
+        else if (iRefs[-counter]) push('R' + iRefs[-counter], 'ref hard');
 
         switch (true)
         {
@@ -101,7 +103,7 @@ function htmlizeEvent(data, refs)
             switch (i)
             {
                 case 'R':
-                case 'r': push('#' + iRefs[counter] + i, 'ref'); return;
+                case 'r': return;
                 case 'f': push(data[1], 'const' + tags, title); return;
                 case 'b': tags += ' bin'; title.push('Binary');
                 case 'u': tags = 'string' + tags;
