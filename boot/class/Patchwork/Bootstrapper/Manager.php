@@ -279,7 +279,7 @@ class Patchwork_Bootstrapper_Manager
             $this->substeps[] = array($this->override('__autoload', 'spl_autoload_call', array('$class')), __FILE__);
         }
 
-        $this->substeps[] = array('function patchwork_include() {return include func_get_arg(0);}', __FILE__);
+        $this->substeps[] = array('function patchwork_include($file) {unset($file); return include func_get_arg(0);}', __FILE__);
     }
 
     protected function initPreprocessor()
