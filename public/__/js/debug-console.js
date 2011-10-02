@@ -75,8 +75,8 @@ function htmlizeEvent(data, refs)
         toggle = toggle || 'compact';
 
         if (refs[counter]) push('#' + counter, 'ref target');
-        else if (iRefs[counter]) push('r' + iRefs[counter], 'ref soft');
-        else if (iRefs[-counter]) push('R' + iRefs[-counter], 'ref hard');
+        else if (iRefs[counter]) push('r' + iRefs[counter], 'ref handle');
+        else if (iRefs[-counter]) push('R' + iRefs[-counter], 'ref alias');
 
         switch (true)
         {
