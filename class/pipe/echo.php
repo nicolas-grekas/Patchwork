@@ -19,19 +19,19 @@ class pipe_echo
     static function php($format = '')
     {
         $args = func_get_args();
-        self::$args =& $args;
 
         if ('' !== $format) 
         {
+            self::$args = $args;
             $args = preg_replace_callback(
                 "'(%+)([0-9]?)'",
                 array(__CLASS__, 'replace_callback'),
                 $format
             );
+            self::$args = null;
         }
         else $args = implode('', $args);
 
-        unset(self::$args);
         return $args;
     }
 
