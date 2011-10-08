@@ -16,7 +16,7 @@ function classifyEvent(token, type, data)
         if (data.data.level)
         {
             type = data.data.level.split('/'); // TODO: report more info about data.data.level
-            if (!(type[0] & type[1])) div.className += ' silenced';
+            if (!(type[0] & type[1])) div.className += ' silenced', target = 'php-silenced-errors';
             data.data.level = undefined; // Tag as do not display
         }
         break;
