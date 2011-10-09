@@ -263,11 +263,11 @@ class Patchwork_Bootstrapper_Manager
 
             $this->substeps[] = array(null, $this->pwd . 'compat/class/Patchwork/PHP/Override/SplAutoload.php');
             $this->substeps[] = array(
-                $this->override('__autoload',              ':SplAutoload::spl_autoload_call', array('$class')) .
-                $this->override('spl_autoload_call',       ':SplAutoload:', array('$class')) .
-                $this->override('spl_autoload_functions',  ':SplAutoload:', array()) .
-                $this->override('spl_autoload_register',   ':SplAutoload:', array('$callback', '$throw' => true, '$prepend' => false)) .
-                $this->override('spl_autoload_unregister', ':SplAutoload:', array('$callback')) .
+                $this->functionOverride('__autoload',              ':SplAutoload::spl_autoload_call', array('$class')) .
+                $this->functionOverride('spl_autoload_call',       ':SplAutoload:', array('$class')) .
+                $this->functionOverride('spl_autoload_functions',  ':SplAutoload:', array()) .
+                $this->functionOverride('spl_autoload_register',   ':SplAutoload:', array('$callback', '$throw' => true, '$prepend' => false)) .
+                $this->functionOverride('spl_autoload_unregister', ':SplAutoload:', array('$callback')) .
                 (function_exists('spl_autoload_register')
                     ? "spl_autoload_register(array('Patchwork_PHP_Override_SplAutoload','spl_autoload_call'));"
                     : 'class LogicException extends Exception {}'),
@@ -276,7 +276,7 @@ class Patchwork_Bootstrapper_Manager
         }
         else
         {
-            $this->substeps[] = array($this->override('__autoload', 'spl_autoload_call', array('$class')), __FILE__);
+            $this->substeps[] = array($this->functionOverride('__autoload', 'spl_autoload_call', array('$class')), __FILE__);
         }
 
         $this->substeps[] = array('function patchwork_include($file) {unset($file); return include func_get_arg(0);}', __FILE__);
@@ -369,70 +369,26 @@ class Patchwork_Bootstrapper_Manager
         return dirname($this->file) . DIRECTORY_SEPARATOR;
     }
 
-    function override($function, $override, $args, $return_ref = false)
+    protected function functionOverride($function, $override, $args)
     {
         ':' === substr($override, 0, 1) && $override = 'Patchwork_PHP_Override_' . substr($override, 1);
-        ':' === substr($override, -1)   && $override .= ':' . $function;
-        $override = ltrim($override, '\\');
+        ':' === substr($override, -1) && $override .= ':' . $function;
+        $this->overrides[$function] = $override;
 
-        if (function_exists($function))
-        {
-            $inline = 0 === strcasecmp($function, $override) ? -1 : 2;
-            $function = "__patchwork_{$function}";
-        }
-        else
-        {
-            $inline = 1;
-
-            if (0 === strcasecmp($function, $override))
-            {
-                return "throw {$this->bootstrapper}::\$manager->error('Circular overriding of function {$function}()');";
-            }
-        }
+        if (function_exists($function)) $function = '__patchwork_' . $function;
 
         $args = array($args, array(), array());
 
         foreach ($args[0] as $k => $v)
         {
-            if (is_string($k))
-            {
-                $k = trim(strtr($k, "\n\r", '  '));
-                $args[1][] = $k . '=' . var_export($v, true);
-                0 > $inline && $inline = 0;
-            }
-            else
-            {
-                $k = trim(strtr($v, "\n\r", '  '));
-                $args[1][] = $k;
-            }
+            $args[1][] = is_string($k)
+                ? $k . '=' . var_export($v, true)
+                : $k = $v;
 
-            $v = '[a-zA-Z_\x7F-\xFF][a-zA-Z0-9_\x7F-\xFF]*';
-            $v = "'^(?:(?:(?: *\\\\ *)?{$v})+(?:&| +&?)|&?) *(\\\${$v})$'D";
-
-            if (!preg_match($v, $k, $v))
-            {
-                1 !== $inline && $function = substr($function, 12);
-                return "throw {$this->bootstrapper}::\$manager->error('Invalid parameter for {$function}()\'s override ({$override}: {$k})');";
-            }
-
-            $args[2][] = $v[1];
+            $args[2][] = $k;
         }
 
-        $args[1] = implode(',', $args[1]);
-        $args[2] = implode(',', $args[2]);
-
-        $inline && $this->overrides[1 !== $inline ? substr($function, 12) : $function] = $override;
-
-        // FIXME: when overriding a user function, this will throw a can not redeclare fatal error!
-        // Some help is required from the main preprocessor to rename overridden user functions.
-        // When done, overriding will be perfect for user functions. For internal functions,
-        // the only uncatchable case would be when using an internal caller (especially objects)
-        // with an internal callback. This also means that functions with callback could be left
-        // untracked, at least when we are sure that an internal function will not be used as a callback.
-
-        return $return_ref
-            ? "function &{$function}({$args[1]}) {\${''}=&{$override}({$args[2]});return \${''}}"
-            : "function  {$function}({$args[1]}) {return {$override}({$args[2]});}";
+        return "function {$function}(" . implode(',', $args[1]) . ") {return {$override}(" . implode(',', $args[2]) . ");}";
     }
 
     protected function buildEchoErrorMsg($file, $line, $what, $when)

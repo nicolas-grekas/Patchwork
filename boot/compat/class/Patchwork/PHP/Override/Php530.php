@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class Patchwork_PHP_Override_530
+class Patchwork_PHP_Override_Php530
 {
     protected static $us2ns = array();
 

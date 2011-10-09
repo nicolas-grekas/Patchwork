@@ -63,7 +63,7 @@ function ini_get_bool($a)
 /**/else $a = false;
 
 /**/if (!function_exists('getcwd') || !@getcwd())
-/**/    /*<*/boot::$manager->override('getcwd', 'patchwork_getcwd', array())/*>*/;
+        Patchwork\FunctionOverride(getcwd, patchwork_getcwd);
 
 function patchwork_getcwd()
 {
@@ -84,7 +84,7 @@ function patchwork_getcwd()
 /**/if (false !== $a)
 /**/{
 /**/    boot::$manager->pushFile('bootup.realpath.php');
-/**/    /*<*/boot::$manager->override('realpath', 'patchwork_realpath', array('$path'))/*>*/;
+        Patchwork\FunctionOverride(realpath, patchwork_realpath, $path);
 /**/}
 /**/else
 /**/{

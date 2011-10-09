@@ -3,6 +3,7 @@
 #patchwork boot/http
 #patchwork boot/superloader
 
+use Patchwork\PHP\Override as o;
 
 // Default settings
 
@@ -21,7 +22,7 @@ $CONFIG += array(
     'X-UA-Compatible' => 'IE=edge,chrome=1', // X-UA-Compatible - by default use chrome frame or latest IE engine
 
     // Session
-    'session.save_path'     => /*<*/PATCHWORK_ZCACHE/*>*/,
+    'session.save_path'     => PATCHWORK_ZCACHE,
     'session.cookie_path'   => 'auto',
     'session.cookie_domain' => 'auto',
     'session.auth_vars'     => array(), // Set of session vars used for authentication or authorization
@@ -36,7 +37,7 @@ $CONFIG += array(
 
 // Setup patchwork's environment
 
-/**/ /*<*/boot::$manager->override('header', 'Patchwork::header', array('$s', '$replace' => true, '$response_code' => null))/*>*/;
+Patchwork\FunctionOverride(header, Patchwork::header, $s, $replace = true, $response_code = null);
 
 empty($CONFIG['umask']) || umask($CONFIG['umask']);
 empty($CONFIG['xsendfile']) && isset($_SERVER['PATCHWORK_XSENDFILE']) && $CONFIG['xsendfile'] = $_SERVER['PATCHWORK_XSENDFILE'];
@@ -45,15 +46,15 @@ empty($CONFIG['xsendfile']) && isset($_SERVER['PATCHWORK_XSENDFILE']) && $CONFIG
 /**/{
         if (DEBUG)
         {
-/**/        // Replace file_exists() on Windows to check if character case is strict
-/**/
-/**/        /*<*/boot::$manager->override('file_exists',   ':WinfsCase:', array('$file'))/*>*/;
-/**/        /*<*/boot::$manager->override('is_file',       ':WinfsCase:', array('$file'))/*>*/;
-/**/        /*<*/boot::$manager->override('is_dir',        ':WinfsCase:', array('$file'))/*>*/;
-/**/        /*<*/boot::$manager->override('is_link',       ':WinfsCase:', array('$file'))/*>*/;
-/**/        /*<*/boot::$manager->override('is_executable', ':WinfsCase:', array('$file'))/*>*/;
-/**/        /*<*/boot::$manager->override('is_readable',   ':WinfsCase:', array('$file'))/*>*/;
-/**/        /*<*/boot::$manager->override('is_writable',   ':WinfsCase:', array('$file'))/*>*/;
+            // Replace file_exists() on Windows to check if character case is strict
+
+            Patchwork\FunctionOverride(file_exists,   o\WinfsCase, $file);
+            Patchwork\FunctionOverride(is_file,       o\WinfsCase, $file);
+            Patchwork\FunctionOverride(is_dir,        o\WinfsCase, $file);
+            Patchwork\FunctionOverride(is_link,       o\WinfsCase, $file);
+            Patchwork\FunctionOverride(is_executable, o\WinfsCase, $file);
+            Patchwork\FunctionOverride(is_readable,   o\WinfsCase, $file);
+            Patchwork\FunctionOverride(is_writable,   o\WinfsCase, $file);
         }
 /**/}
 

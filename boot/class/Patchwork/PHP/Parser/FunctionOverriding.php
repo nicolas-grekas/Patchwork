@@ -16,7 +16,8 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
 {
     protected
 
-    $overrides  = array(),
+    $functionMap,
+    $overrides = array(),
     $callbacks = array(
         'tagVariableVar' => '(',
         'tagUseFunction' => T_USE_FUNCTION,
@@ -27,11 +28,11 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
     $varVarTail = ",\$\x9D)}";
 
 
-    // List of native functions that could trigger __autoload()
-
     protected static
 
+    // List of native functions that could trigger __autoload()
     $autoloader = array(
+
         // No callback parameter involved or complex behaviour
         '__autoload'        => 0,
         'class_exists'      => 0,
@@ -65,6 +66,7 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
         'array_map'                    => 1,
         'call_user_func'               => 1,
         'call_user_func_array'         => 1,
+        'header_register_callback'     => 1,
         'is_callable'                  => 1,
         'newt_set_help_callback'       => 1,
         'newt_set_suspend_callback'    => 1,
@@ -127,7 +129,7 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
     );
 
 
-    function __construct(parent $parent, $function_map)
+    function __construct(parent $parent, &$function_map)
     {
         $v = get_defined_functions();
 
@@ -140,16 +142,17 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
             }
         }
 
-        if (!$this->overrides) $this->callbacks = array();
-
         parent::__construct($parent);
 
         foreach ($function_map as $k => $v)
         {
             '\\' === $k[0] && $k = substr($k, 1);
             '\\' === $v[0] && $v = substr($v, 1);
-            function_exists('__patchwork_' . strtr($k, '\\', '_')) && $this->overrides[strtolower($k)] = $v;
+            if (function_exists('__patchwork_' . $k) && strcasecmp($k, $v))
+                $this->overrides[strtolower($k)] = $v;
         }
+
+        $this->functionMap =& $function_map;
     }
 
     protected function tagVariableVar(&$token)
@@ -223,7 +226,15 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
 
         $a = substr($a, 1);
 
-        if (isset($this->overrides[$a]))
+        if ('patchwork\functionoverride' === $a)
+        {
+            if ($this->overrideFunction())
+            {
+                $this->dependencies['ClassInfo']->removeNsPrefix();
+                return false;
+            }
+        }
+        else if (isset($this->overrides[$a]))
         {
             $a = $this->overrides[$a];
             $a = explode('::', $a, 2);
@@ -255,6 +266,107 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
                 $this->texts[key($a)] = '';
                 unset($a[key($a)]);
             }
+        }
+    }
+
+    protected function overrideFunction()
+    {
+        $u = array(array(T_FUNCTION, 'function'), array(T_WHITESPACE, ' '));
+
+        $this->getNextToken($i); // this is an opening bracket
+
+        if ('&' === $n =& $this->getNextToken($i))
+        {
+            $u[] = $n;
+            $n = array(T_WHITESPACE, '');
+            $n =& $this->getNextToken($i);
+        }
+
+        if (T_STRING !== $n[0]) return;
+        $this->replacedFunction = $n[1];
+        function_exists($n[1]) && $n[1] = '__patchwork_' . $n[1];
+        $u[] = $n;
+        $n = array(T_WHITESPACE, '');
+
+        if (',' === $n =& $this->getNextToken($i))
+        {
+            $n = array(T_WHITESPACE, '');
+            call_user_func_array(array($this, 'unshiftTokens'), $u);
+            $this->register(array('catchOverride' => array(T_USE_CONSTANT, T_USE_CLASS)));
+            return true;
+        }
+    }
+
+    protected function catchOverride(&$token)
+    {
+        $this->unregister(array('catchOverride' => array(T_USE_CONSTANT, T_USE_CLASS)));
+
+        $this->bracket = 0;
+        $this->arguments = array();
+        $this->replacementFunction = ltrim($this->nsResolved, '\\');
+
+        $n =& $this->getNextToken($i);
+
+        if (T_DOUBLE_COLON === $n[0])
+        {
+            $this->replacementFunction .= '::';
+            $n = array(T_WHITESPACE, '');
+            $n =& $this->getNextToken($i);
+            if (T_STRING !== $n[0]) return;
+            $this->replacementFunction .= $n[1];
+            $n = array(T_WHITESPACE, '');
+            $n =& $this->getNextToken($i);
+        }
+        else if (0 < strpos($this->nsResolved, '\\', 1))
+        {
+            $this->replacementFunction .= '::' . $this->replacedFunction;
+        }
+
+        switch ($n)
+        {
+        case ',':
+            $n = array(T_WHITESPACE, '');
+            $this->register(array('catchArguments' => T_VARIABLE));
+            // no break;
+        case ')':
+            $this->register(array('catchBrackets' => array('(', ')')));
+            $this->dependencies['ClassInfo']->removeNsPrefix();
+            return false;
+        }
+    }
+
+    protected function catchArguments(&$token)
+    {
+        if ('(' !== $this->lastType && ',' !== $this->lastType) return;
+        if (0 === $this->bracket)
+        {
+            $this->arguments[] = ',';
+            $this->arguments[] = $token;
+        }
+    }
+
+    protected function catchBrackets(&$token)
+    {
+        if ('(' === $token[0]) ++$this->bracket;
+        else if (')' === $token[0] && 0 > --$this->bracket)
+        {
+            $this->unregister(array('catchBrackets' => array('(', ')')));
+            $this->unregister(array('catchArguments' => T_VARIABLE));
+
+            // FIXME: when overriding a user function, this will throw a can not redeclare fatal error!
+            // Some help is required from the main preprocessor to rename overridden user functions.
+            // When done, overriding will be perfect for user functions. For internal functions,
+            // the only uncatchable case would be when using an internal caller (especially objects)
+            // with an internal callback. This also means that functions with callback could be left
+            // untracked, at least when we are sure that an internal function will not be used as a callback.
+
+            $this->arguments[0] = '(';
+            $u = array('{', array(T_RETURN, 'return'), array(T_NS_SEPARATOR, '\\'), array(T_STRING, $this->replacementFunction));
+            $u = array_merge($u, $this->arguments, array(')', ';', '}'));
+            call_user_func_array(array($this, 'unshiftTokens'), $u);
+            $this->arguments = array();
+
+            $this->functionMap[$this->replacedFunction] = $this->replacementFunction;
         }
     }
 }

@@ -39,7 +39,7 @@ function patchwork_realpath($a)
 /**/    else
             $cwd = getcwd();
 
-        $a = $cwd . /*<*/DIRECTORY_SEPARATOR/*>*/ . $a;
+        $a = $cwd . DIRECTORY_SEPARATOR . $a;
 
         break;
     }
@@ -62,7 +62,7 @@ function patchwork_realpath($a)
 /**/if ('\\' === DIRECTORY_SEPARATOR)
         $a = strtr($a, '/', '\\');
 
-    $a = explode(/*<*/DIRECTORY_SEPARATOR/*>*/, $a);
+    $a = explode(DIRECTORY_SEPARATOR, $a);
     $b = array();
 
     foreach ($a as $a)
@@ -72,7 +72,7 @@ function patchwork_realpath($a)
         else $b[]= $a;
     }
 
-    $a = $prefix . implode(/*<*/DIRECTORY_SEPARATOR/*>*/, $b);
+    $a = $prefix . implode(DIRECTORY_SEPARATOR, $b);
 
 /**/if ('\\' === DIRECTORY_SEPARATOR)
         $a = strtolower($a);

@@ -25,7 +25,7 @@ $_patchwork_destruct = array();
 
 // Shutdown control
 
-/**//*<*/boot::$manager->override('register_shutdown_function', 'patchwork_shutdown_register', array('$c'))/*>*/;
+Patchwork\FunctionOverride(register_shutdown_function, patchwork_shutdown_register, $callback);
 patchwork_shutdown_register('patchwork_shutdown_start');
 
 function patchwork_shutdown_register($c)
@@ -222,12 +222,12 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
         if (isset($file[0]) &&  '/'  === $file[0]) return $file;
 
         $i = 0;
-        $level = /*<*/PATCHWORK_PATH_LEVEL/*>*/;
+        $level = PATCHWORK_PATH_LEVEL;
     }
     else
     {
         0 <= $level && $base = 0;
-        $i = /*<*/PATCHWORK_PATH_LEVEL/*>*/ - $level - $base;
+        $i = PATCHWORK_PATH_LEVEL - $level - $base;
         0 > $i && $i = 0;
     }
 
@@ -236,7 +236,7 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 
     if (0 === $i)
     {
-        $source = /*<*/PATCHWORK_PROJECT_PATH/*>*/ . $file;
+        $source = PATCHWORK_PROJECT_PATH . $file;
 
 /**/    if ('\\' === DIRECTORY_SEPARATOR)
 /**/    {
@@ -282,7 +282,7 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 /**/else
 /**/{
         $base = md5($file);
-        $base = /*<*/PATCHWORK_ZCACHE/*>*/ . $base[0] . '/' . $base[1] . '/' . substr($base, 2) . '.path.txt';
+        $base = PATCHWORK_ZCACHE . $base[0] . '/' . $base[1] . '/' . substr($base, 2) . '.path.txt';
         $base = @file_get_contents($base);
 /**/}
 
@@ -297,7 +297,7 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 /**/        if ('\\' === DIRECTORY_SEPARATOR)
                 false !== strpos($file, '/') && $file = strtr($file, '/', '\\');
 
-            return $GLOBALS['patchwork_path'][$base] . (0<=$last_level ? $file : substr($file, 6)) . ($slash ? /*<*/DIRECTORY_SEPARATOR/*>*/ : '');
+            return $GLOBALS['patchwork_path'][$base] . (0<=$last_level ? $file : substr($file, 6)) . ($slash ? DIRECTORY_SEPARATOR : '');
         }
         while (false !== next($base));
     }

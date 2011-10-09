@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-class Patchwork_PHP_Override_539
+class Patchwork_PHP_Override_Php539
 {
     static function is_a($o, $c, $allow_string = false)
     {

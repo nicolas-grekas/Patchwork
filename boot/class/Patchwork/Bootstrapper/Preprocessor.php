@@ -24,9 +24,12 @@ class Patchwork_Bootstrapper_Preprocessor
         new Patchwork_PHP_Parser_StringInfo($p);
         new Patchwork_PHP_Parser_NamespaceInfo($p);
         new Patchwork_PHP_Parser_ScopeInfo($p);
+        new Patchwork_PHP_Parser_ConstFuncDisabler($p);
+        new Patchwork_PHP_Parser_ConstFuncResolver($p);
         new Patchwork_PHP_Parser_ConstantInliner($p, $file, array());
         new Patchwork_PHP_Parser_ClassInfo($p);
         new Patchwork_PHP_Parser_FunctionOverriding($p, $GLOBALS['patchwork_preprocessor_overrides']);
+        new Patchwork_PHP_Parser_NamespaceResolver($p);
         $p = $this->parser = new Patchwork_PHP_Parser_StaticState($p);
 
         if( (defined('DEBUG') && DEBUG)

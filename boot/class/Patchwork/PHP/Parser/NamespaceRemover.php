@@ -70,7 +70,7 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
     protected function tagNsSep(&$token)
     {
         if (T_STRING === $this->lastType) $token[1] = strtr($token[1], '\\', '_');
-        else if (T_NS_SEPARATOR !== $this->lastType) $token[1] = '';
+        else if (T_NS_SEPARATOR !== $this->lastType) $token[1] = ' ';
     }
 
     protected function tagNsUse(&$token)

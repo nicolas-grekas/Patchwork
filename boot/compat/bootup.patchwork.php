@@ -11,41 +11,42 @@
  *
  ***************************************************************************/
 
+use Patchwork\PHP\Override as o;
 
 // Overrides to backport namespaces to PHP pre-5.3
 
 /**/if (PHP_VERSION_ID < 50300)
 /**/{
-/**/    /*<*/boot::$manager->override('class_implements',        ':530:', array('$class', '$autoload' => true))/*>*/;
-/**/    /*<*/boot::$manager->override('class_parents',           ':530:', array('$class', '$autoload' => true))/*>*/;
-/**/    /*<*/boot::$manager->override('class_exists',            ':530:', array('$class', '$autoload' => true))/*>*/;
-/**/    /*<*/boot::$manager->override('get_class_methods',       ':530:', array('$class'))/*>*/;
-/**/    /*<*/boot::$manager->override('get_class_vars',          ':530:', array('$class'))/*>*/;
-/**/    /*<*/boot::$manager->override('get_class',               ':530:', array('$obj'))/*>*/;
-/**/    /*<*/boot::$manager->override('get_declared_classes',    ':530:', array())/*>*/;
-/**/    /*<*/boot::$manager->override('get_declared_interfaces', ':530:', array())/*>*/;
-/**/    /*<*/boot::$manager->override('get_parent_class',        ':530:', array('$class'))/*>*/;
-/**/    /*<*/boot::$manager->override('interface_exists',        ':530:', array('$class', '$autoload' => true))/*>*/;
-/**/    /*<*/boot::$manager->override('is_a',                    ':530:', array('$obj', '$class', '$allow_string' => false))/*>*/;
-/**/    /*<*/boot::$manager->override('is_subclass_of',          ':530:', array('$obj', '$class', '$allow_string' => true))/*>*/;
-/**/    /*<*/boot::$manager->override('method_exists',           ':530:', array('$class', '$method'))/*>*/;
-/**/    /*<*/boot::$manager->override('property_exists',         ':530:', array('$class', '$property'))/*>*/;
+        Patchwork\FunctionOverride(class_implements,        o\Php530, $class, $autoload = true);
+        Patchwork\FunctionOverride(class_parents,           o\Php530, $class, $autoload = true);
+        Patchwork\FunctionOverride(class_exists,            o\Php530, $class, $autoload = true);
+        Patchwork\FunctionOverride(get_class_methods,       o\Php530, $class);
+        Patchwork\FunctionOverride(get_class_vars,          o\Php530, $class);
+        Patchwork\FunctionOverride(get_class,               o\Php530, $obj);
+        Patchwork\FunctionOverride(get_declared_classes,    o\Php530);
+        Patchwork\FunctionOverride(get_declared_interfaces, o\Php530);
+        Patchwork\FunctionOverride(get_parent_class,        o\Php530, $class);
+        Patchwork\FunctionOverride(interface_exists,        o\Php530, $class, $autoload = true);
+        Patchwork\FunctionOverride(is_a,                    o\Php530, $obj, $class, $allow_string = false);
+        Patchwork\FunctionOverride(is_subclass_of,          o\Php530, $obj, $class, $allow_string = true);
+        Patchwork\FunctionOverride(method_exists,           o\Php530, $class, $method);
+        Patchwork\FunctionOverride(property_exists,         o\Php530, $class, $property);
 /**/}
 /**/else if (PHP_VERSION_ID < 50309)
 /**/{
-/**/    /*<*/boot::$manager->override('is_a',           ':539:', array('$obj', '$class', '$allow_string' => false))/*>*/;
-/**/    /*<*/boot::$manager->override('is_subclass_of', ':539:', array('$obj', '$class', '$allow_string' => true))/*>*/;
+        Patchwork\FunctionOverride(is_a,           o\Php539, $obj, $class, $allow_string = false);
+        Patchwork\FunctionOverride(is_subclass_of, o\Php539, $obj, $class, $allow_string = true);
 /**/}
 
 /**/if (!function_exists('spl_object_hash'))
 /**/{
-/**/    /*<*/boot::$manager->override('spl_object_hash', ':530:', array('$object'))/*>*/;
+        Patchwork\FunctionOverride(spl_object_hash, o\Php530, $object);
 /**/}
 
 
 /**/ // Fix 5.2.9 array_unique() default sort flag
 /**/if (PHP_VERSION_ID == 50209)
-/**/    /*<*/boot::$manager->override('array_unique', 'array_unique', array('$array', '$sort_flags' => SORT_STRING))/*>*/;
+        Patchwork\FunctionOverride(array_unique, array_unique, $array, $sort_flags = SORT_STRING);
 
 
 /**/if (!function_exists('memory_get_usage'))
