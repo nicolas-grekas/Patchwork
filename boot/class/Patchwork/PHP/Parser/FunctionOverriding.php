@@ -16,7 +16,7 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
 {
     protected
 
-    $functionMap,
+    $newOverrides,
     $overrides = array(),
     $callbacks = array(
         'tagVariableVar' => '(',
@@ -29,6 +29,8 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
 
 
     protected static
+
+    $staticOverrides = array(),
 
     // List of native functions that could trigger __autoload()
     $autoloader = array(
@@ -129,30 +131,19 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
     );
 
 
-    function __construct(parent $parent, &$function_map)
+    static function loadOverrides($overrides)
     {
-        $v = get_defined_functions();
+        foreach ($overrides as $k => $v)
+            self::$staticOverrides[strtolower($k)] = 0 === strcasecmp($k, $v) ? '__patchwork_' . $v : $v;
 
-        foreach ($v['user'] as $v)
-        {
-            if (0 === strncasecmp($v, '__patchwork_', 12))
-            {
-                $v = strtolower($v);
-                $this->overrides[substr($v, 12)] = $v;
-            }
-        }
+        return self::$staticOverrides;
+    }
 
+    function __construct(parent $parent, &$new_overrides = array())
+    {
         parent::__construct($parent);
-
-        foreach ($function_map as $k => $v)
-        {
-            '\\' === $k[0] && $k = substr($k, 1);
-            '\\' === $v[0] && $v = substr($v, 1);
-            if (function_exists('__patchwork_' . $k) && strcasecmp($k, $v))
-                $this->overrides[strtolower($k)] = $v;
-        }
-
-        $this->functionMap =& $function_map;
+        $this->overrides = self::$staticOverrides;
+        $this->newOverrides =& $new_overrides;
     }
 
     protected function tagVariableVar(&$token)
@@ -366,7 +357,7 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
             call_user_func_array(array($this, 'unshiftTokens'), $u);
             $this->arguments = array();
 
-            $this->functionMap[$this->replacedFunction] = $this->replacementFunction;
+            $this->newOverrides[$this->replacedFunction] = array(function_exists($this->replacedFunction), $this->replacementFunction);
         }
     }
 }

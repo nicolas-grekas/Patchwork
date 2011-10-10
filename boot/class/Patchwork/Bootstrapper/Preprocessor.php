@@ -14,7 +14,12 @@
 
 class Patchwork_Bootstrapper_Preprocessor
 {
-    protected $parser;
+    protected $parser, $newOverrides;
+
+    function __construct($overrides)
+    {
+        $this->newOverrides = $overrides;
+    }
 
     function staticPass1($code, $file)
     {
@@ -28,7 +33,12 @@ class Patchwork_Bootstrapper_Preprocessor
         new Patchwork_PHP_Parser_ConstFuncResolver($p);
         new Patchwork_PHP_Parser_ConstantInliner($p, $file, array());
         new Patchwork_PHP_Parser_ClassInfo($p);
-        new Patchwork_PHP_Parser_FunctionOverriding($p, $GLOBALS['patchwork_preprocessor_overrides']);
+
+        if (isset($this->parser)) $this->getOverrides();
+        else Patchwork_PHP_Parser_FunctionOverriding::loadOverrides($this->newOverrides);
+        $this->newOverrides = array();
+
+        new Patchwork_PHP_Parser_FunctionOverriding($p, $this->newOverrides);
         new Patchwork_PHP_Parser_NamespaceResolver($p);
         $p = $this->parser = new Patchwork_PHP_Parser_StaticState($p);
 
@@ -68,7 +78,18 @@ class Patchwork_Bootstrapper_Preprocessor
     {
         if (empty($this->parser)) return '';
         $code = substr($this->parser->getRuntimeCode(), 5);
-        $this->parser = null;
+        $this->parser = false;
         return $code;
+    }
+
+    function getOverrides()
+    {
+        foreach ($this->newOverrides as $k => &$v)
+        {
+            if (function_exists($v[0] ? '__patchwork_' . $k : $k)) $v = $v[1];
+            else unset($this->newOverrides[$k]);
+        }
+
+        return Patchwork_PHP_Parser_FunctionOverriding::loadOverrides($this->newOverrides);
     }
 }

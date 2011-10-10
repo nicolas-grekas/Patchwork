@@ -29,7 +29,7 @@ class Patchwork_Bootstrapper_Manager
     $steps = array(),
     $substeps = array(),
     $file,
-    $overrides,
+    $overrides = array(),
     $callerRx;
 
 
@@ -38,8 +38,6 @@ class Patchwork_Bootstrapper_Manager
         $cwd = (empty($cwd) ? '.' : rtrim($cwd, '/\\')) . DIRECTORY_SEPARATOR;
 
         $this->bootstrapper = $bootstrapper;
-        $this->overrides =& $GLOBALS['patchwork_preprocessor_overrides'];
-        $this->overrides = array();
         $this->callerRx = preg_quote($caller, '/');
         $this->pwd = $pwd;
         $this->cwd = $cwd;
@@ -237,7 +235,7 @@ class Patchwork_Bootstrapper_Manager
         if ('' !== $buffer = ob_get_flush())
             throw $this->error($this->buildEchoErrorMsg($this->file, 0, $buffer, 'during bootstrap'));
 
-        file_put_contents("{$this->cwd}.patchwork.overrides.ser", serialize($this->overrides));
+        file_put_contents("{$this->cwd}.patchwork.overrides.ser", serialize($this->preprocessor->getOverrides()));
         fclose($this->lock);
         $this->lock = null;
 
@@ -285,7 +283,7 @@ class Patchwork_Bootstrapper_Manager
     protected function initPreprocessor()
     {
         $p = $this->bootstrapper . '_Preprocessor';
-        $this->preprocessor = new $p;
+        $this->preprocessor = new $p($this->overrides);
     }
 
     protected function initInheritance()

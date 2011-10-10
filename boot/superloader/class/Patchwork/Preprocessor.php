@@ -27,7 +27,6 @@ class Patchwork_Preprocessor
 
     protected static
 
-    $overrides,
     $declaredClass = array('patchwork'),
     $recursivePool = array(),
     $parsers       = array(
@@ -64,9 +63,6 @@ class Patchwork_Preprocessor
 
     static function __constructStatic()
     {
-        self::$overrides =& $GLOBALS['patchwork_preprocessor_overrides'];
-        null === self::$overrides && self::$overrides = unserialize(file_get_contents(PATCHWORK_PROJECT_PATH . ".patchwork.overrides.ser"));
-
         self::$scream = (defined('DEBUG') && DEBUG)
             && !empty($GLOBALS['CONFIG']['debug.scream'])
                 || (defined('DEBUG_SCREAM') && DEBUG_SCREAM);
@@ -84,6 +80,9 @@ class Patchwork_Preprocessor
             is_bool($v) || $v = self::$parsers[$k] = 0 > $v ? PHP_VERSION_ID < -$v : PHP_VERSION_ID >= $v;
             $v && class_exists('Patchwork_PHP_Parser_' . $k, true);
         }
+
+        $v = PATCHWORK_PROJECT_PATH . ".patchwork.overrides.ser";
+        file_exists($v) && Patchwork_PHP_Parser_FunctionOverriding::loadOverrides(unserialize(file_get_contents($v)));
     }
 
     static function execute($source, $destination, $level, $class, $is_top, $lazy)
@@ -157,7 +156,6 @@ class Patchwork_Preprocessor
             case 'ConstantInliner':    new $t($p, $source, self::$constants); break;
             case 'NamespaceRemover':   new $t($p, 'Patchwork_PHP_Override_Class::add'); break;
             case 'SuperPositioner':    new $t($p, $level, $is_top ? $class : false); break;
-            case 'FunctionOverriding': new $t($p, self::$overrides); break;
             }
         }
 
