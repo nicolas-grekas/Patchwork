@@ -371,7 +371,7 @@ class Patchwork
         $patchwork_appId += $_SERVER['REQUEST_TIME'] - filemtime(PATCHWORK_PROJECT_PATH . 'config.patchwork.php');
         self::$appId = abs($patchwork_appId % 10000);
 
-        if ($h = @fopen(PATCHWORK_PROJECT_PATH . '.patchwork.php', 'r+b'))
+        if (file_exists($h = PATCHWORK_PROJECT_PATH . '.patchwork.php') && $h = fopen($h, 'r+b'))
         {
             $offset = 0;
 
@@ -387,8 +387,6 @@ class Patchwork
             }
 
             fclose($h);
-
-            @touch(PATCHWORK_PROJECT_PATH . '.patchwork.php');
         }
 
         @touch(PATCHWORK_PROJECT_PATH . 'config.patchwork.php', $_SERVER['REQUEST_TIME']);
@@ -831,7 +829,7 @@ class Patchwork
 
             while ($message = array_pop($pool))
             {
-                if ($h = @fopen($message, 'rb'))
+                if (file_exists($message) && $h = fopen($message, 'rb'))
                 {
                     flock($h, LOCK_EX+LOCK_NB, $wb) || $wb = true;
 
@@ -843,15 +841,15 @@ class Patchwork
                             $line = substr($line, 1, -1);
 
                             if ('I' === $a) $pool[] = $line;
-                            else @unlink($line) && ++$i;
+                            else rtrim($line, '/\\') === $line && file_exists($line) && unlink($line) && ++$i;
                         }
 
-                        $wb = '\\' !== DIRECTORY_SEPARATOR && @unlink($message);
+                        $wb = '\\' !== DIRECTORY_SEPARATOR && file_exists($message) && unlink($message);
                     }
 
                     fclose($h);
 
-                    $wb || @unlink($message);
+                    $wb || !file_exists($message) || unlink($message);
 
                     ++$i;
                 }
@@ -867,7 +865,7 @@ class Patchwork
      */
     static function makeDir($dir, $mode = 0700)
     {
-        return @mkdir(dirname($dir . ' '), $mode, true);
+        return file_exists($dir = dirname($dir . ' ')) || mkdir($dir, $mode, true);
     }
 
     static function fopenX($file, &$readHandle = false)
@@ -893,17 +891,11 @@ class Patchwork
      */
     static function writeFile($filename, $data, $Dmtime = 0)
     {
-        $tmpname = dirname($filename) . DIRECTORY_SEPARATOR . '.~' . uniqid(mt_rand(), true);
+        $h = dirname($filename);
+        $tmpname = $h . DIRECTORY_SEPARATOR . '.~' . uniqid(mt_rand(), true);
+        file_exists($h) || self::makeDir($tmpname);
 
-        $h = @fopen($tmpname, 'wb');
-
-        if (!$h)
-        {
-            self::makeDir($tmpname);
-            $h = @fopen($tmpname, 'wb');
-        }
-
-        if ($h)
+        if ($h = fopen($tmpname, 'wb'))
         {
             fwrite($h, $data);
             fclose($h);

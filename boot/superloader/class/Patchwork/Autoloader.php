@@ -129,7 +129,7 @@ class Patchwork_Autoloader
             {
                 if (self::$preproc)
                 {
-                    @unlink($cache);
+                    file_exists($cache) && unlink($cache);
                     copy($src, $cache);
                 }
                 else Patchwork_Preprocessor::execute($src, $cache, $level, $top, $isTop, false);
