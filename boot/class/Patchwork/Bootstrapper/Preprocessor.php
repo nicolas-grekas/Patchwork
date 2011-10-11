@@ -34,9 +34,7 @@ class Patchwork_Bootstrapper_Preprocessor
         new Patchwork_PHP_Parser_ConstantInliner($p, $file, array());
         new Patchwork_PHP_Parser_ClassInfo($p);
 
-        if (isset($this->parser)) $this->getOverrides();
-        else Patchwork_PHP_Parser_FunctionOverriding::loadOverrides($this->newOverrides);
-        $this->newOverrides = array();
+        $this->getOverrides(); // Load active overrides
 
         new Patchwork_PHP_Parser_FunctionOverriding($p, $this->newOverrides);
         new Patchwork_PHP_Parser_NamespaceResolver($p);
@@ -84,12 +82,8 @@ class Patchwork_Bootstrapper_Preprocessor
 
     function getOverrides()
     {
-        foreach ($this->newOverrides as $k => &$v)
-        {
-            if (function_exists($v[0] ? '__patchwork_' . $k : $k)) $v = $v[1];
-            else unset($this->newOverrides[$k]);
-        }
-
-        return Patchwork_PHP_Parser_FunctionOverriding::loadOverrides($this->newOverrides);
+        $o = $this->newOverrides;
+        $this->newOverrides = array();
+        return Patchwork_PHP_Parser_FunctionOverriding::loadOverrides($o);
     }
 }

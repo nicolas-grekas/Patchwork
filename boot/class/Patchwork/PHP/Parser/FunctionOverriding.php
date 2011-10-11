@@ -134,7 +134,8 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
     static function loadOverrides($overrides)
     {
         foreach ($overrides as $k => $v)
-            self::$staticOverrides[strtolower($k)] = 0 === strcasecmp($k, $v) ? '__patchwork_' . $v : $v;
+            if (function_exists($v[0] ? '__patchwork_' . $k : $k))
+                self::$staticOverrides[strtolower($k)] = 0 === strcasecmp($k, $v) ? $v[0] . '__patchwork_' . substr($v, 1) : $v;
 
         return self::$staticOverrides;
     }
@@ -227,7 +228,7 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
         }
         else if (isset($this->overrides[$a]))
         {
-            $a = $this->overrides[$a];
+            $a = substr($this->overrides[$a], 1);
             $a = explode('::', $a, 2);
 
             if (1 === count($a)) $token[1] = $a[0];
@@ -357,7 +358,7 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
             call_user_func_array(array($this, 'unshiftTokens'), $u);
             $this->arguments = array();
 
-            $this->newOverrides[$this->replacedFunction] = array(function_exists($this->replacedFunction), $this->replacementFunction);
+            $this->newOverrides[$this->replacedFunction] = (int) function_exists($this->replacedFunction) . $this->replacementFunction;
         }
     }
 }
