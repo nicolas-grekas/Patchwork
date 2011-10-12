@@ -319,18 +319,21 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 /**/        @unlink(PATCHWORK_PROJECT_PATH . $b);
 /**/closedir($a);
 
-function patchwork_is_loaded($class, $autoload = false)
+function patchwork_exists($class, $autoload)
 {
-    if (class_exists($class, $autoload) || interface_exists($class, false)) return true;
+    if (class_exists($class, $autoload) || interface_exists($class, false) || trait_exists($class, false)) return true;
 
 /**/if (function_exists('class_alias'))
 /**/{
-        $c = strtr($class, '\\', '_');
-
-        if (class_exists($c, false) || interface_exists($c, false))
+        if (strrpos($class, '\\'))
         {
-            class_alias($c, $class);
-            return true;
+            $c = strtr(ltrim($class, '\\'), '\\', '_');
+
+            if (class_exists($c, false) || interface_exists($c, false) || trait_exists($c, false))
+            {
+                class_alias($c, $class);
+                return true;
+            }
         }
 /**/}
 
@@ -341,7 +344,7 @@ function patchwork_autoload($class)
 {
     $class = ltrim($class, '\\');
 
-    if (patchwork_is_loaded($class) || !is_callable($class, true)) return;
+    if (patchwork_exists($class, false) || !is_callable($class, true)) return;
 
     $a = strtolower(strtr($class, '\\', '_'));
 
@@ -368,7 +371,7 @@ function patchwork_autoload($class)
         {
             patchwork_include_voicer($a, null);
 
-            if (patchwork_is_loaded($class)) return;
+            if (patchwork_exists($class, false)) return;
         }
     }
 

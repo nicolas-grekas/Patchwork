@@ -38,6 +38,11 @@ use Patchwork\PHP\Override as o;
         Patchwork\FunctionOverride(is_subclass_of, o\Php539, $obj, $class, $allow_string = true);
 /**/}
 
+/**/if (!function_exists('trait_exists'))
+/**/{
+        function trait_exists($class, $autoload = true) {return false;}
+/**/}
+
 /**/if (!function_exists('spl_object_hash'))
 /**/{
         Patchwork\FunctionOverride(spl_object_hash, o\Php530, $object);

@@ -104,7 +104,7 @@ class Patchwork_Autoloader
         if ($level > $a)
         {
             do $parent = $top . '__' . (0 <= --$level ? $level : '00');
-            while (!($parent_exists = patchwork_is_loaded($parent)) && $level > $a);
+            while (!($parent_exists = patchwork_exists($parent, false)) && $level > $a);
         }
         else
         {
@@ -139,7 +139,7 @@ class Patchwork_Autoloader
 
             patchwork_include_voicer($cache, error_reporting());
 
-            if ($parent && patchwork_is_loaded($req)) $parent = false;
+            if ($parent && patchwork_exists($req, false)) $parent = false;
             if (false !== $parent_pool) $parent_pool[$parent ? $parent : $req] = $cache;
         }
 
@@ -149,8 +149,8 @@ class Patchwork_Autoloader
         $code = '';
 
         if (  $parent
-            ? patchwork_is_loaded($parent, true)
-            : (patchwork_is_loaded($req) && !isset($GLOBALS["c\x9D"][$lc_req]))  )
+            ? patchwork_exists($parent, true)
+            : (patchwork_exists($req, false) && !isset($GLOBALS["c\x9D"][$lc_req]))  )
         {
             if (false !== $a = strrpos($req, '\\'))
             {
