@@ -151,18 +151,16 @@ function htmlizeEvent(data, refs)
                 t.isArray = 1;
             }
 
-            if (undefined !== data.__maxDepth)
+            e = 0;
+            for (i in data) if ('_' !== i && '__cutBy' !== i && '__refs' !== i && 2 === ++e) break;
+
+            if (!e)
             {
                 push(b[0], 'bracket');
-                push('...', 'cut', ['Max-depth reached']);
+                if (data.__cutBy) push('...', 'cut', ['Cut by ' + data.__cutBy]);
                 push(b[1], 'bracket');
                 return;
             }
-
-            e = 0;
-            for (i in data) if ('_' !== i && '__maxLength' !== i && '__refs' !== i && 2 === ++e) break;
-
-            if (!e) return push(b[0] + b[1], 'bracket');
 
             depth += 2;
             buffer.push('<span class="array-' + toggle + '">');
@@ -172,7 +170,7 @@ function htmlizeEvent(data, refs)
 
             for (i in data)
             {
-                if ('_' === i || '__maxLength' === i || '__refs' === i) continue;
+                if ('_' === i || '__cutBy' === i || '__refs' === i) continue;
                 if (undefined === data[i] && ++counter) continue;
 
                 title = [];
@@ -215,10 +213,10 @@ function htmlizeEvent(data, refs)
                 push(',\n', 'lf');
             }
 
-            if (data.__maxLength)
+            if (data.__cutBy)
             {
                 buffer.push('<span class="indent">' + new Array(depth).join(' ') + '</span>')
-                push('...', 'cut', ['Max-length reached' + (data.__maxLength > 0 ? ', cut by ' + data.__maxLength : '')]);
+                push('...', 'cut', ['Cut by ' + data.__cutBy]);
                 push(',\n', 'lf');
             }
 
