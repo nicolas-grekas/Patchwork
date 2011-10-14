@@ -292,10 +292,9 @@ class SESSION
 
     protected function __construct($sid)
     {
-        $this->path = self::$savePath .'/'. $sid[0] .'/'. substr($sid, 1) .'.session';
-
-        p::makeDir($this->path);
-
+        $this->path = self::$savePath . '/' . $sid[0];
+        file_exists($this->path) || mkdir($this->path, 0700, true);
+        $this->path .= '/' . substr($sid, 1) . '.session';
         $this->handle = fopen($this->path, 'a+b');
         flock($this->handle, LOCK_EX);
     }

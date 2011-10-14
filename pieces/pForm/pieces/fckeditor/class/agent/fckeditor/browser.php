@@ -89,9 +89,7 @@ class agent_fckeditor_browser extends agent
 
                 $path .= $o->resourceType . $o->currentFolder;
 
-                p::makeDir($path);
-
-                if ($h = opendir($path))
+                if (file_exists($path) && $h = opendir($path))
                 {
                     while (false !== $file = readdir($h))
                     {
@@ -140,9 +138,8 @@ class agent_fckeditor_browser extends agent
             {
                 $newFolderName = $this->path . $o->resourceType . $o->currentFolder . $newFolderName . '/';
 
-                @p::makeDir($newFolderName);
-
-                if (!is_dir($newFolderName)) return array('number' => 102, 'originalDescription' => 'Failed creating new directory. Please check folder permissions.');
+                if (!is_dir($newFolderName) || mkdir($newFolderName, 0700, true))
+                    return array('number' => 102, 'originalDescription' => 'Failed creating new directory. Please check folder permissions.');
 
                 p::touch($this->watch);
             }
@@ -166,7 +163,7 @@ class agent_fckeditor_browser extends agent
 
             $path = $this->path . $o->resourceType . $o->currentFolder;
 
-            @p::makeDir($path);
+            file_exists($path) || mkdir($path, 0700, true);
 
             $o->filename = $file['name'];
 

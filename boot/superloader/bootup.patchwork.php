@@ -61,8 +61,6 @@ function patchwork_shutdown_execute($c)
 
 function patchwork_shutdown_start()
 {
-    $GLOBALS['patchwork_shutdown_time'] = true;
-
     // See http://bugs.php.net/54114
     while (ob_get_level()) ob_end_flush();
     ob_start('patchwork_ob_shutdown');

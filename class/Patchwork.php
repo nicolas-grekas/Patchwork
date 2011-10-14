@@ -860,23 +860,11 @@ class Patchwork
         }
     }
 
-    /*
-     * Like mkdir(), but works with multiple level of inexistant directory
-     */
-    static function makeDir($dir, $mode = 0700)
-    {
-        return file_exists($dir = dirname($dir . ' ')) || mkdir($dir, $mode, true);
-    }
-
     static function fopenX($file, &$readHandle = false)
     {
-        if ($h = !file_exists($file))
-        {
-            self::makeDir($file);
-            $h = @fopen($file, 'xb');
-        }
+        file_exists($h = dirname($file)) || mkdir($h, 0700, true);
 
-        if ($h) flock($h, LOCK_EX);
+        if ($h = @fopen($file, 'xb')) flock($h, LOCK_EX);
         else if ($readHandle)
         {
             $readHandle = fopen($file, 'rb');
@@ -891,9 +879,8 @@ class Patchwork
      */
     static function writeFile($filename, $data, $Dmtime = 0)
     {
-        $h = dirname($filename);
+        file_exists($h = dirname($filename)) || mkdir($h, 0700, true);
         $tmpname = $h . DIRECTORY_SEPARATOR . '.~' . uniqid(mt_rand(), true);
-        file_exists($h) || self::makeDir($tmpname);
 
         if ($h = fopen($tmpname, 'wb'))
         {
@@ -1158,9 +1145,10 @@ class Patchwork
             $path = self::getCachePath('watch/' . $message, 'txt');
             if ($exclusive) self::$watchTable[$path] = (bool) $file;
 
-            if ($file_isnew = !file_exists($path)) self::makeDir($path);
-
             if (!$file || PATCHWORK_ZCACHE === $file) continue;
+
+            if ($file_isnew = !file_exists($h = dirname($path))) mkdir($h, 0700, true);
+            else $file_isnew = !file_exists($path);
 
             $h = fopen($path, 'ab');
             fwrite($h, 'U' . $file . "\n");
@@ -1174,7 +1162,8 @@ class Patchwork
                     $a = $path;
                     $path = self::getCachePath('watch/' . implode('/', $message), 'txt');
 
-                    if ($file_isnew = !file_exists($path)) self::makeDir($path);
+                    if ($file_isnew = !file_exists($h = dirname($path . ' '))) mkdir($h, 0700, true);
+                    else $file_isnew = !file_exists($path);
 
                     $h = fopen($path, 'ab');
                     fwrite($h, 'I' . $a . "\n");
