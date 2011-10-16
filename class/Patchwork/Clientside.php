@@ -53,14 +53,12 @@ class Clientside extends p
 
         echo $a =<<<EOHTML
 <!DOCTYPE html>
-<!--
-For server-side generated source code, see {$uri}
--->
-<!--[if lt IE 7]><html{$lang} class="ie6"><![endif]-->
-<!--[if IE 7]><html{$lang} class="ie7"><![endif]-->
-<!--[if IE 8]><html{$lang} class="ie8"><![endif]-->
-<!--[if gt IE 8]><html{$lang} class="ie9"><![endif]-->
-<!--[if !IE]><!--><html{$lang}><!--<![endif]-->
+<!--[if lt IE 7]><html{$lang} class="lt-ie9 lt-ie8 lt-ie7 ie6"><![endif]-->
+<!--[if IE 7]><html{$lang} class="lt-ie9 lt-ie8 ie7"><![endif]-->
+<!--[if IE 8]><html{$lang} class="lt-ie9 ie8"><![endif]-->
+<!--[if gt IE 8]><!--><html{$lang}><!--<![endif]-->
+<meta charset="utf-8">
+<noscript><meta http-equiv="refresh" content="0; url={$uri}"></noscript>
 <script name="w$">a=[{$agent},[{$a}],{$appId},{$b}]</script>
 <!--[if !IE]><!--><script name="w$" src="data:text/javascript,a[4]=1"></script><!--<![endif]-->
 <script src="{$base}js/w?{$appId}"></script>
