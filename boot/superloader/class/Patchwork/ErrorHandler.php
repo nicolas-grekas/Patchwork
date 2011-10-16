@@ -29,7 +29,7 @@ class ErrorHandler extends PHP\ErrorHandler
 
         0 <= $trace_offset && ++$trace_offset;
         parent::handleError($type, $message, $file, $line, $scope, $trace_offset, $log_time);
-        empty($e) || error_reporting($e);
+        isset($e) && error_reporting($e);
 
         return (bool) (error_reporting() & $type);
     }
