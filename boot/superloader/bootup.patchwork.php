@@ -23,6 +23,15 @@ $_patchwork_destruct = array();
 /**//*<*/"\$c\x9D=array();\$d\x9D=1;(\$e\x9D=\$b\x9D=\$a\x9D=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "')&&\$d\x9D&&0;"/*>*/;
 
 
+/**/ // Purge code cache files
+/**/
+/**/$a = opendir(PATCHWORK_PROJECT_PATH);
+/**/while (false !== $b = readdir($a))
+/**/    if ('.zcache.php' === substr($b, -11) && '.' === $b[0])
+/**/        @unlink(PATCHWORK_PROJECT_PATH . $b);
+/**/closedir($a);
+
+
 // Shutdown control
 
 Patchwork\FunctionOverride(register_shutdown_function, patchwork_shutdown_register, $callback);
@@ -176,9 +185,9 @@ function patchwork_class2cache($class, $level)
         $class = str_replace($map[0], $map[1], $class);
     }
 
-    $cache = (int) DEBUG . (0>$level ? -$level . '-' : $level);
-    $cache = /*<*/PATCHWORK_PROJECT_PATH . '.class_'/*>*/
-            . strtr($class, '\\', '_') . ".{$cache}.zcache.php";
+    $cache = defined('DEBUG') ? (int) DEBUG : 0;
+    $cache .= 0 > $level ? -$level . '-' : $level;
+    $cache = /*<*/PATCHWORK_PROJECT_PATH . '.class_'/*>*/ . strtr($class, '\\', '_') . ".{$cache}.zcache.php";
 
     return $cache;
 }
@@ -304,18 +313,42 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 }
 
 
-// patchwork_autoload(): the magic part
+// Autoloading
 
 /**/@unlink(PATCHWORK_PROJECT_PATH . '.patchwork.autoloader.php');
 /**/copy(boot::$manager->getCurrentDir() . 'class/Patchwork/Autoloader.php', PATCHWORK_PROJECT_PATH . '.patchwork.autoloader.php');
 
-/**/ // Purge code cache files
-/**/
-/**/$a = opendir(PATCHWORK_PROJECT_PATH);
-/**/while (false !== $b = readdir($a))
-/**/    if ('.zcache.php' === substr($b, -11) && '.' === $b[0])
-/**/        @unlink(PATCHWORK_PROJECT_PATH . $b);
-/**/closedir($a);
+/**/if (function_exists('class_alias'))
+/**/{
+        spl_autoload_register('patchwork_autoload_alias', true, true);
+
+        function patchwork_autoload_alias($class)
+        {
+            if (strrpos($class, '\\'))
+            {
+                $c = strtr($class, '\\', '_');
+
+                if (class_exists($c, false) || interface_exists($c, false) || trait_exists($c, false))
+                {
+                    class_alias($c, $class);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+/**/}
+
+spl_autoload_register('patchwork_autoload_autoloader');
+
+function patchwork_autoload_autoloader($class)
+{
+    spl_autoload_unregister(__FUNCTION__);
+    require /*<*/PATCHWORK_PROJECT_PATH . '.patchwork.autoloader.php'/*>*/;
+    defined('TURBO') && Patchwork_Autoloader::$turbo = TURBO;
+    spl_autoload_register(array('Patchwork_Autoloader', 'autoload'));
+    Patchwork_Autoloader::autoload($class);
+}
 
 function patchwork_exists($class, $autoload)
 {
@@ -323,62 +356,12 @@ function patchwork_exists($class, $autoload)
 
 /**/if (function_exists('class_alias'))
 /**/{
-        if (strrpos($class, '\\'))
-        {
-            $c = strtr(ltrim($class, '\\'), '\\', '_');
-
-            if (class_exists($c, false) || interface_exists($c, false) || trait_exists($c, false))
-            {
-                class_alias($c, $class);
-                return true;
-            }
-        }
+        return patchwork_autoload_alias($class);
 /**/}
-
-    return false;
-}
-
-function patchwork_autoload($class)
-{
-    $class = ltrim($class, '\\');
-
-    if (patchwork_exists($class, false) || !is_callable($class, true)) return;
-
-    $a = strtolower(strtr($class, '\\', '_'));
-
-    if (TURBO && $a =& $GLOBALS["c\x9D"][$a])
-    {
-        if (is_int($a))
-        {
-            $b = $a;
-            unset($a);
-            $a = $b - /*<*/count($GLOBALS['patchwork_path']) - PATCHWORK_PATH_LEVEL/*>*/;
-
-            $b = strtr($class, '\\', '_');
-            $i = strrpos($b, '__');
-            false !== $i && isset($b[$i+2]) && '' === trim(substr($b, $i+2), '0123456789') && $b = substr($b, 0, $i);
-
-            $a = $b . '.php.' . DEBUG . (0>$a ? -$a . '-' : $a);
-        }
-
-        $a = /*<*/PATCHWORK_PROJECT_PATH  . '.class_'/*>*/ . $a . '.zcache.php';
-
-        $GLOBALS["a\x9D"] = false;
-
-        if (file_exists($a))
-        {
-            patchwork_include_voicer($a, null);
-
-            if (patchwork_exists($class, false)) return;
-        }
-    }
-
-    if (!class_exists('Patchwork_Autoloader', false))
-    {
-        require /*<*/PATCHWORK_PROJECT_PATH . '.patchwork.autoloader.php'/*>*/;
-    }
-
-    Patchwork_Autoloader::autoload($class);
+/**/else
+/**/{
+        return false;
+/**/}
 }
 
 

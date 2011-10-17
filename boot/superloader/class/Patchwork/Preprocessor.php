@@ -132,6 +132,8 @@ class Patchwork_Preprocessor
 
     protected function preprocess($source, $level, $class, $is_top)
     {
+        $debug = defined('DEBUG') && DEBUG;
+
         foreach (self::$parsers as $c => $t)
         {
             if (!$t) continue;
@@ -151,8 +153,8 @@ class Patchwork_Preprocessor
             case 'Constructor4to5':    if (0 >  $level) new $t($p); break;
             case 'Globalizer':         if (0 <= $level) new $t($p, '$CONFIG'); break;
             case 'T':
-            case 'ErrorVoicer':        if ( DEBUG) new $t($p); break;
-            case 'Marker':             if (!DEBUG) new $t($p, self::$declaredClass); break;
+            case 'ErrorVoicer':        if ( $debug) new $t($p); break;
+            case 'Marker':             if (!$debug) new $t($p, self::$declaredClass); break;
             case 'ConstantInliner':    new $t($p, $source, self::$constants); break;
             case 'NamespaceRemover':   new $t($p, 'Patchwork_PHP_Override_Class::add'); break;
             case 'SuperPositioner':    new $t($p, $level, $is_top ? $class : false); break;

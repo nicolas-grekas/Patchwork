@@ -14,6 +14,8 @@
 
 class Patchwork_Autoloader
 {
+    static $turbo = false;
+
     protected static
 
     $preproc = false,
@@ -125,7 +127,7 @@ class Patchwork_Autoloader
             $parent_pool =& self::$pool;
             self::$pool =& $current_pool;
 
-            if (!(file_exists($cache) && (TURBO || filemtime($cache) > filemtime($src))))
+            if (!(file_exists($cache) && (self::$turbo || filemtime($cache) > filemtime($src))))
             {
                 if (self::$preproc)
                 {
@@ -210,7 +212,7 @@ class Patchwork_Autoloader
 
         'patchwork_preprocessor' === $lc_top && self::$preproc = false;
 
-        if (!TURBO || self::$preproc) return;
+        if (!self::$turbo || self::$preproc) return;
         if (class_exists('Patchwork_Preprocessor', false) && Patchwork_Preprocessor::isRunning()) return;
 
         if ($code && isset($GLOBALS["c\x9D"][$parent]))
