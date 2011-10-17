@@ -56,7 +56,6 @@ class Patchwork_Preprocessor
         'Scream'             => true,
         'T'                  => true,
         'Marker'             => true,
-//        'ErrorVoicer'        => true, // Drawback: throwing out off silenced code makes silencing persistent
         'StaticState'        => true,
     );
 
@@ -153,7 +152,6 @@ class Patchwork_Preprocessor
             case 'Constructor4to5':    if (0 >  $level) new $t($p); break;
             case 'Globalizer':         if (0 <= $level) new $t($p, '$CONFIG'); break;
             case 'T':
-            case 'ErrorVoicer':        if ( $debug) new $t($p); break;
             case 'Marker':             if (!$debug) new $t($p, self::$declaredClass); break;
             case 'ConstantInliner':    new $t($p, $source, self::$constants); break;
             case 'NamespaceRemover':   new $t($p, 'Patchwork_PHP_Override_Class::add'); break;
