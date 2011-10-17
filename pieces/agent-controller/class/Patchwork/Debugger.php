@@ -144,7 +144,7 @@ EOHTML;
         $error_log || $error_log = PATCHWORK_PROJECT_PATH . 'error.patchwork.log';
 
         ?>
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
     <title>Debug Window</title>
@@ -206,12 +206,13 @@ EOHTML;
         }
 
         ?>
+</div>
 <script>
 scrollTo(0,0);
 var i, b = window.parent && parent.E && parent.E.buffer;
 for (i in b) classifyEvent("0000000000", "client-dump", b[i]);
 parent.E.buffer = [];
-</script></div></body></html>
+</script>
 <?php
 
         exit;

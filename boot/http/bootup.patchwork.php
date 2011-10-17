@@ -73,7 +73,7 @@ function patchwork_http_bad_request($message, $url)
         $url = htmlspecialchars($url);
 
         echo <<<EOHTML
-<!DOCTYPE html>
+<!doctype html>
 <title>400 Bad Request</title>
 <h1>400 Bad Request</h1>
 <p>{$message}<br><br>Are you trying to reach <a href="{$url}">{$url}</a>&nbsp;?</p>

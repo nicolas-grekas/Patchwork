@@ -1212,8 +1212,8 @@ class Patchwork
 /**/            {
                     if ((!p\Debugger::$syncCache || IS_POSTING) && !self::$binaryMode && 's' !== self::$requestMode)
                     {
-                        $buffer = false !== strpos($buffer, '<!DOCTYPE')
-                            ? preg_replace("'<!DOCTYPE[^>]*>'", '$0' . p\Debugger::getProlog(), $buffer)
+                        $buffer = false !== stripos($buffer, '<!doctype')
+                            ? preg_replace("'<!doctype[^>]*>'i", '$0' . p\Debugger::getProlog(), $buffer)
                             : p\Debugger::getProlog() . $buffer;
                     }
 /**/            }
@@ -1227,15 +1227,7 @@ class Patchwork
 /**/            {
                     if ((!p\Debugger::$syncCache || IS_POSTING) && !self::$binaryMode && 's' !== self::$requestMode)
                     {
-                        if (false !== strpos($buffer, '</body'))
-                        {
-                            $buffer = str_replace('</body', p\Debugger::getConclusion() . '</body', $buffer);
-                        }
-                        else if (false !== strpos($buffer, '</html'))
-                        {
-                            $buffer = str_replace('</html', '<body>' . p\Debugger::getConclusion() . '</body></html', $buffer);
-                        }
-                        else $buffer .= p\Debugger::getConclusion();
+                        $buffer .= p\Debugger::getConclusion();
                     }
 /**/            }
             }

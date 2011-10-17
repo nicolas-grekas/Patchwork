@@ -79,6 +79,3 @@ table
 
 <script defer src="{base:'js/liveAgent'}"></script>
 <script defer src="{base:'js/upload'}"></script>
-
-</body>
-</html>

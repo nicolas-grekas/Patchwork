@@ -50,7 +50,7 @@ class pMail_agent extends pMail_text
 
         // Remove noisy tags
         $html = preg_replace('#<(head|script|title|applet|frameset|i?frame)\b[^>]*>.*?</\1\b[^>]*>#is', '', $html);
-        $html = preg_replace('#</?(?:!DOCTYPE|html|meta|body|base|link)\b[^>]*>#is', '', $html);
+        $html = preg_replace('#</?(?:!doctype|html|meta|body|base|link)\b[^>]*>#is', '', $html);
         $html = preg_replace('#<!--.*?-->#s', '', $html);
         $html = trim($html);
 

@@ -52,7 +52,7 @@ class Clientside extends p
         false !== strpos($uri, '>') && $uri = str_replace('>', '%3E', $uri);
 
         echo $a =<<<EOHTML
-<!DOCTYPE html>
+<!doctype html>
 <!--[if lt IE 7]><html{$lang} class="lt-ie9 lt-ie8 lt-ie7 ie6"><![endif]-->
 <!--[if IE 7]><html{$lang} class="lt-ie9 lt-ie8 ie7"><![endif]-->
 <!--[if IE 8]><html{$lang} class="lt-ie9 ie8"><![endif]-->
@@ -62,7 +62,6 @@ class Clientside extends p
 <script name="w$">a=[{$agent},[{$a}],{$appId},{$b}]</script>
 <!--[if !IE]><!--><script name="w$" src="data:text/javascript,a[4]=1"></script><!--<![endif]-->
 <script src="{$base}js/w?{$appId}"></script>
-</html>
 EOHTML;
     }
 
