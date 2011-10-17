@@ -55,10 +55,10 @@ use Patchwork\PHP\Override as o;
 
 
 /**/if (!function_exists('memory_get_usage'))
-    function memory_get_usage($real = false) {return 0;}
+        function memory_get_usage($real = false) {return 0;}
 
 /**/if (!function_exists('memory_get_peak_usage'))
-    function memory_get_peak_usage($real = false) {return 0;}
+        function memory_get_peak_usage($real = false) {return 0;}
 
 
 // Default serialize precision is 100, but 17 is enough

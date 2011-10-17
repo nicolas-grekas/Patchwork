@@ -13,6 +13,12 @@
 
 use Patchwork\PHP\Override as o;
 
+// utf8_encode/decode support enhanced to Windows-1252
+
+Patchwork\FunctionOverride(utf8_encode, o\Utf8, $s);
+Patchwork\FunctionOverride(utf8_decode, o\Utf8, $s);
+
+
 // basename() and pathinfo() are locale sensitive, but this breaks UTF-8 paths
 
 /**/if ('' === basename('§'))
@@ -24,7 +30,7 @@ use Patchwork\PHP\Override as o;
 
 // Changing default charset to UTF-8, adding new $double_encode parameter (since 5.2.3)
 
-     Patchwork\FunctionOverride(html_entity_decode, html_entity_decode, $s, $style = ENT_COMPAT, $charset = 'UTF-8');
+Patchwork\FunctionOverride(html_entity_decode, html_entity_decode, $s, $style = ENT_COMPAT, $charset = 'UTF-8');
 
 /**/if (PHP_VERSION_ID < 50203)
 /**/{
@@ -176,18 +182,12 @@ use Patchwork\PHP\Override as o;
 
 /**/if (extension_loaded('exif'))
 /**/{
-/**/    if ('UTF-8' !== strtoupper(ini_get('exif.encode_unicode')) && ini_get('exif.encode_unicode'))
+/**/    if (ini_get('exif.encode_unicode') && 'UTF-8' !== strtoupper(ini_get('exif.encode_unicode')))
             ini_set('exif.encode_unicode', 'UTF-8');
 
-/**/    if ('UTF-8' !== strtoupper(ini_get('exif.encode_jis')) && ini_get('exif.encode_jis'))
+/**/    if (ini_get('exif.encode_jis') && 'UTF-8' !== strtoupper(ini_get('exif.encode_jis')))
             ini_set('exif.encode_jis', 'UTF-8');
 /**/}
-
-
-// utf8_encode/decode support enhanced to Windows-1252
-
-Patchwork\FunctionOverride(utf8_encode, o\Utf8, $s);
-Patchwork\FunctionOverride(utf8_decode, o\Utf8, $s);
 
 
 // Check PCRE

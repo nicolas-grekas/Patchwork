@@ -453,8 +453,51 @@ class Patchwork_PHP_Parser
 
     // Register/unregister callbacks for the next tokens
 
-    protected function   register($method) {$this->registryApply($method, true );}
-    protected function unregister($method) {$this->registryApply($method, false);}
+    protected function register($method)
+    {
+        foreach ((array) $method as $method => $type)
+        {
+            if (empty($method[0]))
+            {
+                $method = $type;
+                $type = 0; // T_SEMANTIC
+            }
+
+            foreach ((array) $type as $type)
+            {
+                0 === $type && $s0 = 1; // T_SEMANTIC
+                1 === $type && $s1 = 1; // T_NON_SEMANTIC
+                $this->tokenRegistry[$type][++$this->registryIndex] = array($this, $method);
+            }
+        }
+
+        isset($s0) && ksort($this->tokenRegistry[0]); // T_SEMANTIC
+        isset($s1) && ksort($this->tokenRegistry[1]); // T_NON_SEMANTIC
+    }
+
+    protected function unregister($method)
+    {
+        foreach ((array) $method as $method => $type)
+        {
+            if (empty($method[0]))
+            {
+                $method = $type;
+                $type = 0; // T_SEMANTIC
+            }
+
+            foreach ((array) $type as $type)
+            {
+                if (isset($this->tokenRegistry[$type]))
+                {
+                    foreach ($this->tokenRegistry[$type] as $k => $v)
+                        if (array($this, $method) === $v)
+                            unset($this->tokenRegistry[$type][$k]);
+
+                    if (!$this->tokenRegistry[$type]) unset($this->tokenRegistry[$type]);
+                }
+            }
+        }
+    }
 
     // Read-ahead the input token stream
 
@@ -499,41 +542,6 @@ class Patchwork_PHP_Parser
             foreach ($tokens as &$t) isset($t[1]) && $t = $t[1];
             $tokens = array($this->index => array(T_HALT_COMPILER_DATA, implode('', $tokens)));
         }
-    }
-
-    // Internal use for $this->register/unregister() factorization
-
-    private function registryApply($method, $reg)
-    {
-        foreach ((array) $method as $method => $type)
-        {
-            if (is_int($method))
-            {
-                $method = $type;
-                $type = array(0); // T_SEMANTIC
-            }
-
-            foreach ((array) $type as $type)
-            {
-                if ($reg)
-                {
-                    0 === $type && $s0 = 1; // T_SEMANTIC
-                    1 === $type && $s1 = 1; // T_NON_SEMANTIC
-                    $this->tokenRegistry[$type][++$this->registryIndex] = array($this, $method);
-                }
-                else if (isset($this->tokenRegistry[$type]))
-                {
-                    foreach ($this->tokenRegistry[$type] as $k => $v)
-                        if (array($this, $method) === $v)
-                            unset($this->tokenRegistry[$type][$k]);
-
-                    if (!$this->tokenRegistry[$type]) unset($this->tokenRegistry[$type]);
-                }
-            }
-        }
-
-        isset($s0) && ksort($this->tokenRegistry[0]); // T_SEMANTIC
-        isset($s1) && ksort($this->tokenRegistry[1]); // T_NON_SEMANTIC
     }
 
     // Create new sub-token types
