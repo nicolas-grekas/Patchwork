@@ -108,26 +108,15 @@ class Debugger extends p
 
     static function getProlog()
     {
-        $QDebug   = p::__BASE__() . 'js/QDebug.js?' . $GLOBALS['patchwork_appId'];
-
-        return <<<EOHTML
-<script src="{$QDebug}"></script>
-EOHTML;
+        return '<script src="'
+            . p::__BASE__() . 'js/patchwork-debugger.js?' . $GLOBALS['patchwork_appId']
+            . '"></script><script>patchworkDebugConsoleProlog("'
+            . p::__BASE__() . '")</script>';
     }
 
     static function getConclusion()
     {
-        $debugWin = p::__BASE__() . '?p:=debug:stop';
-
-        return <<<EOHTML
-<style>@media print { #debugWin {display:none;} }</style>
-<script>E('Rendering time: ' + (+new Date - E.startTime) + ' ms');</script>
-<div id="debugWin">
-<input type="hidden" name="debugStore" id="debugStore" value="">
-<div style="position:fixed;_position:absolute;top:0;right:0;z-index:254;background-color:white;visibility:hidden;width:100%; height: 50%" id="debugFrame"><iframe src="{$debugWin}" style="width:100%;height:100%" name="debugFrame"></iframe></div>
-<div style="position:fixed;_position:absolute;top:0;right:0;z-index:255;font-family:arial;font-size:9px"><a href="javascript:;" onclick="var f=document.getElementById('debugFrame');if (f) f.style.visibility='hidden'==f.style.visibility?'visible':'hidden',document.getElementById('debugStore').value=f.style.visibility" style="background-color:blue;color:white;text-decoration:none;border:0;" id="debugLink">Debug</a></div>
-<script>setTimeout(function(){var f=document.getElementById('debugFrame'),s=document.getElementById('debugStore');if (f&&s&&s.value)f.style.visibility=s.value},0)</script>
-EOHTML;
+        return '<input type="hidden" name="debugStore" id="debugStore" value=""><script>patchworkDebugConsoleConclusion()</script>';
     }
 
     static function sendDebugInfo()
