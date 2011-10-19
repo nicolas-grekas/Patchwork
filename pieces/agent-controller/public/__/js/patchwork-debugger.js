@@ -83,67 +83,89 @@ E.hiddenList = {
 E.buffer = [];
 E.lastTime = E.startTime = +new Date;
 
-function patchworkDebugConsoleProlog(base)
+
+var patchworkDebugger = function(doc)
 {
-    var d = document;
+    var base,
+        debugWin = doc.createElement('div'),
+        debugIframe = doc.createElement('iframe'),
+        debugFrame,
+        events = {
+            start: function(b)
+            {
+                base = b;
 
-    patchworkDebugConsoleProlog.base = base;
+                !function onBodyExists()
+                {
+                    if (!insertDebugConsole) {}
+                    else if (doc.body) insertDebugConsole();
+                    else setTimeout(onBodyExists, 20);
+                }();
+            },
 
-    !function onBodyExists()
+            stop: function()
+            {
+                E('Rendering time: ' + (+new Date - E.startTime) + ' ms');
+
+                if (insertDebugIframe) insertDebugIframe();
+
+                setTimeout(function()
+                {
+                    var f = doc.getElementById('debugFrame'),
+                        s = doc.getElementById('debugStore');
+
+                    if (f && s && s.value) f.style.visibility = s.value;
+                }, 0);
+            }
+        };
+
+    debugWin.id = 'debugWin';
+    debugWin.innerHTML = ''
+        + '<div style="position:fixed;_position:absolute;top:0;right:0;z-index:254;background-color:white;visibility:hidden;width:100%; height: 50%" id="debugFrame"></div>'
+        + '<div style="position:fixed;_position:absolute;top:0;right:0;z-index:255;font-family:arial;font-size:9px;background-color:blue;color:white;text-decoration:none;border:0;cursor:pointer;">Debug</div>'
+        + '<style>@media print { #debugWin {display:none;} }</style>';
+
+    debugIframe.style.cssText = 'width: 100%; height: 100%';
+
+    var insertDebugConsole = function()
     {
-        if (d.body)
-        {
-            var f = d.createElement('div');
+        insertDebugConsole = false;
+        (doc.body || doc.documentElement).appendChild(debugWin);
+        debugFrame = debugWin.firstChild;
 
-            f.id = 'debugWin';
-            f.innerHTML = '<style>@media print { #debugWin {display:none;} }</style>'
-                + '<div style="position:fixed;_position:absolute;top:0;right:0;z-index:254;background-color:white;visibility:hidden;width:100%; height: 50%" id="debugFrame"></div>'
-                + '<div style="position:fixed;_position:absolute;top:0;right:0;z-index:255;font-family:arial;font-size:9px"><a href="javascript:void(patchworkConsoleClick());" style="background-color:blue;color:white;text-decoration:none;border:0;" id="debugLink">Debug</a>';
-
-            d.body.appendChild(f);
-        }
-        else setTimeout(onBodyExists, 20);
-    }();
-}
-
-function patchworkDebugConsoleConclusion(src)
-{
-    E('Rendering time: ' + (+new Date - E.startTime) + ' ms');
-
-    setTimeout(function()
-    {
-        var f = document.getElementById('debugFrame'), s = document.getElementById('debugStore');
-        if (f && s && s.value) f.style.visibility = s.value;
-    }, 0);
-
-    // The following code can be moved inside onBodyExists.
-    // Events should then be streamed to the browser until "onload".
-
-    var d = document, f = d.createElement('iframe');
-    f.style.cssText = 'width: 100%; height: 100%';
-    d.getElementById('debugFrame').appendChild(f);
-
-    d = f.contentWindow.document;
-    d.open();
-    d.write('<body onload="window.location.replace(&quot;' + patchworkDebugConsoleProlog.base + '?p:=debug:stop' + '&quot;)"><input type="hidden" name="debugStore" id="debugStore" value="">');
-    d.close();
-}
-
-function patchworkConsoleClick()
-{
-    var f = document.getElementById('debugFrame'), s = document.getElementById('debugStore');
-
-    if (f)
-    {
-        f.style.visibility = 'hidden' == f.style.visibility ? 'visible' : 'hidden';
-        if (s) s.value = f.style.visibility;
+        var n = debugFrame.nextSibling;
+        if (n.addEventListener) n.addEventListener('click', debugClick, false);
+        else if (n.attachEvent) n.attachEvent('onclick', debugClick);
     }
-}
 
-!function()
+    var insertDebugIframe = function()
+    {
+        insertDebugIframe = false;
+        if (insertDebugConsole) insertDebugConsole();
+        debugFrame.appendChild(debugIframe);
+
+        var d = debugIframe.contentWindow.document;
+        d.open();
+        d.write('<body onload="location.replace(&quot;' + base + '?p:=debug:stop' + '&quot;)">');
+        d.close();
+    }
+
+    var debugClick = function()
+    {
+        var s = document.getElementById('debugStore');
+
+        debugFrame.style.visibility = 'hidden' == debugFrame.style.visibility ? 'visible' : 'hidden';
+        if (s) s.value = debugFrame.style.visibility;
+    }
+
+    return function(evt)
+    {
+        events[evt].apply(this, Array.prototype.slice.call(arguments, 1));
+    }
+}(document);
+
+!function(doc)
 {
-    var d = document;
-
     function F5(e)
     {
         e = e || window.event;
@@ -173,6 +195,6 @@ function patchworkConsoleClick()
         }
     }
 
-    if (d.addEventListener) d.addEventListener('keydown', F5, false);
-    else if (d.attachEvent ) d.attachEvent('onkeydown', F5);
-}();
+    if (doc.addEventListener) doc.addEventListener('keydown', F5, false);
+    else if (doc.attachEvent) doc.attachEvent('onkeydown', F5);
+}(document);

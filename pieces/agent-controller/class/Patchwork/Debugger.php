@@ -110,13 +110,13 @@ class Debugger extends p
     {
         return '<script src="'
             . p::__BASE__() . 'js/patchwork-debugger.js?' . $GLOBALS['patchwork_appId']
-            . '"></script><script>patchworkDebugConsoleProlog("'
+            . '"></script><script>patchworkDebugger("start", "'
             . p::__BASE__() . '")</script>';
     }
 
     static function getConclusion()
     {
-        return '<input type="hidden" name="debugStore" id="debugStore" value=""><script>patchworkDebugConsoleConclusion()</script>';
+        return '<input type="hidden" name="debugStore" id="debugStore" value=""><script>patchworkDebugger("stop")</script>';
     }
 
     static function sendDebugInfo()
