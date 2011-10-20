@@ -147,7 +147,7 @@ class Debugger extends p
 <div id="php-silenced-errors"><h3>PHP Silenced Errors</h3></div>
 <div id="requests"><h3>Other events</h3></div>
 </div>
-<div id="events">
+<div id="events" style="display:none">
 <?php
 
         if (is_file($error_log))

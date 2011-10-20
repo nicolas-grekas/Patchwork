@@ -838,7 +838,7 @@ var w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
 
             $d = E.clone($d);
             $d._ = $d._.replace(/^[^:]*/, 'ptl-loop');
-            if (!$e) $d.__maxLength = $data[0] > 4 ? $data[0] - 4 : -1;
+            if (!$e) $d.__cutBy = $data[0] > 4 ? $data[0] - 4 : -1;
 
             return $d;
         }

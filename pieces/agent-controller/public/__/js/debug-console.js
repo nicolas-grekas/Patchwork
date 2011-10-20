@@ -119,8 +119,7 @@ function htmlizeEvent(data, refs)
             {
                 for (e = 0; e < data.length; ++e)
                 {
-                    push('\n', 'lf');
-                    buffer.push('<span class="indent">' + new Array(depth + 2).join(' ') + '</span>')
+                    buffer.push('\n' + new Array(depth + 2).join(' '));
                     push(data[e], tags + ('' === data[e] ? ' empty' : ''), title);
                 }
             }
@@ -156,16 +155,16 @@ function htmlizeEvent(data, refs)
 
             if (!e)
             {
-                push(b[0], 'bracket');
+                buffer.push(b[0]);
                 if (data.__cutBy) push('...', 'cut', ['Cut by ' + data.__cutBy]);
-                push(b[1], 'bracket');
+                buffer.push(b[1]);
                 return;
             }
 
             depth += 2;
             buffer.push('<span class="array-' + toggle + '">');
-            push(b[0], 'bracket open');
-            buffer.push(('compact' == toggle ? '<a onclick="arrayToggle(this)"> ⊞ </a>' : '') + '\n');
+            buffer.push(b[0]);
+            buffer.push(('compact' == toggle ? '<a onclick="arrayToggle(this)"> ⊞ </a>' : ''));
             toggle = 1 === e ? 'expanded' : 'compact';
 
             for (i in data)
@@ -175,7 +174,7 @@ function htmlizeEvent(data, refs)
 
                 title = [];
                 tags = ' key';
-                buffer.push('<span class="indent">' + new Array(depth).join(' ') + '</span>')
+                buffer.push('\n' + new Array(depth).join(' '));
                 e = parseInt(i);
 
                 if ('' + e !== i)
@@ -208,23 +207,25 @@ function htmlizeEvent(data, refs)
                 counter = -1;
                 htmlizeData(e, tags, title);
                 counter = t[0];
+                e = buffer[buffer.length-1];
+                buffer[buffer.length-1] = e.substr(0, e.length-7);
                 push(' ⇨ ', 'arrow');
+                buffer.push('</span>');
                 htmlizeData(data[i], '', [], toggle);
-                push(',\n', 'lf');
+                buffer.push(', ');
             }
 
             if (data.__cutBy)
             {
-                buffer.push('<span class="indent">' + new Array(depth).join(' ') + '</span>')
+                buffer.push('\n' + new Array(depth).join(' '));
                 push('...', 'cut', ['Cut by ' + data.__cutBy]);
-                push(',\n', 'lf');
+                buffer.push(', ');
             }
 
             depth -= 2;
             buffer[buffer.length - 1] = '';
-            push('\n', 'lf');
-            if (1 < depth) buffer.push('<span class="indent">' + new Array(depth).join(' ') + '</span>')
-            push(b[1], 'bracket close');
+            buffer.push('\n' + new Array(depth).join(' '));
+            buffer.push(b[1]);
             buffer.push('</span>');
 
             break;

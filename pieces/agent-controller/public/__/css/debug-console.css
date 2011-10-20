@@ -2,79 +2,45 @@ body
 {
     margin: 0;
     padding: 0;
+    background-color: white;
 }
 
-acronym
+br /* Hide Chrome inserted BR */
 {
-    width: 50px;
-    text-align: right;
-    float: left;
-    clear: both;
-    text-decoration: none;
-    border-bottom: 0;
-    font-style: italic;
-    color: silver;
+    display: none;
 }
 
 .event
 {
+    color: gray;
     font-size: 11px;
-    white-space: nowrap;
+    font-style: italic;
+    white-space: pre;
 }
 
-.event.silenced .array-compact span
+.array-compact
 {
-    color: silver;
-    background-color: transparent;
+    white-space: nowrap; /* This rule makes IE slow as hell */
 }
 
-.event a
+a,
+.arrow,
+.const,
+.class,
+.alias,
+.handle,
+.string
+{
+    color: black;
+    font-style: normal;
+    font-family: sans-serif;
+}
+
+a
 {
     color: blue;
     cursor: pointer;
     text-decoration: none;
-}
-
-#events,
-.array-compact .key,
-.array-compact .arrow
-{
-    display: none;
-}
-
-.string.key,
-.string.key+.arrow
-{
-    display: inline !important;
-}
-
-.array-expanded
-{
-    white-space: pre;
-}
-
-.array-compact,
-.array-compact .array-expanded
-{
-    white-space: nowrap;
-}
-
-.array-expanded>.array-compact>a
-{
-    display: inline;
-}
-
-.array-compact br, /* Hide chrome inserted BRs */
-.array-compact .array-compact>a,
-.array-compact .array-expanded>a
-{
-    display: none;
-}
-
-.indent,
-.key
-{
-    font-family: monospace;
 }
 
 .const
@@ -88,26 +54,17 @@ acronym
     background-color: #F9F9F9;
 }
 
-.string.empty:after
+.empty.string
 {
-    display: inline-block;
-    width: 2px;
+    width: 3px;
     height: 1em;
-    content: " ";
-}
-
-.lf,
-.bracket,
-.arrow,
-.ref
-{
-    color: gray;
-    font-style: italic;
+    display: inline-block;
 }
 
 .key
 {
-    background-color: transparent;
+    font-family: monospace;
+    background-color: white;
 }
 
 .public
@@ -125,12 +82,31 @@ acronym
     color: red;
 }
 
-.array-expanded>.lf
+.arrow
 {
-    visibility: hidden;
+    color: gray;
+    background-color: white;
 }
 
-.array-compact .lf
+.event.silenced>.array-compact span
 {
-    visibility: visible;
+    color: silver;
+    background-color: white;
+}
+
+.array-compact .key
+{
+    display: none;
+}
+
+.key.string,
+.array-expanded>.array-compact>a
+{
+    display: inline;
+}
+
+.array-compact .array-compact>a,
+.array-compact .array-expanded>a
+{
+    display: none;
 }
