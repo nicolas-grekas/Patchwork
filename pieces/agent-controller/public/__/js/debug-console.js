@@ -104,7 +104,7 @@ function htmlizeEvent(data, refs)
             {
                 case 'R':
                 case 'r': return;
-                case 'f': push(data[1], 'const' + tags, title); return;
+                case 'n': push(data[1], 'const' + tags, title); return;
                 case 'b': tags += ' bin'; title.push('Binary');
                 case 'u': tags = 'string' + tags;
             }
