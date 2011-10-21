@@ -21,12 +21,12 @@ class Patchwork_PHP_Override_Php539
         if ($allow_string && !is_object($o))
         {
             if (is_subclass_of($o, $c)) return true;
-            if (0 === strcasecmp(ltrim($o, '\\'), ltrim($c, '\\'))) return true;
+            if (0 === strcasecmp($o = self::nsTrim($o), $c = self::nsTrim($c))) return true;
 
             // Work around http://bugs.php.net/53727
             if (interface_exists($c, false))
                 foreach (class_implements($o, false) as $o)
-                    if (0 === strcasecmp($o, ltrim($c, '\\')))
+                    if (0 === strcasecmp($o, $c))
                         return true;
         }
 
@@ -37,6 +37,12 @@ class Patchwork_PHP_Override_Php539
     {
         if (!self::is_a($o, $c, $allow_string)) return false;
         is_object($o) && $o = get_class($o);
-        return 0 !== strcasecmp(ltrim($o, '\\'), ltrim($c, '\\'));
+        return 0 !== strcasecmp(self::nsTrim($o), self::nsTrim($c));
+    }
+
+    protected static function nsTrim($c)
+    {
+        $c = (string) $c;
+        return isset($c[0]) && '\\' === $c[0] ? substr($c, 1) : $c;
     }
 }

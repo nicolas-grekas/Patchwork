@@ -326,6 +326,9 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
         {
             if (strrpos($class, '\\'))
             {
+/**/            if (50300 <= PHP_VERSION_ID && PHP_VERSION_ID < 50303) // Workaround http://bugs.php.net/50731
+                    '\\' === $class[0] && $class = substr($class, 1);
+
                 $c = strtr($class, '\\', '_');
 
                 if (class_exists($c, false) || interface_exists($c, false) || trait_exists($c, false))

@@ -24,6 +24,9 @@ class Patchwork_Autoloader
 
     static function autoload($req)
     {
+/**/    if (50300 <= PHP_VERSION_ID && PHP_VERSION_ID < 50303) // Workaround http://bugs.php.net/50731
+            isset($req[0]) && '\\' === $req[0] && $req = substr($req, 1);
+
         $lc_req = strtolower(strtr($req, '\\', '_'));
 
         $amark = $GLOBALS["a\x9D"];

@@ -108,7 +108,7 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
 
             if ('[' !== $n[0] && T_OBJECT_OPERATOR !== $n[0])
             {
-                $t[1] = "\${is_string($\x9D={$t[1]})&&($\x9D=strtr($\x9D,'\\\\','_'))?\"\x9D\":\"\x9D\"}";
+                $t[1] = "\${is_string($\x9D={$t[1]})&&($\x9D=strtr(isset($\x9D[0])&&'\\\\'===$\x9D[0]?substr($\x9D,1):$\x9D,'\\\\','_'))?\"\x9D\":\"\x9D\"}";
             }
         }
     }

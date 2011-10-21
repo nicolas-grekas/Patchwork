@@ -31,6 +31,9 @@ if (TURBO)
 
     function patchwork_autoload_turbo($class)
     {
+/**/    if (50300 <= PHP_VERSION_ID && PHP_VERSION_ID < 50303) // Workaround http://bugs.php.net/50731
+            isset($class[0]) && '\\' === $class[0] && $class = substr($class, 1);
+
         if (empty($GLOBALS["c\x9D"][$a = strtolower(strtr($class, '\\', '_'))])) return;
 
         if (is_int($a =& $GLOBALS["c\x9D"][$a]))
