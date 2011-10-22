@@ -42,4 +42,4 @@ require dirname(__FILE__) . '/boot/class/Patchwork/Bootstrapper.php';
 // Bootup steps: alias, initialize then eval in the global scope
 class boot extends Patchwork_Bootstrapper {}
 boot::initialize(__FILE__, PATCHWORK_BOOTPATH);
-while (false !== eval(boot::getNextStep())) {}
+while (false !== eval('' . boot::getNextStep())) {}

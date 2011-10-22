@@ -200,7 +200,7 @@ class Patchwork_Bootstrapper_Manager
             {
                 $code = null !== $code ? '<?php ' . $code : file_get_contents($this->file);
                 $code = $this->preprocessor->staticPass1($code, $this->file) .
-                    ";return eval({$this->bootstrapper}::\$manager->preprocessorPass2());";
+                    ";return eval('' . {$this->bootstrapper}::\$manager->preprocessorPass2());";
             }
 
             return $code;
