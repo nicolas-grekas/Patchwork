@@ -232,8 +232,8 @@ class Patchwork_Bootstrapper_Manager
 
     protected function release()
     {
-        if ('' !== $buffer = ob_get_flush())
-            throw $this->error($this->buildEchoErrorMsg($this->file, 0, $buffer, 'during bootstrap'));
+        if (headers_sent($file, $line) || ob_get_length())
+            throw $this->error($this->buildEchoErrorMsg($this->file, $line, ob_get_flush(), 'during bootstrap'));
 
         file_put_contents("{$this->cwd}.patchwork.overrides.ser", serialize($this->preprocessor->getOverrides()));
         fclose($this->lock);
