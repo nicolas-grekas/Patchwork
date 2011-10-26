@@ -146,7 +146,8 @@ EOSQL
         if (!file_exists($lock)) return false;
 
         $lock = fopen($lock, 'wb');
-        flock($lock, LOCK_EX+LOCK_NB, $type) || $type = true;
+        flock($lock, LOCK_EX | LOCK_NB, $type) || $type = true;
+        $type || flock($lock, LOCK_UN);
         fclose($lock);
 
         return $type;

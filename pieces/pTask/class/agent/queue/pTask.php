@@ -201,7 +201,7 @@ class agent_queue_pTask extends agent
         }
 
         $this->lock = $lock = fopen($lock, 'wb');
-        flock($lock, LOCK_EX+LOCK_NB, $wb) || $wb = true;
+        flock($lock, LOCK_EX | LOCK_NB, $wb) || $wb = true;
 
         if ($wb)
         {
@@ -216,6 +216,7 @@ class agent_queue_pTask extends agent
 
     protected function releaseLock()
     {
+        flock($this->lock, LOCK_UN);
         fclose($this->lock);
     }
 

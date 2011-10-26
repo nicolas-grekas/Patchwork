@@ -831,7 +831,7 @@ class Patchwork
             {
                 if (file_exists($message) && $h = fopen($message, 'rb'))
                 {
-                    flock($h, LOCK_EX+LOCK_NB, $wb) || $wb = true;
+                    flock($h, LOCK_EX | LOCK_NB, $wb) || $wb = true;
 
                     if (!$wb)
                     {
@@ -845,6 +845,8 @@ class Patchwork
                         }
 
                         $wb = '\\' !== DIRECTORY_SEPARATOR && file_exists($message) && unlink($message);
+
+                        flock($h, LOCK_UN);
                     }
 
                     fclose($h);
@@ -1069,6 +1071,7 @@ class Patchwork
             // Cache results
 
             fwrite($h, $private . (DEBUG ? '' : serialize($args)));
+            flock($h, LOCK_UN);
             fclose($h);
 
             self::$privateDetectionMode = false;
@@ -1079,6 +1082,7 @@ class Patchwork
         else
         {
             $cache = stream_get_contents($readHandle);
+            flock($readHandle, LOCK_UN);
             fclose($readHandle);
 
 /**/        if (DEBUG)
@@ -1416,6 +1420,7 @@ class Patchwork
                 {
                     $a = substr(md5(microtime(1)), 0, 8);
                     fwrite($h, $a .'-'. $LastModified);
+                    flock($h, LOCK_UN);
                     fclose($h);
 
                     foreach ($path as $path)
@@ -1430,6 +1435,7 @@ class Patchwork
                 else
                 {
                     $a = fread($readHandle, 32);
+                    flock($readHandle, LOCK_UN);
                     fclose($readHandle);
 
                     $a = explode('-', $a);

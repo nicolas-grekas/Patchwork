@@ -139,6 +139,7 @@ class Patchwork_Bootstrapper_Manager
         {
             usleep(1000);
             flock($h, LOCK_SH);
+            flock($h, LOCK_UN)
             fclose($h);
             file_exists($file) || usleep(1000);
         }
@@ -236,6 +237,7 @@ class Patchwork_Bootstrapper_Manager
             throw $this->error($this->buildEchoErrorMsg($this->file, $line, ob_get_flush(), 'during bootstrap'));
 
         file_put_contents("{$this->cwd}.patchwork.overrides.ser", serialize($this->preprocessor->getOverrides()));
+        flock($this->lock, LOCK_UN);
         fclose($this->lock);
         $this->lock = null;
 

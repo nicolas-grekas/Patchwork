@@ -65,12 +65,14 @@ class Debugger extends p
                 }
                 closedir($dir);
 
+                flock($h, LOCK_UN);
                 fclose($h);
             }
             else
             {
                 $h = fopen(PATCHWORK_PROJECT_PATH . '.debugLock', 'rb');
                 flock($h, LOCK_SH);
+                flock($h, LOCK_UN);
                 fclose($h);
             }
 

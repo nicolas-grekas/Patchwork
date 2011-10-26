@@ -310,6 +310,7 @@ class SESSION
                 self::$sslid
             )));
 
+            flock($this->handle, LOCK_UN);
             fclose($this->handle);
         }
     }
@@ -328,6 +329,7 @@ class SESSION
     protected function reset()
     {
         ftruncate($this->handle, 0);
+        flock($this->handle, LOCK_UN);
         fclose($this->handle);
         $this->handle = false;
 
