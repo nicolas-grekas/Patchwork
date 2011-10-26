@@ -123,6 +123,8 @@ var patchworkDebugger = (function(doc)
     {
         e = e || window.event;
 
+        // TODO: catch key strokes inside the debug console
+
         var refresh = 0;
 
         switch (e.keyCode)
@@ -133,6 +135,10 @@ var patchworkDebugger = (function(doc)
 
         case 116: // F5 key
             refresh = e.ctrlKey ? 2 : 1;
+            break;
+
+        case 120: // F9 key
+            debugClick();
             break;
         }
 
