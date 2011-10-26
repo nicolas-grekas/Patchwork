@@ -63,6 +63,7 @@ class StaticResource extends p
             $template = new \ptlCompiler_js($template);
             echo $template = ',' . $template->compile() . ')';
             fwrite($h, $template);
+            flock($h, LOCK_UN);
             fclose($h);
             list(,,, $watch) = p::closeMeta();
             p::writeWatchTable($watch, $ctemplate);
@@ -70,6 +71,7 @@ class StaticResource extends p
         else
         {
             fpassthru($readHandle);
+            flock($readHandle, LOCK_UN);
             fclose($readHandle);
         }
 
@@ -107,12 +109,14 @@ class StaticResource extends p
                     echo $pipe = trim($pipe, ';');
 
                     fwrite($h, $pipe);
+                    flock($h, LOCK_UN);
                     fclose($h);
                     p::writeWatchTable('pipe', $cpipe);
                 }
                 else
                 {
                     fpassthru($readHandle);
+                    flock($readHandle, LOCK_UN);
                     fclose($readHandle);
                 }
 /**/        }

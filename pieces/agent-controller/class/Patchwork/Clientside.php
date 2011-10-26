@@ -262,6 +262,7 @@ EOHTML;
                     $template = new \ptlCompiler_js($template);
                     echo $template = ',' . $template->compile() . ')';
                     fwrite($h, $template);
+                    flock($h, LOCK_UN);
                     fclose($h);
                     list(,,, $template) = p::closeMeta();
                     p::writeWatchTable($template, $ctemplate);
@@ -269,6 +270,7 @@ EOHTML;
                 else
                 {
                     fpassthru($readHandle);
+                    flock($readHandle, LOCK_UN);
                     fclose($readHandle);
                 }
 
@@ -293,6 +295,7 @@ EOHTML;
                 if ($h = p::fopenX($dagent))
                 {
                     fwrite($h, serialize($template));
+                    flock($h, LOCK_UN);
                     fclose($h);
 
                     touch($dagent, $_SERVER['REQUEST_TIME'] + $expires);
@@ -306,6 +309,7 @@ EOHTML;
                     $template['rawdata'] .= $liveAgent ? ob_get_clean() : ob_get_flush();
 
                     fwrite($h, serialize($template));
+                    flock($h, LOCK_UN);
                     fclose($h);
 
                     touch($cagent, $_SERVER['REQUEST_TIME'] + $expires);
