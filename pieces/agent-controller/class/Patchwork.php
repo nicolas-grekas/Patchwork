@@ -826,14 +826,13 @@ class Patchwork
             $i = 0;
 
             $pool = array(self::getCachePath('watch/' . $message, 'txt'));
+            $tmpname = PATCHWORK_PROJECT_PATH . '.~' . uniqid(mt_rand(), true);
 
             while ($message = array_pop($pool))
             {
-                if (file_exists($message) && $h = fopen($message, 'rb'))
+                if (file_exists($message) && @rename($message, $tmpname))
                 {
-                    flock($h, LOCK_EX | LOCK_NB, $wb) || $wb = true;
-
-                    if (!$wb)
+                    if ($h = fopen($tmpname, 'rb'))
                     {
                         while (false !== $line = fgets($h))
                         {
@@ -844,16 +843,10 @@ class Patchwork
                             else rtrim($line, '/\\') === $line && file_exists($line) && unlink($line) && ++$i;
                         }
 
-                        $wb = '\\' !== DIRECTORY_SEPARATOR && file_exists($message) && unlink($message);
-
-                        flock($h, LOCK_UN);
+                        fclose($h);
                     }
 
-                    fclose($h);
-
-                    $wb || !file_exists($message) || unlink($message);
-
-                    ++$i;
+                    unlink($tmpname) && ++$i;
                 }
             }
 

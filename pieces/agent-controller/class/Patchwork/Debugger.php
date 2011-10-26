@@ -39,12 +39,8 @@ class Debugger extends p
         if ('debug' === p::$requestMode) self::sendDebugInfo();
         else if (self::$syncCache)
         {
-            if ($h = @fopen(PATCHWORK_PROJECT_PATH . '.debugLock', 'xb'))
+            if (@unlink(PATCHWORK_PROJECT_PATH . '.patchwork.php'))
             {
-                flock($h, LOCK_EX);
-
-                @unlink(PATCHWORK_PROJECT_PATH . '.patchwork.php');
-
                 global $patchwork_path;
 
                 $dir = opendir(PATCHWORK_PROJECT_PATH);
@@ -64,19 +60,7 @@ class Debugger extends p
                     if (!file_exists($file) || filemtime($file) >= filemtime(PATCHWORK_PROJECT_PATH . $cache)) @unlink(PATCHWORK_PROJECT_PATH . $cache);
                 }
                 closedir($dir);
-
-                flock($h, LOCK_UN);
-                fclose($h);
             }
-            else
-            {
-                $h = fopen(PATCHWORK_PROJECT_PATH . '.debugLock', 'rb');
-                flock($h, LOCK_SH);
-                flock($h, LOCK_UN);
-                fclose($h);
-            }
-
-            @unlink(PATCHWORK_PROJECT_PATH . '.debugLock');
         }
     }
 
