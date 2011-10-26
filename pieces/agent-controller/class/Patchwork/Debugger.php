@@ -17,51 +17,23 @@ use Patchwork as p;
 
 class Debugger extends p
 {
-    static $syncCache = false;
-
     protected static $buffer = array();
 
-
-    static function __constructStatic()
-    {
-        // Major browsers send a "Cache-Control: no-cache" only and only if a page is reloaded with
-        // CTRL+F5, CTRL+SHIFT+R or location.reload(true). Usefull to trigger synchronization events.
-
-        self::$syncCache = file_exists(PATCHWORK_PROJECT_PATH . '.patchwork.php')
-            && filemtime(PATCHWORK_PROJECT_PATH . 'config.patchwork.php') > filemtime(PATCHWORK_PROJECT_PATH . '.patchwork.php')
-                || (isset($_SERVER['HTTP_CACHE_CONTROL']) && 'no-cache' == $_SERVER['HTTP_CACHE_CONTROL']);
-    }
 
     static function execute()
     {
         $GLOBALS['patchwork_appId'] = -$GLOBALS['patchwork_appId'];
 
-        if ('debug' === p::$requestMode) self::sendDebugInfo();
-        else if (self::$syncCache)
+        if ('debug' !== p::$requestMode) return;
+
+        switch (p::$requestArg)
         {
-            if (@unlink(PATCHWORK_PROJECT_PATH . '.patchwork.php'))
-            {
-                global $patchwork_path;
-
-                $dir = opendir(PATCHWORK_PROJECT_PATH);
-                while (false !== $cache = readdir($dir)) if (preg_match('/^\.(.+)\.[^0]([^\.]+)\.zcache\.php$/D', $cache, $level))
-                {
-                    $file = patchwork_class2file($level[1]);
-                    $level = $level[2];
-
-                    if ('-' == substr($level, -1))
-                    {
-                        $level = -$level;
-                        $file = substr($file, 6);
-                    }
-
-                    $file = $patchwork_path[PATCHWORK_PATH_LEVEL - $level] . $file;
-
-                    if (!file_exists($file) || filemtime($file) >= filemtime(PATCHWORK_PROJECT_PATH . $cache)) @unlink(PATCHWORK_PROJECT_PATH . $cache);
-                }
-                closedir($dir);
-            }
+        case 'quickReset': self::quickReset(); break;
+        case 'deepReset': self::deepReset(); break;
+        default: self::sendDebugInfo(); break;
         }
+
+        exit;
     }
 
     static function purgeZcache()
@@ -105,7 +77,27 @@ class Debugger extends p
         return '<input type="hidden" name="debugStore" id="debugStore" value=""><script>patchworkDebugger("stop")</script>';
     }
 
-    static function sendDebugInfo()
+    protected static function quickReset()
+    {
+        p::touch('debugSync');
+        unlink(PATCHWORK_PROJECT_PATH . '.patchwork.paths.db');
+    }
+
+    protected static function deepReset()
+    {
+        unlink(PATCHWORK_PROJECT_PATH . '.patchwork.php');
+
+        self::purgeZcache();
+        p::touch('debugSync');
+
+        $h = opendir(PATCHWORK_PROJECT_PATH);
+        while (false !== $f = readdir($h))
+        if ('.' === $f[0] && '.zcache.php' === substr($f, -11))
+            @unlink(PATCHWORK_PROJECT_PATH . $f);
+        closedir($h);
+    }
+
+    protected static function sendDebugInfo()
     {
         ob_start(function_exists('ob_gzhandler') ? 'ob_gzhandler' : null, 1<<14);
 
@@ -153,7 +145,7 @@ class Debugger extends p
                         {
                             if (false !== $line = reset(self::$buffer))
                             {
-                                echo self::parseZcachefile(implode('', $line));
+                                echo self::parseZcacheFile(implode('', $line));
 
                                 if ($line && false === end($line))
                                 {
@@ -190,11 +182,9 @@ for (i in b) classifyEvent("0000000000", "client-dump", b[i]);
 parent.E.buffer = [];
 </script>
 <?php
-
-        exit;
     }
 
-    static function parseLine($line, $next_line)
+    protected static function parseLine($line, $next_line)
     {
         if ('' !== $line && '[' === $line[0] && '] PHP ' === substr($line, 21, 6))
         {
@@ -267,7 +257,7 @@ parent.E.buffer = [];
         }
     }
 
-    static function parseRawError($a)
+    protected static function parseRawError($a)
     {
         $b = strpos($a, ':', 28);
         $b = array(
@@ -306,7 +296,7 @@ parent.E.buffer = [];
         return $b;
     }
 
-    static function parseZcacheFile($a)
+    protected static function parseZcacheFile($a)
     {
         if (false !== strpos($a, '.zcache.php'))
         {
@@ -322,12 +312,12 @@ parent.E.buffer = [];
         return $a;
     }
 
-    static function filename($m)
+    protected static function filename($m)
     {
         return $GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - ((int)($m[3].$m[2]))] . '/' . patchwork_class2file($m[1]);
     }
 
-    static function htmlDumpLine($a)
+    protected static function htmlDumpLine($a)
     {
         list($token, $a) = explode(': ', substr($a, 0, -1) , 2);
         $b =& self::$buffer[$token];

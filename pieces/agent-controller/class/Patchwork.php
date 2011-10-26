@@ -328,25 +328,6 @@ class Patchwork
 
         self::$binaryMode = 0 !== strncasecmp(constant("$agent::contentType"), 'text/html', 9);
 
-/**/    if (DEBUG)
-/**/    {
-            if (p\Debugger::$syncCache && !self::$binaryMode)
-            {
-                p\Debugger::purgeZcache();
-
-                if (!IS_POSTING)
-                {
-                    self::setMaxage(0);
-                    self::setPrivate();
-
-                    header('Refresh: 0');
-
-                    echo '<script>location.reload()</script>';
-                    return;
-                }
-            }
-/**/    }
-
         // load agent
         if (IS_POSTING || self::$binaryMode || empty($_COOKIE['JS']))
         {
@@ -1207,7 +1188,7 @@ class Patchwork
 
 /**/            if (DEBUG)
 /**/            {
-                    if ((!p\Debugger::$syncCache || IS_POSTING) && !self::$binaryMode && 's' !== self::$requestMode)
+                    if (!self::$binaryMode && 's' !== self::$requestMode)
                     {
                         $buffer = false !== stripos($buffer, '<!doctype')
                             ? preg_replace("'<!doctype[^>]*>'i", '$0' . p\Debugger::getProlog(), $buffer)
@@ -1222,7 +1203,7 @@ class Patchwork
             {
 /**/            if (DEBUG)
 /**/            {
-                    if ((!p\Debugger::$syncCache || IS_POSTING) && !self::$binaryMode && 's' !== self::$requestMode)
+                    if (!self::$binaryMode && 's' !== self::$requestMode)
                     {
                         $buffer .= p\Debugger::getConclusion();
                     }

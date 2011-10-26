@@ -64,9 +64,6 @@ class Serverside extends p
 
         if (false === $args)
         {
-/**/        if (DEBUG)
-                p::$binaryMode || p::touch('debugSync');
-
             $reset_get = true;
             $cache = '';
 

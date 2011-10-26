@@ -23,15 +23,6 @@ $_patchwork_destruct = array();
 /**//*<*/"\$c\x9D=array();\$d\x9D=1;(\$e\x9D=\$b\x9D=\$a\x9D=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "')&&\$d\x9D&&0;"/*>*/;
 
 
-/**/ // Purge code cache files
-/**/
-/**/$a = opendir(PATCHWORK_PROJECT_PATH);
-/**/while (false !== $b = readdir($a))
-/**/    if ('.zcache.php' === substr($b, -11) && '.' === $b[0])
-/**/        @unlink(PATCHWORK_PROJECT_PATH . $b);
-/**/closedir($a);
-
-
 // Shutdown control
 
 Patchwork\FunctionOverride(register_shutdown_function, patchwork_shutdown_register, $callback);

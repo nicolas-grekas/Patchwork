@@ -84,7 +84,7 @@ E.buffer = [];
 E.lastTime = E.startTime = +new Date;
 
 
-var patchworkDebugger = function(doc)
+var patchworkDebugger = (function(doc)
 {
     var base,
         debugWin = doc.createElement('div'),
@@ -118,6 +118,47 @@ var patchworkDebugger = function(doc)
                 }, 0);
             }
         };
+
+    var F5 = function(e)
+    {
+        e = e || window.event;
+
+        var refresh = 0;
+
+        switch (e.keyCode)
+        {
+        case 82: // R key
+            if (e.ctrlKey) refresh = e.shiftKey ? 2 : 1;
+            break;
+
+        case 116: // F5 key
+            refresh = e.ctrlKey ? 2 : 1;
+            break;
+        }
+
+        if (refresh)
+        {
+            e.keyCode = 10000 + e.keyCode; // Remap for IE
+            if (e.preventDefault) e.preventDefault();
+            e.returnValue = false;
+
+            try
+            {
+                if (window.stop) window.stop();
+                else if (doc.execCommand) doc.execCommand('stop');
+            }
+            catch (e) {}
+
+            e = new Image;
+            e.onload = e.onerror = function() {location.reload(2 === refresh);};
+            e.src = base + '?p:=debug:' + (2 === refresh ? 'deepReset' : 'quickReset');
+
+            return false;
+        }
+    }
+
+    if (doc.addEventListener) doc.addEventListener('keydown', F5, false);
+    else if (doc.attachEvent) doc.attachEvent('onkeydown', F5);
 
     debugWin.id = 'debugWin';
     debugWin.innerHTML = ''
@@ -162,39 +203,4 @@ var patchworkDebugger = function(doc)
     {
         events[evt].apply(this, Array.prototype.slice.call(arguments, 1));
     }
-}(document);
-
-!function(doc)
-{
-    function F5(e)
-    {
-        e = e || window.event;
-
-        var refresh = 0;
-
-        switch (e.keyCode)
-        {
-        case 82: // R key
-            if (e.ctrlKey) refresh = e.shiftKey ? 2 : 1;
-            break;
-
-        case 116: // F5 key
-            refresh = e.ctrlKey ? 2 : 1;
-            break;
-        }
-
-        if (refresh)
-        {
-            e.keyCode = 10000 + e.keyCode; // Remap for IE
-            if (e.preventDefault) e.preventDefault();
-            e.returnValue = false;
-
-            location.reload(2 === refresh); // Currently this is default browser behavior, but the idea here is to send some cache reset event to the server
-
-            return false;
-        }
-    }
-
-    if (doc.addEventListener) doc.addEventListener('keydown', F5, false);
-    else if (doc.attachEvent) doc.attachEvent('onkeydown', F5);
-}(document);
+}(document));

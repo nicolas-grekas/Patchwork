@@ -21,9 +21,6 @@ class Clientside extends p
 {
     static function loadAgent($agent)
     {
-/**/    if (DEBUG)
-            p::touch('debugSync');
-
         p::setMaxage(-1);
         p::setPrivate();
         p::setExpires('onmaxage');
