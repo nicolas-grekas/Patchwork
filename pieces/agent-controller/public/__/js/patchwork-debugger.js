@@ -11,6 +11,8 @@
  *
  **************************************************************************/
 
+"use strict";
+
 function E(data)
 {
     E.buffer.push({
@@ -49,9 +51,8 @@ E.clone = function(data)
         if (typeof k === 'string') switch (true)
         {
         case '_' === k:
-        case '__maxDepth' === k:
-        case '__maxLength' === k:
         case '__refs' === k:
+        case '__cutBy' === k:
         case -1 != k.indexOf(':'):
             k = ':' + k;
         }
@@ -83,88 +84,101 @@ E.hiddenList = {
 E.buffer = [];
 E.lastTime = E.startTime = +new Date;
 
-
-var patchworkDebugger = (function(doc)
+!function(win)
 {
+    win.patchworkDebugger = {
+
+        start: function(b)
+        {
+            base = b;
+
+            this.attachKeyPressHandler(win);
+
+            !function onBodyExists()
+            {
+                if (!insertDebugConsole) {}
+                else if (doc.body) insertDebugConsole();
+                else setTimeout(onBodyExists, 20);
+            }();
+        },
+
+        stop: function()
+        {
+            E('Rendering time: ' + (+new Date - E.startTime) + ' ms');
+
+            if (insertDebugIframe) insertDebugIframe();
+
+            setTimeout(function()
+            {
+                var f = doc.getElementById('debugFrame'),
+                    s = doc.getElementById('debugStore');
+
+                if (f && s && s.value) f.style.visibility = s.value;
+            }, 0);
+        },
+
+        attachKeyPressHandler: function(win)
+        {
+            var doc = win.document;
+            if (doc.addEventListener) doc.addEventListener('keydown', keypressHandler(win), false);
+            else if (doc.attachEvent) doc.attachEvent('onkeydown', keypressHandler(win));
+        }
+    };
+
     var base,
+        doc = win.document,
         debugWin = doc.createElement('div'),
         debugIframe = doc.createElement('iframe'),
-        debugFrame,
-        events = {
-            start: function(b)
-            {
-                base = b;
+        debugFrame;
 
-                !function onBodyExists()
-                {
-                    if (!insertDebugConsole) {}
-                    else if (doc.body) insertDebugConsole();
-                    else setTimeout(onBodyExists, 20);
-                }();
-            },
-
-            stop: function()
-            {
-                E('Rendering time: ' + (+new Date - E.startTime) + ' ms');
-
-                if (insertDebugIframe) insertDebugIframe();
-
-                setTimeout(function()
-                {
-                    var f = doc.getElementById('debugFrame'),
-                        s = doc.getElementById('debugStore');
-
-                    if (f && s && s.value) f.style.visibility = s.value;
-                }, 0);
-            }
-        };
-
-    var F5 = function(e)
+    var keypressHandler = function(w)
     {
-        e = e || window.event;
-
-        // TODO: catch key strokes inside the debug console
-
-        var refresh = 0;
-
-        switch (e.keyCode)
+        return function(e)
         {
-        case 82: // R key
-            if (e.ctrlKey) refresh = e.shiftKey ? 2 : 1;
-            break;
+            e = e || w.event;
 
-        case 116: // F5 key
-            refresh = e.ctrlKey ? 2 : 1;
-            break;
+            // TODO: catch key strokes inside the debug console
 
-        case 120: // F9 key
-            debugClick();
-            break;
-        }
+            var refresh = 0;
 
-        if (refresh)
-        {
-            e.keyCode = 10000 + e.keyCode; // Remap for IE
-            if (e.preventDefault) e.preventDefault();
-            e.returnValue = false;
-
-            try
+            switch (e.keyCode)
             {
-                if (window.stop) window.stop();
-                else if (doc.execCommand) doc.execCommand('stop');
+            case 82: // R key
+                if (e.ctrlKey) refresh = e.shiftKey ? 2 : 1;
+                break;
+
+            case 116: // F5 key
+                refresh = e.ctrlKey ? 2 : 1;
+                break;
+
+            case 120: // F9 key
+                debugClick();
+                break;
             }
-            catch (e) {}
 
-            e = new Image;
-            e.onload = e.onerror = function() {location.reload(2 === refresh);};
-            e.src = base + '?p:=debug:' + (2 === refresh ? 'deepReset' : 'quickReset');
+            if (refresh)
+            {
+                try {e.keyCode = 10000 + e.keyCode;} // Remap for IE
+                catch (x) {}
 
-            return false;
+                if (e.preventDefault) e.preventDefault();
+                e.returnValue = false;
+
+                try
+                {
+                    if (win.stop) win.stop();
+                    else if (doc.execCommand) doc.execCommand('stop');
+                }
+                catch (x) {}
+
+                e = new Image;
+                e.onload = e.onerror = function() {win.location.reload(2 === refresh);};
+                e.src = base + '?p:=debug:' + (2 === refresh ? 'deepReset' : 'quickReset');
+
+                return false;
+            }
         }
     }
-
-    if (doc.addEventListener) doc.addEventListener('keydown', F5, false);
-    else if (doc.attachEvent) doc.attachEvent('onkeydown', F5);
 
     debugWin.id = 'debugWin';
     debugWin.innerHTML = ''
@@ -199,14 +213,9 @@ var patchworkDebugger = (function(doc)
 
     var debugClick = function()
     {
-        var s = document.getElementById('debugStore');
+        var s = doc.getElementById('debugStore');
 
         debugFrame.style.visibility = 'hidden' == debugFrame.style.visibility ? 'visible' : 'hidden';
         if (s) s.value = debugFrame.style.visibility;
     }
-
-    return function(evt)
-    {
-        events[evt].apply(this, Array.prototype.slice.call(arguments, 1));
-    }
-}(document));
+}(window);
