@@ -146,6 +146,7 @@ class Debugger extends p
 <div id="console">
 <div id="php-errors"><h3>PHP Errors</h3></div>
 <div id="E"><h3>E()</h3></div>
+<div id="sql"><h3>SQL</h3></div>
 <div id="php-silenced-errors"><h3>PHP Silenced Errors</h3></div>
 <div id="requests"><h3>Other events</h3></div>
 </div>

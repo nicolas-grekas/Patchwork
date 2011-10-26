@@ -23,6 +23,7 @@ function classifyEvent(token, type, data)
 
     case 'client-dump':
     case 'server-dump': target = 'E'; break;
+    case 'sql': target = 'sql'; break;
     }
 
     var state = {
