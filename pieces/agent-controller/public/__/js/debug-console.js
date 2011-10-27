@@ -43,11 +43,6 @@ function classifyEvent(token, type, data)
     case 'sql': target = 'sql'; break;
     }
 
-    var state = {
-        depth: 0,
-        buffer: []
-    };
-
     // TODO: use token, type, data.time and data.mem, data.patchwork and data.globals when available
 
     div.innerHTML = htmlizeEvent(data.data, data.__refs);
@@ -69,7 +64,7 @@ function htmlizeEvent(data, refs)
             iRefs[refs[counter][depth]] = counter;
 
     depth = 1;
-    counter = data._ ? parseInt(data._) - 1 : 0;
+    counter = data && data._ ? parseInt(data._) - 1 : 0;
 
     function escape(s)
     {
