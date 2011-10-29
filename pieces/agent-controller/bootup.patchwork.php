@@ -12,6 +12,14 @@
  ***************************************************************************/
 
 
+// Salt for cache invalidation control
+
+/**/$a = 0;
+/**/for ($b = 0; $b <= PATCHWORK_PATH_LEVEL; ++$b) $a += filemtime($patchwork_path[$b] . 'config.patchwork.php');
+
+$patchwork_appId = (int) /*<*/sprintf('%020d', $a)/*>*/;
+
+
 // Timezone settings
 
 /**/if (!ini_get('date.timezone'))

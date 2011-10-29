@@ -21,7 +21,6 @@ class Patchwork_Bootstrapper_Manager
     $paths,
     $zcache,
     $last,
-    $appId,
 
     $bootstrapper,
     $preprocessor,
@@ -311,7 +310,6 @@ class Patchwork_Bootstrapper_Manager
 
         $this->paths = $a[0];
         $this->last  = $a[1];
-        $this->appId = $a[2];
     }
 
     protected function initZcache()
@@ -342,11 +340,10 @@ class Patchwork_Bootstrapper_Manager
     protected function exportPathData()
     {
         $this->substeps[] = array(
-            '$patchwork_appId = (int) ' . var_export(sprintf('%020d', $this->appId), true) . ";
-            define('PATCHWORK_PROJECT_PATH', " . var_export($this->cwd, true) . ");
-            define('PATCHWORK_ZCACHE',       " . var_export($this->zcache, true) . ");
-            define('PATCHWORK_PATH_LEVEL',   " . var_export($this->last, true) . ');
-            $patchwork_path = ' . var_export($this->paths, true) . ';',
+              "define('PATCHWORK_PROJECT_PATH'," . var_export($this->cwd, true) . ');'
+            . "define('PATCHWORK_ZCACHE',"       . var_export($this->zcache, true) . ');'
+            . "define('PATCHWORK_PATH_LEVEL',"   . var_export($this->last, true) . ');'
+            . '$patchwork_path=' . var_export($this->paths, true) . ';',
             __FILE__
         );
     }

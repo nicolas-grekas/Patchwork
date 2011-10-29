@@ -18,8 +18,7 @@ class Patchwork_Bootstrapper_Inheritance
 
     $c3mro,
     $rootPath,
-    $topPath,
-    $appId = 0;
+    $topPath;
 
 
     function linearizeGraph($root_path, $top_path)
@@ -60,7 +59,7 @@ class Patchwork_Bootstrapper_Inheritance
         $paths = array_diff($paths, $a, array('', patchwork_realpath('.')));
         $paths = array_merge($a, $paths);
 
-        return array($paths, count($a) - 1, $this->appId);
+        return array($paths, count($a) - 1);
     }
 
     function getParentApps($realpath)
@@ -70,8 +69,6 @@ class Patchwork_Bootstrapper_Inheritance
 
 
         // Get config's source and clean it
-
-        $this->appId += filemtime($config);
 
         $source = file_get_contents($config);
 
