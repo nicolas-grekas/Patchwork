@@ -20,6 +20,11 @@ class Logger extends PHP\Logger
 {
     public $writeLock = false;
 
+    function __construct($log_stream, $start_time = PATCHWORK_MICROTIME)
+    {
+        parent::__construct($log_stream, $start_time);
+    }
+
     function writeEvent($type, $data)
     {
         if ('php-error' === $type || 'php-exception' === $type)
@@ -41,8 +46,6 @@ class Logger extends PHP\Logger
                 'i18n' => PATCHWORK_I18N,
                 'debug' => DEBUG,
                 'turbo' => TURBO,
-                'utime' => PATCHWORK_MICROTIME,
-                'stime' => $this->startTime,
                 'level' => PATCHWORK_PATH_LEVEL,
                 'zcache' => PATCHWORK_ZCACHE,
                 'paths' => $GLOBALS['patchwork_path'],

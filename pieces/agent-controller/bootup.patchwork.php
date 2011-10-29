@@ -106,7 +106,7 @@ if ($a)
 
 // PHP session mechanism overloading
 
-class sessionHandler implements ArrayAccess
+class SessionHandler implements ArrayAccess
 {
     function offsetGet($k)     {$_SESSION = SESSION::getAll(); return $_SESSION[$k];}
     function offsetSet($k, $v) {$_SESSION = SESSION::getAll(); $_SESSION[$k] =& $v;}
@@ -148,7 +148,7 @@ class sessionHandler implements ArrayAccess
 }
 
 session_set_save_handler(
-    array($k = 'sessionHandler', 'open'),
+    array($k = 'SessionHandler', 'open'),
     array($k, 'close'),
     array($k, 'read'),
     array($k, 'write'),
@@ -156,4 +156,4 @@ session_set_save_handler(
     array($k, 'gc')
 );
 
-$_SESSION = new sessionHandler;
+$_SESSION = new SessionHandler;

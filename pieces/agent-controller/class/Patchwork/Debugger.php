@@ -83,7 +83,7 @@ class Debugger extends p
     protected static function quickReset()
     {
         p::touch('debugSync');
-        unlink(PATCHWORK_PROJECT_PATH . '.patchwork.paths.db');
+        file_exists($f = PATCHWORK_PROJECT_PATH . '.patchwork.paths.db') && unlink($f);
     }
 
     protected static function deepReset()
@@ -91,7 +91,7 @@ class Debugger extends p
         unlink(PATCHWORK_PROJECT_PATH . '.patchwork.php');
 
         self::purgeZcache();
-        p::touch('debugSync');
+        self::quickReset();
 
         $h = opendir(PATCHWORK_PROJECT_PATH);
         while (false !== $f = readdir($h))

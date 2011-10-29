@@ -1,6 +1,6 @@
 <?php
 
-#patchwork ../pTask
+#patchwork __patchwork__/pieces/pTask
 
 $CONFIG += array(
     'pMail.sender'      => '',          // Default value for From and Return-Path headers

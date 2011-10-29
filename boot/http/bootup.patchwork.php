@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 
-$_REQUEST = array(); // $_REQUEST is an open door to security problems.
+$_REQUEST = $_ENV = array(); // Using $_REQUEST and $_ENV is a bad practice
 
 
 // Fix some $_SERVER variables
