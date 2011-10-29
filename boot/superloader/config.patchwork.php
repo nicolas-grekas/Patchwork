@@ -8,7 +8,6 @@ $CONFIG += array(
     // General
     'debug.allowed'  => true,
     'debug.password' => '',
-    'debug.scream'   => false, // Disable the silencing error control operator, defaults to the DEBUG_SCREAM constant if any
     'turbo'          => false, // Run patchwork at full speed, at the cost of source code desynchronisation
 
 );

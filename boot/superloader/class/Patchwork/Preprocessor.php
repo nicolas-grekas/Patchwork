@@ -16,7 +16,6 @@ class Patchwork_Preprocessor
 {
     static
 
-    $scream = false,
     $constants = array(
         'DEBUG',
         'PATCHWORK_ZCACHE',
@@ -53,7 +52,6 @@ class Patchwork_Preprocessor
         'Constructor4to5'    => true,
         'FunctionOverriding' => true,
         'Globalizer'         => true,
-        'Scream'             => true,
         'T'                  => true,
         'Marker'             => true,
         'StaticState'        => true,
@@ -62,10 +60,6 @@ class Patchwork_Preprocessor
 
     static function __constructStatic()
     {
-        self::$scream = (defined('DEBUG') && DEBUG)
-            && !empty($GLOBALS['CONFIG']['debug.scream'])
-                || (defined('DEBUG_SCREAM') && DEBUG_SCREAM);
-
         foreach (get_declared_classes() as $v)
         {
             $v = strtolower($v);
@@ -147,7 +141,6 @@ class Patchwork_Preprocessor
             default:                   new $t($p); break;
             case 'StaticState':        if (0 <= $level) $p = new $t($p); break;
             case 'ClassAutoname':      if (0 <= $level && $class) new $t($p, $class); break;
-            case 'Scream':             if (self::$scream) new $t($p); break;
             case 'ConstFuncDisabler':  if (0 <= $level) new $t($p); break;
             case 'Constructor4to5':    if (0 >  $level) new $t($p); break;
             case 'Globalizer':         if (0 <= $level) new $t($p, '$CONFIG'); break;

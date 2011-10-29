@@ -40,13 +40,6 @@ class Patchwork_Bootstrapper_Preprocessor
         new Patchwork_PHP_Parser_NamespaceResolver($p);
         $p = $this->parser = new Patchwork_PHP_Parser_StaticState($p);
 
-        if( (defined('DEBUG') && DEBUG)
-            && !empty($GLOBALS['CONFIG']['debug.scream'])
-                || (defined('DEBUG_SCREAM') && DEBUG_SCREAM) )
-        {
-            new Patchwork_PHP_Parser_Scream($p);
-        }
-
         $code = $p->getRunonceCode($code);
 
         if ($p = $p->getErrors())
