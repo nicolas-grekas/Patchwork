@@ -182,7 +182,7 @@ class Patchwork
         if (
             isset($_COOKIE['T$'])
             && (
-                !IS_POSTING
+                'POST' !== $_SERVER['REQUEST_METHOD']
                 || (isset($_POST['T$']) && substr($_COOKIE['T$'], 1) === substr($_POST['T$'], 1))
                 || (isset( $_GET['T$']) && substr($_COOKIE['T$'], 1) === substr( $_GET['T$'], 1))
             )
@@ -193,7 +193,7 @@ class Patchwork
 
         isset($_GET['T$']) && $GLOBALS['patchwork_private'] = true;
         self::$antiCsrfMatch =  isset($_GET['T$']) && substr(self::$antiCsrfToken, 1) === substr($_GET['T$'], 1);
-        if (IS_POSTING) unset($_POST['T$'], $_POST['T$']);
+        if ('POST' === $_SERVER['REQUEST_METHOD']) unset($_POST['T$']);
 
 
         // Language controller
@@ -321,7 +321,7 @@ class Patchwork
 
             header('Refresh: 0');
 
-            echo '<script>location.', IS_POSTING ? 'replace(location)' : 'reload()', '</script>';
+            echo '<script>location.', 'POST' === $_SERVER['REQUEST_METHOD'] ? 'replace(location)' : 'reload()', '</script>';
 
             return;
         }
@@ -329,7 +329,7 @@ class Patchwork
         self::$binaryMode = 0 !== strncasecmp(constant("$agent::contentType"), 'text/html', 9);
 
         // load agent
-        if (IS_POSTING || self::$binaryMode || empty($_COOKIE['JS']))
+        if ('POST' === $_SERVER['REQUEST_METHOD'] || self::$binaryMode || empty($_COOKIE['JS']))
         {
             p\Serverside::loadAgent($agent, false, false);
         }
@@ -464,7 +464,7 @@ class Patchwork
 
             if (!isset(self::$antiCsrfToken))
             {
-                if (IS_POSTING && (isset($_POST['T$']) || !empty($_COOKIE)))
+                if ('POST' === $_SERVER['REQUEST_METHOD'] && (isset($_POST['T$']) || !empty($_COOKIE)))
                 {
 /**/                if (DEBUG)
 /**/                {
@@ -1352,7 +1352,7 @@ class Patchwork
             }
         }
 
-        if (!IS_POSTING && ('' !== $buffer || self::$ETag))
+        if ('POST' !== $_SERVER['REQUEST_METHOD'] && ('' !== $buffer || self::$ETag))
         {
             if (!self::$maxage) self::$maxage = 0;
             if ($GLOBALS['patchwork_private']) self::$private = true;

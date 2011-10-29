@@ -280,7 +280,7 @@ class Serverside extends p
 
             p::setExpires($expires);
 
-            if ($is_cacheable && !IS_POSTING && !in_array('private', $group) && ($maxage || 'ontouch' === $expires))
+            if ($is_cacheable && 'POST' !== $_SERVER['REQUEST_METHOD'] && !in_array('private', $group) && ($maxage || 'ontouch' === $expires))
             {
                 $fagent = $cagent;
                 if ($canPost) $fagent = substr($cagent, 0, -4) . '.post' . substr($cagent, -4);
@@ -348,7 +348,7 @@ class Serverside extends p
         if (!file_exists($cagent))
         {
             $cagent = substr($cagent, 0, -4) . '.post' . substr($cagent, -4);
-            if (IS_POSTING || !file_exists($cagent)) $cagent = false;
+            if ('POST' === $_SERVER['REQUEST_METHOD'] || !file_exists($cagent)) $cagent = false;
         }
 
         if ($cagent)

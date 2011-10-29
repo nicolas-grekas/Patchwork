@@ -12,9 +12,6 @@
  ***************************************************************************/
 
 
-define('IS_POSTING', 'POST' === $_SERVER['REQUEST_METHOD']);
-
-
 // Timezone settings
 
 /**/if (!ini_get('date.timezone'))

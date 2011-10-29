@@ -173,7 +173,7 @@ class StaticResource extends p
             // It seems that IE assumes that filename is represented in its local system charset...
             // But we don't want to introduce "Vary: User-Agent" just because of this.
 
-            if ((IS_POSTING || p::$private)
+            if (('POST' === $_SERVER['REQUEST_METHOD'] || p::$private)
                 &&   isset($_SERVER['HTTP_USER_AGENT'])
                 &&  strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE')
                 && !strpos($_SERVER['HTTP_USER_AGENT'], 'Opera')

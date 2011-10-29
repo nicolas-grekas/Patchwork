@@ -112,7 +112,7 @@ EOHTML;
 
             $group = p::closeGroupStage();
 
-            if ($is_cacheable = !(IS_POSTING || in_array('private', $group)))
+            if ($is_cacheable = 'POST' !== $_SERVER['REQUEST_METHOD'] && !in_array('private', $group))
             {
                 $cagent = p::agentCache($agent, $a->get, 'js.ser', $group);
                 $dagent = p::getContextualCachePath('jsdata.' . $agent, 'js.ser', $cagent);

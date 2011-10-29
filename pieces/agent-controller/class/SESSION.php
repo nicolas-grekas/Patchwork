@@ -88,7 +88,7 @@ class SESSION
             self::regenerateId();
 
 /**/        if (DEBUG)
-                IS_POSTING || user_error("Trying to modify a variable which is member of SESSION::\$authVars during a GET request.");
+                'POST' === $_SERVER['REQUEST_METHOD'] || user_error("Trying to modify a variable which is member of SESSION::\$authVars during a GET request.");
         }
     }
 
