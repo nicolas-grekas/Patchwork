@@ -757,19 +757,6 @@ class Patchwork
         return strtr(self::strongId($length), 'IOl10r', '+$%?=&');
     }
 
-    // Basic UTF-8 to ASCII transliteration
-    static function toASCII($s)
-    {
-        if (preg_match("'[\x80-\xFF]'", $s))
-        {
-            $s = Normalizer::normalize($s, Normalizer::FORM_KD);
-            $s = preg_replace('/\p{Mn}+/u', '', $s);
-            $s = iconv('UTF-8', 'ASCII' . ('glibc' !== ICONV_IMPL ? '//IGNORE' : '') . '//TRANSLIT', $s);
-        }
-
-        return $s;
-    }
-
 
     protected static
 

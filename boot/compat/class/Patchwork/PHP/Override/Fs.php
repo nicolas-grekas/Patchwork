@@ -28,13 +28,12 @@ class Patchwork_PHP_Override_Fs
         return substr(basename('.' . $path, $suffix), 1);
     }
 
-    static function pathinfo($path, $option = INF)
+    static function pathinfo($path, $option = -1)
     {
         $path = rawurlencode($path);
         $path = str_replace('%2F', '/' , $path);
         $path = str_replace('%5C', '\\', $path);
-
-        $path = INF === $option ? pathinfo($path) : pathinfo($path, $option);
+        $path = pathinfo($path, $option);
 
         return is_array($path)
             ? array_map('rawurldecode', $path)
