@@ -13,7 +13,6 @@
 
 
 $_patchwork_abstract = array();
-$_patchwork_destruct = array();
 
 
 // Autoload markers
@@ -25,79 +24,8 @@ $_patchwork_destruct = array();
 
 // Shutdown control
 
-Patchwork\FunctionOverride(register_shutdown_function, patchwork_shutdown_register, $callback);
-patchwork_shutdown_register('patchwork_shutdown_start');
-
-function patchwork_shutdown_register($c)
-{
-    $c = array(error_reporting(81), array() !== array_map($c, array()));
-    error_reporting($c[0]);
-
-    if ($c[1])
-    {
-        user_error('Invalid shutdown callback', E_USER_WARNING);
-        return;
-    }
-
-    $c = func_get_args();
-    register_shutdown_function('patchwork_shutdown_execute', $c);
-}
-
-function patchwork_shutdown_execute($c)
-{
-    try
-    {
-        call_user_func_array(array_shift($c), $c);
-    }
-    catch (Exception $e)
-    {
-        $c = set_exception_handler('var_dump');
-        restore_exception_handler();
-        if (null !== $c) call_user_func($c, $e);
-        else user_error("Uncaught exception '" . get_class($e) . "' in {$e->getFile()}:{$e->getLine()}", E_USER_WARNING);
-        exit(255);
-    }
-}
-
-function patchwork_shutdown_start()
-{
-    // See http://bugs.php.net/54114
-    while (ob_get_level()) ob_end_flush();
-    ob_start('patchwork_ob_shutdown');
-
-/**/if (function_exists('fastcgi_finish_request'))
-        fastcgi_finish_request();
-
-    patchwork_shutdown_register('patchwork_shutdown_end');
-}
-
-function patchwork_ob_shutdown($buffer)
-{
-    if ('' !== $buffer) user_error("Cancelling shutdown time output", E_USER_WARNING);
-    return '';
-}
-
-function patchwork_shutdown_end()
-{
-    // See http://bugs.php.net/54157
-    patchwork_shutdown_register('session_write_close');
-    patchwork_shutdown_register('patchwork_shutdown_destruct');
-
-}
-
-function patchwork_shutdown_destruct()
-{
-    if (empty($GLOBALS['_patchwork_destruct']))
-    {
-        while (ob_get_level()) ob_end_flush();
-        ob_start('patchwork_ob_shutdown');
-    }
-    else
-    {
-        call_user_func(array(array_shift($GLOBALS['_patchwork_destruct']), '__destructStatic'));
-        patchwork_shutdown_register(__FUNCTION__);
-    }
-}
+/**/boot::$manager->pushFile('class/Patchwork/ShutdownHandler.php');
+/**/boot::$manager->pushFile('bootup.shutdown.php');
 
 
 // Private use for the preprocessor

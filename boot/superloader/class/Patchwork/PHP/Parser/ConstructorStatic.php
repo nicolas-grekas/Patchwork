@@ -57,21 +57,23 @@ class Patchwork_PHP_Parser_ConstructorStatic extends Patchwork_PHP_Parser
         $this->register($this->callbacks);
 
         $class = strtolower(strtr($this->class->nsName, '\\', '_'));
+        $d = "\\Patchwork_ShutdownHandler::\$destructors[]='{$class}';";
+        T_NS_SEPARATOR < 0 && $d[0] = ' ';
 
         $this->construct && $token[1] = "const c{$this->tag}=" . (2 === $this->construct ? "'{$class}';" : "'';static function __constructStatic(){}") . $token[1];
-        $this->destruct  && $token[1] = "const d{$this->tag}=" . (2 === $this->destruct  ? "'{$class}';" : "'';static function __destructStatic() {}") . $token[1];
+        $this->destruct  && $token[1] = "const d{$this->tag}=" . (2 === $this->destruct  ? "'{$class}';" : "'';static function __destructStatic(){}") . $token[1];
 
         if (isset($this->class->isTop) && false === $this->class->isTop) return;
 
         if ($this->class->extends)
         {
             1 !== $this->construct && $token[1] .= "if('{$class}'==={$this->class->name}::c{$this->tag}){$this->class->name}::__constructStatic();";
-            1 !== $this->destruct  && $token[1] .= "if('{$class}'==={$this->class->name}::d{$this->tag})\$GLOBALS['_patchwork_destruct'][]='{$class}';";
+            1 !== $this->destruct  && $token[1] .= "if('{$class}'==={$this->class->name}::d{$this->tag}){$d}";
         }
         else
         {
             2 === $this->construct && $token[1] .= "{$this->class->name}::__constructStatic();";
-            2 === $this->destruct  && $token[1] .= "\$GLOBALS['_patchwork_destruct'][]='{$class}';";
+            2 === $this->destruct  && $token[1] .= $d;
         }
     }
 }

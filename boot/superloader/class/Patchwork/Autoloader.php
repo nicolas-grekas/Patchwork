@@ -196,7 +196,9 @@ class Patchwork_Autoloader
                 $a = "{$ns}{$parent}::d\x9D";
                 if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__destructStatic'))
                 {
-                    $code .= "\$GLOBALS['_patchwork_destruct'][]='{$lc_ns}{$parent}';";
+                    $a = "\\Patchwork_ShutdownHandler::\$destructors[]='{$lc_ns}{$parent}';";
+                    T_NS_SEPARATOR < 0 && $a[0] = ' ';
+                    $code .= $a;
                 }
             }
 
