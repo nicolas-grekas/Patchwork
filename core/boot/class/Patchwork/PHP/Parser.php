@@ -290,7 +290,7 @@ class Patchwork_PHP_Parser
             // Further than that, two gotchas remain inside string interpolation:
             // - tag closing braces as T_CURLY_CLOSE when they are opened with curly braces
             //   tagged as T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES, to make
-            //   them easy to distinguish from regular code "{" / "}" pairs.
+            //   them easy to distinguish from regular code "{" / "}" pairs,
             // - mimic T_NUM_STRING usage for numerical array indexes and tag string indexes
             //   as T_KEY_STRING rather than T_STRING in "$array[key]".
 
@@ -439,7 +439,7 @@ class Patchwork_PHP_Parser
     }
 
 
-    // Set an error on input code inside parsers.
+    // Set an error on input code inside parsers
 
     protected function setError($message, $type)
     {
@@ -566,12 +566,12 @@ class Patchwork_PHP_Parser
     }
 
 
-    // Returns a parsable string representation of a variable.
+    // Returns a parsable string representation of a variable
     // Similar to var_export() with these differencies:
-    // - it can be used inside output buffering callbacks,
-    // - it always returns a single ligne of code,
-    //   even for arrays or when the input contains CR/LF.
-    // - but it fails on recursive arrays
+    // - it can be used inside output buffering callbacks
+    // - it always returns a single ligne of code
+    //   even for arrays or when a string contains CR/LF
+    // - it works only on static types (scalars and non-recursive arrays)
 
     static function export($a)
     {
@@ -580,7 +580,6 @@ class Patchwork_PHP_Parser
         default:           return (string) $a;
         case true  === $a: return 'true';
         case false === $a: return 'false';
-        case null  === $a: return 'null';
         case  INF  === $a: return  'INF';
         case -INF  === $a: return '-INF';
 
@@ -621,14 +620,15 @@ class Patchwork_PHP_Parser
 
             return 'array(' . implode(',', $b) . ')';
 
-        case is_object($a):
-            return 'unserialize(' . self::export(serialize($a)) . ')';
-
         case is_float($a):
             if (is_nan($a)) return 'NAN';
             $b = sprintf('%.14F', $a);
             $a = sprintf('%.17F', $a);
             return rtrim((float) $b === (float) $a ? $b : $a, '.0');
+
+        case is_resource($a):
+        case is_object($a):
+        case null === $a: return 'null';
         }
     }
 }

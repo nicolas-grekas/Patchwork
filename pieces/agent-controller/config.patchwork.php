@@ -1,7 +1,7 @@
 <?php // vi: set fenc=utf-8 ts=4 sw=4 et:
 
-#patchwork __patchwork__/boot/http
-#patchwork __patchwork__/boot/superloader
+#patchwork __patchwork__/core/http
+#patchwork __patchwork__/core/superloader
 
 use Patchwork\PHP\Override as o;
 

@@ -23,7 +23,7 @@ class Patchwork_Bootstrapper
     static function initialize($caller, $cwd)
     {
         $manager = self::$class . '_' . self::$manager;
-        $pwd = dirname($caller) . DIRECTORY_SEPARATOR . 'boot' . DIRECTORY_SEPARATOR;
+        $pwd = implode(DIRECTORY_SEPARATOR, array(dirname($caller), 'core', 'boot', ''));
         self::$manager = new $manager(self::$class, $caller, $pwd, $cwd);
     }
 

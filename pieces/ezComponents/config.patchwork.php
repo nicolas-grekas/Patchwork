@@ -1,6 +1,6 @@
 <?php
 
-#patchwork __patchwork__/boot/superloader
+#patchwork __patchwork__/core/superloader
 
 /*
  * To use eZComponents, setup them using the PEAR method,

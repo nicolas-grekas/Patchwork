@@ -36,8 +36,8 @@ defined('PATCHWORK_MICROTIME') || define('PATCHWORK_MICROTIME', microtime(true))
 error_reporting(E_ALL | E_STRICT);
 setlocale(LC_ALL, 'C');
 
-require dirname(__FILE__) . '/boot/class/Patchwork/Bootstrapper/Manager.php';
-require dirname(__FILE__) . '/boot/class/Patchwork/Bootstrapper.php';
+require dirname(__FILE__) . '/core/boot/class/Patchwork/Bootstrapper/Manager.php';
+require dirname(__FILE__) . '/core/boot/class/Patchwork/Bootstrapper.php';
 
 // Bootup steps: alias, initialize then eval in the global scope
 class boot extends Patchwork_Bootstrapper {}

@@ -18,6 +18,7 @@ class Patchwork_Bootstrapper_Manager
 
     $pwd,
     $cwd,
+    $base,
     $paths,
     $zcache,
     $last,
@@ -40,6 +41,7 @@ class Patchwork_Bootstrapper_Manager
         $this->callerRx = preg_quote($caller, '/');
         $this->pwd = $pwd;
         $this->cwd = $cwd;
+        $this->base = dirname($caller) . DIRECTORY_SEPARATOR;
 
         switch (true)
         {
@@ -293,7 +295,7 @@ class Patchwork_Bootstrapper_Manager
 
         $a = $this->bootstrapper . '_Inheritance';
         $a = new $a;
-        $a = $a->linearizeGraph($this->pwd, $this->cwd);
+        $a = $a->linearizeGraph($this->pwd, $this->cwd, $this->base);
 
         $b = array_slice($a[0], 0, $a[1]);
 

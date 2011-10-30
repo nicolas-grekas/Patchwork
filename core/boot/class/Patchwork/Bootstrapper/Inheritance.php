@@ -18,13 +18,15 @@ class Patchwork_Bootstrapper_Inheritance
 
     $c3mro,
     $rootPath,
-    $topPath;
+    $topPath,
+    $basePath;
 
 
-    function linearizeGraph($root_path, $top_path)
+    function linearizeGraph($root_path, $top_path, $base_path)
     {
         $this->rootPath = $root_path;
         $this->topPath  = $top_path;
+        $this->basePath = $base_path;
 
         // Get include_path
 
@@ -100,7 +102,7 @@ class Patchwork_Bootstrapper_Inheritance
         {
             $a = $parent[$i];
 
-            if ('__patchwork__' == substr($a, 0, 13)) $a = dirname($this->rootPath) . DIRECTORY_SEPARATOR . substr($a, 13);
+            if ('__patchwork__' == substr($a, 0, 13)) $a = $this->basePath . substr($a, 13);
 
             if ('/' !== $a[0] && '\\' !== $a[0] && ':' !== $a[1]) $a = $realpath . $a;
 
