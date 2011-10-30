@@ -12,17 +12,15 @@
  ***************************************************************************/
 
 
-class Patchwork_Autoloader
+class Patchwork_Autoloader extends Patchwork_Superloader
 {
-    static $turbo = false;
-
     protected static
 
-    $preproc = false,
-    $pool    = false;
+    $pool = false,
+    $preproc = false;
 
 
-    static function autoload($req)
+    static function loadClass($req)
     {
 /**/    if (50300 <= PHP_VERSION_ID && PHP_VERSION_ID < 50303) // Workaround http://bugs.php.net/50731
             isset($req[0]) && '\\' === $req[0] && $req = substr($req, 1);
@@ -62,7 +60,7 @@ class Patchwork_Autoloader
 
         $src = '';
 
-        if ($customSrc =& $GLOBALS['patchwork_autoload_prefix'] && $a = strlen($lc_top))
+        if ($customSrc =& self::$prefix && $a = strlen($lc_top))
         {
             // Look for a registered prefix autoloader
 
@@ -94,7 +92,7 @@ class Patchwork_Autoloader
         if ($customSrc = '' !== (string) $src) {}
         else if ('_' !== substr($top, -1))
         {
-            $src = patchwork_class2file($top);
+            $src = self::class2file($top);
             $src = trim($src, '/') === $src ? "class/{$src}.php" : '';
         }
 
@@ -109,7 +107,7 @@ class Patchwork_Autoloader
         if ($level > $a)
         {
             do $parent = $top . '__' . (0 <= --$level ? $level : '00');
-            while (!($parent_exists = patchwork_exists($parent, false)) && $level > $a);
+            while (!($parent_exists = self::exists($parent, false)) && $level > $a);
         }
         else
         {
@@ -124,7 +122,7 @@ class Patchwork_Autoloader
 
         if ($src && !$parent_exists)
         {
-            $cache = patchwork_class2cache($top . '.php', $level);
+            $cache = self::class2cache($top . '.php', $level);
 
             $current_pool = false;
             $parent_pool =& self::$pool;
@@ -144,7 +142,7 @@ class Patchwork_Autoloader
 
             patchwork_include_voicer($cache, error_reporting());
 
-            if ($parent && patchwork_exists($req, false)) $parent = false;
+            if ($parent && self::exists($req, false)) $parent = false;
             if (false !== $parent_pool) $parent_pool[$parent ? $parent : $req] = $cache;
         }
 
@@ -154,8 +152,8 @@ class Patchwork_Autoloader
         $code = '';
 
         if (  $parent
-            ? patchwork_exists($parent, true)
-            : (patchwork_exists($req, false) && !isset($GLOBALS["c\x9D"][$lc_req]))  )
+            ? $code = self::exists($parent, true)
+            : (self::exists($req, false) && !isset($GLOBALS["c\x9D"][$lc_req]))  )
         {
             if (false !== $a = strrpos($req, '\\'))
             {
@@ -169,7 +167,7 @@ class Patchwork_Autoloader
 
             if ($parent)
             {
-                $code = (class_exists($ns . $parent, false) ? 'class' : 'interface') . " {$req} extends {$parent}{}\$GLOBALS['c\x9D']['{$lc_ns}{$lc_req}']=1;";
+                $code .= " {$req} extends {$parent}{}\$GLOBALS['c\x9D']['{$lc_ns}{$lc_req}']=1;";
                 $parent = strtolower($parent);
 
                 if ($ns && function_exists('class_alias'))
@@ -177,10 +175,10 @@ class Patchwork_Autoloader
                     $code .= "\\class_alias('{$ns}{$req}','{$lc_ns}{$lc_req}');";
                 }
 
-                if (isset($GLOBALS['_patchwork_abstract'][$lc_ns . $parent]))
+                if (isset(self::$abstract[$lc_ns . $parent]))
                 {
                     $code = 'abstract ' . $code;
-                    $GLOBALS['_patchwork_abstract'][$lc_ns . $lc_req] = 1;
+                    self::$abstract[$lc_ns . $lc_req] = 1;
                 }
             }
             else $parent = $lc_req;
@@ -290,7 +288,8 @@ class Patchwork_Autoloader
                         $marker = "isset(\$c\x9D['{$lc_req}'])||{$marker}";
                         $code = ".class_{$cache}.zcache.php";
                         $code = addslashes(PATCHWORK_PROJECT_PATH . $code);
-                        $code = "isset(\$c\x9D['{$lc_req}'])||patchwork_include_voicer('{$code}',null)||1";
+                        $ns = empty($ns) ? '' : '\\';
+                        $code = "isset(\$c\x9D['{$lc_req}'])||{$ns}patchwork_include_voicer('{$code}',null)||1";
                     }
                     else
                     {

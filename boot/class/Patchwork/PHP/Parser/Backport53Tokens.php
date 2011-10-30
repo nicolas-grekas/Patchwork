@@ -21,19 +21,17 @@ defined('T_NS_C') || Patchwork_PHP_Parser::createToken('T_NS_C');
 
 class Patchwork_PHP_Parser_Backport53Tokens extends Patchwork_PHP_Parser
 {
-    protected $callbacks = array('tagString' => T_STRING);
+    protected $dependencies = 'StringInfo';
 
-    protected function tagString(&$token)
+    function __construct(parent $parent)
     {
-        switch (strtolower($token[1]))
-        {
-        case 'goto': $token[0] = T_GOTO; break;
-        case '__dir__': $token[0] = T_DIR; break;
-        case 'namespace': $token[0] = T_NAMESPACE; break;
-        case '__namespace__': $token[0] = T_NS_C; break;
-        default: return;
-        }
+        parent::__construct($parent);
 
-        return $this->unshiftTokens($token);
+        $this->dependencies['StringInfo']->backportTokens(array(
+            'goto' => T_GOTO,
+            '__dir__' => T_DIR,
+            'namespace' => T_NAMESPACE,
+            '__namespace__' => T_NS_C,
+        ));
     }
 }

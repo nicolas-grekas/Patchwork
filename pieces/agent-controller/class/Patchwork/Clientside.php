@@ -28,7 +28,7 @@ class Clientside extends p
         $a = p::agentArgs($agent);
         $a = implode(',', array_map('jsquote', $a));
 
-        $agent = jsquote('agent_index' === $agent ? '' : patchwork_class2file(substr($agent, 6)));
+        $agent = jsquote('agent_index' === $agent ? '' : p\Superloader::class2file(substr($agent, 6)));
 
         $lang = p::__LANG__();
         $appId = p::$appId;
@@ -247,7 +247,7 @@ EOHTML;
         {
             if ($is_cacheable) ob_start();
 
-            if ($config_maxage == $maxage && TURBO)
+            if ($config_maxage == $maxage && Superloader::$turbo)
             {
                 $ctemplate = p::getContextualCachePath("templates/$template", 'txt');
 

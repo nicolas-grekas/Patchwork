@@ -317,7 +317,7 @@ parent.E.buffer = [];
 
     protected static function filename($m)
     {
-        return $GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - ((int)($m[3].$m[2]))] . '/' . patchwork_class2file($m[1]);
+        return $GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - ((int)($m[3].$m[2]))] . '/' . p\Superloader::class2file($m[1]);
     }
 
     protected static function htmlDumpLine($a)

@@ -114,7 +114,7 @@ if ($a)
 
 // PHP session mechanism overloading
 
-class SessionHandler implements ArrayAccess
+class Patchwork_SessionHandler implements ArrayAccess
 {
     function offsetGet($k)     {$_SESSION = SESSION::getAll(); return $_SESSION[$k];}
     function offsetSet($k, $v) {$_SESSION = SESSION::getAll(); $_SESSION[$k] =& $v;}
@@ -156,7 +156,7 @@ class SessionHandler implements ArrayAccess
 }
 
 session_set_save_handler(
-    array($k = 'SessionHandler', 'open'),
+    array($k = 'Patchwork_SessionHandler', 'open'),
     array($k, 'close'),
     array($k, 'read'),
     array($k, 'write'),
@@ -164,4 +164,4 @@ session_set_save_handler(
     array($k, 'gc')
 );
 
-$_SESSION = new SessionHandler;
+$_SESSION = new Patchwork_SessionHandler;

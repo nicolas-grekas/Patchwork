@@ -33,9 +33,10 @@ class Patchwork_Preprocessor
         'ShortOpenEcho'      => -50400,
         'ShortArray'         => -50400,
         'BinaryNumber'       => -50400,
-        'Backport53Tokens'   => -50300, // Load this only before 5.3.0
         'ClassAutoname'      => true,
         'StringInfo'         => true,
+        'Backport53Tokens'   => -50300, // Load this only before 5.3.0
+        'Backport54Tokens'   => -50400,
         'NamespaceBracketer' => +50300, // Load this only for 5.3.0 and up
         'NamespaceInfo'      => true,
         'ScopeInfo'          => true,

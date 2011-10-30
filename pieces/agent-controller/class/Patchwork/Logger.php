@@ -45,7 +45,7 @@ class Logger extends PHP\Logger
                 'app' => PATCHWORK_PROJECT_PATH,
                 'i18n' => PATCHWORK_I18N,
                 'debug' => DEBUG,
-                'turbo' => TURBO,
+                'turbo' => Superloader::$turbo,
                 'level' => PATCHWORK_PATH_LEVEL,
                 'zcache' => PATCHWORK_ZCACHE,
                 'paths' => $GLOBALS['patchwork_path'],

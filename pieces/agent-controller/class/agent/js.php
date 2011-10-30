@@ -52,7 +52,7 @@ class agent_js extends agent_css
         else
         {
             ++self::$recursion;
-            $src = patchwork_class2file(substr(get_class($this), 6));
+            $src = Patchwork\Superloader::class2file(substr(get_class($this), 6));
             $src = Patchwork\Serverside::returnAgent($src, (array) $this->get);
             --self::$recursion;
 

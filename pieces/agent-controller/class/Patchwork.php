@@ -974,7 +974,7 @@ class Patchwork
 
         $resolvedCache[$existingAgent] = true;
 
-        $agent = 'agent' . patchwork_file2class($existingAgent);
+        $agent = 'agent' . p\Superloader::file2class($existingAgent);
 
         isset($agentLevel)
             || patchworkPath('class/agent/index.php', $agentLevel)

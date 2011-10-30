@@ -41,6 +41,7 @@ class Patchwork_PHP_Parser_StringInfo extends Patchwork_PHP_Parser
     $inUse     = false,
     $nsPrefix  = '',
     $preNsType = 0,
+    $backports,
     $callbacks = array(
         'tagString'   => T_STRING,
         'tagConst'    => T_CONST,
@@ -51,6 +52,12 @@ class Patchwork_PHP_Parser_StringInfo extends Patchwork_PHP_Parser
         'tagNsSep'    => T_NS_SEPARATOR,
     );
 
+
+    function backportTokens($tokens)
+    {
+        isset($this->backports) || $this->backports = array();
+        foreach ($tokens as $text => $type) $this->backports[strtolower($text)] = $type;
+    }
 
     function removeNsPrefix()
     {
@@ -75,6 +82,12 @@ class Patchwork_PHP_Parser_StringInfo extends Patchwork_PHP_Parser
 
     protected function tagString(&$token)
     {
+        if (isset($this->backports) && isset($this->backports[strtolower($token[1])]))
+        {
+            $token[0] = $this->backports[strtolower($token[1])];
+            return $this->unshiftTokens($token);
+        }
+
         if (T_NS_SEPARATOR !== $p = $this->lastType) $this->nsPrefix = '';
 
         switch ($p)

@@ -28,7 +28,7 @@ class agent_css extends agent
     function control()
     {
         $dir = substr(get_class($this), 6);
-        $dir = patchwork_class2file($dir);
+        $dir = Patchwork\Superloader::class2file($dir);
 
         $tpl = $this->get->__0__;
 

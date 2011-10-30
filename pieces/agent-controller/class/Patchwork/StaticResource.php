@@ -53,7 +53,7 @@ class StaticResource extends p
 
         $ctemplate = p::getContextualCachePath("templates/$template", 'txt');
 
-        TURBO || p::syncTemplate($template, $ctemplate);
+        Superloader::$turbo || p::syncTemplate($template, $ctemplate);
 
         $readHandle = true;
 

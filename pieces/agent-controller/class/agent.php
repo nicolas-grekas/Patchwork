@@ -45,7 +45,7 @@ class agent
             if ((false === $tail = strrpos($class, '__'))
                 || ((false !== $tail = substr($class, $tail+2)) && '' !== trim($tail, '0123456789')))
             {
-                $template = patchwork_class2file(substr($class, 6));
+                $template = p\Superloader::class2file(substr($class, 6));
                 if (p::resolvePublicPath($template . '.ptl')) return $template;
             }
         }
@@ -103,7 +103,7 @@ class agent
         $this->control();
 
         if (!$this->contentType
-            && '' !== $a = strtolower(pathinfo(patchwork_class2file($class), PATHINFO_EXTENSION)))
+            && '' !== $a = strtolower(pathinfo(p\Superloader::class2file($class), PATHINFO_EXTENSION)))
         {
             $this->contentType = isset(p\StaticResource::$contentType['.' . $a])
                 ? p\StaticResource::$contentType['.' . $a]

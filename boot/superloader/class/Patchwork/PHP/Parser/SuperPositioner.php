@@ -20,7 +20,7 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
     $topClass,
     $callbacks = array(
         'tagClassUsage'  => array(T_USE_CLASS, T_TYPE_HINT),
-        'tagClass'       => array(T_CLASS, T_INTERFACE),
+        'tagClass'       => array(T_CLASS, T_INTERFACE, T_TRAIT),
         'tagClassName'   => T_NAME_CLASS,
         'tagPrivate'     => T_PRIVATE,
         'tagRequire'     => array(T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
@@ -154,12 +154,15 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
             $token[1] .= "\\class_alias('{$c->nsName}{$c->suffix}','{$a}{$c->suffix}');";
         }
 
+        $s = '\\Patchwork_Superloader';
+        T_NS_SEPARATOR < 0 && $s[0] = ' ';
+
         if ($c->isFinal || $c->isTop)
         {
             $token[1] = "}"
                 . ($c->isFinal ? 'final' : ($c->isAbstract ? 'abstract' : ''))
                 . " {$c->type} {$c->name} extends {$c->name}{$c->suffix} {" . $token[1]
-                . "\$GLOBALS['c\x9D']['{$a}']=1;";
+                . "{$s}::\$location['{$a}']=1;";
 
             strpos($c->nsName, '\\')
                 && function_exists('class_alias')
@@ -168,31 +171,30 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
 
         if ($c->isAbstract)
         {
-            $token[1] .= "\$GLOBALS['_patchwork_abstract']['{$a}{$c->suffix}']=1;";
+            $token[1] .= "{$s}::\$abstract['{$a}{$c->suffix}']=1;";
         }
     }
 
     protected function tagRequire(&$token)
     {
         // Every require|include inside files in the include_path
-        // is preprocessed thanks to patchworkProcessedPath().
+        // is preprocessed thanks to Patchwork_Superloader::getProcessedPath().
 
         $token['no-autoload-marker'] = true;
 
-        if (!DEBUG && TURBO && $this->dependencies['ConstantExpression']->nextExpressionIsConstant())
+        if (!DEBUG && Patchwork_Superloader::$turbo
+          && $this->dependencies['ConstantExpression']->nextExpressionIsConstant()
+          && false !== $a = Patchwork_Superloader::getProcessedPath($this->expressionValue, true))
         {
-            $a = patchworkProcessedPath($this->expressionValue, true);
             $token =& $this->getNextToken();
-
-            $token[1] = false === $a
-                ? " patchworkProcessedPath({$token[1]})"
-                : (' ' . self::export($a) . str_repeat("\n", substr_count($token[1], "\n")));
+            $token[1] = ' ' . self::export($a) . str_repeat("\n", substr_count($token[1], "\n"));
         }
         else
         {
             $this->unshiftTokens(
                 $this->namespace ? array(T_NS_SEPARATOR, '\\') : array(T_WHITESPACE, ' '),
-                array(T_STRING, 'patchworkProcessedPath'), '('
+                array(T_STRING, 'Patchwork_Superloader'), array(T_DOUBLE_COLON, '::'),
+                array(T_STRING, 'getProcessedPath'), '('
             );
 
             new Patchwork_PHP_Parser_CloseBracket($this);
@@ -209,8 +211,9 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
             break;
 
         case '\class_exists':
+        case '\trait_exists':
         case '\interface_exists':
-            // For files in the include_path, always set the 2nd arg of class|interface_exists() to true
+            // For files in the include_path, always set the 2nd arg of class|trait|interface_exists() to true
             if (0 <= $this->level) return;
             new Patchwork_PHP_Parser_Bracket_ClassExists($this);
             break;
