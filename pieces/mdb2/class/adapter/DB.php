@@ -26,7 +26,7 @@ class adapter_DB
         {
             $dsn = $db->getUserInfo();
             $dsn = $dsn ? ' ** ' . $dsn : '';
-            trigger_error($db->getMessage() . $dsn, E_USER_ERROR);
+            user_error($db->getMessage() . $dsn, E_USER_ERROR);
             Patchwork::disable(true);
         }
 

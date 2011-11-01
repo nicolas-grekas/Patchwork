@@ -723,7 +723,7 @@ class Patchwork
 
     static function string($a)
     {
-        trigger_error(__METHOD__ . '()', E_USER_DEPRECATED);
+        user_error(__METHOD__ . '()', E_USER_DEPRECATED);
         return is_object($a) ? $a->__toString() : (string) $a;
     }
 

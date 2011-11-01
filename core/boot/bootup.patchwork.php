@@ -27,6 +27,9 @@ setlocale(LC_ALL, 'C');
 /**/if (!defined('E_USER_DEPRECATED'))
         define('E_USER_DEPRECATED',  16384);
 
+/**/if (function_exists('spl_autoload')) // spl_autoload() evades code preprocessing, do not use it
+        Patchwork\FunctionOverride(spl_autoload, Patchwork\PHP\Override\SplAutoload, $class);
+
 // Boolean version of ini_get()
 
 function ini_get_bool($a)

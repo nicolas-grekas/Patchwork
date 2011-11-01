@@ -164,7 +164,7 @@ class Patchwork_PHP_Override_Php530
     {
         if (!is_object($o))
         {
-            trigger_error("spl_object_hash() expects parameter 1 to be object, " . gettype($o) . " given", E_USER_WARNING);
+            user_error("spl_object_hash() expects parameter 1 to be object, " . gettype($o) . " given", E_USER_WARNING);
             return null;
         }
 

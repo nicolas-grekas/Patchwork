@@ -33,7 +33,7 @@ class Patchwork_PHP_Override_WinfsCase
             {
                 if (0 === strcasecmp($file[$i], $realfile[$j]) && !(0 === $i && ':' === substr($file, 1, 1)))
                 {
-                    trigger_error("Character case mismatch between requested file and its real path ({$file} vs {$realfile})", E_USER_NOTICE);
+                    user_error("Character case mismatch between requested file and its real path ({$file} vs {$realfile})", E_USER_NOTICE);
                 }
 
                 break;
