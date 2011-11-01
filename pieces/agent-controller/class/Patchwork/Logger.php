@@ -42,7 +42,6 @@ class Logger extends PHP\Logger
             class_exists('Patchwork\PHP\JsonDumper') || __autoload('Patchwork\PHP\JsonDumper');
 
             $data['patchwork'] = array(
-                'app' => PATCHWORK_PROJECT_PATH,
                 'i18n' => PATCHWORK_I18N,
                 'debug' => DEBUG,
                 'turbo' => Superloader::$turbo,

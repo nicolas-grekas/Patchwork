@@ -30,6 +30,7 @@ var patchworkConsole = (function(doc)
         init: function()
         {
         },
+        requests: {},
         tab: function(type, label)
         {
             this.type = type;
@@ -53,6 +54,18 @@ var patchworkConsole = (function(doc)
         log: function(type, data, token)
         {
             var t = this.tabs[type] || this.tabs['*'];
+
+            if (token && !this.requests[token] && data.globals)
+            {
+                this.requests[token] = {
+                    URI: data.globals._SERVER.REQUEST_URI,
+                    time: data.time,
+                    mem: data.mem,
+                    globals: data.globals,
+                    patchwork: data.patchwork,
+                };
+            }
+
             t.log(type, data, token);
         }
     };
@@ -76,21 +89,54 @@ var patchworkConsole = (function(doc)
     };
     div.log = function(type, data, token)
     {
-        console.count || console.init();
-        this.count || this.init();
+        console.count++ || console.init();
+        this.count++ || this.init();
+
         var div = doc.createElement('DIV');
         div.className = 'event';
-        this.populate(div, data);
+        this.populate(div, data, token);
         this.div.appendChild(div);
-        this.div.firstChild.firstChild.nextSibling.innerHTML = '(' + ++this.count + ')';
+        this.div.firstChild.firstChild.nextSibling.innerHTML = '(' + this.count + ')';
         this.titleDiv.innerHTML = this.div.firstChild.innerHTML;
         if (0 == this.titleDiv.className.indexOf('empty ')) this.titleDiv.className = this.titleDiv.className.substr(6);
-        ++console.count;
     };
-    div.populate = function(div, data)
+    div.populate = function(div, data, token)
     {
-        // TODO: use token, type, data.time and data.mem, data.patchwork and data.globals when available
-        div.innerHTML = htmlizeEvent(data.data, data.__refs);
+        // TODO: icons for error levels, profiling info, request context...
+
+        var filter, patchwork;
+
+        if (token && console.requests[token])
+        {
+            patchwork = console.requests[token].patchwork;
+
+            filter = function(data, htmlEncode)
+            {
+                if (data.indexOf && 0 < data.indexOf(patchwork.paths['0']))
+                {
+                    data = data.split(patchwork.paths['0']);
+                    data[0] = htmlEncode(data[0]);
+
+                    for (var m, i = 1; i < data.length; ++i)
+                    {
+                        if (data[i].indexOf('zcache.php') && (m = /^\.([^\\\/]+)\.[01]([0-9]+)(-?)\.zcache\.php(.*)/.exec(data[i])))
+                        {
+                            data[i] = '<span title="' + htmlEncode(patchwork.paths['' + (patchwork.level - (m[3] + m[2]))])
+                                + '">.../' + m[1].replace('_', '/') + '</span>' + htmlEncode(m[4]);
+                        }
+                        else
+                        {
+                            data[i] = '<span title="' + htmlEncode(patchwork.paths['0']) + '">.../</span>' + htmlEncode(data[i]);
+                        }
+                    }
+
+                    return data.join('');
+                }
+                else return htmlEncode(data);
+            };
+        }
+
+        div.innerHTML = htmlizeEvent(data.data, data.__refs, filter);
     }
 
     // Define defaults tabs
@@ -114,10 +160,20 @@ var patchworkConsole = (function(doc)
     div = new console.tab('client-dump', 'E (JavaScript)');
     div = new console.tab('silenced-php-error', 'Silenced PHP Errors');
 
-    div.populate = function(div, data)
+    div.populate = function(div, data, token)
     {
         div.className += ' silenced';
-        console.tab.prototype.populate.call(this, div, data);
+        console.tab.prototype.populate.call(this, div, data, token);
+    }
+
+    div = new console.tab('debug-shutdown', 'Requests');
+
+    div.log = function(type, data, token)
+    {
+        data.data = console.requests[token] || {};
+        data.data.time = data.time;
+        data.data.mem = data.mem;
+        console.tab.prototype.log.call(this, type, data, token);
     }
 
     div = new console.tab('*');
@@ -127,7 +183,7 @@ var patchworkConsole = (function(doc)
     return console;
 }(document));
 
-function htmlizeEvent(data, refs)
+function htmlizeEvent(data, refs, filter)
 {
     var iRefs = {},
         depth,
@@ -143,7 +199,9 @@ function htmlizeEvent(data, refs)
     depth = 1;
     counter = data && data._ ? parseInt(data._) - 1 : 0;
 
-    function escape(s)
+    filter = filter || htmlEncode;
+
+    function htmlEncode(s)
     {
         span.innerText = span.textContent = s;
         return span.innerHTML;
@@ -152,7 +210,7 @@ function htmlizeEvent(data, refs)
     function push(data, tags, title)
     {
         if (title && title.length) tags += '" title="' + title.join(', ');
-        buffer.push('<span class="' + tags + '">' + escape(data) + '</span>');
+        buffer.push('<span class="' + tags + '">' + filter(data, htmlEncode) + '</span>');
     }
 
     function htmlizeData(data, tags, title, toggle)
