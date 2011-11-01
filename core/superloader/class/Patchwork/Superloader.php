@@ -132,6 +132,11 @@ class Patchwork_Superloader
         return $class;
     }
 
+    static function file2cache($file, $level)
+    {
+        return self::class2cache(self::file2class($file), $level);
+    }
+
     static function file2class($file)
     {
 /**/    $a = "_/ /!/#/$/%/&/'/(/)/+/,/-/./;/=/@/[/]/^/`/{/}/~";
@@ -192,8 +197,7 @@ class Patchwork_Superloader
 
         if (false === $source) return false;
 
-        $cache = self::file2class($file);
-        $cache = self::class2cache($cache, $level);
+        $cache = self::file2cache($file, $level);
 
         if (file_exists($cache) && (self::$turbo || filemtime($cache) > filemtime($source))) return $cache;
 

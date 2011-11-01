@@ -930,7 +930,7 @@ class Patchwork
             {
                 $a .= '/' . $agent[$i++];
 
-                unset($level);
+                $level = null;
 
                 if (isset($resolvedCache[$a])) $level = true;
                 else if (patchworkPath("class/agent{$a}.php", $level)) {}
