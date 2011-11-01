@@ -118,17 +118,10 @@ class Debugger extends p
 <html>
 <head>
     <title>Debug Window</title>
-    <link type="text/css" rel="stylesheet" href="<?php echo p::__BASE__() . 'css/debug-console.css?' . $GLOBALS['patchwork_appId'];?>">
-    <script src="<?php echo p::__BASE__() . 'js/debug-console.js?' . $GLOBALS['patchwork_appId'];?>"></script>
+    <link type="text/css" rel="stylesheet" href="<?php echo p::__BASE__() . 'css/patchwork-console.css?' . $GLOBALS['patchwork_appId'];?>">
 </head>
 <body>
-<div id="console">
-<div id="php-errors"><h3>PHP Errors</h3></div>
-<div id="E"><h3>E()</h3></div>
-<div id="sql"><h3>SQL</h3></div>
-<div id="php-silenced-errors"><h3>PHP Silenced Errors</h3></div>
-<div id="requests"><h3>Other events</h3></div>
-</div>
+<script src="<?php echo p::__BASE__() . 'js/patchwork-console.js?' . $GLOBALS['patchwork_appId'];?>"></script>
 <div id="events" style="display:none">
 <?php
 
@@ -148,7 +141,7 @@ class Debugger extends p
                         {
                             if (false !== $line = reset(self::$buffer))
                             {
-                                echo self::parseZcacheFile(implode('', $line));
+                                echo implode('', $line);
 
                                 if ($line && false === end($line))
                                 {
@@ -181,7 +174,7 @@ class Debugger extends p
 <script>
 scrollTo(0,0);
 var i, b = window.parent && parent.E && parent.E.buffer;
-for (i in b) classifyEvent("0000000000", "client-dump", b[i]);
+for (i in b) patchworkConsole.log("client-dump", b[i]);
 parent.E.buffer = [];
 </script>
 <?php
@@ -299,27 +292,6 @@ parent.E.buffer = [];
         return $b;
     }
 
-    protected static function parseZcacheFile($a)
-    {
-        if (false !== strpos($a, '.zcache.php'))
-        {
-            // TODO: be more robust here: input and output are json-encoded, not plain text
-            $a = preg_replace_callback(
-                "'" . preg_quote(PATCHWORK_PROJECT_PATH . '.')
-                    . "([^\\\\/]+)\.[01]([0-9]+)(-?)\.zcache\.php'",
-                array(__CLASS__, 'filename'),
-                $a
-            );
-        }
-
-        return $a;
-    }
-
-    protected static function filename($m)
-    {
-        return $GLOBALS['patchwork_path'][PATCHWORK_PATH_LEVEL - ((int)($m[3].$m[2]))] . '/' . p\Superloader::class2file($m[1]);
-    }
-
     protected static function htmlDumpLine($a)
     {
         list($token, $a) = explode(': ', substr($a, 0, -1) , 2);
@@ -327,13 +299,11 @@ parent.E.buffer = [];
 
         if ('*** ' === substr($a, 0, 4))
         {
-            $b[] = '<script>classifyEvent('
-                . p\PHP\JsonDumper::get($token) . ','
-                . p\PHP\JsonDumper::get(substr($a, 4, -4)) . ',';
+            $b[] = '<script>patchworkConsole.log(' . p\PHP\JsonDumper::get(substr($a, 4, -4)) . ',';
         }
         else if ('***' === $a)
         {
-            $b[] = ")</script>";
+            $b[] = ',' . p\PHP\JsonDumper::get($token) . ')</script>';
             $b[] = false;
         }
         else

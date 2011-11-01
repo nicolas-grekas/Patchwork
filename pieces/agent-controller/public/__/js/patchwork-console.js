@@ -15,40 +15,117 @@
 
 parent.patchworkDebugger.attachKeyPressHandler(window);
 
-function Z()
+var patchworkConsole = (function(doc)
 {
-    scrollTo(0, window.innerHeight || document.documentElement.scrollHeight);
-}
+    // Creates the div that contains the console
 
-function classifyEvent(token, type, data)
-{
-    var target = 'requests', div = document.createElement('DIV');
+    var div = doc.createElement('DIV');
+    div.className = 'console';
 
-    div.className = 'event';
+    // Define the main console object
 
-    switch (type)
-    {
-    case 'php-error':
-        target = 'php-errors';
-        if (data.data.level)
+    var console = {
+        div: div,
+        count: 0,
+        init: function()
         {
-            type = data.data.level.split('/'); // TODO: report more info about data.data.level
-            if (!(type[0] & type[1])) div.className += ' silenced', target = 'php-silenced-errors';
-            data.data.level = undefined; // Tag as do not display
-        }
-        break;
+        },
+        tab: function(type, label)
+        {
+            this.type = type;
+            if (label) this.label = label;
+            console.tabs[type] = this;
 
-    case 'client-dump':
-    case 'server-dump': target = 'E'; break;
-    case 'sql': target = 'sql'; break;
+            var div = doc.createElement('DIV');
+            div.id = 'events-' + this.type;
+            div.className = 'events ' + this.type;
+            console.div.appendChild(div);
+            this.div = div;
+
+            div = doc.createElement('A');
+            div.href = '#' + 'events-' + this.type;
+            div.className = 'empty event-title ' + this.type;
+            div.innerHTML = this.label;
+            console.titlesDiv.appendChild(div);
+            this.titleDiv = div;
+        },
+        tabs: {},
+        log: function(type, data, token)
+        {
+            var t = this.tabs[type] || this.tabs['*'];
+            t.log(type, data, token);
+        }
+    };
+
+    // Define base layout
+
+    div = doc.createElement('DIV');
+    div.className = 'event-tabs';
+    console.div.appendChild(div);
+    console.titlesDiv = div;
+
+    // Define the prototype of console.tab
+
+    div = console.tab.prototype;
+    div.div = false;
+    div.label = 'Unsorted events';
+    div.count = 0;
+    div.init = function()
+    {
+        this.div.innerHTML = '<h3>' + this.label + ' <span class="count"></span></h3>';
+    };
+    div.log = function(type, data, token)
+    {
+        console.count || console.init();
+        this.count || this.init();
+        var div = doc.createElement('DIV');
+        div.className = 'event';
+        this.populate(div, data);
+        this.div.appendChild(div);
+        this.div.firstChild.firstChild.nextSibling.innerHTML = '(' + ++this.count + ')';
+        this.titleDiv.innerHTML = this.div.firstChild.innerHTML;
+        if (0 == this.titleDiv.className.indexOf('empty ')) this.titleDiv.className = this.titleDiv.className.substr(6);
+        ++console.count;
+    };
+    div.populate = function(div, data)
+    {
+        // TODO: use token, type, data.time and data.mem, data.patchwork and data.globals when available
+        div.innerHTML = htmlizeEvent(data.data, data.__refs);
     }
 
-    // TODO: use token, type, data.time and data.mem, data.patchwork and data.globals when available
+    // Define defaults tabs
 
-    div.innerHTML = htmlizeEvent(data.data, data.__refs);
+    div = new console.tab('php-error', 'PHP Errors');
 
-    document.getElementById(target).appendChild(div);
-}
+    div.log = function(type, data, token)
+    {
+        if (data.data.level)
+        {
+            var level = data.data.level.split('/'); // TODO: report more info about data.data.level
+            data.data.level = undefined; // Tag as do not display
+            if (!(level[0] & level[1])) return console.tabs['silenced-php-error'].log(type, data, token);
+        }
+
+        console.tab.prototype.log.call(this, type, data, token);
+    }
+
+    div = new console.tab('server-dump', 'E (PHP)');
+    div = new console.tab('sql', 'SQL');
+    div = new console.tab('client-dump', 'E (JavaScript)');
+    div = new console.tab('silenced-php-error', 'Silenced PHP Errors');
+
+    div.populate = function(div, data)
+    {
+        div.className += ' silenced';
+        console.tab.prototype.populate.call(this, div, data);
+    }
+
+    div = new console.tab('*');
+
+    doc.body.appendChild(console.div);
+
+    return console;
+}(document));
 
 function htmlizeEvent(data, refs)
 {

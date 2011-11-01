@@ -1,8 +1,51 @@
 body
 {
+    font-size: 11px;
     margin: 0;
     padding: 0;
     background-color: white;
+}
+
+.console
+{
+    margin-left: 164px;
+}
+
+.event-tabs
+{
+    background-color: #fafafa;
+    position: absolute;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 150px;
+    height: 100%;
+    padding: 5px;
+}
+
+.event-tabs>.event-title
+{
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 2px;
+}
+
+.event-tabs>.event-title.empty
+{
+    color: gray;
+}
+
+.event-tabs .count
+{
+    position: absolute;
+    right: 7px;
+    color: black;
+}
+
+.event-tabs>a:hover
+{
+    background-color: #f4f4f4;
 }
 
 br /* Hide Chrome inserted BR */
@@ -13,7 +56,6 @@ br /* Hide Chrome inserted BR */
 .event
 {
     color: gray;
-    font-size: 11px;
     font-style: italic;
     white-space: pre;
 }
