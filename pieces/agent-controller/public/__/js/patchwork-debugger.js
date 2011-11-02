@@ -13,6 +13,30 @@
 
 "use strict";
 
+// TODO Patchwork's debug console
+//
+// Some information is present in the event stream that is currently not displayed:
+// - which request an event links to
+// - timing information for each event in each request
+// - memory information for each event in each request
+// - requests timeline
+//
+// Current display can be enhanced:
+// - specialize errors with an icon, file, line, each separated in its own column
+// - specialize other types of event
+// - prepend the toggle button before keys, not after brackets
+// - shorten single line compact mode for performance
+// - draw events only on first console opening for performance
+// - warn more agressively for critical errors
+// - add ability to resize the console window
+// - events could be streamed to the console while the page is beeing generated
+//
+// More data could also be collected:
+// - client side: timing information
+// - server dumps: file and line
+//
+// Many more ideas are welcomed
+
 function E(data)
 {
     E.buffer.push({
