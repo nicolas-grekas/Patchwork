@@ -291,8 +291,7 @@ class Patchwork_PHP_Parser
             // - tag closing braces as T_CURLY_CLOSE when they are opened with curly braces
             //   tagged as T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES, to make
             //   them easy to distinguish from regular code "{" / "}" pairs,
-            // - mimic T_NUM_STRING usage for numerical array indexes and tag string indexes
-            //   as T_KEY_STRING rather than T_STRING in "$array[key]".
+            // - tag string indexes as T_KEY_STRING in interpolated strings.
 
             $priType = 0; // T_SEMANTIC
 
@@ -305,11 +304,19 @@ class Patchwork_PHP_Parser
                 case T_CURLY_OPEN:
                 case T_CURLY_CLOSE:
                 case T_END_HEREDOC:
+                case T_ENCAPSED_AND_WHITESPACE:
                 case T_DOLLAR_OPEN_CURLY_BRACES: break;
-                case T_STRING:     if ('[' === $lastType) $t[0] = T_KEY_STRING;
+                case T_STRING:
+                    if ('[' === $lastType || T_OBJECT_OPERATOR === $lastType)
+                    {
+                        $t[0] = T_KEY_STRING;
+                        break;
+                    }
                 case T_NUM_STRING: if ('[' === $lastType) break;
                 case T_OBJECT_OPERATOR: if (T_VARIABLE === $lastType) break;
-                default: $t[0] = T_ENCAPSED_AND_WHITESPACE;
+                default:
+                    if ('[' === $lastType && preg_match("/^[_a-zA-Z]/", $t[1][0])) $t[0] = T_KEY_STRING;
+                    else $t[0] = T_ENCAPSED_AND_WHITESPACE;
                 }
                 else switch ($t[0])
                 {
