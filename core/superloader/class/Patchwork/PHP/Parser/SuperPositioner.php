@@ -162,7 +162,7 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
             $token[1] = "}"
                 . ($c->isFinal ? 'final' : ($c->isAbstract ? 'abstract' : ''))
                 . " {$c->type} {$c->name} extends {$c->name}{$c->suffix} {" . $token[1]
-                . "{$s}::\$location['{$a}']=1;";
+                . "{$s}::\$locations['{$a}']=1;";
 
             strpos($c->nsName, '\\')
                 && function_exists('class_alias')
@@ -171,7 +171,7 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
 
         if ($c->isAbstract)
         {
-            $token[1] .= "{$s}::\$abstract['{$a}{$c->suffix}']=1;";
+            $token[1] .= "{$s}::\$abstracts['{$a}{$c->suffix}']=1;";
         }
     }
 

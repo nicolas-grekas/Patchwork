@@ -41,7 +41,7 @@ class Patchwork_PHP_Parser_StringInfo extends Patchwork_PHP_Parser
     $inUse     = false,
     $nsPrefix  = '',
     $preNsType = 0,
-    $backports,
+    $reservedTokens,
     $callbacks = array(
         'tagString'   => T_STRING,
         'tagConst'    => T_CONST,
@@ -53,10 +53,10 @@ class Patchwork_PHP_Parser_StringInfo extends Patchwork_PHP_Parser
     );
 
 
-    function backportTokens($tokens)
+    function addReservedTokens($tokens)
     {
-        isset($this->backports) || $this->backports = array();
-        foreach ($tokens as $text => $type) $this->backports[strtolower($text)] = $type;
+        isset($this->reservedTokens) || $this->reservedTokens = array();
+        foreach ($tokens as $text => $type) $this->reservedTokens[strtolower($text)] = $type;
     }
 
     function removeNsPrefix()
@@ -82,9 +82,9 @@ class Patchwork_PHP_Parser_StringInfo extends Patchwork_PHP_Parser
 
     protected function tagString(&$token)
     {
-        if (isset($this->backports) && isset($this->backports[strtolower($token[1])]))
+        if (isset($this->reservedTokens) && isset($this->reservedTokens[strtolower($token[1])]))
         {
-            $token[0] = $this->backports[strtolower($token[1])];
+            $token[0] = $this->reservedTokens[strtolower($token[1])];
             return $this->unshiftTokens($token);
         }
 

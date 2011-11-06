@@ -17,8 +17,8 @@ class Patchwork_Superloader
     static
 
     $turbo = false,
-    $location = array(),
-    $abstract = array();
+    $locations = array(),
+    $abstracts = array();
 
     protected static $prefix = array();
 
@@ -85,9 +85,9 @@ class Patchwork_Superloader
 /**/    if (50300 <= PHP_VERSION_ID && PHP_VERSION_ID < 50303) // Workaround http://bugs.php.net/50731
             isset($class[0]) && '\\' === $class[0] && $class = substr($class, 1);
 
-        if (empty(self::$location[$a = strtolower(strtr($class, '\\', '_'))])) return;
+        if (empty(self::$locations[$a = strtolower(strtr($class, '\\', '_'))])) return;
 
-        if (is_int($a =& self::$location[$a]))
+        if (is_int($a =& self::$locations[$a]))
         {
             $b = $a;
             unset($a);

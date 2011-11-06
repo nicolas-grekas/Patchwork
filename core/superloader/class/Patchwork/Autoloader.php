@@ -175,10 +175,10 @@ class Patchwork_Autoloader extends Patchwork_Superloader
                     $code .= "\\class_alias('{$ns}{$req}','{$lc_ns}{$lc_req}');";
                 }
 
-                if (isset(self::$abstract[$lc_ns . $parent]))
+                if (isset(self::$abstracts[$lc_ns . $parent]))
                 {
                     $code = 'abstract ' . $code;
-                    self::$abstract[$lc_ns . $lc_req] = 1;
+                    self::$abstracts[$lc_ns . $lc_req] = 1;
                 }
             }
             else $parent = $lc_req;
