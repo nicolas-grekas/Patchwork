@@ -8,7 +8,7 @@ body
 
 .console
 {
-    margin-left: 164px;
+    margin-left: 175px;
 }
 
 .event-tabs
@@ -85,6 +85,14 @@ a
     text-decoration: none;
 }
 
+.event a
+{
+    display: inline-block;
+    position: relative;
+    right: 15px;
+    width: 0;
+}
+
 .const
 {
     color: blue;
@@ -136,19 +144,13 @@ a
     background-color: white;
 }
 
+.array-compact a,
 .array-compact .key
 {
     display: none;
 }
 
-.key.string,
-.array-expanded>.array-compact>a
+.key.string
 {
     display: inline;
-}
-
-.array-compact .array-compact>a,
-.array-compact .array-expanded>a
-{
-    display: none;
 }

@@ -13,6 +13,29 @@
 
 "use strict";
 
+// TODO Patchwork's debug console
+//
+// Some information is present in the event stream that is currently not displayed:
+// - which request an event links to
+// - timing information for each event in each request
+// - memory information for each event in each request
+// - requests timeline
+//
+// Current display can be enhanced:
+// - specialize errors with an icon, file, line, each separated in its own column
+// - specialize other types of event
+// - shorten single line compact mode for performance
+// - draw events only on first console opening for performance
+// - warn more agressively for critical errors
+// - add ability to resize the console window
+// - events could be streamed to the console while the page is beeing generated
+//
+// More data could also be collected:
+// - client side: timing information
+// - server dumps: file and line
+//
+// Many more ideas are welcomed
+
 parent.patchworkDebugger.attachKeyPressHandler(window);
 
 var patchworkConsole = (function(doc)
@@ -213,14 +236,13 @@ function htmlizeEvent(data, refs, filter)
         buffer.push('<span class="' + tags + '">' + filter(data, htmlEncode) + '</span>');
     }
 
-    function htmlizeData(data, tags, title, toggle)
+    function htmlizeData(data, tags, title)
     {
         var i, e, t, b;
 
         ++counter;
         title = title || [];
         tags = tags || '';
-        toggle = toggle || 'compact';
 
         if (refs[counter]) push('#' + counter, 'ref target');
         else if (iRefs[counter]) push('r' + iRefs[counter], 'ref handle');
@@ -278,6 +300,13 @@ function htmlizeEvent(data, refs, filter)
             break;
 
         case 'object' === typeof data:
+
+            if (1 === depth)
+            {
+                buffer.push('<a onclick="arrayToggle(this)"> ⊞ </a><span class="key"></span>');
+                buffer.push('<span class="array-compact">');
+            }
+
             b = ['[', ']'];
             t = data['_'] ? data['_'].split(':') : [0];
 
@@ -310,10 +339,8 @@ function htmlizeEvent(data, refs, filter)
             }
 
             depth += 2;
-            buffer.push('<span class="array-' + toggle + '">');
             buffer.push(b[0]);
-            buffer.push(('compact' == toggle ? '<a onclick="arrayToggle(this)"> ⊞ </a>' : ''));
-            toggle = 1 === e ? 'expanded' : 'compact';
+            b[2] = 1 === e ? 'expanded' : 'compact';
 
             for (i in data)
             {
@@ -351,6 +378,11 @@ function htmlizeEvent(data, refs, filter)
                     e = e[0].replace(/[^`]+$/, '') + e[1];
                 }
 
+                if ('object' === typeof data[i] && null !== data[i] && 'compact' === b[2])
+                {
+                    buffer.push('<a onclick="arrayToggle(this)"> ⊞ </a>');
+                }
+
                 t[0] = counter;
                 counter = -1;
                 htmlizeData(e, tags, title);
@@ -359,7 +391,15 @@ function htmlizeEvent(data, refs, filter)
                 buffer[buffer.length-1] = e.substr(0, e.length-7);
                 push(' ⇨ ', 'arrow');
                 buffer.push('</span>');
-                htmlizeData(data[i], '', [], toggle);
+
+                if ('object' === typeof data[i] && null !== data[i])
+                {
+                    buffer.push('<span class="array-' + b[2] + '">');
+                    htmlizeData(data[i], '', []);
+                    buffer.push('</span>');
+                }
+                else htmlizeData(data[i], '', []);
+
                 buffer.push(', ');
             }
 
@@ -374,7 +414,8 @@ function htmlizeEvent(data, refs, filter)
             buffer[buffer.length - 1] = '';
             buffer.push('\n' + new Array(depth).join(' '));
             buffer.push(b[1]);
-            buffer.push('</span>');
+
+            if (1 === depth) buffer.push('</span>');
 
             break;
         }
@@ -387,7 +428,7 @@ function htmlizeEvent(data, refs, filter)
 
 function arrayToggle(a)
 {
-    var s = a.parentNode;
+    var s = a.nextSibling.nextSibling;
 
     if ('array-compact' == s.className)
     {
