@@ -22,7 +22,7 @@ class Patchwork_PHP_Parser_DestructorCatcher extends Patchwork_PHP_Parser
 
     protected function tagDestruct(&$token)
     {
-        if (T_CLASS === $this->scope->type && 0 === strcasecmp($token[1], '__destruct'))
+        if ((T_CLASS === $this->scope->type || T_TRAIT === $this->scope->type) && 0 === strcasecmp($token[1], '__destruct'))
         {
             $this->register(array('tagDestructOpen' => T_SCOPE_OPEN));
         }

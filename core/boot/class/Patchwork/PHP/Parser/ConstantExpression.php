@@ -18,7 +18,7 @@ class Patchwork_PHP_Parser_ConstantExpression extends Patchwork_PHP_Parser
 
 
     protected static $variableType = array(
-        T_EVAL, T_LINE, T_FILE, T_DIR, T_FUNC_C, T_CLASS_C,
+        T_EVAL, T_LINE, T_FILE, T_DIR, T_FUNC_C, T_CLASS_C, T_TRAIT_C,
         T_METHOD_C, T_NS_C, T_INCLUDE, T_REQUIRE, T_GOTO,
         T_CURLY_OPEN, T_VARIABLE, '$', T_INCLUDE_ONCE,
         T_REQUIRE_ONCE, T_DOLLAR_OPEN_CURLY_BRACES, T_EXIT,

@@ -17,7 +17,7 @@ class Patchwork_PHP_Parser_ClassAutoname extends Patchwork_PHP_Parser
     protected
 
     $className,
-    $callbacks = array('tagClass' => array(T_CLASS, T_INTERFACE));
+    $callbacks = array('tagClass' => array(T_CLASS, T_INTERFACE, T_TRAIT));
 
 
     function __construct(parent $parent, $className)

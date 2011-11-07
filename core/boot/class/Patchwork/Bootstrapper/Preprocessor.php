@@ -25,10 +25,18 @@ class Patchwork_Bootstrapper_Preprocessor
     {
         if ('' === $code) return '';
 
+        if (!isset($this->parser))
+        {
+            defined('T_NS_SEPARATOR') || class_exists('Patchwork_PHP_Parser_Backport53Tokens', true);
+            defined('T_TRAIT') || class_exists('Patchwork_PHP_Parser_Backport54Tokens', true);
+        }
+
         $p = new Patchwork_PHP_Parser_Normalizer;
         new Patchwork_PHP_Parser_StringInfo($p);
         new Patchwork_PHP_Parser_NamespaceInfo($p);
         new Patchwork_PHP_Parser_ScopeInfo($p);
+        class_exists('Patchwork_PHP_Parser_Backport53Tokens', false) && new Patchwork_PHP_Parser_Backport53Tokens($p);
+        class_exists('Patchwork_PHP_Parser_Backport54Tokens', false) && new Patchwork_PHP_Parser_Backport54Tokens($p);
         new Patchwork_PHP_Parser_ConstFuncDisabler($p);
         new Patchwork_PHP_Parser_ConstFuncResolver($p);
         new Patchwork_PHP_Parser_ConstantInliner($p, $file, array());

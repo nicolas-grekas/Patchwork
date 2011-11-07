@@ -93,6 +93,7 @@ class Patchwork_PHP_Parser_StringInfo extends Patchwork_PHP_Parser
         switch ($p)
         {
         case T_INTERFACE:
+        case T_TRAIT:
         case T_CLASS: return T_NAME_CLASS;
         case T_GOTO:  return T_GOTO_LABEL;
 

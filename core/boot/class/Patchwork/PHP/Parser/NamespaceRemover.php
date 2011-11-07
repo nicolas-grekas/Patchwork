@@ -82,7 +82,7 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
 
     protected function tagNsName(&$token)
     {
-        if ($this->namespace && T_CLASS !== $this->scope->type && T_INTERFACE !== $this->scope->type)
+        if ($this->namespace && T_CLASS !== $this->scope->type && T_INTERFACE !== $this->scope->type && T_TRAIT !== $this->scope->type)
         {
             if (isset($token[2][T_NAME_CLASS]))
             {

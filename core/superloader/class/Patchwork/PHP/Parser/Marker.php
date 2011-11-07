@@ -94,7 +94,7 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionOverridin
         {
             $this->register(array('tagFunctionClose' => T_SCOPE_CLOSE));
         }
-        else if (T_CLASS === $this->scope->type)
+        else if (T_CLASS === $this->scope->type || T_INTERFACE === $this->scope->type || T_TRAIT === $this->scope->type)
         {
             $this->inlineClass[strtolower(strtr($this->class->nsName, '\\', '_'))] = 1;
             $this->class->extends && $this->inlineClass[strtolower(strtr($this->class->extends, '\\', '_'))] = 1;
@@ -163,6 +163,7 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionOverridin
         if (   $this->inStatic
             || T_STRING !== $this->lastType
             || T_CLASS === $this->scope->type
+            || T_TRAIT === $this->scope->type
         ) return;
 
         $t =& $this->types;
