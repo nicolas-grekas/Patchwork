@@ -34,7 +34,7 @@ class Patchwork_PHP_Parser_ConstFuncDisabler extends Patchwork_PHP_Parser
 
     protected function tagConstFunc(&$token)
     {
-        if (T_CLASS !== $this->scope->type)
+        if (T_CLASS !== $this->scope->type && T_INTERFACE !== $this->scope->type && T_TRAIT !== $this->scope->type)
         {
             $this->setError("Namespaced functions and constants have been deprecated, please use static methods and class constants instead", E_USER_DEPRECATED);
         }
