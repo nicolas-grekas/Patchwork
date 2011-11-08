@@ -16,8 +16,7 @@ define('T_NON_SEMANTIC', 1); // Primary type for non-semantic tokens (whitespace
 
 Patchwork_PHP_Parser::createToken(
     'T_CURLY_CLOSE',       // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
-    'T_KEY_STRING',        // Array access in interpolated string
-    'T_HALT_COMPILER_DATA' // Data after T_HALT_COMPILER
+    'T_KEY_STRING'         // String index in interpolated string
 );
 
 defined('T_NS_SEPARATOR') || Patchwork_PHP_Parser::createToken('T_NS_SEPARATOR');
@@ -212,33 +211,17 @@ class Patchwork_PHP_Parser
 
         if (empty($t1)) return $t1;
 
-        // Restore data after __halt_compiler()
-        // workaround http://bugs.php.net/54089
+        // Restore data after __halt_compiler
+        // workaround missed fix to http://bugs.php.net/54089
 
-        static $halt_cutoff;
         $bin = end($t1);
 
-        if (empty($halt_cutoff))
+        if (T_HALT_COMPILER === $bin[0])
         {
-            $halt_cutoff = token_get_all('<?php __halt_compiler();X');
-            $halt_cutoff = end($halt_cutoff);
-            $halt_cutoff = $halt_cutoff[0];
-        }
-
-        switch (true)
-        {
-        case T_HALT_COMPILER === $halt_cutoff && T_HALT_COMPILER === $bin[0]:
-        case ';' === $halt_cutoff && (';' === $bin[0] || T_CLOSE_TAG === $bin[0]) && stripos($code, '__halt_compiler'):
-
             if (!isset($offset) && !$offset = 0)
                 foreach ($t1 as $t0) $offset += isset($t0[1]) ? strlen($t0[1]) : 1;
 
-            if (!isset($code[$offset])) {}
-            else if (';' === $halt_cutoff)
-            {
-                $t1[] = array(T_HALT_COMPILER_DATA, substr($code, $offset));
-            }
-            else
+            if (isset($code[$offset]))
             {
                 $code = $this->getTokens('<?php ' . substr($code, $offset));
                 array_splice($code, 0, 1, $t1);
@@ -538,7 +521,8 @@ class Patchwork_PHP_Parser
     }
 
     // Skip 3 tokens: "(", ")" then ";" or T_CLOSE_TAG
-    // then merge the remaining data in a single T_HALT_COMPILER_DATA token
+    // then merge the remaining data in a single T_INLINE_HTML token
+    // backports the fix to http://bugs.php.net/54089
 
     private function tagHaltCompilerData()
     {
@@ -547,7 +531,7 @@ class Patchwork_PHP_Parser
             $this->unregister(__FUNCTION__);
             $tokens =& $this->tokens;
             foreach ($tokens as &$t) isset($t[1]) && $t = $t[1];
-            $tokens = array($this->index => array(T_HALT_COMPILER_DATA, implode('', $tokens)));
+            $tokens = array($this->index => array(T_INLINE_HTML, implode('', $tokens)));
         }
     }
 
