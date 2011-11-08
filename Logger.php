@@ -26,7 +26,6 @@ class Logger
     $logStream,
     $prevTime = 0,
     $startTime = 0,
-    $prevMemory = 0,
     $isFirstEvent = true;
 
     public static
@@ -70,7 +69,7 @@ class Logger
                   1000 * ($log_time - $this->startTime),
                   1000 * ($log_time - $this->prevTime)
             ),
-            'mem'  => memory_get_peak_usage(true) . ' - ' . (memory_get_usage(true) - $this->prevMemory),
+            'mem'  => memory_get_peak_usage(true) . ' - ' . memory_get_usage(true),
             'data' => $data,
         );
 
@@ -85,7 +84,6 @@ class Logger
         $this->writeEvent($type, $data);
         $this->writeLock && flock($this->logStream, LOCK_UN);
 
-        $this->prevMemory = memory_get_usage(true);
         $this->prevTime = microtime(true);
         $this->isFirstEvent = false;
     }
