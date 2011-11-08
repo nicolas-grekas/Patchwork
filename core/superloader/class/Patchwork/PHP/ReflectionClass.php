@@ -137,8 +137,7 @@ class ReflectionClass extends \ReflectionClass
 
     function getParentClass()
     {
-        $parent = parent::getParentClass();
-        return false !== $parent ? new self($parent->name) : false;
+        return false !== $this->superParent ? new self($this->superParent->name) : false;
     }
 
     function getProperties($filter = -1)

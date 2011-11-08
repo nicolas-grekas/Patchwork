@@ -205,4 +205,23 @@ class Patchwork_Superloader
 
         return $cache;
     }
+
+    static function get_parent_class($c)
+    {
+        $c = get_parent_class($c);
+
+        if ( false !== $c
+          && false !== ($i = strrpos($c, '__'))
+          && isset($c[$i+2])
+          && '' === rtrim(substr($c, $i+2), '0123456789') )
+        {
+            $top = substr($c, 0, $i) . '__';
+            $i = strlen($top);
+
+            do $c = get_parent_class($c);
+            while (false !== $c && isset($c[$i]) && $top === rtrim($c, '0123456789'));
+        }
+
+        return $c;
+    }
 }

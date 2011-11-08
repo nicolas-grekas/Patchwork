@@ -233,6 +233,22 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
                 while ($this->index < $i) unset($this->tokens[$this->index++]);
                 return $this->unshiftTokens(array(T_CONSTANT_ENCAPSED_STRING, "'" . $this->class->nsName . "'"));
             }
+            break;
+
+        case '\get_parent_class':
+            if (empty($this->class)) break;
+
+            $this->getNextToken($i); // eat the next opening bracket
+            $t = $this->getNextToken($i);
+
+            if (')' === $t[0])
+            {
+                --$i;
+                $t = $this->index--;
+                while ($t < $i) $this->tokens[$t-1] = $this->tokens[$t++];
+                $this->tokens[$i-1] = array(T_CONSTANT_ENCAPSED_STRING, "'" . $this->class->nsName . "'");
+            }
+            break;
         }
     }
 }
