@@ -17,7 +17,7 @@ class Patchwork_PHP_Parser_ClassInfo extends Patchwork_PHP_Parser
     protected
 
     $class     = false,
-    $callbacks = array('tagClass' => array(T_CLASS, T_INTERFACE)),
+    $callbacks = array('tagClass' => array(T_CLASS, T_INTERFACE, T_TRAIT)),
     $dependencies = array('ScopeInfo' => array('scope', 'namespace', 'nsResolved', 'nsPrefix'));
 
 

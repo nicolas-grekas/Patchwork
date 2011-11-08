@@ -31,7 +31,7 @@ class Patchwork_PHP_Parser_ScopeInfo extends Patchwork_PHP_Parser
         'tagScopeClose' => array(T_ENDPHP  , '}'),
         'tagNamespace'  => T_NAMESPACE,
         'tagFunction'   => T_FUNCTION,
-        'tagClass'      => array(T_CLASS, T_INTERFACE),
+        'tagClass'      => array(T_CLASS, T_INTERFACE, T_TRAIT),
     ),
     $dependencies = array(
         'NamespaceInfo' => array('namespace', 'nsResolved', 'nsPrefix'),

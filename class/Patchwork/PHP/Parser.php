@@ -16,8 +16,7 @@ define('T_NON_SEMANTIC', 1); // Primary type for non-semantic tokens (whitespace
 
 Patchwork_PHP_Parser::createToken(
     'T_CURLY_CLOSE',       // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
-    'T_KEY_STRING',        // Array access in interpolated string
-    'T_HALT_COMPILER_DATA' // Data after T_HALT_COMPILER
+    'T_KEY_STRING'         // String index in interpolated string
 );
 
 defined('T_NS_SEPARATOR') || Patchwork_PHP_Parser::createToken('T_NS_SEPARATOR');
@@ -212,33 +211,17 @@ class Patchwork_PHP_Parser
 
         if (empty($t1)) return $t1;
 
-        // Restore data after __halt_compiler()
-        // workaround http://bugs.php.net/54089
+        // Restore data after __halt_compiler
+        // workaround missed fix to http://bugs.php.net/54089
 
-        static $halt_cutoff;
         $bin = end($t1);
 
-        if (empty($halt_cutoff))
+        if (T_HALT_COMPILER === $bin[0])
         {
-            $halt_cutoff = token_get_all('<?php __halt_compiler();X');
-            $halt_cutoff = end($halt_cutoff);
-            $halt_cutoff = $halt_cutoff[0];
-        }
-
-        switch (true)
-        {
-        case T_HALT_COMPILER === $halt_cutoff && T_HALT_COMPILER === $bin[0]:
-        case ';' === $halt_cutoff && (';' === $bin[0] || T_CLOSE_TAG === $bin[0]) && stripos($code, '__halt_compiler'):
-
             if (!isset($offset) && !$offset = 0)
                 foreach ($t1 as $t0) $offset += isset($t0[1]) ? strlen($t0[1]) : 1;
 
-            if (!isset($code[$offset])) {}
-            else if (';' === $halt_cutoff)
-            {
-                $t1[] = array(T_HALT_COMPILER_DATA, substr($code, $offset));
-            }
-            else
+            if (isset($code[$offset]))
             {
                 $code = $this->getTokens('<?php ' . substr($code, $offset));
                 array_splice($code, 0, 1, $t1);
@@ -290,9 +273,8 @@ class Patchwork_PHP_Parser
             // Further than that, two gotchas remain inside string interpolation:
             // - tag closing braces as T_CURLY_CLOSE when they are opened with curly braces
             //   tagged as T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES, to make
-            //   them easy to distinguish from regular code "{" / "}" pairs.
-            // - mimic T_NUM_STRING usage for numerical array indexes and tag string indexes
-            //   as T_KEY_STRING rather than T_STRING in "$array[key]".
+            //   them easy to distinguish from regular code "{" / "}" pairs,
+            // - tag string indexes as T_KEY_STRING in interpolated strings.
 
             $priType = 0; // T_SEMANTIC
 
@@ -305,11 +287,19 @@ class Patchwork_PHP_Parser
                 case T_CURLY_OPEN:
                 case T_CURLY_CLOSE:
                 case T_END_HEREDOC:
+                case T_ENCAPSED_AND_WHITESPACE:
                 case T_DOLLAR_OPEN_CURLY_BRACES: break;
-                case T_STRING:     if ('[' === $lastType) $t[0] = T_KEY_STRING;
+                case T_STRING:
+                    if ('[' === $lastType || T_OBJECT_OPERATOR === $lastType)
+                    {
+                        $t[0] = T_KEY_STRING;
+                        break;
+                    }
                 case T_NUM_STRING: if ('[' === $lastType) break;
                 case T_OBJECT_OPERATOR: if (T_VARIABLE === $lastType) break;
-                default: $t[0] = T_ENCAPSED_AND_WHITESPACE;
+                default:
+                    if ('[' === $lastType && preg_match("/^[_a-zA-Z]/", $t[1][0])) $t[0] = T_KEY_STRING;
+                    else $t[0] = T_ENCAPSED_AND_WHITESPACE;
                 }
                 else switch ($t[0])
                 {
@@ -439,7 +429,7 @@ class Patchwork_PHP_Parser
     }
 
 
-    // Set an error on input code inside parsers.
+    // Set an error on input code inside parsers
 
     protected function setError($message, $type)
     {
@@ -453,8 +443,51 @@ class Patchwork_PHP_Parser
 
     // Register/unregister callbacks for the next tokens
 
-    protected function   register($method) {$this->registryApply($method, true );}
-    protected function unregister($method) {$this->registryApply($method, false);}
+    protected function register($method)
+    {
+        foreach ((array) $method as $method => $type)
+        {
+            if (empty($method[0]))
+            {
+                $method = $type;
+                $type = 0; // T_SEMANTIC
+            }
+
+            foreach ((array) $type as $type)
+            {
+                0 === $type && $s0 = 1; // T_SEMANTIC
+                1 === $type && $s1 = 1; // T_NON_SEMANTIC
+                $this->tokenRegistry[$type][++$this->registryIndex] = array($this, $method);
+            }
+        }
+
+        isset($s0) && ksort($this->tokenRegistry[0]); // T_SEMANTIC
+        isset($s1) && ksort($this->tokenRegistry[1]); // T_NON_SEMANTIC
+    }
+
+    protected function unregister($method)
+    {
+        foreach ((array) $method as $method => $type)
+        {
+            if (empty($method[0]))
+            {
+                $method = $type;
+                $type = 0; // T_SEMANTIC
+            }
+
+            foreach ((array) $type as $type)
+            {
+                if (isset($this->tokenRegistry[$type]))
+                {
+                    foreach ($this->tokenRegistry[$type] as $k => $v)
+                        if (array($this, $method) === $v)
+                            unset($this->tokenRegistry[$type][$k]);
+
+                    if (!$this->tokenRegistry[$type]) unset($this->tokenRegistry[$type]);
+                }
+            }
+        }
+    }
 
     // Read-ahead the input token stream
 
@@ -488,7 +521,8 @@ class Patchwork_PHP_Parser
     }
 
     // Skip 3 tokens: "(", ")" then ";" or T_CLOSE_TAG
-    // then merge the remaining data in a single T_HALT_COMPILER_DATA token
+    // then merge the remaining data in a single T_INLINE_HTML token
+    // backports the fix to http://bugs.php.net/54089
 
     private function tagHaltCompilerData()
     {
@@ -497,43 +531,8 @@ class Patchwork_PHP_Parser
             $this->unregister(__FUNCTION__);
             $tokens =& $this->tokens;
             foreach ($tokens as &$t) isset($t[1]) && $t = $t[1];
-            $tokens = array($this->index => array(T_HALT_COMPILER_DATA, implode('', $tokens)));
+            $tokens = array($this->index => array(T_INLINE_HTML, implode('', $tokens)));
         }
-    }
-
-    // Internal use for $this->register/unregister() factorization
-
-    private function registryApply($method, $reg)
-    {
-        foreach ((array) $method as $method => $type)
-        {
-            if (is_int($method))
-            {
-                $method = $type;
-                $type = array(0); // T_SEMANTIC
-            }
-
-            foreach ((array) $type as $type)
-            {
-                if ($reg)
-                {
-                    0 === $type && $s0 = 1; // T_SEMANTIC
-                    1 === $type && $s1 = 1; // T_NON_SEMANTIC
-                    $this->tokenRegistry[$type][++$this->registryIndex] = array($this, $method);
-                }
-                else if (isset($this->tokenRegistry[$type]))
-                {
-                    foreach ($this->tokenRegistry[$type] as $k => $v)
-                        if (array($this, $method) === $v)
-                            unset($this->tokenRegistry[$type][$k]);
-
-                    if (!$this->tokenRegistry[$type]) unset($this->tokenRegistry[$type]);
-                }
-            }
-        }
-
-        isset($s0) && ksort($this->tokenRegistry[0]); // T_SEMANTIC
-        isset($s1) && ksort($this->tokenRegistry[1]); // T_NON_SEMANTIC
     }
 
     // Create new sub-token types
@@ -558,12 +557,12 @@ class Patchwork_PHP_Parser
     }
 
 
-    // Returns a parsable string representation of a variable.
+    // Returns a parsable string representation of a variable
     // Similar to var_export() with these differencies:
-    // - it can be used inside output buffering callbacks,
-    // - it always returns a single ligne of code,
-    //   even for arrays or when the input contains CR/LF.
-    // - but it fails on recursive arrays
+    // - it can be used inside output buffering callbacks
+    // - it always returns a single ligne of code
+    //   even for arrays or when a string contains CR/LF
+    // - it works only on static types (scalars and non-recursive arrays)
 
     static function export($a)
     {
@@ -572,7 +571,6 @@ class Patchwork_PHP_Parser
         default:           return (string) $a;
         case true  === $a: return 'true';
         case false === $a: return 'false';
-        case null  === $a: return 'null';
         case  INF  === $a: return  'INF';
         case -INF  === $a: return '-INF';
 
@@ -613,14 +611,15 @@ class Patchwork_PHP_Parser
 
             return 'array(' . implode(',', $b) . ')';
 
-        case is_object($a):
-            return 'unserialize(' . self::export(serialize($a)) . ')';
-
         case is_float($a):
             if (is_nan($a)) return 'NAN';
             $b = sprintf('%.14F', $a);
             $a = sprintf('%.17F', $a);
             return rtrim((float) $b === (float) $a ? $b : $a, '.0');
+
+        case is_resource($a):
+        case is_object($a):
+        case null === $a: return 'null';
         }
     }
 }

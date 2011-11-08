@@ -25,8 +25,9 @@ class Patchwork_PHP_Parser_ConstantInliner extends Patchwork_PHP_Parser
         'tagConstant'  => T_USE_CONSTANT,
         'tagFileC'     => array(T_FILE, T_DIR),
         'tagLineC'     => T_LINE,
-        'tagScopeName' => array(T_CLASS, T_FUNCTION),
+        'tagScopeName' => array(T_CLASS, T_TRAIT, T_FUNCTION),
         'tagClassC'    => T_CLASS_C,
+        'tagTraitC'    => T_TRAIT_C,
         'tagMethodC'   => T_METHOD_C,
         'tagFuncC'     => T_FUNC_C,
         'tagNsC'       => T_NS_C,
@@ -126,12 +127,17 @@ class Patchwork_PHP_Parser_ConstantInliner extends Patchwork_PHP_Parser
         if ($this->scope->parent)
         {
             $this->scope->classC = $this->scope->parent->classC;
+            $this->scope->traitC = $this->scope->parent->traitC;
             $this->scope->funcC  = $this->scope->parent->funcC ;
 
             switch ($this->scope->type)
             {
             case T_CLASS:
                 $this->scope->classC = $this->namespace . $this->nextScope;
+                break;
+
+            case T_TRAIT:
+                $this->scope->traitC = $this->namespace . $this->nextScope;
                 break;
 
             case T_FUNCTION:
@@ -143,7 +149,7 @@ class Patchwork_PHP_Parser_ConstantInliner extends Patchwork_PHP_Parser
         }
         else
         {
-            $this->scope->classC = $this->scope->funcC  = '';
+            $this->scope->classC = $this->scope->traitC = $this->scope->funcC  = '';
         }
 
         $this->nextScope = '';
@@ -152,6 +158,11 @@ class Patchwork_PHP_Parser_ConstantInliner extends Patchwork_PHP_Parser
     protected function tagClassC(&$token)
     {
         return $this->unshiftTokens(array(T_CONSTANT_ENCAPSED_STRING, "'{$this->scope->classC}'"));
+    }
+
+    protected function tagTraitC(&$token)
+    {
+        return $this->unshiftTokens(array(T_CONSTANT_ENCAPSED_STRING, "'{$this->scope->traitC}'"));
     }
 
     protected function tagMethodC(&$token)

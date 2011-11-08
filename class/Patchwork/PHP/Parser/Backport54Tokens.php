@@ -14,26 +14,24 @@
 
 // New tokens since PHP 5.4
 defined('T_TRAIT') || Patchwork_PHP_Parser::createToken('T_TRAIT');
+defined('T_TRAIT_C') || Patchwork_PHP_Parser::createToken('T_TRAIT_C');
 defined('T_CALLABLE') || Patchwork_PHP_Parser::createToken('T_CALLABLE');
 defined('T_INSTEADOF') || Patchwork_PHP_Parser::createToken('T_INSTEADOF');
-defined('T_TRAIT_C') || Patchwork_PHP_Parser::createToken('T_TRAIT_C');
 
 
 class Patchwork_PHP_Parser_Backport54Tokens extends Patchwork_PHP_Parser
 {
-    protected $callbacks = array('tagString' => T_STRING);
+    protected $dependencies = 'StringInfo';
 
-    protected function tagString(&$token)
+    function __construct(parent $parent)
     {
-        switch (strtolower($token[1]))
-        {
-        case 'trait': $token[0] = T_TRAIT; break;
-        case 'callable': $token[0] = T_CALLABLE; break;
-        case 'insteadof': $token[0] = T_INSTEADOF; break;
-        case '__trait__': $token[0] = T_TRAIT_C; break;
-        default: return;
-        }
+        parent::__construct($parent);
 
-        return $this->unshiftTokens($token);
+        $this->dependencies['StringInfo']->addReservedTokens(array(
+            'trait' => T_TRAIT,
+            'callable' => T_CALLABLE,
+            '__trait__' => T_TRAIT_C,
+            'insteadof' => T_INSTEADOF,
+        ));
     }
 }

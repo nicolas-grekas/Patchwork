@@ -65,7 +65,7 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
 
                 if (isset($this->overrides[$a]))
                 {
-                    $a = $this->overrides[$a];
+                    $a = substr($this->overrides[$a], 1);
                     $a = explode('::', $a, 2);
 
                     if (1 === count($a)) $t[1] = "'{$a[0]}'";

@@ -70,7 +70,7 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
     protected function tagNsSep(&$token)
     {
         if (T_STRING === $this->lastType) $token[1] = strtr($token[1], '\\', '_');
-        else if (T_NS_SEPARATOR !== $this->lastType) $token[1] = '';
+        else if (T_NS_SEPARATOR !== $this->lastType) $token[1] = ' ';
     }
 
     protected function tagNsUse(&$token)
@@ -82,7 +82,7 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
 
     protected function tagNsName(&$token)
     {
-        if ($this->namespace && T_CLASS !== $this->scope->type && T_INTERFACE !== $this->scope->type)
+        if ($this->namespace && T_CLASS !== $this->scope->type && T_INTERFACE !== $this->scope->type && T_TRAIT !== $this->scope->type)
         {
             if (isset($token[2][T_NAME_CLASS]))
             {
@@ -108,7 +108,7 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
 
             if ('[' !== $n[0] && T_OBJECT_OPERATOR !== $n[0])
             {
-                $t[1] = "\${is_string($\x9D={$t[1]})&&($\x9D=strtr($\x9D,'\\\\','_'))?\"\x9D\":\"\x9D\"}";
+                $t[1] = "\${is_string($\x9D={$t[1]})&&($\x9D=strtr(isset($\x9D[0])&&'\\\\'===$\x9D[0]?substr($\x9D,1):$\x9D,'\\\\','_'))?\"\x9D\":\"\x9D\"}";
             }
         }
     }
