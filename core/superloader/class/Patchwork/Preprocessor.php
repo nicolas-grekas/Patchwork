@@ -162,6 +162,7 @@ class Patchwork_Preprocessor
             {
                 switch ($c['type'])
                 {
+                case 0: continue 2;
                 case E_USER_NOTICE;
                 case E_USER_WARNING;
                 case E_USER_DEPRECATED; break;

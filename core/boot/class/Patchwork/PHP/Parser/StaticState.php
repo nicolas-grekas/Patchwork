@@ -229,9 +229,9 @@ class Patchwork_PHP_Parser_StaticState extends Patchwork_PHP_Parser
         return eval('unset($code);' . $code);
     }
 
-    function errorHandler($no, $message, $file, $line)
+    protected function errorHandler($no, $message, $file, $line)
     {
         $this->line = $line;
-        $this->setError($message, $no);
+        $this->setError($message, $no & error_reporting());
     }
 }
