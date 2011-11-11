@@ -25,7 +25,7 @@ class Patchwork_PHP_Override_Php530
     static function class_implements($c, $autoload = true)
     {
         if (is_object($c)) $class = get_class($c);
-        else if (!class_exists($c, $autoload) && !interface_exists($c, false))
+        else if (!class_exists($c, $autoload) && !interface_exists($c, false) && !trait_exists($c, false))
         {
             user_error(__FUNCTION__ . '(): Class ' . $c . ' does not exist and could not be loaded', E_USER_WARNING);
             return false;
@@ -35,19 +35,26 @@ class Patchwork_PHP_Override_Php530
 /**/    if (function_exists('class_implements'))
 /**/    {
             $autoload = class_implements($c, false);
-            foreach ($autoload as $c) isset(self::$us2ns[$a = strtolower($c)]) && $autoload[$c] = self::$us2ns[$a];
-            return $autoload;
+/**/    }
+/**/    else if (class_exists('ReflectionClass', false))
+/**/    {
+            $autoload = array();
+            $c = new ReflectionClass($c);
+            foreach ($c->getInterfaceNames() as $c) $autoload[$c] = $c;
 /**/    }
 /**/    else
 /**/    {
-            return array(); // TODO
+            return false;
 /**/    }
+
+        foreach ($autoload as $c) isset(self::$us2ns[$a = strtolower($c)]) && $autoload[$c] = self::$us2ns[$a];
+        return $autoload;
     }
 
     static function class_parents($c, $autoload = true)
     {
         if (is_object($c)) $class = get_class($c);
-        else if (!class_exists($c, $autoload) && !interface_exists($c, false))
+        else if (!class_exists($c, $autoload) && !interface_exists($c, false) && !trait_exists($c, false))
         {
             user_error(__FUNCTION__ . '(): Class ' . $c . ' does not exist and could not be loaded', E_USER_WARNING);
             return false;
