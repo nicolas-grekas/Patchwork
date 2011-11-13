@@ -13,6 +13,11 @@
 
 namespace Patchwork;
 
+/**
+ * HttpRange implements HTTP/1.1, part 5: Range Requests and Partial Responses.
+ *
+ * The chunked stream is either a seekable PHP stream or a string buffer.
+ */
 class HttpRange
 {
     static function negociate($filesize, $ETag, $LastModified, $request = null)
@@ -107,23 +112,31 @@ class HttpRange
 
     protected static $stringBuffer;
 
-    static function sendChunks(&$range, &$h, $mime, $size)
+    static function sendChunks($range, $h, $mime, $size = null)
     {
-        array_map('header', $range[0]);
+        foreach ($range[0] as $r) header($r);
 
-        $range =& $range[1];
+        $range = $range[1];
 
         if (is_string($h))
         {
             header('Content-Length: 0');
 
-            $range || $h = '';
             $size = strlen($h);
             self::$stringBuffer = array('');
         }
-        else self::$stringBuffer = false;
+        else
+        {
+            self::$stringBuffer = false;
+            if (null === $size)
+            {
+                user_error(__METHOD__ . "()'s \$size parameter is required when \$h is a stream", E_USER_WARNING);
+                fseek($h, 0, SEEK_END);
+                $size = ftell($h);
+            }
+        }
 
-        if (!$range) return;
+        if (!$range) return false;
 
 
         if (1 == count($range))
@@ -170,9 +183,11 @@ class HttpRange
         }
 
         self::$stringBuffer && $h = implode('', self::$stringBuffer);
+
+        return true;
     }
 
-    protected static function sendChunk(&$h, $min, $max)
+    protected static function sendChunk($h, $min, $max)
     {
         $max -= $min - 1;
 

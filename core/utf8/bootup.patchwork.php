@@ -49,22 +49,22 @@ Patchwork\FunctionOverride(html_entity_decode, html_entity_decode, $s, $style = 
 /**/if (extension_loaded('mbstring'))
 /**/{
 /**/    if (ini_get_bool('mbstring.encoding_translation') && !in_array(strtolower(ini_get('mbstring.http_input')), array('pass', '8bit', 'utf-8')))
-/**/        throw boot::$manager->error('Please disable "mbstring.encoding_translation" or set "mbstring.http_input" to "pass" or "utf-8"');
+/**/        throw boot::$manager->error('Please disable "mbstring.encoding_translation" or set "mbstring.http_input" to "utf-8" or "pass"');
 
         mb_regex_encoding('UTF-8');
         ini_set('mbstring.script_encoding', 'pass');
 
 /**/    if ('utf-8' !== strtolower(mb_internal_encoding()))
-            mb_internal_encoding('UTF-8')   + ini_set('mbstring.internal_encoding', 'UTF-8');
+            mb_internal_encoding('UTF-8') + ini_set('mbstring.internal_encoding', 'UTF-8');
 
 /**/    if ('none'  !== strtolower(mb_substitute_character()))
             mb_substitute_character('none') + ini_set('mbstring.substitute_character', 'none');
 
 /**/    if (!in_array(strtolower(mb_http_output()), array('pass', '8bit')))
-            mb_http_output('pass')          + ini_set('mbstring.http_output', 'pass');
+            mb_http_output('pass') + ini_set('mbstring.http_output', 'pass');
 
 /**/    if (!in_array(strtolower(mb_language()), array('uni', 'neutral')))
-            mb_language('uni')              + ini_set('mbstring.language', 'uni');
+            mb_language('uni') + ini_set('mbstring.language', 'uni');
 
 /**/    if (MB_OVERLOAD_MAIL & (int) ini_get('mbstring.func_overload'))
 /**/    {

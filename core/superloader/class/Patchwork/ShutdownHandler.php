@@ -11,8 +11,22 @@
  *
  ***************************************************************************/
 
-// Because shutdown time is special, the methods of this class must remain fully public and static
-
+/**
+ * ShutdownHandler modifies how shutdown time behaves for greater control.
+ *
+ * The modified shutdown sequence is:
+ * - release any remaining output buffering handler
+ * - call fastcgi_finish_request() when available
+ * - call registered shutdown functions, encapsulated into a try/catch that
+ *   avoids any "Exception thrown without a stack frame" cryptic error
+ * - call session_write_close()
+ * - call static destructors
+ *
+ * As usual, global and static objects' destructors are triggered after the last step.
+ * Any output done during the shutdown sequence is cancelled with a warning.
+ *
+ * Because shutdown time is special, the methods of this class must remain fully public and static.
+ */
 class Patchwork_ShutdownHandler
 {
     static $destructors = array();

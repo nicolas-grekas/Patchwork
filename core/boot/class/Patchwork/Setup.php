@@ -14,9 +14,8 @@
 namespace Patchwork;
 
 /**
- * Hook executed only once, when application is initialized
+ * Setup is a hook executed only once, when application is initialized.
  */
-
 class Setup
 {
     protected static function execute()

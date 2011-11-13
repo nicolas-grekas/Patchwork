@@ -43,14 +43,12 @@ if (!isset($_SERVER['HTTP_HOST']) || '' !== trim($_SERVER['HTTP_HOST'], 'eiasntr
 /**/}
 
 
-// Convert ISO-8859-1 URLs to UTF-8 ones
-
-function url_enc_utf8_dec_callback($m) {return urlencode(utf8_encode(urldecode($m[0])));}
+// Convert Windows-1252 URLs to UTF-8 ones
 
 if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 {
-    $a = $a !== patchwork_utf8_decode($a) ? '/' : preg_replace_callback('/(?:%[89A-F][0-9A-F])+/i', 'url_enc_utf8_dec_callback', $a);
-
+    function url_enc_utf8_dec_callback($m) {return urlencode(utf8_encode(urldecode($m[0])));}
+    $a = $a !== utf8_decode($a) ? '/' : preg_replace_callback('/(?:%[89A-F][0-9A-F])+/i', 'url_enc_utf8_dec_callback', $a);
     patchwork_http_bad_request('Requested URL is not a valid urlencoded UTF-8 string.', $a);
 }
 

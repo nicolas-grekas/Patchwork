@@ -13,6 +13,9 @@
 
 namespace Patchwork\PHP;
 
+/**
+ * ReflectionClass hides superpositioning to the native ReflectionClass users.
+ */
 class ReflectionClass extends \ReflectionClass
 {
     protected

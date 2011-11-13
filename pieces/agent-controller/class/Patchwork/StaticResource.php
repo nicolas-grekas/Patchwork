@@ -212,7 +212,7 @@ class StaticResource extends p
         class_exists('adapter_DB', false) && \adapter_DB::__destructStatic();
 
 
-        $gzip   || ob_start();
+        $gzip || ob_start();
         $filter && ob_start(array(__CLASS__, 'ob_filterOutput'), 32768);
 
 

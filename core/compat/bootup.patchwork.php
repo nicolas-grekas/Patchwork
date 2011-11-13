@@ -13,10 +13,10 @@
 
 use Patchwork\PHP\Override as o;
 
-// Overrides to backport namespaces to PHP pre-5.3
-
 /**/if (PHP_VERSION_ID < 50300)
 /**/{
+/**/    // Overrides to backport namespaces to PHP pre-5.3
+
         Patchwork\FunctionOverride(class_implements,        o\Php530, $class, $autoload = true);
         Patchwork\FunctionOverride(class_parents,           o\Php530, $class, $autoload = true);
         Patchwork\FunctionOverride(class_exists,            o\Php530, $class, $autoload = true);
@@ -48,17 +48,21 @@ use Patchwork\PHP\Override as o;
         Patchwork\FunctionOverride(spl_object_hash, o\Php530, $object);
 /**/}
 
-
-/**/ // Fix 5.2.9 array_unique() default sort flag
 /**/if (PHP_VERSION_ID == 50209)
+/**/{
+/**/    // Fix 5.2.9 array_unique() default sort flag
         Patchwork\FunctionOverride(array_unique, array_unique, $array, $sort_flags = SORT_STRING);
-
+/**/}
 
 /**/if (!function_exists('memory_get_usage'))
+/**/{
         function memory_get_usage($real = false) {return 0;}
+/**/}
 
 /**/if (!function_exists('memory_get_peak_usage'))
+/**/{
         function memory_get_peak_usage($real = false) {return 0;}
+/**/}
 
 
 // Default serialize precision is 100, but 17 is enough

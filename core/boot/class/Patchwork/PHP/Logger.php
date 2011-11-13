@@ -13,6 +13,15 @@
 
 namespace Patchwork\PHP;
 
+/**
+ * Logger logs messages to an output stream.
+ *
+ * Messages just have a type and associated data. The dump format is handled by JsonDumper
+ * which allows unprecedented accuracy for associated data representation.
+ *
+ * Error messages are handled specifically in order to make them more friendly,
+ * especially for traces and exceptions.
+ */
 class Logger
 {
     public

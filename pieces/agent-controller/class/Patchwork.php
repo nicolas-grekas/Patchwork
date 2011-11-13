@@ -1473,7 +1473,7 @@ class Patchwork
                         : false)
                     {
                         self::$is_enabled = false;
-                        p\HttpRange::sendChunks($range, $buffer, self::$headers['content-type'], 0);
+                        p\HttpRange::sendChunks($range, $buffer, self::$headers['content-type']) || $buffer = '';
                     }
                 }
             }

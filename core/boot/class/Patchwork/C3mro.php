@@ -11,10 +11,11 @@
  *
  ***************************************************************************/
 
-
-// C3 Method Resolution Order graph linearization
-// See http://python.org/2.3/mro.html
-
+/**
+ * C3 Method Resolution Order graph linearization.
+ *
+ * See http://python.org/2.3/mro.html
+ */
 class Patchwork_C3mro
 {
     protected $cache = array(), $getParentNodes;
@@ -33,7 +34,7 @@ class Patchwork_C3mro
 
         $parent = call_user_func($this->getParentNodes, $node);
 
-        // If no parent, result is trival
+        // If no parent, result is trivial
         if (!$parent) return $resultSeq = array($node);
 
         // Compute C3 MRO

@@ -13,6 +13,11 @@
 
 namespace Patchwork;
 
+/**
+ * HttpQueryField provides a generalized access to HTTP inputs freed from the complexity of the magic bracketed syntax.
+ *
+ * See https://github.com/nicolas-grekas/Patchwork-Doc/blob/master/Advanced-HTTP-en.md
+ */
 class HttpQueryField
 {
     protected

@@ -11,7 +11,9 @@
  *
  ***************************************************************************/
 
-
+/**
+ * Updatedb implements an mlocate like strategy to build a database of existing paths in a set of directories.
+ */
 class Patchwork_Updatedb
 {
     function buildPathCache($paths, $last, $cwd, $zcache)

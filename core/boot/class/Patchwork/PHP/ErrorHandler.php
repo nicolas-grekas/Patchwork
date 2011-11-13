@@ -13,6 +13,25 @@
 
 namespace Patchwork\PHP;
 
+/**
+ * ErrorHandler is a tunable error and exception handler.
+ *
+ * It provides four bit fields that control how errors are handled:
+ * - scream: never silenced errors
+ * - recoverableErrors: errors not logged but throwing a RecoverableErrorException
+ * - scopedErrors: errors logged with their local scope
+ * - tracedErrors: errors logged with their trace, but only once for repeated errors
+ *
+ * Errors are logged with a Logger object by default, but any logger can be injected
+ * provided it has the right interface. Errors are logged to the same file where non
+ * catchable errors are written by PHP. Silenced non catchable errors that can be
+ * detected at shutdown time are logged when the scream bit field allows so.
+ *
+ * Uncaught exceptions are turned to E_ERROR.
+ *
+ * As errors have a performance cost, repeated errors are all logged, so that the developper
+ * can see them and weight them as more important to fix than others of the same level.
+ */
 class ErrorHandler
 {
     public
