@@ -11,7 +11,9 @@
  *
  ***************************************************************************/
 
-
+/**
+ * The FunctionOverriding parser replaces function calls by other function calls.
+ */
 class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
 {
     protected

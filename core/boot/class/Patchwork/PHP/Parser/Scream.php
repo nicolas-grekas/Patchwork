@@ -11,7 +11,9 @@
  *
  ***************************************************************************/
 
-
+/**
+ * The Scream parser removes shutdown operators, making the code scream on otherwise silenced errors.
+ */
 class Patchwork_PHP_Parser_Scream extends Patchwork_PHP_Parser
 {
     protected $callbacks = array('cancelToken' => '@');

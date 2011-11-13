@@ -13,6 +13,9 @@
 
 Patchwork_PHP_Parser::createToken('T_DUMPER_START');
 
+/**
+ * The Dumper parser helps understanding how parsers work by displaying tokens as they come up.
+ */
 class Patchwork_PHP_Parser_Dumper extends Patchwork_PHP_Parser
 {
     public

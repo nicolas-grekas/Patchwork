@@ -11,7 +11,9 @@
  *
  ***************************************************************************/
 
-
+/**
+ * The PatchworkPath parser adds the current superpositioning level to patchworkPath()'s third parameter.
+ */
 class Patchwork_PHP_Parser_Bracket_PatchworkPath extends Patchwork_PHP_Parser_Bracket
 {
     protected $level;

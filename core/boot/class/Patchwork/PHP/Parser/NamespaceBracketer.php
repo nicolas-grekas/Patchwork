@@ -11,7 +11,9 @@
  *
  ***************************************************************************/
 
-
+/**
+ * The NamespaceBracketer parser transformes the regular namespace syntax to the alternate bracketed syntax.
+ */
 class Patchwork_PHP_Parser_NamespaceBracketer extends Patchwork_PHP_Parser
 {
     protected

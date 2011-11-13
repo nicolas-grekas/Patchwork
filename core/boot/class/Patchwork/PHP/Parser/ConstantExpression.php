@@ -11,7 +11,12 @@
  *
  ***************************************************************************/
 
-
+/**
+ * The ConstantExpression parser can statically determine if a given expression is constant and evaluate its value.
+ *
+ * It exposes the nextExpressionIsConstant() method to its dependend parsers,
+ * and when true, populates the expressionValue property.
+ */
 class Patchwork_PHP_Parser_ConstantExpression extends Patchwork_PHP_Parser
 {
     protected $expressionValue;
@@ -72,7 +77,11 @@ class Patchwork_PHP_Parser_ConstantExpression extends Patchwork_PHP_Parser
             {
                 $const_code = implode('', $const_code);
 
-                if (false !== @eval("\$close=({$const_code});"))
+                $e = error_reporting(81);
+                $bracket = eval("\$close=({$const_code});");
+                error_reporting($e);
+
+                if (false !== $bracket)
                 {
                     $tokens[--$j] = array(
                         T_CONSTANT_ENCAPSED_STRING,

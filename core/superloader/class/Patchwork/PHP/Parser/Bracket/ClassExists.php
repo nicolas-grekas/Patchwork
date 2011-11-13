@@ -11,7 +11,9 @@
  *
  ***************************************************************************/
 
-
+/**
+ * The ClassExists parser force class_exists' second $autoload parameter to true.
+ */
 class Patchwork_PHP_Parser_Bracket_ClassExists extends Patchwork_PHP_Parser_Bracket
 {
     protected function onReposition(&$token)

@@ -11,7 +11,10 @@
  *
  ***************************************************************************/
 
-
+/**
+ * DestructorCatcher encapsulates class destructors inside a try/catch that avoids any
+ * "Exception thrown without a stack frame in Unknown on line 0" cryptic error message.
+ */
 class Patchwork_PHP_Parser_DestructorCatcher extends Patchwork_PHP_Parser
 {
     protected

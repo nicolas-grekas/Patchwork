@@ -11,7 +11,9 @@
  *
  ***************************************************************************/
 
-
+/**
+ * The BinaryNumber parser backports binary number notation introduced in PHP 5.4.
+ */
 class Patchwork_PHP_Parser_BinaryNumber extends Patchwork_PHP_Parser
 {
     protected function getTokens($code)

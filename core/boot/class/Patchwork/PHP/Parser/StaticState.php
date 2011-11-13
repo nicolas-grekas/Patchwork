@@ -11,7 +11,12 @@
  *
  ***************************************************************************/
 
-
+/**
+ * The StaticState parser allows tagging static code inside regular code.
+ *
+ * This allows PHP to be used as a code preprocessor able to optimise itself
+ * by looking at the local setup (PHP version, enabled extensions, etc.)
+ */
 class Patchwork_PHP_Parser_StaticState extends Patchwork_PHP_Parser
 {
     protected

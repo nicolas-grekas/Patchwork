@@ -11,14 +11,14 @@
  *
  ***************************************************************************/
 
-
-// New tokens since PHP 5.4
 defined('T_TRAIT') || Patchwork_PHP_Parser::createToken('T_TRAIT');
 defined('T_TRAIT_C') || Patchwork_PHP_Parser::createToken('T_TRAIT_C');
 defined('T_CALLABLE') || Patchwork_PHP_Parser::createToken('T_CALLABLE');
 defined('T_INSTEADOF') || Patchwork_PHP_Parser::createToken('T_INSTEADOF');
 
-
+/**
+ * The Backport54Tokens parser backports tokens introduced in PHP 5.4.
+ */
 class Patchwork_PHP_Parser_Backport54Tokens extends Patchwork_PHP_Parser
 {
     protected $dependencies = 'StringInfo';

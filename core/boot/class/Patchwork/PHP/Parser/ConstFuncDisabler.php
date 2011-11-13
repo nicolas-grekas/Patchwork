@@ -13,6 +13,9 @@
 
 // TODO: allow local usage of inline declared consts, functions and define()
 
+/**
+ * The ConstFuncDisabler parser emits a deprecation notice on namespaced functions or constants declarations.
+ */
 class Patchwork_PHP_Parser_ConstFuncDisabler extends Patchwork_PHP_Parser
 {
     protected
@@ -36,7 +39,7 @@ class Patchwork_PHP_Parser_ConstFuncDisabler extends Patchwork_PHP_Parser
     {
         if (T_CLASS !== $this->scope->type && T_INTERFACE !== $this->scope->type && T_TRAIT !== $this->scope->type)
         {
-            $this->setError("Namespaced functions and constants have been deprecated, please use static methods and class constants instead", E_USER_DEPRECATED);
+            $this->setError("Namespaced functions and constants are deprecated, please use class constants and static methods instead", E_USER_DEPRECATED);
         }
     }
 
