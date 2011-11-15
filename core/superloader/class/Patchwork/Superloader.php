@@ -104,7 +104,7 @@ class Patchwork_Superloader
 
         $GLOBALS["a\x9D"] = false;
 
-        if (file_exists($a)) patchwork_include_voicer($a, null);
+        if (file_exists($a)) patchwork_include($a);
     }
 
     static function class2file($class)

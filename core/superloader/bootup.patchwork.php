@@ -115,22 +115,18 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 
 function &patchwork_autoload_marker($marker, &$ref) {return $ref;}
 
-function patchwork_include_voicer($file, $voices)
+function patchwork_include_voicer($file)
 {
-    unset($file, $voices); // Cleanup the local scope
-
-    if (null === func_get_arg(1)) return include func_get_arg(0);
-
     try
     {
-        error_reporting(func_get_arg(1) | /*<*/E_PARSE | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR/*>*/);
-        $e = include func_get_arg(0);
-        error_reporting(func_get_arg(1));
-        return $e;
+        $e = error_reporting(error_reporting() | /*<*/E_PARSE | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR/*>*/);
+        $file = patchwork_include($file);
+        error_reporting($e);
+        return $file;
     }
-    catch (Exception $e)
+    catch (Exception $file)
     {
-        error_reporting(func_get_arg(1));
-        throw $e;
+        error_reporting($e);
+        throw $file;
     }
 }

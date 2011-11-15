@@ -140,7 +140,7 @@ class Patchwork_Autoloader extends Patchwork_Superloader
 
             $current_pool = array();
 
-            patchwork_include_voicer($cache, error_reporting());
+            patchwork_include_voicer($cache);
 
             if ($parent && self::exists($req, false)) $parent = false;
             if (false !== $parent_pool) $parent_pool[$parent ? $parent : $req] = $cache;
@@ -289,7 +289,7 @@ class Patchwork_Autoloader extends Patchwork_Superloader
                         $code = ".class_{$cache}.zcache.php";
                         $code = addslashes(PATCHWORK_PROJECT_PATH . $code);
                         $ns = empty($ns) ? '' : '\\';
-                        $code = "isset(\$c\x9D['{$lc_req}'])||{$ns}patchwork_include_voicer('{$code}',null)||1";
+                        $code = "isset(\$c\x9D['{$lc_req}'])||{$ns}patchwork_include('{$code}')||1";
                     }
                     else
                     {
