@@ -44,19 +44,8 @@ function patchwork_http_socket($host, $port, $ssl, $timeout = 30)
     if ($port <= 0) $port = $ssl ? '443' : '80';
     $ssl = $ssl ? 'ssl' : 'tcp';
 
-    if (false !== strpos($host, ':'))
-    {
-        // Workaround for http://bugs.php.net/48805
-
-        if ('[]' !== substr($host, 0, 1) . substr($host, -1)) $host = '[' . $host . ']';
-        $h = stream_context_create(array('socket' => array('bindto' => '[::]:0')));
-        $h = stream_socket_client("{$ssl}://{$host}:{$port}", $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT, $h);
-    }
-    else
-    {
-        strspn(substr($host, -1), '0123456789') || $host .= '.';
-        $h = fsockopen("{$ssl}://{$host}", $port, $errno, $errstr, $timeout);
-    }
+    strspn(substr($host, -1), '0123456789]:.') || $host .= '.';
+    $h = fsockopen("{$ssl}://{$host}", $port, $errno, $errstr, $timeout);
 
     if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
 
