@@ -3,8 +3,6 @@
 #patchwork __patchwork__/core/http
 #patchwork __patchwork__/core/superloader
 
-use Patchwork\PHP\Override as o;
-
 // Default settings
 
 $CONFIG += array(
