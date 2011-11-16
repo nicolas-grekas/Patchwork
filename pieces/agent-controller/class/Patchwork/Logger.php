@@ -20,11 +20,6 @@ class Logger extends PHP\Logger
 {
     public $writeLock = false;
 
-    function __construct($log_stream, $start_time = PATCHWORK_MICROTIME)
-    {
-        parent::__construct($log_stream, $start_time);
-    }
-
     function writeEvent($type, $data)
     {
         if ('php-error' === $type || 'php-exception' === $type)

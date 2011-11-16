@@ -62,6 +62,11 @@ class Patchwork_Bootstrapper_Manager
         {
             $s = '';
 
+            // Microsecond precision for $_SERVER['REQUEST_TIME'], for PHP pre-5.4
+
+            if (!isset($_SERVER['REQUEST_TIME']) || !is_float($_SERVER['REQUEST_TIME']))
+                $s .= "\$_SERVER['REQUEST_TIME'] = microtime(true);";
+
             // Turn off magic quotes runtime
 
             if (function_exists('get_magic_quotes_runtime') && @get_magic_quotes_runtime())

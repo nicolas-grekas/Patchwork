@@ -32,7 +32,6 @@ if (file_exists(PATCHWORK_BOOTPATH . '/.patchwork.php'))
 if (!function_exists('version_compare') || version_compare(phpversion(), '5.2.0') < 0)
     die("Patchwork error: PHP 5.2.0 or higher is required");
 
-defined('PATCHWORK_MICROTIME') || define('PATCHWORK_MICROTIME', microtime(true));
 error_reporting(E_ALL | E_STRICT);
 setlocale(LC_ALL, 'C');
 

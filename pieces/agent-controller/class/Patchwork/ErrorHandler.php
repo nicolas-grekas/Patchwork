@@ -41,7 +41,7 @@ class ErrorHandler extends PHP\ErrorHandler
 
         // http://bugs.php.net/42098 workaround
         class_exists('Patchwork\Logger') || __autoload('Patchwork\Logger');
-        $l = new Logger(self::$logStream);
+        $l = new Logger(self::$logStream, $_SERVER['REQUEST_TIME']);
         $l->lock = false;
         $l->lineFormat = sprintf('%010d', substr(mt_rand(), -10)) . ": %s\n";
 
