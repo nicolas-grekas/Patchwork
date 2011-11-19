@@ -11,7 +11,9 @@
  *
  ***************************************************************************/
 
-
+/**
+ * The Globalizer parser automatically globalizes a set of variables.
+ */
 class Patchwork_PHP_Parser_Globalizer extends Patchwork_PHP_Parser
 {
     protected

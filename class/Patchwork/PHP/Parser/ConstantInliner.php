@@ -11,7 +11,9 @@
  *
  ***************************************************************************/
 
-
+/**
+ * The ConstantInliner parser replaces internal, magic and user specified constants by their value.
+ */
 class Patchwork_PHP_Parser_ConstantInliner extends Patchwork_PHP_Parser
 {
     protected

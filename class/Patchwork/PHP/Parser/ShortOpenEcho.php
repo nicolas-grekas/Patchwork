@@ -11,7 +11,9 @@
  *
  ***************************************************************************/
 
-
+/**
+ * The ShortOpenEcho parser backports from PHP 5.4 the availability of <?= regardless of the short_open_tag setting.
+ */
 class Patchwork_PHP_Parser_ShortOpenEcho extends Patchwork_PHP_Parser
 {
     protected $tag;

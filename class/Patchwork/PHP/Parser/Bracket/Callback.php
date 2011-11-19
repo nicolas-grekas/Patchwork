@@ -11,9 +11,11 @@
  *
  ***************************************************************************/
 
-
 // FIXME: handle when $callbackIndex <= 0
 
+/**
+ * The Bracket_Callback parser participates in catching callbacks for at runtime function overriding.
+ */
 class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
 {
     protected
@@ -92,6 +94,8 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
             $a = $this->index;
             $t =& $this->tokens;
             $b = 0;
+
+            // TODO: replace 'self' by __CLASS__
 
             while (isset($t[$a])) switch ($t[$a++][0])
             {

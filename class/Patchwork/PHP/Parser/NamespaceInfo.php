@@ -11,7 +11,16 @@
  *
  ***************************************************************************/
 
-
+/**
+ * NamespaceInfo exposes each token's namespace context to dependend parsers.
+ *
+ * Exposed namespace context info are:
+ * - namespace: string containing the current namespace
+ * - nsResolved: fully namespace resolved identifier for the current class, function or constant token
+ * - nsAliases: map of local alias to fully resolved identifiers in use in the current namespace
+ *
+ * Inherited from StringInfo are nsPrefix and removeNsPrefix().
+ */
 class Patchwork_PHP_Parser_NamespaceInfo extends Patchwork_PHP_Parser
 {
     protected

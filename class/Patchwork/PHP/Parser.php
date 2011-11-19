@@ -15,13 +15,29 @@ define('T_SEMANTIC',     0); // Primary type for semantic tokens
 define('T_NON_SEMANTIC', 1); // Primary type for non-semantic tokens (whitespace and comment)
 
 Patchwork_PHP_Parser::createToken(
-    'T_CURLY_CLOSE',       // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
-    'T_KEY_STRING'         // String index in interpolated string
+    'T_CURLY_CLOSE', // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
+    'T_KEY_STRING'   // String index in interpolated string
 );
 
 defined('T_NS_SEPARATOR') || Patchwork_PHP_Parser::createToken('T_NS_SEPARATOR');
 
-
+/**
+ * Patchwork PHP Parser is a highly extensible framework for building high-performance PHP code
+ * parsers around PHP's tokenizer extension.
+ *
+ * It does nothing on its own but implement an expert knowledge of tokenizer's special cases as well
+ * as a predictable plugin mechanism for registering and dispatching tokens to a chain of parsers,
+ * while remaining as fast and memory efficient as possible.
+ *
+ * It can be used for example to:
+ * - compute static code analysis,
+ * - verify coding practices for QA,
+ * - backport some language features,
+ * - extend the PHP language,
+ * - build a code preprocessor,
+ * - build an aspect weaver,
+ * - etc.
+ */
 class Patchwork_PHP_Parser
 {
     protected
@@ -176,15 +192,13 @@ class Patchwork_PHP_Parser
 
         // For binary safeness, check for unexpected characters (see http://bugs.php.net/54089)
 
-        if (!$bin = version_compare(PHP_VERSION, '5.3.0') < 0 && strpos($code, '\\'))
-        {
+        if (!$bin = T_NS_SEPARATOR < 0 && strpos($code, '\\'))
             for ($i = 0; $i < 32; ++$i)
                 if ($i !== 0x09 && $i !== 0x0A && $i !== 0x0D && strpos($code, chr($i)))
                     if ($bin = true) break;
-        }
 
         $i = error_reporting(81);
-        $t1 = token_get_all($code);
+        $t1 = token_get_all($code); // Warnings triggered here bypass any custom error handler
         error_reporting($i);
 
         if ($bin)
@@ -274,7 +288,7 @@ class Patchwork_PHP_Parser
             // - tag closing braces as T_CURLY_CLOSE when they are opened with curly braces
             //   tagged as T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES, to make
             //   them easy to distinguish from regular code "{" / "}" pairs,
-            // - tag string indexes as T_KEY_STRING in interpolated strings.
+            // - tag arrays' or objects' string indexes as T_KEY_STRING.
 
             $priType = 0; // T_SEMANTIC
 
@@ -330,7 +344,9 @@ class Patchwork_PHP_Parser
             {
                 $k = $t[0];
                 $t[2] = array($priType => $priType);
-                $callbacks = isset($reg[$priType]) ? $reg[$priType] : array();
+
+                if (isset($reg[$priType])) $callbacks = $reg[$priType];
+                else $callbacks = array();
 
                 for (;;)
                 {
@@ -441,7 +457,7 @@ class Patchwork_PHP_Parser
         );
     }
 
-    // Register/unregister callbacks for the next tokens
+    // Register callbacks for the next tokens
 
     protected function register($method)
     {
@@ -464,6 +480,8 @@ class Patchwork_PHP_Parser
         isset($s0) && ksort($this->tokenRegistry[0]); // T_SEMANTIC
         isset($s1) && ksort($this->tokenRegistry[1]); // T_NON_SEMANTIC
     }
+
+    // Unregister callbacks for the next tokens
 
     protected function unregister($method)
     {
@@ -535,7 +553,7 @@ class Patchwork_PHP_Parser
         }
     }
 
-    // Create new sub-token types
+    // Create new token sub-types
 
     static function createToken($name)
     {
@@ -548,7 +566,7 @@ class Patchwork_PHP_Parser
         }
     }
 
-    // Get the symbolic name of a given PHP token or sub-token as created by self::createToken
+    // Get the symbolic name of a given PHP token's type or sub-type as created by self::createToken
 
     static function getTokenName($type)
     {

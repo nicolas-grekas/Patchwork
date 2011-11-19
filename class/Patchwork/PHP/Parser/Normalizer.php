@@ -11,10 +11,16 @@
  *
  ***************************************************************************/
 
+Patchwork_PHP_Parser::createToken('T_ENDPHP');
 
-Patchwork_PHP_Parser::createToken('T_ENDPHP'); // end of the source code
-
-
+/**
+ * The Normalizer parser verifies and ensures basic guaranties on the parsed code and its token stream.
+ *
+ * On the raw code, it can verify its UTF-8 validity,
+ * strip any UTF-8 BOM and force line endings to LF only.
+ * On the token stream, it enforces the very first token to be a T_OPEN_TAG
+ * and tags the last valid PHP code position as T_ENDPHP.
+ */
 class Patchwork_PHP_Parser_Normalizer extends Patchwork_PHP_Parser
 {
     protected

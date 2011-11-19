@@ -11,35 +11,40 @@
  *
  ***************************************************************************/
 
-// T_STRING variants
+Patchwork_PHP_Parser::createToken('T_NAME_NS', 'T_NAME_CLASS', 'T_NAME_FUNCTION', 'T_NAME_CONST', 'T_USE_NS', 'T_USE_CLASS', 'T_USE_METHOD', 'T_USE_PROPERTY', 'T_USE_FUNCTION', 'T_USE_CONST', 'T_USE_CONSTANT', 'T_GOTO_LABEL', 'T_TYPE_HINT');
 
-Patchwork_PHP_Parser::createToken(
-    'T_NAME_NS',       // namespace FOO\BAR    - namespace declaration
-    'T_NAME_CLASS',    // class FOO {}         - class or interface declaration
-    'T_NAME_FUNCTION', // function FOO()       - function or method declaration
-    'T_NAME_CONST',    // const FOO            - class or namespaced const declaration
-    'T_USE_NS',        // FOO\bar              - namespace prefix or "use" aliasing
-    'T_USE_CLASS',     // new foo\BAR / FOO::  - class usage
-    'T_USE_METHOD',    // $a->FOO() / a::BAR() - method call
-    'T_USE_PROPERTY',  // $a->BAR              - property access
-    'T_USE_FUNCTION',  // foo\BAR()            - function call
-    'T_USE_CONST',     // foo::BAR             - class constant access
-    'T_USE_CONSTANT',  // FOO / foo\BAR        - global or namespaced constant access
-    'T_GOTO_LABEL',    // goto FOO / BAR:{}    - goto label
-    'T_TYPE_HINT'      // instanceof foo\BAR / function(foo\BAR $a) - type hint
-);
-
-
+/**
+ * The StringInfo parser analyses T_STRING tokens and gives them a secondary type to allow more specific semantics.
+ *
+ * This parser analyses tokens surrounding T_STRING tokens and is able to determine between many different semantics:
+ * - T_NAME_NS:       namespace declaration as in namespace FOO\BAR
+ * - T_NAME_CLASS:    class or interface declaration as in class FOO {}
+ * - T_NAME_FUNCTION: function or method declaration as in function FOO()
+ * - T_NAME_CONST:    class or namespaced const declaration as in const FOO
+ * - T_USE_NS:        namespace prefix or "use" aliasing as in FOO\bar
+ * - T_USE_CLASS:     class usage as in new foo\BAR or FOO::
+ * - T_USE_METHOD:    method call as in $a->FOO() or a::BAR()
+ * - T_USE_PROPERTY:  property access as in $a->BAR
+ * - T_USE_FUNCTION:  function call as in foo\BAR()
+ * - T_USE_CONST:     class constant access as in foo::BAR
+ * - T_USE_CONSTANT:  global or namespaced constant access as in FOO or foo\BAR
+ * - T_GOTO_LABEL:    goto label as in goto FOO or BAR:{}
+ * - T_TYPE_HINT:     type hint as in instanceof foo\BAR or function(foo\BAR $a)
+ *
+ * It also exposes a property and a method:
+ * - nsPrefix: non-resolved namespace prefix of the current token
+ * - removeNsPrefix(): removes nsPrefix from the output stream for the current token
+ */
 class Patchwork_PHP_Parser_StringInfo extends Patchwork_PHP_Parser
 {
     protected
 
+    $nsPrefix  = '',
     $inConst   = false,
     $inExtends = false,
     $inParam   = 0,
     $inNs      = false,
     $inUse     = false,
-    $nsPrefix  = '',
     $preNsType = 0,
     $reservedTokens,
     $callbacks = array(

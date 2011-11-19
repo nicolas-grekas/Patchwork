@@ -11,7 +11,11 @@
  *
  ***************************************************************************/
 
-
+/**
+ * The NamespaceResolver parser replaces aliased identifiers by their fully namespace resolved name.
+ *
+ * It also removes local alias declarations as they are not needed anymore.
+ */
 class Patchwork_PHP_Parser_NamespaceResolver extends Patchwork_PHP_Parser
 {
     protected
