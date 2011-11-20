@@ -11,7 +11,9 @@
  *
  ***************************************************************************/
 
-
+/**
+ * Namespace aware backports of reflective functions for PHP pre-5.3
+ */
 class Patchwork_PHP_Override_Php530
 {
     protected static $us2ns = array();

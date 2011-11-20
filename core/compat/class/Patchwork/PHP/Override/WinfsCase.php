@@ -11,15 +11,13 @@
  *
  ***************************************************************************/
 
-
-// For MS-Windows only
-
+/**
+ * Under Windows, checks if character case is strict
+ */
 class Patchwork_PHP_Override_WinfsCase
 {
     static function file_exists($file)
     {
-        // Check if character case is strict
-
         if (!file_exists($file) || !$realfile = realpath($file)) return false;
 
         $file = strtr($file, '/', '\\');

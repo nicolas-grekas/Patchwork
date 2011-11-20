@@ -48,7 +48,7 @@ use Patchwork\PHP\Override as o;
         Patchwork\FunctionOverride(spl_object_hash, o\Php530, $object);
 /**/}
 
-/**/if (PHP_VERSION_ID === 50210 || PHP_VERSION_ID === 502011 || PHP_VERSION_ID === 50300)
+/**/if (PHP_VERSION_ID == 50210 || PHP_VERSION_ID == 502011 || PHP_VERSION_ID == 50300)
 /**/{
         Patchwork\FunctionOverride(stream_socket_client, o\Bug48805, $remote_socket, &$errno = null, &$errstr = null, $timeout = null, $flags = STREAM_CLIENT_CONNECT, $context = null);
         Patchwork\FunctionOverride(fsockopen,            o\Bug48805, $hostname, $port = -1, &$errno = null, &$errstr = null, $timeout = null);
