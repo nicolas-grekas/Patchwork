@@ -36,7 +36,7 @@ class Patchwork_PHP_Parser_ScopeInfo extends Patchwork_PHP_Parser
     $nextScope = T_OPEN_TAG,
     $callbacks = array(
         'tagFirstScope' => array(T_OPEN_TAG, ';', '{'),
-        'tagScopeClose' => array(T_ENDPHP  , '}'),
+        'tagScopeClose' => array(T_ENDPHP, '}'),
         'tagNamespace'  => T_NAMESPACE,
         'tagFunction'   => T_FUNCTION,
         'tagClass'      => array(T_CLASS, T_INTERFACE, T_TRAIT),
