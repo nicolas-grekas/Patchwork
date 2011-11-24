@@ -71,7 +71,9 @@ class Patchwork_PHP_Parser
     $haltCompilerTail = 4;
 
 
-    private static $tokenNames = array(
+    private static
+
+    $tokenNames = array(
         0 => 'T_SEMANTIC',
         1 => 'T_NON_SEMANTIC',
     );

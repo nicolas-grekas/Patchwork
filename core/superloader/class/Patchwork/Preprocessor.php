@@ -31,6 +31,7 @@ class Patchwork_Preprocessor
     $parsers       = array(
         'Normalizer'         => true,
         'ShortOpenEcho'      => -50400,
+        'BracketBalancer'    => true,
         'ShortArray'         => -50400,
         'BinaryNumber'       => -50400,
         'ClassAutoname'      => true,

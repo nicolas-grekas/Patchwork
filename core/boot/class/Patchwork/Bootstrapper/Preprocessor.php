@@ -32,6 +32,7 @@ class Patchwork_Bootstrapper_Preprocessor
         }
 
         $p = new Patchwork_PHP_Parser_Normalizer;
+        new Patchwork_PHP_Parser_BracketBalancer($p);
         new Patchwork_PHP_Parser_StringInfo($p);
         new Patchwork_PHP_Parser_NamespaceInfo($p);
         new Patchwork_PHP_Parser_ScopeInfo($p);
