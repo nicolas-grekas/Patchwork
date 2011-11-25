@@ -209,7 +209,7 @@ class StaticResource extends p
         p::disable();
 
         class_exists('SESSION'   , false) && s::close();
-        class_exists('adapter_DB', false) && \adapter_DB::__destructStatic();
+        class_exists('adapter_DB', false) && \adapter_DB::__free();
 
 
         $gzip || ob_start();

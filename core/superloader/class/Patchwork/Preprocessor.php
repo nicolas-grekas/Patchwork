@@ -50,7 +50,7 @@ class Patchwork_Preprocessor
         'NamespaceRemover'   => -50300,
         'ConstantExpression' => true,
         'SuperPositioner'    => true,
-        'ConstructorStatic'  => true,
+        'StaticInit'         => true,
         'Constructor4to5'    => true,
         'FunctionOverriding' => true,
         'Globalizer'         => true,
@@ -60,7 +60,7 @@ class Patchwork_Preprocessor
     );
 
 
-    static function __constructStatic()
+    static function __init()
     {
         foreach (get_declared_classes() as $v)
         {

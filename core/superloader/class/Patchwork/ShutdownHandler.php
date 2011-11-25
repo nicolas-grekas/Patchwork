@@ -105,7 +105,7 @@ class Patchwork_ShutdownHandler
         }
         else
         {
-            call_user_func(array(array_shift(self::$destructors), '__destructStatic'));
+            call_user_func(array(array_shift(self::$destructors), '__free'));
             self::register(array(self::$class, __FUNCTION__));
         }
     }

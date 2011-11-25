@@ -12,13 +12,13 @@
  ***************************************************************************/
 
 
-class Patchwork_PHP_Parser_ConstructorStatic extends Patchwork_PHP_Parser
+class Patchwork_PHP_Parser_StaticInit extends Patchwork_PHP_Parser
 {
     protected
 
     $tag = "\x9D",
-    $construct,
-    $destruct,
+    $init,
+    $free,
     $callbacks = array('tagClassOpen' => T_SCOPE_OPEN),
     $dependencies = array('ClassInfo' => array('class', 'scope'));
 
@@ -28,7 +28,7 @@ class Patchwork_PHP_Parser_ConstructorStatic extends Patchwork_PHP_Parser
         if (T_CLASS === $this->scope->type)
         {
             $this->unregister($this->callbacks);
-            $this->construct = $this->destruct = (int) empty($this->class->extendsSelf);
+            $this->init = $this->free = (int) empty($this->class->extendsSelf);
             $this->register(array(
                 'tagFunction'   => T_FUNCTION,
                 'tagClassClose' => T_SCOPE_CLOSE,
@@ -45,8 +45,8 @@ class Patchwork_PHP_Parser_ConstructorStatic extends Patchwork_PHP_Parser
 
             if (T_STRING === $t[0]) switch (strtolower($t[1]))
             {
-                case '__constructstatic': $this->construct = 2; break;
-                case '__destructstatic' : $this->destruct  = 2; break;
+                case '__init': $this->init = 2; break;
+                case '__free': $this->free = 2; break;
             }
         }
     }
@@ -60,20 +60,20 @@ class Patchwork_PHP_Parser_ConstructorStatic extends Patchwork_PHP_Parser
         $d = "\\Patchwork_ShutdownHandler::\$destructors[]='{$class}';";
         T_NS_SEPARATOR < 0 && $d[0] = ' ';
 
-        $this->construct && $token[1] = "const c{$this->tag}=" . (2 === $this->construct ? "'{$class}';" : "'';static function __constructStatic(){}") . $token[1];
-        $this->destruct  && $token[1] = "const d{$this->tag}=" . (2 === $this->destruct  ? "'{$class}';" : "'';static function __destructStatic(){}") . $token[1];
+        $this->init && $token[1] = "const i{$this->tag}=" . (2 === $this->init ? "'{$class}';" : "'';static function __init(){}") . $token[1];
+        $this->free && $token[1] = "const f{$this->tag}=" . (2 === $this->free ? "'{$class}';" : "'';static function __free(){}") . $token[1];
 
         if (isset($this->class->isTop) && false === $this->class->isTop) return;
 
         if ($this->class->extends)
         {
-            1 !== $this->construct && $token[1] .= "if('{$class}'==={$this->class->name}::c{$this->tag}){$this->class->name}::__constructStatic();";
-            1 !== $this->destruct  && $token[1] .= "if('{$class}'==={$this->class->name}::d{$this->tag}){$d}";
+            1 !== $this->init && $token[1] .= "if('{$class}'==={$this->class->name}::i{$this->tag}){$this->class->name}::__init();";
+            1 !== $this->free && $token[1] .= "if('{$class}'==={$this->class->name}::f{$this->tag}){$d}";
         }
         else
         {
-            2 === $this->construct && $token[1] .= "{$this->class->name}::__constructStatic();";
-            2 === $this->destruct  && $token[1] .= $d;
+            2 === $this->init&& $token[1] .= "{$this->class->name}::__init();";
+            2 === $this->free&& $token[1] .= $d;
         }
     }
 }

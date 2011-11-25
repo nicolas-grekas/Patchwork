@@ -138,7 +138,7 @@ class Patchwork
     );
 
 
-    static function __constructStatic()
+    static function __init()
     {
         p\ErrorHandler::start(PATCHWORK_PROJECT_PATH . 'error.patchwork.log', new p\ErrorHandler);
 

@@ -185,14 +185,14 @@ class Patchwork_Autoloader extends Patchwork_Superloader
 
             if ($isTop)
             {
-                $a = "{$ns}{$parent}::c\x9D";
-                if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__constructStatic'))
+                $a = "{$ns}{$parent}::i\x9D";
+                if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__init'))
                 {
-                    $code .= "{$parent}::__constructStatic();";
+                    $code .= "{$parent}::__init();";
                 }
 
-                $a = "{$ns}{$parent}::d\x9D";
-                if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__destructStatic'))
+                $a = "{$ns}{$parent}::f\x9D";
+                if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__free'))
                 {
                     $a = "\\Patchwork_ShutdownHandler::\$destructors[]='{$lc_ns}{$parent}';";
                     T_NS_SEPARATOR < 0 && $a[0] = ' ';

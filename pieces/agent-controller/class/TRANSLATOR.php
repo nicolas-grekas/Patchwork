@@ -55,7 +55,7 @@ class TRANSLATOR
     }
 
 
-    static function __constructStatic()
+    static function __init()
     {
         self::$cache = array();
 
@@ -64,7 +64,7 @@ class TRANSLATOR
         self::$adapter->open();
     }
 
-    static function __destructStatic()
+    static function __free()
     {
         self::$adapter->close();
 
