@@ -137,7 +137,7 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
     {
         foreach ($overrides as $k => $v)
             if (function_exists($v[0] ? '__patchwork_' . $k : $k))
-                self::$staticOverrides[strtolower($k)] = 0 === strcasecmp($k, $v) ? $v[0] . '__patchwork_' . substr($v, 1) : $v;
+                self::$staticOverrides[strtolower($k)] = 0 === strcasecmp($k, substr($v, 1)) ? $v[0] . '__patchwork_' . substr($v, 1) : $v;
 
         return self::$staticOverrides;
     }
@@ -233,21 +233,21 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
             $a = substr($this->overrides[$a], 1);
             $a = explode('::', $a, 2);
 
-            if (1 === count($a)) $token[1] = $a[0];
+            if (1 === count($a)) {}
             else if (empty($this->class->nsName) || strcasecmp(strtr($a[0], '\\', '_'), strtr($this->class->nsName, '\\', '_')))
             {
                 $this->unshiftTokens(
-                    array(T_STRING, $a[0]),
                     array(T_DOUBLE_COLON, '::'),
                     array(T_STRING, $a[1])
                 );
-
-                $a = $this->namespace && $this->unshiftTokens(array(T_NS_SEPARATOR, '\\'));
             }
+            else return;
 
             $this->dependencies['ClassInfo']->removeNsPrefix();
+            $this->unshiftTokens(array(T_STRING, $a[0]));
+            if ($this->namespace) $this->unshiftTokens(array(T_NS_SEPARATOR, '\\'));
 
-            if (false === $a) return false;
+            return false;
         }
         else if (isset(self::$autoloader[$a]))
         {
