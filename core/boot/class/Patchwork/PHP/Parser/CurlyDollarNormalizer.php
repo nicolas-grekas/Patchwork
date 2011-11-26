@@ -21,9 +21,8 @@ class Patchwork_PHP_Parser_CurlyDollarNormalizer extends Patchwork_PHP_Parser
 {
     protected
 
-    $curly      = null,
-    $curlyPool  = array(),
-    $callbacks  = array('tagDollarCurly' => T_DOLLAR_OPEN_CURLY_BRACES);
+    $callbacks  = array('tagDollarCurly' => T_DOLLAR_OPEN_CURLY_BRACES),
+    $dependencies = 'BracketBalancer';
 
 
     protected function tagDollarCurly(&$token)
@@ -39,33 +38,22 @@ class Patchwork_PHP_Parser_CurlyDollarNormalizer extends Patchwork_PHP_Parser
         }
         else
         {
-            $t[$i] = array(T_CONSTANT_ENCAPSED_STRING, "'{$t[$i][1]}'");
             $this->unshiftTokens('$', '{');
-
-            $this->curlyPool || $this->register($this->callbacks = array(
-                'incCurly' => '{',
-                'decCurly' => '}',
-            ));
-
-            $this->curlyPool[] = $this->curly;
-            $this->curly = 0;
+            $this->register(array('tagCurlyOpen' => T_CBRACKET));
+            $t[$i] = array(T_CONSTANT_ENCAPSED_STRING, "'{$t[$i][1]}'");
         }
 
         return $this->unshiftTokens(array(T_CURLY_OPEN, '{'));
     }
 
-    protected function incCurly(&$token)
+    protected function tagCurlyOpen(&$token)
     {
-        ++$this->curly;
+        $this->unregister(array(__FUNCTION__ => T_CBRACKET));
+        $this->register(array('tagCurlyClose' => T_BRACKET_CLOSE));
     }
 
-    protected function decCurly(&$token)
+    protected function tagCurlyClose(&$token)
     {
-        if (0 === --$this->curly)
-        {
-            $this->unshiftTokens('}');
-            $this->curly = array_pop($this->curlyPool);
-            if (null === $this->curly) $this->unregister($this->callbacks);
-        }
+        $this->unshiftTokens('}');
     }
 }
