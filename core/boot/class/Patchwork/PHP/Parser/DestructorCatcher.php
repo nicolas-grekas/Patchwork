@@ -44,7 +44,7 @@ class Patchwork_PHP_Parser_DestructorCatcher extends Patchwork_PHP_Parser
 
         $t = defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 50306 ? (PHP_VERSION_ID >= 50400 ? '2,2' : '2') : '0';
 
-        $token[1] = '}catch(' .( T_NS_SEPARATOR > 0 ? '\\' : '' ). 'Exception $e)'
+        $token[1] = '}catch(' .( PHP_VERSION_ID >= 50300 ? '\\' : '' ). 'Exception $e)'
             . '{'
                 . 'if(empty($e->__destructorException))'
                 . '{'

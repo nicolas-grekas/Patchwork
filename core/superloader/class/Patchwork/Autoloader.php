@@ -195,7 +195,7 @@ class Patchwork_Autoloader extends Patchwork_Superloader
                 if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__free'))
                 {
                     $a = "\\Patchwork_ShutdownHandler::\$destructors[]='{$lc_ns}{$parent}';";
-                    T_NS_SEPARATOR < 0 && $a[0] = ' ';
+                    PHP_VERSION_ID < 50300 && $a[0] = ' ';
                     $code .= $a;
                 }
             }

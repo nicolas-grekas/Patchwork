@@ -194,7 +194,7 @@ class Patchwork_PHP_Parser
 
         // For binary safeness, check for unexpected characters (see http://bugs.php.net/54089)
 
-        if (!$bin = T_NS_SEPARATOR < 0 && strpos($code, '\\'))
+        if (!$bin = PHP_VERSION_ID < 50300 && strpos($code, '\\'))
             for ($i = 0; $i < 32; ++$i)
                 if ($i !== 0x09 && $i !== 0x0A && $i !== 0x0D && strpos($code, chr($i)))
                     if ($bin = true) break;
