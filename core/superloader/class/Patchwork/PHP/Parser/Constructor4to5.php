@@ -30,7 +30,7 @@ class Patchwork_PHP_Parser_Constructor4to5 extends Patchwork_PHP_Parser
             $this->unregister($this->callbacks);
             $this->register($this->callbacks = array(
                 'tagFunction'   => T_FUNCTION,
-                'tagClassClose' => T_SCOPE_CLOSE,
+                'tagClassClose' => -T_BRACKET_CLOSE,
             ));
         }
     }

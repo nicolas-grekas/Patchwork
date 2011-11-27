@@ -39,17 +39,11 @@ class Patchwork_PHP_Parser_CurlyDollarNormalizer extends Patchwork_PHP_Parser
         else
         {
             $this->unshiftTokens('$', '{');
-            $this->register(array('tagCurlyOpen' => T_CBRACKET));
+            $this->register(array('tagCurlyClose' => -T_BRACKET_CLOSE));
             $t[$i] = array(T_CONSTANT_ENCAPSED_STRING, "'{$t[$i][1]}'");
         }
 
         return $this->unshiftTokens(array(T_CURLY_OPEN, '{'));
-    }
-
-    protected function tagCurlyOpen(&$token)
-    {
-        $this->unregister(array(__FUNCTION__ => T_CBRACKET));
-        $this->register(array('tagCurlyClose' => T_BRACKET_CLOSE));
     }
 
     protected function tagCurlyClose(&$token)

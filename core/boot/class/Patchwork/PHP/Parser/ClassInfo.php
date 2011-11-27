@@ -77,7 +77,7 @@ class Patchwork_PHP_Parser_ClassInfo extends Patchwork_PHP_Parser
     protected function tagClassOpen(&$token)
     {
         $this->unregister($this->callbacks);
-        $this->register(array('tagClassClose' => T_SCOPE_CLOSE));
+        $this->register(array('tagClassClose' => -T_BRACKET_CLOSE));
     }
 
     protected function tagClassClose(&$token)

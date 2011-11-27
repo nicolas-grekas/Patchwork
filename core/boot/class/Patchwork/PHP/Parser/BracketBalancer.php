@@ -39,18 +39,16 @@ class Patchwork_PHP_Parser_BracketBalancer extends Patchwork_PHP_Parser
         case '(': $this->brackets[] = ')'; $t = T_RBRACKET; break;
         }
 
-        if (isset($this->tokenRegistry[$t]))
+        if (isset($this->tokenRegistry[$t]) || isset($this->tokenRegistry[T_BRACKET_CLOSE]))
         {
-            unset($this->tokenRegistry[T_BRACKET_CLOSE]);
-            $this->unshiftTokens(array(T_WHITESPACE, ''));
-            $this->register(array('tagAfterBracketOpen' => T_WHITESPACE));
+            $this->register(array('tagAfterOpen' => -$t));
             return $t;
         }
     }
 
-    protected function tagAfterBracketOpen(&$token)
+    protected function tagAfterOpen(&$token)
     {
-        $this->unregister(array(__FUNCTION__ => T_WHITESPACE));
+        $this->unregister(array(__FUNCTION__ => array(-T_CBRACKET,/* -T_SBRACKET, -T_RBRACKET*/)));
         if (empty($this->tokenRegistry[T_BRACKET_CLOSE])) return;
         $token =& $this->brackets[count($this->brackets) - 1];
         $token = (array) $token;
@@ -65,15 +63,19 @@ class Patchwork_PHP_Parser_BracketBalancer extends Patchwork_PHP_Parser
         if (empty($last) || $token[0] !== $last[0])
         {
             // Brackets are not correctly balanced, code has a parse error.
-
             $this->unregister($this->callbacks);
         }
         else if (isset($last[1]))
         {
             // Bracket has registered on-close callbacks
-
-            $this->tokenRegistry[T_BRACKET_CLOSE] = array_reverse($last[1]);
+            $this->tokenRegistry[T_BRACKET_CLOSE] = $last[1];
+            $this->register(array('tagAfterClose' => -T_BRACKET_CLOSE));
             return T_BRACKET_CLOSE;
         }
+    }
+
+    protected function tagAfterClose(&$token)
+    {
+        unset($this->tokenRegistry[T_BRACKET_CLOSE]);
     }
 }

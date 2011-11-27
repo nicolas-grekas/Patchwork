@@ -117,7 +117,7 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
             'tagExtendsSelf' => T_USE_CLASS,
             __FUNCTION__     => T_SCOPE_OPEN,
         ));
-        $this->register(array('tagClassClose' => T_SCOPE_CLOSE));
+        $this->register(array('tagClassClose' => -T_BRACKET_CLOSE));
     }
 
     protected function tagPrivate(&$token)

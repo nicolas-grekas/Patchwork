@@ -31,7 +31,7 @@ class Patchwork_PHP_Parser_StaticInit extends Patchwork_PHP_Parser
             $this->init = $this->free = (int) empty($this->class->extendsSelf);
             $this->register(array(
                 'tagFunction'   => T_FUNCTION,
-                'tagClassClose' => T_SCOPE_CLOSE,
+                'tagClassClose' => -T_BRACKET_CLOSE,
             ));
         }
     }

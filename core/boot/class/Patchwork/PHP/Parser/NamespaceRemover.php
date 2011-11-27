@@ -54,7 +54,7 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
     {
         switch ($token[0])
         {
-        case '{': $this->register(array('tagNsClose' => T_SCOPE_CLOSE));
+        case '{': $this->register(array('tagNsClose' => -T_BRACKET_CLOSE));
         case ';':
         case $this->lastType:
             $this->namespaceBackup = $this->namespace;
