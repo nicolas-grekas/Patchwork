@@ -18,6 +18,11 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
 
     $level,
     $topClass,
+    $exprLevel,
+    $exprCallbacks = array(
+        'incExprLevel' => array('(', '{', '[', '?'),
+        'decExprLevel' => array(')', '}', ']', ':', ',', T_AS, T_CLOSE_TAG, ';'),
+    ),
     $callbacks = array(
         'tagClassUsage'  => array(T_USE_CLASS, T_TYPE_HINT),
         'tagClass'       => array(T_CLASS, T_INTERFACE, T_TRAIT),
@@ -197,7 +202,32 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
                 array(T_STRING, 'getProcessedPath'), '('
             );
 
-            new Patchwork_PHP_Parser_CloseBracket($this);
+            $this->exprLevel = -1;
+            $this->register($this->exprCallbacks);
+        }
+    }
+
+    protected function incExprLevel(&$token)
+    {
+        ++$this->exprLevel;
+    }
+
+    protected function decExprLevel(&$token)
+    {
+        switch ($token[0])
+        {
+        case ',': if ($this->exprLevel) break;
+
+        case ')':
+        case '}':
+        case ']':
+        case ':': if ($this->exprLevel--) break;
+
+        case ';':
+        case T_AS:
+        case T_CLOSE_TAG:
+            $this->unregister($this->exprCallbacks);
+            return $this->unshiftTokens(')', $token);
         }
     }
 

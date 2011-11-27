@@ -11,13 +11,16 @@
  *
  ***************************************************************************/
 
-
+/**
+ * The T parser warns when function T() is used with a concatenation inside its argument.
+ */
 class Patchwork_PHP_Parser_T extends Patchwork_PHP_Parser
 {
     protected
 
     $callbacks = array('tagT' => T_USE_FUNCTION),
     $dependencies = array(
+        'BracketBalancer',
         'NamespaceInfo' => 'nsResolved',
         'ConstantExpression' => 'expressionValue',
     );
@@ -39,10 +42,24 @@ class Patchwork_PHP_Parser_T extends Patchwork_PHP_Parser
             }
             else
             {
-                new Patchwork_PHP_Parser_Bracket_T($this);
+                $this->register(array(
+                    'tagConcat' => array(T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES, '.'),
+                    'tagTClose' => -T_BRACKET_CLOSE,
+                ));
             }
 
             --$this->index;
         }
+    }
+
+    protected function tagConcat(&$token)
+    {
+        $this->setError("Usage of T() is potentially divergent, please avoid string concatenation", E_USER_NOTICE);
+        $this->tagTClose($token);
+    }
+
+    protected function tagTClose(&$token)
+    {
+        $this->unregister(array('tagConcat' => array(T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES, '.')));
     }
 }
