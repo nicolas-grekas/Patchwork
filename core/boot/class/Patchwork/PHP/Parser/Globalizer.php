@@ -60,7 +60,6 @@ class Patchwork_PHP_Parser_Globalizer extends Patchwork_PHP_Parser
         if ($this->scope->autoglobals) switch ($this->scope->type)
         {
         case T_OPEN_TAG: case T_FUNCTION: case T_NAMESPACE:
-            $this->unregister(array('tagScopeClose' => -T_BRACKET_CLOSE));
             $this->scope->token[1] .= 'global ' . implode(',', array_keys($this->scope->autoglobals)) . ';';
         }
     }

@@ -43,27 +43,27 @@ class Patchwork_PHP_Parser
     protected
 
     // Declarations used by __construct()
-    $dependencyName = null,    // Fully qualified class identifier, defaults to get_class($this)
-    $dependencies   = array(   // (dependencyName => shared properties) map before instanciation
-                            ), // (dependencyName => dependency object) map after
-    $callbacks      = array(), // Callbacks to register
+    $serviceName = null,      // Fully qualified class identifier, defaults to get_class($this)
+    $dependencies = array(    // (serviceName => shared properties) map before instanciation
+                          ),  // (serviceName => service provider object) map after
+    $callbacks = array(),     // Callbacks to register
 
     // Parse time state
-    $index    = 0,             // Index of the next token to be parsed
-    $tokens   = array(),       // To be parsed tokens, as returned by token_get_all()
-    $types    = array(),       // Types of already parsed tokens, excluding non-semantic tokens
-    $texts    = array(),       // Texts of already parsed tokens, including non-semantic tokens
-    $line     = 0,             // Line number of the current token
-    $inString = 0,             // Odd/even when outside/inside string interpolation context
-    $lastType,                 // The last token type in $this->types
-    $penuType,                 // The penultimate token type in $this->types
-    $tokenRegistry = array();  // (token type => callbacks) map
+    $index = 0,               // Index of the next token to be parsed
+    $tokens = array(),        // To be parsed tokens, as returned by token_get_all()
+    $types = array(),         // Types of already parsed tokens, excluding non-semantic tokens
+    $texts = array(),         // Texts of already parsed tokens, including non-semantic tokens
+    $line = 0,                // Line number of the current token
+    $inString = 0,            // Odd/even when outside/inside string interpolation context
+    $lastType,                // The last token type in $this->types
+    $penuType,                // The penultimate token type in $this->types
+    $tokenRegistry = array(); // (token type => callbacks) map
 
 
     private
 
     $parents = array(),
-    $errors  = array(),
+    $errors = array(),
     $nextRegistryIndex = 0,
 
     $parent,
@@ -83,7 +83,7 @@ class Patchwork_PHP_Parser
     {
         $parent || $parent = __CLASS__ === get_class($this) ? $this : new self;
 
-        $this->dependencyName || $this->dependencyName = get_class($this);
+        $this->serviceName || $this->serviceName = get_class($this);
         $this->dependencies = (array) $this->dependencies;
         $this->parent = $parent;
 
@@ -110,7 +110,7 @@ class Patchwork_PHP_Parser
         }
         else $this->nextRegistryIndex = -1 - PHP_INT_MAX;
 
-        // Verify and set $this->dependencies to the (dependencyName => dependency object) map
+        // Verify and set $this->dependencies to the (serviceName => service provider object) map
 
         foreach ($this->dependencies as $k => $v)
         {
@@ -144,7 +144,7 @@ class Patchwork_PHP_Parser
 
         // Keep track of parents chained parsers
 
-        $k = strtolower($this->dependencyName);
+        $k = strtolower($this->serviceName);
         $this->parents[$k] = $this;
 
         // Keep parsers chaining order for callbacks ordering
