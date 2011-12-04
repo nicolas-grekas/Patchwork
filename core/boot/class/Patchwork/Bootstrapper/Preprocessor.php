@@ -47,6 +47,7 @@ class Patchwork_Bootstrapper_Preprocessor
 
         new Patchwork_PHP_Parser_FunctionOverriding($p, $this->newOverrides);
         new Patchwork_PHP_Parser_NamespaceResolver($p);
+        PHP_VERSION_ID < 50300 && new Patchwork_PHP_Parser_NamespaceRemover($p);
         $p = $this->parser = new Patchwork_PHP_Parser_StaticState($p);
 
         $code = $p->getRunonceCode($code);

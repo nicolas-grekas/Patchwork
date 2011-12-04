@@ -267,7 +267,7 @@ class Patchwork_Bootstrapper_Manager
             // Before PHP 5.3, backport spl_autoload_register()'s $prepend argument
             // and workaround http://bugs.php.net/44144
 
-            $this->substeps[] = array(null, $this->pwd . 'compat/class/Patchwork/PHP/Override/SplAutoload.php');
+            $this->substeps[] = array(null, dirname($this->pwd) . '/compat/class/Patchwork/PHP/Override/SplAutoload.php');
             $this->substeps[] = array(
                 $this->functionOverride('__autoload',              ':SplAutoload::spl_autoload_call', array('$class')) .
                 $this->functionOverride('spl_autoload_call',       ':SplAutoload:', array('$class')) .
