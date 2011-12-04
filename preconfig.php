@@ -451,7 +451,7 @@ function patchwork_shutdown_end()
     }
     else
     {
-        call_user_func(array(array_shift($GLOBALS['_patchwork_destruct']), '__destructStatic'));
+        call_user_func(array(array_shift($GLOBALS['_patchwork_destruct']), '__free'));
         register_shutdown_function(__FUNCTION__);
     }
 }
@@ -744,3 +744,20 @@ if (!preg_match('//u', urldecode($a = $_SERVER['REQUEST_URI'])))
 /**/}
 /**/
 /**/@ini_set('display_errors', $b);
+
+
+// Ease transition to patchwork-next
+
+class Patchwork_Utf8
+{
+    static function toASCII($s)
+    {
+        return patchwork::toASCII($s);
+    }
+}
+
+class Patchwork_Superloader
+{
+    static function class2file($class) {return patchwork_class2file($class);}
+    static function file2class($file) {return patchwork_file2class($file);}
+}

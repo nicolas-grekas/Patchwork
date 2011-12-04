@@ -27,7 +27,7 @@ class pTask_periodic extends pTask
     $runLimit = -1;
 
 
-    static function __constructStatic()
+    static function __init()
     {
         self::$days   = array(self::$days,   array_keys(self::$days  ));
         self::$months = array(self::$months, array_keys(self::$months));

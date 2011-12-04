@@ -62,7 +62,7 @@ class adapter_DB
         $db->disconnect();
     }
 
-    static function __destructStatic()
+    static function __free()
     {
         foreach (self::$db as $db) self::disconnect($db);
 

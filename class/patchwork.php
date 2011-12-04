@@ -140,7 +140,7 @@ class patchwork
     );
 
 
-    static function __constructStatic()
+    static function __init()
     {
         ini_set('error_log', PATCHWORK_PROJECT_PATH . 'error.patchwork.log');
         ini_set('log_errors', true);

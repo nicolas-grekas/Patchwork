@@ -54,7 +54,7 @@ class patchwork_preprocessor__0
     );
 
 
-    static function __constructStatic()
+    static function __init()
     {
         self::$alias =& $GLOBALS['patchwork_preprocessor_alias'];
         null === self::$alias && self::$alias = unserialize(file_get_contents(PATCHWORK_PROJECT_PATH . ".patchwork.alias.ser"));

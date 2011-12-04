@@ -202,7 +202,7 @@ class patchwork_static extends patchwork
         p::disable();
 
         class_exists('SESSION'   , false) && SESSION::close();
-        class_exists('adapter_DB', false) && adapter_DB::__destructStatic();
+        class_exists('adapter_DB', false) && adapter_DB::__free();
 
 
         $gzip   || ob_start();

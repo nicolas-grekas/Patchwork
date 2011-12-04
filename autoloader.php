@@ -186,13 +186,13 @@ class __patchwork_autoloader
                 }
 
                 $a = "{$ns}{$parent}::c\x9D";
-                if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__constructStatic'))
+                if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__init'))
                 {
-                    $code .= "{$parent}::__constructStatic();";
+                    $code .= "{$parent}::__init();";
                 }
 
                 $a = "{$ns}{$parent}::d\x9D";
-                if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__destructStatic'))
+                if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__free'))
                 {
                     $code .= "\$GLOBALS['_patchwork_destruct'][]='{$lc_ns}{$parent}';";
                 }

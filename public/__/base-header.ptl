@@ -1,0 +1,47 @@
+{***** vi: set encoding=utf-8 expandtab shiftwidth=4: **********************
+ *
+ *   Copyright : (C) 2011 Nicolas Grekas. All rights reserved.
+ *   Email     : p@tchwork.org
+ *   License   : http://www.gnu.org/licenses/agpl.txt GNU/AGPL
+ *
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU Affero General Public License as
+ *   published by the Free Software Foundation, either version 3 of the
+ *   License, or (at your option) any later version.
+ *
+ ***************************************************************************}
+<!-- IF !g+1$headerNesting -->
+<!-- SERVERSIDE -->
+<!-- SET $_lang --><!-- IF g$__LANG__ --> lang="{g$__LANG__}"<!-- END:IF --><!-- END:SET -->
+<!DOCTYPE html>
+<!--[if lt IE 7]><html{$_lang} class="no-js ie6"><![endif]-->
+<!--[if IE 7]><html{$_lang} class="no-js ie7"><![endif]-->
+<!--[if IE 8]><html{$_lang} class="no-js ie8"><![endif]-->
+<!--[if gt IE 8]><html{$_lang} class="no-js ie9"><![endif]-->
+<!--[if !IE]><!--><html{$_lang} class="no-js"><!--<![endif]-->
+<head>
+    <script src="{base:'js/w'}"></script>
+<!-- END:SERVERSIDE -->
+
+    <title>{a$title|replace:'<[^>]*':''|replace:'>':''}</title>
+
+    <meta name="generator" content="Patchwork">
+
+    <link rel="stylesheet" type="text/css" href="{a$css|default:'css/style'|base}">
+
+    <!--
+
+    LOOP g$__LANG_ALT__
+        IF $lang != g$__LANG__
+            --><link rel="alternate" type="text/html" href="{$href}" title="{$title}" hreflang="{$lang}" lang="{$lang}"><!--
+        END:IF
+    END:LOOP
+
+    -->
+
+    {a$head}
+<!-- SERVERSIDE -->
+</head>
+<!-- END:SERVERSIDE -->
+<body<!-- IF a$class --> class="{a$class}"<!-- END:IF -->>{a$body}
+<!-- END:IF -->
