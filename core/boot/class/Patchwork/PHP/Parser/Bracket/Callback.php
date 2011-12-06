@@ -24,7 +24,8 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
     $lead = 'patchwork_override_resolve(',
     $tail = ')',
     $nextTail = '',
-    $overrides = array();
+    $overrides = array(),
+    $dependencies = array('ClassInfo' => 'class');
 
 
     function __construct(Patchwork_PHP_Parser $parent, $callbackIndex, $overrides = array())
@@ -67,7 +68,7 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
 
                 if (isset($this->overrides[$a]))
                 {
-                    $a = substr($this->overrides[$a], 1);
+                    $a = $this->overrides[$a];
                     $a = explode('::', $a, 2);
 
                     if (1 === count($a)) $t[1] = "'{$a[0]}'";

@@ -73,8 +73,11 @@ class Patchwork_Bootstrapper_Inheritance
         // Get config's source and clean it
 
         $source = file_get_contents($config);
+        $i = error_reporting(81);
+        $source = token_get_all($source);
+        error_reporting($i);
 
-        if ($source = token_get_all($source))
+        if ($source)
         {
             $i = T_INLINE_HTML === $source[0][0] ? 2 : 1;
             $len = count($source);
