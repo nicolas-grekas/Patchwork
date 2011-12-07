@@ -24,7 +24,10 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
         'tagVariableVar' => '(',
         'tagUseFunction' => T_USE_FUNCTION,
     ),
-    $dependencies = array('ClassInfo' => array('class', 'namespace', 'nsResolved')),
+    $dependencies = array(
+        'ConstantInliner' => 'scope',
+        'ClassInfo' => array('class', 'namespace', 'nsResolved'),
+    ),
 
     $varVarLead = '${patchwork_override_resolve_ref(',
     $varVarTail = ",\$\x9D)}";
@@ -136,8 +139,8 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
     static function loadOverrides($overrides)
     {
         foreach ($overrides as $k => $v)
-            if (function_exists($v[0] ? '__patchwork_' . $k : $k))
-                self::$staticOverrides[strtolower($k)] = 0 === strcasecmp($k, substr($v, 1)) ? $v[0] . '__patchwork_' . substr($v, 1) : $v;
+            if (function_exists('__patchwork_' . $k))
+                self::$staticOverrides[strtolower($k)] = 0 === strcasecmp($k, $v) ? '__patchwork_' . $v : $v;
 
         return self::$staticOverrides;
     }
@@ -211,7 +214,7 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
 
         if ('\\' !== $this->nsResolved[0])
         {
-            $e = isset($this->overrides[$a]) || isset(self::$autoloader[$a]);
+            $e = isset($this->overrides[$a]) || isset(self::$autoloader[$a]) || 0 === strcasecmp('function_exists', $a);
             $e || $a = substr(strtolower($this->namespace) . $a, 1);
             $e = $e || isset($this->overrides[$a]) || isset(self::$autoloader[$a]);
             $e && $this->setError("Unresolved namespaced function call ({$this->nsResolved}), skipping overriding", E_USER_WARNING);
@@ -230,10 +233,12 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
         }
         else if (isset($this->overrides[$a]))
         {
-            $a = substr($this->overrides[$a], 1);
-            $a = explode('::', $a, 2);
+            $a = explode('::', $this->overrides[$a], 2);
 
-            if (1 === count($a)) {}
+            if (1 === count($a))
+            {
+                if (!$this->class && 0 === strcasecmp($a[0], $this->scope->funcC)) return;
+            }
             else if (empty($this->class->nsName) || strcasecmp(strtr($a[0], '\\', '_'), strtr($this->class->nsName, '\\', '_')))
             {
                 $this->unshiftTokens(
@@ -249,9 +254,9 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
 
             return false;
         }
-        else if (isset(self::$autoloader[$a]))
+        else if (isset(self::$autoloader[$a]) || (!$this->class && 0 === strcasecmp('function_exists', $a) && 0 !== strcasecmp('patchwork_override_resolve', $this->scope->funcC)))
         {
-            new Patchwork_PHP_Parser_Bracket_Callback($this, self::$autoloader[$a], $this->overrides);
+            new Patchwork_PHP_Parser_Bracket_Callback($this, isset(self::$autoloader[$a]) ? self::$autoloader[$a] : 1, $this->overrides);
 
             if ('&' === $this->lastType)
             {
@@ -278,7 +283,7 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
 
         if (T_STRING !== $n[0]) return;
         $this->replacedFunction = $n[1];
-        function_exists($n[1]) && $n[1] = '__patchwork_' . $n[1];
+        $n[1] = '__patchwork_' . $n[1];
         $u[] = $n;
         $n = array(T_WHITESPACE, '');
 
@@ -347,20 +352,13 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
             $this->unregister(array('catchBrackets' => array('(', ')')));
             $this->unregister(array('catchArguments' => T_VARIABLE));
 
-            // FIXME: when overriding a user function, this will throw a can not redeclare fatal error!
-            // Some help is required from the main preprocessor to rename overridden user functions.
-            // When done, overriding will be perfect for user functions. For internal functions,
-            // the only uncatchable case would be when using an internal caller (especially objects)
-            // with an internal callback. This also means that functions with callback could be left
-            // untracked, at least when we are sure that an internal function will not be used as a callback.
-
             $this->arguments[0] = '(';
             $u = array('{', array(T_RETURN, 'return'), array(T_NS_SEPARATOR, '\\'), array(T_STRING, $this->replacementFunction));
             $u = array_merge($u, $this->arguments, array(')', ';', '}'));
             call_user_func_array(array($this, 'unshiftTokens'), $u);
             $this->arguments = array();
 
-            $this->newOverrides[$this->replacedFunction] = (int) function_exists($this->replacedFunction) . $this->replacementFunction;
+            $this->newOverrides[$this->replacedFunction] = $this->replacementFunction;
         }
     }
 }

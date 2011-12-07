@@ -377,9 +377,12 @@ class Patchwork_Bootstrapper_Manager
     {
         ':' === substr($override, 0, 1) && $override = 'Patchwork_PHP_Override_' . substr($override, 1);
         ':' === substr($override, -1) && $override .= ':' . $function;
-        $this->overrides[$function] = (int) function_exists($function) . $override;
 
-        if (function_exists($function)) $function = '__patchwork_' . $function;
+        if (function_exists($function))
+        {
+            $this->overrides[$function] = $override;
+            $function = '__patchwork_' . $function;
+        }
 
         $args = array($args, array(), array());
 

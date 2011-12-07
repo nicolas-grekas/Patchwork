@@ -12,6 +12,8 @@
  ***************************************************************************/
 
 // FIXME: handle when $callbackIndex <= 0
+// FIXME: unlike static callbacks, an overrider can not use its overriden function
+//        through a dynamic callback, because that would lead to unwanted recursion.
 
 /**
  * The Bracket_Callback parser participates in catching callbacks for at runtime function overriding.
@@ -25,7 +27,10 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
     $tail = ')',
     $nextTail = '',
     $overrides = array(),
-    $dependencies = array('ClassInfo' => 'class');
+    $dependencies = array(
+        'ConstantInliner' => 'scope',
+        'ClassInfo' => 'class',
+    );
 
 
     function __construct(Patchwork_PHP_Parser $parent, $callbackIndex, $overrides = array())
@@ -58,6 +63,8 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
     {
         $t =& $this->getNextToken($a);
 
+        // TODO: catch more cases with the ConstantExpression parser
+
         if (T_CONSTANT_ENCAPSED_STRING === $t[0])
         {
             $a = $this->getNextToken($a);
@@ -71,7 +78,10 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
                     $a = $this->overrides[$a];
                     $a = explode('::', $a, 2);
 
-                    if (1 === count($a)) $t[1] = "'{$a[0]}'";
+                    if (1 === count($a))
+                    {
+                        if ($this->class || strcasecmp($a[0], $this->scope->funcC)) $t[1] = "'{$a[0]}'";
+                    }
                     else if (empty($this->class->nsName) || strcasecmp(strtr($a[0], '\\', '_'), strtr($this->class->nsName, '\\', '_')))
                     {
                         $t = ')';
