@@ -208,7 +208,12 @@ class Patchwork_Superloader
 
     static function get_parent_class($c)
     {
-        $c = get_parent_class($c);
+        // FIXME: using Patchwork_PHP_Override_Php530::get_parent_class() should be done automatically by FunctionOverrider
+
+/**/    if (PHP_VERSION_ID < 50300)
+            $c = Patchwork_PHP_Override_Php530::get_parent_class($c);
+/**/    else
+            $c = get_parent_class($c);
 
         if ( false !== $c
           && false !== ($i = strrpos($c, '__'))
@@ -218,7 +223,13 @@ class Patchwork_Superloader
             $top = substr($c, 0, $i) . '__';
             $i = strlen($top);
 
-            do $c = get_parent_class($c);
+            do
+            {
+/**/            if (PHP_VERSION_ID < 50300)
+                    $c = Patchwork_PHP_Override_Php530::get_parent_class($c);
+/**/            else
+                    $c = get_parent_class($c);
+            }
             while (false !== $c && isset($c[$i]) && $top === rtrim($c, '0123456789'));
         }
 

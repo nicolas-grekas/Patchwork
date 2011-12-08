@@ -25,7 +25,7 @@ use Patchwork\PHP\Override as o;
         Patchwork\FunctionOverride(get_class,               o\Php530, $obj);
         Patchwork\FunctionOverride(get_declared_classes,    o\Php530);
         Patchwork\FunctionOverride(get_declared_interfaces, o\Php530);
-        Patchwork\FunctionOverride(get_parent_class,        o\Php530, $class);
+//        Patchwork\FunctionOverride(get_parent_class,        o\Php530, $class); // FIXME: this is done at superloader level, but this is bad
         Patchwork\FunctionOverride(interface_exists,        o\Php530, $class, $autoload = true);
         Patchwork\FunctionOverride(is_a,                    o\Php530, $obj, $class, $allow_string = false);
         Patchwork\FunctionOverride(is_subclass_of,          o\Php530, $obj, $class, $allow_string = true);
