@@ -2,4 +2,4 @@
 
 #patchwork ../compat
 
-/**/Patchwork_Setup::hook();
+/**/Patchwork\Setup::hook();

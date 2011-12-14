@@ -101,7 +101,7 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
 
     protected function tagNew(&$token)
     {
-        // Fix `new $foo`, when $foo = 'ns\class';
+        // Fixes `new $foo`, when $foo = 'ns\class';
         // TODO: new ${...}, new $foo[...] and new $foo->...
 
         $t =& $this->getNextToken($n);

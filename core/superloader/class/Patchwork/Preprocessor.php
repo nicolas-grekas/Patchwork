@@ -149,7 +149,7 @@ class Patchwork_Preprocessor
             case 'T':
             case 'Marker':             if (!$debug) new $t($p, self::$declaredClass); break;
             case 'ConstantInliner':    new $t($p, $source, self::$constants); break;
-            case 'NamespaceRemover':   new $t($p, 'Patchwork_PHP_Override_Class::add'); break;
+            case 'NamespaceRemover':   new $t($p, 'Patchwork_PHP_Override_Php530::add'); break;
             case 'SuperPositioner':    new $t($p, $level, $is_top ? $class : false); break;
             }
         }

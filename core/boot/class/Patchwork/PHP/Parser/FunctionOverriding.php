@@ -336,11 +336,13 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
 
     protected function catchArguments(&$token)
     {
-        if ('(' !== $this->lastType && ',' !== $this->lastType) return;
-        if (0 === $this->bracket)
+        if (0 === $this->bracket) switch ($this->lastType)
         {
-            $this->arguments[] = ',';
-            $this->arguments[] = $token;
+            case '(':
+            case ',':
+            case '&':
+                $this->arguments[] = ',';
+                $this->arguments[] = $token;
         }
     }
 

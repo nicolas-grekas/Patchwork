@@ -88,7 +88,7 @@ class Patchwork_PHP_Override_SplAutoload
 
     static function spl_autoload_unregister($c)
     {
-        if (false !== self::$canonicStack) return false;
+        if (false === self::$canonicStack) return false;
 
         if (is_string($c)) $c = strtolower($c);
         else if (is_array($c) && isset($c[0], $c[1]))

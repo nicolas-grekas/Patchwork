@@ -17,6 +17,8 @@ use Patchwork\PHP\Override as o;
 /**/{
 /**/    // Overrides to backport namespaces to PHP pre-5.3
 
+/**/    boot::$manager->pushFile('class/Patchwork/PHP/Override/Php530.php');
+
         Patchwork\FunctionOverride(class_implements,        o\Php530, $class, $autoload = true);
         Patchwork\FunctionOverride(class_parents,           o\Php530, $class, $autoload = true);
         Patchwork\FunctionOverride(class_exists,            o\Php530, $class, $autoload = true);

@@ -21,7 +21,7 @@ class tool_url
     {
         $url = Patchwork::base($url, true);
 
-        if (!preg_match("'^http(s?)://(.*?)((?::[0-9]+)?)(/.*)$'", $url, $h)) throw new Exception('Illegal URL');
+        if (!preg_match("'^http(s?)://([^:/]*)((?::[0-9]+)?)(/.*)$'", $url, $h)) throw new Exception('Illegal URL');
 
         $url  = "GET {$h[4]} HTTP/1.0\r\n";
         $url .= "Host: {$h[2]}\r\n";
