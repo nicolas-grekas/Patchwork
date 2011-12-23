@@ -40,14 +40,14 @@ class Patchwork_Bootstrapper_Preprocessor
         class_exists('Patchwork_PHP_Parser_Backport54Tokens', false) && new Patchwork_PHP_Parser_Backport54Tokens($p);
         new Patchwork_PHP_Parser_ConstFuncDisabler($p);
         new Patchwork_PHP_Parser_ConstFuncResolver($p);
+        new Patchwork_PHP_Parser_NamespaceResolver($p);
         new Patchwork_PHP_Parser_ConstantInliner($p, $file, array());
         new Patchwork_PHP_Parser_ClassInfo($p);
+        PHP_VERSION_ID < 50300 && new Patchwork_PHP_Parser_NamespaceRemover($p);
 
         $this->getOverrides(); // Load active overrides
 
         new Patchwork_PHP_Parser_FunctionOverriding($p, $this->newOverrides);
-        new Patchwork_PHP_Parser_NamespaceResolver($p);
-        PHP_VERSION_ID < 50300 && new Patchwork_PHP_Parser_NamespaceRemover($p);
         $p = $this->parser = new Patchwork_PHP_Parser_StaticState($p);
 
         $code = $p->getRunonceCode($code);

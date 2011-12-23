@@ -44,15 +44,15 @@ class Patchwork_Preprocessor
         'DestructorCatcher'  => true,
         'ConstFuncDisabler'  => true,
         'ConstFuncResolver'  => true,
+        'NamespaceResolver'  => -50300,
         'ConstantInliner'    => true,
         'ClassInfo'          => true,
+        'NamespaceRemover'   => -50300,
         'ConstantExpression' => true,
         'SuperPositioner'    => true,
         'StaticInit'         => true,
         'Constructor4to5'    => true,
         'FunctionOverriding' => true,
-        'NamespaceResolver'  => -50300,
-        'NamespaceRemover'   => -50300,
         'Globalizer'         => true,
         'T'                  => true,
         'Marker'             => true,
@@ -136,7 +136,6 @@ class Patchwork_Preprocessor
 
             switch ($c)
             {
-
             case 'Normalizer':    $p = new $t; break;
             case 'BinaryNumber':
             case 'ShortOpenEcho': $p = new $t($p); break;

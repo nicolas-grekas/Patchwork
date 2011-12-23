@@ -31,7 +31,7 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
     ),
     $dependencies = array(
         'ConstFuncResolver',
-        'ClassInfo' => array('class', 'scope', 'namespace', 'nsResolved'),
+        'ClassInfo' => array('class', 'scope', 'namespace'),
         'NamespaceResolver',
     );
 
@@ -80,14 +80,14 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
     protected function tagNsUse(&$token)
     {
         $token[1] = strtr($token[1], '\\', '_');
-        $this->nsResolved = strtr($this->nsResolved, '\\', '_');
-        '_' === substr($this->nsResolved, 0, 1) && $this->nsResolved[0] = '\\';
     }
 
     protected function tagNsName(&$token)
     {
-        if ($this->namespace && T_CLASS !== $this->scope->type && T_INTERFACE !== $this->scope->type && T_TRAIT !== $this->scope->type)
+        if ($this->namespace)
         {
+            switch ($this->scope->type) {case T_CLASS: case T_INTERFACE: case T_TRAIT: return;}
+
             if (isset($token[2][T_NAME_CLASS]))
             {
                 $this->class->nsName = strtr($this->class->nsName, '\\', '_');
