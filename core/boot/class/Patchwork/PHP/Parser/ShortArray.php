@@ -25,7 +25,7 @@ class Patchwork_PHP_Parser_ShortArray extends Patchwork_PHP_Parser
     $stack = array(),
     $callbacks = array(
         'openBracket'  => '[',
-        'closeBracket' => ']',
+        '~closeBracket' => ']',
     );
 
     protected function openBracket(&$token)

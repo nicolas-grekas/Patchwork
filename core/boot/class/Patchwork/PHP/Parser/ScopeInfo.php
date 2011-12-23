@@ -32,12 +32,12 @@ class Patchwork_PHP_Parser_ScopeInfo extends Patchwork_PHP_Parser
     $scope     = false,
     $nextScope = T_OPEN_TAG,
     $callbacks = array(
-        'tagFirstScope' => array(T_OPEN_TAG, ';', '{'),
-        'tagScopeOpen'  => T_CBRACKET,
-        'tagEndScope'   => T_ENDPHP,
-        'tagNamespace'  => T_NAMESPACE,
-        'tagFunction'   => T_FUNCTION,
-        'tagClass'      => array(T_CLASS, T_INTERFACE, T_TRAIT),
+        '~tagFirstScope' => array(T_OPEN_TAG, ';', '{'),
+        'tagScopeOpen' => T_CBRACKET,
+        'tagNamespace' => T_NAMESPACE,
+        'tagEndScope' => T_ENDPHP,
+        'tagFunction' => T_FUNCTION,
+        'tagClass' => array(T_CLASS, T_INTERFACE, T_TRAIT),
     ),
     $dependencies = array(
         'BracketBalancer',
@@ -56,7 +56,7 @@ class Patchwork_PHP_Parser_ScopeInfo extends Patchwork_PHP_Parser
         $t = $this->getNextToken();
         if (T_NAMESPACE === $t[0] || T_DECLARE === $t[0]) return;
         '{' !== $token[0] && $this->unshiftTokens(array('{', ''));
-        $this->unregister(array(__FUNCTION__ => array(T_OPEN_TAG, ';', '{')));
+        $this->unregister(array('~tagFirstScope' => array(T_OPEN_TAG, ';', '{')));
     }
 
     protected function tagEndScope(&$token)

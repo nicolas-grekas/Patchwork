@@ -21,7 +21,7 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
     $exprLevel,
     $exprCallbacks = array(
         'incExprLevel' => array('(', '{', '[', '?'),
-        'decExprLevel' => array(')', '}', ']', ':', ',', T_AS, T_CLOSE_TAG, ';'),
+        '~decExprLevel' => array(')', '}', ']', ':', ',', T_AS, T_CLOSE_TAG, ';'),
     ),
     $callbacks = array(
         'tagClassUsage'  => array(T_USE_CLASS, T_TYPE_HINT),
