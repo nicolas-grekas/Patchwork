@@ -36,3 +36,5 @@ if (Patchwork_Superloader::$turbo = !DEBUG && $CONFIG['turbo'])
             Patchwork\FunctionOverride(is_writable,   o\WinfsCase, $file);
         }
 /**/}
+
+/**/boot::$manager->pushFile('config.setup.php');
