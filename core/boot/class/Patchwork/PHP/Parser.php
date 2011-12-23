@@ -361,7 +361,7 @@ class Patchwork_PHP_Parser
                         // Callbacks triggering are always ordered:
                         // - first by parsers' instanciation order
                         // - then by callbacks' registration order
-                        // - callbacks registered with negative tokens
+                        // - callbacks registered with a tilde prefix
                         //   are then called in reverse order.
                         ksort($callbacks);
                     }
@@ -473,22 +473,15 @@ class Patchwork_PHP_Parser
                 $type = 1; // T_SEMANTIC
             }
 
+            if ('~' === $method[0])
+            {
+                $desc = -1;
+                $method = substr($method, 1);
+            }
+            else $desc = 0;
+
             foreach ((array) $type as $type)
             {
-                $desc = 0;
-
-                if (isset($type[0]))
-                {
-                    if (isset($type[1]) && '-' === $type[0])
-                    {
-                        $desc = -1 and $type = $type[1];
-                    }
-                }
-                else if ($type < 0)
-                {
-                    $desc = -1 and $type = -$type;
-                }
-
                 1 === $type && $s1 = 1; // T_SEMANTIC
                 2 === $type && $s2 = 1; // T_NON_SEMANTIC
                 $this->tokenRegistry[$type][++$this->registryIndex ^ $desc] = array($this, $method);
@@ -511,22 +504,15 @@ class Patchwork_PHP_Parser
                 $type = 1; // T_SEMANTIC
             }
 
+            if ('~' === $method[0])
+            {
+                $desc = -1;
+                $method = substr($method, 1);
+            }
+            else $desc = 0;
+
             foreach ((array) $type as $type)
             {
-                $desc = 0;
-
-                if (isset($type[0]))
-                {
-                    if (isset($type[1]) && '-' === $type[0])
-                    {
-                        $desc = -1 and $type = $type[1];
-                    }
-                }
-                else if ($type < 0)
-                {
-                    $desc = -1 and $type = -$type;
-                }
-
                 if (isset($this->tokenRegistry[$type]))
                 {
                     foreach ($this->tokenRegistry[$type] as $k => $v)

@@ -41,14 +41,14 @@ class Patchwork_PHP_Parser_BracketBalancer extends Patchwork_PHP_Parser
 
         if (isset($this->tokenRegistry[$t]) || isset($this->tokenRegistry[T_BRACKET_CLOSE]))
         {
-            $this->register(array('tagAfterOpen' => -$t));
+            $this->register(array('~tagAfterOpen' => $t));
             return $t;
         }
     }
 
     protected function tagAfterOpen(&$token)
     {
-        $this->unregister(array(__FUNCTION__ => array(-T_CBRACKET,/* -T_SBRACKET, -T_RBRACKET*/)));
+        $this->unregister(array('~tagAfterOpen' => array(T_CBRACKET,/* T_SBRACKET, T_RBRACKET*/)));
         if (empty($this->tokenRegistry[T_BRACKET_CLOSE])) return;
         $token =& $this->brackets[count($this->brackets) - 1];
         $token = (array) $token;
@@ -69,7 +69,7 @@ class Patchwork_PHP_Parser_BracketBalancer extends Patchwork_PHP_Parser
         {
             // Bracket has registered on-close callbacks
             $this->tokenRegistry[T_BRACKET_CLOSE] = $last[1];
-            $this->register(array('tagAfterClose' => -T_BRACKET_CLOSE));
+            $this->register(array('~tagAfterClose' => T_BRACKET_CLOSE));
             return T_BRACKET_CLOSE;
         }
     }

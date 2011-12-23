@@ -68,7 +68,7 @@ class Patchwork_PHP_Parser_ScopeInfo extends Patchwork_PHP_Parser
     protected function tagScopeOpen(&$token)
     {
         $this->unregister(array(__FUNCTION__ => T_CBRACKET));
-        $this->register(array('tagScopeClose' => -T_BRACKET_CLOSE));
+        $this->register(array('~tagScopeClose' => T_BRACKET_CLOSE));
 
         $this->scope = (object) array(
             'parent' => $this->scope,
