@@ -35,7 +35,7 @@ class Patchwork_PHP_Parser_DestructorCatcher extends Patchwork_PHP_Parser
     {
         $this->unregister(array('tagDestructOpen' => T_SCOPE_OPEN));
         $token[1] .= 'try{';
-        $this->register(array('tagDestructClose' => -T_BRACKET_CLOSE));
+        $this->register(array('tagDestructClose' => T_BRACKET_CLOSE));
     }
 
     protected function tagDestructClose(&$token)

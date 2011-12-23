@@ -44,7 +44,7 @@ class Patchwork_PHP_Parser_T extends Patchwork_PHP_Parser
             {
                 $this->register(array(
                     'tagConcat' => array(T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES, '.'),
-                    'tagTClose' => -T_BRACKET_CLOSE,
+                    'tagTClose' => T_BRACKET_CLOSE,
                 ));
             }
 

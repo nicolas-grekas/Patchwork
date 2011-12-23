@@ -30,7 +30,7 @@ class Patchwork_PHP_Parser_ConstFuncDisabler extends Patchwork_PHP_Parser
         {
             $this->register($this->callbacks = array(
                 'tagConstFunc'  => array(T_NAME_FUNCTION, T_NAME_CONST),
-                'tagScopeClose' => -T_BRACKET_CLOSE,
+                'tagScopeClose' => T_BRACKET_CLOSE,
             ));
         }
     }

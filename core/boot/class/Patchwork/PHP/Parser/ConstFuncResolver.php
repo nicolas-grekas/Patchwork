@@ -39,7 +39,7 @@ class Patchwork_PHP_Parser_ConstFuncResolver extends Patchwork_PHP_Parser
             $this->register($this->callbacks = array(
                 'tagFunction'   => T_USE_FUNCTION,
                 'tagConstant'   => T_USE_CONSTANT,
-                'tagScopeClose' => -T_BRACKET_CLOSE,
+                'tagScopeClose' => T_BRACKET_CLOSE,
             ));
         }
     }

@@ -21,7 +21,7 @@ Patchwork_PHP_Parser::createToken('T_SCOPE_OPEN');
  * parser exposes this type alongside with a reference to its opening token and its parent scope.
  *
  * T_SCOPE_OPEN can be registered by dependend parsers and is emitted on scope opening tokens.
- * When -T_BRACKET_CLOSE is registered within a T_SCOPE_OPEN, it matches its corresponding scope closing token.
+ * When T_BRACKET_CLOSE is registered within a T_SCOPE_OPEN, it matches its corresponding scope closing token.
  *
  * ScopeInfo eventually inherits removeNsPrefix(), namespace, nsResolved, nsPrefix properties from NamespaceInfo.
  */

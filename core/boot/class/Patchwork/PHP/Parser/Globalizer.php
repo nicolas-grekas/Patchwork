@@ -44,7 +44,7 @@ class Patchwork_PHP_Parser_Globalizer extends Patchwork_PHP_Parser
     protected function tagScopeOpen(&$token)
     {
         $this->scope->autoglobals = array();
-        $this->register(array('tagScopeClose' => -T_BRACKET_CLOSE));
+        $this->register(array('tagScopeClose' => T_BRACKET_CLOSE));
     }
 
     protected function tagAutoglobals(&$token)

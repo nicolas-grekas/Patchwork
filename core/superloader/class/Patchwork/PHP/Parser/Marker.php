@@ -92,13 +92,13 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionOverridin
 
         if (T_FUNCTION === $this->scope->type)
         {
-            $this->register(array('tagFunctionClose' => -T_BRACKET_CLOSE));
+            $this->register(array('tagFunctionClose' => T_BRACKET_CLOSE));
         }
         else if (T_CLASS === $this->scope->type || T_INTERFACE === $this->scope->type || T_TRAIT === $this->scope->type)
         {
             $this->inlineClass[strtolower(strtr($this->class->nsName, '\\', '_'))] = 1;
             $this->class->extends && $this->inlineClass[strtolower(strtr($this->class->extends, '\\', '_'))] = 1;
-            $this->register(array('tagClassClose' => -T_BRACKET_CLOSE));
+            $this->register(array('tagClassClose' => T_BRACKET_CLOSE));
         }
     }
 
