@@ -2,6 +2,7 @@
 
 #patchwork __patchwork__/core/http
 #patchwork __patchwork__/core/superloader
+#patchwork __patchwork__/core/logger
 
 // Default settings
 
