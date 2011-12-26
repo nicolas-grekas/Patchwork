@@ -23,9 +23,9 @@ setlocale(LC_ALL, 'C');
 // Backport some usefull basic constants
 
 /**/if (!defined('E_DEPRECATED'))
-        define('E_DEPRECATED', E_WARNING);
+        define('E_DEPRECATED', E_NOTICE);
 /**/if (!defined('E_USER_DEPRECATED'))
-        define('E_USER_DEPRECATED', E_USER_WARNING);
+        define('E_USER_DEPRECATED', E_USER_NOTICE);
 
 /**/if (function_exists('spl_autoload')) // spl_autoload() evades code preprocessing, do not use it
         Patchwork\FunctionOverride(spl_autoload, Patchwork\PHP\Override\SplAutoload, $class);

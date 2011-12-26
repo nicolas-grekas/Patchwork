@@ -20,7 +20,6 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
 {
     protected
 
-    $namespaceBackup,
     $aliasAdd   = false,
     $callbacks  = array(
         'tagNs'     => T_NAMESPACE,
@@ -57,8 +56,6 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
         case '{': $this->register(array('tagNsClose' => T_BRACKET_CLOSE));
         case ';':
         case $this->lastType:
-            $this->namespaceBackup = $this->namespace;
-            $this->namespace = strtr($this->namespace, '\\', '_');
             $this->unregister(__FUNCTION__);
             if ($this->lastType === $token[0]) return;
         }
@@ -91,11 +88,11 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
             if (isset($token[2][T_NAME_CLASS]))
             {
                 $this->class->nsName = strtr($this->class->nsName, '\\', '_');
-                $this->aliasAdd && $this->scope->token[1] .= "{$this->aliasAdd}('{$this->namespaceBackup}{$this->class->name}');";
-                $this->class->name   = $this->class->nsName;
+                $this->aliasAdd && $this->scope->token[1] .= "{$this->aliasAdd}('{$this->namespace}{$this->class->name}');";
+                $this->class->name = $this->class->nsName;
             }
 
-            $this->texts[count($this->texts) - 1] .= $this->namespace;
+            $this->texts[count($this->texts) - 1] .= strtr($this->namespace, '\\', '_');
         }
     }
 

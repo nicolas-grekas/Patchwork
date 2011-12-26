@@ -58,6 +58,8 @@ class Patchwork_PHP_Parser_ConstFuncResolver extends Patchwork_PHP_Parser
     {
         $this->unshiftTokens(array(T_NS_SEPARATOR, '\\'), $token);
 
+        // FIXME: Current $exists() doesn't work with PHP 5.2 for namespaced functions and constants
+
         if (  !$exists($token[1])
             || $exists($this->namespace . $token[1])
             || self::nsLoad(substr($this->namespace, 0, -1))

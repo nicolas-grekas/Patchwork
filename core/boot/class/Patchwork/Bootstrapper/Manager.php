@@ -253,7 +253,7 @@ class Patchwork_Bootstrapper_Manager
 
         $a = 'spl_autoload_unregister';
         function_exists('__patchwork_' . $a) && $a = '__patchwork_' . $a;
-        function_exists($a) && spl_autoload_unregister(array($this, 'autoload'));
+        function_exists($a) && $a(array($this, 'autoload'));
 
         @set_time_limit(ini_get('max_execution_time'));
     }
