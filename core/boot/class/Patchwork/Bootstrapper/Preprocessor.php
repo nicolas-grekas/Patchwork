@@ -25,24 +25,21 @@ class Patchwork_Bootstrapper_Preprocessor
     {
         if ('' === $code) return '';
 
-        if (!isset($this->parser))
-        {
-            defined('T_NS_SEPARATOR') || class_exists('Patchwork_PHP_Parser_Backport53Tokens', true);
-            defined('T_TRAIT') || class_exists('Patchwork_PHP_Parser_Backport54Tokens', true);
-        }
-
         $p = new Patchwork_PHP_Parser_Normalizer;
+
+        PHP_VERSION_ID < 50400 && new Patchwork_PHP_Parser_Backport54Tokens($p);
+        PHP_VERSION_ID < 50300 && new Patchwork_PHP_Parser_Backport53Tokens($p);
+
         new Patchwork_PHP_Parser_BracketBalancer($p);
         new Patchwork_PHP_Parser_StringInfo($p);
         new Patchwork_PHP_Parser_NamespaceInfo($p);
         new Patchwork_PHP_Parser_ScopeInfo($p);
-        class_exists('Patchwork_PHP_Parser_Backport53Tokens', false) && new Patchwork_PHP_Parser_Backport53Tokens($p);
-        class_exists('Patchwork_PHP_Parser_Backport54Tokens', false) && new Patchwork_PHP_Parser_Backport54Tokens($p);
         new Patchwork_PHP_Parser_ConstFuncDisabler($p);
         new Patchwork_PHP_Parser_ConstFuncResolver($p);
         new Patchwork_PHP_Parser_NamespaceResolver($p);
         new Patchwork_PHP_Parser_ConstantInliner($p, $file, array());
         new Patchwork_PHP_Parser_ClassInfo($p);
+
         PHP_VERSION_ID < 50300 && new Patchwork_PHP_Parser_NamespaceRemover($p);
 
         $this->getOverrides(); // Load active overrides

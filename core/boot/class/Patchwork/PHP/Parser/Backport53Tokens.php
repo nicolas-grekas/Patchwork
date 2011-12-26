@@ -21,17 +21,17 @@ defined('T_NAMESPACE') || Patchwork_PHP_Parser::createToken('T_NAMESPACE');
  */
 class Patchwork_PHP_Parser_Backport53Tokens extends Patchwork_PHP_Parser
 {
-    protected $dependencies = 'StringInfo';
+    protected $dependencies = array('Backport54Tokens' => 'backports');
 
     function __construct(parent $parent)
     {
         parent::__construct($parent);
 
-        $this->dependencies['StringInfo']->addReservedTokens(array(
+        $this->backports += array(
             'goto' => T_GOTO,
             '__dir__' => T_DIR,
             'namespace' => T_NAMESPACE,
             '__namespace__' => T_NS_C,
-        ));
+        );
     }
 }
