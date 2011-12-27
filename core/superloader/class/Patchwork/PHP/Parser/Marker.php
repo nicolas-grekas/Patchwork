@@ -66,7 +66,7 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionOverridin
                 for (;;) switch (prev($t))
                 {
                 default: break 2;
-                case T_STRING: case T_NS_SEPARATOR:
+                case T_STRING: case T_NS_SEPARATOR: case T_NAMESPACE:
                     continue 2;
                 }
 
