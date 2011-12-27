@@ -63,7 +63,7 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
     {
         $t =& $this->getNextToken($a);
 
-        // TODO: catch more cases with the ConstantExpression parser
+        // TODO: optimize more cases with the ConstantExpression parser
 
         if (T_CONSTANT_ENCAPSED_STRING === $t[0])
         {
@@ -106,17 +106,21 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
             $t =& $this->tokens;
             $b = 0;
 
-            // TODO: replace 'self' by __CLASS__
-
-            while (isset($t[$a])) switch ($t[$a++][0])
+            if (PHP_VERSION_ID >= 50300)
             {
-            case '(': ++$b; break;
-            case ')':
-                if (0 >= --$b)
+                // TODO: replace 'self' by __CLASS__ and in PHP 5.2, optimize
+                // __CLASS__ and A\B by underscore resolved version, check for $this.
+
+                while (isset($t[$a])) switch ($t[$a++][0])
                 {
-                    $c = $this->getNextToken($a);
-                    if (0 > $b || ',' === $c[0] || ')' === $c[0]) return;
-                    break;
+                case '(': ++$b; break;
+                case ')':
+                    if (0 >= --$b)
+                    {
+                        $c = $this->getNextToken($a);
+                        if (0 > $b || ',' === $c[0] || ')' === $c[0]) return;
+                        break;
+                    }
                 }
             }
         }

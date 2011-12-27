@@ -183,7 +183,7 @@ class Patchwork_Autoloader extends Patchwork_Superloader
             }
             else $parent = $lc_req;
 
-            if ($isTop)
+            if ($isTop && class_exists($ns . $parent, false))
             {
                 $a = "{$ns}{$parent}::i\x9D";
                 if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__init'))
