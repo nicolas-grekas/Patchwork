@@ -19,21 +19,6 @@ use Patchwork\Exception as e;
         error_reporting(/*<*/error_reporting() & ~E_DEPRECATED & ~E_USER_DEPRECATED/*>*/);
 /**/}
 
-// Debug trace
-function E()
-{
-    $a = func_get_args();
-    foreach ($a as $a) p::log('server-dump', $a);
-}
-
-// Database sugar
-function DB($dsn = null)
-{
-    static $db = array();
-    empty($db[$dsn]) && $db[$dsn] = adapter_DB::connect(null === $dsn ? $GLOBALS['CONFIG']['DSN'] : $dsn);
-    return $db[$dsn];
-}
-
 // Javascript-encode for scalars
 function jsquote($a)
 {

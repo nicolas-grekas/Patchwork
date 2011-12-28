@@ -331,10 +331,10 @@ class Patchwork_Autoloader extends Patchwork_Superloader
                 ? touch($a, filemtime($to)    )
                 : touch($a, filemtime($to) + 1); // +1 to notify the change to opcode caches
 
-            if (win_hide_file($a))
+            if ('\\' === DIRECTORY_SEPARATOR)
             {
-                file_exists($to) && @unlink($to);
-                @rename($a, $to) || unlink($a);
+                file_exists($to) && unlink($to);
+                rename($a, $to) || unlink($a);
             }
             else rename($a, $to);
 
