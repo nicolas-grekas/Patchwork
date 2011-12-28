@@ -39,7 +39,7 @@ class Patchwork_PHP_Parser_ConstFuncResolver extends Patchwork_PHP_Parser
             $this->register($this->callbacks = array(
                 'tagFunction'   => T_USE_FUNCTION,
                 'tagConstant'   => T_USE_CONSTANT,
-                'tagScopeClose' => T_SCOPE_CLOSE,
+                'tagScopeClose' => T_BRACKET_CLOSE,
             ));
         }
     }
@@ -57,6 +57,8 @@ class Patchwork_PHP_Parser_ConstFuncResolver extends Patchwork_PHP_Parser
     protected function resolveConstFunc(&$token, $exists)
     {
         $this->unshiftTokens(array(T_NS_SEPARATOR, '\\'), $token);
+
+        // FIXME: Current $exists() doesn't work with PHP 5.2 for namespaced functions and constants
 
         if (  !$exists($token[1])
             || $exists($this->namespace . $token[1])

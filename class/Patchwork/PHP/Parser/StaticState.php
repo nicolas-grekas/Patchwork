@@ -158,11 +158,10 @@ class Patchwork_PHP_Parser_StaticState extends Patchwork_PHP_Parser
 
         if (array($s, $token[0]) !== $last = array_pop($this->bracket))
         {
+            if (empty($last) || $token[0] !== $last[1]) $this->transition = array();
+            $this->unregister('tagTransition');
             $this->unregister($this->callbacks);
-
-            $last = $last && $s === $last[0] ? ", expecting `{$last[1]}'" : '';
-
-            $this->setError("Syntax error, unexpected `{$token[0]}'{$last}", E_USER_WARNING);
+            foreach ($this->stateCallbacks as $s) $this->unregister($s);
         }
     }
 

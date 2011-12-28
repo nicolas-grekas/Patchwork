@@ -20,7 +20,6 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
 {
     protected
 
-    $namespaceBackup,
     $aliasAdd   = false,
     $callbacks  = array(
         'tagNs'     => T_NAMESPACE,
@@ -31,7 +30,7 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
     ),
     $dependencies = array(
         'ConstFuncResolver',
-        'ClassInfo' => array('class', 'scope', 'namespace', 'nsResolved'),
+        'ClassInfo' => array('class', 'scope', 'namespace'),
         'NamespaceResolver',
     );
 
@@ -54,11 +53,9 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
     {
         switch ($token[0])
         {
-        case '{': $this->register(array('tagNsClose' => T_SCOPE_CLOSE));
+        case '{': $this->register(array('tagNsClose' => T_BRACKET_CLOSE));
         case ';':
         case $this->lastType:
-            $this->namespaceBackup = $this->namespace;
-            $this->namespace = strtr($this->namespace, '\\', '_');
             $this->unregister(__FUNCTION__);
             if ($this->lastType === $token[0]) return;
         }
@@ -80,28 +77,28 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
     protected function tagNsUse(&$token)
     {
         $token[1] = strtr($token[1], '\\', '_');
-        $this->nsResolved = strtr($this->nsResolved, '\\', '_');
-        '_' === substr($this->nsResolved, 0, 1) && $this->nsResolved[0] = '\\';
     }
 
     protected function tagNsName(&$token)
     {
-        if ($this->namespace && T_CLASS !== $this->scope->type && T_INTERFACE !== $this->scope->type && T_TRAIT !== $this->scope->type)
+        if ($this->namespace)
         {
+            switch ($this->scope->type) {case T_CLASS: case T_INTERFACE: case T_TRAIT: return;}
+
             if (isset($token[2][T_NAME_CLASS]))
             {
                 $this->class->nsName = strtr($this->class->nsName, '\\', '_');
-                $this->aliasAdd && $this->scope->token[1] .= "{$this->aliasAdd}('{$this->namespaceBackup}{$this->class->name}');";
-                $this->class->name   = $this->class->nsName;
+                $this->aliasAdd && $this->scope->token[1] .= "{$this->aliasAdd}('{$this->namespace}{$this->class->name}');";
+                $this->class->name = $this->class->nsName;
             }
 
-            $this->texts[count($this->texts) - 1] .= $this->namespace;
+            $this->texts[count($this->texts) - 1] .= strtr($this->namespace, '\\', '_');
         }
     }
 
     protected function tagNew(&$token)
     {
-        // Fix `new $foo`, when $foo = 'ns\class';
+        // Fixes `new $foo`, when $foo = 'ns\class';
         // TODO: new ${...}, new $foo[...] and new $foo->...
 
         $t =& $this->getNextToken($n);

@@ -12,6 +12,8 @@
  ***************************************************************************/
 
 // FIXME: handle when $callbackIndex <= 0
+// FIXME: unlike static callbacks, an overrider can not use its overriden function
+//        through a dynamic callback, because that would lead to unwanted recursion.
 
 /**
  * The Bracket_Callback parser participates in catching callbacks for at runtime function overriding.
@@ -24,7 +26,11 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
     $lead = 'patchwork_override_resolve(',
     $tail = ')',
     $nextTail = '',
-    $overrides = array();
+    $overrides = array(),
+    $dependencies = array(
+        'ConstantInliner' => 'scope',
+        'ClassInfo' => 'class',
+    );
 
 
     function __construct(Patchwork_PHP_Parser $parent, $callbackIndex, $overrides = array())
@@ -57,6 +63,8 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
     {
         $t =& $this->getNextToken($a);
 
+        // TODO: optimize more cases with the ConstantExpression parser
+
         if (T_CONSTANT_ENCAPSED_STRING === $t[0])
         {
             $a = $this->getNextToken($a);
@@ -67,10 +75,13 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
 
                 if (isset($this->overrides[$a]))
                 {
-                    $a = substr($this->overrides[$a], 1);
+                    $a = $this->overrides[$a];
                     $a = explode('::', $a, 2);
 
-                    if (1 === count($a)) $t[1] = "'{$a[0]}'";
+                    if (1 === count($a))
+                    {
+                        if ($this->class || strcasecmp($a[0], $this->scope->funcC)) $t[1] = "'{$a[0]}'";
+                    }
                     else if (empty($this->class->nsName) || strcasecmp(strtr($a[0], '\\', '_'), strtr($this->class->nsName, '\\', '_')))
                     {
                         $t = ')';
@@ -95,17 +106,21 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
             $t =& $this->tokens;
             $b = 0;
 
-            // TODO: replace 'self' by __CLASS__
-
-            while (isset($t[$a])) switch ($t[$a++][0])
+            if (PHP_VERSION_ID >= 50300)
             {
-            case '(': ++$b; break;
-            case ')':
-                if (0 >= --$b)
+                // TODO: replace 'self' by __CLASS__ and in PHP 5.2, optimize
+                // __CLASS__ and A\B by underscore resolved version, check for $this.
+
+                while (isset($t[$a])) switch ($t[$a++][0])
                 {
-                    $c = $this->getNextToken($a);
-                    if (0 > $b || ',' === $c[0] || ')' === $c[0]) return;
-                    break;
+                case '(': ++$b; break;
+                case ')':
+                    if (0 >= --$b)
+                    {
+                        $c = $this->getNextToken($a);
+                        if (0 > $b || ',' === $c[0] || ')' === $c[0]) return;
+                        break;
+                    }
                 }
             }
         }

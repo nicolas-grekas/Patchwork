@@ -11,8 +11,6 @@
  *
  ***************************************************************************/
 
-Patchwork_PHP_Parser::createToken('T_DUMPER_START');
-
 /**
  * The Dumper parser helps understanding how parsers work by displaying tokens as they come up.
  */
@@ -28,7 +26,11 @@ class Patchwork_PHP_Parser_Dumper extends Patchwork_PHP_Parser
 
     $token,
     $nextIndex = 0,
-    $callbacks = 'startDumper';
+    $callbacks = array(
+        'startDumper',
+        'dumpTokenStart',
+        '~dumpTokenEnd',
+    );
 
 
     function startDumper($t)
@@ -42,15 +44,6 @@ class Patchwork_PHP_Parser_Dumper extends Patchwork_PHP_Parser
         echo str_repeat('=', mb_strlen($p, $this->encoding)), "\n";
 
         $this->unregister(__FUNCTION__);
-        $this->register('dumpTokenStart');
-        $this->dumpTokenStart($t);
-
-        $p = new self($this);
-        $p->unregister(__FUNCTION__);
-        $p->register(array('dumpTokenEnd', 'dumpTokenEnd' => T_DUMPER_START));
-        $p->token =& $this->token;
-
-        return T_DUMPER_START;
     }
 
     function dumpTokenStart($t)

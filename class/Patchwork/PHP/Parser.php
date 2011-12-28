@@ -11,8 +11,8 @@
  *
  ***************************************************************************/
 
-define('T_SEMANTIC',     0); // Primary type for semantic tokens
-define('T_NON_SEMANTIC', 1); // Primary type for non-semantic tokens (whitespace and comment)
+define('T_SEMANTIC',     1); // Primary type for semantic tokens
+define('T_NON_SEMANTIC', 2); // Primary type for non-semantic tokens (whitespace and comment)
 
 Patchwork_PHP_Parser::createToken(
     'T_CURLY_CLOSE', // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
@@ -43,27 +43,27 @@ class Patchwork_PHP_Parser
     protected
 
     // Declarations used by __construct()
-    $dependencyName = null,    // Fully qualified class identifier, defaults to get_class($this)
-    $dependencies   = array(   // (dependencyName => shared properties) map before instanciation
-                            ), // (dependencyName => dependency object) map after
-    $callbacks      = array(), // Callbacks to register
+    $serviceName = null,      // Fully qualified class identifier, defaults to get_class($this)
+    $dependencies = array(    // (serviceName => shared properties) map before instanciation
+                          ),  // (serviceName => service provider object) map after
+    $callbacks = array(),     // Callbacks to register
 
     // Parse time state
-    $index    = 0,             // Index of the next token to be parsed
-    $tokens   = array(),       // To be parsed tokens, as returned by token_get_all()
-    $types    = array(),       // Types of already parsed tokens, excluding non-semantic tokens
-    $texts    = array(),       // Texts of already parsed tokens, including non-semantic tokens
-    $line     = 0,             // Line number of the current token
-    $inString = 0,             // Odd/even when outside/inside string interpolation context
-    $lastType,                 // The last token type in $this->types
-    $penuType,                 // The penultimate token type in $this->types
-    $tokenRegistry = array();  // (token type => callbacks) map
+    $index = 0,               // Index of the next token to be parsed
+    $tokens = array(),        // To be parsed tokens, as returned by token_get_all()
+    $types = array(),         // Types of already parsed tokens, excluding non-semantic tokens
+    $texts = array(),         // Texts of already parsed tokens, including non-semantic tokens
+    $line = 0,                // Line number of the current token
+    $inString = 0,            // Odd/even when outside/inside string interpolation context
+    $lastType,                // The last token type in $this->types
+    $penuType,                // The penultimate token type in $this->types
+    $tokenRegistry = array(); // (token type => callbacks) map
 
 
     private
 
     $parents = array(),
-    $errors  = array(),
+    $errors = array(),
     $nextRegistryIndex = 0,
 
     $parent,
@@ -71,9 +71,11 @@ class Patchwork_PHP_Parser
     $haltCompilerTail = 4;
 
 
-    private static $tokenNames = array(
-        0 => 'T_SEMANTIC',
-        1 => 'T_NON_SEMANTIC',
+    private static
+
+    $tokenNames = array(
+        1 => 'T_SEMANTIC',
+        2 => 'T_NON_SEMANTIC',
     );
 
 
@@ -81,7 +83,7 @@ class Patchwork_PHP_Parser
     {
         $parent || $parent = __CLASS__ === get_class($this) ? $this : new self;
 
-        $this->dependencyName || $this->dependencyName = get_class($this);
+        $this->serviceName || $this->serviceName = get_class($this);
         $this->dependencies = (array) $this->dependencies;
         $this->parent = $parent;
 
@@ -108,7 +110,7 @@ class Patchwork_PHP_Parser
         }
         else $this->nextRegistryIndex = -1 - PHP_INT_MAX;
 
-        // Verify and set $this->dependencies to the (dependencyName => dependency object) map
+        // Verify and set $this->dependencies to the (serviceName => service provider object) map
 
         foreach ($this->dependencies as $k => $v)
         {
@@ -142,7 +144,7 @@ class Patchwork_PHP_Parser
 
         // Keep track of parents chained parsers
 
-        $k = strtolower($this->dependencyName);
+        $k = strtolower($this->serviceName);
         $this->parents[$k] = $this;
 
         // Keep parsers chaining order for callbacks ordering
@@ -192,7 +194,7 @@ class Patchwork_PHP_Parser
 
         // For binary safeness, check for unexpected characters (see http://bugs.php.net/54089)
 
-        if (!$bin = T_NS_SEPARATOR < 0 && strpos($code, '\\'))
+        if (!$bin = PHP_VERSION_ID < 50300 && strpos($code, '\\'))
             for ($i = 0; $i < 32; ++$i)
                 if ($i !== 0x09 && $i !== 0x0A && $i !== 0x0D && strpos($code, chr($i)))
                     if ($bin = true) break;
@@ -290,7 +292,7 @@ class Patchwork_PHP_Parser
             //   them easy to distinguish from regular code "{" / "}" pairs,
             // - tag arrays' or objects' string indexes as T_KEY_STRING.
 
-            $priType = 0; // T_SEMANTIC
+            $priType = 1; // T_SEMANTIC
 
             if (isset($t[1]))
             {
@@ -320,7 +322,7 @@ class Patchwork_PHP_Parser
                 case T_WHITESPACE:
                 case T_COMMENT:
                 case T_DOC_COMMENT:
-                case T_BAD_CHARACTER: $priType = 1; // T_NON_SEMANTIC
+                case T_BAD_CHARACTER: $priType = 2; // T_NON_SEMANTIC
                 }
             }
             else
@@ -359,6 +361,8 @@ class Patchwork_PHP_Parser
                         // Callbacks triggering are always ordered:
                         // - first by parsers' instanciation order
                         // - then by callbacks' registration order
+                        // - callbacks registered with a tilde prefix
+                        //   are then called in reverse order.
                         ksort($callbacks);
                     }
 
@@ -394,7 +398,7 @@ class Patchwork_PHP_Parser
 
             $texts[++$j] =& $t[1];
 
-            if ($priType) // T_NON_SEMANTIC
+            if (2 === $priType) // T_NON_SEMANTIC
             {
                 $line += substr_count($t[1], "\n");
                 continue;
@@ -466,19 +470,26 @@ class Patchwork_PHP_Parser
             if (empty($method[0]))
             {
                 $method = $type;
-                $type = 0; // T_SEMANTIC
+                $type = 1; // T_SEMANTIC
             }
+
+            if ('~' === $method[0])
+            {
+                $desc = -1;
+                $method = substr($method, 1);
+            }
+            else $desc = 0;
 
             foreach ((array) $type as $type)
             {
-                0 === $type && $s0 = 1; // T_SEMANTIC
-                1 === $type && $s1 = 1; // T_NON_SEMANTIC
-                $this->tokenRegistry[$type][++$this->registryIndex] = array($this, $method);
+                1 === $type && $s1 = 1; // T_SEMANTIC
+                2 === $type && $s2 = 1; // T_NON_SEMANTIC
+                $this->tokenRegistry[$type][++$this->registryIndex ^ $desc] = array($this, $method);
             }
         }
 
-        isset($s0) && ksort($this->tokenRegistry[0]); // T_SEMANTIC
-        isset($s1) && ksort($this->tokenRegistry[1]); // T_NON_SEMANTIC
+        isset($s1) && ksort($this->tokenRegistry[1]); // T_SEMANTIC
+        isset($s2) && ksort($this->tokenRegistry[2]); // T_NON_SEMANTIC
     }
 
     // Unregister callbacks for the next tokens
@@ -490,15 +501,22 @@ class Patchwork_PHP_Parser
             if (empty($method[0]))
             {
                 $method = $type;
-                $type = 0; // T_SEMANTIC
+                $type = 1; // T_SEMANTIC
             }
+
+            if ('~' === $method[0])
+            {
+                $desc = -1;
+                $method = substr($method, 1);
+            }
+            else $desc = 0;
 
             foreach ((array) $type as $type)
             {
                 if (isset($this->tokenRegistry[$type]))
                 {
                     foreach ($this->tokenRegistry[$type] as $k => $v)
-                        if (array($this, $method) === $v)
+                        if (array($this, $method) === $v && ($desc ? $k > 0 : $k < 0))
                             unset($this->tokenRegistry[$type][$k]);
 
                     if (!$this->tokenRegistry[$type]) unset($this->tokenRegistry[$type]);
@@ -557,11 +575,11 @@ class Patchwork_PHP_Parser
 
     static function createToken($name)
     {
-        static $type = 0;
+        static $type = 10000;
         $name = func_get_args();
         foreach ($name as $name)
         {
-            define($name, --$type);
+            define($name, ++$type);
             self::$tokenNames[$type] = $name;
         }
     }
@@ -571,7 +589,8 @@ class Patchwork_PHP_Parser
     static function getTokenName($type)
     {
         if (is_string($type)) return $type;
-        return isset(self::$tokenNames[$type]) ? self::$tokenNames[$type] : token_name($type);
+        if ($type < 0) return '-' . self::$tokenNames[-$type];
+        return $type < 3 || 10000 < $type ? self::$tokenNames[$type] : token_name($type);
     }
 
 

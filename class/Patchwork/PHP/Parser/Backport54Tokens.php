@@ -21,17 +21,27 @@ defined('T_INSTEADOF') || Patchwork_PHP_Parser::createToken('T_INSTEADOF');
  */
 class Patchwork_PHP_Parser_Backport54Tokens extends Patchwork_PHP_Parser
 {
-    protected $dependencies = 'StringInfo';
+    protected $backports = array(
+        'trait' => T_TRAIT,
+        'callable' => T_CALLABLE,
+        '__trait__' => T_TRAIT_C,
+        'insteadof' => T_INSTEADOF,
+    );
 
-    function __construct(parent $parent)
+    protected function getTokens($code)
     {
-        parent::__construct($parent);
+        foreach ($this->backports as $k => $i)
+            if (false === stripos($code, $k))
+                unset($this->backports[$k]);
 
-        $this->dependencies['StringInfo']->addReservedTokens(array(
-            'trait' => T_TRAIT,
-            'callable' => T_CALLABLE,
-            '__trait__' => T_TRAIT_C,
-            'insteadof' => T_INSTEADOF,
-        ));
+        $code = parent::getTokens($code);
+        $i = 0;
+
+        if ($this->backports)
+            while (isset($code[++$i]))
+                if (T_STRING === $code[$i][0] && isset($this->backports[strtolower($code[$i][1])]))
+                    $code[$i][0] = $this->backports[strtolower($code[$i][1])];
+
+        return $code;
     }
 }

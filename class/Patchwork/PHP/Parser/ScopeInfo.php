@@ -11,7 +11,7 @@
  *
  ***************************************************************************/
 
-Patchwork_PHP_Parser::createToken('T_SCOPE_OPEN', 'T_SCOPE_CLOSE');
+Patchwork_PHP_Parser::createToken('T_SCOPE_OPEN');
 
 /**
  * The ScopeInfo parser exposes scopes to dependend parsers.
@@ -20,9 +20,8 @@ Patchwork_PHP_Parser::createToken('T_SCOPE_OPEN', 'T_SCOPE_CLOSE');
  * of these corresponding to the type of the token who opened the scope. For each scope, this
  * parser exposes this type alongside with a reference to its opening token and its parent scope.
  *
- * ScopeInfo also manages two special token types:
- * - T_SCOPE_OPEN can be registered by dependend parsers and is emitted on scope opening tokens
- * - T_SCOPE_CLOSE matches scope closing tokens when registered within their corresponding T_SCOPE_OPEN.
+ * T_SCOPE_OPEN can be registered by dependend parsers and is emitted on scope opening tokens.
+ * When T_BRACKET_CLOSE is registered within a T_SCOPE_OPEN, it matches its corresponding scope closing token.
  *
  * ScopeInfo eventually inherits removeNsPrefix(), namespace, nsResolved, nsPrefix properties from NamespaceInfo.
  */
@@ -30,18 +29,18 @@ class Patchwork_PHP_Parser_ScopeInfo extends Patchwork_PHP_Parser
 {
     protected
 
-    $curly     = 0,
     $scope     = false,
-    $scopes    = array(),
     $nextScope = T_OPEN_TAG,
     $callbacks = array(
-        'tagFirstScope' => array(T_OPEN_TAG, ';', '{'),
-        'tagScopeClose' => array(T_ENDPHP  , '}'),
-        'tagNamespace'  => T_NAMESPACE,
-        'tagFunction'   => T_FUNCTION,
-        'tagClass'      => array(T_CLASS, T_INTERFACE, T_TRAIT),
+        '~tagFirstScope' => array(T_OPEN_TAG, ';', '{'),
+        'tagScopeOpen' => T_CBRACKET,
+        'tagNamespace' => T_NAMESPACE,
+        'tagEndScope' => T_ENDPHP,
+        'tagFunction' => T_FUNCTION,
+        'tagClass' => array(T_CLASS, T_INTERFACE, T_TRAIT),
     ),
     $dependencies = array(
+        'BracketBalancer',
         'NamespaceInfo' => array('namespace', 'nsResolved', 'nsPrefix'),
         'Normalizer',
     );
@@ -55,84 +54,49 @@ class Patchwork_PHP_Parser_ScopeInfo extends Patchwork_PHP_Parser
     protected function tagFirstScope(&$token)
     {
         $t = $this->getNextToken();
-
         if (T_NAMESPACE === $t[0] || T_DECLARE === $t[0]) return;
+        '{' !== $token[0] && $this->unshiftTokens(array('{', ''));
+        $this->unregister(array('~tagFirstScope' => array(T_OPEN_TAG, ';', '{')));
+    }
 
-        $this->unregister(array(__FUNCTION__ => array(T_OPEN_TAG, ';', '{')));
-        $this->  register(array('tagScopeOpen'  => '{'));
-
-        return $this->tagScopeOpen($token);
+    protected function tagEndScope(&$token)
+    {
+        $this->unregister(array(__FUNCTION__ => T_ENDPHP));
+        if ($this->scope) return $this->unshiftTokens(array('}', ''), $token);
     }
 
     protected function tagScopeOpen(&$token)
     {
-        if ($this->nextScope)
-        {
-            $this->scope = (object) array(
-                'parent' => $this->scope,
-                'type'   => $this->nextScope,
-                'token'  => &$token,
-            );
+        $this->unregister(array(__FUNCTION__ => T_CBRACKET));
+        $this->register(array('~tagScopeClose' => T_BRACKET_CLOSE));
 
-            $this->nextScope = false;
-            $this->scopes[] = array($this->curly, array());
-            $this->curly = 0;
+        $this->scope = (object) array(
+            'parent' => $this->scope,
+            'type'   => $this->nextScope,
+            'token'  => &$token,
+        );
 
-            if (isset($this->tokenRegistry[T_SCOPE_OPEN]))
-            {
-                unset($this->tokenRegistry[T_SCOPE_CLOSE]);
-                $this->unshiftTokens(array(T_WHITESPACE, ''));
-                $this->register(array('tagAfterScopeOpen' => T_WHITESPACE));
-                return T_SCOPE_OPEN;
-            }
-        }
-        else ++$this->curly;
-    }
-
-    protected function tagAfterScopeOpen(&$token)
-    {
-        $this->unregister(array(__FUNCTION__ => T_WHITESPACE));
-
-        if (empty($this->tokenRegistry[T_SCOPE_CLOSE])) return;
-
-        $this->scopes[count($this->scopes) - 1][1] = $this->tokenRegistry[T_SCOPE_CLOSE];
-        unset($this->tokenRegistry[T_SCOPE_CLOSE]);
+        return T_SCOPE_OPEN;
     }
 
     protected function tagScopeClose(&$token)
     {
-        if (0 > --$this->curly && $this->scopes)
-        {
-            list($this->curly, $c) = array_pop($this->scopes);
-
-            if ($c)
-            {
-                $this->tokenRegistry[T_SCOPE_CLOSE] = array_reverse($c);
-                $this->unshiftTokens(array(T_WHITESPACE, ''));
-                $this->register(array('tagAfterScopeClose' => T_WHITESPACE));
-                return T_SCOPE_CLOSE;
-            }
-
-            $this->scope = $this->scope->parent;
-        }
-    }
-
-    protected function tagAfterScopeClose(&$token)
-    {
-        $this->unregister(array(__FUNCTION__ => T_WHITESPACE));
-        unset($this->tokenRegistry[T_SCOPE_CLOSE]);
         $this->scope = $this->scope->parent;
     }
 
     protected function tagClass(&$token)
     {
         $this->nextScope = $token[0];
+        $this->register(array('tagScopeOpen' => T_CBRACKET));
     }
 
     protected function tagFunction(&$token)
     {
         $this->nextScope = T_FUNCTION;
-        $this->register(array('tagSemiColon'  => ';')); // For abstracts methods
+        $this->register(array(
+            'tagSemiColon' => ';', // For abstracts methods
+            'tagScopeOpen' => T_CBRACKET,
+        ));
     }
 
     protected function tagNamespace(&$token)
@@ -150,9 +114,12 @@ class Patchwork_PHP_Parser_ScopeInfo extends Patchwork_PHP_Parser
 
                 if ($this->scope)
                 {
-                    $this->  register(array('tagFirstScope' => array(';', '{')));
-                    $this->unregister(array('tagScopeOpen'  => '{'));
-                    return $this->tagScopeClose($token);
+                    $this->register(array(
+                        'tagFirstScope' => array(';', '{'),
+                        'tagScopeOpen' => T_CBRACKET,
+                    ));
+
+                    if ('}' !== $this->lastType) return $this->unshiftTokens(array('}', ''), $token);
                 }
             }
         }
@@ -160,7 +127,9 @@ class Patchwork_PHP_Parser_ScopeInfo extends Patchwork_PHP_Parser
 
     protected function tagSemiColon(&$token)
     {
-        $this->unregister(array(__FUNCTION__ => ';'));
-        $this->nextScope = false;
+        $this->unregister(array(
+            __FUNCTION__ => ';',
+            'tagScopeOpen' => T_CBRACKET,
+        ));
     }
 }

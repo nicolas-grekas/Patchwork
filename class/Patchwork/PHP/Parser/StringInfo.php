@@ -46,7 +46,6 @@ class Patchwork_PHP_Parser_StringInfo extends Patchwork_PHP_Parser
     $inNs      = false,
     $inUse     = false,
     $preNsType = 0,
-    $reservedTokens,
     $callbacks = array(
         'tagString'   => T_STRING,
         'tagConst'    => T_CONST,
@@ -58,12 +57,6 @@ class Patchwork_PHP_Parser_StringInfo extends Patchwork_PHP_Parser
     );
 
 
-    function addReservedTokens($tokens)
-    {
-        isset($this->reservedTokens) || $this->reservedTokens = array();
-        foreach ($tokens as $text => $type) $this->reservedTokens[strtolower($text)] = $type;
-    }
-
     function removeNsPrefix()
     {
         if (empty($this->nsPrefix)) return;
@@ -71,14 +64,13 @@ class Patchwork_PHP_Parser_StringInfo extends Patchwork_PHP_Parser
         $t =& $this->types;
         end($t);
 
-        $p = array(T_STRING, T_NS_SEPARATOR);
-        $j = 0;
-
-        while (null !== ($i = key($t)) && $p[++$j%2] === $t[$i])
+        while (null !== $i = key($t)) switch ($t[$i])
         {
-            $this->texts[$i] = '';
-            unset($t[$i]);
-            end($t);
+            default: break 2;
+            case T_STRING: case T_NS_SEPARATOR: case T_NAMESPACE:
+                $this->texts[$i] = '';
+                unset($t[$i]);
+                end($t);
         }
 
         $this->nsPrefix = '';
@@ -87,12 +79,6 @@ class Patchwork_PHP_Parser_StringInfo extends Patchwork_PHP_Parser
 
     protected function tagString(&$token)
     {
-        if (isset($this->reservedTokens) && isset($this->reservedTokens[strtolower($token[1])]))
-        {
-            $token[0] = $this->reservedTokens[strtolower($token[1])];
-            return $this->unshiftTokens($token);
-        }
-
         if (T_NS_SEPARATOR !== $p = $this->lastType) $this->nsPrefix = '';
 
         switch ($p)
@@ -124,7 +110,7 @@ class Patchwork_PHP_Parser_StringInfo extends Patchwork_PHP_Parser
             }
             else
             {
-                $this->nsPrefix  = $token[1];
+                $this->nsPrefix = $token[1];
                 $this->preNsType = $p;
             }
 
@@ -264,7 +250,7 @@ class Patchwork_PHP_Parser_StringInfo extends Patchwork_PHP_Parser
 
     protected function tagNsSep(&$token)
     {
-        if (T_STRING === $this->lastType)
+        if (T_STRING === $this->lastType || T_NAMESPACE === $this->lastType)
         {
             $this->nsPrefix .= '\\';
         }

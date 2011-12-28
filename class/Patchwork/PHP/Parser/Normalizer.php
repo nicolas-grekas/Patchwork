@@ -25,14 +25,14 @@ class Patchwork_PHP_Parser_Normalizer extends Patchwork_PHP_Parser
 {
     protected
 
+    $checkUtf8 = true,
+    $stripUtf8Bom = true,
     $lfLineEndings = true,
-    $checkUtf8     = true,
-    $stripUtf8Bom  = true,
     $callbacks = array(
-        'tagOpenEchoTag'  => T_OPEN_TAG_WITH_ECHO,
-        'tagOpenTag'      => T_OPEN_TAG,
-        'tagCloseTag'     => T_CLOSE_TAG,
-        'fixVar'          => T_VAR,
+        'fixVar' => T_VAR,
+        'tagOpenTag' => T_OPEN_TAG,
+        'tagCloseTag' => T_CLOSE_TAG,
+        'tagOpenEchoTag' => T_OPEN_TAG_WITH_ECHO,
         'tagHaltCompiler' => T_HALT_COMPILER,
     );
 
