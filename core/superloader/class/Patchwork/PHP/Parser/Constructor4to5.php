@@ -84,12 +84,14 @@ class Patchwork_PHP_Parser_Constructor4to5 extends Patchwork_PHP_Parser
 
         if ('' !== $this->signature)
         {
+            $n = PHP_VERSION_ID < 50300 ? strtr($this->class->nsName, '\\', '_') : $this->class->nsName;
+
             $token[1] = 'function ' . $this->signature . '{'
                 . 'if(' . count($this->arguments) . '<func_num_args()){'
                 .   '${""}=array(' . implode(',', $this->arguments) . ')+func_get_args();'
-                .   'call_user_func_array(array($this,"__construct"),${""});'
+                .   'call_user_func_array(array("' . $n . '","__construct"),${""});'
                 . '}else{'
-                .   '$this->__construct(' . str_replace('&', '', implode(',', $this->arguments)) . ');'
+                .   $n . '::__construct(' . str_replace('&', '', implode(',', $this->arguments)) . ');'
                 . '}}'
                 . $token[1];
 

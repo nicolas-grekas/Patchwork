@@ -23,7 +23,7 @@ class ErrorHandler extends PHP\ErrorHandler
     function handleError($type, $message, $file, $line, $scope, $trace_offset = 0, $log_time = 0)
     {
         // Silence strict and deprecated notices for classes and files coming from include_path
-        if (/*<*/(E_NOTICE | E_STRICT | E_DEPRECATED | E_USER_DEPRECATED)/*>*/ & $type)
+        if (/*<*/(E_NOTICE | E_STRICT | E_DEPRECATED)/*>*/ & $type)
             if (strpos($message, '__00::') || '-' === substr($file, -12, 1))
                 $e = error_reporting(81);
 

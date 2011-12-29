@@ -186,7 +186,7 @@ ELSE
 
     END:IF
 
-    -->lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form,{a$_preserveScroll_|test:1:0})};<!-- IF a$_autofocus -->if(!pForm_is_available.autofocus)lEF=lE;setTimeout(function(){lEF.focus()},100);<!-- END:IF -->{a$_JsEnd}<!--
+    -->lE.cS=function(){return IcES([0<!-- LOOP a$_elements -->,{$name|js},{$onempty|js},{$onerror|js}<!-- END:LOOP -->],this.form,{a$_preserveScroll_|test:1:0})};<!-- IF a$_autofocus -->if(!pForm_is_available.autofocus){lEF=lE;setTimeout(function(){lEF.focus()},100);}<!-- END:IF -->{a$_JsEnd}<!--
 
     IF a$_required --></span><!-- END:IF
 

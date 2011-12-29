@@ -26,7 +26,7 @@ class Patchwork_Preprocessor
 
     protected static
 
-    $declaredClass = array('patchwork', 'patchwork_superloader'),
+    $declaredClass = array('patchwork', 'patchwork_superloader', 'patchwork_shutdownhandler', 'patchwork_php_override_php530'),
     $recursivePool = array(),
     $parsers       = array(
         'Normalizer'         => true,
