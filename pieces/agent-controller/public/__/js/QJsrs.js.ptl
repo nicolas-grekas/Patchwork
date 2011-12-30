@@ -295,4 +295,4 @@ QJsrs.$withScript = function($url, $callback)
     $url = 0;
 
     return $script;
-}
+};
