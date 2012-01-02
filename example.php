@@ -6,11 +6,13 @@ header('Content-type: text/plain');
 error_reporting(E_ALL | E_STRICT);
 ini_set('display_errors', true);
 
-include 'Walker.php';
-include 'Dumper.php';
-include 'JsonDumper.php';
-include 'Logger.php';
-include 'ErrorHandler.php';
+$dir = __DIR__ . '/class/Patchwork/PHP/';
+
+include $dir . 'Walker.php';
+include $dir . 'Dumper.php';
+include $dir . 'JsonDumper.php';
+include $dir . 'Logger.php';
+include $dir . 'ErrorHandler.php';
 
 p\ErrorHandler::start('php://stderr')->getLogger()->log(
     'debug-start',
