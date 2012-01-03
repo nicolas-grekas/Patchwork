@@ -24,13 +24,13 @@ class Patchwork_Updatedb
 
         if (file_exists($cwd . '.patchwork.paths.txt'))
         {
-            @rename($cwd . '.patchwork.paths.txt', $cwd . '.patchwork.paths.old');
-            $old_db = @fopen($cwd . '.patchwork.paths.old', 'rb');
+            $old_db = @fopen($cwd . '.patchwork.paths.txt', 'rb');
             $old_db && $old_db_line = fgets($old_db);
         }
         else $old_db = false;
 
-        $db = @fopen($cwd . '.patchwork.paths.txt', 'wb');
+        $tmp = $cwd . '.~' . uniqid(mt_rand(), true);
+        $db = @fopen($tmp, 'wb');
 
         $paths = array_flip($paths);
         unset($paths[$cwd]);
@@ -42,16 +42,18 @@ class Patchwork_Updatedb
         }
 
         $db && fclose($db);
-        $old_db && fclose($old_db) && @unlink($cwd . '.patchwork.paths.old');
-        $db = $h = false;
+        $old_db && fclose($old_db);
+
+        $h = $cwd . '.patchwork.paths.txt';
+        '\\' === DIRECTORY_SEPARATOR && file_exists($h) && @unlink($h);
+        @rename($tmp, $h) || unlink($tmp);
 
         if (function_exists('dba_handlers'))
         {
             $h = array('cdb','db2','db3','db4','qdbm','gdbm','ndbm','dbm','flatfile','inifile');
             $h = array_intersect($h, dba_handlers());
             $h || $h = dba_handlers();
-            @unlink($cwd . '.patchwork.paths.db');
-            if ($h) foreach ($h as $db) if ($h = @dba_open($cwd . '.patchwork.paths.db', 'nd', $db, 0600)) break;
+            if ($h) foreach ($h as $db) if ($h = @dba_open($tmp, 'nd', $db, 0600)) break;
         }
 
         if ($h)
@@ -63,6 +65,10 @@ class Patchwork_Updatedb
             }
 
             dba_close($h);
+
+            $h = $cwd . '.patchwork.paths.db';
+            '\\' === DIRECTORY_SEPARATOR && file_exists($h) && @unlink($h);
+            @rename($tmp, $h) || unlink($tmp);
         }
         else
         {
