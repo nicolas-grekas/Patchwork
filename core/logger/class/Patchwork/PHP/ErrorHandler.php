@@ -232,11 +232,8 @@ class ErrorHandler
 
     function handleLastError($e)
     {
-        // Handle errors when they have not been logged by the native PHP error handler.
-        // If this is the first event, handle it also to log any context data with it.
-        // Otherwise, do not duplicate it.
-        if (isset($this->logger) && (error_reporting() & $e['type'])) return;
-        call_user_func_array(array($this, 'handleError'), $e + array(null, -1));
+        // Inject errors in the regular handling path when they have not been logged by the native PHP error handler.
+        (error_reporting() & $e['type']) || call_user_func_array(array($this, 'handleError'), $e + array(null, -1));
     }
 
     function getLogger()
