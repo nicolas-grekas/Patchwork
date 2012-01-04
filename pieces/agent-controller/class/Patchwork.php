@@ -706,12 +706,6 @@ class Patchwork
         if (self::$catchMeta) self::$metaInfo[5] = true;
     }
 
-    static function string($a)
-    {
-        user_error(__METHOD__ . '()', E_USER_DEPRECATED);
-        return is_object($a) ? $a->__toString() : (string) $a;
-    }
-
     static function uniqId($raw = false)
     {
 /**/    if (@fopen('/dev/urandom', 'r'))

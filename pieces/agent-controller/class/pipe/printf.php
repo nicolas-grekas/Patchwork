@@ -17,7 +17,6 @@ class pipe_printf
     static function php($format)
     {
         $a = func_get_args();
-        $a = array_map(array('Patchwork', 'string'), $a);
         return call_user_func_array('sprintf', $a);
     }
 
