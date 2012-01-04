@@ -37,7 +37,7 @@ class Patchwork_Bootstrapper_Preprocessor
         new Patchwork_PHP_Parser_ConstFuncDisabler($p);
         new Patchwork_PHP_Parser_ConstFuncResolver($p);
         new Patchwork_PHP_Parser_NamespaceResolver($p);
-        new Patchwork_PHP_Parser_ConstantInliner($p, $file, array());
+        new Patchwork_PHP_Parser_ConstantInliner($p, $file, explode(' ', 'E_DEPRECATED E_USER_DEPRECATED PHP_VERSION_ID PHP_MAJOR_VERSION PHP_MINOR_VERSION PHP_RELEASE_VERSION PHP_EXTRA_VERSION MB_OVERLOAD_MAIL MB_OVERLOAD_STRING MB_OVERLOAD_REGEX MB_CASE_UPPER MB_CASE_LOWER MB_CASE_TITLE ICONV_IMPL ICONV_VERSION ICONV_MIME_DECODE_STRICT ICONV_MIME_DECODE_CONTINUE_ON_ERROR GRAPHEME_EXTR_COUNT GRAPHEME_EXTR_MAXBYTES GRAPHEME_EXTR_MAXCHARS PATCHWORK_PROJECT_PATH PATCHWORK_ZCACHE PATCHWORK_PATH_LEVEL')); // List of possibly backported constants - TODO: replace this ugly fixed list by generic const declarations parsing (not define(), whose value may be dynamic)
         new Patchwork_PHP_Parser_ClassInfo($p);
 
         PHP_VERSION_ID < 50300 && new Patchwork_PHP_Parser_NamespaceRemover($p);
