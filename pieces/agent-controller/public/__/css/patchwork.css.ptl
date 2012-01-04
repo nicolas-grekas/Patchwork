@@ -32,8 +32,6 @@ input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; }
 button::-moz-focus-inner, input::-moz-focus-inner { border: 0; padding: 0; }
 
 /* Borrowed from HTML5 ✰ Boilerplate */
-::-moz-selection { text-shadow: none; }
-::selection { text-shadow: none; }
 .ie7 img { -ms-interpolation-mode: bicubic; }
 sub, sup { line-height: 0; }
 button, input, select, textarea { margin: 0; }
