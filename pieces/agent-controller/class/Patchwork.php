@@ -14,12 +14,8 @@
 use Patchwork           as p;
 use Patchwork\Exception as e;
 
-/**/if (!DEBUG)
-/**/{
-        error_reporting(/*<*/error_reporting() & ~(E_DEPRECATED | E_USER_DEPRECATED | E_STRICT)/*>*/);
-/**/}
-
 // Javascript-encode for scalars
+
 function jsquote($a)
 {
 /**/if (DEBUG)
