@@ -60,8 +60,8 @@ class Patchwork_PHP_Parser_StaticState extends Patchwork_PHP_Parser
     {
         $code = $this->getRunonceCode($code);
 
-        $e = error_reporting(81);
-        set_error_handler(array($this, 'errorHandler'));
+        $e = error_reporting(error_reporting() | 81);
+        set_error_handler(array($this, 'errorHandler'), $e);
 
         if (false === self::evalbox($code) && $code = error_get_last())
         {
