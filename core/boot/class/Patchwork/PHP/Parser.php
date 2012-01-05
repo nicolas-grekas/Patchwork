@@ -605,11 +605,11 @@ class Patchwork_PHP_Parser
     {
         switch (true)
         {
-        default:           return (string) $a;
         case true  === $a: return 'true';
         case false === $a: return 'false';
         case  INF  === $a: return  'INF';
         case -INF  === $a: return '-INF';
+        case is_int($a):   return (string) $a;
 
         case is_string($a):
             return $a === strtr($a, "\r\n\0", '---')
@@ -654,9 +654,7 @@ class Patchwork_PHP_Parser
             $a = sprintf('%.17F', $a);
             return rtrim((float) $b === (float) $a ? $b : $a, '.0');
 
-        case is_resource($a):
-        case is_object($a):
-        case null === $a: return 'null';
+        default: return 'null';
         }
     }
 }
