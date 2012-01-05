@@ -11,13 +11,10 @@
  *
  ***************************************************************************/
 
-Patchwork_PHP_Parser::createToken('T_CBRACKET',/* 'T_SBRACKET', 'T_RBRACKET',*/ 'T_BRACKET_CLOSE');
+Patchwork_PHP_Parser::createToken('T_BRACKET_CLOSE');
 
 /**
  * The BracketBalancer parser counts opening brackets and triggers callbacks on corresponding closing brackets.
- *
- * TODO: Currently only curly brackets are handled, but square and rounded brackets are to be added,
- *       with a mechanism preventing registering them when no dependent parser needs them.
  */
 class Patchwork_PHP_Parser_BracketBalancer extends Patchwork_PHP_Parser
 {
@@ -25,34 +22,25 @@ class Patchwork_PHP_Parser_BracketBalancer extends Patchwork_PHP_Parser
 
     $brackets = array(),
     $callbacks = array(
-        'pushBracket' => array('{',/* '[', '('*/),
-        'popBracket'  => array('}',/* ']', ')'*/),
+        '~pushBracket' => array('{', '[', '('),
+        'popBracket'   => array('}', ']', ')'),
     );
 
 
     protected function pushBracket(&$token)
     {
+        $b =& $this->brackets[];
+
         switch ($token[0])
         {
-        case '{': $this->brackets[] = '}'; $t = T_CBRACKET; break;
-        case '[': $this->brackets[] = ']'; $t = T_SBRACKET; break;
-        case '(': $this->brackets[] = ')'; $t = T_RBRACKET; break;
+        case '{': $b = '}'; break;
+        case '[': $b = ']'; break;
+        case '(': $b = ')'; break;
         }
 
-        if (isset($this->tokenRegistry[$t]) || isset($this->tokenRegistry[T_BRACKET_CLOSE]))
-        {
-            $this->register(array('~tagAfterOpen' => $t));
-            return $t;
-        }
-    }
-
-    protected function tagAfterOpen(&$token)
-    {
-        $this->unregister(array('~tagAfterOpen' => array(T_CBRACKET,/* T_SBRACKET, T_RBRACKET*/)));
         if (empty($this->tokenRegistry[T_BRACKET_CLOSE])) return;
-        $token =& $this->brackets[count($this->brackets) - 1];
-        $token = (array) $token;
-        $token[1] = $this->tokenRegistry[T_BRACKET_CLOSE];
+
+        $b = array($b, $this->tokenRegistry[T_BRACKET_CLOSE]);
         unset($this->tokenRegistry[T_BRACKET_CLOSE]);
     }
 

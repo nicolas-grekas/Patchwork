@@ -33,7 +33,7 @@ class Patchwork_PHP_Parser_ScopeInfo extends Patchwork_PHP_Parser
     $nextScope = T_OPEN_TAG,
     $callbacks = array(
         '~tagFirstScope' => array(T_OPEN_TAG, ';', '{'),
-        'tagScopeOpen' => T_CBRACKET,
+        'tagScopeOpen' => '{',
         'tagNamespace' => T_NAMESPACE,
         'tagEndScope' => T_ENDPHP,
         'tagFunction' => T_FUNCTION,
@@ -67,7 +67,7 @@ class Patchwork_PHP_Parser_ScopeInfo extends Patchwork_PHP_Parser
 
     protected function tagScopeOpen(&$token)
     {
-        $this->unregister(array(__FUNCTION__ => T_CBRACKET));
+        $this->unregister(array(__FUNCTION__ => '{'));
         $this->register(array('~tagScopeClose' => T_BRACKET_CLOSE));
 
         $this->scope = (object) array(
@@ -87,7 +87,7 @@ class Patchwork_PHP_Parser_ScopeInfo extends Patchwork_PHP_Parser
     protected function tagClass(&$token)
     {
         $this->nextScope = $token[0];
-        $this->register(array('tagScopeOpen' => T_CBRACKET));
+        $this->register(array('tagScopeOpen' => '{'));
     }
 
     protected function tagFunction(&$token)
@@ -95,7 +95,7 @@ class Patchwork_PHP_Parser_ScopeInfo extends Patchwork_PHP_Parser
         $this->nextScope = T_FUNCTION;
         $this->register(array(
             'tagSemiColon' => ';', // For abstracts methods
-            'tagScopeOpen' => T_CBRACKET,
+            'tagScopeOpen' => '{',
         ));
     }
 
@@ -116,7 +116,7 @@ class Patchwork_PHP_Parser_ScopeInfo extends Patchwork_PHP_Parser
                 {
                     $this->register(array(
                         'tagFirstScope' => array(';', '{'),
-                        'tagScopeOpen' => T_CBRACKET,
+                        'tagScopeOpen' => '{',
                     ));
 
                     if ('}' !== $this->lastType) return $this->unshiftTokens(array('}', ''), $token);
@@ -129,7 +129,7 @@ class Patchwork_PHP_Parser_ScopeInfo extends Patchwork_PHP_Parser
     {
         $this->unregister(array(
             __FUNCTION__ => ';',
-            'tagScopeOpen' => T_CBRACKET,
+            'tagScopeOpen' => '{',
         ));
     }
 }
