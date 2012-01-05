@@ -376,7 +376,7 @@ else
 function E()
 {
     $a = func_get_args();
-    foreach ($a as $a) p::log('server-dump', $a);
+    foreach ($a as $a) Patchwork::log('server-dump', $a);
 }
 
 // Database sugar
