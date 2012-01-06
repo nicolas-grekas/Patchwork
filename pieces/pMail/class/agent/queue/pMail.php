@@ -36,7 +36,7 @@ class agent_queue_pMail extends agent_queue_pTask
 
                 $this->sqlite->changes() && tool_url::touch("{$data['base']}queue/pMail/{$data['OID']}/" . $this->getToken());
             }
-            else pTask::schedule(new pTask(array($this, 'queueNext')), $data['send_time']);
+            else pTask::schedule(new pTask(array($this, 'control')), $data['send_time']);
         }
     }
 
