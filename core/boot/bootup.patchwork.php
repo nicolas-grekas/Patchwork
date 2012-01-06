@@ -11,6 +11,8 @@
  *
  ***************************************************************************/
 
+/**/if (!isset($_SERVER['REQUEST_TIME_FLOAT']))
+        $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
 
 /**/boot::$manager->pushFile('bootup.override.php');
 
