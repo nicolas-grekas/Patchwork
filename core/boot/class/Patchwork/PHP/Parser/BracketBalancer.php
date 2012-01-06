@@ -23,7 +23,8 @@ class Patchwork_PHP_Parser_BracketBalancer extends Patchwork_PHP_Parser
     $brackets = array(),
     $callbacks = array(
         '~pushBracket' => array('{', '[', '('),
-        'popBracket'   => array('}', ']', ')'),
+        'closeBracket' => array('}', ']', ')'),
+        '~popBracket'  => array('}', ']', ')'),
     );
 
 
@@ -44,26 +45,28 @@ class Patchwork_PHP_Parser_BracketBalancer extends Patchwork_PHP_Parser
         unset($this->tokenRegistry[T_BRACKET_CLOSE]);
     }
 
-    protected function popBracket(&$token)
+    protected function closeBracket(&$token)
     {
-        $last = array_pop($this->brackets);
+        $last = end($this->brackets);
 
         if (empty($last) || $token[0] !== $last[0])
         {
             // Brackets are not correctly balanced, code has a parse error.
+            $this->setError("Brackets are not correctly balanced", E_USER_WARNING);
             $this->unregister($this->callbacks);
+            $this->brackets = array();
         }
         else if (isset($last[1]))
         {
             // Bracket has registered on-close callbacks
-            $this->tokenRegistry[T_BRACKET_CLOSE] = $last[1];
-            $this->register(array('~tagAfterClose' => T_BRACKET_CLOSE));
+            $this->tokenRegistry[T_BRACKET_CLOSE] =& $this->brackets[count($this->brackets) - 1][1];
             return T_BRACKET_CLOSE;
         }
     }
 
-    protected function tagAfterClose(&$token)
+    protected function popBracket(&$token)
     {
         unset($this->tokenRegistry[T_BRACKET_CLOSE]);
+        array_pop($this->brackets);
     }
 }
