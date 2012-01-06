@@ -49,14 +49,7 @@ class Patchwork_PHP_Parser_BracketBalancer extends Patchwork_PHP_Parser
     {
         $last = end($this->brackets);
 
-        if (empty($last) || $token[0] !== $last[0])
-        {
-            // Brackets are not correctly balanced, code has a parse error.
-            $this->setError("Brackets are not correctly balanced", E_USER_WARNING);
-            $this->unregister($this->callbacks);
-            $this->brackets = array();
-        }
-        else if (isset($last[1]))
+        if (isset($last[1]) && $token[0] === $last[0])
         {
             // Bracket has registered on-close callbacks
             $this->tokenRegistry[T_BRACKET_CLOSE] =& $this->brackets[count($this->brackets) - 1][1];
@@ -67,6 +60,15 @@ class Patchwork_PHP_Parser_BracketBalancer extends Patchwork_PHP_Parser
     protected function popBracket(&$token)
     {
         unset($this->tokenRegistry[T_BRACKET_CLOSE]);
-        array_pop($this->brackets);
+
+        $last = array_pop($this->brackets);
+
+        if (empty($last) || $token[0] !== $last[0])
+        {
+            // Brackets are not correctly balanced, code has a parse error.
+            $this->setError("Brackets are not correctly balanced", E_USER_WARNING);
+            $this->unregister($this->callbacks);
+            $this->brackets = array();
+        }
     }
 }
