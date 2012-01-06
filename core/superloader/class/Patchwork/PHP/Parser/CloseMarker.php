@@ -18,17 +18,21 @@ class Patchwork_PHP_Parser_CloseMarker extends Patchwork_PHP_Parser
 {
     protected
 
+    $openToken,
+    $curly,
+    $open,
     $close,
     $greedy = false,
     $bracket = 0,
-    $curly = 0,
     $callbacks = 'filterToken',
     $registered = true;
 
 
-    function __construct(parent $parent, $curly, $close = ':0)')
+    function __construct(parent $parent, &$openToken, $curly, $open, $close)
     {
+        $this->openToken =& $openToken;
         $this->curly = $curly;
+        $this->open = $open;
         $this->close = $close;
         parent::__construct($parent);
     }
@@ -82,6 +86,7 @@ class Patchwork_PHP_Parser_CloseMarker extends Patchwork_PHP_Parser
                 break;
 
             default:
+                $this->openToken = $this->open . $this->openToken;
                 $token[1] = $this->close . $token[1];
                 $this->unregister($this->callbacks);
             }
@@ -102,6 +107,7 @@ class Patchwork_PHP_Parser_CloseMarker extends Patchwork_PHP_Parser
         case ']':
         case ':': if ($this->bracket--) break;
         case T_AS: case T_CLOSE_TAG: case ';':
+            $this->openToken = $this->open . $this->openToken;
             $token[1] = $this->close . $token[1];
             $this->unregister($this->callbacks);
             $this->registered = false;

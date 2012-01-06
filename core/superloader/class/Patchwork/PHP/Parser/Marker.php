@@ -44,7 +44,7 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionOverridin
         $this->unregister(array(__FUNCTION__ => T_SCOPE_OPEN));
         $T = $this->tag;
         $token[1] .= "if(!isset(\$a{$T})){global \$a{$T},\$b{$T},\$c{$T};}isset(\$e{$T})||\$e{$T}=";
-        // Add some tokens for the staticState PHP parser
+        // Add some tokens for the StaticState PHP parser
         $this->unshiftTokens(array(T_COMMENT, '/*<*/'), array(T_WHITESPACE, "\$e{$T}=false"), array(T_COMMENT, '/*>*/'), ';');
     }
 
@@ -79,8 +79,7 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionOverridin
         }
 
         $T = $this->tag;
-        $t = "((\$a{$T}=\$b{$T}=\$e{$T})||1?{$t}";
-        new Patchwork_PHP_Parser_CloseMarker($this, $curly);
+        new Patchwork_PHP_Parser_CloseMarker($this, $t, $curly, "((\$a{$T}=\$b{$T}=\$e{$T})||1?", ':0)');
 
         0 < $this->scope->markerState || $this->scope->markerState = 1;
     }
@@ -149,11 +148,13 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionOverridin
             0 < $this->scope->markerState || $this->scope->markerState = 1;
         }
 
-        $c = '&' === $this->newToken['lastType'] ? "patchwork_autoload_marker({$c}," : "(({$c})?";
-
-        $this->newToken[1] = $c . $this->newToken[1];
-
-        new Patchwork_PHP_Parser_CloseMarker($this, $token ? -1 : 0, '&' === $this->newToken['lastType'] ? ')' : ':0)');
+        new Patchwork_PHP_Parser_CloseMarker(
+            $this,
+            $this->newToken[1],
+            $token ? -1 : 0,
+            '&' === $this->newToken['lastType'] ? "patchwork_autoload_marker({$c}," : "(({$c})?",
+            '&' === $this->newToken['lastType'] ? ')' : ':0)'
+        );
 
         unset($this->newToken['lastType'], $this->newToken);
     }
@@ -180,14 +181,19 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionOverridin
             continue 2;
         }
 
-        $c = $this->getMarker($c);
-        $c = '&' === pos($t) ? "patchwork_autoload_marker({$c}," : "(({$c})?";
         $this->scope->markerState || $this->scope->markerState = -1;
 
-        new Patchwork_PHP_Parser_CloseMarker($this, 0, '&' === pos($t) ? ')' : ':0)');
-
+        $c = $this->getMarker($c);
+        $r = '&' === pos($t);
         next($t);
-        $this->texts[key($t)] = $c . $this->texts[key($t)];
+
+        new Patchwork_PHP_Parser_CloseMarker(
+            $this,
+            $this->texts[key($t)],
+            0,
+            $r ? "patchwork_autoload_marker({$c}," : "(({$c})?",
+            $r ? ')' : ':0)'
+        );
     }
 
     protected function tagFunctionClose(&$token)
