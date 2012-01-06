@@ -44,13 +44,11 @@ class Patchwork_PHP_Parser_ShortArray extends Patchwork_PHP_Parser
             $is_array = false;
         }
 
-        if ($this->stack[] = $is_array)
-            return $this->unshiftTokens(array(T_ARRAY, 'array'), '(');
+        if ($this->stack[] = $is_array) $token[1] = 'array(';
     }
 
     protected function closeBracket(&$token)
     {
-        if (array_pop($this->stack))
-            return $this->unshiftTokens(')');
+        if (array_pop($this->stack)) $token[1] = ')';
     }
 }
