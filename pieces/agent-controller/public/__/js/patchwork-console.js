@@ -115,7 +115,7 @@ var patchworkConsole = (function(doc)
         console.count++ || console.init();
         this.count++ || this.init();
 
-        var div = doc.createElement('DIV');
+        var div = doc.createElement('PRE');
         div.className = 'event';
         this.populate(div, data, token);
         this.div.appendChild(div);
