@@ -11,10 +11,6 @@
  *
  ***************************************************************************/
 
-// TODO:
-// An invalid sequence like "([)]" is currently transformed to a valid "(array())".
-// This should instead trigger a parse error.
-
 /**
  * The ShortArray parser backports the short array syntax introduced in PHP 5.4.
  */
@@ -22,16 +18,11 @@ class Patchwork_PHP_Parser_ShortArray extends Patchwork_PHP_Parser
 {
     protected
 
-    $stack = array(),
-    $callbacks = array(
-        'openBracket'  => '[',
-        '~closeBracket' => ']',
-    );
+    $callbacks = array('openBracket' => '['),
+    $dependencies = 'BracketBalancer';
 
     protected function openBracket(&$token)
     {
-        $is_array = true;
-
         switch ($this->lastType)
         {
         case '}':
@@ -41,14 +32,15 @@ class Patchwork_PHP_Parser_ShortArray extends Patchwork_PHP_Parser
             switch (current($token)) {case ';': case '{': break 2;}
 
         case ')': case ']': case T_VARIABLE: case T_STRING:
-            $is_array = false;
+            return;
         }
 
-        if ($this->stack[] = $is_array) $token[1] = 'array(';
+        $token[1] = 'array(';
+        $this->register(array('closeBracket' => T_BRACKET_CLOSE));
     }
 
     protected function closeBracket(&$token)
     {
-        if (array_pop($this->stack)) $token[1] = ')';
+        $token[1] = ')';
     }
 }
