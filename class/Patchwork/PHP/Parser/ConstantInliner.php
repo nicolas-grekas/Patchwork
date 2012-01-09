@@ -20,9 +20,11 @@ class Patchwork_PHP_Parser_ConstantInliner extends Patchwork_PHP_Parser
 
     $file,
     $dir,
+    $newConsts,
     $constants = array(),
     $nextScope = '',
     $callbacks = array(
+        'tagNameConst' => T_NAME_CONST,
         'tagScopeOpen' => T_SCOPE_OPEN,
         'tagConstant'  => T_USE_CONSTANT,
         'tagFileC'     => array(T_FILE, T_DIR),
@@ -36,52 +38,56 @@ class Patchwork_PHP_Parser_ConstantInliner extends Patchwork_PHP_Parser
     ),
     $dependencies = array('ScopeInfo' => array('scope', 'namespace', 'nsResolved'));
 
-    protected static $internalConstants = array();
+    protected static $staticConsts = array();
 
 
-    function __construct(parent $parent, $file, $constants)
+    static function loadConsts($consts)
+    {
+        foreach ($consts as $c) switch (true)
+        {
+        case false !== strpos($c, ':'):
+        case 'INF' === $c:
+        case 'NAN' === $c:
+        case !defined($c): break;
+        default:
+            if (false !== $i = strrpos($c, '\\'))
+                $c = strtolower(substr($c, 0, $i - 1)) . substr($c, $i);
+
+            self::$staticConsts[$c] = self::export(constant($c));
+        }
+
+        return array_keys(self::$staticConsts);
+    }
+
+    function __construct(parent $parent, $file, &$new_consts = array())
     {
         $this->file = self::export($file);
         $this->dir  = self::export(dirname($file));
 
-        foreach ((array) $constants as $constants) if (defined($constants))
-        {
-            if ('\\' === substr($constants, 0, 1)) $constants = substr($constants, 1);
-
-            if (false !== $c = strrpos($constants, '\\'))
-            {
-                $constants = strtolower(substr($constants, 0, $c - 1)) . substr($constants, $c);
-            }
-
-            $this->constants[$constants] = self::export(constant($constants));
-        }
-
-        if (!self::$internalConstants)
-        {
-            $constants = get_defined_constants(true);
-            unset($constants['user']);
-
-            foreach ($constants as $constants) self::$internalConstants += $constants;
-
-            unset( // Idempotent constants
-                self::$internalConstants['TRUE'],
-                self::$internalConstants['FALSE'],
-                self::$internalConstants['NULL'],
-                self::$internalConstants['INF'],
-                self::$internalConstants['NAN']
-            );
-
-            foreach (self::$internalConstants as &$constants)
-                $constants = self::export($constants);
-        }
-
-        $this->constants += self::$internalConstants;
+        $file = self::$staticConsts;
+        self::loadConsts($new_consts);
+        $this->constants = self::$staticConsts;
+        self::$staticConsts = $file;
+        $this->newConsts =& $new_consts;
 
         parent::__construct($parent);
     }
 
+    protected function tagNameConst(&$token)
+    {
+        switch ($this->scope->type)
+        {
+        case T_OPEN_TAG:
+        case T_NAMESPACE:
+            $c = strtolower($this->namespace) . $token[1];
+            isset(self::$staticConsts[$c]) || $this->newConsts[] = $c;
+        }
+    }
+
     protected function tagConstant(&$token)
     {
+        switch (strtolower($this->nsResolved)) {case '\true': case '\false': case '\null': return;}
+
         // Inline constants only if they are fully namespace resolved
 
         if ('\\' === $this->nsResolved[0])
