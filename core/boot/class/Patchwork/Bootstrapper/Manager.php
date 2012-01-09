@@ -29,7 +29,7 @@ class Patchwork_Bootstrapper_Manager
     $steps = array(),
     $substeps = array(),
     $file,
-    $overrides = array(),
+    $overrides = array(array(), array()),
     $callerRx;
 
 
@@ -73,6 +73,15 @@ class Patchwork_Bootstrapper_Manager
                 $s .= "@set_magic_quotes_runtime(false);";
             }
 
+            // Register static constants
+
+            $v = get_defined_constants(true);
+            unset($v['user']);
+
+            foreach ($v as $v)
+                foreach (array_keys($v) as $v)
+                    $this->overrides[1][] = $v;
+
             // Backport PHP_VERSION_ID and co.
 
             if (!defined('PHP_VERSION_ID'))
@@ -85,6 +94,17 @@ class Patchwork_Bootstrapper_Manager
 
                 $v = substr(PHP_VERSION, strlen(implode('.', $v)));
                 $s .= "define('PHP_EXTRA_VERSION','" . addslashes(false !== $v ? $v : '') . "');";
+
+                $v = array('PHP_VERSION_ID','PHP_MAJOR_VERSION','PHP_MINOR_VERSION','PHP_RELEASE_VERSION','PHP_EXTRA_VERSION');
+                foreach ($v as $v) $this->overrides[1][] = $v;
+            }
+
+            if (!defined('E_DEPRECATED'))
+            {
+                $s .= "define('E_DEPRECATED'," . E_NOTICE . ");";
+                $s .= "define('E_USER_DEPRECATED'," . E_USER_NOTICE . ");";
+                $v = array('E_DEPRECATED','E_USER_DEPRECATED');
+                foreach ($v as $v) $this->overrides[1][] = $v;
             }
 
             // Register the next steps
@@ -375,7 +395,7 @@ class Patchwork_Bootstrapper_Manager
 
         if (function_exists($function))
         {
-            $this->overrides[$function] = $override;
+            $this->overrides[0][$function] = $override;
             $function = '__patchwork_' . $function;
         }
 

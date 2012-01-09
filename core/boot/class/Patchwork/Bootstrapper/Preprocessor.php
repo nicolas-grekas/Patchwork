@@ -37,14 +37,13 @@ class Patchwork_Bootstrapper_Preprocessor
         new Patchwork_PHP_Parser_ConstFuncDisabler($p);
         new Patchwork_PHP_Parser_ConstFuncResolver($p);
         new Patchwork_PHP_Parser_NamespaceResolver($p);
-        new Patchwork_PHP_Parser_ConstantInliner($p, $file, explode(' ', 'E_DEPRECATED E_USER_DEPRECATED PHP_VERSION_ID PHP_MAJOR_VERSION PHP_MINOR_VERSION PHP_RELEASE_VERSION PHP_EXTRA_VERSION MB_OVERLOAD_MAIL MB_OVERLOAD_STRING MB_OVERLOAD_REGEX MB_CASE_UPPER MB_CASE_LOWER MB_CASE_TITLE ICONV_IMPL ICONV_VERSION ICONV_MIME_DECODE_STRICT ICONV_MIME_DECODE_CONTINUE_ON_ERROR GRAPHEME_EXTR_COUNT GRAPHEME_EXTR_MAXBYTES GRAPHEME_EXTR_MAXCHARS PATCHWORK_PROJECT_PATH PATCHWORK_ZCACHE PATCHWORK_PATH_LEVEL')); // List of possibly backported constants - TODO: replace this ugly fixed list by generic const declarations parsing (not define(), whose value may be dynamic)
-        new Patchwork_PHP_Parser_ClassInfo($p);
-
-        PHP_VERSION_ID < 50300 && new Patchwork_PHP_Parser_NamespaceRemover($p);
 
         $this->getOverrides(); // Load active overrides
 
-        new Patchwork_PHP_Parser_FunctionOverriding($p, $this->newOverrides);
+        new Patchwork_PHP_Parser_ConstantInliner($p, $file, $this->newOverrides[1]);
+        new Patchwork_PHP_Parser_ClassInfo($p);
+        PHP_VERSION_ID < 50300 && new Patchwork_PHP_Parser_NamespaceRemover($p);
+        new Patchwork_PHP_Parser_FunctionOverriding($p, $this->newOverrides[0]);
         $p = $this->parser = new Patchwork_PHP_Parser_StaticState($p);
 
         $code = $p->getRunonceCode($code);
@@ -84,7 +83,10 @@ class Patchwork_Bootstrapper_Preprocessor
     function getOverrides()
     {
         $o = $this->newOverrides;
-        $this->newOverrides = array();
-        return Patchwork_PHP_Parser_FunctionOverriding::loadOverrides($o);
+        $this->newOverrides = array(array(), array());
+        return array(
+            Patchwork_PHP_Parser_FunctionOverriding::loadOverrides($o[0]),
+            Patchwork_PHP_Parser_ConstantInliner::loadConsts($o[1]),
+        );
     }
 }

@@ -21,16 +21,13 @@ class Patchwork_Preprocessor
         'PATCHWORK_ZCACHE',
         'PATCHWORK_PATH_LEVEL',
         'PATCHWORK_PROJECT_PATH',
-        // TODO: replace the following ugly fixed list by generic const declarations parsing (not define(), whose value may be dynamic)
-        'E_DEPRECATED','E_USER_DEPRECATED','PHP_VERSION_ID','PHP_MAJOR_VERSION','PHP_MINOR_VERSION','PHP_RELEASE_VERSION','PHP_EXTRA_VERSION','MB_OVERLOAD_MAIL','MB_OVERLOAD_STRING','MB_OVERLOAD_REGEX','MB_CASE_UPPER','MB_CASE_LOWER','MB_CASE_TITLE','ICONV_IMPL','ICONV_VERSION','ICONV_MIME_DECODE_STRICT','ICONV_MIME_DECODE_CONTINUE_ON_ERROR','GRAPHEME_EXTR_COUNT','GRAPHEME_EXTR_MAXBYTES','GRAPHEME_EXTR_MAXCHARS',
     );
-
 
     protected static
 
     $declaredClass = array('patchwork', 'patchwork_superloader', 'patchwork_shutdownhandler', 'patchwork_php_override_php530'),
     $recursivePool = array(),
-    $parsers       = array(
+    $parsers = array(
         'Normalizer'         => true,
         'ShortOpenEcho'      => -50400, // Load this only before 5.4.0
         'BracketBalancer'    => true,
@@ -78,8 +75,12 @@ class Patchwork_Preprocessor
             $v && class_exists('Patchwork_PHP_Parser_' . $k, true);
         }
 
-        $v = PATCHWORK_PROJECT_PATH . ".patchwork.overrides.ser";
-        file_exists($v) && Patchwork_PHP_Parser_FunctionOverriding::loadOverrides(unserialize(file_get_contents($v)));
+        if (file_exists($v = PATCHWORK_PROJECT_PATH . ".patchwork.overrides.ser"))
+        {
+            $v = unserialize(file_get_contents($v));
+            Patchwork_PHP_Parser_FunctionOverriding::loadOverrides($v[0]);
+            Patchwork_PHP_Parser_ConstantInliner::loadConsts($v[1]);
+        }
     }
 
     static function execute($source, $destination, $level, $class, $is_top, $lazy)

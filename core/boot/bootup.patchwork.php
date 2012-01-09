@@ -22,14 +22,9 @@ ini_set('display_errors', true);
 error_reporting(/*<*/E_ALL | E_STRICT/*>*/);
 setlocale(LC_ALL, 'C');
 
-// Backport some usefull basic constants
+// spl_autoload() evades code preprocessing, do not use it
 
-/**/if (!defined('E_DEPRECATED'))
-        define('E_DEPRECATED', E_NOTICE);
-/**/if (!defined('E_USER_DEPRECATED'))
-        define('E_USER_DEPRECATED', E_USER_NOTICE);
-
-/**/if (function_exists('spl_autoload')) // spl_autoload() evades code preprocessing, do not use it
+/**/if (function_exists('spl_autoload'))
         Patchwork\FunctionOverride(spl_autoload, Patchwork\PHP\Override\SplAutoload, $class);
 
 // Boolean version of ini_get()
