@@ -13,6 +13,7 @@ fieldset { border: 1px solid #bbb; padding: .5em; }
 legend { padding: 0 .5em; }
 optgroup { font-weight: bold; background: #fff; font-style: italic; }
 option { font-weight: normal; font-style: normal; }
+label[disabled] {color: #999; cursor: text;}
 
 /* IE specific fixes */
 .lt-ie8 body { behavior: url("{base:'fix/hover.htc'}"); }
