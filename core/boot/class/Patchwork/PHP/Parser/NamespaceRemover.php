@@ -27,8 +27,10 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
         'tagNsUse'  => array(T_USE_CLASS, T_USE_FUNCTION, T_USE_CONSTANT, T_TYPE_HINT),
         'tagNsName' => array(T_NAME_CLASS, T_NAME_FUNCTION),
         'tagNew'    => T_NEW,
+        'tagConst'  => T_CONST,
     ),
     $dependencies = array(
+        'BracketBalancer' => 'brackets',
         'ConstFuncResolver',
         'ClassInfo' => array('class', 'scope', 'namespace'),
         'NamespaceResolver',
@@ -110,6 +112,54 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
             if ('[' !== $n[0] && T_OBJECT_OPERATOR !== $n[0])
             {
                 $t[1] = "\${is_string($\x9D={$t[1]})&&($\x9D=strtr(isset($\x9D[0])&&'\\\\'===$\x9D[0]?substr($\x9D,1):$\x9D,'\\\\','_'))?\"\x9D\":\"\x9D\"}";
+            }
+        }
+    }
+
+    protected function tagConst(&$token)
+    {
+        switch ($this->scope->type)
+        {
+        case T_OPEN_TAG:
+        case T_NAMESPACE:
+            $token[1] = 'define(';
+
+            $this->getNextToken($i);
+            $this->tokens[$i-2][1] .= "'"; // The only valid token here is a T_NON_SEMANTIC
+
+            $this->constBracketLevel = count($this->brackets);
+            $this->register($this->callbacks = array(
+                'tagConstName' => T_NAME_CONST,
+                'tagConstEqual' => '=',
+                'tagConstEnd' => array(';', ','),
+            ));
+        }
+    }
+
+    protected function tagConstName(&$token)
+    {
+        $this->unshiftTokens(array(T_WHITESPACE, "'"));
+    }
+
+    protected function tagConstEqual(&$token)
+    {
+        $token[1] = ',';
+    }
+
+    protected function tagConstEnd(&$token)
+    {
+        if (count($this->brackets) === $this->constBracketLevel)
+        {
+            if (';' === $token[0])
+            {
+                $this->unregister($this->callbacks);
+                $token[1] = ")" . $token[1];
+            }
+            else
+            {
+                $token[1] = ");define(";
+                $this->getNextToken($i);
+                $this->tokens[$i-2][1] .= "'";
             }
         }
     }

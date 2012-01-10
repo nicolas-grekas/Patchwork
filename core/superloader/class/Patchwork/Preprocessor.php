@@ -14,14 +14,7 @@
 
 class Patchwork_Preprocessor
 {
-    static
-
-    $constants = array(
-        'DEBUG',
-        'PATCHWORK_ZCACHE',
-        'PATCHWORK_PATH_LEVEL',
-        'PATCHWORK_PROJECT_PATH',
-    );
+    static $constants = array('DEBUG');
 
     protected static
 

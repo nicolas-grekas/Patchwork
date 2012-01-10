@@ -362,9 +362,9 @@ class Patchwork_Bootstrapper_Manager
     protected function exportPathData()
     {
         $this->substeps[] = array(
-              "define('PATCHWORK_PROJECT_PATH'," . var_export($this->cwd, true) . ');'
-            . "define('PATCHWORK_ZCACHE',"       . var_export($this->zcache, true) . ');'
-            . "define('PATCHWORK_PATH_LEVEL',"   . var_export($this->last, true) . ');'
+              "const PATCHWORK_ZCACHE=" . var_export($this->zcache, true) . ';'
+            . "const PATCHWORK_PATH_LEVEL=" . var_export($this->last, true) . ';'
+            . "const PATCHWORK_PROJECT_PATH=" . var_export($this->cwd, true) . ';'
             . '$patchwork_path=' . var_export($this->paths, true) . ';',
             __FILE__
         );

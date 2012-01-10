@@ -86,12 +86,12 @@ Patchwork\FunctionOverride(html_entity_decode, html_entity_decode, $s, $style = 
 /**/}
 /**/else
 /**/{
-        define('MB_OVERLOAD_MAIL',   1);
-        define('MB_OVERLOAD_STRING', 2);
-        define('MB_OVERLOAD_REGEX',  4);
-        define('MB_CASE_UPPER', 0);
-        define('MB_CASE_LOWER', 1);
-        define('MB_CASE_TITLE', 2);
+        const MB_OVERLOAD_MAIL = 1;
+        const MB_OVERLOAD_STRING = 2;
+        const MB_OVERLOAD_REGEX = 4;
+        const MB_CASE_UPPER = 0;
+        const MB_CASE_LOWER = 1;
+        const MB_CASE_TITLE = 2;
 
         Patchwork\FunctionOverride(mb_convert_encoding,     o\Mbstring500, $s, $to, $from = INF);
         Patchwork\FunctionOverride(mb_decode_mimeheader,    o\Mbstring500, $s);
@@ -143,10 +143,10 @@ Patchwork\FunctionOverride(html_entity_decode, html_entity_decode, $s, $style = 
 /**/}
 /**/else
 /**/{
-        define('ICONV_IMPL', 'Patchwork');
-        define('ICONV_VERSION', '1.0');
-        define('ICONV_MIME_DECODE_STRICT', 1);
-        define('ICONV_MIME_DECODE_CONTINUE_ON_ERROR', 2);
+        const ICONV_IMPL = 'Patchwork';
+        const ICONV_VERSION = '1.0';
+        const ICONV_MIME_DECODE_STRICT = 1;
+        const ICONV_MIME_DECODE_CONTINUE_ON_ERROR = 2;
 
         Patchwork\FunctionOverride(iconv,                     o\Iconv, $from, $to, $s);
         Patchwork\FunctionOverride(iconv_get_encoding,        o\Iconv, $type = 'all');
@@ -202,9 +202,9 @@ Patchwork\FunctionOverride(html_entity_decode, html_entity_decode, $s, $style = 
         Patchwork\FunctionOverride(normalizer_is_normalized, Normalizer::isNormalized, $s, $form = 'NFC');
         Patchwork\FunctionOverride(normalizer_normalize,     Normalizer::normalize,    $s, $form = 'NFC');
 
-        define('GRAPHEME_EXTR_COUNT',    0);
-        define('GRAPHEME_EXTR_MAXBYTES', 1);
-        define('GRAPHEME_EXTR_MAXCHARS', 2);
+        const GRAPHEME_EXTR_COUNT = 0;
+        const GRAPHEME_EXTR_MAXBYTES = 1;
+        const GRAPHEME_EXTR_MAXCHARS = 2;
 
         Patchwork\FunctionOverride(grapheme_extract,  o\Intl, $s, $size, $type = 0, $start = 0, &$next = 0);
         Patchwork\FunctionOverride(grapheme_stripos,  o\Intl, $s, $needle, $offset = 0);
