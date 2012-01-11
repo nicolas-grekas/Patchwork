@@ -26,10 +26,17 @@ class Patchwork_PHP_Parser_ConstFuncResolver extends Patchwork_PHP_Parser
     protected
 
     $openTag,
-    $nsLoadCode = false,
+    $nsCode,
+    $nsCodeLoader,
     $callbacks = array('tagOpenTag' => T_SCOPE_OPEN),
     $dependencies = array('ScopeInfo' => array('scope', 'namespace'));
 
+
+    function __construct(parent $parent, $ns_code_loader = null)
+    {
+        $this->nsCodeLoader = $ns_code_loader ? $ns_code_loader : array($this, 'nsCodeLoader');
+        parent::__construct($parent);
+    }
 
     protected function tagOpenTag(&$token)
     {
@@ -37,62 +44,40 @@ class Patchwork_PHP_Parser_ConstFuncResolver extends Patchwork_PHP_Parser
         {
             $this->openTag =& $token;
             $this->register($this->callbacks = array(
-                'tagFunction'   => T_USE_FUNCTION,
-                'tagConstant'   => T_USE_CONSTANT,
+                'tagConstFunct' => array(T_USE_FUNCTION, T_USE_CONSTANT),
                 'tagScopeClose' => T_BRACKET_CLOSE,
             ));
         }
     }
 
-    protected function tagFunction(&$token)
+    protected function tagConstFunct(&$token)
     {
-        return T_NS_SEPARATOR !== $this->lastType ? $this->resolveConstFunc($token, 'function_exists') : null;
-    }
-
-    protected function tagConstant(&$token)
-    {
-        return T_NS_SEPARATOR !== $this->lastType ? $this->resolveConstFunc($token, 'defined') : null;
-    }
-
-    protected function resolveConstFunc(&$token, $exists)
-    {
-        $this->unshiftTokens(array(T_NS_SEPARATOR, '\\'), $token);
-
-        // FIXME: Current $exists() doesn't work with PHP 5.2 for namespaced functions and constants
-
-        if (  !$exists($token[1])
-            || $exists($this->namespace . $token[1])
-            || self::nsLoad(substr($this->namespace, 0, -1))
-            || $exists($this->namespace . $token[1])  )
+        if (T_NS_SEPARATOR !== $this->lastType)
         {
-            $this->nsLoadCode = self::nsLoadCode(substr($this->namespace, 0, -1));
-            $this->unshiftTokens(array(T_NAMESPACE, 'namespace'));
-        }
+            $this->unshiftTokens(array(T_NS_SEPARATOR, '\\'), $token);
 
-        return false;
+            if ($this->nsCode = call_user_func($this->nsCodeLoader, isset($token[2][T_USE_FUNCTION]), $this->namespace, $token[1]))
+                $this->unshiftTokens(array(T_NAMESPACE, 'namespace'));
+
+            return false;
+        }
     }
 
     protected function tagScopeClose(&$token)
     {
         $this->unregister($this->callbacks);
 
-        if (false !== $this->nsLoadCode)
+        if (is_string($this->nsCode))
         {
-            $this->openTag[1] .= $this->nsLoadCode . ';';
-            $this->nsLoadCode = false;
+            $this->openTag[1] .= $this->nsCode . ';';
+            $this->nsCode = false;
         }
     }
 
-
-    static protected function nsLoad($ns)
+    protected function nsCodeLoader($is_func, $ns, $token)
     {
-        //class_exists($ns);
-        return false;
-    }
-
-    static protected function nsLoadCode($ns)
-    {
-        //return "class_exists('{$ns}')";
-        return false;
+        // FIXME: This doesn't work in PHP 5.2 for namespaced functions and constants
+        if ($is_func) return function_exists($ns . $token);
+        else return defined($ns . $token);
     }
 }
