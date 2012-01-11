@@ -240,11 +240,12 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
             new Patchwork_PHP_Parser_Bracket_PatchworkPath($this, $this->level);
             break;
 
+        case '\class_parents':
+        case '\class_implements':
         case '\class_exists':
         case '\trait_exists':
         case '\interface_exists':
-            // For files in the include_path, always set the 2nd arg of class|trait|interface_exists() to true
-            if (0 <= $this->level) return;
+            // Force a lightweight autoload
             new Patchwork_PHP_Parser_Bracket_ClassExists($this);
             break;
 

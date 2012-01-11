@@ -86,13 +86,13 @@ class Patchwork_PHP_Parser_ConstFuncResolver extends Patchwork_PHP_Parser
 
     static protected function nsLoad($ns)
     {
-        //class_exists($ns, true);
+        //class_exists($ns);
         return false;
     }
 
     static protected function nsLoadCode($ns)
     {
-        //return "class_exists('{$ns}', true)";
+        //return "class_exists('{$ns}')";
         return false;
     }
 }

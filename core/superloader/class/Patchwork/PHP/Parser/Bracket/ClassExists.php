@@ -16,14 +16,23 @@
  */
 class Patchwork_PHP_Parser_Bracket_ClassExists extends Patchwork_PHP_Parser_Bracket
 {
+    protected $tail = "||\\Patchwork_Superloader::exists(\$\x9D,0)";
+
+    protected function onOpen(&$token)
+    {
+        $token[1] .= "\$\x9D=(";
+        PHP_VERSION_ID < 50300 && $this->tail[2] = ' ';
+    }
+
     protected function onReposition(&$token)
     {
-        if (1 === $this->bracketIndex) $token[1] .= '(';
-        if (2 === $this->bracketIndex) $token[1] = ')||1' . $token[1];
+        if (1 === $this->bracketIndex) $token[1] = ')' . $token[1] . '(';
+        if (2 === $this->bracketIndex) $token[1] = ')' . $this->tail . $token[1];
     }
 
     protected function onClose(&$token)
     {
-        if (1 === $this->bracketIndex) $token[1] = ')||1' . $token[1];
+        if (0 === $this->bracketIndex) $token[1] = ')' . $token[1];
+        if (1 === $this->bracketIndex) $token[1] = ')' . $this->tail . $token[1];
     }
 }

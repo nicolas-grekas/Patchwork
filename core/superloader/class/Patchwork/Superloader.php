@@ -43,16 +43,34 @@ class Patchwork_Superloader
         }
     }
 
-    static function exists($class, $autoload)
+    static function exists($class, $a)
     {
-        if (    class_exists($class, $autoload)) return 'class';
-        if (interface_exists($class, false    )) return 'interface';
-        if (    trait_exists($class, false    )) return 'trait';
+        if (    class_exists($class, $a   )) return 'class';
+        if (interface_exists($class, false)) return 'interface';
+        if (    trait_exists($class, false)) return 'trait';
+
+        if ($a) return false;
 
 /**/    if (function_exists('class_alias'))
-            return self::loadAlias($class);
-/**/    else
-            return false;
+            if ($a = self::loadAlias($class)) return $a;
+
+        if ( false === ($a = strrpos($class, '__'))
+          || !isset($class[$a+2])
+          || '' !== rtrim(substr($class, $a+2), '0123456789') )
+        {
+            $class .= '__';
+
+            static $map = /*<*/array_map('strval', array(-1 => '00') + range(0, PATCHWORK_PATH_LEVEL))/*>*/;
+
+            foreach ($map as $a)
+            {
+                if (    class_exists($class . $a, false)) return 'class';
+                if (interface_exists($class . $a, false)) return 'interface';
+                if (    trait_exists($class . $a, false)) return 'trait';
+            }
+        }
+
+        return false;
     }
 
     static function loadAlias($class)
