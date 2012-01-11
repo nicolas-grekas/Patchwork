@@ -55,6 +55,7 @@ class Patchwork_Updatedb
             $h || $h = dba_handlers();
             if ($h) foreach ($h as $db) if ($h = @dba_open($tmp, 'nd', $db, 0600)) break;
         }
+        else $h = false;
 
         if ($h)
         {
