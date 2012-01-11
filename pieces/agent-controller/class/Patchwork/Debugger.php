@@ -182,13 +182,15 @@ parent.E.buffer = [];
 
     protected static function parseLine($line, $next_line)
     {
-        if ('' !== $line && '[' === $line[0] && '] PHP ' === substr($line, 21, 6))
+        if ('' !== $line && '[' === $line[0] && (false !== $offset = strpos($line, ']')) && '] PHP ' === substr($line, $offset, 6))
         {
             static $raw_token; empty($raw_token) && $raw_token = substr(mt_rand(), -10);
 
+            $offset += 6;
+
             if (preg_match("' on line \d+$'", $line))
             {
-                $line = self::parseRawError($line);
+                $line = self::parseRawError($line, $offset);
                 $line = array(
                     '*** php-error ***',
                     '{',
@@ -199,7 +201,7 @@ parent.E.buffer = [];
                     '    "level": ' . p\PHP\JsonDumper::get(constant($line['type']) . '/-1'),
                 );
 
-                if ("Stack trace:" === substr(rtrim($next_line), 27))
+                if ("Stack trace:" === substr(rtrim($next_line), $offset))
                 {
                     $line[count($line) - 1] .= ',';
                 }
@@ -208,7 +210,7 @@ parent.E.buffer = [];
             {
                 // Xdebug inserted stack trace
 
-                $line = substr(rtrim($line), 27);
+                $line = substr(rtrim($line), $offset);
 
                 if ("Stack trace:" === $line)
                 {
@@ -227,7 +229,7 @@ parent.E.buffer = [];
                         '      }'
                     );
 
-                    if ('[' !== $next_line[0] || '] PHP ' !== substr($next_line, 21, 6) || preg_match("' on line \d+$'", $next_line))
+                    if ('[' !== $next_line[0] || (false === $offset = strpos($next_line, ']')) || '] PHP ' !== substr($next_line, $offset, 6) || preg_match("' on line \d+$'", $next_line))
                     {
                         $line[] = '    }';
                     }
@@ -238,7 +240,7 @@ parent.E.buffer = [];
                 }
             }
 
-            if ('[' !== $next_line[0] || '] PHP ' !== substr($next_line, 21, 6) || preg_match("' on line \d+$'", $next_line))
+            if ('[' !== $next_line[0] || (false === $offset = strpos($next_line, ']')) || '] PHP ' !== substr($next_line, $offset, 6) || preg_match("' on line \d+$'", $next_line))
             {
                 $line[] = '  }';
                 $line[] = '}    ';
@@ -253,12 +255,12 @@ parent.E.buffer = [];
         }
     }
 
-    protected static function parseRawError($a)
+    protected static function parseRawError($a, $offset)
     {
-        $b = strpos($a, ':', 28);
+        $b = strpos($a, ':', $offset + 1);
         $b = array(
-            'date' => substr($a, 1, 20),
-            'type' => substr($a, 27, $b-27),
+            'date' => substr($a, 1, $offset - 7),
+            'type' => substr($a, $offset, $b - $offset),
             'message' => rtrim(substr($a, $b+3)),
             'file' => '',
             'line' => 0,
