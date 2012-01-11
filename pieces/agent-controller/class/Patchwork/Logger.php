@@ -14,7 +14,7 @@
 namespace Patchwork;
 
 // http://bugs.php.net/42098 workaround
-class_exists('Patchwork\PHP\Logger') || __autoload('Patchwork\PHP\Logger');
+class_exists('Patchwork\PHP\Logger') || eval(';') || __autoload('Patchwork\PHP\Logger');
 
 class Logger extends PHP\Logger
 {
@@ -32,9 +32,9 @@ class Logger extends PHP\Logger
         if ($this->isFirstEvent)
         {
             // http://bugs.php.net/42098 workaround
-            class_exists('Patchwork\PHP\Walker') || __autoload('Patchwork\PHP\Walker');
-            class_exists('Patchwork\PHP\Dumper') || __autoload('Patchwork\PHP\Dumper');
-            class_exists('Patchwork\PHP\JsonDumper') || __autoload('Patchwork\PHP\JsonDumper');
+            class_exists('Patchwork\PHP\Walker') || eval(';') || __autoload('Patchwork\PHP\Walker');
+            class_exists('Patchwork\PHP\Dumper') || eval(';') || __autoload('Patchwork\PHP\Dumper');
+            class_exists('Patchwork\PHP\JsonDumper') || eval(';') || __autoload('Patchwork\PHP\JsonDumper');
 
             $data['patchwork'] = array(
                 'i18n' => PATCHWORK_I18N,

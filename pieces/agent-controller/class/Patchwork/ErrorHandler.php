@@ -14,7 +14,7 @@
 namespace Patchwork;
 
 // http://bugs.php.net/42098 workaround
-class_exists('Patchwork\PHP\ErrorHandler') || __autoload('Patchwork\PHP\ErrorHandler');
+class_exists('Patchwork\PHP\ErrorHandler') || eval(';') || __autoload('Patchwork\PHP\ErrorHandler');
 
 class ErrorHandler extends PHP\ErrorHandler
 {
@@ -40,7 +40,7 @@ class ErrorHandler extends PHP\ErrorHandler
         isset(self::$logStream) || self::$logStream = fopen(self::$logFile, 'ab');
 
         // http://bugs.php.net/42098 workaround
-        class_exists('Patchwork\Logger') || __autoload('Patchwork\Logger');
+        class_exists('Patchwork\Logger') || eval(';') || __autoload('Patchwork\Logger');
         $l = new Logger(self::$logStream, $_SERVER['REQUEST_TIME_FLOAT']);
         $l->lock = false;
         $l->lineFormat = sprintf('%010d', substr(mt_rand(), -10)) . ": %s\n";
