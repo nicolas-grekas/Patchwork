@@ -118,6 +118,7 @@ class Logger
         $a["\0Exception\0trace"] = $this->filterTrace($a["\0Exception\0trace"], $e instanceof RecoverableErrorInterface ? $e->traceOffset : 0, 1);
         if (null === $a["\0Exception\0trace"]) unset($a["\0Exception\0trace"]);
         if ($e instanceof RecoverableErrorInterface) unset($a['traceOffset']);
+        if ($e instanceof RecoverableErrorInterface && !isset($a['scope'])) unset($a['scope']);
         if (empty($a["\0Exception\0previous"])) unset($a["\0Exception\0previous"]);
         if ($e instanceof \ErrorException && isset(self::$errorTypes[$a["\0*\0severity"]])) $a["\0*\0severity"] = self::$errorTypes[$a["\0*\0severity"]];
         unset($a["\0Exception\0string"], $a['xdebug_message'], $a['__destructorException']);
