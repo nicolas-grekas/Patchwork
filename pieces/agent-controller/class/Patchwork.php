@@ -121,7 +121,10 @@ class Patchwork
 
     static function __init()
     {
-        p\ErrorHandler::start(PATCHWORK_PROJECT_PATH . 'error.patchwork.log', new p\ErrorHandler);
+        $a = $_SERVER['REQUEST_TIME_FLOAT'];
+        $a = date('YmdHis', (int) $a) . sprintf('.%06d', 100000 * ($a - (int) $a)) . '-';
+        $a .= substr(str_replace(array('+', '/'), array('', ''), base64_encode(md5(mt_rand(), true))), 0, 6);
+        p\ErrorHandler::start(PATCHWORK_ZCACHE . $a . '.log', new p\ErrorHandler);
 
         if (isset($_GET['p:']))
         {

@@ -108,10 +108,7 @@ class Debugger extends p
         header('Cache-Control: max-age=0,private,must-revalidate');
 
         set_time_limit(0);
-        ignore_user_abort(false);
-        ini_set('error_log', PATCHWORK_PROJECT_PATH . 'error.patchwork.log');
-        $error_log = ini_get('error_log');
-        $error_log || $error_log = PATCHWORK_PROJECT_PATH . 'error.patchwork.log';
+        ignore_user_abort(true);
 
         ?>
 <!doctype html>
@@ -125,49 +122,59 @@ class Debugger extends p
 <div id="events" style="display:none">
 <?php
 
-        if (file_exists($error_log))
+        $handlers = array();
+
+        for (;;)
         {
-            if ($h = fopen($error_log, 'r'))
+            foreach (scandir(PATCHWORK_ZCACHE) as $log)
+                if ('.log' === substr($log = PATCHWORK_ZCACHE . $log, -4))
+                    if (rename($log, $log .= '~'))
+                        ($h = fopen($log, 'rb')) ? $handlers[$log] = $h : unlink($log);
+
+            $count = 0;
+
+            foreach ($handlers as $log => $h)
             {
-                while (false !== $next_line = fgets($h))
+                if (false === $next_line = fgets($h)) ++$count;
+                else while (false !== $line = $next_line)
                 {
-                    while (false !== $line = $next_line)
+                    $next_line = fgets($h);
+
+                    self::parseLine($line, $next_line);
+
+                    for (;;)
                     {
-                        $next_line = fgets($h);
-
-                        self::parseLine($line, $next_line);
-
-                        for (;;)
+                        if (false !== $line = reset(self::$buffer))
                         {
-                            if (false !== $line = reset(self::$buffer))
+                            echo implode('', $line);
+
+                            if ($line && false === end($line))
                             {
-                                echo implode('', $line);
+                                unset(self::$buffer[key(self::$buffer)]);
 
-                                if ($line && false === end($line))
-                                {
-                                    unset(self::$buffer[key(self::$buffer)]);
-                                    continue;
-                                }
-                                else
-                                {
-                                    self::$buffer[key(self::$buffer)] = array();
-                                }
+                                ob_flush();
+                                flush();
+
+                                if (connection_aborted()) break 4;
+                                else continue;
                             }
-
-                            break;
+                            else
+                            {
+                                self::$buffer[key(self::$buffer)] = array();
+                            }
                         }
 
-                        if (connection_aborted()) break;
+                        break;
                     }
-
-                    usleep(100000); // Wait 100ms
                 }
-
-                fclose($h);
             }
 
-            @unlink($error_log);
+            if ($count === count($handlers)) break;
+
+            usleep(150000);
         }
+
+        foreach ($handlers as $log => $h) fclose($h) + unlink($log);
 
         ?>
 </div>
