@@ -30,7 +30,7 @@ class Patchwork_Updatedb
         else $old_db = false;
 
         $tmp = $cwd . '.~' . uniqid(mt_rand(), true);
-        $db = @fopen($tmp, 'wb');
+        $db = fopen($tmp, 'wb');
 
         $paths = array_flip($paths);
         unset($paths[$cwd]);
@@ -46,7 +46,7 @@ class Patchwork_Updatedb
 
         $h = $cwd . '.patchwork.paths.txt';
         '\\' === DIRECTORY_SEPARATOR && file_exists($h) && @unlink($h);
-        @rename($tmp, $h) || unlink($tmp);
+        rename($tmp, $h) || unlink($tmp);
 
         if (function_exists('dba_handlers'))
         {
@@ -69,7 +69,7 @@ class Patchwork_Updatedb
 
             $h = $cwd . '.patchwork.paths.db';
             '\\' === DIRECTORY_SEPARATOR && file_exists($h) && @unlink($h);
-            @rename($tmp, $h) || unlink($tmp);
+            rename($tmp, $h) || unlink($tmp);
         }
         else
         {
@@ -77,18 +77,11 @@ class Patchwork_Updatedb
 
             foreach ($parentPaths as $paths => &$level)
             {
-                $paths = md5($paths);
-                $paths = $paths[0] . DIRECTORY_SEPARATOR . $paths[1] . DIRECTORY_SEPARATOR . substr($paths, 2) . '.path.txt';
-
-                if (false === $h = @fopen($zcache . $paths, 'wb'))
-                {
-                    @mkdir($zcache . substr($paths, 0, 3), 0700, true);
-                    $h = fopen($zcache . $paths, 'wb');
-                }
-
                 sort($level);
-                fwrite($h, implode(',', $level));
-                fclose($h);
+                $paths = md5($paths);
+                $h = $zcache . $paths[0] . DIRECTORY_SEPARATOR . $paths[1] . DIRECTORY_SEPARATOR;
+                file_exists($h) || mkdir($h, 0700, true);
+                file_put_contents($h . $paths . '.path.txt', implode(',', $level));
             }
         }
 

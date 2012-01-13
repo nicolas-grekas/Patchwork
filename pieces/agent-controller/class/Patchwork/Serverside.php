@@ -365,7 +365,7 @@ class Serverside extends p
 
                 return array((object) $data['v'], $data['template']);
             }
-            else @unlink($cagent);
+            else unlink($cagent);
         }
 
         return false;

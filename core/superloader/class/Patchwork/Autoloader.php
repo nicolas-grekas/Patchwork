@@ -317,12 +317,12 @@ class Patchwork_Autoloader extends Patchwork_Superloader
         $marker = substr($marker, $a);
         $marker = str_replace('%marker%', "__FILE__.'{$marker}'", $template);
 
-        if ($a = @file_get_contents($src)) false === strpos($a, $marker) && $a = false;
+        if (!file_exists($src) || !($a = file_get_contents($src)) || false === strpos($a, $marker)) $a = false;
 
-        return array($src, $marker, &$a);
+        return array($src, $marker, $a);
     }
 
-    protected static function write(&$data, $to)
+    protected static function write($data, $to)
     {
         $a = PATCHWORK_PROJECT_PATH . '.~' . uniqid(mt_rand(), true);
         if (false !== file_put_contents($a, $data))

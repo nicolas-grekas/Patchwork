@@ -88,8 +88,9 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 /**/else
 /**/{
         $base = md5($file);
-        $base = PATCHWORK_ZCACHE . $base[0] . '/' . $base[1] . '/' . substr($base, 2) . '.path.txt';
-        $base = @file_get_contents($base);
+        $base = PATCHWORK_ZCACHE . $base[0] . '/' . $base[1] . '/' . $base . '.path.txt';
+        if (file_exists($base)) $base = file_get_contents($base);
+        else $base = false;
 /**/}
 
     if (false !== $base)

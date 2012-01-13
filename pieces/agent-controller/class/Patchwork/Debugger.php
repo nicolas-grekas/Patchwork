@@ -125,9 +125,9 @@ class Debugger extends p
 <div id="events" style="display:none">
 <?php
 
-        if (is_file($error_log))
+        if (file_exists($error_log))
         {
-            if ($h = @fopen($error_log, 'r'))
+            if ($h = fopen($error_log, 'r'))
             {
                 while (false !== $next_line = fgets($h))
                 {

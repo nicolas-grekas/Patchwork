@@ -135,11 +135,7 @@ EOHTML;
 
                             return;
                         }
-                        else
-                        {
-                            @unlink($cagent);
-                            @unlink($dagent);
-                        }
+                        else @(unlink($cagent) + unlink($dagent));
                     }
                 }
                 else
@@ -159,11 +155,7 @@ EOHTML;
 
                             return;
                         }
-                        else
-                        {
-                            @unlink($cagent);
-                            @unlink($dagent);
-                        }
+                        else @(unlink($cagent) + unlink($dagent));
                     }
                 }
             }

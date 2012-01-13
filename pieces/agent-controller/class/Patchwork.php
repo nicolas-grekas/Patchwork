@@ -704,7 +704,7 @@ class Patchwork
 
     static function uniqId($raw = false)
     {
-/**/    if (@fopen('/dev/urandom', 'r'))
+/**/    if (@(file_exists('/dev/urandom') && fopen('/dev/urandom', 'r')))
             return md5(file_get_contents('/dev/urandom', false, null, -1, 16) . uniqid(mt_rand() . pack('d', lcg_value()), true), $raw);
 /**/    else
             return md5(uniqid(mt_rand() . pack('d', lcg_value()), true), $raw);
@@ -802,7 +802,7 @@ class Patchwork
     {
         file_exists($h = dirname($file)) || mkdir($h, 0700, true);
 
-        if ($h = @fopen($file, 'xb')) flock($h, LOCK_EX);
+        if ($h = file_exists($file) ? false : @fopen($file, 'xb')) flock($h, LOCK_EX);
         else if ($readHandle)
         {
             $readHandle = fopen($file, 'rb');

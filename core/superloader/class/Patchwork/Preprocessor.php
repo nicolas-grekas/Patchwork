@@ -100,14 +100,9 @@ class Patchwork_Preprocessor
             if (false !== file_put_contents($tmp, $code))
             {
 /**/            if ('\\' === DIRECTORY_SEPARATOR)
-/**/            {
                     file_exists($destination) && @unlink($destination);
-                    @rename($tmp, $destination) || unlink($tmp);
-/**/            }
-/**/            else
-/**/            {
-                    rename($tmp, $destination);
-/**/            }
+
+                rename($tmp, $destination) || unlink($tmp);
             }
         }
 
