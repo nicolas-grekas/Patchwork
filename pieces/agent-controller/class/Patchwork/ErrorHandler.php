@@ -43,7 +43,7 @@ class ErrorHandler extends PHP\ErrorHandler
         class_exists('Patchwork\Logger') || eval(';') || __autoload('Patchwork\Logger');
         $l = new Logger(self::$logStream, $_SERVER['REQUEST_TIME_FLOAT']);
         $l->lock = false;
-        $l->lineFormat = sprintf('%010d', substr(mt_rand(), -10)) . ": %s\n";
+        $l->lineFormat = sprintf('%010d', substr(mt_rand(), -10)) . ": %s";
 
         return $this->logger = $l;
     }

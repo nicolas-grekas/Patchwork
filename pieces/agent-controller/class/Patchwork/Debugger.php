@@ -303,7 +303,7 @@ parent.E.buffer = [];
 
     protected static function htmlDumpLine($a)
     {
-        list($token, $a) = explode(': ', substr($a, 0, -1) , 2);
+        list($token, $a) = explode(': ', rtrim($a) , 2);
         $b =& self::$buffer[$token];
 
         if ('*** ' === substr($a, 0, 4))
