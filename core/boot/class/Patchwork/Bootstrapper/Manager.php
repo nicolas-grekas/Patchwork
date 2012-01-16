@@ -262,9 +262,7 @@ class Patchwork_Bootstrapper_Manager
         fclose($this->lock);
         $this->lock = null;
 
-        $a = $this->cwd . '.patchwork.lock';
-        touch($a, $_SERVER['REQUEST_TIME'] + 1);
-        rename($a, $this->cwd . '.patchwork.php');
+        file_exists($a = $this->cwd . '.patchwork.lock') && rename($a, $this->cwd . '.patchwork.php');
 
         $a = 'spl_autoload_unregister';
         function_exists('__patchwork_' . $a) && $a = '__patchwork_' . $a;
