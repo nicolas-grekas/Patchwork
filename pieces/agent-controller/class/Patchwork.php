@@ -855,8 +855,11 @@ class Patchwork
 
         $filename = rawurlencode(str_replace('/', '.', $filename));
         $filename = substr($filename, 0, 224 - strlen($extension));
+        $filename = PATCHWORK_ZCACHE . $hash . '.' . $filename . $extension;
 
-        return PATCHWORK_ZCACHE . $hash . '.' . $filename . $extension;
+        file_exists($hash = dirname($filename)) || mkdir($hash, 0700, true);
+
+        return $filename;
     }
 
     static function getContextualCachePath($filename, $extension, $key = '')
@@ -1090,12 +1093,8 @@ class Patchwork
 
             if (!$file || PATCHWORK_ZCACHE === $file) continue;
 
-            if ($file_isnew = !file_exists($h = dirname($path))) mkdir($h, 0700, true);
-            else $file_isnew = !file_exists($path);
-
-            $h = fopen($path, 'ab');
-            fwrite($h, 'U' . $file . "\n");
-            fclose($h);
+            $file_isnew = !file_exists($path);
+            file_put_contents($path, 'U' . $file . "\n", FILE_APPEND);
 
             if ($file_isnew)
             {
@@ -1105,12 +1104,8 @@ class Patchwork
                     $a = $path;
                     $path = self::getCachePath('watch/' . implode('/', $message), 'txt');
 
-                    if ($file_isnew = !file_exists($h = dirname($path . ' '))) mkdir($h, 0700, true);
-                    else $file_isnew = !file_exists($path);
-
-                    $h = fopen($path, 'ab');
-                    fwrite($h, 'I' . $a . "\n");
-                    fclose($h);
+                    $file_isnew = !file_exists($path);
+                    file_put_contents($path, 'I' . $a . "\n", FILE_APPEND);
 
                     if (!$file_isnew) break;
                 }
@@ -1362,12 +1357,7 @@ class Patchwork
                     flock($h, LOCK_UN);
                     fclose($h);
 
-                    foreach ($path as $path)
-                    {
-                        $h = fopen($path, 'ab');
-                        fwrite($h, 'U' . $validator . "\n");
-                        fclose($h);
-                    }
+                    foreach ($path as $path) file_put_contents($path, 'U' . $validator . "\n", FILE_APPEND);
 
                     self::writeWatchTable('appId', $validator);
                 }
