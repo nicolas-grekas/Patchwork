@@ -27,7 +27,7 @@ class Logger
     public
 
     $writeLock = true,
-    $lineFormat = "%s\n",
+    $lineFormat = "%s",
     $loggedGlobals = array('_SERVER');
 
     protected
@@ -154,18 +154,18 @@ class Logger
 
     function writeEvent($type, $data)
     {
-        fprintf($this->logStream, $this->lineFormat, "*** {$type} ***");
+        fprintf($this->logStream, $this->lineFormat . PHP_EOL, "*** {$type} ***");
 
         $d = new JsonDumper;
         $d->setCallback('line', array($this, 'writeLine'));
         $d->setCallback('o:exception', array($this, 'castException'));
         $d->walk($data);
 
-        fprintf($this->logStream, $this->lineFormat, '***');
+        fprintf($this->logStream, $this->lineFormat . PHP_EOL, '***');
     }
 
     function writeLine($line, $depth)
     {
-        fprintf($this->logStream, $this->lineFormat, str_repeat('  ', $depth) . $line);
+        fprintf($this->logStream, $this->lineFormat . PHP_EOL, str_repeat('  ', $depth) . $line);
     }
 }
