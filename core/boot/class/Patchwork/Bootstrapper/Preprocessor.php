@@ -28,7 +28,7 @@ class Patchwork_Bootstrapper_Preprocessor
         $p = new Patchwork_PHP_Parser_Normalizer;
 
         PHP_VERSION_ID < 50400 && $p = new Patchwork_PHP_Parser_Backport54Tokens($p);
-        PHP_VERSION_ID < 50300 && $p = new Patchwork_PHP_Parser_Backport53Tokens($p);
+        PHP_VERSION_ID < 50300 && new Patchwork_PHP_Parser_Backport53Tokens($p);
 
         new Patchwork_PHP_Parser_BracketBalancer($p);
         new Patchwork_PHP_Parser_StringInfo($p);
