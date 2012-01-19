@@ -63,11 +63,8 @@ class Patchwork_Superloader
             static $map = /*<*/array_map('strval', array(-1 => '00') + range(0, PATCHWORK_PATH_LEVEL))/*>*/;
 
             foreach ($map as $a)
-            {
-                if (    class_exists($class . $a, false)) return 'class';
-                if (interface_exists($class . $a, false)) return 'interface';
-                if (    trait_exists($class . $a, false)) return 'trait';
-            }
+                if (class_exists($class . $a, false))
+                    return 'class';
         }
 
         return false;

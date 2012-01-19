@@ -42,7 +42,7 @@ use Patchwork\PHP\Override as o;
 
 /**/if (!function_exists('trait_exists'))
 /**/{
-        function trait_exists($class, $autoload = true) {return false;}
+        function trait_exists($class, $autoload = true) {return $autoload && class_exists($class, $autoload) && false;}
 /**/}
 
 /**/if (!function_exists('spl_object_hash'))

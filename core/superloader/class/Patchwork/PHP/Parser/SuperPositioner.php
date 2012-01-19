@@ -25,7 +25,7 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
     ),
     $callbacks = array(
         'tagClassUsage'  => array(T_USE_CLASS, T_TYPE_HINT),
-        'tagClass'       => array(T_CLASS, T_INTERFACE, T_TRAIT),
+        'tagClass'       => T_CLASS,
         'tagClassName'   => T_NAME_CLASS,
         'tagPrivate'     => T_PRIVATE,
         'tagRequire'     => array(T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
@@ -97,6 +97,7 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
     protected function tagClassName(&$token)
     {
         $c = $this->class;
+        if (T_CLASS !== $c->type) return; // Superpositioning is only for classes, not for traits nor interfaces
         $token[1] .= $c->suffix = '__' . (0 <= $this->level ? $this->level : '00');
         0 <= $this->level && $this->register(array('tagExtendsSelf' => T_USE_CLASS));
         $c->isTop = $this->topClass && 0 === strcasecmp(strtr($this->topClass, '\\', '_'), strtr($c->nsName, '\\', '_'));
@@ -166,7 +167,7 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
         {
             $token[1] = "}"
                 . ($c->isFinal ? 'final' : ($c->isAbstract ? 'abstract' : ''))
-                . " {$c->type} {$c->name} extends {$c->name}{$c->suffix} {" . $token[1]
+                . " class {$c->name} extends {$c->name}{$c->suffix} {" . $token[1]
                 . "{$s}::\$locations['{$a}']=1;";
 
             strpos($c->nsName, '\\')
