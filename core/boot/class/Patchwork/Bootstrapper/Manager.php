@@ -62,6 +62,8 @@ class Patchwork_Bootstrapper_Manager
         {
             $s = '';
 
+            if (function_exists('apc_clear_cache')) apc_clear_cache();
+
             // Turn off magic quotes runtime
 
             if (function_exists('get_magic_quotes_runtime') && @get_magic_quotes_runtime())
