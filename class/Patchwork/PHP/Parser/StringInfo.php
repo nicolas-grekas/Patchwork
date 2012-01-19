@@ -18,7 +18,7 @@ Patchwork_PHP_Parser::createToken('T_NAME_NS', 'T_NAME_CLASS', 'T_NAME_FUNCTION'
  *
  * This parser analyses tokens surrounding T_STRING tokens and is able to determine between many different semantics:
  * - T_NAME_NS:       namespace declaration as in namespace FOO\BAR
- * - T_NAME_CLASS:    class or interface declaration as in class FOO {}
+ * - T_NAME_CLASS:    class, interface or trait declaration as in class FOO {}
  * - T_NAME_FUNCTION: function or method declaration as in function FOO()
  * - T_NAME_CONST:    class or namespaced const declaration as in const FOO
  * - T_USE_NS:        namespace prefix or "use" aliasing as in FOO\bar

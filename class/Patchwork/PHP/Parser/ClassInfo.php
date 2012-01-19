@@ -41,7 +41,7 @@ class Patchwork_PHP_Parser_ClassInfo extends Patchwork_PHP_Parser
     protected function tagClass(&$token)
     {
         $this->class = (object) array(
-            'type'       => $token[1],
+            'type'       => $token[0],
             'name'       => false,
             'nsName'     => false,
             'extends'    => false,
