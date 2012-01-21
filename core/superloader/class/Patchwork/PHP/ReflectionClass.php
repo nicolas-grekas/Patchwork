@@ -27,7 +27,7 @@ class ReflectionClass extends \ReflectionClass
 
     function __construct($class)
     {
-        \Patchwork\Superloader::exists($class, false); // Do a lightweigh autoload
+        is_string($class) && \Patchwork\Superloader::exists($class, false); // Do a lightweigh autoload
 
         parent::__construct($class);
 
