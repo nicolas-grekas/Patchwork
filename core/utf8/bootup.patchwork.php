@@ -165,9 +165,9 @@ Patchwork\FunctionOverride(html_entity_decode, html_entity_decode, $s, $style = 
 /**/        else
                 Patchwork\FunctionOverride(iconv_strlen, o\Iconv::strlen2, $s, $enc = INF);
 
-            Patchwork\FunctionOverride(iconv_strpos,  o\Mbstring, $s, $needle, $offset = 0, $enc = INF);
-            Patchwork\FunctionOverride(iconv_strrpos, o\Mbstring, $s, $needle,              $enc = INF);
-            Patchwork\FunctionOverride(iconv_substr,  o\Mbstring, $s, $start, $length = 2147483647, $enc = INF);
+            Patchwork\FunctionOverride(iconv_strpos,  o\Mbstring::mb_strpos,  $s, $needle, $offset = 0, $enc = INF);
+            Patchwork\FunctionOverride(iconv_strrpos, o\Mbstring::mb_strrpos, $s, $needle,              $enc = INF);
+            Patchwork\FunctionOverride(iconv_substr,  o\Mbstring::mb_substr,  $s, $start, $length = 2147483647, $enc = INF);
             Patchwork\FunctionOverride(iconv_mime_decode, o\Iconv, $encoded_headers, $mode = 2, $charset = INF);
 /**/    }
 /**/}
@@ -194,8 +194,8 @@ Patchwork\FunctionOverride(html_entity_decode, html_entity_decode, $s, $style = 
 
 /**/if (!extension_loaded('intl'))
 /**/{
-        Patchwork\FunctionOverride(normalizer_is_normalized, Normalizer::isNormalized, $s, $form = 'NFC');
-        Patchwork\FunctionOverride(normalizer_normalize,     Normalizer::normalize,    $s, $form = 'NFC');
+        Patchwork\FunctionOverride(normalizer_is_normalized, Patchwork\Utf8\Normalizer::isNormalized, $s, $form = 'NFC');
+        Patchwork\FunctionOverride(normalizer_normalize,     Patchwork\Utf8\Normalizer::normalize,    $s, $form = 'NFC');
 
         const GRAPHEME_EXTR_COUNT = 0;
         const GRAPHEME_EXTR_MAXBYTES = 1;
