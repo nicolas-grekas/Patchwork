@@ -93,32 +93,27 @@ Patchwork\FunctionOverride(html_entity_decode, html_entity_decode, $s, $style = 
         const MB_CASE_LOWER = 1;
         const MB_CASE_TITLE = 2;
 
-        Patchwork\FunctionOverride(mb_convert_encoding,     o\Mbstring500, $s, $to, $from = INF);
-        Patchwork\FunctionOverride(mb_decode_mimeheader,    o\Mbstring500, $s);
-        Patchwork\FunctionOverride(mb_encode_mimeheader,    o\Mbstring500, $s, $charset = INF, $transfer_enc = INF, $lf = INF, $indent = INF);
-        Patchwork\FunctionOverride(mb_convert_case,         o\Mbstring500, $s, $mode, $enc = INF);
-        Patchwork\FunctionOverride(mb_internal_encoding,    o\Mbstring500, $enc = INF);
-        Patchwork\FunctionOverride(mb_list_encodings,       o\Mbstring500);
+        Patchwork\FunctionOverride(mb_convert_encoding,     o\Mbstring, $s, $to, $from = INF);
+        Patchwork\FunctionOverride(mb_decode_mimeheader,    o\Mbstring, $s);
+        Patchwork\FunctionOverride(mb_encode_mimeheader,    o\Mbstring, $s, $charset = INF, $transfer_enc = INF, $lf = INF, $indent = INF);
+        Patchwork\FunctionOverride(mb_convert_case,         o\Mbstring, $s, $mode, $enc = INF);
+        Patchwork\FunctionOverride(mb_internal_encoding,    o\Mbstring, $enc = INF);
+        Patchwork\FunctionOverride(mb_list_encodings,       o\Mbstring);
         Patchwork\FunctionOverride(mb_parse_str,            parse_str,     $s, &$result = array());
-        Patchwork\FunctionOverride(mb_strlen,               o\Mbstring500, $s, $enc = INF);
-        Patchwork\FunctionOverride(mb_strpos,               o\Mbstring500, $s, $needle, $offset = 0, $enc = INF);
-        Patchwork\FunctionOverride(mb_strtolower,           o\Mbstring500, $s, $enc = INF);
-        Patchwork\FunctionOverride(mb_strtoupper,           o\Mbstring500, $s, $enc = INF);
-        Patchwork\FunctionOverride(mb_substitute_character, o\Mbstring500, $char = INF);
+        Patchwork\FunctionOverride(mb_strlen,               o\Mbstring, $s, $enc = INF);
+        Patchwork\FunctionOverride(mb_strpos,               o\Mbstring, $s, $needle, $offset = 0, $enc = INF);
+        Patchwork\FunctionOverride(mb_strtolower,           o\Mbstring, $s, $enc = INF);
+        Patchwork\FunctionOverride(mb_strtoupper,           o\Mbstring, $s, $enc = INF);
+        Patchwork\FunctionOverride(mb_substitute_character, o\Mbstring, $char = INF);
         Patchwork\FunctionOverride(mb_substr_count,         substr_count,  $s, $needle);
-        Patchwork\FunctionOverride(mb_substr,               o\Mbstring500, $s, $start, $length = 2147483647, $enc = INF);
-        Patchwork\FunctionOverride(mb_stripos,              o\Mbstring520, $s, $needle, $offset = 0,   $enc = INF);
-        Patchwork\FunctionOverride(mb_stristr,              o\Mbstring520, $s, $needle, $part = false, $enc = INF);
-        Patchwork\FunctionOverride(mb_strrchr,              o\Mbstring520, $s, $needle, $part = false, $enc = INF);
-        Patchwork\FunctionOverride(mb_strrichr,             o\Mbstring520, $s, $needle, $part = false, $enc = INF);
-        Patchwork\FunctionOverride(mb_strripos,             o\Mbstring520, $s, $needle, $offset = 0,   $enc = INF);
-        Patchwork\FunctionOverride(mb_strrpos,              o\Mbstring520, $s, $needle, $offset = 0,   $enc = INF);
-        Patchwork\FunctionOverride(mb_strstr,               o\Mbstring520, $s, $needle, $part = false, $enc = INF);
-
-/**/    if (extension_loaded('mbstring'))
-            Patchwork\FunctionOverride(mb_strrpos500, mb_strrpos,   $s, $needle, $enc = INF);
-/**/    else
-            Patchwork\FunctionOverride(mb_strrpos500, o\Mbstring500, $s, $needle, $enc = INF);
+        Patchwork\FunctionOverride(mb_substr,               o\Mbstring, $s, $start, $length = 2147483647, $enc = INF);
+        Patchwork\FunctionOverride(mb_stripos,              o\Mbstring, $s, $needle, $offset = 0,   $enc = INF);
+        Patchwork\FunctionOverride(mb_stristr,              o\Mbstring, $s, $needle, $part = false, $enc = INF);
+        Patchwork\FunctionOverride(mb_strrchr,              o\Mbstring, $s, $needle, $part = false, $enc = INF);
+        Patchwork\FunctionOverride(mb_strrichr,             o\Mbstring, $s, $needle, $part = false, $enc = INF);
+        Patchwork\FunctionOverride(mb_strripos,             o\Mbstring, $s, $needle, $offset = 0,   $enc = INF);
+        Patchwork\FunctionOverride(mb_strrpos,              o\Mbstring, $s, $needle, $offset = 0,   $enc = INF);
+        Patchwork\FunctionOverride(mb_strstr,               o\Mbstring, $s, $needle, $part = false, $enc = INF);
 /**/}
 
 
@@ -170,9 +165,9 @@ Patchwork\FunctionOverride(html_entity_decode, html_entity_decode, $s, $style = 
 /**/        else
                 Patchwork\FunctionOverride(iconv_strlen, o\Iconv::strlen2, $s, $enc = INF);
 
-            Patchwork\FunctionOverride(iconv_strpos,  o\Mbstring520, $s, $needle, $offset = 0, $enc = INF);
-            Patchwork\FunctionOverride(iconv_strrpos, o\Mbstring520, $s, $needle,              $enc = INF);
-            Patchwork\FunctionOverride(iconv_substr,  o\Mbstring520, $s, $start, $length = 2147483647, $enc = INF);
+            Patchwork\FunctionOverride(iconv_strpos,  o\Mbstring, $s, $needle, $offset = 0, $enc = INF);
+            Patchwork\FunctionOverride(iconv_strrpos, o\Mbstring, $s, $needle,              $enc = INF);
+            Patchwork\FunctionOverride(iconv_substr,  o\Mbstring, $s, $start, $length = 2147483647, $enc = INF);
             Patchwork\FunctionOverride(iconv_mime_decode, o\Iconv, $encoded_headers, $mode = 2, $charset = INF);
 /**/    }
 /**/}
