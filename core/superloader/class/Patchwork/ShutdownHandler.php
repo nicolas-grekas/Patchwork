@@ -42,11 +42,7 @@ class Patchwork_ShutdownHandler
 
     static function register($callback)
     {
-        if (array() !== @array_map($callback, array()))
-        {
-            user_error('Invalid shutdown callback', E_USER_WARNING);
-            return;
-        }
+        if (array() !== @array_map($callback, array())) return register_shutdown_function($callback);
 
         $callback = func_get_args();
         register_shutdown_function(array(self::$class, '_call'), $callback);
