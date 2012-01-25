@@ -140,7 +140,18 @@ class Patchwork_Autoloader extends Patchwork_Superloader
 
             $current_pool = array();
 
-            patchwork_include_voicer($cache);
+            try
+            {
+                // Force fatal errors to be always reported
+                $src = error_reporting(error_reporting() | /*<*/E_PARSE | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR/*>*/);
+                patchwork_include($cache);
+                error_reporting($src);
+            }
+            catch (Exception $cache)
+            {
+                error_reporting($src);
+                throw $cache;
+            }
 
             if ($parent && self::exists($req, false)) $parent = false;
             if (false !== $parent_pool) $parent_pool[$parent ? $parent : $req] = $cache;
@@ -186,13 +197,13 @@ class Patchwork_Autoloader extends Patchwork_Superloader
             if ($isTop && class_exists($ns . $parent, false))
             {
                 $a = "{$ns}{$parent}::i\x9D";
-                if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__init'))
+                if (defined($a) ? $lc_req === constant($a) : method_exists($ns . $parent, '__init'))
                 {
                     $code .= "{$parent}::__init();";
                 }
 
                 $a = "{$ns}{$parent}::f\x9D";
-                if (defined($a) ? $lc_req === constant($a) : method_exists($parent, '__free'))
+                if (defined($a) ? $lc_req === constant($a) : method_exists($ns . $parent, '__free'))
                 {
                     $a = "\\Patchwork_ShutdownHandler::\$destructors[]='{$lc_ns}{$parent}';";
                     PHP_VERSION_ID < 50300 && $a[0] = ' ';
@@ -213,9 +224,12 @@ class Patchwork_Autoloader extends Patchwork_Superloader
             if ($code) eval($ns . $code);
         }
 
-        'patchwork_preprocessor' === $lc_top && self::$preproc = false;
+        if (!self::$turbo || self::$preproc)
+        {
+            self::$preproc && self::$preproc = 'patchwork_preprocessor' !== $lc_top;
+            return;
+        }
 
-        if (!self::$turbo || self::$preproc) return;
         if (class_exists('Patchwork_Preprocessor', false) && Patchwork_Preprocessor::isRunning()) return;
 
         if ($code && isset($GLOBALS["c\x9D"][$parent]))

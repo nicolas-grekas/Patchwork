@@ -115,19 +115,3 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
 // Private use for the preprocessor
 
 function &patchwork_autoload_marker($marker, &$ref) {return $ref;}
-
-function patchwork_include_voicer($file)
-{
-    try
-    {
-        $e = error_reporting(error_reporting() | /*<*/E_PARSE | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR/*>*/);
-        $file = patchwork_include($file);
-        error_reporting($e);
-        return $file;
-    }
-    catch (Exception $file)
-    {
-        error_reporting($e);
-        throw $file;
-    }
-}
