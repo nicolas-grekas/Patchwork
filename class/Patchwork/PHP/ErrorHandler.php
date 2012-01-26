@@ -27,7 +27,7 @@ namespace Patchwork\PHP;
  * catchable errors are written by PHP. Silenced non catchable errors that can be
  * detected at shutdown time are logged when the scream bit field allows so.
  *
- * Uncaught exceptions are turned to E_ERROR.
+ * Uncaught exceptions are logged as E_ERROR.
  *
  * As errors have a performance cost, repeated errors are all logged, so that the developper
  * can see them and weight them as more important to fix than others of the same level.
@@ -81,7 +81,8 @@ class ErrorHandler
 
     static function getHandler()
     {
-        return end(self::$handlers);
+        if (false === $h = end(self::$handlers)) throw new \Exception('No error handler has been registered');
+        return $h;
     }
 
     static function shutdown()
