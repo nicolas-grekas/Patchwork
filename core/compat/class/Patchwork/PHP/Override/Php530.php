@@ -182,6 +182,12 @@ class Patchwork_PHP_Override_Php530
         return $o->__spl_object_hash__;
     }
 
+    static function lcfirst($s)
+    {
+        isset($s[0]) && $s[0] = strtolower($s[0]);
+        return $s;
+    }
+
     protected static function ns2us($c)
     {
         $u = strtr($c, '\\', '_');

@@ -33,6 +33,7 @@ use Patchwork\PHP\Override as o;
         Patchwork\FunctionOverride(is_subclass_of,          o\Php530, $obj, $class, $allow_string = true);
         Patchwork\FunctionOverride(method_exists,           o\Php530, $class, $method);
         Patchwork\FunctionOverride(property_exists,         o\Php530, $class, $property);
+        Patchwork\FunctionOverride(lcfirst,                 o\Php530, $str);
 /**/}
 /**/else if (PHP_VERSION_ID < 50309)
 /**/{
