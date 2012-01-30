@@ -28,22 +28,6 @@ Patchwork\FunctionOverride(utf8_decode, o\Utf8, $s);
 /**/}
 
 
-// Changing default charset to UTF-8, adding new $double_encode parameter (since 5.2.3)
-
-Patchwork\FunctionOverride(html_entity_decode, html_entity_decode, $s, $style = ENT_COMPAT, $charset = 'UTF-8');
-
-/**/if (PHP_VERSION_ID < 50203)
-/**/{
-        Patchwork\FunctionOverride(htmlspecialchars, o\Utf8, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
-        Patchwork\FunctionOverride(htmlentities,     o\Utf8, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
-/**/}
-/**/else
-/**/{
-/**/    // No override for htmlspecialchars() because ISO-8859-1 and UTF-8 are both compatible with ASCII, where the HTML_SPECIALCHARS table lies
-        Patchwork\FunctionOverride(htmlentities, htmlentities, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
-/**/}
-
-
 // mbstring configuration
 
 /**/if (extension_loaded('mbstring'))
@@ -65,24 +49,6 @@ Patchwork\FunctionOverride(html_entity_decode, html_entity_decode, $s, $style = 
 
 /**/    if (!in_array(strtolower(mb_language()), array('uni', 'neutral')))
             mb_language('uni') + ini_set('mbstring.language', 'uni');
-
-/**/    if (MB_OVERLOAD_MAIL & (int) ini_get('mbstring.func_overload'))
-/**/    {
-            Patchwork\FunctionOverride(mail, o\Mbstring8bit, $to, $subject, $message, $headers = '', $params = '');
-/**/    }
-/**/
-/**/    if (MB_OVERLOAD_STRING & (int) ini_get('mbstring.func_overload'))
-/**/    {
-            Patchwork\FunctionOverride(strlen,   o\Mbstring8bit, $s);
-            Patchwork\FunctionOverride(strpos,   o\Mbstring8bit, $s, $needle, $offset = 0);
-            Patchwork\FunctionOverride(strrpos,  o\Mbstring8bit, $s, $needle, $offset = 0);
-            Patchwork\FunctionOverride(substr,   o\Mbstring8bit, $s, $start, $length = 2147483647);
-            Patchwork\FunctionOverride(stripos,  o\Mbstring8bit, $s, $needle, $offset = 0);
-            Patchwork\FunctionOverride(stristr,  o\Mbstring8bit, $s, $needle, $part = false);
-            Patchwork\FunctionOverride(strrchr,  o\Mbstring8bit, $s, $needle, $part = false);
-            Patchwork\FunctionOverride(strripos, o\Mbstring8bit, $s, $needle, $offset = 0);
-            Patchwork\FunctionOverride(strstr,   o\Mbstring8bit, $s, $needle, $part = false);
-/**/    }
 /**/}
 /**/else
 /**/{
@@ -194,8 +160,8 @@ Patchwork\FunctionOverride(html_entity_decode, html_entity_decode, $s, $style = 
 
 /**/if (!extension_loaded('intl'))
 /**/{
-        Patchwork\FunctionOverride(normalizer_is_normalized, Patchwork\Utf8\Normalizer::isNormalized, $s, $form = 'NFC');
-        Patchwork\FunctionOverride(normalizer_normalize,     Patchwork\Utf8\Normalizer::normalize,    $s, $form = 'NFC');
+        Patchwork\FunctionOverride(normalizer_is_normalized, o\Normalizer::isNormalized, $s, $form = o\Normalizer::NFC);
+        Patchwork\FunctionOverride(normalizer_normalize,     o\Normalizer::normalize,    $s, $form = o\Normalizer::NFC);
 
         const GRAPHEME_EXTR_COUNT = 0;
         const GRAPHEME_EXTR_MAXBYTES = 1;
