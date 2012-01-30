@@ -211,3 +211,7 @@ Patchwork\FunctionOverride(html_entity_decode, html_entity_decode, $s, $style = 
         Patchwork\FunctionOverride(grapheme_strstr,   o\Intl, $s, $needle, $before_needle = false);
         Patchwork\FunctionOverride(grapheme_substr,   o\Intl, $s, $start, $len = 2147483647);
 /**/}
+/**/else if (PHP_VERSION_ID < 50400)
+/**/{
+        Patchwork\FunctionOverride(grapheme_substr, o\Intl::grapheme_substr_workaround55562, $s, $start, $len = 2147483647);
+/**/}

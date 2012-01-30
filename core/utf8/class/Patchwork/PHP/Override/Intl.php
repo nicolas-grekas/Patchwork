@@ -70,8 +70,45 @@ class Intl
     static function grapheme_substr($s, $start, $len = 2147483647)
     {
         preg_match_all('/' . self::GRAPHEME_CLUSTER_RX . '/u', $s, $s);
-        $s = array_slice($s[0], $start, $len);
-        return implode('', $s);
+
+        $slen = count($s[0]);
+        $start = (int) $start;
+
+        if (0 > $start) $start += $slen;
+        if (0 > $start) return false;
+        if ($start >= $slen) return false;
+
+        $rem = $slen - $start;
+
+        if (0 > $len) $len += $rem;
+        if (0 === $len) return '';
+        if (0 > $len) return false;
+        if ($len > $rem) $len = $rem;
+
+        return implode('', array_slice($s[0], $start, $len));
+    }
+
+    static function grapheme_substr_workaround55562($s, $start, $len = 2147483647)
+    {
+        // Intl based http://bugs.php.net/55562 workaround
+
+        if (2147483647 == $len) return grapheme_substr($s, $start);
+
+        $slen = grapheme_strlen($s);
+        $start = (int) $start;
+
+        if (0 > $start) $start += $slen;
+        if (0 > $start) return false;
+        if ($start >= $slen) return false;
+
+        $rem = $slen - $start;
+
+        if (0 > $len) $len += $rem;
+        if (0 === $len) return '';
+        if (0 > $len) return false;
+        if ($len > $rem) $len = $rem;
+
+        return grapheme_substr($s, $start, $len);
     }
 
     static function grapheme_strpos  ($s, $needle, $offset = 0) {return self::grapheme_position($s, $needle, $offset, 0);}
@@ -90,7 +127,7 @@ class Intl
             return false;
         }
 
-        if ('' !== (string) $needle)
+        if ('' === (string) $needle)
         {
             user_error('Empty delimiter.', E_USER_ERROR);
             return false;

@@ -13,7 +13,7 @@
 
 namespace Patchwork;
 
-use Normalizer;
+use Normalizer as n;
 
 /**
  * UTF-8 Grapheme Cluster aware string manipulations implementing the quasi complete
@@ -24,7 +24,7 @@ class Utf8
 {
     static function isUtf8($s)
     {
-        return preg_match("//u", $s);
+        return (bool) preg_match('//u', $s); // Since PHP 5.2.5, this also excludes invalid five and six bytes sequences
     }
 
     // Generic UTF-8 to ASCII transliteration
@@ -33,7 +33,7 @@ class Utf8
     {
         if (preg_match("/[\x80-\xFF]/", $s))
         {
-            $s = Normalizer::normalize($s, Normalizer::FORM_KD);
+            $s = n::normalize($s, n::NFKD);
             $s = preg_replace('/\p{Mn}+/u', '', $s);
             $s = iconv('UTF-8', 'ASCII' . ('glibc' !== ICONV_IMPL ? '//IGNORE' : '') . '//TRANSLIT', $s);
         }
@@ -55,7 +55,7 @@ class Utf8
         $result = '9' === $cp[0] ? $s . $s : $s;
 
         if (isset($map[$cp])) $cp = $map[$cp];
-        else if (false !== $i = self::getData('bestfit' . $cp))
+        else if (false !== $i = self::getData('charset/bestfit' . $cp))
         {
             $map[$cp] = $i;
             $cp = $map[$cp];
@@ -79,7 +79,8 @@ class Utf8
                 $i += $ulen;
             }
 
-            $uchr = isset($cp[$uchr]) ? $cp[$uchr] : $placeholder;
+            if (isset($cp[$uchr])) $uchr = $cp[$uchr];
+            else $uchr = $placeholder;
 
             isset($uchr[0]) && $result[$j++] = $uchr[0];
             isset($uchr[1]) && $result[$j++] = $uchr[1];
@@ -122,14 +123,25 @@ class Utf8
 
     static function strtonatfold($s)
     {
-        $s = Normalizer::normalize($s, Normalizer::FORM_D);
+        $s = n::normalize($s, n::NFD);
         return preg_replace('/\p{Mn}+/u', '', $s);
     }
 
     // PHP string functions that need UTF-8 awareness
 
+    static function substr($s, $start, $len = 2147483647)
+    {
+/**/    if (extension_loaded('intl') && PHP_VERSION_ID < 50400)
+/**/    {
+            return PHP\Override\Intl::grapheme_substr_workaround55562($s, $start, $len);
+/**/    }
+/**/    else
+/**/    {
+            return grapheme_substr($s, $start, $len);
+/**/    }
+    }
+
     static function strlen($s) {return grapheme_strlen($s);}
-    static function substr($s, $start, $len = 2147483647) {return grapheme_substr($s, $start, $len);}
     static function strpos  ($s, $needle, $offset = 0) {return grapheme_strpos  ($s, $needle, $offset);}
     static function stripos ($s, $needle, $offset = 0) {return grapheme_stripos ($s, $needle, $offset);}
     static function strrpos ($s, $needle, $offset = 0) {return grapheme_strrpos ($s, $needle, $offset);}
@@ -139,8 +151,8 @@ class Utf8
     static function strrchr ($s, $needle, $before_needle = false) {return mb_strrchr ($s, $needle, $before_needle, 'UTF-8');}
     static function strrichr($s, $needle, $before_needle = false) {return mb_strrichr($s, $needle, $before_needle, 'UTF-8');}
 
-    static function strtolower($s, $form = Normalizer::FORM_C) {return Normalizer::isNormalized($s = mb_strtolower($s, 'UTF-8'), $form) ? $s : Normalizer::normalize($s, $form);}
-    static function strtoupper($s, $form = Normalizer::FORM_C) {return Normalizer::isNormalized($s = mb_strtoupper($s, 'UTF-8'), $form) ? $s : Normalizer::normalize($s, $form);}
+    static function strtolower($s, $form = n::NFC) {if (n::isNormalized($s = mb_strtolower($s, 'UTF-8'), $form)) return $s; return n::normalize($s, $form);}
+    static function strtoupper($s, $form = n::NFC) {if (n::isNormalized($s = mb_strtoupper($s, 'UTF-8'), $form)) return $s; return n::normalize($s, $form);}
 
     static function htmlentities    ($s, $quote_style = ENT_COMPAT) {return htmlentities    ($s, $quote_style, 'UTF-8');}
     static function htmlspecialchars($s, $quote_style = ENT_COMPAT) {return htmlspecialchars($s, $quote_style, 'UTF-8');}
@@ -163,6 +175,7 @@ class Utf8
             $words = explode(' ', $s[$i]);
             $line && $result[] = $line;
             $line = $words[0];
+            $lineLen = grapheme_strlen($line);
             $jLen = count($words);
 
             for ($j = 1; $j < $jLen; ++$j)
@@ -360,24 +373,25 @@ class Utf8
         return $charlist;
     }
 
-    static function strcmp       ($a, $b) {return (string) $a === (string) $b ? 0 : strcmp(Normalizer::normalize($a, Normalizer::FORM_D), Normalizer::normalize($b, Normalizer::FORM_D));}
+    static function strcmp       ($a, $b) {return (string) $a === (string) $b ? 0 : strcmp(n::normalize($a, n::NFD), n::normalize($b, n::NFD));}
     static function strnatcmp    ($a, $b) {return (string) $a === (string) $b ? 0 : strnatcmp(self::strtonatfold($a), self::strtonatfold($b));}
     static function strcasecmp   ($a, $b) {return self::strcmp   (self::strtocasefold($a), self::strtocasefold($b));}
     static function strnatcasecmp($a, $b) {return self::strnatcmp(self::strtocasefold($a), self::strtocasefold($b));}
     static function strncasecmp  ($a, $b, $len) {return self::strncmp(self::strtocasefold($a), self::strtocasefold($b), $len);}
-    static function strncmp      ($a, $b, $len) {return self::strcmp(grapheme_substr($a, 0, $len), grapheme_substr($b, 0, $len));}
+    static function strncmp      ($a, $b, $len) {return self::strcmp(self::substr($a, 0, $len), self::substr($b, 0, $len));}
 
     static function strcspn($s, $charlist, $start = 0, $len = 2147483647)
     {
         if ('' === (string) $mask) return null;
-        if ($start || 2147483647 != $len) $s = grapheme_substr($s, $start, $len);
+        if ($start || 2147483647 != $len) $s = self::substr($s, $start, $len);
 
         return preg_match('/^(.*?)' . self::rxClass($mask) . '/us', $s, $len) ? grapheme_strlen($len[1]) : grapheme_strlen($s);
     }
 
     static function strpbrk($s, $charlist)
     {
-        return preg_match('/' . self::rxClass($charlist) . '.*/us', $s, $s) ? $s[0] : false;
+        if (preg_match('/' . self::rxClass($charlist) . '/us', $s, $m)) return substr($s, strpos($s, $m[0]));
+        else return false;
     }
 
     static function strrev($s)
@@ -388,7 +402,7 @@ class Utf8
 
     static function strspn($s, $mask, $start = 0, $len = 2147483647)
     {
-        if ($start || 2147483647 != $len) $s = grapheme_substr($s, $start, $len);
+        if ($start || 2147483647 != $len) $s = self::substr($s, $start, $len);
         return preg_match('/^' . self::rxClass($mask) . '+/u', $s, $s) ? grapheme_strlen($s[0]) : 0;
     }
 
@@ -413,13 +427,13 @@ class Utf8
 
     static function substr_compare($a, $b, $offset, $len = 2147483647, $i = 0)
     {
-        $a = grapheme_substr($a, $offset, $len);
+        $a = self::substr($a, $offset, $len);
         return $i ? self::strcasecmp($a, $b) : self::strcmp($a, $b);
     }
 
     static function substr_count($s, $needle, $offset = 0, $len = 2147483647)
     {
-        return substr_count(grapheme_substr($s, $offset, $len), $needle);
+        return substr_count(self::substr($s, $offset, $len), $needle);
     }
 
     static function substr_replace($s, $replace, $start, $len = 2147483647)
@@ -481,7 +495,8 @@ class Utf8
 
         $class[0] = '[' . $class[0] . ']';
 
-        return 1 === count($class) ? $class[0] : ('(?:' . implode('|', $class) . ')');
+        if (1 === count($class)) return $class[0];
+        else return '(?:' . implode('|', $class) . ')';
     }
 
     protected static function getData($file)
