@@ -90,6 +90,8 @@ class Patchwork_Preprocessor
         $pool = array(array($source, $destination, $level, $class, $is_top));
         self::$recursivePool[] =& $pool;
 
+        $tmpPool = array();
+
         while (list($source, $destination, $level, $class, $is_top) = array_shift($pool))
         {
             $preproc = new self;
@@ -97,13 +99,15 @@ class Patchwork_Preprocessor
             $code = $preproc->preprocess($source, $level, $class, $is_top);
 
             $tmp = PATCHWORK_PROJECT_PATH . '.~' . uniqid(mt_rand(), true);
-            if (false !== file_put_contents($tmp, $code))
-            {
-/**/            if ('\\' === DIRECTORY_SEPARATOR)
-                    file_exists($destination) && @unlink($destination);
+            if (false !== file_put_contents($tmp, $code)) $tmpPool[] = array($tmp, $destination);
+        }
 
-                rename($tmp, $destination) || unlink($tmp);
-            }
+        while (list($tmp, $destination) = array_pop($tmpPool))
+        {
+/**/        if ('\\' === DIRECTORY_SEPARATOR)
+                file_exists($destination) && @unlink($destination);
+
+            rename($tmp, $destination) || unlink($tmp);
         }
 
         array_pop(self::$recursivePool);

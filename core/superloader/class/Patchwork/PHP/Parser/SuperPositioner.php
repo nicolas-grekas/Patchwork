@@ -188,7 +188,7 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
 
         $token['no-autoload-marker'] = true;
 
-        if (!DEBUG && Patchwork_Superloader::$turbo
+        if (Patchwork_Superloader::$turbo
           && $this->dependencies['ConstantExpression']->nextExpressionIsConstant()
           && false !== $a = Patchwork_Superloader::getProcessedPath($this->expressionValue, true))
         {
