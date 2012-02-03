@@ -93,14 +93,14 @@ Patchwork\FunctionOverride(utf8_decode, o\Xml, $s);
 
 /**/if (extension_loaded('iconv'))
 /**/{
-/**/    if ('UTF-8//IGNORE' !== iconv_get_encoding('input_encoding'))
-            iconv_set_encoding('input_encoding'   , 'UTF-8//IGNORE') + ini_set('iconv.input_encoding',    'UTF-8//IGNORE');
+/**/    if ('UTF-8' !== iconv_get_encoding('input_encoding'))
+            iconv_set_encoding('input_encoding'   , 'UTF-8') + ini_set('iconv.input_encoding',    'UTF-8');
 
-/**/    if ('UTF-8//IGNORE' !== iconv_get_encoding('internal_encoding'))
-            iconv_set_encoding('internal_encoding', 'UTF-8//IGNORE') + ini_set('iconv.internal_encoding', 'UTF-8//IGNORE');
+/**/    if ('UTF-8' !== iconv_get_encoding('internal_encoding'))
+            iconv_set_encoding('internal_encoding', 'UTF-8') + ini_set('iconv.internal_encoding', 'UTF-8');
 
-/**/    if ('UTF-8//IGNORE' !== iconv_get_encoding('output_encoding'))
-            iconv_set_encoding('output_encoding'  , 'UTF-8//IGNORE') + ini_set('iconv.output_encoding',   'UTF-8//IGNORE');
+/**/    if ('UTF-8' !== iconv_get_encoding('output_encoding'))
+            iconv_set_encoding('output_encoding'  , 'UTF-8') + ini_set('iconv.output_encoding',   'UTF-8');
 /**/}
 /**/else
 /**/{
