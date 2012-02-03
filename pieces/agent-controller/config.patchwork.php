@@ -81,36 +81,15 @@ $b = '(' . implode('|', $b) . ')';
 *   $_SERVER['PATCHWORK_LANG']: lang (ex. en) if application is internationalized
 */
 
+if (false === $a = strpos($_SERVER['REQUEST_URI'], '?')) $a = $_SERVER['REQUEST_URI'];
+else $a = substr($_SERVER['REQUEST_URI'], 0, $a);
+$a = rawurldecode($a);
+
 /**/isset($_SERVER['REDIRECT_STATUS'])
 /**/    && false !== strpos(php_sapi_name(), 'apache')
 /**/    && '200' !== $_SERVER['REDIRECT_STATUS']
 /**/    && die('Patchwork error: Initialization forbidden (try using the shortest possible URL)');
-
-$a = strpos($_SERVER['REQUEST_URI'], '?');
-$a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
-$a = rawurldecode($a);
-
-if (false !== strpos($a, '/.'))
-{
-    $j = explode('/', substr($a, 1));
-    $r = array();
-    $v = false;
-
-    foreach ($j as $j) switch ($j)
-    {
-    case '..': $r && array_pop($r);
-    case '.' : $v = true; break;
-    default  : $r[] = rawurlencode($j);
-    }
-
-    if ($v)
-    {
-        $r = '/' . ($r ? implode('/', $r) . ('.' === $j || '..' === $j ? '/' : '') : '');
-        '' !== $_SERVER['QUERY_STRING'] && $r .= '?' . $_SERVER['QUERY_STRING'];
-        patchwork_http_bad_request("Please resolve references to '.' and '..' before issuing your request.", $r);
-    }
-}
-
+/**/
 /**/switch ($a = true)
 /**/{
 /**/case isset($_SERVER['REDIRECT_PATCHWORK_REQUEST']):
