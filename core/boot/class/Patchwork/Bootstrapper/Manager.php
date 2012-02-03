@@ -307,6 +307,7 @@ class Patchwork_Bootstrapper_Manager
     {
         $p = $this->bootstrapper . '_Preprocessor';
         $this->preprocessor = new $p($this->overrides);
+        file_exists("{$this->cwd}.patchwork.overrides.ser") && unlink("{$this->cwd}.patchwork.overrides.ser");
     }
 
     protected function initInheritance()
