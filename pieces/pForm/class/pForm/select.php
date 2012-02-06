@@ -80,18 +80,11 @@ class pForm_select extends pForm_hidden
                         if (is_object($v))
                         {
                             if (empty($v->disabled)) unset($v->disabled);
-                            else
-                            {
-                                $v->disabled = 'disabled';
-                                $k = false;
-                            }
+                            else $k = false;
                         }
 
-                        if (false !== $k)
-                        {
-                            $param[0][] = $k;
-                            ++$this->length;
-                        }
+                        false !== $k && $param[0][] = $k;
+                        ++$this->length;
                     }
                 }
                 else
@@ -99,18 +92,11 @@ class pForm_select extends pForm_hidden
                     if (is_object($v))
                     {
                         if (empty($v->disabled)) unset($v->disabled);
-                        else
-                        {
-                            $v->disabled = 'disabled';
-                            $k = false;
-                        }
+                        else $k = false;
                     }
 
-                    if (false !== $k)
-                    {
-                        $param[0][] = $k;
-                        ++$this->length;
-                    }
+                    false !== $k && $param[0][] = $k;
+                    ++$this->length;
                 }
             }
         }
@@ -241,6 +227,9 @@ class loop_pForm_selectOption__ extends loop
             $a->selected = 'selected';
             $a->checked = 'checked';
         }
+
+        $b = array('selected', 'checked', 'required', 'disabled', 'readonly');
+        foreach ($b as $b) if (empty($a->$b)) unset($a->$b); else $a->$b = $b;
 
         return $a;
     }

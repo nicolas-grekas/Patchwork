@@ -403,9 +403,10 @@ class pForm_hidden extends loop_agentWrapper
 
         $this->multiple || $a->value = $this->value;
         $this->elementsToCheck && $a->_elements = new loop_array($this->elementsToCheck, 'filter_rawArray');
-        $this->validmsg   && $a->_validmsg = $this->validmsg;
-        $this->errormsg   && $a->_errormsg = $this->errormsg;
-        $this->required   && $a->required  = 'required';
+
+        $this->validmsg && $a->_validmsg = $this->validmsg;
+        $this->errormsg && $a->_errormsg = $this->errormsg;
+        $this->required && $a->required = 'required';
 
         if ($this->disabled) $a->disabled = 'disabled';
         else if ($this->readonly) $a->readonly = 'readonly';

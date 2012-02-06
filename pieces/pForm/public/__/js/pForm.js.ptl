@@ -304,7 +304,7 @@ var IcbC, checkboxClick = IcbC = function($event, $elt)
         $trigger = 0,
         $currNode;
 
-    if ($this.readOnly || $this.disabled) return;
+    if ($this.readOnly || $this.disabled) return false;
 
     if ($elt)
     {
