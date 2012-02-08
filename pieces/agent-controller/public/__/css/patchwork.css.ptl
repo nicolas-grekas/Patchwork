@@ -18,7 +18,6 @@ label[disabled] {color: #999; cursor: text;}
 /* IE specific fixes */
 .lt-ie8 body { behavior: url("{base:'fix/hover.htc'}"); }
 .ie6 select { behavior: url("{base:'fix/select.htc'}"); }
-.ie6 img, .ie6 input { behavior: url("{base:'fix/png.htc'}"); }
 
 /* Borrowed from normalizer.css */
 html { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
