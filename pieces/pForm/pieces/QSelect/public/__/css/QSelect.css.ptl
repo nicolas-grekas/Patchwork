@@ -6,7 +6,6 @@
 .QSstyle input, .QSstyle img
 {
     position: relative;
-    top: 2px;
 }
 
 .QSstyle img
@@ -45,5 +44,4 @@ div.QSshadow
     filter:progid:DXImageTransform.Microsoft.Blur(PixelRadius=4,MakeShadow=true,ShadowOpacity=.30);
 }
 
-.ie6 .QSstyle input {top: 0;}
-.ie6 .QSstyle img   {top: -1px;}
+.ie6 .QSstyle img {top: -1px;}
