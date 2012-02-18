@@ -144,7 +144,7 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
 
         if (0 <= $this->level)
         {
-            $this->setError("Private statics do not work with class superposition, please use protected statics instead");
+            $this->setError("Private statics do not work with class superposition, please use protected statics instead", E_USER_NOTICE);
         }
 
         return false;
