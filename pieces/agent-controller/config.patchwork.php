@@ -357,11 +357,3 @@ function E()
     $a = func_get_args();
     foreach ($a as $a) Patchwork::log('server-dump', $a);
 }
-
-// Database sugar
-function DB($dsn = null)
-{
-    static $db = array();
-    empty($db[$dsn]) && $db[$dsn] = adapter_DB::connect(null === $dsn ? $GLOBALS['CONFIG']['DSN'] : $dsn);
-    return $db[$dsn];
-}

@@ -1,6 +1,5 @@
 <?php // vi: set fenc=utf-8 ts=4 sw=4 et:
 
-#patchwork pieces/mdb2
 #patchwork pieces/pForm
 #patchwork pieces/flags
 #patchwork pieces/toolbox
