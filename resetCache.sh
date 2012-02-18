@@ -13,6 +13,8 @@ do
         fi
 
         touch $I/config.patchwork.php
-        rm -f $I/.*.zcache.php $I/.patchwork.lock $I/.patchwork.overrides.ser $I/.patchwork.php 2> /dev/null
+        rm -f $I/.*.zcache.php 2> /dev/null
+        rm -f $I/.~* 2> /dev/null
+        rm -f $I/.patchwork.lock $I/.patchwork.overrides.ser $I/.patchwork.php 2> /dev/null
     fi
 done
