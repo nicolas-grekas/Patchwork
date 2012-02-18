@@ -60,7 +60,7 @@ class Patchwork_Bootstrapper_Manager
 
         if ($this->getLock(true))
         {
-            $s = '';
+            $s = '$CONFIG = array();';
 
             if (function_exists('apc_clear_cache')) apc_clear_cache();
 
@@ -324,7 +324,6 @@ class Patchwork_Bootstrapper_Manager
             if (file_exists($c .= 'bootup.patchwork.php'))
                 $this->steps[] = array(null, $c);
 
-        $this->steps[] = array('$CONFIG = array();', __FILE__);
         $b[] = $this->pwd;
 
         foreach ($b as $c)
