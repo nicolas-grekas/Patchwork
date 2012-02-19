@@ -291,12 +291,12 @@ parent.E.buffer = [];
             $b['type'] = $msg_map[$b['type']];
         }
 
-        $a = explode(' on line ', $b['message']);
-        $b['line'] = array_pop($a);
-
-        $a = explode(' in ', implode(' on line ', $a), 2);
-        $b['message'] = $a[0];
-        $b['file'] = $a[1];
+        if (preg_match('/^(.*) in (.*) on line (\d+)$/s', $b['message'], $a))
+        {
+            $b['message'] = $a[1];
+            $b['file'] = $a[2];
+            $b['line'] = $a[3];
+        }
 
         return $b;
     }
