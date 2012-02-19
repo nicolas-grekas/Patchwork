@@ -28,7 +28,7 @@ class agent
     $canPost = false,
     $watch = array(),
 
-    // By default, equals to contentType const if it's not empty
+    // Defaults to static::contentType
     $contentType;
 
 
@@ -58,7 +58,7 @@ class agent
     {
         $class = get_class($this);
 
-        $this->contentType = constant($class . '::contentType');
+        isset($this->contentType) or $this->contentType = constant($class . '::contentType');
 
         $a = (array) $this->get;
 
