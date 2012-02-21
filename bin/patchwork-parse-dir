@@ -12,6 +12,8 @@ then
     exit
 fi
 
+echo 'Cloning source directory to destination...'
+
 cp -a "$1" "$2"
 
 CWD=$PWD
@@ -20,6 +22,8 @@ DIR=`readlink -f "$DIR"`
 SRC=`readlink -f "$1"`
 cd "$2"
 
-find -type f -name '*.php' -exec sh -c "\"$DIR/patchwork-parse.php\" \"$SRC/{}\" < \"$SRC/{}\" > \"{}\"" \;
+echo 'Processing PHP files...'
+
+find -type f -name '*.php' -exec sh -c "echo {}; \"$DIR/patchwork-parse.php\" \"$SRC/{}\" < \"$SRC/{}\" > \"{}\"" \;
 
 cd "$CWD"

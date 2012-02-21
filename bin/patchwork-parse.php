@@ -17,19 +17,12 @@ class Preprocessor
 {
     static function getParser($file)
     {
-        $parser = new Patchwork_PHP_Parser_Normalizer();
+        $parser = new Patchwork_PHP_Parser_TokenExploder();
         $parser = new Patchwork_PHP_Parser_ShortOpenEcho($parser);
         new Patchwork_PHP_Parser_BracketBalancer($parser);
-        new Patchwork_PHP_Parser_CurlyDollarNormalizer($parser);
         new Patchwork_PHP_Parser_ShortArray($parser);
         $parser = new Patchwork_PHP_Parser_BinaryNumber($parser);
-        new Patchwork_PHP_Parser_StringInfo($parser);
         $parser = new Patchwork_PHP_Parser_Backport54Tokens($parser);
-        new Patchwork_PHP_Parser_Backport53Tokens($parser);
-        new Patchwork_PHP_Parser_NamespaceInfo($parser);
-        new Patchwork_PHP_Parser_ScopeInfo($parser);
-        new Patchwork_PHP_Parser_ConstantInliner($parser, $file);
-        new Patchwork_PHP_Parser_ClassInfo($parser);
 
         return $parser;
     }
