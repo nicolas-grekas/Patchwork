@@ -83,16 +83,16 @@ class Patchwork_Preprocessor
         if (self::$recursivePool && $lazy)
         {
             $pool =& self::$recursivePool[count(self::$recursivePool)-1];
-            $pool[] = array($source, $destination, $level, $class, $is_top);
+            $pool[$source] = array($destination, $level, $class, $is_top);
             return;
         }
 
-        $pool = array(array($source, $destination, $level, $class, $is_top));
+        $pool = array($source => array($destination, $level, $class, $is_top));
         self::$recursivePool[] =& $pool;
 
         $tmpPool = array();
 
-        while (list($source, $destination, $level, $class, $is_top) = array_shift($pool))
+        while (list($source, list($destination, $level, $class, $is_top)) = each($pool))
         {
             $preproc = new self;
 
