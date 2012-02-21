@@ -21,6 +21,12 @@ class Patchwork_PHP_Parser_ShortArray extends Patchwork_PHP_Parser
     $callbacks = array('openBracket' => '['),
     $dependencies = 'BracketBalancer';
 
+    function __construct(parent $parent)
+    {
+        if (PHP_VERSION_ID >= 50400) $this->callbacks = array();
+        parent::__construct($parent);
+    }
+
     protected function openBracket(&$token)
     {
         switch ($this->lastType)
