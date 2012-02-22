@@ -16,7 +16,7 @@ define('T_NON_SEMANTIC', 2); // Primary type for non-semantic tokens (whitespace
 
 Patchwork_PHP_Parser::createToken(
     'T_CURLY_CLOSE', // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
-    'T_KEY_STRING'   // String index in interpolated string
+    'T_STR_STRING'   // String index in interpolated string
 );
 
 defined('T_NS_SEPARATOR') || Patchwork_PHP_Parser::createToken('T_NS_SEPARATOR');
@@ -290,7 +290,7 @@ class Patchwork_PHP_Parser
             // - tag closing braces as T_CURLY_CLOSE when they are opened with curly braces
             //   tagged as T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES, to make
             //   them easy to distinguish from regular code "{" / "}" pairs,
-            // - tag arrays' or objects' string indexes as T_KEY_STRING.
+            // - tag arrays' or objects' string indexes as T_STR_STRING.
 
             $priType = 1; // T_SEMANTIC
 
@@ -299,7 +299,7 @@ class Patchwork_PHP_Parser
                 if ($inString & 1) switch ($t[0])
                 {
                 case T_VARIABLE:
-                case T_KEY_STRING:
+                case T_STR_STRING:
                 case T_CURLY_OPEN:
                 case T_CURLY_CLOSE:
                 case T_END_HEREDOC:
@@ -308,13 +308,13 @@ class Patchwork_PHP_Parser
                 case T_STRING:
                     if ('[' === $lastType || T_OBJECT_OPERATOR === $lastType)
                     {
-                        $t[0] = T_KEY_STRING;
+                        $t[0] = T_STR_STRING;
                         break;
                     }
                 case T_NUM_STRING: if ('[' === $lastType) break;
                 case T_OBJECT_OPERATOR: if (T_VARIABLE === $lastType) break;
                 default:
-                    if ('[' === $lastType && preg_match("/^[_a-zA-Z]/", $t[1][0])) $t[0] = T_KEY_STRING;
+                    if ('[' === $lastType && preg_match("/^[_a-zA-Z]/", $t[1][0])) $t[0] = T_STR_STRING;
                     else $t[0] = T_ENCAPSED_AND_WHITESPACE;
                 }
                 else switch ($t[0])
@@ -333,7 +333,7 @@ class Patchwork_PHP_Parser
                 {
                 case '"':
                 case '`': break;
-                case ']': if (T_KEY_STRING === $lastType || T_NUM_STRING === $lastType) break;
+                case ']': if (T_STR_STRING === $lastType || T_NUM_STRING === $lastType) break;
                 case '[': if (T_VARIABLE   === $lastType && '[' === $t[0]) break;
                 default: $t[0] = T_ENCAPSED_AND_WHITESPACE;
                 }
