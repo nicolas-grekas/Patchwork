@@ -190,6 +190,14 @@ class Patchwork_PHP_Parser_TokenExploder extends Patchwork_PHP_Parser
                 break;
 
             case T_IF:
+                if ('{' !== $token[0] && ':' !== $token[0])
+                {
+                    // Workaround Xdebug's bug #238
+                    end($this->types);
+                    $r = "\xE2\x81\xA0"; // Unicode WORD JOINER
+                    $this->texts[key($this->types)] .= "for($$r=0;$$r<1;++$$r)";
+                }
+                // No break;
             case T_ELSEIF:
             case T_WHILE:
             case T_FOR:
