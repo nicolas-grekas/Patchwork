@@ -30,7 +30,7 @@ class Patchwork_PHP_Parser_ShortArray extends Patchwork_PHP_Parser
 
     protected function openBracket(&$token)
     {
-        switch ($this->lastType)
+        switch ($this->prevType)
         {
         case '}':
             $token =& $this->types;

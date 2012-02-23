@@ -154,14 +154,14 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
 
     protected function tagVariableVar(&$token)
     {
-        if (   ('}' === $this->lastType || T_VARIABLE === $this->lastType)
+        if (   ('}' === $this->prevType || T_VARIABLE === $this->prevType)
             && !in_array($this->penuType, array(T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON)) )
         {
             $t =& $this->types;
             end($t);
             $i = key($t);
 
-            if (T_VARIABLE === $this->lastType && '$' !== $this->penuType)
+            if (T_VARIABLE === $this->prevType && '$' !== $this->penuType)
             {
                 if ('$this' !== $a = $this->texts[$i])
                 {
@@ -170,7 +170,7 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
             }
             else
             {
-                if ('}' === $this->lastType)
+                if ('}' === $this->prevType)
                 {
                     $a = 1;
                     $b = array($i, 0);
@@ -258,7 +258,7 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
         {
             new Patchwork_PHP_Parser_Bracket_Callback($this, isset(self::$autoloader[$a]) ? self::$autoloader[$a] : 1, $this->overrides);
 
-            if ('&' === $this->lastType)
+            if ('&' === $this->prevType)
             {
                 $a =& $this->types;
                 end($a);
@@ -336,7 +336,7 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
 
     protected function catchArguments(&$token)
     {
-        if (0 === $this->bracket) switch ($this->lastType)
+        if (0 === $this->bracket) switch ($this->prevType)
         {
             case '(':
             case ',':

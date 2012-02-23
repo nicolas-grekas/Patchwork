@@ -57,9 +57,9 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
         {
         case '{': $this->register(array('tagNsClose' => T_BRACKET_CLOSE));
         case ';':
-        case $this->lastType:
+        case $this->prevType:
             $this->unregister(__FUNCTION__);
-            if ($this->lastType === $token[0]) return;
+            if ($this->prevType === $token[0]) return;
         }
 
         $token[1] = '';
@@ -72,8 +72,8 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
 
     protected function tagNsSep(&$token)
     {
-        if (T_STRING === $this->lastType) $token[1] = strtr($token[1], '\\', '_');
-        else if (T_NS_SEPARATOR !== $this->lastType) $token[1] = ' ';
+        if (T_STRING === $this->prevType) $token[1] = strtr($token[1], '\\', '_');
+        else if (T_NS_SEPARATOR !== $this->prevType) $token[1] = ' ';
     }
 
     protected function tagNsUse(&$token)

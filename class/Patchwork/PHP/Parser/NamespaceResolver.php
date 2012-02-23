@@ -29,7 +29,7 @@ class Patchwork_PHP_Parser_NamespaceResolver extends Patchwork_PHP_Parser
 
     protected function tagUse(&$token)
     {
-        if (')' !== $this->lastType)
+        if (')' !== $this->prevType)
         {
             $this->register('tagUseEnd');
             $token[1] = ' ';
@@ -41,7 +41,7 @@ class Patchwork_PHP_Parser_NamespaceResolver extends Patchwork_PHP_Parser
         switch ($token[0])
         {
         case ';':
-        case $this->lastType:
+        case $this->prevType:
             $this->unregister(__FUNCTION__);
             if (';' !== $token[0]) return;
         }

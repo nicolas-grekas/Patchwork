@@ -45,8 +45,8 @@ class Patchwork_PHP_Parser_ClassInfo extends Patchwork_PHP_Parser
             'name'       => false,
             'nsName'     => false,
             'extends'    => false,
-            'isFinal'    => T_FINAL    === $this->lastType,
-            'isAbstract' => T_ABSTRACT === $this->lastType,
+            'isFinal'    => T_FINAL    === $this->prevType,
+            'isAbstract' => T_ABSTRACT === $this->prevType,
         );
 
         $this->register($this->callbacks = array(

@@ -78,7 +78,7 @@ class Patchwork_PHP_Parser_NamespaceInfo extends Patchwork_PHP_Parser
 
     protected function tagUse(&$token)
     {
-        if (')' !== $this->lastType)
+        if (')' !== $this->prevType)
         {
             $this->register(self::$useCallbacks);
         }
@@ -86,7 +86,7 @@ class Patchwork_PHP_Parser_NamespaceInfo extends Patchwork_PHP_Parser
 
     protected function tagUseAs(&$token)
     {
-        if (T_AS === $this->lastType)
+        if (T_AS === $this->prevType)
         {
             $this->nsAliases[$token[1]] = '\\' . implode('\\', $this->nsUse);
             $this->nsUse = array();

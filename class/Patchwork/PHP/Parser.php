@@ -55,7 +55,7 @@ class Patchwork_PHP_Parser
     $texts = array(),         // Texts of already parsed tokens, including non-semantic tokens
     $line = 0,                // Line number of the current token
     $inString = 0,            // Odd/even when outside/inside string interpolation context
-    $lastType,                // The last token type in $this->types
+    $prevType,                // The last token type in $this->types
     $penuType,                // The penultimate token type in $this->types
     $tokenRegistry = array(); // (token type => callbacks) map
 
@@ -98,7 +98,7 @@ class Patchwork_PHP_Parser
                 'texts',
                 'line',
                 'inString',
-                'lastType',
+                'prevType',
                 'penuType',
                 'tokenRegistry',
                 'parents',
@@ -263,7 +263,7 @@ class Patchwork_PHP_Parser
         $inString =& $this->inString; $inString = 0;
         $types    =& $this->types;    $types    = array();
         $texts    =& $this->texts;    $texts    = array('');
-        $lastType =& $this->lastType; $lastType = false;
+        $prevType =& $this->prevType; $prevType = false;
         $penuType =& $this->penuType; $penuType = false;
         $tokens   =& $this->tokens;
         $reg      =& $this->tokenRegistry;
@@ -306,15 +306,15 @@ class Patchwork_PHP_Parser
                 case T_ENCAPSED_AND_WHITESPACE:
                 case T_DOLLAR_OPEN_CURLY_BRACES: break;
                 case T_STRING:
-                    if ('[' === $lastType || T_OBJECT_OPERATOR === $lastType)
+                    if ('[' === $prevType || T_OBJECT_OPERATOR === $prevType)
                     {
                         $t[0] = T_STR_STRING;
                         break;
                     }
-                case T_NUM_STRING: if ('[' === $lastType) break;
-                case T_OBJECT_OPERATOR: if (T_VARIABLE === $lastType) break;
+                case T_NUM_STRING: if ('[' === $prevType) break;
+                case T_OBJECT_OPERATOR: if (T_VARIABLE === $prevType) break;
                 default:
-                    if ('[' === $lastType && preg_match("/^[_a-zA-Z]/", $t[1][0])) $t[0] = T_STR_STRING;
+                    if ('[' === $prevType && preg_match("/^[_a-zA-Z]/", $t[1][0])) $t[0] = T_STR_STRING;
                     else $t[0] = T_ENCAPSED_AND_WHITESPACE;
                 }
                 else switch ($t[0])
@@ -333,8 +333,8 @@ class Patchwork_PHP_Parser
                 {
                 case '"':
                 case '`': break;
-                case ']': if (T_STR_STRING === $lastType || T_NUM_STRING === $lastType) break;
-                case '[': if (T_VARIABLE   === $lastType && '[' === $t[0]) break;
+                case ']': if (T_STR_STRING === $prevType || T_NUM_STRING === $prevType) break;
+                case '[': if (T_VARIABLE   === $prevType && '[' === $t[0]) break;
                 default: $t[0] = T_ENCAPSED_AND_WHITESPACE;
                 }
                 else if ('}' === $t[0] && !$curly) $t[0] = T_CURLY_CLOSE;
@@ -404,21 +404,21 @@ class Patchwork_PHP_Parser
                 continue;
             }
 
-            // For semantic tokens only: populate $this->types, $this->lastType and $this->penuType
+            // For semantic tokens only: populate $this->types, $this->prevType and $this->penuType
 
-            $penuType  = $lastType;
-            $types[$j] = $lastType = $t[0];
+            $penuType  = $prevType;
+            $types[$j] = $prevType = $t[0];
 
             // Parsing context analysis related to string interpolation and line numbering
 
-            if (isset($lastType[0])) switch ($lastType)
+            if (isset($prevType[0])) switch ($prevType)
             {
             case '{': ++$curly; break;
             case '}': --$curly; break;
             case '"':
             case '`': $inString += ($inString & 1) ? -1 : 1;
             }
-            else switch ($lastType)
+            else switch ($prevType)
             {
             case T_CONSTANT_ENCAPSED_STRING:
             case T_ENCAPSED_AND_WHITESPACE:

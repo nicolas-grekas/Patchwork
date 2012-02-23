@@ -78,7 +78,7 @@ class Patchwork_PHP_Parser_TokenExploder extends Patchwork_PHP_Parser
 
         // Checks if a new line can be appended to the previous token
 
-        if (isset($this->lastType[0])) switch ($this->lastType)
+        if (isset($this->prevType[0])) switch ($this->prevType)
         {
         case ']':
             if ($this->inString & 1) return false;
@@ -88,7 +88,7 @@ class Patchwork_PHP_Parser_TokenExploder extends Patchwork_PHP_Parser
         case '`':
             return false;
         }
-        else switch ($this->lastType)
+        else switch ($this->prevType)
         {
         case T_VARIABLE:
             if ($this->inString & 1) return false;
@@ -152,7 +152,7 @@ class Patchwork_PHP_Parser_TokenExploder extends Patchwork_PHP_Parser
 
         // Checks if the previous token ends a code path
 
-        if (isset($this->lastType[0])) switch ($this->lastType)
+        if (isset($this->prevType[0])) switch ($this->prevType)
         {
         case '(':
             $this->stack[] = isset($this->penuType[0]) ? 0 : $this->penuType;
@@ -222,7 +222,7 @@ class Patchwork_PHP_Parser_TokenExploder extends Patchwork_PHP_Parser
                 return $continue;
             }
         }
-        else switch ($this->lastType)
+        else switch ($this->prevType)
         {
         case T_DO:
             $this->stack[] = T_DO;
@@ -232,7 +232,7 @@ class Patchwork_PHP_Parser_TokenExploder extends Patchwork_PHP_Parser
             if (T_DO === end($this->stack))
             {
                 array_pop($this->stack);
-                $this->lastType = T_DO;
+                $this->prevType = T_DO;
             }
             break;
 
@@ -250,7 +250,7 @@ class Patchwork_PHP_Parser_TokenExploder extends Patchwork_PHP_Parser
         case T_RETURN:
         case T_THROW:
         case T_ELSE:
-            if (T_ELSE !== $this->lastType || ('{' !== $token[0] && ':' !== $token[0])) $this->stack[] = ';';
+            if (T_ELSE !== $this->prevType || ('{' !== $token[0] && ':' !== $token[0])) $this->stack[] = ';';
             break;
         }
 
@@ -260,6 +260,6 @@ class Patchwork_PHP_Parser_TokenExploder extends Patchwork_PHP_Parser
     protected function tagNonSemantic(&$token)
     {
         if (' ' !== $token[1] && '' !== ltrim($token[1], " \t"))
-            $token[1] = ('/' === $this->lastType ? ' ' : '') . "/*" . urlencode($token[1]) . '*/';
+            $token[1] = ('/' === $this->prevType ? ' ' : '') . "/*" . urlencode($token[1]) . '*/';
     }
 }

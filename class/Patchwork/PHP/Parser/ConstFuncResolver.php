@@ -52,7 +52,7 @@ class Patchwork_PHP_Parser_ConstFuncResolver extends Patchwork_PHP_Parser
 
     protected function tagConstFunct(&$token)
     {
-        if (T_NS_SEPARATOR !== $this->lastType)
+        if (T_NS_SEPARATOR !== $this->prevType)
         {
             $this->unshiftTokens(array(T_NS_SEPARATOR, '\\'), $token);
 
