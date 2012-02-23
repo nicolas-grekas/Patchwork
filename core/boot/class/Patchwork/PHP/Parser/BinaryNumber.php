@@ -18,7 +18,7 @@ class Patchwork_PHP_Parser_BinaryNumber extends Patchwork_PHP_Parser
 {
     protected function getTokens($code)
     {
-        if (false !== $i = stripos($code, '0b'))
+        if (PHP_VERSION_ID < 50400 && false !== $i = stripos($code, '0b'))
             if ('0b' === strtolower(rtrim(substr($code, $i, 3), '01')))
                 $this->register(array('catch0b' => T_LNUMBER));
 
@@ -33,7 +33,7 @@ class Patchwork_PHP_Parser_BinaryNumber extends Patchwork_PHP_Parser
 
             if (T_STRING === $m[0] && preg_match("'^[bB]([01]+)(.*)'", $m[1], $m))
             {
-                $token[1] = '0x' . dechex(bindec($m[1]));
+                $token[1] = sprintf('0x%X', bindec($m[1]));
 
                 if (empty($m[2])) unset($t[$this->index++]);
                 else $t[$this->index][1] = $m[2];

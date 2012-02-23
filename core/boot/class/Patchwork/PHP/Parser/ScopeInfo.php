@@ -101,7 +101,7 @@ class Patchwork_PHP_Parser_ScopeInfo extends Patchwork_PHP_Parser
 
     protected function tagNamespace(&$token)
     {
-        switch ($this->lastType)
+        switch ($this->prevType)
         {
         default: return;
         case ';':
@@ -119,7 +119,7 @@ class Patchwork_PHP_Parser_ScopeInfo extends Patchwork_PHP_Parser
                         'tagScopeOpen' => '{',
                     ));
 
-                    if ('}' !== $this->lastType) return $this->unshiftTokens(array('}', ''), $token);
+                    if ('}' !== $this->prevType) return $this->unshiftTokens(array('}', ''), $token);
                 }
             }
         }

@@ -49,7 +49,7 @@ class Patchwork_PHP_Parser_Globalizer extends Patchwork_PHP_Parser
 
     protected function tagAutoglobals(&$token)
     {
-        if (isset($this->autoglobals[$token[1]]) && T_DOUBLE_COLON !== $this->lastType)
+        if (isset($this->autoglobals[$token[1]]) && T_DOUBLE_COLON !== $this->prevType)
         {
             $this->scope->autoglobals[$token[1]] = 1;
         }

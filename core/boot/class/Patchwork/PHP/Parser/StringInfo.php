@@ -74,12 +74,12 @@ class Patchwork_PHP_Parser_StringInfo extends Patchwork_PHP_Parser
         }
 
         $this->nsPrefix = '';
-        $this->lastType = $this->preNsType;
+        $this->prevType = $this->preNsType;
     }
 
     protected function tagString(&$token)
     {
-        if (T_NS_SEPARATOR !== $p = $this->lastType) $this->nsPrefix = '';
+        if (T_NS_SEPARATOR !== $p = $this->prevType) $this->nsPrefix = '';
 
         switch ($p)
         {
@@ -235,7 +235,7 @@ class Patchwork_PHP_Parser_StringInfo extends Patchwork_PHP_Parser
 
     protected function tagUse(&$token)
     {
-        if (')' !== $this->lastType)
+        if (')' !== $this->prevType)
         {
             $this->inUse = true;
             $this->register(array('tagUseEnd' => ';'));
@@ -250,14 +250,14 @@ class Patchwork_PHP_Parser_StringInfo extends Patchwork_PHP_Parser
 
     protected function tagNsSep(&$token)
     {
-        if (T_STRING === $this->lastType || T_NAMESPACE === $this->lastType)
+        if (T_STRING === $this->prevType || T_NAMESPACE === $this->prevType)
         {
             $this->nsPrefix .= '\\';
         }
         else
         {
             $this->nsPrefix  = '\\';
-            $this->preNsType = $this->lastType;
+            $this->preNsType = $this->prevType;
         }
     }
 }

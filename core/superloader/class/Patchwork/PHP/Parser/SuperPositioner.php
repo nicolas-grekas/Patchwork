@@ -133,7 +133,7 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
         // (except for files in the include path). Side effects exist but should be rare.
 
         // Look backward and forward for the "static" keyword
-        if (T_STATIC !== $this->lastType)
+        if (T_STATIC !== $this->prevType)
         {
             $t = $this->getNextToken();
 

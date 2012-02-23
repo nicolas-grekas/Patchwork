@@ -58,7 +58,7 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionOverridin
         {
         case T_STRING:
             if (!isset(self::$autoloader[strtolower(strtr(substr($this->nsResolved, 1), '\\', '_'))])) return;
-            if (T_NS_SEPARATOR === $this->lastType)
+            if (T_NS_SEPARATOR === $this->prevType)
             {
                 $t =& $this->types;
                 end($t);
@@ -122,7 +122,7 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionOverridin
 
         if (T_WHITESPACE === $c[0]) return;
 
-        $token['lastType'] = $this->lastType;
+        $token['prevType'] = $this->prevType;
         $this->newToken =& $token;
 
         if (T_STRING !== $c[0] && '\\' !== $c[0]) return $this->tagNewClass();
@@ -152,17 +152,17 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionOverridin
             $this,
             $this->newToken[1],
             $token ? -1 : 0,
-            '&' === $this->newToken['lastType'] ? "patchwork_autoload_marker({$c}," : "(({$c})?",
-            '&' === $this->newToken['lastType'] ? ')' : ':0)'
+            '&' === $this->newToken['prevType'] ? "patchwork_autoload_marker({$c}," : "(({$c})?",
+            '&' === $this->newToken['prevType'] ? ')' : ':0)'
         );
 
-        unset($this->newToken['lastType'], $this->newToken);
+        unset($this->newToken['prevType'], $this->newToken);
     }
 
     protected function tagDoubleColon(&$token)
     {
         if (   $this->inStatic
-            || T_STRING !== $this->lastType
+            || T_STRING !== $this->prevType
             || T_CLASS === $this->scope->type
             || T_TRAIT === $this->scope->type
         ) return;

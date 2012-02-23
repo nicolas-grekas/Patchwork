@@ -20,7 +20,7 @@ class Patchwork_PHP_Parser_ShortOpenEcho extends Patchwork_PHP_Parser
 
     protected function getTokens($code)
     {
-        if (false !== strpos($code, '<?='))
+        if (PHP_VERSION_ID < 50400 && false !== strpos($code, '<?='))
         {
             $c = token_get_all('<?=');
 

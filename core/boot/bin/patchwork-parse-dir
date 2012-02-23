@@ -1,0 +1,29 @@
+#!/usr/bin/env sh
+
+if test ! -d $1
+then
+    echo "Source is not a directory" >&2
+    exit
+fi
+
+if test -e $2
+then
+    echo "Destination exists" >&2
+    exit
+fi
+
+echo 'Cloning source directory to destination...'
+
+cp -a "$1" "$2"
+
+CWD=$PWD
+DIR=`dirname "$0"`
+DIR=`readlink -f "$DIR"`
+SRC=`readlink -f "$1"`
+cd "$2"
+
+echo 'Processing PHP files...'
+
+find -type f -name '*.php' -exec sh -c "echo {}; \"$DIR/patchwork-parse.php\" \"$SRC/{}\" < \"$SRC/{}\" > \"{}\"" \;
+
+cd "$CWD"
