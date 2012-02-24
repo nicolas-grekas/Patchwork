@@ -38,9 +38,9 @@ class Patchwork_PHP_Parser_TokenExploder extends Patchwork_PHP_Parser
         else if ($this->isSpaceAllowed($token))
         {
             $n = $this->isCodePathNode($token);
-            if (self::CODE_PATH_CONTINUE === $n) $token[1] = "\n/*C*/" . $token[1];
-            else if (self::CODE_PATH_OPEN === $n) $token[1] = "\n/*O*/" . $token[1];
-//            else $token[1] = "\n/*C*/" . $token[1];
+            if (self::CODE_PATH_CONTINUE === $n) $token[1] = "\n\t" . $token[1];
+            else if (self::CODE_PATH_OPEN === $n) $token[1] = "\n\t\t" . $token[1];
+//            else $token[1] = "\n" . $token[1];
         }
     }
 
@@ -319,21 +319,17 @@ class Patchwork_PHP_Parser_TokenExploder extends Patchwork_PHP_Parser
         switch ($token[0])
         {
         case T_WHITESPACE:
-            $token[1] = str_replace(
-                array("\r",      "\n",  '*//*'),
-                array('/*r*/', '/*n*/', ''    ),
-                $token[1]
-            );
-            break;
-
-        case T_BAD_CHARACTER:
         case T_COMMENT:
-            $token[1] = "/*" . urlencode($token[1]) . '*/';
+            // Remove new lines.
+            // The process is currently non-bijective,
+            // but this can be changed.
+            $token[1] = ' ';
             break;
 
-        case T_DOC_COMMENT: return;
+        case T_DOC_COMMENT:
+            $token[1] = "\n" . $token[1];
+            break;
         }
 
-        if ('/' === $this->prevType) $token[1] = ' ' . $token[1];
     }
 }
