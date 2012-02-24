@@ -157,9 +157,22 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
                 if ('{' !== $token[0] && ':' !== $token[0])
                 {
                     // Workaround Xdebug's bug #238
+
+                    switch ($token[0])
+                    {
+                    case T_IF:
+                    case T_SWITCH:
+                    case T_DO:
+                    case T_WHILE:
+                    case T_FOR:
+                    case T_FOREACH:
+                        $this->xdebug238Control = $token[1];
+                        break 2;
+                    }
+
                     end($this->types);
-                    $r = "\xE2\x81\xA0"; // Unicode WORD JOINER
-                    $this->texts[key($this->types)] .= "for($$r=0;$$r<1;++$$r)";
+                    $this->texts[key($this->types)] .= "{";
+                    $this->closeCurlyOnSemicolon = true;
                 }
                 // No break;
             case T_ELSEIF:
@@ -187,6 +200,13 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
             {
                 array_pop($this->stack);
                 $r = $c;
+
+                if (isset($this->closeCurlyOnSemicolon))
+                {
+                    end($this->types);
+                    $this->texts[key($this->types)] .= '}';
+                    unset($this->closeCurlyOnSemicolon);
+                }
             }
             else if (!isset($this->penuType[0])) switch ($this->penuType)
             {
@@ -230,6 +250,20 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
         case T_THROW:
         case T_ELSE:
             if (T_ELSE !== $this->prevType || ('{' !== $token[0] && ':' !== $token[0])) $this->stack[] = ';';
+            break;
+
+        case T_IF:
+        case T_SWITCH:
+        case T_DO:
+        case T_WHILE:
+        case T_FOR:
+        case T_FOREACH:
+            if (isset($this->xdebug238Control))
+            {
+                $token[1] = "/*{$this->xdebug238Control}*/" . $token[1];
+                unset($this->xdebug238Control);
+                $r = $c = $o;
+            }
             break;
         }
 
