@@ -40,6 +40,8 @@ defined('T_NS_SEPARATOR') || Patchwork_PHP_Parser::createToken('T_NS_SEPARATOR')
  */
 class Patchwork_PHP_Parser
 {
+    const T_OFFSET = 10000;
+
     protected
 
     // Declarations used by __construct()
@@ -575,7 +577,7 @@ class Patchwork_PHP_Parser
 
     static function createToken($name)
     {
-        static $type = 10000;
+        static $type = self::T_OFFSET;
         $name = func_get_args();
         foreach ($name as $name)
         {
@@ -590,7 +592,7 @@ class Patchwork_PHP_Parser
     {
         if (is_string($type)) return $type;
         if ($type < 0) return '-' . self::$tokenNames[-$type];
-        return $type < 3 || 10000 < $type ? self::$tokenNames[$type] : token_name($type);
+        return $type < 3 || self::T_OFFSET < $type ? self::$tokenNames[$type] : token_name($type);
     }
 
 
