@@ -12,11 +12,11 @@
  ***************************************************************************/
 
 /**
- * The TokenExploder parser does one token per line.
+ * The CodePathSplitter parser merges and splits lines at code path nodes.
  *
- * Default args and implicit code paths in ifs, loops and switch aren't reported.
+ * Default args and implicit code paths in ifs, loops and switch aren't handled.
  */
-class Patchwork_PHP_Parser_TokenExploder extends Patchwork_PHP_Parser
+class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
 {
     const
 
