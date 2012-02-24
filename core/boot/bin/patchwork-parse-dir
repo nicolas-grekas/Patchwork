@@ -24,6 +24,14 @@ cd "$2"
 
 echo 'Processing PHP files...'
 
-find -type f -name '*.php' -exec sh -c "echo {}; \"$DIR/patchwork-parse.php\" \"$SRC/{}\" < \"$SRC/{}\" > \"{}\"" \;
+shift
+shift
+
+if [ "x" = "x$*" ]
+then
+    find -type f -name '*.php' -exec sh -c "echo {}; \"$DIR/patchwork-parse.php\" \"$SRC/{}\" < \"$SRC/{}\" > \"{}\"" \;
+else
+    find -type f "$@" -exec sh -c "echo {}; \"$DIR/patchwork-parse.php\" \"$SRC/{}\" < \"$SRC/{}\" > \"{}\"" \;
+fi
 
 cd "$CWD"

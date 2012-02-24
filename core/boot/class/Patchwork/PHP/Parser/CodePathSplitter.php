@@ -12,11 +12,11 @@
  ***************************************************************************/
 
 /**
- * The TokenExploder parser does one token per line.
+ * The CodePathSplitter parser merges and splits lines at code path nodes.
  *
- * Default args and implicit code paths in ifs, loops and switch aren't reported.
+ * Default args and implicit code paths in ifs, loops and switch aren't handled.
  */
-class Patchwork_PHP_Parser_TokenExploder extends Patchwork_PHP_Parser
+class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
 {
     const
 
@@ -38,9 +38,9 @@ class Patchwork_PHP_Parser_TokenExploder extends Patchwork_PHP_Parser
         else if ($this->isSpaceAllowed($token))
         {
             $n = $this->isCodePathNode($token);
-            if (self::CODE_PATH_CONTINUE === $n) $token[1] = "\n/*C*/" . $token[1];
-            else if (self::CODE_PATH_OPEN === $n) $token[1] = "\n/*O*/" . $token[1];
-//            else $token[1] = "\n/*C*/" . $token[1];
+            if (self::CODE_PATH_CONTINUE === $n) $token[1] = "\n\t" . $token[1];
+            else if (self::CODE_PATH_OPEN === $n) $token[1] = "\n\t\t" . $token[1];
+//            else $token[1] = "\n" . $token[1];
         }
     }
 
@@ -62,13 +62,15 @@ class Patchwork_PHP_Parser_TokenExploder extends Patchwork_PHP_Parser
             if ($this->inString & 1) return false;
             break;
 
+        case T_END_HEREDOC:
+            $token[1] .= "\n";
+            // No break;
         case T_OPEN_TAG:
         case T_NUM_STRING:
         case T_STR_STRING:
         case T_CURLY_OPEN:
         case T_CURLY_CLOSE:
         case T_INLINE_HTML:
-        case T_END_HEREDOC:
         case T_STRING_VARNAME:
         case T_OPEN_TAG_WITH_ECHO:
         case T_ENCAPSED_AND_WHITESPACE:
@@ -94,6 +96,7 @@ class Patchwork_PHP_Parser_TokenExploder extends Patchwork_PHP_Parser
             if ($this->inString & 1) return false;
             break;
 
+        case T_END_HEREDOC:
         case T_CLOSE_TAG:
         case T_NUM_STRING:
         case T_STR_STRING:
@@ -116,12 +119,12 @@ class Patchwork_PHP_Parser_TokenExploder extends Patchwork_PHP_Parser
         $c = self::CODE_PATH_CONTINUE;
         $o = self::CODE_PATH_OPEN;
 
-        // Checks if the previous token pushes to the stack
+        // Checks if the previous token ends a code path
 
         if (isset($this->prevType[0])) switch ($this->prevType)
         {
         case '(':
-            $this->stack[] = isset($this->penuType[0]) ? 0 : $this->penuType;
+            $this->stack[] = isset($this->penuType[0]) ? -1 : $this->penuType;
             break;
 
         case '[':
@@ -129,7 +132,7 @@ class Patchwork_PHP_Parser_TokenExploder extends Patchwork_PHP_Parser
             break;
 
         case '{':
-            $this->stack[] = ')' === $this->penuType || T_ELSE === $this->penuType ? T_ELSE : '{';
+            $this->stack[] = ')' === $this->penuType || T_ELSE === $this->penuType || T_STRING === $this->penuType ? T_ELSE : '{';
             if (')' === $this->penuType) $r = $c = $o;
             break;
 
@@ -137,49 +140,10 @@ class Patchwork_PHP_Parser_TokenExploder extends Patchwork_PHP_Parser
             $this->stack[] = '?';
             $r = $c = $o;
             break;
-        }
 
-        // Checks if the current token starts a new code path
-
-        if (isset($token[0][0])) switch ($token[0])
-        {
-        case '?':
-        case ':':
-        case ',':
-        case ']':
-        case ')':
-        case '}':
-        case ';':
-            if ('-' === end($this->stack))
-            {
-                array_pop($this->stack);
-                $r = $c;
-            }
-            if (':' === $token[0] && '?' === end($this->stack))
-            {
-                $r = $c = $o;
-            }
-            break;
-        }
-        else switch ($token[0])
-        {
-        case T_FUNCTION:
-        case T_CATCH:
-        case T_ELSE:
-        case T_ELSEIF:
-        case T_CASE:
-        case T_DEFAULT:
-            $r = $c = $o;
-            break;
-        }
-
-        // Checks if the previous token ends a code path
-
-        if (isset($this->prevType[0])) switch ($this->prevType)
-        {
         case ':':
             if ('?' !== end($this->stack)) $r = $c = $o;
-            else $this->stack[] = '-';
+            else $this->stack[key($this->stack)] = '-';
             break;
 
         case ')':
@@ -193,9 +157,22 @@ class Patchwork_PHP_Parser_TokenExploder extends Patchwork_PHP_Parser
                 if ('{' !== $token[0] && ':' !== $token[0])
                 {
                     // Workaround Xdebug's bug #238
+
+                    switch ($token[0])
+                    {
+                    case T_IF:
+                    case T_SWITCH:
+                    case T_DO:
+                    case T_WHILE:
+                    case T_FOR:
+                    case T_FOREACH:
+                        $this->xdebug238Control = $token[1];
+                        break 2;
+                    }
+
                     end($this->types);
-                    $r = "\xE2\x81\xA0"; // Unicode WORD JOINER
-                    $this->texts[key($this->types)] .= "for($$r=0;$$r<1;++$$r)";
+                    $this->texts[key($this->types)] .= "{";
+                    $this->closeCurlyOnSemicolon = true;
                 }
                 // No break;
             case T_ELSEIF:
@@ -223,6 +200,13 @@ class Patchwork_PHP_Parser_TokenExploder extends Patchwork_PHP_Parser
             {
                 array_pop($this->stack);
                 $r = $c;
+
+                if (isset($this->closeCurlyOnSemicolon))
+                {
+                    end($this->types);
+                    $this->texts[key($this->types)] .= '}';
+                    unset($this->closeCurlyOnSemicolon);
+                }
             }
             else if (!isset($this->penuType[0])) switch ($this->penuType)
             {
@@ -267,6 +251,96 @@ class Patchwork_PHP_Parser_TokenExploder extends Patchwork_PHP_Parser
         case T_ELSE:
             if (T_ELSE !== $this->prevType || ('{' !== $token[0] && ':' !== $token[0])) $this->stack[] = ';';
             break;
+
+        case T_IF:
+        case T_SWITCH:
+        case T_DO:
+        case T_WHILE:
+        case T_FOR:
+        case T_FOREACH:
+            if (isset($this->xdebug238Control))
+            {
+                $token[1] = "/*{$this->xdebug238Control}*/" . $token[1];
+                unset($this->xdebug238Control);
+                $r = $c = $o;
+            }
+            break;
+        }
+
+        // Checks if the current token starts a new code path
+
+        if (isset($token[0][0])) switch ($token[0])
+        {
+        case '?':
+        case ':':
+        case ',':
+        case ']':
+        case ')':
+        case '}':
+        case ';':
+            if ('-' === end($this->stack))
+            {
+                array_pop($this->stack);
+                $r = $c;
+            }
+            if (':' === $token[0] && '?' === end($this->stack))
+            {
+                $r = $c = $o;
+            }
+            break;
+        }
+        else switch ($token[0])
+        {
+        case T_STATIC:
+            $t = $this->getNextToken();
+            switch ($t[0])
+            {
+            case T_STATIC:
+            case T_VAR:
+            case T_PUBLIC:
+            case T_PROTECTED:
+            case T_PRIVATE:
+            case T_FUNCTION:
+                break;
+            default:
+                break 2;
+            }
+            // No break;
+        case T_VAR:
+        case T_PUBLIC:
+        case T_PROTECTED:
+        case T_PRIVATE:
+        case T_CLASS:
+        case T_FUNCTION:
+            switch ($this->prevType)
+            {
+            case T_AS:
+            case T_FINAL:
+            case T_ABSTRACT:
+            case T_STATIC:
+            case T_VAR:
+            case T_PUBLIC:
+            case T_PROTECTED:
+            case T_PRIVATE:
+                break 2;
+            }
+            // No break;
+        case T_CONST:
+        case T_USE:
+        case T_FINAL:
+        case T_ABSTRACT:
+        case T_INTERFACE:
+        case T_TRAIT:
+            $r = $c;
+            break;
+
+        case T_CATCH:
+        case T_ELSE:
+        case T_ELSEIF:
+        case T_CASE:
+        case T_DEFAULT:
+            $r = $c = $o;
+            break;
         }
 
         return $r;
@@ -279,21 +353,17 @@ class Patchwork_PHP_Parser_TokenExploder extends Patchwork_PHP_Parser
         switch ($token[0])
         {
         case T_WHITESPACE:
-            $token[1] = str_replace(
-                array("\r",      "\n",  '*//*'),
-                array('/*r*/', '/*n*/', ''    ),
-                $token[1]
-            );
-            break;
-
-        case T_BAD_CHARACTER:
         case T_COMMENT:
-            $token[1] = "/*" . urlencode($token[1]) . '*/';
+            // Remove new lines.
+            // The process is currently non-bijective,
+            // but this can be changed.
+            $token[1] = ' ';
             break;
 
-        case T_DOC_COMMENT: return;
+        case T_DOC_COMMENT:
+            $token[1] = "\n" . $token[1];
+            break;
         }
 
-        if ('/' === $this->prevType) $token[1] = ' ' . $token[1];
     }
 }
