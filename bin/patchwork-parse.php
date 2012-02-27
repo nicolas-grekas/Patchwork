@@ -21,6 +21,7 @@ class Preprocessor
         $parser = new Patchwork_PHP_Parser_ShortOpenEcho($parser);
         new Patchwork_PHP_Parser_BracketBalancer($parser);
         new Patchwork_PHP_Parser_ShortArray($parser);
+        new Patchwork_PHP_Parser_ControlStructBracketer($parser);
         $parser = new Patchwork_PHP_Parser_BinaryNumber($parser);
         $parser = new Patchwork_PHP_Parser_Backport54Tokens($parser);
 
