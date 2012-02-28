@@ -24,6 +24,7 @@ class Patchwork_PHP_Parser_ControlStructBracketer extends Patchwork_PHP_Parser
     $callbacks = array(
         '~tagControl' => array(T_FOR, T_FOREACH, T_DO, T_WHILE, T_IF, T_ELSEIF, T_ELSE, T_SWITCH),
         '~tagControlEnd' => array(T_ENDFOR, T_ENDFOREACH, T_ENDWHILE, T_ENDIF, T_ENDSWITCH),
+        '~tagSemicolon' => ';',
     ),
     $dependencies = array('BracketBalancer' => 'brackets');
 
@@ -65,8 +66,6 @@ class Patchwork_PHP_Parser_ControlStructBracketer extends Patchwork_PHP_Parser
             array_pop($this->cntrlStack);
             return;
         }
-
-        empty($this->blockStack) and $this->register(array('~tagSemicolon' => ';'));
 
         if (isset($token[0][0])) switch ($token[0])
         {
@@ -120,7 +119,5 @@ class Patchwork_PHP_Parser_ControlStructBracketer extends Patchwork_PHP_Parser
             case end($this->blockStack): $this->unshiftTokens('}');
             }
         }
-
-        empty($this->blockStack) and $this->unregister(array('~tagSemicolon' => ';'));
     }
 }
