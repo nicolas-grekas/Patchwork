@@ -40,7 +40,7 @@ class Patchwork_PHP_Parser_ScopeInfo extends Patchwork_PHP_Parser
         'tagClass' => array(T_CLASS, T_INTERFACE, T_TRAIT),
     ),
     $dependencies = array(
-        'BracketBalancer',
+        'BracketWatcher',
         'NamespaceInfo' => array('namespace', 'nsResolved', 'nsPrefix'),
         'Normalizer',
     );

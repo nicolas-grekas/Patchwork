@@ -22,7 +22,7 @@ class Patchwork_PHP_Parser_CurlyDollarNormalizer extends Patchwork_PHP_Parser
     protected
 
     $callbacks  = array('tagDollarCurly' => T_DOLLAR_OPEN_CURLY_BRACES),
-    $dependencies = 'BracketBalancer';
+    $dependencies = 'BracketWatcher';
 
 
     protected function tagDollarCurly(&$token)

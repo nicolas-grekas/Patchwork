@@ -19,7 +19,7 @@ class Patchwork_PHP_Parser_ShortArray extends Patchwork_PHP_Parser
     protected
 
     $callbacks = array('openBracket' => '['),
-    $dependencies = 'BracketBalancer';
+    $dependencies = 'BracketWatcher';
 
 
     function __construct(parent $parent)

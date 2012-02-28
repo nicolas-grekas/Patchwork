@@ -30,7 +30,7 @@ class Patchwork_Bootstrapper_Preprocessor
         PHP_VERSION_ID < 50400 && $p = new Patchwork_PHP_Parser_Backport54Tokens($p);
         PHP_VERSION_ID < 50300 && new Patchwork_PHP_Parser_Backport53Tokens($p);
 
-        new Patchwork_PHP_Parser_BracketBalancer($p);
+        new Patchwork_PHP_Parser_BracketWatcher($p);
         new Patchwork_PHP_Parser_StringInfo($p);
         new Patchwork_PHP_Parser_NamespaceInfo($p);
         new Patchwork_PHP_Parser_ScopeInfo($p);

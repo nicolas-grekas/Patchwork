@@ -20,7 +20,7 @@ class Patchwork_PHP_Parser_T extends Patchwork_PHP_Parser
 
     $callbacks = array('tagT' => T_USE_FUNCTION),
     $dependencies = array(
-        'BracketBalancer',
+        'BracketWatcher',
         'NamespaceInfo' => 'nsResolved',
         'ConstantExpression' => 'expressionValue',
     );

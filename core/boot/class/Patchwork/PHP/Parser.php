@@ -225,11 +225,17 @@ class Patchwork_PHP_Parser
                 $t1[] = $t0[$i];
                 unset($t0[$i]);
             }
+
+            $t0 = end($t1);
+
+            if (T_HALT_COMPILER !== $t0[0])
+                while (isset($code[$offset]))
+                    $t1[] = array('\\' === $code[$offset] ? T_NS_SEPARATOR : T_BAD_CHARACTER, $code[$offset++]);
         }
 
         if (empty($t1)) return $t1;
 
-        // Restore data after __halt_compiler
+        // Restore data after __halt_compiler()
         // workaround missed fix to http://bugs.php.net/54089
 
         $bin = end($t1);

@@ -23,7 +23,7 @@ class Patchwork_Preprocessor
     $parsers = array(
         'Normalizer'         => true,
         'ShortOpenEcho'      => -50400, // Load this only before 5.4.0
-        'BracketBalancer'    => true,
+        'BracketWatcher'     => true,
         'ShortArray'         => -50400,
         'BinaryNumber'       => -50400,
         'ClassAutoname'      => true,
