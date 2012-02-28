@@ -26,7 +26,7 @@ class Patchwork_PHP_Parser_ControlStructBracketer extends Patchwork_PHP_Parser
         '~tagControlEnd' => array(T_ENDFOR, T_ENDFOREACH, T_ENDWHILE, T_ENDIF, T_ENDSWITCH),
         '~tagSemicolon' => ';',
     ),
-    $dependencies = array('BracketBalancer' => 'brackets');
+    $dependencies = array('BracketWatcher' => 'brackets');
 
 
     protected function tagControl(&$token)

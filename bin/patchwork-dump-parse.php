@@ -27,7 +27,7 @@ class Preprocessor
         $parser = new Patchwork_PHP_Parser_Dumper;
         $parser = new Patchwork_PHP_Parser_ShortOpenEcho($parser);
         $parser = new Patchwork_PHP_Parser_Normalizer($parser);
-        new Patchwork_PHP_Parser_BracketBalancer($parser);
+        new Patchwork_PHP_Parser_BracketWatcher($parser);
         new Patchwork_PHP_Parser_CurlyDollarNormalizer($parser);
         new Patchwork_PHP_Parser_ShortArray($parser);
         $parser = new Patchwork_PHP_Parser_BinaryNumber($parser);

@@ -30,7 +30,7 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
         'tagConst'  => T_CONST,
     ),
     $dependencies = array(
-        'BracketBalancer' => 'brackets',
+        'BracketWatcher' => 'brackets',
         'ConstFuncResolver',
         'ClassInfo' => array('class', 'scope', 'namespace'),
         'NamespaceResolver',

@@ -19,7 +19,7 @@ class Preprocessor
     {
         $parser = new Patchwork_PHP_Parser_CodePathSplitter();
         $parser = new Patchwork_PHP_Parser_ShortOpenEcho($parser);
-        new Patchwork_PHP_Parser_BracketBalancer($parser);
+        new Patchwork_PHP_Parser_BracketWatcher($parser);
         new Patchwork_PHP_Parser_ShortArray($parser);
         new Patchwork_PHP_Parser_ControlStructBracketer($parser);
         $parser = new Patchwork_PHP_Parser_BinaryNumber($parser);

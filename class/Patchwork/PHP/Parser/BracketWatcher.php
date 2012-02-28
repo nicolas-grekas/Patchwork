@@ -14,9 +14,9 @@
 Patchwork_PHP_Parser::createToken('T_BRACKET_CLOSE');
 
 /**
- * The BracketBalancer parser counts opening brackets and triggers callbacks on corresponding closing brackets.
+ * The BracketWatcher parser counts opening brackets and triggers callbacks on corresponding closing brackets.
  */
-class Patchwork_PHP_Parser_BracketBalancer extends Patchwork_PHP_Parser
+class Patchwork_PHP_Parser_BracketWatcher extends Patchwork_PHP_Parser
 {
     protected
 

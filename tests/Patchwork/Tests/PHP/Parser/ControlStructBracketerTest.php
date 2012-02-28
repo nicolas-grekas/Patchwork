@@ -6,7 +6,7 @@ class ControlStructBracketerTest extends \PHPUnit_Framework_TestCase
 {
     protected function getParser()
     {
-        $p = new \Patchwork_PHP_Parser_BracketBalancer;
+        $p = new \Patchwork_PHP_Parser_BracketWatcher;
         new \Patchwork_PHP_Parser_ControlStructBracketer($p);
         return $p;
     }
