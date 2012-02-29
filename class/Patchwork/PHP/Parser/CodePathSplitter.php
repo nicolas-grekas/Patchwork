@@ -142,8 +142,8 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
             break;
 
         case ':':
-            if ('?' !== end($this->stack)) $r = $c = $o;
-            else $this->stack[key($this->stack)] = '-';
+            if ('?' === end($this->stack)) $this->stack[key($this->stack)] = '-';
+            $r = $c = $o;
             break;
 
         case ')':
@@ -282,10 +282,6 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
             {
                 array_pop($this->stack);
                 $r = $c;
-            }
-            if (':' === $token[0] && '?' === end($this->stack))
-            {
-                $r = $c = $o;
             }
             break;
         }
