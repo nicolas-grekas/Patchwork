@@ -58,16 +58,25 @@ class Patchwork_PHP_Parser_CodePathSplitterWithXDebugHacks extends Patchwork_PHP
                 $this->texts[key($this->types)] .= '}';
                 $this->closeCurlyOnSemicolon = null;
             }
-            else if ('?' === $end && ':' === $this->prevType && '?' !== $this->penuType && self::CODE_PATH_OPEN === $r)
+            else if ('?' === $end && ':' === $this->prevType && self::CODE_PATH_OPEN === $r)
             {
                 $r = false;
             }
         }
-        else if ('?' === $this->prevType && ':' !== $token[0])
+        else if ('?' === $this->prevType)
         {
             end($this->types);
-            $this->texts[key($this->types)] .= "(";
-            $token[1] = "1?1:1):(\n\t\t0?0:0)\n\t?" . $token[1];
+            if (':' === $token[0])
+            {
+                $this->texts[key($this->types)] .= ":";
+                $token[1] = "0?" . $token[1];
+                $r = self::CODE_PATH_OPEN;
+            }
+            else
+            {
+                $this->texts[key($this->types)] .= "(";
+                $token[1] = "1?1:1):(\n\t\t0?0:0)\n\t?" . $token[1];
+            }
         }
         else if (isset($this->prevControlText)) switch ($this->prevType)
         {

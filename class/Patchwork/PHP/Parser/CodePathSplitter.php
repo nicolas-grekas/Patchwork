@@ -138,7 +138,7 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
 
         case '?':
             $this->stack[] = '?';
-            $r = $c = $o;
+            if (':' !== $token[0]) $r = $c = $o;
             break;
 
         case ':':
