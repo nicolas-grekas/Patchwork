@@ -10,6 +10,7 @@ require_once $dir . '/class/Patchwork/PHP/Parser/BracketWatcher.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/Bracket.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/ClassInfo.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/CodePathSplitter.php';
+require_once $dir . '/class/Patchwork/PHP/Parser/CodePathSplitterWithXDebugHacks.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/ConstantExpression.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/ConstantInliner.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/ConstFuncDisabler.php';

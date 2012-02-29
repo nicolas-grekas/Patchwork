@@ -17,7 +17,7 @@ class Preprocessor
 {
     static function getParser($file)
     {
-        $parser = new Patchwork_PHP_Parser_CodePathSplitter();
+        $parser = new Patchwork_PHP_Parser_CodePathSplitterWithXDebugHacks();
         $parser = new Patchwork_PHP_Parser_ShortOpenEcho($parser);
         new Patchwork_PHP_Parser_BracketWatcher($parser);
         new Patchwork_PHP_Parser_ShortArray($parser);
