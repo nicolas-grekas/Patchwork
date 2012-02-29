@@ -29,7 +29,8 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
     $callbacks = array(
         '~tagSemantic' => T_SEMANTIC,
         '~tagNonSemantic' => T_NON_SEMANTIC,
-    );
+    ),
+    $dependencies = 'ControlStructBracketer'; // Curly braces around blocks are required for correct code coverage
 
 
     protected function tagSemantic(&$token)

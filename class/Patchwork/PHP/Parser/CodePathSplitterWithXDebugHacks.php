@@ -16,52 +16,15 @@
  */
 class Patchwork_PHP_Parser_CodePathSplitterWithXDebugHacks extends Patchwork_PHP_Parser_CodePathSplitter
 {
-    protected
-
-    $closeCurlyOnSemicolon,
-    $prevControlText;
-
-
     protected function isCodePathNode(&$token)
     {
-        if (')' === $this->prevType)
-        {
-            if ('{' !== $token[0] && ':' !== $token[0] && T_IF === end($this->stack))
-            {
-                if (!isset($token[0][0])) switch ($token[0])
-                {
-                case T_IF:
-                case T_SWITCH:
-                case T_DO:
-                case T_WHILE:
-                case T_FOR:
-                case T_FOREACH:
-                    array_pop($this->stack);
-                    $this->prevControlText = $token[1];
-                    return false;
-                }
-
-                end($this->types);
-                $this->texts[key($this->types)] .= "{";
-                $this->closeCurlyOnSemicolon = true;
-            }
-        }
-        else if (';' === $this->prevType || ':' === $this->prevType) $end = end($this->stack);
+        if (':' === $this->prevType) $end = end($this->stack);
 
         $r = parent::isCodePathNode($token);
 
-        if (isset($end))
+        if (isset($end) && '?' === $end && self::CODE_PATH_OPEN === $r)
         {
-            if (isset($this->closeCurlyOnSemicolon) && ';' === $end  && ';' === $this->prevType)
-            {
-                end($this->types);
-                $this->texts[key($this->types)] .= '}';
-                $this->closeCurlyOnSemicolon = null;
-            }
-            else if ('?' === $end && ':' === $this->prevType && self::CODE_PATH_OPEN === $r)
-            {
-                $r = false;
-            }
+            $r = false;
         }
         else if ('?' === $this->prevType)
         {
@@ -77,18 +40,6 @@ class Patchwork_PHP_Parser_CodePathSplitterWithXDebugHacks extends Patchwork_PHP
                 $this->texts[key($this->types)] .= "(";
                 $token[1] = "1?1:1):(\n\t\t0?0:0)\n\t?" . $token[1];
             }
-        }
-        else if (isset($this->prevControlText)) switch ($this->prevType)
-        {
-        case T_IF:
-        case T_SWITCH:
-        case T_DO:
-        case T_WHILE:
-        case T_FOR:
-        case T_FOREACH:
-            $token[1] = "/*{$this->prevControlText}*/" . $token[1];
-            $this->prevControlText = null;
-            $r = self::CODE_PATH_OPEN;
         }
 
         return $r;
