@@ -31,15 +31,19 @@ class Patchwork_PHP_Parser_CodePathSplitterWithXDebugHacks extends Patchwork_PHP
             end($this->types);
             if (':' === $token[0])
             {
-                $this->texts[key($this->types)] .= ":";
-                $token[1] = "0?" . $token[1];
+                $this->texts[key($this->types)] .= ':';
+                $token[1] = '0?' . $token[1];
                 $r = self::CODE_PATH_OPEN;
             }
             else
             {
-                $this->texts[key($this->types)] .= "(";
+                $this->texts[key($this->types)] .= '(';
                 $token[1] = "1?1:1):(\n\t\t0?0:0)\n\t?" . $token[1];
             }
+        }
+        else if (':' === $token[0] && '?' === end($this->stack))
+        {
+            $r = self::CODE_PATH_CONTINUE;
         }
 
         return $r;
