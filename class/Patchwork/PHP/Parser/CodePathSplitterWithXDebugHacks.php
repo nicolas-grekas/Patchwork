@@ -16,6 +16,8 @@
  */
 class Patchwork_PHP_Parser_CodePathSplitterWithXDebugHacks extends Patchwork_PHP_Parser_CodePathSplitter
 {
+    protected $serviceName = 'Patchwork_PHP_Parser_CodePathSplitter';
+
     protected function isCodePathNode(&$token)
     {
         if (':' === $this->prevType) $end = end($this->structStack);
