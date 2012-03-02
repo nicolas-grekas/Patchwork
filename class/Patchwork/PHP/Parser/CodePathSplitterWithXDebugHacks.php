@@ -18,7 +18,7 @@ class Patchwork_PHP_Parser_CodePathSplitterWithXDebugHacks extends Patchwork_PHP
 {
     protected function isCodePathNode(&$token)
     {
-        if (':' === $this->prevType) $end = end($this->stack);
+        if (':' === $this->prevType) $end = end($this->structStack);
 
         $r = parent::isCodePathNode($token);
 
@@ -41,7 +41,7 @@ class Patchwork_PHP_Parser_CodePathSplitterWithXDebugHacks extends Patchwork_PHP
                 $token[1] = "1?1:1):(\n\t\t0?0:0)\n\t?" . $token[1];
             }
         }
-        else if (':' === $token[0] && '?' === end($this->stack))
+        else if (':' === $token[0] && '?' === end($this->structStack))
         {
             $r = self::CODE_PATH_CONTINUE;
         }
