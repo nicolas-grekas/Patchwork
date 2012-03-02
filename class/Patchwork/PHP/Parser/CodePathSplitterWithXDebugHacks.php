@@ -27,7 +27,7 @@ class Patchwork_PHP_Parser_CodePathSplitterWithXDebugHacks extends Patchwork_PHP
 
         if (isset($end) && '?' === $end && self::CODE_PATH_OPEN === $r)
         {
-            $r = false;
+            $r = self::CODE_PATH_CONTINUE;
         }
         else if ('?' === $this->prevType)
         {
@@ -43,10 +43,6 @@ class Patchwork_PHP_Parser_CodePathSplitterWithXDebugHacks extends Patchwork_PHP
                 $this->texts[key($this->types)] .= '(';
                 $token[1] = "1?1:1):(\n\t\t0?0:0)\n\t?" . $token[1];
             }
-        }
-        else if (':' === $token[0] && '?' === end($this->structStack))
-        {
-            $r = self::CODE_PATH_CONTINUE;
         }
 
         return $r;
