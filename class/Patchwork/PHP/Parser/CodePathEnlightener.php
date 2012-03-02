@@ -13,6 +13,8 @@
 
 /**
  * The CodePathEnlightner parser explicits implicit code paths so that code coverage can see them.
+ *
+ * TODO: alternative syntax.
  */
 class Patchwork_PHP_Parser_CodePathEnlightener extends Patchwork_PHP_Parser
 {
@@ -20,9 +22,11 @@ class Patchwork_PHP_Parser_CodePathEnlightener extends Patchwork_PHP_Parser
 
     $loopStack = array(),
     $callbacks = array(
-        '~tagLoop' => array(T_FOR, T_FOREACH, T_WHILE, T_DO)
+        '~tagLoop' => array(T_FOR, T_FOREACH, T_WHILE, T_DO),
+        '~tagIf' => array(T_IF, T_ELSEIF),
     ),
     $dependencies = 'ControlStructBracketer';
+
 
     protected function tagLoop(&$token)
     {
@@ -48,42 +52,71 @@ class Patchwork_PHP_Parser_CodePathEnlightener extends Patchwork_PHP_Parser
 
             $this->loopStack[] = $token[0];
             $token[1] = '$̊' . count($this->loopStack) . '=0;' . $token[1];
-            if (T_DO === $token[0]) $this->register('~tagBlockOpen');
-            else $this->register(array('~tagConditionClose' => T_BRACKET_CLOSE));
+            if (T_DO === $token[0]) $this->register('~tagLoopOpen');
+            else $this->register(array('~tagLoopTestClose' => T_BRACKET_CLOSE));
         }
     }
 
-    protected function tagConditionClose(&$token)
+    protected function tagLoopTestClose(&$token)
     {
-        $this->register('~tagBlockOpen');
+        $this->register('~tagLoopOpen');
     }
 
-    protected function tagBlockOpen(&$token)
+    protected function tagLoopOpen(&$token)
     {
-        $token[1] .= '++$̊' . count($this->loopStack) . ';';
-        $this->unregister('~tagBlockOpen');
-        if (T_DO !== end($this->loopStack)) $this->register(array('~tagBlockClose' => T_BRACKET_CLOSE));
+        $this->unregister('~tagLoopOpen');
+        if (':' === $token[0]) return;
+        $this->unshiftTokens(array(T_LNUMBER, '++$̊' . count($this->loopStack) . ';'));
+        if (T_DO !== end($this->loopStack)) $this->register(array('~tagLoopClose' => T_BRACKET_CLOSE));
     }
 
     protected function tagDoWhileClose(&$token)
     {
-        $this->register('~tagBlockClose');
+        $this->register('~tagLoopClose');
     }
 
-    protected function tagBlockClose(&$token)
+    protected function tagLoopClose(&$token)
     {
-        $this->unregister('~tagBlockClose');
+        $this->unregister('~tagLoopClose');
         $v = '$̊' . count($this->loopStack);
 
         $this->unshiftTokens(
-            array(T_LNUMBER, $v . '>=2 '), array(T_LOGICAL_AND, 'and'), array(T_LNUMBER, '2?2:2 /*Loop repeated*/'), ';'
+            array(T_LNUMBER, "({$v} >= 2) "), array(T_LOGICAL_AND, 'and'), array(T_LNUMBER, ' (2?2:2) /*Loop repeated*/'), ';'
         );
 
         if (T_DO !== array_pop($this->loopStack))
         {
             $this->unshiftTokens(
-                array(T_LNUMBER, $v . '==0 '), array(T_LOGICAL_AND, 'and'), array(T_LNUMBER, '0?0:0 /*Loop skipped*/'), ';'
+                array(T_LNUMBER, "({$v} == 0) "), array(T_LOGICAL_AND, 'and'), array(T_LNUMBER, ' (0?0:0) /*Loop skipped*/'), ';'
             );
+        }
+    }
+
+
+    protected function tagIf(&$token)
+    {
+        $this->register(array('~tagIfTestClose' => T_BRACKET_CLOSE));
+    }
+
+    protected function tagIfTestClose(&$token)
+    {
+        $this->register('~tagIfOpen');
+    }
+
+    protected function tagIfOpen(&$token)
+    {
+        $this->unregister('~tagIfOpen');
+        if (':' === $token[0]) return;
+        $this->register(array('~tagIfClose' => T_BRACKET_CLOSE));
+    }
+
+    protected function tagIfClose(&$token)
+    {
+        $token =& $this->getNextToken();
+
+        if (T_ELSE !== $token[0] && T_ELSEIF !== $token[0])
+        {
+            $this->unshiftTokens(array(T_ELSE, 'else '), '{', array(T_LNUMBER, '(0?0:0)'), ';', '}');
         }
     }
 }

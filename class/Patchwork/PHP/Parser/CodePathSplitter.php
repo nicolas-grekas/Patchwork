@@ -13,8 +13,6 @@
 
 /**
  * The CodePathSplitter parser merges and splits lines at code path nodes.
- *
- * Default args and implicit code paths in ifs, loops and switch aren't handled.
  */
 class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
 {
