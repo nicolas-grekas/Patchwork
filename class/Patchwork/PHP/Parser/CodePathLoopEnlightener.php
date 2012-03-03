@@ -50,7 +50,7 @@ class Patchwork_PHP_Parser_CodePathLoopEnlightener extends Patchwork_PHP_Parser
             }
 
             $this->loopStack[] = $token[0];
-            $token[1] = '$̊' . count($this->loopStack) . '=0;' . $token[1];
+            $token[1] = '$̊L' . count($this->loopStack) . '=0;' . $token[1];
             if (T_DO === $token[0]) $this->register('~tagBlockOpen');
             else $this->register(array('~tagConditionClose' => T_BRACKET_CLOSE));
         }
@@ -65,7 +65,7 @@ class Patchwork_PHP_Parser_CodePathLoopEnlightener extends Patchwork_PHP_Parser
     {
         $this->unregister('~tagBlockOpen');
         if (':' === $token[0]) return;
-        $this->unshiftTokens(array(T_LNUMBER, '++$̊' . count($this->loopStack) . ';'));
+        $this->unshiftTokens(array(T_LNUMBER, '++$̊L' . count($this->loopStack) . ';'));
         if (T_DO !== end($this->loopStack)) $this->register(array('~tagBlockClose' => T_BRACKET_CLOSE));
     }
 
@@ -77,7 +77,7 @@ class Patchwork_PHP_Parser_CodePathLoopEnlightener extends Patchwork_PHP_Parser
     protected function tagBlockClose(&$token)
     {
         $this->unregister('~tagBlockClose');
-        $v = '$̊' . count($this->loopStack);
+        $v = '$̊L' . count($this->loopStack);
 
         $this->unshiftTokens(
             array(T_LNUMBER, "({$v} >= 2) "), array(T_LOGICAL_AND, 'and'), array(T_LNUMBER, ' (2?2:2) /*Loop repeated*/'), ';'
