@@ -20,7 +20,8 @@ class Preprocessor
         $parser = new Patchwork_PHP_Parser_BracketWatcher();
         new Patchwork_PHP_Parser_ControlStructBracketer($parser);
         new Patchwork_PHP_Parser_CodePathSplitterWithXDebugHacks($parser);
-        new Patchwork_PHP_Parser_CodePathEnlightener($parser);
+        new Patchwork_PHP_Parser_CodePathLoopEnlightener($parser);
+        new Patchwork_PHP_Parser_CodePathElseEnlightener($parser);
         new Patchwork_PHP_Parser_ShortArray($parser);
         $parser = new Patchwork_PHP_Parser_ShortOpenEcho($parser);
         $parser = new Patchwork_PHP_Parser_BinaryNumber($parser);
