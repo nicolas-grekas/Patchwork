@@ -13,8 +13,6 @@
 
 /**
  * The CodePathSplitter parser merges and splits lines at code path nodes.
- *
- * Default args and implicit code paths in ifs, loops and switch aren't handled.
  */
 class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
 {
@@ -25,11 +23,12 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
 
     protected
 
-    $stack = array(),
+    $structStack = array(),
     $callbacks = array(
         '~tagSemantic' => T_SEMANTIC,
         '~tagNonSemantic' => T_NON_SEMANTIC,
-    );
+    ),
+    $dependencies = 'ControlStructBracketer'; // Curly braces around blocks are required for correct code coverage
 
 
     protected function tagSemantic(&$token)
@@ -124,89 +123,82 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
         if (isset($this->prevType[0])) switch ($this->prevType)
         {
         case '(':
-            $this->stack[] = isset($this->penuType[0]) ? -1 : $this->penuType;
+            $this->structStack[] = isset($this->penuType[0]) ? -1 : $this->penuType;
             break;
 
         case '[':
-            $this->stack[] = '[';
+            $this->structStack[] = '[';
             break;
 
         case '{':
-            $this->stack[] = ')' === $this->penuType || T_ELSE === $this->penuType || T_STRING === $this->penuType ? T_ELSE : '{';
-            if (')' === $this->penuType) $r = $c = $o;
+            if (')' === $this->penuType)
+            {
+                if (T_ENDFOR === end($this->structStack)) array_pop($this->structStack);
+                else if (T_CASE !== $token[0] && T_DEFAULT !== $token[0]) $c = $o;
+                $r = $c;
+            }
+            $this->structStack[] = ')' === $this->penuType || T_ELSE === $this->penuType || T_STRING === $this->penuType ? T_ELSE : '{';
             break;
 
         case '?':
-            $this->stack[] = '?';
-            $r = $c = $o;
+            $this->structStack[] = '?';
+            if (':' !== $token[0]) $r = $c = $o;
             break;
 
         case ':':
-            if ('?' !== end($this->stack)) $r = $c = $o;
-            else $this->stack[key($this->stack)] = '-';
+            switch (end($this->structStack))
+            {
+            case '?': $this->structStack[key($this->structStack)] = '-';
+            case T_IF:
+            case T_ELSEIF:
+            case T_FOR:
+            case T_FOREACH:
+            case T_SWITCH:
+            case T_WHILE:
+                $c = $o;
+            }
+            $r = $c;
             break;
 
         case ')':
-            switch (array_pop($this->stack))
+            switch (array_pop($this->structStack))
             {
             case T_EXIT:
                 if (';' !== $token[0]) $r = $c;
                 break;
 
             case T_IF:
-                if ('{' !== $token[0] && ':' !== $token[0])
-                {
-                    // Workaround Xdebug's bug #238
-
-                    switch ($token[0])
-                    {
-                    case T_IF:
-                    case T_SWITCH:
-                    case T_DO:
-                    case T_WHILE:
-                    case T_FOR:
-                    case T_FOREACH:
-                        $this->xdebug238Control = $token[1];
-                        break 2;
-                    }
-
-                    end($this->types);
-                    $this->texts[key($this->types)] .= "{";
-                    $this->closeCurlyOnSemicolon = true;
-                }
-                // No break;
             case T_ELSEIF:
             case T_WHILE:
             case T_FOR:
             case T_FOREACH:
-                if (';' === end($this->stack)) array_pop($this->stack);
+                if (';' === end($this->structStack)) array_pop($this->structStack);
                 if ('{' === $token[0]) break;
-                if (':' !== $token[0]) $this->stack[] = ';';
+                if (':' !== $token[0]) $this->structStack[] = ';';
                 $r = $c = $o;
                 break;
+
+            case T_ENDFOR:
+                array_pop($this->structStack);
+                $this->structStack[] = T_ENDFOR;
             }
             break;
 
         case ']':
-            array_pop($this->stack);
+            array_pop($this->structStack);
             break;
 
         case '}':
-            if (T_ELSE === array_pop($this->stack)) $r = $c;
+            if (T_ELSE === array_pop($this->structStack)) $r = $c;
             break;
 
         case ';':
-            if (';' === end($this->stack))
-            {
-                array_pop($this->stack);
-                $r = $c;
+            if (';' === $token[0] && T_FOR === end($this->structStack)) $this->structStack[] = T_ENDFOR;
 
-                if (isset($this->closeCurlyOnSemicolon))
-                {
-                    end($this->types);
-                    $this->texts[key($this->types)] .= '}';
-                    unset($this->closeCurlyOnSemicolon);
-                }
+            if (';' === end($this->structStack))
+            {
+                array_pop($this->structStack);
+                $r = $c;
             }
             else if (!isset($this->penuType[0])) switch ($this->penuType)
             {
@@ -223,13 +215,13 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
         else switch ($this->prevType)
         {
         case T_DO:
-            $this->stack[] = T_DO;
+            $this->structStack[] = T_DO;
             break;
 
         case T_WHILE:
-            if (T_DO === end($this->stack))
+            if (T_DO === end($this->structStack))
             {
-                array_pop($this->stack);
+                array_pop($this->structStack);
                 $this->prevType = T_DO;
             }
             break;
@@ -239,7 +231,7 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
         case T_LOGICAL_OR:
         case T_LOGICAL_AND:
         case T_LOGICAL_XOR:
-            if ('-' !== end($this->stack)) $this->stack[] = '-';
+            if ('-' !== end($this->structStack)) $this->structStack[] = '-';
             $r = $c = $o;
             break;
 
@@ -249,21 +241,7 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
         case T_RETURN:
         case T_THROW:
         case T_ELSE:
-            if (T_ELSE !== $this->prevType || ('{' !== $token[0] && ':' !== $token[0])) $this->stack[] = ';';
-            break;
-
-        case T_IF:
-        case T_SWITCH:
-        case T_DO:
-        case T_WHILE:
-        case T_FOR:
-        case T_FOREACH:
-            if (isset($this->xdebug238Control))
-            {
-                $token[1] = "/*{$this->xdebug238Control}*/" . $token[1];
-                unset($this->xdebug238Control);
-                $r = $c = $o;
-            }
+            if (T_ELSE !== $this->prevType || ('{' !== $token[0] && ':' !== $token[0])) $this->structStack[] = ';';
             break;
         }
 
@@ -278,14 +256,10 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
         case ')':
         case '}':
         case ';':
-            if ('-' === end($this->stack))
+            if ('-' === end($this->structStack))
             {
-                array_pop($this->stack);
+                array_pop($this->structStack);
                 $r = $c;
-            }
-            if (':' === $token[0] && '?' === end($this->stack))
-            {
-                $r = $c = $o;
             }
             break;
         }
@@ -331,14 +305,26 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
         case T_ABSTRACT:
         case T_INTERFACE:
         case T_TRAIT:
+        case T_FOR:
+        case T_FOREACH:
+        case T_DO:
+        case T_SWITCH:
+        case T_CASE:
+        case T_DEFAULT:
             $r = $c;
+            break;
+
+        case T_IF:
+            if (T_ELSE !== $this->prevType) $r = $c;
+            break;
+
+        case T_WHILE:
+            if (T_DO !== end($this->structStack)) $r = $c;
             break;
 
         case T_CATCH:
         case T_ELSE:
         case T_ELSEIF:
-        case T_CASE:
-        case T_DEFAULT:
             $r = $c = $o;
             break;
         }

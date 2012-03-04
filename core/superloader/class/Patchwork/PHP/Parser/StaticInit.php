@@ -53,7 +53,7 @@ class Patchwork_PHP_Parser_StaticInit extends Patchwork_PHP_Parser
 
     protected function tagClassClose(&$token)
     {
-        $this->unregister(array('tagFunction' => T_FUNCTION));
+        $this->unregister(array('tagFunction' => T_FUNCTION, 'tagClassClose' => T_BRACKET_CLOSE));
         $this->register($this->callbacks);
 
         $class = strtolower(strtr($this->class->nsName, '\\', '_'));

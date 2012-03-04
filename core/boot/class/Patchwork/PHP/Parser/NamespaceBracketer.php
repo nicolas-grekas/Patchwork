@@ -21,8 +21,8 @@ class Patchwork_PHP_Parser_NamespaceBracketer extends Patchwork_PHP_Parser
     $nsClose   = false,
     $callbacks = array(
         'tagOpenTag' => T_OPEN_TAG,
-        'tagNs'      => T_NAMESPACE,
-        'tagEnd'     => T_ENDPHP,
+        'tagNs' => T_NAMESPACE,
+        'tagEnd' => T_ENDPHP,
     ),
     $dependencies = array('StringInfo', 'Normalizer');
 
@@ -52,12 +52,12 @@ class Patchwork_PHP_Parser_NamespaceBracketer extends Patchwork_PHP_Parser
             $this->nsClose = false;
             return $this->unshiftTokens('}', $token);
         }
-        else $this->register(array('~tagNsEnd' => array('{', ';')));
+        else $this->register(array('tagNsEnd' => array('{', ';')));
     }
 
     protected function tagNsEnd(&$token)
     {
-        $this->unregister(array('~tagNsEnd' => array('{', ';')));
+        $this->unregister(array('tagNsEnd' => array('{', ';')));
 
         if (';' === $token[0])
         {

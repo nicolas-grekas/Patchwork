@@ -352,7 +352,7 @@ class Patchwork_PHP_Parser
 
             if (isset($reg[$t[0]]) || isset($reg[$priType]))
             {
-                $k = $t[0];
+                $n = $t[0];
                 $t[2] = array($priType => $priType);
 
                 if (isset($reg[$priType])) $callbacks = $reg[$priType];
@@ -360,11 +360,11 @@ class Patchwork_PHP_Parser
 
                 for (;;)
                 {
-                    $t[2][$k] = $k;
+                    $t[2][$n] = $n;
 
-                    if (isset($reg[$k]))
+                    if (isset($reg[$n]))
                     {
-                        $callbacks += $reg[$k];
+                        $callbacks += $reg[$n];
 
                         // Callbacks triggering are always ordered:
                         // - first by parsers' instanciation order
@@ -386,16 +386,23 @@ class Patchwork_PHP_Parser
                         //     2 => an array of token's types and subtypes
                         // )
 
-                        $k = $c[0]->$c[1]($t);
+                        if ($k < 0)
+                        {
+                            $n = $c[0]->$c[1]($t);
 
-                        // A callback can return:
-                        // - false, which cancels the current token
-                        // - a new token type, which is added to $t[2] and loads the
-                        //   related callbacks in the current callbacks stack
-                        // - or nothing (null)
+                            // Non-tilde-prefixed callback can return:
+                            // - false, which cancels the current token
+                            // - a new token type, which is added to $t[2] and loads the
+                            //   related callbacks in the current callbacks stack
+                            // - or nothing (null)
 
-                        if (false === $k) continue 3;
-                        if ($k && empty($t[2][$k])) continue 2;
+                            if (false === $n) continue 3;
+                            if ($n && empty($t[2][$n])) continue 2;
+                        }
+                        else if (null !== $c[0]->$c[1]($t))
+                        {
+                            user_error("No return value is expected for tilde-registered callback: " . get_class($c[0]) . '->' . $c[1] . '()', E_USER_NOTICE);
+                        }
                     }
 
                     break;

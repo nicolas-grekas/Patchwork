@@ -42,7 +42,7 @@ class Patchwork_PHP_Parser_T extends Patchwork_PHP_Parser
             }
             else
             {
-                $this->register(array(
+                $this->register($this->callbacks = array(
                     'tagConcat' => array(T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES, '.'),
                     'tagTClose' => T_BRACKET_CLOSE,
                 ));
@@ -60,6 +60,6 @@ class Patchwork_PHP_Parser_T extends Patchwork_PHP_Parser
 
     protected function tagTClose(&$token)
     {
-        $this->unregister(array('tagConcat' => array(T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES, '.')));
+        $this->unregister($this->callbacks);
     }
 }
