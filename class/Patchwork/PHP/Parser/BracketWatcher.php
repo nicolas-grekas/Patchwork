@@ -34,9 +34,9 @@ class Patchwork_PHP_Parser_BracketWatcher extends Patchwork_PHP_Parser
 
         switch ($token[0])
         {
-        case '{': $b = '}'; break;
-        case '[': $b = ']'; break;
         case '(': $b = ')'; break;
+        case '[': $b = ']'; break;
+        default: $b = '}'; break;
         }
 
         if (empty($this->tokenRegistry[T_BRACKET_CLOSE])) return;

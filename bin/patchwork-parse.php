@@ -45,9 +45,9 @@ if ($e = $parser->getErrors())
         switch ($e['type'])
         {
         case 0: continue 2;
-        case E_USER_NOTICE;
-        case E_USER_WARNING;
-        case E_USER_DEPRECATED; break;
+        case E_USER_NOTICE:
+        case E_USER_WARNING:
+        case E_USER_DEPRECATED: break;
         default:
         case E_ERROR: $e['type'] = E_USER_ERROR; break;
         case E_NOTICE: $e['type'] = E_USER_NOTICE; break;
@@ -55,7 +55,7 @@ if ($e = $parser->getErrors())
         case E_DEPRECATED: $e['type'] = E_USER_DEPRECATED; break;
         }
 
-        user_error("{$e['message']} on line {$e['line']} as parsed by {$e['parser']}", $e['type']);
+        user_error("{$e['message']} in {$file} on line {$e['line']} as parsed by {$e['parser']}", $e['type']);
     }
 }
 

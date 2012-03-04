@@ -44,6 +44,11 @@ class Patchwork_PHP_Parser_CodePathSplitterWithXDebugHacks extends Patchwork_PHP
                 $token[1] = "1?1:1):(\n\t\t0?0:0)\n\t?" . $token[1];
             }
         }
+        else if ('}' === $token[0] && ';' === $this->prevType && '{' === $this->penuType)
+        {
+            end($this->types);
+            if (';' === $this->texts[key($this->types)]) $this->texts[key($this->types)] = '(0?0:0);';
+        }
 
         return $r;
     }

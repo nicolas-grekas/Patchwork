@@ -19,10 +19,11 @@ class Patchwork_PHP_Parser_CodePathSwitchEnlightener extends Patchwork_PHP_Parse
     protected
 
     $switchStack = array(),
+    $skipNext = false,
     $callbacks = array(
         'tagSwitchOpen' => T_SWITCH,
-        'tagCaseOpen' => T_CASE,
-        '~tagCaseClose' => ':'
+        '~tagCaseOpen' => T_CASE,
+        'tagCaseClose' => ':'
     ),
     $dependencies = array('CodePathSplitter' => 'structStack', 'BracketWatcher');
 
@@ -30,7 +31,8 @@ class Patchwork_PHP_Parser_CodePathSwitchEnlightener extends Patchwork_PHP_Parse
     protected function tagSwitchOpen(&$token)
     {
         $this->register(array('~tagSwitchClose' => T_BRACKET_CLOSE));
-        $token[1] .= '($̊S' . (count($this->switchStack)+1) . '=';
+        $this->switchStack[] = false;
+        $token[1] .= '($̊S' . count($this->switchStack) . '=';
     }
 
     protected function tagSwitchClose(&$token)
@@ -41,23 +43,28 @@ class Patchwork_PHP_Parser_CodePathSwitchEnlightener extends Patchwork_PHP_Parse
 
     protected function tagBlockOpen(&$token)
     {
-        $this->unregister('tagBlockOpen');
-        $this->register(array('~tagBlockClose' => ':' === $token[0] ? T_ENDSWITCH : T_BRACKET_CLOSE));
-        $this->switchStack[] =& $token;
+        $this->unregister(__FUNCTION__);
+        $this->register(array('tagBlockClose' => ':' === $token[0] ? T_ENDSWITCH : T_BRACKET_CLOSE));
     }
 
     protected function tagCaseOpen(&$token)
     {
-        $token[1] .= '(';
+        $this->skipNext or $this->unshiftTokens('(');
     }
 
     protected function tagCaseClose(&$token)
     {
+        if ($this->skipNext)
+        {
+            $this->skipNext = false;
+            return;
+        }
+
         end($this->structStack);
 
         switch ($this->prevType)
         {
-        case T_DEFAULT: $this->switchStack[count($this->switchStack)-1] =& $token[0];
+        case T_DEFAULT: $this->switchStack[count($this->switchStack)-1] = true;
         case T_ELSE:
         case '?':
             return;
@@ -79,20 +86,26 @@ class Patchwork_PHP_Parser_CodePathSwitchEnlightener extends Patchwork_PHP_Parse
             return;
         }
 
-        $token[1] = ' )==$̊S' . count($this->switchStack) . " and\n\t\t(1?1:1)\n\t" . $token[1];
+        $this->skipNext = true;
+
+        return $this->unshiftTokens(
+            array(')', ')==$̊S' . count($this->switchStack)), array(T_WHITESPACE, ' '),
+            array(T_LOGICAL_AND, 'and'), array(T_LNUMBER, '(1?1:1)'), $token
+        );
     }
 
     protected function tagBlockClose(&$token)
     {
-        $this->register(array('~tagBlockClose' => T_ENDSWITCH));
+        $this->unregister(array(__FUNCTION__ => array(T_ENDSWITCH, T_BRACKET_CLOSE)));
 
-        $token =& $this->switchStack[count($this->switchStack)-1];
-
-        if (is_array($token))
+        if (false === array_pop($this->switchStack))
         {
-            $token[1] .= "\n\tdefault:\n\t\t(1?1:1);break;";
-        }
+            $this->skipNext = true;
 
-        array_pop($this->switchStack);
+            return $this->unshiftTokens(
+                array(T_CASE, 'case'), array(T_WHITESPACE, ' '), array(T_LNUMBER, '(1?1:1)'), array(T_WHITESPACE, ' '),
+               array(T_LOGICAL_AND, 'and'), array(T_LNUMBER, '(1?1:1)'), array(':', ': /*default*/'), $token
+            );
+        }
     }
 }

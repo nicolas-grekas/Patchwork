@@ -43,7 +43,7 @@ class Patchwork_PHP_Parser_ShortArray extends Patchwork_PHP_Parser
         }
 
         $token[1] = 'array(';
-        $this->register(array('closeBracket' => T_BRACKET_CLOSE));
+        $this->register(array('~closeBracket' => T_BRACKET_CLOSE));
     }
 
     protected function closeBracket(&$token)

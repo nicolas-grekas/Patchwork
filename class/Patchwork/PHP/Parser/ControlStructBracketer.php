@@ -69,7 +69,7 @@ class Patchwork_PHP_Parser_ControlStructBracketer extends Patchwork_PHP_Parser
 
         if (isset($token[0][0])) switch ($token[0])
         {
-        case '{': $this->register(array('tagBlockClose' => T_BRACKET_CLOSE));
+        case '{': $this->register(array('~tagBlockClose' => T_BRACKET_CLOSE));
         case ':': $this->blockStack[] = -1;
             return;
         }
@@ -88,14 +88,14 @@ class Patchwork_PHP_Parser_ControlStructBracketer extends Patchwork_PHP_Parser
     {
         if (count($this->brackets) === end($this->blockStack))
         {
-            $this->register('tagBlockClose');
+            $this->register('~tagBlockClose');
             $this->unshiftTokens('}');
         }
     }
 
     protected function tagBlockClose(&$token)
     {
-        $this->unregister('tagBlockClose');
+        $this->unregister('~tagBlockClose');
 
         $offset = 0;
         $token =& $this->getNextToken();
