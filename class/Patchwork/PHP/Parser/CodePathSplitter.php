@@ -18,8 +18,9 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
 {
     const
 
-    CODE_PATH_OPEN = 1,
-    CODE_PATH_CONTINUE = -1;
+    BRANCH_OPEN = 3,
+    BRANCH_CLOSE = 2,
+    BRANCH_SPLIT = 1;
 
     protected
 
@@ -34,12 +35,19 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
     protected function tagSemantic(&$token)
     {
         if (T_INLINE_HTML === $token[0]) $this->tagNonSemantic($token);
-        else if ($this->isSpaceAllowed($token))
+        else if ($this->isSpaceAllowed($token)) switch ($this->isCodePathNode($token))
         {
-            $n = $this->isCodePathNode($token);
-            if (self::CODE_PATH_CONTINUE === $n) $token[1] = "\n\t" . $token[1];
-            else if (self::CODE_PATH_OPEN === $n) $token[1] = "\n\t\t" . $token[1];
-//            else $token[1] = "\n" . $token[1];
+        case self::BRANCH_OPEN:
+            $token[1] = "\n\t\t" . $token[1];
+            break;
+
+        case self::BRANCH_CLOSE:
+        case self::BRANCH_SPLIT:
+            $token[1] = "\n\t" . $token[1];
+            break;
+
+        default:
+//            $token[1] = "\n" . $token[1];
         }
     }
 
@@ -114,9 +122,10 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
 
     protected function isCodePathNode(&$token)
     {
-        $r = false;
-        $c = self::CODE_PATH_CONTINUE;
-        $o = self::CODE_PATH_OPEN;
+        $r = 0;
+        $s = self::BRANCH_SPLIT;
+        $c = self::BRANCH_CLOSE;
+        $o = self::BRANCH_OPEN;
 
         // Checks if the previous token ends a code path
 
@@ -134,15 +143,15 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
             if (')' === $this->penuType)
             {
                 if (T_ENDFOR === end($this->structStack)) array_pop($this->structStack);
-                else if (T_CASE !== $token[0] && T_DEFAULT !== $token[0]) $c = $o;
-                $r = $c;
+                else if (T_CASE !== $token[0] && T_DEFAULT !== $token[0]) $s = $c = $o;
+                $r = $s;
             }
             $this->structStack[] = ')' === $this->penuType || T_ELSE === $this->penuType || T_STRING === $this->penuType ? T_ELSE : '{';
             break;
 
         case '?':
             $this->structStack[] = '?';
-            if (':' !== $token[0]) $r = $c = $o;
+            if (':' !== $token[0]) $r = $s = $c = $o;
             break;
 
         case ':':
@@ -157,14 +166,14 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
             case T_WHILE:
                 $c = $o;
             }
-            $r = $c;
+            $r = $s = $c;
             break;
 
         case ')':
             switch (array_pop($this->structStack))
             {
             case T_EXIT:
-                if (';' !== $token[0]) $r = $c;
+                if (';' !== $token[0]) $r = $s = $c;
                 break;
 
             case T_IF:
@@ -175,7 +184,7 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
                 if (';' === end($this->structStack)) array_pop($this->structStack);
                 if ('{' === $token[0]) break;
                 if (':' !== $token[0]) $this->structStack[] = ';';
-                $r = $c = $o;
+                $r = $s = $c = $o;
                 break;
 
             case T_ENDFOR:
@@ -189,7 +198,7 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
             break;
 
         case '}':
-            if (T_ELSE === array_pop($this->structStack)) $r = $c;
+            if (T_ELSE === array_pop($this->structStack)) $r = $s = $c;
             break;
 
         case ';':
@@ -198,7 +207,7 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
             if (';' === end($this->structStack))
             {
                 array_pop($this->structStack);
-                $r = $c;
+                $r = $s = $c;
             }
             else if (!isset($this->penuType[0])) switch ($this->penuType)
             {
@@ -208,7 +217,7 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
             case T_ENDWHILE:
             case T_ENDSWITCH:
             case T_ENDFOREACH:
-                $r = $c;
+                $r = $s = $c;
             }
             break;
         }
@@ -232,7 +241,7 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
         case T_LOGICAL_AND:
         case T_LOGICAL_XOR:
             if ('-' !== end($this->structStack)) $this->structStack[] = '-';
-            $r = $c = $o;
+            $r = $s = $c = $o;
             break;
 
         case T_GOTO:
@@ -259,7 +268,7 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
             if ('-' === end($this->structStack))
             {
                 array_pop($this->structStack);
-                $r = $c;
+                $r = $s = $c;
             }
             break;
         }
@@ -311,21 +320,21 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
         case T_SWITCH:
         case T_CASE:
         case T_DEFAULT:
-            $r = $c;
+            $r = $s;
             break;
 
         case T_IF:
-            if (T_ELSE !== $this->prevType) $r = $c;
+            if (T_ELSE !== $this->prevType) $r = $s;
             break;
 
         case T_WHILE:
-            if (T_DO !== end($this->structStack)) $r = $c;
+            if (T_DO !== end($this->structStack)) $r = $s;
             break;
 
         case T_CATCH:
         case T_ELSE:
         case T_ELSEIF:
-            $r = $c = $o;
+            $r = $s = $c = $o;
             break;
         }
 

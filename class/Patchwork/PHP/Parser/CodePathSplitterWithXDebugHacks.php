@@ -21,27 +21,35 @@ class Patchwork_PHP_Parser_CodePathSplitterWithXDebugHacks extends Patchwork_PHP
 
     protected function isCodePathNode(&$token)
     {
+        static $skip = 0;
+
         if (':' === $this->prevType) $end = end($this->structStack);
 
         $r = parent::isCodePathNode($token);
 
-        if (isset($end) && '?' === $end && self::CODE_PATH_OPEN === $r)
+        if ($skip)
         {
-            $r = self::CODE_PATH_CONTINUE;
+            $r = 1 === $skip-- ? self::BRANCH_CLOSE : self::BRANCH_OPEN;
+        }
+        else if (isset($end) && '?' === $end && self::BRANCH_OPEN === $r)
+        {
+            $r = self::BRANCH_SPLIT;
         }
         else if ('?' === $this->prevType)
         {
             end($this->types);
-            if (':' === $token[0])
+            $this->texts[key($this->types)] .= ':';
+            $token[1] = '0?' . $token[1];
+            $r = self::BRANCH_OPEN;
+        }
+        else if ('?' === $token[0])
+        {
+            $t = $this->getNextToken();
+            if (':' !== $t[0])
             {
-                $this->texts[key($this->types)] .= ':';
-                $token[1] = '0?' . $token[1];
-                $r = self::CODE_PATH_OPEN;
-            }
-            else
-            {
-                $this->texts[key($this->types)] .= '(';
-                $token[1] = "1?1:1):(\n\t\t0?0:0)\n\t?" . $token[1];
+                $token[1] .= '(';
+                $this->unshiftTokens(array('@', '1?1:1):('), array('@', '0?0:0)'), array('@', '?'));
+                $skip = 3;
             }
         }
         else if ('}' === $token[0] && ';' === $this->prevType && '{' === $this->penuType)
