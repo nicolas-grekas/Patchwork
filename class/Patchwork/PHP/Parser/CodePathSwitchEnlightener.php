@@ -25,7 +25,11 @@ class Patchwork_PHP_Parser_CodePathSwitchEnlightener extends Patchwork_PHP_Parse
         '~tagCaseOpen' => T_CASE,
         'tagCaseClose' => ':',
     ),
-    $dependencies = array('CodePathSplitter' => 'structStack', 'BracketWatcher');
+    $dependencies = array(
+        'CodePathSplitter' => 'structStack',
+        'CaseColonEnforcer',
+        'BracketWatcher',
+    );
 
 
     protected function tagSwitchOpen(&$token)
@@ -49,7 +53,7 @@ class Patchwork_PHP_Parser_CodePathSwitchEnlightener extends Patchwork_PHP_Parse
 
     protected function tagCaseOpen(&$token)
     {
-        $this->skipNextColon or $this->unshiftTokens('(');
+        $this->skipNextColon or $token[1] .= '(';
     }
 
     protected function tagCaseClose(&$token)
@@ -90,9 +94,11 @@ class Patchwork_PHP_Parser_CodePathSwitchEnlightener extends Patchwork_PHP_Parse
 
         $this->skipNextColon = true;
 
+        end($this->types);
+        $this->texts[key($this->types)] .= ')==$̊S' . count($this->switchStack);
+
         return $this->unshiftTokens(
-            array(')', ')==$̊S' . count($this->switchStack)), array(T_WHITESPACE, ' '),
-            array(T_LOGICAL_AND, 'and'), array(T_LNUMBER, '(1?1:1)'), $token
+            array(T_LOGICAL_AND, ' and'), array(T_LNUMBER, '(1?1:1)'), $token
         );
     }
 

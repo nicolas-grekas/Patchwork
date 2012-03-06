@@ -19,6 +19,7 @@ class Preprocessor
     {
         $parser = new Patchwork_PHP_Parser_BracketWatcher();
         new Patchwork_PHP_Parser_ControlStructBracketer($parser);
+        new Patchwork_PHP_Parser_CaseColonEnforcer($parser);
         new Patchwork_PHP_Parser_CodePathSplitterWithXDebugHacks($parser);
         new Patchwork_PHP_Parser_CodePathLoopEnlightener($parser);
         new Patchwork_PHP_Parser_CodePathElseEnlightener($parser);
