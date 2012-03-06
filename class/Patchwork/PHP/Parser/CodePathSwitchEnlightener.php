@@ -19,11 +19,11 @@ class Patchwork_PHP_Parser_CodePathSwitchEnlightener extends Patchwork_PHP_Parse
     protected
 
     $switchStack = array(),
-    $skipNext = false,
+    $skipNextColon = false,
     $callbacks = array(
         'tagSwitchOpen' => T_SWITCH,
         '~tagCaseOpen' => T_CASE,
-        'tagCaseClose' => ':'
+        'tagCaseClose' => ':',
     ),
     $dependencies = array('CodePathSplitter' => 'structStack', 'BracketWatcher');
 
@@ -49,14 +49,14 @@ class Patchwork_PHP_Parser_CodePathSwitchEnlightener extends Patchwork_PHP_Parse
 
     protected function tagCaseOpen(&$token)
     {
-        $this->skipNext or $this->unshiftTokens('(');
+        $this->skipNextColon or $this->unshiftTokens('(');
     }
 
     protected function tagCaseClose(&$token)
     {
-        if ($this->skipNext)
+        if ($this->skipNextColon)
         {
-            $this->skipNext = false;
+            $this->skipNextColon = false;
             return;
         }
 
@@ -86,7 +86,7 @@ class Patchwork_PHP_Parser_CodePathSwitchEnlightener extends Patchwork_PHP_Parse
             return;
         }
 
-        $this->skipNext = true;
+        $this->skipNextColon = true;
 
         return $this->unshiftTokens(
             array(')', ')==$̊S' . count($this->switchStack)), array(T_WHITESPACE, ' '),
@@ -98,14 +98,13 @@ class Patchwork_PHP_Parser_CodePathSwitchEnlightener extends Patchwork_PHP_Parse
     {
         $this->unregister(array(__FUNCTION__ => array(T_ENDSWITCH, T_BRACKET_CLOSE)));
 
-        if (false === array_pop($this->switchStack))
-        {
-            $this->skipNext = true;
+        $this->skipNextColon = true;
 
-            return $this->unshiftTokens(
-                array(T_CASE, 'case'), array(T_WHITESPACE, ' '), array(T_LNUMBER, '(1?1:1)'), array(T_WHITESPACE, ' '),
-               array(T_LOGICAL_AND, 'and'), array(T_LNUMBER, '(1?1:1)'), array(':', ': /*default*/'), $token
-            );
-        }
+        $n = false === array_pop($this->switchStack) ? '(1?1:1) /*No matching case*/' : '(0?0:0) /*Jump to default*/';
+
+        return $this->unshiftTokens(
+            array(T_CASE, 'case'), array(T_WHITESPACE, ' '), array(T_LNUMBER, '(1?1:1)'), array(T_WHITESPACE, ' '),
+            array(T_LOGICAL_AND, 'and'), array(T_LNUMBER, $n), ':', $token
+        );
     }
 }
