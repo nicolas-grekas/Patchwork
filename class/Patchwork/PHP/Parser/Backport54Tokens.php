@@ -31,7 +31,7 @@ class Patchwork_PHP_Parser_Backport54Tokens extends Patchwork_PHP_Parser
     protected function getTokens($code)
     {
         foreach ($this->backports as $k => $i)
-            if (self::T_OFFSET <= $i || false === stripos($code, $k))
+            if (self::T_OFFSET >= $i || false === stripos($code, $k))
                 unset($this->backports[$k]);
 
         $code = parent::getTokens($code);
