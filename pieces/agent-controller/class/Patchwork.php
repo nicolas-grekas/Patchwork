@@ -20,11 +20,7 @@ function jsquote($a)
 {
 /**/if (DEBUG)
 /**/{
-        if (is_array($a))
-        {
-            user_error('jsquote error: can not quote an array');
-            $a = '';
-        }
+        is_array($a) and user_error('Can not quote an array', E_USER_WARNING);
 /**/}
 
     if (is_object($a)) $a = $a->__toString();
