@@ -60,7 +60,7 @@ class Patchwork_PHP_Parser_CodePathSwitchEnlightener extends Patchwork_PHP_Parse
             return;
         }
 
-        end($this->structStack);
+        '-' === end($this->structStack) and prev($this->structStack);
 
         switch ($this->prevType)
         {
@@ -69,22 +69,24 @@ class Patchwork_PHP_Parser_CodePathSwitchEnlightener extends Patchwork_PHP_Parse
         case '?':
             return;
 
-        case '-': prev($this->structStack);
+        case ')':
+            switch (current($this->structStack))
+            {
+            case T_IF:
+            case T_ELSEIF:
+            case T_FOR:
+            case T_FOREACH:
+            case T_SWITCH:
+            case T_WHILE:
+                return;
+            }
+            // No break;
         case ']':
-        case ')': prev($this->structStack);
+            prev($this->structStack);
+            break;
         }
 
-        switch (current($this->structStack))
-        {
-        case '?':
-        case T_IF:
-        case T_ELSEIF:
-        case T_FOR:
-        case T_FOREACH:
-        case T_SWITCH:
-        case T_WHILE:
-            return;
-        }
+        if ('?' === current($this->structStack)) return;
 
         $this->skipNextColon = true;
 
