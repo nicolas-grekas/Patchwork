@@ -29,11 +29,11 @@ class Patchwork_PHP_Parser_CodePathSplitterWithXDebugHacks extends Patchwork_PHP
 
         if ($skip)
         {
-            $r = 1 === $skip-- ? self::BRANCH_CLOSE : self::BRANCH_OPEN;
+            $r = 1 === $skip-- ? self::BRANCH_CONTINUE : self::BRANCH_OPEN;
         }
         else if (isset($end) && '?' === $end && self::BRANCH_OPEN === $r)
         {
-            $r = self::BRANCH_SPLIT;
+            $r = self::BRANCH_CONTINUE;
         }
         else if ('?' === $this->prevType)
         {
