@@ -18,28 +18,48 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
 {
     const
 
-    CODE_PATH_OPEN = 1,
-    CODE_PATH_CONTINUE = -1;
+    BRANCH_OPEN = 1,
+    BRANCH_CONTINUE = 2;
 
     protected
 
     $structStack = array(),
     $callbacks = array(
         '~tagSemantic' => T_SEMANTIC,
-        '~tagNonSemantic' => T_NON_SEMANTIC,
     ),
-    $dependencies = 'ControlStructBracketer'; // Curly braces around blocks are required for correct code coverage
+    $dependencies = array(
+        'ControlStructBracketer', // Curly braces around blocks are required for correct code coverage
+        'CaseColonEnforcer', // Makes case statements easier to parse
+    );
 
 
     protected function tagSemantic(&$token)
     {
-        if (T_INLINE_HTML === $token[0]) $this->tagNonSemantic($token);
-        else if ($this->isSpaceAllowed($token))
+        // TODO on branch open and close: keep indentation and break lines only if not already done
+
+        if (!$this->isSpaceAllowed($token)) return;
+
+        switch ($this->isCodePathNode($token))
         {
-            $n = $this->isCodePathNode($token);
-            if (self::CODE_PATH_CONTINUE === $n) $token[1] = "\n\t" . $token[1];
-            else if (self::CODE_PATH_OPEN === $n) $token[1] = "\n\t\t" . $token[1];
-//            else $token[1] = "\n" . $token[1];
+        case self::BRANCH_OPEN:
+            $token[1] = "\n\t\t" . $token[1];
+            break;
+
+        case self::BRANCH_CONTINUE:
+            $token[1] = "\n\t" . $token[1];
+            break;
+
+        default:
+/*
+            if ($this->isLineBreakPretty($token))
+            {
+                $token[1] = "\n" . $token[1];
+            }
+            else
+            {
+//              $token[1] = "\n" . $token[1];
+            }
+ */
         }
     }
 
@@ -114,9 +134,9 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
 
     protected function isCodePathNode(&$token)
     {
-        $r = false;
-        $c = self::CODE_PATH_CONTINUE;
-        $o = self::CODE_PATH_OPEN;
+        $r = 0;
+        $c = self::BRANCH_CONTINUE;
+        $o = self::BRANCH_OPEN;
 
         // Checks if the previous token ends a code path
 
@@ -134,8 +154,8 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
             if (')' === $this->penuType)
             {
                 if (T_ENDFOR === end($this->structStack)) array_pop($this->structStack);
-                else if (T_CASE !== $token[0] && T_DEFAULT !== $token[0]) $c = $o;
-                $r = $c;
+                else if (T_DEFAULT === $token[0]) $r = $c;
+                else if (T_CASE !== $token[0]) $r = $c = $o;
             }
             $this->structStack[] = ')' === $this->penuType || T_ELSE === $this->penuType || T_STRING === $this->penuType ? T_ELSE : '{';
             break;
@@ -265,6 +285,20 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
         }
         else switch ($token[0])
         {
+        case T_CATCH:
+        case T_ELSE:
+        case T_ELSEIF:
+            $r = $c = $o;
+            break;
+        }
+
+        return $r;
+    }
+
+    protected function isLineBreakPretty(&$token)
+    {
+        if (!isset($token[0][0])) switch ($token[0])
+        {
         case T_STATIC:
             $t = $this->getNextToken();
             switch ($t[0])
@@ -311,45 +345,15 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
         case T_SWITCH:
         case T_CASE:
         case T_DEFAULT:
-            $r = $c;
-            break;
+            return true;
 
         case T_IF:
-            if (T_ELSE !== $this->prevType) $r = $c;
-            break;
+            return T_ELSE !== $this->prevType;
 
         case T_WHILE:
-            if (T_DO !== end($this->structStack)) $r = $c;
-            break;
-
-        case T_CATCH:
-        case T_ELSE:
-        case T_ELSEIF:
-            $r = $c = $o;
-            break;
+            return T_DO !== end($this->structStack);
         }
 
-        return $r;
-    }
-
-    protected function tagNonSemantic(&$token)
-    {
-        if (' ' === $token[1]) return;
-
-        switch ($token[0])
-        {
-        case T_WHITESPACE:
-        case T_COMMENT:
-            // Remove new lines.
-            // The process is currently non-bijective,
-            // but this can be changed.
-            $token[1] = ' ';
-            break;
-
-        case T_DOC_COMMENT:
-            $token[1] = "\n" . $token[1];
-            break;
-        }
-
+        return false;
     }
 }

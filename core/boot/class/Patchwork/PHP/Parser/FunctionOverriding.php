@@ -154,8 +154,8 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
 
     protected function tagVariableVar(&$token)
     {
-        if (   ('}' === $this->prevType || T_VARIABLE === $this->prevType)
-            && !in_array($this->penuType, array(T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON)) )
+        if ( ('}' === $this->prevType || T_VARIABLE === $this->prevType)
+          && !in_array($this->penuType, array(T_NEW, T_OBJECT_OPERATOR, T_DOUBLE_COLON)) )
         {
             $t =& $this->types;
             end($t);
