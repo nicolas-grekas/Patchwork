@@ -27,25 +27,27 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
     $structStack = array(),
     $callbacks = array(
         '~tagSemantic' => T_SEMANTIC,
-        '~tagNonSemantic' => T_NON_SEMANTIC,
     ),
     $dependencies = 'ControlStructBracketer'; // Curly braces around blocks are required for correct code coverage
 
 
     protected function tagSemantic(&$token)
     {
-        if (T_INLINE_HTML === $token[0]) $this->tagNonSemantic($token);
-        else if ($this->isSpaceAllowed($token)) switch ($this->isCodePathNode($token))
+        // TODO on branch open and close: keep indentation and break lines only if not already done
+
+        if (!$this->isSpaceAllowed($token)) return;
+
+        switch ($this->isCodePathNode($token))
         {
         case self::BRANCH_OPEN:
             $token[1] = "\n\t\t" . $token[1];
             break;
 
         case self::BRANCH_CLOSE:
-        case self::BRANCH_SPLIT:
             $token[1] = "\n\t" . $token[1];
             break;
 
+        case self::BRANCH_SPLIT:
         default:
 //            $token[1] = "\n" . $token[1];
         }
@@ -339,26 +341,5 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
         }
 
         return $r;
-    }
-
-    protected function tagNonSemantic(&$token)
-    {
-        if (' ' === $token[1]) return;
-
-        switch ($token[0])
-        {
-        case T_WHITESPACE:
-        case T_COMMENT:
-            // Remove new lines.
-            // The process is currently non-bijective,
-            // but this can be changed.
-            $token[1] = ' ';
-            break;
-
-        case T_DOC_COMMENT:
-            $token[1] = "\n" . $token[1];
-            break;
-        }
-
     }
 }
