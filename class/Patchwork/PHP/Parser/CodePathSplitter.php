@@ -50,16 +50,7 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
             break;
 
         default:
-/*
-            if ($this->isLineBreakPretty($token))
-            {
-                $token[1] = "\n" . $token[1];
-            }
-            else
-            {
-//              $token[1] = "\n" . $token[1];
-            }
- */
+//            $token[1] = "\n" . $token[1];
         }
     }
 
@@ -293,67 +284,5 @@ class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
         }
 
         return $r;
-    }
-
-    protected function isLineBreakPretty(&$token)
-    {
-        if (!isset($token[0][0])) switch ($token[0])
-        {
-        case T_STATIC:
-            $t = $this->getNextToken();
-            switch ($t[0])
-            {
-            case T_STATIC:
-            case T_VAR:
-            case T_PUBLIC:
-            case T_PROTECTED:
-            case T_PRIVATE:
-            case T_FUNCTION:
-                break;
-            default:
-                break 2;
-            }
-            // No break;
-        case T_VAR:
-        case T_PUBLIC:
-        case T_PROTECTED:
-        case T_PRIVATE:
-        case T_CLASS:
-        case T_FUNCTION:
-            switch ($this->prevType)
-            {
-            case T_AS:
-            case T_FINAL:
-            case T_ABSTRACT:
-            case T_STATIC:
-            case T_VAR:
-            case T_PUBLIC:
-            case T_PROTECTED:
-            case T_PRIVATE:
-                break 2;
-            }
-            // No break;
-        case T_CONST:
-        case T_USE:
-        case T_FINAL:
-        case T_ABSTRACT:
-        case T_INTERFACE:
-        case T_TRAIT:
-        case T_FOR:
-        case T_FOREACH:
-        case T_DO:
-        case T_SWITCH:
-        case T_CASE:
-        case T_DEFAULT:
-            return true;
-
-        case T_IF:
-            return T_ELSE !== $this->prevType;
-
-        case T_WHILE:
-            return T_DO !== end($this->structStack);
-        }
-
-        return false;
     }
 }
