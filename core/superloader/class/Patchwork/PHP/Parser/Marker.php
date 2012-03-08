@@ -91,13 +91,13 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionOverridin
 
         if (T_FUNCTION === $this->scope->type)
         {
-            $this->register(array('~tagFunctionClose' => T_BRACKET_CLOSE));
+            $this->register(array('tagFunctionClose' => T_BRACKET_CLOSE));
         }
         else if (T_CLASS === $this->scope->type || T_INTERFACE === $this->scope->type || T_TRAIT === $this->scope->type)
         {
             $this->inlineClass[strtolower(strtr($this->class->nsName, '\\', '_'))] = 1;
             $this->class->extends && $this->inlineClass[strtolower(strtr($this->class->extends, '\\', '_'))] = 1;
-            $this->register(array('~tagClassClose' => T_BRACKET_CLOSE));
+            $this->register(array('tagClassClose' => T_BRACKET_CLOSE));
         }
     }
 
@@ -198,6 +198,8 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionOverridin
 
     protected function tagFunctionClose(&$token)
     {
+        $this->unregister(array(__FUNCTION__ => T_BRACKET_CLOSE));
+
         if ($this->scope->markerState)
         {
             $T = $this->tag;
@@ -209,6 +211,7 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionOverridin
 
     protected function tagClassClose(&$token)
     {
+        $this->unregister(array(__FUNCTION__ => T_BRACKET_CLOSE));
         $c = strtolower(strtr($this->class->nsName . (isset($this->class->suffix) ? $this->class->suffix : ''), '\\', '_'));
         $token[1] .= "\$GLOBALS['c{$this->tag}']['{$c}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
     }
