@@ -679,8 +679,8 @@ var w = function($baseAgent, $keys, $masterAppId, $buffer, $dataUri)
         if (!$insideTag)
         {
             $rx = /*@cc_on!@*/0
-                ? /<(?:(script(\s[\s\S]*?[^-\]])>\s*<)?\/(script|style|noscript|title|textarea|iframe)\s*|--)>\s*(?:<!\[endif\](?:--)?>\s*)*/ig
-                :                                 /<(?:\/(script|style|noscript|title|textarea|iframe)\s*|--)>\s*/ig;
+                ? /<(?:(?:script(\s[\s\S]*?[^-\]])>\s*<)?\/(script|style|noscript|title|textarea|iframe)\s*|--)>\s*(?:<!\[endif\](?:--)?>\s*)*/ig
+                :                                   /<(?:\/(script|style|noscript|title|textarea|iframe)\s*|--)>\s*/ig;
             $rx.lastIndex = $offset;
 
             while ($i = $rx.exec($content))
