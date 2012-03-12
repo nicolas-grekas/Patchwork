@@ -604,7 +604,6 @@ class Patchwork_PHP_Parser
     static function getTokenName($type)
     {
         if (is_string($type)) return $type;
-        if ($type < 0) return '-' . self::$tokenNames[-$type];
         return $type < 3 || self::T_OFFSET < $type ? self::$tokenNames[$type] : token_name($type);
     }
 
