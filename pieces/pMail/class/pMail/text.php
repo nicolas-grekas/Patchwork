@@ -94,7 +94,7 @@ class pMail_text extends Mail_mime
         }
 
         isset($headers['Return-Path'])
-            && preg_match("'" . FILTER::EMAIL_RX . "'", $headers['Return-Path'], $m)
+            && preg_match('/' . FILTER::EMAIL_RX . '/', $headers['Return-Path'], $m)
             && $headers['Return-Path'] = '<' . $m[0] . '>';
     }
 
