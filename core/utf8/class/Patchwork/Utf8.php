@@ -46,7 +46,7 @@ class Utf8
 
     static function bestFit($cp, $s, $placeholder = '')
     {
-        if ('' === $s) return '';
+        if (!$i = strlen($s)) return 0 === $i ? '' : false;
 
         static $map = array();
         static $ulen_mask = array("\xC0" => 2, "\xD0" => 2, "\xE0" => 3, "\xF0" => 4);
@@ -153,9 +153,6 @@ class Utf8
 
     static function strtolower($s, $form = n::NFC) {if (n::isNormalized($s = mb_strtolower($s, 'UTF-8'), $form)) return $s; return n::normalize($s, $form);}
     static function strtoupper($s, $form = n::NFC) {if (n::isNormalized($s = mb_strtoupper($s, 'UTF-8'), $form)) return $s; return n::normalize($s, $form);}
-
-    static function htmlentities    ($s, $quote_style = ENT_COMPAT) {return htmlentities    ($s, $quote_style, 'UTF-8');}
-    static function htmlspecialchars($s, $quote_style = ENT_COMPAT) {return htmlspecialchars($s, $quote_style, 'UTF-8');}
 
     static function wordwrap($s, $width = 75, $break = "\n", $cut = false)
     {
@@ -267,27 +264,6 @@ class Utf8
 
     static function trim($s, $charlist = INF) {return self::rtrim(self::ltrim($s, $charlist), $charlist);}
 
-    static function html_entity_decode($s, $quote_style = ENT_COMPAT)
-    {
-        static $map = array(
-            array('&QUOT;','&LT;','&AMP;','&TRADE;','&COPY;','&GT;','&REG;','&apos;'),
-            array('&quot;','&lt;','&amp;','&trade;','&copy;','&gt;','&reg;','&#039;')
-        );
-
-        return html_entity_decode(str_replace($map[0], $map[1], $s), $quote_style, 'UTF-8');
-    }
-
-    static function get_html_translation_table($table = HTML_SPECIALCHARS, $quote_style = ENT_COMPAT)
-    {
-        if (HTML_ENTITIES === $table)
-        {
-            static $entities;
-            isset($entities) || $entities = self::getData('htmlentities');
-            return $entities + get_html_translation_table(HTML_SPECIALCHARS, $quote_style);
-        }
-        else return get_html_translation_table($table, $quote_style);
-    }
-
     static function str_ireplace($search, $replace, $subject, &$count = null)
     {
         $subject = preg_replace('/' . preg_quote($search, '/') . '/ui', $replace, $subject, -1, $replace);
@@ -382,10 +358,10 @@ class Utf8
 
     static function strcspn($s, $charlist, $start = 0, $len = 2147483647)
     {
-        if ('' === (string) $mask) return null;
+        if ('' === (string) $charlist) return null;
         if ($start || 2147483647 != $len) $s = self::substr($s, $start, $len);
 
-        return preg_match('/^(.*?)' . self::rxClass($mask) . '/us', $s, $len) ? grapheme_strlen($len[1]) : grapheme_strlen($s);
+        return preg_match('/^(.*?)' . self::rxClass($charlist) . '/us', $s, $len) ? grapheme_strlen($len[1]) : grapheme_strlen($s);
     }
 
     static function strpbrk($s, $charlist)
