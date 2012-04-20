@@ -65,17 +65,18 @@ use Patchwork\PHP\Override as o;
 
 // Backport UTF-8 default charset from PHP 5.4.0, add new $double_encode parameter (since 5.2.3)
 
-Patchwork\FunctionOverride(html_entity_decode, html_entity_decode, $s, $style = ENT_COMPAT, $charset = 'UTF-8');
-
-/**/if (PHP_VERSION_ID < 50203)
+/**/if (PHP_VERSION_ID < 50400)
 /**/{
-/**/    boot::$manager->pushFile('class/Patchwork/PHP/Override/Php523.php');
+        Patchwork\FunctionOverride(html_entity_decode, html_entity_decode, $s, $style = ENT_COMPAT, $charset = 'UTF-8');
+        Patchwork\FunctionOverride(get_html_translation_table, get_html_translation_table, $table = HTML_SPECIALCHARS, $style = ENT_COMPAT, $charset = 'UTF-8');
 
-        Patchwork\FunctionOverride(htmlspecialchars, o\Php523, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
-        Patchwork\FunctionOverride(htmlentities,     o\Php523, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
-/**/}
-/**/else if (PHP_VERSION_ID < 50400)
-/**/{
+/**/    if (PHP_VERSION_ID < 50203)
+/**/    {
+/**/        boot::$manager->pushFile('class/Patchwork/PHP/Override/Php523.php');
+
+            Patchwork\FunctionOverride(htmlspecialchars, o\Php523, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
+            Patchwork\FunctionOverride(htmlentities,     o\Php523, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
+/**/    }
         Patchwork\FunctionOverride(htmlspecialchars, htmlspecialchars, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
         Patchwork\FunctionOverride(htmlentities,     htmlentities,     $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
 /**/}

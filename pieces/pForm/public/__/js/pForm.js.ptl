@@ -68,7 +68,7 @@ function valid_email($value, $args)
 {
     if (/^\s*$/.test($value)) return true;
     $value = $value.toLowerCase();
-    return /^\s*[-!#-&*+\/-9=?A-Z^-~]+(\.[-!#-&*+\/-9=?A-Z^-~]+)*@[-a-zA-Z0-9]+(\.[-a-zA-Z0-9]+)*\s*$/.test($value) ? $value : false;
+    return /^\s*[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\s*$/.test($value) ? $value : false;
 }
 
 function valid_phone($value, $args)

@@ -16,8 +16,8 @@ class FILTER
 {
     const
 
-    // This RegExp must work in most Javascript implementations too
-    EMAIL_RX = '(?:[-!#-&*+\\/-9=?A-Z^-~]+(\\.[-!#-&*+\\/-9=?A-Z^-~]+)*@([-a-zA-Z0-9]+(\\.[-a-zA-Z0-9]+)*))',
+    // From the HTML5 specification
+    EMAIL_RX = '(?:([a-zA-Z0-9.!#$%&\'*+\\/=?^_`{|}~-]+)@([a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*))',
 
     FILTERMSG_INT   = 'Please provide a valid integer',
     FILTERMSG_I     = self::FILTERMSG_INT,
