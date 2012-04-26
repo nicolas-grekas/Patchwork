@@ -188,7 +188,7 @@ class StaticResource extends p
                         . str_replace('"', "''", $size[2])
                     );
                 }
-                else $filename = Patchwork\Utf8::toASCII($filename);
+                else $filename = Patchwork\Utf8::toAscii($filename);
             }
 
             $size || header('Content-Disposition: attachment; filename="' . str_replace('"', "''", $filename) . '"');

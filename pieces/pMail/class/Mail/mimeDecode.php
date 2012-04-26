@@ -40,23 +40,10 @@ class Mail_mimeDecode extends self
                 $charset = @iconv('UTF-8', 'UTF-8', $return->body) === $return->body ? 'utf-8' : 'windows-1252';
             }
 
-            switch ($charset)
-            {
-            case 'iso-8859-1':
-                $charset = utf8_encode($return->body);
-                break;
+            if ('iso-8859-1' === $charset) $charset = 'windows-1252';
 
-            case 'windows-1252':
-                if (function_exists('patchwork_utf8_encode'))
-                {
-                    $charset = patchwork_utf8_encode($return->body);
-                    break;
-                }
-
-            default:
-                $charset = @iconv($charset, 'UTF-8//IGNORE', $return->body);
-                false === $charset && $charset = utf8_encode($return->body);
-            }
+            $charset = @iconv($charset, 'UTF-8//IGNORE', $return->body);
+            false === $charset && $charset = utf8_encode($return->body);
 
             $return->body = FILTER::get($charset, 'text');
         }
