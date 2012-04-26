@@ -66,7 +66,15 @@ namespace Patchwork\PHP\Override;
  */
 class Mbstring
 {
-    protected static $internal_encoding = 'UTF-8';
+    const MB_CASE_FOLD = PHP_INT_MAX;
+
+    protected static
+
+    $internal_encoding = 'UTF-8',
+    $caseFold = array(
+        array('µ','ſ',"\xCD\x85",'ς',"\xCF\x90","\xCF\x91","\xCF\x95","\xCF\x96","\xCF\xB0","\xCF\xB1","\xCF\xB5","\xE1\xBA\x9B","\xE1\xBE\xBE"),
+        array('μ','s','ι',       'σ','β',       'θ',       'φ',       'π',       'κ',       'ρ',       'ε',       "\xE1\xB9\xA1",'ι'           )
+    );
 
 
     static function mb_convert_encoding($s, $to_encoding, $from_encoding = INF)
@@ -116,23 +124,18 @@ class Mbstring
         if ('UTF-8' === strtoupper($encoding)) $encoding = INF;
         else $s = iconv($encoding, 'UTF-8//IGNORE', $s);
 
-        switch ($mode)
+        if (MB_CASE_UPPER == $mode)
         {
-        case MB_CASE_TITLE:
-            $s = preg_replace_callback('/\b\p{Ll}/u', array(__CLASS__, 'title_case_callback'), $s);
-            if (INF === $encoding) return $s;
-            else return iconv('UTF-8', $encoding, $s);
-
-        case MB_CASE_UPPER:
             static $upper;
-            isset($upper) || $upper = self::getData('UpperCase');
+            isset($upper) || $upper = self::getData('upperCase');
             $map = $upper;
-            break;
+        }
+        else
+        {
+            if (self::MB_CASE_FOLD === $mode) $s = str_replace(self::$caseFold[0], self::$caseFold[1], $s);
 
-        case MB_CASE_LOWER:
-        default:
             static $lower;
-            isset($lower) || $lower = self::getData('LowerCase');
+            isset($lower) || $lower = self::getData('lowerCase');
             $map = $lower;
         }
 
@@ -167,6 +170,11 @@ class Mbstring
             }
         }
 
+        if (MB_CASE_TITLE == $mode)
+        {
+            $s = preg_replace_callback('/\b\p{Ll}/u', array(__CLASS__, 'title_case_callback'), $s);
+        }
+
         if (INF === $encoding) return $s;
         else return iconv('UTF-8', $encoding, $s);
     }
@@ -198,7 +206,12 @@ class Mbstring
     static function mb_strpos ($haystack, $needle, $offset = 0, $encoding = INF)
     {
         INF === $encoding && $encoding = self::$internal_encoding;
-        return iconv_strpos($haystack, $needle, $offset, $encoding . '//IGNORE');
+        if ('' === (string) $needle)
+        {
+            user_error(__METHOD__ . ': Empty delimiter', E_USER_WARNING);
+            return false;
+        }
+        else return iconv_strpos($haystack, $needle, $offset, $encoding . '//IGNORE');
     }
 
     static function mb_strrpos($haystack, $needle, $offset = 0, $encoding = INF)
@@ -237,13 +250,28 @@ class Mbstring
     static function mb_substr($s, $start, $length = 2147483647, $encoding = INF)
     {
         INF === $encoding && $encoding = self::$internal_encoding;
-        return iconv_substr($s, $start, $length, $encoding . '//IGNORE');
+
+        if ($start < 0)
+        {
+            $start = iconv_strlen($s, $encoding . '//IGNORE') + $start;
+            if ($start < 0) $start = 0;
+        }
+
+        if ($length < 0)
+        {
+            $length = iconv_strlen($s, $encoding . '//IGNORE') + $length - $start;
+            if ($length < 0) return '';
+        }
+
+        return (string) iconv_substr($s, $start, $length, $encoding . '//IGNORE');
     }
 
     static function mb_stripos($haystack, $needle, $offset = 0, $encoding = INF)
     {
         INF === $encoding && $encoding = self::$internal_encoding;
-        return self::mb_strpos(self::mb_strtolower($haystack, $encoding), self::mb_strtolower($needle, $encoding), $offset, $encoding);
+        $haystack = self::mb_convert_case($haystack, self::MB_CASE_FOLD, $encoding);
+        $needle = self::mb_convert_case($needle, self::MB_CASE_FOLD, $encoding);
+        return self::mb_strpos($haystack, $needle, $offset, $encoding);
     }
 
     static function mb_stristr($haystack, $needle, $part = false, $encoding = INF)
@@ -269,7 +297,9 @@ class Mbstring
     static function mb_strripos($haystack, $needle, $offset = 0, $encoding = INF)
     {
         INF === $encoding && $encoding = self::$internal_encoding;
-        return self::mb_strrpos(self::mb_strtolower($haystack, $encoding), self::mb_strtolower($needle, $encoding), $offset, $encoding);
+        $haystack = self::mb_convert_case($haystack, self::MB_CASE_FOLD, $encoding);
+        $needle = self::mb_convert_case($needle, self::MB_CASE_FOLD, $encoding);
+        return self::mb_strrpos($haystack, $needle, $offset, $encoding);
     }
 
     static function mb_strstr($haystack, $needle, $part = false, $encoding = INF)
@@ -297,12 +327,7 @@ class Mbstring
 
     protected static function title_case_callback($s)
     {
-        $s = self::mb_convert_case($s[0], MB_CASE_UPPER, 'UTF-8');
-
-        $len = strlen($s);
-        for ($i = 1; $i < $len && $s[$i] < "\x80"; ++$i) $s[$i] = strtolower($s[$i]);
-
-        return $s;
+        return self::mb_convert_case($s[0], MB_CASE_UPPER, 'UTF-8');
     }
 
     protected static function getData($file)

@@ -31,7 +31,7 @@ class Intl
 {
     static function grapheme_extract($s, $size, $type = GRAPHEME_EXTR_COUNT, $start = 0, &$next = 0)
     {
-        if (is_array($s)) return user_error(__METHOD__ . '() expects parameter 1 to be string, array given', E_USER_WARNING);
+        if (is_array($s)) return !user_error(__METHOD__ . '() expects parameter 1 to be string, array given', E_USER_WARNING);
 
         $s     = (string) $s;
         $size  = (int) $size;
@@ -54,7 +54,7 @@ class Intl
         else
         {
             //TODO
-            return user_error(__METHOD__ . '() with GRAPHEME_EXTR_MAXBYTES or GRAPHEME_EXTR_MAXCHARS is not implemented', E_USER_WARNING);
+            return !user_error(__METHOD__ . '() with GRAPHEME_EXTR_MAXBYTES or GRAPHEME_EXTR_MAXCHARS is not implemented', E_USER_WARNING);
         }
         // @codeCoverageIgnoreEnd
 
@@ -124,6 +124,7 @@ class Intl
     protected static function grapheme_position($s, $needle, $offset, $mode)
     {
         if ($offset > 0) $s = (string) self::grapheme_substr($s, $offset);
+        else if ($offset < 0) $offset = 0;
         if ('' === (string) $needle) return false;
         if ('' === (string) $s) return false;
 

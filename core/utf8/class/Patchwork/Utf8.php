@@ -22,6 +22,14 @@ use Normalizer as n;
  */
 class Utf8
 {
+    protected static
+
+    $commonCaseFold = array(
+        array('µ','ſ',"\xCD\x85",'ς',"\xCF\x90","\xCF\x91","\xCF\x95","\xCF\x96","\xCF\xB0","\xCF\xB1","\xCF\xB5","\xE1\xBA\x9B","\xE1\xBE\xBE"),
+        array('μ','s','ι',       'σ','β',       'θ',       'φ',       'π',       'κ',       'ρ',       'ε',       "\xE1\xB9\xA1",'ι'           )
+    );
+
+
     static function isUtf8($s)
     {
         return (bool) preg_match('//u', $s); // Since PHP 5.2.5, this also excludes invalid five and six bytes sequences
@@ -29,7 +37,7 @@ class Utf8
 
     // Generic UTF-8 to ASCII transliteration
 
-    static function toASCII($s)
+    static function toAscii($s)
     {
         if (preg_match("/[\x80-\xFF]/", $s))
         {
@@ -40,60 +48,6 @@ class Utf8
 
         return $s;
     }
-
-    // UTF-8 to Code Page conversion using best fit mappings
-    // See http://www.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WindowsBestFit/
-
-    static function bestFit($cp, $s, $placeholder = '')
-    {
-        if (!$i = strlen($s)) return 0 === $i ? '' : false;
-
-        static $map = array();
-        static $ulen_mask = array("\xC0" => 2, "\xD0" => 2, "\xE0" => 3, "\xF0" => 4);
-
-        $cp = (string) (int) $cp;
-        $result = '9' === $cp[0] ? $s . $s : $s;
-
-        if (isset($map[$cp])) $cp = $map[$cp];
-        else if (false !== $i = self::getData('bestfit' . $cp))
-        {
-            $map[$cp] = $i;
-            $cp = $map[$cp];
-        }
-        else
-        {
-            user_error('No "Best Fit" mapping found for given Code Page (' . $cp . ').');
-            $cp = array();
-        }
-
-        $i = $j = 0;
-        $len = strlen($s);
-
-        while ($i < $len)
-        {
-            if ($s[$i] < "\x80") $uchr = $s[$i++];
-            else
-            {
-                $ulen = $ulen_mask[$s[$i] & "\xF0"];
-                $uchr = substr($s, $i, $ulen);
-                $i += $ulen;
-            }
-
-            if (isset($cp[$uchr])) $uchr = $cp[$uchr];
-            else $uchr = $placeholder;
-
-            isset($uchr[0]) && $result[$j++] = $uchr[0];
-            isset($uchr[1]) && $result[$j++] = $uchr[1];
-        }
-
-        return substr($result, 0, $j);
-    }
-
-
-    protected static $commonCaseFold = array(
-        array('µ','ſ',"\xCD\x85",'ς',"\xCF\x90","\xCF\x91","\xCF\x95","\xCF\x96","\xCF\xB0","\xCF\xB1","\xCF\xB5","\xE1\xBA\x9B","\xE1\xBE\xBE"),
-        array('μ','s','ι',       'σ','β',       'θ',       'φ',       'π',       'κ',       'ρ',       'ε',       "\xE1\xB9\xA1",'ι'           )
-    );
 
     // Unicode transformation for caseless matching
     // see http://unicode.org/reports/tr21/tr21-5.html
@@ -143,11 +97,29 @@ class Utf8
 
     static function strlen($s) {return grapheme_strlen($s);}
     static function strpos  ($s, $needle, $offset = 0) {return grapheme_strpos  ($s, $needle, $offset);}
-    static function stripos ($s, $needle, $offset = 0) {return grapheme_stripos ($s, $needle, $offset);}
     static function strrpos ($s, $needle, $offset = 0) {return grapheme_strrpos ($s, $needle, $offset);}
-    static function strripos($s, $needle, $offset = 0) {return grapheme_strripos($s, $needle, $offset);}
+
+    static function stripos ($s, $needle, $offset = 0)
+    {
+        if ($offset < 0) $offset = 0;
+        if (!$needle = mb_stripos($s, $needle, $offset, 'UTF-8')) return $needle;
+        return grapheme_strlen(iconv_substr($s, 0, $needle, 'UTF-8'));
+    }
+
+    static function strripos($s, $needle, $offset = 0)
+    {
+        if ($offset < 0) $offset = 0;
+        if (!$needle = mb_strripos($s, $needle, $offset, 'UTF-8')) return $needle;
+        return grapheme_strlen(iconv_substr($s, 0, $needle, 'UTF-8'));
+    }
+
+    static function stristr ($s, $needle, $before_needle = false)
+    {
+        if ('' == (string) $needle) return false;
+        return mb_stristr($s, $needle, $before_needle, 'UTF-8');
+    }
+
     static function strstr  ($s, $needle, $before_needle = false) {return grapheme_strstr ($s, $needle, $before_needle);}
-    static function stristr ($s, $needle, $before_needle = false) {return grapheme_stristr($s, $needle, $before_needle);}
     static function strrchr ($s, $needle, $before_needle = false) {return mb_strrchr ($s, $needle, $before_needle, 'UTF-8');}
     static function strrichr($s, $needle, $before_needle = false) {return mb_strrichr($s, $needle, $before_needle, 'UTF-8');}
 
@@ -171,23 +143,23 @@ class Utf8
         {
             $words = explode(' ', $s[$i]);
             $line && $result[] = $line;
-            $line = $words[0];
             $lineLen = grapheme_strlen($line);
             $jLen = count($words);
 
-            for ($j = 1; $j < $jLen; ++$j)
+            for ($j = 0; $j < $jLen; ++$j)
             {
                 $w = $words[$j];
                 $wLen = grapheme_strlen($w);
 
                 if ($lineLen + $wLen < $width)
                 {
-                    $line .= ' ' . $w;
+                    if ($j) $line .= ' ';
+                    $line .= $w;
                     $lineLen += $wLen + 1;
                 }
                 else
                 {
-                    $result[] = $line;
+                    if ($j || $i) $result[] = $line;
                     $line = '';
                     $lineLen = 0;
 
@@ -206,11 +178,8 @@ class Utf8
                         $w = implode('', $w);
                     }
 
-                    if ($wLen)
-                    {
-                        $line = $w;
-                        $lineLen = $wLen;
-                    }
+                    $line = $w;
+                    $lineLen = $wLen;
                 }
             }
         }
@@ -231,12 +200,11 @@ class Utf8
         )));
     }
 
-    static function count_chars($s, $mode = 1)
+    static function count_chars($s, $mode = 0)
     {
-        if (1 != $mode && 3 != $mode) user_error(__METHOD__ . '(): allowed $mode are 1 or 3', E_USER_ERROR);
+        if (1 != $mode) user_error(__METHOD__ . '(): the only allowed $mode is 1', E_USER_WARNING);
         $s = self::getGraphemeClusters($s);
-        $s = array_count_values($s);
-        return 1 == $mode ? $s[0] : implode('', $s[0]);
+        return array_count_values($s);
     }
 
     static function ltrim($s, $charlist = INF)
@@ -266,7 +234,9 @@ class Utf8
 
     static function str_ireplace($search, $replace, $subject, &$count = null)
     {
-        $subject = preg_replace('/' . preg_quote($search, '/') . '/ui', $replace, $subject, -1, $replace);
+        $search = (array) $search;
+        foreach ($search as &$s) $s = '' !== (string) $s ? '/' . preg_quote($s, '/') . '/ui' : '/^(?<=.)$/';
+        $subject = preg_replace($search, $replace, $subject, -1, $replace);
         $count = $replace;
         return $subject;
     }
@@ -280,10 +250,9 @@ class Utf8
         $freelen = $len - $slen;
         $len = $freelen % $padlen;
 
-        if (STR_PAD_RIGHT === $type) return $s . str_repeat($pad, $freelen / $padlen) . ($len ? grapheme_substr($pad, 0, $len) : '');
-        if (STR_PAD_LEFT  === $type) return      str_repeat($pad, $freelen / $padlen) . ($len ? grapheme_substr($pad, 0, $len) : '') . $s;
-
-        if (STR_PAD_BOTH === $type)
+        if (STR_PAD_RIGHT == $type) return $s . str_repeat($pad, $freelen / $padlen) . ($len ? grapheme_substr($pad, 0, $len) : '');
+        if (STR_PAD_LEFT  == $type) return      str_repeat($pad, $freelen / $padlen) . ($len ? grapheme_substr($pad, 0, $len) : '') . $s;
+        if (STR_PAD_BOTH  == $type)
         {
             $freelen /= 2;
 
