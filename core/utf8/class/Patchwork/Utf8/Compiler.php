@@ -30,26 +30,50 @@ class Compiler
         $h = opendir($map_dir);
         while (false !== $f = readdir($h)) if (false === strpos($f, '.') && is_file($map_dir . $f))
         {
-            unset($l1, $l2);
-
+            $from = $to = array();
             $data = file_get_contents($map_dir . $f);
-            preg_match_all('/^0x([0-9A-F]+)[ \t]+0x([0-9A-F]+)/mi', $data, $data, PREG_SET_ORDER);
 
-            $map = array();
+            if ('gsm0338' === $f) $rx = '/^#?0x([0-9A-F]+)[ \t]+0x([0-9A-F]+)/mi';
+            else $rx = '/^0x([0-9A-F]+)[ \t]+0x([0-9A-F]+)/mi';
+
+            preg_match_all($rx, $data, $data, PREG_SET_ORDER);
+
+            if ('nextstep' === $f)
+            {
+                $from = array_map('chr', range(0, 127));
+                $from = array_combine($from, $from);
+            }
+            else if ('mazovia' === $f)
+            {
+                $from = array("\x9B" => self::chr(0x007A) . self::chr(0x0142));
+                $to = array(self::chr(0x203A) => "\x9B");
+            }
+
             foreach ($data as $data)
             {
                 $data = array_map('hexdec', $data);
+                $data[2] = self::chr($data[2]);
                 $data[1] = $data[1] > 255
-                    ? ($l2 = chr($data[1]>>8) . chr($data[1]%256))
-                    : ($l1 = chr($data[1]));
+                    ? chr($data[1]>>8) . chr($data[1]%256)
+                    : chr($data[1]);
 
-                $map[$data[1]] = self::chr($data[2]);
-
+                if (isset($from[$data[1]]))
+                {
+                    isset($to[$data[2]]) or $to[$data[2]] = $data[1];
+                }
+                else
+                {
+                    $from[$data[1]] = $data[2];
+                }
             }
 
-            if (isset($l1, $l2)) uksort($map, array(__CLASS__, 'cmpByLength'));
+            file_put_contents("{$out_dir}from.{$f}.ser", serialize($from));
 
-            file_put_contents("{$out_dir}from.{$f}.ser", serialize($map));
+            if ($to)
+            {
+                $to += array_flip($from);
+                file_put_contents("{$out_dir}to.{$f}.ser", serialize($to));
+            }
         }
         closedir($h);
     }
@@ -69,43 +93,55 @@ class Compiler
     static function bestFit($out_dir, $map_dir = null)
     {
         isset($map_dir) || $map_dir = __DIR__ . '/unicode/charset/';
-        $h = opendir($map_dir);
-        while (false !== $f = readdir($h)) if (0 === strpos($f, 'bestfit') && preg_match('/^bestfit\d+\.txt$/D', $f))
+        $dh = opendir($map_dir);
+        while (false !== $f = readdir($dh)) if (0 === strpos($f, 'bestfit') && preg_match('/^bestfit\d+\.txt$/D', $f))
         {
-            $map = array();
-            $out = substr($f, 0, -3) .'ser';
+            $from = array();
+            $to = array();
+            $lead = '';
 
-            $f = fopen($map_dir . $f, 'rb');
+            $h = fopen($map_dir . $f, 'rb');
 
-            while (false !== $s = fgets($f)) if (0 === strpos($s, 'WCTABLE'))
+            while (false !== $s = fgets($h))
             {
-                while (false !== $s = fgets($f))
+                if (0 === strpos($s, 'WCTABLE')) break;
+                if (0 === strpos($s, 'DBCSTABLE'))
                 {
-                    if (0 === strpos($s, 'ENDCODEPAGE')) break;
-
-                    $s = explode("\t", rtrim($s));
-
-                    if (isset($s[1]))
-                    {
-                        $s[0] = substr($s[0], 2);
-                        $s[1] = substr($s[1], 2);
-                        $s = array_map('hexdec', $s);
-                        $s[1] = $s[1] > 255
-                            ? chr($s[1]>>8) . chr($s[1]%256)
-                            : chr($s[1]);
-
-                        $map[self::chr($s[0])] = $s[1];
-                    }
+                    $lead = substr(rtrim($s), -2);
+                    $lead = chr(hexdec($lead));
                 }
-
-                break;
+                else if (preg_match("/^0x([0-9a-f]{2})\t0x([0-9a-f]{4})/", $s, $s))
+                {
+                    $s = array_map('hexdec', $s);
+                    $from[$lead . chr($s[1])] = self::chr($s[2]);
+                }
             }
 
-            fclose($f);
+            while (false !== $s = fgets($h))
+            {
+                if (0 === strpos($s, 'ENDCODEPAGE')) break;
 
-            file_put_contents($out_dir . $out, serialize($map));
+                $s = explode("\t", rtrim($s));
+
+                if (isset($s[1]))
+                {
+                    $s[0] = substr($s[0], 2);
+                    $s[1] = substr($s[1], 2);
+                    $s = array_map('hexdec', $s);
+                    $s[1] = $s[1] > 255
+                        ? chr($s[1]>>8) . chr($s[1]%256)
+                        : chr($s[1]);
+
+                    $to[self::chr($s[0])] = $s[1];
+                }
+            }
+
+            fclose($h);
+
+            file_put_contents($out_dir . 'from.' . substr($f, 0, -3) .'ser', serialize($from));
+            file_put_contents($out_dir . 'to.' . substr($f, 0, -3) .'ser', serialize($to));
         }
-        closedir($h);
+        closedir($dh);
     }
 
     // Write unicode data maps to disk
@@ -232,7 +268,7 @@ class Compiler
             array_keys(  $caseFolding['F']),
             array_values($caseFolding['F'])
         );
-    
+
         $upperCase = serialize($upperCase);
         $lowerCase = serialize($lowerCase);
         $caseFolding = serialize($caseFolding);

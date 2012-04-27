@@ -28,6 +28,10 @@ namespace Patchwork\PHP\Override;
  * - iconv_strpos       - Finds position of first occurrence of a needle within a haystack
  * - iconv_strrpos      - Finds the last occurrence of a needle within a haystack
  * - iconv_substr       - Cut out part of a string
+ *
+ * Charsets available for convertion are defined by files
+ * in the charset/ directory and by Iconv::$alias below.
+ * You're welcome to send back any addition you make.
  */
 class Iconv
 {
@@ -39,13 +43,83 @@ class Iconv
 
     protected static
 
-    $input_encoding = 'UTF-8',
-    $output_encoding = 'UTF-8',
-    $internal_encoding = 'UTF-8',
+    $input_encoding = 'utf-8',
+    $output_encoding = 'utf-8',
+    $internal_encoding = 'utf-8',
 
     $alias = array(
-        'ascii'   => 'us-ascii',
+        'utf8' => 'utf-8',
+        'ascii' => 'us-ascii',
         'tis-620' => 'iso-8859-11',
+        'cp1250' => 'windows-1250',
+        'cp1251' => 'windows-1251',
+        'cp1252' => 'windows-1252',
+        'cp1253' => 'windows-1253',
+        'cp1254' => 'windows-1254',
+        'cp1255' => 'windows-1255',
+        'cp1256' => 'windows-1256',
+        'cp1257' => 'windows-1257',
+        'cp1258' => 'windows-1258',
+        'shift-jis' => 'cp932',
+        'shift_jis' => 'cp932',
+        'latin1' => 'iso-8859-11',
+        'latin2' => 'iso-8859-2',
+        'latin3' => 'iso-8859-3',
+        'latin4' => 'iso-8859-4',
+        'latin5' => 'iso-8859-9',
+        'latin6' => 'iso-8859-10',
+        'latin7' => 'iso-8859-13',
+        'latin8' => 'iso-8859-14',
+        'latin9' => 'iso-8859-15',
+        'latin10' => 'iso-8859-16',
+        'iso8859-1' => 'iso-8859-1',
+        'iso8859-2' => 'iso-8859-2',
+        'iso8859-3' => 'iso-8859-3',
+        'iso8859-4' => 'iso-8859-4',
+        'iso8859-5' => 'iso-8859-5',
+        'iso8859-6' => 'iso-8859-6',
+        'iso8859-7' => 'iso-8859-7',
+        'iso8859-8' => 'iso-8859-8',
+        'iso8859-9' => 'iso-8859-9',
+        'iso8859-10' => 'iso-8859-10',
+        'iso8859-11' => 'iso-8859-11',
+        'iso8859-12' => 'iso-8859-12',
+        'iso8859-13' => 'iso-8859-13',
+        'iso8859-14' => 'iso-8859-14',
+        'iso8859-15' => 'iso-8859-15',
+        'iso8859-16' => 'iso-8859-16',
+        'iso_8859-1' => 'iso-8859-1',
+        'iso_8859-2' => 'iso-8859-2',
+        'iso_8859-3' => 'iso-8859-3',
+        'iso_8859-4' => 'iso-8859-4',
+        'iso_8859-5' => 'iso-8859-5',
+        'iso_8859-6' => 'iso-8859-6',
+        'iso_8859-7' => 'iso-8859-7',
+        'iso_8859-8' => 'iso-8859-8',
+        'iso_8859-9' => 'iso-8859-9',
+        'iso_8859-10' => 'iso-8859-10',
+        'iso_8859-11' => 'iso-8859-11',
+        'iso_8859-12' => 'iso-8859-12',
+        'iso_8859-13' => 'iso-8859-13',
+        'iso_8859-14' => 'iso-8859-14',
+        'iso_8859-15' => 'iso-8859-15',
+        'iso_8859-16' => 'iso-8859-16',
+        'iso88591' => 'iso-8859-1',
+        'iso88592' => 'iso-8859-2',
+        'iso88593' => 'iso-8859-3',
+        'iso88594' => 'iso-8859-4',
+        'iso88595' => 'iso-8859-5',
+        'iso88596' => 'iso-8859-6',
+        'iso88597' => 'iso-8859-7',
+        'iso88598' => 'iso-8859-8',
+        'iso88599' => 'iso-8859-9',
+        'iso885910' => 'iso-8859-10',
+        'iso885911' => 'iso-8859-11',
+        'iso885912' => 'iso-8859-12',
+        'iso885913' => 'iso-8859-13',
+        'iso885914' => 'iso-8859-14',
+        'iso885915' => 'iso-8859-15',
+        'iso885916' => 'iso-8859-16',
     ),
 
     $translit_map = array(),
@@ -382,6 +456,52 @@ class Iconv
         else return self::iconv('UTF-8', $encoding, $s);
     }
 
+    // UTF-8 to Code Page conversion using best fit mappings
+    // See http://www.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WindowsBestFit/
+
+    static function bestFit($cp, $s, $placeholder = '?')
+    {
+        if (!$i = strlen($s)) return 0 === $i ? '' : false;
+
+        static $map = array();
+        static $ulen_mask = array("\xC0" => 2, "\xD0" => 2, "\xE0" => 3, "\xF0" => 4);
+
+        $cp = (string) (int) $cp;
+        $result = '9' === $cp[0] ? $s . $s : $s;
+
+        if ('932' === $cp && 2 === func_num_args()) $placeholder = "\x81\x45"; // Katakana Middle Dot in CP932
+
+        if (!isset($map[$cp]))
+        {
+            $i = self::getData('to.bestfit' . $cp);
+            if (false === $i) return false;
+            $map[$cp] = $i;
+        }
+
+        $i = $j = 0;
+        $len = strlen($s);
+        $cp = $map[$cp];
+
+        while ($i < $len)
+        {
+            if ($s[$i] < "\x80") $uchr = $s[$i++];
+            else
+            {
+                $ulen = $ulen_mask[$s[$i] & "\xF0"];
+                $uchr = substr($s, $i, $ulen);
+                $i += $ulen;
+            }
+
+            if (isset($cp[$uchr])) $uchr = $cp[$uchr];
+            else $uchr = $placeholder;
+
+            isset($uchr[0]) && $result[$j++] = $uchr[0];
+            isset($uchr[1]) && $result[$j++] = $uchr[1];
+        }
+
+        return substr($result, 0, $j);
+    }
+
     static function iconv_workaround52211($in_charset, $out_charset, $str)
     {
         self::$last_error = false;
@@ -475,8 +595,8 @@ class Iconv
         $len = strlen($str);
         for ($i = 0; $i < $len; ++$i)
         {
-            if (isset($map[$str[$i]])) $result .= $map[$str[$i]];
-            else if (isset($map[$str[$i] . $str[$i+1]])) $result .= $map[$str[$i] . $str[++$i]];
+            if (isset($str[$i+1], $map[$str[$i] . $str[$i+1]])) $result .= $map[$str[$i] . $str[++$i]];
+            else if (isset($map[$str[$i]])) $result .= $map[$str[$i]];
             else if (!$IGNORE)
             {
                 user_error(self::ERROR_ILLEGAL_CHARACTER);
