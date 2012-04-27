@@ -101,6 +101,11 @@ Patchwork\FunctionOverride(utf8_decode, o\Xml, $s);
 
 /**/    if ('UTF-8' !== iconv_get_encoding('output_encoding'))
             iconv_set_encoding('output_encoding'  , 'UTF-8') + ini_set('iconv.output_encoding',   'UTF-8');
+
+/**/    if (PHP_VERSION_ID < 50400)
+/**/    {
+            Patchwork\FunctionOverride(iconv, o\Iconv::iconv_workaround52211, $from, $to, $s);
+/**/    }
 /**/}
 /**/else
 /**/{
