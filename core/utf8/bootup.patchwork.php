@@ -15,8 +15,8 @@ use Patchwork\PHP\Override as o;
 
 // utf8_encode/decode support enhanced to Windows-1252
 
-Patchwork\FunctionOverride(utf8_encode, o\Xml, $s);
-Patchwork\FunctionOverride(utf8_decode, o\Xml, $s);
+Patchwork\FunctionOverride(utf8_encode, o\Xml::cp1252_to_utf8, $s);
+Patchwork\FunctionOverride(utf8_decode, o\Xml::utf8_to_cp1252, $s);
 
 
 // basename() and pathinfo() are locale sensitive, but this breaks UTF-8 paths
