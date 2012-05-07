@@ -88,7 +88,7 @@ Patchwork\FunctionOverride(utf8_decode, o\Xml::utf8_to_cp1252, $s);
 /**/ // See http://php.net/manual/en/function.iconv.php#47428
 /**/if (!function_exists('iconv') && function_exists('libiconv'))
 /**/{
-        Patchwork\FunctionOverride(iconv, libiconv, $from, $to, $s);
+        function iconv($from, $to, $s) {return libiconv($from, $to, $s);};
 /**/}
 
 /**/if (extension_loaded('iconv'))
