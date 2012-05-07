@@ -354,13 +354,14 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
             $this->unregister(array('catchBrackets' => array('(', ')')));
             $this->unregister(array('catchArguments' => T_VARIABLE));
 
+            $tag = sprintf('/*fo/%010d*/', mt_rand());
             $this->arguments[0] = '(';
-            $u = array('{', array(T_RETURN, 'return'), array(T_NS_SEPARATOR, '\\'), array(T_STRING, $this->replacementFunction));
+            $u = array('{', array(T_COMMENT, $tag), array(T_RETURN, 'return'), array(T_NS_SEPARATOR, '\\'), array(T_STRING, $this->replacementFunction));
             $u = array_merge($u, $this->arguments, array(')', ';', '}'));
             call_user_func_array(array($this, 'unshiftTokens'), $u);
             $this->arguments = array();
 
-            $this->newOverrides[$this->replacedFunction] = $this->replacementFunction;
+            $this->newOverrides[$this->replacedFunction][$tag] = $this->replacementFunction;
         }
     }
 }
