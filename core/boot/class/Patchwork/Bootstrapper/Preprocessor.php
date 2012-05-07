@@ -78,24 +78,24 @@ class Patchwork_Bootstrapper_Preprocessor
         $code = substr($this->parser->getRuntimeCode(), 5);
         $this->parser = false;
 
-        $replaced = $this->newOverrides[0];
-        $this->newOverrides[0] = array();
+        $o = array();
 
-        foreach ($replaced as $replaced => $replacement)
+        foreach ($this->newOverrides[0] as $replaced => $replacement)
         {
             if (1 === count($replacement))
             {
-                $this->newOverrides[0][$replaced] = current($replacement);
+                $o[$replaced] = current($replacement);
             }
             else foreach ($replacement as $tag => $replacement)
             {
                 if (false !== strpos($code, $tag))
                 {
-                    $this->newOverrides[0][$replaced] = $replacement;
-                    break;
+                    $o[$replaced] = isset($o[$replaced]) ? $replaced : $replacement;
                 }
             }
         }
+
+        $this->newOverrides[0] = $o;
 
         return $code;
     }
