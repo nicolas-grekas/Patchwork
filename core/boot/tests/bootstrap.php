@@ -14,6 +14,7 @@ require_once $dir . '/class/Patchwork/PHP/Parser/CodePathSplitterWithXDebugHacks
 require_once $dir . '/class/Patchwork/PHP/Parser/CodePathElseEnlightener.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/CodePathLoopEnlightener.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/CodePathSwitchEnlightener.php';
+require_once $dir . '/class/Patchwork/PHP/Parser/CodePathDefaultArgsEnlightener.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/ConstantExpression.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/ConstantInliner.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/ConstFuncDisabler.php';

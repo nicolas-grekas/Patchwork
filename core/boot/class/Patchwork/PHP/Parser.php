@@ -325,6 +325,7 @@ class Patchwork_PHP_Parser
                     if ('[' === $prevType && preg_match("/^[_a-zA-Z]/", $t[1][0])) $t[0] = T_STR_STRING;
                     else $t[0] = T_ENCAPSED_AND_WHITESPACE;
                 }
+                else if ('b"' === $t) $t = array('"', 'b"'); // Binary string syntax b"..."
                 else switch ($t[0])
                 {
                 case T_WHITESPACE:
@@ -604,7 +605,6 @@ class Patchwork_PHP_Parser
     static function getTokenName($type)
     {
         if (is_string($type)) return $type;
-        if ($type < 0) return '-' . self::$tokenNames[-$type];
         return $type < 3 || self::T_OFFSET < $type ? self::$tokenNames[$type] : token_name($type);
     }
 
