@@ -29,17 +29,15 @@ class pTask_crontab extends pTask
 
     static function setup()
     {
-        $crontab = self::getCrontab();
-        $zcache = sqlite_escape_string(PATCHWORK_ZCACHE);
+        $db = new pTask;
+        $db = $db->getPdoConnection();
 
+        $zcache = $db->quote(PATCHWORK_ZCACHE);
 
-        $sqlite = new pTask;
-        $sqlite = $sqlite->getSqlite();
+        $sql = "DELETE FROM registry WHERE level=" . PATCHWORK_PATH_LEVEL . " AND zcache={$zcache}";
+        $db->exec($sql);
 
-        $sql = "DELETE FROM registry WHERE level=" . PATCHWORK_PATH_LEVEL . " AND zcache='{$zcache}'";
-        $sqlite->queryExec($sql);
-
-        foreach ($crontab as $name => $task)
+        foreach (self::getCrontab() as $name => $task)
         {
             if (is_int($name))
             {
@@ -49,13 +47,13 @@ class pTask_crontab extends pTask
                 $name = md5(serialize(array($task, $name)));
             }
 
-            $name = sqlite_escape_string($name);
-            $sql = "DELETE FROM registry WHERE task_name='{$name}' AND level>=" . PATCHWORK_PATH_LEVEL . " AND zcache='{$zcache}'";
-            $sqlite->queryExec($sql);
+            $name = $db->quote($name);
+            $sql = "DELETE FROM registry WHERE task_name={$name} AND level>=" . PATCHWORK_PATH_LEVEL . " AND zcache={$zcache}";
+            $db->exec($sql);
 
             $id = pTask::schedule($task, $task->getNextRun());
-            $sql = "INSERT INTO registry VALUES ({$id}, '{$name}', " . PATCHWORK_PATH_LEVEL . ", '{$zcache}')";
-            $sqlite->queryExec($sql);
+            $sql = "INSERT INTO registry VALUES ({$id}, {$name}, " . PATCHWORK_PATH_LEVEL . ", {$zcache})";
+            $db->exec($sql);
         }
     }
 }

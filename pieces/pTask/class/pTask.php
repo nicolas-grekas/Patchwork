@@ -59,35 +59,35 @@ class pTask
         return $task->doSchedule($time);
     }
 
-    static function cancel($id, $sqlite = false)
+    static function cancel($id, $db = false)
     {
-        $sqlite || ($sqlite = new self) && $sqlite = $sqlite->getSqlite();
+        $db || ($db = new self) && $db = $db->getPdoConnection();
 
         $id = (int) $id;
         $sql = "DELETE FROM queue WHERE OID={$id}";
-        $sqlite->queryExec($sql);
+        $db->exec($sql);
     }
 
 
     protected function doSchedule($time)
     {
-        $sqlite = $this->getSqlite();
+        $db = $this->getPdoConnection();
 
         if ($time < $_SERVER['REQUEST_TIME'] - 366*86400) $time += $_SERVER['REQUEST_TIME'];
 
-        $base = sqlite_escape_string(p::__BASE__());
+        $base = $db->quote(p::__BASE__());
         $data = array(
             'task' => $this,
             'cookie' => &$_COOKIE,
             'session' => class_exists('SESSION', false) ? s::getAll() : array()
         );
-        $data = sqlite_escape_string(serialize($data));
+        $data = $db->quote(serialize($data));
 
         $sql = "INSERT INTO queue (base, data, run_time)
-                VALUES('{$base}','{$data}',{$time})";
-        $sqlite->queryExec($sql);
+                VALUES({$base},{$data},{$time})";
+        $db->exec($sql);
 
-        $id = $sqlite->lastInsertRowid();
+        $id = $db->lastInsertId();
 
         $this->registerQueue();
 
@@ -162,24 +162,20 @@ EOSQL
         return self::$staticRegistry[$c][$key];
     }
 
-    function getSqlite()
+    function getPdoConnection()
     {
-        $sqlite =& $this->getStatic('sqlite');
+        $db =& $this->getStatic('db');
 
-        if ($sqlite) return $sqlite;
+        if ($db) return $db;
 
         $q = $this->getQueueDefinition();
-        $sqlite = patchworkPath($q->folder) . $q->name . '.sqlite';
+        $file = patchworkPath($q->folder) . $q->name . '.sqlite3';
+        $db = new PDO('sqlite:' . $file);
 
-        if (file_exists($sqlite)) $sqlite = new SQLiteDatabase($sqlite);
-        else
-        {
-            $sqlite = new SQLiteDatabase($sqlite);
-            @$sqlite->queryExec($q->sql);
-        }
+        if (!file_exists($file)) $db->exec($q->sql);
 
-        $sqlite->def = $q;
+        $db->def = $q;
 
-        return $sqlite;
+        return $db;
     }
 }

@@ -36,14 +36,14 @@ class agent_queue_pTask extends agent
     $queueFolder = 'data/queue/pTask/',
     $dual = 'pTask',
 
-    $sqlite;
+    $db;
 
 
     function control()
     {
         $d = $this->dual;
         $d = $this->dual = new $d;
-        $this->sqlite = $d->getSqlite();
+        $this->db = $d->getPdoConnection();
 
         if (!empty($this->get->__1__))
         {
@@ -86,7 +86,7 @@ class agent_queue_pTask extends agent
     {
         $time = time();
         $sql = "SELECT OID, base, run_time FROM queue WHERE run_time>0 ORDER BY run_time, OID LIMIT 1";
-        if ($data = $this->sqlite->arrayQuery($sql, SQLITE_ASSOC))
+        if ($data = $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC))
         {
             $data = $data[0];
 
@@ -96,12 +96,10 @@ class agent_queue_pTask extends agent
             {
                 $sql = "UPDATE queue SET run_time=0
                         WHERE OID={$data['OID']} AND run_time>0";
-                $this->sqlite->queryExec($sql);
-
-                $this->sqlite->changes() && tool_url::touch("{$data['base']}queue/pTask/{$data['OID']}/" . $this->getToken());
+                if ($this->db->exec($sql)) tool_url::touch("{$data['base']}queue/pTask/{$data['OID']}/" . $this->getToken());
 
                 $sql = "SELECT run_time FROM queue WHERE run_time>{$time} ORDER BY run_time LIMIT 1";
-                if ($data = $this->sqlite->arrayQuery($sql, SQLITE_NUM)) p::setMaxage(min($this->maxage, $data[0][0] - $time));
+                if ($data = $this->db->query($sql)->fetchAll(PDO::FETCH_NUM)) p::setMaxage(min($this->maxage, $data[0][0] - $time));
             }
             else p::setMaxage(min($this->maxage, $data['run_time'] - $time));
         }
@@ -111,15 +109,15 @@ class agent_queue_pTask extends agent
     {
         $sql = "UPDATE queue SET run_time=1
                 WHERE OID={$id} AND run_time=0";
-        $this->sqlite->queryExec($sql);
+        $this->db->exec($sql);
     }
 
     protected function doOne($id)
     {
-        $sqlite = $this->sqlite;
+        $db = $this->db;
 
         $sql = "SELECT data FROM queue WHERE OID={$id} AND run_time=0";
-        $data = $sqlite->arrayQuery($sql);
+        $data = $db->query($sql)->fetchAll(PDO::FETCH_NUM);
 
         if (!$data) return;
 
@@ -138,7 +136,7 @@ class agent_queue_pTask extends agent
                     if ($time < $sql - 366*86400) $time += $sql;
 
                     $sql = "UPDATE queue SET run_time={$time} WHERE OID={$id}";
-                    $sqlite->queryExec($sql);
+                    $db->exec($sql);
                 }
             }
             catch (Exception $e)
@@ -162,15 +160,14 @@ class agent_queue_pTask extends agent
 
             if ($data_serialized !== $data = serialize($data))
             {
-                $data = sqlite_escape_string($data);
-                $sql = "UPDATE queue SET data='{$data}' WHERE OID={$id}";
-                $sqlite->queryExec($sql);
+                $sql = "UPDATE queue SET data=" . $db->quote($data) . " WHERE OID={$id}";
+                $db->exec($sql);
             }
         }
         else if (false !== $time)
         {
             $sql = "DELETE FROM queue WHERE OID={$id}";
-            $sqlite->queryExec($sql);
+            $db->exec($sql);
         }
     }
 

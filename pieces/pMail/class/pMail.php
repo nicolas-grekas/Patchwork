@@ -97,16 +97,16 @@ class pMail extends pTask
             'session' => class_exists('SESSION', false) ? s::getAll() : array(),
         );
 
-        $sqlite = $this->getSqlite();
+        $db = $this->getPdoConnection();
 
-        $base = sqlite_escape_string(p::__BASE__());
-        $data = sqlite_escape_string(serialize($data));
+        $base = $db->quote(p::__BASE__());
+        $data = $db->quote(serialize($data));
 
         $sql = "INSERT INTO queue (base, data, send_time, archive, sent_time)
-                VALUES('{$base}','{$data}',{$time},{$archive},{$sent})";
-        $sqlite->queryExec($sql);
+                VALUES({$base},{$data},{$time},{$archive},{$sent})";
+        $db->exec($sql);
 
-        $sql = $sqlite->lastInsertRowid();
+        $sql = $db->lastInsertId();
 
         $this->registerQueue();
 
