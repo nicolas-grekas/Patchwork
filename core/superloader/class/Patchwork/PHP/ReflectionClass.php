@@ -59,6 +59,13 @@ class ReflectionClass extends \ReflectionClass
         }
     }
 
+    function getConstants()
+    {
+        $c = parent::getConstants();
+        unset($c["f\x9D"], $c["i\x9D"]);
+        return $c;
+    }
+
     function getDefaultProperties()
     {
         $props = array();
