@@ -100,25 +100,25 @@ class pTask
             'name'   => 'queue',
             'folder' => 'data/queue/pTask/',
             'url'    => 'queue/pTask',
-            'sql'    => <<<EOSQL
-                CREATE TABLE queue (base TEXT, data BLOB, run_time INTEGER);
-                CREATE INDEX run_time ON queue (run_time);
-                CREATE VIEW waiting AS SELECT * FROM queue WHERE run_time>0;
-                CREATE VIEW error   AS SELECT * FROM queue WHERE run_time=0;
+            'sql'    => array(
+                "CREATE TABLE queue (base TEXT, data BLOB, run_time INTEGER)",
+                "CREATE INDEX run_time ON queue (run_time)",
+                "CREATE VIEW waiting AS SELECT * FROM queue WHERE run_time>0",
+                "CREATE VIEW error   AS SELECT * FROM queue WHERE run_time=0",
 
-                CREATE TABLE registry (task_id INTEGER, task_name TEXT, level INTEGER, zcache TEXT);
-                CREATE INDEX task_id ON registry registry (task_id);
+                "CREATE TABLE registry (task_id INTEGER, task_name TEXT, level INTEGER, zcache TEXT)",
+                "CREATE INDEX task_id ON registry registry (task_id)",
 
-                CREATE TRIGGER sync_clean_registry DELETE ON queue
+                "CREATE TRIGGER sync_clean_registry DELETE ON queue
                 BEGIN
                     DELETE FROM registry WHERE task_id=OLD.OID;
-                END;
+                END",
 
-                CREATE TRIGGER sync_clean_queue DELETE ON registry
+                "CREATE TRIGGER sync_clean_queue DELETE ON registry
                 BEGIN
                     DELETE FROM queue WHERE OID=OLD.task_id
-                END;
-EOSQL
+                END",
+            ),
         );
     }
 
@@ -170,9 +170,11 @@ EOSQL
 
         $q = $this->getQueueDefinition();
         $file = patchworkPath($q->folder) . $q->name . '.sqlite3';
+        $sql = file_exists($file);
+
         $db = new PDO('sqlite:' . $file);
 
-        if (!file_exists($file)) $db->exec($q->sql);
+        if (!$sql) foreach ($q->sql as $sql) $db->exec($sql);
 
         $db->def = $q;
 

@@ -124,14 +124,14 @@ class pMail extends pTask
             'name'   => 'queue',
             'folder' => 'data/queue/pMail/',
             'url'    => 'queue/pMail',
-            'sql'    => <<<EOSQL
-                CREATE TABLE queue (base TEXT, data BLOB, send_time INTEGER, archive INTEGER, sent_time INTEGER);
-                CREATE INDEX send_time ON queue (send_time);
-                CREATE INDEX sent_time ON queue (sent_time);
-                CREATE VIEW waiting AS SELECT * FROM queue WHERE sent_time=0 AND send_time>0;
-                CREATE VIEW error   AS SELECT * FROM queue WHERE sent_time=0 AND send_time=0;
-                CREATE VIEW archive AS SELECT * FROM queue WHERE sent_time>0;
-EOSQL
+            'sql'    => array(
+                "CREATE TABLE queue (base TEXT, data BLOB, send_time INTEGER, archive INTEGER, sent_time INTEGER)",
+                "CREATE INDEX send_time ON queue (send_time)",
+                "CREATE INDEX sent_time ON queue (sent_time)",
+                "CREATE VIEW waiting AS SELECT * FROM queue WHERE sent_time=0 AND send_time>0",
+                "CREATE VIEW error   AS SELECT * FROM queue WHERE sent_time=0 AND send_time=0",
+                "CREATE VIEW archive AS SELECT * FROM queue WHERE sent_time>0",
+            ),
         );
     }
 }
