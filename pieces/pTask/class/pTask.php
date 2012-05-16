@@ -82,7 +82,7 @@ class pTask
         );
 
         $sql = "INSERT INTO queue (base, data, run_time)
-                VALUES (?,?,?,?,?)";
+                VALUES (?,?,?)";
         $db->prepare($sql)->execute(array(p::__BASE__(), serialize($data), $time));
 
         $id = $db->lastInsertId();
