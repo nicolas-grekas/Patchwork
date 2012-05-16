@@ -85,7 +85,7 @@ class agent_queue_pTask extends agent
     protected function queueNext()
     {
         $time = time();
-        $sql = "SELECT OID, base, run_time FROM queue WHERE run_time>0 ORDER BY run_time, OID LIMIT 1";
+        $sql = "SELECT rowid, base, run_time FROM queue WHERE run_time>0 ORDER BY run_time, rowid LIMIT 1";
         if ($data = $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC))
         {
             $data = $data[0];
@@ -95,8 +95,8 @@ class agent_queue_pTask extends agent
             if ($data['run_time'] <= $time)
             {
                 $sql = "UPDATE queue SET run_time=0
-                        WHERE OID={$data['OID']} AND run_time>0";
-                if ($this->db->exec($sql)) tool_url::touch("{$data['base']}queue/pTask/{$data['OID']}/" . $this->getToken());
+                        WHERE rowid={$data['rowid']} AND run_time>0";
+                if ($this->db->exec($sql)) tool_url::touch("{$data['base']}queue/pTask/{$data['rowid']}/" . $this->getToken());
 
                 $sql = "SELECT run_time FROM queue WHERE run_time>{$time} ORDER BY run_time LIMIT 1";
                 if ($data = $this->db->query($sql)->fetchAll(PDO::FETCH_NUM)) p::setMaxage(min($this->maxage, $data[0][0] - $time));
@@ -108,7 +108,7 @@ class agent_queue_pTask extends agent
     protected function doAsap($id)
     {
         $sql = "UPDATE queue SET run_time=1
-                WHERE OID={$id} AND run_time=0";
+                WHERE rowid={$id} AND run_time=0";
         $this->db->exec($sql);
     }
 
@@ -116,7 +116,7 @@ class agent_queue_pTask extends agent
     {
         $db = $this->db;
 
-        $sql = "SELECT data FROM queue WHERE OID={$id} AND run_time=0";
+        $sql = "SELECT data FROM queue WHERE rowid={$id} AND run_time=0";
         $data = $db->query($sql)->fetchAll(PDO::FETCH_NUM);
 
         if (!$data) return;
@@ -135,7 +135,7 @@ class agent_queue_pTask extends agent
                     $sql = time();
                     if ($time < $sql - 366*86400) $time += $sql;
 
-                    $sql = "UPDATE queue SET run_time={$time} WHERE OID={$id}";
+                    $sql = "UPDATE queue SET run_time={$time} WHERE rowid={$id}";
                     $db->exec($sql);
                 }
             }
@@ -160,13 +160,13 @@ class agent_queue_pTask extends agent
 
             if ($data_serialized !== $data = serialize($data))
             {
-                $sql = "UPDATE queue SET data=? WHERE OID=?";
+                $sql = "UPDATE queue SET data=? WHERE rowid=?";
                 $db->prepare($sql)->execute(array($data, $id));
             }
         }
         else if (false !== $time)
         {
-            $sql = "DELETE FROM queue WHERE OID={$id}";
+            $sql = "DELETE FROM queue WHERE rowid={$id}";
             $db->exec($sql);
         }
     }

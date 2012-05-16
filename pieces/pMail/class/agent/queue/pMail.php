@@ -23,7 +23,7 @@ class agent_queue_pMail extends agent_queue_pTask
     protected function queueNext()
     {
         $time = time();
-        $sql = "SELECT OID, base, send_time FROM queue WHERE send_time>0 ORDER BY send_time, OID LIMIT 1";
+        $sql = "SELECT rowid, base, send_time FROM queue WHERE send_time>0 ORDER BY send_time, rowid LIMIT 1";
         if ($data = $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC))
         {
             $data = $data[0];
@@ -31,8 +31,8 @@ class agent_queue_pMail extends agent_queue_pTask
             if ($data['send_time'] <= $time)
             {
                 $sql = "UPDATE queue SET send_time=0
-                        WHERE OID={$data['OID']} AND send_time>0";
-                if ($this->db->exec($sql)) tool_url::touch("{$data['base']}queue/pMail/{$data['OID']}/" . $this->getToken());
+                        WHERE rowid={$data['rowid']} AND send_time>0";
+                if ($this->db->exec($sql)) tool_url::touch("{$data['base']}queue/pMail/{$data['rowid']}/" . $this->getToken());
             }
             else pTask::schedule(new pTask(array($this, 'control')), $data['send_time']);
         }
@@ -41,7 +41,7 @@ class agent_queue_pMail extends agent_queue_pTask
     protected function doAsap($id)
     {
         $sql = "UPDATE queue SET send_time=1
-                WHERE OID={$id} AND send_time=0";
+                WHERE rowid={$id} AND send_time=0";
         $this->db->exec($sql);
     }
 
@@ -49,7 +49,7 @@ class agent_queue_pMail extends agent_queue_pTask
     {
         $db = $this->db;
 
-        $sql = "SELECT archive, data FROM queue WHERE OID={$id} AND send_time=0";
+        $sql = "SELECT archive, data FROM queue WHERE rowid={$id} AND send_time=0";
         $data = $db->query($sql)->fetchAll(PDO::FETCH_NUM);
 
         if (!$data) return;
@@ -73,8 +73,8 @@ class agent_queue_pMail extends agent_queue_pTask
         }
 
         $sql = $archive
-            ? "UPDATE queue SET sent_time={$_SERVER['REQUEST_TIME']}, send_time=0 WHERE OID={$id}"
-            : "DELETE FROM queue WHERE OID={$id}";
+            ? "UPDATE queue SET sent_time={$_SERVER['REQUEST_TIME']}, send_time=0 WHERE rowid={$id}"
+            : "DELETE FROM queue WHERE rowid={$id}";
         $db->exec($sql);
     }
 }

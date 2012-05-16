@@ -64,7 +64,7 @@ class pTask
         $db || ($db = new self) && $db = $db->getPdoConnection();
 
         $id = (int) $id;
-        $sql = "DELETE FROM queue WHERE OID={$id}";
+        $sql = "DELETE FROM queue WHERE rowid={$id}";
         $db->exec($sql);
     }
 
@@ -109,12 +109,12 @@ class pTask
 
                 "CREATE TRIGGER sync_clean_registry DELETE ON queue
                 BEGIN
-                    DELETE FROM registry WHERE task_id=OLD.OID;
+                    DELETE FROM registry WHERE task_id=OLD.rowid;
                 END",
 
                 "CREATE TRIGGER sync_clean_queue DELETE ON registry
                 BEGIN
-                    DELETE FROM queue WHERE OID=OLD.task_id
+                    DELETE FROM queue WHERE rowid=OLD.task_id
                 END",
             ),
         );
