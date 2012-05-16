@@ -160,8 +160,8 @@ class agent_queue_pTask extends agent
 
             if ($data_serialized !== $data = serialize($data))
             {
-                $sql = "UPDATE queue SET data=" . $db->quote($data) . " WHERE OID={$id}";
-                $db->exec($sql);
+                $sql = "UPDATE queue SET data=? WHERE OID=?";
+                $db->prepare($sql)->execute(array($data, $id));
             }
         }
         else if (false !== $time)

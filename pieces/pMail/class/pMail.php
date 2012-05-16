@@ -99,12 +99,9 @@ class pMail extends pTask
 
         $db = $this->getPdoConnection();
 
-        $base = $db->quote(p::__BASE__());
-        $data = $db->quote(serialize($data));
-
         $sql = "INSERT INTO queue (base, data, send_time, archive, sent_time)
-                VALUES({$base},{$data},{$time},{$archive},{$sent})";
-        $db->exec($sql);
+                VALUES (?,?,?,?,?)";
+        $db->prepare($sql)->execute(array(p::__BASE__(), serialize($data), $time, $archive, $sent));
 
         $sql = $db->lastInsertId();
 

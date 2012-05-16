@@ -75,17 +75,15 @@ class pTask
 
         if ($time < $_SERVER['REQUEST_TIME'] - 366*86400) $time += $_SERVER['REQUEST_TIME'];
 
-        $base = $db->quote(p::__BASE__());
         $data = array(
             'task' => $this,
             'cookie' => &$_COOKIE,
             'session' => class_exists('SESSION', false) ? s::getAll() : array()
         );
-        $data = $db->quote(serialize($data));
 
         $sql = "INSERT INTO queue (base, data, run_time)
-                VALUES({$base},{$data},{$time})";
-        $db->exec($sql);
+                VALUES (?,?,?,?,?)";
+        $db->prepare($sql)->execute(array(p::__BASE__(), serialize($data), $time));
 
         $id = $db->lastInsertId();
 
