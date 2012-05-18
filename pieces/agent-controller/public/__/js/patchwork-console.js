@@ -368,11 +368,17 @@ function htmlizeEvent(data, refs, filter)
                         {
                         case '`': title.push('Public property'); tags += ' public'; break;
                         case '*': title.push('Protected property'); tags += ' protected'; break;
+                        case '~': title.push('Meta property'); tags += ' meta'; break;
                         default:
                             title.push('Private property from class ' + e[0].replace(/^[^`]*`/, ''));
                             tags += ' private';
                             break;
                         }
+                    }
+                    else if (t.isResource)
+                    {
+                        title.push('Meta property');
+                        tags += ' meta';
                     }
 
                     e = e[0].replace(/[^`]+$/, '') + e[1];
