@@ -24,6 +24,8 @@ class Patchwork_PHP_Parser_NamespaceResolver extends Patchwork_PHP_Parser
         'tagUse'       => T_USE,
         'tagNsResolve' => array(T_USE_CLASS, T_USE_FUNCTION, T_USE_CONSTANT, T_TYPE_HINT),
     ),
+
+    $namespace, $nsResolved, $nsPrefix,
     $dependencies = array('NamespaceInfo' => array('namespace', 'nsResolved', 'nsPrefix'));
 
 

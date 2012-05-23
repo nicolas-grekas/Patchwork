@@ -21,7 +21,11 @@ defined('T_NAMESPACE') || Patchwork_PHP_Parser::createToken('T_NAMESPACE');
  */
 class Patchwork_PHP_Parser_Backport53Tokens extends Patchwork_PHP_Parser
 {
-    protected $dependencies = array('Backport54Tokens' => 'backports');
+    protected
+
+    $backports,
+    $dependencies = array('Backport54Tokens' => 'backports');
+
 
     function __construct(parent $parent)
     {

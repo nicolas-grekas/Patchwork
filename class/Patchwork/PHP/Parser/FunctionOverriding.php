@@ -24,6 +24,8 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
         'tagVariableVar' => '(',
         'tagUseFunction' => T_USE_FUNCTION,
     ),
+
+    $scope, $class, $namespace, $nsResolved,
     $dependencies = array(
         'ConstantInliner' => 'scope',
         'ClassInfo' => array('class', 'namespace', 'nsResolved'),
