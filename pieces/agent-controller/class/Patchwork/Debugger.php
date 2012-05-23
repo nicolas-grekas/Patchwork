@@ -17,7 +17,11 @@ use Patchwork as p;
 
 class Debugger extends p
 {
-    protected static $buffer = array();
+    protected static
+
+    $buffer = array(),
+    $bufferDepth = array();
+
 
     static function execute()
     {
@@ -304,20 +308,36 @@ parent.E.buffer = [];
     protected static function htmlDumpLine($a)
     {
         list($token, $a) = explode(': ', rtrim($a) , 2);
-        $b =& self::$buffer[$token];
+
+        $t = $token . '-';
 
         if ('*** ' === substr($a, 0, 4))
         {
-            $b[] = '<script>patchworkConsole.log(' . p\PHP\JsonDumper::get(substr($a, 4, -4)) . ',';
+            $t .= empty(self::$bufferDepth[$token])
+                ? self::$bufferDepth[$token] = 1
+                : ++self::$bufferDepth[$token];
+
+            self::$buffer[$t][] = '<script>patchworkConsole.log(' . p\PHP\JsonDumper::get(substr($a, 4, -4)) . ',';
         }
-        else if ('***' === $a)
+        else if (!empty(self::$bufferDepth[$token]))
         {
-            $b[] = ',' . p\PHP\JsonDumper::get($token) . ')</script>';
-            $b[] = false;
+            $t .= self::$bufferDepth[$token];
+
+            if ('***' === $a)
+            {
+                self::$buffer[$t][] = ',' . p\PHP\JsonDumper::get($token) . ')</script>';
+                self::$buffer[$t][] = false;
+
+                if (0 === --self::$bufferDepth[$token]) unset(self::$bufferDepth[$token]);
+            }
+            else
+            {
+                self::$buffer[$t][] = $a . "\n";
+            }
         }
         else
         {
-            $b[] = $a . "\n";
+            user_error('Invalid debug stream: this point has not reason to be reached', E_USER_WARNING);
         }
     }
 }
