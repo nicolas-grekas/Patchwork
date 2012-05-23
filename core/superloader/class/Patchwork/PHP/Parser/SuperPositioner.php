@@ -31,6 +31,8 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
         'tagRequire'     => array(T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
         'tagSpecialFunc' => T_USE_FUNCTION,
     ),
+
+    $class, $namespace, $nsResolved, $nsPrefix, $expressionValue,
     $dependencies = array(
         'ClassInfo' => array('class', 'namespace', 'nsResolved', 'nsPrefix'),
         'ConstantExpression' => 'expressionValue',

@@ -20,6 +20,8 @@ class Patchwork_PHP_Parser_Constructor4to5 extends Patchwork_PHP_Parser
     $signature = '',
     $arguments = array(),
     $callbacks = array('tagClassOpen' => T_SCOPE_OPEN),
+
+    $class, $namespace, $scope,
     $dependencies = array('ClassInfo' => array('class', 'namespace', 'scope'));
 
 

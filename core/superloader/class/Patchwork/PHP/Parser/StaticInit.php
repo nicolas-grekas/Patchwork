@@ -20,6 +20,8 @@ class Patchwork_PHP_Parser_StaticInit extends Patchwork_PHP_Parser
     $init,
     $free,
     $callbacks = array('tagClassOpen' => T_SCOPE_OPEN),
+
+    $class, $scope,
     $dependencies = array('ClassInfo' => array('class', 'scope'));
 
 
