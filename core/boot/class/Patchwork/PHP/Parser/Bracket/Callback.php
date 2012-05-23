@@ -27,6 +27,8 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
     $tail = ')',
     $nextTail = '',
     $overrides = array(),
+
+    $scope, $class,
     $dependencies = array(
         'ConstantInliner' => 'scope',
         'ClassInfo' => 'class',

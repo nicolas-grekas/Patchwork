@@ -30,6 +30,8 @@ class Patchwork_PHP_Parser_ClassInfo extends Patchwork_PHP_Parser
 
     $class     = false,
     $callbacks = array('tagClass' => array(T_CLASS, T_INTERFACE, T_TRAIT)),
+
+    $scope, $namespace, $nsResolved, $nsPrefix,
     $dependencies = array('ScopeInfo' => array('scope', 'namespace', 'nsResolved', 'nsPrefix'));
 
 

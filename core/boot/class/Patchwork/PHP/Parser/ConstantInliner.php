@@ -36,6 +36,8 @@ class Patchwork_PHP_Parser_ConstantInliner extends Patchwork_PHP_Parser
         'tagFuncC'     => T_FUNC_C,
         'tagNsC'       => T_NS_C,
     ),
+
+    $scope, $namespace, $nsResolved,
     $dependencies = array('ScopeInfo' => array('scope', 'namespace', 'nsResolved'));
 
     protected static $staticConsts = array();

@@ -27,6 +27,8 @@ class Patchwork_PHP_Parser_CodePathSwitchEnlightener extends Patchwork_PHP_Parse
         '~tagCaseOpen' => T_CASE,
         'tagCaseClose' => ':',
     ),
+
+    $structStack,
     $dependencies = array(
         'CodePathSplitter' => 'structStack',
         'CaseColonEnforcer',

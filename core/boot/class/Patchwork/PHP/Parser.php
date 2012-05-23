@@ -139,8 +139,10 @@ class Patchwork_PHP_Parser
             {
                 is_int($c) && $c = $k;
 
-                if (property_exists($parent, $c)) $this->$k =& $parent->$c;
-                else user_error(get_class($this) . " undefined property: {$v}->{$c}", E_USER_NOTICE);
+                if (!property_exists($parent, $c)) user_error(get_class($this) . " undefined parent property: {$v}->{$c}", E_USER_WARNING);
+                if (!property_exists($this, $k)) user_error(get_class($this) . " undefined property: \$this->{$k}", E_USER_NOTICE);
+
+                $this->$k =& $parent->$c;
             }
         }
 

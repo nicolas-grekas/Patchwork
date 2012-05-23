@@ -20,6 +20,8 @@ class Patchwork_PHP_Parser_DestructorCatcher extends Patchwork_PHP_Parser
     protected
 
     $callbacks = array('tagDestruct' => T_NAME_FUNCTION),
+
+    $scope,
     $dependencies = array('ScopeInfo' => 'scope');
 
 

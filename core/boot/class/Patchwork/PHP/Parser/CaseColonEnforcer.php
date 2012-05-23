@@ -22,6 +22,8 @@ class Patchwork_PHP_Parser_CaseColonEnforcer extends Patchwork_PHP_Parser
     $callbacks = array(
         '~tagCase' => T_CASE,
     ),
+
+    $brackets,
     $dependencies = array('BracketWatcher' => 'brackets');
 
 

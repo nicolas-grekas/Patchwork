@@ -29,6 +29,8 @@ class Patchwork_PHP_Parser_ConstFuncResolver extends Patchwork_PHP_Parser
     $nsCode,
     $nsCodeLoader,
     $callbacks = array('tagOpenTag' => T_SCOPE_OPEN),
+
+    $scope, $namespace,
     $dependencies = array('ScopeInfo' => array('scope', 'namespace'));
 
 
