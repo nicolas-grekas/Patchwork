@@ -70,7 +70,7 @@ class Patchwork_ShutdownHandler
     static function _start()
     {
         // See http://bugs.php.net/54114
-        while (ob_get_level()) ob_end_flush();
+        while (ob_get_level() && ob_end_flush()) {}
         ob_start(array(self::$class, '_checkOutputBuffer'));
 
 /**/    if (function_exists('fastcgi_finish_request'))
@@ -96,7 +96,7 @@ class Patchwork_ShutdownHandler
     {
         if (empty(self::$destructors))
         {
-            while (ob_get_level()) ob_end_flush();
+            while (ob_get_level() && ob_end_flush()) {}
             ob_start(array(self::$class, '_checkOutputBuffer'));
         }
         else

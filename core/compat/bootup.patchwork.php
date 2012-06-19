@@ -120,3 +120,8 @@ use Patchwork\PHP\Override as o;
 
 /**/if (17 != ini_get('serialize_precision'))
         ini_set('serialize_precision', 17);
+
+// Workaround ob_gzhandler non-discardability
+
+/**/if (PHP_VERSION_ID >= 50400)
+        Patchwork\FunctionOverride(ob_gzhandler, ob_gzhandler, $buffer , $mode);

@@ -27,12 +27,6 @@ class Patchwork_PHP_Parser_NamespaceBracketer extends Patchwork_PHP_Parser
     $dependencies = array('StringInfo', 'Normalizer');
 
 
-    function __construct(parent $parent)
-    {
-        if (PHP_VERSION_ID >= 50400) $this->callbacks = array();
-        parent::__construct($parent);
-    }
-
     protected function tagOpenTag()
     {
         $this->unregister(array(__FUNCTION__ => T_OPEN_TAG));
