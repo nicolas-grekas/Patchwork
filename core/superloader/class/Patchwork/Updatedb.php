@@ -78,10 +78,10 @@ class Patchwork_Updatedb
             foreach ($parentPaths as $paths => &$level)
             {
                 sort($level);
-                $paths = md5($paths);
+                $paths = md5($paths) . /*<*/'.' . substr(md5($cwd), -6) . '.path.txt'/*>*/;
                 $h = $zcache . $paths[0] . DIRECTORY_SEPARATOR . $paths[1] . DIRECTORY_SEPARATOR;
                 file_exists($h) || mkdir($h, 0700, true);
-                file_put_contents($h . $paths . '.path.txt', implode(',', $level));
+                file_put_contents($h . $paths, implode(',', $level));
             }
         }
 
