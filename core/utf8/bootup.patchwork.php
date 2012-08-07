@@ -181,12 +181,12 @@ Patchwork\FunctionOverride(utf8_decode, o\Xml::utf8_to_cp1252, $s);
 /**/}
 /**/else
 /**/{
-/**/    if (PHP_VERSION_ID < 50400)
+/**/    if ('à' === grapheme_substr('éà', 1, -2)) // Test https://bugs.php.net/62759
 /**/    {
-            Patchwork\FunctionOverride(grapheme_substr, o\Intl::grapheme_substr_workaround55562, $s, $start, $len = 2147483647);
+            Patchwork\FunctionOverride(grapheme_substr, o\Intl::grapheme_substr_workaround62759, $s, $start, $len = 2147483647);
 /**/    }
 
-/**/    if (1 !== grapheme_stripos('ße', 'e'))
+/**/    if (1 !== grapheme_stripos('ße', 'e')) // Test https://bugs.php.net/61860
 /**/    {
             Patchwork\FunctionOverride(grapheme_stripos,  \Patchwork\Utf8::stripos,  $s, $needle, $offset = 0);
             Patchwork\FunctionOverride(grapheme_strripos, \Patchwork\Utf8::strripos, $s, $needle, $offset = 0);
