@@ -36,7 +36,7 @@ class Patchwork_C3mro
 
         // Compute C3 MRO
         $seqs = array(array($node));
-        foreach ($parent as $seq) $seqs[] = $this->linearize($seq);
+        foreach ($parent as $seq) if ($seq !== $node) $seqs[] = $this->linearize($seq);
         reset($parent);
         $seqs[] = $parent;
 
