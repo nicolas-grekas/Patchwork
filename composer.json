@@ -1,0 +1,23 @@
+{
+    "name": "patchwork/php-parser",
+    "type": "library",
+    "description": "Fast and extensible PHP code analysis and transformation",
+    "keywords": ["php","parser","tokenizer"],
+    "homepage": "https://github.com/nicolas-grekas/Patchwork-PHP-Parser",
+    "license": "(Apache-2.0 or GPL-2.0)",
+    "authors": [
+        {
+            "name": "Nicolas Grekas",
+            "email": "p@tchwork.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.2.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "Patchwork": "class"
+        }
+    }
+}
