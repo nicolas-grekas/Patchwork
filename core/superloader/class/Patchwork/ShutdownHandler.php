@@ -16,8 +16,8 @@
  * - call fastcgi_finish_request() when available
  * - call registered shutdown functions, encapsulated into a try/catch that
  *   avoids any "Exception thrown without a stack frame" cryptic error
- * - call session_write_close()
  * - call static destructors
+ * - call session_write_close()
  *
  * As usual, global and static objects' destructors are triggered after the last step.
  * Any output done during the shutdown sequence is cancelled with a warning.
@@ -68,11 +68,13 @@ class Patchwork_ShutdownHandler
     {
         // See http://bugs.php.net/54114
         while (ob_get_level() && ob_end_flush()) {}
-        ob_start(array(self::$class, '_checkOutputBuffer'));
 
 /**/    if (function_exists('fastcgi_finish_request'))
             fastcgi_finish_request();
+/**/    else
+            flush();
 
+        ob_start(array(self::$class, '_checkOutputBuffer'));
         self::register(array(self::$class, '_end'));
     }
 
@@ -84,8 +86,6 @@ class Patchwork_ShutdownHandler
 
     static function _end()
     {
-        // See http://bugs.php.net/54157
-        self::register('session_write_close');
         self::register(array(self::$class, '_callStaticDestructors'));
     }
 
@@ -95,11 +95,16 @@ class Patchwork_ShutdownHandler
         {
             while (ob_get_level() && ob_end_flush()) {}
             ob_start(array(self::$class, '_checkOutputBuffer'));
+
+            // See http://bugs.php.net/54157
+            session_write_close();
+            if (empty(self::$destructors)) return;
         }
         else
         {
             call_user_func(array(array_shift(self::$destructors), '__free'));
-            self::register(array(self::$class, __FUNCTION__));
         }
+
+        self::register(array(self::$class, __FUNCTION__));
     }
 }
