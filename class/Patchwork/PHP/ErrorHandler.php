@@ -31,14 +31,13 @@ namespace Patchwork\PHP;
  */
 class ErrorHandler
 {
-    public
+    protected
 
-    $scream = 0x1151,       // E_RECOVERABLE_ERROR | E_USER_ERROR | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR
+    $loggedErrors = -1,     // error_reporting()
+    $screamErrors = 0x1151, // E_RECOVERABLE_ERROR | E_USER_ERROR | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR
     $thrownErrors = 0x1100, // E_RECOVERABLE_ERROR | E_USER_ERROR
     $scopedErrors = 0x1303, // E_RECOVERABLE_ERROR | E_USER_ERROR | E_ERROR | E_WARNING | E_USER_WARNING
-    $tracedErrors = 0x1303; // E_RECOVERABLE_ERROR | E_USER_ERROR | E_ERROR | E_WARNING | E_USER_WARNING
-
-    protected
+    $tracedErrors = 0x1303, // E_RECOVERABLE_ERROR | E_USER_ERROR | E_ERROR | E_WARNING | E_USER_WARNING
 
     $logger,
     $loggedTraces = array(),
@@ -112,7 +111,7 @@ class ErrorHandler
     {
         // Reset error_get_last() by triggering a silenced empty user notice
         set_error_handler(array(__CLASS__, 'falseError'));
-        $r = error_reporting(81);
+        $r = error_reporting(0);
         user_error('', E_USER_NOTICE);
         error_reporting($r);
         restore_error_handler();
@@ -155,11 +154,33 @@ class ErrorHandler
         return $ok;
     }
 
+    function setLevel($logged = null, $scream = null, $thrown = null, $scoped = null, $traced = null)
+    {
+        if (is_array($logged)) list(, $logged, $scream, $thrown, $scoped, $traced) = $logged;
+
+        $e = array(
+            $this->registeredErrors,
+            $this->loggedErrors,
+            $this->screamErrors,
+            $this->thrownErrors,
+            $this->scopedErrors,
+            $this->tracedErrors,
+        );
+
+        if (isset($logged)) $this->loggedErrors = $logged;
+        if (isset($scream)) $this->screamErrors = $scream;
+        if (isset($thrown)) $this->thrownErrors = $thrown;
+        if (isset($scoped)) $this->scopedErrors = $scoped;
+        if (isset($traced)) $this->tracedErrors = $traced;
+
+        return $e;
+    }
+
     function handleError($type, $message, $file, $line, $scope, $trace_offset = 0, $log_time = 0)
     {
-        $log = error_reporting() & $type;
+        $log = error_reporting() & $this->loggedErrors & $type;
 
-        if ($log || $scream = $this->scream & $type)
+        if ($log || $scream = $this->screamErrors & $type)
         {
             $log_time || $log_time = microtime(true);
             $throw = $this->thrownErrors & (isset($scream) ? $scream : $log);
