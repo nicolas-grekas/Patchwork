@@ -63,9 +63,9 @@ class ErrorHandler
         ini_set('log_errors', true);
         ini_set('error_log', $log_file);
 
-        // Some fatal errors can be caught at shutdown time!
+        // Some fatal errors can be detected at shutdown time.
         // Then, any fatal error is really fatal: remaining shutdown
-        // functions, output buffering handlers or destructors are not called!
+        // functions, output buffering handlers or destructors are not called.
         register_shutdown_function(array(__CLASS__, 'shutdown'));
 
         self::$logFile = $log_file;

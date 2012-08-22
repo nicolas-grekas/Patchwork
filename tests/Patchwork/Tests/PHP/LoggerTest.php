@@ -15,7 +15,7 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
             'message' => 'Fake user error',
             'file' => 'fake',
             'line' => 1,
-            'scope' => new \Patchwork\PHP\recoverableErrorException,
+            'scope' => new \Patchwork\PHP\RecoverableErrorException,
             'trace' => array(
                 array('function' => 'fake-func2'),
                 array('function' => 'fake-func1'),
