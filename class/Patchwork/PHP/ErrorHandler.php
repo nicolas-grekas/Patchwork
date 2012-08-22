@@ -13,9 +13,10 @@ namespace Patchwork\PHP;
 /**
  * ErrorHandler is a tunable error and exception handler.
  *
- * It provides four bit fields that control how errors are handled:
- * - scream: never silenced errors
- * - thrownErrors: errors thrown as RecoverableErrorException
+ * It provides five bit fields that control how errors are handled:
+ * - loggedErrors: logged errors, when not @-silenced
+ * - screamErrors: never silenced errors
+ * - thrownErrors: errors thrown as RecoverableErrorException, when not @-silenced
  * - scopedErrors: errors logged with their local scope
  * - tracedErrors: errors logged with their trace, but only once for repeated errors
  *
