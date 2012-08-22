@@ -15,7 +15,7 @@ class_exists('Patchwork\PHP\ErrorHandler') || eval(';') || __autoload('Patchwork
 
 class ErrorHandler extends PHP\ErrorHandler
 {
-    public $scream = /*<*/DEBUG ? -1 : 0/*>*/;
+    protected $screamErrors = /*<*/DEBUG ? -1 : 0/*>*/;
 
     function handleError($type, $message, $file, $line, $scope, $trace_offset = 0, $log_time = 0)
     {
