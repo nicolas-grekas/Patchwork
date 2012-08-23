@@ -38,6 +38,13 @@ use Patchwork\PHP\Override as o;
         Patchwork\FunctionOverride(is_subclass_of, o\Php539, $obj, $class, $allow_string = true);
 /**/}
 
+/**/if (PHP_VERSION_ID < 50302)
+/**/{
+/**/    boot::$manager->pushFile('class/Patchwork/PHP/Override/Php532.php');
+
+        Patchwork\FunctionOverride(stream_resolve_include_path, o\Php532, $filename);
+/**/}
+
 /**/if (!function_exists('trait_exists'))
 /**/{
         function trait_exists($class, $autoload = true) {return $autoload && class_exists($class, $autoload) && false;}
