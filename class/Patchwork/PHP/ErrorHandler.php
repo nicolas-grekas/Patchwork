@@ -242,16 +242,19 @@ class ErrorHandler
 
     function handleException(\Exception $e, $log_time = 0)
     {
-        $r = array($this->thrownErrors, $this->scopedErrors, $e instanceof RecoverableErrorInterface ? $e->getSeverity() : E_ERROR);
-        $this->scopedErrors |= $r[2];
+        $thrown = $this->thrownErrors;
+        $scoped = $this->scopedErrors;
+        $type = $e instanceof RecoverableErrorException ? $e->getSeverity() : E_ERROR;
+        $this->scopedErrors |= $type;
         $this->thrownErrors = 0;
         $this->handleError(
-            $r[2], "Uncaught exception: " . $e->getMessage(),
+            $type, "Uncaught exception: " . $e->getMessage(),
             $e->getFile(), $e->getLine(),
             array($e),
             -1, $log_time
         );
-        list($this->thrownErrors, $this->scopedErrors) = $r;
+        $this->thrownErrors = $thrown;
+        $this->scopedErrors = $scoped;
     }
 
     function handleLastError($e)
@@ -268,9 +271,7 @@ class ErrorHandler
     }
 }
 
-class RecoverableErrorException extends \ErrorException implements RecoverableErrorInterface
+class RecoverableErrorException extends \ErrorException
 {
     public $traceOffset = -1, $scope = null;
 }
-
-interface RecoverableErrorInterface {}
