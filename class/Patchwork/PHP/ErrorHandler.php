@@ -179,12 +179,13 @@ class ErrorHandler
 
     function handleError($type, $message, $file, $line, $scope, $trace_offset = 0, $log_time = 0)
     {
-        $log = error_reporting() & $this->loggedErrors & $type;
+        $log = error_reporting() & $type;
+        $throw = $this->thrownErrors & $log;
+        $log &= $this->loggedErrors;
 
-        if ($log || $scream = $this->screamErrors & $type)
+        if ($log || $throw || $scream = $this->screamErrors & $type)
         {
             $log_time || $log_time = microtime(true);
-            $throw = $this->thrownErrors & (isset($scream) ? $scream : $log);
 
             if ($throw)
             {
