@@ -13,9 +13,10 @@ namespace Patchwork\PHP;
 /**
  * ErrorHandler is a tunable error and exception handler.
  *
- * It provides four bit fields that control how errors are handled:
- * - scream: never silenced errors
- * - thrownErrors: errors thrown as RecoverableErrorException
+ * It provides five bit fields that control how errors are handled:
+ * - loggedErrors: logged errors, when not @-silenced
+ * - screamErrors: never silenced errors
+ * - thrownErrors: errors thrown as RecoverableErrorException, when not @-silenced
  * - scopedErrors: errors logged with their local scope
  * - tracedErrors: errors logged with their trace, but only once for repeated errors
  *
@@ -178,12 +179,13 @@ class ErrorHandler
 
     function handleError($type, $message, $file, $line, $scope, $trace_offset = 0, $log_time = 0)
     {
-        $log = error_reporting() & $this->loggedErrors & $type;
+        $log = error_reporting() & $type;
+        $throw = $this->thrownErrors & $log;
+        $log &= $this->loggedErrors;
 
-        if ($log || $scream = $this->screamErrors & $type)
+        if ($log || $throw || $scream = $this->screamErrors & $type)
         {
             $log_time || $log_time = microtime(true);
-            $throw = $this->thrownErrors & (isset($scream) ? $scream : $log);
 
             if ($throw)
             {
@@ -240,16 +242,19 @@ class ErrorHandler
 
     function handleException(\Exception $e, $log_time = 0)
     {
-        $r = array($this->thrownErrors, $this->scopedErrors, $e instanceof RecoverableErrorInterface ? $e->getSeverity() : E_ERROR);
-        $this->scopedErrors |= $r[2];
+        $thrown = $this->thrownErrors;
+        $scoped = $this->scopedErrors;
+        $type = $e instanceof RecoverableErrorException ? $e->getSeverity() : E_ERROR;
+        $this->scopedErrors |= $type;
         $this->thrownErrors = 0;
         $this->handleError(
-            $r[2], "Uncaught exception: " . $e->getMessage(),
+            $type, "Uncaught exception: " . $e->getMessage(),
             $e->getFile(), $e->getLine(),
             array($e),
             -1, $log_time
         );
-        list($this->thrownErrors, $this->scopedErrors) = $r;
+        $this->thrownErrors = $thrown;
+        $this->scopedErrors = $scoped;
     }
 
     function handleLastError($e)
@@ -266,9 +271,7 @@ class ErrorHandler
     }
 }
 
-class RecoverableErrorException extends \ErrorException implements RecoverableErrorInterface
+class RecoverableErrorException extends \ErrorException
 {
     public $traceOffset = -1, $scope = null;
 }
-
-interface RecoverableErrorInterface {}
