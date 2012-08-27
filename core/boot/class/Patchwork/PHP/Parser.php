@@ -126,8 +126,7 @@ class Patchwork_PHP_Parser
 
             if (!isset($this->parents[$k]))
             {
-                user_error(get_class($this) . " failed dependency: {$v}", E_USER_WARNING);
-                return;
+                throw new Exception(get_class($this) . " failed dependency: {$v}", E_USER_WARNING);
             }
 
             $parent = $this->dependencies[$v] = $this->parents[$k];
