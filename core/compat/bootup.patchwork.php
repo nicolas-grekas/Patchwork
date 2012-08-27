@@ -28,9 +28,10 @@ use Patchwork\PHP\Override as o;
         Patchwork\FunctionOverride(interface_exists,        o\Php530, $class, $autoload = true);
         Patchwork\FunctionOverride(is_a,                    o\Php530, $obj, $class, $allow_string = false);
         Patchwork\FunctionOverride(is_subclass_of,          o\Php530, $obj, $class, $allow_string = true);
+        Patchwork\FunctionOverride(lcfirst,                 o\Php530, $str);
         Patchwork\FunctionOverride(method_exists,           o\Php530, $class, $method);
         Patchwork\FunctionOverride(property_exists,         o\Php530, $class, $property);
-        Patchwork\FunctionOverride(lcfirst,                 o\Php530, $str);
+        Patchwork\FunctionOverride(spl_object_hash,         o\Php530, $object);
 /**/}
 /**/else if (PHP_VERSION_ID < 50309)
 /**/{
@@ -48,11 +49,6 @@ use Patchwork\PHP\Override as o;
 /**/if (!function_exists('trait_exists'))
 /**/{
         function trait_exists($class, $autoload = true) {return $autoload && class_exists($class, $autoload) && false;}
-/**/}
-
-/**/if (!function_exists('spl_object_hash'))
-/**/{
-        Patchwork\FunctionOverride(spl_object_hash, o\Php530, $object);
 /**/}
 
 /**/if (PHP_VERSION_ID == 50210 || PHP_VERSION_ID == 502011 || PHP_VERSION_ID == 50300)
@@ -81,8 +77,11 @@ use Patchwork\PHP\Override as o;
             Patchwork\FunctionOverride(htmlspecialchars, o\Php523, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
             Patchwork\FunctionOverride(htmlentities,     o\Php523, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
 /**/    }
-        Patchwork\FunctionOverride(htmlspecialchars, htmlspecialchars, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
-        Patchwork\FunctionOverride(htmlentities,     htmlentities,     $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
+/**/    else
+/**/    {
+            Patchwork\FunctionOverride(htmlspecialchars, htmlspecialchars, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
+            Patchwork\FunctionOverride(htmlentities,     htmlentities,     $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
+/**/    }
 /**/}
 
 /**/if (!function_exists('memory_get_usage'))
@@ -125,7 +124,7 @@ use Patchwork\PHP\Override as o;
 /**/if (17 != ini_get('serialize_precision'))
         ini_set('serialize_precision', 17);
 
-// Workaround ob_gzhandler non-discardability
+// Workaround ob_gzhandler non-discardability in PHP 5.4
 
 /**/if (PHP_VERSION_ID >= 50400)
-        Patchwork\FunctionOverride(ob_gzhandler, ob_gzhandler, $buffer , $mode);
+        Patchwork\FunctionOverride(ob_gzhandler, ob_gzhandler, $buffer, $mode);
