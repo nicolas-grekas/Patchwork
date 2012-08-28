@@ -24,7 +24,7 @@
 
     <meta name="generator" content="Patchwork">
 
-    <link rel="stylesheet" type="text/css" href="{a$css|default:'css/style'|base}">
+    <link rel="stylesheet" href="{a$css|default:'css/style'|base}">
 
     <!--
 

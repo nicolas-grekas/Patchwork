@@ -11,7 +11,7 @@
 
 IF $fileUpload
 
-    --><script type="text/javascript">window.parent.frames.frmUpload.OnUploadCompleted({$number|js},{$filename|js})</script><!--
+    --><script>window.parent.frames.frmUpload.OnUploadCompleted({$number|js},{$filename|js})</script><!--
 
 ELSE
 

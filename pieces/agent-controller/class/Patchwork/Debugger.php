@@ -116,7 +116,7 @@ class Debugger extends p
 <html>
 <head>
     <title>Debug Window</title>
-    <link type="text/css" rel="stylesheet" href="<?php echo p::__BASE__() . 'css/patchwork-console.css?' . $GLOBALS['patchwork_appId'];?>">
+    <link rel="stylesheet" href="<?php echo p::__BASE__() . 'css/patchwork-console.css?' . $GLOBALS['patchwork_appId'];?>">
 </head>
 <body>
 <script src="<?php echo p::__BASE__() . 'js/patchwork-console.js?' . $GLOBALS['patchwork_appId'];?>"></script>
