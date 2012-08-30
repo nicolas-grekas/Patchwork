@@ -18,12 +18,14 @@ class Redirection extends \Exception
 
     function __construct($url)
     {
-        $url = (string) $url;
-        $url = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'", $url) ? $url : (p::__BASE__() . ('index' === $url ? '' : $url)));
+        $this->url = (string) $url;
 
-        if ('.' === substr($url, 0, 1)) user_error('Current redirection behaviour with relative URLs may change in a future version of Patchwork. As long as this notice appears, using relative URLs is strongly discouraged.');
+        if ('.' === substr($this->url, 0, 1)) user_error('Current redirection behaviour with relative URLs may change in a future version of Patchwork. As long as this notice appears, using relative URLs is strongly discouraged.');
+    }
 
-        $this->url = $url;
+    function getUrl()
+    {
+        return $this->url;
     }
 
     function redirect($javascript)
@@ -31,6 +33,7 @@ class Redirection extends \Exception
         p::disable();
 
         $url = $this->url;
+        $url = '' === $url ? '' : (preg_match("'^([^:/]+:/|\.+)?/'", $url) ? $url : (p::__BASE__() . ('index' === $url ? '' : $url)));
 
         if ($javascript)
         {
