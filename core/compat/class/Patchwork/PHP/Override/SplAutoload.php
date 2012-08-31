@@ -26,12 +26,10 @@ class Patchwork_PHP_Override_SplAutoload
             throw new LogicException("Class {$class} could not be loaded");
         }
 
-        $ne = !class_exists($class, false);
-
         foreach (self::$canonicStack as $c)
         {
             call_user_func($c, $class);
-            if ($ne && class_exists($class, false)) return;
+            if (class_exists($class, false) || interface_exists($class, false) || trait_exists($class, false)) return;
         }
     }
 
