@@ -1,9 +1,16 @@
 Patchwork UTF-8
 ===============
 
-Patchwork UTF-8 provides both a portability layer for Unicode handling in PHP
-and a class that mirrors the quasi complete set of native string functions,
-enhanced to UTF-8 [grapheme clusters](http://unicode.org/reports/tr29/) awareness.
+Patchwork UTF-8 provides both :
+
+- a portability layer for Unicode handling in PHP, and
+- a class that mirrors the quasi complete set of native string functions,
+  enhanced to UTF-8 [grapheme clusters](http://unicode.org/reports/tr29/)
+  awareness.
+
+It can also serve as a documentation source referencing the practical problems
+that arise when handling UTF-8 in PHP: Unicode concepts, related algorithms,
+bugs in PHP core, workarounds, etc.
 
 Portability
 -----------
@@ -46,7 +53,6 @@ Some more functions are also provided to help handling UTF-8 strings:
 - *toAscii()*: generic UTF-8 to ASCII transliteration,
 - *strtocasefold()*: unicode transformation for caseless matching,
 - *strtonatfold()*: generic case sensitive transformation for collation matching
-- *getGraphemeClusters()*: splits a string to an array of grapheme clusters
 
 Mirrored string functions are:
 *strlen, substr, strpos, stripos, strrpos, strripos, strstr, stristr, strrchr,
