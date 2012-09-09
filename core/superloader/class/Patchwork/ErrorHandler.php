@@ -17,8 +17,18 @@ class ErrorHandler extends PHP\ErrorHandler
 {
     protected $screamErrors = /*<*/DEBUG ? -1 : 0/*>*/;
 
+    protected static $caughtToStringException;
+
+
     function handleError($type, $message, $file, $line, $scope, $trace_offset = 0, $log_time = 0)
     {
+        if (isset(self::$caughtToStringException))
+        {
+            $type = self::$caughtToStringException;
+            self::$caughtToStringException = null;
+            throw $type;
+        }
+
         // Silence strict and deprecated notices for classes and files coming from include_path
         if (/*<*/(E_NOTICE | E_STRICT | E_DEPRECATED)/*>*/ & $type)
             if (strpos($message, '__00::') || '-' === substr($file, -12, 1))
@@ -39,9 +49,14 @@ class ErrorHandler extends PHP\ErrorHandler
         // http://bugs.php.net/42098 workaround
         class_exists('Patchwork\Logger') || eval(';') || __autoload('Patchwork\Logger');
         $l = new Logger(self::$logStream, $_SERVER['REQUEST_TIME_FLOAT']);
-        $l->lock = false;
         $l->lineFormat = sprintf('%010d', substr(mt_rand(), -10)) . ": %s";
 
         return $this->logger = $l;
+    }
+
+    static function handleToStringException(\Exception $e)
+    {
+        self::$caughtToStringException = $e;
+        return null;
     }
 }

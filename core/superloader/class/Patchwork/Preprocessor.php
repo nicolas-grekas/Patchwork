@@ -30,6 +30,7 @@ class Patchwork_Preprocessor
         'NamespaceBracketer' => +50300, // Load this only for 5.3.0 and up
         'NamespaceInfo'      => true,
         'ScopeInfo'          => true,
+        'ToStringCatcher'    => true,
         'DestructorCatcher'  => true,
         'ConstFuncDisabler'  => true,
         'ConstFuncResolver'  => true,
@@ -142,6 +143,7 @@ class Patchwork_Preprocessor
             case 'Marker':             if (!$debug) new $t($p, self::$declaredClass); break;
             case 'ConstantInliner':    new $t($p, $source, self::$constants); break;
             case 'NamespaceRemover':   new $t($p, 'Patchwork_PHP_Override_Php530::add'); break;
+            case 'ToStringCatcher':    new $t($p, 'Patchwork\ErrorHandler::handleToStringException'); break;
             case 'SuperPositioner':    new $t($p, $level, $is_top ? $class : false); break;
             }
         }

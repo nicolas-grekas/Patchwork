@@ -11,7 +11,6 @@
 namespace Patchwork;
 
 // http://bugs.php.net/42098 workaround
-// Superposing Patchwork\Logger would be nice, be can't be done because of this bug
 class_exists('Patchwork\PHP\Logger') || eval(';') || __autoload('Patchwork\PHP\Logger');
 
 class Logger extends PHP\Logger
@@ -20,28 +19,12 @@ class Logger extends PHP\Logger
 
     function writeEvent($type, $data)
     {
-        if ('php-error' === $type || 'php-exception' === $type)
-        {
-            \Patchwork::setMaxage(0);
-            \Patchwork::setExpires('onmaxage');
-            $GLOBALS['patchwork_private'] = true;
-        }
-
         if ($this->isFirstEvent)
         {
             // http://bugs.php.net/42098 workaround
             class_exists('Patchwork\PHP\Walker') || eval(';') || __autoload('Patchwork\PHP\Walker');
             class_exists('Patchwork\PHP\Dumper') || eval(';') || __autoload('Patchwork\PHP\Dumper');
             class_exists('Patchwork\PHP\JsonDumper') || eval(';') || __autoload('Patchwork\PHP\JsonDumper');
-
-            $data['patchwork'] = array(
-                'i18n' => PATCHWORK_I18N,
-                'debug' => DEBUG,
-                'turbo' => Superloader::$turbo,
-                'level' => PATCHWORK_PATH_LEVEL,
-                'zcache' => PATCHWORK_ZCACHE,
-                'paths' => $GLOBALS['patchwork_path'],
-            );
         }
 
         return parent::writeEvent($type, $data);
