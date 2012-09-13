@@ -8,8 +8,9 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Override;
 
-class Patchwork_PHP_Override_Php539
+class Php539
 {
     static function is_a($o, $c, $allow_string = false)
     {

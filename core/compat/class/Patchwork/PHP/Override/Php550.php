@@ -8,10 +8,12 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
-// password_* functions have been authored by Anthony Ferrara<ircmaxell@gmail.com>
+// Code authored by Anthony Ferrara <ircmaxell@gmail.com>
 // See https://github.com/ircmaxell/password_compat/
 
-class Patchwork_PHP_Override_Php550
+namespace Patchwork\PHP\Override;
+
+class Php550
 {
     /**
      * Hash the password using the specified algorithm

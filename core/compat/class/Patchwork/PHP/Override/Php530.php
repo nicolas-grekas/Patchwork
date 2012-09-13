@@ -8,10 +8,12 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Override;
+
 /**
  * Namespace aware backports of reflective functions for PHP pre-5.3
  */
-class Patchwork_PHP_Override_Php530
+class Php530
 {
     protected static $us2ns = array();
 
@@ -38,7 +40,7 @@ class Patchwork_PHP_Override_Php530
 /**/    else if (class_exists('ReflectionClass', false))
 /**/    {
             $autoload = array();
-            $c = new ReflectionClass($c);
+            $c = new \ReflectionClass($c);
             foreach ($c->getInterfaceNames() as $c) $autoload[$c] = $c;
 /**/    }
 /**/    else
