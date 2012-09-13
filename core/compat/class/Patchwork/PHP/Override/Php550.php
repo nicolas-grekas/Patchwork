@@ -25,7 +25,7 @@ class Php550
      * @returns string|false The hashed password, or false on error.
      */
     static function password_hash($password, $algo, $options = array()) {
-        if (!function_exists('crypt')) {
+        if ($algo && !function_exists('crypt')) {
             trigger_error("Crypt must be loaded for password_hash to function", E_USER_WARNING);
             return null;
         }
@@ -38,19 +38,27 @@ class Php550
             return null;
         }
         switch ($algo) {
+            case 0:
             case PASSWORD_BCRYPT:
                 // Note that this is a C constant, but not exposed to PHP, so we don't define it here.
                 $cost = 10;
                 if (isset($options['cost'])) {
                     $cost = $options['cost'];
                     if ($cost < 4 || $cost > 31) {
-                        trigger_error(sprintf("password_hash(): Invalid bcrypt cost parameter specified: %d", $cost), E_USER_WARNING);
+                        trigger_error(sprintf("password_hash(): Invalid cost parameter specified: %d", $cost), E_USER_WARNING);
                         return null;
                     }
                 }
-                $required_salt_len = 22;
-                $hash_format = sprintf("$2y$%02d$", $cost);
-                break;
+                if (0 !== $algo) {
+                    $required_salt_len = 22;
+                    $hash_format = sprintf(/*<*/PHP_VERSION >= 50307 ? "$2y$%02d$" : "$2a$%02d$"/*>*/, $cost);
+                    break;
+                } elseif (0 === PASSWORD_DEFAULT) {
+                    $crypt = __CLASS__ . '::crypt_md5';
+                    $required_salt_len = 8;
+                    $hash_format = '$P$' . self::$itoa64[min($cost + 5, 30)];
+                    break;
+                }
             default:
                 trigger_error(sprintf("password_hash(): Unknown password hashing algorithm: %s", $algo), E_USER_WARNING);
                 return null;
@@ -88,7 +96,7 @@ class Php550
 
         $hash = $hash_format . $salt;
 
-        $ret = crypt($password, $hash);
+        $ret = isset($crypt) ? call_user_func($crypt, $password, $hash) : crypt($password, $hash);
 
         if (!is_string($ret) || strlen($ret) < 13) {
             return false;
@@ -164,11 +172,18 @@ class Php550
      * @return boolean If the password matches the hash
      */
     static function password_verify($password, $hash) {
-        if (!function_exists('crypt')) {
-            trigger_error("Crypt must be loaded for password_create to function", E_USER_WARNING);
-            return false;
+        $ret = substr($hash, 0, 3);
+
+        if ('$P$' === $ret || '$H$' === $ret) {
+            $ret = self::crypt_md5($password, $hash);
+        } else {
+/**/        if (!function_exists('crypt')) {
+                trigger_error("Crypt must be loaded for password_verify to function", E_USER_WARNING);
+                return false;
+/**/        }
+            $ret = crypt($password, $hash);
         }
-        $ret = crypt($password, $hash);
+
         if (!is_string($ret) || strlen($ret) != strlen($hash)) {
             return false;
         }
@@ -228,5 +243,49 @@ class Php550
         }
         $buffer = str_replace('+', '.', base64_encode($buffer));
         return substr($buffer, 0, $length);
+    }
+
+    protected static $itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
+    /**
+     * Hash the password using PHPass' MD5 portable scheme
+     *
+     * Implementation borrowed from http://www.openwall.com/phpass/
+     *
+     * @param string $password The password to hash
+     * @param int    $salt     The salt to use
+     *
+     * @returns string|false The hashed password, or false on error.
+     */
+    protected static function crypt_md5($password, $salt)
+    {
+        $salt = substr($salt, 0, 12);
+        if (!isset($salt[11])) return false;
+
+        $cost = substr($salt, 0, 3);
+        if ($cost !== '$P$' && $cost !== '$H$') return false;
+
+        $cost = strpos(self::$itoa64, $salt[3]);
+        if ($cost < 7 || $cost > 30) return false;
+
+        $cost = 1 << $cost;
+
+        $hash = md5(substr($salt, 4, 8) . $password, true);
+        do $hash = md5($hash . $password, true);
+        while (--$cost);
+
+        do {
+            $v = ord($hash[$cost++]);
+            $salt .= self::$itoa64[$v & 0x3F];
+            if ($cost < 16) $v |= ord($hash[$cost]) << 8;
+            $salt .= self::$itoa64[($v >> 6) & 0x3F];
+            if ($cost++ >= 16) break;
+            if ($cost < 16) $v |= ord($hash[$cost]) << 16;
+            $salt .= self::$itoa64[($v >> 12) & 0x3F];
+            if ($cost++ >= 16) break;
+            $salt .= self::$itoa64[($v >> 18) & 0x3F];
+        } while ($cost < 16);
+
+        return $salt;
     }
 }

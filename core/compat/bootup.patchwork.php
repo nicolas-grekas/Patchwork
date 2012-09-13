@@ -87,7 +87,7 @@ use Patchwork\PHP\Override as o;
 /**/if (PHP_VERSION_ID < 50500)
 /**/{
         define('PASSWORD_BCRYPT', 1);
-        define('PASSWORD_DEFAULT', PASSWORD_BCRYPT);
+        define('PASSWORD_DEFAULT', /*<*/(int) (function_exists('crypt') && CRYPT_BLOWFISH)/*>*/);
 
         Patchwork\FunctionOverride(password_hash,         o\Php550, $password, $algo, array $options = array());
         Patchwork\FunctionOverride(password_get_info,     o\Php550, $hash);
