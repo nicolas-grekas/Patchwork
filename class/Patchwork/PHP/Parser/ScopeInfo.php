@@ -89,6 +89,7 @@ class ScopeInfo extends Parser
 
     protected function tagClass(&$token)
     {
+        if (T_DOUBLE_COLON === $this->prevType) return;
         $this->nextScope = $token[0];
         $this->register(array('tagScopeOpen' => '{'));
     }

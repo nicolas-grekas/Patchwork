@@ -140,8 +140,8 @@ class ConstantInliner extends Parser
 
     protected function tagScopeName(&$token)
     {
+        if (T_DOUBLE_COLON === $this->prevType) return;
         $t = $this->getNextToken();
-
         T_STRING === $t[0] && $this->nextScope = $t[1];
     }
 

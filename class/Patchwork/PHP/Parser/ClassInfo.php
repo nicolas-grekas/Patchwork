@@ -43,6 +43,8 @@ class ClassInfo extends Parser
 
     protected function tagClass(&$token)
     {
+        if (T_DOUBLE_COLON === $this->prevType) return;
+
         $this->class = (object) array(
             'type'       => $token[0],
             'name'       => false,
