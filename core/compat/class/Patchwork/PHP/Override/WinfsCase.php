@@ -8,10 +8,12 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Override;
+
 /**
  * Under Windows, checks if character case is strict
  */
-class Patchwork_PHP_Override_WinfsCase
+class WinfsCase
 {
     static function file_exists($file)
     {

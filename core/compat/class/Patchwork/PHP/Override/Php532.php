@@ -8,8 +8,9 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Override;
 
-class Patchwork_PHP_Override_Php532
+class Php532
 {
     static function stream_resolve_include_path($file)
     {
