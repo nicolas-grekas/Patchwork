@@ -51,7 +51,7 @@ class Php550
                 }
                 if (0 !== $algo) {
                     $required_salt_len = 22;
-                    $hash_format = sprintf(/*<*/PHP_VERSION >= 50307 ? "$2y$%02d$" : "$2a$%02d$"/*>*/, $cost);
+                    $hash_format = sprintf(/*<*/PHP_VERSION_ID >= 50307 ? "$2y$%02d$" : "$2a$%02d$"/*>*/, $cost);
                     break;
                 } elseif (0 === PASSWORD_DEFAULT) {
                     $crypt = __CLASS__ . '::crypt_md5';
