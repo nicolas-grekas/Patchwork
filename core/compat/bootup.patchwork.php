@@ -8,42 +8,42 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
-use Patchwork\PHP\Override as o;
+use Patchwork\PHP\Shim as s;
 
 /**/if (PHP_VERSION_ID < 50300)
 /**/{
-/**/    // Overrides to backport namespaces to PHP pre-5.3
+/**/    // Shims to backport namespaces to PHP pre-5.3
 
-/**/    boot::$manager->pushFile('class/Patchwork/PHP/Override/Php530.php');
+/**/    boot::$manager->pushFile('class/Patchwork/PHP/Shim/Php530.php');
 
-        Patchwork\FunctionOverride(class_implements,        o\Php530, $class, $autoload = true);
-        Patchwork\FunctionOverride(class_parents,           o\Php530, $class, $autoload = true);
-        Patchwork\FunctionOverride(class_exists,            o\Php530, $class, $autoload = true);
-        Patchwork\FunctionOverride(get_class_methods,       o\Php530, $class);
-        Patchwork\FunctionOverride(get_class_vars,          o\Php530, $class);
-        Patchwork\FunctionOverride(get_class,               o\Php530, $obj);
-        Patchwork\FunctionOverride(get_declared_classes,    o\Php530);
-        Patchwork\FunctionOverride(get_declared_interfaces, o\Php530);
-//        Patchwork\FunctionOverride(get_parent_class,        o\Php530, $class); // FIXME: this is done at superloader level, but this is bad
-        Patchwork\FunctionOverride(interface_exists,        o\Php530, $class, $autoload = true);
-        Patchwork\FunctionOverride(is_a,                    o\Php530, $obj, $class, $allow_string = false);
-        Patchwork\FunctionOverride(is_subclass_of,          o\Php530, $obj, $class, $allow_string = true);
-        Patchwork\FunctionOverride(lcfirst,                 o\Php530, $str);
-        Patchwork\FunctionOverride(method_exists,           o\Php530, $class, $method);
-        Patchwork\FunctionOverride(property_exists,         o\Php530, $class, $property);
-        Patchwork\FunctionOverride(spl_object_hash,         o\Php530, $object);
+        Patchwork\FunctionShim(class_implements,        s\Php530, $class, $autoload = true);
+        Patchwork\FunctionShim(class_parents,           s\Php530, $class, $autoload = true);
+        Patchwork\FunctionShim(class_exists,            s\Php530, $class, $autoload = true);
+        Patchwork\FunctionShim(get_class_methods,       s\Php530, $class);
+        Patchwork\FunctionShim(get_class_vars,          s\Php530, $class);
+        Patchwork\FunctionShim(get_class,               s\Php530, $obj);
+        Patchwork\FunctionShim(get_declared_classes,    s\Php530);
+        Patchwork\FunctionShim(get_declared_interfaces, s\Php530);
+//        Patchwork\FunctionShim(get_parent_class,        s\Php530, $class); // FIXME: this is done at superloader level, but this is bad
+        Patchwork\FunctionShim(interface_exists,        s\Php530, $class, $autoload = true);
+        Patchwork\FunctionShim(is_a,                    s\Php530, $obj, $class, $allow_string = false);
+        Patchwork\FunctionShim(is_subclass_of,          s\Php530, $obj, $class, $allow_string = true);
+        Patchwork\FunctionShim(lcfirst,                 s\Php530, $str);
+        Patchwork\FunctionShim(method_exists,           s\Php530, $class, $method);
+        Patchwork\FunctionShim(property_exists,         s\Php530, $class, $property);
+        Patchwork\FunctionShim(spl_object_hash,         s\Php530, $object);
 /**/}
 /**/else if (PHP_VERSION_ID < 50309)
 /**/{
-        Patchwork\FunctionOverride(is_a,           o\Php539, $obj, $class, $allow_string = false);
-        Patchwork\FunctionOverride(is_subclass_of, o\Php539, $obj, $class, $allow_string = true);
+        Patchwork\FunctionShim(is_a,           s\Php539, $obj, $class, $allow_string = false);
+        Patchwork\FunctionShim(is_subclass_of, s\Php539, $obj, $class, $allow_string = true);
 /**/}
 
 /**/if (PHP_VERSION_ID < 50302)
 /**/{
-/**/    boot::$manager->pushFile('class/Patchwork/PHP/Override/Php532.php');
+/**/    boot::$manager->pushFile('class/Patchwork/PHP/Shim/Php532.php');
 
-        Patchwork\FunctionOverride(stream_resolve_include_path, o\Php532, $filename);
+        Patchwork\FunctionShim(stream_resolve_include_path, s\Php532, $filename);
 /**/}
 
 /**/if (!function_exists('trait_exists'))
@@ -53,34 +53,34 @@ use Patchwork\PHP\Override as o;
 
 /**/if (PHP_VERSION_ID == 50210 || PHP_VERSION_ID == 502011 || PHP_VERSION_ID == 50300)
 /**/{
-        Patchwork\FunctionOverride(stream_socket_client, o\Bug48805, $remote_socket, &$errno = null, &$errstr = null, $timeout = null, $flags = STREAM_CLIENT_CONNECT, $context = null);
-        Patchwork\FunctionOverride(fsockopen,            o\Bug48805, $hostname, $port = -1, &$errno = null, &$errstr = null, $timeout = null);
+        Patchwork\FunctionShim(stream_socket_client, s\Bug48805, $remote_socket, &$errno = null, &$errstr = null, $timeout = null, $flags = STREAM_CLIENT_CONNECT, $context = null);
+        Patchwork\FunctionShim(fsockopen,            s\Bug48805, $hostname, $port = -1, &$errno = null, &$errstr = null, $timeout = null);
 /**/}
 
 /**/if (PHP_VERSION_ID == 50209)
 /**/{
 /**/    // Fix 5.2.9 array_unique() default sort flag
-        Patchwork\FunctionOverride(array_unique, array_unique, $array, $sort_flags = SORT_STRING);
+        Patchwork\FunctionShim(array_unique, array_unique, $array, $sort_flags = SORT_STRING);
 /**/}
 
 // Backport UTF-8 default charset from PHP 5.4.0, add new $double_encode parameter (since 5.2.3)
 
 /**/if (PHP_VERSION_ID < 50400)
 /**/{
-        Patchwork\FunctionOverride(html_entity_decode, html_entity_decode, $s, $style = ENT_COMPAT, $charset = 'UTF-8');
-        Patchwork\FunctionOverride(get_html_translation_table, get_html_translation_table, $table = HTML_SPECIALCHARS, $style = ENT_COMPAT, $charset = 'UTF-8');
+        Patchwork\FunctionShim(html_entity_decode, html_entity_decode, $s, $style = ENT_COMPAT, $charset = 'UTF-8');
+        Patchwork\FunctionShim(get_html_translation_table, get_html_translation_table, $table = HTML_SPECIALCHARS, $style = ENT_COMPAT, $charset = 'UTF-8');
 
 /**/    if (PHP_VERSION_ID < 50203)
 /**/    {
-/**/        boot::$manager->pushFile('class/Patchwork/PHP/Override/Php523.php');
+/**/        boot::$manager->pushFile('class/Patchwork/PHP/Shim/Php523.php');
 
-            Patchwork\FunctionOverride(htmlspecialchars, o\Php523, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
-            Patchwork\FunctionOverride(htmlentities,     o\Php523, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
+            Patchwork\FunctionShim(htmlspecialchars, s\Php523, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
+            Patchwork\FunctionShim(htmlentities,     s\Php523, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
 /**/    }
 /**/    else
 /**/    {
-            Patchwork\FunctionOverride(htmlspecialchars, htmlspecialchars, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
-            Patchwork\FunctionOverride(htmlentities,     htmlentities,     $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
+            Patchwork\FunctionShim(htmlspecialchars, htmlspecialchars, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
+            Patchwork\FunctionShim(htmlentities,     htmlentities,     $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
 /**/    }
 /**/}
 
@@ -89,10 +89,10 @@ use Patchwork\PHP\Override as o;
         define('PASSWORD_BCRYPT', 1);
         define('PASSWORD_DEFAULT', /*<*/(int) (function_exists('crypt') && CRYPT_BLOWFISH)/*>*/);
 
-        Patchwork\FunctionOverride(password_hash,         o\Php550, $password, $algo, array $options = array());
-        Patchwork\FunctionOverride(password_get_info,     o\Php550, $hash);
-        Patchwork\FunctionOverride(password_needs_rehash, o\Php550, $hash, $algo, array $options = array());
-        Patchwork\FunctionOverride(password_verify,       o\Php550, $password, $hash);
+        Patchwork\FunctionShim(password_hash,         s\Php550, $password, $algo, array $options = array());
+        Patchwork\FunctionShim(password_get_info,     s\Php550, $hash);
+        Patchwork\FunctionShim(password_needs_rehash, s\Php550, $hash, $algo, array $options = array());
+        Patchwork\FunctionShim(password_verify,       s\Php550, $password, $hash);
 /**/}
 
 /**/if (!function_exists('memory_get_usage'))
@@ -111,22 +111,22 @@ use Patchwork\PHP\Override as o;
 /**/{
 /**/    if (MB_OVERLOAD_MAIL & (int) ini_get('mbstring.func_overload'))
 /**/    {
-            Patchwork\FunctionOverride(mail, o\Mbstring8bit, $to, $subject, $message, $headers = '', $params = '');
+            Patchwork\FunctionShim(mail, s\Mbstring8bit, $to, $subject, $message, $headers = '', $params = '');
 /**/    }
 
 /**/    if (MB_OVERLOAD_STRING & (int) ini_get('mbstring.func_overload'))
 /**/    {
-/**/        boot::$manager->pushFile('class/Patchwork/PHP/Override/Mbstring8bit.php');
+/**/        boot::$manager->pushFile('class/Patchwork/PHP/Shim/Mbstring8bit.php');
 
-            Patchwork\FunctionOverride(strlen,   o\Mbstring8bit, $s);
-            Patchwork\FunctionOverride(strpos,   o\Mbstring8bit, $s, $needle, $offset = 0);
-            Patchwork\FunctionOverride(strrpos,  o\Mbstring8bit, $s, $needle, $offset = 0);
-            Patchwork\FunctionOverride(substr,   o\Mbstring8bit, $s, $start, $length = 2147483647);
-            Patchwork\FunctionOverride(stripos,  o\Mbstring8bit, $s, $needle, $offset = 0);
-            Patchwork\FunctionOverride(stristr,  o\Mbstring8bit, $s, $needle, $part = false);
-            Patchwork\FunctionOverride(strrchr,  o\Mbstring8bit, $s, $needle, $part = false);
-            Patchwork\FunctionOverride(strripos, o\Mbstring8bit, $s, $needle, $offset = 0);
-            Patchwork\FunctionOverride(strstr,   o\Mbstring8bit, $s, $needle, $part = false);
+            Patchwork\FunctionShim(strlen,   s\Mbstring8bit, $s);
+            Patchwork\FunctionShim(strpos,   s\Mbstring8bit, $s, $needle, $offset = 0);
+            Patchwork\FunctionShim(strrpos,  s\Mbstring8bit, $s, $needle, $offset = 0);
+            Patchwork\FunctionShim(substr,   s\Mbstring8bit, $s, $start, $length = 2147483647);
+            Patchwork\FunctionShim(stripos,  s\Mbstring8bit, $s, $needle, $offset = 0);
+            Patchwork\FunctionShim(stristr,  s\Mbstring8bit, $s, $needle, $part = false);
+            Patchwork\FunctionShim(strrchr,  s\Mbstring8bit, $s, $needle, $part = false);
+            Patchwork\FunctionShim(strripos, s\Mbstring8bit, $s, $needle, $offset = 0);
+            Patchwork\FunctionShim(strstr,   s\Mbstring8bit, $s, $needle, $part = false);
 /**/    }
 /**/}
 
@@ -138,4 +138,4 @@ use Patchwork\PHP\Override as o;
 // Workaround ob_gzhandler non-discardability in PHP 5.4
 
 /**/if (PHP_VERSION_ID >= 50400)
-        Patchwork\FunctionOverride(ob_gzhandler, ob_gzhandler, $buffer, $mode);
+        Patchwork\FunctionShim(ob_gzhandler, ob_gzhandler, $buffer, $mode);

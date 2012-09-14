@@ -8,7 +8,7 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
-namespace Patchwork\PHP\Override;
+namespace Patchwork\PHP\Shim;
 
 /**
  * Backports some behaviors introduced in PHP 5.2.3.

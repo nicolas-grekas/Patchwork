@@ -11,7 +11,7 @@
 // Code authored by Anthony Ferrara <ircmaxell@gmail.com>
 // See https://github.com/ircmaxell/password_compat/
 
-namespace Patchwork\PHP\Override;
+namespace Patchwork\PHP\Shim;
 
 class Php550
 {

@@ -11,7 +11,7 @@
 /**/if (!isset($_SERVER['REQUEST_TIME_FLOAT']))
         $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
 
-/**/boot::$manager->pushFile('bootup.override.php');
+/**/boot::$manager->pushFile('bootup.shim.php');
 
 ini_set('unserialize_callback_func', /*<*/function_exists('__patchwork_spl_autoload_call') ? '__patchwork_spl_autoload_call' : 'spl_autoload_call'/*>*/);
 ini_set('html_errors', false);
@@ -22,7 +22,7 @@ setlocale(LC_ALL, 'C');
 // spl_autoload() evades code preprocessing, do not use it
 
 /**/if (function_exists('spl_autoload'))
-        Patchwork\FunctionOverride(spl_autoload, Patchwork\PHP\Override\SplAutoload, $class);
+        Patchwork\FunctionShim(spl_autoload, Patchwork\PHP\Shim\SplAutoload, $class);
 
 // Boolean version of ini_get()
 
@@ -60,7 +60,7 @@ function ini_get_bool($a)
 /**/else $a = false;
 
 /**/if (!function_exists('getcwd') || !@getcwd())
-        Patchwork\FunctionOverride(getcwd, patchwork_getcwd);
+        Patchwork\FunctionShim(getcwd, patchwork_getcwd);
 
 function patchwork_getcwd()
 {
@@ -81,7 +81,7 @@ function patchwork_getcwd()
 /**/if (false !== $a)
 /**/{
 /**/    boot::$manager->pushFile('bootup.realpath.php');
-        Patchwork\FunctionOverride(realpath, patchwork_realpath, $path);
+        Patchwork\FunctionShim(realpath, patchwork_realpath, $path);
 /**/}
 /**/else
 /**/{

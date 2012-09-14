@@ -11,7 +11,7 @@
 /**
  * SplAutoload is a PHP implementation of spl_autoload_* functions.
  */
-class Patchwork_PHP_Override_SplAutoload
+class Patchwork_PHP_Shim_SplAutoload
 {
     protected static
 

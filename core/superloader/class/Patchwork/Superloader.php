@@ -220,10 +220,10 @@ class Patchwork_Superloader
 
     static function get_parent_class($c)
     {
-        // FIXME: using Patchwork_PHP_Override_Php530::get_parent_class() should be done automatically by FunctionOverrider
+        // FIXME: using Patchwork_PHP_Shim_Php530::get_parent_class() should be done automatically by FunctionShimr
 
 /**/    if (PHP_VERSION_ID < 50300)
-            $c = Patchwork_PHP_Override_Php530::get_parent_class($c);
+            $c = Patchwork_PHP_Shim_Php530::get_parent_class($c);
 /**/    else
             $c = get_parent_class($c);
 
@@ -238,7 +238,7 @@ class Patchwork_Superloader
             do
             {
 /**/            if (PHP_VERSION_ID < 50300)
-                    $c = Patchwork_PHP_Override_Php530::get_parent_class($c);
+                    $c = Patchwork_PHP_Shim_Php530::get_parent_class($c);
 /**/            else
                     $c = get_parent_class($c);
             }

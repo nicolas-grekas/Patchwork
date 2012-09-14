@@ -15,7 +15,7 @@ class Patchwork_Preprocessor
 
     protected static
 
-    $declaredClass = array('patchwork', 'patchwork_superloader', 'patchwork_shutdownhandler', 'patchwork_php_override_php530'),
+    $declaredClass = array('patchwork', 'patchwork_superloader', 'patchwork_shutdownhandler', 'patchwork_php_shim_php530'),
     $recursivePool = array(),
     $parsers = array(
         'Normalizer'         => true,
@@ -66,10 +66,10 @@ class Patchwork_Preprocessor
             $v && class_exists('Patchwork_PHP_Parser_' . $k);
         }
 
-        if (file_exists($v = PATCHWORK_PROJECT_PATH . ".patchwork.overrides.ser"))
+        if (file_exists($v = PATCHWORK_PROJECT_PATH . ".patchwork.shims.ser"))
         {
             $v = unserialize(file_get_contents($v));
-            Patchwork_PHP_Parser_FunctionShim::loadOverrides($v[0]);
+            Patchwork_PHP_Parser_FunctionShim::loadShims($v[0]);
             Patchwork_PHP_Parser_ConstantInliner::loadConsts($v[1]);
         }
     }
@@ -142,7 +142,7 @@ class Patchwork_Preprocessor
             case 'T':
             case 'Marker':             if (!$debug) new $t($p, self::$declaredClass); break;
             case 'ConstantInliner':    new $t($p, $source, self::$constants); break;
-            case 'NamespaceRemover':   new $t($p, 'Patchwork_PHP_Override_Php530::add'); break;
+            case 'NamespaceRemover':   new $t($p, 'Patchwork_PHP_Shim_Php530::add'); break;
             case 'ToStringCatcher':    new $t($p, 'Patchwork\ErrorHandler::handleToStringException'); break;
             case 'SuperPositioner':    new $t($p, $level, $is_top ? $class : false); break;
             }

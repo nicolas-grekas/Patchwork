@@ -26,7 +26,7 @@ class Patchwork_Bootstrapper_Manager
     $steps = array(),
     $substeps = array(),
     $file,
-    $overrides = array(array(), array()),
+    $shims = array(array(), array()),
     $callerRx;
 
 
@@ -79,7 +79,7 @@ class Patchwork_Bootstrapper_Manager
 
             foreach ($v as $v)
                 foreach (array_keys($v) as $v)
-                    $this->overrides[1][] = $v;
+                    $this->shims[1][] = $v;
 
             // Backport PHP_VERSION_ID and co.
 
@@ -95,7 +95,7 @@ class Patchwork_Bootstrapper_Manager
                 $s .= "define('PHP_EXTRA_VERSION','" . addslashes(false !== $v ? $v : '') . "');";
 
                 $v = array('PHP_VERSION_ID','PHP_MAJOR_VERSION','PHP_MINOR_VERSION','PHP_RELEASE_VERSION','PHP_EXTRA_VERSION');
-                foreach ($v as $v) $this->overrides[1][] = $v;
+                foreach ($v as $v) $this->shims[1][] = $v;
             }
 
             if (!defined('E_DEPRECATED'))
@@ -103,7 +103,7 @@ class Patchwork_Bootstrapper_Manager
                 $s .= "define('E_DEPRECATED'," . E_NOTICE . ");";
                 $s .= "define('E_USER_DEPRECATED'," . E_USER_NOTICE . ");";
                 $v = array('E_DEPRECATED','E_USER_DEPRECATED');
-                foreach ($v as $v) $this->overrides[1][] = $v;
+                foreach ($v as $v) $this->shims[1][] = $v;
             }
 
             // Register the next steps
@@ -256,7 +256,7 @@ class Patchwork_Bootstrapper_Manager
         if (headers_sent($file, $line) || ob_get_length())
             throw $this->error($this->buildEchoErrorMsg($this->file, $line, ob_get_flush(), 'during bootstrap'));
 
-        file_put_contents("{$this->cwd}.patchwork.overrides.ser", serialize($this->preprocessor->getOverrides()));
+        file_put_contents("{$this->cwd}.patchwork.shims.ser", serialize($this->preprocessor->getShims()));
         flock($this->lock, LOCK_UN);
         fclose($this->lock);
         $this->lock = null;
@@ -279,22 +279,22 @@ class Patchwork_Bootstrapper_Manager
             // Before PHP 5.3, backport spl_autoload_register()'s $prepend argument
             // and workaround http://bugs.php.net/44144
 
-            $this->substeps[] = array(null, dirname($this->pwd) . '/compat/class/Patchwork/PHP/Override/SplAutoload.php');
+            $this->substeps[] = array(null, dirname($this->pwd) . '/compat/class/Patchwork/PHP/Shim/SplAutoload.php');
             $this->substeps[] = array(
-                $this->functionOverride('__autoload',              ':SplAutoload::spl_autoload_call', array('$class')) .
-                $this->functionOverride('spl_autoload_call',       ':SplAutoload:', array('$class')) .
-                $this->functionOverride('spl_autoload_functions',  ':SplAutoload:', array()) .
-                $this->functionOverride('spl_autoload_register',   ':SplAutoload:', array('$callback', '$throw' => true, '$prepend' => false)) .
-                $this->functionOverride('spl_autoload_unregister', ':SplAutoload:', array('$callback')) .
+                $this->functionShim('__autoload',              ':SplAutoload::spl_autoload_call', array('$class')) .
+                $this->functionShim('spl_autoload_call',       ':SplAutoload:', array('$class')) .
+                $this->functionShim('spl_autoload_functions',  ':SplAutoload:', array()) .
+                $this->functionShim('spl_autoload_register',   ':SplAutoload:', array('$callback', '$throw' => true, '$prepend' => false)) .
+                $this->functionShim('spl_autoload_unregister', ':SplAutoload:', array('$callback')) .
                 (function_exists('spl_autoload_register')
-                    ? "spl_autoload_register(array('Patchwork_PHP_Override_SplAutoload','spl_autoload_call'));"
+                    ? "spl_autoload_register(array('Patchwork_PHP_Shim_SplAutoload','spl_autoload_call'));"
                     : 'class LogicException extends Exception {}'),
                 __FILE__
             );
         }
         else
         {
-            $this->substeps[] = array($this->functionOverride('__autoload', 'spl_autoload_call', array('$class')), __FILE__);
+            $this->substeps[] = array($this->functionShim('__autoload', 'spl_autoload_call', array('$class')), __FILE__);
         }
 
         $this->substeps[] = array('function patchwork_include() {return include func_get_arg(0);}', __FILE__);
@@ -303,8 +303,8 @@ class Patchwork_Bootstrapper_Manager
     protected function initPreprocessor()
     {
         $p = $this->bootstrapper . '_Preprocessor';
-        $this->preprocessor = new $p($this->overrides);
-        file_exists("{$this->cwd}.patchwork.overrides.ser") && unlink("{$this->cwd}.patchwork.overrides.ser");
+        $this->preprocessor = new $p($this->shims);
+        file_exists("{$this->cwd}.patchwork.shims.ser") && unlink("{$this->cwd}.patchwork.shims.ser");
     }
 
     protected function initInheritance()
@@ -385,14 +385,14 @@ class Patchwork_Bootstrapper_Manager
         return dirname($this->file) . DIRECTORY_SEPARATOR;
     }
 
-    protected function functionOverride($function, $override, $args)
+    protected function functionShim($function, $shim, $args)
     {
-        ':' === substr($override, 0, 1) && $override = 'Patchwork_PHP_Override_' . substr($override, 1);
-        ':' === substr($override, -1) && $override .= ':' . $function;
+        ':' === substr($shim, 0, 1) && $shim = 'Patchwork_PHP_Shim_' . substr($shim, 1);
+        ':' === substr($shim, -1) && $shim .= ':' . $function;
 
         if (function_exists($function))
         {
-            $this->overrides[0][$function] = $override;
+            $this->shims[0][$function] = $shim;
             $function = '__patchwork_' . $function;
         }
 
@@ -407,7 +407,7 @@ class Patchwork_Bootstrapper_Manager
             $args[2][] = $k;
         }
 
-        return "function {$function}(" . implode(',', $args[1]) . ") {return {$override}(" . implode(',', $args[2]) . ");}";
+        return "function {$function}(" . implode(',', $args[1]) . ") {return {$shim}(" . implode(',', $args[2]) . ");}";
     }
 
     protected function buildEchoErrorMsg($file, $line, $what, $when)

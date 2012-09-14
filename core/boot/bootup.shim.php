@@ -11,7 +11,7 @@
 
 // Runtime function overriding: private use for the preprocessor
 
-function patchwork_override_resolve($c)
+function patchwork_shim_resolve($c)
 {
     if (is_string($c) && isset($c[0]))
     {
@@ -42,9 +42,9 @@ function patchwork_override_resolve($c)
     return $c;
 }
 
-function patchwork_override_resolve_ref($c, &$v)
+function patchwork_shim_resolve_ref($c, &$v)
 {
-    $v = patchwork_override_resolve($c);
+    $v = patchwork_shim_resolve($c);
 /**/if (PHP_VERSION_ID < 50203)
         is_array($v) && is_string($c) && $v = implode('', $v);
     return "\x9D";

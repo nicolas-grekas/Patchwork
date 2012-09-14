@@ -11,11 +11,11 @@
 
 class Patchwork_Bootstrapper_Preprocessor
 {
-    protected $parser, $newOverrides;
+    protected $parser, $newShims;
 
-    function __construct($overrides)
+    function __construct($shims)
     {
-        $this->newOverrides = $overrides;
+        $this->newShims = $shims;
     }
 
     function staticPass1($code, $file)
@@ -35,12 +35,12 @@ class Patchwork_Bootstrapper_Preprocessor
         new Patchwork_PHP_Parser_ConstFuncResolver($p);
         new Patchwork_PHP_Parser_NamespaceResolver($p);
 
-        $this->getOverrides(); // Load active overrides
+        $this->getShims(); // Load active shims
 
-        new Patchwork_PHP_Parser_ConstantInliner($p, $file, $this->newOverrides[1]);
+        new Patchwork_PHP_Parser_ConstantInliner($p, $file, $this->newShims[1]);
         new Patchwork_PHP_Parser_ClassInfo($p);
         PHP_VERSION_ID < 50300 && new Patchwork_PHP_Parser_NamespaceRemover($p);
-        new Patchwork_PHP_Parser_FunctionShim($p, $this->newOverrides[0]);
+        new Patchwork_PHP_Parser_FunctionShim($p, $this->newShims[0]);
         $p = $this->parser = new Patchwork_PHP_Parser_StaticState($p);
 
         $code = $p->getRunonceCode($code);
@@ -77,7 +77,7 @@ class Patchwork_Bootstrapper_Preprocessor
 
         $o = array();
 
-        foreach ($this->newOverrides[0] as $replaced => $replacement)
+        foreach ($this->newShims[0] as $replaced => $replacement)
         {
             if (1 === count($replacement))
             {
@@ -92,17 +92,17 @@ class Patchwork_Bootstrapper_Preprocessor
             }
         }
 
-        $this->newOverrides[0] = $o;
+        $this->newShims[0] = $o;
 
         return $code;
     }
 
-    function getOverrides()
+    function getShims()
     {
-        $o = $this->newOverrides;
-        $this->newOverrides = array(array(), array());
+        $o = $this->newShims;
+        $this->newShims = array(array(), array());
         return array(
-            Patchwork_PHP_Parser_FunctionShim::loadOverrides($o[0]),
+            Patchwork_PHP_Parser_FunctionShim::loadShims($o[0]),
             Patchwork_PHP_Parser_ConstantInliner::loadConsts($o[1]),
         );
     }
