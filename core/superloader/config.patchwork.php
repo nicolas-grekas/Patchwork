@@ -29,13 +29,13 @@ if (Patchwork_Superloader::$turbo = !DEBUG && $CONFIG['turbo'])
         {
             // Replace file_exists() on Windows to check if character case is strict
 
-            Patchwork\FunctionShim(file_exists,   s\WinfsCase, $file);
-            Patchwork\FunctionShim(is_file,       s\WinfsCase, $file);
-            Patchwork\FunctionShim(is_dir,        s\WinfsCase, $file);
-            Patchwork\FunctionShim(is_link,       s\WinfsCase, $file);
-            Patchwork\FunctionShim(is_executable, s\WinfsCase, $file);
-            Patchwork\FunctionShim(is_readable,   s\WinfsCase, $file);
-            Patchwork\FunctionShim(is_writable,   s\WinfsCase, $file);
+            Patchwork\Shim(file_exists,   s\WinfsCase, $file);
+            Patchwork\Shim(is_file,       s\WinfsCase, $file);
+            Patchwork\Shim(is_dir,        s\WinfsCase, $file);
+            Patchwork\Shim(is_link,       s\WinfsCase, $file);
+            Patchwork\Shim(is_executable, s\WinfsCase, $file);
+            Patchwork\Shim(is_readable,   s\WinfsCase, $file);
+            Patchwork\Shim(is_writable,   s\WinfsCase, $file);
         }
 /**/}
 

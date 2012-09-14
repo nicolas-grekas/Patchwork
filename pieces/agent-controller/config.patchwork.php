@@ -36,7 +36,7 @@ $CONFIG += array(
 
 // Setup patchwork's environment
 
-Patchwork\FunctionShim(header, Patchwork::header, $s, $replace = true, $response_code = null);
+Patchwork\Shim(header, Patchwork::header, $s, $replace = true, $response_code = null);
 
 empty($CONFIG['umask']) || umask($CONFIG['umask']);
 empty($CONFIG['xsendfile']) && isset($_SERVER['PATCHWORK_XSENDFILE']) && $CONFIG['xsendfile'] = $_SERVER['PATCHWORK_XSENDFILE'];

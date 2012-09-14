@@ -16,34 +16,34 @@ use Patchwork\PHP\Shim as s;
 
 /**/    boot::$manager->pushFile('class/Patchwork/PHP/Shim/Php530.php');
 
-        Patchwork\FunctionShim(class_implements,        s\Php530, $class, $autoload = true);
-        Patchwork\FunctionShim(class_parents,           s\Php530, $class, $autoload = true);
-        Patchwork\FunctionShim(class_exists,            s\Php530, $class, $autoload = true);
-        Patchwork\FunctionShim(get_class_methods,       s\Php530, $class);
-        Patchwork\FunctionShim(get_class_vars,          s\Php530, $class);
-        Patchwork\FunctionShim(get_class,               s\Php530, $obj);
-        Patchwork\FunctionShim(get_declared_classes,    s\Php530);
-        Patchwork\FunctionShim(get_declared_interfaces, s\Php530);
-//        Patchwork\FunctionShim(get_parent_class,        s\Php530, $class); // FIXME: this is done at superloader level, but this is bad
-        Patchwork\FunctionShim(interface_exists,        s\Php530, $class, $autoload = true);
-        Patchwork\FunctionShim(is_a,                    s\Php530, $obj, $class, $allow_string = false);
-        Patchwork\FunctionShim(is_subclass_of,          s\Php530, $obj, $class, $allow_string = true);
-        Patchwork\FunctionShim(lcfirst,                 s\Php530, $str);
-        Patchwork\FunctionShim(method_exists,           s\Php530, $class, $method);
-        Patchwork\FunctionShim(property_exists,         s\Php530, $class, $property);
-        Patchwork\FunctionShim(spl_object_hash,         s\Php530, $object);
+        Patchwork\Shim(class_implements,        s\Php530, $class, $autoload = true);
+        Patchwork\Shim(class_parents,           s\Php530, $class, $autoload = true);
+        Patchwork\Shim(class_exists,            s\Php530, $class, $autoload = true);
+        Patchwork\Shim(get_class_methods,       s\Php530, $class);
+        Patchwork\Shim(get_class_vars,          s\Php530, $class);
+        Patchwork\Shim(get_class,               s\Php530, $obj);
+        Patchwork\Shim(get_declared_classes,    s\Php530);
+        Patchwork\Shim(get_declared_interfaces, s\Php530);
+//        Patchwork\Shim(get_parent_class,        s\Php530, $class); // FIXME: this is done at superloader level, but this is bad
+        Patchwork\Shim(interface_exists,        s\Php530, $class, $autoload = true);
+        Patchwork\Shim(is_a,                    s\Php530, $obj, $class, $allow_string = false);
+        Patchwork\Shim(is_subclass_of,          s\Php530, $obj, $class, $allow_string = true);
+        Patchwork\Shim(lcfirst,                 s\Php530, $str);
+        Patchwork\Shim(method_exists,           s\Php530, $class, $method);
+        Patchwork\Shim(property_exists,         s\Php530, $class, $property);
+        Patchwork\Shim(spl_object_hash,         s\Php530, $object);
 /**/}
 /**/else if (PHP_VERSION_ID < 50309)
 /**/{
-        Patchwork\FunctionShim(is_a,           s\Php539, $obj, $class, $allow_string = false);
-        Patchwork\FunctionShim(is_subclass_of, s\Php539, $obj, $class, $allow_string = true);
+        Patchwork\Shim(is_a,           s\Php539, $obj, $class, $allow_string = false);
+        Patchwork\Shim(is_subclass_of, s\Php539, $obj, $class, $allow_string = true);
 /**/}
 
 /**/if (PHP_VERSION_ID < 50302)
 /**/{
 /**/    boot::$manager->pushFile('class/Patchwork/PHP/Shim/Php532.php');
 
-        Patchwork\FunctionShim(stream_resolve_include_path, s\Php532, $filename);
+        Patchwork\Shim(stream_resolve_include_path, s\Php532, $filename);
 /**/}
 
 /**/if (!function_exists('trait_exists'))
@@ -53,34 +53,34 @@ use Patchwork\PHP\Shim as s;
 
 /**/if (PHP_VERSION_ID == 50210 || PHP_VERSION_ID == 502011 || PHP_VERSION_ID == 50300)
 /**/{
-        Patchwork\FunctionShim(stream_socket_client, s\Bug48805, $remote_socket, &$errno = null, &$errstr = null, $timeout = null, $flags = STREAM_CLIENT_CONNECT, $context = null);
-        Patchwork\FunctionShim(fsockopen,            s\Bug48805, $hostname, $port = -1, &$errno = null, &$errstr = null, $timeout = null);
+        Patchwork\Shim(stream_socket_client, s\Bug48805, $remote_socket, &$errno = null, &$errstr = null, $timeout = null, $flags = STREAM_CLIENT_CONNECT, $context = null);
+        Patchwork\Shim(fsockopen,            s\Bug48805, $hostname, $port = -1, &$errno = null, &$errstr = null, $timeout = null);
 /**/}
 
 /**/if (PHP_VERSION_ID == 50209)
 /**/{
 /**/    // Fix 5.2.9 array_unique() default sort flag
-        Patchwork\FunctionShim(array_unique, array_unique, $array, $sort_flags = SORT_STRING);
+        Patchwork\Shim(array_unique, array_unique, $array, $sort_flags = SORT_STRING);
 /**/}
 
 // Backport UTF-8 default charset from PHP 5.4.0, add new $double_encode parameter (since 5.2.3)
 
 /**/if (PHP_VERSION_ID < 50400)
 /**/{
-        Patchwork\FunctionShim(html_entity_decode, html_entity_decode, $s, $style = ENT_COMPAT, $charset = 'UTF-8');
-        Patchwork\FunctionShim(get_html_translation_table, get_html_translation_table, $table = HTML_SPECIALCHARS, $style = ENT_COMPAT, $charset = 'UTF-8');
+        Patchwork\Shim(html_entity_decode, html_entity_decode, $s, $style = ENT_COMPAT, $charset = 'UTF-8');
+        Patchwork\Shim(get_html_translation_table, get_html_translation_table, $table = HTML_SPECIALCHARS, $style = ENT_COMPAT, $charset = 'UTF-8');
 
 /**/    if (PHP_VERSION_ID < 50203)
 /**/    {
 /**/        boot::$manager->pushFile('class/Patchwork/PHP/Shim/Php523.php');
 
-            Patchwork\FunctionShim(htmlspecialchars, s\Php523, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
-            Patchwork\FunctionShim(htmlentities,     s\Php523, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
+            Patchwork\Shim(htmlspecialchars, s\Php523, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
+            Patchwork\Shim(htmlentities,     s\Php523, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
 /**/    }
 /**/    else
 /**/    {
-            Patchwork\FunctionShim(htmlspecialchars, htmlspecialchars, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
-            Patchwork\FunctionShim(htmlentities,     htmlentities,     $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
+            Patchwork\Shim(htmlspecialchars, htmlspecialchars, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
+            Patchwork\Shim(htmlentities,     htmlentities,     $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
 /**/    }
 /**/}
 
@@ -89,10 +89,10 @@ use Patchwork\PHP\Shim as s;
         define('PASSWORD_BCRYPT', 1);
         define('PASSWORD_DEFAULT', /*<*/(int) (function_exists('crypt') && CRYPT_BLOWFISH)/*>*/);
 
-        Patchwork\FunctionShim(password_hash,         s\Php550, $password, $algo, array $options = array());
-        Patchwork\FunctionShim(password_get_info,     s\Php550, $hash);
-        Patchwork\FunctionShim(password_needs_rehash, s\Php550, $hash, $algo, array $options = array());
-        Patchwork\FunctionShim(password_verify,       s\Php550, $password, $hash);
+        Patchwork\Shim(password_hash,         s\Php550, $password, $algo, array $options = array());
+        Patchwork\Shim(password_get_info,     s\Php550, $hash);
+        Patchwork\Shim(password_needs_rehash, s\Php550, $hash, $algo, array $options = array());
+        Patchwork\Shim(password_verify,       s\Php550, $password, $hash);
 /**/}
 
 /**/if (!function_exists('memory_get_usage'))
@@ -111,22 +111,22 @@ use Patchwork\PHP\Shim as s;
 /**/{
 /**/    if (MB_OVERLOAD_MAIL & (int) ini_get('mbstring.func_overload'))
 /**/    {
-            Patchwork\FunctionShim(mail, s\Mbstring8bit, $to, $subject, $message, $headers = '', $params = '');
+            Patchwork\Shim(mail, s\Mbstring8bit, $to, $subject, $message, $headers = '', $params = '');
 /**/    }
 
 /**/    if (MB_OVERLOAD_STRING & (int) ini_get('mbstring.func_overload'))
 /**/    {
 /**/        boot::$manager->pushFile('class/Patchwork/PHP/Shim/Mbstring8bit.php');
 
-            Patchwork\FunctionShim(strlen,   s\Mbstring8bit, $s);
-            Patchwork\FunctionShim(strpos,   s\Mbstring8bit, $s, $needle, $offset = 0);
-            Patchwork\FunctionShim(strrpos,  s\Mbstring8bit, $s, $needle, $offset = 0);
-            Patchwork\FunctionShim(substr,   s\Mbstring8bit, $s, $start, $length = 2147483647);
-            Patchwork\FunctionShim(stripos,  s\Mbstring8bit, $s, $needle, $offset = 0);
-            Patchwork\FunctionShim(stristr,  s\Mbstring8bit, $s, $needle, $part = false);
-            Patchwork\FunctionShim(strrchr,  s\Mbstring8bit, $s, $needle, $part = false);
-            Patchwork\FunctionShim(strripos, s\Mbstring8bit, $s, $needle, $offset = 0);
-            Patchwork\FunctionShim(strstr,   s\Mbstring8bit, $s, $needle, $part = false);
+            Patchwork\Shim(strlen,   s\Mbstring8bit, $s);
+            Patchwork\Shim(strpos,   s\Mbstring8bit, $s, $needle, $offset = 0);
+            Patchwork\Shim(strrpos,  s\Mbstring8bit, $s, $needle, $offset = 0);
+            Patchwork\Shim(substr,   s\Mbstring8bit, $s, $start, $length = 2147483647);
+            Patchwork\Shim(stripos,  s\Mbstring8bit, $s, $needle, $offset = 0);
+            Patchwork\Shim(stristr,  s\Mbstring8bit, $s, $needle, $part = false);
+            Patchwork\Shim(strrchr,  s\Mbstring8bit, $s, $needle, $part = false);
+            Patchwork\Shim(strripos, s\Mbstring8bit, $s, $needle, $offset = 0);
+            Patchwork\Shim(strstr,   s\Mbstring8bit, $s, $needle, $part = false);
 /**/    }
 /**/}
 
@@ -138,4 +138,4 @@ use Patchwork\PHP\Shim as s;
 // Workaround ob_gzhandler non-discardability in PHP 5.4
 
 /**/if (PHP_VERSION_ID >= 50400)
-        Patchwork\FunctionShim(ob_gzhandler, ob_gzhandler, $buffer, $mode);
+        Patchwork\Shim(ob_gzhandler, ob_gzhandler, $buffer, $mode);

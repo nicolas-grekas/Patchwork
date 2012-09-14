@@ -22,7 +22,7 @@ setlocale(LC_ALL, 'C');
 // spl_autoload() evades code preprocessing, do not use it
 
 /**/if (function_exists('spl_autoload'))
-        Patchwork\FunctionShim(spl_autoload, Patchwork\PHP\Shim\SplAutoload, $class);
+        Patchwork\Shim(spl_autoload, Patchwork\PHP\Shim\SplAutoload, $class);
 
 // Boolean version of ini_get()
 
@@ -60,7 +60,7 @@ function ini_get_bool($a)
 /**/else $a = false;
 
 /**/if (!function_exists('getcwd') || !@getcwd())
-        Patchwork\FunctionShim(getcwd, patchwork_getcwd);
+        Patchwork\Shim(getcwd, patchwork_getcwd);
 
 function patchwork_getcwd()
 {
@@ -81,7 +81,7 @@ function patchwork_getcwd()
 /**/if (false !== $a)
 /**/{
 /**/    boot::$manager->pushFile('bootup.realpath.php');
-        Patchwork\FunctionShim(realpath, patchwork_realpath, $path);
+        Patchwork\Shim(realpath, patchwork_realpath, $path);
 /**/}
 /**/else
 /**/{

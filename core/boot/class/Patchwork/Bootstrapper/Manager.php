@@ -281,11 +281,11 @@ class Patchwork_Bootstrapper_Manager
 
             $this->substeps[] = array(null, dirname($this->pwd) . '/compat/class/Patchwork/PHP/Shim/SplAutoload.php');
             $this->substeps[] = array(
-                $this->functionShim('__autoload',              ':SplAutoload::spl_autoload_call', array('$class')) .
-                $this->functionShim('spl_autoload_call',       ':SplAutoload:', array('$class')) .
-                $this->functionShim('spl_autoload_functions',  ':SplAutoload:', array()) .
-                $this->functionShim('spl_autoload_register',   ':SplAutoload:', array('$callback', '$throw' => true, '$prepend' => false)) .
-                $this->functionShim('spl_autoload_unregister', ':SplAutoload:', array('$callback')) .
+                $this->shim('__autoload',              ':SplAutoload::spl_autoload_call', array('$class')) .
+                $this->shim('spl_autoload_call',       ':SplAutoload:', array('$class')) .
+                $this->shim('spl_autoload_functions',  ':SplAutoload:', array()) .
+                $this->shim('spl_autoload_register',   ':SplAutoload:', array('$callback', '$throw' => true, '$prepend' => false)) .
+                $this->shim('spl_autoload_unregister', ':SplAutoload:', array('$callback')) .
                 (function_exists('spl_autoload_register')
                     ? "spl_autoload_register(array('Patchwork_PHP_Shim_SplAutoload','spl_autoload_call'));"
                     : 'class LogicException extends Exception {}'),
@@ -294,7 +294,7 @@ class Patchwork_Bootstrapper_Manager
         }
         else
         {
-            $this->substeps[] = array($this->functionShim('__autoload', 'spl_autoload_call', array('$class')), __FILE__);
+            $this->substeps[] = array($this->shim('__autoload', 'spl_autoload_call', array('$class')), __FILE__);
         }
 
         $this->substeps[] = array('function patchwork_include() {return include func_get_arg(0);}', __FILE__);
@@ -385,7 +385,7 @@ class Patchwork_Bootstrapper_Manager
         return dirname($this->file) . DIRECTORY_SEPARATOR;
     }
 
-    protected function functionShim($function, $shim, $args)
+    protected function shim($function, $shim, $args)
     {
         ':' === substr($shim, 0, 1) && $shim = 'Patchwork_PHP_Shim_' . substr($shim, 1);
         ':' === substr($shim, -1) && $shim .= ':' . $function;
