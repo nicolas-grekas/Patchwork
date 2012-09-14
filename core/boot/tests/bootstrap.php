@@ -23,7 +23,7 @@ require_once $dir . '/class/Patchwork/PHP/Parser/ControlStructBracketer.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/CurlyDollarNormalizer.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/DestructorCatcher.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/Dumper.php';
-require_once $dir . '/class/Patchwork/PHP/Parser/FunctionOverriding.php';
+require_once $dir . '/class/Patchwork/PHP/Parser/FunctionShim.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/Globalizer.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/NamespaceBracketer.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/NamespaceInfo.php';

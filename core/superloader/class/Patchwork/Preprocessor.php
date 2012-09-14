@@ -42,7 +42,7 @@ class Patchwork_Preprocessor
         'SuperPositioner'    => true,
         'StaticInit'         => true,
         'Constructor4to5'    => true,
-        'FunctionOverriding' => true,
+        'FunctionShim'       => true,
         'Globalizer'         => true,
         'T'                  => true,
         'Marker'             => true,
@@ -69,7 +69,7 @@ class Patchwork_Preprocessor
         if (file_exists($v = PATCHWORK_PROJECT_PATH . ".patchwork.overrides.ser"))
         {
             $v = unserialize(file_get_contents($v));
-            Patchwork_PHP_Parser_FunctionOverriding::loadOverrides($v[0]);
+            Patchwork_PHP_Parser_FunctionShim::loadOverrides($v[0]);
             Patchwork_PHP_Parser_ConstantInliner::loadConsts($v[1]);
         }
     }

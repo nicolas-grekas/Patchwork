@@ -9,7 +9,7 @@
  */
 
 
-class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionOverriding
+class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionShim
 {
     protected
 

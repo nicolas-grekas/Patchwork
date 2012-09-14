@@ -9,14 +9,14 @@
  */
 
 /**
- * The FunctionOverriding parser replaces function calls by other function calls.
+ * The FunctionShim parser replaces function calls by other function calls.
  */
-class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
+class Patchwork_PHP_Parser_FunctionShim extends Patchwork_PHP_Parser
 {
     protected
 
-    $newOverrides,
-    $overrides = array(),
+    $newShims,
+    $shims = array(),
     $callbacks = array(
         'tagVariableVar' => '(',
         'tagUseFunction' => T_USE_FUNCTION,
@@ -28,13 +28,13 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
         'ClassInfo' => array('class', 'namespace', 'nsResolved'),
     ),
 
-    $varVarLead = '${patchwork_override_resolve_ref(',
+    $varVarLead = '${patchwork_shim_resolve_ref(',
     $varVarTail = ",\$\x9D)}";
 
 
     protected static
 
-    $staticOverrides = array(),
+    $staticShims = array(),
 
     // List of native functions that could trigger __autoload()
     $autoloader = array(
@@ -135,20 +135,20 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
     );
 
 
-    static function loadOverrides($overrides)
+    static function loadShims($shims)
     {
-        foreach ($overrides as $k => $v)
+        foreach ($shims as $k => $v)
             if (function_exists('__patchwork_' . $k))
-                self::$staticOverrides[strtolower($k)] = 0 === strcasecmp($k, $v) ? '__patchwork_' . $v : $v;
+                self::$staticShims[strtolower($k)] = 0 === strcasecmp($k, $v) ? '__patchwork_' . $v : $v;
 
-        return self::$staticOverrides;
+        return self::$staticShims;
     }
 
-    function __construct(parent $parent, &$new_overrides = array())
+    function __construct(parent $parent, &$new_shims = array())
     {
         parent::__construct($parent);
-        $this->overrides = self::$staticOverrides;
-        $this->newOverrides =& $new_overrides;
+        $this->shims = self::$staticShims;
+        $this->newShims =& $new_shims;
     }
 
     protected function tagVariableVar(&$token)
@@ -207,32 +207,32 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
 
     protected function tagUseFunction(&$token)
     {
-        // Override functions only if they are fully namespace resolved
+        // Shim functions only if they are fully namespace resolved
 
         $a = strtolower($this->nsResolved);
 
         if ('\\' !== $this->nsResolved[0])
         {
-            $e = isset($this->overrides[$a]) || isset(self::$autoloader[$a]) || 0 === strcasecmp('function_exists', $a);
+            $e = isset($this->shims[$a]) || isset(self::$autoloader[$a]) || 0 === strcasecmp('function_exists', $a);
             $e || $a = substr(strtolower($this->namespace) . $a, 1);
-            $e = $e || isset($this->overrides[$a]) || isset(self::$autoloader[$a]);
+            $e = $e || isset($this->shims[$a]) || isset(self::$autoloader[$a]);
             $e && $this->setError("Unresolved namespaced function call ({$this->nsResolved}), skipping overriding", E_USER_WARNING);
             return;
         }
 
         $a = substr($a, 1);
 
-        if ('patchwork\functionoverride' === $a)
+        if ('patchwork\functionshim' === $a)
         {
-            if ($this->overrideFunction())
+            if ($this->shimFunction())
             {
                 $this->dependencies['ClassInfo']->removeNsPrefix();
                 return false;
             }
         }
-        else if (isset($this->overrides[$a]))
+        else if (isset($this->shims[$a]))
         {
-            $a = explode('::', $this->overrides[$a], 2);
+            $a = explode('::', $this->shims[$a], 2);
 
             if (1 === count($a))
             {
@@ -253,9 +253,9 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
 
             return false;
         }
-        else if (isset(self::$autoloader[$a]) || (!$this->class && 0 === strcasecmp('function_exists', $a) && 0 !== strcasecmp('patchwork_override_resolve', $this->scope->funcC)))
+        else if (isset(self::$autoloader[$a]) || (!$this->class && 0 === strcasecmp('function_exists', $a) && 0 !== strcasecmp('patchwork_shim_resolve', $this->scope->funcC)))
         {
-            new Patchwork_PHP_Parser_Bracket_Callback($this, isset(self::$autoloader[$a]) ? self::$autoloader[$a] : 1, $this->overrides);
+            new Patchwork_PHP_Parser_Bracket_Callback($this, isset(self::$autoloader[$a]) ? self::$autoloader[$a] : 1, $this->shims);
 
             if ('&' === $this->prevType)
             {
@@ -267,7 +267,7 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
         }
     }
 
-    protected function overrideFunction()
+    protected function shimFunction()
     {
         $u = array(array(T_FUNCTION, 'function'), array(T_WHITESPACE, ' '));
 
@@ -290,14 +290,14 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
         {
             $n = array(T_WHITESPACE, '');
             call_user_func_array(array($this, 'unshiftTokens'), $u);
-            $this->register(array('catchOverride' => array(T_USE_CONSTANT, T_USE_CLASS)));
+            $this->register(array('catchShim' => array(T_USE_CONSTANT, T_USE_CLASS)));
             return true;
         }
     }
 
-    protected function catchOverride(&$token)
+    protected function catchShim(&$token)
     {
-        $this->unregister(array('catchOverride' => array(T_USE_CONSTANT, T_USE_CLASS)));
+        $this->unregister(array('catchShim' => array(T_USE_CONSTANT, T_USE_CLASS)));
 
         $this->bracket = 0;
         $this->arguments = array();
@@ -360,7 +360,7 @@ class Patchwork_PHP_Parser_FunctionOverriding extends Patchwork_PHP_Parser
             call_user_func_array(array($this, 'unshiftTokens'), $u);
             $this->arguments = array();
 
-            $this->newOverrides[$this->replacedFunction][$tag] = $this->replacementFunction;
+            $this->newShims[$this->replacedFunction][$tag] = $this->replacementFunction;
         }
     }
 }

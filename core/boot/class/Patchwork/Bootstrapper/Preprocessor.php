@@ -40,7 +40,7 @@ class Patchwork_Bootstrapper_Preprocessor
         new Patchwork_PHP_Parser_ConstantInliner($p, $file, $this->newOverrides[1]);
         new Patchwork_PHP_Parser_ClassInfo($p);
         PHP_VERSION_ID < 50300 && new Patchwork_PHP_Parser_NamespaceRemover($p);
-        new Patchwork_PHP_Parser_FunctionOverriding($p, $this->newOverrides[0]);
+        new Patchwork_PHP_Parser_FunctionShim($p, $this->newOverrides[0]);
         $p = $this->parser = new Patchwork_PHP_Parser_StaticState($p);
 
         $code = $p->getRunonceCode($code);
@@ -102,7 +102,7 @@ class Patchwork_Bootstrapper_Preprocessor
         $o = $this->newOverrides;
         $this->newOverrides = array(array(), array());
         return array(
-            Patchwork_PHP_Parser_FunctionOverriding::loadOverrides($o[0]),
+            Patchwork_PHP_Parser_FunctionShim::loadOverrides($o[0]),
             Patchwork_PHP_Parser_ConstantInliner::loadConsts($o[1]),
         );
     }
