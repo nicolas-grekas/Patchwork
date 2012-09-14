@@ -127,11 +127,17 @@ class Php550
             'algoName' => 'unknown',
             'options' => array(),
         );
-        if (substr($hash, 0, 4) == '$2y$' && strlen($hash) == 60) {
+        if (strlen($hash) === 60 && preg_match('#^\$2([axy])\$(\d+)\$#', $hash, $hash)) {
             $return['algo'] = PASSWORD_BCRYPT;
-            $return['algoName'] = 'bcrypt';
-            list($cost) = sscanf($hash, "$2y$%d$");
-            $return['options']['cost'] = $cost;
+            $return['algoName'] = ltrim($hash[1] . 'bcrypt', 'y');
+            $return['options']['cost'] = $hash[2];
+        } elseif (strlen($hash) === 34 && preg_match('#^\$[PM]\$(.)#', $hash, $hash)) {
+            $hash = strpos(self::$itoa64, $hash[1]);
+            if (7 <= $hash && $hash <= 30)
+            {
+                $return['algoName'] = 'phpass-md5';
+                $return['options']['cost'] = $hash - 5;
+            }
         }
         return $return;
     }
@@ -154,8 +160,12 @@ class Php550
         }
         switch ($algo) {
             case PASSWORD_BCRYPT:
+                if (PHP_VERSION_ID >= 50307 && 'bcrypt' !== $info['algoName']) {
+                    return true;
+                }
+            case 0:
                 $cost = isset($options['cost']) ? $options['cost'] : 10;
-                if ($cost != $info['options']['cost']) {
+                if (isset($info['options']['cost']) && $cost != $info['options']['cost']) {
                     return true;
                 }
                 break;
