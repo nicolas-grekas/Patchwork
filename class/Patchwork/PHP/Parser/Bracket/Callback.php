@@ -9,7 +9,7 @@
  */
 
 // FIXME: handle when $callbackIndex <= 0
-// FIXME: unlike static callbacks, an overrider can not use its overriden function
+// FIXME: unlike static callbacks, a function shim can not use its overriden function
 //        through a dynamic callback, because that would lead to unwanted recursion.
 
 /**
@@ -20,10 +20,10 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
     protected
 
     $callbackIndex,
-    $lead = 'patchwork_override_resolve(',
+    $lead = 'patchwork_shim_resolve(',
     $tail = ')',
     $nextTail = '',
-    $overrides = array(),
+    $shims = array(),
 
     $scope, $class,
     $dependencies = array(
@@ -32,11 +32,11 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
     );
 
 
-    function __construct(Patchwork_PHP_Parser $parent, $callbackIndex, $overrides = array())
+    function __construct(Patchwork_PHP_Parser $parent, $callbackIndex, $shims = array())
     {
         if (0 < $callbackIndex)
         {
-            $this->overrides = $overrides;
+            $this->shims = $shims;
             $this->callbackIndex = $callbackIndex - 1;
             parent::__construct($parent);
         }
@@ -72,9 +72,9 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
             {
                 $a = strtolower(substr($t[1], 1, -1));
 
-                if (isset($this->overrides[$a]))
+                if (isset($this->shims[$a]))
                 {
-                    $a = $this->overrides[$a];
+                    $a = $this->shims[$a];
                     $a = explode('::', $a, 2);
 
                     if (1 === count($a))
