@@ -222,7 +222,7 @@ class Patchwork_PHP_Parser_FunctionShim extends Patchwork_PHP_Parser
 
         $a = substr($a, 1);
 
-        if ('patchwork\functionshim' === $a)
+        if ('patchwork\shim' === $a)
         {
             if ($this->shimFunction())
             {
