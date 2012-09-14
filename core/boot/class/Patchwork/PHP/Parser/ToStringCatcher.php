@@ -29,7 +29,7 @@ class Patchwork_PHP_Parser_ToStringCatcher extends Patchwork_PHP_Parser
 
         $exceptionCallback = ltrim($exceptionCallback, '\\');
 
-        if (PHP_VERSION >= 50300) $exceptionCallback = '\\' . $exceptionCallback;
+        if (PHP_VERSION_ID >= 50300) $exceptionCallback = '\\' . $exceptionCallback;
         else $exceptionCallback = strtr($exceptionCallback, '\\', '_');
 
         $this->exceptionCallback = $exceptionCallback;
