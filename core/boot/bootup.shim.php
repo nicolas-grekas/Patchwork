@@ -52,27 +52,7 @@ function patchwork_shim_resolve_ref($c, &$v)
         if (is_string($c) && is_array($v)) $v = implode('::', $v);
 
 /**/if (PHP_VERSION_ID < 50300)
-        if (is_object($c) && is_array($v)) $v = patchwork_shim_invoke($c);
+        if (is_object($c) && is_array($v)) $v = '__' . get_class($GLOBALS["i\x9D"] = $c) . '_invoke';
 
     return "\x9D";
 }
-
-/**/if (PHP_VERSION_ID < 50300)
-/**/{
-        function patchwork_shim_invoke()
-        {
-            static $i = 0, $obj;
-
-            if (1 & ++$i)
-            {
-                $obj = func_get_arg(0);
-                return __FUNCTION__;
-            }
-            else
-            {
-                // This shim doesn't work when the __invoke() method has by-ref parameters.
-                $a = func_get_args();
-                return call_user_func_array(array($obj, '__invoke'), $a);
-            }
-        }
-/**/}

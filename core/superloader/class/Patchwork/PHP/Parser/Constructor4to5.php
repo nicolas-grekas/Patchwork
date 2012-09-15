@@ -9,34 +9,17 @@
  */
 
 
-class Patchwork_PHP_Parser_Constructor4to5 extends Patchwork_PHP_Parser
+class Patchwork_PHP_Parser_Constructor4to5 extends Patchwork_PHP_Parser_InvokeShim
 {
     protected
 
-    $bracket = 0,
-    $signature = '',
-    $arguments = array(),
-    $callbacks = array('tagClassOpen' => T_SCOPE_OPEN),
-
-    $class, $namespace, $scope,
+    $namespace,
     $dependencies = array('ClassInfo' => array('class', 'namespace', 'scope'));
 
 
     protected function tagClassOpen(&$token)
     {
-        if (!$this->namespace && T_CLASS === $this->scope->type)
-        {
-            $this->unregister($this->callbacks);
-            $this->register($this->callbacks = array(
-                'tagFunction' => T_FUNCTION,
-                'tagClassClose' => T_BRACKET_CLOSE,
-            ));
-        }
-    }
-
-    protected function tagFunction(&$token)
-    {
-        T_CLASS === $this->scope->type && $this->register('tagFunctionName');
+        $this->namespace or parent::tagClassOpen($token);
     }
 
     protected function tagFunctionName(&$token)
@@ -63,24 +46,8 @@ class Patchwork_PHP_Parser_Constructor4to5 extends Patchwork_PHP_Parser
         }
     }
 
-    protected function catchSignature(&$token)
-    {
-        if (T_VARIABLE === $token[0])
-        {
-            $this->arguments[] = '&' . $token[1];
-        }
-        else if ('(' === $token[0]) ++$this->bracket;
-        else if (')' === $token[0]) --$this->bracket;
-
-        $this->signature .= $token[1];
-
-        $this->bracket <= 0 && $this->unregister(__FUNCTION__);
-    }
-
     protected function tagClassClose(&$token)
     {
-        $this->unregister($this->callbacks);
-
         if ('' !== $this->signature)
         {
             $n = PHP_VERSION_ID < 50300 ? strtr($this->class->nsName, '\\', '_') : $this->class->nsName;
@@ -94,12 +61,9 @@ class Patchwork_PHP_Parser_Constructor4to5 extends Patchwork_PHP_Parser
                 . '}}'
                 . $token[1];
 
-            $this->bracket   = 0;
             $this->signature = '';
-            $this->arguments = array();
         }
 
-        $this->callbacks = array('tagClassOpen' => T_SCOPE_OPEN);
-        $this->register($this->callbacks);
+        parent::tagClassClose($token);
     }
 }

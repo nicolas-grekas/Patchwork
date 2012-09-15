@@ -38,6 +38,7 @@ class Patchwork_Preprocessor
         'ConstantInliner'    => true,
         'ClassInfo'          => true,
         'NamespaceRemover'   => -50300,
+        'InvokeShim'         => -50300,
         'ConstantExpression' => true,
         'SuperPositioner'    => true,
         'StaticInit'         => true,
