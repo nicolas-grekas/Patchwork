@@ -1,5 +1,6 @@
 <?php // vi: set fenc=utf-8 ts=4 sw=4 et:
 
+use Patchwork as p;
 use Patchwork\PHP\Shim as s;
 
 // Default settings
@@ -29,13 +30,13 @@ if (Patchwork_Superloader::$turbo = !DEBUG && $CONFIG['turbo'])
         {
             // Replace file_exists() on Windows to check if character case is strict
 
-            Patchwork\Shim(file_exists,   s\WinfsCase, $file);
-            Patchwork\Shim(is_file,       s\WinfsCase, $file);
-            Patchwork\Shim(is_dir,        s\WinfsCase, $file);
-            Patchwork\Shim(is_link,       s\WinfsCase, $file);
-            Patchwork\Shim(is_executable, s\WinfsCase, $file);
-            Patchwork\Shim(is_readable,   s\WinfsCase, $file);
-            Patchwork\Shim(is_writable,   s\WinfsCase, $file);
+            p\Shim(file_exists,   s\WinfsCase, $file);
+            p\Shim(is_file,       s\WinfsCase, $file);
+            p\Shim(is_dir,        s\WinfsCase, $file);
+            p\Shim(is_link,       s\WinfsCase, $file);
+            p\Shim(is_executable, s\WinfsCase, $file);
+            p\Shim(is_readable,   s\WinfsCase, $file);
+            p\Shim(is_writable,   s\WinfsCase, $file);
         }
 /**/}
 

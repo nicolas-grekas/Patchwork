@@ -8,20 +8,21 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+use Patchwork as p;
 use Patchwork\PHP\Shim as s;
 
 // utf8_encode/decode support enhanced to Windows-1252
 
-Patchwork\Shim(utf8_encode, s\Xml::cp1252_to_utf8, $s);
-Patchwork\Shim(utf8_decode, s\Xml::utf8_to_cp1252, $s);
+p\Shim(utf8_encode, s\Xml::cp1252_to_utf8, $s);
+p\Shim(utf8_decode, s\Xml::utf8_to_cp1252, $s);
 
 
 // basename() and pathinfo() are locale sensitive, but this breaks UTF-8 paths
 
 /**/if ('' === basename('§'))
 /**/{
-        Patchwork\Shim(basename, s\Fs, $path, $suffix = '');
-        Patchwork\Shim(pathinfo, s\Fs, $path, $option = -1);
+        p\Shim(basename, s\Fs, $path, $suffix = '');
+        p\Shim(pathinfo, s\Fs, $path, $option = -1);
 /**/}
 
 
@@ -56,27 +57,27 @@ Patchwork\Shim(utf8_decode, s\Xml::utf8_to_cp1252, $s);
         const MB_CASE_LOWER = 1;
         const MB_CASE_TITLE = 2;
 
-        Patchwork\Shim(mb_convert_encoding,     s\Mbstring, $s, $to, $from = INF);
-        Patchwork\Shim(mb_decode_mimeheader,    s\Mbstring, $s);
-        Patchwork\Shim(mb_encode_mimeheader,    s\Mbstring, $s, $charset = INF, $transfer_enc = INF, $lf = INF, $indent = INF);
-        Patchwork\Shim(mb_convert_case,         s\Mbstring, $s, $mode, $enc = INF);
-        Patchwork\Shim(mb_internal_encoding,    s\Mbstring, $enc = INF);
-        Patchwork\Shim(mb_list_encodings,       s\Mbstring);
-        Patchwork\Shim(mb_parse_str,            parse_str,     $s, &$result = array());
-        Patchwork\Shim(mb_strlen,               s\Mbstring, $s, $enc = INF);
-        Patchwork\Shim(mb_strpos,               s\Mbstring, $s, $needle, $offset = 0, $enc = INF);
-        Patchwork\Shim(mb_strtolower,           s\Mbstring, $s, $enc = INF);
-        Patchwork\Shim(mb_strtoupper,           s\Mbstring, $s, $enc = INF);
-        Patchwork\Shim(mb_substitute_character, s\Mbstring, $char = INF);
-        Patchwork\Shim(mb_substr_count,         substr_count,  $s, $needle);
-        Patchwork\Shim(mb_substr,               s\Mbstring, $s, $start, $length = 2147483647, $enc = INF);
-        Patchwork\Shim(mb_stripos,              s\Mbstring, $s, $needle, $offset = 0,   $enc = INF);
-        Patchwork\Shim(mb_stristr,              s\Mbstring, $s, $needle, $part = false, $enc = INF);
-        Patchwork\Shim(mb_strrchr,              s\Mbstring, $s, $needle, $part = false, $enc = INF);
-        Patchwork\Shim(mb_strrichr,             s\Mbstring, $s, $needle, $part = false, $enc = INF);
-        Patchwork\Shim(mb_strripos,             s\Mbstring, $s, $needle, $offset = 0,   $enc = INF);
-        Patchwork\Shim(mb_strrpos,              s\Mbstring, $s, $needle, $offset = 0,   $enc = INF);
-        Patchwork\Shim(mb_strstr,               s\Mbstring, $s, $needle, $part = false, $enc = INF);
+        p\Shim(mb_convert_encoding,     s\Mbstring, $s, $to, $from = INF);
+        p\Shim(mb_decode_mimeheader,    s\Mbstring, $s);
+        p\Shim(mb_encode_mimeheader,    s\Mbstring, $s, $charset = INF, $transfer_enc = INF, $lf = INF, $indent = INF);
+        p\Shim(mb_convert_case,         s\Mbstring, $s, $mode, $enc = INF);
+        p\Shim(mb_internal_encoding,    s\Mbstring, $enc = INF);
+        p\Shim(mb_list_encodings,       s\Mbstring);
+        p\Shim(mb_parse_str,            parse_str,     $s, &$result = array());
+        p\Shim(mb_strlen,               s\Mbstring, $s, $enc = INF);
+        p\Shim(mb_strpos,               s\Mbstring, $s, $needle, $offset = 0, $enc = INF);
+        p\Shim(mb_strtolower,           s\Mbstring, $s, $enc = INF);
+        p\Shim(mb_strtoupper,           s\Mbstring, $s, $enc = INF);
+        p\Shim(mb_substitute_character, s\Mbstring, $char = INF);
+        p\Shim(mb_substr_count,         substr_count,  $s, $needle);
+        p\Shim(mb_substr,               s\Mbstring, $s, $start, $length = 2147483647, $enc = INF);
+        p\Shim(mb_stripos,              s\Mbstring, $s, $needle, $offset = 0,   $enc = INF);
+        p\Shim(mb_stristr,              s\Mbstring, $s, $needle, $part = false, $enc = INF);
+        p\Shim(mb_strrchr,              s\Mbstring, $s, $needle, $part = false, $enc = INF);
+        p\Shim(mb_strrichr,             s\Mbstring, $s, $needle, $part = false, $enc = INF);
+        p\Shim(mb_strripos,             s\Mbstring, $s, $needle, $offset = 0,   $enc = INF);
+        p\Shim(mb_strrpos,              s\Mbstring, $s, $needle, $offset = 0,   $enc = INF);
+        p\Shim(mb_strstr,               s\Mbstring, $s, $needle, $part = false, $enc = INF);
 /**/}
 
 
@@ -101,7 +102,7 @@ Patchwork\Shim(utf8_decode, s\Xml::utf8_to_cp1252, $s);
 
 /**/    if (PHP_VERSION_ID < 50400)
 /**/    {
-            Patchwork\Shim(iconv, s\Iconv::iconv_workaround52211, $from, $to, $s);
+            p\Shim(iconv, s\Iconv::iconv_workaround52211, $from, $to, $s);
 /**/    }
 /**/}
 /**/else
@@ -111,32 +112,32 @@ Patchwork\Shim(utf8_decode, s\Xml::utf8_to_cp1252, $s);
         const ICONV_MIME_DECODE_STRICT = 1;
         const ICONV_MIME_DECODE_CONTINUE_ON_ERROR = 2;
 
-        Patchwork\Shim(iconv,                     s\Iconv, $from, $to, $s);
-        Patchwork\Shim(iconv_get_encoding,        s\Iconv, $type = 'all');
-        Patchwork\Shim(iconv_set_encoding,        s\Iconv, $type, $charset);
-        Patchwork\Shim(iconv_mime_encode,         s\Iconv, $name, $value, $pref = INF);
-        Patchwork\Shim(ob_iconv_handler,          s\Iconv, $buffer, $mode);
-        Patchwork\Shim(iconv_mime_decode_headers, s\Iconv, $encoded_headers, $mode = 2, $charset = INF);
+        p\Shim(iconv,                     s\Iconv, $from, $to, $s);
+        p\Shim(iconv_get_encoding,        s\Iconv, $type = 'all');
+        p\Shim(iconv_set_encoding,        s\Iconv, $type, $charset);
+        p\Shim(iconv_mime_encode,         s\Iconv, $name, $value, $pref = INF);
+        p\Shim(ob_iconv_handler,          s\Iconv, $buffer, $mode);
+        p\Shim(iconv_mime_decode_headers, s\Iconv, $encoded_headers, $mode = 2, $charset = INF);
 /**/
 /**/    if (extension_loaded('mbstring'))
 /**/    {
-            Patchwork\Shim(iconv_strlen,  mb_strlen,  $s, $enc = INF);
-            Patchwork\Shim(iconv_strpos,  mb_strpos,  $s, $needle, $offset = 0, $enc = INF);
-            Patchwork\Shim(iconv_strrpos, mb_strrpos, $s, $needle,              $enc = INF);
-            Patchwork\Shim(iconv_substr,  mb_substr,  $s, $start, $length = 2147483647, $enc = INF);
-            Patchwork\Shim(iconv_mime_decode, mb_decode_mimeheader, $encoded_headers, $mode = 2, $charset = INF);
+            p\Shim(iconv_strlen,  mb_strlen,  $s, $enc = INF);
+            p\Shim(iconv_strpos,  mb_strpos,  $s, $needle, $offset = 0, $enc = INF);
+            p\Shim(iconv_strrpos, mb_strrpos, $s, $needle,              $enc = INF);
+            p\Shim(iconv_substr,  mb_substr,  $s, $start, $length = 2147483647, $enc = INF);
+            p\Shim(iconv_mime_decode, mb_decode_mimeheader, $encoded_headers, $mode = 2, $charset = INF);
 /**/    }
 /**/    else
 /**/    {
 /**/        if (extension_loaded('xml'))
-                Patchwork\Shim(iconv_strlen, s\Iconv::strlen1, $s, $enc = INF);
+                p\Shim(iconv_strlen, s\Iconv::strlen1, $s, $enc = INF);
 /**/        else
-                Patchwork\Shim(iconv_strlen, s\Iconv::strlen2, $s, $enc = INF);
+                p\Shim(iconv_strlen, s\Iconv::strlen2, $s, $enc = INF);
 
-            Patchwork\Shim(iconv_strpos,  s\Mbstring::mb_strpos,  $s, $needle, $offset = 0, $enc = INF);
-            Patchwork\Shim(iconv_strrpos, s\Mbstring::mb_strrpos, $s, $needle,              $enc = INF);
-            Patchwork\Shim(iconv_substr,  s\Mbstring::mb_substr,  $s, $start, $length = 2147483647, $enc = INF);
-            Patchwork\Shim(iconv_mime_decode, s\Iconv, $encoded_headers, $mode = 2, $charset = INF);
+            p\Shim(iconv_strpos,  s\Mbstring::mb_strpos,  $s, $needle, $offset = 0, $enc = INF);
+            p\Shim(iconv_strrpos, s\Mbstring::mb_strrpos, $s, $needle,              $enc = INF);
+            p\Shim(iconv_substr,  s\Mbstring::mb_substr,  $s, $start, $length = 2147483647, $enc = INF);
+            p\Shim(iconv_mime_decode, s\Iconv, $encoded_headers, $mode = 2, $charset = INF);
 /**/    }
 /**/}
 
@@ -162,35 +163,35 @@ Patchwork\Shim(utf8_decode, s\Xml::utf8_to_cp1252, $s);
 
 /**/if (!extension_loaded('intl'))
 /**/{
-        Patchwork\Shim(normalizer_is_normalized, s\Normalizer::isNormalized, $s, $form = s\Normalizer::NFC);
-        Patchwork\Shim(normalizer_normalize,     s\Normalizer::normalize,    $s, $form = s\Normalizer::NFC);
+        p\Shim(normalizer_is_normalized, s\Normalizer::isNormalized, $s, $form = s\Normalizer::NFC);
+        p\Shim(normalizer_normalize,     s\Normalizer::normalize,    $s, $form = s\Normalizer::NFC);
 
         const GRAPHEME_EXTR_COUNT = 0;
         const GRAPHEME_EXTR_MAXBYTES = 1;
         const GRAPHEME_EXTR_MAXCHARS = 2;
 
-        Patchwork\Shim(grapheme_extract,  s\Intl, $s, $size, $type = 0, $start = 0, &$next = 0);
-        Patchwork\Shim(grapheme_stripos,  s\Intl, $s, $needle, $offset = 0);
-        Patchwork\Shim(grapheme_stristr,  s\Intl, $s, $needle, $before_needle = false);
-        Patchwork\Shim(grapheme_strlen,   s\Intl, $s);
-        Patchwork\Shim(grapheme_strpos,   s\Intl, $s, $needle, $offset = 0);
-        Patchwork\Shim(grapheme_strripos, s\Intl, $s, $needle, $offset = 0);
-        Patchwork\Shim(grapheme_strrpos,  s\Intl, $s, $needle, $offset = 0);
-        Patchwork\Shim(grapheme_strstr,   s\Intl, $s, $needle, $before_needle = false);
-        Patchwork\Shim(grapheme_substr,   s\Intl, $s, $start, $len = 2147483647);
+        p\Shim(grapheme_extract,  s\Intl, $s, $size, $type = 0, $start = 0, &$next = 0);
+        p\Shim(grapheme_stripos,  s\Intl, $s, $needle, $offset = 0);
+        p\Shim(grapheme_stristr,  s\Intl, $s, $needle, $before_needle = false);
+        p\Shim(grapheme_strlen,   s\Intl, $s);
+        p\Shim(grapheme_strpos,   s\Intl, $s, $needle, $offset = 0);
+        p\Shim(grapheme_strripos, s\Intl, $s, $needle, $offset = 0);
+        p\Shim(grapheme_strrpos,  s\Intl, $s, $needle, $offset = 0);
+        p\Shim(grapheme_strstr,   s\Intl, $s, $needle, $before_needle = false);
+        p\Shim(grapheme_substr,   s\Intl, $s, $start, $len = 2147483647);
 /**/}
 /**/else
 /**/{
 /**/    if ('à' === grapheme_substr('éà', 1, -2)) // Test https://bugs.php.net/62759
 /**/    {
-            Patchwork\Shim(grapheme_substr, s\Intl::grapheme_substr_workaround62759, $s, $start, $len = 2147483647);
+            p\Shim(grapheme_substr, s\Intl::grapheme_substr_workaround62759, $s, $start, $len = 2147483647);
 /**/    }
 
 /**/    if (1 !== grapheme_stripos('ße', 'e')) // Test https://bugs.php.net/61860
 /**/    {
-            Patchwork\Shim(grapheme_stripos,  \Patchwork\Utf8::stripos,  $s, $needle, $offset = 0);
-            Patchwork\Shim(grapheme_strripos, \Patchwork\Utf8::strripos, $s, $needle, $offset = 0);
-            Patchwork\Shim(grapheme_stristr,  \Patchwork\Utf8::stristr,  $s, $needle, $before_needle = false);
+            p\Shim(grapheme_stripos,  \Patchwork\Utf8::stripos,  $s, $needle, $offset = 0);
+            p\Shim(grapheme_strripos, \Patchwork\Utf8::strripos, $s, $needle, $offset = 0);
+            p\Shim(grapheme_stristr,  \Patchwork\Utf8::stristr,  $s, $needle, $before_needle = false);
 /**/    }
 /**/}
 

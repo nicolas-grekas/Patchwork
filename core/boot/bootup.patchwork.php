@@ -8,6 +8,8 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+use Patchwork as p;
+
 /**/if (!isset($_SERVER['REQUEST_TIME_FLOAT']))
         $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
 
@@ -22,7 +24,7 @@ setlocale(LC_ALL, 'C');
 // spl_autoload() evades code preprocessing, do not use it
 
 /**/if (function_exists('spl_autoload'))
-        Patchwork\Shim(spl_autoload, Patchwork\PHP\Shim\SplAutoload, $class);
+        p\Shim(spl_autoload, p\PHP\Shim\SplAutoload, $class);
 
 // Boolean version of ini_get()
 
@@ -60,7 +62,7 @@ function ini_get_bool($a)
 /**/else $a = false;
 
 /**/if (!function_exists('getcwd') || !@getcwd())
-        Patchwork\Shim(getcwd, patchwork_getcwd);
+        p\Shim(getcwd, patchwork_getcwd);
 
 function patchwork_getcwd()
 {
@@ -81,7 +83,7 @@ function patchwork_getcwd()
 /**/if (false !== $a)
 /**/{
 /**/    boot::$manager->pushFile('bootup.realpath.php');
-        Patchwork\Shim(realpath, patchwork_realpath, $path);
+        p\Shim(realpath, patchwork_realpath, $path);
 /**/}
 /**/else
 /**/{
