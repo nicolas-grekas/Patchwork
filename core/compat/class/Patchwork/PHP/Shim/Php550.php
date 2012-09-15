@@ -102,6 +102,9 @@ class Php550
             return false;
         }
 
+/**/    if (PHP_VERSION_ID < 50307 && PASSWORD_DEFAULT)
+            if ($algo) $ret[2] = 'x';
+
         return $ret;
     }
 
@@ -160,9 +163,9 @@ class Php550
         }
         switch ($algo) {
             case PASSWORD_BCRYPT:
-                if (PHP_VERSION_ID >= 50307 && 'bcrypt' !== $info['algoName']) {
-                    return true;
-                }
+/**/            if (PHP_VERSION_ID >= 50307)
+                    if ('bcrypt' !== $info['algoName'])
+                        return true;
             case 0:
                 $cost = isset($options['cost']) ? $options['cost'] : 10;
                 if (isset($info['options']['cost']) && $cost != $info['options']['cost']) {
@@ -191,6 +194,10 @@ class Php550
                 trigger_error("Crypt must be loaded for password_verify to function", E_USER_WARNING);
                 return false;
 /**/        }
+
+/**/        if (PHP_VERSION_ID < 50307 && PASSWORD_DEFAULT)
+                if ('$2x$' === substr($hash, 0, 4)) $hash[2] = 'a';
+
             $ret = crypt($password, $hash);
         }
 
