@@ -25,10 +25,12 @@ class Php550
      * @returns string|false The hashed password, or false on error.
      */
     static function password_hash($password, $algo, $options = array()) {
-        if ($algo && !function_exists('crypt')) {
-            trigger_error("Crypt must be loaded for password_hash to function", E_USER_WARNING);
-            return null;
-        }
+/**/    if (!function_exists('crypt') || 0 === PASSWORD_DEFAULT) {
+            if ($algo) {
+                trigger_error("Crypt must be loaded for password_hash to function", E_USER_WARNING);
+                return null;
+            }
+/**/    }
         if (!is_string($password)) {
             trigger_error("password_hash(): Password must be a string", E_USER_WARNING);
             return null;
@@ -49,16 +51,16 @@ class Php550
                         return null;
                     }
                 }
-                if (0 !== $algo) {
-                    $required_salt_len = 22;
-                    $hash_format = sprintf(/*<*/PHP_VERSION_ID >= 50307 ? "$2y$%02d$" : "$2a$%02d$"/*>*/, $cost);
-                    break;
-                } elseif (0 === PASSWORD_DEFAULT) {
+/**/            if (0 === PASSWORD_DEFAULT) {
                     $crypt = __CLASS__ . '::crypt_md5';
                     $required_salt_len = 8;
                     $hash_format = '$P$' . self::$itoa64[min($cost + 5, 30)];
                     break;
-                }
+/**/            } else {
+                    $required_salt_len = 22;
+                    $hash_format = sprintf(/*<*/PHP_VERSION_ID >= 50307 ? "$2y$%02d$" : "$2a$%02d$"/*>*/, $cost);
+                    break;
+/**/            }
             default:
                 trigger_error(sprintf("password_hash(): Unknown password hashing algorithm: %s", $algo), E_USER_WARNING);
                 return null;
@@ -103,7 +105,7 @@ class Php550
         }
 
 /**/    if (PHP_VERSION_ID < 50307 && PASSWORD_DEFAULT)
-            if ($algo) $ret[2] = 'x';
+            $ret[2] = 'x';
 
         return $ret;
     }
@@ -136,8 +138,7 @@ class Php550
             $return['options']['cost'] = $hash[2];
         } elseif (strlen($hash) === 34 && preg_match('#^\$[PM]\$(.)#', $hash, $hash)) {
             $hash = strpos(self::$itoa64, $hash[1]);
-            if (7 <= $hash && $hash <= 30)
-            {
+            if (7 <= $hash && $hash <= 30) {
                 $return['algoName'] = 'phpass-md5';
                 $return['options']['cost'] = $hash - 5;
             }
@@ -186,6 +187,7 @@ class Php550
      */
     static function password_verify($password, $hash) {
         $ret = substr($hash, 0, 3);
+        if (!isset($hash[12])) return false;
 
         if ('$P$' === $ret || '$H$' === $ret) {
             $ret = self::crypt_md5($password, $hash);
@@ -196,7 +198,7 @@ class Php550
 /**/        }
 
 /**/        if (PHP_VERSION_ID < 50307 && PASSWORD_DEFAULT)
-                if ('$2x$' === substr($hash, 0, 4)) $hash[2] = 'a';
+                if ('$' === $hash[3] && ('$2x' === $ret || '$2y' === $ret)) $hash[2] = 'a';
 
             $ret = crypt($password, $hash);
         }
@@ -272,8 +274,7 @@ class Php550
      *
      * @returns string|false The hashed password, or false on error.
      */
-    protected static function crypt_md5($password, $salt)
-    {
+    protected static function crypt_md5($password, $salt) {
         $salt = substr($salt, 0, 12);
         if (!isset($salt[11])) return false;
 
