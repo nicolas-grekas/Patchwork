@@ -6,10 +6,10 @@
  * under the terms of the (at your option):
  * Apache License v2.0 (http://apache.org/licenses/LICENSE-2.0.txt), or
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
+ *
+ * This file incorporates work covered by the MIT licence,
+ * by Anthony Ferrara <ircmaxell@gmail.com>
  */
-
-// Code authored by Anthony Ferrara <ircmaxell@gmail.com>
-// See https://github.com/ircmaxell/password_compat/
 
 namespace Patchwork\PHP\Shim;
 
@@ -259,8 +259,6 @@ class Php550
 
     /**
      * Hash the password using PHPass' MD5 portable scheme
-     *
-     * Implementation borrowed from http://www.openwall.com/phpass/
      *
      * @param string $password The password to hash
      * @param int    $salt     The salt to use
