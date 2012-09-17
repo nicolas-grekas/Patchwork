@@ -92,13 +92,36 @@ class Php550
                 $salt = str_replace('+', '.', base64_encode($salt));
             }
         } else {
-            $salt = self::password_make_salt($required_salt_len);
+            $salt = '';
+            $raw_length = (int) (.75 * $required_salt_len);
+            $raw_length += 4 - $raw_length % 4;
+/**/        if (function_exists('mcrypt_create_iv')) {
+                $salt = mcrypt_create_iv($raw_length, MCRYPT_DEV_URANDOM);
+/**/        }
+/**/        if (function_exists('openssl_random_pseudo_bytes')) {
+                $salt or $salt = openssl_random_pseudo_bytes($raw_length);
+/**/        }
+/**/        if (@file_exists('/dev/urandom')) {
+                $salt or $salt = @file_get_contents('/dev/urandom', false, null, -1, $raw_length);
+/**/        }
+            if (0 < $raw_length -= strlen($salt)) {
+                $salt .= str_repeat(' ', $raw_length);
+                $i = 0;
+                while ($i < $raw_length) {
+                    $ret = pack('L', mt_rand());
+                    $salt[$i++] ^= $ret[0];
+                    $salt[$i++] ^= $ret[1];
+                    $salt[$i++] ^= $ret[2];
+                    $salt[$i++] ^= $ret[3];
+                }
+            }
+            $salt = str_replace('+', '.', base64_encode($salt));
         }
         $salt = substr($salt, 0, $required_salt_len);
 
-        $hash = $hash_format . $salt;
-
-        $ret = isset($crypt) ? call_user_func($crypt, $password, $hash) : crypt($password, $hash);
+        $ret = isset($crypt)
+            ? call_user_func($crypt, $password, $hash_format . $salt)
+            : crypt($password, $hash_format . $salt);
 
         if (!is_string($ret) || strlen($ret) <= 13) {
             return false;
@@ -216,53 +239,6 @@ class Php550
         return $status === 0;
     }
 
-    /**
-     * Function to make a salt
-     *
-     * @internal
-     */
-    protected static function password_make_salt($length) {
-        if ($length <= 0) {
-            trigger_error(sprintf("Length cannot be less than or equal zero: %d", $length), E_USER_WARNING);
-            return false;
-        }
-        $buffer = '';
-        $raw_length = (int) ($length * 3 / 4 + 1);
-        $buffer_valid = false;
-        if (function_exists('mcrypt_create_iv')) {
-            $buffer = mcrypt_create_iv($raw_length, MCRYPT_DEV_URANDOM);
-            if ($buffer) {
-                $buffer_valid = true;
-            }
-        }
-        if (!$buffer_valid && function_exists('openssl_random_pseudo_bytes')) {
-            $buffer = openssl_random_pseudo_bytes($raw_length);
-            if ($buffer) {
-                $buffer_valid = true;
-            }
-        }
-        if (!$buffer_valid && file_exists('/dev/urandom')) {
-            $f = @fopen('/dev/urandom', 'r');
-            if ($f) {
-                $read = strlen($buffer);
-                while ($read < $raw_length) {
-                    $buffer .= fread($f, $raw_length - $read);
-                    $read = strlen($buffer);
-                }
-                fclose($f);
-                if ($read >= $raw_length) {
-                    $buffer_valid = true;
-                }
-            }
-        }
-        if (!$buffer_valid) {
-            for ($i = 0; $i < $raw_length; $i++) {
-                $buffer .= chr(mt_rand(0, 255));
-            }
-        }
-        $buffer = str_replace('+', '.', base64_encode($buffer));
-        return substr($buffer, 0, $length);
-    }
 
     protected static $itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
