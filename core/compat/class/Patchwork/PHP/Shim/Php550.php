@@ -7,8 +7,28 @@
  * Apache License v2.0 (http://apache.org/licenses/LICENSE-2.0.txt), or
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  *
- * This file incorporates work covered by the MIT licence,
- * by Anthony Ferrara <ircmaxell@gmail.com>
+ * This file incorporates work covered by the following disclaimer:
+ *
+ *   Copyright (c) 2012 Anthony Ferrara <ircmaxell@php.net>
+ *
+ *   Permission is hereby granted, free of charge, to any person obtaining a
+ *   copy of this software and associated documentation files (the "Software"),
+ *   to deal in the Software without restriction, including without limitation
+ *   the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *   and/or sell copies of the Software, and to permit persons to whom the
+ *   Software is furnished to do so, subject to the following conditions:
+ *
+ *   The above copyright notice and this permission notice shall be included in
+ *   all copies or substantial portions of the Software.
+ *
+ *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *   DEALINGS IN THE SOFTWARE.
+ *
  */
 
 namespace Patchwork\PHP\Shim;
@@ -95,26 +115,27 @@ class Php550
             $salt = '';
             $raw_length = (int) (.75 * $required_salt_len);
             $raw_length += 4 - $raw_length % 4;
-/**/        if (function_exists('mcrypt_create_iv')) {
+/**/        if (function_exists('mcrypt_create_iv') && false !== @mcrypt_create_iv(1, MCRYPT_DEV_URANDOM)) {
                 $salt = mcrypt_create_iv($raw_length, MCRYPT_DEV_URANDOM);
 /**/        }
 /**/        if (function_exists('openssl_random_pseudo_bytes')) {
                 $salt or $salt = openssl_random_pseudo_bytes($raw_length);
 /**/        }
-/**/        if (@file_exists('/dev/urandom')) {
-                $salt or $salt = @file_get_contents('/dev/urandom', false, null, -1, $raw_length);
+/**/        if (@file_exists('/dev/urandom') && false !== @file_get_contents('/dev/urandom', false, null, -1, 1)) {
+                $salt or $salt = file_get_contents('/dev/urandom', false, null, -1, $raw_length);
 /**/        }
             if (0 < $raw_length -= strlen($salt)) {
                 $salt .= str_repeat(' ', $raw_length);
                 $i = 0;
                 while ($i < $raw_length) {
                     $ret = pack('L', mt_rand());
-                    $salt[$i++] ^= $ret[0];
-                    $salt[$i++] ^= $ret[1];
-                    $salt[$i++] ^= $ret[2];
-                    $salt[$i++] ^= $ret[3];
+                    $salt[$i] = $salt[$i++] ^ $ret[0];
+                    $salt[$i] = $salt[$i++] ^ $ret[1];
+                    $salt[$i] = $salt[$i++] ^ $ret[2];
+                    $salt[$i] = $salt[$i++] ^ $ret[3];
                 }
             }
+
             $salt = str_replace('+', '.', base64_encode($salt));
         }
         $salt = substr($salt, 0, $required_salt_len);
