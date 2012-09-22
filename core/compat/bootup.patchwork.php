@@ -36,6 +36,8 @@ use Patchwork\PHP\Shim as s;
 /**/}
 /**/else if (PHP_VERSION_ID < 50309)
 /**/{
+/**/    boot::$manager->pushFile('class/Patchwork/PHP/Shim/Php539.php');
+
         p\Shim(is_a,           s\Php539, $obj, $class, $allow_string = false);
         p\Shim(is_subclass_of, s\Php539, $obj, $class, $allow_string = true);
 /**/}

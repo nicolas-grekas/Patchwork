@@ -42,6 +42,8 @@ class Xml
             return self::utf8_decode($s);
     }
 
+/**/if (!extension_loaded('xml')):
+
     static function utf8_encode($s)
     {
         $len = strlen($s);
@@ -84,4 +86,6 @@ class Xml
 
         return substr($s, 0, $j);
     }
+
+/**/endif;
 }

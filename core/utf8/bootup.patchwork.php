@@ -13,6 +13,8 @@ use Patchwork\PHP\Shim as s;
 
 // utf8_encode/decode support enhanced to Windows-1252
 
+/**/boot::$manager->pushFile('class/Patchwork/PHP/Shim/Xml.php');
+
 p\Shim(utf8_encode, s\Xml::cp1252_to_utf8, $s);
 p\Shim(utf8_decode, s\Xml::utf8_to_cp1252, $s);
 

@@ -24,7 +24,6 @@ class Logger extends PHP\Logger
             // http://bugs.php.net/42098 workaround
             class_exists('Patchwork\PHP\Walker') || eval(';') || __autoload('Patchwork\PHP\Walker');
             class_exists('Patchwork\PHP\Dumper') || eval(';') || __autoload('Patchwork\PHP\Dumper');
-            class_exists('Patchwork\PHP\Shim\Xml') || eval(';') || __autoload('Patchwork\PHP\Shim\Xml');
             class_exists('Patchwork\PHP\JsonDumper') || eval(';') || __autoload('Patchwork\PHP\JsonDumper');
         }
 
