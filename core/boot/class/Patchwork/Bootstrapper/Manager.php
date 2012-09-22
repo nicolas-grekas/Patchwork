@@ -151,7 +151,7 @@ class Patchwork_Bootstrapper_Manager
             }
 
             flock($this->lock, LOCK_EX);
-            fwrite($this->lock, '<?php ');
+            fwrite($this->lock, "<?php\n");
 
             return true;
         }
@@ -215,7 +215,8 @@ class Patchwork_Bootstrapper_Manager
             else if (empty($this->preprocessor))
             {
                 null === $code && $code = substr(file_get_contents($this->file), 5);
-                $this->lock && fwrite($this->lock, $code);
+                defined('T_NAMESPACE') && $code = "namespace{{$code}}";
+                $this->lock && fwrite($this->lock, "# {$this->file}\n{$code}\n");
             }
             else
             {
@@ -232,7 +233,7 @@ class Patchwork_Bootstrapper_Manager
     {
         $code = $this->preprocessor->staticPass2();
         '' === $code && $code = ' ';
-        fwrite($this->lock, $code);
+        fwrite($this->lock, "# {$this->file}\n{$code}\n");
         ob_get_length() && $this->release();
         $a = 'spl_autoload_unregister';
         function_exists('__patchwork_' . $a) && $a = '__patchwork_' . $a;

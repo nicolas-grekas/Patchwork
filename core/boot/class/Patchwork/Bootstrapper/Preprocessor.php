@@ -30,6 +30,7 @@ class Patchwork_Bootstrapper_Preprocessor
         new Patchwork_PHP_Parser_BracketWatcher($p);
         new Patchwork_PHP_Parser_StringInfo($p);
         new Patchwork_PHP_Parser_NamespaceInfo($p);
+        PHP_VERSION_ID >= 50300 && new Patchwork_PHP_Parser_NamespaceBracketer($p);
         new Patchwork_PHP_Parser_ScopeInfo($p);
         new Patchwork_PHP_Parser_ConstFuncDisabler($p);
         new Patchwork_PHP_Parser_ConstFuncResolver($p);
