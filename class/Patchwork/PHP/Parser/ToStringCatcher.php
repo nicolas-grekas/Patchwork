@@ -29,7 +29,7 @@ class Patchwork_PHP_Parser_ToStringCatcher extends Patchwork_PHP_Parser
 
         $exceptionCallback = ltrim($exceptionCallback, '\\');
 
-        if (PHP_VERSION_ID >= 50300) $exceptionCallback = '\\' . $exceptionCallback;
+        if ($this->targetPhpVersionId >= 50300) $exceptionCallback = '\\' . $exceptionCallback;
         else $exceptionCallback = strtr($exceptionCallback, '\\', '_');
 
         $this->exceptionCallback = $exceptionCallback;
@@ -53,7 +53,7 @@ class Patchwork_PHP_Parser_ToStringCatcher extends Patchwork_PHP_Parser
     protected function tagToStringClose(&$token)
     {
         $this->unregister(array(__FUNCTION__ => T_BRACKET_CLOSE));
-        $token[1] = '}catch(' .( PHP_VERSION_ID >= 50300 ? '\\' : '' ). 'Exception $e)'
+        $token[1] = '}catch(' .( $this->targetPhpVersionId >= 50300 ? '\\' : '' ). 'Exception $e)'
             . '{'
                 . 'return ' . $this->exceptionCallback . '($e);'
             . '}' . $token[1];

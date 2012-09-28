@@ -105,7 +105,7 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
             $t =& $this->tokens;
             $b = 0;
 
-            if (PHP_VERSION_ID >= 50300)
+            if ($this->targetPhpVersionId >= 50300)
             {
                 // TODO: replace 'self' by __CLASS__ and in PHP 5.2, optimize
                 // __CLASS__ and A\B by underscore resolved version, check for $this.

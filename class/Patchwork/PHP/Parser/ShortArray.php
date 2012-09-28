@@ -21,7 +21,7 @@ class Patchwork_PHP_Parser_ShortArray extends Patchwork_PHP_Parser
 
     function __construct(parent $parent)
     {
-        if (PHP_VERSION_ID >= 50400) $this->callbacks = array();
+        if ($this->targetPhpVersionId >= 50400) $this->callbacks = array();
         parent::__construct($parent);
     }
 

@@ -15,16 +15,24 @@ class Patchwork_PHP_Parser_BinaryNumber extends Patchwork_PHP_Parser
 {
     protected function getTokens($code)
     {
-        if (PHP_VERSION_ID < 50400 && false !== $i = stripos($code, '0b'))
-            if ('0b' === strtolower(rtrim(substr($code, $i, 3), '01')))
-                $this->register(array('catch0b' => T_LNUMBER));
+        if ($this->targetPhpVersionId < 50400 && stripos($code, '0b') && preg_match("'0b[B][01]'", $code))
+        {
+            $this->register(array('catch0b' => T_LNUMBER));
+        }
 
         return parent::getTokens($code);
     }
 
     protected function catch0b(&$token)
     {
-        if ('0' === $token[1] && $t =& $this->tokens)
+        if (PHP_VERSION_ID >= 50400)
+        {
+            if (0 === stripos($token[1], '0b'))
+            {
+                $token[1] = sprintf('0x%X', bindec(substr($token[1], 2)));
+            }
+        }
+        else if ('0' === $token[1] && $t =& $this->tokens)
         {
             $m = $t[$this->index];
 
