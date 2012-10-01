@@ -13,6 +13,10 @@
  */
 class Patchwork_PHP_Parser_NamespaceBracketer extends Patchwork_PHP_Parser
 {
+    public
+
+    $targetPhpVersionId = 50300;
+
     protected
 
     $nsClose   = false,
@@ -23,12 +27,6 @@ class Patchwork_PHP_Parser_NamespaceBracketer extends Patchwork_PHP_Parser
     ),
     $dependencies = array('StringInfo', 'Normalizer');
 
-
-    function __construct(parent $parent)
-    {
-        if ($this->targetPhpVersionId < 50300) $this->callbacks = array();
-        parent::__construct($parent);
-    }
 
     protected function tagOpenTag()
     {

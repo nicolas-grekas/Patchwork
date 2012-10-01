@@ -11,6 +11,10 @@
 
 class Patchwork_PHP_Parser_Constructor4to5 extends Patchwork_PHP_Parser_InvokeShim
 {
+    public
+
+    $targetPhpVersionId = 0;
+
     protected
 
     $namespace,

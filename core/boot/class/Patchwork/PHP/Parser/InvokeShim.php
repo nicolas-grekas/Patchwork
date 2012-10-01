@@ -14,6 +14,10 @@
  */
 class Patchwork_PHP_Parser_InvokeShim extends Patchwork_PHP_Parser
 {
+    public
+
+    $targetPhpVersionId = -50300;
+
     protected
 
     $bracket = 0,
@@ -65,7 +69,10 @@ class Patchwork_PHP_Parser_InvokeShim extends Patchwork_PHP_Parser
         else if ('(' === $token[0]) ++$this->bracket;
         else if (')' === $token[0]) --$this->bracket;
 
-        $this->signature .= $token[1];
+        if (50300 <= $this->targetPhpVersionId || (T_NS_SEPARATOR !== $token[0] && !isset($token[2][T_USE_NS])))
+        {
+            $this->signature .= $token[1];
+        }
 
         $this->bracket <= 0 && $this->unregister(__FUNCTION__);
     }
