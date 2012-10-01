@@ -56,3 +56,16 @@ function patchwork_shim_resolve_ref($c, &$v)
 
     return "\x9D";
 }
+
+/**/if (PHP_VERSION_ID < 50300)
+/**/{
+        abstract class Closure
+        {
+            private $use;
+
+            function __construct($use = null)
+            {
+                $this->use = $use;
+            }
+        }
+/**/}

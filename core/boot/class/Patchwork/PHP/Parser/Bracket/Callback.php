@@ -95,7 +95,7 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
                 return;
             }
         }
-        else if (T_FUNCTION === $t[0])
+        else if (T_FUNCTION === $t[0] && PHP_VERSION_ID >= 50300)
         {
             return; // Closure
         }
