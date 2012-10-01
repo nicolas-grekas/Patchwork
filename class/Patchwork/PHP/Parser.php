@@ -41,7 +41,7 @@ class Patchwork_PHP_Parser
 
     public
 
-    $targetPhpVersionId = PHP_VERSION_ID;
+    $targetPhpVersionId = 0;
 
     protected
 
@@ -90,6 +90,8 @@ class Patchwork_PHP_Parser
         $this->dependencies = (array) $this->dependencies;
         $this->parent = $parent;
 
+        $php_version_id = $this->targetPhpVersionId;
+
         // Link shared properties of $parent and $this by reference
 
         if ($parent !== $this)
@@ -112,7 +114,11 @@ class Patchwork_PHP_Parser
 
             foreach ($v as $v) $this->$v =& $parent->$v;
         }
-        else $this->nextRegistryIndex = -1 - PHP_INT_MAX;
+        else
+        {
+            $this->nextRegistryIndex = -1 - PHP_INT_MAX;
+            $this->targetPhpVersionId = PHP_VERSION_ID;
+        }
 
         // Verify and set $this->dependencies to the (serviceName => service provider object) map
 
@@ -157,7 +163,12 @@ class Patchwork_PHP_Parser
         $this->registryIndex = $this->nextRegistryIndex;
         $this->nextRegistryIndex += 1 << (PHP_INT_SIZE << 2);
 
-        $this->register($this->callbacks);
+        if ( 0 > $php_version_id
+          ? $this->targetPhpVersionId < -$php_version_id
+          : $this->targetPhpVersionId >= $php_version_id )
+        {
+            $this->register($this->callbacks);
+        }
     }
 
     // Parse PHP source code

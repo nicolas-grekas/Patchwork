@@ -13,17 +13,15 @@
  */
 class Patchwork_PHP_Parser_ShortArray extends Patchwork_PHP_Parser
 {
+    public
+
+    $targetPhpVersionId = -50400;
+
     protected
 
     $callbacks = array('openBracket' => '['),
     $dependencies = 'BracketWatcher';
 
-
-    function __construct(parent $parent)
-    {
-        if ($this->targetPhpVersionId >= 50400) $this->callbacks = array();
-        parent::__construct($parent);
-    }
 
     protected function openBracket(&$token)
     {

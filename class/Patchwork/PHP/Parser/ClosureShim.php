@@ -11,7 +11,7 @@
 /**
  * The ClosureShim parser participates in backporting closures to PHP 5.2
  *
- * On PHP5.3+, it adds a warning when a variable is used both as an argument and a lexical variable
+ * On PHP5.3+, it adds a warning when a variable is used both as an argument and a lexical
  */
 class Patchwork_PHP_Parser_ClosureShim extends Patchwork_PHP_Parser
 {
@@ -24,7 +24,8 @@ class Patchwork_PHP_Parser_ClosureShim extends Patchwork_PHP_Parser
     $callbacks = array(
         'tagFunction' => T_FUNCTION,
         'tagEndPhp' => T_ENDPHP,
-    );
+    ),
+    $dependencies = 'ScopeInfo';
 
 
     protected function tagFunction(&$token)
@@ -63,7 +64,10 @@ class Patchwork_PHP_Parser_ClosureShim extends Patchwork_PHP_Parser
         else if ('(' === $token[0]) ++$this->bracket;
         else if (')' === $token[0]) --$this->bracket;
 
-        $this->closure['signature'] .= $token[1];
+        if (50300 <= $this->targetPhpVersionId || (T_NS_SEPARATOR !== $token[0] && !isset($token[2][T_USE_NS])))
+        {
+            $this->closure['signature'] .= $token[1];
+        }
 
         if ($this->bracket <= 0)
         {
