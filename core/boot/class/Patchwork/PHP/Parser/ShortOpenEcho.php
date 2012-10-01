@@ -17,7 +17,7 @@ class Patchwork_PHP_Parser_ShortOpenEcho extends Patchwork_PHP_Parser
 
     protected function getTokens($code)
     {
-        if (PHP_VERSION_ID < 50400 && false !== strpos($code, '<?='))
+        if ($this->targetPhpVersionId < 50400 && false !== strpos($code, '<?='))
         {
             $c = token_get_all('<?=');
 
@@ -37,9 +37,21 @@ class Patchwork_PHP_Parser_ShortOpenEcho extends Patchwork_PHP_Parser
                     ),
                 ));
             }
+            else
+            {
+                $this->register(array('tagOpenEcho' => T_OPEN_TAG_WITH_ECHO));
+            }
         }
 
         return parent::getTokens($code);
+    }
+
+    protected function tagOpenEcho(&$token)
+    {
+        if ('<?=' === $token[1])
+        {
+            return $this->unshiftTokens(array(T_OPEN_TAG, '<?php '), array(T_ECHO, 'echo'), array(T_WHITESPACE, ' '));
+        }
     }
 
     protected function echoTag(&$token)

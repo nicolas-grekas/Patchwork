@@ -161,7 +161,7 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
         }
 
         $s = '\\Patchwork_Superloader';
-        PHP_VERSION_ID < 50300 && $s[0] = ' ';
+        $this->targetPhpVersionId < 50300 && $s[0] = ' ';
 
         if ($c->isFinal || $c->isTop)
         {

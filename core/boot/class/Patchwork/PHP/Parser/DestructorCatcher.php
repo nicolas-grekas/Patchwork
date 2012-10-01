@@ -40,8 +40,8 @@ class Patchwork_PHP_Parser_DestructorCatcher extends Patchwork_PHP_Parser
     protected function tagDestructClose(&$token)
     {
         $this->unregister(array(__FUNCTION__ => T_BRACKET_CLOSE));
-        $t = PHP_VERSION_ID >= 50306 ? (PHP_VERSION_ID >= 50400 ? '2,2' : '2') : '0';
-        $token[1] = '}catch(' .( PHP_VERSION_ID >= 50300 ? '\\' : '' ). 'Exception $e)'
+        $t = $this->targetPhpVersionId >= 50306 ? ($this->targetPhpVersionId >= 50400 ? '2,2' : '2') : '0';
+        $token[1] = '}catch(' .( $this->targetPhpVersionId >= 50300 ? '\\' : '' ). 'Exception $e)'
             . '{'
                 . 'if(empty($e->__destructorException))'
                 . '{'

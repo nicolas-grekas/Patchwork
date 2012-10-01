@@ -57,7 +57,7 @@ class Patchwork_PHP_Parser_StaticInit extends Patchwork_PHP_Parser
 
         $class = strtolower(strtr($this->class->nsName, '\\', '_'));
         $d = "\\Patchwork_ShutdownHandler::\$destructors[]='{$class}';";
-        PHP_VERSION_ID < 50300 && $d[0] = ' ';
+        $this->targetPhpVersionId < 50300 && $d[0] = ' ';
 
         $this->init && $token[1] = "const i{$this->tag}=" . (2 === $this->init ? "'{$class}';" : "'';static function __init(){}") . $token[1];
         $this->free && $token[1] = "const f{$this->tag}=" . (2 === $this->free ? "'{$class}';" : "'';static function __free(){}") . $token[1];

@@ -87,7 +87,7 @@ class Patchwork_PHP_Parser_ClosureShim extends Patchwork_PHP_Parser
         {
             if (T_VARIABLE === $token[0])
             {
-                if (PHP_VERSION_ID < 50300 && '$this' === $token[1])
+                if ($this->targetPhpVersionId < 50300 && '$this' === $token[1])
                 {
                     $this->setError('Cannot use $this as lexical variable', E_USER_ERROR);
                 }
@@ -129,7 +129,7 @@ class Patchwork_PHP_Parser_ClosureShim extends Patchwork_PHP_Parser
         $c = $this->closure;
         $this->closure = $this->closure['parent'];
 
-        if (PHP_VERSION_ID >= 50300) return;
+        if ($this->targetPhpVersionId >= 50300) return;
 
         unset($c['parent']);
         $is_body = false;

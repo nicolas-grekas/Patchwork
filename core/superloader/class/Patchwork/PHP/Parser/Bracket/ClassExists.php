@@ -18,7 +18,7 @@ class Patchwork_PHP_Parser_Bracket_ClassExists extends Patchwork_PHP_Parser_Brac
     protected function onOpen(&$token)
     {
         $token[1] .= "\$\x9D=(";
-        PHP_VERSION_ID < 50300 && $this->tail[2] = ' ';
+        $this->targetPhpVersionId < 50300 && $this->tail[2] = ' ';
     }
 
     protected function onReposition(&$token)

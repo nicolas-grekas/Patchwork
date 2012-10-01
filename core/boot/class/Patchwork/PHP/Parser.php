@@ -39,6 +39,10 @@ class Patchwork_PHP_Parser
 {
     const T_OFFSET = 10000;
 
+    public
+
+    $targetPhpVersionId = PHP_VERSION_ID;
+
     protected
 
     // Declarations used by __construct()
@@ -103,6 +107,7 @@ class Patchwork_PHP_Parser
                 'parents',
                 'errors',
                 'nextRegistryIndex',
+                'targetPhpVersionId',
             );
 
             foreach ($v as $v) $this->$v =& $parent->$v;
