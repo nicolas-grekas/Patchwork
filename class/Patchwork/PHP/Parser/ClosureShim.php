@@ -17,8 +17,6 @@ class Patchwork_PHP_Parser_ClosureShim extends Patchwork_PHP_Parser
 {
     protected
 
-    $closureIndex,
-    $bracket = 0,
     $closure = false,
     $closures = array(),
     $callbacks = array(
@@ -30,7 +28,6 @@ class Patchwork_PHP_Parser_ClosureShim extends Patchwork_PHP_Parser
 
     protected function tagFunction(&$token)
     {
-        $this->closureIndex = $this->index;
         $this->register('tagClosureArgs');
     }
 
@@ -40,18 +37,28 @@ class Patchwork_PHP_Parser_ClosureShim extends Patchwork_PHP_Parser
         $this->unregister(__FUNCTION__);
         if ('(' === $token[0])
         {
-            $this->bracket = 1;
             $this->closure = array(
-                'name' => sprintf('Closure_%010d_%s', mt_rand(), $this->line),
+                'id' => sprintf('%010d', mt_rand()),
+                'lines' => $this->line,
                 'ref' => '&' === $this->prevType ? '&' : '',
                 'signature' => '(',
                 'args' => array(),
                 'uses' => array(),
-                'index' => $this->closureIndex + 1,
-                'body' => '',
                 'parent' => $this->closure,
             );
-            $this->register('~catchSignature');
+
+            if ($this->targetPhpVersionId < 50300)
+            {
+                if ('&' === end($this->types)) prev($this->types);
+                prev($this->types);
+                $this->texts[key($this->types)] .= "/*CLOSURE-START:{$this->closure['id']}*/";
+            }
+
+            $this->register(array(
+                'tagUse' => T_USE,
+                'tagClosureOpen' => '{',
+                '~catchSignature',
+            ));
         }
     }
 
@@ -61,98 +68,72 @@ class Patchwork_PHP_Parser_ClosureShim extends Patchwork_PHP_Parser
         {
             $this->closure['args'][] = ('&' === $this->prevType ? '&' : '') . $token[1];
         }
-        else if ('(' === $token[0]) ++$this->bracket;
-        else if (')' === $token[0]) --$this->bracket;
 
-        if (50300 <= $this->targetPhpVersionId || (T_NS_SEPARATOR !== $token[0] && !isset($token[2][T_USE_NS])))
+        if ( 50300 > $this->targetPhpVersionId
+          && T_NS_SEPARATOR !== $token[0]
+          && !isset($token['closure-stop'])
+          && !isset($token[2][T_USE_NS]) )
         {
             $this->closure['signature'] .= $token[1];
-        }
-
-        if ($this->bracket <= 0)
-        {
-            $this->unregister('~catchSignature');
-            $this->register('tagUse');
-            $this->register(array('tagClosureOpen' => '{'));
         }
     }
 
     protected function tagUse(&$token)
     {
-        if ($this->bracket <= 0)
+        $token['closure-stop'] = 1;
+        $this->unregister(array('~catchSignature', 'tagUse' => T_USE));
+        $this->register('tagLexicals');
+    }
+
+    protected function tagLexicals(&$token)
+    {
+        if (T_VARIABLE !== $token[0]) return;
+
+        if ($this->targetPhpVersionId < 50300 && '$this' === $token[1])
         {
-            if (T_USE === $token[0])
-            {
-                $this->bracket = 1;
-                return;
-            }
+            $this->setError('Cannot use $this as lexical variable', E_USER_ERROR);
         }
-        else
+        else if (array_intersect($this->closure['args'], array($token[1], '&' . $token[1])))
         {
-            if (T_VARIABLE === $token[0])
-            {
-                if ($this->targetPhpVersionId < 50300 && '$this' === $token[1])
-                {
-                    $this->setError('Cannot use $this as lexical variable', E_USER_ERROR);
-                }
-                else if (array_intersect($this->closure['args'], array($token[1], '&' . $token[1])))
-                {
-                    $this->setError("{$token[1]} is both an argument and a lexical variable", E_USER_WARNING);
-                }
-
-                $this->closure['uses'][] = ('&' === $this->prevType ? '&' : '') . $token[1];
-            }
-            else if ('(' === $token[0]) ++$this->bracket;
-            else if (')' === $token[0]) --$this->bracket;
-
+            $this->setError("{$token[1]} is both an argument and a lexical variable", E_USER_WARNING);
         }
 
-        if ($this->bracket <= 1)
+        if ($this->targetPhpVersionId < 50300)
         {
-            $this->unregister(__FUNCTION__);
+            $this->closure['uses'][] = ('&' === $this->prevType ? '&' : '') . $token[1];
         }
     }
 
     protected function tagClosureOpen(&$token)
     {
-        $this->unregister(array(__FUNCTION__ => '{'));
-        $this->register(array('tagClosureClose' => T_BRACKET_CLOSE));
+        $token['closure-stop'] = 1;
+        $this->unregister(array(
+            'tagUse' => T_USE,
+            'tagClosureOpen' => '{',
+            '~catchSignature',
+            'tagLexicals',
+        ));
+
+        if ($this->targetPhpVersionId >= 50300)
+        {
+            $this->closure = $this->closure['parent'];
+        }
+        else
+        {
+            $token[1] = "/*CLOSURE-BODY:{$this->closure['id']}*/" . $token[1];
+            $this->register(array('tagClosureClose' => T_BRACKET_CLOSE));
+        }
     }
 
     protected function tagClosureClose(&$token)
     {
-        $this->closure['name'] .= '_' . $this->line;
-        $this->unregister('tagClosureClose');
-        $this->register('tagAfterClosure');
-    }
-
-    protected function tagAfterClosure(&$token)
-    {
-        $this->unregister('tagAfterClosure');
+        $this->unregister(array('tagClosureClose' => T_BRACKET_CLOSE));
+        $token[1] .= "/*CLOSURE-END:{$this->closure['id']}*/";
+        $this->closure['lines'] .= '_' . $this->line;
 
         $c = $this->closure;
         $this->closure = $this->closure['parent'];
-
-        if ($this->targetPhpVersionId >= 50300) return;
-
         unset($c['parent']);
-        $is_body = false;
-
-        for ($i = $c['index']; $i <= $this->index; ++$i)
-        {
-            $u =& $this->texts[$i];
-            if ($is_body) $c['body'] .= $u;
-            else if (isset($this->types[$i])) $is_body = '{' === $this->types[$i];
-            if (false !== strpos($u, '*/')) $u = str_replace('*/', '//', $u);
-        }
-
-        $u .= '*/';
-
-        foreach ($c['uses'] as &$u) $u = "'" . substr($u, '&' === $u[0] ? 2 : 1) . "'=>{$u}";
-
-        $u =& $this->texts[$c['index']];
-        $u = "new {$c['name']}(" . ($c['uses'] ? "array(" . implode(',', $c['uses']) . ")" : '') . ")/*{$u}";
-
         $this->closures[] = $c;
     }
 
@@ -166,25 +147,47 @@ class Patchwork_PHP_Parser_ClosureShim extends Patchwork_PHP_Parser
 
         foreach ($this->closures as $c)
         {
-            $code .= "\nclass {$c['name']} extends Closure{"
+            $name = "Closure_{$c['id']}_{$c['lines']}";
+            $code .= "\nclass {$name} extends Closure{"
               .   "function {$c['ref']}__invoke{$c['signature']}{"
               .     "\$GLOBALS['i\x9D']=\$this;"
               .     "if(" . count($c['args']) . "<func_num_args()){"
               .       "\${1}=array(" . implode(',', $c['args']) . ")+func_get_args();"
-              .       "return call_user_func_array('__{$c['name']}_invoke',\${1});"
+              .       "return call_user_func_array('__{$name}_invoke',\${1});"
               .     "}"
-              .     "return __{$c['name']}_invoke(" . str_replace('&', '', implode(',', $c['args']))  . ");"
+              .     "return __{$name}_invoke(" . str_replace('&', '', implode(',', $c['args']))  . ");"
               .   "}"
               . "}";
 
-            $code .= "\nfunction {$c['ref']}__{$c['name']}_invoke{$c['signature']}{"
-              . ($c['uses'] ? "extract(current(\$GLOBALS['i\x9D']),EXTR_REFS);" : '')
-              . "\$GLOBALS['i\x9D']=null;"
-              . "{$c['body']}";
+            $code .= "\nfunction {$c['ref']}__{$name}_invoke{$c['signature']}{"
+              .   ($c['uses'] ? "extract(current(\$GLOBALS['i\x9D']),EXTR_REFS);" : '')
+              .   "\$GLOBALS['i\x9D']=null;"
+              .   "/*CLOSURE-HERE:{$c['id']}*/"
+              . "}";
         }
 
-        $this->closures = array();
-
         return $this->unshiftTokens(array(T_WHITESPACE, $code), $token);
+    }
+
+    function finalizeClosures($code)
+    {
+        foreach ($this->closures as $c)
+        {
+            if (preg_match("#/\*CLOSURE-START:{$c['id']}\*/.*?/\*CLOSURE-BODY:{$c['id']}\*/(.*?)/\*CLOSURE-END:{$c['id']}\*/#s", $code, $m))
+            {
+                foreach ($c['uses'] as &$u) $u = "'" . substr($u, '&' === $u[0] ? 2 : 1) . "'=>{$u}";
+
+                $code = str_replace(
+                    $m[0],
+                    "(new Closure_{$c['id']}_{$c['lines']}"
+                      .($c['uses'] ? "(array(" . implode(',', $c['uses'] ) . "))" : ''). ")"
+                      . str_repeat("\n", substr_count($m[0], "\n")),
+                    $code
+                );
+                $code = str_replace("/*CLOSURE-HERE:{$c['id']}*/", $m[1], $code);
+            }
+        }
+
+        return $code;
     }
 }
