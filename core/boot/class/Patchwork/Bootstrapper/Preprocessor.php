@@ -42,8 +42,10 @@ class Patchwork_Bootstrapper_Preprocessor
         new Patchwork_PHP_Parser_ClassInfo($p);
         PHP_VERSION_ID < 50300 && new Patchwork_PHP_Parser_NamespaceRemover($p);
         new Patchwork_PHP_Parser_FunctionShim($p, $this->newShims[0]);
-        new Patchwork_PHP_Parser_ClosureShim($p);
-        $p = $this->parser = new Patchwork_PHP_Parser_StaticState($p);
+        $p = new Patchwork_PHP_Parser_ClosureShim($p);
+        $this->parser = new Patchwork_PHP_Parser_StaticState($p);
+        $this->parser->closureShim = $p;
+        $p = $this->parser;
 
         $code = $p->getRunonceCode($code);
 
@@ -75,6 +77,7 @@ class Patchwork_Bootstrapper_Preprocessor
     {
         if (empty($this->parser)) return '';
         $code = substr($this->parser->getRuntimeCode(), 5);
+        $code = $this->parser->closureShim->finalizeClosures($code);
         $this->parser = false;
 
         $o = array();

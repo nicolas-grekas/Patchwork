@@ -147,11 +147,13 @@ class Patchwork_Preprocessor
             case 'NamespaceRemover':   new $t($p, 'Patchwork_PHP_Shim_Php530::add'); break;
             case 'ToStringCatcher':    new $t($p, 'Patchwork\ErrorHandler::handleToStringException'); break;
             case 'SuperPositioner':    new $t($p, $level, $is_top ? $class : false); break;
+            case 'ClosureShim':  $cs = new $t($p); break;
             }
         }
 
         if (empty($p)) return file_get_contents($source);
         $t = $p->parse(file_get_contents($source));
+        if (isset($cs)) $t = $cs->finalizeClosures($t);
 
         if ($c = $p->getErrors())
         {
