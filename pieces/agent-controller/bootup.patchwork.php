@@ -34,8 +34,6 @@ $patchwork_appId = (int) /*<*/sprintf('%020d', $a)/*>*/;
 
 // Helper functions
 
-function strlencmp($a, $b) {return strlen($b) - strlen($a);}
-
 function patchwork_http_socket($host, $port, $ssl, $timeout = 30)
 {
     if ($port <= 0) $port = $ssl ? '443' : '80';

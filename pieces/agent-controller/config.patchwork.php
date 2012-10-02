@@ -69,7 +69,7 @@ foreach ($a as $k => &$v)
 
 unset($a, $v);
 
-usort($b, 'strlencmp');
+usort($b, function($a, $b) {return strlen($b) - strlen($a);});
 $b = '(' . implode('|', $b) . ')';
 
 
