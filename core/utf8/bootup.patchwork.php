@@ -19,12 +19,14 @@ p\Shim(utf8_encode, s\Xml::cp1252_to_utf8, $s);
 p\Shim(utf8_decode, s\Xml::utf8_to_cp1252, $s);
 
 
-// basename() and pathinfo() are locale sensitive, but this breaks UTF-8 paths
+// Locale sensitivity breaks UTF-8
 
 /**/if ('' === basename('§'))
 /**/{
-        p\Shim(basename, s\Fs, $path, $suffix = '');
-        p\Shim(pathinfo, s\Fs, $path, $option = -1);
+        p\Shim(basename, s\Locale, $path, $suffix = '');
+        p\Shim(pathinfo, s\Locale, $path, $option = /*<*/PATHINFO_DIRNAME | PATHINFO_BASENAME | PATHINFO_EXTENSION | PATHINFO_FILENAME/*>*/);
+        p\Shim(escapeshellarg, s\Locale, $arg);
+        p\Shim(escapeshellcmd, s\Locale, $cmd);
 /**/}
 
 

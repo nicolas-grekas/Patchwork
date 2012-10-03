@@ -30,7 +30,7 @@ if (!function_exists('version_compare') || version_compare(phpversion(), '5.2.0'
     die("Patchwork error: PHP 5.2.0 or higher is required");
 
 error_reporting(E_ALL | E_STRICT);
-setlocale(LC_ALL, 'C');
+setlocale(LC_ALL, 'C.UTF-8', 'C');
 
 require dirname(__FILE__) . '/core/boot/class/Patchwork/Bootstrapper/Manager.php';
 require dirname(__FILE__) . '/core/boot/class/Patchwork/Bootstrapper.php';
