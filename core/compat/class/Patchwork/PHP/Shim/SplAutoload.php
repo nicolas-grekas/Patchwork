@@ -23,10 +23,9 @@ class Patchwork_PHP_Shim_SplAutoload
     {
         if (false === self::$canonicStack)
         {
-            throw new LogicException("Class {$class} could not be loaded");
+            user_error("No autoload function is registered", E_USER_WARNING);
         }
-
-        foreach (self::$canonicStack as $c)
+        else foreach (self::$canonicStack as $c)
         {
             call_user_func($c, $class);
             if (class_exists($class, false) || interface_exists($class, false) || trait_exists($class, false)) return;
