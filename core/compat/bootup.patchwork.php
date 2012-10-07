@@ -66,10 +66,12 @@ use Patchwork\PHP\Shim as s;
         p\Shim(array_unique, array_unique, $array, $sort_flags = SORT_STRING);
 /**/}
 
-// Backport UTF-8 default charset from PHP 5.4.0, add new $double_encode parameter (since 5.2.3)
-
 /**/if (PHP_VERSION_ID < 50400)
 /**/{
+        p\Shim(number_format, s\Php540, $number, $decimals = 0, $dec_point = '.', $thousands_sep = ',');
+
+        // Backport UTF-8 default charset from PHP 5.4.0, add new $double_encode parameter (since 5.2.3)
+
         p\Shim(html_entity_decode, html_entity_decode, $s, $style = ENT_COMPAT, $charset = 'UTF-8');
         p\Shim(get_html_translation_table, get_html_translation_table, $table = HTML_SPECIALCHARS, $style = ENT_COMPAT, $charset = 'UTF-8');
 
