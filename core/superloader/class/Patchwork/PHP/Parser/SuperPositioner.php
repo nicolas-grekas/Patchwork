@@ -57,12 +57,14 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
         {
             if (isset($token[2][T_USE_CLASS])
                 && 0 === strcasecmp('\ReflectionClass', $this->nsResolved)
-                && (!$this->class || strcasecmp('Patchwork_PHP_ReflectionClass', strtr($this->class->nsName, '\\', '_'))))
+                && (!$this->class || strcasecmp('Patchwork_PHP_Shim_ReflectionClass', strtr($this->class->nsName, '\\', '_'))))
             {
                 $this->unshiftTokens(
                     array(T_STRING, 'Patchwork'),
                     array(T_NS_SEPARATOR, '\\'),
                     array(T_STRING, 'PHP'),
+                    array(T_NS_SEPARATOR, '\\'),
+                    array(T_STRING, 'Shim'),
                     array(T_NS_SEPARATOR, '\\'),
                     array(T_STRING, 'ReflectionClass')
                 );

@@ -8,10 +8,10 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
-namespace Patchwork\PHP;
+namespace Patchwork\PHP\Shim;
 
 /**
- * ReflectionClass hides superpositioning to the native ReflectionClass users.
+ * ReflectionClass hides superpositioning to ReflectionClass' users.
  */
 class ReflectionClass extends \ReflectionClass
 {
