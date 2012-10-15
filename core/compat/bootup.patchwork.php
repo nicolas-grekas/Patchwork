@@ -91,8 +91,8 @@ use Patchwork\PHP\Shim as s;
 
 /**/if (PHP_VERSION_ID < 50500)
 /**/{
-        define('PASSWORD_BCRYPT', 1);
-        define('PASSWORD_DEFAULT', /*<*/(int) (function_exists('crypt') && CRYPT_BLOWFISH)/*>*/);
+        const PASSWORD_BCRYPT = 1;
+        const PASSWORD_DEFAULT = /*<*/(int) (function_exists('crypt') && CRYPT_BLOWFISH)/*>*/;
 
         p\Shim(password_hash,         s\Php550, $password, $algo, array $options = array());
         p\Shim(password_get_info,     s\Php550, $hash);

@@ -438,6 +438,16 @@ class Utf8
         return number_format($number, $decimals, $dec_point, $thousands_sep);
     }
 
+    static function utf8_encode($s)
+    {
+        return \Patchwork\PHP\Shim\Xml::cp1252_to_utf8($s);
+    }
+
+    static function utf8_decode($s)
+    {
+        return \Patchwork\PHP\Shim\Xml::utf8_to_cp1252($s);
+    }
+
 
     protected static function rxClass($s, $class = '')
     {

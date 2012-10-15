@@ -11,7 +11,7 @@
 namespace Patchwork\PHP\Shim;
 
 /**
- * utf8_encode/decode enhanced to Windows-1252.
+ * utf8_encode/decode
  */
 class Xml
 {
@@ -43,7 +43,6 @@ class Xml
     }
 
 /**/if (!extension_loaded('xml')):
-
     static function utf8_encode($s)
     {
         $len = strlen($s);
@@ -86,6 +85,5 @@ class Xml
 
         return substr($s, 0, $j);
     }
-
 /**/endif;
 }

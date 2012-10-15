@@ -11,6 +11,14 @@
 use Patchwork as p;
 use Patchwork\PHP\Shim as s;
 
+// Check PCRE
+
+/**/if (!preg_match('/^.$/u', '§'))
+/**/{
+        throw boot::$manager->error('PCRE is compiled without UTF-8 support');
+/**/}
+
+
 // utf8_encode/decode support enhanced to Windows-1252
 
 /**/boot::$manager->pushFile('class/Patchwork/PHP/Shim/Xml.php');
@@ -35,22 +43,36 @@ p\Shim(utf8_decode, s\Xml::utf8_to_cp1252, $s);
 /**/if (extension_loaded('mbstring'))
 /**/{
 /**/    if (ini_get_bool('mbstring.encoding_translation') && !in_array(strtolower(ini_get('mbstring.http_input')), array('pass', '8bit', 'utf-8')))
-/**/        throw boot::$manager->error('Please disable "mbstring.encoding_translation" or set "mbstring.http_input" to "utf-8" or "pass"');
+/**/    {
+/**/        throw boot::$manager->error('php.ini settings: Please disable mbstring.encoding_translation or set mbstring.http_input to "pass"');
+/**/    }
 
         mb_regex_encoding('UTF-8');
         ini_set('mbstring.script_encoding', 'pass');
 
 /**/    if ('utf-8' !== strtolower(mb_internal_encoding()))
-            mb_internal_encoding('UTF-8') + ini_set('mbstring.internal_encoding', 'UTF-8');
+/**/    {
+            mb_internal_encoding('UTF-8');
+            ini_set('mbstring.internal_encoding', 'UTF-8');
+/**/    }
 
-/**/    if ('none'  !== strtolower(mb_substitute_character()))
-            mb_substitute_character('none') + ini_set('mbstring.substitute_character', 'none');
+/**/    if ('none' !== strtolower(mb_substitute_character()))
+/**/    {
+            mb_substitute_character('none');
+            ini_set('mbstring.substitute_character', 'none');
+/**/    }
 
 /**/    if (!in_array(strtolower(mb_http_output()), array('pass', '8bit')))
-            mb_http_output('pass') + ini_set('mbstring.http_output', 'pass');
+/**/    {
+            mb_http_output('pass');
+            ini_set('mbstring.http_output', 'pass');
+/**/    }
 
 /**/    if (!in_array(strtolower(mb_language()), array('uni', 'neutral')))
-            mb_language('uni') + ini_set('mbstring.language', 'uni');
+/**/    {
+            mb_language('uni');
+            ini_set('mbstring.language', 'uni');
+/**/    }
 /**/}
 /**/else
 /**/{
@@ -96,13 +118,22 @@ p\Shim(utf8_decode, s\Xml::utf8_to_cp1252, $s);
 /**/if (extension_loaded('iconv'))
 /**/{
 /**/    if ('UTF-8' !== iconv_get_encoding('input_encoding'))
-            iconv_set_encoding('input_encoding'   , 'UTF-8') + ini_set('iconv.input_encoding',    'UTF-8');
+/**/    {
+            iconv_set_encoding('input_encoding', 'UTF-8');
+            ini_set('iconv.input_encoding', 'UTF-8');
+/**/    }
 
 /**/    if ('UTF-8' !== iconv_get_encoding('internal_encoding'))
-            iconv_set_encoding('internal_encoding', 'UTF-8') + ini_set('iconv.internal_encoding', 'UTF-8');
+/**/    {
+            iconv_set_encoding('internal_encoding', 'UTF-8');
+            ini_set('iconv.internal_encoding', 'UTF-8');
+/**/    }
 
 /**/    if ('UTF-8' !== iconv_get_encoding('output_encoding'))
-            iconv_set_encoding('output_encoding'  , 'UTF-8') + ini_set('iconv.output_encoding',   'UTF-8');
+/**/    {
+            iconv_set_encoding('output_encoding', 'UTF-8');
+            ini_set('iconv.output_encoding', 'UTF-8');
+/**/    }
 
 /**/    if (PHP_VERSION_ID < 50400)
 /**/    {
@@ -158,11 +189,6 @@ p\Shim(utf8_decode, s\Xml::utf8_to_cp1252, $s);
 /**/}
 
 
-// Check PCRE
-
-/**/if (!preg_match('/^.$/u', '§')) throw boot::$manager->error('PCRE is not compiled with UTF-8 support');
-
-
 // intl configuration
 
 /**/if (!extension_loaded('intl'))
@@ -205,9 +231,9 @@ p\Shim(utf8_decode, s\Xml::utf8_to_cp1252, $s);
         // This regular expression is not up to date with the latest unicode grapheme cluster definition.
         // However, until http://bugs.exim.org/show_bug.cgi?id=1279 is fixed, it's still better than \X
 
-        define('GRAPHEME_CLUSTER_RX', '(?:\r\n|(?:[ -~\x{200C}\x{200D}]|[ᆨ-ᇹ]+|[ᄀ-ᅟ]*(?:[가개갸걔거게겨계고과괘괴교구궈궤귀규그긔기까깨꺄꺠꺼께껴꼐꼬꽈꽤꾀꾜꾸꿔꿰뀌뀨끄끠끼나내냐냬너네녀녜노놔놰뇌뇨누눠눼뉘뉴느늬니다대댜댸더데뎌뎨도돠돼되됴두둬뒈뒤듀드듸디따때땨떄떠떼뗘뗴또똬뙈뙤뚀뚜뚸뛔뛰뜌뜨띄띠라래랴럐러레려례로롸뢔뢰료루뤄뤠뤼류르릐리마매먀먜머메며몌모뫄뫠뫼묘무뭐뭬뮈뮤므믜미바배뱌뱨버베벼볘보봐봬뵈뵤부붜붸뷔뷰브븨비빠빼뺘뺴뻐뻬뼈뼤뽀뽜뽸뾔뾰뿌뿨쀄쀠쀼쁘쁴삐사새샤섀서세셔셰소솨쇄쇠쇼수숴쉐쉬슈스싀시싸쌔쌰썌써쎄쎠쎼쏘쏴쐐쐬쑈쑤쒀쒜쒸쓔쓰씌씨아애야얘어에여예오와왜외요우워웨위유으의이자재쟈쟤저제져졔조좌좨죄죠주줘줴쥐쥬즈즤지짜째쨔쨰쩌쩨쪄쪠쪼쫘쫴쬐쬬쭈쭤쮀쮜쮸쯔쯰찌차채챠챼처체쳐쳬초촤쵀최쵸추춰췌취츄츠츼치카캐캬컈커케켜켸코콰쾌쾨쿄쿠쿼퀘퀴큐크킈키타태탸턔터테텨톄토톼퇘퇴툐투퉈퉤튀튜트틔티파패퍄퍠퍼페펴폐포퐈퐤푀표푸풔풰퓌퓨프픠피하해햐햬허헤혀혜호화홰회효후훠훼휘휴흐희히]?[ᅠ-ᆢ]+|[가-힣])[ᆨ-ᇹ]*|[ᄀ-ᅟ]+|[^\p{Cc}\p{Cf}\p{Zl}\p{Zp}])[\p{Mn}\p{Me}\x{09BE}\x{09D7}\x{0B3E}\x{0B57}\x{0BBE}\x{0BD7}\x{0CC2}\x{0CD5}\x{0CD6}\x{0D3E}\x{0D57}\x{0DCF}\x{0DDF}\x{200C}\x{200D}\x{1D165}\x{1D16E}-\x{1D172}]*|[\p{Cc}\p{Cf}\p{Zl}\p{Zp}])');
+        const GRAPHEME_CLUSTER_RX = '(?:\r\n|(?:[ -~\x{200C}\x{200D}]|[ᆨ-ᇹ]+|[ᄀ-ᅟ]*(?:[가개갸걔거게겨계고과괘괴교구궈궤귀규그긔기까깨꺄꺠꺼께껴꼐꼬꽈꽤꾀꾜꾸꿔꿰뀌뀨끄끠끼나내냐냬너네녀녜노놔놰뇌뇨누눠눼뉘뉴느늬니다대댜댸더데뎌뎨도돠돼되됴두둬뒈뒤듀드듸디따때땨떄떠떼뗘뗴또똬뙈뙤뚀뚜뚸뛔뛰뜌뜨띄띠라래랴럐러레려례로롸뢔뢰료루뤄뤠뤼류르릐리마매먀먜머메며몌모뫄뫠뫼묘무뭐뭬뮈뮤므믜미바배뱌뱨버베벼볘보봐봬뵈뵤부붜붸뷔뷰브븨비빠빼뺘뺴뻐뻬뼈뼤뽀뽜뽸뾔뾰뿌뿨쀄쀠쀼쁘쁴삐사새샤섀서세셔셰소솨쇄쇠쇼수숴쉐쉬슈스싀시싸쌔쌰썌써쎄쎠쎼쏘쏴쐐쐬쑈쑤쒀쒜쒸쓔쓰씌씨아애야얘어에여예오와왜외요우워웨위유으의이자재쟈쟤저제져졔조좌좨죄죠주줘줴쥐쥬즈즤지짜째쨔쨰쩌쩨쪄쪠쪼쫘쫴쬐쬬쭈쭤쮀쮜쮸쯔쯰찌차채챠챼처체쳐쳬초촤쵀최쵸추춰췌취츄츠츼치카캐캬컈커케켜켸코콰쾌쾨쿄쿠쿼퀘퀴큐크킈키타태탸턔터테텨톄토톼퇘퇴툐투퉈퉤튀튜트틔티파패퍄퍠퍼페펴폐포퐈퐤푀표푸풔풰퓌퓨프픠피하해햐햬허헤혀혜호화홰회효후훠훼휘휴흐희히]?[ᅠ-ᆢ]+|[가-힣])[ᆨ-ᇹ]*|[ᄀ-ᅟ]+|[^\p{Cc}\p{Cf}\p{Zl}\p{Zp}])[\p{Mn}\p{Me}\x{09BE}\x{09D7}\x{0B3E}\x{0B57}\x{0BBE}\x{0BD7}\x{0CC2}\x{0CD5}\x{0CD6}\x{0D3E}\x{0D57}\x{0DCF}\x{0DDF}\x{200C}\x{200D}\x{1D165}\x{1D16E}-\x{1D172}]*|[\p{Cc}\p{Cf}\p{Zl}\p{Zp}])';
 /**/}
 /**/else
 /**/{
-        define('GRAPHEME_CLUSTER_RX', '\X');
+        const GRAPHEME_CLUSTER_RX = '\X';
 /**/}
