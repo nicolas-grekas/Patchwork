@@ -123,25 +123,18 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
         case T_NAMESPACE:
             $token[1] = 'define(';
 
-            $this->getNextToken($i); // The only valid token here is a T_NON_SEMANTIC
-            $this->tokens[$i-2][1] .= "'" . strtr($this->namespace, '\\', '_');
-
             $this->constBracketLevel = count($this->brackets);
             $this->register($this->callbacks = array(
-                'tagConstName' => T_STRING,
                 'tagConstEqual' => '=',
                 'tagConstEnd' => array(';', ','),
             ));
         }
     }
 
-    protected function tagConstName(&$token)
-    {
-        $this->unshiftTokens(array(T_WHITESPACE, "'"));
-    }
-
     protected function tagConstEqual(&$token)
     {
+        end($this->types);
+        $this->texts[key($this->types)] = "'" . strtr($this->namespace, '\\', '_') . $this->texts[key($this->types)] . "'";
         $token[1] = ',';
     }
 
@@ -157,8 +150,6 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
             else
             {
                 $token[1] = ");define(";
-                $this->getNextToken($i);
-                $this->tokens[$i-2][1] .= "'" . strtr($this->namespace, '\\', '_');
             }
         }
     }
