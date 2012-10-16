@@ -19,7 +19,6 @@ ini_set('unserialize_callback_func', /*<*/function_exists('__patchwork_spl_autol
 ini_set('html_errors', false);
 ini_set('display_errors', true);
 error_reporting(/*<*/E_ALL | E_STRICT/*>*/);
-setlocale(LC_ALL, /*<*/setlocale(LC_ALL, 0)/*>*/);
 
 // spl_autoload() evades code preprocessing, do not use it
 

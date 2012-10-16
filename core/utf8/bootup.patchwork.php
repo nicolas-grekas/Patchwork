@@ -27,6 +27,18 @@ p\Shim(utf8_encode, s\Xml::cp1252_to_utf8, $s);
 p\Shim(utf8_decode, s\Xml::utf8_to_cp1252, $s);
 
 
+// Try to set a UTF-8 compatible locale
+
+/**/$a = setlocale(LC_CTYPE, 'C.UTF-8', 'en_US.UTF-8', 'en_US.utf8', 0);
+
+setlocale(LC_ALL, /*<*/setlocale(LC_CTYPE, 'C.UTF-8', 'C')/*>*/);
+
+/**/if ('C.UTF-8' !== setlocale(LC_CTYPE, 0) && preg_match('/\.UTF-?8$/i', $a))
+/**/{
+        setlocale(LC_CTYPE, /*<*/setlocale(LC_CTYPE, $a)/*>*/);
+/**/}
+
+
 // Locale sensitivity breaks UTF-8
 
 /**/if ('' === basename('§'))
