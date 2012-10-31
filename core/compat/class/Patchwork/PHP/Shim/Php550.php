@@ -33,6 +33,8 @@
 
 namespace Patchwork\PHP\Shim;
 
+/**/$bcrypt_2y = crypt('', '$2y$04$1234567890123456789012') === '$2y$04$123456789012345678901uVTVpbHniVAv2CmG4UV2sJqSWa2e9QRu';
+
 class Php550
 {
     /**
@@ -78,7 +80,7 @@ class Php550
                     break;
 /**/            } else {
                     $required_salt_len = 22;
-                    $hash_format = sprintf(/*<*/PHP_VERSION_ID >= 50307 ? "$2y$%02d$" : "$2a$%02d$"/*>*/, $cost);
+                    $hash_format = sprintf(/*<*/$bcrypt_2y ? "$2y$%02d$" : "$2a$%02d$"/*>*/, $cost);
                     break;
 /**/            }
             default:
@@ -148,7 +150,7 @@ class Php550
             return false;
         }
 
-/**/    if (PHP_VERSION_ID < 50307 && PASSWORD_DEFAULT)
+/**/    if (PASSWORD_DEFAULT && !$bcrypt_2y)
             $ret[2] = 'x';
 
         return $ret;
@@ -208,7 +210,7 @@ class Php550
         }
         switch ($algo) {
             case PASSWORD_BCRYPT:
-/**/            if (PHP_VERSION_ID >= 50307)
+/**/            if ($bcrypt_2y)
                     if ('bcrypt' !== $info['algoName'])
                         return true;
             case 0:
@@ -241,7 +243,7 @@ class Php550
                 return false;
 /**/        }
 
-/**/        if (PHP_VERSION_ID < 50307 && PASSWORD_DEFAULT)
+/**/        if (PASSWORD_DEFAULT && !$bcrypt_2y)
                 if ('$' === $hash[3] && ('$2x' === $ret || '$2y' === $ret)) $hash[2] = 'a';
 
             $ret = crypt($password, $hash);
