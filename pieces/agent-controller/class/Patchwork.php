@@ -987,11 +987,11 @@ class Patchwork
 
             $private = '0';
 
+            ob_start();
             self::$privateDetectionMode = true;
 
             try
             {
-                ob_start();
                 new $agent instanceof \agent || user_error("Class {$agent} does not inherit from class agent");
             }
             catch (e\PrivateResource $d)
@@ -1002,15 +1002,14 @@ class Patchwork
             {
             }
 
+            self::$privateDetectionMode = false;
+            ob_end_clean();
 
             // Cache results
 
             fwrite($h, $private . (DEBUG ? '' : serialize($args)));
             flock($h, LOCK_UN);
             fclose($h);
-
-            self::$privateDetectionMode = false;
-            ob_end_clean();
 
             if ($private) $args[] = 'T$';
         }

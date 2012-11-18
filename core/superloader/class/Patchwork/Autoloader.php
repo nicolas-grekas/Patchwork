@@ -349,7 +349,7 @@ class Patchwork_Autoloader extends Patchwork_Superloader
             }
             else rename($a, $to);
 
-            function_exists('apc_delete_file') && apc_delete_file($to);
+            function_exists('apc_delete_file') && @apc_delete_file($to);
         }
     }
 }
