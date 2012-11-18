@@ -89,6 +89,7 @@ class Patchwork_PHP_Parser_Normalizer extends Patchwork_PHP_Parser
 
         $a = array_pop($code);
 
+        if (T_COMMENT === $a[0] && strcspn($a[1], "\r\n") === strlen($a[1])) $a[1] .= "\n";
         $code[] = T_CLOSE_TAG === $a[0] ? ';' : $a;
         T_INLINE_HTML === $a[0] && $code[] = array(T_OPEN_TAG, '<?php ');
         $code[] = array(T_ENDPHP, '');
