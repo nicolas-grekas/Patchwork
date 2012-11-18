@@ -266,7 +266,12 @@ class ErrorHandler
     function getLogger()
     {
         if (isset($this->logger)) return $this->logger;
-        isset(self::$logStream) || self::$logStream = fopen(self::$logFile, 'ab');
+        if (!isset(self::$logStream))
+        {
+            self::$logStream = fopen(self::$logFile, 'ab');
+/**/        if ('\\' !== DIRECTORY_SEPARATOR)
+                flock(self::$logFile, LOCK_SH);
+        }
         return $this->logger = new Logger(self::$logStream);
     }
 }

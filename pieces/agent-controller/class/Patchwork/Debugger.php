@@ -123,47 +123,80 @@ class Debugger extends p
 <div id="events" style="display:none">
 <?php
 
-        $handlers = array();
-
         for (;;)
         {
+            $continue = false;
+
             foreach (scandir(PATCHWORK_ZCACHE) as $log)
-                if ('.log' === substr($log = PATCHWORK_ZCACHE . $log, -4))
-                    if (rename($log, $log .= '~'))
-                        ($h = fopen($log, 'rb')) ? $handlers[$log] = new p\PHP\JsonDumpIterator($h) : unlink($log);
-
-            $count = 0;
-
-            foreach ($handlers as $log => $h)
             {
+                if ('.log' !== substr($log = PATCHWORK_ZCACHE . $log, -4)) continue;
+
+/**/            // On Windows only, rename() fails if the file is opened in an other process.
+/**/            // We use this behavior to detect this and cancel sending the file.
+/**/            if ('\\' === DIRECTORY_SEPARATOR)
+/**/            {
+                    if (!@rename($log, $log .= '~'))
+                    {
+                        $continue = true;
+                        continue;
+                    }
+/**/            }
+
+                if (!$h = @fopen($log, 'rb'))
+                {
+/**/                if ('\\' === DIRECTORY_SEPARATOR)
+                        rename($log, substr($log, 0, -1));
+                    continue;
+                }
+
+/**/            if ('\\' !== DIRECTORY_SEPARATOR)
+/**/            {
+                    usleep(1); // Give priority for locking to the ErrorHandler process
+
+                    if (@flock($h, LOCK_EX+LOCK_NB, $j) && !$j) unlink($log);
+                    else
+                    {
+                        $continue = true;
+                        continue;
+                    }
+/**/            }
+
+                $it = new p\PHP\JsonDumpIterator($h);
+
                 try
                 {
-                    foreach ($h as $j)
+                    unset($j);
+                    foreach ($it as $j)
                     {
                         echo '<script>patchworkConsole.log(',
-                            $h->jsonStr($j['type']), ',',
+                            $it->jsonStr($j['type']), ',',
                             $j['json'], ',',
-                            $h->jsonStr(substr(md5($log), -10)),
+                            $it->jsonStr(substr(md5($log), -10)),
                             ')</script>', "\n";
                         ob_flush();
                         flush();
 
-                        if (connection_aborted()) break 3;
+                        if (connection_aborted())
+                        {
+                            $continue = false;
+                            break;
+                        }
                     }
-
-                    ++$count;
                 }
-                catch (p\PHP\JsonDumpIteratorException $h)
+                catch (p\PHP\JsonDumpIteratorException $it)
                 {
                 }
+
+                flock($h, LOCK_UN);
+                fclose($h);
+
+/**/            if ('\\' === DIRECTORY_SEPARATOR)
+                    unlink($log);
             }
 
-            if ($count === count($handlers)) break;
-
-            usleep(150000);
+            if ($continue && isset($j)) usleep(150000);
+            else break;
         }
-
-        foreach ($handlers as $log => $h) fclose($h->getStream()) + unlink($log);
 
         ?>
 </div>
