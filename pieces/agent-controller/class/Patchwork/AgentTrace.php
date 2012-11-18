@@ -34,7 +34,7 @@ class AgentTrace extends p
         $agent = p::base($agent, true);
         $agent = preg_replace("'^.*?://[^/]*'", '', $agent);
 
-        $h = patchwork_http_socket($_SERVER['SERVER_ADDR'], $_SERVER['SERVER_PORT'], isset($_SERVER['HTTPS']));
+        $h = patchwork_http_socket($_SERVER['SERVER_ADDR'], $_SERVER['SERVER_PORT'], isset($_SERVER['HTTPS']), 5, $_SERVER['HTTP_HOST']);
 
         $keys  = p::$lang;
         $keys  = "GET {$agent}?p:=k:{$keys} HTTP/1.0\r\n";

@@ -34,14 +34,24 @@ $patchwork_appId = (int) /*<*/sprintf('%020d', $a)/*>*/;
 
 // Helper functions
 
-function patchwork_http_socket($host, $port, $ssl, $timeout = 30)
+function patchwork_http_socket($host, $port, $ssl, $timeout = 30, $hostname = null)
 {
     if ($port <= 0) $port = $ssl ? '443' : '80';
     $ssl = $ssl ? 'ssl' : 'tcp';
 
     false !== strpos($host, ':') && $host = '[' . $host . ']';
-    strspn(substr($host, -1), '0123456789]:.') || $host .= '.';
-    $h = fsockopen("{$ssl}://{$host}", $port, $errno, $errstr, $timeout);
+
+    if (!strspn(substr($host, -1), '0123456789]:.'))
+    {
+        if (empty($hostname)) $hostname = $host;
+        $host .= '.';
+    }
+
+    if (/*<*/PHP_VERSION_ID < 50302/*>*/ || 'ssl' !== $ssl || empty($hostname)) $h = array();
+    else $h = array('ssl' => array('SNI_server_name' => $hostname));
+
+    $h = stream_context_create($h);
+    $h = stream_socket_client("{$ssl}://{$host}:{$port}", $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT, $h);
 
     if (!$h) throw new Exception("Socket error n°{$errno}: {$errstr}");
 

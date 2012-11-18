@@ -100,7 +100,7 @@ $a = rawurldecode($a);
 /**/default:
 /**/    // Check if the webserver supports PATH_INFO
 /**/
-/**/    $h = patchwork_http_socket($_SERVER['SERVER_ADDR'], $_SERVER['SERVER_PORT'], isset($_SERVER['HTTPS']));
+/**/    $h = patchwork_http_socket($_SERVER['SERVER_ADDR'], $_SERVER['SERVER_PORT'], isset($_SERVER['HTTPS']), 5, $_SERVER['HTTP_HOST']);
 /**/
 /**/    $a = strpos($_SERVER['REQUEST_URI'], '?');
 /**/    $a = false === $a ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $a);
