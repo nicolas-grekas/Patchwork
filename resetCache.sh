@@ -1,20 +1,19 @@
 #!/bin/bash
 
-for I in `locate /config.patchwork.php | grep -v \\\.svn -v 2> /dev/null`
+for I in `locate /config.patchwork.php | grep '/config\.patchwork\.php$' 2> /dev/null`
 do
     if test -f $I
     then
         I=`dirname $I`
-        rm -f $I/.*.zcache.php 2> /dev/null
+        touch $I/config.patchwork.php $I/.patchwork.lock 2> /dev/null
+        rm -f $I/.patchwork.php $I/.*.zcache.php $I/.patchwork.lock 2> /dev/null &
 
-        if test -d $I/zcache
-        then
-            rm -Rf $I/zcache/*/*/
-        fi
+        for J in $I/zcache/?/?
+        do
+            mv $J $J.old 2> /dev/null
+        done
 
-        touch $I/config.patchwork.php
-        rm -f $I/.*.zcache.php 2> /dev/null
-        rm -f $I/.~* 2> /dev/null
-        rm -f $I/.patchwork.lock $I/.patchwork.shims.ser $I/.patchwork.php 2> /dev/null
+        rm -Rf $I/zcache/?/?.old 2> /dev/null &
+        find $I/.~* ! -mtime -1 -delete 2> /dev/null &
     fi
 done

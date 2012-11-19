@@ -108,6 +108,9 @@ class Patchwork_Preprocessor
                 file_exists($destination) && @unlink($destination);
 
             rename($tmp, $destination) || unlink($tmp);
+
+/**/        if (function_exists('apc_compile_file'))
+                apc_compile_file($destination);
         }
 
         array_pop(self::$recursivePool);

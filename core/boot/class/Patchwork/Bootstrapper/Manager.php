@@ -59,7 +59,7 @@ class Patchwork_Bootstrapper_Manager
         {
             $s = '$CONFIG = array();';
 
-            if (function_exists('apc_clear_cache')) apc_clear_cache();
+            if (function_exists('apc_clear_cache')) apc_clear_cache('opcode');
 
             // Turn off magic quotes runtime
 
@@ -136,8 +136,11 @@ class Patchwork_Bootstrapper_Manager
 
         if ($this->lock = @fopen($lock, 'xb'))
         {
+            flock($this->lock, LOCK_EX);
+
             if (file_exists($file))
             {
+                flock($this->lock, LOCK_UN);
                 fclose($this->lock);
                 $this->lock = null;
                 @unlink($lock);
@@ -150,7 +153,6 @@ class Patchwork_Bootstrapper_Manager
                 else return false;
             }
 
-            flock($this->lock, LOCK_EX);
             fwrite($this->lock, "<?php\n");
 
             return true;

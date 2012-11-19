@@ -259,6 +259,8 @@ class Serverside extends p
                 fwrite($h, $ftemplate);
                 flock($h, LOCK_UN);
                 fclose($h);
+/**/            if (function_exists('apc_compile_file'))
+                    apc_compile_file($ctemplate);
                 list(,,, $watch) = p::closeMeta();
                 p::writeWatchTable($watch, $ctemplate);
             }

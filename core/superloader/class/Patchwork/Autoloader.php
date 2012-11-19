@@ -131,6 +131,8 @@ class Patchwork_Autoloader extends Patchwork_Superloader
                 {
                     file_exists($cache) && unlink($cache);
                     copy($src, $cache);
+/**/                if (function_exists('apc_compile_file'))
+                        apc_compile_file($cache);
                 }
                 else Patchwork_Preprocessor::execute($src, $cache, $level, $top, $isTop, false);
             }
@@ -338,18 +340,13 @@ class Patchwork_Autoloader extends Patchwork_Superloader
         $a = PATCHWORK_PROJECT_PATH . '.~' . uniqid(mt_rand(), true);
         if (false !== file_put_contents($a, $data))
         {
-            function_exists('apc_delete_file')
-                ? touch($a, filemtime($to)    )
-                : touch($a, filemtime($to) + 1); // +1 to notify the change to opcode caches
+/**/        if ('\\' === DIRECTORY_SEPARATOR)
+                unlink($to);
 
-            if ('\\' === DIRECTORY_SEPARATOR)
-            {
-                file_exists($to) && unlink($to);
-                rename($a, $to) || unlink($a);
-            }
-            else rename($a, $to);
+            rename($a, $to) || unlink($a);
 
-            function_exists('apc_delete_file') && @apc_delete_file($to);
+/**/        if (function_exists('apc_compile_file'))
+                apc_compile_file($to);
         }
     }
 }
