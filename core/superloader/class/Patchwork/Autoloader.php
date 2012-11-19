@@ -340,6 +340,9 @@ class Patchwork_Autoloader extends Patchwork_Superloader
         $a = PATCHWORK_PROJECT_PATH . '.~' . uniqid(mt_rand(), true);
         if (false !== file_put_contents($a, $data))
         {
+            // Preserve source vs cache mtime comparisons
+            touch($a, filemtime($to));
+
 /**/        if ('\\' === DIRECTORY_SEPARATOR)
                 unlink($to);
 
