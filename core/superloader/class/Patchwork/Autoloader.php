@@ -131,8 +131,8 @@ class Patchwork_Autoloader extends Patchwork_Superloader
                 {
                     file_exists($cache) && unlink($cache);
                     copy($src, $cache);
-/**/                if (function_exists('apc_compile_file'))
-                        apc_compile_file($cache);
+/**/                if (function_exists('apc_clear_cache'))
+                        apc_clear_cache('opcode');
                 }
                 else Patchwork_Preprocessor::execute($src, $cache, $level, $top, $isTop, false);
             }
@@ -348,8 +348,8 @@ class Patchwork_Autoloader extends Patchwork_Superloader
 
             rename($a, $to) || unlink($a);
 
-/**/        if (function_exists('apc_compile_file'))
-                apc_compile_file($to);
+/**/        if (function_exists('apc_clear_cache'))
+                apc_clear_cache('opcode');
         }
     }
 }

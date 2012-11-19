@@ -109,8 +109,8 @@ class Patchwork_Preprocessor
 
             rename($tmp, $destination) || unlink($tmp);
 
-/**/        if (function_exists('apc_compile_file'))
-                apc_compile_file($destination);
+/**/        if (function_exists('apc_clear_cache'))
+                apc_clear_cache('opcode');
         }
 
         array_pop(self::$recursivePool);
