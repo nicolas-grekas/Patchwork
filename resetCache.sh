@@ -5,7 +5,8 @@ do
     if test -f $I
     then
         I=`dirname $I`
-        touch $I/config.patchwork.php $I/.patchwork.lock 2> /dev/null
+        touch $I/config.patchwork.php
+        touch $I/.patchwork.lock 2> /dev/null
         rm -f $I/.patchwork.php $I/.*.zcache.php $I/.patchwork.lock 2> /dev/null &
 
         for J in $I/zcache/?/?
