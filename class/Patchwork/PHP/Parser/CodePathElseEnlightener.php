@@ -11,7 +11,7 @@
 /**
  * The CodePathElseEnlightner parser adds missing "else" to "if" for decision coverage.
  *
- * TODO: alternative syntax
+ * @todo Alternative syntax
  */
 class Patchwork_PHP_Parser_CodePathElseEnlightener extends Patchwork_PHP_Parser
 {

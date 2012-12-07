@@ -23,16 +23,16 @@ class Patchwork_PHP_Parser_ToStringCatcher extends Patchwork_PHP_Parser
     $dependencies = array('ScopeInfo' => 'scope');
 
 
-    function __construct(parent $parent, $exceptionCallback)
+    function __construct(parent $parent, $exception_callback)
     {
         parent::__construct($parent);
 
-        $exceptionCallback = ltrim($exceptionCallback, '\\');
+        $exception_callback = ltrim($exception_callback, '\\');
 
-        if ($this->targetPhpVersionId >= 50300) $exceptionCallback = '\\' . $exceptionCallback;
-        else $exceptionCallback = strtr($exceptionCallback, '\\', '_');
+        if ($this->targetPhpVersionId >= 50300) $exception_callback = '\\' . $exception_callback;
+        else $exception_callback = strtr($exception_callback, '\\', '_');
 
-        $this->exceptionCallback = $exceptionCallback;
+        $this->exceptionCallback = $exception_callback;
     }
 
     protected function tagToString(&$token)

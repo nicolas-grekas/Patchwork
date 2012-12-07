@@ -11,7 +11,7 @@
 /**
  * The CodePathSwitchEnlightner parser instruments switch structures for branch coverage analysis.
  *
- * TODO: annotation for switches where "default" can not be jumped to because "cases" cover all accessible possibilities.
+ * @todo Annotation for switches where "default" can not be jumped to because "cases" cover all accessible possibilities.
  */
 class Patchwork_PHP_Parser_CodePathSwitchEnlightener extends Patchwork_PHP_Parser
 {

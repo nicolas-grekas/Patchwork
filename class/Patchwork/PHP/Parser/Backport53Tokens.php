@@ -16,7 +16,7 @@ defined('T_NAMESPACE') || Patchwork_PHP_Parser::createToken('T_NAMESPACE');
 /**
  * The Backport53Tokens parser backports tokens introduced in PHP 5.3.
  *
- * @todo backport nowdoc syntax, allow heredoc in static declarations.
+ * @todo Backport nowdoc syntax, allow heredoc in static declarations.
  */
 class Patchwork_PHP_Parser_Backport53Tokens extends Patchwork_PHP_Parser
 {

@@ -13,6 +13,8 @@ if (isset($argc)) --$argc;
 array_shift($_SERVER['argv']);
 if (isset($argv)) $argv = $_SERVER['argv'];
 
+require Patchwork_PHP_Preprocessor::register() . dirname(dirname(__FILE__)) . '/bootup.shim.php';
+
 if (isset($_SERVER['argv'][0]))
 {
     require Patchwork_PHP_Preprocessor::register() . $_SERVER['argv'][0];

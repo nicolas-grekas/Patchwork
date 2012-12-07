@@ -12,7 +12,8 @@
 /**
  * The PhpPreprocessor parser applies a stream filter to require instructions
  *
- * @todo: nested require, like in require (require $file)
+ * @todo Nested require, like in require(require $file)
+ * @todo Preprocess T_EVAL
  */
 class Patchwork_PHP_Parser_PhpPreprocessor extends Patchwork_PHP_Parser
 {

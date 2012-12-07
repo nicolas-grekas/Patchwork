@@ -11,8 +11,8 @@
 /**
  * The CodePathSplitter parser merges and splits lines at code path nodes, enabling extensive code coverage analysis.
  *
- * TODO: more clever whitespace offsets with linePrefix
- * TODO: inline tags or other idea to mesure branch related coverage metrics
+ * @todo More clever whitespace offsets with linePrefix
+ * @todo Inline tags or other idea to mesure branch related coverage metrics
  */
 class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
 {
