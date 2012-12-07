@@ -55,9 +55,9 @@ class Patchwork_PHP_Preprocessor extends Patchwork_AbstractStreamProcessor
     function __construct()
     {
         foreach ($this->parsers as $class => &$enabled)
-            $enabled = $enabled
-                && (0 > $enabled ? PHP_VERSION_ID < -$enabled : PHP_VERSION_ID >= $enabled)
-                && class_exists($this->parserPrefix . $class);
+            $enabled = $enabled && (0 > $enabled ? PHP_VERSION_ID < -$enabled : PHP_VERSION_ID >= $enabled);
+
+        $this->process('<?php ');
     }
 
     function process($code)

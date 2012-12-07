@@ -146,6 +146,7 @@ class Patchwork_PHP_Parser_FunctionShim extends Patchwork_PHP_Parser
 
     function __construct(parent $parent, &$new_shims = array())
     {
+        class_exists('Patchwork_PHP_Parser_Bracket_Callback');
         parent::__construct($parent);
         $this->shims = self::$staticShims;
         $this->newShims =& $new_shims;
