@@ -10,13 +10,15 @@
 
 class Patchwork_PHP_Preprocessor extends Patchwork_AbstractStreamProcessor
 {
-    static
+    protected
 
+    $parserPrefix = 'Patchwork_PHP_Parser_',
     $namespaceRemoverCallback = 'Patchwork_PHP_Shim_Php530::add',
     $toStringCatcherCallback = 'Patchwork\ErrorHandler::handleToStringException',
-
+    $closureShimParser,
     $constants = array(),
     $parsers = array(
+        'PhpPreprocessor'    => true,
         'Normalizer'         => true,
         'ShortOpenEcho'      => -50400, // Load this only before 5.4.0
         'BracketWatcher'     => true,
@@ -43,49 +45,35 @@ class Patchwork_PHP_Preprocessor extends Patchwork_AbstractStreamProcessor
         'StaticState'        => true,
     );
 
-    protected static
 
-    $filterClass = __CLASS__,
-    $filterName;
-
-    protected $cs;
-
-
-    static function register()
+    static function register($filter = null)
     {
-        if (isset(self::$filterName)) return stream_filter_register(self::$filterName, self::$filterClass);
-
-        self::$filterName = 'patchwork.' . sprintf('%010d', mt_rand());
-        foreach (self::$parsers as $k => $v)
-        {
-            is_bool($v) || $v = self::$parsers[$k] = 0 > $v ? PHP_VERSION_ID < -$v : PHP_VERSION_ID >= $v;
-            $v && class_exists('Patchwork_PHP_Parser_' . $k);
-        }
-
-        return stream_filter_register(self::$filterName, self::$filterClass);
+        if (empty($filter)) $filter = new self;
+        return parent::register($filter);
     }
 
-    static function getPrefix()
+    function __construct()
     {
-        return 'php://filter/read=' . self::$filterName . '/resource=';
+        foreach ($this->parsers as $class => &$enabled)
+            $enabled = $enabled
+                && (0 > $enabled ? PHP_VERSION_ID < -$enabled : PHP_VERSION_ID >= $enabled)
+                && class_exists($this->parserPrefix . $class);
     }
 
     function process($code)
     {
-        foreach (self::$parsers as $c => $t)
-        {
-            if (!$t) continue;
-            if (!$this->buildParser($parser, $c)) break;
-        }
+        foreach ($this->parsers as $class => $enabled)
+            if ($enabled && !$this->buildParser($parser, $class))
+                break;
 
         if (isset($parser))
         {
             $code = $parser->parse($code);
 
-            if (isset($this->cs))
+            if (isset($this->closureShimParser))
             {
-                $code = $this->cs->finalizeClosures($code);
-                $this->cs = null;
+                $code = $this->closureShimParser->finalizeClosures($code);
+                $this->closureShimParser = null;
             }
 
             foreach ($parser->getErrors() as $e)
@@ -97,21 +85,24 @@ class Patchwork_PHP_Preprocessor extends Patchwork_AbstractStreamProcessor
 
     protected function buildParser(&$parser, $class)
     {
-        if (!class_exists($c = 'Patchwork_PHP_Parser_' . $class)) return false;
+        if (!class_exists($c = $this->parserPrefix . $class)) return false;
 
         switch ($class)
         {
-        case 'Normalizer':     $parser = new $c; break;
         case 'Backport54Tokens':
         case 'ShortOpenEcho':
+        case 'BinaryNumber':
         case 'StaticState':
-        case 'BinaryNumber':   $parser = new $c($parser); break;
-        case 'ConstantInliner':          new $c($parser, $this->uri, self::$constants); break;
-        case 'NamespaceRemover':         new $c($parser, self::$namespaceRemoverCallback); break;
-        case 'ToStringCatcher':          new $c($parser, self::$toStringCatcherCallback); break;
-        case 'ClosureShim':  $this->cs = new $c($parser); break;
-        default:                         new $c($parser); break;
+        case 'Normalizer':  $parser = new $c($parser); break;
+        case 'PhpPreprocessor':  $p = new $c($parser, 'php://filter/read=' . get_class($this) . '/resource='); break;
+        case 'ConstantInliner':  $p = new $c($parser, $this->uri, $this->constants); break;
+        case 'ToStringCatcher':  $p = new $c($parser, $this->toStringCatcherCallback); break;
+        case 'NamespaceRemover': $p = new $c($parser, $this->namespaceRemoverCallback); break;
+        case 'ClosureShim':      $p = $this->closureShimParser = new $c($parser); break;
+        default:                 $p = new $c($parser); break;
         }
+
+        isset($parser) or $parser = $p;
 
         return true;
     }

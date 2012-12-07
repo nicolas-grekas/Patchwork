@@ -10,11 +10,11 @@
 
 
 /**
- * The PhpVirtualizer parser applies a stream filter to require instructions
+ * The PhpPreprocessor parser applies a stream filter to require instructions
  *
  * @todo: nested require, like in require (require $file)
  */
-class Patchwork_PHP_Parser_PhpVirtualizer extends Patchwork_PHP_Parser
+class Patchwork_PHP_Parser_PhpPreprocessor extends Patchwork_PHP_Parser
 {
     protected
 
@@ -25,11 +25,11 @@ class Patchwork_PHP_Parser_PhpVirtualizer extends Patchwork_PHP_Parser
         'decExprLevel' => array(')', '}', ']', ':', ',', T_AS, T_CLOSE_TAG, ';'),
     ),
     $callbacks = array(
-        'tagRequire' => array(T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
+        '~tagRequire' => array(T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
     );
 
 
-    function __construct(parent $parent, $filter_prefix)
+    function __construct(parent $parent = null, $filter_prefix)
     {
         if ($filter_prefix) $this->prependedTokens = array(array(T_STRING, self::export($filter_prefix)), '.');
         if ($this->prependedTokens) $this->prependedTokens[] = '(';

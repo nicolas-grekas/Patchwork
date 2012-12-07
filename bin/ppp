@@ -13,13 +13,11 @@ if (isset($argc)) --$argc;
 array_shift($_SERVER['argv']);
 if (isset($argv)) $argv = $_SERVER['argv'];
 
-Patchwork_PHP_Preprocessor::register();
-
 if (isset($_SERVER['argv'][0]))
 {
-    require Patchwork_PHP_Preprocessor::getPrefix() . $_SERVER['argv'][0];
+    require Patchwork_PHP_Preprocessor::register() . $_SERVER['argv'][0];
 }
 else
 {
-    eval('?>' . file_get_contents(Patchwork_PHP_Preprocessor::getPrefix() . 'php://stdin'));
+    eval('?>' . file_get_contents(Patchwork_PHP_Preprocessor::register() . 'php://stdin'));
 }
