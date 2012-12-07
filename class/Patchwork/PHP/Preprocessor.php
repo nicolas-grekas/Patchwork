@@ -46,10 +46,10 @@ class Patchwork_PHP_Preprocessor extends Patchwork_AbstractStreamProcessor
     );
 
 
-    static function register($filter = null)
+    static function register($filter = null, $class = null)
     {
         if (empty($filter)) $filter = new self;
-        return parent::register($filter);
+        return parent::register($filter, $class);
     }
 
     function __construct()
