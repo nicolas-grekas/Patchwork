@@ -45,11 +45,12 @@ class Patchwork_PHP_Preprocessor extends Patchwork_AbstractStreamProcessor
         'StaticState'        => true,
     );
 
+    protected static $code, $self;
+
 
     static function register($filter = null, $class = null)
     {
         if (empty($filter)) $filter = new self;
-        if (PHP_VERSION_ID < 50300) $filter = new Patchwork_PHP_Preprocessor52($filter);
         return parent::register($filter, $class);
     }
 
@@ -62,6 +63,22 @@ class Patchwork_PHP_Preprocessor extends Patchwork_AbstractStreamProcessor
     }
 
     function process($code)
+    {
+        self::$code = $code;
+        self::$self = $this;
+        return '<?php return eval(' . get_class($this) . '::selfProcess(__FILE__));';
+    }
+
+    static function selfProcess($uri)
+    {
+        $c = self::$code;
+        $p = self::$self;
+        $p->uri = $uri;
+        self::$code = self::$self = null;
+        return '?>' . $p->doProcess($c);
+    }
+
+    function doProcess($code)
     {
         foreach ($this->parsers as $class => $enabled)
             if ($enabled && !$this->buildParser($parser, $class))
