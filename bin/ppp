@@ -1,25 +1,48 @@
 #!/usr/bin/env php
 <?php
 
-function __autoload($class)
+ppp_init();
+
+return isset($_SERVER['argv'][0])
+    ? require Patchwork_PHP_Preprocessor::register() . $_SERVER['argv'][0]
+    : eval('?>' . file_get_contents(Patchwork_PHP_Preprocessor::register() . 'php://stdin'));
+
+
+function ppp_autoload($class)
 {
     static $dir;
     isset($dir) || $dir = dirname(dirname(__FILE__)) . '/class/';
-    require $dir . strtr($class, '\\_', '//') . '.php';
+    if (file_exists($class = $dir . strtr($class, '\\_', '//') . '.php')) require $class;
 }
 
---$_SERVER['argc'];
-if (isset($argc)) --$argc;
-array_shift($_SERVER['argv']);
-if (isset($argv)) $argv = $_SERVER['argv'];
-
-require Patchwork_PHP_Preprocessor::register() . dirname(dirname(__FILE__)) . '/bootup.shim.php';
-
-if (isset($_SERVER['argv'][0]))
+function ppp_init()
 {
-    require Patchwork_PHP_Preprocessor::register() . $_SERVER['argv'][0];
-}
-else
-{
-    eval('?>' . file_get_contents(Patchwork_PHP_Preprocessor::register() . 'php://stdin'));
+    --$_SERVER['argc'];
+    if (isset($GLOBALS['argc'])) --$GLOBALS['argc'];
+    array_shift($_SERVER['argv']);
+    if (isset($GLOBALS['argc'])) $GLOBALS['argc'] = $_SERVER['argv'];
+
+    if (!defined('PHP_VERSION_ID'))
+    {
+        $v = array_map('intval', explode('.', PHP_VERSION, 3));
+
+        define('PHP_VERSION_ID', 10000 * $v[0] + 100 * $v[1] + $v[2]);
+        define('PHP_MAJOR_VERSION', $v[0]);
+        define('PHP_MINOR_VERSION', $v[1]);
+        define('PHP_RELEASE_VERSION', $v[2]);
+
+        $v = substr(PHP_VERSION, strlen(implode('.', $v)));
+
+        define('PHP_EXTRA_VERSION', false !== $v ? $v : '');
+    }
+
+    if (!defined('E_DEPRECATED'))
+    {
+        define('E_DEPRECATED', E_NOTICE);
+        define('E_USER_DEPRECATED', E_USER_NOTICE);
+    }
+
+    spl_autoload_register('ppp_autoload');
+
+    require Patchwork_PHP_Preprocessor::register() . dirname(dirname(__FILE__)) . '/bootup.shim.php';
 }
