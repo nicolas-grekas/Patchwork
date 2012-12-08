@@ -81,7 +81,7 @@ class Patchwork_StreamFilter__lazyUriResolver
             do $u = substr($u, 10 + stripos($u, '/resource=', 12));
             while (0 === strncasecmp($u, 'php://filter/', 13));
             if (false === $p = stream_resolve_include_path($u)) $this->uri = $u;
-            else $this->uri = realpath($p);
+            else $this->uri = realpath($u);
         }
 
         return $this->uri;

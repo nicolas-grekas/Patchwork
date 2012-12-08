@@ -22,14 +22,14 @@ class Patchwork_PHP_Preprocessor52 extends Patchwork_PHP_Preprocessor
 
     function process($code)
     {
-        $this->preprocessor->uri = (string) $this->uri;
-        self::$preprocessor52 = $this->preprocessor;
         self::$code52 = $code;
-        return '<?php return eval(' . get_class($this) . '::process52());';
+        self::$preprocessor52 = $this->preprocessor;
+        return '<?php return eval(' . get_class($this) . '::process52(__FILE__));';
     }
 
-    static function process52()
+    static function process52($uri)
     {
+        self::$preprocessor52->uri = $uri;
         $code = '?>' . self::$preprocessor52->process(self::$code52);
         self::$preprocessor52 = self::$code52 = null;
         return $code;
