@@ -13,7 +13,7 @@ abstract class Patchwork_AbstractStreamProcessor extends php_user_filter
     abstract function process($data);
 
 
-    protected $uri;
+    protected $filterPrefix, $uri;
     private $data = '', $bucket;
     private static $registry = array();
 
@@ -23,7 +23,7 @@ abstract class Patchwork_AbstractStreamProcessor extends php_user_filter
         if (empty($class)) $class = get_class($filter);
         self::$registry[$class] = $filter;
         stream_filter_register($class, $class);
-        return 'php://filter/read=' . $class . '/resource=';
+        return $filter->filterPrefix = 'php://filter/read=' . $class . '/resource=';
     }
 
     function filter($in, $out, &$consumed, $closing)

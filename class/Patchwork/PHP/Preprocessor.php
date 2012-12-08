@@ -49,15 +49,16 @@ class Patchwork_PHP_Preprocessor extends Patchwork_AbstractStreamProcessor
     static function register($filter = null, $class = null)
     {
         if (empty($filter)) $filter = new self;
+        if (PHP_VERSION_ID < 50300) $filter = new Patchwork_PHP_Preprocessor52($filter);
         return parent::register($filter, $class);
     }
 
     function __construct()
     {
         foreach ($this->parsers as $class => &$enabled)
-            $enabled = $enabled && (0 > $enabled ? PHP_VERSION_ID < -$enabled : PHP_VERSION_ID >= $enabled);
-
-        $this->process('<?php ');
+            $enabled = $enabled
+                && (0 > $enabled ? PHP_VERSION_ID < -$enabled : PHP_VERSION_ID >= $enabled)
+                && class_exists($this->parserPrefix . $class);
     }
 
     function process($code)
@@ -94,7 +95,7 @@ class Patchwork_PHP_Preprocessor extends Patchwork_AbstractStreamProcessor
         case 'BinaryNumber':
         case 'StaticState':
         case 'Normalizer':  $parser = new $c($parser); break;
-        case 'PhpPreprocessor':  $p = new $c($parser, 'php://filter/read=' . get_class($this) . '/resource='); break;
+        case 'PhpPreprocessor':  $p = new $c($parser, $this->filterPrefix); break;
         case 'ConstantInliner':  $p = new $c($parser, $this->uri, $this->constants); break;
         case 'ToStringCatcher':  $p = new $c($parser, $this->toStringCatcherCallback); break;
         case 'NamespaceRemover': $p = new $c($parser, $this->namespaceRemoverCallback); break;
