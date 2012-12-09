@@ -12,7 +12,6 @@
 /**
  * The PhpPreprocessor parser applies a stream filter to require instructions
  *
- * @todo Nested require, like in require(require $file)
  * @todo Preprocess T_EVAL
  */
 class Patchwork_PHP_Parser_PhpPreprocessor extends Patchwork_PHP_Parser
@@ -20,6 +19,7 @@ class Patchwork_PHP_Parser_PhpPreprocessor extends Patchwork_PHP_Parser
     protected
 
     $prependedTokens = array(),
+    $exprStack = array(),
     $exprLevel,
     $exprCallbacks = array(
         '~incExprLevel' => array('(', '{', '[', '?'),
@@ -41,7 +41,8 @@ class Patchwork_PHP_Parser_PhpPreprocessor extends Patchwork_PHP_Parser
     protected function tagRequire(&$token)
     {
         call_user_func_array(array($this, 'unshiftTokens'), $this->prependedTokens);
-        $this->register($this->exprCallbacks);
+        if (isset($this->exprLevel)) $this->exprStack[] = $this->exprLevel;
+        else $this->register($this->exprCallbacks);
         $this->exprLevel = -1;
     }
 
@@ -62,7 +63,8 @@ class Patchwork_PHP_Parser_PhpPreprocessor extends Patchwork_PHP_Parser
         case ':': if ($this->exprLevel--) break;
 
         default:
-            $this->unregister($this->exprCallbacks);
+            $this->exprLevel = array_pop($this->exprStack);
+            if (!isset($this->exprLevel)) $this->unregister($this->exprCallbacks);
             return $this->unshiftTokens(')', $token);
         }
     }
