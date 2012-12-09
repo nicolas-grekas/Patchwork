@@ -44,7 +44,7 @@ abstract class Patchwork_AbstractStreamProcessor extends php_user_filter
 
             $f = self::$registry[get_class($this)];
 
-            Patchwork_StreamFilter__lazyUriResolver::bind($this->stream, $f->uri);
+            Patchwork_AbstractStreamProcessor__lazyUriResolver::bind($this->stream, $f->uri);
 
             $bucket->data = $f->process($this->data);
             $bucket->datalen = strlen($bucket->data);
@@ -60,7 +60,7 @@ abstract class Patchwork_AbstractStreamProcessor extends php_user_filter
     }
 }
 
-class Patchwork_StreamFilter__lazyUriResolver
+class Patchwork_AbstractStreamProcessor__lazyUriResolver
 {
     protected $uri, $stream;
 
