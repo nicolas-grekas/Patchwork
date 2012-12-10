@@ -10,8 +10,6 @@
 
 /**
  * The DocCommentInfo follows doc comments and exposes them to other parsers.
- *
- * @todo Follow more strictly the way Reflection*->getDocComment() is fed
  */
 class Patchwork_PHP_Parser_DocCommentInfo extends Patchwork_PHP_Parser
 {
@@ -19,7 +17,13 @@ class Patchwork_PHP_Parser_DocCommentInfo extends Patchwork_PHP_Parser
 
     $docComment = false,
     $callbacks = array('~tagDocComment' => T_DOC_COMMENT),
-    $resetCallbacks = array('~resetDocComment' => array('}', T_NAMESPACE, T_CLASS, T_INTERFACE, T_TRAIT, T_FUNCTION));
+    $resetCallbacks = array(
+        '~expandResetCallbacks' => array(T_VAR, T_STATIC, T_PRIVATE, T_PROTECTED, T_PUBLIC, T_NAMESPACE, T_CLASS, T_INTERFACE, T_TRAIT, T_FUNCTION),
+        '~resetDocComment' => array('}'),
+    ),
+    $expandedResetCallbacks = array(
+        '~resetDocComment' => array(',', ';', '{', '(', '='),
+    );
 
 
     protected function tagDocComment(&$token)
@@ -28,9 +32,16 @@ class Patchwork_PHP_Parser_DocCommentInfo extends Patchwork_PHP_Parser
         $this->docComment = $token[1];
     }
 
+    protected function expandResetCallbacks(&$token)
+    {
+        $this->unregister($this->resetCallbacks);
+        $this->register($this->expandedResetCallbacks);
+    }
+
     protected function resetDocComment(&$token)
     {
         $this->docComment = false;
         $this->unregister($this->resetCallbacks);
+        $this->unregister($this->expandedResetCallbacks);
     }
 }
