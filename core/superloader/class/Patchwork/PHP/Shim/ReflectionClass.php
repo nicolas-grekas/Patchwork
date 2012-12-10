@@ -84,7 +84,7 @@ class ReflectionClass extends \ReflectionClass
     {
         if ($this->isTop)
             foreach ($this->superStack as $s)
-                if (false !== $doc = $s->getDocComment())
+                if (false !== $doc = $s->getDocComment() and "/** \x9D*/" !== $doc)
                     return $doc;
 
         return false;
