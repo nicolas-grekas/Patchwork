@@ -169,7 +169,7 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser_PhpPrepr
 
         if ($c->isFinal || $c->isTop)
         {
-            $token[1] = "}/** \x9D*/"
+            $token[1] = '}'
                 . ($c->isFinal ? 'final' : ($c->isAbstract ? 'abstract' : ''))
                 . " class {$c->name} extends {$c->name}{$c->suffix} {" . $token[1]
                 . "{$s}::\$locations['{$a}']=1;";
