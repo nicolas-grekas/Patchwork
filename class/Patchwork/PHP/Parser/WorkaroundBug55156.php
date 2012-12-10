@@ -26,6 +26,6 @@ class Patchwork_PHP_Parser_WorkaroundBug55156 extends Patchwork_PHP_Parser
 
     protected function tagClass(&$token)
     {
-        if (false === $this->docComment) $token[1] = '/** */' . $token[1];
+        if (false === $this->docComment) $token[1] = "/** \x9D*/" . $token[1];
     }
 }
