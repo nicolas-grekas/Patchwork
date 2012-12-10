@@ -9,24 +9,26 @@
  */
 
 
-class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
+class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser_PhpPreprocessor
 {
     protected
 
     $level,
     $topClass,
-    $exprLevel,
-    $exprCallbacks = array(
-        '~incExprLevel' => array('(', '{', '[', '?'),
-        'decExprLevel' => array(')', '}', ']', ':', ',', T_AS, T_CLOSE_TAG, ';'),
-    ),
     $callbacks = array(
         'tagClassUsage'  => array(T_USE_CLASS, T_TYPE_HINT),
         'tagClass'       => T_CLASS,
         'tagClassName'   => T_NAME_CLASS,
         'tagPrivate'     => T_PRIVATE,
-        'tagRequire'     => array(T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
         'tagSpecialFunc' => T_USE_FUNCTION,
+        '~tagRequire'    => array(T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
+    ),
+
+    $prependedTokens = array(
+        array(),
+        array(T_STRING, 'Patchwork_Superloader'),
+        array(T_DOUBLE_COLON, '::'),
+        array(T_STRING, 'getProcessedPath'),
     ),
 
     $class, $namespace, $nsResolved, $nsPrefix, $expressionValue,
@@ -36,11 +38,11 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
     );
 
 
-    function __construct(parent $parent, $level, $topClass)
+    function __construct(Patchwork_PHP_Parser $parent, $level, $topClass)
     {
-        if (0 <= $level) unset($this->callbacks['tagRequire']);
+        if (0 <= $level) unset($this->callbacks['~tagRequire']);
 
-        parent::__construct($parent);
+        parent::__construct($parent, false);
         $this->level    = $level;
         $this->topClass = $topClass;
     }
@@ -199,38 +201,8 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser
         }
         else
         {
-            $this->unshiftTokens(
-                $this->namespace ? array(T_NS_SEPARATOR, '\\') : array(T_WHITESPACE, ' '),
-                array(T_STRING, 'Patchwork_Superloader'), array(T_DOUBLE_COLON, '::'),
-                array(T_STRING, 'getProcessedPath'), '('
-            );
-
-            $this->exprLevel = -1;
-            $this->register($this->exprCallbacks);
-        }
-    }
-
-    protected function incExprLevel(&$token)
-    {
-        ++$this->exprLevel;
-    }
-
-    protected function decExprLevel(&$token)
-    {
-        switch ($token[0])
-        {
-        case ',': if ($this->exprLevel) break;
-
-        case ')':
-        case '}':
-        case ']':
-        case ':': if ($this->exprLevel--) break;
-
-        case ';':
-        case T_AS:
-        case T_CLOSE_TAG:
-            $this->unregister($this->exprCallbacks);
-            return $this->unshiftTokens(')', $token);
+            $this->prependedTokens[0] = $this->namespace ? array(T_NS_SEPARATOR, '\\') : array(T_WHITESPACE, ' ');
+            parent::tagRequire($token);
         }
     }
 
