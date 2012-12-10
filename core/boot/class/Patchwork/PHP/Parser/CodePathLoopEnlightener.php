@@ -11,8 +11,8 @@
 /**
  * The CodePathLoopEnlightner parser instruments loops for loop coverage analysis.
  *
- * TODO: alternative syntax
- * TODO: annotation for loops that can not be skipped
+ * @todo Alternative syntax
+ * @todo Annotation for loops that can not be skipped
  */
 class Patchwork_PHP_Parser_CodePathLoopEnlightener extends Patchwork_PHP_Parser
 {

@@ -36,9 +36,9 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
     );
 
 
-    function __construct(parent $parent, $aliasAdd = false)
+    function __construct(parent $parent, $alias_add = false)
     {
-        $this->aliasAdd = $aliasAdd;
+        $this->aliasAdd = $alias_add;
         parent::__construct($parent);
     }
 
@@ -97,11 +97,13 @@ class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
         }
     }
 
+    /**
+     *  Fixes `new $foo`, when $foo = 'ns\class';
+     *
+     *  @todo new ${...}, new $foo[...] and new $foo->...
+     */
     protected function tagNew(&$token)
     {
-        // Fixes `new $foo`, when $foo = 'ns\class';
-        // TODO: new ${...}, new $foo[...] and new $foo->...
-
         $t =& $this->getNextToken($n);
 
         if (T_VARIABLE === $t[0])

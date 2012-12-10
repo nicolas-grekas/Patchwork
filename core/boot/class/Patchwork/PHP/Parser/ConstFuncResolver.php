@@ -8,8 +8,6 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
-// TODO: parse for inline consts, functions and define()
-
 /**
  * ConstFuncResolver statically resolves functions and constants to their fully namespaced name.
  *
@@ -17,6 +15,8 @@
  * then in the global namespace. This parser alters this behavior by resolving them at compile
  * time. This can break some code, but it works if some convention is followed.
  * This allows deeper static code analysis for other parsers.
+ *
+ * @todo Parse for inline consts, functions and define()
  */
 class Patchwork_PHP_Parser_ConstFuncResolver extends Patchwork_PHP_Parser
 {

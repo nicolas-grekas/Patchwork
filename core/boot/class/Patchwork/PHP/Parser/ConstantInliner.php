@@ -60,11 +60,7 @@ class Patchwork_PHP_Parser_ConstantInliner extends Patchwork_PHP_Parser
 
     function __construct(parent $parent, $file, &$new_consts = array())
     {
-        if ($file)
-        {
-            $this->file = self::export($file);
-            $this->dir = self::export(dirname($file));
-        }
+        if ($file) $this->file = $file;
         else unset($this->callbacks['tagFileC'], $this->callbacks['tagLineC']);
 
         $file = self::$staticConsts;
@@ -115,6 +111,13 @@ class Patchwork_PHP_Parser_ConstantInliner extends Patchwork_PHP_Parser
 
     protected function tagFileC(&$token)
     {
+        if (!isset($this->dir))
+        {
+            $f = (string) $this->file;
+            $this->file = self::export($f);
+            $this->dir = self::export(dirname($f));
+        }
+
         return $this->unshiftTokens(array(
             T_CONSTANT_ENCAPSED_STRING,
             T_FILE === $token[0] ? $this->file : $this->dir

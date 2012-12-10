@@ -8,12 +8,12 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
-// FIXME: handle when $callbackIndex <= 0
-// FIXME: unlike static callbacks, a function shim can not use its overriden function
-//        through a dynamic callback, because that would lead to unwanted recursion.
-
 /**
  * The Bracket_Callback parser participates in catching callbacks for at runtime function overriding.
+ *
+ * @todo Handle when $callbackIndex <= 0
+ * @todo Unlike static callbacks, a function shim can not use its overriden function
+ *       through a dynamic callback, because that would lead to unwanted recursion.
  */
 class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
 {
