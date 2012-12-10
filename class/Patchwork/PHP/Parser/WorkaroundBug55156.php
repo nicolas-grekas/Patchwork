@@ -9,7 +9,7 @@
  */
 
 /**
- * The WorkaroundBug55156 parser inserts empty doc comment to workaround https://bugs.php.net/55156
+ * The WorkaroundBug55156 parser inserts workarounds for https://bugs.php.net/55156
  */
 class Patchwork_PHP_Parser_WorkaroundBug55156 extends Patchwork_PHP_Parser
 {
@@ -19,13 +19,30 @@ class Patchwork_PHP_Parser_WorkaroundBug55156 extends Patchwork_PHP_Parser
 
     protected
 
-    $callbacks = array('~tagClass' => array(T_CLASS, T_INTERFACE)),
-    $dependencies = array('DocCommentInfo' => 'docComment'),
-    $docComment = false;
+    $callbacks = array(
+        '~tagOpenTag' => T_OPEN_TAG,
+        '~tagNs' => T_NAMESPACE,
+    ),
+    $dependencies = array('Normalizer', 'StringInfo');
 
 
-    protected function tagClass(&$token)
+    protected function tagOpenTag(&$token)
     {
-        if (false === $this->docComment) $token[1] = "/** \x9D*/" . $token[1];
+        $token[1] .= '{}';
+        $this->unregister(array('~tagOpenTag' => T_OPEN_TAG));
+    }
+
+    protected function tagNs(&$token)
+    {
+        if (isset($token[2][T_NAME_NS]))
+        {
+            $this->register(array('~tagNsEnd' => array('{', ';')));
+        }
+    }
+
+    protected function tagNsEnd(&$token)
+    {
+        $token[1] .= '{}';
+        $this->unregister(array('~tagNsEnd' => array('{', ';')));
     }
 }
