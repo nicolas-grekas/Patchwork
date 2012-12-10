@@ -960,7 +960,7 @@ class Patchwork
             {
                 $agentLevel = '' !== pathinfo($existingAgent, PATHINFO_EXTENSION) ? 'Octetstream' : 'Template';
 
-                eval("class {$agent} extends agent{$agentLevel} {}");
+                eval("/** */class {$agent} extends agent{$agentLevel} {}"); // Empty doc comment workarounds https://bugs.php.net/55156
             }
             else $GLOBALS["c\x9D"][$agent] = $agentLevel + /*<*/count($GLOBALS['patchwork_path']) - PATCHWORK_PATH_LEVEL/*>*/;
         }

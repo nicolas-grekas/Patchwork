@@ -25,6 +25,8 @@ class Patchwork_Preprocessor
         'BinaryNumber'       => -50400,
         'ClassAutoname'      => true,
         'StringInfo'         => true,
+        'DocCommentInfo'     => true,
+        'WorkaroundBug55156' => -50308,
         'Backport54Tokens'   => -50400,
         'Backport53Tokens'   => -50300,
         'NamespaceBracketer' => +50300, // Load this only for 5.3.0 and up
