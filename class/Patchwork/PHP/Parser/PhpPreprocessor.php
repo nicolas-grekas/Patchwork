@@ -34,7 +34,7 @@ class Patchwork_PHP_Parser_PhpPreprocessor extends Patchwork_PHP_Parser
     {
         if ($filter_prefix) $this->prependedTokens = array(array(T_STRING, self::export($filter_prefix)), '.');
         if ($this->prependedTokens) $this->prependedTokens[] = '(';
-        else unset($this->callbacks['tagRequire']);
+        else unset($this->callbacks['~tagRequire']);
         parent::__construct($parent);
     }
 
