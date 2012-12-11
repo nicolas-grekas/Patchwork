@@ -15,35 +15,46 @@ class Patchwork_PHP_Parser_ShortOpenEcho extends Patchwork_PHP_Parser
 {
     protected $tag;
 
-    protected function getTokens($code)
+    protected function getTokens($code, $is_fragment)
     {
         if ($this->targetPhpVersionId < 50400 && false !== strpos($code, '<?='))
         {
-            $c = token_get_all('<?=');
-
-            if (T_INLINE_HTML === $c[0][0])
+            if (isset($this->tag))
             {
-                $this->tag = '<?php __echo_soe_' . mt_rand() . ' ';
-                $code = str_replace('<?=', $this->tag, $code);
-
-                $this->register(array(
-                    'echoTag'   => T_OPEN_TAG,
-                    'removeTag' => array(
-                        T_CONSTANT_ENCAPSED_STRING,
-                        T_ENCAPSED_AND_WHITESPACE,
-                        T_COMMENT,
-                        T_DOC_COMMENT,
-                        T_HALT_COMPILER_DATA,
-                    ),
-                ));
+                if (false !== $this->tag)
+                {
+                    $code = str_replace('<?=', $this->tag, $code);
+                }
             }
             else
             {
-                $this->register(array('tagOpenEcho' => T_OPEN_TAG_WITH_ECHO));
+                $c = token_get_all('<?=');
+
+                if (T_INLINE_HTML === $c[0][0])
+                {
+                    $this->tag = '<?php __echo_soe_' . mt_rand() . ' ';
+                    $code = str_replace('<?=', $this->tag, $code);
+
+                    $this->register(array(
+                        'echoTag'   => T_OPEN_TAG,
+                        'removeTag' => array(
+                            T_CONSTANT_ENCAPSED_STRING,
+                            T_ENCAPSED_AND_WHITESPACE,
+                            T_COMMENT,
+                            T_DOC_COMMENT,
+                            T_HALT_COMPILER_DATA,
+                        ),
+                    ));
+                }
+                else
+                {
+                    $this->tag = false;
+                    $this->register(array('tagOpenEcho' => T_OPEN_TAG_WITH_ECHO));
+                }
             }
         }
 
-        return parent::getTokens($code);
+        return parent::getTokens($code, $is_fragment);
     }
 
     protected function tagOpenEcho(&$token)

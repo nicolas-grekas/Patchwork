@@ -25,19 +25,30 @@ class Patchwork_PHP_Parser_Backport54Tokens extends Patchwork_PHP_Parser
         'insteadof' => T_INSTEADOF,
     );
 
-    protected function getTokens($code)
+    function __construct(parent $parent)
     {
-        foreach ($this->backports as $k => $i)
-            if (self::T_OFFSET >= $i || false === stripos($code, $k))
-                unset($this->backports[$k]);
+        parent::__construct($parent);
 
-        $code = parent::getTokens($code);
+        foreach ($this->backports as $k => $i)
+            if (self::T_OFFSET >= $i)
+                unset($this->backports[$k]);
+    }
+
+    protected function getTokens($code, $is_fragment)
+    {
+        $b = $this->backports;
+
+        foreach ($b as $k => $i)
+            if (false === stripos($code, $k))
+                unset($b[$k]);
+
+        $code = parent::getTokens($code, $is_fragment);
         $i = 0;
 
-        if ($this->backports)
+        if ($b)
             while (isset($code[++$i]))
-                if (T_STRING === $code[$i][0] && isset($this->backports[strtolower($code[$i][1])]))
-                    $code[$i][0] = $this->backports[strtolower($code[$i][1])];
+                if (T_STRING === $code[$i][0] && isset($b[$k = strtolower($code[$i][1])]))
+                    $code[$i][0] = $b[$k];
 
         return $code;
     }

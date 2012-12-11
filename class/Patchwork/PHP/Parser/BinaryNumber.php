@@ -13,14 +13,15 @@
  */
 class Patchwork_PHP_Parser_BinaryNumber extends Patchwork_PHP_Parser
 {
-    protected function getTokens($code)
+    protected function getTokens($code, $is_fragment)
     {
         if ($this->targetPhpVersionId < 50400 && stripos($code, '0b') && preg_match("'0b[B][01]'", $code))
         {
+            $this->unregister(array('catch0b' => T_LNUMBER));
             $this->register(array('catch0b' => T_LNUMBER));
         }
 
-        return parent::getTokens($code);
+        return parent::getTokens($code, $is_fragment);
     }
 
     protected function catch0b(&$token)

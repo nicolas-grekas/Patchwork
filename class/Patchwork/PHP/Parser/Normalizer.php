@@ -34,8 +34,10 @@ class Patchwork_PHP_Parser_Normalizer extends Patchwork_PHP_Parser
     );
 
 
-    protected function getTokens($code)
+    protected function getTokens($code, $is_fragment)
     {
+        if ($is_fragment) return parent::getTokens($code, $is_fragment);
+
         if ($this->lfLineEndings && false !== strpos($code, "\r"))
         {
             $code = str_replace("\r\n", "\n", $code);
@@ -56,7 +58,7 @@ class Patchwork_PHP_Parser_Normalizer extends Patchwork_PHP_Parser
 
         if ('' === $code) return array();
 
-        $code = parent::getTokens($code);
+        $code = parent::getTokens($code, $is_fragment);
 
         // Ensure that the first token is always a T_OPEN_TAG
 
@@ -128,6 +130,8 @@ class Patchwork_PHP_Parser_Normalizer extends Patchwork_PHP_Parser
     protected function tagHaltCompiler(&$token)
     {
         $this->unregister(array(__FUNCTION__ => T_HALT_COMPILER));
+        if (array(T_ENDPHP, '') !== $t = array_pop($this->tokens)) $this->tokens[] = $t;
+        else if (array(T_OPEN_TAG, '<?php ') !== $t = array_pop($this->tokens)) $this->tokens[] = $t;
         return $this->unshiftTokens(array(T_ENDPHP, ''), ';', $token);
     }
 }

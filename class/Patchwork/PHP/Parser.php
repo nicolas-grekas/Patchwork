@@ -34,6 +34,8 @@ defined('T_NS_SEPARATOR') || Patchwork_PHP_Parser::createToken('T_NS_SEPARATOR')
  * - build a code preprocessor,
  * - build an aspect weaver,
  * - etc.
+ *
+ * @todo add ->unshiftCode() = ->unshiftTokens() with tokenization included
  */
 class Patchwork_PHP_Parser
 {
@@ -182,7 +184,7 @@ class Patchwork_PHP_Parser
             mb_internal_encoding('8bit');
         }
 
-        $this->tokens = $this->getTokens($code);
+        $this->tokens = $this->getTokens($code, false);
         $code = implode('', $this->parseTokens());
 
         function_exists('mb_internal_encoding') && mb_internal_encoding($enc);
@@ -202,11 +204,11 @@ class Patchwork_PHP_Parser
 
     // Enhanced token_get_all()
 
-    protected function getTokens($code)
+    protected function getTokens($code, $is_fragment)
     {
         // Recursively traverse the inheritance chain defined by $this->parent
 
-        if ($this->parent !== $this) return $this->parent->getTokens($code);
+        if ($this->parent !== $this) return $this->parent->getTokens($code, $is_fragment);
 
         // For binary safeness, check for unexpected characters (see http://bugs.php.net/54089)
 
@@ -261,7 +263,7 @@ class Patchwork_PHP_Parser
 
             if (isset($code[$offset]))
             {
-                $code = $this->getTokens('<?php ' . substr($code, $offset));
+                $code = $this->getTokens('<?php ' . substr($code, $offset), true);
                 array_splice($code, 0, 1, $t1);
                 $t1 = $code;
             }
