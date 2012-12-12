@@ -24,16 +24,11 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser_PhpPrepr
         '~tagRequire'    => array(T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
     ),
 
-    $prependedTokens = array(
-        array(),
-        array(T_STRING, 'Patchwork_Superloader'),
-        array(T_DOUBLE_COLON, '::'),
-        array(T_STRING, 'getProcessedPath'),
-    ),
+    $prependedCode = '\Patchwork_Superloader::getProcessedPath',
 
-    $class, $namespace, $nsResolved, $nsPrefix, $expressionValue,
+    $class, $nsResolved, $nsPrefix, $expressionValue,
     $dependencies = array(
-        'ClassInfo' => array('class', 'namespace', 'nsResolved', 'nsPrefix'),
+        'ClassInfo' => array('class', 'nsResolved', 'nsPrefix'),
         'ConstantExpression' => 'expressionValue',
     );
 
@@ -61,26 +56,13 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser_PhpPrepr
                 && 0 === strcasecmp('\ReflectionClass', $this->nsResolved)
                 && (!$this->class || strcasecmp('Patchwork_PHP_Shim_ReflectionClass', strtr($this->class->nsName, '\\', '_'))))
             {
-                $this->unshiftTokens(
-                    array(T_STRING, 'Patchwork'),
-                    array(T_NS_SEPARATOR, '\\'),
-                    array(T_STRING, 'PHP'),
-                    array(T_NS_SEPARATOR, '\\'),
-                    array(T_STRING, 'Shim'),
-                    array(T_NS_SEPARATOR, '\\'),
-                    array(T_STRING, 'ReflectionClass')
-                );
-
-                $this->namespace && $this->unshiftTokens(array(T_NS_SEPARATOR, '\\'));
                 $this->dependencies['ClassInfo']->removeNsPrefix();
-
-                return false;
+                return $this->unshiftCode('\Patchwork\PHP\Shim\ReflectionClass');
             }
         }
         else
         {
-            $this->unshiftTokens(array(T_STRING, $c));
-            return $this->namespace && $this->unshiftTokens(array(T_NS_SEPARATOR, '\\'));
+            return $this->unshiftCode('\\' . $c);
         }
     }
 
@@ -115,8 +97,7 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser_PhpPrepr
 
             $this->dependencies['ClassInfo']->removeNsPrefix();
 
-            $this->unshiftTokens(array(T_STRING, $this->class->extends));
-            return $this->namespace && $this->unshiftTokens(array(T_NS_SEPARATOR, '\\'));
+            return $this->unshiftCode('\\' . $this->class->extends);
         }
     }
 
@@ -199,7 +180,6 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser_PhpPrepr
         }
         else
         {
-            $this->prependedTokens[0] = $this->namespace ? array(T_NS_SEPARATOR, '\\') : array(T_WHITESPACE, ' ');
             parent::tagRequire($token);
         }
     }
@@ -225,7 +205,7 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser_PhpPrepr
         case '\get_class':
             if (empty($this->class)) break;
 
-            $this->getNextToken($i); // eat the next opening bracket
+            $this->getNextToken($i); // Eat the next opening bracket
             $t = $this->getNextToken($i);
 
             if (T_STRING === $t[0] && 0 === strcasecmp('null', $t[1]))
@@ -235,14 +215,14 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser_PhpPrepr
             {
                 $this->dependencies['ClassInfo']->removeNsPrefix();
                 while ($this->index < $i) unset($this->tokens[$this->index++]);
-                return $this->unshiftTokens(array(T_CONSTANT_ENCAPSED_STRING, "'" . $this->class->nsName . "'"));
+                return $this->unshiftCode("'{$this->class->nsName}'");
             }
             break;
 
         case '\get_parent_class':
             if (empty($this->class)) break;
 
-            $this->getNextToken($i); // eat the next opening bracket
+            $this->getNextToken($i); // Eat the next opening bracket
             $t = $this->getNextToken($i);
 
             if (')' === $t[0])
