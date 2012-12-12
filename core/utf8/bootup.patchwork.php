@@ -27,9 +27,11 @@ p\Shim(utf8_encode, s\Xml::cp1252_to_utf8, $s);
 p\Shim(utf8_decode, s\Xml::utf8_to_cp1252, $s);
 
 
-// Try to set a UTF-8 compatible locale
+// Try to set an UTF-8 compatible locale
 
-/**/$a = setlocale(LC_CTYPE, 'C.UTF-8', 'en_US.UTF-8', 'en_US.utf8', 0);
+/**/$a = '' === basename('§')
+/**/    ? setlocale(LC_CTYPE, 'en_US.UTF-8', 'fr_FR.UTF-8', 'es_ES.UTF-8', 'de_DE.UTF-8', 'ru_RU.UTF-8', 'pt_BR.UTF-8', 'it_IT.UTF-8', 'ja_JP.UTF-8', 'zh_CN.UTF-8', 'C.UTF-8', 0)
+/**/    : setlocale(LC_CTYPE, 0);
 
 setlocale(LC_ALL, /*<*/setlocale(LC_CTYPE, 'C.UTF-8', 'C')/*>*/);
 
@@ -37,9 +39,6 @@ setlocale(LC_ALL, /*<*/setlocale(LC_CTYPE, 'C.UTF-8', 'C')/*>*/);
 /**/{
         setlocale(LC_CTYPE, /*<*/setlocale(LC_CTYPE, $a)/*>*/);
 /**/}
-
-
-// Locale sensitivity breaks UTF-8
 
 /**/if ('' === basename('§'))
 /**/{
