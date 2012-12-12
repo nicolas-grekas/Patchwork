@@ -34,8 +34,6 @@ defined('T_NS_SEPARATOR') || Patchwork_PHP_Parser::createToken('T_NS_SEPARATOR')
  * - build a code preprocessor,
  * - build an aspect weaver,
  * - etc.
- *
- * @todo add ->unshiftCode() = ->unshiftTokens() with tokenization included
  */
 class Patchwork_PHP_Parser
 {
@@ -62,6 +60,7 @@ class Patchwork_PHP_Parser
     $inString = 0,            // Odd/even when outside/inside string interpolation context
     $prevType,                // The last token type in $this->types
     $penuType,                // The penultimate token type in $this->types
+    $headParser,              // First parser in the ->parent inheritance chain
     $tokenRegistry = array(); // (token type => callbacks) map
 
 
@@ -107,6 +106,7 @@ class Patchwork_PHP_Parser
                 'inString',
                 'prevType',
                 'penuType',
+                'headParser',
                 'tokenRegistry',
                 'parents',
                 'errors',
@@ -184,6 +184,7 @@ class Patchwork_PHP_Parser
             mb_internal_encoding('8bit');
         }
 
+        $this->headParser = $this;
         $this->tokens = $this->getTokens($code, false);
         $code = implode('', $this->parseTokens());
 
@@ -573,6 +574,16 @@ class Patchwork_PHP_Parser
         isset($this->tokens[$i]) || $this->tokens[$i] = array(T_WHITESPACE, '');
 
         return $this->tokens[$i++];
+    }
+
+    // Inject code's tokens the input stream
+
+    protected function unshiftCode($code)
+    {
+        $code = $this->headParser->getTokens('<?php ' . $code, true);
+        $i = count($code);
+        while (--$i) $this->tokens[--$this->index] = $code[$i];
+        return false;
     }
 
     // Inject tokens in the input stream
