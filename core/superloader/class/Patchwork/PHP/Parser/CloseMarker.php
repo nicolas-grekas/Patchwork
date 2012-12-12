@@ -65,6 +65,7 @@ class Patchwork_PHP_Parser_CloseMarker extends Patchwork_PHP_Parser
                 break;
 
             case T_OBJECT_OPERATOR:
+            case T_DOUBLE_COLON:
                 $this->curly = 0;
 
             case '=':

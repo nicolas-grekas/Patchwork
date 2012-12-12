@@ -190,8 +190,6 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser_PhpPrepr
         // Every require|include inside files in the include_path
         // is preprocessed thanks to Patchwork_Superloader::getProcessedPath().
 
-        $token['no-autoload-marker'] = true;
-
         if (Patchwork_Superloader::$turbo
           && $this->dependencies['ConstantExpression']->nextExpressionIsConstant()
           && false !== $a = Patchwork_Superloader::getProcessedPath($this->expressionValue, true))

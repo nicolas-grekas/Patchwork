@@ -30,12 +30,14 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionShim
     $dependencies = array('ClassInfo' => array('class', 'scope', 'nsResolved'));
 
 
-    function __construct(Patchwork_PHP_Parser $parent, $inlineClass)
+    function __construct(Patchwork_PHP_Parser $parent, $inlineClass, $mark_require)
     {
         foreach ($inlineClass as $inlineClass)
             $this->inlineClass[strtolower(strtr($inlineClass, '\\', '_'))] = 1;
 
         Patchwork_PHP_Parser::__construct($parent);
+
+        $mark_require or $this->unregister(array('tagAutoloader' => array(T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE)));
     }
 
     protected function tagOpenTag(&$token)
@@ -53,8 +55,6 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionShim
 
     protected function tagAutoloader(&$token)
     {
-        if (isset($token['no-autoload-marker'])) return;
-
         $t =& $token[1];
 
         switch ($token[0])
