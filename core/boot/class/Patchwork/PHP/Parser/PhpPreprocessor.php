@@ -18,7 +18,7 @@ class Patchwork_PHP_Parser_PhpPreprocessor extends Patchwork_PHP_Parser
 {
     protected
 
-    $prependedTokens = array(),
+    $prependedCode = '',
     $exprStack = array(),
     $exprLevel,
     $exprCallbacks = array(
@@ -32,15 +32,15 @@ class Patchwork_PHP_Parser_PhpPreprocessor extends Patchwork_PHP_Parser
 
     function __construct(parent $parent = null, $filter_prefix)
     {
-        if ($filter_prefix) $this->prependedTokens = array(array(T_STRING, self::export($filter_prefix)), '.');
-        if ($this->prependedTokens) $this->prependedTokens[] = '(';
+        if ($filter_prefix) $this->prependedCode = self::export($filter_prefix) . '.';
+        if ($this->prependedCode) $this->prependedCode .= '(';
         else unset($this->callbacks['~tagRequire']);
         parent::__construct($parent);
     }
 
     protected function tagRequire(&$token)
     {
-        call_user_func_array(array($this, 'unshiftTokens'), $this->prependedTokens);
+        $this->unshiftCode($this->prependedCode);
         if (isset($this->exprLevel)) $this->exprStack[] = $this->exprLevel;
         else $this->register($this->exprCallbacks);
         $this->exprLevel = -1;

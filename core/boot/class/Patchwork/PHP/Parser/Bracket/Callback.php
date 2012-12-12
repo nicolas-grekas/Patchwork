@@ -83,12 +83,8 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
                     }
                     else if (empty($this->class->nsName) || strcasecmp(strtr($a[0], '\\', '_'), strtr($this->class->nsName, '\\', '_')))
                     {
+                        $this->unshiftCode("array('{$a[0]}','{$a[1]}'");
                         $t = ')';
-                        $this->unshiftTokens(
-                            array(T_ARRAY, 'array'), '(',
-                            array(T_CONSTANT_ENCAPSED_STRING, "'{$a[0]}'"), ',',
-                            array(T_CONSTANT_ENCAPSED_STRING, "'{$a[1]}'")
-                        );
                     }
                 }
 

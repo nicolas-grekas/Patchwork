@@ -74,7 +74,8 @@ class Patchwork_PHP_Parser_StaticState extends Patchwork_PHP_Parser
 
     function getRunonceCode($code)
     {
-        $this->tokens = $this->getTokens($code);
+        $this->headParser = $this;
+        $this->tokens = $this->getTokens($code, false);
         $code = $this->parseTokens();
         $var = "$\x9D" . $this->runtimeKey;
 

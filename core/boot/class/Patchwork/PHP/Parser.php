@@ -60,6 +60,7 @@ class Patchwork_PHP_Parser
     $inString = 0,            // Odd/even when outside/inside string interpolation context
     $prevType,                // The last token type in $this->types
     $penuType,                // The penultimate token type in $this->types
+    $headParser,              // First parser in the ->parent inheritance chain
     $tokenRegistry = array(); // (token type => callbacks) map
 
 
@@ -105,6 +106,7 @@ class Patchwork_PHP_Parser
                 'inString',
                 'prevType',
                 'penuType',
+                'headParser',
                 'tokenRegistry',
                 'parents',
                 'errors',
@@ -182,7 +184,8 @@ class Patchwork_PHP_Parser
             mb_internal_encoding('8bit');
         }
 
-        $this->tokens = $this->getTokens($code);
+        $this->headParser = $this;
+        $this->tokens = $this->getTokens($code, false);
         $code = implode('', $this->parseTokens());
 
         function_exists('mb_internal_encoding') && mb_internal_encoding($enc);
@@ -202,11 +205,11 @@ class Patchwork_PHP_Parser
 
     // Enhanced token_get_all()
 
-    protected function getTokens($code)
+    protected function getTokens($code, $is_fragment)
     {
         // Recursively traverse the inheritance chain defined by $this->parent
 
-        if ($this->parent !== $this) return $this->parent->getTokens($code);
+        if ($this->parent !== $this) return $this->parent->getTokens($code, $is_fragment);
 
         // For binary safeness, check for unexpected characters (see http://bugs.php.net/54089)
 
@@ -261,7 +264,7 @@ class Patchwork_PHP_Parser
 
             if (isset($code[$offset]))
             {
-                $code = $this->getTokens('<?php ' . substr($code, $offset));
+                $code = $this->getTokens('<?php ' . substr($code, $offset), true);
                 array_splice($code, 0, 1, $t1);
                 $t1 = $code;
             }
@@ -571,6 +574,16 @@ class Patchwork_PHP_Parser
         isset($this->tokens[$i]) || $this->tokens[$i] = array(T_WHITESPACE, '');
 
         return $this->tokens[$i++];
+    }
+
+    // Inject code's tokens the input stream
+
+    protected function unshiftCode($code)
+    {
+        $code = $this->headParser->getTokens('<?php ' . $code, true);
+        $i = count($code);
+        while (--$i) $this->tokens[--$this->index] = $code[$i];
+        return false;
     }
 
     // Inject tokens in the input stream
