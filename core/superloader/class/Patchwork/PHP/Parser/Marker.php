@@ -44,7 +44,13 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionShim
     {
         $this->unregister(array(__FUNCTION__ => T_SCOPE_OPEN));
         $T = $this->tag;
-        $this->unshiftCode("if(!isset(\$a{$T})){global \$a{$T},\$b{$T},\$c{$T};}isset(\$e{$T})||\$e{$T}=/*<*/\$e{$T}=false/*>*/;");
+        $this->unshiftTokens(
+            array(T_WHITESPACE, "if(!isset(\$a{$T})){global \$a{$T},\$b{$T},\$c{$T};}isset(\$e{$T})||\$e{$T}="),
+            array(T_COMMENT, '/*<*/'), // For the StaticState PHP parser
+            array(T_WHITESPACE, "\$e{$T}=false"),
+            array(T_COMMENT, '/*>*/'),
+            ';'
+        );
     }
 
     protected function tagAutoloader(&$token)
