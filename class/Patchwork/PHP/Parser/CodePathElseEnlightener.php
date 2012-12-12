@@ -46,7 +46,7 @@ class Patchwork_PHP_Parser_CodePathElseEnlightener extends Patchwork_PHP_Parser
 
         if (T_ELSE !== $token[0] && T_ELSEIF !== $token[0])
         {
-            $this->unshiftTokens(array(T_ELSE, 'else'), '{', ';', '}');
+            $this->unshiftCode('else {;}');
         }
     }
 }
