@@ -3,11 +3,6 @@
 
 ppp_init();
 
-return isset($_SERVER['argv'][0])
-    ? require Patchwork_PHP_Preprocessor::register() . $_SERVER['argv'][0]
-    : eval('?>' . file_get_contents(Patchwork_PHP_Preprocessor::register() . 'php://stdin'));
-
-
 function ppp_autoload($class)
 {
     static $dir;
@@ -46,3 +41,32 @@ function ppp_init()
 
     require Patchwork_PHP_Preprocessor::register() . dirname(dirname(__FILE__)) . '/bootup.shim.php';
 }
+
+class ppp_shebang_stream_filter extends Patchwork_AbstractStreamProcessor
+{
+    static function register($filter = null, $class = null)
+    {
+        if (empty($filter)) $filter = new self;
+        return parent::register($filter, $class);
+    }
+
+    function process($code)
+    {
+        if ('#!' === substr($code, 0, 2))
+        {
+            $r = strpos($code, "\r");
+            $n = strpos($code, "\n");
+
+            if (false === $r && false === $n) return '';
+            else if (false === $n || ++$r === $n) return (string) substr($code, $r);
+
+            return (string) substr($code, $n + 1);
+        }
+
+        return $code;
+    }
+}
+
+return isset($_SERVER['argv'][0])
+    ? require Patchwork_PHP_Preprocessor::register() . ppp_shebang_stream_filter::register() . $_SERVER['argv'][0]
+    : eval('?>' . file_get_contents(Patchwork_PHP_Preprocessor::register() . 'php://stdin'));
