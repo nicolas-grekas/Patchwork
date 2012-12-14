@@ -42,7 +42,7 @@ class Patchwork_PHP_Parser_ShortOpenEcho extends Patchwork_PHP_Parser
                             T_ENCAPSED_AND_WHITESPACE,
                             T_COMMENT,
                             T_DOC_COMMENT,
-                            T_HALT_COMPILER_DATA,
+                            T_INLINE_HTML,
                         ),
                     ));
                 }
