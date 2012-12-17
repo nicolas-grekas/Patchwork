@@ -44,7 +44,7 @@ class Php550
      * @param int    $algo     The algorithm to use (Defined by PASSWORD_* constants)
      * @param array  $options  The options for the algorithm to use
      *
-     * @returns string|false The hashed password, or false on error.
+     * @return string|false The hashed password, or false on error.
      */
     static function password_hash($password, $algo, $options = array()) {
 /**/    if (!function_exists('crypt') || 0 === PASSWORD_DEFAULT) {
@@ -271,7 +271,7 @@ class Php550
      * @param string $password The password to hash
      * @param int    $salt     The salt to use
      *
-     * @returns string|false The hashed password, or false on error.
+     * @return string|false The hashed password, or false on error.
      */
     protected static function crypt_md5($password, $salt) {
         $salt = substr($salt, 0, 12);
