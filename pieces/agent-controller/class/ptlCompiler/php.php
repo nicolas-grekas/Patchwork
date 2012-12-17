@@ -17,6 +17,8 @@ class ptlCompiler_php extends ptlCompiler
     $serverMode = true,
     $closeModifier = '):0)',
 
+    $markerSeed,
+    $markerCounter = 0,
     $binaryMode;
 
 
@@ -25,6 +27,9 @@ class ptlCompiler_php extends ptlCompiler
         $this->binaryMode = $binaryMode;
 
         parent::__construct($template);
+
+        $s = base64_encode(md5('ptl-' . $template, true));
+        $this->markerSeed = substr($s, 0, 8);
     }
 
     protected function makeCode(&$code)
@@ -43,7 +48,7 @@ class ptlCompiler_php extends ptlCompiler
     protected function makeModifier($name)
     {
         return "((isset(\$c\x9D['" . strtolower($name)
-            . "'])||\$a\x9D=__FILE__.'*" . mt_rand() . "')?pipe_{$name}::php";
+            . "'])||\$a\x9D=__FILE__.'*" . $this->markerSeed . ++$this->markerCounter . "')?pipe_{$name}::php";
     }
 
     protected function addAGENT($limit, $inc, &$args, $is_exo)

@@ -146,7 +146,7 @@ class Patchwork_Preprocessor
             case 'Constructor4to5':    if (0 >  $level) new $t($p); break;
             case 'Globalizer':         if (0 <= $level) new $t($p, '$CONFIG'); break;
             case 'T':
-            case 'Marker':             if (!$debug) new $t($p, self::$declaredClass, $level >= 0); break;
+            case 'Marker':             if (!$debug) new $t($p, self::$declaredClass, $level >= 0, $source); break;
             case 'ConstantInliner':    new $t($p, $source, self::$constants); break;
             case 'NamespaceRemover':   new $t($p, 'Patchwork_PHP_Shim_Php530::add'); break;
             case 'ToStringCatcher':    new $t($p, 'Patchwork\ErrorHandler::handleToStringException'); break;

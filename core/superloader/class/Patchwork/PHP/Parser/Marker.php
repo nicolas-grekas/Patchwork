@@ -14,6 +14,8 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionShim
     protected
 
     $tag = "\x9D",
+    $seed,
+    $counter = 0,
     $newToken,
     $inStatic = false,
     $inlineClass = array('self' => 1, 'parent' => 1, 'static' => 1),
@@ -30,7 +32,7 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionShim
     $dependencies = array('ClassInfo' => array('class', 'scope', 'nsResolved'));
 
 
-    function __construct(Patchwork_PHP_Parser $parent, $inlineClass, $mark_require)
+    function __construct(Patchwork_PHP_Parser $parent, $inlineClass, $mark_require, $file)
     {
         foreach ($inlineClass as $inlineClass)
             $this->inlineClass[strtolower(strtr($inlineClass, '\\', '_'))] = 1;
@@ -38,6 +40,11 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionShim
         Patchwork_PHP_Parser::__construct($parent);
 
         $mark_require or $this->unregister(array('tagAutoloader' => array(T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE)));
+
+        $s = stat($file);
+        $s = array($file, $s['dev'], $s['ino'], $s['size'], $s['mtime'], $s['ctime']);
+        $s = base64_encode(md5(implode('-', $s), true));
+        $this->seed = substr($s, 0, 8);
     }
 
     protected function tagOpenTag(&$token)
@@ -216,13 +223,13 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionShim
     {
         $this->unregister(array(__FUNCTION__ => T_BRACKET_CLOSE));
         $c = strtolower(strtr($this->class->nsName . (isset($this->class->suffix) ? $this->class->suffix : ''), '\\', '_'));
-        $token[1] .= "\$GLOBALS['c{$this->tag}']['{$c}']=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "';";
+        $token[1] .= "\$GLOBALS['c{$this->tag}']['{$c}']=__FILE__.'*" . $this->seed . ++$this->counter . "';";
     }
 
     protected function getMarker($class = '')
     {
         $T = $this->tag;
         $class = '' !== $class ? "isset(\$c{$T}['{$class}'])||" : "\$e{$T}=\$b{$T}=";
-        return $class . "\$a{$T}=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "'";
+        return $class . "\$a{$T}=__FILE__.'*" . $this->seed . ++$this->counter . "'";
     }
 }

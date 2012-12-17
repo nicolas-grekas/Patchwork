@@ -1,6 +1,9 @@
 <?php
 
-/**//*<*/"\$c\x9D=&Patchwork_Superloader::\$locations;\$d\x9D=1;(\$e\x9D=\$b\x9D=\$a\x9D=__FILE__.'*" . mt_rand(1, mt_getrandmax()) . "')&&\$d\x9D&&0;"/*>*/;
+/**/$s = stat(__FILE__);
+/**/$s = array(__FILE__, $s['dev'], $s['ino'], $s['size'], $s['mtime'], $s['ctime']);
+/**/$s = base64_encode(md5(implode('-', $s), true));
+/**//*<*/"\$c\x9D=&Patchwork_Superloader::\$locations;\$d\x9D=1;(\$e\x9D=\$b\x9D=\$a\x9D=__FILE__.'*" . substr($s, 0, 8) . "')&&\$d\x9D&&0;"/*>*/;
 
 Patchwork\Shim(get_parent_class, Patchwork_Superloader::get_parent_class, $class); // FIXME: collides with Patchwork\PHP\Shim\Php530 on PHP<5.3
 
