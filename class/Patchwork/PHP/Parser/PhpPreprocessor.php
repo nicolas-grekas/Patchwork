@@ -11,8 +11,6 @@
 
 /**
  * The PhpPreprocessor parser applies a stream filter to require instructions
- *
- * @todo Preprocess T_EVAL
  */
 class Patchwork_PHP_Parser_PhpPreprocessor extends Patchwork_PHP_Parser
 {
