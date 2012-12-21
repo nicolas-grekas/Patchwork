@@ -8,10 +8,14 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The FunctionShim parser replaces function calls by other function calls.
  */
-class Patchwork_PHP_Parser_FunctionShim extends Patchwork_PHP_Parser
+class FunctionShim extends Parser
 {
     protected
 
@@ -238,7 +242,7 @@ class Patchwork_PHP_Parser_FunctionShim extends Patchwork_PHP_Parser
             {
                 if (!$this->class && 0 === strcasecmp($a[0], $this->scope->funcC)) return;
             }
-            else if (empty($this->class->nsName) || strcasecmp(strtr($a[0], '\\', '_'), strtr($this->class->nsName, '\\', '_')))
+            else if (empty($this->class->nsName) || strcasecmp($a[0], $this->class->nsName))
             {
                 $this->unshiftTokens(
                     array(T_DOUBLE_COLON, '::'),
@@ -255,7 +259,7 @@ class Patchwork_PHP_Parser_FunctionShim extends Patchwork_PHP_Parser
         }
         else if (isset(self::$autoloader[$a]) || (!$this->class && 0 === strcasecmp('function_exists', $a) && 0 !== strcasecmp('patchwork_shim_resolve', $this->scope->funcC)))
         {
-            new Patchwork_PHP_Parser_Bracket_Callback($this, isset(self::$autoloader[$a]) ? self::$autoloader[$a] : 1, $this->shims);
+            new Bracket\Callback($this, isset(self::$autoloader[$a]) ? self::$autoloader[$a] : 1, $this->shims);
 
             if ('&' === $this->prevType)
             {

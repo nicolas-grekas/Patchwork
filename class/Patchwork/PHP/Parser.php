@@ -8,15 +8,15 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
-define('T_SEMANTIC',     1); // Primary type for semantic tokens
-define('T_NON_SEMANTIC', 2); // Primary type for non-semantic tokens (whitespace and comment)
+namespace Patchwork\PHP;
 
-Patchwork_PHP_Parser::createToken(
+const T_SEMANTIC     = 1; // Primary type for semantic tokens
+const T_NON_SEMANTIC = 2; // Primary type for non-semantic tokens (whitespace and comment)
+
+Parser::createToken(
     'T_CURLY_CLOSE', // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
     'T_STR_STRING'   // String index in interpolated string
 );
-
-defined('T_NS_SEPARATOR') || Patchwork_PHP_Parser::createToken('T_NS_SEPARATOR');
 
 /**
  * Patchwork PHP Parser is a highly extensible framework for building high-performance PHP code
@@ -35,7 +35,7 @@ defined('T_NS_SEPARATOR') || Patchwork_PHP_Parser::createToken('T_NS_SEPARATOR')
  * - build an aspect weaver,
  * - etc.
  */
-class Patchwork_PHP_Parser
+class Parser
 {
     const T_OFFSET = 10000;
 
@@ -87,7 +87,7 @@ class Patchwork_PHP_Parser
     {
         $parent || $parent = __CLASS__ === get_class($this) ? $this : new self;
 
-        $this->serviceName || $this->serviceName = get_class($this);
+        $this->serviceName || $this->serviceName = strtr(get_class($this), '\\', '_');
         $this->dependencies = (array) $this->dependencies;
         $this->parent = $parent;
 
@@ -135,11 +135,11 @@ class Patchwork_PHP_Parser
             }
             else $c = array();
 
-            $k = strtolower('\\' !== $v[0] ? __CLASS__ . '_' . $v : substr($v, 1));
+            $k = strtr(strtolower('\\' !== $v[0] ? __CLASS__ . '_' . $v : substr($v, 1)), '\\', '_');
 
             if (!isset($this->parents[$k]))
             {
-                throw new Exception(get_class($this) . " failed dependency: {$v}", E_USER_WARNING);
+                throw new \Exception(get_class($this) . " failed dependency: {$v}", E_USER_WARNING);
             }
 
             $parent = $this->dependencies[$v] = $this->parents[$k];
@@ -302,16 +302,7 @@ class Patchwork_PHP_Parser
             $t =& $tokens[$i];    // Get the next token
             unset($tokens[$i++]); // Free memory and move $this->index forward
 
-            // Set primary type and fix string interpolation context
-            //
-            // String interpolation is hard, especially before PHP 5.2.3.
-            // See this thread on the PHP internals mailing-list for detailed background:
-            // http://www.mail-archive.com/internals@lists.php.net/msg27154.html
-            //
-            // Since PHP before 5.2.3 is supported, many tokens have to be tagged
-            // as T_ENCAPSED_AND_WHITESPACE when inside interpolated strings.
-            //
-            // Further than that, two gotchas remain inside string interpolation:
+            // Set primary type and handle string interpolation context:
             // - tag closing braces as T_CURLY_CLOSE when they are opened with curly braces
             //   tagged as T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES, to make
             //   them easy to distinguish from regular code "{" / "}" pairs,

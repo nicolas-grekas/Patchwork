@@ -8,7 +8,11 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
-Patchwork_PHP_Parser::createToken('T_ENDPHP');
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
+Parser::createToken('T_ENDPHP');
 
 /**
  * The Normalizer parser verifies and ensures basic guaranties on the parsed code and its token stream.
@@ -18,7 +22,7 @@ Patchwork_PHP_Parser::createToken('T_ENDPHP');
  * On the token stream, it enforces the very first token to be a T_OPEN_TAG
  * and tags the last valid PHP code position as T_ENDPHP.
  */
-class Patchwork_PHP_Parser_Normalizer extends Patchwork_PHP_Parser
+class Normalizer extends Parser
 {
     protected
 

@@ -8,13 +8,17 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The ConstantExpression parser can statically determine if a given expression is constant and evaluate its value.
  *
  * It exposes the nextExpressionIsConstant() method to its dependend parsers,
  * and when true, populates the expressionValue property.
  */
-class Patchwork_PHP_Parser_ConstantExpression extends Patchwork_PHP_Parser
+class ConstantExpression extends Parser
 {
     protected $expressionValue;
 

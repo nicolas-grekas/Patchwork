@@ -8,10 +8,14 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The WorkaroundBug55156 parser inserts workarounds for https://bugs.php.net/55156
  */
-class Patchwork_PHP_Parser_WorkaroundBug55156 extends Patchwork_PHP_Parser
+class WorkaroundBug55156 extends Parser
 {
     public
 

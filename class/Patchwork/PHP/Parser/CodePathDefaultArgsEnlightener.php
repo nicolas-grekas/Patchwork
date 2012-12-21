@@ -8,10 +8,14 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The CodePathDefaultArgsEnlightener parser instruments functions for default arguments coverage analysis.
  */
-class Patchwork_PHP_Parser_CodePathDefaultArgsEnlightener extends Patchwork_PHP_Parser
+class CodePathDefaultArgsEnlightener extends Parser
 {
     protected
 

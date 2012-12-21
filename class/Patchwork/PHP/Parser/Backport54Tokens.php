@@ -8,15 +8,19 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
-defined('T_TRAIT') || Patchwork_PHP_Parser::createToken('T_TRAIT');
-defined('T_TRAIT_C') || Patchwork_PHP_Parser::createToken('T_TRAIT_C');
-defined('T_CALLABLE') || Patchwork_PHP_Parser::createToken('T_CALLABLE');
-defined('T_INSTEADOF') || Patchwork_PHP_Parser::createToken('T_INSTEADOF');
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
+defined('T_TRAIT') || Parser::createToken('T_TRAIT');
+defined('T_TRAIT_C') || Parser::createToken('T_TRAIT_C');
+defined('T_CALLABLE') || Parser::createToken('T_CALLABLE');
+defined('T_INSTEADOF') || Parser::createToken('T_INSTEADOF');
 
 /**
  * The Backport54Tokens parser backports tokens introduced in PHP 5.4.
  */
-class Patchwork_PHP_Parser_Backport54Tokens extends Patchwork_PHP_Parser
+class Backport54Tokens extends Parser
 {
     protected $backports = array(
         'trait' => T_TRAIT,

@@ -1,6 +1,8 @@
 #!/usr/bin/env php
 <?php
 
+use Patchwork\PHP\Parser as p;
+
 ini_set('display_errors', false);
 ini_set('log_errors', true);
 ini_set('error_log', 'php://stderr');
@@ -24,21 +26,21 @@ class Preprocessor
 {
     static function getParser($file)
     {
-        $parser = new Patchwork_PHP_Parser_Dumper;
-        $parser = new Patchwork_PHP_Parser_ShortOpenEcho($parser);
-        $parser = new Patchwork_PHP_Parser_Normalizer($parser);
-        new Patchwork_PHP_Parser_BracketWatcher($parser);
-        new Patchwork_PHP_Parser_CurlyDollarNormalizer($parser);
-        new Patchwork_PHP_Parser_ShortArray($parser);
-        $parser = new Patchwork_PHP_Parser_BinaryNumber($parser);
-        $parser = new Patchwork_PHP_Parser_Backport54Tokens($parser);
-        new Patchwork_PHP_Parser_Backport53Tokens($parser);
-        new Patchwork_PHP_Parser_StringInfo($parser);
-        new Patchwork_PHP_Parser_NamespaceInfo($parser);
-        new Patchwork_PHP_Parser_ScopeInfo($parser);
-        new Patchwork_PHP_Parser_ClassInfo($parser);
-        new Patchwork_PHP_Parser_ConstantInliner($parser, realpath($file));
-        new Patchwork_PHP_Parser_Scream($parser);
+        $parser = new p\Dumper;
+        $parser = new p\ShortOpenEcho($parser);
+        $parser = new p\Normalizer($parser);
+        new p\BracketWatcher($parser);
+        new p\CurlyDollarNormalizer($parser);
+        new p\ShortArray($parser);
+        $parser = new p\BinaryNumber($parser);
+        $parser = new p\Backport54Tokens($parser);
+        new p\Backport53Tokens($parser);
+        new p\StringInfo($parser);
+        new p\NamespaceInfo($parser);
+        new p\ScopeInfo($parser);
+        new p\ClassInfo($parser);
+        new p\ConstantInliner($parser, realpath($file));
+        new p\Scream($parser);
 
         return $parser;
     }

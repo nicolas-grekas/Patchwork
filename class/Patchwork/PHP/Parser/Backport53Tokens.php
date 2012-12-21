@@ -8,17 +8,21 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
-defined('T_DIR') || Patchwork_PHP_Parser::createToken('T_DIR');
-defined('T_GOTO') || Patchwork_PHP_Parser::createToken('T_GOTO');
-defined('T_NS_C') || Patchwork_PHP_Parser::createToken('T_NS_C');
-defined('T_NAMESPACE') || Patchwork_PHP_Parser::createToken('T_NAMESPACE');
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
+defined('T_DIR') || Parser::createToken('T_DIR');
+defined('T_GOTO') || Parser::createToken('T_GOTO');
+defined('T_NS_C') || Parser::createToken('T_NS_C');
+defined('T_NAMESPACE') || Parser::createToken('T_NAMESPACE');
 
 /**
  * The Backport53Tokens parser backports tokens introduced in PHP 5.3.
  *
  * @todo Backport nowdoc syntax, allow heredoc in static declarations.
  */
-class Patchwork_PHP_Parser_Backport53Tokens extends Patchwork_PHP_Parser
+class Backport53Tokens extends Parser
 {
     protected
 

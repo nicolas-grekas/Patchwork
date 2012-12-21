@@ -8,10 +8,15 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
-class Patchwork_PHP_Parser_HaltCompilerRemover extends Patchwork_PHP_Parser
-{
-    // Cut data after __halt_compiler() while setting $compiler_halt_offset
+namespace Patchwork\PHP\Parser;
 
+use Patchwork\PHP\Parser;
+
+/**
+ * The HaltCompilerRemover parser cuts data after __halt_compiler() while setting $compiler_halt_offset.
+ */
+class HaltCompilerRemover extends Parser
+{
     function removeHaltCompiler($code, &$compiler_halt_offset)
     {
         if (false === stripos($code, '__halt_compiler'))

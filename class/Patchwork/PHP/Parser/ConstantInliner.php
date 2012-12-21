@@ -8,10 +8,14 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The ConstantInliner parser replaces internal, magic and user specified constants by their value.
  */
-class Patchwork_PHP_Parser_ConstantInliner extends Patchwork_PHP_Parser
+class ConstantInliner extends Parser
 {
     protected
 

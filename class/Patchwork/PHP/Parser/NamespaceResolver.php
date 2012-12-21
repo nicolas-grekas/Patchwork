@@ -8,12 +8,16 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The NamespaceResolver parser replaces aliased identifiers by their fully namespace resolved name.
  *
  * It also removes local alias declarations as they are not needed anymore.
  */
-class Patchwork_PHP_Parser_NamespaceResolver extends Patchwork_PHP_Parser
+class NamespaceResolver extends Parser
 {
     protected
 

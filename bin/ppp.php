@@ -1,50 +1,29 @@
 <?php
 
-ppp_init();
+namespace ppp;
 
-function ppp_autoload($class)
+use Patchwork\PHP\Preprocessor;
+
+spl_autoload_register('ppp\autoload');
+
+function autoload($class)
 {
     static $dir;
-    isset($dir) || $dir = dirname(dirname(__FILE__)) . '/class/';
+    isset($dir) || $dir = dirname(__DIR__) . '/class/';
     if (file_exists($class = $dir . strtr($class, '\\_', '//') . '.php')) require $class;
 }
 
-function ppp_init()
-{
-    if (!defined('PHP_VERSION_ID'))
-    {
-        $v = array_map('intval', explode('.', PHP_VERSION, 3));
+require Preprocessor::register() . dirname(__DIR__) . '/bootup.shim.php';
 
-        define('PHP_VERSION_ID', 10000 * $v[0] + 100 * $v[1] + $v[2]);
-        define('PHP_MAJOR_VERSION', $v[0]);
-        define('PHP_MINOR_VERSION', $v[1]);
-        define('PHP_RELEASE_VERSION', $v[2]);
-
-        $v = substr(PHP_VERSION, strlen(implode('.', $v)));
-
-        define('PHP_EXTRA_VERSION', false !== $v ? $v : '');
-    }
-
-    if (!defined('E_DEPRECATED'))
-    {
-        define('E_DEPRECATED', E_NOTICE);
-        define('E_USER_DEPRECATED', E_USER_NOTICE);
-    }
-
-    spl_autoload_register('ppp_autoload');
-
-    require Patchwork_PHP_Preprocessor::register() . dirname(dirname(__FILE__)) . '/bootup.shim.php';
-}
-
-class ppp_PHP_Preprocessor extends Patchwork_PHP_Preprocessor
+class ShebangPreprocessor extends Preprocessor
 {
     protected static $processor;
 
 
     static function register($filter = null, $class = null)
     {
-        if (empty($filter)) $filter = new parent;
-        $x = parent::register(new self);
+        if (empty($filter)) $filter = empty($class) ? new parent : new $class;
+        $x = parent::register(new static);
         parent::register($filter);
         self::$processor = $filter;
         return $x;
@@ -73,7 +52,7 @@ class ppp_PHP_Preprocessor extends Patchwork_PHP_Preprocessor
     }
 }
 
-if (isset($_SERVER['SCRIPT_FILENAME'][0])) require ppp_PHP_Preprocessor::register() . $_SERVER['SCRIPT_FILENAME'];
-else eval('?>' . file_get_contents(Patchwork_PHP_Preprocessor::register() . 'php://stdin'));
+if (isset($_SERVER['SCRIPT_FILENAME'][0])) require ShebangPreprocessor::register() . $_SERVER['SCRIPT_FILENAME'];
+else eval('?>' . file_get_contents(Preprocessor::register() . 'php://stdin'));
 
 exit;

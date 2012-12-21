@@ -8,11 +8,13 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
-class Patchwork_PHP_Preprocessor extends Patchwork_AbstractStreamProcessor
+namespace Patchwork\PHP;
+
+class Preprocessor extends \Patchwork\AbstractStreamProcessor
 {
     protected
 
-    $parserPrefix = 'Patchwork_PHP_Parser_',
+    $parserPrefix = 'Patchwork\PHP\Parser\\',
     $namespaceRemoverCallback = 'Patchwork_PHP_Shim_Php530::add',
     $toStringCatcherCallback = 'Patchwork\ErrorHandler::handleToStringException',
     $compilerHaltOffset = 0,
@@ -50,12 +52,6 @@ class Patchwork_PHP_Preprocessor extends Patchwork_AbstractStreamProcessor
     protected static $code, $self;
 
 
-    static function register($filter = null, $class = null)
-    {
-        if (empty($filter)) $filter = new self;
-        return parent::register($filter, $class);
-    }
-
     function __construct()
     {
         foreach ($this->parsers as $class => &$enabled)
@@ -82,7 +78,7 @@ class Patchwork_PHP_Preprocessor extends Patchwork_AbstractStreamProcessor
 
     function doProcess($code)
     {
-        $class = new Patchwork_PHP_Parser_HaltCompilerRemover;
+        $class = new Parser\HaltCompilerRemover;
         $code = $class->removeHaltCompiler($code, $this->compilerHaltOffset);
 
         foreach ($this->parsers as $class => $enabled)

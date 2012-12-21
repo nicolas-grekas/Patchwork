@@ -8,7 +8,11 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
-Patchwork_PHP_Parser::createToken('T_NAME_NS', 'T_NAME_CLASS', 'T_NAME_FUNCTION', 'T_NAME_CONST', 'T_USE_NS', 'T_USE_CLASS', 'T_USE_METHOD', 'T_USE_PROPERTY', 'T_USE_FUNCTION', 'T_USE_CONST', 'T_USE_CONSTANT', 'T_GOTO_LABEL', 'T_TYPE_HINT');
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
+Parser::createToken('T_NAME_NS', 'T_NAME_CLASS', 'T_NAME_FUNCTION', 'T_NAME_CONST', 'T_USE_NS', 'T_USE_CLASS', 'T_USE_METHOD', 'T_USE_PROPERTY', 'T_USE_FUNCTION', 'T_USE_CONST', 'T_USE_CONSTANT', 'T_GOTO_LABEL', 'T_TYPE_HINT');
 
 /**
  * The StringInfo parser analyses T_STRING tokens and gives them a secondary type to allow more specific semantics.
@@ -32,7 +36,7 @@ Patchwork_PHP_Parser::createToken('T_NAME_NS', 'T_NAME_CLASS', 'T_NAME_FUNCTION'
  * - nsPrefix: non-resolved namespace prefix of the current token
  * - removeNsPrefix(): removes nsPrefix from the output stream for the current token
  */
-class Patchwork_PHP_Parser_StringInfo extends Patchwork_PHP_Parser
+class StringInfo extends Parser
 {
     protected
 

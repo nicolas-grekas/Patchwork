@@ -8,6 +8,10 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * NamespaceInfo exposes each token's namespace context to dependend parsers.
  *
@@ -18,7 +22,7 @@
  *
  * Inherited from StringInfo are nsPrefix and removeNsPrefix().
  */
-class Patchwork_PHP_Parser_NamespaceInfo extends Patchwork_PHP_Parser
+class NamespaceInfo extends Parser
 {
     protected
 

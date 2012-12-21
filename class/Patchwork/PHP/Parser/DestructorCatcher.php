@@ -8,11 +8,15 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * DestructorCatcher encapsulates class destructors inside a try/catch that avoids any
  * "Exception thrown without a stack frame in Unknown on line 0" cryptic error message.
  */
-class Patchwork_PHP_Parser_DestructorCatcher extends Patchwork_PHP_Parser
+class DestructorCatcher extends Parser
 {
     protected
 

@@ -8,13 +8,17 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The StaticState parser allows tagging static code inside regular code.
  *
  * This allows PHP to be used as a code preprocessor able to optimise itself
  * by looking at the local setup (PHP version, enabled extensions, etc.)
  */
-class Patchwork_PHP_Parser_StaticState extends Patchwork_PHP_Parser
+class StaticState extends Parser
 {
     protected
 
@@ -101,7 +105,7 @@ class Patchwork_PHP_Parser_StaticState extends Patchwork_PHP_Parser
             if (1 !== $transition[0])
             {
                 $O .= "({$var}[]=array({$transition[1]},"
-                    . (4 === $transition[0] ? 'Patchwork_PHP_Parser::export(' : '(');
+                    . (4 === $transition[0] ? __CLASS__ . '::export(' : '(');
             }
 
             $state = $transition[0];

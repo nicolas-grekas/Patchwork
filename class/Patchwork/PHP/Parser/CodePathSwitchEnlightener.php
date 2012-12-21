@@ -8,12 +8,16 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The CodePathSwitchEnlightner parser instruments switch structures for branch coverage analysis.
  *
  * @todo Annotation for switches where "default" can not be jumped to because "cases" cover all accessible possibilities.
  */
-class Patchwork_PHP_Parser_CodePathSwitchEnlightener extends Patchwork_PHP_Parser
+class CodePathSwitchEnlightener extends Parser
 {
     protected
 

@@ -8,12 +8,16 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The ConstFuncDisabler parser emits a deprecation notice on namespaced functions or constants declarations.
  *
  * @todo Allow local usage of inline declared consts, functions and define()
  */
-class Patchwork_PHP_Parser_ConstFuncDisabler extends Patchwork_PHP_Parser
+class ConstFuncDisabler extends Parser
 {
     protected
 

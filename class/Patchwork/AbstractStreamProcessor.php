@@ -8,7 +8,9 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
-abstract class Patchwork_AbstractStreamProcessor extends php_user_filter
+namespace Patchwork;
+
+abstract class AbstractStreamProcessor extends \php_user_filter
 {
     abstract function process($data);
 
@@ -19,8 +21,8 @@ abstract class Patchwork_AbstractStreamProcessor extends php_user_filter
 
     static function register($filter = null, $class = null)
     {
-        if (empty($filter)) $filter = new self;
-        if (empty($class)) $class = get_class($filter);
+        if (empty($filter)) $filter = empty($class) ? new static : new $class;
+        $class = get_class($filter);
         self::$registry[$class] = $filter;
         stream_filter_register($class, $class);
         return $filter->filterPrefix = 'php://filter/read=' . $class . '/resource=';
@@ -44,7 +46,7 @@ abstract class Patchwork_AbstractStreamProcessor extends php_user_filter
 
             $f = self::$registry[get_class($this)];
 
-            Patchwork_AbstractStreamProcessor__lazyUriResolver::bind($this->stream, $f->uri);
+            AbstractStreamProcessor__lazyUriResolver::bind($this->stream, $f->uri);
 
             $bucket->data = $f->process($this->data);
             $bucket->datalen = strlen($bucket->data);
@@ -60,7 +62,7 @@ abstract class Patchwork_AbstractStreamProcessor extends php_user_filter
     }
 }
 
-class Patchwork_AbstractStreamProcessor__lazyUriResolver
+class AbstractStreamProcessor__lazyUriResolver
 {
     protected $uri, $stream;
 

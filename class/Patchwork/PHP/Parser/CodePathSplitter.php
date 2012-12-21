@@ -8,13 +8,17 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The CodePathSplitter parser merges and splits lines at code path nodes, enabling extensive code coverage analysis.
  *
  * @todo More clever whitespace offsets with linePrefix
  * @todo Inline tags or other idea to mesure branch related coverage metrics
  */
-class Patchwork_PHP_Parser_CodePathSplitter extends Patchwork_PHP_Parser
+class CodePathSplitter extends Parser
 {
     const
 

@@ -2,12 +2,14 @@
 
 namespace Patchwork\Tests\PHP;
 
+use Patchwork\PHP\Parser;
+
 class ControlStructBracketerTest extends \PHPUnit_Framework_TestCase
 {
     protected function getParser()
     {
-        $p = new \Patchwork_PHP_Parser_BracketWatcher;
-        new \Patchwork_PHP_Parser_ControlStructBracketer($p);
+        $p = new Parser\BracketWatcher;
+        new Parser\ControlStructBracketer($p);
         return $p;
     }
 

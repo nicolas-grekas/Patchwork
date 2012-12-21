@@ -8,10 +8,14 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The NamespaceBracketer parser transformes the regular namespace syntax to the alternate bracketed syntax.
  */
-class Patchwork_PHP_Parser_NamespaceBracketer extends Patchwork_PHP_Parser
+class NamespaceBracketer extends Parser
 {
     public
 

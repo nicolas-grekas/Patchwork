@@ -8,6 +8,10 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * ConstFuncResolver statically resolves functions and constants to their fully namespaced name.
  *
@@ -18,7 +22,7 @@
  *
  * @todo Parse for inline consts, functions and define()
  */
-class Patchwork_PHP_Parser_ConstFuncResolver extends Patchwork_PHP_Parser
+class ConstFuncResolver extends Parser
 {
     protected
 
@@ -75,7 +79,7 @@ class Patchwork_PHP_Parser_ConstFuncResolver extends Patchwork_PHP_Parser
 
     protected function nsCodeLoader($is_func, $ns, $token)
     {
-        // FIXME: This doesn't work in PHP 5.2 for namespaced functions and constants
+        // @todo: This doesn't work in PHP 5.2 for namespaced functions and constants
         if ($is_func) return function_exists($ns . $token);
         else return defined($ns . $token);
     }

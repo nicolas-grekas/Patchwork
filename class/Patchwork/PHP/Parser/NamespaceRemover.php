@@ -8,12 +8,16 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The NamespaceRemover parser backports namespaces introduced in PHP 5.3.
  *
  * It does so by resolving then removing namespace declarations and replacing namespace separators by underscores.
  */
-class Patchwork_PHP_Parser_NamespaceRemover extends Patchwork_PHP_Parser
+class NamespaceRemover extends Parser
 {
     protected
 

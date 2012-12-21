@@ -8,12 +8,16 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
-Patchwork_PHP_Parser::createToken('T_BRACKET_CLOSE');
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
+Parser::createToken('T_BRACKET_CLOSE');
 
 /**
  * The BracketWatcher parser counts opening brackets and triggers callbacks on corresponding closing brackets.
  */
-class Patchwork_PHP_Parser_BracketWatcher extends Patchwork_PHP_Parser
+class BracketWatcher extends Parser
 {
     protected
 
