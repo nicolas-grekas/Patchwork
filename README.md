@@ -1,15 +1,9 @@
 Patchwork PHP Parser
 ====================
 
-Patchwork PHP Parser is aimed at building high-performance tools for
-transforming and analysing PHP code. It is written in PHP around the tokenizer
-extension.
-
-Here, high-performance means:
-
-* fast,
-* memory efficient,
-* and easy to extend!
+Patchwork PHP Parser is aimed at building fast, memory efficient and highly
+modular PHP code transformations and analysis. It is written for PHP 5.3 around
+the tokenizer extension.
 
 It can be used for example to:
 
@@ -23,6 +17,10 @@ It can be used for example to:
 
 As an illustrative example, it can backport namespaces and closures and should
 easily be able to compile itself to PHP 5.2.
+
+Although it is written for PHP 5.3, it can parse PHP 5.4 code and already has
+backports for the short array syntax, the binary number notation and enabling
+the short open echo tag regardless of the short_open_tag ini setting.
 
 Licensing
 ---------
