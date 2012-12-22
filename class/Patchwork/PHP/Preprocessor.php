@@ -15,10 +15,8 @@ class Preprocessor extends \Patchwork\AbstractStreamProcessor
     protected
 
     $parserPrefix = 'Patchwork\PHP\Parser\\',
-    $namespaceRemoverCallback = 'Patchwork_PHP_Shim_Php530::add',
     $toStringCatcherCallback = 'Patchwork\ErrorHandler::handleToStringException',
     $compilerHaltOffset = 0,
-    $closureShimParser,
     $constants = array(),
     $parsers = array(
         'PhpPreprocessor'    => true,
@@ -30,7 +28,6 @@ class Preprocessor extends \Patchwork\AbstractStreamProcessor
         'StringInfo'         => true,
         'WorkaroundBug55156' => -50308,
         'Backport54Tokens'   => -50400,
-        'Backport53Tokens'   => -50300,
         'NamespaceBracketer' => +50300, // Load this only for 5.3.0 and up
         'NamespaceInfo'      => true,
         'ScopeInfo'          => true,
@@ -38,12 +35,8 @@ class Preprocessor extends \Patchwork\AbstractStreamProcessor
         'DestructorCatcher'  => true,
         'ConstFuncDisabler'  => true,
         'ConstFuncResolver'  => true,
-        'NamespaceResolver'  => -50300,
         'ConstantInliner'    => true,
         'ClassInfo'          => true,
-        'NamespaceRemover'   => -50300,
-        'InvokeShim'         => -50300,
-        'ClosureShim'        => true,
         'ConstantExpression' => true,
         'FunctionShim'       => true,
         'StaticState'        => true,
@@ -91,12 +84,6 @@ class Preprocessor extends \Patchwork\AbstractStreamProcessor
         {
             $code = $parser->parse($code);
 
-            if (isset($this->closureShimParser))
-            {
-                $code = $this->closureShimParser->finalizeClosures($code);
-                $this->closureShimParser = null;
-            }
-
             foreach ($parser->getErrors() as $e)
                 $this->handleError($e);
         }
@@ -118,8 +105,6 @@ class Preprocessor extends \Patchwork\AbstractStreamProcessor
         case 'PhpPreprocessor':  $p = new $c($parser, $this->filterPrefix); break;
         case 'ConstantInliner':  $p = new $c($parser, $this->uri, $this->constants, $this->compilerHaltOffset); break;
         case 'ToStringCatcher':  $p = new $c($parser, $this->toStringCatcherCallback); break;
-        case 'NamespaceRemover': $p = new $c($parser, $this->namespaceRemoverCallback); break;
-        case 'ClosureShim':      $p = $this->closureShimParser = new $c($parser); break;
         default:                 $p = new $c($parser); break;
         }
 
