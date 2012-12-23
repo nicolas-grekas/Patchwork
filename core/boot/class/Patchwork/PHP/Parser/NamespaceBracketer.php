@@ -59,11 +59,15 @@ class Patchwork_PHP_Parser_NamespaceBracketer extends Patchwork_PHP_Parser
             $this->nsClose = true;
             return $this->unshiftTokens('{');
         }
+        else
+        {
+            $this->unregister($this->callbacks);
+        }
     }
 
     protected function tagEnd(&$token)
     {
-        $this->unregister(array(__FUNCTION__ => T_ENDPHP));
+        $this->unregister($this->callbacks);
         return $this->unshiftTokens('}', $token);
     }
 }

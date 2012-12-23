@@ -15,6 +15,7 @@ class Patchwork_PHP_Preprocessor extends Patchwork_AbstractStreamProcessor
     $parserPrefix = 'Patchwork_PHP_Parser_',
     $namespaceRemoverCallback = 'Patchwork_PHP_Shim_Php530::add',
     $toStringCatcherCallback = 'Patchwork\ErrorHandler::handleToStringException',
+    $compilerHaltOffset = 0,
     $closureShimParser,
     $constants = array(),
     $parsers = array(
@@ -81,9 +82,14 @@ class Patchwork_PHP_Preprocessor extends Patchwork_AbstractStreamProcessor
 
     function doProcess($code)
     {
+        $class = new Patchwork_PHP_Parser_HaltCompilerRemover;
+        $code = $class->removeHaltCompiler($code, $this->compilerHaltOffset);
+
         foreach ($this->parsers as $class => $enabled)
             if ($enabled && !$this->buildParser($parser, $class))
                 break;
+
+        $this->compilerHaltOffset = 0;
 
         if (isset($parser))
         {
@@ -114,7 +120,7 @@ class Patchwork_PHP_Preprocessor extends Patchwork_AbstractStreamProcessor
         case 'StaticState':
         case 'Normalizer':  $parser = new $c($parser); break;
         case 'PhpPreprocessor':  $p = new $c($parser, $this->filterPrefix); break;
-        case 'ConstantInliner':  $p = new $c($parser, $this->uri, $this->constants); break;
+        case 'ConstantInliner':  $p = new $c($parser, $this->uri, $this->constants, $this->compilerHaltOffset); break;
         case 'ToStringCatcher':  $p = new $c($parser, $this->toStringCatcherCallback); break;
         case 'NamespaceRemover': $p = new $c($parser, $this->namespaceRemoverCallback); break;
         case 'ClosureShim':      $p = $this->closureShimParser = new $c($parser); break;

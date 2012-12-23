@@ -58,7 +58,7 @@ class Patchwork_PHP_Parser_ConstantInliner extends Patchwork_PHP_Parser
         return array_keys(self::$staticConsts);
     }
 
-    function __construct(parent $parent, $file, &$new_consts = array())
+    function __construct(parent $parent, $file, &$new_consts = array(), $compiler_halt_offset = 0)
     {
         if ($file) $this->file = $file;
         else unset($this->callbacks['tagFileC'], $this->callbacks['tagLineC']);
@@ -68,6 +68,11 @@ class Patchwork_PHP_Parser_ConstantInliner extends Patchwork_PHP_Parser
         $this->constants = self::$staticConsts;
         self::$staticConsts = $file;
         $this->newConsts =& $new_consts;
+
+        if (0 < $compiler_halt_offset)
+        {
+            $this->constants['__COMPILER_HALT_OFFSET__'] = (int) $compiler_halt_offset;
+        }
 
         parent::__construct($parent);
     }
