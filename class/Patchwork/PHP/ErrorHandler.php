@@ -50,7 +50,8 @@ class ErrorHandler
     $logFile,
     $logStream,
     $shuttingDown = 0,
-    $handlers = array();
+    $handlers = array(),
+    $caughtToStringException;
 
 
     static function start($log_file = 'php://stderr', self $handler = null)
@@ -126,6 +127,18 @@ class ErrorHandler
         restore_error_handler();
     }
 
+    /**
+     * Restores __toString()'s ability to throw exceptions.
+     *
+     * Throwing an exception inside __toString() doesn't work, unless
+     * you use this static method as return value instead of throwing.
+     */
+    static function handleToStringException(\Exception $e)
+    {
+        self::$caughtToStringException = $e;
+        return null;
+    }
+
     static function falseError()
     {
         return false;
@@ -196,6 +209,13 @@ class ErrorHandler
      */
     function handleError($type, $message, $file, $line, &$scope, $trace_offset = 0, $log_time = 0)
     {
+        if (isset(self::$caughtToStringException))
+        {
+            $type = self::$caughtToStringException;
+            self::$caughtToStringException = null;
+            throw $type;
+        }
+
         $log = error_reporting() & $type;
         $throw = $this->thrownErrors & $log;
         $log &= $this->loggedErrors;
