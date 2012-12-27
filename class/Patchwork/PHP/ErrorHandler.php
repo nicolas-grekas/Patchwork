@@ -42,6 +42,7 @@ class ErrorHandler
 
     $logger,
     $loggedTraces = array(),
+    $stackedErrors = array(),
     $registeredErrors = 0;
 
     protected static
@@ -76,6 +77,9 @@ class ErrorHandler
         return $handler;
     }
 
+    /**
+     * Returns the currently registered error handler.
+     */
     static function getHandler()
     {
         if (false === $h = end(self::$handlers)) throw new \Exception('No error handler has been registered');
@@ -87,6 +91,8 @@ class ErrorHandler
         self::$shuttingDown = 1;
 
         if (false === $handler = end(self::$handlers)) return;
+
+        $handler->unstackErrors();
 
         if ($e = self::getLastError())
         {
@@ -108,9 +114,11 @@ class ErrorHandler
         return empty($e['message']) ? false : $e;
     }
 
+    /**
+     * Resets error_get_last() by triggering a silenced empty user notice
+     */
     static function resetLastError()
     {
-        // Reset error_get_last() by triggering a silenced empty user notice
         set_error_handler(array(__CLASS__, 'falseError'));
         $r = error_reporting(0);
         user_error('', E_USER_NOTICE);
@@ -155,6 +163,9 @@ class ErrorHandler
         return $ok;
     }
 
+    /**
+     * Sets all the bitfields that configure errors' logging.
+     */
     function setLevel($logged = null, $scream = null, $thrown = null, $scoped = null, $traced = null)
     {
         if (is_array($logged)) list(, $logged, $scream, $thrown, $scoped, $traced) = $logged;
@@ -177,7 +188,13 @@ class ErrorHandler
         return $e;
     }
 
-    function handleError($type, $message, $file, $line, $scope, $trace_offset = 0, $log_time = 0)
+    /**
+     * Handles errors by filtering then logging them according to the configured bitfields.
+     *
+     * @param integer $trace_offset The number of noisy items to skip from the current trace or -1 to disable any trace logging.
+     * @param float $log_time The microtime(true) when the event has been triggered.
+     */
+    function handleError($type, $message, $file, $line, &$scope, $trace_offset = 0, $log_time = 0)
     {
         $log = error_reporting() & $type;
         $throw = $this->thrownErrors & $log;
@@ -240,6 +257,54 @@ class ErrorHandler
         return (bool) $log;
     }
 
+    /**
+     * Stack an error for delayed handling.
+     *
+     * As shown by http://bugs.php.net/42098 and http://bugs.php.net/60724
+     * PHP has a compile stage where it behaves unusually. To workaround it,
+     * this minimalistic error handler only stacks them for delayed handling.
+     *
+     * The most important feature of this error handler is
+     * to never ever rely on PHP's autoloading mechanism.
+     *
+     * @param float $log_time The microtime(true) when the event has been triggered.
+     */
+    function stackError($type, $message, $file, $line, &$scope, $log_time = 0)
+    {
+        $log = error_reporting() & $type;
+        $throw = $this->thrownErrors & $log;
+        $log &= $this->loggedErrors;
+
+        if ($log || $throw || $this->screamErrors & $type)
+        {
+            $log_time || $log_time = microtime(true);
+            if (!($this->scopedErrors & $type)) unset($scope);
+            $this->stackedErrors[] = array($type, $message, $file, $line, &$scope, $log_time);
+        }
+
+        return $log || $throw;
+    }
+
+    /**
+     * Unstacks stacked errors and forward them to ->handleError().
+     *
+     * @param integer $trace_offset The number of noisy items to skip from the current trace or -1 to disable any trace logging.
+     */
+    function unstackErrors($trace_offset = 0)
+    {
+        if (empty($this->stackedErrors)) return;
+        if (0 <= $trace_offset) ++$trace_offset;
+        $e = $this->stackedErrors;
+        $this->stackedErrors = array();
+        foreach ($e as $e) $h->handleError($e[0], $e[1], $e[2], $e[3], $e[4], $trace_offset, $e[5]);
+    }
+
+    /**
+     * Forwards an exception to ->handleError().
+     *
+     * @param \Exception $e The exception to log.
+     * @param float $log_time The microtime(true) when the event has been triggered.
+     */
     function handleException(\Exception $e, $log_time = 0)
     {
         $thrown = $this->thrownErrors;
@@ -257,17 +322,24 @@ class ErrorHandler
         $this->scopedErrors = $scoped;
     }
 
-    function handleLastError($e)
-    {
-        // Inject errors in the regular handling path when they have not been logged by the native PHP error handler.
-        (error_reporting() & $e['type']) || call_user_func_array(array($this, 'handleError'), $e + array(null, -1));
-    }
-
+    /**
+     * Returns the logger used by this error handler
+     */
     function getLogger()
     {
         if (isset($this->logger)) return $this->logger;
         isset(self::$logStream) || self::$logStream = fopen(self::$logFile, 'ab');
         return $this->logger = new Logger(self::$logStream);
+    }
+
+    /**
+     * Injects errors in the regular handling path when they have not been logged by the native PHP error handler.
+     *
+     * @param array $e The last error as returned by error_get_last().
+     */
+    function handleLastError($e)
+    {
+        (error_reporting() & $e['type']) || call_user_func_array(array($this, 'handleError'), $e + array(null, -1));
     }
 }
 

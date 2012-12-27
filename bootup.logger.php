@@ -8,17 +8,13 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
-use Patchwork\PHP as p;
-
-require __DIR__ . '/class/Patchwork/PHP/ErrorHandler.php';
-
 /**
  * This class is a helper for plugging Patchwork\PHP\ErrorHandler as your main error
  * and exception reporting handler. It gives you the hooks needed to configure which
  * and where errors are written and adds a log() static method that can be used
  * in your code to log your own messages/data in the same debug stream.
  */
-class MyLogger extends p\ErrorHandler
+class MyLogger extends Patchwork\PHP\ErrorHandler
 {
     static function start($log_file = 'php://stderr', parent $handler = null)
     {
@@ -37,7 +33,6 @@ class MyLogger extends p\ErrorHandler
     function getLogger()
     {
         if (isset($this->logger)) return $this->logger;
-        self::load(array('Logger', 'Walker', 'Dumper', 'JsonDumper'));
         $logger = parent::getLogger();
 
         // Configure your logger here
@@ -50,12 +45,6 @@ class MyLogger extends p\ErrorHandler
     {
         self::getHandler()->getLogger()->log($message, $data);
     }
-
-    protected static function load($c)
-    {
-        // http://bugs.php.net/42098 and http://bugs.php.net/60724 workaround
-        foreach ($c as $c) class_exists('Patchwork\PHP\\' . $c) || eval(';') || require __DIR__ . '/class/Patchwork/PHP/' . $c . '.php';
-    }
 }
 
 /**
@@ -66,18 +55,19 @@ class MyLogger extends p\ErrorHandler
  */
 function patchwork_require($file)
 {
-    try
-    {
-        $e = error_reporting(error_reporting() | E_PARSE | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR);
-        $file = patchwork_require_empty_scope($file);
-        error_reporting($e);
-        return $file;
-    }
-    catch (Exception $file)
-    {
-        error_reporting($e);
-        throw $file;
-    }
+    $h = MyLogger::getHandler();
+    set_error_handler(array($h, 'stackError'));
+    $e = error_reporting(error_reporting() | E_PARSE | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR);
+
+    try {$file = patchwork_require_empty_scope($file);}
+    catch (Exception $file) {$x = true;}
+
+    error_reporting($e);
+    restore_error_handler();
+    $h->unstackErrors();
+
+    if (isset($x)) throw $file;
+    else return $file;
 }
 
 /**
@@ -121,6 +111,3 @@ function patchwork_shutdown_call($c)
         exit(255);
     }
 }
-
-MyLogger::start();
-MyLogger::log('patchwork-logger', array('enabled' => true));
