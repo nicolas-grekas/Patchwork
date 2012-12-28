@@ -352,7 +352,11 @@ class ErrorHandler
     function getLogger()
     {
         if (isset($this->logger)) return $this->logger;
-        isset(self::$logStream) || self::$logStream = fopen(self::$logFile, 'ab');
+        if (!isset(self::$logStream))
+        {
+            self::$logStream = fopen(self::$logFile, 'ab');
+            flock(self::$logStream, LOCK_SH); // This shared lock allows readers to wait for the end of the stream.
+        }
         return $this->logger = new Logger(self::$logStream, $_SERVER['REQUEST_TIME_FLOAT']);
     }
 }

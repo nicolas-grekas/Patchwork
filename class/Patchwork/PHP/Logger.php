@@ -23,7 +23,6 @@ class Logger
 {
     public
 
-    $writeLock = true,
     $lineFormat = "%s",
     $loggedGlobals = array('_SERVER');
 
@@ -86,9 +85,7 @@ class Logger
                 $data['globals'][$log_time] = isset($GLOBALS[$log_time]) ? $GLOBALS[$log_time] : null;
         }
 
-        $this->writeLock && flock($this->logStream, LOCK_EX);
         $this->writeEvent($type, $data);
-        $this->writeLock && flock($this->logStream, LOCK_UN);
 
         $this->prevTime = microtime(true);
         $this->isFirstEvent = false;
