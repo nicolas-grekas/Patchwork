@@ -8,6 +8,8 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+isset($_SERVER['REQUEST_TIME_FLOAT']) or $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
+
 /**
  * This class is a helper for plugging Patchwork\PHP\ErrorHandler as your main error
  * and exception reporting handler. It gives you the hooks needed to configure which

@@ -87,6 +87,10 @@ class ErrorHandler
         return $h;
     }
 
+    /**
+     * Gets the last uncatchable error and forwards it to ->handleError()
+     * when it has not been already logged by PHP's native error handler.
+     */
     static function shutdown()
     {
         self::$shuttingDown = 1;
@@ -99,11 +103,11 @@ class ErrorHandler
         {
             switch ($e['type'])
             {
-            // Get the last uncatchable error
             case E_ERROR: case E_PARSE:
             case E_CORE_ERROR: case E_CORE_WARNING:
             case E_COMPILE_ERROR: case E_COMPILE_WARNING:
-                $handler->handleLastError($e);
+                if (!(error_reporting() & $e['type']))
+                    $handler->handleError($e['type'], $e['message'], $e['file'], $e['line'], null, -1);
                 self::resetLastError();
             }
         }
@@ -157,8 +161,8 @@ class ErrorHandler
     {
         $ok = array(
             $this === end(self::$handlers),
-            array($this, 'handleError') === set_error_handler(array(__CLASS__, 'falseError')),
-            array($this, 'handleException') === set_exception_handler(array(__CLASS__, 'falseError')),
+            array($this, 'handleError') === set_error_handler('var_dump'),
+            array($this, 'handleException') === set_exception_handler('var_dump'),
         );
 
         if ($ok = array(true, true, true) === $ok)
@@ -284,8 +288,8 @@ class ErrorHandler
      * PHP has a compile stage where it behaves unusually. To workaround it,
      * this minimalistic error handler only stacks them for delayed handling.
      *
-     * The most important feature of this error handler is
-     * to never ever rely on PHP's autoloading mechanism.
+     * The most important feature of this error handler is to never
+     * ever trigger PHP's autoloading mechanism nor any require.
      *
      * @param float $log_time The microtime(true) when the event has been triggered.
      */
@@ -349,17 +353,7 @@ class ErrorHandler
     {
         if (isset($this->logger)) return $this->logger;
         isset(self::$logStream) || self::$logStream = fopen(self::$logFile, 'ab');
-        return $this->logger = new Logger(self::$logStream);
-    }
-
-    /**
-     * Injects errors in the regular handling path when they have not been logged by the native PHP error handler.
-     *
-     * @param array $e The last error as returned by error_get_last().
-     */
-    function handleLastError($e)
-    {
-        (error_reporting() & $e['type']) || call_user_func_array(array($this, 'handleError'), $e + array(null, -1));
+        return $this->logger = new Logger(self::$logStream, $_SERVER['REQUEST_TIME_FLOAT']);
     }
 }
 
