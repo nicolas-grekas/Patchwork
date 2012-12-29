@@ -11,45 +11,6 @@
 isset($_SERVER['REQUEST_TIME_FLOAT']) or $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
 
 /**
- * This class is a helper for plugging Patchwork\PHP\ErrorHandler as your main error
- * and exception reporting handler. It gives you the hooks needed to configure which
- * and where errors are written and adds a log() static method that can be used
- * in your code to log your own messages/data in the same debug stream.
- */
-class MyLogger extends Patchwork\PHP\ErrorHandler
-{
-    static function start($log_file = 'php://stderr', parent $handler = null)
-    {
-        if (null === $handler)
-        {
-            $handler = new self;
-    
-            // Configure your error handler here
-            error_reporting(E_ALL | E_STRICT);
-            $handler->scream = -1; // Do not silence any error (amongst the catchable ones)
-        }
-
-        return parent::start($log_file, $handler);
-    }
-
-    function getLogger()
-    {
-        if (isset($this->logger)) return $this->logger;
-        $logger = parent::getLogger();
-
-        // Configure your logger here
-        $logger->loggedGlobals = array(); // Do not log any global with the first event (default is '_SERVER')
-
-        return $logger;
-    }
-
-    static function log($message, $data)
-    {
-        self::getHandler()->getLogger()->log($message, $data);
-    }
-}
-
-/**
  * This function encapsulates a require in its own isolated scope and forces
  * the error reporting level to be always enabled for uncatchable fatal errors.
  * By using it instead of a straight require, you are sure that any otherwise
@@ -57,7 +18,7 @@ class MyLogger extends Patchwork\PHP\ErrorHandler
  */
 function patchwork_require($file)
 {
-    $h = MyLogger::getHandler();
+    $h = Patchwork\PHP\InDepthErrorHandler::getHandler();
     set_error_handler(array($h, 'stackError'));
     $e = error_reporting(error_reporting() | E_PARSE | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR);
 

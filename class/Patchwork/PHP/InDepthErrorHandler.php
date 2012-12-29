@@ -11,7 +11,7 @@
 namespace Patchwork\PHP;
 
 /**
- * ErrorHandler is a tunable error and exception handler.
+ * InDepthErrorHandler logs in depth context info about the errors you want it to.
  *
  * It provides five bit fields that control how errors are handled:
  * - loggedErrors: logged errors, when not @-silenced
@@ -20,44 +20,39 @@ namespace Patchwork\PHP;
  * - scopedErrors: errors logged with their local scope
  * - tracedErrors: errors logged with their trace, but only once for repeated errors
  *
- * Errors are logged with a Logger object by default, but any logger can be injected
- * provided it has the right interface. Errors are logged to the same file where non
- * catchable errors are written by PHP. Silenced non catchable errors that can be
- * detected at shutdown time are logged when the scream bit field allows so.
- *
+ * Errors are logged by a Logger object by default, which provides unprecedented accuracy.
+ * Of course, any other logger with the right interface can be injected.
+ * Errors are logged to the same file where non catchable errors are written by PHP.
+ * Silenced non catchable errors that can be detected at shutdown time are logged
+ * when the scream bit field allows so.
  * Uncaught exceptions are logged as E_ERROR.
- *
  * As errors have a performance cost, repeated errors are all logged, so that the developper
  * can see them and weight them as more important to fix than others of the same level.
  */
-class ErrorHandler
+class InDepthErrorHandler extends ThrowingErrorHandler
 {
     protected
 
-    $loggedErrors = -1,     // error_reporting()
-    $screamErrors = 0x1151, // E_RECOVERABLE_ERROR | E_USER_ERROR | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR
-    $thrownErrors = 0x1100, // E_RECOVERABLE_ERROR | E_USER_ERROR
+    $loggedErrors = -1,     // Log everything
+    $screamErrors = 0x1155, // E_RECOVERABLE_ERROR | E_USER_ERROR | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_PARSE
+    $thrownErrors = 0x1155, // E_RECOVERABLE_ERROR | E_USER_ERROR | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_PARSE
     $scopedErrors = 0x1303, // E_RECOVERABLE_ERROR | E_USER_ERROR | E_ERROR | E_WARNING | E_USER_WARNING
     $tracedErrors = 0x1303, // E_RECOVERABLE_ERROR | E_USER_ERROR | E_ERROR | E_WARNING | E_USER_WARNING
 
     $logger,
     $loggedTraces = array(),
-    $stackedErrors = array(),
-    $registeredErrors = 0;
+    $stackedErrors = array();
 
     protected static
 
     $logFile,
     $logStream,
     $shuttingDown = 0,
-    $handlers = array(),
-    $caughtToStringException;
+    $handler = null;
 
 
-    static function start($log_file = 'php://stderr', self $handler = null)
+    static function register(self $h = null, $log_file = 'php://stderr')
     {
-        null === $handler && $handler = new self;
-
         // See also http://php.net/error_reporting
         // Formatting errors with html_errors, error_prepend_string or
         // error_append_string only works with displayed errors, not logged ones.
@@ -73,9 +68,16 @@ class ErrorHandler
         self::$logFile = $log_file;
 
         // Register the handler and top it to the current error_reporting() level
-        $handler->register(error_reporting());
 
-        return $handler;
+        isset($h) or $h = new self;
+
+        $error_types = error_reporting();
+        $error_types &= $h->loggedErrors | $h->thrownErrors | $h->screamErrors;
+        $error_types |= E_RECOVERABLE_ERROR;
+
+        set_error_handler(array($h, 'handleError'), $error_types);
+        set_exception_handler(array($h, 'handleException'));
+        return self::$handler = $h;
     }
 
     /**
@@ -83,8 +85,7 @@ class ErrorHandler
      */
     static function getHandler()
     {
-        if (false === $h = end(self::$handlers)) throw new \Exception('No error handler has been registered');
-        return $h;
+        return self::$handler;
     }
 
     /**
@@ -95,9 +96,7 @@ class ErrorHandler
     {
         self::$shuttingDown = 1;
 
-        if (false === $handler = end(self::$handlers)) return;
-
-        $handler->unstackErrors();
+        self::$handler->unstackErrors();
 
         if ($e = self::getLastError())
         {
@@ -107,7 +106,7 @@ class ErrorHandler
             case E_CORE_ERROR: case E_CORE_WARNING:
             case E_COMPILE_ERROR: case E_COMPILE_WARNING:
                 if (!(error_reporting() & $e['type']))
-                    $handler->handleError($e['type'], $e['message'], $e['file'], $e['line'], null, -1);
+                    self::$handler->handleError($e['type'], $e['message'], $e['file'], $e['line'], null, -1);
                 self::resetLastError();
             }
         }
@@ -131,78 +130,23 @@ class ErrorHandler
         restore_error_handler();
     }
 
-    /**
-     * Restores __toString()'s ability to throw exceptions.
-     *
-     * Throwing an exception inside __toString() doesn't work, unless
-     * you use this static method as return value instead of throwing.
-     */
-    static function handleToStringException(\Exception $e)
-    {
-        self::$caughtToStringException = $e;
-        return null;
-    }
-
     static function falseError()
     {
         return false;
     }
 
 
-    function register($error_types = -1)
-    {
-        $this->registeredErrors = $error_types;
-        set_exception_handler(array($this, 'handleException'));
-        set_error_handler(array($this, 'handleError'), $error_types);
-        self::$handlers[] = $this;
-    }
-
-    function unregister()
-    {
-        $ok = array(
-            $this === end(self::$handlers),
-            array($this, 'handleError') === set_error_handler('var_dump'),
-            array($this, 'handleException') === set_exception_handler('var_dump'),
-        );
-
-        if ($ok = array(true, true, true) === $ok)
-        {
-            array_pop(self::$handlers);
-            restore_error_handler();
-            restore_exception_handler();
-            $this->registeredErrors = 0;
-        }
-        else user_error('Failed to unregister: the current error or exception handler is not me', E_USER_WARNING);
-
-        restore_error_handler();
-        restore_exception_handler();
-
-        return $ok;
-    }
-
     /**
-     * Sets all the bitfields that configure errors' logging.
+     * Sets the logger and all the bitfields that configure errors' logging.
      */
-    function setLevel($logged = null, $scream = null, $thrown = null, $scoped = null, $traced = null)
+    function __construct($logger = null, $logged = null, $scream = null, $thrown = null, $scoped = null, $traced = null)
     {
-        if (is_array($logged)) list(, $logged, $scream, $thrown, $scoped, $traced) = $logged;
-
-        $e = array(
-            $this->registeredErrors,
-            $this->loggedErrors,
-            $this->screamErrors,
-            $this->thrownErrors,
-            $this->scopedErrors,
-            $this->tracedErrors,
-        );
-
+        if (isset($logger)) $this->logger = $logger;
         if (isset($logged)) $this->loggedErrors = $logged;
         if (isset($scream)) $this->screamErrors = $scream;
         if (isset($thrown)) $this->thrownErrors = $thrown;
         if (isset($scoped)) $this->scopedErrors = $scoped;
         if (isset($traced)) $this->tracedErrors = $traced;
-
-        return $e;
     }
 
     /**
@@ -272,6 +216,7 @@ class ErrorHandler
 
             if ($throw)
             {
+                $throw->logTime = $log_time;
                 if ($this->scopedErrors & $type) $throw->scope = $scope;
                 $log || $throw->traceOffset = $trace_offset;
                 throw $throw;
@@ -363,5 +308,5 @@ class ErrorHandler
 
 class RecoverableErrorException extends \ErrorException
 {
-    public $traceOffset = -1, $scope = null;
+    public $traceOffset = -1, $logTime, $scope = null;
 }
