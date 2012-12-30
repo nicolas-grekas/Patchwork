@@ -22,12 +22,12 @@ function patchwork_require($file)
     $e = error_reporting(error_reporting() | E_PARSE | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR);
 
     try {$file = patchwork_require_empty_scope($file);}
-    catch (Exception $file) {$x = true;}
+    catch (Exception $x) {}
 
     error_reporting($e);
     Patchwork\PHP\InDepthErrorHandler::unstackErrors();
 
-    if (isset($x)) throw $file;
+    if (isset($x)) throw $x;
     else return $file;
 }
 
