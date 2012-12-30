@@ -18,16 +18,14 @@ isset($_SERVER['REQUEST_TIME_FLOAT']) or $_SERVER['REQUEST_TIME_FLOAT'] = microt
  */
 function patchwork_require($file)
 {
-    $h = Patchwork\PHP\InDepthErrorHandler::getHandler();
-    set_error_handler(array($h, 'stackError'));
+    Patchwork\PHP\InDepthErrorHandler::stackErrors();
     $e = error_reporting(error_reporting() | E_PARSE | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR);
 
     try {$file = patchwork_require_empty_scope($file);}
     catch (Exception $file) {$x = true;}
 
     error_reporting($e);
-    restore_error_handler();
-    $h->unstackErrors();
+    Patchwork\PHP\InDepthErrorHandler::unstackErrors();
 
     if (isset($x)) throw $file;
     else return $file;

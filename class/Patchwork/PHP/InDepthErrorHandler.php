@@ -15,8 +15,8 @@ namespace Patchwork\PHP;
  *
  * It provides five bit fields that control how errors are handled:
  * - loggedErrors: logged errors, when not @-silenced
- * - screamErrors: never silenced errors
- * - thrownErrors: errors thrown as RecoverableErrorException, when not @-silenced
+ * - screamErrors: never @-silenced errors
+ * - thrownErrors: errors thrown as RecoverableErrorException
  * - scopedErrors: errors logged with their local scope
  * - tracedErrors: errors logged with their trace, but only once for repeated errors
  *
@@ -39,16 +39,17 @@ class InDepthErrorHandler extends ThrowingErrorHandler
     $scopedErrors = 0x1303, // E_RECOVERABLE_ERROR | E_USER_ERROR | E_ERROR | E_WARNING | E_USER_WARNING
     $tracedErrors = 0x1303, // E_RECOVERABLE_ERROR | E_USER_ERROR | E_ERROR | E_WARNING | E_USER_WARNING
 
-    $logger,
-    $loggedTraces = array(),
-    $stackedErrors = array();
+    $logger = null,
+    $loggedTraces = array();
 
     protected static
 
+    $handler = null,
     $logFile,
     $logStream,
     $shuttingDown = 0,
-    $handler = null;
+    $stackedErrors = array(),
+    $stackedLogger = false;
 
 
     static function register($handler = null, $log_file = 'php://stderr')
@@ -69,7 +70,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
 
         self::$logFile = $log_file;
 
-        // Register the handler and top it to the current error_reporting() level
+        // Register the handler and top it to the current error_reporting() level.
 
         $error_types = error_reporting();
         $error_types &= $handler->loggedErrors | $handler->thrownErrors | $handler->screamErrors;
@@ -96,8 +97,6 @@ class InDepthErrorHandler extends ThrowingErrorHandler
     {
         self::$shuttingDown = 1;
 
-        self::$handler->unstackErrors();
-
         if ($e = self::getLastError())
         {
             switch ($e['type'])
@@ -106,10 +105,18 @@ class InDepthErrorHandler extends ThrowingErrorHandler
             case E_CORE_ERROR: case E_CORE_WARNING:
             case E_COMPILE_ERROR: case E_COMPILE_WARNING:
                 if (!(error_reporting() & $e['type']))
-                    self::$handler->handleError($e['type'], $e['message'], $e['file'], $e['line'], null, -1);
+                {
+                    $h = self::$handler;
+                    $t = $h->thrownErrors;
+                    $h->thrownErrors = 0;
+                    $h->handleError($e['type'], $e['message'], $e['file'], $e['line'], null, -1);
+                    $h->thrownErrors = $t;
+                }
                 self::resetLastError();
             }
         }
+
+        self::unstackErrors();
     }
 
     static function getLastError()
@@ -133,6 +140,40 @@ class InDepthErrorHandler extends ThrowingErrorHandler
     static function falseError()
     {
         return false;
+    }
+
+    /**
+     * Sets stacking logger for delayed logging.
+     *
+     * As shown by http://bugs.php.net/42098 and http://bugs.php.net/60724
+     * PHP has a compile stage where it behaves unusually. To workaround it,
+     * we plug a logger that only stacks errors for delayed handling.
+     *
+     * The most important feature of this is to never ever trigger PHP's
+     * autoloading nor any require until ::unstackErrors() is called.
+     */
+    static function stackErrors()
+    {
+        if (self::$handler)
+        {
+            self::$stackedLogger = self::$handler->logger;
+            self::$handler->logger = self::$handler;
+        }
+    }
+
+    /**
+     * Unstacks stacked errors and forwards them for logging.
+     */
+    static function unstackErrors()
+    {
+        if (false === self::$stackedLogger) return;
+        self::$handler->logger = self::$stackedLogger;
+        self::$stackedLogger = false;
+        if (empty(self::$stackedErrors)) return;
+        $l = self::$handler->getLogger();
+        $e = self::$stackedErrors;
+        self::$stackedErrors = array();
+        foreach ($e as $e) $l->logError($e[0], $e[1], $e[2], $e[3]);
     }
 
 
@@ -164,9 +205,8 @@ class InDepthErrorHandler extends ThrowingErrorHandler
             throw $type;
         }
 
-        $log = error_reporting() & $type;
-        $throw = $this->thrownErrors & $log;
-        $log &= $this->loggedErrors;
+        $log = $this->loggedErrors & $type & error_reporting();
+        $throw = $this->thrownErrors & $type;
 
         if ($log || $throw || $scream = $this->screamErrors & $type)
         {
@@ -178,7 +218,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
                 // to remove logged and uncaught exception messages duplication and
                 // to dismiss any cryptic "Exception thrown without a stack frame"
                 // recoverable errors are logged but only at shutdown time.
-                $throw = new RecoverableErrorException($message, 0, $type, $file, $line);
+                $throw = new InDepthRecoverableErrorException($message, 0, $type, $file, $line);
                 $scream = self::$shuttingDown ? 1 : $log = 0;
             }
 
@@ -197,7 +237,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
             {
                 $e = compact('type', 'message', 'file', 'line');
                 $e['level'] = $type . '/' . error_reporting();
-                $line = 0; // Read $trace_args
+                $trace_args = 0;
 
                 if ($log)
                 {
@@ -205,13 +245,13 @@ class InDepthErrorHandler extends ThrowingErrorHandler
                     {
                         null !== $scope && $e['scope'] = $scope;
                         0 <= $trace_offset && $e['trace'] = debug_backtrace(true); // DEBUG_BACKTRACE_PROVIDE_OBJECT
-                        $line = 1;
+                        $trace_args = 1;
                     }
                     else if ($throw && 0 <= $trace_offset) $e['trace'] = $throw->getTrace();
                     else if (0 <= $trace_offset) $e['trace'] = debug_backtrace(/*<*/PHP_VERSION_ID >= 50306 ? DEBUG_BACKTRACE_IGNORE_ARGS : false/*>*/);
                 }
 
-                $this->getLogger()->logError($e, $trace_offset, $line, $log_time);
+                $this->getLogger()->logError($e, $trace_offset, $trace_args, $log_time);
             }
 
             if ($throw)
@@ -223,48 +263,6 @@ class InDepthErrorHandler extends ThrowingErrorHandler
         }
 
         return (bool) $log;
-    }
-
-    /**
-     * Stack an error for delayed handling.
-     *
-     * As shown by http://bugs.php.net/42098 and http://bugs.php.net/60724
-     * PHP has a compile stage where it behaves unusually. To workaround it,
-     * this minimalistic error handler only stacks them for delayed handling.
-     *
-     * The most important feature of this error handler is to never
-     * ever trigger PHP's autoloading mechanism nor any require.
-     *
-     * @param float $log_time The microtime(true) when the event has been triggered.
-     */
-    function stackError($type, $message, $file, $line, $scope, $log_time = 0)
-    {
-        $log = error_reporting() & $type;
-        $throw = $this->thrownErrors & $log;
-        $log &= $this->loggedErrors;
-
-        if ($log || $throw || $this->screamErrors & $type)
-        {
-            $log_time || $log_time = microtime(true);
-            if (!($this->scopedErrors & $type)) unset($scope);
-            $this->stackedErrors[] = array($type, $message, $file, $line, $scope, $log_time);
-        }
-
-        return $log || $throw;
-    }
-
-    /**
-     * Unstacks stacked errors and forward them to ->handleError().
-     *
-     * @param integer $trace_offset The number of noisy items to skip from the current trace or -1 to disable any trace logging.
-     */
-    function unstackErrors($trace_offset = 0)
-    {
-        if (empty($this->stackedErrors)) return;
-        if (0 <= $trace_offset) ++$trace_offset;
-        $e = $this->stackedErrors;
-        $this->stackedErrors = array();
-        foreach ($e as $e) $h->handleError($e[0], $e[1], $e[2], $e[3], $e[4], $trace_offset, $e[5]);
     }
 
     /**
@@ -291,7 +289,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
     }
 
     /**
-     * Returns the logger used by this error handler
+     * Returns the logger used by this error handler.
      */
     function getLogger()
     {
@@ -303,9 +301,18 @@ class InDepthErrorHandler extends ThrowingErrorHandler
         }
         return $this->logger = new Logger(self::$logStream, $_SERVER['REQUEST_TIME_FLOAT']);
     }
+
+
+    /**
+     * Stacks an error for delayed logging by ::unstackErrors().
+     */
+    protected function logError()
+    {
+        self::$stackedErrors[] = func_get_args();
+    }
 }
 
-class RecoverableErrorException extends \ErrorException
+class InDepthRecoverableErrorException extends RecoverableErrorException
 {
     public $traceOffset = -1, $scope = null;
 }

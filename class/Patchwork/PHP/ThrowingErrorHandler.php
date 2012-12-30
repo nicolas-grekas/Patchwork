@@ -18,6 +18,7 @@ namespace Patchwork\PHP;
  */
 class ThrowingErrorHandler
 {
+    protected $thrownErrors = 0x1155; // E_RECOVERABLE_ERROR | E_USER_ERROR | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_PARSE
     protected static $caughtToStringException;
 
 
@@ -27,10 +28,7 @@ class ThrowingErrorHandler
     static function register($handler = null)
     {
         isset($handler) or $handler = new self;
-        set_error_handler(
-            array($handler, 'handleError'),
-            E_RECOVERABLE_ERROR | E_USER_ERROR | E_PARSE | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR
-        );
+        set_error_handler(array($handler, 'handleError'), $handler->thrownErrors | E_RECOVERABLE_ERROR);
     }
 
     /**
@@ -51,6 +49,14 @@ class ThrowingErrorHandler
 
 
     /**
+     * Sets the logger and all the bitfields that configure errors' logging.
+     */
+    function __construct($thrown = null)
+    {
+        if (isset($thrown)) $this->thrownErrors = $thrown;
+    }
+
+    /**
      * Turns errors to ErrorExceptions.
      */
     function handleError($type, $message, $file, $line, $scope)
@@ -61,9 +67,13 @@ class ThrowingErrorHandler
             self::$caughtToStringException = null;
             throw $e;
         }
-        else
+        else if ($this->thrownErrors & $type)
         {
             throw new \ErrorException($message, 0, $type, $file, $line);
         }
     }
+}
+
+class RecoverableErrorException extends \ErrorException
+{
 }

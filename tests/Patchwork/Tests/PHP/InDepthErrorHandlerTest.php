@@ -23,7 +23,7 @@ class InDepthErrorHandlerTest extends \PHPUnit_Framework_TestCase
             user_error('fake user error', E_USER_ERROR);
             $this->assertFalse( true );
         }
-        catch (\Patchwork\PHP\RecoverableErrorException $e)
+        catch (\Patchwork\PHP\InDepthRecoverableErrorException $e)
         {
             $h->handleException($e);
         }
@@ -51,7 +51,7 @@ class InDepthErrorHandlerTest extends \PHPUnit_Framework_TestCase
     "type": "E_USER_ERROR ' . __FILE__ . ':23",
     "level": "256/32767",
     "scope": {"_":"8:array:1",
-      "0": {"_":"9:Patchwork\\\\PHP\\\\RecoverableErrorException",
+      "0": {"_":"9:Patchwork\\\\PHP\\\\InDepthRecoverableErrorException",
         "scope": {"_":"10:array:2",
           "f": "' . $f . '",
           "h": {"_":"12:Patchwork\\\\PHP\\\\InDepthErrorHandler",
@@ -78,8 +78,7 @@ class InDepthErrorHandlerTest extends \PHPUnit_Framework_TestCase
               "*:startTime": %f,
               "*:isFirstEvent": true
             },
-            "*:loggedTraces": [],
-            "*:stackedErrors": []
+            "*:loggedTraces": []
           }
         },
         "*:message": "fake user error",
