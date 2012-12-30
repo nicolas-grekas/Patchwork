@@ -117,7 +117,7 @@ class Patchwork
         $a = $_SERVER['REQUEST_TIME_FLOAT'];
         $a = date('YmdHis', (int) $a) . sprintf('.%06d', 100000 * ($a - (int) $a)) . '-';
         $a .= substr(str_replace(array('+', '/'), array('', ''), base64_encode(md5(mt_rand(), true))), 0, 6);
-        p\ErrorHandler::start(PATCHWORK_ZCACHE . $a . '.log', new p\ErrorHandler);
+        p\PHP\InDepthErrorHandler::register(null, PATCHWORK_ZCACHE . $a . '.log');
 
         if (isset($_GET['p:']))
         {
@@ -862,7 +862,7 @@ class Patchwork
 
     static function log($message, $data)
     {
-        p\ErrorHandler::getHandler()->getLogger()->log($message, $data);
+        p\PHP\InDepthErrorHandler::getHandler()->getLogger()->log($message, $data);
     }
 
     static function resolveAgentClass($agent, &$args)

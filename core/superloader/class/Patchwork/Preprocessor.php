@@ -149,7 +149,7 @@ class Patchwork_Preprocessor
             case 'Marker':             if (!$debug) new $t($p, self::$declaredClass, $level >= 0, $source); break;
             case 'ConstantInliner':    new $t($p, $source, self::$constants); break;
             case 'NamespaceRemover':   new $t($p, 'Patchwork_PHP_Shim_Php530::add'); break;
-            case 'ToStringCatcher':    new $t($p, 'Patchwork\ErrorHandler::handleToStringException'); break;
+            case 'ToStringCatcher':    new $t($p, 'Patchwork\PHP\ThrowingErrorHandler::handleToStringException'); break;
             case 'SuperPositioner':    new $t($p, $level, $is_top ? $class : false); break;
             case 'ClosureShim':  $cs = new $t($p); break;
             }

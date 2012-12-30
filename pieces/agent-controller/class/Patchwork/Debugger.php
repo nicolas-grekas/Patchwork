@@ -151,7 +151,7 @@ class Debugger extends p
 
 /**/            if ('\\' !== DIRECTORY_SEPARATOR)
 /**/            {
-                    usleep(1); // Give priority for locking to the ErrorHandler process
+                    usleep(1); // Give priority for locking to the error handler process
 
                     if (@flock($h, LOCK_EX+LOCK_NB, $j) && !$j) unlink($log);
                     else

@@ -49,7 +49,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
     $logStream,
     $shuttingDown = 0,
     $stackedErrors = array(),
-    $stackedLogger = false;
+    $stackErrors = false;
 
 
     static function register($handler = null, $log_file = 'php://stderr')
@@ -154,11 +154,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
      */
     static function stackErrors()
     {
-        if (self::$handler)
-        {
-            self::$stackedLogger = self::$handler->logger;
-            self::$handler->logger = self::$handler;
-        }
+        self::$stackErrors = true;
     }
 
     /**
@@ -166,9 +162,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
      */
     static function unstackErrors()
     {
-        if (false === self::$stackedLogger) return;
-        self::$handler->logger = self::$stackedLogger;
-        self::$stackedLogger = false;
+        self::$stackErrors = false;
         if (empty(self::$stackedErrors)) return;
         $l = self::$handler->getLogger();
         $e = self::$stackedErrors;
@@ -251,7 +245,8 @@ class InDepthErrorHandler extends ThrowingErrorHandler
                     else if (0 <= $trace_offset) $e['trace'] = debug_backtrace(/*<*/PHP_VERSION_ID >= 50306 ? DEBUG_BACKTRACE_IGNORE_ARGS : false/*>*/);
                 }
 
-                $this->getLogger()->logError($e, $trace_offset, $trace_args, $log_time);
+                if (self::$stackErrors) self::$stackedErrors[] = array($e, $trace_offset, $trace_args, $log_time);
+                else $this->getLogger()->logError($e, $trace_offset, $trace_args, $log_time);
             }
 
             if ($throw)
@@ -300,15 +295,6 @@ class InDepthErrorHandler extends ThrowingErrorHandler
             flock(self::$logStream, LOCK_SH); // This shared lock allows readers to wait for the end of the stream.
         }
         return $this->logger = new Logger(self::$logStream, $_SERVER['REQUEST_TIME_FLOAT']);
-    }
-
-
-    /**
-     * Stacks an error for delayed logging by ::unstackErrors().
-     */
-    protected function logError()
-    {
-        self::$stackedErrors[] = func_get_args();
     }
 }
 

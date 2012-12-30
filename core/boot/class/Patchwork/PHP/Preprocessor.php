@@ -14,7 +14,7 @@ class Patchwork_PHP_Preprocessor extends Patchwork_AbstractStreamProcessor
 
     $parserPrefix = 'Patchwork_PHP_Parser_',
     $namespaceRemoverCallback = 'Patchwork_PHP_Shim_Php530::add',
-    $toStringCatcherCallback = 'Patchwork\ErrorHandler::handleToStringException',
+    $toStringCatcherCallback = 'Patchwork\PHP\ThrowingErrorHandler::handleToStringException',
     $compilerHaltOffset = 0,
     $closureShimParser,
     $constants = array(),

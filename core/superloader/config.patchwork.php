@@ -1,5 +1,7 @@
 <?php // vi: set fenc=utf-8 ts=4 sw=4 et:
 
+#patchwork ../logger
+
 use Patchwork as p;
 use Patchwork\PHP\Shim as s;
 

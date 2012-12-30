@@ -139,19 +139,17 @@ class Patchwork_Autoloader extends Patchwork_Superloader
 
             $current_pool = array();
 
-            try
-            {
-                // Force fatal errors to be always reported
-                $src = error_reporting(error_reporting() | /*<*/E_PARSE | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR/*>*/);
-                patchwork_include($cache);
-                error_reporting($src);
-            }
-            catch (Exception $cache)
-            {
-                error_reporting($src);
-                throw $cache;
-            }
+            Patchwork\PHP\InDepthErrorHandler::stackErrors();
+            // Force fatal errors to be always reported
+            $src = error_reporting(error_reporting() | /*<*/E_PARSE | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR/*>*/);
 
+            try {patchwork_include($cache);}
+            catch (Exception $x) {}
+
+            error_reporting($src);
+            Patchwork\PHP\InDepthErrorHandler::unstackErrors();
+
+            if (isset($x)) throw $x;
             if ($parent && self::exists($req, false)) $parent = false;
             if (false !== $parent_pool) $parent_pool[$parent ? $parent : $req] = $cache;
         }
