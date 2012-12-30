@@ -269,8 +269,7 @@ class ErrorHandler
         if (!isset(self::$logStream))
         {
             self::$logStream = fopen(self::$logFile, 'ab');
-/**/        if ('\\' !== DIRECTORY_SEPARATOR)
-                flock(self::$logFile, LOCK_SH);
+            flock(self::$logStream, LOCK_SH); // This shared lock allows readers to wait for the end of the stream.
         }
         return $this->logger = new Logger(self::$logStream);
     }
