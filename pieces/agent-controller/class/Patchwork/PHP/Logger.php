@@ -8,16 +8,10 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
-namespace Patchwork;
+namespace Patchwork\PHP;
 
-// http://bugs.php.net/42098 workaround
-// Superposing Patchwork\Logger would be nice, be can't be done because of this bug
-class_exists('Patchwork\PHP\Logger') || eval(';') || __autoload('Patchwork\PHP\Logger');
-
-class Logger extends PHP\Logger
+class Logger extends self
 {
-    public $writeLock = false;
-
     function writeEvent($type, $data)
     {
         if ('php-error' === $type || 'php-exception' === $type)
@@ -29,15 +23,10 @@ class Logger extends PHP\Logger
 
         if ($this->isFirstEvent)
         {
-            // http://bugs.php.net/42098 workaround
-            class_exists('Patchwork\PHP\Walker') || eval(';') || __autoload('Patchwork\PHP\Walker');
-            class_exists('Patchwork\PHP\Dumper') || eval(';') || __autoload('Patchwork\PHP\Dumper');
-            class_exists('Patchwork\PHP\JsonDumper') || eval(';') || __autoload('Patchwork\PHP\JsonDumper');
-
             $data['patchwork'] = array(
                 'i18n' => PATCHWORK_I18N,
                 'debug' => DEBUG,
-                'turbo' => Superloader::$turbo,
+                'turbo' => \Patchwork\Superloader::$turbo,
                 'level' => PATCHWORK_PATH_LEVEL,
                 'zcache' => PATCHWORK_ZCACHE,
                 'paths' => $GLOBALS['patchwork_path'],
