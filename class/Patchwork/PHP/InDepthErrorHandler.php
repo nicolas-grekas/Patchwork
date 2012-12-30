@@ -51,8 +51,10 @@ class InDepthErrorHandler extends ThrowingErrorHandler
     $handler = null;
 
 
-    static function register(self $h = null, $log_file = 'php://stderr')
+    static function register($handler = null, $log_file = 'php://stderr')
     {
+        isset($handler) or $handler = new self;
+
         // See also http://php.net/error_reporting
         // Formatting errors with html_errors, error_prepend_string or
         // error_append_string only works with displayed errors, not logged ones.
@@ -69,15 +71,13 @@ class InDepthErrorHandler extends ThrowingErrorHandler
 
         // Register the handler and top it to the current error_reporting() level
 
-        isset($h) or $h = new self;
-
         $error_types = error_reporting();
-        $error_types &= $h->loggedErrors | $h->thrownErrors | $h->screamErrors;
+        $error_types &= $handler->loggedErrors | $handler->thrownErrors | $handler->screamErrors;
         $error_types |= E_RECOVERABLE_ERROR;
 
-        set_error_handler(array($h, 'handleError'), $error_types);
-        set_exception_handler(array($h, 'handleException'));
-        return self::$handler = $h;
+        set_error_handler(array($handler, 'handleError'), $error_types);
+        set_exception_handler(array($handler, 'handleException'));
+        return self::$handler = $handler;
     }
 
     /**
@@ -155,7 +155,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
      * @param integer $trace_offset The number of noisy items to skip from the current trace or -1 to disable any trace logging.
      * @param float $log_time The microtime(true) when the event has been triggered.
      */
-    function handleError($type, $message, $file, $line, &$scope, $trace_offset = 0, $log_time = 0)
+    function handleError($type, $message, $file, $line, $scope, $trace_offset = 0, $log_time = 0)
     {
         if (isset(self::$caughtToStringException))
         {
@@ -216,7 +216,6 @@ class InDepthErrorHandler extends ThrowingErrorHandler
 
             if ($throw)
             {
-                $throw->logTime = $log_time;
                 if ($this->scopedErrors & $type) $throw->scope = $scope;
                 $log || $throw->traceOffset = $trace_offset;
                 throw $throw;
@@ -238,7 +237,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
      *
      * @param float $log_time The microtime(true) when the event has been triggered.
      */
-    function stackError($type, $message, $file, $line, &$scope, $log_time = 0)
+    function stackError($type, $message, $file, $line, $scope, $log_time = 0)
     {
         $log = error_reporting() & $type;
         $throw = $this->thrownErrors & $log;
@@ -248,7 +247,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
         {
             $log_time || $log_time = microtime(true);
             if (!($this->scopedErrors & $type)) unset($scope);
-            $this->stackedErrors[] = array($type, $message, $file, $line, &$scope, $log_time);
+            $this->stackedErrors[] = array($type, $message, $file, $line, $scope, $log_time);
         }
 
         return $log || $throw;
@@ -308,5 +307,5 @@ class InDepthErrorHandler extends ThrowingErrorHandler
 
 class RecoverableErrorException extends \ErrorException
 {
-    public $traceOffset = -1, $logTime, $scope = null;
+    public $traceOffset = -1, $scope = null;
 }

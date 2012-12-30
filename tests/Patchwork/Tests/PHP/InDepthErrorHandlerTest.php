@@ -2,20 +2,20 @@
 
 namespace Patchwork\Tests\PHP;
 
-use Patchwork\PHP\ErrorHandler;
+use Patchwork\PHP\InDepthErrorHandler;
 
-class ErrorHandlerTest extends \PHPUnit_Framework_TestCase
+class InDepthErrorHandlerTest extends \PHPUnit_Framework_TestCase
 {
-    function testStart()
+    function testRegister()
     {
         $f = tempnam('/', 'test');
         $this->assertTrue(false !== $f);
 
         error_reporting(E_ALL | E_STRICT);
 
-        ErrorHandler::start($f);
-        $h = ErrorHandler::getHandler();
-        $h->setLevel(null, null, null, null, /*traced*/ 0);
+        $h = new InDepthErrorHandler(null, null, /*scream*/ E_PARSE, null, null, /*traced*/ 0);
+        InDepthErrorHandler::register($h, $f);
+        $h = InDepthErrorHandler::getHandler();
         $h->getLogger()->loggedGlobals = array();
 
         try
@@ -34,11 +34,8 @@ class ErrorHandlerTest extends \PHPUnit_Framework_TestCase
 
         error_reporting(0);
         @eval('abc'); // Parse error to populate error_get_last()
-        $h->setLevel(null, /*scream*/ E_PARSE);
-        ErrorHandler::shutdown();
+        InDepthErrorHandler::shutdown();
         error_reporting(E_ALL | E_STRICT);
-
-        $h->unregister();
 
         $e = file_get_contents($f);
 
@@ -57,17 +54,16 @@ class ErrorHandlerTest extends \PHPUnit_Framework_TestCase
       "0": {"_":"9:Patchwork\\\\PHP\\\\RecoverableErrorException",
         "scope": {"_":"10:array:2",
           "f": "' . $f . '",
-          "h": {"_":"12:Patchwork\\\\PHP\\\\ErrorHandler",
+          "h": {"_":"12:Patchwork\\\\PHP\\\\InDepthErrorHandler",
             "*:loggedErrors": -1,
-            "*:screamErrors": 4433,
+            "*:screamErrors": 4,
             "*:thrownErrors": 0,
             "*:scopedErrors": 4867,
             "*:tracedErrors": 0,
             "*:logger": {"_":"18:Patchwork\\\\PHP\\\\Logger",
-              "writeLock": true,
               "lineFormat": "%s",
               "loggedGlobals": [],
-              "*:logStream": {"_":"22:resource:stream",
+              "*:logStream": {"_":"21:resource:stream",
                 "wrapper_type": "plainfile",
                 "stream_type": "STDIO",
                 "mode": "ab",
@@ -83,7 +79,7 @@ class ErrorHandlerTest extends \PHPUnit_Framework_TestCase
               "*:isFirstEvent": true
             },
             "*:loggedTraces": [],
-            "*:registeredErrors": 32767
+            "*:stackedErrors": []
           }
         },
         "*:message": "fake user error",

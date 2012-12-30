@@ -24,11 +24,11 @@ class ThrowingErrorHandler
     /**
      * Registers the error handler for otherwise fatal errors.
      */
-    static function register(self $h = null)
+    static function register($handler = null)
     {
-        isset($h) or $h = new self;
+        isset($handler) or $handler = new self;
         set_error_handler(
-            array($h, 'handleError'),
+            array($handler, 'handleError'),
             E_RECOVERABLE_ERROR | E_USER_ERROR | E_PARSE | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR
         );
     }
@@ -53,7 +53,7 @@ class ThrowingErrorHandler
     /**
      * Turns errors to ErrorExceptions.
      */
-    function handleError($type, $message, $file, $line, &$scope)
+    function handleError($type, $message, $file, $line, $scope)
     {
         if (isset(self::$caughtToStringException))
         {
