@@ -15,7 +15,7 @@ class Preprocessor extends \Patchwork\AbstractStreamProcessor
     protected
 
     $parserPrefix = 'Patchwork\PHP\Parser\\',
-    $toStringCatcherCallback = 'Patchwork\ErrorHandler::handleToStringException',
+    $toStringCatcherCallback = 'Patchwork\PHP\ThrowingErrorHandler::handleToStringException',
     $compilerHaltOffset = 0,
     $constants = array(),
     $parsers = array(
