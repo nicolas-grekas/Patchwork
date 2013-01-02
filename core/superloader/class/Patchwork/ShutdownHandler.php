@@ -59,8 +59,25 @@ class Patchwork_ShutdownHandler
             $c = set_exception_handler('var_dump');
             restore_exception_handler();
             if (null !== $c) call_user_func($c, $e);
-            else user_error("Uncaught exception '" . get_class($e) . "' in {$e->getFile()}:{$e->getLine()}", E_USER_WARNING);
-            exit(255);
+            else
+            {
+/**/            if (PHP_VERSION_ID >= 50306)
+/**/            {
+                    throw $e;
+/**/            }
+/**/            else
+/**/            {
+                    user_error(
+                        "Uncaught exception '" . get_class($e) . "'"
+                        . ('' !== $e->getMessage() ? " with message '{$e->getMessage()}'" : "" )
+                        . " in {$e->getFile()}:{$e->getLine()}" . PHP_EOL
+                        . "Stack trace:" . PHP_EOL
+                        . "{$e->getTraceAsString()}" . PHP_EOL,
+                        E_USER_WARNING
+                    );
+                    exit(255);
+/**/            }
+            }
         }
     }
 

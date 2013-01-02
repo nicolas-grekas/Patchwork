@@ -139,14 +139,12 @@ class Patchwork_Autoloader extends Patchwork_Superloader
 
             $current_pool = array();
 
-            Patchwork\PHP\InDepthErrorHandler::stackErrors();
             // Force fatal errors to be always reported
-            $src = error_reporting(error_reporting() | /*<*/E_PARSE | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR/*>*/);
+            Patchwork\PHP\InDepthErrorHandler::stackErrors();
 
             try {patchwork_include($cache);}
             catch (Exception $x) {}
 
-            error_reporting($src);
             Patchwork\PHP\InDepthErrorHandler::unstackErrors();
 
             if (isset($x)) throw $x;
