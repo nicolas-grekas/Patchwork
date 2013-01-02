@@ -151,23 +151,28 @@ class InDepthErrorHandler extends ThrowingErrorHandler
      *
      * The most important feature of this is to never ever trigger PHP's
      * autoloading nor any require until ::unstackErrors() is called.
+     *
+     * Ensures also that non-catchable fatal errors are never silenced.
      */
     static function stackErrors()
     {
-        self::$stackErrors = true;
+        if (false !== self::$stackErrors) return;
+        self::$stackErrors = error_reporting(error_reporting() | /*<*/E_PARSE | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR/*>*/);
     }
 
     /**
      * Unstacks stacked errors and forwards them for logging.
      */
-    static function unstackErrors()
+    static function unstackErrors($ret = null)
     {
+        if (false !== self::$stackErrors) error_reporting(self::$stackErrors);
         self::$stackErrors = false;
-        if (empty(self::$stackedErrors)) return;
+        if (empty(self::$stackedErrors)) return $ret;
         $l = self::$handler->getLogger();
         $e = self::$stackedErrors;
         self::$stackedErrors = array();
         foreach ($e as $e) $l->logError($e[0], $e[1], $e[2], $e[3]);
+        return $ret;
     }
 
 

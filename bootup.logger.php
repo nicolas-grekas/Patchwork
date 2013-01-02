@@ -16,30 +16,18 @@ isset($_SERVER['REQUEST_TIME_FLOAT']) or $_SERVER['REQUEST_TIME_FLOAT'] = microt
  * By using it instead of a straight require, you are sure that any otherwise
  * @-silenced fatal error will be reported to you.
  */
-function patchwork_require($file)
+function patchwork_require()
 {
-    Patchwork\PHP\InDepthErrorHandler::stackErrors();
-    $e = error_reporting(error_reporting() | E_PARSE | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR);
-
-    try {$file = patchwork_require_empty_scope($file);}
-    catch (Exception $x) {}
-
-    error_reporting($e);
-    Patchwork\PHP\InDepthErrorHandler::unstackErrors();
-
-    if (isset($x)) throw $x;
-    else return $file;
-}
-
-/**
- * This function encapsulates a require in its own isolated scope free from any variable.
- * By using it instead of a straight require, you are sure that variables inside the required
- * file can not become global inadvertently nor collide with the current local scope.
- * Using the above patchwork_require() instead of this one is recommended in the general case.
- */
-function patchwork_require_empty_scope()
-{
-    return require func_get_arg(0);
+    try
+    {
+        Patchwork\PHP\InDepthErrorHandler::stackErrors();
+        return Patchwork\PHP\InDepthErrorHandler::unstackErrors(require func_get_arg(0));
+    }
+    catch (Exception $x)
+    {
+        Patchwork\PHP\InDepthErrorHandler::unstackErrors();
+        throw $x;
+    }
 }
 
 /**
