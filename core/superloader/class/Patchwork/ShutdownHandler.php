@@ -75,9 +75,9 @@ class Patchwork_ShutdownHandler
                         . "{$e->getTraceAsString()}" . PHP_EOL,
                         E_USER_WARNING
                     );
-                    exit(255);
 /**/            }
             }
+            exit(255);
         }
     }
 
