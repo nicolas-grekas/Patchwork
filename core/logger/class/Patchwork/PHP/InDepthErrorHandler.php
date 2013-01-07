@@ -97,6 +97,8 @@ class InDepthErrorHandler extends ThrowingErrorHandler
     {
         self::$shuttingDown = 1;
 
+        self::unstackErrors();
+
         if ($e = self::getLastError())
         {
             switch ($e['type'])
@@ -115,8 +117,6 @@ class InDepthErrorHandler extends ThrowingErrorHandler
                 self::resetLastError();
             }
         }
-
-        self::unstackErrors();
     }
 
     static function getLastError()
