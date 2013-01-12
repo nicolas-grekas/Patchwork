@@ -1,6 +1,6 @@
 <?php // vi: set fenc=utf-8 ts=4 sw=4 et:
 /*
- * Copyright (C) 2012 Nicolas Grekas - p@tchwork.com
+ * Copyright (C) 2013 Nicolas Grekas - p@tchwork.com
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the (at your option):
@@ -8,9 +8,11 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
-namespace Patchwork\PHP;
+namespace Patchwork\PPP;
 
-class Preprocessor extends \Patchwork\AbstractStreamProcessor
+use Patchwork\PHP\Parser;
+
+class Preprocessor extends AbstractStreamProcessor
 {
     protected
 
@@ -47,11 +49,37 @@ class Preprocessor extends \Patchwork\AbstractStreamProcessor
 
     function __construct()
     {
+        $this->loadClass('');
+        $this->loadClass('HaltCompilerRemover');
+
         foreach ($this->parsers as $class => &$enabled)
             $enabled = $enabled
                 && (0 > $enabled ? PHP_VERSION_ID < -$enabled : PHP_VERSION_ID >= $enabled)
-                && class_exists($this->parserPrefix . $class);
+                && $this->loadClass($class);
     }
+
+    protected function loadClass($class)
+    {
+        $class = $class ? $this->parserPrefix . $class : substr($this->parserPrefix, 0, -1);
+        if (class_exists($class, true)) return true;
+
+        $dir = __DIR__ . '/../../' ;
+        static::loadFile($dir . strtr($class, '\\', '/') . '.php');
+
+        if (!class_exists($class, false)) return false;
+
+        foreach ($class::$requiredClasses as $class)
+            if (!class_exists($class, true))
+                static::loadFile($dir . strtr($class, '\\', '/') . '.php');
+
+        return true;
+    }
+
+    protected static function loadFile()
+    {
+        require func_get_arg(0);
+    }
+
 
     function process($code)
     {

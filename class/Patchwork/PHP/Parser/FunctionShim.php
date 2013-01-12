@@ -1,6 +1,6 @@
 <?php // vi: set fenc=utf-8 ts=4 sw=4 et:
 /*
- * Copyright (C) 2012 Nicolas Grekas - p@tchwork.com
+ * Copyright (C) 2013 Nicolas Grekas - p@tchwork.com
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the (at your option):
@@ -34,7 +34,6 @@ class FunctionShim extends Parser
 
     $varVarLead = '${patchwork_shim_resolve_ref(',
     $varVarTail = ",\$\x9D)}";
-
 
     protected static
 
@@ -136,6 +135,13 @@ class FunctionShim extends Parser
         'array_uintersect_uassoc' => -2,
 
         'session_set_save_handler' => -6, // 6 callback parameters
+    );
+
+    public static
+
+    $requiredClasses = array(
+        'Patchwork\PHP\Parser\Bracket',
+        'Patchwork\PHP\Parser\Bracket\Callback',
     );
 
 

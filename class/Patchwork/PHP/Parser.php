@@ -1,6 +1,6 @@
 <?php // vi: set fenc=utf-8 ts=4 sw=4 et:
 /*
- * Copyright (C) 2012 Nicolas Grekas - p@tchwork.com
+ * Copyright (C) 2013 Nicolas Grekas - p@tchwork.com
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the (at your option):
@@ -63,7 +63,6 @@ class Parser
     $headParser,              // First parser in the ->parent inheritance chain
     $tokenRegistry = array(); // (token type => callbacks) map
 
-
     private
 
     $parents = array(),
@@ -74,13 +73,16 @@ class Parser
     $registryIndex = 0,
     $haltCompilerTail = 4;
 
-
     private static
 
     $tokenNames = array(
         1 => 'T_SEMANTIC',
         2 => 'T_NON_SEMANTIC',
     );
+
+    public static
+
+    $requiredClasses = array(); // Fully qualified name of classes used at parse time
 
 
     function __construct(self $parent = null)
