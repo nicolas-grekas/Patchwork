@@ -99,8 +99,8 @@ if ($a)
 // Disables mod_deflate who overwrites any custom Vary: header and appends a body to 304 responses.
 // Replaced with our own output compression.
 
-/**/if (function_exists('apache_setenv'))
-        apache_setenv('no-gzip','1');
+if (function_exists('apache_setenv'))
+    apache_setenv('no-gzip','1');
 
 
 /**/if (ini_get_bool('zlib.output_compression'))

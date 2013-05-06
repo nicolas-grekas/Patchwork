@@ -153,7 +153,7 @@ class Debugger extends p
 /**/            {
                     usleep(1); // Give priority for locking to the error handler process
 
-                    if (@flock($h, LOCK_EX+LOCK_NB, $j) && !$j) unlink($log);
+                    if (@flock($h, LOCK_EX | LOCK_NB, $j) && !$j) unlink($log);
                     else
                     {
                         $continue = true;

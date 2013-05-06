@@ -86,9 +86,9 @@ class Patchwork_ShutdownHandler
         // See http://bugs.php.net/54114
         while (ob_get_level() && ob_end_flush()) {}
 
-/**/    if (function_exists('fastcgi_finish_request'))
+        if (function_exists('fastcgi_finish_request'))
             fastcgi_finish_request();
-/**/    else
+        else
             flush();
 
         ob_start(array(self::$class, '_checkOutputBuffer'));
