@@ -1,6 +1,6 @@
 <?php // vi: set fenc=utf-8 ts=4 sw=4 et:
 /*
- * Copyright (C) 2012 Nicolas Grekas - p@tchwork.com
+ * Copyright (C) 2013 Nicolas Grekas - p@tchwork.com
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the (at your option):
@@ -38,8 +38,12 @@ class Utf8
     {
         if (preg_match("/[\x80-\xFF]/", $s))
         {
+            static $translitExtra = false;
+            $translitExtra or $translitExtra = self::getData('translit_extra');
+
             $s = n::normalize($s, n::NFKD);
             $s = preg_replace('/\p{Mn}+/u', '', $s);
+            $s = str_replace($translitExtra[0], $translitExtra[1], $s);
             $s = iconv('UTF-8', 'ASCII' . ('glibc' !== ICONV_IMPL ? '//IGNORE' : '') . '//TRANSLIT', $s);
         }
 
@@ -114,7 +118,7 @@ class Utf8
 
     static function stristr($s, $needle, $before_needle = false)
     {
-        if ('' == (string) $needle) return false;
+        if ('' === (string) $needle) return false;
         return mb_stristr($s, $needle, $before_needle, 'UTF-8');
     }
 

@@ -36,7 +36,7 @@ Here is the set of portability-fallbacks that are currently implemented:
   grapheme_strlen, grapheme_strpos, grapheme_strripos, grapheme_strrpos,
   grapheme_strstr, grapheme_substr*.
 
-`pcre` compiled with unicode support is currently required.
+`pcre` compiled with unicode support is required.
 
 Patchwork\Utf8
 --------------
@@ -61,23 +61,31 @@ trim, str_ireplace, str_pad, str_shuffle, str_split, str_word_count, strcmp,
 strnatcmp, strcasecmp, strnatcasecmp, strncasecmp, strncmp, strcspn, strpbrk,
 strrev, strspn, strtr, substr_compare, substr_count, substr_replace, ucfirst,
 lcfirst, ucwords, number_format, utf8_encode, utf8_decode*.
+
 Missing are *printf*-family functions.
 
 Usage
 -----
 
-Including the `bootup.utf8.php` file is the easiest way to enable the
-portability layer and configure PHP for an UTF-8 aware and portable application.
+The recommended way to install Patchwork UTF-8 is [through
+composer](http://getcomposer.org). Just create a `composer.json` file and run
+the `php composer.phar install` command to install it:
 
-Classes are named following PSR-0 autoloader interoperability recommandations,
-so other loading scheme are easy to implement.
+    {
+        "require": {
+            "patchwork/utf8": "1.1.*"
+        }
+    }
 
-The `Patchwork\Utf8` class exposes its features through static methods. Just
-add a `use Patchwork\Utf8 as u;` at the beginning of your files, then when UTF-8
-awareness is required, prefix the string function by `u::`:
-`echo strlen("déjà");` may become `echo u::strlen("déjà");` eg.
+Then, early in your bootstrap sequence, you have to configure your environment:
 
-Just run `phpunit` in the `tests/` directory to see the code in action.
+```php
+\Patchwork\Utf8\Bootup::initAll(); // Enables the portablity layer and configures PHP for UTF-8
+\Patchwork\Utf8\Bootup::filterRequestUri(); // Redirects to an UTF-8 encoded URL it's not already the case
+\Patchwork\Utf8\Bootup::filterRequestInputs(); // Sanitizes HTTP inputs to UTF-8 NFC
+```
+
+Run `phpunit` in the `tests/` directory to see the code in action.
 
 Make sure that you are confident about using UTF-8 by reading
 [Character Sets / Character Encoding Issues](http://www.phpwact.org/php/i18n/charsets)
