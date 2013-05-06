@@ -49,7 +49,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
     $logStream,
     $shuttingDown = 0,
     $stackedErrors = array(),
-    $stackErrors = false;
+    $stackedErrorLevels = array();
 
 
     static function register($handler = null, $log_file = 'php://stderr')
@@ -96,10 +96,10 @@ class InDepthErrorHandler extends ThrowingErrorHandler
     static function shutdown()
     {
         self::$shuttingDown = 1;
+        $e = self::getLastError();
+        while (self::$stackedErrorLevels) self::unstackErrors();
 
-        self::unstackErrors();
-
-        if ($e = self::getLastError())
+        if ($e)
         {
             switch ($e['type'])
             {
@@ -156,8 +156,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
      */
     static function stackErrors()
     {
-        if (false !== self::$stackErrors) return;
-        self::$stackErrors = error_reporting(error_reporting() | /*<*/E_PARSE | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR/*>*/);
+        self::$stackedErrorLevels[] = error_reporting(error_reporting() | /*<*/E_PARSE | E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR/*>*/);
     }
 
     /**
@@ -165,12 +164,13 @@ class InDepthErrorHandler extends ThrowingErrorHandler
      */
     static function unstackErrors($ret = null)
     {
-        if (false !== self::$stackErrors) error_reporting(self::$stackErrors);
-        self::$stackErrors = false;
+        $e = array_pop(self::$stackedErrorLevels);
+        if (isset($e)) error_reporting($e);
+        if (!empty(self::$stackedErrorLevels)) return $ret;
         if (empty(self::$stackedErrors)) return $ret;
-        $l = self::$handler->getLogger();
         $e = self::$stackedErrors;
         self::$stackedErrors = array();
+        $l = self::$handler->getLogger();
         foreach ($e as $e) $l->logError($e[0], $e[1], $e[2], $e[3]);
         return $ret;
     }
@@ -250,7 +250,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
                     else if (0 <= $trace_offset) $e['trace'] = debug_backtrace(/*<*/PHP_VERSION_ID >= 50306 ? DEBUG_BACKTRACE_IGNORE_ARGS : false/*>*/);
                 }
 
-                if (self::$stackErrors) self::$stackedErrors[] = array($e, $trace_offset, $trace_args, $log_time);
+                if (self::$stackedErrorLevels) self::$stackedErrors[] = array($e, $trace_offset, $trace_args, $log_time);
                 else $this->getLogger()->logError($e, $trace_offset, $trace_args, $log_time);
             }
 
