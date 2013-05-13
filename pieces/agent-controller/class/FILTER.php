@@ -83,7 +83,7 @@ class FILTER
     {
         if (!is_scalar($value)) return false;
 
-        $result = trim(str_replace(' ', '', strtr($value, ",.'", ' ')));
+        $result = trim(str_replace(' ', '', strtr($value, ",.'", '   ')));
         if (!preg_match('/^[+-]?[0-9]+$/u', $result)) return false;
         if (isset($args[0]) && $result < $args[0]) return false;
         if (isset($args[1]) && $result > $args[1]) return false;
@@ -132,10 +132,10 @@ class FILTER
             if ('' === $a) $result = '';
             else
             {
-                $result = preg_replace("'[ \t]+$'m"  , ''    ,        trim($result));
-                $result = preg_replace("'\n{3,}'"    , "\n\n",             $result);
+                $result = preg_replace("'[ \t]+$'m"  , ''    ,    trim($result));
+                $result = preg_replace("'\n{3,}'"    , "\n\n",         $result);
                 $result = preg_replace("'(?<!>)\n\n'", "<br>\n<br>\n", $result);
-                $result = preg_replace("'(?<!>)\n'"  , "<br>\n",         $result);
+                $result = preg_replace("'(?<!>)\n'"  , "<br>\n",       $result);
 
                 $result = str_replace(
                     array('{~}'     , '{/}'     , Patchwork::__BASE__(), Patchwork::__HOST__()),
