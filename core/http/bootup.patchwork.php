@@ -76,7 +76,7 @@ for ($i = 0; $i < $k; ++$i)
     foreach ($a[$i] as &$v)
     {
         if (is_array($v)) $a[$k++] =& $v;
-        else
+        else if (isset($v[0]))
         {
 /**/        if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc())
 /**/        {
@@ -86,7 +86,8 @@ for ($i = 0; $i < $k; ++$i)
                     $v = stripslashes($v);
 /**/        }
 
-            preg_match('//u', $v) || $v = utf8_encode($v);
+            if (!preg_match('//u', $v)) $v = utf8_encode($v);
+            else if ($v[0] >= "\x80" && preg_match('/^\p{Mn}/u', $v)) $v = '◌' . $v; // Prevent leading combining chars
         }
     }
 
