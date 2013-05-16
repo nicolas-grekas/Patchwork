@@ -43,7 +43,7 @@ class Patchwork_PHP_Parser_CloseMarker extends Patchwork_PHP_Parser
             case '$': break;
             case '{': ++$this->curly; break;
             case '}': --$this->curly; break;
-            default: 0 < $this->curly || $this->curly = -1;
+            default: 0 < $this->curly or $this->curly = -1;
         }
         else
         {
@@ -104,7 +104,10 @@ class Patchwork_PHP_Parser_CloseMarker extends Patchwork_PHP_Parser
         case '}':
         case ']':
         case ':': if ($this->bracket--) break;
-        case T_AS: case T_CLOSE_TAG: case ';':
+        case ';':
+        case T_AS:
+        case T_CLOSE_TAG:
+            if (0 < $this->bracket) break;
             $this->openToken = $this->open . $this->openToken;
             $token[1] = $this->close . $token[1];
             $this->unregister($this->callbacks);
