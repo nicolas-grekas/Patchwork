@@ -69,6 +69,12 @@ class pMail_text extends Mail_mime
 
         $headers['Message-Id'] = '<' . $message_id . '@' . $_SERVER['HTTP_HOST']. '>';
 
+        if (!empty($CONFIG['pMail.bcc']))
+        {
+            if (empty($headers['Bcc'])) $headers['Bcc'] = $CONFIG['pMail.bcc'];
+            else $headers['Bcc'] .= ', ' . $CONFIG['pMail.bcc'];
+        }
+
         if (empty($headers['Sender']))
         {
             if ($CONFIG['pMail.sender']) $headers['Sender'] = $CONFIG['pMail.sender'];
