@@ -16,7 +16,7 @@ $CONFIG += array(
 
 defined('DEBUG') || define('DEBUG', $CONFIG['debug.allowed'] && (!$CONFIG['debug.password'] || isset($_COOKIE['debug_password']) && $CONFIG['debug.password'] == $_COOKIE['debug_password']) ? 1 : 0);
 
-DEBUG || error_reporting(/*<*/E_ALL & ~(E_DEPRECATED | E_USER_DEPRECATED | E_STRICT)/*>*/);
+DEBUG or error_reporting(/*<*/E_ALL & ~(E_DEPRECATED | E_USER_DEPRECATED | E_STRICT)/*>*/);
 
 if (Patchwork_Superloader::$turbo = !DEBUG && $CONFIG['turbo'])
 {

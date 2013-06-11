@@ -18,7 +18,7 @@ use Patchwork as p;
 ini_set('unserialize_callback_func', /*<*/function_exists('__patchwork_spl_autoload_call') ? '__patchwork_spl_autoload_call' : 'spl_autoload_call'/*>*/);
 ini_set('html_errors', false);
 ini_set('display_errors', true);
-error_reporting(/*<*/E_ALL | E_STRICT/*>*/);
+error_reporting(-1);
 
 // spl_autoload() evades code preprocessing, do not use it
 

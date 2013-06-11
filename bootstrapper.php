@@ -15,7 +15,7 @@
 // To keep the global namespace clean, we use only static methods instead of any variable.
 // Be aware that the use of static properties would throw a PHP 4 parse error.
 
-error_reporting(E_ALL);                            // E_STRICT is not defined in PHP 4
+error_reporting(-1);
 header('Content-Type: text/plain; charset=utf-8'); // Ease with early error messages
 ini_set('html_errors', false);                     //  "
 ini_set('display_errors', true);                   //  "
@@ -28,8 +28,6 @@ if (file_exists(PATCHWORK_BOOTPATH . '/.patchwork.php'))
 
 if (!function_exists('version_compare') || version_compare(phpversion(), '5.2.0') < 0)
     die("Patchwork error: PHP 5.2.0 or higher is required");
-
-error_reporting(E_ALL | E_STRICT);
 
 require dirname(__FILE__) . '/core/boot/class/Patchwork/Bootstrapper/Manager.php';
 require dirname(__FILE__) . '/core/boot/class/Patchwork/Bootstrapper.php';
