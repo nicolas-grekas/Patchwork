@@ -115,6 +115,10 @@ class Patchwork_ShutdownHandler
 
             // See http://bugs.php.net/54157
             session_write_close();
+
+            // See http://news.php.net/php.internals/67735
+            gc_disable();
+
             if (empty(self::$destructors)) return;
         }
         else
