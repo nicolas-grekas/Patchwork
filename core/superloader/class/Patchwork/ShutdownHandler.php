@@ -111,13 +111,11 @@ class Patchwork_ShutdownHandler
         if (empty(self::$destructors))
         {
             while (ob_get_level() && ob_end_flush()) {}
+
+            session_write_close(); // See http://bugs.php.net/54157
+
+            ob_start('gc_disable'); // See http://news.php.net/php.internals/67735
             ob_start(array(self::$class, '_checkOutputBuffer'));
-
-            // See http://bugs.php.net/54157
-            session_write_close();
-
-            // See http://news.php.net/php.internals/67735
-            gc_disable();
 
             if (empty(self::$destructors)) return;
         }
