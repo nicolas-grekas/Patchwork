@@ -146,3 +146,13 @@ use Patchwork\PHP\Shim as s;
 
 /**/if (PHP_VERSION_ID >= 50400)
         p\Shim(ob_gzhandler, ob_gzhandler, $buffer, $mode);
+
+// Take entropy from the OS for PHP session ids
+
+/**/if ( !ini_get('session.entropy_file') && !ini_get('session.entropy_length') )
+/**/{
+        ini_set('session.entropy_length', 32);
+
+/**/    if ( @file_exists('/dev/urandom') && false !== @file_get_contents('/dev/urandom', false, null, -1, 1) )
+            ini_set('session.entropy_file', '/dev/urandom');
+/**/}
