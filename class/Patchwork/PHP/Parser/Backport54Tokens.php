@@ -1,6 +1,6 @@
 <?php // vi: set fenc=utf-8 ts=4 sw=4 et:
 /*
- * Copyright (C) 2012 Nicolas Grekas - p@tchwork.com
+ * Copyright (C) 2013 Nicolas Grekas - p@tchwork.com
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the (at your option):
@@ -18,42 +18,17 @@ defined('T_CALLABLE') || Parser::createToken('T_CALLABLE');
 defined('T_INSTEADOF') || Parser::createToken('T_INSTEADOF');
 
 /**
- * The Backport54Tokens parser backports tokens introduced in PHP 5.4.
+ * The Backport54Tokens parser backports tokens introduced since PHP 5.4.
  */
-class Backport54Tokens extends Parser
+class Backport54Tokens extends BackportTokens
 {
-    protected $backports = array(
+    protected
+
+    $dependencies = array('Backport55Tokens' => 'backports'),
+    $backports = array(
         'trait' => T_TRAIT,
         'callable' => T_CALLABLE,
         '__trait__' => T_TRAIT_C,
         'insteadof' => T_INSTEADOF,
     );
-
-    function __construct(parent $parent)
-    {
-        parent::__construct($parent);
-
-        foreach ($this->backports as $k => $i)
-            if (self::T_OFFSET >= $i)
-                unset($this->backports[$k]);
-    }
-
-    protected function getTokens($code, $is_fragment)
-    {
-        $b = $this->backports;
-
-        foreach ($b as $k => $i)
-            if (false === stripos($code, $k))
-                unset($b[$k]);
-
-        $code = parent::getTokens($code, $is_fragment);
-        $i = 0;
-
-        if ($b)
-            while (isset($code[++$i]))
-                if (T_STRING === $code[$i][0] && isset($b[$k = strtolower($code[$i][1])]))
-                    $code[$i][0] = $b[$k];
-
-        return $code;
-    }
 }

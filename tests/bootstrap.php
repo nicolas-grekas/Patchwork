@@ -3,8 +3,10 @@
 $dir = dirname(__DIR__);
 
 require_once $dir . '/class/Patchwork/PHP/Parser.php';
+require_once $dir . '/class/Patchwork/PHP/Parser/BackportTokens.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/Backport53Tokens.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/Backport54Tokens.php';
+require_once $dir . '/class/Patchwork/PHP/Parser/Backport55Tokens.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/BinaryNumber.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/BracketWatcher.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/Bracket.php';
