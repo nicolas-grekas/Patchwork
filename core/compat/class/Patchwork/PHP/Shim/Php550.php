@@ -1,14 +1,8 @@
 <?php // vi: set fenc=utf-8 ts=4 sw=4 et:
 /*
- * Copyright (C) 2012 Nicolas Grekas - p@tchwork.com
+ * This file incorporates works covered by the following disclaimer:
  *
- * This library is free software; you can redistribute it and/or modify it
- * under the terms of the (at your option):
- * Apache License v2.0 (http://apache.org/licenses/LICENSE-2.0.txt), or
- * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
- *
- * This file incorporates work covered by the following disclaimer:
- *
+ *   Copyright (c) 2013 Ben Ramsey <http://benramsey.com>
  *   Copyright (c) 2012 Anthony Ferrara <ircmaxell@php.net>
  *
  *   Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,7 +22,6 @@
  *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  *   DEALINGS IN THE SOFTWARE.
- *
  */
 
 namespace Patchwork\PHP\Shim;
@@ -37,6 +30,41 @@ namespace Patchwork\PHP\Shim;
 
 class Php550
 {
+    function array_column(array $input, $columnKey, $indexKey = null)
+    {
+        $output = array();
+
+        foreach ($input as $row) {
+
+            $key = $value = null;
+            $keySet = $valueSet = false;
+
+            if ($indexKey !== null && array_key_exists($indexKey, $row)) {
+                $keySet = true;
+                $key = (string) $row[$indexKey];
+            }
+
+            if ($columnKey === null) {
+                $valueSet = true;
+                $value = $row;
+            } elseif (is_array($row) && array_key_exists($columnKey, $row)) {
+                $valueSet = true;
+                $value = $row[$columnKey];
+            }
+
+            if ($valueSet) {
+                if ($keySet) {
+                    $output[$key] = $value;
+                } else {
+                    $output[] = $value;
+                }
+            }
+
+        }
+
+        return $output;
+    }
+
     /**
      * Hash the password using the specified algorithm
      *

@@ -91,6 +91,8 @@ use Patchwork\PHP\Shim as s;
 
 /**/if (PHP_VERSION_ID < 50500)
 /**/{
+        p\Shim(array_column, s\Php550, $array, $column_key, $index_key = null);
+
         const PASSWORD_BCRYPT = 1;
         const PASSWORD_DEFAULT = /*<*/(int) (function_exists('crypt') && CRYPT_BLOWFISH)/*>*/;
 
