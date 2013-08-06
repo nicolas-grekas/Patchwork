@@ -73,7 +73,7 @@ class ClosureShim extends Parser
             $this->closure['args'][] = ('&' === $this->prevType ? '&' : '') . $token[1];
         }
 
-        if ( 50300 > $this->targetPhpVersionId
+        if ( $this->targetPhpVersionId < 50300
           && T_NS_SEPARATOR !== $token[0]
           && !isset($token['closure-stop'])
           && !isset($token[2][T_USE_NS]) )
