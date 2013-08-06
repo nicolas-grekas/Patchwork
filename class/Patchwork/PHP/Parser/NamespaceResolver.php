@@ -1,6 +1,6 @@
 <?php // vi: set fenc=utf-8 ts=4 sw=4 et:
 /*
- * Copyright (C) 2012 Nicolas Grekas - p@tchwork.com
+ * Copyright (C) 2013 Nicolas Grekas - p@tchwork.com
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the (at your option):
@@ -61,7 +61,7 @@ class NamespaceResolver extends Parser
         else if (isset($this->nsPrefix[0]) ? '\\' !== $this->nsPrefix[0] : ($this->namespace || $token[1] !== substr($this->nsResolved, 1)))
         {
             if (isset($this->nsPrefix[0])) $this->dependencies['NamespaceInfo']->removeNsPrefix();
-            else if (('self' === $token[1] || 'parent' === $token[1]) && (isset($token[2][T_USE_CLASS]) || isset($token[2][T_TYPE_HINT]))) return;
+            else if (!(strcasecmp('self', $token[1]) && strcasecmp('parent', $token[1])) && (isset($token[2][T_USE_CLASS]) || isset($token[2][T_TYPE_HINT]))) return;
 
             $this->unshiftTokens(array(T_STRING, substr($this->nsResolved, 1)));
             return $this->namespace && $this->unshiftTokens(array(T_NS_SEPARATOR, '\\'));

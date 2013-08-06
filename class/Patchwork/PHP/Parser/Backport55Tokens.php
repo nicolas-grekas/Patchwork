@@ -19,7 +19,6 @@ defined('T_FINALLY') || Parser::createToken('T_FINALLY');
  * The Backport55Tokens parser backports tokens introduced since PHP 5.5.
  *
  * @todo Work around https://bugs.php.net/60097
- * @todo Backport `self` and `parent` case insensitivity
  */
 class Backport55Tokens extends BackportTokens
 {

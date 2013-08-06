@@ -37,6 +37,7 @@ require_once $dir . '/class/Patchwork/PHP/Parser/Normalizer.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/PhpPreprocessor.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/ScopeInfo.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/Scream.php';
+require_once $dir . '/class/Patchwork/PHP/Parser/SelfLowerCaser.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/ShortArray.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/ShortOpenEcho.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/StaticState.php';
