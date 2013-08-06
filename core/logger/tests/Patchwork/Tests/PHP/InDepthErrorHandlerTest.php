@@ -49,7 +49,7 @@ class InDepthErrorHandlerTest extends \PHPUnit_Framework_TestCase
   "data": {"_":"4:array:4",
     "mesg": "Uncaught exception: fake user error",
     "type": "E_USER_ERROR ' . __FILE__ . ':23",
-    "level": "256/32767",
+    "level": "256/-1",
     "scope": {"_":"8:array:1",
       "0": {"_":"9:Patchwork\\\\PHP\\\\InDepthRecoverableErrorException",
         "scope": {"_":"10:array:2",
