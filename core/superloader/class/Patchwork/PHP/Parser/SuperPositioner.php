@@ -8,8 +8,11 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
 
-class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser_PhpPreprocessor
+use Patchwork\PHP\Parser;
+
+class SuperPositioner extends PhpPreprocessor
 {
     protected
 
@@ -33,7 +36,7 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser_PhpPrepr
     );
 
 
-    function __construct(Patchwork_PHP_Parser $parent, $level, $topClass)
+    function __construct(Parser $parent, $level, $topClass)
     {
         if (0 <= $level) unset($this->callbacks['~tagRequire']);
 
@@ -190,7 +193,7 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser_PhpPrepr
         {
         case '\patchworkpath':
             // Append its fourth arg to patchworkPath()
-            new Patchwork_PHP_Parser_Bracket_PatchworkPath($this, $this->level);
+            new Bracket\PatchworkPath($this, $this->level);
             break;
 
         case '\class_parents':
@@ -199,7 +202,7 @@ class Patchwork_PHP_Parser_SuperPositioner extends Patchwork_PHP_Parser_PhpPrepr
         case '\trait_exists':
         case '\interface_exists':
             // Force a lightweight autoload
-            new Patchwork_PHP_Parser_Bracket_ClassExists($this);
+            new Bracket\ClassExists($this);
             break;
 
         case '\get_class':

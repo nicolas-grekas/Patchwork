@@ -8,10 +8,14 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser\Bracket;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The ClassExists parser force class_exists' second $autoload parameter to true.
  */
-class Patchwork_PHP_Parser_Bracket_ClassExists extends Patchwork_PHP_Parser_Bracket
+class ClassExists extends Parser\Bracket
 {
     protected $tail = "||\\Patchwork_Superloader::exists(\$\x9D,0)";
 

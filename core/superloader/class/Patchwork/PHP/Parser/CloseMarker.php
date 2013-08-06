@@ -8,10 +8,13 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
 
 // TODO: replace this catch-all filterToken by fine grained token registration
 
-class Patchwork_PHP_Parser_CloseMarker extends Patchwork_PHP_Parser
+class CloseMarker extends Parser
 {
     protected
 

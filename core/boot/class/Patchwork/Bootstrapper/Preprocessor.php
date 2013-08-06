@@ -8,6 +8,7 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+use Patchwork\PHP\Parser;
 
 class Patchwork_Bootstrapper_Preprocessor
 {
@@ -22,29 +23,29 @@ class Patchwork_Bootstrapper_Preprocessor
     {
         if ('' === $code) return '';
 
-        $p = new Patchwork_PHP_Parser_Normalizer;
+        $p = new Parser\Normalizer;
 
-        PHP_VERSION_ID < 50500 && $p = new Patchwork_PHP_Parser_Backport55Tokens($p);
-        PHP_VERSION_ID < 50400 && new Patchwork_PHP_Parser_Backport54Tokens($p);
-        PHP_VERSION_ID < 50300 && new Patchwork_PHP_Parser_Backport53Tokens($p);
+        PHP_VERSION_ID < 50500 && $p = new Parser\Backport55Tokens($p);
+        PHP_VERSION_ID < 50400 && new Parser\Backport54Tokens($p);
+        PHP_VERSION_ID < 50300 && new Parser\Backport53Tokens($p);
 
-        new Patchwork_PHP_Parser_BracketWatcher($p);
-        new Patchwork_PHP_Parser_StringInfo($p);
-        new Patchwork_PHP_Parser_NamespaceInfo($p);
-        PHP_VERSION_ID >= 50300 && new Patchwork_PHP_Parser_NamespaceBracketer($p);
-        new Patchwork_PHP_Parser_ScopeInfo($p);
-        new Patchwork_PHP_Parser_ConstFuncDisabler($p);
-        new Patchwork_PHP_Parser_ConstFuncResolver($p);
-        new Patchwork_PHP_Parser_NamespaceResolver($p);
+        new Parser\BracketWatcher($p);
+        new Parser\StringInfo($p);
+        new Parser\NamespaceInfo($p);
+        PHP_VERSION_ID >= 50300 && new Parser\NamespaceBracketer($p);
+        new Parser\ScopeInfo($p);
+        new Parser\ConstFuncDisabler($p);
+        new Parser\ConstFuncResolver($p);
+        new Parser\NamespaceResolver($p);
 
         $this->getShims(); // Load active shims
 
-        new Patchwork_PHP_Parser_ConstantInliner($p, $file, $this->newShims[1]);
-        new Patchwork_PHP_Parser_ClassInfo($p);
-        PHP_VERSION_ID < 50300 && new Patchwork_PHP_Parser_NamespaceRemover($p);
-        new Patchwork_PHP_Parser_FunctionShim($p, $this->newShims[0]);
-        $p = new Patchwork_PHP_Parser_ClosureShim($p);
-        $this->parser = new Patchwork_PHP_Parser_StaticState($p);
+        new Parser\ConstantInliner($p, $file, $this->newShims[1]);
+        new Parser\ClassInfo($p);
+        PHP_VERSION_ID < 50300 && new Parser\NamespaceRemover($p);
+        new Parser\FunctionShim($p, $this->newShims[0]);
+        $p = new Parser\ClosureShim($p);
+        $this->parser = new Parser\StaticState($p);
         $this->parser->closureShim = $p;
         $p = $this->parser;
 
@@ -105,8 +106,8 @@ class Patchwork_Bootstrapper_Preprocessor
         $o = $this->newShims;
         $this->newShims = array(array(), array());
         return array(
-            Patchwork_PHP_Parser_FunctionShim::loadShims($o[0]),
-            Patchwork_PHP_Parser_ConstantInliner::loadConsts($o[1]),
+            Parser\FunctionShim::loadShims($o[0]),
+            Parser\ConstantInliner::loadConsts($o[1]),
         );
     }
 }

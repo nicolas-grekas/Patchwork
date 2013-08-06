@@ -8,6 +8,7 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+use Patchwork\PHP\Parser;
 
 class Patchwork_Preprocessor
 {
@@ -68,14 +69,14 @@ class Patchwork_Preprocessor
         foreach (self::$parsers as $k => $v)
         {
             is_bool($v) || $v = self::$parsers[$k] = 0 > $v ? PHP_VERSION_ID < -$v : PHP_VERSION_ID >= $v;
-            $v && class_exists('Patchwork_PHP_Parser_' . $k);
+            $v && class_exists('Patchwork\PHP\Parser\\' . $k);
         }
 
         if (file_exists($v = PATCHWORK_PROJECT_PATH . ".patchwork.shims.ser"))
         {
             $v = unserialize(file_get_contents($v));
-            Patchwork_PHP_Parser_FunctionShim::loadShims($v[0]);
-            Patchwork_PHP_Parser_ConstantInliner::loadConsts($v[1]);
+            Parser\FunctionShim::loadShims($v[0]);
+            Parser\ConstantInliner::loadConsts($v[1]);
         }
     }
 
@@ -133,7 +134,7 @@ class Patchwork_Preprocessor
         foreach (self::$parsers as $c => $t)
         {
             if (!$t) continue;
-            if (!class_exists($t = 'Patchwork_PHP_Parser_' . $c)) break;
+            if (!class_exists($t = 'Patchwork\PHP\Parser\\' . $c)) break;
 
             switch ($c)
             {

@@ -8,14 +8,18 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser\Bracket;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The PatchworkPath parser adds the current superpositioning level to patchworkPath()'s third parameter.
  */
-class Patchwork_PHP_Parser_Bracket_PatchworkPath extends Patchwork_PHP_Parser_Bracket
+class PatchworkPath extends Parser\Bracket
 {
     protected $level;
 
-    function __construct(Patchwork_PHP_Parser $parent, $level)
+    function __construct(Parser $parent, $level)
     {
         $this->level = (string) (int) $level;
         parent::__construct($parent);

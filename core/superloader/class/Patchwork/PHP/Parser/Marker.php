@@ -8,8 +8,11 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
 
-class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionShim
+use Patchwork\PHP\Parser;
+
+class Marker extends FunctionShim
 {
     protected
 
@@ -32,12 +35,12 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionShim
     $dependencies = array('ClassInfo' => array('class', 'scope', 'nsResolved'));
 
 
-    function __construct(Patchwork_PHP_Parser $parent, $inlineClass, $mark_require, $file)
+    function __construct(Parser $parent, $inlineClass, $mark_require, $file)
     {
         foreach ($inlineClass as $inlineClass)
             $this->inlineClass[strtolower(strtr($inlineClass, '\\', '_'))] = 1;
 
-        Patchwork_PHP_Parser::__construct($parent);
+        Parser::__construct($parent);
 
         $mark_require or $this->unregister(array('tagAutoloader' => array(T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE)));
 
@@ -89,7 +92,7 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionShim
         }
 
         $T = $this->tag;
-        new Patchwork_PHP_Parser_CloseMarker($this, $t, $curly, "((\$a{$T}=\$b{$T}=\$e{$T})||1?", ':0)');
+        new CloseMarker($this, $t, $curly, "((\$a{$T}=\$b{$T}=\$e{$T})||1?", ':0)');
 
         0 < $this->scope->markerState || $this->scope->markerState = 1;
     }
@@ -158,7 +161,7 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionShim
             0 < $this->scope->markerState || $this->scope->markerState = 1;
         }
 
-        new Patchwork_PHP_Parser_CloseMarker(
+        new CloseMarker(
             $this,
             $this->newToken[1],
             $token ? -1 : 0,
@@ -197,7 +200,7 @@ class Patchwork_PHP_Parser_Marker extends Patchwork_PHP_Parser_FunctionShim
         $r = '&' === pos($t);
         next($t);
 
-        new Patchwork_PHP_Parser_CloseMarker(
+        new CloseMarker(
             $this,
             $this->texts[key($t)],
             0,

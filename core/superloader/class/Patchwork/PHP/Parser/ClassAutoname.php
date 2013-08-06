@@ -8,8 +8,11 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
 
-class Patchwork_PHP_Parser_ClassAutoname extends Patchwork_PHP_Parser
+use Patchwork\PHP\Parser;
+
+class ClassAutoname extends Parser
 {
     protected
 

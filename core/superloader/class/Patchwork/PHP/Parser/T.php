@@ -8,10 +8,14 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The T parser warns when function T() is used with a concatenation inside its argument.
  */
-class Patchwork_PHP_Parser_T extends Patchwork_PHP_Parser
+class T extends Parser
 {
     protected
 
