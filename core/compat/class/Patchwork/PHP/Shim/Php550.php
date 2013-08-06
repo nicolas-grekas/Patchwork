@@ -30,6 +30,33 @@ namespace Patchwork\PHP\Shim;
 
 class Php550
 {
+    function set_exception_handler($exception_handler)
+    {
+        if (null === $exception_handler)
+        {
+            $h = set_exception_handler('var_dump');
+            restore_exception_handler();
+            set_exception_handler(null);
+            return $h;
+        }
+
+        return set_exception_handler($exception_handler);
+    }
+
+    function set_error_handler($error_handler, $error_types = -1)
+    {
+        if (null === $error_handler)
+        {
+            $h = set_error_handler('var_dump');
+            do restore_error_handler() && restore_error_handler();
+            while (set_error_handler('var_dump'));
+            restore_error_handler();
+            return $h;
+        }
+
+        return set_error_handler($error_handler, $error_types);
+    }
+
     function array_column(array $input, $columnKey, $indexKey = null)
     {
         $output = array();

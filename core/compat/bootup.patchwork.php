@@ -100,6 +100,9 @@ use Patchwork\PHP\Shim as s;
         p\Shim(password_get_info,     s\Php550, $hash);
         p\Shim(password_needs_rehash, s\Php550, $hash, $algo, array $options = array());
         p\Shim(password_verify,       s\Php550, $password, $hash);
+
+        p\Shim(set_error_handler,     s\Php550, $error_handler, $error_types = -1);
+        p\Shim(set_exception_handler, s\Php550, $exception_handler);
 /**/}
 
 /**/if (!function_exists('memory_get_usage'))
