@@ -19,13 +19,15 @@ class Patchwork_Preprocessor
     $recursivePool = array(),
     $parsers = array(
         'Normalizer'         => true,
-        'ShortOpenEcho'      => -50400, // Load this only before 5.4.0
+        'SelfLowerCaser'     => -50500, // Load this only before 5.5.0
+        'ShortOpenEcho'      => -50400,
         'BracketWatcher'     => true,
         'ShortArray'         => -50400,
         'BinaryNumber'       => -50400,
         'ClassAutoname'      => true,
         'StringInfo'         => true,
         'WorkaroundBug55156' => -50308,
+        'Backport55Tokens'   => -50500,
         'Backport54Tokens'   => -50400,
         'Backport53Tokens'   => -50300,
         'NamespaceBracketer' => +50300, // Load this only for 5.3.0 and up
@@ -136,7 +138,8 @@ class Patchwork_Preprocessor
             switch ($c)
             {
             case 'Normalizer':    $p = new $t; break;
-            case 'Backport54Tokens':
+            case 'Backport55Tokens':
+            case 'SelfLowerCaser':
             case 'ShortOpenEcho':
             case 'BinaryNumber':  $p = new $t($p); break;
             default:                   new $t($p); break;
