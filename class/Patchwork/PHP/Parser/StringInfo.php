@@ -86,7 +86,7 @@ class StringInfo extends Parser
         {
         case T_INTERFACE:
         case T_TRAIT:
-        case T_CLASS: return T_NAME_CLASS;
+        case T_CLASS: return T_DOUBLE_COLON !== $this->penuType ? T_NAME_CLASS : T_USE_CONSTANT;
         case T_GOTO:  return T_GOTO_LABEL;
 
         case '&': if (T_FUNCTION !== $this->penuType) break;
