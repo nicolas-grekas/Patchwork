@@ -130,7 +130,7 @@ class Preprocessor extends AbstractStreamProcessor
         case 'BinaryNumber':
         case 'StaticState':
         case 'Normalizer':  $parser = new $c($parser); break;
-        case 'PhpPreprocessor':  $p = new $c($parser, $this->filterPrefix); break;
+        case 'PhpPreprocessor':  $p = new $c($parser, '\Patchwork\PPP::processedFile'); break;
         case 'ConstantInliner':  $p = new $c($parser, $this->uri, $this->constants, $this->compilerHaltOffset); break;
         case 'ToStringCatcher':  $p = new $c($parser, $this->toStringCatcherCallback); break;
         default:                 $p = new $c($parser); break;

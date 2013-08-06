@@ -6,7 +6,7 @@ use Patchwork\PHP\Parser as p;
 ini_set('display_errors', false);
 ini_set('log_errors', true);
 ini_set('error_log', 'php://stderr');
-error_reporting(E_ALL | E_STRICT);
+error_reporting(-1);
 function_exists('xdebug_disable') and xdebug_disable();
 
 function __autoload($class)

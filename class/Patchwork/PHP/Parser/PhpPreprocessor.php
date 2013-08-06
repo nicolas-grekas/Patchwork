@@ -31,9 +31,9 @@ class PhpPreprocessor extends Parser
     );
 
 
-    function __construct(parent $parent = null, $filter_prefix)
+    function __construct(parent $parent = null, $prepended_code)
     {
-        if ($filter_prefix) $this->prependedCode = self::export($filter_prefix) . '.';
+        if ($prepended_code) $this->prependedCode = $prepended_code;
         if ($this->prependedCode) $this->prependedCode .= '(';
         else unset($this->callbacks['~tagRequire']);
         parent::__construct($parent);
