@@ -11,7 +11,7 @@ class InDepthErrorHandlerTest extends \PHPUnit_Framework_TestCase
         $f = tempnam('/', 'test');
         $this->assertTrue(false !== $f);
 
-        error_reporting(E_ALL | E_STRICT);
+        error_reporting(-1);
 
         $h = new InDepthErrorHandler(null, null, /*scream*/ E_PARSE, null, null, /*traced*/ 0);
         InDepthErrorHandler::register($h, $f);
@@ -35,7 +35,7 @@ class InDepthErrorHandlerTest extends \PHPUnit_Framework_TestCase
         error_reporting(0);
         @eval('abc'); // Parse error to populate error_get_last()
         InDepthErrorHandler::shutdown();
-        error_reporting(E_ALL | E_STRICT);
+        error_reporting(-1);
 
         $e = file_get_contents($f);
 
@@ -49,7 +49,7 @@ class InDepthErrorHandlerTest extends \PHPUnit_Framework_TestCase
   "data": {"_":"4:array:4",
     "mesg": "Uncaught exception: fake user error",
     "type": "E_USER_ERROR ' . __FILE__ . ':23",
-    "level": "256/32767",
+    "level": "256/-1",
     "scope": {"_":"8:array:1",
       "0": {"_":"9:Patchwork\\\\PHP\\\\InDepthRecoverableErrorException",
         "scope": {"_":"10:array:2",
