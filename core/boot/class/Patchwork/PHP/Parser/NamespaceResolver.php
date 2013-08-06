@@ -1,6 +1,6 @@
 <?php // vi: set fenc=utf-8 ts=4 sw=4 et:
 /*
- * Copyright (C) 2012 Nicolas Grekas - p@tchwork.com
+ * Copyright (C) 2013 Nicolas Grekas - p@tchwork.com
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the (at your option):
@@ -8,12 +8,16 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The NamespaceResolver parser replaces aliased identifiers by their fully namespace resolved name.
  *
  * It also removes local alias declarations as they are not needed anymore.
  */
-class Patchwork_PHP_Parser_NamespaceResolver extends Patchwork_PHP_Parser
+class NamespaceResolver extends Parser
 {
     protected
 
@@ -57,7 +61,7 @@ class Patchwork_PHP_Parser_NamespaceResolver extends Patchwork_PHP_Parser
         else if (isset($this->nsPrefix[0]) ? '\\' !== $this->nsPrefix[0] : ($this->namespace || $token[1] !== substr($this->nsResolved, 1)))
         {
             if (isset($this->nsPrefix[0])) $this->dependencies['NamespaceInfo']->removeNsPrefix();
-            else if (('self' === $token[1] || 'parent' === $token[1]) && (isset($token[2][T_USE_CLASS]) || isset($token[2][T_TYPE_HINT]))) return;
+            else if (!(strcasecmp('self', $token[1]) && strcasecmp('parent', $token[1])) && (isset($token[2][T_USE_CLASS]) || isset($token[2][T_TYPE_HINT]))) return;
 
             $this->unshiftTokens(array(T_STRING, substr($this->nsResolved, 1)));
             return $this->namespace && $this->unshiftTokens(array(T_NS_SEPARATOR, '\\'));

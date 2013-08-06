@@ -8,6 +8,10 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser\Bracket;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The Bracket_Callback parser participates in catching callbacks for at runtime function overriding.
  *
@@ -15,7 +19,7 @@
  * @todo Unlike static callbacks, a function shim can not use its overriden function
  *       through a dynamic callback, because that would lead to unwanted recursion.
  */
-class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
+class Callback extends Parser\Bracket
 {
     protected
 
@@ -32,7 +36,7 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
     );
 
 
-    function __construct(Patchwork_PHP_Parser $parent, $callbackIndex, $shims = array())
+    function __construct(Parser $parent, $callbackIndex, $shims = array())
     {
         if (0 < $callbackIndex)
         {
@@ -81,7 +85,7 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
                     {
                         if ($this->class || strcasecmp($a[0], $this->scope->funcC)) $t[1] = "'{$a[0]}'";
                     }
-                    else if (empty($this->class->nsName) || strcasecmp(strtr($a[0], '\\', '_'), strtr($this->class->nsName, '\\', '_')))
+                    else if (empty($this->class->nsName) || strcasecmp($a[0], $this->class->nsName))
                     {
                         $this->unshiftCode("array('{$a[0]}','{$a[1]}'");
                         $t = ')';
@@ -91,7 +95,7 @@ class Patchwork_PHP_Parser_Bracket_Callback extends Patchwork_PHP_Parser_Bracket
                 return;
             }
         }
-        else if (T_FUNCTION === $t[0] && $this->targetPhpVersionId >= 50300)
+        else if (T_FUNCTION === $t[0])
         {
             return; // Closure
         }

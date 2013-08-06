@@ -8,15 +8,19 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * ToString encapsulates __toString() methods inside a try/catch that allows
  * working around "__toString() must not throw an exception" error messages.
  */
-class Patchwork_PHP_Parser_ToStringCatcher extends Patchwork_PHP_Parser
+class ToStringCatcher extends Parser
 {
     protected
 
-    $exceptionCallback,
+    $exceptionCallback = '\\',
     $callbacks = array('tagToString' => T_NAME_FUNCTION),
 
     $scope,
@@ -26,13 +30,8 @@ class Patchwork_PHP_Parser_ToStringCatcher extends Patchwork_PHP_Parser
     function __construct(parent $parent, $exception_callback)
     {
         parent::__construct($parent);
-
-        $exception_callback = ltrim($exception_callback, '\\');
-
-        if ($this->targetPhpVersionId >= 50300) $exception_callback = '\\' . $exception_callback;
-        else $exception_callback = strtr($exception_callback, '\\', '_');
-
-        $this->exceptionCallback = $exception_callback;
+        $this->exceptionCallback .= ltrim($exception_callback, '\\');
+        if ($this->targetPhpVersionId < 50300) $this->exceptionCallback = substr($this->exceptionCallback, 1);
     }
 
     protected function tagToString(&$token)

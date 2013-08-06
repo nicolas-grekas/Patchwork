@@ -8,10 +8,14 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The Scream parser removes shutdown operators, making the code scream on otherwise silenced errors.
  */
-class Patchwork_PHP_Parser_Scream extends Patchwork_PHP_Parser
+class Scream extends Parser
 {
     protected $callbacks = array('cancelToken' => '@');
 

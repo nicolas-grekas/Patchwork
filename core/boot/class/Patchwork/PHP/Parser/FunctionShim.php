@@ -1,6 +1,6 @@
 <?php // vi: set fenc=utf-8 ts=4 sw=4 et:
 /*
- * Copyright (C) 2012 Nicolas Grekas - p@tchwork.com
+ * Copyright (C) 2013 Nicolas Grekas - p@tchwork.com
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the (at your option):
@@ -8,10 +8,14 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The FunctionShim parser replaces function calls by other function calls.
  */
-class Patchwork_PHP_Parser_FunctionShim extends Patchwork_PHP_Parser
+class FunctionShim extends Parser
 {
     protected
 
@@ -30,7 +34,6 @@ class Patchwork_PHP_Parser_FunctionShim extends Patchwork_PHP_Parser
 
     $varVarLead = '${patchwork_shim_resolve_ref(',
     $varVarTail = ",\$\x9D)}";
-
 
     protected static
 
@@ -132,6 +135,13 @@ class Patchwork_PHP_Parser_FunctionShim extends Patchwork_PHP_Parser
         'array_uintersect_uassoc' => -2,
 
         'session_set_save_handler' => -6, // 6 callback parameters
+    );
+
+    public static
+
+    $requiredClasses = array(
+        'Patchwork\PHP\Parser\Bracket',
+        'Patchwork\PHP\Parser\Bracket\Callback',
     );
 
 
@@ -238,7 +248,7 @@ class Patchwork_PHP_Parser_FunctionShim extends Patchwork_PHP_Parser
             {
                 if (!$this->class && 0 === strcasecmp($a[0], $this->scope->funcC)) return;
             }
-            else if (empty($this->class->nsName) || strcasecmp(strtr($a[0], '\\', '_'), strtr($this->class->nsName, '\\', '_')))
+            else if (empty($this->class->nsName) || strcasecmp($a[0], $this->class->nsName))
             {
                 $this->unshiftTokens(
                     array(T_DOUBLE_COLON, '::'),
@@ -255,7 +265,7 @@ class Patchwork_PHP_Parser_FunctionShim extends Patchwork_PHP_Parser
         }
         else if (isset(self::$autoloader[$a]) || (!$this->class && 0 === strcasecmp('function_exists', $a) && 0 !== strcasecmp('patchwork_shim_resolve', $this->scope->funcC)))
         {
-            new Patchwork_PHP_Parser_Bracket_Callback($this, isset(self::$autoloader[$a]) ? self::$autoloader[$a] : 1, $this->shims);
+            new Bracket\Callback($this, isset(self::$autoloader[$a]) ? self::$autoloader[$a] : 1, $this->shims);
 
             if ('&' === $this->prevType)
             {

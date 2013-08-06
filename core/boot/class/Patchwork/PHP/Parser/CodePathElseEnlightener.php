@@ -8,12 +8,16 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The CodePathElseEnlightner parser adds missing "else" to "if" for decision coverage.
  *
  * @todo Alternative syntax
  */
-class Patchwork_PHP_Parser_CodePathElseEnlightener extends Patchwork_PHP_Parser
+class CodePathElseEnlightener extends Parser
 {
     protected
 

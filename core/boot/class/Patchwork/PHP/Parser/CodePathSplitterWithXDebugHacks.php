@@ -8,12 +8,16 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The CodePathSplitterWithXDebugHacks adds workarounds for Xdebug's code coverage misses.
  */
-class Patchwork_PHP_Parser_CodePathSplitterWithXDebugHacks extends Patchwork_PHP_Parser_CodePathSplitter
+class CodePathSplitterWithXDebugHacks extends CodePathSplitter
 {
-    protected $serviceName = 'Patchwork_PHP_Parser_CodePathSplitter';
+    protected $serviceName = 'Patchwork\PHP\Parser\CodePathSplitter';
 
 
     protected function isCodePathNode(&$token)

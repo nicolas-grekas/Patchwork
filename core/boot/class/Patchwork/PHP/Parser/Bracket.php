@@ -8,10 +8,14 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The abstract Bracket parser ease with building parsers that work on brackets and commas used in function calls.
  */
-abstract class Patchwork_PHP_Parser_Bracket extends Patchwork_PHP_Parser
+abstract class Bracket extends Parser
 {
     protected
 

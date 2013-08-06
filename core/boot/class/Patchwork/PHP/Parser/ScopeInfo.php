@@ -8,7 +8,11 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
-Patchwork_PHP_Parser::createToken('T_SCOPE_OPEN');
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
+Parser::createToken('T_SCOPE_OPEN');
 
 /**
  * The ScopeInfo parser exposes scopes to dependend parsers.
@@ -22,7 +26,7 @@ Patchwork_PHP_Parser::createToken('T_SCOPE_OPEN');
  *
  * ScopeInfo eventually inherits removeNsPrefix(), namespace, nsResolved, nsPrefix properties from NamespaceInfo.
  */
-class Patchwork_PHP_Parser_ScopeInfo extends Patchwork_PHP_Parser
+class ScopeInfo extends Parser
 {
     protected
 
@@ -85,6 +89,7 @@ class Patchwork_PHP_Parser_ScopeInfo extends Patchwork_PHP_Parser
 
     protected function tagClass(&$token)
     {
+        if (T_DOUBLE_COLON === $this->prevType) return;
         $this->nextScope = $token[0];
         $this->register(array('tagScopeOpen' => '{'));
     }

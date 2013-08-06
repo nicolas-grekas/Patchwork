@@ -8,10 +8,14 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The Globalizer parser automatically globalizes a set of variables.
  */
-class Patchwork_PHP_Parser_Globalizer extends Patchwork_PHP_Parser
+class Globalizer extends Parser
 {
     protected
 

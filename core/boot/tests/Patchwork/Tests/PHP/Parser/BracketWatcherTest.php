@@ -2,11 +2,13 @@
 
 namespace Patchwork\Tests\PHP;
 
+use Patchwork\PHP\Parser;
+
 class BracketWatcherTest extends \PHPUnit_Framework_TestCase
 {
     protected function getParser()
     {
-        return new \Patchwork_PHP_Parser_BracketWatcher;
+        return new Parser\BracketWatcher;
     }
 
     function testParse()
@@ -31,7 +33,7 @@ EOPHP;
                     'type' => 512,
                     'message' => 'Brackets are not correctly balanced',
                     'line' => 2,
-                    'parser' => 'Patchwork_PHP_Parser_BracketWatcher',
+                    'parser' => 'Patchwork\PHP\Parser\BracketWatcher',
                 )
             ),
 

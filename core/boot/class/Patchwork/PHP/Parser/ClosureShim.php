@@ -8,12 +8,16 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The ClosureShim parser participates in backporting closures to PHP 5.2
  *
  * On PHP5.3+, it adds a warning when a variable is used both as an argument and a lexical
  */
-class Patchwork_PHP_Parser_ClosureShim extends Patchwork_PHP_Parser
+class ClosureShim extends Parser
 {
     protected
 
@@ -69,7 +73,7 @@ class Patchwork_PHP_Parser_ClosureShim extends Patchwork_PHP_Parser
             $this->closure['args'][] = ('&' === $this->prevType ? '&' : '') . $token[1];
         }
 
-        if ( 50300 > $this->targetPhpVersionId
+        if ( $this->targetPhpVersionId < 50300
           && T_NS_SEPARATOR !== $token[0]
           && !isset($token['closure-stop'])
           && !isset($token[2][T_USE_NS]) )

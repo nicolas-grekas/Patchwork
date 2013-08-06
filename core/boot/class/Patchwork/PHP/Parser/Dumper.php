@@ -8,10 +8,14 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The Dumper parser helps understanding how parsers work by displaying tokens as they come up.
  */
-class Patchwork_PHP_Parser_Dumper extends Patchwork_PHP_Parser
+class Dumper extends Parser
 {
     public
 

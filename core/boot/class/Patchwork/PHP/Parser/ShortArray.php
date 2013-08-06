@@ -8,10 +8,14 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The ShortArray parser backports the short array syntax introduced in PHP 5.4.
  */
-class Patchwork_PHP_Parser_ShortArray extends Patchwork_PHP_Parser
+class ShortArray extends Parser
 {
     public
 

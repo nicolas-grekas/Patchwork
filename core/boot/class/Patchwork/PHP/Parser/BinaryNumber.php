@@ -8,10 +8,14 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The BinaryNumber parser backports binary number notation introduced in PHP 5.4.
  */
-class Patchwork_PHP_Parser_BinaryNumber extends Patchwork_PHP_Parser
+class BinaryNumber extends Parser
 {
     protected function getTokens($code, $is_fragment)
     {

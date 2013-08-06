@@ -8,13 +8,17 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The CodePathLoopEnlightner parser instruments loops for loop coverage analysis.
  *
  * @todo Alternative syntax
  * @todo Annotation for loops that can not be skipped
  */
-class Patchwork_PHP_Parser_CodePathLoopEnlightener extends Patchwork_PHP_Parser
+class CodePathLoopEnlightener extends Parser
 {
     protected
 

@@ -1,6 +1,6 @@
 <?php // vi: set fenc=utf-8 ts=4 sw=4 et:
 /*
- * Copyright (C) 2012 Nicolas Grekas - p@tchwork.com
+ * Copyright (C) 2013 Nicolas Grekas - p@tchwork.com
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the (at your option):
@@ -8,15 +8,17 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
-class Patchwork_PHP_Preprocessor extends Patchwork_AbstractStreamProcessor
+namespace Patchwork\PPP;
+
+use Patchwork\PHP\Parser;
+
+class Preprocessor extends AbstractStreamProcessor
 {
     protected
 
-    $parserPrefix = 'Patchwork_PHP_Parser_',
-    $namespaceRemoverCallback = 'Patchwork_PHP_Shim_Php530::add',
+    $parserPrefix = 'Patchwork\PHP\Parser\\',
     $toStringCatcherCallback = 'Patchwork\PHP\ThrowingErrorHandler::handleToStringException',
     $compilerHaltOffset = 0,
-    $closureShimParser,
     $constants = array(),
     $parsers = array(
         'PhpPreprocessor'    => true,
@@ -28,7 +30,6 @@ class Patchwork_PHP_Preprocessor extends Patchwork_AbstractStreamProcessor
         'StringInfo'         => true,
         'WorkaroundBug55156' => -50308,
         'Backport54Tokens'   => -50400,
-        'Backport53Tokens'   => -50300,
         'NamespaceBracketer' => +50300, // Load this only for 5.3.0 and up
         'NamespaceInfo'      => true,
         'ScopeInfo'          => true,
@@ -36,12 +37,8 @@ class Patchwork_PHP_Preprocessor extends Patchwork_AbstractStreamProcessor
         'DestructorCatcher'  => true,
         'ConstFuncDisabler'  => true,
         'ConstFuncResolver'  => true,
-        'NamespaceResolver'  => -50300,
         'ConstantInliner'    => true,
         'ClassInfo'          => true,
-        'NamespaceRemover'   => -50300,
-        'InvokeShim'         => -50300,
-        'ClosureShim'        => true,
         'ConstantExpression' => true,
         'FunctionShim'       => true,
         'StaticState'        => true,
@@ -50,19 +47,39 @@ class Patchwork_PHP_Preprocessor extends Patchwork_AbstractStreamProcessor
     protected static $code, $self;
 
 
-    static function register($filter = null, $class = null)
-    {
-        if (empty($filter)) $filter = new self;
-        return parent::register($filter, $class);
-    }
-
     function __construct()
     {
+        $this->loadClass('');
+        $this->loadClass('HaltCompilerRemover');
+
         foreach ($this->parsers as $class => &$enabled)
             $enabled = $enabled
                 && (0 > $enabled ? PHP_VERSION_ID < -$enabled : PHP_VERSION_ID >= $enabled)
-                && class_exists($this->parserPrefix . $class);
+                && $this->loadClass($class);
     }
+
+    protected function loadClass($class)
+    {
+        $class = $class ? $this->parserPrefix . $class : substr($this->parserPrefix, 0, -1);
+        if (class_exists($class, true)) return true;
+
+        $dir = __DIR__ . '/../../' ;
+        static::loadFile($dir . strtr($class, '\\', '/') . '.php');
+
+        if (!class_exists($class, false)) return false;
+
+        foreach ($class::$requiredClasses as $class)
+            if (!class_exists($class, true))
+                static::loadFile($dir . strtr($class, '\\', '/') . '.php');
+
+        return true;
+    }
+
+    protected static function loadFile()
+    {
+        require func_get_arg(0);
+    }
+
 
     function process($code)
     {
@@ -82,7 +99,7 @@ class Patchwork_PHP_Preprocessor extends Patchwork_AbstractStreamProcessor
 
     function doProcess($code)
     {
-        $class = new Patchwork_PHP_Parser_HaltCompilerRemover;
+        $class = new Parser\HaltCompilerRemover;
         $code = $class->removeHaltCompiler($code, $this->compilerHaltOffset);
 
         foreach ($this->parsers as $class => $enabled)
@@ -94,12 +111,6 @@ class Patchwork_PHP_Preprocessor extends Patchwork_AbstractStreamProcessor
         if (isset($parser))
         {
             $code = $parser->parse($code);
-
-            if (isset($this->closureShimParser))
-            {
-                $code = $this->closureShimParser->finalizeClosures($code);
-                $this->closureShimParser = null;
-            }
 
             foreach ($parser->getErrors() as $e)
                 $this->handleError($e);
@@ -119,11 +130,9 @@ class Patchwork_PHP_Preprocessor extends Patchwork_AbstractStreamProcessor
         case 'BinaryNumber':
         case 'StaticState':
         case 'Normalizer':  $parser = new $c($parser); break;
-        case 'PhpPreprocessor':  $p = new $c($parser, $this->filterPrefix); break;
+        case 'PhpPreprocessor':  $p = new $c($parser, '\Patchwork\PPP::processedFile'); break;
         case 'ConstantInliner':  $p = new $c($parser, $this->uri, $this->constants, $this->compilerHaltOffset); break;
         case 'ToStringCatcher':  $p = new $c($parser, $this->toStringCatcherCallback); break;
-        case 'NamespaceRemover': $p = new $c($parser, $this->namespaceRemoverCallback); break;
-        case 'ClosureShim':      $p = $this->closureShimParser = new $c($parser); break;
         default:                 $p = new $c($parser); break;
         }
 

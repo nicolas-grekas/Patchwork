@@ -8,10 +8,14 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The ConstantInliner parser replaces internal, magic and user specified constants by their value.
  */
-class Patchwork_PHP_Parser_ConstantInliner extends Patchwork_PHP_Parser
+class ConstantInliner extends Parser
 {
     protected
 
@@ -136,8 +140,8 @@ class Patchwork_PHP_Parser_ConstantInliner extends Patchwork_PHP_Parser
 
     protected function tagScopeName(&$token)
     {
+        if (T_DOUBLE_COLON === $this->prevType) return;
         $t = $this->getNextToken();
-
         T_STRING === $t[0] && $this->nextScope = $t[1];
     }
 

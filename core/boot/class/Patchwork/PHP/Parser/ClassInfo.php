@@ -8,6 +8,10 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The ClassInfo parser exposes class, interface and trait context to dependend parsers.
  *
@@ -21,7 +25,7 @@
  *
  * It also inherits removeNsPrefix(), scope, namespace, nsResolved and nsPrefix properties from ScopeInfo
  */
-class Patchwork_PHP_Parser_ClassInfo extends Patchwork_PHP_Parser
+class ClassInfo extends Parser
 {
     protected
 
@@ -39,6 +43,8 @@ class Patchwork_PHP_Parser_ClassInfo extends Patchwork_PHP_Parser
 
     protected function tagClass(&$token)
     {
+        if (T_DOUBLE_COLON === $this->prevType) return;
+
         $this->class = (object) array(
             'type'       => $token[0],
             'name'       => false,

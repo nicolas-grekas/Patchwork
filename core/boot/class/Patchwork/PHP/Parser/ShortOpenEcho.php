@@ -8,10 +8,14 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The ShortOpenEcho parser backports from PHP 5.4 the availability of <?= regardless of the short_open_tag setting.
  */
-class Patchwork_PHP_Parser_ShortOpenEcho extends Patchwork_PHP_Parser
+class ShortOpenEcho extends Parser
 {
     protected $tag;
 

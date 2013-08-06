@@ -8,10 +8,14 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The ControlStructBracketer parser adds curly brackets around controle structures' code blocks.
  */
-class Patchwork_PHP_Parser_ControlStructBracketer extends Patchwork_PHP_Parser
+class ControlStructBracketer extends Parser
 {
     protected
 

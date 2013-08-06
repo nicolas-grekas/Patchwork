@@ -8,10 +8,14 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The DocCommentInfo follows doc comments and exposes them to other parsers.
  */
-class Patchwork_PHP_Parser_DocCommentInfo extends Patchwork_PHP_Parser
+class DocCommentInfo extends Parser
 {
     protected
 

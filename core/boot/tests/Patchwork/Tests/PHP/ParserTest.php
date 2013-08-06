@@ -2,11 +2,13 @@
 
 namespace Patchwork\Tests\PHP;
 
+use Patchwork\PHP\Parser;
+
 class ParserTest extends \PHPUnit_Framework_TestCase
 {
     protected function getParser()
     {
-        return new \Patchwork_PHP_Parser;
+        return new Parser;
     }
 
     function testParseBinarySafeness()

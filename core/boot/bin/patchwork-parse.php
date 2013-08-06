@@ -1,6 +1,8 @@
 #!/usr/bin/env php
 <?php
 
+use Patchwork\PHP\Parser as p;
+
 ini_set('display_errors', false);
 ini_set('log_errors', true);
 ini_set('error_log', 'php://stderr');
@@ -17,18 +19,18 @@ class Preprocessor
 {
     static function getParser($file)
     {
-        $parser = new Patchwork_PHP_Parser_BracketWatcher();
-        new Patchwork_PHP_Parser_ControlStructBracketer($parser);
-        new Patchwork_PHP_Parser_CaseColonEnforcer($parser);
-        new Patchwork_PHP_Parser_CodePathSplitterWithXDebugHacks($parser);
-        new Patchwork_PHP_Parser_CodePathLoopEnlightener($parser);
-        new Patchwork_PHP_Parser_CodePathElseEnlightener($parser);
-        new Patchwork_PHP_Parser_CodePathSwitchEnlightener($parser);
-        new Patchwork_PHP_Parser_CodePathDefaultArgsEnlightener($parser);
-        new Patchwork_PHP_Parser_ShortArray($parser);
-        $parser = new Patchwork_PHP_Parser_ShortOpenEcho($parser);
-        $parser = new Patchwork_PHP_Parser_BinaryNumber($parser);
-        $parser = new Patchwork_PHP_Parser_Backport54Tokens($parser);
+        $parser = new p\BracketWatcher();
+        new p\ControlStructBracketer($parser);
+        new p\CaseColonEnforcer($parser);
+        new p\CodePathSplitterWithXDebugHacks($parser);
+        new p\CodePathLoopEnlightener($parser);
+        new p\CodePathElseEnlightener($parser);
+        new p\CodePathSwitchEnlightener($parser);
+        new p\CodePathDefaultArgsEnlightener($parser);
+        new p\ShortArray($parser);
+        $parser = new p\ShortOpenEcho($parser);
+        $parser = new p\BinaryNumber($parser);
+        $parser = new p\Backport54Tokens($parser);
 
         return $parser;
     }

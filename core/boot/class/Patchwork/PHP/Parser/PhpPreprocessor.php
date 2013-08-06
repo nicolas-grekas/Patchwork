@@ -8,11 +8,14 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
 
 /**
  * The PhpPreprocessor parser applies a stream filter to require instructions
  */
-class Patchwork_PHP_Parser_PhpPreprocessor extends Patchwork_PHP_Parser
+class PhpPreprocessor extends Parser
 {
     protected
 
@@ -28,9 +31,9 @@ class Patchwork_PHP_Parser_PhpPreprocessor extends Patchwork_PHP_Parser
     );
 
 
-    function __construct(parent $parent = null, $filter_prefix)
+    function __construct(parent $parent = null, $prepended_code)
     {
-        if ($filter_prefix) $this->prependedCode = self::export($filter_prefix) . '.';
+        if ($prepended_code) $this->prependedCode = $prepended_code;
         if ($this->prependedCode) $this->prependedCode .= '(';
         else unset($this->callbacks['~tagRequire']);
         parent::__construct($parent);

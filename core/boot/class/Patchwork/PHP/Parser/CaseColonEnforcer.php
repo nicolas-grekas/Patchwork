@@ -8,10 +8,14 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * The CaseColonEnforcer parser enforces colons instead of semicolons for case statements
  */
-class Patchwork_PHP_Parser_CaseColonEnforcer extends Patchwork_PHP_Parser
+class CaseColonEnforcer extends Parser
 {
     protected
 

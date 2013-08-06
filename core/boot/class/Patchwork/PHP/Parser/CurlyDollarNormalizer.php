@@ -8,13 +8,17 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Parser;
+
+use Patchwork\PHP\Parser;
+
 /**
  * CurlyDollarNormalizer transforms "${var}" style string interpolation to "{$var}".
  *
  * "${var}" style is a lot harder to parse because of the T_STRING_VARNAME special token.
  * When this parser is enabled, other parsers don't have to manage that special case.
  */
-class Patchwork_PHP_Parser_CurlyDollarNormalizer extends Patchwork_PHP_Parser
+class CurlyDollarNormalizer extends Parser
 {
     protected
 
