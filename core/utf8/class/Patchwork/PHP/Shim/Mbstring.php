@@ -78,6 +78,9 @@ class Mbstring
     {
         INF === $from_encoding && $from_encoding = self::$internal_encoding;
 
+        $from_encoding = strtolower($from_encoding);
+        $to_encoding = strtolower($to_encoding);
+
         if ('base64' === $from_encoding)
         {
             $s = base64_decode($s);
@@ -273,7 +276,7 @@ class Mbstring
 
     static function mb_stristr($haystack, $needle, $part = false, $encoding = INF)
     {
-        $pos = self::mb_stripos($haystack, $needle, $encoding);
+        $pos = self::mb_stripos($haystack, $needle, 0, $encoding);
         return self::getSubpart($pos, $part, $haystack, $encoding);
     }
 

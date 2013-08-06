@@ -48,7 +48,10 @@ class IntlTest extends \PHPUnit_Framework_TestCase
      */
     function testGrapheme_extract_todo()
     {
-        $this->assertSame( 'a', grapheme_extract('abc', 1, GRAPHEME_EXTR_MAXBYTES) );
+        if (extension_loaded('intl'))
+        {
+            $this->assertSame( 'a', grapheme_extract('abc', 1, GRAPHEME_EXTR_MAXBYTES) );
+        }
 
         try
         {
@@ -71,6 +74,8 @@ class IntlTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame( 3, p::grapheme_strlen('한국어') );
         $this->assertSame( 3, p::grapheme_strlen(n::normalize('한국어', n::NFD)) );
+
+        $this->assertNull( p::grapheme_strlen("\xE9") );
     }
 
     /**
@@ -160,7 +165,16 @@ class IntlTest extends \PHPUnit_Framework_TestCase
 
     function testGrapheme_bugs()
     {
-        $this->assertSame( 17, grapheme_stripos('der Straße nach Paris', 'Paris') ); // Expected fail: the non-bugged result is 16
-        $this->assertSame( 'aris', grapheme_stristr('der Straße nach Paris', 'Paris') );  // Expected fail: the non-bugged result is Paris
+        if (PHP_VERSION_ID < 50501 )
+        {
+            // Buggy behavior see https://bugs.php.net/61860
+            $this->assertSame( 17, grapheme_stripos('der Straße nach Paris', 'Paris') );
+            $this->assertSame( 'aris', grapheme_stristr('der Straße nach Paris', 'Paris') );
+        }
+        else
+        {
+            $this->assertSame( 16, grapheme_stripos('der Straße nach Paris', 'Paris') );
+            $this->assertSame( 'Paris', grapheme_stristr('der Straße nach Paris', 'Paris') );
+        }
     }
 }
