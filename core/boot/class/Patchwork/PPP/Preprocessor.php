@@ -23,13 +23,14 @@ class Preprocessor extends AbstractStreamProcessor
     $parsers = array(
         'PhpPreprocessor'    => true,
         'Normalizer'         => true,
-        'ShortOpenEcho'      => -50400, // Load this only before 5.4.0
+        'SelfLowerCaser'     => -50500, // Load this only before 5.5.0
+        'ShortOpenEcho'      => -50400,
         'BracketWatcher'     => true,
         'ShortArray'         => -50400,
         'BinaryNumber'       => -50400,
         'StringInfo'         => true,
         'WorkaroundBug55156' => -50308,
-        'Backport54Tokens'   => -50400,
+        'BackportTokens'     => -50500,
         'NamespaceBracketer' => +50300, // Load this only for 5.3.0 and up
         'NamespaceInfo'      => true,
         'ScopeInfo'          => true,
@@ -39,6 +40,7 @@ class Preprocessor extends AbstractStreamProcessor
         'ConstFuncResolver'  => true,
         'ConstantInliner'    => true,
         'ClassInfo'          => true,
+        'ClassScalarInliner' => -50500,
         'ConstantExpression' => true,
         'FunctionShim'       => true,
         'StaticState'        => true,
@@ -125,7 +127,8 @@ class Preprocessor extends AbstractStreamProcessor
 
         switch ($class)
         {
-        case 'Backport54Tokens':
+        case 'BackportTokens':
+        case 'SelfLowerCaser':
         case 'ShortOpenEcho':
         case 'BinaryNumber':
         case 'StaticState':

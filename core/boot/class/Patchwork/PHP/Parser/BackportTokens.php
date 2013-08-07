@@ -12,12 +12,47 @@ namespace Patchwork\PHP\Parser;
 
 use Patchwork\PHP\Parser;
 
+// PHP 5.3 tokens
+defined('T_DIR') || Parser::createToken('T_DIR');
+defined('T_GOTO') || Parser::createToken('T_GOTO');
+defined('T_NS_C') || Parser::createToken('T_NS_C');
+defined('T_NAMESPACE') || Parser::createToken('T_NAMESPACE');
+
+// PHP 5.4 tokens
+defined('T_TRAIT') || Parser::createToken('T_TRAIT');
+defined('T_TRAIT_C') || Parser::createToken('T_TRAIT_C');
+defined('T_CALLABLE') || Parser::createToken('T_CALLABLE');
+defined('T_INSTEADOF') || Parser::createToken('T_INSTEADOF');
+
+// PHP 5.5 tokens
+defined('T_YIELD') || Parser::createToken('T_YIELD');
+defined('T_FINALLY') || Parser::createToken('T_FINALLY');
+
 /**
- * The BackportTokens parser helps in backporting tokens introduced by later PHP versions.
+ * The BackportTokens parser backports tokens introduced since PHP 5.3
+ *
+ * @todo Backport nowdoc syntax, allow heredoc in static declarations.
+ * @todo Work around https://bugs.php.net/60097
  */
 class BackportTokens extends Parser
 {
-    protected $backports = array();
+    protected $backports = array(
+        // PHP 5.3 tokens
+        'goto' => T_GOTO,
+        '__dir__' => T_DIR,
+        'namespace' => T_NAMESPACE,
+        '__namespace__' => T_NS_C,
+
+        // PHP 5.4 tokens
+        'trait' => T_TRAIT,
+        'callable' => T_CALLABLE,
+        '__trait__' => T_TRAIT_C,
+        'insteadof' => T_INSTEADOF,
+
+        // PHP 5.5 tokens
+        'yield' => T_YIELD,
+        'finally' => T_FINALLY,
+    );
 
     function __construct(parent $parent)
     {

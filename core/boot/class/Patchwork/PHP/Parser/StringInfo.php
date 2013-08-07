@@ -76,6 +76,7 @@ class StringInfo extends Parser
 
         $this->nsPrefix = '';
         $this->prevType = $this->preNsType;
+        $this->penuType = prev($t);
     }
 
     protected function tagString(&$token)

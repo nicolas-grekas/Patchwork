@@ -30,7 +30,7 @@ class Preprocessor
         new p\ShortArray($parser);
         $parser = new p\ShortOpenEcho($parser);
         $parser = new p\BinaryNumber($parser);
-        $parser = new p\Backport54Tokens($parser);
+        $parser = new p\BackportTokens($parser);
 
         return $parser;
     }
