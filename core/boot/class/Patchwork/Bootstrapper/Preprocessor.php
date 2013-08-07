@@ -25,9 +25,8 @@ class Patchwork_Bootstrapper_Preprocessor
 
         $p = new Parser\Normalizer;
 
-        PHP_VERSION_ID < 50500 && $p = new Parser\Backport55Tokens($p);
-        PHP_VERSION_ID < 50400 && new Parser\Backport54Tokens($p);
-        PHP_VERSION_ID < 50300 && new Parser\Backport53Tokens($p);
+        PHP_VERSION_ID < 50500 && $p = new Parser\BackportTokens($p);
+        PHP_VERSION_ID < 50500 && $p = new Parser\SelfLowerCaser($p);
 
         new Parser\BracketWatcher($p);
         new Parser\StringInfo($p);
@@ -42,6 +41,7 @@ class Patchwork_Bootstrapper_Preprocessor
 
         new Parser\ConstantInliner($p, $file, $this->newShims[1]);
         new Parser\ClassInfo($p);
+        PHP_VERSION_ID < 50500 && new Parser\ClassScalarInliner($p);
         PHP_VERSION_ID < 50300 && new Parser\NamespaceRemover($p);
         new Parser\FunctionShim($p, $this->newShims[0]);
         $p = new Parser\ClosureShim($p);

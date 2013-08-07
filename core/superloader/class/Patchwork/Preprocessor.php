@@ -28,9 +28,7 @@ class Patchwork_Preprocessor
         'ClassAutoname'      => true,
         'StringInfo'         => true,
         'WorkaroundBug55156' => -50308,
-        'Backport55Tokens'   => -50500,
-        'Backport54Tokens'   => -50400,
-        'Backport53Tokens'   => -50300,
+        'BackportTokens'     => -50500,
         'NamespaceBracketer' => +50300, // Load this only for 5.3.0 and up
         'NamespaceInfo'      => true,
         'ScopeInfo'          => true,
@@ -41,6 +39,7 @@ class Patchwork_Preprocessor
         'NamespaceResolver'  => -50300,
         'ConstantInliner'    => true,
         'ClassInfo'          => true,
+        'ClassScalarInliner' => -50500,
         'NamespaceRemover'   => -50300,
         'InvokeShim'         => -50300,
         'ClosureShim'        => true,
@@ -139,7 +138,7 @@ class Patchwork_Preprocessor
             switch ($c)
             {
             case 'Normalizer':    $p = new $t; break;
-            case 'Backport55Tokens':
+            case 'BackportTokens':
             case 'SelfLowerCaser':
             case 'ShortOpenEcho':
             case 'BinaryNumber':  $p = new $t($p); break;
