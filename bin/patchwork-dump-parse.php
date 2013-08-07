@@ -33,8 +33,7 @@ class Preprocessor
         new p\CurlyDollarNormalizer($parser);
         new p\ShortArray($parser);
         $parser = new p\BinaryNumber($parser);
-        $parser = new p\Backport54Tokens($parser);
-        new p\Backport53Tokens($parser);
+        $parser = new p\BackportTokens($parser);
         new p\StringInfo($parser);
         new p\NamespaceInfo($parser);
         new p\ScopeInfo($parser);
