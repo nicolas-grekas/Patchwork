@@ -19,7 +19,7 @@ class ClassScalarInliner extends Parser
 {
     protected
 
-    $callbacks  = array('tagClass' => T_CLASS),
+    $callbacks = array('tagClass' => T_CLASS),
     $class, $nsResolved, $scope,
     $dependencies = array('ClassInfo' => array('class', 'nsResolved', 'scope'));
 
@@ -27,79 +27,56 @@ class ClassScalarInliner extends Parser
     protected function tagClass(&$token)
     {
         if (T_DOUBLE_COLON !== $this->prevType) return;
+        if (T_STRING !== $this->penuType && T_STATIC !== $this->penuType) return;
 
-        $t =& $this->types;
-        end($t);
+        $types =& $this->types;
+        end($types);  // T_DOUBLE_COLON
+        prev($types); // T_STRING or T_STATIC
 
-        switch (0)
+        switch ($t = strtolower($this->texts[key($types)]))
         {
-        case T_STATIC - $this->penuType:
-            if (!$this->class) $error = 'Cannot access static::class when no class scope is active';
-            else if (T_FUNCTION !== $this->scope->type) $error = 'static::class cannot be used for compile-time class name resolution';
-            else
+        case 'parent': case 'self': case 'static':
+            if (T_NS_SEPARATOR === prev($types)) $error = "Unexpected '{$t}'";
+            else if (!$this->class) $error = "Cannot access {$t}::class when no class scope is active";
+            else if ('self' === $t) $class = $this->class->nsName;
+            else if (T_FUNCTION !== $this->scope->type) $error = "{$t}::class cannot be used for compile-time class name resolution";
+            else if ('static' === $t) $class = $this->unshiftTokens(array(T_STRING, 'get_called_class'), '(', ')');
+            else if ($this->class->extends) $class = $this->class->extends;
+            else $error = 'Cannot access parent:: when current class scope has no parent';
+
+            if (isset($error))
             {
-                $i = key($t);
-                prev($t);
-                if (T_NS_SEPARATOR === prev($t)) return;
-                $this->texts[$i] = '';
-                unset($t[$i]);
-                end($t);
-                $i = key($t);
-                $this->texts[$i] = '';
-                unset($t[$i]);
-
-                $this->prevType = end($t);
-                $this->penuType = prev($t);
-
-                return $this->unshiftTokens(array(T_STRING, 'get_called_class'), '(', ')');
-            }
-            break;
-
-        case strcasecmp('\self', $this->nsResolved):
-            if (!$this->class) $error = 'Cannot access self::class when no class scope is active';
-            else $class = $this->class->nsName;
-            break;
-
-        case strcasecmp('\parent', $this->nsResolved):
-            if (!$this->class) $error = 'Cannot access parent::class when no class scope is active';
-            else if (T_FUNCTION !== $this->scope->type) $error = 'parent::class cannot be used for compile-time class name resolution';
-            else if (!$this->class->extends) $error = 'Cannot access parent:: when current class scope has no parent';
-            else $class = $this->class->extends;
-            break;
-
-        default:
-            if (!isset($this->nsResolved[0])) return;
-            if ('\\' !== $this->nsResolved[0])
-            {
-                $this->setError("Unresolved namespaced identifier ({$this->nsResolved})", E_USER_WARNING);
+                $this->setError($error, E_USER_ERROR);
                 return;
             }
-
-            $class = substr($this->nsResolved, 1);
         }
 
-        if (isset($error))
+        if (isset($class)) {}
+        else if (!isset($this->nsResolved[1])) return;
+        else if ('\\' !== $this->nsResolved[0])
         {
-            $this->setError($error, E_USER_ERROR);
+            $this->setError("Unresolved namespaced identifier ({$this->nsResolved})", E_USER_WARNING);
             return;
         }
+        else $class = substr($this->nsResolved, 1);
 
-        $this->unshiftTokens(array(T_CONSTANT_ENCAPSED_STRING, "'{$class}'"));
+        if (false !== $class) $this->unshiftTokens(array(T_CONSTANT_ENCAPSED_STRING, "'{$class}'"));
 
-        while (null !== $i = key($t)) switch ($t[$i])
+        $t = 0;
+        end($types);
+
+        while (null !== $i = key($types)) switch ($types[$i])
         {
-            default: break 2;
-            case T_DOUBLE_COLON:
-                if (isset($class)) unset($class); // No break;
-                else break 2;
+            default: if ($t >= 2) break 2;
             case T_STRING: case T_NS_SEPARATOR: case T_NAMESPACE:
                 $this->texts[$i] = '';
-                unset($t[$i]);
-                end($t);
+                unset($types[$i]);
+                end($types);
+                ++$t;
         }
 
-        $this->prevType = end($t);
-        $this->penuType = prev($t);
+        $this->prevType = end($types);
+        $this->penuType = prev($types);
 
         return false;
     }
