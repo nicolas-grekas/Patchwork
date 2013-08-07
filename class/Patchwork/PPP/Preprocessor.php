@@ -40,6 +40,7 @@ class Preprocessor extends AbstractStreamProcessor
         'ConstFuncResolver'  => true,
         'ConstantInliner'    => true,
         'ClassInfo'          => true,
+        'ClassScalarInliner' => -50500,
         'ConstantExpression' => true,
         'FunctionShim'       => true,
         'StaticState'        => true,
