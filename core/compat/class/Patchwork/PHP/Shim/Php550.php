@@ -30,7 +30,7 @@ namespace Patchwork\PHP\Shim;
 
 class Php550
 {
-    function set_exception_handler($exception_handler)
+    static function set_exception_handler($exception_handler)
     {
         if (null === $exception_handler)
         {
@@ -43,7 +43,7 @@ class Php550
         return set_exception_handler($exception_handler);
     }
 
-    function set_error_handler($error_handler, $error_types = -1)
+    static function set_error_handler($error_handler, $error_types = -1)
     {
         if (null === $error_handler)
         {
@@ -57,7 +57,7 @@ class Php550
         return set_error_handler($error_handler, $error_types);
     }
 
-    function array_column(array $input, $columnKey, $indexKey = null)
+    static function array_column(array $input, $columnKey, $indexKey = null)
     {
         $output = array();
 
