@@ -36,19 +36,17 @@ class ClassScalarInliner extends Parser
         switch ($t = strtolower($this->texts[key($types)]))
         {
         case 'parent': case 'self': case 'static':
-            if (T_NS_SEPARATOR === prev($types)) $error = "Unexpected '{$t}'";
-            else if (!$this->class) $error = "Cannot access {$t}::class when no class scope is active";
+            if (!$this->class || T_NS_SEPARATOR === prev($types)) return $this->unshiftTokens(array(T_STRING, $t));
             else if ('self' === $t) $class = $this->class->nsName;
-            else if (T_FUNCTION !== $this->scope->type) $error = "{$t}::class cannot be used for compile-time class name resolution";
-            else if ('static' === $t) $class = $this->unshiftTokens(array(T_STRING, 'get_called_class'), '(', ')');
-            else if ($this->class->extends) $class = $this->class->extends;
-            else $error = 'Cannot access parent:: when current class scope has no parent';
-
-            if (isset($error))
+            else if (T_FUNCTION !== $this->scope->type)
             {
-                $this->setError($error, E_USER_ERROR);
+                $this->setError("{$t}::class cannot be used for compile-time class name resolution", E_USER_ERROR);
                 return;
             }
+            else if ('static' === $t) $class = $this->unshiftCode('get_called_class()');
+            else if (T_TRAIT === $this->class->type) $class = $this->unshiftCode('(get_parent_class()?:parent::self)');
+            else if ($this->class->extends) $class = $this->class->extends;
+            else return $this->unshiftTokens(array(T_STRING, $t));
         }
 
         if (isset($class)) {}
