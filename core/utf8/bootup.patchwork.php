@@ -145,11 +145,6 @@ setlocale(LC_ALL, /*<*/setlocale(LC_CTYPE, 'C.UTF-8', 'C')/*>*/);
             iconv_set_encoding('output_encoding', 'UTF-8');
             ini_set('iconv.output_encoding', 'UTF-8');
 /**/    }
-
-/**/    if (PHP_VERSION_ID < 50400)
-/**/    {
-            p\Shim(iconv, s\Iconv::iconv_workaround52211, $from, $to, $s);
-/**/    }
 /**/}
 /**/else
 /**/{
