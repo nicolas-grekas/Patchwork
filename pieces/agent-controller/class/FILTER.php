@@ -14,7 +14,7 @@ class FILTER
     const
 
     // From the HTML5 specification
-    EMAIL_RX = '(?:([a-zA-Z0-9.!#$%&\'*+\\/=?^_`{|}~-]+)@([a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*))',
+    EMAIL_RX = '(?:([a-zA-Z0-9.!#$%&\'*+\\/=?^_`{|}~-]+)@([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*))',
 
     FILTERMSG_INT   = 'Please provide a valid integer',
     FILTERMSG_I     = self::FILTERMSG_INT,
