@@ -12,6 +12,14 @@ namespace Patchwork\PHP\Shim;
 
 class Php540
 {
+    static function json_decode($json, $assoc = false, $depth = 512, $options = 0)
+    {
+/**/    if (PHP_VERSION_ID < 50300)
+            return json_decode($json, $assoc);
+/**/    else
+            return json_decode($json, $assoc, $depth);
+    }
+
     static function number_format($number, $decimals = 0, $dec_point = '.', $thousands_sep = ',')
     {
         if (isset($thousands_sep[1]) || isset($dec_point[1]))

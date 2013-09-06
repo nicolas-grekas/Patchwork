@@ -101,6 +101,28 @@ use Patchwork\PHP\Shim as s;
         p\Shim(password_needs_rehash, s\Php550, $hash, $algo, array $options = array());
         p\Shim(password_verify,       s\Php550, $password, $hash);
 
+/**/    if (PHP_VERSION_ID < 50303)
+/**/    {
+            const JSON_NUMERIC_CHECK = 32;
+            const JSON_ERROR_UTF8 = 5;
+/**/    }
+
+/**/    if (PHP_VERSION_ID < 50400)
+/**/    {
+            const JSON_BIGINT_AS_STRING = 2;
+            const JSON_UNESCAPED_SLASHES = 64;
+            const JSON_PRETTY_PRINT = 128;
+            const JSON_UNESCAPED_UNICODE = 256;
+
+            p\Shim(json_decode, s\Php540);
+/**/    }
+
+        const JSON_ERROR_RECURSION = 6;
+        const JSON_ERROR_INF_OR_NAN = 7;
+        const JSON_ERROR_UNSUPPORTED_TYPE = 8;
+
+        p\Shim(json_encode,           s\Php550, $value, $options = 0, $depth = 512);
+        p\Shim(json_last_error_msg,   s\Php550);
         p\Shim(set_error_handler,     s\Php550, $error_handler, $error_types = -1);
         p\Shim(set_exception_handler, s\Php550, $exception_handler);
 /**/}
