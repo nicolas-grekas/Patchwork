@@ -91,7 +91,7 @@ class FILTER
         return (int) $result;
     }
 
-    # min, max
+    # precision = 6, min, max
     protected static function get_f   (&$value, &$args) {return self::get_float($value, $args);}
     protected static function get_float(&$value, &$args)
     {
@@ -103,10 +103,14 @@ class FILTER
         $result = trim(str_replace(' ', '', strtr($value, "'", ' ')));
         $result = strtr($result, ',', '.');
         if (!preg_match("'^$rx$'u", $result)) return false;
-        if (isset($args[0]) && $result < $args[0]) return false;
-        if (isset($args[1]) && $result > $args[1]) return false;
 
-        return (float) $result;
+        $args[0] = isset($args[0]) ? (int) $args[0] : 6;
+        $result = (float) sprintf("%.{$args[0]}E", (float) $result);
+
+        if (isset($args[1]) && $result < (float) $args[1]) return false;
+        if (isset($args[2]) && $result > (float) $args[2]) return false;
+
+        return $result;
     }
 
     # array

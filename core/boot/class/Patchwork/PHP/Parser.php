@@ -685,9 +685,9 @@ class Parser
 
         case is_float($a):
             if (is_nan($a)) return 'NAN';
-            $b = sprintf('%.14F', $a);
-            $a = sprintf('%.17F', $a);
-            return rtrim((float) $b === (float) $a ? $b : $a, '.0');
+            $b = sprintf('%.14E', $a);
+            $a = sprintf('%.17E', $a);
+            return preg_replace('/(\d)0*(?:E\+0|(E)\+?(.*))$/', '$1$2$3', (float) $b === (float) $a ? $b : $a);
 
         default: return 'null';
         }
