@@ -1,5 +1,3 @@
 #!/bin/sh
 
-BASEDIR=$(dirname "${0}")
-
-php -d auto_prepend_file="${BASEDIR}/ppp.php" $@
+php -d auto_prepend_file="$(dirname "${0}")/ppp.php" $@
