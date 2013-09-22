@@ -24,19 +24,19 @@ class CaseColonEnforcer extends Parser
         '~tagCase' => T_CASE,
     ),
 
-    $brackets,
-    $dependencies = array('BracketWatcher' => 'brackets');
+    $bracketsCount,
+    $dependencies = array('BracketWatcher' => 'bracketsCount');
 
 
     protected function tagCase(&$token)
     {
         $this->caseStack or $this->register(array('tagColon' => array(';', ':')));
-        $this->caseStack[] = count($this->brackets);
+        $this->caseStack[] = $this->bracketsCount;
     }
 
     protected function tagColon(&$token)
     {
-        if (count($this->brackets) === end($this->caseStack))
+        if ($this->bracketsCount === end($this->caseStack))
         {
             array_pop($this->caseStack);
             $this->caseStack or $this->unregister(array('tagColon' => array(';', ':')));

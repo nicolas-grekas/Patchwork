@@ -22,6 +22,7 @@ class BracketWatcher extends Parser
     protected
 
     $brackets = array(),
+    $bracketsCount = 0,
     $callbacks = array(
         '~pushBracket' => array('{', '[', '('),
         'closeBracket' => array('}', ']', ')'),
@@ -31,6 +32,7 @@ class BracketWatcher extends Parser
 
     protected function pushBracket(&$token)
     {
+        ++$this->bracketsCount;
         $b =& $this->brackets[];
 
         switch ($token[0])
@@ -53,7 +55,7 @@ class BracketWatcher extends Parser
         if (isset($last[1]) && $token[0] === $last[0])
         {
             // Bracket has registered on-close callbacks
-            $this->tokenRegistry[T_BRACKET_CLOSE] =& $this->brackets[count($this->brackets) - 1][1];
+            $this->tokenRegistry[T_BRACKET_CLOSE] =& $this->brackets[$this->bracketsCount - 1][1];
             return T_BRACKET_CLOSE;
         }
     }
@@ -62,6 +64,7 @@ class BracketWatcher extends Parser
     {
         unset($this->tokenRegistry[T_BRACKET_CLOSE]);
 
+        --$this->bracketsCount;
         $last = array_pop($this->brackets);
 
         if (empty($last) || $token[0] !== $last[0])
