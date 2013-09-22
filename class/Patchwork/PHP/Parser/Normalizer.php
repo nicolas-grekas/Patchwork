@@ -24,11 +24,13 @@ Parser::createToken('T_ENDPHP');
  */
 class Normalizer extends Parser
 {
-    protected
+    public
 
     $checkUtf8 = true,
-    $stripUtf8Bom = true,
-    $lfLineEndings = true,
+    $stripUtf8Bom = true;
+
+    protected
+
     $callbacks = array(
         'fixVar' => T_VAR,
         'tagOpenTag' => T_OPEN_TAG,
@@ -42,11 +44,6 @@ class Normalizer extends Parser
     {
         if ($is_fragment) return parent::getTokens($code, $is_fragment);
 
-        if ($this->lfLineEndings && false !== strpos($code, "\r"))
-        {
-            $code = str_replace("\r\n", "\n", $code);
-            $code = strtr($code, "\r", "\n");
-        }
 
         if ($this->checkUtf8 && !preg_match('//u', $code))
         {
@@ -68,18 +65,18 @@ class Normalizer extends Parser
 
         if (T_INLINE_HTML === $code[0][0])
         {
-            $a = $code[0][1];
-            $a = "\r" === $a[0]
-                ? (isset($a[1]) && "\n" === $a[1] ? '\r\n' : '\r')
-                : ("\n" === $a[0] ? '\n' : '');
+            $a = $code[0][1][0];
 
-            if ($a)
+            if ("\r" === $a || "\n" === $a)
             {
+                if ("\r" === $a) $a .= "\n";
+                $code[0][1] = (string) substr($code[0][1], strlen($a));
+
                 array_unshift($code,
                     array(T_OPEN_TAG, '<?php '),
                     array(T_ECHO, 'echo'),
-                    array(T_ENCAPSED_AND_WHITESPACE, "\"{$a}\""),
-                    array(T_CLOSE_TAG, '?>')
+                    array(T_ENCAPSED_AND_WHITESPACE, "\n" === $a ? '"\n"' : '"\r\n"'),
+                    array(T_CLOSE_TAG, '?>' . $a)
                 );
             }
             else
@@ -95,7 +92,7 @@ class Normalizer extends Parser
 
         $a = array_pop($code);
 
-        if (T_COMMENT === $a[0] && strcspn($a[1], "\r\n") === strlen($a[1])) $a[1] .= "\n";
+        if (T_COMMENT === $a[0] && strcspn($a[1], "\r\n") === strlen($a[1])) $a[1] .= $this->targetEol;
         $code[] = T_CLOSE_TAG === $a[0] ? ';' : $a;
         T_INLINE_HTML === $a[0] && $code[] = array(T_OPEN_TAG, '<?php ');
         $code[] = array(T_ENDPHP, '');
@@ -117,13 +114,13 @@ class Normalizer extends Parser
     protected function tagOpenTag(&$token)
     {
         $token[1] = substr_count($token[1], "\n");
-        $token[1] = '<?php' . ($token[1] ? str_repeat("\n", $token[1]) : ' ');
+        $token[1] = '<?php' . ($token[1] ? str_repeat($this->targetEol, $token[1]) : ' ');
     }
 
     protected function tagCloseTag(&$token)
     {
         $token[1] = substr_count($token[1], "\n");
-        $token[1] = '?'.'>' . str_repeat("\n", $token[1]);
+        $token[1] = '?'.'>' . str_repeat($this->targetEol, $token[1]);
     }
 
     protected function fixVar(&$token)
@@ -136,6 +133,7 @@ class Normalizer extends Parser
         $this->unregister(array(__FUNCTION__ => T_HALT_COMPILER));
         if (array(T_ENDPHP, '') !== $t = array_pop($this->tokens)) $this->tokens[] = $t;
         else if (array(T_OPEN_TAG, '<?php ') !== $t = array_pop($this->tokens)) $this->tokens[] = $t;
+
         return $this->unshiftTokens(array(T_ENDPHP, ''), ';', $token);
     }
 }

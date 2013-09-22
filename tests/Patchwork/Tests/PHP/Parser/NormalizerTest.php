@@ -6,9 +6,12 @@ use Patchwork\PHP\Parser;
 
 class NormalizerTest extends \PHPUnit_Framework_TestCase
 {
-    protected function getParser()
+    protected function getParser($dump = false)
     {
-        return new Parser\Normalizer;
+        $p = $dump ? new Parser\Dumper : new Parser;
+        $p = new Parser\Normalizer($p);
+
+        return $p;
     }
 
     function testLineEndings()
@@ -49,6 +52,53 @@ class NormalizerTest extends \PHPUnit_Framework_TestCase
 
         $in = "\xEF\xBB\xBF<?php ";
         $out = "<?php ";
+
+        $this->assertSame( $out, $parser->parse($in) );
+    }
+
+    function testOpenTag()
+    {
+        $parser = $this->getParser();
+
+        $in = "<html><?php ";
+        $out = "<?php ?><html><?php ";
+
+        $this->assertSame( $out, $parser->parse($in) );
+
+        $parser = $this->getParser();
+
+        $in = "\n<html><?php ";
+        $out = "<?php echo\"\\n\"?>\n<html><?php ";
+
+        $this->assertSame( $out, $parser->parse($in) );
+    }
+
+    function testOpenEcho()
+    {
+        $parser = $this->getParser();
+
+        $in = "<?=A;";
+        $out = "<?php echo A;";
+
+        $this->assertSame( $out, $parser->parse($in) );
+    }
+
+    function testFixVar()
+    {
+        $parser = $this->getParser();
+
+        $in  = '<?php class {var $a;}';
+        $out = '<?php class {public $a;}';
+
+        $this->assertSame( $out, $parser->parse($in) );
+    }
+
+    function testEndPhp()
+    {
+        $parser = $this->getParser();
+
+        $in  = '<?php __halt_compiler()?>';
+        $out = '<?php ;__halt_compiler();';
 
         $this->assertSame( $out, $parser->parse($in) );
     }

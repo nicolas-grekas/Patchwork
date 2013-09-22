@@ -87,7 +87,7 @@ class ConstantExpression extends Parser
                     $tokens[--$j] = array(
                         T_CONSTANT_ENCAPSED_STRING,
                         self::export($close)
-                            . str_repeat("\n", substr_count($const_code, "\n"))
+                            . str_repeat($this->targetEol, substr_count($const_code, "\n"))
                     );
 
                     if ($j > $this->index)

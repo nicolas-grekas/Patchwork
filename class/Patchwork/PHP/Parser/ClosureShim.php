@@ -152,7 +152,7 @@ class ClosureShim extends Parser
         foreach ($this->closures as $c)
         {
             $name = "Closure_{$c['id']}_{$c['lines']}";
-            $code .= "\nclass {$name} extends Closure{"
+            $code .= "{$this->targetEol}class {$name} extends Closure{"
               .   "function {$c['ref']}__invoke{$c['signature']}{"
               .     "\$GLOBALS['i\x9D']=\$this;"
               .     "if(" . count($c['args']) . "<func_num_args()){"
@@ -163,7 +163,7 @@ class ClosureShim extends Parser
               .   "}"
               . "}";
 
-            $code .= "\nfunction {$c['ref']}__{$name}_invoke{$c['signature']}{"
+            $code .= "{$this->targetEol}function {$c['ref']}__{$name}_invoke{$c['signature']}{"
               .   ($c['uses'] ? "extract(current(\$GLOBALS['i\x9D']),EXTR_REFS);" : '')
               .   "\$GLOBALS['i\x9D']=null;"
               .   "/*CLOSURE-HERE:{$c['id']}*/"
@@ -185,7 +185,7 @@ class ClosureShim extends Parser
                     $m[0],
                     "(new Closure_{$c['id']}_{$c['lines']}"
                       .($c['uses'] ? "(array(" . implode(',', $c['uses'] ) . "))" : ''). ")"
-                      . str_repeat("\n", substr_count($m[0], "\n")),
+                      . str_repeat($this->targetEol, substr_count($m[0], "\n")),
                     $code
                 );
                 $code = str_replace("/*CLOSURE-HERE:{$c['id']}*/", $m[1], $code);

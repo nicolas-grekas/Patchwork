@@ -79,7 +79,7 @@ class CodePathSplitter extends Parser
                 $this->linePrefix .= preg_replace('/[^\t ]/', ' ', utf8_decode($token[1]));
         }
 
-        isset($prefix) and $token[1] = "\n" . $prefix . $token[1];
+        isset($prefix) and $token[1] = $this->targetEol . $prefix . $token[1];
 
         $this->lineHasSemantic = true;
     }

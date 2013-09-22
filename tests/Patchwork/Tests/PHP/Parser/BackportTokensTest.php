@@ -6,16 +6,17 @@ use Patchwork\PHP\Parser;
 
 class BackportTokensTest extends \PHPUnit_Framework_TestCase
 {
-    protected function getParser()
+    protected function getParser($dump = false)
     {
-        $p = new Parser\Dumper;
+        $p = $dump ? new Parser\Dumper : new Parser;
         $p = new Parser\BackportTokens($p);
+
         return $p;
     }
 
     function testParse()
     {
-        $parser = $this->getParser();
+        $parser = $this->getParser(true);
 
         $in = <<<EOPHP
 <?php
