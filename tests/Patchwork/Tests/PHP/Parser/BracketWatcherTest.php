@@ -6,9 +6,12 @@ use Patchwork\PHP\Parser;
 
 class BracketWatcherTest extends \PHPUnit_Framework_TestCase
 {
-    protected function getParser()
+    protected function getParser($dump = false)
     {
-        return new Parser\BracketWatcher;
+        $p = $dump ? new Parser\Dumper : new Parser;
+        $p = new Parser\BracketWatcher($p);
+
+        return $p;
     }
 
     function testParse()
@@ -30,7 +33,7 @@ EOPHP;
         $this->assertSame(
             array(
                 array(
-                    'type' => 512,
+                    'type' => E_USER_WARNING,
                     'message' => 'Brackets are not correctly balanced',
                     'line' => 2,
                     'parser' => 'Patchwork\PHP\Parser\BracketWatcher',

@@ -4,7 +4,7 @@ namespace Patchwork\Tests\PHP;
 
 use Patchwork\PHP\Parser;
 
-class BinaryNumberTest extends \PHPUnit_Framework_TestCase
+class ShortArrayTest extends \PHPUnit_Framework_TestCase
 {
     protected function getParser($dump = false)
     {
@@ -12,26 +12,18 @@ class BinaryNumberTest extends \PHPUnit_Framework_TestCase
 
         $p->targetPhpVersionId = 50300;
 
-        $p = new Parser\BinaryNumber($p);
+        $p = new Parser\BracketWatcher($p);
+        $p = new Parser\ShortArray($p);
 
         return $p;
     }
 
-    function testParse()
+    function testShortOpenEcho()
     {
         $parser = $this->getParser();
 
-        $in = <<<EOPHP
-<?php
-0b01010101010;
-0B01010101010;
-EOPHP;
-
-        $out = <<<EOPHP
-<?php
-0x2AA;
-0x2AA;
-EOPHP;
+        $in = '<?php []; if (0) {} []; ${""}[];';
+        $out = '<?php array(); if (0) {} array(); ${""}[];';
 
         $this->assertSame( $out, $parser->parse($in) );
         $this->assertSame( array(), $parser->getErrors() );

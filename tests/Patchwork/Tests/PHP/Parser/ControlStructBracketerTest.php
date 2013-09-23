@@ -6,15 +6,19 @@ use Patchwork\PHP\Parser;
 
 class ControlStructBracketerTest extends \PHPUnit_Framework_TestCase
 {
-    protected function getParser()
+    protected function getParser($dump = false)
     {
-        $p = new Parser\BracketWatcher;
+        $p = $dump ? new Parser\Dumper : new Parser;
+        $p = new Parser\BracketWatcher($p);
         new Parser\ControlStructBracketer($p);
+
         return $p;
     }
 
     function testParse()
     {
+        $parser = $this->getParser();
+
         $in = <<<EOPHP
 <?php
 if (0) ;
@@ -37,6 +41,7 @@ if (4) {while (1) {if (2) {;} else {;}}}
 if (5) {switch (1) {}}
 EOPHP;
 
-        $this->assertSame( $out, $this->getParser()->parse($in) );
+        $this->assertSame( $out, $parser->parse($in) );
+        $this->assertSame( array(), $parser->getErrors() );
     }
 }

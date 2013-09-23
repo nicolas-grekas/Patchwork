@@ -32,10 +32,10 @@ class ShortArray extends Parser
         switch ($this->prevType)
         {
         case '}':
-            $token =& $this->types;
-            end($token);
-            while ('}' === current($token)) prev($token);
-            switch (current($token)) {case ';': case '{': break 2;}
+            $t =& $this->types;
+            end($t);
+            while ('}' === current($t)) prev($t);
+            switch (current($t)) {case ';': case '{': break 2;}
 
         case ')': case ']': case T_VARIABLE: case T_STRING:
             return;

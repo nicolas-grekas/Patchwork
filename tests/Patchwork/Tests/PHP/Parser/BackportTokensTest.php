@@ -56,6 +56,6 @@ Line                    Source code Parsed code                    Token type(s)
 EOTXT;
 
         $this->assertSame( $out, ob_get_clean() );
-
+        $this->assertSame( array(), $parser->getErrors() );
     }
 }

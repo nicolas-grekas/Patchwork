@@ -22,6 +22,7 @@ class NormalizerTest extends \PHPUnit_Framework_TestCase
         $out = "<?php\n\n\n";
 
         $this->assertSame( $out, $parser->parse($in) );
+        $this->assertSame( array(), $parser->getErrors() );
     }
 
     function testUtf8()
@@ -36,7 +37,7 @@ class NormalizerTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(
             array(
                 array(
-                    'type' => 512,
+                    'type' => E_USER_WARNING,
                     'message' => 'File encoding is not valid UTF-8',
                     'line' => 0,
                     'parser' => 'Patchwork\PHP\Parser\Normalizer',
@@ -54,6 +55,17 @@ class NormalizerTest extends \PHPUnit_Framework_TestCase
         $out = "<?php ";
 
         $this->assertSame( $out, $parser->parse($in) );
+        $this->assertSame(
+            array(
+                array(
+                    'type' => E_USER_NOTICE,
+                    'message' => 'Stripping UTF-8 Byte Order Mark',
+                    'line' => 0,
+                    'parser' => 'Patchwork\PHP\Parser\Normalizer',
+                ),
+            ),
+            $parser->getErrors()
+        );
     }
 
     function testOpenTag()
@@ -64,6 +76,7 @@ class NormalizerTest extends \PHPUnit_Framework_TestCase
         $out = "<?php ?><html><?php ";
 
         $this->assertSame( $out, $parser->parse($in) );
+        $this->assertSame( array(), $parser->getErrors() );
 
         $parser = $this->getParser();
 
@@ -71,6 +84,7 @@ class NormalizerTest extends \PHPUnit_Framework_TestCase
         $out = "<?php echo\"\\n\"?>\n<html><?php ";
 
         $this->assertSame( $out, $parser->parse($in) );
+        $this->assertSame( array(), $parser->getErrors() );
     }
 
     function testOpenEcho()
@@ -81,6 +95,7 @@ class NormalizerTest extends \PHPUnit_Framework_TestCase
         $out = "<?php echo A;";
 
         $this->assertSame( $out, $parser->parse($in) );
+        $this->assertSame( array(), $parser->getErrors() );
     }
 
     function testFixVar()
@@ -91,6 +106,7 @@ class NormalizerTest extends \PHPUnit_Framework_TestCase
         $out = '<?php class {public $a;}';
 
         $this->assertSame( $out, $parser->parse($in) );
+        $this->assertSame( array(), $parser->getErrors() );
     }
 
     function testEndPhp()
@@ -101,5 +117,6 @@ class NormalizerTest extends \PHPUnit_Framework_TestCase
         $out = '<?php ;__halt_compiler();';
 
         $this->assertSame( $out, $parser->parse($in) );
+        $this->assertSame( array(), $parser->getErrors() );
     }
 }
