@@ -28,8 +28,9 @@ class NamespaceInfo extends Parser
 
     $namespace  = '',
     $nsResolved = '',
-    $nsAliases  = array(),
+    $nsAliases  = array(T_USE_CLASS => array(), T_USE_FUNCTION => array(), T_USE_CONSTANT => array()),
     $nsUse      = array(),
+    $nsUseType  = 0,
     $callbacks  = array(
         'tagNs'        => T_NAMESPACE,
         'tagUse'       => T_USE,
@@ -63,7 +64,7 @@ class NamespaceInfo extends Parser
         if (isset($token[2][T_NAME_NS]))
         {
             $this->namespace = '';
-            $this->nsAliases = array();
+            $this->nsAliases = array(T_USE_CLASS => array(), T_USE_FUNCTION => array(), T_USE_CONSTANT => array());
             $this->register(self::$nsCallbacks);
         }
     }
@@ -83,7 +84,22 @@ class NamespaceInfo extends Parser
     {
         if (')' !== $this->prevType)
         {
-            $this->register(self::$useCallbacks);
+            $this->register('tagUseType');
+        }
+    }
+
+    protected function tagUseType(&$token)
+    {
+        $this->unregister('tagUseType');
+        $this->register(self::$useCallbacks);
+
+        switch ($token[0])
+        {
+        case T_CONST:    $this->nsUseType = T_USE_CONSTANT; break;
+        case T_FUNCTION: $this->nsUseType = T_USE_FUNCTION; break;
+        default:
+            $this->nsUseType = T_USE_CLASS;
+            return $this->tagUseAs($token);
         }
     }
 
@@ -91,7 +107,7 @@ class NamespaceInfo extends Parser
     {
         if (T_AS === $this->prevType)
         {
-            $this->nsAliases[$token[1]] = '\\' . implode('\\', $this->nsUse);
+            $this->nsAliases[$this->nsUseType][$token[1]] = '\\' . implode('\\', $this->nsUse);
             $this->nsUse = array();
         }
         else
@@ -104,7 +120,7 @@ class NamespaceInfo extends Parser
     {
         if ($this->nsUse)
         {
-            $this->nsAliases[end($this->nsUse)] = '\\' . implode('\\', $this->nsUse);
+            $this->nsAliases[$this->nsUseType][end($this->nsUse)] = '\\' . implode('\\', $this->nsUse);
             $this->nsUse = array();
         }
     }
@@ -120,15 +136,20 @@ class NamespaceInfo extends Parser
 
         if ('' === $this->nsPrefix)
         {
-            if (isset($token[2][T_USE_CLASS]) || isset($token[2][T_TYPE_HINT]))
+            switch (true)
             {
-                $this->nsResolved = empty($this->nsAliases[$token[1]])
-                    ? '\\' . $this->namespace . $token[1]
-                    : $this->nsAliases[$token[1]];
+            case isset($token[2][$nsUseType = T_USE_FUNCTION]): break;
+            case isset($token[2][$nsUseType = T_USE_CONSTANT]): break;
+            default: $nsUseType = T_USE_CLASS; break;
             }
-            else if (!$this->namespace)
+
+            if (isset($this->nsAliases[$nsUseType][$token[1]]))
             {
-                $this->nsResolved = '\\' . $this->nsResolved;
+                $this->nsResolved = $this->nsAliases[$nsUseType][$token[1]];
+            }
+            else if (T_USE_CLASS === $nsUseType || ! $this->namespace)
+            {
+                $this->nsResolved = '\\' . $this->namespace . $token[1];
             }
         }
         else if ('\\' !== $this->nsPrefix[0])
@@ -139,9 +160,9 @@ class NamespaceInfo extends Parser
             {
                 $a[0] = $this->namespace ? substr('\\' . $this->namespace, 0, -1) : '';
             }
-            else if (isset($this->nsAliases[$a[0]]))
+            else if (isset($this->nsAliases[T_USE_CLASS][$a[0]]))
             {
-                $a[0] = $this->nsAliases[$a[0]];
+                $a[0] = $this->nsAliases[T_USE_CLASS][$a[0]];
             }
             else
             {

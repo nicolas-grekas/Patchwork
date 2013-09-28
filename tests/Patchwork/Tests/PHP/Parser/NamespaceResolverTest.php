@@ -59,6 +59,22 @@ class NamespaceResolverTest extends \PHPUnit_Framework_TestCase
                 'in'  => 'namespace\a; b; c\d',
                 'out' => '\a; \b; \c\d',
             ],
+            [
+                'in'  => 'namespace a; use function b\c as d, b\e; d(); e();',
+                'out' => 'namespace a; \b\c(); \b\e();',
+            ],
+            [
+                'in'  => 'namespace a; use const b\c as d, b\e; d; e;',
+                'out' => 'namespace a; \b\c; \b\e;',
+            ],
+            [
+                'in'  => 'use function a\b as c; c();',
+                'out' => '\a\b();',
+            ],
+            [
+                'in'  => 'use const a\b as c; c;',
+                'out' => '\a\b;',
+            ],
         ];
     }
 }
