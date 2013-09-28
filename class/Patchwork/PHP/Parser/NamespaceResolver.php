@@ -58,13 +58,12 @@ class NamespaceResolver extends Parser
         {
             $this->setError("Unresolved namespaced identifier ({$this->nsResolved})", E_USER_WARNING);
         }
-        else if (isset($this->nsPrefix[0]) ? '\\' !== $this->nsPrefix[0] : ($this->namespace || $token[1] !== substr($this->nsResolved, 1)))
+        else if (! isset($this->nsPrefix[0]) || '\\' !== $this->nsPrefix[0])
         {
             if (isset($this->nsPrefix[0])) $this->dependencies['NamespaceInfo']->removeNsPrefix();
             else if (!(strcasecmp('self', $token[1]) && strcasecmp('parent', $token[1])) && (isset($token[2][T_USE_CLASS]) || isset($token[2][T_TYPE_HINT]))) return;
 
-            $this->unshiftTokens(array(T_STRING, substr($this->nsResolved, 1)));
-            return $this->namespace && $this->unshiftTokens(array(T_NS_SEPARATOR, '\\'));
+            return $this->unshiftTokens(array(T_NS_SEPARATOR, '\\'), array(T_STRING, substr($this->nsResolved, 1)));
         }
     }
 }

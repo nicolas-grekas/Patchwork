@@ -152,6 +152,8 @@ EOPHP;
 
     function testStringInfoTrait()
     {
+        $this->markTestIncomplete();
+
         $parser = $this->getParser(true);
 
         $in  = <<<'EOPHP'
