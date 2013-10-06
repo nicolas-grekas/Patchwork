@@ -49,15 +49,17 @@ class ClassInfo extends Parser
             'type'       => $token[0],
             'name'       => false,
             'nsName'     => false,
-            'extends'    => false,
+            'extends'    => T_INTERFACE === $token[0] ? array() : false,
+            'implements' => array(),
             'isFinal'    => T_FINAL    === $this->prevType,
             'isAbstract' => T_ABSTRACT === $this->prevType,
         );
 
         $this->register($this->callbacks = array(
-            'tagClassName' => T_NAME_CLASS,
-            'tagExtends'   => T_EXTENDS,
-            'tagClassOpen' => T_SCOPE_OPEN,
+            'tagClassName'  => T_NAME_CLASS,
+            'tagExtends '   => T_EXTENDS,
+            'tagImplements' => T_IMPLEMENTS,
+            'tagClassOpen'  => T_SCOPE_OPEN,
         ));
     }
 
@@ -75,8 +77,19 @@ class ClassInfo extends Parser
 
     protected function tagExtendsName(&$token)
     {
-        $this->unregister(array(__FUNCTION__ => T_USE_CLASS));
-        $this->class->extends = substr($this->nsResolved, 1);
+        if (is_array($this->class->extends)) $this->class->extends[] = substr($this->nsResolved, 1);
+        else $this->class->extends = substr($this->nsResolved, 1);
+    }
+
+    protected function tagImplements(&$token)
+    {
+        $this->unregister(array('tagExtendsName' => T_USE_CLASS));
+        $this->register(array('tagImplementsName' => T_USE_CLASS));
+    }
+
+    protected function tagImplementsName(&$token)
+    {
+        $this->class->implements[] = substr($this->nsResolved, 1);
     }
 
     protected function tagClassOpen(&$token)
