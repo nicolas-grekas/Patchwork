@@ -133,13 +133,14 @@ class Logger
 
         foreach ($trace as &$t)
         {
-            $t = array(
-                'call' => (isset($t['class']) ? $t['class'] . $t['type'] : '')
-                    . $t['function'] . '()'
-                    . (isset($t['line']) ? " {$t['file']}:{$t['line']}" : '')
-            ) + $t;
+            $offset = (isset($t['class']) ? $t['class'] . $t['type'] : '')
+                . $t['function'] . '()'
+                . (isset($t['line']) ? " {$t['file']}:{$t['line']}" : '');
 
             unset($t['class'], $t['type'], $t['function'], $t['file'], $t['line']);
+
+            $t = array('call' => $offset) + $t;
+
             if (isset($t['args']) && !$args) unset($t['args']);
         }
 
