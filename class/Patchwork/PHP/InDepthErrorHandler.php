@@ -131,6 +131,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
     static function resetLastError()
     {
         set_error_handler(array(__CLASS__, 'falseError'));
+        // Do not use the @-operator as it may be disabled
         $r = error_reporting(0);
         user_error('', E_USER_NOTICE);
         error_reporting($r);
@@ -139,6 +140,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
 
     static function falseError()
     {
+        // Return false so that the normal error handler continues.
         return false;
     }
 
