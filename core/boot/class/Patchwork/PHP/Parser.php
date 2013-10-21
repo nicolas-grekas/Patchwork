@@ -37,10 +37,15 @@ Parser::createToken(
  */
 class Parser
 {
-    const T_OFFSET = 10000;
+    const
+
+    T_OFFSET = 10000,
+    EOL_CRLF = "\r\n",
+    EOL_UNIX = "\n";
 
     public
 
+    $targetEol = self::EOL_UNIX,
     $targetPhpVersionId = 0;
 
     protected
@@ -113,6 +118,7 @@ class Parser
                 'parents',
                 'errors',
                 'nextRegistryIndex',
+                'targetEol',
                 'targetPhpVersionId',
             );
 
@@ -184,6 +190,30 @@ class Parser
         {
             $enc = mb_internal_encoding();
             mb_internal_encoding('8bit');
+        }
+
+        if (self::EOL_CRLF === $this->targetEol)
+        {
+            $tr = array();
+            if (false !== strpos($code, "\r")) $tr["\r"] = "\r\n";
+            if (false !== strpos($code, "\n")) $tr["\n"] = "\r\n";
+
+            if ($tr)
+            {
+                if (2 === count($tr)) $tr = array("\r\n" => "\r\n") + $tr;
+                $code = strtr($code, $tr);
+            }
+        }
+        else
+        {
+            if (self::EOL_UNIX !== $this->targetEol) user_error("Target EOL set to EOL_UNIX", USER_WARNING);
+            $this->targetEol = self::EOL_UNIX;
+
+            if (false !== strpos($code, "\r"))
+            {
+                $code = str_replace("\r\n", "\n", $code);
+                $code = strtr($code, "\r", "\n");
+            }
         }
 
         $this->headParser = $this;

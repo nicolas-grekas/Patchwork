@@ -145,17 +145,21 @@ class StringInfo extends Parser
             if ('{' === $p || ';' === $p) return T_GOTO_LABEL;
             // No break;
 
+        case '&':
+            if (1 === $this->inParam) switch ($this->preNsType)
+            {
+            case '(':
+            case ',': return T_TYPE_HINT;
+            }
+            // No break;
+
         default:
             switch ($p)
             {
             case T_OBJECT_OPERATOR: return T_USE_PROPERTY;
             case T_DOUBLE_COLON:    return T_USE_CONST;
-
-            case '(':
-            case ',':
-                if (1 === $this->inParam && '&' === $n) return T_TYPE_HINT;
-                // No break;
             }
+
         }
 
         return T_USE_CONSTANT;

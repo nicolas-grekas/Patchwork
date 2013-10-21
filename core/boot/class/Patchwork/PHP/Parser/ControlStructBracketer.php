@@ -28,8 +28,8 @@ class ControlStructBracketer extends Parser
         '~tagSemicolon' => ';',
     ),
 
-    $brackets,
-    $dependencies = array('BracketWatcher' => 'brackets');
+    $bracketsCount,
+    $dependencies = array('BracketWatcher' => 'bracketsCount');
 
 
     protected function tagControl(&$token)
@@ -77,7 +77,7 @@ class ControlStructBracketer extends Parser
             return;
         }
 
-        $this->blockStack[] = count($this->brackets) + 1;
+        $this->blockStack[] = $this->bracketsCount + 1;
         return $this->unshiftTokens('{', $token);
     }
 
@@ -89,7 +89,7 @@ class ControlStructBracketer extends Parser
 
     protected function tagSemicolon(&$token)
     {
-        if (count($this->brackets) === end($this->blockStack))
+        if ($this->bracketsCount === end($this->blockStack))
         {
             $this->register('tagBlockClose');
             $this->unshiftTokens('}');
@@ -115,7 +115,7 @@ class ControlStructBracketer extends Parser
             case T_DO: break 2;
             }
 
-            switch (count($this->brackets) - ++$offset)
+            switch ($this->bracketsCount - ++$offset)
             {
             case 0:
             default: break 2;

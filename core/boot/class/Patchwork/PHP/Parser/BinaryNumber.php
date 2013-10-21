@@ -19,7 +19,7 @@ class BinaryNumber extends Parser
 {
     protected function getTokens($code, $is_fragment)
     {
-        if ($this->targetPhpVersionId < 50400 && stripos($code, '0b') && preg_match("'0b[B][01]'", $code))
+        if ($this->targetPhpVersionId < 50400 && stripos($code, '0b') && preg_match("'0[bB][01]'", $code))
         {
             $this->unregister(array('catch0b' => T_LNUMBER));
             $this->register(array('catch0b' => T_LNUMBER));

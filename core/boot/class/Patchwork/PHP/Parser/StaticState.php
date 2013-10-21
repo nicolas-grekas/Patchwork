@@ -99,7 +99,7 @@ class StaticState extends Parser
             }
             while (++$j < $i);
 
-            $O .= (2 === $state ? self::export($o) . str_repeat("\n", substr_count($o, "\n")) : $o)
+            $O .= (2 === $state ? self::export($o) . str_repeat($this->targetEol, substr_count($o, "\n")) : $o)
                 . (1 !== $state ? ')))' . (3 !== $state ? ';' : '') : '');
 
             if (1 !== $transition[0])
@@ -116,7 +116,7 @@ class StaticState extends Parser
         $o = implode('', $code);
 
         return $O
-            . (2 === $state ? self::export($o) . str_repeat("\n", substr_count($o, "\n")) : $o)
+            . (2 === $state ? self::export($o) . str_repeat($this->targetEol, substr_count($o, "\n")) : $o)
             . (1 !== $state ? ')))' . (3 !== $state ? ';' : '') : '')
             . "unset({$var});";
     }
@@ -131,7 +131,7 @@ class StaticState extends Parser
 
         foreach ($code as $k => &$v)
         {
-            $v[1] = str_repeat("\n", $v[0] - $line) . $v[1];
+            $v[1] = str_repeat($this->targetEol, $v[0] - $line) . $v[1];
             $line += substr_count($v[1], "\n");
             $v = $v[1];
         }

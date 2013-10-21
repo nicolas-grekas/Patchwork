@@ -80,7 +80,7 @@ class BackportTokens extends Parser
 
         if ($b)
             while (isset($code[++$i]))
-                if (T_STRING === $code[$i][0] && isset($b[$k = strtolower($code[$i][1])]))
+                if (T_STRING === $code[$i][0] && isset($b[$k = strtolower($code[$i][1])]) && T_OBJECT_OPERATOR !== $code[$i-1][0])
                     $code[$i][0] = $b[$k];
 
         return $code;

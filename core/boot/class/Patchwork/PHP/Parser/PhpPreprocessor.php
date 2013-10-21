@@ -41,7 +41,7 @@ class PhpPreprocessor extends Parser
 
     protected function tagRequire(&$token)
     {
-        $this->unshiftCode($this->prependedCode);
+        $this->unshiftCode(' ' . $this->prependedCode);
         if (isset($this->exprLevel)) $this->exprStack[] = $this->exprLevel;
         else $this->register($this->exprCallbacks);
         $this->exprLevel = -1;

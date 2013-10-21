@@ -31,9 +31,9 @@ class NamespaceRemover extends Parser
         'tagConst'  => T_CONST,
     ),
 
-    $brackets, $class, $scope, $namespace,
+    $bracketsCount, $class, $scope, $namespace,
     $dependencies = array(
-        'BracketWatcher' => 'brackets',
+        'BracketWatcher' => 'bracketsCount',
         'ConstFuncResolver',
         'ClassInfo' => array('class', 'scope', 'namespace'),
         'NamespaceResolver',
@@ -97,7 +97,8 @@ class NamespaceRemover extends Parser
                 $this->class->name = $this->class->nsName;
             }
 
-            $this->texts[count($this->texts) - 1] .= strtr($this->namespace, '\\', '_');
+            end($this->texts);
+            $this->texts[key($this->texts)] .= strtr($this->namespace, '\\', '_');
         }
     }
 
@@ -129,7 +130,10 @@ class NamespaceRemover extends Parser
         case T_NAMESPACE:
             $token[1] = 'define(';
 
-            $this->constBracketLevel = count($this->brackets);
+            $this->getNextToken($i); // The only valid token here is a T_NON_SEMANTIC
+            $this->tokens[$i-2][1] .= "'" . strtr($this->namespace, '\\', '_');
+
+            $this->constBracketLevel = $this->bracketsCount;
             $this->register($this->callbacks = array(
                 'tagConstEqual' => '=',
                 'tagConstEnd' => array(';', ','),
@@ -146,7 +150,7 @@ class NamespaceRemover extends Parser
 
     protected function tagConstEnd(&$token)
     {
-        if (count($this->brackets) === $this->constBracketLevel)
+        if ($this->bracketsCount === $this->constBracketLevel)
         {
             if (';' === $token[0])
             {
