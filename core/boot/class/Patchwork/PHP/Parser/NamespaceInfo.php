@@ -99,7 +99,9 @@ class NamespaceInfo extends Parser
         case T_FUNCTION: $this->nsUseType = T_USE_FUNCTION; break;
         default:
             $this->nsUseType = T_USE_CLASS;
-            return $this->tagUseAs($token);
+
+            if (T_NS_SEPARATOR !== $token[0])
+                return $this->tagUseAs($token);
         }
     }
 
