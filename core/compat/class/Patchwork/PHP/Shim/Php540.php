@@ -16,8 +16,10 @@ class Php540
     {
 /**/    if (PHP_VERSION_ID < 50300)
             return json_decode($json, $assoc);
-/**/    else
+/**/    else if (PHP_VERSION_ID < 50400)
             return json_decode($json, $assoc, $depth);
+/**/    else
+            return json_decode($json, $assoc, $depth, $options);
     }
 
     static function number_format($number, $decimals = 0, $dec_point = '.', $thousands_sep = ',')

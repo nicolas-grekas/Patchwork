@@ -70,29 +70,37 @@ if (false !== strpos($a, '/.'))
 $a = array(&$_GET, &$_POST, &$_COOKIE);
 foreach ($_FILES as &$v) $a[] = array(&$v['name'], &$v['type']);
 
+set_error_handler('var_dump', 0);
+$e = error_reporting(0);
 $k = count($a);
 for ($i = 0; $i < $k; ++$i)
 {
-    foreach ($a[$i] as &$v)
+    $v =& $a[$i];
+    unset($a[$i]);
+
+    foreach ($v as &$v)
     {
-        if (is_array($v)) $a[$k++] =& $v;
+        if (array() === array_splice($v, 0, 0)) $a[$k++] =& $v;
         else if (isset($v[0]))
         {
+            $s = $v;
+
 /**/        if (function_exists('get_magic_quotes_gpc') && @get_magic_quotes_gpc())
 /**/        {
 /**/            if (ini_get_bool('magic_quotes_sybase'))
-                    $v = str_replace("''", "'", $v);
+                    $s = str_replace("''", "'", $s);
 /**/            else
-                    $v = stripslashes($v);
+                    $s = stripslashes($s);
 /**/        }
 
-            if (!preg_match('//u', $v)) $v = utf8_encode($v);
-            else if ($v[0] >= "\x80" && preg_match('/^\p{Mn}/u', $v)) $v = '◌' . $v; // Prevent leading combining chars
+            if (! preg_match('//u', $s)) $s = utf8_encode($s);
+            else if ($s[0] >= "\x80" && preg_match('/^\p{Mn}/u', $s)) $s = '◌' . $s; // Prevent leading combining chars
+
+            $v = $s;
         }
     }
-
-    reset($a[$i]);
-    unset($a[$i]);
 }
+error_reporting($e);
+restore_error_handler();
 
 unset($a, $v);
