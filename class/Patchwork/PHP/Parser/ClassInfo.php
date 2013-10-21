@@ -57,7 +57,7 @@ class ClassInfo extends Parser
 
         $this->register($this->callbacks = array(
             'tagClassName'  => T_NAME_CLASS,
-            'tagExtends '   => T_EXTENDS,
+            'tagExtends'    => T_EXTENDS,
             'tagImplements' => T_IMPLEMENTS,
             'tagClassOpen'  => T_SCOPE_OPEN,
         ));
