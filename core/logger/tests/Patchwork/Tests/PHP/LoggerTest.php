@@ -34,7 +34,7 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
         $this->assertStringMatchesFormat(
 '*** php-error ***
 {"_":"1:array:3",
-  "time": "1970-01-01T01:00:02+01:00 000000us - 1000.000ms - 1000.000ms",
+  "time": "1970-01-01T00:00:02+00:00 000000us - 1000.000ms - 1000.000ms",
   "mem": "%d - %d",
   "data": {"_":"4:array:4",
     "mesg": "Fake user error",

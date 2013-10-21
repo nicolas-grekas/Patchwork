@@ -100,7 +100,7 @@ class Logger
 
         unset($e['message'], $e['file'], $e['line']);
         if (0 > $trace_offset) unset($e['trace']);
-        else if (!empty($e['trace'])) $e['trace'] = $this->filterTrace($e['trace'], $trace_offset, $trace_args);
+        else if (!empty($e['trace'])) $this->filterTrace($e['trace'], $trace_offset, $trace_args);
 
         $this->log('php-error', $e, $log_time);
     }
@@ -109,7 +109,7 @@ class Logger
     {
         $a = (array) $e;
 
-        $a["\0Exception\0trace"] = $this->filterTrace($a["\0Exception\0trace"], $e instanceof InDepthRecoverableErrorException ? $e->traceOffset : 0, 1);
+        $this->filterTrace($a["\0Exception\0trace"], $e instanceof InDepthRecoverableErrorException ? $e->traceOffset : 0, 1);
         if (null === $a["\0Exception\0trace"]) unset($a["\0Exception\0trace"]);
         if ($e instanceof InDepthRecoverableErrorException) unset($a['traceOffset']);
         if ($e instanceof InDepthRecoverableErrorException && !isset($a['scope'])) unset($a['scope']);
@@ -120,10 +120,11 @@ class Logger
         return $a;
     }
 
-    function filterTrace($trace, $offset, $args)
+    function filterTrace(&$trace, $offset, $args)
     {
-        if (0 > $offset || empty($trace[$offset])) return null;
-        else $t = $trace[$offset];
+        if (0 > $offset || empty($trace[$offset])) return $trace = null;
+
+        $t = $trace[$offset];
 
         if (empty($t['class']) && isset($t['function']))
             if ('user_error' === $t['function'] || 'trigger_error' === $t['function'])
@@ -133,17 +134,16 @@ class Logger
 
         foreach ($trace as &$t)
         {
-            $t = array(
-                'call' => (isset($t['class']) ? $t['class'] . $t['type'] : '')
-                    . $t['function'] . '()'
-                    . (isset($t['line']) ? " {$t['file']}:{$t['line']}" : '')
-            ) + $t;
+            $offset = (isset($t['class']) ? $t['class'] . $t['type'] : '')
+                . $t['function'] . '()'
+                . (isset($t['line']) ? " {$t['file']}:{$t['line']}" : '');
 
             unset($t['class'], $t['type'], $t['function'], $t['file'], $t['line']);
+
+            $t = array('call' => $offset) + $t;
+
             if (isset($t['args']) && !$args) unset($t['args']);
         }
-
-        return $trace;
     }
 
     function writeEvent($type, $data)

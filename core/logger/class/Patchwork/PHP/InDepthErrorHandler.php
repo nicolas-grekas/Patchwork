@@ -122,7 +122,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
     static function getLastError()
     {
         $e = error_get_last();
-        return empty($e['message']) ? false : $e;
+        return null !== $e && '' === $e['message'] && E_USER_NOTICE === $e['type'] ? null : $e;
     }
 
     /**
@@ -130,16 +130,11 @@ class InDepthErrorHandler extends ThrowingErrorHandler
      */
     static function resetLastError()
     {
-        set_error_handler(array(__CLASS__, 'falseError'));
-        $r = error_reporting(0);
+        set_error_handler('var_dump', 0); // Use $error_types = 0 so that the internal error handler is called.
+        $e = error_reporting(0);          // Do not use the @-operator as it may be disabled.
         user_error('', E_USER_NOTICE);
-        error_reporting($r);
+        error_reporting($e);
         restore_error_handler();
-    }
-
-    static function falseError()
-    {
-        return false;
     }
 
     /**

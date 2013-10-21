@@ -6,6 +6,26 @@ use Patchwork\PHP\InDepthErrorHandler;
 
 class InDepthErrorHandlerTest extends \PHPUnit_Framework_TestCase
 {
+    function testReset()
+    {
+        set_error_handler('var_dump', 0);
+        $e = error_reporting(0);
+        $line = __LINE__ + $notice;
+        error_reporting($e);
+        restore_error_handler();
+
+        $e = array(
+            'type' => E_NOTICE,
+            'message' => 'Undefined variable: notice',
+            'file' => __FILE__,
+            'line' => $line,
+        );
+        $this->assertSame( $e, IndepthErrorHandler::getLastError() );
+
+        InDepthErrorHandler::resetLastError();
+        $this->assertNull( IndepthErrorHandler::getLastError() );
+    }
+
     function testRegister()
     {
         $f = tempnam('/', 'test');
@@ -48,7 +68,7 @@ class InDepthErrorHandlerTest extends \PHPUnit_Framework_TestCase
   "mem": "%d - %d",
   "data": {"_":"4:array:4",
     "mesg": "Uncaught exception: fake user error",
-    "type": "E_USER_ERROR ' . __FILE__ . ':23",
+    "type": "E_USER_ERROR ' . __FILE__ . ':43",
     "level": "256/-1",
     "scope": {"_":"8:array:1",
       "0": {"_":"9:Patchwork\\\\PHP\\\\InDepthRecoverableErrorException",
@@ -84,21 +104,21 @@ class InDepthErrorHandlerTest extends \PHPUnit_Framework_TestCase
         "*:message": "fake user error",
         "*:code": 0,
         "*:file": "' . __FILE__ . '",
-        "*:line": 23,
+        "*:line": 43,
         "*:severity": "E_USER_ERROR"
       }
     }
   }
 }
 ***
-[%s] PHP Warning:  Unexpected character in input:  ' . "'\x01'" . ' (ASCII=1) state=0 in ' . __FILE__ . '(32) : eval()\'d code on line 1
+[%s] PHP Warning:  Unexpected character in input:  ' . "'\x01'" . ' (ASCII=1) state=0 in ' . __FILE__ . '(52) : eval()\'d code on line 1
 *** php-error ***
 {"_":"1:array:3",
   "time": "%s %dus - %fms - %fms",
   "mem": "%d - %d",
   "data": {"_":"4:array:3",
     "mesg": "syntax error, unexpected ' . (PHP_VERSION_ID >= 50400 ? 'end of file' : '$end') . '",
-    "type": "E_PARSE ' . __FILE__ . '(36) : eval()\'d code:1",
+    "type": "E_PARSE ' . __FILE__ . '(56) : eval()\'d code:1",
     "level": "4/0"
   }
 }

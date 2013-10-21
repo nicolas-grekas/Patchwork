@@ -62,12 +62,14 @@ class JsonDumper extends Dumper
         $this->line = '';
     }
 
-    protected function dumpRef($is_soft, $ref_counter = null, &$ref_value = null)
+    protected function dumpRef($is_soft, $ref_counter = null, &$ref_value = null, $ref_type = null)
     {
-        if (parent::dumpRef($is_soft, $ref_counter, $ref_value)) return;
+        if (parent::dumpRef($is_soft, $ref_counter, $ref_value, $ref_type)) return true;
 
         $is_soft = $is_soft ? 'r' : 'R';
         $this->line .= "\"{$is_soft}`{$this->counter}:{$ref_counter}\"";
+
+        return false;
     }
 
     protected function dumpScalar($a)
@@ -123,7 +125,7 @@ class JsonDumper extends Dumper
         $this->line .= '"' . str_replace($map[0], $map[1], $a) . '"' . $is_key;
     }
 
-    protected function walkHash($type, &$a)
+    protected function walkHash($type, &$a, $len)
     {
         if ('array:0' === $type) $this->line .= '[]';
         else
@@ -133,13 +135,12 @@ class JsonDumper extends Dumper
             $this->lastHash = $this->counter;
             $this->dumpString($this->counter . ':' . $type, false);
 
-            if ($type = parent::walkHash($type, $a))
+            if ($type = parent::walkHash($type, $a, $len))
             {
                 ++$this->depth;
                 $this->dumpString('__refs', true);
-                $this->line .= '{';
-                foreach ($type as $k => &$a) $a = '"' . $k . '":[' . implode(',', $a) . ']';
-                $this->line .= implode(',', $type) . '}';
+                foreach ($type as $k => $v) $type[$k] = '"' . $k . '":[' . implode(',', $v) . ']';
+                $this->line .= '{' . implode(',', $type) . '}';
                 --$this->depth;
             }
 
