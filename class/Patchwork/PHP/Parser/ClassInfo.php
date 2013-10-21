@@ -95,6 +95,8 @@ class ClassInfo extends Parser
     protected function tagClassOpen(&$token)
     {
         $this->unregister($this->callbacks);
+        $this->unregister(array('tagExtendsName' => T_USE_CLASS));
+        $this->unregister(array('tagImplementsName' => T_USE_CLASS));
         $this->register(array('~tagClassClose' => T_BRACKET_CLOSE));
     }
 
