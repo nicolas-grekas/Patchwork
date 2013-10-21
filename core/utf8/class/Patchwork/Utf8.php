@@ -50,18 +50,55 @@ class Utf8
         return $s;
     }
 
+    static function filter($var, $normalization_form = 4 /* n::NFC */, $leading_combining = '◌')
+    {
+        switch (gettype($var))
+        {
+        case 'array':
+            foreach ($var as $k => $v) $var[$k] = static::filter($v, $normalization_form, $leading_combining);
+            break;
+
+        case 'object':
+            foreach ($var as $k => $v) $var->$k = static::filter($v, $normalization_form, $leading_combining);
+            break;
+
+        case 'string':
+            if (false !== strpos($var, "\r"))
+            {
+                // Workaround https://bugs.php.net/65732
+                $var = str_replace("\r\n", "\n", $var);
+                $var = strtr($var, "\r", "\n");
+            }
+
+            if (preg_match('/[\x80-\xFF]/', $var))
+            {
+                if (n::isNormalized($var, $normalization_form)) $n = '';
+                else
+                {
+                    $n = n::normalize($var, $normalization_form);
+                    if (false === $n) $var = static::utf8_encode($var);
+                    else $var = $n;
+                }
+
+                if ($var[0] >= "\x80" && false !== $n && isset($leading_combining[0]) && preg_match('/^\p{Mn}/u', $var))
+                {
+                    // Prevent leading combining chars
+                    // for NFC-safe concatenations.
+                    $var = $leading_combining . $var;
+                }
+            }
+            break;
+        }
+
+        return $var;
+    }
+
     // Unicode transformation for caseless matching
     // see http://unicode.org/reports/tr21/tr21-5.html
 
-    static function strtocasefold($s, $full = true, $turkish = false)
+    static function strtocasefold($s, $full = true)
     {
         $s = str_replace(self::$commonCaseFold[0], self::$commonCaseFold[1], $s);
-
-        if ($turkish)
-        {
-            false !== strpos($s, 'I') && $s = str_replace('I', 'ı', $s);
-            $full && false !== strpos($s, 'İ') && $s = str_replace('İ', 'i', $s);
-        }
 
         if ($full)
         {
@@ -71,7 +108,7 @@ class Utf8
             $s = str_replace($fullCaseFold[0], $fullCaseFold[1], $s);
         }
 
-        return self::strtolower($s);
+        return static::strtolower($s);
     }
 
     // Generic case sensitive collation support for self::strnatcmp()
@@ -83,6 +120,36 @@ class Utf8
     }
 
     // PHP string functions that need UTF-8 awareness
+
+    static function filter_input($type, $var, $filter = FILTER_DEFAULT, $option = null)
+    {
+        if (4 > func_num_args()) $var = filter_input($type, $var, $filter);
+        else $var = filter_input($type, $var, $filter, $option);
+
+        return static::filter($var);
+    }
+
+    static function filter_input_array($type, $def = null, $add_empty = true)
+    {
+        if (2 > func_num_args()) $a = filter_input_array($type);
+        else $a = filter_input_array($type, $def, $add_empty);
+
+        return static::filter($a);
+    }
+
+    static function json_decode($json, $assoc = false, $depth = 512, $options = 0)
+    {
+/**/    if (PHP_VERSION_ID < 50400)
+/**/    {
+            $json = json_decode($json, $assoc, $depth);
+/**/    }
+/**/    else
+/**/    {
+            $json = json_decode($json, $assoc, $depth, $options);
+/**/    }
+
+        return static::filter($json);
+    }
 
     static function substr($s, $start, $len = 2147483647)
     {
@@ -106,7 +173,7 @@ class Utf8
 
     static function stripos($s, $needle, $offset = 0)
     {
-/**/    if (PHP_VERSION_ID < 50501)
+/**/    if (50418 > PHP_VERSION_ID || 50500 == PHP_VERSION_ID)
 /**/    {
             // Don't use grapheme_stripos because of https://bugs.php.net/61860
             if ($offset < 0) $offset = 0;
@@ -121,7 +188,7 @@ class Utf8
 
     static function strripos($s, $needle, $offset = 0)
     {
-/**/    if (PHP_VERSION_ID < 50501)
+/**/    if (50418 > PHP_VERSION_ID || 50500 == PHP_VERSION_ID)
 /**/    {
             // Don't use grapheme_strripos because of https://bugs.php.net/61860
             if ($offset < 0) $offset = 0;
@@ -144,8 +211,8 @@ class Utf8
     static function strrchr ($s, $needle, $before_needle = false) {return mb_strrchr ($s, $needle, $before_needle, 'UTF-8');}
     static function strrichr($s, $needle, $before_needle = false) {return mb_strrichr($s, $needle, $before_needle, 'UTF-8');}
 
-    static function strtolower($s, $form = n::NFC) {if (n::isNormalized($s = mb_strtolower($s, 'UTF-8'), $form)) return $s; return n::normalize($s, $form);}
-    static function strtoupper($s, $form = n::NFC) {if (n::isNormalized($s = mb_strtoupper($s, 'UTF-8'), $form)) return $s; return n::normalize($s, $form);}
+    static function strtolower($s) {return mb_strtolower($s, 'UTF-8');}
+    static function strtoupper($s) {return mb_strtoupper($s, 'UTF-8');}
 
     static function wordwrap($s, $width = 75, $break = "\n", $cut = false)
     {
@@ -251,9 +318,20 @@ class Utf8
     static function str_ireplace($search, $replace, $subject, &$count = null)
     {
         $search = (array) $search;
-        foreach ($search as &$s) $s = '' !== (string) $s ? '/' . preg_quote($s, '/') . '/ui' : '/^(?<=.)$/';
+
+        foreach ($search as $i => $s)
+        {
+            is_string($s) or $s = (string) $s;
+
+            if ('' === $s) $s = '/^(?<=.)$/';
+            else $s = '/' . preg_quote($s, '/') . '/ui';
+
+            $search[$i] = $s;
+        }
+
         $subject = preg_replace($search, $replace, $subject, -1, $replace);
         $count = $replace;
+
         return $subject;
     }
 
@@ -352,9 +430,9 @@ class Utf8
 
     static function strcmp       ($a, $b) {return (string) $a === (string) $b ? 0 : strcmp(n::normalize($a, n::NFD), n::normalize($b, n::NFD));}
     static function strnatcmp    ($a, $b) {return (string) $a === (string) $b ? 0 : strnatcmp(self::strtonatfold($a), self::strtonatfold($b));}
-    static function strcasecmp   ($a, $b) {return self::strcmp   (self::strtocasefold($a), self::strtocasefold($b));}
-    static function strnatcasecmp($a, $b) {return self::strnatcmp(self::strtocasefold($a), self::strtocasefold($b));}
-    static function strncasecmp  ($a, $b, $len) {return self::strncmp(self::strtocasefold($a), self::strtocasefold($b), $len);}
+    static function strcasecmp   ($a, $b) {return self::strcmp   (static::strtocasefold($a), static::strtocasefold($b));}
+    static function strnatcasecmp($a, $b) {return self::strnatcmp(static::strtocasefold($a), static::strtocasefold($b));}
+    static function strncasecmp  ($a, $b, $len) {return self::strncmp(static::strtocasefold($a), static::strtocasefold($b), $len);}
     static function strncmp      ($a, $b, $len) {return self::strcmp(self::substr($a, 0, $len), self::substr($b, 0, $len));}
 
     static function strcspn($s, $charlist, $start = 0, $len = 2147483647)
@@ -405,7 +483,7 @@ class Utf8
     static function substr_compare($a, $b, $offset, $len = 2147483647, $i = 0)
     {
         $a = self::substr($a, $offset, $len);
-        return $i ? self::strcasecmp($a, $b) : self::strcmp($a, $b);
+        return $i ? static::strcasecmp($a, $b) : self::strcmp($a, $b);
     }
 
     static function substr_count($s, $needle, $offset = 0, $len = 2147483647)
@@ -424,13 +502,13 @@ class Utf8
     static function ucfirst($s)
     {
         $c = iconv_substr($s, 0, 1, 'UTF-8');
-        return self::ucwords($c) . substr($s, strlen($c));
+        return static::ucwords($c) . substr($s, strlen($c));
     }
 
     static function lcfirst($s)
     {
         $c = iconv_substr($s, 0, 1, 'UTF-8');
-        return mb_strtolower($c, 'UTF-8') . substr($s, strlen($c));
+        return static::strtolower($c) . substr($s, strlen($c));
     }
 
     static function ucwords($s)
