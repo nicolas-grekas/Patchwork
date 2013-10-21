@@ -40,7 +40,7 @@ class T extends Parser
                 if ($_SERVER['PATCHWORK_LANG'])
                 {
                     // Add the string to the translation table
-                    TRANSLATOR::get($this->expressionValue, $_SERVER['PATCHWORK_LANG'], false);
+                    \TRANSLATOR::get($this->expressionValue, $_SERVER['PATCHWORK_LANG'], false);
                 }
             }
             else
