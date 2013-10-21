@@ -70,8 +70,10 @@ use Patchwork\PHP\Shim as s;
 /**/{
         p\Shim(number_format, s\Php540, $number, $decimals = 0, $dec_point = '.', $thousands_sep = ',');
 
-        // Backport UTF-8 default charset from PHP 5.4.0, add new $double_encode parameter (since 5.2.3)
+        // Remove import_request_variables() by mapping it to something non-existant
+        p\Shim(import_request_variable, s\Php540, $types, $prefix = '');
 
+        // Backport UTF-8 default charset from PHP 5.4.0, add new $double_encode parameter (since 5.2.3)
         p\Shim(html_entity_decode, html_entity_decode, $s, $style = ENT_COMPAT, $charset = 'UTF-8');
         p\Shim(get_html_translation_table, get_html_translation_table, $table = HTML_SPECIALCHARS, $style = ENT_COMPAT, $charset = 'UTF-8');
 

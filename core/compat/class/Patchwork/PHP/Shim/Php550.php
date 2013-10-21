@@ -72,9 +72,9 @@ class Php550
     {
         if (null === $error_handler)
         {
-            $h = set_error_handler('var_dump');
+            $h = set_error_handler('var_dump', 0);
             do restore_error_handler() && restore_error_handler();
-            while (set_error_handler('var_dump'));
+            while (null !== set_error_handler('var_dump', 0));
             restore_error_handler();
             return $h;
         }

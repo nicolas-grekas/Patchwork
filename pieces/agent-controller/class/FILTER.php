@@ -188,7 +188,7 @@ class FILTER
 
         $result = strtolower(trim($value));
 
-        if (!preg_match('/^' . self::EMAIL_RX . '$/u', $result, $d)) return false;
+        if (!preg_match('/^' . self::EMAIL_RX . '$/', $result, $d)) return false;
 
         static $dns;
 

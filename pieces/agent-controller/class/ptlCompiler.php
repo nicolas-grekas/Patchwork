@@ -485,7 +485,7 @@ abstract class ptlCompiler
                 }
                 else
                 {
-                    set_error_handler(array(__CLASS__, 'nullErrorHandler'));
+                    set_error_handler('var_dump', 0);
                     $len = error_reporting(81);
 
                     if (false === eval("($testCode);") && $i = error_get_last())
@@ -658,10 +658,5 @@ abstract class ptlCompiler
     protected function endError($unexpected, $expected)
     {
         user_error("PTL parse error: unexpected END:$unexpected" . ($expected ? ", expecting END:$expected" : '') . " on line " . $this->getLine());
-    }
-
-    static function nullErrorHandler()
-    {
-        // Nothing here
     }
 }
