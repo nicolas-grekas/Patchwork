@@ -40,7 +40,7 @@ class NamespaceResolverTest extends \PHPUnit_Framework_TestCase
                 'out' => '\a::$a; \c\d\f',
             ],
             [
-                'in'  => 'namespace a; use b as c; c; c\d;',
+                'in'  => 'namespace a; use \b as c; c; c\d;',
                 'out' => 'namespace a; c; \b\d;',
                 'errors' => [
                     [
