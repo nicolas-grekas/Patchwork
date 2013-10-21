@@ -122,7 +122,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
     static function getLastError()
     {
         $e = error_get_last();
-        return '' === $e['message'] && E_USER_NOTICE === $e['type'] && __FILE__ === $e['file'] ? false : $e;
+        return null !== $e && '' === $e['message'] && E_USER_NOTICE === $e['type'] ? null : $e;
     }
 
     /**
