@@ -125,7 +125,7 @@ class Patchwork_Bootstrapper_Manager
         }
         else
         {
-            $this->steps[] = array("require {$this->cwd}.patchwork.php; return false;", __FILE__);
+            $this->steps[] = array('require ' . var_export("{$this->cwd}.patchwork.php", true) . '; return false;', __FILE__);
         }
     }
 
