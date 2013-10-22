@@ -148,7 +148,7 @@ class SuperPositioner extends PhpPreprocessor
             $token[1] .= "\\class_alias('{$c->nsName}{$c->suffix}','{$a}{$c->suffix}');";
         }
 
-        $s = '\\Patchwork_Superloader';
+        $s = '\Patchwork_Superloader';
         $this->targetPhpVersionId < 50300 && $s[0] = ' ';
 
         if ($c->isFinal || $c->isTop)
@@ -174,9 +174,9 @@ class SuperPositioner extends PhpPreprocessor
         // Every require|include inside files in the include_path
         // is preprocessed thanks to Patchwork_Superloader::getProcessedPath().
 
-        if (Patchwork_Superloader::$turbo
+        if (\Patchwork_Superloader::$turbo
           && $this->dependencies['ConstantExpression']->nextExpressionIsConstant()
-          && false !== $a = Patchwork_Superloader::getProcessedPath($this->expressionValue, true))
+          && false !== $a = \Patchwork_Superloader::getProcessedPath($this->expressionValue, true))
         {
             $token =& $this->getNextToken();
             $token[1] = ' ' . self::export($a) . str_repeat("\n", substr_count($token[1], "\n"));
