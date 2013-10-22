@@ -109,7 +109,12 @@ class Marker extends FunctionShim
         else if (T_CLASS === $this->scope->type || T_INTERFACE === $this->scope->type || T_TRAIT === $this->scope->type)
         {
             $this->inlineClass[strtolower(strtr($this->class->nsName, '\\', '_'))] = 1;
-            $this->class->extends && $this->inlineClass[strtolower(strtr($this->class->extends, '\\', '_'))] = 1;
+
+            foreach (array_merge($this->implements, (array) $this->class->extends) as $i)
+            {
+                $this->inlineClass[strtolower(strtr($i, '\\', '_'))] = 1;
+            }
+
             $this->register(array('tagClassClose' => T_BRACKET_CLOSE));
         }
     }
@@ -177,6 +182,7 @@ class Marker extends FunctionShim
         if (   $this->inStatic
             || T_STRING !== $this->prevType
             || T_CLASS === $this->scope->type
+            || T_INTERFACE === $this->scope->type
             || T_TRAIT === $this->scope->type
         ) return;
 

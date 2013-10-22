@@ -12,6 +12,8 @@ namespace Patchwork\PHP\Parser;
 
 use Patchwork\PHP\Parser;
 
+// Superpositioning is only for classes, not for traits nor interfaces, at least for now.
+
 class SuperPositioner extends PhpPreprocessor
 {
     protected
@@ -63,7 +65,7 @@ class SuperPositioner extends PhpPreprocessor
                 return $this->unshiftCode('\Patchwork\PHP\Shim\ReflectionClass');
             }
         }
-        else
+        else if (is_string($c))
         {
             return $this->unshiftCode('\\' . $c);
         }
@@ -84,11 +86,10 @@ class SuperPositioner extends PhpPreprocessor
 
     protected function tagClassName(&$token)
     {
-        $c = $this->class;
-        if (T_CLASS !== $c->type) return; // Superpositioning is only for classes, not for traits nor interfaces
-        $token[1] .= $c->suffix = '__' . (0 <= $this->level ? $this->level : '00');
+        if (T_CLASS !== $this->class->type) return;
+        $token[1] .= $this->class->suffix = '__' . (0 <= $this->level ? $this->level : '00');
         0 <= $this->level && $this->register(array('tagExtendsSelf' => T_USE_CLASS));
-        $c->isTop = $this->topClass && 0 === strcasecmp(strtr($this->topClass, '\\', '_'), strtr($c->nsName, '\\', '_'));
+        $this->class->isTop = $this->topClass && 0 === strcasecmp(strtr($this->topClass, '\\', '_'), strtr($this->class->nsName, '\\', '_'));
     }
 
     protected function tagExtendsSelf(&$token)
