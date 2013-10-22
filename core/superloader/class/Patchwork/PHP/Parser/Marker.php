@@ -110,7 +110,7 @@ class Marker extends FunctionShim
         {
             $this->inlineClass[strtolower(strtr($this->class->nsName, '\\', '_'))] = 1;
 
-            foreach (array_merge($this->implements, (array) $this->class->extends) as $i)
+            foreach (array_merge($this->class->implements, (array) $this->class->extends) as $i)
             {
                 $this->inlineClass[strtolower(strtr($i, '\\', '_'))] = 1;
             }

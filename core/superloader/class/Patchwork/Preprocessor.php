@@ -25,7 +25,6 @@ class Patchwork_Preprocessor
         'BracketWatcher'     => true,
         'ShortArray'         => -50400,
         'BinaryNumber'       => -50400,
-        'ClassAutoname'      => true,
         'StringInfo'         => true,
         'WorkaroundBug55156' => -50308,
         'BackportTokens'     => -50500,
@@ -144,7 +143,6 @@ class Patchwork_Preprocessor
             case 'BinaryNumber':  $p = new $t($p); break;
             default:                   new $t($p); break;
             case 'StaticState':        if (0 <= $level) $p = new $t($p); break;
-            case 'ClassAutoname':      if (0 <= $level && $class) new $t($p, $class); break;
             case 'ConstFuncDisabler':  if (0 <= $level) new $t($p); break;
             case 'Constructor4to5':    if (0 >  $level) new $t($p); break;
             case 'Globalizer':         if (0 <= $level) new $t($p, '$CONFIG'); break;
