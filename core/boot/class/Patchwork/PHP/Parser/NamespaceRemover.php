@@ -130,9 +130,6 @@ class NamespaceRemover extends Parser
         case T_NAMESPACE:
             $token[1] = 'define(';
 
-            $this->getNextToken($i); // The only valid token here is a T_NON_SEMANTIC
-            $this->tokens[$i-2][1] .= "'" . strtr($this->namespace, '\\', '_');
-
             $this->constBracketLevel = $this->bracketsCount;
             $this->register($this->callbacks = array(
                 'tagConstEqual' => '=',
