@@ -70,7 +70,7 @@ class Superloader
     {
         if (strrpos($class, '\\'))
         {
-/**/        if (50300 <= PHP_VERSION_ID && PHP_VERSION_ID < 50303) // Workaround http://bugs.php.net/50731
+/**/        if (PHP_VERSION_ID < 50303) // Workaround http://bugs.php.net/50731
                 '\\' === $class[0] && $class = substr($class, 1);
 
             $c = strtr($class, '\\', '_');
@@ -93,7 +93,7 @@ class Superloader
 
     static function loadTurbo($class)
     {
-/**/    if (50300 <= PHP_VERSION_ID && PHP_VERSION_ID < 50303) // Workaround http://bugs.php.net/50731
+/**/    if (PHP_VERSION_ID < 50303) // Workaround http://bugs.php.net/50731
             isset($class[0]) && '\\' === $class[0] && $class = substr($class, 1);
 
         if (empty(self::$locations[$a = strtolower(strtr($class, '\\', '_'))])) return;

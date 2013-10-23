@@ -31,7 +31,7 @@ use Patchwork\PHP\Shim as s;
         function trait_exists($class, $autoload = true) {return $autoload && class_exists($class, $autoload) && false;}
 /**/}
 
-/**/if (PHP_VERSION_ID == 50300)
+/**/if (PHP_VERSION_ID < 50301)
 /**/{
         p\Shim(stream_socket_client, s\Bug48805, $remote_socket, &$errno = null, &$errstr = null, $timeout = null, $flags = STREAM_CLIENT_CONNECT, $context = null);
         p\Shim(fsockopen,            s\Bug48805, $hostname, $port = -1, &$errno = null, &$errstr = null, $timeout = null);
