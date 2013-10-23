@@ -37,13 +37,9 @@ class Preprocessor
         'DestructorCatcher'  => true,
         'ConstFuncDisabler'  => true,
         'ConstFuncResolver'  => true,
-        'NamespaceResolver'  => -50300,
         'ConstantInliner'    => true,
         'ClassInfo'          => true,
         'ClassScalarInliner' => -50500,
-        'NamespaceRemover'   => -50300,
-        'InvokeShim'         => -50300,
-        'ClosureShim'        => true,
         'ConstantExpression' => true,
         'SuperPositioner'    => true,
         'StaticInit'         => true,
@@ -147,16 +143,13 @@ class Preprocessor
             case 'T':
             case 'Marker':             if (!$debug) new $t($p, self::$declaredClass, $level >= 0, $source); break;
             case 'ConstantInliner':    new $t($p, $source, self::$constants); break;
-            case 'NamespaceRemover':   new $t($p, 'Patchwork\PHP\Shim\Php530::add'); break;
             case 'ToStringCatcher':    new $t($p, 'Patchwork\PHP\ThrowingErrorHandler::handleToStringException'); break;
             case 'SuperPositioner':    new $t($p, $level, $is_top ? $class : false); break;
-            case 'ClosureShim':  $cs = new $t($p); break;
             }
         }
 
         if (empty($p)) return file_get_contents($source);
         $t = $p->parse(file_get_contents($source));
-        if (isset($cs)) $t = $cs->finalizeClosures($t);
 
         if ($c = $p->getErrors())
         {

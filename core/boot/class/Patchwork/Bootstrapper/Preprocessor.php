@@ -33,7 +33,7 @@ class Preprocessor
         new Parser\BracketWatcher($p);
         new Parser\StringInfo($p);
         new Parser\NamespaceInfo($p);
-        PHP_VERSION_ID >= 50300 && new Parser\NamespaceBracketer($p);
+        new Parser\NamespaceBracketer($p);
         new Parser\ScopeInfo($p);
         new Parser\ConstFuncDisabler($p);
         new Parser\ConstFuncResolver($p);
@@ -44,12 +44,8 @@ class Preprocessor
         new Parser\ConstantInliner($p, $file, $this->newShims[1]);
         new Parser\ClassInfo($p);
         PHP_VERSION_ID < 50500 && new Parser\ClassScalarInliner($p);
-        PHP_VERSION_ID < 50300 && new Parser\NamespaceRemover($p);
         new Parser\FunctionShim($p, $this->newShims[0]);
-        $p = new Parser\ClosureShim($p);
-        $this->parser = new Parser\StaticState($p);
-        $this->parser->closureShim = $p;
-        $p = $this->parser;
+        $p = $this->parser = new Parser\StaticState($p);
 
         $code = $p->getRunonceCode($code);
 
@@ -81,7 +77,6 @@ class Preprocessor
     {
         if (empty($this->parser)) return '';
         $code = substr($this->parser->getRuntimeCode(), 5);
-        $code = $this->parser->closureShim->finalizeClosures($code);
         $this->parser = false;
 
         $o = array();

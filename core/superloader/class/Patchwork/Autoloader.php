@@ -177,7 +177,7 @@ class Autoloader extends Superloader
                 $code .= " {$req} extends {$parent}{}\$GLOBALS['c\x9D']['{$lc_ns}{$lc_req}']=1;";
                 $parent = strtolower($parent);
 
-                if ($ns && function_exists('class_alias'))
+                if ($ns)
                 {
                     $code .= "\\class_alias('{$ns}{$req}','{$lc_ns}{$lc_req}');";
                 }
@@ -202,7 +202,6 @@ class Autoloader extends Superloader
                 if (defined($a) ? $lc_req === constant($a) : method_exists($ns . $parent, '__free'))
                 {
                     $a = "\\Patchwork\\ShutdownHandler::\$destructors[]='{$lc_ns}{$parent}';";
-                    PHP_VERSION_ID < 50300 && $a[0] = ' ';
                     $code .= $a;
                 }
             }

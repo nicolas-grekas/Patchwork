@@ -48,9 +48,7 @@ class Superloader
         if (    trait_exists($class, false)) return 'trait';
 
         if ($a) return false;
-
-/**/    if (function_exists('class_alias'))
-            if ($a = self::loadAlias($class)) return $a;
+        if ($a = self::loadAlias($class)) return $a;
 
         if ( false === ($a = strrpos($class, '__'))
           || !isset($class[$a+2])
@@ -221,12 +219,7 @@ class Superloader
 
     static function get_parent_class($c)
     {
-        // FIXME: using Php530::get_parent_class() should be done automatically by FunctionShim
-
-/**/    if (PHP_VERSION_ID < 50300)
-            $c = PHP\Shim\Php530::get_parent_class($c);
-/**/    else
-            $c = get_parent_class($c);
+        $c = get_parent_class($c);
 
         if ( false !== $c
           && false !== ($i = strrpos($c, '__'))
@@ -236,13 +229,7 @@ class Superloader
             $top = substr($c, 0, $i) . '__';
             $i = strlen($top);
 
-            do
-            {
-/**/            if (PHP_VERSION_ID < 50300)
-                    $c = PHP\Shim\Php530::get_parent_class($c);
-/**/            else
-                    $c = get_parent_class($c);
-            }
+            do $c = get_parent_class($c);
             while (false !== $c && isset($c[$i]) && $top === rtrim($c, '0123456789'));
         }
 

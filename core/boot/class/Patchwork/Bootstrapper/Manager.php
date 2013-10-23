@@ -49,8 +49,8 @@ class Manager
             throw $this->error('Extension "tokenizer" is needed and not loaded');
         case !file_exists($cwd . 'config.patchwork.php'):
             throw $this->error("File config.patchwork.php not found in {$cwd}. Did you set PATCHWORK_BOOTPATH correctly?");
-        case function_exists('__autoload') && !function_exists('spl_autoload_register'):
-            throw $this->error('__autoload() is enabled and spl_autoload_register() is not available');
+        case !function_exists('spl_autoload_register'):
+            throw $this->error('spl_autoload_register() functionality is required');
         case function_exists('mb_internal_encoding'):
             mb_internal_encoding('8bit'); // if mbstring overloading is enabled
             ini_set('mbstring.internal_encoding', '8bit');
@@ -278,29 +278,7 @@ class Manager
     {
         function_exists('__autoload') && $this->substeps[] = array("spl_autoload_register('__autoload');", __FILE__);
 
-        if (PHP_VERSION_ID < 50300 || !function_exists('spl_autoload_register'))
-        {
-            // Before PHP 5.3, backport spl_autoload_register()'s $prepend argument
-            // and workaround http://bugs.php.net/44144
-
-            $this->substeps[] = array(null, dirname($this->pwd) . '/compat/class/Patchwork/PHP/Shim/SplAutoload.php');
-            $this->substeps[] = array(
-                $this->shim('__autoload',              ':SplAutoload::spl_autoload_call', array('$class')) .
-                $this->shim('spl_autoload_call',       ':SplAutoload:', array('$class')) .
-                $this->shim('spl_autoload_functions',  ':SplAutoload:', array()) .
-                $this->shim('spl_autoload_register',   ':SplAutoload:', array('$callback', '$throw' => true, '$prepend' => false)) .
-                $this->shim('spl_autoload_unregister', ':SplAutoload:', array('$callback')) .
-                (function_exists('spl_autoload_register')
-                    ? "spl_autoload_register(array('Patchwork\PHP\Shim\SplAutoload','spl_autoload_call'));"
-                    : 'class LogicException extends Exception {}'),
-                __FILE__
-            );
-        }
-        else
-        {
-            $this->substeps[] = array($this->shim('__autoload', 'spl_autoload_call', array('$class')), __FILE__);
-        }
-
+        $this->substeps[] = array($this->shim('__autoload', 'spl_autoload_call', array('$class')), __FILE__);
         $this->substeps[] = array('function patchwork_include() {return include func_get_arg(0);}', __FILE__);
     }
 

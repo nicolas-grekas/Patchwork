@@ -144,13 +144,10 @@ class SuperPositioner extends PhpPreprocessor
         $c = $this->class;
         $a = strtolower(strtr($c->nsName, '\\', '_'));
 
-        if (strpos($c->nsName, '\\') && function_exists('class_alias'))
-        {
-            $token[1] .= "\\class_alias('{$c->nsName}{$c->suffix}','{$a}{$c->suffix}');";
-        }
+        strpos($c->nsName, '\\')
+            and $token[1] .= "\\class_alias('{$c->nsName}{$c->suffix}','{$a}{$c->suffix}');";
 
         $s = '\Patchwork\Superloader';
-        $this->targetPhpVersionId < 50300 && $s[0] = ' ';
 
         if ($c->isFinal || $c->isTop)
         {
@@ -160,8 +157,7 @@ class SuperPositioner extends PhpPreprocessor
                 . "{$s}::\$locations['{$a}']=1;";
 
             strpos($c->nsName, '\\')
-                && function_exists('class_alias')
-                && $token[1] .= "\\class_alias('{$c->nsName}','{$a}');";
+                and $token[1] .= "\\class_alias('{$c->nsName}','{$a}');";
         }
 
         if ($c->isAbstract)

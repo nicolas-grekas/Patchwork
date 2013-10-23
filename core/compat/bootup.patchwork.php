@@ -11,30 +11,7 @@
 use Patchwork as p;
 use Patchwork\PHP\Shim as s;
 
-/**/if (PHP_VERSION_ID < 50300)
-/**/{
-/**/    // Shims to backport namespaces to PHP pre-5.3
-
-/**/    boot::$manager->pushFile('class/Patchwork/PHP/Shim/Php530.php');
-
-        p\Shim(class_implements,        s\Php530, $class, $autoload = true);
-        p\Shim(class_parents,           s\Php530, $class, $autoload = true);
-        p\Shim(class_exists,            s\Php530, $class, $autoload = true);
-        p\Shim(get_class_methods,       s\Php530, $class);
-        p\Shim(get_class_vars,          s\Php530, $class);
-        p\Shim(get_class,               s\Php530, $obj);
-        p\Shim(get_declared_classes,    s\Php530);
-        p\Shim(get_declared_interfaces, s\Php530);
-//        p\Shim(get_parent_class,        s\Php530, $class); // FIXME: this is done at superloader level, but this is bad
-        p\Shim(interface_exists,        s\Php530, $class, $autoload = true);
-        p\Shim(is_a,                    s\Php530, $obj, $class, $allow_string = false);
-        p\Shim(is_subclass_of,          s\Php530, $obj, $class, $allow_string = true);
-        p\Shim(lcfirst,                 s\Php530, $str);
-        p\Shim(method_exists,           s\Php530, $class, $method);
-        p\Shim(property_exists,         s\Php530, $class, $property);
-        p\Shim(spl_object_hash,         s\Php530, $object);
-/**/}
-/**/else if (PHP_VERSION_ID < 50309)
+/**/if (PHP_VERSION_ID < 50309)
 /**/{
 /**/    boot::$manager->pushFile('class/Patchwork/PHP/Shim/Php539.php');
 
@@ -54,16 +31,10 @@ use Patchwork\PHP\Shim as s;
         function trait_exists($class, $autoload = true) {return $autoload && class_exists($class, $autoload) && false;}
 /**/}
 
-/**/if (PHP_VERSION_ID == 50210 || PHP_VERSION_ID == 502011 || PHP_VERSION_ID == 50300)
+/**/if (PHP_VERSION_ID == 50300)
 /**/{
         p\Shim(stream_socket_client, s\Bug48805, $remote_socket, &$errno = null, &$errstr = null, $timeout = null, $flags = STREAM_CLIENT_CONNECT, $context = null);
         p\Shim(fsockopen,            s\Bug48805, $hostname, $port = -1, &$errno = null, &$errstr = null, $timeout = null);
-/**/}
-
-/**/if (PHP_VERSION_ID == 50209)
-/**/{
-/**/    // Fix 5.2.9 array_unique() default sort flag
-        p\Shim(array_unique, array_unique, $array, $sort_flags = SORT_STRING);
 /**/}
 
 /**/if (PHP_VERSION_ID < 50400)
@@ -77,18 +48,8 @@ use Patchwork\PHP\Shim as s;
         p\Shim(html_entity_decode, html_entity_decode, $s, $style = ENT_COMPAT, $charset = 'UTF-8');
         p\Shim(get_html_translation_table, get_html_translation_table, $table = HTML_SPECIALCHARS, $style = ENT_COMPAT, $charset = 'UTF-8');
 
-/**/    if (PHP_VERSION_ID < 50203)
-/**/    {
-/**/        boot::$manager->pushFile('class/Patchwork/PHP/Shim/Php523.php');
-
-            p\Shim(htmlspecialchars, s\Php523, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
-            p\Shim(htmlentities,     s\Php523, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
-/**/    }
-/**/    else
-/**/    {
-            p\Shim(htmlspecialchars, htmlspecialchars, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
-            p\Shim(htmlentities,     htmlentities,     $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
-/**/    }
+        p\Shim(htmlspecialchars, htmlspecialchars, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
+        p\Shim(htmlentities,     htmlentities,     $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
 /**/}
 
 /**/if (PHP_VERSION_ID < 50500)
@@ -127,16 +88,6 @@ use Patchwork\PHP\Shim as s;
         p\Shim(json_last_error_msg,   s\Php550);
         p\Shim(set_error_handler,     s\Php550, $error_handler, $error_types = -1);
         p\Shim(set_exception_handler, s\Php550, $exception_handler);
-/**/}
-
-/**/if (!function_exists('memory_get_usage'))
-/**/{
-        function memory_get_usage($real = false) {return 0;}
-/**/}
-
-/**/if (!function_exists('memory_get_peak_usage'))
-/**/{
-        function memory_get_peak_usage($real = false) {return 0;}
 /**/}
 
 // Workaround mbstring function overloading
