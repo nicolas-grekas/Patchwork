@@ -284,7 +284,7 @@ class Manager
 
     protected function initPreprocessor()
     {
-        $p = $this->bootstrapper . '_Preprocessor';
+        $p = $this->bootstrapper . '\Preprocessor';
         $this->preprocessor = new $p($this->shims);
         file_exists("{$this->cwd}.patchwork.shims.ser") && unlink("{$this->cwd}.patchwork.shims.ser");
     }
@@ -293,7 +293,7 @@ class Manager
     {
         $this->cwd = rtrim(patchwork_realpath($this->cwd), '/\\') . DIRECTORY_SEPARATOR;
 
-        $a = $this->bootstrapper . '_Inheritance';
+        $a = $this->bootstrapper . '\Inheritance';
         $a = new $a;
         $a = $a->linearizeGraph($this->pwd, $this->cwd, $this->base);
 
@@ -353,7 +353,7 @@ class Manager
     {
         $t = new Exception;
         $t = $t->getTrace();
-        $e = $this->bootstrapper . '_Exception';
+        $e = $this->bootstrapper . '\Exception';
         return new $e($msg, 0, $severity, $t[1]['file'], $t[1]['line']);
     }
 

@@ -51,7 +51,7 @@ class Autoloader extends Superloader
             $level = min(PATCHWORK_PATH_LEVEL, '00' === $level ? -1 : (int) $level);
         }
 
-        self::$preproc || self::$preproc = 'patchwork\preprocessor' === $lc_top;
+        self::$preproc || self::$preproc = 'patchwork_preprocessor' === $lc_top;
 
 
         // Step 2 - Get source file
@@ -221,7 +221,7 @@ class Autoloader extends Superloader
 
         if (!self::$turbo || self::$preproc)
         {
-            self::$preproc && self::$preproc = 'patchwork\preprocessor' !== $lc_top;
+            self::$preproc && self::$preproc = 'patchwork_preprocessor' !== $lc_top;
             return;
         }
 
