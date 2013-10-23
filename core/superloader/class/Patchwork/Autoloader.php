@@ -8,8 +8,9 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork;
 
-class Patchwork_Autoloader extends Patchwork_Superloader
+class Autoloader extends Superloader
 {
     protected static
 
@@ -50,7 +51,7 @@ class Patchwork_Autoloader extends Patchwork_Superloader
             $level = min(PATCHWORK_PATH_LEVEL, '00' === $level ? -1 : (int) $level);
         }
 
-        self::$preproc || self::$preproc = 'patchwork_preprocessor' === $lc_top;
+        self::$preproc || self::$preproc = 'patchwork\preprocessor' === $lc_top;
 
 
         // Step 2 - Get source file
@@ -134,18 +135,18 @@ class Patchwork_Autoloader extends Patchwork_Superloader
 /**/                if (function_exists('apc_clear_cache'))
                         apc_clear_cache('opcode');
                 }
-                else Patchwork_Preprocessor::execute($src, $cache, $level, $top, $isTop, false);
+                else Preprocessor::execute($src, $cache, $level, $top, $isTop, false);
             }
 
             $current_pool = array();
 
             // Force fatal errors to be always reported
-            Patchwork\PHP\InDepthErrorHandler::stackErrors();
+            PHP\InDepthErrorHandler::stackErrors();
 
             try {patchwork_include($cache);}
-            catch (Exception $x) {}
+            catch (\Exception $x) {}
 
-            Patchwork\PHP\InDepthErrorHandler::unstackErrors();
+            PHP\InDepthErrorHandler::unstackErrors();
 
             if (isset($x)) throw $x;
             if ($parent && self::exists($req, false)) $parent = false;
@@ -200,7 +201,7 @@ class Patchwork_Autoloader extends Patchwork_Superloader
                 $a = "{$ns}{$parent}::f\x9D";
                 if (defined($a) ? $lc_req === constant($a) : method_exists($ns . $parent, '__free'))
                 {
-                    $a = "\\Patchwork_ShutdownHandler::\$destructors[]='{$lc_ns}{$parent}';";
+                    $a = "\\Patchwork\\ShutdownHandler::\$destructors[]='{$lc_ns}{$parent}';";
                     PHP_VERSION_ID < 50300 && $a[0] = ' ';
                     $code .= $a;
                 }
@@ -221,11 +222,11 @@ class Patchwork_Autoloader extends Patchwork_Superloader
 
         if (!self::$turbo || self::$preproc)
         {
-            self::$preproc && self::$preproc = 'patchwork_preprocessor' !== $lc_top;
+            self::$preproc && self::$preproc = 'patchwork\preprocessor' !== $lc_top;
             return;
         }
 
-        if (class_exists('Patchwork_Preprocessor', false) && Patchwork_Preprocessor::isRunning()) return;
+        if (class_exists('Patchwork\Preprocessor', false) && Preprocessor::isRunning()) return;
 
         if ($code && isset($GLOBALS["c\x9D"][$parent]))
         {

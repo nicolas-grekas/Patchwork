@@ -8,9 +8,11 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\Bootstrapper;
+
 use Patchwork\PHP\Parser;
 
-class Patchwork_Bootstrapper_Preprocessor
+class Preprocessor
 {
     protected $parser, $newShims;
 

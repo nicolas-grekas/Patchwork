@@ -8,15 +8,17 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork;
+
 use Patchwork\PHP\Parser;
 
-class Patchwork_Preprocessor
+class Preprocessor
 {
     static $constants = array('DEBUG');
 
     protected static
 
-    $declaredClass = array('patchwork', 'patchwork_superloader', 'patchwork_shutdownhandler', 'patchwork_php_shim_php530'),
+    $declaredClass = array('Patchwork', 'Patchwork\Superloader', 'Patchwork\Shutdownhandler', 'Patchwork\PHP\Shim\Php530'),
     $recursivePool = array(),
     $parsers = array(
         'Normalizer'         => true,
@@ -57,12 +59,8 @@ class Patchwork_Preprocessor
     static function __init()
     {
         foreach (get_declared_classes() as $v)
-        {
-            $v = strtolower($v);
-            if (false !== strpos($v, 'patchwork')) continue;
-            if ('p' === $v) break;
-            self::$declaredClass[] = $v;
-        }
+            if (0 !== strncasecmp($v, 'Patchwork', 9))
+                self::$declaredClass[] = $v;
 
         foreach (self::$parsers as $k => $v)
         {
@@ -149,7 +147,7 @@ class Patchwork_Preprocessor
             case 'T':
             case 'Marker':             if (!$debug) new $t($p, self::$declaredClass, $level >= 0, $source); break;
             case 'ConstantInliner':    new $t($p, $source, self::$constants); break;
-            case 'NamespaceRemover':   new $t($p, 'Patchwork_PHP_Shim_Php530::add'); break;
+            case 'NamespaceRemover':   new $t($p, 'Patchwork\PHP\Shim\Php530::add'); break;
             case 'ToStringCatcher':    new $t($p, 'Patchwork\PHP\ThrowingErrorHandler::handleToStringException'); break;
             case 'SuperPositioner':    new $t($p, $level, $is_top ? $class : false); break;
             case 'ClosureShim':  $cs = new $t($p); break;

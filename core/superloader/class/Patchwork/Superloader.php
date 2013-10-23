@@ -8,8 +8,9 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork;
 
-class Patchwork_Superloader
+class Superloader
 {
     static
 
@@ -88,8 +89,8 @@ class Patchwork_Superloader
     {
         spl_autoload_unregister(array(__CLASS__, __FUNCTION__));
         require /*<*/PATCHWORK_PROJECT_PATH . '.patchwork.autoloader.php'/*>*/;
-        spl_autoload_register(array('Patchwork_Autoloader', 'loadClass'));
-        Patchwork_Autoloader::loadClass($class);
+        spl_autoload_register(array('Patchwork\Autoloader', 'loadClass'));
+        Autoloader::loadClass($class);
     }
 
     static function loadTurbo($class)
@@ -213,17 +214,17 @@ class Patchwork_Superloader
 
         if (file_exists($cache) && (self::$turbo || filemtime($cache) > filemtime($source))) return $cache;
 
-        Patchwork_Preprocessor::execute($source, $cache, $level, false, true, $lazy);
+        Preprocessor::execute($source, $cache, $level, false, true, $lazy);
 
         return $cache;
     }
 
     static function get_parent_class($c)
     {
-        // FIXME: using Patchwork_PHP_Shim_Php530::get_parent_class() should be done automatically by FunctionShim
+        // FIXME: using Php530::get_parent_class() should be done automatically by FunctionShim
 
 /**/    if (PHP_VERSION_ID < 50300)
-            $c = Patchwork_PHP_Shim_Php530::get_parent_class($c);
+            $c = PHP\Shim\Php530::get_parent_class($c);
 /**/    else
             $c = get_parent_class($c);
 
@@ -238,7 +239,7 @@ class Patchwork_Superloader
             do
             {
 /**/            if (PHP_VERSION_ID < 50300)
-                    $c = Patchwork_PHP_Shim_Php530::get_parent_class($c);
+                    $c = PHP\Shim\Php530::get_parent_class($c);
 /**/            else
                     $c = get_parent_class($c);
             }

@@ -8,10 +8,12 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\PHP\Shim;
+
 /**
  * SplAutoload is a PHP implementation of spl_autoload_* functions.
  */
-class Patchwork_PHP_Shim_SplAutoload
+class SplAutoload
 {
     protected static
 

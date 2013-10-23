@@ -26,13 +26,17 @@ PATCHWORK_BOOTPATH or die('Patchwork error: PATCHWORK_BOOTPATH is empty');
 if (file_exists(PATCHWORK_BOOTPATH . '/.patchwork.php'))
     return require PATCHWORK_BOOTPATH . '/.patchwork.php';
 
-if (!function_exists('version_compare') || version_compare(phpversion(), '5.2.0') < 0)
-    die("Patchwork error: PHP 5.2.0 or higher is required");
+if (! function_exists('version_compare') || version_compare(phpversion(), '5.3.0') < 0)
+    die("Patchwork error: PHP 5.3.0 or higher is required");
 
 require dirname(__FILE__) . '/core/boot/class/Patchwork/Bootstrapper/Manager.php';
 require dirname(__FILE__) . '/core/boot/class/Patchwork/Bootstrapper.php';
 
-// Bootup steps: alias, initialize then eval in the global scope
-class boot extends Patchwork_Bootstrapper {}
+// eval() so that no parse error occurs when this file is run in PHP 5.2 and lower.
+
+eval('class boot extends Patchwork\Bootstrapper {}');
+
+// Bootup steps: initialize then eval in the global scope.
+
 boot::initialize(__FILE__, PATCHWORK_BOOTPATH);
 while (false !== eval('' . boot::getNextStep())) {}

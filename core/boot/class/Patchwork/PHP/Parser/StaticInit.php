@@ -62,7 +62,7 @@ class StaticInit extends Parser
         $this->register($this->callbacks);
 
         $class = strtolower(strtr($this->class->nsName, '\\', '_'));
-        $d = "\\Patchwork_ShutdownHandler::\$destructors[]='{$class}';";
+        $d = "\\Patchwork\\ShutdownHandler::\$destructors[]='{$class}';";
         $this->targetPhpVersionId < 50300 && $d[0] = ' ';
 
         $this->init && $token[1] = "const i{$this->tag}=" . (2 === $this->init ? "'{$class}';" : "'';static function __init(){}") . $token[1];

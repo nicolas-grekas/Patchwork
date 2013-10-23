@@ -62,7 +62,7 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
     if ($slash = '/' === substr($file, -1)) $file = substr($file, 0, -1);
 
 /**/require boot::$manager->getCurrentDir() . 'class/Patchwork/Updatedb.php';
-/**/$a = new Patchwork_Updatedb;
+/**/$a = new Patchwork\Updatedb;
 /**/$a = $a->buildPathCache($GLOBALS['patchwork_path'], PATCHWORK_PATH_LEVEL, PATCHWORK_PROJECT_PATH, PATCHWORK_ZCACHE);
 
 /**/if ($a)
@@ -74,7 +74,7 @@ function patchworkPath($file, &$last_level = false, $level = false, $base = fals
             if (!$db = @dba_popen(/*<*/PATCHWORK_PROJECT_PATH . '.patchwork.paths.db'/*>*/, 'rd', /*<*/$a/*>*/))
             {
                 require /*<*/boot::$manager->getCurrentDir() . 'class/Patchwork/Updatedb.php'/*>*/;
-                $db = new Patchwork_Updatedb;
+                $db = new Patchwork\Updatedb;
                 $db->buildPathCache($GLOBALS['patchwork_path'], PATCHWORK_PATH_LEVEL, PATCHWORK_PROJECT_PATH, PATCHWORK_ZCACHE);
                 if (!$db = dba_popen(PATCHWORK_PROJECT_PATH . '.patchwork.paths.db', 'rd', /*<*/$a/*>*/)) exit;
             }

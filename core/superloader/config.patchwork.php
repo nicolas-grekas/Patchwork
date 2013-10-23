@@ -18,12 +18,12 @@ defined('DEBUG') || define('DEBUG', $CONFIG['debug.allowed'] && (!$CONFIG['debug
 
 DEBUG or error_reporting(/*<*/E_ALL & ~(E_DEPRECATED | E_USER_DEPRECATED | E_STRICT)/*>*/);
 
-if (Patchwork_Superloader::$turbo = !DEBUG && $CONFIG['turbo'])
+if (p\Superloader::$turbo = !DEBUG && $CONFIG['turbo'])
 {
-    spl_autoload_register(array('Patchwork_Superloader', 'loadTurbo'), true, true);
+    spl_autoload_register(array('Patchwork\Superloader', 'loadTurbo'), true, true);
 
-    if (spl_autoload_unregister(array('Patchwork_Superloader', 'loadAlias')))
-        spl_autoload_register(array('Patchwork_Superloader', 'loadAlias'), true, true);
+    if (spl_autoload_unregister(array('Patchwork\Superloader', 'loadAlias')))
+        spl_autoload_register(array('Patchwork\Superloader', 'loadAlias'), true, true);
 }
 
 /**/if ('\\' === DIRECTORY_SEPARATOR && !function_exists('__patchwork_file_exists'))

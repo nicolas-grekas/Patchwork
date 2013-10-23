@@ -8,8 +8,9 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\Bootstrapper;
 
-class Patchwork_Bootstrapper_Inheritance
+class Inheritance
 {
     protected
 
@@ -44,12 +45,12 @@ class Patchwork_Bootstrapper_Inheritance
 
         try
         {
-            $this->c3mro = new Patchwork_C3mro(array($this, 'getParentApps'));
+            $this->c3mro = new \Patchwork\C3mro(array($this, 'getParentApps'));
             $a = $this->c3mro->linearize($root_path);
         }
-        catch (Patchwork_C3mro_InconsistentHierarchyException $a)
+        catch (\Patchwork\InconsistentC3mroHierarchyException $a)
         {
-            throw new Patchwork_Bootstrapper_Exception('Inconsistent application hierarchy in ' . $a->getMessage() . 'config.patchwork.php');
+            throw new Exception('Inconsistent application hierarchy in ' . $a->getMessage() . 'config.patchwork.php');
         }
 
         $a = array_slice($a, 1);
@@ -164,7 +165,7 @@ class Patchwork_Bootstrapper_Inheritance
             {
                 if (!file_exists($a . '/config.patchwork.php'))
                 {
-                    throw new Patchwork_Bootstrapper_Exception('Missing file ' . rtrim(strtr($parent[$i], '\\', '/'), '/') . '/config.patchwork.php in ' . $config);
+                    throw new Exception('Missing file ' . rtrim(strtr($parent[$i], '\\', '/'), '/') . '/config.patchwork.php in ' . $config);
                 }
 
                 $a = patchwork_realpath($a);

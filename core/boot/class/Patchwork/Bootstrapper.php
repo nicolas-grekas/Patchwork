@@ -8,8 +8,9 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork;
 
-class Patchwork_Bootstrapper
+class Bootstrapper
 {
     static
 
@@ -19,7 +20,7 @@ class Patchwork_Bootstrapper
 
     static function initialize($caller, $cwd)
     {
-        $manager = self::$class . '_' . self::$manager;
+        $manager = self::$class . '\\' . self::$manager;
         $pwd = implode(DIRECTORY_SEPARATOR, array(dirname($caller), 'core', 'boot', ''));
         self::$manager = new $manager(self::$class, $caller, $pwd, $cwd);
     }

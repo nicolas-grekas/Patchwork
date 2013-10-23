@@ -8,6 +8,8 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork;
+
 /**
  * ShutdownHandler modifies how shutdown time behaves for greater control.
  *
@@ -24,7 +26,8 @@
  *
  * Because shutdown time is special, the methods of this class must remain fully public and static.
  */
-class Patchwork_ShutdownHandler
+
+class ShutdownHandler
 {
     static $destructors = array();
 
@@ -54,7 +57,7 @@ class Patchwork_ShutdownHandler
             if (__CLASS__ !== self::$class) array_unshift($c, array(self::$class, __FUNCTION__));
             call_user_func_array(array_shift($c), $c);
         }
-        catch (Exception $e)
+        catch (\Exception $e)
         {
             $c = set_exception_handler('var_dump');
             restore_exception_handler();

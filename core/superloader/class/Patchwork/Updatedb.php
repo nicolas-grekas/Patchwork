@@ -8,10 +8,12 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork;
+
 /**
  * Updatedb implements an mlocate like strategy to build a database of existing paths in a set of directories.
  */
-class Patchwork_Updatedb
+class Updatedb
 {
     function buildPathCache($paths, $last, $cwd, $zcache)
     {

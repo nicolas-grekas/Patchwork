@@ -17,7 +17,7 @@ use Patchwork\PHP\Parser;
  */
 class ClassExists extends Parser\Bracket
 {
-    protected $tail = "||\\Patchwork_Superloader::exists(\$\x9D,0)";
+    protected $tail = "||\\Patchwork\\Superloader::exists(\$\x9D,0)";
 
     protected function onOpen(&$token)
     {

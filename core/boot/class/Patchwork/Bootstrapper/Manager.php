@@ -8,8 +8,9 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork\Bootstrapper;
 
-class Patchwork_Bootstrapper_Manager
+class Manager
 {
     protected
 
@@ -290,7 +291,7 @@ class Patchwork_Bootstrapper_Manager
                 $this->shim('spl_autoload_register',   ':SplAutoload:', array('$callback', '$throw' => true, '$prepend' => false)) .
                 $this->shim('spl_autoload_unregister', ':SplAutoload:', array('$callback')) .
                 (function_exists('spl_autoload_register')
-                    ? "spl_autoload_register(array('Patchwork_PHP_Shim_SplAutoload','spl_autoload_call'));"
+                    ? "spl_autoload_register(array('Patchwork\PHP\Shim\SplAutoload','spl_autoload_call'));"
                     : 'class LogicException extends Exception {}'),
                 __FILE__
             );
@@ -390,7 +391,7 @@ class Patchwork_Bootstrapper_Manager
 
     protected function shim($function, $shim, $args)
     {
-        ':' === substr($shim, 0, 1) && $shim = 'Patchwork_PHP_Shim_' . substr($shim, 1);
+        ':' === substr($shim, 0, 1) && $shim = 'Patchwork\PHP\Shim\\' . substr($shim, 1);
         ':' === substr($shim, -1) && $shim .= ':' . $function;
 
         if (function_exists($function))
@@ -470,4 +471,4 @@ class Patchwork_Bootstrapper_Manager
     }
 }
 
-class Patchwork_Bootstrapper_Exception extends ErrorException {}
+class Exception extends \ErrorException {}

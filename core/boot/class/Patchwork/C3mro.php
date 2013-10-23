@@ -8,12 +8,14 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
+namespace Patchwork;
+
 /**
  * C3 Method Resolution Order graph linearization.
  *
  * See http://python.org/2.3/mro.html
  */
-class Patchwork_C3mro
+class C3mro
 {
     protected $cache = array(), $getParentNodes;
 
@@ -64,7 +66,7 @@ class Patchwork_C3mro
             if (false === $parent)
             {
                 $resultSeq = null;
-                throw new Patchwork_C3mro_InconsistentHierarchyException($node);
+                throw new InconsistentC3mroHierarchyException($node);
             }
             else $resultSeq[] = $parent;
 
@@ -77,6 +79,6 @@ class Patchwork_C3mro
     }
 }
 
-class Patchwork_C3mro_InconsistentHierarchyException extends Exception
+class InconsistentC3mroHierarchyException extends \Exception
 {
 }

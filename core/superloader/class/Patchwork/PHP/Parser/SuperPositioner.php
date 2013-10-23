@@ -29,7 +29,7 @@ class SuperPositioner extends PhpPreprocessor
         '~tagRequire'    => array(T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
     ),
 
-    $prependedCode = '\Patchwork_Superloader::getProcessedPath',
+    $prependedCode = '\Patchwork\Superloader::getProcessedPath',
 
     $class, $nsResolved, $nsPrefix, $expressionValue,
     $dependencies = array(
@@ -59,7 +59,7 @@ class SuperPositioner extends PhpPreprocessor
         {
             if (isset($token[2][T_USE_CLASS])
                 && 0 === strcasecmp('\ReflectionClass', $this->nsResolved)
-                && (!$this->class || strcasecmp('Patchwork_PHP_Shim_ReflectionClass', strtr($this->class->nsName, '\\', '_'))))
+                && (!$this->class || strcasecmp('Patchwork\PHP\Shim\ReflectionClass', strtr($this->class->nsName, '\\', '_'))))
             {
                 $this->dependencies['ClassInfo']->removeNsPrefix();
                 return $this->unshiftCode('\Patchwork\PHP\Shim\ReflectionClass');
@@ -149,7 +149,7 @@ class SuperPositioner extends PhpPreprocessor
             $token[1] .= "\\class_alias('{$c->nsName}{$c->suffix}','{$a}{$c->suffix}');";
         }
 
-        $s = '\Patchwork_Superloader';
+        $s = '\Patchwork\Superloader';
         $this->targetPhpVersionId < 50300 && $s[0] = ' ';
 
         if ($c->isFinal || $c->isTop)
@@ -173,11 +173,11 @@ class SuperPositioner extends PhpPreprocessor
     protected function tagRequire(&$token)
     {
         // Every require|include inside files in the include_path
-        // is preprocessed thanks to Patchwork_Superloader::getProcessedPath().
+        // is preprocessed thanks to Patchwork\Superloader::getProcessedPath().
 
-        if (\Patchwork_Superloader::$turbo
+        if (\Patchwork\Superloader::$turbo
           && $this->dependencies['ConstantExpression']->nextExpressionIsConstant()
-          && false !== $a = \Patchwork_Superloader::getProcessedPath($this->expressionValue, true))
+          && false !== $a = \Patchwork\Superloader::getProcessedPath($this->expressionValue, true))
         {
             $token =& $this->getNextToken();
             $token[1] = ' ' . self::export($a) . str_repeat("\n", substr_count($token[1], "\n"));
