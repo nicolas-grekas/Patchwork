@@ -107,8 +107,7 @@ class Callback extends Parser\Bracket
 
             if ($this->targetPhpVersionId >= 50300)
             {
-                // TODO: replace 'self' by __CLASS__ and in PHP 5.2, optimize
-                // __CLASS__ and A\B by underscore resolved version, check for $this.
+                // TODO: replace 'self' by __CLASS__, check for $this.
 
                 while (isset($t[$a])) switch ($t[$a++][0])
                 {

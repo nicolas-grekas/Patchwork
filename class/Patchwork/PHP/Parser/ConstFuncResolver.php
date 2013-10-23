@@ -79,7 +79,6 @@ class ConstFuncResolver extends Parser
 
     protected function nsCodeLoader($is_func, $ns, $token)
     {
-        // @todo: This doesn't work in PHP 5.2 for namespaced functions and constants
         if ($is_func) return function_exists($ns . $token);
         else return defined($ns . $token);
     }
