@@ -21,10 +21,11 @@ class PhpPreprocessor extends Parser
 
     $prependedCode = '',
     $exprStack = array(),
+    $ternaryStack = array(),
     $exprLevel,
     $exprCallbacks = array(
         '~incExprLevel' => array('(', '{', '[', '?'),
-        'decExprLevel' => array(')', '}', ']', ':', ',', T_AS, T_CLOSE_TAG, ';'),
+        'decExprLevel' => array(')', '}', ']', ':', ',', ';', T_AS, T_CLOSE_TAG),
     ),
     $callbacks = array(
         '~tagRequire' => array(T_REQUIRE_ONCE, T_INCLUDE_ONCE, T_REQUIRE, T_INCLUDE),
@@ -50,18 +51,22 @@ class PhpPreprocessor extends Parser
     protected function incExprLevel(&$token)
     {
         ++$this->exprLevel;
+        if ('?' === $token[0]) $this->ternaryStack[] = $this->exprLevel;
     }
 
     protected function decExprLevel(&$token)
     {
         switch ($token[0])
         {
-        case ',': if ($this->exprLevel) break;
+        case ':':
+            if ($this->exprLevel !== end($this->ternaryStack)) break;
+            else array_pop($this->ternaryStack);
+
+        case ',': if ($this->exprLevel && ',' === $token[0]) break;
 
         case ')':
         case '}':
-        case ']':
-        case ':': if ($this->exprLevel--) break;
+        case ']': if ($this->exprLevel--) break;
 
         default:
             $this->exprLevel = array_pop($this->exprStack);
