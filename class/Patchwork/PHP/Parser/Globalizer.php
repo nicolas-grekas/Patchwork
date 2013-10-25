@@ -33,12 +33,19 @@ class Globalizer extends Parser
     {
         foreach ((array) $autoglobals as $autoglobals)
         {
-            if ( !isset(${substr($autoglobals, 1)})
-                || '$autoglobals' === $autoglobals
-                || '$parent'      === $autoglobals )
+            switch ($autoglobals)
             {
-                $this->autoglobals[$autoglobals] = 1;
+            case '$_GET':
+            case '$_ENV':
+            case '$_POST':
+            case '$_COOKIE':
+            case '$_SERVER':
+            case '$_REQUEST':
+            case '$GLOBALS':
+                continue 2;
             }
+
+            $this->autoglobals[$autoglobals] = 1;
         }
 
         parent::__construct($parent);
@@ -63,7 +70,9 @@ class Globalizer extends Parser
         $this->unregister(array(__FUNCTION__ => T_BRACKET_CLOSE));
         if ($this->scope->autoglobals) switch ($this->scope->type)
         {
-        case T_OPEN_TAG: case T_FUNCTION: case T_NAMESPACE:
+        case T_OPEN_TAG:
+        case T_FUNCTION:
+        case T_NAMESPACE:
             $this->scope->token[1] .= 'global ' . implode(',', array_keys($this->scope->autoglobals)) . ';';
         }
     }
