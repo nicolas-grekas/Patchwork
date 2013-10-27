@@ -27,8 +27,9 @@ class ThrowingErrorHandler
      */
     static function register($handler = null)
     {
-        isset($handler) or $handler = new self;
+        isset($handler) or $handler = new static;
         set_error_handler(array($handler, 'handleError'), $handler->thrownErrors | E_RECOVERABLE_ERROR);
+        return $handler;
     }
 
     /**

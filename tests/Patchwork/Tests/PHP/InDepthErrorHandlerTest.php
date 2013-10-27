@@ -33,7 +33,7 @@ class InDepthErrorHandlerTest extends \PHPUnit_Framework_TestCase
 
         error_reporting(-1);
 
-        $h = new InDepthErrorHandler(null, null, /*scream*/ E_PARSE, null, null, /*traced*/ 0);
+        $h = new InDepthErrorHandler(null, array('scream' => E_PARSE, 'trace' => 0));
         InDepthErrorHandler::register($h, $f);
         $h = InDepthErrorHandler::getHandler();
         $h->getLogger()->loggedGlobals = array();
