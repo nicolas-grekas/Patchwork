@@ -54,7 +54,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
 
     static function register($handler = null, $log_file = 'php://stderr')
     {
-        isset($handler) or $handler = new self;
+        isset($handler) or $handler = new static;
 
         // See also http://php.net/error_reporting
         // Formatting errors with html_errors, error_prepend_string or
@@ -96,8 +96,8 @@ class InDepthErrorHandler extends ThrowingErrorHandler
     static function shutdown()
     {
         self::$shuttingDown = 1;
-        $e = self::getLastError();
-        while (self::$stackedErrorLevels) self::unstackErrors();
+        $e = static::getLastError();
+        while (self::$stackedErrorLevels) static::unstackErrors();
 
         if ($e)
         {
@@ -114,7 +114,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
                     $h->handleError($e['type'], $e['message'], $e['file'], $e['line'], null, -1);
                     $h->thrownErrors = $t;
                 }
-                self::resetLastError();
+                static::resetLastError();
             }
         }
     }
@@ -174,14 +174,14 @@ class InDepthErrorHandler extends ThrowingErrorHandler
     /**
      * Sets the logger and all the bitfields that configure errors' logging.
      */
-    function __construct($logger = null, $logged = null, $scream = null, $thrown = null, $scoped = null, $traced = null)
+    function __construct($logger = null, $error_levels = array())
     {
         if (isset($logger)) $this->logger = $logger;
-        if (isset($logged)) $this->loggedErrors = $logged;
-        if (isset($scream)) $this->screamErrors = $scream;
-        if (isset($thrown)) $this->thrownErrors = $thrown;
-        if (isset($scoped)) $this->scopedErrors = $scoped;
-        if (isset($traced)) $this->tracedErrors = $traced;
+        if (isset($error_levels['log']))    $this->loggedErrors = $error_levels['log'];
+        if (isset($error_levels['scream'])) $this->screamErrors = $error_levels['scream'];
+        if (isset($error_levels['throw']))  $this->thrownErrors = $error_levels['throw'];
+        if (isset($error_levels['scope']))  $this->scopedErrors = $error_levels['scope'];
+        if (isset($error_levels['trace']))  $this->tracedErrors = $error_levels['trace'];
     }
 
     /**
