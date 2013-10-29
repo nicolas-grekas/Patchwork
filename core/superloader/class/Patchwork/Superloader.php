@@ -214,6 +214,8 @@ class Superloader
 
         Preprocessor::execute($source, $cache, $level, false, true, $lazy);
 
+        self::resetOpcodeCache();
+
         return $cache;
     }
 
@@ -234,5 +236,10 @@ class Superloader
         }
 
         return $c;
+    }
+
+    static function resetOpcodeCache()
+    {
+        opcache_reset();
     }
 }

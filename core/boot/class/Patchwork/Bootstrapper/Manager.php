@@ -60,8 +60,6 @@ class Manager
         {
             $s = '$CONFIG = array();';
 
-            if (function_exists('apc_clear_cache')) apc_clear_cache('opcode');
-
             // Turn off magic quotes runtime
 
             if (function_exists('get_magic_quotes_runtime') && @get_magic_quotes_runtime())
@@ -302,6 +300,8 @@ class Manager
         foreach (array_reverse($b) as $c)
             if (file_exists($c .= 'bootup.patchwork.php'))
                 $this->steps[] = array(null, $c);
+
+        $this->steps[] = array("/**/opcache_reset();\n", __FILE__);
 
         $b[] = $this->pwd;
 

@@ -132,10 +132,10 @@ class Autoloader extends Superloader
                 {
                     file_exists($cache) && unlink($cache);
                     copy($src, $cache);
-/**/                if (function_exists('apc_clear_cache'))
-                        apc_clear_cache('opcode');
                 }
                 else Preprocessor::execute($src, $cache, $level, $top, $isTop, false);
+
+                self::resetOpcodeCache();
             }
 
             $current_pool = array();
@@ -344,8 +344,7 @@ class Autoloader extends Superloader
 
             rename($a, $to) || unlink($a);
 
-/**/        if (function_exists('apc_clear_cache'))
-                apc_clear_cache('opcode');
+            self::resetOpcodeCache();
         }
     }
 }

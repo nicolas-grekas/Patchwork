@@ -2,6 +2,7 @@
 /*
  * This file incorporates works covered by the following disclaimer:
  *
+ *   Copyright (c) 2013 Nicolas Grekas <p@tchwork.com>
  *   Copyright (c) 2013 Ben Ramsey <http://benramsey.com>
  *   Copyright (c) 2012 Anthony Ferrara <ircmaxell@php.net>
  *
@@ -30,56 +31,9 @@ namespace Patchwork\PHP\Shim;
 
 class Php550
 {
-    static function json_encode($value, $options = 0, $depth = 512)
+    static boolval($val)
     {
-/**/    if (PHP_VERSION_ID < 50300)
-            return json_encode($value);
-/**/    else
-            return json_encode($value, $options);
-    }
-
-    static function json_last_error_msg()
-    {
-        switch (json_last_error())
-        {
-        case JSON_ERROR_NONE: return "No error";
-        case JSON_ERROR_DEPTH: return "Maximum stack depth exceeded";
-        case JSON_ERROR_STATE_MISMATCH: return "State mismatch (invalid or malformed JSON)";
-        case JSON_ERROR_CTRL_CHAR: return "Control character error, possibly incorrectly encoded";
-        case JSON_ERROR_SYNTAX: return "Syntax error";
-        case JSON_ERROR_UTF8: return "Malformed UTF-8 characters, possibly incorrectly encoded"; // Since 5.3.3
-        case JSON_ERROR_RECURSION: return "Recursion detected"; // Since 5.5.0
-        case JSON_ERROR_INF_OR_NAN: return "Inf and NaN cannot be JSON encoded"; // Since 5.5.0
-        case JSON_ERROR_UNSUPPORTED_TYPE: return "Type is not supported"; // Since 5.5.0
-        default: return "Unknown error";
-        }
-    }
-
-    static function set_exception_handler($exception_handler)
-    {
-        if (null === $exception_handler)
-        {
-            $h = set_exception_handler('var_dump');
-            restore_exception_handler();
-            set_exception_handler(null);
-            return $h;
-        }
-
-        return set_exception_handler($exception_handler);
-    }
-
-    static function set_error_handler($error_handler, $error_types = -1)
-    {
-        if (null === $error_handler)
-        {
-            $h = set_error_handler('var_dump', 0);
-            do restore_error_handler() && restore_error_handler();
-            while (null !== set_error_handler('var_dump', 0));
-            restore_error_handler();
-            return $h;
-        }
-
-        return set_error_handler($error_handler, $error_types);
+        return !! $val;
     }
 
     static function array_column(array $input, $columnKey, $indexKey = null)
@@ -115,6 +69,56 @@ class Php550
         }
 
         return $output;
+    }
+
+    static function json_encode($value, $options = 0, $depth = 512)
+    {
+/**/    if (PHP_VERSION_ID < 50300)
+            return json_encode($value);
+/**/    else
+            return json_encode($value, $options);
+    }
+
+    static function json_last_error_msg()
+    {
+        switch (json_last_error())
+        {
+        case JSON_ERROR_NONE: return "No error";
+        case JSON_ERROR_DEPTH: return "Maximum stack depth exceeded";
+        case JSON_ERROR_STATE_MISMATCH: return "State mismatch (invalid or malformed JSON)";
+        case JSON_ERROR_CTRL_CHAR: return "Control character error, possibly incorrectly encoded";
+        case JSON_ERROR_SYNTAX: return "Syntax error";
+        case JSON_ERROR_UTF8: return "Malformed UTF-8 characters, possibly incorrectly encoded"; // Since 5.3.3
+        case JSON_ERROR_RECURSION: return "Recursion detected"; // Since 5.5.0
+        case JSON_ERROR_INF_OR_NAN: return "Inf and NaN cannot be JSON encoded"; // Since 5.5.0
+        case JSON_ERROR_UNSUPPORTED_TYPE: return "Type is not supported"; // Since 5.5.0
+        default: return "Unknown error";
+        }
+    }
+
+    static function opcache_invalidate($file, $force = false)
+    {
+        return static::opcache_reset();
+    }
+
+    static function opcache_reset()
+    {
+/**/    if (function_exists('accelerator_reset'))
+            accelerator_reset();
+
+/**/    if (function_exists('apc_clear_cache'))
+            apc_clear_cache('opcode');
+
+/**/    if (function_exists('eaccelerator_clear'))
+            eaccelerator_clear();
+
+/**/    if (function_exists('opcache_reset'))
+            opcache_reset();
+
+/**/    if (function_exists('wincache_refresh_if_changed'))
+            wincache_refresh_if_changed();
+
+        return true;
     }
 
     /**
@@ -340,6 +344,33 @@ class Php550
         }
 
         return $status === 0;
+    }
+
+    static function set_error_handler($error_handler, $error_types = -1)
+    {
+        if (null === $error_handler)
+        {
+            $h = set_error_handler('var_dump', 0);
+            do restore_error_handler() && restore_error_handler();
+            while (null !== set_error_handler('var_dump', 0));
+            restore_error_handler();
+            return $h;
+        }
+
+        return set_error_handler($error_handler, $error_types);
+    }
+
+    static function set_exception_handler($exception_handler)
+    {
+        if (null === $exception_handler)
+        {
+            $h = set_exception_handler('var_dump');
+            restore_exception_handler();
+            set_exception_handler(null);
+            return $h;
+        }
+
+        return set_exception_handler($exception_handler);
     }
 
 

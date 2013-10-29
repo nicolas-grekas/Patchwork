@@ -104,9 +104,6 @@ class Preprocessor
                 file_exists($destination) && @unlink($destination);
 
             rename($tmp, $destination) || unlink($tmp);
-
-/**/        if (function_exists('apc_clear_cache'))
-                apc_clear_cache('opcode');
         }
 
         array_pop(self::$recursivePool);

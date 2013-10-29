@@ -11,21 +11,6 @@
 use Patchwork as p;
 use Patchwork\PHP\Shim as s;
 
-/**/if (PHP_VERSION_ID < 50309)
-/**/{
-/**/    boot::$manager->pushFile('class/Patchwork/PHP/Shim/Php539.php');
-
-        p\Shim(is_a,           s\Php539, $obj, $class, $allow_string = false);
-        p\Shim(is_subclass_of, s\Php539, $obj, $class, $allow_string = true);
-/**/}
-
-/**/if (PHP_VERSION_ID < 50302)
-/**/{
-/**/    boot::$manager->pushFile('class/Patchwork/PHP/Shim/Php532.php');
-
-        p\Shim(stream_resolve_include_path, s\Php532, $filename);
-/**/}
-
 /**/if (!function_exists('trait_exists'))
 /**/{
         function trait_exists($class, $autoload = true) {return $autoload && class_exists($class, $autoload) && false;}
@@ -37,12 +22,30 @@ use Patchwork\PHP\Shim as s;
         p\Shim(fsockopen,            s\Bug48805, $hostname, $port = -1, &$errno = null, &$errstr = null, $timeout = null);
 /**/}
 
+/**/if (PHP_VERSION_ID < 50302)
+/**/{
+/**/    boot::$manager->pushFile('class/Patchwork/PHP/Shim/Php532.php');
+
+        p\Shim(stream_resolve_include_path, s\Php532, $filename);
+/**/}
+
+/**/if (PHP_VERSION_ID < 50303)
+/**/{
+        const JSON_NUMERIC_CHECK = 32;
+        const JSON_ERROR_UTF8 = 5;
+/**/}
+
+/**/if (PHP_VERSION_ID < 50309)
+/**/{
+/**/    boot::$manager->pushFile('class/Patchwork/PHP/Shim/Php539.php');
+
+        p\Shim(is_a,           s\Php539, $obj, $class, $allow_string = false);
+        p\Shim(is_subclass_of, s\Php539, $obj, $class, $allow_string = true);
+/**/}
+
 /**/if (PHP_VERSION_ID < 50400)
 /**/{
         p\Shim(number_format, s\Php540, $number, $decimals = 0, $dec_point = '.', $thousands_sep = ',');
-
-        // Remove import_request_variables() by mapping it to something non-existant
-        p\Shim(import_request_variable, s\Php540, $types, $prefix = '');
 
         // Backport UTF-8 default charset from PHP 5.4.0, add new $double_encode parameter (since 5.2.3)
         p\Shim(html_entity_decode, html_entity_decode, $s, $style = ENT_COMPAT, $charset = 'UTF-8');
@@ -50,11 +53,24 @@ use Patchwork\PHP\Shim as s;
 
         p\Shim(htmlspecialchars, htmlspecialchars, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
         p\Shim(htmlentities,     htmlentities,     $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
+
+        const JSON_BIGINT_AS_STRING = 2;
+        const JSON_UNESCAPED_SLASHES = 64;
+        const JSON_PRETTY_PRINT = 128;
+        const JSON_UNESCAPED_UNICODE = 256;
+
+        p\Shim(json_decode, s\Php540);
+
+        // Remove by mapping to something non-existant
+        p\Shim(import_request_variable, s\Php540, $types, $prefix = '');
 /**/}
 
 /**/if (PHP_VERSION_ID < 50500)
 /**/{
-        p\Shim(array_column, s\Php550, $array, $column_key, $index_key = null);
+        p\Shim(array_column,       s\Php550, $array, $column_key, $index_key = null);
+        p\Shim(boolval,            s\Php550, $val);
+        p\Shim(opcache_invalidate, s\Php550, $file, $force = false);
+        p\Shim(opcache_reset,      s\Php550);
 
         const PASSWORD_BCRYPT = 1;
         const PASSWORD_DEFAULT = /*<*/(int) (function_exists('crypt') && CRYPT_BLOWFISH)/*>*/;
@@ -64,30 +80,23 @@ use Patchwork\PHP\Shim as s;
         p\Shim(password_needs_rehash, s\Php550, $hash, $algo, array $options = array());
         p\Shim(password_verify,       s\Php550, $password, $hash);
 
-/**/    if (PHP_VERSION_ID < 50303)
-/**/    {
-            const JSON_NUMERIC_CHECK = 32;
-            const JSON_ERROR_UTF8 = 5;
-/**/    }
-
-/**/    if (PHP_VERSION_ID < 50400)
-/**/    {
-            const JSON_BIGINT_AS_STRING = 2;
-            const JSON_UNESCAPED_SLASHES = 64;
-            const JSON_PRETTY_PRINT = 128;
-            const JSON_UNESCAPED_UNICODE = 256;
-
-            p\Shim(json_decode, s\Php540);
-/**/    }
-
         const JSON_ERROR_RECURSION = 6;
         const JSON_ERROR_INF_OR_NAN = 7;
         const JSON_ERROR_UNSUPPORTED_TYPE = 8;
 
-        p\Shim(json_encode,           s\Php550, $value, $options = 0, $depth = 512);
-        p\Shim(json_last_error_msg,   s\Php550);
-        p\Shim(set_error_handler,     s\Php550, $error_handler, $error_types = -1);
-        p\Shim(set_exception_handler, s\Php550, $exception_handler);
+        p\Shim(json_encode,         s\Php550, $value, $options = 0, $depth = 512);
+        p\Shim(json_last_error_msg, s\Php550);
+
+        // Remove by mapping to something non-existant
+        p\Shim(php_logo_guid, s\Php550);
+        p\Shim(php_egg_logo_guid, s\Php550);
+        p\Shim(php_real_logo_guid, s\Php550);
+        p\Shim(zend_logo_guid, s\Php550);
+/**/}
+
+/**/if (PHP_VERSION_ID < 50505)
+/**/{
+        p\Shim(opcache_compile_file, s\Php555, $file);
 /**/}
 
 // Workaround mbstring function overloading
