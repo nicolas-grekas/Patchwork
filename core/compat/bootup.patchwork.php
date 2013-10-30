@@ -67,35 +67,41 @@ use Patchwork\PHP\Shim as s;
 
 /**/if (PHP_VERSION_ID < 50500)
 /**/{
-        p\Shim(array_column,       s\Php550, $array, $column_key, $index_key = null);
-        p\Shim(boolval,            s\Php550, $val);
-        p\Shim(opcache_invalidate, s\Php550, $file, $force = false);
-        p\Shim(opcache_reset,      s\Php550);
-
-        const PASSWORD_BCRYPT = 1;
-        const PASSWORD_DEFAULT = /*<*/(int) (function_exists('crypt') && CRYPT_BLOWFISH)/*>*/;
-
-        p\Shim(password_hash,         s\Php550, $password, $algo, array $options = array());
-        p\Shim(password_get_info,     s\Php550, $hash);
-        p\Shim(password_needs_rehash, s\Php550, $hash, $algo, array $options = array());
-        p\Shim(password_verify,       s\Php550, $password, $hash);
+/**/    boot::$manager->pushFile('class/Patchwork/PHP/Shim/Php550.php');
 
         const JSON_ERROR_RECURSION = 6;
         const JSON_ERROR_INF_OR_NAN = 7;
         const JSON_ERROR_UNSUPPORTED_TYPE = 8;
 
-        p\Shim(json_encode,         s\Php550, $value, $options = 0, $depth = 512);
-        p\Shim(json_last_error_msg, s\Php550);
+        p\Shim(boolval,               s\Php550, $val);
+        p\Shim(json_encode,           s\Php550, $value, $options = 0, $depth = 512);
+        p\Shim(json_last_error_msg,   s\Php550);
+        p\Shim(opcache_invalidate,    s\Php550, $file, $force = false);
+        p\Shim(opcache_reset,         s\Php550);
+        p\Shim(set_error_handler,     s\Php550, $error_handler, $error_types = -1);
+        p\Shim(set_exception_handler, s\Php550, $exception_handler);
+
+        p\Shim(array_column, s\Php550ArrayColumn, $array, $column_key, $index_key = null);
+
+        const PASSWORD_BCRYPT = 1;
+        const PASSWORD_DEFAULT = /*<*/(int) (function_exists('crypt') && CRYPT_BLOWFISH)/*>*/;
+
+        p\Shim(password_hash,         s\Php550Password, $password, $algo, array $options = array());
+        p\Shim(password_get_info,     s\Php550Password, $hash);
+        p\Shim(password_needs_rehash, s\Php550Password, $hash, $algo, array $options = array());
+        p\Shim(password_verify,       s\Php550Password, $password, $hash);
 
         // Remove by mapping to something non-existant
-        p\Shim(php_logo_guid, s\Php550);
-        p\Shim(php_egg_logo_guid, s\Php550);
+        p\Shim(php_logo_guid,      s\Php550);
+        p\Shim(php_egg_logo_guid,  s\Php550);
         p\Shim(php_real_logo_guid, s\Php550);
-        p\Shim(zend_logo_guid, s\Php550);
+        p\Shim(zend_logo_guid,     s\Php550);
 /**/}
 
 /**/if (PHP_VERSION_ID < 50505)
 /**/{
+/**/    boot::$manager->pushFile('class/Patchwork/PHP/Shim/Php555.php');
+
         p\Shim(opcache_compile_file, s\Php555, $file);
 /**/}
 
