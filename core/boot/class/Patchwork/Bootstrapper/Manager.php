@@ -301,7 +301,7 @@ class Manager
             if (file_exists($c .= 'bootup.patchwork.php'))
                 $this->steps[] = array(null, $c);
 
-        $this->steps[] = array("/**/opcache_reset();\n", __FILE__);
+        $this->steps[] = array("\n/**/opcache_reset();\n", __FILE__);
 
         $b[] = $this->pwd;
 
