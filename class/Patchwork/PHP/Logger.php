@@ -109,8 +109,12 @@ class Logger
     {
         $a = (array) $e;
 
-        $this->filterTrace($a["\0Exception\0trace"], $e instanceof InDepthRecoverableErrorException ? $e->traceOffset : 0, 1);
-        if (null === $a["\0Exception\0trace"]) unset($a["\0Exception\0trace"]);
+        $trace =& $a["\0Exception\0trace"];
+        unset($a["\0Exception\0trace"]);
+
+        $this->filterTrace($trace, $e instanceof InDepthRecoverableErrorException ? $e->traceOffset : 0, 1);
+
+        if (isset($trace)) $a["\0Exception\0trace"] =& $trace; // Ensures the trace is always last
         if ($e instanceof InDepthRecoverableErrorException) unset($a['traceOffset']);
         if ($e instanceof InDepthRecoverableErrorException && !isset($a['scope'])) unset($a['scope']);
         if (empty($a["\0Exception\0previous"])) unset($a["\0Exception\0previous"]);
