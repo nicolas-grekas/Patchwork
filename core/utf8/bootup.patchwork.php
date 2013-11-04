@@ -159,14 +159,14 @@ setlocale(LC_ALL, /*<*/setlocale(LC_CTYPE, 'C.UTF-8', 'C')/*>*/);
         p\Shim(iconv_mime_encode,         s\Iconv, $name, $value, $pref = INF);
         p\Shim(ob_iconv_handler,          s\Iconv, $buffer, $mode);
         p\Shim(iconv_mime_decode_headers, s\Iconv, $encoded_headers, $mode = 2, $charset = INF);
-/**/
+
 /**/    if (extension_loaded('mbstring'))
 /**/    {
-            p\Shim(iconv_strlen,  mb_strlen,  $s, $enc = INF);
-            p\Shim(iconv_strpos,  mb_strpos,  $s, $needle, $offset = 0, $enc = INF);
-            p\Shim(iconv_strrpos, mb_strrpos, $s, $needle,              $enc = INF);
-            p\Shim(iconv_substr,  mb_substr,  $s, $start, $length = 2147483647, $enc = INF);
-            p\Shim(iconv_mime_decode, mb_decode_mimeheader, $encoded_headers, $mode = 2, $charset = INF);
+            p\Shim(iconv_strlen,  mb_strlen,  $s, $enc = 'UTF-8');
+            p\Shim(iconv_strpos,  mb_strpos,  $s, $needle, $offset = 0, $enc = 'UTF-8');
+            p\Shim(iconv_strrpos, mb_strrpos, $s, $needle,              $enc = 'UTF-8');
+            p\Shim(iconv_substr,  mb_substr,  $s, $start, $length = 2147483647, $enc = 'UTF-8');
+            p\Shim(iconv_mime_decode, mb_decode_mimeheader, $encoded_headers, $mode = 2, $charset = 'UTF-8');
 /**/    }
 /**/    else
 /**/    {
