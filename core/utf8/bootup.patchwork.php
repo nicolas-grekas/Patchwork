@@ -162,11 +162,11 @@ setlocale(LC_ALL, /*<*/setlocale(LC_CTYPE, 'C.UTF-8', 'C')/*>*/);
 
 /**/    if (extension_loaded('mbstring'))
 /**/    {
-            p\Shim(iconv_strlen,  mb_strlen,  $s, $enc = 'UTF-8');
-            p\Shim(iconv_strpos,  mb_strpos,  $s, $needle, $offset = 0, $enc = 'UTF-8');
-            p\Shim(iconv_strrpos, mb_strrpos, $s, $needle,              $enc = 'UTF-8');
-            p\Shim(iconv_substr,  mb_substr,  $s, $start, $length = 2147483647, $enc = 'UTF-8');
-            p\Shim(iconv_mime_decode, mb_decode_mimeheader, $encoded_headers, $mode = 2, $charset = 'UTF-8');
+            p\Shim(iconv_strlen,      s\IconvMb, $s, $enc = INF);
+            p\Shim(iconv_strpos,      s\IconvMb, $s, $needle, $offset = 0, $enc = INF);
+            p\Shim(iconv_strrpos,     s\IconvMb, $s, $needle,              $enc = INF);
+            p\Shim(iconv_substr,      s\IconvMb, $s, $start, $length = 2147483647, $enc = INF);
+            p\Shim(iconv_mime_decode, s\IconvMb, $encoded_headers, $mode = 2, $charset = INF);
 /**/    }
 /**/    else
 /**/    {
