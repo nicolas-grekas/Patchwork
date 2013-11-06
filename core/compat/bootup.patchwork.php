@@ -45,8 +45,6 @@ use Patchwork\PHP\Shim as s;
 
 /**/if (PHP_VERSION_ID < 50400)
 /**/{
-        p\Shim(number_format, s\Php540, $number, $decimals = 0, $dec_point = '.', $thousands_sep = ',');
-
         // Backport UTF-8 default charset from PHP 5.4.0, add new $double_encode parameter (since 5.2.3)
         p\Shim(html_entity_decode, html_entity_decode, $s, $style = ENT_COMPAT, $charset = 'UTF-8');
         p\Shim(get_html_translation_table, get_html_translation_table, $table = HTML_SPECIALCHARS, $style = ENT_COMPAT, $charset = 'UTF-8');
@@ -54,12 +52,19 @@ use Patchwork\PHP\Shim as s;
         p\Shim(htmlspecialchars, htmlspecialchars, $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
         p\Shim(htmlentities,     htmlentities,     $s, $style = ENT_COMPAT, $charset = 'UTF-8', $double_enc = true);
 
+        // Backport $matches becoming optional
+        p\Shim(preg_match_all, preg_match_all, $pattern, $subject, &$matches = array(), $flags = PREG_PATTERN_ORDER, $offset = 0);
+
         const JSON_BIGINT_AS_STRING = 2;
         const JSON_UNESCAPED_SLASHES = 64;
         const JSON_PRETTY_PRINT = 128;
         const JSON_UNESCAPED_UNICODE = 256;
+        const SCANDIR_SORT_NONE = SCANDIR_SORT_ASCENDING;
 
-        p\Shim(json_decode, s\Php540);
+        p\Shim(array_combine, s\Php540, $keys, $values);
+        p\Shim(hex2bin,       s\Php540, $data);
+        p\Shim(json_decode,   s\Php540, $json, $assoc = false, $depth = 512, $options = 0);
+        p\Shim(number_format, s\Php540, $number, $decimals = 0, $dec_point = '.', $thousands_sep = ',');
 
         // Remove by mapping to something non-existant
         p\Shim(import_request_variable, s\Php540, $types, $prefix = '');

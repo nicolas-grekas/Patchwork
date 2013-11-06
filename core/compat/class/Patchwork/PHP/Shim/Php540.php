@@ -12,6 +12,31 @@ namespace Patchwork\PHP\Shim;
 
 class Php540
 {
+    static function array_combine($k, $v)
+    {
+        if (array() === $k && $v === $k) return $k;
+
+        return array_combine($k, $v);
+    }
+
+    function hex2bin($data)
+    {
+        $len = strlen($data);
+
+        if (null === $len) return;
+        else if ($len % 2)
+        {
+            trigger_error('hex2bin(): Hexadecimal input string must have an even length', E_USER_WARNING);
+            return false;
+        }
+
+        $data = pack('H*', $data);
+
+        if (false !== strpos($data, "\0")) return false;
+
+        return $data;
+    }
+
     static function json_decode($json, $assoc = false, $depth = 512, $options = 0)
     {
 /**/    if (PHP_VERSION_ID < 50300)
