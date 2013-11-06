@@ -59,7 +59,10 @@ use Patchwork\PHP\Shim as s;
         const JSON_UNESCAPED_SLASHES = 64;
         const JSON_PRETTY_PRINT = 128;
         const JSON_UNESCAPED_UNICODE = 256;
-        const SCANDIR_SORT_NONE = SCANDIR_SORT_ASCENDING;
+
+        const SCANDIR_SORT_ASCENDING = 0;
+        const SCANDIR_SORT_DESCENDING = 1;
+        const SCANDIR_SORT_NONE = 0;
 
         p\Shim(array_combine, s\Php540, $keys, $values);
         p\Shim(hex2bin,       s\Php540, $data);
