@@ -111,7 +111,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
                     $h = self::$handler;
                     $t = $h->thrownErrors;
                     $h->thrownErrors = 0;
-                    $h->handleError($e['type'], $e['message'], $e['file'], $e['line'], null, -1);
+                    $h->handleError($e['type'], $e['message'], $e['file'], $e['line'], $null, -1);
                     $h->thrownErrors = $t;
                 }
                 static::resetLastError();
@@ -187,10 +187,10 @@ class InDepthErrorHandler extends ThrowingErrorHandler
     /**
      * Handles errors by filtering then logging them according to the configured bitfields.
      *
-     * @param integer $trace_offset The number of noisy items to skip from the current trace or -1 to disable any trace logging.
-     * @param float $log_time The microtime(true) when the event has been triggered.
+     * @param int   $trace_offset The number of noisy items to skip from the current trace or -1 to disable any trace logging.
+     * @param float $log_time     The microtime(true) when the event has been triggered.
      */
-    function handleError($type, $message, $file, $line, $scope, $trace_offset = 0, $log_time = 0)
+    function handleError($type, $message, $file, $line, &$scope, $trace_offset = 0, $log_time = 0)
     {
         if (isset(self::$caughtToStringException))
         {
@@ -237,7 +237,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
                 {
                     if ($this->scopedErrors & $type)
                     {
-                        null !== $scope && $e['scope'] = $scope;
+                        null !== $scope && $e['scope'] =& $scope;
                         0 <= $trace_offset && $e['trace'] = debug_backtrace(true); // DEBUG_BACKTRACE_PROVIDE_OBJECT
                         $trace_args = 1;
                     }
@@ -263,24 +263,31 @@ class InDepthErrorHandler extends ThrowingErrorHandler
     /**
      * Forwards an exception to ->handleError().
      *
-     * @param \Exception $e The exception to log.
-     * @param float $log_time The microtime(true) when the event has been triggered.
+     * @param \Exception $e        The exception to log.
+     * @param float      $log_time The microtime(true) when the event has been triggered.
      */
     function handleException(\Exception $e, $log_time = 0)
     {
-        $thrown = $this->thrownErrors;
-        $scoped = $this->scopedErrors;
         $type = $e instanceof RecoverableErrorException ? $e->getSeverity() : E_ERROR;
-        $this->scopedErrors |= $type;
+
+        $thrown = $this->thrownErrors;
         $this->thrownErrors = 0;
+
+        $scoped = $this->scopedErrors;
+        if ($this->tracedErrors & $type) $this->scopedErrors |= $type;
+
         $this->handleError(
-            $type, "Uncaught exception: " . $e->getMessage(),
-            $e->getFile(), $e->getLine(),
-            array($e),
-            -1, $log_time
+            $type,
+            "Uncaught exception: " . $e->getMessage(),
+            $e->getFile(),
+            $e->getLine(),
+            $e,
+            -1,
+            $log_time
         );
-        $this->thrownErrors = $thrown;
+
         $this->scopedErrors = $scoped;
+        $this->thrownErrors = $thrown;
     }
 
     /**

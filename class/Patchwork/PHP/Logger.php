@@ -116,7 +116,7 @@ class Logger
 
         if (isset($trace)) $a["\0Exception\0trace"] =& $trace; // Ensures the trace is always last
         if ($e instanceof InDepthRecoverableErrorException) unset($a['traceOffset']);
-        if ($e instanceof InDepthRecoverableErrorException && !isset($a['scope'])) unset($a['scope']);
+        if ($e instanceof InDepthRecoverableErrorException && null === $a['scope']) unset($a['scope']);
         if (empty($a["\0Exception\0previous"])) unset($a["\0Exception\0previous"]);
         if ($e instanceof \ErrorException && isset(self::$errorTypes[$a["\0*\0severity"]])) $a["\0*\0severity"] = self::$errorTypes[$a["\0*\0severity"]];
         unset($a["\0Exception\0string"], $a['xdebug_message'], $a['__destructorException']);
