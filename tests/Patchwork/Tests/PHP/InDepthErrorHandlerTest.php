@@ -45,7 +45,7 @@ class InDepthErrorHandlerTest extends \PHPUnit_Framework_TestCase
         }
         catch (\Patchwork\PHP\InDepthRecoverableErrorException $e)
         {
-            $h->handleException($e);
+            $h->handleUncaughtException($e);
         }
 
         if (function_exists('xdebug_disable')) xdebug_disable();
@@ -67,44 +67,46 @@ class InDepthErrorHandlerTest extends \PHPUnit_Framework_TestCase
   "time": "%s %dus - %fms - %fms",
   "mem": "%d - %d",
   "data": {"_":"4:array:4",
-    "mesg": "Uncaught exception: fake user error",
-    "type": "E_USER_ERROR ' . __FILE__ . ':43",
-    "level": "256/-1",
-    "scope": {"_":"8:Patchwork\\\\PHP\\\\InDepthRecoverableErrorException",
-      "scope": {"_":"9:array:2",
-        "f": "' . $f . '",
-        "h": {"_":"11:Patchwork\\\\PHP\\\\InDepthErrorHandler",
-          "*:loggedErrors": -1,
-          "*:screamErrors": 4,
-          "*:thrownErrors": 0,
-          "*:scopedErrors": 4867,
-          "*:tracedErrors": 0,
-          "*:logger": {"_":"17:Patchwork\\\\PHP\\\\Logger",
-            "lineFormat": "%s",
-            "loggedGlobals": [],
-            "*:logStream": {"_":"20:resource:stream",
-              "wrapper_type": "plainfile",
-              "stream_type": "STDIO",
-              "mode": "ab",
-              "unread_bytes": 0,
-              "seekable": true,
-              "uri": "' . $f . '",
-              "timed_out": false,
-              "blocked": true,
-              "eof": false
+    "mesg": "Uncaught \\\\Patchwork\\\\PHP\\\\InDepthRecoverableErrorException $exception",
+    "type": "E_ERROR /home/nikos/patchwork/dumper/tests/Patchwork/Tests/PHP/InDepthErrorHandlerTest.php:43",
+    "level": "1/-1",
+    "scope": {"_":"8:array:1",
+      "exception": {"_":"9:Patchwork\\\\PHP\\\\InDepthRecoverableErrorException",
+        "scope": {"_":"10:array:2",
+          "f": "' . $f . '",
+          "h": {"_":"12:Patchwork\\\\PHP\\\\InDepthErrorHandler",
+            "*:loggedErrors": -1,
+            "*:screamErrors": 4,
+            "*:thrownErrors": 0,
+            "*:scopedErrors": 4867,
+            "*:tracedErrors": 0,
+            "*:logger": {"_":"18:Patchwork\\\\PHP\\\\Logger",
+              "lineFormat": "%s",
+              "loggedGlobals": [],
+              "*:logStream": {"_":"21:resource:stream",
+                "wrapper_type": "plainfile",
+                "stream_type": "STDIO",
+                "mode": "ab",
+                "unread_bytes": 0,
+                "seekable": true,
+                "uri": "' . $f . '",
+                "timed_out": false,
+                "blocked": true,
+                "eof": false
+              },
+              "*:prevTime": %f,
+              "*:startTime": %f,
+              "*:isFirstEvent": true
             },
-            "*:prevTime": %f,
-            "*:startTime": %f,
-            "*:isFirstEvent": true
-          },
-          "*:loggedTraces": []
-        }
-      },
-      "*:message": "fake user error",
-      "*:code": 0,
-      "*:file": "' . __FILE__ . '",
-      "*:line": 43,
-      "*:severity": "E_USER_ERROR"
+            "*:loggedTraces": []
+          }
+        },
+        "*:message": "fake user error",
+        "*:code": 0,
+        "*:file": "' . __FILE__ . '",
+        "*:line": 43,
+        "*:severity": "E_USER_ERROR"
+      }
     }
   }
 }

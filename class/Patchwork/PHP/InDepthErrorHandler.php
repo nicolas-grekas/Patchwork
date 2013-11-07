@@ -77,7 +77,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
         $error_types |= E_RECOVERABLE_ERROR;
 
         set_error_handler(array($handler, 'handleError'), $error_types);
-        set_exception_handler(array($handler, 'handleException'));
+        set_exception_handler(array($handler, 'handleUncaughtException'));
         return self::$handler = $handler;
     }
 
@@ -261,33 +261,60 @@ class InDepthErrorHandler extends ThrowingErrorHandler
     }
 
     /**
-     * Forwards an exception to ->handleError().
+     * Forwards an uncaught exception to ->handleError().
      *
      * @param \Exception $e        The exception to log.
      * @param float      $log_time The microtime(true) when the event has been triggered.
      */
-    function handleException(\Exception $e, $log_time = 0)
+    function handleUncaughtException(\Exception $e, $log_time = 0)
     {
-        $type = $e instanceof RecoverableErrorException ? $e->getSeverity() : E_ERROR;
+        $message = 'Uncaught \\' . get_class($e) . ' $exception';
+        $scope = array('exception' => $e);
 
+        $this->handleCaughtException(E_ERROR, $message, $e->getFile(), $e->getLine(), $scope, $log_time);
+    }
+
+    /**
+     * Forwards a caught exception notice to ->handleError().
+     *
+     * @param int    $type    Not mandatory, but E_USER_NOTICE is expected
+     * @param string $message Message must match the format 'Caught \Exception $e'
+     */
+    function handleCaughtException($type, $message, $file, $line, &$scope, $log_time = 0)
+    {
         $thrown = $this->thrownErrors;
         $this->thrownErrors = 0;
 
         $scoped = $this->scopedErrors;
-        if ($this->tracedErrors & $type) $this->scopedErrors |= $type;
 
-        $this->handleError(
-            $type,
-            "Uncaught exception: " . $e->getMessage(),
-            $e->getFile(),
-            $e->getLine(),
-            $e,
-            -1,
-            $log_time
-        );
+        $v = substr($message, strpos($message, ' $', 9) + 2);
+        $e = $scope[$v];
+
+        if (! ($scoped & $type))
+        {
+            if ($this->tracedErrors & $type)
+            {
+                $this->scopedErrors |= $type;
+                unset($scope);
+                $scope = array($v => $e);
+            }
+            else
+            {
+                $message .= " with message '" . $e->getMessage() . "'";
+            }
+        }
+        else if (end($scope) !== $e)
+        {
+            unset($scope[$v]);
+            $scope[$v] = $e;
+        }
+
+        $type = $this->handleError($type, $message, $file, $line, $scope, -1, $log_time);
 
         $this->scopedErrors = $scoped;
         $this->thrownErrors = $thrown;
+
+        return $type;
     }
 
     /**
