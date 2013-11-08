@@ -45,7 +45,7 @@ class InDepthErrorHandlerTest extends \PHPUnit_Framework_TestCase
         }
         catch (\Patchwork\PHP\InDepthRecoverableErrorException $e)
         {
-            $h->handleException($e);
+            $h->handleUncaughtException($e);
         }
 
         if (function_exists('xdebug_disable')) xdebug_disable();
@@ -67,11 +67,11 @@ class InDepthErrorHandlerTest extends \PHPUnit_Framework_TestCase
   "time": "%s %dus - %fms - %fms",
   "mem": "%d - %d",
   "data": {"_":"4:array:4",
-    "mesg": "Uncaught exception: fake user error",
-    "type": "E_USER_ERROR ' . __FILE__ . ':43",
-    "level": "256/-1",
+    "mesg": "Uncaught \\\\Patchwork\\\\PHP\\\\InDepthRecoverableErrorException $exception",
+    "type": "E_ERROR /home/nikos/patchwork/dumper/tests/Patchwork/Tests/PHP/InDepthErrorHandlerTest.php:43",
+    "level": "1/-1",
     "scope": {"_":"8:array:1",
-      "0": {"_":"9:Patchwork\\\\PHP\\\\InDepthRecoverableErrorException",
+      "exception": {"_":"9:Patchwork\\\\PHP\\\\InDepthRecoverableErrorException",
         "scope": {"_":"10:array:2",
           "f": "' . $f . '",
           "h": {"_":"12:Patchwork\\\\PHP\\\\InDepthErrorHandler",
