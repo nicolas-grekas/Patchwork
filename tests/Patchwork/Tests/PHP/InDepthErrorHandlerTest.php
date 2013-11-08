@@ -105,7 +105,8 @@ class InDepthErrorHandlerTest extends \PHPUnit_Framework_TestCase
         "*:code": 0,
         "*:file": "' . __FILE__ . '",
         "*:line": 43,
-        "*:severity": "E_USER_ERROR"
+        "*:severity": "E_USER_ERROR",
+        "~:hash": "%x"
       }
     }
   }
