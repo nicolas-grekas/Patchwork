@@ -24,7 +24,7 @@ class ClassScalarInlinerTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider parserProvider
      */
-    function testParser($in, $out, $errors = [])
+    function testParser($in, $out, $errors = array())
     {
         $parser = $this->getParser();
 
@@ -38,48 +38,48 @@ class ClassScalarInlinerTest extends \PHPUnit_Framework_TestCase
 
     function parserProvider()
     {
-        return [
-            [
+        return array(
+            array(
                 'in'  => 'use a as b, C\d; b::class; d::class;',
                 'out' => "use a as b, C\d; 'a'; 'C\\d';",
-            ],
-            [
+            ),
+            array(
                 'in'  => 'self::class;',
                 'out' => 'self::self;', // for meaningful runtime error message
-            ],
-            [
+            ),
+            array(
                 'in'  => 'namespace a;class b{const c=self::class;}',
                 'out' => "namespace a;class b{const c='a\\b';}",
-            ],
-            [
+            ),
+            array(
                 'in'  => 'class a{const b=parent::class;}',
                 'out' => 'class a{const b=parent::class;}',
 
-                'errors' => [
-                    [
+                'errors' => array(
+                    array(
                         'type' => E_USER_ERROR,
                         'message' => 'parent::class cannot be used for compile-time class name resolution',
                         'line' => 1,
                         'parser' => 'Patchwork\PHP\Parser\ClassScalarInliner',
-                    ]
-                ]
-            ],
-            [
+                    )
+                )
+            ),
+            array(
                 'in'  => 'class a{function b(){static::class;}}',
                 'out' => 'class a{function b(){get_called_class();}}',
-            ],
-            [
+            ),
+            array(
                 'in'  => 'trait a{function b(){parent::class;}}',
                 'out' => 'trait a{function b(){(get_parent_class()?:parent::self);}}', // parent::self for meaningful runtime error message
-            ],
-            [
+            ),
+            array(
                 'in'  => 'class a extends b{function b(){parent::class;}}',
                 'out' => "class a extends b{function b(){'b';}}",
-            ],
-            [
+            ),
+            array(
                 'in'  => 'class a{function b(){parent::class;}}',
                 'out' => "class a{function b(){parent::parent;}}", // for meaningful runtime error message
-            ],
-        ];
+            ),
+        );
     }
 }

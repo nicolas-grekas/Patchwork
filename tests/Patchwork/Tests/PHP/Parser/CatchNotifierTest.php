@@ -21,7 +21,7 @@ class CatchNotifierTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider parserProvider
      */
-    function testParser($handler, $in, $out, $errors = [])
+    function testParser($handler, $in, $out, $errors = array())
     {
         $parser = $this->getParser($handler);
 
@@ -35,22 +35,22 @@ class CatchNotifierTest extends \PHPUnit_Framework_TestCase
 
     function parserProvider()
     {
-        return [
-            [
+        return array(
+            array(
                 'handler' => false,
                 'in'  => 'try{}catch(\E $e){}}',
                 'out' => 'try{}catch(\E $e){\user_error(\'Caught \\\\E $e\');}}',
-            ],
-            [
+            ),
+            array(
                 'handler' => 'exh',
                 'in'  => 'try{}catch(\E $e){}}',
                 'out' => 'try{}catch(\E $e){\set_error_handler(\'exh\');\user_error(\'Caught \\\\E $e\');\restore_error_handler();}}',
-            ],
-            [
-                'handler' => ['e', 'xh'],
+            ),
+            array(
+                'handler' => array('e', 'xh'),
                 'in'  => 'try{}catch(\E $e){}}',
                 'out' => 'try{}catch(\E $e){\set_error_handler(array(\'e\',\'xh\'));\user_error(\'Caught \\\\E $e\');\restore_error_handler();}}',
-            ],
-        ];
+            ),
+        );
     }
 }

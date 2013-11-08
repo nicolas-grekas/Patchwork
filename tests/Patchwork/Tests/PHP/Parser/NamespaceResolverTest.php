@@ -20,7 +20,7 @@ class NamespaceResolverTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider parserProvider
      */
-    function testParser($in, $out, $errors = [])
+    function testParser($in, $out, $errors = array())
     {
         $parser = $this->getParser();
 
@@ -34,47 +34,47 @@ class NamespaceResolverTest extends \PHPUnit_Framework_TestCase
 
     function parserProvider()
     {
-        return [
-            [
+        return array(
+            array(
                 'in'  => 'use a as b, c\d; b::$a; d\f',
                 'out' => '\a::$a; \c\d\f',
-            ],
-            [
+            ),
+            array(
                 'in'  => 'namespace a; use \b as c; c; c\d;',
                 'out' => 'namespace a; c; \b\d;',
-                'errors' => [
-                    [
+                'errors' => array(
+                    array(
                         'type' => 512,
                         'message' => 'Unresolved namespaced identifier (c)',
                         'line' => 1,
                         'parser' => 'Patchwork\PHP\Parser\NamespaceResolver',
-                    ]
-                ]
-            ],
-            [
+                    )
+                )
+            ),
+            array(
                 'in'  => 'use a as parent; parent::b;',
                 'out' => 'parent::b;',
-            ],
-            [
+            ),
+            array(
                 'in'  => 'namespace\a; b; c\d',
                 'out' => '\a; \b; \c\d',
-            ],
-            [
+            ),
+            array(
                 'in'  => 'namespace a; use function b\c as d, b\e; d(); e();',
                 'out' => 'namespace a; \b\c(); \b\e();',
-            ],
-            [
+            ),
+            array(
                 'in'  => 'namespace a; use const b\c as d, b\e; d; e;',
                 'out' => 'namespace a; \b\c; \b\e;',
-            ],
-            [
+            ),
+            array(
                 'in'  => 'use function a\b as c; c();',
                 'out' => '\a\b();',
-            ],
-            [
+            ),
+            array(
                 'in'  => 'use const a\b as c; c;',
                 'out' => '\a\b;',
-            ],
-        ];
+            ),
+        );
     }
 }

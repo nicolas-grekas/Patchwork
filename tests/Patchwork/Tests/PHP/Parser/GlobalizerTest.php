@@ -23,7 +23,7 @@ class GlobalizerTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider parserProvider
      */
-    function testParser($in, $out, $errors = [])
+    function testParser($in, $out, $errors = array())
     {
         $parser = $this->getParser();
 
@@ -37,19 +37,19 @@ class GlobalizerTest extends \PHPUnit_Framework_TestCase
 
     function parserProvider()
     {
-        return [
-            [
+        return array(
+            array(
                 'in'  => '$_GET; $CONF;',
                 'out' => 'global $CONF;$_GET; $CONF;',
-            ],
-            [
+            ),
+            array(
                 'in'  => 'a::$CONF;',
                 'out' => 'a::$CONF;',
-            ],
-            [
+            ),
+            array(
                 'in'  => 'function(){if(0)$CONF;}',
                 'out' => 'function(){global $CONF;if(0)$CONF;}',
-            ],
-        ];
+            ),
+        );
     }
 }
