@@ -21,6 +21,8 @@ namespace Patchwork\PHP;
  */
 class Logger
 {
+    const META_PREFIX = "\0~\0";
+
     public
 
     $lineFormat = "%s",
@@ -74,7 +76,7 @@ class Logger
                   1000 * ($log_time - $this->startTime),
                   1000 * ($log_time - $this->prevTime)
             ),
-            'mem'  => memory_get_peak_usage(true) . ' - ' . memory_get_usage(true),
+            'mem'  => memory_get_peak_usage() . ' - ' . memory_get_usage(),
             'data' => $data,
         );
 
@@ -109,14 +111,49 @@ class Logger
     {
         $a = (array) $e;
 
-        $trace =& $a["\0Exception\0trace"];
-        unset($a["\0Exception\0trace"]);
+        $trace = $a["\0Exception\0trace"];
+        unset($a["\0Exception\0trace"]); // Ensures the trace is always last
 
-        $this->filterTrace($trace, $e instanceof InDepthRecoverableErrorException ? $e->traceOffset : 0, 1);
+        if (isset($trace[0]))
+        {
+            $h = md5(spl_object_hash($this) . $this->startTime, true);
 
-        if (isset($trace)) $a["\0Exception\0trace"] =& $trace; // Ensures the trace is always last
-        if ($e instanceof InDepthRecoverableErrorException) unset($a['traceOffset']);
-        if ($e instanceof InDepthRecoverableErrorException && null === $a['scope']) unset($a['scope']);
+            if (isset($trace[0][$h]))
+            {
+                $a["\0Exception\0trace"] = array('seeHash' => spl_object_hash($e));
+            }
+            else
+            {
+                static $traceProp;
+
+                if (! isset($traceProp))
+                {
+                    $traceProp = new \ReflectionProperty('Exception', 'trace');
+                    $traceProp->setAccessible(true);
+                }
+
+                $trace[0][$h] = 1;
+                $traceProp->setValue($e, $trace);
+
+                $this->filterTrace($trace, $e instanceof InDepthRecoverableErrorException ? $e->traceOffset : 0, 1);
+
+                if (isset($trace)) $a["\0Exception\0trace"] = $trace;
+
+                $a[self::META_PREFIX . 'hash'] = spl_object_hash($e);
+            }
+        }
+
+        if ($e instanceof InDepthRecoverableErrorException)
+        {
+            unset($a['traceOffset']);
+
+            if (null === $a['scope']) unset($a['scope']);
+            else if (isset($a["\0Exception\0trace"]['seeHash']))
+            {
+                $a['scope'] = $a["\0Exception\0trace"];
+            }
+        }
+
         if (empty($a["\0Exception\0previous"])) unset($a["\0Exception\0previous"]);
         if ($e instanceof \ErrorException && isset(self::$errorTypes[$a["\0*\0severity"]])) $a["\0*\0severity"] = self::$errorTypes[$a["\0*\0severity"]];
         unset($a["\0Exception\0string"], $a['xdebug_message'], $a['__destructorException']);
@@ -142,11 +179,10 @@ class Logger
                 . $t['function'] . '()'
                 . (isset($t['line']) ? " {$t['file']}:{$t['line']}" : '');
 
-            unset($t['class'], $t['type'], $t['function'], $t['file'], $t['line']);
+            if (! isset($t['args']) || ! $args) $t = array();
+            else $t = array('args' => $t['args']);
 
             $t = array('call' => $offset) + $t;
-
-            if (isset($t['args']) && !$args) unset($t['args']);
         }
     }
 
