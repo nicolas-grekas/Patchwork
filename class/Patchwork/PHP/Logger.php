@@ -74,7 +74,7 @@ class Logger
                   1000 * ($log_time - $this->startTime),
                   1000 * ($log_time - $this->prevTime)
             ),
-            'mem'  => memory_get_peak_usage(true) . ' - ' . memory_get_usage(true),
+            'mem'  => memory_get_peak_usage() . ' - ' . memory_get_usage(),
             'data' => $data,
         );
 
