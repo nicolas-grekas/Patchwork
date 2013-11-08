@@ -13,7 +13,7 @@ namespace Patchwork\PHP\Parser;
 use Patchwork\PHP\Parser;
 
 /**
- * The PhpPreprocessor parser applies a stream filter to require instructions
+ * The PhpPreprocessor parser applies a stream filter to require instructions.
  */
 class PhpPreprocessor extends Parser
 {

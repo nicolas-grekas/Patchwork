@@ -13,7 +13,7 @@ namespace Patchwork\PHP\Parser;
 use Patchwork\PHP\Parser;
 
 /**
- * The SelfLowerCaser parser backports `self` and `parent` case-insensitivity introduced in PHP 5.5
+ * The SelfLowerCaser parser backports `self` and `parent` case-insensitivity introduced in PHP 5.5.
  */
 class SelfLowerCaser extends Parser
 {

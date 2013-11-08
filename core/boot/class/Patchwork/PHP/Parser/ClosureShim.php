@@ -13,9 +13,9 @@ namespace Patchwork\PHP\Parser;
 use Patchwork\PHP\Parser;
 
 /**
- * The ClosureShim parser participates in backporting closures to PHP 5.2
+ * The ClosureShim parser participates in backporting closures to PHP 5.2.
  *
- * On PHP5.3+, it adds a warning when a variable is used both as an argument and a lexical
+ * On PHP5.3+, it adds a warning when a variable is used both as an argument and a lexical.
  */
 class ClosureShim extends Parser
 {

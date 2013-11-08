@@ -13,7 +13,7 @@ namespace Patchwork\PHP\Parser;
 use Patchwork\PHP\Parser;
 
 /**
- * ClassScalarInliner inlines scalar ::class name resolution
+ * ClassScalarInliner inlines scalar ::class name resolution.
  */
 class ClassScalarInliner extends Parser
 {
