@@ -16,14 +16,15 @@ use Patchwork\PHP\Parser;
  * The ClassInfo parser exposes class, interface and trait context to dependend parsers.
  *
  * It manages a property named class who contains info about the current class:
- * - type: class' type as T_CLASS, T_INTERFACE or T_TRAIT
- * - name: short name of the class without any namespace prefix
- * - nsName: fully namespace resolved class name
- * - extends: the class from which it extends, fully namespace resolved
- * - isFinal
- * - isAbstract
+ * - type: class' type as T_CLASS, T_INTERFACE or T_TRAIT,
+ * - name: short name of the class without any namespace prefix,
+ * - nsName: fully namespace resolved class name,
+ * - extends: the class from which it extends (an array of classes for interfaces), fully namespace resolved,
+ * - implements: the interfaces it implements, fully namespace resolved,
+ * - isFinal,
+ * - isAbstract.
  *
- * It also inherits removeNsPrefix(), scope, namespace, nsResolved and nsPrefix properties from ScopeInfo
+ * It also inherits removeNsPrefix(), scope, namespace, nsResolved and nsPrefix properties from ScopeInfo.
  */
 class ClassInfo extends Parser
 {

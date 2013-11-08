@@ -13,8 +13,7 @@ namespace Patchwork\PHP\Parser;
 use Patchwork\PHP\Parser;
 
 /**
- * The InvokeShim parser participates in backporting
- * the __invoke() magic method to PHP 5.2
+ * The InvokeShim parser participates in backporting the __invoke() magic method to PHP 5.2.
  */
 class InvokeShim extends Parser
 {

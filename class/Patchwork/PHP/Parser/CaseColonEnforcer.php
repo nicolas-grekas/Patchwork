@@ -13,7 +13,7 @@ namespace Patchwork\PHP\Parser;
 use Patchwork\PHP\Parser;
 
 /**
- * The CaseColonEnforcer parser enforces colons instead of semicolons for case statements
+ * The CaseColonEnforcer parser enforces colons instead of semicolons for case statements.
  */
 class CaseColonEnforcer extends Parser
 {
