@@ -30,6 +30,7 @@ class Logger
 
     protected
 
+    $uniqId,
     $logStream,
     $prevTime = 0,
     $startTime = 0,
@@ -58,6 +59,7 @@ class Logger
 
     function __construct($log_stream, $start_time = 0)
     {
+        $this->uniqId = mt_rand();
         $start_time || $start_time = microtime(true);
         $this->startTime = $this->prevTime = $start_time;
         $this->logStream = $log_stream;
@@ -116,9 +118,7 @@ class Logger
 
         if (isset($trace[0]))
         {
-            $h = md5(spl_object_hash($this) . $this->startTime, true);
-
-            if (isset($trace[0][$h]))
+            if (isset($trace[0][$this->uniqId]))
             {
                 $a["\0Exception\0trace"] = array('seeHash' => spl_object_hash($e));
             }
@@ -132,7 +132,7 @@ class Logger
                     $traceProp->setAccessible(true);
                 }
 
-                $trace[0][$h] = 1;
+                $trace[0][$this->uniqId] = 1;
                 $traceProp->setValue($e, $trace);
 
                 $this->filterTrace($trace, $e instanceof InDepthRecoverableErrorException ? $e->traceOffset : 0, 1);

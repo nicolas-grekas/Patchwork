@@ -77,7 +77,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
         $error_types |= E_RECOVERABLE_ERROR;
 
         set_error_handler(array($handler, 'handleError'), $error_types);
-        set_exception_handler(array($handler, 'handleUncaughtException'));
+        set_exception_handler(get_class($handler) . '::handleUncaughtException');
         return self::$handler = $handler;
     }
 
@@ -266,12 +266,12 @@ class InDepthErrorHandler extends ThrowingErrorHandler
      * @param \Exception $e        The exception to log.
      * @param float      $log_time The microtime(true) when the event has been triggered.
      */
-    function handleUncaughtException(\Exception $e, $log_time = 0)
+    static function handleUncaughtException(\Exception $e, $log_time = 0)
     {
         $message = 'Uncaught \\' . get_class($e) . ' $exception';
         $scope = array('exception' => $e);
 
-        $this->handleCaughtException(E_ERROR, $message, $e->getFile(), $e->getLine(), $scope, $log_time);
+        static::handleCaughtException(E_ERROR, $message, $e->getFile(), $e->getLine(), $scope, $log_time);
     }
 
     /**
@@ -280,21 +280,22 @@ class InDepthErrorHandler extends ThrowingErrorHandler
      * @param int    $type    Not mandatory, but E_USER_NOTICE is expected
      * @param string $message Message must match the format 'Caught \Exception $e'
      */
-    function handleCaughtException($type, $message, $file, $line, &$scope, $log_time = 0)
+    static function handleCaughtException($type, $message, $file, $line, &$scope, $log_time = 0)
     {
-        $thrown = $this->thrownErrors;
-        $this->thrownErrors = 0;
+        $h = self::$handler;
+        $thrown = $h->thrownErrors;
+        $h->thrownErrors = 0;
 
-        $scoped = $this->scopedErrors;
+        $scoped = $h->scopedErrors;
 
         $v = substr($message, strpos($message, ' $', 9) + 2);
         $e = $scope[$v];
 
         if (! ($scoped & $type))
         {
-            if ($this->tracedErrors & $type)
+            if ($h->tracedErrors & $type)
             {
-                $this->scopedErrors |= $type;
+                $h->scopedErrors |= $type;
                 unset($scope);
                 $scope = array($v => $e);
             }
@@ -309,10 +310,10 @@ class InDepthErrorHandler extends ThrowingErrorHandler
             $scope[$v] = $e;
         }
 
-        $type = $this->handleError($type, $message, $file, $line, $scope, -1, $log_time);
+        $type = $h->handleError($type, $message, $file, $line, $scope, -1, $log_time);
 
-        $this->scopedErrors = $scoped;
-        $this->thrownErrors = $thrown;
+        $h->scopedErrors = $scoped;
+        $h->thrownErrors = $thrown;
 
         return $type;
     }
