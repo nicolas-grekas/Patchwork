@@ -38,18 +38,18 @@ class CatchNotifierTest extends \PHPUnit_Framework_TestCase
         return array(
             array(
                 'handler' => false,
-                'in'  => 'try{}catch(\E $e){}}',
-                'out' => 'try{}catch(\E $e){\user_error(\'Caught \\\\E $e\');}}',
+                'in'  => 'try{}catch(\E $e){}',
+                'out' => 'try{}catch(\E $e){\user_error(\'Caught \\\\E $e\');}',
             ),
             array(
                 'handler' => 'exh',
-                'in'  => 'try{}catch(\E $e){}}',
-                'out' => 'try{}catch(\E $e){\set_error_handler(\'exh\');\user_error(\'Caught \\\\E $e\');\restore_error_handler();}}',
+                'in'  => 'try{}catch(\E $e){}',
+                'out' => 'try{}catch(\E $e){\set_error_handler(\'exh\');\user_error(\'Caught \\\\E $e\');\restore_error_handler();}',
             ),
             array(
                 'handler' => array('e', 'xh'),
-                'in'  => 'try{}catch(\E $e){}}',
-                'out' => 'try{}catch(\E $e){\set_error_handler(array(\'e\',\'xh\'));\user_error(\'Caught \\\\E $e\');\restore_error_handler();}}',
+                'in'  => 'try{}catch(\E $e){}',
+                'out' => 'try{}catch(\E $e){\set_error_handler(\'e::xh\');\user_error(\'Caught \\\\E $e\');\restore_error_handler();}',
             ),
         );
     }
