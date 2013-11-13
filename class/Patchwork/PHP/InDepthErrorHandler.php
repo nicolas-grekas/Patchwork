@@ -52,7 +52,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
     $stackedErrorLevels = array();
 
 
-    static function register(self $handler = null, $log_file = 'php://stderr')
+    static function register($handler = null, $log_file = 'php://stderr')
     {
         isset($handler) or $handler = new static;
 
@@ -280,7 +280,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
      * @param int    $type    Not mandatory, but E_USER_NOTICE is expected
      * @param string $message Message must match the format 'Caught \Exception $e'
      */
-    static function handleCaughtException($type, $message, $file, $line, &$scope, $log_time = 0, self $handler = null)
+    static function handleCaughtException($type, $message, $file, $line, &$scope, $log_time = 0, $handler = null)
     {
         $handler or $handler = self::$handler;
         $thrown = $handler->thrownErrors;
