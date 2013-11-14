@@ -59,7 +59,7 @@ class SuperPositioner extends PhpPreprocessor
         {
             if (isset($token[2][T_USE_CLASS])
                 && 0 === strcasecmp('\ReflectionClass', $this->nsResolved)
-                && (!$this->class || strcasecmp('Patchwork\PHP\Shim\ReflectionClass', strtr($this->class->nsName, '\\', '_'))))
+                && (!$this->class || strcasecmp('Patchwork_PHP_Shim_ReflectionClass', strtr($this->class->nsName, '\\', '_'))))
             {
                 $this->dependencies['ClassInfo']->removeNsPrefix();
                 return $this->unshiftCode('\Patchwork\PHP\Shim\ReflectionClass');
