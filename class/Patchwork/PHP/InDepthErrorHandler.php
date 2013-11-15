@@ -17,7 +17,7 @@ namespace Patchwork\PHP;
  * - loggedErrors: logged errors, when not @-silenced
  * - screamErrors: never @-silenced errors
  * - thrownErrors: errors thrown as RecoverableErrorException
- * - scopedErrors: errors logged with their local scope
+ * - scopedErrors: errors logged with their local context
  * - tracedErrors: errors logged with their trace, but only once for repeated errors
  *
  * Errors are logged by a Logger object by default, which provides unprecedented accuracy.
@@ -190,7 +190,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
      * @param int   $trace_offset The number of noisy items to skip from the current trace or -1 to disable any trace logging.
      * @param float $log_time     The microtime(true) when the event has been triggered.
      */
-    function handleError($type, $message, $file, $line, &$scope, $trace_offset = 0, $log_time = 0)
+    function handleError($type, $message, $file, $line, &$context, $trace_offset = 0, $log_time = 0)
     {
         if (isset(self::$caughtToStringException))
         {
@@ -237,7 +237,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
                 {
                     if ($this->scopedErrors & $type)
                     {
-                        null !== $scope && $e['scope'] =& $scope;
+                        null !== $context && $e['context'] =& $context;
                         0 <= $trace_offset && $e['trace'] = debug_backtrace(true); // DEBUG_BACKTRACE_PROVIDE_OBJECT
                         $trace_args = 1;
                     }
@@ -251,7 +251,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
 
             if ($throw)
             {
-                if ($this->scopedErrors & $type) $throw->scope = $scope;
+                if ($this->scopedErrors & $type) $throw->context = $context;
                 $log || $throw->traceOffset = $trace_offset;
                 throw $throw;
             }
@@ -269,9 +269,9 @@ class InDepthErrorHandler extends ThrowingErrorHandler
     function handleUncaughtException(\Exception $e, $log_time = 0)
     {
         $message = 'Uncaught \\' . get_class($e) . ' $exception';
-        $scope = array('exception' => $e);
+        $context = array('exception' => $e);
 
-        static::handleCaughtException(E_ERROR, $message, $e->getFile(), $e->getLine(), $scope, $log_time, $this);
+        static::handleCaughtException(E_ERROR, $message, $e->getFile(), $e->getLine(), $context, $log_time, $this);
     }
 
     /**
@@ -280,7 +280,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
      * @param int    $type    Not mandatory, but E_USER_NOTICE is expected
      * @param string $message Message must match the format 'Caught \Exception $e'
      */
-    static function handleCaughtException($type, $message, $file, $line, &$scope, $log_time = 0, $handler = null)
+    static function handleCaughtException($type, $message, $file, $line, &$context, $log_time = 0, $handler = null)
     {
         $handler or $handler = self::$handler;
         $thrown = $handler->thrownErrors;
@@ -289,28 +289,28 @@ class InDepthErrorHandler extends ThrowingErrorHandler
         $scoped = $handler->scopedErrors;
 
         $v = substr($message, strpos($message, ' $', 9) + 2);
-        $e = $scope[$v];
+        $e = $context[$v];
 
         if (! ($scoped & $type))
         {
             if ($handler->tracedErrors & $type)
             {
                 $handler->scopedErrors |= $type;
-                unset($scope);
-                $scope = array($v => $e);
+                unset($context);
+                $context = array($v => $e);
             }
             else
             {
                 $message .= " with message '" . $e->getMessage() . "'";
             }
         }
-        else if (end($scope) !== $e)
+        else if (end($context) !== $e)
         {
-            unset($scope[$v]);
-            $scope[$v] = $e;
+            unset($context[$v]);
+            $context[$v] = $e;
         }
 
-        $type = $handler->handleError($type, $message, $file, $line, $scope, -1, $log_time);
+        $type = $handler->handleError($type, $message, $file, $line, $context, -1, $log_time);
 
         $handler->scopedErrors = $scoped;
         $handler->thrownErrors = $thrown;
@@ -335,5 +335,5 @@ class InDepthErrorHandler extends ThrowingErrorHandler
 
 class InDepthRecoverableErrorException extends RecoverableErrorException
 {
-    public $traceOffset = -1, $scope = null;
+    public $traceOffset = -1, $context = null;
 }

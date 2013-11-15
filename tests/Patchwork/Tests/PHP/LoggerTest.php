@@ -15,7 +15,7 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
             'message' => 'Fake user error',
             'file' => 'fake',
             'line' => 1,
-            'scope' => new \Patchwork\PHP\InDepthRecoverableErrorException,
+            'context' => new \Patchwork\PHP\InDepthRecoverableErrorException,
             'trace' => array(
                 array('function' => 'fake-func2'),
                 array('function' => 'fake-func1'),
@@ -44,7 +44,7 @@ class LoggerTest extends \PHPUnit_Framework_TestCase
   "data": {"_":"4:array:4",
     "mesg": "Fake user error",
     "type": "E_USER_ERROR fake:1",
-    "scope": {"_":"7:Patchwork\\\\PHP\\\\InDepthRecoverableErrorException",
+    "context": {"_":"7:Patchwork\\\\PHP\\\\InDepthRecoverableErrorException",
       "*:message": "",
       "*:code": 0,
       "*:file": "' . __FILE__ . '",
