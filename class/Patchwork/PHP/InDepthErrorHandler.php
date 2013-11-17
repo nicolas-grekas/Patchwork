@@ -251,7 +251,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
 
             if ($throw)
             {
-                if ($this->scopedErrors & $type) $throw->context = $context;
+                if ($this->scopedErrors & $type) $throw->context =& $context;
                 $log || $throw->traceOffset = $trace_offset;
                 throw $throw;
             }
@@ -261,61 +261,62 @@ class InDepthErrorHandler extends ThrowingErrorHandler
     }
 
     /**
-     * Forwards an uncaught exception to ->handleError().
+     * Forwards an uncaught exception to ->handleException().
      *
      * @param \Exception $e        The exception to log.
      * @param float      $log_time The microtime(true) when the event has been triggered.
      */
     function handleUncaughtException(\Exception $e, $log_time = 0)
     {
-        $message = 'Uncaught \\' . get_class($e) . ' $exception';
-        $context = array('exception' => $e);
-
-        static::handleCaughtException(E_ERROR, $message, $e->getFile(), $e->getLine(), $context, $log_time, $this);
+        $context = compact('e');
+        $s = $this->scopedErrors;
+        $this->scopedErrors = 0;
+        $this->handleException(E_ERROR, 'Uncaught \\' . get_class($e) . ' $e', $e->getFile(), $e->getLine(), $context, $log_time);
+        $this->scopedErrors = $s;
     }
 
     /**
-     * Forwards a caught exception notice to ->handleError().
+     * Static version of ->handleException().
+     */
+    static function handleCaughtException($type, $message, $file, $line, &$context, $log_time = 0)
+    {
+        return self::$handler->handleException($type, $message, $file, $line, $context, $log_time);
+    }
+
+    /**
+     * Logs an exception embedded as a usual error.
      *
-     * @param int    $type    Not mandatory, but E_USER_NOTICE is expected
      * @param string $message Message must match the format 'Caught \Exception $e'
      */
-    static function handleCaughtException($type, $message, $file, $line, &$context, $log_time = 0, $handler = null)
+    function handleException($type, $message, $file, $line, &$context, $log_time = 0)
     {
-        $handler or $handler = self::$handler;
-        $thrown = $handler->thrownErrors;
-        $handler->thrownErrors = 0;
+        $log = $this->loggedErrors & $type & error_reporting();
 
-        $scoped = $handler->scopedErrors;
-
-        $v = substr($message, strpos($message, ' $', 9) + 2);
-        $e = $context[$v];
-
-        if (! ($scoped & $type))
+        if ($log || $scream = $this->screamErrors & $type)
         {
-            if ($handler->tracedErrors & $type)
+            $log_time || $log_time = microtime(true);
+
+            list($message, $x) = explode(' $', $message, 2);
+            $message .= ': ' . $context[$x]->getMessage();
+
+            $e = compact('type', 'message', 'file', 'line');
+            $e['level'] = $type . '/' . error_reporting();
+
+            if ($log)
             {
-                $handler->scopedErrors |= $type;
-                unset($context);
-                $context = array($v => $e);
+                $e['exception'] = $context[$x];
+
+                if ($this->scopedErrors & $type)
+                {
+                    if (strncmp('Caught ', $message, 7)) unset($context[$x]);
+                    $e['context'] =& $context;
+                }
             }
-            else
-            {
-                $message .= " with message '" . $e->getMessage() . "'";
-            }
-        }
-        else if (end($context) !== $e)
-        {
-            unset($context[$v]);
-            $context[$v] = $e;
+
+            $this->getLogger()->logError($e, -1, 0, $log_time);
         }
 
-        $type = $handler->handleError($type, $message, $file, $line, $context, -1, $log_time);
-
-        $handler->scopedErrors = $scoped;
-        $handler->thrownErrors = $thrown;
-
-        return $type;
+        return (bool) $log;
     }
 
     /**
