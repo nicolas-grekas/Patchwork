@@ -170,6 +170,14 @@ class InDepthErrorHandler extends ThrowingErrorHandler
         return $ret;
     }
 
+    /**
+     * Static version of ->handleException().
+     */
+    static function handleCaughtException($type, $message, $file, $line, &$context, $log_time = 0)
+    {
+        return self::$handler->handleException($type, $message, $file, $line, $context, $log_time);
+    }
+
 
     /**
      * Sets the logger and all the bitfields that configure errors' logging.
@@ -273,14 +281,6 @@ class InDepthErrorHandler extends ThrowingErrorHandler
         $this->scopedErrors = 0;
         $this->handleException(E_ERROR, 'Uncaught \\' . get_class($e) . ' $e', $e->getFile(), $e->getLine(), $context, $log_time);
         $this->scopedErrors = $s;
-    }
-
-    /**
-     * Static version of ->handleException().
-     */
-    static function handleCaughtException($type, $message, $file, $line, &$context, $log_time = 0)
-    {
-        return self::$handler->handleException($type, $message, $file, $line, $context, $log_time);
     }
 
     /**
