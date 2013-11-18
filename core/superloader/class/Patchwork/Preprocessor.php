@@ -32,7 +32,7 @@ class Preprocessor
         'BackportTokens'     => -50500,
         'NamespaceBracketer' => +50300, // Load this only for 5.3.0 and up
         'NamespaceInfo'      => true,
-        'CatchNotifier'      => true,
+        'ExceptionNotifier'  => true,
         'ScopeInfo'          => true,
         'ToStringCatcher'    => true,
         'DestructorCatcher'  => true,
@@ -140,7 +140,7 @@ class Preprocessor
             case 'Globalizer':         if (0 <= $level) new $t($p, '$CONFIG'); break;
             case 'T':
             case 'Marker':             if (!$debug) new $t($p, self::$declaredClass, $level >= 0, $source); break;
-            case 'CatchNotifier':      if ($debug) new $t($p, 'Patchwork\PHP\InDepthErrorHandler::handleCaughtException'); break;
+            case 'ExceptionNotifier':  if ($debug) new $t($p, 'Patchwork\PHP\InDepthErrorHandler::handleCaughtException'); break;
             case 'ConstantInliner':    new $t($p, $source, self::$constants); break;
             case 'ToStringCatcher':    new $t($p, 'Patchwork\PHP\ThrowingErrorHandler::handleToStringException'); break;
             case 'SuperPositioner':    new $t($p, $level, $is_top ? $class : false); break;
