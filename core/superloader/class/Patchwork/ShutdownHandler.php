@@ -37,7 +37,8 @@ class ShutdownHandler
     static function setup()
     {
         isset(self::$class) || self::$class = __CLASS__;
-        self::register(array(self::$class, '_start'));
+        self::$class .= '::';
+        self::register(self::$class . '_start');
     }
 
     static function register($callback)
@@ -45,7 +46,7 @@ class ShutdownHandler
         if (array() !== @array_map($callback, array())) return register_shutdown_function($callback);
 
         $callback = func_get_args();
-        register_shutdown_function(array(self::$class, '_call'), $callback);
+        register_shutdown_function(self::$class . '_call', $callback);
     }
 
     // Protected methods
@@ -54,7 +55,7 @@ class ShutdownHandler
     {
         try
         {
-            if (__CLASS__ !== self::$class) array_unshift($c, array(self::$class, __FUNCTION__));
+            if (__CLASS__ . '::' !== self::$class) array_unshift($c, self::$class . __FUNCTION__);
             call_user_func_array(array_shift($c), $c);
         }
         catch (\Exception $e)
@@ -87,15 +88,18 @@ class ShutdownHandler
     static function _start()
     {
         // See http://bugs.php.net/54114
-        while (ob_get_level() && ob_end_flush()) {}
+        while (ob_get_level() && @ob_end_flush()) {}
 
-        if (function_exists('fastcgi_finish_request'))
-            fastcgi_finish_request();
-        else
-            flush();
+        if (! ob_get_level())
+        {
+           if (function_exists('fastcgi_finish_request'))
+                fastcgi_finish_request();
+            else
+                flush();
+        }
 
-        ob_start(array(self::$class, '_checkOutputBuffer'));
-        self::register(array(self::$class, '_end'));
+        ob_start(self::$class . '_checkOutputBuffer');
+        self::register(self::$class . '_end');
     }
 
     static function _checkOutputBuffer($buffer)
@@ -106,19 +110,19 @@ class ShutdownHandler
 
     static function _end()
     {
-        self::register(array(self::$class, '_callStaticDestructors'));
+        self::register(self::$class . '_callStaticDestructors');
     }
 
     static function _callStaticDestructors()
     {
         if (empty(self::$destructors))
         {
-            while (ob_get_level() && ob_end_flush()) {}
+            while (ob_get_level() && @ob_end_flush()) {}
 
             session_write_close(); // See http://bugs.php.net/54157
 
             ob_start('gc_disable'); // See http://news.php.net/php.internals/67735
-            ob_start(array(self::$class, '_checkOutputBuffer'));
+            ob_start(self::$class . '_checkOutputBuffer');
 
             if (empty(self::$destructors)) return;
         }
@@ -127,6 +131,6 @@ class ShutdownHandler
             call_user_func(array(array_shift(self::$destructors), '__free'));
         }
 
-        self::register(array(self::$class, __FUNCTION__));
+        self::register(self::$class . __FUNCTION__);
     }
 }
