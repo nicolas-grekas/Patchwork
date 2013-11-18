@@ -147,10 +147,10 @@ class Logger
         {
             unset($a['traceOffset']);
 
-            if (null === $a['scope']) unset($a['scope']);
+            if (null === $a['context']) unset($a['context']);
             else if (isset($a["\0Exception\0trace"]['seeHash']))
             {
-                $a['scope'] = $a["\0Exception\0trace"];
+                $a['context'] = $a["\0Exception\0trace"];
             }
         }
 

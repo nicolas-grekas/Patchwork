@@ -60,7 +60,7 @@ class ThrowingErrorHandler
     /**
      * Turns errors to ErrorExceptions.
      */
-    function handleError($type, $message, $file, $line, &$scope)
+    function handleError($type, $message, $file, $line, &$context)
     {
         if (isset(self::$caughtToStringException))
         {
