@@ -37,7 +37,11 @@ class CatchNotifier extends Parser
     {
         parent::__construct($parent);
 
-        if ($error_handler) $this->errorHandler = self::export($error_handler);
+        if ($error_handler)
+        {
+            if (is_array($error_handler)) $error_handler = implode('::', $error_handler);
+            $this->errorHandler = self::export($error_handler);
+        }
     }
 
     protected function tagCatch(&$token)
