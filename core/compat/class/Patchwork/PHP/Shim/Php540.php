@@ -60,4 +60,23 @@ class Php540
 
         return number_format($number, $decimals, $dec_point, $thousands_sep);
     }
+
+    static function trait_exists($class, $autoload = true)
+    {
+        if ($autoload) class_exists($class, true);
+
+        return false;
+    }
+
+    static function class_uses($class, $autoload = true)
+    {
+        if ($autoload) class_exists($class, true);
+
+        return array();
+    }
+
+    static function get_declared_traits()
+    {
+        return array();
+    }
 }
