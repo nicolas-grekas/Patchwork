@@ -132,8 +132,7 @@ class Iconv
 
     static function iconv($in_charset, $out_charset, $str)
     {
-        if ('' === (string) $str) return '';
-
+        if ('' === $str .= '') return '';
 
         // Prepare for //IGNORE and //TRANSLIT
 
@@ -460,6 +459,7 @@ class Iconv
         if (0 === strncasecmp($encoding, 'utf-8', 5)) $encoding = INF;
         else if (false === $s = self::iconv($encoding, 'utf-8', $s)) return false;
 
+        $s .= '';
         $slen = self::iconv_strlen($s, 'utf-8');
         $start = (int) $start;
 
@@ -599,9 +599,8 @@ class Iconv
                 else if ($uchr >= "\xC3\x80")
                 {
                     $uchr = \Normalizer::normalize($uchr, \Normalizer::NFD);
-                    $uchr = preg_split('/(.)/', $uchr, 2, PREG_SPLIT_DELIM_CAPTURE);
 
-                    if (isset($uchr[2][0])) $uchr = $uchr[1];
+                    if ($uchr[0] < "\x80") $uchr = $uchr[0];
                     else if ($IGNORE) continue;
                     else return false;
                 }

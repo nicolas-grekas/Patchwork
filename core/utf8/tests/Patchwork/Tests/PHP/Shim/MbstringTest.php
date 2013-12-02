@@ -74,6 +74,11 @@ class MbstringTest extends \PHPUnit_Framework_TestCase
     {
         $c = "déjà";
 
+        if (PHP_VERSION_ID >= 50408)
+        {
+            $this->assertSame( "jà", mb_substr($c,  2, null) );
+        }
+
         $this->assertSame( "jà", mb_substr($c,  2) );
         $this->assertSame( "jà", mb_substr($c, -2) );
         $this->assertSame( "jà", mb_substr($c, -2,  3) );
@@ -84,6 +89,7 @@ class MbstringTest extends \PHPUnit_Framework_TestCase
         $this->assertSame( "", mb_substr($c,  5,  0) );
         $this->assertSame( "", mb_substr($c, -5,  0) );
 
+        $this->assertSame( "jà", p::mb_substr($c,  2, null) );
         $this->assertSame( "jà", p::mb_substr($c,  2) );
         $this->assertSame( "jà", p::mb_substr($c, -2) );
         $this->assertSame( "jà", p::mb_substr($c, -2, 3) );

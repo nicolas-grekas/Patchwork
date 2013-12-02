@@ -212,7 +212,13 @@ class Utf8Test extends \PHPUnit_Framework_TestCase
      */
     function testWordwrap()
     {
+        $text = 'A very long woooooooooooord.';
+
+        $this->assertSame( wordwrap($text, 8, "\n", false), u::wordwrap($text, 8, "\n", false) );
+        $this->assertSame( wordwrap($text, 8, "\n", true ), u::wordwrap($text, 8, "\n", true ) );
+
         $this->assertSame(
+            str_replace(PHP_EOL, "\n",
 "L’École supérieure de
 physique et de chimie
 industrielles de la ville
@@ -225,8 +231,13 @@ montagne Sainte-Geneviève
 dans le cinquième
 arrondissement de Paris.
 Yoooooooooooooooooooooooo
-oooooooooooooooooooooo",
-            u::wordwrap("L’École supérieure de physique et de chimie industrielles de la ville de Paris, ou ESPCI ParisTech, est une grande école d’ingénieurs fondée en 1882. Elle est située rue Vauquelin sur la montagne Sainte-Geneviève dans le cinquième arrondissement de Paris. Yoooooooooooooooooooooooooooooooooooooooooooooo", 25, "\n", true)
+oooooooooooooooooooooo"),
+            u::wordwrap(
+                "L’École supérieure de physique et de chimie industrielles de la ville de Paris, ou ESPCI ParisTech, est une grande école d’ingénieurs fondée en 1882. Elle est située rue Vauquelin sur la montagne Sainte-Geneviève dans le cinquième arrondissement de Paris. Yoooooooooooooooooooooooooooooooooooooooooooooo",
+                25,
+                "\n",
+                true
+            )
         );
     }
 
