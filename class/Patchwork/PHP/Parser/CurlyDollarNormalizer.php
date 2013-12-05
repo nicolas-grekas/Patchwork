@@ -31,17 +31,22 @@ class CurlyDollarNormalizer extends Parser
         $t =& $this->tokens;
         $i =  $this->index;
 
-        if (!isset($t[$i], $t[$i+1]) || T_STRING_VARNAME !== $t[$i][0]) return;
+        if (! isset($t[$i], $t[$i+1])) return;
 
-        if ('}' === $t[$i+1][0] || '[' === $t[$i+1][0])
+        if (T_STRING_VARNAME === $t[$i][0] && ('}' === $t[$i+1][0] || '[' === $t[$i+1][0]))
         {
             $t[$i] = array(T_VARIABLE, '$' . $t[$i][1]);
         }
         else
         {
+            if (T_STRING_VARNAME === $t[$i][0]) // Seen before PHP 5.5
+            {
+                $t[$i][0] = T_STRING;
+                if ('parent' === $k = strtolower($t[$i][1]) or 'self' === $k) $t[$i][1] = $k;
+            }
+
             $this->unshiftTokens('$', '{');
             $this->register(array('~tagCurlyClose' => T_BRACKET_CLOSE));
-            $t[$i] = array(T_CONSTANT_ENCAPSED_STRING, "'{$t[$i][1]}'");
         }
 
         return $this->unshiftTokens(array(T_CURLY_OPEN, '{'));
