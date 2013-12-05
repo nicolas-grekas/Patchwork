@@ -7,6 +7,7 @@ require_once $dir . '/class/Patchwork/PHP/Parser/BackportTokens.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/BinaryNumber.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/BracketWatcher.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/Bracket.php';
+require_once $dir . '/class/Patchwork/PHP/Parser/CaseColonEnforcer.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/ClassScalarInliner.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/ClassInfo.php';
 require_once $dir . '/class/Patchwork/PHP/Parser/ClosureShim.php';
