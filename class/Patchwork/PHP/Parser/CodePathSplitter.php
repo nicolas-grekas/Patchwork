@@ -185,6 +185,7 @@ class CodePathSplitter extends Parser
             break;
 
         case ':':
+            if (T_DEFAULT === $this->penuType) $c = $r;
             switch (end($this->structStack))
             {
             case '?': $this->structStack[key($this->structStack)] = '-';
