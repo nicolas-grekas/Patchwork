@@ -10,8 +10,8 @@
 
 namespace Patchwork\PHP;
 
-const T_SEMANTIC     = 1; // Primary type for semantic tokens
-const T_NON_SEMANTIC = 2; // Primary type for non-semantic tokens (whitespace and comment)
+define('T_SEMANTIC', 1); // Primary type for semantic tokens
+define('T_NON_SEMANTIC', 2); // Primary type for non-semantic tokens (whitespace and comment)
 
 Parser::createToken(
     'T_CURLY_CLOSE', // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
