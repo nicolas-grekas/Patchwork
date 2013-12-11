@@ -82,13 +82,13 @@ class CodePathLoopEnlightener extends Parser
         $v = '$̊L' . count($this->loopStack);
 
         $this->unshiftTokens(
-            array(T_LNUMBER, "({$v} >= 2)"), array(T_LOGICAL_AND, 'and'), array(T_LNUMBER, '(2?2:2) /*Loop repeated*/'), ';'
+            array(T_LNUMBER, "({$v} >= 2)"), array(T_LOGICAL_AND, 'and'), array(T_LNUMBER, '(!!2) /*Loop repeated*/'), ';'
         );
 
         if (T_DO !== array_pop($this->loopStack))
         {
             $this->unshiftTokens(
-                array(T_LNUMBER, "({$v} == 0)"), array(T_LOGICAL_AND, 'and'), array(T_LNUMBER, '(0?0:0) /*Loop skipped*/'), ';'
+                array(T_LNUMBER, "({$v} == 0)"), array(T_LOGICAL_AND, 'and'), array(T_LNUMBER, '(!!0) /*Loop skipped*/'), ';'
             );
         }
     }

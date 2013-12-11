@@ -49,14 +49,14 @@ class CodePathSplitterWithXDebugHacks extends CodePathSplitter
             if (':' !== $t[0])
             {
                 $token[1] .= '(';
-                $this->unshiftTokens(array('@', '1?1:1):('), array('@', '0?0:0)'), array('@', '?'));
+                $this->unshiftTokens(array('@', '!!1):('), array('@', '!!0)'), array('@', '?'));
                 $skip = 3;
             }
         }
         else if ('}' === $token[0] && ';' === $this->prevType && '{' === $this->penuType)
         {
             end($this->types);
-            if (';' === $this->texts[key($this->types)]) $this->texts[key($this->types)] = '(0?0:0);';
+            if (';' === $this->texts[key($this->types)]) $this->texts[key($this->types)] = '(!!0);';
         }
 
         return $r;

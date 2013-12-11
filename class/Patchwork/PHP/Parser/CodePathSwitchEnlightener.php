@@ -103,7 +103,7 @@ class CodePathSwitchEnlightener extends Parser
         $this->texts[key($this->types)] .= ')==$̊S' . count($this->switchStack);
 
         return $this->unshiftTokens(
-            array(T_LOGICAL_AND, ' and'), array(T_LNUMBER, '(1?1:1)'), $token
+            array(T_LOGICAL_AND, ' and'), array(T_LNUMBER, '(!!1)'), $token
         );
     }
 
@@ -113,10 +113,10 @@ class CodePathSwitchEnlightener extends Parser
 
         $this->skipNextColon = true;
 
-        $n = false === array_pop($this->switchStack) ? '(1?1:1) /*No matching case*/' : '(0?0:0) /*Jump to default*/';
+        $n = false === array_pop($this->switchStack) ? '(!!1) /*No matching case*/' : '(!!0) /*Jump to default*/';
 
         return $this->unshiftTokens(
-            array(T_CASE, 'case'), array(T_WHITESPACE, ' '), array(T_LNUMBER, '(1?1:1)'), array(T_WHITESPACE, ' '),
+            array(T_CASE, 'case'), array(T_WHITESPACE, ' '), array(T_LNUMBER, '(!!1)'), array(T_WHITESPACE, ' '),
             array(T_LOGICAL_AND, 'and'), array(T_LNUMBER, $n), ':', $token
         );
     }
