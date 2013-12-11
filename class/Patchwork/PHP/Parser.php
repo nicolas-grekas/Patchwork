@@ -94,7 +94,7 @@ class Parser
     {
         $parent || $parent = __CLASS__ === get_class($this) ? $this : new self;
 
-        $this->serviceName || $this->serviceName = strtr(get_class($this), '\\', '_');
+        $this->serviceName || $this->serviceName = get_class($this);
         $this->dependencies = (array) $this->dependencies;
         $this->parent = $parent;
 
@@ -143,7 +143,7 @@ class Parser
             }
             else $c = array();
 
-            $k = strtr(strtolower('\\' !== $v[0] ? __CLASS__ . '_' . $v : substr($v, 1)), '\\', '_');
+            $k = strtolower('\\' !== $v[0] ? __CLASS__ . '\\' . $v : substr($v, 1));
 
             if (!isset($this->parents[$k]))
             {
