@@ -338,7 +338,7 @@ class Parser
             // Set primary type and handle string interpolation context:
             // - tag closing braces as T_CURLY_CLOSE when they are opened with curly braces
             //   tagged as T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES, to make
-            //   them easy to distinguish from regular code "{" / "}" pairs,
+            //   them easy to separate from regular code "{" / "}" pairs,
             // - tag arrays' or objects' string indexes as T_STR_STRING.
 
             $priType = 1; // T_SEMANTIC
@@ -388,6 +388,7 @@ class Parser
 
                 case T_CONSTANT_ENCAPSED_STRING:
                 case T_INLINE_HTML:
+                case T_CLOSE_TAG:
                 case T_OPEN_TAG:
                     $nextLine = substr_count($t[1], "\n");
                 }
@@ -425,7 +426,7 @@ class Parser
                     {
                         $callbacks += $reg[$n];
 
-                        // Callbacks triggering are always ordered:
+                        // Callback triggers are always ordered:
                         // - first by parsers' instanciation order
                         // - then by callbacks' registration order
                         // - callbacks registered with a tilde prefix
@@ -449,7 +450,7 @@ class Parser
                         {
                             $n = $c[0]->$c[1]($t);
 
-                            // Non-tilde-prefixed callback can return:
+                            // Non-tilde-prefixed callbacks can return:
                             // - false, which cancels the current token
                             // - a new token type, which is added to $t[2] and loads the
                             //   related callbacks in the current callbacks stack

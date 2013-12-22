@@ -14,7 +14,7 @@ class CodePathSwitchEnlightenerTest extends \PHPUnit_Framework_TestCase
         $p = new Parser\ControlStructBracketer($p);
         $p = new Parser\CaseColonEnforcer($p);
         $p = new Parser\CodePathSplitter($p);
-        $p = new Parser\CodePathSwitchENlightener($p);
+        $p = new Parser\CodePathSwitchEnlightener($p);
 
         return $p;
     }
