@@ -4,7 +4,7 @@ namespace Patchwork\Tests\PHP;
 
 use Patchwork\PHP\Parser;
 
-class CodePathSplitterTest extends \PHPUnit_Framework_TestCase
+class CodePathSwitchEnlightenerTest extends \PHPUnit_Framework_TestCase
 {
     protected function getParser($dump = false)
     {
@@ -14,6 +14,7 @@ class CodePathSplitterTest extends \PHPUnit_Framework_TestCase
         $p = new Parser\ControlStructBracketer($p);
         $p = new Parser\CaseColonEnforcer($p);
         $p = new Parser\CodePathSplitter($p);
+        $p = new Parser\CodePathSwitchENlightener($p);
 
         return $p;
     }
@@ -39,18 +40,32 @@ class CodePathSplitterTest extends \PHPUnit_Framework_TestCase
 in:
   switch(X){case X;;case X:break;default;;}
 out:
-  switch(X){case X:
-                   ;case X:
-                           break;
-                                 default:;}
+  switch($̊S1=(X) or true){case( X)==$̊S1 and
+                       (!!1)
+                            :
+                             ;case( X)==$̊S1 and
+                                         (!!1)
+                                              :
+                                               break;
+                                                     default:;case (!!1) and
+                                                                             (!!0) /*Jump to default*/
+                                                                                                      :
+                                                                                                       }
 
 in:
-  switch(X){default:break;case X:;}
+  goto_label:
 out:
-  switch(X){
-            default:break;
-                          case X:
-                                 ;}
+  goto_label:
+
+in:
+  X ? function () {} : X;
+out:
+  X ? 
+      function () {
+                   } 
+                     : 
+                       X
+                        ;
 
 EOPHP;
 

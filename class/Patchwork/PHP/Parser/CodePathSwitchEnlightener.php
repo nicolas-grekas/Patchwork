@@ -73,6 +73,10 @@ class CodePathSwitchEnlightener extends Parser
 
         switch ($this->prevType)
         {
+        case T_STRING:
+            if (T_OPEN_TAG === $this->penuType || '{' === $this->penuType || '}' === $this->penuType || ';' === $this->penuType) return;
+            break;
+
         case T_DEFAULT: $this->switchStack[count($this->switchStack)-1] = true;
         case T_ELSE:
         case '?':
