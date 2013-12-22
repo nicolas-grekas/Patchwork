@@ -327,6 +327,7 @@ class Parser
 
         $j         = 0;
         $curly     = 0;
+        $nextLine  = 0;
         $curlyPool = array();
 
         while (isset($tokens[$i]))
@@ -342,16 +343,25 @@ class Parser
 
             $priType = 1; // T_SEMANTIC
 
+            if ($nextLine)
+            {
+                $line += $nextLine;
+                $nextLine = 0;
+            }
+
             if (isset($t[1]))
             {
+                if (isset($t[2])) $line = $t[2];
+
                 if ($inString & 1) switch ($t[0])
                 {
+                case T_ENCAPSED_AND_WHITESPACE:
+                    $nextLine = substr_count($t[1], "\n");
                 case T_VARIABLE:
                 case T_STR_STRING:
                 case T_CURLY_OPEN:
                 case T_CURLY_CLOSE:
                 case T_END_HEREDOC:
-                case T_ENCAPSED_AND_WHITESPACE:
                 case T_DOLLAR_OPEN_CURLY_BRACES: break;
                 case T_STRING:
                     if ('[' === $prevType || T_OBJECT_OPERATOR === $prevType)
@@ -371,7 +381,15 @@ class Parser
                 case T_WHITESPACE:
                 case T_COMMENT:
                 case T_DOC_COMMENT:
-                case T_BAD_CHARACTER: $priType = 2; // T_NON_SEMANTIC
+                    $nextLine = substr_count($t[1], "\n");
+                case T_BAD_CHARACTER:
+                    $priType = 2; // T_NON_SEMANTIC
+                    break;
+
+                case T_CONSTANT_ENCAPSED_STRING:
+                case T_INLINE_HTML:
+                case T_OPEN_TAG:
+                    $nextLine = substr_count($t[1], "\n");
                 }
             }
             else
@@ -454,11 +472,7 @@ class Parser
 
             $texts[++$j] =& $t[1];
 
-            if (2 === $priType) // T_NON_SEMANTIC
-            {
-                $line += substr_count($t[1], "\n");
-                continue;
-            }
+            if (2 === $priType) continue; // T_NON_SEMANTIC
 
             // For semantic tokens only: populate $this->types, $this->prevType and $this->penuType
 
@@ -476,15 +490,6 @@ class Parser
             }
             else switch ($prevType)
             {
-            case T_CONSTANT_ENCAPSED_STRING:
-            case T_ENCAPSED_AND_WHITESPACE:
-            case T_OPEN_TAG_WITH_ECHO:
-            case T_INLINE_HTML:
-            case T_CLOSE_TAG:
-            case T_OPEN_TAG:
-                $line += substr_count($t[1], "\n");
-                break;
-
             case T_DOLLAR_OPEN_CURLY_BRACES:
             case T_CURLY_OPEN:    $curlyPool[] = $curly; $curly = 0;
             case T_START_HEREDOC: ++$inString; break;
