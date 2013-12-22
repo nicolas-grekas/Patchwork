@@ -154,7 +154,7 @@ class Parser
 
             foreach ($c as $c => $k)
             {
-                is_int($c) && $c = $k;
+                is_int($c) and $c = $k;
 
                 if (!property_exists($parent, $c)) user_error(get_class($this) . " undefined parent property: {$v}->{$c}", E_USER_WARNING);
                 if (!property_exists($this, $k)) user_error(get_class($this) . " undefined property: \$this->{$k}", E_USER_NOTICE);
@@ -220,7 +220,7 @@ class Parser
         $this->tokens = $this->getTokens($code, false);
         $code = implode('', $this->parseTokens());
 
-        function_exists('mb_internal_encoding') && mb_internal_encoding($enc);
+        function_exists('mb_internal_encoding') and mb_internal_encoding($enc);
 
         return $code;
     }
@@ -493,7 +493,7 @@ class Parser
             case T_END_HEREDOC:   --$inString; break;
 
             case T_HALT_COMPILER:
-                4 === $this->haltCompilerTail && $this->register('tagHaltCompilerData');
+                4 === $this->haltCompilerTail and $this->register('tagHaltCompilerData');
                 break;
             }
         }
@@ -538,14 +538,14 @@ class Parser
 
             foreach ((array) $type as $type)
             {
-                1 === $type && $s1 = 1; // T_SEMANTIC
-                2 === $type && $s2 = 1; // T_NON_SEMANTIC
+                1 === $type and $s1 = 1; // T_SEMANTIC
+                2 === $type and $s2 = 1; // T_NON_SEMANTIC
                 $this->tokenRegistry[$type][++$this->registryIndex ^ $desc] = array($this, $method);
             }
         }
 
-        isset($s1) && ksort($this->tokenRegistry[1]); // T_SEMANTIC
-        isset($s2) && ksort($this->tokenRegistry[2]); // T_NON_SEMANTIC
+        isset($s1) and ksort($this->tokenRegistry[1]); // T_SEMANTIC
+        isset($s2) and ksort($this->tokenRegistry[2]); // T_NON_SEMANTIC
     }
 
     // Unregister callbacks for the next tokens
@@ -592,7 +592,7 @@ class Parser
             T_BAD_CHARACTER => 1
         );
 
-        null === $i && $i = $this->index;
+        null === $i and $i = $this->index;
         while (isset($this->tokens[$i], $ns[$this->tokens[$i][0]])) ++$i;
         isset($this->tokens[$i]) || $this->tokens[$i] = array(T_WHITESPACE, '');
 
@@ -614,10 +614,10 @@ class Parser
     protected function unshiftTokens()
     {
         $token = func_get_args();
-        isset($token[1]) && $token = array_reverse($token);
+        isset($token[1]) and $token = array_reverse($token);
 
         foreach ($token as $token)
-            $this->tokens[--$this->index] = $token;
+            $this->tokens[--$this->index] = isset($token[1]) ? array($token[0], $token[1]) : $token[0];
 
         return false;
     }
@@ -632,7 +632,7 @@ class Parser
         {
             $this->unregister(__FUNCTION__);
             $tokens =& $this->tokens;
-            foreach ($tokens as &$t) isset($t[1]) && $t = $t[1];
+            foreach ($tokens as &$t) isset($t[1]) and $t = $t[1];
             $tokens = array($this->index => array(T_INLINE_HTML, implode('', $tokens)));
         }
     }
