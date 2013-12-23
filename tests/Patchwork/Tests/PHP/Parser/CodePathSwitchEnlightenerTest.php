@@ -41,16 +41,16 @@ in:
   switch(X){case X;;case X:break;default;;}
 out:
   switch($̊S1=(X) or true){case( X)==$̊S1 and
-                       (!!1)
-                            :
-                             ;case( X)==$̊S1 and
-                                         (!!1)
-                                              :
-                                               break;
-                                                     default:;case (!!1) and
-                                                                             (!!0) /*Jump to default*/
-                                                                                                      :
-                                                                                                       }
+                                      (!!1)
+                                           :
+                                            ;case( X)==$̊S1 and
+                                                        (!!1)
+                                                             :
+                                                              break;
+                                                                    default:;case (!!1) and
+                                                                                           (!!0) /*Jump to default*/
+                                                                                                                    :
+                                                                                                                     }
 
 in:
   goto_label:
