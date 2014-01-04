@@ -75,6 +75,8 @@ class FunctionShim extends Parser
         'array_map'                    => 1,
         'call_user_func'               => 1,
         'call_user_func_array'         => 1,
+        'forward_static_call'          => 1,
+        'forward_static_call_array'    => 1,
         'header_register_callback'     => 1,
         'is_callable'                  => 1,
         'newt_set_help_callback'       => 1,
