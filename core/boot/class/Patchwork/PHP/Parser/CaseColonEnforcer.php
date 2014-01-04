@@ -21,7 +21,7 @@ class CaseColonEnforcer extends Parser
 
     $caseStack = array(),
     $callbacks = array(
-        '~tagCase' => T_CASE,
+        '~tagCase' => array(T_CASE, T_DEFAULT),
     ),
 
     $bracketsCount,

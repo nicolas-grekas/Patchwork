@@ -16,7 +16,7 @@ use Patchwork\PHP\Parser;
  * The CodePathSplitter parser merges and splits lines at code path nodes, enabling extensive code coverage analysis.
  *
  * @todo More clever whitespace offsets with linePrefix
- * @todo Inline tags or other idea to mesure branch related coverage metrics
+ * @todo Inline tags or export source map to mesure branch related coverage metrics
  */
 class CodePathSplitter extends Parser
 {
@@ -27,12 +27,13 @@ class CodePathSplitter extends Parser
 
     protected
 
+    $isCommitted = true,
     $lineHasSemantic = false,
     $linePrefix = '',
     $structStack = array(),
     $callbacks = array(
-        '~tagSemantic' => T_SEMANTIC,
-        '~tagNonSemantic' => T_NON_SEMANTIC,
+        'tagBranch' => T_SEMANTIC,
+        '~tagPrefix' => array(T_SEMANTIC, T_NON_SEMANTIC),
     ),
     $dependencies = array(
         'ControlStructBracketer', // Curly braces around blocks are required for correct code coverage
@@ -40,8 +41,10 @@ class CodePathSplitter extends Parser
     );
 
 
-    protected function tagSemantic(&$token)
+    protected function tagBranch(&$token)
     {
+        if (! $this->isCommitted) return;
+
         if ($this->isSpaceAllowed($token))
         {
             switch ($this->isCodePathNode($token))
@@ -50,10 +53,19 @@ class CodePathSplitter extends Parser
             case self::BRANCH_CONTINUE:
                 if ($this->lineHasSemantic)
                 {
-                    $prefix = $this->linePrefix;
+                    end($this->texts);
+                    $this->texts[key($this->texts)] .= $this->targetEol . $this->linePrefix;
                 }
             }
         }
+
+        $this->lineHasSemantic = true;
+        $this->isCommitted = false;
+    }
+
+    protected function tagPrefix(&$token)
+    {
+        $this->isCommitted = true;
 
         if (isset($token[0][0]))
         {
@@ -61,6 +73,10 @@ class CodePathSplitter extends Parser
         }
         else switch ($token[0])
         {
+            case T_WHITESPACE:
+            case T_COMMENT:
+            case T_DOC_COMMENT:
+            case T_BAD_CHARACTER:
             case T_CONSTANT_ENCAPSED_STRING:
             case T_ENCAPSED_AND_WHITESPACE:
             case T_OPEN_TAG_WITH_ECHO:
@@ -78,10 +94,6 @@ class CodePathSplitter extends Parser
             default:
                 $this->linePrefix .= preg_replace('/[^\t ]/', ' ', utf8_decode($token[1]));
         }
-
-        isset($prefix) and $token[1] = $this->targetEol . $prefix . $token[1];
-
-        $this->lineHasSemantic = true;
     }
 
     protected function isSpaceAllowed(&$token)
@@ -185,6 +197,7 @@ class CodePathSplitter extends Parser
             break;
 
         case ':':
+            if (T_DEFAULT === $this->penuType) $c = $r;
             switch (end($this->structStack))
             {
             case '?': $this->structStack[key($this->structStack)] = '-';
@@ -312,18 +325,5 @@ class CodePathSplitter extends Parser
         }
 
         return $r;
-    }
-
-    protected function tagNonSemantic(&$token)
-    {
-        if (false !== $lf = strrpos($token[1], "\n"))
-        {
-            $this->lineHasSemantic = false;
-            $this->linePrefix = substr($token[1], $lf + 1);
-        }
-        else
-        {
-            $this->linePrefix .= $token[1];
-        }
     }
 }

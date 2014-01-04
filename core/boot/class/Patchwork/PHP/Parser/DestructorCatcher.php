@@ -57,7 +57,7 @@ class DestructorCatcher extends Parser
                 . '{'
                     . '$e=array($e,set_exception_handler("var_dump"));'
                     . 'restore_exception_handler();'
-                    . 'null!==$e[1]&&call_user_func($e[1],$e=$e[0])+exit(255);'
+                    . 'if (isset($e[1]))call_user_func($e[1],$e=$e[0])+exit(255);'
                 . '}'
                 . 'throw $e;'
             . '}' . $token[1];

@@ -22,7 +22,9 @@ class SelfLowerCaserTest extends \PHPUnit_Framework_TestCase
         $parser = $this->getParser();
 
         $in  = '<?php SelF; ParenT;';
-        $out = '<?php self; parent;';
+
+        if (PHP_VERSION_ID >= 50500) $out = $in;
+        else $out = '<?php self; parent;';
 
         $this->assertSame( $out, $parser->parse($in) );
         $this->assertSame( array(), $parser->getErrors() );

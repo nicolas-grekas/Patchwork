@@ -67,7 +67,7 @@ class CodePathDefaultArgsEnlightener extends Parser
             while (true === end($this->args));
 
             $this->unshiftTokens(
-                array(T_LNUMBER, "(func_num_args() <= " . count($this->args) . ")"), array(T_LOGICAL_AND, 'and'), array(T_LNUMBER, '(0?0:0) /*All default args used*/'), ';'
+                array(T_LNUMBER, "(func_num_args() <= " . count($this->args) . ")"), array(T_LOGICAL_AND, 'and'), array(T_LNUMBER, '(!!0) /*All default args used*/'), ';'
             );
         }
         else if (T_USE === $token[0])

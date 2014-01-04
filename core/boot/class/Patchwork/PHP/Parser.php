@@ -10,8 +10,8 @@
 
 namespace Patchwork\PHP;
 
-const T_SEMANTIC     = 1; // Primary type for semantic tokens
-const T_NON_SEMANTIC = 2; // Primary type for non-semantic tokens (whitespace and comment)
+define('T_SEMANTIC', 1); // Primary type for semantic tokens
+define('T_NON_SEMANTIC', 2); // Primary type for non-semantic tokens (whitespace and comment)
 
 Parser::createToken(
     'T_CURLY_CLOSE', // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
@@ -94,7 +94,7 @@ class Parser
     {
         $parent || $parent = __CLASS__ === get_class($this) ? $this : new self;
 
-        $this->serviceName || $this->serviceName = strtr(get_class($this), '\\', '_');
+        $this->serviceName || $this->serviceName = get_class($this);
         $this->dependencies = (array) $this->dependencies;
         $this->parent = $parent;
 
@@ -143,7 +143,7 @@ class Parser
             }
             else $c = array();
 
-            $k = strtr(strtolower('\\' !== $v[0] ? __CLASS__ . '_' . $v : substr($v, 1)), '\\', '_');
+            $k = strtolower('\\' !== $v[0] ? __CLASS__ . '\\' . $v : substr($v, 1));
 
             if (!isset($this->parents[$k]))
             {
@@ -154,7 +154,7 @@ class Parser
 
             foreach ($c as $c => $k)
             {
-                is_int($c) && $c = $k;
+                is_int($c) and $c = $k;
 
                 if (!property_exists($parent, $c)) user_error(get_class($this) . " undefined parent property: {$v}->{$c}", E_USER_WARNING);
                 if (!property_exists($this, $k)) user_error(get_class($this) . " undefined property: \$this->{$k}", E_USER_NOTICE);
@@ -220,7 +220,7 @@ class Parser
         $this->tokens = $this->getTokens($code, false);
         $code = implode('', $this->parseTokens());
 
-        function_exists('mb_internal_encoding') && mb_internal_encoding($enc);
+        function_exists('mb_internal_encoding') and mb_internal_encoding($enc);
 
         return $code;
     }
@@ -327,6 +327,7 @@ class Parser
 
         $j         = 0;
         $curly     = 0;
+        $nextLine  = 0;
         $curlyPool = array();
 
         while (isset($tokens[$i]))
@@ -337,21 +338,30 @@ class Parser
             // Set primary type and handle string interpolation context:
             // - tag closing braces as T_CURLY_CLOSE when they are opened with curly braces
             //   tagged as T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES, to make
-            //   them easy to distinguish from regular code "{" / "}" pairs,
+            //   them easy to separate from regular code "{" / "}" pairs,
             // - tag arrays' or objects' string indexes as T_STR_STRING.
 
             $priType = 1; // T_SEMANTIC
 
+            if ($nextLine)
+            {
+                $line += $nextLine;
+                $nextLine = 0;
+            }
+
             if (isset($t[1]))
             {
+                if (isset($t[2])) $line = $t[2];
+
                 if ($inString & 1) switch ($t[0])
                 {
+                case T_ENCAPSED_AND_WHITESPACE:
+                    $nextLine = substr_count($t[1], "\n");
                 case T_VARIABLE:
                 case T_STR_STRING:
                 case T_CURLY_OPEN:
                 case T_CURLY_CLOSE:
                 case T_END_HEREDOC:
-                case T_ENCAPSED_AND_WHITESPACE:
                 case T_DOLLAR_OPEN_CURLY_BRACES: break;
                 case T_STRING:
                     if ('[' === $prevType || T_OBJECT_OPERATOR === $prevType)
@@ -371,7 +381,16 @@ class Parser
                 case T_WHITESPACE:
                 case T_COMMENT:
                 case T_DOC_COMMENT:
-                case T_BAD_CHARACTER: $priType = 2; // T_NON_SEMANTIC
+                    $nextLine = substr_count($t[1], "\n");
+                case T_BAD_CHARACTER:
+                    $priType = 2; // T_NON_SEMANTIC
+                    break;
+
+                case T_CONSTANT_ENCAPSED_STRING:
+                case T_INLINE_HTML:
+                case T_CLOSE_TAG:
+                case T_OPEN_TAG:
+                    $nextLine = substr_count($t[1], "\n");
                 }
             }
             else
@@ -407,7 +426,7 @@ class Parser
                     {
                         $callbacks += $reg[$n];
 
-                        // Callbacks triggering are always ordered:
+                        // Callback triggers are always ordered:
                         // - first by parsers' instanciation order
                         // - then by callbacks' registration order
                         // - callbacks registered with a tilde prefix
@@ -431,7 +450,7 @@ class Parser
                         {
                             $n = $c[0]->$c[1]($t);
 
-                            // Non-tilde-prefixed callback can return:
+                            // Non-tilde-prefixed callbacks can return:
                             // - false, which cancels the current token
                             // - a new token type, which is added to $t[2] and loads the
                             //   related callbacks in the current callbacks stack
@@ -454,11 +473,7 @@ class Parser
 
             $texts[++$j] =& $t[1];
 
-            if (2 === $priType) // T_NON_SEMANTIC
-            {
-                $line += substr_count($t[1], "\n");
-                continue;
-            }
+            if (2 === $priType) continue; // T_NON_SEMANTIC
 
             // For semantic tokens only: populate $this->types, $this->prevType and $this->penuType
 
@@ -476,15 +491,6 @@ class Parser
             }
             else switch ($prevType)
             {
-            case T_CONSTANT_ENCAPSED_STRING:
-            case T_ENCAPSED_AND_WHITESPACE:
-            case T_OPEN_TAG_WITH_ECHO:
-            case T_INLINE_HTML:
-            case T_CLOSE_TAG:
-            case T_OPEN_TAG:
-                $line += substr_count($t[1], "\n");
-                break;
-
             case T_DOLLAR_OPEN_CURLY_BRACES:
             case T_CURLY_OPEN:    $curlyPool[] = $curly; $curly = 0;
             case T_START_HEREDOC: ++$inString; break;
@@ -493,7 +499,7 @@ class Parser
             case T_END_HEREDOC:   --$inString; break;
 
             case T_HALT_COMPILER:
-                4 === $this->haltCompilerTail && $this->register('tagHaltCompilerData');
+                4 === $this->haltCompilerTail and $this->register('tagHaltCompilerData');
                 break;
             }
         }
@@ -538,14 +544,14 @@ class Parser
 
             foreach ((array) $type as $type)
             {
-                1 === $type && $s1 = 1; // T_SEMANTIC
-                2 === $type && $s2 = 1; // T_NON_SEMANTIC
+                1 === $type and $s1 = 1; // T_SEMANTIC
+                2 === $type and $s2 = 1; // T_NON_SEMANTIC
                 $this->tokenRegistry[$type][++$this->registryIndex ^ $desc] = array($this, $method);
             }
         }
 
-        isset($s1) && ksort($this->tokenRegistry[1]); // T_SEMANTIC
-        isset($s2) && ksort($this->tokenRegistry[2]); // T_NON_SEMANTIC
+        isset($s1) and ksort($this->tokenRegistry[1]); // T_SEMANTIC
+        isset($s2) and ksort($this->tokenRegistry[2]); // T_NON_SEMANTIC
     }
 
     // Unregister callbacks for the next tokens
@@ -592,7 +598,7 @@ class Parser
             T_BAD_CHARACTER => 1
         );
 
-        null === $i && $i = $this->index;
+        null === $i and $i = $this->index;
         while (isset($this->tokens[$i], $ns[$this->tokens[$i][0]])) ++$i;
         isset($this->tokens[$i]) || $this->tokens[$i] = array(T_WHITESPACE, '');
 
@@ -614,10 +620,10 @@ class Parser
     protected function unshiftTokens()
     {
         $token = func_get_args();
-        isset($token[1]) && $token = array_reverse($token);
+        isset($token[1]) and $token = array_reverse($token);
 
         foreach ($token as $token)
-            $this->tokens[--$this->index] = $token;
+            $this->tokens[--$this->index] = isset($token[1]) ? array($token[0], $token[1]) : $token[0];
 
         return false;
     }
@@ -632,7 +638,7 @@ class Parser
         {
             $this->unregister(__FUNCTION__);
             $tokens =& $this->tokens;
-            foreach ($tokens as &$t) isset($t[1]) && $t = $t[1];
+            foreach ($tokens as &$t) isset($t[1]) and $t = $t[1];
             $tokens = array($this->index => array(T_INLINE_HTML, implode('', $tokens)));
         }
     }

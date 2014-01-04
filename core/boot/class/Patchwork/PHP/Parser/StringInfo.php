@@ -142,7 +142,7 @@ class StringInfo extends Parser
             }
 
         case ':':
-            if ('{' === $p || ';' === $p) return T_GOTO_LABEL;
+            if (T_OPEN_TAG === $p || '{' === $p || '}' === $p || ';' === $p) return T_GOTO_LABEL;
             // No break;
 
         case '&':
