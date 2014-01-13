@@ -27,7 +27,7 @@ class CodePathSwitchEnlightenerTest extends \PHPUnit_Framework_TestCase
         $parser = $this->getParser();
 
         $in = $parser->parse("<?php\n" . $in);
-        $in = substr($in, 6);
+        $in = strtr(substr($in, 6), array("\r\r\r" => '↓', "\r\r" => '↑', "\r" => ''));
 
         $this->assertSame( $out, $in );
         $this->assertSame( $errors, $parser->getErrors() );
@@ -40,17 +40,7 @@ class CodePathSwitchEnlightenerTest extends \PHPUnit_Framework_TestCase
 in:
   switch(X){case X;;case X:break;default;;}
 out:
-  switch($̊S1=(X) or true){case( X)==$̊S1 and
-                                      (!!1)
-                                           :
-                                            ;case( X)==$̊S1 and
-                                                        (!!1)
-                                                             :
-                                                              break;
-                                                                    default:;case (!!1) and
-                                                                                           (!!0) /*Jump to default*/
-                                                                                                                    :
-                                                                                                                     }
+  switch($̊S1=(X) or true){case( X)==$̊S1 and↓(!!1)↑:↑;case( X)==$̊S1 and↓(!!1)↑:↑break;↑default:;case (!!1) and↓(!!0) /*Jump to default*/↑:↑}
 
 in:
   goto_label:
@@ -60,12 +50,7 @@ out:
 in:
   X ? function () {} : X;
 out:
-  X ? 
-      function () {
-                   } 
-                     : 
-                       X
-                        ;
+  X ? ↓function () {↓} ↑: ↓X↑;
 
 EOPHP;
 

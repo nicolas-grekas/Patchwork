@@ -13,27 +13,25 @@ namespace Patchwork\PHP\Parser;
 use Patchwork\PHP\Parser;
 
 /**
- * The CodePathSplitter parser merges and splits lines at code path nodes, enabling extensive code coverage analysis.
- *
- * @todo More clever whitespace offsets with linePrefix
- * @todo Inline tags or export source map to mesure branch related coverage metrics
+ * The CodePathSplitter parser puts one token per line
+ * and encodes code paths directly in the source,
+ * enabling extensive code coverage analysis.
  */
 class CodePathSplitter extends Parser
 {
     const
 
-    BRANCH_OPEN = 1,
-    BRANCH_CONTINUE = 2;
+    BRANCH_OPEN = 3,
+    BRANCH_RESUME = 2,
+    BRANCH_CONTINUE = 1;
 
     protected
 
-    $isCommitted = true,
-    $lineHasSemantic = false,
-    $linePrefix = '',
+    $nodeType = 0,
     $structStack = array(),
     $callbacks = array(
-        'tagBranch' => T_SEMANTIC,
-        '~tagPrefix' => array(T_SEMANTIC, T_NON_SEMANTIC),
+        'tagNode' => T_SEMANTIC,
+        '~tagCommit' => T_SEMANTIC,
     ),
     $dependencies = array(
         'ControlStructBracketer', // Curly braces around blocks are required for correct code coverage
@@ -41,59 +39,26 @@ class CodePathSplitter extends Parser
     );
 
 
-    protected function tagBranch(&$token)
+    protected function tagNode(&$token)
     {
-        if (! $this->isCommitted) return;
-
-        if ($this->isSpaceAllowed($token))
+        if (! $this->nodeType && $this->isSpaceAllowed($token))
         {
-            switch ($this->isCodePathNode($token))
-            {
-            case self::BRANCH_OPEN:
-            case self::BRANCH_CONTINUE:
-                if ($this->lineHasSemantic)
-                {
-                    end($this->texts);
-                    $this->texts[key($this->texts)] .= $this->targetEol . $this->linePrefix;
-                }
-            }
+            $this->nodeType = $this->getNodeType($token);
         }
-
-        $this->lineHasSemantic = true;
-        $this->isCommitted = false;
     }
 
-    protected function tagPrefix(&$token)
+    protected function tagCommit(&$token)
     {
-        $this->isCommitted = true;
+        end($this->texts);
 
-        if (isset($token[0][0]))
+        switch ($this->nodeType)
         {
-            $this->linePrefix .= str_repeat(' ', strlen($token[1]));
+        case self::BRANCH_OPEN:     $this->texts[key($this->texts)] .= "\r\r\r"; break;
+        case self::BRANCH_RESUME:   $this->texts[key($this->texts)] .= "\r\r"; break;
+        case self::BRANCH_CONTINUE: $this->texts[key($this->texts)] .= "\r"; break;
         }
-        else switch ($token[0])
-        {
-            case T_WHITESPACE:
-            case T_COMMENT:
-            case T_DOC_COMMENT:
-            case T_BAD_CHARACTER:
-            case T_CONSTANT_ENCAPSED_STRING:
-            case T_ENCAPSED_AND_WHITESPACE:
-            case T_OPEN_TAG_WITH_ECHO:
-            case T_INLINE_HTML:
-            case T_CLOSE_TAG:
-            case T_OPEN_TAG:
-                if (false !== $lf = strrpos($token[1], "\n"))
-                {
-                    $this->linePrefix = substr($token[1], $lf + 1);
-                    $this->linePrefix = preg_replace('/[^\t ]/', ' ', utf8_decode($this->linePrefix));
-                    break;
-                }
-                // No break;
 
-            default:
-                $this->linePrefix .= preg_replace('/[^\t ]/', ' ', utf8_decode($token[1]));
-        }
+        $this->nodeType = 0;
     }
 
     protected function isSpaceAllowed(&$token)
@@ -163,10 +128,10 @@ class CodePathSplitter extends Parser
         return true;
     }
 
-    protected function isCodePathNode(&$token)
+    protected function getNodeType(&$token)
     {
-        $r = 0;
         $c = self::BRANCH_CONTINUE;
+        $r = self::BRANCH_RESUME;
         $o = self::BRANCH_OPEN;
 
         // Checks if the previous token ends a code path
@@ -185,19 +150,19 @@ class CodePathSplitter extends Parser
             if (')' === $this->penuType)
             {
                 if (T_ENDFOR === end($this->structStack)) array_pop($this->structStack);
-                else if (T_DEFAULT === $token[0]) $r = $c;
-                else if (T_CASE !== $token[0]) $r = $c = $o;
+                else if (T_DEFAULT === $token[0]) $c = $r;
+                else if (T_CASE !== $token[0]) $c = $r = $o;
             }
             $this->structStack[] = ')' === $this->penuType || T_ELSE === $this->penuType || T_STRING === $this->penuType ? T_ELSE : '{';
             break;
 
         case '?':
             $this->structStack[] = '?';
-            if (':' !== $token[0]) $r = $c = $o;
+            if (':' !== $token[0]) $c = $r = $o;
             break;
 
         case ':':
-            if (T_DEFAULT === $this->penuType) $c = $r;
+            if (T_DEFAULT === $this->penuType) $r = $c;
             switch (end($this->structStack))
             {
             case '?': $this->structStack[key($this->structStack)] = '-';
@@ -207,16 +172,16 @@ class CodePathSplitter extends Parser
             case T_FOREACH:
             case T_SWITCH:
             case T_WHILE:
-                $c = $o;
+                $r = $o;
             }
-            $r = $c;
+            $c = $r;
             break;
 
         case ')':
             switch (array_pop($this->structStack))
             {
             case T_EXIT:
-                if (';' !== $token[0]) $r = $c;
+                if (';' !== $token[0]) $c = $r;
                 break;
 
             case T_IF:
@@ -227,7 +192,7 @@ class CodePathSplitter extends Parser
                 if (';' === end($this->structStack)) array_pop($this->structStack);
                 if ('{' === $token[0]) break;
                 if (':' !== $token[0]) $this->structStack[] = ';';
-                $r = $c = $o;
+                $c = $r = $o;
                 break;
 
             case T_ENDFOR:
@@ -241,7 +206,7 @@ class CodePathSplitter extends Parser
             break;
 
         case '}':
-            if (T_ELSE === array_pop($this->structStack)) $r = $c;
+            if (T_ELSE === array_pop($this->structStack)) $c = $r;
             break;
 
         case ';':
@@ -250,7 +215,7 @@ class CodePathSplitter extends Parser
             if (';' === end($this->structStack))
             {
                 array_pop($this->structStack);
-                $r = $c;
+                $c = $r;
             }
             else if (!isset($this->penuType[0])) switch ($this->penuType)
             {
@@ -260,7 +225,7 @@ class CodePathSplitter extends Parser
             case T_ENDWHILE:
             case T_ENDSWITCH:
             case T_ENDFOREACH:
-                $r = $c;
+                $c = $r;
             }
             break;
         }
@@ -284,7 +249,7 @@ class CodePathSplitter extends Parser
         case T_LOGICAL_AND:
         case T_LOGICAL_XOR:
             if ('-' !== end($this->structStack)) $this->structStack[] = '-';
-            $r = $c = $o;
+            $c = $r = $o;
             break;
 
         case T_GOTO:
@@ -311,7 +276,7 @@ class CodePathSplitter extends Parser
             if ('-' === end($this->structStack))
             {
                 array_pop($this->structStack);
-                $r = $c;
+                $c = $r;
             }
             break;
         }
@@ -320,10 +285,10 @@ class CodePathSplitter extends Parser
         case T_CATCH:
         case T_ELSE:
         case T_ELSEIF:
-            $r = $c = $o;
+            $c = $r = $o;
             break;
         }
 
-        return $r;
+        return $c;
     }
 }
