@@ -13,21 +13,27 @@ namespace Patchwork\PHP\Parser;
 use Patchwork\PHP\Parser;
 
 /**
- * The ShortArray parser backports the short array syntax introduced in PHP 5.4.
+ * The ShortArray parser transforms to/from short array syntax depending on target PHP version.
  */
 class ShortArray extends Parser
 {
-    public
-
-    $targetPhpVersionId = -50400;
-
     protected
 
-    $callbacks = array('openBracket' => '['),
+    $backwardCallbacks = array('tagOpenSquare' => '['),
+    $forwardCallbacks = array('tagArray' => T_ARRAY),
     $dependencies = 'BracketWatcher';
 
 
-    protected function openBracket(&$token)
+    function __construct(parent $parent)
+    {
+        $this->callbacks = $parent->targetPhpVersionId < 50400
+            ? $this->backwardCallbacks
+            : $this->forwardCallbacks;
+
+        parent::__construct($parent);
+    }
+
+    protected function tagOpenSquare(&$token)
     {
         switch ($this->prevType)
         {
@@ -42,11 +48,34 @@ class ShortArray extends Parser
         }
 
         $token[1] = 'array(';
-        $this->register(array('~closeBracket' => T_BRACKET_CLOSE));
+        $this->register(array('~tagCloseSquare' => T_BRACKET_CLOSE));
     }
 
-    protected function closeBracket(&$token)
+    protected function tagCloseSquare(&$token)
     {
         $token[1] = ')';
+    }
+
+    protected function tagArray(&$token)
+    {
+        $this->register('tagOpenRounded');
+    }
+
+    protected function tagOpenRounded(&$token)
+    {
+        $this->unregister(__FUNCTION__);
+
+        if ('(' === $token[0])
+        {
+            $token[1] = '[';
+            end($this->types);
+            $this->texts[key($this->types)] = '';
+            $this->register(array('~tagCloseRounded' => T_BRACKET_CLOSE));
+        }
+    }
+
+    protected function tagCloseRounded(&$token)
+    {
+        $token[1] = ']';
     }
 }
