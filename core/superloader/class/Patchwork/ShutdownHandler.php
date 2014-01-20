@@ -87,10 +87,7 @@ class ShutdownHandler
 
     static function _start()
     {
-        // See http://bugs.php.net/54114
-        while (ob_get_level() && @ob_end_flush()) {}
-
-        if (! ob_get_level())
+        if (self::_flushOutputBuffers())
         {
            if (function_exists('fastcgi_finish_request'))
                 fastcgi_finish_request();
@@ -100,6 +97,31 @@ class ShutdownHandler
 
         ob_start(self::$class . '_checkOutputBuffer');
         self::register(self::$class . '_end');
+    }
+
+    static function _flushOutputBuffers()
+    {
+        // See http://bugs.php.net/54114
+
+        $l = ob_get_level();
+
+        while ( $l--
+            && ($s = ob_get_status())
+            && ( ! empty($s['del'])
+              || (isset($s['flags']) && ($s['flags'] & PHP_OUTPUT_HANDLER_REMOVABLE)) ) )
+        {
+            if (! isset($s['flags']) || ($s['flags'] & PHP_OUTPUT_HANDLER_FLUSHABLE))
+            {
+                ob_end_flush();
+            }
+            else if ($s['flags'] & PHP_OUTPUT_HANDLER_CLEANABLE)
+            {
+                ob_end_clean();
+            }
+            else break;
+        }
+
+        return ! $s;
     }
 
     static function _checkOutputBuffer($buffer)
@@ -117,7 +139,7 @@ class ShutdownHandler
     {
         if (empty(self::$destructors))
         {
-            while (ob_get_level() && @ob_end_flush()) {}
+            self::_flushOutputBuffers();
 
             session_write_close(); // See http://bugs.php.net/54157
 
