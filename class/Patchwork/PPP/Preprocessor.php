@@ -19,6 +19,7 @@ class Preprocessor extends AbstractStreamProcessor
     $parserPrefix = 'Patchwork\PHP\Parser\\',
     $toStringCatcherCallback = 'Patchwork\PHP\ThrowingErrorHandler::handleToStringException',
     $compilerHaltOffset = 0,
+    $shims = array(),
     $constants = array(),
     $parsers = array(
         'PhpPreprocessor'    => true,
@@ -116,6 +117,22 @@ class Preprocessor extends AbstractStreamProcessor
 
             foreach ($parser->getErrors() as $e)
                 $this->handleError($e);
+
+            $e = array();
+
+            foreach ($this->shims as $replaced => $replacement)
+            {
+                foreach ($replacement as $tag => $replacement)
+                {
+                    if (false !== strpos($code, $tag))
+                    {
+                        $code = str_replace($tag, '', $code);
+                        $e[$replaced] = isset($e[$replaced]) ? $replaced : $replacement;
+                    }
+                }
+            }
+
+            $this->shims = $e;
         }
 
         return $code;
@@ -134,9 +151,20 @@ class Preprocessor extends AbstractStreamProcessor
         case 'StaticState':
         case 'Normalizer':  $parser = new $c($parser); break;
         case 'PhpPreprocessor':  $p = new $c($parser, '\Patchwork\PPP::processedFile'); break;
-        case 'ConstantInliner':  $p = new $c($parser, $this->uri, $this->constants, $this->compilerHaltOffset); break;
         case 'ToStringCatcher':  $p = new $c($parser, $this->toStringCatcherCallback); break;
         default:                 $p = new $c($parser); break;
+
+        case 'ConstantInliner':
+            $c::loadConsts($this->constants);
+            $this->constants = array();
+            $p = new $c($parser, $this->uri, $this->constants, $this->compilerHaltOffset);
+            break;
+
+        case 'FunctionShim':
+            $c::loadShims($this->shims);
+            $this->shims = array();
+            $p = new $c($parser, $this->shims);
+            break;
         }
 
         isset($parser) or $parser = $p;
