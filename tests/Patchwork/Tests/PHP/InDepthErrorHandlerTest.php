@@ -68,7 +68,7 @@ class InDepthErrorHandlerTest extends \PHPUnit_Framework_TestCase
   "mem": "%d - %d",
   "data": {"_":"4:array:4",
     "mesg": "Uncaught \\\\Patchwork\\\\PHP\\\\InDepthRecoverableErrorException: fake user error",
-    "type": "E_ERROR /home/nikos/patchwork/dumper/tests/Patchwork/Tests/PHP/InDepthErrorHandlerTest.php:43",
+    "type": "E_ERROR ' . __FILE__ . ':43",
     "level": "1/-1",
     "exception": {"_":"8:Patchwork\\\\PHP\\\\InDepthRecoverableErrorException",
       "context": {"_":"9:array:2",
