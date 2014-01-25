@@ -11,7 +11,7 @@
 use Patchwork as p;
 use Patchwork\PHP\Shim as s;
 
-/**/if (!function_exists('trait_exists'))
+/**/if (! function_exists('trait_exists'))
 /**/{
         function trait_exists($class, $autoload = true) {return $autoload && class_exists($class, $autoload) && false;}
 /**/}
@@ -47,8 +47,6 @@ use Patchwork\PHP\Shim as s;
 /**/{
 /**/    boot::$manager->pushFile('class/Patchwork/PHP/Shim/Php540.php');
 
-        p\Shim(number_format,       s\Php540, $number, $decimals = 0, $dec_point = '.', $thousands_sep = ',');
-        p\Shim(trait_exists,        s\Php540, $class, $autoload = true);
         p\Shim(class_uses,          s\Php540, $class, $autoload = true);
         p\Shim(get_declared_traits, s\Php540);
 
