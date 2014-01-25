@@ -47,7 +47,10 @@ class Normalizer extends Parser
 
         if ($this->checkUtf8 && !preg_match('//u', $code))
         {
-            $this->setError("File encoding is not valid UTF-8", E_USER_WARNING);
+            $line = strtr($code, '?', '-');
+            $line = utf8_decode($line);
+            $line = 1 + substr_count($line, "\n", 0, strpos($line, '?'));
+            $this->setError("File encoding is not valid UTF-8", E_USER_WARNING, $line);
         }
 
         if ($this->stripUtf8Bom && 0 === strncmp($code, "\xEF\xBB\xBF", 3))

@@ -513,12 +513,14 @@ class Parser
 
     // Set an error on input code inside parsers
 
-    protected function setError($message, $type)
+    protected function setError($message, $type, $line = null)
     {
-        $this->errors[(int) $this->line][] = array(
+        isset($line) or $line = $this->line;
+
+        $this->errors[(int) $line][] = array(
             'type' => $type,
             'message' => $message,
-            'line' => (int) $this->line,
+            'line' => (int) $line,
             'parser' => get_class($this),
         );
     }

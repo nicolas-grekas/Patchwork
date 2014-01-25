@@ -1,37 +1,129 @@
-#!/usr/bin/env sh
+#!/usr/bin/env php
+<?php
 
-if test ! -d $1
-then
-    echo "Source is not a directory" >&2
-    exit
-fi
+use Patchwork\PHP\Parser as p;
 
-if test -e $2
-then
-    echo "Destination exists" >&2
-    exit
-fi
+ini_set('display_errors', false);
+ini_set('log_errors', true);
+ini_set('error_log', 'php://stderr');
+error_reporting(-1);
+function_exists('xdebug_disable') and xdebug_disable();
 
-echo 'Cloning source directory to destination...'
+function __autoload($class)
+{
+    $class = str_replace(array('\\', '_'), array('/', '/'), $class);
+    require dirname(__DIR__) . '/class/' . $class . '.php';
+}
 
-cp -a "$1" "$2"
+class Preprocessor
+{
+    static function getParser($file)
+    {
+        $p = new p\Normalizer();
+        $p = new p\StringInfo($p);
+        $p = new p\BracketWatcher($p);
+        $p = new p\NamespaceInfo($p);
+        $p = new p\ScopeInfo($p);
+        $p = new p\ConstFuncResolver($p);
 
-CWD=$PWD
-DIR=`dirname "$0"`
-DIR=`readlink -f "$DIR"`
-SRC=`readlink -f "$1"`
-cd "$2"
+        /*
+        $p = new p\BracketWatcher();
+        new p\ControlStructBracketer($p);
+        new p\CaseColonEnforcer($p);
+        new p\CodePathSplitterWithXDebugHacks($p);
+        new p\CodePathLoopEnlightener($p);
+        new p\CodePathElseEnlightener($p);
+        new p\CodePathSwitchEnlightener($p);
+        new p\CodePathDefaultArgsEnlightener($p);
+        new p\ShortArray($p);
+        $p = new p\ShortOpenEcho($p);
+        $p = new p\BinaryNumber($p);
+        $p = new p\BackportTokens($p);
+         */
 
-echo 'Processing PHP files...'
+        return $p;
+    }
+}
 
-shift
-shift
+if (! isset($argv[2]) || ! is_dir($argv[1])) {
+    user_error('<src_dir> <out_dir> arguments expected');
+}
 
-if [ "x" = "x$*" ]
-then
-    find -type f -name '*.php' -exec sh -c "echo {}; \"$DIR/patchwork-parse.php\" \"$SRC/{}\" < \"$SRC/{}\" > \"{}\"" \;
-else
-    find -type f "$@" -exec sh -c "echo {}; \"$DIR/patchwork-parse.php\" \"$SRC/{}\" < \"$SRC/{}\" > \"{}\"" \;
-fi
+$src_dir = realpath($argv[1]);
 
-cd "$CWD"
+if (! file_exists($argv[2])) {
+    mkdir($argv[2], 0755, true);
+}
+
+$out_dir = realpath($argv[2]);
+
+if (! is_dir($out_dir)) {
+    user_error('<src_dir> <out_dir> arguments expected');
+}
+
+$dir = new RecursiveDirectoryIterator($src_dir);
+$dir->setFlags($dir::SKIP_DOTS);
+$dir = new RecursiveIteratorIterator($dir);
+
+$src_dir = rtrim($src_dir, DIRECTORY_SEPARATOR);
+$out_dir = rtrim($out_dir, DIRECTORY_SEPARATOR);
+$src_dir_len = strlen($src_dir);
+$out_dir_len = strlen($out_dir);
+
+if (function_exists('pcntl_fork')) {
+    $modulo = 8;
+    $slice = $modulo;
+    $pid = 0;
+    while (--$slice && $pid = pcntl_fork()) {}
+} else {
+    $modulo = 1;
+    $slice = 0;
+}
+
+$i = 0;
+
+foreach ($dir as $src => $file) {
+    if ($slice !== $i++%$modulo) continue;
+    if (! strncmp($src, $out_dir . DIRECTORY_SEPARATOR, $out_dir_len+1)) continue;
+
+    $out = $out_dir . substr($src, $src_dir_len);
+    file_exists(dirname($out)) or mkdir(dirname($out), 0755, true);
+
+    if ('.php' === substr($src, -4)) {
+        $code = file_get_contents($src);
+
+        $parser = Preprocessor::getParser($src);
+        $code = $parser->parse($code);
+
+        if ($e = $parser->getErrors())
+        {
+            foreach ($e as $e)
+            {
+                switch ($e['type'])
+                {
+                case 0: continue 2;
+                case E_USER_NOTICE:
+                case E_USER_WARNING:
+                case E_USER_DEPRECATED: break;
+                default:
+                case E_ERROR: $e['type'] = E_USER_ERROR; break;
+                case E_NOTICE: $e['type'] = E_USER_NOTICE; break;
+                case E_WARNING: $e['type'] = E_USER_WARNING; break;
+                case E_DEPRECATED: $e['type'] = E_USER_DEPRECATED; break;
+                }
+
+                user_error("{$e['message']} in {$src} on line {$e['line']} as parsed by {$e['parser']}", $e['type']);
+            }
+        }
+
+        file_put_contents($out, $code);
+    } else {
+        copy($src, $out);
+    }
+}
+
+if (function_exists('pcntl_fork') && $pid) {
+    while (--$modulo) {
+        pcntl_wait($status);
+    }
+}

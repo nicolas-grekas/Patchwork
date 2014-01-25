@@ -17,31 +17,32 @@ use Patchwork\PHP\Parser;
  */
 class CodePathSplitterWithXDebugHacks extends CodePathSplitter
 {
-    protected $serviceName = 'Patchwork\PHP\Parser\CodePathSplitter';
+    protected
+
+    $skip = 0,
+    $serviceName = 'Patchwork\PHP\Parser\CodePathSplitter';
 
 
-    protected function isCodePathNode(&$token)
+    protected function getNodeType(&$token)
     {
-        static $skip = 0;
-
         if (':' === $this->prevType) $end = end($this->structStack);
 
-        $r = parent::isCodePathNode($token);
+        $c = parent::getNodeType($token);
 
-        if ($skip)
+        if ($this->skip)
         {
-            $r = 1 === $skip-- ? self::BRANCH_CONTINUE : self::BRANCH_OPEN;
+            $c = 1 === $this->skip-- ? self::BRANCH_RESUME : self::BRANCH_OPEN;
         }
-        else if (isset($end) && '?' === $end && self::BRANCH_OPEN === $r)
+        else if (isset($end) && '?' === $end && self::BRANCH_OPEN === $c)
         {
-            $r = self::BRANCH_CONTINUE;
+            $c = self::BRANCH_RESUME;
         }
         else if ('?' === $this->prevType)
         {
             end($this->types);
             $this->texts[key($this->types)] .= ':';
             $token[1] = '0?' . $token[1];
-            $r = self::BRANCH_OPEN;
+            $c = self::BRANCH_OPEN;
         }
         else if ('?' === $token[0])
         {
@@ -50,7 +51,7 @@ class CodePathSplitterWithXDebugHacks extends CodePathSplitter
             {
                 $token[1] .= '(';
                 $this->unshiftTokens(array('@', '!!1):('), array('@', '!!0)'), array('@', '?'));
-                $skip = 3;
+                $this->skip = 3;
             }
         }
         else if ('}' === $token[0] && ';' === $this->prevType && '{' === $this->penuType)
@@ -59,6 +60,6 @@ class CodePathSplitterWithXDebugHacks extends CodePathSplitter
             if (';' === $this->texts[key($this->types)]) $this->texts[key($this->types)] = '(!!0);';
         }
 
-        return $r;
+        return $c;
     }
 }

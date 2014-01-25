@@ -26,7 +26,7 @@ class CodePathSplitterTest extends \PHPUnit_Framework_TestCase
         $parser = $this->getParser();
 
         $in = $parser->parse("<?php\n" . $in);
-        $in = substr($in, 6);
+        $in = strtr(substr($in, 6), array("\r\r\r" => '↓', "\r\r" => '↑', "\r" => ''));
 
         $this->assertSame( $out, $in );
         $this->assertSame( $errors, $parser->getErrors() );
@@ -39,18 +39,12 @@ class CodePathSplitterTest extends \PHPUnit_Framework_TestCase
 in:
   switch(X){case X;;case X:break;default;;}
 out:
-  switch(X){case X:
-                   ;case X:
-                           break;
-                                 default:;}
+  switch(X){case X:↑;case X:↑break;↑default:;}
 
 in:
   switch(X){default:break;case X:;}
 out:
-  switch(X){
-            default:break;
-                          case X:
-                                 ;}
+  switch(X){↑default:break;↑case X:↑;}
 
 EOPHP;
 
