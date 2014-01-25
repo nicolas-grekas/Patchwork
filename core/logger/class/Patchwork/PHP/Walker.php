@@ -46,14 +46,12 @@ abstract class Walker
     abstract protected function dumpRef($is_soft, $ref_counter = null, &$ref_value = null, $ref_type = null);
     abstract protected function dumpScalar($val);
     abstract protected function dumpString($str, $is_key);
-    abstract protected function dumpObject($obj);
+    abstract protected function dumpObject($obj, $hash);
     abstract protected function dumpResource($res);
 
 
     function walk(&$a)
     {
-        $this->prevErrorHandler = set_error_handler(array($this, 'handleError'));
-
         if (empty(self::$tag))
         {
             self::$tag = (object) array();
@@ -62,9 +60,19 @@ abstract class Walker
         }
 
         $this->arrayType = $this->counter = $this->depth = 0;
-        $this->walkRef($a);
+        $this->prevErrorHandler = set_error_handler(array($this, 'handleError'));
+
+        try {$this->walkRef($a);}
+        catch (\Exception $e) {}
 
         restore_error_handler();
+        $this->prevErrorHandler = null;
+
+        $this->refPool = array();
+        $this->valPool = $this->objPool = array();
+        $this->arrayPool = $this->refMap = array();
+
+        if (isset($e)) throw $e;
     }
 
     protected function walkRef(&$a)
@@ -78,11 +86,11 @@ abstract class Walker
 
         $v = $a;
 
-        if ($this->checkInternalRefs && 1 < $this->counter)
+        if ($this->checkInternalRefs)
         {
             $this->refPool[$this->counter] =& $a;
             $this->valPool[$this->counter] = $v;
-            $a = self::$tag;
+            if (1 < $this->counter) $a = self::$tag;
         }
 
         switch ($t)
@@ -98,7 +106,7 @@ abstract class Walker
 
             $t = $this->arrayType;
             $this->arrayType = 0;
-            if (isset($h[0])) $this->dumpObject($v);
+            if (isset($h[0])) $this->dumpObject($v, $h);
             else $this->dumpResource($v);
             $this->arrayType = $t;
         }
@@ -191,10 +199,9 @@ abstract class Walker
             $v = $this->valPool[$k];
         }
 
-        $this->refPool = $this->valPool = $this->objPool = array();
+        $this->refPool = array();
         foreach ($this->refMap as $a => $k) $refs[$k][] = $a;
         foreach ($this->arrayPool as &$v) unset($v[self::$token]);
-        $this->arrayPool = $this->refMap = array();
 
         return $refs;
     }
