@@ -121,7 +121,7 @@ class ShutdownHandler
             else break;
         }
 
-        return ! $s;
+        return ! $l && empty($s);
     }
 
     static function _checkOutputBuffer($buffer)
