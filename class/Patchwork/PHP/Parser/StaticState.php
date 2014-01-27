@@ -60,20 +60,29 @@ class StaticState extends Parser
     function parse($code)
     {
         $code = $this->getRunonceCode($code);
+        $code = function () use ($code) {return eval('unset($code);' . $code);};
 
         $e = error_reporting(error_reporting() | 81);
         set_error_handler(array($this, 'errorHandler'), $e);
 
-        if (false === self::evalbox($code) && $code = error_get_last())
+        try
         {
-            $this->line = $code['line'];
-            $this->setError($code['message'], E_USER_ERROR);
+            if (false === $code() && $code = error_get_last())
+            {
+                $this->setError($code['message'], E_USER_ERROR, $code['line']);
+            }
+
+            $code = $this->getRuntimeCode();
+        }
+        catch (\Exception $x)
+        {
         }
 
         restore_error_handler();
         error_reporting($e);
 
-        return $this->getRuntimeCode();
+        if (isset($x)) throw $x;
+        else return $code;
     }
 
     function getRunonceCode($code)
@@ -230,14 +239,8 @@ class StaticState extends Parser
         if ('/*>*/' === $token[1]) return $this->setState(2);
     }
 
-    protected static function evalbox($code)
+    public function errorHandler($no, $message, $file, $line)
     {
-        return eval('unset($code);' . $code);
-    }
-
-    protected function errorHandler($no, $message, $file, $line)
-    {
-        $this->line = $line;
-        $this->setError($message, $no & error_reporting());
+        $this->setError($message, $no & error_reporting(), $line);
     }
 }

@@ -39,7 +39,7 @@ class NormalizerTest extends \PHPUnit_Framework_TestCase
                 array(
                     'type' => E_USER_WARNING,
                     'message' => 'File encoding is not valid UTF-8',
-                    'line' => 0,
+                    'line' => 1,
                     'parser' => 'Patchwork\PHP\Parser\Normalizer',
                 ),
             ),
