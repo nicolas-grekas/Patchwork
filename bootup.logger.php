@@ -1,12 +1,27 @@
 <?php // vi: set fenc=utf-8 ts=4 sw=4 et:
 /*
- * Copyright (C) 2012 Nicolas Grekas - p@tchwork.com
+ * Copyright (C) 2014 Nicolas Grekas - p@tchwork.com
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the (at your option):
  * Apache License v2.0 (http://apache.org/licenses/LICENSE-2.0.txt), or
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
+
+if (! function_exists('dump'))
+{
+    function dump($var)
+    {
+        Patchwork\Dumper::dump($var);
+    }
+
+    function set_dump_handler(\Closure $handler)
+    {
+        return Patchwork\Dumper::setHandler($handler);
+    }
+}
+
+if (function_exists('patchwork_require')) return;
 
 isset($_SERVER['REQUEST_TIME_FLOAT']) or $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
 
@@ -38,13 +53,13 @@ function patchwork_require()
  */
 function patchwork_shutdown_register($callback)
 {
-    if (array() !== @array_map($callback, array())) return register_shutdown_function($callback);
+    if (! is_callable($callback)) return register_shutdown_function($callback);
     $callback = func_get_args();
     register_shutdown_function('patchwork_shutdown_call', $callback);
 }
 
 /**
- * Do not use this function directly, see above.
+ * @internal Do not use this function directly, see above.
  */
 function patchwork_shutdown_call($c)
 {
