@@ -10,6 +10,8 @@
 
 namespace Patchwork\PHP;
 
+use Patchwork\PHP\Dumper\ExceptionCaster;
+
 /**
  * Logger logs messages to an output stream.
  *
@@ -21,8 +23,6 @@ namespace Patchwork\PHP;
  */
 class Logger
 {
-    const META_PREFIX = "\0~\0";
-
     public
 
     $lineFormat = "%s",
@@ -35,26 +35,6 @@ class Logger
     $prevTime = 0,
     $startTime = 0,
     $isFirstEvent = true;
-
-    public static
-
-    $errorTypes = array(
-        E_DEPRECATED => 'E_DEPRECATED',
-        E_USER_DEPRECATED => 'E_USER_DEPRECATED',
-        E_RECOVERABLE_ERROR => 'E_RECOVERABLE_ERROR',
-        E_ERROR => 'E_ERROR',
-        E_WARNING => 'E_WARNING',
-        E_PARSE => 'E_PARSE',
-        E_NOTICE => 'E_NOTICE',
-        E_CORE_ERROR => 'E_CORE_ERROR',
-        E_CORE_WARNING => 'E_CORE_WARNING',
-        E_COMPILE_ERROR => 'E_COMPILE_ERROR',
-        E_COMPILE_WARNING => 'E_COMPILE_WARNING',
-        E_USER_ERROR => 'E_USER_ERROR',
-        E_USER_WARNING => 'E_USER_WARNING',
-        E_USER_NOTICE => 'E_USER_NOTICE',
-        E_STRICT => 'E_STRICT',
-    );
 
 
     function __construct($log_stream, $start_time = 0)
@@ -99,100 +79,54 @@ class Logger
     {
         $e = array(
             'mesg' => $e['message'],
-            'type' => self::$errorTypes[$e['type']] . ' ' . $e['file'] . ':' . $e['line'],
+            'type' => ExceptionCaster::$errorTypes[$e['type']] . ' ' . $e['file'] . ':' . $e['line'],
         ) + $e;
 
         unset($e['message'], $e['file'], $e['line']);
         if (0 > $trace_offset) unset($e['trace']);
-        else if (!empty($e['trace'])) $this->filterTrace($e['trace'], $trace_offset, $trace_args);
+        else if (!empty($e['trace'])) ExceptionCaster::filterTrace($e['trace'], $trace_offset, $trace_args);
 
         $this->log('php-error', $e, $log_time);
     }
 
-    function castException($e)
+    function castException(\Exception $e, array $a)
     {
-        $a = (array) $e;
+        $trace = $e->getTrace();
 
-        $trace = $a["\0Exception\0trace"];
-        unset($a["\0Exception\0trace"]); // Ensures the trace is always last
-
-        if (isset($trace[0]))
+        if (isset($trace[0][$this->uniqId]))
         {
-            if (isset($trace[0][$this->uniqId]))
-            {
-                $a["\0Exception\0trace"] = array('seeHash' => spl_object_hash($e));
-            }
-            else
-            {
-                static $traceProp;
-
-                if (! isset($traceProp))
-                {
-                    $traceProp = new \ReflectionProperty('Exception', 'trace');
-                    $traceProp->setAccessible(true);
-                }
-
-                $trace[0][$this->uniqId] = 1;
-                $traceProp->setValue($e, $trace);
-
-                $this->filterTrace($trace, $e instanceof InDepthRecoverableErrorException ? $e->traceOffset : 0, 1);
-
-                if (isset($trace)) $a["\0Exception\0trace"] = $trace;
-
-                $a[self::META_PREFIX . 'hash'] = spl_object_hash($e);
-            }
+            $a["\0Exception\0trace"] = array();
+            $a = ExceptionCaster::castException($e, $a);
+            $a["\0Exception\0trace"] = array('seeHash' => spl_object_hash($e));
         }
-
-        if ($e instanceof InDepthRecoverableErrorException)
+        else if (isset($trace[0]))
         {
-            unset($a['traceOffset']);
+            static $traceProp;
 
-            if (null === $a['context']) unset($a['context']);
-            else if (isset($a["\0Exception\0trace"]['seeHash']))
+            if (! isset($traceProp))
             {
-                $a['context'] = $a["\0Exception\0trace"];
+                $traceProp = new \ReflectionProperty('Exception', 'trace');
+                $traceProp->setAccessible(true);
             }
-        }
 
-        if (empty($a["\0Exception\0previous"])) unset($a["\0Exception\0previous"]);
-        if ($e instanceof \ErrorException && isset(self::$errorTypes[$a["\0*\0severity"]])) $a["\0*\0severity"] = self::$errorTypes[$a["\0*\0severity"]];
-        unset($a["\0Exception\0string"], $a['xdebug_message'], $a['__destructorException']);
+            $trace[0][$this->uniqId] = 1;
+            $traceProp->setValue($e, $trace);
+
+            $a = ExceptionCaster::castException($e, $a);
+            $a["\0~\0hash"] = spl_object_hash($e);
+        }
 
         return $a;
-    }
-
-    function filterTrace(&$trace, $offset, $args)
-    {
-        if (0 > $offset || empty($trace[$offset])) return $trace = null;
-
-        $t = $trace[$offset];
-
-        if (empty($t['class']) && isset($t['function']))
-            if ('user_error' === $t['function'] || 'trigger_error' === $t['function'])
-                ++$offset;
-
-        $offset && array_splice($trace, 0, $offset);
-
-        foreach ($trace as &$t)
-        {
-            $offset = (isset($t['class']) ? $t['class'] . $t['type'] : '')
-                . $t['function'] . '()'
-                . (isset($t['line']) ? " {$t['file']}:{$t['line']}" : '');
-
-            if (! isset($t['args']) || ! $args) $t = array();
-            else $t = array('args' => $t['args']);
-
-            $t = array('call' => $offset) + $t;
-        }
     }
 
     function writeEvent($type, $data)
     {
         fprintf($this->logStream, $this->lineFormat . PHP_EOL, "*** {$type} ***");
 
-        $d = new JsonDumper;
-        $d->setCallback('line', array($this, 'writeLine'));
-        $d->setCallback('o:exception', array($this, 'castException'));
+        $d = JsonDumper::$defaultCasters;
+        $d['o:Exception'] = array($this, 'castException');
+        $d = new JsonDumper($d);
+        $d->setLineDumper(array($this, 'writeLine'));
         $d->walk($data);
 
         fprintf($this->logStream, $this->lineFormat . PHP_EOL, '***');
