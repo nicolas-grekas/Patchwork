@@ -31,18 +31,21 @@ isset($_SERVER['REQUEST_TIME_FLOAT']) or $_SERVER['REQUEST_TIME_FLOAT'] = microt
  * By using it instead of a straight require, you are sure that any otherwise
  * @-silenced fatal error will be reported to you.
  */
-function patchwork_require()
+function patchwork_require($file)
 {
-    try
-    {
-        Patchwork\PHP\InDepthErrorHandler::stackErrors();
-        return Patchwork\PHP\InDepthErrorHandler::unstackErrors(require func_get_arg(0));
-    }
-    catch (Exception $x)
-    {
-        Patchwork\PHP\InDepthErrorHandler::unstackErrors();
-        throw $x;
-    }
+    Patchwork\PHP\InDepthErrorHandler::stackErrors();
+    try {$file = patchwork_do_require($file);}
+    catch (Exception $x) {}
+    Patchwork\PHP\InDepthErrorHandler::unstackErrors();
+
+    if (isset($x)) throw $x;
+
+    return $file;
+}
+
+function patchwork_do_require()
+{
+    return require func_get_arg(0);
 }
 
 /**

@@ -157,17 +157,17 @@ class InDepthErrorHandler extends ThrowingErrorHandler
     /**
      * Unstacks stacked errors and forwards them for logging.
      */
-    static function unstackErrors($ret = null)
+    static function unstackErrors()
     {
         $e = array_pop(self::$stackedErrorLevels);
         if (isset($e)) error_reporting($e);
-        if (!empty(self::$stackedErrorLevels)) return $ret;
-        if (empty(self::$stackedErrors)) return $ret;
-        $e = self::$stackedErrors;
-        self::$stackedErrors = array();
-        $l = self::$handler->getLogger();
-        foreach ($e as $e) $l->logError($e[0], $e[1], $e[2], $e[3]);
-        return $ret;
+        if (empty(self::$stackedErrorLevels) && ! empty(self::$stackedErrors))
+        {
+            $e = self::$stackedErrors;
+            self::$stackedErrors = array();
+            $l = self::$handler->getLogger();
+            foreach ($e as $e) $l->logError($e[0], $e[1], $e[2], $e[3]);
+        }
     }
 
     /**
