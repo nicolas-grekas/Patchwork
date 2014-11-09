@@ -1,6 +1,6 @@
 <?php // vi: set fenc=utf-8 ts=4 sw=4 et:
 /*
- * Copyright (C) 2012 Nicolas Grekas - p@tchwork.com
+ * Copyright (C) 2014 Nicolas Grekas - p@tchwork.com
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the (at your option):
@@ -11,18 +11,18 @@
 namespace Patchwork\PHP;
 
 /**
- * CliColorDumper dumps variable for command line output.
+ * CliDumper dumps variable for command line output.
  */
-class CliColorDumper extends Dumper
+class CliDumper extends Dumper
 {
     public
 
-    $maxStringWidth = 80;
+    $colors = true,
+    $maxString = 100000,
+    $maxStringWidth = 120;
 
     protected
 
-    $line = '',
-    $lastHash = 0,
     $styles = array(
         // See http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
         'num'       => '1;38;5;33',
@@ -37,27 +37,6 @@ class CliColorDumper extends Dumper
         'meta'      => '38;5;27',
     );
 
-    static function dump(&$a)
-    {
-        $d = new self;
-        $d->setCallback('line', array(__CLASS__, 'echoLine'));
-        $d->walk($a);
-    }
-
-
-    function walk(&$a)
-    {
-        $this->line = '';
-        $this->lastHash = 0;
-        parent::walk($a);
-        '' !== $this->line && $this->dumpLine(0);
-    }
-
-    protected function dumpLine($depth_offset)
-    {
-        call_user_func($this->callbacks['line'], $this->line, $this->depth + $depth_offset);
-        $this->line = '';
-    }
 
     protected function dumpRef($is_soft, $ref_counter = null, &$ref_value = null, $ref_type = null)
     {
@@ -142,7 +121,7 @@ class CliColorDumper extends Dumper
             $this->dumpLine(-$is_key);
             $is_key = ': ';
 
-            $a = explode(':', $a);
+            $a = explode(':', $a, 2);
 
             if (isset($a[1]))
             {
@@ -167,7 +146,7 @@ class CliColorDumper extends Dumper
         }
         else $is_key = '';
 
-        if ('' === $a) return $this->line .= '"' . $is_key;
+        if ('' === $a) return $this->line .= "''" . $is_key;
 
         isset($style) or $style = 'str';
 
@@ -176,9 +155,16 @@ class CliColorDumper extends Dumper
             $a = utf8_encode($a);
         }
 
+        if (0 < $this->maxString && $this->maxString < $len = iconv_strlen($a, 'UTF-8'))
+        {
+            $a = iconv_substr($a, 0, $this->maxString - 1, 'UTF-8');
+            $cutBy = $len - $this->maxString + 1;
+        }
+        else $cutBy = 0;
+
         $a = explode("\n", $a);
         $x = isset($a[1]);
-        $i = 0;
+        $i = $len = 0;
 
         foreach ($a as $a)
         {
@@ -188,12 +174,13 @@ class CliColorDumper extends Dumper
                 $is_key or $this->line .= '  ';
             }
 
-            $len = iconv_strlen($a);
+            $len = iconv_strlen($a, 'UTF-8');
 
             if (0 < $this->maxStringWidth && $this->maxStringWidth < $len)
             {
                 $a = iconv_substr($a, 0, $this->maxStringWidth - 1, 'UTF-8');
                 $a = $this->style($style, $a) . '…';
+                $cutBy += $len - $this->maxStringWidth + 1;
             }
             else
             {
@@ -214,6 +201,16 @@ class CliColorDumper extends Dumper
             else $this->line .= $a;
         }
 
+        if ($cutBy)
+        {
+            if (0 >= $this->maxStringWidth || $this->maxStringWidth >= $len)
+            {
+                $this->line .= '…';
+            }
+
+            $this->dumpScalar($cutBy);
+        }
+
         $this->line .= $is_key;
     }
 
@@ -222,9 +219,6 @@ class CliColorDumper extends Dumper
         if ('array:0' === $type) $this->line .= '[]';
         else
         {
-            $h = $this->lastHash;
-            $this->lastHash = $this->counter;
-
             $is_array = 0 === strncmp($type, 'array:', 6);
 
             if ($is_array)
@@ -240,11 +234,10 @@ class CliColorDumper extends Dumper
 
             $this->line .= ' ' . $this->style('ref', "#$this->counter");
 
+            $startCounter = $this->counter;
             $refs = parent::walkHash($type, $a, $len);
+            if ($this->counter !== $startCounter) $this->dumpLine(1);
 
-            if ($this->counter !== $this->lastHash) $this->dumpLine(1);
-
-            $this->lastHash = $h;
             $this->line .= $is_array ? ']' : '}';
 
             if ($refs)
@@ -297,6 +290,8 @@ class CliColorDumper extends Dumper
 
     protected function style($style, $a)
     {
+        if (! $this->colors) return $a;
+
         switch ($style)
         {
         case 'str':
@@ -322,11 +317,5 @@ class CliColorDumper extends Dumper
         }
 
         return sprintf("\e[%sm%s\e[m", $this->styles[$style], $a);
-    }
-
-
-    protected static function echoLine($line, $depth)
-    {
-        echo str_repeat('  ', $depth), $line, "\n";
     }
 }
