@@ -54,7 +54,8 @@ class Bootup
             if ('utf-8' !== strtolower(mb_internal_encoding()))
             {
                 mb_internal_encoding('UTF-8');
-                ini_set('mbstring.internal_encoding', 'UTF-8');
+                if (PHP_VERSION_ID < 50600)
+                    ini_set('mbstring.internal_encoding', 'UTF-8');
             }
 
             if ('none' !== strtolower(mb_substitute_character()))
@@ -66,7 +67,8 @@ class Bootup
             if (!in_array(strtolower(mb_http_output()), array('pass', '8bit')))
             {
                 mb_http_output('pass');
-                ini_set('mbstring.http_output', 'pass');
+                if (PHP_VERSION_ID < 50600)
+                    ini_set('mbstring.http_output', 'pass');
             }
 
             if (!in_array(strtolower(mb_language()), array('uni', 'neutral')))
@@ -96,7 +98,8 @@ class Bootup
             if ('UTF-8' !== iconv_get_encoding('internal_encoding'))
             {
                 iconv_set_encoding('internal_encoding', 'UTF-8');
-                ini_set('iconv.internal_encoding', 'UTF-8');
+                if (PHP_VERSION_ID < 50600)
+                    ini_set('iconv.internal_encoding', 'UTF-8');
             }
 
             if ('UTF-8' !== iconv_get_encoding('output_encoding'))

@@ -19,7 +19,7 @@ class Php540
         return array_combine($k, $v);
     }
 
-    function hex2bin($data)
+    static function hex2bin($data)
     {
         $len = strlen($data);
 
@@ -78,5 +78,10 @@ class Php540
     static function get_declared_traits()
     {
         return array();
+    }
+
+    static function zlib_decode($data, $max_decoded_len = null)
+    {
+        return file_get_contents('compress.zlib://data:application/octet-stream;base64,'.base64_encode($data));
     }
 }

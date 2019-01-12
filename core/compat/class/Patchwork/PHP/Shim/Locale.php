@@ -12,6 +12,8 @@ namespace Patchwork\PHP\Shim;
 
 class Locale
 {
+    // todo: http://git.php.net/?p=php-src.git;a=commitdiff;h=3f7f72adb25786f51e7907e0d37f2e25bd5cf3dd
+
     static function basename($path, $suffix = '')
     {
         $path = rtrim($path, /*<*/'/' . ('\\' === DIRECTORY_SEPARATOR ? '\\' : '')/*>*/);

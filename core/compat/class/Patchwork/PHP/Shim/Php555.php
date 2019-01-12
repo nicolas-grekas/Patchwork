@@ -12,7 +12,7 @@ namespace Patchwork\PHP\Shim;
 
 class Php555
 {
-    function opcache_compile_file($file)
+    static function opcache_compile_file($file)
     {
         return false;
     }

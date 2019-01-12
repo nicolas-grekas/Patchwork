@@ -48,7 +48,7 @@ function patchwork_http_socket($host, $port, $ssl, $timeout = 30, $hostname = nu
     }
 
     if (/*<*/PHP_VERSION_ID < 50302/*>*/ || 'ssl' !== $ssl || empty($hostname)) $h = array();
-    else $h = array('ssl' => array('SNI_server_name' => $hostname));
+    else $h = array('ssl' => array('SNI_server_name' => $hostname, 'verify_peer' => false, 'verify_peer_name' => false));
 
     $h = stream_context_create($h);
     $h = stream_socket_client("{$ssl}://{$host}:{$port}", $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT, $h);

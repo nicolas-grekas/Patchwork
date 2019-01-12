@@ -45,6 +45,7 @@ class FunctionShim extends Parser
         // No callback parameter involved or complex behaviour
         '__autoload'        => 0,
         'class_exists'      => 0,
+        'trait_exists'      => 0,
         'class_parents'     => 0,
         'class_implements'  => 0,
         'constant'          => 0,
@@ -53,6 +54,8 @@ class FunctionShim extends Parser
         'get_class_vars'    => 0,
         'get_parent_class'  => 0,
         'interface_exists'  => 0,
+        'is_a'              => 0,
+        'is_subclass_of'    => 0,
         'method_exists'     => 0,
         'preg_replace'      => 0,
         'property_exists'   => 0,

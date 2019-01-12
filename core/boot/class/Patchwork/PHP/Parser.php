@@ -12,6 +12,7 @@ namespace Patchwork\PHP;
 
 define('T_SEMANTIC', 1); // Primary type for semantic tokens
 define('T_NON_SEMANTIC', 2); // Primary type for non-semantic tokens (whitespace and comment)
+defined('T_BAD_CHARACTER') || Parser::createToken('T_BAD_CHARACTER');
 
 Parser::createToken(
     'T_CURLY_CLOSE', // Closing braces opened with T_CURLY_OPEN or T_DOLLAR_OPEN_CURLY_BRACES
@@ -429,7 +430,7 @@ class Parser
 
                         if ($k < 0)
                         {
-                            $n = $c[0]->$c[1]($t);
+                            $n = $c[0]->{$c[1]}($t);
 
                             // Non-tilde-prefixed callbacks can return:
                             // - false, which cancels the current token
@@ -440,7 +441,7 @@ class Parser
                             if (false === $n) continue 3;
                             if ($n && empty($t[2][$n])) continue 2;
                         }
-                        else if (null !== $c[0]->$c[1]($t))
+                        else if (null !== $c[0]->{$c[1]}($t))
                         {
                             user_error("No return value is expected for tilde-registered callback: " . get_class($c[0]) . '->' . $c[1] . '()', E_USER_NOTICE);
                         }

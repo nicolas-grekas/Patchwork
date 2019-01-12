@@ -53,7 +53,8 @@ class Manager
             throw $this->error('spl_autoload_register() functionality is required');
         case function_exists('mb_internal_encoding'):
             mb_internal_encoding('8bit'); // if mbstring overloading is enabled
-            ini_set('mbstring.internal_encoding', '8bit');
+            if (PHP_VERSION_ID < 50600)
+                ini_set('mbstring.internal_encoding', '8bit');
         }
 
         if ($this->getLock(true))

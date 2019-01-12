@@ -210,6 +210,10 @@ abstract class Walker
 
     protected function gettype(&$a)
     {
+        if (\PHP_VERSION_ID >= 70000) {
+            return \gettype($a);
+        }
+
         $this->lastErrorMessage = true;
         $this->expectArray($a);
         $msg = $this->lastErrorMessage;
