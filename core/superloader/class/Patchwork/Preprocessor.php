@@ -89,7 +89,7 @@ class Preprocessor
 
         $tmpPool = array();
 
-        while (list($source, list($destination, $level, $class, $is_top)) = each($pool))
+        foreach ($pool as $source => list($destination, $level, $class, $is_top))
         {
             $preproc = new self;
 

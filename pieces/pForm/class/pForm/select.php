@@ -143,7 +143,7 @@ class pForm_select extends pForm_hidden
             }
             else $v =& $this->value;
 
-            $a->_option = new loop_pForm_selectOption__($this->item, $v, $this->length);
+            $a->_option = new loop_pForm_selectOption($this->item, $v, $this->length);
         }
 
         unset($a->value);
@@ -152,7 +152,7 @@ class pForm_select extends pForm_hidden
     }
 }
 
-class loop_pForm_selectOption__ extends loop
+class loop_pForm_selectOption extends loop
 {
     protected $item;
     protected $value;
@@ -188,7 +188,7 @@ class loop_pForm_selectOption__ extends loop
     {
         if (is_array($this->group))
         {
-            if (!(list($key, $caption) = each($this->group)))
+            if (!(list($key, $caption) = @each($this->group)))
             {
                 $this->group = false;
                 return (object) array('_groupOff' => 1);
@@ -196,7 +196,7 @@ class loop_pForm_selectOption__ extends loop
         }
         else
         {
-            if (!(list($key, $caption) = each($this->item))) return false;
+            if (!(list($key, $caption) = @each($this->item))) return false;
 
             if (is_array($caption))
             {

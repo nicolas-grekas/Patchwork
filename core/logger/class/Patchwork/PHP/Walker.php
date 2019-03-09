@@ -79,7 +79,7 @@ abstract class Walker
     {
         ++$this->counter;
 
-        if ('array' === $t = $this->gettype($a))
+        if ('array' === $t = gettype($a))
         {
             return $this->walkArray($a);
         }
@@ -127,7 +127,7 @@ abstract class Walker
                 }
 
                 $c = $a['ref_counter'];
-                $t = $this->gettype($this->valPool[$c]);
+                $t = gettype($this->valPool[$c]);
                 $a =& $this->valPool[$c];
             }
 
@@ -189,7 +189,7 @@ abstract class Walker
 
         foreach ($this->refPool as $k => &$v)
         {
-            if ('array' === $this->gettype($v) && isset($v[0], $v[self::$token]))
+            if ('array' === gettype($v) && isset($v[0], $v[self::$token]))
             {
                 unset($v['ref_counter']);
                 array_splice($v, 0, 1);
@@ -206,25 +206,6 @@ abstract class Walker
         return $refs;
     }
 
-    // References friendly variants of native functions
-
-    protected function gettype(&$a)
-    {
-        if (\PHP_VERSION_ID >= 70000) {
-            return \gettype($a);
-        }
-
-        $this->lastErrorMessage = true;
-        $this->expectArray($a);
-        $msg = $this->lastErrorMessage;
-        $this->lastErrorMessage = false;
-
-        if (true === $msg) return 'array';
-
-        $i = strpos($msg, 'array, ') + 7;
-        return substr($msg, $i, strpos($msg, ' given', $i) - $i);
-    }
-
     protected function count(&$a)
     {
         $len = 0;
@@ -236,12 +217,12 @@ abstract class Walker
     {
     }
 
-    function handleError($type, $msg, $file, $line, &$context)
+    function handleError($type, $msg, $file, $line, $context)
     {
         if (true !== $this->lastErrorMessage)
         {
             if (null === $this->prevErrorHandler) return false;
-            else return call_user_func_array($this->prevErrorHandler, array($type, $msg, $file, $line, &$context));
+            else return call_user_func_array($this->prevErrorHandler, array($type, $msg, $file, $line, $context));
         }
 
         $this->lastErrorMessage = $msg;

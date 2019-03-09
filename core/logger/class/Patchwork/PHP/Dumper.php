@@ -246,7 +246,7 @@ abstract class Dumper extends Walker
 
             foreach ($a as &$k)
             {
-                switch ($this->gettype($k))
+                switch (gettype($k))
                 {
                 case 'object':
                     if (! $len)

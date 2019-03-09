@@ -11,7 +11,7 @@
 
 class loop_altLang extends loop
 {
-    protected $lang, $alt;
+    protected $lang, $generator, $alt, $count;
 
     protected static $nativeLang = array(
         'fr' => 'Français',
@@ -55,17 +55,32 @@ class loop_altLang extends loop
                 }
                 else user_error('Something is wrong between Patchwork::__URI__() and PATCHWORK_BASE');
 
-                $this->alt =& $a;
+                $this->count = count($a);
+
+                $this->generator = function () use ($a) {
+                    yield;
+                    foreach ($a as $v) {
+                        yield $v;
+                    }
+                };
+                $this->alt = ($this->generator)();
             }
 
-            return count($this->alt);
+            return $this->count;
         }
         else return 0;
     }
 
     protected function next()
     {
-        if (list(, $a) = each($this->alt)) return $a;
-        else reset($this->alt);
+        $this->alt->next();
+
+        if (!$this->alt->valid()) {
+            $this->alt = ($this->generator)();
+
+            return;
+        }
+
+        return $this->alt->current();
     }
 }

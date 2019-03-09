@@ -488,8 +488,14 @@ abstract class ptlCompiler
                     set_error_handler('var_dump', 0);
                     $len = error_reporting(81);
 
-                    if (false === eval("($testCode);") && $i = error_get_last())
-                        user_error("PTL parse error: {$i['message']} on line " . $this->getLine());
+                    try {
+                        if (false === eval("($testCode);") && $i = error_get_last())
+                            user_error("PTL parse error: {$i['message']} on line " . $this->getLine());
+                    } catch (DivisionByZeroError $e) {
+                        // ignore
+                    } catch (Error $e) {
+                        user_error("PTL error: {$e->getMessage()} on line " . $this->getLine());
+                    }
 
                     error_reporting($len);
                     restore_error_handler();

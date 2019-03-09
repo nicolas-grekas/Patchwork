@@ -268,7 +268,7 @@ class ptlCompiler_js extends ptlCompiler
 
     protected function getEcho($str)
     {
-        if ("'" === $str[0] || (string) $str === (string) ($str-0))
+        if ("'" === $str[0] || (string) $str === (string) @($str-0))
         {
             if ("''" !== $str) array_push($this->jscode, self::OP_ECHO, $str);
         }
@@ -300,7 +300,7 @@ class ptlCompiler_js extends ptlCompiler
 
     protected function getVar($name, $type, $prefix, $forceType)
     {
-        if ((string) $name === (string) ($name-0)) return $name;
+        if ((string) $name === (string) @($name-0)) return $name;
 
         switch ($type)
         {
@@ -329,7 +329,7 @@ class ptlCompiler_js extends ptlCompiler
 
         switch ($forceType)
         {
-        case 'number' : $result = "'" === $result[0] ? ($result-0) : "num($result)"  ; break;
+        case 'number' : $result = "'" === $result[0] ? @($result-0) : "num($result)"  ; break;
         case 'unified': $result = "'" === $result[0] ?  $result    : "num($result,1)"; break;
         default: if ('concat' === $this->mode && "'" !== $result[0]) $result = "str($result)";
         }

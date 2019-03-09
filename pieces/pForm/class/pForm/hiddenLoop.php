@@ -8,36 +8,24 @@
  * GNU General Public License v2.0 (http://gnu.org/licenses/gpl-2.0.txt).
  */
 
-
-class loop_array extends loop
+class pForm_hiddenLoop extends loop
 {
-    protected
+    protected $generator, $array, $count;
 
-    $generator,
-    $array,
-    $count,
-    $isAssociative = true;
-
-
-    function __construct($array, $filter = '', $isAssociative = null)
+    function __construct(&$array)
     {
         $this->count = count($array);
-        reset($array);
-        if ($filter) $this->addFilter($filter);
-        $this->isAssociative = $isAssociative!==null ? $isAssociative : $filter!==false;
-
         $this->generator = function () use ($array) {
             yield;
 
-            foreach ($array as $k => $v) {
-                yield $k => $v;
+            foreach ($array as $v) {
+                yield $v;
             }
         };
         $this->array = ($this->generator)();
     }
 
     protected function prepare() {return $this->count;}
-
     protected function next()
     {
         $this->array->next();
@@ -45,20 +33,13 @@ class loop_array extends loop
         if (!$this->array->valid()) {
             $this->array = ($this->generator)();
 
-            return;
+            return false;
         }
 
-        $key = $this->array->key();
         $value = $this->array->current();
+        $result = $value->loop();
+        $value->loop();
 
-        $data = array('VALUE' => &$value);
-        if ($this->isAssociative) $data['KEY'] =& $key;
-
-        return (object) $data;
+        return $result;
     }
-}
-
-function filter_rawArray($data)
-{
-    return $data->VALUE;
 }

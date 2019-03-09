@@ -42,7 +42,7 @@ class ThrowingErrorHandler
      * triggers an E_RECOVERABLE_ERROR that is caught by ->handleError()
      * who rethrows the $e Exception.
      */
-    static function handleToStringException(\Exception $e)
+    static function handleToStringException($e)
     {
         self::$caughtToStringException = $e;
         return null;
@@ -60,7 +60,7 @@ class ThrowingErrorHandler
     /**
      * Turns errors to ErrorExceptions.
      */
-    function handleError($type, $message, $file, $line, &$context)
+    function handleError($type, $message, $file, $line, $context)
     {
         if (isset(self::$caughtToStringException))
         {

@@ -62,14 +62,14 @@ class agent_QEngine extends agent
         while ($KLen)
         {
             reset($kw);
-            list($K0, $I0) = each($kw);
+            list($K0, $I0) = @each($kw);
             $K0Len = strlen($K0);
 
             if ($result !== '') $result .= ',';
 
             if ($KLen == 1) return $result . $this->S($K0, $I0);
 
-            list($K1, $I1) = each($kw);
+            list($K1, $I1) = @each($kw);
 
             if ($KLen == 2)
             {
@@ -86,7 +86,7 @@ class agent_QEngine extends agent
                 return $result;
             }
 
-            list($K2, $I2) = each($kw);
+            list($K2, $I2) = @each($kw);
 
             if (@($K0[0] != $K1[0] || $K0[1] != $K1[1] && $K2[0] != $K0[0]))
             {
@@ -120,7 +120,7 @@ class agent_QEngine extends agent
                 $count = 0;
 
                 reset($kw);
-                while ((list($K0) = each($kw)) && strpos($K0, $K1) === 0) ++$count;
+                while ((list($K0) = @each($kw)) && strpos($K0, $K1) === 0) ++$count;
 
                 $save = ($count-1)*$K0Len - 2;
 

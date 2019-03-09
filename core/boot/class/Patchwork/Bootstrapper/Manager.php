@@ -277,7 +277,6 @@ class Manager
     {
         function_exists('__autoload') && $this->substeps[] = array("spl_autoload_register('__autoload');", __FILE__);
 
-        $this->substeps[] = array($this->shim('__autoload', 'spl_autoload_call', array('$class')), __FILE__);
         $this->substeps[] = array('function patchwork_include() {return include func_get_arg(0);}', __FILE__);
     }
 

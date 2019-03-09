@@ -76,8 +76,10 @@ class Serverside extends p
 
                 if (is_array($a))
                 {
-                    reset($a);
-                    while (list($k, $v) = each($a)) $args[$k] = is_string($v) ? htmlspecialchars($v) : $v;
+                    foreach ($a as $k => $v)
+                    {
+                        $args[$k] = is_string($v) ? htmlspecialchars($v) : $v;
+                    }
                 }
 
                 self::$get = (object) $args;

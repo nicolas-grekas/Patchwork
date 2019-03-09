@@ -173,7 +173,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
     /**
      * Static version of ->handleException().
      */
-    static function handleCaughtException($type, $message, $file, $line, &$context, $log_time = 0)
+    static function handleCaughtException($type, $message, $file, $line, $context, $log_time = 0)
     {
         return self::$handler->handleException($type, $message, $file, $line, $context, $log_time);
     }
@@ -198,7 +198,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
      * @param int   $trace_offset The number of noisy items to skip from the current trace or -1 to disable any trace logging.
      * @param float $log_time     The microtime(true) when the event has been triggered.
      */
-    function handleError($type, $message, $file, $line, &$context, $trace_offset = 0, $log_time = 0)
+    function handleError($type, $message, $file, $line, $context, $trace_offset = 0, $log_time = 0)
     {
         if (isset(self::$caughtToStringException))
         {
@@ -274,7 +274,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
      * @param \Exception $e        The exception to log.
      * @param float      $log_time The microtime(true) when the event has been triggered.
      */
-    function handleUncaughtException(\Exception $e, $log_time = 0)
+    function handleUncaughtException($e, $log_time = 0)
     {
         $context = compact('e');
         $s = $this->scopedErrors;
@@ -288,7 +288,7 @@ class InDepthErrorHandler extends ThrowingErrorHandler
      *
      * @param string $message Message must match the format 'Caught \Exception $e'
      */
-    function handleException($type, $message, $file, $line, &$context, $log_time = 0)
+    function handleException($type, $message, $file, $line, $context, $log_time = 0)
     {
         $log = $this->loggedErrors & $type & error_reporting();
 

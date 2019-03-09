@@ -102,7 +102,7 @@ class JsonDumpIterator implements \Iterator
                 }
                 else
                 {
-                    user_error('Invalid JsonDump stream', E_USER_WARNING);
+                    user_error('Invalid JsonDump stream: '.$line, E_USER_WARNING);
                 }
             }
         }
@@ -167,16 +167,12 @@ class JsonDumpIterator implements \Iterator
             {
                 $line = array('    "trace": {');
             }
-            else
+            elseif (preg_match("' +(\d+)\. (.+?)\((.*)\) (.*)$'", $line, $m))
             {
-                // TODO: more extensive parsing of dumped arguments using token_get_all() / client-side parsing?
-
-                preg_match("' +(\d+)\. (.+?)\((.*)\) (.*)$'", $line, $line);
-
                 $line = array(
-                    '      "' . $line[1] . '": {',
-                    '        "call": ' . $this->jsonStr("{$line[2]}() {$line[4]}") . ('' !== $line[3] ? ',' : ''),
-                    '' !== $line[3] ? '        "args": ' . $this->jsonStr($line[3]) : null,
+                    '      "' . $m[1] . '": {',
+                    '        "call": ' . $this->jsonStr("{$m[2]}() {$m[4]}") . ('' !== $m[3] ? ',' : ''),
+                    '' !== $m[3] ? '        "args": ' . $this->jsonStr($m[3]) : null,
                     '      }'
                 );
 
@@ -188,6 +184,8 @@ class JsonDumpIterator implements \Iterator
                 {
                     $line[count($line) - 1] .= ',';
                 }
+            } else {
+                $line = array($line);
             }
         }
 

@@ -21,7 +21,7 @@ function jsquote($a)
 /**/}
 
     if (is_object($a)) $a = $a->__toString();
-    if ((string) $a === (string) ($a-0)) return $a-0;
+    if (is_numeric($a) && (string) $a === (string) ($a-0)) return $a-0;
 
     $a = (string) $a;
 
@@ -1115,7 +1115,7 @@ class Patchwork
     {
         self::$ob_clean && $buffer = self::$ob_clean = '';
 
-        $one_chunk = $mode === (PHP_OUTPUT_HANDLER_START | PHP_OUTPUT_HANDLER_END);
+        $one_chunk = (PHP_OUTPUT_HANDLER_START & $mode) && (PHP_OUTPUT_HANDLER_END & $mode);
 
         static $type = false;
         false !== $type || $type = isset(self::$headers['content-type']) ? strtolower(substr(self::$headers['content-type'], 14)) : 'html';

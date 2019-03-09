@@ -189,7 +189,7 @@ class SESSION
             $i = $adapter->read();
             $j = max(self::$maxIdleTime, self::$maxLifeTime);
 
-            if ($j && $_SERVER['REQUEST_TIME'] - $i > $j)
+            if ($j && @($_SERVER['REQUEST_TIME'] - $i) > $j)
             {
                 $adapter->write($_SERVER['REQUEST_TIME']);
                 register_shutdown_function(array(__CLASS__, 'gc'), $j);

@@ -197,7 +197,7 @@ class pForm extends loop_agentWrapper
         $this->keys = '';
 
         $a = (object) array(
-            '_hidden' => new pForm_hiddenLoop__($this->hidden),
+            '_hidden' => new pForm_hiddenLoop($this->hidden),
             '_errormsg' => new loop_array($this->errormsg)
         );
 
@@ -211,27 +211,5 @@ class pForm extends loop_agentWrapper
         }
 
         return $a;
-    }
-}
-
-class pForm_hiddenLoop__ extends loop
-{
-    protected $array;
-
-    function __construct(&$array) {$this->array =& $array;}
-    protected function prepare() {return count($this->array);}
-    protected function next()
-    {
-        if (list(, $value) = each($this->array))
-        {
-            $result = $value->loop();
-            $value->loop();
-            return $result;
-        }
-        else
-        {
-            reset($this->array);
-            return false;
-        }
     }
 }

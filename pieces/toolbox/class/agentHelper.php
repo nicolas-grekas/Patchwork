@@ -54,6 +54,6 @@ class agentHelper_blockContainer__ extends loop
     protected function prepare() {return count($this->array);}
     protected function next()
     {
-        return (list(, $value) = each($this->array)) ? $value : (reset($this->array) && false);
+        return (list(, $value) = @each($this->array)) ? $value : (reset($this->array) && false);
     }
 }
